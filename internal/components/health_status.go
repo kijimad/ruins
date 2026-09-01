@@ -79,8 +79,7 @@ const (
 	ConditionLiverIllness ConditionType = "LiverIllness" // 肝疾患
 )
 
-// conditionMeta は状態種類ごとの静的な情報。表示と身体への反応率を1つの表に畳み、
-// 症状の全属性を横1行で見渡せるようにする。反応率は症状ごとに異なる
+// conditionMeta は状態種類ごとの静的な情報。表示と身体への反応率を1つの表に持つ
 type conditionMeta struct {
 	// displayName は表示名 msgid
 	displayName string
@@ -92,9 +91,7 @@ type conditionMeta struct {
 	capacityDropPerSeverity int
 }
 
-// conditionMetas は状態種類ごとの情報。状態を足すときはここへ1行足す。
-// 反応率は実プレイで調整する。骨折は激痛で機能を大きく損ない、切り傷は軽く、
-// 肝疾患は痛みが軽く全身性でHP消耗が主
+// conditionMetas は状態種類ごとの情報。状態を足すときはここへ1行足す。反応率は実プレイで調整する
 var conditionMetas = map[ConditionType]conditionMeta{
 	ConditionHypothermia: {
 		displayName:     "Hypothermia",
@@ -187,24 +184,20 @@ func bodyPartCapacity(part BodyPart) CapacityKind {
 	}
 }
 
-// HealthyCapacities は不調が無いときの身体機能を返す。全機能100で痛み0。
-// HealthStatus を持たない対象の既定として使う
+// HealthyCapacities は不調が無いときの身体機能を返す。HealthStatus を持たない対象の既定
 func HealthyCapacities() BodyCapacities {
 	return (&HealthStatus{}).Capacities()
 }
 
-// ConditionCapacityImpact は不調1件が身体機能へ与える影響を表示用に返す。
-// pain は加える痛み、capacity は下げる機能の区分、drop はその低下量。
-// capacity は部位で定まり重症度に依らない。drop が0なら影響なしで、健康タブの症状詳細は
-// drop>0 のときだけ「操作 -Y」を出す
+// ConditionCapacityImpact は不調1件が身体機能へ与える影響を返す。
+// capacity は部位で定まり重症度に依らない。drop が0なら影響なし
 func ConditionCapacityImpact(ct ConditionType, part BodyPart, sev Severity) (pain int, capacity CapacityKind, drop int) {
 	capacity = bodyPartCapacity(part)
 	pain, drop = conditionSeverityImpact(ct, sev)
 	return pain, capacity, drop
 }
 
-// conditionSeverityImpact は不調1件の痛みと機能低下を返す。症状ごとの反応率に重症度を掛ける。
-// 重症度なしや未登録の症状は0を返す。Capacities と ConditionCapacityImpact が共用する
+// conditionSeverityImpact は不調1件の痛みと機能低下を返す。症状ごとの反応率に重症度を掛ける
 func conditionSeverityImpact(ct ConditionType, sev Severity) (pain, drop int) {
 	m := conditionSeverityMultiplier(sev)
 	if m == 0 {

@@ -329,14 +329,13 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 		targetAgility = targetAbilsComp.Agility.Total
 	}
 
-	// 基礎命中は反射神経 DEX と対象の回避の対抗で決まる。武器習熟の適性能力値は
-	// WeaponAccuracy 側が畳むので、遠隔の SEN はそちらに任せ、ここでは二重計上しない
+	// 基礎命中は反射神経 DEX と対象の回避の対抗。武器習熟の能力値は WeaponAccuracy 側が畳むのでここには足さない
 	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
 	hitRate += getWeaponAccuracyFromAttack(attack)
 	hitRate = getSkillMult(attacker, attack, world, false).ApplyInt(hitRate)
 	hitRate += modifier
 
-	// 体調由来の命中低下を掛ける。近接は操作、遠隔は視覚。CharModifiers に集約し Effects タブと同じ値を経由する
+	// 体調由来の命中低下を掛ける
 	if world.Components.CharModifiers.Has(attacker) {
 		aim := world.Components.CharModifiers.Get(attacker).AccuracyCapacity(attack.GetAttackCategory())
 		hitRate = aim.ApplyInt(hitRate)

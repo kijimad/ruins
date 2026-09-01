@@ -207,8 +207,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	return items
 }
 
-// translatedConditionName は不調の種類名を訳して返す。重症度は健康タブでは進行度%で
-// 表すため名前には付けない。名前は種類だけで決まるので ConditionType を受け取る
+// translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない
 func translatedConditionName(world w.World, ct gc.ConditionType) string {
 	return query.T(world, gc.ConditionTypeDisplayName(ct))
 }

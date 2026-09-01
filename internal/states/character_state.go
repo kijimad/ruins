@@ -364,7 +364,6 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		return overlay.DetailContent{Name: item.Label}
 	}
 
-	// この症状が身体機能へ与える影響を、部位と重症度から導いて出す
 	pain, capacity, drop := gc.ConditionCapacityImpact(cond.Type, item.BodyPart, cond.Severity)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,

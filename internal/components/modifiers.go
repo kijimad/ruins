@@ -151,8 +151,7 @@ type CharModifiers struct {
 	SellPrice      consts.Percent                 // 売値倍率
 	HeavyArmor     consts.Percent                 // 重装備AGIペナルティ倍率
 
-	// Capacities は不調から導いた身体機能。戦闘の命中と移動速度がここを経由し、
-	// Effects タブの効率一覧が同じ値を表示する。適用値と表示値を1つに揃える
+	// Capacities は不調から導いた身体機能。命中と移動速度がここを経由する
 	Capacities BodyCapacities
 
 	// Sources は各効果の算出元を保持する。
@@ -161,8 +160,7 @@ type CharModifiers struct {
 	Sources map[ModifierKey][]ModifierSource `json:"-"`
 }
 
-// AccuracyCapacity は攻撃種の命中に効く身体機能の乗数を返す。近接は操作機能、遠隔は視覚機能。
-// 体調由来の命中低下を戦闘へ一点で渡す。値は Capacities の射影で、状態を二重に持たない
+// AccuracyCapacity は攻撃種の命中に効く身体機能の乗数を返す。近接は操作機能、遠隔は視覚機能
 func (e *CharModifiers) AccuracyCapacity(cat AttackType) consts.Percent {
 	if cat.Range == AttackRangeRanged {
 		return e.Capacities.Sight
@@ -231,8 +229,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)
 	e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)
 
-	// 不調による身体機能。命中と移動はこの Capacities を経由するので、低体温の移動
-	// ペナルティを MoveCost へ別途足さない。不調の影響は Capacities に一本化する
+	// 不調による身体機能。命中と移動はこの Capacities を経由する
 	e.Capacities = HealthyCapacities()
 	if hs != nil {
 		e.Capacities = hs.Capacities()

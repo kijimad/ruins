@@ -137,9 +137,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	return "", choices
 }
 
-// debugInflictConditions はデバッグでプレイヤーへ怪我と病気と低体温をまとめて付ける。
-// 付けたあとキャラクター情報画面で確認し、ターンを進めて回復軌道と HP まわりを観察する。
-// 骨折・切り傷・肝疾患は中度、低体温は重症にして、悪化と重症の HP ダメージも一度に見られるようにする
+// debugInflictConditions はデバッグでプレイヤーへ怪我と病気と低体温をまとめて付ける
 func debugInflictConditions(world w.World) error {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -157,8 +155,7 @@ func debugInflictConditions(world w.World) error {
 	set(gc.BodyPartTorso, gc.ConditionLiverIllness, 60)
 	set(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90)
 
-	// HealthStatus を書き換えたので CharModifiers の再計算を促す。ターンを経ないため
-	// 自分でマーカーを立てないと効果タブも戦闘も古い身体機能を使い続ける
+	// HealthStatus を書き換えたので CharModifiers の再計算を促す
 	if !world.Components.StatsChanged.Has(player) {
 		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
 	}
