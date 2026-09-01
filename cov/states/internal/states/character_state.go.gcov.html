@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">65.6&nbsp;%</td>
-            <td class="headerCovTableEntry">157</td>
-            <td class="headerCovTableEntry">103</td>
+            <td class="headerCovTableEntryLo">66.1&nbsp;%</td>
+            <td class="headerCovTableEntry">189</td>
+            <td class="headerCovTableEntry">125</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-01 00:44:02</td>
+            <td class="headerValue">2026-09-01 15:06:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -287,125 +287,163 @@
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 if infoIdx &lt; 0 || infoIdx &gt;= len(props.InfoTabs) {</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                         return overlay.DetailContent{}, false</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 items := props.InfoTabs[infoIdx].Items</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 if cursor.ItemIndex &gt;= len(items) {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 tab := props.InfoTabs[infoIdx]</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 if cursor.ItemIndex &gt;= len(tab.Items) {</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                         return overlay.DetailContent{}, false</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 return infoDetailContent(items[cursor.ItemIndex]), true</span></span>
-<span id="L233"><span class="lineNum">     233</span>              :         }</span>
-<span id="L234"><span class="lineNum">     234</span>              : }</span>
-<span id="L235"><span class="lineNum">     235</span>              : </span>
-<span id="L236"><span class="lineNum">     236</span>              : // ================</span>
-<span id="L237"><span class="lineNum">     237</span>              : // Props</span>
-<span id="L238"><span class="lineNum">     238</span>              : // ================</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 item := tab.Items[cursor.ItemIndex]</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 if tab.ID == tabHealth {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                         return healthDetailContent(world, item), true</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 return infoDetailContent(item), true</span></span>
+<span id="L237"><span class="lineNum">     237</span>              :         }</span>
+<span id="L238"><span class="lineNum">     238</span>              : }</span>
 <span id="L239"><span class="lineNum">     239</span>              : </span>
-<span id="L240"><span class="lineNum">     240</span>              : // CharacterProps は画面の表示 props。menuloop.Screen の型引数として渡す</span>
-<span id="L241"><span class="lineNum">     241</span>              : type CharacterProps struct {</span>
-<span id="L242"><span class="lineNum">     242</span>              :         TargetName string          // 表示対象のキャラクター名</span>
-<span id="L243"><span class="lineNum">     243</span>              :         EquipSlots []equipItemData //</span>
-<span id="L244"><span class="lineNum">     244</span>              :         InfoTabs   []statusTabData // 能力・スキル・効果・健康・基本の読み取り専用タブ</span>
-<span id="L245"><span class="lineNum">     245</span>              : }</span>
-<span id="L246"><span class="lineNum">     246</span>              : </span>
-<span id="L247"><span class="lineNum">     247</span>              : // equipItemData は装備スロット1つ分の表示データ</span>
-<span id="L248"><span class="lineNum">     248</span>              : type equipItemData struct {</span>
-<span id="L249"><span class="lineNum">     249</span>              :         SlotLabel  string</span>
-<span id="L250"><span class="lineNum">     250</span>              :         ItemName   string</span>
-<span id="L251"><span class="lineNum">     251</span>              :         SlotNumber gc.EquipmentSlotNumber</span>
-<span id="L252"><span class="lineNum">     252</span>              :         Entity     *ecs.Entity // 装備中エンティティ。空きなら nil</span>
-<span id="L253"><span class="lineNum">     253</span>              :         Character  ecs.Entity  // 装備スロットを持つキャラ本体</span>
-<span id="L254"><span class="lineNum">     254</span>              : }</span>
-<span id="L255"><span class="lineNum">     255</span>              : </span>
-<span id="L256"><span class="lineNum">     256</span>              : // characterEquipSlots は指定したキャラクターの全装備スロットを列挙する</span>
-<span id="L257"><span class="lineNum">     257</span>              : func characterEquipSlots(world w.World, character ecs.Entity) []equipItemData {</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC tlaBgGNC">           1 :         items := make([]equipItemData, 0, 12)</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         weapons := query.GetWeapons(world, character)</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         weaponSlots := []gc.EquipmentSlotNumber{gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5}</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         for i, weapon := range weapons {</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 if weapon != nil {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*weapon, world)</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: query.T(world, &quot;Weapon %d&quot;, i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Character: character})</span></span>
-<span id="L268"><span class="lineNum">     268</span>              :         }</span>
-<span id="L269"><span class="lineNum">     269</span>              : </span>
-<span id="L270"><span class="lineNum">     270</span>              :         // armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。</span>
-<span id="L271"><span class="lineNum">     271</span>              :         // GetArmorEquipments はスロット数ぶんの固定長スライスを返し、3者の長さは常に一致する</span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         armor := query.GetArmorEquipments(world, character)</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         armorLabels := []string{query.T(world, &quot;Armor (head)&quot;), query.T(world, &quot;Armor (torso)&quot;), query.T(world, &quot;Armor (arms)&quot;), query.T(world, &quot;Armor (hands)&quot;), query.T(world, &quot;Armor (legs)&quot;), query.T(world, &quot;Armor (feet)&quot;), query.T(world, &quot;Armor (jewelry)&quot;)}</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         armorSlots := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         for i, slot := range armor {</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 if slot != nil {</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*slot, world)</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Character: character})</span></span>
-<span id="L281"><span class="lineNum">     281</span>              :         }</span>
-<span id="L282"><span class="lineNum">     282</span>              : </span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         return items</span></span>
-<span id="L284"><span class="lineNum">     284</span>              : }</span>
-<span id="L285"><span class="lineNum">     285</span>              : </span>
-<span id="L286"><span class="lineNum">     286</span>              : // equipableForSlot は指定スロットに装備できるバックパック内アイテムを返す</span>
-<span id="L287"><span class="lineNum">     287</span>              : func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.Entity {</span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         items := []ecs.Entity{}</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         if gc.SlotWeapon1 &lt;= slotNumber &amp;&amp; slotNumber &lt;= gc.SlotWeapon5 {</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 for q.Next() {</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                         entity := q.Entity()</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                         if !query.IsWeapon(world, entity) {</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L295"><span class="lineNum">     295</span>              :                         }</span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                         items = append(items, entity)</span></span>
-<span id="L297"><span class="lineNum">     297</span>              :                 }</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                 return query.SortEntities(world, items)</span></span>
-<span id="L299"><span class="lineNum">     299</span>              :         }</span>
-<span id="L300"><span class="lineNum">     300</span>              : </span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         var target gc.EquipmentType</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :         switch slotNumber {</span></span>
-<span id="L303"><span class="lineNum">     303</span>              :         case gc.SlotHead:</span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 target = gc.EquipmentHead</span></span>
-<span id="L305"><span class="lineNum">     305</span>              :         case gc.SlotTorso:</span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC tlaBgUNC">           0 :                 target = gc.EquipmentTorso</span></span>
-<span id="L307"><span class="lineNum">     307</span>              :         case gc.SlotArms:</span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentArms</span></span>
-<span id="L309"><span class="lineNum">     309</span>              :         case gc.SlotHands:</span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentHands</span></span>
-<span id="L311"><span class="lineNum">     311</span>              :         case gc.SlotLegs:</span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentLegs</span></span>
-<span id="L313"><span class="lineNum">     313</span>              :         case gc.SlotFeet:</span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentFeet</span></span>
-<span id="L315"><span class="lineNum">     315</span>              :         case gc.SlotJewelry:</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentJewelry</span></span>
-<span id="L317"><span class="lineNum">     317</span>              :         default:</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 return query.SortEntities(world, items)</span></span>
-<span id="L319"><span class="lineNum">     319</span>              :         }</span>
-<span id="L320"><span class="lineNum">     320</span>              : </span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC tlaBgGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.Wearable](world.ECS).Query()</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 wearable := world.Components.Wearable.Get(entity)</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                 if wearable != nil &amp;&amp; wearable.EquipmentCategory == target {</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                         items = append(items, entity)</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L328"><span class="lineNum">     328</span>              :         }</span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         return query.SortEntities(world, items)</span></span>
-<span id="L330"><span class="lineNum">     330</span>              : }</span>
-<span id="L331"><span class="lineNum">     331</span>              : </span>
-<span id="L332"><span class="lineNum">     332</span>              : // infoDetailContent は情報タブの1行を詳細内容にする。見出しと説明、内訳の行を出す</span>
-<span id="L333"><span class="lineNum">     333</span>              : func infoDetailContent(item statusItemData) overlay.DetailContent {</span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC tlaBgUNC">           0 :         heading := item.Label</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         if item.Value != &quot;&quot; {</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 heading = fmt.Sprintf(&quot;%s  %s&quot;, item.Label, item.Value)</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         rows := []entityspec.SpecRow{}</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         for _, d := range item.Details {</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 if d.Value == &quot;&quot; {</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L342"><span class="lineNum">     342</span>              :                 }</span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value})</span></span>
-<span id="L344"><span class="lineNum">     344</span>              :         }</span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         return overlay.DetailContent{Name: heading, Desc: item.Description, Rows: rows}</span></span>
-<span id="L346"><span class="lineNum">     346</span>              : }</span>
+<span id="L240"><span class="lineNum">     240</span>              : // ================</span>
+<span id="L241"><span class="lineNum">     241</span>              : // Props</span>
+<span id="L242"><span class="lineNum">     242</span>              : // ================</span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span>              : // CharacterProps は画面の表示 props。menuloop.Screen の型引数として渡す</span>
+<span id="L245"><span class="lineNum">     245</span>              : type CharacterProps struct {</span>
+<span id="L246"><span class="lineNum">     246</span>              :         TargetName string          // 表示対象のキャラクター名</span>
+<span id="L247"><span class="lineNum">     247</span>              :         EquipSlots []equipItemData //</span>
+<span id="L248"><span class="lineNum">     248</span>              :         InfoTabs   []statusTabData // 能力・スキル・効果・健康・基本の読み取り専用タブ</span>
+<span id="L249"><span class="lineNum">     249</span>              : }</span>
+<span id="L250"><span class="lineNum">     250</span>              : </span>
+<span id="L251"><span class="lineNum">     251</span>              : // equipItemData は装備スロット1つ分の表示データ</span>
+<span id="L252"><span class="lineNum">     252</span>              : type equipItemData struct {</span>
+<span id="L253"><span class="lineNum">     253</span>              :         SlotLabel  string</span>
+<span id="L254"><span class="lineNum">     254</span>              :         ItemName   string</span>
+<span id="L255"><span class="lineNum">     255</span>              :         SlotNumber gc.EquipmentSlotNumber</span>
+<span id="L256"><span class="lineNum">     256</span>              :         Entity     *ecs.Entity // 装備中エンティティ。空きなら nil</span>
+<span id="L257"><span class="lineNum">     257</span>              :         Character  ecs.Entity  // 装備スロットを持つキャラ本体</span>
+<span id="L258"><span class="lineNum">     258</span>              : }</span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span>              : // characterEquipSlots は指定したキャラクターの全装備スロットを列挙する</span>
+<span id="L261"><span class="lineNum">     261</span>              : func characterEquipSlots(world w.World, character ecs.Entity) []equipItemData {</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC tlaBgGNC">           1 :         items := make([]equipItemData, 0, 12)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         weapons := query.GetWeapons(world, character)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         weaponSlots := []gc.EquipmentSlotNumber{gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5}</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         for i, weapon := range weapons {</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 if weapon != nil {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*weapon, world)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: query.T(world, &quot;Weapon %d&quot;, i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Character: character})</span></span>
+<span id="L272"><span class="lineNum">     272</span>              :         }</span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span>              :         // armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。</span>
+<span id="L275"><span class="lineNum">     275</span>              :         // GetArmorEquipments はスロット数ぶんの固定長スライスを返し、3者の長さは常に一致する</span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         armor := query.GetArmorEquipments(world, character)</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         armorLabels := []string{query.T(world, &quot;Armor (head)&quot;), query.T(world, &quot;Armor (torso)&quot;), query.T(world, &quot;Armor (arms)&quot;), query.T(world, &quot;Armor (hands)&quot;), query.T(world, &quot;Armor (legs)&quot;), query.T(world, &quot;Armor (feet)&quot;), query.T(world, &quot;Armor (jewelry)&quot;)}</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         armorSlots := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         for i, slot := range armor {</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                 if slot != nil {</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*slot, world)</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Character: character})</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :         }</span>
+<span id="L286"><span class="lineNum">     286</span>              : </span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         return items</span></span>
+<span id="L288"><span class="lineNum">     288</span>              : }</span>
+<span id="L289"><span class="lineNum">     289</span>              : </span>
+<span id="L290"><span class="lineNum">     290</span>              : // equipableForSlot は指定スロットに装備できるバックパック内アイテムを返す</span>
+<span id="L291"><span class="lineNum">     291</span>              : func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.Entity {</span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         items := []ecs.Entity{}</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         if gc.SlotWeapon1 &lt;= slotNumber &amp;&amp; slotNumber &lt;= gc.SlotWeapon5 {</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 for q.Next() {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                         entity := q.Entity()</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         if !query.IsWeapon(world, entity) {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L299"><span class="lineNum">     299</span>              :                         }</span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         items = append(items, entity)</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :                 }</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                 return query.SortEntities(world, items)</span></span>
+<span id="L303"><span class="lineNum">     303</span>              :         }</span>
+<span id="L304"><span class="lineNum">     304</span>              : </span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         var target gc.EquipmentType</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         switch slotNumber {</span></span>
+<span id="L307"><span class="lineNum">     307</span>              :         case gc.SlotHead:</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 target = gc.EquipmentHead</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :         case gc.SlotTorso:</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC tlaBgUNC">           0 :                 target = gc.EquipmentTorso</span></span>
+<span id="L311"><span class="lineNum">     311</span>              :         case gc.SlotArms:</span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentArms</span></span>
+<span id="L313"><span class="lineNum">     313</span>              :         case gc.SlotHands:</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentHands</span></span>
+<span id="L315"><span class="lineNum">     315</span>              :         case gc.SlotLegs:</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentLegs</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :         case gc.SlotFeet:</span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentFeet</span></span>
+<span id="L319"><span class="lineNum">     319</span>              :         case gc.SlotJewelry:</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 target = gc.EquipmentJewelry</span></span>
+<span id="L321"><span class="lineNum">     321</span>              :         default:</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 return query.SortEntities(world, items)</span></span>
+<span id="L323"><span class="lineNum">     323</span>              :         }</span>
+<span id="L324"><span class="lineNum">     324</span>              : </span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC tlaBgGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.Wearable](world.ECS).Query()</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 wearable := world.Components.Wearable.Get(entity)</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 if wearable != nil &amp;&amp; wearable.EquipmentCategory == target {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                         items = append(items, entity)</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L332"><span class="lineNum">     332</span>              :         }</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         return query.SortEntities(world, items)</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : }</span>
+<span id="L335"><span class="lineNum">     335</span>              : </span>
+<span id="L336"><span class="lineNum">     336</span>              : // infoDetailContent は情報タブの1行を詳細内容にする。見出しと説明、内訳の行を出す</span>
+<span id="L337"><span class="lineNum">     337</span>              : func infoDetailContent(item statusItemData) overlay.DetailContent {</span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC tlaBgUNC">           0 :         heading := item.Label</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         if item.Value != &quot;&quot; {</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 heading = fmt.Sprintf(&quot;%s  %s&quot;, item.Label, item.Value)</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :         rows := []entityspec.SpecRow{}</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         for _, d := range item.Details {</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                 if d.Value == &quot;&quot; {</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L346"><span class="lineNum">     346</span>              :                 }</span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value})</span></span>
+<span id="L348"><span class="lineNum">     348</span>              :         }</span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         return overlay.DetailContent{Name: heading, Desc: item.Description, Rows: rows}</span></span>
+<span id="L350"><span class="lineNum">     350</span>              : }</span>
+<span id="L351"><span class="lineNum">     351</span>              : </span>
+<span id="L352"><span class="lineNum">     352</span>              : // healthDetailContent は健康タブで選んだ1症状の詳細を組む。名前と概要、進行度・治療・</span>
+<span id="L353"><span class="lineNum">     353</span>              : // 能力デバフの性能行を返す。症状の無い部位のエントリは概要だけを出す</span>
+<span id="L354"><span class="lineNum">     354</span>              : func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC tlaBgGNC">           1 :         if item.ConditionType == &quot;&quot; {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, &quot;No injury or illness&quot;)}</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :         if err != nil || !query.AliveHas(world, world.Components.HealthStatus, player) {</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: item.Label}</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC tlaBgGNC">           1 :         cond := world.Components.HealthStatus.Get(player).Parts[item.BodyPart].GetCondition(item.ConditionType)</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         if cond == nil {</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: item.Label}</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L366"><span class="lineNum">     366</span>              : </span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC tlaBgGNC">           1 :         pain, capacity, drop := gc.ConditionCapacityImpact(cond.Type, item.BodyPart, cond.Severity)</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :         rows := make([]entityspec.SpecRow, 0, 4)</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         rows = append(rows,</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                 entityspec.SpecRow{Label: query.T(world, &quot;Progress&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, int(cond.Timer))},</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 entityspec.SpecRow{Label: query.T(world, &quot;Treatment&quot;), Value: treatmentStatus(world, *cond)},</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :         if pain &gt; 0 {</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Pain&quot;), Value: fmt.Sprintf(&quot;+%d&quot;, pain)})</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         if drop &gt; 0 {</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf(&quot;-%d&quot;, drop)})</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         return overlay.DetailContent{</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :                 Name: translatedConditionName(world, cond.Type),</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :                 Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :                 Rows: rows,</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L384"><span class="lineNum">     384</span>              : }</span>
         </pre>
               </td>
             </tr>
