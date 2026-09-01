@@ -87,5 +87,6 @@ func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos con
 	if world.Components.RawID.Get(e).ID != consts.TileNameDirt {
 		return nil
 	}
-	return replaceTile(world, tiles, pos, consts.TileNameFloor)
+	_, err := replaceTile(world, tiles, pos, consts.TileNameFloor)
+	return err
 }

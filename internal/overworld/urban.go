@@ -250,7 +250,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 			if lx >= urbanStreetW && ly >= urbanStreetW {
 				continue
 			}
-			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
+			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
 				return interior.Rect{}, interior.Vec{}, fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
@@ -335,17 +335,17 @@ func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement
 
 // replaceTile は座標のタイルを取り除き、tileName のタイルへ置き換える。
 // オートタイル添字は仮の 0 で置き、後段の RecalcAutotileInXRange が実状態から揃える。
-func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string) error {
+func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string) (ecs.Entity, error) {
 	g := gc.GridElement{Coord: pos}
 	if e, ok := tiles[g]; ok && world.ECS.Alive(e) {
 		world.ECS.RemoveEntity(e)
 	}
 	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, new(0))
 	if err != nil {
-		return err
+		return ecs.Entity{}, err
 	}
 	// 置換後の実体を索引へ書き戻す。索引を地物間で共有するため、後続の地物が同じ座標を
-	// 正しく再置換でき、旧タイルの二重残留を防ぐ
+	// 正しく再置換でき、旧タイルの二重残留を防ぐ。呼び出し側が実体へ属性を足せるよう返す
 	tiles[g] = e
-	return nil
+	return e, nil
 }
