@@ -162,16 +162,16 @@ func TestConditionSystem_Update(t *testing.T) {
 	})
 }
 
-func TestConditionCatalog_扱う不調を網羅しHypothermiaを含まない(t *testing.T) {
+func TestManagedConditionDef_扱う不調を網羅しHypothermiaを含まない(t *testing.T) {
 	t.Parallel()
 
-	// ConditionSystem が扱う怪我と病気はカタログに載せる。登録漏れは動作不全になる
+	// ConditionSystem が扱う怪我と病気は Recovery を持ち managed になる。登録漏れは動作不全になる
 	for _, ct := range []gc.ConditionType{gc.ConditionFracture, gc.ConditionLaceration, gc.ConditionLiverIllness} {
-		_, ok := conditionCatalog[ct]
-		assert.True(t, ok, "%s はカタログに登録されているべき", gc.ConditionTypeDisplayName(ct))
+		_, ok := managedConditionDef(ct)
+		assert.True(t, ok, "%s は ConditionSystem 管轄であるべき", gc.ConditionTypeDisplayName(ct))
 	}
 
-	// 低体温は TemperatureSystem が担うのでカタログに載せない
-	_, ok := conditionCatalog[gc.ConditionHypothermia]
-	assert.False(t, ok, "低体温はカタログに載せない")
+	// 低体温は Recovery を持たず TemperatureSystem 管轄なので ConditionSystem は扱わない
+	_, ok := managedConditionDef(gc.ConditionHypothermia)
+	assert.False(t, ok, "低体温は ConditionSystem 管轄でない")
 }

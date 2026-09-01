@@ -11,52 +11,17 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
-// 低体温は TemperatureSystem が体温から進めるのでこの区分には入らない。
-type RecoveryMode string
-
-const (
-	// RecoverAfterTend は治療して初めて回復する。未治療は保持し悪化しない。骨折・切り傷。
-	// ただし発症前の掠り傷相当は固定量で僅かに癒える。
-	RecoverAfterTend RecoveryMode = "recover_after_tend"
-	// ProgressUntilTend は未治療なら悪化し続け、治療して初めて回復軌道へ乗る。病気。
-	ProgressUntilTend RecoveryMode = "progress_until_tend"
-)
-
 // conditionMinorNaturalRecoveryPerTurn は RecoverAfterTend の不調が発症前のとき代謝によらず固定で癒える1ターンの量
 const conditionMinorNaturalRecoveryPerTurn = 1
 
-// conditionSpec は不調の種類ごとの固定パラメータ。ConditionSystem が扱う怪我と病気を定める。
-// 低体温は TemperatureSystem が担うのでこのカタログには載せない。
-type conditionSpec struct {
-	Recovery   RecoveryMode  // 未治療の振る舞いと治し方
-	WorsenPer  int           // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
-	RecoverPer int           // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
-	BleedPer   int           // 未治療で発症中のとき毎ターン失う HP。外傷の出血。0 なら出血しない
-	HPDamage   int           // 重症で毎ターン与える HP ダメージ。0 なら無害
-	Cause      gc.DeathCause // HPDamage か BleedPer で倒したときの死因。どちらも0なら未使用
-}
-
-// conditionCatalog は ConditionSystem が扱う不調の種類を網羅する実行時定数。
-// 登録漏れがあると引けずに動作不全になるので、扱う種類はここに必ず載せる。
-var conditionCatalog = map[gc.ConditionType]conditionSpec{
-	gc.ConditionFracture: {
-		Recovery:   RecoverAfterTend,
-		RecoverPer: 3,
-	},
-	gc.ConditionLaceration: {
-		Recovery:   RecoverAfterTend,
-		RecoverPer: 4,
-		BleedPer:   1,
-		Cause:      gc.CauseBloodLoss,
-	},
-	gc.ConditionLiverIllness: {
-		Recovery:   ProgressUntilTend,
-		WorsenPer:  2,
-		RecoverPer: 3,
-		HPDamage:   2,
-		Cause:      gc.CauseIllness,
-	},
+// managedConditionDef は ConditionSystem が扱う不調の定義を返す。定義は components の conditionDefs に集約し、
+// Recovery を持つ症状だけを管轄する。低体温は Recovery を持たず TemperatureSystem 管轄なので ok=false
+func managedConditionDef(ct gc.ConditionType) (gc.ConditionDef, bool) {
+	def, ok := gc.ConditionDefFor(ct)
+	if !ok || def.Recovery == "" {
+		return gc.ConditionDef{}, false
+	}
+	return def, true
 }
 
 // ConditionSystem は毎ターン怪我と病気の不調を進めるシステム。
@@ -92,30 +57,30 @@ func (sys *ConditionSystem) Update(world w.World) error {
 			part := &hs.Parts[p]
 			for i := range part.Conditions {
 				cond := &part.Conditions[i]
-				spec, ok := conditionCatalog[cond.Type]
+				def, ok := managedConditionDef(cond.Type)
 				if !ok {
 					continue
 				}
 
-				if delta := conditionTimerDelta(spec, cond, metab); delta != 0 {
+				if delta := conditionTimerDelta(def, cond, metab); delta != 0 {
 					if prev, cur := cond.UpdateTimer(delta); prev != cur {
 						changed = true
 					}
 				}
 
-				if cond.Severity == gc.SeveritySevere && spec.HPDamage > 0 && hasHP {
-					toDamage = append(toDamage, conditionDamage{entity: entity, amount: spec.HPDamage, cause: spec.Cause})
+				if cond.Severity == gc.SeveritySevere && def.HPDamage > 0 && hasHP {
+					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.HPDamage, cause: def.Cause})
 				}
 
 				// 外傷は未治療で発症中のあいだ失血する。治療すると出血が止まり回復軌道へ乗る
-				if cond.TendQuality == 0 && cond.IsActive() && spec.BleedPer > 0 && hasHP {
-					toDamage = append(toDamage, conditionDamage{entity: entity, amount: spec.BleedPer, cause: spec.Cause})
+				if cond.TendQuality == 0 && cond.IsActive() && def.BleedPer > 0 && hasHP {
+					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.BleedPer, cause: def.Cause})
 				}
 			}
 
 			// Timer が 0 になった管理下の不調を除去する
 			part.Conditions = slices.DeleteFunc(part.Conditions, func(c gc.HealthCondition) bool {
-				_, managed := conditionCatalog[c.Type]
+				_, managed := managedConditionDef(c.Type)
 				return managed && c.Timer == 0
 			})
 		}
@@ -140,26 +105,26 @@ func (sys *ConditionSystem) Update(world w.World) error {
 
 // conditionTimerDelta は不調の回復モードと治療の質から1ターンの Timer 増減を返す。
 // 負なら回復、正なら悪化。int の目盛りで計算し、UpdateTimer の境界で float64 にする。
-func conditionTimerDelta(spec conditionSpec, cond *gc.HealthCondition, metab consts.Percent) float64 {
-	switch spec.Recovery {
-	case RecoverAfterTend:
+func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab consts.Percent) float64 {
+	switch def.Recovery {
+	case gc.RecoverAfterTend:
 		if cond.TendQuality > 0 {
-			return -float64(cond.TendQuality.ApplyInt(spec.RecoverPer))
+			return -float64(cond.TendQuality.ApplyInt(def.RecoverPer))
 		}
 		// 発症前の掠り傷相当は代謝で僅かに癒える。発症後の未治療は保持する
 		if !cond.IsActive() {
 			return -float64(conditionMinorNaturalRecoveryPerTurn)
 		}
 		return 0
-	case ProgressUntilTend:
+	case gc.ProgressUntilTend:
 		if cond.TendQuality == 0 {
-			return float64(spec.WorsenPer)
+			return float64(def.WorsenPer)
 		}
 		// 治療済みは質と代謝の両方で回復が速まる
-		rec := cond.TendQuality.ApplyInt(spec.RecoverPer)
+		rec := cond.TendQuality.ApplyInt(def.RecoverPer)
 		rec = metab.ApplyInt(rec)
 		return -float64(rec)
 	}
 	// default を置くと exhaustive linter が沈黙するので置かない。内部の信頼できる値なので未知は panic する
-	panic("unknown RecoveryMode: " + string(spec.Recovery))
+	panic("unknown RecoveryMode: " + string(def.Recovery))
 }

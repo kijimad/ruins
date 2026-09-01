@@ -79,53 +79,78 @@ const (
 	ConditionLiverIllness ConditionType = "LiverIllness" // 肝疾患
 )
 
-// conditionMeta は状態種類ごとの静的な情報。表示と身体への反応率を1つの表に持つ
-type conditionMeta struct {
-	// displayName は表示名 msgid
-	displayName string
-	// description は概要説明 msgid。何であるかと未治療の振る舞いを1文で伝える
-	description string
-	// painPerSeverity は重症度1段あたりに加える痛み
-	painPerSeverity int
-	// capacityDropPerSeverity は重症度1段あたりに下げる該当機能の量
-	capacityDropPerSeverity int
+// RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
+// 低体温は TemperatureSystem が体温から進めるのでこの区分を持たない
+type RecoveryMode string
+
+const (
+	// RecoverAfterTend は治療して初めて回復する。未治療は保持し悪化しない。骨折・切り傷
+	RecoverAfterTend RecoveryMode = "recover_after_tend"
+	// ProgressUntilTend は未治療なら悪化し続け、治療して初めて回復軌道へ乗る。病気
+	ProgressUntilTend RecoveryMode = "progress_until_tend"
+)
+
+// ConditionDef は状態種類ごとの静的な定義。表示・capacity への反応率・回復の振る舞いを1つの表に持つ。
+// 症状を調整するときはここ1箇所を触る。Recovery を持つ症状は ConditionSystem が進行と回復を扱い、
+// Recovery を持たない低体温は TemperatureSystem 管轄になる。反応率と速度は実プレイで調整する
+type ConditionDef struct {
+	displayName             string       // 表示名 msgid
+	description             string       // 概要説明 msgid
+	painPerSeverity         int          // 重症度1段あたりに加える痛み
+	capacityDropPerSeverity int          // 重症度1段あたりに下げる該当機能の量
+	Recovery                RecoveryMode // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
+	WorsenPer               int          // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
+	RecoverPer              int          // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
+	BleedPer                int          // 未治療で発症中のとき毎ターン失う HP。外傷の出血
+	HPDamage                int          // 重症で毎ターン与える HP ダメージ
+	Cause                   DeathCause   // HPDamage か BleedPer で倒したときの死因
 }
 
-// conditionMetas は状態種類ごとの情報。状態を足すときはここへ1行足す。反応率は実プレイで調整する
-var conditionMetas = map[ConditionType]conditionMeta{
+// conditionDefs は状態種類ごとの定義。状態を足すときはここへ1行足す
+var conditionDefs = map[ConditionType]ConditionDef{
 	ConditionHypothermia: {
 		displayName:     "Hypothermia",
 		description:     "The body is dangerously cold. Warm up to recover.",
 		painPerSeverity: 6, capacityDropPerSeverity: 20,
+		// Recovery なし。進行と回復は TemperatureSystem が体温から扱う
 	},
 	ConditionFracture: {
 		displayName:     "Fracture",
 		description:     "A broken bone. It will not heal until treated.",
 		painPerSeverity: 18, capacityDropPerSeverity: 20,
+		Recovery: RecoverAfterTend, RecoverPer: 3,
 	},
 	ConditionLaceration: {
 		displayName:     "Laceration",
 		description:     "An open wound. It will not heal until treated.",
 		painPerSeverity: 8, capacityDropPerSeverity: 8,
+		Recovery: RecoverAfterTend, RecoverPer: 4, BleedPer: 1, Cause: CauseBloodLoss,
 	},
 	ConditionLiverIllness: {
 		displayName:     "Liver illness",
 		description:     "It worsens while untreated and drains HP when severe.",
 		painPerSeverity: 4, capacityDropPerSeverity: 10,
+		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 3, HPDamage: 2, Cause: CauseIllness,
 	},
+}
+
+// ConditionDefFor は状態種類の定義を返す。未登録なら ok=false。ConditionSystem と capacity 導出が読む
+func ConditionDefFor(ct ConditionType) (ConditionDef, bool) {
+	def, ok := conditionDefs[ct]
+	return def, ok
 }
 
 // ConditionTypeDisplayName は状態種類の表示名を返す。未登録なら素のIDを返す
 func ConditionTypeDisplayName(ct ConditionType) string {
-	if m, ok := conditionMetas[ct]; ok {
-		return m.displayName
+	if def, ok := conditionDefs[ct]; ok {
+		return def.displayName
 	}
 	return string(ct)
 }
 
 // ConditionTypeDescription は状態種類の概要説明を返す。未登録なら空文字を返す
 func ConditionTypeDescription(ct ConditionType) string {
-	return conditionMetas[ct].description
+	return conditionDefs[ct].description
 }
 
 // BodyCapacities は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
@@ -196,8 +221,8 @@ func conditionSeverityImpact(ct ConditionType, sev Severity) (pain, drop int) {
 	if m == 0 {
 		return 0, 0
 	}
-	meta := conditionMetas[ct]
-	return meta.painPerSeverity * m, meta.capacityDropPerSeverity * m
+	def := conditionDefs[ct]
+	return def.painPerSeverity * m, def.capacityDropPerSeverity * m
 }
 
 // conditionSeverityMultiplier は重症度から効果倍率を返す
