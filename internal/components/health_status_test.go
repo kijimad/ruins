@@ -164,6 +164,30 @@ func TestConditionTypeDisplayName(t *testing.T) {
 	assert.Equal(t, "Unknown", ConditionTypeDisplayName(ConditionType("Unknown")))
 }
 
+func TestConditionTypeDescription(t *testing.T) {
+	t.Parallel()
+
+	assert.Contains(t, ConditionTypeDescription(ConditionFracture), "broken bone")
+	assert.Empty(t, ConditionTypeDescription(ConditionType("Unknown")), "未登録は空文字")
+}
+
+func TestConditionDefFor(t *testing.T) {
+	t.Parallel()
+
+	// 怪我・病気は Recovery を持つ。低体温は表に載るが Recovery を持たず TemperatureSystem 管轄
+	def, ok := ConditionDefFor(ConditionLaceration)
+	require.True(t, ok)
+	assert.Equal(t, RecoverAfterTend, def.Recovery)
+	assert.Equal(t, 1, def.BleedPer, "切り傷は失血する")
+
+	cold, ok := ConditionDefFor(ConditionHypothermia)
+	require.True(t, ok, "低体温も表示のため表には載る")
+	assert.Empty(t, cold.Recovery, "低体温は Recovery を持たない")
+
+	_, ok = ConditionDefFor(ConditionType("Unknown"))
+	assert.False(t, ok, "未登録は ok=false")
+}
+
 func TestBodyPartHealth_SetCondition(t *testing.T) {
 	t.Parallel()
 
