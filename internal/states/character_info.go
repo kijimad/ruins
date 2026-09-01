@@ -37,15 +37,22 @@ type statusTabData struct {
 }
 
 type statusItemData struct {
-	Label       string
-	Value       string
-	Modifier    string
+	// Label は行の表示ラベル
+	Label string
+	// Value は行の右に出す値。数値や倍率の文字列
+	Value string
+	// Modifier は能力値への補正表示。装備やバフによる増減を +N 形式で持つ
+	Modifier string
+	// Description は詳細モーダルやヘッダーの説明文
 	Description string
-	IsHeader    bool // カテゴリヘッダー行かどうか
-	BodyPart    gc.BodyPart
+	// IsHeader はカテゴリヘッダー行かどうか。真なら選択不可の見出し
+	IsHeader bool
+	// BodyPart は健康タブの症状エントリが属する部位
+	BodyPart gc.BodyPart
 	// ConditionType は健康タブの症状エントリが指す不調の種類。空なら症状でない行
 	ConditionType gc.ConditionType
-	Details       []statusDetailRow // 詳細に表示する内訳
+	// Details は詳細モーダルに表示する内訳
+	Details []statusDetailRow
 }
 
 type statusDetailRow struct {
