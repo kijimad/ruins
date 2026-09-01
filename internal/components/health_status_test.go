@@ -280,11 +280,7 @@ func TestHealthStatus_Capacities(t *testing.T) {
 	t.Run("不調なしは全機能100で痛み0", func(t *testing.T) {
 		t.Parallel()
 		caps := (&HealthStatus{}).Capacities()
-		assert.Equal(t, 0, int(caps.Pain))
-		assert.Equal(t, 100, int(caps.Consciousness))
-		assert.Equal(t, 100, int(caps.Manipulation))
-		assert.Equal(t, 100, int(caps.Moving))
-		assert.Equal(t, 100, int(caps.Sight))
+		assert.Equal(t, BodyCapacities{Pain: 0, Consciousness: 100, Manipulation: 100, Moving: 100, Sight: 100}, caps)
 	})
 
 	t.Run("腕の骨折は操作を下げ痛みを与え意識を落とす", func(t *testing.T) {
@@ -292,14 +288,9 @@ func TestHealthStatus_Capacities(t *testing.T) {
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
 		caps := hs.Capacities()
-		// 骨折 18/20 の中度。痛み = 18*2 = 36。意識 = 100 - 36/2 = 82
-		assert.Equal(t, 36, int(caps.Pain))
-		assert.Equal(t, 82, int(caps.Consciousness))
-		// 操作 = (100 - 20*2) * 意識82/100 = 60*82/100 = 49
-		assert.Equal(t, 49, int(caps.Manipulation))
-		// 歩行・視覚は局所低下なしだが意識が掛かる
-		assert.Equal(t, 82, int(caps.Moving))
-		assert.Equal(t, 82, int(caps.Sight))
+		// 骨折 18/20 の中度。痛み=18*2=36、意識=100-36/2=82、操作=(100-20*2)*82/100=49、
+		// 歩行と視覚は局所低下なしだが意識が掛かって82
+		assert.Equal(t, BodyCapacities{Pain: 36, Consciousness: 82, Manipulation: 49, Moving: 82, Sight: 82}, caps)
 	})
 
 	t.Run("部位で下げる機能が変わる", func(t *testing.T) {
