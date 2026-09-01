@@ -335,7 +335,7 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 	hitRate = getSkillMult(attacker, attack, world, false).ApplyInt(hitRate)
 	hitRate += modifier
 
-	// 体調由来の命中低下を掛ける
+	// 体調由来の命中低下を掛ける。CharModifiers を持たない攻撃者は身体機能ペナルティを受けず等倍
 	if world.Components.CharModifiers.Has(attacker) {
 		aim := world.Components.CharModifiers.Get(attacker).AccuracyCapacity(attack.GetAttackCategory())
 		hitRate = aim.ApplyInt(hitRate)

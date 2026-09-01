@@ -111,7 +111,7 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 		if cond.TendQuality > 0 {
 			return -float64(cond.TendQuality.ApplyInt(def.RecoverPer))
 		}
-		// 発症前の掠り傷相当は代謝で僅かに癒える。発症後の未治療は保持する
+		// 発症前の掠り傷相当は代謝によらず固定で僅かに癒える。発症後の未治療は保持する
 		if !cond.IsActive() {
 			return -float64(conditionMinorNaturalRecoveryPerTurn)
 		}
