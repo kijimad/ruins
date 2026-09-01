@@ -80,7 +80,7 @@ func craftConsumedAmount(craftCostPct consts.Percent, amount int) int {
 	return max(craftCostPct.ApplyInt(amount), 1)
 }
 
-// consumeMaterials はアイテム合成に必要な素材を消費する。
+// consumeMaterials はアイテムクラフトに必要な素材を消費する。
 // craftCostPctは素材消費量の倍率%で、100が基準。低いほど素材が節約できる。
 func consumeMaterials(world w.World, goal string, craftCostPct consts.Percent) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {

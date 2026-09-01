@@ -264,10 +264,6 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName, merchant) },
 			}}, nil
-		case "doctor_greeting":
-			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() (es.State[w.World], error) { return NewDoctorDialogState(speakerName) },
-			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
 			dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)

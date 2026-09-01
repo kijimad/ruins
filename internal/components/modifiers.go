@@ -118,7 +118,7 @@ const (
 	coeffNightVision    = 5  // 暗所視界: スキルLv1あたり+5%
 	coeffMoveCost       = -2 // 移動コスト: スキルLv1あたり-2%
 	coeffCraftCost      = -3 // 素材消費: スキルLv1あたり-3%
-	coeffSmithQuality   = 3  // 合成品質: スキルLv1あたり+3%
+	coeffSmithQuality   = 3  // クラフト品質: スキルLv1あたり+3%
 	coeffBuyPrice       = -2 // 買値: スキルLv1あたり-2%
 	coeffSellPrice      = 2  // 売値: スキルLv1あたり+2%
 	coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%
@@ -146,7 +146,7 @@ type CharModifiers struct {
 	NightVision    consts.Percent                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率
 	MoveCost       consts.Percent                 // 移動APコスト倍率
 	CraftCost      consts.Percent                 // 素材消費量倍率
-	SmithQuality   consts.Percent                 // 合成品質倍率
+	SmithQuality   consts.Percent                 // クラフト品質倍率
 	BuyPrice       consts.Percent                 // 買値倍率
 	SellPrice      consts.Percent                 // 売値倍率
 	HeavyArmor     consts.Percent                 // 重装備AGIペナルティ倍率

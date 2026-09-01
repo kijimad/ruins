@@ -9414,9 +9414,6 @@ b = 100
 g = 175
 r = 255
 
-[members.dialog]
-messageKey = "doctor_greeting"
-
 [[members]]
 animKeys = [ "old_tank" ]
 commandTableId = "old_tank"

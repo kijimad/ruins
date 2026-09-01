@@ -178,7 +178,7 @@ func TestRecalculateCharModifiers_MultipleSkills(t *testing.T) {
 	assert.Equal(t, 123, int(mods.WeaponDamage[SkillSword]))
 	// 拳銃Lv5 + SEN6: ダメージ = 100 + 5*5 + 6*1 = 131
 	assert.Equal(t, 131, int(mods.WeaponDamage[SkillHandgun]))
-	// 合成Lv2 + DEX4: 素材消費 = 100 + 2*(-3) + 4*(-1) = 90
+	// クラフトLv2 + DEX4: 素材消費 = 100 + 2*(-3) + 4*(-1) = 90
 	assert.Equal(t, 90, int(mods.CraftCost))
 	// 長物は未使用: ダメージ = 100 + 0*5 + 8*1 = 108（STR能力値のみ）
 	assert.Equal(t, 108, int(mods.WeaponDamage[SkillSpear]))
