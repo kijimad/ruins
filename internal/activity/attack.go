@@ -306,6 +306,8 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	growWeaponSkill(actor, world, attack)
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
+	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
+	applyInjury(actor, target, world, attack)
 
 	// 被ダメージで中断可能なアクティビティをキャンセルする
 	if comp := query.GetActivity(world, target); comp != nil && CanInterrupt(comp) {

@@ -321,6 +321,23 @@ func (bph *BodyPartHealth) SetCondition(cond HealthCondition) {
 	bph.Conditions = append(bph.Conditions, cond)
 }
 
+// AddCondition は状態を1つ積む。SetCondition と違い同種でも上書きせず別の傷として足す。
+// 戦闘の怪我のように独立した傷を重ねるのに使う
+func (bph *BodyPartHealth) AddCondition(cond HealthCondition) {
+	bph.Conditions = append(bph.Conditions, cond)
+}
+
+// CountConditions は指定した種類の状態がこの部位にいくつあるかを返す。独立傷のソフト上限判定に使う
+func (bph *BodyPartHealth) CountConditions(condType ConditionType) int {
+	n := 0
+	for i := range bph.Conditions {
+		if bph.Conditions[i].Type == condType {
+			n++
+		}
+	}
+	return n
+}
+
 // RemoveCondition は状態を削除する
 func (bph *BodyPartHealth) RemoveCondition(condType ConditionType) {
 	for i := range bph.Conditions {

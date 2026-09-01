@@ -209,6 +209,18 @@ func TestBodyPartHealth_SetCondition(t *testing.T) {
 	})
 }
 
+func TestBodyPartHealth_AddCondition(t *testing.T) {
+	t.Parallel()
+
+	// AddCondition は同種でも上書きせず積む。独立した傷を重ねる用途
+	bph := &BodyPartHealth{}
+	bph.AddCondition(HealthCondition{Type: ConditionLaceration, Timer: 40})
+	bph.AddCondition(HealthCondition{Type: ConditionLaceration, Timer: 30})
+	assert.Len(t, bph.Conditions, 2, "同種でも上書きせず積む")
+	assert.Equal(t, 2, bph.CountConditions(ConditionLaceration))
+	assert.Equal(t, 0, bph.CountConditions(ConditionFracture))
+}
+
 func TestBodyPartHealth_RemoveCondition(t *testing.T) {
 	t.Parallel()
 

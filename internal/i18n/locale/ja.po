@@ -5888,3 +5888,6 @@ msgstr "日が昇った。"
 
 msgid "The sun sets."
 msgstr "日が沈んだ。"
+
+msgid "%s suffered %s on the %s."
+msgstr "%s は %s を %s に負った。"
