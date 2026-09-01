@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -520,4 +521,47 @@ func TestMoveToBackpack_1個1エンティティなので合流しない(t *testi
 	assert.True(t, world.ECS.Alive(b1), "b1 は残る")
 	assert.True(t, world.ECS.Alive(b2), "b2 も残る。合流で消えない")
 	assert.Equal(t, 2, query.GetEntityCount(world, b1), "同一スタックとして個数2に数えられる")
+}
+
+func TestSpawnTile(t *testing.T) {
+	t.Parallel()
+
+	t.Run("通行不可タイルはBlockPassを持つ", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity, err := SpawnTile(world, consts.TileNameWall, consts.Tile(3), consts.Tile(4), nil)
+		require.NoError(t, err)
+
+		require.True(t, world.Components.GridElement.Has(entity))
+		grid := world.Components.GridElement.Get(entity)
+		assert.Equal(t, consts.Tile(3), grid.X)
+		assert.Equal(t, consts.Tile(4), grid.Y)
+		assert.True(t, world.Components.BlockPass.Has(entity), "壁は通行不可")
+	})
+
+	t.Run("autoTileIndex指定でスプライトキーにインデックスが付く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity, err := SpawnTile(world, consts.TileNameDirt, consts.Tile(0), consts.Tile(0), new(2))
+		require.NoError(t, err)
+
+		require.True(t, world.Components.SpriteRender.Has(entity))
+		sprite := world.Components.SpriteRender.Get(entity)
+		assert.Equal(t, "dirt_2", sprite.SpriteKey, "オートタイルインデックスがスプライトキーに付与される")
+	})
+
+	t.Run("存在しないタイル名はKeyNotFoundErrorになる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnTile(world, "存在しないタイル", consts.Tile(0), consts.Tile(0), nil)
+		require.Error(t, err)
+
+		var keyErr raw.KeyNotFoundError
+		require.ErrorAs(t, err, &keyErr)
+		assert.Equal(t, "存在しないタイル", keyErr.Key)
+		assert.Equal(t, "Tiles", keyErr.Collection)
+	})
 }
