@@ -5891,3 +5891,6 @@ msgstr "日が沈んだ。"
 
 msgid "%s suffered %s on the %s."
 msgstr "%s は %s を %s に負った。"
+
+msgid "%s used %s and treated %s."
+msgstr "%s は %s を使い %s を治療した。"

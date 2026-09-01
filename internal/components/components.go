@@ -180,6 +180,13 @@ type InflictsDamage struct {
 	Amount int
 }
 
+// Remedy は不調を治療する性質。使うと Treats に一致する不調のうち最も重い1つを治療済みにする。
+// Potency は治療の質で HealthCondition.TendQuality に入り、回復速度を左右する。100 が標準
+type Remedy struct {
+	Treats  []ConditionType
+	Potency consts.Percent
+}
+
 // Value はアイテムの基本価値
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される
 type Value struct {
