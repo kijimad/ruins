@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">25.3&nbsp;%</td>
-            <td class="headerCovTableEntry">166</td>
+            <td class="headerCovTableEntryLo">25.0&nbsp;%</td>
+            <td class="headerCovTableEntry">168</td>
             <td class="headerCovTableEntry">42</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-01 15:06:19</td>
+            <td class="headerValue">2026-09-01 15:07:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -326,108 +326,112 @@
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
 <span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName, merchant) },</span></span>
 <span id="L266"><span class="lineNum">     266</span>              :                         }}, nil</span>
-<span id="L267"><span class="lineNum">     267</span>              :                 default:</span>
-<span id="L268"><span class="lineNum">     268</span>              :                         // 通常の会話はdialoguesから取得</span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                         dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },</span></span>
-<span id="L272"><span class="lineNum">     272</span>              :                         }}, nil</span>
-<span id="L273"><span class="lineNum">     273</span>              :                 }</span>
-<span id="L274"><span class="lineNum">     274</span>              :         case gc.WarpDescend:</span>
-<span id="L275"><span class="lineNum">     275</span>              :                 // 共存方式の下り。同一 State 内で swapTo する。現階は退避され再訪で復元できる</span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                 if err := st.descend(world); err != nil {</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
-<span id="L280"><span class="lineNum">     280</span>              :         case gc.WarpAscend:</span>
-<span id="L281"><span class="lineNum">     281</span>              :                 // 上り階段に結線があればそこへ移動する。浅い階でも遺跡→地上でも同一機構。</span>
-<span id="L282"><span class="lineNum">     282</span>              :                 // 全ダンジョンはオーバーワールド入口から入り、生成時に戻り先が結線される。よって</span>
-<span id="L283"><span class="lineNum">     283</span>              :                 // handled=false は結線焼き込みの取りこぼし＝バグであり、黙って握り潰さず error で落とす</span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 handled, err := st.ascend(world)</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 if !handled {</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, fmt.Errorf(&quot;top floor up stairs has no return link&quot;)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
-<span id="L292"><span class="lineNum">     292</span>              :         case gc.WarpDungeonEnter:</span>
-<span id="L293"><span class="lineNum">     293</span>              :                 // オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える。</span>
-<span id="L294"><span class="lineNum">     294</span>              :                 // プランナー名の指定があれば固定して生成する。デバッグのプランナー単位進入で使う</span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC tlaBgGNC">           1 :                 if p.PlannerName != &quot;&quot; {</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                         builderType, ok := mapplanner.PlannerTypeByName(p.PlannerName)</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         if !ok {</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unknown planner name: %s&quot;, p.PlannerName)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L300"><span class="lineNum">     300</span>              :                         // デバッグはプランナーを変えて見た目を試す用途なので、選ぶたびに作り直す</span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                         if err := st.enterDebugPlannerFloor(world, p.DefinitionName, builderType); err != nil {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC tlaBgGNC">           1 :                         return st.completeSwap(world)</span></span>
-<span id="L305"><span class="lineNum">     305</span>              :                 }</span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                 if err := st.enterDungeon(world, p.DefinitionName); err != nil {</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC tlaBgGNC">           1 :                 return st.completeSwap(world)</span></span>
-<span id="L310"><span class="lineNum">     310</span>              :         case gc.WarpCubeEnter:</span>
-<span id="L311"><span class="lineNum">     311</span>              :                 // 移動拠点キューブの内部へ入る。同一 State 内 swapTo でオーバーワールドを退避する</span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC tlaBgUNC">           0 :                 if err := enterCube(world, p.Cube); err != nil {</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
-<span id="L316"><span class="lineNum">     316</span>              :         case gc.WarpCubeExit:</span>
-<span id="L317"><span class="lineNum">     317</span>              :                 // キューブ内部からオーバーワールドへ戻る</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 if err := exitCube(world); err != nil {</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
-<span id="L322"><span class="lineNum">     322</span>              :         case gc.OpenCubePanel:</span>
-<span id="L323"><span class="lineNum">     323</span>              :                 // キューブ内部のコントロールパネルを開く</span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return &amp;CubePanelState{}, nil },</span></span>
-<span id="L326"><span class="lineNum">     326</span>              :                 }}, nil</span>
-<span id="L327"><span class="lineNum">     327</span>              :         case gc.OpenStorage:</span>
-<span id="L328"><span class="lineNum">     328</span>              :                 // 収納メニューを開く</span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },</span></span>
-<span id="L331"><span class="lineNum">     331</span>              :                 }}, nil</span>
-<span id="L332"><span class="lineNum">     332</span>              :         case gc.OpenFeedFuel:</span>
-<span id="L333"><span class="lineNum">     333</span>              :                 // 火への給油メニューを開く</span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewFeedFuelMenuState(p.FireEntity) },</span></span>
-<span id="L336"><span class="lineNum">     336</span>              :                 }}, nil</span>
-<span id="L337"><span class="lineNum">     337</span>              :         case gc.OpenAuction:</span>
-<span id="L338"><span class="lineNum">     338</span>              :                 // 出荷場所のメニューを開く</span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewAuctionMenuState(p.StationEntity) },</span></span>
-<span id="L341"><span class="lineNum">     341</span>              :                 }}, nil</span>
-<span id="L342"><span class="lineNum">     342</span>              :         default:</span>
-<span id="L343"><span class="lineNum">     343</span>              :                 // この switch で扱わない種別。未実装の scaffold もここに落ちる</span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unhandled StateChangeRequest: %T&quot;, req.Payload)</span></span>
-<span id="L345"><span class="lineNum">     345</span>              :         }</span>
-<span id="L346"><span class="lineNum">     346</span>              : }</span>
-<span id="L347"><span class="lineNum">     347</span>              : </span>
-<span id="L348"><span class="lineNum">     348</span>              : // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える</span>
-<span id="L349"><span class="lineNum">     349</span>              : func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {</span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         query.GetWeaponSelection(world).Slot = slotNumber</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L352"><span class="lineNum">     352</span>              :         // プレイヤーの武器スロット情報を取得してログメッセージを出力</span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 weapons := query.GetWeapons(world, playerEntity)</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 weaponIndex := slotNumber - 1 // 1-based to 0-based</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 weapon := weapons[weaponIndex]</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 if weapon != nil {</span></span>
-<span id="L359"><span class="lineNum">     359</span>              :                         // 武器が装備されている場合は武器名を表示</span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(*weapon) {</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                                 weaponName := query.GetEntityName(*weapon, world)</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;Readied %s.&quot;, gamelog.Tag(&quot;item&quot;, weaponName))).</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L366"><span class="lineNum">     366</span>              :                 }</span>
-<span id="L367"><span class="lineNum">     367</span>              :         })</span>
-<span id="L368"><span class="lineNum">     368</span>              : }</span>
+<span id="L267"><span class="lineNum">     267</span>              :                 case &quot;doctor_greeting&quot;:</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewDoctorDialogState(speakerName) },</span></span>
+<span id="L270"><span class="lineNum">     270</span>              :                         }}, nil</span>
+<span id="L271"><span class="lineNum">     271</span>              :                 default:</span>
+<span id="L272"><span class="lineNum">     272</span>              :                         // 通常の会話はdialoguesから取得</span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                         dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :                         }}, nil</span>
+<span id="L277"><span class="lineNum">     277</span>              :                 }</span>
+<span id="L278"><span class="lineNum">     278</span>              :         case gc.WarpDescend:</span>
+<span id="L279"><span class="lineNum">     279</span>              :                 // 共存方式の下り。同一 State 内で swapTo する。現階は退避され再訪で復元できる</span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 if err := st.descend(world); err != nil {</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
+<span id="L284"><span class="lineNum">     284</span>              :         case gc.WarpAscend:</span>
+<span id="L285"><span class="lineNum">     285</span>              :                 // 上り階段に結線があればそこへ移動する。浅い階でも遺跡→地上でも同一機構。</span>
+<span id="L286"><span class="lineNum">     286</span>              :                 // 全ダンジョンはオーバーワールド入口から入り、生成時に戻り先が結線される。よって</span>
+<span id="L287"><span class="lineNum">     287</span>              :                 // handled=false は結線焼き込みの取りこぼし＝バグであり、黙って握り潰さず error で落とす</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 handled, err := st.ascend(world)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 if !handled {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, fmt.Errorf(&quot;top floor up stairs has no return link&quot;)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :         case gc.WarpDungeonEnter:</span>
+<span id="L297"><span class="lineNum">     297</span>              :                 // オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える。</span>
+<span id="L298"><span class="lineNum">     298</span>              :                 // プランナー名の指定があれば固定して生成する。デバッグのプランナー単位進入で使う</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC tlaBgGNC">           1 :                 if p.PlannerName != &quot;&quot; {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         builderType, ok := mapplanner.PlannerTypeByName(p.PlannerName)</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                         if !ok {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unknown planner name: %s&quot;, p.PlannerName)</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L304"><span class="lineNum">     304</span>              :                         // デバッグはプランナーを変えて見た目を試す用途なので、選ぶたびに作り直す</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                         if err := st.enterDebugPlannerFloor(world, p.DefinitionName, builderType); err != nil {</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC tlaBgGNC">           1 :                         return st.completeSwap(world)</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :                 }</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 if err := st.enterDungeon(world, p.DefinitionName); err != nil {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC tlaBgGNC">           1 :                 return st.completeSwap(world)</span></span>
+<span id="L314"><span class="lineNum">     314</span>              :         case gc.WarpCubeEnter:</span>
+<span id="L315"><span class="lineNum">     315</span>              :                 // 移動拠点キューブの内部へ入る。同一 State 内 swapTo でオーバーワールドを退避する</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC tlaBgUNC">           0 :                 if err := enterCube(world, p.Cube); err != nil {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
+<span id="L320"><span class="lineNum">     320</span>              :         case gc.WarpCubeExit:</span>
+<span id="L321"><span class="lineNum">     321</span>              :                 // キューブ内部からオーバーワールドへ戻る</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 if err := exitCube(world); err != nil {</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 return st.completeSwap(world)</span></span>
+<span id="L326"><span class="lineNum">     326</span>              :         case gc.OpenCubePanel:</span>
+<span id="L327"><span class="lineNum">     327</span>              :                 // キューブ内部のコントロールパネルを開く</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return &amp;CubePanelState{}, nil },</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :                 }}, nil</span>
+<span id="L331"><span class="lineNum">     331</span>              :         case gc.OpenStorage:</span>
+<span id="L332"><span class="lineNum">     332</span>              :                 // 収納メニューを開く</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },</span></span>
+<span id="L335"><span class="lineNum">     335</span>              :                 }}, nil</span>
+<span id="L336"><span class="lineNum">     336</span>              :         case gc.OpenFeedFuel:</span>
+<span id="L337"><span class="lineNum">     337</span>              :                 // 火への給油メニューを開く</span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewFeedFuelMenuState(p.FireEntity) },</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :                 }}, nil</span>
+<span id="L341"><span class="lineNum">     341</span>              :         case gc.OpenAuction:</span>
+<span id="L342"><span class="lineNum">     342</span>              :                 // 出荷場所のメニューを開く</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewAuctionMenuState(p.StationEntity) },</span></span>
+<span id="L345"><span class="lineNum">     345</span>              :                 }}, nil</span>
+<span id="L346"><span class="lineNum">     346</span>              :         default:</span>
+<span id="L347"><span class="lineNum">     347</span>              :                 // この switch で扱わない種別。未実装の scaffold もここに落ちる</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unhandled StateChangeRequest: %T&quot;, req.Payload)</span></span>
+<span id="L349"><span class="lineNum">     349</span>              :         }</span>
+<span id="L350"><span class="lineNum">     350</span>              : }</span>
+<span id="L351"><span class="lineNum">     351</span>              : </span>
+<span id="L352"><span class="lineNum">     352</span>              : // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える</span>
+<span id="L353"><span class="lineNum">     353</span>              : func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {</span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         query.GetWeaponSelection(world).Slot = slotNumber</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L356"><span class="lineNum">     356</span>              :         // プレイヤーの武器スロット情報を取得してログメッセージを出力</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 weapons := query.GetWeapons(world, playerEntity)</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 weaponIndex := slotNumber - 1 // 1-based to 0-based</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                 weapon := weapons[weaponIndex]</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 if weapon != nil {</span></span>
+<span id="L363"><span class="lineNum">     363</span>              :                         // 武器が装備されている場合は武器名を表示</span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(*weapon) {</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                                 weaponName := query.GetEntityName(*weapon, world)</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;Readied %s.&quot;, gamelog.Tag(&quot;item&quot;, weaponName))).</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L370"><span class="lineNum">     370</span>              :                 }</span>
+<span id="L371"><span class="lineNum">     371</span>              :         })</span>
+<span id="L372"><span class="lineNum">     372</span>              : }</span>
         </pre>
               </td>
             </tr>
