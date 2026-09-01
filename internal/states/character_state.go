@@ -389,7 +389,8 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 }
 
 // remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。
-// 健康タブに治し方を示すのに使う。見つからなければ ok=false
+// 健康タブに治し方を示すのに使う。見つからなければ ok=false。
+// 複数のアイテムが同じ不調を治せる場合は先頭の1件だけ返す。1症状に1種の治療アイテムを保つ前提
 func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {
 	items := raw.PtrSlice(world.Resources.RawMaster.Items)
 	for i := range items {

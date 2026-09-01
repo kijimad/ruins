@@ -29,8 +29,8 @@ var bodyPartHitWeights = [gc.BodyPartCount]int{
 	gc.BodyPartFeet:  1,
 }
 
-// injuryTypeFor は武器種から怪我の種類を導く。鈍器は骨折、それ以外の刃・射撃は切り傷。
-// 打撃は骨を折り、斬撃や刺突や弾は開いた傷を作る、という素直な対応
+// injuryTypeFor は武器種から怪我の種類を導く。鈍器は骨折、刃と弾は切り傷。
+// 大砲は射撃だが重い衝撃で骨を砕くので、拳と同じ骨折側に置く。斬撃・刺突・弾は開いた傷を作る
 func injuryTypeFor(attackType gc.AttackType) gc.ConditionType {
 	switch attackType {
 	case gc.AttackFist, gc.AttackCanon:
