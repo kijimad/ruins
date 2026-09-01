@@ -186,7 +186,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 
-	t.Run("冷えた状態でも敵への攻撃が可能", func(t *testing.T) {
+	t.Run("冷えた状態でも攻撃が成立しAPを消費する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
@@ -202,39 +202,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 			Timer:    90,
 		})
 
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
-		require.NoError(t, err)
-		// APが0以上なら行動可能であることを確認
-		tb := world.Components.TurnBased.Get(player)
-		assert.GreaterOrEqual(t, tb.AP.Current, 0, "冷えた状態でもAPが0以上なら行動可能")
-		_ = enemy
-
-		// 攻撃を実行
-		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
-		require.NoError(t, err)
-
-		// 検証: 冷えていても近接攻撃が成立する。命中は身体機能で下がるので当否は問わない
-		result := activity.GetLastResult(player, world)
-		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
-	})
-
-	t.Run("冷えた状態で攻撃するとAPが消費される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
-
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-
-		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
-			Severity: gc.SeveritySevere,
-			Timer:    90,
-		})
-
+		// 上方向に攻撃対象を置く。ハンドルは使わないので捨てる
 		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		turnBased := world.Components.TurnBased.Get(player)
