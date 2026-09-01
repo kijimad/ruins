@@ -213,27 +213,6 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 	})
 }
 
-func TestSeverityToMultiplier(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		severity gc.Severity
-		expected int
-	}{
-		{gc.SeverityNone, 0},
-		{gc.SeverityMinor, 1},
-		{gc.SeverityMedium, 2},
-		{gc.SeveritySevere, 3},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.severity.String(), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, severityToMultiplier(tt.severity))
-		})
-	}
-}
-
 func TestTemperatureSystem_Update(t *testing.T) {
 	t.Parallel()
 
@@ -362,56 +341,6 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 		insulation := CalculateEquippedInsulation(world, player)
 		assert.Equal(t, 13, insulation.Cold)
 		assert.Equal(t, 7, insulation.Heat)
-	})
-}
-
-func TestCalculateHypothermiaEffects(t *testing.T) {
-	t.Parallel()
-
-	t.Run("全身にSTR,VIT,DEX,AGIペナルティを与える", func(t *testing.T) {
-		t.Parallel()
-		effects := calculateHypothermiaEffects(gc.SeverityMinor)
-		require.Len(t, effects, 4)
-		assert.Equal(t, gc.StatStrength, effects[0].Stat)
-		assert.Equal(t, gc.StatVitality, effects[1].Stat)
-		assert.Equal(t, gc.StatDexterity, effects[2].Stat)
-		assert.Equal(t, gc.StatAgility, effects[3].Stat)
-		for _, e := range effects {
-			assert.Equal(t, -1, e.Value)
-		}
-	})
-
-	t.Run("SeverityNoneでは効果なし", func(t *testing.T) {
-		t.Parallel()
-		effects := calculateHypothermiaEffects(gc.SeverityNone)
-		assert.Nil(t, effects)
-	})
-
-	t.Run("重度の方が効果が大きい", func(t *testing.T) {
-		t.Parallel()
-		minor := calculateHypothermiaEffects(gc.SeverityMinor)
-		severe := calculateHypothermiaEffects(gc.SeveritySevere)
-		assert.Greater(t, -severe[0].Value, -minor[0].Value)
-	})
-}
-
-func TestUpdateConditionEffects(t *testing.T) {
-	t.Parallel()
-
-	t.Run("低体温の効果が適用される", func(t *testing.T) {
-		t.Parallel()
-		partHealth := &gc.BodyPartHealth{}
-		partHealth.SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
-			Severity: gc.SeverityMinor,
-			Timer:    30,
-		})
-
-		updateConditionEffects(partHealth)
-
-		cond := partHealth.GetCondition(gc.ConditionHypothermia)
-		require.NotNil(t, cond)
-		require.Len(t, cond.Effects, 4) // STR, VIT, DEX, AGI
 	})
 }
 
@@ -575,4 +504,45 @@ func TestBodyTempRate_外因が無ければ平熱へ戻る(t *testing.T) {
 
 	hs.BodyTempOffset = -0.05
 	assert.InDelta(t, 0.05, bodyTempRate(world, player), 1e-9, "残りが小さければ平熱ちょうどで止まる")
+}
+
+func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
+	t.Parallel()
+
+	// Timer を 100 にすると1ターンの体温変動後も必ず Severe に留まるので、環境に依らず判定できる。
+	setHypothermiaTimer := func(hs *gc.HealthStatus, timer float64) {
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.TimerToSeverity(timer),
+			Timer:    timer,
+		})
+	}
+
+	t.Run("重症なら毎ターンHPが減る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Debug town", 1)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		setHypothermiaTimer(world.Components.HealthStatus.Get(player), 100)
+		hpBefore := world.Components.HP.Get(player).Current
+
+		require.NoError(t, (&TemperatureSystem{}).Update(world))
+
+		assert.Equal(t, hpBefore-hypothermiaSevereHPDamagePerTurn, world.Components.HP.Get(player).Current)
+	})
+
+	t.Run("中度では減らない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Debug town", 1)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		setHypothermiaTimer(world.Components.HealthStatus.Get(player), 60)
+		hpBefore := world.Components.HP.Get(player).Current
+
+		require.NoError(t, (&TemperatureSystem{}).Update(world))
+
+		assert.Equal(t, hpBefore, world.Components.HP.Get(player).Current)
+	})
 }

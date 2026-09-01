@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -28,6 +27,9 @@ const (
 	tabBasic     = "basic"
 )
 
+// healthEntryIndent は健康タブで症状エントリを部位カテゴリ見出しと見分けるための字下げ
+const healthEntryIndent = "  "
+
 type statusTabData struct {
 	ID    string
 	Label string
@@ -35,13 +37,22 @@ type statusTabData struct {
 }
 
 type statusItemData struct {
-	Label       string
-	Value       string
-	Modifier    string
+	// Label は行の表示ラベル
+	Label string
+	// Value は行の右に出す値。数値や倍率の文字列
+	Value string
+	// Modifier は能力値への補正表示。装備やバフによる増減を +N 形式で持つ
+	Modifier string
+	// Description は詳細モーダルやヘッダーの説明文
 	Description string
-	IsHeader    bool // カテゴリヘッダー行かどうか
-	BodyPart    gc.BodyPart
-	Details     []statusDetailRow // 詳細に表示する内訳
+	// IsHeader はカテゴリヘッダー行かどうか。真なら選択不可の見出し
+	IsHeader bool
+	// BodyPart は健康タブの症状エントリが属する部位
+	BodyPart gc.BodyPart
+	// ConditionType は健康タブの症状エントリが指す不調の種類。空なら症状でない行
+	ConditionType gc.ConditionType
+	// Details は詳細モーダルに表示する内訳
+	Details []statusDetailRow
 }
 
 type statusDetailRow struct {
@@ -160,6 +171,15 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		}
 	}
 
+	items = append(items, statusItemData{Label: query.T(world, "Body function"), IsHeader: true, Description: query.T(world, "Body capacities lowered by injuries and illness")})
+	items = append(items,
+		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", e.Capacities.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
+		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", e.Capacities.Consciousness), Description: query.T(world, "Master capacity. Multiplies all others")},
+		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", e.Capacities.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
+		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", e.Capacities.Moving), Description: query.T(world, "Affects move speed")},
+		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", e.Capacities.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
+	)
+
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
 		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
@@ -187,52 +207,51 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	return items
 }
 
+// translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない
+func translatedConditionName(world w.World, ct gc.ConditionType) string {
+	return query.T(world, gc.ConditionTypeDisplayName(ct))
+}
+
+// treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す
+func treatmentStatus(world w.World, cond gc.HealthCondition) string {
+	if cond.TendQuality <= 0 {
+		return query.T(world, "Untreated")
+	}
+	return fmt.Sprintf("%s %d%%", query.T(world, "Tended"), int(cond.TendQuality))
+}
+
 func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {
-	items := make([]statusItemData, 0, int(gc.BodyPartCount))
+	var items []statusItemData
 	var hs *gc.HealthStatus
 	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
 		hs = world.Components.HealthStatus.Get(playerEntity)
 	}
 	for i := range int(gc.BodyPartCount) {
 		part := gc.BodyPart(i)
-		var conditionStr strings.Builder
+		// 部位はカテゴリ見出し。カーソルは見出しを飛ばす
+		items = append(items, statusItemData{Label: query.T(world, part.String()), IsHeader: true, BodyPart: part})
+
+		var conds []gc.HealthCondition
 		if hs != nil {
-			conditions := hs.Parts[i].Conditions
-			for j, cond := range conditions {
-				if j > 0 {
-					conditionStr.WriteString(", ")
-				}
-				conditionStr.WriteString(query.T(world, cond.DisplayName()))
-			}
+			conds = hs.Parts[i].Conditions
 		}
-		value := conditionStr.String()
-		if value == "" {
-			value = query.T(world, "Normal")
+		if len(conds) == 0 {
+			// 症状の無い部位は健康の1エントリを置く。見出しと区別するため字下げする
+			items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, "Normal"), BodyPart: part})
+			continue
 		}
-		items = append(items, statusItemData{Label: query.T(world, part.String()), Value: value, Description: query.T(world, getHealthPartDescription(part)), BodyPart: part})
+		// 症状ごとに1エントリ。見出しと区別するため字下げし、名前の右に治療状態、値に進行度を出す
+		for _, cond := range conds {
+			name := translatedConditionName(world, cond.Type) + "  " + treatmentStatus(world, cond)
+			items = append(items, statusItemData{
+				Label:         healthEntryIndent + name,
+				Value:         fmt.Sprintf("%d%%", int(cond.Timer)),
+				BodyPart:      part,
+				ConditionType: cond.Type,
+			})
+		}
 	}
 	return items
-}
-
-func getHealthPartDescription(part gc.BodyPart) string {
-	switch part {
-	case gc.BodyPartTorso:
-		return "Torso"
-	case gc.BodyPartHead:
-		return "Head"
-	case gc.BodyPartArms:
-		return "Arms"
-	case gc.BodyPartHands:
-		return "Hands"
-	case gc.BodyPartLegs:
-		return "Legs"
-	case gc.BodyPartFeet:
-		return "Feet"
-	case gc.BodyPartWholeBody:
-		return "Whole body"
-	default:
-		return ""
-	}
 }
 
 // sourceToDetails はModifierSourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない

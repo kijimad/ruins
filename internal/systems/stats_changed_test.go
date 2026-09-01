@@ -14,47 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
-	t.Parallel()
-
-	t.Run("健康ペナルティが属性に反映される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーを作成
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-		require.NoError(t, err)
-
-		// 初期Strengthを取得
-		abils := world.Components.Abilities.Get(player)
-		initialStrength := abils.Strength.Total
-
-		// 健康状態に低体温を追加（Strengthにペナルティ）
-		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
-			Severity: gc.SeveritySevere,
-			Timer:    90,
-			Effects: []gc.StatEffect{
-				{Stat: gc.StatStrength, Value: -3},
-			},
-		})
-
-		// StatsChangedフラグを立てる
-		// SpawnPlayer が初期装備でStatsChangedを立てるので、冪等に設定する
-		require.NoError(t, gc.Upsert(world.ECS, world.Components.StatsChanged, player, &gc.StatsChanged{}))
-
-		// システム実行
-		sys := &StatsChangedSystem{}
-		err = sys.Update(world)
-		require.NoError(t, err)
-
-		// 能力値にペナルティが反映されていることを確認
-		abils = world.Components.Abilities.Get(player)
-		assert.Less(t, abils.Strength.Total, initialStrength, "低体温でStrengthが減少するべき")
-	})
-}
-
 func TestStatsChangedSystem_APClamp(t *testing.T) {
 	t.Parallel()
 

@@ -932,6 +932,75 @@ msgstr "飢餓"
 msgid "Hypothermia"
 msgstr "低体温"
 
+msgid "Fracture"
+msgstr "骨折"
+
+msgid "Laceration"
+msgstr "切り傷"
+
+msgid "Liver illness"
+msgstr "肝疾患"
+
+msgid "The body is dangerously cold. Warm up to recover."
+msgstr "体が危険なほど冷えている。暖まれば回復する。"
+
+msgid "A broken bone. It will not heal until treated."
+msgstr "骨が折れている。治療するまで回復しない。"
+
+msgid "An open wound. It will not heal until treated."
+msgstr "傷口が開いている。治療するまで回復しない。"
+
+msgid "It worsens while untreated and drains HP when severe."
+msgstr "放置すると悪化し、重症になると HP を削る。"
+
+msgid "Treatment"
+msgstr "治療"
+
+msgid "Untreated"
+msgstr "未治療"
+
+msgid "Tended"
+msgstr "治療済み"
+
+msgid "No injury or illness"
+msgstr "怪我や病気はない"
+
+msgid "Pain"
+msgstr "痛み"
+
+msgid "Consciousness"
+msgstr "意識"
+
+msgid "Manipulation"
+msgstr "操作"
+
+msgid "Moving"
+msgstr "歩行"
+
+msgid "Sight"
+msgstr "視覚"
+
+msgid "Body function"
+msgstr "身体機能"
+
+msgid "Body capacities lowered by injuries and illness"
+msgstr "怪我や病気で下がる身体機能"
+
+msgid "Pain from conditions. Lowers consciousness"
+msgstr "不調による痛み。意識を下げる"
+
+msgid "Master capacity. Multiplies all others"
+msgstr "全機能に掛かる乗数"
+
+msgid "Affects melee accuracy and crafting"
+msgstr "近接命中と製作に効く"
+
+msgid "Affects move speed"
+msgstr "移動速度に効く"
+
+msgid "Affects ranged accuracy and vision"
+msgstr "遠隔命中と視界に効く"
+
 msgid "Minor"
 msgstr "軽"
 

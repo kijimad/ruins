@@ -28,10 +28,11 @@ const (
 func CalcHitRate(dexterity, agility, weaponAccuracy int) int {
 	hitRate := BaseHitRate + (dexterity-agility)*HitRatePerStatPoint
 	hitRate += weaponAccuracy - BaseHitRate
-	return clampHitRate(hitRate)
+	return ClampHitRate(hitRate)
 }
 
-func clampHitRate(hitRate int) int {
+// ClampHitRate は命中率を下限 MinHitRate と上限 MaxHitRate に収める
+func ClampHitRate(hitRate int) int {
 	if hitRate > MaxHitRate {
 		hitRate = MaxHitRate
 	}

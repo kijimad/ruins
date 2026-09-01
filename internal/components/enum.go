@@ -25,26 +25,9 @@ const (
 	BodyPartCount                     // 部位数
 )
 
-// String は部位名を返す
+// String は部位名を返す。対応は bodyPartMetas で定める
 func (bp BodyPart) String() string {
-	switch bp {
-	case BodyPartHead:
-		return "Head"
-	case BodyPartTorso:
-		return "Torso"
-	case BodyPartArms:
-		return "Arm"
-	case BodyPartHands:
-		return "Hand"
-	case BodyPartLegs:
-		return "Leg"
-	case BodyPartFeet:
-		return "Foot"
-	case BodyPartWholeBody:
-		return "Whole body"
-	default:
-		panic("invalid BodyPart value")
-	}
+	return bodyPartMetas[bp].displayName
 }
 
 // ================
