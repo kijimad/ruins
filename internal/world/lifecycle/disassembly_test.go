@@ -221,8 +221,6 @@ func TestRollDisassemblyYields(t *testing.T) {
 	})
 }
 
-// TestSpawnDisassemblyYields は分解産出の一覧を指定タイルへフィールドアイテムとして
-// 生成することと、アイテム生成に失敗した場合にエラーが伝播することを検証する。
 func TestSpawnDisassemblyYields(t *testing.T) {
 	t.Parallel()
 
