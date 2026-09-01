@@ -5,7 +5,7 @@ go 1.27.0
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/caarlos0/env/v11 v11.4.1
-	github.com/getkin/kin-openapi v0.147.0
+	github.com/getkin/kin-openapi v0.149.0
 	github.com/go-text/typesetting v0.3.4
 	github.com/hajimehoshi/ebiten/v2 v2.9.10
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
@@ -54,7 +54,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
-	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/schollz/progressbar/v3 v3.14.2 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/termie/go-shutil v0.0.0-20140729215957-bcacb06fecae // indirect
