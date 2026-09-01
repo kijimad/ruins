@@ -292,14 +292,14 @@ func TestHealthStatus_Capacities(t *testing.T) {
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
 		caps := hs.Capacities()
-		// 痛み = 12*2 = 24。意識 = 100 - 24/2 = 88
-		assert.Equal(t, 24, int(caps.Pain))
-		assert.Equal(t, 88, int(caps.Consciousness))
-		// 操作 = (100 - 15*2) * 意識88/100 = 70*88/100 = 61
-		assert.Equal(t, 61, int(caps.Manipulation))
+		// 骨折 18/20 の中度。痛み = 18*2 = 36。意識 = 100 - 36/2 = 82
+		assert.Equal(t, 36, int(caps.Pain))
+		assert.Equal(t, 82, int(caps.Consciousness))
+		// 操作 = (100 - 20*2) * 意識82/100 = 60*82/100 = 49
+		assert.Equal(t, 49, int(caps.Manipulation))
 		// 歩行・視覚は局所低下なしだが意識が掛かる
-		assert.Equal(t, 88, int(caps.Moving))
-		assert.Equal(t, 88, int(caps.Sight))
+		assert.Equal(t, 82, int(caps.Moving))
+		assert.Equal(t, 82, int(caps.Sight))
 	})
 
 	t.Run("部位で下げる機能が変わる", func(t *testing.T) {
@@ -332,24 +332,34 @@ func TestClamp(t *testing.T) {
 func TestConditionCapacityImpact(t *testing.T) {
 	t.Parallel()
 
-	t.Run("腕の不調は操作を下げ痛みを与える", func(t *testing.T) {
+	t.Run("腕の骨折は操作を下げ痛みを与える", func(t *testing.T) {
 		t.Parallel()
-		pain, capacity, drop := ConditionCapacityImpact(BodyPartArms, SeverityMedium)
-		assert.Equal(t, 24, pain)
+		// 骨折 18/20 の中度: 痛み 18*2=36、操作 20*2=40
+		pain, capacity, drop := ConditionCapacityImpact(ConditionFracture, BodyPartArms, SeverityMedium)
+		assert.Equal(t, 36, pain)
 		assert.Equal(t, CapacityManipulation, capacity)
-		assert.Equal(t, 30, drop)
+		assert.Equal(t, 40, drop)
+	})
+
+	t.Run("症状ごとに反応率が違う", func(t *testing.T) {
+		t.Parallel()
+		// 同じ部位・重症度でも切り傷は骨折より痛みも機能低下も小さい
+		fracPain, _, fracDrop := ConditionCapacityImpact(ConditionFracture, BodyPartArms, SeverityMedium)
+		lacPain, _, lacDrop := ConditionCapacityImpact(ConditionLaceration, BodyPartArms, SeverityMedium)
+		assert.Less(t, lacPain, fracPain, "切り傷は骨折より痛みが小さい")
+		assert.Less(t, lacDrop, fracDrop, "切り傷は骨折より機能低下が小さい")
 	})
 
 	t.Run("脚の不調は歩行を下げる", func(t *testing.T) {
 		t.Parallel()
-		_, capacity, _ := ConditionCapacityImpact(BodyPartFeet, SeverityMinor)
+		_, capacity, _ := ConditionCapacityImpact(ConditionFracture, BodyPartFeet, SeverityMinor)
 		assert.Equal(t, CapacityMoving, capacity)
 	})
 
 	t.Run("重症度なしは影響なし", func(t *testing.T) {
 		t.Parallel()
 		// capacity は部位で定まり重症度に依らない。影響なしは drop と pain が0であることで表す
-		pain, capacity, drop := ConditionCapacityImpact(BodyPartArms, SeverityNone)
+		pain, capacity, drop := ConditionCapacityImpact(ConditionFracture, BodyPartArms, SeverityNone)
 		assert.Equal(t, 0, pain)
 		assert.Equal(t, CapacityManipulation, capacity)
 		assert.Equal(t, 0, drop)

@@ -130,10 +130,10 @@ func TestRecalculateCharModifiers_HealthPenalty(t *testing.T) {
 
 	// 不調は MoveCost へ直接足さず身体機能 Capacities に一本化する
 	assert.Equal(t, 100, int(mods.MoveCost), "低体温は MoveCost へ足さない")
-	// 中度の全身性低体温: 痛み12*2=24、意識=100-30-24/2=58、歩行=100*58/100=58
-	assert.Equal(t, 24, int(mods.Capacities.Pain))
-	assert.Equal(t, 58, int(mods.Capacities.Consciousness))
-	assert.Equal(t, 58, int(mods.Capacities.Moving))
+	// 中度の全身性低体温 6/20: 痛み6*2=12、意識=100-40-12/2=54、歩行=100*54/100=54
+	assert.Equal(t, 12, int(mods.Capacities.Pain))
+	assert.Equal(t, 54, int(mods.Capacities.Consciousness))
+	assert.Equal(t, 54, int(mods.Capacities.Moving))
 }
 
 func TestRecalculateCharModifiers_NilAbilsAndHS(t *testing.T) {
@@ -207,8 +207,8 @@ func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
 
 	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82。低体温は MoveCost へ足さない
 	assert.Equal(t, 82, int(mods.MoveCost))
-	// 重度の全身性低体温は身体機能へ効く。意識=100-45-36/2=37、歩行=100*37/100=37
-	assert.Equal(t, 37, int(mods.Capacities.Moving))
+	// 重度の全身性低体温 6/20 は身体機能へ効く。意識=100-60-18/2=31、歩行=100*31/100=31
+	assert.Equal(t, 31, int(mods.Capacities.Moving))
 
 	// Sourcesはスキルと能力値の2要因。健康は Capacities 側なので MoveCost には載らない
 	sources := mods.Sources[ModMoveCost]

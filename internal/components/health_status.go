@@ -79,19 +79,43 @@ const (
 	ConditionLiverIllness ConditionType = "LiverIllness" // 肝疾患
 )
 
-// conditionMeta は状態種類ごとの静的な表示情報。displayName と description を
-// 別々の switch に散らさず1つの表に畳む。値はいずれも英語 msgid で UI が query.T で訳す
+// conditionMeta は状態種類ごとの静的な情報。表示と身体への反応率を1つの表に畳み、
+// 症状の全属性を横1行で見渡せるようにする。反応率は症状ごとに異なる
 type conditionMeta struct {
-	displayName string // 表示名 msgid
-	description string // 概要説明 msgid。何であるかと未治療の振る舞いを1文で伝える
+	// displayName は表示名 msgid
+	displayName string
+	// description は概要説明 msgid。何であるかと未治療の振る舞いを1文で伝える
+	description string
+	// painPerSeverity は重症度1段あたりに加える痛み
+	painPerSeverity int
+	// capacityDropPerSeverity は重症度1段あたりに下げる該当機能の量
+	capacityDropPerSeverity int
 }
 
-// conditionMetas は状態種類ごとの表示情報。状態を足すときはここへ1行足す
+// conditionMetas は状態種類ごとの情報。状態を足すときはここへ1行足す。
+// 反応率は実プレイで調整する。骨折は激痛で機能を大きく損ない、切り傷は軽く、
+// 肝疾患は痛みが軽く全身性でHP消耗が主
 var conditionMetas = map[ConditionType]conditionMeta{
-	ConditionHypothermia:  {displayName: "Hypothermia", description: "The body is dangerously cold. Warm up to recover."},
-	ConditionFracture:     {displayName: "Fracture", description: "A broken bone. It will not heal until treated."},
-	ConditionLaceration:   {displayName: "Laceration", description: "An open wound. It will not heal until treated."},
-	ConditionLiverIllness: {displayName: "Liver illness", description: "It worsens while untreated and drains HP when severe."},
+	ConditionHypothermia: {
+		displayName:     "Hypothermia",
+		description:     "The body is dangerously cold. Warm up to recover.",
+		painPerSeverity: 6, capacityDropPerSeverity: 20,
+	},
+	ConditionFracture: {
+		displayName:     "Fracture",
+		description:     "A broken bone. It will not heal until treated.",
+		painPerSeverity: 18, capacityDropPerSeverity: 20,
+	},
+	ConditionLaceration: {
+		displayName:     "Laceration",
+		description:     "An open wound. It will not heal until treated.",
+		painPerSeverity: 8, capacityDropPerSeverity: 8,
+	},
+	ConditionLiverIllness: {
+		displayName:     "Liver illness",
+		description:     "It worsens while untreated and drains HP when severe.",
+		painPerSeverity: 4, capacityDropPerSeverity: 10,
+	},
 }
 
 // ConditionTypeDisplayName は状態種類の表示名を返す。未登録なら素のIDを返す
@@ -118,15 +142,9 @@ type BodyCapacities struct {
 	Sight         consts.Percent // 頭の不調で下がる
 }
 
-// 身体機能の導出パラメータ。値は実プレイで調整する
-const (
-	// conditionPainPerSeverity は重症度1段あたりの痛み
-	conditionPainPerSeverity = 12
-	// conditionCapacityDropPerSeverity は重症度1段あたりの機能低下
-	conditionCapacityDropPerSeverity = 15
-	// painConsciousnessDivisor は痛みが意識を下げる割合。痛みをこれで割ったぶん意識が下がる
-	painConsciousnessDivisor = 2
-)
+// painConsciousnessDivisor は痛みが意識を下げる割合。痛みをこれで割ったぶん意識が下がる。
+// 症状に依らない集約側の係数。値は実プレイで調整する
+const painConsciousnessDivisor = 2
 
 // CapacityKind は部位が下げる身体機能の区分
 type CapacityKind int
@@ -179,15 +197,21 @@ func HealthyCapacities() BodyCapacities {
 // pain は加える痛み、capacity は下げる機能の区分、drop はその低下量。
 // capacity は部位で定まり重症度に依らない。drop が0なら影響なしで、健康タブの症状詳細は
 // drop>0 のときだけ「操作 -Y」を出す
-func ConditionCapacityImpact(part BodyPart, sev Severity) (pain int, capacity CapacityKind, drop int) {
+func ConditionCapacityImpact(ct ConditionType, part BodyPart, sev Severity) (pain int, capacity CapacityKind, drop int) {
 	capacity = bodyPartCapacity(part)
+	pain, drop = conditionSeverityImpact(ct, sev)
+	return pain, capacity, drop
+}
+
+// conditionSeverityImpact は不調1件の痛みと機能低下を返す。症状ごとの反応率に重症度を掛ける。
+// 重症度なしや未登録の症状は0を返す。Capacities と ConditionCapacityImpact が共用する
+func conditionSeverityImpact(ct ConditionType, sev Severity) (pain, drop int) {
 	m := conditionSeverityMultiplier(sev)
 	if m == 0 {
-		return 0, capacity, 0
+		return 0, 0
 	}
-	pain = conditionPainPerSeverity * m
-	drop = conditionCapacityDropPerSeverity * m
-	return pain, capacity, drop
+	meta := conditionMetas[ct]
+	return meta.painPerSeverity * m, meta.capacityDropPerSeverity * m
 }
 
 // conditionSeverityMultiplier は重症度から効果倍率を返す
@@ -350,12 +374,8 @@ func (hs *HealthStatus) Capacities() BodyCapacities {
 	var manip, moving, sight, systemic int // 各機能の低下量
 	for i := range hs.Parts {
 		for _, cond := range hs.Parts[i].Conditions {
-			m := conditionSeverityMultiplier(cond.Severity)
-			if m == 0 {
-				continue
-			}
-			pain += conditionPainPerSeverity * m
-			drop := conditionCapacityDropPerSeverity * m
+			p, drop := conditionSeverityImpact(cond.Type, cond.Severity)
+			pain += p
 			switch bodyPartCapacity(BodyPart(i)) {
 			case CapacityManipulation:
 				manip += drop

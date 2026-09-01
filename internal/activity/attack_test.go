@@ -299,8 +299,8 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	// 再計算されたCharModifiersにHealthStatusの身体機能が反映されている
 	mods := world.Components.CharModifiers.Get(actor)
 	require.NotNil(t, mods)
-	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-15-12/2=79、歩行=79
-	assert.Equal(t, 79, int(mods.Capacities.Moving), "HealthStatusが CharModifiers の身体機能へ反映される")
+	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-20-6/2=77、歩行=77
+	assert.Equal(t, 77, int(mods.Capacities.Moving), "HealthStatusが CharModifiers の身体機能へ反映される")
 }
 
 func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {

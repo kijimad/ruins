@@ -138,7 +138,8 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 
 	// 詳細は選んだ1症状ぶんを組む。名前は症状名、概要と性能行を持つ
 	content := healthDetailContent(world, frac)
-	assert.Equal(t, "Fracture Medium", content.Name, "見出しは症状名")
+	// 見出しは症状名のみ。重症度は Progress 行の%で表すので名前に付けない
+	assert.Equal(t, "Fracture", content.Name, "見出しは症状名")
 	assert.Contains(t, content.Desc, "broken bone", "概要説明を持つ")
 
 	var prog, tend, pain, manip string
@@ -156,9 +157,9 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	}
 	assert.Equal(t, "60%", prog, "進行度をタイマーから出す")
 	assert.Equal(t, "Tended 150%", tend, "治療済みと質")
-	// 腕の骨折(中)は痛み +24、操作 -30。身体機能へ効かせる
-	assert.Equal(t, "+24", pain, "痛みを与える")
-	assert.Equal(t, "-30", manip, "腕の不調は操作を下げる")
+	// 腕の骨折(中)は痛み +36、操作 -40。骨折 18/20 の中度で身体機能へ効かせる
+	assert.Equal(t, "+36", pain, "痛みを与える")
+	assert.Equal(t, "-40", manip, "腕の不調は操作を下げる")
 }
 
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {

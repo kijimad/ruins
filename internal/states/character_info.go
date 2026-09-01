@@ -207,15 +207,10 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	return items
 }
 
-// translatedConditionName は不調の種類名と重症度をそれぞれ訳して組む。
-// DisplayName の複合文字列をそのまま訳すと po に組み合わせ分の訳が要るので、部分ごとに訳す
-func translatedConditionName(world w.World, cond gc.HealthCondition) string {
-	name := query.T(world, gc.ConditionTypeDisplayName(cond.Type))
-	if cond.Severity != gc.SeverityNone {
-		// 丸括弧を避け、重症度は空白で続ける
-		name += " " + query.T(world, cond.Severity.String())
-	}
-	return name
+// translatedConditionName は不調の種類名を訳して返す。重症度は健康タブでは進行度%で
+// 表すため名前には付けない。名前は種類だけで決まるので ConditionType を受け取る
+func translatedConditionName(world w.World, ct gc.ConditionType) string {
+	return query.T(world, gc.ConditionTypeDisplayName(ct))
 }
 
 // treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す
@@ -249,7 +244,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		// 症状ごとに1エントリ。見出しと区別するため字下げし、値に進行度を出す
 		for _, cond := range conds {
 			items = append(items, statusItemData{
-				Label:         healthEntryIndent + translatedConditionName(world, cond),
+				Label:         healthEntryIndent + translatedConditionName(world, cond.Type),
 				Value:         fmt.Sprintf("%d%%", int(cond.Timer)),
 				BodyPart:      part,
 				ConditionType: cond.Type,
