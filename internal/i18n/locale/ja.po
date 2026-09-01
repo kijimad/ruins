@@ -5894,3 +5894,15 @@ msgstr "%s は %s を %s に負った。"
 
 msgid "%s used %s and treated %s."
 msgstr "%s は %s を使い %s を治療した。"
+
+msgid "Splint"
+msgstr "添え木"
+
+msgid "A splint. Set a broken bone so it can heal."
+msgstr "添え木。折れた骨を固定して治す。"
+
+msgid "Bandage"
+msgstr "包帯"
+
+msgid "A bandage. Close an open wound so it stops bleeding."
+msgstr "包帯。開いた傷を塞いで出血を止める。"

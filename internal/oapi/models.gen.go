@@ -962,6 +962,9 @@ type CommandTableList struct {
 	TotalCount int            `json:"totalCount"`
 }
 
+// ConditionTypeName 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値
+type ConditionTypeName = string
+
 // Consumable 消費可能アイテムの設定
 type Consumable struct {
 	// TargetGroup ターゲットグループ
@@ -1297,6 +1300,9 @@ type Item struct {
 	// ProvidesNutrition 栄養価
 	ProvidesNutrition *NutritionAmount `json:"providesNutrition,omitempty"`
 
+	// Remedy 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+	Remedy *Remedy `json:"remedy,omitempty"`
+
 	// SpriteKey スプライトキー
 	SpriteKey SpriteKey `json:"spriteKey"`
 
@@ -1544,6 +1550,9 @@ type PaletteList struct {
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 type PassCost = int
 
+// Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
+type Potency = int
+
 // Profession 職業
 type Profession struct {
 	// Abilities 能力値
@@ -1736,6 +1745,13 @@ type RecipeList struct {
 
 // ReloadEffort リロードに必要な行動力
 type ReloadEffort = int
+
+// Remedy 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+type Remedy struct {
+	// Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
+	Potency Potency             `json:"potency"`
+	Treats  []ConditionTypeName `json:"treats"`
+}
 
 // SaveDataAbilitiesComponent 能力値
 type SaveDataAbilitiesComponent struct {

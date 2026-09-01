@@ -277,6 +277,16 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if item.InflictsDamage != nil {
 		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
 	}
+	if item.Remedy != nil {
+		treats := make([]gc.ConditionType, 0, len(item.Remedy.Treats))
+		for _, t := range item.Remedy.Treats {
+			treats = append(treats, gc.ConditionType(t))
+		}
+		entitySpec.Remedy = &gc.Remedy{
+			Treats:  treats,
+			Potency: consts.Percent(item.Remedy.Potency),
+		}
+	}
 
 	if item.Ammo != nil {
 		var ammoAmmoTag oapi.AmmoTag

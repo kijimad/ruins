@@ -5869,6 +5869,44 @@ targetNum = "SINGLE"
 usableScene = "ANY"
 
 [[items]]
+description = "A splint. Set a broken bone so it can heal."
+name = "Splint"
+id = "splint"
+material = "WOOD"
+spriteKey = "healing_potion"
+spriteSheetName = "field"
+value = 60
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[items.remedy]
+treats = ["Fracture"]
+potency = 100
+
+[[items]]
+description = "A bandage. Close an open wound so it stops bleeding."
+name = "Bandage"
+id = "bandage"
+material = "CLOTH"
+spriteKey = "healing_potion"
+spriteSheetName = "field"
+value = 40
+weight = "50 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[items.remedy]
+treats = ["Laceration"]
+potency = 100
+
+[[items]]
 description = "Restores about half of your HP."
 name = "Healing Potion"
 id = "healing_potion"
