@@ -10,6 +10,8 @@ const (
 	CauseFrozen DeathCause = "frozen"
 	// CauseIllness は病気で死んだときの死因
 	CauseIllness DeathCause = "illness"
+	// CauseBloodLoss は外傷の失血で死んだときの死因
+	CauseBloodLoss DeathCause = "blood_loss"
 	// CauseDebug はデバッグで結果画面を確認するための死因
 	CauseDebug DeathCause = "debug"
 )

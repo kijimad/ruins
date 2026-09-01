@@ -32,8 +32,9 @@ type conditionSpec struct {
 	Recovery   RecoveryMode  // 未治療の振る舞いと治し方
 	WorsenPer  int           // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
 	RecoverPer int           // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
+	BleedPer   int           // 未治療で発症中のとき毎ターン失う HP。外傷の出血。0 なら出血しない
 	HPDamage   int           // 重症で毎ターン与える HP ダメージ。0 なら無害
-	Cause      gc.DeathCause // HPDamage で倒したときの死因。HPDamage が0なら未使用
+	Cause      gc.DeathCause // HPDamage か BleedPer で倒したときの死因。どちらも0なら未使用
 }
 
 // conditionCatalog は ConditionSystem が扱う不調の種類を網羅する実行時定数。
@@ -46,6 +47,8 @@ var conditionCatalog = map[gc.ConditionType]conditionSpec{
 	gc.ConditionLaceration: {
 		Recovery:   RecoverAfterTend,
 		RecoverPer: 4,
+		BleedPer:   1,
+		Cause:      gc.CauseBloodLoss,
 	},
 	gc.ConditionLiverIllness: {
 		Recovery:   ProgressUntilTend,
@@ -102,6 +105,11 @@ func (sys *ConditionSystem) Update(world w.World) error {
 
 				if cond.Severity == gc.SeveritySevere && spec.HPDamage > 0 && hasHP {
 					toDamage = append(toDamage, conditionDamage{entity: entity, amount: spec.HPDamage, cause: spec.Cause})
+				}
+
+				// 外傷は未治療で発症中のあいだ失血する。治療すると出血が止まり回復軌道へ乗る
+				if cond.TendQuality == 0 && cond.IsActive() && spec.BleedPer > 0 && hasHP {
+					toDamage = append(toDamage, conditionDamage{entity: entity, amount: spec.BleedPer, cause: spec.Cause})
 				}
 			}
 

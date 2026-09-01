@@ -107,6 +107,49 @@ func TestConditionSystem_Update(t *testing.T) {
 		assert.Equal(t, 28, world.Components.HP.Get(player).Current)
 	})
 
+	t.Run("未治療の切り傷は毎ターン失血する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		hs := world.Components.HealthStatus.Get(player)
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 60, Severity: gc.TimerToSeverity(60)})
+		world.Components.HP.Get(player).Current = 30
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		// BleedPer=1 削られる
+		assert.Equal(t, 29, world.Components.HP.Get(player).Current)
+	})
+
+	t.Run("治療した切り傷は失血しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		hs := world.Components.HealthStatus.Get(player)
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 60, Severity: gc.TimerToSeverity(60), TendQuality: 100})
+		world.Components.HP.Get(player).Current = 30
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		assert.Equal(t, 30, world.Components.HP.Get(player).Current, "治療で出血が止まる")
+	})
+
+	t.Run("発症前の掠り傷は失血しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		hs := world.Components.HealthStatus.Get(player)
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 10, Severity: gc.TimerToSeverity(10)})
+		world.Components.HP.Get(player).Current = 30
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		assert.Equal(t, 30, world.Components.HP.Get(player).Current, "発症前は出血しない")
+	})
+
 	t.Run("Timerが0になると不調は消える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
