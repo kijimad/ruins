@@ -4,11 +4,12 @@
 #
 # 環境変数:
 #   GRILL_BASE  比較の基点。既定 origin/main
-#   GRILL_COUNT 反復回数。既定 10
+#   GRILL_COUNT 反復回数。既定 5。反復回数×対象パッケージ1パスの実行時間が -timeout を超えると
+#               タイムアウトで落ちる。internal/states の VRT スイートは1パスが重いため上げすぎない
 set -eu
 
 base="${GRILL_BASE:-origin/main}"
-count="${GRILL_COUNT:-10}"
+count="${GRILL_COUNT:-5}"
 
 # 変更のあったテストファイル。git diff の失敗は set -e でそのまま落とす
 changed=$(git diff --name-only "${base}...HEAD" -- '*_test.go')
