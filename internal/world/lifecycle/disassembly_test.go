@@ -4,8 +4,12 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -199,5 +203,57 @@ func TestRollDisassemblyYields(t *testing.T) {
 			}
 		}
 		assert.InDelta(t, 600, hit, 150, "確定枠はDestroySalvageChance前後で当選するべき")
+	})
+
+	t.Run("個数表記が不正だとエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		rng := rand.New(rand.NewPCG(10, 0))
+		def := &oapi.Disassembly{
+			ToolCategory: oapi.Prying,
+			BaseAP:       100,
+			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "invalid"}},
+		}
+
+		_, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
+
+		require.Error(t, err)
+		assert.ErrorContains(t, err, "invalid disassembly yield count notation")
+	})
+}
+
+func TestSpawnDisassemblyYields(t *testing.T) {
+	t.Parallel()
+
+	t.Run("指定タイルへ産出をフィールドアイテムとして生成する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		stacks := []lifecycle.YieldStack{
+			{Name: "scrap_iron", Count: 2},
+			{Name: "healing_potion", Count: 1},
+		}
+
+		err := lifecycle.SpawnDisassemblyYields(world, stacks, consts.Tile(3), consts.Tile(4))
+		require.NoError(t, err)
+
+		counts := map[string]int{}
+		q := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.ECS).Query()
+		for q.Next() {
+			entity := q.Entity()
+			grid := world.Components.GridElement.Get(entity)
+			assert.Equal(t, consts.Tile(3), grid.X)
+			assert.Equal(t, consts.Tile(4), grid.Y)
+			counts[world.Components.RawID.Get(entity).ID]++
+		}
+		assert.Equal(t, map[string]int{"scrap_iron": 2, "healing_potion": 1}, counts, "定義した個数どおりにフィールドへ生成される")
+	})
+
+	t.Run("存在しないアイテム名はエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		stacks := []lifecycle.YieldStack{{Name: "存在しないアイテム", Count: 1}}
+
+		err := lifecycle.SpawnDisassemblyYields(world, stacks, consts.Tile(0), consts.Tile(0))
+
+		require.ErrorIs(t, err, lifecycle.ErrItemGeneration)
 	})
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -154,5 +155,31 @@ func TestChangeItemCount(t *testing.T) {
 
 		// WeightDirtyフラグが立っていることを確認
 		assert.True(t, world.Components.WeightDirty.Has(player), "WeightDirtyフラグが立つべき")
+	})
+
+	t.Run("収納アイテムを増やすと収納へ同種を生成する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		storage := world.ECS.NewEntity()
+		item, err := SpawnStorageItem(world, "healing_potion", 2, storage)
+		require.NoError(t, err)
+
+		err = ChangeItemCount(world, item, 3)
+		require.NoError(t, err)
+
+		assert.Len(t, query.GetStorageItems(world, storage), 5, "収納の在庫が5個になる")
+	})
+
+	t.Run("バックパックにも収納にもないアイテムを増やそうとするとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// フィールド上のアイテムはバックパックにも収納にも属さない
+		item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(1), consts.Tile(1), 1)
+		require.NoError(t, err)
+
+		err = ChangeItemCount(world, item, 1)
+		require.EqualError(t, err, "cannot add to stack: entity has no backpack or storage location")
 	})
 }
