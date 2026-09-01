@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
+	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -376,9 +377,31 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	if drop > 0 {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf("-%d", drop)})
 	}
+	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
+	if name, ok := remedyItemNameFor(world, cond.Type); ok {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Treated by"), Value: query.T(world, name)})
+	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),
 		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
 		Rows: rows,
 	}
+}
+
+// remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。
+// 健康タブに治し方を示すのに使う。見つからなければ ok=false
+func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {
+	items := raw.PtrSlice(world.Resources.RawMaster.Items)
+	for i := range items {
+		it := &items[i]
+		if it.Remedy == nil {
+			continue
+		}
+		for _, t := range it.Remedy.Treats {
+			if gc.ConditionType(t) == ct {
+				return it.Name, true
+			}
+		}
+	}
+	return "", false
 }

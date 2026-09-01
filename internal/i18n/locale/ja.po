@@ -5906,3 +5906,9 @@ msgstr "包帯"
 
 msgid "A bandage. Close an open wound so it stops bleeding."
 msgstr "包帯。開いた傷を塞いで出血を止める。"
+
+msgid "Treated by"
+msgstr "治し方"
+
+msgid "You contracted %s."
+msgstr "%s を発症した。"

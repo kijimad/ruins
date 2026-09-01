@@ -215,6 +215,9 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 // rottenNutritionPercent は腐敗した食料から得られる栄養の割合。満額の3割。
 const rottenNutritionPercent = 30
 
+// rottenIllnessChancePercent は腐敗食を食べたとき病気を発症する確率。値は実プレイで調整する
+const rottenIllnessChancePercent = 25
+
 // applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
 func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
 	if !world.Components.Hunger.Has(actor) {
@@ -243,6 +246,11 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		nutrition = 1
 	}
 	hunger.Increase(nutrition)
+
+	// 腐敗食は低確率で病気を発症させる。放置すると悪化するので早めの治療を促す
+	if stage == gc.FreshnessRotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
+		gameaction.ContractIllness(world, actor, gc.ConditionLiverIllness)
+	}
 
 	isSatiated := hunger.GetLevel() == gc.HungerSatiated
 	u.logNutritionUse(actor, world, item, isSatiated)
