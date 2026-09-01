@@ -378,6 +378,20 @@ type HealthStatus struct {
 	BodyTempOffset float64
 }
 
+// IsBleeding は未治療で発症中の出血持ちの不調が1つでもあるかを返す。
+// 開いた傷を抱えているあいだは自然回復を止めるのに使う
+func (hs *HealthStatus) IsBleeding() bool {
+	for i := range hs.Parts {
+		for _, cond := range hs.Parts[i].Conditions {
+			def, ok := conditionDefs[cond.Type]
+			if ok && def.BleedPer > 0 && cond.TendQuality == 0 && cond.IsActive() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // Capacities は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
 // 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識が全機能へ乗算される
 func (hs *HealthStatus) Capacities() BodyCapacities {

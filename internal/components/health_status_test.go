@@ -337,6 +337,38 @@ func TestBodyPartMetas_全部位が登録されている(t *testing.T) {
 	}
 }
 
+func TestHealthStatus_IsBleeding(t *testing.T) {
+	t.Parallel()
+
+	t.Run("未治療で発症中の切り傷は出血中", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
+		assert.True(t, hs.IsBleeding())
+	})
+
+	t.Run("治療した切り傷は出血しない", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60), TendQuality: 100})
+		assert.False(t, hs.IsBleeding())
+	})
+
+	t.Run("発症前の掠り傷は出血しない", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 10, Severity: TimerToSeverity(10)})
+		assert.False(t, hs.IsBleeding())
+	})
+
+	t.Run("骨折は出血しない", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Timer: 60, Severity: TimerToSeverity(60)})
+		assert.False(t, hs.IsBleeding())
+	})
+}
+
 func TestClamp(t *testing.T) {
 	t.Parallel()
 
