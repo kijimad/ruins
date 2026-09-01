@@ -135,6 +135,7 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	assert.True(t, hasArmHeader, "部位はカテゴリ見出しになる")
 	require.Equal(t, gc.ConditionFracture, frac.ConditionType, "腕の骨折が1エントリとして並ぶ")
 	assert.Equal(t, "60%", frac.Value, "エントリの値に進行度")
+	assert.Contains(t, frac.Label, "Tended 150%", "症状名の右に治療状態")
 
 	// 詳細は選んだ1症状ぶんを組む。名前は症状名、概要と性能行を持つ
 	content := healthDetailContent(world, frac)

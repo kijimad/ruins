@@ -240,10 +240,11 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 			items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, "Normal"), BodyPart: part})
 			continue
 		}
-		// 症状ごとに1エントリ。見出しと区別するため字下げし、値に進行度を出す
+		// 症状ごとに1エントリ。見出しと区別するため字下げし、名前の右に治療状態、値に進行度を出す
 		for _, cond := range conds {
+			name := translatedConditionName(world, cond.Type) + "  " + treatmentStatus(world, cond)
 			items = append(items, statusItemData{
-				Label:         healthEntryIndent + translatedConditionName(world, cond.Type),
+				Label:         healthEntryIndent + name,
 				Value:         fmt.Sprintf("%d%%", int(cond.Timer)),
 				BodyPart:      part,
 				ConditionType: cond.Type,
