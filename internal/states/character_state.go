@@ -374,7 +374,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Pain"), Value: fmt.Sprintf("+%d", pain)})
 	}
 	if drop > 0 {
-		rows = append(rows, entityspec.SpecRow{Label: query.T(world, capacity.String()), Value: fmt.Sprintf("-%d", drop)})
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf("-%d", drop)})
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),
