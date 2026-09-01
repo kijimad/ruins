@@ -107,6 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | draft | [HPで気軽に戦い、部位の不調で緊張を足す: 怪我・病気・低体温ダメージと治療](docs/design/260830231055.md) | 0/12 | gamedesign, combat, ecs |
+| draft | [OSS 調査 2026-09](docs/design/260901001755.md) | 0/4 | ci, movement, combat, worldgen |
 
 
 ## Reference
