@@ -274,6 +274,12 @@ func (hc *HealthCondition) IsActive() bool {
 	return hc.Timer >= 25
 }
 
+// IsBleeding はこの不調がいま失血しているかを返す。未治療で発症中の出血持ちが対象。
+// 失血の適用と、出血中の自然回復停止が同じ述語を共有する
+func (hc *HealthCondition) IsBleeding(def ConditionDef) bool {
+	return def.BleedPer > 0 && hc.TendQuality == 0 && hc.IsActive()
+}
+
 // TimerToSeverity はタイマー値からSeverityを導出する
 func TimerToSeverity(timer float64) Severity {
 	switch {
@@ -383,8 +389,7 @@ type HealthStatus struct {
 func (hs *HealthStatus) IsBleeding() bool {
 	for i := range hs.Parts {
 		for _, cond := range hs.Parts[i].Conditions {
-			def, ok := conditionDefs[cond.Type]
-			if ok && def.BleedPer > 0 && cond.TendQuality == 0 && cond.IsActive() {
+			if def, ok := conditionDefs[cond.Type]; ok && cond.IsBleeding(def) {
 				return true
 			}
 		}

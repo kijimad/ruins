@@ -73,7 +73,7 @@ func (sys *ConditionSystem) Update(world w.World) error {
 				}
 
 				// 外傷は未治療で発症中のあいだ失血する。治療すると出血が止まり回復軌道へ乗る
-				if cond.TendQuality == 0 && cond.IsActive() && def.BleedPer > 0 && hasHP {
+				if cond.IsBleeding(def) && hasHP {
 					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.BleedPer, cause: def.Cause})
 				}
 			}
