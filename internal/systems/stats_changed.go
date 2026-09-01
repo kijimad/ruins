@@ -98,9 +98,6 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			query.GetVisionState(world).RequestUpdate()
 		}
 
-		// 不調は能力値を直接いじらず、身体機能 capacity として各行動の効率へ効かせる。
-		// capacity は HealthStatus.Capacities から読み取り時に導出する
-
 		// Total を計算
 		abils.Vitality.Total = abils.Vitality.Base + abils.Vitality.Modifier
 		abils.Strength.Total = abils.Strength.Base + abils.Strength.Modifier
