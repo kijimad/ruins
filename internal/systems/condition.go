@@ -124,6 +124,13 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 		rec := cond.TendQuality.ApplyInt(def.RecoverPer)
 		rec = metab.ApplyInt(rec)
 		return -float64(rec)
+	case gc.RecoverOverTime:
+		// 自己限定。未治療でも代謝で自然に治る。治療すればその質でさらに速まる
+		rec := def.RecoverPer
+		if cond.TendQuality > 0 {
+			rec = cond.TendQuality.ApplyInt(rec)
+		}
+		return -float64(metab.ApplyInt(rec))
 	}
 	// default を置くと exhaustive linter が沈黙するので置かない。内部の信頼できる値なので未知は panic する
 	panic("unknown RecoveryMode: " + string(def.Recovery))

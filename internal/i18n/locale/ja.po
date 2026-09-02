@@ -935,6 +935,9 @@ msgstr "切り傷"
 msgid "Liver illness"
 msgstr "肝疾患"
 
+msgid "Food poisoning"
+msgstr "食あたり"
+
 msgid "The body is dangerously cold. Warm up to recover."
 msgstr "体が危険なほど冷えている。暖まれば回復する。"
 
@@ -946,6 +949,9 @@ msgstr "傷口が開いている。治療するまで回復しない。"
 
 msgid "It worsens while untreated and drains HP when severe."
 msgstr "放置すると悪化し、重症になると HP を削る。"
+
+msgid "Nausea from bad food. It clears on its own over time."
+msgstr "傷んだ食べ物による吐き気。時間が経てば自然に治る。"
 
 msgid "Treatment"
 msgstr "治療"

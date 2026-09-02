@@ -91,6 +91,32 @@ func TestConditionSystem_Update(t *testing.T) {
 		assert.InDelta(t, 57, cond.Timer, 1e-9)
 	})
 
+	t.Run("未治療の食中毒は自然に治る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 代謝100%、RecoverPer=4 なので未治療でも 4 減る。自己限定型の要
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60})
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
+		require.NotNil(t, cond)
+		assert.InDelta(t, 56, cond.Timer, 1e-9, "未治療でも時間で治る")
+	})
+
+	t.Run("治療した食中毒はより速く治る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// RecoverPer=4、TendQuality=150%なので 4*1.5=6 減る。治療で快復が早まる
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60, TendQuality: 150})
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
+		require.NotNil(t, cond)
+		assert.InDelta(t, 54, cond.Timer, 1e-9, "治療すると回復が速まる")
+	})
+
 	t.Run("重症の病気は毎ターンHPを削る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -166,7 +192,7 @@ func TestManagedConditionDef_扱う不調を網羅しHypothermiaを含まない(
 	t.Parallel()
 
 	// ConditionSystem が扱う怪我と病気は Recovery を持ち managed になる。登録漏れは動作不全になる
-	for _, ct := range []gc.ConditionType{gc.ConditionFracture, gc.ConditionLaceration, gc.ConditionLiverIllness} {
+	for _, ct := range []gc.ConditionType{gc.ConditionFracture, gc.ConditionLaceration, gc.ConditionLiverIllness, gc.ConditionFoodPoisoning} {
 		_, ok := managedConditionDef(ct)
 		assert.True(t, ok, "%s は ConditionSystem 管轄であるべき", gc.ConditionTypeDisplayName(ct))
 	}

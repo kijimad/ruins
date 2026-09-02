@@ -13,7 +13,7 @@ const illnessOnsetTimer = 30
 
 // ContractIllness は病気を1つ発症させる。病気は全身性なので胴に付ける。既に同じ病気があれば重ねない。
 // HealthStatus を持たない対象には何もしない。発症したら true を返し、身体機能の再計算を促す。
-// 発症したての浅い進行度で始まり、放置すれば ConditionSystem が悪化させる
+// 発症したての浅い進行度で始まり、以降の進行は不調ごとの回復モードに従う
 func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool {
 	if !world.Components.HealthStatus.Has(entity) {
 		return false

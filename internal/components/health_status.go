@@ -73,10 +73,11 @@ type ConditionType string
 
 // 状態種類定数
 const (
-	ConditionHypothermia  ConditionType = "Hypothermia"  // 低体温
-	ConditionFracture     ConditionType = "Fracture"     // 骨折
-	ConditionLaceration   ConditionType = "Laceration"   // 切り傷
-	ConditionLiverIllness ConditionType = "LiverIllness" // 肝疾患
+	ConditionHypothermia   ConditionType = "Hypothermia"   // 低体温
+	ConditionFracture      ConditionType = "Fracture"      // 骨折
+	ConditionLaceration    ConditionType = "Laceration"    // 切り傷
+	ConditionLiverIllness  ConditionType = "LiverIllness"  // 肝疾患
+	ConditionFoodPoisoning ConditionType = "FoodPoisoning" // 食中毒
 )
 
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
@@ -88,6 +89,8 @@ const (
 	RecoverAfterTend RecoveryMode = "recover_after_tend"
 	// ProgressUntilTend は未治療なら悪化し続け、治療して初めて回復軌道へ乗る。病気
 	ProgressUntilTend RecoveryMode = "progress_until_tend"
+	// RecoverOverTime は未治療でも時間で自然に治る。治療すれば回復が速まる。食中毒のような自己限定の不調
+	RecoverOverTime RecoveryMode = "recover_over_time"
 )
 
 // ConditionDef は状態種類ごとの静的な定義。表示・capacity への反応率・回復の振る舞いを1つの表に持つ。
@@ -131,6 +134,12 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		description:     "It worsens while untreated and drains HP when severe.",
 		painPerSeverity: 4, capacityDropPerSeverity: 10,
 		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 3, HPDamage: 2, Cause: CauseIllness,
+	},
+	ConditionFoodPoisoning: {
+		displayName:     "Food poisoning",
+		description:     "Nausea from bad food. It clears on its own over time.",
+		painPerSeverity: 5, capacityDropPerSeverity: 12,
+		Recovery: RecoverOverTime, RecoverPer: 4,
 	},
 }
 
