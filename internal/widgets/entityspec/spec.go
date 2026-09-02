@@ -156,20 +156,6 @@ var specParts = []specPart{
 			return nutritionRows(world, s.ProvidesNutrition)
 		},
 	},
-	{ // 治療
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Remedy.Has(e) {
-				return nil
-			}
-			return remedyRows(world, world.Components.Remedy.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Remedy == nil {
-				return nil
-			}
-			return remedyRows(world, s.Remedy)
-		},
-	},
 	{ // 鮮度。生成時の刻印が要るので実体のみ
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.Perishable.Has(e) {
@@ -218,6 +204,20 @@ var specParts = []specPart{
 				return nil
 			}
 			return weightRows(world, s.Weight)
+		},
+	},
+	{ // 治療。価値や重量など多くのアイテムに共通の項目の後に置く
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Remedy.Has(e) {
+				return nil
+			}
+			return remedyRows(world, world.Components.Remedy.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Remedy == nil {
+				return nil
+			}
+			return remedyRows(world, s.Remedy)
 		},
 	},
 	{ // 出品中。実体のみ
