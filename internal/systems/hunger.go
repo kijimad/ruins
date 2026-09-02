@@ -4,7 +4,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -29,22 +28,8 @@ func progressTurnHunger(world w.World) {
 		if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) < hungerPct {
 			world.Components.Hunger.Get(entity).Decrease(1)
 		}
-
-		// 飢餓が続くと低確率で病気になる。空腹ゲートと相関しないよう turn をずらした決定的ノイズで判定する
-		if world.Components.Hunger.Get(entity).GetLevel() == gc.HungerStarving &&
-			hungerNoise(entity, turn+starvationIllnessSaltTurns)%starvationIllnessChanceDenom == 0 {
-			gameaction.ContractIllness(world, entity, gc.ConditionLiverIllness)
-		}
 	}
 }
-
-// 飢餓による発症の判定パラメータ。値は実プレイで調整する
-const (
-	// starvationIllnessChanceDenom は飢餓1ターンあたりの発症確率の分母。1/この値で発症する
-	starvationIllnessChanceDenom = 40
-	// starvationIllnessSaltTurns は空腹ノイズと病気ノイズを非相関にするための turn ずらし
-	starvationIllnessSaltTurns consts.Turn = 7919
-)
 
 // hungerNoise は entity と turn から決定的な擬似乱数を撹拌する。splitmix64 の finalizer を使い、共有 RNG を
 // 汚さずに確率ゲートを再現する。
