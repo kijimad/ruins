@@ -43,14 +43,14 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("治療済みの骨折は質ぶん回復する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// RecoverPer=3、TendQuality=200%なので 3*2=6 減る
+		// RecoverPer=2、TendQuality=200%なので 2*2=4 減る
 		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, TendQuality: 200})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
 		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionFracture)
 		require.NotNil(t, cond)
-		assert.InDelta(t, 54, cond.Timer, 1e-9)
+		assert.InDelta(t, 56, cond.Timer, 1e-9)
 	})
 
 	t.Run("発症前の掠り傷は自然に癒える", func(t *testing.T) {
@@ -179,7 +179,7 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("Timerが0になると不調は消える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// Timer=1 に RecoverPer=3 の回復が来るので0でクランプされ除去される
+		// Timer=1 に RecoverPer=2 の回復が来るので0でクランプされ除去される
 		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 1, TendQuality: 100})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))

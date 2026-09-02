@@ -121,7 +121,8 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		displayName:     "Fracture",
 		description:     "A broken bone. It will not heal until treated.",
 		painPerSeverity: 18, capacityDropPerSeverity: 20,
-		Recovery: RecoverAfterTend, RecoverPer: 3,
+		// 骨は肉より治りが遅い。切り傷の半分の速さにし、治療しても完治まで長く付き合わせる
+		Recovery: RecoverAfterTend, RecoverPer: 2,
 	},
 	ConditionLaceration: {
 		displayName:     "Laceration",
