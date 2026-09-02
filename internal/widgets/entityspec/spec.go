@@ -21,7 +21,19 @@ type SpecRow struct {
 	Label  string
 	Value  string
 	Header bool
+	Indent bool // 見出しの下にぶら下がる子行。描画で1段インデントしてグループを読みやすくする
 	Color  *color.RGBA
+}
+
+// markChildren は見出し以外の行を子行としてインデント指定する。
+// 見出しを持つビルダの戻り値を包み、見出しの下の行を1段下げてグループ化する
+func markChildren(rows []SpecRow) []SpecRow {
+	for i := range rows {
+		if !rows[i].Header {
+			rows[i].Indent = true
+		}
+	}
+	return rows
 }
 
 // specPart は性能表示の1要素。実体と raw spec の2つのデータ源それぞれから行を作る。
@@ -240,23 +252,23 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 
 // auctionListingRows は出品中の品の番号と現在値を返す。先頭は見出し
 func auctionListingRows(world w.World, l *gc.AuctionListing) []SpecRow {
-	return []SpecRow{
+	return markChildren([]SpecRow{
 		{Label: query.T(world, "Auction"), Header: true},
 		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(l.Number)},
 		{Label: query.T(world, "Status"), Value: query.T(world, "Bidding")},
 		{Label: query.T(world, "Current bid"), Value: l.CurrentBid.String()},
-	}
+	})
 }
 
 // auctionSoldRows は落札済みの品の番号と落札額、出荷期限を返す。先頭は見出し
 func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
-	return []SpecRow{
+	return markChildren([]SpecRow{
 		{Label: query.T(world, "Auction"), Header: true},
 		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(s.Number)},
 		{Label: query.T(world, "Status"), Value: query.T(world, "Won")},
 		{Label: query.T(world, "Bid"), Value: s.Bid.String()},
 		{Label: query.T(world, "Ship by turn"), Value: strconv.Itoa(s.DueTurn)},
-	}
+	})
 }
 
 // SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。
@@ -338,7 +350,7 @@ func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 	if attack.GetElement() != gc.ElementTypeNone {
 		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, attack.GetElement().String())})
 	}
-	return rows
+	return markChildren(rows)
 }
 
 // fireAmmoRows は射程・弾薬の行を返す
@@ -356,7 +368,7 @@ func fireAmmoRows(world w.World, fire *gc.Fire) []SpecRow {
 			SpecRow{Label: query.T(world, "Reload"), Value: strconv.Itoa(fire.ReloadEffort)},
 		)
 	}
-	return rows
+	return markChildren(rows)
 }
 
 // wearableRows は防具の行を返す。先頭は装備部位の見出し
@@ -384,7 +396,7 @@ func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {
 		rows = append(rows, SpecRow{Label: query.T(world, "Heat resist"), Value: fmt.Sprintf("%+d", wearable.InsulationHeat)})
 	}
 	rows = append(rows, equipBonusRows(world, wearable.EquipBonus)...)
-	return rows
+	return markChildren(rows)
 }
 
 // equipBonusRows は装備ボーナスの行を返す。0 の項目は出さない
@@ -430,7 +442,7 @@ func remedyRows(world w.World, remedy *gc.Remedy) []SpecRow {
 		rows = append(rows, SpecRow{Label: query.T(world, "Target"), Value: query.T(world, gc.ConditionTypeDisplayName(ct))})
 	}
 	rows = append(rows, SpecRow{Label: query.T(world, "Potency"), Value: fmt.Sprintf("%d%%", int(remedy.Potency))})
-	return rows
+	return markChildren(rows)
 }
 
 // freshnessRow は鮮度の1行を返す。鮮度の算出は query.FreshnessStageOf に委ねる
@@ -462,5 +474,5 @@ func bookRows(world w.World, book *gc.Book) []SpecRow {
 		pct := book.Effort.Current * 100 / book.Effort.Max
 		rows = append(rows, SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", pct)})
 	}
-	return rows
+	return markChildren(rows)
 }
