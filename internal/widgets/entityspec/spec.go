@@ -427,7 +427,7 @@ func remedyRows(world w.World, remedy *gc.Remedy) []SpecRow {
 	rows := make([]SpecRow, 0, 2+len(remedy.Treats))
 	rows = append(rows, SpecRow{Label: query.T(world, "Treatment"), Header: true})
 	for _, ct := range remedy.Treats {
-		rows = append(rows, SpecRow{Label: query.T(world, "Treats"), Value: query.T(world, gc.ConditionTypeDisplayName(ct))})
+		rows = append(rows, SpecRow{Label: query.T(world, "Target"), Value: query.T(world, gc.ConditionTypeDisplayName(ct))})
 	}
 	rows = append(rows, SpecRow{Label: query.T(world, "Potency"), Value: fmt.Sprintf("%d%%", int(remedy.Potency))})
 	return rows

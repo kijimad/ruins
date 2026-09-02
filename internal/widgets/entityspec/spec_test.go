@@ -206,7 +206,7 @@ func TestUpdateSpec_治療アイテムは治す対象と効力を表示する(t 
 
 	assert.Equal(t, []string{
 		query.T(world, "Treatment"),
-		query.T(world, "Treats"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionFracture)),
+		query.T(world, "Target"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionFracture)),
 		query.T(world, "Potency"), "150%",
 	}, labels)
 }
@@ -221,7 +221,7 @@ func TestUpdateSpecFromSpec_治療アイテムは生成せず治す対象を表�
 
 	assert.Equal(t, []string{
 		query.T(world, "Treatment"),
-		query.T(world, "Treats"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionLaceration)),
+		query.T(world, "Target"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionLaceration)),
 		query.T(world, "Potency"), "100%",
 	}, labels)
 }
