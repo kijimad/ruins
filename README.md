@@ -106,7 +106,6 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [HPで気軽に戦い、部位の不調で緊張を足す: 怪我・病気・低体温ダメージと治療](docs/design/260830231055.md) | 12/13 | gamedesign, combat, ecs |
 | draft | [オーバーワールドの屋内外を判定し温度を場所依存にする](docs/design/260902002227.md) | 0/7（見送り2） | worldgen, gamedesign |
 
 
