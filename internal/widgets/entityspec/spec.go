@@ -21,12 +21,11 @@ type SpecRow struct {
 	Label  string
 	Value  string
 	Header bool
-	Indent int // 見出しからのインデント段数。0 は段なし。描画で段数ぶん下げてグループを読みやすくする
+	Indent int // 見出しからのインデント段数。0 は段なし
 	Color  *color.RGBA
 }
 
-// markChildren は見出し以外の行を1段深くする。見出しを持つビルダの戻り値を包んでグループ化する。
-// 段数を増やすので、入れ子のグループでも包むたびに深まる
+// markChildren は見出し以外の行を1段深くする。見出しを持つビルダの戻り値を包んでグループ化する
 func markChildren(rows []SpecRow) []SpecRow {
 	for i := range rows {
 		if !rows[i].Header {
@@ -38,8 +37,7 @@ func markChildren(rows []SpecRow) []SpecRow {
 
 // specPart は性能表示の1要素。実体と raw spec の2つのデータ源それぞれから行を作る。
 // fromSpec が nil の要素は raw spec 表示には出ない。生成後にしか定まらない鮮度や競売などが該当する。
-// 要素はこの specParts スライスが単一の真実で、SpecRows と SpecRowsFromSpec が同じ一覧を回す。
-// component を足すときはここへ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない
+// component を足すときはこの specParts へ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない
 type specPart struct {
 	fromEntity func(world w.World, entity ecs.Entity) []SpecRow
 	fromSpec   func(world w.World, spec gc.EntitySpec) []SpecRow

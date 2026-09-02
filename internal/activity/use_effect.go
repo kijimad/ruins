@@ -9,10 +9,9 @@ import (
 )
 
 // useEffect は使用時に発動する効果1種。アイテムがその効果 component を持つときだけ働く。
-// 効果を1つ足すときは useEffect を実装して useEffects へ1行足す。DoTurn/Validate/hasEffect の
-// 本体は触らない。効果の一覧はこのスライスが単一の真実で、使用可否・提示・適用がここから導かれる
+// 効果を1つ足すときは useEffect を実装して useEffects へ1行足す。DoTurn/Validate の本体は触らない
 type useEffect interface {
-	// present はアイテムがこの効果を持つかを返す。効果を適用する apply と紛れないよう述語は present にする
+	// present はアイテムがこの効果を持つかを返す
 	present(world w.World, item ecs.Entity) bool
 	// check は使う前の検証。使えない理由があれば *UserError を返す。既定は問題なし
 	check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error

@@ -298,7 +298,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 
 	// 腐敗する食料は鮮度を名前に添える。腐敗しない食料はそのまま
 	if stage, ok := query.FreshnessStageOf(world, item); !ok {
-		logger.Markup(query.T(world, "%s ate %s", actorMarkup, itemMarkup))
+		logger.Markup(query.T(world, "%s ate %s.", actorMarkup, itemMarkup))
 	} else {
 		switch stage {
 		case gc.FreshnessFresh:
