@@ -181,9 +181,11 @@ type InflictsDamage struct {
 }
 
 // Remedy は不調を治療する性質。使うと Treats に一致する不調のうち最も重い1つを治療済みにする。
+// Treats をスライスにするのは、1つのアイテムに関連する複数種の不調を治させるため。
+// 救急道具が骨折も切り傷も扱えれば、症状ごとに別のアイテムを何度も使う手間が減る。
 // Potency は治療の質で HealthCondition.TendQuality に入り、回復速度を左右する。100 が標準
 type Remedy struct {
-	Treats  []ConditionType
+	Treats  []ConditionType // 治療できる不調の種類。1つのアイテムが複数種を治せる
 	Potency consts.Percent
 }
 
