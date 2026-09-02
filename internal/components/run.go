@@ -18,21 +18,21 @@ const (
 	CauseDebug DeathCause = "debug"
 )
 
+// deathCauseDisplayNames は死因ごとの表示名 msgid。結果画面が query.T で訳す。
+// 表示名は分岐ロジックでなくデータなので switch でなく表で持つ。死因を足すときはここへ1行足す
+var deathCauseDisplayNames = map[DeathCause]string{
+	CauseFrozen:    "froze to death",
+	CauseIllness:   "died of illness",
+	CauseBloodLoss: "bled out",
+	CauseKilled:    "killed in battle",
+	CauseDebug:     "debug",
+}
+
 // DisplayName は死因の表示名 msgid を返す。結果画面が query.T で訳す。
-// default を置かず exhaustive を効かせ、DeathCause を足したら網羅漏れを lint で止める。
-// 保存値なので未知は素の文字列へ graceful に落とす。この fall-through が未信頼な旧セーブ値を受ける
+// 未登録の死因は素の文字列へ落とす。未信頼な旧セーブ値もこの経路で受ける
 func (c DeathCause) DisplayName() string {
-	switch c {
-	case CauseFrozen:
-		return "froze to death"
-	case CauseIllness:
-		return "died of illness"
-	case CauseBloodLoss:
-		return "bled out"
-	case CauseKilled:
-		return "killed in battle"
-	case CauseDebug:
-		return "debug"
+	if name, ok := deathCauseDisplayNames[c]; ok {
+		return name
 	}
 	return string(c)
 }
