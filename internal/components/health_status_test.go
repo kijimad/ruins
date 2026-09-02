@@ -405,31 +405,39 @@ func TestConditionCapacityImpact(t *testing.T) {
 	t.Run("腕の骨折は操作を下げ痛みを与える", func(t *testing.T) {
 		t.Parallel()
 		// 骨折 18/20 の中度: 痛み 18*2=36、操作 20*2=40
-		pain, capacity, drop := ConditionCapacityImpact(ConditionFracture, BodyPartArms, SeverityMedium)
+		pain, capacity, drop := ConditionCapacityImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium}, BodyPartArms)
 		assert.Equal(t, 36, pain)
 		assert.Equal(t, CapacityManipulation, capacity)
 		assert.Equal(t, 40, drop)
 	})
 
+	t.Run("応急処置で痛みと機能低下が半減する", func(t *testing.T) {
+		t.Parallel()
+		// 未治療は痛み36・操作40。応急処置(TendQuality>0)で半分の18・20へ軽減する
+		treatedPain, _, treatedDrop := ConditionCapacityImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium, TendQuality: 100}, BodyPartArms)
+		assert.Equal(t, 18, treatedPain, "痛みが半減する")
+		assert.Equal(t, 20, treatedDrop, "機能低下が半減する")
+	})
+
 	t.Run("症状ごとに反応率が違う", func(t *testing.T) {
 		t.Parallel()
 		// 同じ部位・重症度でも切り傷は骨折より痛みも機能低下も小さい
-		fracPain, _, fracDrop := ConditionCapacityImpact(ConditionFracture, BodyPartArms, SeverityMedium)
-		lacPain, _, lacDrop := ConditionCapacityImpact(ConditionLaceration, BodyPartArms, SeverityMedium)
+		fracPain, _, fracDrop := ConditionCapacityImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium}, BodyPartArms)
+		lacPain, _, lacDrop := ConditionCapacityImpact(&HealthCondition{Type: ConditionLaceration, Severity: SeverityMedium}, BodyPartArms)
 		assert.Less(t, lacPain, fracPain, "切り傷は骨折より痛みが小さい")
 		assert.Less(t, lacDrop, fracDrop, "切り傷は骨折より機能低下が小さい")
 	})
 
 	t.Run("脚の不調は歩行を下げる", func(t *testing.T) {
 		t.Parallel()
-		_, capacity, _ := ConditionCapacityImpact(ConditionFracture, BodyPartFeet, SeverityMinor)
+		_, capacity, _ := ConditionCapacityImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMinor}, BodyPartFeet)
 		assert.Equal(t, CapacityMoving, capacity)
 	})
 
 	t.Run("重症度なしは影響なし", func(t *testing.T) {
 		t.Parallel()
 		// capacity は部位で定まり重症度に依らない。影響なしは drop と pain が0であることで表す
-		pain, capacity, drop := ConditionCapacityImpact(ConditionFracture, BodyPartArms, SeverityNone)
+		pain, capacity, drop := ConditionCapacityImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityNone}, BodyPartArms)
 		assert.Equal(t, 0, pain)
 		assert.Equal(t, CapacityManipulation, capacity)
 		assert.Equal(t, 0, drop)

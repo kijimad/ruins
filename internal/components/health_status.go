@@ -122,25 +122,25 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		description:     "A broken bone. It will not heal until treated.",
 		painPerSeverity: 18, capacityDropPerSeverity: 20,
 		// 骨は肉より治りが遅い。切り傷の半分の速さにし、治療しても完治まで長く付き合わせる
-		Recovery: RecoverAfterTend, RecoverPer: 2,
+		Recovery: RecoverAfterTend, RecoverPer: 1,
 	},
 	ConditionLaceration: {
 		displayName:     "Laceration",
 		description:     "An open wound. It will not heal until treated.",
 		painPerSeverity: 8, capacityDropPerSeverity: 8,
-		Recovery: RecoverAfterTend, RecoverPer: 4, BleedPer: 1, Cause: CauseBloodLoss,
+		Recovery: RecoverAfterTend, RecoverPer: 2, BleedPer: 1, Cause: CauseBloodLoss,
 	},
 	ConditionLiverIllness: {
 		displayName:     "Liver illness",
 		description:     "It worsens while untreated and drains HP when severe.",
 		painPerSeverity: 4, capacityDropPerSeverity: 10,
-		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 3, HPDamage: 2, Cause: CauseIllness,
+		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 1, HPDamage: 2, Cause: CauseIllness,
 	},
 	ConditionFoodPoisoning: {
 		displayName:     "Food poisoning",
 		description:     "Nausea from bad food. It clears on its own over time.",
 		painPerSeverity: 5, capacityDropPerSeverity: 12,
-		Recovery: RecoverOverTime, RecoverPer: 4,
+		Recovery: RecoverOverTime, RecoverPer: 2,
 	},
 }
 
@@ -223,22 +223,32 @@ func HealthyCapacities() BodyCapacities {
 	return (&HealthStatus{}).Capacities()
 }
 
+// treatedPenaltyRemain は応急処置後に残る痛みと機能低下の割合。全治まで軽減して残す。
+// 出血や HP 減少は治療で止まるが、機能低下はゼロにはならず全治まで引きずる
+const treatedPenaltyRemain consts.Percent = 50
+
 // ConditionCapacityImpact は不調1件が身体機能へ与える影響を返す。
 // capacity は部位で定まり重症度に依らない。drop が0なら影響なし
-func ConditionCapacityImpact(ct ConditionType, part BodyPart, sev Severity) (pain int, capacity CapacityKind, drop int) {
+func ConditionCapacityImpact(cond *HealthCondition, part BodyPart) (pain int, capacity CapacityKind, drop int) {
 	capacity = bodyPartCapacity(part)
-	pain, drop = conditionSeverityImpact(ct, sev)
+	pain, drop = conditionSeverityImpact(cond)
 	return pain, capacity, drop
 }
 
-// conditionSeverityImpact は不調1件の痛みと機能低下を返す。症状ごとの反応率に重症度を掛ける
-func conditionSeverityImpact(ct ConditionType, sev Severity) (pain, drop int) {
-	m := conditionSeverityMultiplier(sev)
+// conditionSeverityImpact は不調1件の痛みと機能低下を返す。症状ごとの反応率に重症度を掛ける。
+// 応急処置済みなら軽減して返す。表示と適用がこの1関数を共有するので両者がずれない
+func conditionSeverityImpact(cond *HealthCondition) (pain, drop int) {
+	m := conditionSeverityMultiplier(cond.Severity)
 	if m == 0 {
 		return 0, 0
 	}
-	def := conditionDefs[ct]
-	return def.painPerSeverity * m, def.capacityDropPerSeverity * m
+	def := conditionDefs[cond.Type]
+	pain, drop = def.painPerSeverity*m, def.capacityDropPerSeverity*m
+	if cond.TendQuality > 0 {
+		pain = treatedPenaltyRemain.ApplyInt(pain)
+		drop = treatedPenaltyRemain.ApplyInt(drop)
+	}
+	return pain, drop
 }
 
 // conditionSeverityMultiplier は重症度から効果倍率を返す
@@ -436,8 +446,9 @@ func (hs *HealthStatus) Capacities() BodyCapacities {
 	pain := 0
 	var manip, moving, sight, systemic int // 各機能の低下量
 	for i := range hs.Parts {
-		for _, cond := range hs.Parts[i].Conditions {
-			p, drop := conditionSeverityImpact(cond.Type, cond.Severity)
+		for j := range hs.Parts[i].Conditions {
+			cond := &hs.Parts[i].Conditions[j]
+			p, drop := conditionSeverityImpact(cond)
 			pain += p
 			switch bodyPartCapacity(BodyPart(i)) {
 			case CapacityManipulation:

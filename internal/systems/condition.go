@@ -68,7 +68,8 @@ func (sys *ConditionSystem) Update(world w.World) error {
 					}
 				}
 
-				if cond.Severity == gc.SeveritySevere && def.HPDamage > 0 && hasHP {
+				// 応急処置で HP 減少は止まる。機能低下は軽減して全治まで残る
+				if cond.Severity == gc.SeveritySevere && def.HPDamage > 0 && hasHP && cond.TendQuality == 0 {
 					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.HPDamage, cause: def.Cause})
 				}
 

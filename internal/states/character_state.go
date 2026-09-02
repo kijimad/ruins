@@ -365,7 +365,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		return overlay.DetailContent{Name: item.Label}
 	}
 
-	pain, capacity, drop := gc.ConditionCapacityImpact(cond.Type, item.BodyPart, cond.Severity)
+	pain, capacity, drop := gc.ConditionCapacityImpact(cond, item.BodyPart)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},

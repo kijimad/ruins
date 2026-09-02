@@ -158,9 +158,9 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	}
 	assert.Equal(t, "60%", prog, "進行度をタイマーから出す")
 	assert.Equal(t, "Tended 150%", tend, "治療済みと質")
-	// 腕の骨折(中)は痛み +36、操作 -40。骨折 18/20 の中度で身体機能へ効かせる
-	assert.Equal(t, "+36", pain, "痛みを与える")
-	assert.Equal(t, "-40", manip, "腕の不調は操作を下げる")
+	// 腕の骨折(中)は未治療なら痛み+36・操作-40。応急処置済みなので半減し痛み+18・操作-20
+	assert.Equal(t, "+18", pain, "応急処置で痛みが半減する")
+	assert.Equal(t, "-20", manip, "応急処置で機能低下が半減する")
 }
 
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
