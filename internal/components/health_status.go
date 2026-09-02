@@ -188,27 +188,33 @@ const (
 	CapacitySight         CapacityKind = "Sight"         // 頭
 )
 
-// bodyPartMeta は部位ごとの静的情報。表示名と、不調が下げる身体機能を1つの表に持つ
+// bodyPartMeta は部位ごとの静的情報。表示名・下げる身体機能・命中重みを1つの表に持つ
 type bodyPartMeta struct {
 	displayName string       // 表示名 msgid
 	capacity    CapacityKind // この部位の不調が下げる身体機能
+	hitWeight   int          // 戦闘の命中抽選の重み。大きい部位ほど当たる。0 は命中先から除外
 }
 
-// bodyPartMetas は部位ごとの情報。部位階層は持たず、部位→機能の対応を平坦な固定表で示す。
-// 部位を足すときはここへ1行足す
+// bodyPartMetas は部位ごとの静的情報の唯一の表。部位階層は持たず平坦に持つ。
+// 部位を足すときはここへ1行足す。全身は全身性の状態の受け皿で戦闘の命中先ではないので命中重み 0
 var bodyPartMetas = [BodyPartCount]bodyPartMeta{
-	BodyPartHead:      {displayName: "Head", capacity: CapacitySight},
-	BodyPartTorso:     {displayName: "Torso", capacity: CapacityConsciousness},
-	BodyPartArms:      {displayName: "Arm", capacity: CapacityManipulation},
-	BodyPartHands:     {displayName: "Hand", capacity: CapacityManipulation},
-	BodyPartLegs:      {displayName: "Leg", capacity: CapacityMoving},
-	BodyPartFeet:      {displayName: "Foot", capacity: CapacityMoving},
-	BodyPartWholeBody: {displayName: "Whole body", capacity: CapacityConsciousness},
+	BodyPartHead:      {displayName: "Head", capacity: CapacitySight, hitWeight: 2},
+	BodyPartTorso:     {displayName: "Torso", capacity: CapacityConsciousness, hitWeight: 4},
+	BodyPartArms:      {displayName: "Arm", capacity: CapacityManipulation, hitWeight: 3},
+	BodyPartHands:     {displayName: "Hand", capacity: CapacityManipulation, hitWeight: 1},
+	BodyPartLegs:      {displayName: "Leg", capacity: CapacityMoving, hitWeight: 3},
+	BodyPartFeet:      {displayName: "Foot", capacity: CapacityMoving, hitWeight: 1},
+	BodyPartWholeBody: {displayName: "Whole body", capacity: CapacityConsciousness, hitWeight: 0},
 }
 
 // bodyPartCapacity は部位が下げる身体機能を返す
 func bodyPartCapacity(part BodyPart) CapacityKind {
 	return bodyPartMetas[part].capacity
+}
+
+// BodyPartHitWeight は戦闘の命中抽選での部位の重みを返す。0 なら命中先にならない
+func BodyPartHitWeight(part BodyPart) int {
+	return bodyPartMetas[part].hitWeight
 }
 
 // HealthyCapacities は不調が無いときの身体機能を返す。HealthStatus を持たない対象の既定

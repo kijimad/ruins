@@ -18,17 +18,6 @@ const (
 	maxInjuriesPerPartType = 3
 )
 
-// bodyPartHitWeights は命中部位の抽選重み。大きい部位ほど当たりやすい。
-// 全身は体温など全身性の受け皿で戦闘の命中先ではないので 0 にして除外する
-var bodyPartHitWeights = [gc.BodyPartCount]int{
-	gc.BodyPartHead:  2,
-	gc.BodyPartTorso: 4,
-	gc.BodyPartArms:  3,
-	gc.BodyPartHands: 1,
-	gc.BodyPartLegs:  3,
-	gc.BodyPartFeet:  1,
-}
-
 // injuryTypeFor は武器種から怪我の種類を導く。鈍器は骨折、刃と弾は切り傷。
 // 大砲は射撃だが重い衝撃で骨を砕くので骨折側に置く
 func injuryTypeFor(attackType gc.AttackType) gc.ConditionType {
@@ -72,15 +61,15 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	logInjury(actor, target, world, part, injuryType)
 }
 
-// randomHitPart は命中部位を重みで抽選する。map でなく配列を部位順で走査し、抽選を決定的にする
+// randomHitPart は命中部位を重みで抽選する。部位順に走査し、抽選を決定的にする
 func randomHitPart(world w.World) gc.BodyPart {
 	total := 0
-	for _, weight := range bodyPartHitWeights {
-		total += weight
+	for p := range gc.BodyPartCount {
+		total += gc.BodyPartHitWeight(p)
 	}
 	roll := world.Resources.Config.RNG.IntN(total)
 	for p := range gc.BodyPartCount {
-		weight := bodyPartHitWeights[p]
+		weight := gc.BodyPartHitWeight(p)
 		if weight == 0 {
 			continue
 		}

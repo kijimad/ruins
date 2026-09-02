@@ -29,7 +29,7 @@ func TestRandomHitPart(t *testing.T) {
 	for range 200 {
 		part := randomHitPart(world)
 		assert.NotEqual(t, gc.BodyPartWholeBody, part, "全身は命中先にしない")
-		assert.Positive(t, bodyPartHitWeights[part], "重みのある部位だけ選ぶ")
+		assert.Positive(t, gc.BodyPartHitWeight(part), "重みのある部位だけ選ぶ")
 	}
 }
 
