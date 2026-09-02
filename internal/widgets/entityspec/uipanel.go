@@ -38,9 +38,9 @@ func SpecRowWidgets(rows []SpecRow, face text.Face) []uicore.Widget {
 		value := uicore.NewText(r.Value, face, valColor)
 		value.Align = uicore.AlignRight
 		label := uicore.NewText(r.Label, face, specLabelColor)
-		if r.Indent {
-			// 見出しの下の子行を1段下げる。先頭に空の桁を差してラベルだけ右へずらし、値は右端揃えのまま
-			items = append(items, uicore.Row([]int{theme.Space4, cols[0], cols[1]}, uicore.NewGroup(), label, value))
+		if r.Indent > 0 {
+			// 子行を段数ぶん下げる。先頭に空の桁を差してラベルだけ右へずらし、値は右端揃えのまま
+			items = append(items, uicore.Row([]int{r.Indent * theme.Space4, cols[0], cols[1]}, uicore.NewGroup(), label, value))
 			continue
 		}
 		items = append(items, uicore.Row(cols, label, value))

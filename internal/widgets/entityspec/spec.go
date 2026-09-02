@@ -21,16 +21,16 @@ type SpecRow struct {
 	Label  string
 	Value  string
 	Header bool
-	Indent bool // 見出しの下にぶら下がる子行。描画で1段インデントしてグループを読みやすくする
+	Indent int // 見出しからのインデント段数。0 は段なし。描画で段数ぶん下げてグループを読みやすくする
 	Color  *color.RGBA
 }
 
-// markChildren は見出し以外の行を子行としてインデント指定する。
-// 見出しを持つビルダの戻り値を包み、見出しの下の行を1段下げてグループ化する
+// markChildren は見出し以外の行を1段深くする。見出しを持つビルダの戻り値を包んでグループ化する。
+// 段数を増やすので、入れ子のグループでも包むたびに深まる
 func markChildren(rows []SpecRow) []SpecRow {
 	for i := range rows {
 		if !rows[i].Header {
-			rows[i].Indent = true
+			rows[i].Indent++
 		}
 	}
 	return rows
