@@ -12,21 +12,21 @@ import (
 // 効果を1つ足すときは useEffect を実装して useEffects へ1行足す。DoTurn/Validate/hasEffect の
 // 本体は触らない。効果の一覧はこのスライスが単一の真実で、使用可否・提示・適用がここから導かれる
 type useEffect interface {
-	// applies はアイテムがこの効果を持つかを返す
-	applies(world w.World, item ecs.Entity) bool
+	// present はアイテムがこの効果を持つかを返す。効果を適用する apply と紛れないよう述語は present にする
+	present(world w.World, item ecs.Entity) bool
 	// check は使う前の検証。使えない理由があれば *UserError を返す。既定は問題なし
 	check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error
 	// apply は効果を適用する
 	apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error
 }
 
-// useEffects は使用時に働く効果の一覧。順に applies を見て、持つ効果だけ適用する
+// useEffects は使用時に働く効果の一覧。順に present を見て、持つ効果だけ適用する
 var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}}
 
 // healEffect は HP を回復する
 type healEffect struct{}
 
-func (healEffect) applies(world w.World, item ecs.Entity) bool {
+func (healEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.ProvidesHealing.Has(item)
 }
 
@@ -39,7 +39,7 @@ func (healEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.E
 // nutritionEffect は空腹度を回復する
 type nutritionEffect struct{}
 
-func (nutritionEffect) applies(world w.World, item ecs.Entity) bool {
+func (nutritionEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.ProvidesNutrition.Has(item)
 }
 
@@ -52,7 +52,7 @@ func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item 
 // damageEffect は使用者に自傷ダメージを与える
 type damageEffect struct{}
 
-func (damageEffect) applies(world w.World, item ecs.Entity) bool {
+func (damageEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.InflictsDamage.Has(item)
 }
 
@@ -66,7 +66,7 @@ func (damageEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, item ecs.En
 // remedyEffect は不調を治療する
 type remedyEffect struct{}
 
-func (remedyEffect) applies(world w.World, item ecs.Entity) bool {
+func (remedyEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.Remedy.Has(item)
 }
 

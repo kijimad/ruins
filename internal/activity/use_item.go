@@ -54,7 +54,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	// Use は効果のあるアイテムにしか提示されない。ここで効果なしなのは不変条件違反
 	hasEffect := false
 	for _, e := range useEffects {
-		if e.applies(world, item) {
+		if e.present(world, item) {
 			hasEffect = true
 			break
 		}
@@ -69,7 +69,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 	// 各効果の使用前検証。空振りなど使えない理由があれば使う前に弾く
 	for _, e := range useEffects {
-		if !e.applies(world, item) {
+		if !e.present(world, item) {
 			continue
 		}
 		if err := e.check(u, actor, item, world); err != nil {
@@ -100,7 +100,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	// アイテムが持つ効果を順に適用する。効果の一覧は useEffects が単一の真実
 	for _, e := range useEffects {
-		if !e.applies(world, item) {
+		if !e.present(world, item) {
 			continue
 		}
 		if err := e.apply(u, comp, actor, item, world); err != nil {
@@ -195,7 +195,7 @@ func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 		if _, isRemedy := e.(remedyEffect); isRemedy {
 			continue
 		}
-		if e.applies(world, item) {
+		if e.present(world, item) {
 			return false
 		}
 	}
