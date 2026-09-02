@@ -51,13 +51,14 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 	item := p.Target
 
-	// 何らかの効果があるかチェック
-	hasEffect := world.Components.ProvidesHealing.Has(item) ||
-		world.Components.ProvidesNutrition.Has(item) ||
-		world.Components.InflictsDamage.Has(item) ||
-		world.Components.Remedy.Has(item)
-
 	// Use は効果のあるアイテムにしか提示されない。ここで効果なしなのは不変条件違反
+	hasEffect := false
+	for _, e := range useEffects {
+		if e.applies(world, item) {
+			hasEffect = true
+			break
+		}
+	}
 	if !hasEffect {
 		return fmt.Errorf("item has no effect")
 	}
@@ -66,11 +67,13 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return fmt.Errorf("actor has no HP component")
 	}
 
-	// 治療だけのアイテムは、治せる不調が今あるときだけ使える。空振りを使う前に弾く
-	if world.Components.Remedy.Has(item) && u.isRemedyOnly(world, item) {
-		remedy := world.Components.Remedy.Get(item)
-		if !world.Components.HealthStatus.Has(actor) || mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy) == nil {
-			return &UserError{Msg: query.T(world, "Nothing to treat.")}
+	// 各効果の使用前検証。空振りなど使えない理由があれば使う前に弾く
+	for _, e := range useEffects {
+		if !e.applies(world, item) {
+			continue
+		}
+		if err := e.check(u, actor, item, world); err != nil {
+			return err
 		}
 	}
 
@@ -95,37 +98,18 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	item := p.Target
 
-	// 回復効果があるかチェック
-	if world.Components.ProvidesHealing.Has(item) {
-		healing := world.Components.ProvidesHealing.Get(item)
-		if err := u.applyHealing(comp, actor, world, healing, item); err != nil {
-			Cancel(comp, fmt.Sprintf("healing processing error: %s", err.Error()))
+	// アイテムが持つ効果を順に適用する。効果の一覧は useEffects が単一の真実
+	for _, e := range useEffects {
+		if !e.applies(world, item) {
+			continue
+		}
+		if err := e.apply(u, comp, actor, item, world); err != nil {
+			Cancel(comp, fmt.Sprintf("use effect error: %s", err.Error()))
 			return err
 		}
 	}
 
-	// 空腹度回復効果があるかチェック
-	if world.Components.ProvidesNutrition.Has(item) {
-		nutrition := world.Components.ProvidesNutrition.Get(item)
-		if err := u.applyNutrition(comp, actor, world, nutrition.Amount, item); err != nil {
-			Cancel(comp, fmt.Sprintf("nutrition recovery processing error: %s", err.Error()))
-			return err
-		}
-	}
-
-	// ダメージ効果があるかチェック
-	if world.Components.InflictsDamage.Has(item) {
-		damage := world.Components.InflictsDamage.Get(item)
-		// 共通のダメージ処理を使用
-		gameaction.ApplyDamage(world, actor, damage.Amount, actor)
-	}
-
-	// 治療効果があるかチェック。治療専用の空振りは Validate で弾き済みなので、ここは治すか併用効果を持つ
-	if world.Components.Remedy.Has(item) {
-		u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
-	}
-
-	// 消費可能アイテムの場合は削除または個数を減らす
+	// 消費可能アイテムの場合は削除または個数を減らす。効果を適用した後に行う
 	if world.Components.Consumable.Has(item) {
 		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("failed to consume item: %w", err)
@@ -201,12 +185,21 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 	return true
 }
 
-// isRemedyOnly はアイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く
+// isRemedyOnly はアイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く。
+// 治療以外の効果を1つでも持てば専用でない。useEffects を見るので効果を足しても追従する
 func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
-	return world.Components.Remedy.Has(item) &&
-		!world.Components.ProvidesHealing.Has(item) &&
-		!world.Components.ProvidesNutrition.Has(item) &&
-		!world.Components.InflictsDamage.Has(item)
+	if !world.Components.Remedy.Has(item) {
+		return false
+	}
+	for _, e := range useEffects {
+		if _, isRemedy := e.(remedyEffect); isRemedy {
+			continue
+		}
+		if e.applies(world, item) {
+			return false
+		}
+	}
+	return true
 }
 
 // logRemedy は治療したことをログに出す。プレイヤーが使ったときだけ出す
