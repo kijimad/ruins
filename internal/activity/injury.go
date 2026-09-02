@@ -61,13 +61,23 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	logInjury(actor, target, world, part, injuryType)
 }
 
-// randomHitPart は命中部位を重みで抽選する。部位順に走査し、抽選を決定的にする
+// randomHitPart は命中部位を重みで抽選する
 func randomHitPart(world w.World) gc.BodyPart {
+	return hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight()))
+}
+
+// totalHitWeight は全部位の命中重みの合計を返す
+func totalHitWeight() int {
 	total := 0
 	for p := range gc.BodyPartCount {
 		total += gc.BodyPartHitWeight(p)
 	}
-	roll := world.Resources.Config.RNG.IntN(total)
+	return total
+}
+
+// hitPartForRoll は重み合計内の roll を命中部位へ写す。roll は [0, totalHitWeight) を想定する。
+// 部位順に走査し、重み 0 の部位は飛ばすので、命中先は必ず重みのある部位になる
+func hitPartForRoll(roll int) gc.BodyPart {
 	for p := range gc.BodyPartCount {
 		weight := gc.BodyPartHitWeight(p)
 		if weight == 0 {

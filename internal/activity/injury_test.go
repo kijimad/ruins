@@ -21,13 +21,13 @@ func TestInjuryTypeFor(t *testing.T) {
 	assert.Equal(t, gc.ConditionLaceration, injuryTypeFor(gc.AttackRifle), "射撃は切り傷")
 }
 
-func TestRandomHitPart(t *testing.T) {
+func TestHitPartForRoll_全rollが重みのある部位へ写る(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	world.Resources.Config.RNG = rand.New(rand.NewPCG(1, 0))
-	for range 200 {
-		part := randomHitPart(world)
+	// 取りうる roll をすべて走査し、どの値でも命中先が重みのある部位になることを保証する。
+	// ランダム標本でなく全数なので不変条件を証明できる
+	for roll := range totalHitWeight() {
+		part := hitPartForRoll(roll)
 		assert.NotEqual(t, gc.BodyPartWholeBody, part, "全身は命中先にしない")
 		assert.Positive(t, gc.BodyPartHitWeight(part), "重みのある部位だけ選ぶ")
 	}
