@@ -85,6 +85,22 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	}
 	MoveToEquip(world, torch, playerEntity, gc.SlotWeapon1)
 
+	// 初期の治療キット。切り傷用の包帯と骨折用の添え木を少量持たせる。切り傷のほうが起きやすいので包帯を多め
+	for _, kit := range []struct {
+		name  string
+		count int
+	}{{"bandage", 2}, {"splint", 1}} {
+		for range kit.count {
+			item, err := spawnItemBase(world, kit.name)
+			if err != nil {
+				return gc.InvalidEntity, fmt.Errorf("failed to spawn starting %s: %w", kit.name, err)
+			}
+			if err := MoveToBackpack(world, item, playerEntity); err != nil {
+				return gc.InvalidEntity, fmt.Errorf("failed to give starting %s: %w", kit.name, err)
+			}
+		}
+	}
+
 	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil
 }
