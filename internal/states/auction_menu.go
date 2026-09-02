@@ -6,8 +6,6 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -21,6 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -313,18 +312,73 @@ func (st *AuctionMenuState) selectedItem(tab auctionTabData, index int) (ecs.Ent
 	return tab.Items[index].Entity, true
 }
 
-// View は props を UI へ組む
-func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
+// ViewUI はオークションの各タブを組む。
+func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
+	content, pager := st.buildActiveUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+}
+
+// buildActiveUI はタブ種別で中身を振り分け、行列と
+// フッタ右端のページ表示を返す。
+func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {
+	if tabIndex >= len(props.Tabs) {
+		return nil, ""
+	}
+	tab := props.Tabs[tabIndex]
+	switch tab.ID {
+	case auctionTabShip, auctionTabPending:
+		rows := make([]menuframe.Row, len(tab.Items))
+		for i, it := range tab.Items {
+			value := ""
+			if it.HasValue {
+				value = it.Value.String()
+			}
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value)}}
+		}
+		empty := query.T(world, "No items to ship.")
+		if tab.ID == auctionTabPending {
+			empty = query.T(world, "Nothing awaiting pickup.")
+		}
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(), styled.Fit(), styled.Num()),
+			menuframe.ListOpts{EmptyText: empty, ItemsPerPage: perPage}, res)
+	case auctionTabFinance:
+		rows := make([]menuframe.Row, len(tab.Entries))
+		for i, e := range tab.Entries {
+			kind := query.T(world, "Receipt")
+			name := e.Name
+			amount := e.Amount.String()
+			if e.Kind == gc.AuctionEntryInvoice {
+				kind = query.T(world, "Invoice")
+				name = query.T(world, e.Name)
+				amount = (-e.Amount).String()
+			}
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount)}}
+		}
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(), styled.Fit(), styled.Num()),
+			menuframe.ListOpts{EmptyText: query.T(world, "No bills or receipts."), ItemsPerPage: perPage}, res)
+	case auctionTabHistory:
+		rows := make([]menuframe.Row, len(tab.Ledger))
+		for i, r := range tab.Ledger {
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(r.Bid.String())}}
+		}
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Fit(), styled.Name(), styled.Num()),
+			menuframe.ListOpts{EmptyText: query.T(world, "No shipments yet."), ItemsPerPage: perPage}, res)
+	default:
+		rows := make([]menuframe.Row, len(tab.Ledger))
+		for i, r := range tab.Ledger {
+			status := query.T(world, "Won")
+			if r.Ongoing {
+				status = query.T(world, "Bidding")
+			}
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(status), styled.TextCell(r.Bid.String())}}
+		}
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Fit(), styled.Name(), styled.Fit(), styled.Num()),
+			menuframe.ListOpts{EmptyText: query.T(world, "No deals in progress."), ItemsPerPage: perPage}, res)
+	}
 }
 
 // detailContent は x で開く詳細の内容を返す。積む・出荷タブは品の詳細、状況タブは台帳の内訳
@@ -398,97 +452,4 @@ func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailConten
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Turn"), Value: strconv.Itoa(r.Turn)})
 	}
 	return overlay.DetailContent{Name: r.Name, Rows: rows}
-}
-
-func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	if tabIndex >= len(props.Tabs) {
-		return styled.NewVerticalContainer()
-	}
-	tab := props.Tabs[tabIndex]
-	if tab.ID == auctionTabShip || tab.ID == auctionTabPending {
-		return st.buildItemContainer(world, tab, itemIndex, res)
-	}
-	if tab.ID == auctionTabFinance {
-		return st.buildFinanceContainer(world, tab, itemIndex, res)
-	}
-	return st.buildLedgerContainer(world, tab, itemIndex, res)
-}
-
-// buildFinanceContainer は金銭タブの一覧を組む。各行は名前と種別と符号付きの金額。
-// 受取金はそのまま、請求はマイナスで出し、足し引きが読めるようにする
-func (st *AuctionMenuState) buildFinanceContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
-	rows := make([]menuRow, len(tab.Entries))
-	for i, e := range tab.Entries {
-		kind := query.T(world, "Receipt")
-		name := e.Name
-		amount := e.Amount.String()
-		if e.Kind == gc.AuctionEntryInvoice {
-			kind = query.T(world, "Invoice")
-			name = query.T(world, e.Name)
-			amount = (-e.Amount).String()
-		}
-		rows[i] = menuRow{Cells: []styled.Cell{
-			styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount),
-		}}
-	}
-	return renderMenuList(itemIndex, rows, []int{200, 80, 120},
-		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-		menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No bills or receipts.")}, res)
-}
-
-// buildItemContainer は積む・出荷タブの一覧を組む。各行は品名と落札状況と金額
-func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
-	rows := make([]menuRow, len(tab.Items))
-	for i, it := range tab.Items {
-		value := ""
-		if it.HasValue {
-			value = it.Value.String()
-		}
-		rows[i] = menuRow{Cells: []styled.Cell{
-			styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value),
-		}}
-	}
-	empty := query.T(world, "No items to ship.")
-	if tab.ID == auctionTabPending {
-		empty = query.T(world, "Nothing awaiting pickup.")
-	}
-	return renderMenuList(itemIndex, rows, []int{200, 90, 110},
-		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-		menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)
-}
-
-// buildLedgerContainer は進行中・履歴タブの一覧を組む。進行中は番号・品名・状態・金額の4列、
-// 履歴は状態が発送済みで固定なので番号・品名・金額の3列にする。金額はどの行も入札額を出す
-func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
-	if tab.ID == auctionTabHistory {
-		rows := make([]menuRow, len(tab.Ledger))
-		for i, r := range tab.Ledger {
-			rows[i] = menuRow{Cells: []styled.Cell{
-				styled.TextCell("#" + strconv.Itoa(r.Number)),
-				styled.TextCell(r.Name),
-				styled.TextCell(r.Bid.String()),
-			}}
-		}
-		return renderMenuList(itemIndex, rows, []int{50, 200, 120},
-			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, res)
-	}
-
-	// 進行中タブは出品中と落札済みが混ざるので、状態を1列足して取引の段階を見せる
-	rows := make([]menuRow, len(tab.Ledger))
-	for i, r := range tab.Ledger {
-		status := query.T(world, "Won")
-		if r.Ongoing {
-			status = query.T(world, "Bidding")
-		}
-		rows[i] = menuRow{Cells: []styled.Cell{
-			styled.TextCell("#" + strconv.Itoa(r.Number)),
-			styled.TextCell(r.Name),
-			styled.TextCell(status),
-			styled.TextCell(r.Bid.String()),
-		}}
-	}
-	return renderMenuList(itemIndex, rows, []int{50, 170, 70, 110},
-		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-		menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No deals in progress.")}, res)
 }

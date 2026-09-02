@@ -23,9 +23,9 @@ func TestCalcHitRate(t *testing.T) {
 
 func TestClampHitRate(t *testing.T) {
 	t.Parallel()
-	assert.Equal(t, MaxHitRate, clampHitRate(100))
-	assert.Equal(t, MinHitRate, clampHitRate(0))
-	assert.Equal(t, 50, clampHitRate(50))
+	assert.Equal(t, MaxHitRate, ClampHitRate(100))
+	assert.Equal(t, MinHitRate, ClampHitRate(0))
+	assert.Equal(t, 50, ClampHitRate(50))
 }
 
 func TestApplyCritical(t *testing.T) {

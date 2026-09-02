@@ -121,14 +121,14 @@ func TestPngPixelEqualFn(t *testing.T) {
 	t.Run("actualが不正なPNGなら不一致", func(t *testing.T) {
 		t.Parallel()
 		expected := solidPNG(t, 4, white)
-		eq := pngPixelEqualFn(1.0)
+		eq := pngPixelEqualFn(t, 1.0, new(int), new(int))
 		assert.False(t, eq([]byte("not a png"), expected))
 	})
 
 	t.Run("expectedが不正なPNGなら不一致", func(t *testing.T) {
 		t.Parallel()
 		actual := solidPNG(t, 4, white)
-		eq := pngPixelEqualFn(1.0)
+		eq := pngPixelEqualFn(t, 1.0, new(int), new(int))
 		assert.False(t, eq(actual, []byte("not a png")))
 	})
 
@@ -136,7 +136,7 @@ func TestPngPixelEqualFn(t *testing.T) {
 		t.Parallel()
 		actual := solidPNG(t, 4, white)
 		expected := solidPNG(t, 5, white)
-		eq := pngPixelEqualFn(1.0)
+		eq := pngPixelEqualFn(t, 1.0, new(int), new(int))
 		assert.False(t, eq(actual, expected))
 	})
 
@@ -144,7 +144,7 @@ func TestPngPixelEqualFn(t *testing.T) {
 		t.Parallel()
 		actual := solidPNG(t, 4, white)
 		expected := solidPNG(t, 4, white)
-		eq := pngPixelEqualFn(0)
+		eq := pngPixelEqualFn(t, 0, new(int), new(int))
 		assert.True(t, eq(actual, expected))
 	})
 
@@ -153,7 +153,7 @@ func TestPngPixelEqualFn(t *testing.T) {
 		// 8bit差5は16bit換算で5*257=1285、channelTolerance16の4112を下回るのでノイズ扱いになる
 		actual := solidPNG(t, 4, color.NRGBA{R: 250, G: 250, B: 250, A: 255})
 		expected := solidPNG(t, 4, white)
-		eq := pngPixelEqualFn(0)
+		eq := pngPixelEqualFn(t, 0, new(int), new(int))
 		assert.True(t, eq(actual, expected))
 	})
 
@@ -176,7 +176,7 @@ func TestPngPixelEqualFn(t *testing.T) {
 		require.NoError(t, png.Encode(&actualBuf, actualImg))
 		require.NoError(t, png.Encode(&expectedBuf, expectedImg))
 
-		eq := pngPixelEqualFn(0.6)
+		eq := pngPixelEqualFn(t, 0.6, new(int), new(int))
 		assert.True(t, eq(actualBuf.Bytes(), expectedBuf.Bytes()))
 	})
 
@@ -199,7 +199,7 @@ func TestPngPixelEqualFn(t *testing.T) {
 		require.NoError(t, png.Encode(&actualBuf, actualImg))
 		require.NoError(t, png.Encode(&expectedBuf, expectedImg))
 
-		eq := pngPixelEqualFn(0.5)
+		eq := pngPixelEqualFn(t, 0.5, new(int), new(int))
 		assert.False(t, eq(actualBuf.Bytes(), expectedBuf.Bytes()))
 	})
 }

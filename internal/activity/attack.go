@@ -329,19 +329,19 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 		targetAgility = targetAbilsComp.Agility.Total
 	}
 
+	// 基礎命中は反射神経 DEX と対象の回避の対抗。武器習熟の能力値は WeaponAccuracy 側が畳むのでここには足さない
 	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
 	hitRate += getWeaponAccuracyFromAttack(attack)
 	hitRate = getSkillMult(attacker, attack, world, false).ApplyInt(hitRate)
 	hitRate += modifier
 
-	if hitRate > formula.MaxHitRate {
-		hitRate = formula.MaxHitRate
-	}
-	if hitRate < formula.MinHitRate {
-		hitRate = formula.MinHitRate
+	// 体調由来の命中低下を掛ける。CharModifiers を持たない攻撃者は身体機能ペナルティを受けず等倍
+	if world.Components.CharModifiers.Has(attacker) {
+		aim := world.Components.CharModifiers.Get(attacker).AccuracyCapacity(attack.GetAttackCategory())
+		hitRate = aim.ApplyInt(hitRate)
 	}
 
-	return hitRate
+	return formula.ClampHitRate(hitRate)
 }
 
 // rollHitCheckWithModifier は命中判定を行う。modifierは追加の命中率補正（負値でペナルティ）

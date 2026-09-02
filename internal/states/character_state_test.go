@@ -27,14 +27,13 @@ func TestEquipableForSlot_所持する装備品が候補に出る(t *testing.T) 
 	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHead), "頭防具を所持していれば頭スロットの候補に出る")
 }
 
-func TestCharacterState_OnStartが成功し閲覧から始まる(t *testing.T) {
+func TestCharacterState_OnStartが成功する(t *testing.T) {
 	t.Parallel()
 
 	state := &CharacterState{}
 	world := testutil.InitTestWorld(t)
 
 	require.NoError(t, state.OnStart(world))
-	assert.False(t, state.equip.Active(), "初期状態は閲覧で装備選択は開いていない")
 }
 
 func TestCharacterState_装備スロットは武器5と防具7の合計12(t *testing.T) {
@@ -94,6 +93,74 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 		}
 	}
 	assert.True(t, hasHeader, "スキルタブはカテゴリ見出し行を持つ")
+}
+
+func TestCharacterState_健康タブは不調の概要と影響を詳細に持つ(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{
+		Type:        gc.ConditionFracture,
+		Timer:       60,
+		Severity:    gc.SeverityMedium,
+		TendQuality: 150,
+	})
+
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
+
+	var health statusTabData
+	for _, tab := range props.InfoTabs {
+		if tab.ID == tabHealth {
+			health = tab
+		}
+	}
+
+	// 部位はカテゴリ見出し、症状は1エントリ1件
+	var hasArmHeader bool
+	var frac statusItemData
+	for _, it := range health.Items {
+		if it.BodyPart == gc.BodyPartArms && it.IsHeader {
+			hasArmHeader = true
+		}
+		if it.BodyPart == gc.BodyPartArms && it.ConditionType == gc.ConditionFracture {
+			frac = it
+		}
+	}
+	assert.True(t, hasArmHeader, "部位はカテゴリ見出しになる")
+	require.Equal(t, gc.ConditionFracture, frac.ConditionType, "腕の骨折が1エントリとして並ぶ")
+	assert.Equal(t, "60%", frac.Value, "エントリの値に進行度")
+	assert.Contains(t, frac.Label, "Tended 150%", "症状名の右に治療状態")
+
+	// 詳細は選んだ1症状ぶんを組む。名前は症状名、概要と性能行を持つ
+	content := healthDetailContent(world, frac)
+	// 見出しは症状名のみ。重症度は Progress 行の%で表すので名前に付けない
+	assert.Equal(t, "Fracture", content.Name, "見出しは症状名")
+	assert.Contains(t, content.Desc, "broken bone", "概要説明を持つ")
+
+	var prog, tend, pain, manip string
+	for _, r := range content.Rows {
+		switch r.Label {
+		case "Progress":
+			prog = r.Value
+		case "Treatment":
+			tend = r.Value
+		case "Pain":
+			pain = r.Value
+		case "Manipulation":
+			manip = r.Value
+		}
+	}
+	assert.Equal(t, "60%", prog, "進行度をタイマーから出す")
+	assert.Equal(t, "Tended 150%", tend, "治療済みと質")
+	// 腕の骨折(中)は痛み +36、操作 -40。骨折 18/20 の中度で身体機能へ効かせる
+	assert.Equal(t, "+36", pain, "痛みを与える")
+	assert.Equal(t, "-40", manip, "腕の不調は操作を下げる")
 }
 
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {

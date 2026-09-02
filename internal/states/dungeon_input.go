@@ -264,10 +264,6 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName, merchant) },
 			}}, nil
-		case "doctor_greeting":
-			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() (es.State[w.World], error) { return NewDoctorDialogState(speakerName) },
-			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
 			dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)
@@ -332,6 +328,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
+		}}, nil
+	case gc.OpenFeedFuel:
+		// 火への給油メニューを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return NewFeedFuelMenuState(p.FireEntity) },
 		}}, nil
 	case gc.OpenAuction:
 		// 出荷場所のメニューを開く

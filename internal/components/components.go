@@ -192,7 +192,7 @@ type Weight struct {
 	consts.Milligram
 }
 
-// Recipe は合成に必要な素材
+// Recipe はクラフトに必要な素材
 type Recipe struct {
 	Inputs []RecipeInput
 }

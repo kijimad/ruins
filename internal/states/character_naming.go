@@ -5,8 +5,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -14,7 +12,9 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -29,12 +29,13 @@ const (
 // CharacterNamingState はキャラクター名前入力画面のステート。
 //
 // 入力はテキストチャンネルの例外で、束縛表と keybind.ReadInput を通さずキーを直読みする。
+// 文字入力は ebiten.AppendInputChars と Backspace を直読みして props の名前へ反映する。
 // IME の変換途中状態やカーソル編集は離散的な Action の語彙に還元できないため、
 // Action チャンネルへは統一しない。再生が必要になれば文字列を別口で注入する
 type CharacterNamingState struct {
 	es.BaseState[w.World]
-	mount  *hooks.Mount[namingProps]
-	widget *ebitenui.UI
+	mount *hooks.Mount[namingProps]
+	body  uicore.Drawable
 }
 
 // NewCharacterNamingState は名付けステートのファクトリを返す
@@ -90,15 +91,12 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 		resetTimer()
 	}
 
-	// TextInput から現在の値を同期
-	if textInput, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok && textInput != nil {
-		currentText := textInput.GetText()
-		if currentText != props.CurrentName {
-			st.mount.SetProps(namingProps{
-				CurrentName:  currentText,
-				ErrorMessage: props.ErrorMessage,
-			})
-		}
+	// 文字入力を名前へ取り込む
+	if newName, changed := readTextInput(props.CurrentName); changed {
+		st.mount.SetProps(namingProps{
+			CurrentName:  newName,
+			ErrorMessage: props.ErrorMessage,
+		})
 	}
 
 	// 入力処理
@@ -111,19 +109,40 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 	}
 
 	// dirty判定とUI再構築
-	if st.mount.Update() || st.widget == nil {
-		st.widget = st.buildUI(world)
+	if st.mount.Update() || st.body == nil {
+		st.body = st.buildUI(world)
 	}
-
-	st.widget.Update()
 	return st.ConsumeTransition(), nil
+}
+
+// readTextInput は今フレームの文字入力と Backspace を名前へ反映する。
+// 印字文字は AppendInputChars で受け取り、最大長までを追記する。Backspace は末尾1文字を消す
+func readTextInput(current string) (string, bool) {
+	name := current
+	changed := false
+	for _, r := range ebiten.AppendInputChars(nil) {
+		if r == '\n' || r == '\r' || r == '\t' {
+			continue
+		}
+		if utf8.RuneCountInString(name) >= nameMaxLength {
+			break
+		}
+		name += string(r)
+		changed = true
+	}
+	if input.GetSharedKeyboardInput().IsKeyPressedWithRepeat(ebiten.KeyBackspace) && name != "" {
+		runes := []rune(name)
+		name = string(runes[:len(runes)-1])
+		changed = true
+	}
+	return name, changed
 }
 
 // Draw はスクリーンに描画する
 func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(theme.ScreenBackground)
-	if st.widget != nil {
-		st.widget.Draw(screen)
+	if st.body != nil {
+		st.body.Draw(uicore.NewEbitenCanvas(screen))
 	}
 	return nil
 }
@@ -210,83 +229,22 @@ func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {
 // buildUI
 // ================
 
-func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
+// buildUI は名前入力画面を uicore のツリーとして組む。
+// タイトル・入力枠・エラー・ヒントを画面中央へ縦に並べる。入力枠には現在名とキャレットを描く
+func (st *CharacterNamingState) buildUI(world w.World) uicore.Drawable {
 	res := world.Resources.UIResources
 	props := st.mount.GetProps()
 
-	rootContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
+	// 入力枠の中身。空なら placeholder を薄色で、入力中は名前にキャレットを添える。
+	// 縦位置は VCenter で入力枠の中央へ合わせる
+	var content *uicore.Text
+	if props.CurrentName == "" {
+		content = uicore.NewText(query.T(world, "Name"), res.Text.BodyFace, theme.TextSecondary)
+	} else {
+		content = uicore.NewText(props.CurrentName+"|", res.Text.BodyFace, theme.TextPrimary)
+	}
+	content.VCenter = true
 
-	centerContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(theme.Space6),
-		)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
-			}),
-		),
-	)
-
-	titleLabel := widget.NewText(
-		widget.TextOpts.Text(query.T(world, "Name"), &res.Text.TitleFontFace, theme.TextPrimary),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionCenter,
-			}),
-		),
-	)
-
-	// テキスト入力を作成
-	textInput := hooks.UseRef(st.mount.Store(), "textInput", func() *widget.TextInput {
-		ti := widget.NewTextInput(
-			widget.TextInputOpts.WidgetOpts(
-				widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-					Position: widget.RowLayoutPositionCenter,
-					Stretch:  true,
-				}),
-				widget.WidgetOpts.MinSize(300, 0),
-			),
-			widget.TextInputOpts.Image(res.TextInput.Image),
-			widget.TextInputOpts.Face(&res.TextInput.Face),
-			widget.TextInputOpts.Color(res.TextInput.Color),
-			widget.TextInputOpts.Padding(&res.TextInput.Padding),
-			widget.TextInputOpts.Placeholder(query.T(world, "Name")),
-		)
-		ti.SetText(props.CurrentName)
-		ti.Focus(true)
-		return ti
-	})
-
-	// エラーメッセージ
-	errorText := widget.NewText(
-		widget.TextOpts.Text(props.ErrorMessage, &res.Text.SmallFace, theme.StatusDanger),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionStart,
-			}),
-		),
-	)
-
-	// 操作ヒント
-	hintLabel := widget.NewText(
-		widget.TextOpts.Text(consts.IconKeyEnter+" "+query.T(world, "Confirm")+" / "+consts.IconKeyEsc+" "+query.T(world, "Back"), &res.Text.SmallFace, theme.TextAccent),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionCenter,
-			}),
-		),
-	)
-
-	centerContainer.AddChild(titleLabel)
-	centerContainer.AddChild(textInput)
-	centerContainer.AddChild(errorText)
-	centerContainer.AddChild(hintLabel)
-
-	rootContainer.AddChild(centerContainer)
-
-	return &ebitenui.UI{Container: rootContainer}
+	hint := consts.IconKeyEnter + " " + query.T(world, "Confirm") + " / " + consts.IconKeyEsc + " " + query.T(world, "Back")
+	return menuframe.FormScreen(world, res, query.T(world, "Name"), content, props.ErrorMessage, hint)
 }

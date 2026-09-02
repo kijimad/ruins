@@ -11,10 +11,11 @@ type Pagination struct {
 }
 
 // New はPaginationを作成する
-// pageはitemIndexから自動計算される
+// pageはitemIndexから自動計算される。
+// カーソルを持たない一覧は負の itemIndex を渡す。どのページにも属さないので先頭ページを返す
 func New(itemIndex, itemCount, itemsPerPage int) Pagination {
 	page := 0
-	if itemsPerPage > 0 && itemCount > 0 {
+	if itemsPerPage > 0 && itemCount > 0 && itemIndex > 0 {
 		page = itemIndex / itemsPerPage
 	}
 	return Pagination{

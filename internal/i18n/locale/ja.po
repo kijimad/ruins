@@ -293,12 +293,6 @@ msgstr "低体温進行"
 msgid "Hypothermia progress rate. Lower is slower"
 msgstr "低体温の進行速度。低いほど遅くなる"
 
-msgid "Hyperthermia progress"
-msgstr "高体温進行"
-
-msgid "Hyperthermia progress rate. Lower is slower"
-msgstr "高体温の進行速度。低いほど遅くなる"
-
 msgid "Hunger progress"
 msgstr "空腹進行"
 
@@ -351,10 +345,10 @@ msgid "Material cost"
 msgstr "素材消費"
 
 msgid "Material consumption multiplier when crafting. Lower saves materials"
-msgstr "合成時の素材消費量倍率。低いほど素材が節約できる"
+msgstr "クラフト時の素材消費量倍率。低いほど素材が節約できる"
 
 msgid "Craft quality"
-msgstr "合成品質"
+msgstr "クラフト品質"
 
 msgid "Quality multiplier when crafting. Higher makes better goods"
 msgstr "調合時の品質倍率。高いほど良い品ができる"
@@ -479,6 +473,9 @@ msgstr "%s は %s を装備した。"
 msgid "%s unequipped %s."
 msgstr "%s は %s を外した。"
 
+msgid "Unequip"
+msgstr "外す"
+
 msgid "Readied %s."
 msgstr "%sを構えた"
 
@@ -598,12 +595,6 @@ msgstr "見る"
 
 msgid "No business"
 msgstr "用は無い"
-
-msgid "I want to craft"
-msgstr "合成したい"
-
-msgid "Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!"
-msgstr "フフフ...わしの秘密の技術で物質再構築してやろう\n\n地髄と素材を持ってくるのじゃ!"
 
 msgid "A vast wasteland, with a single great hole gaping open."
 msgstr "見渡すかぎりの荒野に、大穴がひとつ、口を開けている。"
@@ -935,8 +926,74 @@ msgstr "飢餓"
 msgid "Hypothermia"
 msgstr "低体温"
 
-msgid "Hyperthermia"
-msgstr "高体温"
+msgid "Fracture"
+msgstr "骨折"
+
+msgid "Laceration"
+msgstr "切り傷"
+
+msgid "Liver illness"
+msgstr "肝疾患"
+
+msgid "The body is dangerously cold. Warm up to recover."
+msgstr "体が危険なほど冷えている。暖まれば回復する。"
+
+msgid "A broken bone. It will not heal until treated."
+msgstr "骨が折れている。治療するまで回復しない。"
+
+msgid "An open wound. It will not heal until treated."
+msgstr "傷口が開いている。治療するまで回復しない。"
+
+msgid "It worsens while untreated and drains HP when severe."
+msgstr "放置すると悪化し、重症になると HP を削る。"
+
+msgid "Treatment"
+msgstr "治療"
+
+msgid "Untreated"
+msgstr "未治療"
+
+msgid "Tended"
+msgstr "治療済み"
+
+msgid "No injury or illness"
+msgstr "怪我や病気はない"
+
+msgid "Pain"
+msgstr "痛み"
+
+msgid "Consciousness"
+msgstr "意識"
+
+msgid "Manipulation"
+msgstr "操作"
+
+msgid "Moving"
+msgstr "歩行"
+
+msgid "Sight"
+msgstr "視覚"
+
+msgid "Body function"
+msgstr "身体機能"
+
+msgid "Body capacities lowered by injuries and illness"
+msgstr "怪我や病気で下がる身体機能"
+
+msgid "Pain from conditions. Lowers consciousness"
+msgstr "不調による痛み。意識を下げる"
+
+msgid "Master capacity. Multiplies all others"
+msgstr "全機能に掛かる乗数"
+
+msgid "Affects melee accuracy and crafting"
+msgstr "近接命中と製作に効く"
+
+msgid "Affects move speed"
+msgstr "移動速度に効く"
+
+msgid "Affects ranged accuracy and vision"
+msgstr "遠隔命中と視界に効く"
 
 msgid "Minor"
 msgstr "軽"
@@ -1014,10 +1071,10 @@ msgid "Raised by acting with heavy equipment"
 msgstr "重い装備で行動すると上がる"
 
 msgid "Raised by crafting items"
-msgstr "アイテムを合成すると上がる"
+msgstr "アイテムをクラフトすると上がる"
 
 msgid "Reduces material consumption when crafting"
-msgstr "合成時の素材消費が減少する"
+msgstr "クラフト時の素材消費が減少する"
 
 msgid "Speeds up disassembly and increases yield"
 msgstr "分解が速くなり産出が増える"
@@ -1084,9 +1141,6 @@ msgstr "売買の価格が有利になる"
 
 msgid "Slows hypothermia progress"
 msgstr "低体温の進行が遅くなる"
-
-msgid "Slows hyperthermia progress"
-msgstr "高体温の進行が遅くなる"
 
 msgid "Persuasion for favorable deals"
 msgstr "有利な取引をする話術"
@@ -1182,7 +1236,7 @@ msgid "Exploration"
 msgstr "探索"
 
 msgid "Crafting"
-msgstr "合成"
+msgstr "クラフト"
 
 msgid "Smithing"
 msgstr "調合"
@@ -1201,9 +1255,6 @@ msgstr "隠密"
 
 msgid "Cold resistance"
 msgstr "耐寒"
-
-msgid "Heat resistance"
-msgstr "耐暑"
 
 msgid "Hunger resistance"
 msgstr "耐餓"
@@ -1242,7 +1293,7 @@ msgid "Goods"
 msgstr "道具"
 
 msgid "Material"
-msgstr "素材"
+msgstr "材質"
 
 msgid "Ammunition"
 msgstr "弾薬"
@@ -1484,6 +1535,12 @@ msgstr "装填完了（%d/%d）"
 
 msgid "interrupted reloading"
 msgstr "装填を中断した"
+
+msgid "cannot reload because enemies are nearby"
+msgstr "周囲に敵がいるため装填できない"
+
+msgid "reload interrupted because enemies are nearby"
+msgstr "周囲に敵がいるため装填を中断"
 
 msgid "rest interrupted because enemies are nearby"
 msgstr "周囲に敵がいるため休息を中断"
@@ -5750,3 +5807,84 @@ msgstr "ヘルプ"
 
 msgid "Key bindings"
 msgstr "キー一覧"
+
+msgid "Campfire"
+msgstr "焚き火"
+
+msgid "A lit torch. Serves as light, weapon, and a way to set fuel alight."
+msgstr "灯りにも武器にもなり、燃料に火をつけられる松明。"
+
+msgid "Light fire (%s)"
+msgstr "火をつける(%s)"
+
+msgid "Feed fire (%s)"
+msgstr "燃料をくべる(%s)"
+
+msgid "Burning, %s left"
+msgstr "燃焼中 残り%s"
+
+msgid "No fuel to add"
+msgstr "くべる燃料がない"
+
+msgid "Hearth"
+msgstr "石組"
+
+msgid "Wood"
+msgstr "木材"
+
+msgid "Paper"
+msgstr "紙"
+
+msgid "Cloth"
+msgstr "布"
+
+msgid "Leather"
+msgstr "革"
+
+msgid "Plant fiber"
+msgstr "植物繊維"
+
+msgid "Food"
+msgstr "食料"
+
+msgid "Bone"
+msgstr "骨"
+
+msgid "Oil"
+msgstr "油"
+
+msgid "Plastic"
+msgstr "樹脂"
+
+msgid "Metal"
+msgstr "金属"
+
+msgid "Glass"
+msgstr "ガラス"
+
+msgid "Crystal"
+msgstr "結晶"
+
+msgid "Ceramic"
+msgstr "陶磁器"
+
+msgid "Liquid"
+msgstr "液体"
+
+msgid "Fuel"
+msgstr "燃料"
+
+msgid "Heat"
+msgstr "熱量"
+
+msgid "Turns left"
+msgstr "残りターン"
+
+msgid "The season changed to %s."
+msgstr "季節が%sになった。"
+
+msgid "The sun rises."
+msgstr "日が昇った。"
+
+msgid "The sun sets."
+msgstr "日が沈んだ。"

@@ -265,6 +265,66 @@ func (e ItemGroupSubtype) Valid() bool {
 	}
 }
 
+// Defines values for Material.
+const (
+	BONE    Material = "BONE"
+	CERAMIC Material = "CERAMIC"
+	CLOTH   Material = "CLOTH"
+	COAL    Material = "COAL"
+	CRYSTAL Material = "CRYSTAL"
+	FOOD    Material = "FOOD"
+	GLASS   Material = "GLASS"
+	LEATHER Material = "LEATHER"
+	LIQUID  Material = "LIQUID"
+	METAL   Material = "METAL"
+	OIL     Material = "OIL"
+	PAPER   Material = "PAPER"
+	PLANT   Material = "PLANT"
+	PLASTIC Material = "PLASTIC"
+	STONE   Material = "STONE"
+	WOOD    Material = "WOOD"
+)
+
+// Valid indicates whether the value is a known member of the Material enum.
+func (e Material) Valid() bool {
+	switch e {
+	case BONE:
+		return true
+	case CERAMIC:
+		return true
+	case CLOTH:
+		return true
+	case COAL:
+		return true
+	case CRYSTAL:
+		return true
+	case FOOD:
+		return true
+	case GLASS:
+		return true
+	case LEATHER:
+		return true
+	case LIQUID:
+		return true
+	case METAL:
+		return true
+	case OIL:
+		return true
+	case PAPER:
+		return true
+	case PLANT:
+		return true
+	case PLASTIC:
+		return true
+	case STONE:
+		return true
+	case WOOD:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for MovementPatternType.
 const (
 	Patrol      MovementPatternType = "patrol"
@@ -1138,6 +1198,9 @@ type Fire struct {
 	TargetNum TargetNum `json:"targetNum"`
 }
 
+// FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
+type FireStarter = map[string]interface{}
+
 // FoliageType 植生タイプ
 type FoliageType float32
 
@@ -1207,6 +1270,9 @@ type Item struct {
 	// Fire 遠距離攻撃設定
 	Fire *Fire `json:"fire,omitempty"`
 
+	// FireStarter 火種。所持していると隣接の燃焼物に着火できる
+	FireStarter *FireStarter `json:"fireStarter,omitempty"`
+
 	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
@@ -1215,6 +1281,9 @@ type Item struct {
 
 	// LightSource 携行光源。装備すると owner を照らす
 	LightSource *LightSource `json:"lightSource,omitempty"`
+
+	// Material 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
+	Material *Material `json:"material,omitempty"`
 
 	// Melee 近接攻撃設定
 	Melee *Melee `json:"melee,omitempty"`
@@ -1346,6 +1415,10 @@ type LightSource struct {
 
 // MagazineSize マガジン容量
 type MagazineSize = int
+
+// Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
+// 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+type Material string
 
 // MaterialAmount 素材必要数
 type MaterialAmount = int

@@ -41,6 +41,23 @@ type replayStep struct {
 //
 // 撮るのは互いに異なる画だけにする。既存 golden と同一の画を
 // 別名で残しても、資産が増えて README のギャラリーが重複するだけで検出力は上がらない
+// overworldAtTurn は指定した経過ターンのオーバーワールド実画面を撮るビルド関数を返す。
+// 時間帯ごとの日照と色味を狙って GameTime を差し替える。GameTime は world 生成時に1度だけ
+// 初期化され、新規ゲームでリセットされないので、ここで設定した値が描画に効く。
+func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World], error) {
+	return func(world w.World) ([]es.State[w.World], error) {
+		s, err := gs.NewOverworldState(
+			mapplanner.PlannerTypeOverworldField,
+			dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
+			&overworld.NewGameParams{},
+		)()
+		if gt := query.GetGameTime(world); gt != nil {
+			gt.TotalTurns = turns
+		}
+		return []es.State[w.World]{s}, err
+	}
+}
+
 func TestGolden(t *testing.T) {
 	t.Parallel()
 
@@ -115,6 +132,20 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "List"},
 			},
 		},
+		// ItemAction_VerbJump は動詞キーでのタブジャンプが画面へ反映されることを固定する。
+		// 動詞は SetTab で store を直接変えるので、再描画漏れがあると画面が古いままになる経路を撮る。
+		{
+			name: "ItemAction_VerbJump",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.ItemActionState{}}, nil
+			},
+			steps: []replayStep{
+				{action: inputmapper.ActionVerbConsume, shot: true}, // 食べるタブへ跳んだ画
+			},
+		},
 		// Character は人物画面の全タブを撮る。装備は編集タブ、以降は読み取り専用の情報タブ。
 		// スキルはページ送りとカテゴリ見出しを含む
 		{
@@ -136,14 +167,14 @@ func TestGolden(t *testing.T) {
 		{
 			name: "RunStats",
 			build: func(world w.World) ([]es.State[w.World], error) {
-				// 見栄えのする統計値を仕込む。経過1240ターンで日数が2日目に乗る
+				// 見栄えのする統計値を仕込む。経過1740ターンで2日目の夜明けに乗る
 				if s := query.GetRunStats(world); s != nil {
 					s.EnemiesKilled = 12
 					s.ItemsScavenged = 8
 					s.SalesTotal = 3400
 				}
 				if gt := query.GetGameTime(world); gt != nil {
-					gt.TotalTurns = 1240
+					gt.TotalTurns = 1740
 				}
 				st, err := gs.NewRunStatsState()
 				if err != nil {
@@ -159,7 +190,7 @@ func TestGolden(t *testing.T) {
 		{
 			name: "CraftMenu",
 			build: func(world w.World) ([]es.State[w.World], error) {
-				// 回復薬の材料を持たせ、合成可能な行にチェックが付く様子を確認する
+				// 回復薬の材料を持たせ、クラフト可能な行にチェックが付く様子を確認する
 				if _, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1); err != nil {
 					return nil, err
 				}
@@ -314,6 +345,18 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Store"},
 			},
 		},
+		// FeedFuelMenu は火への給油メニューを固定する。収納やインベントリと同じ item-row 形式で、
+		// アイコン・名前の先頭に右寄せの追加ターン数列が並ぶ。プレイヤーの初期バックパックの食料が燃料になる。
+		{
+			name: "FeedFuelMenu",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				fire := world.ECS.NewEntity()
+				world.Components.Burning.Add(fire, &gc.Burning{Remaining: 300})
+				s, err := gs.NewFeedFuelMenuState(fire)
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
 		// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
 		{
 			name: "ChoiceMenuMany",
@@ -357,6 +400,15 @@ func TestGolden(t *testing.T) {
 			},
 			steps: []replayStep{{shot: true}},
 		},
+		// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。各時間帯の中心を1枚ずつ撮り、
+		// 連続補間が段差にならないことを回帰検知する。区間内の傾斜は単体テストで担保する。
+		// 番号は朝を起点にした1日の並び順で、ファイル名とギャラリーが時刻順に並ぶ。
+		{name: "Overworld_1_Morning", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},   // 朝の中心
+		{name: "Overworld_2_Day", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},       // 昼の中心。最も明るく無彩色
+		{name: "Overworld_3_Evening", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}},   // 夕の中心。暖色
+		{name: "Overworld_4_Night", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
+		{name: "Overworld_5_Midnight", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
+		{name: "Overworld_6_Dawn", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 夜明けの中心。次の朝へ続く
 		// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
 		// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
 		{
@@ -415,6 +467,21 @@ func TestGolden(t *testing.T) {
 				{shot: true},                            // 押し込まれたヘルプを撮る
 			},
 		},
+		// DungeonMenu は M で開く選択メニューの項目を固定する。クラフトを含む項目の並びを覆う
+		{
+			name: "DungeonMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.DungeonState{
+					Depth:          1,
+					DefinitionName: dungeon.DungeonDebug.Name(),
+					BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				}}, nil
+			},
+			steps: []replayStep{
+				{action: inputmapper.ActionOpenDungeonMenu}, // M でメニューを push する。反映は次フレーム
+				{shot: true}, // 押し込まれたメニューを撮る
+			},
+		},
 		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
 		// 並ぶことを覆う。入力ゲートと overlay 重ねを含む本番経路で撮る
 		{
@@ -444,8 +511,28 @@ func TestGolden(t *testing.T) {
 				return []es.State[w.World]{&gs.CharacterState{}}, nil
 			},
 			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown},               // 武器スロット1から空のスロット2へ
-				{action: inputmapper.ActionMenuSelect, shot: true}, // 空スロットで装備選択を開いた画を撮る
+				{action: inputmapper.ActionMenuDown},   // 武器スロット1から空のスロット2へ
+				{action: inputmapper.ActionMenuSelect}, // 空スロットで装備選択を push する
+				{shot: true},                           // push は次フレーム反映なので待ち手で撮る
+			},
+		},
+		// EquipCompare は装備済みスロットの装備選択から詳細を開き、現装備と候補を2枚並べて
+		// 比較する画を撮る。武器スロット1は初期装備で埋まるので、そこで装備選択を開き、
+		// 先頭の「外す」を1つ飛ばした候補へカーソルを移してから詳細を開く
+		{
+			name: "EquipCompare",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				if _, err := lifecycle.SpawnBackpackItem(world, "claymore", 1); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.CharacterState{}}, nil
+			},
+			steps: []replayStep{
+				{action: inputmapper.ActionMenuSelect}, // 武器スロット1の初期装備で装備選択を push する
+				{},                                     // push した装備選択メニューをシードさせる待ち手
+				{shot: true, suffix: "List"},           // 「外す」を先頭に置く候補一覧を撮る
+				{action: inputmapper.ActionMenuDown},   // 先頭「外す」から候補クレイモアへ
+				{action: inputmapper.ActionOpenItemDetail, shot: true, suffix: "Detail"}, // x で詳細を開き現装備との比較を撮る
 			},
 		},
 	}

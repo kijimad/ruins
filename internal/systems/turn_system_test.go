@@ -258,6 +258,27 @@ func TestProcessTurnEnd(t *testing.T) {
 		err := processTurnEnd(world)
 		require.NoError(t, err)
 	})
+
+	t.Run("燃え尽きた火は同じターンで除去される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// FireSystem が燃え尽きで Dead にし、末尾の DeadCleanup が同じターンで回収する。
+		// fast-forward でも毎ターンこれを回すので、死んだ火が次ターンへ持ち越さない
+		world.Updaters = make(map[string]w.Updater)
+		fireSys := &FireSystem{}
+		world.Updaters[fireSys.String()] = fireSys
+		deadCleanup := &DeadCleanupSystem{}
+		world.Updaters[deadCleanup.String()] = deadCleanup
+
+		fire := world.ECS.NewEntity()
+		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
+		world.Components.GridElement.Add(fire, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		world.Components.HeatSource.Add(fire, &gc.HeatSource{Radius: 2, Warmth: 0.75})
+
+		require.NoError(t, processTurnEnd(world))
+		assert.False(t, world.ECS.Alive(fire), "燃え尽きた火は同じターンの turn-end で除去される")
+	})
 }
 
 func TestShouldAutoEndTurn(t *testing.T) {
@@ -902,4 +923,69 @@ func TestTerritorialMovement(t *testing.T) {
 		assert.LessOrEqual(t, dy, territorialRadius,
 			"turn %d: Y座標がスポーン地点から%dタイル以内であるべき (pos=%d, spawn=%d)", turn, territorialRadius, grid.Y, spawnY)
 	}
+}
+
+func TestLogEnvironmentChange(t *testing.T) {
+	t.Parallel()
+
+	t.Run("夜へ入るターンは日が沈んだログを出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 夜の開始ターン。夕は薄暮で太陽がまだ空にあり、沈み切って夜になった瞬間が日の入り
+		query.GetGameTime(world).TotalTurns = 1000
+
+		logEnvironmentChange(world)
+
+		hist := query.GetGameLog(world).GetHistory()
+		require.Len(t, hist, 1)
+		assert.Contains(t, hist[0], "The sun sets.")
+	})
+
+	t.Run("夕へ入るターンは薄暮なので日の入りログを出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetGameTime(world).TotalTurns = 750 // 夕の開始
+
+		logEnvironmentChange(world)
+
+		assert.Equal(t, 0, query.GetGameLog(world).Count())
+	})
+
+	t.Run("日の出のターンは日が昇ったログを出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 2日目の夜明けの開始ターン。turn 0 は前ターンが無く変化判定が立たないため翌日で確かめる
+		query.GetGameTime(world).TotalTurns = 1500
+
+		logEnvironmentChange(world)
+
+		hist := query.GetGameLog(world).GetHistory()
+		require.Len(t, hist, 1)
+		assert.Contains(t, hist[0], "The sun rises.")
+	})
+
+	t.Run("季節の変わるターンは季節と日の出の両方を出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 春から夏へ切り替わる経過ターン。日の始まりは夜明けなので日の出とも重なる
+		query.GetGameTime(world).TotalTurns = 12000
+
+		logEnvironmentChange(world)
+
+		hist := query.GetGameLog(world).GetHistory()
+		require.Len(t, hist, 2)
+		assert.Contains(t, hist[0], "The season changed to")
+		assert.Contains(t, hist[0], "Summer")
+		assert.Contains(t, hist[1], "The sun rises.")
+	})
+
+	t.Run("時間帯も季節も変わらないターンはログを出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetGameTime(world).TotalTurns = 1001
+
+		logEnvironmentChange(world)
+
+		assert.Equal(t, 0, query.GetGameLog(world).Count())
+	})
 }

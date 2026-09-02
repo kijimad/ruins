@@ -4,11 +4,10 @@ import (
 	"image"
 	"testing"
 
-	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -163,30 +162,27 @@ func TestNewEntityDetail_対象があれば実体から詳細を組み立てて�
 	assert.True(t, d.Active(), "生存している実体があれば開く")
 }
 
-func TestDetailWindow_対象が無ければnilを返す(t *testing.T) {
+func TestDetailRenderOverlay_対象が無ければnilを返す(t *testing.T) {
 	t.Parallel()
 	d := NewDetail(func(_ w.World) (DetailContent, bool) { return DetailContent{}, false })
 
-	got := d.Window(w.World{}, image.Rect(0, 0, 100, 100))
+	got := d.RenderOverlay(w.World{}, image.Rect(0, 0, 100, 100))
 
 	assert.Nil(t, got)
 }
 
-func TestDetailWindow_対象があれば名前とページ位置を表示する(t *testing.T) {
+func TestDetailRenderOverlay_対象があれば名前とページ位置を表示する(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
 		return DetailContent{Name: "回復薬", Rows: []entityspec.SpecRow{{Label: "効果", Value: "10"}}}, true
 	})
 	d.Open(world)
 
-	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
-	var win *widget.Window
-	vrt.WithUILock(func() { win = d.Window(world, image.Rect(0, 0, 400, 400)) })
+	// uicore のツリーを組むだけ。独立フェイスなのでロックは要らない
+	tree := d.RenderOverlay(world, image.Rect(0, 0, 400, 400))
 
-	require.NotNil(t, win)
-	labels := collectLabels(win.Contents)
-	assert.Contains(t, labels, "回復薬")
-	assert.Contains(t, labels, "1/1")
+	require.NotNil(t, tree)
+	labels := uicore.CollectLabels(uicore.Placeable([]uicore.Drawable{tree})[0])
+	assert.Equal(t, []string{"回復薬", "効果", "10", "1/1"}, labels)
 }

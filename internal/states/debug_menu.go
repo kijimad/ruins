@@ -10,6 +10,7 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -41,11 +42,14 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			_, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 			return err
 		})},
+		{Label: "Inflict conditions", Run: popAfter(debugInflictConditions)},
+		{Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
+		{Label: "Damage self (-10 HP)", Run: popAfter(debugDamageSelf(10))},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
 			// 死因に目印の debug を入れて結果画面を確認する
 			if s := query.GetRunStats(world); s != nil {
-				s.Cause = "debug"
+				s.Cause = gc.CauseDebug
 			}
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 		}},
@@ -120,7 +124,8 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "Spawn enemy: skeleton soldier (patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "skeleton_soldier") })},
 		Choice{Label: "Spawn enemy: stray dog (territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "stray_dog") })},
 		Choice{Label: "Spawn prop: moving_stone (PassCost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
-		Choice{Label: "Spawn prop: bonfire (light source)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "bonfire") })},
+		Choice{Label: "Spawn prop: fire", Run: stayAfter(spawnLitFireNearPlayer)},
+		Choice{Label: "Spawn prop: hearth", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "hearth") })},
 		Choice{Label: "Spawn prop: barrel (destructible)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "barrel") })},
 		Choice{Label: "Spawn prop: construction_sign (impassable)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "construction_sign") })},
 		Choice{Label: "Spawn prop: wooden crate (storage, with items)", Run: stayAfter(spawnStorageWithItems)},
@@ -130,6 +135,63 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		}},
 	)
 	return "", choices
+}
+
+// debugInflictConditions はデバッグでプレイヤーへ怪我と病気と低体温をまとめて付ける
+func debugInflictConditions(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !world.Components.HealthStatus.Has(player) {
+		return nil
+	}
+	hs := world.Components.HealthStatus.Get(player)
+	set := func(part gc.BodyPart, ct gc.ConditionType, timer float64) {
+		hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})
+	}
+	set(gc.BodyPartArms, gc.ConditionFracture, 60)
+	set(gc.BodyPartArms, gc.ConditionLaceration, 60)
+	set(gc.BodyPartTorso, gc.ConditionLiverIllness, 60)
+	set(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90)
+
+	// HealthStatus を書き換えたので CharModifiers の再計算を促す
+	if !world.Components.StatsChanged.Has(player) {
+		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
+	}
+	return nil
+}
+
+// debugTreatAllConditions はデバッグでプレイヤーの全不調を治療済みにする。回復軌道の確認用。
+// 低体温は TemperatureSystem が体温から進めるので TendQuality では治らない
+func debugTreatAllConditions(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !world.Components.HealthStatus.Has(player) {
+		return nil
+	}
+	hs := world.Components.HealthStatus.Get(player)
+	for p := range hs.Parts {
+		for i := range hs.Parts[p].Conditions {
+			// 150% は回復1.5倍の良質な治療。回復軌道に乗る様子を確認する
+			hs.Parts[p].Conditions[i].TendQuality = 150
+		}
+	}
+	return nil
+}
+
+// debugDamageSelf はデバッグでプレイヤーの HP を削る。HP の自然回復を観察する用
+func debugDamageSelf(amount int) func(w.World) error {
+	return func(world w.World) error {
+		player, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return err
+		}
+		gameaction.ApplyDamage(world, player, amount, player)
+		return nil
+	}
 }
 
 // playerGridElement はプレイヤーの GridElement を返す。位置を持たない文脈ではエラーにする。
@@ -152,6 +214,21 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	}
 	_, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
+}
+
+// spawnLitFireNearPlayer はプレイヤーの隣に燃えている火をスポーンする。
+// 本番の着火と同じく fire prop へ Burning を付ける
+func spawnLitFireNearPlayer(world w.World) error {
+	playerGrid, err := playerGridElement(world)
+	if err != nil {
+		return err
+	}
+	fire, err := lifecycle.SpawnProp(world, "fire", playerGrid.X+2, playerGrid.Y)
+	if err != nil {
+		return err
+	}
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 999})
+	return nil
 }
 
 // spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする

@@ -1,28 +1,33 @@
 package hud
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
+	"image"
+
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // MessageAreaConfig はメッセージエリアの設定
 type MessageAreaConfig struct {
-	LogAreaHeight int // ログエリアの高さ
 	MaxLogLines   int // 表示する最大行数
 	LogAreaMargin int // 余白
 	LineHeight    int // 1行の高さ
 	YPadding      int // 下端の追加パディング
 }
 
+// Height はログ領域の描画高さを返す。上下の余白と、最大行数ぶんの行高から決まる。
+// ログの上端を基準に置く側は、この高さを画面高から引いて求める
+func (c MessageAreaConfig) Height() int {
+	return c.LogAreaMargin*2 + c.MaxLogLines*c.LineHeight + c.YPadding*2
+}
+
 // DefaultMessageAreaConfig はデフォルトのメッセージエリア設定
 var DefaultMessageAreaConfig = MessageAreaConfig{
-	LogAreaHeight: 120,          // 余裕を持たせて大きめに
 	MaxLogLines:   5,            // 表示する最大行数
 	LogAreaMargin: theme.Space3, // 余白
-	LineHeight:    20,           // 1行の高さ
+	LineHeight:    LineH,        // 1行の高さ。世界の上に重ねるパネルと揃える
 	YPadding:      12,           // 下端の追加パディング
 }
 
@@ -30,6 +35,7 @@ var DefaultMessageAreaConfig = MessageAreaConfig{
 type MessageArea struct {
 	widget  *messagelog.Widget
 	config  MessageAreaConfig
+	chrome  Chrome
 	enabled bool
 }
 
@@ -54,21 +60,9 @@ func NewMessageArea(world w.World) *MessageArea {
 	return &MessageArea{
 		widget:  widget,
 		config:  config,
+		chrome:  NewChrome(world.Resources.UIResources),
 		enabled: true,
 	}
-}
-
-// SetConfig は設定を変更する
-func (area *MessageArea) SetConfig(config MessageAreaConfig) {
-	area.config = config
-	// 注意: messagelog.Widget に設定更新メソッドがない場合は、
-	// 新しいwidgetを作成する必要があります
-	// ここでは設定値を保存するだけにしています
-}
-
-// GetConfig は現在の設定を取得する
-func (area *MessageArea) GetConfig() MessageAreaConfig {
-	return area.config
 }
 
 // Update はメッセージエリアを更新する
@@ -81,7 +75,7 @@ func (area *MessageArea) Update() {
 }
 
 // Draw はメッセージエリアを描画する
-func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
+func (area *MessageArea) Draw(cv uicore.Canvas, data MessageData) {
 	if !area.enabled || area.widget == nil {
 		return
 	}
@@ -96,11 +90,11 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	logAreaWidth := screenWidth - boxMargin*2
 
 	// 設定を使用してサイズを計算
-	fixedHeight := area.config.LogAreaMargin*2 + area.config.MaxLogLines*area.config.LineHeight + area.config.YPadding*2
+	fixedHeight := area.config.Height()
 	logAreaY := screenHeight - fixedHeight - boxMargin
 
 	// 背景を描画
-	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, styled.PanelStyle())
+	area.chrome.Panel(cv, image.Rect(logAreaX, logAreaY, logAreaX+logAreaWidth, logAreaY+fixedHeight))
 
 	// オフスクリーンサイズ
 	offscreenWidth := logAreaWidth - area.config.LogAreaMargin*2
@@ -109,5 +103,5 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	// メッセージウィジェットを描画
 	drawX := logAreaX + area.config.LogAreaMargin
 	drawY := logAreaY + area.config.LogAreaMargin
-	area.widget.Draw(screen, drawX, drawY, offscreenWidth, offscreenHeight)
+	area.widget.Draw(cv, drawX, drawY, offscreenWidth, offscreenHeight)
 }

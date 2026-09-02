@@ -73,7 +73,7 @@ type mapGenResult struct {
 // アセット未作成などでチェーン構築に失敗した場合はスキップしてnilを返す
 func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 	t.Helper()
-	world := vrt.InitVRTWorld(t)
+	world := vrt.InitReplayWorld(t)
 	for attempt := range mapplanner.MaxPlanRetries {
 		currentSeed := mapGenSeed + uint64(attempt*1000)
 		chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, currentSeed, pt)

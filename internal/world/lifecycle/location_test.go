@@ -274,3 +274,50 @@ func TestUnequipAll(t *testing.T) {
 		assert.True(t, world.Components.LocationEquipped.Has(item))
 	})
 }
+
+func TestRemoveOwnedStorage(t *testing.T) {
+	t.Parallel()
+
+	t.Run("owner指定なしでは何も削除しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		storage := world.ECS.NewEntity()
+		item, err := SpawnStorageItem(world, "wooden_sword", 1, storage)
+		require.NoError(t, err)
+
+		RemoveOwnedStorage(world, nil)
+
+		assert.True(t, world.ECS.Alive(item), "owner未指定では在庫は残る")
+	})
+
+	t.Run("指定した所有者の収納在庫を削除する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		storage := world.ECS.NewEntity()
+		item, err := SpawnStorageItem(world, "wooden_sword", 1, storage)
+		require.NoError(t, err)
+
+		RemoveOwnedStorage(world, []ecs.Entity{storage})
+
+		assert.False(t, world.ECS.Alive(item), "指定した所有者の在庫は削除される")
+	})
+
+	t.Run("指定していない所有者の収納在庫は残る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		storageA := world.ECS.NewEntity()
+		storageB := world.ECS.NewEntity()
+		itemA, err := SpawnStorageItem(world, "wooden_sword", 1, storageA)
+		require.NoError(t, err)
+		itemB, err := SpawnStorageItem(world, "wooden_sword", 1, storageB)
+		require.NoError(t, err)
+
+		RemoveOwnedStorage(world, []ecs.Entity{storageA})
+
+		assert.False(t, world.ECS.Alive(itemA), "指定した所有者Aの在庫は削除される")
+		assert.True(t, world.ECS.Alive(itemB), "指定していない所有者Bの在庫は残る")
+	})
+}

@@ -17,10 +17,10 @@ import (
 )
 
 // TestGameInitializationIntegration はゲーム初期化の統合テスト
-//
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestGameInitializationIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("完全なゲーム初期化フロー", func(t *testing.T) {
+		t.Parallel()
 		// 1. ワールドの初期化
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
@@ -41,6 +41,7 @@ func TestGameInitializationIntegration(t *testing.T) {
 	})
 
 	t.Run("部分的な初期化テスト", func(t *testing.T) {
+		t.Parallel()
 		// 最小限のリソースでの初期化テスト
 		world := testutil.InitTestWorld(t)
 
@@ -54,10 +55,10 @@ func TestGameInitializationIntegration(t *testing.T) {
 }
 
 // TestMainGameLifecycle はMainGameのライフサイクル統合テスト
-//
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestMainGameLifecycle(t *testing.T) {
+	t.Parallel()
 	t.Run("ゲームループの基本動作", func(t *testing.T) {
+		t.Parallel()
 		// 完全なワールドを使用（テスト用の最小限ワールドではUIリソースが不足）
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
@@ -87,6 +88,7 @@ func TestMainGameLifecycle(t *testing.T) {
 	})
 
 	t.Run("状態遷移の動作確認", func(t *testing.T) {
+		t.Parallel()
 		// 完全なワールドを使用
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
@@ -126,10 +128,10 @@ func TestMainGameLifecycle(t *testing.T) {
 }
 
 // TestResourceIntegration はリソース統合テスト
-//
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestResourceIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("全リソースタイプの読み込み確認", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
@@ -143,17 +145,7 @@ func TestResourceIntegration(t *testing.T) {
 		spriteSheets := world.Resources.SpriteSheets
 		assert.NotEmpty(t, spriteSheets, "スプライトシートが空")
 
-		// フォントの確認
-		assert.NotNil(t, world.Resources.Fonts, "フォントが読み込まれていない")
-		fonts := world.Resources.Fonts
-		assert.NotEmpty(t, fonts, "フォントが空")
-
-		// デフォルトフォントの確認
-		assert.NotNil(t, world.Resources.Faces, "デフォルトフェイスが設定されていない")
-		defaultFaces := world.Resources.Faces
-		assert.Contains(t, defaultFaces, "dougenzaka", "dougenzakaフォントが設定されていない")
-
-		// UIリソースの確認
+		// UIリソースの確認。フォントの読み込みは UIResources 構築の前提なので、これで併せて確かめる
 		assert.NotNil(t, world.Resources.UIResources, "UIリソースが初期化されていない")
 
 		// Rawデータの確認
@@ -164,21 +156,11 @@ func TestResourceIntegration(t *testing.T) {
 	})
 
 	t.Run("リソースの整合性確認", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
-
-		// フォントとフェイスの整合性
-		fonts := world.Resources.Fonts
-		defaultFaces := world.Resources.Faces
-
-		if dougenzakaFont, exists := fonts["dougenzaka"]; exists {
-			assert.NotNil(t, dougenzakaFont.Font, "dougenzakaフォントのFontフィールドがnil")
-			if dougenzakaFace, faceExists := defaultFaces["dougenzaka"]; faceExists {
-				assert.NotNil(t, dougenzakaFace, "dougenzakaフェイスがnil")
-			}
-		}
 
 		// スプライトシートの基本チェック
 		spriteSheets := world.Resources.SpriteSheets
@@ -211,8 +193,6 @@ func validateResourceLoading(t *testing.T, world ew.World) {
 		resource any
 	}{
 		{"SpriteSheets", world.Resources.SpriteSheets},
-		{"Fonts", world.Resources.Fonts},
-		{"DefaultFaces", world.Resources.Faces},
 		{"UIResources", world.Resources.UIResources},
 		{"RawMaster", world.Resources.RawMaster},
 		{"Game", query.GetDungeon(world)},

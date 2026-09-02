@@ -12,6 +12,8 @@ type EntitySpec struct {
 	Description        *Description
 	HP                 *HP
 	Consumable         *Consumable
+	Material           *Material
+	FireStarter        *FireStarter
 	Perishable         *Perishable
 	WeightCapacity     *WeightCapacity
 	Melee              *Melee
@@ -43,6 +45,7 @@ type EntitySpec struct {
 	VisualEffects      *VisualEffects
 	TileTemperature    *TileTemperature
 	HeatSource         *HeatSource
+	Burning            *Burning
 	StageBound         *StageBound
 	StageField         *StageField
 	SeamlessBand       *SeamlessBand
@@ -96,6 +99,8 @@ type Components struct {
 	Description        *ecs.Map[Description]
 	HP                 *ecs.Map[HP]
 	Consumable         *ecs.Map[Consumable]
+	Material           *ecs.Map[Material]
+	FireStarter        *ecs.Map[FireStarter]
 	Perishable         *ecs.Map[Perishable]
 	WeightCapacity     *ecs.Map[WeightCapacity]
 	Melee              *ecs.Map[Melee]
@@ -127,6 +132,7 @@ type Components struct {
 	VisualEffects      *ecs.Map[VisualEffects]
 	TileTemperature    *ecs.Map[TileTemperature]
 	HeatSource         *ecs.Map[HeatSource]
+	Burning            *ecs.Map[Burning]
 	StageBound         *ecs.Map[StageBound]
 	StageField         *ecs.Map[StageField]
 	SeamlessBand       *ecs.Map[SeamlessBand]
@@ -180,6 +186,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Description = ecs.NewMap[Description](world)
 	c.HP = ecs.NewMap[HP](world)
 	c.Consumable = ecs.NewMap[Consumable](world)
+	c.Material = ecs.NewMap[Material](world)
+	c.FireStarter = ecs.NewMap[FireStarter](world)
 	c.Perishable = ecs.NewMap[Perishable](world)
 	c.WeightCapacity = ecs.NewMap[WeightCapacity](world)
 	c.Melee = ecs.NewMap[Melee](world)
@@ -211,6 +219,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileTemperature = ecs.NewMap[TileTemperature](world)
 	c.HeatSource = ecs.NewMap[HeatSource](world)
+	c.Burning = ecs.NewMap[Burning](world)
 	c.StageBound = ecs.NewMap[StageBound](world)
 	c.StageField = ecs.NewMap[StageField](world)
 	c.SeamlessBand = ecs.NewMap[SeamlessBand](world)
@@ -266,6 +275,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Description, entity, spec.Description)
 	addComp(c.HP, entity, spec.HP)
 	addComp(c.Consumable, entity, spec.Consumable)
+	addComp(c.Material, entity, spec.Material)
+	addComp(c.FireStarter, entity, spec.FireStarter)
 	addComp(c.Perishable, entity, spec.Perishable)
 	addComp(c.WeightCapacity, entity, spec.WeightCapacity)
 	addComp(c.Melee, entity, spec.Melee)
@@ -297,6 +308,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileTemperature, entity, spec.TileTemperature)
 	addComp(c.HeatSource, entity, spec.HeatSource)
+	addComp(c.Burning, entity, spec.Burning)
 	addComp(c.StageBound, entity, spec.StageBound)
 	addComp(c.StageField, entity, spec.StageField)
 	addComp(c.SeamlessBand, entity, spec.SeamlessBand)

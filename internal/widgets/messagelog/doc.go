@@ -4,7 +4,7 @@
 //
 // messagelogパッケージは、ゲーム内のログメッセージ（戦闘ログ、フィールドログ、
 // シーンログなど）を画面に表示するためのUIウィジェットを提供します。
-// ebitenUIとgamelogパッケージを統合し、色付きメッセージの表示、
+// gamelogパッケージのログを uicore のツリーで組み、色付きメッセージの表示、
 // 自動スクロール、動的な更新機能を提供します。
 //
 // # Responsibilities
@@ -15,7 +15,6 @@
 //   - ログ更新時の自動UI再構築
 //   - 表示行数制限とスクロール機能
 //   - gamelog.SafeSliceとの統合
-//   - ebitenUIコンポーネントとの統合
 //
 // # Usage
 //
@@ -48,7 +47,6 @@
 //   - Dependency Injection: worldを注入して、ログストアを自動取得する
 //   - Stateful Widget: 前回状態と比較して効率的な更新
 //   - Configuration-Driven: 設定により外観をカスタマイズ可能
-//   - EbitenUI Integration: ebitenUIの機能をフル活用
 //   - Separation of Concerns: 表示ロジックのみに集中、背景描画は別パッケージ
 //
 // # 使い分け

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -14,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -117,20 +117,13 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConf
 // view
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	columnWidths := []int{260, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	rows := make([]menuRow, len(props.Items))
+// ViewUI はコンポーネント数の2列表をタブ帯なしのモーダルに組む。
+func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
+	cols := styled.Cols(styled.Name(), styled.Num())
+	rows := make([]menuframe.Row, len(props.Items))
 	for i, it := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
 	}
-	container := renderMenuList(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-
-	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		Header:  fmt.Sprintf("Components total: %d", props.Total),
-		Content: container,
-		Footer:  keybind.HelpHint(world),
-	})
+	content, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{ItemsPerPage: cursor.PageSize}, res)
+	return menuframe.TabScreen(world, res, fmt.Sprintf("Components total: %d", props.Total), nil, 0, content, keybind.HelpHint(world), pager)
 }

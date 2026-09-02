@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -60,21 +59,11 @@ func (st *MessageState) OnStop(_ w.World) error { return nil }
 // loadBackgroundImage はスプライトシートから背景画像を読み込んで返す。
 // 無効なspriteKeyが指定された場合はエラーを返す。
 func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) {
-	sheet, sheetOK := world.Resources.SpriteSheets["bg"]
-	if !sheetOK {
-		return nil, fmt.Errorf("bg sprite sheet does not exist")
-	}
-	sprite, ok := sheet.Sprites[spriteKey]
+	tex, rect, ok := world.Resources.Sprites.Rect(&gc.SpriteRender{SpriteSheetName: "bg", SpriteKey: spriteKey})
 	if !ok {
 		return nil, fmt.Errorf("invalid BackgroundKey: %q not found in bg sprite sheet", spriteKey)
 	}
-	rect := image.Rect(
-		sprite.X,
-		sprite.Y,
-		sprite.X+sprite.Width,
-		sprite.Y+sprite.Height,
-	)
-	return gc.SubImage(sheet.Texture.Image, rect), nil
+	return gc.SubImage(tex.Image, rect), nil
 }
 
 // Update はゲームステートの更新処理を行う

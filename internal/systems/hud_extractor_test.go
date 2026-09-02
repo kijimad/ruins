@@ -457,7 +457,7 @@ func TestExtractGameInfo(t *testing.T) {
 		assert.Equal(t, 600, info.ScreenDimensions.Height)
 
 		config := hud.DefaultMessageAreaConfig
-		expectedHeight := config.LogAreaMargin*2 + config.MaxLogLines*config.LineHeight + config.YPadding*2
+		expectedHeight := config.Height()
 		assert.Equal(t, expectedHeight, info.MessageAreaHeight)
 	})
 
@@ -725,7 +725,7 @@ func TestExtractGameInfo_体温ゲージの割合を返す(t *testing.T) {
 	info := extractGameInfo(world)
 
 	require.True(t, info.BodyTempVisible)
-	assert.InDelta(t, 0.2, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..+5の 0.2 に写る")
+	assert.InDelta(t, 0.4, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..0の 0.4 に写る")
 }
 
 func TestExtractGameInfo_異常な体温オフセットでも割合を0から1に収める(t *testing.T) {
@@ -755,9 +755,9 @@ func TestTemperatureArrow_熱源のそばでは赤の上向き(t *testing.T) {
 	world, e := newColdPlayer(t)
 
 	// 環境の冷えを上回る暖かさになるよう焚き火を2つ隣接させる
-	_, err := lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	_, err := lifecycle.SpawnProp(world, "fire", 6, 5)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnProp(world, "bonfire", 4, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 4, 5)
 	require.NoError(t, err)
 
 	arrow := temperatureArrow(world, e)

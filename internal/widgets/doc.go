@@ -1,61 +1,34 @@
-// Package widgets はビジネスロジックと状態管理を持つ高レベルUIコンポーネントを提供する。
+// Package widgets は状態と操作を持つ高レベルの UI 部品を提供する。
 //
-// # Overview
+// # 層
 //
-// widgetsパッケージは、状態管理とビジネスロジックを持つ高レベルなUIコンポーネントを提供します。
-// 再利用可能で、テスト可能な設計を重視し、宣言的な設定とコールバック機能により
-// UIとアプリケーションロジックを疎結合で連携させます。
-//
-// # Package Hierarchy
-//
-// このプロジェクトのUIアーキテクチャは3層構造になっています：
-//
-//	widgets/     ← 業務ロジック付きの高レベルコンポーネント（このパッケージ）
+//	画面 states・menuloop・systems
 //	   ↓ 使用
-//	eui/         ← プロジェクト固有スタイルの中レベルコンポーネント
+//	widgets      ← 状態と操作を持つ部品。このパッケージ
 //	   ↓ 使用
-//	ebitenui/    ← 外部ライブラリの低レベルコンポーネント
+//	uicore       ← 保持型ツリーの実体。Widget・Container・Text・Canvas
+//	   ↓ 使用
+//	ebiten       ← 描画の最下層。EbitenCanvas が仲介する
 //
-// # Responsibilities
+// theme・styled を含めた全体像は widgets/menuframe のパッケージコメントを参照。
 //
-// widgetsパッケージの責務：
-//   - 状態管理を持つUIコンポーネントの提供
-//   - キーボード・マウス操作の統一的な処理
-//   - イベント駆動によるビジネスロジックとの連携
-//   - 設定駆動による柔軟なコンポーネント構成
-//   - 単体テストが可能な設計
+// # uicore の使用範囲
 //
-// # Usage vs Other Packages
+// uicore を import できるパッケージは depguard の ui_core_inbound_guard が列挙する。
+// 部品はツリーを組むので全面を使う。画面 states・menuloop・systems は組み上がった
+// ツリーを受け取って描くだけなので、名指しできるシンボルを lintrule の
+// TestScreenLayerUICoreSurface が許可制に絞る。
 //
-// ## widgetsパッケージを使う場合
-//   - メニュー、ダイアログ、フォームなど複雑な操作が必要
-//   - キーボードナビゲーションが必要
-//   - 状態管理が必要（選択状態、入力データなど）
-//   - ビジネスロジックとの連携が必要
-//   - 単体テストを書きたい
+// # サブパッケージ
 //
-// ## euiパッケージを使う場合
-//   - 基本的なレイアウトコンテナが欲しい
-//   - プロジェクト統一スタイルのボタンやテキストが欲しい
-//   - 静的な表示のみで状態管理は不要
-//   - 簡単なヘルパー関数で十分
-//
-// # Sub-packages
-//
-// 代表的なサブパッケージ：
-//   - styled       ← 最下層の描画部品。Cell・table・text と共通枠 chrome
+//   - theme         ← 色と寸法のトークン。依存ゼロ
+//   - styled        ← 一覧のデータ型 Cell・table・text と共通枠 chrome
+//   - uicore        ← 保持型ツリーの実体
 //   - menuframe     ← タブ帯・パネル・モーダルの画面足場
 //   - overlay       ← overlay 契約と詳細モーダル窓
-//   - pagination    ← ページ計算の共通ロジック
+//   - pagination    ← ページ計算
 //   - entityspec    ← エンティティを spec 行にする表示部品
 //   - hud           ← HUD ウィジェット群
+//   - messagelog    ← 色付きメッセージログ
 //   - messagewindow ← 会話ウィンドウと選択メニュー
-//
-// # Design Principles
-//
-//   - Configuration over Code: 設定による宣言的なコンポーネント構成
-//   - Testability: ロジックとUIの分離によるテスタビリティ
-//   - Reusability: プロジェクト間で再利用可能な設計
-//   - Separation of Concerns: UIとビジネスロジックの分離
-//   - Event-Driven: コールバックによるイベント駆動アーキテクチャ
 package widgets

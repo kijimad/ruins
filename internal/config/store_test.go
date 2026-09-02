@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/BurntSushi/toml"
@@ -30,4 +32,29 @@ func TestUserConfig_保存に無いフィールドはデフォルトが残る(t 
 	assert.Equal(t, 1024, dst.User.WindowWidth) // 保存値で上書き
 	assert.Equal(t, 720, dst.User.WindowHeight) // デフォルトが残る
 	assert.Equal(t, "en", dst.User.Language)    // デフォルトが残る
+}
+
+// t.Setenv で XDG_CONFIG_HOME を書き換えるため t.Parallel は呼ばない。
+func TestLoadUserConfig_読み込みエラーをそのまま返す(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	// 設定ファイルの位置をディレクトリにして、ENOENT以外の理由で読み込みを失敗させる
+	require.NoError(t, os.MkdirAll(filepath.Join(dir, "ruins", "settings.toml"), 0o755))
+
+	c := &Config{User: DefaultUserConfig()}
+	err := c.loadUserConfig()
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to read config file")
+}
+
+// t.Setenv で HOME/XDG_CONFIG_HOME を書き換えるため t.Parallel は呼ばない。
+func TestEnsureUserConfigFile_存在確認に失敗するとエラーを返す(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	err := EnsureUserConfigFile()
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to get config directory")
 }

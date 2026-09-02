@@ -3,9 +3,8 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -16,8 +15,10 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -147,130 +148,63 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
+// ViewUI は見出し・左の職業一覧・右の詳細パネル・下の説明を左右2枠の画面へ載せる。
+func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	itemIndex := cursor.ItemIndex
 
-	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
-	rootContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Spacing(0, theme.Space4),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
-			widget.GridLayoutOpts.Padding(&widget.Insets{
-				Top:    theme.Space6,
-				Bottom: theme.Space6,
-				Left:   40,
-				Right:  40,
-			}),
-		)),
-	)
-
-	// タイトル行
-	titleContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-	titleLabel := widget.NewText(
-		widget.TextOpts.Text(query.T(world, "Profession"), &res.Text.TitleFontFace, theme.TextPrimary),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-			}),
-		),
-	)
-	titleContainer.AddChild(titleLabel)
-
-	// メインエリア: 左右分割。左の一覧は他メニューと同じ密なテーブル行で縦幅と行間を揃える
-	leftContainer := styled.NewVerticalContainer()
-	rows := make([]menuRow, len(props.Items))
+	rows := make([]menuframe.Row, len(props.Items))
 	for i := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
 	}
-	leftContainer.AddChild(renderMenuList(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
-	rightContainer := st.buildDetailPanel(world, props, itemIndex, res)
-	mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)
+	list := menuframe.SplitList(itemIndex, rows, res)
+	detail := menuframe.PanelBox(res, buildJobDetailRowsUI(world, props, itemIndex, res.Text.BodyFace)...)
 
-	// フッター: 説明 + ヒント
-	footerContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(theme.Space2),
-		)),
-	)
 	description := ""
 	if itemIndex < len(props.Items) {
 		description = query.T(world, props.Items[itemIndex].Profession.Description)
 	}
-	descriptionText := widget.NewText(
-		widget.TextOpts.Text(description, &res.Text.SmallFace, theme.TextAccent),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionCenter,
-			}),
-		),
-	)
-	hintLabel := widget.NewText(
-		widget.TextOpts.Text(keybind.HelpHint(world), &res.Text.SmallFace, theme.TextAccent),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionCenter,
-			}),
-		),
-	)
-	footerContainer.AddChild(descriptionText)
-	footerContainer.AddChild(hintLabel)
-
-	rootContainer.AddChild(titleContainer)
-	rootContainer.AddChild(mainContainer)
-	rootContainer.AddChild(footerContainer)
-
-	return &ebitenui.UI{Container: rootContainer}
+	return menuframe.SplitScreen(world, res, query.T(world, "Profession"), list, detail, description, keybind.HelpHint(world))
 }
 
-// buildDetailPanel は選択中の職業の詳細パネルを構築する
-func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
-	)
-
+// buildJobDetailRowsUI は装備・所持品・スキルの見出しと行を返す。
+func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face text.Face) []uicore.Drawable {
 	if itemIndex >= len(props.Items) {
-		return container
+		return nil
 	}
-
 	prof := props.Items[itemIndex].Profession
-
-	// 装備
+	var items []uicore.Drawable
+	section := func(title string) {
+		items = append(items, uicore.NewText(title, face, theme.TextSecondary))
+	}
+	line := func(s string) {
+		items = append(items, uicore.NewText(s, face, theme.TextPrimary))
+	}
 	if len(prof.Equips) > 0 {
-		container.AddChild(styled.NewDescriptionText(query.T(world, "Equipment"), res))
+		section(query.T(world, "Equipment"))
 		for _, equip := range prof.Equips {
 			slotLabel := string(equip.Slot)
 			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
 				slotLabel = query.T(world, slot.String())
 			}
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, query.T(world, raw.ItemName(world.Resources.RawMaster, equip.Name))), res))
+			line(fmt.Sprintf(" %s %s", slotLabel, query.T(world, raw.ItemName(world.Resources.RawMaster, equip.Name))))
 		}
 	}
-
-	// 所持品
 	if len(prof.Items) > 0 {
-		container.AddChild(styled.NewDescriptionText(query.T(world, "Items"), res))
+		section(query.T(world, "Items"))
 		for _, item := range prof.Items {
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", query.T(world, raw.ItemName(world.Resources.RawMaster, item.Name)), item.Count), res))
+			line(fmt.Sprintf(" %s x%d", query.T(world, raw.ItemName(world.Resources.RawMaster, item.Name)), item.Count))
 		}
 	}
-
-	// スキル
 	if profSkills := raw.PtrSlice(prof.Skills); len(profSkills) > 0 {
-		container.AddChild(styled.NewDescriptionText(query.T(world, "Skills"), res))
+		section(query.T(world, "Skills"))
 		for _, skill := range profSkills {
 			skillID := gc.SkillID(skill.Id)
 			name := skill.Id
 			if gc.HasSkillName(skillID) {
 				name = query.T(world, gc.SkillName(skillID))
 			}
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s Lv.%d", name, skill.Value), res))
+			line(fmt.Sprintf(" %s Lv.%d", name, skill.Value))
 		}
 	}
-
-	return container
+	return items
 }

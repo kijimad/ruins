@@ -5,11 +5,9 @@ import (
 	"image/color"
 	"strconv"
 
-	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 
@@ -18,16 +16,13 @@ import (
 
 // SpecRow は性能表示の1行。Header が真ならカテゴリ見出し行、偽なら ラベル/値 のデータ行。
 // 詳細モーダルはこの行の並びを単位としてページ分割する。行の高さは一定なので行数が高さの目安になる。
-// Color が非 nil のデータ行はその色で描く。合成の必要素材を条件可否で色分けする用途に使う
+// Color が非 nil のデータ行はその色で描く。クラフトの必要素材を条件可否で色分けする用途に使う
 type SpecRow struct {
 	Label  string
 	Value  string
 	Header bool
 	Color  *color.RGBA
 }
-
-// specTableAligns はspec表示テーブルの揃え方向（ラベル左、値右）
-var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
 // SpecRows はエンティティの性能表示を行の並びとして返す。
 // 種別・攻撃・防具などコンポーネントごとに数行で、存在するものだけを含む
@@ -43,6 +38,12 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 		fire := world.Components.Fire.Get(entity)
 		rows = append(rows, attackerRows(world, fire)...)
 		rows = append(rows, fireAmmoRows(world, fire)...)
+	}
+	if world.Components.Material.Has(entity) {
+		rows = append(rows, materialRow(world, world.Components.Material.Get(entity)))
+	}
+	if heat := query.HeatContent(world, entity); heat > 0 {
+		rows = append(rows, fuelRow(world, heat))
 	}
 	if world.Components.Wearable.Has(entity) {
 		rows = append(rows, wearableRows(world, world.Components.Wearable.Get(entity))...)
@@ -106,6 +107,14 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 		rows = append(rows, attackerRows(world, spec.Fire)...)
 		rows = append(rows, fireAmmoRows(world, spec.Fire)...)
 	}
+	if spec.Material != nil {
+		rows = append(rows, materialRow(world, spec.Material))
+	}
+	if spec.Material != nil && spec.Weight != nil {
+		if heat := query.HeatOf(spec.Material.Kind, spec.Weight.Milligram); heat > 0 {
+			rows = append(rows, fuelRow(world, heat))
+		}
+	}
 	if spec.Wearable != nil {
 		rows = append(rows, wearableRows(world, spec.Wearable)...)
 	}
@@ -128,23 +137,57 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	return rows
 }
 
-// RenderSpecRows は行の並びをコンテナへ1つのテーブルとして描く
-func RenderSpecRows(targetContainer *widget.Container, rows []SpecRow, res resources.UIResources) {
-	targetContainer.RemoveChildren()
-	columnWidths := []int{70, 80}
-	table := styled.NewTableContainer(columnWidths, res)
-	for _, r := range rows {
-		if r.Header {
-			styled.NewTableHeaderRow(table, columnWidths, []string{r.Label, ""}, res)
-			continue
-		}
-		if r.Color != nil {
-			styled.NewTableRowColored(table, columnWidths, styled.TextCells(r.Label, r.Value), specTableAligns, *r.Color, res)
-			continue
-		}
-		styled.NewTableRow(table, columnWidths, styled.TextCells(r.Label, r.Value), specTableAligns, nil, res)
+// materialRow は材質の1行を返す。可燃性と燃焼熱量の根拠で、不燃の材質も見せて燃える/燃えないを読み取れる
+func materialRow(world w.World, material *gc.Material) SpecRow {
+	return SpecRow{Label: query.T(world, "Material"), Value: query.T(world, materialDisplayName(material.Kind))}
+}
+
+// materialDisplayName は raw の Material enum 値を表示名へ写す。表示名は query.T で各言語へ訳す。
+// default に enum 値をそのまま返し、未知の材質でも空欄にしない
+func materialDisplayName(kind oapi.Material) string {
+	switch kind {
+	case oapi.WOOD:
+		return "Wood"
+	case oapi.PAPER:
+		return "Paper"
+	case oapi.CLOTH:
+		return "Cloth"
+	case oapi.LEATHER:
+		return "Leather"
+	case oapi.PLANT:
+		return "Plant fiber"
+	case oapi.FOOD:
+		return "Food"
+	case oapi.BONE:
+		return "Bone"
+	case oapi.OIL:
+		return "Oil"
+	case oapi.COAL:
+		return "Coal"
+	case oapi.PLASTIC:
+		return "Plastic"
+	case oapi.METAL:
+		return "Metal"
+	case oapi.STONE:
+		return "Stone"
+	case oapi.GLASS:
+		return "Glass"
+	case oapi.CRYSTAL:
+		return "Crystal"
+	case oapi.CERAMIC:
+		return "Ceramic"
+	case oapi.LIQUID:
+		return "Liquid"
+	default:
+		return string(kind)
 	}
-	targetContainer.AddChild(table)
+}
+
+// fuelRow は燃料の熱量の1行を返す。燃やしたとき火へ移す熱量で、燃焼時間の目安になる。
+// 値の無い見出し行は置かず、材質の行と並べて読ませる。熱量は保持せず材質と重量から導く
+func fuelRow(world w.World, heat consts.Heat) SpecRow {
+	// 熱量は炎アイコンで見せる。満burn時の燃焼ターン数に等しく、地面直の火では効率で減る
+	return SpecRow{Label: query.T(world, "Fuel"), Value: heat.String()}
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し

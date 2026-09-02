@@ -11,10 +11,11 @@ import (
 
 func TestGetEntityID(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
 
+	// Ark の world は並行安全でないので、並列サブテストごとに自前の world を作る
 	t.Run("RawIDを持てばそのIDを返す", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.RawID.Add(e, &gc.RawID{ID: "sword"})
 		assert.Equal(t, "sword", GetEntityID(e, world))
@@ -22,12 +23,14 @@ func TestGetEntityID(t *testing.T) {
 
 	t.Run("RawIDを持たなければ空文字", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		assert.Empty(t, GetEntityID(e, world))
 	})
 
 	t.Run("死亡エンティティは空文字", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.RawID.Add(e, &gc.RawID{ID: "sword"})
 		world.ECS.RemoveEntity(e)
@@ -37,10 +40,10 @@ func TestGetEntityID(t *testing.T) {
 
 func TestNameMarkup(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
 
 	t.Run("プレイヤーはplayerタグ", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.Player.Add(e, &gc.Player{})
 		assert.Equal(t, gamelog.Tag("player", "アッシュ"), NameMarkup(e, "アッシュ", world))
@@ -48,6 +51,7 @@ func TestNameMarkup(t *testing.T) {
 
 	t.Run("NPCはnpcタグ", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.SoloAI.Add(e, &gc.SoloAI{})
 		assert.Equal(t, gamelog.Tag("npc", "ゴブリン"), NameMarkup(e, "ゴブリン", world))
@@ -55,6 +59,7 @@ func TestNameMarkup(t *testing.T) {
 
 	t.Run("それ以外は裸のテキスト", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		assert.Equal(t, "木の板", NameMarkup(e, "木の板", world))
 	})

@@ -3,8 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -13,8 +11,9 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -187,36 +186,12 @@ func applyLanguage(world w.World, code string) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、Enter で次の値へ切り替わる
-	rows := make([]menuRow, len(props.Items))
+// ViewUI は設定項目の2列表を中央パネルに組む。
+func (st *SettingsMenuState) ViewUI(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
+	rows := make([]menuframe.Row, len(props.Items))
 	for i, item := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(item.Label, item.Value)}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(item.Label, item.Value)}
 	}
-	table := renderMenuList(cursor.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
-
-	menuContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
-			}),
-			widget.WidgetOpts.MinSize(300, 0),
-		),
-	)
-
-	titleText := widget.NewText(
-		widget.TextOpts.Text(query.T(world, "Settings"), &res.Text.BodyFace, theme.TextPrimary),
-	)
-	menuContainer.AddChild(titleText)
-	menuContainer.AddChild(table)
-	menuContainer.AddChild(styled.NewDescriptionText(keybind.HelpHint(world), res))
-
-	rootContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-	rootContainer.AddChild(menuContainer)
-	return &ebitenui.UI{Container: rootContainer}
+	content, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(), styled.Num()), menuframe.ListOpts{}, res)
+	return menuframe.PanelScreen(world, res, query.T(world, "Settings"), content, keybind.HelpHint(world), pager)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -28,6 +29,7 @@ func dungeonMenuChoices(world w.World) (string, []Choice) {
 	return "", []Choice{
 		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
 		{Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
+		{Label: query.T(world, "Crafting"), Run: pushChoice(NewCraftMenuState)},
 		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
 		{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
 		{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
@@ -308,6 +310,22 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 	return "", interactionActionChoices(GetSameTileManualActions(world))
 }
 
+// NewFeedFuelMenuState は火への給油メニューを作る。収納やインベントリと同じ item-row 形式で、
+// くべる先の火を閉じ込める。表示と操作は FeedFuelMenuState が担う
+func NewFeedFuelMenuState(fire ecs.Entity) (es.State[w.World], error) {
+	return &FeedFuelMenuState{fire: fire}, nil
+}
+
+// feedOneFuel は rep を火へ1つくべる。走査時の rep は消費されるので、
+// 次フレームの Fetch が新しい代表で一覧を組み直す。
+// メニュー表示中に火が燃え尽きても AddFuel が何もしないので、火の状態はここで確かめない
+func feedOneFuel(world w.World, fire ecs.Entity, rep ecs.Entity) {
+	if !world.ECS.Alive(rep) || !query.IsCombustible(world, rep) {
+		return
+	}
+	lifecycle.AddFuel(world, fire, rep)
+}
+
 // NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す
 func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w.World], error) {
 	persistentState := &PersistentMessageState{}
@@ -321,29 +339,6 @@ func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w
 					NewStateFuncs: []es.StateFactory[w.World]{
 						func() (es.State[w.World], error) { return NewShopMenuState(merchant) },
 					},
-				})
-				return nil
-			}).
-			WithChoice(query.T(world, "No business"), func(_ w.World) error {
-				persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-				return nil
-			})
-	}
-
-	return persistentState, nil
-}
-
-// NewDoctorDialogState は怪しい科学者との会話ステートを作成
-func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := &PersistentMessageState{}
-
-	persistentState.build = func(world w.World) *messagedata.MessageData {
-		return messagedata.NewDialogMessage("", speakerName).
-			AddText(query.T(world, "Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!")).
-			WithChoice(query.T(world, "I want to craft"), func(_ w.World) error {
-				persistentState.SetTransition(es.Transition[w.World]{
-					Type:          es.TransPush,
-					NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},
 				})
 				return nil
 			}).

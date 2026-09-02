@@ -60,7 +60,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	// ウィンドウ設定
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSize(cfg.User.WindowWidth, cfg.User.WindowHeight)
-	ebiten.SetWindowTitle("ruins")
+	ebiten.SetWindowTitle("Coldward")
 
 	// FPS設定
 	if cfg.TargetFPS != 60 {
@@ -126,9 +126,11 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	if err := ebiten.RunGame(game); err != nil {
-		return err
-	}
-
-	return nil
+	// Linux のタスクバーや Steam Deck は SetWindowTitle でなく X11 の WM_CLASS でアプリを同定する。
+	// 既定のままだと "Ebitengine-Application" と表示される。WM_CLASS の class 側は表示・グルーピングに
+	// 使われるので表示名の Coldward、instance 側は実行体の同定子なので内部名の ruins にする。
+	return ebiten.RunGameWithOptions(game, &ebiten.RunGameOptions{
+		X11ClassName:    "Coldward",
+		X11InstanceName: "ruins",
+	})
 }

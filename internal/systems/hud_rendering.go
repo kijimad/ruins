@@ -3,6 +3,7 @@ package systems
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -22,14 +23,15 @@ type HUDRenderingSystem struct {
 func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 	smallFace := world.Resources.UIResources.Text.SmallFace
 	titleFace := world.Resources.UIResources.Text.TitleFontFace
+	chrome := hud.NewChrome(world.Resources.UIResources)
 
 	return &HUDRenderingSystem{
 		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
-		minimap:         hud.NewMinimap(titleFace),
+		minimap:         hud.NewMinimap(titleFace, chrome),
 		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
-		weaponSlots:     hud.NewWeaponSlots(smallFace),
+		weaponSlots:     hud.NewWeaponSlots(smallFace, chrome),
 		statusBadges:    hud.NewStatusBadges(smallFace),
 		enabled:         true,
 	}
@@ -83,27 +85,28 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 
 	// worldから全HUDデータを一括抽出
 	hudData := ExtractHUDData(world)
+	cv := uicore.NewEbitenCanvas(screen)
 
 	// 各ウィジェットにデータを渡して描画する。描画順がある
 	if sys.minimap != nil {
-		sys.minimap.Draw(screen, hudData.MinimapData)
+		sys.minimap.Draw(cv, hudData.MinimapData)
 	}
 	if sys.debugOverlay != nil {
 		sys.debugOverlay.Draw(screen, hudData.DebugOverlay)
 	}
 	if sys.messageArea != nil {
-		sys.messageArea.Draw(screen, hudData.MessageData)
+		sys.messageArea.Draw(cv, hudData.MessageData)
 	}
 	if sys.currencyDisplay != nil {
-		sys.currencyDisplay.Draw(screen, hudData.CurrencyData)
+		sys.currencyDisplay.Draw(cv, hudData.CurrencyData)
 	}
 	if sys.weaponSlots != nil {
-		sys.weaponSlots.Draw(screen, hudData.WeaponSlotsData, world)
+		sys.weaponSlots.Draw(cv, hudData.WeaponSlotsData, world)
 	}
 	if sys.statusBadges != nil {
-		sys.statusBadges.Draw(screen, hudData.StatusBadgesData)
+		sys.statusBadges.Draw(cv, hudData.StatusBadgesData)
 	}
 	if sys.gameInfo != nil {
-		sys.gameInfo.Draw(screen, hudData.GameInfo)
+		sys.gameInfo.Draw(cv, hudData.GameInfo)
 	}
 }

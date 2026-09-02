@@ -7,9 +7,12 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -183,7 +186,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 
-	t.Run("冷えた状態でも敵への攻撃が可能", func(t *testing.T) {
+	t.Run("冷えた状態でも攻撃が成立しAPを消費する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
@@ -199,59 +202,22 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 			Timer:    90,
 		})
 
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
-		require.NoError(t, err)
-		// APが0以上なら行動可能であることを確認
-		tb := world.Components.TurnBased.Get(player)
-		assert.GreaterOrEqual(t, tb.AP.Current, 0, "冷えた状態でもAPが0以上なら行動可能")
-		enemyHP := world.Components.HP.Get(enemy)
-		initialEnemyHP := enemyHP.Current
-
-		// 攻撃を実行
-		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
-		require.NoError(t, err)
-
-		// 検証: Attackが実行される
-		result := activity.GetLastResult(player, world)
-		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
-		assert.Less(t, enemyHP.Current, initialEnemyHP)
-	})
-
-	t.Run("冷えた状態で攻撃するとAPが消費される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
-
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-
-		// 重度の低体温を設定
-		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
-			Severity: gc.SeveritySevere,
-			Timer:    90,
-		})
-
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
+		// 上方向に攻撃対象を置く。ハンドルは使わないので捨てる
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		turnBased := world.Components.TurnBased.Get(player)
 		initialAP := turnBased.AP.Current
-		enemyHP := world.Components.HP.Get(enemy)
-		initialEnemyHP := enemyHP.Current
 
 		// 攻撃を実行
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 
-		// 検証: Attackが実行される
+		// 検証: 冷えていても近接攻撃が成立し AP を消費する。命中は身体機能で下がるので当否は問わない
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.True(t, result.Success)
 		assert.Less(t, turnBased.AP.Current, initialAP)
-		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 }
 
@@ -639,5 +605,155 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		actions := GetSameTileManualActions(world)
 		assert.Nil(t, actions)
+	})
+}
+
+// TestGetInteractionActions_着火 は、火種の所持と隣接の燃焼物を条件に着火アクションが
+// タイル単位で1つ出ること、足元や遠いタイルは対象外になることを確認する。
+func TestGetInteractionActions_着火(t *testing.T) {
+	t.Parallel()
+
+	// 火種の有無だけを見るため、初期装備の松明が付く SpawnPlayer は使わず素のプレイヤーを組む。
+	// 松明は火種を兼ねるので標準装備では常に着火できてしまい、火種なしの検証ができない
+	setup := func(t *testing.T) (w.World, ecs.Entity) {
+		t.Helper()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		return world, player
+	}
+	addFieldFuel := func(world w.World, x, y consts.Tile, name string) {
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: name})
+		// 熱量は材質×重量から導く。WOOD 200/kg × 50g = 10
+		world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Weight.Add(e, &gc.Weight{Milligram: 50 * consts.MilligramPerGram})
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
+	}
+	giveFireStarter := func(world w.World, player ecs.Entity) {
+		s := world.ECS.NewEntity()
+		world.Components.FireStarter.Add(s, &gc.FireStarter{})
+		world.Components.LocationInBackpack.Add(s, &gc.LocationInBackpack{Owner: player})
+	}
+	countIgnite := func(actions []InteractionAction) int {
+		n := 0
+		for _, a := range actions {
+			if a.Interaction == gc.InteractionIgnite {
+				n++
+			}
+		}
+		return n
+	}
+
+	t.Run("火種が無ければ着火は出ない", func(t *testing.T) {
+		t.Parallel()
+		world, _ := setup(t)
+		addFieldFuel(world, 6, 5, "wood")
+		assert.Equal(t, 0, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("火種を持ち隣接に燃料があれば着火が1つ出る", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 6, 5, "wood")
+		assert.Equal(t, 1, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("同じタイルに複数の燃料があっても着火は1つに束ねる", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 6, 5, "a_wood")
+		addFieldFuel(world, 6, 5, "b_wood")
+		assert.Equal(t, 1, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("足元の燃料は着火の対象にしない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 5, 5, "wood")
+		assert.Equal(t, 0, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("2タイル離れた燃料は隣接でないので着火は出ない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 7, 5, "wood")
+		assert.Equal(t, 0, countIgnite(GetInteractionActions(world)))
+	})
+}
+
+// TestGetInteractionActions_給油 は、バックパックに燃料を持ち隣接に燃えている火があるとき
+// 給油アクションが出ること、燃料なし・非隣接・非燃焼では出ないことを確認する。
+func TestGetInteractionActions_給油(t *testing.T) {
+	t.Parallel()
+
+	setup := func(t *testing.T) (w.World, ecs.Entity) {
+		t.Helper()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		return world, player
+	}
+	addBurningFire := func(world w.World, x, y consts.Tile) {
+		fire := world.ECS.NewEntity()
+		world.Components.GridElement.Add(fire, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 5})
+	}
+	giveFuel := func(world w.World, player ecs.Entity) {
+		f := world.ECS.NewEntity()
+		// 熱量は材質×重量から導く。WOOD 200/kg × 50g = 10
+		world.Components.Material.Add(f, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Weight.Add(f, &gc.Weight{Milligram: 50 * consts.MilligramPerGram})
+		world.Components.LocationInBackpack.Add(f, &gc.LocationInBackpack{Owner: player})
+	}
+	countFeed := func(actions []InteractionAction) int {
+		n := 0
+		for _, a := range actions {
+			if a.Interaction == gc.InteractionFeedFuel {
+				n++
+			}
+		}
+		return n
+	}
+
+	t.Run("燃料が無くても隣接の火なら給油メニューを開ける", func(t *testing.T) {
+		t.Parallel()
+		world, _ := setup(t)
+		addBurningFire(world, 6, 5)
+		// 火の残ターン数を確認できるよう、燃料の有無に関わらずメニューは開ける
+		assert.Equal(t, 1, countFeed(GetInteractionActions(world)))
+	})
+
+	t.Run("燃料を持ち隣接に火があれば給油が出る", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFuel(world, player)
+		addBurningFire(world, 6, 5)
+		assert.Equal(t, 1, countFeed(GetInteractionActions(world)))
+	})
+
+	t.Run("2タイル離れた火には給油しない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFuel(world, player)
+		addBurningFire(world, 7, 5)
+		assert.Equal(t, 0, countFeed(GetInteractionActions(world)))
+	})
+
+	t.Run("燃えていない火には給油しない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFuel(world, player)
+		// Burning を持たない冷えた火エンティティ
+		cold := world.ECS.NewEntity()
+		world.Components.GridElement.Add(cold, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+		assert.Equal(t, 0, countFeed(GetInteractionActions(world)))
 	})
 }

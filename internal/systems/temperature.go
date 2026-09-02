@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -26,9 +27,9 @@ func (sys *TemperatureSystem) String() string {
 
 // 温度閾値の定数
 const (
-	// ComfortableTempLower は快適温度の下限（これより低いと寒さダメージ）
+	// ComfortableTempLower は快適温度の下限
 	ComfortableTempLower = 11
-	// ComfortableTempUpper は快適温度の上限（これより高いと暑さダメージ）
+	// ComfortableTempUpper は快適温度の上限
 	ComfortableTempUpper = 30
 )
 
@@ -82,14 +83,16 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 
 // 体温の定数。値は実プレイで調整する
 const (
-	// bodyTempBand は平熱からこの範囲内を正常帯とみなす。外れるとタイマーが進む
-	bodyTempBand = 2.0
+	// bodyTempColdBand は平熱からこれだけ下がるまでを正常とみなす帯。これより冷えると低体温タイマーが進む
+	bodyTempColdBand = 2.0
 	// bodyTempMin はオフセットの下限クランプ
 	bodyTempMin = -5.0
-	// bodyTempMax はオフセットの上限クランプ
-	bodyTempMax = 5.0
+	// bodyTempMax はオフセットの上限クランプ。平熱が上限
+	bodyTempMax = 0.0
 	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
 	bodyTempHomeostasisPerTurn = 0.1
+	// hypothermiaSevereHPDamagePerTurn は重症の低体温が毎ターン与える HP ダメージ。値は実プレイで調整する
+	hypothermiaSevereHPDamagePerTurn = 3
 )
 
 // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
@@ -100,6 +103,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 	// HealthStatusとGridElementを持つエンティティを処理。
 	var toMark []ecs.Entity
+	var toFreeze []ecs.Entity
 	healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
@@ -111,20 +115,23 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 		isPlayer := world.Components.Player.Has(entity)
 
-		// 体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
-		coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
+		// 低体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
+		coldProgressPct := consts.PercentBase
 		if world.Components.CharModifiers.Has(entity) {
-			mods := world.Components.CharModifiers.Get(entity)
-			coldProgressPct = mods.ColdProgress
-			heatProgressPct = mods.HeatProgress
+			coldProgressPct = world.Components.CharModifiers.Get(entity).ColdProgress
 		}
 
 		// 体温の帯判定から健康状態を更新
-		hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct, heatProgressPct)
+		hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct)
 
 		// 状態変化があれば属性を再計算
 		if isPlayer && hasChange {
 			toMark = append(toMark, entity)
+		}
+
+		// 重症の低体温は毎ターン HP を削る。反復中に Dead を付けないようループ後へ回す
+		if world.Components.HP.Has(entity) && isSevereHypothermia(hs) {
+			toFreeze = append(toFreeze, entity)
 		}
 	}
 
@@ -134,7 +141,17 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		}
 	}
 
+	for _, entity := range toFreeze {
+		gameaction.ApplyConditionDamage(world, entity, hypothermiaSevereHPDamagePerTurn, gc.CauseFrozen)
+	}
+
 	return nil
+}
+
+// isSevereHypothermia は全身の低体温が重症かを返す
+func isSevereHypothermia(hs *gc.HealthStatus) bool {
+	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+	return cond != nil && cond.Severity == gc.SeveritySevere
 }
 
 // bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。
@@ -155,20 +172,13 @@ func bodyTempRate(world w.World, entity ecs.Entity) float64 {
 	if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold < 0 {
 		rate += cold
 	}
-	if heat := calcBodyTempRate(ambientTemp - insulation.Heat); heat > 0 {
-		rate += heat
-	}
-	// 熱源は冷えた体だけを温める。平熱以上では効かせず、焚き火の常用で高体温にならない
+	// 熱源は冷えた体だけを温める。平熱以上では効かせない
 	if offset < 0 {
 		rate += heatSourceWarmthAt(world, grid.X, grid.Y)
 	}
 	// 外因が無ければ恒常性で平熱へ戻る
-	if rate == 0 && offset != 0 {
-		step := math.Min(bodyTempHomeostasisPerTurn, math.Abs(offset))
-		if offset > 0 {
-			return -step
-		}
-		return step
+	if rate == 0 && offset < 0 {
+		return math.Min(bodyTempHomeostasisPerTurn, -offset)
 	}
 	return rate
 }
@@ -210,7 +220,9 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 }
 
 // heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。
-// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する
+// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する。
+// HeatSource を持つものを数える。暖房かどうかは HeatSource だけで決まり Burning とは独立で、
+// 電熱のように燃えない熱源も暖房になる。火は燃え尽きると自分の HeatSource を外すので数から外れる
 func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 	at := consts.Coord[consts.Tile]{X: x, Y: y}
 	var warmth float64
@@ -230,9 +242,9 @@ func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 // updateTemperatureConditions は体温の正常帯判定から全身の体温状態タイマーを更新する。
 // - 帯の外では超過に応じてタイマーが進み、帯の中では自然回復する。
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
-// - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
+// - coldProgressPctは低体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct consts.Percent) bool {
 	hasChange := false
 	partHealth := &hs.Parts[gc.BodyPartWholeBody]
 	offset := hs.BodyTempOffset
@@ -241,20 +253,11 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 
 	// 低体温の処理
 	switch {
-	case offset < -bodyTempBand:
-		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempBand))
+	case offset < -bodyTempColdBand:
+		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))
 		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))
 	case partHealth.GetCondition(gc.ConditionHypothermia) != nil:
 		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))
-	}
-
-	// 高体温の処理
-	switch {
-	case offset > bodyTempBand:
-		delta := heatProgressPct.ApplyFloat(timerProgress(offset - bodyTempBand))
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, delta))
-	case partHealth.GetCondition(gc.ConditionHyperthermia) != nil:
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -naturalRecoveryPerTurn))
 	}
 
 	for _, change := range changes {
@@ -266,9 +269,6 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 		}
 	}
 
-	// 効果を更新
-	updateConditionEffects(partHealth)
-
 	return hasChange
 }
 
@@ -278,8 +278,7 @@ func timerProgress(excess float64) float64 {
 	return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)
 }
 
-// calcBodyTempRate は有効温度から体温の変化量を計算する
-// 負の値は冷える方向、正の値は温まる方向
+// calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない
 func calcBodyTempRate(effectiveTemp int) float64 {
 	switch {
 	case effectiveTemp <= -50:
@@ -288,26 +287,8 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 		return -0.2 // 非常に寒い
 	case effectiveTemp <= 10:
 		return -0.1 // 寒い
-	case effectiveTemp <= 15:
-		return 0 // やや寒い（現状維持）
-	case effectiveTemp <= 25:
-		return 0 // 快適
-	case effectiveTemp <= 30:
-		return 0 // やや暑い（現状維持）
-	case effectiveTemp <= 35:
-		return 0.1 // 暑い
 	default:
-		return 0.2 // 非常に暑い
-	}
-}
-
-// updateConditionEffects は全身の状態の効果を更新する
-func updateConditionEffects(partHealth *gc.BodyPartHealth) {
-	if cond := partHealth.GetCondition(gc.ConditionHypothermia); cond != nil {
-		cond.Effects = calculateHypothermiaEffects(cond.Severity)
-	}
-	if cond := partHealth.GetCondition(gc.ConditionHyperthermia); cond != nil {
-		cond.Effects = calculateHyperthermiaEffects(cond.Severity)
+		return 0 // 適温以上
 	}
 }
 
@@ -329,8 +310,7 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 
 // getWorseningMessage は悪化時のメッセージを返す
 func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {
-	switch condType {
-	case gc.ConditionHypothermia:
+	if condType == gc.ConditionHypothermia {
 		switch severity {
 		case gc.SeverityNone:
 			return ""
@@ -341,25 +321,13 @@ func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string
 		case gc.SeveritySevere:
 			return "The cold is dangerous"
 		}
-	case gc.ConditionHyperthermia:
-		switch severity {
-		case gc.SeverityNone:
-			return ""
-		case gc.SeverityMinor:
-			return "The heat is flushing you"
-		case gc.SeverityMedium:
-			return "The heat is wearing you down"
-		case gc.SeveritySevere:
-			return "The heat is dangerous"
-		}
 	}
 	return ""
 }
 
 // getRecoveryMessage は回復時のメッセージを返す
 func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {
-	switch condType {
-	case gc.ConditionHypothermia:
+	if condType == gc.ConditionHypothermia {
 		switch severity {
 		case gc.SeverityNone:
 			return "You have warmed up"
@@ -370,60 +338,6 @@ func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string 
 		case gc.SeveritySevere:
 			return ""
 		}
-	case gc.ConditionHyperthermia:
-		switch severity {
-		case gc.SeverityNone:
-			return "You have cooled down"
-		case gc.SeverityMinor:
-			return "You are cooling down a little"
-		case gc.SeverityMedium:
-			return "Still hot, but a little better"
-		case gc.SeveritySevere:
-			return ""
-		}
 	}
 	return ""
-}
-
-// calculateHypothermiaEffects は低体温による全身への効果を計算する
-func calculateHypothermiaEffects(severity gc.Severity) []gc.StatEffect {
-	m := severityToMultiplier(severity)
-	if m == 0 {
-		return nil
-	}
-
-	return []gc.StatEffect{
-		{Stat: gc.StatStrength, Value: -1 * m},
-		{Stat: gc.StatVitality, Value: -1 * m},
-		{Stat: gc.StatDexterity, Value: -1 * m},
-		{Stat: gc.StatAgility, Value: -1 * m},
-	}
-}
-
-// calculateHyperthermiaEffects は高体温による全身への効果を計算する
-func calculateHyperthermiaEffects(severity gc.Severity) []gc.StatEffect {
-	m := severityToMultiplier(severity)
-	if m == 0 {
-		return nil
-	}
-
-	return []gc.StatEffect{
-		{Stat: gc.StatStrength, Value: -1 * m},
-		{Stat: gc.StatSensation, Value: -1 * m},
-		{Stat: gc.StatVitality, Value: -1 * m},
-	}
-}
-
-// severityToMultiplier はSeverityから効果倍率を返す
-func severityToMultiplier(severity gc.Severity) int {
-	switch severity {
-	case gc.SeveritySevere:
-		return 3
-	case gc.SeverityMedium:
-		return 2
-	case gc.SeverityMinor:
-		return 1
-	default:
-		return 0
-	}
 }

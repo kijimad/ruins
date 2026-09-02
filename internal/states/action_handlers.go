@@ -3,6 +3,8 @@ package states
 import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -56,7 +58,69 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		}
 	}
 
-	return appendItemPickupActions(world, actions, itemEntities)
+	actions = appendItemPickupActions(world, actions, itemEntities)
+	actions = appendIgniteActions(world, playerEntity, gridElement, actions)
+	return appendFeedFuelActions(world, gridElement, actions)
+}
+
+// appendFeedFuelActions は隣接する、燃えている火へ給油するアクションを足す。
+// 対象は Burning を持つ火だけ。着火した火は必ず Burning を持つので、これが火であることの判定を兼ねる。
+// 燃料の有無に関わらず出し、残ターン数を確認しつつ、燃料を持っていればくべられるようにする。
+func appendFeedFuelActions(world w.World, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
+	fireQuery := query.ActiveFilter2[gc.Burning, gc.GridElement](world).Query()
+	for fireQuery.Next() {
+		fire := fireQuery.Entity()
+		grid := world.Components.GridElement.Get(fire)
+		if !geometry.IsAdjacent(playerGrid.Coord, grid.Coord) {
+			continue
+		}
+		dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, grid))
+		actions = append(actions, InteractionAction{
+			Label:       query.T(world, "Feed fire (%s)", dirLabel),
+			Target:      fire,
+			Interaction: gc.InteractionFeedFuel,
+		})
+	}
+	return actions
+}
+
+// appendIgniteActions は火種を持つとき、隣接タイルの燃焼物へ着火するアクションをタイルごとに1つ足す。
+// 足元は自分が燃えるため対象にしない。同じタイルに複数の燃料があっても着火は1タイル1回にまとめる。
+// 着火の可否は火種の所持だけで判定する。火種を消費するかは別の関心で、ここでは扱わない。
+func appendIgniteActions(world w.World, player ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
+	if !query.HoldsFireStarter(world, player) {
+		return actions
+	}
+	// タイルごとに代表の燃料を1つ選ぶ。map の走査順に依存しないよう出現順を別に記録する
+	repByTile := map[consts.Coord[consts.Tile]]ecs.Entity{}
+	var order []consts.Coord[consts.Tile]
+	// 地面の燃焼物を隣接タイルで絞るので GridElement も条件に入れる。フィルタで保証されるので Get は安全
+	fuelQuery := query.ActiveFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world).Query()
+	for fuelQuery.Next() {
+		entity := fuelQuery.Entity()
+		if !query.IsCombustible(world, entity) {
+			continue
+		}
+		coord := world.Components.GridElement.Get(entity).Coord
+		if !geometry.IsAdjacent(playerGrid.Coord, coord) {
+			continue
+		}
+		if _, seen := repByTile[coord]; !seen {
+			repByTile[coord] = entity
+			order = append(order, coord)
+		}
+	}
+	for _, coord := range order {
+		rep := repByTile[coord]
+		grid := world.Components.GridElement.Get(rep)
+		dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, grid))
+		actions = append(actions, InteractionAction{
+			Label:       query.T(world, "Light fire (%s)", dirLabel),
+			Target:      rep,
+			Interaction: gc.InteractionIgnite,
+		})
+	}
+	return actions
 }
 
 // GetSameTileManualActions はプレイヤー直上のManual発動アクションを全て取得する
@@ -253,6 +317,12 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		case gc.InteractionItemAll:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
+		case gc.InteractionIgnite:
+			// 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で
+			// タイル単位に組む。ここには来ないが exhaustive のため case を明示する
+		case gc.InteractionFeedFuel:
+			// 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。
+			// ここには来ないが exhaustive のため case を明示する
 		}
 	}
 

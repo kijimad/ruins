@@ -5,6 +5,7 @@ import (
 	"github.com/kijimaD/ruins/internal/aiinput"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -115,7 +116,39 @@ func runEndPhase(world w.World, turnState *gc.TurnState) error {
 	// ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
 	// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
 	query.GetGameTime(world).Advance()
+	// 季節や日の出入りが変わったらログへ出す
+	logEnvironmentChange(world)
 	return nil
+}
+
+// logEnvironmentChange は季節や日の出入りが変わったらゲームログへ出す。
+// 変化は現在ターンと直前ターンの導出値の差で判定するので、GameTime.Advance の直後に呼ぶ。
+func logEnvironmentChange(world w.World) {
+	gt := query.GetGameTime(world)
+
+	if gt.SeasonJustChanged() {
+		name := query.T(world, gt.GetSeason().String())
+		gamelog.New(query.GetGameLog(world)).
+			Markup(gamelog.Tag("system", query.T(world, "The season changed to %s.", name))).
+			Log()
+	}
+
+	// 知らせるのは日の出と日の入りだけ。夜明け入りが日の出、夜入りが日の入り。
+	// 夕は太陽がまだ空にある薄暮なので、沈み切って夜になった瞬間を日の入りとする。
+	if tod, changed := gt.TimeOfDayJustChanged(); changed {
+		switch tod {
+		case gc.TimeDawn:
+			gamelog.New(query.GetGameLog(world)).
+				Markup(gamelog.Tag("system", query.T(world, "The sun rises."))).
+				Log()
+		case gc.TimeNight:
+			gamelog.New(query.GetGameLog(world)).
+				Markup(gamelog.Tag("system", query.T(world, "The sun sets."))).
+				Log()
+		default:
+			// ほかの区分は日の出入りではないので出さない
+		}
+	}
 }
 
 // playerHasActivity はプレイヤーが継続アクティビティ中かを返す。
@@ -176,11 +209,18 @@ func processTurnEnd(world w.World) error {
 	return runTurnEndSystems(world)
 }
 
-// runTurnEndSystems はターン終了時に実行するシステム群を呼び出す
+// runTurnEndSystems はターン終了時に実行するシステム群を呼び出す。
+// DeadCleanupSystem を末尾に置き、そのターンに死んだものを同じターンで回収する。
+// 死は必ずターン処理で起きるので回収もターンに閉じる。fast-forward は毎ターンこれを回すため、
+// 燃え尽きた火が数ターン残って暖め・照らし続けることがない。
 func runTurnEndSystems(world w.World) error {
 	for _, updater := range []w.Updater{
 		&AutoInteractionSystem{},
 		&TemperatureSystem{},
+		&HealthRegenSystem{},
+		&ConditionSystem{},
+		&FireSystem{},
+		&DeadCleanupSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {

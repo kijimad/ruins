@@ -7,28 +7,12 @@ import (
 	"image/png"
 	"math"
 	"os"
-	"sync"
 	"testing"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
 )
-
-// ebitenuiMu は ebitenui のグローバル状態、遅延イベントキュー・入力ハンドラ・NineSlice キャッシュ等が
-// 並行アクセス安全でないため、それに触れる処理を直列化する。widget 生成、AddChild が遅延イベント
-// キューへ append する、World 初期化、NineSlice キャッシュ、描画のいずれもこのグローバル状態に触れる。
-var ebitenuiMu sync.Mutex
-
-// WithUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる
-// 生成・初期化・描画をこのヘルパに通し、ロックを取る箇所を1つに集約する。
-func WithUILock(fn func()) {
-	ebitenuiMu.Lock()
-	defer ebitenuiMu.Unlock()
-	fn()
-}
 
 // readScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。解放はしない。
 // 呼び出し側が所有する画像を渡されるときはこちらを使う
@@ -47,45 +31,16 @@ func captureScreen(screen *ebiten.Image) *image.NRGBA {
 	return img
 }
 
-// AssertContainerGolden は buildFn が返す widget.Container を描画し、ゴールデン画像と比較する。
-// Container を ebitenui.UI に載せてレイアウト・描画までヘルパが行う。宣言的な widget ツリー
-// （メニュー・タブ等）のテストに使う。自前で screen に描くものは AssertScreenGolden。
-// GOLDIE_UPDATE=1 で実行するとゴールデン画像を更新する
-func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width, height int) {
-	t.Helper()
-
-	var img *image.NRGBA
-	WithUILock(func() {
-		root := buildFn()
-		ui := &ebitenui.UI{Container: root}
-		screen := ebiten.NewImage(width, height)
-
-		// レイアウト確定のため数フレーム回す
-		for range 3 {
-			ui.Update()
-		}
-		ui.Draw(screen)
-
-		img = captureScreen(screen)
-	})
-
-	pngData := encodePNG(t, img)
-	assertPNGGolden(t, t.Name(), pngData)
-}
-
 // AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。
-// レイアウト・描画は呼び出し側が制御する。messagelog・HUD など ebitenui.UI を内包する、または明示座標で
-// Draw するコンポーネントに使う。widget.Container を渡すだけのものは AssertContainerGolden。
+// レイアウト・描画は呼び出し側が制御する。messagelog・HUD など明示座標で Draw するコンポーネントに使う。
+// world ごとに独立したフェイスで描くのでロックは要らない。
 func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image), width, height int) {
 	t.Helper()
 
-	var img *image.NRGBA
-	WithUILock(func() {
-		drawFn := setupFn()
-		screen := ebiten.NewImage(width, height)
-		drawFn(screen)
-		img = captureScreen(screen)
-	})
+	drawFn := setupFn()
+	screen := ebiten.NewImage(width, height)
+	drawFn(screen)
+	img := captureScreen(screen)
 
 	pngData := encodePNG(t, img)
 	assertPNGGolden(t, t.Name(), pngData)
@@ -125,8 +80,9 @@ func encodePNG(t *testing.T, img image.Image) []byte {
 // 下回ると見逃す。文字単位の変化まで見たいならトレランスではなく専用の小さい golden を撮る。
 //
 // この係数を緩めすぎると実変化が静かに素通りする。上限の目安は2行ラベル変更 570画素の
-// 半分、係数0.34。TestToleranceForSize がこの上限を守らせる。以前の45.0は全画面で5.4%あり、
-// テキスト行が丸ごと別言語になっていた golden を見逃していた。
+// 半分、係数0.34。TestToleranceForSize がこの上限を守らせる。
+// 締める判断は推測でなく実測で行う。比較時に差分画素数をログへ出しているので、
+// CI を含む実行環境ごとの実マージンをそこから読める。
 const noiseScale = 0.3
 
 // toleranceForSize は画像のピクセル数からトレランス比率を算出する。
@@ -159,12 +115,14 @@ func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 		return
 	}
 
+	// 直近の比較の差分画素数。EqualFn が書き、失敗時の DiffFn が報告へ使う
+	var lastDiff, lastAllowed int
 	g := newGoldie(t,
-		goldie.WithEqualFn(pngPixelEqualFn(toleranceRatio)),
+		goldie.WithEqualFn(pngPixelEqualFn(t, toleranceRatio, &lastDiff, &lastAllowed)),
 		goldie.WithDiffFn(func(_, _ string) string {
 			return fmt.Sprintf(
-				"pixel diff exceeds tolerance: image %dx%d, tolerance %.2f%%",
-				cfg.Width, cfg.Height, toleranceRatio*100,
+				"pixel diff exceeds tolerance: image %dx%d, diff %d px > allowed %d px",
+				cfg.Width, cfg.Height, lastDiff, lastAllowed,
 			)
 		}),
 	)
@@ -210,8 +168,11 @@ func absDiffU32(a, b uint32) uint32 {
 
 // pngPixelEqualFn は2つのPNGバイト列をピクセル単位で比較する。
 // toleranceRatio で許容する差分ピクセル比率を、channelTolerance16 で1画素内の許容振幅を指定する。
-// どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする
-func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {
+// どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする。
+// 差分画素数は成否によらずログへ出す。実行環境ごとの実マージンを可視化し、
+// トレランスを締める判断の実測根拠にする
+func pngPixelEqualFn(t *testing.T, toleranceRatio float64, lastDiff, lastAllowed *int) goldie.EqualFn {
+	t.Helper()
 	return func(actual, expected []byte) bool {
 		actualImg, err := png.Decode(bytes.NewReader(actual))
 		if err != nil {
@@ -240,12 +201,13 @@ func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {
 					absDiffU32(ebl, abl) > channelTolerance16 ||
 					absDiffU32(ea, aa) > channelTolerance16 {
 					diffCount++
-					if diffCount > maxAllowed {
-						return false
-					}
 				}
 			}
 		}
-		return true
+		*lastDiff, *lastAllowed = diffCount, maxAllowed
+		if diffCount > 0 {
+			t.Logf("golden margin: diff %d px / allowed %d px", diffCount, maxAllowed)
+		}
+		return diffCount <= maxAllowed
 	}
 }

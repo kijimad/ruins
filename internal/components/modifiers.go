@@ -16,7 +16,6 @@ const (
 	ModChillResist    ModifierKey = "chill_resist"
 	ModPhotonResist   ModifierKey = "photon_resist"
 	ModColdProgress   ModifierKey = "cold_progress"
-	ModHeatProgress   ModifierKey = "heat_progress"
 	ModHungerProgress ModifierKey = "hunger_progress"
 	ModHealingEffect  ModifierKey = "healing_effect"
 	ModMaxWeight      ModifierKey = "max_weight"
@@ -111,7 +110,6 @@ const (
 	coeffWeaponAccuracy = 3  // 武器命中: スキルLv1あたり+3%
 	coeffElementResist  = -3 // 元素耐性: スキルLv1あたり-3%（被ダメージ軽減）
 	coeffColdProgress   = -3 // 低体温進行: スキルLv1あたり-3%
-	coeffHeatProgress   = -3 // 高体温進行: スキルLv1あたり-3%
 	coeffHungerProgress = -2 // 空腹進行: スキルLv1あたり-2%
 	coeffHealingEffect  = 5  // 回復効果: スキルLv1あたり+5%
 	coeffMaxWeight      = 4  // 最大所持重量: スキルLv1あたり+4%
@@ -120,7 +118,7 @@ const (
 	coeffNightVision    = 5  // 暗所視界: スキルLv1あたり+5%
 	coeffMoveCost       = -2 // 移動コスト: スキルLv1あたり-2%
 	coeffCraftCost      = -3 // 素材消費: スキルLv1あたり-3%
-	coeffSmithQuality   = 3  // 合成品質: スキルLv1あたり+3%
+	coeffSmithQuality   = 3  // クラフト品質: スキルLv1あたり+3%
 	coeffBuyPrice       = -2 // 買値: スキルLv1あたり-2%
 	coeffSellPrice      = 2  // 売値: スキルLv1あたり+2%
 	coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%
@@ -140,7 +138,6 @@ type CharModifiers struct {
 	WeaponAccuracy map[SkillID]consts.Percent     // 武器命中倍率
 	ElementResist  map[ElementType]consts.Percent // 元素耐性倍率
 	ColdProgress   consts.Percent                 // 低体温進行倍率
-	HeatProgress   consts.Percent                 // 高体温進行倍率
 	HungerProgress consts.Percent                 // 空腹進行倍率
 	HealingEffect  consts.Percent                 // 回復効果倍率
 	MaxWeight      consts.Percent                 // 最大所持重量倍率
@@ -149,15 +146,26 @@ type CharModifiers struct {
 	NightVision    consts.Percent                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率
 	MoveCost       consts.Percent                 // 移動APコスト倍率
 	CraftCost      consts.Percent                 // 素材消費量倍率
-	SmithQuality   consts.Percent                 // 合成品質倍率
+	SmithQuality   consts.Percent                 // クラフト品質倍率
 	BuyPrice       consts.Percent                 // 買値倍率
 	SellPrice      consts.Percent                 // 売値倍率
 	HeavyArmor     consts.Percent                 // 重装備AGIペナルティ倍率
+
+	// Capacities は不調から導いた身体機能。命中と移動速度がここを経由する
+	Capacities BodyCapacities
 
 	// Sources は各効果の算出元を保持する。
 	// 1つの効果に複数の要因が影響しうるためスライスにしている。
 	// 派生データのためserde対象外とし、ロード時は再計算する
 	Sources map[ModifierKey][]ModifierSource `json:"-"`
+}
+
+// AccuracyCapacity は攻撃種の命中に効く身体機能の乗数を返す。近接は操作機能、遠隔は視覚機能
+func (e *CharModifiers) AccuracyCapacity(cat AttackType) consts.Percent {
+	if cat.Range == AttackRangeRanged {
+		return e.Capacities.Sight
+	}
+	return e.Capacities.Manipulation
 }
 
 // RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。
@@ -208,7 +216,6 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	}
 
 	e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, coeffColdProgress)
-	e.HeatProgress = calcEffect(ModHeatProgress, SkillHeatResist, coeffHeatProgress)
 	e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, coeffHungerProgress)
 	e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, coeffHealingEffect)
 	e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, coeffMaxWeight)
@@ -222,34 +229,12 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)
 	e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)
 
-	// 健康状態によるペナルティ
+	// 不調による身体機能。命中と移動はこの Capacities を経由する
+	e.Capacities = HealthyCapacities()
 	if hs != nil {
-		wb := &hs.Parts[BodyPartWholeBody]
-		for _, cond := range wb.Conditions {
-			if penalty := temperatureMovePenalty(cond.Severity); penalty != 0 {
-				e.MoveCost += consts.Percent(penalty)
-				src[ModMoveCost] = append(src[ModMoveCost], ModifierSource{
-					Label: ConditionTypeDisplayName(cond.Type),
-					Value: penalty,
-				})
-			}
-		}
+		e.Capacities = hs.Capacities()
 	}
 
 	e.Sources = src
 	return e
-}
-
-// temperatureMovePenalty は体温異常の重症度に応じた移動コスト増加量を返す
-func temperatureMovePenalty(severity Severity) int {
-	switch severity {
-	case SeveritySevere:
-		return 30
-	case SeverityMedium:
-		return 20
-	case SeverityMinor:
-		return 10
-	default:
-		return 0
-	}
 }

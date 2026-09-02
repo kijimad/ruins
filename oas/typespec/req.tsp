@@ -106,6 +106,10 @@ model Item {
   disassemblyTool?: DisassemblyTool;
   /** 携行光源。装備すると owner を照らす */
   lightSource?: LightSource;
+  /** 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる */
+  material?: Material;
+  /** 火種。所持していると隣接の燃焼物に着火できる */
+  fireStarter?: FireStarter;
 }
 
 // ================== メンバー ==================
@@ -140,6 +144,9 @@ model HeatSource {
   radius: HeatRadius;
   warmth: HeatWarmth;
 }
+
+/** 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す */
+model FireStarter {}
 
 /** 会話データ */
 model Dialog {

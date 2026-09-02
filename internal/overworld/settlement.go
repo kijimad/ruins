@@ -16,12 +16,11 @@ type relSpot struct {
 	dy   consts.Tile
 }
 
-// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店の売買と雇用を商人が、
-// 合成を怪しい科学者が開く。小集落は無状態の補給地で、stash となる収納は置かない。
+// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店の売買と雇用を商人が開く。
+// 小集落は無状態の補給地で、stash となる収納は置かない。
 // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。
 var villageNPCs = []relSpot{
 	{"merchant", -2, -1},
-	{"suspicious_scientist", -4, 0},
 }
 
 // hamletNPCs は一軒家に配置する会話NPC。行商の拠点という位置づけで商人だけがいる。
@@ -32,12 +31,12 @@ var hamletNPCs = []relSpot{
 // villageProps と hamletProps は集落の生活感を出す prop。NPC の座標と重ねない。
 var (
 	villageProps = []relSpot{
-		{"bonfire", 2, -2},
+		{"hearth", 2, -2}, // 火は据えない。暖を取るにはプレイヤーが燃料と火種で着火する
 		{"bench", 3, 1},
 		{"wooden_sign", 0, -3},
 	}
 	hamletProps = []relSpot{
-		{"bonfire", 2, -2},
+		{"hearth", 2, -2},
 		{"crate", 1, 2},
 	}
 )

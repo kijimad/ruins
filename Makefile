@@ -32,6 +32,16 @@ updategolden: ## ゴールデンテスト用の基準画像を生成する
 	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
+.PHONY: grill-branch
+grill-branch: ## ブランチで変更したテストを反復実行してフレーキーを検査する
+	RUINS_LOG_LEVEL=ignore \
+	$(BWRAP_CMD) xvfb-run -a scripts/grill_branch.sh
+
+.PHONY: grill
+grill: ## 全テストを時間予算いっぱい反復してフレーキーを検査する
+	RUINS_LOG_LEVEL=ignore \
+	$(BWRAP_CMD) scripts/grill.sh
+
 .PHONY: bench
 bench: ## ベンチマークを全て実行する
 	RUINS_LOG_LEVEL=ignore \
@@ -55,9 +65,12 @@ fmt: ## フォーマットする
 	go tool goimports -w .
 	go fix -embedlit=false ./...
 	npx @taplo/cli format
+	./scripts/format-shell.sh
 
 .PHONY: lint
 lint: ## Linterを実行する
+	# シェルスクリプトの検査はGoのビルドに依らないので最初に回し、速く失敗させる
+	@./scripts/lint-shell.sh
 	# buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@go build -o /dev/null .
 	@golangci-lint run -v ./...
@@ -78,6 +91,8 @@ aseprite: ## asepriteでパッキングする。画像の変更を反映した�
 toolsinstall: ## 開発ツールをインストールする
 	# golangci-lint は依存が巨大でアプリの依存グラフを汚すため tool 化せず版固定でインストールする。
 	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.1
+	# apt の shellcheck は環境ごとに版が違い、検出されるルールがローカルと CI でずれる
+	@./scripts/install-shellcheck.sh
 	@sudo apt-get install -y bubblewrap
 	@npm install
 	@./scripts/setup-hooks.sh
