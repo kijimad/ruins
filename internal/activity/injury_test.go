@@ -60,6 +60,32 @@ func TestApplyInjury(t *testing.T) {
 	assert.True(t, world.Components.StatsChanged.Has(player), "StatsChanged を立てる")
 }
 
+func TestApplyInjury_敵も同じ機構で怪我を負う(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "fireball")
+	require.NoError(t, err)
+
+	// 敵はプレイヤーと同じ共通土台で健康・効率機構を持つ
+	require.True(t, world.Components.HealthStatus.Has(enemy), "敵も HealthStatus を持つ")
+	require.True(t, world.Components.CharModifiers.Has(enemy), "敵も CharModifiers を持つ")
+
+	attack := &gc.Melee{AttackCategory: gc.AttackSword}
+	for range 200 {
+		applyInjury(enemy, enemy, world, attack)
+	}
+
+	hs := world.Components.HealthStatus.Get(enemy)
+	total := 0
+	for p := range gc.BodyPartCount {
+		total += len(hs.Parts[p].Conditions)
+	}
+	assert.Positive(t, total, "こちらの攻撃で敵にも怪我が付く")
+	assert.True(t, world.Components.StatsChanged.Has(enemy), "敵も再計算を促す")
+}
+
 func TestApplyInjury_HealthStatusなしは何もしない(t *testing.T) {
 	t.Parallel()
 

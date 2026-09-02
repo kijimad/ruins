@@ -55,10 +55,6 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 		return gc.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
 	}
 
-	skills := gc.NewSkills()
-	entitySpec.Skills = skills
-	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
-
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	center := consts.TileCenterToWorld(pos)
 	entitySpec.Camera = &gc.Camera{
@@ -70,7 +66,6 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 		Dist:    gc.CameraDefaultDist,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
-	entitySpec.HealthStatus = &gc.HealthStatus{}
 	playerEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 
 	if err := FullRecover(world, playerEntity); err != nil {

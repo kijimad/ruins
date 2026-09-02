@@ -464,6 +464,13 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.WeightCapacity = &gc.WeightCapacity{}
 	// 体重は能力値の体格から算出する。売買や運搬で member 自身の重量として扱う
 	entitySpec.Weight = &gc.Weight{Milligram: entitySpec.Abilities.BodyWeight()}
+
+	// 戦闘者は共通の健康・効率機構を持つ。怪我や病気が部位の capacity を下げ、
+	// StatsChangedSystem 経由で命中や速度へ波及する。プレイヤーと敵で同じ経路を通す。
+	// 無傷なら Lv0 のスキルと健康な capacity で全倍率が等倍になり、balance は変わらない
+	entitySpec.Skills = gc.NewSkills()
+	entitySpec.HealthStatus = &gc.HealthStatus{}
+	entitySpec.CharModifiers = gc.RecalculateCharModifiers(entitySpec.Skills, entitySpec.Abilities, entitySpec.HealthStatus)
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}

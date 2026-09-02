@@ -218,6 +218,24 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 	assert.Equal(t, 0, skills.Get(gc.SkillHandgun).Exp.Current, "拳銃スキルは変わらない")
 }
 
+func TestGrowWeaponSkill_敵は成長しない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.FactionEnemy.Add(actor, &gc.FactionEnemy{})
+
+	skills := gc.NewSkills()
+	world.Components.Skills.Add(actor, skills)
+	abils := &gc.Abilities{Sensation: gc.Ability{Total: 10}}
+	world.Components.Abilities.Add(actor, abils)
+
+	growWeaponSkill(actor, world, &gc.Fire{AttackCategory: gc.AttackRifle})
+
+	// 敵は Skills を持っても戦闘中に成長しない。スキル成長は味方側の進行要素
+	assert.Equal(t, 0, skills.Get(gc.SkillRifle).Exp.Current, "敵はスキル成長しない")
+}
+
 func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 	t.Parallel()
 
