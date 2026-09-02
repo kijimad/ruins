@@ -29,7 +29,9 @@ type healEffect struct{}
 func (healEffect) applies(world w.World, item ecs.Entity) bool {
 	return world.Components.ProvidesHealing.Has(item)
 }
+
 func (healEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+
 func (healEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	return u.applyHealing(comp, actor, world, world.Components.ProvidesHealing.Get(item), item)
 }
@@ -40,7 +42,9 @@ type nutritionEffect struct{}
 func (nutritionEffect) applies(world w.World, item ecs.Entity) bool {
 	return world.Components.ProvidesNutrition.Has(item)
 }
+
 func (nutritionEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+
 func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)
 }
@@ -51,7 +55,9 @@ type damageEffect struct{}
 func (damageEffect) applies(world w.World, item ecs.Entity) bool {
 	return world.Components.InflictsDamage.Has(item)
 }
+
 func (damageEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+
 func (damageEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)
 	return nil
@@ -76,6 +82,7 @@ func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.Wo
 	}
 	return nil
 }
+
 func (remedyEffect) apply(u *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
 	return nil
