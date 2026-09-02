@@ -85,8 +85,7 @@ func (sys *ConditionSystem) Update(world w.World) error {
 			})
 		}
 
-		// 不調が進むと capacity が変わるので、効率倍率を持つ者は再計算を促す。
-		// プレイヤーと敵で同じ経路を通し、敵の命中や速度も怪我の進行に追随させる
+		// 不調が進むと capacity が変わるので、効率倍率を持つ者は再計算を促す
 		if changed && world.Components.CharModifiers.Has(entity) {
 			toMark = append(toMark, entity)
 		}

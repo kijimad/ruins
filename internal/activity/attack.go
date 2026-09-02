@@ -401,7 +401,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
 func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
-	// スキル成長はプレイヤー側の進行要素。敵も Skills を持つが戦闘中に強くならないよう敵は除外する
+	// スキル成長は味方側の進行要素。敵も Skills を持つが戦闘中に強くならないよう除外する
 	if query.IsEnemy(world, actor) {
 		return
 	}

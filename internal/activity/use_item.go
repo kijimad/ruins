@@ -247,7 +247,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	}
 	hunger.Increase(nutrition)
 
-	// 腐敗食は低確率で食中毒を起こす。吐き気で一時的に機能が鈍るが、時間で自然に治る
+	// 腐敗食は低確率で食中毒を起こす
 	if stage == gc.FreshnessRotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
 		gameaction.ContractIllness(world, actor, gc.ConditionFoodPoisoning)
 	}

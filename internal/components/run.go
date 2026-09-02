@@ -19,7 +19,7 @@ const (
 )
 
 // deathCauseDisplayNames は死因ごとの表示名 msgid。結果画面が query.T で訳す。
-// 表示名は分岐ロジックでなくデータなので switch でなく表で持つ。死因を足すときはここへ1行足す
+// データなので表で持ち、死因を足すときはここへ1行足す
 var deathCauseDisplayNames = map[DeathCause]string{
 	CauseFrozen:    "froze to death",
 	CauseIllness:   "died of illness",
@@ -28,8 +28,8 @@ var deathCauseDisplayNames = map[DeathCause]string{
 	CauseDebug:     "debug",
 }
 
-// DisplayName は死因の表示名 msgid を返す。結果画面が query.T で訳す。
-// 未登録の死因は素の文字列へ落とす。未信頼な旧セーブ値もこの経路で受ける
+// DisplayName は死因の表示名 msgid を返す。
+// 未登録の死因は素の文字列へ落とし、未信頼な旧セーブ値もこの経路で受ける
 func (c DeathCause) DisplayName() string {
 	if name, ok := deathCauseDisplayNames[c]; ok {
 		return name
