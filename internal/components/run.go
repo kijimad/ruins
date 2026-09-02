@@ -19,7 +19,8 @@ const (
 )
 
 // DisplayName は死因の表示名 msgid を返す。結果画面が query.T で訳す。
-// 保存値なので未知は素の文字列へ graceful に落とす
+// default を置かず exhaustive を効かせ、DeathCause を足したら網羅漏れを lint で止める。
+// 保存値なので未知は素の文字列へ graceful に落とす。この fall-through が未信頼な旧セーブ値を受ける
 func (c DeathCause) DisplayName() string {
 	switch c {
 	case CauseFrozen:
@@ -32,9 +33,8 @@ func (c DeathCause) DisplayName() string {
 		return "killed in battle"
 	case CauseDebug:
 		return "debug"
-	default:
-		return string(c)
 	}
+	return string(c)
 }
 
 // RunStats は run を通じて貯める統計を保持するシングルトン。run 中ずっと存在し serde 保存する。
