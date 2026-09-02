@@ -953,6 +953,9 @@ msgstr "放置すると悪化し、重症になると HP を削る。"
 msgid "Nausea from bad food. It clears on its own over time."
 msgstr "傷んだ食べ物による吐き気。時間が経てば自然に治る。"
 
+msgid "Nothing to treat."
+msgstr "治療する不調がない。"
+
 msgid "Treatment"
 msgstr "治療"
 

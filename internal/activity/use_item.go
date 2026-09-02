@@ -66,6 +66,14 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return fmt.Errorf("actor has no HP component")
 	}
 
+	// 治療だけのアイテムは、治せる不調が今あるときだけ使える。空振りを使う前に弾く
+	if world.Components.Remedy.Has(item) && u.isRemedyOnly(world, item) {
+		remedy := world.Components.Remedy.Get(item)
+		if !world.Components.HealthStatus.Has(actor) || mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy) == nil {
+			return &UserError{Msg: query.T(world, "Nothing to treat.")}
+		}
+	}
+
 	return nil
 }
 
@@ -112,16 +120,13 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		gameaction.ApplyDamage(world, actor, damage.Amount, actor)
 	}
 
-	// 治療効果があるかチェック。治療専用のアイテムが対象を見つけられず空振りしたら消費しない
-	remedyMissed := false
+	// 治療効果があるかチェック。治療専用の空振りは Validate で弾き済みなので、ここは治すか併用効果を持つ
 	if world.Components.Remedy.Has(item) {
-		remedy := world.Components.Remedy.Get(item)
-		treated := u.applyRemedy(actor, world, remedy, item)
-		remedyMissed = !treated && u.isRemedyOnly(world, item)
+		u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
 	}
 
-	// 消費可能アイテムの場合は削除または個数を減らす。空振りした治療は消費せず手元に残す
-	if world.Components.Consumable.Has(item) && !remedyMissed {
+	// 消費可能アイテムの場合は削除または個数を減らす
+	if world.Components.Consumable.Has(item) {
 		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("failed to consume item: %w", err)
 		}
@@ -165,15 +170,9 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// applyRemedy は治療を適用する。Treats に一致する不調を全部位から集め、最も重い1つを治療済みにする。
-// 治療は即座には治さず、TendQuality を立てて回復軌道へ乗せるだけ。実際の回復は ConditionSystem が進める。
-// 治療した不調があれば true を返す。一致する不調が無ければ何もせず false を返す
-func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
-	if !world.Components.HealthStatus.Has(actor) {
-		return false
-	}
-	hs := world.Components.HealthStatus.Get(actor)
-
+// mostSevereTreatable は Treats に一致する不調を全部位から探し、最も重い1つを返す。無ければ nil。
+// Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
+func mostSevereTreatable(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
 	var best *gc.HealthCondition
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
@@ -183,6 +182,17 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 			}
 		}
 	}
+	return best
+}
+
+// applyRemedy は治療を適用する。最も重い一致不調を治療済みにする。
+// 治療は即座には治さず、TendQuality を立てて回復軌道へ乗せるだけ。実際の回復は ConditionSystem が進める。
+// 治療した不調があれば true を返す。一致する不調が無ければ何もせず false を返す
+func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
+	if !world.Components.HealthStatus.Has(actor) {
+		return false
+	}
+	best := mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy)
 	if best == nil {
 		return false
 	}
@@ -191,7 +201,7 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 	return true
 }
 
-// isRemedyOnly はアイテムが治療だけを効果に持つかを返す。治療が空振りしたとき消費するかの判定に使う
+// isRemedyOnly はアイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く
 func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 	return world.Components.Remedy.Has(item) &&
 		!world.Components.ProvidesHealing.Has(item) &&

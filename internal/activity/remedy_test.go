@@ -115,3 +115,47 @@ func TestIsRemedyOnly(t *testing.T) {
 	world.Components.ProvidesHealing.Add(combo, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 10})
 	assert.False(t, u.isRemedyOnly(world, combo), "回復も持つなら治療専用でない")
 }
+
+func TestUseItemBehavior_Validate_治療専用は治せる不調がないと使えない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	// 添え木は骨折を治す治療専用アイテム
+	item := world.ECS.NewEntity()
+	world.Components.Name.Add(item, &gc.Name{Name: "Splint"})
+	world.Components.Consumable.Add(item, &gc.Consumable{})
+	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionFracture}, Potency: 150})
+
+	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
+	u := &UseItemBehavior{}
+
+	// 骨折が無ければ使う前に弾く
+	var ve *UserError
+	require.ErrorAs(t, u.Validate(comp, player, world), &ve, "治せる不調がなければ UserError で弾く")
+
+	// 骨折があれば使える
+	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
+		gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	assert.NoError(t, u.Validate(comp, player, world), "治せる不調があれば使える")
+}
+
+func TestUseItemBehavior_Validate_併用効果があれば空振りでも使える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	// 治療に加えて回復も持つアイテムは、治せる不調が無くても回復で使える
+	item := world.ECS.NewEntity()
+	world.Components.Consumable.Add(item, &gc.Consumable{})
+	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionFracture}, Potency: 150})
+	world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 10})
+
+	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
+	u := &UseItemBehavior{}
+	assert.NoError(t, u.Validate(comp, player, world), "治療専用でなければ弾かない")
+}
