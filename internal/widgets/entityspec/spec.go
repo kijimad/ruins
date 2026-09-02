@@ -24,53 +24,216 @@ type SpecRow struct {
 	Color  *color.RGBA
 }
 
+// specPart は性能表示の1要素。実体と raw spec の2つのデータ源それぞれから行を作る。
+// fromSpec が nil の要素は raw spec 表示には出ない。生成後にしか定まらない鮮度や競売などが該当する。
+// 要素はこの specParts スライスが単一の真実で、SpecRows と SpecRowsFromSpec が同じ一覧を回す。
+// component を足すときはここへ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない
+type specPart struct {
+	fromEntity func(world w.World, entity ecs.Entity) []SpecRow
+	fromSpec   func(world w.World, spec gc.EntitySpec) []SpecRow
+}
+
+var specParts = []specPart{
+	{ // 能力値。実体のみ
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Abilities.Has(e) {
+				return nil
+			}
+			return abilityRows(world, world.Components.Abilities.Get(e))
+		},
+	},
+	{ // 近接
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Melee.Has(e) {
+				return nil
+			}
+			return attackerRows(world, world.Components.Melee.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Melee == nil {
+				return nil
+			}
+			return attackerRows(world, s.Melee)
+		},
+	},
+	{ // 射撃
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Fire.Has(e) {
+				return nil
+			}
+			fire := world.Components.Fire.Get(e)
+			return append(attackerRows(world, fire), fireAmmoRows(world, fire)...)
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Fire == nil {
+				return nil
+			}
+			return append(attackerRows(world, s.Fire), fireAmmoRows(world, s.Fire)...)
+		},
+	},
+	{ // 材質
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Material.Has(e) {
+				return nil
+			}
+			return []SpecRow{materialRow(world, world.Components.Material.Get(e))}
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Material == nil {
+				return nil
+			}
+			return []SpecRow{materialRow(world, s.Material)}
+		},
+	},
+	{ // 燃料。熱量は保持せず材質と重量から導くので、実体と spec で算出元が違う
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if heat := query.HeatContent(world, e); heat > 0 {
+				return []SpecRow{fuelRow(world, heat)}
+			}
+			return nil
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Material == nil || s.Weight == nil {
+				return nil
+			}
+			if heat := query.HeatOf(s.Material.Kind, s.Weight.Milligram); heat > 0 {
+				return []SpecRow{fuelRow(world, heat)}
+			}
+			return nil
+		},
+	},
+	{ // 防具
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Wearable.Has(e) {
+				return nil
+			}
+			return wearableRows(world, world.Components.Wearable.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Wearable == nil {
+				return nil
+			}
+			return wearableRows(world, s.Wearable)
+		},
+	},
+	{ // 回復
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.ProvidesHealing.Has(e) {
+				return nil
+			}
+			return healingRows(world, world.Components.ProvidesHealing.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.ProvidesHealing == nil {
+				return nil
+			}
+			return healingRows(world, s.ProvidesHealing)
+		},
+	},
+	{ // 栄養
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.ProvidesNutrition.Has(e) {
+				return nil
+			}
+			return nutritionRows(world, world.Components.ProvidesNutrition.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.ProvidesNutrition == nil {
+				return nil
+			}
+			return nutritionRows(world, s.ProvidesNutrition)
+		},
+	},
+	{ // 治療
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Remedy.Has(e) {
+				return nil
+			}
+			return remedyRows(world, world.Components.Remedy.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Remedy == nil {
+				return nil
+			}
+			return remedyRows(world, s.Remedy)
+		},
+	},
+	{ // 鮮度。生成時の刻印が要るので実体のみ
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Perishable.Has(e) {
+				return nil
+			}
+			return []SpecRow{freshnessRow(world, e)}
+		},
+	},
+	{ // 本
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Book.Has(e) {
+				return nil
+			}
+			return bookRows(world, world.Components.Book.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Book == nil {
+				return nil
+			}
+			return bookRows(world, s.Book)
+		},
+	},
+	{ // 価値
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Value.Has(e) {
+				return nil
+			}
+			return valueRows(world, world.Components.Value.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Value == nil {
+				return nil
+			}
+			return valueRows(world, s.Value)
+		},
+	},
+	{ // 重量
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Weight.Has(e) {
+				return nil
+			}
+			return weightRows(world, world.Components.Weight.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Weight == nil {
+				return nil
+			}
+			return weightRows(world, s.Weight)
+		},
+	},
+	{ // 出品中。実体のみ
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.AuctionListing.Has(e) {
+				return nil
+			}
+			return auctionListingRows(world, world.Components.AuctionListing.Get(e))
+		},
+	},
+	{ // 落札済み。実体のみ
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.AuctionSold.Has(e) {
+				return nil
+			}
+			return auctionSoldRows(world, world.Components.AuctionSold.Get(e))
+		},
+	},
+}
+
 // SpecRows はエンティティの性能表示を行の並びとして返す。
-// 種別・攻撃・防具などコンポーネントごとに数行で、存在するものだけを含む
+// specParts を順に回し、実体が持つ要素だけを含める
 func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	var rows []SpecRow
-	if world.Components.Abilities.Has(entity) {
-		rows = append(rows, abilityRows(world, world.Components.Abilities.Get(entity))...)
-	}
-	if world.Components.Melee.Has(entity) {
-		rows = append(rows, attackerRows(world, world.Components.Melee.Get(entity))...)
-	}
-	if world.Components.Fire.Has(entity) {
-		fire := world.Components.Fire.Get(entity)
-		rows = append(rows, attackerRows(world, fire)...)
-		rows = append(rows, fireAmmoRows(world, fire)...)
-	}
-	if world.Components.Material.Has(entity) {
-		rows = append(rows, materialRow(world, world.Components.Material.Get(entity)))
-	}
-	if heat := query.HeatContent(world, entity); heat > 0 {
-		rows = append(rows, fuelRow(world, heat))
-	}
-	if world.Components.Wearable.Has(entity) {
-		rows = append(rows, wearableRows(world, world.Components.Wearable.Get(entity))...)
-	}
-	if world.Components.ProvidesHealing.Has(entity) {
-		rows = append(rows, healingRows(world, world.Components.ProvidesHealing.Get(entity))...)
-	}
-	if world.Components.ProvidesNutrition.Has(entity) {
-		rows = append(rows, nutritionRows(world, world.Components.ProvidesNutrition.Get(entity))...)
-	}
-	if world.Components.Perishable.Has(entity) {
-		rows = append(rows, freshnessRow(world, entity))
-	}
-	if world.Components.Book.Has(entity) {
-		rows = append(rows, bookRows(world, world.Components.Book.Get(entity))...)
-	}
-	if world.Components.Value.Has(entity) {
-		rows = append(rows, valueRows(world, world.Components.Value.Get(entity))...)
-	}
-	if world.Components.Weight.Has(entity) {
-		rows = append(rows, weightRows(world, world.Components.Weight.Get(entity))...)
-	}
-	if world.Components.AuctionListing.Has(entity) {
-		rows = append(rows, auctionListingRows(world, world.Components.AuctionListing.Get(entity))...)
-	}
-	if world.Components.AuctionSold.Has(entity) {
-		rows = append(rows, auctionSoldRows(world, world.Components.AuctionSold.Get(entity))...)
+	for _, p := range specParts {
+		if p.fromEntity != nil {
+			rows = append(rows, p.fromEntity(world, entity)...)
+		}
 	}
 	return rows
 }
@@ -97,42 +260,15 @@ func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
 }
 
 // SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。
-// エンティティを生成せず raw 定義から詳細を出す商店などで使う
+// エンティティを生成せず raw 定義から詳細を出す商店などで使う。
+// specParts を順に回し、fromSpec を持つ要素のうち spec が持つものだけを含める。
+// 鮮度など fromSpec が nil の要素は、生成後にしか定まらないのでここには出ない
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	var rows []SpecRow
-	if spec.Melee != nil {
-		rows = append(rows, attackerRows(world, spec.Melee)...)
-	}
-	if spec.Fire != nil {
-		rows = append(rows, attackerRows(world, spec.Fire)...)
-		rows = append(rows, fireAmmoRows(world, spec.Fire)...)
-	}
-	if spec.Material != nil {
-		rows = append(rows, materialRow(world, spec.Material))
-	}
-	if spec.Material != nil && spec.Weight != nil {
-		if heat := query.HeatOf(spec.Material.Kind, spec.Weight.Milligram); heat > 0 {
-			rows = append(rows, fuelRow(world, heat))
+	for _, p := range specParts {
+		if p.fromSpec != nil {
+			rows = append(rows, p.fromSpec(world, spec)...)
 		}
-	}
-	if spec.Wearable != nil {
-		rows = append(rows, wearableRows(world, spec.Wearable)...)
-	}
-	if spec.ProvidesHealing != nil {
-		rows = append(rows, healingRows(world, spec.ProvidesHealing)...)
-	}
-	if spec.ProvidesNutrition != nil {
-		rows = append(rows, nutritionRows(world, spec.ProvidesNutrition)...)
-	}
-	// 鮮度は生成時の刻印 RotUpdatedTurn が要る。spec 段階では未刻印なので出さない
-	if spec.Book != nil {
-		rows = append(rows, bookRows(world, spec.Book)...)
-	}
-	if spec.Value != nil {
-		rows = append(rows, valueRows(world, spec.Value)...)
-	}
-	if spec.Weight != nil {
-		rows = append(rows, weightRows(world, spec.Weight)...)
 	}
 	return rows
 }
@@ -284,6 +420,17 @@ func healingRows(world w.World, healing *gc.ProvidesHealing) []SpecRow {
 // nutritionRows は栄養の行を返す
 func nutritionRows(world w.World, nutrition *gc.ProvidesNutrition) []SpecRow {
 	return []SpecRow{{Label: query.T(world, "Nutrition"), Value: strconv.Itoa(nutrition.Amount)}}
+}
+
+// remedyRows は治療できる不調と効力の行を返す。先頭は見出し。何を治すか分からないと選べないので示す
+func remedyRows(world w.World, remedy *gc.Remedy) []SpecRow {
+	rows := make([]SpecRow, 0, 2+len(remedy.Treats))
+	rows = append(rows, SpecRow{Label: query.T(world, "Treatment"), Header: true})
+	for _, ct := range remedy.Treats {
+		rows = append(rows, SpecRow{Label: query.T(world, "Treats"), Value: query.T(world, gc.ConditionTypeDisplayName(ct))})
+	}
+	rows = append(rows, SpecRow{Label: query.T(world, "Potency"), Value: fmt.Sprintf("%d%%", int(remedy.Potency))})
+	return rows
 }
 
 // freshnessRow は鮮度の1行を返す。鮮度の算出は query.FreshnessStageOf に委ねる

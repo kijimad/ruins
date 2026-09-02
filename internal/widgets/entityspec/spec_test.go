@@ -195,6 +195,37 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	assert.Equal(t, []string{"Nutrition", "25", "Value", consts.Currency(1200).String(), "Weight", "0㎎"}, labels)
 }
 
+func TestUpdateSpec_治療アイテムは治す対象と効力を表示する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.Remedy.Add(e, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionFracture}, Potency: 150})
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+
+	assert.Equal(t, []string{
+		query.T(world, "Treatment"),
+		query.T(world, "Treats"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionFracture)),
+		query.T(world, "Potency"), "150%",
+	}, labels)
+}
+
+func TestUpdateSpecFromSpec_治療アイテムは生成せず治す対象を表示する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// SpecRows と同じ specParts を回すので、raw spec 表示にも治療情報が出る
+	spec := gc.EntitySpec{Remedy: &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionLaceration}, Potency: 100}}
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
+
+	assert.Equal(t, []string{
+		query.T(world, "Treatment"),
+		query.T(world, "Treats"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionLaceration)),
+		query.T(world, "Potency"), "100%",
+	}, labels)
+}
+
 func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
