@@ -112,16 +112,16 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		gameaction.ApplyDamage(world, actor, damage.Amount, actor)
 	}
 
-	// 治療効果があるかチェック。治療専用のアイテムが何も治療しなければ消費しない
-	remedyWasted := false
+	// 治療効果があるかチェック。治療専用のアイテムが対象を見つけられず空振りしたら消費しない
+	remedyWhiffed := false
 	if world.Components.Remedy.Has(item) {
 		remedy := world.Components.Remedy.Get(item)
 		treated := u.applyRemedy(actor, world, remedy, item)
-		remedyWasted = !treated && u.isRemedyOnly(world, item)
+		remedyWhiffed = !treated && u.isRemedyOnly(world, item)
 	}
 
-	// 消費可能アイテムの場合は削除または個数を減らす。無駄になった治療は消費しない
-	if world.Components.Consumable.Has(item) && !remedyWasted {
+	// 消費可能アイテムの場合は削除または個数を減らす。空振りした治療は消費せず手元に残す
+	if world.Components.Consumable.Has(item) && !remedyWhiffed {
 		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("failed to consume item: %w", err)
 		}
