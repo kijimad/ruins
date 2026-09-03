@@ -52,55 +52,57 @@ const (
 	indoorInfluenceDivisor = 2
 )
 
-// indoorWorldTemp は屋内が受ける世界温度を返す
-func indoorWorldTemp(worldTemp int) int {
-	return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)/indoorInfluenceDivisor
+// shelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す
+func shelteredWorldTemp(shelter gc.ShelterType, worldTemp int) int {
+	switch shelter {
+	case gc.ShelterFull:
+		return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)/indoorInfluenceDivisor
+	case gc.ShelterPartial:
+		// 屋内より弱くアンカーへ寄せる。係数は実プレイで調整する
+		return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)*3/4
+	case gc.ShelterNone:
+		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
+	}
+	// 屋外は世界温度をそのまま受ける。save 由来の未知の値も屋外へ落とす
+	return worldTemp
 }
 
-// semiOutdoorWorldTemp は半屋外が受ける世界温度を返す。係数は実プレイで調整する
-func semiOutdoorWorldTemp(worldTemp int) int {
-	return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)*3/4
+// stageBaseTemperature はステージの基本気温を返す。オーバーワールドは0。
+// ダンジョンの定義が無ければ判定できないので ok=false を返す
+func stageBaseTemperature(world w.World) (int, bool) {
+	if query.IsOnOverworld(world) {
+		return 0, true
+	}
+	def, ok := dungeon.GetStageDefinition(query.GetDungeon(world).CurrentStage.Name)
+	if !ok {
+		return 0, false
+	}
+	return def.BaseTemperature(), true
 }
 
 // naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量
 const naturalRecoveryPerTurn = 0.25
 
-// AmbientTemperatureAt はタイルの周囲気温を返す。屋内外はタイルごとの囲われ Shelter で決まり、
-// 囲われているほど世界温度の影響を緩和して受ける。ステージの基本気温と水・植生の加算℃を足す。
+// AmbientTemperatureAt はタイルの周囲気温を返す。ステージの基本気温、囲われに応じて
+// 受け方を変えた世界温度、タイルの加算℃、熱源の押し上げの4項の和になる。
 func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
-	dungeonRes := query.GetDungeon(world)
-	if dungeonRes == nil {
+	if query.GetDungeon(world) == nil {
 		return 0, errors.New("dungeon resource is not set")
+	}
+	baseTemp, ok := stageBaseTemperature(world)
+	if !ok {
+		return 0, nil
 	}
 
 	gt := query.GetGameTime(world)
 	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
 	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
-
-	// ステージの基本気温。ダンジョンの定義が無ければ判定できないので0を返す
-	baseTemp := 0
-	if !query.IsOnOverworld(world) {
-		def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
-		if !ok {
-			return 0, nil
-		}
-		baseTemp = def.BaseTemperature()
-	}
-
-	// 屋内外に依らず効く局所加算
 	shelter, tileModifier := tileEnvironmentAt(world, x, y)
-	local := tileModifier + ambientHeatAt(world, x, y)
 
-	switch shelter {
-	case gc.ShelterFull:
-		return baseTemp + indoorWorldTemp(worldTemp) + local, nil
-	case gc.ShelterPartial:
-		return baseTemp + semiOutdoorWorldTemp(worldTemp) + local, nil
-	case gc.ShelterNone:
-		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
-	}
-	// 屋外は世界温度をそのまま受ける。save 由来の未知の値も屋外へ落とす
-	return baseTemp + worldTemp + local, nil
+	return baseTemp +
+		shelteredWorldTemp(shelter, worldTemp) +
+		tileModifier +
+		ambientHeatAt(world, x, y), nil
 }
 
 // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。
@@ -223,12 +225,12 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 func tileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
 	shelter := gc.ShelterNone
 	var modifier int
-	tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileTemperature](world).Query()
+	tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()
 	for tileTempQuery.Next() {
 		entity := tileTempQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if grid.X == x && grid.Y == y {
-			tileTemp := world.Components.TileTemperature.Get(entity)
+			tileTemp := world.Components.TileEnvironment.Get(entity)
 			shelter = tileTemp.Shelter
 			modifier = tileTemp.Total()
 		}

@@ -33,15 +33,15 @@ const (
 	FoliageForest FoliageType = -3 // 森
 )
 
-// TileTemperature はタイルの気温修正値を持つコンポーネント
-// 各要因を個別に保持し、ホバー時に内訳を表示できるようにする
-type TileTemperature struct {
+// TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水辺・植生。
+// 温度計算の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする
+type TileEnvironment struct {
 	Shelter ShelterType
 	Water   WaterType
 	Foliage FoliageType
 }
 
 // Total は加算℃の気温修正の合計を返す。Shelter は加算℃でなく緩和度なので含まない
-func (tt *TileTemperature) Total() int {
+func (tt *TileEnvironment) Total() int {
 	return int(tt.Water) + int(tt.Foliage)
 }

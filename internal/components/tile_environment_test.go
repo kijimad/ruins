@@ -6,36 +6,36 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTileTemperature_Total(t *testing.T) {
+func TestTileEnvironment_Total(t *testing.T) {
 	t.Parallel()
 
 	t.Run("全要素がゼロの場合", func(t *testing.T) {
 		t.Parallel()
-		tt := &TileTemperature{}
+		tt := &TileEnvironment{}
 		assert.Equal(t, 0, tt.Total())
 	})
 
 	t.Run("囲われは緩和度なので合計に含まない", func(t *testing.T) {
 		t.Parallel()
-		tt := &TileTemperature{Shelter: ShelterFull}
+		tt := &TileEnvironment{Shelter: ShelterFull}
 		assert.Equal(t, 0, tt.Total())
 	})
 
 	t.Run("水辺で森", func(t *testing.T) {
 		t.Parallel()
-		tt := &TileTemperature{Water: WaterNearby, Foliage: FoliageForest}
+		tt := &TileEnvironment{Water: WaterNearby, Foliage: FoliageForest}
 		assert.Equal(t, -8, tt.Total()) // -5 + (-3) = -8
 	})
 
 	t.Run("水中", func(t *testing.T) {
 		t.Parallel()
-		tt := &TileTemperature{Water: WaterSubmerged}
+		tt := &TileEnvironment{Water: WaterSubmerged}
 		assert.Equal(t, -10, tt.Total())
 	})
 
 	t.Run("全要素の組み合わせ", func(t *testing.T) {
 		t.Parallel()
-		tt := &TileTemperature{
+		tt := &TileEnvironment{
 			Shelter: ShelterPartial,
 			Water:   WaterNearby,
 			Foliage: FoliageGrass,
@@ -45,7 +45,7 @@ func TestTileTemperature_Total(t *testing.T) {
 	})
 }
 
-func TestTileTemperatureConstants(t *testing.T) {
+func TestTileEnvironmentConstants(t *testing.T) {
 	t.Parallel()
 
 	t.Run("屋内は屋外より暖かい", func(t *testing.T) {

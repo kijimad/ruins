@@ -192,8 +192,8 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	// 移動コストを表示
 	st.drawPassCost(world, entities, panel)
 
-	// タイル温度を表示（TileTemperatureコンポーネントを持つエンティティ）
-	st.drawTileTemperature(world, entities, panel)
+	// タイルの環境属性を表示する
+	st.drawTileEnvironment(world, entities, panel)
 
 	panel.SeekBottom(30)
 	drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
@@ -254,11 +254,11 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, pa
 	}
 }
 
-// drawTileTemperature はタイル温度修正値を描画する
-func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, panel *hud.InfoPanel) {
+// drawTileEnvironment はタイルの環境属性を描画する
+func (st *LookAroundState) drawTileEnvironment(world w.World, entities []ecs.Entity, panel *hud.InfoPanel) {
 	for _, entity := range entities {
-		if world.Components.TileTemperature.Has(entity) {
-			temp := world.Components.TileTemperature.Get(entity)
+		if world.Components.TileEnvironment.Has(entity) {
+			temp := world.Components.TileEnvironment.Get(entity)
 			panel.Gap(5)
 			panel.Line(fmt.Sprintf("%s: %+d", query.T(world, "Temperature modifier"), temp.Total()))
 			// Shelter は加算℃でなく世界温度の緩和度なので、数値でなく屋内であることだけ示す

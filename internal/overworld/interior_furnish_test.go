@@ -183,10 +183,10 @@ func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 
 	floorTotal, floorFull, nonFloorFull := 0, 0, 0
 	for _, e := range g.tiles.get() {
-		if !world.Components.TileTemperature.Has(e) {
+		if !world.Components.TileEnvironment.Has(e) {
 			continue
 		}
-		shelter := world.Components.TileTemperature.Get(e).Shelter
+		shelter := world.Components.TileEnvironment.Get(e).Shelter
 		switch world.Components.RawID.Get(e).ID {
 		case consts.TileNameFloor:
 			floorTotal++

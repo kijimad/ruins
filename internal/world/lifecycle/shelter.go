@@ -41,7 +41,7 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 	}
 
 	tiles := make(map[int]ecs.Entity)
-	tileQuery := query.ActiveFilter2[gc.GridElement, gc.TileTemperature](world).Query()
+	tileQuery := query.ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
 		if world.Components.Dead.Has(entity) {
@@ -76,7 +76,7 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 		for _, c := range cells {
 			visited[c] = true
 			if tile, ok := tiles[c]; ok {
-				if world.Components.TileTemperature.Get(tile).Shelter == gc.ShelterNone {
+				if world.Components.TileEnvironment.Get(tile).Shelter == gc.ShelterNone {
 					sawOutdoor = true
 				}
 			}
@@ -92,7 +92,7 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 		}
 		for _, c := range cells {
 			if tile, ok := tiles[c]; ok {
-				world.Components.TileTemperature.Get(tile).Shelter = shelter
+				world.Components.TileEnvironment.Get(tile).Shelter = shelter
 			}
 		}
 	}

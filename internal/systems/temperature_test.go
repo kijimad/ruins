@@ -25,7 +25,7 @@ func TestTileEnvironmentAt(t *testing.T) {
 
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{
+		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
 			Shelter: gc.ShelterFull,
 		})
 
@@ -40,7 +40,7 @@ func TestTileEnvironmentAt(t *testing.T) {
 
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{
+		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
 			Water:   gc.WaterNearby,
 			Foliage: gc.FoliageForest,
 		})
@@ -97,7 +97,7 @@ func TestAmbientTemperatureAt_ダンジョンの囲われたタイルは世界�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileTemperature.Add(tile, &gc.TileTemperature{Shelter: gc.ShelterFull})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
 
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -126,7 +126,7 @@ func TestAmbientTemperatureAt_オーバーワールドの屋内タイルは世�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileTemperature.Add(tile, &gc.TileTemperature{Shelter: gc.ShelterFull})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
 
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -143,7 +143,7 @@ func TestAmbientTemperatureAt_温暖時も屋内は屋外より寒くならな�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileTemperature.Add(tile, &gc.TileTemperature{Shelter: gc.ShelterFull})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
 
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -177,7 +177,7 @@ func TestAmbientTemperatureAt_半屋外タイルは世界温度を中間の強�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileTemperature.Add(tile, &gc.TileTemperature{Shelter: gc.ShelterPartial})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterPartial})
 
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -204,7 +204,7 @@ func TestAmbientTemperatureAt_冬の屋内は屋外より暖かい(t *testing.T)
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{Shelter: gc.ShelterFull})
+		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
 		temp, err := AmbientTemperatureAt(world, 0, 0)
 		require.NoError(t, err)
 		return temp

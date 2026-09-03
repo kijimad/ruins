@@ -30,7 +30,7 @@ func buildShelterRoom(world w.World, doorOpen, withOutdoorFloor bool) (door, ind
 				world.Components.BlockPass.Add(e, &gc.BlockPass{})
 				continue
 			}
-			world.Components.TileTemperature.Add(e, &gc.TileTemperature{Shelter: gc.ShelterFull})
+			world.Components.TileEnvironment.Add(e, &gc.TileEnvironment{Shelter: gc.ShelterFull})
 			if x == 12 && y == 12 {
 				indoorFloor = e
 			}
@@ -47,7 +47,7 @@ func buildShelterRoom(world w.World, doorOpen, withOutdoorFloor bool) (door, ind
 	if withOutdoorFloor {
 		outdoorFloor = world.ECS.NewEntity()
 		world.Components.GridElement.Add(outdoorFloor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 9}})
-		world.Components.TileTemperature.Add(outdoorFloor, &gc.TileTemperature{Shelter: gc.ShelterNone})
+		world.Components.TileEnvironment.Add(outdoorFloor, &gc.TileEnvironment{Shelter: gc.ShelterNone})
 	}
 
 	return door, indoorFloor, outdoorFloor
@@ -60,9 +60,9 @@ func TestOpenDoor_扉を開けると屋内が屋外に繋がり冷気が入る(t
 
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 
-	assert.Equal(t, gc.ShelterNone, world.Components.TileTemperature.Get(indoorFloor).Shelter,
+	assert.Equal(t, gc.ShelterNone, world.Components.TileEnvironment.Get(indoorFloor).Shelter,
 		"扉が開くと屋内の床は屋外扱いになる")
-	assert.Equal(t, gc.ShelterNone, world.Components.TileTemperature.Get(outdoorFloor).Shelter,
+	assert.Equal(t, gc.ShelterNone, world.Components.TileEnvironment.Get(outdoorFloor).Shelter,
 		"屋外の床は屋外のまま")
 }
 
@@ -72,14 +72,14 @@ func TestCloseDoor_扉を閉じると屋内が囲われに戻る(t *testing.T) {
 	door, indoorFloor, outdoorFloor := buildShelterRoom(world, true, true)
 
 	// 開いた状態の囲われへ揃えてから閉じる。屋内は冷気が入った状態から始まる
-	indoor := world.Components.TileTemperature.Get(indoorFloor)
+	indoor := world.Components.TileEnvironment.Get(indoorFloor)
 	indoor.Shelter = gc.ShelterNone
 
 	require.NoError(t, lifecycle.CloseDoor(world, door))
 
-	assert.Equal(t, gc.ShelterFull, world.Components.TileTemperature.Get(indoorFloor).Shelter,
+	assert.Equal(t, gc.ShelterFull, world.Components.TileEnvironment.Get(indoorFloor).Shelter,
 		"扉が閉じると屋内の床は囲われに戻る")
-	assert.Equal(t, gc.ShelterNone, world.Components.TileTemperature.Get(outdoorFloor).Shelter,
+	assert.Equal(t, gc.ShelterNone, world.Components.TileEnvironment.Get(outdoorFloor).Shelter,
 		"屋外の床は屋外のまま")
 }
 
@@ -92,6 +92,6 @@ func TestOpenDoor_窓の外周へ達しても既存の屋外タイルを見な�
 
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 
-	assert.Equal(t, gc.ShelterFull, world.Components.TileTemperature.Get(indoorFloor).Shelter,
+	assert.Equal(t, gc.ShelterFull, world.Components.TileEnvironment.Get(indoorFloor).Shelter,
 		"屋外の証拠が無い領域は誤って冷やさず現状維持にする")
 }
