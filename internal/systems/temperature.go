@@ -92,8 +92,9 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 
 // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。
 // 体温タイマーへの直接回復とは別の効きで、火を焚けば周囲気温そのものが上がる。
-// 状態は持たず、毎回そのターンの熱源から平衡値を出す。値は実プレイで調整する
-const ambientHeatPerWarmth = 8
+// 状態は持たず、毎回そのターンの熱源から平衡値を出す。値は実プレイで調整する。
+// 焚き火 warmth 0.75 の隣接タイルで +15℃ になり、春の夜が火のそばで快適帯に入る
+const ambientHeatPerWarmth = 30
 
 // ambientHeatAt はタイル座標に届く熱源の環境気温への押し上げ℃を返す
 func ambientHeatAt(world w.World, x, y consts.Tile) int {
