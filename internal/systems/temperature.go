@@ -85,6 +85,7 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 		// 半屋外は中間の強さで受ける。係数は実プレイで調整する
 		return baseTemp + worldTemp*3/4 + local, nil
 	case gc.ShelterNone:
+		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
 	}
 	// 屋外は世界温度をそのまま受ける。save 由来の未知の値も屋外へ落とす
 	return baseTemp + worldTemp + local, nil

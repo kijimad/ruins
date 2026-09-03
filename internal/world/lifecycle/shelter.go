@@ -44,6 +44,9 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 	tileQuery := query.ActiveFilter2[gc.GridElement, gc.TileTemperature](world).Query()
 	for tileQuery.Next() {
 		entity := tileQuery.Entity()
+		if world.Components.Dead.Has(entity) {
+			continue
+		}
 		grid := world.Components.GridElement.Get(entity)
 		lx, ly := int(grid.X)-minX, int(grid.Y)-minY
 		if lx >= 0 && lx < size && ly >= 0 && ly < size {
@@ -55,7 +58,7 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 
 	// 扉が開けば両側は1つの領域として、閉じれば分断された各側が別領域として焼き直される。
 	// 中心が塞がっている、つまり扉が閉じたときも4隣接の種が両側を拾う
-	visited := make(map[int]bool)
+	visited := make([]bool, size*size)
 	seeds := [][2]int{
 		{shelterRecalcRadius, shelterRecalcRadius},
 		{shelterRecalcRadius - 1, shelterRecalcRadius},
