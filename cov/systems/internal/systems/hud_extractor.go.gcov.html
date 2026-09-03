@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.3&nbsp;%</td>
-            <td class="headerCovTableEntry">314</td>
-            <td class="headerCovTableEntry">296</td>
+            <td class="headerCovTableEntryHi">95.4&nbsp;%</td>
+            <td class="headerCovTableEntry">325</td>
+            <td class="headerCovTableEntry">310</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-03 10:31:19</td>
+            <td class="headerValue">2026-09-03 11:24:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -453,100 +453,115 @@
 <span id="L391"><span class="lineNum">     391</span>              :                 }</span>
 <span id="L392"><span class="lineNum">     392</span>              :         }</span>
 <span id="L393"><span class="lineNum">     393</span>              : </span>
-<span id="L394"><span class="lineNum">     394</span>              :         // プレイヤーの体温状態バッジ</span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :         tempQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         for tempQuery.Next() {</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC tlaBgUNC">           0 :                 if badge, ok := temperatureStateBadge(world, tempQuery.Entity()); ok {</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                         badges = append(badges, badge)</span></span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L400"><span class="lineNum">     400</span>              :         }</span>
-<span id="L401"><span class="lineNum">     401</span>              : </span>
-<span id="L402"><span class="lineNum">     402</span>              :         // 画面サイズを取得</span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC tlaBgGNC">           1 :         screenWidth, screenHeight := world.Resources.GetScreenDimensions()</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L405"><span class="lineNum">     405</span>              :         // メッセージエリアの高さを計算</span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :         messageAreaConfig := hud.DefaultMessageAreaConfig</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         messageAreaHeight := messageAreaConfig.Height()</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :         return hud.StatusBadgesData{</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                 Badges:            badges,</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 MessageAreaHeight: messageAreaHeight,</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 ScreenDimensions: hud.ScreenDimensions{</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                         Width:  screenWidth,</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :                         Height: screenHeight,</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L417"><span class="lineNum">     417</span>              : }</span>
-<span id="L418"><span class="lineNum">     418</span>              : </span>
-<span id="L419"><span class="lineNum">     419</span>              : // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界</span>
-<span id="L420"><span class="lineNum">     420</span>              : const temperatureSteadyThreshold = 0.05</span>
-<span id="L421"><span class="lineNum">     421</span>              : </span>
-<span id="L422"><span class="lineNum">     422</span>              : // temperatureIntensityMax は矢印の色が最も濃くなる変化量</span>
-<span id="L423"><span class="lineNum">     423</span>              : const temperatureIntensityMax = 0.5</span>
-<span id="L424"><span class="lineNum">     424</span>              : </span>
-<span id="L425"><span class="lineNum">     425</span>              : // temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。</span>
-<span id="L426"><span class="lineNum">     426</span>              : // 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う</span>
-<span id="L427"><span class="lineNum">     427</span>              : func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {</span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         hs := world.Components.HealthStatus.Get(entity)</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :         part := &amp;hs.Parts[gc.BodyPartWholeBody]</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil {</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :         return hud.StatusBadge{}, false</span></span>
-<span id="L434"><span class="lineNum">     434</span>              : }</span>
-<span id="L435"><span class="lineNum">     435</span>              : </span>
-<span id="L436"><span class="lineNum">     436</span>              : // temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。</span>
-<span id="L437"><span class="lineNum">     437</span>              : // 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ。</span>
-<span id="L438"><span class="lineNum">     438</span>              : // 変化は実処理と同じ bodyTempRate を読むので、環境が変われば即座に反映される</span>
-<span id="L439"><span class="lineNum">     439</span>              : func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {</span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(entity) {</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 return hud.TemperatureArrow{}</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L443"><span class="lineNum">     443</span>              : </span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :         delta := bodyTempRate(world, entity)</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :         dir := hud.TempDirectionSteady</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L448"><span class="lineNum">     448</span>              :         case delta &gt; temperatureSteadyThreshold:</span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                 dir = hud.TempDirectionUp</span></span>
-<span id="L450"><span class="lineNum">     450</span>              :         case delta &lt; -temperatureSteadyThreshold:</span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                 dir = hud.TempDirectionDown</span></span>
-<span id="L452"><span class="lineNum">     452</span>              :         }</span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :         return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(dir, delta)}</span></span>
-<span id="L454"><span class="lineNum">     454</span>              : }</span>
-<span id="L455"><span class="lineNum">     455</span>              : </span>
-<span id="L456"><span class="lineNum">     456</span>              : // temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。</span>
-<span id="L457"><span class="lineNum">     457</span>              : // 変化が速いほど濃い。向きの判定は呼び出し側と共有し、横矢印が必ず黄になるようにする</span>
-<span id="L458"><span class="lineNum">     458</span>              : func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA {</span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :         if dir == hud.TempDirectionSteady {</span></span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 200, 0, 255}</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :         if dir == hud.TempDirectionUp {</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                 return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :         return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)</span></span>
-<span id="L467"><span class="lineNum">     467</span>              : }</span>
-<span id="L468"><span class="lineNum">     468</span>              : </span>
-<span id="L469"><span class="lineNum">     469</span>              : // lerpRGBA は2色を t (0..1) で線形補間する</span>
-<span id="L470"><span class="lineNum">     470</span>              : func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {</span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           2 :         lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :         return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}</span></span>
-<span id="L473"><span class="lineNum">     473</span>              : }</span>
-<span id="L474"><span class="lineNum">     474</span>              : </span>
-<span id="L475"><span class="lineNum">     475</span>              : // getHungerBadgeColor は空腹度に応じたバッジ色を返す</span>
-<span id="L476"><span class="lineNum">     476</span>              : func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {</span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 :         switch level {</span></span>
-<span id="L478"><span class="lineNum">     478</span>              :         case gc.HungerSatiated:</span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                 return color.RGBA{100, 200, 100, 255} // 緑（満腹）</span></span>
-<span id="L480"><span class="lineNum">     480</span>              :         case gc.HungerHungry:</span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 200, 0, 255} // 黄色（空腹）</span></span>
-<span id="L482"><span class="lineNum">     482</span>              :         case gc.HungerStarving:</span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 50, 50, 255} // 赤（飢餓）</span></span>
-<span id="L484"><span class="lineNum">     484</span>              :         default:</span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 255, 255, 255}</span></span>
-<span id="L486"><span class="lineNum">     486</span>              :         }</span>
-<span id="L487"><span class="lineNum">     487</span>              : }</span>
+<span id="L394"><span class="lineNum">     394</span>              :         // プレイヤーの体温バッジと不調バッジ。同じ Player+HealthStatus を1度だけ走査する。</span>
+<span id="L395"><span class="lineNum">     395</span>              :         // 低体温は体温バッジが担うので不調バッジには重複させない</span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         healthQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         for healthQuery.Next() {</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 entity := healthQuery.Entity()</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                 if badge, ok := temperatureStateBadge(world, entity); ok {</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :                         badges = append(badges, badge)</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                 hs := world.Components.HealthStatus.Get(entity)</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                 for i := range hs.Parts {</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                         for j := range hs.Parts[i].Conditions {</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :                                 c := &amp;hs.Parts[i].Conditions[j]</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                                 if !c.IsActive() || c.Type == gc.ConditionHypothermia {</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :                                         continue</span></span>
+<span id="L408"><span class="lineNum">     408</span>              :                                 }</span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :                                 badges = append(badges, hud.StatusBadge{</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                                         Text:  c.DisplayName(),</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                                         Color: color.RGBA{200, 80, 70, 255},</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                                 })</span></span>
+<span id="L413"><span class="lineNum">     413</span>              :                         }</span>
+<span id="L414"><span class="lineNum">     414</span>              :                 }</span>
+<span id="L415"><span class="lineNum">     415</span>              :         }</span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              :         // 画面サイズを取得</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         screenWidth, screenHeight := world.Resources.GetScreenDimensions()</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L420"><span class="lineNum">     420</span>              :         // メッセージエリアの高さを計算</span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :         messageAreaConfig := hud.DefaultMessageAreaConfig</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         messageAreaHeight := messageAreaConfig.Height()</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :         return hud.StatusBadgesData{</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                 Badges:            badges,</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                 MessageAreaHeight: messageAreaHeight,</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :                 ScreenDimensions: hud.ScreenDimensions{</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :                         Width:  screenWidth,</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                         Height: screenHeight,</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L432"><span class="lineNum">     432</span>              : }</span>
+<span id="L433"><span class="lineNum">     433</span>              : </span>
+<span id="L434"><span class="lineNum">     434</span>              : // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界</span>
+<span id="L435"><span class="lineNum">     435</span>              : const temperatureSteadyThreshold = 0.05</span>
+<span id="L436"><span class="lineNum">     436</span>              : </span>
+<span id="L437"><span class="lineNum">     437</span>              : // temperatureIntensityMax は矢印の色が最も濃くなる変化量</span>
+<span id="L438"><span class="lineNum">     438</span>              : const temperatureIntensityMax = 0.5</span>
+<span id="L439"><span class="lineNum">     439</span>              : </span>
+<span id="L440"><span class="lineNum">     440</span>              : // temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。</span>
+<span id="L441"><span class="lineNum">     441</span>              : // 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う</span>
+<span id="L442"><span class="lineNum">     442</span>              : func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {</span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :         hs := world.Components.HealthStatus.Get(entity)</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :         part := &amp;hs.Parts[gc.BodyPartWholeBody]</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :         if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil {</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :         return hud.StatusBadge{}, false</span></span>
+<span id="L449"><span class="lineNum">     449</span>              : }</span>
+<span id="L450"><span class="lineNum">     450</span>              : </span>
+<span id="L451"><span class="lineNum">     451</span>              : // temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。</span>
+<span id="L452"><span class="lineNum">     452</span>              : // 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ。</span>
+<span id="L453"><span class="lineNum">     453</span>              : // 変化は実処理と同じ bodyTempRate を読むので、環境が変われば即座に反映される</span>
+<span id="L454"><span class="lineNum">     454</span>              : func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {</span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(entity) {</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :                 return hud.TemperatureArrow{}</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L458"><span class="lineNum">     458</span>              : </span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :         delta := bodyTempRate(world, entity)</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         dir := hud.TempDirectionSteady</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L463"><span class="lineNum">     463</span>              :         case delta &gt; temperatureSteadyThreshold:</span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                 dir = hud.TempDirectionUp</span></span>
+<span id="L465"><span class="lineNum">     465</span>              :         case delta &lt; -temperatureSteadyThreshold:</span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :                 dir = hud.TempDirectionDown</span></span>
+<span id="L467"><span class="lineNum">     467</span>              :         }</span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :         return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(dir, delta)}</span></span>
+<span id="L469"><span class="lineNum">     469</span>              : }</span>
+<span id="L470"><span class="lineNum">     470</span>              : </span>
+<span id="L471"><span class="lineNum">     471</span>              : // temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。</span>
+<span id="L472"><span class="lineNum">     472</span>              : // 変化が速いほど濃い。向きの判定は呼び出し側と共有し、横矢印が必ず黄になるようにする</span>
+<span id="L473"><span class="lineNum">     473</span>              : func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA {</span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :         if dir == hud.TempDirectionSteady {</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 200, 0, 255}</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 :         intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :         if dir == hud.TempDirectionUp {</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                 return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :         return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)</span></span>
+<span id="L482"><span class="lineNum">     482</span>              : }</span>
+<span id="L483"><span class="lineNum">     483</span>              : </span>
+<span id="L484"><span class="lineNum">     484</span>              : // lerpRGBA は2色を t (0..1) で線形補間する</span>
+<span id="L485"><span class="lineNum">     485</span>              : func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {</span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           2 :         lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :         return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}</span></span>
+<span id="L488"><span class="lineNum">     488</span>              : }</span>
+<span id="L489"><span class="lineNum">     489</span>              : </span>
+<span id="L490"><span class="lineNum">     490</span>              : // getHungerBadgeColor は空腹度に応じたバッジ色を返す</span>
+<span id="L491"><span class="lineNum">     491</span>              : func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {</span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :         switch level {</span></span>
+<span id="L493"><span class="lineNum">     493</span>              :         case gc.HungerSatiated:</span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :                 return color.RGBA{100, 200, 100, 255} // 緑（満腹）</span></span>
+<span id="L495"><span class="lineNum">     495</span>              :         case gc.HungerHungry:</span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 200, 0, 255} // 黄色（空腹）</span></span>
+<span id="L497"><span class="lineNum">     497</span>              :         case gc.HungerStarving:</span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 50, 50, 255} // 赤（飢餓）</span></span>
+<span id="L499"><span class="lineNum">     499</span>              :         default:</span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 255, 255, 255}</span></span>
+<span id="L501"><span class="lineNum">     501</span>              :         }</span>
+<span id="L502"><span class="lineNum">     502</span>              : }</span>
         </pre>
               </td>
             </tr>

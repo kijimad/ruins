@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.7&nbsp;%</td>
-            <td class="headerCovTableEntry">88</td>
-            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntryMed">79.6&nbsp;%</td>
+            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntry">74</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-03 10:31:19</td>
+            <td class="headerValue">2026-09-03 11:24:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -205,51 +205,56 @@
 <span id="L143"><span class="lineNum">     143</span>              : // Label と Value の2列で、値は右寄せの数値。到達度は経過ターンで示す</span>
 <span id="L144"><span class="lineNum">     144</span>              : func runStatsItems(world w.World) []statusItemData {</span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         days, turns, kills, items, sales := runStatsFields(world)</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         return []statusItemData{</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Days&quot;), Value: fmt.Sprintf(&quot;%d&quot;, days)},</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Turns&quot;), Value: fmt.Sprintf(&quot;%d&quot;, turns)},</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Enemies killed&quot;), Value: fmt.Sprintf(&quot;%d&quot;, kills)},</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Items scavenged&quot;), Value: fmt.Sprintf(&quot;%d&quot;, items)},</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Sales&quot;), Value: fmt.Sprintf(&quot;%d&quot;, sales)},</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              : }</span>
-<span id="L154"><span class="lineNum">     154</span>              : </span>
-<span id="L155"><span class="lineNum">     155</span>              : // runStatsFields は現在の統計を返す。撃破・漁り・売上は RunStats、日数・ターンは GameTime から引く</span>
-<span id="L156"><span class="lineNum">     156</span>              : func runStatsFields(world w.World) (days, turns, kills, items int, sales consts.Currency) {</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         if s := query.GetRunStats(world); s != nil {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 kills = s.EnemiesKilled</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 items = s.ItemsScavenged</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 sales = s.SalesTotal</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         if gt := query.GetGameTime(world); gt != nil {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 days = gt.GetDayNumber()</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 turns = int(gt.TotalTurns)</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         return</span></span>
-<span id="L167"><span class="lineNum">     167</span>              : }</span>
-<span id="L168"><span class="lineNum">     168</span>              : </span>
-<span id="L169"><span class="lineNum">     169</span>              : // environmentItems は現在地の環境情報をテーブル行に組む。周囲気温・時間帯・季節。</span>
-<span id="L170"><span class="lineNum">     170</span>              : // 周囲気温はプレイヤーの位置から引く。プレイヤーが居ない、または座標を持たないときは0にする</span>
-<span id="L171"><span class="lineNum">     171</span>              : func environmentItems(world w.World) []statusItemData {</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         gt := query.GetGameTime(world)</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         if gt == nil {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L176"><span class="lineNum">     176</span>              : </span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC tlaBgGNC">           1 :         ambient := 0</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         if player, err := query.GetPlayerEntity(world); err == nil &amp;&amp; query.AliveHas(world, world.Components.GridElement, player) {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 g := world.Components.GridElement.Get(player)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 if temp, terr := systems.AmbientTemperatureAt(world, g.X, g.Y); terr == nil {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                         ambient = temp</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L183"><span class="lineNum">     183</span>              :         }</span>
-<span id="L184"><span class="lineNum">     184</span>              : </span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         return []statusItemData{</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Ambient temperature&quot;), Value: fmt.Sprintf(&quot;%d%s&quot;, ambient, consts.IconDegree)},</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Time of day&quot;), Value: query.T(world, gt.GetTimeOfDay().String())},</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Season&quot;), Value: query.T(world, gt.GetSeason().String())},</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L190"><span class="lineNum">     190</span>              : }</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         rows := make([]statusItemData, 0, 6)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         // 死因は決着時にだけ記録される。道中の統計画面では空なので出さない</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         if s := query.GetRunStats(world); s != nil &amp;&amp; s.Cause != &quot;&quot; {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC tlaBgUNC">           0 :                 rows = append(rows, statusItemData{Label: query.T(world, &quot;Cause of death&quot;), Value: query.T(world, s.Cause.DisplayName())})</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 :         return append(rows,</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Days&quot;), Value: fmt.Sprintf(&quot;%d&quot;, days)},</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Turns&quot;), Value: fmt.Sprintf(&quot;%d&quot;, turns)},</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Enemies killed&quot;), Value: fmt.Sprintf(&quot;%d&quot;, kills)},</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Items scavenged&quot;), Value: fmt.Sprintf(&quot;%d&quot;, items)},</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Sales&quot;), Value: fmt.Sprintf(&quot;%d&quot;, sales)},</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L158"><span class="lineNum">     158</span>              : }</span>
+<span id="L159"><span class="lineNum">     159</span>              : </span>
+<span id="L160"><span class="lineNum">     160</span>              : // runStatsFields は現在の統計を返す。撃破・漁り・売上は RunStats、日数・ターンは GameTime から引く</span>
+<span id="L161"><span class="lineNum">     161</span>              : func runStatsFields(world w.World) (days, turns, kills, items int, sales consts.Currency) {</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         if s := query.GetRunStats(world); s != nil {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 kills = s.EnemiesKilled</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 items = s.ItemsScavenged</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 sales = s.SalesTotal</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         if gt := query.GetGameTime(world); gt != nil {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 days = gt.GetDayNumber()</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 turns = int(gt.TotalTurns)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         return</span></span>
+<span id="L172"><span class="lineNum">     172</span>              : }</span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span>              : // environmentItems は現在地の環境情報をテーブル行に組む。周囲気温・時間帯・季節。</span>
+<span id="L175"><span class="lineNum">     175</span>              : // 周囲気温はプレイヤーの位置から引く。プレイヤーが居ない、または座標を持たないときは0にする</span>
+<span id="L176"><span class="lineNum">     176</span>              : func environmentItems(world w.World) []statusItemData {</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         gt := query.GetGameTime(world)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         if gt == nil {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L181"><span class="lineNum">     181</span>              : </span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 :         ambient := 0</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         if player, err := query.GetPlayerEntity(world); err == nil &amp;&amp; query.AliveHas(world, world.Components.GridElement, player) {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 g := world.Components.GridElement.Get(player)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 if temp, terr := systems.AmbientTemperatureAt(world, g.X, g.Y); terr == nil {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                         ambient = temp</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :         }</span>
+<span id="L189"><span class="lineNum">     189</span>              : </span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         return []statusItemData{</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Ambient temperature&quot;), Value: fmt.Sprintf(&quot;%d%s&quot;, ambient, consts.IconDegree)},</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Time of day&quot;), Value: query.T(world, gt.GetTimeOfDay().String())},</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Season&quot;), Value: query.T(world, gt.GetSeason().String())},</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L195"><span class="lineNum">     195</span>              : }</span>
         </pre>
               </td>
             </tr>

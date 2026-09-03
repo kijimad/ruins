@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">22</td>
-            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">26</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-03 10:31:19</td>
+            <td class="headerValue">2026-09-03 11:24:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -99,18 +99,24 @@
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 value := uicore.NewText(r.Value, face, valColor)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 value.Align = uicore.AlignRight</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.Row(cols, uicore.NewText(r.Label, face, specLabelColor), value))</span></span>
-<span id="L41"><span class="lineNum">      41</span>              :         }</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return items</span></span>
-<span id="L43"><span class="lineNum">      43</span>              : }</span>
-<span id="L44"><span class="lineNum">      44</span>              : </span>
-<span id="L45"><span class="lineNum">      45</span>              : // BuildSpecPanel は SpecRow の並びから uicore の保持型ツリーを組む。</span>
-<span id="L46"><span class="lineNum">      46</span>              : // 必要なのは本文フェイスだけなのでそれだけを受け取る。行高は渡されたフェイスの行送りにする。</span>
-<span id="L47"><span class="lineNum">      47</span>              : // 行は文字を収める箱なので、字面を切らない高さはフェイスから導ける。固定値では持たない。</span>
-<span id="L48"><span class="lineNum">      48</span>              : // パッケージグローバルの可変状態に触れないので、複数の UI を並行に組んでも競合しない。</span>
-<span id="L49"><span class="lineNum">      49</span>              : func BuildSpecPanel(rows []SpecRow, face text.Face) uicore.Widget {</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         return uicore.VBox(uicore.LineHeight(face), SpecRowWidgets(rows, face)...)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 label := uicore.NewText(r.Label, face, specLabelColor)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 if r.Indent &gt; 0 {</span></span>
+<span id="L42"><span class="lineNum">      42</span>              :                         // 子行を段数ぶん下げる。先頭に空の桁を差してラベルだけ右へずらし、値は右端揃えのまま</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                         items = append(items, uicore.Row([]int{r.Indent * theme.Space4, cols[0], cols[1]}, uicore.NewGroup(), label, value))</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L45"><span class="lineNum">      45</span>              :                 }</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.Row(cols, label, value))</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :         }</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         return items</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : }</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : // BuildSpecPanel は SpecRow の並びから uicore の保持型ツリーを組む。</span>
+<span id="L52"><span class="lineNum">      52</span>              : // 必要なのは本文フェイスだけなのでそれだけを受け取る。行高は渡されたフェイスの行送りにする。</span>
+<span id="L53"><span class="lineNum">      53</span>              : // 行は文字を収める箱なので、字面を切らない高さはフェイスから導ける。固定値では持たない。</span>
+<span id="L54"><span class="lineNum">      54</span>              : // パッケージグローバルの可変状態に触れないので、複数の UI を並行に組んでも競合しない。</span>
+<span id="L55"><span class="lineNum">      55</span>              : func BuildSpecPanel(rows []SpecRow, face text.Face) uicore.Widget {</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return uicore.VBox(uicore.LineHeight(face), SpecRowWidgets(rows, face)...)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

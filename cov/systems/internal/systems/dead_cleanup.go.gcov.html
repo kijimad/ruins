@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">74.2&nbsp;%</td>
+            <td class="headerCovTableEntryMed">76.4&nbsp;%</td>
             <td class="headerCovTableEntry">89</td>
-            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntry">68</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-03 10:31:19</td>
+            <td class="headerValue">2026-09-03 11:24:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -186,9 +186,9 @@
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 var items []ecs.Entity</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 for backpackQuery.Next() {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC tlaBgUNC">           0 :                         item := backpackQuery.Entity()</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                         if world.Components.LocationInBackpack.Get(item).Owner == owner {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                                 items = append(items, item)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                         item := backpackQuery.Entity()</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                         if world.Components.LocationInBackpack.Get(item).Owner == owner {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC tlaBgUNC">           0 :                                 items = append(items, item)</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L131"><span class="lineNum">     131</span>              :                 }</span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :                 lifecycle.MoveMembersToField(world, items, coord, owner)</span></span>

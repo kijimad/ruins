@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - components/internal/components/run.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">components/internal/components</a> - run.go<span style="font-size: 80%;"> (source / <a href="run.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">50.0&nbsp;%</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">2</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-03 11:24:43</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package components</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // DeathCause は決着時の死因。決着時に RunStats.Cause へ入れ、表示時に翻訳する</span>
+<span id="L6"><span class="lineNum">       6</span>              : type DeathCause string</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : const (</span>
+<span id="L9"><span class="lineNum">       9</span>              :         // CauseFrozen は低体温で凍死したときの死因</span>
+<span id="L10"><span class="lineNum">      10</span>              :         CauseFrozen DeathCause = &quot;frozen&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         // CauseIllness は病気で死んだときの死因</span>
+<span id="L12"><span class="lineNum">      12</span>              :         CauseIllness DeathCause = &quot;illness&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         // CauseBloodLoss は外傷の失血で死んだときの死因</span>
+<span id="L14"><span class="lineNum">      14</span>              :         CauseBloodLoss DeathCause = &quot;blood_loss&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         // CauseKilled は戦闘のダメージで倒れたときの死因</span>
+<span id="L16"><span class="lineNum">      16</span>              :         CauseKilled DeathCause = &quot;killed&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         // CauseDebug はデバッグで結果画面を確認するための死因</span>
+<span id="L18"><span class="lineNum">      18</span>              :         CauseDebug DeathCause = &quot;debug&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : )</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : // deathCauseDisplayNames は死因ごとの表示名 msgid。結果画面が query.T で訳す。</span>
+<span id="L22"><span class="lineNum">      22</span>              : // データなので表で持ち、死因を足すときはここへ1行足す</span>
+<span id="L23"><span class="lineNum">      23</span>              : var deathCauseDisplayNames = map[DeathCause]string{</span>
+<span id="L24"><span class="lineNum">      24</span>              :         CauseFrozen:    &quot;froze to death&quot;,</span>
+<span id="L25"><span class="lineNum">      25</span>              :         CauseIllness:   &quot;died of illness&quot;,</span>
+<span id="L26"><span class="lineNum">      26</span>              :         CauseBloodLoss: &quot;bled out&quot;,</span>
+<span id="L27"><span class="lineNum">      27</span>              :         CauseKilled:    &quot;killed in battle&quot;,</span>
+<span id="L28"><span class="lineNum">      28</span>              :         CauseDebug:     &quot;debug&quot;,</span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // DisplayName は死因の表示名 msgid を返す。</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 未登録の死因は素の文字列へ落とし、未信頼な旧セーブ値もこの経路で受ける</span>
+<span id="L33"><span class="lineNum">      33</span>              : func (c DeathCause) DisplayName() string {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 :         if name, ok := deathCauseDisplayNames[c]; ok {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 return name</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           1 :         return string(c)</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : }</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : // RunStats は run を通じて貯める統計を保持するシングルトン。run 中ずっと存在し serde 保存する。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // 撃破・漁り・売上を積み上げ、決着時に死因を記録する。結果画面と道中の統計画面が読む。</span>
+<span id="L42"><span class="lineNum">      42</span>              : // 生存日数と経過ターンは GameTime から引けるので持たない</span>
+<span id="L43"><span class="lineNum">      43</span>              : type RunStats struct {</span>
+<span id="L44"><span class="lineNum">      44</span>              :         EnemiesKilled  int             // 倒した敵の数</span>
+<span id="L45"><span class="lineNum">      45</span>              :         ItemsScavenged int             // 漁ったアイテム数</span>
+<span id="L46"><span class="lineNum">      46</span>              :         SalesTotal     consts.Currency // 売上累計</span>
+<span id="L47"><span class="lineNum">      47</span>              :         Cause          DeathCause      // 死因。決着時に記録する</span>
+<span id="L48"><span class="lineNum">      48</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
