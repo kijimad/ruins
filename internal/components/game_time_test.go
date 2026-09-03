@@ -299,6 +299,33 @@ func TestGameTime_SeasonJustChanged(t *testing.T) {
 	}
 }
 
+func TestGameTime_DayJustChanged(t *testing.T) {
+	t.Parallel()
+
+	// 日付が切り替わるのは turnsPerDay=1500 の倍数。turn 0 は1日目の開始だが前ターンが無く変化なしとする
+	tests := []struct {
+		name    string
+		turns   consts.Turn
+		day     int
+		changed bool
+	}{
+		{"開始ターンは1日目で変化なし", 0, 1, false},
+		{"1日目の最後のターンは変化なし", 1499, 1, false},
+		{"日付が切り替わるターンは2日目", 1500, 2, true},
+		{"切り替わりの次は変化なし", 1501, 2, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: tt.turns}
+			day, changed := gt.DayJustChanged()
+			assert.Equal(t, tt.day, day)
+			assert.Equal(t, tt.changed, changed)
+		})
+	}
+}
+
 func TestGameTime_TimeOfDayJustChanged(t *testing.T) {
 	t.Parallel()
 

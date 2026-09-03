@@ -5913,6 +5913,9 @@ msgstr "熱量"
 msgid "Turns left"
 msgstr "残りターン"
 
+msgid "Day %d"
+msgstr "%d日目"
+
 msgid "The season changed to %s."
 msgstr "季節が%sになった。"
 
