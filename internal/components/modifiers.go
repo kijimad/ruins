@@ -209,8 +209,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 		return consts.PercentBase + consts.Percent(bonus)
 	}
 
-	// 不調による身体機能。命中はここを経由するので武器命中へ畳み込む。
-	// 命中を掛ける前に確定させる必要があるため武器ループより先に求める
+	// 不調による身体機能。命中はここを経由するので武器命中へ畳み込む
 	e.Capacities = HealthyCapacities()
 	if hs != nil {
 		e.Capacities = hs.Capacities()
@@ -221,9 +220,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	for _, id := range weaponSkillIDs {
 		e.WeaponDamage[id] = calcEffect(WeaponDamageKey(id), id, coeffWeaponDamage)
 
-		// 武器習熟の命中倍率に、命中へ効く身体機能を掛け合わせて1つに畳む。
-		// 表示される命中倍率が実際に適用される倍率と一致する。
-		// 内訳には加法差分として載せ、最終値 = 基準 + Σ内訳 の関係を保つ
+		// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せて 最終値 = 基準 + Σ内訳 を保つ
 		acc := calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)
 		capKind, capVal := weaponAccuracyCapacity(e.Capacities, id)
 		withCap := capVal.ApplyInt(int(acc))

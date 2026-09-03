@@ -113,8 +113,7 @@ var conditionDefs = map[ConditionType]ConditionDef{
 	ConditionHypothermia: {
 		displayName: "Hypothermia",
 		description: "The body is dangerously cold. Warm up to recover.",
-		// 常在圧力なので反応率は外傷より軽くする。中度で戦える重さに留め、
-		// 重症の凍死は血液量 34 の HP-1/ターンでじわじわ効かせる
+		// 常在圧力なので反応率は外傷より軽くする
 		painPerSeverity: 6, capacityDropPerSeverity: 10,
 		// Recovery なし。進行と回復は TemperatureSystem が体温から扱う。
 		// 直接 HP は削らず、重症で血液量を下げて凍死させる

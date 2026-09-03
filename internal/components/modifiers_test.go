@@ -246,13 +246,11 @@ func TestRecalculateCharModifiers_AccuracyFoldsCapacity(t *testing.T) {
 
 	mods := RecalculateCharModifiers(skills, nil, hs)
 
-	// 中度の全身性低体温で操作・視覚はいずれも74。命中倍率へ畳み込まれる。
-	// スキルLv0の基礎命中100に74%を掛けて74になる
+	// 中度の全身性低体温で操作・視覚は74。スキルLv0の基礎命中100×74%=74
 	assert.Equal(t, 74, int(mods.WeaponAccuracy[SkillSword]), "近接は操作機能を畳み込む")
 	assert.Equal(t, 74, int(mods.WeaponAccuracy[SkillBow]), "遠隔は視覚機能を畳み込む")
 
-	// 内訳の末尾に身体機能の加法差分が載る。100→74 なので -26。
-	// 近接は操作機能、遠隔は視覚機能を選ぶことをラベルで確認する
+	// 内訳の末尾に身体機能の加法差分が載る。100→74 なので -26
 	swordSrc := mods.Sources[ModSwordAccuracy]
 	assert.Equal(t, "Manipulation 74%", swordSrc[len(swordSrc)-1].Label)
 	assert.Equal(t, -26, swordSrc[len(swordSrc)-1].Value)
