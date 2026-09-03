@@ -15,10 +15,10 @@ func TestTileTemperature_Total(t *testing.T) {
 		assert.Equal(t, 0, tt.Total())
 	})
 
-	t.Run("屋内のみ", func(t *testing.T) {
+	t.Run("囲われは緩和度なので合計に含まない", func(t *testing.T) {
 		t.Parallel()
 		tt := &TileTemperature{Shelter: ShelterFull}
-		assert.Equal(t, 10, tt.Total())
+		assert.Equal(t, 0, tt.Total())
 	})
 
 	t.Run("水辺で森", func(t *testing.T) {
@@ -40,8 +40,8 @@ func TestTileTemperature_Total(t *testing.T) {
 			Water:   WaterNearby,
 			Foliage: FoliageGrass,
 		}
-		// 5 + (-5) + (-1) = -1
-		assert.Equal(t, -1, tt.Total())
+		// 囲われを除いた -5 + (-1) = -6
+		assert.Equal(t, -6, tt.Total())
 	})
 }
 

@@ -261,8 +261,9 @@ func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Ent
 			temp := world.Components.TileTemperature.Get(entity)
 			panel.Gap(5)
 			panel.Line(fmt.Sprintf("%s: %+d", query.T(world, "Temperature modifier"), temp.Total()))
-			if temp.Shelter != 0 {
-				panel.Line(fmt.Sprintf("  %s: %+d", query.T(world, "Indoor"), temp.Shelter))
+			// Shelter は加算℃でなく世界温度の緩和度なので、数値でなく屋内であることだけ示す
+			if temp.Shelter != gc.ShelterNone {
+				panel.Line("  " + query.T(world, "Indoor"))
 			}
 			if temp.Water != 0 {
 				panel.Line(fmt.Sprintf("  %s: %+d", query.T(world, "Waterside"), temp.Water))
