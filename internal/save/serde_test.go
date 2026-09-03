@@ -285,6 +285,55 @@ func TestSerde_Perishableが往復する(t *testing.T) {
 	assert.Equal(t, consts.Turn(700), restored.RotUpdatedTurn, "劣化の起点時刻は生成ターンで刻まれる")
 }
 
+func TestSerde_不調と治療アイテムが往復する(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	// 治療の質を持つ切り傷を付ける。TendQuality が保存経路を通るか確かめる
+	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(
+		gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 60, Severity: gc.SeverityMedium, TendQuality: 120},
+	)
+	// 治療アイテムを持たせる。Remedy コンポーネントが保存経路を通るか確かめる
+	splint, err := lifecycle.SpawnFieldItem(world, "splint", 5, 5, 1)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.MoveToBackpack(world, splint, player))
+
+	original := *world.Components.HealthStatus.Get(player)
+
+	require.NoError(t, manager.SaveWorld(world, "injury"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "injury"))
+
+	var restoredHS *gc.HealthStatus
+	pq := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
+	for pq.Next() {
+		restoredHS = newWorld.Components.HealthStatus.Get(pq.Entity())
+	}
+	require.NotNil(t, restoredHS, "プレイヤーの HealthStatus が復元される")
+	assert.Equal(t, original, *restoredHS, "不調が丸ごと復元される")
+	lac := restoredHS.Parts[gc.BodyPartArms].GetCondition(gc.ConditionLaceration)
+	require.NotNil(t, lac)
+	assert.Equal(t, consts.Percent(120), lac.TendQuality, "治療の質が復元される")
+
+	var restoredRemedy *gc.Remedy
+	iq := ecs.NewFilter2[gc.Remedy, gc.RawID](newWorld.ECS).Query()
+	for iq.Next() {
+		e := iq.Entity()
+		if newWorld.Components.RawID.Get(e).ID == "splint" {
+			restoredRemedy = newWorld.Components.Remedy.Get(e)
+		}
+	}
+	require.NotNil(t, restoredRemedy, "治療アイテムの Remedy が復元される")
+	assert.Contains(t, restoredRemedy.Treats, gc.ConditionFracture, "治療対象が復元される")
+	assert.Equal(t, consts.Percent(100), restoredRemedy.Potency, "治療の質が復元される")
+}
+
 // TestSerdeAuctionRoundtrip は通信販売オークションの状態が丸ごと保存・復元されることを検証する。
 // 出品中の品・落札済みの品・金銭明細と評判を配置し、SaveWorld/LoadWorld を往復させる。
 func TestSerdeAuctionRoundtrip(t *testing.T) {

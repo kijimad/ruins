@@ -935,6 +935,9 @@ msgstr "切り傷"
 msgid "Liver illness"
 msgstr "肝疾患"
 
+msgid "Food poisoning"
+msgstr "食あたり"
+
 msgid "The body is dangerously cold. Warm up to recover."
 msgstr "体が危険なほど冷えている。暖まれば回復する。"
 
@@ -946,6 +949,30 @@ msgstr "傷口が開いている。治療するまで回復しない。"
 
 msgid "It worsens while untreated and drains HP when severe."
 msgstr "放置すると悪化し、重症になると HP を削る。"
+
+msgid "Nausea from bad food. It clears on its own over time."
+msgstr "傷んだ食べ物による吐き気。時間が経てば自然に治る。"
+
+msgid "Nothing to treat."
+msgstr "治療する不調がない。"
+
+msgid "Blood"
+msgstr "血液量"
+
+msgid "Blood loss"
+msgstr "失血"
+
+msgid "HP loss"
+msgstr "体力減少"
+
+msgid "Blood volume. Bleeding and severe conditions lower it"
+msgstr "血液量。出血や重い不調で下がる"
+
+msgid "Critically low. Bleeding out and losing HP"
+msgstr "危険なほど低い。失血して体力を失う"
+
+msgid "Potency"
+msgstr "効力"
 
 msgid "Treatment"
 msgstr "治療"
@@ -1572,7 +1599,7 @@ msgstr "%sと話した。"
 msgid "%s handed over %s to %s."
 msgstr "%s は %s を %s に渡した。"
 
-msgid "%s ate %s"
+msgid "%s ate %s."
 msgstr "%s は %s を食べた。"
 
 msgid "%s ate fresh %s."
@@ -5888,3 +5915,45 @@ msgstr "日が昇った。"
 
 msgid "The sun sets."
 msgstr "日が沈んだ。"
+
+msgid "%s suffered %s on the %s."
+msgstr "%s は %s を %s に負った。"
+
+msgid "%s used %s and treated %s."
+msgstr "%s は %s を使い %s を治療した。"
+
+msgid "Splint"
+msgstr "添え木"
+
+msgid "A splint. Set a broken bone so it can heal."
+msgstr "添え木。折れた骨を固定して治す。"
+
+msgid "Bandage"
+msgstr "包帯"
+
+msgid "A bandage. Close an open wound so it stops bleeding."
+msgstr "包帯。開いた傷を塞いで出血を止める。"
+
+msgid "Treated by"
+msgstr "治し方"
+
+msgid "You contracted %s."
+msgstr "%s を発症した。"
+
+msgid "Cause of death"
+msgstr "死因"
+
+msgid "froze to death"
+msgstr "凍死"
+
+msgid "died of illness"
+msgstr "病死"
+
+msgid "bled out"
+msgstr "失血死"
+
+msgid "killed in battle"
+msgstr "戦闘で斃れた"
+
+msgid "debug"
+msgstr "デバッグ"

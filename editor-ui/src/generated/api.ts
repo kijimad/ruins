@@ -422,15 +422,6 @@ export interface Book {
     'skill'?: SkillBook;
 }
 /**
- * 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
- */
-export interface Burning {
-    /**
-     * 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する
-     */
-    'remaining': number;
-}
-/**
  * 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
  */
 
@@ -849,6 +840,7 @@ export interface Item {
     'stageLength'?: number;
     'consumable'?: Consumable;
     'providesHealing'?: ProvidesHealing;
+    'remedy'?: Remedy;
     'wearable'?: Wearable;
     'equipBonus'?: EquipBonus;
     'ammo'?: Ammo;
@@ -1258,7 +1250,6 @@ export interface Prop {
     'hp'?: number;
     'lightSource'?: LightSource;
     'heatSource'?: HeatSource;
-    'burning'?: Burning;
     /**
      * 扉ローデータ
      */
@@ -1380,6 +1371,16 @@ export interface RecipeInput {
 export interface RecipeList {
     'data': Array<Recipe>;
     'totalCount': number;
+}
+/**
+ * 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+ */
+export interface Remedy {
+    'treats': Array<string>;
+    /**
+     * 治療の質。基準100の倍率。100が標準、150で回復1.5倍
+     */
+    'potency': number;
 }
 /**
  * 能力値

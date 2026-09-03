@@ -130,9 +130,9 @@ func TestRecalculateCharModifiers_HealthPenalty(t *testing.T) {
 
 	// 不調は MoveCost へ直接足さず身体機能 Capacities に一本化する
 	assert.Equal(t, 100, int(mods.MoveCost), "低体温は MoveCost へ足さない")
-	// 中度の全身性低体温 6/20: 痛み6*2=12、意識=100-40-12/2=54。
-	// 局所低下は無いので操作・歩行・視覚はいずれも意識乗数だけを受けて54
-	assert.Equal(t, BodyCapacities{Pain: 12, Consciousness: 54, Manipulation: 54, Moving: 54, Sight: 54}, mods.Capacities)
+	// 中度の全身性低体温 6/10: 痛み6*2=12、意識=100-20-12/2=74。
+	// 局所低下は無いので操作・歩行・視覚はいずれも意識乗数だけを受けて74
+	assert.Equal(t, BodyCapacities{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 74, Moving: 74, Sight: 74}, mods.Capacities)
 }
 
 func TestRecalculateCharModifiers_NilAbilsAndHS(t *testing.T) {
@@ -206,8 +206,8 @@ func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
 
 	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82。低体温は MoveCost へ足さない
 	assert.Equal(t, 82, int(mods.MoveCost))
-	// 重度の全身性低体温 6/20 は身体機能へ効く。意識=100-60-18/2=31、歩行=100*31/100=31
-	assert.Equal(t, 31, int(mods.Capacities.Moving))
+	// 重度の全身性低体温 6/10 は身体機能へ効く。意識=100-30-18/2=61、歩行=100*61/100=61
+	assert.Equal(t, 61, int(mods.Capacities.Moving))
 
 	// Sourcesはスキルと能力値の2要因。健康は Capacities 側なので MoveCost には載らない
 	sources := mods.Sources[ModMoveCost]
@@ -230,6 +230,33 @@ func TestRecalculateCharModifiers_FireAbility(t *testing.T) {
 	assert.Equal(t, 132, int(mods.WeaponDamage[SkillRifle]))
 	// 小銃Lv4 + SEN12: 命中 = 100 + 4*3 + 12*1 = 124
 	assert.Equal(t, 124, int(mods.WeaponAccuracy[SkillRifle]))
+}
+
+func TestRecalculateCharModifiers_AccuracyFoldsCapacity(t *testing.T) {
+	t.Parallel()
+
+	skills := NewSkills()
+	hs := &HealthStatus{
+		Parts: [BodyPartCount]BodyPartHealth{},
+	}
+	hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{
+		Type:     ConditionHypothermia,
+		Severity: SeverityMedium,
+	})
+
+	mods := RecalculateCharModifiers(skills, nil, hs)
+
+	// 中度の全身性低体温で操作・視覚は74。スキルLv0の基礎命中100×74%=74
+	assert.Equal(t, 74, int(mods.WeaponAccuracy[SkillSword]), "近接は操作機能を畳み込む")
+	assert.Equal(t, 74, int(mods.WeaponAccuracy[SkillBow]), "遠隔は視覚機能を畳み込む")
+
+	// 内訳の末尾に身体機能の加法差分が載る。100→74 なので -26
+	swordSrc := mods.Sources[ModSwordAccuracy]
+	assert.Equal(t, "Manipulation 74%", swordSrc[len(swordSrc)-1].Label)
+	assert.Equal(t, -26, swordSrc[len(swordSrc)-1].Value)
+	bowSrc := mods.Sources[ModBowAccuracy]
+	assert.Equal(t, "Sight 74%", bowSrc[len(bowSrc)-1].Label)
+	assert.Equal(t, -26, bowSrc[len(bowSrc)-1].Value)
 }
 
 func TestRecalculateCharModifiers_ElementResistAllTypes(t *testing.T) {

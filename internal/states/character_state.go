@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
+	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -364,7 +365,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		return overlay.DetailContent{Name: item.Label}
 	}
 
-	pain, capacity, drop := gc.ConditionCapacityImpact(cond.Type, item.BodyPart, cond.Severity)
+	pain, capacity, drop := gc.ConditionCapacityImpact(cond, item.BodyPart)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
@@ -376,9 +377,36 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	if drop > 0 {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf("-%d", drop)})
 	}
+	// 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
+	if bd := gc.ConditionBloodDrop(cond); bd > 0 {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Blood loss"), Value: fmt.Sprintf("-%d", bd)})
+	}
+	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
+	if name, ok := remedyItemNameFor(world, cond.Type); ok {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Treated by"), Value: query.T(world, name)})
+	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),
 		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
 		Rows: rows,
 	}
+}
+
+// remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。
+// 健康タブに治し方を示すのに使う。見つからなければ ok=false。
+// 複数のアイテムが同じ不調を治せる場合は先頭の1件だけ返す。1症状に1種の治療アイテムを保つ前提
+func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {
+	items := raw.PtrSlice(world.Resources.RawMaster.Items)
+	for i := range items {
+		it := &items[i]
+		if it.Remedy == nil {
+			continue
+		}
+		for _, t := range it.Remedy.Treats {
+			if gc.ConditionType(t) == ct {
+				return it.Name, true
+			}
+		}
+	}
+	return "", false
 }

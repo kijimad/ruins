@@ -55,10 +55,6 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 		return gc.InvalidEntity, fmt.Errorf("%w: %w", ErrMemberGeneration, err)
 	}
 
-	skills := gc.NewSkills()
-	entitySpec.Skills = skills
-	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
-
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	center := consts.TileCenterToWorld(pos)
 	entitySpec.Camera = &gc.Camera{
@@ -70,7 +66,6 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 		Dist:    gc.CameraDefaultDist,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
-	entitySpec.HealthStatus = &gc.HealthStatus{}
 	playerEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 
 	if err := FullRecover(world, playerEntity); err != nil {
@@ -89,6 +84,22 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 		return gc.InvalidEntity, fmt.Errorf("failed to give starting torch: %w", err)
 	}
 	MoveToEquip(world, torch, playerEntity, gc.SlotWeapon1)
+
+	// 初期の治療キット。切り傷用の包帯と骨折用の添え木を少量持たせる。切り傷のほうが起きやすいので包帯を多め
+	for _, kit := range []struct {
+		name  string
+		count int
+	}{{"bandage", 2}, {"splint", 1}} {
+		for range kit.count {
+			item, err := spawnItemBase(world, kit.name)
+			if err != nil {
+				return gc.InvalidEntity, fmt.Errorf("failed to spawn starting %s: %w", kit.name, err)
+			}
+			if err := MoveToBackpack(world, item, playerEntity); err != nil {
+				return gc.InvalidEntity, fmt.Errorf("failed to give starting %s: %w", kit.name, err)
+			}
+		}
+	}
 
 	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil

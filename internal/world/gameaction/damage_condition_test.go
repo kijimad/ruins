@@ -75,3 +75,41 @@ func TestApplyConditionDamage(t *testing.T) {
 		assert.Empty(t, rs.Cause, "敵の死では死因を記録しない")
 	})
 }
+
+func TestApplyDamage_戦闘死はkilledを記録する(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーの戦闘死は killed", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "bat")
+		require.NoError(t, err)
+		world.Components.HP.Get(player).Current = 3
+
+		ApplyDamage(world, player, 10, enemy)
+
+		require.True(t, world.Components.Dead.Has(player))
+		rs := query.GetRunStats(world)
+		require.NotNil(t, rs)
+		assert.Equal(t, gc.CauseKilled, rs.Cause)
+	})
+
+	t.Run("敵の戦闘死では死因を記録しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
+		require.NoError(t, err)
+		world.Components.HP.Get(enemy).Current = 1
+
+		ApplyDamage(world, enemy, 10, player)
+
+		require.True(t, world.Components.Dead.Has(enemy))
+		rs := query.GetRunStats(world)
+		require.NotNil(t, rs)
+		assert.Empty(t, rs.Cause)
+	})
+}

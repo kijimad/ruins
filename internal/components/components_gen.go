@@ -71,6 +71,7 @@ type EntitySpec struct {
 	ProvidesHealing    *ProvidesHealing
 	ProvidesNutrition  *ProvidesNutrition
 	InflictsDamage     *InflictsDamage
+	Remedy             *Remedy
 	Book               *Book
 	CommandTable       *CommandTable
 	DropTable          *DropTable
@@ -158,6 +159,7 @@ type Components struct {
 	ProvidesHealing    *ecs.Map[ProvidesHealing]
 	ProvidesNutrition  *ecs.Map[ProvidesNutrition]
 	InflictsDamage     *ecs.Map[InflictsDamage]
+	Remedy             *ecs.Map[Remedy]
 	Book               *ecs.Map[Book]
 	CommandTable       *ecs.Map[CommandTable]
 	DropTable          *ecs.Map[DropTable]
@@ -245,6 +247,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.ProvidesHealing = ecs.NewMap[ProvidesHealing](world)
 	c.ProvidesNutrition = ecs.NewMap[ProvidesNutrition](world)
 	c.InflictsDamage = ecs.NewMap[InflictsDamage](world)
+	c.Remedy = ecs.NewMap[Remedy](world)
 	c.Book = ecs.NewMap[Book](world)
 	c.CommandTable = ecs.NewMap[CommandTable](world)
 	c.DropTable = ecs.NewMap[DropTable](world)
@@ -334,6 +337,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.ProvidesHealing, entity, spec.ProvidesHealing)
 	addComp(c.ProvidesNutrition, entity, spec.ProvidesNutrition)
 	addComp(c.InflictsDamage, entity, spec.InflictsDamage)
+	addComp(c.Remedy, entity, spec.Remedy)
 	addComp(c.Book, entity, spec.Book)
 	addComp(c.CommandTable, entity, spec.CommandTable)
 	addComp(c.DropTable, entity, spec.DropTable)

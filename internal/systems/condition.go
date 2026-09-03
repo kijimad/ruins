@@ -68,14 +68,6 @@ func (sys *ConditionSystem) Update(world w.World) error {
 					}
 				}
 
-				if cond.Severity == gc.SeveritySevere && def.HPDamage > 0 && hasHP {
-					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.HPDamage, cause: def.Cause})
-				}
-
-				// 外傷は未治療で発症中のあいだ失血する。治療すると出血が止まり回復軌道へ乗る
-				if cond.IsBleeding(def) && hasHP {
-					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.BleedPer, cause: def.Cause})
-				}
 			}
 
 			// Timer が 0 になった管理下の不調を除去する
@@ -85,7 +77,15 @@ func (sys *ConditionSystem) Update(world w.World) error {
 			})
 		}
 
-		if changed && world.Components.Player.Has(entity) {
+		// 血液量が危険域まで落ちたら、じわじわ HP を削る。失血・凍死・衰弱はすべて血液量経由で死なせる
+		if hasHP {
+			if drain, cause := hs.BloodLossHPDrain(); drain > 0 {
+				toDamage = append(toDamage, conditionDamage{entity: entity, amount: drain, cause: cause})
+			}
+		}
+
+		// 不調が進むと capacity が変わるので、効率倍率を持つ者は再計算を促す
+		if changed && world.Components.CharModifiers.Has(entity) {
 			toMark = append(toMark, entity)
 		}
 	}
@@ -124,6 +124,13 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 		rec := cond.TendQuality.ApplyInt(def.RecoverPer)
 		rec = metab.ApplyInt(rec)
 		return -float64(rec)
+	case gc.RecoverOverTime:
+		// 自己限定。未治療でも代謝で自然に治る。治療すればその質でさらに速まる
+		rec := def.RecoverPer
+		if cond.TendQuality > 0 {
+			rec = cond.TendQuality.ApplyInt(rec)
+		}
+		return -float64(metab.ApplyInt(rec))
 	}
 	// default を置くと exhaustive linter が沈黙するので置かない。内部の信頼できる値なので未知は panic する
 	panic("unknown RecoveryMode: " + string(def.Recovery))

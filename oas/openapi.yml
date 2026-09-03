@@ -1938,6 +1938,10 @@ components:
         totalCount:
           type: integer
       description: コマンドテーブル一覧
+    ConditionTypeName:
+      type: string
+      minLength: 1
+      description: 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値
     Consumable:
       type: object
       required:
@@ -2401,6 +2405,8 @@ components:
           $ref: '#/components/schemas/Consumable'
         providesHealing:
           $ref: '#/components/schemas/ProvidesHealing'
+        remedy:
+          $ref: '#/components/schemas/Remedy'
         wearable:
           $ref: '#/components/schemas/Wearable'
         equipBonus:
@@ -2782,6 +2788,11 @@ components:
       minimum: 0
       maximum: 9999
       description: 通行コスト加算値。0で変化なし、50でベースコスト+50
+    Potency:
+      type: integer
+      minimum: 0
+      maximum: 9999
+      description: 治療の質。基準100の倍率。100が標準、150で回復1.5倍
     Profession:
       type: object
       required:
@@ -3062,6 +3073,19 @@ components:
       minimum: 1
       maximum: 100
       description: リロードに必要な行動力
+    Remedy:
+      type: object
+      required:
+        - treats
+        - potency
+      properties:
+        treats:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConditionTypeName'
+        potency:
+          $ref: '#/components/schemas/Potency'
+      description: 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
     SaveData.AbilitiesComponent:
       type: object
       required:

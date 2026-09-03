@@ -391,11 +391,26 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}
 
-	// プレイヤーの体温状態バッジ
-	tempQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
-	for tempQuery.Next() {
-		if badge, ok := temperatureStateBadge(world, tempQuery.Entity()); ok {
+	// プレイヤーの体温バッジと不調バッジ。同じ Player+HealthStatus を1度だけ走査する。
+	// 低体温は体温バッジが担うので不調バッジには重複させない
+	healthQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
+	for healthQuery.Next() {
+		entity := healthQuery.Entity()
+		if badge, ok := temperatureStateBadge(world, entity); ok {
 			badges = append(badges, badge)
+		}
+		hs := world.Components.HealthStatus.Get(entity)
+		for i := range hs.Parts {
+			for j := range hs.Parts[i].Conditions {
+				c := &hs.Parts[i].Conditions[j]
+				if !c.IsActive() || c.Type == gc.ConditionHypothermia {
+					continue
+				}
+				badges = append(badges, hud.StatusBadge{
+					Text:  c.DisplayName(),
+					Color: color.RGBA{200, 80, 70, 255},
+				})
+			}
 		}
 	}
 

@@ -100,6 +100,15 @@ scalar HealAmount extends integer;
 @maxValue(1)
 scalar HealRatio extends float64;
 
+/** 治療の質。基準100の倍率。100が標準、150で回復1.5倍 */
+@minValue(0)
+@maxValue(9999)
+scalar Potency extends integer;
+
+/** 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値 */
+@minLength(1)
+scalar ConditionTypeName extends string;
+
 /** 画像ファイルパス */
 @minLength(1)
 @maxLength(200)

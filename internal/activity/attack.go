@@ -306,6 +306,8 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	growWeaponSkill(actor, world, attack)
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
+	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
+	applyInjury(actor, target, world, attack)
 
 	// 被ダメージで中断可能なアクティビティをキャンセルする
 	if comp := query.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
@@ -329,17 +331,12 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 		targetAgility = targetAbilsComp.Agility.Total
 	}
 
-	// 基礎命中は反射神経 DEX と対象の回避の対抗。武器習熟の能力値は WeaponAccuracy 側が畳むのでここには足さない
+	// 基礎命中は反射神経 DEX と対象の回避の対抗。武器習熟の能力値と体調由来の
+	// 命中低下は WeaponAccuracy 側が畳むのでここには足さない
 	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
 	hitRate += getWeaponAccuracyFromAttack(attack)
 	hitRate = getSkillMult(attacker, attack, world, false).ApplyInt(hitRate)
 	hitRate += modifier
-
-	// 体調由来の命中低下を掛ける。CharModifiers を持たない攻撃者は身体機能ペナルティを受けず等倍
-	if world.Components.CharModifiers.Has(attacker) {
-		aim := world.Components.CharModifiers.Get(attacker).AccuracyCapacity(attack.GetAttackCategory())
-		hitRate = aim.ApplyInt(hitRate)
-	}
 
 	return formula.ClampHitRate(hitRate)
 }
@@ -399,6 +396,10 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
 func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
+	// スキル成長は味方側の進行要素。敵も Skills を持つが戦闘中に強くならないよう除外する
+	if query.IsEnemy(world, actor) {
+		return
+	}
 	if !world.Components.Skills.Has(actor) {
 		return
 	}

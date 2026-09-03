@@ -16,6 +16,25 @@ import (
 // breadID はテストで多用する腐敗食の同定キー
 const breadID = "bread"
 
+func TestSpawnPlayer_初期治療キットを持つ(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	counts := map[string]int{}
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInBackpack.Get(e).Owner == player {
+			counts[world.Components.RawID.Get(e).ID]++
+		}
+	}
+	assert.Equal(t, 2, counts["bandage"], "切り傷用の包帯を2つ持つ")
+	assert.Equal(t, 1, counts["splint"], "骨折用の添え木を1つ持つ")
+}
+
 func TestSetMaxStats(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

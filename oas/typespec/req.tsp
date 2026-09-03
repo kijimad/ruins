@@ -16,6 +16,12 @@ model ProvidesHealing {
   ratio: HealRatio;
 }
 
+/** 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする */
+model Remedy {
+  treats: ConditionTypeName[];
+  potency: Potency;
+}
+
 /** 装備可能設定 */
 model Wearable {
   defense: ArmorDefense;
@@ -96,6 +102,7 @@ model Item {
   stageLength?: StageLengthTurns;
   consumable?: Consumable;
   providesHealing?: ProvidesHealing;
+  remedy?: Remedy;
   wearable?: Wearable;
   equipBonus?: EquipBonus;
   ammo?: Ammo;

@@ -218,6 +218,24 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 	assert.Equal(t, 0, skills.Get(gc.SkillHandgun).Exp.Current, "拳銃スキルは変わらない")
 }
 
+func TestGrowWeaponSkill_敵は成長しない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.FactionEnemy.Add(actor, &gc.FactionEnemy{})
+
+	skills := gc.NewSkills()
+	world.Components.Skills.Add(actor, skills)
+	abils := &gc.Abilities{Sensation: gc.Ability{Total: 10}}
+	world.Components.Abilities.Add(actor, abils)
+
+	growWeaponSkill(actor, world, &gc.Fire{AttackCategory: gc.AttackRifle})
+
+	// 敵は Skills を持っても戦闘中に成長しない。スキル成長は味方側の進行要素
+	assert.Equal(t, 0, skills.Get(gc.SkillRifle).Exp.Current, "敵はスキル成長しない")
+}
+
 func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 	t.Parallel()
 
@@ -299,8 +317,8 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	// 再計算されたCharModifiersにHealthStatusの身体機能が反映されている
 	mods := world.Components.CharModifiers.Get(actor)
 	require.NotNil(t, mods)
-	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-20-6/2=77、歩行=77
-	assert.Equal(t, 77, int(mods.Capacities.Moving), "HealthStatusが CharModifiers の身体機能へ反映される")
+	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=87
+	assert.Equal(t, 87, int(mods.Capacities.Moving), "HealthStatusが CharModifiers の身体機能へ反映される")
 }
 
 func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {

@@ -36,6 +36,12 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 	reactToHostileAction(world, target)
 
 	if died {
+		// 戦闘のダメージで倒れたプレイヤーは戦闘死として死因を記録する
+		if isPlayerEntity(target, world) {
+			if rs := query.GetRunStats(world); rs != nil {
+				rs.Cause = gc.CauseKilled
+			}
+		}
 		logDeath(world, target, source)
 	}
 }

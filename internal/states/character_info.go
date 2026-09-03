@@ -171,9 +171,20 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		}
 	}
 
+	// 血液量が危険域まで落ちると失血で HP が減る。一覧は % だけにし、減少量は詳細モーダルの内訳に出す
+	bloodDesc := query.T(world, "Blood volume. Bleeding and severe conditions lower it")
+	var bloodDetails []statusDetailRow
+	if world.Components.HealthStatus.Has(playerEntity) {
+		if drain, _ := world.Components.HealthStatus.Get(playerEntity).BloodLossHPDrain(); drain > 0 {
+			bloodDesc = query.T(world, "Critically low. Bleeding out and losing HP")
+			bloodDetails = []statusDetailRow{{Label: query.T(world, "HP loss"), Value: fmt.Sprintf("-%d", drain)}}
+		}
+	}
+
 	items = append(items, statusItemData{Label: query.T(world, "Body function"), IsHeader: true, Description: query.T(world, "Body capacities lowered by injuries and illness")})
 	items = append(items,
 		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", e.Capacities.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
+		statusItemData{Label: query.T(world, "Blood"), Value: fmt.Sprintf("%d%%", e.Capacities.Blood), Description: bloodDesc, Details: bloodDetails},
 		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", e.Capacities.Consciousness), Description: query.T(world, "Master capacity. Multiplies all others")},
 		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", e.Capacities.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
 		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", e.Capacities.Moving), Description: query.T(world, "Affects move speed")},

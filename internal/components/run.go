@@ -12,9 +12,30 @@ const (
 	CauseIllness DeathCause = "illness"
 	// CauseBloodLoss は外傷の失血で死んだときの死因
 	CauseBloodLoss DeathCause = "blood_loss"
+	// CauseKilled は戦闘のダメージで倒れたときの死因
+	CauseKilled DeathCause = "killed"
 	// CauseDebug はデバッグで結果画面を確認するための死因
 	CauseDebug DeathCause = "debug"
 )
+
+// deathCauseDisplayNames は死因ごとの表示名 msgid。結果画面が query.T で訳す。
+// データなので表で持ち、死因を足すときはここへ1行足す
+var deathCauseDisplayNames = map[DeathCause]string{
+	CauseFrozen:    "froze to death",
+	CauseIllness:   "died of illness",
+	CauseBloodLoss: "bled out",
+	CauseKilled:    "killed in battle",
+	CauseDebug:     "debug",
+}
+
+// DisplayName は死因の表示名 msgid を返す。
+// 未登録の死因は素の文字列へ落とし、未信頼な旧セーブ値もこの経路で受ける
+func (c DeathCause) DisplayName() string {
+	if name, ok := deathCauseDisplayNames[c]; ok {
+		return name
+	}
+	return string(c)
+}
 
 // RunStats は run を通じて貯める統計を保持するシングルトン。run 中ずっと存在し serde 保存する。
 // 撃破・漁り・売上を積み上げ、決着時に死因を記録する。結果画面と道中の統計画面が読む。

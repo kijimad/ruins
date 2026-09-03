@@ -277,6 +277,16 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if item.InflictsDamage != nil {
 		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
 	}
+	if item.Remedy != nil {
+		treats := make([]gc.ConditionType, 0, len(item.Remedy.Treats))
+		for _, t := range item.Remedy.Treats {
+			treats = append(treats, gc.ConditionType(t))
+		}
+		entitySpec.Remedy = &gc.Remedy{
+			Treats:  treats,
+			Potency: consts.Percent(item.Remedy.Potency),
+		}
+	}
 
 	if item.Ammo != nil {
 		var ammoAmmoTag oapi.AmmoTag
@@ -454,6 +464,11 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.WeightCapacity = &gc.WeightCapacity{}
 	// 体重は能力値の体格から算出する。売買や運搬で member 自身の重量として扱う
 	entitySpec.Weight = &gc.Weight{Milligram: entitySpec.Abilities.BodyWeight()}
+
+	// 戦闘者共通の健康・効率機構。不調が capacity を下げ、命中や速度へ効く
+	entitySpec.Skills = gc.NewSkills()
+	entitySpec.HealthStatus = &gc.HealthStatus{}
+	entitySpec.CharModifiers = gc.RecalculateCharModifiers(entitySpec.Skills, entitySpec.Abilities, entitySpec.HealthStatus)
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}

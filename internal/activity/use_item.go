@@ -2,6 +2,7 @@ package activity
 
 import (
 	"fmt"
+	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -50,18 +51,30 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 	item := p.Target
 
-	// 何らかの効果があるかチェック
-	hasEffect := world.Components.ProvidesHealing.Has(item) ||
-		world.Components.ProvidesNutrition.Has(item) ||
-		world.Components.InflictsDamage.Has(item)
-
 	// Use は効果のあるアイテムにしか提示されない。ここで効果なしなのは不変条件違反
+	hasEffect := false
+	for _, e := range useEffects {
+		if e.present(world, item) {
+			hasEffect = true
+			break
+		}
+	}
 	if !hasEffect {
 		return fmt.Errorf("item has no effect")
 	}
 
 	if !world.Components.HP.Has(actor) {
 		return fmt.Errorf("actor has no HP component")
+	}
+
+	// 各効果の使用前検証。空振りなど使えない理由があれば使う前に弾く
+	for _, e := range useEffects {
+		if !e.present(world, item) {
+			continue
+		}
+		if err := e.check(u, actor, item, world); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -85,32 +98,18 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	item := p.Target
 
-	// 回復効果があるかチェック
-	if world.Components.ProvidesHealing.Has(item) {
-		healing := world.Components.ProvidesHealing.Get(item)
-		if err := u.applyHealing(comp, actor, world, healing, item); err != nil {
-			Cancel(comp, fmt.Sprintf("healing processing error: %s", err.Error()))
+	// アイテムが持つ効果を順に適用する。効果の一覧は useEffects が単一の真実
+	for _, e := range useEffects {
+		if !e.present(world, item) {
+			continue
+		}
+		if err := e.apply(u, comp, actor, item, world); err != nil {
+			Cancel(comp, fmt.Sprintf("use effect error: %s", err.Error()))
 			return err
 		}
 	}
 
-	// 空腹度回復効果があるかチェック
-	if world.Components.ProvidesNutrition.Has(item) {
-		nutrition := world.Components.ProvidesNutrition.Get(item)
-		if err := u.applyNutrition(comp, actor, world, nutrition.Amount, item); err != nil {
-			Cancel(comp, fmt.Sprintf("nutrition recovery processing error: %s", err.Error()))
-			return err
-		}
-	}
-
-	// ダメージ効果があるかチェック
-	if world.Components.InflictsDamage.Has(item) {
-		damage := world.Components.InflictsDamage.Get(item)
-		// 共通のダメージ処理を使用
-		gameaction.ApplyDamage(world, actor, damage.Amount, actor)
-	}
-
-	// 消費可能アイテムの場合は削除または個数を減らす
+	// 消費可能アイテムの場合は削除または個数を減らす。効果を適用した後に行う
 	if world.Components.Consumable.Has(item) {
 		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("failed to consume item: %w", err)
@@ -155,8 +154,72 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
+// mostSevereTreatable は Treats に一致する不調を全部位から探し、最も重い1つを返す。無ければ nil。
+// Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
+func mostSevereTreatable(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
+	var best *gc.HealthCondition
+	for i := range hs.Parts {
+		for j := range hs.Parts[i].Conditions {
+			c := &hs.Parts[i].Conditions[j]
+			if slices.Contains(remedy.Treats, c.Type) && (best == nil || c.Severity > best.Severity) {
+				best = c
+			}
+		}
+	}
+	return best
+}
+
+// applyRemedy は治療を適用する。最も重い一致不調を治療済みにする。
+// 治療は即座には治さず、TendQuality を立てて回復軌道へ乗せるだけ。実際の回復は ConditionSystem が進める。
+// 治療した不調があれば true を返す。一致する不調が無ければ何もせず false を返す
+func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
+	if !world.Components.HealthStatus.Has(actor) {
+		return false
+	}
+	best := mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy)
+	if best == nil {
+		return false
+	}
+	best.TendQuality = remedy.Potency
+	u.logRemedy(actor, world, item, best.Type)
+	return true
+}
+
+// isRemedyOnly はアイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く。
+// 治療以外の効果を1つでも持てば専用でない。useEffects を見るので効果を足しても追従する
+func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
+	if !world.Components.Remedy.Has(item) {
+		return false
+	}
+	for _, e := range useEffects {
+		if _, isRemedy := e.(remedyEffect); isRemedy {
+			continue
+		}
+		if e.present(world, item) {
+			return false
+		}
+	}
+	return true
+}
+
+// logRemedy は治療したことをログに出す。プレイヤーが使ったときだけ出す
+func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.Entity, treated gc.ConditionType) {
+	if !world.Components.Player.Has(actor) {
+		return
+	}
+	actorMarkup := query.NameMarkup(actor, query.GetEntityName(actor, world), world)
+	itemMarkup := gamelog.Tag("item", u.getItemName(item, world))
+	condName := query.T(world, gc.ConditionTypeDisplayName(treated))
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "%s used %s and treated %s.", actorMarkup, itemMarkup, condName)).
+		Log()
+}
+
 // rottenNutritionPercent は腐敗した食料から得られる栄養の割合。満額の3割。
 const rottenNutritionPercent = 30
+
+// rottenIllnessChancePercent は腐敗食を食べたとき病気を発症する確率。値は実プレイで調整する
+const rottenIllnessChancePercent = 25
 
 // applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
 func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
@@ -186,6 +249,11 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		nutrition = 1
 	}
 	hunger.Increase(nutrition)
+
+	// 腐敗食は低確率で食中毒を起こす
+	if stage == gc.FreshnessRotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
+		gameaction.ContractIllness(world, actor, gc.ConditionFoodPoisoning)
+	}
 
 	isSatiated := hunger.GetLevel() == gc.HungerSatiated
 	u.logNutritionUse(actor, world, item, isSatiated)
@@ -230,7 +298,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 
 	// 腐敗する食料は鮮度を名前に添える。腐敗しない食料はそのまま
 	if stage, ok := query.FreshnessStageOf(world, item); !ok {
-		logger.Markup(query.T(world, "%s ate %s", actorMarkup, itemMarkup))
+		logger.Markup(query.T(world, "%s ate %s.", actorMarkup, itemMarkup))
 	} else {
 		switch stage {
 		case gc.FreshnessFresh:

@@ -43,14 +43,14 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("治療済みの骨折は質ぶん回復する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// RecoverPer=3、TendQuality=200%なので 3*2=6 減る
+		// RecoverPer=1、TendQuality=200%なので 1*2=2 減る
 		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, TendQuality: 200})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
 		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionFracture)
 		require.NotNil(t, cond)
-		assert.InDelta(t, 54, cond.Timer, 1e-9)
+		assert.InDelta(t, 58, cond.Timer, 1e-9)
 	})
 
 	t.Run("発症前の掠り傷は自然に癒える", func(t *testing.T) {
@@ -81,14 +81,40 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("治療済みの病気は回復する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// 能力も満腹度も無いので代謝100%。RecoverPer=3、TendQuality=100%なので 3 減る
+		// 能力も満腹度も無いので代謝100%。RecoverPer=1、TendQuality=100%なので 1 減る
 		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionLiverIllness, Timer: 60, TendQuality: 100})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
 		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionLiverIllness)
 		require.NotNil(t, cond)
-		assert.InDelta(t, 57, cond.Timer, 1e-9)
+		assert.InDelta(t, 59, cond.Timer, 1e-9)
+	})
+
+	t.Run("未治療の食中毒は自然に治る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 代謝100%、RecoverPer=2 なので未治療でも 2 減る。自己限定型の要
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60})
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
+		require.NotNil(t, cond)
+		assert.InDelta(t, 58, cond.Timer, 1e-9, "未治療でも時間で治る")
+	})
+
+	t.Run("治療した食中毒はより速く治る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// RecoverPer=2、TendQuality=150%なので 2*1.5=3 減る。治療で快復が早まる
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60, TendQuality: 150})
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
+		require.NotNil(t, cond)
+		assert.InDelta(t, 57, cond.Timer, 1e-9, "治療すると回復が速まる")
 	})
 
 	t.Run("重症の病気は毎ターンHPを削る", func(t *testing.T) {
@@ -103,23 +129,38 @@ func TestConditionSystem_Update(t *testing.T) {
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		// HPDamage=2 削られる
+		// 重症の病気が血液量を 25 まで落とし、失血で 2 削られる
 		assert.Equal(t, 28, world.Components.HP.Get(player).Current)
 	})
 
-	t.Run("未治療の切り傷は毎ターン失血する", func(t *testing.T) {
+	t.Run("応急処置した重症の病気はHPを削らない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 60, Severity: gc.TimerToSeverity(60)})
+		// 重症でも治療済みなら HP 減少は止まる。機能低下は軽減して残るが命は削られない
+		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{Type: gc.ConditionLiverIllness, Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 100})
 		world.Components.HP.Get(player).Current = 30
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		// BleedPer=1 削られる
-		assert.Equal(t, 29, world.Components.HP.Get(player).Current)
+		assert.Equal(t, 30, world.Components.HP.Get(player).Current, "治療でHP減少が止まる")
+	})
+
+	t.Run("未治療の重い切り傷は失血でHPを削る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		hs := world.Components.HealthStatus.Get(player)
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 80, Severity: gc.TimerToSeverity(80)})
+		world.Components.HP.Get(player).Current = 30
+
+		require.NoError(t, (&ConditionSystem{}).Update(world))
+
+		// 重い切り傷が血液量を 25 まで落とし、失血で 2 削られる
+		assert.Equal(t, 28, world.Components.HP.Get(player).Current)
 	})
 
 	t.Run("治療した切り傷は失血しない", func(t *testing.T) {
@@ -153,7 +194,7 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("Timerが0になると不調は消える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// Timer=1 に RecoverPer=3 の回復が来るので0でクランプされ除去される
+		// Timer=1 に RecoverPer=1 の回復が来るので0でクランプされ除去される
 		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 1, TendQuality: 100})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
@@ -166,7 +207,7 @@ func TestManagedConditionDef_扱う不調を網羅しHypothermiaを含まない(
 	t.Parallel()
 
 	// ConditionSystem が扱う怪我と病気は Recovery を持ち managed になる。登録漏れは動作不全になる
-	for _, ct := range []gc.ConditionType{gc.ConditionFracture, gc.ConditionLaceration, gc.ConditionLiverIllness} {
+	for _, ct := range []gc.ConditionType{gc.ConditionFracture, gc.ConditionLaceration, gc.ConditionLiverIllness, gc.ConditionFoodPoisoning} {
 		_, ok := managedConditionDef(ct)
 		assert.True(t, ok, "%s は ConditionSystem 管轄であるべき", gc.ConditionTypeDisplayName(ct))
 	}

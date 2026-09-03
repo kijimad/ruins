@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -386,6 +387,44 @@ func TestUseItemBehavior_applyNutrition_鮮度で減っても最低1は与える
 	require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 1, bread))
 
 	assert.Equal(t, 101, world.Components.Hunger.Get(actor).Current, "腐敗でも最低1は回復する")
+}
+
+func TestUseItemBehavior_applyNutrition_腐敗食は食中毒を起こしうる(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		seed         uint64 // NewPCG(seed,0) の初回 IntN(100)。25 未満で発症する
+		wantContract bool
+	}{
+		{"低い目で発症する", 4, true},   // 初回 11 < 25
+		{"高い目で発症しない", 1, false}, // 初回 59 >= 25
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
+			require.NoError(t, err)
+			query.GetGameTime(world).TotalTurns = 3000 // 腐敗
+			world.Resources.Config.RNG = rand.New(rand.NewPCG(tt.seed, 0))
+
+			// Player を付けないのでログ経路を避けつつ、HealthStatus で発症先を用意する
+			actor := world.ECS.NewEntity()
+			world.Components.Hunger.Add(actor, gc.NewHunger())
+			world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
+
+			u := &UseItemBehavior{}
+			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 30, bread))
+
+			cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
+			if tt.wantContract {
+				require.NotNil(t, cond, "腐敗食で食中毒を発症する")
+			} else {
+				assert.Nil(t, cond, "閾値を超えた目では発症しない")
+			}
+		})
+	}
 }
 
 func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
