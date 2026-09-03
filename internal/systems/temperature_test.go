@@ -133,6 +133,23 @@ func TestAmbientTemperatureAt_オーバーワールドの屋内タイルは世�
 	assert.Equal(t, -10, temp, "オーバーワールドの屋内は世界温度 -20 の半分 -10 になる")
 }
 
+func TestAmbientTemperatureAt_熱源は環境気温を押し上げる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20。焚き火と同じ warmth 0.75 の熱源を同じタイルに置く
+	query.GetGameTime(world).TotalTurns = 24*1500 + 500
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	fire := world.ECS.NewEntity()
+	world.Components.GridElement.Add(fire, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+	world.Components.HeatSource.Add(fire, &gc.HeatSource{Radius: 2, Warmth: 0.75})
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -14, temp, "源泉の押し上げは 0.75*8=6℃ で -20 が -14 になる")
+}
+
 func TestAmbientTemperatureAt_半屋外タイルは世界温度を中間の強さで受ける(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

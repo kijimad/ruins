@@ -73,18 +73,31 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 		baseTemp = def.BaseTemperature()
 	}
 
+	// 水・植生の加算℃に熱源の押し上げを重ねた局所加算。屋内外に依らず効く
 	shelter, tileModifier := tileEnvironmentAt(world, x, y)
+	local := tileModifier + ambientHeatAt(world, x, y)
+
 	switch shelter {
 	case gc.ShelterFull:
 		// 屋内は世界温度を割って受ける。世界が寒いほど屋内も寒くなるが、屋外ほど厳しくならない
-		return baseTemp + worldTemp/indoorInfluenceDivisor + tileModifier, nil
+		return baseTemp + worldTemp/indoorInfluenceDivisor + local, nil
 	case gc.ShelterPartial:
 		// 半屋外は中間の強さで受ける。係数は実プレイで調整する
-		return baseTemp + worldTemp*3/4 + tileModifier, nil
+		return baseTemp + worldTemp*3/4 + local, nil
 	case gc.ShelterNone:
 	}
 	// 屋外は世界温度をそのまま受ける。save 由来の未知の値も屋外へ落とす
-	return baseTemp + worldTemp + tileModifier, nil
+	return baseTemp + worldTemp + local, nil
+}
+
+// ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。
+// 体温タイマーへの直接回復とは別の効きで、火を焚けば周囲気温そのものが上がる。
+// 状態は持たず、毎回そのターンの熱源から平衡値を出す。値は実プレイで調整する
+const ambientHeatPerWarmth = 8
+
+// ambientHeatAt はタイル座標に届く熱源の環境気温への押し上げ℃を返す
+func ambientHeatAt(world w.World, x, y consts.Tile) int {
+	return int(math.Round(heatSourceWarmthAt(world, x, y) * ambientHeatPerWarmth))
 }
 
 // 体温の定数。値は実プレイで調整する
