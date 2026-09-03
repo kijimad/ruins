@@ -91,8 +91,7 @@ const (
 
 // GetSeasonalTemperature は経過日数から季節による世界温度のベース値を返す。
 // 春開始の区分正弦波で、春と秋が肩、夏がピーク、冬が底になる。四半期ごとに肩とピークを
-// 結ぶため肩の高さを春と秋で変えられ、振幅も暖側と寒側で非対称になる。冬だけが深く沈み、
-// 秋は春より寒い。季節は保存せず日数から導く。
+// 結ぶため肩の高さを春と秋で変えられ、振幅も暖側と寒側で非対称になる。季節は保存せず日数から導く。
 func (gt *GameTime) GetSeasonalTemperature() int {
 	// day 1 を春の中点かつ上昇位相の起点にする。位相の比較のため1年周期へ折り返す
 	phase := math.Mod(2*math.Pi*float64(gt.GetDayNumber()-1)/daysPerYear, 2*math.Pi)

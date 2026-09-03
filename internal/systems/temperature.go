@@ -48,18 +48,16 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 // あり続けるため。0℃ へ割るだけだと温暖時に屋内が屋外より寒くなる逆転が起きる。
 // 値は実プレイで調整する。
 const (
-	// indoorAnchorTemp は屋内温度の引き寄せ先
-	indoorAnchorTemp = 10
-	// indoorInfluenceDivisor は世界温度とアンカーの差を屋内が受ける割合の分母
+	indoorAnchorTemp       = 10
 	indoorInfluenceDivisor = 2
 )
 
-// indoorWorldTemp は屋内が受ける世界温度を返す。アンカーへ divisor ぶん引き寄せる
+// indoorWorldTemp は屋内が受ける世界温度を返す
 func indoorWorldTemp(worldTemp int) int {
 	return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)/indoorInfluenceDivisor
 }
 
-// semiOutdoorWorldTemp は半屋外が受ける世界温度を返す。屋内より弱くアンカーへ寄せる。係数は実プレイで調整する
+// semiOutdoorWorldTemp は半屋外が受ける世界温度を返す。係数は実プレイで調整する
 func semiOutdoorWorldTemp(worldTemp int) int {
 	return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)*3/4
 }
@@ -79,8 +77,7 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
 	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
 
-	// ステージの基本気温。オーバーワールドは0、ダンジョンは種別ごとに持つ。
-	// ダンジョンの定義が無ければ判定できないので0を返す
+	// ステージの基本気温。ダンジョンの定義が無ければ判定できないので0を返す
 	baseTemp := 0
 	if !query.IsOnOverworld(world) {
 		def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
@@ -90,16 +87,14 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 		baseTemp = def.BaseTemperature()
 	}
 
-	// 水・植生の加算℃に熱源の押し上げを重ねた局所加算。屋内外に依らず効く
+	// 屋内外に依らず効く局所加算
 	shelter, tileModifier := tileEnvironmentAt(world, x, y)
 	local := tileModifier + ambientHeatAt(world, x, y)
 
 	switch shelter {
 	case gc.ShelterFull:
-		// 屋内は世界温度をアンカーへ引き寄せて受ける。世界が寒いほど屋内も寒くなるが、屋外ほど厳しくならない
 		return baseTemp + indoorWorldTemp(worldTemp) + local, nil
 	case gc.ShelterPartial:
-		// 半屋外は屋内より弱くアンカーへ寄せて受ける
 		return baseTemp + semiOutdoorWorldTemp(worldTemp) + local, nil
 	case gc.ShelterNone:
 		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる

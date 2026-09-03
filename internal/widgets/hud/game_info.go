@@ -80,7 +80,7 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(cv, data)
 
-	// 周囲気温表示。所持重量の1行上
+	// 周囲気温表示
 	info.drawAmbientTemperature(cv, data)
 
 	// フロア情報（最後に描画して最前面に表示）

@@ -457,9 +457,8 @@ func shelterMsgid(shelter gc.ShelterType) string {
 	case gc.ShelterPartial:
 		return "Semi-outdoor"
 	case gc.ShelterNone:
-		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
 	}
-	// save 由来の未知の値も屋外へ落とす
+	// 未知の値は屋外へ落とす
 	return "Outdoor"
 }
 
