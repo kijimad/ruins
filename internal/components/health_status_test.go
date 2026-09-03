@@ -364,7 +364,7 @@ func TestConditionBloodDrop(t *testing.T) {
 	assert.Equal(t, 75, drop(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere}), "重症の病気は循環を落とす")
 	assert.Equal(t, 0, drop(HealthCondition{Type: ConditionLiverIllness, Severity: SeverityMedium}), "中度の病気は落とさない")
 	assert.Equal(t, 0, drop(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere, TendQuality: 100}), "治療した病気は落とさない")
-	assert.Equal(t, 75, drop(HealthCondition{Type: ConditionHypothermia, Severity: SeveritySevere}), "重症の低体温は循環を落とす")
+	assert.Equal(t, 66, drop(HealthCondition{Type: ConditionHypothermia, Severity: SeveritySevere}), "重症の低体温は 22*3 の循環低下")
 }
 
 func TestHealthStatus_BloodLoss(t *testing.T) {
