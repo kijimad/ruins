@@ -956,6 +956,9 @@ msgstr "傷んだ食べ物による吐き気。時間が経てば自然に治る
 msgid "Nothing to treat."
 msgstr "治療する不調がない。"
 
+msgid "HP loss"
+msgstr "体力減少"
+
 msgid "Potency"
 msgstr "効力"
 

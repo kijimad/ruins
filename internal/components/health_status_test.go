@@ -381,6 +381,20 @@ func TestHealthStatus_IsBleeding(t *testing.T) {
 	})
 }
 
+func TestConditionHPDrainPerTurn(t *testing.T) {
+	t.Parallel()
+
+	drain := func(c HealthCondition) int { return ConditionHPDrainPerTurn(&c) }
+
+	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)}), "未治療の切り傷は失血で1削る")
+	assert.Equal(t, 0, drain(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60), TendQuality: 100}), "治療した切り傷は削らない")
+	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere}), "重症の未治療の病気は削る")
+	assert.Equal(t, 0, drain(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere, TendQuality: 100}), "治療した病気は削らない")
+	assert.Equal(t, 0, drain(HealthCondition{Type: ConditionLiverIllness, Severity: SeverityMedium}), "中度の病気はまだ削らない")
+	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionHypothermia, Severity: SeveritySevere}), "重症の低体温は削る")
+	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionHypothermia, Severity: SeveritySevere, TendQuality: 100}), "低体温は温度駆動なので治療しても削り続ける")
+}
+
 func TestClamp(t *testing.T) {
 	t.Parallel()
 

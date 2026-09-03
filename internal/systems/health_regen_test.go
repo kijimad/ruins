@@ -102,4 +102,19 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		// 未治療で発症中の切り傷を抱えているあいだは失血を回復で打ち消さない
 		assert.Equal(t, 10, world.Components.HP.Get(entity).Current)
 	})
+
+	t.Run("重症の低体温でも自然回復しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		entity := world.ECS.NewEntity()
+		world.Components.HP.Add(entity, &gc.HP{Current: 10, Max: 30})
+		hs := &gc.HealthStatus{}
+		// 出血だけでなく、重症の低体温のように HP を削る不調があるあいだは回復を止める
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 90, Severity: gc.SeveritySevere})
+		world.Components.HealthStatus.Add(entity, hs)
+
+		require.NoError(t, (&HealthRegenSystem{}).Update(world))
+
+		assert.Equal(t, 10, world.Components.HP.Get(entity).Current)
+	})
 }

@@ -91,8 +91,6 @@ const (
 	bodyTempMax = 0.0
 	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
 	bodyTempHomeostasisPerTurn = 0.1
-	// hypothermiaSevereHPDamagePerTurn は重症の低体温が毎ターン与える HP ダメージ。値は実プレイで調整する
-	hypothermiaSevereHPDamagePerTurn = 3
 )
 
 // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
@@ -141,8 +139,10 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		}
 	}
 
+	// 削る量と死因は低体温の ConditionDef に集約する。表示と自然回復停止の判定が同じ値を読む
+	def, _ := gc.ConditionDefFor(gc.ConditionHypothermia)
 	for _, entity := range toFreeze {
-		gameaction.ApplyConditionDamage(world, entity, hypothermiaSevereHPDamagePerTurn, gc.CauseFrozen)
+		gameaction.ApplyConditionDamage(world, entity, def.HPDamage, def.Cause)
 	}
 
 	return nil

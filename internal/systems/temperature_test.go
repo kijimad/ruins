@@ -529,7 +529,9 @@ func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
 
 		require.NoError(t, (&TemperatureSystem{}).Update(world))
 
-		assert.Equal(t, hpBefore-hypothermiaSevereHPDamagePerTurn, world.Components.HP.Get(player).Current)
+		// 削る量は低体温の ConditionDef に集約したので、そこから期待値を引く
+		def, _ := gc.ConditionDefFor(gc.ConditionHypothermia)
+		assert.Equal(t, hpBefore-def.HPDamage, world.Components.HP.Get(player).Current)
 	})
 
 	t.Run("中度では減らない", func(t *testing.T) {

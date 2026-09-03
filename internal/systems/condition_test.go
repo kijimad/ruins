@@ -129,8 +129,8 @@ func TestConditionSystem_Update(t *testing.T) {
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		// HPDamage=2 削られる
-		assert.Equal(t, 28, world.Components.HP.Get(player).Current)
+		// HPDamage=1 削られる
+		assert.Equal(t, 29, world.Components.HP.Get(player).Current)
 	})
 
 	t.Run("応急処置した重症の病気はHPを削らない", func(t *testing.T) {

@@ -33,8 +33,8 @@ func (sys *HealthRegenSystem) Update(world w.World) error {
 		if world.Components.Dead.Has(entity) {
 			continue
 		}
-		// 開いた傷を塞ぐ、すなわち治療するまで自然回復しない。出血中は失血が回復に打ち消されないようにする
-		if world.Components.HealthStatus.Has(entity) && world.Components.HealthStatus.Get(entity).IsBleeding() {
+		// HP を削る不調があるあいだは自然回復しない。回復が相殺して、じわじわ減っているのを隠さないようにする
+		if world.Components.HealthStatus.Has(entity) && world.Components.HealthStatus.Get(entity).IsHPDraining() {
 			continue
 		}
 		hp := world.Components.HP.Get(entity)

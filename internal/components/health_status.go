@@ -115,7 +115,9 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		displayName:     "Hypothermia",
 		description:     "The body is dangerously cold. Warm up to recover.",
 		painPerSeverity: 6, capacityDropPerSeverity: 20,
-		// Recovery なし。進行と回復は TemperatureSystem が体温から扱う
+		// Recovery なし。進行と回復は TemperatureSystem が体温から扱う。
+		// HPDamage は重症で毎ターン削る量。適用も TemperatureSystem だが、値はこの表に集約して表示と判定で共有する
+		HPDamage: 1, Cause: CauseFrozen,
 	},
 	ConditionFracture: {
 		displayName:     "Fracture",
@@ -134,7 +136,7 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		displayName:     "Liver illness",
 		description:     "It worsens while untreated and drains HP when severe.",
 		painPerSeverity: 4, capacityDropPerSeverity: 10,
-		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 1, HPDamage: 2, Cause: CauseIllness,
+		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 1, HPDamage: 1, Cause: CauseIllness,
 	},
 	ConditionFoodPoisoning: {
 		displayName:     "Food poisoning",
@@ -433,6 +435,37 @@ func (hs *HealthStatus) IsBleeding() bool {
 	for i := range hs.Parts {
 		for _, cond := range hs.Parts[i].Conditions {
 			if def, ok := conditionDefs[cond.Type]; ok && cond.IsBleeding(def) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// ConditionHPDrainPerTurn は不調1件がいま毎ターン削る HP を返す。0 なら削らない。
+// 外傷の失血と、重症の HPDamage を合算する。低体温の HPDamage は TemperatureSystem が適用するが、
+// 値と判定はこの関数で共有し、表示と自然回復停止を実ダメージと一致させる
+func ConditionHPDrainPerTurn(cond *HealthCondition) int {
+	def := conditionDefs[cond.Type]
+	drain := 0
+	if cond.IsBleeding(def) {
+		drain += def.BleedPer
+	}
+	if cond.Severity == SeveritySevere && def.HPDamage > 0 {
+		// 管理下の病気は治療で HP 減少が止まる。低体温など温度駆動は治療では止まらないので Recovery の有無で分ける
+		if def.Recovery == "" || cond.TendQuality == 0 {
+			drain += def.HPDamage
+		}
+	}
+	return drain
+}
+
+// IsHPDraining はいま HP を削る不調が1つでもあるかを返す。削っているあいだは自然回復を止め、
+// 減っていることを読み取れるようにする
+func (hs *HealthStatus) IsHPDraining() bool {
+	for i := range hs.Parts {
+		for j := range hs.Parts[i].Conditions {
+			if ConditionHPDrainPerTurn(&hs.Parts[i].Conditions[j]) > 0 {
 				return true
 			}
 		}
