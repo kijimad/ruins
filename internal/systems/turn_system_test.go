@@ -964,7 +964,7 @@ func TestNotifyEnvironmentChange(t *testing.T) {
 		assert.Contains(t, hist[0], "The sun rises.")
 	})
 
-	t.Run("季節の変わるターンは季節と日の出の両方を出す", func(t *testing.T) {
+	t.Run("季節の変わるターンは季節と日の出のログと日数スプラッシュを出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// 春から夏へ切り替わる経過ターン。日の始まりは夜明けなので日の出とも重なる
@@ -977,6 +977,8 @@ func TestNotifyEnvironmentChange(t *testing.T) {
 		assert.Contains(t, hist[0], "The season changed to")
 		assert.Contains(t, hist[0], "Summer")
 		assert.Contains(t, hist[1], "The sun rises.")
+		// 季節の切り替わりは日付の繰り上がりと同時に起きるので、日数スプラッシュも同じターンに湧く
+		assert.Equal(t, []string{"Day 9"}, splashTexts(world))
 	})
 
 	t.Run("時間帯も季節も変わらないターンはログを出さない", func(t *testing.T) {
