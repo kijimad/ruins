@@ -119,7 +119,7 @@ func TestAmbientTemperatureAt_ダンジョンの囲われていないタイル�
 func TestAmbientTemperatureAt_オーバーワールドの屋内タイルは世界温度を緩和して受ける(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	// 25日目の昼。世界温度 = -30 + 10 = -20。建物内部の床は ShelterFull が焼かれている
+	// 25日目の昼。世界温度 = -30 + 10 = -20。建物内部の床は ShelterFull が設定されている
 	query.GetGameTime(world).TotalTurns = 24*1500 + 500
 	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 	query.EnsureSeamlessBand(world)

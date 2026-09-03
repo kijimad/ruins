@@ -169,9 +169,9 @@ func TestInteriorLootRaw_写像先のitem_groupが実在する(t *testing.T) {
 	}
 }
 
-// TestFurnishBuilding_屋内床にShelterが焼かれる は、建物内部の床タイルに屋内 Shelter が焼かれ、庭や壁には
-// 焼かれないことを固定する。オーバーワールド建物を屋内と判定し、温度式が per-tile の屋内緩和を効かせる配線を守る。
-func TestFurnishBuilding_屋内床にShelterが焼かれる(t *testing.T) {
+// TestFurnishBuilding_屋内床にShelterが設定される は、建物内部の床タイルに屋内 Shelter が書き込まれ、庭や壁には
+// 書き込まれないことを固定する。オーバーワールド建物を屋内と判定し、温度式が per-tile の屋内緩和を効かせる配線を守る。
+func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -201,5 +201,5 @@ func TestFurnishBuilding_屋内床にShelterが焼かれる(t *testing.T) {
 	}
 	require.Positive(t, floorTotal, "建物内部に床タイルがある")
 	assert.Equal(t, floorTotal, floorFull, "屋内の床タイルはすべて ShelterFull を持つ")
-	assert.Zero(t, nonFloorFull, "庭の土と壁には屋内 Shelter を焼かない")
+	assert.Zero(t, nonFloorFull, "庭の土と壁には屋内 Shelter を書き込まない")
 }

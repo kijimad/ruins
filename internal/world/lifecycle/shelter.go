@@ -15,7 +15,7 @@ const shelterRecalcRadius = 32
 
 // RecalcShelterAround は座標の周囲でタイルの囲われ Shelter を再計算する。
 // 扉の開閉のような通行可否の構造変化後に呼ぶ。座標とその4隣接を種に、
-// 壁と閉じた扉を越えずに繋がる領域を求めて屋内外を焼き直す。
+// 壁と閉じた扉を越えずに繋がる領域を求めて屋内外を書き直す。
 //
 // 窓の外周へ達した領域は原則として屋外だが、領域内に既存の屋外タイルを
 // ひとつも見なかった場合は窓より大きい囲いと区別できないため書き換えない。
@@ -56,7 +56,7 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 
 	blockedAt := func(bx, by int) bool { return blocked[by*size+bx] }
 
-	// 扉が開けば両側は1つの領域として、閉じれば分断された各側が別領域として焼き直される。
+	// 扉が開けば両側は1つの領域として、閉じれば分断された各側が別領域として書き直される。
 	// 中心が塞がっている、つまり扉が閉じたときも4隣接の種が両側を拾う
 	visited := make([]bool, size*size)
 	seeds := [][2]int{

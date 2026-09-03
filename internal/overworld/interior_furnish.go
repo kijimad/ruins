@@ -47,7 +47,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to place interior tile (x=%d, y=%d): %w", coord.X, coord.Y, err)
 			}
-			// 建物内部の床は壁で囲われた屋内。床タイルに屋内 Shelter を焼き、温度式が屋内緩和を効かせる。
+			// 建物内部の床は壁で囲われた屋内。床タイルへ屋内 Shelter を書き込み、温度式が屋内緩和を効かせる。
 			// 庭は屋外、壁はプレイヤーが立たないので対象にしない。
 			// TileTemperature の有無はタイル仕様が決めるので、持たないタイルは黙って屋外のままにする
 			if name == consts.TileNameFloor && world.Components.TileTemperature.Has(e) {
