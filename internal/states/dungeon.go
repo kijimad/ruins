@@ -109,8 +109,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 		if err := st.driver.Start(world); err != nil {
 			return err
 		}
-		// オーバーワールドの開始はダンジョン名でなく経過日数を大書きする。
-		// 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で示す
+		// 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で大書きして示す
 		lifecycle.SpawnSplashText(world, query.T(world, "Day %d", query.GetGameTime(world).GetDayNumber()))
 		return nil
 	}
@@ -151,7 +150,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 発生するため、古いデータが残り移動不能になることがある
 	query.InvalidateSpatialIndex(world)
 
-	// ダンジョン名のタイトルをスプラッシュ表示する
 	titleText := query.T(world, def.Name())
 	if st.Depth > 0 {
 		titleText = fmt.Sprintf("%s %dF", query.T(world, def.Name()), st.Depth)
