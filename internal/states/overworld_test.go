@@ -102,6 +102,32 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	assert.GreaterOrEqual(t, entranceCount, 1, "遺跡入口が少なくとも1つ置かれる")
 }
 
+// TestOverworldState_OnStart_経過日数のスプラッシュを出す は、オーバーワールド開始の節目に
+// 経過日数がスプラッシュ表示されることを固定する。生き延びた日数がこのゲームの目的である
+// ことを開始時に示す配線を守る。
+func TestOverworldState_OnStart_経過日数のスプラッシュを出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 777})
+	state, err := factory()
+	require.NoError(t, err)
+	st, ok := state.(*DungeonState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+
+	var texts []string
+	q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	for q.Next() {
+		for _, effect := range world.Components.VisualEffects.Get(q.Entity()).Effects {
+			if splash, isSplash := effect.(*gc.SplashTextEffect); isSplash {
+				texts = append(texts, splash.Text)
+			}
+		}
+	}
+	assert.Equal(t, []string{"Day 1"}, texts, "新規開始は1日目のスプラッシュが湧く")
+}
+
 // TestOverworldState_オーバーレイ進入で帯タイルを消さない は、射撃/観察等のオーバーレイ
 // （TransPush → OnPause）に入ったときに帯タイルが消えない（黒画面にならない）ことを固定する。
 func TestOverworldState_オーバーレイ進入で帯タイルを消さない(t *testing.T) {
