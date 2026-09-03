@@ -232,6 +232,35 @@ func TestRecalculateCharModifiers_FireAbility(t *testing.T) {
 	assert.Equal(t, 124, int(mods.WeaponAccuracy[SkillRifle]))
 }
 
+func TestRecalculateCharModifiers_AccuracyFoldsCapacity(t *testing.T) {
+	t.Parallel()
+
+	skills := NewSkills()
+	hs := &HealthStatus{
+		Parts: [BodyPartCount]BodyPartHealth{},
+	}
+	hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{
+		Type:     ConditionHypothermia,
+		Severity: SeverityMedium,
+	})
+
+	mods := RecalculateCharModifiers(skills, nil, hs)
+
+	// 中度の全身性低体温で操作・視覚はいずれも54。命中倍率へ畳み込まれる。
+	// スキルLv0の基礎命中100に54%を掛けて54になる
+	assert.Equal(t, 54, int(mods.WeaponAccuracy[SkillSword]), "近接は操作機能を畳み込む")
+	assert.Equal(t, 54, int(mods.WeaponAccuracy[SkillBow]), "遠隔は視覚機能を畳み込む")
+
+	// 内訳の末尾に身体機能の加法差分が載る。100→54 なので -46。
+	// 近接は操作機能、遠隔は視覚機能を選ぶことをラベルで確認する
+	swordSrc := mods.Sources[ModSwordAccuracy]
+	assert.Equal(t, "Manipulation 54%", swordSrc[len(swordSrc)-1].Label)
+	assert.Equal(t, -46, swordSrc[len(swordSrc)-1].Value)
+	bowSrc := mods.Sources[ModBowAccuracy]
+	assert.Equal(t, "Sight 54%", bowSrc[len(bowSrc)-1].Label)
+	assert.Equal(t, -46, bowSrc[len(bowSrc)-1].Value)
+}
+
 func TestRecalculateCharModifiers_ElementResistAllTypes(t *testing.T) {
 	t.Parallel()
 

@@ -160,12 +160,20 @@ type CharModifiers struct {
 	Sources map[ModifierKey][]ModifierSource `json:"-"`
 }
 
-// AccuracyCapacity は攻撃種の命中に効く身体機能の乗数を返す。近接は操作機能、遠隔は視覚機能
-func (e *CharModifiers) AccuracyCapacity(cat AttackType) consts.Percent {
-	if cat.Range == AttackRangeRanged {
-		return e.Capacities.Sight
+// weaponAccuracyCapacity は武器スキルの命中に効く身体機能の種別と乗数を返す。
+// 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする
+func weaponAccuracyCapacity(caps BodyCapacities, id SkillID) (CapacityKind, consts.Percent) {
+	for _, at := range AllAttackTypes {
+		skillID, ok := WeaponSkillID(at)
+		if !ok || skillID != id {
+			continue
+		}
+		if at.Range == AttackRangeRanged {
+			return CapacitySight, caps.Sight
+		}
+		return CapacityManipulation, caps.Manipulation
 	}
-	return e.Capacities.Manipulation
+	return CapacityManipulation, caps.Manipulation
 }
 
 // RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。
@@ -201,11 +209,29 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 		return consts.PercentBase + consts.Percent(bonus)
 	}
 
+	// 不調による身体機能。命中はここを経由するので武器命中へ畳み込む。
+	// 命中を掛ける前に確定させる必要があるため武器ループより先に求める
+	e.Capacities = HealthyCapacities()
+	if hs != nil {
+		e.Capacities = hs.Capacities()
+	}
+
 	e.WeaponDamage = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
 	e.WeaponAccuracy = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
 	for _, id := range weaponSkillIDs {
 		e.WeaponDamage[id] = calcEffect(WeaponDamageKey(id), id, coeffWeaponDamage)
-		e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)
+
+		// 武器習熟の命中倍率に、命中へ効く身体機能を掛け合わせて1つに畳む。
+		// 表示される命中倍率が実際に適用される倍率と一致する。
+		// 内訳には加法差分として載せ、最終値 = 基準 + Σ内訳 の関係を保つ
+		acc := calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)
+		capKind, capVal := weaponAccuracyCapacity(e.Capacities, id)
+		withCap := capVal.ApplyInt(int(acc))
+		src[WeaponAccuracyKey(id)] = append(src[WeaponAccuracyKey(id)], ModifierSource{
+			Label: fmt.Sprintf("%s %d%%", capKind, int(capVal)),
+			Value: withCap - int(acc),
+		})
+		e.WeaponAccuracy[id] = consts.Percent(withCap)
 	}
 
 	e.ElementResist = map[ElementType]consts.Percent{
@@ -228,12 +254,6 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	e.BuyPrice = calcEffect(ModBuyPrice, SkillNegotiation, coeffBuyPrice)
 	e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)
 	e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)
-
-	// 不調による身体機能。命中と移動はこの Capacities を経由する
-	e.Capacities = HealthyCapacities()
-	if hs != nil {
-		e.Capacities = hs.Capacities()
-	}
 
 	e.Sources = src
 	return e
