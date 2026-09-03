@@ -962,6 +962,9 @@ msgstr "血液量"
 msgid "Blood loss"
 msgstr "失血"
 
+msgid "HP loss"
+msgstr "体力減少"
+
 msgid "Blood volume. Bleeding and severe conditions lower it"
 msgstr "血液量。出血や重い不調で下がる"
 
