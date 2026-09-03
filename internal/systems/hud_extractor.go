@@ -50,6 +50,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var ambientTemp int
 	var ambientTempVisible bool
 	var ambientTempColor color.RGBA
+	var ambientShelterLabel string
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
@@ -72,6 +73,8 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 				ambientTemp = temp
 				ambientTempVisible = true
 				ambientTempColor = ambientTempDisplayColor(temp)
+				shelter, _ := tileEnvironmentAt(world, grid.X, grid.Y)
+				ambientShelterLabel = query.T(world, shelterMsgid(shelter))
 			}
 		}
 	}
@@ -84,18 +87,19 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	messageAreaHeight := messageAreaConfig.Height()
 
 	return hud.GameInfoData{
-		FloorNumber:        floorNumber,
-		PlayerHP:           playerHP,
-		PlayerMaxHP:        playerMaxHP,
-		PlayerWeight:       playerWeight,
-		PlayerMaxWeight:    playerMaxWeight,
-		TempArrow:          tempArrow,
-		BodyTempRatio:      bodyTempRatio,
-		BodyTempVisible:    bodyTempVisible,
-		AmbientTemp:        ambientTemp,
-		AmbientTempVisible: ambientTempVisible,
-		AmbientTempColor:   ambientTempColor,
-		MessageAreaHeight:  messageAreaHeight,
+		FloorNumber:         floorNumber,
+		PlayerHP:            playerHP,
+		PlayerMaxHP:         playerMaxHP,
+		PlayerWeight:        playerWeight,
+		PlayerMaxWeight:     playerMaxWeight,
+		TempArrow:           tempArrow,
+		BodyTempRatio:       bodyTempRatio,
+		BodyTempVisible:     bodyTempVisible,
+		AmbientTemp:         ambientTemp,
+		AmbientTempVisible:  ambientTempVisible,
+		AmbientTempColor:    ambientTempColor,
+		AmbientShelterLabel: ambientShelterLabel,
+		MessageAreaHeight:   messageAreaHeight,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
 			Height: screenHeight,
@@ -443,6 +447,20 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 			Height: screenHeight,
 		},
 	}
+}
+
+// shelterMsgid は囲われの度合いの表示名 msgid を返す
+func shelterMsgid(shelter gc.ShelterType) string {
+	switch shelter {
+	case gc.ShelterFull:
+		return "Indoor"
+	case gc.ShelterPartial:
+		return "Semi-outdoor"
+	case gc.ShelterNone:
+		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
+	}
+	// save 由来の未知の値も屋外へ落とす
+	return "Outdoor"
 }
 
 // ambientTempDisplayColor は周囲気温の表示色を返す。快適帯の中は白、下回ると青、上回ると赤に寄せる
