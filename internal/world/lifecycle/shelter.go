@@ -9,7 +9,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// shelterRecalcRadius は囲われを再計算する窓の半径。建物ひとつが余裕をもって
+// shelterRecalcRadius は囲われを再計算する範囲の半径。建物ひとつが余裕をもって
 // 収まる大きさにする。市街地の建物は1チャンク24タイルの区画に収まる
 const shelterRecalcRadius = 32
 
@@ -17,15 +17,15 @@ const shelterRecalcRadius = 32
 // 扉の開閉のような通行可否の構造変化後に呼ぶ。座標とその4隣接を種に、
 // 壁と閉じた扉を越えずに繋がる領域を求めて屋内外を書き直す。
 //
-// 窓の外周へ達した領域は原則として屋外だが、領域内に既存の屋外タイルを
-// ひとつも見なかった場合は窓より大きい囲いと区別できないため書き換えない。
-// この保守則により、窓に収まらない構造は誤って冷やされず現状維持で外れる。
+// 再計算範囲の外周へ達した領域は原則として屋外だが、領域内に既存の屋外タイルを
+// ひとつも見なかった場合は範囲より大きい囲いと区別できないため書き換えない。
+// この保守則により、範囲に収まらない構造は誤って冷やされず現状維持で外れる。
 func RecalcShelterAround(world w.World, x, y consts.Tile) {
 	const size = shelterRecalcRadius*2 + 1
 	minX := int(x) - shelterRecalcRadius
 	minY := int(y) - shelterRecalcRadius
 
-	// 窓内の通行不可と書き込み先タイルを集める。閉じた扉は BlockPass を持つので壁と同様に領域を区切る
+	// 範囲内の通行不可と書き込み先タイルを集める。閉じた扉は BlockPass を持つので壁と同様に領域を区切る
 	blocked := make([]bool, size*size)
 	blockQuery := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
 	for blockQuery.Next() {
@@ -87,7 +87,7 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 		case touchesEdge && sawOutdoor:
 			shelter = gc.ShelterNone
 		case touchesEdge:
-			// 窓より大きい囲いか判定できないので現状維持にする
+			// 範囲より大きい囲いか判定できないので現状維持にする
 			continue
 		}
 		for _, c := range cells {

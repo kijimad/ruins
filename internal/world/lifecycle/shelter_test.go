@@ -83,11 +83,11 @@ func TestCloseDoor_扉を閉じると屋内が囲われに戻る(t *testing.T) {
 		"屋外の床は屋外のまま")
 }
 
-func TestOpenDoor_窓の外周へ達しても既存の屋外タイルを見なければ書き換えない(t *testing.T) {
+func TestOpenDoor_再計算範囲の外へ抜けても既存の屋外タイルを見なければ書き換えない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	// 扉の外に屋外床が1枚も無い部屋。開くと領域は窓の外周へ達するが、
-	// ShelterNone のタイルを見ないため窓より大きい囲いと区別できず、保守則で現状維持になる
+	// 扉の外に屋外床が1枚も無い部屋。開くと領域は再計算範囲の外周へ達するが、
+	// ShelterNone のタイルを見ないため範囲より大きい囲いと区別できず、保守則で現状維持になる
 	door, indoorFloor, _ := buildShelterRoom(world, false, false)
 
 	require.NoError(t, lifecycle.OpenDoor(world, door))
