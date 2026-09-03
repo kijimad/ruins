@@ -139,6 +139,17 @@ func (gt *GameTime) SeasonJustChanged() bool {
 	return gt.GetSeason() != prev.GetSeason()
 }
 
+// DayJustChanged は現在の日数と、直前のターンから日付が変わったかを返す。Advance の直後に呼ぶ想定。
+// 呼び出し側が変わった先の日数をそのまま通知に使えるよう日数も返す。
+func (gt *GameTime) DayJustChanged() (int, bool) {
+	cur := gt.GetDayNumber()
+	if gt.TotalTurns == 0 {
+		return cur, false
+	}
+	prev := GameTime{TotalTurns: gt.TotalTurns - 1}
+	return cur, prev.GetDayNumber() != cur
+}
+
 // TimeOfDayJustChanged は現在の時間帯と、直前のターンから変わったかを返す。
 // 呼び出し側が入った先で日の出入りを見分けられるよう時間帯も返す。
 func (gt *GameTime) TimeOfDayJustChanged() (TimeOfDay, bool) {

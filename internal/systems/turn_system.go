@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -116,15 +117,21 @@ func runEndPhase(world w.World, turnState *gc.TurnState) error {
 	// ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
 	// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
 	query.GetGameTime(world).Advance()
-	// 季節や日の出入りが変わったらログへ出す
-	logEnvironmentChange(world)
+	// 季節や日付、日の出入りが変わったらプレイヤーへ知らせる
+	notifyEnvironmentChange(world)
 	return nil
 }
 
-// logEnvironmentChange は季節や日の出入りが変わったらゲームログへ出す。
+// notifyEnvironmentChange は季節や日の出入りが変わったらゲームログへ出し、日付が変わったら
+// 画面中央にスプラッシュで大書きする。生き延びた日数はこのゲームの目的の実感そのものなので、
+// ログに流さず節目として目立たせる。
 // 変化は現在ターンと直前ターンの導出値の差で判定するので、GameTime.Advance の直後に呼ぶ。
-func logEnvironmentChange(world w.World) {
+func notifyEnvironmentChange(world w.World) {
 	gt := query.GetGameTime(world)
+
+	if day, changed := gt.DayJustChanged(); changed {
+		lifecycle.SpawnSplashText(world, query.T(world, "Day %d", day))
+	}
 
 	if gt.SeasonJustChanged() {
 		name := query.T(world, gt.GetSeason().String())

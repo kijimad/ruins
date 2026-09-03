@@ -106,7 +106,13 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする
 	if st.isSeamless() {
 		st.driver = overworld.NewDriver(st.planner, st.overworldDefinition, st.newGame)
-		return st.driver.Start(world)
+		if err := st.driver.Start(world); err != nil {
+			return err
+		}
+		// オーバーワールドの開始はダンジョン名でなく経過日数を大書きする。
+		// 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で示す
+		lifecycle.SpawnSplashText(world, query.T(world, "Day %d", query.GetGameTime(world).GetDayNumber()))
+		return nil
 	}
 
 	// 進入先の遺跡定義名を決める。State に明示指定があればそれを使い、無ければ現ステージ、
@@ -145,18 +151,12 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 発生するため、古いデータが残り移動不能になることがある
 	query.InvalidateSpatialIndex(world)
 
-	// ダンジョンタイトルエフェクト用エンティティを作成する
-	screenW, screenH := world.Resources.GetScreenDimensions()
+	// ダンジョン名のタイトルをスプラッシュ表示する
 	titleText := query.T(world, def.Name())
 	if st.Depth > 0 {
 		titleText = fmt.Sprintf("%s %dF", query.T(world, def.Name()), st.Depth)
 	}
-	splashFace := world.Resources.UIResources.Text.SplashFontFace
-	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
-	titleEntity := world.ECS.NewEntity()
-	world.Components.VisualEffects.Add(titleEntity, &gc.VisualEffects{
-		Effects: []gc.VisualEffect{titleEffect},
-	})
+	lifecycle.SpawnSplashText(world, titleText)
 
 	return nil
 }

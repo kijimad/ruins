@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
@@ -340,6 +341,23 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 
 	effectEntity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(effectEntity, &gc.GridElement{Coord: gridElement.Coord})
+	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
+		Effects: []gc.VisualEffect{effect},
+	})
+}
+
+// SpawnSplashText は画面中央にテキストをスプラッシュ表示するエフェクト専用エンティティを生成する。
+// ダンジョン進入のタイトルや日付の切り替わりなど、場面の節目を大書きで知らせる演出に使う。
+// フォント未ロードの環境では face を nil のまま作る。描画は起きないので害がなく、
+// 生成の事実はテストから観測できる
+func SpawnSplashText(world w.World, textStr string) {
+	screenW, screenH := world.Resources.GetScreenDimensions()
+	var face text.Face
+	if tr := world.Resources.UIResources.Text; tr != nil {
+		face = tr.SplashFontFace
+	}
+	effect := gc.NewSplashTextEffect(textStr, face, screenW, screenH)
+	effectEntity := world.ECS.NewEntity()
 	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
