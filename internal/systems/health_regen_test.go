@@ -88,18 +88,18 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		assert.Equal(t, 13, world.Components.HP.Get(entity).Current)
 	})
 
-	t.Run("出血中は自然回復しない", func(t *testing.T) {
+	t.Run("失血中は自然回復しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Current: 10, Max: 30})
 		hs := &gc.HealthStatus{}
-		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 60, Severity: gc.TimerToSeverity(60)})
+		// 重い切り傷は血液量を危険域まで下げる。失血を回復で打ち消さない
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 80, Severity: gc.TimerToSeverity(80)})
 		world.Components.HealthStatus.Add(entity, hs)
 
 		require.NoError(t, (&HealthRegenSystem{}).Update(world))
 
-		// 未治療で発症中の切り傷を抱えているあいだは失血を回復で打ち消さない
 		assert.Equal(t, 10, world.Components.HP.Get(entity).Current)
 	})
 

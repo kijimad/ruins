@@ -104,9 +104,8 @@ type ConditionDef struct {
 	Recovery                RecoveryMode // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
 	WorsenPer               int          // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
 	RecoverPer              int          // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
-	BleedPer                int          // 未治療で発症中のとき毎ターン失う HP。外傷の出血
-	HPDamage                int          // 重症で毎ターン与える HP ダメージ
-	Cause                   DeathCause   // HPDamage か BleedPer で倒したときの死因
+	bloodDropPerSeverity    int          // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
+	Cause                   DeathCause   // 血液量が尽きて倒したときの死因
 }
 
 // conditionDefs は状態種類ごとの定義。状態を足すときはここへ1行足す
@@ -116,8 +115,8 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		description:     "The body is dangerously cold. Warm up to recover.",
 		painPerSeverity: 6, capacityDropPerSeverity: 20,
 		// Recovery なし。進行と回復は TemperatureSystem が体温から扱う。
-		// HPDamage は重症で毎ターン削る量。適用も TemperatureSystem だが、値はこの表に集約して表示と判定で共有する
-		HPDamage: 1, Cause: CauseFrozen,
+		// 直接 HP は削らず、重症で血液量を大きく下げて凍死させる
+		bloodDropPerSeverity: 25, Cause: CauseFrozen,
 	},
 	ConditionFracture: {
 		displayName:     "Fracture",
@@ -130,13 +129,13 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		displayName:     "Laceration",
 		description:     "An open wound. It will not heal until treated.",
 		painPerSeverity: 8, capacityDropPerSeverity: 8,
-		Recovery: RecoverAfterTend, RecoverPer: 2, BleedPer: 1, Cause: CauseBloodLoss,
+		Recovery: RecoverAfterTend, RecoverPer: 2, bloodDropPerSeverity: 25, Cause: CauseBloodLoss,
 	},
 	ConditionLiverIllness: {
 		displayName:     "Liver illness",
 		description:     "It worsens while untreated and drains HP when severe.",
 		painPerSeverity: 4, capacityDropPerSeverity: 10,
-		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 1, HPDamage: 1, Cause: CauseIllness,
+		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 1, bloodDropPerSeverity: 25, Cause: CauseIllness,
 	},
 	ConditionFoodPoisoning: {
 		displayName:     "Food poisoning",
@@ -170,6 +169,7 @@ func ConditionTypeDescription(ct ConditionType) string {
 // 不調から読み取り時に導出し、保存はしない
 type BodyCapacities struct {
 	Pain          consts.Percent // 0 が無痛。大きいほど痛い
+	Blood         consts.Percent // 100 が正常。失血や重い不調で下がる。危険域を下回ると HP が減る
 	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。全機能に掛かる乗数
 	Manipulation  consts.Percent // 腕・手の不調で下がる
 	Moving        consts.Percent // 脚・足の不調で下がる
@@ -302,12 +302,6 @@ func (hc *HealthCondition) IsActive() bool {
 	return hc.Timer >= 25
 }
 
-// IsBleeding はこの不調がいま失血しているかを返す。未治療で発症中の出血持ちが対象。
-// 失血の適用と、出血中の自然回復停止が同じ述語を共有する
-func (hc *HealthCondition) IsBleeding(def ConditionDef) bool {
-	return def.BleedPer > 0 && hc.TendQuality == 0 && hc.IsActive()
-}
-
 // TimerToSeverity はタイマー値からSeverityを導出する
 func TimerToSeverity(timer float64) Severity {
 	switch {
@@ -429,60 +423,90 @@ type HealthStatus struct {
 	BodyTempOffset float64
 }
 
-// IsBleeding は未治療で発症中の出血持ちの不調が1つでもあるかを返す。
-// 開いた傷を抱えているあいだは自然回復を止めるのに使う
-func (hs *HealthStatus) IsBleeding() bool {
-	for i := range hs.Parts {
-		for _, cond := range hs.Parts[i].Conditions {
-			if def, ok := conditionDefs[cond.Type]; ok && cond.IsBleeding(def) {
-				return true
-			}
-		}
-	}
-	return false
-}
+// bloodCriticalThreshold は血液量がこれを下回ると失血で HP が減り始める割合。
+// bloodDrainStep は血液量の不足をこれで割った数だけ毎ターン削る。深く落ちるほど速く減る。
+// 外傷は出血で、重症の低体温や病気は循環低下で血液量を下げる。値は実プレイで調整する
+const (
+	bloodCriticalThreshold = 40
+	bloodDrainStep         = 10
+)
 
-// ConditionHPDrainPerTurn は不調1件がいま毎ターン削る HP を返す。0 なら削らない。
-// 外傷の失血と、重症の HPDamage を合算する。低体温の HPDamage は TemperatureSystem が適用するが、
-// 値と判定はこの関数で共有し、表示と自然回復停止を実ダメージと一致させる
-func ConditionHPDrainPerTurn(cond *HealthCondition) int {
+// conditionBloodDrop は不調1件がいま下げている血液量を返す。0 なら下げない。
+// 外傷は発症中ずっと出血し、重症の全身性の不調は循環を落とす。治療済みは止まる
+func conditionBloodDrop(cond *HealthCondition) int {
 	def := conditionDefs[cond.Type]
-	drain := 0
-	if cond.IsBleeding(def) {
-		drain += def.BleedPer
+	if def.bloodDropPerSeverity == 0 || cond.TendQuality > 0 {
+		return 0
 	}
-	if cond.Severity == SeveritySevere && def.HPDamage > 0 {
-		// 管理下の病気は治療で HP 減少が止まる。低体温など温度駆動は治療では止まらないので Recovery の有無で分ける
-		if def.Recovery == "" || cond.TendQuality == 0 {
-			drain += def.HPDamage
+	m := conditionSeverityMultiplier(cond.Severity)
+	if m == 0 {
+		return 0
+	}
+	// 外傷は発症中ずっと血を失う。全身性の不調は重症でだけ循環が落ちる
+	if def.Recovery == RecoverAfterTend {
+		if !cond.IsActive() {
+			return 0
 		}
+	} else if cond.Severity != SeveritySevere {
+		return 0
 	}
-	return drain
+	return def.bloodDropPerSeverity * m
 }
 
-// IsHPDraining はいま HP を削る不調が1つでもあるかを返す。削っているあいだは自然回復を止め、
-// 減っていることを読み取れるようにする
-func (hs *HealthStatus) IsHPDraining() bool {
+// ConditionBloodDrop は不調1件がいま下げている血液量を返す。健康タブの表示に使う公開ラッパ
+func ConditionBloodDrop(cond *HealthCondition) int {
+	return conditionBloodDrop(cond)
+}
+
+// BloodLossHPDrain は血液量の低下による毎ターンの HP 減少量と死因を返す。
+// 血液量が危険域を下回ると、不足に応じてじわじわ HP を削る。失血・凍死・衰弱死はすべてここを通る
+func (hs *HealthStatus) BloodLossHPDrain() (int, DeathCause) {
+	blood := int(hs.Capacities().Blood)
+	if blood >= bloodCriticalThreshold {
+		return 0, ""
+	}
+	deficit := bloodCriticalThreshold - blood
+	drain := (deficit + bloodDrainStep - 1) / bloodDrainStep
+	return drain, hs.bloodLossCause()
+}
+
+// bloodLossCause は血液量を最も下げている不調の死因を返す。該当が無ければ失血に落とす
+func (hs *HealthStatus) bloodLossCause() DeathCause {
+	cause := CauseBloodLoss
+	best := 0
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
-			if ConditionHPDrainPerTurn(&hs.Parts[i].Conditions[j]) > 0 {
-				return true
+			c := &hs.Parts[i].Conditions[j]
+			if d := conditionBloodDrop(c); d > best {
+				best = d
+				if def := conditionDefs[c.Type]; def.Cause != "" {
+					cause = def.Cause
+				}
 			}
 		}
 	}
-	return false
+	return cause
+}
+
+// IsHPDraining はいま HP を削る要因があるかを返す。血液量が危険域なら削っている。
+// 削っているあいだは自然回復を止め、減っているのを読み取れるようにする
+func (hs *HealthStatus) IsHPDraining() bool {
+	drain, _ := hs.BloodLossHPDrain()
+	return drain > 0
 }
 
 // Capacities は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
 // 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識が全機能へ乗算される
 func (hs *HealthStatus) Capacities() BodyCapacities {
 	pain := 0
+	bloodDrop := 0
 	var manip, moving, sight, systemic int // 各機能の低下量
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
 			cond := &hs.Parts[i].Conditions[j]
 			p, drop := conditionSeverityImpact(cond)
 			pain += p
+			bloodDrop += conditionBloodDrop(cond)
 			switch bodyPartCapacity(BodyPart(i)) {
 			case CapacityManipulation:
 				manip += drop
@@ -506,6 +530,7 @@ func (hs *HealthStatus) Capacities() BodyCapacities {
 
 	return BodyCapacities{
 		Pain:          consts.Percent(pain),
+		Blood:         consts.Percent(clamp(100-bloodDrop, 0, 100)),
 		Consciousness: consts.Percent(consciousness),
 		Manipulation:  withConsciousness(100 - manip),
 		Moving:        withConsciousness(100 - moving),

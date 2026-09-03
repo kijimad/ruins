@@ -956,8 +956,17 @@ msgstr "傷んだ食べ物による吐き気。時間が経てば自然に治る
 msgid "Nothing to treat."
 msgstr "治療する不調がない。"
 
-msgid "HP loss"
-msgstr "体力減少"
+msgid "Blood"
+msgstr "血液量"
+
+msgid "Blood loss"
+msgstr "失血"
+
+msgid "Blood volume. Bleeding and severe conditions lower it"
+msgstr "血液量。出血や重い不調で下がる"
+
+msgid "Critically low. Bleeding out and losing HP"
+msgstr "危険なほど低い。失血して体力を失う"
 
 msgid "Potency"
 msgstr "効力"

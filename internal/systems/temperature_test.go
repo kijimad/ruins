@@ -518,33 +518,30 @@ func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
 		})
 	}
 
-	t.Run("重症なら毎ターンHPが減る", func(t *testing.T) {
+	t.Run("重症の低体温は失血でHPを削る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Debug town", 1)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		setHypothermiaTimer(world.Components.HealthStatus.Get(player), 100)
 		hpBefore := world.Components.HP.Get(player).Current
 
-		require.NoError(t, (&TemperatureSystem{}).Update(world))
+		// 低体温は直接でなく血液量を下げて殺す。適用は ConditionSystem
+		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		// 削る量は低体温の ConditionDef に集約したので、そこから期待値を引く
-		def, _ := gc.ConditionDefFor(gc.ConditionHypothermia)
-		assert.Equal(t, hpBefore-def.HPDamage, world.Components.HP.Get(player).Current)
+		assert.Less(t, world.Components.HP.Get(player).Current, hpBefore, "重症の低体温は失血で HP を削る")
 	})
 
 	t.Run("中度では減らない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Debug town", 1)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		setHypothermiaTimer(world.Components.HealthStatus.Get(player), 60)
 		hpBefore := world.Components.HP.Get(player).Current
 
-		require.NoError(t, (&TemperatureSystem{}).Update(world))
+		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		assert.Equal(t, hpBefore, world.Components.HP.Get(player).Current)
+		assert.Equal(t, hpBefore, world.Components.HP.Get(player).Current, "中度は血液量を下げないので削られない")
 	})
 }

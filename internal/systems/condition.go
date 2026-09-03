@@ -68,15 +68,6 @@ func (sys *ConditionSystem) Update(world w.World) error {
 					}
 				}
 
-				// 応急処置で HP 減少は止まる。機能低下は軽減して全治まで残る
-				if cond.Severity == gc.SeveritySevere && def.HPDamage > 0 && hasHP && cond.TendQuality == 0 {
-					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.HPDamage, cause: def.Cause})
-				}
-
-				// 外傷は未治療で発症中のあいだ失血する。治療すると出血が止まり回復軌道へ乗る
-				if cond.IsBleeding(def) && hasHP {
-					toDamage = append(toDamage, conditionDamage{entity: entity, amount: def.BleedPer, cause: def.Cause})
-				}
 			}
 
 			// Timer が 0 になった管理下の不調を除去する
@@ -84,6 +75,13 @@ func (sys *ConditionSystem) Update(world w.World) error {
 				_, managed := managedConditionDef(c.Type)
 				return managed && c.Timer == 0
 			})
+		}
+
+		// 血液量が危険域まで落ちたら、じわじわ HP を削る。失血・凍死・衰弱はすべて血液量経由で死なせる
+		if hasHP {
+			if drain, cause := hs.BloodLossHPDrain(); drain > 0 {
+				toDamage = append(toDamage, conditionDamage{entity: entity, amount: drain, cause: cause})
+			}
 		}
 
 		// 不調が進むと capacity が変わるので、効率倍率を持つ者は再計算を促す

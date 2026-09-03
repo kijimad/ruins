@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -101,7 +100,6 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 	// HealthStatusとGridElementを持つエンティティを処理。
 	var toMark []ecs.Entity
-	var toFreeze []ecs.Entity
 	healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
@@ -126,11 +124,6 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		if isPlayer && hasChange {
 			toMark = append(toMark, entity)
 		}
-
-		// 重症の低体温は毎ターン HP を削る。反復中に Dead を付けないようループ後へ回す
-		if world.Components.HP.Has(entity) && isSevereHypothermia(hs) {
-			toFreeze = append(toFreeze, entity)
-		}
 	}
 
 	for _, entity := range toMark {
@@ -139,19 +132,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		}
 	}
 
-	// 削る量と死因は低体温の ConditionDef に集約する。表示と自然回復停止の判定が同じ値を読む
-	def, _ := gc.ConditionDefFor(gc.ConditionHypothermia)
-	for _, entity := range toFreeze {
-		gameaction.ApplyConditionDamage(world, entity, def.HPDamage, def.Cause)
-	}
-
 	return nil
-}
-
-// isSevereHypothermia は全身の低体温が重症かを返す
-func isSevereHypothermia(hs *gc.HealthStatus) bool {
-	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
-	return cond != nil && cond.Severity == gc.SeveritySevere
 }
 
 // bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。

@@ -132,7 +132,7 @@ func TestRecalculateCharModifiers_HealthPenalty(t *testing.T) {
 	assert.Equal(t, 100, int(mods.MoveCost), "低体温は MoveCost へ足さない")
 	// 中度の全身性低体温 6/20: 痛み6*2=12、意識=100-40-12/2=54。
 	// 局所低下は無いので操作・歩行・視覚はいずれも意識乗数だけを受けて54
-	assert.Equal(t, BodyCapacities{Pain: 12, Consciousness: 54, Manipulation: 54, Moving: 54, Sight: 54}, mods.Capacities)
+	assert.Equal(t, BodyCapacities{Pain: 12, Blood: 100, Consciousness: 54, Manipulation: 54, Moving: 54, Sight: 54}, mods.Capacities)
 }
 
 func TestRecalculateCharModifiers_NilAbilsAndHS(t *testing.T) {

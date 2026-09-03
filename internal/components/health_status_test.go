@@ -178,7 +178,7 @@ func TestConditionDefFor(t *testing.T) {
 	def, ok := ConditionDefFor(ConditionLaceration)
 	require.True(t, ok)
 	assert.Equal(t, RecoverAfterTend, def.Recovery)
-	assert.Equal(t, 1, def.BleedPer, "切り傷は失血する")
+	assert.Equal(t, CauseBloodLoss, def.Cause, "切り傷は失血で死なせる")
 
 	cold, ok := ConditionDefFor(ConditionHypothermia)
 	require.True(t, ok, "低体温も表示のため表には載る")
@@ -316,7 +316,7 @@ func TestHealthStatus_Capacities(t *testing.T) {
 	t.Run("不調なしは全機能100で痛み0", func(t *testing.T) {
 		t.Parallel()
 		caps := (&HealthStatus{}).Capacities()
-		assert.Equal(t, BodyCapacities{Pain: 0, Consciousness: 100, Manipulation: 100, Moving: 100, Sight: 100}, caps)
+		assert.Equal(t, BodyCapacities{Pain: 0, Blood: 100, Consciousness: 100, Manipulation: 100, Moving: 100, Sight: 100}, caps)
 	})
 
 	t.Run("腕の骨折は操作を下げ痛みを与え意識を落とす", func(t *testing.T) {
@@ -326,7 +326,7 @@ func TestHealthStatus_Capacities(t *testing.T) {
 		caps := hs.Capacities()
 		// 骨折 18/20 の中度。痛み=18*2=36、意識=100-36/2=82、操作=(100-20*2)*82/100=49、
 		// 歩行と視覚は局所低下なしだが意識が掛かって82
-		assert.Equal(t, BodyCapacities{Pain: 36, Consciousness: 82, Manipulation: 49, Moving: 82, Sight: 82}, caps)
+		assert.Equal(t, BodyCapacities{Pain: 36, Blood: 100, Consciousness: 82, Manipulation: 49, Moving: 82, Sight: 82}, caps)
 	})
 
 	t.Run("部位で下げる機能が変わる", func(t *testing.T) {
@@ -349,50 +349,63 @@ func TestBodyPartMetas_全部位が登録されている(t *testing.T) {
 	}
 }
 
-func TestHealthStatus_IsBleeding(t *testing.T) {
+func TestConditionBloodDrop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("未治療で発症中の切り傷は出血中", func(t *testing.T) {
+	drop := func(c HealthCondition) int { return ConditionBloodDrop(&c) }
+
+	// 外傷は発症中ずっと出血する。重症度ぶん大きく失う
+	assert.Equal(t, 50, drop(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)}), "中度の切り傷は 25*2")
+	assert.Equal(t, 75, drop(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80)}), "重度の切り傷は 25*3")
+	assert.Equal(t, 0, drop(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60), TendQuality: 100}), "治療した切り傷は失血しない")
+	assert.Equal(t, 0, drop(HealthCondition{Type: ConditionLaceration, Timer: 10, Severity: TimerToSeverity(10)}), "発症前は失血しない")
+	assert.Equal(t, 0, drop(HealthCondition{Type: ConditionFracture, Timer: 80, Severity: TimerToSeverity(80)}), "骨折は失血しない")
+	// 全身性の不調は重症でだけ循環を落とす
+	assert.Equal(t, 75, drop(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere}), "重症の病気は循環を落とす")
+	assert.Equal(t, 0, drop(HealthCondition{Type: ConditionLiverIllness, Severity: SeverityMedium}), "中度の病気は落とさない")
+	assert.Equal(t, 0, drop(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere, TendQuality: 100}), "治療した病気は落とさない")
+	assert.Equal(t, 75, drop(HealthCondition{Type: ConditionHypothermia, Severity: SeveritySevere}), "重症の低体温は循環を落とす")
+}
+
+func TestHealthStatus_BloodLoss(t *testing.T) {
+	t.Parallel()
+
+	t.Run("重度の切り傷は血液量を下げ HP を減らす", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80)})
+		assert.Equal(t, 25, int(hs.Capacities().Blood), "失血75で血液量25")
+		drain, cause := hs.BloodLossHPDrain()
+		assert.Equal(t, 2, drain, "不足15を10で割り上げて2")
+		assert.Equal(t, CauseBloodLoss, cause)
+	})
+
+	t.Run("中度の切り傷では血液量が保たれ HP は減らない", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
-		assert.True(t, hs.IsBleeding())
+		assert.Equal(t, 50, int(hs.Capacities().Blood))
+		drain, _ := hs.BloodLossHPDrain()
+		assert.Equal(t, 0, drain, "危険域より上なので失血しない")
 	})
 
-	t.Run("治療した切り傷は出血しない", func(t *testing.T) {
+	t.Run("治療で血液量が戻り失血が止まる", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
-		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60), TendQuality: 100})
-		assert.False(t, hs.IsBleeding())
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80), TendQuality: 100})
+		assert.Equal(t, 100, int(hs.Capacities().Blood))
+		drain, _ := hs.BloodLossHPDrain()
+		assert.Equal(t, 0, drain)
 	})
 
-	t.Run("発症前の掠り傷は出血しない", func(t *testing.T) {
+	t.Run("重症の低体温は凍死の死因で血液量経由に殺す", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
-		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 10, Severity: TimerToSeverity(10)})
-		assert.False(t, hs.IsBleeding())
+		hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{Type: ConditionHypothermia, Timer: 90, Severity: SeveritySevere})
+		drain, cause := hs.BloodLossHPDrain()
+		assert.Positive(t, drain)
+		assert.Equal(t, CauseFrozen, cause)
 	})
-
-	t.Run("骨折は出血しない", func(t *testing.T) {
-		t.Parallel()
-		hs := &HealthStatus{}
-		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Timer: 60, Severity: TimerToSeverity(60)})
-		assert.False(t, hs.IsBleeding())
-	})
-}
-
-func TestConditionHPDrainPerTurn(t *testing.T) {
-	t.Parallel()
-
-	drain := func(c HealthCondition) int { return ConditionHPDrainPerTurn(&c) }
-
-	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)}), "未治療の切り傷は失血で1削る")
-	assert.Equal(t, 0, drain(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60), TendQuality: 100}), "治療した切り傷は削らない")
-	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere}), "重症の未治療の病気は削る")
-	assert.Equal(t, 0, drain(HealthCondition{Type: ConditionLiverIllness, Severity: SeveritySevere, TendQuality: 100}), "治療した病気は削らない")
-	assert.Equal(t, 0, drain(HealthCondition{Type: ConditionLiverIllness, Severity: SeverityMedium}), "中度の病気はまだ削らない")
-	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionHypothermia, Severity: SeveritySevere}), "重症の低体温は削る")
-	assert.Equal(t, 1, drain(HealthCondition{Type: ConditionHypothermia, Severity: SeveritySevere, TendQuality: 100}), "低体温は温度駆動なので治療しても削り続ける")
 }
 
 func TestClamp(t *testing.T) {

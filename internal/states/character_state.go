@@ -377,9 +377,9 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	if drop > 0 {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf("-%d", drop)})
 	}
-	// HP を削る不調はその量を示す。放置すると体力が減ることを読み取れるようにする
-	if drain := gc.ConditionHPDrainPerTurn(cond); drain > 0 {
-		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "HP loss"), Value: fmt.Sprintf("-%d", drain)})
+	// 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
+	if bd := gc.ConditionBloodDrop(cond); bd > 0 {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Blood loss"), Value: fmt.Sprintf("-%d", bd)})
 	}
 	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
 	if name, ok := remedyItemNameFor(world, cond.Type); ok {
