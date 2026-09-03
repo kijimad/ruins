@@ -83,7 +83,7 @@ func (gt *GameTime) GetDayNumber() int {
 // 季節による世界温度のパラメータ。値は実プレイで調整する。
 const (
 	daysPerYear      = 32  // 季節1周の日数
-	springAutumnTemp = 10  // 春秋の中点の世界温度。開始直後は温暖で、冬への準備期間になる
+	springAutumnTemp = 5   // 春秋の中点の世界温度。開始直後は肌寒い程度に留め、冬への準備期間になる
 	summerPeakTemp   = 22  // 夏ピークの世界温度
 	winterTroughTemp = -30 // 冬底の世界温度。準備なしでは生存できない寒さ
 )
