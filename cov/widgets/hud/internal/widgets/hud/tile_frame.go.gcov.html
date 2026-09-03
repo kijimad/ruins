@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryLo">30.0&nbsp;%</td>
             <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-01 23:43:27</td>
+            <td class="headerValue">2026-09-03 00:28:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -89,9 +89,9 @@
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // ScaleAlpha は色のアルファに係数を掛ける。カーソルの点滅など、色はそのままで濃さだけ変える用途に使う。</span>
 <span id="L29"><span class="lineNum">      29</span>              : func ScaleAlpha(clr color.RGBA, alpha float64) color.RGBA {</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         clr.A = uint8(float64(clr.A) * min(max(alpha, 0), 1))</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         return clr</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         clr.A = uint8(float64(clr.A) * min(max(alpha, 0), 1))</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return clr</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

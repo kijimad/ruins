@@ -611,7 +611,7 @@
 				
 				<option value="file277">github.com/kijimaD/ruins/internal/widgets/hud/text_helper.go (100.0%)</option>
 				
-				<option value="file278">github.com/kijimaD/ruins/internal/widgets/hud/tile_frame.go (0.0%)</option>
+				<option value="file278">github.com/kijimaD/ruins/internal/widgets/hud/tile_frame.go (40.0%)</option>
 				
 				<option value="file279">github.com/kijimaD/ruins/internal/widgets/hud/weapon_slots.go (0.0%)</option>
 				
@@ -43627,7 +43627,7 @@ func TileFrame(screen *ebiten.Image, corners [4]consts.Coord[consts.ScreenPixel]
 
 // ScaleAlpha は色のアルファに係数を掛ける。カーソルの点滅など、色はそのままで濃さだけ変える用途に使う。
 func ScaleAlpha(clr color.RGBA, alpha float64) color.RGBA {
-        <span class="cov0" title="0">clr.A = uint8(float64(clr.A) * min(max(alpha, 0), 1))
+        <span class="cov8" title="1">clr.A = uint8(float64(clr.A) * min(max(alpha, 0), 1))
         return clr
 </span>}
 </pre>
