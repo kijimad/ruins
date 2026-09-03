@@ -80,25 +80,34 @@ func (gt *GameTime) GetDayNumber() int {
 	return int(gt.TotalTurns/turnsPerDay) + 1
 }
 
-// 季節による世界温度のパラメータ。値は実プレイで調整する。
+// 季節による世界温度のパラメータ。寒さの順は 冬 > 秋 > 春 > 夏。値は実プレイで調整する。
 const (
 	daysPerYear      = 32  // 季節1周の日数
-	springAutumnTemp = 5   // 春秋の中点の世界温度。開始直後は肌寒い程度に留め、冬への準備期間になる
+	springTemp       = 5   // 春の中点の世界温度。開始直後は肌寒い程度に留め、冬への準備期間になる
 	summerPeakTemp   = 22  // 夏ピークの世界温度
+	autumnTemp       = 0   // 秋の中点の世界温度。春より寒く、冬の接近を肌で感じさせる
 	winterTroughTemp = -30 // 冬底の世界温度。準備なしでは生存できない寒さ
 )
 
 // GetSeasonalTemperature は経過日数から季節による世界温度のベース値を返す。
-// 春開始の区分正弦波で、春秋が中点、夏がピーク、冬が底になる。中点を挟んで暖側と寒側の
-// 振幅が非対称で、温暖な春夏秋に対し冬だけが深く沈む。季節は保存せず日数から導く。
+// 春開始の区分正弦波で、春と秋が肩、夏がピーク、冬が底になる。四半期ごとに肩とピークを
+// 結ぶため肩の高さを春と秋で変えられ、振幅も暖側と寒側で非対称になる。冬だけが深く沈み、
+// 秋は春より寒い。季節は保存せず日数から導く。
 func (gt *GameTime) GetSeasonalTemperature() int {
-	// day 1 を春の中点かつ上昇位相の起点にする
-	phase := 2 * math.Pi * float64(gt.GetDayNumber()-1) / daysPerYear
+	// day 1 を春の中点かつ上昇位相の起点にする。位相の比較のため1年周期へ折り返す
+	phase := math.Mod(2*math.Pi*float64(gt.GetDayNumber()-1)/daysPerYear, 2*math.Pi)
 	s := math.Sin(phase)
-	if s >= 0 {
-		return int(math.Round(springAutumnTemp + float64(summerPeakTemp-springAutumnTemp)*s))
+
+	// 年の前半の肩は春、夏ピークから冬底を挟む後半の肩は秋
+	mid := float64(springTemp)
+	if phase >= math.Pi/2 && phase < 3*math.Pi/2 {
+		mid = float64(autumnTemp)
 	}
-	return int(math.Round(springAutumnTemp + float64(springAutumnTemp-winterTroughTemp)*s))
+
+	if s >= 0 {
+		return int(math.Round(mid + (float64(summerPeakTemp)-mid)*s))
+	}
+	return int(math.Round(mid + (mid-float64(winterTroughTemp))*s))
 }
 
 // Season は季節を表す。1年を4等分し、春開始で巡る。
