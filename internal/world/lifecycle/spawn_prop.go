@@ -77,6 +77,12 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 		}
 	}
 
+	// 通行可否が変わったので周囲の囲われを焼き直す。扉を開けると外気が入り、閉じると屋内に戻る
+	if world.Components.GridElement.Has(doorEntity) {
+		coord := world.Components.GridElement.Get(doorEntity).Coord
+		RecalcShelterAround(world, coord.X, coord.Y)
+	}
+
 	return nil
 }
 
