@@ -101,7 +101,7 @@ func TestAmbientTemperatureAt_ダンジョンの囲われたタイルは世界�
 
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -10, temp, "屋内は基本気温 0 に世界温度 -20 の半分 -10 を足す")
+	assert.Equal(t, -5, temp, "屋内はアンカー10へ半分寄せた 10+(-20-10)/2 = -5 になる")
 }
 
 func TestAmbientTemperatureAt_ダンジョンの囲われていないタイルは世界温度をそのまま受ける(t *testing.T) {
@@ -130,7 +130,24 @@ func TestAmbientTemperatureAt_オーバーワールドの屋内タイルは世�
 
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -10, temp, "オーバーワールドの屋内は世界温度 -20 の半分 -10 になる")
+	assert.Equal(t, -5, temp, "オーバーワールドの屋内はアンカー10へ半分寄せた -5 になる")
+}
+
+func TestAmbientTemperatureAt_温暖時も屋内は屋外より寒くならない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 開始直後の春の夜明け。世界温度 = 5 + 0 = 5。0℃へ割るだけの式だと屋内 2℃ で屋外より寒い逆転が起きる
+	query.GetGameTime(world).TotalTurns = 0
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	tile := world.ECS.NewEntity()
+	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+	world.Components.TileTemperature.Add(tile, &gc.TileTemperature{Shelter: gc.ShelterFull})
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, 8, temp, "屋内はアンカー10へ半分寄せた 10+(5-10)/2 = 8 で屋外の 5 より暖かい")
 }
 
 func TestAmbientTemperatureAt_熱源は環境気温を押し上げる(t *testing.T) {
@@ -164,7 +181,7 @@ func TestAmbientTemperatureAt_半屋外タイルは世界温度を中間の強�
 
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -15, temp, "半屋外は世界温度 -20 の 3/4 で -15 になる")
+	assert.Equal(t, -12, temp, "半屋外はアンカー10へ 3/4 寄せた 10+(-30)*3/4 = -12 になる")
 }
 
 func TestAmbientTemperatureAt_冬の屋内は屋外より暖かい(t *testing.T) {

@@ -43,9 +43,26 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 }
 
-// indoorInfluenceDivisor は屋内タイルの周囲気温が世界温度から受ける影響の減衰。
-// 屋内は屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。
-const indoorInfluenceDivisor = 2
+// 屋内の温度緩和パラメータ。屋内は世界温度をそのまま受けず、アンカー温度へ引き寄せて受ける。
+// 引き寄せ先を 0℃ でなくアンカーにするのは、寒さが浅いときにも屋内が屋外より穏やかで
+// あり続けるため。0℃ へ割るだけだと温暖時に屋内が屋外より寒くなる逆転が起きる。
+// 値は実プレイで調整する。
+const (
+	// indoorAnchorTemp は屋内温度の引き寄せ先
+	indoorAnchorTemp = 10
+	// indoorInfluenceDivisor は世界温度とアンカーの差を屋内が受ける割合の分母
+	indoorInfluenceDivisor = 2
+)
+
+// indoorWorldTemp は屋内が受ける世界温度を返す。アンカーへ divisor ぶん引き寄せる
+func indoorWorldTemp(worldTemp int) int {
+	return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)/indoorInfluenceDivisor
+}
+
+// semiOutdoorWorldTemp は半屋外が受ける世界温度を返す。屋内より弱くアンカーへ寄せる。係数は実プレイで調整する
+func semiOutdoorWorldTemp(worldTemp int) int {
+	return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)*3/4
+}
 
 // naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量
 const naturalRecoveryPerTurn = 0.25
@@ -79,11 +96,11 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 
 	switch shelter {
 	case gc.ShelterFull:
-		// 屋内は世界温度を割って受ける。世界が寒いほど屋内も寒くなるが、屋外ほど厳しくならない
-		return baseTemp + worldTemp/indoorInfluenceDivisor + local, nil
+		// 屋内は世界温度をアンカーへ引き寄せて受ける。世界が寒いほど屋内も寒くなるが、屋外ほど厳しくならない
+		return baseTemp + indoorWorldTemp(worldTemp) + local, nil
 	case gc.ShelterPartial:
-		// 半屋外は中間の強さで受ける。係数は実プレイで調整する
-		return baseTemp + worldTemp*3/4 + local, nil
+		// 半屋外は屋内より弱くアンカーへ寄せて受ける
+		return baseTemp + semiOutdoorWorldTemp(worldTemp) + local, nil
 	case gc.ShelterNone:
 		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
 	}
