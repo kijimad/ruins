@@ -42,7 +42,6 @@ type conditionDamage struct {
 
 // Update は怪我と病気の回復軌道を進め、重症の不調で HP を削る
 func (sys *ConditionSystem) Update(world w.World) error {
-	var toMark []ecs.Entity
 	var toDamage []conditionDamage
 
 	healthQuery := query.ActiveFilter1[gc.HealthStatus](world).Query()
@@ -51,7 +50,6 @@ func (sys *ConditionSystem) Update(world w.World) error {
 		hs := world.Components.HealthStatus.Get(entity)
 		metab := query.Metabolism(world, entity)
 		hasHP := world.Components.HP.Has(entity)
-		changed := false
 
 		for p := range hs.Parts {
 			part := &hs.Parts[p]
@@ -63,9 +61,7 @@ func (sys *ConditionSystem) Update(world w.World) error {
 				}
 
 				if delta := conditionTimerDelta(def, cond, metab); delta != 0 {
-					if prev, cur := cond.UpdateTimer(delta); prev != cur {
-						changed = true
-					}
+					cond.UpdateTimer(delta)
 				}
 
 			}
@@ -82,17 +78,6 @@ func (sys *ConditionSystem) Update(world w.World) error {
 			if drain, cause := hs.BloodLossHPDrain(); drain > 0 {
 				toDamage = append(toDamage, conditionDamage{entity: entity, amount: drain, cause: cause})
 			}
-		}
-
-		// 不調が進むと capacity が変わるので、効率倍率を持つ者は再計算を促す
-		if changed && world.Components.CharModifiers.Has(entity) {
-			toMark = append(toMark, entity)
-		}
-	}
-
-	for _, entity := range toMark {
-		if !world.Components.StatsChanged.Has(entity) {
-			world.Components.StatsChanged.Add(entity, &gc.StatsChanged{})
 		}
 	}
 

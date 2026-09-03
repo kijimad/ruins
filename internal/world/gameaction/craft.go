@@ -63,14 +63,14 @@ func CanCraft(world w.World, name string) (bool, error) {
 	return true, nil
 }
 
-// playerCraftMods はプレイヤーのクラフト倍率を返す。プレイヤーや修正が無ければ基準値
+// playerCraftMods はプレイヤーのクラフト倍率を返す。プレイヤーが無ければ基準値
 func playerCraftMods(world w.World) (craftCost, smithQuality consts.Percent) {
 	craftCost, smithQuality = consts.PercentBase, consts.PercentBase
 	player, err := query.GetPlayerEntity(world)
-	if err == nil && world.Components.CharModifiers.Has(player) {
-		mods := world.Components.CharModifiers.Get(player)
-		craftCost = mods.CraftCost
-		smithQuality = mods.SmithQuality
+	if err == nil {
+		mods := query.Modifiers(world, player)
+		craftCost = mods.Value(gc.ModCraftCost)
+		smithQuality = mods.Value(gc.ModSmithQuality)
 	}
 	return craftCost, smithQuality
 }

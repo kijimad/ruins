@@ -147,28 +147,22 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 
 func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
-	if !query.AliveHas(world, world.Components.CharModifiers, playerEntity) {
+	if !world.ECS.Alive(playerEntity) {
 		return items
 	}
-	e := world.Components.CharModifiers.Get(playerEntity)
+	e := query.Modifiers(world, playerEntity)
 
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
-	for _, id := range gc.AllSkillIDs {
-		if mult, ok := e.WeaponDamage[id]; ok {
-			name := query.T(world, gc.SkillName(id))
-			items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon damage multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})
-		}
+	for _, id := range gc.WeaponSkillIDs {
+		name := query.T(world, gc.SkillName(id))
+		items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: fmt.Sprintf("%d%%", e.Value(gc.WeaponDamageKey(id))), Description: query.T(world, "%s weapon damage multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})
 	}
-	for _, id := range gc.AllSkillIDs {
-		if mult, ok := e.WeaponAccuracy[id]; ok {
-			name := query.T(world, gc.SkillName(id))
-			items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})
-		}
+	for _, id := range gc.WeaponSkillIDs {
+		name := query.T(world, gc.SkillName(id))
+		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: fmt.Sprintf("%d%%", e.Value(gc.WeaponAccuracyKey(id))), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})
 	}
 	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
-		if mult, ok := e.ElementResist[elem]; ok {
-			items = append(items, statusItemData{Label: query.T(world, "%s resistance", elem.String()), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s element damage multiplier. Lower reduces more", elem.String()), Details: sourceToDetails(e.Sources, gc.ElementResistKey(elem))})
-		}
+		items = append(items, statusItemData{Label: query.T(world, "%s resistance", elem.String()), Value: fmt.Sprintf("%d%%", e.Value(gc.ElementResistKey(elem))), Description: query.T(world, "%s element damage multiplier. Lower reduces more", elem.String()), Details: sourceToDetails(e.Sources, gc.ElementResistKey(elem))})
 	}
 
 	// 血液量が危険域まで落ちると失血で HP が減る。一覧は % だけにし、減少量は詳細モーダルの内訳に出す
@@ -193,27 +187,27 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
-		statusItemData{Label: query.T(world, "Hunger progress"), Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
-		statusItemData{Label: query.T(world, "Healing effect"), Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
+		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModColdProgress)), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
+		statusItemData{Label: query.T(world, "Hunger progress"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModHungerProgress)), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
+		statusItemData{Label: query.T(world, "Healing effect"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModHealingEffect)), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Move speed"), Value: fmt.Sprintf("%d%%", e.MoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
-		statusItemData{Label: query.T(world, "Discovery"), Value: fmt.Sprintf("%d%%", e.Exploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: sourceToDetails(e.Sources, gc.ModExploration)},
-		statusItemData{Label: query.T(world, "Detection"), Value: fmt.Sprintf("%d%%", e.EnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},
-		statusItemData{Label: query.T(world, "Night vision"), Value: fmt.Sprintf("%d%%", e.NightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: sourceToDetails(e.Sources, gc.ModNightVision)},
+		statusItemData{Label: query.T(world, "Move speed"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModMoveCost)), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
+		statusItemData{Label: query.T(world, "Discovery"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModExploration)), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: sourceToDetails(e.Sources, gc.ModExploration)},
+		statusItemData{Label: query.T(world, "Detection"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModEnemyVision)), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},
+		statusItemData{Label: query.T(world, "Night vision"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModNightVision)), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: sourceToDetails(e.Sources, gc.ModNightVision)},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Production"), IsHeader: true, Description: query.T(world, "Production and trade effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Material cost"), Value: fmt.Sprintf("%d%%", e.CraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: sourceToDetails(e.Sources, gc.ModCraftCost)},
-		statusItemData{Label: query.T(world, "Craft quality"), Value: fmt.Sprintf("%d%%", e.SmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},
-		statusItemData{Label: query.T(world, "Buy price"), Value: fmt.Sprintf("%d%%", e.BuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},
-		statusItemData{Label: query.T(world, "Sell price"), Value: fmt.Sprintf("%d%%", e.SellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: sourceToDetails(e.Sources, gc.ModSellPrice)},
-		statusItemData{Label: query.T(world, "Max weight"), Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
-		statusItemData{Label: query.T(world, "Max load"), Value: fmt.Sprintf("%d%%", e.HeavyArmor), Description: query.T(world, "Max load multiplier"), Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},
+		statusItemData{Label: query.T(world, "Material cost"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModCraftCost)), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: sourceToDetails(e.Sources, gc.ModCraftCost)},
+		statusItemData{Label: query.T(world, "Craft quality"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModSmithQuality)), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},
+		statusItemData{Label: query.T(world, "Buy price"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModBuyPrice)), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},
+		statusItemData{Label: query.T(world, "Sell price"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModSellPrice)), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: sourceToDetails(e.Sources, gc.ModSellPrice)},
+		statusItemData{Label: query.T(world, "Max weight"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModMaxWeight)), Description: query.T(world, "Max carry weight multiplier"), Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
+		statusItemData{Label: query.T(world, "Max load"), Value: fmt.Sprintf("%d%%", e.Value(gc.ModHeavyArmor)), Description: query.T(world, "Max load multiplier"), Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},
 	)
 	return items
 }

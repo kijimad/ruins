@@ -65,8 +65,6 @@ func TestApplyProfession(t *testing.T) {
 		skills := world.Components.Skills.Get(player)
 		assert.Equal(t, 5, skills.Get(gc.SkillSword).Value, "職業のスキル初期値が反映されるべき")
 
-		assert.True(t, world.Components.CharModifiers.Has(player), "CharModifiersが再計算され付与されるべき")
-
 		item, ok := query.FindStackInInventory(world, "wooden_stick")
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")
 		assert.Equal(t, 3, query.GetEntityCount(world, item), "指定した個数の初期アイテムが生成されるべき")

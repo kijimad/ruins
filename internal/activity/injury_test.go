@@ -55,7 +55,6 @@ func TestApplyInjury(t *testing.T) {
 	}
 	assert.Equal(t, 1, total, "1回で切り傷が1つ付く。斬撃なので切り傷")
 	assert.NotEqual(t, gc.BodyPartWholeBody, hit, "全身は命中先にしない")
-	assert.True(t, world.Components.StatsChanged.Has(player), "StatsChanged を立てる")
 }
 
 func TestApplyInjury_判定に外れると付かない(t *testing.T) {
@@ -73,7 +72,6 @@ func TestApplyInjury_判定に外れると付かない(t *testing.T) {
 	for p := range gc.BodyPartCount {
 		assert.Empty(t, hs.Parts[p].Conditions, "判定に外れると怪我は付かない")
 	}
-	assert.False(t, world.Components.StatsChanged.Has(entity), "StatsChanged も立たない")
 }
 
 func TestApplyInjury_同種の怪我はソフト上限で頭打ち(t *testing.T) {
@@ -118,7 +116,6 @@ func TestApplyInjury_敵も同じ機構で怪我を負う(t *testing.T) {
 
 	// 敵はプレイヤーと同じ共通土台で健康・効率機構を持つ
 	require.True(t, world.Components.HealthStatus.Has(enemy), "敵も HealthStatus を持つ")
-	require.True(t, world.Components.CharModifiers.Has(enemy), "敵も CharModifiers を持つ")
 
 	// 1回の命中で確実に怪我を付ける
 	world.Resources.Config.RNG = rand.New(rand.NewPCG(4, 0))
@@ -130,7 +127,6 @@ func TestApplyInjury_敵も同じ機構で怪我を負う(t *testing.T) {
 		total += len(hs.Parts[p].Conditions)
 	}
 	assert.Equal(t, 1, total, "こちらの攻撃で敵にも怪我が付く")
-	assert.True(t, world.Components.StatsChanged.Has(enemy), "敵も再計算を促す")
 }
 
 func TestApplyInjury_HealthStatusなしは何もしない(t *testing.T) {
@@ -142,5 +138,4 @@ func TestApplyInjury_HealthStatusなしは何もしない(t *testing.T) {
 	attack := &gc.Melee{AttackCategory: gc.AttackSword}
 
 	applyInjury(entity, entity, world, attack) // panic せず何も起きない
-	assert.False(t, world.Components.StatsChanged.Has(entity))
 }

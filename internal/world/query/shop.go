@@ -1,6 +1,7 @@
 package query
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -27,10 +28,7 @@ func CalculateSellPrice(baseValue int) consts.Currency {
 func BuyPrice(world w.World, player ecs.Entity, entity ecs.Entity) consts.Currency {
 	base := GetItemValue(world, entity) * GetEntityCount(world, entity)
 	price := CalculateBuyPrice(base)
-	if world.Components.CharModifiers.Has(player) {
-		price = consts.Currency(world.Components.CharModifiers.Get(player).BuyPrice.ApplyInt(int(price)))
-	}
-	return price
+	return consts.Currency(Modifiers(world, player).Value(gc.ModBuyPrice).ApplyInt(int(price)))
 }
 
 // SellPrice はプレイヤーが entity を売るときの、交渉スキルの売値倍率込みの売却価格を返す。
@@ -39,10 +37,7 @@ func BuyPrice(world w.World, player ecs.Entity, entity ecs.Entity) consts.Curren
 func SellPrice(world w.World, player ecs.Entity, entity ecs.Entity) consts.Currency {
 	base := GetItemValue(world, entity) * GetEntityCount(world, entity)
 	price := CalculateSellPrice(base)
-	if world.Components.CharModifiers.Has(player) {
-		price = consts.Currency(world.Components.CharModifiers.Get(player).SellPrice.ApplyInt(int(price)))
-	}
-	return price
+	return consts.Currency(Modifiers(world, player).Value(gc.ModSellPrice).ApplyInt(int(price)))
 }
 
 // GetItemValue はアイテムの基本価値を取得する

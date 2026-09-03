@@ -26,21 +26,18 @@ func TestCanCraft(t *testing.T) {
 	assert.True(t, canCraft, "十分な素材があるときはクラフト可能であるべき")
 	require.NoError(t, err, "十分な素材があるときはエラーが発生してはいけない")
 
-	// 素材が不足している場合のテスト。木の棒を1個に減らす。2個必要なので不足する
-	require.NoError(t, lifecycle.ChangeItemCount(world, material, -4))
+	// 素材が無い場合のテスト。実消費量はスキルと能力で変動するので、無しの状態で判定する
+	require.NoError(t, lifecycle.ChangeItemCount(world, material, -5))
 
 	canCraft, err = CanCraft(world, "wooden_sword")
-	assert.False(t, canCraft, "素材が不足しているときはクラフト不可能であるべき")
-	require.NoError(t, err, "素材が不足してもエラーは発生しないべき")
+	assert.False(t, canCraft, "素材が無いときはクラフト不可能であるべき")
+	require.NoError(t, err, "素材が無くてもエラーは発生しないべき")
 
 	// 存在しないレシピのテスト
 	canCraft, err = CanCraft(world, "存在しない武器")
 	assert.False(t, canCraft, "存在しないレシピはクラフト不可能であるべき")
 	require.Error(t, err, "存在しないレシピでエラーが発生するべき")
 	assert.Contains(t, err.Error(), "recipe not found", "エラーメッセージにレシピ不存在の内容が含まれるべき")
-
-	// クリーンアップ
-	world.ECS.RemoveEntity(material)
 }
 
 func TestCraft(t *testing.T) {
@@ -92,14 +89,14 @@ func TestCraft_StackTwice(t *testing.T) {
 	assert.Equal(t, 2, query.GetEntityCount(world, second), "回復薬が2個に統合されているべき")
 }
 
-func TestCraft_CraftCostが100超なら消費に失敗し完成品を残さない(t *testing.T) {
+func TestCraft_クラフト倍率で実消費量が減る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 
-	// レシピの基本必要量ちょうどだけ素材を持たせる。不足の原因が CraftCost 倍率だけになるよう全素材を用意する
+	// 木刀は木の棒×2が基本必要量。ちょうどだけ持たせる
 	required := requiredMaterials(world, "wooden_sword")
 	require.NotEmpty(t, required)
 	for _, in := range required {
@@ -107,19 +104,15 @@ func TestCraft_CraftCostが100超なら消費に失敗し完成品を残さな�
 		require.NoError(t, err)
 	}
 
-	// CraftCost を100%超にして、実消費量が所持数を上回る状況を作る
-	world.Components.CharModifiers.Get(player).CraftCost = consts.Percent(200)
+	// クラフトLv10: CraftCost = 100 + 10*(-3) = 70 以下。器用が高いとさらに下がる。
+	// 木の棒2本の実消費量 = max(2*70/100, 1) = 1 で、1本残してクラフトできる
+	world.Components.Skills.Get(player).Get(gc.SkillCrafting).Value = 10
 
 	result, err := Craft(world, "wooden_sword")
-	require.Error(t, err, "実消費量が足りずクラフトは失敗する")
-	assert.Equal(t, gc.InvalidEntity, result, "完成品エンティティを返さない")
+	require.NoError(t, err, "実消費量が減りクラフトは成功する")
+	assert.True(t, world.ECS.Alive(result), "完成品エンティティが返る")
 
-	// 素材は消費されず、完成品も生成されていない
-	for _, in := range required {
-		mat, found := query.FindStackInInventory(world, in.ID)
-		require.True(t, found, "素材 %s が残る", in.ID)
-		assert.Equal(t, in.Amount, query.GetEntityCount(world, mat), "素材 %s は消費されない", in.ID)
-	}
-	_, crafted := query.FindStackInInventory(world, "wooden_sword")
-	assert.False(t, crafted, "完成品は生成されない")
+	stick, found := query.FindStackInInventory(world, "wooden_stick")
+	require.True(t, found, "素材が残る")
+	assert.Equal(t, 1, query.GetEntityCount(world, stick), "実消費量1で木の棒が1本残る")
 }

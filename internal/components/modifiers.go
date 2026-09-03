@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
 )
@@ -96,11 +97,18 @@ var elementResistKeys = map[ElementType]ModifierKey{
 
 // ElementResistKey は元素タイプに対応する耐性効果キーを返す。未定義ならpanicする
 func ElementResistKey(elem ElementType) ModifierKey {
-	key, ok := elementResistKeys[elem]
+	key, ok := ElementResistKeyOK(elem)
 	if !ok {
 		panic(fmt.Sprintf("undefined element type for resistance: %q", elem))
 	}
 	return key
+}
+
+// ElementResistKeyOK は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false。
+// 攻撃側の元素は無属性がありうるので、こちらで判定してから引く
+func ElementResistKeyOK(elem ElementType) (ModifierKey, bool) {
+	key, ok := elementResistKeys[elem]
+	return key, ok
 }
 
 // スキル効果係数の定数。スキル値1あたりの倍率変化量（%）を定義する。
@@ -131,33 +139,23 @@ type ModifierSource struct {
 	Value int    // この要因による変化量。例: +10, -15
 }
 
-// CharModifiers はエンティティの効果倍率を集約するコンポーネント。
-// スキル、健康状態など複数の要因から算出される。100が基準値で変化なし。
+// CharModifiers は効果倍率の導出ビュー。コンポーネントではなく保存しない。
+// Skills・Abilities・HealthStatus から読み取り時に計算する。100が基準値で変化なし
 type CharModifiers struct {
-	WeaponDamage   map[SkillID]consts.Percent     // 武器ダメージ倍率
-	WeaponAccuracy map[SkillID]consts.Percent     // 武器命中倍率
-	ElementResist  map[ElementType]consts.Percent // 元素耐性倍率
-	ColdProgress   consts.Percent                 // 低体温進行倍率
-	HungerProgress consts.Percent                 // 空腹進行倍率
-	HealingEffect  consts.Percent                 // 回復効果倍率
-	MaxWeight      consts.Percent                 // 最大所持重量倍率
-	Exploration    consts.Percent                 // TODO: アイテム発見システム実装時に適用する。アイテム発見率倍率
-	EnemyVision    consts.Percent                 // 敵視界距離倍率
-	NightVision    consts.Percent                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率
-	MoveCost       consts.Percent                 // 移動APコスト倍率
-	CraftCost      consts.Percent                 // 素材消費量倍率
-	SmithQuality   consts.Percent                 // クラフト品質倍率
-	BuyPrice       consts.Percent                 // 買値倍率
-	SellPrice      consts.Percent                 // 売値倍率
-	HeavyArmor     consts.Percent                 // 重装備AGIペナルティ倍率
-
+	// Values は効果倍率の一覧。キーは ModifierKey
+	Values map[ModifierKey]consts.Percent
 	// Capacities は不調から導いた身体機能。命中と移動速度がここを経由する
 	Capacities BodyCapacities
+	// Sources は各効果の算出元。1つの効果に複数の要因が影響しうるためスライスにしている
+	Sources map[ModifierKey][]ModifierSource
+}
 
-	// Sources は各効果の算出元を保持する。
-	// 1つの効果に複数の要因が影響しうるためスライスにしている。
-	// 派生データのためserde対象外とし、ロード時は再計算する
-	Sources map[ModifierKey][]ModifierSource `json:"-"`
+// Value は効果倍率を返す。未定義キーは等倍を返す
+func (m *CharModifiers) Value(key ModifierKey) consts.Percent {
+	if v, ok := m.Values[key]; ok {
+		return v
+	}
+	return consts.PercentBase
 }
 
 // weaponAccuracyCapacity は武器スキルの命中に効く身体機能の種別と乗数を返す。
@@ -176,82 +174,98 @@ func weaponAccuracyCapacity(caps BodyCapacities, id SkillID) (CapacityKind, cons
 	return CapacityManipulation, caps.Manipulation
 }
 
-// RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。
-// abils, hs は nil でもよい。
-func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {
-	e := &CharModifiers{}
-	src := make(map[ModifierKey][]ModifierSource)
+// modifierSpec は倍率1つの定義。キー・元スキル・スキルLv1あたりの係数を束ねる
+type modifierSpec struct {
+	Key   ModifierKey
+	Skill SkillID
+	Coeff int
+}
 
-	calcEffect := func(key ModifierKey, skillID SkillID, coeff int) consts.Percent {
-		v := skills.Get(skillID).Value
-		bonus := v * coeff
-		src[key] = append(src[key], ModifierSource{
-			Label: fmt.Sprintf("%s Lv%d", SkillName(skillID), v),
+// modifierSpecs は全倍率の定義表。単発の倍率を足すときはここへ1行足す
+var modifierSpecs = buildModifierSpecs()
+
+func buildModifierSpecs() []modifierSpec {
+	specs := slices.Grow([]modifierSpec{
+		{ModFireResist, SkillFireResist, coeffElementResist},
+		{ModThunderResist, SkillThunderResist, coeffElementResist},
+		{ModChillResist, SkillChillResist, coeffElementResist},
+		{ModPhotonResist, SkillPhotonResist, coeffElementResist},
+		{ModColdProgress, SkillColdResist, coeffColdProgress},
+		{ModHungerProgress, SkillHungerResist, coeffHungerProgress},
+		{ModHealingEffect, SkillHealing, coeffHealingEffect},
+		{ModMaxWeight, SkillWeightBearing, coeffMaxWeight},
+		{ModExploration, SkillExploration, coeffExploration},
+		{ModEnemyVision, SkillStealth, coeffEnemyVision},
+		{ModNightVision, SkillNightVision, coeffNightVision},
+		{ModMoveCost, SkillSprinting, coeffMoveCost},
+		{ModCraftCost, SkillCrafting, coeffCraftCost},
+		{ModSmithQuality, SkillSmithing, coeffSmithQuality},
+		{ModBuyPrice, SkillNegotiation, coeffBuyPrice},
+		{ModSellPrice, SkillNegotiation, coeffSellPrice},
+		{ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor},
+	}, 2*len(WeaponSkillIDs))
+	// 武器の行はスキルIDの直積なので手書きせず生成する
+	for _, id := range WeaponSkillIDs {
+		specs = append(specs,
+			modifierSpec{WeaponDamageKey(id), id, coeffWeaponDamage},
+			modifierSpec{WeaponAccuracyKey(id), id, coeffWeaponAccuracy})
+	}
+	return specs
+}
+
+// CalcCharModifiers はスキル、能力値、健康状態から全効果倍率を導出する。
+// abils, hs は nil でもよい。値と内訳を同じループから生成するので
+// 最終値 = 基準 + Σ内訳 が構造で保証される
+func CalcCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {
+	e := &CharModifiers{
+		Values:  make(map[ModifierKey]consts.Percent, len(modifierSpecs)),
+		Sources: make(map[ModifierKey][]ModifierSource, len(modifierSpecs)),
+	}
+
+	e.Capacities = HealthyCapacities()
+	if hs != nil {
+		e.Capacities = hs.Capacities()
+	}
+
+	for _, spec := range modifierSpecs {
+		v := skills.Get(spec.Skill).Value
+		bonus := v * spec.Coeff
+		e.Sources[spec.Key] = append(e.Sources[spec.Key], ModifierSource{
+			Label: fmt.Sprintf("%s Lv%d", SkillName(spec.Skill), v),
 			Value: bonus,
 		})
 
 		// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
 		if abils != nil {
-			ablID := SkillAbilityID(skillID)
+			ablID := SkillAbilityID(spec.Skill)
 			ablVal := abils.ValueOf(ablID)
 			ablCoeff := 1
-			if coeff < 0 {
+			if spec.Coeff < 0 {
 				ablCoeff = -1
 			}
 			ablBonus := ablVal * ablCoeff
-			src[key] = append(src[key], ModifierSource{
+			e.Sources[spec.Key] = append(e.Sources[spec.Key], ModifierSource{
 				Label: fmt.Sprintf("%s %d", AbilityName(ablID), ablVal),
 				Value: ablBonus,
 			})
 			bonus += ablBonus
 		}
 
-		return consts.PercentBase + consts.Percent(bonus)
+		e.Values[spec.Key] = consts.PercentBase + consts.Percent(bonus)
 	}
 
-	// 不調による身体機能。命中はここを経由するので武器命中へ畳み込む
-	e.Capacities = HealthyCapacities()
-	if hs != nil {
-		e.Capacities = hs.Capacities()
-	}
-
-	e.WeaponDamage = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
-	e.WeaponAccuracy = make(map[SkillID]consts.Percent, len(weaponSkillIDs))
-	for _, id := range weaponSkillIDs {
-		e.WeaponDamage[id] = calcEffect(WeaponDamageKey(id), id, coeffWeaponDamage)
-
-		// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せて 最終値 = 基準 + Σ内訳 を保つ
-		acc := calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)
+	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せて 最終値 = 基準 + Σ内訳 を保つ
+	for _, id := range WeaponSkillIDs {
+		key := WeaponAccuracyKey(id)
+		acc := int(e.Values[key])
 		capKind, capVal := weaponAccuracyCapacity(e.Capacities, id)
-		withCap := capVal.ApplyInt(int(acc))
-		src[WeaponAccuracyKey(id)] = append(src[WeaponAccuracyKey(id)], ModifierSource{
+		withCap := capVal.ApplyInt(acc)
+		e.Sources[key] = append(e.Sources[key], ModifierSource{
 			Label: fmt.Sprintf("%s %d%%", capKind, int(capVal)),
-			Value: withCap - int(acc),
+			Value: withCap - acc,
 		})
-		e.WeaponAccuracy[id] = consts.Percent(withCap)
+		e.Values[key] = consts.Percent(withCap)
 	}
 
-	e.ElementResist = map[ElementType]consts.Percent{
-		ElementTypeFire:    calcEffect(ModFireResist, SkillFireResist, coeffElementResist),
-		ElementTypeThunder: calcEffect(ModThunderResist, SkillThunderResist, coeffElementResist),
-		ElementTypeChill:   calcEffect(ModChillResist, SkillChillResist, coeffElementResist),
-		ElementTypePhoton:  calcEffect(ModPhotonResist, SkillPhotonResist, coeffElementResist),
-	}
-
-	e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, coeffColdProgress)
-	e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, coeffHungerProgress)
-	e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, coeffHealingEffect)
-	e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, coeffMaxWeight)
-	e.Exploration = calcEffect(ModExploration, SkillExploration, coeffExploration)
-	e.EnemyVision = calcEffect(ModEnemyVision, SkillStealth, coeffEnemyVision)
-	e.NightVision = calcEffect(ModNightVision, SkillNightVision, coeffNightVision)
-	e.MoveCost = calcEffect(ModMoveCost, SkillSprinting, coeffMoveCost)
-	e.CraftCost = calcEffect(ModCraftCost, SkillCrafting, coeffCraftCost)
-	e.SmithQuality = calcEffect(ModSmithQuality, SkillSmithing, coeffSmithQuality)
-	e.BuyPrice = calcEffect(ModBuyPrice, SkillNegotiation, coeffBuyPrice)
-	e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)
-	e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)
-
-	e.Sources = src
 	return e
 }

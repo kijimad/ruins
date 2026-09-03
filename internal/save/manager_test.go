@@ -405,35 +405,6 @@ func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
 	assert.Contains(t, err.Error(), "singleton")
 }
 
-// TestLoadWorld_ReaddsStatsChanged はロード後に Abilities 保持エンティティへ StatsChanged が
-// 付け直されることを検証する。StatsChanged は serde 除外なので、これが無いと CharModifiers.Sources を
-// 再構築する StatsChangedSystem が発火せず、効果内訳の表示が空のまま残る。
-func TestLoadWorld_ReaddsStatsChanged(t *testing.T) {
-	t.Parallel()
-
-	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
-	require.NoError(t, err)
-
-	world := testutil.InitTestWorld(t)
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.Abilities.Add(player, &gc.Abilities{})
-
-	require.NoError(t, manager.SaveWorld(world, "stats_slot"))
-
-	newWorld := testutil.InitTestWorld(t)
-	require.NoError(t, manager.LoadWorld(newWorld, "stats_slot"))
-
-	found := false
-	q := ecs.NewFilter1[gc.Abilities](newWorld.ECS).Query()
-	for q.Next() {
-		if newWorld.Components.StatsChanged.Has(q.Entity()) {
-			found = true
-		}
-	}
-	assert.True(t, found, "ロード後、Abilities保持エンティティに StatsChanged が再付与される")
-}
-
 // TestNewSerializationManager_保存ディレクトリの作成に失敗するとエラー は、セーブディレクトリの
 // 親パス上に同名ファイルが既にあり MkdirAll が失敗するケースを検証する。
 func TestNewSerializationManager_保存ディレクトリの作成に失敗するとエラー(t *testing.T) {
