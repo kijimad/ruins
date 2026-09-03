@@ -47,6 +47,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var tempArrow hud.TemperatureArrow
 	var bodyTempRatio float64
 	var bodyTempVisible bool
+	var ambientTemp int
+	var ambientTempVisible bool
+	var ambientTempColor color.RGBA
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
@@ -63,6 +66,14 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 			bodyTempRatio = math.Max(0, math.Min(1, (offset-bodyTempMin)/(bodyTempMax-bodyTempMin)))
 			bodyTempVisible = true
 		}
+		if world.Components.GridElement.Has(entity) {
+			grid := world.Components.GridElement.Get(entity)
+			if temp, err := AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
+				ambientTemp = temp
+				ambientTempVisible = true
+				ambientTempColor = ambientTempDisplayColor(temp)
+			}
+		}
 	}
 
 	// 画面サイズを取得
@@ -73,15 +84,18 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	messageAreaHeight := messageAreaConfig.Height()
 
 	return hud.GameInfoData{
-		FloorNumber:       floorNumber,
-		PlayerHP:          playerHP,
-		PlayerMaxHP:       playerMaxHP,
-		PlayerWeight:      playerWeight,
-		PlayerMaxWeight:   playerMaxWeight,
-		TempArrow:         tempArrow,
-		BodyTempRatio:     bodyTempRatio,
-		BodyTempVisible:   bodyTempVisible,
-		MessageAreaHeight: messageAreaHeight,
+		FloorNumber:        floorNumber,
+		PlayerHP:           playerHP,
+		PlayerMaxHP:        playerMaxHP,
+		PlayerWeight:       playerWeight,
+		PlayerMaxWeight:    playerMaxWeight,
+		TempArrow:          tempArrow,
+		BodyTempRatio:      bodyTempRatio,
+		BodyTempVisible:    bodyTempVisible,
+		AmbientTemp:        ambientTemp,
+		AmbientTempVisible: ambientTempVisible,
+		AmbientTempColor:   ambientTempColor,
+		MessageAreaHeight:  messageAreaHeight,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
 			Height: screenHeight,
@@ -429,6 +443,17 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 			Height: screenHeight,
 		},
 	}
+}
+
+// ambientTempDisplayColor は周囲気温の表示色を返す。快適帯の中は白、下回ると青、上回ると赤に寄せる
+func ambientTempDisplayColor(temp int) color.RGBA {
+	switch {
+	case temp < ComfortableTempLower:
+		return color.RGBA{150, 190, 255, 255}
+	case temp > ComfortableTempUpper:
+		return color.RGBA{255, 170, 120, 255}
+	}
+	return color.RGBA{255, 255, 255, 255}
 }
 
 // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界

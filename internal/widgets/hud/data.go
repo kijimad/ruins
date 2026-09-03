@@ -1,6 +1,8 @@
 package hud
 
 import (
+	"image/color"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 )
@@ -18,16 +20,19 @@ type Data struct {
 
 // GameInfoData はゲーム基本情報のデータ
 type GameInfoData struct {
-	FloorNumber       int              // フロア番号
-	PlayerHP          int              // プレイヤーの現在HP
-	PlayerMaxHP       int              // プレイヤーの最大HP
-	PlayerWeight      consts.Milligram // プレイヤーの現在所持重量
-	PlayerMaxWeight   consts.Milligram // プレイヤーの所持可能重量
-	TempArrow         TemperatureArrow // 体温変化の矢印。HP バーの左に出す
-	BodyTempRatio     float64          // 体温ゲージの割合。0..1 で 0.5 が平熱
-	BodyTempVisible   bool             // 体温ゲージを表示するか
-	MessageAreaHeight int              // メッセージエリアの高さ（ステータス表示位置計算用）
-	ScreenDimensions  ScreenDimensions // 画面サイズ。階層表示位置計算用
+	FloorNumber        int              // フロア番号
+	PlayerHP           int              // プレイヤーの現在HP
+	PlayerMaxHP        int              // プレイヤーの最大HP
+	PlayerWeight       consts.Milligram // プレイヤーの現在所持重量
+	PlayerMaxWeight    consts.Milligram // プレイヤーの所持可能重量
+	TempArrow          TemperatureArrow // 体温変化の矢印。HP バーの左に出す
+	BodyTempRatio      float64          // 体温ゲージの割合。0..1 で 0.5 が平熱
+	BodyTempVisible    bool             // 体温ゲージを表示するか
+	AmbientTemp        int              // プレイヤー位置の周囲気温℃
+	AmbientTempVisible bool             // 周囲気温を表示するか
+	AmbientTempColor   color.RGBA       // 周囲気温の文字色。快適帯の内外を示す
+	MessageAreaHeight  int              // メッセージエリアの高さ（ステータス表示位置計算用）
+	ScreenDimensions   ScreenDimensions // 画面サイズ。階層表示位置計算用
 }
 
 // MinimapData はミニマップ描画に必要なデータ

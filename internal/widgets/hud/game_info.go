@@ -80,6 +80,9 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(cv, data)
 
+	// 周囲気温表示。所持重量の1行上
+	info.drawAmbientTemperature(cv, data)
+
 	// フロア情報（最後に描画して最前面に表示）
 	info.drawFloorNumber(cv, data)
 }
@@ -201,6 +204,25 @@ func (info *GameInfo) drawGaugeBar(cv uicore.Canvas, x, y, width, ratio float64,
 		dst := image.Rect(int(x), top+1, int(x)+fillW, top+1+int(gaugeFillHeight))
 		cv.DrawImageTintedRect(dst, info.gaugeFill, color.NRGBA(fillColor))
 	}
+}
+
+// drawAmbientTemperature はプレイヤーがいる地点の周囲気温を右下、所持重量の1行上に描画する。
+// 温度が場所依存なので、屋内へ入る・火に近づくといった移動の効果がその場で読める
+func (info *GameInfo) drawAmbientTemperature(cv uicore.Canvas, data GameInfoData) {
+	if !data.AmbientTempVisible {
+		return
+	}
+
+	tempText := fmt.Sprintf("%d%s", data.AmbientTemp, consts.IconDegree)
+	textWidth, textHeight := uicore.MeasureText(tempText, info.bodyFace)
+
+	// 通貨・所持重量と同じ右端に揃え、所持重量からさらに1行分上げる
+	screenWidth := float64(data.ScreenDimensions.Width)
+	screenHeight := float64(data.ScreenDimensions.Height)
+	x := screenWidth - float64(textWidth) - theme.Space4F
+	y := screenHeight - float64(data.MessageAreaHeight) - theme.Space4F - float64(textHeight*3) - theme.Space2F*2
+
+	drawOutlinedText(cv, tempText, info.bodyFace, image.Pt(int(x), int(y)), data.AmbientTempColor)
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
