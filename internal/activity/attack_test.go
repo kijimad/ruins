@@ -301,7 +301,6 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
-	// ビューは HealthStatus の身体機能を反映する
 	mods := query.Modifiers(world, actor)
 	require.NotNil(t, mods)
 	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=87

@@ -104,8 +104,7 @@ func ElementResistKey(elem ElementType) ModifierKey {
 	return key
 }
 
-// ElementResistKeyOK は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false。
-// 攻撃側の元素は無属性がありうるので、こちらで判定してから引く
+// ElementResistKeyOK は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false
 func ElementResistKeyOK(elem ElementType) (ModifierKey, bool) {
 	key, ok := elementResistKeys[elem]
 	return key, ok
@@ -142,7 +141,7 @@ type ModifierSource struct {
 // CharModifiers は効果倍率の導出ビュー。コンポーネントではなく保存しない。
 // Skills・Abilities・HealthStatus から読み取り時に計算する。100が基準値で変化なし
 type CharModifiers struct {
-	// Values は効果倍率の一覧。キーは ModifierKey
+	// Values は効果倍率の一覧
 	Values map[ModifierKey]consts.Percent
 	// Capacities は不調から導いた身体機能。命中と移動速度がここを経由する
 	Capacities BodyCapacities
@@ -204,7 +203,7 @@ func buildModifierSpecs() []modifierSpec {
 		{ModSellPrice, SkillNegotiation, coeffSellPrice},
 		{ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor},
 	}, 2*len(WeaponSkillIDs))
-	// 武器の行はスキルIDの直積なので手書きせず生成する
+	// 武器の行はスキルIDの直積なので生成する
 	for _, id := range WeaponSkillIDs {
 		specs = append(specs,
 			modifierSpec{WeaponDamageKey(id), id, coeffWeaponDamage},
@@ -214,8 +213,7 @@ func buildModifierSpecs() []modifierSpec {
 }
 
 // CalcCharModifiers はスキル、能力値、健康状態から全効果倍率を導出する。
-// abils, hs は nil でもよい。値と内訳を同じループから生成するので
-// 最終値 = 基準 + Σ内訳 が構造で保証される
+// abils, hs は nil でもよい。内訳は 最終値 = 基準 + Σ内訳 を満たす
 func CalcCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {
 	e := &CharModifiers{
 		Values:  make(map[ModifierKey]consts.Percent, len(modifierSpecs)),

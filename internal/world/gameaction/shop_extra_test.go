@@ -59,7 +59,6 @@ func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
 	require.NoError(t, err)
 
-	// 店頭の表示価格と取引で引かれる額が同じ1関数から出る
 	expected := query.BuyPrice(world, player, item)
 	assert.Less(t, expected, query.CalculateBuyPrice(woodenSwordValue), "交渉スキルで基準価格より安くなる")
 
@@ -113,7 +112,6 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	// 実アイテムは必ず RawID を持つ。収納内スタック統合はこれで同名を引く
 	world.Components.RawID.Add(item, &gc.RawID{ID: "test_item"})
 
-	// 店頭の表示価格と取引で得る額が同じ1関数から出る
 	expected := query.SellPrice(world, player, item)
 	assert.Greater(t, expected, query.CalculateSellPrice(100), "交渉スキルで基準価格より高く売れる")
 
