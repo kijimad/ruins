@@ -97,15 +97,15 @@ var elementResistKeys = map[ElementType]ModifierKey{
 
 // ElementResistKey は元素タイプに対応する耐性効果キーを返す。未定義ならpanicする
 func ElementResistKey(elem ElementType) ModifierKey {
-	key, ok := ElementResistKeyOK(elem)
+	key, ok := LookupElementResistKey(elem)
 	if !ok {
 		panic(fmt.Sprintf("undefined element type for resistance: %q", elem))
 	}
 	return key
 }
 
-// ElementResistKeyOK は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false
-func ElementResistKeyOK(elem ElementType) (ModifierKey, bool) {
+// LookupElementResistKey は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false
+func LookupElementResistKey(elem ElementType) (ModifierKey, bool) {
 	key, ok := elementResistKeys[elem]
 	return key, ok
 }

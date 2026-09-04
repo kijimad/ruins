@@ -264,7 +264,7 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 
 // applyElementResist は元素耐性倍率でダメージを軽減する。無属性攻撃は対象外
 func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, world w.World) int {
-	key, ok := gc.ElementResistKeyOK(element)
+	key, ok := gc.LookupElementResistKey(element)
 	if !ok {
 		return damage
 	}
