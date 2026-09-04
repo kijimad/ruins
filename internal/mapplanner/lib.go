@@ -181,68 +181,6 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
 	return false
 }
 
-// GetWallType は近傍パターンから適切な壁タイプを判定する
-func (bm MetaPlan) GetWallType(idx gc.TileIdx) WallType {
-	// 4方向の隣接タイルの床状況をチェック
-	upFloor := bm.isFloorOrWarp(bm.UpTile(idx))
-	downFloor := bm.isFloorOrWarp(bm.DownTile(idx))
-	leftFloor := bm.isFloorOrWarp(bm.LeftTile(idx))
-	rightFloor := bm.isFloorOrWarp(bm.RightTile(idx))
-
-	// 単純なケース：一方向のみに床がある場合
-	if singleWallType := bm.checkSingleDirectionWalls(upFloor, downFloor, leftFloor, rightFloor); singleWallType != WallTypeGeneric {
-		return singleWallType
-	}
-
-	// 角のケース：2方向に床がある場合
-	if cornerWallType := bm.checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor); cornerWallType != WallTypeGeneric {
-		return cornerWallType
-	}
-
-	// 複雑なパターンまたは判定不可の場合
-	return WallTypeGeneric
-}
-
-// checkSingleDirectionWalls は単一方向に床がある場合の壁タイプを返す
-func (bm MetaPlan) checkSingleDirectionWalls(upFloor, downFloor, leftFloor, rightFloor bool) WallType {
-	if downFloor && !upFloor && !leftFloor && !rightFloor {
-		return WallTypeTop // 下に床がある → 上壁
-	}
-	if upFloor && !downFloor && !leftFloor && !rightFloor {
-		return WallTypeBottom // 上に床がある → 下壁
-	}
-	if rightFloor && !upFloor && !downFloor && !leftFloor {
-		return WallTypeLeft // 右に床がある → 左壁
-	}
-	if leftFloor && !upFloor && !downFloor && !rightFloor {
-		return WallTypeRight // 左に床がある → 右壁
-	}
-	return WallTypeGeneric
-}
-
-// checkCornerWalls は2方向に床がある場合の壁タイプを返す
-func (bm MetaPlan) checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor bool) WallType {
-	if downFloor && rightFloor && !upFloor && !leftFloor {
-		return WallTypeTopLeft // 下右に床 → 左上角
-	}
-	if downFloor && leftFloor && !upFloor && !rightFloor {
-		return WallTypeTopRight // 下左に床 → 右上角
-	}
-	if upFloor && rightFloor && !downFloor && !leftFloor {
-		return WallTypeBottomLeft // 上右に床 → 左下角
-	}
-	if upFloor && leftFloor && !downFloor && !rightFloor {
-		return WallTypeBottomRight // 上左に床 → 右下角
-	}
-	return WallTypeGeneric
-}
-
-// isFloorOrWarp は移動可能タイルかを判定する（壁オートタイル用）
-// BlockPassがtrueのタイルは床として扱わない
-func (bm MetaPlan) isFloorOrWarp(tile oapi.Tile) bool {
-	return !tile.BlockPass
-}
-
 // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体
 type PlannerChain struct {
 	Starter   *InitialMapPlanner
