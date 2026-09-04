@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-04 00:19:35</td>
+            <td class="headerValue">2026-09-04 00:29:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -176,7 +176,7 @@
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                         if perimeter &amp;&amp; (ly != oy+hh-1 || lx != door) {</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                                 name = consts.TileNameDWall</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                         if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                         if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to place landmark hut (x=%d, y=%d): %w&quot;, lx, ly, err)</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L120"><span class="lineNum">     120</span>              :                 }</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-04 00:19:35</td>
+            <td class="headerValue">2026-09-04 00:29:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -127,9 +127,9 @@
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;failed to spawn tile entity (%d, %d): %w&quot;, int(pos.X), int(pos.Y), err)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
-<span id="L68"><span class="lineNum">      68</span>              :                 // TileRaw の環境情報を TileTemperature に設定する</span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 if world.Components.TileTemperature.Has(tileEntity) {</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         tileTemp := world.Components.TileTemperature.Get(tileEntity)</span></span>
+<span id="L68"><span class="lineNum">      68</span>              :                 // TileRaw の環境情報を TileEnvironment に設定する</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 if world.Components.TileEnvironment.Has(tileEntity) {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         tileTemp := world.Components.TileEnvironment.Get(tileEntity)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         tileTemp.Shelter = gc.ShelterType(tile.Shelter)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                         tileTemp.Water = gc.WaterType(tile.Water)</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                         tileTemp.Foliage = gc.FoliageType(tile.Foliage)</span></span>

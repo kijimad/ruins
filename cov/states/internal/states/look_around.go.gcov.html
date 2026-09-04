@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">67.5&nbsp;%</td>
-            <td class="headerCovTableEntry">151</td>
-            <td class="headerCovTableEntry">102</td>
+            <td class="headerCovTableEntryLo">67.8&nbsp;%</td>
+            <td class="headerCovTableEntry">152</td>
+            <td class="headerCovTableEntry">103</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-04 00:19:35</td>
+            <td class="headerValue">2026-09-04 00:29:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -254,8 +254,8 @@
 <span id="L192"><span class="lineNum">     192</span>              :         // 移動コストを表示</span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         st.drawPassCost(world, entities, panel)</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L195"><span class="lineNum">     195</span>              :         // タイル温度を表示（TileTemperatureコンポーネントを持つエンティティ）</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         st.drawTileTemperature(world, entities, panel)</span></span>
+<span id="L195"><span class="lineNum">     195</span>              :         // タイルの環境属性を表示する</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         st.drawTileEnvironment(world, entities, panel)</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         panel.SeekBottom(30)</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         drawText(query.T(world, &quot;Arrows: Move  X/Esc: Close&quot;))</span></span>
@@ -316,26 +316,27 @@
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L255"><span class="lineNum">     255</span>              : }</span>
 <span id="L256"><span class="lineNum">     256</span>              : </span>
-<span id="L257"><span class="lineNum">     257</span>              : // drawTileTemperature はタイル温度修正値を描画する</span>
-<span id="L258"><span class="lineNum">     258</span>              : func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, panel *hud.InfoPanel) {</span>
+<span id="L257"><span class="lineNum">     257</span>              : // drawTileEnvironment はタイルの環境属性を描画する</span>
+<span id="L258"><span class="lineNum">     258</span>              : func (st *LookAroundState) drawTileEnvironment(world w.World, entities []ecs.Entity, panel *hud.InfoPanel) {</span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         for _, entity := range entities {</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 if world.Components.TileTemperature.Has(entity) {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                         temp := world.Components.TileTemperature.Get(entity)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 if world.Components.TileEnvironment.Has(entity) {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                         temp := world.Components.TileEnvironment.Get(entity)</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                         panel.Gap(5)</span></span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                         panel.Line(fmt.Sprintf(&quot;%s: %+d&quot;, query.T(world, &quot;Temperature modifier&quot;), temp.Total()))</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                         if temp.Shelter != 0 {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Indoor&quot;), temp.Shelter))</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC tlaBgGNC">           1 :                         if temp.Water != 0 {</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Waterside&quot;), temp.Water))</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC tlaBgGNC">           1 :                         if temp.Foliage != 0 {</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Foliage&quot;), temp.Foliage))</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC tlaBgGNC">           1 :                         return</span></span>
-<span id="L274"><span class="lineNum">     274</span>              :                 }</span>
-<span id="L275"><span class="lineNum">     275</span>              :         }</span>
-<span id="L276"><span class="lineNum">     276</span>              : }</span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                         // Shelter は加算℃でなく世界温度の緩和度なので、数値でなく屋内であることだけ示す</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                         if temp.Shelter != gc.ShelterNone {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(&quot;  &quot; + query.T(world, &quot;Indoor&quot;))</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC tlaBgGNC">           1 :                         if temp.Water != 0 {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Waterside&quot;), temp.Water))</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC tlaBgGNC">           1 :                         if temp.Foliage != 0 {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Foliage&quot;), temp.Foliage))</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC tlaBgGNC">           1 :                         return</span></span>
+<span id="L275"><span class="lineNum">     275</span>              :                 }</span>
+<span id="L276"><span class="lineNum">     276</span>              :         }</span>
+<span id="L277"><span class="lineNum">     277</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">81.8&nbsp;%</td>
-            <td class="headerCovTableEntry">154</td>
-            <td class="headerCovTableEntry">126</td>
+            <td class="headerCovTableEntryMed">82.4&nbsp;%</td>
+            <td class="headerCovTableEntry">170</td>
+            <td class="headerCovTableEntry">140</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-04 00:19:35</td>
+            <td class="headerValue">2026-09-04 00:29:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -105,285 +105,324 @@
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // dungeonWorldInfluenceDivisor はダンジョンの周囲気温が世界温度から受ける影響の減衰。</span>
-<span id="L47"><span class="lineNum">      47</span>              : // 屋内なので屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。</span>
-<span id="L48"><span class="lineNum">      48</span>              : const dungeonWorldInfluenceDivisor = 2</span>
-<span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span>              : // naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量</span>
-<span id="L51"><span class="lineNum">      51</span>              : const naturalRecoveryPerTurn = 0.25</span>
-<span id="L52"><span class="lineNum">      52</span>              : </span>
-<span id="L53"><span class="lineNum">      53</span>              : // AmbientTemperatureAt はタイルの周囲気温を返す。オーバーワールドは屋外なので季節の世界温度</span>
-<span id="L54"><span class="lineNum">      54</span>              : // そのもの、ダンジョンは屋内なのでステージの基本気温に世界温度の影響を緩和して足した値。</span>
-<span id="L55"><span class="lineNum">      55</span>              : // どちらもタイルの熱源補正を足す。屋内外はステージ種別で決まり、タイルごとの判定はしない。</span>
-<span id="L56"><span class="lineNum">      56</span>              : func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         dungeonRes := query.GetDungeon(world)</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         if dungeonRes == nil {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, errors.New(&quot;dungeon resource is not set&quot;)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L61"><span class="lineNum">      61</span>              : </span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :         gt := query.GetGameTime(world)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         // 屋外の世界温度。季節ベースに時間帯の揺れを重ねる</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         tileModifier := getTileTemperatureAt(world, x, y)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L67"><span class="lineNum">      67</span>              :         // 屋外はステージの基本気温を使わないので、定義を引く前に返す</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         if query.IsOnOverworld(world) {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return worldTemp + tileModifier, nil</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L71"><span class="lineNum">      71</span>              : </span>
-<span id="L72"><span class="lineNum">      72</span>              :         // 屋内はステージの基本気温が要る。定義が無ければ判定できないので0を返す</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, nil</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L77"><span class="lineNum">      77</span>              : </span>
-<span id="L78"><span class="lineNum">      78</span>              :         // 世界温度の影響を緩和して受ける。世界が寒いほどダンジョンも寒くなるが、</span>
-<span id="L79"><span class="lineNum">      79</span>              :         // 屋外ほど厳しくならず寒さの逆転も起きない</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC tlaBgGNC">           1 :         return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : // 屋内の温度緩和パラメータ。屋内は世界温度をそのまま受けず、アンカー温度へ引き寄せて受ける。</span>
+<span id="L47"><span class="lineNum">      47</span>              : // 引き寄せ先を 0℃ でなくアンカーにするのは、寒さが浅いときにも屋内が屋外より穏やかで</span>
+<span id="L48"><span class="lineNum">      48</span>              : // あり続けるため。0℃ へ割るだけだと温暖時に屋内が屋外より寒くなる逆転が起きる。</span>
+<span id="L49"><span class="lineNum">      49</span>              : // 値は実プレイで調整する。</span>
+<span id="L50"><span class="lineNum">      50</span>              : const (</span>
+<span id="L51"><span class="lineNum">      51</span>              :         indoorAnchorTemp       = 10</span>
+<span id="L52"><span class="lineNum">      52</span>              :         indoorInfluenceDivisor = 2</span>
+<span id="L53"><span class="lineNum">      53</span>              : )</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : // shelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す</span>
+<span id="L56"><span class="lineNum">      56</span>              : func shelteredWorldTemp(shelter gc.ShelterType, worldTemp int) int {</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         switch shelter {</span></span>
+<span id="L58"><span class="lineNum">      58</span>              :         case gc.ShelterFull:</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)/indoorInfluenceDivisor</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :         case gc.ShelterPartial:</span>
+<span id="L61"><span class="lineNum">      61</span>              :                 // 屋内より弱くアンカーへ寄せる。係数は実プレイで調整する</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)*3/4</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         case gc.ShelterNone:</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :                 // 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる</span>
+<span id="L65"><span class="lineNum">      65</span>              :         }</span>
+<span id="L66"><span class="lineNum">      66</span>              :         // 屋外は世界温度をそのまま受ける。save 由来の未知の値も屋外へ落とす</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return worldTemp</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : }</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : // stageBaseTemperature はステージの基本気温を返す。オーバーワールドは0。</span>
+<span id="L71"><span class="lineNum">      71</span>              : // ダンジョンの定義が無ければ判定できないので ok=false を返す</span>
+<span id="L72"><span class="lineNum">      72</span>              : func stageBaseTemperature(world w.World) (int, bool) {</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         if query.IsOnOverworld(world) {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return 0, true</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         def, ok := dungeon.GetStageDefinition(query.GetDungeon(world).CurrentStage.Name)</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, false</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC tlaBgGNC">           1 :         return def.BaseTemperature(), true</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : }</span>
 <span id="L82"><span class="lineNum">      82</span>              : </span>
-<span id="L83"><span class="lineNum">      83</span>              : // 体温の定数。値は実プレイで調整する</span>
-<span id="L84"><span class="lineNum">      84</span>              : const (</span>
-<span id="L85"><span class="lineNum">      85</span>              :         // bodyTempColdBand は平熱からこれだけ下がるまでを正常とみなす帯。これより冷えると低体温タイマーが進む</span>
-<span id="L86"><span class="lineNum">      86</span>              :         bodyTempColdBand = 2.0</span>
-<span id="L87"><span class="lineNum">      87</span>              :         // bodyTempMin はオフセットの下限クランプ</span>
-<span id="L88"><span class="lineNum">      88</span>              :         bodyTempMin = -5.0</span>
-<span id="L89"><span class="lineNum">      89</span>              :         // bodyTempMax はオフセットの上限クランプ。平熱が上限</span>
-<span id="L90"><span class="lineNum">      90</span>              :         bodyTempMax = 0.0</span>
-<span id="L91"><span class="lineNum">      91</span>              :         // bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量</span>
-<span id="L92"><span class="lineNum">      92</span>              :         bodyTempHomeostasisPerTurn = 0.1</span>
-<span id="L93"><span class="lineNum">      93</span>              : )</span>
-<span id="L94"><span class="lineNum">      94</span>              : </span>
-<span id="L95"><span class="lineNum">      95</span>              : // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める</span>
-<span id="L96"><span class="lineNum">      96</span>              : func (sys *TemperatureSystem) Update(world w.World) error {</span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         if query.GetDungeon(world) == nil {</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;dungeon resource is not set&quot;)</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              :         // HealthStatusとGridElementを持つエンティティを処理。</span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         var toMark []ecs.Entity</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         for healthQuery.Next() {</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 entity := healthQuery.Entity()</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 hs := world.Components.HealthStatus.Get(entity)</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L108"><span class="lineNum">     108</span>              :                 // 体温を環境レートぶん動かす</span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 rate := bodyTempRate(world, entity)</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :                 hs.BodyTempOffset = math.Max(bodyTempMin, math.Min(bodyTempMax, hs.BodyTempOffset+rate))</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                 isPlayer := world.Components.Player.Has(entity)</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L114"><span class="lineNum">     114</span>              :                 // 低体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 coldProgressPct := consts.PercentBase</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 if world.Components.CharModifiers.Has(entity) {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                         coldProgressPct = world.Components.CharModifiers.Get(entity).ColdProgress</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L119"><span class="lineNum">     119</span>              : </span>
-<span id="L120"><span class="lineNum">     120</span>              :                 // 体温の帯判定から健康状態を更新</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct)</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L123"><span class="lineNum">     123</span>              :                 // 状態変化があれば属性を再計算</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 if isPlayer &amp;&amp; hasChange {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC tlaBgUNC">           0 :                         toMark = append(toMark, entity)</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L127"><span class="lineNum">     127</span>              :         }</span>
-<span id="L128"><span class="lineNum">     128</span>              : </span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, entity := range toMark {</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC tlaBgUNC">           0 :                 if !world.Components.StatsChanged.Has(entity) {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                         world.Components.StatsChanged.Add(entity, &amp;gc.StatsChanged{})</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L133"><span class="lineNum">     133</span>              :         }</span>
-<span id="L134"><span class="lineNum">     134</span>              : </span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : }</span>
-<span id="L137"><span class="lineNum">     137</span>              : </span>
-<span id="L138"><span class="lineNum">     138</span>              : // bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。</span>
-<span id="L139"><span class="lineNum">     139</span>              : // Update の適用と HUD のトレンド矢印が同じこの関数を読む</span>
-<span id="L140"><span class="lineNum">     140</span>              : func bodyTempRate(world w.World, entity ecs.Entity) float64 {</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(entity) || !world.Components.GridElement.Has(entity) {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         ambientTemp, err := AmbientTemperatureAt(world, grid.X, grid.Y)</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC tlaBgGNC">           1 :         insulation := CalculateEquippedInsulation(world, entity)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         offset := world.Components.HealthStatus.Get(entity).BodyTempOffset</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         var rate float64</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold &lt; 0 {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 rate += cold</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L156"><span class="lineNum">     156</span>              :         // 熱源は冷えた体だけを温める。平熱以上では効かせない</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         if offset &lt; 0 {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 rate += heatSourceWarmthAt(world, grid.X, grid.Y)</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L160"><span class="lineNum">     160</span>              :         // 外因が無ければ恒常性で平熱へ戻る</span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if rate == 0 &amp;&amp; offset &lt; 0 {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return math.Min(bodyTempHomeostasisPerTurn, -offset)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         return rate</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : }</span>
-<span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span>              : // CalculateEquippedInsulation はエンティティの装備から全身の断熱値を計算する。</span>
-<span id="L168"><span class="lineNum">     168</span>              : // 各装備部位の断熱値を合算して返す。</span>
-<span id="L169"><span class="lineNum">     169</span>              : func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {</span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         var total Insulation</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         for equipQuery.Next() {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 item := equipQuery.Entity()</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 equipped := world.Components.LocationEquipped.Get(item)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 if equipped.Owner != owner {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L178"><span class="lineNum">     178</span>              :                 }</span>
-<span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :                 wearable := world.Components.Wearable.Get(item)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 total.Cold += wearable.InsulationCold</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 total.Heat += wearable.InsulationHeat</span></span>
-<span id="L183"><span class="lineNum">     183</span>              :         }</span>
-<span id="L184"><span class="lineNum">     184</span>              : </span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L186"><span class="lineNum">     186</span>              : }</span>
-<span id="L187"><span class="lineNum">     187</span>              : </span>
-<span id="L188"><span class="lineNum">     188</span>              : // getTileTemperatureAt は指定座標のタイル気温修正値を取得する</span>
-<span id="L189"><span class="lineNum">     189</span>              : func getTileTemperatureAt(world w.World, x, y consts.Tile) int {</span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         var modifier int</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileTemperature](world).Query()</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         for tileTempQuery.Next() {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 entity := tileTempQuery.Entity()</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 if grid.X == x &amp;&amp; grid.Y == y {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                         tileTemp := world.Components.TileTemperature.Get(entity)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                         modifier = tileTemp.Total()</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L199"><span class="lineNum">     199</span>              :         }</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         return modifier</span></span>
+<span id="L83"><span class="lineNum">      83</span>              : // naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量</span>
+<span id="L84"><span class="lineNum">      84</span>              : const naturalRecoveryPerTurn = 0.25</span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : // AmbientTemperatureAt はタイルの周囲気温を返す。ステージの基本気温、囲われに応じて</span>
+<span id="L87"><span class="lineNum">      87</span>              : // 受け方を変えた世界温度、タイルの加算℃、熱源の押し上げの4項の和になる。</span>
+<span id="L88"><span class="lineNum">      88</span>              : func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {</span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         if query.GetDungeon(world) == nil {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, errors.New(&quot;dungeon resource is not set&quot;)</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC tlaBgGNC">           1 :         baseTemp, ok := stageBaseTemperature(world)</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, nil</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : </span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC tlaBgGNC">           1 :         gt := query.GetGameTime(world)</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         // 屋外の世界温度。季節ベースに時間帯の揺れを重ねる</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         shelter, tileModifier := tileEnvironmentAt(world, x, y)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         return baseTemp +</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 shelteredWorldTemp(shelter, worldTemp) +</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 tileModifier +</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 ambientHeatAt(world, x, y), nil</span></span>
+<span id="L106"><span class="lineNum">     106</span>              : }</span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。</span>
+<span id="L109"><span class="lineNum">     109</span>              : // 体温タイマーへの直接回復とは別の効きで、火を焚けば周囲気温そのものが上がる。</span>
+<span id="L110"><span class="lineNum">     110</span>              : // 状態は持たず、毎回そのターンの熱源から平衡値を出す。値は実プレイで調整する。</span>
+<span id="L111"><span class="lineNum">     111</span>              : // 焚き火 warmth 0.75 の隣接タイルで +15℃ になり、春の夜が火のそばで快適帯に入る</span>
+<span id="L112"><span class="lineNum">     112</span>              : const ambientHeatPerWarmth = 30</span>
+<span id="L113"><span class="lineNum">     113</span>              : </span>
+<span id="L114"><span class="lineNum">     114</span>              : // ambientHeatAt はタイル座標に届く熱源の環境気温への押し上げ℃を返す</span>
+<span id="L115"><span class="lineNum">     115</span>              : func ambientHeatAt(world w.World, x, y consts.Tile) int {</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         return int(math.Round(heatSourceWarmthAt(world, x, y) * ambientHeatPerWarmth))</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L118"><span class="lineNum">     118</span>              : </span>
+<span id="L119"><span class="lineNum">     119</span>              : // 体温の定数。値は実プレイで調整する</span>
+<span id="L120"><span class="lineNum">     120</span>              : const (</span>
+<span id="L121"><span class="lineNum">     121</span>              :         // bodyTempColdBand は平熱からこれだけ下がるまでを正常とみなす帯。これより冷えると低体温タイマーが進む</span>
+<span id="L122"><span class="lineNum">     122</span>              :         bodyTempColdBand = 2.0</span>
+<span id="L123"><span class="lineNum">     123</span>              :         // bodyTempMin はオフセットの下限クランプ</span>
+<span id="L124"><span class="lineNum">     124</span>              :         bodyTempMin = -5.0</span>
+<span id="L125"><span class="lineNum">     125</span>              :         // bodyTempMax はオフセットの上限クランプ。平熱が上限</span>
+<span id="L126"><span class="lineNum">     126</span>              :         bodyTempMax = 0.0</span>
+<span id="L127"><span class="lineNum">     127</span>              :         // bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量</span>
+<span id="L128"><span class="lineNum">     128</span>              :         bodyTempHomeostasisPerTurn = 0.1</span>
+<span id="L129"><span class="lineNum">     129</span>              : )</span>
+<span id="L130"><span class="lineNum">     130</span>              : </span>
+<span id="L131"><span class="lineNum">     131</span>              : // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める</span>
+<span id="L132"><span class="lineNum">     132</span>              : func (sys *TemperatureSystem) Update(world w.World) error {</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         if query.GetDungeon(world) == nil {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;dungeon resource is not set&quot;)</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span>              :         // HealthStatusとGridElementを持つエンティティを処理。</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         var toMark []ecs.Entity</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         for healthQuery.Next() {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 entity := healthQuery.Entity()</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 hs := world.Components.HealthStatus.Get(entity)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L144"><span class="lineNum">     144</span>              :                 // 体温を環境レートぶん動かす</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 rate := bodyTempRate(world, entity)</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 hs.BodyTempOffset = math.Max(bodyTempMin, math.Min(bodyTempMax, hs.BodyTempOffset+rate))</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 isPlayer := world.Components.Player.Has(entity)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L150"><span class="lineNum">     150</span>              :                 // 低体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 coldProgressPct := consts.PercentBase</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 if world.Components.CharModifiers.Has(entity) {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                         coldProgressPct = world.Components.CharModifiers.Get(entity).ColdProgress</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L155"><span class="lineNum">     155</span>              : </span>
+<span id="L156"><span class="lineNum">     156</span>              :                 // 体温の帯判定から健康状態を更新</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L159"><span class="lineNum">     159</span>              :                 // 状態変化があれば属性を再計算</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 if isPlayer &amp;&amp; hasChange {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC tlaBgUNC">           0 :                         toMark = append(toMark, entity)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L163"><span class="lineNum">     163</span>              :         }</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, entity := range toMark {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC tlaBgUNC">           0 :                 if !world.Components.StatsChanged.Has(entity) {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                         world.Components.StatsChanged.Add(entity, &amp;gc.StatsChanged{})</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L169"><span class="lineNum">     169</span>              :         }</span>
+<span id="L170"><span class="lineNum">     170</span>              : </span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L172"><span class="lineNum">     172</span>              : }</span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span>              : // bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。</span>
+<span id="L175"><span class="lineNum">     175</span>              : // Update の適用と HUD のトレンド矢印が同じこの関数を読む</span>
+<span id="L176"><span class="lineNum">     176</span>              : func bodyTempRate(world w.World, entity ecs.Entity) float64 {</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(entity) || !world.Components.GridElement.Has(entity) {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         ambientTemp, err := AmbientTemperatureAt(world, grid.X, grid.Y)</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC tlaBgGNC">           1 :         insulation := CalculateEquippedInsulation(world, entity)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         offset := world.Components.HealthStatus.Get(entity).BodyTempOffset</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         var rate float64</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold &lt; 0 {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 rate += cold</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :         // 熱源は冷えた体だけを温める。平熱以上では効かせない</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         if offset &lt; 0 {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 rate += heatSourceWarmthAt(world, grid.X, grid.Y)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L196"><span class="lineNum">     196</span>              :         // 外因が無ければ恒常性で平熱へ戻る</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         if rate == 0 &amp;&amp; offset &lt; 0 {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 return math.Min(bodyTempHomeostasisPerTurn, -offset)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         return rate</span></span>
 <span id="L201"><span class="lineNum">     201</span>              : }</span>
 <span id="L202"><span class="lineNum">     202</span>              : </span>
-<span id="L203"><span class="lineNum">     203</span>              : // heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。</span>
-<span id="L204"><span class="lineNum">     204</span>              : // 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する。</span>
-<span id="L205"><span class="lineNum">     205</span>              : // HeatSource を持つものを数える。暖房かどうかは HeatSource だけで決まり Burning とは独立で、</span>
-<span id="L206"><span class="lineNum">     206</span>              : // 電熱のように燃えない熱源も暖房になる。火は燃え尽きると自分の HeatSource を外すので数から外れる</span>
-<span id="L207"><span class="lineNum">     207</span>              : func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {</span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         at := consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         var warmth float64</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         heatQuery := query.ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         for heatQuery.Next() {</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 entity := heatQuery.Entity()</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 src := world.Components.HeatSource.Get(entity)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 if d := geometry.ChebyshevDistance(at, grid.Coord); d &lt;= int(src.Radius) {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                         reach := int(src.Radius) + 1</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         warmth += src.Warmth * float64(reach-d) / float64(reach)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : // CalculateEquippedInsulation はエンティティの装備から全身の断熱値を計算する。</span>
+<span id="L204"><span class="lineNum">     204</span>              : // 各装備部位の断熱値を合算して返す。</span>
+<span id="L205"><span class="lineNum">     205</span>              : func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         var total Insulation</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         for equipQuery.Next() {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 item := equipQuery.Entity()</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 equipped := world.Components.LocationEquipped.Get(item)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 if equipped.Owner != owner {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L214"><span class="lineNum">     214</span>              :                 }</span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC tlaBgGNC">           1 :                 wearable := world.Components.Wearable.Get(item)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 total.Cold += wearable.InsulationCold</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 total.Heat += wearable.InsulationHeat</span></span>
 <span id="L219"><span class="lineNum">     219</span>              :         }</span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         return warmth</span></span>
-<span id="L221"><span class="lineNum">     221</span>              : }</span>
-<span id="L222"><span class="lineNum">     222</span>              : </span>
-<span id="L223"><span class="lineNum">     223</span>              : // updateTemperatureConditions は体温の正常帯判定から全身の体温状態タイマーを更新する。</span>
-<span id="L224"><span class="lineNum">     224</span>              : // - 帯の外では超過に応じてタイマーが進み、帯の中では自然回復する。</span>
-<span id="L225"><span class="lineNum">     225</span>              : // - isPlayerがtrueの場合、状態変化時にログを出力する。</span>
-<span id="L226"><span class="lineNum">     226</span>              : // - coldProgressPctは低体温進行倍率%。100が基準で、低いほど進行が遅くなる。</span>
-<span id="L227"><span class="lineNum">     227</span>              : // - 戻り値: 状態のSeverityが変化した場合trueを返す</span>
-<span id="L228"><span class="lineNum">     228</span>              : func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct consts.Percent) bool {</span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         hasChange := false</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         partHealth := &amp;hs.Parts[gc.BodyPartWholeBody]</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         offset := hs.BodyTempOffset</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         var changes []gc.SeverityChange</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L235"><span class="lineNum">     235</span>              :         // 低体温の処理</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L237"><span class="lineNum">     237</span>              :         case offset &lt; -bodyTempColdBand:</span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))</span></span>
-<span id="L240"><span class="lineNum">     240</span>              :         case partHealth.GetCondition(gc.ConditionHypothermia) != nil:</span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))</span></span>
-<span id="L242"><span class="lineNum">     242</span>              :         }</span>
-<span id="L243"><span class="lineNum">     243</span>              : </span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         for _, change := range changes {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 if change.Prev != change.Current {</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                         hasChange = true</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                         if isPlayer {</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC tlaBgUNC">           0 :                                 logTemperatureChange(world, change.CondType, change.Current, change.Prev)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L250"><span class="lineNum">     250</span>              :                 }</span>
-<span id="L251"><span class="lineNum">     251</span>              :         }</span>
-<span id="L252"><span class="lineNum">     252</span>              : </span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC tlaBgGNC">           1 :         return hasChange</span></span>
-<span id="L254"><span class="lineNum">     254</span>              : }</span>
-<span id="L255"><span class="lineNum">     255</span>              : </span>
-<span id="L256"><span class="lineNum">     256</span>              : // timerProgress は正常帯からの超過 excess °C に応じたタイマー進行量を返す。</span>
-<span id="L257"><span class="lineNum">     257</span>              : // 帯の縁で 0.25、超過1°Cごとに +0.25、上限 1.0</span>
-<span id="L258"><span class="lineNum">     258</span>              : func timerProgress(excess float64) float64 {</span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L220"><span class="lineNum">     220</span>              : </span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // tileEnvironmentAt は指定座標のタイル環境を返す。囲われの緩和度と、水・植生の加算℃</span>
+<span id="L225"><span class="lineNum">     225</span>              : func tileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         shelter := gc.ShelterNone</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         var modifier int</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         for tileTempQuery.Next() {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 entity := tileTempQuery.Entity()</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 if grid.X == x &amp;&amp; grid.Y == y {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                         tileTemp := world.Components.TileEnvironment.Get(entity)</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                         shelter = tileTemp.Shelter</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         modifier = tileTemp.Total()</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                         break</span></span>
+<span id="L237"><span class="lineNum">     237</span>              :                 }</span>
+<span id="L238"><span class="lineNum">     238</span>              :         }</span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         return shelter, modifier</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : }</span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span>              : // heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。</span>
+<span id="L243"><span class="lineNum">     243</span>              : // 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する。</span>
+<span id="L244"><span class="lineNum">     244</span>              : // HeatSource を持つものを数える。暖房かどうかは HeatSource だけで決まり Burning とは独立で、</span>
+<span id="L245"><span class="lineNum">     245</span>              : // 電熱のように燃えない熱源も暖房になる。火は燃え尽きると自分の HeatSource を外すので数から外れる</span>
+<span id="L246"><span class="lineNum">     246</span>              : func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         at := consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         var warmth float64</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         heatQuery := query.ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         for heatQuery.Next() {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 entity := heatQuery.Entity()</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 src := world.Components.HeatSource.Get(entity)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 if d := geometry.ChebyshevDistance(at, grid.Coord); d &lt;= int(src.Radius) {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         reach := int(src.Radius) + 1</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                         warmth += src.Warmth * float64(reach-d) / float64(reach)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L258"><span class="lineNum">     258</span>              :         }</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         return warmth</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : }</span>
 <span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span>              : // calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない</span>
-<span id="L263"><span class="lineNum">     263</span>              : func calcBodyTempRate(effectiveTemp int) float64 {</span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L265"><span class="lineNum">     265</span>              :         case effectiveTemp &lt;= -50:</span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 return -0.5 // 極寒。最も厳しい区分で、居座れば急速に凍える</span></span>
-<span id="L267"><span class="lineNum">     267</span>              :         case effectiveTemp &lt;= 0:</span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 return -0.2 // 非常に寒い</span></span>
-<span id="L269"><span class="lineNum">     269</span>              :         case effectiveTemp &lt;= 10:</span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 return -0.1 // 寒い</span></span>
-<span id="L271"><span class="lineNum">     271</span>              :         default:</span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 return 0 // 適温以上</span></span>
-<span id="L273"><span class="lineNum">     273</span>              :         }</span>
-<span id="L274"><span class="lineNum">     274</span>              : }</span>
-<span id="L275"><span class="lineNum">     275</span>              : </span>
-<span id="L276"><span class="lineNum">     276</span>              : // logTemperatureChange は状態変化をログ出力する</span>
-<span id="L277"><span class="lineNum">     277</span>              : func logTemperatureChange(world w.World, condType gc.ConditionType, current, prev gc.Severity) {</span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC tlaBgUNC">           0 :         var msg string</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         if current &gt; prev {</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 msg = getWorseningMessage(condType, current)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 msg = getRecoveryMessage(condType, current)</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L284"><span class="lineNum">     284</span>              : </span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :         if msg != &quot;&quot; {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                         Markup(gamelog.Tag(&quot;warning&quot;, query.T(world, msg))).</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                         Log()</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L290"><span class="lineNum">     290</span>              : }</span>
+<span id="L262"><span class="lineNum">     262</span>              : // updateTemperatureConditions は体温の正常帯判定から全身の体温状態タイマーを更新する。</span>
+<span id="L263"><span class="lineNum">     263</span>              : // - 帯の外では超過に応じてタイマーが進み、帯の中では自然回復する。</span>
+<span id="L264"><span class="lineNum">     264</span>              : // - isPlayerがtrueの場合、状態変化時にログを出力する。</span>
+<span id="L265"><span class="lineNum">     265</span>              : // - coldProgressPctは低体温進行倍率%。100が基準で、低いほど進行が遅くなる。</span>
+<span id="L266"><span class="lineNum">     266</span>              : // - 戻り値: 状態のSeverityが変化した場合trueを返す</span>
+<span id="L267"><span class="lineNum">     267</span>              : func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct consts.Percent) bool {</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         hasChange := false</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         partHealth := &amp;hs.Parts[gc.BodyPartWholeBody]</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         offset := hs.BodyTempOffset</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         var changes []gc.SeverityChange</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L274"><span class="lineNum">     274</span>              :         // 低体温の処理</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :         case offset &lt; -bodyTempColdBand:</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))</span></span>
+<span id="L279"><span class="lineNum">     279</span>              :         case partHealth.GetCondition(gc.ConditionHypothermia) != nil:</span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))</span></span>
+<span id="L281"><span class="lineNum">     281</span>              :         }</span>
+<span id="L282"><span class="lineNum">     282</span>              : </span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         for _, change := range changes {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 if change.Prev != change.Current {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                         hasChange = true</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                         if isPlayer {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC tlaBgUNC">           0 :                                 logTemperatureChange(world, change.CondType, change.Current, change.Prev)</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L289"><span class="lineNum">     289</span>              :                 }</span>
+<span id="L290"><span class="lineNum">     290</span>              :         }</span>
 <span id="L291"><span class="lineNum">     291</span>              : </span>
-<span id="L292"><span class="lineNum">     292</span>              : // getWorseningMessage は悪化時のメッセージを返す</span>
-<span id="L293"><span class="lineNum">     293</span>              : func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {</span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC tlaBgGNC">           1 :         if condType == gc.ConditionHypothermia {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
-<span id="L296"><span class="lineNum">     296</span>              :                 case gc.SeverityNone:</span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         return &quot;&quot;</span></span>
-<span id="L298"><span class="lineNum">     298</span>              :                 case gc.SeverityMinor:</span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                         return &quot;The cold is setting in&quot;</span></span>
-<span id="L300"><span class="lineNum">     300</span>              :                 case gc.SeverityMedium:</span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                         return &quot;You are quite cold&quot;</span></span>
-<span id="L302"><span class="lineNum">     302</span>              :                 case gc.SeveritySevere:</span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         return &quot;The cold is dangerous&quot;</span></span>
-<span id="L304"><span class="lineNum">     304</span>              :                 }</span>
-<span id="L305"><span class="lineNum">     305</span>              :         }</span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
-<span id="L307"><span class="lineNum">     307</span>              : }</span>
-<span id="L308"><span class="lineNum">     308</span>              : </span>
-<span id="L309"><span class="lineNum">     309</span>              : // getRecoveryMessage は回復時のメッセージを返す</span>
-<span id="L310"><span class="lineNum">     310</span>              : func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {</span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           1 :         if condType == gc.ConditionHypothermia {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
-<span id="L313"><span class="lineNum">     313</span>              :                 case gc.SeverityNone:</span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                         return &quot;You have warmed up&quot;</span></span>
-<span id="L315"><span class="lineNum">     315</span>              :                 case gc.SeverityMinor:</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                         return &quot;You are warming up a little&quot;</span></span>
-<span id="L317"><span class="lineNum">     317</span>              :                 case gc.SeverityMedium:</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC tlaBgUNC">           0 :                         return &quot;Still cold, but a little better&quot;</span></span>
-<span id="L319"><span class="lineNum">     319</span>              :                 case gc.SeveritySevere:</span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC tlaBgGNC">           1 :                         return &quot;&quot;</span></span>
-<span id="L321"><span class="lineNum">     321</span>              :                 }</span>
-<span id="L322"><span class="lineNum">     322</span>              :         }</span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
-<span id="L324"><span class="lineNum">     324</span>              : }</span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC tlaBgGNC">           1 :         return hasChange</span></span>
+<span id="L293"><span class="lineNum">     293</span>              : }</span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span>              : // timerProgress は正常帯からの超過 excess °C に応じたタイマー進行量を返す。</span>
+<span id="L296"><span class="lineNum">     296</span>              : // 帯の縁で 0.25、超過1°Cごとに +0.25、上限 1.0</span>
+<span id="L297"><span class="lineNum">     297</span>              : func timerProgress(excess float64) float64 {</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              : // calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない</span>
+<span id="L302"><span class="lineNum">     302</span>              : func calcBodyTempRate(effectiveTemp int) float64 {</span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L304"><span class="lineNum">     304</span>              :         case effectiveTemp &lt;= -50:</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                 return -0.5 // 極寒。最も厳しい区分で、居座れば急速に凍える</span></span>
+<span id="L306"><span class="lineNum">     306</span>              :         case effectiveTemp &lt;= 0:</span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 return -0.2 // 非常に寒い</span></span>
+<span id="L308"><span class="lineNum">     308</span>              :         case effectiveTemp &lt;= 10:</span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 return -0.1 // 寒い</span></span>
+<span id="L310"><span class="lineNum">     310</span>              :         default:</span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 return 0 // 適温以上</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :         }</span>
+<span id="L313"><span class="lineNum">     313</span>              : }</span>
+<span id="L314"><span class="lineNum">     314</span>              : </span>
+<span id="L315"><span class="lineNum">     315</span>              : // logTemperatureChange は状態変化をログ出力する</span>
+<span id="L316"><span class="lineNum">     316</span>              : func logTemperatureChange(world w.World, condType gc.ConditionType, current, prev gc.Severity) {</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC tlaBgUNC">           0 :         var msg string</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         if current &gt; prev {</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                 msg = getWorseningMessage(condType, current)</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                 msg = getRecoveryMessage(condType, current)</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L323"><span class="lineNum">     323</span>              : </span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         if msg != &quot;&quot; {</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :                         Markup(gamelog.Tag(&quot;warning&quot;, query.T(world, msg))).</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :                         Log()</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L329"><span class="lineNum">     329</span>              : }</span>
+<span id="L330"><span class="lineNum">     330</span>              : </span>
+<span id="L331"><span class="lineNum">     331</span>              : // getWorseningMessage は悪化時のメッセージを返す</span>
+<span id="L332"><span class="lineNum">     332</span>              : func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC tlaBgGNC">           1 :         if condType == gc.ConditionHypothermia {</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L335"><span class="lineNum">     335</span>              :                 case gc.SeverityNone:</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                         return &quot;&quot;</span></span>
+<span id="L337"><span class="lineNum">     337</span>              :                 case gc.SeverityMinor:</span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                         return &quot;The cold is setting in&quot;</span></span>
+<span id="L339"><span class="lineNum">     339</span>              :                 case gc.SeverityMedium:</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :                         return &quot;You are quite cold&quot;</span></span>
+<span id="L341"><span class="lineNum">     341</span>              :                 case gc.SeveritySevere:</span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                         return &quot;The cold is dangerous&quot;</span></span>
+<span id="L343"><span class="lineNum">     343</span>              :                 }</span>
+<span id="L344"><span class="lineNum">     344</span>              :         }</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
+<span id="L346"><span class="lineNum">     346</span>              : }</span>
+<span id="L347"><span class="lineNum">     347</span>              : </span>
+<span id="L348"><span class="lineNum">     348</span>              : // getRecoveryMessage は回復時のメッセージを返す</span>
+<span id="L349"><span class="lineNum">     349</span>              : func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {</span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC tlaBgGNC">           1 :         if condType == gc.ConditionHypothermia {</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L352"><span class="lineNum">     352</span>              :                 case gc.SeverityNone:</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :                         return &quot;You have warmed up&quot;</span></span>
+<span id="L354"><span class="lineNum">     354</span>              :                 case gc.SeverityMinor:</span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :                         return &quot;You are warming up a little&quot;</span></span>
+<span id="L356"><span class="lineNum">     356</span>              :                 case gc.SeverityMedium:</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC tlaBgUNC">           0 :                         return &quot;Still cold, but a little better&quot;</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :                 case gc.SeveritySevere:</span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC tlaBgGNC">           1 :                         return &quot;&quot;</span></span>
+<span id="L360"><span class="lineNum">     360</span>              :                 }</span>
+<span id="L361"><span class="lineNum">     361</span>              :         }</span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
+<span id="L363"><span class="lineNum">     363</span>              : }</span>
         </pre>
               </td>
             </tr>

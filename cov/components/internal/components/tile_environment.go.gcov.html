@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>LCOV - coverage.lcov - components/internal/components/tile_temperature.go</title>
+  <title>LCOV - coverage.lcov - components/internal/components/tile_environment.go</title>
   <link rel="stylesheet" type="text/css" href="../../../gcov.css">
 </head>
 
@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">components/internal/components</a> - tile_temperature.go<span style="font-size: 80%;"> (source / <a href="tile_temperature.go.func-c.html">functions</a>)</span></td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">components/internal/components</a> - tile_environment.go<span style="font-size: 80%;"> (source / <a href="tile_environment.go.func-c.html">functions</a>)</span></td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-04 00:19:35</td>
+            <td class="headerValue">2026-09-04 00:29:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,15 +62,15 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : // ShelterType は遮蔽状態を表す（室内/屋外）</span>
-<span id="L4"><span class="lineNum">       4</span>              : // 値は気温修正値（°C）を直接表す</span>
+<span id="L3"><span class="lineNum">       3</span>              : // ShelterType はタイルの囲われの度合いを表す。屋内外の判定に使い、温度には</span>
+<span id="L4"><span class="lineNum">       4</span>              : // 世界温度の受け方を決める緩和度として効く。値は識別子で、そのまま℃にはならない</span>
 <span id="L5"><span class="lineNum">       5</span>              : type ShelterType int</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              : // 遮蔽による気温修正値</span>
+<span id="L7"><span class="lineNum">       7</span>              : // 囲われの度合い</span>
 <span id="L8"><span class="lineNum">       8</span>              : const (</span>
-<span id="L9"><span class="lineNum">       9</span>              :         ShelterNone    ShelterType = 0  // 屋外（露出）</span>
-<span id="L10"><span class="lineNum">      10</span>              :         ShelterPartial ShelterType = 5  // 半屋外</span>
-<span id="L11"><span class="lineNum">      11</span>              :         ShelterFull    ShelterType = 10 // 屋内（完全遮蔽）</span>
+<span id="L9"><span class="lineNum">       9</span>              :         ShelterNone    ShelterType = 0  // 屋外</span>
+<span id="L10"><span class="lineNum">      10</span>              :         ShelterPartial ShelterType = 5  // 半屋外。世界温度を中間の強さで受ける</span>
+<span id="L11"><span class="lineNum">      11</span>              :         ShelterFull    ShelterType = 10 // 屋内。世界温度を緩和して受ける</span>
 <span id="L12"><span class="lineNum">      12</span>              : )</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
 <span id="L14"><span class="lineNum">      14</span>              : // WaterType は水の種類を表す</span>
@@ -95,17 +95,17 @@
 <span id="L33"><span class="lineNum">      33</span>              :         FoliageForest FoliageType = -3 // 森</span>
 <span id="L34"><span class="lineNum">      34</span>              : )</span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span>              : // TileTemperature はタイルの気温修正値を持つコンポーネント</span>
-<span id="L37"><span class="lineNum">      37</span>              : // 各要因を個別に保持し、ホバー時に内訳を表示できるようにする</span>
-<span id="L38"><span class="lineNum">      38</span>              : type TileTemperature struct {</span>
+<span id="L36"><span class="lineNum">      36</span>              : // TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水辺・植生。</span>
+<span id="L37"><span class="lineNum">      37</span>              : // 温度計算の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする</span>
+<span id="L38"><span class="lineNum">      38</span>              : type TileEnvironment struct {</span>
 <span id="L39"><span class="lineNum">      39</span>              :         Shelter ShelterType</span>
 <span id="L40"><span class="lineNum">      40</span>              :         Water   WaterType</span>
 <span id="L41"><span class="lineNum">      41</span>              :         Foliage FoliageType</span>
 <span id="L42"><span class="lineNum">      42</span>              : }</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
-<span id="L44"><span class="lineNum">      44</span>              : // Total は気温修正値の合計を返す</span>
-<span id="L45"><span class="lineNum">      45</span>              : func (tt *TileTemperature) Total() int {</span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           1 :         return int(tt.Shelter) + int(tt.Water) + int(tt.Foliage)</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : // Total は加算℃の気温修正の合計を返す。Shelter は加算℃でなく緩和度なので含まない</span>
+<span id="L45"><span class="lineNum">      45</span>              : func (tt *TileEnvironment) Total() int {</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           1 :         return int(tt.Water) + int(tt.Foliage)</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>

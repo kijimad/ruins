@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-04 00:19:35</td>
+            <td class="headerValue">2026-09-04 00:29:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -105,7 +105,7 @@
 <span id="L43"><span class="lineNum">      43</span>              :         LightSource        *LightSource</span>
 <span id="L44"><span class="lineNum">      44</span>              :         Interactable       *Interactable</span>
 <span id="L45"><span class="lineNum">      45</span>              :         VisualEffects      *VisualEffects</span>
-<span id="L46"><span class="lineNum">      46</span>              :         TileTemperature    *TileTemperature</span>
+<span id="L46"><span class="lineNum">      46</span>              :         TileEnvironment    *TileEnvironment</span>
 <span id="L47"><span class="lineNum">      47</span>              :         HeatSource         *HeatSource</span>
 <span id="L48"><span class="lineNum">      48</span>              :         Burning            *Burning</span>
 <span id="L49"><span class="lineNum">      49</span>              :         StageBound         *StageBound</span>
@@ -193,7 +193,7 @@
 <span id="L131"><span class="lineNum">     131</span>              :         LightSource        *ecs.Map[LightSource]</span>
 <span id="L132"><span class="lineNum">     132</span>              :         Interactable       *ecs.Map[Interactable]</span>
 <span id="L133"><span class="lineNum">     133</span>              :         VisualEffects      *ecs.Map[VisualEffects]</span>
-<span id="L134"><span class="lineNum">     134</span>              :         TileTemperature    *ecs.Map[TileTemperature]</span>
+<span id="L134"><span class="lineNum">     134</span>              :         TileEnvironment    *ecs.Map[TileEnvironment]</span>
 <span id="L135"><span class="lineNum">     135</span>              :         HeatSource         *ecs.Map[HeatSource]</span>
 <span id="L136"><span class="lineNum">     136</span>              :         Burning            *ecs.Map[Burning]</span>
 <span id="L137"><span class="lineNum">     137</span>              :         StageBound         *ecs.Map[StageBound]</span>
@@ -281,7 +281,7 @@
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         c.LightSource = ecs.NewMap[LightSource](world)</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         c.Interactable = ecs.NewMap[Interactable](world)</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         c.VisualEffects = ecs.NewMap[VisualEffects](world)</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         c.TileTemperature = ecs.NewMap[TileTemperature](world)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         c.TileEnvironment = ecs.NewMap[TileEnvironment](world)</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         c.HeatSource = ecs.NewMap[HeatSource](world)</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         c.Burning = ecs.NewMap[Burning](world)</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         c.StageBound = ecs.NewMap[StageBound](world)</span></span>
@@ -371,7 +371,7 @@
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         addComp(c.LightSource, entity, spec.LightSource)</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         addComp(c.Interactable, entity, spec.Interactable)</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         addComp(c.VisualEffects, entity, spec.VisualEffects)</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         addComp(c.TileTemperature, entity, spec.TileTemperature)</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         addComp(c.TileEnvironment, entity, spec.TileEnvironment)</span></span>
 <span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         addComp(c.HeatSource, entity, spec.HeatSource)</span></span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         addComp(c.Burning, entity, spec.Burning)</span></span>
 <span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         addComp(c.StageBound, entity, spec.StageBound)</span></span>
