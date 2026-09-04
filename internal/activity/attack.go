@@ -259,7 +259,7 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	if !isDamage {
 		key = gc.WeaponAccuracyKey(skillID)
 	}
-	return query.Modifiers(world, entity).Value(key)
+	return query.ModifierValue(world, entity, key)
 }
 
 // applyElementResist は元素耐性倍率でダメージを軽減する。無属性攻撃は対象外
@@ -268,7 +268,7 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 	if !ok {
 		return damage
 	}
-	mult := query.Modifiers(world, target).Value(key)
+	mult := query.ModifierValue(world, target, key)
 	reduced := max(mult.ApplyInt(damage), formula.MinDamage)
 	return reduced
 }
