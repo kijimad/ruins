@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.2&nbsp;%</td>
+            <td class="headerCovTableEntryMed">82.2&nbsp;%</td>
             <td class="headerCovTableEntry">286</td>
-            <td class="headerCovTableEntry">215</td>
+            <td class="headerCovTableEntry">235</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-03 11:24:43</td>
+            <td class="headerValue">2026-09-04 00:19:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -577,24 +577,24 @@
 <span id="L515"><span class="lineNum">     515</span>              : // PlannerTypeByName は名前から PlannerType を引く。対象は PlannerFunc を持つ AllPlannerTypes で、</span>
 <span id="L516"><span class="lineNum">     516</span>              : // 見つからなければ ok=false を返す。デバッグでプランナー名を指定してフロアを生成するときに使う。</span>
 <span id="L517"><span class="lineNum">     517</span>              : func PlannerTypeByName(name string) (PlannerType, bool) {</span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC tlaBgUNC">           0 :         for _, pt := range AllPlannerTypes {</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                 if pt.Name == name {</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                         return pt, true</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :         for _, pt := range AllPlannerTypes {</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                 if pt.Name == name {</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :                         return pt, true</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L522"><span class="lineNum">     522</span>              :         }</span>
 <span id="L523"><span class="lineNum">     523</span>              :         // デバッグ専用プランナーも名前で引けるようにする。ギャラリーやランダム選択には含めない</span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :         for _, pt := range debugPlannerTypes {</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                 if pt.Name == name {</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :                         return pt, true</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :         for _, pt := range debugPlannerTypes {</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :                 if pt.Name == name {</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :                         return pt, true</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L528"><span class="lineNum">     528</span>              :         }</span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         return PlannerType{}, false</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :         return PlannerType{}, false</span></span>
 <span id="L530"><span class="lineNum">     530</span>              : }</span>
 <span id="L531"><span class="lineNum">     531</span>              : </span>
 <span id="L532"><span class="lineNum">     532</span>              : // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する</span>
 <span id="L533"><span class="lineNum">     533</span>              : func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {</span>
 <span id="L534"><span class="lineNum">     534</span>              :         // シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される</span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC tlaBgGNC">           1 :         if seed == 0 {</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :         if seed == 0 {</span></span>
 <span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC tlaBgUNC">           0 :                 seed = uint64(time.Now().UnixNano())</span></span>
 <span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L538"><span class="lineNum">     538</span>              : </span>
@@ -684,25 +684,25 @@
 <span id="L622"><span class="lineNum">     622</span>              : // randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。</span>
 <span id="L623"><span class="lineNum">     623</span>              : // 大部屋でクラスタメンバーを密集させるために使用する</span>
 <span id="L624"><span class="lineNum">     624</span>              : func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {</span>
-<span id="L625"><span class="lineNum">     625</span> <span class="tlaUNC">           0 :         for range maxAttempts {</span></span>
-<span id="L626"><span class="lineNum">     626</span> <span class="tlaUNC">           0 :                 dx := bm.RNG.IntN(radius*2+1) - radius</span></span>
-<span id="L627"><span class="lineNum">     627</span> <span class="tlaUNC">           0 :                 dy := bm.RNG.IntN(radius*2+1) - radius</span></span>
-<span id="L628"><span class="lineNum">     628</span> <span class="tlaUNC">           0 :                 tx := consts.Tile(int(centerX) + dx)</span></span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaUNC">           0 :                 ty := consts.Tile(int(centerY) + dy)</span></span>
-<span id="L630"><span class="lineNum">     630</span> <span class="tlaUNC">           0 :                 if tx &lt; room.Min.X || tx &gt; room.Max.X || ty &lt; room.Min.Y || ty &gt; room.Max.Y {</span></span>
-<span id="L631"><span class="lineNum">     631</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L625"><span class="lineNum">     625</span> <span class="tlaGNC tlaBgGNC">           1 :         for range maxAttempts {</span></span>
+<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           1 :                 dx := bm.RNG.IntN(radius*2+1) - radius</span></span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 :                 dy := bm.RNG.IntN(radius*2+1) - radius</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(int(centerX) + dx)</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(int(centerY) + dy)</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :                 if tx &lt; room.Min.X || tx &gt; room.Max.X || ty &lt; room.Min.Y || ty &gt; room.Max.Y {</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L632"><span class="lineNum">     632</span>              :                 }</span>
-<span id="L633"><span class="lineNum">     633</span> <span class="tlaUNC">           0 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
-<span id="L634"><span class="lineNum">     634</span> <span class="tlaUNC">           0 :                         return tx, ty, true</span></span>
-<span id="L635"><span class="lineNum">     635</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           1 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           1 :                         return tx, ty, true</span></span>
+<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L636"><span class="lineNum">     636</span>              :         }</span>
-<span id="L637"><span class="lineNum">     637</span> <span class="tlaUNC">           0 :         return 0, 0, false</span></span>
+<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           1 :         return 0, 0, false</span></span>
 <span id="L638"><span class="lineNum">     638</span>              : }</span>
 <span id="L639"><span class="lineNum">     639</span>              : </span>
 <span id="L640"><span class="lineNum">     640</span>              : // GetTile はタイルを生成する</span>
 <span id="L641"><span class="lineNum">     641</span>              : // TODO: エラーを潰しているだけなので直す</span>
 <span id="L642"><span class="lineNum">     642</span>              : func (bm *MetaPlan) GetTile(name string) oapi.Tile {</span>
-<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC tlaBgGNC">           1 :         if bm.RawMaster == nil {</span></span>
+<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC">           1 :         if bm.RawMaster == nil {</span></span>
 <span id="L644"><span class="lineNum">     644</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(&quot;RawMaster is not set; tile generation from TOML is required&quot;)</span></span>
 <span id="L645"><span class="lineNum">     645</span>              :         }</span>
 <span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC tlaBgGNC">           1 :         tile, err := raw.GetTile(*bm.RawMaster, name)</span></span>

@@ -155,7 +155,7 @@
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/components/field.go (97.6%)</option>
 				
-				<option value="file50">github.com/kijimaD/ruins/internal/components/game_time.go (70.7%)</option>
+				<option value="file50">github.com/kijimaD/ruins/internal/components/game_time.go (73.0%)</option>
 				
 				<option value="file51">github.com/kijimaD/ruins/internal/components/health_status.go (96.6%)</option>
 				
@@ -357,7 +357,7 @@
 				
 				<option value="file150">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (64.1%)</option>
 				
-				<option value="file151">github.com/kijimaD/ruins/internal/mapplanner/lib.go (81.7%)</option>
+				<option value="file151">github.com/kijimaD/ruins/internal/mapplanner/lib.go (88.5%)</option>
 				
 				<option value="file152">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -367,7 +367,7 @@
 				
 				<option value="file155">github.com/kijimaD/ruins/internal/mapplanner/plan.go (88.5%)</option>
 				
-				<option value="file156">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
+				<option value="file156">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (100.0%)</option>
 				
 				<option value="file157">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -377,7 +377,7 @@
 				
 				<option value="file160">github.com/kijimaD/ruins/internal/mapplanner/ruins_planner.go (99.5%)</option>
 				
-				<option value="file161">github.com/kijimaD/ruins/internal/mapplanner/snapshot.go (25.0%)</option>
+				<option value="file161">github.com/kijimaD/ruins/internal/mapplanner/snapshot.go (100.0%)</option>
 				
 				<option value="file162">github.com/kijimaD/ruins/internal/mapplanner/template_planner.go (98.5%)</option>
 				
@@ -385,7 +385,7 @@
 				
 				<option value="file164">github.com/kijimaD/ruins/internal/mapplanner/test_helper.go (100.0%)</option>
 				
-				<option value="file165">github.com/kijimaD/ruins/internal/mapplanner/wall_type.go (0.0%)</option>
+				<option value="file165">github.com/kijimaD/ruins/internal/mapplanner/wall_type.go (100.0%)</option>
 				
 				<option value="file166">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (100.0%)</option>
 				
@@ -499,7 +499,7 @@
 				
 				<option value="file221">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
 				
-				<option value="file222">github.com/kijimaD/ruins/internal/states/dungeon.go (81.9%)</option>
+				<option value="file222">github.com/kijimaD/ruins/internal/states/dungeon.go (80.0%)</option>
 				
 				<option value="file223">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
@@ -577,7 +577,7 @@
 				
 				<option value="file260">github.com/kijimaD/ruins/internal/systems/temperature.go (89.9%)</option>
 				
-				<option value="file261">github.com/kijimaD/ruins/internal/systems/turn_system.go (91.0%)</option>
+				<option value="file261">github.com/kijimaD/ruins/internal/systems/turn_system.go (90.8%)</option>
 				
 				<option value="file262">github.com/kijimaD/ruins/internal/systems/vision.go (70.0%)</option>
 				
@@ -695,7 +695,7 @@
 				
 				<option value="file319">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (75.0%)</option>
 				
-				<option value="file320">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (90.0%)</option>
+				<option value="file320">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
 				
 				<option value="file321">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.4%)</option>
 				
@@ -9883,6 +9883,17 @@ func (gt *GameTime) SeasonJustChanged() bool {
 </span>        }
         <span class="cov8" title="1">prev := GameTime{TotalTurns: gt.TotalTurns - 1}
         return gt.GetSeason() != prev.GetSeason()</span>
+}
+
+// DayJustChanged は現在の日数と、直前のターンから日付が変わったかを返す。Advance の直後に呼ぶ想定。
+// 呼び出し側が変わった先の日数をそのまま通知に使えるよう日数も返す。
+func (gt *GameTime) DayJustChanged() (int, bool) {
+        <span class="cov8" title="1">cur := gt.GetDayNumber()
+        if gt.TotalTurns == 0 </span>{
+                <span class="cov8" title="1">return cur, false
+</span>        }
+        <span class="cov8" title="1">prev := GameTime{TotalTurns: gt.TotalTurns - 1}
+        return cur, prev.GetDayNumber() != cur</span>
 }
 
 // TimeOfDayJustChanged は現在の時間帯と、直前のターンから変わったかを返す。
@@ -21821,18 +21832,18 @@ var (
 // PlannerTypeByName は名前から PlannerType を引く。対象は PlannerFunc を持つ AllPlannerTypes で、
 // 見つからなければ ok=false を返す。デバッグでプランナー名を指定してフロアを生成するときに使う。
 func PlannerTypeByName(name string) (PlannerType, bool) {
-        <span class="cov0" title="0">for _, pt := range AllPlannerTypes </span>{
-                <span class="cov0" title="0">if pt.Name == name </span>{
-                        <span class="cov0" title="0">return pt, true
+        <span class="cov8" title="1">for _, pt := range AllPlannerTypes </span>{
+                <span class="cov8" title="1">if pt.Name == name </span>{
+                        <span class="cov8" title="1">return pt, true
 </span>                }
         }
         // デバッグ専用プランナーも名前で引けるようにする。ギャラリーやランダム選択には含めない
-        <span class="cov0" title="0">for _, pt := range debugPlannerTypes </span>{
-                <span class="cov0" title="0">if pt.Name == name </span>{
-                        <span class="cov0" title="0">return pt, true
+        <span class="cov8" title="1">for _, pt := range debugPlannerTypes </span>{
+                <span class="cov8" title="1">if pt.Name == name </span>{
+                        <span class="cov8" title="1">return pt, true
 </span>                }
         }
-        <span class="cov0" title="0">return PlannerType{}, false</span>
+        <span class="cov8" title="1">return PlannerType{}, false</span>
 }
 
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
@@ -21928,19 +21939,19 @@ func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempt
 // randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。
 // 大部屋でクラスタメンバーを密集させるために使用する
 func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-        <span class="cov0" title="0">for range maxAttempts </span>{
-                <span class="cov0" title="0">dx := bm.RNG.IntN(radius*2+1) - radius
+        <span class="cov8" title="1">for range maxAttempts </span>{
+                <span class="cov8" title="1">dx := bm.RNG.IntN(radius*2+1) - radius
                 dy := bm.RNG.IntN(radius*2+1) - radius
                 tx := consts.Tile(int(centerX) + dx)
                 ty := consts.Tile(int(centerY) + dy)
                 if tx &lt; room.Min.X || tx &gt; room.Max.X || ty &lt; room.Min.Y || ty &gt; room.Max.Y </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">if bm.IsSpawnableTile(world, tx, ty) </span>{
-                        <span class="cov0" title="0">return tx, ty, true
+                <span class="cov8" title="1">if bm.IsSpawnableTile(world, tx, ty) </span>{
+                        <span class="cov8" title="1">return tx, ty, true
 </span>                }
         }
-        <span class="cov0" title="0">return 0, 0, false</span>
+        <span class="cov8" title="1">return 0, 0, false</span>
 }
 
 // GetTile はタイルを生成する
@@ -22513,21 +22524,21 @@ func inRoomSelector(room gc.Rect, maxAttempts int) positionSelector {
 // onMapSelector はマップ全体からランダムに配置位置を選択する
 func onMapSelector(maxAttempts int) positionSelector {
         <span class="cov8" title="1">return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) </span>{
-                <span class="cov0" title="0">for range maxAttempts </span>{
-                        <span class="cov0" title="0">x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
+                <span class="cov8" title="1">for range maxAttempts </span>{
+                        <span class="cov8" title="1">x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
                         if planData.IsSpawnableTile(world, x, y) </span>{
-                                <span class="cov0" title="0">return x, y, true
+                                <span class="cov8" title="1">return x, y, true
 </span>                        }
                 }
-                <span class="cov0" title="0">return 0, 0, false</span>
+                <span class="cov8" title="1">return 0, 0, false</span>
         }
 }
 
 // nearSelector は指定座標の周辺かつ部屋内から配置位置を選択する
 func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAttempts int) positionSelector {
-        <span class="cov0" title="0">return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) </span>{
-                <span class="cov0" title="0">return planData.randomPositionNear(centerX, centerY, radius, room, world, maxAttempts)
+        <span class="cov8" title="1">return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) </span>{
+                <span class="cov8" title="1">return planData.randomPositionNear(centerX, centerY, radius, room, world, maxAttempts)
 </span>        }
 }
 
@@ -23029,7 +23040,7 @@ func (b *PlannerChain) takeSnapshot(label string) {
         <span class="cov8" title="1">if !b.Recording </span>{
                 <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">d := &amp;b.PlanData
+        <span class="cov8" title="1">d := &amp;b.PlanData
         b.Snapshots = append(b.Snapshots, Snapshot{
                 Label:       label,
                 Tiles:       slices.Clone(d.Tiles),
@@ -23047,11 +23058,11 @@ func (b *PlannerChain) takeSnapshot(label string) {
 // deepCloneCorridors は二次元スライスを深くコピーする。
 // slices.Cloneは外側のスライスのみコピーし内側は参照を共有するため、スナップショット間の干渉を防ぐ
 func deepCloneCorridors(src [][]gc.TileIdx) [][]gc.TileIdx {
-        <span class="cov0" title="0">dst := make([][]gc.TileIdx, len(src))
+        <span class="cov8" title="1">dst := make([][]gc.TileIdx, len(src))
         for i, c := range src </span>{
-                <span class="cov0" title="0">dst[i] = slices.Clone(c)
+                <span class="cov8" title="1">dst[i] = slices.Clone(c)
 </span>        }
-        <span class="cov0" title="0">return dst</span>
+        <span class="cov8" title="1">return dst</span>
 }
 </pre>
 		
@@ -23404,27 +23415,27 @@ const (
 
 // String は壁タイプを文字列で返す
 func (wt WallType) String() string {
-        <span class="cov0" title="0">switch wt </span>{
+        <span class="cov8" title="1">switch wt </span>{
         case WallTypeTop:
-                <span class="cov0" title="0">return "Top"</span>
+                <span class="cov8" title="1">return "Top"</span>
         case WallTypeBottom:
-                <span class="cov0" title="0">return "Bottom"</span>
+                <span class="cov8" title="1">return "Bottom"</span>
         case WallTypeLeft:
-                <span class="cov0" title="0">return "Left"</span>
+                <span class="cov8" title="1">return "Left"</span>
         case WallTypeRight:
-                <span class="cov0" title="0">return "Right"</span>
+                <span class="cov8" title="1">return "Right"</span>
         case WallTypeTopLeft:
-                <span class="cov0" title="0">return "TopLeft"</span>
+                <span class="cov8" title="1">return "TopLeft"</span>
         case WallTypeTopRight:
-                <span class="cov0" title="0">return "TopRight"</span>
+                <span class="cov8" title="1">return "TopRight"</span>
         case WallTypeBottomLeft:
-                <span class="cov0" title="0">return "BottomLeft"</span>
+                <span class="cov8" title="1">return "BottomLeft"</span>
         case WallTypeBottomRight:
-                <span class="cov0" title="0">return "BottomRight"</span>
+                <span class="cov8" title="1">return "BottomRight"</span>
         case WallTypeGeneric:
-                <span class="cov0" title="0">return "Generic"</span>
+                <span class="cov8" title="1">return "Generic"</span>
         default:
-                <span class="cov0" title="0">panic(fmt.Sprintf("invalid WallType value: %d", int(wt)))</span>
+                <span class="cov8" title="1">panic(fmt.Sprintf("invalid WallType value: %d", int(wt)))</span>
         }
 }
 </pre>
@@ -33679,8 +33690,13 @@ func (st *DungeonState) OnStart(world w.World) error {
         // overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする
         <span class="cov8" title="1">if st.isSeamless() </span>{
                 <span class="cov8" title="1">st.driver = overworld.NewDriver(st.planner, st.overworldDefinition, st.newGame)
-                return st.driver.Start(world)
-</span>        }
+                if err := st.driver.Start(world); err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
+                // 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で大書きして示す
+                <span class="cov8" title="1">lifecycle.SpawnSplashText(world, query.T(world, "Day %d", query.GetGameTime(world).GetDayNumber()))
+                return nil</span>
+        }
 
         // 進入先の遺跡定義名を決める。State に明示指定があればそれを使い、無ければ現ステージ、
         // すなわち今いる遺跡の名前を引き継ぐ。ダンジョン定義名は CurrentStage.Name から導出する。
@@ -33718,18 +33734,11 @@ func (st *DungeonState) OnStart(world w.World) error {
         // 発生するため、古いデータが残り移動不能になることがある
         <span class="cov8" title="1">query.InvalidateSpatialIndex(world)
 </span>
-        // ダンジョンタイトルエフェクト用エンティティを作成する
-        <span class="cov8" title="1">screenW, screenH := world.Resources.GetScreenDimensions()
-        titleText := query.T(world, def.Name())
+        <span class="cov8" title="1">titleText := query.T(world, def.Name())
         if st.Depth &gt; 0 </span>{
                 <span class="cov8" title="1">titleText = fmt.Sprintf("%s %dF", query.T(world, def.Name()), st.Depth)
 </span>        }
-        <span class="cov8" title="1">splashFace := world.Resources.UIResources.Text.SplashFontFace
-        titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
-        titleEntity := world.ECS.NewEntity()
-        world.Components.VisualEffects.Add(titleEntity, &amp;gc.VisualEffects{
-                Effects: []gc.VisualEffect{titleEffect},
-        })
+        <span class="cov8" title="1">lifecycle.SpawnSplashText(world, titleText)
 </span>
         <span class="cov8" title="1">return nil</span>
 }
@@ -41165,6 +41174,7 @@ import (
         "github.com/kijimaD/ruins/internal/logger"
         w "github.com/kijimaD/ruins/internal/world"
 
+        "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -41272,16 +41282,21 @@ func runEndPhase(world w.World, turnState *gc.TurnState) error {
 </span>        // ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
         // GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
         <span class="cov8" title="1">query.GetGameTime(world).Advance()
-</span>        // 季節や日の出入りが変わったらログへ出す
-        <span class="cov8" title="1">logEnvironmentChange(world)
+        notifyEnvironmentChange(world)
         return nil</span>
 }
 
-// logEnvironmentChange は季節や日の出入りが変わったらゲームログへ出す。
+// notifyEnvironmentChange は季節や日の出入りが変わったらゲームログへ出し、日付が変わったら
+// 画面中央にスプラッシュで大書きする。生き延びた日数はこのゲームの目的の実感そのものなので、
+// ログに流さず節目として目立たせる。
 // 変化は現在ターンと直前ターンの導出値の差で判定するので、GameTime.Advance の直後に呼ぶ。
-func logEnvironmentChange(world w.World) {
+func notifyEnvironmentChange(world w.World) {
         <span class="cov8" title="1">gt := query.GetGameTime(world)
 </span>
+        <span class="cov8" title="1">if day, changed := gt.DayJustChanged(); changed </span>{
+                <span class="cov8" title="1">lifecycle.SpawnSplashText(world, query.T(world, "Day %d", day))
+</span>        }
+
         <span class="cov8" title="1">if gt.SeasonJustChanged() </span>{
                 <span class="cov8" title="1">name := query.T(world, gt.GetSeason().String())
                 gamelog.New(query.GetGameLog(world)).
@@ -48390,6 +48405,7 @@ import (
         "fmt"
         "math/rand/v2"
 
+        "github.com/hajimehoshi/ebiten/v2/text/v2"
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/formula"
@@ -48725,6 +48741,22 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 </span>
         <span class="cov8" title="1">effectEntity := world.ECS.NewEntity()
         world.Components.GridElement.Add(effectEntity, &amp;gc.GridElement{Coord: gridElement.Coord})
+        world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{
+                Effects: []gc.VisualEffect{effect},
+        })</span>
+}
+
+// SpawnSplashText は画面中央にテキストをスプラッシュ表示するエフェクト専用エンティティを生成する。
+// 場面の節目を大書きで知らせる演出に使う。face はフォント未ロードの環境では nil のまま作り、
+// 描画しない環境でも生成できるようにする
+func SpawnSplashText(world w.World, textStr string) {
+        <span class="cov0" title="0">screenW, screenH := world.Resources.GetScreenDimensions()
+        var face text.Face
+        if tr := world.Resources.UIResources.Text; tr != nil </span>{
+                <span class="cov0" title="0">face = tr.SplashFontFace
+</span>        }
+        <span class="cov0" title="0">effect := gc.NewSplashTextEffect(textStr, face, screenW, screenH)
+        effectEntity := world.ECS.NewEntity()
         world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{
                 Effects: []gc.VisualEffect{effect},
         })</span>
