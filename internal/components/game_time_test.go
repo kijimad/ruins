@@ -144,11 +144,15 @@ func TestGameTime_GetSeasonalTemperature(t *testing.T) {
 		day      int
 		expected int
 	}{
-		{"1日目は春の中点", 1, -4},
+		{"1日目は春の中点", 1, 5},
+		{"5日目は春の坂の途中", 5, 17},
 		{"9日目は夏のピーク", 9, 22},
-		{"17日目は秋の中点", 17, -4},
+		{"13日目は秋へ下る坂の途中。春側の同位置より寒い", 13, 16},
+		{"17日目は秋の中点。春より寒い", 17, 0},
+		{"21日目は冬へ向かう坂の途中", 21, -21},
 		{"25日目は冬の底", 25, -30},
-		{"33日目は翌年の春の中点", 33, -4},
+		{"29日目は春へ戻る坂の途中", 29, -20},
+		{"33日目は翌年の春の中点", 33, 5},
 	}
 
 	for _, tt := range tests {
@@ -291,6 +295,33 @@ func TestGameTime_SeasonJustChanged(t *testing.T) {
 			t.Parallel()
 			gt := &GameTime{TotalTurns: tt.turns}
 			assert.Equal(t, tt.want, gt.SeasonJustChanged())
+		})
+	}
+}
+
+func TestGameTime_DayJustChanged(t *testing.T) {
+	t.Parallel()
+
+	// 日付が切り替わるのは turnsPerDay=1500 の倍数。turn 0 は1日目の開始だが前ターンが無く変化なしとする
+	tests := []struct {
+		name    string
+		turns   consts.Turn
+		day     int
+		changed bool
+	}{
+		{"開始ターンは1日目で変化なし", 0, 1, false},
+		{"1日目の最後のターンは変化なし", 1499, 1, false},
+		{"日付が切り替わるターンは2日目", 1500, 2, true},
+		{"切り替わりの次は変化なし", 1501, 2, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: tt.turns}
+			day, changed := gt.DayJustChanged()
+			assert.Equal(t, tt.day, day)
+			assert.Equal(t, tt.changed, changed)
 		})
 	}
 }

@@ -659,7 +659,7 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	entitySpec.Tile = &gc.Tile{}
 
 	// タイル種別によらないので、ここでは初期化するだけ
-	entitySpec.TileTemperature = &gc.TileTemperature{}
+	entitySpec.TileEnvironment = &gc.TileEnvironment{}
 
 	return entitySpec, nil
 }

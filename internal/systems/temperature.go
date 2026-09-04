@@ -43,41 +43,77 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 }
 
-// dungeonWorldInfluenceDivisor はダンジョンの周囲気温が世界温度から受ける影響の減衰。
-// 屋内なので屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。
-const dungeonWorldInfluenceDivisor = 2
+// 屋内の温度緩和パラメータ。屋内は世界温度をそのまま受けず、アンカー温度へ引き寄せて受ける。
+// 引き寄せ先を 0℃ でなくアンカーにするのは、寒さが浅いときにも屋内が屋外より穏やかで
+// あり続けるため。0℃ へ割るだけだと温暖時に屋内が屋外より寒くなる逆転が起きる。
+// 値は実プレイで調整する。
+const (
+	indoorAnchorTemp       = 10
+	indoorInfluenceDivisor = 2
+)
+
+// shelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す
+func shelteredWorldTemp(shelter gc.ShelterType, worldTemp int) int {
+	switch shelter {
+	case gc.ShelterFull:
+		return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)/indoorInfluenceDivisor
+	case gc.ShelterPartial:
+		// 屋内より弱くアンカーへ寄せる。係数は実プレイで調整する
+		return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)*3/4
+	case gc.ShelterNone:
+		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
+	}
+	// 屋外は世界温度をそのまま受ける。save 由来の未知の値も屋外へ落とす
+	return worldTemp
+}
+
+// stageBaseTemperature はステージの基本気温を返す。オーバーワールドは0。
+// ダンジョンの定義が無ければ判定できないので ok=false を返す
+func stageBaseTemperature(world w.World) (int, bool) {
+	if query.IsOnOverworld(world) {
+		return 0, true
+	}
+	def, ok := dungeon.GetStageDefinition(query.GetDungeon(world).CurrentStage.Name)
+	if !ok {
+		return 0, false
+	}
+	return def.BaseTemperature(), true
+}
 
 // naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量
 const naturalRecoveryPerTurn = 0.25
 
-// AmbientTemperatureAt はタイルの周囲気温を返す。オーバーワールドは屋外なので季節の世界温度
-// そのもの、ダンジョンは屋内なのでステージの基本気温に世界温度の影響を緩和して足した値。
-// どちらもタイルの熱源補正を足す。屋内外はステージ種別で決まり、タイルごとの判定はしない。
+// AmbientTemperatureAt はタイルの周囲気温を返す。ステージの基本気温、囲われに応じて
+// 受け方を変えた世界温度、タイルの加算℃、熱源の押し上げの4項の和になる。
 func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
-	dungeonRes := query.GetDungeon(world)
-	if dungeonRes == nil {
+	if query.GetDungeon(world) == nil {
 		return 0, errors.New("dungeon resource is not set")
+	}
+	baseTemp, ok := stageBaseTemperature(world)
+	if !ok {
+		return 0, nil
 	}
 
 	gt := query.GetGameTime(world)
 	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
 	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
-	tileModifier := getTileTemperatureAt(world, x, y)
+	shelter, tileModifier := tileEnvironmentAt(world, x, y)
 
-	// 屋外はステージの基本気温を使わないので、定義を引く前に返す
-	if query.IsOnOverworld(world) {
-		return worldTemp + tileModifier, nil
-	}
+	return baseTemp +
+		shelteredWorldTemp(shelter, worldTemp) +
+		tileModifier +
+		ambientHeatAt(world, x, y), nil
+}
 
-	// 屋内はステージの基本気温が要る。定義が無ければ判定できないので0を返す
-	def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
-	if !ok {
-		return 0, nil
-	}
+// ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。
+// 体温タイマーへの直接回復とは別の効きで、火を焚けば周囲気温そのものが上がる。
+// 状態は持たず、毎回そのターンの熱源から平衡値を出す。値は実プレイで調整する。
+// 焚き火 warmth 0.75 の隣接タイルで +15℃ になり、春の夜が火のそばで快適帯に入る
+const ambientHeatPerWarmth = 30
 
-	// 世界温度の影響を緩和して受ける。世界が寒いほどダンジョンも寒くなるが、
-	// 屋外ほど厳しくならず寒さの逆転も起きない
-	return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil
+// ambientHeatAt はタイル座標に届く熱源の環境気温への押し上げ℃を返す
+func ambientHeatAt(world w.World, x, y consts.Tile) int {
+	return int(math.Round(heatSourceWarmthAt(world, x, y) * ambientHeatPerWarmth))
 }
 
 // 体温の定数。値は実プレイで調整する
@@ -182,19 +218,22 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 	return total
 }
 
-// getTileTemperatureAt は指定座標のタイル気温修正値を取得する
-func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
+// tileEnvironmentAt は指定座標のタイル環境を返す。囲われの緩和度と、水・植生の加算℃
+func tileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
+	shelter := gc.ShelterNone
 	var modifier int
-	tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileTemperature](world).Query()
+	tileTempQuery := query.ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()
 	for tileTempQuery.Next() {
 		entity := tileTempQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if grid.X == x && grid.Y == y {
-			tileTemp := world.Components.TileTemperature.Get(entity)
+			tileTemp := world.Components.TileEnvironment.Get(entity)
+			shelter = tileTemp.Shelter
 			modifier = tileTemp.Total()
+			break
 		}
 	}
-	return modifier
+	return shelter, modifier
 }
 
 // heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。

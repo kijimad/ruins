@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [オーバーワールドの屋内外を判定し温度を場所依存にする](docs/design/260902002227.md) | 0/7（見送り2） | worldgen, gamedesign |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

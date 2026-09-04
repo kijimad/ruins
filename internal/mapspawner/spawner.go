@@ -65,9 +65,9 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 			return fmt.Errorf("failed to spawn tile entity (%d, %d): %w", int(pos.X), int(pos.Y), err)
 		}
 
-		// TileRaw の環境情報を TileTemperature に設定する
-		if world.Components.TileTemperature.Has(tileEntity) {
-			tileTemp := world.Components.TileTemperature.Get(tileEntity)
+		// TileRaw の環境情報を TileEnvironment に設定する
+		if world.Components.TileEnvironment.Has(tileEntity) {
+			tileTemp := world.Components.TileEnvironment.Get(tileEntity)
 			tileTemp.Shelter = gc.ShelterType(tile.Shelter)
 			tileTemp.Water = gc.WaterType(tile.Water)
 			tileTemp.Foliage = gc.FoliageType(tile.Foliage)

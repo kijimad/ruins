@@ -43,7 +43,7 @@ type EntitySpec struct {
 	LightSource        *LightSource
 	Interactable       *Interactable
 	VisualEffects      *VisualEffects
-	TileTemperature    *TileTemperature
+	TileEnvironment    *TileEnvironment
 	HeatSource         *HeatSource
 	Burning            *Burning
 	StageBound         *StageBound
@@ -130,7 +130,7 @@ type Components struct {
 	LightSource        *ecs.Map[LightSource]
 	Interactable       *ecs.Map[Interactable]
 	VisualEffects      *ecs.Map[VisualEffects]
-	TileTemperature    *ecs.Map[TileTemperature]
+	TileEnvironment    *ecs.Map[TileEnvironment]
 	HeatSource         *ecs.Map[HeatSource]
 	Burning            *ecs.Map[Burning]
 	StageBound         *ecs.Map[StageBound]
@@ -217,7 +217,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
-	c.TileTemperature = ecs.NewMap[TileTemperature](world)
+	c.TileEnvironment = ecs.NewMap[TileEnvironment](world)
 	c.HeatSource = ecs.NewMap[HeatSource](world)
 	c.Burning = ecs.NewMap[Burning](world)
 	c.StageBound = ecs.NewMap[StageBound](world)
@@ -306,7 +306,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
-	addComp(c.TileTemperature, entity, spec.TileTemperature)
+	addComp(c.TileEnvironment, entity, spec.TileEnvironment)
 	addComp(c.HeatSource, entity, spec.HeatSource)
 	addComp(c.Burning, entity, spec.Burning)
 	addComp(c.StageBound, entity, spec.StageBound)

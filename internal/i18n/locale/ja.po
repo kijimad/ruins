@@ -140,6 +140,12 @@ msgstr "気温修正"
 msgid "Indoor"
 msgstr "屋内"
 
+msgid "Outdoor"
+msgstr "屋外"
+
+msgid "Semi-outdoor"
+msgstr "半屋外"
+
 msgid "Waterside"
 msgstr "水辺"
 
@@ -5906,6 +5912,9 @@ msgstr "熱量"
 
 msgid "Turns left"
 msgstr "残りターン"
+
+msgid "Day %d"
+msgstr "%d日目"
 
 msgid "The season changed to %s."
 msgstr "季節が%sになった。"

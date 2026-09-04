@@ -168,3 +168,38 @@ func TestInteriorLootRaw_写像先のitem_groupが実在する(t *testing.T) {
 		require.NoErrorf(t, err, "loot Ref %q の写像先 item group %q が実在する", ref, group)
 	}
 }
+
+// TestFurnishBuilding_屋内床にShelterが設定される は、建物内部の床タイルに屋内 Shelter が書き込まれ、庭や壁には
+// 書き込まれないことを固定する。オーバーワールド建物を屋内と判定し、温度式が per-tile の屋内緩和を効かせる配線を守る。
+func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
+	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
+	door := interior.Vec{X: 10, Y: 13}
+	_, _, err := furnishBuilding(world, g, footprint, door, facilityHouse, 1)
+	require.NoError(t, err)
+
+	floorTotal, floorFull, nonFloorFull := 0, 0, 0
+	for _, e := range g.tiles.get() {
+		if !world.Components.TileEnvironment.Has(e) {
+			continue
+		}
+		shelter := world.Components.TileEnvironment.Get(e).Shelter
+		switch world.Components.RawID.Get(e).ID {
+		case consts.TileNameFloor:
+			floorTotal++
+			if shelter == gc.ShelterFull {
+				floorFull++
+			}
+		case consts.TileNameDirt, consts.TileNameDWall:
+			if shelter == gc.ShelterFull {
+				nonFloorFull++
+			}
+		}
+	}
+	require.Positive(t, floorTotal, "建物内部に床タイルがある")
+	assert.Equal(t, floorTotal, floorFull, "屋内の床タイルはすべて ShelterFull を持つ")
+	assert.Zero(t, nonFloorFull, "庭の土と壁には屋内 Shelter を書き込まない")
+}
