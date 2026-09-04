@@ -212,6 +212,53 @@ func buildModifierSpecs() []modifierSpec {
 	return specs
 }
 
+// specByKey は ModifierKey からスペック行を引く索引
+var specByKey = func() map[ModifierKey]modifierSpec {
+	m := make(map[ModifierKey]modifierSpec, len(modifierSpecs))
+	for _, s := range modifierSpecs {
+		m[s.Key] = s
+	}
+	return m
+}()
+
+// accuracySkillByKey は命中キーから武器スキルIDを引く索引。命中だけ身体機能を畳むため
+var accuracySkillByKey = func() map[ModifierKey]SkillID {
+	m := make(map[ModifierKey]SkillID, len(weaponAccuracyKeys))
+	for id, key := range weaponAccuracyKeys {
+		m[key] = id
+	}
+	return m
+}()
+
+// CalcModifierValue は key の効果倍率1つだけを導出する。CalcCharModifiers と同じ
+// スペック表・式で計算し、内訳を組み立てないためアロケーションが無い。
+// 毎フレーム読む消費者向け。全量ビューとの一致はテストで固定する。未定義キーは等倍を返す
+func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) consts.Percent {
+	spec, ok := specByKey[key]
+	if !ok {
+		return consts.PercentBase
+	}
+	bonus := skills.Get(spec.Skill).Value * spec.Coeff
+	if abils != nil {
+		ablCoeff := 1
+		if spec.Coeff < 0 {
+			ablCoeff = -1
+		}
+		bonus += abils.ValueOf(SkillAbilityID(spec.Skill)) * ablCoeff
+	}
+	val := int(consts.PercentBase) + bonus
+
+	if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {
+		caps := HealthyCapacities()
+		if hs != nil {
+			caps = hs.Capacities()
+		}
+		_, capVal := weaponAccuracyCapacity(caps, id)
+		val = capVal.ApplyInt(val)
+	}
+	return consts.Percent(val)
+}
+
 // CalcCharModifiers はスキル、能力値、健康状態から全効果倍率を導出する。
 // abils, hs は nil でもよい。内訳は 最終値 = 基準 + Σ内訳 を満たす
 func CalcCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {

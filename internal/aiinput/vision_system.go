@@ -32,7 +32,8 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 
 	viewDist := float64(viewDistance)
 
-	viewDist = query.Modifiers(world, targetEntity).Value(gc.ModEnemyVision).ApplyFloat(viewDist)
+	// 敵ごと毎ターン呼ばれる最頻経路なので、内訳を作らない単キー導出で読む
+	viewDist = query.ModifierValue(world, targetEntity, gc.ModEnemyVision).ApplyFloat(viewDist)
 
 	return float64(distSq) <= viewDist*viewDist
 }

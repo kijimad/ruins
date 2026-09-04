@@ -259,6 +259,53 @@ func TestCalcCharModifiers_AccuracyFoldsCapacity(t *testing.T) {
 	assert.Equal(t, -26, bowSrc[len(bowSrc)-1].Value)
 }
 
+func TestCalcModifierValue_全量ビューと一致する(t *testing.T) {
+	t.Parallel()
+
+	richSkills := NewSkills()
+	richSkills.Get(SkillSword).Value = 3
+	richSkills.Get(SkillBow).Value = 2
+	richSkills.Get(SkillColdResist).Value = 4
+	richSkills.Get(SkillNegotiation).Value = 5
+	richSkills.Get(SkillStealth).Value = 6
+
+	abils := &Abilities{
+		Strength:  Ability{Total: 8},
+		Sensation: Ability{Total: 6},
+		Agility:   Ability{Total: 4},
+		Dexterity: Ability{Total: 2},
+		Vitality:  Ability{Total: 1},
+	}
+
+	sickHS := &HealthStatus{}
+	sickHS.Parts[BodyPartWholeBody].SetCondition(HealthCondition{Type: ConditionHypothermia, Severity: SeverityMedium})
+	sickHS.Parts[BodyPartHead].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
+
+	cases := []struct {
+		name   string
+		skills *Skills
+		abils  *Abilities
+		hs     *HealthStatus
+	}{
+		{"素の状態", NewSkills(), nil, nil},
+		{"スキルと能力値", richSkills, abils, nil},
+		{"不調あり", richSkills, abils, sickHS},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			full := CalcCharModifiers(tc.skills, tc.abils, tc.hs)
+			for _, spec := range modifierSpecs {
+				got := CalcModifierValue(tc.skills, tc.abils, tc.hs, spec.Key)
+				assert.Equal(t, full.Value(spec.Key), got, "キー %s で単キー導出と全量ビューがずれた", spec.Key)
+			}
+			// 未定義キーは両者とも等倍
+			assert.Equal(t, full.Value("unknown"), CalcModifierValue(tc.skills, tc.abils, tc.hs, "unknown"))
+		})
+	}
+}
+
 func TestCalcCharModifiers_ElementResistAllTypes(t *testing.T) {
 	t.Parallel()
 
