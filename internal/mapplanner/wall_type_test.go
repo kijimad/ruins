@@ -115,3 +115,38 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 	wallType := planData.GetWallType(wallIdx)
 	assert.Equal(t, WallTypeTop, wallType, "床タイルに対するWallTypeTopの判定が間違っています")
 }
+
+func TestWallType_String(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		wt   WallType
+		want string
+	}{
+		{WallTypeTop, "Top"},
+		{WallTypeBottom, "Bottom"},
+		{WallTypeLeft, "Left"},
+		{WallTypeRight, "Right"},
+		{WallTypeTopLeft, "TopLeft"},
+		{WallTypeTopRight, "TopRight"},
+		{WallTypeBottomLeft, "BottomLeft"},
+		{WallTypeBottomRight, "BottomRight"},
+		{WallTypeGeneric, "Generic"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.want+"に変換される", func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.wt.String())
+		})
+	}
+}
+
+func TestWallType_String_未定義の値はパニックする(t *testing.T) {
+	t.Parallel()
+
+	invalid := WallType(999)
+	assert.PanicsWithValue(t, "invalid WallType value: 999", func() {
+		_ = invalid.String()
+	})
+}
