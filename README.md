@@ -107,6 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | draft | [CharModifiers を都度計算ビューと宣言的スペック表へ再設計する](docs/design/260903162519.md) | 0/9 | refactor, ecs |
+| draft | [疲労と睡眠を追加する](docs/design/260904092832.md) | 0/8（見送り2） | gamedesign, ecs |
 
 
 ## Reference
