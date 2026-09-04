@@ -230,7 +230,6 @@ func tileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
 			tileTemp := world.Components.TileEnvironment.Get(entity)
 			shelter = tileTemp.Shelter
 			modifier = tileTemp.Total()
-			// 反復を最後まで回さず抜けるとワールドロックのbitが漏れ、64回で枯渇する。明示的に閉じる
 			tileTempQuery.Close()
 			break
 		}

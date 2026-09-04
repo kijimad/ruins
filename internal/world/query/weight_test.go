@@ -232,7 +232,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 
 		UpdateWeightCapacity(world, player)
 
-		// Modifiers は Skills なしで等倍を返す。基本Max(30.0)のまま
+		// Skills なしなら倍率は等倍。基本Max(30.0)のまま
 		wc := world.Components.WeightCapacity.Get(player)
 		assert.Equal(t, consts.MustParseWeight("30 kg"), wc.Max)
 	})
