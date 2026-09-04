@@ -221,6 +221,22 @@ func TestUpdateWeightCapacity(t *testing.T) {
 		assert.Equal(t, consts.MustParseWeight("42 kg"), wc.Max)
 	})
 
+	t.Run("Skillsなしは等倍でMaxが変わらない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
+		world.Components.Abilities.Add(player, &gc.Abilities{
+			Strength: gc.Ability{Base: 10},
+		})
+
+		UpdateWeightCapacity(world, player)
+
+		// Modifiers は Skills なしで等倍を返す。基本Max(30.0)のまま
+		wc := world.Components.WeightCapacity.Get(player)
+		assert.Equal(t, consts.MustParseWeight("30 kg"), wc.Max)
+	})
+
 	t.Run("WeightCapacityがない場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

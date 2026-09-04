@@ -41,6 +41,8 @@ func calculateMaxCarryingWeight(abilities *gc.Abilities) consts.Milligram {
 	if abilities == nil {
 		return baseCarryingWeight
 	}
+	// Total は StatsChangedSystem の集計後にだけ正しい。装備補正込みの現在値を
+	// Base + Modifier から直接求め、集計の実行順に依存しないようにする
 	strength := abilities.Strength.Base + abilities.Strength.Modifier
 	return baseCarryingWeight + consts.Milligram(strength)*strengthWeightMultiplier
 }
