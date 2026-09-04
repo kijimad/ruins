@@ -233,6 +233,7 @@ func tileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
 			tileTemp := world.Components.TileEnvironment.Get(entity)
 			shelter = tileTemp.Shelter
 			modifier = tileTemp.Total()
+			break
 		}
 	}
 	return shelter, modifier

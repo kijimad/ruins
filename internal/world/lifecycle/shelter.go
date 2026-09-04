@@ -57,7 +57,7 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 	blockedAt := func(bx, by int) bool { return blocked[by*size+bx] }
 
 	// 扉が開けば両側は1つの領域として、閉じれば分断された各側が別領域として書き直される。
-	// 中心が塞がっている、つまり扉が閉じたときも4隣接の種が両側を拾う
+	// 閉じた扉は BlockPass を持つので中心の種は弾かれるが、4隣接の種が室内外の両側を別々に拾う
 	visited := make([]bool, size*size)
 	seeds := [][2]int{
 		{shelterRecalcRadius, shelterRecalcRadius},
