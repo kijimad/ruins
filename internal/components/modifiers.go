@@ -225,8 +225,7 @@ var accuracySkillByKey = func() map[ModifierKey]SkillID {
 	return m
 }()
 
-// forEachModifierSource は key の内訳を計算順に fn へ渡す。値と内訳の唯一の計算実体で、
-// CalcModifierValue と CalcModifierSources はこれの畳み方だけが違う。
+// forEachModifierSource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。
 // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない
 func forEachModifierSource(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey, fn func(ModifierSource)) {
 	spec, ok := specByKey[key]
@@ -263,9 +262,8 @@ func forEachModifierSource(skills *Skills, abils *Abilities, hs *HealthStatus, k
 	}
 }
 
-// CalcModifierValue は key の効果倍率を導出する。内訳の加法差分を積むだけなので
-// アロケーションが無く、毎フレーム・毎ターン読む適用側の唯一の経路。
-// 効果タブの%表示も同じこの関数を読むので、表示と適用は同じ値になる
+// CalcModifierValue は key の効果倍率を導出する。内訳の加法差分を積むだけで
+// アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する
 func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) consts.Percent {
 	total := int(consts.PercentBase)
 	forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {
