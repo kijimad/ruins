@@ -108,10 +108,8 @@ func TestCalcCharModifiers_Sources(t *testing.T) {
 
 	sources := mods.Sources[ModSwordDamage]
 	assert.Len(t, sources, 2, "スキルと能力値の2つのソースがある")
-	assert.Equal(t, "Swordsmanship Lv3", sources[0].Label)
-	assert.Equal(t, 15, sources[0].Value) // 3*5
-	assert.Equal(t, "STR 8", sources[1].Label)
-	assert.Equal(t, 8, sources[1].Value) // 8*1
+	assert.Equal(t, ModifierSource{Kind: SourceSkill, Skill: SkillSword, Amount: 3, Value: 15}, sources[0]) // 3*5
+	assert.Equal(t, ModifierSource{Kind: SourceAbility, Ability: AblSTR, Amount: 8, Value: 8}, sources[1])  // 8*1
 }
 
 func TestCalcCharModifiers_HealthPenalty(t *testing.T) {
@@ -252,11 +250,9 @@ func TestCalcCharModifiers_AccuracyFoldsCapacity(t *testing.T) {
 
 	// 内訳の末尾に身体機能の加法差分が載る。100→74 なので -26
 	swordSrc := mods.Sources[ModSwordAccuracy]
-	assert.Equal(t, "Manipulation 74%", swordSrc[len(swordSrc)-1].Label)
-	assert.Equal(t, -26, swordSrc[len(swordSrc)-1].Value)
+	assert.Equal(t, ModifierSource{Kind: SourceCapacity, Capacity: CapacityManipulation, Amount: 74, Value: -26}, swordSrc[len(swordSrc)-1])
 	bowSrc := mods.Sources[ModBowAccuracy]
-	assert.Equal(t, "Sight 74%", bowSrc[len(bowSrc)-1].Label)
-	assert.Equal(t, -26, bowSrc[len(bowSrc)-1].Value)
+	assert.Equal(t, ModifierSource{Kind: SourceCapacity, Capacity: CapacitySight, Amount: 74, Value: -26}, bowSrc[len(bowSrc)-1])
 }
 
 func TestCalcModifierValue_全量ビューと一致する(t *testing.T) {

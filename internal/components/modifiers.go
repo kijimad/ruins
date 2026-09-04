@@ -131,11 +131,25 @@ const (
 	coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%
 )
 
-// ModifierSource は効果倍率の算出元を表す。
-// スキル以外の要因（健康状態など）にも対応できる汎用的な構造にしている。
+// ModifierSourceKind は内訳1件の由来の種別
+type ModifierSourceKind string
+
+// 内訳の由来種別
+const (
+	SourceSkill    ModifierSourceKind = "skill"    // スキルによる補正
+	SourceAbility  ModifierSourceKind = "ability"  // 能力値による補正
+	SourceCapacity ModifierSourceKind = "capacity" // 身体機能の畳み込み
+)
+
+// ModifierSource は効果倍率の算出元1件を表す。整形済みの文字列でなく事実を持ち、
+// 表示側が現在言語へ訳して整形する。Kind に応じて Skill / Ability / Capacity のどれかが有効
 type ModifierSource struct {
-	Label string // 表示名。例: "刀剣 Lv2", "低体温"
-	Value int    // この要因による変化量。例: +10, -15
+	Kind     ModifierSourceKind
+	Skill    SkillID      // Kind が skill のときのスキル
+	Ability  AbilityID    // Kind が ability のときの能力値
+	Capacity CapacityKind // Kind が capacity のときの身体機能
+	Amount   int          // 要因の量。スキルLv・能力値・身体機能%
+	Value    int          // この要因による変化量。例: +10, -15
 }
 
 // CharModifiers は効果倍率の導出ビュー。コンポーネントではなく保存しない。
@@ -276,8 +290,7 @@ func CalcCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *Char
 		v := skills.Get(spec.Skill).Value
 		bonus := v * spec.Coeff
 		e.Sources[spec.Key] = append(e.Sources[spec.Key], ModifierSource{
-			Label: fmt.Sprintf("%s Lv%d", SkillName(spec.Skill), v),
-			Value: bonus,
+			Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus,
 		})
 
 		// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
@@ -290,8 +303,7 @@ func CalcCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *Char
 			}
 			ablBonus := ablVal * ablCoeff
 			e.Sources[spec.Key] = append(e.Sources[spec.Key], ModifierSource{
-				Label: fmt.Sprintf("%s %d", AbilityName(ablID), ablVal),
-				Value: ablBonus,
+				Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus,
 			})
 			bonus += ablBonus
 		}
@@ -306,8 +318,7 @@ func CalcCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *Char
 		capKind, capVal := weaponAccuracyCapacity(e.Capacities, id)
 		withCap := capVal.ApplyInt(acc)
 		e.Sources[key] = append(e.Sources[key], ModifierSource{
-			Label: fmt.Sprintf("%s %d%%", capKind, int(capVal)),
-			Value: withCap - acc,
+			Kind: SourceCapacity, Capacity: capKind, Amount: int(capVal), Value: withCap - acc,
 		})
 		e.Values[key] = consts.Percent(withCap)
 	}
