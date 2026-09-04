@@ -114,7 +114,7 @@ func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[con
 			if perimeter && (ly != oy+hh-1 || lx != door) {
 				name = consts.TileNameDWall
 			}
-			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil {
+			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil {
 				return fmt.Errorf("failed to place landmark hut (x=%d, y=%d): %w", lx, ly, err)
 			}
 		}

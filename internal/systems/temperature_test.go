@@ -16,29 +16,47 @@ import (
 // coldDungeonName は基本気温0度のテスト用ダンジョン定義名。DungeonForest の英語 id。
 const coldDungeonName = "Dead forest"
 
-func TestGetTileTemperatureAt(t *testing.T) {
+func TestTileEnvironmentAt(t *testing.T) {
 	t.Parallel()
 
-	t.Run("タイルが存在する場合は気温修正を返す", func(t *testing.T) {
+	t.Run("囲われは緩和度として返り加算℃には入らない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.TileTemperature.Add(tile, &gc.TileTemperature{
+		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
 			Shelter: gc.ShelterFull,
 		})
 
-		result := getTileTemperatureAt(world, 5, 5)
-		assert.Equal(t, 10, result)
+		shelter, modifier := tileEnvironmentAt(world, 5, 5)
+		assert.Equal(t, gc.ShelterFull, shelter)
+		assert.Equal(t, 0, modifier)
 	})
 
-	t.Run("タイルが存在しない場合は0を返す", func(t *testing.T) {
+	t.Run("水と植生は加算℃として返る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		result := getTileTemperatureAt(world, 5, 5)
-		assert.Equal(t, 0, result)
+		tile := world.ECS.NewEntity()
+		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
+			Water:   gc.WaterNearby,
+			Foliage: gc.FoliageForest,
+		})
+
+		shelter, modifier := tileEnvironmentAt(world, 5, 5)
+		assert.Equal(t, gc.ShelterNone, shelter)
+		assert.Equal(t, -8, modifier)
+	})
+
+	t.Run("タイルが存在しない場合は屋外かつ0を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		shelter, modifier := tileEnvironmentAt(world, 5, 5)
+		assert.Equal(t, gc.ShelterNone, shelter)
+		assert.Equal(t, 0, modifier)
 	})
 }
 
@@ -70,16 +88,100 @@ func TestAmbientTemperatureAt_屋外はステージ定義が無くても世界�
 	assert.Equal(t, -20, temp, "屋外はステージ定義に依らず世界温度そのものを返す")
 }
 
-func TestAmbientTemperatureAt_ダンジョンは世界温度を緩和して受ける(t *testing.T) {
+func TestAmbientTemperatureAt_ダンジョンの囲われたタイルは世界温度を緩和して受ける(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	// 25日目の昼。世界温度 = -30 + 10 = -20。屋内は基本気温0に世界温度の半分を足す
 	query.GetGameTime(world).TotalTurns = 24*1500 + 500
 	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 
+	tile := world.ECS.NewEntity()
+	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
+
 	temp, err := AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -10, temp, "屋内は基本気温 0 に世界温度 -20 の半分 -10 を足す")
+	assert.Equal(t, -5, temp, "屋内はアンカー10へ半分寄せた 10+(-20-10)/2 = -5 になる")
+}
+
+func TestAmbientTemperatureAt_ダンジョンの囲われていないタイルは世界温度をそのまま受ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20。洞窟の開口部のような囲われの無いタイルは屋外扱い
+	query.GetGameTime(world).TotalTurns = 24*1500 + 500
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -20, temp, "囲われが無ければ基本気温 0 に世界温度 -20 をそのまま足す")
+}
+
+func TestAmbientTemperatureAt_オーバーワールドの屋内タイルは世界温度を緩和して受ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20。建物内部の床は ShelterFull が設定されている
+	query.GetGameTime(world).TotalTurns = 24*1500 + 500
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	tile := world.ECS.NewEntity()
+	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -5, temp, "オーバーワールドの屋内はアンカー10へ半分寄せた -5 になる")
+}
+
+func TestAmbientTemperatureAt_温暖時も屋内は屋外より寒くならない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 開始直後の春の夜明け。世界温度 = 5 + 0 = 5。0℃へ割るだけの式だと屋内 2℃ で屋外より寒い逆転が起きる
+	query.GetGameTime(world).TotalTurns = 0
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	tile := world.ECS.NewEntity()
+	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, 8, temp, "屋内はアンカー10へ半分寄せた 10+(5-10)/2 = 8 で屋外の 5 より暖かい")
+}
+
+func TestAmbientTemperatureAt_熱源は環境気温を押し上げる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20。焚き火と同じ warmth 0.75 の熱源の隣に立つ
+	query.GetGameTime(world).TotalTurns = 24*1500 + 500
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	fire := world.ECS.NewEntity()
+	world.Components.GridElement.Add(fire, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+	world.Components.HeatSource.Add(fire, &gc.HeatSource{Radius: 2, Warmth: 0.75})
+
+	temp, err := AmbientTemperatureAt(world, 1, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -5, temp, "隣接の押し上げは 0.75*2/3*30=15℃ で -20 が -5 になる")
+}
+
+func TestAmbientTemperatureAt_半屋外タイルは世界温度を中間の強さで受ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20。半屋外は 3/4 の強さで受ける
+	query.GetGameTime(world).TotalTurns = 24*1500 + 500
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	tile := world.ECS.NewEntity()
+	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterPartial})
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -12, temp, "半屋外はアンカー10へ 3/4 寄せた 10+(-30)*3/4 = -12 になる")
 }
 
 func TestAmbientTemperatureAt_冬の屋内は屋外より暖かい(t *testing.T) {
@@ -100,6 +202,9 @@ func TestAmbientTemperatureAt_冬の屋内は屋外より暖かい(t *testing.T)
 		world := testutil.InitTestWorld(t)
 		query.GetGameTime(world).TotalTurns = winterNoon
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+		tile := world.ECS.NewEntity()
+		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
 		temp, err := AmbientTemperatureAt(world, 0, 0)
 		require.NoError(t, err)
 		return temp

@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -31,59 +32,25 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 	return nil
 }
 
-// floodFillOutdoor はマップ端から到達可能なタイルを屋外としてマーク
+// floodFillOutdoor はマップ外周に達する連結領域を屋外としてマークする。
+// 囲われの判定は geometry.EnclosedRegion に集約し、扉開閉時の再計算と意味論を共有する
 func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
-	outdoor := make([]bool, len(mp.Tiles))
-	visited := make([]bool, len(mp.Tiles))
 	width := int(mp.Level.TileWidth)
 	height := int(mp.Level.TileHeight)
+	blocked := func(x, y int) bool { return mp.Tiles[y*width+x].BlockPass }
 
-	// BFS キュー（マップ端から開始）
-	queue := []int{}
-
-	// 上端と下端
-	for x := range width {
-		queue = append(queue, x)                  // 上端
-		queue = append(queue, (height-1)*width+x) // 下端
-	}
-	// 左端と右端（上下端を除く）
-	for y := 1; y < height-1; y++ {
-		queue = append(queue, y*width)         // 左端
-		queue = append(queue, y*width+width-1) // 右端
-	}
-
-	// BFS: 壁以外を辿り、到達可能な領域を屋外としてマーク
-	for len(queue) > 0 {
-		idx := queue[0]
-		queue = queue[1:]
-
-		if idx < 0 || idx >= len(mp.Tiles) || visited[idx] {
+	outdoor := make([]bool, len(mp.Tiles))
+	visited := make([]bool, len(mp.Tiles))
+	for i := range mp.Tiles {
+		if visited[i] || mp.Tiles[i].BlockPass {
 			continue
 		}
-		visited[idx] = true
-
-		if mp.Tiles[idx].BlockPass {
-			continue // 壁は通過しない
-		}
-
-		outdoor[idx] = true
-
-		// 4方向の隣接タイルをキューに追加
-		x, y := idx%width, idx/width
-		if x > 0 {
-			queue = append(queue, idx-1)
-		}
-		if x < width-1 {
-			queue = append(queue, idx+1)
-		}
-		if y > 0 {
-			queue = append(queue, idx-width)
-		}
-		if y < height-1 {
-			queue = append(queue, idx+width)
+		cells, touchesEdge := geometry.EnclosedRegion(width, height, blocked, i%width, i/width)
+		for _, c := range cells {
+			visited[c] = true
+			outdoor[c] = touchesEdge
 		}
 	}
-
 	return outdoor
 }
 
