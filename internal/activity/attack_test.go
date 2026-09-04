@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -301,10 +300,9 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
-	mods := query.Modifiers(world, actor)
-	require.NotNil(t, mods)
 	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=87
-	assert.Equal(t, 87, int(mods.Capacities.Moving), "HealthStatusが身体機能へ反映される")
+	moving := world.Components.HealthStatus.Get(actor).Capacities().Moving
+	assert.Equal(t, 87, int(moving), "HealthStatusが身体機能へ反映される")
 }
 
 func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {

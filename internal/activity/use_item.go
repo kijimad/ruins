@@ -139,7 +139,7 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	amount := healing.Calc(hp.Max)
 
 	// 回復効果倍率を適用する
-	amount = max(query.Modifiers(world, actor).Value(gc.ModHealingEffect).ApplyInt(amount), 1)
+	amount = max(query.ModifierValue(world, actor, gc.ModHealingEffect).ApplyInt(amount), 1)
 
 	actualHealing := gameaction.ApplyHealing(world, actor, amount)
 

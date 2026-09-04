@@ -152,25 +152,6 @@ type ModifierSource struct {
 	Value    int          // この要因による変化量。例: +10, -15
 }
 
-// CharModifiers は効果倍率の導出ビュー。コンポーネントではなく保存しない。
-// Skills・Abilities・HealthStatus から読み取り時に計算する。100が基準値で変化なし
-type CharModifiers struct {
-	// Values は効果倍率の一覧
-	Values map[ModifierKey]consts.Percent
-	// Capacities は不調から導いた身体機能。命中と移動速度がここを経由する
-	Capacities BodyCapacities
-	// Sources は各効果の算出元。1つの効果に複数の要因が影響しうるためスライスにしている
-	Sources map[ModifierKey][]ModifierSource
-}
-
-// Value は効果倍率を返す。未定義キーは等倍を返す
-func (m *CharModifiers) Value(key ModifierKey) consts.Percent {
-	if v, ok := m.Values[key]; ok {
-		return v
-	}
-	return consts.PercentBase
-}
-
 // weaponAccuracyCapacity は武器スキルの命中に効く身体機能の種別と乗数を返す。
 // 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする
 func weaponAccuracyCapacity(caps BodyCapacities, id SkillID) (CapacityKind, consts.Percent) {
@@ -244,84 +225,61 @@ var accuracySkillByKey = func() map[ModifierKey]SkillID {
 	return m
 }()
 
-// CalcModifierValue は key の効果倍率1つだけを導出する。CalcCharModifiers と同じ
-// スペック表・式で計算し、内訳を組み立てないためアロケーションが無い。
-// 毎フレーム読む消費者向け。全量ビューとの一致はテストで固定する。未定義キーは等倍を返す
-func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) consts.Percent {
+// forEachModifierSource は key の内訳を計算順に fn へ渡す。値と内訳の唯一の計算実体で、
+// CalcModifierValue と CalcModifierSources はこれの畳み方だけが違う。
+// 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない
+func forEachModifierSource(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey, fn func(ModifierSource)) {
 	spec, ok := specByKey[key]
 	if !ok {
-		return consts.PercentBase
+		return
 	}
-	bonus := skills.Get(spec.Skill).Value * spec.Coeff
+	v := skills.Get(spec.Skill).Value
+	bonus := v * spec.Coeff
+	fn(ModifierSource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus})
+
+	// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
 	if abils != nil {
+		ablID := SkillAbilityID(spec.Skill)
+		ablVal := abils.ValueOf(ablID)
 		ablCoeff := 1
 		if spec.Coeff < 0 {
 			ablCoeff = -1
 		}
-		bonus += abils.ValueOf(SkillAbilityID(spec.Skill)) * ablCoeff
+		ablBonus := ablVal * ablCoeff
+		fn(ModifierSource{Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus})
+		bonus += ablBonus
 	}
-	val := int(consts.PercentBase) + bonus
 
+	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる
 	if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {
 		caps := HealthyCapacities()
 		if hs != nil {
 			caps = hs.Capacities()
 		}
-		_, capVal := weaponAccuracyCapacity(caps, id)
-		val = capVal.ApplyInt(val)
+		capKind, capVal := weaponAccuracyCapacity(caps, id)
+		acc := int(consts.PercentBase) + bonus
+		withCap := capVal.ApplyInt(acc)
+		fn(ModifierSource{Kind: SourceCapacity, Capacity: capKind, Amount: int(capVal), Value: withCap - acc})
 	}
-	return consts.Percent(val)
 }
 
-// CalcCharModifiers はスキル、能力値、健康状態から全効果倍率を導出する。
-// abils, hs は nil でもよい。内訳は 最終値 = 基準 + Σ内訳 を満たす
-func CalcCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {
-	e := &CharModifiers{
-		Values:  make(map[ModifierKey]consts.Percent, len(modifierSpecs)),
-		Sources: make(map[ModifierKey][]ModifierSource, len(modifierSpecs)),
-	}
+// CalcModifierValue は key の効果倍率を導出する。内訳の加法差分を積むだけなので
+// アロケーションが無く、毎フレーム・毎ターン読む適用側の唯一の経路。
+// 効果タブの%表示も同じこの関数を読むので、表示と適用は同じ値になる
+func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) consts.Percent {
+	total := int(consts.PercentBase)
+	forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {
+		total += s.Value
+	})
+	return consts.Percent(total)
+}
 
-	e.Capacities = HealthyCapacities()
-	if hs != nil {
-		e.Capacities = hs.Capacities()
-	}
-
-	for _, spec := range modifierSpecs {
-		v := skills.Get(spec.Skill).Value
-		bonus := v * spec.Coeff
-		e.Sources[spec.Key] = append(e.Sources[spec.Key], ModifierSource{
-			Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus,
-		})
-
-		// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
-		if abils != nil {
-			ablID := SkillAbilityID(spec.Skill)
-			ablVal := abils.ValueOf(ablID)
-			ablCoeff := 1
-			if spec.Coeff < 0 {
-				ablCoeff = -1
-			}
-			ablBonus := ablVal * ablCoeff
-			e.Sources[spec.Key] = append(e.Sources[spec.Key], ModifierSource{
-				Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus,
-			})
-			bonus += ablBonus
-		}
-
-		e.Values[spec.Key] = consts.PercentBase + consts.Percent(bonus)
-	}
-
-	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せて 最終値 = 基準 + Σ内訳 を保つ
-	for _, id := range WeaponSkillIDs {
-		key := WeaponAccuracyKey(id)
-		acc := int(e.Values[key])
-		capKind, capVal := weaponAccuracyCapacity(e.Capacities, id)
-		withCap := capVal.ApplyInt(acc)
-		e.Sources[key] = append(e.Sources[key], ModifierSource{
-			Kind: SourceCapacity, Capacity: capKind, Amount: int(capVal), Value: withCap - acc,
-		})
-		e.Values[key] = consts.Percent(withCap)
-	}
-
-	return e
+// CalcModifierSources は key の内訳を返す。詳細モーダルの表示側だけが読む。
+// 未定義キーは空を返す
+func CalcModifierSources(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) []ModifierSource {
+	var srcs []ModifierSource
+	forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {
+		srcs = append(srcs, s)
+	})
+	return srcs
 }

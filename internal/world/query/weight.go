@@ -28,7 +28,7 @@ func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
 	if world.Components.Abilities.Has(entity) {
 		abilities := world.Components.Abilities.Get(entity)
 		maxWeight := calculateMaxCarryingWeight(abilities)
-		maxWeight = consts.Milligram(Modifiers(world, entity).Value(gc.ModMaxWeight).ApplyInt(int(maxWeight)))
+		maxWeight = consts.Milligram(ModifierValue(world, entity, gc.ModMaxWeight).ApplyInt(int(maxWeight)))
 		wc.Max = maxWeight
 	}
 
