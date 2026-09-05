@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [移動拠点キューブを燃料ドライブ式の乗り物にする](docs/design/260905225033.md) | 0/11 | gamedesign, movement, ecs, item |
+| accepted | [移動拠点キューブを燃料ドライブ式の乗り物にする](docs/design/260905225033.md) | 0/15 | gamedesign, movement, ecs, item |
 | draft | [疲労と睡眠を追加する](docs/design/260904092832.md) | 0/10（見送り1） | gamedesign, ecs |
 
 
