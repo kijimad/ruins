@@ -139,6 +139,7 @@ const (
 	SourceSkill    ModifierSourceKind = "skill"    // スキルによる補正
 	SourceAbility  ModifierSourceKind = "ability"  // 能力値による補正
 	SourceCapacity ModifierSourceKind = "capacity" // 身体機能の畳み込み
+	SourceFatigue  ModifierSourceKind = "fatigue"  // 疲労段階の畳み込み
 )
 
 // ModifierSource は効果倍率の算出元1件を表す。整形済みの文字列でなく事実を持ち、
@@ -148,8 +149,16 @@ type ModifierSource struct {
 	Skill    SkillID      // Kind が skill のときのスキル
 	Ability  AbilityID    // Kind が ability のときの能力値
 	Capacity CapacityKind // Kind が capacity のときの身体機能
+	Fatigue  FatigueLevel // Kind が fatigue のときの疲労段階
 	Amount   int          // 要因の量。スキルLv・能力値・身体機能%
 	Value    int          // この要因による変化量。例: +10, -15
+}
+
+// IsWeaponAccuracyKey は key が武器命中の効果キーかを返す。疲労など武器命中だけに
+// 効く補正を query 層で畳むときの判定に使う
+func IsWeaponAccuracyKey(key ModifierKey) bool {
+	_, ok := accuracySkillByKey[key]
+	return ok
 }
 
 // weaponAccuracyCapacity は武器スキルの命中に効く身体機能の種別と乗数を返す。
