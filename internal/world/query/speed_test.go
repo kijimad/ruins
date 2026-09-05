@@ -86,7 +86,8 @@ func TestCalculateSpeed(t *testing.T) {
 		// 通常時のSpeedを記録
 		normalSpeed := CalculateSpeed(world, entity)
 
-		// 低体温を設定する。Add はコピーするので格納先を書き換える
+		// 低体温を付ける。Add で hs は格納先へコピーされ別物になるので、
+		// ローカルの hs でなく Get で格納先を取り直して書き換える
 		world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeverityMedium,
