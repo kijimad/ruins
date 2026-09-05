@@ -78,11 +78,19 @@
     0 0 22px rgba(120, 190, 225, 0.45);
 }
 
+/* NOW LOADING をゆるやかに明滅させる。カーソルは付けず文字だけ */
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
 .loading-txt {
   font-size: 0.95rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #9fc0d4;
+  animation: 2.4s ease-in-out infinite pulse;
 }
 
 .progress-bar {
