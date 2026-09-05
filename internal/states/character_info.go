@@ -97,6 +97,21 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		hunger := world.Components.Hunger.Get(playerEntity)
 		items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: query.T(world, hunger.GetLevel().String()), Description: query.T(world, "Hunger. High hunger hinders actions")})
 	}
+	// 疲労は空腹と並ぶ生理ゲージなのでここに置く。段階を値に出し、命中・行動速度・回復への影響は内訳へ回す
+	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
+		fatigue := world.Components.Fatigue.Get(playerEntity)
+		pen := fatigue.Penalty()
+		items = append(items, statusItemData{
+			Label:       query.T(world, "Fatigue"),
+			Value:       query.T(world, string(fatigue.GetLevel())),
+			Description: query.T(world, "Fatigue. High fatigue hinders actions and recovery"),
+			Details: []statusDetailRow{
+				{Label: query.T(world, "Accuracy"), Value: fmt.Sprintf("×%d%%", int(pen.AccuracyMul))},
+				{Label: query.T(world, "Action speed"), Value: fmt.Sprintf("%+d", pen.SpeedAdd)},
+				{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%+d%%", int(pen.RecoveryAdd))},
+			},
+		})
+	}
 	return items
 }
 

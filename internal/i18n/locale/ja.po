@@ -6000,6 +6000,15 @@ msgstr "疲労"
 msgid "Exhausted"
 msgstr "過労"
 
+msgid "Fatigue. High fatigue hinders actions and recovery"
+msgstr "疲労。高い疲労は行動と回復を妨げる"
+
+msgid "Action speed"
+msgstr "行動速度"
+
+msgid "Recovery"
+msgstr "回復"
+
 msgid "Sleep here?"
 msgstr "休みますか？"
 
