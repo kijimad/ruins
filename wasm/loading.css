@@ -111,7 +111,7 @@
   transition: width 0.2s steps(6);
 }
 
-/* 総量不明のとき。細い光が左右に流れて読み込み中を示す */
+/* 総量不明のとき。下の幅30%の光帯を左右へ流す。全長を横切るには約333%要るので余白込みで -40%→320% */
 @keyframes indeterminate {
   0% {
     transform: translateX(-40%);
