@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">58.5&nbsp;%</td>
-            <td class="headerCovTableEntry">164</td>
-            <td class="headerCovTableEntry">96</td>
+            <td class="headerCovTableEntryLo">58.0&nbsp;%</td>
+            <td class="headerCovTableEntry">162</td>
+            <td class="headerCovTableEntry">94</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 02:20:13</td>
+            <td class="headerValue">2026-09-05 02:56:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -281,50 +281,44 @@
 <span id="L219"><span class="lineNum">     219</span>              : </span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         leveledUp := skill.GainExpScaled(s, abilityValue, efficiency)</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L222"><span class="lineNum">     222</span>              :         // スキルアップした場合はCharModifiers再計算</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         if leveledUp {</span></span>
-<span id="L224"><span class="lineNum">     224</span>              :                 // 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける</span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 if !world.Components.StatsChanged.Has(actor) {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         world.Components.StatsChanged.Add(actor, &amp;gc.StatsChanged{})</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L228"><span class="lineNum">     228</span>              : </span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 name := gc.SkillName(effect.TargetSkill)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;%s skill rose to %d&quot;, name, s.Value)).</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                         Log()</span></span>
-<span id="L233"><span class="lineNum">     233</span>              :         }</span>
-<span id="L234"><span class="lineNum">     234</span>              : }</span>
-<span id="L235"><span class="lineNum">     235</span>              : </span>
-<span id="L236"><span class="lineNum">     236</span>              : // calcEffortPerTurn は1ターンあたりの読書工数を計算する</span>
-<span id="L237"><span class="lineNum">     237</span>              : // 基本工数10に、本のスキルに対応する能力値を加算する</span>
-<span id="L238"><span class="lineNum">     238</span>              : func (rb *ReadBehavior) calcEffortPerTurn(book *gc.Book, abilityValue int) int {</span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         const baseEffort = 10</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         if book.Skill == nil {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC tlaBgUNC">           0 :                 return baseEffort</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC tlaBgGNC">           1 :         return baseEffort + abilityValue</span></span>
-<span id="L244"><span class="lineNum">     244</span>              : }</span>
-<span id="L245"><span class="lineNum">     245</span>              : </span>
-<span id="L246"><span class="lineNum">     246</span>              : // getSkillAbilityValue は本のスキルに対応する能力値を取得する</span>
-<span id="L247"><span class="lineNum">     247</span>              : func (rb *ReadBehavior) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, world w.World) int {</span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         if book.Skill == nil {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.Abilities.Has(actor) {</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         abils := world.Components.Abilities.Get(actor)</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         ablID := gc.SkillAbilityID(book.Skill.TargetSkill)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         return abils.ValueOf(ablID)</span></span>
-<span id="L257"><span class="lineNum">     257</span>              : }</span>
-<span id="L258"><span class="lineNum">     258</span>              : </span>
-<span id="L259"><span class="lineNum">     259</span>              : // getBook は対象エンティティのBookコンポーネントを取得する</span>
-<span id="L260"><span class="lineNum">     260</span>              : func getBook(entity ecs.Entity, world w.World) *gc.Book {</span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         if !world.Components.Book.Has(entity) {</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         return world.Components.Book.Get(entity)</span></span>
-<span id="L265"><span class="lineNum">     265</span>              : }</span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         if leveledUp {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 name := gc.SkillName(effect.TargetSkill)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;%s skill rose to %d&quot;, name, s.Value)).</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         Log()</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L228"><span class="lineNum">     228</span>              : }</span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span>              : // calcEffortPerTurn は1ターンあたりの読書工数を計算する</span>
+<span id="L231"><span class="lineNum">     231</span>              : // 基本工数10に、本のスキルに対応する能力値を加算する</span>
+<span id="L232"><span class="lineNum">     232</span>              : func (rb *ReadBehavior) calcEffortPerTurn(book *gc.Book, abilityValue int) int {</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         const baseEffort = 10</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         if book.Skill == nil {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC tlaBgUNC">           0 :                 return baseEffort</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC tlaBgGNC">           1 :         return baseEffort + abilityValue</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : }</span>
+<span id="L239"><span class="lineNum">     239</span>              : </span>
+<span id="L240"><span class="lineNum">     240</span>              : // getSkillAbilityValue は本のスキルに対応する能力値を取得する</span>
+<span id="L241"><span class="lineNum">     241</span>              : func (rb *ReadBehavior) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, world w.World) int {</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         if book.Skill == nil {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.Abilities.Has(actor) {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         abils := world.Components.Abilities.Get(actor)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         ablID := gc.SkillAbilityID(book.Skill.TargetSkill)</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         return abils.ValueOf(ablID)</span></span>
+<span id="L251"><span class="lineNum">     251</span>              : }</span>
+<span id="L252"><span class="lineNum">     252</span>              : </span>
+<span id="L253"><span class="lineNum">     253</span>              : // getBook は対象エンティティのBookコンポーネントを取得する</span>
+<span id="L254"><span class="lineNum">     254</span>              : func getBook(entity ecs.Entity, world w.World) *gc.Book {</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         if !world.Components.Book.Has(entity) {</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         return world.Components.Book.Get(entity)</span></span>
+<span id="L259"><span class="lineNum">     259</span>              : }</span>
         </pre>
               </td>
             </tr>

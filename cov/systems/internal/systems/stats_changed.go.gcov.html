@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.9&nbsp;%</td>
-            <td class="headerCovTableEntry">99</td>
+            <td class="headerCovTableEntryHi">91.0&nbsp;%</td>
             <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntry">81</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 02:20:13</td>
+            <td class="headerValue">2026-09-05 02:56:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -168,7 +168,7 @@
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 abils.Agility.Total = abils.Agility.Base + abils.Agility.Modifier</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 abils.Defense.Total = abils.Defense.Base + abils.Defense.Modifier</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L109"><span class="lineNum">     109</span>              :                 // HP/Poolsを更新。abils を使うので、CharModifiers の Upsert による構造変更で</span>
+<span id="L109"><span class="lineNum">     109</span>              :                 // HP/Poolsを更新。abils を使うので、WeightDirty の Add による構造変更で</span>
 <span id="L110"><span class="lineNum">     110</span>              :                 // abils ポインタが無効化される前に行う</span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 if world.Components.HP.Has(entity) {</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                         hp := world.Components.HP.Get(entity)</span></span>
@@ -176,54 +176,41 @@
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                         hp.Current = min(hp.Max, hp.Current)</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
-<span id="L117"><span class="lineNum">     117</span>              :                 // スキル効果倍率を再計算する。能力値変更後に行う。CharModifiers の Add は構造変更で</span>
-<span id="L118"><span class="lineNum">     118</span>              :                 // abils ポインタを無効化するので、abils を使う処理はこれより前に済ませる</span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 if world.Components.Skills.Has(entity) {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                         skills := world.Components.Skills.Get(entity)</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                         var hs *gc.HealthStatus</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                         if world.Components.HealthStatus.Has(entity) {</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                                 hs = world.Components.HealthStatus.Get(entity)</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                         effects := gc.RecalculateCharModifiers(skills, abils, hs)</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                         if err := gc.Upsert(world.ECS, world.Components.CharModifiers, entity, effects); err != nil {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return err</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L129"><span class="lineNum">     129</span>              :                 }</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC tlaBgGNC">           1 :                 if world.Components.WeightCapacity.Has(entity) {</span></span>
-<span id="L131"><span class="lineNum">     131</span>              :                         // 所持重量を再計算する。力が変化した場合に最大重量が変わるので</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         if !world.Components.WeightDirty.Has(entity) {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC tlaBgUNC">           0 :                                 world.Components.WeightDirty.Add(entity, &amp;gc.WeightDirty{})</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L135"><span class="lineNum">     135</span>              :                 }</span>
-<span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span>              :                 // APを再計算</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 :                 if world.Components.TurnBased.Has(entity) {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                         maxAP, err := query.CalculateMaxActionPoints(world, entity)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC tlaBgUNC">           0 :                                 updateErr = err</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L143"><span class="lineNum">     143</span>              :                         }</span>
-<span id="L144"><span class="lineNum">     144</span>              :                         // CharModifiers の Upsert より後に取得するので、構造変更後の新しい領域を指す。</span>
-<span id="L145"><span class="lineNum">     145</span>              :                         // 構造変更前に取得したポインタを使い回さない限り安全</span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC tlaBgGNC">           1 :                         turnBased := world.Components.TurnBased.Get(entity)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L148"><span class="lineNum">     148</span>              :                         // 最大APを更新</span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                         turnBased.AP.Max = maxAP</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L151"><span class="lineNum">     151</span>              :                         // 現在APが最大APを超えている場合は切り詰める</span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         if turnBased.AP.Current &gt; maxAP {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                                 turnBased.AP.Current = maxAP</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L155"><span class="lineNum">     155</span>              :                 }</span>
-<span id="L156"><span class="lineNum">     156</span>              :         }</span>
-<span id="L157"><span class="lineNum">     157</span>              : </span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return updateErr</span></span>
-<span id="L159"><span class="lineNum">     159</span>              : }</span>
-<span id="L160"><span class="lineNum">     160</span>              : </span>
-<span id="L161"><span class="lineNum">     161</span>              : // 30+(体力*8+力+感覚)</span>
-<span id="L162"><span class="lineNum">     162</span>              : func maxHP(abils *gc.Abilities) int {</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         return 30 + abils.Vitality.Total*8 + abils.Strength.Total + abils.Sensation.Total</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 if world.Components.WeightCapacity.Has(entity) {</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :                         // 所持重量を再計算する。力が変化した場合に最大重量が変わるので</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                         if !world.Components.WeightDirty.Has(entity) {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC tlaBgUNC">           0 :                                 world.Components.WeightDirty.Add(entity, &amp;gc.WeightDirty{})</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :                 }</span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span>              :                 // APを再計算</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC tlaBgGNC">           1 :                 if world.Components.TurnBased.Has(entity) {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                         maxAP, err := query.CalculateMaxActionPoints(world, entity)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC tlaBgUNC">           0 :                                 updateErr = err</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L130"><span class="lineNum">     130</span>              :                         }</span>
+<span id="L131"><span class="lineNum">     131</span>              :                         // WeightDirty の Add より後に取得するので、構造変更後の新しい領域を指す。</span>
+<span id="L132"><span class="lineNum">     132</span>              :                         // 構造変更前に取得したポインタを使い回さない限り安全</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC tlaBgGNC">           1 :                         turnBased := world.Components.TurnBased.Get(entity)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L135"><span class="lineNum">     135</span>              :                         // 最大APを更新</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         turnBased.AP.Max = maxAP</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L138"><span class="lineNum">     138</span>              :                         // 現在APが最大APを超えている場合は切り詰める</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                         if turnBased.AP.Current &gt; maxAP {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                                 turnBased.AP.Current = maxAP</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :                 }</span>
+<span id="L143"><span class="lineNum">     143</span>              :         }</span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return updateErr</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : }</span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span>              : // 30+(体力*8+力+感覚)</span>
+<span id="L149"><span class="lineNum">     149</span>              : func maxHP(abils *gc.Abilities) int {</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         return 30 + abils.Vitality.Total*8 + abils.Strength.Total + abils.Sensation.Total</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

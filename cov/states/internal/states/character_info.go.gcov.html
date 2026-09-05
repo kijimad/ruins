@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.2&nbsp;%</td>
-            <td class="headerCovTableEntry">191</td>
-            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntryHi">94.4&nbsp;%</td>
+            <td class="headerCovTableEntry">197</td>
+            <td class="headerCovTableEntry">186</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 02:20:13</td>
+            <td class="headerValue">2026-09-05 02:56:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -209,162 +209,175 @@
 <span id="L147"><span class="lineNum">     147</span>              : </span>
 <span id="L148"><span class="lineNum">     148</span>              : func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Entity) []statusItemData {</span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         items := []statusItemData{}</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         if !query.AliveHas(world, world.Components.CharModifiers, playerEntity) {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         if !world.ECS.Alive(playerEntity) {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC tlaBgUNC">           0 :                 return items</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           1 :         e := world.Components.CharModifiers.Get(playerEntity)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Combat&quot;), IsHeader: true, Description: query.T(world, &quot;Combat effects&quot;)})</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         for _, id := range gc.AllSkillIDs {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 if mult, ok := e.WeaponDamage[id]; ok {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                         name := query.T(world, gc.SkillName(id))</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                         items = append(items, statusItemData{Label: query.T(world, &quot;%s attack power&quot;, name), Value: fmt.Sprintf(&quot;%d%%&quot;, mult), Description: query.T(world, &quot;%s weapon damage multiplier&quot;, name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L161"><span class="lineNum">     161</span>              :         }</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         for _, id := range gc.AllSkillIDs {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 if mult, ok := e.WeaponAccuracy[id]; ok {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         name := query.T(world, gc.SkillName(id))</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         items = append(items, statusItemData{Label: query.T(world, &quot;%s accuracy&quot;, name), Value: fmt.Sprintf(&quot;%d%%&quot;, mult), Description: query.T(world, &quot;%s weapon accuracy multiplier&quot;, name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L167"><span class="lineNum">     167</span>              :         }</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 if mult, ok := e.ElementResist[elem]; ok {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         items = append(items, statusItemData{Label: query.T(world, &quot;%s resistance&quot;, elem.String()), Value: fmt.Sprintf(&quot;%d%%&quot;, mult), Description: query.T(world, &quot;%s element damage multiplier. Lower reduces more&quot;, elem.String()), Details: sourceToDetails(e.Sources, gc.ElementResistKey(elem))})</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L172"><span class="lineNum">     172</span>              :         }</span>
-<span id="L173"><span class="lineNum">     173</span>              : </span>
-<span id="L174"><span class="lineNum">     174</span>              :         // 血液量が危険域まで落ちると失血で HP が減る。一覧は % だけにし、減少量は詳細モーダルの内訳に出す</span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         bloodDesc := query.T(world, &quot;Blood volume. Bleeding and severe conditions lower it&quot;)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         var bloodDetails []statusDetailRow</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         if world.Components.HealthStatus.Has(playerEntity) {</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 if drain, _ := world.Components.HealthStatus.Get(playerEntity).BloodLossHPDrain(); drain &gt; 0 {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 :                         bloodDesc = query.T(world, &quot;Critically low. Bleeding out and losing HP&quot;)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                         bloodDetails = []statusDetailRow{{Label: query.T(world, &quot;HP loss&quot;), Value: fmt.Sprintf(&quot;-%d&quot;, drain)}}</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L182"><span class="lineNum">     182</span>              :         }</span>
-<span id="L183"><span class="lineNum">     183</span>              : </span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC tlaBgGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Body function&quot;), IsHeader: true, Description: query.T(world, &quot;Body capacities lowered by injuries and illness&quot;)})</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Pain&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.Capacities.Pain), Description: query.T(world, &quot;Pain from conditions. Lowers consciousness&quot;)},</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Blood&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.Capacities.Blood), Description: bloodDesc, Details: bloodDetails},</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Consciousness&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.Capacities.Consciousness), Description: query.T(world, &quot;Master capacity. Multiplies all others&quot;)},</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Manipulation&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.Capacities.Manipulation), Description: query.T(world, &quot;Affects melee accuracy and crafting&quot;)},</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Moving&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.Capacities.Moving), Description: query.T(world, &quot;Affects move speed&quot;)},</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Sight&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.Capacities.Sight), Description: query.T(world, &quot;Affects ranged accuracy and vision&quot;)},</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Survival&quot;), IsHeader: true, Description: query.T(world, &quot;Survival effects&quot;)})</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Hypothermia progress&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.ColdProgress), Description: query.T(world, &quot;Hypothermia progress rate. Lower is slower&quot;), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Hunger progress&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.HungerProgress), Description: query.T(world, &quot;Hunger progress rate. Lower is slower&quot;), Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Healing effect&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.HealingEffect), Description: query.T(world, &quot;Healing item effect multiplier. Higher heals more&quot;), Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Action&quot;), IsHeader: true, Description: query.T(world, &quot;Action effects&quot;)})</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Move speed&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.MoveCost), Description: query.T(world, &quot;AP cost multiplier when moving. Lower moves with less AP&quot;), Details: sourceToDetails(e.Sources, gc.ModMoveCost)},</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Discovery&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.Exploration), Description: query.T(world, &quot;Item discovery rate multiplier. Higher finds more&quot;), Details: sourceToDetails(e.Sources, gc.ModExploration)},</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Detection&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.EnemyVision), Description: query.T(world, &quot;Enemy detection distance multiplier. Lower is harder to find&quot;), Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Night vision&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.NightVision), Description: query.T(world, &quot;Vision multiplier in dark. Higher sees more&quot;), Details: sourceToDetails(e.Sources, gc.ModNightVision)},</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Production&quot;), IsHeader: true, Description: query.T(world, &quot;Production and trade effects&quot;)})</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Material cost&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.CraftCost), Description: query.T(world, &quot;Material consumption multiplier when crafting. Lower saves materials&quot;), Details: sourceToDetails(e.Sources, gc.ModCraftCost)},</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Craft quality&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.SmithQuality), Description: query.T(world, &quot;Quality multiplier when crafting. Higher makes better goods&quot;), Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Buy price&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.BuyPrice), Description: query.T(world, &quot;Purchase price multiplier. Lower buys cheaper&quot;), Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Sell price&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.SellPrice), Description: query.T(world, &quot;Sell price multiplier. Higher sells higher&quot;), Details: sourceToDetails(e.Sources, gc.ModSellPrice)},</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Max weight&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.MaxWeight), Description: query.T(world, &quot;Max carry weight multiplier&quot;), Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Max load&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, e.HeavyArmor), Description: query.T(world, &quot;Max load multiplier&quot;), Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         return items</span></span>
-<span id="L219"><span class="lineNum">     219</span>              : }</span>
-<span id="L220"><span class="lineNum">     220</span>              : </span>
-<span id="L221"><span class="lineNum">     221</span>              : // translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない</span>
-<span id="L222"><span class="lineNum">     222</span>              : func translatedConditionName(world w.World, ct gc.ConditionType) string {</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         return query.T(world, gc.ConditionTypeDisplayName(ct))</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L225"><span class="lineNum">     225</span>              : </span>
-<span id="L226"><span class="lineNum">     226</span>              : // treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す</span>
-<span id="L227"><span class="lineNum">     227</span>              : func treatmentStatus(world w.World, cond gc.HealthCondition) string {</span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         if cond.TendQuality &lt;= 0 {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC tlaBgUNC">           0 :                 return query.T(world, &quot;Untreated&quot;)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC tlaBgGNC">           1 :         return fmt.Sprintf(&quot;%s %d%%&quot;, query.T(world, &quot;Tended&quot;), int(cond.TendQuality))</span></span>
-<span id="L232"><span class="lineNum">     232</span>              : }</span>
-<span id="L233"><span class="lineNum">     233</span>              : </span>
-<span id="L234"><span class="lineNum">     234</span>              : func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {</span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         var items []statusItemData</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         var hs *gc.HealthStatus</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 hs = world.Components.HealthStatus.Get(playerEntity)</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         for i := range int(gc.BodyPartCount) {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 part := gc.BodyPart(i)</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 // 部位はカテゴリ見出し。カーソルは見出しを飛ばす</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 items = append(items, statusItemData{Label: query.T(world, part.String()), IsHeader: true, BodyPart: part})</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 var conds []gc.HealthCondition</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 if hs != nil {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                         conds = hs.Parts[i].Conditions</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 if len(conds) == 0 {</span></span>
-<span id="L250"><span class="lineNum">     250</span>              :                         // 症状の無い部位は健康の1エントリを置く。見出しと区別するため字下げする</span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                         items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, &quot;Normal&quot;), BodyPart: part})</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L253"><span class="lineNum">     253</span>              :                 }</span>
-<span id="L254"><span class="lineNum">     254</span>              :                 // 症状ごとに1エントリ。見出しと区別するため字下げし、名前の右に治療状態、値に進行度を出す</span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 for _, cond := range conds {</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                         name := translatedConditionName(world, cond.Type) + &quot;  &quot; + treatmentStatus(world, cond)</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                         items = append(items, statusItemData{</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                                 Label:         healthEntryIndent + name,</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                                 Value:         fmt.Sprintf(&quot;%d%%&quot;, int(cond.Timer)),</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                                 BodyPart:      part,</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                                 ConditionType: cond.Type,</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L264"><span class="lineNum">     264</span>              :         }</span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         return items</span></span>
-<span id="L266"><span class="lineNum">     266</span>              : }</span>
-<span id="L267"><span class="lineNum">     267</span>              : </span>
-<span id="L268"><span class="lineNum">     268</span>              : // sourceToDetails はModifierSourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない</span>
-<span id="L269"><span class="lineNum">     269</span>              : func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.ModifierKey) []statusDetailRow {</span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         srcs, ok := sources[key]</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC tlaBgGNC">           1 :         var rows []statusDetailRow</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           1 :         val := func(key gc.ModifierKey) string {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;%d%%&quot;, query.ModifierValue(world, playerEntity, key))</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         details := func(key gc.ModifierKey) []statusDetailRow {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return sourceToDetails(world, query.ModifierSources(world, playerEntity, key))</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         caps := gc.HealthyCapacities()</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         if world.Components.HealthStatus.Has(playerEntity) {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 caps = world.Components.HealthStatus.Get(playerEntity).Capacities()</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Combat&quot;), IsHeader: true, Description: query.T(world, &quot;Combat effects&quot;)})</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         for _, id := range gc.WeaponSkillIDs {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 name := query.T(world, gc.SkillName(id))</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 items = append(items, statusItemData{Label: query.T(world, &quot;%s attack power&quot;, name), Value: val(gc.WeaponDamageKey(id)), Description: query.T(world, &quot;%s weapon damage multiplier&quot;, name), Details: details(gc.WeaponDamageKey(id))})</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         for _, id := range gc.WeaponSkillIDs {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 name := query.T(world, gc.SkillName(id))</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 items = append(items, statusItemData{Label: query.T(world, &quot;%s accuracy&quot;, name), Value: val(gc.WeaponAccuracyKey(id)), Description: query.T(world, &quot;%s weapon accuracy multiplier&quot;, name), Details: details(gc.WeaponAccuracyKey(id))})</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 items = append(items, statusItemData{Label: query.T(world, &quot;%s resistance&quot;, elem.String()), Value: val(gc.ElementResistKey(elem)), Description: query.T(world, &quot;%s element damage multiplier. Lower reduces more&quot;, elem.String()), Details: details(gc.ElementResistKey(elem))})</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L176"><span class="lineNum">     176</span>              : </span>
+<span id="L177"><span class="lineNum">     177</span>              :         // 血液量が危険域まで落ちると失血で HP が減る。一覧は % だけにし、減少量は詳細モーダルの内訳に出す</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         bloodDesc := query.T(world, &quot;Blood volume. Bleeding and severe conditions lower it&quot;)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         var bloodDetails []statusDetailRow</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         if world.Components.HealthStatus.Has(playerEntity) {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 if drain, _ := world.Components.HealthStatus.Get(playerEntity).BloodLossHPDrain(); drain &gt; 0 {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC tlaBgUNC">           0 :                         bloodDesc = query.T(world, &quot;Critically low. Bleeding out and losing HP&quot;)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                         bloodDetails = []statusDetailRow{{Label: query.T(world, &quot;HP loss&quot;), Value: fmt.Sprintf(&quot;-%d&quot;, drain)}}</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L185"><span class="lineNum">     185</span>              :         }</span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Body function&quot;), IsHeader: true, Description: query.T(world, &quot;Body capacities lowered by injuries and illness&quot;)})</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Pain&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, caps.Pain), Description: query.T(world, &quot;Pain from conditions. Lowers consciousness&quot;)},</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Blood&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, caps.Blood), Description: bloodDesc, Details: bloodDetails},</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Consciousness&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, caps.Consciousness), Description: query.T(world, &quot;Master capacity. Multiplies all others&quot;)},</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Manipulation&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, caps.Manipulation), Description: query.T(world, &quot;Affects melee accuracy and crafting&quot;)},</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Moving&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, caps.Moving), Description: query.T(world, &quot;Affects move speed&quot;)},</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Sight&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, caps.Sight), Description: query.T(world, &quot;Affects ranged accuracy and vision&quot;)},</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Survival&quot;), IsHeader: true, Description: query.T(world, &quot;Survival effects&quot;)})</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Hypothermia progress&quot;), Value: val(gc.ModColdProgress), Description: query.T(world, &quot;Hypothermia progress rate. Lower is slower&quot;), Details: details(gc.ModColdProgress)},</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Hunger progress&quot;), Value: val(gc.ModHungerProgress), Description: query.T(world, &quot;Hunger progress rate. Lower is slower&quot;), Details: details(gc.ModHungerProgress)},</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Healing effect&quot;), Value: val(gc.ModHealingEffect), Description: query.T(world, &quot;Healing item effect multiplier. Higher heals more&quot;), Details: details(gc.ModHealingEffect)},</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Action&quot;), IsHeader: true, Description: query.T(world, &quot;Action effects&quot;)})</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Move speed&quot;), Value: val(gc.ModMoveCost), Description: query.T(world, &quot;AP cost multiplier when moving. Lower moves with less AP&quot;), Details: details(gc.ModMoveCost)},</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Discovery&quot;), Value: val(gc.ModExploration), Description: query.T(world, &quot;Item discovery rate multiplier. Higher finds more&quot;), Details: details(gc.ModExploration)},</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Detection&quot;), Value: val(gc.ModEnemyVision), Description: query.T(world, &quot;Enemy detection distance multiplier. Lower is harder to find&quot;), Details: details(gc.ModEnemyVision)},</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Night vision&quot;), Value: val(gc.ModNightVision), Description: query.T(world, &quot;Vision multiplier in dark. Higher sees more&quot;), Details: details(gc.ModNightVision)},</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         items = append(items, statusItemData{Label: query.T(world, &quot;Production&quot;), IsHeader: true, Description: query.T(world, &quot;Production and trade effects&quot;)})</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Material cost&quot;), Value: val(gc.ModCraftCost), Description: query.T(world, &quot;Material consumption multiplier when crafting. Lower saves materials&quot;), Details: details(gc.ModCraftCost)},</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Craft quality&quot;), Value: val(gc.ModSmithQuality), Description: query.T(world, &quot;Quality multiplier when crafting. Higher makes better goods&quot;), Details: details(gc.ModSmithQuality)},</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Buy price&quot;), Value: val(gc.ModBuyPrice), Description: query.T(world, &quot;Purchase price multiplier. Lower buys cheaper&quot;), Details: details(gc.ModBuyPrice)},</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Sell price&quot;), Value: val(gc.ModSellPrice), Description: query.T(world, &quot;Sell price multiplier. Higher sells higher&quot;), Details: details(gc.ModSellPrice)},</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Max weight&quot;), Value: val(gc.ModMaxWeight), Description: query.T(world, &quot;Max carry weight multiplier&quot;), Details: details(gc.ModMaxWeight)},</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 statusItemData{Label: query.T(world, &quot;Max load&quot;), Value: val(gc.ModHeavyArmor), Description: query.T(world, &quot;Max load multiplier&quot;), Details: details(gc.ModHeavyArmor)},</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         return items</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない</span>
+<span id="L225"><span class="lineNum">     225</span>              : func translatedConditionName(world w.World, ct gc.ConditionType) string {</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         return query.T(world, gc.ConditionTypeDisplayName(ct))</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L228"><span class="lineNum">     228</span>              : </span>
+<span id="L229"><span class="lineNum">     229</span>              : // treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す</span>
+<span id="L230"><span class="lineNum">     230</span>              : func treatmentStatus(world w.World, cond gc.HealthCondition) string {</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         if cond.TendQuality &lt;= 0 {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC tlaBgUNC">           0 :                 return query.T(world, &quot;Untreated&quot;)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">           1 :         return fmt.Sprintf(&quot;%s %d%%&quot;, query.T(world, &quot;Tended&quot;), int(cond.TendQuality))</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : }</span>
+<span id="L236"><span class="lineNum">     236</span>              : </span>
+<span id="L237"><span class="lineNum">     237</span>              : func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         var items []statusItemData</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         var hs *gc.HealthStatus</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 hs = world.Components.HealthStatus.Get(playerEntity)</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         for i := range int(gc.BodyPartCount) {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 part := gc.BodyPart(i)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 // 部位はカテゴリ見出し。カーソルは見出しを飛ばす</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 items = append(items, statusItemData{Label: query.T(world, part.String()), IsHeader: true, BodyPart: part})</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 var conds []gc.HealthCondition</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 if hs != nil {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         conds = hs.Parts[i].Conditions</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 if len(conds) == 0 {</span></span>
+<span id="L253"><span class="lineNum">     253</span>              :                         // 症状の無い部位は健康の1エントリを置く。見出しと区別するため字下げする</span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                         items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, &quot;Normal&quot;), BodyPart: part})</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L256"><span class="lineNum">     256</span>              :                 }</span>
+<span id="L257"><span class="lineNum">     257</span>              :                 // 症状ごとに1エントリ。見出しと区別するため字下げし、名前の右に治療状態、値に進行度を出す</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 for _, cond := range conds {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                         name := translatedConditionName(world, cond.Type) + &quot;  &quot; + treatmentStatus(world, cond)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                         items = append(items, statusItemData{</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                                 Label:         healthEntryIndent + name,</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                                 Value:         fmt.Sprintf(&quot;%d%%&quot;, int(cond.Timer)),</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                                 BodyPart:      part,</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                                 ConditionType: cond.Type,</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :         }</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         return items</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : }</span>
+<span id="L270"><span class="lineNum">     270</span>              : </span>
+<span id="L271"><span class="lineNum">     271</span>              : // sourceToDetails はModifierSourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない。</span>
+<span id="L272"><span class="lineNum">     272</span>              : // 計算側は事実だけを持つので、ラベルの整形と翻訳はここで行う</span>
+<span id="L273"><span class="lineNum">     273</span>              : func sourceToDetails(world w.World, srcs []gc.ModifierSource) []statusDetailRow {</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         var rows []statusDetailRow</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         for _, s := range srcs {</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 if s.Value == 0 {</span></span>
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L278"><span class="lineNum">     278</span>              :                 }</span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 rows = append(rows, statusDetailRow{Label: s.Label, Value: fmt.Sprintf(&quot;%+d%%&quot;, s.Value)})</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 rows = append(rows, statusDetailRow{Label: sourceLabel(world, s), Value: fmt.Sprintf(&quot;%+d%%&quot;, s.Value)})</span></span>
 <span id="L280"><span class="lineNum">     280</span>              :         }</span>
 <span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         return rows</span></span>
 <span id="L282"><span class="lineNum">     282</span>              : }</span>
 <span id="L283"><span class="lineNum">     283</span>              : </span>
-<span id="L284"><span class="lineNum">     284</span>              : // buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。</span>
-<span id="L285"><span class="lineNum">     285</span>              : func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {</span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         hasModifier := tab.ID == tabAbilities</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         // 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         cols := styled.Cols(styled.Name(), styled.Num())</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         if hasModifier {</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 cols = styled.Cols(styled.Name(), styled.Num(), styled.Num())</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(tab.Items))</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         for i, it := range tab.Items {</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 cells := make([]string, len(cols))</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 cells[0] = it.Label</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 if !it.IsHeader {</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         cells[1] = it.Value</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                         if hasModifier {</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                                 cells[2] = it.Modifier</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L301"><span class="lineNum">     301</span>              :                 }</span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                 rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}</span></span>
-<span id="L303"><span class="lineNum">     303</span>              :         }</span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, &quot;No entries&quot;), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)</span></span>
-<span id="L305"><span class="lineNum">     305</span>              : }</span>
+<span id="L284"><span class="lineNum">     284</span>              : // sourceLabel は内訳1件の表示ラベルを現在言語で整形する</span>
+<span id="L285"><span class="lineNum">     285</span>              : func sourceLabel(world w.World, s gc.ModifierSource) string {</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         switch s.Kind {</span></span>
+<span id="L287"><span class="lineNum">     287</span>              :         case gc.SourceSkill:</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Sprintf(&quot;%s Lv%d&quot;, query.T(world, gc.SkillName(s.Skill)), s.Amount)</span></span>
+<span id="L289"><span class="lineNum">     289</span>              :         case gc.SourceAbility:</span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC tlaBgGNC">           1 :                 return fmt.Sprintf(&quot;%s %d&quot;, query.T(world, gc.AbilityName(s.Ability)), s.Amount)</span></span>
+<span id="L291"><span class="lineNum">     291</span>              :         case gc.SourceCapacity:</span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;%s %d%%&quot;, query.T(world, string(s.Capacity)), s.Amount)</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :         }</span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unknown ModifierSourceKind: &quot; + string(s.Kind))</span></span>
+<span id="L295"><span class="lineNum">     295</span>              : }</span>
+<span id="L296"><span class="lineNum">     296</span>              : </span>
+<span id="L297"><span class="lineNum">     297</span>              : // buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。</span>
+<span id="L298"><span class="lineNum">     298</span>              : func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC tlaBgGNC">           1 :         hasModifier := tab.ID == tabAbilities</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         // 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         cols := styled.Cols(styled.Name(), styled.Num())</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :         if hasModifier {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 cols = styled.Cols(styled.Name(), styled.Num(), styled.Num())</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(tab.Items))</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         for i, it := range tab.Items {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 cells := make([]string, len(cols))</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 cells[0] = it.Label</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 if !it.IsHeader {</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                         cells[1] = it.Value</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                         if hasModifier {</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                                 cells[2] = it.Modifier</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L314"><span class="lineNum">     314</span>              :                 }</span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}</span></span>
+<span id="L316"><span class="lineNum">     316</span>              :         }</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :         return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, &quot;No entries&quot;), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)</span></span>
+<span id="L318"><span class="lineNum">     318</span>              : }</span>
         </pre>
               </td>
             </tr>

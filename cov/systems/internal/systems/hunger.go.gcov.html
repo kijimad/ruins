@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">19</td>
-            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">17</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 02:20:13</td>
+            <td class="headerValue">2026-09-05 02:56:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,29 +81,26 @@
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter1[gc.Hunger](world).Query()</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 hungerPct := int(consts.PercentBase)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 if world.Components.CharModifiers.Has(entity) {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                         hungerPct = int(world.Components.CharModifiers.Get(entity).HungerProgress)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L26"><span class="lineNum">      26</span>              :                 // 分母を HungerDrainTurns 倍に伸ばして基準速度を緩和する。耐性が高く hungerPct が 0 以下なら比較が常に</span>
-<span id="L27"><span class="lineNum">      27</span>              :                 // 偽になり空腹が進まない。下限を置くかは進行系倍率の共通課題として将来まとめて検討する。</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) &lt; hungerPct {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         world.Components.Hunger.Get(entity).Decrease(1)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L31"><span class="lineNum">      31</span>              :         }</span>
-<span id="L32"><span class="lineNum">      32</span>              : }</span>
-<span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span>              : // hungerNoise は entity と turn から決定的な擬似乱数を撹拌する。splitmix64 の finalizer を使い、共有 RNG を</span>
-<span id="L35"><span class="lineNum">      35</span>              : // 汚さずに確率ゲートを再現する。</span>
-<span id="L36"><span class="lineNum">      36</span>              : func hungerNoise(entity ecs.Entity, turn consts.Turn) uint64 {</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         x := uint64(entity.ID())*0x9E3779B97F4A7C15 ^ uint64(turn)*0xC2B2AE3D27D4EB4F</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         x *= 0x94D049BB133111EB</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 31</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return x</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 hungerPct := int(query.ModifierValue(world, entity, gc.ModHungerProgress))</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 // 分母を HungerDrainTurns 倍に伸ばして基準速度を緩和する。耐性が高く hungerPct が 0 以下なら比較が常に</span></span>
+<span id="L24"><span class="lineNum">      24</span>              :                 // 偽になり空腹が進まない。下限を置くかは進行系倍率の共通課題として将来まとめて検討する。</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) &lt; hungerPct {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                         world.Components.Hunger.Get(entity).Decrease(1)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         }</span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // hungerNoise は entity と turn から決定的な擬似乱数を撹拌する。splitmix64 の finalizer を使い、共有 RNG を</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 汚さずに確率ゲートを再現する。</span>
+<span id="L33"><span class="lineNum">      33</span>              : func hungerNoise(entity ecs.Entity, turn consts.Turn) uint64 {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         x := uint64(entity.ID())*0x9E3779B97F4A7C15 ^ uint64(turn)*0xC2B2AE3D27D4EB4F</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         x *= 0x94D049BB133111EB</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 31</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return x</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
