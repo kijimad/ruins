@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [疲労と睡眠を追加する](docs/design/260904092832.md) | 0/10（見送り1） | gamedesign, ecs |
 
 
 ## Reference
