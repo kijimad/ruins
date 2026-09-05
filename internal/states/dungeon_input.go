@@ -13,6 +13,7 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -40,6 +41,7 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
 	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
 	{Key: ebiten.KeyS, Action: inputmapper.ActionVerbList, Label: "List"},
+	{Key: ebiten.KeyB, Action: inputmapper.ActionSleep, Label: "Sleep"},
 	// 移動。WASD は動詞へ空けるため矢印キーのみを使う。斜めへは視点を回してから直進する
 	{Key: ebiten.KeyUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
 	{Key: ebiten.KeyDown, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveSouth, Label: "Move"},
@@ -156,6 +158,8 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSleep:
+		return st.handleSleep(world)
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
 		verb, ok := verbByAction(action)
 		if !ok {
@@ -365,4 +369,26 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			}
 		}
 	})
+}
+
+// handleSleep は睡眠を起動する。適温の判定は systems を import できるこの層で行い、
+// 疲労と安全は activity 側の Validate が担う。眠れないときは理由をログへ出す
+func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], error) {
+	playerEntity, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return es.Transition[w.World]{Type: es.TransNone}, err
+	}
+	if world.Components.GridElement.Has(playerEntity) {
+		grid := world.Components.GridElement.Get(playerEntity)
+		if !systems.CanSleepTemperatureAt(world, grid.X, grid.Y, playerEntity) {
+			gamelog.New(query.GetGameLog(world)).
+				Markup(query.T(world, "Too cold or hot to sleep.")).
+				Log()
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
+	}
+	if _, err := activity.Execute(activity.NewSleepActivity(), playerEntity, world); err != nil {
+		return es.Transition[w.World]{Type: es.TransNone}, err
+	}
+	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
