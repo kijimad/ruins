@@ -105,10 +105,30 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		upStair = e
 	}
 
+	// デバッグの街ステージには長く燃える火を1つ自動設置する。適温を確保して睡眠を入ってすぐ試せる
+	if def.Name() == dungeon.DungeonDebugTown.Name() {
+		if err := spawnDebugStageFire(world, start); err != nil {
+			return zero, noEntity, err
+		}
+	}
+
 	// 生成物(上り階段を含む)をこのステージへ束縛して識別できるようにする
 	stage.Bind(world, key)
 
 	return start, upStair, nil
+}
+
+// debugStageFireBurnTurns はデバッグ街の火が燃え続けるターン数。睡眠テスト中に消えない長さにする
+const debugStageFireBurnTurns = 10000
+
+// spawnDebugStageFire はスポーン地点の隣へ長く燃える火を置く。本番の着火と同じく fire prop へ Burning を付ける
+func spawnDebugStageFire(world w.World, start consts.Coord[consts.Tile]) error {
+	fire, err := lifecycle.SpawnProp(world, "fire", start.X+1, start.Y)
+	if err != nil {
+		return fmt.Errorf("failed to spawn debug stage fire: %w", err)
+	}
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugStageFireBurnTurns})
+	return nil
 }
 
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
