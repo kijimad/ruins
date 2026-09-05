@@ -25,11 +25,11 @@ type SleepConditions struct {
 }
 
 // EvaluateSleepConditions は actor の現在地での睡眠条件を評価する。
-// 気温計算は query、安全と寝具は activity 内の述語を使い、判定を1箇所に集約する。
+// 気温と安全は query、寝具は sleep 内の述語を使い、判定を1箇所に集約する。
 func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 	sc := SleepConditions{
-		AreaSafe:       IsAreaSafe(actor, world),
-		BeddingQuality: BeddingQualityAt(actor, world),
+		AreaSafe:       query.IsAreaSafe(world, actor),
+		BeddingQuality: beddingQualityAt(actor, world),
 		TemperatureOK:  true, // 座標が無い場所では気温では妨げない
 	}
 

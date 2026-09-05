@@ -55,7 +55,7 @@ func (sb *SleepBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Start は睡眠開始時に Sleeping マーカーを付ける。寝具 Quality を足元・隣接から解決して写す
 func (sb *SleepBehavior) Start(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	quality := BeddingQualityAt(actor, world)
+	quality := beddingQualityAt(actor, world)
 	if !world.Components.Sleeping.Has(actor) {
 		world.Components.Sleeping.Add(actor, &gc.Sleeping{Quality: quality})
 	}
@@ -70,7 +70,7 @@ func (sb *SleepBehavior) Start(_ *gc.Activity, actor ecs.Entity, world w.World) 
 // DoTurn は毎ターン中断条件を検査し、満たさなければ眠り続ける。疲労の減少はターン終了の
 // progressTurnFatigue が Sleeping を見て行うので、ここでは起床・中断の判定に徹する
 func (sb *SleepBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if !IsAreaSafe(actor, world) {
+	if !query.IsAreaSafe(world, actor) {
 		Cancel(comp, "sleep interrupted because enemies are nearby")
 		return nil
 	}
@@ -137,8 +137,8 @@ func isStarving(actor ecs.Entity, world w.World) bool {
 		world.Components.Hunger.Get(actor).GetLevel() == gc.HungerStarving
 }
 
-// BeddingQualityAt は足元か隣接の寝具から最大の Quality を返す。無ければ地べたの基準
-func BeddingQualityAt(actor ecs.Entity, world w.World) consts.Percent {
+// beddingQualityAt は足元か隣接の寝具から最大の Quality を返す。無ければ地べたの基準
+func beddingQualityAt(actor ecs.Entity, world w.World) consts.Percent {
 	quality := consts.PercentBase
 	if !world.Components.GridElement.Has(actor) {
 		return quality

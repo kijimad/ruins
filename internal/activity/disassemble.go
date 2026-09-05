@@ -71,7 +71,7 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
 		return &UserError{Msg: query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
 	}
-	if !IsAreaSafe(actor, world) {
+	if !query.IsAreaSafe(world, actor) {
 		return &UserError{Msg: query.T(world, "cannot disassemble because enemies are nearby")}
 	}
 	return nil
@@ -113,7 +113,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 		Cancel(comp, "interrupted because the disassembly target disappeared")
 		return nil
 	}
-	if !IsAreaSafe(actor, world) {
+	if !query.IsAreaSafe(world, actor) {
 		Cancel(comp, "disassembly interrupted because enemies are nearby")
 		return nil
 	}

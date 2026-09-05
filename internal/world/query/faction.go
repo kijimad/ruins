@@ -1,6 +1,7 @@
 package query
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -46,4 +47,35 @@ func FactionRelation(world w.World, a, b ecs.Entity) Relation {
 		return RelationFriendly
 	}
 	return RelationNeutral
+}
+
+// IsAreaSafe はアクターの周囲に敵対エンティティがいないかを返す。休息・睡眠・読書など継続
+// アクティビティが毎ターン安全を確かめるのに使う。座標を持たなければ判定できず危険とみなす。
+func IsAreaSafe(world w.World, actor ecs.Entity) bool {
+	if !world.Components.GridElement.Has(actor) {
+		return false
+	}
+	gridElement := world.Components.GridElement.Get(actor)
+	actorX, actorY := int(gridElement.X), int(gridElement.Y)
+
+	safeRadius := 1
+	hasHostile := false
+
+	areaQuery := ActiveFilter1[gc.GridElement](world).Query()
+	for areaQuery.Next() {
+		entity := areaQuery.Entity()
+		if hasHostile {
+			continue
+		}
+		if FactionRelation(world, actor, entity) != RelationHostile {
+			continue
+		}
+		grid := world.Components.GridElement.Get(entity)
+		dx, dy := int(grid.X)-actorX, int(grid.Y)-actorY
+		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
+			hasHostile = true
+		}
+	}
+
+	return !hasHostile
 }
