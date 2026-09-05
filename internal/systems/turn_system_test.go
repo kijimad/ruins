@@ -42,17 +42,19 @@ func TestTurnSystem_Update(t *testing.T) {
 		assert.Equal(t, gc.TurnPhaseAI, turnState.Phase, "APがマイナスならAITurnへ遷移するべき")
 	})
 
-	t.Run("継続アクション中は複数ターンを早送りして完走する", func(t *testing.T) {
+	t.Run("継続アクション中は1フレームで上限ぶん早送りし超過は次フレームへ持ち越す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
+		// 上限を超える待機を設定し、1フレームで焼き切らず持ち越すことを確かめる
+		waitTurns := fastForwardTurnsPerFrame + 2
 		world.Components.Activity.Add(player, &gc.Activity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateRunning,
-			Progress:     gc.IntPool{Max: 5},
+			Progress:     gc.IntPool{Max: waitTurns},
 		})
 
 		turnState := query.GetTurnState(world)
@@ -63,10 +65,18 @@ func TestTurnSystem_Update(t *testing.T) {
 		err = sys.Update(world)
 		require.NoError(t, err)
 
-		// 5ターンの待機は1フレームで早送りされ完走する。実時間は縮むが世界は5ターンぶん進む
-		assert.False(t, query.HasActivity(world, player), "早送りでアクティビティが完走する")
+		// 1フレームでは上限ぶんだけ進み、まだ完走しない。経過感を出すため一気に焼かない
+		assert.True(t, query.HasActivity(world, player), "上限を超える待機は1フレームで完走しない")
+		assert.Equal(t, startTurn+consts.Turn(fastForwardTurnsPerFrame), turnState.TurnNumber, "1フレームで上限ぶん世界が進む")
+		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "継続中もフェーズは Player のまま次フレームへ")
+
+		err = sys.Update(world)
+		require.NoError(t, err)
+
+		// 次フレームで残りを消化して完走する。世界は合計 waitTurns ぶん進む
+		assert.False(t, query.HasActivity(world, player), "次フレームで残りを消化して完走する")
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "完走後は入力待ちの Player フェーズへ戻る")
-		assert.Equal(t, startTurn+5, turnState.TurnNumber, "待機5ターンぶん世界が進む")
+		assert.Equal(t, startTurn+consts.Turn(waitTurns), turnState.TurnNumber, "待機ターンぶん世界が進む")
 	})
 
 	t.Run("PlayerTurnでAPが0以上なら遷移しない", func(t *testing.T) {
