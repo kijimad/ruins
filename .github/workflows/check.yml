@@ -171,12 +171,12 @@ jobs:
               $1=="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
                 printf "- geomean: x%.2f\n", $4/$2 }')
             if [ -n "$bad" ]; then
-              open=' open'; summary='⚠️ ベンチ比較 (base vs PR) — 2倍以上の悪化を検出'
+              open_attr=' open'; summary='⚠️ ベンチ比較 (base vs PR) — 2倍以上の悪化を検出'
             else
-              open=''; summary='📊 ベンチ比較 (base vs PR)'
+              open_attr=''; summary='📊 ベンチ比較 (base vs PR)'
             fi
             # summary 直後と閉じタグ前の空行は details 内の Markdown を描画させるため必須
-            { echo "<details${open}><summary>${summary}</summary>";
+            { echo "<details${open_attr}><summary>${summary}</summary>";
               echo "";
               echo "$SHA_LINE"; echo '```'; go tool benchstat base.txt pr.txt; echo '```';
               echo ""; echo '</details>'; } > cmp.md
@@ -189,6 +189,7 @@ jobs:
               echo '```'; go tool benchstat pr.txt; echo '```';
               echo ""; echo '</details>'; } > cmp.md
           fi
+          # CI ログで生成した Markdown を確認する
           cat cmp.md
           { echo "bad<<EOF"; echo "$bad"; echo "EOF"; } >> "$GITHUB_OUTPUT"
       - name: sticky comment
