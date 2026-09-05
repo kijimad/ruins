@@ -212,6 +212,9 @@ func processTurnEnd(world w.World) error {
 	// 空腹を1ターンにつき1回進める。行動種別に依らず全員が等しく空腹になる
 	progressTurnHunger(world)
 
+	// 疲労を1ターンにつき1回進める。睡眠中は蓄積せず減る
+	progressTurnFatigue(world)
+
 	return runTurnEndSystems(world)
 }
 

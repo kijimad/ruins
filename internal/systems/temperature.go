@@ -43,6 +43,21 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 }
 
+// sleepTemperatureMargin は入眠可能な温度を快適帯からどれだけ広げるか。
+// 快適でなくとも多少の寒暖なら眠れる。値は実プレイで調整する
+const sleepTemperatureMargin = 5
+
+// CanSleepTemperatureAt は座標の周囲気温が入眠できる範囲かを返す。装備断熱込みの快適帯を
+// margin ぶん広げた範囲に周囲気温が入っているかで判定する。寒すぎる屋外では火を焚くか屋内に入らないと眠れない
+func CanSleepTemperatureAt(world w.World, x, y consts.Tile, entity ecs.Entity) bool {
+	ambient, err := AmbientTemperatureAt(world, x, y)
+	if err != nil {
+		return false
+	}
+	lower, upper := ComfortableRange(CalculateEquippedInsulation(world, entity))
+	return ambient >= lower-sleepTemperatureMargin && ambient <= upper+sleepTemperatureMargin
+}
+
 // 屋内の温度緩和パラメータ。屋内は世界温度をそのまま受けず、アンカー温度へ引き寄せて受ける。
 // 引き寄せ先を 0℃ でなくアンカーにするのは、寒さが浅いときにも屋内が屋外より穏やかで
 // あり続けるため。0℃ へ割るだけだと温暖時に屋内が屋外より寒くなる逆転が起きる。
