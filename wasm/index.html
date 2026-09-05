@@ -13,8 +13,7 @@
       <div class="loading-inner">
         <h1 class="title">COLDWARD</h1>
         <div class="loading-txt">Now Loading</div>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-        <div class="progress-text" id="progress-text">0%</div>
+        <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
     </div>
 
@@ -72,28 +71,18 @@
      const go = new Go();
      go.argv = ["ruins", "play"];
 
-     // ダウンロード進捗を進捗バーへ反映する。Content-Length が無い環境では
-     // 割合を出せないので読み込み済みバイト数だけ表示する
-     function setProgress(loaded, total) {
-         const fill = document.getElementById("progress-fill");
-         const text = document.getElementById("progress-text");
-         const mb = (n) => (n / (1024 * 1024)).toFixed(1);
-         if (total > 0) {
-             const pct = Math.min(100, Math.round((loaded / total) * 100));
-             fill.style.width = pct + "%";
-             text.textContent = pct + "%  (" + mb(loaded) + " / " + mb(total) + " MB)";
-         } else {
-             text.textContent = mb(loaded) + " MB";
-         }
-     }
-
-     // game.wasm をストリームで読みながら進捗を更新し、全バイトを返す。
+     // game.wasm をストリームで読みながら進捗を線で示し、全バイトを返す。
      // 進捗を得るためにストリームを消費するので instantiateStreaming は使わず
-     // バッファから instantiate する
+     // バッファから instantiate する。数字は出さずバーの伸びだけで状況を示す
      async function fetchWasm(url) {
          const resp = await fetch(url);
          if (!resp.ok) throw new Error("HTTP " + resp.status);
          const total = parseInt(resp.headers.get("Content-Length") || "0", 10);
+         const fill = document.getElementById("progress-fill");
+         // 総量が取れないときはバーを不定モードにし、0%固定で壊れて見えるのを避ける
+         if (total <= 0) {
+             document.getElementById("progress-bar").classList.add("indeterminate");
+         }
          const reader = resp.body.getReader();
          const chunks = [];
          let loaded = 0;
@@ -102,7 +91,9 @@
              if (done) break;
              chunks.push(value);
              loaded += value.byteLength;
-             setProgress(loaded, total);
+             if (total > 0) {
+                 fill.style.width = Math.min(100, Math.round((loaded / total) * 100)) + "%";
+             }
          }
          const bytes = new Uint8Array(loaded);
          let offset = 0;
@@ -133,8 +124,8 @@
              });
          })
          .catch((err) => {
-             const text = document.getElementById("progress-text");
-             if (text) text.textContent = "Failed to load: " + err.message;
+             const txt = document.querySelector(".loading-txt");
+             if (txt) txt.textContent = "Load failed: " + err.message;
          });
     </script>
   </body>
