@@ -17,6 +17,17 @@
      WebAssembly.instantiateStreaming(fetch("game.wasm"), go.importObject).then(result => {
          document.getElementById("loading").classList.remove("active");
          go.run(result.instance);
+         // Ebiten は起動時に canvas を DOM へ挿入する。生成を待って focus を当て、
+         // 初回クリックなしでキー入力が届くようにする。tabindex は focus 可能にするため付ける
+         requestAnimationFrame(function focusCanvas() {
+             const c = document.querySelector("canvas");
+             if (c) {
+                 c.setAttribute("tabindex", "0");
+                 c.focus();
+             } else {
+                 requestAnimationFrame(focusCanvas);
+             }
+         });
      });
     </script>
     <link rel='stylesheet' href='loading.css' />
