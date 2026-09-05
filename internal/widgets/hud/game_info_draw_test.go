@@ -18,6 +18,19 @@ func newTestGameInfo(t *testing.T) *GameInfo {
 	return NewGameInfo(res.Text.BodyFace, res.Text.TitleFontFace, nil)
 }
 
+// findText は文字列が一致する最後の描画呼び出しを返す。OutlinedText は縁取りと本体をまとめて描くため、
+// 本体だけを探すには末尾から一致するものを拾う
+func findText(t *testing.T, texts []textCall, s string) textCall {
+	t.Helper()
+	for i := len(texts) - 1; i >= 0; i-- {
+		if texts[i].str == s {
+			return texts[i]
+		}
+	}
+	t.Fatalf("text %q not found in %v", s, texts)
+	return textCall{}
+}
+
 func TestGameInfo_drawTemperatureArrow(t *testing.T) {
 	t.Parallel()
 	info := newTestGameInfo(t)
@@ -78,10 +91,8 @@ func TestGameInfo_drawAmbientTemperature(t *testing.T) {
 		}
 		info.drawAmbientTemperature(cv, data)
 
-		// OutlinedText は縁取り8回+本体1回の9回描く。ラベルと気温で2回呼ぶので18回になる
-		require.Len(t, cv.texts, 18)
-		label := cv.texts[8]
-		temp := cv.texts[17]
+		label := findText(t, cv.texts, "屋内 ")
+		temp := findText(t, cv.texts, "25℃")
 
 		assert.Equal(t, "屋内 ", label.str)
 		assert.Equal(t, theme.TextPrimary, label.color)
