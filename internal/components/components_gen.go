@@ -55,6 +55,9 @@ type EntitySpec struct {
 	Player             *Player
 	Profession         *Profession
 	Hunger             *Hunger
+	Fatigue            *Fatigue
+	Sleeping           *Sleeping
+	Bedding            *Bedding
 	Wallet             *Wallet
 	FactionAlly        *FactionAlly
 	FactionEnemy       *FactionEnemy
@@ -142,6 +145,9 @@ type Components struct {
 	Player             *ecs.Map[Player]
 	Profession         *ecs.Map[Profession]
 	Hunger             *ecs.Map[Hunger]
+	Fatigue            *ecs.Map[Fatigue]
+	Sleeping           *ecs.Map[Sleeping]
+	Bedding            *ecs.Map[Bedding]
 	Wallet             *ecs.Map[Wallet]
 	FactionAlly        *ecs.Map[FactionAlly]
 	FactionEnemy       *ecs.Map[FactionEnemy]
@@ -229,6 +235,9 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Player = ecs.NewMap[Player](world)
 	c.Profession = ecs.NewMap[Profession](world)
 	c.Hunger = ecs.NewMap[Hunger](world)
+	c.Fatigue = ecs.NewMap[Fatigue](world)
+	c.Sleeping = ecs.NewMap[Sleeping](world)
+	c.Bedding = ecs.NewMap[Bedding](world)
 	c.Wallet = ecs.NewMap[Wallet](world)
 	c.FactionAlly = ecs.NewMap[FactionAlly](world)
 	c.FactionEnemy = ecs.NewMap[FactionEnemy](world)
@@ -318,6 +327,9 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Player, entity, spec.Player)
 	addComp(c.Profession, entity, spec.Profession)
 	addComp(c.Hunger, entity, spec.Hunger)
+	addComp(c.Fatigue, entity, spec.Fatigue)
+	addComp(c.Sleeping, entity, spec.Sleeping)
+	addComp(c.Bedding, entity, spec.Bedding)
 	addComp(c.Wallet, entity, spec.Wallet)
 	addComp(c.FactionAlly, entity, spec.FactionAlly)
 	addComp(c.FactionEnemy, entity, spec.FactionEnemy)
