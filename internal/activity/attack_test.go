@@ -69,6 +69,21 @@ func TestApplyElementResist_NoSkills(t *testing.T) {
 	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeFire, world))
 }
 
+func TestApplyElementResist_NonElement(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	target := world.ECS.NewEntity()
+
+	skills := gc.NewSkills()
+	skills.Get(gc.SkillFireResist).Value = 40 // 高い耐性でも無属性には効かない
+	world.Components.Skills.Add(target, skills)
+
+	// 無属性は耐性キーに無いのでダメージを素通しする。None も空文字も同じ
+	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeNone, world))
+	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementType(""), world))
+}
+
 func TestApplyElementResist_WithResist(t *testing.T) {
 	t.Parallel()
 

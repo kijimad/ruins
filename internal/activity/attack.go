@@ -372,9 +372,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		baseDamage = formula.ApplyCritical(baseDamage)
 	}
 
-	if attack.GetElement() != gc.ElementTypeNone {
-		baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
-	}
+	baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
 
 	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
 
