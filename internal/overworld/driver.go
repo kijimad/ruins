@@ -134,29 +134,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 		return fmt.Errorf("failed to spawn cube: %w", cerr)
 	}
 
-	// デバッグ時はプレイヤー近くへ長く燃える火を置く。適温を確保して睡眠を入ってすぐ試せる
-	if world.Resources.Config.Debug {
-		if err := spawnDebugCampfire(world, spawn); err != nil {
-			return err
-		}
-	}
-
 	query.InvalidateSpatialIndex(world)
-	return nil
-}
-
-// debugCampfireBurnTurns はデバッグ用の火が燃え続けるターン数。睡眠テスト中に消えない長さにする
-const debugCampfireBurnTurns = 10000
-
-// spawnDebugCampfire はプレイヤー近くの歩行可能タイルへ長く燃える火を置く。
-// 本番の着火と同じく fire prop へ Burning を付け、周囲を適温に保つ
-func spawnDebugCampfire(world w.World, spawn consts.Coord[consts.Tile]) error {
-	pos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{Y: 2}))
-	fire, err := lifecycle.SpawnProp(world, "fire", pos.X, pos.Y)
-	if err != nil {
-		return fmt.Errorf("failed to spawn debug campfire: %w", err)
-	}
-	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugCampfireBurnTurns})
 	return nil
 }
 

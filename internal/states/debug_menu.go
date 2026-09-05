@@ -226,8 +226,11 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	return err
 }
 
-// spawnLitFireNearPlayer はプレイヤーの隣に燃えている火をスポーンする。
-// 本番の着火と同じく fire prop へ Burning を付ける
+// debugFireBurnTurns はデバッグ用の火が燃え続けるターン数。睡眠テスト中に消えない長さにする
+const debugFireBurnTurns = 10000
+
+// spawnLitFireNearPlayer はプレイヤーの隣に長く燃える火をスポーンする。
+// 本番の着火と同じく fire prop へ Burning を付ける。適温を確保して睡眠を試せる
 func spawnLitFireNearPlayer(world w.World) error {
 	playerGrid, err := playerGridElement(world)
 	if err != nil {
@@ -237,7 +240,7 @@ func spawnLitFireNearPlayer(world w.World) error {
 	if err != nil {
 		return err
 	}
-	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 999})
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugFireBurnTurns})
 	return nil
 }
 
