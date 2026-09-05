@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">7</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-04 00:40:48</td>
+            <td class="headerValue">2026-09-05 02:20:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,18 +84,18 @@
 <span id="L22"><span class="lineNum">      22</span>              : }</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // TextCell は文字列を表すセルを返す</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC tlaBgUNC">           0 : func TextCell(s string) Cell { return Cell{Text: s} }</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 : func TextCell(s string) Cell { return Cell{Text: s} }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span>              : // IconCell はアイコンを表すセルを返す。img が nil のときは透明セルになり、桁だけ合う</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 : func IconCell(img *ebiten.Image) Cell { return Cell{Icon: img} }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : func IconCell(img *ebiten.Image) Cell { return Cell{Icon: img} }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // TextCells は文字列だけの行を手早く組む</span>
 <span id="L31"><span class="lineNum">      31</span>              : func TextCells(ss ...string) []Cell {</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         cells := make([]Cell, len(ss))</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         for i, s := range ss {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 cells[i] = TextCell(s)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         return cells</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         cells := make([]Cell, len(ss))</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         for i, s := range ss {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 cells[i] = TextCell(s)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return cells</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : }</span>
         </pre>
               </td>

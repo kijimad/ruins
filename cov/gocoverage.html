@@ -659,9 +659,9 @@
 				
 				<option value="file301">github.com/kijimaD/ruins/internal/widgets/pagination/pagination.go (100.0%)</option>
 				
-				<option value="file302">github.com/kijimaD/ruins/internal/widgets/styled/col.go (0.0%)</option>
+				<option value="file302">github.com/kijimaD/ruins/internal/widgets/styled/col.go (100.0%)</option>
 				
-				<option value="file303">github.com/kijimaD/ruins/internal/widgets/styled/table.go (0.0%)</option>
+				<option value="file303">github.com/kijimaD/ruins/internal/widgets/styled/table.go (100.0%)</option>
 				
 				<option value="file304">github.com/kijimaD/ruins/internal/widgets/theme/colors.go (0.0%)</option>
 				
@@ -46544,30 +46544,30 @@ type Col struct {
 }
 
 // Name は名前やラベル用の列を返す。余り幅を吸収して伸び、左寄せで描く。
-func Name() Col { <span class="cov0" title="0">return Col{Mode: ColGrow, Align: AlignLeft} }</span>
+func Name() Col { <span class="cov8" title="1">return Col{Mode: ColGrow, Align: AlignLeft} }</span>
 
 // Fit はタグや状態表示用の列を返す。内容の実測幅に合わせ、左寄せで描く。
-func Fit() Col { <span class="cov0" title="0">return Col{Mode: ColFit, Align: AlignLeft} }</span>
+func Fit() Col { <span class="cov8" title="1">return Col{Mode: ColFit, Align: AlignLeft} }</span>
 
 // Num は数値・重量・価格用の列を返す。内容の実測幅に合わせ、右寄せで桁を揃える。
-func Num() Col { <span class="cov0" title="0">return Col{Mode: ColFit, Align: AlignRight} }</span>
+func Num() Col { <span class="cov8" title="1">return Col{Mode: ColFit, Align: AlignRight} }</span>
 
 // Icon はアイテムのアイコン用の正方の列を返す。
-func Icon() Col { <span class="cov0" title="0">return Col{Mode: ColIcon, Align: AlignLeft} }</span>
+func Icon() Col { <span class="cov8" title="1">return Col{Mode: ColIcon, Align: AlignLeft} }</span>
 
 // Desc は説明文用の列を返す。余り幅を吸収して伸び、右寄せで行の右端に説明の終端を揃える。
-func Desc() Col { <span class="cov0" title="0">return Col{Mode: ColGrow, Align: AlignRight} }</span>
+func Desc() Col { <span class="cov8" title="1">return Col{Mode: ColGrow, Align: AlignRight} }</span>
 
 // Cols は列の並びをそのまま返す。呼び出し側の宣言を読みやすくする可変長版。
-func Cols(cs ...Col) []Col { <span class="cov0" title="0">return cs }</span>
+func Cols(cs ...Col) []Col { <span class="cov8" title="1">return cs }</span>
 
 // Aligns は列の並びから揃えだけを取り出す。
 func Aligns(cols []Col) []TextAlign {
-        <span class="cov0" title="0">as := make([]TextAlign, len(cols))
+        <span class="cov8" title="1">as := make([]TextAlign, len(cols))
         for i, c := range cols </span>{
-                <span class="cov0" title="0">as[i] = c.Align
+                <span class="cov8" title="1">as[i] = c.Align
 </span>        }
-        <span class="cov0" title="0">return as</span>
+        <span class="cov8" title="1">return as</span>
 }
 </pre>
 		
@@ -46595,18 +46595,18 @@ type Cell struct {
 }
 
 // TextCell は文字列を表すセルを返す
-func TextCell(s string) Cell { <span class="cov0" title="0">return Cell{Text: s} }</span>
+func TextCell(s string) Cell { <span class="cov8" title="1">return Cell{Text: s} }</span>
 
 // IconCell はアイコンを表すセルを返す。img が nil のときは透明セルになり、桁だけ合う
-func IconCell(img *ebiten.Image) Cell { <span class="cov0" title="0">return Cell{Icon: img} }</span>
+func IconCell(img *ebiten.Image) Cell { <span class="cov8" title="1">return Cell{Icon: img} }</span>
 
 // TextCells は文字列だけの行を手早く組む
 func TextCells(ss ...string) []Cell {
-        <span class="cov0" title="0">cells := make([]Cell, len(ss))
+        <span class="cov8" title="1">cells := make([]Cell, len(ss))
         for i, s := range ss </span>{
-                <span class="cov0" title="0">cells[i] = TextCell(s)
+                <span class="cov8" title="1">cells[i] = TextCell(s)
 </span>        }
-        <span class="cov0" title="0">return cells</span>
+        <span class="cov8" title="1">return cells</span>
 }
 </pre>
 		
