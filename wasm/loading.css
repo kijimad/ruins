@@ -68,9 +68,8 @@
 .logo {
   width: min(78vw, 560px);
   height: auto;
-  filter:
-    drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 22px rgba(120, 190, 225, 0.28));
+  /* 影はロゴに焼き込み済み。ここでは暗背景から浮かせる寒色グローだけ足す */
+  filter: drop-shadow(0 0 22px rgba(120, 190, 225, 0.28));
 }
 
 /* NOW LOADING をゆるやかに明滅させる。カーソルは付けず文字だけ */

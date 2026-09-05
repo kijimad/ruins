@@ -27,13 +27,17 @@ FILL='#e6f0f7'                  # フラットなフロスト白。塗りは単�
 ABERR_CYAN='#4fd2ff'            # 色収差のシアン。右へずらす
 ABERR_RED='#ff4f70'             # 色収差のレッド。左へずらす
 ABERR=4                         # RGB のずらし量 px。CRT の色ずれ
-LINE_COLOR='#a6e2f2'            # ライン。氷シアン
+LINE_COLOR='#a6e2f2'            # 帯の左端。明るい氷シアン
+LINE_COLOR2='#1c4a66'           # 帯の右端。深い寒色。左から右へ色遷移させ明部を抑える
 SUB_COLOR='#bcd4e6'             # 副題。淡い寒色
 GAP=6                           # 頭文字と残りの間隔。詰めて右の空きを消す
 LINE_THICK=24                   # 帯の太さ。左端の高さ
 LINE_SLANT=22                   # 帯の両端の斜めカット量。上辺を右へずらす横せん断
 LINE_SUB_GAP=8                  # 帯の下端と副題上端の間隔。小さいほど帯が副題へ近づく
 SUB_PT=30                       # 副題の点サイズ。小さめに抑える
+SCAN_COLOR='#00000033'          # CRT 走査線の色。低アルファの黒。WASM の scanline と同じ意匠
+SCAN_PERIOD=3                   # 走査線の周期px。1px の暗線と 2px の透明を繰り返す
+SHADOW_COLOR='#04070d'          # ドロップシャドウの色。ほぼ黒の寒色
 
 # フラットな字を CRT の色収差付きで作る。引数: text point kern outPath
 # シアンを右、レッドを左へ数px ずらし、中央にフロスト白を重ねる。縁の外だけ色が覗く
@@ -88,19 +92,38 @@ CANVAS_H=$Ch
 # さらに右へ向かって透明度を落とし方向を出す。左が不透明、右端で透明。
 # 透明化はポリゴンのアルファに横グラデを乗算して行う。CopyOpacity で全面置換すると外側の三角も出るため。
 LW=$((LINE_LEN + LINE_SLANT))
-magick -size "${LW}x${LINE_THICK}" xc:none -fill "$LINE_COLOR" \
+# 帯の形。アルファ抽出用に白で描く
+magick -size "${LW}x${LINE_THICK}" xc:none -fill white \
 	-draw "polygon 0,${LINE_THICK} ${LINE_SLANT},0 ${LW},0 ${LINE_LEN},${LINE_THICK}" "$TMP/pg.png"
 magick "$TMP/pg.png" -alpha extract "$TMP/pga.png"
+# 左→右の色遷移フィル。明るい氷シアンから深い寒色へ。明部を抑え色が動くようにする
+magick -size "${LW}x${LINE_THICK}" xc: -sparse-color barycentric "0,0 ${LINE_COLOR} ${LW},0 ${LINE_COLOR2}" "$TMP/colorfill.png"
+# 左→右のアルファフェード。右端で透明にし方向を出す
 magick -size "${LW}x${LINE_THICK}" xc: -sparse-color barycentric "0,0 white ${LW},0 black" "$TMP/grad.png"
+# 帯形アルファ × フェード = 最終アルファ
 magick "$TMP/pga.png" "$TMP/grad.png" -compose Multiply -composite "$TMP/newa.png"
-magick "$TMP/pg.png" "$TMP/newa.png" -compose CopyOpacity -composite "$TMP/line.png"
+# 色遷移フィルに最終アルファを与える
+magick "$TMP/colorfill.png" "$TMP/newa.png" -compose CopyOpacity -composite "$TMP/line.png"
 
 magick -size "${CANVAS_W}x${CANVAS_H}" xc:none \
 	\( "$TMP/C.png" \) -gravity NorthWest -geometry +0+0 -compose Over -composite \
 	\( "$TMP/OW.png" \) -gravity NorthWest -geometry +${XOW}+0 -compose Over -composite \
 	\( "$TMP/line.png" \) -gravity NorthWest -geometry +${XOW}+${LINE_Y} -compose Over -composite \
 	\( "$TMP/tag.png" \) -gravity NorthWest -geometry +${XOW}+${TAG_Y} -compose Over -composite \
-	-trim +repage "$OUT/logo.png"
+	-trim +repage "$TMP/logo_base.png"
+
+# CRT の走査線をロゴの不透明部だけに重ねる。1x周期のタイルを敷き、Atop でロゴの形に切る。
+# Atop は宛先の形を保ち、その内側にだけソースを乗せるので透明域に線が漏れない
+read -r BW BH <<<"$(identify -format '%w %h' "$TMP/logo_base.png")"
+magick -size "1x${SCAN_PERIOD}" xc:none -fill "$SCAN_COLOR" -draw 'point 0,0' "$TMP/scan_tile.png"
+magick -size "${BW}x${BH}" tile:"$TMP/scan_tile.png" "$TMP/scanlines.png"
+magick "$TMP/logo_base.png" "$TMP/scanlines.png" -compose Atop -composite "$TMP/logo_scan.png"
+
+# ドロップシャドウを焼き込む。明るい背景で沈まないよう表示側でなくロゴに持たせる。
+# -layers merge がキャンバスを自動拡張するので、ぼかしが縁で切れて四角い影にならない
+magick "$TMP/logo_scan.png" \
+	\( +clone -background "$SHADOW_COLOR" -shadow 75x6+0+5 \) \
+	+swap -background none -layers merge +repage "$OUT/logo.png"
 
 echo "logo.png $(identify -format '%wx%h' "$OUT/logo.png")"
 echo "written to $OUT/"
