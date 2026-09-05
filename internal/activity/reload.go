@@ -53,7 +53,7 @@ func NewReloadActivity(actor ecs.Entity, world w.World) *gc.Activity {
 // Validate はリロードの検証を行う
 func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 継続アクティビティ共通の周囲安全チェック。敵が近ければ装填を始めさせない
-	if !isAreaSafe(actor, world) {
+	if !IsAreaSafe(actor, world) {
 		return &UserError{Msg: query.T(world, "cannot reload because enemies are nearby")}
 	}
 
@@ -88,7 +88,7 @@ func (rb *ReloadBehavior) Start(_ *gc.Activity, _ ecs.Entity, world w.World) err
 // DoTurn はリロードの1ターン分の処理
 func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 装填中に敵が接近したら中断する。他の継続系と同じ契約
-	if !isAreaSafe(actor, world) {
+	if !IsAreaSafe(actor, world) {
 		Cancel(comp, "reload interrupted because enemies are nearby")
 		return nil
 	}

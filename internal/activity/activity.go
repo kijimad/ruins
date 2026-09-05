@@ -208,8 +208,8 @@ func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
 }
 
-// isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする
-func isAreaSafe(actor ecs.Entity, world w.World) bool {
+// IsAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする
+func IsAreaSafe(actor ecs.Entity, world w.World) bool {
 	if !world.Components.GridElement.Has(actor) {
 		return false
 	}

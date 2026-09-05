@@ -5973,9 +5973,6 @@ msgstr "まだ眠くない。"
 msgid "Cannot sleep because enemies are nearby."
 msgstr "敵が近くにいて眠れない。"
 
-msgid "Too cold or hot to sleep."
-msgstr "寒すぎるか暑すぎて眠れない。"
-
 msgid "Went to sleep."
 msgstr "眠りについた。"
 
@@ -5999,3 +5996,42 @@ msgstr "疲労"
 
 msgid "Exhausted"
 msgstr "過労"
+
+msgid "Sleep here?"
+msgstr "休みますか？"
+
+msgid "Sleep"
+msgstr "眠る"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Fatigue"
+msgstr "疲労度"
+
+msgid "Temperature"
+msgstr "気温"
+
+msgid "Bedding"
+msgstr "寝具"
+
+msgid "Surroundings"
+msgstr "周囲"
+
+msgid "Rested"
+msgstr "快調"
+
+msgid "Too cold"
+msgstr "寒すぎ"
+
+msgid "Too hot"
+msgstr "暑すぎ"
+
+msgid "Safe"
+msgstr "安全"
+
+msgid "Enemies nearby"
+msgstr "敵が近い"
+
+msgid "On the ground"
+msgstr "地べた"

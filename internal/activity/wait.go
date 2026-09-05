@@ -61,7 +61,7 @@ func (wb *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (wb *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 長い待機は敵が近づいたら中断する。1回だけのターン送りとAIの手番調整は
 	// その場で完結する行動なので対象にしない
-	if comp.Progress.Max > 1 && !isAreaSafe(actor, world) {
+	if comp.Progress.Max > 1 && !IsAreaSafe(actor, world) {
 		Cancel(comp, "wait interrupted because enemies are nearby")
 		return nil
 	}
