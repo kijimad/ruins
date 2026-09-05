@@ -551,6 +551,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.FactionAlly = &gc.FactionAlly{}
 	entitySpec.Player = &gc.Player{}
 	entitySpec.Hunger = gc.NewHunger()
+	entitySpec.Fatigue = gc.NewFatigue()
 	entitySpec.SoloAI = nil
 	return entitySpec, nil
 }

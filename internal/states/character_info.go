@@ -290,6 +290,8 @@ func sourceLabel(world w.World, s gc.ModifierSource) string {
 		return fmt.Sprintf("%s %d", query.T(world, gc.AbilityName(s.Ability)), s.Amount)
 	case gc.SourceCapacity:
 		return fmt.Sprintf("%s %d%%", query.T(world, string(s.Capacity)), s.Amount)
+	case gc.SourceFatigue:
+		return query.T(world, string(s.Fatigue))
 	}
 	panic("unknown ModifierSourceKind: " + string(s.Kind))
 }

@@ -29,13 +29,13 @@ func progressTurnFatigue(world w.World) {
 	}
 }
 
-// clampFatigue は疲労を 0..max に収める
-func clampFatigue(current, max int) int {
+// clampFatigue は疲労を 0..upper に収める
+func clampFatigue(current, upper int) int {
 	if current < 0 {
 		return 0
 	}
-	if current > max {
-		return max
+	if current > upper {
+		return upper
 	}
 	return current
 }

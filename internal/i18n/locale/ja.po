@@ -5993,3 +5993,9 @@ msgstr "寒さで目が覚めた"
 
 msgid "woke up from hunger"
 msgstr "空腹で目が覚めた"
+
+msgid "Tired"
+msgstr "疲労"
+
+msgid "Exhausted"
+msgstr "過労"
