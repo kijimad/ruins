@@ -25,8 +25,8 @@ type Insulation struct {
 	Heat int // 耐暑。快適温度の上限を上げる
 }
 
-// ComfortableRange は断熱値から快適温度範囲を計算する
-func ComfortableRange(insulation Insulation) (lower, upper int) {
+// comfortableRange は断熱値から快適温度範囲を計算する
+func comfortableRange(insulation Insulation) (lower, upper int) {
 	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 }
 
@@ -37,7 +37,7 @@ const sleepTemperatureMargin = 5
 // SleepableTemperatureRange は装備断熱込みの快適帯を margin ぶん広げた入眠可能な温度帯を返す。
 // この帯を外れると寒すぎ暑すぎで眠れず、火を焚くか屋内に入る必要がある
 func SleepableTemperatureRange(world w.World, entity ecs.Entity) (lower, upper int) {
-	cl, cu := ComfortableRange(CalculateEquippedInsulation(world, entity))
+	cl, cu := comfortableRange(CalculateEquippedInsulation(world, entity))
 	return cl - sleepTemperatureMargin, cu + sleepTemperatureMargin
 }
 

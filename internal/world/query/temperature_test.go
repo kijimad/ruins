@@ -217,38 +217,6 @@ func TestAmbientTemperatureAt_StageFieldの基本気温を足す(t *testing.T) {
 	assert.Equal(t, 25, temp, "基本気温 20 に屋外世界温度 5 を足した 25 になる")
 }
 
-func TestComfortableRange(t *testing.T) {
-	t.Parallel()
-
-	t.Run("断熱なしの場合の快適温度範囲", func(t *testing.T) {
-		t.Parallel()
-		lower, upper := query.ComfortableRange(query.Insulation{Cold: 0, Heat: 0})
-		assert.Equal(t, 11, lower)
-		assert.Equal(t, 30, upper)
-	})
-
-	t.Run("耐寒ありの場合は下限が下がる", func(t *testing.T) {
-		t.Parallel()
-		lower, upper := query.ComfortableRange(query.Insulation{Cold: 10, Heat: 0})
-		assert.Equal(t, 1, lower)
-		assert.Equal(t, 30, upper)
-	})
-
-	t.Run("耐熱ありの場合は上限が上がる", func(t *testing.T) {
-		t.Parallel()
-		lower, upper := query.ComfortableRange(query.Insulation{Cold: 0, Heat: 10})
-		assert.Equal(t, 11, lower)
-		assert.Equal(t, 40, upper)
-	})
-
-	t.Run("両方ありの場合", func(t *testing.T) {
-		t.Parallel()
-		lower, upper := query.ComfortableRange(query.Insulation{Cold: 15, Heat: 5})
-		assert.Equal(t, -4, lower)
-		assert.Equal(t, 35, upper)
-	})
-}
-
 func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Parallel()
 

@@ -37,9 +37,9 @@ func NewSleepActivity() *gc.Activity {
 	return NewActivity(gc.BehaviorSleep, 0)
 }
 
-// Validate は入眠可否を疲労・気温・安全の全条件で検証する。気温計算は query に降りたので
-// この層で全条件を評価でき、プロンプト表示と同じ EvaluateSleepConditions を唯一の判定点にする。
-// 失敗の種別ごとに理由を返し、呼び出し側が gamelog へ出す
+// Validate は入眠可否を疲労・気温・安全の全条件で検証する。プロンプト表示と同じ
+// EvaluateSleepConditions を唯一の判定点にし、失敗の種別ごとに理由を返す。
+// 返した理由は呼び出し側が gamelog へ出す
 func (sb *SleepBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	sc := EvaluateSleepConditions(world, actor)
 	switch {
