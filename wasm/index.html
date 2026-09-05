@@ -30,7 +30,7 @@
              return {
                  x: Math.random() * canvas.width,
                  y: Math.random() * canvas.height,
-                 r: Math.random() * 1.8 + 0.5,
+                 s: Math.random() < 0.35 ? 3 : 2, // ドット雪。粒は2〜3pxの四角
                  vy: Math.random() * 0.6 + 0.25,
                  vx: Math.random() * 0.4 - 0.2,
                  a: Math.random() * 0.5 + 0.3,
@@ -39,6 +39,7 @@
          function resize() {
              canvas.width = window.innerWidth;
              canvas.height = window.innerHeight;
+             ctx.imageSmoothingEnabled = false; // 補間を切りドット感を保つ
              const count = Math.floor((canvas.width * canvas.height) / 9000);
              flakes = Array.from({ length: count }, spawn);
          }
@@ -51,10 +52,9 @@
                      f.y = -4;
                      f.x = Math.random() * canvas.width;
                  }
-                 ctx.beginPath();
-                 ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                 // 整数座標の四角で描きドット絵の雪にする
                  ctx.fillStyle = "rgba(222,236,246," + f.a + ")";
-                 ctx.fill();
+                 ctx.fillRect(Math.round(f.x), Math.round(f.y), f.s, f.s);
              }
              raf = requestAnimationFrame(frame);
          }
