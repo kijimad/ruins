@@ -80,10 +80,13 @@ func TestSellPrice(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.ECS.NewEntity()
-		world.Components.CharModifiers.Add(player, &gc.CharModifiers{SellPrice: 200})
+		skills := gc.NewSkills()
+		skills.Get(gc.SkillNegotiation).Value = 50
+		world.Components.Skills.Add(player, skills)
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
 
+		// 交渉Lv50: 売値倍率 = 100 + 50*2 = 200
 		assert.Equal(t, consts.Currency(100), SellPrice(world, player, item), "売値倍率200%で50が倍額100")
 	})
 
@@ -123,10 +126,13 @@ func TestBuyPrice(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.ECS.NewEntity()
-		world.Components.CharModifiers.Add(player, &gc.CharModifiers{BuyPrice: 50})
+		skills := gc.NewSkills()
+		skills.Get(gc.SkillNegotiation).Value = 25
+		world.Components.Skills.Add(player, skills)
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
 
+		// 交渉Lv25: 買値倍率 = 100 + 25*(-2) = 50
 		assert.Equal(t, consts.Currency(100), BuyPrice(world, player, item), "買値倍率50%で200が半額100")
 	})
 }

@@ -73,6 +73,8 @@ func TestBuyStock(t *testing.T) {
 		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
 		require.NoError(t, err)
 
+		// 表示価格と取引で引かれる額は同じ1関数から出る
+		expected := query.BuyPrice(world, player, item)
 		require.NoError(t, BuyStock(world, player, item))
 
 		// 実体がプレイヤーのバックパックへ移り、商人の在庫から消えている
@@ -80,8 +82,7 @@ func TestBuyStock(t *testing.T) {
 		assert.Equal(t, player, world.Components.LocationInBackpack.Get(item).Owner)
 		assert.False(t, world.Components.LocationInStorage.Has(item))
 
-		currency := query.GetCurrency(world, player)
-		assert.Equal(t, 1000-query.CalculateBuyPrice(woodenSwordValue), currency)
+		assert.Equal(t, 1000-expected, query.GetCurrency(world, player))
 	})
 
 	t.Run("通貨不足で購入失敗", func(t *testing.T) {
@@ -113,14 +114,15 @@ func TestBuyStock(t *testing.T) {
 		rep, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 3, merchant)
 		require.NoError(t, err)
 
+		// 表示価格は個数込み。取引で引かれる額と同じ1関数から出る
+		expected := query.BuyPrice(world, player, rep)
 		require.NoError(t, BuyStock(world, player, rep))
 
 		// 3個ともバックパックへ移り、在庫に同種は残らない
 		assert.Equal(t, 3, query.GetEntityCount(world, rep), "バックパックのスタックが3個になる")
 		assert.True(t, world.Components.LocationInBackpack.Has(rep))
 		assert.Empty(t, query.GetStorageItems(world, merchant), "在庫は空になる")
-		// 代金は個数×単価
-		assert.Equal(t, 1000-query.CalculateBuyPrice(woodenSwordValue)*3, query.GetCurrency(world, player))
+		assert.Equal(t, 1000-expected, query.GetCurrency(world, player))
 	})
 
 	t.Run("スタック全量の代金が払えなければ買えない", func(t *testing.T) {
@@ -158,6 +160,7 @@ func TestBuyStock(t *testing.T) {
 		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
 		require.NoError(t, err)
 
+		expected := query.BuyPrice(world, player, item)
 		var buyErr error
 		require.NotPanics(t, func() {
 			query.Player(world, func(p ecs.Entity) {
@@ -165,7 +168,7 @@ func TestBuyStock(t *testing.T) {
 			})
 		})
 		require.NoError(t, buyErr)
-		assert.Equal(t, 1000-query.CalculateBuyPrice(woodenSwordValue), query.GetCurrency(world, player))
+		assert.Equal(t, 1000-expected, query.GetCurrency(world, player))
 	})
 }
 
@@ -185,10 +188,12 @@ func TestSellStock(t *testing.T) {
 		item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
+		// 表示価格と取引で得る額は同じ1関数から出る
+		expected := query.SellPrice(world, player, item)
 		require.NoError(t, SellStock(world, player, merchant, item))
 
 		// 代金を受け取り、実体が商人の在庫へ並ぶ
-		assert.Equal(t, query.CalculateSellPrice(woodenSwordValue), query.GetCurrency(world, player))
+		assert.Equal(t, expected, query.GetCurrency(world, player))
 		require.True(t, world.Components.LocationInStorage.Has(item))
 		assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 	})
@@ -205,12 +210,14 @@ func TestSellStock(t *testing.T) {
 		rep, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 5)
 		require.NoError(t, err)
 
+		// 表示価格は個数込み。取引で得る額と同じ1関数から出る
+		expected := query.SellPrice(world, player, rep)
 		require.NoError(t, SellStock(world, player, merchant, rep))
 
-		// 5個とも商人の在庫へ移り、代金は個数×単価
+		// 5個とも商人の在庫へ移る
 		assert.Equal(t, 5, query.GetEntityCount(world, rep), "在庫のスタックが5個になる")
 		assert.True(t, world.Components.LocationInStorage.Has(rep))
-		assert.Equal(t, query.CalculateSellPrice(woodenSwordValue)*5, query.GetCurrency(world, player))
+		assert.Equal(t, expected, query.GetCurrency(world, player))
 		// バックパックに同種は残らない
 		_, found := query.FindStackInInventory(world, "wooden_sword")
 		assert.False(t, found)

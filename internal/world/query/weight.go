@@ -28,12 +28,7 @@ func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
 	if world.Components.Abilities.Has(entity) {
 		abilities := world.Components.Abilities.Get(entity)
 		maxWeight := calculateMaxCarryingWeight(abilities)
-
-		if world.Components.CharModifiers.Has(entity) {
-			mods := world.Components.CharModifiers.Get(entity)
-			maxWeight = consts.Milligram(mods.MaxWeight.ApplyInt(int(maxWeight)))
-		}
-
+		maxWeight = consts.Milligram(ModifierValue(world, entity, gc.ModMaxWeight).ApplyInt(int(maxWeight)))
 		wc.Max = maxWeight
 	}
 
@@ -46,6 +41,8 @@ func calculateMaxCarryingWeight(abilities *gc.Abilities) consts.Milligram {
 	if abilities == nil {
 		return baseCarryingWeight
 	}
+	// Total は StatsChangedSystem の集計後にだけ正しい。装備補正込みの現在値を
+	// Base + Modifier から直接求め、集計の実行順に依存しないようにする
 	strength := abilities.Strength.Base + abilities.Strength.Modifier
 	return baseCarryingWeight + consts.Milligram(strength)*strengthWeightMultiplier
 }

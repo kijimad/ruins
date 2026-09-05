@@ -106,7 +106,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		abils.Agility.Total = abils.Agility.Base + abils.Agility.Modifier
 		abils.Defense.Total = abils.Defense.Base + abils.Defense.Modifier
 
-		// HP/Poolsを更新。abils を使うので、CharModifiers の Upsert による構造変更で
+		// HP/Poolsを更新。abils を使うので、WeightDirty の Add による構造変更で
 		// abils ポインタが無効化される前に行う
 		if world.Components.HP.Has(entity) {
 			hp := world.Components.HP.Get(entity)
@@ -114,19 +114,6 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			hp.Current = min(hp.Max, hp.Current)
 		}
 
-		// スキル効果倍率を再計算する。能力値変更後に行う。CharModifiers の Add は構造変更で
-		// abils ポインタを無効化するので、abils を使う処理はこれより前に済ませる
-		if world.Components.Skills.Has(entity) {
-			skills := world.Components.Skills.Get(entity)
-			var hs *gc.HealthStatus
-			if world.Components.HealthStatus.Has(entity) {
-				hs = world.Components.HealthStatus.Get(entity)
-			}
-			effects := gc.RecalculateCharModifiers(skills, abils, hs)
-			if err := gc.Upsert(world.ECS, world.Components.CharModifiers, entity, effects); err != nil {
-				return err
-			}
-		}
 		if world.Components.WeightCapacity.Has(entity) {
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
 			if !world.Components.WeightDirty.Has(entity) {
@@ -141,7 +128,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 				updateErr = err
 				continue
 			}
-			// CharModifiers の Upsert より後に取得するので、構造変更後の新しい領域を指す。
+			// WeightDirty の Add より後に取得するので、構造変更後の新しい領域を指す。
 			// 構造変更前に取得したポインタを使い回さない限り安全
 			turnBased := world.Components.TurnBased.Get(entity)
 

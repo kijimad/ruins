@@ -219,13 +219,7 @@ func (rb *ReadBehavior) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 	leveledUp := skill.GainExpScaled(s, abilityValue, efficiency)
 
-	// スキルアップした場合はCharModifiers再計算
 	if leveledUp {
-		// 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける
-		if !world.Components.StatsChanged.Has(actor) {
-			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
-		}
-
 		name := gc.SkillName(effect.TargetSkill)
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "%s skill rose to %d", name, s.Value)).

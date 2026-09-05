@@ -148,10 +148,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		isPlayer := world.Components.Player.Has(entity)
 
 		// 低体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
-		coldProgressPct := consts.PercentBase
-		if world.Components.CharModifiers.Has(entity) {
-			coldProgressPct = world.Components.CharModifiers.Get(entity).ColdProgress
-		}
+		coldProgressPct := query.ModifierValue(world, entity, gc.ModColdProgress)
 
 		// 体温の帯判定から健康状態を更新
 		hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct)
@@ -233,6 +230,7 @@ func tileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
 			tileTemp := world.Components.TileEnvironment.Get(entity)
 			shelter = tileTemp.Shelter
 			modifier = tileTemp.Total()
+			tileTempQuery.Close()
 			break
 		}
 	}

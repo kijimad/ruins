@@ -35,11 +35,6 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 			playerSkills.Get(gc.SkillID(ps.Id)).Value = ps.Value
 		}
 	}
-	modifiers := gc.RecalculateCharModifiers(playerSkills, abils, nil)
-	if err := gc.Upsert(world.ECS, world.Components.CharModifiers, player, modifiers); err != nil {
-		return err
-	}
-
 	// 属性値変更後にHP/APを再計算
 	_ = lifecycle.FullRecover(world, player)
 

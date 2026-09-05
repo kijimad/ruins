@@ -202,7 +202,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 		assert.Equal(t, consts.MustParseWeight("3 kg"), wc.Current) // 3kg
 	})
 
-	t.Run("CharModifiersによるMax倍率が適用される", func(t *testing.T) {
+	t.Run("重量スキルによるMax倍率が適用される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.ECS.NewEntity()
@@ -210,15 +210,31 @@ func TestUpdateWeightCapacity(t *testing.T) {
 		world.Components.Abilities.Add(player, &gc.Abilities{
 			Strength: gc.Ability{Base: 10},
 		})
-		// MaxWeight=150 → 基本Max(30.0) * 150/100 = 45.0
-		world.Components.CharModifiers.Add(player, &gc.CharModifiers{
-			MaxWeight: 150,
-		})
+		// 重量Lv10: 倍率 = 100 + 10*4 = 140 → 基本Max(30.0) * 140/100 = 42.0
+		skills := gc.NewSkills()
+		skills.Get(gc.SkillWeightBearing).Value = 10
+		world.Components.Skills.Add(player, skills)
 
 		UpdateWeightCapacity(world, player)
 
 		wc := world.Components.WeightCapacity.Get(player)
-		assert.Equal(t, consts.MustParseWeight("45 kg"), wc.Max)
+		assert.Equal(t, consts.MustParseWeight("42 kg"), wc.Max)
+	})
+
+	t.Run("Skillsなしは等倍でMaxが変わらない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
+		world.Components.Abilities.Add(player, &gc.Abilities{
+			Strength: gc.Ability{Base: 10},
+		})
+
+		UpdateWeightCapacity(world, player)
+
+		// Skills なしなら倍率は等倍。基本Max(30.0)のまま
+		wc := world.Components.WeightCapacity.Get(player)
+		assert.Equal(t, consts.MustParseWeight("30 kg"), wc.Max)
 	})
 
 	t.Run("WeightCapacityがない場合は何もしない", func(t *testing.T) {

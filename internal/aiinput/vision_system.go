@@ -1,8 +1,10 @@
 package aiinput
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -30,10 +32,8 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 
 	viewDist := float64(viewDistance)
 
-	if world.Components.CharModifiers.Has(targetEntity) {
-		mods := world.Components.CharModifiers.Get(targetEntity)
-		viewDist = mods.EnemyVision.ApplyFloat(viewDist)
-	}
+	// 敵ごと毎ターン呼ばれる最頻経路なので、内訳を作らない単キー導出で読む
+	viewDist = query.ModifierValue(world, targetEntity, gc.ModEnemyVision).ApplyFloat(viewDist)
 
 	return float64(distSq) <= viewDist*viewDist
 }
