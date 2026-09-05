@@ -95,7 +95,31 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	}
 	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
-		items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: query.T(world, hunger.GetLevel().String()), Description: query.T(world, "Hunger. High hunger hinders actions")})
+		// 空腹は行動速度と回復に効く。命中には効かないので2項目。値は query の算出点から読む
+		items = append(items, statusItemData{
+			Label:       query.T(world, "Hunger"),
+			Value:       query.T(world, hunger.GetLevel().String()),
+			Description: query.T(world, "Hunger. High hunger hinders actions"),
+			Details: []statusDetailRow{
+				{Label: query.T(world, "Action speed"), Value: fmt.Sprintf("%+d", query.HungerSpeedPenalty(hunger.Current))},
+				{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%+d%%", int(query.HungerRecoveryDelta(hunger.GetLevel())))},
+			},
+		})
+	}
+	// 疲労は空腹と並ぶ生理ゲージなのでここに置く。段階を値に出し、命中・行動速度・回復への影響は内訳へ回す
+	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
+		fatigue := world.Components.Fatigue.Get(playerEntity)
+		pen := fatigue.Penalty()
+		items = append(items, statusItemData{
+			Label:       query.T(world, "Fatigue"),
+			Value:       query.T(world, string(fatigue.GetLevel())),
+			Description: query.T(world, "Fatigue. High fatigue hinders actions and recovery"),
+			Details: []statusDetailRow{
+				{Label: query.T(world, "Accuracy"), Value: fmt.Sprintf("×%d%%", int(pen.AccuracyMul))},
+				{Label: query.T(world, "Action speed"), Value: fmt.Sprintf("%+d", pen.SpeedAdd)},
+				{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%+d%%", int(pen.RecoveryAdd))},
+			},
+		})
 	}
 	return items
 }
@@ -290,6 +314,8 @@ func sourceLabel(world w.World, s gc.ModifierSource) string {
 		return fmt.Sprintf("%s %d", query.T(world, gc.AbilityName(s.Ability)), s.Amount)
 	case gc.SourceCapacity:
 		return fmt.Sprintf("%s %d%%", query.T(world, string(s.Capacity)), s.Amount)
+	case gc.SourceFatigue:
+		return query.T(world, string(s.Fatigue))
 	}
 	panic("unknown ModifierSourceKind: " + string(s.Kind))
 }

@@ -5966,3 +5966,84 @@ msgstr "戦闘で斃れた"
 
 msgid "debug"
 msgstr "デバッグ"
+
+msgid "Not tired enough to sleep."
+msgstr "まだ眠くない。"
+
+msgid "Cannot sleep because enemies are nearby."
+msgstr "敵が近くにいて眠れない。"
+
+msgid "Too cold or hot to sleep."
+msgstr "寒すぎるか暑すぎて眠れない。"
+
+msgid "Went to sleep."
+msgstr "眠りについた。"
+
+msgid "Woke up refreshed."
+msgstr "すっきりと目が覚めた。"
+
+msgid "Sleep interrupted: %s"
+msgstr "睡眠が中断された: %s"
+
+msgid "sleep interrupted because enemies are nearby"
+msgstr "敵が近づいて目が覚めた"
+
+msgid "woke up from the cold"
+msgstr "寒さで目が覚めた"
+
+msgid "woke up from hunger"
+msgstr "空腹で目が覚めた"
+
+msgid "Tired"
+msgstr "疲労"
+
+msgid "Exhausted"
+msgstr "過労"
+
+msgid "Fatigue. High fatigue hinders actions and recovery"
+msgstr "疲労。高い疲労は行動と回復を妨げる"
+
+msgid "Action speed"
+msgstr "行動速度"
+
+msgid "Recovery"
+msgstr "回復"
+
+msgid "Sleep here?"
+msgstr "休みますか？"
+
+msgid "Sleep"
+msgstr "眠る"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Fatigue"
+msgstr "疲労度"
+
+msgid "Temperature"
+msgstr "気温"
+
+msgid "Bedding"
+msgstr "寝具"
+
+msgid "Surroundings"
+msgstr "周囲"
+
+msgid "Rested"
+msgstr "快調"
+
+msgid "Too cold"
+msgstr "寒すぎ"
+
+msgid "Too hot"
+msgstr "暑すぎ"
+
+msgid "Safe"
+msgstr "安全"
+
+msgid "Enemies nearby"
+msgstr "敵が近い"
+
+msgid "On the ground"
+msgstr "地べた"

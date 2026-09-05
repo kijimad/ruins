@@ -32,7 +32,23 @@ func ModifierValue(world w.World, entity ecs.Entity, key gc.ModifierKey) consts.
 	if !ok {
 		return consts.PercentBase
 	}
-	return gc.CalcModifierValue(skills, abils, hs, key)
+	base := gc.CalcModifierValue(skills, abils, hs, key)
+	if _, delta, ok := fatigueAccuracyDelta(world, entity, key, int(base)); ok {
+		return consts.Percent(int(base) + delta)
+	}
+	return base
+}
+
+// fatigueAccuracyDelta は武器命中への疲労の畳み込みを返す。命中キーで疲労を持つときだけ ok=true。
+// pre は疲労適用前の値。level は内訳表示用の段階、delta は加法差分。
+// ModifierValue と ModifierSources が同じこの導出を読むので、値と内訳は一致する
+func fatigueAccuracyDelta(world w.World, entity ecs.Entity, key gc.ModifierKey, pre int) (level gc.FatigueLevel, delta int, ok bool) {
+	if !gc.IsWeaponAccuracyKey(key) || !world.Components.Fatigue.Has(entity) {
+		return "", 0, false
+	}
+	fatigue := world.Components.Fatigue.Get(entity)
+	post := fatigue.Penalty().AccuracyMul.ApplyInt(pre)
+	return fatigue.GetLevel(), post - pre, true
 }
 
 // ModifierSources は key の効果倍率の内訳を都度計算して返す。詳細モーダルの表示用。
@@ -42,5 +58,10 @@ func ModifierSources(world w.World, entity ecs.Entity, key gc.ModifierKey) []gc.
 	if !ok {
 		return nil
 	}
-	return gc.CalcModifierSources(skills, abils, hs, key)
+	sources := gc.CalcModifierSources(skills, abils, hs, key)
+	base := gc.CalcModifierValue(skills, abils, hs, key)
+	if level, delta, ok := fatigueAccuracyDelta(world, entity, key, int(base)); ok && delta != 0 {
+		sources = append(sources, gc.ModifierSource{Kind: gc.SourceFatigue, Fatigue: level, Value: delta})
+	}
+	return sources
 }

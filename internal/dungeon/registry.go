@@ -119,6 +119,15 @@ var internalDefinitions = []StageDefinition{
 	DungeonCubeInterior,
 }
 
+// BaseTemperatureFor は名前のステージ定義の基本気温を返す。未登録は0。
+// ステージ生成時に StageField.BaseTemp へ写し、気温計算が dungeon 登録表を引かずに済むようにする
+func BaseTemperatureFor(name string) int {
+	if def, ok := GetStageDefinition(name); ok {
+		return def.BaseTemperature()
+	}
+	return 0
+}
+
 // GetStageDefinition は名前からステージ定義のマスタを取得する。
 func GetStageDefinition(name string) (StageDefinition, bool) {
 	// 内部用の定義を先にチェックする

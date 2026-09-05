@@ -61,8 +61,8 @@ func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 	turnState := query.GetTurnState(world)
 	turnState.Phase = gc.TurnPhasePlayer
 
-	// 継続アクティビティは1フレームで複数ターン早送りされるので、通常は1フレームで完走する。
-	// 上限に達しても続きが進むよう、余裕を持たせたフレーム数で完走を待つ
+	// 継続アクティビティは1フレームで上限ぶんのターンを早送りし、超過分は次フレームへ持ち越す。
+	// 完走までフレームを重ねる。余裕を持たせたフレーム数で完走を待つ
 	for i := 0; i < 300 && query.HasActivity(world, player); i++ {
 		require.NoError(t, runCoordFrame(world))
 	}

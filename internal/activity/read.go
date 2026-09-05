@@ -78,7 +78,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return fmt.Errorf("read validation failed: %w", err)
 	}
 
-	if !isAreaSafe(actor, world) {
+	if !query.IsAreaSafe(world, actor) {
 		return &UserError{Msg: query.T(world, "cannot read because enemies are nearby")}
 	}
 
@@ -120,7 +120,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// 安全性チェック
-	if !isAreaSafe(actor, world) {
+	if !query.IsAreaSafe(world, actor) {
 		Cancel(comp, "reading interrupted because enemies are nearby")
 		return nil
 	}

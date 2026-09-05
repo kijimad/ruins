@@ -69,11 +69,11 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		}
 		if world.Components.GridElement.Has(entity) {
 			grid := world.Components.GridElement.Get(entity)
-			if temp, err := AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
+			if temp, err := query.AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
 				ambientTemp = temp
 				ambientTempVisible = true
 				ambientTempColor = ambientTempDisplayColor(temp)
-				shelter, _ := tileEnvironmentAt(world, grid.X, grid.Y)
+				shelter, _ := query.TileEnvironmentAt(world, grid.X, grid.Y)
 				ambientShelterLabel = query.T(world, shelterMsgid(shelter))
 			}
 		}
@@ -409,6 +409,19 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}
 
+	// プレイヤーの疲労バッジ。Tired/Exhausted のときだけ出す
+	fatigueQuery := ecs.NewFilter2[gc.Player, gc.Fatigue](world.ECS).Query()
+	for fatigueQuery.Next() {
+		entity := fatigueQuery.Entity()
+		level := world.Components.Fatigue.Get(entity).GetLevel()
+		if level == gc.FatigueTired || level == gc.FatigueExhausted {
+			badges = append(badges, hud.StatusBadge{
+				Text:  string(level),
+				Color: getFatigueBadgeColor(level),
+			})
+		}
+	}
+
 	// プレイヤーの体温バッジと不調バッジ。同じ Player+HealthStatus を1度だけ走査する。
 	// 低体温は体温バッジが担うので不調バッジには重複させない
 	healthQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
@@ -465,9 +478,9 @@ func shelterMsgid(shelter gc.ShelterType) string {
 // ambientTempDisplayColor は周囲気温の表示色を返す。快適帯の中は白、下回ると青、上回ると赤に寄せる
 func ambientTempDisplayColor(temp int) color.RGBA {
 	switch {
-	case temp < ComfortableTempLower:
+	case temp < query.ComfortableTempLower:
 		return color.RGBA{150, 190, 255, 255}
-	case temp > ComfortableTempUpper:
+	case temp > query.ComfortableTempUpper:
 		return color.RGBA{255, 170, 120, 255}
 	}
 	return color.RGBA{255, 255, 255, 255}
@@ -527,6 +540,14 @@ func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA 
 func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
 	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
 	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+}
+
+// getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤
+func getFatigueBadgeColor(level gc.FatigueLevel) color.RGBA {
+	if level == gc.FatigueExhausted {
+		return color.RGBA{255, 50, 50, 255}
+	}
+	return color.RGBA{255, 200, 0, 255}
 }
 
 // getHungerBadgeColor は空腹度に応じたバッジ色を返す

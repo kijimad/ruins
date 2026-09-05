@@ -35,10 +35,14 @@ func (sys TurnSystem) String() string {
 	return "TurnSystem"
 }
 
-// fastForwardTurnsPerFrame は継続アクティビティ中に1フレームで進める最大ターン数。
-// 大量ターンの押し・休息・分解を実時間で待たせないよう複数ターンをまとめて進めつつ、
-// 1フレームの処理が跳ね上がらないよう上限を設ける。上限を超えても次フレームで続きを進める。
-const fastForwardTurnsPerFrame = 100
+// fastForwardTurnsPerFrame は継続アクティビティ中に1フレームで進めるターン数。
+// 通常プレイは1ターン=3フレームなので、この値ぶんを毎フレーム進めると通常の約3倍速で流れる。
+// あえて小さく保ち、押し・休息・分解・睡眠のいずれも所要実時間がターン数に比例するようにする。
+// 時計・日付・疲労バーが動くのが見え、長い作業ほど長くかかるのでコストが体感できる。値を大きくすると
+// 数フレームで焼き切れて経過が一瞬に潰れ、コストが分からなくなる。1フレームで消化しきれない分は
+// 次フレームへ持ち越す。継続中の入力は DungeonState が HasActivity で塞ぐ。
+// この値では過労気味の睡眠 約530ターンで約3秒、短い押しや分解は一瞬で終わる。
+const fastForwardTurnsPerFrame = 3
 
 // Update はターン管理を行う
 // w.Updater interfaceを実装
@@ -211,6 +215,9 @@ func processTurnEnd(world w.World) error {
 
 	// 空腹を1ターンにつき1回進める。行動種別に依らず全員が等しく空腹になる
 	progressTurnHunger(world)
+
+	// 疲労を1ターンにつき1回進める。睡眠中は蓄積せず減る
+	progressTurnFatigue(world)
 
 	return runTurnEndSystems(world)
 }

@@ -20,6 +20,10 @@ func progressTurnHunger(world w.World) {
 	for q.Next() {
 		entity := q.Entity()
 		hungerPct := int(query.ModifierValue(world, entity, gc.ModHungerProgress))
+		// 睡眠中は代謝が下がり腹が減りにくい。進行を半分に抑える
+		if world.Components.Sleeping.Has(entity) {
+			hungerPct /= 2
+		}
 		// 分母を HungerDrainTurns 倍に伸ばして基準速度を緩和する。耐性が高く hungerPct が 0 以下なら比較が常に
 		// 偽になり空腹が進まない。下限を置くかは進行系倍率の共通課題として将来まとめて検討する。
 		if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) < hungerPct {

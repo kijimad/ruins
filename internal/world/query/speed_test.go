@@ -130,7 +130,7 @@ func TestHungerSpeedPenalty(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			penalty := hungerSpeedPenalty(tt.hunger)
+			penalty := HungerSpeedPenalty(tt.hunger)
 			assert.Equal(t, tt.expected, penalty)
 		})
 	}

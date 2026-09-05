@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -39,6 +40,25 @@ func TestProgressTurnHunger_空腹進行が基準ターン数に緩和される(
 	assert.InDelta(t, expected, drained, float64(expected)*0.15,
 		"空腹進行は約 1/%d ターンに緩和されている", gc.HungerDrainTurns)
 	assert.Less(t, drained, turns, "毎ターン減より明確に緩やか")
+}
+
+func TestProgressTurnHunger_睡眠中は空腹の進行が半分になる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	actor := world.ECS.NewEntity()
+	world.Components.Hunger.Add(actor, &gc.Hunger{Current: 1_000_000, Max: 1_000_000})
+	// 睡眠中は代謝が下がり腹が減りにくい。進行が半分に抑えられる
+	world.Components.Sleeping.Add(actor, &gc.Sleeping{Quality: consts.PercentBase})
+
+	const turns = 3000
+	advanceHunger(world, turns)
+
+	drained := 1_000_000 - world.Components.Hunger.Get(actor).Current
+	expected := turns / gc.HungerDrainTurns / 2 // 起床時の半分
+	assert.InDelta(t, expected, drained, float64(expected)*0.2,
+		"睡眠中は空腹進行が起床時の約半分に抑えられる")
 }
 
 func TestProgressTurnHunger_同じ盤面なら決定的に進む(t *testing.T) {

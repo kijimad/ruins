@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -57,6 +56,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &PushBehavior{}, nil
 	case gc.BehaviorPull:
 		return &PullBehavior{}, nil
+	case gc.BehaviorSleep:
+		return &SleepBehavior{}, nil
 	case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:
 		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}
@@ -204,34 +205,4 @@ func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 		return consts.Coord[consts.Tile]{}, ErrParamsTypeMismatch
 	}
 	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
-}
-
-// isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする
-func isAreaSafe(actor ecs.Entity, world w.World) bool {
-	if !world.Components.GridElement.Has(actor) {
-		return false
-	}
-	gridElement := world.Components.GridElement.Get(actor)
-	actorX, actorY := int(gridElement.X), int(gridElement.Y)
-
-	safeRadius := 1
-	hasHostile := false
-
-	areaQuery := query.ActiveFilter1[gc.GridElement](world).Query()
-	for areaQuery.Next() {
-		entity := areaQuery.Entity()
-		if hasHostile {
-			continue
-		}
-		if query.FactionRelation(world, actor, entity) != query.RelationHostile {
-			continue
-		}
-		grid := world.Components.GridElement.Get(entity)
-		dx, dy := int(grid.X)-actorX, int(grid.Y)-actorY
-		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
-			hasHostile = true
-		}
-	}
-
-	return !hasHostile
 }

@@ -65,6 +65,9 @@ var Registry = []Def{
 	{Field: "Player"},         // 操作対象の主人公であることを示す
 	{Field: "Profession"},     // 選択した職業を保持する
 	{Field: "Hunger"},         // プレイヤーの空腹度を保持する
+	{Field: "Fatigue"},        // 蓄積した疲労を保持する
+	{Field: "Sleeping"},       // 睡眠中を表すマーカー
+	{Field: "Bedding"},        // 寝具の睡眠効率を保持する
 	{Field: "Wallet"},         // プレイヤーの資金を保持する
 	{Field: "FactionAlly"},    // 味方派閥であることを示す
 	{Field: "FactionEnemy"},   // 敵性派閥であることを示す
