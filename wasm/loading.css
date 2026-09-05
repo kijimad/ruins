@@ -63,19 +63,14 @@
   gap: 1.5rem;
 }
 
-.title {
-  margin: 0;
-  font-size: clamp(2.2rem, 8.5vw, 4.6rem);
-  font-weight: 700;
-  letter-spacing: 0.34em;
-  /* letter-spacing で右に空く分を相殺して中央に見せる */
-  text-indent: 0.34em;
-  color: #eaf3f8;
-  /* CRT の色収差。RGB をわずかにずらしにじませる */
-  text-shadow:
-    -2px 0 rgba(120, 210, 255, 0.5),
-    2px 0 rgba(235, 90, 130, 0.45),
-    0 0 22px rgba(120, 190, 225, 0.45);
+/* 公式ロゴ画像をそのまま使う。縁・影・氷ストライプ・副題は画像側に含む。
+   暗背景から浮かせる寒色グローだけ CSS で足す */
+.logo {
+  width: min(78vw, 560px);
+  height: auto;
+  filter:
+    drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 22px rgba(120, 190, 225, 0.28));
 }
 
 /* NOW LOADING をゆるやかに明滅させる。カーソルは付けず文字だけ */
