@@ -160,9 +160,9 @@ jobs:
           # benchstat -format csv の geomean 行は次の形:
           #   ,sec/op,CI,sec/op,CI,vs base,P        ← metric ヘッダ行（$1="" $2=metric）
           #   geomean,<base値>,,<pr値>,,+200.00%,    ← $1=geomean $2=base $4=pr
+          # コメントは常に details で畳む。退化を検出したときだけ open で開き見逃さない。
+          # summary 内で状態が読めるよう、見出しと退化有無を1行に出す
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
-            # base vs PR を並べて表示
-            { echo '### ベンチ比較 (base vs PR)'; echo "$SHA_LINE"; echo '```'; go tool benchstat base.txt pr.txt; echo '```'; } > cmp.md
             # sec/op の geomean が2倍以上悪化したパッケージを検出する。
             # 個別ベンチはサンプル数1だとノイズで簡単に2倍になり誤発火するため、
             # 集約値の geomean で判定する。 geomean が2倍動くには大半のベンチが劣化する必要がある。
@@ -170,12 +170,24 @@ jobs:
               $1=="" && $2!="" { metric=$2; next }
               $1=="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
                 printf "- geomean: x%.2f\n", $4/$2 }')
+            if [ -n "$bad" ]; then
+              open=' open'; summary='⚠️ ベンチ比較 (base vs PR) — 2倍以上の悪化を検出'
+            else
+              open=''; summary='📊 ベンチ比較 (base vs PR)'
+            fi
+            # summary 直後と閉じタグ前の空行は details 内の Markdown を描画させるため必須
+            { echo "<details${open}><summary>${summary}</summary>";
+              echo "";
+              echo "$SHA_LINE"; echo '```'; go tool benchstat base.txt pr.txt; echo '```';
+              echo ""; echo '</details>'; } > cmp.md
           else
             # base 側にベンチが無い（初回PR・リネーム・base ビルド失敗等）場合、 PR のみ表示し比較不可を明示する
-            { echo '### ベンチ (PR のみ・base と比較不可)';
+            { echo '<details><summary>📊 ベンチ (PR のみ・base と比較不可)</summary>';
+              echo "";
               echo "$SHA_LINE";
               echo '> base 側に比較対象のベンチが取得できなかったため、今回は PR の数値のみ表示します。';
-              echo '```'; go tool benchstat pr.txt; echo '```'; } > cmp.md
+              echo '```'; go tool benchstat pr.txt; echo '```';
+              echo ""; echo '</details>'; } > cmp.md
           fi
           cat cmp.md
           { echo "bad<<EOF"; echo "$bad"; echo "EOF"; } >> "$GITHUB_OUTPUT"
