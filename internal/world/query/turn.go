@@ -154,6 +154,11 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 		penalty += hungerSpeedPenalty(hunger.Current)
 	}
 
+	// 疲労ペナルティ。係数は Fatigue.Penalty の1表から読む
+	if world.Components.Fatigue.Has(entity) {
+		penalty += world.Components.Fatigue.Get(entity).Penalty().SpeedAdd
+	}
+
 	return penalty
 }
 
