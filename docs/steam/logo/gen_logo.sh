@@ -27,11 +27,10 @@ FILL='#e6f0f7'                  # フラットなフロスト白。塗りは単�
 ABERR_CYAN='#4fd2ff'            # 色収差のシアン。右へずらす
 ABERR_RED='#ff4f70'             # 色収差のレッド。左へずらす
 ABERR=4                         # RGB のずらし量 px。CRT の色ずれ
-LINE_COLOR='#a6e2f2'            # 帯の左端。明るい氷シアン
-LINE_COLOR2='#57b0d6'           # 帯の右端。明るい寒色のまま。暗くせず右はアルファで透明へ抜く
+LINE_COLOR='#a6e2f2'            # 帯の色。単色ベタ塗り。明るい氷シアン
 SUB_COLOR='#bcd4e6'             # 副題。淡い寒色
 GAP=6                           # 頭文字と残りの間隔。詰めて右の空きを消す
-STRIPE_GAP=44                   # 頭文字と帯の左端の間隔。帯を C から離す。OLDWARD の GAP とは別に取る
+STRIPE_GAP=8                    # 頭文字と帯の左端の間隔。帯を C から離す。縦の LINE_SUB_GAP と同値にし余白を揃える
 LINE_THICK=24                   # 帯の太さ。左端の高さ
 LINE_SLANT=22                   # 帯の両端の斜めカット量。上辺を右へずらす横せん断
 LINE_SUB_GAP=8                  # 帯の下端と副題上端の間隔。小さいほど帯が副題へ近づく
@@ -92,21 +91,10 @@ CANVAS_H=$Ch
 
 # 帯は水平のまま両端を斜めにカットした平行四辺形。上下辺は水平、左右辺が「/」に斜め。
 # 上辺を下辺より右へ LINE_SLANT ずらす横せん断で作る。スピードストライプ状の動きを出す。
-# さらに右へ向かって透明度を落とし方向を出す。左が不透明、右端で透明。
-# 透明化はポリゴンのアルファに横グラデを乗算して行う。CopyOpacity で全面置換すると外側の三角も出るため。
+# 塗りは単色ベタ。グラデもフェードもかけず、右端は斜めのハードエッジで切る。
 LW=$((LINE_LEN + LINE_SLANT))
-# 帯の形。アルファ抽出用に白で描く
-magick -size "${LW}x${LINE_THICK}" xc:none -fill white \
-	-draw "polygon 0,${LINE_THICK} ${LINE_SLANT},0 ${LW},0 ${LINE_LEN},${LINE_THICK}" "$TMP/pg.png"
-magick "$TMP/pg.png" -alpha extract "$TMP/pga.png"
-# 左→右の色遷移フィル。明るい氷シアンから深い寒色へ。明部を抑え色が動くようにする
-magick -size "${LW}x${LINE_THICK}" xc: -sparse-color barycentric "0,0 ${LINE_COLOR} ${LW},0 ${LINE_COLOR2}" "$TMP/colorfill.png"
-# 左→右のアルファフェード。右端で透明にし方向を出す
-magick -size "${LW}x${LINE_THICK}" xc: -sparse-color barycentric "0,0 white ${LW},0 black" "$TMP/grad.png"
-# 帯形アルファ × フェード = 最終アルファ
-magick "$TMP/pga.png" "$TMP/grad.png" -compose Multiply -composite "$TMP/newa.png"
-# 色遷移フィルに最終アルファを与える
-magick "$TMP/colorfill.png" "$TMP/newa.png" -compose CopyOpacity -composite "$TMP/line.png"
+magick -size "${LW}x${LINE_THICK}" xc:none -fill "$LINE_COLOR" \
+	-draw "polygon 0,${LINE_THICK} ${LINE_SLANT},0 ${LW},0 ${LINE_LEN},${LINE_THICK}" "$TMP/line.png"
 
 magick -size "${CANVAS_W}x${CANVAS_H}" xc:none \
 	\( "$TMP/C.png" \) -gravity NorthWest -geometry +0+0 -compose Over -composite \
