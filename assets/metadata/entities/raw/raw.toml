@@ -13689,7 +13689,7 @@ spriteKey = "bathtub"
 spriteSheetName = "field"
 
 [[props]]
-blockPass = true
+blockPass = false
 blockView = false
 description = "茶の木枠に白いマットレスと枕、赤茶の掛布団。寝室・宿・診療所の寝台"
 hp = 25
