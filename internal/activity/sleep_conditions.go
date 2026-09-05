@@ -1,17 +1,17 @@
-package systems
+package activity
 
 import (
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
 // SleepConditions は actor の現在地で睡眠する際の各条件をまとめた評価結果。
 // 疲労・気温・安全は入眠を妨げうるブロック条件で、寝具は回復効率に効くだけの情報。
-// 表示は states 層が行い、ここでは判定を1箇所に集約する。プロンプト表示と入眠可否が
-// 同じ値を見るため、表示と実際のゲートがずれない。
+// 表示は states 層が行い、入眠可否は SleepBehavior.Validate が使う。両者が同じ値を見るため、
+// プロンプトの表示と実際のゲートがずれない。
 type SleepConditions struct {
 	HasFatigue     bool            // 疲労コンポーネントを持つか。持たない者は眠れない
 	Fatigue        gc.FatigueLevel // 疲労段階
@@ -25,10 +25,11 @@ type SleepConditions struct {
 }
 
 // EvaluateSleepConditions は actor の現在地での睡眠条件を評価する。
+// 気温計算は query、安全と寝具は activity 内の述語を使い、判定を1箇所に集約する。
 func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 	sc := SleepConditions{
-		AreaSafe:       activity.IsAreaSafe(actor, world),
-		BeddingQuality: activity.BeddingQualityAt(actor, world),
+		AreaSafe:       IsAreaSafe(actor, world),
+		BeddingQuality: BeddingQualityAt(actor, world),
 		TemperatureOK:  true, // 座標が無い場所では気温では妨げない
 	}
 
@@ -39,8 +40,8 @@ func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 
 	if world.Components.GridElement.Has(actor) {
 		grid := world.Components.GridElement.Get(actor)
-		sc.SleepableLower, sc.SleepableUpper = SleepableTemperatureRange(world, actor)
-		if ambient, err := AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
+		sc.SleepableLower, sc.SleepableUpper = query.SleepableTemperatureRange(world, actor)
+		if ambient, err := query.AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
 			sc.HasAmbient = true
 			sc.Ambient = ambient
 			sc.TemperatureOK = ambient >= sc.SleepableLower && ambient <= sc.SleepableUpper

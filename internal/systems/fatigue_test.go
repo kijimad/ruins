@@ -25,7 +25,7 @@ func TestProgressTurnFatigue_起床中は蓄積する(t *testing.T) {
 		"起床中は毎ターン蓄積する")
 }
 
-func TestProgressTurnFatigue_Maxでクランプし死なせない(t *testing.T) {
+func TestProgressTurnFatigue_起床の蓄積はMaxで頭打ちになる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 

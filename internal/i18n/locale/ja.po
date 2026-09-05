@@ -5973,6 +5973,9 @@ msgstr "まだ眠くない。"
 msgid "Cannot sleep because enemies are nearby."
 msgstr "敵が近くにいて眠れない。"
 
+msgid "Too cold or hot to sleep."
+msgstr "寒すぎるか暑すぎて眠れない。"
+
 msgid "Went to sleep."
 msgstr "眠りについた。"
 

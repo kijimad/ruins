@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -182,7 +181,7 @@ func environmentItems(world w.World) []statusItemData {
 	ambient := 0
 	if player, err := query.GetPlayerEntity(world); err == nil && query.AliveHas(world, world.Components.GridElement, player) {
 		g := world.Components.GridElement.Get(player)
-		if temp, terr := systems.AmbientTemperatureAt(world, g.X, g.Y); terr == nil {
+		if temp, terr := query.AmbientTemperatureAt(world, g.X, g.Y); terr == nil {
 			ambient = temp
 		}
 	}

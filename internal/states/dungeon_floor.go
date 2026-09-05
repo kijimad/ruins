@@ -85,9 +85,11 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	if err != nil {
 		return zero, noEntity, err
 	}
-	// フィールド寸法をこの階のStageFieldへ記録する。生成物と同じ明示 key に束縛するため、
+	// フィールド寸法と基本気温をこの階のStageFieldへ記録する。生成物と同じ明示 key に束縛するため、
 	// SwapTo が CurrentStage を最後に更新する順序に依存しない
-	query.EnsureStageField(world, key).Level = level
+	field := query.EnsureStageField(world, key)
+	field.Level = level
+	field.BaseTemp = def.BaseTemperature()
 
 	start, err := plan.GetPlayerStartPosition()
 	if err != nil {
@@ -273,7 +275,9 @@ func spawnCubeInterior(world w.World, key gc.StageKey) error {
 	if err != nil {
 		return err
 	}
-	query.EnsureStageField(world, key).Level = level
+	field := query.EnsureStageField(world, key)
+	field.Level = level
+	field.BaseTemp = dungeon.BaseTemperatureFor(key.Name)
 
 	// 生成物をこの内部ステージへ束縛する
 	stage.Bind(world, key)

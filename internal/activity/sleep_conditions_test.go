@@ -1,4 +1,4 @@
-package systems
+package activity
 
 import (
 	"testing"
@@ -6,9 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSleepConditions_CanSleep(t *testing.T) {
@@ -68,20 +66,18 @@ func TestSleepConditions_CanSleep(t *testing.T) {
 	})
 }
 
-func TestEvaluateSleepConditions_プレイヤーの疲労と安全と寝具を反映する(t *testing.T) {
+func TestEvaluateSleepConditions_疲労と安全と寝具を反映する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-
+	actor := world.ECS.NewEntity()
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	// 過労へ追い込む。Current を上限にして GetLevel が Exhausted を返すようにする
-	fatigue := world.Components.Fatigue.Get(player)
-	fatigue.Current = fatigue.Max
+	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 2000, Max: 2000})
 
-	sc := EvaluateSleepConditions(world, player)
+	sc := EvaluateSleepConditions(world, actor)
 
-	assert.True(t, sc.HasFatigue, "プレイヤーは疲労を持つ")
+	assert.True(t, sc.HasFatigue, "疲労を持つ")
 	assert.Equal(t, gc.FatigueExhausted, sc.Fatigue, "過労段階を反映する")
 	assert.False(t, sc.TooTired(), "過労は眠れる")
 	assert.True(t, sc.AreaSafe, "敵が居なければ安全")

@@ -14,7 +14,6 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -372,7 +371,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 	})
 }
 
-// handleSleep は睡眠の確認プロンプトを開く。入眠可否と各条件は systems.EvaluateSleepConditions が
+// handleSleep は睡眠の確認プロンプトを開く。入眠可否と各条件は activity.EvaluateSleepConditions が
 // 1箇所で評価し、プロンプトはそれを見せて確認を取る。実際の入眠は選択肢の Sleep で行う。
 func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], error) {
 	if _, err := query.GetPlayerEntity(world); err != nil {
@@ -391,7 +390,7 @@ func sleepConfirmChoices(world w.World) (string, []Choice) {
 	if err != nil {
 		return title, []Choice{sleepCancelChoice(world)}
 	}
-	sc := systems.EvaluateSleepConditions(world, player)
+	sc := activity.EvaluateSleepConditions(world, player)
 
 	choices := []Choice{
 		sleepConditionRow(query.T(world, "Fatigue"), fatigueDetail(world, sc), !sc.TooTired()),
@@ -441,7 +440,7 @@ func sleepCancelChoice(world w.World) Choice {
 }
 
 // fatigueDetail は疲労段階の表示文を返す
-func fatigueDetail(world w.World, sc systems.SleepConditions) string {
+func fatigueDetail(world w.World, sc activity.SleepConditions) string {
 	if !sc.HasFatigue {
 		return query.T(world, "Rested")
 	}
@@ -449,7 +448,7 @@ func fatigueDetail(world w.World, sc systems.SleepConditions) string {
 }
 
 // temperatureDetail は気温の表示文を返す。入眠可能帯を外れると寒すぎ暑すぎを添える
-func temperatureDetail(world w.World, sc systems.SleepConditions) string {
+func temperatureDetail(world w.World, sc activity.SleepConditions) string {
 	if !sc.HasAmbient {
 		return ""
 	}
@@ -465,7 +464,7 @@ func temperatureDetail(world w.World, sc systems.SleepConditions) string {
 }
 
 // beddingDetail は寝具の有無を返す。地べたより質が高ければ寝具ありとみなす
-func beddingDetail(world w.World, sc systems.SleepConditions) string {
+func beddingDetail(world w.World, sc activity.SleepConditions) string {
 	if sc.BeddingQuality > consts.PercentBase {
 		return query.T(world, "Bedding")
 	}
@@ -473,7 +472,7 @@ func beddingDetail(world w.World, sc systems.SleepConditions) string {
 }
 
 // surroundingsDetail は周囲の安全を返す
-func surroundingsDetail(world w.World, sc systems.SleepConditions) string {
+func surroundingsDetail(world w.World, sc activity.SleepConditions) string {
 	if sc.AreaSafe {
 		return query.T(world, "Safe")
 	}

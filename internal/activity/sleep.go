@@ -37,13 +37,17 @@ func NewSleepActivity() *gc.Activity {
 	return NewActivity(gc.BehaviorSleep, 0)
 }
 
-// Validate は入眠可否のうち疲労と安全を検証する。適温は systems を import できる起動層で確認する。
-// activity は systems へ依存できない層のため、温度は起動点で事前ゲートし、ここでは扱わない
+// Validate は入眠可否を疲労・気温・安全の全条件で検証する。気温計算は query に降りたので
+// この層で全条件を評価でき、プロンプト表示と同じ EvaluateSleepConditions を唯一の判定点にする。
+// 失敗の種別ごとに理由を返し、呼び出し側が gamelog へ出す
 func (sb *SleepBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	if !world.Components.Fatigue.Has(actor) || world.Components.Fatigue.Get(actor).GetLevel() == gc.FatigueRested {
+	sc := EvaluateSleepConditions(world, actor)
+	switch {
+	case sc.TooTired():
 		return &UserError{Msg: query.T(world, "Not tired enough to sleep.")}
-	}
-	if !IsAreaSafe(actor, world) {
+	case !sc.TemperatureOK:
+		return &UserError{Msg: query.T(world, "Too cold or hot to sleep.")}
+	case !sc.AreaSafe:
 		return &UserError{Msg: query.T(world, "Cannot sleep because enemies are nearby.")}
 	}
 	return nil
@@ -70,7 +74,7 @@ func (sb *SleepBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		Cancel(comp, "sleep interrupted because enemies are nearby")
 		return nil
 	}
-	if hasHypothermia(actor, world) {
+	if hasActiveHypothermia(actor, world) {
 		Cancel(comp, "woke up from the cold")
 		return nil
 	}
@@ -97,10 +101,12 @@ func (sb *SleepBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World)
 
 // Canceled は中断時に Sleeping を外す
 func (sb *SleepBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	// Sleeping の除去はアーキタイプを変えて comp ポインタを無効化する。理由は除去より前に退避する
+	reason := comp.CancelReason
 	removeSleeping(actor, world)
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Sleep interrupted: %s", query.T(world, comp.CancelReason))).
+			Markup(query.T(world, "Sleep interrupted: %s", query.T(world, reason))).
 			Log()
 	}
 	return nil
@@ -113,13 +119,16 @@ func removeSleeping(actor ecs.Entity, world w.World) {
 	}
 }
 
-// hasHypothermia は全身に低体温の状態があるかを返す
-func hasHypothermia(actor ecs.Entity, world w.World) bool {
+// hasActiveHypothermia は全身の低体温が体感に響く水準に達しているかを返す。
+// わずかな残留では起こさず、IsActive すなわちペナルティを及ぼす段階で初めて起床させる。
+// 入眠可能な適温帯の下端で寝ると低体温が浅く残るが、火のそばで回復中なら閾値に達さず眠り続けられる
+func hasActiveHypothermia(actor ecs.Entity, world w.World) bool {
 	if !world.Components.HealthStatus.Has(actor) {
 		return false
 	}
 	hs := world.Components.HealthStatus.Get(actor)
-	return hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia) != nil
+	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+	return cond != nil && cond.IsActive()
 }
 
 // isStarving は飢餓段階かを返す

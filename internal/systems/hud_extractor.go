@@ -69,11 +69,11 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		}
 		if world.Components.GridElement.Has(entity) {
 			grid := world.Components.GridElement.Get(entity)
-			if temp, err := AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
+			if temp, err := query.AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
 				ambientTemp = temp
 				ambientTempVisible = true
 				ambientTempColor = ambientTempDisplayColor(temp)
-				shelter, _ := tileEnvironmentAt(world, grid.X, grid.Y)
+				shelter, _ := query.TileEnvironmentAt(world, grid.X, grid.Y)
 				ambientShelterLabel = query.T(world, shelterMsgid(shelter))
 			}
 		}
@@ -478,9 +478,9 @@ func shelterMsgid(shelter gc.ShelterType) string {
 // ambientTempDisplayColor は周囲気温の表示色を返す。快適帯の中は白、下回ると青、上回ると赤に寄せる
 func ambientTempDisplayColor(temp int) color.RGBA {
 	switch {
-	case temp < ComfortableTempLower:
+	case temp < query.ComfortableTempLower:
 		return color.RGBA{150, 190, 255, 255}
-	case temp > ComfortableTempUpper:
+	case temp > query.ComfortableTempUpper:
 		return color.RGBA{255, 170, 120, 255}
 	}
 	return color.RGBA{255, 255, 255, 255}
