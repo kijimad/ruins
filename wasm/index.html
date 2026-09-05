@@ -2,8 +2,73 @@
 <html>
   <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="wasm_exec.js"></script>
+    <link rel='stylesheet' href='loading.css' />
+  </head>
+
+  <body>
+    <div class="loading active" id="loading">
+      <canvas id="snow"></canvas>
+      <div class="loading-inner">
+        <h1 class="title">COLDWARD</h1>
+        <div class="loading-txt">Now Loading</div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">0%</div>
+      </div>
+    </div>
+
     <script>
+     // 降雪アニメ。外部ライブラリに依存せず canvas だけで描く。
+     // 69MB の wasm を待つ間ずっと動くので軽く保ち、読み込み完了で止める
+     const snow = (function () {
+         const canvas = document.getElementById("snow");
+         const ctx = canvas.getContext("2d");
+         let flakes = [];
+         let raf = 0;
+         function spawn() {
+             return {
+                 x: Math.random() * canvas.width,
+                 y: Math.random() * canvas.height,
+                 r: Math.random() * 1.8 + 0.5,
+                 vy: Math.random() * 0.6 + 0.25,
+                 vx: Math.random() * 0.4 - 0.2,
+                 a: Math.random() * 0.5 + 0.3,
+             };
+         }
+         function resize() {
+             canvas.width = window.innerWidth;
+             canvas.height = window.innerHeight;
+             const count = Math.floor((canvas.width * canvas.height) / 9000);
+             flakes = Array.from({ length: count }, spawn);
+         }
+         function frame() {
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+             for (const f of flakes) {
+                 f.y += f.vy;
+                 f.x += f.vx;
+                 if (f.y > canvas.height) {
+                     f.y = -4;
+                     f.x = Math.random() * canvas.width;
+                 }
+                 ctx.beginPath();
+                 ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                 ctx.fillStyle = "rgba(222,236,246," + f.a + ")";
+                 ctx.fill();
+             }
+             raf = requestAnimationFrame(frame);
+         }
+         window.addEventListener("resize", resize);
+         resize();
+         frame();
+         return {
+             stop() {
+                 cancelAnimationFrame(raf);
+                 window.removeEventListener("resize", resize);
+             },
+         };
+     })();
+
      const go = new Go();
      go.argv = ["ruins", "play"];
 
@@ -51,12 +116,14 @@
      fetchWasm("game.wasm")
          .then((buf) => WebAssembly.instantiate(buf, go.importObject))
          .then((result) => {
+             snow.stop();
              document.getElementById("loading").classList.remove("active");
              go.run(result.instance);
-             // Ebiten は起動時に canvas を DOM へ挿入する。生成を待って focus を当て、
-             // 初回クリックなしでキー入力が届くようにする。tabindex は focus 可能にするため付ける
+             // Ebiten は起動時に自前の canvas を DOM へ挿入する。降雪 canvas と
+             // 区別してそちらへ focus を当て、初回クリックなしでキー入力が届くようにする。
+             // tabindex は focus 可能にするため付ける
              requestAnimationFrame(function focusCanvas() {
-                 const c = document.querySelector("canvas");
+                 const c = document.querySelector("canvas:not(#snow)");
                  if (c) {
                      c.setAttribute("tabindex", "0");
                      c.focus();
@@ -70,14 +137,5 @@
              if (text) text.textContent = "Failed to load: " + err.message;
          });
     </script>
-    <link rel='stylesheet' href='loading.css' />
-  </head>
-
-  <body>
-    <div class="loading active" id="loading">
-      <div class="loading-txt">Now Loading...</div>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-      <div class="progress-text" id="progress-text">0%</div>
-    </div>
   </body>
 </html>
