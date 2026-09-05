@@ -13,7 +13,7 @@ trap 'rm -rf "$TMP"' EXIT
 # マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出す。
 MASTER="docs/steam/background/master_3840x2560.png"
 OUT="docs/steam/generated"
-# 完成品ロゴ。縁・影を内包するので加工せずそのまま重ねる
+# 完成品ロゴ。色収差・CRT走査線・ドロップシャドウを内包する。加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
 
 # 入力が無ければ magick のエラーを待たず、先に何を実行すべきか示して止める
@@ -40,12 +40,13 @@ magick "$MASTER" -gravity center -crop 3840x2162+0+0 +repage -resize 1438x810! "
 echo "page_background.png (1438x810)"
 
 # --- ロゴ描画関数 ---
-# 完成品ロゴを背景に重ねる。ロゴは縁・影・氷塗りを内包するので加工しない。
+# 完成品ロゴを背景に重ねる。影・走査線を内包するので加工しない。
 # 幅 max_w と 高さ logo_h の箱にアスペクト維持で収めてから合成する
 render_logo() {
 	local w=$1 h=$2 logo_h=$3 gravity=$4 y_off=$5 output=$6
 
 	local max_w=$((w * 82 / 100))
+	# ロゴは影・走査線・色収差を内包する。ここでは寸法を合わせて重ねるだけ
 	magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" "$TMP/logo.png"
 
 	# 宛先を sRGB へ昇格してから合成する。透明ベース xc:none が Gray になり色が落ちるのを防ぐ。
@@ -114,8 +115,9 @@ magick "$TMP/title_bg.png" \
 	\( -size 720x960 gradient:'#060a1466'-none -rotate 90 \) -compose over -composite \
 	"$TITLE_OUT"
 # ロゴを左上へ。幅は画面の約55%。メニューは main_menu.go が左下へ左寄せで描く。
+# ロゴは影・走査線を内包する。寸法を合わせて重ねるだけ
 magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"
-magick "$TITLE_OUT" "$TMP/title_logo.png" -gravity NorthWest -geometry +48+56 -compose over -composite "$TMP/title_merged.png"
+magick "$TITLE_OUT" "$TMP/title_logo.png" -gravity NorthWest -geometry +40+48 -compose over -composite "$TMP/title_merged.png"
 mv "$TMP/title_merged.png" "$TITLE_OUT"
 echo "title1_.png (960x720)"
 
