@@ -11,7 +11,7 @@
     <div class="loading active" id="loading">
       <canvas id="snow"></canvas>
       <div class="loading-inner">
-        <img class="logo" src="logo.png" alt="COLDWARD" />
+        <img class="logo" src="logo.png" alt="COLDWARD — NO WARMTH, NO RETURN" />
         <div class="loading-txt">Now Loading</div>
         <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
@@ -79,6 +79,11 @@
          if (!resp.ok) throw new Error("HTTP " + resp.status);
          const total = parseInt(resp.headers.get("Content-Length") || "0", 10);
          const fill = document.getElementById("progress-fill");
+         // resp.body が無い環境ではストリームを読めない。進捗を諦め一括取得へ退避する
+         if (!resp.body) {
+             document.getElementById("progress-bar").classList.add("indeterminate");
+             return resp.arrayBuffer();
+         }
          // 総量が取れないときはバーを不定モードにし、0%固定で壊れて見えるのを避ける
          if (total <= 0) {
              document.getElementById("progress-bar").classList.add("indeterminate");
@@ -112,13 +117,14 @@
              go.run(result.instance);
              // Ebiten は起動時に自前の canvas を DOM へ挿入する。降雪 canvas と
              // 区別してそちらへ focus を当て、初回クリックなしでキー入力が届くようにする。
-             // tabindex は focus 可能にするため付ける
+             // tabindex は focus 可能にするため付ける。canvas が現れないときの暴走を防ぐため試行を打ち切る
+             let attempts = 0;
              requestAnimationFrame(function focusCanvas() {
                  const c = document.querySelector("canvas:not(#snow)");
                  if (c) {
                      c.setAttribute("tabindex", "0");
                      c.focus();
-                 } else {
+                 } else if (++attempts < 300) {
                      requestAnimationFrame(focusCanvas);
                  }
              });

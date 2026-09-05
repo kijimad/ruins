@@ -16,7 +16,9 @@
   color: #dfeaf1;
   /* ローグライクの端末感。等幅で寄せる */
   font-family: "Courier New", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  transition: 1s;
+  transition:
+    opacity 1s,
+    visibility 1s;
 
   opacity: 0;
   visibility: hidden;

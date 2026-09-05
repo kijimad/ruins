@@ -1,6 +1,6 @@
 #!/bin/bash
 # Coldward のロゴを決定的に生成する。頭文字 C を大きく、OLDWARD を上、副題を C の下端へ揃え、氷の帯を両者の中間へ。
-# フラットな字面に CRT の色収差を重ね、寒色でまとめる。縁・影・グラデは使わない。
+# フラットな字面に CRT の色収差を重ね、寒色でまとめる。字面に縁取りやグラデは使わない。
 # 各要素をトリムして実寸から座標を計算するので、点サイズ・色・字間を変えても再現的に組み直せる。
 # 依存: ImageMagick と fonts の Iceland/Staatliches。いずれも SIL OFL、各 OFL.txt 参照。
 # 使い方: bash docs/steam/logo/gen_logo.sh  出力: logo.png 透過・高解像
@@ -81,17 +81,14 @@ fi
 # リサイズ確定後に幅高さをまとめて取る
 read -r Tw Th <<<"$(identify -format '%w %h' "$TMP/tag.png")"
 
-# レイアウト計算。C の右へ間隔GAPで OLDWARD を上寄せ。副題の下端を C の下端に揃え、
-# 帯は副題の上端から LINE_SUB_GAP だけ空けた直上へ置く。全要素が C の高さに収まる。
-# 帯と副題は C から STRIPE_GAP 空けた STRIPE_X へ左を揃える。OLDWARD 左端 XOW より右へ寄る
+# 副題の下端を C の下端へ揃え、帯は副題の上端から LINE_SUB_GAP 空けた直上へ置く。全要素が C の高さに収まる
 TAG_Y=$((Ch - Th))
 LINE_Y=$((TAG_Y - LINE_SUB_GAP - LINE_THICK))
 CANVAS_W=$((STRIPE_X + LINE_LEN + 40))
 CANVAS_H=$Ch
 
-# 帯は水平のまま両端を斜めにカットした平行四辺形。上下辺は水平、左右辺が「/」に斜め。
-# 上辺を下辺より右へ LINE_SLANT ずらす横せん断で作る。スピードストライプ状の動きを出す。
-# 塗りは単色ベタ。グラデもフェードもかけず、右端は斜めのハードエッジで切る。
+# 帯は両端を斜めにカットした平行四辺形。上辺を下辺より右へ LINE_SLANT ずらす横せん断で作る。
+# 塗りは単色ベタ。右端は斜めのハードエッジで切る。
 LW=$((LINE_LEN + LINE_SLANT))
 magick -size "${LW}x${LINE_THICK}" xc:none -fill "$LINE_COLOR" \
 	-draw "polygon 0,${LINE_THICK} ${LINE_SLANT},0 ${LW},0 ${LINE_LEN},${LINE_THICK}" "$TMP/line.png"
