@@ -28,9 +28,10 @@ ABERR_CYAN='#4fd2ff'            # 色収差のシアン。右へずらす
 ABERR_RED='#ff4f70'             # 色収差のレッド。左へずらす
 ABERR=4                         # RGB のずらし量 px。CRT の色ずれ
 LINE_COLOR='#a6e2f2'            # 帯の左端。明るい氷シアン
-LINE_COLOR2='#1c4a66'           # 帯の右端。深い寒色。左から右へ色遷移させ明部を抑える
+LINE_COLOR2='#57b0d6'           # 帯の右端。明るい寒色のまま。暗くせず右はアルファで透明へ抜く
 SUB_COLOR='#bcd4e6'             # 副題。淡い寒色
 GAP=6                           # 頭文字と残りの間隔。詰めて右の空きを消す
+STRIPE_GAP=44                   # 頭文字と帯の左端の間隔。帯を C から離す。OLDWARD の GAP とは別に取る
 LINE_THICK=24                   # 帯の太さ。左端の高さ
 LINE_SLANT=22                   # 帯の両端の斜めカット量。上辺を右へずらす横せん断
 LINE_SUB_GAP=8                  # 帯の下端と副題上端の間隔。小さいほど帯が副題へ近づく
@@ -66,8 +67,10 @@ treat "$REST" "$PT_REST" "$KERN_REST" "$TMP/OW.png"
 read -r Cw Ch <<<"$(identify -format '%w %h' "$TMP/C.png")"
 Ow=$(identify -format '%w' "$TMP/OW.png")
 
-# 下線は OLDWARD の幅ぶん引き、右へ尖らせて方向性を出す
-LINE_LEN=$Ow
+# 帯は C から STRIPE_GAP 空けて始め、右端は OLDWARD の右端へ合わせる。左を右へ寄せたぶん短くなる
+XOW=$((Cw + GAP))
+STRIPE_X=$((Cw + STRIPE_GAP))
+LINE_LEN=$((XOW + Ow - STRIPE_X))
 
 # 副題。フラットな淡い寒色。縁も影も付けない
 magick -background none -fill "$SUB_COLOR" -font "$STAAT" -kerning 14 -pointsize "$SUB_PT" label:"$SUBTITLE" "$TMP/tag.png"
@@ -80,11 +83,11 @@ fi
 read -r Tw Th <<<"$(identify -format '%w %h' "$TMP/tag.png")"
 
 # レイアウト計算。C の右へ間隔GAPで OLDWARD を上寄せ。副題の下端を C の下端に揃え、
-# 帯は副題の上端から LINE_SUB_GAP だけ空けた直上へ置く。全要素が C の高さに収まる
-XOW=$((Cw + GAP))
+# 帯は副題の上端から LINE_SUB_GAP だけ空けた直上へ置く。全要素が C の高さに収まる。
+# 帯と副題は C から STRIPE_GAP 空けた STRIPE_X へ左を揃える。OLDWARD 左端 XOW より右へ寄る
 TAG_Y=$((Ch - Th))
 LINE_Y=$((TAG_Y - LINE_SUB_GAP - LINE_THICK))
-CANVAS_W=$((XOW + LINE_LEN + 40))
+CANVAS_W=$((STRIPE_X + LINE_LEN + 40))
 CANVAS_H=$Ch
 
 # 帯は水平のまま両端を斜めにカットした平行四辺形。上下辺は水平、左右辺が「/」に斜め。
@@ -108,8 +111,8 @@ magick "$TMP/colorfill.png" "$TMP/newa.png" -compose CopyOpacity -composite "$TM
 magick -size "${CANVAS_W}x${CANVAS_H}" xc:none \
 	\( "$TMP/C.png" \) -gravity NorthWest -geometry +0+0 -compose Over -composite \
 	\( "$TMP/OW.png" \) -gravity NorthWest -geometry +${XOW}+0 -compose Over -composite \
-	\( "$TMP/line.png" \) -gravity NorthWest -geometry +${XOW}+${LINE_Y} -compose Over -composite \
-	\( "$TMP/tag.png" \) -gravity NorthWest -geometry +${XOW}+${TAG_Y} -compose Over -composite \
+	\( "$TMP/line.png" \) -gravity NorthWest -geometry +${STRIPE_X}+${LINE_Y} -compose Over -composite \
+	\( "$TMP/tag.png" \) -gravity NorthWest -geometry +${STRIPE_X}+${TAG_Y} -compose Over -composite \
 	-trim +repage "$TMP/logo_base.png"
 
 # CRT の走査線をロゴの不透明部だけに重ねる。1x周期のタイルを敷き、Atop でロゴの形に切る。
