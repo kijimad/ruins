@@ -44,6 +44,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		})},
 		{Label: "Inflict conditions", Run: popAfter(debugInflictConditions)},
 		{Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
+		{Label: "Exhaust fatigue", Run: popAfter(debugExhaustFatigue)},
 		{Label: "Damage self (-10 HP)", Run: popAfter(debugDamageSelf(10))},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
@@ -154,6 +155,20 @@ func debugInflictConditions(world w.World) error {
 	set(gc.BodyPartArms, gc.ConditionLaceration, 60)
 	set(gc.BodyPartTorso, gc.ConditionLiverIllness, 60)
 	set(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90)
+	return nil
+}
+
+// debugExhaustFatigue はデバッグでプレイヤーの疲労を過労まで上げる。入眠をすぐ試すため
+func debugExhaustFatigue(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !world.Components.Fatigue.Has(player) {
+		return nil
+	}
+	fatigue := world.Components.Fatigue.Get(player)
+	fatigue.Current = fatigue.Max
 	return nil
 }
 
