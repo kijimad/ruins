@@ -1,8 +1,10 @@
 #!/bin/bash
-# Coldward のロゴを決定的に生成する。頭文字 C を大きく、OLDWARD を半分の高さで、下に帯と副題。
+# Coldward のロゴを決定的に生成する。頭文字 C を大きく、OLDWARD を上、副題を C の下端へ揃え、氷の帯を両者の中間へ。
+# フラットな字面に CRT の色収差を重ね、寒色でまとめる。字面に縁取りやグラデは使わない。
 # 各要素をトリムして実寸から座標を計算するので、点サイズ・色・字間を変えても再現的に組み直せる。
 # 依存: ImageMagick と fonts の Iceland/Staatliches。いずれも SIL OFL、各 OFL.txt 参照。
 # 使い方: bash docs/steam/logo/gen_logo.sh  出力: logo.png 透過・高解像
+# グローはロゴに焼かず、表示側の CSS フィルタに任せてレイアウトを安定させる。
 
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -21,62 +23,57 @@ SUBTITLE="NO WARMTH, NO RETURN" # 副題
 PT_BIG=320                      # 頭文字の点サイズ
 PT_REST=160                     # 残りの点サイズ。頭文字の半分
 KERN_REST=4                     # 残りの字間
-FILL_TOP='#e3e5ea'              # 塗り。上下同色でフラットなオフホワイト
-FILL_BOT='#e3e5ea'              # 同上
-OUTLINE='#0d1a2e'               # 濃紺の縁
-SHADOW='#03060d'                # 影
-LINE_COLOR='#a6e2f2'            # ライン。氷シアン
-SUB_COLOR='#c7d8e8'             # 副題。淡い寒色
+FILL='#e6f0f7'                  # フラットなフロスト白。塗りは単色
+ABERR_CYAN='#4fd2ff'            # 色収差のシアン。右へずらす
+ABERR_RED='#ff4f70'             # 色収差のレッド。左へずらす
+ABERR=4                         # RGB のずらし量 px。CRT の色ずれ
+LINE_COLOR='#a6e2f2'            # 帯の色。単色ベタ塗り。明るい氷シアン
+SUB_COLOR='#bcd4e6'             # 副題。淡い寒色
 GAP=6                           # 頭文字と残りの間隔。詰めて右の空きを消す
+STRIPE_GAP=8                    # 頭文字と帯の左端の間隔。帯を C から離す。縦の LINE_SUB_GAP と同値にし余白を揃える
 LINE_THICK=24                   # 帯の太さ。左端の高さ
-LINE_GAP=4                      # OLDWARD 下端と帯の間隔。小さいほど近づく
 LINE_SLANT=22                   # 帯の両端の斜めカット量。上辺を右へずらす横せん断
+LINE_SUB_GAP=8                  # 帯の下端と副題上端の間隔。小さいほど帯が副題へ近づく
 SUB_PT=30                       # 副題の点サイズ。小さめに抑える
-SUB_GAP=10                      # 帯の下端と副題の間隔。重なりを避ける
+SCAN_COLOR='#00000033'          # CRT 走査線の色。低アルファの黒。WASM の scanline と同じ意匠
+SCAN_PERIOD=3                   # 走査線の周期px。1px の暗線と 2px の透明を繰り返す
+SHADOW_COLOR='#04070d'          # ドロップシャドウの色。ほぼ黒の寒色
 
-# 氷処理した1語を作る。引数: text point kern outlineDiskRadius outPath
+# フラットな字を CRT の色収差付きで作る。引数: text point kern outPath
+# シアンを右、レッドを左へ数px ずらし、中央にフロスト白を重ねる。縁の外だけ色が覗く
 treat() {
-	local t="$1" p="$2" k="$3" od="$4" out="$5" sz
+	local t="$1" p="$2" k="$3" out="$4" sz
 	magick -background none -fill white -font "$MAIN_FONT" -kerning "$k" -pointsize "$p" label:"$t" "$TMP/c.png"
-	magick "$TMP/c.png" -bordercolor none -border 30 "$TMP/c.png"
+	magick "$TMP/c.png" -bordercolor none -border 20 "$TMP/c.png"
 	sz=$(identify -format '%wx%h' "$TMP/c.png")
 	magick "$TMP/c.png" -alpha extract "$TMP/a.png"
-	# 濃紺の縁
-	magick -size "$sz" xc:"$OUTLINE" \( "$TMP/a.png" -morphology Dilate Disk:"$od" \) -compose CopyOpacity -composite "$TMP/k.png"
-	# 締まった影
-	magick -size "$sz" xc:"$SHADOW" \( "$TMP/a.png" -morphology Dilate Disk:$((od / 2 + 1)) -blur 0x5 \) -compose CopyOpacity -composite "$TMP/s.png"
-	# 氷グラデの塗り
-	magick -size "$sz" gradient:"$FILL_TOP-$FILL_BOT" "$TMP/g.png"
-	magick "$TMP/g.png" \( "$TMP/a.png" \) -compose CopyOpacity -composite "$TMP/f.png"
-	# 影 → 縁 → 塗り の順に重ねる
+	# 単色でマスクを塗る。フラット塗りと色収差用のシアン・レッド
+	magick -size "$sz" xc:"$FILL" \( "$TMP/a.png" \) -compose CopyOpacity -composite "$TMP/f.png"
+	magick -size "$sz" xc:"$ABERR_CYAN" \( "$TMP/a.png" \) -compose CopyOpacity -composite "$TMP/cy.png"
+	magick -size "$sz" xc:"$ABERR_RED" \( "$TMP/a.png" \) -compose CopyOpacity -composite "$TMP/rd.png"
+	# シアン(右) → レッド(左) → フロスト白(中央) の順に重ねる
 	magick -size "$sz" xc:none \
-		\( "$TMP/s.png" \) -gravity center -geometry +0+6 -compose Over -composite \
-		\( "$TMP/k.png" \) -compose Over -composite \
-		\( "$TMP/f.png" \) -compose Over -composite -trim +repage "$out"
+		\( "$TMP/cy.png" \) -gravity center -geometry +${ABERR}+0 -compose Over -composite \
+		\( "$TMP/rd.png" \) -gravity center -geometry -${ABERR}+0 -compose Over -composite \
+		\( "$TMP/f.png" \) -gravity center -geometry +0+0 -compose Over -composite \
+		-trim +repage "$out"
 }
 
-treat "$INITIAL" "$PT_BIG" 0 8 "$TMP/C.png"
-treat "$REST" "$PT_REST" "$KERN_REST" 4 "$TMP/OW.png"
+treat "$INITIAL" "$PT_BIG" 0 "$TMP/C.png"
+treat "$REST" "$PT_REST" "$KERN_REST" "$TMP/OW.png"
 
-# 幅と高さは1回の identify でまとめて取る。2回呼ぶと画像の再読み込みが二重になる
+# C は幅と高さを1回でまとめて取る。OLDWARD は帯長に使う幅だけでよい
 read -r Cw Ch <<<"$(identify -format '%w %h' "$TMP/C.png")"
-read -r Ow Oh <<<"$(identify -format '%w %h' "$TMP/OW.png")"
+Ow=$(identify -format '%w' "$TMP/OW.png")
 
-# 下線は OLDWARD の幅ぶん引き、右へ尖らせて方向性を出す
-LINE_LEN=$Ow
+# 帯は C から STRIPE_GAP 空けて始め、右端は OLDWARD の右端へ合わせる。左を右へ寄せたぶん短くなる
+XOW=$((Cw + GAP))
+STRIPE_X=$((Cw + STRIPE_GAP))
+LINE_LEN=$((XOW + Ow - STRIPE_X))
 
-# 副題。淡い寒色のままだと明るい背景で埋もれるので、本体と同じく細い濃紺の縁と薄影を付ける。
-# 小さい文字なので縁は細めの Disk:2 に留める。潰れを避ける。
-magick -background none -fill "$SUB_COLOR" -font "$STAAT" -kerning 14 -pointsize "$SUB_PT" label:"$SUBTITLE" "$TMP/subtxt.png"
-magick "$TMP/subtxt.png" -bordercolor none -border 8 "$TMP/subtxt.png"
-subsz=$(identify -format '%wx%h' "$TMP/subtxt.png")
-magick "$TMP/subtxt.png" -alpha extract "$TMP/suba.png"
-magick -size "$subsz" xc:"$OUTLINE" \( "$TMP/suba.png" -morphology Dilate Disk:2 \) -compose CopyOpacity -composite "$TMP/subk.png"
-magick -size "$subsz" xc:"$SHADOW" \( "$TMP/suba.png" -morphology Dilate Disk:1 -blur 0x2 \) -compose CopyOpacity -composite "$TMP/subs.png"
-magick -size "$subsz" xc:none \
-	\( "$TMP/subs.png" \) -gravity center -geometry +0+2 -compose Over -composite \
-	\( "$TMP/subk.png" \) -compose Over -composite \
-	\( "$TMP/subtxt.png" \) -compose Over -composite -trim +repage "$TMP/tag.png"
+# 副題。フラットな淡い寒色。縁も影も付けない
+magick -background none -fill "$SUB_COLOR" -font "$STAAT" -kerning 14 -pointsize "$SUB_PT" label:"$SUBTITLE" "$TMP/tag.png"
+magick "$TMP/tag.png" -trim +repage "$TMP/tag.png"
 Tw=$(identify -format %w "$TMP/tag.png")
 if [ "$Tw" -gt "$LINE_LEN" ]; then
 	magick "$TMP/tag.png" -resize "${LINE_LEN}x" "$TMP/tag.png"
@@ -84,36 +81,37 @@ fi
 # リサイズ確定後に幅高さをまとめて取る
 read -r Tw Th <<<"$(identify -format '%w %h' "$TMP/tag.png")"
 
-# レイアウト計算。頭文字の右へ間隔GAPで残りを上寄せ、その下に帯、さらに下に副題
-XOW=$((Cw + GAP))
-LINE_Y=$((Oh + LINE_GAP))
-# 副題は帯の下端より下へ置き、帯と重ならないようにする。帯の最下点は左端の LINE_Y+LINE_THICK。
-TAG_Y=$((LINE_Y + LINE_THICK + SUB_GAP))
-CANVAS_W=$((XOW + LINE_LEN + 40))
-# 副題が C の下端を超えるならキャンバスを下へ伸ばす。超えなければ C の高さのまま
+# 副題の下端を C の下端へ揃え、帯は副題の上端から LINE_SUB_GAP 空けた直上へ置く。全要素が C の高さに収まる
+TAG_Y=$((Ch - Th))
+LINE_Y=$((TAG_Y - LINE_SUB_GAP - LINE_THICK))
+CANVAS_W=$((STRIPE_X + LINE_LEN + 40))
 CANVAS_H=$Ch
-if [ $((TAG_Y + Th + 4)) -gt "$CANVAS_H" ]; then
-	CANVAS_H=$((TAG_Y + Th + 4))
-fi
 
-# 帯は水平のまま両端を斜めにカットした平行四辺形。上下辺は水平、左右辺が「/」に斜め。
-# 上辺を下辺より右へ LINE_SLANT ずらす横せん断で作る。スピードストライプ状の動きを出す。
-# さらに右へ向かって透明度を落とし方向を出す。左が不透明、右端で透明。
-# 透明化はポリゴンのアルファに横グラデを乗算して行う。CopyOpacity で全面置換すると外側の三角も出るため。
+# 帯は両端を斜めにカットした平行四辺形。上辺を下辺より右へ LINE_SLANT ずらす横せん断で作る。
+# 塗りは単色ベタ。右端は斜めのハードエッジで切る。
 LW=$((LINE_LEN + LINE_SLANT))
 magick -size "${LW}x${LINE_THICK}" xc:none -fill "$LINE_COLOR" \
-	-draw "polygon 0,${LINE_THICK} ${LINE_SLANT},0 ${LW},0 ${LINE_LEN},${LINE_THICK}" "$TMP/pg.png"
-magick "$TMP/pg.png" -alpha extract "$TMP/pga.png"
-magick -size "${LW}x${LINE_THICK}" xc: -sparse-color barycentric "0,0 white ${LW},0 black" "$TMP/grad.png"
-magick "$TMP/pga.png" "$TMP/grad.png" -compose Multiply -composite "$TMP/newa.png"
-magick "$TMP/pg.png" "$TMP/newa.png" -compose CopyOpacity -composite "$TMP/line.png"
+	-draw "polygon 0,${LINE_THICK} ${LINE_SLANT},0 ${LW},0 ${LINE_LEN},${LINE_THICK}" "$TMP/line.png"
 
 magick -size "${CANVAS_W}x${CANVAS_H}" xc:none \
 	\( "$TMP/C.png" \) -gravity NorthWest -geometry +0+0 -compose Over -composite \
 	\( "$TMP/OW.png" \) -gravity NorthWest -geometry +${XOW}+0 -compose Over -composite \
-	\( "$TMP/line.png" \) -gravity NorthWest -geometry +${XOW}+${LINE_Y} -compose Over -composite \
-	\( "$TMP/tag.png" \) -gravity NorthWest -geometry +${XOW}+${TAG_Y} -compose Over -composite \
-	-trim +repage "$OUT/logo.png"
+	\( "$TMP/line.png" \) -gravity NorthWest -geometry +${STRIPE_X}+${LINE_Y} -compose Over -composite \
+	\( "$TMP/tag.png" \) -gravity NorthWest -geometry +${STRIPE_X}+${TAG_Y} -compose Over -composite \
+	-trim +repage "$TMP/logo_base.png"
+
+# CRT の走査線をロゴの不透明部だけに重ねる。1x周期のタイルを敷き、Atop でロゴの形に切る。
+# Atop は宛先の形を保ち、その内側にだけソースを乗せるので透明域に線が漏れない
+read -r BW BH <<<"$(identify -format '%w %h' "$TMP/logo_base.png")"
+magick -size "1x${SCAN_PERIOD}" xc:none -fill "$SCAN_COLOR" -draw 'point 0,0' "$TMP/scan_tile.png"
+magick -size "${BW}x${BH}" tile:"$TMP/scan_tile.png" "$TMP/scanlines.png"
+magick "$TMP/logo_base.png" "$TMP/scanlines.png" -compose Atop -composite "$TMP/logo_scan.png"
+
+# ドロップシャドウを焼き込む。明るい背景で沈まないよう表示側でなくロゴに持たせる。
+# -layers merge がキャンバスを自動拡張するので、ぼかしが縁で切れて四角い影にならない
+magick "$TMP/logo_scan.png" \
+	\( +clone -background "$SHADOW_COLOR" -shadow 75x6+0+5 \) \
+	+swap -background none -layers merge +repage "$OUT/logo.png"
 
 echo "logo.png $(identify -format '%wx%h' "$OUT/logo.png")"
 echo "written to $OUT/"
