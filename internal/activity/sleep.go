@@ -16,10 +16,12 @@ type SleepBehavior struct{}
 // Info はBehaviorの実装
 func (sb *SleepBehavior) Info() Info {
 	return Info{
-		Name:            "Sleep",
-		Description:     "Sleep until fatigue is gone",
-		Interruptible:   true,
-		Resumable:       true,
+		Name:          "Sleep",
+		Description:   "Sleep until fatigue is gone",
+		Interruptible: true,
+		// 中断は Cancel で目覚めとして扱い、再入眠は B キーで新規に Execute する。
+		// Pause からの Resume 経路は使わないので false にし、寝具 Quality の再解決漏れも避ける
+		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 0,
 	}

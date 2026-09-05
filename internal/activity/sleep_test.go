@@ -36,6 +36,21 @@ func TestSleepBehavior_入眠するとSleepingが付く(t *testing.T) {
 	assert.True(t, world.Components.Sleeping.Has(actor), "入眠で Sleeping が付く")
 }
 
+func TestSleepBehavior_普通の疲労でも眠れる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+	// Normal 段階。30〜50% の比率。Rested だけが弾かれるので Normal は眠れる
+	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 800, Max: 2000})
+	require.Equal(t, gc.FatigueNormal, world.Components.Fatigue.Get(actor).GetLevel(), "前提: Normal 段階")
+
+	result, err := Execute(NewSleepActivity(), actor, world)
+	require.NoError(t, err)
+	assert.True(t, result.Success, "普通の疲労でも眠れる")
+	assert.True(t, world.Components.Sleeping.Has(actor), "Sleeping が付く")
+}
+
 func TestSleepBehavior_足元の寝具品質を写す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

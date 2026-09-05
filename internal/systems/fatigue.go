@@ -25,17 +25,7 @@ func progressTurnFatigue(world w.World) {
 			fatigue.Current += gc.FatigueGainPerTurn
 		}
 
-		fatigue.Current = clampFatigue(fatigue.Current, fatigue.Max)
+		// 0..Max に収める。上限でも死なせず Exhausted のペナルティが続く
+		fatigue.Current = max(0, min(fatigue.Current, fatigue.Max))
 	}
-}
-
-// clampFatigue は疲労を 0..upper に収める
-func clampFatigue(current, upper int) int {
-	if current < 0 {
-		return 0
-	}
-	if current > upper {
-		return upper
-	}
-	return current
 }
