@@ -13,7 +13,7 @@ trap 'rm -rf "$TMP"' EXIT
 # マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出す。
 MASTER="docs/steam/background/master_3840x2560.png"
 OUT="docs/steam/generated"
-# 完成品ロゴ。縁・影を内包するので加工せずそのまま重ねる
+# 完成品ロゴ。フラットな字面に色収差を含む。明るい背景用に render_logo が合成時に文字形の影を敷く
 LOGO_PNG="docs/steam/logo/logo.png"
 
 # 入力が無ければ magick のエラーを待たず、先に何を実行すべきか示して止める
@@ -40,13 +40,20 @@ magick "$MASTER" -gravity center -crop 3840x2162+0+0 +repage -resize 1438x810! "
 echo "page_background.png (1438x810)"
 
 # --- ロゴ描画関数 ---
-# 完成品ロゴを背景に重ねる。ロゴは縁・影・氷塗りを内包するので加工しない。
+# 完成品ロゴを背景に重ねる。フラットなロゴが明るい背景で沈むのを、文字形の影で防ぐ。
 # 幅 max_w と 高さ logo_h の箱にアスペクト維持で収めてから合成する
 render_logo() {
 	local w=$1 h=$2 logo_h=$3 gravity=$4 y_off=$5 output=$6
 
 	local max_w=$((w * 82 / 100))
-	magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" "$TMP/logo.png"
+	magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" "$TMP/logo0.png"
+
+	# フラットなロゴは明るいキーアートで沈むので、標準の -shadow でドロップシャドウを付ける。
+	# ロゴは端までトリムされていて余白が無く、素朴にぼかすと縁で影が切れて四角く見える。
+	# -shadow に -layers merge を組むとキャンバスが自動拡張し、丸い角にも沿った影になる
+	magick "$TMP/logo0.png" \
+		\( +clone -background '#04070d' -shadow 70x5+0+4 \) \
+		+swap -background none -layers merge +repage "$TMP/logo.png"
 
 	# 宛先を sRGB へ昇格してから合成する。透明ベース xc:none が Gray になり色が落ちるのを防ぐ。
 	# 入力と出力を同一ファイルにせず中間へ書いてから置き換える。読み書き競合を避ける
@@ -114,8 +121,13 @@ magick "$TMP/title_bg.png" \
 	\( -size 720x960 gradient:'#060a1466'-none -rotate 90 \) -compose over -composite \
 	"$TITLE_OUT"
 # ロゴを左上へ。幅は画面の約55%。メニューは main_menu.go が左下へ左寄せで描く。
-magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"
-magick "$TITLE_OUT" "$TMP/title_logo.png" -gravity NorthWest -geometry +48+56 -compose over -composite "$TMP/title_merged.png"
+magick "$LOGO_PNG" -resize 500x "$TMP/title_logo0.png"
+# render_logo と同じく -shadow でドロップシャドウを付ける。layers merge で縁が切れない。
+# merge でキャンバスがにじみぶん広がり左上へ拗れるので、配置はその分だけ詰める
+magick "$TMP/title_logo0.png" \
+	\( +clone -background '#04070d' -shadow 70x5+0+4 \) \
+	+swap -background none -layers merge +repage "$TMP/title_logo.png"
+magick "$TITLE_OUT" "$TMP/title_logo.png" -gravity NorthWest -geometry +33+45 -compose over -composite "$TMP/title_merged.png"
 mv "$TMP/title_merged.png" "$TITLE_OUT"
 echo "title1_.png (960x720)"
 
