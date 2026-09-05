@@ -4,38 +4,80 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
     <script src="wasm_exec.js"></script>
     <script>
-     // Polyfill
-     if (!WebAssembly.instantiateStreaming) {
-         WebAssembly.instantiateStreaming = async (resp, importObject) => {
-             const source = await (await resp).arrayBuffer();
-             return await WebAssembly.instantiate(source, importObject);
-         };
-     }
-
      const go = new Go();
      go.argv = ["ruins", "play"];
-     WebAssembly.instantiateStreaming(fetch("game.wasm"), go.importObject).then(result => {
-         document.getElementById("loading").classList.remove("active");
-         go.run(result.instance);
-         // Ebiten は起動時に canvas を DOM へ挿入する。生成を待って focus を当て、
-         // 初回クリックなしでキー入力が届くようにする。tabindex は focus 可能にするため付ける
-         requestAnimationFrame(function focusCanvas() {
-             const c = document.querySelector("canvas");
-             if (c) {
-                 c.setAttribute("tabindex", "0");
-                 c.focus();
-             } else {
-                 requestAnimationFrame(focusCanvas);
-             }
+
+     // ダウンロード進捗を進捗バーへ反映する。Content-Length が無い環境では
+     // 割合を出せないので読み込み済みバイト数だけ表示する
+     function setProgress(loaded, total) {
+         const fill = document.getElementById("progress-fill");
+         const text = document.getElementById("progress-text");
+         const mb = (n) => (n / (1024 * 1024)).toFixed(1);
+         if (total > 0) {
+             const pct = Math.min(100, Math.round((loaded / total) * 100));
+             fill.style.width = pct + "%";
+             text.textContent = pct + "%  (" + mb(loaded) + " / " + mb(total) + " MB)";
+         } else {
+             text.textContent = mb(loaded) + " MB";
+         }
+     }
+
+     // game.wasm をストリームで読みながら進捗を更新し、全バイトを返す。
+     // 進捗を得るためにストリームを消費するので instantiateStreaming は使わず
+     // バッファから instantiate する
+     async function fetchWasm(url) {
+         const resp = await fetch(url);
+         if (!resp.ok) throw new Error("HTTP " + resp.status);
+         const total = parseInt(resp.headers.get("Content-Length") || "0", 10);
+         const reader = resp.body.getReader();
+         const chunks = [];
+         let loaded = 0;
+         for (;;) {
+             const { done, value } = await reader.read();
+             if (done) break;
+             chunks.push(value);
+             loaded += value.byteLength;
+             setProgress(loaded, total);
+         }
+         const bytes = new Uint8Array(loaded);
+         let offset = 0;
+         for (const c of chunks) {
+             bytes.set(c, offset);
+             offset += c.byteLength;
+         }
+         return bytes.buffer;
+     }
+
+     fetchWasm("game.wasm")
+         .then((buf) => WebAssembly.instantiate(buf, go.importObject))
+         .then((result) => {
+             document.getElementById("loading").classList.remove("active");
+             go.run(result.instance);
+             // Ebiten は起動時に canvas を DOM へ挿入する。生成を待って focus を当て、
+             // 初回クリックなしでキー入力が届くようにする。tabindex は focus 可能にするため付ける
+             requestAnimationFrame(function focusCanvas() {
+                 const c = document.querySelector("canvas");
+                 if (c) {
+                     c.setAttribute("tabindex", "0");
+                     c.focus();
+                 } else {
+                     requestAnimationFrame(focusCanvas);
+                 }
+             });
+         })
+         .catch((err) => {
+             const text = document.getElementById("progress-text");
+             if (text) text.textContent = "Failed to load: " + err.message;
          });
-     });
     </script>
     <link rel='stylesheet' href='loading.css' />
   </head>
 
   <body>
     <div class="loading active" id="loading">
-        <div class="loading-txt">Now Loading...</div>
+      <div class="loading-txt">Now Loading...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text">0%</div>
     </div>
   </body>
 </html>

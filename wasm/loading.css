@@ -6,9 +6,12 @@
   height: 100%;
   background-color: white;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 8em;
+  gap: 1.2rem;
+  color: #2b3a44;
+  font-family: sans-serif;
   transition: 1s;
 
   opacity: 0;
@@ -27,5 +30,29 @@
 }
 
 .loading-txt {
+  font-size: 2.4em;
   animation: 0.5s flashing infinite;
+}
+
+.progress-bar {
+  width: 60%;
+  max-width: 480px;
+  height: 1.1rem;
+  background-color: #e4e9ec;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background-color: #2e6f8e;
+  border-radius: 999px;
+  transition: width 0.2s ease-out;
+}
+
+.progress-text {
+  font-size: 1rem;
+  color: #5c6b78;
+  font-variant-numeric: tabular-nums;
 }
