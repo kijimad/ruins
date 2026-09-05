@@ -2,29 +2,90 @@
 <html>
   <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="wasm_exec.js"></script>
-    <script>
-     // Polyfill
-     if (!WebAssembly.instantiateStreaming) {
-         WebAssembly.instantiateStreaming = async (resp, importObject) => {
-             const source = await (await resp).arrayBuffer();
-             return await WebAssembly.instantiate(source, importObject);
-         };
-     }
-
-     const go = new Go();
-     go.argv = ["ruins", "play"];
-     WebAssembly.instantiateStreaming(fetch("game.wasm"), go.importObject).then(result => {
-         document.getElementById("loading").classList.remove("active");
-         go.run(result.instance);
-     });
-    </script>
     <link rel='stylesheet' href='loading.css' />
   </head>
 
   <body>
     <div class="loading active" id="loading">
-        <div class="loading-txt">Now Loading...</div>
+      <canvas id="snow"></canvas>
+      <div class="loading-inner">
+        <img class="logo" src="logo.png" alt="COLDWARD — NO WARMTH, NO RETURN" />
+        <div class="loading-txt">Now Loading</div>
+        <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
     </div>
+
+    <script src="snow.js"></script>
+    <script>
+     const snow = Snow.start("snow");
+
+     const go = new Go();
+     go.argv = ["ruins", "play"];
+
+     // game.wasm をストリームで読みながら進捗を線で示し、全バイトを返す。
+     // 進捗を得るためにストリームを消費するので instantiateStreaming は使わず
+     // バッファから instantiate する。数字は出さずバーの伸びだけで状況を示す
+     async function fetchWasm(url) {
+         const resp = await fetch(url);
+         if (!resp.ok) throw new Error("HTTP " + resp.status);
+         const total = parseInt(resp.headers.get("Content-Length") || "0", 10);
+         const fill = document.getElementById("progress-fill");
+         // resp.body が無い環境ではストリームを読めない。進捗を諦め一括取得へ退避する
+         if (!resp.body) {
+             document.getElementById("progress-bar").classList.add("indeterminate");
+             return resp.arrayBuffer();
+         }
+         // 総量が取れないときはバーを不定モードにし、0%固定で壊れて見えるのを避ける
+         if (total <= 0) {
+             document.getElementById("progress-bar").classList.add("indeterminate");
+         }
+         const reader = resp.body.getReader();
+         const chunks = [];
+         let loaded = 0;
+         for (;;) {
+             const { done, value } = await reader.read();
+             if (done) break;
+             chunks.push(value);
+             loaded += value.byteLength;
+             if (total > 0) {
+                 fill.style.width = Math.min(100, Math.round((loaded / total) * 100)) + "%";
+             }
+         }
+         const bytes = new Uint8Array(loaded);
+         let offset = 0;
+         for (const c of chunks) {
+             bytes.set(c, offset);
+             offset += c.byteLength;
+         }
+         return bytes.buffer;
+     }
+
+     fetchWasm("game.wasm")
+         .then((buf) => WebAssembly.instantiate(buf, go.importObject))
+         .then((result) => {
+             snow.stop();
+             document.getElementById("loading").classList.remove("active");
+             go.run(result.instance);
+             // Ebiten は起動時に自前の canvas を DOM へ挿入する。降雪 canvas と
+             // 区別してそちらへ focus を当て、初回クリックなしでキー入力が届くようにする。
+             // tabindex は focus 可能にするため付ける。canvas が現れないときの暴走を防ぐため試行を打ち切る
+             let attempts = 0;
+             requestAnimationFrame(function focusCanvas() {
+                 const c = document.querySelector("canvas:not(#snow)");
+                 if (c) {
+                     c.setAttribute("tabindex", "0");
+                     c.focus();
+                 } else if (++attempts < 300) {
+                     requestAnimationFrame(focusCanvas);
+                 }
+             });
+         })
+         .catch((err) => {
+             const txt = document.querySelector(".loading-txt");
+             if (txt) txt.textContent = "Load failed: " + err.message;
+         });
+    </script>
   </body>
 </html>
