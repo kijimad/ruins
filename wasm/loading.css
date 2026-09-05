@@ -78,31 +78,11 @@
     0 0 22px rgba(120, 190, 225, 0.45);
 }
 
-@keyframes flashing {
-  50% {
-    opacity: 0.4;
-  }
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
 .loading-txt {
   font-size: 0.95rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #9fc0d4;
-  animation: 1.6s flashing infinite;
-}
-
-/* 端末のブロックカーソルを点滅させる */
-.loading-txt::after {
-  content: "\2588";
-  margin-left: 0.15em;
-  animation: 1s steps(1) infinite blink;
 }
 
 .progress-bar {
