@@ -105,9 +105,9 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		upStair = e
 	}
 
-	// デバッグの街ステージには長く燃える火を1つ自動設置する。適温を確保して睡眠を入ってすぐ試せる
+	// デバッグの街ステージには長く燃える火を hearth の上へ自動設置する。適温を確保して睡眠を入ってすぐ試せる
 	if def.Name() == dungeon.DungeonDebugTown.Name() {
-		if err := spawnDebugStageFire(world, start); err != nil {
+		if err := spawnDebugStageFire(world); err != nil {
 			return zero, noEntity, err
 		}
 	}
@@ -121,14 +121,33 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 // debugStageFireBurnTurns はデバッグ街の火が燃え続けるターン数。睡眠テスト中に消えない長さにする
 const debugStageFireBurnTurns = 10000
 
-// spawnDebugStageFire はスポーン地点の隣へ長く燃える火を置く。本番の着火と同じく fire prop へ Burning を付ける
-func spawnDebugStageFire(world w.World, start consts.Coord[consts.Tile]) error {
-	fire, err := lifecycle.SpawnProp(world, "fire", start.X+1, start.Y)
+// spawnDebugStageFire はテンプレートが置いた hearth の上へ長く燃える火を置く。
+// 石組の中で火を焚く見た目になり、本番の着火と同じく fire prop へ Burning を付ける
+func spawnDebugStageFire(world w.World) error {
+	hearth := findFirstByRawID(world, "hearth")
+	if hearth == gc.InvalidEntity {
+		return nil
+	}
+	coord := world.Components.GridElement.Get(hearth).Coord
+	fire, err := lifecycle.SpawnProp(world, "fire", coord.X, coord.Y)
 	if err != nil {
 		return fmt.Errorf("failed to spawn debug stage fire: %w", err)
 	}
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugStageFireBurnTurns})
 	return nil
+}
+
+// findFirstByRawID は RawID が id の実体を1つ返す。無ければ InvalidEntity を返す
+func findFirstByRawID(world w.World, id string) ecs.Entity {
+	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID == id {
+			q.Close()
+			return e
+		}
+	}
+	return gc.InvalidEntity
 }
 
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
