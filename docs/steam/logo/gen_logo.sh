@@ -62,9 +62,9 @@ treat() {
 treat "$INITIAL" "$PT_BIG" 0 "$TMP/C.png"
 treat "$REST" "$PT_REST" "$KERN_REST" "$TMP/OW.png"
 
-# 幅と高さは1回の identify でまとめて取る。2回呼ぶと画像の再読み込みが二重になる
+# C は幅と高さを1回でまとめて取る。OLDWARD は帯長に使う幅だけでよい
 read -r Cw Ch <<<"$(identify -format '%w %h' "$TMP/C.png")"
-read -r Ow Oh <<<"$(identify -format '%w %h' "$TMP/OW.png")"
+Ow=$(identify -format '%w' "$TMP/OW.png")
 
 # 下線は OLDWARD の幅ぶん引き、右へ尖らせて方向性を出す
 LINE_LEN=$Ow
