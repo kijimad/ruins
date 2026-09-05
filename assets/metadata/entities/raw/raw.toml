@@ -13701,6 +13701,9 @@ depth = 2
 spriteKey = "bed"
 spriteSheetName = "field"
 
+[props.bedding]
+quality = 150
+
 [[props]]
 blockPass = false
 blockView = false

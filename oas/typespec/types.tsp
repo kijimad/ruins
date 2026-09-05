@@ -164,6 +164,10 @@ scalar HeatRadius extends integer;
 @minValue(0)
 scalar HeatWarmth extends float64;
 
+/** 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる */
+@minValue(0)
+scalar BeddingQuality extends integer;
+
 /** マガジン容量 */
 @minValue(1)
 @maxValue(100)

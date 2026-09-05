@@ -152,6 +152,11 @@ model HeatSource {
   warmth: HeatWarmth;
 }
 
+/** 寝具設定。眠るときの睡眠効率を決める */
+model Bedding {
+  quality: BeddingQuality;
+}
+
 /** 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す */
 model FireStarter {}
 
@@ -350,6 +355,7 @@ model Prop {
   hp?: HitPoints;
   lightSource?: LightSource;
   heatSource?: HeatSource;
+  bedding?: Bedding;
   door?: DoorRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
