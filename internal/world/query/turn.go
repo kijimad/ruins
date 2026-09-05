@@ -151,7 +151,7 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 
 	// 空腹ペナルティ
 	if hunger := world.Components.Hunger.Get(entity); hunger != nil {
-		penalty += hungerSpeedPenalty(hunger.Current)
+		penalty += HungerSpeedPenalty(hunger.Current)
 	}
 
 	// 疲労ペナルティ。係数は Fatigue.Penalty の1表から読む
@@ -162,8 +162,8 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	return penalty
 }
 
-// hungerSpeedPenalty は空腹度によるペナルティを返す
-func hungerSpeedPenalty(current int) int {
+// HungerSpeedPenalty は空腹度による行動速度への加算を返す。満腹に近いほど0で、飢えるほど負に大きい
+func HungerSpeedPenalty(current int) int {
 	switch {
 	case current >= 75:
 		return 0 // 満腹
