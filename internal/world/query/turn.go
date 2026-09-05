@@ -125,22 +125,21 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed += calculateStatusSpeedPenalty(world, entity)
 	speed += calculateOverweightPenalty(world, entity)
 
-	// MoveCost倍率を適用する。
+	// MoveCost倍率を適用する。全エンティティへ毎ターン走る最頻経路なので、
+	// 内訳を作らない単キー導出で読む。
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
-	if world.Components.CharModifiers.Has(entity) {
-		effects := world.Components.CharModifiers.Get(entity)
-		// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
-		moveCost := max(int(effects.MoveCost), 10)
-		speed = speed * 100 / moveCost
-		// 身体機能の歩行を掛ける。脚・足の怪我や意識低下で歩行が落ちると遅くなる。
-		// 効率は CharModifiers に集約し、Effects タブの表示と同じ値を経由する
-		speed = effects.Capacities.Moving.ApplyInt(speed)
+	// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
+	moveCost := max(int(ModifierValue(world, entity, gc.ModMoveCost)), 10)
+	speed = speed * 100 / moveCost
+	// 身体機能の歩行を掛ける。脚・足の怪我や意識低下で歩行が落ちると遅くなる。
+	// Effects タブの表示と同じ導出を経由する
+	moving := gc.HealthyCapacities().Moving
+	if world.Components.HealthStatus.Has(entity) {
+		moving = world.Components.HealthStatus.Get(entity).Capacities().Moving
 	}
-
-	// 最小値制限
-	if speed < speedMinimum {
-		speed = speedMinimum
-	}
+	speed = max(
+		// 最小値制限
+		moving.ApplyInt(speed), speedMinimum)
 
 	return speed
 }

@@ -82,21 +82,19 @@ func TestCalculateSpeed(t *testing.T) {
 		world.Components.Abilities.Add(entity, abils)
 		world.Components.Skills.Add(entity, skills)
 		world.Components.HealthStatus.Add(entity, hs)
-		world.Components.CharModifiers.Add(entity, gc.RecalculateCharModifiers(skills, abils, hs))
 
 		// 通常時のSpeedを記録
 		normalSpeed := CalculateSpeed(world, entity)
 
-		// 低体温を設定してCharModifiersを再計算
-		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+		// 低体温を付ける。Add で hs は格納先へコピーされ別物になるので、
+		// ローカルの hs でなく Get で格納先を取り直して書き換える
+		world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeverityMedium,
 		})
-		mods := gc.RecalculateCharModifiers(skills, abils, hs)
-		world.Components.CharModifiers.Set(entity, mods)
 
 		coldSpeed := CalculateSpeed(world, entity)
-		t.Logf("normalSpeed=%d coldSpeed=%d hasMods=%v moveCost=%d", normalSpeed, coldSpeed, world.Components.CharModifiers.Has(entity), mods.MoveCost)
+		t.Logf("normalSpeed=%d coldSpeed=%d", normalSpeed, coldSpeed)
 		assert.Less(t, coldSpeed, normalSpeed, "低体温によりSpeedが低下するべき")
 	})
 

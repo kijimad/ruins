@@ -19,10 +19,7 @@ func progressTurnHunger(world w.World) {
 	q := query.ActiveFilter1[gc.Hunger](world).Query()
 	for q.Next() {
 		entity := q.Entity()
-		hungerPct := int(consts.PercentBase)
-		if world.Components.CharModifiers.Has(entity) {
-			hungerPct = int(world.Components.CharModifiers.Get(entity).HungerProgress)
-		}
+		hungerPct := int(query.ModifierValue(world, entity, gc.ModHungerProgress))
 		// 分母を HungerDrainTurns 倍に伸ばして基準速度を緩和する。耐性が高く hungerPct が 0 以下なら比較が常に
 		// 偽になり空腹が進まない。下限を置くかは進行系倍率の共通課題として将来まとめて検討する。
 		if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) < hungerPct {

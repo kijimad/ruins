@@ -53,11 +53,6 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 		Severity: gc.TimerToSeverity(injuryInitialTimer),
 	})
 
-	// 怪我は身体機能を下げるので CharModifiers の再計算を促す
-	if !world.Components.StatsChanged.Has(target) {
-		world.Components.StatsChanged.Add(target, &gc.StatsChanged{})
-	}
-
 	logInjury(actor, target, world, part, injuryType)
 }
 

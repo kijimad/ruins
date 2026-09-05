@@ -44,28 +44,27 @@ func TestBuyStock_スタッカブルはバックパックのスタックに統�
 	assert.Equal(t, 2, count, "買った分が個別エンティティとして増える")
 }
 
-// TestBuyStock_交渉スキルで買値が変わる はCharModifiers.BuyPriceが購入価格に反映されることを確認する。
+// TestBuyStock_交渉スキルで買値が変わる は買値倍率が購入価格に反映されることを確認する。
 func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// SpawnPlayer は CharModifiers を備えるので、買値倍率は Get して上書きする
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 	world.Components.Wallet.Get(player).Currency = 1000
-	// 交渉スキルによる買値倍率を50%に固定する
-	world.Components.CharModifiers.Get(player).BuyPrice = 50
+	// 交渉スキルを上げて買値倍率を下げる
+	world.Components.Skills.Get(player).Get(gc.SkillNegotiation).Value = 25
 
 	merchant := world.ECS.NewEntity()
 	item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
 	require.NoError(t, err)
 
+	expected := query.BuyPrice(world, player, item)
+	assert.Less(t, expected, query.CalculateBuyPrice(woodenSwordValue), "交渉スキルで基準価格より安くなる")
+
 	require.NoError(t, BuyStock(world, player, item))
 
-	currency := query.GetCurrency(world, player)
-	normalPrice := query.CalculateBuyPrice(woodenSwordValue)
-	discountedPrice := normalPrice / 2
-	assert.Equal(t, 1000-discountedPrice, currency, "買値倍率50%で半額になる")
+	assert.Equal(t, 1000-expected, query.GetCurrency(world, player), "表示価格と同額が引かれる")
 }
 
 // TestSellStock_価値0のアイテムは対価0で売れる は無価値な品でも売却は成功し、対価が0になることを確認する。
@@ -94,7 +93,7 @@ func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 }
 
-// TestSellStock_交渉スキルで売値が変わる はCharModifiers.SellPriceが売却価格に反映されることを確認する。
+// TestSellStock_交渉スキルで売値が変わる は売値倍率が売却価格に反映されることを確認する。
 // 期待値を明示するため、売却対象は価値100の手組み fixture のまま残す。
 func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	t.Parallel()
@@ -103,8 +102,8 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 	world.Components.Wallet.Get(player).Currency = 0
-	// 交渉スキルによる売値倍率を200%に固定する
-	world.Components.CharModifiers.Get(player).SellPrice = 200
+	// 交渉スキルを上げて売値倍率を上げる
+	world.Components.Skills.Get(player).Get(gc.SkillNegotiation).Value = 25
 
 	merchant := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
@@ -113,11 +112,12 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	// 実アイテムは必ず RawID を持つ。収納内スタック統合はこれで同名を引く
 	world.Components.RawID.Add(item, &gc.RawID{ID: "test_item"})
 
+	expected := query.SellPrice(world, player, item)
+	assert.Greater(t, expected, query.CalculateSellPrice(100), "交渉スキルで基準価格より高く売れる")
+
 	require.NoError(t, SellStock(world, player, merchant, item))
 
-	currency := query.GetCurrency(world, player)
-	normalPrice := query.CalculateSellPrice(100)
-	assert.Equal(t, normalPrice*2, currency, "売値倍率200%で倍額になる")
+	assert.Equal(t, expected, query.GetCurrency(world, player), "表示価格と同額を得る")
 
 	// 売った品は商人の在庫へ並ぶ
 	require.True(t, world.Components.LocationInStorage.Has(item))

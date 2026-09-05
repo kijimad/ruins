@@ -64,7 +64,6 @@ type EntitySpec struct {
 	TurnBased          *TurnBased
 	HealthStatus       *HealthStatus
 	Skills             *Skills
-	CharModifiers      *CharModifiers
 	StateChangeRequest *StateChangeRequest
 	StatsChanged       *StatsChanged
 	WeightDirty        *WeightDirty
@@ -152,7 +151,6 @@ type Components struct {
 	TurnBased          *ecs.Map[TurnBased]
 	HealthStatus       *ecs.Map[HealthStatus]
 	Skills             *ecs.Map[Skills]
-	CharModifiers      *ecs.Map[CharModifiers]
 	StateChangeRequest *ecs.Map[StateChangeRequest]
 	StatsChanged       *ecs.Map[StatsChanged]
 	WeightDirty        *ecs.Map[WeightDirty]
@@ -240,7 +238,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.TurnBased = ecs.NewMap[TurnBased](world)
 	c.HealthStatus = ecs.NewMap[HealthStatus](world)
 	c.Skills = ecs.NewMap[Skills](world)
-	c.CharModifiers = ecs.NewMap[CharModifiers](world)
 	c.StateChangeRequest = ecs.NewMap[StateChangeRequest](world)
 	c.StatsChanged = ecs.NewMap[StatsChanged](world)
 	c.WeightDirty = ecs.NewMap[WeightDirty](world)
@@ -330,7 +327,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.TurnBased, entity, spec.TurnBased)
 	addComp(c.HealthStatus, entity, spec.HealthStatus)
 	addComp(c.Skills, entity, spec.Skills)
-	addComp(c.CharModifiers, entity, spec.CharModifiers)
 	addComp(c.StateChangeRequest, entity, spec.StateChangeRequest)
 	addComp(c.StatsChanged, entity, spec.StatsChanged)
 	addComp(c.WeightDirty, entity, spec.WeightDirty)

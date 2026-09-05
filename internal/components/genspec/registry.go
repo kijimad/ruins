@@ -74,7 +74,6 @@ var Registry = []Def{
 	{Field: "TurnBased"},      // アクションポイントを管理する
 	{Field: "HealthStatus"},   // 部位ごとの健康状態を保持する
 	{Field: "Skills"},         // スキルセットを保持する
-	{Field: "CharModifiers"},  // 効果倍率を集約する
 
 	// event ================
 	{Field: "StateChangeRequest"}, // ステート遷移リクエストを運ぶ

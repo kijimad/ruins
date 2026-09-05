@@ -140,9 +140,11 @@ jobs:
           # -s はこのメッセージも recipe echo も両方抑止する（Makefile の @ では -C 由来は消せない）。
           if ! make -s -C _base bench > base.txt 2> base_err.txt; then
             echo "::warning::base のベンチ取得に失敗しました。比較をスキップします"
-            # bench ターゲット無し・ビルドエラー等の失敗は base.txt 空のまま比較スキップにする。
             # エラー原因を base_err.txt に残す。
             sed 's/^/base bench err: /' base_err.txt || true
+            # 途中クラッシュした base は部分データが残り、grep '^Benchmark' を通過して
+            # 切り詰めた base との誤比較を生む。失敗した base は破棄し PR のみ表示へ確実に倒す。
+            : > base.txt
           fi
       - name: compare
         id: cmp

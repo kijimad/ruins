@@ -245,43 +245,30 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 	return nil, "", fmt.Errorf("cannot get attack parameters: attacker has neither Player nor CommandTable component")
 }
 
-// getSkillMult は事前計算済みのスキル倍率(%)を返す。
-// isDamageがtrueならWeaponDamage、falseならWeaponAccuracyを参照する。
-// Effectsコンポーネントを持たないエンティティでは100(等倍)を返す。
+// getSkillMult はスキル倍率(%)を返す。
+// isDamageがtrueならダメージ倍率、falseなら命中倍率を参照する
 func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage bool) consts.Percent {
 	if attack == nil {
 		return consts.PercentBase
 	}
-	if !world.Components.CharModifiers.Has(entity) {
-		return consts.PercentBase
-	}
-	effects := world.Components.CharModifiers.Get(entity)
 	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
 		return consts.PercentBase
 	}
-	var mults map[gc.SkillID]consts.Percent
-	if isDamage {
-		mults = effects.WeaponDamage
-	} else {
-		mults = effects.WeaponAccuracy
+	key := gc.WeaponDamageKey(skillID)
+	if !isDamage {
+		key = gc.WeaponAccuracyKey(skillID)
 	}
-	if mult, ok := mults[skillID]; ok {
-		return mult
-	}
-	return consts.PercentBase
+	return query.ModifierValue(world, entity, key)
 }
 
-// applyElementResist は事前計算済みの元素耐性倍率でダメージを軽減する
+// applyElementResist は元素耐性倍率でダメージを軽減する。無属性攻撃は対象外
 func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, world w.World) int {
-	if !world.Components.CharModifiers.Has(target) {
-		return damage
-	}
-	effects := world.Components.CharModifiers.Get(target)
-	mult, ok := effects.ElementResist[element]
+	key, ok := gc.LookupElementResistKey(element)
 	if !ok {
 		return damage
 	}
+	mult := query.ModifierValue(world, target, key)
 	reduced := max(mult.ApplyInt(damage), formula.MinDamage)
 	return reduced
 }
@@ -385,9 +372,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		baseDamage = formula.ApplyCritical(baseDamage)
 	}
 
-	if attack.GetElement() != gc.ElementTypeNone {
-		baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
-	}
+	baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
 
 	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
 
@@ -418,11 +403,6 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
-		// 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける
-		if !world.Components.StatsChanged.Has(actor) {
-			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
-		}
-
 		actorName := query.GetEntityName(actor, world)
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, string(skillID), s.Value)).

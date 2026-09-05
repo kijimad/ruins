@@ -198,8 +198,8 @@ var AllSkillIDs = func() []SkillID {
 	return ids
 }()
 
-// weaponSkillIDs は武器に対応するスキルIDのリスト
-var weaponSkillIDs = []SkillID{
+// WeaponSkillIDs は武器に対応するスキルIDのリスト
+var WeaponSkillIDs = []SkillID{
 	SkillSword, SkillSpear, SkillFist,
 	SkillBow, SkillHandgun, SkillRifle, SkillCannon,
 }

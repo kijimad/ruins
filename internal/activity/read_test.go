@@ -165,7 +165,6 @@ func TestReadBehavior_DoTurn_GainsSkillExp(t *testing.T) {
 	skills := gc.NewSkills()
 	world.Components.Skills.Add(actor, skills)
 	world.Components.Abilities.Add(actor, &gc.Abilities{Strength: gc.Ability{Total: 5}})
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, nil, nil))
 
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
@@ -301,7 +300,6 @@ func TestReadBehavior_DoTurn_SkillLevelUp(t *testing.T) {
 
 	abils := &gc.Abilities{Strength: gc.Ability{Total: 5}}
 	world.Components.Abilities.Add(actor, abils)
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
@@ -322,9 +320,6 @@ func TestReadBehavior_DoTurn_SkillLevelUp(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
-
-	// StatsChangedフラグが立っている
-	assert.True(t, world.Components.StatsChanged.Has(actor), "再計算フラグが立っている")
 }
 
 func TestReadBehavior_NoSkillsComponent(t *testing.T) {

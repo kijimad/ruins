@@ -154,11 +154,6 @@ func debugInflictConditions(world w.World) error {
 	set(gc.BodyPartArms, gc.ConditionLaceration, 60)
 	set(gc.BodyPartTorso, gc.ConditionLiverIllness, 60)
 	set(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90)
-
-	// HealthStatus を書き換えたので CharModifiers の再計算を促す
-	if !world.Components.StatsChanged.Has(player) {
-		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
-	}
 	return nil
 }
 

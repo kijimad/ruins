@@ -10,12 +10,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetSkillMult_NoCharModifiers(t *testing.T) {
+func TestGetSkillMult_NoSkills(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
-	// CharModifiersコンポーネントなし → 100を返す
+	// Skillsコンポーネントなし → 100を返す
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, true)))
 	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, false)))
@@ -29,7 +29,7 @@ func TestGetSkillMult_NilAttack(t *testing.T) {
 	assert.Equal(t, 100, int(getSkillMult(entity, nil, world, true)))
 }
 
-func TestGetSkillMult_WithCharModifiers(t *testing.T) {
+func TestGetSkillMult_WithSkills(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -37,8 +37,7 @@ func TestGetSkillMult_WithCharModifiers(t *testing.T) {
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillSword).Value = 3
-	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	world.Components.CharModifiers.Add(entity, mods)
+	world.Components.Skills.Add(entity, skills)
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 	// 刀剣Lv3: ダメージ倍率 = 100 + 3*5 = 115
@@ -53,23 +52,36 @@ func TestGetSkillMult_UnmappedWeapon(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
 
-	skills := gc.NewSkills()
-	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	world.Components.CharModifiers.Add(entity, mods)
+	world.Components.Skills.Add(entity, gc.NewSkills())
 
 	// 未登録の武器種 → 100
 	melee := &gc.Melee{AttackCategory: gc.AttackType{Type: "unknown"}}
 	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, true)))
 }
 
-func TestApplyElementResist_NoCharModifiers(t *testing.T) {
+func TestApplyElementResist_NoSkills(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	target := world.ECS.NewEntity()
 
-	// CharModifiersなし → ダメージそのまま
+	// Skillsなし → 等倍でダメージそのまま
 	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeFire, world))
+}
+
+func TestApplyElementResist_NonElement(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	target := world.ECS.NewEntity()
+
+	skills := gc.NewSkills()
+	skills.Get(gc.SkillFireResist).Value = 40 // 高い耐性でも無属性には効かない
+	world.Components.Skills.Add(target, skills)
+
+	// 無属性は耐性キーに無いのでダメージを素通しする。None も空文字も同じ
+	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeNone, world))
+	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementType(""), world))
 }
 
 func TestApplyElementResist_WithResist(t *testing.T) {
@@ -80,8 +92,7 @@ func TestApplyElementResist_WithResist(t *testing.T) {
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFireResist).Value = 5
-	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	world.Components.CharModifiers.Add(target, mods)
+	world.Components.Skills.Add(target, skills)
 
 	// 耐火Lv5: 耐性 = 100 + 5*(-3) = 85
 	// 50 * 85 / 100 = 42
@@ -96,8 +107,7 @@ func TestApplyElementResist_MinimumDamage(t *testing.T) {
 
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFireResist).Value = 40 // 高い耐性値
-	mods := gc.RecalculateCharModifiers(skills, nil, nil)
-	world.Components.CharModifiers.Add(target, mods)
+	world.Components.Skills.Add(target, skills)
 
 	// 耐火Lv40: 耐性 = 100 + 40*(-3) = -20
 	// ダメージ = 5 * -20 / 100 = -1 → 最低保証1
@@ -137,7 +147,6 @@ func TestGrowWeaponSkill_GainsExp(t *testing.T) {
 		Strength: gc.Ability{Total: 0},
 	}
 	world.Components.Abilities.Add(actor, abils)
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
@@ -163,16 +172,12 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 		Strength: gc.Ability{Total: 5},
 	}
 	world.Components.Abilities.Add(actor, abils)
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
 	growWeaponSkill(actor, world, melee)
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
-
-	// StatsChangedフラグが立っている
-	assert.True(t, world.Components.StatsChanged.Has(actor), "再計算フラグが立っている")
 }
 
 func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
@@ -205,7 +210,6 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 		Sensation: gc.Ability{Total: 10},
 	}
 	world.Components.Abilities.Add(actor, abils)
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	fire := &gc.Fire{AttackCategory: gc.AttackRifle}
 
@@ -249,7 +253,6 @@ func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 		Strength: gc.Ability{Total: 5},
 	}
 	world.Components.Abilities.Add(actor, abils)
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSpear}
 
@@ -275,7 +278,6 @@ func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
 		Strength: gc.Ability{Total: 10},
 	}
 	world.Components.Abilities.Add(actor, abils)
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, nil))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
@@ -306,7 +308,6 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 		Severity: gc.SeverityMinor,
 	})
 	world.Components.HealthStatus.Add(actor, hs)
-	world.Components.CharModifiers.Add(actor, gc.RecalculateCharModifiers(skills, abils, hs))
 
 	melee := &gc.Melee{AttackCategory: gc.AttackSword}
 
@@ -314,11 +315,9 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
-	// 再計算されたCharModifiersにHealthStatusの身体機能が反映されている
-	mods := world.Components.CharModifiers.Get(actor)
-	require.NotNil(t, mods)
 	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=87
-	assert.Equal(t, 87, int(mods.Capacities.Moving), "HealthStatusが CharModifiers の身体機能へ反映される")
+	moving := world.Components.HealthStatus.Get(actor).Capacities().Moving
+	assert.Equal(t, 87, int(moving), "HealthStatusが身体機能へ反映される")
 }
 
 func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {

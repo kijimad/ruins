@@ -182,7 +182,7 @@ func TestAbilityNameMapping(t *testing.T) {
 func TestWeaponDamageKeyMapping(t *testing.T) {
 	t.Parallel()
 
-	for _, id := range weaponSkillIDs {
+	for _, id := range WeaponSkillIDs {
 		assert.NotPanics(t, func() {
 			key := WeaponDamageKey(id)
 			assert.NotEmpty(t, key)
@@ -198,7 +198,7 @@ func TestWeaponDamageKeyMapping(t *testing.T) {
 func TestWeaponAccuracyKeyMapping(t *testing.T) {
 	t.Parallel()
 
-	for _, id := range weaponSkillIDs {
+	for _, id := range WeaponSkillIDs {
 		assert.NotPanics(t, func() {
 			key := WeaponAccuracyKey(id)
 			assert.NotEmpty(t, key)
