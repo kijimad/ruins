@@ -6015,8 +6015,8 @@ msgstr "睡眠中"
 msgid "Natural recovery speed. VIT, hunger, fatigue and sleep affect it"
 msgstr "自然回復の速さ。VIT・空腹・疲労・睡眠が影響する"
 
-msgid "Action speed multiplier. Hunger and fatigue lower it"
-msgstr "行動速度の倍率。空腹と疲労で下がる"
+msgid "Action speed. AGI and DEX raise it, hunger and fatigue lower it"
+msgstr "行動速度。AGI・DEX で上がり、空腹・疲労で下がる"
 
 msgid "Sleep here?"
 msgstr "休みますか？"

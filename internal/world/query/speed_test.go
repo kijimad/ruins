@@ -45,8 +45,24 @@ func TestCalculateSpeed(t *testing.T) {
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100}) // 飢餓状態
 
 		speed := CalculateSpeed(world, entity)
-		// 基本100に飢餓の倍率80%を乗算して80
+		// 基準100 + 飢餓の加算-20 = 80
 		assert.Equal(t, 80, speed)
+	})
+
+	t.Run("能力値と空腹は加算で合成する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.ECS.NewEntity()
+		world.Components.Abilities.Add(entity, &gc.Abilities{
+			Agility:   gc.Ability{Total: 10},
+			Dexterity: gc.Ability{Total: 5},
+		})
+		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100}) // 飢餓
+
+		speed := CalculateSpeed(world, entity)
+		// 基準100 + AGI*2(20) + DEX*1(5) + 飢餓(-20) = 105。能力値と状態は同じ基準100へ加算する
+		assert.Equal(t, 105, speed)
 	})
 
 	t.Run("過積載によるペナルティ", func(t *testing.T) {

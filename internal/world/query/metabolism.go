@@ -7,10 +7,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 代謝の定数。値は実プレイで調整する
+// 代謝の定数。値は実プレイで調整する。VIT の寄与は components の spec 表が持つ
 const (
-	// metabolismVitBonus は VIT 1 あたり代謝倍率へ足す%
-	metabolismVitBonus = 3
 	// metabolismSatiatedBonus は満腹のとき代謝倍率へ足す%
 	metabolismSatiatedBonus = 20
 	// metabolismHungryPenalty は空腹のとき代謝倍率から引く%
@@ -37,17 +35,12 @@ func HungerRecoveryDelta(level gc.HungerLevel) consts.Percent {
 	return 0
 }
 
-// recoverySources は ModRecovery への寄与を内訳として返す。VIT・空腹・疲労・睡眠が加算で効く。
+// recoverySources は ModRecovery への状態由来の寄与を内訳として返す。空腹・疲労・睡眠が加算で効く。
+// VIT は spec の能力ソースとして forEachModifierSource が出すのでここには含めない。
 // Metabolism と Effects タブの内訳がこの1箇所を読むので、値と内訳がずれない。
 func recoverySources(world w.World, entity ecs.Entity) []gc.ModifierSource {
 	var srcs []gc.ModifierSource
 
-	if world.Components.Abilities.Has(entity) {
-		vit := world.Components.Abilities.Get(entity).Vitality.Total
-		if v := vit * metabolismVitBonus; v != 0 {
-			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceAbility, Ability: gc.AblVIT, Amount: vit, Value: v})
-		}
-	}
 	if world.Components.Hunger.Has(entity) {
 		level := world.Components.Hunger.Get(entity).GetLevel()
 		if v := int(HungerRecoveryDelta(level)); v != 0 {

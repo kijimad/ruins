@@ -228,7 +228,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Action speed"), Value: val(gc.ModActionSpeed), Description: query.T(world, "Action speed multiplier. Hunger and fatigue lower it"), Details: details(gc.ModActionSpeed)},
+		statusItemData{Label: query.T(world, "Action speed"), Value: val(gc.ModActionSpeed), Description: query.T(world, "Action speed. AGI and DEX raise it, hunger and fatigue lower it"), Details: details(gc.ModActionSpeed)},
 		statusItemData{Label: query.T(world, "Move speed"), Value: val(gc.ModMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(gc.ModMoveCost)},
 		statusItemData{Label: query.T(world, "Discovery"), Value: val(gc.ModExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(gc.ModExploration)},
 		statusItemData{Label: query.T(world, "Detection"), Value: val(gc.ModEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(gc.ModEnemyVision)},

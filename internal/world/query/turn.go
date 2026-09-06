@@ -9,13 +9,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// Speed計算係数
-const (
-	speedBaseValue         = 100 // Speed計算の基本値
-	speedAgilityMultiply   = 2   // Speed計算の敏捷係数
-	speedDexterityMultiply = 1   // Speed計算の器用係数
-	speedMinimum           = 25  // Speedの最小値（基本値の1/4）
-)
+// Speedの最小値。基本値の1/4
+const speedMinimum = 25
 
 // CanPlayerAct はプレイヤーが行動可能かを判定する
 // プレイヤーターンかつAP >= 0 の場合にtrueを返す
@@ -112,21 +107,14 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 }
 
 // CalculateSpeed はエンティティのSpeedを計算する
-// 能力値ボーナス・状態異常ペナルティ・過積載ペナルティ・Effect倍率を考慮する
+// 行動速度・過積載ペナルティ・移動コスト・身体機能を考慮する
 func CalculateSpeed(world w.World, entity ecs.Entity) int {
-	speed := speedBaseValue
-
-	// 能力値ボーナス
-	if abils := world.Components.Abilities.Get(entity); abils != nil {
-		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
-	}
+	// 行動速度。基準100に AGI・DEX の能力寄与と疲労・空腹の状態寄与を畳んだ値そのもの。
+	// Effects タブの表示と同じ ModActionSpeed の導出を経由する
+	speed := int(ModifierValue(world, entity, gc.ModActionSpeed))
 
 	// 過積載は加算ペナルティ
 	speed += calculateOverweightPenalty(world, entity)
-
-	// 疲労・空腹は行動速度倍率として乗算で効く。moving/moveCost と同じ乗算系。
-	// Effects タブの表示と同じ ModActionSpeed の導出を経由する
-	speed = ModifierValue(world, entity, gc.ModActionSpeed).ApplyInt(speed)
 
 	// MoveCost倍率を適用する。全エンティティへ毎ターン走る最頻経路なので、
 	// 内訳を作らない単キー導出で読む。
