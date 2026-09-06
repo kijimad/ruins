@@ -121,9 +121,12 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
 	}
 
-	// 状態異常ペナルティ（空腹・過積載）
-	speed += calculateStatusSpeedPenalty(world, entity)
+	// 過積載は加算ペナルティ
 	speed += calculateOverweightPenalty(world, entity)
+
+	// 疲労・空腹は行動速度倍率として乗算で効く。moving/moveCost と同じ乗算系。
+	// Effects タブの表示と同じ ModActionSpeed の導出を経由する
+	speed = ModifierValue(world, entity, gc.ModActionSpeed).ApplyInt(speed)
 
 	// MoveCost倍率を適用する。全エンティティへ毎ターン走る最頻経路なので、
 	// 内訳を作らない単キー導出で読む。
@@ -144,26 +147,29 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	return speed
 }
 
-// calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する。
-// 体温ペナルティはCharModifiers.MoveCost経由で適用されるためここには含まない。
-func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
-	penalty := 0
+// actionSpeedSources は ModActionSpeed への状態由来の寄与を内訳として返す。空腹・疲労が
+// 段階ごとの加算%として効く。適用と Effects タブの内訳がこの1箇所を読むので、値と内訳がずれない。
+// 体温は CharModifiers.MoveCost 経由で別に効くのでここには含めない。
+func actionSpeedSources(world w.World, entity ecs.Entity) []gc.ModifierSource {
+	var srcs []gc.ModifierSource
 
-	// 空腹ペナルティ
-	if hunger := world.Components.Hunger.Get(entity); hunger != nil {
-		penalty += HungerSpeedPenalty(hunger.GetLevel())
+	if world.Components.Hunger.Has(entity) {
+		level := world.Components.Hunger.Get(entity).GetLevel()
+		if v := HungerSpeedPenalty(level); v != 0 {
+			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceHunger, Hunger: level, Value: v})
+		}
 	}
-
-	// 疲労ペナルティ。係数は Fatigue.Penalty の1表から読む
 	if world.Components.Fatigue.Has(entity) {
-		penalty += world.Components.Fatigue.Get(entity).Penalty().SpeedAdd
+		f := world.Components.Fatigue.Get(entity)
+		if v := f.Penalty().SpeedAdd; v != 0 {
+			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceFatigue, Fatigue: f.GetLevel(), Value: v})
+		}
 	}
-
-	return penalty
+	return srcs
 }
 
-// HungerSpeedPenalty は空腹段階による行動速度への加算を返す。命中・回復と同じく段階基準で、
-// 飢えるほど負に大きい。適用と Basic タブの内訳表示が同じこの導出を読む
+// HungerSpeedPenalty は空腹段階が行動速度倍率へ与える加算%を返す。命中・回復と同じく段階基準で、
+// 飢えるほど負に大きい。基準は100で、適用と Effects タブの内訳表示が同じこの導出を読む
 func HungerSpeedPenalty(level gc.HungerLevel) int {
 	switch level {
 	case gc.HungerSatiated, gc.HungerNormal:

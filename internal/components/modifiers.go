@@ -32,6 +32,9 @@ const (
 	// ModRecovery は自然回復・治癒にかかる速度倍率。基準100。VIT・空腹・疲労・睡眠が状態ソースとして寄与する。
 	// スキル由来でないので specByKey には持たず、状態ソースだけで組む
 	ModRecovery ModifierKey = "recovery"
+	// ModActionSpeed は行動速度倍率。基準100。疲労・空腹が状態ソースとして寄与する。
+	// CalculateSpeed で乗算適用する。specByKey には持たず状態ソースだけで組む
+	ModActionSpeed ModifierKey = "action_speed"
 
 	ModSwordDamage   ModifierKey = "sword_damage"
 	ModSpearDamage   ModifierKey = "spear_damage"

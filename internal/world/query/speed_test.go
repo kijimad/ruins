@@ -45,7 +45,7 @@ func TestCalculateSpeed(t *testing.T) {
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100}) // 飢餓状態
 
 		speed := CalculateSpeed(world, entity)
-		// 基本100 - 飢餓ペナルティ20 = 80
+		// 基本100に飢餓の倍率80%を乗算して80
 		assert.Equal(t, 80, speed)
 	})
 

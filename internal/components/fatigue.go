@@ -51,7 +51,7 @@ func (f *Fatigue) GetLevel() FatigueLevel {
 // 係数だけをこの1表に集約して調整しやすくする
 type FatiguePenalty struct {
 	RecoveryAdd consts.Percent // 回復係数への加算%。Metabolism へ足す
-	SpeedAdd    int            // 行動速度への加算
+	SpeedAdd    int            // 行動速度倍率への加算%。基準100へ足す
 	AccuracyMul consts.Percent // 命中への乗算%
 }
 

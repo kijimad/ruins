@@ -23,14 +23,21 @@ func modifierInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abils 
 	return skills, abils, hs, true
 }
 
+// isStatusDerivedKey は状態コンポーネントだけで組める key かを返す。回復と行動速度は
+// スキル由来の寄与を持たず、疲労・空腹・睡眠などの状態ソースだけで倍率が決まる。
+// この種のキーは Skills が無くても状態ソースを算出する
+func isStatusDerivedKey(key gc.ModifierKey) bool {
+	return key == gc.ModRecovery || key == gc.ModActionSpeed
+}
+
 // ModifierValue は key の効果倍率を都度計算して返す。保存済みの値ではなく
 // Skills・Abilities・HealthStatus から読み取り時に導出する。
 // 適用と表示の両方がこの1関数を読むので、両者は同じ値になる。
 // Skills が無ければ等倍を返し、呼び出し側の存在ガードは不要
 func ModifierValue(world w.World, entity ecs.Entity, key gc.ModifierKey) consts.Percent {
 	skills, abils, hs, ok := modifierInputs(world, entity)
-	// ModRecovery は状態だけで組むので Skills が無くても算出する。他キーは従来どおり Skills を要る
-	if !ok && key != gc.ModRecovery {
+	// 状態由来キーは Skills が無くても状態ソースから算出する。他キーは Skills を要る
+	if !ok && !isStatusDerivedKey(key) {
 		return consts.PercentBase
 	}
 	base := int(consts.PercentBase)
@@ -50,6 +57,9 @@ func ModifierValue(world w.World, entity ecs.Entity, key gc.ModifierKey) consts.
 func statusSources(world w.World, entity ecs.Entity, key gc.ModifierKey, base int) []gc.ModifierSource {
 	if key == gc.ModRecovery {
 		return recoverySources(world, entity)
+	}
+	if key == gc.ModActionSpeed {
+		return actionSpeedSources(world, entity)
 	}
 	if level, delta, ok := fatigueAccuracyDelta(world, entity, key, base); ok && delta != 0 {
 		return []gc.ModifierSource{{Kind: gc.SourceFatigue, Fatigue: level, Value: delta}}
@@ -73,7 +83,7 @@ func fatigueAccuracyDelta(world w.World, entity ecs.Entity, key gc.ModifierKey, 
 // Skills が無ければ空を返す
 func ModifierSources(world w.World, entity ecs.Entity, key gc.ModifierKey) []gc.ModifierSource {
 	skills, abils, hs, ok := modifierInputs(world, entity)
-	if !ok && key != gc.ModRecovery {
+	if !ok && !isStatusDerivedKey(key) {
 		return nil
 	}
 	var sources []gc.ModifierSource
