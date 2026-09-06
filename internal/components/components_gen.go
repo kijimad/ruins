@@ -40,6 +40,8 @@ type EntitySpec struct {
 	Door               *Door
 	Fixed              *Fixed
 	Pushable           *Pushable
+	Drivable           *Drivable
+	Driving            *Driving
 	LightSource        *LightSource
 	Interactable       *Interactable
 	VisualEffects      *VisualEffects
@@ -130,6 +132,8 @@ type Components struct {
 	Door               *ecs.Map[Door]
 	Fixed              *ecs.Map[Fixed]
 	Pushable           *ecs.Map[Pushable]
+	Drivable           *ecs.Map[Drivable]
+	Driving            *ecs.Map[Driving]
 	LightSource        *ecs.Map[LightSource]
 	Interactable       *ecs.Map[Interactable]
 	VisualEffects      *ecs.Map[VisualEffects]
@@ -220,6 +224,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Door = ecs.NewMap[Door](world)
 	c.Fixed = ecs.NewMap[Fixed](world)
 	c.Pushable = ecs.NewMap[Pushable](world)
+	c.Drivable = ecs.NewMap[Drivable](world)
+	c.Driving = ecs.NewMap[Driving](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
@@ -312,6 +318,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Door, entity, spec.Door)
 	addComp(c.Fixed, entity, spec.Fixed)
 	addComp(c.Pushable, entity, spec.Pushable)
+	addComp(c.Drivable, entity, spec.Drivable)
+	addComp(c.Driving, entity, spec.Driving)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)

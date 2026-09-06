@@ -36,6 +36,13 @@ func PushCost(total consts.Milligram) int {
 	return consts.PushCostBase + consts.PushCostPerKg*kg
 }
 
+// DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、
+// 総重量に比例して増える。PushCost が AP で表していた重量ペナルティを燃料へ移した対応物。
+func DriveFuelCost(total consts.Milligram) int {
+	kg := int(total / consts.MilligramPerKg)
+	return consts.DriveFuelBase + consts.DriveFuelPerKg*kg
+}
+
 // PushPower はこのターン押しへ充てられるAP総量を返す。プレイヤーの TurnBased.AP.Current を用いる。
 // 同じ PushCost をより少ないターンで払えれば速く進む。押しコスト自体は不変。
 func PushPower(world w.World) int {
