@@ -316,7 +316,7 @@ func TestHealthStatus_Capacities(t *testing.T) {
 	t.Run("不調なしは全機能100で痛み0", func(t *testing.T) {
 		t.Parallel()
 		bodyFuncs := (&HealthStatus{}).BodyFuncs()
-		assert.Equal(t, BodyFuncs{Pain: 0, Blood: 100, Consciousness: 100, Manipulation: 100, Moving: 100, Sight: 100}, bodyFuncs)
+		assert.Equal(t, BodyFuncs{Pain: 0, Blood: 100, Consciousness: 100, Manipulation: 100, Moving: 100, Sight: 100, Metabolism: 100}, bodyFuncs)
 	})
 
 	t.Run("腕の骨折は操作を下げ痛みを与え意識を落とす", func(t *testing.T) {
@@ -324,9 +324,9 @@ func TestHealthStatus_Capacities(t *testing.T) {
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
 		bodyFuncs := hs.BodyFuncs()
-		// 骨折 18/20 の中度。痛み=18*2=36、意識=100-36/2=82、操作=(100-20*2)*82/100=49。
-		// 意識は master 乗数。歩行と視覚は局所低下なしだが意識が掛かって82
-		assert.Equal(t, BodyFuncs{Pain: 36, Blood: 100, Consciousness: 82, Manipulation: 49, Moving: 82, Sight: 82}, bodyFuncs)
+		// 骨折 18/20 の中度。痛み=18*2=36、意識=100-36/2=82、操作=意識82-局所低下40=42。
+		// 局所は意識からの減算。歩行と視覚は局所低下なしなので意識と同じ82。代謝は空腹・疲労なしで100
+		assert.Equal(t, BodyFuncs{Pain: 36, Blood: 100, Consciousness: 82, Manipulation: 42, Moving: 82, Sight: 82, Metabolism: 100}, bodyFuncs)
 	})
 
 	t.Run("部位で下げる機能が変わる", func(t *testing.T) {

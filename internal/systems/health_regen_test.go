@@ -62,12 +62,12 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		assert.Equal(t, 0, world.Components.HP.Get(entity).Current)
 	})
 
-	t.Run("飢餓は意識を下げ代謝が鈍る", func(t *testing.T) {
+	t.Run("飢餓は代謝capacityを下げ回復が鈍る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Current: 10, Max: 30})
-		// 飢餓は意識を20下げ、回復も funnel 経由で鈍る。効果は量から読み取り時に導出される
+		// 飢餓は代謝 capacity を20下げ、回復が鈍る。効果は量から読み取り時に導出される
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
 
 		require.NoError(t, (&HealthRegenSystem{}).Update(world))

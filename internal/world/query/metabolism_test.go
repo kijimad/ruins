@@ -36,7 +36,7 @@ func TestMetabolism(t *testing.T) {
 		entity := world.ECS.NewEntity()
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 100, Max: 100})
 
-		// 満腹は意識を下げないので基準100のまま
+		// 満腹は代謝 capacity を下げないので基準100のまま
 		assert.Equal(t, consts.Percent(100), Metabolism(world, entity))
 	})
 
@@ -49,36 +49,36 @@ func TestMetabolism(t *testing.T) {
 		assert.Equal(t, consts.Percent(100), Metabolism(world, entity))
 	})
 
-	t.Run("空腹は意識経由で回復を下げる", func(t *testing.T) {
+	t.Run("空腹は代謝capacityを下げる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
-		// 空腹は意識を下げ、回復も funnel 経由で落ちる。効果は量から読み取り時に導出される
+		// 空腹は代謝 capacity を下げる。効果は量から読み取り時に導出される
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 50, Max: 100}) // 空腹
 
-		// 意識=100-10=90
+		// 熟練100 × capacity90 = 90
 		assert.Equal(t, consts.Percent(90), Metabolism(world, entity))
 	})
 
-	t.Run("飢餓は意識をさらに下げる", func(t *testing.T) {
+	t.Run("飢餓は代謝capacityをさらに下げる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100}) // 飢餓
 
-		// 意識=100-20=80
+		// 熟練100 × capacity80 = 80
 		assert.Equal(t, consts.Percent(80), Metabolism(world, entity))
 	})
 
-	t.Run("VITと意識低下は合算する", func(t *testing.T) {
+	t.Run("VIT熟練と代謝capacityは乗算する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Abilities.Add(entity, &gc.Abilities{Vitality: gc.Ability{Total: 10}})
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100}) // 飢餓
 
-		// 意識80 + VIT*3(30) = 110
-		assert.Equal(t, consts.Percent(110), Metabolism(world, entity))
+		// 熟練(100 + VIT*3=130) × capacity80 = 104
+		assert.Equal(t, consts.Percent(104), Metabolism(world, entity))
 	})
 
 	t.Run("下限は0でマイナスにならない", func(t *testing.T) {
@@ -92,13 +92,13 @@ func TestMetabolism(t *testing.T) {
 		assert.Equal(t, consts.Percent(0), Metabolism(world, entity))
 	})
 
-	t.Run("過労は意識経由で回復を下げる", func(t *testing.T) {
+	t.Run("過労は代謝capacityを下げ回復を落とす", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000}) // 過労
 
-		// 過労は意識を25下げる。意識=100-25=75
+		// 過労は代謝 capacity を25下げる。熟練100 × capacity75 = 75
 		assert.Equal(t, consts.Percent(75), Metabolism(world, entity))
 	})
 

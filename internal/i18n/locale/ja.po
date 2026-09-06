@@ -1007,6 +1007,12 @@ msgstr "歩行"
 msgid "Sight"
 msgstr "視覚"
 
+msgid "Metabolism"
+msgstr "代謝"
+
+msgid "Injury and illness"
+msgstr "怪我・病気"
+
 msgid "Body function"
 msgstr "身体機能"
 
@@ -1027,6 +1033,9 @@ msgstr "移動速度に効く"
 
 msgid "Affects ranged accuracy and vision"
 msgstr "遠隔命中と視界に効く"
+
+msgid "Affects recovery speed. Hunger and fatigue lower it"
+msgstr "回復速度に効く。空腹・疲労で下がる"
 
 msgid "Minor"
 msgstr "軽"

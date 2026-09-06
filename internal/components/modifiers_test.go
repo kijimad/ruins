@@ -120,8 +120,8 @@ func TestCalcProficiencyValue_HealthPenalty(t *testing.T) {
 	// 不調は MoveCost へ直接足さず身体機能 BodyFuncs に一本化する
 	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, hs.BodyFuncs(), ProfMoveCost)), "低体温は MoveCost へ足さない")
 	// 中度の全身性低体温 6/10: 痛み6*2=12、意識=100-20-12/2=74。
-	// 意識は master 乗数。局所低下は無いので操作・歩行・視覚はいずれも意識だけを受けて74
-	assert.Equal(t, BodyFuncs{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 74, Moving: 74, Sight: 74}, hs.BodyFuncs())
+	// 局所は意識からの減算。局所低下は無いので操作・歩行・視覚はいずれも意識と同じ74。代謝は空腹・疲労なしで100
+	assert.Equal(t, BodyFuncs{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 74, Moving: 74, Sight: 74, Metabolism: 100}, hs.BodyFuncs())
 }
 
 func TestCalcProficiencyValue_UnknownKey(t *testing.T) {

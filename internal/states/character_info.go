@@ -201,10 +201,11 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	items = append(items,
 		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", bodyFuncs.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
 		statusItemData{Label: query.T(world, "Blood"), Value: fmt.Sprintf("%d%%", bodyFuncs.Blood), Description: bloodDesc, Details: bloodDetails},
-		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", bodyFuncs.Consciousness), Description: query.T(world, "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions")},
+		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", bodyFuncs.Consciousness), Description: query.T(world, "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions"), Details: consciousnessDrops(world, playerEntity)},
 		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", bodyFuncs.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
 		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", bodyFuncs.Moving), Description: query.T(world, "Affects move speed")},
 		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", bodyFuncs.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
+		statusItemData{Label: query.T(world, "Metabolism"), Value: fmt.Sprintf("%d%%", bodyFuncs.Metabolism), Description: query.T(world, "Affects recovery speed. Hunger and fatigue lower it"), Details: fatigueHungerDrops(world, playerEntity)},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
@@ -293,6 +294,40 @@ func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailR
 		rows = append(rows, statusDetailRow{Label: sourceLabel(world, s), Value: fmt.Sprintf("%+d%%", s.Value)})
 	}
 	return rows
+}
+
+// fatigueHungerDrops は疲労・空腹による低下ぶんを内訳にする。意識と代謝 capacity の両方が同じこの低下を受ける
+func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
+	var rows []statusDetailRow
+	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
+		f := world.Components.Fatigue.Get(playerEntity)
+		if p := f.ConsciousnessPenalty(); p != 0 {
+			rows = append(rows, statusDetailRow{Label: query.T(world, string(f.GetLevel())), Value: fmt.Sprintf("-%d%%", p)})
+		}
+	}
+	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
+		h := world.Components.Hunger.Get(playerEntity)
+		if p := gc.HungerConsciousnessPenalty(h.GetLevel()); p != 0 {
+			rows = append(rows, statusDetailRow{Label: query.T(world, h.GetLevel().String()), Value: fmt.Sprintf("-%d%%", p)})
+		}
+	}
+	return rows
+}
+
+// consciousnessDrops は意識の低下要因を内訳にする。怪我・病気・痛みは不調から、疲労・空腹は量から。
+// 行の合計は意識の低下ぶんに一致する
+func consciousnessDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
+	var rows []statusDetailRow
+	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
+		systemic, pain := world.Components.HealthStatus.Get(playerEntity).ConsciousnessDrops()
+		if systemic != 0 {
+			rows = append(rows, statusDetailRow{Label: query.T(world, "Injury and illness"), Value: fmt.Sprintf("-%d%%", systemic)})
+		}
+		if pain != 0 {
+			rows = append(rows, statusDetailRow{Label: query.T(world, "Pain"), Value: fmt.Sprintf("-%d%%", pain)})
+		}
+	}
+	return append(rows, fatigueHungerDrops(world, playerEntity)...)
 }
 
 // sourceLabel は内訳1件の表示ラベルを現在言語で整形する

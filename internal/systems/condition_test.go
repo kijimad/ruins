@@ -81,40 +81,40 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("治療済みの病気は回復する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// 病気自身が意識を下げ代謝が100未満になる。回復は float なので少数で減り、停止はしない
+		// 代謝は空腹・疲労だけで下がり、病気自身は代謝を下げない。空腹・疲労がなければ基準速度で治る
 		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionLiverIllness, Timer: 60, TendQuality: 100})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
 		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionLiverIllness)
 		require.NotNil(t, cond)
-		assert.InDelta(t, 59.12, cond.Timer, 0.05, "意識低下で回復は鈍るが停止しない")
+		assert.InDelta(t, 59.0, cond.Timer, 0.05, "空腹・疲労なしなら基準速度で回復する")
 	})
 
 	t.Run("未治療の食中毒は自然に治る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// RecoverPer=2 で未治療でも自然に減る。食中毒自身が意識を下げるので float で少数減る
+		// RecoverPer=2 で未治療でも自然に減る。空腹・疲労がなければ代謝100で基準どおり減る
 		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
 		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
 		require.NotNil(t, cond)
-		assert.InDelta(t, 58.58, cond.Timer, 0.05, "未治療でも時間で治る")
+		assert.InDelta(t, 58.0, cond.Timer, 0.05, "未治療でも時間で治る")
 	})
 
 	t.Run("治療した食中毒はより速く治る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// RecoverPer=2、TendQuality=150%で治療は速い。意識低下で代謝が下がり float で少数減る
+		// RecoverPer=2、TendQuality=150%で治療は速い。空腹・疲労なしなら代謝100で 3 ぶん減る
 		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60, TendQuality: 150})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
 		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
 		require.NotNil(t, cond)
-		assert.InDelta(t, 57.42, cond.Timer, 0.05, "治療すると回復が速まる")
+		assert.InDelta(t, 57.0, cond.Timer, 0.05, "治療すると回復が速まる")
 	})
 
 	t.Run("重症の病気は毎ターンHPを削る", func(t *testing.T) {

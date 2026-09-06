@@ -187,9 +187,10 @@ type BodyFuncs struct {
 	Pain          consts.Percent // 0 が無痛。大きいほど痛い
 	Blood         consts.Percent // 100 が正常。失血や重い不調で下がる。危険域を下回ると HP が減る
 	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。速度・命中へは消費側が掛ける
-	Manipulation  consts.Percent // 腕・手の不調で下がる
-	Moving        consts.Percent // 脚・足の不調で下がる
-	Sight         consts.Percent // 頭の不調で下がる
+	Manipulation  consts.Percent // 意識から腕・手の局所低下を引いた値。近接命中・製作
+	Moving        consts.Percent // 意識から脚・足の局所低下を引いた値。速度
+	Sight         consts.Percent // 意識から頭の局所低下を引いた値。遠隔命中
+	Metabolism    consts.Percent // 100 が正常。空腹・疲労で下がる。回復の身体機能側。VIT・睡眠は熟練側で別に積む
 }
 
 // painConsciousnessDivisor は痛みが意識を下げる割合。痛みをこれで割ったぶん意識が下がる。
@@ -205,6 +206,7 @@ const (
 	BodyFuncManipulation  BodyFuncKind = "Manipulation"  // 腕・手
 	BodyFuncMoving        BodyFuncKind = "Moving"        // 脚・足
 	BodyFuncSight         BodyFuncKind = "Sight"         // 頭
+	BodyFuncMetabolism    BodyFuncKind = "Metabolism"    // 回復の身体機能側
 )
 
 // bodyPartMeta は部位ごとの静的情報。表示名・下げる身体機能・命中重みを1つの表に持つ
@@ -542,6 +544,8 @@ func (hs *HealthStatus) bodyFuncs(extraSystemic int) BodyFuncs {
 				sight += drop
 			case BodyFuncConsciousness:
 				systemic += drop
+			case BodyFuncMetabolism:
+				// 代謝は部位に割り当てない。空腹・疲労から extraSystemic 経由で導く
 			}
 		}
 	}
@@ -549,16 +553,35 @@ func (hs *HealthStatus) bodyFuncs(extraSystemic int) BodyFuncs {
 	pain = clamp(pain, 0, 100)
 	// 意識は全身性の低下と痛みで下がる。extraSystemic は疲労・空腹など保存しない全身性を読み取り時に足す
 	consciousness := clamp(100-systemic-extraSystemic-pain/painConsciousnessDivisor, 0, 100)
-	// 局所機能は低下を引いたうえで、意識を全体乗数として掛ける
-	withConsciousness := func(local int) consts.Percent {
-		return consts.Percent(clamp(local, 0, 100) * consciousness / 100)
+	// 局所機能は意識から部位の局所低下を引く。乗算せず1段の減算で積む
+	limb := func(localDrop int) consts.Percent {
+		return consts.Percent(clamp(consciousness-localDrop, 0, 100))
 	}
 	return BodyFuncs{
 		Pain:          consts.Percent(pain),
 		Blood:         consts.Percent(clamp(100-bloodDrop, 0, 100)),
 		Consciousness: consts.Percent(consciousness),
-		Manipulation:  withConsciousness(100 - manip),
-		Moving:        withConsciousness(100 - moving),
-		Sight:         withConsciousness(100 - sight),
+		Manipulation:  limb(manip),
+		Moving:        limb(moving),
+		Sight:         limb(sight),
+		// 代謝は回復の身体機能側。空腹・疲労で下がる capacity で、痛み・全身病は含めない
+		Metabolism: consts.Percent(clamp(100-extraSystemic, 0, 100)),
 	}
+}
+
+// ConsciousnessDrops は意識を下げる不調由来の内訳を返す。全身性の低下ぶんと痛みぶんに分けて返す。
+// 疲労・空腹は量由来で保存しないため含めない。呼び出し側が量から足す。内訳表示に使う
+func (hs *HealthStatus) ConsciousnessDrops() (systemic, pain int) {
+	rawPain := 0
+	for i := range hs.Parts {
+		for j := range hs.Parts[i].Conditions {
+			cond := &hs.Parts[i].Conditions[j]
+			p, drop := conditionSeverityImpact(cond)
+			rawPain += p
+			if bodyPartFunction(BodyPart(i)) == BodyFuncConsciousness {
+				systemic += drop
+			}
+		}
+	}
+	return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor
 }
