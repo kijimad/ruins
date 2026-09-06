@@ -375,8 +375,10 @@ func (bph *BodyPartHealth) SetCondition(cond HealthCondition) {
 	bph.Conditions = append(bph.Conditions, cond)
 }
 
-// SetGaugeCondition はゲージ駆動の不調を severity に揃える。SeverityNone なら外す。
-// 低体温と同じくゲージが真実で、不調は毎ターン立て直す派生。Timer は severity と整合する値にする
+// SetGaugeCondition は疲労・空腹などゲージから導出する不調を、指定の重症度へ揃える。
+// 重症度が SeverityNone なら不調を取り除く。状態の真実はゲージ側が持ち、不調はそれを写した派生なので、
+// 毎ターン呼んで上書きしてよい。Timer は重症度に対応する値を入れ、進行度表示や IsActive の判定が
+// 重症度と食い違わないようにする。
 func (bph *BodyPartHealth) SetGaugeCondition(condType ConditionType, severity Severity) {
 	if severity == SeverityNone {
 		bph.RemoveCondition(condType)
