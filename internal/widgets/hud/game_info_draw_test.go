@@ -2,6 +2,7 @@ package hud
 
 import (
 	"image/color"
+	"slices"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -22,12 +23,12 @@ func newTestGameInfo(t *testing.T) *GameInfo {
 // 本体だけを探すには末尾から一致するものを拾う
 func findText(t *testing.T, texts []textCall, s string) textCall {
 	t.Helper()
-	for i := len(texts) - 1; i >= 0; i-- {
-		if texts[i].str == s {
-			return texts[i]
+	for _, text := range slices.Backward(texts) {
+		if text.str == s {
+			return text
 		}
 	}
-	t.Fatalf("text %q not found in %v", s, texts)
+	require.Failf(t, "対象テキストが見つからない", "text %q not found in %v", s, texts)
 	return textCall{}
 }
 
