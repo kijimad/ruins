@@ -2,19 +2,30 @@ package query
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// EffectiveBodyFuncs は怪我・病気に加え、疲労・空腹による意識低下を畳んだ実効身体機能を返す。
-// 速度・命中・回復がこの1関数を読むので、身体状態が行動へ効く経路が身体機能ただ1つに集約される。
-// 怪我・病気は HealthStatus から、疲労・空腹は意識オフセットとして畳む
+// EffectiveBodyFuncs は消費側が読む最終的な身体機能を返す。全身性の低下をここ1箇所で各機能へ畳む。
+// 全身性は怪我由来の痛み・全身の不調に疲労・空腹を足したもので、操作・歩行・視覚・意識すべてへ一律に効く。
+// 速度・命中はこの値を読むだけでよく、意識を消費側で掛け直す必要はない。
+// 部位ごとの怪我は素の HealthStatus.BodyFuncs から来る
 func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {
-	caps := gc.HealthyBodyFuncs()
+	raw := gc.HealthyBodyFuncs()
 	if world.Components.HealthStatus.Has(entity) {
-		caps = world.Components.HealthStatus.Get(entity).BodyFuncs()
+		raw = world.Components.HealthStatus.Get(entity).BodyFuncs()
 	}
-	return caps.WithConsciousnessPenalty(consciousnessPenalty(world, entity))
+	// 怪我由来の全身性は 100 と素の意識の差。ここに疲労・空腹の低下を足す
+	systemic := (int(consts.PercentBase) - int(raw.Consciousness)) + consciousnessPenalty(world, entity)
+	sub := func(v consts.Percent) consts.Percent {
+		return consts.Percent(max(int(v)-systemic, 0))
+	}
+	raw.Consciousness = consts.Percent(max(int(consts.PercentBase)-systemic, 0))
+	raw.Manipulation = sub(raw.Manipulation)
+	raw.Moving = sub(raw.Moving)
+	raw.Sight = sub(raw.Sight)
+	return raw
 }
 
 // consciousnessPenalty は疲労・空腹による意識低下量の合計を返す

@@ -131,11 +131,10 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
 	moveCost := max(int(ProficiencyValue(world, entity, gc.ProfMoveCost)), 10)
 	speed = speed * 100 / moveCost
-	// 実効身体機能の歩行を掛ける。脚・足の怪我、意識低下、疲労・空腹による意識低下で歩行が落ちると遅くなる
+	// 実効身体機能の歩行を掛ける。歩行は脚・足の怪我に加え、全身性の不調・疲労・空腹が
+	// EffectiveBodyFuncs で畳まれているので、ここは歩行を読むだけでよい
 	moving := EffectiveBodyFuncs(world, entity).Moving
-	speed = max(
-		// 最小値制限
-		moving.ApplyInt(speed), speedMinimum)
+	speed = max(moving.ApplyInt(speed), speedMinimum) // 最小値制限
 
 	return speed
 }

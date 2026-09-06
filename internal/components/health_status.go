@@ -171,7 +171,7 @@ func ConditionTypeDescription(ct ConditionType) string {
 type BodyFuncs struct {
 	Pain          consts.Percent // 0 が無痛。大きいほど痛い
 	Blood         consts.Percent // 100 が正常。失血や重い不調で下がる。危険域を下回ると HP が減る
-	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。全機能に掛かる乗数
+	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。速度・命中へは消費側が掛ける
 	Manipulation  consts.Percent // 腕・手の不調で下がる
 	Moving        consts.Percent // 脚・足の不調で下がる
 	Sight         consts.Percent // 頭の不調で下がる
@@ -497,7 +497,8 @@ func (hs *HealthStatus) IsHPDraining() bool {
 }
 
 // BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
-// 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識が全機能へ乗算される
+// 各機能は独立で、対応部位の不調だけがその機能を下げる。意識は痛みと全身性の不調で下がる。
+// 意識は他の機能の値を変えない。速度や命中への波及は消費側が意識を明示的に掛ける
 func (hs *HealthStatus) BodyFuncs() BodyFuncs {
 	pain := 0
 	bloodDrop := 0
@@ -522,41 +523,13 @@ func (hs *HealthStatus) BodyFuncs() BodyFuncs {
 	}
 
 	pain = clamp(pain, 0, 100)
-	// 意識は全身性の低下と痛みで下がる
-	consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)
-	// 局所機能は低下を引いたうえで、意識を全体乗数として掛ける
-	withConsciousness := func(local int) consts.Percent {
-		return consts.Percent(clamp(local, 0, 100) * consciousness / 100)
-	}
-
 	return BodyFuncs{
-		Pain:          consts.Percent(pain),
-		Blood:         consts.Percent(clamp(100-bloodDrop, 0, 100)),
-		Consciousness: consts.Percent(consciousness),
-		Manipulation:  withConsciousness(100 - manip),
-		Moving:        withConsciousness(100 - moving),
-		Sight:         withConsciousness(100 - sight),
+		Pain:  consts.Percent(pain),
+		Blood: consts.Percent(clamp(100-bloodDrop, 0, 100)),
+		// 意識は全身性の低下と痛みで下がる
+		Consciousness: consts.Percent(clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)),
+		Manipulation:  consts.Percent(clamp(100-manip, 0, 100)),
+		Moving:        consts.Percent(clamp(100-moving, 0, 100)),
+		Sight:         consts.Percent(clamp(100-sight, 0, 100)),
 	}
-}
-
-// WithConsciousnessPenalty は意識をさらに penalty ぶん下げ、意識を乗数に持つ局所機能も連動させた
-// 身体機能を返す。怪我・病気以外の全身性の要因、すなわち疲労・空腹を身体機能へ畳むために使う。
-// 局所機能は意識との比で縮め、痛みと血液は変えない
-func (c BodyFuncs) WithConsciousnessPenalty(penalty int) BodyFuncs {
-	if penalty <= 0 {
-		return c
-	}
-	oldC := int(c.Consciousness)
-	newC := clamp(oldC-penalty, 0, 100)
-	scale := func(v consts.Percent) consts.Percent {
-		if oldC <= 0 {
-			return 0
-		}
-		return consts.Percent(int(v) * newC / oldC)
-	}
-	c.Manipulation = scale(c.Manipulation)
-	c.Moving = scale(c.Moving)
-	c.Sight = scale(c.Sight)
-	c.Consciousness = consts.Percent(newC)
-	return c
 }

@@ -267,13 +267,15 @@ func forEachProficiencySource(skills *Skills, abils *Abilities, caps BodyFuncs, 
 		bonus += ablBonus
 	}
 
-	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる。実効身体機能なので
-	// 疲労・空腹による意識低下も命中へここで波及する
+	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる。caps は実効身体機能なので、
+	// 部位の怪我に加え全身性の不調・疲労・空腹が既に畳まれている。ここは該当機能を掛けるだけ
 	if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {
-		capKind, capVal := weaponAccuracyBodyFunc(caps, id)
+		limbKind, limbVal := weaponAccuracyBodyFunc(caps, id)
 		acc := int(consts.PercentBase) + bonus
-		withCap := capVal.ApplyInt(acc)
-		fn(ProficiencySource{Kind: SourceBodyFunc, BodyFunc: capKind, Amount: int(capVal), Value: withCap - acc})
+		withCap := limbVal.ApplyInt(acc)
+		if withCap != acc {
+			fn(ProficiencySource{Kind: SourceBodyFunc, BodyFunc: limbKind, Amount: int(limbVal), Value: withCap - acc})
+		}
 	}
 }
 

@@ -1016,8 +1016,8 @@ msgstr "怪我・病気・空腹・疲労で下がる身体機能"
 msgid "Pain from conditions. Lowers consciousness"
 msgstr "不調による痛み。意識を下げる"
 
-msgid "Master capacity. Multiplies all others. Hunger and fatigue lower it"
-msgstr "全機能に掛かる乗数。空腹と疲労で下がる"
+msgid "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions"
+msgstr "全身の冴え。痛み・病気・空腹・疲労で下がり、行動を鈍らせる"
 
 msgid "Affects melee accuracy and crafting"
 msgstr "近接命中と製作に効く"
