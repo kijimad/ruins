@@ -72,6 +72,34 @@ func TestExecuteMoveAction_燃料切れは立往生する(t *testing.T) {
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "プレイヤーも動かない")
 }
 
+func TestToolCandidates_隣接キューブの収納工具を含む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 5})
+	require.NoError(t, err)
+
+	tool := world.ECS.NewEntity()
+	world.Components.LocationInStorage.Add(tool, &gc.LocationInStorage{Owner: cube})
+
+	assert.Contains(t, ToolCandidates(world, player), tool, "隣接キューブの収納工具が候補に入る")
+}
+
+func TestToolCandidates_離れたキューブの収納工具は含まない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 20, Y: 20})
+	require.NoError(t, err)
+
+	tool := world.ECS.NewEntity()
+	world.Components.LocationInStorage.Add(tool, &gc.LocationInStorage{Owner: cube})
+
+	assert.NotContains(t, ToolCandidates(world, player), tool, "離れたキューブの工具は候補に入らない")
+}
+
 func TestIsDrivingPlayer_運転中のプレイヤーを見分ける(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
