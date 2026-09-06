@@ -15,9 +15,8 @@ import (
 type SleepConditions struct {
 	HasFatigue     bool            // 疲労コンポーネントを持つか。持たない者は眠れない
 	Fatigue        gc.FatigueLevel // 疲労段階
-	HasAmbient     bool            // 座標があり気温を評価できたか
-	Ambient        int             // 現在地に適用される気温
-	SleepableLower int             // 入眠可能な気温の下限。HasAmbient のとき意味を持つ
+	Ambient        *int            // 現在地に適用される気温。座標や dungeon が無く評価不能なら nil
+	SleepableLower int             // 入眠可能な気温の下限。Ambient が非 nil のとき意味を持つ
 	SleepableUpper int             // 入眠可能な気温の上限
 	TemperatureOK  bool            // 気温が入眠可能な帯に収まるか
 	BeddingQuality consts.Percent  // 寝具の質。PercentBase が地べたの基準
@@ -42,8 +41,7 @@ func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 		grid := world.Components.GridElement.Get(actor)
 		sc.SleepableLower, sc.SleepableUpper = query.SleepableTemperatureRange(world, actor)
 		if ambient, err := query.AmbientTemperatureAt(world, grid.X, grid.Y); err == nil {
-			sc.HasAmbient = true
-			sc.Ambient = ambient
+			sc.Ambient = &ambient
 			sc.TemperatureOK = ambient >= sc.SleepableLower && ambient <= sc.SleepableUpper
 		}
 	}

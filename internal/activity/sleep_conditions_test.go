@@ -16,7 +16,6 @@ func TestSleepConditions_CanSleep(t *testing.T) {
 	base := SleepConditions{
 		HasFatigue:    true,
 		Fatigue:       gc.FatigueExhausted,
-		HasAmbient:    true,
 		TemperatureOK: true,
 		AreaSafe:      true,
 	}

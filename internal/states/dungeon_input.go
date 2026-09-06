@@ -449,14 +449,15 @@ func fatigueDetail(world w.World, sc activity.SleepConditions) string {
 
 // temperatureDetail は気温の表示文を返す。入眠可能帯を外れると寒すぎ暑すぎを添える
 func temperatureDetail(world w.World, sc activity.SleepConditions) string {
-	if !sc.HasAmbient {
+	if sc.Ambient == nil {
 		return ""
 	}
-	temp := fmt.Sprintf("%d℃", sc.Ambient)
+	ambient := *sc.Ambient
+	temp := fmt.Sprintf("%d℃", ambient)
 	switch {
-	case sc.Ambient < sc.SleepableLower:
+	case ambient < sc.SleepableLower:
 		return query.T(world, "Too cold") + " " + temp
-	case sc.Ambient > sc.SleepableUpper:
+	case ambient > sc.SleepableUpper:
 		return query.T(world, "Too hot") + " " + temp
 	default:
 		return temp
