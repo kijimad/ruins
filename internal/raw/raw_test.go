@@ -63,8 +63,7 @@ Description = "スプライトなしアイテム"
 
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := NewItemSpec(raws, "テストアイテム")
-	assert.NoError(t, err)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey)

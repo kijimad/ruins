@@ -162,7 +162,7 @@ func TestValidateReferences(t *testing.T) {
 		assert.NoError(t, ValidateReferences(raws))
 	})
 
-	t.Run("分解参照エラーが最初に検出される", func(t *testing.T) {
+	t.Run("分解参照エラーが伝播する", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: &[]oapi.Item{{Name: "鉄くず"}},
@@ -174,16 +174,12 @@ func TestValidateReferences(t *testing.T) {
 					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
-			DropTables: &[]oapi.DropTable{{
-				Name:    "廃墟",
-				Entries: []oapi.DropTableEntry{{Material: "別の存在しない素材", Weight: 1}},
-			}},
 		}
 		err := ValidateReferences(raws)
 		require.ErrorIs(t, err, errDisassemblyYieldUndefined)
 	})
 
-	t.Run("武器参照エラーが最後のチェックで検出される", func(t *testing.T) {
+	t.Run("武器参照エラーが伝播する", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: &[]oapi.Item{{Name: "鉄くず"}},

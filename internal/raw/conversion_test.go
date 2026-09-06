@@ -251,7 +251,7 @@ func TestToGCBedding(t *testing.T) {
 func TestKeyNotFoundError(t *testing.T) {
 	t.Parallel()
 
-	err := NewKeyNotFoundError("items", "sword")
+	err := NewKeyNotFoundError("sword", "items")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "items")
 	assert.Contains(t, err.Error(), "sword")
