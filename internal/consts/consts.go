@@ -40,6 +40,11 @@ const (
 	PushCostBase = 10 * StandardActionCost
 	// PushCostPerKg はキューブ総重量1kgあたりに加算する押しAP。総重量に比例して重くする
 	PushCostPerKg = StandardActionCost
+	// DriveFuelBase は空のキューブを1タイル運転するのに要する基準燃料量。何も積んでいなくても
+	// 運転は燃料を食う決断になるようにする。燃料値の単位は火への給油 FeedFuel と共通。要調整
+	DriveFuelBase = 10
+	// DriveFuelPerKg はキューブ収納の総重量1kgあたりに加算する運転燃料。総重量に比例して燃費が悪化する
+	DriveFuelPerKg = 1
 )
 
 // ========== ゲーム定数 ==========

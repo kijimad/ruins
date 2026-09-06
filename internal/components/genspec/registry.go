@@ -46,6 +46,8 @@ var Registry = []Def{
 	{Field: "Door"},            // 開閉可能な扉であることを表す
 	{Field: "Fixed"},           // 世界に固定され拾えない固定物であることを示す
 	{Field: "Pushable"},        // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
+	{Field: "Drivable"},        // 運転可能であることを示す。移動拠点キューブが持つ
+	{Field: "Driving"},         // 運転中であることと運転対象の乗り物を保持する。プレイヤーへ付く一時状態
 	{Field: "LightSource"},     // 光源であることを表す
 	{Field: "Interactable"},    // 相互作用可能であることを示す
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する

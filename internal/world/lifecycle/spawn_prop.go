@@ -171,6 +171,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		Fixed:           &gc.Fixed{},
 		BlockPass:       &gc.BlockPass{},
 		Pushable:        &gc.Pushable{},
+		Drivable:        &gc.Drivable{},
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
 		// 隣接して手動で内部へ入る、または引く。歩き込みは押し、明示的な入る/引くはメニューから
