@@ -42,6 +42,25 @@ func TestPushCost(t *testing.T) {
 	}
 }
 
+func TestDriveFuelCost(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name  string
+		total consts.Milligram
+		want  int
+	}{
+		{"空のキューブは基準燃料だけかかる", 0, consts.DriveFuelBase},
+		{"総重量3kgで基準に3kgぶん加算される", consts.Milligram(3 * consts.MilligramPerKg), consts.DriveFuelBase + 3*consts.DriveFuelPerKg},
+		{"総重量10kgで基準に10kgぶん加算される", consts.Milligram(10 * consts.MilligramPerKg), consts.DriveFuelBase + 10*consts.DriveFuelPerKg},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, query.DriveFuelCost(tt.total))
+		})
+	}
+}
+
 func TestCubeWeight_内部ステージ束縛の重量を合算し他ステージを除く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

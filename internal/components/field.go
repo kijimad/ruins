@@ -74,10 +74,12 @@ type Renderable struct{}
 type Pushable struct{}
 
 // Drivable はキューブが運転可能であることを示すマーカー。SpawnCube が付与する。
+// 移行中は押しの Pushable と併存し、押し引きを撤去する段階で Pushable を置き換える。
 type Drivable struct{}
 
 // Driving はプレイヤーが運転中であることと運転対象のキューブを表す。運転中は移動入力をキューブへ
 // 委譲し、プレイヤーは同乗して座標をキューブに同期する。一時状態なので保存しない。
+// Cube の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
 type Driving struct {
 	Cube ecs.Entity // 運転中のキューブ
 }
