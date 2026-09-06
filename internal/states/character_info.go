@@ -202,9 +202,9 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", bodyFuncs.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
 		statusItemData{Label: query.T(world, "Blood"), Value: fmt.Sprintf("%d%%", bodyFuncs.Blood), Description: bloodDesc, Details: bloodDetails},
 		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", bodyFuncs.Consciousness), Description: query.T(world, "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions"), Details: consciousnessDrops(world, playerEntity)},
-		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", bodyFuncs.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
-		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", bodyFuncs.Moving), Description: query.T(world, "Affects move speed")},
-		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", bodyFuncs.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
+		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", bodyFuncs.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting"), Details: limbDrops(world, playerEntity, bodyFuncs, gc.BodyFuncManipulation)},
+		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", bodyFuncs.Moving), Description: query.T(world, "Affects move speed"), Details: limbDrops(world, playerEntity, bodyFuncs, gc.BodyFuncMoving)},
+		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", bodyFuncs.Sight), Description: query.T(world, "Affects ranged accuracy and vision"), Details: limbDrops(world, playerEntity, bodyFuncs, gc.BodyFuncSight)},
 		statusItemData{Label: query.T(world, "Metabolism"), Value: fmt.Sprintf("%d%%", bodyFuncs.Metabolism), Description: query.T(world, "Affects recovery speed. Hunger and fatigue lower it"), Details: fatigueHungerDrops(world, playerEntity)},
 	)
 
@@ -337,6 +337,25 @@ func consciousnessDrops(world w.World, playerEntity ecs.Entity) []statusDetailRo
 		}
 	}
 	return append(rows, fatigueHungerDrops(world, playerEntity)...)
+}
+
+// limbDrops は局所身体機能の低下要因を内訳にする。局所の怪我と、意識を master 乗数で掛けた減少を分けて出す。
+// 意識の行を開けば疲労・空腹・痛みまで辿れる。行の合計は局所機能の値と一致する
+func limbDrops(world w.World, playerEntity ecs.Entity, bodyFuncs gc.BodyFuncs, bf gc.BodyFuncKind) []statusDetailRow {
+	local := 0
+	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
+		local = world.Components.HealthStatus.Get(playerEntity).LocalDrop(bf)
+	}
+	var rows []statusDetailRow
+	if local != 0 {
+		rows = append(rows, statusDetailRow{Label: query.T(world, "Injury and illness"), Value: fmt.Sprintf("%+d%%", -local)})
+	}
+	// 局所を引いた後に意識を master 乗数で掛けた減少ぶん。意識自体の内訳は意識の行に出る
+	afterLocal := max(0, min(100, 100-local))
+	if d := afterLocal*int(bodyFuncs.Consciousness)/100 - afterLocal; d != 0 {
+		rows = append(rows, statusDetailRow{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%+d%%", d)})
+	}
+	return rows
 }
 
 // sourceLabel は内訳1件の表示ラベルを現在言語で整形する

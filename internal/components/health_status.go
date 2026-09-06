@@ -610,3 +610,19 @@ func (hs *HealthStatus) ConsciousnessDrops() (systemic, pain int) {
 	}
 	return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor
 }
+
+// LocalDrop は指定した局所身体機能を下げる部位の不調ぶんを返す。意識の master 乗数を掛ける前の局所低下で、
+// 局所機能の内訳表示に使う。全身性の Consciousness を渡すと 0 を返す
+func (hs *HealthStatus) LocalDrop(bf BodyFuncKind) int {
+	drop := 0
+	for i := range hs.Parts {
+		if bodyPartFunction(BodyPart(i)) != bf {
+			continue
+		}
+		for j := range hs.Parts[i].Conditions {
+			_, d := conditionSeverityImpact(&hs.Parts[i].Conditions[j])
+			drop += d
+		}
+	}
+	return drop
+}
