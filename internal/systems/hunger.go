@@ -30,9 +30,18 @@ func progressTurnHunger(world w.World) {
 			world.Components.Hunger.Get(entity).Decrease(1)
 		}
 		// 低体温と同じく、空腹の量から WholeBody の不調を毎ターン立て直す。全身性として身体機能へ効く
-		level := world.Components.Hunger.Get(entity).GetLevel()
-		syncGaugeCondition(world, entity, gc.ConditionMalnutrition, gc.HungerConditionSeverity(level))
+		SyncHungerCondition(world, entity)
 	}
+}
+
+// SyncHungerCondition は空腹の量から Malnutrition 不調を立て直す。ターン進行のほか、量を直接変える
+// debug やアイテムの箇所も呼ぶことで、量と不調がずれて効果が反映されないのを防ぐ
+func SyncHungerCondition(world w.World, entity ecs.Entity) {
+	if !world.Components.Hunger.Has(entity) {
+		return
+	}
+	level := world.Components.Hunger.Get(entity).GetLevel()
+	syncGaugeCondition(world, entity, gc.ConditionMalnutrition, gc.HungerConditionSeverity(level))
 }
 
 // hungerNoise は entity と turn から決定的な擬似乱数を撹拌する。splitmix64 の finalizer を使い、共有 RNG を

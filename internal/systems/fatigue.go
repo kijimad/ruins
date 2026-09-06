@@ -33,8 +33,18 @@ func progressTurnFatigue(world w.World) {
 		fatigue.Current = max(0, min(fatigue.Current, fatigue.Max))
 
 		// 低体温と同じく、疲労の量から WholeBody の不調を毎ターン立て直す。全身性として身体機能へ効く
-		syncGaugeCondition(world, entity, gc.ConditionExhaustion, fatigue.ConditionSeverity())
+		SyncFatigueCondition(world, entity)
 	}
+}
+
+// SyncFatigueCondition は疲労の量から Exhaustion 不調を立て直す。ターン進行のほか、量を直接変える
+// debug やアイテムの箇所も呼ぶことで、量と不調がずれて効果が反映されないのを防ぐ
+func SyncFatigueCondition(world w.World, entity ecs.Entity) {
+	if !world.Components.Fatigue.Has(entity) {
+		return
+	}
+	severity := world.Components.Fatigue.Get(entity).ConditionSeverity()
+	syncGaugeCondition(world, entity, gc.ConditionExhaustion, severity)
 }
 
 // syncGaugeCondition は量から導出する不調を entity の WholeBody へ severity で立て直す。

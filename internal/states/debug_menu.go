@@ -9,6 +9,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -168,6 +169,8 @@ func debugExhaustFatigue(world w.World) error {
 	}
 	fatigue := world.Components.Fatigue.Get(player)
 	fatigue.Current = fatigue.Max
+	// 量を直接変えたら不調も同期する。次のターンを待たず Effects へ反映させる
+	gs.SyncFatigueCondition(world, player)
 	return nil
 }
 
