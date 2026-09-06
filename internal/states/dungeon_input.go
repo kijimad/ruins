@@ -40,6 +40,7 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
 	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
 	{Key: ebiten.KeyS, Action: inputmapper.ActionVerbList, Label: "List"},
+	{Key: ebiten.KeyB, Action: inputmapper.ActionSleep, Label: "Sleep"},
 	// 移動。WASD は動詞へ空けるため矢印キーのみを使う。斜めへは視点を回してから直進する
 	{Key: ebiten.KeyUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
 	{Key: ebiten.KeyDown, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveSouth, Label: "Move"},
@@ -156,6 +157,8 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSleep:
+		return st.handleSleep(world)
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
 		verb, ok := verbByAction(action)
 		if !ok {
@@ -365,4 +368,64 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			}
 		}
 	})
+}
+
+// handleSleep は睡眠の確認プロンプトを開く。入眠可否と各条件は activity.EvaluateSleepConditions が
+// 1箇所で評価し、プロンプトはそれを見せて確認を取る。実際の入眠は選択肢の Sleep で行う。
+func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], error) {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return es.Transition[w.World]{Type: es.TransNone}, err
+	}
+	// 入眠できないときはプロンプトを開かず、妨げている最初の理由だけをログへ出す。
+	// 可能なときだけ確認プロンプトを開く
+	if reason, blocked := sleepBlockReason(activity.EvaluateSleepConditions(world, player)); blocked {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, reason)).Log()
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	}
+	return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+		func() (es.State[w.World], error) { return NewChoiceMenu(sleepConfirmChoices), nil },
+	}}, nil
+}
+
+// sleepBlockReason は入眠を妨げる最初の条件の理由 msgid を返す。妨げが無ければ blocked=false。
+// 検査順は SleepBehavior.Validate と揃え、表示とゲートで同じ優先順位にする。
+// 返す文字列は Validate が query.T へインラインで渡す msgid と同じもの
+func sleepBlockReason(sc activity.SleepConditions) (msgid string, blocked bool) {
+	switch {
+	case sc.TooTired():
+		return "Not tired enough to sleep.", true
+	case !sc.TemperatureOK:
+		return "Too cold or hot to sleep.", true
+	case !sc.AreaSafe:
+		return "Cannot sleep because enemies are nearby.", true
+	}
+	return "", false
+}
+
+// sleepConfirmChoices は睡眠プロンプトの本文と選択肢を組む。各条件を Header 行でチェック/バツの
+// アイコン付きに見せ、入眠可能なら Sleep を選べる。ブロック条件があるときは Sleep を非選択のバツ表示にして理由を残す。
+// sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が
+// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。
+func sleepConfirmChoices(world w.World) (string, []Choice) {
+	title := query.T(world, "Sleep here?")
+	return title, []Choice{
+		{
+			Label: query.T(world, "Sleep"),
+			Run: func(world w.World) (es.Transition[w.World], error) {
+				p, perr := query.GetPlayerEntity(world)
+				if perr != nil {
+					return es.Transition[w.World]{}, perr
+				}
+				if _, eerr := activity.Execute(activity.NewSleepActivity(), p, world); eerr != nil {
+					return es.Transition[w.World]{}, eerr
+				}
+				return es.Transition[w.World]{Type: es.TransPop}, nil
+			},
+		},
+		{
+			Label: query.T(world, "Cancel"),
+			Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },
+		},
+	}
 }

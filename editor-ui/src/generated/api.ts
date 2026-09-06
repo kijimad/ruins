@@ -412,6 +412,15 @@ export interface BalanceWeaponInfo {
     'accuracy': number;
 }
 /**
+ * 寝具設定。眠るときの睡眠効率を決める
+ */
+export interface Bedding {
+    /**
+     * 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
+     */
+    'quality': number;
+}
+/**
  * 本の設定
  */
 export interface Book {
@@ -1250,6 +1259,7 @@ export interface Prop {
     'hp'?: number;
     'lightSource'?: LightSource;
     'heatSource'?: HeatSource;
+    'bedding'?: Bedding;
     /**
      * 扉ローデータ
      */

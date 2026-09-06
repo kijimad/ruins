@@ -64,6 +64,8 @@ const (
 	BehaviorIgnite BehaviorName = "Ignite"
 	// BehaviorFeedFuel は隣接の火へ燃料をくべる給油メニューを開く。ExecuteInteraction が直接処理する
 	BehaviorFeedFuel BehaviorName = "FeedFuel"
+	// BehaviorSleep は疲労が抜けるまで眠り続ける。外因で中断される
+	BehaviorSleep BehaviorName = "Sleep"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

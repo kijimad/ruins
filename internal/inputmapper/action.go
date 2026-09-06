@@ -67,6 +67,11 @@ const (
 	ActionInteract ActionID = "interact" // 汎用的な相互作用（ワープ、アイテム拾得など）
 )
 
+// 生理系アクション
+const (
+	ActionSleep ActionID = "sleep"
+)
+
 // 戦闘系アクション
 const (
 	ActionAttack            ActionID = "attack"

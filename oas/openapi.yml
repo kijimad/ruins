@@ -1871,6 +1871,18 @@ components:
       minimum: 0
       maximum: 9999
       description: 基本ダメージ
+    Bedding:
+      type: object
+      required:
+        - quality
+      properties:
+        quality:
+          $ref: '#/components/schemas/BeddingQuality'
+      description: 寝具設定。眠るときの睡眠効率を決める
+    BeddingQuality:
+      type: integer
+      minimum: 0
+      description: 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
     BlocksPassage:
       type: boolean
       description: 通行を妨げるかどうか
@@ -2910,6 +2922,8 @@ components:
           $ref: '#/components/schemas/LightSource'
         heatSource:
           $ref: '#/components/schemas/HeatSource'
+        bedding:
+          $ref: '#/components/schemas/Bedding'
         door:
           $ref: '#/components/schemas/DoorRaw'
         warpNextTrigger:

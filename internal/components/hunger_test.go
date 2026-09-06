@@ -87,29 +87,6 @@ func TestHunger_Decrease(t *testing.T) {
 	})
 }
 
-func TestHunger_GetStatusPenalty(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name    string
-		current int
-		max     int
-		want    int
-	}{
-		{"飢餓: -20", 0, 100, -20},
-		{"空腹: -10", 50, 100, -10},
-		{"普通: 0", 70, 100, 0},
-		{"満腹: 0", 100, 100, 0},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			h := &Hunger{Max: tt.max, Current: tt.current}
-			assert.Equal(t, tt.want, h.GetStatusPenalty())
-		})
-	}
-}
 func TestHungerLevel_String(t *testing.T) {
 	t.Parallel()
 

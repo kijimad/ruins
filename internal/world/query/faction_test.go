@@ -4,10 +4,65 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestIsAreaSafe(t *testing.T) {
+	t.Parallel()
+
+	t.Run("敵がいない場合は安全", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		assert.True(t, query.IsAreaSafe(world, player))
+	})
+
+	t.Run("近くに敵がいる場合は危険", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		enemy := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
+
+		assert.False(t, query.IsAreaSafe(world, player))
+	})
+
+	t.Run("遠くに敵がいる場合は安全", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		enemy := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 15, Y: 15}})
+
+		assert.True(t, query.IsAreaSafe(world, player))
+	})
+
+	t.Run("GridElementがない場合は危険と判定", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+
+		assert.False(t, query.IsAreaSafe(world, player))
+	})
+}
 
 func TestIsNeutral_中立派閥コンポーネントを持つエンティティはtrue(t *testing.T) {
 	t.Parallel()
