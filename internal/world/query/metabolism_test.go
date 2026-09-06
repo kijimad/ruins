@@ -98,8 +98,8 @@ func TestMetabolism(t *testing.T) {
 		entity := world.ECS.NewEntity()
 		world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000}) // 過労
 
-		// 過労は代謝 capacity を25下げる。熟練100 × capacity75 = 75
-		assert.Equal(t, consts.Percent(75), Metabolism(world, entity))
+		// 過労は中度で代謝 capacity を20下げる。熟練100 × capacity80 = 80
+		assert.Equal(t, consts.Percent(80), Metabolism(world, entity))
 	})
 
 	t.Run("睡眠中は回復が上がり寝具品質に比例する", func(t *testing.T) {

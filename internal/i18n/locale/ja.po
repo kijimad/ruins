@@ -944,6 +944,18 @@ msgstr "肝疾患"
 msgid "Food poisoning"
 msgstr "食あたり"
 
+msgid "Exhaustion"
+msgstr "過労"
+
+msgid "Malnutrition"
+msgstr "栄養失調"
+
+msgid "Worn out from lack of rest. Sleep to recover."
+msgstr "休息不足で消耗している。眠れば回復する。"
+
+msgid "Weakened by hunger. Eat to recover."
+msgstr "空腹で衰弱している。食べれば回復する。"
+
 msgid "The body is dangerously cold. Warm up to recover."
 msgstr "体が危険なほど冷えている。暖まれば回復する。"
 

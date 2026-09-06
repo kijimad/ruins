@@ -24,11 +24,11 @@ func TestProficiencyValue_疲労は武器命中を下げる(t *testing.T) {
 
 	base := int(ProficiencyValue(world, entity, gc.ProfSwordAccuracy))
 
-	// 過労は意識を25下げ、操作機能75%が命中へ乗る
+	// 過労は中度で意識を20下げ、操作機能80%が命中へ乗る
 	setExhaustedFatigue(world, entity)
 	tired := int(ProficiencyValue(world, entity, gc.ProfSwordAccuracy))
 
-	assert.Equal(t, base*75/100, tired, "過労で命中が75%に下がる")
+	assert.Equal(t, base*80/100, tired, "過労で命中が80%に下がる")
 }
 
 func TestProficiencyValue_疲労は命中以外に効かない(t *testing.T) {

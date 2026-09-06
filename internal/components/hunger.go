@@ -63,18 +63,18 @@ func (h *Hunger) GetLevel() HungerLevel {
 	}
 }
 
-// HungerConsciousnessPenalty は空腹段階が意識へ与える低下量を返す。意識は master 乗数なので、この1つの値が
-// 命中・行動速度・回復すべてへ波及する。保存せず読み取り時に量から導出する。値は実プレイで調整する
-func HungerConsciousnessPenalty(level HungerLevel) int {
+// HungerSeverity は空腹段階を栄養失調 condition の重症度へ写す。ok=false なら condition は立たない。
+// 栄養失調は量から読み取り時に materialize され、怪我と同じ funnel で意識・代謝を下げる
+func HungerSeverity(level HungerLevel) (Severity, bool) {
 	switch level {
 	case HungerSatiated, HungerNormal:
-		return 0
+		return SeverityNone, false
 	case HungerHungry:
-		return 10
+		return SeverityMinor, true
 	case HungerStarving:
-		return 20
+		return SeverityMedium, true
 	}
-	return 0
+	return SeverityNone, false
 }
 
 // Increase は満腹度を増加させる（食事によって満腹になる）

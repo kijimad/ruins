@@ -262,15 +262,30 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 
 		var conds []gc.HealthCondition
 		if hs != nil {
-			conds = hs.Parts[i].Conditions
+			conds = append(conds, hs.Parts[i].Conditions...)
+		}
+		// 全身は過労・栄養失調の need condition の受け皿。量から materialize して怪我と同じ列に並べる
+		if part == gc.BodyPartWholeBody {
+			conds = append(conds, query.DerivedConditions(world, playerEntity)...)
 		}
 		if len(conds) == 0 {
 			// 症状の無い部位は健康の1エントリを置く。見出しと区別するため字下げする
 			items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, "Normal"), BodyPart: part})
 			continue
 		}
-		// 症状ごとに1エントリ。見出しと区別するため字下げし、名前の右に治療状態、値に進行度を出す
+		// 症状ごとに1エントリ。見出しと区別するため字下げする
 		for _, cond := range conds {
+			// need condition は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
+			if cond.Type == gc.ConditionExhaustion || cond.Type == gc.ConditionMalnutrition {
+				items = append(items, statusItemData{
+					Label:         healthEntryIndent + translatedConditionName(world, cond.Type),
+					Value:         query.T(world, cond.Severity.String()),
+					BodyPart:      part,
+					ConditionType: cond.Type,
+				})
+				continue
+			}
+			// 怪我・病気は名前の右に治療状態、値に進行度を出す
 			name := translatedConditionName(world, cond.Type) + "  " + treatmentStatus(world, cond)
 			items = append(items, statusItemData{
 				Label:         healthEntryIndent + name,
@@ -296,19 +311,13 @@ func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailR
 	return rows
 }
 
-// fatigueHungerDrops は疲労・空腹による低下ぶんを内訳にする。意識と代謝 capacity の両方が同じこの低下を受ける
+// fatigueHungerDrops は過労・栄養失調の need condition による低下ぶんを内訳にする。
+// 意識と代謝 capacity の両方が同じこの低下を受ける。量から materialize した condition から出す
 func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
 	var rows []statusDetailRow
-	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
-		f := world.Components.Fatigue.Get(playerEntity)
-		if p := f.ConsciousnessPenalty(); p != 0 {
-			rows = append(rows, statusDetailRow{Label: query.T(world, string(f.GetLevel())), Value: fmt.Sprintf("-%d%%", p)})
-		}
-	}
-	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
-		h := world.Components.Hunger.Get(playerEntity)
-		if p := gc.HungerConsciousnessPenalty(h.GetLevel()); p != 0 {
-			rows = append(rows, statusDetailRow{Label: query.T(world, h.GetLevel().String()), Value: fmt.Sprintf("-%d%%", p)})
+	for _, c := range query.DerivedConditions(world, playerEntity) {
+		if _, _, drop := gc.ConditionBodyFuncImpact(&c, gc.BodyPartWholeBody); drop != 0 {
+			rows = append(rows, statusDetailRow{Label: query.T(world, gc.ConditionTypeDisplayName(c.Type)), Value: fmt.Sprintf("-%d%%", drop)})
 		}
 	}
 	return rows
