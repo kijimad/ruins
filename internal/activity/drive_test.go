@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -98,6 +99,21 @@ func TestToolCandidates_離れたキューブの収納工具は含まない(t *t
 	world.Components.LocationInStorage.Add(tool, &gc.LocationInStorage{Owner: cube})
 
 	assert.NotContains(t, ToolCandidates(world, player), tool, "離れたキューブの工具は候補に入らない")
+}
+
+func TestApplyDamage_運転中のプレイヤーも被弾する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+
+	hpBefore := world.Components.HP.Get(player).Current
+	gameaction.ApplyDamage(world, player, 5, cube)
+
+	assert.Less(t, world.Components.HP.Get(player).Current, hpBefore, "運転中でも entity は残り被弾する。反撃だけできない非対称")
 }
 
 func TestIsDrivingPlayer_運転中のプレイヤーを見分ける(t *testing.T) {
