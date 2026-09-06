@@ -77,11 +77,12 @@ type Pushable struct{}
 // 移行中は押しの Pushable と併存し、押し引きを撤去する段階で Pushable を置き換える。
 type Drivable struct{}
 
-// Driving はプレイヤーが運転中であることと運転対象のキューブを表す。運転中は移動入力をキューブへ
-// 委譲し、プレイヤーは同乗して座標をキューブに同期する。一時状態なので保存しない。
-// Cube の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
+// Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。運転中は移動入力を乗り物へ
+// 委譲し、プレイヤーは同乗して座標を乗り物に同期する。一時状態なので保存しない。
+// 対象を Drivable 一般で持ち、キューブという固有名には縛らない。
+// Vehicle の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
 type Driving struct {
-	Cube ecs.Entity // 運転中のキューブ
+	Vehicle ecs.Entity // 運転中の乗り物。Drivable を持つ
 }
 
 // Direction はタイルベース移動の方向
