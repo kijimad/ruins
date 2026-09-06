@@ -264,10 +264,10 @@ func TestCalcProficiency_値は基準と内訳の和に一致する(t *testing.T
 	sickHS.Parts[BodyPartHead].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
 
 	cases := []struct {
-		name   string
-		skills *Skills
-		abils  *Abilities
-		caps   BodyFuncs
+		name      string
+		skills    *Skills
+		abils     *Abilities
+		bodyFuncs BodyFuncs
 	}{
 		{"素の状態", NewSkills(), nil, HealthyBodyFuncs()},
 		{"スキルと能力値", richSkills, abils, HealthyBodyFuncs()},
@@ -280,10 +280,10 @@ func TestCalcProficiency_値は基準と内訳の和に一致する(t *testing.T
 			// 表示は 基準 + Σ内訳、適用は CalcProficiencyValue。両者の一致が表示=適用の土台
 			for _, spec := range proficiencySpecs {
 				sum := int(consts.PercentBase)
-				for _, s := range CalcProficiencySources(tc.skills, tc.abils, tc.caps, spec.Key) {
+				for _, s := range CalcProficiencySources(tc.skills, tc.abils, tc.bodyFuncs, spec.Key) {
 					sum += s.Value
 				}
-				assert.Equal(t, int(CalcProficiencyValue(tc.skills, tc.abils, tc.caps, spec.Key)), sum,
+				assert.Equal(t, int(CalcProficiencyValue(tc.skills, tc.abils, tc.bodyFuncs, spec.Key)), sum,
 					"キー %s で 最終値 = 基準 + Σ内訳 が破れた", spec.Key)
 			}
 		})

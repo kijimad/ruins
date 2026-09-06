@@ -167,18 +167,18 @@ func IsWeaponAccuracyKey(key ProficiencyKey) bool {
 
 // weaponAccuracyBodyFunc は武器スキルの命中に効く身体機能の種別と乗数を返す。
 // 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする
-func weaponAccuracyBodyFunc(caps BodyFuncs, id SkillID) (BodyFuncKind, consts.Percent) {
+func weaponAccuracyBodyFunc(bodyFuncs BodyFuncs, id SkillID) (BodyFuncKind, consts.Percent) {
 	for _, at := range AllAttackTypes {
 		skillID, ok := WeaponSkillID(at)
 		if !ok || skillID != id {
 			continue
 		}
 		if at.Range == AttackRangeRanged {
-			return BodyFuncSight, caps.Sight
+			return BodyFuncSight, bodyFuncs.Sight
 		}
-		return BodyFuncManipulation, caps.Manipulation
+		return BodyFuncManipulation, bodyFuncs.Manipulation
 	}
-	return BodyFuncManipulation, caps.Manipulation
+	return BodyFuncManipulation, bodyFuncs.Manipulation
 }
 
 // proficiencySpec は倍率1つの定義。キー・元スキル・スキルLv1あたりの係数を束ねる
@@ -240,9 +240,9 @@ var accuracySkillByKey = func() map[ProficiencyKey]SkillID {
 
 // forEachProficiencySource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。
 // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない。
-// skills / abils は不在なら nil でよく、その由来のソースは飛ばす。caps は実効身体機能で、
+// skills / abils は不在なら nil でよく、その由来のソースは飛ばす。bodyFuncs は実効身体機能で、
 // 疲労・空腹の低下を畳んだものを呼び出し側が渡す
-func forEachProficiencySource(skills *Skills, abils *Abilities, caps BodyFuncs, key ProficiencyKey, fn func(ProficiencySource)) {
+func forEachProficiencySource(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key ProficiencyKey, fn func(ProficiencySource)) {
 	spec, ok := specByKey[key]
 	if !ok {
 		return
@@ -267,10 +267,10 @@ func forEachProficiencySource(skills *Skills, abils *Abilities, caps BodyFuncs, 
 		bonus += ablBonus
 	}
 
-	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる。caps は実効身体機能なので、
+	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる。bodyFuncs は実効身体機能なので、
 	// 部位の怪我に加え全身性の不調・疲労・空腹が既に畳まれている。ここは該当機能を掛けるだけ
 	if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {
-		limbKind, limbVal := weaponAccuracyBodyFunc(caps, id)
+		limbKind, limbVal := weaponAccuracyBodyFunc(bodyFuncs, id)
 		acc := int(consts.PercentBase) + bonus
 		withCap := limbVal.ApplyInt(acc)
 		if withCap != acc {
@@ -281,9 +281,9 @@ func forEachProficiencySource(skills *Skills, abils *Abilities, caps BodyFuncs, 
 
 // CalcProficiencyValue は key の効果倍率を導出する。内訳の加法差分を積むだけで
 // アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する
-func CalcProficiencyValue(skills *Skills, abils *Abilities, caps BodyFuncs, key ProficiencyKey) consts.Percent {
+func CalcProficiencyValue(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key ProficiencyKey) consts.Percent {
 	total := int(consts.PercentBase)
-	forEachProficiencySource(skills, abils, caps, key, func(s ProficiencySource) {
+	forEachProficiencySource(skills, abils, bodyFuncs, key, func(s ProficiencySource) {
 		total += s.Value
 	})
 	return consts.Percent(total)
@@ -291,9 +291,9 @@ func CalcProficiencyValue(skills *Skills, abils *Abilities, caps BodyFuncs, key 
 
 // CalcProficiencySources は key の内訳を返す。詳細モーダルの表示側だけが読む。
 // 未定義キーは空を返す
-func CalcProficiencySources(skills *Skills, abils *Abilities, caps BodyFuncs, key ProficiencyKey) []ProficiencySource {
+func CalcProficiencySources(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key ProficiencyKey) []ProficiencySource {
 	var srcs []ProficiencySource
-	forEachProficiencySource(skills, abils, caps, key, func(s ProficiencySource) {
+	forEachProficiencySource(skills, abils, bodyFuncs, key, func(s ProficiencySource) {
 		srcs = append(srcs, s)
 	})
 	return srcs

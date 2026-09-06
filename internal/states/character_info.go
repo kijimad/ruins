@@ -172,7 +172,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		return sourceToDetails(world, query.ProficiencySources(world, playerEntity, key))
 	}
 	// 実効身体機能。怪我・病気に加え疲労・空腹の意識低下を畳んだ値
-	caps := query.EffectiveBodyFuncs(world, playerEntity)
+	bodyFuncs := query.EffectiveBodyFuncs(world, playerEntity)
 
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
 	for _, id := range gc.WeaponSkillIDs {
@@ -199,12 +199,12 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 	items = append(items, statusItemData{Label: query.T(world, "Body function"), IsHeader: true, Description: query.T(world, "Body capacities lowered by injuries, illness, hunger and fatigue")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", caps.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
-		statusItemData{Label: query.T(world, "Blood"), Value: fmt.Sprintf("%d%%", caps.Blood), Description: bloodDesc, Details: bloodDetails},
-		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", caps.Consciousness), Description: query.T(world, "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions")},
-		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", caps.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
-		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", caps.Moving), Description: query.T(world, "Affects move speed")},
-		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", caps.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
+		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", bodyFuncs.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
+		statusItemData{Label: query.T(world, "Blood"), Value: fmt.Sprintf("%d%%", bodyFuncs.Blood), Description: bloodDesc, Details: bloodDetails},
+		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", bodyFuncs.Consciousness), Description: query.T(world, "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions")},
+		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", bodyFuncs.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
+		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", bodyFuncs.Moving), Description: query.T(world, "Affects move speed")},
+		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", bodyFuncs.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
