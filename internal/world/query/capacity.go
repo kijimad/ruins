@@ -6,13 +6,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// EffectiveBodyFunctions は怪我・病気に加え、疲労・空腹による意識低下を畳んだ実効身体機能を返す。
+// EffectiveBodyFuncs は怪我・病気に加え、疲労・空腹による意識低下を畳んだ実効身体機能を返す。
 // 速度・命中・回復がこの1関数を読むので、身体状態が行動へ効く経路が身体機能ただ1つに集約される。
 // 怪我・病気は HealthStatus から、疲労・空腹は意識オフセットとして畳む
-func EffectiveBodyFunctions(world w.World, entity ecs.Entity) gc.BodyFunctions {
-	caps := gc.HealthyBodyFunctions()
+func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {
+	caps := gc.HealthyBodyFuncs()
 	if world.Components.HealthStatus.Has(entity) {
-		caps = world.Components.HealthStatus.Get(entity).BodyFunctions()
+		caps = world.Components.HealthStatus.Get(entity).BodyFuncs()
 	}
 	return caps.WithConsciousnessPenalty(consciousnessPenalty(world, entity))
 }

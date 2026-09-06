@@ -32,7 +32,7 @@ func TestProficiencyValue_疲労は命中以外に効かない(t *testing.T) {
 	world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000})
 
 	// ProfMaxWeight は身体機能を畳まないので、疲労の意識低下では変わらない
-	assert.Equal(t, int(gc.CalcProficiencyValue(gc.NewSkills(), nil, gc.HealthyBodyFunctions(), gc.ProfMaxWeight)),
+	assert.Equal(t, int(gc.CalcProficiencyValue(gc.NewSkills(), nil, gc.HealthyBodyFuncs(), gc.ProfMaxWeight)),
 		int(ProficiencyValue(world, entity, gc.ProfMaxWeight)), "身体機能を畳まない倍率キーは疲労で変わらない")
 }
 
@@ -45,14 +45,14 @@ func TestProficiencySources_疲労の内訳が値と一致する(t *testing.T) {
 
 	value := int(ProficiencyValue(world, entity, gc.ProfSwordAccuracy))
 	sum := int(consts.PercentBase)
-	var sawBodyFunction bool
+	var sawBodyFunc bool
 	for _, s := range ProficiencySources(world, entity, gc.ProfSwordAccuracy) {
 		sum += s.Value
 		// 疲労は意識を下げ、命中は操作機能の畳み込みとして内訳に載る
-		if s.Kind == gc.SourceBodyFunction {
-			sawBodyFunction = true
+		if s.Kind == gc.SourceBodyFunc {
+			sawBodyFunc = true
 		}
 	}
 	assert.Equal(t, value, sum, "内訳の合計は値に一致する")
-	assert.True(t, sawBodyFunction, "疲労が下げた身体機能の内訳が載る")
+	assert.True(t, sawBodyFunc, "疲労が下げた身体機能の内訳が載る")
 }
