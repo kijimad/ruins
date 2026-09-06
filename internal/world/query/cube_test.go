@@ -5,9 +5,11 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +49,7 @@ func TestDriveFuelCost(t *testing.T) {
 	tests := []struct {
 		name  string
 		total consts.Milligram
-		want  int
+		want  consts.Heat
 	}{
 		{"空のキューブは基準燃料だけかかる", 0, consts.DriveFuelBase},
 		{"総重量3kgで基準に3kgぶん加算される", consts.Milligram(3 * consts.MilligramPerKg), consts.DriveFuelBase + 3*consts.DriveFuelPerKg},
@@ -59,6 +61,28 @@ func TestDriveFuelCost(t *testing.T) {
 			assert.Equal(t, tt.want, query.DriveFuelCost(tt.total))
 		})
 	}
+}
+
+// addCubeFuel はキューブ収納に材質と重量を持つ燃料アイテムを1つ足す
+func addCubeFuel(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Material, mg consts.Milligram) {
+	t.Helper()
+	e := world.ECS.NewEntity()
+	world.Components.Material.Add(e, &gc.Material{Kind: kind})
+	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
+	world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: cube})
+}
+
+func TestCubeFuelTotal(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	// COAL は 800/kg。2kg と 1kg で 1600 + 800 = 2400。石は不燃で寄与しない
+	addCubeFuel(t, world, cube, oapi.COAL, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeFuel(t, world, cube, oapi.COAL, consts.Milligram(1*consts.MilligramPerKg))
+	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(5*consts.MilligramPerKg))
+
+	assert.Equal(t, consts.Heat(2400), query.CubeFuelTotal(world, cube))
 }
 
 func TestCubeWeight_内部ステージ束縛の重量を合算し他ステージを除く(t *testing.T) {
