@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [移動拠点キューブを燃料ドライブ式の乗り物にする](docs/design/260905225033.md) | 0/18 | gamedesign, movement, ecs, item |
+| accepted | [移動拠点キューブを燃料ドライブ式の乗り物にする](docs/design/260905225033.md) | 0/19 | gamedesign, movement, ecs, item |
 
 
 ## Reference

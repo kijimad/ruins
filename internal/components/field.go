@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // Position はフィールド上に座標をもって存在する
@@ -71,6 +72,15 @@ type Renderable struct{}
 // Pushable は押して動かせることを示すマーカー。移動拠点キューブが最初の利用者だが、印は汎用で
 // キューブに限らない。BlockPass を持つ物でも、この印があると移動解決は通行不可でなく押しへ分岐する。
 type Pushable struct{}
+
+// Drivable は運転可能であることを示すマーカー。SpawnCube が付与する。
+type Drivable struct{}
+
+// Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。
+// Vehicle の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
+type Driving struct {
+	Vehicle ecs.Entity // 運転中の乗り物。Drivable を持つ
+}
 
 // Direction はタイルベース移動の方向
 type Direction int
