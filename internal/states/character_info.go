@@ -101,7 +101,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 			Value:       query.T(world, hunger.GetLevel().String()),
 			Description: query.T(world, "Hunger. High hunger hinders actions"),
 			Details: []statusDetailRow{
-				{Label: query.T(world, "Action speed"), Value: fmt.Sprintf("%+d", query.HungerSpeedPenalty(hunger.Current))},
+				{Label: query.T(world, "Action speed"), Value: fmt.Sprintf("%+d", query.HungerSpeedPenalty(hunger.GetLevel()))},
 				{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%+d%%", int(query.HungerRecoveryDelta(hunger.GetLevel())))},
 			},
 		})

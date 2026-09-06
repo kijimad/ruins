@@ -151,7 +151,7 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 
 	// 空腹ペナルティ
 	if hunger := world.Components.Hunger.Get(entity); hunger != nil {
-		penalty += HungerSpeedPenalty(hunger.Current)
+		penalty += HungerSpeedPenalty(hunger.GetLevel())
 	}
 
 	// 疲労ペナルティ。係数は Fatigue.Penalty の1表から読む
@@ -162,20 +162,18 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	return penalty
 }
 
-// HungerSpeedPenalty は空腹度による行動速度への加算を返す。満腹に近いほど0で、飢えるほど負に大きい
-func HungerSpeedPenalty(current int) int {
-	switch {
-	case current >= 75:
-		return 0 // 満腹
-	case current >= 50:
-		return -10 // やや空腹
-	case current >= 25:
-		return -25 // 空腹
-	case current >= 10:
-		return -50 // 飢餓
-	default:
-		return -75 // 餓死寸前
+// HungerSpeedPenalty は空腹段階による行動速度への加算を返す。命中・回復と同じく段階基準で、
+// 飢えるほど負に大きい。適用と Basic タブの内訳表示が同じこの導出を読む
+func HungerSpeedPenalty(level gc.HungerLevel) int {
+	switch level {
+	case gc.HungerSatiated, gc.HungerNormal:
+		return 0
+	case gc.HungerHungry:
+		return -10
+	case gc.HungerStarving:
+		return -20
 	}
+	return 0
 }
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する

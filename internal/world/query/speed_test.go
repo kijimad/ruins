@@ -45,8 +45,8 @@ func TestCalculateSpeed(t *testing.T) {
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100}) // 飢餓状態
 
 		speed := CalculateSpeed(world, entity)
-		// 基本100 - 飢餓ペナルティ50 = 50
-		assert.Equal(t, 50, speed)
+		// 基本100 - 飢餓ペナルティ20 = 80
+		assert.Equal(t, 80, speed)
 	})
 
 	t.Run("過積載によるペナルティ", func(t *testing.T) {
@@ -103,7 +103,7 @@ func TestCalculateSpeed(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
-		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 5, Max: 100})                   // 餓死寸前(-75)
+		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 5, Max: 100})                   // 飢餓(-20)
 		world.Components.WeightCapacity.Add(entity, &gc.WeightCapacity{Max: 100, Current: 400}) // 大幅超過（最大-75）
 
 		speed := CalculateSpeed(world, entity)
@@ -117,20 +117,19 @@ func TestHungerSpeedPenalty(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		hunger   int
+		level    gc.HungerLevel
 		expected int
 	}{
-		{"満腹", 100, 0},
-		{"やや空腹", 60, -10},
-		{"空腹", 30, -25},
-		{"飢餓", 15, -50},
-		{"餓死寸前", 5, -75},
+		{"満腹", gc.HungerSatiated, 0},
+		{"普通", gc.HungerNormal, 0},
+		{"空腹", gc.HungerHungry, -10},
+		{"飢餓", gc.HungerStarving, -20},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			penalty := HungerSpeedPenalty(tt.hunger)
+			penalty := HungerSpeedPenalty(tt.level)
 			assert.Equal(t, tt.expected, penalty)
 		})
 	}
