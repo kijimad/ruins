@@ -34,23 +34,23 @@ func TestFatigue_GetLevel(t *testing.T) {
 	}
 }
 
-func TestFatigue_ConditionSeverity(t *testing.T) {
+func TestFatigue_ConsciousnessPenalty(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name    string
 		current int
-		want    Severity
+		want    int
 	}{
-		{"快調は不調なし", 0, SeverityNone},
-		{"疲労は軽度", 600, SeverityMinor},
-		{"過労は重度", 900, SeveritySevere},
+		{"快調は意識低下なし", 0, 0},
+		{"疲労は中程度の意識低下", 600, 10},
+		{"過労は重い意識低下", 900, 25},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			f := &Fatigue{Max: 1000, Current: tt.current}
-			assert.Equal(t, tt.want, f.ConditionSeverity())
+			assert.Equal(t, tt.want, f.ConsciousnessPenalty())
 		})
 	}
 }

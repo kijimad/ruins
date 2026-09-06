@@ -9,7 +9,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 // advanceHunger は turns ターン分だけ空腹を進め、各ターンで TurnNumber を1つ進める。
@@ -20,35 +19,6 @@ func advanceHunger(world w.World, turns int) {
 		progressTurnHunger(world)
 		state.TurnNumber++
 	}
-}
-
-func TestProgressTurnHunger_飢餓はMalnutrition不調を立てる(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	actor := world.ECS.NewEntity()
-	world.Components.Hunger.Add(actor, &gc.Hunger{Current: 10, Max: 100}) // 飢餓
-	world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
-
-	progressTurnHunger(world)
-
-	cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionMalnutrition)
-	require.NotNil(t, cond, "飢餓なら Malnutrition 不調が立つ")
-	assert.Equal(t, gc.SeveritySevere, cond.Severity)
-}
-
-func TestProgressTurnHunger_満腹ならMalnutrition不調は立たない(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	actor := world.ECS.NewEntity()
-	world.Components.Hunger.Add(actor, &gc.Hunger{Current: 100, Max: 100}) // 満腹
-	world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
-
-	progressTurnHunger(world)
-
-	cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionMalnutrition)
-	assert.Nil(t, cond, "満腹なら不調は立たない")
 }
 
 func TestProgressTurnHunger_空腹進行が基準ターン数に緩和される(t *testing.T) {

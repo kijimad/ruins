@@ -7,53 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
-
-func TestSyncFatigueCondition_ターンを進めず量から不調を立てる(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	actor := world.ECS.NewEntity()
-	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 1600, Max: 2000}) // 過労
-	world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
-
-	// debug やアイテムで量を直接変えた後に呼ぶ経路。ターンを進めずに不調が立つ
-	SyncFatigueCondition(world, actor)
-
-	cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionExhaustion)
-	require.NotNil(t, cond, "量を直接変えても同期すれば不調が立つ")
-	assert.Equal(t, gc.SeveritySevere, cond.Severity)
-}
-
-func TestProgressTurnFatigue_過労はExhaustion不調を立てる(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	actor := world.ECS.NewEntity()
-	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 1600, Max: 2000}) // 過労
-	world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
-
-	progressTurnFatigue(world)
-
-	cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionExhaustion)
-	require.NotNil(t, cond, "過労なら Exhaustion 不調が立つ")
-	assert.Equal(t, gc.SeveritySevere, cond.Severity)
-}
-
-func TestProgressTurnFatigue_快調ならExhaustion不調は立たない(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	actor := world.ECS.NewEntity()
-	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 0, Max: 2000})
-	world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
-
-	progressTurnFatigue(world)
-
-	cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionExhaustion)
-	assert.Nil(t, cond, "快調なら不調は立たない")
-}
 
 func TestProgressTurnFatigue_起床中は蓄積する(t *testing.T) {
 	t.Parallel()

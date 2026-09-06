@@ -95,15 +95,15 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	}
 	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
-		// 空腹は Malnutrition 不調として全身性へ効き、回復も下げる。段階を値に出し、効果は Health タブの
-		// 不調と Effects タブの回復に出る
+		// 空腹は量から導出した意識低下として命中・速度・回復へ効く。段階を値に出し、効き目は
+		// Effects タブの意識と各出力に出る
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Hunger"),
 			Value:       query.T(world, hunger.GetLevel().String()),
 			Description: query.T(world, "Hunger. High hunger hinders actions and recovery"),
 		})
 	}
-	// 疲労は空腹と並ぶ生理値。Exhaustion 不調として全身性へ効き、回復も下げる
+	// 疲労は空腹と並ぶ生理値。量から導出した意識低下として命中・速度・回復へ効く
 	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
 		fatigue := world.Components.Fatigue.Get(playerEntity)
 		items = append(items, statusItemData{

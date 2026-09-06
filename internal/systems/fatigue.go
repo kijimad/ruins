@@ -4,7 +4,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/mlange-42/ark/ecs"
 )
 
 // fatigueRecoverPerTurn は睡眠中に1ターンで抜ける疲労の基準量。寝具 Quality で乗算する。
@@ -29,30 +28,8 @@ func progressTurnFatigue(world w.World) {
 			fatigue.Current += gc.FatigueGainPerTurn
 		}
 
-		// 0..Max に収める。上限でも死なせず Exhausted のペナルティが続く
+		// 0..Max に収める。上限でも死なせず Exhausted のペナルティが続く。
+		// 疲労の効果は保存せず、EffectiveBodyFuncs が量から読み取り時に導出するのでここで同期は不要
 		fatigue.Current = max(0, min(fatigue.Current, fatigue.Max))
-
-		// 低体温と同じく、疲労の量から WholeBody の不調を毎ターン立て直す。全身性として身体機能へ効く
-		SyncFatigueCondition(world, entity)
 	}
-}
-
-// SyncFatigueCondition は疲労の量から Exhaustion 不調を立て直す。ターン進行のほか、量を直接変える
-// debug やアイテムの箇所も呼ぶことで、量と不調がずれて効果が反映されないのを防ぐ
-func SyncFatigueCondition(world w.World, entity ecs.Entity) {
-	if !world.Components.Fatigue.Has(entity) {
-		return
-	}
-	severity := world.Components.Fatigue.Get(entity).ConditionSeverity()
-	syncGaugeCondition(world, entity, gc.ConditionExhaustion, severity)
-}
-
-// syncGaugeCondition は量から導出する不調を entity の WholeBody へ severity で立て直す。
-// HealthStatus を持たない対象は不調を載せられないので何もしない
-func syncGaugeCondition(world w.World, entity ecs.Entity, condType gc.ConditionType, severity gc.Severity) {
-	if !world.Components.HealthStatus.Has(entity) {
-		return
-	}
-	hs := world.Components.HealthStatus.Get(entity)
-	hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(condType, severity)
 }

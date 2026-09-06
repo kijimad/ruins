@@ -11,12 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// setExhaustion は疲労システムが立てるのと同じ Exhaustion 不調を WholeBody へ立てる。
-// 単体テストはシステムを回さないので、同期後の状態を直接作る
-func setExhaustion(world w.World, entity ecs.Entity, sev gc.Severity) {
-	hs := &gc.HealthStatus{}
-	hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionExhaustion, sev)
-	world.Components.HealthStatus.Add(entity, hs)
+// setExhaustedFatigue は過労の疲労を付ける。効果は保存された不調でなく、量から読み取り時に導出される
+func setExhaustedFatigue(world w.World, entity ecs.Entity) {
+	world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000})
 }
 
 func TestProficiencyValue_疲労は武器命中を下げる(t *testing.T) {
@@ -27,11 +24,11 @@ func TestProficiencyValue_疲労は武器命中を下げる(t *testing.T) {
 
 	base := int(ProficiencyValue(world, entity, gc.ProfSwordAccuracy))
 
-	// 過労の Exhaustion 不調は全身性 10*3=30 を意識へ落とし、操作機能70%が命中へ乗る
-	setExhaustion(world, entity, gc.SeveritySevere)
+	// 過労は意識を25下げ、操作機能75%が命中へ乗る
+	setExhaustedFatigue(world, entity)
 	tired := int(ProficiencyValue(world, entity, gc.ProfSwordAccuracy))
 
-	assert.Equal(t, base*70/100, tired, "過労で命中が70%に下がる")
+	assert.Equal(t, base*75/100, tired, "過労で命中が75%に下がる")
 }
 
 func TestProficiencyValue_疲労は命中以外に効かない(t *testing.T) {
@@ -39,7 +36,7 @@ func TestProficiencyValue_疲労は命中以外に効かない(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
 	world.Components.Skills.Add(entity, gc.NewSkills())
-	setExhaustion(world, entity, gc.SeveritySevere)
+	setExhaustedFatigue(world, entity)
 
 	// ProfMaxWeight は身体機能を畳まないので、全身性の低下では変わらない
 	assert.Equal(t, int(gc.CalcProficiencyValue(gc.NewSkills(), nil, gc.HealthyBodyFuncs(), gc.ProfMaxWeight)),
@@ -51,7 +48,7 @@ func TestProficiencySources_疲労の内訳が値と一致する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
 	world.Components.Skills.Add(entity, gc.NewSkills())
-	setExhaustion(world, entity, gc.SeveritySevere)
+	setExhaustedFatigue(world, entity)
 
 	value := int(ProficiencyValue(world, entity, gc.ProfSwordAccuracy))
 	sum := int(consts.PercentBase)

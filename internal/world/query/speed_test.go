@@ -37,22 +37,20 @@ func TestCalculateSpeed(t *testing.T) {
 		assert.Equal(t, 125, speed)
 	})
 
-	t.Run("飢餓の栄養失調は速度を下げる", func(t *testing.T) {
+	t.Run("飢餓は速度を下げる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
-		// 飢餓の Malnutrition 不調は全身性 8*3=24 を意識へ落とし、歩行76%が速度へ乗る
-		hs := &gc.HealthStatus{}
-		hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionMalnutrition, gc.SeveritySevere)
-		world.Components.HealthStatus.Add(entity, hs)
+		// 飢餓は意識を20下げ、歩行80%が速度へ乗る。効果は量から読み取り時に導出される
+		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
 
 		speed := CalculateSpeed(world, entity)
-		// 素の速度100 × 歩行76% = 76
-		assert.Equal(t, 76, speed)
+		// 素の速度100 × 歩行80% = 80
+		assert.Equal(t, 80, speed)
 	})
 
-	t.Run("能力の素速度に栄養失調が乗算で乗る", func(t *testing.T) {
+	t.Run("能力の素速度に飢餓が乗算で乗る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -61,13 +59,11 @@ func TestCalculateSpeed(t *testing.T) {
 			Agility:   gc.Ability{Total: 10},
 			Dexterity: gc.Ability{Total: 5},
 		})
-		hs := &gc.HealthStatus{}
-		hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionMalnutrition, gc.SeveritySevere)
-		world.Components.HealthStatus.Add(entity, hs)
+		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
 
 		speed := CalculateSpeed(world, entity)
-		// 素の速度 100 + AGI*2(20) + DEX*1(5) = 125。歩行76%が乗算で掛かり 125*76% = 95
-		assert.Equal(t, 95, speed)
+		// 素の速度 100 + AGI*2(20) + DEX*1(5) = 125。歩行80%が乗算で掛かり 125*80% = 100
+		assert.Equal(t, 100, speed)
 	})
 
 	t.Run("過積載によるペナルティ", func(t *testing.T) {

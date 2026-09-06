@@ -67,14 +67,12 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Current: 10, Max: 30})
-		// 飢餓は Malnutrition 不調として意識を下げ、回復も funnel 経由で鈍る。重度 8*3=24 → 意識76
-		hs := &gc.HealthStatus{}
-		hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionMalnutrition, gc.SeveritySevere)
-		world.Components.HealthStatus.Add(entity, hs)
+		// 飢餓は意識を20下げ、回復も funnel 経由で鈍る。効果は量から読み取り時に導出される
+		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
 
 		require.NoError(t, (&HealthRegenSystem{}).Update(world))
 
-		// 代謝76%。base(2)*0.76=1.52 は切り捨てで1
+		// 代謝80%。base(2)*0.8=1.6 は切り捨てで1
 		assert.Equal(t, 11, world.Components.HP.Get(entity).Current)
 	})
 

@@ -63,18 +63,18 @@ func (h *Hunger) GetLevel() HungerLevel {
 	}
 }
 
-// HungerConditionSeverity は空腹段階に対応する不調 Malnutrition の重症度を返す。無害な段階は SeverityNone。
-// 空腹システムが毎ターンこの重症度で WholeBody へ不調を立て、全身性として身体機能へ効かせる
-func HungerConditionSeverity(level HungerLevel) Severity {
+// HungerConsciousnessPenalty は空腹段階が意識へ与える低下量を返す。意識は master 乗数なので、この1つの値が
+// 命中・行動速度・回復すべてへ波及する。保存せず読み取り時に量から導出する。値は実プレイで調整する
+func HungerConsciousnessPenalty(level HungerLevel) int {
 	switch level {
 	case HungerSatiated, HungerNormal:
-		return SeverityNone
+		return 0
 	case HungerHungry:
-		return SeverityMinor
+		return 10
 	case HungerStarving:
-		return SeveritySevere
+		return 20
 	}
-	return SeverityNone
+	return 0
 }
 
 // Increase は満腹度を増加させる（食事によって満腹になる）

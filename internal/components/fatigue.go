@@ -44,16 +44,16 @@ func (f *Fatigue) GetLevel() FatigueLevel {
 	}
 }
 
-// ConditionSeverity は疲労段階に対応する不調 Exhaustion の重症度を返す。無害な段階は SeverityNone。
-// 疲労システムが毎ターンこの重症度で WholeBody へ不調を立て、全身性として身体機能へ効かせる
-func (f *Fatigue) ConditionSeverity() Severity {
+// ConsciousnessPenalty は疲労段階が意識へ与える低下量を返す。意識は master 乗数なので、この1つの値が
+// 命中・行動速度・回復すべてへ波及する。保存せず読み取り時に量から導出する。値は実プレイで調整する
+func (f *Fatigue) ConsciousnessPenalty() int {
 	switch f.GetLevel() {
 	case FatigueRested, FatigueNormal:
-		return SeverityNone
+		return 0
 	case FatigueTired:
-		return SeverityMinor
+		return 10
 	case FatigueExhausted:
-		return SeveritySevere
+		return 25
 	}
 	panic("invalid FatigueLevel value")
 }

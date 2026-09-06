@@ -78,8 +78,6 @@ const (
 	ConditionLaceration    ConditionType = "Laceration"    // 切り傷
 	ConditionLiverIllness  ConditionType = "LiverIllness"  // 肝疾患
 	ConditionFoodPoisoning ConditionType = "FoodPoisoning" // 食中毒
-	ConditionExhaustion    ConditionType = "Exhaustion"    // 疲労困憊。疲労の量から毎ターン導出
-	ConditionMalnutrition  ConditionType = "Malnutrition"  // 栄養失調。空腹の量から毎ターン導出
 )
 
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
@@ -160,20 +158,6 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		bodyFuncDropPerSeverity: 12,
 		Recovery:                RecoverOverTime,
 		RecoverPer:              2,
-	},
-	// 疲労困憊・栄養失調は量から導出する。低体温と同じく Recovery を持たず、疲労・空腹システムが
-	// 毎ターン severity を立て直す。痛みは出さず全身性の機能低下だけ与える。値は実プレイで調整する
-	ConditionExhaustion: {
-		displayName:             "Exhaustion",
-		description:             "Worn out. Rest to recover.",
-		painPerSeverity:         0,
-		bodyFuncDropPerSeverity: 10,
-	},
-	ConditionMalnutrition: {
-		displayName:             "Malnutrition",
-		description:             "Starving. Eat to recover.",
-		painPerSeverity:         0,
-		bodyFuncDropPerSeverity: 8,
 	},
 }
 
@@ -375,33 +359,6 @@ func (bph *BodyPartHealth) SetCondition(cond HealthCondition) {
 	bph.Conditions = append(bph.Conditions, cond)
 }
 
-// SetGaugeCondition は疲労・空腹など量から導出する不調を、指定の重症度へ揃える。
-// 重症度が SeverityNone なら不調を取り除く。状態の真実は量の側が持ち、不調はそれを写した派生なので、
-// 毎ターン呼んで上書きしてよい。Timer は重症度に対応する値を入れ、進行度表示や IsActive の判定が
-// 重症度と食い違わないようにする。
-func (bph *BodyPartHealth) SetGaugeCondition(condType ConditionType, severity Severity) {
-	if severity == SeverityNone {
-		bph.RemoveCondition(condType)
-		return
-	}
-	bph.SetCondition(HealthCondition{Type: condType, Severity: severity, Timer: severityTimer(severity)})
-}
-
-// severityTimer は severity と整合する Timer を返す。表示と IsActive を段階に合わせる
-func severityTimer(sev Severity) float64 {
-	switch sev {
-	case SeverityNone:
-		return 0
-	case SeverityMinor:
-		return 40
-	case SeverityMedium:
-		return 60
-	case SeveritySevere:
-		return 85
-	}
-	return 0
-}
-
 // AddCondition は状態を1つ積む。SetCondition と違い同種でも上書きせず別の傷として足す。
 // 戦闘の怪我のように独立した傷を重ねるのに使う
 func (bph *BodyPartHealth) AddCondition(cond HealthCondition) {
@@ -556,8 +513,17 @@ func (hs *HealthStatus) IsHPDraining() bool {
 
 // BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
 // 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を master 乗数として局所機能へ掛ける。
-// 疲労・空腹も不調として全身性へ入るので、need も怪我もこの1つの導出に集約される
 func (hs *HealthStatus) BodyFuncs() BodyFuncs {
+	return hs.bodyFuncs(0)
+}
+
+// BodyFuncsWith は全身性へ extraSystemic を足したうえで身体機能を導出する。疲労・空腹の意識低下のように、
+// 不調として保存せず読み取り時に足したい全身性を渡す。意識は一度だけ局所機能へ乗算されるので再スケールは不要
+func (hs *HealthStatus) BodyFuncsWith(extraSystemic int) BodyFuncs {
+	return hs.bodyFuncs(extraSystemic)
+}
+
+func (hs *HealthStatus) bodyFuncs(extraSystemic int) BodyFuncs {
 	pain := 0
 	bloodDrop := 0
 	var manip, moving, sight, systemic int // 各機能の低下量
@@ -581,8 +547,8 @@ func (hs *HealthStatus) BodyFuncs() BodyFuncs {
 	}
 
 	pain = clamp(pain, 0, 100)
-	// 意識は全身性の低下と痛みで下がる
-	consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)
+	// 意識は全身性の低下と痛みで下がる。extraSystemic は疲労・空腹など保存しない全身性を読み取り時に足す
+	consciousness := clamp(100-systemic-extraSystemic-pain/painConsciousnessDivisor, 0, 100)
 	// 局所機能は低下を引いたうえで、意識を全体乗数として掛ける
 	withConsciousness := func(local int) consts.Percent {
 		return consts.Percent(clamp(local, 0, 100) * consciousness / 100)
