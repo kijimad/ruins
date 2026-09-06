@@ -13,58 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIsAreaSafe(t *testing.T) {
-	t.Parallel()
-
-	t.Run("敵がいない場合は安全", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-
-		assert.True(t, isAreaSafe(player, world))
-	})
-
-	t.Run("近くに敵がいる場合は危険", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-
-		enemy := world.ECS.NewEntity()
-		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
-		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-
-		assert.False(t, isAreaSafe(player, world))
-	})
-
-	t.Run("遠くに敵がいる場合は安全", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-
-		enemy := world.ECS.NewEntity()
-		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
-		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 15, Y: 15}})
-
-		assert.True(t, isAreaSafe(player, world))
-	})
-
-	t.Run("GridElementがない場合は危険と判定", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-
-		assert.False(t, isAreaSafe(player, world))
-	})
-}
-
 func TestRestBehavior_Validate(t *testing.T) {
 	t.Parallel()
 

@@ -171,7 +171,10 @@ func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.C
 // generateBandChunks は Level を帯全域に設定し、rows × K のチャンクを各スロットへ決定的生成する。
 // Level 設定は帯寸法が不変なので再設定しても冪等で無害。
 func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {
-	query.EnsureStageField(world, gc.NewOverworldStage()).Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
+	overworldKey := gc.NewOverworldStage()
+	field := query.EnsureStageField(world, overworldKey)
+	field.Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
+	field.BaseTemp = dungeon.BaseTemperatureFor(overworldKey.Name)
 	for cy := range dr.band.Rows() {
 		for i := range dr.band.Cols() {
 			c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}

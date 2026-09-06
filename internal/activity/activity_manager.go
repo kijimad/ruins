@@ -118,6 +118,25 @@ func stepActivity(entity ecs.Entity, world w.World) {
 		return
 	}
 
+	// DoTurn が自ら中断したときは Canceled フックを走らせて後始末とログを行う。
+	// 睡眠の起床理由の表示や Sleeping の除去はここを通る。中断理由は DoTurn が Cancel で書いている。
+	// ここでは除去せず中断状態のまま残す。Execute が初回ターンの中断結果を読み取れるようにするためで、
+	// 実際の除去は次巡回の ProcessContinuousActivities が担う。完了と違い中断は呼び出し側が結果を要る
+	if IsCanceled(stored) {
+		// Canceled フックは Sleeping 除去など構造変更で stored を無効化しうる。理由は先に退避する
+		reason := stored.CancelReason
+		if err := behavior.Canceled(stored, entity, world); err != nil {
+			log.Warn("activity cancel processing error", "entity", entity, "type", behaviorName, "error", err.Error())
+		}
+		setLastResult(entity, &ActionResult{
+			Success:      false,
+			State:        gc.ActivityStateCanceled,
+			ActivityName: behaviorName,
+			Message:      reason,
+		}, world)
+		return
+	}
+
 	if !IsCompleted(stored) {
 		return
 	}
@@ -231,12 +250,18 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 		return
 	}
 
-	behavior, err := GetBehavior(comp.BehaviorName)
+	// Canceled フックは Sleeping 除去など構造変更で comp を無効化しうる。フック後に使う値は先に退避する
+	behaviorName := comp.BehaviorName
+	behavior, err := GetBehavior(behaviorName)
 	if err != nil {
 		log.Warn("failed to get behavior", "entity", entity, "error", err.Error())
 		query.RemoveActivity(world, entity)
 		return
 	}
+
+	// 先に中断状態と理由を書く。Canceled フックは comp.CancelReason を読んでログに出すため、
+	// フックより前に理由を確定させる。順序を逆にすると理由が空のまま表示される
+	Cancel(comp, reason)
 
 	// BehaviorのCanceled処理を実行
 	if err := behavior.Canceled(comp, entity, world); err != nil {
@@ -245,14 +270,11 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 			"error", err.Error())
 	}
 
-	// アクティビティ自体をキャンセル状態に
-	Cancel(comp, reason)
-
 	// 結果を記録
 	result := &ActionResult{
 		Success:      false,
 		State:        gc.ActivityStateCanceled,
-		ActivityName: comp.BehaviorName,
+		ActivityName: behaviorName,
 		Message:      reason,
 	}
 	setLastResult(entity, result, world)
@@ -261,7 +283,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 
 	log.Debug("activity canceled",
 		"entity", entity,
-		"type", comp.BehaviorName,
+		"type", behaviorName,
 		"reason", reason)
 }
 

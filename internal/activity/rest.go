@@ -43,7 +43,7 @@ func NewRestActivity() *gc.Activity {
 // Validate は休息アクティビティの検証を行う
 func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
-	if !isAreaSafe(actor, world) {
+	if !query.IsAreaSafe(world, actor) {
 		return &UserError{Msg: query.T(world, "cannot rest because enemies are nearby")}
 	}
 
@@ -63,7 +63,7 @@ func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 // DoTurn は休息アクティビティの1ターン分の処理を実行する
 func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
-	if !isAreaSafe(actor, world) {
+	if !query.IsAreaSafe(world, actor) {
 		Cancel(comp, "rest interrupted because enemies are nearby")
 		return ErrRestEnemiesNearby
 	}

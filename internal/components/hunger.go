@@ -82,19 +82,6 @@ func (h *Hunger) Decrease(amount int) {
 	}
 }
 
-// GetStatusPenalty は空腹度によるペナルティを取得する
-func (h *Hunger) GetStatusPenalty() int {
-	level := h.GetLevel()
-	switch level {
-	case HungerStarving:
-		return -20 // 飢餓状態では大きなペナルティ
-	case HungerHungry:
-		return -10 // 空腹状態では中程度のペナルティ
-	default:
-		return 0 // 満腹・普通では影響なし
-	}
-}
-
 // NewHunger は新しいHungerを作成する
 func NewHunger() *Hunger {
 	return &Hunger{

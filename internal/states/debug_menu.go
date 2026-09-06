@@ -44,6 +44,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		})},
 		{Label: "Inflict conditions", Run: popAfter(debugInflictConditions)},
 		{Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
+		{Label: "Exhaust fatigue", Run: popAfter(debugExhaustFatigue)},
 		{Label: "Damage self (-10 HP)", Run: popAfter(debugDamageSelf(10))},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
@@ -124,7 +125,6 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "Spawn enemy: skeleton soldier (patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "skeleton_soldier") })},
 		Choice{Label: "Spawn enemy: stray dog (territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "stray_dog") })},
 		Choice{Label: "Spawn prop: moving_stone (PassCost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
-		Choice{Label: "Spawn prop: fire", Run: stayAfter(spawnLitFireNearPlayer)},
 		Choice{Label: "Spawn prop: hearth", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "hearth") })},
 		Choice{Label: "Spawn prop: barrel (destructible)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "barrel") })},
 		Choice{Label: "Spawn prop: construction_sign (impassable)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "construction_sign") })},
@@ -154,6 +154,20 @@ func debugInflictConditions(world w.World) error {
 	set(gc.BodyPartArms, gc.ConditionLaceration, 60)
 	set(gc.BodyPartTorso, gc.ConditionLiverIllness, 60)
 	set(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90)
+	return nil
+}
+
+// debugExhaustFatigue はデバッグでプレイヤーの疲労を過労まで上げる。入眠をすぐ試すため
+func debugExhaustFatigue(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !world.Components.Fatigue.Has(player) {
+		return nil
+	}
+	fatigue := world.Components.Fatigue.Get(player)
+	fatigue.Current = fatigue.Max
 	return nil
 }
 
@@ -209,21 +223,6 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	}
 	_, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
-}
-
-// spawnLitFireNearPlayer はプレイヤーの隣に燃えている火をスポーンする。
-// 本番の着火と同じく fire prop へ Burning を付ける
-func spawnLitFireNearPlayer(world w.World) error {
-	playerGrid, err := playerGridElement(world)
-	if err != nil {
-		return err
-	}
-	fire, err := lifecycle.SpawnProp(world, "fire", playerGrid.X+2, playerGrid.Y)
-	if err != nil {
-		return err
-	}
-	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 999})
-	return nil
 }
 
 // spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする

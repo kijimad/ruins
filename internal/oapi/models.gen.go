@@ -915,6 +915,15 @@ type BalanceWeaponName = string
 // BaseDamage 基本ダメージ
 type BaseDamage = int
 
+// Bedding 寝具設定。眠るときの睡眠効率を決める
+type Bedding struct {
+	// Quality 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
+	Quality BeddingQuality `json:"quality"`
+}
+
+// BeddingQuality 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
+type BeddingQuality = int
+
 // BlocksPassage 通行を妨げるかどうか
 type BlocksPassage = bool
 
@@ -1610,6 +1619,9 @@ type ProfessionSkill struct {
 // Prop 置物
 type Prop struct {
 	AnimKeys *[]SpriteKey `json:"animKeys,omitempty"`
+
+	// Bedding 寝具設定。眠るときの睡眠効率を決める
+	Bedding *Bedding `json:"bedding,omitempty"`
 
 	// BlockPass 通行を妨げるかどうか
 	BlockPass BlocksPassage `json:"blockPass"`

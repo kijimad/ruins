@@ -90,4 +90,25 @@ func TestMetabolism(t *testing.T) {
 		// 100 + (-40*3) = -20 → 0 にクランプ
 		assert.Equal(t, consts.Percent(0), Metabolism(world, entity))
 	})
+
+	t.Run("疲労で回復が下がる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		entity := world.ECS.NewEntity()
+		// 過労: 80%以上
+		world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000})
+
+		// 100 + 過労-40 = 60
+		assert.Equal(t, consts.Percent(60), Metabolism(world, entity))
+	})
+
+	t.Run("睡眠中は回復が上がり寝具品質に比例する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		entity := world.ECS.NewEntity()
+		world.Components.Sleeping.Add(entity, &gc.Sleeping{Quality: 150})
+
+		// 100 + 睡眠50*1.5 = 175
+		assert.Equal(t, consts.Percent(175), Metabolism(world, entity))
+	})
 }
