@@ -170,11 +170,11 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	if !world.ECS.Alive(playerEntity) {
 		return items
 	}
-	val := func(key gc.ModifierKey) string {
-		return fmt.Sprintf("%d%%", query.ModifierValue(world, playerEntity, key))
+	val := func(key gc.ProficiencyKey) string {
+		return fmt.Sprintf("%d%%", query.ProficiencyValue(world, playerEntity, key))
 	}
-	details := func(key gc.ModifierKey) []statusDetailRow {
-		return sourceToDetails(world, query.ModifierSources(world, playerEntity, key))
+	details := func(key gc.ProficiencyKey) []statusDetailRow {
+		return sourceToDetails(world, query.ProficiencySources(world, playerEntity, key))
 	}
 	// 実効身体機能。怪我・病気に加え疲労・空腹の意識低下を畳んだ値
 	caps := query.EffectiveCapacities(world, playerEntity)
@@ -214,28 +214,28 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(gc.ModColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(gc.ModColdProgress)},
-		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(gc.ModHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(gc.ModHungerProgress)},
-		statusItemData{Label: query.T(world, "Healing effect"), Value: val(gc.ModHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(gc.ModHealingEffect)},
+		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(gc.ProfColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(gc.ProfColdProgress)},
+		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(gc.ProfHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(gc.ProfHungerProgress)},
+		statusItemData{Label: query.T(world, "Healing effect"), Value: val(gc.ProfHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(gc.ProfHealingEffect)},
 		statusItemData{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%d%%", query.Metabolism(world, playerEntity)), Description: query.T(world, "Natural recovery speed. VIT and sleep raise it, hunger and fatigue lower it"), Details: sourceToDetails(world, query.RecoverySources(world, playerEntity))},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Move speed"), Value: val(gc.ModMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(gc.ModMoveCost)},
-		statusItemData{Label: query.T(world, "Discovery"), Value: val(gc.ModExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(gc.ModExploration)},
-		statusItemData{Label: query.T(world, "Detection"), Value: val(gc.ModEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(gc.ModEnemyVision)},
-		statusItemData{Label: query.T(world, "Night vision"), Value: val(gc.ModNightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: details(gc.ModNightVision)},
+		statusItemData{Label: query.T(world, "Move speed"), Value: val(gc.ProfMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(gc.ProfMoveCost)},
+		statusItemData{Label: query.T(world, "Discovery"), Value: val(gc.ProfExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(gc.ProfExploration)},
+		statusItemData{Label: query.T(world, "Detection"), Value: val(gc.ProfEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(gc.ProfEnemyVision)},
+		statusItemData{Label: query.T(world, "Night vision"), Value: val(gc.ProfNightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: details(gc.ProfNightVision)},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Production"), IsHeader: true, Description: query.T(world, "Production and trade effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Material cost"), Value: val(gc.ModCraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: details(gc.ModCraftCost)},
-		statusItemData{Label: query.T(world, "Craft quality"), Value: val(gc.ModSmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: details(gc.ModSmithQuality)},
-		statusItemData{Label: query.T(world, "Buy price"), Value: val(gc.ModBuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: details(gc.ModBuyPrice)},
-		statusItemData{Label: query.T(world, "Sell price"), Value: val(gc.ModSellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: details(gc.ModSellPrice)},
-		statusItemData{Label: query.T(world, "Max weight"), Value: val(gc.ModMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(gc.ModMaxWeight)},
-		statusItemData{Label: query.T(world, "Max load"), Value: val(gc.ModHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(gc.ModHeavyArmor)},
+		statusItemData{Label: query.T(world, "Material cost"), Value: val(gc.ProfCraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: details(gc.ProfCraftCost)},
+		statusItemData{Label: query.T(world, "Craft quality"), Value: val(gc.ProfSmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: details(gc.ProfSmithQuality)},
+		statusItemData{Label: query.T(world, "Buy price"), Value: val(gc.ProfBuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: details(gc.ProfBuyPrice)},
+		statusItemData{Label: query.T(world, "Sell price"), Value: val(gc.ProfSellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: details(gc.ProfSellPrice)},
+		statusItemData{Label: query.T(world, "Max weight"), Value: val(gc.ProfMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(gc.ProfMaxWeight)},
+		statusItemData{Label: query.T(world, "Max load"), Value: val(gc.ProfHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(gc.ProfHeavyArmor)},
 	)
 	return items
 }
@@ -287,9 +287,9 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 	return items
 }
 
-// sourceToDetails はModifierSourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない。
+// sourceToDetails はProficiencySourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない。
 // 計算側は事実だけを持つので、ラベルの整形と翻訳はここで行う
-func sourceToDetails(world w.World, srcs []gc.ModifierSource) []statusDetailRow {
+func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailRow {
 	var rows []statusDetailRow
 	for _, s := range srcs {
 		if s.Value == 0 {
@@ -301,7 +301,7 @@ func sourceToDetails(world w.World, srcs []gc.ModifierSource) []statusDetailRow 
 }
 
 // sourceLabel は内訳1件の表示ラベルを現在言語で整形する
-func sourceLabel(world w.World, s gc.ModifierSource) string {
+func sourceLabel(world w.World, s gc.ProficiencySource) string {
 	switch s.Kind {
 	case gc.SourceSkill:
 		return fmt.Sprintf("%s Lv%d", query.T(world, gc.SkillName(s.Skill)), s.Amount)
@@ -316,7 +316,7 @@ func sourceLabel(world w.World, s gc.ModifierSource) string {
 	case gc.SourceSleeping:
 		return query.T(world, "Sleeping")
 	}
-	panic("unknown ModifierSourceKind: " + string(s.Kind))
+	panic("unknown ProficiencySourceKind: " + string(s.Kind))
 }
 
 // buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。

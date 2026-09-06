@@ -19,8 +19,8 @@ const (
 // 疲労・空腹の効き目はその意識低下量そのもので、速度・命中と同じ1つの値を読む。
 // 怪我・病気は意識を下げるが回復には効かせない。自分の不調が自分の回復を止める悪循環を避けるため。
 // Metabolism と Effects タブが同じこの導出を読むので値と内訳がずれない
-func RecoverySources(world w.World, entity ecs.Entity) []gc.ModifierSource {
-	var srcs []gc.ModifierSource
+func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
+	var srcs []gc.ProficiencySource
 
 	// 疲労・空腹は意識を下げるぶんだけ回復も下げる
 	srcs = append(srcs, ConsciousnessSources(world, entity)...)
@@ -28,13 +28,13 @@ func RecoverySources(world w.World, entity ecs.Entity) []gc.ModifierSource {
 	if world.Components.Abilities.Has(entity) {
 		vit := world.Components.Abilities.Get(entity).Vitality.Total
 		if v := vit * metabolismVitBonus; v != 0 {
-			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceAbility, Ability: gc.AblVIT, Amount: vit, Value: v})
+			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceAbility, Ability: gc.AblVIT, Amount: vit, Value: v})
 		}
 	}
 	if world.Components.Sleeping.Has(entity) {
 		quality := world.Components.Sleeping.Get(entity).Quality
 		if v := quality.ApplyInt(metabolismSleepingBonus); v != 0 {
-			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceSleeping, Value: v})
+			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceSleeping, Value: v})
 		}
 	}
 	return srcs

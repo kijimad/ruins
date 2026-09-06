@@ -7,57 +7,57 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCalcModifierValue_AllSkillsZero(t *testing.T) {
+func TestCalcProficiencyValue_AllSkillsZero(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	value := func(key ModifierKey) int { return int(CalcModifierValue(skills, nil, HealthyCapacities(), key)) }
+	value := func(key ProficiencyKey) int { return int(CalcProficiencyValue(skills, nil, HealthyCapacities(), key)) }
 
 	// スキル値0のとき全倍率は100（等倍）
 	for _, id := range WeaponSkillIDs {
 		assert.Equal(t, 100, value(WeaponDamageKey(id)), "武器ダメージ %s は100", id)
 		assert.Equal(t, 100, value(WeaponAccuracyKey(id)), "武器命中 %s は100", id)
 	}
-	assert.Equal(t, 100, value(ModColdProgress))
-	assert.Equal(t, 100, value(ModHungerProgress))
-	assert.Equal(t, 100, value(ModHealingEffect))
-	assert.Equal(t, 100, value(ModMaxWeight))
-	assert.Equal(t, 100, value(ModEnemyVision))
-	assert.Equal(t, 100, value(ModMoveCost))
-	assert.Equal(t, 100, value(ModCraftCost))
-	assert.Equal(t, 100, value(ModSmithQuality))
-	assert.Equal(t, 100, value(ModBuyPrice))
-	assert.Equal(t, 100, value(ModSellPrice))
-	assert.Equal(t, 100, value(ModHeavyArmor))
+	assert.Equal(t, 100, value(ProfColdProgress))
+	assert.Equal(t, 100, value(ProfHungerProgress))
+	assert.Equal(t, 100, value(ProfHealingEffect))
+	assert.Equal(t, 100, value(ProfMaxWeight))
+	assert.Equal(t, 100, value(ProfEnemyVision))
+	assert.Equal(t, 100, value(ProfMoveCost))
+	assert.Equal(t, 100, value(ProfCraftCost))
+	assert.Equal(t, 100, value(ProfSmithQuality))
+	assert.Equal(t, 100, value(ProfBuyPrice))
+	assert.Equal(t, 100, value(ProfSellPrice))
+	assert.Equal(t, 100, value(ProfHeavyArmor))
 }
 
-func TestCalcModifierValue_SkillEffects(t *testing.T) {
+func TestCalcProficiencyValue_SkillEffects(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
 	skills.Get(SkillSword).Value = 2
 
 	// 刀剣Lv2: ダメージ倍率 = 100 + 2*5 = 110
-	assert.Equal(t, 110, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModSwordDamage)))
+	assert.Equal(t, 110, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfSwordDamage)))
 	// 刀剣Lv2: 命中倍率 = 100 + 2*3 = 106
-	assert.Equal(t, 106, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModSwordAccuracy)))
+	assert.Equal(t, 106, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfSwordAccuracy)))
 	// 他の武器は影響なし
-	assert.Equal(t, 100, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModSpearDamage)))
+	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfSpearDamage)))
 }
 
-func TestCalcModifierValue_NegativeCoefficient(t *testing.T) {
+func TestCalcProficiencyValue_NegativeCoefficient(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
 	skills.Get(SkillColdResist).Value = 3
 
 	// 耐寒Lv3: 低体温進行 = 100 + 3*(-3) = 91
-	assert.Equal(t, 91, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModColdProgress)))
+	assert.Equal(t, 91, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfColdProgress)))
 	// 耐寒Lv3: 火耐性 = 100 + 0*(-3) = 100（SkillFireResistはLv0のまま）
-	assert.Equal(t, 100, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModFireResist)))
+	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfFireResist)))
 }
 
-func TestCalcModifierValue_WithAbilities(t *testing.T) {
+func TestCalcProficiencyValue_WithAbilities(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -68,12 +68,12 @@ func TestCalcModifierValue_WithAbilities(t *testing.T) {
 	}
 
 	// 刀剣Lv2 + STR10: ダメージ = 100 + 2*5 + 10*1 = 120
-	assert.Equal(t, 120, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModSwordDamage)))
+	assert.Equal(t, 120, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfSwordDamage)))
 	// 刀剣Lv2 + STR10: 命中 = 100 + 2*3 + 10*1 = 116
-	assert.Equal(t, 116, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModSwordAccuracy)))
+	assert.Equal(t, 116, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfSwordAccuracy)))
 }
 
-func TestCalcModifierValue_AbilityNegativeDirection(t *testing.T) {
+func TestCalcProficiencyValue_AbilityNegativeDirection(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -84,10 +84,10 @@ func TestCalcModifierValue_AbilityNegativeDirection(t *testing.T) {
 	}
 
 	// 耐寒Lv1 + VIT5: 低体温進行 = 100 + 1*(-3) + 5*(-1) = 92
-	assert.Equal(t, 92, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModColdProgress)))
+	assert.Equal(t, 92, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfColdProgress)))
 }
 
-func TestCalcModifierSources(t *testing.T) {
+func TestCalcProficiencySources(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -97,13 +97,13 @@ func TestCalcModifierSources(t *testing.T) {
 		Strength: Ability{Total: 8},
 	}
 
-	sources := CalcModifierSources(skills, abils, HealthyCapacities(), ModSwordDamage)
+	sources := CalcProficiencySources(skills, abils, HealthyCapacities(), ProfSwordDamage)
 	assert.Len(t, sources, 2, "スキルと能力値の2つのソースがある")
-	assert.Equal(t, ModifierSource{Kind: SourceSkill, Skill: SkillSword, Amount: 3, Value: 15}, sources[0]) // 3*5
-	assert.Equal(t, ModifierSource{Kind: SourceAbility, Ability: AblSTR, Amount: 8, Value: 8}, sources[1])  // 8*1
+	assert.Equal(t, ProficiencySource{Kind: SourceSkill, Skill: SkillSword, Amount: 3, Value: 15}, sources[0]) // 3*5
+	assert.Equal(t, ProficiencySource{Kind: SourceAbility, Ability: AblSTR, Amount: 8, Value: 8}, sources[1])  // 8*1
 }
 
-func TestCalcModifierValue_HealthPenalty(t *testing.T) {
+func TestCalcProficiencyValue_HealthPenalty(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -116,34 +116,34 @@ func TestCalcModifierValue_HealthPenalty(t *testing.T) {
 	})
 
 	// 不調は MoveCost へ直接足さず身体機能 Capacities に一本化する
-	assert.Equal(t, 100, int(CalcModifierValue(skills, nil, hs.Capacities(), ModMoveCost)), "低体温は MoveCost へ足さない")
+	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, hs.Capacities(), ProfMoveCost)), "低体温は MoveCost へ足さない")
 	// 中度の全身性低体温 6/10: 痛み6*2=12、意識=100-20-12/2=74。
 	// 局所低下は無いので操作・歩行・視覚はいずれも意識乗数だけを受けて74
 	assert.Equal(t, BodyCapacities{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 74, Moving: 74, Sight: 74}, hs.Capacities())
 }
 
-func TestCalcModifierValue_UnknownKey(t *testing.T) {
+func TestCalcProficiencyValue_UnknownKey(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
 	// 未定義キーは等倍・内訳なし
-	assert.Equal(t, 100, int(CalcModifierValue(skills, nil, HealthyCapacities(), "unknown")))
-	assert.Empty(t, CalcModifierSources(skills, nil, HealthyCapacities(), "unknown"))
+	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), "unknown")))
+	assert.Empty(t, CalcProficiencySources(skills, nil, HealthyCapacities(), "unknown"))
 }
 
-func TestCalcModifierValue_Negotiation(t *testing.T) {
+func TestCalcProficiencyValue_Negotiation(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
 	skills.Get(SkillNegotiation).Value = 4
 
 	// 交渉Lv4: 買値 = 100 + 4*(-2) = 92 (安く買える)
-	assert.Equal(t, 92, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModBuyPrice)))
+	assert.Equal(t, 92, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfBuyPrice)))
 	// 交渉Lv4: 売値 = 100 + 4*2 = 108 (高く売れる)
-	assert.Equal(t, 108, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModSellPrice)))
+	assert.Equal(t, 108, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfSellPrice)))
 }
 
-func TestCalcModifierValue_MultipleSkills(t *testing.T) {
+func TestCalcProficiencyValue_MultipleSkills(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -158,16 +158,16 @@ func TestCalcModifierValue_MultipleSkills(t *testing.T) {
 	}
 
 	// 刀剣Lv3 + STR8: ダメージ = 100 + 3*5 + 8*1 = 123
-	assert.Equal(t, 123, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModSwordDamage)))
+	assert.Equal(t, 123, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfSwordDamage)))
 	// 拳銃Lv5 + SEN6: ダメージ = 100 + 5*5 + 6*1 = 131
-	assert.Equal(t, 131, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModHandgunDamage)))
+	assert.Equal(t, 131, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfHandgunDamage)))
 	// クラフトLv2 + DEX4: 素材消費 = 100 + 2*(-3) + 4*(-1) = 90
-	assert.Equal(t, 90, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModCraftCost)))
+	assert.Equal(t, 90, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfCraftCost)))
 	// 長物は未使用: ダメージ = 100 + 0*5 + 8*1 = 108（STR能力値のみ）
-	assert.Equal(t, 108, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModSpearDamage)))
+	assert.Equal(t, 108, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfSpearDamage)))
 }
 
-func TestCalcModifierValue_AllFactors(t *testing.T) {
+func TestCalcProficiencyValue_AllFactors(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -186,16 +186,16 @@ func TestCalcModifierValue_AllFactors(t *testing.T) {
 	})
 
 	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82。低体温は MoveCost へ足さない
-	assert.Equal(t, 82, int(CalcModifierValue(skills, abils, hs.Capacities(), ModMoveCost)))
+	assert.Equal(t, 82, int(CalcProficiencyValue(skills, abils, hs.Capacities(), ProfMoveCost)))
 	// 重度の全身性低体温 6/10 は身体機能へ効く。意識=100-30-18/2=61、歩行=100*61/100=61
 	assert.Equal(t, 61, int(hs.Capacities().Moving))
 
 	// Sourcesはスキルと能力値の2要因。健康は Capacities 側なので MoveCost には載らない
-	sources := CalcModifierSources(skills, abils, hs.Capacities(), ModMoveCost)
+	sources := CalcProficiencySources(skills, abils, hs.Capacities(), ProfMoveCost)
 	assert.Len(t, sources, 2, "スキルと能力値の2つのソース")
 }
 
-func TestCalcModifierValue_FireAbility(t *testing.T) {
+func TestCalcProficiencyValue_FireAbility(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -206,12 +206,12 @@ func TestCalcModifierValue_FireAbility(t *testing.T) {
 	}
 
 	// 小銃Lv4 + SEN12: ダメージ = 100 + 4*5 + 12*1 = 132
-	assert.Equal(t, 132, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModRifleDamage)))
+	assert.Equal(t, 132, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfRifleDamage)))
 	// 小銃Lv4 + SEN12: 命中 = 100 + 4*3 + 12*1 = 124
-	assert.Equal(t, 124, int(CalcModifierValue(skills, abils, HealthyCapacities(), ModRifleAccuracy)))
+	assert.Equal(t, 124, int(CalcProficiencyValue(skills, abils, HealthyCapacities(), ProfRifleAccuracy)))
 }
 
-func TestCalcModifierValue_AccuracyFoldsCapacity(t *testing.T) {
+func TestCalcProficiencyValue_AccuracyFoldsCapacity(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -224,17 +224,17 @@ func TestCalcModifierValue_AccuracyFoldsCapacity(t *testing.T) {
 	})
 
 	// 中度の全身性低体温で操作・視覚は74。スキルLv0の基礎命中100×74%=74
-	assert.Equal(t, 74, int(CalcModifierValue(skills, nil, hs.Capacities(), ModSwordAccuracy)), "近接は操作機能を畳み込む")
-	assert.Equal(t, 74, int(CalcModifierValue(skills, nil, hs.Capacities(), ModBowAccuracy)), "遠隔は視覚機能を畳み込む")
+	assert.Equal(t, 74, int(CalcProficiencyValue(skills, nil, hs.Capacities(), ProfSwordAccuracy)), "近接は操作機能を畳み込む")
+	assert.Equal(t, 74, int(CalcProficiencyValue(skills, nil, hs.Capacities(), ProfBowAccuracy)), "遠隔は視覚機能を畳み込む")
 
 	// 内訳の末尾に身体機能の加法差分が載る。100→74 なので -26
-	swordSrc := CalcModifierSources(skills, nil, hs.Capacities(), ModSwordAccuracy)
-	assert.Equal(t, ModifierSource{Kind: SourceCapacity, Capacity: CapacityManipulation, Amount: 74, Value: -26}, swordSrc[len(swordSrc)-1])
-	bowSrc := CalcModifierSources(skills, nil, hs.Capacities(), ModBowAccuracy)
-	assert.Equal(t, ModifierSource{Kind: SourceCapacity, Capacity: CapacitySight, Amount: 74, Value: -26}, bowSrc[len(bowSrc)-1])
+	swordSrc := CalcProficiencySources(skills, nil, hs.Capacities(), ProfSwordAccuracy)
+	assert.Equal(t, ProficiencySource{Kind: SourceCapacity, Capacity: CapacityManipulation, Amount: 74, Value: -26}, swordSrc[len(swordSrc)-1])
+	bowSrc := CalcProficiencySources(skills, nil, hs.Capacities(), ProfBowAccuracy)
+	assert.Equal(t, ProficiencySource{Kind: SourceCapacity, Capacity: CapacitySight, Amount: 74, Value: -26}, bowSrc[len(bowSrc)-1])
 }
 
-func TestCalcModifier_値は基準と内訳の和に一致する(t *testing.T) {
+func TestCalcProficiency_値は基準と内訳の和に一致する(t *testing.T) {
 	t.Parallel()
 
 	richSkills := NewSkills()
@@ -270,20 +270,20 @@ func TestCalcModifier_値は基準と内訳の和に一致する(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			// 表示は 基準 + Σ内訳、適用は CalcModifierValue。両者の一致が表示=適用の土台
-			for _, spec := range modifierSpecs {
+			// 表示は 基準 + Σ内訳、適用は CalcProficiencyValue。両者の一致が表示=適用の土台
+			for _, spec := range proficiencySpecs {
 				sum := int(consts.PercentBase)
-				for _, s := range CalcModifierSources(tc.skills, tc.abils, tc.caps, spec.Key) {
+				for _, s := range CalcProficiencySources(tc.skills, tc.abils, tc.caps, spec.Key) {
 					sum += s.Value
 				}
-				assert.Equal(t, int(CalcModifierValue(tc.skills, tc.abils, tc.caps, spec.Key)), sum,
+				assert.Equal(t, int(CalcProficiencyValue(tc.skills, tc.abils, tc.caps, spec.Key)), sum,
 					"キー %s で 最終値 = 基準 + Σ内訳 が破れた", spec.Key)
 			}
 		})
 	}
 }
 
-func TestCalcModifierValue_ElementResistAllTypes(t *testing.T) {
+func TestCalcProficiencyValue_ElementResistAllTypes(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
@@ -293,8 +293,8 @@ func TestCalcModifierValue_ElementResistAllTypes(t *testing.T) {
 	skills.Get(SkillPhotonResist).Value = 8
 
 	// 各元素耐性: 100 + Lv*(-3)
-	assert.Equal(t, 94, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModFireResist)))    // 100 + 2*(-3)
-	assert.Equal(t, 88, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModThunderResist))) // 100 + 4*(-3)
-	assert.Equal(t, 82, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModChillResist)))   // 100 + 6*(-3)
-	assert.Equal(t, 76, int(CalcModifierValue(skills, nil, HealthyCapacities(), ModPhotonResist)))  // 100 + 8*(-3)
+	assert.Equal(t, 94, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfFireResist)))    // 100 + 2*(-3)
+	assert.Equal(t, 88, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfThunderResist))) // 100 + 4*(-3)
+	assert.Equal(t, 82, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfChillResist)))   // 100 + 6*(-3)
+	assert.Equal(t, 76, int(CalcProficiencyValue(skills, nil, HealthyCapacities(), ProfPhotonResist)))  // 100 + 8*(-3)
 }

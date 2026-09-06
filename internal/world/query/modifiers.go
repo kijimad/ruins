@@ -7,9 +7,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// modifierInputs は効果倍率の導出に使う入力を集める。Skills が無ければ nil を返す。
+// proficiencyInputs は効果倍率の導出に使う入力を集める。Skills が無ければ nil を返す。
 // caps は疲労・空腹による意識低下を畳んだ実効身体機能で、命中の畳み込みが読む
-func modifierInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abils *gc.Abilities, caps gc.BodyCapacities) {
+func proficiencyInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abils *gc.Abilities, caps gc.BodyCapacities) {
 	if world.Components.Skills.Has(entity) {
 		skills = world.Components.Skills.Get(entity)
 	}
@@ -20,24 +20,24 @@ func modifierInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abils 
 	return skills, abils, caps
 }
 
-// ModifierValue は key の効果倍率を都度計算して返す。保存済みの値ではなく
+// ProficiencyValue は key の効果倍率を都度計算して返す。保存済みの値ではなく
 // Skills・Abilities・実効身体機能から読み取り時に導出する。
 // 適用と表示の両方がこの1関数を読むので、両者は同じ値になる。
 // Skills が無ければ等倍を返し、呼び出し側の存在ガードは不要
-func ModifierValue(world w.World, entity ecs.Entity, key gc.ModifierKey) consts.Percent {
-	skills, abils, caps := modifierInputs(world, entity)
+func ProficiencyValue(world w.World, entity ecs.Entity, key gc.ProficiencyKey) consts.Percent {
+	skills, abils, caps := proficiencyInputs(world, entity)
 	if skills == nil {
 		return consts.PercentBase
 	}
-	return gc.CalcModifierValue(skills, abils, caps, key)
+	return gc.CalcProficiencyValue(skills, abils, caps, key)
 }
 
-// ModifierSources は key の効果倍率の内訳を都度計算して返す。詳細モーダルの表示用。
+// ProficiencySources は key の効果倍率の内訳を都度計算して返す。詳細モーダルの表示用。
 // Skills が無ければ空を返す
-func ModifierSources(world w.World, entity ecs.Entity, key gc.ModifierKey) []gc.ModifierSource {
-	skills, abils, caps := modifierInputs(world, entity)
+func ProficiencySources(world w.World, entity ecs.Entity, key gc.ProficiencyKey) []gc.ProficiencySource {
+	skills, abils, caps := proficiencyInputs(world, entity)
 	if skills == nil {
 		return nil
 	}
-	return gc.CalcModifierSources(skills, abils, caps, key)
+	return gc.CalcProficiencySources(skills, abils, caps, key)
 }

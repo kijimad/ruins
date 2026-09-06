@@ -129,7 +129,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	// 内訳を作らない単キー導出で読む。
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
-	moveCost := max(int(ModifierValue(world, entity, gc.ModMoveCost)), 10)
+	moveCost := max(int(ProficiencyValue(world, entity, gc.ProfMoveCost)), 10)
 	speed = speed * 100 / moveCost
 	// 実効身体機能の歩行を掛ける。脚・足の怪我、意識低下、疲労・空腹による意識低下で歩行が落ちると遅くなる
 	moving := EffectiveCapacities(world, entity).Moving

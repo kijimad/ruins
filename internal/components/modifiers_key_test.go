@@ -11,15 +11,15 @@ func TestWeaponDamageKey(t *testing.T) {
 
 	tests := []struct {
 		id   SkillID
-		want ModifierKey
+		want ProficiencyKey
 	}{
-		{SkillSword, ModSwordDamage},
-		{SkillSpear, ModSpearDamage},
-		{SkillFist, ModFistDamage},
-		{SkillBow, ModBowDamage},
-		{SkillHandgun, ModHandgunDamage},
-		{SkillRifle, ModRifleDamage},
-		{SkillCannon, ModCannonDamage},
+		{SkillSword, ProfSwordDamage},
+		{SkillSpear, ProfSpearDamage},
+		{SkillFist, ProfFistDamage},
+		{SkillBow, ProfBowDamage},
+		{SkillHandgun, ProfHandgunDamage},
+		{SkillRifle, ProfRifleDamage},
+		{SkillCannon, ProfCannonDamage},
 	}
 
 	for _, tt := range tests {
@@ -42,15 +42,15 @@ func TestWeaponAccuracyKey(t *testing.T) {
 
 	tests := []struct {
 		id   SkillID
-		want ModifierKey
+		want ProficiencyKey
 	}{
-		{SkillSword, ModSwordAccuracy},
-		{SkillSpear, ModSpearAccuracy},
-		{SkillFist, ModFistAccuracy},
-		{SkillBow, ModBowAccuracy},
-		{SkillHandgun, ModHandgunAccuracy},
-		{SkillRifle, ModRifleAccuracy},
-		{SkillCannon, ModCannonAccuracy},
+		{SkillSword, ProfSwordAccuracy},
+		{SkillSpear, ProfSpearAccuracy},
+		{SkillFist, ProfFistAccuracy},
+		{SkillBow, ProfBowAccuracy},
+		{SkillHandgun, ProfHandgunAccuracy},
+		{SkillRifle, ProfRifleAccuracy},
+		{SkillCannon, ProfCannonAccuracy},
 	}
 
 	for _, tt := range tests {
@@ -73,12 +73,12 @@ func TestElementResistKey(t *testing.T) {
 
 	tests := []struct {
 		elem ElementType
-		want ModifierKey
+		want ProficiencyKey
 	}{
-		{ElementTypeFire, ModFireResist},
-		{ElementTypeThunder, ModThunderResist},
-		{ElementTypeChill, ModChillResist},
-		{ElementTypePhoton, ModPhotonResist},
+		{ElementTypeFire, ProfFireResist},
+		{ElementTypeThunder, ProfThunderResist},
+		{ElementTypeChill, ProfChillResist},
+		{ElementTypePhoton, ProfPhotonResist},
 	}
 
 	for _, tt := range tests {

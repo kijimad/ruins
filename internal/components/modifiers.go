@@ -7,59 +7,60 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
-// ModifierKey は効果倍率の識別キー
-type ModifierKey string
+// ProficiencyKey は熟練由来の効果倍率の識別キー。技能と能力値から導く行動ごとの倍率を指す。
+// 怪我・病気・疲労・空腹による身体機能の低下は capacity 側で別に扱う。熟練は上達、capacity は劣化で軸が違う
+type ProficiencyKey string
 
 // 効果キー定数
 const (
-	ModFireResist     ModifierKey = "fire_resist"
-	ModThunderResist  ModifierKey = "thunder_resist"
-	ModChillResist    ModifierKey = "chill_resist"
-	ModPhotonResist   ModifierKey = "photon_resist"
-	ModColdProgress   ModifierKey = "cold_progress"
-	ModHungerProgress ModifierKey = "hunger_progress"
-	ModHealingEffect  ModifierKey = "healing_effect"
-	ModMaxWeight      ModifierKey = "max_weight"
-	ModExploration    ModifierKey = "exploration"
-	ModEnemyVision    ModifierKey = "enemy_vision"
-	ModNightVision    ModifierKey = "night_vision"
-	ModMoveCost       ModifierKey = "move_cost"
-	ModCraftCost      ModifierKey = "craft_cost"
-	ModSmithQuality   ModifierKey = "smith_quality"
-	ModBuyPrice       ModifierKey = "buy_price"
-	ModSellPrice      ModifierKey = "sell_price"
-	ModHeavyArmor     ModifierKey = "heavy_armor"
+	ProfFireResist     ProficiencyKey = "fire_resist"
+	ProfThunderResist  ProficiencyKey = "thunder_resist"
+	ProfChillResist    ProficiencyKey = "chill_resist"
+	ProfPhotonResist   ProficiencyKey = "photon_resist"
+	ProfColdProgress   ProficiencyKey = "cold_progress"
+	ProfHungerProgress ProficiencyKey = "hunger_progress"
+	ProfHealingEffect  ProficiencyKey = "healing_effect"
+	ProfMaxWeight      ProficiencyKey = "max_weight"
+	ProfExploration    ProficiencyKey = "exploration"
+	ProfEnemyVision    ProficiencyKey = "enemy_vision"
+	ProfNightVision    ProficiencyKey = "night_vision"
+	ProfMoveCost       ProficiencyKey = "move_cost"
+	ProfCraftCost      ProficiencyKey = "craft_cost"
+	ProfSmithQuality   ProficiencyKey = "smith_quality"
+	ProfBuyPrice       ProficiencyKey = "buy_price"
+	ProfSellPrice      ProficiencyKey = "sell_price"
+	ProfHeavyArmor     ProficiencyKey = "heavy_armor"
 
-	ModSwordDamage   ModifierKey = "sword_damage"
-	ModSpearDamage   ModifierKey = "spear_damage"
-	ModFistDamage    ModifierKey = "fist_damage"
-	ModBowDamage     ModifierKey = "bow_damage"
-	ModHandgunDamage ModifierKey = "handgun_damage"
-	ModRifleDamage   ModifierKey = "rifle_damage"
-	ModCannonDamage  ModifierKey = "cannon_damage"
+	ProfSwordDamage   ProficiencyKey = "sword_damage"
+	ProfSpearDamage   ProficiencyKey = "spear_damage"
+	ProfFistDamage    ProficiencyKey = "fist_damage"
+	ProfBowDamage     ProficiencyKey = "bow_damage"
+	ProfHandgunDamage ProficiencyKey = "handgun_damage"
+	ProfRifleDamage   ProficiencyKey = "rifle_damage"
+	ProfCannonDamage  ProficiencyKey = "cannon_damage"
 
-	ModSwordAccuracy   ModifierKey = "sword_accuracy"
-	ModSpearAccuracy   ModifierKey = "spear_accuracy"
-	ModFistAccuracy    ModifierKey = "fist_accuracy"
-	ModBowAccuracy     ModifierKey = "bow_accuracy"
-	ModHandgunAccuracy ModifierKey = "handgun_accuracy"
-	ModRifleAccuracy   ModifierKey = "rifle_accuracy"
-	ModCannonAccuracy  ModifierKey = "cannon_accuracy"
+	ProfSwordAccuracy   ProficiencyKey = "sword_accuracy"
+	ProfSpearAccuracy   ProficiencyKey = "spear_accuracy"
+	ProfFistAccuracy    ProficiencyKey = "fist_accuracy"
+	ProfBowAccuracy     ProficiencyKey = "bow_accuracy"
+	ProfHandgunAccuracy ProficiencyKey = "handgun_accuracy"
+	ProfRifleAccuracy   ProficiencyKey = "rifle_accuracy"
+	ProfCannonAccuracy  ProficiencyKey = "cannon_accuracy"
 )
 
 // weaponDamageKeys は武器スキルIDからダメージ効果キーへのマッピング
-var weaponDamageKeys = map[SkillID]ModifierKey{
-	SkillSword:   ModSwordDamage,
-	SkillSpear:   ModSpearDamage,
-	SkillFist:    ModFistDamage,
-	SkillBow:     ModBowDamage,
-	SkillHandgun: ModHandgunDamage,
-	SkillRifle:   ModRifleDamage,
-	SkillCannon:  ModCannonDamage,
+var weaponDamageKeys = map[SkillID]ProficiencyKey{
+	SkillSword:   ProfSwordDamage,
+	SkillSpear:   ProfSpearDamage,
+	SkillFist:    ProfFistDamage,
+	SkillBow:     ProfBowDamage,
+	SkillHandgun: ProfHandgunDamage,
+	SkillRifle:   ProfRifleDamage,
+	SkillCannon:  ProfCannonDamage,
 }
 
 // WeaponDamageKey は武器スキルIDに対応するダメージ効果キーを返す。未定義ならpanicする
-func WeaponDamageKey(id SkillID) ModifierKey {
+func WeaponDamageKey(id SkillID) ProficiencyKey {
 	key, ok := weaponDamageKeys[id]
 	if !ok {
 		panic(fmt.Sprintf("undefined weapon skill ID for damage: %q", id))
@@ -68,18 +69,18 @@ func WeaponDamageKey(id SkillID) ModifierKey {
 }
 
 // weaponAccuracyKeys は武器スキルIDから命中効果キーへのマッピング
-var weaponAccuracyKeys = map[SkillID]ModifierKey{
-	SkillSword:   ModSwordAccuracy,
-	SkillSpear:   ModSpearAccuracy,
-	SkillFist:    ModFistAccuracy,
-	SkillBow:     ModBowAccuracy,
-	SkillHandgun: ModHandgunAccuracy,
-	SkillRifle:   ModRifleAccuracy,
-	SkillCannon:  ModCannonAccuracy,
+var weaponAccuracyKeys = map[SkillID]ProficiencyKey{
+	SkillSword:   ProfSwordAccuracy,
+	SkillSpear:   ProfSpearAccuracy,
+	SkillFist:    ProfFistAccuracy,
+	SkillBow:     ProfBowAccuracy,
+	SkillHandgun: ProfHandgunAccuracy,
+	SkillRifle:   ProfRifleAccuracy,
+	SkillCannon:  ProfCannonAccuracy,
 }
 
 // WeaponAccuracyKey は武器スキルIDに対応する命中効果キーを返す。未定義ならpanicする
-func WeaponAccuracyKey(id SkillID) ModifierKey {
+func WeaponAccuracyKey(id SkillID) ProficiencyKey {
 	key, ok := weaponAccuracyKeys[id]
 	if !ok {
 		panic(fmt.Sprintf("undefined weapon skill ID for accuracy: %q", id))
@@ -88,15 +89,15 @@ func WeaponAccuracyKey(id SkillID) ModifierKey {
 }
 
 // elementResistKeys は元素タイプから耐性効果キーへのマッピング
-var elementResistKeys = map[ElementType]ModifierKey{
-	ElementTypeFire:    ModFireResist,
-	ElementTypeThunder: ModThunderResist,
-	ElementTypeChill:   ModChillResist,
-	ElementTypePhoton:  ModPhotonResist,
+var elementResistKeys = map[ElementType]ProficiencyKey{
+	ElementTypeFire:    ProfFireResist,
+	ElementTypeThunder: ProfThunderResist,
+	ElementTypeChill:   ProfChillResist,
+	ElementTypePhoton:  ProfPhotonResist,
 }
 
 // ElementResistKey は元素タイプに対応する耐性効果キーを返す。未定義ならpanicする
-func ElementResistKey(elem ElementType) ModifierKey {
+func ElementResistKey(elem ElementType) ProficiencyKey {
 	key, ok := LookupElementResistKey(elem)
 	if !ok {
 		panic(fmt.Sprintf("undefined element type for resistance: %q", elem))
@@ -105,7 +106,7 @@ func ElementResistKey(elem ElementType) ModifierKey {
 }
 
 // LookupElementResistKey は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false
-func LookupElementResistKey(elem ElementType) (ModifierKey, bool) {
+func LookupElementResistKey(elem ElementType) (ProficiencyKey, bool) {
 	key, ok := elementResistKeys[elem]
 	return key, ok
 }
@@ -131,23 +132,23 @@ const (
 	coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%
 )
 
-// ModifierSourceKind は内訳1件の由来の種別
-type ModifierSourceKind string
+// ProficiencySourceKind は内訳1件の由来の種別
+type ProficiencySourceKind string
 
 // 内訳の由来種別
 const (
-	SourceSkill    ModifierSourceKind = "skill"    // スキルによる補正
-	SourceAbility  ModifierSourceKind = "ability"  // 能力値による補正
-	SourceCapacity ModifierSourceKind = "capacity" // 身体機能の畳み込み
-	SourceFatigue  ModifierSourceKind = "fatigue"  // 疲労段階の畳み込み
-	SourceHunger   ModifierSourceKind = "hunger"   // 空腹段階の畳み込み
-	SourceSleeping ModifierSourceKind = "sleeping" // 睡眠中の畳み込み
+	SourceSkill    ProficiencySourceKind = "skill"    // スキルによる補正
+	SourceAbility  ProficiencySourceKind = "ability"  // 能力値による補正
+	SourceCapacity ProficiencySourceKind = "capacity" // 身体機能の畳み込み
+	SourceFatigue  ProficiencySourceKind = "fatigue"  // 疲労段階の畳み込み
+	SourceHunger   ProficiencySourceKind = "hunger"   // 空腹段階の畳み込み
+	SourceSleeping ProficiencySourceKind = "sleeping" // 睡眠中の畳み込み
 )
 
-// ModifierSource は効果倍率の算出元1件を表す。整形済みの文字列でなく事実を持ち、
+// ProficiencySource は効果倍率の算出元1件を表す。整形済みの文字列でなく事実を持ち、
 // 表示側が現在言語へ訳して整形する。Kind に応じて Skill / Ability / Capacity のどれかが有効
-type ModifierSource struct {
-	Kind     ModifierSourceKind
+type ProficiencySource struct {
+	Kind     ProficiencySourceKind
 	Skill    SkillID      // Kind が skill のときのスキル
 	Ability  AbilityID    // Kind が ability のときの能力値
 	Capacity CapacityKind // Kind が capacity のときの身体機能
@@ -159,7 +160,7 @@ type ModifierSource struct {
 
 // IsWeaponAccuracyKey は key が武器命中の効果キーかを返す。疲労など武器命中だけに
 // 効く補正を query 層で畳むときの判定に使う
-func IsWeaponAccuracyKey(key ModifierKey) bool {
+func IsWeaponAccuracyKey(key ProficiencyKey) bool {
 	_, ok := accuracySkillByKey[key]
 	return ok
 }
@@ -180,68 +181,68 @@ func weaponAccuracyCapacity(caps BodyCapacities, id SkillID) (CapacityKind, cons
 	return CapacityManipulation, caps.Manipulation
 }
 
-// modifierSpec は倍率1つの定義。キー・元スキル・スキルLv1あたりの係数を束ねる
-type modifierSpec struct {
-	Key   ModifierKey
+// proficiencySpec は倍率1つの定義。キー・元スキル・スキルLv1あたりの係数を束ねる
+type proficiencySpec struct {
+	Key   ProficiencyKey
 	Skill SkillID
 	Coeff int
 }
 
-// modifierSpecs は全倍率の定義表。単発の倍率を足すときはここへ1行足す
-var modifierSpecs = buildModifierSpecs()
+// proficiencySpecs は全倍率の定義表。単発の倍率を足すときはここへ1行足す
+var proficiencySpecs = buildProficiencySpecs()
 
-func buildModifierSpecs() []modifierSpec {
-	specs := slices.Grow([]modifierSpec{
-		{ModFireResist, SkillFireResist, coeffElementResist},
-		{ModThunderResist, SkillThunderResist, coeffElementResist},
-		{ModChillResist, SkillChillResist, coeffElementResist},
-		{ModPhotonResist, SkillPhotonResist, coeffElementResist},
-		{ModColdProgress, SkillColdResist, coeffColdProgress},
-		{ModHungerProgress, SkillHungerResist, coeffHungerProgress},
-		{ModHealingEffect, SkillHealing, coeffHealingEffect},
-		{ModMaxWeight, SkillWeightBearing, coeffMaxWeight},
-		{ModExploration, SkillExploration, coeffExploration},
-		{ModEnemyVision, SkillStealth, coeffEnemyVision},
-		{ModNightVision, SkillNightVision, coeffNightVision},
-		{ModMoveCost, SkillSprinting, coeffMoveCost},
-		{ModCraftCost, SkillCrafting, coeffCraftCost},
-		{ModSmithQuality, SkillSmithing, coeffSmithQuality},
-		{ModBuyPrice, SkillNegotiation, coeffBuyPrice},
-		{ModSellPrice, SkillNegotiation, coeffSellPrice},
-		{ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor},
+func buildProficiencySpecs() []proficiencySpec {
+	specs := slices.Grow([]proficiencySpec{
+		{ProfFireResist, SkillFireResist, coeffElementResist},
+		{ProfThunderResist, SkillThunderResist, coeffElementResist},
+		{ProfChillResist, SkillChillResist, coeffElementResist},
+		{ProfPhotonResist, SkillPhotonResist, coeffElementResist},
+		{ProfColdProgress, SkillColdResist, coeffColdProgress},
+		{ProfHungerProgress, SkillHungerResist, coeffHungerProgress},
+		{ProfHealingEffect, SkillHealing, coeffHealingEffect},
+		{ProfMaxWeight, SkillWeightBearing, coeffMaxWeight},
+		{ProfExploration, SkillExploration, coeffExploration},
+		{ProfEnemyVision, SkillStealth, coeffEnemyVision},
+		{ProfNightVision, SkillNightVision, coeffNightVision},
+		{ProfMoveCost, SkillSprinting, coeffMoveCost},
+		{ProfCraftCost, SkillCrafting, coeffCraftCost},
+		{ProfSmithQuality, SkillSmithing, coeffSmithQuality},
+		{ProfBuyPrice, SkillNegotiation, coeffBuyPrice},
+		{ProfSellPrice, SkillNegotiation, coeffSellPrice},
+		{ProfHeavyArmor, SkillHeavyArmor, coeffHeavyArmor},
 	}, 2*len(WeaponSkillIDs))
 	// 武器の行はスキルIDの直積なので生成する
 	for _, id := range WeaponSkillIDs {
 		specs = append(specs,
-			modifierSpec{WeaponDamageKey(id), id, coeffWeaponDamage},
-			modifierSpec{WeaponAccuracyKey(id), id, coeffWeaponAccuracy})
+			proficiencySpec{WeaponDamageKey(id), id, coeffWeaponDamage},
+			proficiencySpec{WeaponAccuracyKey(id), id, coeffWeaponAccuracy})
 	}
 	return specs
 }
 
-// specByKey は ModifierKey からスペック行を引く索引
-var specByKey = func() map[ModifierKey]modifierSpec {
-	m := make(map[ModifierKey]modifierSpec, len(modifierSpecs))
-	for _, s := range modifierSpecs {
+// specByKey は ProficiencyKey からスペック行を引く索引
+var specByKey = func() map[ProficiencyKey]proficiencySpec {
+	m := make(map[ProficiencyKey]proficiencySpec, len(proficiencySpecs))
+	for _, s := range proficiencySpecs {
 		m[s.Key] = s
 	}
 	return m
 }()
 
 // accuracySkillByKey は命中キーから武器スキルIDを引く索引。命中だけ身体機能を畳むため
-var accuracySkillByKey = func() map[ModifierKey]SkillID {
-	m := make(map[ModifierKey]SkillID, len(weaponAccuracyKeys))
+var accuracySkillByKey = func() map[ProficiencyKey]SkillID {
+	m := make(map[ProficiencyKey]SkillID, len(weaponAccuracyKeys))
 	for id, key := range weaponAccuracyKeys {
 		m[key] = id
 	}
 	return m
 }()
 
-// forEachModifierSource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。
+// forEachProficiencySource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。
 // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない。
 // skills / abils は不在なら nil でよく、その由来のソースは飛ばす。caps は実効身体機能で、
 // 疲労・空腹の低下を畳んだものを呼び出し側が渡す
-func forEachModifierSource(skills *Skills, abils *Abilities, caps BodyCapacities, key ModifierKey, fn func(ModifierSource)) {
+func forEachProficiencySource(skills *Skills, abils *Abilities, caps BodyCapacities, key ProficiencyKey, fn func(ProficiencySource)) {
 	spec, ok := specByKey[key]
 	if !ok {
 		return
@@ -251,7 +252,7 @@ func forEachModifierSource(skills *Skills, abils *Abilities, caps BodyCapacities
 	}
 	v := skills.Get(spec.Skill).Value
 	bonus := v * spec.Coeff
-	fn(ModifierSource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus})
+	fn(ProficiencySource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus})
 
 	// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
 	if abils != nil {
@@ -262,7 +263,7 @@ func forEachModifierSource(skills *Skills, abils *Abilities, caps BodyCapacities
 			ablCoeff = -1
 		}
 		ablBonus := ablVal * ablCoeff
-		fn(ModifierSource{Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus})
+		fn(ProficiencySource{Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus})
 		bonus += ablBonus
 	}
 
@@ -272,25 +273,25 @@ func forEachModifierSource(skills *Skills, abils *Abilities, caps BodyCapacities
 		capKind, capVal := weaponAccuracyCapacity(caps, id)
 		acc := int(consts.PercentBase) + bonus
 		withCap := capVal.ApplyInt(acc)
-		fn(ModifierSource{Kind: SourceCapacity, Capacity: capKind, Amount: int(capVal), Value: withCap - acc})
+		fn(ProficiencySource{Kind: SourceCapacity, Capacity: capKind, Amount: int(capVal), Value: withCap - acc})
 	}
 }
 
-// CalcModifierValue は key の効果倍率を導出する。内訳の加法差分を積むだけで
+// CalcProficiencyValue は key の効果倍率を導出する。内訳の加法差分を積むだけで
 // アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する
-func CalcModifierValue(skills *Skills, abils *Abilities, caps BodyCapacities, key ModifierKey) consts.Percent {
+func CalcProficiencyValue(skills *Skills, abils *Abilities, caps BodyCapacities, key ProficiencyKey) consts.Percent {
 	total := int(consts.PercentBase)
-	forEachModifierSource(skills, abils, caps, key, func(s ModifierSource) {
+	forEachProficiencySource(skills, abils, caps, key, func(s ProficiencySource) {
 		total += s.Value
 	})
 	return consts.Percent(total)
 }
 
-// CalcModifierSources は key の内訳を返す。詳細モーダルの表示側だけが読む。
+// CalcProficiencySources は key の内訳を返す。詳細モーダルの表示側だけが読む。
 // 未定義キーは空を返す
-func CalcModifierSources(skills *Skills, abils *Abilities, caps BodyCapacities, key ModifierKey) []ModifierSource {
-	var srcs []ModifierSource
-	forEachModifierSource(skills, abils, caps, key, func(s ModifierSource) {
+func CalcProficiencySources(skills *Skills, abils *Abilities, caps BodyCapacities, key ProficiencyKey) []ProficiencySource {
+	var srcs []ProficiencySource
+	forEachProficiencySource(skills, abils, caps, key, func(s ProficiencySource) {
 		srcs = append(srcs, s)
 	})
 	return srcs

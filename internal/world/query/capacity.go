@@ -31,18 +31,18 @@ func consciousnessPenalty(world w.World, entity ecs.Entity) int {
 
 // ConsciousnessSources は意識を下げる怪我以外の要因、すなわち疲労・空腹の内訳を返す。
 // Effects タブの Consciousness 行の詳細がこの導出を読む
-func ConsciousnessSources(world w.World, entity ecs.Entity) []gc.ModifierSource {
-	var srcs []gc.ModifierSource
+func ConsciousnessSources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
+	var srcs []gc.ProficiencySource
 	if world.Components.Fatigue.Has(entity) {
 		f := world.Components.Fatigue.Get(entity)
 		if v := f.ConsciousnessPenalty(); v != 0 {
-			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceFatigue, Fatigue: f.GetLevel(), Value: -v})
+			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceFatigue, Fatigue: f.GetLevel(), Value: -v})
 		}
 	}
 	if world.Components.Hunger.Has(entity) {
 		level := world.Components.Hunger.Get(entity).GetLevel()
 		if v := gc.HungerConsciousnessPenalty(level); v != 0 {
-			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceHunger, Hunger: level, Value: -v})
+			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceHunger, Hunger: level, Value: -v})
 		}
 	}
 	return srcs
