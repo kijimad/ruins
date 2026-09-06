@@ -88,9 +88,11 @@ func (sb *SleepBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	return nil
 }
 
-// Finish は起床時に Sleeping を外す
+// Finish は起床時に Sleeping を外す。Ark の Remove は不在で panic するので Has で守る
 func (sb *SleepBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	removeSleeping(actor, world)
+	if world.Components.Sleeping.Has(actor) {
+		world.Components.Sleeping.Remove(actor)
+	}
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "Woke up refreshed.")).
@@ -101,22 +103,18 @@ func (sb *SleepBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World)
 
 // Canceled は中断時に Sleeping を外す
 func (sb *SleepBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	// Sleeping の除去はアーキタイプを変えて comp ポインタを無効化する。理由は除去より前に退避する
+	// Sleeping の除去はアーキタイプを変えて comp ポインタを無効化する。理由は除去より前に退避する。
+	// Ark の Remove は不在で panic するので Has で守る
 	reason := comp.CancelReason
-	removeSleeping(actor, world)
+	if world.Components.Sleeping.Has(actor) {
+		world.Components.Sleeping.Remove(actor)
+	}
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "Sleep interrupted: %s", query.T(world, reason))).
 			Log()
 	}
 	return nil
-}
-
-// removeSleeping は Sleeping マーカーを外す。二重除去でも安全なよう Has でガードする
-func removeSleeping(actor ecs.Entity, world w.World) {
-	if world.Components.Sleeping.Has(actor) {
-		world.Components.Sleeping.Remove(actor)
-	}
 }
 
 // hasActiveHypothermia は全身の低体温が体感に響く水準に達しているかを返す。
