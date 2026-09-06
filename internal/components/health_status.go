@@ -78,8 +78,8 @@ const (
 	ConditionLaceration    ConditionType = "Laceration"    // 切り傷
 	ConditionLiverIllness  ConditionType = "LiverIllness"  // 肝疾患
 	ConditionFoodPoisoning ConditionType = "FoodPoisoning" // 食中毒
-	ConditionExhaustion    ConditionType = "Exhaustion"    // 疲労困憊。疲労ゲージから毎ターン導出
-	ConditionMalnutrition  ConditionType = "Malnutrition"  // 栄養失調。空腹ゲージから毎ターン導出
+	ConditionExhaustion    ConditionType = "Exhaustion"    // 疲労困憊。疲労の量から毎ターン導出
+	ConditionMalnutrition  ConditionType = "Malnutrition"  // 栄養失調。空腹の量から毎ターン導出
 )
 
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
@@ -161,7 +161,7 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		Recovery:                RecoverOverTime,
 		RecoverPer:              2,
 	},
-	// 疲労困憊・栄養失調はゲージ駆動。低体温と同じく Recovery を持たず、疲労・空腹システムが
+	// 疲労困憊・栄養失調は量から導出する。低体温と同じく Recovery を持たず、疲労・空腹システムが
 	// 毎ターン severity を立て直す。痛みは出さず全身性の機能低下だけ与える。値は実プレイで調整する
 	ConditionExhaustion: {
 		displayName:             "Exhaustion",
@@ -375,8 +375,8 @@ func (bph *BodyPartHealth) SetCondition(cond HealthCondition) {
 	bph.Conditions = append(bph.Conditions, cond)
 }
 
-// SetGaugeCondition は疲労・空腹などゲージから導出する不調を、指定の重症度へ揃える。
-// 重症度が SeverityNone なら不調を取り除く。状態の真実はゲージ側が持ち、不調はそれを写した派生なので、
+// SetGaugeCondition は疲労・空腹など量から導出する不調を、指定の重症度へ揃える。
+// 重症度が SeverityNone なら不調を取り除く。状態の真実は量の側が持ち、不調はそれを写した派生なので、
 // 毎ターン呼んで上書きしてよい。Timer は重症度に対応する値を入れ、進行度表示や IsActive の判定が
 // 重症度と食い違わないようにする。
 func (bph *BodyPartHealth) SetGaugeCondition(condType ConditionType, severity Severity) {

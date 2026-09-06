@@ -32,12 +32,12 @@ func progressTurnFatigue(world w.World) {
 		// 0..Max に収める。上限でも死なせず Exhausted のペナルティが続く
 		fatigue.Current = max(0, min(fatigue.Current, fatigue.Max))
 
-		// 低体温と同じく、ゲージから WholeBody の不調を毎ターン立て直す。全身性として身体機能へ効く
+		// 低体温と同じく、疲労の量から WholeBody の不調を毎ターン立て直す。全身性として身体機能へ効く
 		syncGaugeCondition(world, entity, gc.ConditionExhaustion, fatigue.ConditionSeverity())
 	}
 }
 
-// syncGaugeCondition はゲージ駆動の不調を entity の WholeBody へ severity で立て直す。
+// syncGaugeCondition は量から導出する不調を entity の WholeBody へ severity で立て直す。
 // HealthStatus を持たない対象は不調を載せられないので何もしない
 func syncGaugeCondition(world w.World, entity ecs.Entity, condType gc.ConditionType, severity gc.Severity) {
 	if !world.Components.HealthStatus.Has(entity) {

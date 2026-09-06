@@ -103,7 +103,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 			Description: query.T(world, "Hunger. High hunger hinders actions and recovery"),
 		})
 	}
-	// 疲労は空腹と並ぶ生理ゲージ。Exhaustion 不調として全身性へ効き、回復も下げる
+	// 疲労は空腹と並ぶ生理値。Exhaustion 不調として全身性へ効き、回復も下げる
 	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
 		fatigue := world.Components.Fatigue.Get(playerEntity)
 		items = append(items, statusItemData{
