@@ -45,6 +45,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		{Label: "Inflict conditions", Run: popAfter(debugInflictConditions)},
 		{Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
 		{Label: "Exhaust fatigue", Run: popAfter(debugExhaustFatigue)},
+		{Label: "Starve hunger", Run: popAfter(debugStarveHunger)},
 		{Label: "Damage self (-10 HP)", Run: popAfter(debugDamageSelf(10))},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
@@ -168,6 +169,20 @@ func debugExhaustFatigue(world w.World) error {
 	}
 	fatigue := world.Components.Fatigue.Get(player)
 	fatigue.Current = fatigue.Max
+	return nil
+}
+
+// debugStarveHunger はデバッグでプレイヤーの空腹を飢餓まで下げる。栄養失調の効果をすぐ試すため
+func debugStarveHunger(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !world.Components.Hunger.Has(player) {
+		return nil
+	}
+	hunger := world.Components.Hunger.Get(player)
+	hunger.Current = 0
 	return nil
 }
 

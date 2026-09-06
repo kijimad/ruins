@@ -28,7 +28,8 @@ func progressTurnFatigue(world w.World) {
 			fatigue.Current += gc.FatigueGainPerTurn
 		}
 
-		// 0..Max に収める。上限でも死なせず Exhausted のペナルティが続く
+		// 0..Max に収める。上限でも死なせず Exhausted のペナルティが続く。
+		// 疲労の効果は保存せず、EffectiveBodyFuncs が量から読み取り時に導出するのでここで同期は不要
 		fatigue.Current = max(0, min(fatigue.Current, fatigue.Max))
 	}
 }

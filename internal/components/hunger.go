@@ -63,6 +63,19 @@ func (h *Hunger) GetLevel() HungerLevel {
 	}
 }
 
+// HungerSeverity は空腹段階を栄養失調の不調の重症度へ写す。ok=false なら不調は立たない
+func HungerSeverity(level HungerLevel) (Severity, bool) {
+	switch level {
+	case HungerSatiated, HungerNormal:
+		return SeverityNone, false
+	case HungerHungry:
+		return SeverityMinor, true
+	case HungerStarving:
+		return SeverityMedium, true
+	}
+	return SeverityNone, false
+}
+
 // Increase は満腹度を増加させる（食事によって満腹になる）
 func (h *Hunger) Increase(amount int) {
 	h.Current += amount

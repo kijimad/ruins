@@ -19,7 +19,7 @@ func progressTurnHunger(world w.World) {
 	q := query.ActiveFilter1[gc.Hunger](world).Query()
 	for q.Next() {
 		entity := q.Entity()
-		hungerPct := int(query.ModifierValue(world, entity, gc.ModHungerProgress))
+		hungerPct := int(query.ProficiencyValue(world, entity, gc.ProfHungerProgress))
 		// 睡眠中は代謝が下がり腹が減りにくい。進行を半分に抑える
 		if world.Components.Sleeping.Has(entity) {
 			hungerPct /= 2
@@ -29,6 +29,7 @@ func progressTurnHunger(world w.World) {
 		if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) < hungerPct {
 			world.Components.Hunger.Get(entity).Decrease(1)
 		}
+		// 空腹の効果は保存せず、EffectiveBodyFuncs が量から読み取り時に導出するのでここで同期は不要
 	}
 }
 

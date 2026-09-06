@@ -78,6 +78,8 @@ const (
 	ConditionLaceration    ConditionType = "Laceration"    // 切り傷
 	ConditionLiverIllness  ConditionType = "LiverIllness"  // 肝疾患
 	ConditionFoodPoisoning ConditionType = "FoodPoisoning" // 食中毒
+	ConditionExhaustion    ConditionType = "Exhaustion"    // 過労。疲労の量から読み取り時に導出する
+	ConditionMalnutrition  ConditionType = "Malnutrition"  // 栄養失調。空腹の量から読み取り時に導出する
 )
 
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
@@ -93,14 +95,14 @@ const (
 	RecoverOverTime RecoveryMode = "recover_over_time"
 )
 
-// ConditionDef は状態種類ごとの静的な定義。表示・capacity への反応率・回復の振る舞いを1つの表に持つ。
+// ConditionDef は状態種類ごとの静的な定義。表示・身体機能への反応率・回復の振る舞いを1つの表に持つ。
 // 症状を調整するときはここ1箇所を触る。Recovery を持つ症状は ConditionSystem が進行と回復を扱い、
 // Recovery を持たない低体温は TemperatureSystem 管轄になる。反応率と速度は実プレイで調整する
 type ConditionDef struct {
 	displayName             string       // 表示名 msgid
 	description             string       // 概要説明 msgid
 	painPerSeverity         int          // 重症度1段あたりに加える痛み
-	capacityDropPerSeverity int          // 重症度1段あたりに下げる該当機能の量
+	bodyFuncDropPerSeverity int          // 重症度1段あたりに下げる該当機能の量
 	Recovery                RecoveryMode // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
 	WorsenPer               int          // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
 	RecoverPer              int          // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
@@ -114,39 +116,68 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		displayName: "Hypothermia",
 		description: "The body is dangerously cold. Warm up to recover.",
 		// 常在圧力なので反応率は外傷より軽くする
-		painPerSeverity: 6, capacityDropPerSeverity: 10,
+		painPerSeverity:         6,
+		bodyFuncDropPerSeverity: 10,
 		// Recovery なし。進行と回復は TemperatureSystem が体温から扱う。
 		// 直接 HP は削らず、重症で血液量を下げて凍死させる
-		bloodDropPerSeverity: 22, Cause: CauseFrozen,
+		bloodDropPerSeverity: 22,
+		Cause:                CauseFrozen,
 	},
 	ConditionFracture: {
-		displayName:     "Fracture",
-		description:     "A broken bone. It will not heal until treated.",
-		painPerSeverity: 18, capacityDropPerSeverity: 20,
+		displayName:             "Fracture",
+		description:             "A broken bone. It will not heal until treated.",
+		painPerSeverity:         18,
+		bodyFuncDropPerSeverity: 20,
 		// 骨は肉より治りが遅い。切り傷の半分の速さにし、治療しても完治まで長く付き合わせる
-		Recovery: RecoverAfterTend, RecoverPer: 1,
+		Recovery:   RecoverAfterTend,
+		RecoverPer: 1,
 	},
 	ConditionLaceration: {
-		displayName:     "Laceration",
-		description:     "An open wound. It will not heal until treated.",
-		painPerSeverity: 8, capacityDropPerSeverity: 8,
-		Recovery: RecoverAfterTend, RecoverPer: 2, bloodDropPerSeverity: 25, Cause: CauseBloodLoss,
+		displayName:             "Laceration",
+		description:             "An open wound. It will not heal until treated.",
+		painPerSeverity:         8,
+		bodyFuncDropPerSeverity: 8,
+		Recovery:                RecoverAfterTend,
+		RecoverPer:              2,
+		bloodDropPerSeverity:    25,
+		Cause:                   CauseBloodLoss,
 	},
 	ConditionLiverIllness: {
-		displayName:     "Liver illness",
-		description:     "It worsens while untreated and drains HP when severe.",
-		painPerSeverity: 4, capacityDropPerSeverity: 10,
-		Recovery: ProgressUntilTend, WorsenPer: 2, RecoverPer: 1, bloodDropPerSeverity: 25, Cause: CauseIllness,
+		displayName:             "Liver illness",
+		description:             "It worsens while untreated and drains HP when severe.",
+		painPerSeverity:         4,
+		bodyFuncDropPerSeverity: 10,
+		Recovery:                ProgressUntilTend,
+		WorsenPer:               2,
+		RecoverPer:              1,
+		bloodDropPerSeverity:    25,
+		Cause:                   CauseIllness,
 	},
 	ConditionFoodPoisoning: {
-		displayName:     "Food poisoning",
-		description:     "Nausea from bad food. It clears on its own over time.",
-		painPerSeverity: 5, capacityDropPerSeverity: 12,
-		Recovery: RecoverOverTime, RecoverPer: 2,
+		displayName:             "Food poisoning",
+		description:             "Nausea from bad food. It clears on its own over time.",
+		painPerSeverity:         5,
+		bodyFuncDropPerSeverity: 12,
+		Recovery:                RecoverOverTime,
+		RecoverPer:              2,
+	},
+	// 過労・栄養失調は量から読み取り時に導出する全身性の不調。保存せず Recovery も持たない。
+	// 痛みは与えず意識と代謝を下げる。Minor=10、Medium=20 の刻みで効く
+	ConditionExhaustion: {
+		displayName:             "Exhaustion",
+		description:             "Worn out from lack of rest. Sleep to recover.",
+		painPerSeverity:         0,
+		bodyFuncDropPerSeverity: 10,
+	},
+	ConditionMalnutrition: {
+		displayName:             "Malnutrition",
+		description:             "Weakened by hunger. Eat to recover.",
+		painPerSeverity:         0,
+		bodyFuncDropPerSeverity: 10,
 	},
 }
 
-// ConditionDefFor は状態種類の定義を返す。未登録なら ok=false。ConditionSystem と capacity 導出が読む
+// ConditionDefFor は状態種類の定義を返す。未登録なら ok=false。ConditionSystem と身体機能の導出が読む
 func ConditionDefFor(ct ConditionType) (ConditionDef, bool) {
 	def, ok := conditionDefs[ct]
 	return def, ok
@@ -165,55 +196,57 @@ func ConditionTypeDescription(ct ConditionType) string {
 	return conditionDefs[ct].description
 }
 
-// BodyCapacities は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
+// BodyFuncs は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
 // 低いほど機能が落ちる。痛み Pain だけは 0 が無痛で、大きいほど痛い。
 // 不調から読み取り時に導出し、保存はしない
-type BodyCapacities struct {
+type BodyFuncs struct {
 	Pain          consts.Percent // 0 が無痛。大きいほど痛い
 	Blood         consts.Percent // 100 が正常。失血や重い不調で下がる。危険域を下回ると HP が減る
-	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。全機能に掛かる乗数
-	Manipulation  consts.Percent // 腕・手の不調で下がる
-	Moving        consts.Percent // 脚・足の不調で下がる
-	Sight         consts.Percent // 頭の不調で下がる
+	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。速度・命中へは消費側が掛ける
+	Manipulation  consts.Percent // 腕・手の局所低下に意識を全体乗数で掛けた値。近接命中・製作
+	Moving        consts.Percent // 脚・足の局所低下に意識を全体乗数で掛けた値。速度
+	Sight         consts.Percent // 頭の局所低下に意識を全体乗数で掛けた値。遠隔命中
+	Metabolism    consts.Percent // 100 が正常。空腹・疲労で下がる。回復の身体機能側。VIT・睡眠は熟練側で別に積む
 }
 
 // painConsciousnessDivisor は痛みが意識を下げる割合。痛みをこれで割ったぶん意識が下がる。
 // 症状に依らない集約側の係数。値は実プレイで調整する
 const painConsciousnessDivisor = 2
 
-// CapacityKind は部位が下げる身体機能の区分。値は表示名 msgid で UI は query.T で訳す
-type CapacityKind string
+// BodyFuncKind は部位が下げる身体機能の区分。値は表示名 msgid で UI は query.T で訳す
+type BodyFuncKind string
 
 // 身体機能の区分
 const (
-	CapacityConsciousness CapacityKind = "Consciousness" // 胴・全身の全身性
-	CapacityManipulation  CapacityKind = "Manipulation"  // 腕・手
-	CapacityMoving        CapacityKind = "Moving"        // 脚・足
-	CapacitySight         CapacityKind = "Sight"         // 頭
+	BodyFuncConsciousness BodyFuncKind = "Consciousness" // 胴・全身の全身性
+	BodyFuncManipulation  BodyFuncKind = "Manipulation"  // 腕・手
+	BodyFuncMoving        BodyFuncKind = "Moving"        // 脚・足
+	BodyFuncSight         BodyFuncKind = "Sight"         // 頭
+	BodyFuncMetabolism    BodyFuncKind = "Metabolism"    // 回復の身体機能側
 )
 
 // bodyPartMeta は部位ごとの静的情報。表示名・下げる身体機能・命中重みを1つの表に持つ
 type bodyPartMeta struct {
 	displayName string       // 表示名 msgid
-	capacity    CapacityKind // この部位の不調が下げる身体機能
+	bodyFunc    BodyFuncKind // この部位の不調が下げる身体機能
 	hitWeight   int          // 戦闘の命中抽選の重み。大きい部位ほど当たる。0 は命中先から除外
 }
 
 // bodyPartMetas は部位ごとの静的情報の唯一の表。部位階層は持たず平坦に持つ。
 // 部位を足すときはここへ1行足す。全身は全身性の状態の受け皿で戦闘の命中先ではないので命中重み 0
 var bodyPartMetas = [BodyPartCount]bodyPartMeta{
-	BodyPartHead:      {displayName: "Head", capacity: CapacitySight, hitWeight: 2},
-	BodyPartTorso:     {displayName: "Torso", capacity: CapacityConsciousness, hitWeight: 4},
-	BodyPartArms:      {displayName: "Arm", capacity: CapacityManipulation, hitWeight: 3},
-	BodyPartHands:     {displayName: "Hand", capacity: CapacityManipulation, hitWeight: 1},
-	BodyPartLegs:      {displayName: "Leg", capacity: CapacityMoving, hitWeight: 3},
-	BodyPartFeet:      {displayName: "Foot", capacity: CapacityMoving, hitWeight: 1},
-	BodyPartWholeBody: {displayName: "Whole body", capacity: CapacityConsciousness, hitWeight: 0},
+	BodyPartHead:      {displayName: "Head", bodyFunc: BodyFuncSight, hitWeight: 2},
+	BodyPartTorso:     {displayName: "Torso", bodyFunc: BodyFuncConsciousness, hitWeight: 4},
+	BodyPartArms:      {displayName: "Arm", bodyFunc: BodyFuncManipulation, hitWeight: 3},
+	BodyPartHands:     {displayName: "Hand", bodyFunc: BodyFuncManipulation, hitWeight: 1},
+	BodyPartLegs:      {displayName: "Leg", bodyFunc: BodyFuncMoving, hitWeight: 3},
+	BodyPartFeet:      {displayName: "Foot", bodyFunc: BodyFuncMoving, hitWeight: 1},
+	BodyPartWholeBody: {displayName: "Whole body", bodyFunc: BodyFuncConsciousness, hitWeight: 0},
 }
 
-// bodyPartCapacity は部位が下げる身体機能を返す
-func bodyPartCapacity(part BodyPart) CapacityKind {
-	return bodyPartMetas[part].capacity
+// bodyPartFunction は部位が下げる身体機能を返す
+func bodyPartFunction(part BodyPart) BodyFuncKind {
+	return bodyPartMetas[part].bodyFunc
 }
 
 // BodyPartHitWeight は戦闘の命中抽選での部位の重みを返す。0 なら命中先にならない
@@ -221,21 +254,21 @@ func BodyPartHitWeight(part BodyPart) int {
 	return bodyPartMetas[part].hitWeight
 }
 
-// HealthyCapacities は不調が無いときの身体機能を返す。HealthStatus を持たない対象の既定
-func HealthyCapacities() BodyCapacities {
-	return (&HealthStatus{}).Capacities()
+// HealthyBodyFuncs は不調が無いときの身体機能を返す。HealthStatus を持たない対象の既定
+func HealthyBodyFuncs() BodyFuncs {
+	return (&HealthStatus{}).BodyFuncs()
 }
 
 // treatedPenaltyRemain は応急処置後に残る痛みと機能低下の割合。全治まで軽減して残す。
 // 出血や HP 減少は治療で止まるが、機能低下はゼロにはならず全治まで引きずる
 const treatedPenaltyRemain consts.Percent = 50
 
-// ConditionCapacityImpact は不調1件が身体機能へ与える影響を返す。
-// capacity は部位で定まり重症度に依らない。drop が0なら影響なし
-func ConditionCapacityImpact(cond *HealthCondition, part BodyPart) (pain int, capacity CapacityKind, drop int) {
-	capacity = bodyPartCapacity(part)
+// ConditionBodyFuncImpact は不調1件が身体機能へ与える影響を返す。
+// 身体機能は部位で定まり重症度に依らない。drop が0なら影響なし
+func ConditionBodyFuncImpact(cond *HealthCondition, part BodyPart) (pain int, bodyFunc BodyFuncKind, drop int) {
+	bodyFunc = bodyPartFunction(part)
 	pain, drop = conditionSeverityImpact(cond)
-	return pain, capacity, drop
+	return pain, bodyFunc, drop
 }
 
 // conditionSeverityImpact は不調1件の痛みと機能低下を返す。症状ごとの反応率に重症度を掛ける。
@@ -246,7 +279,7 @@ func conditionSeverityImpact(cond *HealthCondition) (pain, drop int) {
 		return 0, 0
 	}
 	def := conditionDefs[cond.Type]
-	pain, drop = def.painPerSeverity*m, def.capacityDropPerSeverity*m
+	pain, drop = def.painPerSeverity*m, def.bodyFuncDropPerSeverity*m
 	if cond.TendQuality > 0 {
 		pain = treatedPenaltyRemain.ApplyInt(pain)
 		drop = treatedPenaltyRemain.ApplyInt(drop)
@@ -462,7 +495,7 @@ func ConditionBloodDrop(cond *HealthCondition) int {
 // BloodLossHPDrain は血液量の低下による毎ターンの HP 減少量と死因を返す。
 // 血液量が危険域を下回ると、不足に応じてじわじわ HP を削る。失血・凍死・衰弱死はすべてここを通る
 func (hs *HealthStatus) BloodLossHPDrain() (int, DeathCause) {
-	blood := int(hs.Capacities().Blood)
+	blood := int(hs.BodyFuncs().Blood)
 	if blood >= bloodCriticalThreshold {
 		return 0, ""
 	}
@@ -496,9 +529,10 @@ func (hs *HealthStatus) IsHPDraining() bool {
 	return drain > 0
 }
 
-// Capacities は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
-// 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識が全機能へ乗算される
-func (hs *HealthStatus) Capacities() BodyCapacities {
+// BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
+// 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を全体乗数として局所機能へ掛ける。
+// needConds に全身性の不調を渡すと保存された不調と一緒に集約する。渡さなければ保存された不調だけで導出する
+func (hs *HealthStatus) BodyFuncs(needConds ...HealthCondition) BodyFuncs {
 	pain := 0
 	bloodDrop := 0
 	var manip, moving, sight, systemic int // 各機能の低下量
@@ -508,33 +542,78 @@ func (hs *HealthStatus) Capacities() BodyCapacities {
 			p, drop := conditionSeverityImpact(cond)
 			pain += p
 			bloodDrop += conditionBloodDrop(cond)
-			switch bodyPartCapacity(BodyPart(i)) {
-			case CapacityManipulation:
+			switch bodyPartFunction(BodyPart(i)) {
+			case BodyFuncManipulation:
 				manip += drop
-			case CapacityMoving:
+			case BodyFuncMoving:
 				moving += drop
-			case CapacitySight:
+			case BodyFuncSight:
 				sight += drop
-			case CapacityConsciousness:
+			case BodyFuncConsciousness:
 				systemic += drop
+			case BodyFuncMetabolism:
+				// 代謝は部位に割り当てない。疲労・空腹の不調から下記で導く
 			}
 		}
 	}
 
+	// 疲労・空腹の不調は全身性。意識へ集約し、代謝を下げる量 needDrop としても集計する
+	needDrop := 0
+	for i := range needConds {
+		p, drop := conditionSeverityImpact(&needConds[i])
+		pain += p
+		systemic += drop
+		needDrop += drop
+	}
+
 	pain = clamp(pain, 0, 100)
-	// 意識は全身性の低下と痛みで下がる
+	// 意識は全身性の低下と痛みで下がる。怪我・病気・過労・栄養失調がすべて systemic へ集約されている
 	consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)
-	// 局所機能は低下を引いたうえで、意識を全体乗数として掛ける
+	// 局所機能は低下を引いたうえで意識を全体乗数として掛ける
 	withConsciousness := func(local int) consts.Percent {
 		return consts.Percent(clamp(local, 0, 100) * consciousness / 100)
 	}
-
-	return BodyCapacities{
+	return BodyFuncs{
 		Pain:          consts.Percent(pain),
 		Blood:         consts.Percent(clamp(100-bloodDrop, 0, 100)),
 		Consciousness: consts.Percent(consciousness),
 		Manipulation:  withConsciousness(100 - manip),
 		Moving:        withConsciousness(100 - moving),
 		Sight:         withConsciousness(100 - sight),
+		// 代謝は回復の身体機能側。過労・栄養失調でだけ下がり、痛み・全身病は含めない
+		Metabolism: consts.Percent(clamp(100-needDrop, 0, 100)),
 	}
+}
+
+// ConsciousnessDrops は意識を下げる不調由来の内訳を返す。全身性の低下ぶんと痛みぶんに分けて返す。
+// 疲労・空腹は量由来で保存しないため含めない。呼び出し側が量から足す。内訳表示に使う
+func (hs *HealthStatus) ConsciousnessDrops() (systemic, pain int) {
+	rawPain := 0
+	for i := range hs.Parts {
+		for j := range hs.Parts[i].Conditions {
+			cond := &hs.Parts[i].Conditions[j]
+			p, drop := conditionSeverityImpact(cond)
+			rawPain += p
+			if bodyPartFunction(BodyPart(i)) == BodyFuncConsciousness {
+				systemic += drop
+			}
+		}
+	}
+	return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor
+}
+
+// LocalDrop は指定した局所身体機能を下げる部位の不調ぶんを返す。意識の 全体乗数を掛ける前の局所低下で、
+// 局所機能の内訳表示に使う。全身性の Consciousness を渡すと 0 を返す
+func (hs *HealthStatus) LocalDrop(bf BodyFuncKind) int {
+	drop := 0
+	for i := range hs.Parts {
+		if bodyPartFunction(BodyPart(i)) != bf {
+			continue
+		}
+		for j := range hs.Parts[i].Conditions {
+			_, d := conditionSeverityImpact(&hs.Parts[i].Conditions[j])
+			drop += d
+		}
+	}
+	return drop
 }

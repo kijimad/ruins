@@ -365,7 +365,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		return overlay.DetailContent{Name: item.Label}
 	}
 
-	pain, capacity, drop := gc.ConditionCapacityImpact(cond, item.BodyPart)
+	pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
@@ -375,7 +375,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Pain"), Value: fmt.Sprintf("+%d", pain)})
 	}
 	if drop > 0 {
-		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf("-%d", drop)})
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf("-%d", drop)})
 	}
 	// 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
 	if bd := gc.ConditionBloodDrop(cond); bd > 0 {

@@ -227,8 +227,8 @@ msgstr "所持可能な最大重量"
 msgid "Hunger"
 msgstr "空腹度"
 
-msgid "Hunger. High hunger hinders actions"
-msgstr "空腹度。高いと行動に支障が出る"
+msgid "Hunger. High hunger hinders actions and recovery"
+msgstr "空腹度。高いと行動と回復に支障が出る"
 
 msgid "Ambient temperature"
 msgstr "環境気温"
@@ -944,6 +944,18 @@ msgstr "肝疾患"
 msgid "Food poisoning"
 msgstr "食あたり"
 
+msgid "Exhaustion"
+msgstr "過労"
+
+msgid "Malnutrition"
+msgstr "栄養失調"
+
+msgid "Worn out from lack of rest. Sleep to recover."
+msgstr "休息不足で消耗している。眠れば回復する。"
+
+msgid "Weakened by hunger. Eat to recover."
+msgstr "空腹で衰弱している。食べれば回復する。"
+
 msgid "The body is dangerously cold. Warm up to recover."
 msgstr "体が危険なほど冷えている。暖まれば回復する。"
 
@@ -1007,17 +1019,23 @@ msgstr "歩行"
 msgid "Sight"
 msgstr "視覚"
 
+msgid "Metabolism"
+msgstr "代謝"
+
+msgid "Injury and illness"
+msgstr "怪我・病気"
+
 msgid "Body function"
 msgstr "身体機能"
 
-msgid "Body capacities lowered by injuries and illness"
-msgstr "怪我や病気で下がる身体機能"
+msgid "Body capacities lowered by injuries, illness, hunger and fatigue"
+msgstr "怪我・病気・空腹・疲労で下がる身体機能"
 
 msgid "Pain from conditions. Lowers consciousness"
 msgstr "不調による痛み。意識を下げる"
 
-msgid "Master capacity. Multiplies all others"
-msgstr "全機能に掛かる乗数"
+msgid "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions"
+msgstr "全身の冴え。痛み・病気・空腹・疲労で下がり、行動を鈍らせる"
 
 msgid "Affects melee accuracy and crafting"
 msgstr "近接命中と製作に効く"
@@ -1027,6 +1045,9 @@ msgstr "移動速度に効く"
 
 msgid "Affects ranged accuracy and vision"
 msgstr "遠隔命中と視界に効く"
+
+msgid "Affects recovery speed. Hunger and fatigue lower it"
+msgstr "回復速度に効く。空腹・疲労で下がる"
 
 msgid "Minor"
 msgstr "軽"
@@ -6008,6 +6029,12 @@ msgstr "行動速度"
 
 msgid "Recovery"
 msgstr "回復"
+
+msgid "Sleeping"
+msgstr "睡眠中"
+
+msgid "Natural recovery speed. VIT and sleep raise it, hunger and fatigue lower it"
+msgstr "自然回復の速さ。VIT・睡眠で上がり、空腹・疲労で下がる"
 
 msgid "Sleep here?"
 msgstr "休みますか？"
