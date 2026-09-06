@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [疲労・空腹の効果を修飾子パイプラインへ統一する](docs/design/260906105501.md) | 0/7 | refactor, ecs, gamedesign |
+| accepted | [疲労・空腹の効果を修飾子パイプラインへ統一する](docs/design/260906105501.md) | 0/8 | refactor, ecs, gamedesign |
 
 
 ## Reference
