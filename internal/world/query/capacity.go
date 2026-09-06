@@ -12,10 +12,10 @@ import (
 func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {
 	needConds := DerivedConditions(world, entity)
 	if world.Components.HealthStatus.Has(entity) {
-		return world.Components.HealthStatus.Get(entity).BodyFuncsWith(needConds)
+		return world.Components.HealthStatus.Get(entity).BodyFuncs(needConds...)
 	}
 	// HealthStatus 非所持は怪我を持たない。疲労・空腹の不調だけを空の身体機能へ畳む
-	return (&gc.HealthStatus{}).BodyFuncsWith(needConds)
+	return (&gc.HealthStatus{}).BodyFuncs(needConds...)
 }
 
 // DerivedConditions は疲労・空腹の量から過労・栄養失調の不調を読み取り時に組み立てる。
