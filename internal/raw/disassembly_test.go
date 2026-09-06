@@ -195,4 +195,61 @@ func TestValidateReferences(t *testing.T) {
 		err := ValidateReferences(raws)
 		require.ErrorIs(t, err, errCommandTableRefUndefinedWeapon)
 	})
+
+	t.Run("ドロップテーブル参照エラーが検出される", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			DropTables: &[]oapi.DropTable{{
+				Name:    "廃墟",
+				Entries: []oapi.DropTableEntry{{Material: "存在しない素材", Weight: 1}},
+			}},
+		}
+		err := ValidateReferences(raws)
+		require.ErrorIs(t, err, errDropTableMaterialUndefined)
+	})
+
+	t.Run("ダイス表記エラーが検出される", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "0d6"}}}},
+		}
+		err := ValidateReferences(raws)
+		require.ErrorIs(t, err, errInvalidPackNotation)
+	})
+
+	t.Run("コマンドテーブル参照エラーが検出される", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Members: &[]oapi.Member{{Name: "スライム", CommandTableId: new(oapi.EntityName("未定義テーブル"))}},
+		}
+		err := ValidateReferences(raws)
+		require.ErrorIs(t, err, errMemberCommandTableUndefined)
+	})
+
+	t.Run("アイテムテーブル参照エラーが検出される", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "未定義グループ"}}}},
+		}
+		err := ValidateReferences(raws)
+		require.ErrorIs(t, err, errItemTableRefUndefinedGroup)
+	})
+
+	t.Run("アイテムグループ参照エラーが検出される", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{Id: "未定義アイテム", Pack: "1d1"}}}},
+		}
+		err := ValidateReferences(raws)
+		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
+	})
+
+	t.Run("敵テーブル参照エラーが検出される", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "未定義敵", Pack: "1d1"}}}},
+		}
+		err := ValidateReferences(raws)
+		require.ErrorIs(t, err, errEnemyTableRefUndefinedEnemy)
+	})
 }
