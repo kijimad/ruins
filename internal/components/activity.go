@@ -62,6 +62,8 @@ const (
 	BehaviorFeedFuel BehaviorName = "FeedFuel"
 	// BehaviorSleep は疲労が抜けるまで眠り続ける。外因で中断される
 	BehaviorSleep BehaviorName = "Sleep"
+	// BehaviorDrive は移動拠点キューブへの乗車。ExecuteInteraction が直接処理する結果ラベル
+	BehaviorDrive BehaviorName = "Drive"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

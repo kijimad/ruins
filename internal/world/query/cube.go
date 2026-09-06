@@ -6,6 +6,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// IsDrivingPlayer は entity が運転中のプレイヤーかを返す。運転中は描画で隠すが entity は残し、
+// 被弾対象のままにする。
+func IsDrivingPlayer(world w.World, e ecs.Entity) bool {
+	return world.Components.Player.Has(e) && world.Components.Driving.Has(e)
+}
+
 // CubeWeight はキューブ収納にある物の総重量を返す。運転1タイルの燃料コスト算出に使う。
 // 収納の中身から常に導けるので値を保持せず、読み取り時に合算する。
 func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {

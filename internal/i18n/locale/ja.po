@@ -1746,6 +1746,15 @@ msgstr "キューブ情報"
 msgid "Open cube menu (%s)"
 msgstr "キューブメニューを開く (%s)"
 
+msgid "Drive"
+msgstr "運転する"
+
+msgid "You are on the cube. Press Enter to drive."
+msgstr "キューブの上にいる。Enter で運転する。"
+
+msgid "Out of fuel. The cube won't move."
+msgstr "燃料切れ。キューブは動かない。"
+
 msgid "%s used %s and recovered %d HP."
 msgstr "%s は %s を使った。 HPが %d 回復した。"
 

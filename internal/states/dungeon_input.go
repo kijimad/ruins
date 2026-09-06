@@ -95,6 +95,21 @@ func (st *DungeonState) moveDir(world w.World, base gc.Direction) gc.Direction {
 //
 //nolint:gocyclo // 多くのアクションを処理するためswitch文が大きくなる
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	// 運転中は移動と降車だけを受け付ける。他のアクションは握り潰す
+	if player, perr := query.GetPlayerEntity(world); perr == nil && world.Components.Driving.Has(player) {
+		switch action {
+		case inputmapper.ActionMoveNorth, inputmapper.ActionMoveSouth, inputmapper.ActionMoveEast, inputmapper.ActionMoveWest,
+			inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:
+			// 移動と視点操作は下の通常処理へ通す。移動は ExecuteMoveAction が運転移動へ分岐する
+		case inputmapper.ActionInteract:
+			// 乗車と同じキーで降車する
+			st.dismount(world)
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		default:
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
+	}
+
 	// UI系アクションは常に実行可能
 	switch action {
 	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot,
@@ -333,6 +348,29 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	default:
 		// この switch で扱わない種別。未実装の scaffold もここに落ちる
 		return es.Transition[w.World]{}, fmt.Errorf("unhandled StateChangeRequest: %T", req.Payload)
+	}
+}
+
+// dismount は運転中のプレイヤーを降車させる。Driving を外し、キューブ隣の歩行可能タイルへ置く。
+// 隣接に空きが無ければキューブと同じ通行可能タイルに留まる。
+func (st *DungeonState) dismount(world w.World) {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil || !world.Components.Driving.Has(player) {
+		return
+	}
+	cube := world.Components.Driving.Get(player).Vehicle
+	world.Components.Driving.Remove(player)
+	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) {
+		return
+	}
+	cubeCoord := world.Components.GridElement.Get(cube).Coord
+	for _, d := range []gc.Direction{gc.DirectionUp, gc.DirectionRight, gc.DirectionDown, gc.DirectionLeft} {
+		n := cubeCoord.Add(d.GetDelta())
+		if activity.CanMoveTo(world, n, cubeCoord, player) {
+			world.Components.GridElement.Get(player).Coord = n
+			query.InvalidateSpatialIndex(world)
+			return
+		}
 	}
 }
 

@@ -258,6 +258,10 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
+		// 運転中はプレイヤーを描かない。entity は残し被弾対象のままにする
+		if query.IsDrivingPlayer(world, e) {
+			continue
+		}
 		g := world.Components.GridElement.Get(e)
 		fx, fz := float64(g.X), float64(g.Y)
 		if math.Abs(fx-pcx) > r3cullRadius || math.Abs(fz-pcz) > r3cullRadius {

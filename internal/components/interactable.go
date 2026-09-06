@@ -82,6 +82,9 @@ const (
 	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。隣接で発動し、収納・
 	// オークション・情報の入口になる
 	InteractionOpenCubeMenu InteractionKind = "OPEN_CUBE_MENU"
+	// InteractionDrive は移動拠点キューブに乗り込んで運転を始める相互作用。直上で発動する。
+	// ワープの階層移動と同じく、キューブのタイルに立って Enter で乗車する
+	InteractionDrive InteractionKind = "DRIVE"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -91,7 +94,7 @@ func (k InteractionKind) Config() InteractionConfig {
 	switch k {
 	case InteractionItem:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}
-	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:
+	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll, InteractionDrive:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}

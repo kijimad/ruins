@@ -202,6 +202,10 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objectQuery.Next() {
 		entity := objectQuery.Entity()
+		// 運転中はプレイヤーを描かない。entity は残し被弾対象のままにする
+		if query.IsDrivingPlayer(world, entity) {
+			continue
+		}
 		// 画面外は描画しない
 		if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {
 			continue

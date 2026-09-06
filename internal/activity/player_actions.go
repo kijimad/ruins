@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -20,6 +21,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	if !world.Components.GridElement.Has(entity) {
 		return fmt.Errorf("player has no GridElement component")
+	}
+
+	// 運転中はキューブを動かす。プレイヤーは同乗して追随する
+	if world.Components.Driving.Has(entity) {
+		return executeDriveMove(world, entity, direction)
 	}
 
 	gridElement := world.Components.GridElement.Get(entity)
@@ -71,6 +77,43 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	return nil
+}
+
+// executeDriveMove は運転中の移動を処理する。キューブを1タイル進め、燃料と行動ターンを消費し、
+// プレイヤーを同乗させて追随させる。壁・敵で不可なら停止し、燃料不足なら立往生する。
+func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) error {
+	cube := world.Components.Driving.Get(player).Vehicle
+	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) {
+		// 乗り物が消えた。降車扱いにして次の入力から通常移動へ戻す
+		world.Components.Driving.Remove(player)
+		return nil
+	}
+	cubeGrid := world.Components.GridElement.Get(cube)
+	current := cubeGrid.Coord
+	next := current.Add(direction.GetDelta())
+
+	// 通行判定。壁・敵など不可なら停止する。ターンも燃料も消費しない
+	if !CanMoveTo(world, next, current, cube) {
+		return nil
+	}
+
+	// 燃料判定。足りなければ立往生する
+	cost := query.DriveFuelCost(query.CubeWeight(world, cube))
+	if query.CubeFuelTotal(world, cube) < cost {
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "Out of fuel. The cube won't move.")).
+			Log()
+		return nil
+	}
+
+	// 燃料を消費し、キューブを進行先へ動かす
+	lifecycle.ConsumeCubeFuel(world, cube, cost)
+	cubeGrid.Coord = next
+	query.InvalidateSpatialIndex(world)
+
+	// プレイヤーを既存の移動経路で追随させる。行動ターン消費と敵ターン進行はここが担う
+	_, err := Execute(NewMoveActivity(gc.GridElement{Coord: next}), player, world)
+	return err
 }
 
 // ExecuteWaitAction は待機アクションを実行する
@@ -193,6 +236,10 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			case gc.InteractionAuction:
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a shipping station. Press Enter to open it.")).
+					Log()
+			case gc.InteractionDrive:
+				gamelog.New(query.GetGameLog(world)).
+					Markup(query.T(world, "You are on the cube. Press Enter to drive.")).
 					Log()
 			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel, gc.InteractionOpenCubeMenu:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を

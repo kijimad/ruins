@@ -1,0 +1,87 @@
+package activity
+
+import (
+	"testing"
+
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+// addDriveFuel はキューブ収納に燃料アイテムを1つ足す
+func addDriveFuel(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Material, mg consts.Milligram) {
+	t.Helper()
+	e := world.ECS.NewEntity()
+	world.Components.Material.Add(e, &gc.Material{Kind: kind})
+	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
+	world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: cube})
+}
+
+func TestExecuteInteraction_乗車でDrivingが付く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+
+	_, err = ExecuteInteraction(player, cube, gc.InteractionDrive, world)
+	require.NoError(t, err)
+
+	require.True(t, world.Components.Driving.Has(player), "乗車で Driving が付く")
+	assert.Equal(t, cube, world.Components.Driving.Get(player).Vehicle, "運転対象はそのキューブ")
+}
+
+func TestExecuteMoveAction_運転中はキューブとプレイヤーが一緒に動く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	addDriveFuel(t, world, cube, oapi.COAL, consts.Milligram(5*consts.MilligramPerKg))
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(cube).Coord, "キューブが進む")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 6, Y: 5}, world.Components.GridElement.Get(player).Coord, "プレイヤーも同乗して進む")
+	assert.Less(t, int(query.CubeFuelTotal(world, cube)), 4000, "燃料を消費する")
+}
+
+func TestExecuteMoveAction_燃料切れは立往生する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	// 燃料を積まずに乗車する
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "燃料切れでキューブは動かない")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "プレイヤーも動かない")
+}
+
+func TestIsDrivingPlayer_運転中のプレイヤーを見分ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+
+	assert.False(t, query.IsDrivingPlayer(world, player), "乗車前は運転中でない")
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+	assert.True(t, query.IsDrivingPlayer(world, player), "乗車後は運転中")
+	assert.False(t, query.IsDrivingPlayer(world, cube), "キューブ自身は運転中プレイヤーでない")
+}
