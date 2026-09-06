@@ -73,12 +73,6 @@ const (
 	InteractionMelee InteractionKind = "MELEE"
 	// InteractionDisassemble は工具による分解の相互作用
 	InteractionDisassemble InteractionKind = "DISASSEMBLE"
-	// InteractionEnterCube は移動拠点キューブの内部へ入る相互作用
-	InteractionEnterCube InteractionKind = "ENTER_CUBE"
-	// InteractionExitCube は移動拠点キューブの内部から出る相互作用
-	InteractionExitCube InteractionKind = "EXIT_CUBE"
-	// InteractionCubePanel はキューブ内部のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
-	InteractionCubePanel InteractionKind = "CUBE_PANEL"
 	// InteractionAuction は通信販売の出荷場所。専用メニューを開いて積荷の出荷と状況確認をする
 	InteractionAuction InteractionKind = "AUCTION"
 	// InteractionIgnite は隣接タイルの燃焼物に火をつける相互作用。火種の所持を条件にメニューへ出す
@@ -96,12 +90,10 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}
 	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
-	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
+	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}
-	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionAuction, InteractionIgnite, InteractionFeedFuel:
+	case InteractionStorage, InteractionDisassemble, InteractionAuction, InteractionIgnite, InteractionFeedFuel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
-	case InteractionExitCube:
-		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	}
 	return InteractionConfig{}
 }

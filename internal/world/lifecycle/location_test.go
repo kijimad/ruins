@@ -41,13 +41,13 @@ func ownerBackpackCount(world w.World, owner ecs.Entity) int {
 }
 
 // TestMoveToField_所有者からの移送で現ステージへ束縛する は、背包などからフィールドへ置いた物が
-// 即座に現ステージへ束縛され、総重量へ乗ることを検証する。次の swap を待つ遅延束縛では、内部で
-// 置いた物が退場するまで総重量に現れない不具合の回帰。
+// 即座に現ステージへ束縛されることを検証する。次の swap を待つ遅延束縛で、置いた物が退場するまで
+// 現ステージへ現れない不具合の回帰。
 func TestMoveToField_所有者からの移送で現ステージへ束縛する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewCubeInteriorStage()
-	query.SetDungeon(world, &gc.Dungeon{CurrentStage: interior})
+	stageKey := gc.NewDungeonStage("テスト階", 1)
+	query.SetDungeon(world, &gc.Dungeon{CurrentStage: stageKey})
 
 	owner := world.ECS.NewEntity()
 	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
@@ -55,13 +55,11 @@ func TestMoveToField_所有者からの移送で現ステージへ束縛する(t
 
 	item, err := SpawnBackpackItem(world, "iron", 1)
 	require.NoError(t, err)
-	itemWeight := world.Components.Weight.Get(item).Milligram
 
 	MoveToField(world, item, &owner)
 
 	require.True(t, world.Components.StageBound.Has(item), "床へ移すと現ステージへ束縛される")
-	assert.Equal(t, interior, world.Components.StageBound.Get(item).Key, "束縛先は現ステージ")
-	assert.Equal(t, itemWeight, query.CubeWeight(world, interior), "置いた物が即座に総重量へ乗る")
+	assert.Equal(t, stageKey, world.Components.StageBound.Get(item).Key, "束縛先は現ステージ")
 }
 
 func TestMovePlayerToPosition(t *testing.T) {

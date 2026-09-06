@@ -51,8 +51,8 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-			case gc.InteractionTalk, gc.InteractionCubePanel:
-				// 会話とコントロールパネルは、歩き込むだけで発動する
+			case gc.InteractionTalk:
+				// 会話は歩き込むだけで発動する
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
 			default:
@@ -190,15 +190,11 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
-			case gc.InteractionEnterCube:
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
-					Log()
 			case gc.InteractionAuction:
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a shipping station. Press Enter to open it.")).
 					Log()
-			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionCubePanel, gc.InteractionIgnite, gc.InteractionFeedFuel:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

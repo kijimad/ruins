@@ -284,24 +284,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 					Interaction: interaction,
 				})
 			}
-		case gc.InteractionEnterCube:
-			result = append(result, InteractionAction{
-				Label:       query.T(world, "Enter (%s)", dirLabel),
-				Target:      interactableEntity,
-				Interaction: interaction,
-			})
-		case gc.InteractionExitCube:
-			result = append(result, InteractionAction{
-				Label:       query.T(world, "Exit"),
-				Target:      interactableEntity,
-				Interaction: interaction,
-			})
-		case gc.InteractionCubePanel:
-			result = append(result, InteractionAction{
-				Label:       query.T(world, "Inspect (control panel)"),
-				Target:      interactableEntity,
-				Interaction: interaction,
-			})
 		case gc.InteractionAuction:
 			result = append(result, InteractionAction{
 				Label:       query.T(world, "Open shipping station"),

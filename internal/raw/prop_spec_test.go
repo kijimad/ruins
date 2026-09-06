@@ -116,60 +116,6 @@ Depth = 1
 	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionPortalNext)
 }
 
-func TestNewPropSpec_キューブ退場トリガーが設定される(t *testing.T) {
-	t.Parallel()
-	str := `
-[[Props]]
-Name = "キューブ出口"
-id = "キューブ出口"
-Description = "移動拠点キューブから退場するポータル"
-BlockPass = false
-BlockView = false
-
-[Props.SpriteRender]
-SpriteSheetName = "field"
-SpriteKey = "cube_exit"
-Depth = 1
-
-[Props.WarpCubeExitTrigger]
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	entitySpec, err := NewPropSpec(raws, "キューブ出口")
-	require.NoError(t, err)
-
-	require.NotNil(t, entitySpec.Interactable)
-	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionExitCube)
-}
-
-func TestNewPropSpec_キューブコントロールパネルが設定される(t *testing.T) {
-	t.Parallel()
-	str := `
-[[Props]]
-Name = "操作パネル"
-id = "操作パネル"
-Description = "移動拠点キューブのコントロールパネル"
-BlockPass = false
-BlockView = false
-
-[Props.SpriteRender]
-SpriteSheetName = "field"
-SpriteKey = "cube_panel"
-Depth = 1
-
-[Props.CubePanelTrigger]
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	entitySpec, err := NewPropSpec(raws, "操作パネル")
-	require.NoError(t, err)
-
-	require.NotNil(t, entitySpec.Interactable)
-	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionCubePanel)
-}
-
 func TestNewPropSpec_出荷場所が設定される(t *testing.T) {
 	t.Parallel()
 	str := `

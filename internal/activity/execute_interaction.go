@@ -45,13 +45,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeMelee(actor, target, world)
 	case gc.InteractionDisassemble:
 		return executeDisassemble(actor, target, world)
-	case gc.InteractionEnterCube:
-		// 入る対象のキューブ本体を載せて運ぶ。退場時の戻り先解決に使う
-		return executePortal(world, gc.WarpCubeEnterEvent(target), "cube enter state change request error", "enter cube")
-	case gc.InteractionExitCube:
-		return executePortal(world, gc.WarpCubeExitEvent(), "cube exit state change request error", "exit cube")
-	case gc.InteractionCubePanel:
-		return executePortal(world, gc.OpenCubePanelEvent(), "control panel state change request error", "opened control panel")
 	case gc.InteractionAuction:
 		return executePortal(world, gc.OpenAuctionEvent(target), "auction menu state change request error", "opened shipping station")
 	case gc.InteractionIgnite:

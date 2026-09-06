@@ -13,18 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// addWeightEntity は指定ステージのフィールド上に束縛した重量エンティティを作る。suspended で退避中にする
-func addWeightEntity(t *testing.T, world w.World, mg consts.Milligram, stage gc.StageKey, suspended bool) {
-	t.Helper()
-	e := world.ECS.NewEntity()
-	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
-	world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
-	world.Components.StageBound.Add(e, &gc.StageBound{Key: stage})
-	if suspended {
-		world.Components.Suspended.Add(e, &gc.Suspended{})
-	}
-}
-
 func TestDriveFuelCost(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -66,42 +54,34 @@ func TestCubeFuelTotal(t *testing.T) {
 	assert.Equal(t, consts.Heat(2400), query.CubeFuelTotal(world, cube))
 }
 
-func TestCubeWeight_内部ステージ束縛の重量を合算し他ステージを除く(t *testing.T) {
+func TestCubeWeight_空の収納は0(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewCubeInteriorStage()
-	other := gc.NewDungeonStage("別の内部", 1)
+	cube := world.ECS.NewEntity()
 
-	addWeightEntity(t, world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
-	addWeightEntity(t, world, consts.Milligram(3*consts.MilligramPerKg), interior, false)
-	addWeightEntity(t, world, consts.Milligram(5*consts.MilligramPerKg), other, false)
-
-	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, interior))
+	assert.Equal(t, consts.Milligram(0), query.CubeWeight(world, cube))
 }
 
-func TestCubeWeight_退避中の内部エンティティも集計する(t *testing.T) {
+func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewCubeInteriorStage()
+	cube := world.ECS.NewEntity()
 
-	// 外にいる間、内部は Suspended になる。それでも総重量は保持したい
-	addWeightEntity(t, world, consts.Milligram(4*consts.MilligramPerKg), interior, true)
+	// 材質は重量に無関係。addCubeFuel は Weight と収納所属を付ける
+	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(3*consts.MilligramPerKg))
 
-	assert.Equal(t, consts.Milligram(4*consts.MilligramPerKg), query.CubeWeight(world, interior))
+	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, cube))
 }
 
-func TestCubeWeight_床に無い物は数えない(t *testing.T) {
+func TestCubeWeight_別の収納の物は数えない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	interior := gc.NewCubeInteriorStage()
+	cube := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
 
-	// 床にある物は数える
-	addWeightEntity(t, world, consts.Milligram(2*consts.MilligramPerKg), interior, false)
+	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeFuel(t, world, other, oapi.STONE, consts.Milligram(9*consts.MilligramPerKg))
 
-	// 内部で拾って背包へ移した物。LocationOnField は外れるが StageBound は残る。総重量から抜ける
-	carried := world.ECS.NewEntity()
-	world.Components.Weight.Add(carried, &gc.Weight{Milligram: consts.Milligram(9 * consts.MilligramPerKg)})
-	world.Components.StageBound.Add(carried, &gc.StageBound{Key: interior})
-
-	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, interior), "床にある物だけを数え、持ち去った物は除く")
+	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, cube), "別の収納の物は除外する")
 }
