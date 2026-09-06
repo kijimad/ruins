@@ -316,7 +316,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
 	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=87
-	moving := world.Components.HealthStatus.Get(actor).Capacities().Moving
+	moving := world.Components.HealthStatus.Get(actor).BodyFunctions().Moving
 	assert.Equal(t, 87, int(moving), "HealthStatusが身体機能へ反映される")
 }
 

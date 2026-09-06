@@ -9,14 +9,14 @@ import (
 
 // proficiencyInputs は効果倍率の導出に使う入力を集める。Skills が無ければ nil を返す。
 // caps は疲労・空腹による意識低下を畳んだ実効身体機能で、命中の畳み込みが読む
-func proficiencyInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abils *gc.Abilities, caps gc.BodyCapacities) {
+func proficiencyInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abils *gc.Abilities, caps gc.BodyFunctions) {
 	if world.Components.Skills.Has(entity) {
 		skills = world.Components.Skills.Get(entity)
 	}
 	if world.Components.Abilities.Has(entity) {
 		abils = world.Components.Abilities.Get(entity)
 	}
-	caps = EffectiveCapacities(world, entity)
+	caps = EffectiveBodyFunctions(world, entity)
 	return skills, abils, caps
 }
 

@@ -177,7 +177,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		return sourceToDetails(world, query.ProficiencySources(world, playerEntity, key))
 	}
 	// 実効身体機能。怪我・病気に加え疲労・空腹の意識低下を畳んだ値
-	caps := query.EffectiveCapacities(world, playerEntity)
+	caps := query.EffectiveBodyFunctions(world, playerEntity)
 
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
 	for _, id := range gc.WeaponSkillIDs {
@@ -307,8 +307,8 @@ func sourceLabel(world w.World, s gc.ProficiencySource) string {
 		return fmt.Sprintf("%s Lv%d", query.T(world, gc.SkillName(s.Skill)), s.Amount)
 	case gc.SourceAbility:
 		return fmt.Sprintf("%s %d", query.T(world, gc.AbilityName(s.Ability)), s.Amount)
-	case gc.SourceCapacity:
-		return fmt.Sprintf("%s %d%%", query.T(world, string(s.Capacity)), s.Amount)
+	case gc.SourceBodyFunction:
+		return fmt.Sprintf("%s %d%%", query.T(world, string(s.BodyFunction)), s.Amount)
 	case gc.SourceFatigue:
 		return query.T(world, string(s.Fatigue))
 	case gc.SourceHunger:
