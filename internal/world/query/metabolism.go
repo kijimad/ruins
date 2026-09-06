@@ -37,35 +37,41 @@ func HungerRecoveryDelta(level gc.HungerLevel) consts.Percent {
 	return 0
 }
 
-// Metabolism は HP の自然回復と病気の回復にかかる速度係数を返す。基準は 100。
-// VIT が高いほど速く、空腹や飢餓で遅くなる。よく食べ休めば速く、飢えれば遅い。
-// 下限は 0 で、負にはならない。
-func Metabolism(world w.World, entity ecs.Entity) consts.Percent {
-	pct := consts.PercentBase
+// recoverySources は ModRecovery への寄与を内訳として返す。VIT・空腹・疲労・睡眠が加算で効く。
+// Metabolism と Effects タブの内訳がこの1箇所を読むので、値と内訳がずれない。
+func recoverySources(world w.World, entity ecs.Entity) []gc.ModifierSource {
+	var srcs []gc.ModifierSource
 
 	if world.Components.Abilities.Has(entity) {
 		vit := world.Components.Abilities.Get(entity).Vitality.Total
-		pct += consts.Percent(vit * metabolismVitBonus)
+		if v := vit * metabolismVitBonus; v != 0 {
+			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceAbility, Ability: gc.AblVIT, Amount: vit, Value: v})
+		}
 	}
-
 	if world.Components.Hunger.Has(entity) {
-		pct += HungerRecoveryDelta(world.Components.Hunger.Get(entity).GetLevel())
+		level := world.Components.Hunger.Get(entity).GetLevel()
+		if v := int(HungerRecoveryDelta(level)); v != 0 {
+			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceHunger, Hunger: level, Value: v})
+		}
 	}
-
-	// 疲労のペナルティ。係数は Fatigue.Penalty の1表から読む
 	if world.Components.Fatigue.Has(entity) {
-		pct += world.Components.Fatigue.Get(entity).Penalty().RecoveryAdd
+		f := world.Components.Fatigue.Get(entity)
+		if v := int(f.Penalty().RecoveryAdd); v != 0 {
+			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceFatigue, Fatigue: f.GetLevel(), Value: v})
+		}
 	}
-
-	// 睡眠中は回復が上がる。基準ボーナスに寝具 Quality を掛ける
 	if world.Components.Sleeping.Has(entity) {
 		quality := world.Components.Sleeping.Get(entity).Quality
-		pct += consts.Percent(quality.ApplyInt(metabolismSleepingBonus))
+		if v := quality.ApplyInt(metabolismSleepingBonus); v != 0 {
+			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceSleeping, Value: v})
+		}
 	}
+	return srcs
+}
 
-	if pct < 0 {
-		pct = 0
-	}
-
+// Metabolism は HP の自然回復と病気の回復にかかる速度係数を返す。基準は 100、下限は 0。
+// ModRecovery の効果値そのもので、Effects タブの内訳と同じ導出を読む
+func Metabolism(world w.World, entity ecs.Entity) consts.Percent {
+	pct := max(ModifierValue(world, entity, gc.ModRecovery), 0)
 	return pct
 }

@@ -223,6 +223,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(gc.ModColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(gc.ModColdProgress)},
 		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(gc.ModHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(gc.ModHungerProgress)},
 		statusItemData{Label: query.T(world, "Healing effect"), Value: val(gc.ModHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(gc.ModHealingEffect)},
+		statusItemData{Label: query.T(world, "Recovery"), Value: val(gc.ModRecovery), Description: query.T(world, "Natural recovery speed. VIT, hunger, fatigue and sleep affect it"), Details: details(gc.ModRecovery)},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
@@ -316,6 +317,10 @@ func sourceLabel(world w.World, s gc.ModifierSource) string {
 		return fmt.Sprintf("%s %d%%", query.T(world, string(s.Capacity)), s.Amount)
 	case gc.SourceFatigue:
 		return query.T(world, string(s.Fatigue))
+	case gc.SourceHunger:
+		return query.T(world, s.Hunger.String())
+	case gc.SourceSleeping:
+		return query.T(world, "Sleeping")
 	}
 	panic("unknown ModifierSourceKind: " + string(s.Kind))
 }

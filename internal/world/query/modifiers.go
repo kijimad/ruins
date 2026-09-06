@@ -29,14 +29,32 @@ func modifierInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abils 
 // Skills が無ければ等倍を返し、呼び出し側の存在ガードは不要
 func ModifierValue(world w.World, entity ecs.Entity, key gc.ModifierKey) consts.Percent {
 	skills, abils, hs, ok := modifierInputs(world, entity)
-	if !ok {
+	// ModRecovery は状態だけで組むので Skills が無くても算出する。他キーは従来どおり Skills を要る
+	if !ok && key != gc.ModRecovery {
 		return consts.PercentBase
 	}
-	base := gc.CalcModifierValue(skills, abils, hs, key)
-	if _, delta, ok := fatigueAccuracyDelta(world, entity, key, int(base)); ok {
-		return consts.Percent(int(base) + delta)
+	base := int(consts.PercentBase)
+	if ok {
+		base = int(gc.CalcModifierValue(skills, abils, hs, key))
 	}
-	return base
+	total := base
+	for _, s := range statusSources(world, entity, key, base) {
+		total += s.Value
+	}
+	return consts.Percent(total)
+}
+
+// statusSources は状態由来の内訳を返す。スキル由来の内訳とは別に、疲労・空腹・睡眠・回復の VIT が
+// キーへ寄与する。ModifierValue と ModifierSources が同じこの導出を読むので値と内訳がずれない。
+// 回復は加算の寄与、命中は base に対する疲労の乗算畳み込み
+func statusSources(world w.World, entity ecs.Entity, key gc.ModifierKey, base int) []gc.ModifierSource {
+	if key == gc.ModRecovery {
+		return recoverySources(world, entity)
+	}
+	if level, delta, ok := fatigueAccuracyDelta(world, entity, key, base); ok && delta != 0 {
+		return []gc.ModifierSource{{Kind: gc.SourceFatigue, Fatigue: level, Value: delta}}
+	}
+	return nil
 }
 
 // fatigueAccuracyDelta は武器命中への疲労の畳み込みを返す。命中キーで疲労を持つときだけ ok=true。
@@ -55,13 +73,14 @@ func fatigueAccuracyDelta(world w.World, entity ecs.Entity, key gc.ModifierKey, 
 // Skills が無ければ空を返す
 func ModifierSources(world w.World, entity ecs.Entity, key gc.ModifierKey) []gc.ModifierSource {
 	skills, abils, hs, ok := modifierInputs(world, entity)
-	if !ok {
+	if !ok && key != gc.ModRecovery {
 		return nil
 	}
-	sources := gc.CalcModifierSources(skills, abils, hs, key)
-	base := gc.CalcModifierValue(skills, abils, hs, key)
-	if level, delta, ok := fatigueAccuracyDelta(world, entity, key, int(base)); ok && delta != 0 {
-		sources = append(sources, gc.ModifierSource{Kind: gc.SourceFatigue, Fatigue: level, Value: delta})
+	var sources []gc.ModifierSource
+	base := int(consts.PercentBase)
+	if ok {
+		sources = gc.CalcModifierSources(skills, abils, hs, key)
+		base = int(gc.CalcModifierValue(skills, abils, hs, key))
 	}
-	return sources
+	return append(sources, statusSources(world, entity, key, base)...)
 }

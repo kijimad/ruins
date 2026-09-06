@@ -29,6 +29,9 @@ const (
 	ModBuyPrice       ModifierKey = "buy_price"
 	ModSellPrice      ModifierKey = "sell_price"
 	ModHeavyArmor     ModifierKey = "heavy_armor"
+	// ModRecovery は自然回復・治癒にかかる速度倍率。基準100。VIT・空腹・疲労・睡眠が状態ソースとして寄与する。
+	// スキル由来でないので specByKey には持たず、状態ソースだけで組む
+	ModRecovery ModifierKey = "recovery"
 
 	ModSwordDamage   ModifierKey = "sword_damage"
 	ModSpearDamage   ModifierKey = "spear_damage"
@@ -140,6 +143,8 @@ const (
 	SourceAbility  ModifierSourceKind = "ability"  // 能力値による補正
 	SourceCapacity ModifierSourceKind = "capacity" // 身体機能の畳み込み
 	SourceFatigue  ModifierSourceKind = "fatigue"  // 疲労段階の畳み込み
+	SourceHunger   ModifierSourceKind = "hunger"   // 空腹段階の畳み込み
+	SourceSleeping ModifierSourceKind = "sleeping" // 睡眠中の畳み込み
 )
 
 // ModifierSource は効果倍率の算出元1件を表す。整形済みの文字列でなく事実を持ち、
@@ -150,6 +155,7 @@ type ModifierSource struct {
 	Ability  AbilityID    // Kind が ability のときの能力値
 	Capacity CapacityKind // Kind が capacity のときの身体機能
 	Fatigue  FatigueLevel // Kind が fatigue のときの疲労段階
+	Hunger   HungerLevel  // Kind が hunger のときの空腹段階
 	Amount   int          // 要因の量。スキルLv・能力値・身体機能%
 	Value    int          // この要因による変化量。例: +10, -15
 }
