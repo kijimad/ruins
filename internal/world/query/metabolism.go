@@ -16,12 +16,12 @@ const (
 )
 
 // RecoverySources は回復レートへの寄与を内訳として返す。VIT・睡眠が上げ、意識の低下が下げる。
-// 怪我・病気・疲労・空腹はすべて不調として意識へ集約されるので、回復も速度・命中と同じ funnel に載る。
-// Metabolism と Effects タブが同じこの導出を読むので値と内訳がずれない
+// 怪我・病気は不調として、疲労・空腹は量からの導出として、どちらも意識へ集約されるので、
+// 回復も速度・命中と同じ funnel に載る。Metabolism と Effects タブが同じこの導出を読むので値と内訳がずれない
 func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
 	var srcs []gc.ProficiencySource
 
-	// 実効意識が基準を下回るぶんを回復低下として載せる。全 need と怪我が意識へ集約されている
+	// 実効意識が基準を下回るぶんを回復低下として載せる。怪我・病気・疲労・空腹がすべて意識へ集約されている
 	consciousness := int(EffectiveBodyFuncs(world, entity).Consciousness)
 	if consciousness != int(consts.PercentBase) {
 		srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceBodyFunc, BodyFunc: gc.BodyFuncConsciousness, Amount: consciousness, Value: consciousness - int(consts.PercentBase)})
