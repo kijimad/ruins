@@ -227,8 +227,8 @@ msgstr "所持可能な最大重量"
 msgid "Hunger"
 msgstr "空腹度"
 
-msgid "Hunger. High hunger hinders actions"
-msgstr "空腹度。高いと行動に支障が出る"
+msgid "Hunger. High hunger hinders actions and recovery"
+msgstr "空腹度。高いと行動と回復に支障が出る"
 
 msgid "Ambient temperature"
 msgstr "環境気温"
@@ -943,6 +943,18 @@ msgstr "肝疾患"
 
 msgid "Food poisoning"
 msgstr "食あたり"
+
+msgid "Exhaustion"
+msgstr "疲労困憊"
+
+msgid "Malnutrition"
+msgstr "栄養失調"
+
+msgid "Worn out. Rest to recover."
+msgstr "疲れ果てている。休めば回復する。"
+
+msgid "Starving. Eat to recover."
+msgstr "飢えている。食べれば回復する。"
 
 msgid "The body is dangerously cold. Warm up to recover."
 msgstr "体が危険なほど冷えている。暖まれば回復する。"

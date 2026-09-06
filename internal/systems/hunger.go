@@ -29,6 +29,9 @@ func progressTurnHunger(world w.World) {
 		if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) < hungerPct {
 			world.Components.Hunger.Get(entity).Decrease(1)
 		}
+		// 低体温と同じく、ゲージから WholeBody の不調を毎ターン立て直す。全身性として身体機能へ効く
+		level := world.Components.Hunger.Get(entity).GetLevel()
+		syncGaugeCondition(world, entity, gc.ConditionMalnutrition, gc.HungerConditionSeverity(level))
 	}
 }
 

@@ -107,7 +107,6 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | accepted | [移動拠点キューブを燃料ドライブ式の乗り物にする](docs/design/260905225033.md) | 0/18 | gamedesign, movement, ecs, item |
-| accepted | [疲労・空腹を不調として低体温と同じ経路へ寄せる](docs/design/260906170151.md) | 0/8 | refactor, ecs, gamedesign, member |
 
 
 ## Reference

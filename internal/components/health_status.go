@@ -78,6 +78,8 @@ const (
 	ConditionLaceration    ConditionType = "Laceration"    // 切り傷
 	ConditionLiverIllness  ConditionType = "LiverIllness"  // 肝疾患
 	ConditionFoodPoisoning ConditionType = "FoodPoisoning" // 食中毒
+	ConditionExhaustion    ConditionType = "Exhaustion"    // 疲労困憊。疲労ゲージから毎ターン導出
+	ConditionMalnutrition  ConditionType = "Malnutrition"  // 栄養失調。空腹ゲージから毎ターン導出
 )
 
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
@@ -143,6 +145,18 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		description:     "Nausea from bad food. It clears on its own over time.",
 		painPerSeverity: 5, bodyFuncDropPerSeverity: 12,
 		Recovery: RecoverOverTime, RecoverPer: 2,
+	},
+	// 疲労困憊・栄養失調はゲージ駆動。低体温と同じく Recovery を持たず、疲労・空腹システムが
+	// 毎ターン severity を立て直す。痛みは出さず全身性の機能低下だけ与える。値は実プレイで調整する
+	ConditionExhaustion: {
+		displayName:     "Exhaustion",
+		description:     "Worn out. Rest to recover.",
+		painPerSeverity: 0, bodyFuncDropPerSeverity: 10,
+	},
+	ConditionMalnutrition: {
+		displayName:     "Malnutrition",
+		description:     "Starving. Eat to recover.",
+		painPerSeverity: 0, bodyFuncDropPerSeverity: 8,
 	},
 }
 
@@ -342,6 +356,31 @@ func (bph *BodyPartHealth) SetCondition(cond HealthCondition) {
 		}
 	}
 	bph.Conditions = append(bph.Conditions, cond)
+}
+
+// SetGaugeCondition はゲージ駆動の不調を severity に揃える。SeverityNone なら外す。
+// 低体温と同じくゲージが真実で、不調は毎ターン立て直す派生。Timer は severity と整合する値にする
+func (bph *BodyPartHealth) SetGaugeCondition(condType ConditionType, severity Severity) {
+	if severity == SeverityNone {
+		bph.RemoveCondition(condType)
+		return
+	}
+	bph.SetCondition(HealthCondition{Type: condType, Severity: severity, Timer: severityTimer(severity)})
+}
+
+// severityTimer は severity と整合する Timer を返す。表示と IsActive を段階に合わせる
+func severityTimer(sev Severity) float64 {
+	switch sev {
+	case SeverityNone:
+		return 0
+	case SeverityMinor:
+		return 40
+	case SeverityMedium:
+		return 60
+	case SeveritySevere:
+		return 85
+	}
+	return 0
 }
 
 // AddCondition は状態を1つ積む。SetCondition と違い同種でも上書きせず別の傷として足す。

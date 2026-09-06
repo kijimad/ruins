@@ -95,26 +95,21 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	}
 	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
-		// 空腹は意識を下げ、命中・行動速度・回復すべてへ波及する。効き目は意識の低下量で表す
+		// 空腹は Malnutrition 不調として全身性へ効き、回復も下げる。段階を値に出し、効果は Health タブの
+		// 不調と Effects タブの回復に出る
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Hunger"),
 			Value:       query.T(world, hunger.GetLevel().String()),
-			Description: query.T(world, "Hunger. High hunger hinders actions"),
-			Details: []statusDetailRow{
-				{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%+d", -gc.HungerConsciousnessPenalty(hunger.GetLevel()))},
-			},
+			Description: query.T(world, "Hunger. High hunger hinders actions and recovery"),
 		})
 	}
-	// 疲労は空腹と並ぶ生理ゲージなのでここに置く。意識を下げ、命中・行動速度・回復へ波及する
+	// 疲労は空腹と並ぶ生理ゲージ。Exhaustion 不調として全身性へ効き、回復も下げる
 	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
 		fatigue := world.Components.Fatigue.Get(playerEntity)
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Fatigue"),
 			Value:       query.T(world, string(fatigue.GetLevel())),
 			Description: query.T(world, "Fatigue. High fatigue hinders actions and recovery"),
-			Details: []statusDetailRow{
-				{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%+d", -fatigue.ConsciousnessPenalty())},
-			},
 		})
 	}
 	return items
@@ -206,7 +201,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	items = append(items,
 		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", caps.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
 		statusItemData{Label: query.T(world, "Blood"), Value: fmt.Sprintf("%d%%", caps.Blood), Description: bloodDesc, Details: bloodDetails},
-		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", caps.Consciousness), Description: query.T(world, "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions"), Details: sourceToDetails(world, query.ConsciousnessSources(world, playerEntity))},
+		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", caps.Consciousness), Description: query.T(world, "Overall alertness. Pain, illness, hunger and fatigue lower it. It slows actions")},
 		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", caps.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
 		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", caps.Moving), Description: query.T(world, "Affects move speed")},
 		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", caps.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
