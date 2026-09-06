@@ -9,7 +9,7 @@ import (
 
 // ConsumeCubeFuel はキューブ収納の燃料を amount 分だけ消費する。足りていれば消費して true、
 // 足りなければ何も消費せず false を返す。判定を先に済ませ、部分消費で中途半端に減らさない。
-// 燃料は丸ごと単位で消費し、必要量に達したら止める。端数はその1個を使い切る。運転1タイルの課金で使う。
+// 燃料は丸ごと単位で消費し、必要量に達したら止める。端数はその1個を使い切る。
 func ConsumeCubeFuel(world w.World, cube ecs.Entity, amount consts.Heat) bool {
 	if amount <= 0 {
 		return true

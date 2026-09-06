@@ -38,14 +38,13 @@ func PushCost(total consts.Milligram) int {
 
 // DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、
 // 総重量に比例して増える。PushCost が AP で表していた重量ペナルティを燃料へ移した対応物。
-// 燃料値は火への給油と同じ Heat 単位で扱い、CubeFuelTotal と突き合わせられるようにする。
 func DriveFuelCost(total consts.Milligram) consts.Heat {
 	kg := int(total / consts.MilligramPerKg)
 	return consts.Heat(consts.DriveFuelBase + consts.DriveFuelPerKg*kg)
 }
 
 // CubeFuelTotal はキューブ収納にある物の燃焼熱量の総和を返す。運転の燃料源。
-// 火への給油と同じ HeatContent を使い、燃料値の定義を二重化しない。不燃の物は0で寄与しない。
+// 火への給油と同じ HeatContent を使い燃料値の定義を二重化しない。
 func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	var total consts.Heat
 	for _, item := range GetStorageItems(world, cube) {
