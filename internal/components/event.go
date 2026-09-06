@@ -48,6 +48,11 @@ type OpenFeedFuel struct {
 	FireEntity ecs.Entity // 燃料をくべる火
 }
 
+// OpenCubeMenu は移動拠点キューブのメニューを開く。対象のキューブ Cube を運ぶ
+type OpenCubeMenu struct {
+	Cube ecs.Entity // メニューを開くキューブ
+}
+
 func (WarpDescend) isStatePayload()      {}
 func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
@@ -55,6 +60,7 @@ func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
 func (OpenAuction) isStatePayload()      {}
 func (OpenFeedFuel) isStatePayload()     {}
+func (OpenCubeMenu) isStatePayload()     {}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -98,4 +104,9 @@ func OpenFeedFuelEvent(fire ecs.Entity) StateChangeRequest {
 // OpenAuctionEvent は出荷場所のメニューを開くリクエストを生成する
 func OpenAuctionEvent(station ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenAuction{StationEntity: station}}
+}
+
+// OpenCubeMenuEvent は移動拠点キューブのメニューを開くリクエストを生成する
+func OpenCubeMenuEvent(cube ecs.Entity) StateChangeRequest {
+	return StateChangeRequest{Payload: OpenCubeMenu{Cube: cube}}
 }

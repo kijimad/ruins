@@ -290,6 +290,12 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
+		case gc.InteractionOpenCubeMenu:
+			result = append(result, InteractionAction{
+				Label:       query.T(world, "Open cube menu (%s)", dirLabel),
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
 		case gc.InteractionItemAll:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する

@@ -1737,6 +1737,15 @@ msgstr "キューブ"
 msgid "A mobile base you can drive"
 msgstr "運転できる移動拠点"
 
+msgid "Storage"
+msgstr "収納"
+
+msgid "Cube info"
+msgstr "キューブ情報"
+
+msgid "Open cube menu (%s)"
+msgstr "キューブメニューを開く (%s)"
+
 msgid "%s used %s and recovered %d HP."
 msgstr "%s は %s を使った。 HPが %d 回復した。"
 

@@ -172,5 +172,9 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		Drivable:        &gc.Drivable{},
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
+		// 収納を持ち、隣接時にキューブメニューから開ける。オークションの出荷元も兼ねる
+		WeightCapacity: &gc.WeightCapacity{Max: consts.Milligram(500 * consts.MilligramPerKg)},
+		AuctionStation: &gc.AuctionStation{},
+		Interactable:   &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu}},
 	}), nil
 }

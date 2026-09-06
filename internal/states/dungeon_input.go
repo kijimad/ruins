@@ -325,6 +325,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return NewAuctionMenuState(p.StationEntity) },
 		}}, nil
+	case gc.OpenCubeMenu:
+		// 移動拠点キューブのメニューを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return NewCubeMenuState(p.Cube) },
+		}}, nil
 	default:
 		// この switch で扱わない種別。未実装の scaffold もここに落ちる
 		return es.Transition[w.World]{}, fmt.Errorf("unhandled StateChangeRequest: %T", req.Payload)

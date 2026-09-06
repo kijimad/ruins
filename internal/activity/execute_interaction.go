@@ -47,6 +47,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeDisassemble(actor, target, world)
 	case gc.InteractionAuction:
 		return executePortal(world, gc.OpenAuctionEvent(target), "auction menu state change request error", "opened shipping station")
+	case gc.InteractionOpenCubeMenu:
+		return executePortal(world, gc.OpenCubeMenuEvent(target), "cube menu state change request error", "opened cube menu")
 	case gc.InteractionIgnite:
 		return executeIgnite(target, world)
 	case gc.InteractionFeedFuel:

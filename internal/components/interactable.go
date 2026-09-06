@@ -79,6 +79,9 @@ const (
 	InteractionIgnite InteractionKind = "IGNITE"
 	// InteractionFeedFuel は隣接の火へ燃料をくべる相互作用。給油メニューを開く。燃料の所持を条件に出す
 	InteractionFeedFuel InteractionKind = "FEED_FUEL"
+	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。隣接で発動し、収納・
+	// オークション・情報の入口になる
+	InteractionOpenCubeMenu InteractionKind = "OPEN_CUBE_MENU"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -92,7 +95,7 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}
-	case InteractionStorage, InteractionDisassemble, InteractionAuction, InteractionIgnite, InteractionFeedFuel:
+	case InteractionStorage, InteractionDisassemble, InteractionAuction, InteractionIgnite, InteractionFeedFuel, InteractionOpenCubeMenu:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	}
 	return InteractionConfig{}
