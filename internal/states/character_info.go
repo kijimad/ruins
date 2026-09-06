@@ -95,29 +95,25 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	}
 	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
-		// 空腹は行動速度と回復に効く。命中には効かないので2項目。値は query の算出点から読む
+		// 空腹は意識を下げ、命中・行動速度・回復すべてへ波及する。効き目は意識の低下量で表す
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Hunger"),
 			Value:       query.T(world, hunger.GetLevel().String()),
 			Description: query.T(world, "Hunger. High hunger hinders actions"),
 			Details: []statusDetailRow{
-				{Label: query.T(world, "Action speed"), Value: fmt.Sprintf("%+d", query.HungerSpeedPenalty(hunger.GetLevel()))},
-				{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%+d%%", int(query.HungerRecoveryDelta(hunger.GetLevel())))},
+				{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%+d", -gc.HungerConsciousnessPenalty(hunger.GetLevel()))},
 			},
 		})
 	}
-	// 疲労は空腹と並ぶ生理ゲージなのでここに置く。段階を値に出し、命中・行動速度・回復への影響は内訳へ回す
+	// 疲労は空腹と並ぶ生理ゲージなのでここに置く。意識を下げ、命中・行動速度・回復へ波及する
 	if query.AliveHas(world, world.Components.Fatigue, playerEntity) {
 		fatigue := world.Components.Fatigue.Get(playerEntity)
-		pen := fatigue.Penalty()
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Fatigue"),
 			Value:       query.T(world, string(fatigue.GetLevel())),
 			Description: query.T(world, "Fatigue. High fatigue hinders actions and recovery"),
 			Details: []statusDetailRow{
-				{Label: query.T(world, "Accuracy"), Value: fmt.Sprintf("×%d%%", int(pen.AccuracyMul))},
-				{Label: query.T(world, "Action speed"), Value: fmt.Sprintf("%+d", pen.SpeedAdd)},
-				{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%+d%%", int(pen.RecoveryAdd))},
+				{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%+d", -fatigue.ConsciousnessPenalty())},
 			},
 		})
 	}
@@ -180,10 +176,8 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	details := func(key gc.ModifierKey) []statusDetailRow {
 		return sourceToDetails(world, query.ModifierSources(world, playerEntity, key))
 	}
-	caps := gc.HealthyCapacities()
-	if world.Components.HealthStatus.Has(playerEntity) {
-		caps = world.Components.HealthStatus.Get(playerEntity).Capacities()
-	}
+	// 実効身体機能。怪我・病気に加え疲労・空腹の意識低下を畳んだ値
+	caps := query.EffectiveCapacities(world, playerEntity)
 
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
 	for _, id := range gc.WeaponSkillIDs {
@@ -208,11 +202,11 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		}
 	}
 
-	items = append(items, statusItemData{Label: query.T(world, "Body function"), IsHeader: true, Description: query.T(world, "Body capacities lowered by injuries and illness")})
+	items = append(items, statusItemData{Label: query.T(world, "Body function"), IsHeader: true, Description: query.T(world, "Body capacities lowered by injuries, illness, hunger and fatigue")})
 	items = append(items,
 		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", caps.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
 		statusItemData{Label: query.T(world, "Blood"), Value: fmt.Sprintf("%d%%", caps.Blood), Description: bloodDesc, Details: bloodDetails},
-		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", caps.Consciousness), Description: query.T(world, "Master capacity. Multiplies all others")},
+		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", caps.Consciousness), Description: query.T(world, "Master capacity. Multiplies all others. Hunger and fatigue lower it"), Details: sourceToDetails(world, query.ConsciousnessSources(world, playerEntity))},
 		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", caps.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
 		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", caps.Moving), Description: query.T(world, "Affects move speed")},
 		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", caps.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
@@ -223,12 +217,11 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(gc.ModColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(gc.ModColdProgress)},
 		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(gc.ModHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(gc.ModHungerProgress)},
 		statusItemData{Label: query.T(world, "Healing effect"), Value: val(gc.ModHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(gc.ModHealingEffect)},
-		statusItemData{Label: query.T(world, "Recovery"), Value: val(gc.ModRecovery), Description: query.T(world, "Natural recovery speed. VIT, hunger, fatigue and sleep affect it"), Details: details(gc.ModRecovery)},
+		statusItemData{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%d%%", query.Metabolism(world, playerEntity)), Description: query.T(world, "Natural recovery speed. VIT and sleep raise it, hunger and fatigue lower it"), Details: sourceToDetails(world, query.RecoverySources(world, playerEntity))},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Action speed"), Value: val(gc.ModActionSpeed), Description: query.T(world, "Action speed. AGI and DEX raise it, hunger and fatigue lower it"), Details: details(gc.ModActionSpeed)},
 		statusItemData{Label: query.T(world, "Move speed"), Value: val(gc.ModMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(gc.ModMoveCost)},
 		statusItemData{Label: query.T(world, "Discovery"), Value: val(gc.ModExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(gc.ModExploration)},
 		statusItemData{Label: query.T(world, "Detection"), Value: val(gc.ModEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(gc.ModEnemyVision)},

@@ -30,14 +30,14 @@ func TestMetabolism(t *testing.T) {
 		assert.Equal(t, consts.Percent(130), Metabolism(world, entity))
 	})
 
-	t.Run("満腹はボーナス", func(t *testing.T) {
+	t.Run("満腹でも増減なし", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 100, Max: 100})
 
-		// 100 + 満腹20 = 120
-		assert.Equal(t, consts.Percent(120), Metabolism(world, entity))
+		// 満腹は意識を下げないので基準100のまま
+		assert.Equal(t, consts.Percent(100), Metabolism(world, entity))
 	})
 
 	t.Run("標準の満腹度は増減なし", func(t *testing.T) {
@@ -49,35 +49,35 @@ func TestMetabolism(t *testing.T) {
 		assert.Equal(t, consts.Percent(100), Metabolism(world, entity))
 	})
 
-	t.Run("空腹はペナルティ", func(t *testing.T) {
+	t.Run("空腹は意識低下ぶん回復が下がる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 50, Max: 100})
 
-		// 100 - 空腹30 = 70
-		assert.Equal(t, consts.Percent(70), Metabolism(world, entity))
+		// 空腹は意識を10下げる。100 - 10 = 90
+		assert.Equal(t, consts.Percent(90), Metabolism(world, entity))
 	})
 
-	t.Run("飢餓は大きなペナルティ", func(t *testing.T) {
+	t.Run("飢餓は意識をさらに下げる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
 
-		// 100 - 飢餓60 = 40
-		assert.Equal(t, consts.Percent(40), Metabolism(world, entity))
+		// 飢餓は意識を20下げる。100 - 20 = 80
+		assert.Equal(t, consts.Percent(80), Metabolism(world, entity))
 	})
 
-	t.Run("VITと満腹度は合算する", func(t *testing.T) {
+	t.Run("VITと意識低下は合算する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Abilities.Add(entity, &gc.Abilities{Vitality: gc.Ability{Total: 10}})
 		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
 
-		// 100 + VIT*3(30) - 飢餓60 = 70
-		assert.Equal(t, consts.Percent(70), Metabolism(world, entity))
+		// 100 + VIT*3(30) - 飢餓の意識低下20 = 110
+		assert.Equal(t, consts.Percent(110), Metabolism(world, entity))
 	})
 
 	t.Run("下限は0でマイナスにならない", func(t *testing.T) {
@@ -98,8 +98,8 @@ func TestMetabolism(t *testing.T) {
 		// 過労: 80%以上
 		world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000})
 
-		// 100 + 過労-40 = 60
-		assert.Equal(t, consts.Percent(60), Metabolism(world, entity))
+		// 過労は意識を25下げる。100 - 25 = 75
+		assert.Equal(t, consts.Percent(75), Metabolism(world, entity))
 	})
 
 	t.Run("睡眠中は回復が上がり寝具品質に比例する", func(t *testing.T) {

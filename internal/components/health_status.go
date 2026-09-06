@@ -538,3 +538,25 @@ func (hs *HealthStatus) Capacities() BodyCapacities {
 		Sight:         withConsciousness(100 - sight),
 	}
 }
+
+// WithConsciousnessPenalty は意識をさらに penalty ぶん下げ、意識を乗数に持つ局所機能も連動させた
+// 身体機能を返す。怪我・病気以外の全身性の要因、すなわち疲労・空腹を capacity へ畳むために使う。
+// 局所機能は意識との比で縮め、痛みと血液は変えない
+func (c BodyCapacities) WithConsciousnessPenalty(penalty int) BodyCapacities {
+	if penalty <= 0 {
+		return c
+	}
+	oldC := int(c.Consciousness)
+	newC := clamp(oldC-penalty, 0, 100)
+	scale := func(v consts.Percent) consts.Percent {
+		if oldC <= 0 {
+			return 0
+		}
+		return consts.Percent(int(v) * newC / oldC)
+	}
+	c.Manipulation = scale(c.Manipulation)
+	c.Moving = scale(c.Moving)
+	c.Sight = scale(c.Sight)
+	c.Consciousness = consts.Percent(newC)
+	return c
+}

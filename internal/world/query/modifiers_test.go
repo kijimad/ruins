@@ -31,9 +31,9 @@ func TestModifierValue_疲労は命中以外に効かない(t *testing.T) {
 	world.Components.Skills.Add(entity, gc.NewSkills())
 	world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000})
 
-	// 命中でないキーは疲労の影響を受けない
-	assert.Equal(t, int(gc.CalcModifierValue(gc.NewSkills(), nil, nil, gc.ModMaxWeight)),
-		int(ModifierValue(world, entity, gc.ModMaxWeight)), "命中でない倍率キーは疲労で変わらない")
+	// ModMaxWeight は身体機能を畳まないので、疲労の意識低下では変わらない
+	assert.Equal(t, int(gc.CalcModifierValue(gc.NewSkills(), nil, gc.HealthyCapacities(), gc.ModMaxWeight)),
+		int(ModifierValue(world, entity, gc.ModMaxWeight)), "身体機能を畳まない倍率キーは疲労で変わらない")
 }
 
 func TestModifierSources_疲労の内訳が値と一致する(t *testing.T) {
@@ -45,13 +45,14 @@ func TestModifierSources_疲労の内訳が値と一致する(t *testing.T) {
 
 	value := int(ModifierValue(world, entity, gc.ModSwordAccuracy))
 	sum := int(consts.PercentBase)
-	var sawFatigue bool
+	var sawCapacity bool
 	for _, s := range ModifierSources(world, entity, gc.ModSwordAccuracy) {
 		sum += s.Value
-		if s.Kind == gc.SourceFatigue {
-			sawFatigue = true
+		// 疲労は意識を下げ、命中は操作機能の畳み込みとして内訳に載る
+		if s.Kind == gc.SourceCapacity {
+			sawCapacity = true
 		}
 	}
 	assert.Equal(t, value, sum, "内訳の合計は値に一致する")
-	assert.True(t, sawFatigue, "疲労の内訳が載る")
+	assert.True(t, sawCapacity, "疲労が下げた身体機能の内訳が載る")
 }

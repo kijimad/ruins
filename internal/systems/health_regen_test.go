@@ -62,7 +62,7 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		assert.Equal(t, 0, world.Components.HP.Get(entity).Current)
 	})
 
-	t.Run("飢餓では代謝が0になり回復しない", func(t *testing.T) {
+	t.Run("飢餓は意識を下げ代謝が鈍る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
@@ -71,8 +71,8 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 
 		require.NoError(t, (&HealthRegenSystem{}).Update(world))
 
-		// 代謝40%なので base(2)*0.4=0.8 は切り捨てで0。回復しない
-		assert.Equal(t, 10, world.Components.HP.Get(entity).Current)
+		// 飢餓は意識を20下げるので代謝80%。base(2)*0.8=1.6 は切り捨てで1
+		assert.Equal(t, 11, world.Components.HP.Get(entity).Current)
 	})
 
 	t.Run("高VITでは代謝が上がり回復が速い", func(t *testing.T) {

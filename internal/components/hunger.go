@@ -63,6 +63,20 @@ func (h *Hunger) GetLevel() HungerLevel {
 	}
 }
 
+// HungerConsciousnessPenalty は空腹段階が意識へ与える低下量を返す。意識は master 乗数なので、
+// この1つの値が命中・行動速度・回復のすべてへ波及する。値は実プレイで調整する
+func HungerConsciousnessPenalty(level HungerLevel) int {
+	switch level {
+	case HungerSatiated, HungerNormal:
+		return 0
+	case HungerHungry:
+		return 10
+	case HungerStarving:
+		return 20
+	}
+	return 0
+}
+
 // Increase は満腹度を増加させる（食事によって満腹になる）
 func (h *Hunger) Increase(amount int) {
 	h.Current += amount

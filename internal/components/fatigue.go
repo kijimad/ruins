@@ -1,7 +1,5 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
-
 const (
 	// DefaultMaxFatigue はデフォルトの最大疲労。起床中は毎ターン FatigueGainPerTurn 増える
 	DefaultMaxFatigue = 2000
@@ -46,24 +44,17 @@ func (f *Fatigue) GetLevel() FatigueLevel {
 	}
 }
 
-// FatiguePenalty は疲労段階ごとのペナルティ係数。段階ごとの数値の唯一の置き場所。
-// 適用先は回復・行動速度・命中の3出力に分かれ、適用は出力の型が違うので各サイトに残す。
-// 係数だけをこの1表に集約して調整しやすくする
-type FatiguePenalty struct {
-	RecoveryAdd consts.Percent // 回復係数への加算%。Metabolism へ足す
-	SpeedAdd    int            // 行動速度倍率への加算%。基準100へ足す
-	AccuracyMul consts.Percent // 命中への乗算%
-}
-
-// Penalty は疲労段階に対応するペナルティ係数を返す
-func (f *Fatigue) Penalty() FatiguePenalty {
+// ConsciousnessPenalty は疲労段階が意識へ与える低下量を返す。意識は master 乗数なので、
+// この1つの値が命中・行動速度・回復のすべてへ波及する。段階ごとの数値の唯一の置き場所で、
+// 値は実プレイで調整する
+func (f *Fatigue) ConsciousnessPenalty() int {
 	switch f.GetLevel() {
 	case FatigueRested, FatigueNormal:
-		return FatiguePenalty{RecoveryAdd: 0, SpeedAdd: 0, AccuracyMul: consts.PercentBase}
+		return 0
 	case FatigueTired:
-		return FatiguePenalty{RecoveryAdd: -20, SpeedAdd: -15, AccuracyMul: 90}
+		return 10
 	case FatigueExhausted:
-		return FatiguePenalty{RecoveryAdd: -40, SpeedAdd: -35, AccuracyMul: 75}
+		return 25
 	}
 	panic("invalid FatigueLevel value")
 }

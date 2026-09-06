@@ -7,50 +7,28 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 代謝の定数。値は実プレイで調整する。VIT の寄与は components の spec 表が持つ
+// 代謝の定数。値は実プレイで調整する
 const (
-	// metabolismSatiatedBonus は満腹のとき代謝倍率へ足す%
-	metabolismSatiatedBonus = 20
-	// metabolismHungryPenalty は空腹のとき代謝倍率から引く%
-	metabolismHungryPenalty = 30
-	// metabolismStarvingPenalty は飢餓のとき代謝倍率から引く%
-	metabolismStarvingPenalty = 60
-	// metabolismSleepingBonus は睡眠中に代謝倍率へ足す基準%。寝具 Quality を掛ける
+	// metabolismVitBonus は VIT 1 あたり回復へ足す%
+	metabolismVitBonus = 3
+	// metabolismSleepingBonus は睡眠中に回復へ足す基準%。寝具 Quality を掛ける
 	metabolismSleepingBonus = 50
 )
 
-// HungerRecoveryDelta は空腹段階が代謝倍率へ与える加算%を返す。満腹は+、空腹・飢餓は-、普通は0。
-// Metabolism と Basic タブの内訳表示が同じ値を見るための単一の算出点。
-func HungerRecoveryDelta(level gc.HungerLevel) consts.Percent {
-	switch level {
-	case gc.HungerSatiated:
-		return metabolismSatiatedBonus
-	case gc.HungerNormal:
-		return 0
-	case gc.HungerHungry:
-		return -metabolismHungryPenalty
-	case gc.HungerStarving:
-		return -metabolismStarvingPenalty
-	}
-	return 0
-}
-
-// recoverySources は ModRecovery への状態由来の寄与を内訳として返す。空腹・疲労・睡眠が加算で効く。
-// VIT は spec の能力ソースとして forEachModifierSource が出すのでここには含めない。
-// Metabolism と Effects タブの内訳がこの1箇所を読むので、値と内訳がずれない。
-func recoverySources(world w.World, entity ecs.Entity) []gc.ModifierSource {
+// RecoverySources は回復レートへの寄与を内訳として返す。VIT・睡眠が上げ、疲労・空腹が下げる。
+// 疲労・空腹の効き目はその意識低下量そのもので、速度・命中と同じ1つの値を読む。
+// 怪我・病気は意識を下げるが回復には効かせない。自分の不調が自分の回復を止める悪循環を避けるため。
+// Metabolism と Effects タブが同じこの導出を読むので値と内訳がずれない
+func RecoverySources(world w.World, entity ecs.Entity) []gc.ModifierSource {
 	var srcs []gc.ModifierSource
 
-	if world.Components.Hunger.Has(entity) {
-		level := world.Components.Hunger.Get(entity).GetLevel()
-		if v := int(HungerRecoveryDelta(level)); v != 0 {
-			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceHunger, Hunger: level, Value: v})
-		}
-	}
-	if world.Components.Fatigue.Has(entity) {
-		f := world.Components.Fatigue.Get(entity)
-		if v := int(f.Penalty().RecoveryAdd); v != 0 {
-			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceFatigue, Fatigue: f.GetLevel(), Value: v})
+	// 疲労・空腹は意識を下げるぶんだけ回復も下げる
+	srcs = append(srcs, ConsciousnessSources(world, entity)...)
+
+	if world.Components.Abilities.Has(entity) {
+		vit := world.Components.Abilities.Get(entity).Vitality.Total
+		if v := vit * metabolismVitBonus; v != 0 {
+			srcs = append(srcs, gc.ModifierSource{Kind: gc.SourceAbility, Ability: gc.AblVIT, Amount: vit, Value: v})
 		}
 	}
 	if world.Components.Sleeping.Has(entity) {
@@ -63,8 +41,11 @@ func recoverySources(world w.World, entity ecs.Entity) []gc.ModifierSource {
 }
 
 // Metabolism は HP の自然回復と病気の回復にかかる速度係数を返す。基準は 100、下限は 0。
-// ModRecovery の効果値そのもので、Effects タブの内訳と同じ導出を読む
+// 実効意識・VIT・睡眠から導く。疲労・空腹は意識を通じて効く。Effects タブの内訳と同じ導出を読む
 func Metabolism(world w.World, entity ecs.Entity) consts.Percent {
-	pct := max(ModifierValue(world, entity, gc.ModRecovery), 0)
-	return pct
+	total := int(consts.PercentBase)
+	for _, s := range RecoverySources(world, entity) {
+		total += s.Value
+	}
+	return consts.Percent(max(total, 0))
 }

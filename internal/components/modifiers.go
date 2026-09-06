@@ -29,12 +29,6 @@ const (
 	ModBuyPrice       ModifierKey = "buy_price"
 	ModSellPrice      ModifierKey = "sell_price"
 	ModHeavyArmor     ModifierKey = "heavy_armor"
-	// ModRecovery は自然回復・治癒にかかる速度倍率。基準100。VIT が能力ソース、空腹・疲労・睡眠が
-	// 状態ソースとして寄与する。剣攻撃力などと同じく specByKey の単機能倍率で、スキルは持たない
-	ModRecovery ModifierKey = "recovery"
-	// ModActionSpeed は行動速度。基準100。AGI・DEX が能力ソース、疲労・空腹が状態ソースとして寄与する。
-	// 剣攻撃力などと同じく specByKey の単機能倍率で、スキルは持たない。CalculateSpeed が値をそのまま速度に使う
-	ModActionSpeed ModifierKey = "action_speed"
 
 	ModSwordDamage   ModifierKey = "sword_damage"
 	ModSpearDamage   ModifierKey = "spear_damage"
@@ -137,13 +131,6 @@ const (
 	coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%
 )
 
-// 能力値ベースの倍率の係数。能力値1ポイントあたりの倍率変化量。スキルを持たない単機能倍率が使う
-const (
-	coeffActionSpeedAgility   = 2 // 行動速度: AGI1あたり+2%
-	coeffActionSpeedDexterity = 1 // 行動速度: DEX1あたり+1%
-	coeffRecoveryVitality     = 3 // 自然回復: VIT1あたり+3%
-)
-
 // ModifierSourceKind は内訳1件の由来の種別
 type ModifierSourceKind string
 
@@ -193,33 +180,11 @@ func weaponAccuracyCapacity(caps BodyCapacities, id SkillID) (CapacityKind, cons
 	return CapacityManipulation, caps.Manipulation
 }
 
-// abilityTerm は能力値1ポイントあたりの倍率寄与。単機能倍率で能力値を複数種束ねるために使う
-type abilityTerm struct {
-	Ability AbilityID
-	Coeff   int
-}
-
-// modifierSpec は倍率1つの定義。スキル由来と能力値由来の係数を束ねる。
-// Skill が空なら能力値ベースの単機能倍率で、行動速度や自然回復がこれにあたる
+// modifierSpec は倍率1つの定義。キー・元スキル・スキルLv1あたりの係数を束ねる
 type modifierSpec struct {
-	Key       ModifierKey
-	Skill     SkillID       // 元スキル。能力値ベースの倍率では空
-	Coeff     int           // スキルLv1あたりの係数
-	Abilities []abilityTerm // 能力値1ポイントあたりの係数。スキル基準は元スキルの担当能力を1項導出する
-}
-
-// skillSpec はスキル基準の倍率を組む。担当能力の寄与はスキル係数と同じ向きに1ポイント±1%で導出する
-func skillSpec(key ModifierKey, skill SkillID, coeff int) modifierSpec {
-	ablCoeff := 1
-	if coeff < 0 {
-		ablCoeff = -1
-	}
-	return modifierSpec{
-		Key:       key,
-		Skill:     skill,
-		Coeff:     coeff,
-		Abilities: []abilityTerm{{SkillAbilityID(skill), ablCoeff}},
-	}
+	Key   ModifierKey
+	Skill SkillID
+	Coeff int
 }
 
 // modifierSpecs は全倍率の定義表。単発の倍率を足すときはここへ1行足す
@@ -227,33 +192,29 @@ var modifierSpecs = buildModifierSpecs()
 
 func buildModifierSpecs() []modifierSpec {
 	specs := slices.Grow([]modifierSpec{
-		skillSpec(ModFireResist, SkillFireResist, coeffElementResist),
-		skillSpec(ModThunderResist, SkillThunderResist, coeffElementResist),
-		skillSpec(ModChillResist, SkillChillResist, coeffElementResist),
-		skillSpec(ModPhotonResist, SkillPhotonResist, coeffElementResist),
-		skillSpec(ModColdProgress, SkillColdResist, coeffColdProgress),
-		skillSpec(ModHungerProgress, SkillHungerResist, coeffHungerProgress),
-		skillSpec(ModHealingEffect, SkillHealing, coeffHealingEffect),
-		skillSpec(ModMaxWeight, SkillWeightBearing, coeffMaxWeight),
-		skillSpec(ModExploration, SkillExploration, coeffExploration),
-		skillSpec(ModEnemyVision, SkillStealth, coeffEnemyVision),
-		skillSpec(ModNightVision, SkillNightVision, coeffNightVision),
-		skillSpec(ModMoveCost, SkillSprinting, coeffMoveCost),
-		skillSpec(ModCraftCost, SkillCrafting, coeffCraftCost),
-		skillSpec(ModSmithQuality, SkillSmithing, coeffSmithQuality),
-		skillSpec(ModBuyPrice, SkillNegotiation, coeffBuyPrice),
-		skillSpec(ModSellPrice, SkillNegotiation, coeffSellPrice),
-		skillSpec(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor),
-		// 行動速度・自然回復はスキルを持たず能力値だけを土台にする単機能倍率。
-		// 疲労・空腹などの状態寄与は query 層の statusSources が同じキーへ足し込む
-		{Key: ModActionSpeed, Abilities: []abilityTerm{{AblAGI, coeffActionSpeedAgility}, {AblDEX, coeffActionSpeedDexterity}}},
-		{Key: ModRecovery, Abilities: []abilityTerm{{AblVIT, coeffRecoveryVitality}}},
+		{ModFireResist, SkillFireResist, coeffElementResist},
+		{ModThunderResist, SkillThunderResist, coeffElementResist},
+		{ModChillResist, SkillChillResist, coeffElementResist},
+		{ModPhotonResist, SkillPhotonResist, coeffElementResist},
+		{ModColdProgress, SkillColdResist, coeffColdProgress},
+		{ModHungerProgress, SkillHungerResist, coeffHungerProgress},
+		{ModHealingEffect, SkillHealing, coeffHealingEffect},
+		{ModMaxWeight, SkillWeightBearing, coeffMaxWeight},
+		{ModExploration, SkillExploration, coeffExploration},
+		{ModEnemyVision, SkillStealth, coeffEnemyVision},
+		{ModNightVision, SkillNightVision, coeffNightVision},
+		{ModMoveCost, SkillSprinting, coeffMoveCost},
+		{ModCraftCost, SkillCrafting, coeffCraftCost},
+		{ModSmithQuality, SkillSmithing, coeffSmithQuality},
+		{ModBuyPrice, SkillNegotiation, coeffBuyPrice},
+		{ModSellPrice, SkillNegotiation, coeffSellPrice},
+		{ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor},
 	}, 2*len(WeaponSkillIDs))
 	// 武器の行はスキルIDの直積なので生成する
 	for _, id := range WeaponSkillIDs {
 		specs = append(specs,
-			skillSpec(WeaponDamageKey(id), id, coeffWeaponDamage),
-			skillSpec(WeaponAccuracyKey(id), id, coeffWeaponAccuracy))
+			modifierSpec{WeaponDamageKey(id), id, coeffWeaponDamage},
+			modifierSpec{WeaponAccuracyKey(id), id, coeffWeaponAccuracy})
 	}
 	return specs
 }
@@ -276,47 +237,38 @@ var accuracySkillByKey = func() map[ModifierKey]SkillID {
 	return m
 }()
 
-// KeyRequiresSkill は key の倍率がスキルを土台にするかを返す。行動速度・自然回復のような
-// 能力値ベースの単機能倍率はスキルを要らないので false。Skills 非所持でも算出してよいかの判定に使う
-func KeyRequiresSkill(key ModifierKey) bool {
-	spec, ok := specByKey[key]
-	return ok && spec.Skill != ""
-}
-
 // forEachModifierSource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。
 // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない。
-// skills / abils / hs は不在なら nil でよく、その由来のソースは飛ばす
-func forEachModifierSource(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey, fn func(ModifierSource)) {
+// skills / abils は不在なら nil でよく、その由来のソースは飛ばす。caps は実効身体機能で、
+// 疲労・空腹の低下を畳んだものを呼び出し側が渡す
+func forEachModifierSource(skills *Skills, abils *Abilities, caps BodyCapacities, key ModifierKey, fn func(ModifierSource)) {
 	spec, ok := specByKey[key]
 	if !ok {
 		return
 	}
-	bonus := 0
-
-	// スキルによる補正。能力値ベースの倍率は Skill が空なので飛ばす
-	if spec.Skill != "" && skills != nil {
-		v := skills.Get(spec.Skill).Value
-		skillBonus := v * spec.Coeff
-		fn(ModifierSource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: skillBonus})
-		bonus += skillBonus
+	if skills == nil {
+		return
 	}
+	v := skills.Get(spec.Skill).Value
+	bonus := v * spec.Coeff
+	fn(ModifierSource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus})
 
-	// 能力値による補正。スキル基準は担当能力1項、行動速度などは複数能力を束ねる
+	// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
 	if abils != nil {
-		for _, at := range spec.Abilities {
-			ablVal := abils.ValueOf(at.Ability)
-			ablBonus := ablVal * at.Coeff
-			fn(ModifierSource{Kind: SourceAbility, Ability: at.Ability, Amount: ablVal, Value: ablBonus})
-			bonus += ablBonus
+		ablID := SkillAbilityID(spec.Skill)
+		ablVal := abils.ValueOf(ablID)
+		ablCoeff := 1
+		if spec.Coeff < 0 {
+			ablCoeff = -1
 		}
+		ablBonus := ablVal * ablCoeff
+		fn(ModifierSource{Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus})
+		bonus += ablBonus
 	}
 
-	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる
+	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる。実効 capacity なので
+	// 疲労・空腹による意識低下も命中へここで波及する
 	if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {
-		caps := HealthyCapacities()
-		if hs != nil {
-			caps = hs.Capacities()
-		}
 		capKind, capVal := weaponAccuracyCapacity(caps, id)
 		acc := int(consts.PercentBase) + bonus
 		withCap := capVal.ApplyInt(acc)
@@ -326,9 +278,9 @@ func forEachModifierSource(skills *Skills, abils *Abilities, hs *HealthStatus, k
 
 // CalcModifierValue は key の効果倍率を導出する。内訳の加法差分を積むだけで
 // アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する
-func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) consts.Percent {
+func CalcModifierValue(skills *Skills, abils *Abilities, caps BodyCapacities, key ModifierKey) consts.Percent {
 	total := int(consts.PercentBase)
-	forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {
+	forEachModifierSource(skills, abils, caps, key, func(s ModifierSource) {
 		total += s.Value
 	})
 	return consts.Percent(total)
@@ -336,9 +288,9 @@ func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key M
 
 // CalcModifierSources は key の内訳を返す。詳細モーダルの表示側だけが読む。
 // 未定義キーは空を返す
-func CalcModifierSources(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) []ModifierSource {
+func CalcModifierSources(skills *Skills, abils *Abilities, caps BodyCapacities, key ModifierKey) []ModifierSource {
 	var srcs []ModifierSource
-	forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {
+	forEachModifierSource(skills, abils, caps, key, func(s ModifierSource) {
 		srcs = append(srcs, s)
 	})
 	return srcs

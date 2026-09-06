@@ -3,7 +3,6 @@ package components
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,35 +34,25 @@ func TestFatigue_GetLevel(t *testing.T) {
 	}
 }
 
-func TestFatigue_Penalty(t *testing.T) {
+func TestFatigue_ConsciousnessPenalty(t *testing.T) {
 	t.Parallel()
 
-	t.Run("快調はペナルティ無し", func(t *testing.T) {
-		t.Parallel()
-		f := &Fatigue{Max: 1000, Current: 0}
-		p := f.Penalty()
-		assert.Equal(t, consts.Percent(0), p.RecoveryAdd)
-		assert.Equal(t, 0, p.SpeedAdd)
-		assert.Equal(t, consts.PercentBase, p.AccuracyMul)
-	})
-
-	t.Run("疲労は中程度のペナルティ", func(t *testing.T) {
-		t.Parallel()
-		f := &Fatigue{Max: 1000, Current: 600}
-		p := f.Penalty()
-		assert.Equal(t, consts.Percent(-20), p.RecoveryAdd)
-		assert.Equal(t, -15, p.SpeedAdd)
-		assert.Equal(t, consts.Percent(90), p.AccuracyMul)
-	})
-
-	t.Run("過労は重いペナルティ", func(t *testing.T) {
-		t.Parallel()
-		f := &Fatigue{Max: 1000, Current: 900}
-		p := f.Penalty()
-		assert.Equal(t, consts.Percent(-40), p.RecoveryAdd)
-		assert.Equal(t, -35, p.SpeedAdd)
-		assert.Equal(t, consts.Percent(75), p.AccuracyMul)
-	})
+	tests := []struct {
+		name    string
+		current int
+		want    int
+	}{
+		{"快調は意識低下なし", 0, 0},
+		{"疲労は中程度の意識低下", 600, 10},
+		{"過労は重い意識低下", 900, 25},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			f := &Fatigue{Max: 1000, Current: tt.current}
+			assert.Equal(t, tt.want, f.ConsciousnessPenalty())
+		})
+	}
 }
 
 func TestNewFatigue_初期は疲れていない(t *testing.T) {
