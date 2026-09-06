@@ -423,14 +423,9 @@ func sleepConfirmChoices(world w.World) (string, []Choice) {
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			},
 		},
-		sleepCancelChoice(world),
-	}
-}
-
-// sleepCancelChoice は睡眠プロンプトを閉じる選択肢を返す
-func sleepCancelChoice(world w.World) Choice {
-	return Choice{
-		Label: query.T(world, "Cancel"),
-		Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },
+		{
+			Label: query.T(world, "Cancel"),
+			Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },
+		},
 	}
 }
