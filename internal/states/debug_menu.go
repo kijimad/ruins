@@ -169,7 +169,6 @@ func debugExhaustFatigue(world w.World) error {
 	}
 	fatigue := world.Components.Fatigue.Get(player)
 	fatigue.Current = fatigue.Max
-	// 疲労の効果は量から読み取り時に導出されるので、量を変えるだけで Effects へ即反映される
 	return nil
 }
 
@@ -184,7 +183,6 @@ func debugStarveHunger(world w.World) error {
 	}
 	hunger := world.Components.Hunger.Get(player)
 	hunger.Current = 0
-	// 空腹の効果は量から読み取り時に導出されるので、量を変えるだけで Effects へ即反映される
 	return nil
 }
 

@@ -44,8 +44,7 @@ func (f *Fatigue) GetLevel() FatigueLevel {
 	}
 }
 
-// FatigueSeverity は疲労段階を過労の不調の重症度へ写す。ok=false なら不調は立たない。
-// 過労は量から読み取り時に不調として組み立てられ、怪我と同じ経路で意識・代謝を下げる。刻みは実プレイで調整する
+// FatigueSeverity は疲労段階を過労の不調の重症度へ写す。ok=false なら不調は立たない
 func (f *Fatigue) FatigueSeverity() (Severity, bool) {
 	switch f.GetLevel() {
 	case FatigueRested, FatigueNormal:

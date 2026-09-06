@@ -311,8 +311,7 @@ func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailR
 	return rows
 }
 
-// fatigueHungerDrops は過労・栄養失調による低下ぶんを内訳にする。
-// 意識と代謝の両方が同じこの低下を受ける。量から組み立てた不調から出す
+// fatigueHungerDrops は過労・栄養失調による低下ぶんを内訳にする。意識と代謝の両方がこの低下を受ける
 func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
 	var rows []statusDetailRow
 	for _, c := range query.DerivedConditions(world, playerEntity) {

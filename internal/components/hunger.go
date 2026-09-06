@@ -63,8 +63,7 @@ func (h *Hunger) GetLevel() HungerLevel {
 	}
 }
 
-// HungerSeverity は空腹段階を栄養失調の不調の重症度へ写す。ok=false なら不調は立たない。
-// 栄養失調は量から読み取り時に不調として組み立てられ、怪我と同じ経路で意識・代謝を下げる
+// HungerSeverity は空腹段階を栄養失調の不調の重症度へ写す。ok=false なら不調は立たない
 func HungerSeverity(level HungerLevel) (Severity, bool) {
 	switch level {
 	case HungerSatiated, HungerNormal:

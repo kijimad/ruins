@@ -531,8 +531,7 @@ func (hs *HealthStatus) IsHPDraining() bool {
 
 // BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
 // 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を全体乗数として局所機能へ掛ける。
-// needConds に疲労・空腹から組み立てた全身性の不調を渡すと、保存された不調と一緒に意識・代謝へ集約する。
-// 渡さなければ保存された不調だけで導出する。疲労・空腹は保存せず量から読み取り時に組み立てて渡す
+// needConds に全身性の不調を渡すと保存された不調と一緒に集約する。渡さなければ保存された不調だけで導出する
 func (hs *HealthStatus) BodyFuncs(needConds ...HealthCondition) BodyFuncs {
 	pain := 0
 	bloodDrop := 0

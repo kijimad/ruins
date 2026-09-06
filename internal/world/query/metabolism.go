@@ -48,8 +48,7 @@ func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
 }
 
 // Metabolism は HP の自然回復と病気の回復にかかる速度係数を返す。基準は 100、下限は 0。
-// 熟練 VIT・睡眠 と 身体機能 代謝の値の合成で、命中・速度と同じ 熟練 × 身体機能 の形。
-// Effects タブの内訳と同じ導出を読むので値と内訳がずれない
+// RecoverySources の合計を取る
 func Metabolism(world w.World, entity ecs.Entity) consts.Percent {
 	total := int(consts.PercentBase)
 	for _, s := range RecoverySources(world, entity) {

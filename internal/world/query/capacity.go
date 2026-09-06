@@ -6,15 +6,14 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// EffectiveBodyFuncs は消費側が読む身体機能を返す。怪我・病気は HealthStatus に保存された不調から、
-// 疲労・空腹は量から読み取り時に組み立てた不調として、まとめて BodyFuncs へ畳む。
-// 意識は全体乗数として局所機能へ一度だけ掛かる。疲労・空腹の不調は保存しないのでズレようがない
+// EffectiveBodyFuncs は消費側が読む身体機能を返す。保存された不調と、疲労・空腹から組み立てた不調を
+// 合わせて BodyFuncs へ畳む
 func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {
 	needConds := DerivedConditions(world, entity)
 	if world.Components.HealthStatus.Has(entity) {
 		return world.Components.HealthStatus.Get(entity).BodyFuncs(needConds...)
 	}
-	// HealthStatus 非所持は怪我を持たない。疲労・空腹の不調だけを空の身体機能へ畳む
+	// HealthStatus 非所持は怪我を持たない
 	return (&gc.HealthStatus{}).BodyFuncs(needConds...)
 }
 
