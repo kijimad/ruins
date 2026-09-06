@@ -315,11 +315,11 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
-	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性は意識を下げる: 意識=100-10-6/2=87。
-	// 各機能は独立なので歩行は素の100のまま、全身性は意識に出る
+	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=100*87/100=87。
+	// 意識は master 乗数として歩行へ掛かる
 	caps := world.Components.HealthStatus.Get(actor).BodyFuncs()
 	assert.Equal(t, 87, int(caps.Consciousness), "HealthStatusが意識へ反映される")
-	assert.Equal(t, 100, int(caps.Moving), "全身性の不調は歩行の値を変えない")
+	assert.Equal(t, 87, int(caps.Moving), "意識が歩行へ乗算される")
 }
 
 func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {

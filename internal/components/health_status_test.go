@@ -324,9 +324,9 @@ func TestHealthStatus_Capacities(t *testing.T) {
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
 		caps := hs.BodyFuncs()
-		// 骨折 18/20 の中度。痛み=18*2=36、意識=100-36/2=82、操作=100-20*2=60。
-		// 各機能は独立なので、歩行と視覚は局所低下がなく素の100のまま
-		assert.Equal(t, BodyFuncs{Pain: 36, Blood: 100, Consciousness: 82, Manipulation: 60, Moving: 100, Sight: 100}, caps)
+		// 骨折 18/20 の中度。痛み=18*2=36、意識=100-36/2=82、操作=(100-20*2)*82/100=49。
+		// 意識は master 乗数。歩行と視覚は局所低下なしだが意識が掛かって82
+		assert.Equal(t, BodyFuncs{Pain: 36, Blood: 100, Consciousness: 82, Manipulation: 49, Moving: 82, Sight: 82}, caps)
 	})
 
 	t.Run("部位で下げる機能が変わる", func(t *testing.T) {

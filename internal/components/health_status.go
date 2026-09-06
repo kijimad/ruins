@@ -536,8 +536,8 @@ func (hs *HealthStatus) IsHPDraining() bool {
 }
 
 // BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
-// 各機能は独立で、対応部位の不調だけがその機能を下げる。意識は痛みと全身性の不調で下がる。
-// 意識は他の機能の値を変えない。速度や命中への波及は消費側が意識を明示的に掛ける
+// 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を master 乗数として局所機能へ掛ける。
+// 疲労・空腹も不調として全身性へ入るので、need も怪我もこの1つの導出に集約される
 func (hs *HealthStatus) BodyFuncs() BodyFuncs {
 	pain := 0
 	bloodDrop := 0
@@ -562,13 +562,18 @@ func (hs *HealthStatus) BodyFuncs() BodyFuncs {
 	}
 
 	pain = clamp(pain, 0, 100)
+	// 意識は全身性の低下と痛みで下がる
+	consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)
+	// 局所機能は低下を引いたうえで、意識を全体乗数として掛ける
+	withConsciousness := func(local int) consts.Percent {
+		return consts.Percent(clamp(local, 0, 100) * consciousness / 100)
+	}
 	return BodyFuncs{
-		Pain:  consts.Percent(pain),
-		Blood: consts.Percent(clamp(100-bloodDrop, 0, 100)),
-		// 意識は全身性の低下と痛みで下がる
-		Consciousness: consts.Percent(clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)),
-		Manipulation:  consts.Percent(clamp(100-manip, 0, 100)),
-		Moving:        consts.Percent(clamp(100-moving, 0, 100)),
-		Sight:         consts.Percent(clamp(100-sight, 0, 100)),
+		Pain:          consts.Percent(pain),
+		Blood:         consts.Percent(clamp(100-bloodDrop, 0, 100)),
+		Consciousness: consts.Percent(consciousness),
+		Manipulation:  withConsciousness(100 - manip),
+		Moving:        withConsciousness(100 - moving),
+		Sight:         withConsciousness(100 - sight),
 	}
 }

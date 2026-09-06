@@ -49,24 +49,29 @@ func TestMetabolism(t *testing.T) {
 		assert.Equal(t, consts.Percent(100), Metabolism(world, entity))
 	})
 
-	t.Run("空腹は意識低下ぶん回復が下がる", func(t *testing.T) {
+	t.Run("空腹の栄養失調は意識経由で回復を下げる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
-		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 50, Max: 100})
+		// 空腹は Malnutrition 不調として意識を下げ、回復も funnel 経由で落ちる。軽度 8*1=8
+		hs := &gc.HealthStatus{}
+		hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionMalnutrition, gc.SeverityMinor)
+		world.Components.HealthStatus.Add(entity, hs)
 
-		// 空腹は意識を10下げる。100 - 10 = 90
-		assert.Equal(t, consts.Percent(90), Metabolism(world, entity))
+		// 意識=100-8=92
+		assert.Equal(t, consts.Percent(92), Metabolism(world, entity))
 	})
 
 	t.Run("飢餓は意識をさらに下げる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
-		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
+		hs := &gc.HealthStatus{}
+		hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionMalnutrition, gc.SeveritySevere)
+		world.Components.HealthStatus.Add(entity, hs)
 
-		// 飢餓は意識を20下げる。100 - 20 = 80
-		assert.Equal(t, consts.Percent(80), Metabolism(world, entity))
+		// 飢餓 8*3=24。意識=100-24=76
+		assert.Equal(t, consts.Percent(76), Metabolism(world, entity))
 	})
 
 	t.Run("VITと意識低下は合算する", func(t *testing.T) {
@@ -74,10 +79,12 @@ func TestMetabolism(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
 		world.Components.Abilities.Add(entity, &gc.Abilities{Vitality: gc.Ability{Total: 10}})
-		world.Components.Hunger.Add(entity, &gc.Hunger{Current: 20, Max: 100})
+		hs := &gc.HealthStatus{}
+		hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionMalnutrition, gc.SeveritySevere)
+		world.Components.HealthStatus.Add(entity, hs)
 
-		// 100 + VIT*3(30) - 飢餓の意識低下20 = 110
-		assert.Equal(t, consts.Percent(110), Metabolism(world, entity))
+		// 意識76 + VIT*3(30) = 106
+		assert.Equal(t, consts.Percent(106), Metabolism(world, entity))
 	})
 
 	t.Run("下限は0でマイナスにならない", func(t *testing.T) {
@@ -91,15 +98,16 @@ func TestMetabolism(t *testing.T) {
 		assert.Equal(t, consts.Percent(0), Metabolism(world, entity))
 	})
 
-	t.Run("疲労で回復が下がる", func(t *testing.T) {
+	t.Run("過労は意識経由で回復を下げる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		entity := world.ECS.NewEntity()
-		// 過労: 80%以上
-		world.Components.Fatigue.Add(entity, &gc.Fatigue{Current: 900, Max: 1000})
+		hs := &gc.HealthStatus{}
+		hs.Parts[gc.BodyPartWholeBody].SetGaugeCondition(gc.ConditionExhaustion, gc.SeveritySevere)
+		world.Components.HealthStatus.Add(entity, hs)
 
-		// 過労は意識を25下げる。100 - 25 = 75
-		assert.Equal(t, consts.Percent(75), Metabolism(world, entity))
+		// 過労 10*3=30。意識=100-30=70
+		assert.Equal(t, consts.Percent(70), Metabolism(world, entity))
 	})
 
 	t.Run("睡眠中は回復が上がり寝具品質に比例する", func(t *testing.T) {

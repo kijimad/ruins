@@ -120,8 +120,8 @@ func TestCalcProficiencyValue_HealthPenalty(t *testing.T) {
 	// 不調は MoveCost へ直接足さず身体機能 BodyFuncs に一本化する
 	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, hs.BodyFuncs(), ProfMoveCost)), "低体温は MoveCost へ足さない")
 	// 中度の全身性低体温 6/10: 痛み6*2=12、意識=100-20-12/2=74。
-	// 各機能は独立なので、全身性の不調は意識だけを下げ、操作・歩行・視覚は素の100のまま
-	assert.Equal(t, BodyFuncs{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 100, Moving: 100, Sight: 100}, hs.BodyFuncs())
+	// 意識は master 乗数。局所低下は無いので操作・歩行・視覚はいずれも意識だけを受けて74
+	assert.Equal(t, BodyFuncs{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 74, Moving: 74, Sight: 74}, hs.BodyFuncs())
 }
 
 func TestCalcProficiencyValue_UnknownKey(t *testing.T) {
@@ -189,9 +189,9 @@ func TestCalcProficiencyValue_AllFactors(t *testing.T) {
 
 	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82。低体温は MoveCost へ足さない
 	assert.Equal(t, 82, int(CalcProficiencyValue(skills, abils, hs.BodyFuncs(), ProfMoveCost)))
-	// 重度の全身性低体温 6/10 は意識を下げる。意識=100-30-18/2=61。歩行は全身性では下がらず素の100
+	// 重度の全身性低体温 6/10 は意識を下げる。意識=100-30-18/2=61、歩行=100*61/100=61
 	assert.Equal(t, 61, int(hs.BodyFuncs().Consciousness))
-	assert.Equal(t, 100, int(hs.BodyFuncs().Moving))
+	assert.Equal(t, 61, int(hs.BodyFuncs().Moving))
 
 	// Sourcesはスキルと能力値の2要因。健康は BodyFuncs 側なので MoveCost には載らない
 	sources := CalcProficiencySources(skills, abils, hs.BodyFuncs(), ProfMoveCost)

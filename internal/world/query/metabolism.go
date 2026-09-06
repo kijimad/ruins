@@ -15,53 +15,16 @@ const (
 	metabolismSleepingBonus = 50
 )
 
-// fatigueRecoveryPenalty は疲労段階が回復レートから引く%を返す。速度・命中の不調経由とは別の、
-// 回復専用のゲージ直読み。値は実プレイで調整する
-func fatigueRecoveryPenalty(level gc.FatigueLevel) int {
-	switch level {
-	case gc.FatigueRested, gc.FatigueNormal:
-		return 0
-	case gc.FatigueTired:
-		return 10
-	case gc.FatigueExhausted:
-		return 25
-	}
-	return 0
-}
-
-// hungerRecoveryPenalty は空腹段階が回復レートから引く%を返す
-func hungerRecoveryPenalty(level gc.HungerLevel) int {
-	switch level {
-	case gc.HungerSatiated, gc.HungerNormal:
-		return 0
-	case gc.HungerHungry:
-		return 10
-	case gc.HungerStarving:
-		return 20
-	}
-	return 0
-}
-
-// RecoverySources は回復レートへの寄与を内訳として返す。VIT・睡眠が上げ、疲労・空腹が下げる。
-// 疲労・空腹の効き目はその意識低下量そのもので、速度・命中と同じ1つの値を読む。
-// 怪我・病気は意識を下げるが回復には効かせない。自分の不調が自分の回復を止める悪循環を避けるため。
+// RecoverySources は回復レートへの寄与を内訳として返す。VIT・睡眠が上げ、意識の低下が下げる。
+// 怪我・病気・疲労・空腹はすべて不調として意識へ集約されるので、回復も速度・命中と同じ funnel に載る。
 // Metabolism と Effects タブが同じこの導出を読むので値と内訳がずれない
 func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
 	var srcs []gc.ProficiencySource
 
-	// 疲労・空腹はゲージを直読みして回復を下げる。速度・命中は不調経由だが、回復だけは不調・意識を
-	// 経由しない。怪我・病気が自分の回復を止める悪循環と、整数切り捨てで治癒が止まるのを避けるため
-	if world.Components.Fatigue.Has(entity) {
-		f := world.Components.Fatigue.Get(entity)
-		if v := fatigueRecoveryPenalty(f.GetLevel()); v != 0 {
-			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceFatigue, Fatigue: f.GetLevel(), Value: -v})
-		}
-	}
-	if world.Components.Hunger.Has(entity) {
-		level := world.Components.Hunger.Get(entity).GetLevel()
-		if v := hungerRecoveryPenalty(level); v != 0 {
-			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceHunger, Hunger: level, Value: -v})
-		}
+	// 実効意識が基準を下回るぶんを回復低下として載せる。全 need と怪我が意識へ集約されている
+	consciousness := int(EffectiveBodyFuncs(world, entity).Consciousness)
+	if consciousness != int(consts.PercentBase) {
+		srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceBodyFunc, BodyFunc: gc.BodyFuncConsciousness, Amount: consciousness, Value: consciousness - int(consts.PercentBase)})
 	}
 
 	if world.Components.Abilities.Has(entity) {
