@@ -118,7 +118,7 @@ func TestEnterCube_内部ではオーバーワールド判定が偽(t *testing.T
 	// スポーンされたキューブを引き当てて内部へ入る
 	var cube ecs.Entity
 	found := false
-	cubeQuery := query.ActiveFilter1[gc.Pushable](world).Query()
+	cubeQuery := query.ActiveFilter1[gc.Drivable](world).Query()
 	for cubeQuery.Next() {
 		if !found {
 			cube = cubeQuery.Entity()

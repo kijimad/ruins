@@ -155,13 +155,12 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	}), nil
 }
 
-// SpawnCube は押して動かせる移動拠点キューブをオーバーワールドに生成する。
-// blue_cube のスプライトを流用した無地のキューブ。BlockPass だが Pushable なので
-// 歩き込むと通行でなく押しになる。オーバーワールドの地物として帯へ明示束縛する。
+// SpawnCube は運転できる移動拠点キューブをオーバーワールドに生成する。
+// blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
 	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:        &gc.Name{Name: query.T(world, "Cube")},
-		Description: &gc.Description{Description: query.T(world, "A mobile base you can push")},
+		Description: &gc.Description{Description: query.T(world, "A mobile base you can drive")},
 		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
@@ -170,11 +169,10 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		},
 		Fixed:           &gc.Fixed{},
 		BlockPass:       &gc.BlockPass{},
-		Pushable:        &gc.Pushable{},
 		Drivable:        &gc.Drivable{},
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
-		// 隣接して手動で内部へ入る、または引く。歩き込みは押し、明示的な入る/引くはメニューから
-		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube, gc.InteractionPullCube}},
+		// 隣接して手動で内部へ入る。歩き込みでなく明示アクションで発動する
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube}},
 	}), nil
 }

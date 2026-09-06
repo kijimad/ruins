@@ -77,8 +77,6 @@ const (
 	InteractionEnterCube InteractionKind = "ENTER_CUBE"
 	// InteractionExitCube は移動拠点キューブの内部から出る相互作用
 	InteractionExitCube InteractionKind = "EXIT_CUBE"
-	// InteractionPullCube は移動拠点キューブを自分の側へ引く相互作用。壁際・角の詰みを解く
-	InteractionPullCube InteractionKind = "PULL_CUBE"
 	// InteractionCubePanel はキューブ内部のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
 	InteractionCubePanel InteractionKind = "CUBE_PANEL"
 	// InteractionAuction は通信販売の出荷場所。専用メニューを開いて積荷の出荷と状況確認をする
@@ -100,7 +98,7 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}
-	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction, InteractionIgnite, InteractionFeedFuel:
+	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionAuction, InteractionIgnite, InteractionFeedFuel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionExitCube:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}

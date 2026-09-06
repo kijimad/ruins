@@ -50,8 +50,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executePortal(world, gc.WarpCubeEnterEvent(target), "cube enter state change request error", "enter cube")
 	case gc.InteractionExitCube:
 		return executePortal(world, gc.WarpCubeExitEvent(), "cube exit state change request error", "exit cube")
-	case gc.InteractionPullCube:
-		return executePullCube(actor, target, world)
 	case gc.InteractionCubePanel:
 		return executePortal(world, gc.OpenCubePanelEvent(), "control panel state change request error", "opened control panel")
 	case gc.InteractionAuction:
@@ -87,12 +85,6 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 		return nil, fmt.Errorf("dungeon entry state change request error: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "dungeon entry"}, nil
-}
-
-// executePullCube はキューブを自分の側へ引く。後退スペースが無いなど引けないときは、
-// Validate が理由を gamelog へ出して no-op にする。プレイヤーのできない操作は異常系でない。
-func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(NewPullActivity(cube, actor, world), actor, world)
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

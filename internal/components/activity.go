@@ -56,10 +56,6 @@ const (
 	BehaviorReload    BehaviorName = "Reload"
 	// BehaviorDisassemble は工具でpropやアイテムを分解して素材を得る
 	BehaviorDisassemble BehaviorName = "Disassemble"
-	// BehaviorPush は隣接する移動拠点キューブを押して動かす
-	BehaviorPush BehaviorName = "Push"
-	// BehaviorPull は隣接する移動拠点キューブを自分の側へ引いて動かす
-	BehaviorPull BehaviorName = "Pull"
 	// BehaviorIgnite は火種で隣接の燃焼物に火をつけて焚き火を熾す。ExecuteInteraction が直接処理する
 	BehaviorIgnite BehaviorName = "Ignite"
 	// BehaviorFeedFuel は隣接の火へ燃料をくべる給油メニューを開く。ExecuteInteraction が直接処理する

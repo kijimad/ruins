@@ -296,12 +296,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionPullCube:
-			result = append(result, InteractionAction{
-				Label:       query.T(world, "Pull (%s)", dirLabel),
-				Target:      interactableEntity,
-				Interaction: interaction,
-			})
 		case gc.InteractionCubePanel:
 			result = append(result, InteractionAction{
 				Label:       query.T(world, "Inspect (control panel)"),

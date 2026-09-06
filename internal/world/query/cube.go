@@ -29,15 +29,8 @@ func CubeWeight(world w.World, interior gc.StageKey) consts.Milligram {
 	return total
 }
 
-// PushCost は総重量から1タイル押すのに要するAPを返す。空のキューブでも歩行の10倍規模の
-// 基準がかかり、総重量に比例して増える。変わるのは行動点で何ターンで払えるかである。
-func PushCost(total consts.Milligram) int {
-	kg := int(total / consts.MilligramPerKg)
-	return consts.PushCostBase + consts.PushCostPerKg*kg
-}
-
 // DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、
-// 総重量に比例して増える。PushCost が AP で表していた重量ペナルティを燃料へ移した対応物。
+// 総重量に比例して増える。重いほど燃費が悪化する。
 func DriveFuelCost(total consts.Milligram) consts.Heat {
 	kg := int(total / consts.MilligramPerKg)
 	return consts.Heat(consts.DriveFuelBase + consts.DriveFuelPerKg*kg)
@@ -49,17 +42,6 @@ func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	var total consts.Heat
 	for _, item := range GetStorageItems(world, cube) {
 		total += HeatContent(world, item)
-	}
-	return total
-}
-
-// PushPower はこのターン押しへ充てられるAP総量を返す。プレイヤーの TurnBased.AP.Current を用いる。
-// 同じ PushCost をより少ないターンで払えれば速く進む。押しコスト自体は不変。
-func PushPower(world w.World) int {
-	var total int
-	playerQuery := ActiveFilter2[gc.TurnBased, gc.Player](world).Query()
-	for playerQuery.Next() {
-		total += world.Components.TurnBased.Get(playerQuery.Entity()).AP.Current
 	}
 	return total
 }

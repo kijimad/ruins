@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -62,17 +61,6 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
-	// 移動先に押せるキューブがあれば、通行でなく押しになる。キューブは BlockPass なので
-	// 通常の CanMoveTo では弾かれる。歩き込みは押し、入るは手動アクションと入力経路を分ける。
-	// 押しはキューブだけを動かす。プレイヤーの追随は次入力の通常移動が担い、方向を押し続けると
-	// 押しと一歩が交互に起きてキューブが進む
-	if cube, ok := pushableAt(world, next); ok {
-		// 押し先が塞がっていれば Push.Validate が理由を gamelog へ出し err=nil で閉じる。
-		// 壁への歩き込みと同じく no-op になる
-		_, err := Execute(NewPushActivity(cube, direction, world), entity, world)
-		return err
-	}
-
 	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
 		destination := gc.GridElement{Coord: next}
@@ -83,16 +71,6 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	return nil
-}
-
-// pushableAt は指定タイルにある押せるキューブを返す。無ければ ok=false。
-func pushableAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
-	for _, entity := range query.GetEntitiesAt(world, coord.X, coord.Y) {
-		if world.Components.Pushable.Has(entity) {
-			return entity, true
-		}
-	}
-	return ecs.Entity{}, false
 }
 
 // ExecuteWaitAction は待機アクションを実行する
@@ -220,7 +198,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a shipping station. Press Enter to open it.")).
 					Log()
-			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel, gc.InteractionIgnite, gc.InteractionFeedFuel:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionCubePanel, gc.InteractionIgnite, gc.InteractionFeedFuel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

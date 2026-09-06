@@ -25,25 +25,6 @@ func addWeightEntity(t *testing.T, world w.World, mg consts.Milligram, stage gc.
 	}
 }
 
-func TestPushCost(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name  string
-		total consts.Milligram
-		want  int
-	}{
-		{"空のキューブは基準APだけかかる", 0, consts.PushCostBase},
-		{"総重量3kgで基準に3kgぶん加算される", consts.Milligram(3 * consts.MilligramPerKg), consts.PushCostBase + 3*consts.PushCostPerKg},
-		{"総重量10kgで基準に10kgぶん加算される", consts.Milligram(10 * consts.MilligramPerKg), consts.PushCostBase + 10*consts.PushCostPerKg},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, query.PushCost(tt.total))
-		})
-	}
-}
-
 func TestDriveFuelCost(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -123,20 +104,4 @@ func TestCubeWeight_床に無い物は数えない(t *testing.T) {
 	world.Components.StageBound.Add(carried, &gc.StageBound{Key: interior})
 
 	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, interior), "床にある物だけを数え、持ち去った物は除く")
-}
-
-func TestPushPower_プレイヤーのAPを用い他を除く(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.TurnBased.Add(player, &gc.TurnBased{AP: gc.IntPool{Max: 40, Current: 40}})
-
-	// 敵は押しのAPに数えない
-	enemy := world.ECS.NewEntity()
-	world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
-	world.Components.TurnBased.Add(enemy, &gc.TurnBased{AP: gc.IntPool{Max: 100, Current: 100}})
-
-	assert.Equal(t, 40, query.PushPower(world))
 }

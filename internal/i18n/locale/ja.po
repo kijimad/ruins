@@ -1734,8 +1734,8 @@ msgstr "開閉できる扉"
 msgid "Cube"
 msgstr "キューブ"
 
-msgid "A mobile base you can push"
-msgstr "押して動かせる移動拠点"
+msgid "A mobile base you can drive"
+msgstr "運転できる移動拠点"
 
 msgid "%s used %s and recovered %d HP."
 msgstr "%s は %s を使った。 HPが %d 回復した。"
