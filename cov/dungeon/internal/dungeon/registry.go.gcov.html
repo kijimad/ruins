@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">73.3&nbsp;%</td>
+            <td class="headerCovTableEntry">15</td>
             <td class="headerCovTableEntry">11</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -181,21 +181,30 @@
 <span id="L119"><span class="lineNum">     119</span>              :         DungeonCubeInterior,</span>
 <span id="L120"><span class="lineNum">     120</span>              : }</span>
 <span id="L121"><span class="lineNum">     121</span>              : </span>
-<span id="L122"><span class="lineNum">     122</span>              : // GetStageDefinition は名前からステージ定義のマスタを取得する。</span>
-<span id="L123"><span class="lineNum">     123</span>              : func GetStageDefinition(name string) (StageDefinition, bool) {</span>
-<span id="L124"><span class="lineNum">     124</span>              :         // 内部用の定義を先にチェックする</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         for _, k := range internalDefinitions {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 if k.Name() == name {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                         return k, true</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L129"><span class="lineNum">     129</span>              :         }</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         for _, d := range allDungeons {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 if d.Name() == name {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         return d, true</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L134"><span class="lineNum">     134</span>              :         }</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         return nil, false</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L122"><span class="lineNum">     122</span>              : // BaseTemperatureFor は名前のステージ定義の基本気温を返す。未登録は0。</span>
+<span id="L123"><span class="lineNum">     123</span>              : // ステージ生成時に StageField.BaseTemp へ写し、気温計算が dungeon 登録表を引かずに済むようにする</span>
+<span id="L124"><span class="lineNum">     124</span>              : func BaseTemperatureFor(name string) int {</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC tlaBgUNC">           0 :         if def, ok := GetStageDefinition(name); ok {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 return def.BaseTemperature()</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         return 0</span></span>
+<span id="L129"><span class="lineNum">     129</span>              : }</span>
+<span id="L130"><span class="lineNum">     130</span>              : </span>
+<span id="L131"><span class="lineNum">     131</span>              : // GetStageDefinition は名前からステージ定義のマスタを取得する。</span>
+<span id="L132"><span class="lineNum">     132</span>              : func GetStageDefinition(name string) (StageDefinition, bool) {</span>
+<span id="L133"><span class="lineNum">     133</span>              :         // 内部用の定義を先にチェックする</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, k := range internalDefinitions {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 if k.Name() == name {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         return k, true</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L138"><span class="lineNum">     138</span>              :         }</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         for _, d := range allDungeons {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 if d.Name() == name {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                         return d, true</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L143"><span class="lineNum">     143</span>              :         }</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         return nil, false</span></span>
+<span id="L145"><span class="lineNum">     145</span>              : }</span>
         </pre>
               </td>
             </tr>

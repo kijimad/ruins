@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.4&nbsp;%</td>
-            <td class="headerCovTableEntry">107</td>
-            <td class="headerCovTableEntry">101</td>
+            <td class="headerCovTableEntryHi">93.6&nbsp;%</td>
+            <td class="headerCovTableEntry">109</td>
+            <td class="headerCovTableEntry">102</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -213,46 +213,49 @@
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L152"><span class="lineNum">     152</span>              :         // 空腹ペナルティ</span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         if hunger := world.Components.Hunger.Get(entity); hunger != nil {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 penalty += hungerSpeedPenalty(hunger.Current)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 penalty += HungerSpeedPenalty(hunger.GetLevel())</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L156"><span class="lineNum">     156</span>              : </span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return penalty</span></span>
-<span id="L158"><span class="lineNum">     158</span>              : }</span>
-<span id="L159"><span class="lineNum">     159</span>              : </span>
-<span id="L160"><span class="lineNum">     160</span>              : // hungerSpeedPenalty は空腹度によるペナルティを返す</span>
-<span id="L161"><span class="lineNum">     161</span>              : func hungerSpeedPenalty(current int) int {</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L163"><span class="lineNum">     163</span>              :         case current &gt;= 75:</span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 return 0 // 満腹</span></span>
-<span id="L165"><span class="lineNum">     165</span>              :         case current &gt;= 50:</span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 return -10 // やや空腹</span></span>
-<span id="L167"><span class="lineNum">     167</span>              :         case current &gt;= 25:</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 return -25 // 空腹</span></span>
-<span id="L169"><span class="lineNum">     169</span>              :         case current &gt;= 10:</span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 return -50 // 飢餓</span></span>
-<span id="L171"><span class="lineNum">     171</span>              :         default:</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 return -75 // 餓死寸前</span></span>
-<span id="L173"><span class="lineNum">     173</span>              :         }</span>
-<span id="L174"><span class="lineNum">     174</span>              : }</span>
-<span id="L175"><span class="lineNum">     175</span>              : </span>
-<span id="L176"><span class="lineNum">     176</span>              : // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する</span>
-<span id="L177"><span class="lineNum">     177</span>              : func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {</span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         cw := world.Components.WeightCapacity.Get(entity)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         if cw == nil {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         if cw.Max == 0 {</span></span>
+<span id="L157"><span class="lineNum">     157</span>              :         // 疲労ペナルティ。係数は Fatigue.Penalty の1表から読む</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         if world.Components.Fatigue.Has(entity) {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 penalty += world.Components.Fatigue.Get(entity).Penalty().SpeedAdd</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         return penalty</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // HungerSpeedPenalty は空腹段階による行動速度への加算を返す。命中・回復と同じく段階基準で、</span>
+<span id="L166"><span class="lineNum">     166</span>              : // 飢えるほど負に大きい。適用と Basic タブの内訳表示が同じこの導出を読む</span>
+<span id="L167"><span class="lineNum">     167</span>              : func HungerSpeedPenalty(level gc.HungerLevel) int {</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         switch level {</span></span>
+<span id="L169"><span class="lineNum">     169</span>              :         case gc.HungerSatiated, gc.HungerNormal:</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L171"><span class="lineNum">     171</span>              :         case gc.HungerHungry:</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 return -10</span></span>
+<span id="L173"><span class="lineNum">     173</span>              :         case gc.HungerStarving:</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 return -20</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :         }</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC tlaBgUNC">           0 :         return 0</span></span>
+<span id="L177"><span class="lineNum">     177</span>              : }</span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span>              : // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する</span>
+<span id="L180"><span class="lineNum">     180</span>              : func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC tlaBgGNC">           1 :         cw := world.Components.WeightCapacity.Get(entity)</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         if cw == nil {</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L185"><span class="lineNum">     185</span>              : </span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         if cw.Current &gt; cw.Max {</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 overweight := cw.Current - cw.Max</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 penalty := min(int((overweight*25)/cw.Max), 75)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 return -penalty</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L191"><span class="lineNum">     191</span>              : </span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return 0</span></span>
-<span id="L193"><span class="lineNum">     193</span>              : }</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         if cw.Max == 0 {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L188"><span class="lineNum">     188</span>              : </span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         if cw.Current &gt; cw.Max {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 overweight := cw.Current - cw.Max</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 penalty := min(int((overweight*25)/cw.Max), 75)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 return -penalty</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L194"><span class="lineNum">     194</span>              : </span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         return 0</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : }</span>
         </pre>
               </td>
             </tr>

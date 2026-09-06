@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -115,7 +115,7 @@
 <span id="L53"><span class="lineNum">      53</span>              : // Validate はリロードの検証を行う</span>
 <span id="L54"><span class="lineNum">      54</span>              : func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {</span>
 <span id="L55"><span class="lineNum">      55</span>              :         // 継続アクティビティ共通の周囲安全チェック。敵が近ければ装填を始めさせない</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         if !isAreaSafe(actor, world) {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         if !query.IsAreaSafe(world, actor) {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;cannot reload because enemies are nearby&quot;)}</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
@@ -150,7 +150,7 @@
 <span id="L88"><span class="lineNum">      88</span>              : // DoTurn はリロードの1ターン分の処理</span>
 <span id="L89"><span class="lineNum">      89</span>              : func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span>
 <span id="L90"><span class="lineNum">      90</span>              :         // 装填中に敵が接近したら中断する。他の継続系と同じ契約</span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         if !isAreaSafe(actor, world) {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         if !query.IsAreaSafe(world, actor) {</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;reload interrupted because enemies are nearby&quot;)</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         }</span></span>

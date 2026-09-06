@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.2&nbsp;%</td>
-            <td class="headerCovTableEntry">21</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryHi">94.4&nbsp;%</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">34</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,18 +94,39 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 return consts.PercentBase</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return gc.CalcModifierValue(skills, abils, hs, key)</span></span>
-<span id="L36"><span class="lineNum">      36</span>              : }</span>
-<span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span>              : // ModifierSources は key の効果倍率の内訳を都度計算して返す。詳細モーダルの表示用。</span>
-<span id="L39"><span class="lineNum">      39</span>              : // Skills が無ければ空を返す</span>
-<span id="L40"><span class="lineNum">      40</span>              : func ModifierSources(world w.World, entity ecs.Entity, key gc.ModifierKey) []gc.ModifierSource {</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :         skills, abils, hs, ok := modifierInputs(world, entity)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         return gc.CalcModifierSources(skills, abils, hs, key)</span></span>
-<span id="L46"><span class="lineNum">      46</span>              : }</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         base := gc.CalcModifierValue(skills, abils, hs, key)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if _, delta, ok := fatigueAccuracyDelta(world, entity, key, int(base)); ok {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return consts.Percent(int(base) + delta)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return base</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : }</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : // fatigueAccuracyDelta は武器命中への疲労の畳み込みを返す。命中キーで疲労を持つときだけ ok=true。</span>
+<span id="L43"><span class="lineNum">      43</span>              : // pre は疲労適用前の値。level は内訳表示用の段階、delta は加法差分。</span>
+<span id="L44"><span class="lineNum">      44</span>              : // ModifierValue と ModifierSources が同じこの導出を読むので、値と内訳は一致する</span>
+<span id="L45"><span class="lineNum">      45</span>              : func fatigueAccuracyDelta(world w.World, entity ecs.Entity, key gc.ModifierKey, pre int) (level gc.FatigueLevel, delta int, ok bool) {</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if !gc.IsWeaponAccuracyKey(key) || !world.Components.Fatigue.Has(entity) {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, 0, false</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         fatigue := world.Components.Fatigue.Get(entity)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         post := fatigue.Penalty().AccuracyMul.ApplyInt(pre)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return fatigue.GetLevel(), post - pre, true</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : }</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : // ModifierSources は key の効果倍率の内訳を都度計算して返す。詳細モーダルの表示用。</span>
+<span id="L55"><span class="lineNum">      55</span>              : // Skills が無ければ空を返す</span>
+<span id="L56"><span class="lineNum">      56</span>              : func ModifierSources(world w.World, entity ecs.Entity, key gc.ModifierKey) []gc.ModifierSource {</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         skills, abils, hs, ok := modifierInputs(world, entity)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 :         sources := gc.CalcModifierSources(skills, abils, hs, key)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         base := gc.CalcModifierValue(skills, abils, hs, key)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         if level, delta, ok := fatigueAccuracyDelta(world, entity, key, int(base)); ok &amp;&amp; delta != 0 {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 sources = append(sources, gc.ModifierSource{Kind: gc.SourceFatigue, Fatigue: level, Value: delta})</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         return sources</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : }</span>
         </pre>
               </td>
             </tr>

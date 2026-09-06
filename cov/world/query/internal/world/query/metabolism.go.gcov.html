@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">16</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryHi">96.2&nbsp;%</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">25</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,38 +79,58 @@
 <span id="L17"><span class="lineNum">      17</span>              :         metabolismHungryPenalty = 30</span>
 <span id="L18"><span class="lineNum">      18</span>              :         // metabolismStarvingPenalty は飢餓のとき代謝倍率から引く%</span>
 <span id="L19"><span class="lineNum">      19</span>              :         metabolismStarvingPenalty = 60</span>
-<span id="L20"><span class="lineNum">      20</span>              : )</span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // Metabolism は HP の自然回復と病気の回復にかかる速度係数を返す。基準は 100。</span>
-<span id="L23"><span class="lineNum">      23</span>              : // VIT が高いほど速く、空腹や飢餓で遅くなる。よく食べ休めば速く、飢えれば遅い。</span>
-<span id="L24"><span class="lineNum">      24</span>              : // 下限は 0 で、負にはならない。</span>
-<span id="L25"><span class="lineNum">      25</span>              : func Metabolism(world w.World, entity ecs.Entity) consts.Percent {</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         pct := consts.PercentBase</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         if world.Components.Abilities.Has(entity) {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 vit := world.Components.Abilities.Get(entity).Vitality.Total</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 pct += consts.Percent(vit * metabolismVitBonus)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if world.Components.Hunger.Has(entity) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 switch world.Components.Hunger.Get(entity).GetLevel() {</span></span>
-<span id="L35"><span class="lineNum">      35</span>              :                 case gc.HungerSatiated:</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         pct += metabolismSatiatedBonus</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 case gc.HungerNormal:</span></span>
-<span id="L38"><span class="lineNum">      38</span>              :                         // 標準。増減なし</span>
-<span id="L39"><span class="lineNum">      39</span>              :                 case gc.HungerHungry:</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                         pct -= metabolismHungryPenalty</span></span>
-<span id="L41"><span class="lineNum">      41</span>              :                 case gc.HungerStarving:</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                         pct -= metabolismStarvingPenalty</span></span>
-<span id="L43"><span class="lineNum">      43</span>              :                 }</span>
-<span id="L44"><span class="lineNum">      44</span>              :         }</span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if pct &lt; 0 {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 pct = 0</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         return pct</span></span>
-<span id="L51"><span class="lineNum">      51</span>              : }</span>
+<span id="L20"><span class="lineNum">      20</span>              :         // metabolismSleepingBonus は睡眠中に代謝倍率へ足す基準%。寝具 Quality を掛ける</span>
+<span id="L21"><span class="lineNum">      21</span>              :         metabolismSleepingBonus = 50</span>
+<span id="L22"><span class="lineNum">      22</span>              : )</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // HungerRecoveryDelta は空腹段階が代謝倍率へ与える加算%を返す。満腹は+、空腹・飢餓は-、普通は0。</span>
+<span id="L25"><span class="lineNum">      25</span>              : // Metabolism と Basic タブの内訳表示が同じ値を見るための単一の算出点。</span>
+<span id="L26"><span class="lineNum">      26</span>              : func HungerRecoveryDelta(level gc.HungerLevel) consts.Percent {</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         switch level {</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         case gc.HungerSatiated:</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return metabolismSatiatedBonus</span></span>
+<span id="L30"><span class="lineNum">      30</span>              :         case gc.HungerNormal:</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :         case gc.HungerHungry:</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 return -metabolismHungryPenalty</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :         case gc.HungerStarving:</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 return -metabolismStarvingPenalty</span></span>
+<span id="L36"><span class="lineNum">      36</span>              :         }</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 :         return 0</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : }</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : // Metabolism は HP の自然回復と病気の回復にかかる速度係数を返す。基準は 100。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // VIT が高いほど速く、空腹や飢餓で遅くなる。よく食べ休めば速く、飢えれば遅い。</span>
+<span id="L42"><span class="lineNum">      42</span>              : // 下限は 0 で、負にはならない。</span>
+<span id="L43"><span class="lineNum">      43</span>              : func Metabolism(world w.World, entity ecs.Entity) consts.Percent {</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         pct := consts.PercentBase</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if world.Components.Abilities.Has(entity) {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 vit := world.Components.Abilities.Get(entity).Vitality.Total</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 pct += consts.Percent(vit * metabolismVitBonus)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if world.Components.Hunger.Has(entity) {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 pct += HungerRecoveryDelta(world.Components.Hunger.Get(entity).GetLevel())</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              :         // 疲労のペナルティ。係数は Fatigue.Penalty の1表から読む</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         if world.Components.Fatigue.Has(entity) {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 pct += world.Components.Fatigue.Get(entity).Penalty().RecoveryAdd</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              :         // 睡眠中は回復が上がる。基準ボーナスに寝具 Quality を掛ける</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         if world.Components.Sleeping.Has(entity) {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 quality := world.Components.Sleeping.Get(entity).Quality</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 pct += consts.Percent(quality.ApplyInt(metabolismSleepingBonus))</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         if pct &lt; 0 {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 pct = 0</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         return pct</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : }</span>
         </pre>
               </td>
             </tr>

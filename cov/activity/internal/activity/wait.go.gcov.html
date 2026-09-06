@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -123,7 +123,7 @@
 <span id="L61"><span class="lineNum">      61</span>              : func (wb *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span>
 <span id="L62"><span class="lineNum">      62</span>              :         // 長い待機は敵が近づいたら中断する。1回だけのターン送りとAIの手番調整は</span>
 <span id="L63"><span class="lineNum">      63</span>              :         // その場で完結する行動なので対象にしない</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         if comp.Progress.Max &gt; 1 &amp;&amp; !isAreaSafe(actor, world) {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         if comp.Progress.Max &gt; 1 &amp;&amp; !query.IsAreaSafe(world, actor) {</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;wait interrupted because enemies are nearby&quot;)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         }</span></span>

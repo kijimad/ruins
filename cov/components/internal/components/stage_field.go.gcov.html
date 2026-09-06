@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,17 +73,21 @@
 <span id="L11"><span class="lineNum">      11</span>              :         // Level は現ステージのフィールド寸法。ステージごとに保持するため、往復してもステージ固有の</span>
 <span id="L12"><span class="lineNum">      12</span>              :         // 寸法が resume で自然に戻る。</span>
 <span id="L13"><span class="lineNum">      13</span>              :         Level Level</span>
-<span id="L14"><span class="lineNum">      14</span>              :         // ExploredTiles は探索済みタイルのマップ。ステージごとに保持する。</span>
-<span id="L15"><span class="lineNum">      15</span>              :         // GridElement(struct)キーのためserde不可、入場時リセット方針なのでロード後は空で再構築する</span>
-<span id="L16"><span class="lineNum">      16</span>              :         ExploredTiles map[GridElement]bool `json:&quot;-&quot;`</span>
-<span id="L17"><span class="lineNum">      17</span>              : }</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // NewStageField は初期化された StageField を返す。ExploredTiles を空 map で確保する。</span>
-<span id="L20"><span class="lineNum">      20</span>              : func NewStageField() *StageField {</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;StageField{</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 ExploredTiles: make(map[GridElement]bool),</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L24"><span class="lineNum">      24</span>              : }</span>
+<span id="L14"><span class="lineNum">      14</span>              :         // BaseTemp はステージの基本気温。摂氏。ステージ生成時に dungeon 定義から確定して写す。</span>
+<span id="L15"><span class="lineNum">      15</span>              :         // 気温計算を query 層に置くため、dungeon 登録表への依存をここで断つ。登録表は別層なので</span>
+<span id="L16"><span class="lineNum">      16</span>              :         // query からは読めず、Level と同じくステージ生成時に定まる設定として保持する。</span>
+<span id="L17"><span class="lineNum">      17</span>              :         BaseTemp int</span>
+<span id="L18"><span class="lineNum">      18</span>              :         // ExploredTiles は探索済みタイルのマップ。ステージごとに保持する。</span>
+<span id="L19"><span class="lineNum">      19</span>              :         // GridElement(struct)キーのためserde不可、入場時リセット方針なのでロード後は空で再構築する</span>
+<span id="L20"><span class="lineNum">      20</span>              :         ExploredTiles map[GridElement]bool `json:&quot;-&quot;`</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // NewStageField は初期化された StageField を返す。ExploredTiles を空 map で確保する。</span>
+<span id="L24"><span class="lineNum">      24</span>              : func NewStageField() *StageField {</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;StageField{</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 ExploredTiles: make(map[GridElement]bool),</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : }</span>
         </pre>
               </td>
             </tr>

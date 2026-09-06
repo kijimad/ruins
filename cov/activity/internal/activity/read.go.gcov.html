@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -140,7 +140,7 @@
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;read validation failed: %w&quot;, err)</span></span>
 <span id="L79"><span class="lineNum">      79</span>              :         }</span>
 <span id="L80"><span class="lineNum">      80</span>              : </span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 :         if !isAreaSafe(actor, world) {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 :         if !query.IsAreaSafe(world, actor) {</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &amp;UserError{Msg: query.T(world, &quot;cannot read because enemies are nearby&quot;)}</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L84"><span class="lineNum">      84</span>              : </span>
@@ -182,7 +182,7 @@
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L121"><span class="lineNum">     121</span>              : </span>
 <span id="L122"><span class="lineNum">     122</span>              :         // 安全性チェック</span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         if !isAreaSafe(actor, world) {</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         if !query.IsAreaSafe(world, actor) {</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;reading interrupted because enemies are nearby&quot;)</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         }</span></span>

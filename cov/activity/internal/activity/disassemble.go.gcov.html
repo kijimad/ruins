@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -133,7 +133,7 @@
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;Do not have a tool to disassemble %s&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(p.Target, world)))}</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         if !isAreaSafe(actor, world) {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         if !query.IsAreaSafe(world, actor) {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;cannot disassemble because enemies are nearby&quot;)}</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         return nil</span></span>
@@ -175,7 +175,7 @@
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;interrupted because the disassembly target disappeared&quot;)</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if !isAreaSafe(actor, world) {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if !query.IsAreaSafe(world, actor) {</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;disassembly interrupted because enemies are nearby&quot;)</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         }</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">99.0&nbsp;%</td>
-            <td class="headerCovTableEntry">97</td>
+            <td class="headerCovTableEntryHi">96.0&nbsp;%</td>
+            <td class="headerCovTableEntry">100</td>
             <td class="headerCovTableEntry">96</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-05 09:57:21</td>
+            <td class="headerValue">2026-09-06 03:03:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -201,148 +201,157 @@
 <span id="L139"><span class="lineNum">     139</span>              :         SourceSkill    ModifierSourceKind = &quot;skill&quot;    // スキルによる補正</span>
 <span id="L140"><span class="lineNum">     140</span>              :         SourceAbility  ModifierSourceKind = &quot;ability&quot;  // 能力値による補正</span>
 <span id="L141"><span class="lineNum">     141</span>              :         SourceCapacity ModifierSourceKind = &quot;capacity&quot; // 身体機能の畳み込み</span>
-<span id="L142"><span class="lineNum">     142</span>              : )</span>
-<span id="L143"><span class="lineNum">     143</span>              : </span>
-<span id="L144"><span class="lineNum">     144</span>              : // ModifierSource は効果倍率の算出元1件を表す。整形済みの文字列でなく事実を持ち、</span>
-<span id="L145"><span class="lineNum">     145</span>              : // 表示側が現在言語へ訳して整形する。Kind に応じて Skill / Ability / Capacity のどれかが有効</span>
-<span id="L146"><span class="lineNum">     146</span>              : type ModifierSource struct {</span>
-<span id="L147"><span class="lineNum">     147</span>              :         Kind     ModifierSourceKind</span>
-<span id="L148"><span class="lineNum">     148</span>              :         Skill    SkillID      // Kind が skill のときのスキル</span>
-<span id="L149"><span class="lineNum">     149</span>              :         Ability  AbilityID    // Kind が ability のときの能力値</span>
-<span id="L150"><span class="lineNum">     150</span>              :         Capacity CapacityKind // Kind が capacity のときの身体機能</span>
-<span id="L151"><span class="lineNum">     151</span>              :         Amount   int          // 要因の量。スキルLv・能力値・身体機能%</span>
-<span id="L152"><span class="lineNum">     152</span>              :         Value    int          // この要因による変化量。例: +10, -15</span>
-<span id="L153"><span class="lineNum">     153</span>              : }</span>
-<span id="L154"><span class="lineNum">     154</span>              : </span>
-<span id="L155"><span class="lineNum">     155</span>              : // weaponAccuracyCapacity は武器スキルの命中に効く身体機能の種別と乗数を返す。</span>
-<span id="L156"><span class="lineNum">     156</span>              : // 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする</span>
-<span id="L157"><span class="lineNum">     157</span>              : func weaponAccuracyCapacity(caps BodyCapacities, id SkillID) (CapacityKind, consts.Percent) {</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         for _, at := range AllAttackTypes {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 skillID, ok := WeaponSkillID(at)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 if !ok || skillID != id {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L162"><span class="lineNum">     162</span>              :                 }</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 if at.Range == AttackRangeRanged {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         return CapacitySight, caps.Sight</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 return CapacityManipulation, caps.Manipulation</span></span>
-<span id="L167"><span class="lineNum">     167</span>              :         }</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC tlaBgUNC">           0 :         return CapacityManipulation, caps.Manipulation</span></span>
-<span id="L169"><span class="lineNum">     169</span>              : }</span>
-<span id="L170"><span class="lineNum">     170</span>              : </span>
-<span id="L171"><span class="lineNum">     171</span>              : // modifierSpec は倍率1つの定義。キー・元スキル・スキルLv1あたりの係数を束ねる</span>
-<span id="L172"><span class="lineNum">     172</span>              : type modifierSpec struct {</span>
-<span id="L173"><span class="lineNum">     173</span>              :         Key   ModifierKey</span>
-<span id="L174"><span class="lineNum">     174</span>              :         Skill SkillID</span>
-<span id="L175"><span class="lineNum">     175</span>              :         Coeff int</span>
-<span id="L176"><span class="lineNum">     176</span>              : }</span>
-<span id="L177"><span class="lineNum">     177</span>              : </span>
-<span id="L178"><span class="lineNum">     178</span>              : // modifierSpecs は全倍率の定義表。単発の倍率を足すときはここへ1行足す</span>
-<span id="L179"><span class="lineNum">     179</span>              : var modifierSpecs = buildModifierSpecs()</span>
-<span id="L180"><span class="lineNum">     180</span>              : </span>
-<span id="L181"><span class="lineNum">     181</span>              : func buildModifierSpecs() []modifierSpec {</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 :         specs := slices.Grow([]modifierSpec{</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 {ModFireResist, SkillFireResist, coeffElementResist},</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 {ModThunderResist, SkillThunderResist, coeffElementResist},</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 {ModChillResist, SkillChillResist, coeffElementResist},</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 {ModPhotonResist, SkillPhotonResist, coeffElementResist},</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 {ModColdProgress, SkillColdResist, coeffColdProgress},</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 {ModHungerProgress, SkillHungerResist, coeffHungerProgress},</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 {ModHealingEffect, SkillHealing, coeffHealingEffect},</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 {ModMaxWeight, SkillWeightBearing, coeffMaxWeight},</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 {ModExploration, SkillExploration, coeffExploration},</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 {ModEnemyVision, SkillStealth, coeffEnemyVision},</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 {ModNightVision, SkillNightVision, coeffNightVision},</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 {ModMoveCost, SkillSprinting, coeffMoveCost},</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 {ModCraftCost, SkillCrafting, coeffCraftCost},</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 {ModSmithQuality, SkillSmithing, coeffSmithQuality},</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 {ModBuyPrice, SkillNegotiation, coeffBuyPrice},</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 {ModSellPrice, SkillNegotiation, coeffSellPrice},</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 {ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor},</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         }, 2*len(WeaponSkillIDs))</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         // 武器の行はスキルIDの直積なので生成する</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         for _, id := range WeaponSkillIDs {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 specs = append(specs,</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                         modifierSpec{WeaponDamageKey(id), id, coeffWeaponDamage},</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                         modifierSpec{WeaponAccuracyKey(id), id, coeffWeaponAccuracy})</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         return specs</span></span>
-<span id="L208"><span class="lineNum">     208</span>              : }</span>
-<span id="L209"><span class="lineNum">     209</span>              : </span>
-<span id="L210"><span class="lineNum">     210</span>              : // specByKey は ModifierKey からスペック行を引く索引</span>
-<span id="L211"><span class="lineNum">     211</span>              : var specByKey = func() map[ModifierKey]modifierSpec {</span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         m := make(map[ModifierKey]modifierSpec, len(modifierSpecs))</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         for _, s := range modifierSpecs {</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 m[s.Key] = s</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :         SourceFatigue  ModifierSourceKind = &quot;fatigue&quot;  // 疲労段階の畳み込み</span>
+<span id="L143"><span class="lineNum">     143</span>              : )</span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span>              : // ModifierSource は効果倍率の算出元1件を表す。整形済みの文字列でなく事実を持ち、</span>
+<span id="L146"><span class="lineNum">     146</span>              : // 表示側が現在言語へ訳して整形する。Kind に応じて Skill / Ability / Capacity のどれかが有効</span>
+<span id="L147"><span class="lineNum">     147</span>              : type ModifierSource struct {</span>
+<span id="L148"><span class="lineNum">     148</span>              :         Kind     ModifierSourceKind</span>
+<span id="L149"><span class="lineNum">     149</span>              :         Skill    SkillID      // Kind が skill のときのスキル</span>
+<span id="L150"><span class="lineNum">     150</span>              :         Ability  AbilityID    // Kind が ability のときの能力値</span>
+<span id="L151"><span class="lineNum">     151</span>              :         Capacity CapacityKind // Kind が capacity のときの身体機能</span>
+<span id="L152"><span class="lineNum">     152</span>              :         Fatigue  FatigueLevel // Kind が fatigue のときの疲労段階</span>
+<span id="L153"><span class="lineNum">     153</span>              :         Amount   int          // 要因の量。スキルLv・能力値・身体機能%</span>
+<span id="L154"><span class="lineNum">     154</span>              :         Value    int          // この要因による変化量。例: +10, -15</span>
+<span id="L155"><span class="lineNum">     155</span>              : }</span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span>              : // IsWeaponAccuracyKey は key が武器命中の効果キーかを返す。疲労など武器命中だけに</span>
+<span id="L158"><span class="lineNum">     158</span>              : // 効く補正を query 層で畳むときの判定に使う</span>
+<span id="L159"><span class="lineNum">     159</span>              : func IsWeaponAccuracyKey(key ModifierKey) bool {</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :         _, ok := accuracySkillByKey[key]</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         return ok</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span>              : // weaponAccuracyCapacity は武器スキルの命中に効く身体機能の種別と乗数を返す。</span>
+<span id="L165"><span class="lineNum">     165</span>              : // 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする</span>
+<span id="L166"><span class="lineNum">     166</span>              : func weaponAccuracyCapacity(caps BodyCapacities, id SkillID) (CapacityKind, consts.Percent) {</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, at := range AllAttackTypes {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 skillID, ok := WeaponSkillID(at)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 if !ok || skillID != id {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L171"><span class="lineNum">     171</span>              :                 }</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 if at.Range == AttackRangeRanged {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                         return CapacitySight, caps.Sight</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 return CapacityManipulation, caps.Manipulation</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :         }</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC tlaBgUNC">           0 :         return CapacityManipulation, caps.Manipulation</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : }</span>
+<span id="L179"><span class="lineNum">     179</span>              : </span>
+<span id="L180"><span class="lineNum">     180</span>              : // modifierSpec は倍率1つの定義。キー・元スキル・スキルLv1あたりの係数を束ねる</span>
+<span id="L181"><span class="lineNum">     181</span>              : type modifierSpec struct {</span>
+<span id="L182"><span class="lineNum">     182</span>              :         Key   ModifierKey</span>
+<span id="L183"><span class="lineNum">     183</span>              :         Skill SkillID</span>
+<span id="L184"><span class="lineNum">     184</span>              :         Coeff int</span>
+<span id="L185"><span class="lineNum">     185</span>              : }</span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span>              : // modifierSpecs は全倍率の定義表。単発の倍率を足すときはここへ1行足す</span>
+<span id="L188"><span class="lineNum">     188</span>              : var modifierSpecs = buildModifierSpecs()</span>
+<span id="L189"><span class="lineNum">     189</span>              : </span>
+<span id="L190"><span class="lineNum">     190</span>              : func buildModifierSpecs() []modifierSpec {</span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC tlaBgGNC">           1 :         specs := slices.Grow([]modifierSpec{</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 {ModFireResist, SkillFireResist, coeffElementResist},</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 {ModThunderResist, SkillThunderResist, coeffElementResist},</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 {ModChillResist, SkillChillResist, coeffElementResist},</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 {ModPhotonResist, SkillPhotonResist, coeffElementResist},</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 {ModColdProgress, SkillColdResist, coeffColdProgress},</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 {ModHungerProgress, SkillHungerResist, coeffHungerProgress},</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 {ModHealingEffect, SkillHealing, coeffHealingEffect},</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 {ModMaxWeight, SkillWeightBearing, coeffMaxWeight},</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 {ModExploration, SkillExploration, coeffExploration},</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 {ModEnemyVision, SkillStealth, coeffEnemyVision},</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 {ModNightVision, SkillNightVision, coeffNightVision},</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 {ModMoveCost, SkillSprinting, coeffMoveCost},</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 {ModCraftCost, SkillCrafting, coeffCraftCost},</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 {ModSmithQuality, SkillSmithing, coeffSmithQuality},</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 {ModBuyPrice, SkillNegotiation, coeffBuyPrice},</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 {ModSellPrice, SkillNegotiation, coeffSellPrice},</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 {ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor},</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         }, 2*len(WeaponSkillIDs))</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         // 武器の行はスキルIDの直積なので生成する</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         for _, id := range WeaponSkillIDs {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 specs = append(specs,</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                         modifierSpec{WeaponDamageKey(id), id, coeffWeaponDamage},</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                         modifierSpec{WeaponAccuracyKey(id), id, coeffWeaponAccuracy})</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L217"><span class="lineNum">     217</span>              : }()</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         return specs</span></span>
+<span id="L217"><span class="lineNum">     217</span>              : }</span>
 <span id="L218"><span class="lineNum">     218</span>              : </span>
-<span id="L219"><span class="lineNum">     219</span>              : // accuracySkillByKey は命中キーから武器スキルIDを引く索引。命中だけ身体機能を畳むため</span>
-<span id="L220"><span class="lineNum">     220</span>              : var accuracySkillByKey = func() map[ModifierKey]SkillID {</span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         m := make(map[ModifierKey]SkillID, len(weaponAccuracyKeys))</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         for id, key := range weaponAccuracyKeys {</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 m[key] = id</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : // specByKey は ModifierKey からスペック行を引く索引</span>
+<span id="L220"><span class="lineNum">     220</span>              : var specByKey = func() map[ModifierKey]modifierSpec {</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         m := make(map[ModifierKey]modifierSpec, len(modifierSpecs))</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         for _, s := range modifierSpecs {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 m[s.Key] = s</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         return m</span></span>
 <span id="L226"><span class="lineNum">     226</span>              : }()</span>
 <span id="L227"><span class="lineNum">     227</span>              : </span>
-<span id="L228"><span class="lineNum">     228</span>              : // forEachModifierSource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。</span>
-<span id="L229"><span class="lineNum">     229</span>              : // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない</span>
-<span id="L230"><span class="lineNum">     230</span>              : func forEachModifierSource(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey, fn func(ModifierSource)) {</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         spec, ok := specByKey[key]</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         v := skills.Get(spec.Skill).Value</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         bonus := v * spec.Coeff</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         fn(ModifierSource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus})</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L239"><span class="lineNum">     239</span>              :         // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         if abils != nil {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 ablID := SkillAbilityID(spec.Skill)</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 ablVal := abils.ValueOf(ablID)</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 ablCoeff := 1</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 if spec.Coeff &lt; 0 {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                         ablCoeff = -1</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 ablBonus := ablVal * ablCoeff</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 fn(ModifierSource{Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus})</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 bonus += ablBonus</span></span>
-<span id="L250"><span class="lineNum">     250</span>              :         }</span>
-<span id="L251"><span class="lineNum">     251</span>              : </span>
-<span id="L252"><span class="lineNum">     252</span>              :         // 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる</span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 caps := HealthyCapacities()</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 if hs != nil {</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                         caps = hs.Capacities()</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 capKind, capVal := weaponAccuracyCapacity(caps, id)</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 acc := int(consts.PercentBase) + bonus</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 withCap := capVal.ApplyInt(acc)</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 fn(ModifierSource{Kind: SourceCapacity, Capacity: capKind, Amount: int(capVal), Value: withCap - acc})</span></span>
-<span id="L262"><span class="lineNum">     262</span>              :         }</span>
-<span id="L263"><span class="lineNum">     263</span>              : }</span>
-<span id="L264"><span class="lineNum">     264</span>              : </span>
-<span id="L265"><span class="lineNum">     265</span>              : // CalcModifierValue は key の効果倍率を導出する。内訳の加法差分を積むだけで</span>
-<span id="L266"><span class="lineNum">     266</span>              : // アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する</span>
-<span id="L267"><span class="lineNum">     267</span>              : func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) consts.Percent {</span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         total := int(consts.PercentBase)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 total += s.Value</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         return consts.Percent(total)</span></span>
-<span id="L273"><span class="lineNum">     273</span>              : }</span>
-<span id="L274"><span class="lineNum">     274</span>              : </span>
-<span id="L275"><span class="lineNum">     275</span>              : // CalcModifierSources は key の内訳を返す。詳細モーダルの表示側だけが読む。</span>
-<span id="L276"><span class="lineNum">     276</span>              : // 未定義キーは空を返す</span>
-<span id="L277"><span class="lineNum">     277</span>              : func CalcModifierSources(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) []ModifierSource {</span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         var srcs []ModifierSource</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 srcs = append(srcs, s)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         return srcs</span></span>
-<span id="L283"><span class="lineNum">     283</span>              : }</span>
+<span id="L228"><span class="lineNum">     228</span>              : // accuracySkillByKey は命中キーから武器スキルIDを引く索引。命中だけ身体機能を畳むため</span>
+<span id="L229"><span class="lineNum">     229</span>              : var accuracySkillByKey = func() map[ModifierKey]SkillID {</span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         m := make(map[ModifierKey]SkillID, len(weaponAccuracyKeys))</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         for id, key := range weaponAccuracyKeys {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 m[key] = id</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : }()</span>
+<span id="L236"><span class="lineNum">     236</span>              : </span>
+<span id="L237"><span class="lineNum">     237</span>              : // forEachModifierSource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。</span>
+<span id="L238"><span class="lineNum">     238</span>              : // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない</span>
+<span id="L239"><span class="lineNum">     239</span>              : func forEachModifierSource(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey, fn func(ModifierSource)) {</span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         spec, ok := specByKey[key]</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         v := skills.Get(spec.Skill).Value</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         bonus := v * spec.Coeff</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         fn(ModifierSource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus})</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L248"><span class="lineNum">     248</span>              :         // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         if abils != nil {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 ablID := SkillAbilityID(spec.Skill)</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 ablVal := abils.ValueOf(ablID)</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 ablCoeff := 1</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 if spec.Coeff &lt; 0 {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                         ablCoeff = -1</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 ablBonus := ablVal * ablCoeff</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 fn(ModifierSource{Kind: SourceAbility, Ability: ablID, Amount: ablVal, Value: ablBonus})</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 bonus += ablBonus</span></span>
+<span id="L259"><span class="lineNum">     259</span>              :         }</span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span>              :         // 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 caps := HealthyCapacities()</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 if hs != nil {</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                         caps = hs.Capacities()</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 capKind, capVal := weaponAccuracyCapacity(caps, id)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 acc := int(consts.PercentBase) + bonus</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                 withCap := capVal.ApplyInt(acc)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 fn(ModifierSource{Kind: SourceCapacity, Capacity: capKind, Amount: int(capVal), Value: withCap - acc})</span></span>
+<span id="L271"><span class="lineNum">     271</span>              :         }</span>
+<span id="L272"><span class="lineNum">     272</span>              : }</span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span>              : // CalcModifierValue は key の効果倍率を導出する。内訳の加法差分を積むだけで</span>
+<span id="L275"><span class="lineNum">     275</span>              : // アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する</span>
+<span id="L276"><span class="lineNum">     276</span>              : func CalcModifierValue(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) consts.Percent {</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         total := int(consts.PercentBase)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 total += s.Value</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         return consts.Percent(total)</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : }</span>
+<span id="L283"><span class="lineNum">     283</span>              : </span>
+<span id="L284"><span class="lineNum">     284</span>              : // CalcModifierSources は key の内訳を返す。詳細モーダルの表示側だけが読む。</span>
+<span id="L285"><span class="lineNum">     285</span>              : // 未定義キーは空を返す</span>
+<span id="L286"><span class="lineNum">     286</span>              : func CalcModifierSources(skills *Skills, abils *Abilities, hs *HealthStatus, key ModifierKey) []ModifierSource {</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         var srcs []ModifierSource</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         forEachModifierSource(skills, abils, hs, key, func(s ModifierSource) {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 srcs = append(srcs, s)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         return srcs</span></span>
+<span id="L292"><span class="lineNum">     292</span>              : }</span>
         </pre>
               </td>
             </tr>
