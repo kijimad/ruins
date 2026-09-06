@@ -2,92 +2,41 @@
 
 package save
 
-import (
-	"encoding/base64"
-	"fmt"
-	"strings"
-	"syscall/js"
-)
+import "fmt"
 
-// initImpl はWASM環境での初期化処理
+// WASM は体験版でセーブ・ロードを持たない。ゲーム本体はこのビルドで save パッケージを参照しないが、
+// go build ./... はパッケージ単体をビルドするので、プラットフォーム別メソッドの実体をここに置く。
+// いずれも永続化せず、呼ばれたらエラーか空を返す。localStorage への保存機構は載せない。
+
+// errNoPersistence は WASM 体験版で永続化が無いことを示す
+var errNoPersistence = fmt.Errorf("save is not available in the WASM demo build")
+
+// initImpl は WASM では何もしない
 func (sm *SerializationManager) initImpl() error {
 	return nil
 }
 
-// saveDataImpl はWASM環境でローカルストレージにデータを保存する。
-// localStorage は文字列しか持てないので、gzip バイト列を base64 で包んで書き込む。
-func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {
-	localStorage := js.Global().Get("localStorage")
-	if localStorage.IsUndefined() {
-		return fmt.Errorf("localStorage is not available")
-	}
-
-	key := fmt.Sprintf("ruins-savedata-%s", slotName)
-	localStorage.Call("setItem", key, base64.StdEncoding.EncodeToString(data))
-
-	return nil
+// saveDataImpl は WASM では保存しない
+func (sm *SerializationManager) saveDataImpl(_ string, _ []byte) error {
+	return errNoPersistence
 }
 
-// loadDataImpl はWASM環境でローカルストレージからデータを読み込む
-func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) {
-	localStorage := js.Global().Get("localStorage")
-	if localStorage.IsUndefined() {
-		return nil, fmt.Errorf("localStorage is not available")
-	}
-
-	key := fmt.Sprintf("ruins-savedata-%s", slotName)
-	item := localStorage.Call("getItem", key)
-	if item.IsNull() {
-		return nil, fmt.Errorf("save data not found for slot: %s", slotName)
-	}
-
-	// base64 を解いて gzip バイト列へ戻す。圧縮解除は共通層が行う
-	raw, err := base64.StdEncoding.DecodeString(item.String())
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode save data: %w", err)
-	}
-	return raw, nil
+// loadDataImpl は WASM では読み込まない
+func (sm *SerializationManager) loadDataImpl(_ string) ([]byte, error) {
+	return nil, errNoPersistence
 }
 
-// saveFileExistsImpl はWASM環境でセーブファイルが存在するかチェックする
-func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
-	localStorage := js.Global().Get("localStorage")
-	if localStorage.IsUndefined() {
-		return false
-	}
-
-	key := fmt.Sprintf("ruins-savedata-%s", slotName)
-	item := localStorage.Call("getItem", key)
-	return !item.IsNull()
+// saveFileExistsImpl は WASM では常にセーブ無しを返す
+func (sm *SerializationManager) saveFileExistsImpl(_ string) bool {
+	return false
 }
 
-// listSavesImpl はWASM環境でセーブデータ名の一覧を返す
+// listSavesImpl は WASM では空一覧を返す
 func (sm *SerializationManager) listSavesImpl() ([]string, error) {
-	localStorage := js.Global().Get("localStorage")
-	if localStorage.IsUndefined() {
-		return nil, fmt.Errorf("localStorage is not available")
-	}
-
-	const prefix = "ruins-savedata-"
-	length := localStorage.Get("length").Int()
-	var names []string
-	for i := 0; i < length; i++ {
-		key := localStorage.Call("key", i).String()
-		if strings.HasPrefix(key, prefix) {
-			names = append(names, strings.TrimPrefix(key, prefix))
-		}
-	}
-	return names, nil
+	return nil, nil
 }
 
-// deleteSaveImpl はWASM環境でセーブデータを削除する
-func (sm *SerializationManager) deleteSaveImpl(slotName string) error {
-	localStorage := js.Global().Get("localStorage")
-	if localStorage.IsUndefined() {
-		return fmt.Errorf("localStorage is not available")
-	}
-
-	key := fmt.Sprintf("ruins-savedata-%s", slotName)
-	localStorage.Call("removeItem", key)
-	return nil
+// deleteSaveImpl は WASM では何もしない
+func (sm *SerializationManager) deleteSaveImpl(_ string) error {
+	return errNoPersistence
 }
