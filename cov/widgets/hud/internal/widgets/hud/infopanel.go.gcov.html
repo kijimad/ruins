@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">14</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">14</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-06 03:03:44</td>
+            <td class="headerValue">2026-09-06 03:09:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,29 +91,29 @@
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。</span>
 <span id="L31"><span class="lineNum">      31</span>              : func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :         x := screenWidth - infoPanelWidth - infoPanelMargin</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         rect := image.Rect(x, infoPanelMargin, x+infoPanelWidth, infoPanelMargin+height)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         chrome.Panel(cv, rect)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         return &amp;InfoPanel{</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 cv:   cv,</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 face: face,</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 rect: rect,</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 y:    rect.Min.Y + infoPanelPad,</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 :         x := screenWidth - infoPanelWidth - infoPanelMargin</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         rect := image.Rect(x, infoPanelMargin, x+infoPanelWidth, infoPanelMargin+height)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         chrome.Panel(cv, rect)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return &amp;InfoPanel{</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 cv:   cv,</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 face: face,</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 rect: rect,</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 y:    rect.Min.Y + infoPanelPad,</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : }</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              : // Line は1行書き、書き込み位置を1行ぶん送る。</span>
 <span id="L44"><span class="lineNum">      44</span>              : func (p *InfoPanel) Line(s string) {</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         p.cv.DrawText(image.Pt(p.rect.Min.X+infoPanelPad, p.y), s, p.face, theme.TextPrimary)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         p.y += LineH</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         p.cv.DrawText(image.Pt(p.rect.Min.X+infoPanelPad, p.y), s, p.face, theme.TextPrimary)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         p.y += LineH</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // Gap は書き込み位置を px ぶん送る。段落の切れ目に使う。</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : func (p *InfoPanel) Gap(px int) { p.y += px }</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func (p *InfoPanel) Gap(px int) { p.y += px }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // SeekBottom は書き込み位置をパネル下端から fromBottom だけ上へ移す。</span>
 <span id="L53"><span class="lineNum">      53</span>              : // 操作説明のように、内容の量によらず下端に置きたい行に使う。</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 : func (p *InfoPanel) SeekBottom(fromBottom int) { p.y = p.rect.Max.Y - fromBottom }</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func (p *InfoPanel) SeekBottom(fromBottom int) { p.y = p.rect.Max.Y - fromBottom }</span></span>
         </pre>
               </td>
             </tr>

@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.5%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -607,15 +607,15 @@
 				
 				<option value="file275">github.com/kijimaD/ruins/internal/widgets/entityspec/uipanel.go (100.0%)</option>
 				
-				<option value="file276">github.com/kijimaD/ruins/internal/widgets/hud/chrome.go (0.0%)</option>
+				<option value="file276">github.com/kijimaD/ruins/internal/widgets/hud/chrome.go (100.0%)</option>
 				
 				<option value="file277">github.com/kijimaD/ruins/internal/widgets/hud/currency.go (96.6%)</option>
 				
 				<option value="file278">github.com/kijimaD/ruins/internal/widgets/hud/debug_overlay.go (0.0%)</option>
 				
-				<option value="file279">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (77.2%)</option>
+				<option value="file279">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (96.9%)</option>
 				
-				<option value="file280">github.com/kijimaD/ruins/internal/widgets/hud/infopanel.go (0.0%)</option>
+				<option value="file280">github.com/kijimaD/ruins/internal/widgets/hud/infopanel.go (100.0%)</option>
 				
 				<option value="file281">github.com/kijimaD/ruins/internal/widgets/hud/message_area.go (1.0%)</option>
 				
@@ -705,7 +705,7 @@
 				
 				<option value="file324">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file325">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
+				<option value="file325">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
 				
 				<option value="file326">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -1644,7 +1644,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1731,7 +1731,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1795,8 +1795,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -43750,15 +43750,15 @@ type Chrome struct {
 
 // NewChrome はパネルのテクスチャを与えて意匠を作る。
 func NewChrome(res resources.UIResources) Chrome {
-        <span class="cov0" title="0">return Chrome{panel: res.PanelBG}
+        <span class="cov8" title="1">return Chrome{panel: res.PanelBG}
 </span>}
 
 // Panel は矩形へパネルの枠と背景を敷く。
 func (c Chrome) Panel(cv uicore.Canvas, r image.Rectangle) {
-        <span class="cov0" title="0">if c.panel == nil </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if c.panel == nil </span>{
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">cv.DrawNineSlice(r, c.panel.Image, c.panel.BX, c.panel.BY)</span>
+        <span class="cov8" title="1">cv.DrawNineSlice(r, c.panel.Image, c.panel.BX, c.panel.BY)</span>
 }
 </pre>
 		
@@ -44062,18 +44062,18 @@ func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureAr
                 <span class="cov8" title="1">return
 </span>        }
 
-        <span class="cov0" title="0">var glyph string
+        <span class="cov8" title="1">var glyph string
         switch arrow.Direction </span>{
         case TempDirectionUp:
-                <span class="cov0" title="0">glyph = consts.IconArrowUp</span>
+                <span class="cov8" title="1">glyph = consts.IconArrowUp</span>
         case TempDirectionDown:
-                <span class="cov0" title="0">glyph = consts.IconArrowDown</span>
+                <span class="cov8" title="1">glyph = consts.IconArrowDown</span>
         case TempDirectionSteady:
-                <span class="cov0" title="0">glyph = consts.IconArrowRight</span>
+                <span class="cov8" title="1">glyph = consts.IconArrowRight</span>
         }
 
         // 体温ゲージの縦中心にそろえる
-        <span class="cov0" title="0">_, gh := uicore.MeasureText(glyph, info.bodyFace)
+        <span class="cov8" title="1">_, gh := uicore.MeasureText(glyph, info.bodyFace)
         y := int(gaugeBaseY+gaugeHeight/2) - gh/2
         drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)</span>
 }
@@ -44156,18 +44156,18 @@ func (info *GameInfo) drawAmbientTemperature(cv uicore.Canvas, data GameInfoData
                 <span class="cov8" title="1">return
 </span>        }
 
-        <span class="cov0" title="0">labelText := data.AmbientShelterLabel + " "
+        <span class="cov8" title="1">labelText := data.AmbientShelterLabel + " "
         tempText := fmt.Sprintf("%d%s", data.AmbientTemp, consts.IconDegree)
         labelWidth, _ := uicore.MeasureText(labelText, info.bodyFace)
         tempWidth, textHeight := uicore.MeasureText(tempText, info.bodyFace)
 </span>
         // 通貨・所持重量と同じ右端に揃え、所持重量からさらに1行分上げる
-        <span class="cov0" title="0">screenWidth := float64(data.ScreenDimensions.Width)
+        <span class="cov8" title="1">screenWidth := float64(data.ScreenDimensions.Width)
         screenHeight := float64(data.ScreenDimensions.Height)
         x := screenWidth - float64(labelWidth+tempWidth) - theme.Space4F
         y := screenHeight - float64(data.MessageAreaHeight) - theme.Space4F - float64(textHeight*3) - theme.Space2F*2
 </span>
-        <span class="cov0" title="0">drawOutlinedText(cv, labelText, info.bodyFace, image.Pt(int(x), int(y)), theme.TextPrimary)
+        <span class="cov8" title="1">drawOutlinedText(cv, labelText, info.bodyFace, image.Pt(int(x), int(y)), theme.TextPrimary)
         drawOutlinedText(cv, tempText, info.bodyFace, image.Pt(int(x)+labelWidth, int(y)), data.AmbientTempColor)</span>
 }
 
@@ -44242,7 +44242,7 @@ type InfoPanel struct {
 
 // NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。
 func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {
-        <span class="cov0" title="0">x := screenWidth - infoPanelWidth - infoPanelMargin
+        <span class="cov8" title="1">x := screenWidth - infoPanelWidth - infoPanelMargin
         rect := image.Rect(x, infoPanelMargin, x+infoPanelWidth, infoPanelMargin+height)
         chrome.Panel(cv, rect)
         return &amp;InfoPanel{
@@ -44255,16 +44255,16 @@ func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, 
 
 // Line は1行書き、書き込み位置を1行ぶん送る。
 func (p *InfoPanel) Line(s string) {
-        <span class="cov0" title="0">p.cv.DrawText(image.Pt(p.rect.Min.X+infoPanelPad, p.y), s, p.face, theme.TextPrimary)
+        <span class="cov8" title="1">p.cv.DrawText(image.Pt(p.rect.Min.X+infoPanelPad, p.y), s, p.face, theme.TextPrimary)
         p.y += LineH
 </span>}
 
 // Gap は書き込み位置を px ぶん送る。段落の切れ目に使う。
-func (p *InfoPanel) Gap(px int) { <span class="cov0" title="0">p.y += px }</span>
+func (p *InfoPanel) Gap(px int) { <span class="cov8" title="1">p.y += px }</span>
 
 // SeekBottom は書き込み位置をパネル下端から fromBottom だけ上へ移す。
 // 操作説明のように、内容の量によらず下端に置きたい行に使う。
-func (p *InfoPanel) SeekBottom(fromBottom int) { <span class="cov0" title="0">p.y = p.rect.Max.Y - fromBottom }</span>
+func (p *InfoPanel) SeekBottom(fromBottom int) { <span class="cov8" title="1">p.y = p.rect.Max.Y - fromBottom }</span>
 </pre>
 		
 		<pre class="file" id="file281" style="display: none">package hud
@@ -48877,7 +48877,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
