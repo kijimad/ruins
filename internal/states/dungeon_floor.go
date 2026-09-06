@@ -124,32 +124,30 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 const debugStageFireBurnTurns = 10000
 
 // spawnDebugStageFire はテンプレートが置いた hearth の上へ長く燃える火を置く。
-// 石組の中で火を焚く見た目になり、本番の着火と同じく fire prop へ Burning を付ける
+// 石組の中で火を焚く見た目になり、本番の着火と同じく fire prop へ Burning を付ける。
+// hearth が無ければ何もしない
 func spawnDebugStageFire(world w.World) error {
-	hearth := findFirstByRawID(world, "hearth")
-	if hearth == gc.InvalidEntity {
+	var coord consts.Coord[consts.Tile]
+	found := false
+	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID == "hearth" {
+			coord = world.Components.GridElement.Get(e).Coord
+			found = true
+			q.Close()
+			break
+		}
+	}
+	if !found {
 		return nil
 	}
-	coord := world.Components.GridElement.Get(hearth).Coord
 	fire, err := lifecycle.SpawnProp(world, "fire", coord.X, coord.Y)
 	if err != nil {
 		return fmt.Errorf("failed to spawn debug stage fire: %w", err)
 	}
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugStageFireBurnTurns})
 	return nil
-}
-
-// findFirstByRawID は RawID が id の実体を1つ返す。無ければ InvalidEntity を返す
-func findFirstByRawID(world w.World, id string) ecs.Entity {
-	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.RawID.Get(e).ID == id {
-			q.Close()
-			return e
-		}
-	}
-	return gc.InvalidEntity
 }
 
 // descend は1つ下の階へ swapTo で移動する。現階を退避し、未訪問なら生成、訪問済みなら再稼働する。
