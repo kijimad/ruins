@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.5%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -705,7 +705,7 @@
 				
 				<option value="file324">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file325">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
+				<option value="file325">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
 				
 				<option value="file326">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -1795,8 +1795,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -48877,7 +48877,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
