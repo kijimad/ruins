@@ -6,7 +6,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -374,33 +373,44 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 // handleSleep は睡眠の確認プロンプトを開く。入眠可否と各条件は activity.EvaluateSleepConditions が
 // 1箇所で評価し、プロンプトはそれを見せて確認を取る。実際の入眠は選択肢の Sleep で行う。
 func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], error) {
-	if _, err := query.GetPlayerEntity(world); err != nil {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
 		return es.Transition[w.World]{Type: es.TransNone}, err
+	}
+	// 入眠できないときはプロンプトを開かず、妨げている最初の理由だけをログへ出す。
+	// 可能なときだけ確認プロンプトを開く
+	if reason, blocked := sleepBlockReason(activity.EvaluateSleepConditions(world, player)); blocked {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, reason)).Log()
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 	return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 		func() (es.State[w.World], error) { return NewChoiceMenu(sleepConfirmChoices), nil },
 	}}, nil
 }
 
+// sleepBlockReason は入眠を妨げる最初の条件の理由 msgid を返す。妨げが無ければ blocked=false。
+// 検査順は SleepBehavior.Validate と揃え、表示とゲートで同じ優先順位にする。
+// 返す文字列は Validate が query.T へインラインで渡す msgid と同じもの
+func sleepBlockReason(sc activity.SleepConditions) (msgid string, blocked bool) {
+	switch {
+	case sc.TooTired():
+		return "Not tired enough to sleep.", true
+	case !sc.TemperatureOK:
+		return "Too cold or hot to sleep.", true
+	case !sc.AreaSafe:
+		return "Cannot sleep because enemies are nearby.", true
+	}
+	return "", false
+}
+
 // sleepConfirmChoices は睡眠プロンプトの本文と選択肢を組む。各条件を Header 行でチェック/バツの
 // アイコン付きに見せ、入眠可能なら Sleep を選べる。ブロック条件があるときは Sleep を非選択のバツ表示にして理由を残す。
+// sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が
+// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。
 func sleepConfirmChoices(world w.World) (string, []Choice) {
 	title := query.T(world, "Sleep here?")
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return title, []Choice{sleepCancelChoice(world)}
-	}
-	sc := activity.EvaluateSleepConditions(world, player)
-
-	choices := []Choice{
-		sleepConditionRow(query.T(world, "Fatigue"), fatigueDetail(world, sc), !sc.TooTired()),
-		sleepConditionRow(query.T(world, "Temperature"), temperatureDetail(world, sc), sc.TemperatureOK),
-		sleepConditionRow(query.T(world, "Bedding"), beddingDetail(world, sc), true),
-		sleepConditionRow(query.T(world, "Surroundings"), surroundingsDetail(world, sc), sc.AreaSafe),
-	}
-
-	if sc.CanSleep() {
-		choices = append(choices, Choice{
+	return title, []Choice{
+		{
 			Label: query.T(world, "Sleep"),
 			Run: func(world w.World) (es.Transition[w.World], error) {
 				p, perr := query.GetPlayerEntity(world)
@@ -412,23 +422,9 @@ func sleepConfirmChoices(world w.World) (string, []Choice) {
 				}
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			},
-		})
-	} else {
-		// 入眠不可のときは Sleep を非選択にし、バツを付けて選べないことを示す
-		choices = append(choices, Choice{Label: consts.IconClose + " " + query.T(world, "Sleep"), Header: true})
+		},
+		sleepCancelChoice(world),
 	}
-	choices = append(choices, sleepCancelChoice(world))
-	return title, choices
-}
-
-// sleepConditionRow は睡眠条件1行を非選択の Header 行として組む。可否を左端のアイコンで示す。
-// クラフトメニューと同じチェック/バツのアイコンにそろえて UI 全体で意味を一貫させる
-func sleepConditionRow(label, detail string, ok bool) Choice {
-	mark := consts.IconClose
-	if ok {
-		mark = consts.IconCheck
-	}
-	return Choice{Label: mark + " " + label + ": " + detail, Header: true}
 }
 
 // sleepCancelChoice は睡眠プロンプトを閉じる選択肢を返す
@@ -437,45 +433,4 @@ func sleepCancelChoice(world w.World) Choice {
 		Label: query.T(world, "Cancel"),
 		Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },
 	}
-}
-
-// fatigueDetail は疲労段階の表示文を返す
-func fatigueDetail(world w.World, sc activity.SleepConditions) string {
-	if !sc.HasFatigue {
-		return query.T(world, "Rested")
-	}
-	return query.T(world, string(sc.Fatigue))
-}
-
-// temperatureDetail は気温の表示文を返す。入眠可能帯を外れると寒すぎ暑すぎを添える
-func temperatureDetail(world w.World, sc activity.SleepConditions) string {
-	if sc.Ambient == nil {
-		return ""
-	}
-	ambient := *sc.Ambient
-	temp := fmt.Sprintf("%d℃", ambient)
-	switch {
-	case ambient < sc.SleepableLower:
-		return query.T(world, "Too cold") + " " + temp
-	case ambient > sc.SleepableUpper:
-		return query.T(world, "Too hot") + " " + temp
-	default:
-		return temp
-	}
-}
-
-// beddingDetail は寝具の有無を返す。地べたより質が高ければ寝具ありとみなす
-func beddingDetail(world w.World, sc activity.SleepConditions) string {
-	if sc.BeddingQuality > consts.PercentBase {
-		return query.T(world, "Bedding")
-	}
-	return query.T(world, "On the ground")
-}
-
-// surroundingsDetail は周囲の安全を返す
-func surroundingsDetail(world w.World, sc activity.SleepConditions) string {
-	if sc.AreaSafe {
-		return query.T(world, "Safe")
-	}
-	return query.T(world, "Enemies nearby")
 }

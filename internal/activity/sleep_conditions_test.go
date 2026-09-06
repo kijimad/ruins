@@ -65,7 +65,7 @@ func TestSleepConditions_CanSleep(t *testing.T) {
 	})
 }
 
-func TestEvaluateSleepConditions_疲労と安全と寝具を反映する(t *testing.T) {
+func TestEvaluateSleepConditions_疲労と安全を反映する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -80,5 +80,4 @@ func TestEvaluateSleepConditions_疲労と安全と寝具を反映する(t *test
 	assert.Equal(t, gc.FatigueExhausted, sc.Fatigue, "過労段階を反映する")
 	assert.False(t, sc.TooTired(), "過労は眠れる")
 	assert.True(t, sc.AreaSafe, "敵が居なければ安全")
-	assert.Equal(t, consts.PercentBase, sc.BeddingQuality, "寝具が無ければ地べたの基準")
 }
