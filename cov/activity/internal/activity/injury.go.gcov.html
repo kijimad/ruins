@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-06 16:33:34</td>
+            <td class="headerValue">2026-09-06 16:43:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -93,7 +93,7 @@
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // applyInjury は命中時に確率で命中部位へ独立した怪我を1つ付ける。</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 怪我の種類は武器種から導き、命中部位は部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。</span>
-<span id="L34"><span class="lineNum">      34</span>              : // 同じ部位に同種の怪我がソフト上限に達していれば付けない。独立に積むので capacity と失血は全傷が合算される</span>
+<span id="L34"><span class="lineNum">      34</span>              : // 同じ部位に同種の怪我がソフト上限に達していれば付けない。独立に積むので身体機能と失血は全傷が合算される</span>
 <span id="L35"><span class="lineNum">      35</span>              : func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(target) {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return</span></span>

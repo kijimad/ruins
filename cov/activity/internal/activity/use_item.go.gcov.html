@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-06 16:33:34</td>
+            <td class="headerValue">2026-09-06 16:43:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -201,7 +201,7 @@
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         amount := healing.Calc(hp.Max)</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L141"><span class="lineNum">     141</span>              :         // 回復効果倍率を適用する</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         amount = max(query.ModifierValue(world, actor, gc.ModHealingEffect).ApplyInt(amount), 1)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         amount = max(query.ProficiencyValue(world, actor, gc.ProfHealingEffect).ApplyInt(amount), 1)</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         actualHealing := gameaction.ApplyHealing(world, actor, amount)</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 : </span></span>

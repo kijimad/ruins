@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - world/query/internal/world/query/body_funcs.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">world/query/internal/world/query</a> - body_funcs.go<span style="font-size: 80%;"> (source / <a href="body_funcs.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-06 16:43:24</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package query</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // EffectiveBodyFuncs は消費側が読む身体機能を返す。保存された不調と、疲労・空腹から組み立てた不調を</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 合わせて BodyFuncs へ畳む</span>
+<span id="L11"><span class="lineNum">      11</span>              : func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {</span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         needConds := DerivedConditions(world, entity)</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         if world.Components.HealthStatus.Has(entity) {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 return world.Components.HealthStatus.Get(entity).BodyFuncs(needConds...)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L16"><span class="lineNum">      16</span>              :         // HealthStatus 非所持は怪我を持たない</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return (&amp;gc.HealthStatus{}).BodyFuncs(needConds...)</span></span>
+<span id="L18"><span class="lineNum">      18</span>              : }</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // DerivedConditions は疲労・空腹の量から過労・栄養失調の不調を読み取り時に組み立てる。</span>
+<span id="L21"><span class="lineNum">      21</span>              : // 保存された疲労・空腹の不調は無く、量を変えた時点で次の読みに自動反映される。怪我と同じ不調として同じ経路を通る</span>
+<span id="L22"><span class="lineNum">      22</span>              : func DerivedConditions(world w.World, entity ecs.Entity) []gc.HealthCondition {</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         var conds []gc.HealthCondition</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if world.Components.Fatigue.Has(entity) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 if sev, ok := world.Components.Fatigue.Get(entity).FatigueSeverity(); ok {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                         conds = append(conds, gc.HealthCondition{Type: gc.ConditionExhaustion, Severity: sev})</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         }</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         if world.Components.Hunger.Has(entity) {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 if sev, ok := gc.HungerSeverity(world.Components.Hunger.Get(entity).GetLevel()); ok {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         conds = append(conds, gc.HealthCondition{Type: gc.ConditionMalnutrition, Severity: sev})</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              :         }</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return conds</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

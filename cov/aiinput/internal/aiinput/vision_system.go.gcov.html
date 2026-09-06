@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-06 16:33:34</td>
+            <td class="headerValue">2026-09-06 16:43:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -95,7 +95,7 @@
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         viewDist := float64(viewDistance)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L35"><span class="lineNum">      35</span>              :         // 敵ごと毎ターン呼ばれる最頻経路なので、内訳を作らない単キー導出で読む</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         viewDist = query.ModifierValue(world, targetEntity, gc.ModEnemyVision).ApplyFloat(viewDist)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         viewDist = query.ProficiencyValue(world, targetEntity, gc.ProfEnemyVision).ApplyFloat(viewDist)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return float64(distSq) &lt;= viewDist*viewDist</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : }</span></span>

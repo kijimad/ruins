@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-06 16:33:34</td>
+            <td class="headerValue">2026-09-06 16:43:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -427,7 +427,7 @@
 <span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: item.Label}</span></span>
 <span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L367"><span class="lineNum">     367</span>              : </span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC tlaBgGNC">           1 :         pain, capacity, drop := gc.ConditionCapacityImpact(cond, item.BodyPart)</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC tlaBgGNC">           1 :         pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)</span></span>
 <span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         rows := make([]entityspec.SpecRow, 0, 4)</span></span>
 <span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         rows = append(rows,</span></span>
 <span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 entityspec.SpecRow{Label: query.T(world, &quot;Progress&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, int(cond.Timer))},</span></span>
@@ -437,7 +437,7 @@
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Pain&quot;), Value: fmt.Sprintf(&quot;+%d&quot;, pain)})</span></span>
 <span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :         if drop &gt; 0 {</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf(&quot;-%d&quot;, drop)})</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf(&quot;-%d&quot;, drop)})</span></span>
 <span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L380"><span class="lineNum">     380</span>              :         // 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする</span>
 <span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         if bd := gc.ConditionBloodDrop(cond); bd &gt; 0 {</span></span>

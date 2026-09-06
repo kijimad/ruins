@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-06 16:33:34</td>
+            <td class="headerValue">2026-09-06 16:43:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,81 +62,70 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L4"><span class="lineNum">       4</span>              : </span>
-<span id="L5"><span class="lineNum">       5</span>              : const (</span>
-<span id="L6"><span class="lineNum">       6</span>              :         // DefaultMaxFatigue はデフォルトの最大疲労。起床中は毎ターン FatigueGainPerTurn 増える</span>
-<span id="L7"><span class="lineNum">       7</span>              :         DefaultMaxFatigue = 2000</span>
-<span id="L8"><span class="lineNum">       8</span>              :         // FatigueGainPerTurn は起床している間に毎ターン蓄積する疲労</span>
-<span id="L9"><span class="lineNum">       9</span>              :         FatigueGainPerTurn = 1</span>
-<span id="L10"><span class="lineNum">      10</span>              : )</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // FatigueLevel は疲労の段階を表す</span>
-<span id="L13"><span class="lineNum">      13</span>              : type FatigueLevel string</span>
-<span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span>              : const (</span>
-<span id="L16"><span class="lineNum">      16</span>              :         // FatigueRested は快調。疲れておらず眠れない。寝すぎを防ぐ</span>
-<span id="L17"><span class="lineNum">      17</span>              :         FatigueRested FatigueLevel = &quot;Rested&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              :         // FatigueNormal は普通。眠れる</span>
-<span id="L19"><span class="lineNum">      19</span>              :         FatigueNormal FatigueLevel = &quot;Normal&quot;</span>
-<span id="L20"><span class="lineNum">      20</span>              :         // FatigueTired は疲労。回復と行動が鈍り始める</span>
-<span id="L21"><span class="lineNum">      21</span>              :         FatigueTired FatigueLevel = &quot;Tired&quot;</span>
-<span id="L22"><span class="lineNum">      22</span>              :         // FatigueExhausted は過労。重いペナルティを受ける</span>
-<span id="L23"><span class="lineNum">      23</span>              :         FatigueExhausted FatigueLevel = &quot;Exhausted&quot;</span>
-<span id="L24"><span class="lineNum">      24</span>              : )</span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // Fatigue は蓄積した疲労を表す。起きている間に増え、睡眠でのみ減る。</span>
-<span id="L27"><span class="lineNum">      27</span>              : // Current は Max でクランプし、上限に達しても死なず Exhausted のペナルティが続く</span>
-<span id="L28"><span class="lineNum">      28</span>              : type Fatigue Pool[int]</span>
-<span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span>              : // GetLevel は現在の疲労段階を返す。しきい値は Current/Max の比率で決める</span>
-<span id="L31"><span class="lineNum">      31</span>              : func (f *Fatigue) GetLevel() FatigueLevel {</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 :         if f.Max &lt;= 0 {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 return FatigueRested</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         ratio := float64(f.Current) / float64(f.Max)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L38"><span class="lineNum">      38</span>              :         case ratio &lt; 0.3:</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return FatigueRested</span></span>
-<span id="L40"><span class="lineNum">      40</span>              :         case ratio &lt; 0.5:</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return FatigueNormal</span></span>
-<span id="L42"><span class="lineNum">      42</span>              :         case ratio &lt; 0.8:</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return FatigueTired</span></span>
-<span id="L44"><span class="lineNum">      44</span>              :         default:</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 return FatigueExhausted</span></span>
-<span id="L46"><span class="lineNum">      46</span>              :         }</span>
-<span id="L47"><span class="lineNum">      47</span>              : }</span>
-<span id="L48"><span class="lineNum">      48</span>              : </span>
-<span id="L49"><span class="lineNum">      49</span>              : // FatiguePenalty は疲労段階ごとのペナルティ係数。段階ごとの数値の唯一の置き場所。</span>
-<span id="L50"><span class="lineNum">      50</span>              : // 適用先は回復・行動速度・命中の3出力に分かれ、適用は出力の型が違うので各サイトに残す。</span>
-<span id="L51"><span class="lineNum">      51</span>              : // 係数だけをこの1表に集約して調整しやすくする</span>
-<span id="L52"><span class="lineNum">      52</span>              : type FatiguePenalty struct {</span>
-<span id="L53"><span class="lineNum">      53</span>              :         RecoveryAdd consts.Percent // 回復係数への加算%。Metabolism へ足す</span>
-<span id="L54"><span class="lineNum">      54</span>              :         SpeedAdd    int            // 行動速度への加算</span>
-<span id="L55"><span class="lineNum">      55</span>              :         AccuracyMul consts.Percent // 命中への乗算%</span>
-<span id="L56"><span class="lineNum">      56</span>              : }</span>
-<span id="L57"><span class="lineNum">      57</span>              : </span>
-<span id="L58"><span class="lineNum">      58</span>              : // Penalty は疲労段階に対応するペナルティ係数を返す</span>
-<span id="L59"><span class="lineNum">      59</span>              : func (f *Fatigue) Penalty() FatiguePenalty {</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         switch f.GetLevel() {</span></span>
-<span id="L61"><span class="lineNum">      61</span>              :         case FatigueRested, FatigueNormal:</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 return FatiguePenalty{RecoveryAdd: 0, SpeedAdd: 0, AccuracyMul: consts.PercentBase}</span></span>
-<span id="L63"><span class="lineNum">      63</span>              :         case FatigueTired:</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return FatiguePenalty{RecoveryAdd: -20, SpeedAdd: -15, AccuracyMul: 90}</span></span>
-<span id="L65"><span class="lineNum">      65</span>              :         case FatigueExhausted:</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 return FatiguePenalty{RecoveryAdd: -40, SpeedAdd: -35, AccuracyMul: 75}</span></span>
-<span id="L67"><span class="lineNum">      67</span>              :         }</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;invalid FatigueLevel value&quot;)</span></span>
-<span id="L69"><span class="lineNum">      69</span>              : }</span>
-<span id="L70"><span class="lineNum">      70</span>              : </span>
-<span id="L71"><span class="lineNum">      71</span>              : // NewFatigue は新しい Fatigue を作成する。初期は疲れていない</span>
-<span id="L72"><span class="lineNum">      72</span>              : func NewFatigue() *Fatigue {</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;Fatigue{</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 Max:     DefaultMaxFatigue,</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 Current: 0,</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L77"><span class="lineNum">      77</span>              : }</span>
+<span id="L3"><span class="lineNum">       3</span>              : const (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         // DefaultMaxFatigue はデフォルトの最大疲労。起床中は毎ターン FatigueGainPerTurn 増える</span>
+<span id="L5"><span class="lineNum">       5</span>              :         DefaultMaxFatigue = 2000</span>
+<span id="L6"><span class="lineNum">       6</span>              :         // FatigueGainPerTurn は起床している間に毎ターン蓄積する疲労</span>
+<span id="L7"><span class="lineNum">       7</span>              :         FatigueGainPerTurn = 1</span>
+<span id="L8"><span class="lineNum">       8</span>              : )</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // FatigueLevel は疲労の段階を表す</span>
+<span id="L11"><span class="lineNum">      11</span>              : type FatigueLevel string</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : const (</span>
+<span id="L14"><span class="lineNum">      14</span>              :         // FatigueRested は快調。疲れておらず眠れない。寝すぎを防ぐ</span>
+<span id="L15"><span class="lineNum">      15</span>              :         FatigueRested FatigueLevel = &quot;Rested&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         // FatigueNormal は普通。眠れる</span>
+<span id="L17"><span class="lineNum">      17</span>              :         FatigueNormal FatigueLevel = &quot;Normal&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         // FatigueTired は疲労。回復と行動が鈍り始める</span>
+<span id="L19"><span class="lineNum">      19</span>              :         FatigueTired FatigueLevel = &quot;Tired&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         // FatigueExhausted は過労。重いペナルティを受ける</span>
+<span id="L21"><span class="lineNum">      21</span>              :         FatigueExhausted FatigueLevel = &quot;Exhausted&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : )</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // Fatigue は蓄積した疲労を表す。起きている間に増え、睡眠でのみ減る。</span>
+<span id="L25"><span class="lineNum">      25</span>              : // Current は Max でクランプし、上限に達しても死なず Exhausted のペナルティが続く</span>
+<span id="L26"><span class="lineNum">      26</span>              : type Fatigue Pool[int]</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // GetLevel は現在の疲労段階を返す。しきい値は Current/Max の比率で決める</span>
+<span id="L29"><span class="lineNum">      29</span>              : func (f *Fatigue) GetLevel() FatigueLevel {</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         if f.Max &lt;= 0 {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 return FatigueRested</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         ratio := float64(f.Current) / float64(f.Max)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L36"><span class="lineNum">      36</span>              :         case ratio &lt; 0.3:</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return FatigueRested</span></span>
+<span id="L38"><span class="lineNum">      38</span>              :         case ratio &lt; 0.5:</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return FatigueNormal</span></span>
+<span id="L40"><span class="lineNum">      40</span>              :         case ratio &lt; 0.8:</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return FatigueTired</span></span>
+<span id="L42"><span class="lineNum">      42</span>              :         default:</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return FatigueExhausted</span></span>
+<span id="L44"><span class="lineNum">      44</span>              :         }</span>
+<span id="L45"><span class="lineNum">      45</span>              : }</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              : // FatigueSeverity は疲労段階を過労の不調の重症度へ写す。ok=false なら不調は立たない</span>
+<span id="L48"><span class="lineNum">      48</span>              : func (f *Fatigue) FatigueSeverity() (Severity, bool) {</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         switch f.GetLevel() {</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :         case FatigueRested, FatigueNormal:</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return SeverityNone, false</span></span>
+<span id="L52"><span class="lineNum">      52</span>              :         case FatigueTired:</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return SeverityMinor, true</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :         case FatigueExhausted:</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 return SeverityMedium, true</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :         }</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;invalid FatigueLevel value&quot;)</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : // NewFatigue は新しい Fatigue を作成する。初期は疲れていない</span>
+<span id="L61"><span class="lineNum">      61</span>              : func NewFatigue() *Fatigue {</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;Fatigue{</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 Max:     DefaultMaxFatigue,</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 Current: 0,</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
         </pre>
               </td>
             </tr>
