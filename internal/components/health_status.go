@@ -203,9 +203,9 @@ type BodyFuncs struct {
 	Pain          consts.Percent // 0 が無痛。大きいほど痛い
 	Blood         consts.Percent // 100 が正常。失血や重い不調で下がる。危険域を下回ると HP が減る
 	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。速度・命中へは消費側が掛ける
-	Manipulation  consts.Percent // 腕・手の局所低下に意識を master 乗数で掛けた値。近接命中・製作
-	Moving        consts.Percent // 脚・足の局所低下に意識を master 乗数で掛けた値。速度
-	Sight         consts.Percent // 頭の局所低下に意識を master 乗数で掛けた値。遠隔命中
+	Manipulation  consts.Percent // 腕・手の局所低下に意識を全体乗数で掛けた値。近接命中・製作
+	Moving        consts.Percent // 脚・足の局所低下に意識を全体乗数で掛けた値。速度
+	Sight         consts.Percent // 頭の局所低下に意識を全体乗数で掛けた値。遠隔命中
 	Metabolism    consts.Percent // 100 が正常。空腹・疲労で下がる。回復の身体機能側。VIT・睡眠は熟練側で別に積む
 }
 
@@ -530,13 +530,13 @@ func (hs *HealthStatus) IsHPDraining() bool {
 }
 
 // BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
-// 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を master 乗数として局所機能へ掛ける。
+// 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を全体乗数として局所機能へ掛ける。
 func (hs *HealthStatus) BodyFuncs() BodyFuncs {
 	return hs.bodyFuncs(nil)
 }
 
-// BodyFuncsWith は保存 condition に need condition を足したうえで身体機能を導出する。疲労・空腹は保存せず
-// 量から読み取り時に materialize した全身性の condition として渡す。怪我・病気と同じ funnel で意識へ集約される
+// BodyFuncsWith は保存された不調に、疲労・空腹から組み立てた不調を足したうえで身体機能を導出する。
+// 疲労・空腹は保存せず、量から読み取り時に組み立てた全身性の不調として渡す。怪我・病気と同じ経路で意識へ集約される
 func (hs *HealthStatus) BodyFuncsWith(needConds []HealthCondition) BodyFuncs {
 	return hs.bodyFuncs(needConds)
 }
@@ -561,12 +561,12 @@ func (hs *HealthStatus) bodyFuncs(needConds []HealthCondition) BodyFuncs {
 			case BodyFuncConsciousness:
 				systemic += drop
 			case BodyFuncMetabolism:
-				// 代謝は部位に割り当てない。need condition から下記で導く
+				// 代謝は部位に割り当てない。疲労・空腹の不調から下記で導く
 			}
 		}
 	}
 
-	// need condition は全身性。意識へ集約し、代謝 capacity の低下 needDrop としても集計する
+	// 疲労・空腹の不調は全身性。意識へ集約し、代謝を下げる量 needDrop としても集計する
 	needDrop := 0
 	for i := range needConds {
 		p, drop := conditionSeverityImpact(&needConds[i])
@@ -578,7 +578,7 @@ func (hs *HealthStatus) bodyFuncs(needConds []HealthCondition) BodyFuncs {
 	pain = clamp(pain, 0, 100)
 	// 意識は全身性の低下と痛みで下がる。怪我・病気・過労・栄養失調がすべて systemic へ集約されている
 	consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)
-	// 局所機能は低下を引いたうえで意識を master 乗数として掛ける
+	// 局所機能は低下を引いたうえで意識を全体乗数として掛ける
 	withConsciousness := func(local int) consts.Percent {
 		return consts.Percent(clamp(local, 0, 100) * consciousness / 100)
 	}
@@ -589,7 +589,7 @@ func (hs *HealthStatus) bodyFuncs(needConds []HealthCondition) BodyFuncs {
 		Manipulation:  withConsciousness(100 - manip),
 		Moving:        withConsciousness(100 - moving),
 		Sight:         withConsciousness(100 - sight),
-		// 代謝は回復の身体機能側。過労・栄養失調で下がる capacity で、痛み・全身病は含めない
+		// 代謝は回復の身体機能側。過労・栄養失調でだけ下がり、痛み・全身病は含めない
 		Metabolism: consts.Percent(clamp(100-needDrop, 0, 100)),
 	}
 }
@@ -611,7 +611,7 @@ func (hs *HealthStatus) ConsciousnessDrops() (systemic, pain int) {
 	return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor
 }
 
-// LocalDrop は指定した局所身体機能を下げる部位の不調ぶんを返す。意識の master 乗数を掛ける前の局所低下で、
+// LocalDrop は指定した局所身体機能を下げる部位の不調ぶんを返す。意識の 全体乗数を掛ける前の局所低下で、
 // 局所機能の内訳表示に使う。全身性の Consciousness を渡すと 0 を返す
 func (hs *HealthStatus) LocalDrop(bf BodyFuncKind) int {
 	drop := 0

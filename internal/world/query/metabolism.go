@@ -16,7 +16,7 @@ const (
 )
 
 // RecoverySources は回復レートへの寄与を内訳として返す。命中・速度と同じ 熟練 × 身体機能 の形で、
-// 熟練側は VIT・睡眠の加算、身体機能側は代謝 capacity の乗算差分として載せる。空腹・疲労は代謝を、
+// 熟練側は VIT・睡眠の加算、身体機能側は代謝の値の乗算差分として載せる。空腹・疲労は代謝を、
 // 意識は行動を下げるが回復には効かせない。痛くても傷は治るので痛みも回復には効かない。
 // Metabolism と Effects タブが同じこの導出を読むので値と内訳がずれない
 func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
@@ -39,7 +39,7 @@ func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
 		}
 	}
 
-	// 身体機能側。代謝 capacity を熟練へ乗算し、内訳には加法差分で載せる。命中の畳み込みと同じ形
+	// 身体機能側。代謝の値を熟練へ乗算し、内訳には加法差分で載せる。命中の畳み込みと同じ形
 	metab := EffectiveBodyFuncs(world, entity).Metabolism
 	if withCap := metab.ApplyInt(prof); withCap != prof {
 		srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceBodyFunc, BodyFunc: gc.BodyFuncMetabolism, Amount: int(metab), Value: withCap - prof})
@@ -48,7 +48,7 @@ func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
 }
 
 // Metabolism は HP の自然回復と病気の回復にかかる速度係数を返す。基準は 100、下限は 0。
-// 熟練 VIT・睡眠 と 身体機能 代謝 capacity の合成で、命中・速度と同じ 熟練 × 身体機能 の形。
+// 熟練 VIT・睡眠 と 身体機能 代謝の値の合成で、命中・速度と同じ 熟練 × 身体機能 の形。
 // Effects タブの内訳と同じ導出を読むので値と内訳がずれない
 func Metabolism(world w.World, entity ecs.Entity) consts.Percent {
 	total := int(consts.PercentBase)

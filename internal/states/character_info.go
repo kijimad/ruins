@@ -264,7 +264,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		if hs != nil {
 			conds = append(conds, hs.Parts[i].Conditions...)
 		}
-		// 全身は過労・栄養失調の need condition の受け皿。量から materialize して怪我と同じ列に並べる
+		// 全身は過労・栄養失調の受け皿。量から組み立てた不調を怪我と同じ列に並べる
 		if part == gc.BodyPartWholeBody {
 			conds = append(conds, query.DerivedConditions(world, playerEntity)...)
 		}
@@ -275,7 +275,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		}
 		// 症状ごとに1エントリ。見出しと区別するため字下げする
 		for _, cond := range conds {
-			// need condition は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
+			// 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
 			if cond.Type == gc.ConditionExhaustion || cond.Type == gc.ConditionMalnutrition {
 				items = append(items, statusItemData{
 					Label:         healthEntryIndent + translatedConditionName(world, cond.Type),
@@ -311,8 +311,8 @@ func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailR
 	return rows
 }
 
-// fatigueHungerDrops は過労・栄養失調の need condition による低下ぶんを内訳にする。
-// 意識と代謝 capacity の両方が同じこの低下を受ける。量から materialize した condition から出す
+// fatigueHungerDrops は過労・栄養失調による低下ぶんを内訳にする。
+// 意識と代謝の両方が同じこの低下を受ける。量から組み立てた不調から出す
 func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
 	var rows []statusDetailRow
 	for _, c := range query.DerivedConditions(world, playerEntity) {
@@ -339,7 +339,7 @@ func consciousnessDrops(world w.World, playerEntity ecs.Entity) []statusDetailRo
 	return append(rows, fatigueHungerDrops(world, playerEntity)...)
 }
 
-// limbDrops は局所身体機能の低下要因を内訳にする。局所の怪我と、意識を master 乗数で掛けた減少を分けて出す。
+// limbDrops は局所身体機能の低下要因を内訳にする。局所の怪我と、意識を全体乗数で掛けた減少を分けて出す。
 // 意識の行を開けば疲労・空腹・痛みまで辿れる。行の合計は局所機能の値と一致する
 func limbDrops(world w.World, playerEntity ecs.Entity, bodyFuncs gc.BodyFuncs, bf gc.BodyFuncKind) []statusDetailRow {
 	local := 0
@@ -350,7 +350,7 @@ func limbDrops(world w.World, playerEntity ecs.Entity, bodyFuncs gc.BodyFuncs, b
 	if local != 0 {
 		rows = append(rows, statusDetailRow{Label: query.T(world, "Injury and illness"), Value: fmt.Sprintf("%+d%%", -local)})
 	}
-	// 局所を引いた後に意識を master 乗数で掛けた減少ぶん。意識自体の内訳は意識の行に出る
+	// 局所を引いた後に意識を全体乗数で掛けた減少ぶん。意識自体の内訳は意識の行に出る
 	afterLocal := max(0, min(100, 100-local))
 	if d := afterLocal*int(bodyFuncs.Consciousness)/100 - afterLocal; d != 0 {
 		rows = append(rows, statusDetailRow{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%+d%%", d)})
