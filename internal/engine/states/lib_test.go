@@ -91,7 +91,7 @@ func TestStateMachineUpdate_ファクトリー関数がエラーを返す場合(
 	require.NoError(t, err)
 
 	sm.lastTransition = Transition[TestWorld]{
-		Type: TransNone,
+		Type: TransPush,
 		NewStateFuncs: []StateFactory[TestWorld]{
 			func() (State[TestWorld], error) { return nil, errFailingState },
 		},
@@ -121,7 +121,8 @@ func TestStateMachineDraw_いずれかのstateのDrawがエラーを返す場合
 	failing := &FailingState{failDraw: true}
 	sm, err := Init(ok, world)
 	require.NoError(t, err)
-	sm.states = append(sm.states, failing)
+	err = sm.PushState(world, failing)
+	require.NoError(t, err)
 
 	err = sm.Draw(world, nil)
 
@@ -360,9 +361,12 @@ func TestSwitchState_新しいstateのOnStartがエラーを返す場合(t *test
 	err := sm.switchState(world, []State[TestWorld]{newState})
 
 	require.ErrorIs(t, err, errFailingState)
+	// 既知の制限: OnStopは成功しているのでcurrentは停止済みだが、
+	// newStateのOnStart失敗によりスタックの置き換え自体は行われないため、
+	// スタックには停止済みのcurrentが残ったままになる。
 	assert.True(t, current.onStopCalled)
 	cs, ok := sm.GetCurrentState().(*TestState)
-	require.True(t, ok, "置き換え失敗時は元のstateのまま")
+	require.True(t, ok, "置き換え失敗時はスタックの内容自体は変わらない")
 	assert.Same(t, current, cs)
 }
 
