@@ -45,14 +45,25 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		}
 
 		interactable := world.Components.Interactable.Get(interactableEntity)
+		interactableGrid := world.Components.GridElement.Get(interactableEntity)
+		// 実体単位でなく相互作用単位で発動範囲を絞る。隣接に来た実体でも、直上でしか発動しない
+		// 相互作用、例えば乗車 InteractionDrive は隣接メニューへ出さない。範囲判定は
+		// GetAllInteractiveInteractablesInRange と同じ IsInActivationRange を使う
+		var inRange []gc.InteractionKind
+		for _, interaction := range interactable.Interactions {
+			config := interaction.Config()
+			if (config.ActivationWay == gc.ActivationWayManual || config.ActivationWay == gc.ActivationWayOnCollision) &&
+				query.IsInActivationRange(gridElement, interactableGrid, config.ActivationRange) {
+				inRange = append(inRange, interaction)
+			}
+		}
 		// スタック単位の種別を持つ実体は束ね経路へ集める。拾得は同タイルに限られるので
 		// 位置を無視して束ねても別タイルの同種が混ざることはない
-		bundled, individual := splitByMenuUnit(interactable.Interactions)
+		bundled, individual := splitByMenuUnit(inRange)
 		if len(bundled) > 0 {
 			itemEntities = append(itemEntities, interactableEntity)
 		}
 		if len(individual) > 0 {
-			interactableGrid := world.Components.GridElement.Get(interactableEntity)
 			dirLabel := query.T(world, activity.GetDirectionLabel(gridElement, interactableGrid))
 			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: individual}, interactableEntity, dirLabel)...)
 		}
