@@ -63,8 +63,7 @@ Description = "スプライトなしアイテム"
 
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := NewItemSpec(raws, "テストアイテム")
-	assert.NoError(t, err)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey)
@@ -1048,6 +1047,36 @@ func TestItemName_存在しないIDはIDをそのまま返す(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, "存在しないID", ItemName(raws, "存在しないID"))
+}
+
+func TestFindMember_存在しないIDはKeyNotFoundErrorになる(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws("")
+	require.NoError(t, err)
+
+	_, err = FindMember(raws, "存在しないメンバー")
+	require.Error(t, err)
+
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, "存在しないメンバー", keyErr.Key)
+	assert.Equal(t, "Members", keyErr.Collection)
+}
+
+func TestFindSpriteSheet_存在しないIDはKeyNotFoundErrorになる(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws("")
+	require.NoError(t, err)
+
+	_, err = FindSpriteSheet(raws, "存在しないシート")
+	require.Error(t, err)
+
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, "存在しないシート", keyErr.Key)
+	assert.Equal(t, "SpriteSheets", keyErr.Collection)
 }
 
 func TestMemberMovementPatternUnset(t *testing.T) {

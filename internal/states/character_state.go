@@ -353,19 +353,17 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 // healthDetailContent は健康タブで選んだ1症状の詳細を組む。名前と概要、進行度・治療・
 // 能力デバフの性能行を返す。症状の無い部位のエントリは概要だけを出す
 func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {
-	if item.ConditionType == "" {
+	// 症状の無い部位は概要だけ出す
+	if item.Condition == nil {
 		return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, "No injury or illness")}
 	}
-	player, err := query.GetPlayerEntity(world)
-	if err != nil || !query.AliveHas(world, world.Components.HealthStatus, player) {
-		return overlay.DetailContent{Name: item.Label}
-	}
-	cond := world.Components.HealthStatus.Get(player).Parts[item.BodyPart].GetCondition(item.ConditionType)
-	if cond == nil {
-		return overlay.DetailContent{Name: item.Label}
+	cond := item.Condition
+	// 導出不調は Timer も治療状態も持たない。進行度でなく重症度と、下げる身体機能だけを出す
+	if gc.ConditionIsDerived(cond.Type) {
+		return derivedConditionDetail(world, cond)
 	}
 
-	pain, capacity, drop := gc.ConditionCapacityImpact(cond, item.BodyPart)
+	pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
@@ -375,7 +373,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Pain"), Value: fmt.Sprintf("+%d", pain)})
 	}
 	if drop > 0 {
-		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(capacity)), Value: fmt.Sprintf("-%d", drop)})
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf("-%d", drop)})
 	}
 	// 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
 	if bd := gc.ConditionBloodDrop(cond); bd > 0 {
@@ -384,6 +382,26 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
 	if name, ok := remedyItemNameFor(world, cond.Type); ok {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Treated by"), Value: query.T(world, name)})
+	}
+	return overlay.DetailContent{
+		Name: translatedConditionName(world, cond.Type),
+		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
+		Rows: rows,
+	}
+}
+
+// derivedConditionDetail は過労・栄養失調の詳細を組む。量から導出され Timer も治療状態も持たないので、
+// 進行度・治療でなく重症度を出す。この不調は意識と代謝を同じ量だけ下げるので両方の低下を並べる
+func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.DetailContent {
+	rows := []entityspec.SpecRow{
+		{Label: query.T(world, "Severity"), Value: query.T(world, cond.Severity.String())},
+	}
+	// 全身性なので意識と代謝を drop ぶん下げる
+	if _, _, drop := gc.ConditionBodyFuncImpact(cond, gc.BodyPartWholeBody); drop > 0 {
+		rows = append(rows,
+			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncConsciousness)), Value: fmt.Sprintf("-%d", drop)},
+			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncMetabolism)), Value: fmt.Sprintf("-%d", drop)},
+		)
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),

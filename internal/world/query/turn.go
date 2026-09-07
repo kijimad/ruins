@@ -14,7 +14,7 @@ const (
 	speedBaseValue         = 100 // Speed計算の基本値
 	speedAgilityMultiply   = 2   // Speed計算の敏捷係数
 	speedDexterityMultiply = 1   // Speed計算の器用係数
-	speedMinimum           = 25  // Speedの最小値（基本値の1/4）
+	speedMinimum           = 25  // Speedの最小値。基本値の1/4
 )
 
 // CanPlayerAct はプレイヤーが行動可能かを判定する
@@ -111,69 +111,32 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 	return calculatedAP, nil
 }
 
-// CalculateSpeed はエンティティのSpeedを計算する
-// 能力値ボーナス・状態異常ペナルティ・過積載ペナルティ・Effect倍率を考慮する
+// CalculateSpeed はエンティティのSpeedを計算する。
+// 能力値の素の速度に、過積載・移動コスト・身体機能を掛ける。疲労・空腹は身体機能の意識低下を通じて
+// Moving 経由で効くので、ここで状態を直接読まない
 func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed := speedBaseValue
 
-	// 能力値ボーナス
+	// 能力値による素の速度
 	if abils := world.Components.Abilities.Get(entity); abils != nil {
 		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
 	}
 
-	// 状態異常ペナルティ（空腹・過積載）
-	speed += calculateStatusSpeedPenalty(world, entity)
+	// 過積載は加算ペナルティ
 	speed += calculateOverweightPenalty(world, entity)
 
 	// MoveCost倍率を適用する。全エンティティへ毎ターン走る最頻経路なので、
 	// 内訳を作らない単キー導出で読む。
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
-	moveCost := max(int(ModifierValue(world, entity, gc.ModMoveCost)), 10)
+	moveCost := max(int(ProficiencyValue(world, entity, gc.ProfMoveCost)), 10)
 	speed = speed * 100 / moveCost
-	// 身体機能の歩行を掛ける。脚・足の怪我や意識低下で歩行が落ちると遅くなる。
-	// Effects タブの表示と同じ導出を経由する
-	moving := gc.HealthyCapacities().Moving
-	if world.Components.HealthStatus.Has(entity) {
-		moving = world.Components.HealthStatus.Get(entity).Capacities().Moving
-	}
-	speed = max(
-		// 最小値制限
-		moving.ApplyInt(speed), speedMinimum)
+	// 実効身体機能の歩行を掛ける。歩行は脚・足の怪我に加え、全身性の不調・疲労・空腹が
+	// EffectiveBodyFuncs で畳まれているので、ここは歩行を読むだけでよい
+	moving := EffectiveBodyFuncs(world, entity).Moving
+	speed = max(moving.ApplyInt(speed), speedMinimum) // 最小値制限
 
 	return speed
-}
-
-// calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する。
-// 体温ペナルティはCharModifiers.MoveCost経由で適用されるためここには含まない。
-func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
-	penalty := 0
-
-	// 空腹ペナルティ
-	if hunger := world.Components.Hunger.Get(entity); hunger != nil {
-		penalty += HungerSpeedPenalty(hunger.GetLevel())
-	}
-
-	// 疲労ペナルティ。係数は Fatigue.Penalty の1表から読む
-	if world.Components.Fatigue.Has(entity) {
-		penalty += world.Components.Fatigue.Get(entity).Penalty().SpeedAdd
-	}
-
-	return penalty
-}
-
-// HungerSpeedPenalty は空腹段階による行動速度への加算を返す。命中・回復と同じく段階基準で、
-// 飢えるほど負に大きい。適用と Basic タブの内訳表示が同じこの導出を読む
-func HungerSpeedPenalty(level gc.HungerLevel) int {
-	switch level {
-	case gc.HungerSatiated, gc.HungerNormal:
-		return 0
-	case gc.HungerHungry:
-		return -10
-	case gc.HungerStarving:
-		return -20
-	}
-	return 0
 }
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する

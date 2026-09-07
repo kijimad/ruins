@@ -4,9 +4,19 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func dungeonMenuLabels(world w.World) []string {
+	_, choices := dungeonMenuChoices(world)
+	labels := make([]string, len(choices))
+	for i, c := range choices {
+		labels[i] = c.Label
+	}
+	return labels
+}
 
 func TestNewOpeningState(t *testing.T) {
 	t.Parallel()
@@ -31,6 +41,23 @@ func TestNewOpeningState(t *testing.T) {
 
 	// 後続ページが連結されている
 	assert.True(t, md.HasNextMessages(), "後続メッセージが存在する")
+}
+
+func TestDungeonMenuChoices_有効時はセーブ項目を出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	// InitTestWorld は開発プロファイルなのでセーブ・ロードが有効
+	assert.Contains(t, dungeonMenuLabels(world), "Save game")
+}
+
+func TestDungeonMenuChoices_体験版はセーブ項目を出さない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	// 体験版はセーブ・ロード無効。プロファイル既定の結果をここでは直接与える
+	world.Resources.Config.SaveLoadEnabled = false
+	assert.NotContains(t, dungeonMenuLabels(world), "Save game")
 }
 
 func TestNewGameOverMessageState(t *testing.T) {

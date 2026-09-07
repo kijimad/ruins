@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -212,10 +213,45 @@ func TestToGCLightSource(t *testing.T) {
 	})
 }
 
+func TestToGCHeatSource(t *testing.T) {
+	t.Parallel()
+
+	t.Run("nilはnilを返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Nil(t, toGCHeatSource(nil))
+	})
+
+	t.Run("正常な値を変換する", func(t *testing.T) {
+		t.Parallel()
+		hs := &oapi.HeatSource{Radius: 3, Warmth: 12.5}
+		result := toGCHeatSource(hs)
+		require.NotNil(t, result)
+		assert.Equal(t, consts.Tile(3), result.Radius)
+		assert.Equal(t, 12.5, result.Warmth)
+	})
+}
+
+func TestToGCBedding(t *testing.T) {
+	t.Parallel()
+
+	t.Run("nilはnilを返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Nil(t, toGCBedding(nil))
+	})
+
+	t.Run("正常な値を変換する", func(t *testing.T) {
+		t.Parallel()
+		b := &oapi.Bedding{Quality: 120}
+		result := toGCBedding(b)
+		require.NotNil(t, result)
+		assert.Equal(t, consts.Percent(120), result.Quality)
+	})
+}
+
 func TestKeyNotFoundError(t *testing.T) {
 	t.Parallel()
 
-	err := NewKeyNotFoundError("items", "sword")
+	err := NewKeyNotFoundError("sword", "items")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "items")
 	assert.Contains(t, err.Error(), "sword")

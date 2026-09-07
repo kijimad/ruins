@@ -31,7 +31,7 @@ func injuryTypeFor(attackType gc.AttackType) gc.ConditionType {
 
 // applyInjury は命中時に確率で命中部位へ独立した怪我を1つ付ける。
 // 怪我の種類は武器種から導き、命中部位は部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
-// 同じ部位に同種の怪我がソフト上限に達していれば付けない。独立に積むので capacity と失血は全傷が合算される
+// 同じ部位に同種の怪我がソフト上限に達していれば付けない。独立に積むので身体機能と失血は全傷が合算される
 func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	if !world.Components.HealthStatus.Has(target) {
 		return

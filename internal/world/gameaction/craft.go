@@ -68,8 +68,8 @@ func playerCraftMods(world w.World) (craftCost, smithQuality consts.Percent) {
 	craftCost, smithQuality = consts.PercentBase, consts.PercentBase
 	player, err := query.GetPlayerEntity(world)
 	if err == nil {
-		craftCost = query.ModifierValue(world, player, gc.ModCraftCost)
-		smithQuality = query.ModifierValue(world, player, gc.ModSmithQuality)
+		craftCost = query.ProficiencyValue(world, player, gc.ProfCraftCost)
+		smithQuality = query.ProficiencyValue(world, player, gc.ProfSmithQuality)
 	}
 	return craftCost, smithQuality
 }

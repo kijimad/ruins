@@ -88,6 +88,12 @@ func (sys *ConditionSystem) Update(world w.World) error {
 	return nil
 }
 
+// metabScale は回復量 rec に代謝を float で掛ける。整数切り捨てをしないので、代謝が低くても
+// 正の回復意図がある限り 0 で止まらない。代謝 0 のときだけ 0 になる
+func metabScale(rec int, metab consts.Percent) float64 {
+	return float64(rec) * float64(metab) / float64(consts.PercentBase)
+}
+
 // conditionTimerDelta は不調の回復モードと治療の質から1ターンの Timer 増減を返す。
 // 負なら回復、正なら悪化。int の目盛りで計算し、UpdateTimer の境界で float64 にする。
 func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab consts.Percent) float64 {
@@ -105,17 +111,17 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 		if cond.TendQuality == 0 {
 			return float64(def.WorsenPer)
 		}
-		// 治療済みは質と代謝の両方で回復が速まる
+		// 治療済みは質と代謝の両方で回復が速まる。代謝は float で掛け、低くても 0 で止めない。
+		// 不調が意識を下げ自分の回復を鈍らせても、整数切り捨てで治癒が停止しないようにする
 		rec := cond.TendQuality.ApplyInt(def.RecoverPer)
-		rec = metab.ApplyInt(rec)
-		return -float64(rec)
+		return -metabScale(rec, metab)
 	case gc.RecoverOverTime:
 		// 自己限定。未治療でも代謝で自然に治る。治療すればその質でさらに速まる
 		rec := def.RecoverPer
 		if cond.TendQuality > 0 {
 			rec = cond.TendQuality.ApplyInt(rec)
 		}
-		return -float64(metab.ApplyInt(rec))
+		return -metabScale(rec, metab)
 	}
 	// default を置くと exhaustive linter が沈黙するので置かない。内部の信頼できる値なので未知は panic する
 	panic("unknown RecoveryMode: " + string(def.Recovery))
