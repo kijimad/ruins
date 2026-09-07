@@ -157,7 +157,6 @@ func (c *Config) applyProductionDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
-	// 本番はセーブ・ロードを出さない体験版。Steam タグのフル版だけ有効にする
 	c.SaveLoadEnabled = consts.IsSteamBuild
 
 	// パフォーマンス設定
@@ -221,7 +220,6 @@ func (c *Config) applyDevelopmentDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
-	// 開発とテストは常にセーブ・ロードを有効にする
 	c.SaveLoadEnabled = true
 
 	// パフォーマンス設定

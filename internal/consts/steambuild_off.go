@@ -2,6 +2,5 @@
 
 package consts
 
-// IsSteamBuild は steam タグ付きでビルドされたかどうか。タグなしのビルドでは false になる。
-// 既定配布と WASM はこちらで、体験版として扱う。
+// IsSteamBuild は steam タグ無しビルドでは false。既定配布と WASM が該当し体験版になる。
 const IsSteamBuild = false

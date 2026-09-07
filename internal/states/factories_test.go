@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// dungeonMenuLabels は選択肢のラベル一覧を返す
 func dungeonMenuLabels(world w.World) []string {
 	_, choices := dungeonMenuChoices(world)
 	labels := make([]string, len(choices))
