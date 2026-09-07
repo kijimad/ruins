@@ -88,8 +88,7 @@ func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) 
 		world.Components.Driving.Remove(player)
 		return nil
 	}
-	cubeGrid := world.Components.GridElement.Get(cube)
-	current := cubeGrid.Coord
+	current := world.Components.GridElement.Get(cube).Coord
 	next := current.Add(direction.GetDelta())
 
 	// 通行判定。壁・敵など不可なら停止する。ターンも燃料も消費しない
@@ -106,14 +105,22 @@ func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) 
 		return nil
 	}
 
-	// 燃料を消費し、キューブを進行先へ動かす
-	lifecycle.ConsumeCubeFuel(world, cube, cost)
-	cubeGrid.Coord = next
-	query.InvalidateSpatialIndex(world)
+	// プレイヤーを既存の移動経路で先に動かす。行動ターン消費と敵ターン進行はここが担う。
+	// 移動が成立しなければキューブも動かさず燃料も使わない。同乗の座標ずれを防ぐ
+	result, err := Execute(NewMoveActivity(gc.GridElement{Coord: next}), player, world)
+	if err != nil {
+		return err
+	}
+	if result == nil || !result.Success {
+		return nil
+	}
 
-	// プレイヤーを既存の移動経路で追随させる。行動ターン消費と敵ターン進行はここが担う
-	_, err := Execute(NewMoveActivity(gc.GridElement{Coord: next}), player, world)
-	return err
+	// プレイヤーが進んだので、キューブを追随させ燃料を消費する。ConsumeCubeFuel は燃料 entity を
+	// 削除する構造変更なので、GridElement の Get ポインタを跨いで持たず、消費後に取り直して書く
+	lifecycle.ConsumeCubeFuel(world, cube, cost)
+	world.Components.GridElement.Get(cube).Coord = next
+	query.InvalidateSpatialIndex(world)
+	return nil
 }
 
 // ExecuteWaitAction は待機アクションを実行する

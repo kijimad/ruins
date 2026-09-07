@@ -57,6 +57,28 @@ func TestExecuteMoveAction_運転中はキューブとプレイヤーが一緒�
 	assert.Less(t, int(query.CubeFuelTotal(world, cube)), 4000, "燃料を消費する")
 }
 
+func TestExecuteMoveAction_プレイヤーが動けなければキューブも進まず燃料も残る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	addDriveFuel(t, world, cube, oapi.COAL, consts.Milligram(5*consts.MilligramPerKg))
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+
+	// プレイヤーを重量超過にして移動を成立させない。同乗ずれと燃料の空消費を防ぐ回帰
+	require.True(t, world.Components.WeightCapacity.Has(player))
+	wc := world.Components.WeightCapacity.Get(player)
+	wc.Current = wc.Max*2 + 1
+
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "プレイヤーが動けないならキューブも進まない")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "プレイヤーも動かない")
+	assert.Equal(t, consts.Heat(4000), query.CubeFuelTotal(world, cube), "移動が成立しないなら燃料は消費しない")
+}
+
 func TestExecuteMoveAction_燃料切れは立往生する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
