@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -441,9 +441,9 @@
 				
 				<option value="file192">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file193">github.com/kijimaD/ruins/internal/raw/raw.go (93.2%)</option>
+				<option value="file193">github.com/kijimaD/ruins/internal/raw/raw.go (93.9%)</option>
 				
-				<option value="file194">github.com/kijimaD/ruins/internal/raw/validate.go (90.4%)</option>
+				<option value="file194">github.com/kijimaD/ruins/internal/raw/validate.go (94.3%)</option>
 				
 				<option value="file195">github.com/kijimaD/ruins/internal/raw/weighted.go (94.4%)</option>
 				
@@ -1648,7 +1648,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -28130,7 +28130,7 @@ func ItemName(raws oapi.Raws, id string) string {
 func FindMember(raws oapi.Raws, name string) (oapi.Member, error) {
         <span class="cov8" title="1">member, ok := findByKey(raws.Members, func(m oapi.Member) string </span>{ <span class="cov8" title="1">return m.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov0" title="0">return oapi.Member{}, NewKeyNotFoundError(name, "Members")
+                <span class="cov8" title="1">return oapi.Member{}, NewKeyNotFoundError(name, "Members")
 </span>        }
         <span class="cov8" title="1">return member, nil</span>
 }
@@ -28139,7 +28139,7 @@ func FindMember(raws oapi.Raws, name string) (oapi.Member, error) {
 func FindSpriteSheet(raws oapi.Raws, name string) (oapi.SpriteSheet, error) {
         <span class="cov8" title="1">sheet, ok := findByKey(raws.SpriteSheets, func(s oapi.SpriteSheet) string </span>{ <span class="cov8" title="1">return s.Name }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov0" title="0">return oapi.SpriteSheet{}, NewKeyNotFoundError(name, "SpriteSheets")
+                <span class="cov8" title="1">return oapi.SpriteSheet{}, NewKeyNotFoundError(name, "SpriteSheets")
 </span>        }
         <span class="cov8" title="1">return sheet, nil</span>
 }
@@ -28175,7 +28175,7 @@ func toGCHeatSource(hs *oapi.HeatSource) *gc.HeatSource {
         <span class="cov8" title="1">if hs == nil </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
-        <span class="cov0" title="0">return &amp;gc.HeatSource{
+        <span class="cov8" title="1">return &amp;gc.HeatSource{
                 Radius: consts.Tile(hs.Radius),
                 Warmth: hs.Warmth,
 </span>        }
@@ -28186,7 +28186,7 @@ func toGCBedding(b *oapi.Bedding) *gc.Bedding {
         <span class="cov8" title="1">if b == nil </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
-        <span class="cov0" title="0">return &amp;gc.Bedding{
+        <span class="cov8" title="1">return &amp;gc.Bedding{
                 Quality: consts.Percent(b.Quality),
 </span>        }
 }
@@ -29001,22 +29001,22 @@ func ValidateReferences(raws oapi.Raws) error {
                 <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if err := validateDropTableReferences(raws); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if err := validateSpawnDice(raws); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if err := validateCommandTableReferences(raws); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if err := validateItemTableReferences(raws); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if err := validateItemGroupReferences(raws); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if err := validateEnemyTableReferences(raws); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">return validateCommandTableWeaponReferences(raws)</span>
 }

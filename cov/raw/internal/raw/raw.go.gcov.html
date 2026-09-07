@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.9&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.8&nbsp;%</td>
             <td class="headerCovTableEntry">597</td>
-            <td class="headerCovTableEntry">531</td>
+            <td class="headerCovTableEntry">542</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-06 16:43:24</td>
+            <td class="headerValue">2026-09-07 00:23:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -150,18 +150,18 @@
 <span id="L88"><span class="lineNum">      88</span>              : func FindMember(raws oapi.Raws, name string) (oapi.Member, error) {</span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           2 :         member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC tlaBgUNC">           0 :                 return oapi.Member{}, NewKeyNotFoundError(name, &quot;Members&quot;)</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC tlaBgGNC">           1 :         return member, nil</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 return oapi.Member{}, NewKeyNotFoundError(name, &quot;Members&quot;)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         return member, nil</span></span>
 <span id="L94"><span class="lineNum">      94</span>              : }</span>
 <span id="L95"><span class="lineNum">      95</span>              : </span>
 <span id="L96"><span class="lineNum">      96</span>              : // FindSpriteSheet は指定された名前のスプライトシートを検索する</span>
 <span id="L97"><span class="lineNum">      97</span>              : func FindSpriteSheet(raws oapi.Raws, name string) (oapi.SpriteSheet, error) {</span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           2 :         sheet, ok := findByKey(raws.SpriteSheets, func(s oapi.SpriteSheet) string { return s.Name }, name)</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC tlaBgUNC">           0 :                 return oapi.SpriteSheet{}, NewKeyNotFoundError(name, &quot;SpriteSheets&quot;)</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC tlaBgGNC">           1 :         return sheet, nil</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 return oapi.SpriteSheet{}, NewKeyNotFoundError(name, &quot;SpriteSheets&quot;)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         return sheet, nil</span></span>
 <span id="L103"><span class="lineNum">     103</span>              : }</span>
 <span id="L104"><span class="lineNum">     104</span>              : </span>
 <span id="L105"><span class="lineNum">     105</span>              : // toGCSpriteRender はoapi.SpriteRenderからgc.SpriteRenderに変換する</span>
@@ -195,26 +195,26 @@
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         if hs == nil {</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;gc.HeatSource{</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 Radius: consts.Tile(hs.Radius),</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 Warmth: hs.Warmth,</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         return &amp;gc.HeatSource{</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 Radius: consts.Tile(hs.Radius),</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 Warmth: hs.Warmth,</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L140"><span class="lineNum">     140</span>              : }</span>
 <span id="L141"><span class="lineNum">     141</span>              : </span>
 <span id="L142"><span class="lineNum">     142</span>              : // toGCBedding はoapi.Beddingからgc.Beddingに変換する</span>
 <span id="L143"><span class="lineNum">     143</span>              : func toGCBedding(b *oapi.Bedding) *gc.Bedding {</span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC tlaBgGNC">           1 :         if b == nil {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         if b == nil {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;gc.Bedding{</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 Quality: consts.Percent(b.Quality),</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         return &amp;gc.Bedding{</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 Quality: consts.Percent(b.Quality),</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L150"><span class="lineNum">     150</span>              : }</span>
 <span id="L151"><span class="lineNum">     151</span>              : </span>
 <span id="L152"><span class="lineNum">     152</span>              : // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする</span>
 <span id="L153"><span class="lineNum">     153</span>              : // enum値の妥当性はOpenAPIスキーマで検証済み</span>
 <span id="L154"><span class="lineNum">     154</span>              : func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {</span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC tlaBgGNC">           1 :         if targetGroup == &quot;&quot; {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         if targetGroup == &quot;&quot; {</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 return gc.TargetType{}</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return gc.TargetType{</span></span>
