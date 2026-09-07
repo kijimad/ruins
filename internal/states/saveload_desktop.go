@@ -15,7 +15,7 @@ import (
 )
 
 // セーブ・ロードは体験版では持たない機能なので、UI とファクトリをこのプラットフォーム限定ファイルへ隔離する。
-// WASM ビルドは saveload_wasm.go の空実装を使い、save パッケージごとバイナリから外れる。
+// WASM ビルドは saveload_wasm.go の空実装を使う。states から save への参照が無くなり、ゲーム本体のバイナリの依存グラフから save が外れる。
 
 // loadMainMenuItem はメインメニューのロード項目を返す。ok が真なら項目を採用する
 func loadMainMenuItem(world w.World) (mainMenuItem, bool) {
