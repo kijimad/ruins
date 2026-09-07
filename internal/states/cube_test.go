@@ -57,6 +57,22 @@ func TestNewCubeMenuState_4項目を並べる(t *testing.T) {
 	assert.Len(t, choices, 4, "収納・オークション・キューブ情報・閉じるの4項目")
 }
 
+// TestDismount_直上に残る は降車でプレイヤーがキューブの直上に残り Driving が外れることを固定する。
+func TestDismount_直上に残る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 7, Y: 7}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 7})
+	require.NoError(t, err)
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+
+	(&DungeonState{}).dismount(world)
+
+	assert.False(t, world.Components.Driving.Has(player), "降車で Driving が外れる")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 7}, world.Components.GridElement.Get(player).Coord, "プレイヤーはキューブの直上に残る")
+}
+
 // TestOverworldMapState_キューブのチャンク位置を出す は大域地図にキューブのチャンク位置が
 // マーカーとして載ることを検証する。
 func TestOverworldMapState_キューブのチャンク位置を出す(t *testing.T) {

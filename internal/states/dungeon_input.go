@@ -353,20 +353,9 @@ func (st *DungeonState) dismount(world w.World) {
 	if err != nil || !world.Components.Driving.Has(player) {
 		return
 	}
-	cube := world.Components.Driving.Get(player).Vehicle
+	// 降車はキューブの直上に出る。運転中プレイヤーはキューブと同座標に同乗しており、キューブは
+	// 通行可能なので、そのタイルに残して Driving を外すだけでよい
 	world.Components.Driving.Remove(player)
-	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) {
-		return
-	}
-	cubeCoord := world.Components.GridElement.Get(cube).Coord
-	for _, d := range []gc.Direction{gc.DirectionUp, gc.DirectionRight, gc.DirectionDown, gc.DirectionLeft} {
-		n := cubeCoord.Add(d.GetDelta())
-		if activity.CanMoveTo(world, n, cubeCoord, player) {
-			world.Components.GridElement.Get(player).Coord = n
-			query.InvalidateSpatialIndex(world)
-			return
-		}
-	}
 }
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
