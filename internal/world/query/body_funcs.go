@@ -17,6 +17,25 @@ func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {
 	return (&gc.HealthStatus{}).BodyFuncs(needConds...)
 }
 
+// FindCondition は部位と種類から今ある不調を1件返す。保存された怪我・病気に加え、
+// 疲労・空腹から導出した過労・栄養失調も同じ経路で引く。無ければ nil。
+// 導出不調は BodyPartHealth へ保存されないので GetCondition では引けない。
+// 一覧生成と詳細生成が同じ不調集合を見るための唯一の引き口
+func FindCondition(world w.World, entity ecs.Entity, part gc.BodyPart, ct gc.ConditionType) *gc.HealthCondition {
+	if world.Components.HealthStatus.Has(entity) {
+		if cond := world.Components.HealthStatus.Get(entity).Parts[part].GetCondition(ct); cond != nil {
+			return cond
+		}
+	}
+	derived := DerivedConditions(world, entity)
+	for i := range derived {
+		if derived[i].Type == ct {
+			return &derived[i]
+		}
+	}
+	return nil
+}
+
 // DerivedConditions は疲労・空腹の量から過労・栄養失調の不調を読み取り時に組み立てる。
 // 保存された疲労・空腹の不調は無く、量を変えた時点で次の読みに自動反映される。怪我と同じ不調として同じ経路を通る
 func DerivedConditions(world w.World, entity ecs.Entity) []gc.HealthCondition {

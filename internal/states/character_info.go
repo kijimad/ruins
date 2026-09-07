@@ -276,7 +276,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		// 症状ごとに1エントリ。見出しと区別するため字下げする
 		for _, cond := range conds {
 			// 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
-			if cond.Type == gc.ConditionExhaustion || cond.Type == gc.ConditionMalnutrition {
+			if gc.ConditionIsDerived(cond.Type) {
 				items = append(items, statusItemData{
 					Label:         healthEntryIndent + translatedConditionName(world, cond.Type),
 					Value:         query.T(world, cond.Severity.String()),
