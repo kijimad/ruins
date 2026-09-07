@@ -20,6 +20,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,11 +28,14 @@ import (
 // action のゼロ値は入力なしで1フレーム進める待ちの手で、state を組んだ直後の画は
 // 待ち1手に shot を付けて撮る。golden 名はケース名から導出し、1ケースで複数撮るときは
 // suffix で区別して TestGolden_<ケース名>_<suffix> になる。単発は suffix を空にする。
-// 全タブを撮るときは ActionMenuTabNext を並べ、各手に suffix でタブ名を付ける
+// 全タブを撮るときは ActionMenuTabNext を並べ、各手に suffix でタブ名を付ける。
+// assert があればその手の直後に world の状態を検証する。撮影とは独立で、shot なしでも呼ぶ。
+// ピクセル golden がトレランスに隠す論理変化や、画面に出ない内部状態を捕まえるのに使う
 type replayStep struct {
 	action inputmapper.ActionID
 	shot   bool
 	suffix string
+	assert func(t *testing.T, world w.World)
 }
 
 // TestGolden はステートの実描画を本番の MainGame ループで駆動して固定する VRT をまとめて回す。
@@ -60,6 +64,10 @@ func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World]
 
 func TestGolden(t *testing.T) {
 	t.Parallel()
+
+	// lookAroundStart は LookAround の視点移動前のプレイヤー座標を保持する。
+	// 視点移動でプレイヤーが動かないことを跨フレームで検証するために使う。LookAround だけが触る
+	var lookAroundStart consts.Coord[consts.Tile]
 
 	// build は fixture の error をそのまま返し、サブテストで require する。
 	// *testing.T を取らないことで thelper の誤検知を避ける
@@ -276,11 +284,23 @@ func TestGolden(t *testing.T) {
 				}, &gs.LookAroundState{}}, nil
 			},
 			steps: []replayStep{
-				{shot: true},
+				{shot: true, assert: func(t *testing.T, world w.World) {
+					t.Helper()
+					// 視点移動前のプレイヤー座標を控える
+					p, err := query.GetPlayerEntity(world)
+					require.NoError(t, err)
+					lookAroundStart = world.Components.GridElement.Get(p).Coord
+				}},
 				{action: inputmapper.ActionMoveNorth},
 				{action: inputmapper.ActionMoveNorth},
 				{action: inputmapper.ActionMoveEast},
-				{action: inputmapper.ActionMoveEast, shot: true, suffix: "Away"},
+				{action: inputmapper.ActionMoveEast, shot: true, suffix: "Away", assert: func(t *testing.T, world w.World) {
+					t.Helper()
+					// 視点カーソルは動くが、プレイヤー実体は動かない
+					p, err := query.GetPlayerEntity(world)
+					require.NoError(t, err)
+					assert.Equal(t, lookAroundStart, world.Components.GridElement.Get(p).Coord, "視点移動ではプレイヤーは動かない")
+				}},
 			},
 		},
 		{
@@ -403,10 +423,21 @@ func TestGolden(t *testing.T) {
 		// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。各時間帯の中心を1枚ずつ撮り、
 		// 連続補間が段差にならないことを回帰検知する。区間内の傾斜は単体テストで担保する。
 		// 番号は朝を起点にした1日の並び順で、ファイル名とギャラリーが時刻順に並ぶ。
-		{name: "Overworld_1_Morning", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},   // 朝の中心
-		{name: "Overworld_2_Day", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},       // 昼の中心。最も明るく無彩色
-		{name: "Overworld_3_Evening", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}},   // 夕の中心。暖色
-		{name: "Overworld_4_Night", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
+		{name: "Overworld_1_Morning", build: overworldAtTurn(375), steps: []replayStep{{shot: true, assert: func(t *testing.T, world w.World) {
+			t.Helper()
+			// 注入した経過ターンが描画を駆動する。ループで初期化し直されないことを固定する
+			gt := query.GetGameTime(world)
+			require.NotNil(t, gt)
+			assert.Equal(t, consts.Turn(375), gt.TotalTurns)
+		}}}}, // 朝の中心
+		{name: "Overworld_2_Day", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},     // 昼の中心。最も明るく無彩色
+		{name: "Overworld_3_Evening", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}}, // 夕の中心。暖色
+		{name: "Overworld_4_Night", build: overworldAtTurn(1125), steps: []replayStep{{shot: true, assert: func(t *testing.T, world w.World) {
+			t.Helper()
+			gt := query.GetGameTime(world)
+			require.NotNil(t, gt)
+			assert.Equal(t, consts.Turn(1125), gt.TotalTurns)
+		}}}}, // 夜の中心。寒色で暗い
 		{name: "Overworld_5_Midnight", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
 		{name: "Overworld_6_Dawn", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 夜明けの中心。次の朝へ続く
 		// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
@@ -564,17 +595,25 @@ func TestGolden(t *testing.T) {
 					return built
 				},
 				actions,
-				func(frame int, _ w.World, screen *ebiten.Image) {
+				func(frame int, world w.World, screen *ebiten.Image) {
 					// フレーム f は steps[f] の action を適用した直後の画。カーソル移動や
 					// タブ送りは同一フレームで効くのでその手で撮る。state を push する手は
 					// 次フレームで反映されるので、末尾に待ち手を足してそこで撮る。
-					// 末尾の settle フレームには対応する step が無いので撮らない
-					if frame >= len(tc.steps) || !tc.steps[frame].shot {
+					// 末尾の settle フレームには対応する step が無いので何もしない
+					if frame >= len(tc.steps) {
+						return
+					}
+					step := tc.steps[frame]
+					// state assert は撮影と独立に、その手の直後の world に対して行う
+					if step.assert != nil {
+						step.assert(t, world)
+					}
+					if !step.shot {
 						return
 					}
 					name := "TestGolden_" + tc.name
-					if suffix := tc.steps[frame].suffix; suffix != "" {
-						name += "_" + suffix
+					if step.suffix != "" {
+						name += "_" + step.suffix
 					}
 					vrt.AssertFrameGolden(t, name, screen)
 				},
