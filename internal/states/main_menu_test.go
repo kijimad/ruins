@@ -24,6 +24,7 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	t.Parallel()
 
 	state := &MainMenuState{}
+	// InitTestWorld は開発プロファイルなので SaveLoadEnabled が真になり、ロードを含む5項目が出る
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
