@@ -40,6 +40,6 @@ world.ECS.Reset() を行う。復元後、reestablishSingleton がスキップ�
 
   - serde.go:   ark-serde ラッパー、skipリスト、封筒、シングルトン再確立
   - manager.go: セーブ・ロード処理とスロット/オートセーブ管理
-  - desktop.go: デスクトップのファイルI/O。wasm.go: 体験版で永続化を持たない無保存スタブ
+  - desktop.go: デスクトップのファイルI/O。wasm.go: WASM で永続化を持たない無保存スタブ
 */
 package save

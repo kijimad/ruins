@@ -22,6 +22,27 @@ func TestLoad_RUINS_PROFILEを指定するとプロファイルへ反映され�
 	assert.True(t, cfg.SkipOpening) // 開発プロファイル固有のデフォルト値
 }
 
+func TestLoad_RUINS_DEMOの既定は無効(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+
+	cfg, err := Load()
+	require.NoError(t, err)
+
+	assert.False(t, cfg.Demo)
+}
+
+func TestLoad_RUINS_DEMOを指定すると体験版モードになる(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	t.Setenv("RUINS_DEMO", "true")
+
+	cfg, err := Load()
+	require.NoError(t, err)
+
+	assert.True(t, cfg.Demo)
+}
+
 func TestLoad_環境変数の型が不正だとエラーを返す(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)

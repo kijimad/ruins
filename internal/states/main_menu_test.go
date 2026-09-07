@@ -43,6 +43,24 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	assert.Equal(t, es.TransQuit, props.Items[4].Transition.Type, "終了は Quit")
 }
 
+func TestMainMenuState_体験版はロード項目を出さない(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	world.Resources.Config.Demo = true
+	require.NoError(t, state.OnStart(world))
+
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
+
+	labels := make([]string, len(props.Items))
+	for i, item := range props.Items {
+		labels[i] = item.Label
+	}
+	assert.Equal(t, []string{"Start", "Demo", "Settings", "Quit"}, labels, "体験版では Load が消えて4項目")
+}
+
 func TestMainMenuState_言語切替でラベルが変わる(t *testing.T) {
 	t.Parallel()
 

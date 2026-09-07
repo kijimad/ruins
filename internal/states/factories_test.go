@@ -33,6 +33,19 @@ func TestNewOpeningState(t *testing.T) {
 	assert.True(t, md.HasNextMessages(), "後続メッセージが存在する")
 }
 
+func TestDungeonSaveMenuChoice_体験版では出さない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	_, ok := dungeonSaveMenuChoice(world)
+	assert.True(t, ok, "通常はセーブ項目を出す")
+
+	world.Resources.Config.Demo = true
+	_, ok = dungeonSaveMenuChoice(world)
+	assert.False(t, ok, "体験版ではセーブ項目を出さない")
+}
+
 func TestNewGameOverMessageState(t *testing.T) {
 	t.Parallel()
 

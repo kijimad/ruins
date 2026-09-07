@@ -14,19 +14,26 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// セーブ・ロードは体験版では持たない機能なので、UI とファクトリをこのプラットフォーム限定ファイルへ隔離する。
-// WASM ビルドは saveload_wasm.go の空実装を使う。states から save への参照が無くなり、ゲーム本体のバイナリの依存グラフから save が外れる。
+// save を参照する UI とファクトリをこのデスクトップ限定ファイルへ集約する。
+// WASM ビルドは saveload_wasm.go の空実装を使い、states から save への参照が消えてバイナリの依存グラフから save が外れる。
+// 保存できるデスクトップでも、体験版モードのときは採否関数がセーブ・ロードを落とす。
 
-// loadMainMenuItem はメインメニューのロード項目を返す。ok が真なら項目を採用する
+// loadMainMenuItem はメインメニューのロード項目を返す。ok が真なら項目を採用する。体験版では出さない
 func loadMainMenuItem(world w.World) (mainMenuItem, bool) {
+	if world.Resources.Config.Demo {
+		return mainMenuItem{}, false
+	}
 	return mainMenuItem{
 		Label:      query.T(world, "Load"),
 		Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}},
 	}, true
 }
 
-// dungeonSaveMenuChoice はダンジョンメニューのセーブ項目を返す。ok が真なら項目を採用する
+// dungeonSaveMenuChoice はダンジョンメニューのセーブ項目を返す。ok が真なら項目を採用する。体験版では出さない
 func dungeonSaveMenuChoice(world w.World) (Choice, bool) {
+	if world.Resources.Config.Demo {
+		return Choice{}, false
+	}
 	return Choice{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)}, true
 }
 
