@@ -3,10 +3,22 @@ package states
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// dungeonMenuLabels は選択肢のラベル一覧を返す
+func dungeonMenuLabels(world w.World) []string {
+	_, choices := dungeonMenuChoices(world)
+	labels := make([]string, len(choices))
+	for i, c := range choices {
+		labels[i] = c.Label
+	}
+	return labels
+}
 
 func TestNewOpeningState(t *testing.T) {
 	t.Parallel()
@@ -33,17 +45,21 @@ func TestNewOpeningState(t *testing.T) {
 	assert.True(t, md.HasNextMessages(), "後続メッセージが存在する")
 }
 
-func TestDungeonSaveMenuChoice_体験版では出さない(t *testing.T) {
+func TestDungeonMenuChoices_有効時はセーブ項目を出す(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
+	// InitTestWorld は開発プロファイルなのでセーブ・ロードが有効
+	assert.Contains(t, dungeonMenuLabels(world), "Save game")
+}
 
-	_, ok := dungeonSaveMenuChoice(world)
-	assert.True(t, ok, "通常はセーブ項目を出す")
+func TestDungeonMenuChoices_体験版はセーブ項目を出さない(t *testing.T) {
+	t.Parallel()
 
-	world.Resources.Config.Demo = true
-	_, ok = dungeonSaveMenuChoice(world)
-	assert.False(t, ok, "体験版ではセーブ項目を出さない")
+	world := testutil.InitTestWorld(t)
+	// steam タグなしの production は体験版になり、セーブを出さない
+	world.Resources.Config.Profile = config.ProfileProduction
+	assert.NotContains(t, dungeonMenuLabels(world), "Save game")
 }
 
 func TestNewGameOverMessageState(t *testing.T) {

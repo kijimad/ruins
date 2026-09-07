@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"os"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
 )
 
@@ -55,11 +56,6 @@ type Config struct {
 	// アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
 	DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
 
-	// 体験版モードかどうか。true のときセーブ・ロードをメニューから外す。
-	// 保存できるデスクトップでも体験版として配布する場合に立てる配布方針のフラグ。
-	// WASM は保存機構をビルドタグで外すので、このフラグに依らず常にセーブ・ロードを出さない。
-	Demo bool `env:"RUINS_DEMO"`
-
 	// 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される
 	Seed uint64 `env:"RUINS_SEED"`
 	// 乱数生成器。Seedから生成される
@@ -99,6 +95,14 @@ func DefaultUserConfig() UserConfig {
 		WindowHeight: 720,
 		Language:     "en",
 	}
+}
+
+// SaveLoadEnabled はセーブ・ロードのUIを出すかどうかを返す。
+// Steam の本番ビルドか、開発プロファイルのときだけ有効にする。開発プロファイルは開発時の起動と
+// テストが使う。既定配布と WASM は production プロファイルかつ steam タグなしなので体験版になり、
+// セーブ・ロードを出さない。
+func (c *Config) SaveLoadEnabled() bool {
+	return consts.IsSteamBuild || c.Profile == ProfileDevelopment
 }
 
 // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
@@ -154,9 +158,6 @@ func (c *Config) applyProductionDefaults() {
 	}
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
-	}
-	if os.Getenv("RUINS_DEMO") == "" {
-		c.Demo = false
 	}
 
 	// パフォーマンス設定
@@ -219,9 +220,6 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
-	}
-	if os.Getenv("RUINS_DEMO") == "" {
-		c.Demo = false
 	}
 
 	// パフォーマンス設定

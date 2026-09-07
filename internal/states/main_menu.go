@@ -94,9 +94,9 @@ func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 		{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
 		{Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
 	}
-	// プラットフォーム別実装が採否を返す
-	if item, ok := loadMainMenuItem(world); ok {
-		items = append(items, item)
+	// ロードは体験版では出さない。Steam 本番と開発・テストだけ有効
+	if world.Resources.Config.SaveLoadEnabled() {
+		items = append(items, mainMenuItem{Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}})
 	}
 	items = append(items,
 		mainMenuItem{Label: t("Settings"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},

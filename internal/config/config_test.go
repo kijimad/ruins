@@ -8,6 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSaveLoadEnabled_プロファイルで切り替わる(t *testing.T) {
+	t.Parallel()
+
+	// steam タグなしのテストビルドでは、開発プロファイルだけ有効になる
+	assert.True(t, (&Config{Profile: ProfileDevelopment}).SaveLoadEnabled(), "開発は有効")
+	assert.False(t, (&Config{Profile: ProfileProduction}).SaveLoadEnabled(), "本番の既定配布は体験版")
+}
+
 func TestApplyProfileDefaults_Production(t *testing.T) {
 	t.Parallel()
 
