@@ -986,9 +986,6 @@ type Consumable struct {
 	UsableScene UsableScene `json:"usableScene"`
 }
 
-// CubePanelTriggerRaw 移動拠点キューブのコントロールパネルトリガー
-type CubePanelTriggerRaw = map[string]interface{}
-
 // DamageBonus ダメージ補正値
 type DamageBonus = int
 
@@ -1629,9 +1626,6 @@ type Prop struct {
 	// BlockView 視線を遮るかどうか
 	BlockView BlocksView `json:"blockView"`
 
-	// CubePanelTrigger 移動拠点キューブのコントロールパネルトリガー
-	CubePanelTrigger *CubePanelTriggerRaw `json:"cubePanelTrigger,omitempty"`
-
 	// Description 説明文
 	Description EntityDescription `json:"description"`
 
@@ -1659,17 +1653,11 @@ type Prop struct {
 	// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 	PassCost *PassCost `json:"passCost,omitempty"`
 
-	// ShippingStation 通信販売の出荷場所ローデータ。収納の中身を集荷対象にし、出荷場所メニューを開く相互作用が付く。積載量は storage で持つ
-	ShippingStation *ShippingStationRaw `json:"shippingStation,omitempty"`
-
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
 	// Storage 収納ローデータ
 	Storage *StorageRaw `json:"storage,omitempty"`
-
-	// WarpCubeExitTrigger 移動拠点キューブの内部からの退場トリガー
-	WarpCubeExitTrigger *WarpCubeExitTriggerRaw `json:"warpCubeExitTrigger,omitempty"`
 
 	// WarpNextTrigger 次階層ワープトリガー
 	WarpNextTrigger *WarpNextTriggerRaw `json:"warpNextTrigger,omitempty"`
@@ -2460,9 +2448,6 @@ type Sensation = int
 // ShelterType 遮蔽タイプ
 type ShelterType float32
 
-// ShippingStationRaw 通信販売の出荷場所ローデータ。収納の中身を集荷対象にし、出荷場所メニューを開く相互作用が付く。積載量は storage で持つ
-type ShippingStationRaw = map[string]interface{}
-
 // SkillBook スキル本設定
 type SkillBook struct {
 	// MaxLevel スキルレベル
@@ -2591,9 +2576,6 @@ type ViewDistance = int
 
 // Vitality 体力。HPに影響する
 type Vitality = int
-
-// WarpCubeExitTriggerRaw 移動拠点キューブの内部からの退場トリガー
-type WarpCubeExitTriggerRaw = map[string]interface{}
 
 // WarpNextTriggerRaw 次階層ワープトリガー
 type WarpNextTriggerRaw = map[string]interface{}

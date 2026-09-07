@@ -150,7 +150,7 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 		InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter,
 		InteractionDoor, InteractionTalk, InteractionItem, InteractionItemAll,
 		InteractionStorage, InteractionMelee, InteractionDisassemble,
-		InteractionAuction, InteractionIgnite, InteractionFeedFuel,
+		InteractionIgnite, InteractionFeedFuel,
 		InteractionOpenCubeMenu, InteractionDrive,
 	}
 

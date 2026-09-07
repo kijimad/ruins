@@ -116,34 +116,6 @@ Depth = 1
 	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionPortalNext)
 }
 
-func TestNewPropSpec_出荷場所が設定される(t *testing.T) {
-	t.Parallel()
-	str := `
-[[Props]]
-Name = "出荷場所"
-id = "出荷場所"
-Description = "通信販売の出荷場所"
-BlockPass = true
-BlockView = false
-
-[Props.SpriteRender]
-SpriteSheetName = "field"
-SpriteKey = "shipping_station"
-Depth = 1
-
-[Props.ShippingStation]
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	entitySpec, err := NewPropSpec(raws, "出荷場所")
-	require.NoError(t, err)
-
-	require.NotNil(t, entitySpec.AuctionStation)
-	require.NotNil(t, entitySpec.Interactable)
-	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionAuction)
-}
-
 func TestNewPropSpec_収納の重量表記が不正だとエラー(t *testing.T) {
 	t.Parallel()
 	str := `

@@ -37,12 +37,6 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
 
-// OpenAuction は出荷場所のメニューを開く。積荷はステーションごとなので、対象の StationEntity を運ぶ。
-// 出品や金銭などの情報はシングルトンで共通に見せる
-type OpenAuction struct {
-	StationEntity ecs.Entity // 積荷の収納を持つ出荷場所
-}
-
 // OpenFeedFuel は火への給油メニューを開く。くべる先の火 FireEntity を運ぶ
 type OpenFeedFuel struct {
 	FireEntity ecs.Entity // 燃料をくべる火
@@ -58,7 +52,6 @@ func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
 func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
-func (OpenAuction) isStatePayload()      {}
 func (OpenFeedFuel) isStatePayload()     {}
 func (OpenCubeMenu) isStatePayload()     {}
 
@@ -99,11 +92,6 @@ func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
 // OpenFeedFuelEvent は火への給油メニューを開くリクエストを生成する
 func OpenFeedFuelEvent(fire ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenFeedFuel{FireEntity: fire}}
-}
-
-// OpenAuctionEvent は出荷場所のメニューを開くリクエストを生成する
-func OpenAuctionEvent(station ecs.Entity) StateChangeRequest {
-	return StateChangeRequest{Payload: OpenAuction{StationEntity: station}}
 }
 
 // OpenCubeMenuEvent は移動拠点キューブのメニューを開くリクエストを生成する

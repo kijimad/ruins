@@ -240,10 +240,6 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
-			case gc.InteractionAuction:
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "There is a shipping station. Press Enter to open it.")).
-					Log()
 			case gc.InteractionDrive:
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "You are on the cube. Press Enter to drive.")).
