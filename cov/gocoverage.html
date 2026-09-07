@@ -163,7 +163,7 @@
 				
 				<option value="file53">github.com/kijimaD/ruins/internal/components/game_time.go (74.6%)</option>
 				
-				<option value="file54">github.com/kijimaD/ruins/internal/components/health_status.go (85.2%)</option>
+				<option value="file54">github.com/kijimaD/ruins/internal/components/health_status.go (84.7%)</option>
 				
 				<option value="file55">github.com/kijimaD/ruins/internal/components/hunger.go (82.1%)</option>
 				
@@ -483,13 +483,13 @@
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/states/auction_menu.go (0.0%)</option>
 				
-				<option value="file214">github.com/kijimaD/ruins/internal/states/character_info.go (92.3%)</option>
+				<option value="file214">github.com/kijimaD/ruins/internal/states/character_info.go (94.4%)</option>
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/states/character_job.go (50.5%)</option>
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/states/character_naming.go (76.0%)</option>
 				
-				<option value="file217">github.com/kijimaD/ruins/internal/states/character_state.go (67.9%)</option>
+				<option value="file217">github.com/kijimaD/ruins/internal/states/character_state.go (70.1%)</option>
 				
 				<option value="file218">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
 				
@@ -1648,7 +1648,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1735,7 +1735,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1805,8 +1805,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -10442,6 +10442,12 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 // ConditionTypeDescription は状態種類の概要説明を返す。未登録なら空文字を返す
 func ConditionTypeDescription(ct ConditionType) string {
         <span class="cov8" title="1">return conditionDefs[ct].description
+</span>}
+
+// ConditionIsDerived は不調が疲労・空腹の量から読み取り時に導出されるものかを返す。
+// 導出される不調は保存されず、Timer も治療状態も持たない。過労・栄養失調が該当する
+func ConditionIsDerived(ct ConditionType) bool {
+        <span class="cov0" title="0">return ct == ConditionExhaustion || ct == ConditionMalnutrition
 </span>}
 
 // BodyFuncs は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
@@ -31722,8 +31728,8 @@ type statusItemData struct {
         IsHeader bool
         // BodyPart は健康タブの症状エントリが属する部位
         BodyPart gc.BodyPart
-        // ConditionType は健康タブの症状エントリが指す不調の種類。空なら症状でない行
-        ConditionType gc.ConditionType
+        // Condition は症状エントリが指す不調の実体。保存不調も導出不調も同じ形で載せる。症状でない行は nil
+        Condition *gc.HealthCondition
         // Details は詳細モーダルに表示する内訳
         Details []statusDetailRow
 }
@@ -31948,23 +31954,25 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
                 }
                 // 症状ごとに1エントリ。見出しと区別するため字下げする
                 <span class="cov8" title="1">for _, cond := range conds </span>{
-                        // 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
-                        <span class="cov8" title="1">if cond.Type == gc.ConditionExhaustion || cond.Type == gc.ConditionMalnutrition </span>{
-                                <span class="cov0" title="0">items = append(items, statusItemData{
-                                        Label:         healthEntryIndent + translatedConditionName(world, cond.Type),
-                                        Value:         query.T(world, cond.Severity.String()),
-                                        BodyPart:      part,
-                                        ConditionType: cond.Type,
+                        // 各行が自分の不調を指すよう反復ごとにコピーを確保する
+                        <span class="cov8" title="1">c := cond
+</span>                        // 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
+                        <span class="cov8" title="1">if gc.ConditionIsDerived(cond.Type) </span>{
+                                <span class="cov8" title="1">items = append(items, statusItemData{
+                                        Label:     healthEntryIndent + translatedConditionName(world, cond.Type),
+                                        Value:     query.T(world, cond.Severity.String()),
+                                        BodyPart:  part,
+                                        Condition: &amp;c,
                                 })
                                 continue</span>
                         }
                         // 怪我・病気は名前の右に治療状態、値に進行度を出す
                         <span class="cov8" title="1">name := translatedConditionName(world, cond.Type) + "  " + treatmentStatus(world, cond)
                         items = append(items, statusItemData{
-                                Label:         healthEntryIndent + name,
-                                Value:         fmt.Sprintf("%d%%", int(cond.Timer)),
-                                BodyPart:      part,
-                                ConditionType: cond.Type,
+                                Label:     healthEntryIndent + name,
+                                Value:     fmt.Sprintf("%d%%", int(cond.Timer)),
+                                BodyPart:  part,
+                                Condition: &amp;c,
                         })</span>
                 }
         }
@@ -31988,8 +31996,8 @@ func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailR
 func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
         <span class="cov8" title="1">var rows []statusDetailRow
         for _, c := range query.DerivedConditions(world, playerEntity) </span>{
-                <span class="cov0" title="0">if _, _, drop := gc.ConditionBodyFuncImpact(&amp;c, gc.BodyPartWholeBody); drop != 0 </span>{
-                        <span class="cov0" title="0">rows = append(rows, statusDetailRow{Label: query.T(world, gc.ConditionTypeDisplayName(c.Type)), Value: fmt.Sprintf("-%d%%", drop)})
+                <span class="cov8" title="1">if _, _, drop := gc.ConditionBodyFuncImpact(&amp;c, gc.BodyPartWholeBody); drop != 0 </span>{
+                        <span class="cov8" title="1">rows = append(rows, statusDetailRow{Label: query.T(world, gc.ConditionTypeDisplayName(c.Type)), Value: fmt.Sprintf("-%d%%", drop)})
 </span>                }
         }
         <span class="cov8" title="1">return rows</span>
@@ -32892,16 +32900,14 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 // healthDetailContent は健康タブで選んだ1症状の詳細を組む。名前と概要、進行度・治療・
 // 能力デバフの性能行を返す。症状の無い部位のエントリは概要だけを出す
 func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {
-        <span class="cov8" title="1">if item.ConditionType == "" </span>{
+        // 症状の無い部位は概要だけ出す
+        <span class="cov8" title="1">if item.Condition == nil </span>{
                 <span class="cov0" title="0">return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, "No injury or illness")}
 </span>        }
-        <span class="cov8" title="1">player, err := query.GetPlayerEntity(world)
-        if err != nil || !query.AliveHas(world, world.Components.HealthStatus, player) </span>{
-                <span class="cov0" title="0">return overlay.DetailContent{Name: item.Label}
-</span>        }
-        <span class="cov8" title="1">cond := world.Components.HealthStatus.Get(player).Parts[item.BodyPart].GetCondition(item.ConditionType)
-        if cond == nil </span>{
-                <span class="cov0" title="0">return overlay.DetailContent{Name: item.Label}
+        <span class="cov8" title="1">cond := item.Condition
+</span>        // 導出不調は Timer も治療状態も持たない。進行度でなく重症度と、下げる身体機能だけを出す
+        <span class="cov8" title="1">if gc.ConditionIsDerived(cond.Type) </span>{
+                <span class="cov8" title="1">return derivedConditionDetail(world, cond)
 </span>        }
 
         <span class="cov8" title="1">pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)
@@ -32923,6 +32929,26 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
         // 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
         <span class="cov8" title="1">if name, ok := remedyItemNameFor(world, cond.Type); ok </span>{
                 <span class="cov8" title="1">rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Treated by"), Value: query.T(world, name)})
+</span>        }
+        <span class="cov8" title="1">return overlay.DetailContent{
+                Name: translatedConditionName(world, cond.Type),
+                Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
+                Rows: rows,
+</span>        }
+}
+
+// derivedConditionDetail は過労・栄養失調の詳細を組む。量から導出され Timer も治療状態も持たないので、
+// 進行度・治療でなく重症度を出す。この不調は意識と代謝を同じ量だけ下げるので両方の低下を並べる
+func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.DetailContent {
+        <span class="cov8" title="1">rows := []entityspec.SpecRow{
+                {Label: query.T(world, "Severity"), Value: query.T(world, cond.Severity.String())},
+</span>        }
+        // 全身性なので意識と代謝を drop ぶん下げる
+        <span class="cov8" title="1">if _, _, drop := gc.ConditionBodyFuncImpact(cond, gc.BodyPartWholeBody); drop &gt; 0 </span>{
+                <span class="cov8" title="1">rows = append(rows,
+                        entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncConsciousness)), Value: fmt.Sprintf("-%d", drop)},
+                        entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncMetabolism)), Value: fmt.Sprintf("-%d", drop)},
+                )
 </span>        }
         <span class="cov8" title="1">return overlay.DetailContent{
                 Name: translatedConditionName(world, cond.Type),

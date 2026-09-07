@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">67.3&nbsp;%</td>
-            <td class="headerCovTableEntry">205</td>
-            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntryLo">70.8&nbsp;%</td>
+            <td class="headerCovTableEntry">216</td>
+            <td class="headerCovTableEntry">153</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-07 00:23:28</td>
+            <td class="headerValue">2026-09-07 14:03:14</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -415,63 +415,81 @@
 <span id="L353"><span class="lineNum">     353</span>              : // healthDetailContent は健康タブで選んだ1症状の詳細を組む。名前と概要、進行度・治療・</span>
 <span id="L354"><span class="lineNum">     354</span>              : // 能力デバフの性能行を返す。症状の無い部位のエントリは概要だけを出す</span>
 <span id="L355"><span class="lineNum">     355</span>              : func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {</span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC tlaBgGNC">           1 :         if item.ConditionType == &quot;&quot; {</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, &quot;No injury or illness&quot;)}</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :         if err != nil || !query.AliveHas(world, world.Components.HealthStatus, player) {</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: item.Label}</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC tlaBgGNC">           1 :         cond := world.Components.HealthStatus.Get(player).Parts[item.BodyPart].GetCondition(item.ConditionType)</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         if cond == nil {</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: item.Label}</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L367"><span class="lineNum">     367</span>              : </span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC tlaBgGNC">           1 :         pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         rows := make([]entityspec.SpecRow, 0, 4)</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         rows = append(rows,</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 entityspec.SpecRow{Label: query.T(world, &quot;Progress&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, int(cond.Timer))},</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :                 entityspec.SpecRow{Label: query.T(world, &quot;Treatment&quot;), Value: treatmentStatus(world, *cond)},</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :         if pain &gt; 0 {</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Pain&quot;), Value: fmt.Sprintf(&quot;+%d&quot;, pain)})</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :         if drop &gt; 0 {</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf(&quot;-%d&quot;, drop)})</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L380"><span class="lineNum">     380</span>              :         // 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする</span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         if bd := gc.ConditionBloodDrop(cond); bd &gt; 0 {</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC tlaBgUNC">           0 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Blood loss&quot;), Value: fmt.Sprintf(&quot;-%d&quot;, bd)})</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L384"><span class="lineNum">     384</span>              :         // 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする</span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC tlaBgGNC">           1 :         if name, ok := remedyItemNameFor(world, cond.Type); ok {</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Treated by&quot;), Value: query.T(world, name)})</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         return overlay.DetailContent{</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                 Name: translatedConditionName(world, cond.Type),</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                 Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                 Rows: rows,</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L393"><span class="lineNum">     393</span>              : }</span>
-<span id="L394"><span class="lineNum">     394</span>              : </span>
-<span id="L395"><span class="lineNum">     395</span>              : // remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。</span>
-<span id="L396"><span class="lineNum">     396</span>              : // 健康タブに治し方を示すのに使う。見つからなければ ok=false。</span>
-<span id="L397"><span class="lineNum">     397</span>              : // 複数のアイテムが同じ不調を治せる場合は先頭の1件だけ返す。1症状に1種の治療アイテムを保つ前提</span>
-<span id="L398"><span class="lineNum">     398</span>              : func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {</span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(world.Resources.RawMaster.Items)</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :                 it := &amp;items[i]</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                 if it.Remedy == nil {</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L404"><span class="lineNum">     404</span>              :                 }</span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :                 for _, t := range it.Remedy.Treats {</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                         if gc.ConditionType(t) == ct {</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :                                 return it.Name, true</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L409"><span class="lineNum">     409</span>              :                 }</span>
-<span id="L410"><span class="lineNum">     410</span>              :         }</span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;, false</span></span>
-<span id="L412"><span class="lineNum">     412</span>              : }</span>
+<span id="L356"><span class="lineNum">     356</span>              :         // 症状の無い部位は概要だけ出す</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC tlaBgGNC">           1 :         if item.Condition == nil {</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC tlaBgUNC">           0 :                 return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, &quot;No injury or illness&quot;)}</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC tlaBgGNC">           1 :         cond := item.Condition</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :         // 導出不調は Timer も治療状態も持たない。進行度でなく重症度と、下げる身体機能だけを出す</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :         if gc.ConditionIsDerived(cond.Type) {</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :                 return derivedConditionDetail(world, cond)</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L365"><span class="lineNum">     365</span>              : </span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         rows := make([]entityspec.SpecRow, 0, 4)</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :         rows = append(rows,</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 entityspec.SpecRow{Label: query.T(world, &quot;Progress&quot;), Value: fmt.Sprintf(&quot;%d%%&quot;, int(cond.Timer))},</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                 entityspec.SpecRow{Label: query.T(world, &quot;Treatment&quot;), Value: treatmentStatus(world, *cond)},</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         if pain &gt; 0 {</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Pain&quot;), Value: fmt.Sprintf(&quot;+%d&quot;, pain)})</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         if drop &gt; 0 {</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf(&quot;-%d&quot;, drop)})</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L378"><span class="lineNum">     378</span>              :         // 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         if bd := gc.ConditionBloodDrop(cond); bd &gt; 0 {</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC tlaBgUNC">           0 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Blood loss&quot;), Value: fmt.Sprintf(&quot;-%d&quot;, bd)})</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L382"><span class="lineNum">     382</span>              :         // 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする</span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC tlaBgGNC">           1 :         if name, ok := remedyItemNameFor(world, cond.Type); ok {</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Treated by&quot;), Value: query.T(world, name)})</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         return overlay.DetailContent{</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                 Name: translatedConditionName(world, cond.Type),</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :                 Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                 Rows: rows,</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L391"><span class="lineNum">     391</span>              : }</span>
+<span id="L392"><span class="lineNum">     392</span>              : </span>
+<span id="L393"><span class="lineNum">     393</span>              : // derivedConditionDetail は過労・栄養失調の詳細を組む。量から導出され Timer も治療状態も持たないので、</span>
+<span id="L394"><span class="lineNum">     394</span>              : // 進行度・治療でなく重症度を出す。この不調は意識と代謝を同じ量だけ下げるので両方の低下を並べる</span>
+<span id="L395"><span class="lineNum">     395</span>              : func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.DetailContent {</span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         rows := []entityspec.SpecRow{</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Severity&quot;), Value: query.T(world, cond.Severity.String())},</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L399"><span class="lineNum">     399</span>              :         // 全身性なので意識と代謝を drop ぶん下げる</span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         if _, _, drop := gc.ConditionBodyFuncImpact(cond, gc.BodyPartWholeBody); drop &gt; 0 {</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :                 rows = append(rows,</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                         entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncConsciousness)), Value: fmt.Sprintf(&quot;-%d&quot;, drop)},</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                         entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncMetabolism)), Value: fmt.Sprintf(&quot;-%d&quot;, drop)},</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                 )</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :         return overlay.DetailContent{</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :                 Name: translatedConditionName(world, cond.Type),</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                 Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :                 Rows: rows,</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L411"><span class="lineNum">     411</span>              : }</span>
+<span id="L412"><span class="lineNum">     412</span>              : </span>
+<span id="L413"><span class="lineNum">     413</span>              : // remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。</span>
+<span id="L414"><span class="lineNum">     414</span>              : // 健康タブに治し方を示すのに使う。見つからなければ ok=false。</span>
+<span id="L415"><span class="lineNum">     415</span>              : // 複数のアイテムが同じ不調を治せる場合は先頭の1件だけ返す。1症状に1種の治療アイテムを保つ前提</span>
+<span id="L416"><span class="lineNum">     416</span>              : func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {</span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(world.Resources.RawMaster.Items)</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :                 it := &amp;items[i]</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :                 if it.Remedy == nil {</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L422"><span class="lineNum">     422</span>              :                 }</span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                 for _, t := range it.Remedy.Treats {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                         if gc.ConditionType(t) == ct {</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                                 return it.Name, true</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L427"><span class="lineNum">     427</span>              :                 }</span>
+<span id="L428"><span class="lineNum">     428</span>              :         }</span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;, false</span></span>
+<span id="L430"><span class="lineNum">     430</span>              : }</span>
         </pre>
               </td>
             </tr>
