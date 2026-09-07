@@ -26,19 +26,24 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 }
 
 func dungeonMenuChoices(world w.World) (string, []Choice) {
-	return "", []Choice{
+	choices := []Choice{
 		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
 		{Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
 		{Label: query.T(world, "Crafting"), Run: pushChoice(NewCraftMenuState)},
 		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
-		{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
-		{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
+	}
+	if world.Resources.Config.SaveLoadEnabled {
+		choices = append(choices, Choice{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)})
+	}
+	choices = append(choices,
+		Choice{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}, nil
 		}},
-		{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
+		Choice{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}},
-	}
+	)
+	return "", choices
 }
 
 // NewCraftMenuState は新しいCraftMenuStateインスタンスを作成するファクトリー関数

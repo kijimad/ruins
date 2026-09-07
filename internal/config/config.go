@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"os"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
 )
 
@@ -54,6 +55,12 @@ type Config struct {
 	// VRT はこれを立てて撮る。スキャンラインは全画面の高周波パターンで、フォントの
 	// アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
 	DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
+
+	// セーブ・ロードを有効にするか。env でなく profile と steam タグで決まる導出値。
+	// development は常に true で、開発時の起動とテストが保存を試せる。production は steam タグの
+	// ときだけ true で、Steam 版がフル版になる。既定配布と WASM は production かつタグなしなので
+	// false になり、体験版としてセーブ・ロードを出さない。
+	SaveLoadEnabled bool
 
 	// 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される
 	Seed uint64 `env:"RUINS_SEED"`
@@ -150,6 +157,7 @@ func (c *Config) applyProductionDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
+	c.SaveLoadEnabled = consts.IsSteamBuild
 
 	// パフォーマンス設定
 	if os.Getenv("RUINS_TARGET_FPS") == "" {
@@ -212,6 +220,7 @@ func (c *Config) applyDevelopmentDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
+	c.SaveLoadEnabled = true
 
 	// パフォーマンス設定
 	if os.Getenv("RUINS_TARGET_FPS") == "" {

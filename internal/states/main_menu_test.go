@@ -24,6 +24,7 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	t.Parallel()
 
 	state := &MainMenuState{}
+	// InitTestWorld は開発プロファイルなので SaveLoadEnabled が真になり、ロードを含む5項目が出る
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -41,6 +42,25 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	assert.Equal(t, es.TransPush, props.Items[3].Transition.Type, "設定は Push")
 	assert.Equal(t, "Quit", props.Items[4].Label)
 	assert.Equal(t, es.TransQuit, props.Items[4].Transition.Type, "終了は Quit")
+}
+
+func TestMainMenuState_体験版はロード項目を出さない(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	// 体験版はセーブ・ロード無効。プロファイル既定の結果をここでは直接与える
+	world.Resources.Config.SaveLoadEnabled = false
+	require.NoError(t, state.OnStart(world))
+
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
+
+	labels := make([]string, len(props.Items))
+	for i, item := range props.Items {
+		labels[i] = item.Label
+	}
+	assert.Equal(t, []string{"Start", "Demo", "Settings", "Quit"}, labels, "体験版では Load が消えて4項目")
 }
 
 func TestMainMenuState_言語切替でラベルが変わる(t *testing.T) {

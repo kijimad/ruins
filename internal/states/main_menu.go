@@ -90,15 +90,18 @@ func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 	}
 
 	t := func(msgid string) string { return query.T(world, msgid) }
-	return MainMenuProps{
-		Items: []mainMenuItem{
-			{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
-			{Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
-			{Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
-			{Label: t("Settings"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
-			{Label: t("Quit"), Transition: es.Transition[w.World]{Type: es.TransQuit}},
-		},
-	}, nil
+	items := []mainMenuItem{
+		{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
+		{Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
+	}
+	if world.Resources.Config.SaveLoadEnabled {
+		items = append(items, mainMenuItem{Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}})
+	}
+	items = append(items,
+		mainMenuItem{Label: t("Settings"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
+		mainMenuItem{Label: t("Quit"), Transition: es.Transition[w.World]{Type: es.TransQuit}},
+	)
+	return MainMenuProps{Items: items}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
