@@ -30,7 +30,7 @@ func dungeonMenuChoices(world w.World) (string, []Choice) {
 		{Label: query.T(world, "Crafting"), Run: pushChoice(NewCraftMenuState)},
 		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
 	}
-	// セーブは体験版では出さない。プラットフォーム別実装が採否を返す
+	// セーブは WASM 版では出さない。プラットフォーム別実装が採否を返す
 	if c, ok := dungeonSaveMenuChoice(world); ok {
 		choices = append(choices, c)
 	}
