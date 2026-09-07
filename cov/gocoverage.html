@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -515,7 +515,7 @@
 				
 				<option value="file229">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
-				<option value="file230">github.com/kijimaD/ruins/internal/states/factories.go (67.1%)</option>
+				<option value="file230">github.com/kijimaD/ruins/internal/states/factories.go (68.2%)</option>
 				
 				<option value="file231">github.com/kijimaD/ruins/internal/states/feed_fuel_menu.go (64.9%)</option>
 				
@@ -525,7 +525,7 @@
 				
 				<option value="file234">github.com/kijimaD/ruins/internal/states/look_around.go (82.9%)</option>
 				
-				<option value="file235">github.com/kijimaD/ruins/internal/states/main_menu.go (81.4%)</option>
+				<option value="file235">github.com/kijimaD/ruins/internal/states/main_menu.go (83.7%)</option>
 				
 				<option value="file236">github.com/kijimaD/ruins/internal/states/mapgen_visualizer.go (0.0%)</option>
 				
@@ -1735,7 +1735,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1805,8 +1805,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -12802,6 +12802,7 @@ import (
         "math/rand/v2"
         "os"
 
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/i18n"
 )
 
@@ -12850,6 +12851,12 @@ type Config struct {
         // VRT はこれを立てて撮る。スキャンラインは全画面の高周波パターンで、フォントの
         // アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
         DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
+
+        // セーブ・ロードを有効にするか。env でなく profile と steam タグで決まる導出値。
+        // development は常に true で、開発時の起動とテストが保存を試せる。production は steam タグの
+        // ときだけ true で、Steam 版がフル版になる。既定配布と WASM は production かつタグなしなので
+        // false になり、体験版としてセーブ・ロードを出さない。
+        SaveLoadEnabled bool
 
         // 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される
         Seed uint64 `env:"RUINS_SEED"`
@@ -12946,7 +12953,8 @@ func (c *Config) applyProductionDefaults() {
         <span class="cov8" title="1">if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" </span>{
                 <span class="cov8" title="1">c.DisableScreenFilter = false
 </span>        }
-
+        <span class="cov8" title="1">c.SaveLoadEnabled = consts.IsSteamBuild
+</span>
         // パフォーマンス設定
         <span class="cov8" title="1">if os.Getenv("RUINS_TARGET_FPS") == "" </span>{
                 <span class="cov8" title="1">c.TargetFPS = 60
@@ -13008,7 +13016,8 @@ func (c *Config) applyDevelopmentDefaults() {
         <span class="cov8" title="1">if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" </span>{
                 <span class="cov8" title="1">c.DisableScreenFilter = false
 </span>        }
-
+        <span class="cov8" title="1">c.SaveLoadEnabled = true
+</span>
         // パフォーマンス設定
         <span class="cov8" title="1">if os.Getenv("RUINS_TARGET_FPS") == "" </span>{
                 <span class="cov8" title="1">c.TargetFPS = 60
@@ -35557,19 +35566,24 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 </span>}
 
 func dungeonMenuChoices(world w.World) (string, []Choice) {
-        <span class="cov8" title="1">return "", []Choice{
+        <span class="cov8" title="1">choices := []Choice{
                 {Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
                 {Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
                 {Label: query.T(world, "Crafting"), Run: pushChoice(NewCraftMenuState)},
                 {Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
-                {Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
-                {Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) </span>{
+</span>        }
+        <span class="cov8" title="1">if world.Resources.Config.SaveLoadEnabled </span>{
+                <span class="cov8" title="1">choices = append(choices, Choice{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)})
+</span>        }
+        <span class="cov8" title="1">choices = append(choices,
+                Choice{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) </span>{
                         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}, nil
 </span>                }},
-                {Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
+                Choice{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
                         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil
 </span>                }},
-        }
+        )
+        <span class="cov8" title="1">return "", choices</span>
 }
 
 // NewCraftMenuState は新しいCraftMenuStateインスタンスを作成するファクトリー関数
@@ -36918,15 +36932,18 @@ func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 </span>        }
 
         <span class="cov8" title="1">t := func(msgid string) string </span>{ <span class="cov8" title="1">return query.T(world, msgid) }</span>
-        <span class="cov8" title="1">return MainMenuProps{
-                Items: []mainMenuItem{
-                        {Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
-                        {Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
-                        {Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
-                        {Label: t("Settings"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
-                        {Label: t("Quit"), Transition: es.Transition[w.World]{Type: es.TransQuit}},
-                },
-        }, nil</span>
+        <span class="cov8" title="1">items := []mainMenuItem{
+                {Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
+                {Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
+</span>        }
+        <span class="cov8" title="1">if world.Resources.Config.SaveLoadEnabled </span>{
+                <span class="cov8" title="1">items = append(items, mainMenuItem{Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}})
+</span>        }
+        <span class="cov8" title="1">items = append(items,
+                mainMenuItem{Label: t("Settings"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
+                mainMenuItem{Label: t("Quit"), Transition: es.Transition[w.World]{Type: es.TransQuit}},
+        )
+        return MainMenuProps{Items: items}, nil</span>
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
