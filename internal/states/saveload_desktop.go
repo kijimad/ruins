@@ -30,8 +30,7 @@ func dungeonSaveMenuChoice(world w.World) (Choice, bool) {
 	return Choice{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)}, true
 }
 
-// NewSaveMenuState は手動セーブ画面を作成するファクトリー関数。
-// 固定4スロットで、主人公名とタイムスタンプを表示する。
+// NewSaveMenuState は手動セーブ画面を作る。固定4スロットで、主人公名とタイムスタンプを表示する
 func NewSaveMenuState() (es.State[w.World], error) {
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
@@ -57,8 +56,7 @@ func NewSaveMenuState() (es.State[w.World], error) {
 	}), nil
 }
 
-// NewLoadMenuState はロード画面を作成するファクトリー関数。
-// 手動4スロットとオートセーブ4スロットをセクション分けで表示する。
+// NewLoadMenuState はロード画面を作る。手動4スロットとオートセーブ4スロットをセクション分けで表示する
 func NewLoadMenuState() (es.State[w.World], error) {
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
@@ -94,7 +92,6 @@ func NewLoadMenuState() (es.State[w.World], error) {
 	}), nil
 }
 
-// backChoice は戻る選択肢を返す。セーブ・ロードの選択メニューで共通に使う
 func backChoice(world w.World) Choice {
 	return Choice{Label: query.T(world, "Back"), Run: func(_ w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
