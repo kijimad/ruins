@@ -94,7 +94,7 @@ func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 		{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
 		{Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
 	}
-	// ロードは WASM 版では出さない。プラットフォーム別実装が採否を返す
+	// プラットフォーム別実装が採否を返す
 	if item, ok := loadMainMenuItem(world); ok {
 		items = append(items, item)
 	}
