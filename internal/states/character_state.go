@@ -353,12 +353,10 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 // healthDetailContent は健康タブで選んだ1症状の詳細を組む。名前と概要、進行度・治療・
 // 能力デバフの性能行を返す。症状の無い部位のエントリは概要だけを出す
 func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {
-	// 症状の無い部位は概要だけ出す。読む Condition そのものを見張ることで、
-	// 別フィールドとの食い違いによる nil 参照を構造的に防ぐ
+	// 症状の無い部位は概要だけ出す
 	if item.Condition == nil {
 		return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, "No injury or illness")}
 	}
-	// 一覧生成時に確定した不調をそのまま読む。保存不調も導出不調も item が運ぶので再取得しない
 	cond := item.Condition
 	// 導出不調は Timer も治療状態も持たない。進行度でなく重症度と、下げる身体機能だけを出す
 	if gc.ConditionIsDerived(cond.Type) {
@@ -398,7 +396,7 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 	rows := []entityspec.SpecRow{
 		{Label: query.T(world, "Severity"), Value: query.T(world, cond.Severity.String())},
 	}
-	// 全身性なので意識と代謝を drop ぶん下げる。BodyFuncs の畳み込みと同じ量を示す
+	// 全身性なので意識と代謝を drop ぶん下げる
 	if _, _, drop := gc.ConditionBodyFuncImpact(cond, gc.BodyPartWholeBody); drop > 0 {
 		rows = append(rows,
 			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncConsciousness)), Value: fmt.Sprintf("-%d", drop)},

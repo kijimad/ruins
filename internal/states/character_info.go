@@ -49,8 +49,7 @@ type statusItemData struct {
 	IsHeader bool
 	// BodyPart は健康タブの症状エントリが属する部位
 	BodyPart gc.BodyPart
-	// Condition は症状エントリが指す不調の実体。一覧生成時に確定し、詳細生成はこれを読む。
-	// 保存不調も導出不調も同じ形で載せ、詳細側で再取得しない。症状でない行は nil
+	// Condition は症状エントリが指す不調の実体。保存不調も導出不調も同じ形で載せる。症状でない行は nil
 	Condition *gc.HealthCondition
 	// Details は詳細モーダルに表示する内訳
 	Details []statusDetailRow
@@ -276,7 +275,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		}
 		// 症状ごとに1エントリ。見出しと区別するため字下げする
 		for _, cond := range conds {
-			// 詳細生成へ渡すため反復ごとのコピーを確保する。詳細はこの実体を読み再取得しない
+			// 各行が自分の不調を指すよう反復ごとにコピーを確保する
 			c := cond
 			// 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
 			if gc.ConditionIsDerived(cond.Type) {

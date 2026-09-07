@@ -197,8 +197,7 @@ func ConditionTypeDescription(ct ConditionType) string {
 }
 
 // ConditionIsDerived は不調が疲労・空腹の量から読み取り時に導出されるものかを返す。
-// 導出される不調は保存されず、Timer も治療状態も持たない。過労・栄養失調が該当する。
-// 一覧・詳細の表示がこの1関数で導出不調を見分けるので、両者の扱いがずれない
+// 導出される不調は保存されず、Timer も治療状態も持たない。過労・栄養失調が該当する
 func ConditionIsDerived(ct ConditionType) bool {
 	return ct == ConditionExhaustion || ct == ConditionMalnutrition
 }
