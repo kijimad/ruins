@@ -128,12 +128,13 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 		if it.BodyPart == gc.BodyPartArms && it.IsHeader {
 			hasArmHeader = true
 		}
-		if it.BodyPart == gc.BodyPartArms && it.ConditionType == gc.ConditionFracture {
+		if it.BodyPart == gc.BodyPartArms && it.Condition != nil && it.Condition.Type == gc.ConditionFracture {
 			frac = it
 		}
 	}
 	assert.True(t, hasArmHeader, "部位はカテゴリ見出しになる")
-	require.Equal(t, gc.ConditionFracture, frac.ConditionType, "腕の骨折が1エントリとして並ぶ")
+	require.NotNil(t, frac.Condition, "腕の骨折が1エントリとして並ぶ")
+	require.Equal(t, gc.ConditionFracture, frac.Condition.Type, "エントリは骨折の不調を運ぶ")
 	assert.Equal(t, "60%", frac.Value, "エントリの値に進行度")
 	assert.Contains(t, frac.Label, "Tended 150%", "症状名の右に治療状態")
 
@@ -190,11 +191,12 @@ func TestCharacterState_過労の詳細は重症度と意識代謝の低下を�
 	// 全身に過労が1エントリとして並ぶ。一覧は重症度を値に出す
 	var exhaustion statusItemData
 	for _, it := range health.Items {
-		if it.ConditionType == gc.ConditionExhaustion {
+		if it.Condition != nil && it.Condition.Type == gc.ConditionExhaustion {
 			exhaustion = it
 		}
 	}
-	require.Equal(t, gc.ConditionExhaustion, exhaustion.ConditionType, "全身に過労が並ぶ")
+	require.NotNil(t, exhaustion.Condition, "全身に過労が並ぶ")
+	require.Equal(t, gc.ConditionExhaustion, exhaustion.Condition.Type, "エントリは過労の不調を運ぶ")
 	require.Equal(t, gc.BodyPartWholeBody, exhaustion.BodyPart, "過労は全身性")
 	assert.Equal(t, "Medium", exhaustion.Value, "一覧の値は重症度")
 
