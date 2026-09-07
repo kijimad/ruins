@@ -5949,6 +5949,9 @@ msgstr "液体"
 msgid "Fuel"
 msgstr "燃料"
 
+msgid "Total weight"
+msgstr "総重量"
+
 msgid "Heat"
 msgstr "熱量"
 

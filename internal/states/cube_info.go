@@ -2,26 +2,34 @@ package states
 
 import (
 	"fmt"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/menuloop"
+	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// CubeInfoState は移動拠点キューブの情報を表示する。収納の総重量と燃料残量を読める。
-// 表示中は状態が動かないので値は Draw で都度算出する。
+const cubeInfoMenuKey = "cube_info"
+
+// CubeInfoState は移動拠点キューブの情報をタブで見る読み取り専用画面。
+// いまは基本タブだけで、収納の総重量と燃料残量を出す。タブは後で増やす。
 type CubeInfoState struct {
 	es.BaseState[w.World]
 
-	cube ecs.Entity
+	cube   ecs.Entity
+	screen *menuloop.Screen[CubeInfoProps]
+}
+
+// CubeInfoProps は情報画面の表示 props
+type CubeInfoProps struct {
+	Tabs []statsTab
 }
 
 var _ es.State[w.World] = &CubeInfoState{}
@@ -31,57 +39,75 @@ func NewCubeInfoState(cube ecs.Entity) (es.State[w.World], error) {
 	return &CubeInfoState{cube: cube}, nil
 }
 
-// OnPause はステートが一時停止される際に呼ばれる。
-func (st *CubeInfoState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる。
-func (st *CubeInfoState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが終了する際に呼ばれる。
-func (st *CubeInfoState) OnStop(_ w.World) error { return nil }
-
-// OnStart はステートが開始される際に呼ばれる。
-func (st *CubeInfoState) OnStart(_ w.World) error { return nil }
-
-// cubeInfoBindings は情報画面の束縛表。Esc で閉じるだけ
-var cubeInfoBindings = []keybind.Binding{
-	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
-}
-
-// Update はキー入力で閉じるだけ。表示中は時間を進めない。
-func (st *CubeInfoState) Update(world w.World) (es.Transition[w.World], error) {
-	if action, ok := keybind.ReadInput(world, cubeInfoBindings); ok && action == inputmapper.ActionCloseMenu {
-		return es.Transition[w.World]{Type: es.TransPop}, nil
-	}
-	return st.ConsumeTransition(), nil
-}
-
-// Draw は収納の総重量と燃料残量を行で描く。
-func (st *CubeInfoState) Draw(world w.World, screen *ebiten.Image) error {
-	face := world.Resources.UIResources.Text.BodyFace
-
-	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(float64(x), float64(y))
-		op.ColorScale.ScaleWithColor(c)
-		text.Draw(screen, str, face, op)
-	}
-
-	const x consts.ScreenPixel = 40
-	y := consts.ScreenPixel(40)
-	line := func(s string, c color.Color) {
-		drawText(s, x, y, c)
-		y += 28
-	}
-
-	weight := query.CubeWeight(world, st.cube)
-	fuel := query.CubeFuelTotal(world, st.cube)
-
-	line("Cube info", theme.TextPrimary)
-	y += 8
-	line(fmt.Sprintf("Total weight: %s", weight.KgString()), theme.TextPrimary)
-	line(fmt.Sprintf("Fuel: %s", fuel.String()), theme.TextPrimary)
-	y += 8
-	line("Esc to close", theme.TextAccent)
+// OnStart は Screen を組む。overlay は持たない読み取り専用画面
+func (st *CubeInfoState) OnStart(_ w.World) error {
+	st.screen = menuloop.NewScreen[CubeInfoProps](st)
 	return nil
+}
+
+// Update はステートの更新を Screen へ委譲する
+func (st *CubeInfoState) Update(world w.World) (es.Transition[w.World], error) {
+	return st.screen.Update(world)
+}
+
+// Draw はステートの描画を Screen へ委譲する
+func (st *CubeInfoState) Draw(_ w.World, screen *ebiten.Image) error {
+	st.screen.Draw(screen)
+	return nil
+}
+
+// DoAction は読み取り専用なので閉じる操作だけ扱う
+func (st *CubeInfoState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	switch action {
+	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionMenuSelect:
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	default:
+		return es.Transition[w.World]{}, fmt.Errorf("cubeInfo: unsupported action: %s", action)
+	}
+}
+
+// Fetch は表示するタブを組む。いまは基本タブだけ
+func (st *CubeInfoState) Fetch(world w.World) (CubeInfoProps, error) {
+	return CubeInfoProps{Tabs: []statsTab{
+		{Label: query.T(world, "Basic"), Items: cubeInfoItems(world, st.cube)},
+	}}, nil
+}
+
+// Menu はタブ構成を返す。見出し行が無いのでスキップは不要
+func (st *CubeInfoState) Menu(props CubeInfoProps) menuloop.MenuConfig {
+	itemCounts := make([]int, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+	return menuloop.MenuConfig{Key: cubeInfoMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
+}
+
+// ViewUI はタブ帯つきの情報表を組む
+func (st *CubeInfoState) ViewUI(world w.World, props CubeInfoProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	tabIndex := cursor.TabIndex
+	if tabIndex >= len(props.Tabs) {
+		tabIndex = 0
+	}
+	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+	return menuframe.TabScreen(world, res, query.T(world, "Cube info"), labels, tabIndex, content, keybind.HelpHint(world), pager)
+}
+
+// cubeInfoItems はキューブの基本情報を表の行に組む。収納の総重量と燃料残量。
+// 値は表示時に都度算出する。死んだキューブには空を返す
+func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
+	if !world.ECS.Alive(cube) {
+		return nil
+	}
+	weight := query.CubeWeight(world, cube)
+	fuel := query.CubeFuelTotal(world, cube)
+	return []statusItemData{
+		{Label: query.T(world, "Total weight"), Value: weight.KgString()},
+		{Label: query.T(world, "Fuel"), Value: fuel.String()},
+	}
 }
