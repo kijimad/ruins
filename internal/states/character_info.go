@@ -49,8 +49,8 @@ type statusItemData struct {
 	IsHeader bool
 	// BodyPart は健康タブの症状エントリが属する部位
 	BodyPart gc.BodyPart
-	// ConditionType は健康タブの症状エントリが指す不調の種類。空なら症状でない行
-	ConditionType gc.ConditionType
+	// Condition は症状エントリが指す不調の実体。保存不調も導出不調も同じ形で載せる。症状でない行は nil
+	Condition *gc.HealthCondition
 	// Details は詳細モーダルに表示する内訳
 	Details []statusDetailRow
 }
@@ -275,23 +275,25 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		}
 		// 症状ごとに1エントリ。見出しと区別するため字下げする
 		for _, cond := range conds {
+			// 各行が自分の不調を指すよう反復ごとにコピーを確保する
+			c := cond
 			// 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
-			if cond.Type == gc.ConditionExhaustion || cond.Type == gc.ConditionMalnutrition {
+			if gc.ConditionIsDerived(cond.Type) {
 				items = append(items, statusItemData{
-					Label:         healthEntryIndent + translatedConditionName(world, cond.Type),
-					Value:         query.T(world, cond.Severity.String()),
-					BodyPart:      part,
-					ConditionType: cond.Type,
+					Label:     healthEntryIndent + translatedConditionName(world, cond.Type),
+					Value:     query.T(world, cond.Severity.String()),
+					BodyPart:  part,
+					Condition: &c,
 				})
 				continue
 			}
 			// 怪我・病気は名前の右に治療状態、値に進行度を出す
 			name := translatedConditionName(world, cond.Type) + "  " + treatmentStatus(world, cond)
 			items = append(items, statusItemData{
-				Label:         healthEntryIndent + name,
-				Value:         fmt.Sprintf("%d%%", int(cond.Timer)),
-				BodyPart:      part,
-				ConditionType: cond.Type,
+				Label:     healthEntryIndent + name,
+				Value:     fmt.Sprintf("%d%%", int(cond.Timer)),
+				BodyPart:  part,
+				Condition: &c,
 			})
 		}
 	}

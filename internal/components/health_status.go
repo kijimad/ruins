@@ -196,6 +196,12 @@ func ConditionTypeDescription(ct ConditionType) string {
 	return conditionDefs[ct].description
 }
 
+// ConditionIsDerived は不調が疲労・空腹の量から読み取り時に導出されるものかを返す。
+// 導出される不調は保存されず、Timer も治療状態も持たない。過労・栄養失調が該当する
+func ConditionIsDerived(ct ConditionType) bool {
+	return ct == ConditionExhaustion || ct == ConditionMalnutrition
+}
+
 // BodyFuncs は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
 // 低いほど機能が落ちる。痛み Pain だけは 0 が無痛で、大きいほど痛い。
 // 不調から読み取り時に導出し、保存はしない
