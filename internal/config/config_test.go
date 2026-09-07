@@ -8,12 +8,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSaveLoadEnabled_プロファイルで切り替わる(t *testing.T) {
+func TestApplyProfileDefaults_SaveLoadEnabledがプロファイルで決まる(t *testing.T) {
 	t.Parallel()
 
-	// steam タグなしのテストビルドでは、開発プロファイルだけ有効になる
-	assert.True(t, (&Config{Profile: ProfileDevelopment}).SaveLoadEnabled(), "開発は有効")
-	assert.False(t, (&Config{Profile: ProfileProduction}).SaveLoadEnabled(), "本番の既定配布は体験版")
+	dev := &Config{Profile: ProfileDevelopment}
+	dev.ApplyProfileDefaults()
+	assert.True(t, dev.SaveLoadEnabled, "開発は有効")
+
+	// steam タグなしのテストビルドでは production は体験版になる
+	prod := &Config{Profile: ProfileProduction}
+	prod.ApplyProfileDefaults()
+	assert.False(t, prod.SaveLoadEnabled, "本番の既定配布は体験版")
 }
 
 func TestApplyProfileDefaults_Production(t *testing.T) {

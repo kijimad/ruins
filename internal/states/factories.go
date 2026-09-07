@@ -33,7 +33,7 @@ func dungeonMenuChoices(world w.World) (string, []Choice) {
 		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
 	}
 	// セーブは体験版では出さない。Steam 本番と開発・テストだけ有効
-	if world.Resources.Config.SaveLoadEnabled() {
+	if world.Resources.Config.SaveLoadEnabled {
 		choices = append(choices, Choice{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)})
 	}
 	choices = append(choices,

@@ -3,7 +3,6 @@ package states
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -49,8 +48,8 @@ func TestMainMenuState_体験版はロード項目を出さない(t *testing.T) 
 
 	state := &MainMenuState{}
 	world := testutil.InitTestWorld(t)
-	// steam タグなしの production は体験版になり、ロードを出さない
-	world.Resources.Config.Profile = config.ProfileProduction
+	// 体験版はセーブ・ロード無効。プロファイル既定の結果をここでは直接与える
+	world.Resources.Config.SaveLoadEnabled = false
 	require.NoError(t, state.OnStart(world))
 
 	props, err := state.Fetch(world)

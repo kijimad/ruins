@@ -56,6 +56,12 @@ type Config struct {
 	// アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
 	DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
 
+	// セーブ・ロードを有効にするか。env でなく profile と steam タグで決まる導出値。
+	// development は常に true で、開発時の起動とテストが保存を試せる。production は steam タグの
+	// ときだけ true で、Steam 版がフル版になる。既定配布と WASM は production かつタグなしなので
+	// false になり、体験版としてセーブ・ロードを出さない。
+	SaveLoadEnabled bool
+
 	// 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される
 	Seed uint64 `env:"RUINS_SEED"`
 	// 乱数生成器。Seedから生成される
@@ -95,14 +101,6 @@ func DefaultUserConfig() UserConfig {
 		WindowHeight: 720,
 		Language:     "en",
 	}
-}
-
-// SaveLoadEnabled はセーブ・ロードのUIを出すかどうかを返す。
-// Steam の本番ビルドか、開発プロファイルのときだけ有効にする。開発プロファイルは開発時の起動と
-// テストが使う。既定配布と WASM は production プロファイルかつ steam タグなしなので体験版になり、
-// セーブ・ロードを出さない。
-func (c *Config) SaveLoadEnabled() bool {
-	return consts.IsSteamBuild || c.Profile == ProfileDevelopment
 }
 
 // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
@@ -159,6 +157,8 @@ func (c *Config) applyProductionDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
+	// 本番はセーブ・ロードを出さない体験版。Steam タグのフル版だけ有効にする
+	c.SaveLoadEnabled = consts.IsSteamBuild
 
 	// パフォーマンス設定
 	if os.Getenv("RUINS_TARGET_FPS") == "" {
@@ -221,6 +221,8 @@ func (c *Config) applyDevelopmentDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
+	// 開発とテストは常にセーブ・ロードを有効にする
+	c.SaveLoadEnabled = true
 
 	// パフォーマンス設定
 	if os.Getenv("RUINS_TARGET_FPS") == "" {

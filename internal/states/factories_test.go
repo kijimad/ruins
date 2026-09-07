@@ -3,7 +3,6 @@ package states
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
@@ -57,8 +56,8 @@ func TestDungeonMenuChoices_体験版はセーブ項目を出さない(t *testin
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	// steam タグなしの production は体験版になり、セーブを出さない
-	world.Resources.Config.Profile = config.ProfileProduction
+	// 体験版はセーブ・ロード無効。プロファイル既定の結果をここでは直接与える
+	world.Resources.Config.SaveLoadEnabled = false
 	assert.NotContains(t, dungeonMenuLabels(world), "Save game")
 }
 
