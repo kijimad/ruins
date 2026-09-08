@@ -1758,8 +1758,32 @@ msgstr "開閉できる扉"
 msgid "Cube"
 msgstr "キューブ"
 
-msgid "A mobile base you can push"
-msgstr "押して動かせる移動拠点"
+msgid "A mobile base you can drive"
+msgstr "運転できる移動拠点"
+
+msgid "Storage"
+msgstr "収納"
+
+msgid "Cube info"
+msgstr "キューブ情報"
+
+msgid "Open cube menu (%s)"
+msgstr "キューブメニューを開く (%s)"
+
+msgid "Drive"
+msgstr "運転する"
+
+msgid "You are on the cube. Press Enter to drive."
+msgstr "キューブの上にいる。Enter で運転する。"
+
+msgid "You board the cube and start driving."
+msgstr "キューブに乗り込んで運転を始めた。"
+
+msgid "You get off the cube."
+msgstr "キューブから降りた。"
+
+msgid "Out of fuel. The cube won't move."
+msgstr "燃料切れ。キューブは動かない。"
 
 msgid "%s used %s and recovered %d HP."
 msgstr "%s は %s を使った。 HPが %d 回復した。"
@@ -5930,6 +5954,9 @@ msgstr "液体"
 
 msgid "Fuel"
 msgstr "燃料"
+
+msgid "Total weight"
+msgstr "総重量"
 
 msgid "Heat"
 msgstr "熱量"

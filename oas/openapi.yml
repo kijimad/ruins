@@ -1968,9 +1968,6 @@ components:
         targetNum:
           $ref: '#/components/schemas/TargetNum'
       description: 消費可能アイテムの設定
-    CubePanelTriggerRaw:
-      type: object
-      description: 移動拠点キューブのコントロールパネルトリガー
     DamageBonus:
       type: integer
       minimum: -100
@@ -2930,14 +2927,8 @@ components:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
         warpPrevTrigger:
           $ref: '#/components/schemas/WarpPrevTriggerRaw'
-        warpCubeExitTrigger:
-          $ref: '#/components/schemas/WarpCubeExitTriggerRaw'
-        cubePanelTrigger:
-          $ref: '#/components/schemas/CubePanelTriggerRaw'
         storage:
           $ref: '#/components/schemas/StorageRaw'
-        shippingStation:
-          $ref: '#/components/schemas/ShippingStationRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
       description: 置物
@@ -4047,9 +4038,6 @@ components:
         - 5
         - 10
       description: 遮蔽タイプ
-    ShippingStationRaw:
-      type: object
-      description: 通信販売の出荷場所ローデータ。収納の中身を集荷対象にし、出荷場所メニューを開く相互作用が付く。積載量は storage で持つ
     SkillBook:
       type: object
       required:
@@ -4249,9 +4237,6 @@ components:
       minimum: -100
       maximum: 100
       description: 体力。HPに影響する
-    WarpCubeExitTriggerRaw:
-      type: object
-      description: 移動拠点キューブの内部からの退場トリガー
     WarpNextTriggerRaw:
       type: object
       description: 次階層ワープトリガー

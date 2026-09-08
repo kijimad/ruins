@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -45,17 +46,10 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeMelee(actor, target, world)
 	case gc.InteractionDisassemble:
 		return executeDisassemble(actor, target, world)
-	case gc.InteractionEnterCube:
-		// 入る対象のキューブ本体を載せて運ぶ。退場時の戻り先解決に使う
-		return executePortal(world, gc.WarpCubeEnterEvent(target), "cube enter state change request error", "enter cube")
-	case gc.InteractionExitCube:
-		return executePortal(world, gc.WarpCubeExitEvent(), "cube exit state change request error", "exit cube")
-	case gc.InteractionPullCube:
-		return executePullCube(actor, target, world)
-	case gc.InteractionCubePanel:
-		return executePortal(world, gc.OpenCubePanelEvent(), "control panel state change request error", "opened control panel")
-	case gc.InteractionAuction:
-		return executePortal(world, gc.OpenAuctionEvent(target), "auction menu state change request error", "opened shipping station")
+	case gc.InteractionOpenCubeMenu:
+		return executePortal(world, gc.OpenCubeMenuEvent(target), "cube menu state change request error", "opened cube menu")
+	case gc.InteractionDrive:
+		return executeDrive(actor, target, world)
 	case gc.InteractionIgnite:
 		return executeIgnite(target, world)
 	case gc.InteractionFeedFuel:
@@ -89,10 +83,17 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "dungeon entry"}, nil
 }
 
-// executePullCube はキューブを自分の側へ引く。後退スペースが無いなど引けないときは、
-// Validate が理由を gamelog へ出して no-op にする。プレイヤーのできない操作は異常系でない。
-func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(NewPullActivity(cube, actor, world), actor, world)
+// executeDrive はキューブに乗車する。プレイヤーへ Driving を付け、以後の移動入力がキューブを動かす。
+// 既に運転中なら何もしない。
+func executeDrive(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
+	if world.Components.Driving.Has(actor) {
+		return &ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "already driving"}, nil
+	}
+	world.Components.Driving.Add(actor, &gc.Driving{Vehicle: cube})
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "You board the cube and start driving.")).
+		Log()
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorDrive, Message: "boarded cube"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

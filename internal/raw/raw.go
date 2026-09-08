@@ -746,14 +746,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionPortalPrev)
 	}
 
-	if propRaw.WarpCubeExitTrigger != nil {
-		interactions = append(interactions, gc.InteractionExitCube)
-	}
-
-	if propRaw.CubePanelTrigger != nil {
-		interactions = append(interactions, gc.InteractionCubePanel)
-	}
-
 	if propRaw.Storage != nil {
 		mg, err := consts.ParseWeight(propRaw.Storage.MaxWeight)
 		if err != nil {
@@ -761,11 +753,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		interactions = append(interactions, gc.InteractionStorage)
-	}
-
-	if propRaw.ShippingStation != nil {
-		entitySpec.AuctionStation = &gc.AuctionStation{}
-		interactions = append(interactions, gc.InteractionAuction)
 	}
 
 	if propRaw.Disassembly != nil {

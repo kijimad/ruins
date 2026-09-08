@@ -82,9 +82,9 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		st.playerAbs = consts.Coord[consts.Chunk]{X: sb.EastIndex + localCol, Y: localRow}
 	}
 
-	// 押せるキューブのチャンク位置。窓の中に入るものだけを保持する。反復は最後まで回す
+	// 移動拠点キューブのチャンク位置。窓の中に入るものだけを保持する。反復は最後まで回す
 	st.cubeCells = nil
-	cubeQuery := query.ActiveFilter2[gc.GridElement, gc.Pushable](world).Query()
+	cubeQuery := query.ActiveFilter2[gc.GridElement, gc.Drivable](world).Query()
 	for cubeQuery.Next() {
 		g := world.Components.GridElement.Get(cubeQuery.Entity())
 		col := consts.Chunk(int(g.X)/int(sb.ChunkW)) + marginChunk

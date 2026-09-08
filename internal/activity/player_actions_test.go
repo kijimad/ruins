@@ -159,6 +159,35 @@ func TestShowTileInteractionMessage_床の同種スタックは1行にまとめ�
 	assert.Contains(t, hits[0], "3", "1行に個数がまとめて出る")
 }
 
+// TestShowTileInteractionMessage_隣接のキューブでは運転ログを出さない は、キューブに隣接しただけでは
+// 直上専用の運転ログを出さず、直上でだけ出すことを固定する。隣接で開くキューブメニューで実体が
+// 範囲入りしても、相互作用ごとの範囲を満たさなければログしない。
+func TestShowTileInteractionMessage_隣接のキューブでは運転ログを出さない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+
+	hasDriveLog := func() bool {
+		for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
+			if strings.Contains(e.Text(), "on the cube") {
+				return true
+			}
+		}
+		return false
+	}
+
+	// 隣接では運転ログを出さない
+	adjacent := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}}
+	showTileInteractionMessage(world, adjacent)
+	assert.False(t, hasDriveLog(), "隣接では運転ログを出さない")
+
+	// 直上では運転ログを出す
+	onTop := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+	showTileInteractionMessage(world, onTop)
+	assert.True(t, hasDriveLog(), "直上では運転ログを出す")
+}
+
 func TestExecuteWaitAction(t *testing.T) {
 	t.Parallel()
 

@@ -247,22 +247,6 @@ func TestGolden(t *testing.T) {
 			},
 			steps: []replayStep{{shot: true}},
 		},
-		// CubePanel はキューブ内部のコントロールパネルの描画を固定する。
-		// 現ステージを内部にし重量物を1つ置いて、総重量が出る状態でパネルを描く。
-		{
-			name: "CubePanel",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				// 内部を現ステージにする。パネルの OnStart はここから総重量を算出する
-				query.GetDungeon(world).CurrentStage = gc.NewCubeInteriorStage()
-				// 内部の床へ重量物を1つ置き、総重量が非ゼロで出るようにする
-				item := world.ECS.NewEntity()
-				world.Components.Weight.Add(item, &gc.Weight{Milligram: 5 * consts.MilligramPerKg})
-				world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
-				world.Components.StageBound.Add(item, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
-				return []es.State[w.World]{&gs.CubePanelState{}}, nil
-			},
-			steps: []replayStep{{shot: true}},
-		},
 		// LookAround は実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る。
 		// カーソルを足元から離した画も撮る。プレイヤーの真下では投影のずれが最小になり、
 		// 離した位置でこそカーソル枠が実際のタイルに乗っているかが分かる

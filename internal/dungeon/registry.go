@@ -79,23 +79,6 @@ var (
 			{PlannerType: mapplanner.PlannerTypeBigRoom, Weight: 2},
 		},
 	}
-
-	// DungeonCubeInterior は移動拠点キューブの内部の定義。選択画面にも地上の入口にも出さない
-	// 内部用ステージなので internalDefinitions に置く。実体の生成は enterCube の SwapTo が
-	// テンプレートから行い、この定義のフロア生成やテーブルは使わない。定義を持たせる目的は、
-	// 他ステージと同じく名前で解決でき、復帰時のスプラッシュ表示に名前を使えるようにすること。
-	// name は gc.NewCubeInteriorStage().Name と一致させる。ずれると復帰で定義解決に失敗する。
-	DungeonCubeInterior = &DungeonDefinition{
-		name:        "Cube interior",
-		description: "Interior of the mobile base cube",
-		baseTemp:    15, // 内部はシェルター。要調整
-		// 内部のレイアウトはこの planner のテンプレート。実際の生成は enterCube の SwapTo が
-		// 同じテンプレートで行うので、この pool は spawnFloor 経由では引かれない。他の定義と形を
-		// そろえ、レイアウトの出所を示すために持つ
-		plannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.PlannerTypeCubeInterior, Weight: 1},
-		},
-	}
 )
 
 // allDungeons は選択画面に表示する登録済みダンジョンの一覧
@@ -116,7 +99,6 @@ var internalDefinitions = []StageDefinition{
 	DungeonDebug,
 	DungeonDebugTown,
 	DungeonOverworld,
-	DungeonCubeInterior,
 }
 
 // BaseTemperatureFor は名前のステージ定義の基本気温を返す。未登録は0。

@@ -1,43 +1,23 @@
 package query
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// CubeWeight は内部ステージのフィールド上にある全 gc.Weight 保有エンティティの重量総和を返す。
-// item も、暖や作業の効果を持つ prop も、内部の床へ置けば等しく重量になる。
-// 所有者ベースの calculateOwnedWeight とは別軸で、StageBound.Key で集計する。
-//
-// LocationOnField を条件に含め、床にある物だけを数える。拾って背包へ移すと LocationOnField が
-// 外れて総重量から抜ける。StageBound は拾っても残るため、これが無いと持ち去った物まで数えてしまう。
-//
-// 内部は外にいる間 Suspended になるが、総重量は退避中も保持したい。Suspended は退避で付くが
-// LocationOnField は残るので、Suspended を除外する ActiveFilter でなく生のフィルタで全ステージを
-// 走査し、Key 一致で絞る。
-func CubeWeight(world w.World, interior gc.StageKey) consts.Milligram {
+// CubeWeight はキューブ収納にある物の総重量を返す。運転1タイルの燃料コスト算出に使う。
+// 収納の中身から常に導けるので値を保持せず、読み取り時に合算する。
+func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {
 	var total consts.Milligram
-	weightQuery := ecs.NewFilter2[gc.Weight, gc.LocationOnField](world.ECS).Query()
-	for weightQuery.Next() {
-		entity := weightQuery.Entity()
-		if world.Components.StageBound.Has(entity) && world.Components.StageBound.Get(entity).Key == interior {
-			total += GetEntityWeight(world, entity)
-		}
+	for _, item := range GetStorageItems(world, cube) {
+		total += GetEntityWeight(world, item)
 	}
 	return total
 }
 
-// PushCost は総重量から1タイル押すのに要するAPを返す。空のキューブでも歩行の10倍規模の
-// 基準がかかり、総重量に比例して増える。変わるのは行動点で何ターンで払えるかである。
-func PushCost(total consts.Milligram) int {
-	kg := int(total / consts.MilligramPerKg)
-	return consts.PushCostBase + consts.PushCostPerKg*kg
-}
-
 // DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、
-// 総重量に比例して増える。PushCost が AP で表していた重量ペナルティを燃料へ移した対応物。
+// 総重量に比例して増える。重いほど燃費が悪化する。
 func DriveFuelCost(total consts.Milligram) consts.Heat {
 	kg := int(total / consts.MilligramPerKg)
 	return consts.Heat(consts.DriveFuelBase + consts.DriveFuelPerKg*kg)
@@ -49,17 +29,6 @@ func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	var total consts.Heat
 	for _, item := range GetStorageItems(world, cube) {
 		total += HeatContent(world, item)
-	}
-	return total
-}
-
-// PushPower はこのターン押しへ充てられるAP総量を返す。プレイヤーの TurnBased.AP.Current を用いる。
-// 同じ PushCost をより少ないターンで払えれば速く進む。押しコスト自体は不変。
-func PushPower(world w.World) int {
-	var total int
-	playerQuery := ActiveFilter2[gc.TurnBased, gc.Player](world).Query()
-	for playerQuery.Next() {
-		total += world.Components.TurnBased.Get(playerQuery.Entity()).AP.Current
 	}
 	return total
 }

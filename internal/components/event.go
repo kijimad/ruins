@@ -26,17 +26,6 @@ type WarpDungeonEnter struct {
 	PlannerName string
 }
 
-// WarpCubeEnter は移動拠点キューブの内部への入場。Cube は入る対象のキューブ本体
-type WarpCubeEnter struct {
-	Cube ecs.Entity
-}
-
-// WarpCubeExit は移動拠点キューブの内部からの退場
-type WarpCubeExit struct{}
-
-// OpenCubePanel はキューブ内部のコントロールパネルを開く
-type OpenCubePanel struct{}
-
 // ShowDialog は会話メッセージの表示
 type ShowDialog struct {
 	MessageKey    string
@@ -48,27 +37,23 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
 
-// OpenAuction は出荷場所のメニューを開く。積荷はステーションごとなので、対象の StationEntity を運ぶ。
-// 出品や金銭などの情報はシングルトンで共通に見せる
-type OpenAuction struct {
-	StationEntity ecs.Entity // 積荷の収納を持つ出荷場所
-}
-
 // OpenFeedFuel は火への給油メニューを開く。くべる先の火 FireEntity を運ぶ
 type OpenFeedFuel struct {
 	FireEntity ecs.Entity // 燃料をくべる火
 }
 
+// OpenCubeMenu は移動拠点キューブのメニューを開く。対象のキューブ Cube を運ぶ
+type OpenCubeMenu struct {
+	Cube ecs.Entity // メニューを開くキューブ
+}
+
 func (WarpDescend) isStatePayload()      {}
 func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
-func (WarpCubeEnter) isStatePayload()    {}
-func (WarpCubeExit) isStatePayload()     {}
-func (OpenCubePanel) isStatePayload()    {}
 func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
-func (OpenAuction) isStatePayload()      {}
 func (OpenFeedFuel) isStatePayload()     {}
+func (OpenCubeMenu) isStatePayload()     {}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -94,17 +79,6 @@ func WarpDungeonEnterWithPlannerEvent(definitionName, plannerName string) StateC
 	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName, PlannerName: plannerName}}
 }
 
-// WarpCubeEnterEvent は移動拠点キューブの内部への入場リクエストを生成する
-func WarpCubeEnterEvent(cube ecs.Entity) StateChangeRequest {
-	return StateChangeRequest{Payload: WarpCubeEnter{Cube: cube}}
-}
-
-// WarpCubeExitEvent は移動拠点キューブの内部からの退場リクエストを生成する
-func WarpCubeExitEvent() StateChangeRequest { return StateChangeRequest{Payload: WarpCubeExit{}} }
-
-// OpenCubePanelEvent はキューブ内部のコントロールパネルを開くリクエストを生成する
-func OpenCubePanelEvent() StateChangeRequest { return StateChangeRequest{Payload: OpenCubePanel{}} }
-
 // ShowDialogEvent は会話メッセージ表示リクエストを生成する
 func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: ShowDialog{MessageKey: messageKey, SpeakerEntity: speaker}}
@@ -120,7 +94,7 @@ func OpenFeedFuelEvent(fire ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenFeedFuel{FireEntity: fire}}
 }
 
-// OpenAuctionEvent は出荷場所のメニューを開くリクエストを生成する
-func OpenAuctionEvent(station ecs.Entity) StateChangeRequest {
-	return StateChangeRequest{Payload: OpenAuction{StationEntity: station}}
+// OpenCubeMenuEvent は移動拠点キューブのメニューを開くリクエストを生成する
+func OpenCubeMenuEvent(cube ecs.Entity) StateChangeRequest {
+	return StateChangeRequest{Payload: OpenCubeMenu{Cube: cube}}
 }

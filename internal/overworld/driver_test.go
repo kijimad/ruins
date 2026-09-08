@@ -17,10 +17,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// countCubes は押せるキューブの数を返す。クエリは最後まで回す
+// countCubes は移動拠点キューブの数を返す。クエリは最後まで回す
 func countCubes(world w.World) int {
 	count := 0
-	q := query.ActiveFilter1[gc.Pushable](world).Query()
+	q := query.ActiveFilter1[gc.Drivable](world).Query()
 	for q.Next() {
 		count++
 	}
