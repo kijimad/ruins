@@ -1,7 +1,0 @@
-package: oapi
-generate:
-  std-http-server: true
-  strict-server: true
-output: ./internal/oapi/server.gen.go
-output-options:
-  skip-prune: true

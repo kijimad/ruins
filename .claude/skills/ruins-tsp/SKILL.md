@@ -16,8 +16,8 @@ OpenAPI スキーマは `oas/typespec/` の tsp を単一ソースにし、Go �
 
 ## namespace とモデル
 
-- HTTP operation を持たない保存ファイルやレポートは、models-only の sub-namespace にする。`save.tsp`(`RuinsEditorApi.SaveData`)・`balance.tsp`(`RuinsEditorApi.Balance`)が例。operation が無くてもモデルは Go/TS 両方へ生成される。
-- sub-namespace のモデルは生成型名にプレフィックスが付く。`RuinsEditorApi.Balance` → `oapi.Balance*`、`SaveData` → `SaveData*`。関心の分離と名前衝突回避になる。
+- HTTP operation を持たないレポートは、models-only の sub-namespace にする。`balance.tsp`(`RuinsEditorApi.Balance`)が例。operation が無くてもモデルは Go/TS 両方へ生成される。
+- sub-namespace のモデルは生成型名にプレフィックスが付く。`RuinsEditorApi.Balance` → `oapi.Balance*`。関心の分離と名前衝突回避になる。
 - 別 namespace の型は完全修飾名で参照する。例 `RuinsEditorApi.ColorChannel`。
 
 ## フィールド定義
