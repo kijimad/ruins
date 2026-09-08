@@ -22,6 +22,8 @@ type Choice struct {
 	Label  string
 	Run    func(world w.World) (es.Transition[w.World], error)
 	Header bool
+	// Indent は menuframe.Row.Indent へ渡す字下げの段数
+	Indent int
 }
 
 // ChoiceProps は選択メニューの表示スナップショット
@@ -100,7 +102,7 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	rows := make([]menuframe.Row, len(props.Choices))
 	for i, c := range props.Choices {
-		rows[i] = menuframe.Row{Cells: styled.TextCells(c.Label), Header: c.Header}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(c.Label), Header: c.Header, Indent: c.Indent}
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	// ページ表示はフッタ行の右端に出す。1ページのメニューは内容を上端から並べる。

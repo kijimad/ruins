@@ -14,9 +14,12 @@ import (
 
 // Row は一覧の1行。Cells は各列のセルで、アイコンと文字列が混ざってよい。
 // Header が真なら見出し行でカーソルが止まらない。
+// Indent は字下げの段数。0 は段なし。見出しを0、配下のエントリを1以上にするとまとまりが見える。
+// 詳細パネルの entityspec.SpecRow.Indent と同じ概念で、行全体を Indent*Space4 だけ右へ寄せる。
 type Row struct {
 	Cells  []styled.Cell
 	Header bool
+	Indent int
 }
 
 // ListOpts は一覧描画の方針。HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には
@@ -49,15 +52,16 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
 
 	var items []uicore.Drawable
 	if opts.HeaderRow != nil {
-		items = append(items, headerRow(opts.HeaderRow, colWidths, face))
+		// 列見出しは表の先頭に置く見出しで、字下げはしない
+		items = append(items, headerRow(opts.HeaderRow, colWidths, face, 0))
 	}
 	visible := pagination.VisibleEntries(rows, pg)
 	for _, entry := range visible {
 		if entry.Item.Header {
-			items = append(items, headerRow(cellTexts(entry.Item.Cells), colWidths, face))
+			items = append(items, headerRow(cellTexts(entry.Item.Cells), colWidths, face, entry.Item.Indent))
 			continue
 		}
-		items = append(items, dataRow(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face, res))
+		items = append(items, dataRow(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face, res, entry.Item.Indent))
 	}
 	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
 	if len(rows) > perPage {
@@ -124,19 +128,30 @@ func toAlign(a styled.TextAlign) uicore.Align {
 	return uicore.AlignLeft
 }
 
+// indentedRow は行を指定段数だけ字下げして組む。段数0ならそのまま、1以上なら先頭に
+// Indent*Space4 幅の空トラックを足して行全体を右へ寄せる。詳細パネルの字下げと同じ規則。
+func indentedRow(indent int, colWidths []int, cells []uicore.Widget) *uicore.Container {
+	if indent <= 0 {
+		return uicore.Row(colWidths, cells...)
+	}
+	widths := append([]int{indent * theme.Space4}, colWidths...)
+	widgets := append([]uicore.Widget{uicore.NewGroup()}, cells...)
+	return uicore.Row(widths, widgets...)
+}
+
 // headerRow は見出し行を組む。カーソルは止まらず、補助色で描く。
-func headerRow(texts []string, colWidths []int, face text.Face) *uicore.Container {
+func headerRow(texts []string, colWidths []int, face text.Face, indent int) *uicore.Container {
 	cells := make([]uicore.Widget, len(texts))
 	for i, s := range texts {
 		t := uicore.NewText(s, face, theme.TextSecondary)
 		t.VCenter = true
 		cells[i] = t
 	}
-	return uicore.Row(colWidths, cells...)
+	return indentedRow(indent, colWidths, cells)
 }
 
 // dataRow はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
-func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources) *uicore.Container {
+func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources, indent int) *uicore.Container {
 	// 非選択は暗く、選択は明るくして、カーソル位置を際立たせる
 	var textColor color.Color = theme.TextSecondary
 	if selected {
@@ -155,7 +170,7 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 		}
 		cellWidgets[i] = t
 	}
-	return rowChrome(uicore.Row(colWidths, cellWidgets...), res, selected)
+	return rowChrome(indentedRow(indent, colWidths, cellWidgets), res, selected)
 }
 
 // SelectionRow は中身を持たない1行ぶんの意匠を返す。選択中の強調と下端の区切り線だけを持ち、

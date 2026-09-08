@@ -27,9 +27,6 @@ const (
 	tabBasic     = "basic"
 )
 
-// healthEntryIndent は健康タブで症状エントリを部位カテゴリ見出しと見分けるための字下げ
-const healthEntryIndent = "  "
-
 type statusTabData struct {
 	ID    string
 	Label string
@@ -47,6 +44,8 @@ type statusItemData struct {
 	Description string
 	// IsHeader はカテゴリヘッダー行かどうか。真なら選択不可の見出し
 	IsHeader bool
+	// Indent は menuframe.Row.Indent へ渡す字下げの段数
+	Indent int
 	// BodyPart は健康タブの症状エントリが属する部位
 	BodyPart gc.BodyPart
 	// Condition は症状エントリが指す不調の実体。保存不調も導出不調も同じ形で載せる。症状でない行は nil
@@ -131,6 +130,17 @@ func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Ent
 	return items
 }
 
+// indentUnderHeaders は見出し以外の行を1段字下げして、カテゴリ配下のエントリを見出しと
+// 見分けやすくする。見出しと子が交互に並ぶタブでだけ呼ぶ。
+func indentUnderHeaders(items []statusItemData) []statusItemData {
+	for i := range items {
+		if !items[i].IsHeader {
+			items[i].Indent = 1
+		}
+	}
+	return items
+}
+
 func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
 	if !query.AliveHas(world, world.Components.Skills, playerEntity) {
@@ -157,7 +167,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 			})
 		}
 	}
-	return items
+	return indentUnderHeaders(items)
 }
 
 func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Entity) []statusItemData {
@@ -233,7 +243,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		statusItemData{Label: query.T(world, "Max weight"), Value: val(gc.ProfMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(gc.ProfMaxWeight)},
 		statusItemData{Label: query.T(world, "Max load"), Value: val(gc.ProfHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(gc.ProfHeavyArmor)},
 	)
-	return items
+	return indentUnderHeaders(items)
 }
 
 // translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない
@@ -270,7 +280,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		}
 		if len(conds) == 0 {
 			// 症状の無い部位は健康の1エントリを置く。見出しと区別するため字下げする
-			items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, "Normal"), BodyPart: part})
+			items = append(items, statusItemData{Label: query.T(world, "Normal"), BodyPart: part})
 			continue
 		}
 		// 症状ごとに1エントリ。見出しと区別するため字下げする
@@ -280,7 +290,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 			// 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
 			if gc.ConditionIsDerived(cond.Type) {
 				items = append(items, statusItemData{
-					Label:     healthEntryIndent + translatedConditionName(world, cond.Type),
+					Label:     translatedConditionName(world, cond.Type),
 					Value:     query.T(world, cond.Severity.String()),
 					BodyPart:  part,
 					Condition: &c,
@@ -290,14 +300,14 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 			// 怪我・病気は名前の右に治療状態、値に進行度を出す
 			name := translatedConditionName(world, cond.Type) + "  " + treatmentStatus(world, cond)
 			items = append(items, statusItemData{
-				Label:     healthEntryIndent + name,
+				Label:     name,
 				Value:     fmt.Sprintf("%d%%", int(cond.Timer)),
 				BodyPart:  part,
 				Condition: &c,
 			})
 		}
 	}
-	return items
+	return indentUnderHeaders(items)
 }
 
 // sourceToDetails はProficiencySourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない。
@@ -396,7 +406,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 				cells[2] = it.Modifier
 			}
 		}
-		rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader, Indent: it.Indent}
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }
