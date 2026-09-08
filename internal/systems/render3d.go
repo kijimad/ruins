@@ -255,7 +255,8 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visFactor visFunc) []r3quad {
-	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
+	// 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま
+	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile](), ecs.C[gc.Driving]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
 		g := world.Components.GridElement.Get(e)

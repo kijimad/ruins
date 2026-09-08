@@ -406,18 +406,6 @@ var (
 		},
 	}
 
-	// PlannerTypeCubeInterior は移動拠点キューブの内部のテンプレートプランナー。壁で囲った狭い
-	// 1階層で、階段ポータルを持たない閉じた部屋。テンプレートが spawn_points を持つので Plan の
-	// 到達性検証はポータルを要求せず通る。移動拠点キューブ専用の内部で、手続きダンジョンの
-	// ランダム選択セットではないため AllPlannerTypes には入れない。
-	PlannerTypeCubeInterior = PlannerType{
-		Name:              "Cube interior",
-		UseFixedPortalPos: true,
-		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeCubeInteriorInitial, seed)
-		},
-	}
-
 	// PlannerTypeDebugTown は街用NPCと収納箱をスポーン地点の隣に固定配置したデバッグ用テンプレート。
 	// 狭い部屋なので入ってすぐデバッグ物へ触れられる。敵の抑止は敵テーブルの無い DungeonDebugTown 側で
 	// 行うため、ここに特別扱いは要らない。UseFixedPortalPos で手続き的なポータル配置はしない

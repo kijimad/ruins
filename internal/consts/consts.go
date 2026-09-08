@@ -35,11 +35,6 @@ const (
 	MinorActionCost = 50
 	// DefaultPlayerMoves はプレイヤーの初期移動ポイント
 	DefaultPlayerMoves = 100
-	// PushCostBase は空のキューブを1タイル押すのに要する基準AP。歩行の10倍規模にし、
-	// 何も積んでいなくても押しは重い決断になるようにする
-	PushCostBase = 10 * StandardActionCost
-	// PushCostPerKg はキューブ総重量1kgあたりに加算する押しAP。総重量に比例して重くする
-	PushCostPerKg = StandardActionCost
 	// DriveFuelBase は空のキューブを1タイル運転するのに要する基準燃料量。何も積んでいなくても
 	// 運転は燃料を食う決断になるようにする。燃料値の単位は火への給油 FeedFuel と共通。要調整
 	DriveFuelBase = 10

@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -21,6 +21,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	if !world.Components.GridElement.Has(entity) {
 		return fmt.Errorf("player has no GridElement component")
+	}
+
+	// 運転中はキューブを動かす。プレイヤーは同乗して追随する
+	if world.Components.Driving.Has(entity) {
+		return executeDriveMove(world, entity, direction)
 	}
 
 	gridElement := world.Components.GridElement.Get(entity)
@@ -52,25 +57,14 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-			case gc.InteractionTalk, gc.InteractionCubePanel:
-				// 会話とコントロールパネルは、歩き込むだけで発動する
+			case gc.InteractionTalk:
+				// 会話は歩き込むだけで発動する
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
 			default:
 				// 衝突時に自動発動しない種類はここでは扱わない
 			}
 		}
-	}
-
-	// 移動先に押せるキューブがあれば、通行でなく押しになる。キューブは BlockPass なので
-	// 通常の CanMoveTo では弾かれる。歩き込みは押し、入るは手動アクションと入力経路を分ける。
-	// 押しはキューブだけを動かす。プレイヤーの追随は次入力の通常移動が担い、方向を押し続けると
-	// 押しと一歩が交互に起きてキューブが進む
-	if cube, ok := pushableAt(world, next); ok {
-		// 押し先が塞がっていれば Push.Validate が理由を gamelog へ出し err=nil で閉じる。
-		// 壁への歩き込みと同じく no-op になる
-		_, err := Execute(NewPushActivity(cube, direction, world), entity, world)
-		return err
 	}
 
 	canMove := CanMoveTo(world, next, current, entity)
@@ -85,14 +79,46 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	return nil
 }
 
-// pushableAt は指定タイルにある押せるキューブを返す。無ければ ok=false。
-func pushableAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
-	for _, entity := range query.GetEntitiesAt(world, coord.X, coord.Y) {
-		if world.Components.Pushable.Has(entity) {
-			return entity, true
-		}
+// executeDriveMove は運転中の移動を処理する。キューブを1タイル進め、燃料と行動ターンを消費し、
+// プレイヤーを同乗させて追随させる。壁・敵で不可なら停止し、燃料不足なら立往生する。
+func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) error {
+	// 運転中のキューブは Fixed で HP も分解定義も持たず、帯シフトの削除範囲にも入らないので
+	// 消えない。降車すると Driving が外れて executeDriveMove を通らなくなる。よって生存確認は不要
+	cube := world.Components.Driving.Get(player).Vehicle
+	current := world.Components.GridElement.Get(cube).Coord
+	next := current.Add(direction.GetDelta())
+
+	// 通行判定。壁・敵など不可なら停止する。ターンも燃料も消費しない
+	if !CanMoveTo(world, next, current, cube) {
+		return nil
 	}
-	return ecs.Entity{}, false
+
+	// 燃料判定。足りなければ立往生する
+	cost := query.DriveFuelCost(query.CubeWeight(world, cube))
+	if query.CubeFuelTotal(world, cube) < cost {
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "Out of fuel. The cube won't move.")).
+			Log()
+		return nil
+	}
+
+	// プレイヤーを既存の移動経路で先に動かす。行動ターン消費と敵ターン進行はここが担う。
+	// 移動が成立しなければキューブも動かさず燃料も使わない。同乗の座標ずれを防ぐ
+	result, err := Execute(NewMoveActivity(gc.GridElement{Coord: next}), player, world)
+	if err != nil {
+		return err
+	}
+	if result == nil || !result.Success {
+		return nil
+	}
+
+	// プレイヤーが進んだので、キューブを追随させ燃料を消費する。事前の燃料判定で足りることは
+	// 保証済みなので消費は必ず成功する。よって戻り値は捨てる。ConsumeCubeFuel は燃料 entity を
+	// 削除する構造変更なので、GridElement の Get ポインタを跨いで持たず、消費後に取り直して書く
+	_ = lifecycle.ConsumeCubeFuel(world, cube, cost)
+	world.Components.GridElement.Get(cube).Coord = next
+	query.InvalidateSpatialIndex(world)
+	return nil
 }
 
 // ExecuteWaitAction は待機アクションを実行する
@@ -183,8 +209,15 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	loggedItemStacks := map[query.StackKey]bool{}
 	for _, entity := range entities {
 		interactable := world.Components.Interactable.Get(entity)
+		entityGrid := world.Components.GridElement.Get(entity)
 		for _, interaction := range interactable.Interactions {
-			if interaction.Config().ActivationWay != gc.ActivationWayManual {
+			config := interaction.Config()
+			if config.ActivationWay != gc.ActivationWayManual {
+				continue
+			}
+			// 実体はいずれかの相互作用で範囲内だが、ログはこの相互作用自身の範囲を満たすときだけ出す。
+			// 隣接で開くキューブメニューで範囲入りした実体の、直上専用の運転ログを隣接で出さない
+			if !query.IsInActivationRange(playerGrid, entityGrid, config.ActivationRange) {
 				continue
 			}
 			switch interaction {
@@ -212,15 +245,11 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
-			case gc.InteractionEnterCube:
+			case gc.InteractionDrive:
 				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
+					Markup(query.T(world, "You are on the cube. Press Enter to drive.")).
 					Log()
-			case gc.InteractionAuction:
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "There is a shipping station. Press Enter to open it.")).
-					Log()
-			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel, gc.InteractionIgnite, gc.InteractionFeedFuel:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel, gc.InteractionOpenCubeMenu:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

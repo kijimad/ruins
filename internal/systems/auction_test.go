@@ -143,7 +143,7 @@ func TestCollectStagedItems_集荷は明細を発生させ所持金は動かさ�
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	station, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 6})
 	require.NoError(t, err)
 	won, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
 	require.NoError(t, err)
@@ -219,7 +219,7 @@ func TestAuctionSystem_積荷はタイマーで集荷され明細が届く(t *te
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	station, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 6})
 	require.NoError(t, err)
 	item, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
 	require.NoError(t, err)
@@ -252,7 +252,7 @@ func TestCollectStagedItems_積荷が無ければ何もしない(t *testing.T) {
 
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	station, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 6})
 	require.NoError(t, err)
 
 	collected, receipts := query.CollectStagedItems(world, station)
@@ -262,27 +262,25 @@ func TestCollectStagedItems_積荷が無ければ何もしない(t *testing.T) {
 	assert.Empty(t, query.GetAuctionHistory(world).Entries, "明細は発生しない")
 }
 
-func TestSpawnProp_shipping_stationは出荷場所になる(t *testing.T) {
+func TestSpawnCube_出荷場所を兼ねる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	station, err := lifecycle.SpawnProp(world, "shipping_station", 5, 5)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
 
-	require.True(t, world.Components.AuctionStation.Has(station), "shipping_station prop は出荷場所になる")
-	assert.Positive(t, world.Components.WeightCapacity.Get(station).Max, "積荷の収納容量を持つ")
-	it := world.Components.Interactable.Get(station)
-	assert.Contains(t, it.Interactions, gc.InteractionAuction, "出荷場所メニューを開く相互作用が付く")
+	require.True(t, world.Components.AuctionStation.Has(cube), "キューブは出荷場所を兼ねる")
+	assert.Positive(t, world.Components.WeightCapacity.Get(cube).Max, "積荷の収納容量を持つ")
 }
 
-func TestSpawnProp_他のpropは出荷場所にならない(t *testing.T) {
+func TestSpawnProp_収納propは出荷場所にならない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 5, 5)
 	require.NoError(t, err)
 
-	assert.False(t, world.Components.AuctionStation.Has(crate), "shipping_station 以外の prop は出荷場所にならない")
+	assert.False(t, world.Components.AuctionStation.Has(crate), "キューブ以外の prop は出荷場所にならない")
 }
 
 func TestAuctionSystem_出品が無ければ何もしない(t *testing.T) {

@@ -9,6 +9,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
@@ -21,8 +22,8 @@ import (
 
 // DisassembleBehavior は工具でpropやアイテムを分解して素材を得るアクティビティの実装。
 // 工具は開始時に固定せず、毎回actorの所持品から分類に適合する最良の1つを解決する。
-// エンティティ参照を持ち越さないのでセーブ互換の考慮が不要になり、
-// 途中で工具を失った場合も次のターン検査で自然に中断へ落ちる
+// エンティティ参照を持ち越さないため、セーブ互換の考慮が不要で、
+// 途中で工具を失った場合も次のターン検査で自然に中断する
 type DisassembleBehavior struct{}
 
 // Info はBehaviorの実装
@@ -254,18 +255,13 @@ func RequiredDisassemblyAP(baseAP int, skillValue int, toolGrade int) int {
 	return int(math.Ceil(float64(baseAP) * skillFactor * gradeFactor))
 }
 
-// FindBestDisassemblyTool はactorの所持品から分類に適合する最良の分解工具を探す。
+// FindBestDisassemblyTool はactorが使える工具から分類に適合する最良の分解工具を探す。
 // 見つかったらグレードと工具名を返す。同グレードは先に見つかったほうを保つ
 func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.ToolCategory) (int, string, bool) {
 	bestGrade := 0
 	bestName := ""
 
-	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
-	for q.Next() {
-		itemEntity := q.Entity()
-		if world.Components.LocationInBackpack.Get(itemEntity).Owner != actor {
-			continue
-		}
+	for _, itemEntity := range ToolCandidates(world, actor) {
 		tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(itemEntity, world))
 		if !ok || !slices.Contains(tool.Categories, category) {
 			continue
@@ -277,6 +273,45 @@ func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.Tool
 	}
 
 	return bestGrade, bestName, bestGrade > 0
+}
+
+// ToolCandidates は actor が工具解決に使えるアイテムを集める。actor の背包に加え、隣接する
+// 移動拠点キューブの収納の物も含める。溶接機や調理器具のような重い工具を拠点の傍らでだけ
+// 使えるようにする。分解・調理・製作など工具ゲートのアクションはこの共通経路で候補を集める。
+func ToolCandidates(world w.World, actor ecs.Entity) []ecs.Entity {
+	var items []ecs.Entity
+
+	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for backpackQuery.Next() {
+		e := backpackQuery.Entity()
+		if world.Components.LocationInBackpack.Get(e).Owner == actor {
+			items = append(items, e)
+		}
+	}
+
+	for _, cube := range adjacentDrivables(world, actor) {
+		items = append(items, query.GetStorageItems(world, cube)...)
+	}
+
+	return items
+}
+
+// adjacentDrivables は actor に隣接する移動拠点キューブを返す。
+func adjacentDrivables(world w.World, actor ecs.Entity) []ecs.Entity {
+	if !world.Components.GridElement.Has(actor) {
+		return nil
+	}
+	actorCoord := world.Components.GridElement.Get(actor).Coord
+
+	var cubes []ecs.Entity
+	cubeQuery := query.ActiveFilter2[gc.Drivable, gc.GridElement](world).Query()
+	for cubeQuery.Next() {
+		e := cubeQuery.Entity()
+		if geometry.IsAdjacent(actorCoord, world.Components.GridElement.Get(e).Coord) {
+			cubes = append(cubes, e)
+		}
+	}
+	return cubes
 }
 
 // mechanicSkillValue はactorの機械スキル値を返す。スキルを持たなければ0

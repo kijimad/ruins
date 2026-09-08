@@ -323,15 +323,6 @@ model WarpNextTriggerRaw {}
 /** 前階層ワープトリガー */
 model WarpPrevTriggerRaw {}
 
-/** 移動拠点キューブの内部からの退場トリガー */
-model WarpCubeExitTriggerRaw {}
-
-/** 移動拠点キューブのコントロールパネルトリガー */
-model CubePanelTriggerRaw {}
-
-/** 通信販売の出荷場所ローデータ。収納の中身を集荷対象にし、出荷場所メニューを開く相互作用が付く。積載量は storage で持つ */
-model ShippingStationRaw {}
-
 /** 収納ローデータ */
 model StorageRaw {
   /** 収納の最大格納重量 */
@@ -359,10 +350,7 @@ model Prop {
   door?: DoorRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
-  warpCubeExitTrigger?: WarpCubeExitTriggerRaw;
-  cubePanelTrigger?: CubePanelTriggerRaw;
   storage?: StorageRaw;
-  shippingStation?: ShippingStationRaw;
   disassembly?: Disassembly;
 }
 
