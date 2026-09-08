@@ -356,6 +356,9 @@ func (st *DungeonState) dismount(world w.World) {
 	// 降車はキューブの直上に出る。運転中プレイヤーはキューブと同座標に同乗しており、キューブは
 	// 通行可能なので、そのタイルに残して Driving を外すだけでよい
 	world.Components.Driving.Remove(player)
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "You get off the cube.")).
+		Log()
 }
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える

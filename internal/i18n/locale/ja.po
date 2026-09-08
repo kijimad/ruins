@@ -1776,6 +1776,12 @@ msgstr "運転する"
 msgid "You are on the cube. Press Enter to drive."
 msgstr "キューブの上にいる。Enter で運転する。"
 
+msgid "You board the cube and start driving."
+msgstr "キューブに乗り込んで運転を始めた。"
+
+msgid "You get off the cube."
+msgstr "キューブから降りた。"
+
 msgid "Out of fuel. The cube won't move."
 msgstr "燃料切れ。キューブは動かない。"
 

@@ -1,6 +1,7 @@
 package states
 
 import (
+	"strings"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -78,4 +79,12 @@ func TestDismount_直上に残る(t *testing.T) {
 
 	assert.False(t, world.Components.Driving.Has(player), "降車で Driving が外れる")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 7}, world.Components.GridElement.Get(player).Coord, "プレイヤーはキューブの直上に残る")
+
+	var logged bool
+	for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
+		if strings.Contains(e.Text(), "get off the cube") {
+			logged = true
+		}
+	}
+	assert.True(t, logged, "降車をゲームログに出す")
 }

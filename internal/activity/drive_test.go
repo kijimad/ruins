@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"strings"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -38,6 +39,14 @@ func TestExecuteInteraction_乗車でDrivingが付く(t *testing.T) {
 
 	require.True(t, world.Components.Driving.Has(player), "乗車で Driving が付く")
 	assert.Equal(t, cube, world.Components.Driving.Get(player).Vehicle, "運転対象はそのキューブ")
+
+	var logged bool
+	for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
+		if strings.Contains(e.Text(), "board the cube") {
+			logged = true
+		}
+	}
+	assert.True(t, logged, "乗車をゲームログに出す")
 }
 
 func TestExecuteMoveAction_運転中はキューブとプレイヤーが一緒に動く(t *testing.T) {

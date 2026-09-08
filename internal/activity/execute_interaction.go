@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -89,6 +90,9 @@ func executeDrive(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResu
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "already driving"}, nil
 	}
 	world.Components.Driving.Add(actor, &gc.Driving{Vehicle: cube})
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "You board the cube and start driving.")).
+		Log()
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorDrive, Message: "boarded cube"}, nil
 }
 
