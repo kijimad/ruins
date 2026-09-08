@@ -66,8 +66,7 @@ func TestStatusBadges_Draw_5個を超えると残数を表示する(t *testing.T
 	}
 	badges.Draw(cv, data)
 
-	more := findText(t, cv.texts, "+2")
-	assert.Equal(t, "+2", more.str, "上限を超えたぶんは+N表示になる")
+	findText(t, cv.texts, "+2") // 上限を超えたぶんは+N表示になる。見つからなければ内部でFailする
 	assert.False(t, hasText(cv.texts, "6"), "上限を超えたバッジ自体は描かない")
 	assert.False(t, hasText(cv.texts, "7"), "上限を超えたバッジ自体は描かない")
 }
