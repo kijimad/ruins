@@ -386,10 +386,11 @@ func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
 // 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
 // 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
 // 色は各光源の寄与で加重平均する。
-// lightColorSuppress は環境光の明るさから光源の色の重み係数を返す。
-// colorCutoff 以上の明るさで 0 になり光源の色は乗らない。暗いほど 1 へ近づき色が乗る
-func lightColorSuppress(ambient float64) float64 {
-	return math.Max(0, math.Min(1, (colorCutoff-ambient)/colorCutoff))
+// lightSuppress は環境光の明るさから光源の寄与係数を返す。明るさと色の両方にかける。
+// lightFadeHigh 以上の明るさで 0 になり光源は何も足さない。lightFadeLow 以下では 1 で従来どおり効く。
+// 暗所と夜は 1 のまま温存し、明るい時間帯だけ滑らかに 0 へ落とす
+func lightSuppress(ambient float64) float64 {
+	return 1 - smoothstep(lightFadeLow, lightFadeHigh, ambient)
 }
 
 func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
@@ -402,9 +403,9 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 	totalB := ambientColor[2] * 255 * ambient
 	totalWeight := ambient
 
-	// 環境光が明るいほど光源の色の重みを絞る。日光の強い屋外の昼は火の色が乗らず日光色のままになる。
-	// 明るさへの寄与とは別で、色の主張だけを抑える。時間帯の切れ目でも連続に効かせポップを避ける
-	colorSuppress := lightColorSuppress(ambient)
+	// 環境光が明るいほど光源の寄与を絞る。日光の強い屋外の昼は火が明るさも色も足さず日光のままになる。
+	// 暗所と夜は 1 のまま。時間帯の切れ目でも連続に効かせポップを避ける
+	suppress := lightSuppress(ambient)
 
 	// 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。
 	// 火は燃え尽きると自分の LightSource を外すので照らさなくなる
@@ -438,15 +439,17 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 		// 光った球のように見えてしまうのを避ける
 		atten := 1.0 - smoothstep(lightPlateau, 1.0, nd)
 
-		// 加算合成。重なるほど明るい
-		brightness += atten
+		// 環境光による抑制で寄与を絞る。明るさも色も同じ係数で弱め、明るい屋外では火が何も足さない
+		contrib := atten * suppress
 
-		// 色は寄与 atten を環境光による抑制で絞って加重する。明るさの加算とは独立に色だけ弱める
-		colorWeight := atten * colorSuppress
-		totalR += float64(lightSource.Color.R) * colorWeight
-		totalG += float64(lightSource.Color.G) * colorWeight
-		totalB += float64(lightSource.Color.B) * colorWeight
-		totalWeight += colorWeight
+		// 加算合成。重なるほど明るい
+		brightness += contrib
+
+		// 色は寄与 contrib で加重する
+		totalR += float64(lightSource.Color.R) * contrib
+		totalG += float64(lightSource.Color.G) * contrib
+		totalB += float64(lightSource.Color.B) * contrib
+		totalWeight += contrib
 	}
 
 	brightness = math.Max(0, math.Min(1, brightness))
@@ -474,9 +477,11 @@ const (
 const (
 	// dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
 	dungeonAmbient = 0.06
-	// colorCutoff は光源の色が乗る環境光の上限。これ以上明るいと光源の色は乗らず環境光色のままになる。
-	// 日光の強い屋外の昼に火が赤く照らすのを防ぐ。値未満へ向けて色の重みを連続に立ち上げる
-	colorCutoff = 0.8
+	// lightFadeLow と lightFadeHigh は光源の寄与をフェードさせる環境光の帯。
+	// lightFadeLow 以下では光源が満額効き、lightFadeHigh 以上では何も足さない。
+	// 暗所と夜は満額のまま保ち、日光の強い屋外の昼にだけ火の明るさと色を消す
+	lightFadeLow  = 0.45
+	lightFadeHigh = 0.8
 	// visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる
 	visibilityThreshold = 0.10
 	// lightPlateau は光源の平坦域。正規化距離がこの値までは一様に明るく、外縁で滑らかに落とす

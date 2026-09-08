@@ -444,21 +444,22 @@ func TestCalculateLightSourceDarkness_明るさの合成(t *testing.T) {
 	})
 }
 
-// TestLightColorSuppress は環境光の明るさで光源の色の重みが決まることを固定する。
-// colorCutoff 以上で 0、暗いほど 1 へ近づき、単調に減る。
-func TestLightColorSuppress(t *testing.T) {
+// TestLightSuppress は環境光の明るさで光源の寄与係数が決まることを固定する。
+// lightFadeLow 以下で 1、lightFadeHigh 以上で 0、間は単調に減る。
+func TestLightSuppress(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, 0.0, lightColorSuppress(0.9), "colorCutoff より明るいと色は乗らない")
-	assert.Equal(t, 0.0, lightColorSuppress(colorCutoff), "境界ちょうどで 0")
-	assert.InDelta(t, 0.5, lightColorSuppress(colorCutoff/2), 1e-9, "半分の明るさで 0.5")
-	assert.Equal(t, 1.0, lightColorSuppress(0.0), "真っ暗なら色は最大で乗る")
-	assert.Greater(t, lightColorSuppress(0.1), lightColorSuppress(0.5), "暗いほど色が乗る")
+	assert.Equal(t, 1.0, lightSuppress(0.06), "暗所では光源が満額効く")
+	assert.Equal(t, 1.0, lightSuppress(lightFadeLow), "フェード下端では満額")
+	assert.Equal(t, 0.0, lightSuppress(lightFadeHigh), "フェード上端では何も足さない")
+	assert.Equal(t, 0.0, lightSuppress(0.95), "日光下では何も足さない")
+	assert.InDelta(t, 0.5, lightSuppress((lightFadeLow+lightFadeHigh)/2), 1e-9, "帯の中央で 0.5")
+	assert.Greater(t, lightSuppress(0.5), lightSuppress(0.7), "明るいほど寄与が減る")
 }
 
-// TestCalculateLightSourceDarkness_明るい環境光では光源の色が乗らない は、
-// 日光の強い屋外の昼に火の暖色が乗らず、暗い環境光でだけ乗ることを固定する。
-func TestCalculateLightSourceDarkness_明るい環境光では光源の色が乗らない(t *testing.T) {
+// TestCalculateLightSourceDarkness_明るい環境光では光源が何も足さない は、
+// 日光の強い屋外の昼に火が明るさも色も足さず、暗い環境光でだけ効くことを固定する。
+func TestCalculateLightSourceDarkness_明るい環境光では光源が何も足さない(t *testing.T) {
 	t.Parallel()
 
 	noWall := map[gc.GridElement]bool{}
@@ -474,9 +475,14 @@ func TestCalculateLightSourceDarkness_明るい環境光では光源の色が乗
 	})
 
 	// 光源の中心タイルを、白い環境光の明暗2条件で見る
-	bright := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.9, [3]float64{1, 1, 1})
+	const brightAmbient = 0.9
+	bright := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, brightAmbient, [3]float64{1, 1, 1})
 	dark := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.06, [3]float64{1, 1, 1})
 
-	assert.Equal(t, color.RGBA{R: 255, G: 255, B: 255, A: 255}, bright.Color, "明るい屋外では火の色が乗らず環境光色のまま")
-	assert.Greater(t, dark.Color.R, dark.Color.B, "暗い環境光では火の暖色が乗り赤が青を上回る")
+	// 明るい屋外では火は色も明るさも足さない。色は環境光色、暗さは環境光だけで決まる
+	assert.Equal(t, color.RGBA{R: 255, G: 255, B: 255, A: 255}, bright.Color, "火の色が乗らず環境光色のまま")
+	assert.InDelta(t, 1-brightAmbient, bright.Darkness, 1e-9, "火が明るさを足さず環境光のままになる")
+	// 暗い環境光では火が効く。暖色が乗り、環境光だけより明るい
+	assert.Greater(t, dark.Color.R, dark.Color.B, "暗いと火の暖色が乗り赤が青を上回る")
+	assert.Less(t, dark.Darkness, 1-0.06, "暗いと火が明るさを足す")
 }
