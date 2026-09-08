@@ -481,7 +481,7 @@
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/states/auction_menu.go (0.0%)</option>
 				
-				<option value="file213">github.com/kijimaD/ruins/internal/states/character_info.go (94.4%)</option>
+				<option value="file213">github.com/kijimaD/ruins/internal/states/character_info.go (94.6%)</option>
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/states/character_job.go (50.5%)</option>
 				
@@ -515,7 +515,7 @@
 				
 				<option value="file229">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
-				<option value="file230">github.com/kijimaD/ruins/internal/states/factories.go (68.2%)</option>
+				<option value="file230">github.com/kijimaD/ruins/internal/states/factories.go (68.4%)</option>
 				
 				<option value="file231">github.com/kijimaD/ruins/internal/states/feed_fuel_menu.go (64.9%)</option>
 				
@@ -637,7 +637,7 @@
 				
 				<option value="file290">github.com/kijimaD/ruins/internal/widgets/menuframe/layout.go (100.0%)</option>
 				
-				<option value="file291">github.com/kijimaD/ruins/internal/widgets/menuframe/list.go (85.7%)</option>
+				<option value="file291">github.com/kijimaD/ruins/internal/widgets/menuframe/list.go (86.6%)</option>
 				
 				<option value="file292">github.com/kijimaD/ruins/internal/widgets/menuframe/screen.go (100.0%)</option>
 				
@@ -707,7 +707,7 @@
 				
 				<option value="file325">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file326">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
+				<option value="file326">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
 				
 				<option value="file327">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -31389,9 +31389,6 @@ const (
         tabBasic     = "basic"
 )
 
-// healthEntryIndent は健康タブで症状エントリを部位カテゴリ見出しと見分けるための字下げ
-const healthEntryIndent = "  "
-
 type statusTabData struct {
         ID    string
         Label string
@@ -31409,6 +31406,8 @@ type statusItemData struct {
         Description string
         // IsHeader はカテゴリヘッダー行かどうか。真なら選択不可の見出し
         IsHeader bool
+        // Indent は menuframe.Row.Indent へ渡す字下げの段数
+        Indent int
         // BodyPart は健康タブの症状エントリが属する部位
         BodyPart gc.BodyPart
         // Condition は症状エントリが指す不調の実体。保存不調も導出不調も同じ形で載せる。症状でない行は nil
@@ -31493,6 +31492,17 @@ func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Ent
         <span class="cov8" title="1">return items</span>
 }
 
+// indentUnderHeaders は見出し以外の行を1段字下げして、カテゴリ配下のエントリを見出しと
+// 見分けやすくする。見出しと子が交互に並ぶタブでだけ呼ぶ。
+func indentUnderHeaders(items []statusItemData) []statusItemData {
+        <span class="cov8" title="1">for i := range items </span>{
+                <span class="cov8" title="1">if !items[i].IsHeader </span>{
+                        <span class="cov8" title="1">items[i].Indent = 1
+</span>                }
+        }
+        <span class="cov8" title="1">return items</span>
+}
+
 func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entity) []statusItemData {
         <span class="cov8" title="1">items := []statusItemData{}
         if !query.AliveHas(world, world.Components.Skills, playerEntity) </span>{
@@ -31519,7 +31529,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
                         })</span>
                 }
         }
-        <span class="cov8" title="1">return items</span>
+        <span class="cov8" title="1">return indentUnderHeaders(items)</span>
 }
 
 func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Entity) []statusItemData {
@@ -31595,7 +31605,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
                 statusItemData{Label: query.T(world, "Max weight"), Value: val(gc.ProfMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(gc.ProfMaxWeight)},
                 statusItemData{Label: query.T(world, "Max load"), Value: val(gc.ProfHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(gc.ProfHeavyArmor)},
         )
-        return items</span>
+        return indentUnderHeaders(items)</span>
 }
 
 // translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない
@@ -31632,7 +31642,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 </span>                }
                 <span class="cov8" title="1">if len(conds) == 0 </span>{
                         // 症状の無い部位は健康の1エントリを置く。見出しと区別するため字下げする
-                        <span class="cov8" title="1">items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, "Normal"), BodyPart: part})
+                        <span class="cov8" title="1">items = append(items, statusItemData{Label: query.T(world, "Normal"), BodyPart: part})
                         continue</span>
                 }
                 // 症状ごとに1エントリ。見出しと区別するため字下げする
@@ -31642,7 +31652,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 </span>                        // 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
                         <span class="cov8" title="1">if gc.ConditionIsDerived(cond.Type) </span>{
                                 <span class="cov8" title="1">items = append(items, statusItemData{
-                                        Label:     healthEntryIndent + translatedConditionName(world, cond.Type),
+                                        Label:     translatedConditionName(world, cond.Type),
                                         Value:     query.T(world, cond.Severity.String()),
                                         BodyPart:  part,
                                         Condition: &amp;c,
@@ -31652,14 +31662,14 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
                         // 怪我・病気は名前の右に治療状態、値に進行度を出す
                         <span class="cov8" title="1">name := translatedConditionName(world, cond.Type) + "  " + treatmentStatus(world, cond)
                         items = append(items, statusItemData{
-                                Label:     healthEntryIndent + name,
+                                Label:     name,
                                 Value:     fmt.Sprintf("%d%%", int(cond.Timer)),
                                 BodyPart:  part,
                                 Condition: &amp;c,
                         })</span>
                 }
         }
-        <span class="cov8" title="1">return items</span>
+        <span class="cov8" title="1">return indentUnderHeaders(items)</span>
 }
 
 // sourceToDetails はProficiencySourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない。
@@ -31758,7 +31768,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
                                 <span class="cov8" title="1">cells[2] = it.Modifier
 </span>                        }
                 }
-                <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}</span>
+                <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader, Indent: it.Indent}</span>
         }
         <span class="cov8" title="1">return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)</span>
 }
@@ -32728,6 +32738,8 @@ type Choice struct {
         Label  string
         Run    func(world w.World) (es.Transition[w.World], error)
         Header bool
+        // Indent は menuframe.Row.Indent へ渡す字下げの段数
+        Indent int
 }
 
 // ChoiceProps は選択メニューの表示スナップショット
@@ -32806,7 +32818,7 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
         <span class="cov8" title="1">rows := make([]menuframe.Row, len(props.Choices))
         for i, c := range props.Choices </span>{
-                <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: styled.TextCells(c.Label), Header: c.Header}
+                <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: styled.TextCells(c.Label), Header: c.Header, Indent: c.Indent}
 </span>        }
         <span class="cov8" title="1">perPage := menuframe.ListCapacity(world, false, true)
 </span>        // ページ表示はフッタ行の右端に出す。1ページのメニューは内容を上端から並べる。
@@ -35357,7 +35369,7 @@ func NewSaveMenuState() (es.State[w.World], error) {
                 <span class="cov8" title="1">if choices == nil </span>{
                         <span class="cov8" title="1">for i := 1; i &lt;= 4; i++ </span>{
                                 <span class="cov8" title="1">slotName := fmt.Sprintf("slot%d", i)
-                                choices = append(choices, Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) </span>{
+                                choices = append(choices, Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) </span>{
                                         <span class="cov0" title="0">if err := saveManager.SaveWorld(world, slotName); err != nil </span>{
                                                 <span class="cov0" title="0">return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
 </span>                                        }
@@ -35398,7 +35410,7 @@ func NewLoadMenuState() (es.State[w.World], error) {
                                 <span class="cov8" title="1">if i &lt; len(autoSaves) </span>{
                                         <span class="cov0" title="0">choices = append(choices, loadSlotChoice(world, saveManager, autoSaves[i]))
 </span>                                } else {
-                                        <span class="cov8" title="1">choices = append(choices, Choice{Label: "  ---", Header: true})
+                                        <span class="cov8" title="1">choices = append(choices, emptySlotChoice())
 </span>                                }
                         }
                         <span class="cov8" title="1">choices = append(choices, backChoice(world))</span>
@@ -35414,12 +35426,18 @@ func backChoice(world w.World) Choice {
 </span>        }}
 }
 
-// loadSlotChoice はロードスロット1つ分の選択肢を返す。空スロットは選べない見出し行にする
+// emptySlotChoice は空きスロットの行を返す。選べない見出し行にしつつ、埋まったスロットと
+// 同じ段へ字下げして縦に揃える
+func emptySlotChoice() Choice {
+        <span class="cov8" title="1">return Choice{Label: "---", Header: true, Indent: 1}
+</span>}
+
+// loadSlotChoice はロードスロット1つ分の選択肢を返す
 func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotName string) Choice {
         <span class="cov8" title="1">if !saveManager.SaveFileExists(slotName) </span>{
-                <span class="cov8" title="1">return Choice{Label: "  ---", Header: true}
+                <span class="cov8" title="1">return emptySlotChoice()
 </span>        }
-        <span class="cov0" title="0">return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) </span>{
+        <span class="cov0" title="0">return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) </span>{
                 <span class="cov0" title="0">if err := saveManager.LoadWorld(world, slotName); err != nil </span>{
                         // ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
                         // 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
@@ -35455,9 +35473,9 @@ func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, 
         timestamp, tsErr := saveManager.GetSaveFileTimestamp(slotName)
 </span>
         <span class="cov0" title="0">if nameErr == nil &amp;&amp; tsErr == nil </span>{
-                <span class="cov0" title="0">return fmt.Sprintf("  %s  %s", playerName, timestamp.Format("01/02 15:04"))
+                <span class="cov0" title="0">return fmt.Sprintf("%s  %s", playerName, timestamp.Format("01/02 15:04"))
 </span>        }
-        <span class="cov0" title="0">return query.T(world, "  Has data")</span>
+        <span class="cov0" title="0">return query.T(world, "Has data")</span>
 }
 
 // NewMessageState は組み立て済みメッセージから MessageState を作成する。
@@ -44903,9 +44921,12 @@ import (
 
 // Row は一覧の1行。Cells は各列のセルで、アイコンと文字列が混ざってよい。
 // Header が真なら見出し行でカーソルが止まらない。
+// Indent は字下げの段数。0 は段なし。見出しを0、配下のエントリを1以上にするとまとまりが見える。
+// 詳細パネルの entityspec.SpecRow.Indent と同じ概念で、行全体を Indent*Space4 だけ右へ寄せる。
 type Row struct {
         Cells  []styled.Cell
         Header bool
+        Indent int
 }
 
 // ListOpts は一覧描画の方針。HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には
@@ -44938,15 +44959,16 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
 </span>
         <span class="cov8" title="1">var items []uicore.Drawable
         if opts.HeaderRow != nil </span>{
-                <span class="cov0" title="0">items = append(items, headerRow(opts.HeaderRow, colWidths, face))
+                // 列見出しは表の先頭に置く見出しで、字下げはしない
+                <span class="cov0" title="0">items = append(items, headerRow(opts.HeaderRow, colWidths, face, 0))
 </span>        }
         <span class="cov8" title="1">visible := pagination.VisibleEntries(rows, pg)
         for _, entry := range visible </span>{
                 <span class="cov8" title="1">if entry.Item.Header </span>{
-                        <span class="cov8" title="1">items = append(items, headerRow(cellTexts(entry.Item.Cells), colWidths, face))
+                        <span class="cov8" title="1">items = append(items, headerRow(cellTexts(entry.Item.Cells), colWidths, face, entry.Item.Indent))
                         continue</span>
                 }
-                <span class="cov8" title="1">items = append(items, dataRow(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face, res))</span>
+                <span class="cov8" title="1">items = append(items, dataRow(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face, res, entry.Item.Indent))</span>
         }
         // 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
         <span class="cov8" title="1">if len(rows) &gt; perPage </span>{
@@ -45013,19 +45035,30 @@ func toAlign(a styled.TextAlign) uicore.Align {
         <span class="cov8" title="1">return uicore.AlignLeft</span>
 }
 
+// indentedRow は行を指定段数だけ字下げして組む。段数0ならそのまま、1以上なら先頭に
+// Indent*Space4 幅の空トラックを足して行全体を右へ寄せる。詳細パネルの字下げと同じ規則。
+func indentedRow(indent int, colWidths []int, cells []uicore.Widget) *uicore.Container {
+        <span class="cov8" title="1">if indent &lt;= 0 </span>{
+                <span class="cov8" title="1">return uicore.Row(colWidths, cells...)
+</span>        }
+        <span class="cov8" title="1">widths := append([]int{indent * theme.Space4}, colWidths...)
+        widgets := append([]uicore.Widget{uicore.NewGroup()}, cells...)
+        return uicore.Row(widths, widgets...)</span>
+}
+
 // headerRow は見出し行を組む。カーソルは止まらず、補助色で描く。
-func headerRow(texts []string, colWidths []int, face text.Face) *uicore.Container {
+func headerRow(texts []string, colWidths []int, face text.Face, indent int) *uicore.Container {
         <span class="cov8" title="1">cells := make([]uicore.Widget, len(texts))
         for i, s := range texts </span>{
                 <span class="cov8" title="1">t := uicore.NewText(s, face, theme.TextSecondary)
                 t.VCenter = true
                 cells[i] = t
 </span>        }
-        <span class="cov8" title="1">return uicore.Row(colWidths, cells...)</span>
+        <span class="cov8" title="1">return indentedRow(indent, colWidths, cells)</span>
 }
 
 // dataRow はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
-func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources) *uicore.Container {
+func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources, indent int) *uicore.Container {
         // 非選択は暗く、選択は明るくして、カーソル位置を際立たせる
         <span class="cov8" title="1">var textColor color.Color = theme.TextSecondary
         if selected </span>{
@@ -45044,7 +45077,7 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 </span>                }
                 <span class="cov8" title="1">cellWidgets[i] = t</span>
         }
-        <span class="cov8" title="1">return rowChrome(uicore.Row(colWidths, cellWidgets...), res, selected)</span>
+        <span class="cov8" title="1">return rowChrome(indentedRow(indent, colWidths, cellWidgets), res, selected)</span>
 }
 
 // SelectionRow は中身を持たない1行ぶんの意匠を返す。選択中の強調と下端の区切り線だけを持ち、
@@ -48821,7 +48854,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
