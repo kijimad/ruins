@@ -382,19 +382,53 @@ func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
 	return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
 }
 
-// calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
-// 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
-// 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
-// 色は各光源の寄与で加重平均する。
-func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
-	brightness := ambient
+// lightAccum は環境光と光源を畳んで明るさと色を溜める。ambientLight で基底を置き、
+// addSource で光源を1つずつ足し、resolve で LightInfo にまとめる、というフィルタ列で使う。
+type lightAccum struct {
+	brightness       float64 // 加算した明るさ。resolve で 0..1 にクランプする
+	sumR, sumG, sumB float64 // 色の加重和。weight で割って平均色にする
+	weight           float64 // 加重和の総重み
+}
 
-	// 色は環境光と各光源の寄与で加重平均する。環境光を重み ambient の基底色として入れると、
-	// 無照明のタイルは環境光の色になり、松明の届くタイルは寄与の大きい松明色が勝つ。
-	totalR := ambientColor[0] * 255 * ambient
-	totalG := ambientColor[1] * 255 * ambient
-	totalB := ambientColor[2] * 255 * ambient
-	totalWeight := ambient
+// ambientLight は環境光を基底に置いた accum を返す。無照明のタイルはこの色と明るさになる。
+func ambientLight(ambient float64, color [3]float64) lightAccum {
+	return lightAccum{
+		brightness: ambient,
+		sumR:       color[0] * 255 * ambient,
+		sumG:       color[1] * 255 * ambient,
+		sumB:       color[2] * 255 * ambient,
+		weight:     ambient,
+	}
+}
+
+// addSource は光源1つを寄与 contrib で足す。明るさは加算合成、色は加重和へ積む。
+func (a lightAccum) addSource(c color.RGBA, contrib float64) lightAccum {
+	a.brightness += contrib
+	a.sumR += float64(c.R) * contrib
+	a.sumG += float64(c.G) * contrib
+	a.sumB += float64(c.B) * contrib
+	a.weight += contrib
+	return a
+}
+
+// resolve は溜めた明るさと色を LightInfo にまとめる。明るさは 0..1 にクランプし、色は加重平均する。
+func (a lightAccum) resolve() gc.LightInfo {
+	brightness := math.Max(0, math.Min(1, a.brightness))
+	col := color.RGBA{A: 255}
+	if a.weight > 0 {
+		col.R = uint8(math.Min(255, a.sumR/a.weight))
+		col.G = uint8(math.Min(255, a.sumG/a.weight))
+		col.B = uint8(math.Min(255, a.sumB/a.weight))
+	}
+	return gc.LightInfo{Darkness: 1 - brightness, Color: col}
+}
+
+// calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
+// 環境光を基底に、各光源を減衰と suppress で絞って足し込む。壁で視線が遮られた光源は寄与しない。
+// 環境光を重み ambient の基底色として入れるので、無照明のタイルは環境光の色になり、
+// 松明の届くタイルは寄与の大きい松明色が勝つ。
+func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
+	acc := ambientLight(ambient, ambientColor)
 
 	// 環境光で光源の寄与を絞る係数。lightFadeLow 以下で満額、lightFadeHigh 以上で 0。明るさと色の両方にかける
 	suppress := 1 - smoothstep(lightFadeLow, lightFadeHigh, ambient)
@@ -431,31 +465,10 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 		// 光った球のように見えてしまうのを避ける
 		atten := 1.0 - smoothstep(lightPlateau, 1.0, nd)
 
-		// 明るさも色も同じ係数で絞る
-		contrib := atten * suppress
-
-		// 加算合成。重なるほど明るい
-		brightness += contrib
-
-		totalR += float64(lightSource.Color.R) * contrib
-		totalG += float64(lightSource.Color.G) * contrib
-		totalB += float64(lightSource.Color.B) * contrib
-		totalWeight += contrib
+		acc = acc.addSource(lightSource.Color, atten*suppress)
 	}
 
-	brightness = math.Max(0, math.Min(1, brightness))
-
-	col := color.RGBA{A: 255}
-	if totalWeight > 0 {
-		col.R = uint8(math.Min(255, totalR/totalWeight))
-		col.G = uint8(math.Min(255, totalG/totalWeight))
-		col.B = uint8(math.Min(255, totalB/totalWeight))
-	}
-
-	return gc.LightInfo{
-		Darkness: 1.0 - brightness,
-		Color:    col,
-	}
+	return acc.resolve()
 }
 
 // 各タイル状態の暗闇の強さ

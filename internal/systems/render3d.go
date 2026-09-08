@@ -57,10 +57,9 @@ const (
 	dayOverbrightHigh = 0.95
 )
 
-// visFunc はタイルの明るさ・状態・光源色を返す。bright は 0..1 の明るさで Darkness を反映する。
-// drawable はタイルを描くか、visible は今まさに見えているか。light は光源色の乗算で、
-// 無色なら {1,1,1}。動体は visible のときだけ描く。
-type visFunc func(*gc.GridElement) (bright float64, drawable, visible bool, light [3]float64)
+// tintFunc はタイルへ乗せる乗算色 tint と描画状態を返す。tint は明るさと光源色を合成済み。
+// drawable はタイルを描くか、visible は今まさに見えているか。動体は visible のときだけ描く。
+type tintFunc func(*gc.GridElement) (tint [3]float64, drawable, visible bool)
 
 // normalizeLight は光源色を最大成分で正規化した乗算色にする。明るさは bright が持つので、
 // ここでは色味だけを表す。無色や未設定は {1,1,1} を返す。
@@ -182,16 +181,48 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	}
 	pcx, pcz := float64(center.X), float64(center.Y)
 
-	visFactor := sys.visFactorFunc(world)
-	quads := sys.collectTiles(world, pcx, pcz, visFactor)
-	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visFactor)
+	visTint := sys.visTintFunc(world)
+	quads := sys.collectTiles(world, pcx, pcz, visTint)
+	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visTint)
 	return quads, projector, nil
 }
 
-// visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。
-func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
+// lightSample は解決済みの明るさと色。sampleOf で TileRenderInfo から起こし、
+// overbright で日中に持ち上げ、tint で乗算色にする、というフィルタ列で使う。
+type lightSample struct {
+	brightness float64    // 0..1 の明るさ。overbright で 1.0 を超えうる
+	color      [3]float64 // 光源色の乗算色。無色なら {1,1,1}
+}
+
+// sampleOf はタイルの描画情報から明るさと色のサンプルを起こす。可視は Darkness を 1-d の
+// 明るさへ、LightColor を色味へ反映する。記憶は visible=false、未探索は drawable=false。
+func sampleOf(info TileRenderInfo) (s lightSample, drawable, visible bool) {
+	switch v := info.(type) {
+	case TileRenderVisible:
+		return lightSample{1 - float64(v.Darkness), normalizeLight(v.LightColor)}, true, true
+	case TileRenderRemembered:
+		return lightSample{1 - float64(v.Darkness), [3]float64{1, 1, 1}}, true, false
+	default:
+		return lightSample{}, false, false
+	}
+}
+
+// overbright は明るさを boost 倍に持ち上げる。屋外の日照で乗算の天井を越えて明るく見せる。
+func (s lightSample) overbright(boost float64) lightSample {
+	s.brightness *= boost
+	return s
+}
+
+// tint はサンプルを乗算色にする。色に明るさを掛けてタイルへ乗せる係数を作る。
+func (s lightSample) tint() [3]float64 {
+	return scaleCol(s.color, s.brightness)
+}
+
+// visTintFunc はタイルへ乗せる乗算色 tint を返す関数を作る。隠れタイルは drawable=false。
+// サンプルを起こし、可視タイルだけ日中の底上げを掛けて、乗算色にまとめる。
+func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 	if !sys.UseFOV {
-		return func(*gc.GridElement) (float64, bool, bool, [3]float64) { return 1, true, true, [3]float64{1, 1, 1} }
+		return func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
 	}
 	renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
 	// 屋外の日照が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる
@@ -199,31 +230,17 @@ func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
 	if query.IsOnOverworld(world) {
 		boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(query.GetGameTime(world)))
 	}
-	return func(g *gc.GridElement) (float64, bool, bool, [3]float64) {
-		bright, drawable, visible, light := tileVisFactor(renderMap[*g])
+	return func(g *gc.GridElement) ([3]float64, bool, bool) {
+		s, drawable, visible := sampleOf(renderMap[*g])
 		if visible {
-			bright *= boost
+			s = s.overbright(boost)
 		}
-		return bright, drawable, visible, light
-	}
-}
-
-// tileVisFactor はタイルの描画情報から明るさ・描画可否・可視・光源色を導く純関数。
-// 可視は Darkness を 1-d の明るさへ、LightColor を色味へ反映する。記憶は visible=false、未探索は描かない。
-func tileVisFactor(info TileRenderInfo) (bright float64, drawable, visible bool, light [3]float64) {
-	white := [3]float64{1, 1, 1}
-	switch v := info.(type) {
-	case TileRenderVisible:
-		return 1 - float64(v.Darkness), true, true, normalizeLight(v.LightColor)
-	case TileRenderRemembered:
-		return 1 - float64(v.Darkness), true, false, white
-	default:
-		return 0, false, false, white
+		return s.tint(), drawable, visible
 	}
 }
 
 // collectTiles は床と壁のクアッドを集める。
-func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFactor visFunc) []r3quad {
+func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visTint tintFunc) []r3quad {
 	var quads []r3quad
 	walls := render3d.WallTileSet(world)
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
@@ -239,11 +256,10 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 		if !ok {
 			continue
 		}
-		vf, vok, _, light := visFactor(g)
+		tint, vok, _ := visTint(g)
 		if !vok {
 			continue
 		}
-		tint := scaleCol(light, vf) // 明るさと光源色を合わせた乗算色
 		if render3d.IsWallTileEntity(world, e) {
 			sys.addWall(&quads, walls, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)
 		} else {
@@ -273,7 +289,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visFactor visFunc) []r3quad {
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visTint tintFunc) []r3quad {
 	// 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile](), ecs.C[gc.Driving]()).Query()
 	for objQ.Next() {
@@ -289,7 +305,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 			continue
 		}
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
-		b, vok, vis, light := visFactor(g)
+		tint, vok, vis := visTint(g)
 		if !vok || !vis {
 			continue
 		}
@@ -303,7 +319,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		// 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が
 		// 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく
 		depth := int(sr.Depth)
-		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))
+		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
 		quads[len(quads)-1].depth = depth
 	}
 	return quads
