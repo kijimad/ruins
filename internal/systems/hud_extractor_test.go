@@ -7,7 +7,10 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -19,282 +22,37 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestTileColorInfo はTileColorInfoの型エイリアスをテスト
-func TestTileColorInfo(t *testing.T) {
-	t.Parallel()
-	colorInfo := TileColorInfo{
-		R: 255,
-		G: 128,
-		B: 64,
-		A: 200,
-	}
-
-	// hud.TileColorInfoと同じ構造であることを確認
-	var hudColorInfo = colorInfo
-
-	assert.Equal(t, uint8(255), hudColorInfo.R)
-	assert.Equal(t, uint8(128), hudColorInfo.G)
-	assert.Equal(t, uint8(64), hudColorInfo.B)
-	assert.Equal(t, uint8(200), hudColorInfo.A)
-}
-
-func TestBuildTileColors(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name          string
-		setupEntities func(w.World)
-		gridElement   gc.GridElement
-		expectedColor color.RGBA
-	}{
-		{
-			name: "壁タイルは灰色で描画される",
-			setupEntities: func(world w.World) {
-				entity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}})
-				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
-				world.Components.BlockView.Add(entity, &gc.BlockView{})
-				// 探索済みタイルに追加
-				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}}] = true
-			},
-			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 3}},
-			expectedColor: color.RGBA{100, 100, 100, 255},
-		},
-		{
-			name: "床タイルは薄い灰色で描画される",
-			setupEntities: func(world w.World) {
-				entity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}})
-				world.Components.SpriteRender.Add(entity, &gc.SpriteRender{})
-				// BlockViewコンポーネントなし = 床
-				// 探索済みタイルに追加
-				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true
-			},
-			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}},
-			expectedColor: color.RGBA{200, 200, 200, 128},
-		},
-		{
-			name: "エンティティなしの場合は透明",
-			setupEntities: func(world w.World) {
-				// 探索済みタイルに追加してるが、エンティティはない
-				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 999, Y: 999}}] = true
-			},
-			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 999, Y: 999}},
-			expectedColor: color.RGBA{0, 0, 0, 0},
-		},
-		{
-			name: "同じタイルに壁と床が両方ある場合は壁が優先される",
-			setupEntities: func(world w.World) {
-				// 床エンティティ
-				floorEntity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(floorEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}})
-				world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
-
-				// 壁エンティティ
-				wallEntity := world.ECS.NewEntity()
-				world.Components.GridElement.Add(wallEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}})
-				world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
-				world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
-				// 探索済みタイルに追加
-				query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}}] = true
-			},
-			gridElement:   gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 20, Y: 20}},
-			expectedColor: color.RGBA{100, 100, 100, 255}, // 壁が優先される
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			world := testutil.InitTestWorld(t)
-
-			// セットアップ処理を実行
-			tt.setupEntities(world)
-
-			// テスト実行
-			tileColors := buildTileColors(world)
-			actualTileColor, exists := tileColors[tt.gridElement]
-
-			// 結果検証
-			assert.True(t, exists, "gridElement %v should exist in tileColors", tt.gridElement)
-			actualColor := color.RGBA{R: actualTileColor.R, G: actualTileColor.G, B: actualTileColor.B, A: actualTileColor.A}
-			assert.Equal(t, tt.expectedColor, actualColor,
-				"buildTileColors gridElement %v = %v, want %v",
-				tt.gridElement, actualColor, tt.expectedColor)
-		})
-	}
-}
-
-func TestExtractMinimapData(t *testing.T) {
+// TestExtractMacroMapData_帯なしはNoData は、オーバーワールド外では帯が無く HasBand が偽になり、
+// パネル寸法だけが設定されることを固定する。
+func TestExtractMacroMapData_帯なしはNoData(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-
-	// ゲームリソースを設定
-	query.GetCurrentStageField(world).ExploredTiles = make(map[gc.GridElement]bool)
-
-	// プレイヤーエンティティを作成
-	playerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}})
-	world.Components.Player.Add(playerEntity, &gc.Player{})
-
-	// 探索済みタイルを設定
-	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 15}}] = true // プレイヤー位置
-	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}] = true  // 左のタイル
-	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}}] = true // 右のタイル
-
-	// 画面リソースを設定
 	world.Resources.SetScreenDimensions(800, 600)
 
-	// いくつかの壁と床エンティティを作成
-	wallEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(wallEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}})
-	world.Components.SpriteRender.Add(wallEntity, &gc.SpriteRender{})
-	world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
+	data := extractMacroMapData(world)
 
-	floorEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(floorEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}})
-	world.Components.SpriteRender.Add(floorEntity, &gc.SpriteRender{})
-
-	// テスト実行
-	minimapData := extractMinimapData(world)
-
-	// 結果検証
-	assert.Equal(t, 10, int(minimapData.PlayerTile.X), "プレイヤーのX座標が正しくない")
-	assert.Equal(t, 15, int(minimapData.PlayerTile.Y), "プレイヤーのY座標が正しくない")
-	assert.Len(t, minimapData.ExploredTiles, 3, "探索済みタイル数が正しくない")
-	assert.Equal(t, consts.MinimapWidth, minimapData.MinimapConfig.Width, "ミニマップ幅が正しくない")
-	assert.Equal(t, consts.MinimapHeight, minimapData.MinimapConfig.Height, "ミニマップ高さが正しくない")
-	assert.Equal(t, consts.MinimapScale, minimapData.MinimapConfig.Scale, "ミニマップスケールが正しくない")
-
-	// タイル色が正しく設定されているか確認
-	wallGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 15}}
-	floorGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 15}}
-	require.Contains(t, minimapData.TileColors, wallGrid, "壁タイルの色情報がない")
-	require.Contains(t, minimapData.TileColors, floorGrid, "床タイルの色情報がない")
-
-	wallColor := minimapData.TileColors[wallGrid]
-	floorColor := minimapData.TileColors[floorGrid]
-
-	assert.Equal(t, uint8(100), wallColor.R, "壁の赤色成分が正しくない")
-	assert.Equal(t, uint8(100), wallColor.G, "壁の緑色成分が正しくない")
-	assert.Equal(t, uint8(100), wallColor.B, "壁の青色成分が正しくない")
-	assert.Equal(t, uint8(255), wallColor.A, "壁のアルファ値が正しくない")
-
-	assert.Equal(t, uint8(200), floorColor.R, "床の赤色成分が正しくない")
-	assert.Equal(t, uint8(200), floorColor.G, "床の緑色成分が正しくない")
-	assert.Equal(t, uint8(200), floorColor.B, "床の青色成分が正しくない")
-	assert.Equal(t, uint8(128), floorColor.A, "床のアルファ値が正しくない")
+	assert.False(t, data.HasBand, "SeamlessBand が無ければ帯なし")
+	assert.Empty(t, data.View.Cells, "帯が無ければセルは空")
+	assert.Equal(t, consts.MacroMapWidth, data.Config.Width, "パネル幅は設定される")
+	assert.Equal(t, consts.MacroMapHeight, data.Config.Height, "パネル高さは設定される")
+	assert.Equal(t, consts.MacroMapMinGlyphPx, data.Config.MinGlyphPx, "glyph 閾値は設定される")
+	assert.Equal(t, 800, data.Screen.Width, "画面幅を持つ")
 }
 
-func TestMinimapCoordinateTransformation(t *testing.T) {
+// TestExtractMacroMapData_オーバーワールドは帯全体を出す は、オーバーワールドにいると帯全体の
+// チャンク俯瞰が組まれ HasBand が真になり、キューブのマーカーも載ることを固定する。
+func TestExtractMacroMapData_オーバーワールドは帯全体を出す(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		name           string
-		playerTileX    int
-		playerTileY    int
-		targetTileX    int
-		targetTileY    int
-		minimapCenterX int
-		minimapCenterY int
-		minimapScale   int
-		expectedMapX   float32
-		expectedMapY   float32
-		description    string
-	}{
-		{
-			name:           "プレイヤーと同じ位置のタイル",
-			playerTileX:    10,
-			playerTileY:    10,
-			targetTileX:    10,
-			targetTileY:    10,
-			minimapCenterX: 100,
-			minimapCenterY: 100,
-			minimapScale:   2,
-			expectedMapX:   100, // 中心座標と同じ
-			expectedMapY:   100, // 中心座標と同じ
-			description:    "プレイヤー位置はミニマップ中心に表示される",
-		},
-		{
-			name:           "プレイヤーの右のタイル",
-			playerTileX:    10,
-			playerTileY:    10,
-			targetTileX:    11,
-			targetTileY:    10,
-			minimapCenterX: 100,
-			minimapCenterY: 100,
-			minimapScale:   2,
-			expectedMapX:   102, // centerX + relativeX * scale = 100 + 1 * 2
-			expectedMapY:   100, // centerY + relativeY * scale = 100 + 0 * 2
-			description:    "右のタイルはミニマップでも右に表示される",
-		},
-		{
-			name:           "プレイヤーの左のタイル",
-			playerTileX:    10,
-			playerTileY:    10,
-			targetTileX:    9,
-			targetTileY:    10,
-			minimapCenterX: 100,
-			minimapCenterY: 100,
-			minimapScale:   2,
-			expectedMapX:   98,  // centerX + relativeX * scale = 100 + (-1) * 2
-			expectedMapY:   100, // centerY + relativeY * scale = 100 + 0 * 2
-			description:    "左のタイルはミニマップでも左に表示される",
-		},
-		{
-			name:           "プレイヤーの下のタイル",
-			playerTileX:    10,
-			playerTileY:    10,
-			targetTileX:    10,
-			targetTileY:    11,
-			minimapCenterX: 100,
-			minimapCenterY: 100,
-			minimapScale:   2,
-			expectedMapX:   100, // centerX + relativeX * scale = 100 + 0 * 2
-			expectedMapY:   102, // centerY + relativeY * scale = 100 + 1 * 2
-			description:    "下のタイルはミニマップでも下に表示される",
-		},
-		{
-			name:           "プレイヤーの上のタイル",
-			playerTileX:    10,
-			playerTileY:    10,
-			targetTileX:    10,
-			targetTileY:    9,
-			minimapCenterX: 100,
-			minimapCenterY: 100,
-			minimapScale:   2,
-			expectedMapX:   100, // centerX + relativeX * scale = 100 + 0 * 2
-			expectedMapY:   98,  // centerY + relativeY * scale = 100 + (-1) * 2
-			description:    "上のタイルはミニマップでも上に表示される",
-		},
-		{
-			name:           "異なるスケールでのテスト",
-			playerTileX:    5,
-			playerTileY:    5,
-			targetTileX:    7,
-			targetTileY:    3,
-			minimapCenterX: 200,
-			minimapCenterY: 200,
-			minimapScale:   4,
-			expectedMapX:   208, // centerX + relativeX * scale = 200 + 2 * 4
-			expectedMapY:   192, // centerY + relativeY * scale = 200 + (-2) * 4
-			description:    "スケール4での座標変換が正しく動作する",
-		},
-	}
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetScreenDimensions(800, 600)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world)) // プレイヤーとキューブをスポーンする
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			// 相対座標を計算
-			relativeX := tt.targetTileX - tt.playerTileX
-			relativeY := tt.targetTileY - tt.playerTileY
+	data := extractMacroMapData(world)
 
-			// 新しい実装（回転なしの単純な座標変換）
-			mapX := float32(tt.minimapCenterX + relativeX*tt.minimapScale)
-			mapY := float32(tt.minimapCenterY + relativeY*tt.minimapScale)
-
-			assert.Equal(t, tt.expectedMapX, mapX, "X座標の変換が正しくない: %s", tt.description)
-			assert.Equal(t, tt.expectedMapY, mapY, "Y座標の変換が正しくない: %s", tt.description)
-		})
-	}
+	assert.True(t, data.HasBand, "オーバーワールドでは帯がある")
+	assert.NotEmpty(t, data.View.Cells, "帯全体のセルが並ぶ")
+	assert.NotEmpty(t, data.View.CubeCells, "キューブのチャンク位置が載る")
 }
 
 func TestTileKeyFormat(t *testing.T) {
@@ -415,22 +173,6 @@ func TestGetHungerBadgeColor(t *testing.T) {
 			assert.Equal(t, tt.expected, getHungerBadgeColor(tt.level))
 		})
 	}
-}
-
-func TestExploredTiles_現ステージの探索済みタイルを返す(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	field := query.GetCurrentStageField(world)
-	field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 2}}] = true
-
-	tiles := exploredTiles(world)
-
-	assert.True(t, tiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 2}}])
-
-	// 同一マップへの参照であることを、書き込みが反映されるかで確認する
-	tiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}] = true
-	assert.True(t, field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}])
 }
 
 func TestExtractGameInfo(t *testing.T) {
@@ -725,7 +467,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	assert.Equal(t, 10, data.GameInfo.PlayerHP)
 	assert.Equal(t, consts.Currency(500), data.CurrencyData.Currency)
 	require.Len(t, data.WeaponSlotsData.Slots, 5)
-	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
+	assert.Equal(t, 800, data.MacroMap.Screen.Width)
 }
 
 // newColdPlayer は基本気温0度のダンジョンに体が冷えた低体温状態のプレイヤーを作る。

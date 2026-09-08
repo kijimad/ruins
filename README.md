@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [右上のHUD地図をミクロ地図から大域地図へ変える](docs/design/260908224311.md) | 0/10 | ui, worldgen |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

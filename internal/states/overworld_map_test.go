@@ -39,5 +39,5 @@ func TestOverworldMapState_キューブのチャンク位置を出す(t *testing
 
 	st := &OverworldMapState{}
 	require.NoError(t, st.OnStart(world))
-	assert.NotEmpty(t, st.cubeCells, "大域地図にキューブのチャンク位置が載る")
+	assert.NotEmpty(t, st.view.CubeCells, "大域地図にキューブのチャンク位置が載る")
 }

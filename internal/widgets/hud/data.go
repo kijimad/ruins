@@ -5,12 +5,13 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/overworld"
 )
 
 // Data はすべてのHUDウィジェットが必要とするデータを統合する
 type Data struct {
 	GameInfo         GameInfoData
-	MinimapData      MinimapData
+	MacroMap         MacroMapData
 	DebugOverlay     DebugOverlayData
 	MessageData      MessageData
 	CurrencyData     CurrencyData
@@ -36,25 +37,19 @@ type GameInfoData struct {
 	ScreenDimensions    ScreenDimensions // 画面サイズ。階層表示位置計算用
 }
 
-// MinimapData はミニマップ描画に必要なデータ
-type MinimapData struct {
-	PlayerTile       consts.Coord[consts.Tile]        // プレイヤーのタイル座標
-	ExploredTiles    map[gc.GridElement]bool          // 探索済みタイル
-	TileColors       map[gc.GridElement]TileColorInfo // タイル色情報
-	MinimapConfig    MinimapConfig                    // ミニマップ設定
-	ScreenDimensions ScreenDimensions                 // 画面サイズ
+// MacroMapData は右上のマクロ地図ウィジェットの描画データ。N キーで開く地形俯瞰と同じ内容を
+// 縮小して常時表示する。
+type MacroMapData struct {
+	HasBand bool                // オーバーワールドにいて帯があるか。偽なら No Data を出す
+	View    overworld.MacroView // 帯全体のチャンク俯瞰
+	Config  MacroMapConfig      // パネル寸法と glyph 表示の閾値
+	Screen  ScreenDimensions    // 右上配置に使う画面サイズ
 }
 
-// TileColorInfo はタイルの色情報
-type TileColorInfo struct {
-	R, G, B, A uint8
-}
-
-// MinimapConfig はミニマップの設定
-type MinimapConfig struct {
-	Width  int // ミニマップ幅
-	Height int // ミニマップ高さ
-	Scale  int // スケール（1タイルのピクセル数）
+// MacroMapConfig はマクロ地図ウィジェットの寸法。
+type MacroMapConfig struct {
+	Width, Height int // パネルのピクセル寸法
+	MinGlyphPx    int // セル辺がこのpx以上のときだけ glyph を描く。下回れば地形色セルのみで見せる
 }
 
 // ScreenDimensions は画面サイズ

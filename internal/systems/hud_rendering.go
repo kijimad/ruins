@@ -10,7 +10,7 @@ import (
 // HUDRenderingSystem はクエリを実行し、UIを描画するシステム
 type HUDRenderingSystem struct {
 	gameInfo        *hud.GameInfo
-	minimap         *hud.Minimap
+	macroMap        *hud.MacroMap
 	debugOverlay    *hud.DebugOverlay
 	messageArea     *hud.MessageArea
 	currencyDisplay *hud.CurrencyDisplay
@@ -27,7 +27,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 
 	return &HUDRenderingSystem{
 		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
-		minimap:         hud.NewMinimap(titleFace, chrome),
+		macroMap:        hud.NewMacroMap(titleFace, chrome),
 		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
@@ -61,8 +61,8 @@ func (sys *HUDRenderingSystem) Update(world w.World) error {
 	if sys.gameInfo != nil {
 		sys.gameInfo.Update(world)
 	}
-	if sys.minimap != nil {
-		sys.minimap.Update(world)
+	if sys.macroMap != nil {
+		sys.macroMap.Update(world)
 	}
 	if sys.debugOverlay != nil {
 		sys.debugOverlay.Update(world)
@@ -88,8 +88,8 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 	cv := uicore.NewEbitenCanvas(screen)
 
 	// 各ウィジェットにデータを渡して描画する。描画順がある
-	if sys.minimap != nil {
-		sys.minimap.Draw(cv, hudData.MinimapData)
+	if sys.macroMap != nil {
+		sys.macroMap.Draw(cv, hudData.MacroMap)
 	}
 	if sys.debugOverlay != nil {
 		sys.debugOverlay.Draw(screen, hudData.DebugOverlay)

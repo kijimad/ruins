@@ -90,6 +90,23 @@ func LegendGlyphs() []GlyphInfo {
 	return append(PlaceGlyphs(), FacilityGlyphs()...)
 }
 
+// glyphColorTable は種別文字から色への対応。色は GlyphInfo が記号と同居して持つので記号定義から
+// 一度だけ引き写す。UI 側が記号ごとの色表を別に持って二重定義でずれるのを防ぐ。
+var glyphColorTable = func() map[rune]color.RGBA {
+	table := map[rune]color.RGBA{}
+	for _, g := range LegendGlyphs() {
+		table[g.Label] = g.Color
+	}
+	return table
+}()
+
+// GlyphColor は種別文字に対応する色と、対応があるかを返す。凡例に出ない記号は ok=false になり、
+// 未知記号の既定色は UI 側が決める。overworld は theme に依存しないので既定色を持たない。
+func GlyphColor(r rune) (color.RGBA, bool) {
+	c, ok := glyphColorTable[r]
+	return c, ok
+}
+
 // PlaceGlyphs は地物種別の記号と名前を表示順で返す。UI の凡例や着色で使う。FacilityGlyphs と対で、
 // 施設側と同じ形で地物種別を扱えるようにする。分類漏れの保険 placeUnknown は含めない。
 func PlaceGlyphs() []GlyphInfo {
