@@ -187,8 +187,7 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	return quads, projector, nil
 }
 
-// lightSample は解決済みの明るさと色。sampleOf で TileRenderInfo から起こし、
-// overbright で日中に持ち上げ、tint で乗算色にする、というフィルタ列で使う。
+// lightSample は解決済みの明るさと色。フィルタ列で乗算色まで変換する。
 type lightSample struct {
 	brightness float64    // 0..1 の明るさ。overbright で 1.0 を超えうる
 	color      [3]float64 // 光源色の乗算色。無色なら {1,1,1}
@@ -207,19 +206,18 @@ func sampleOf(info TileRenderInfo) (s lightSample, drawable, visible bool) {
 	}
 }
 
-// overbright は明るさを boost 倍に持ち上げる。屋外の日照で乗算の天井を越えて明るく見せる。
+// overbright は明るさを boost 倍に持ち上げる。
 func (s lightSample) overbright(boost float64) lightSample {
 	s.brightness *= boost
 	return s
 }
 
-// tint はサンプルを乗算色にする。色に明るさを掛けてタイルへ乗せる係数を作る。
+// tint はサンプルを乗算色にする。
 func (s lightSample) tint() [3]float64 {
 	return scaleCol(s.color, s.brightness)
 }
 
 // visTintFunc はタイルへ乗せる乗算色 tint を返す関数を作る。隠れタイルは drawable=false。
-// サンプルを起こし、可視タイルだけ日中の底上げを掛けて、乗算色にまとめる。
 func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 	if !sys.UseFOV {
 		return func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
