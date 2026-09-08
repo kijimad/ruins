@@ -112,9 +112,10 @@ func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) 
 		return nil
 	}
 
-	// プレイヤーが進んだので、キューブを追随させ燃料を消費する。ConsumeCubeFuel は燃料 entity を
+	// プレイヤーが進んだので、キューブを追随させ燃料を消費する。事前の燃料判定で足りることは
+	// 保証済みなので消費は必ず成功する。よって戻り値は捨てる。ConsumeCubeFuel は燃料 entity を
 	// 削除する構造変更なので、GridElement の Get ポインタを跨いで持たず、消費後に取り直して書く
-	lifecycle.ConsumeCubeFuel(world, cube, cost)
+	_ = lifecycle.ConsumeCubeFuel(world, cube, cost)
 	world.Components.GridElement.Get(cube).Coord = next
 	query.InvalidateSpatialIndex(world)
 	return nil

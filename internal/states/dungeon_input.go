@@ -346,15 +346,13 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	}
 }
 
-// dismount は運転中のプレイヤーを降車させる。Driving を外し、キューブ隣の歩行可能タイルへ置く。
-// 隣接に空きが無ければキューブと同じ通行可能タイルに留まる。
+// dismount は運転中のプレイヤーを降車させる。運転中はキューブと同座標に同乗しているので、
+// Driving を外してその直上のタイルに残すだけでよい。
 func (st *DungeonState) dismount(world w.World) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !world.Components.Driving.Has(player) {
 		return
 	}
-	// 降車はキューブの直上に出る。運転中プレイヤーはキューブと同座標に同乗しており、キューブは
-	// 通行可能なので、そのタイルに残して Driving を外すだけでよい
 	world.Components.Driving.Remove(player)
 	gamelog.New(query.GetGameLog(world)).
 		Markup(query.T(world, "You get off the cube.")).

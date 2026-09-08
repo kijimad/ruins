@@ -32,7 +32,9 @@ func TestDriveFuelCost(t *testing.T) {
 	}
 }
 
-// addCubeFuel はキューブ収納に材質と重量を持つ燃料アイテムを1つ足す
+// addCubeFuel はキューブ収納に材質と重量を持つ燃料アイテムを1つ足す。
+// 生エンティティで足りる query 層のユニットテスト用。SpawnCube を使う統合テストは
+// activity パッケージ側の同名ヘルパを使い、こちらとは抽象レベルが異なる。
 func addCubeFuel(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Material, mg consts.Milligram) {
 	t.Helper()
 	e := world.ECS.NewEntity()
