@@ -755,3 +755,39 @@ func TestGetInteractionActions_給油(t *testing.T) {
 		assert.Equal(t, 0, countFeed(GetInteractionActions(world)))
 	})
 }
+
+// actionKinds は InteractionAction の種別だけを取り出す
+func actionKinds(actions []InteractionAction) []gc.InteractionKind {
+	kinds := make([]gc.InteractionKind, 0, len(actions))
+	for _, a := range actions {
+		kinds = append(kinds, a.Interaction)
+	}
+	return kinds
+}
+
+// TestGetInteractionActions_隣接ではキューブの乗車を出さない は、隣接の space メニューに乗車が
+// 出ず、乗車が直上でしか発動しないことを固定する。
+func TestGetInteractionActions_隣接ではキューブの乗車を出さない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 5})
+	require.NoError(t, err)
+
+	kinds := actionKinds(GetInteractionActions(world))
+	assert.NotContains(t, kinds, gc.InteractionDrive, "隣接では乗車を出さない。乗車は直上のみ")
+	assert.Contains(t, kinds, gc.InteractionOpenCubeMenu, "隣接ではキューブメニューを出す")
+}
+
+// TestGetSameTileManualActions_直上で乗車を出す は、キューブの直上で乗車が発動候補に出ることを固定する。
+func TestGetSameTileManualActions_直上で乗車を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+
+	assert.Contains(t, actionKinds(GetSameTileManualActions(world)), gc.InteractionDrive, "直上で乗車を出す")
+}
