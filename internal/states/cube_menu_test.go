@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -24,5 +25,15 @@ func TestNewCubeMenuState_4項目を並べる(t *testing.T) {
 	require.True(t, ok, "キューブメニューは ChoiceMenu ベース")
 
 	_, choices := menu.provide(world)
-	assert.Len(t, choices, 4, "収納・オークション・キューブ情報・閉じるの4項目")
+	labels := make([]string, len(choices))
+	for i, c := range choices {
+		labels[i] = c.Label
+	}
+	want := []string{
+		query.T(world, "Storage"),
+		query.T(world, "Auction"),
+		query.T(world, "Cube info"),
+		query.T(world, "Close"),
+	}
+	assert.Equal(t, want, labels, "収納・オークション・キューブ情報・閉じるを順に並べる")
 }
