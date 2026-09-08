@@ -47,6 +47,14 @@ type r3quad struct {
 // r3cullRadius はプレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
 const r3cullRadius = 60.0
 
+// dayOverbright* は屋外の日照が強いほどタイルの明るさを乗算の天井 1.0 超へ持ち上げる帯。
+// テクスチャ本来の明るさを越えて晴天らしく明るく見せる。dayOverbrightLow 以下では持ち上げない
+const (
+	dayOverbrightMax  = 0.3
+	dayOverbrightLow  = 0.6
+	dayOverbrightHigh = 0.95
+)
+
 // visFunc はタイルの明るさ・状態・光源色を返す。bright は 0..1 の明るさで Darkness を反映する。
 // drawable はタイルを描くか、visible は今まさに見えているか。light は光源色の乗算で、
 // 無色なら {1,1,1}。動体は visible のときだけ描く。
@@ -184,8 +192,17 @@ func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
 		return func(*gc.GridElement) (float64, bool, bool, [3]float64) { return 1, true, true, [3]float64{1, 1, 1} }
 	}
 	renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
+	// 屋外の日照が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる
+	boost := 1.0
+	if query.IsOnOverworld(world) {
+		boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(query.GetGameTime(world)))
+	}
 	return func(g *gc.GridElement) (float64, bool, bool, [3]float64) {
-		return tileVisFactor(renderMap[*g])
+		bright, drawable, visible, light := tileVisFactor(renderMap[*g])
+		if visible {
+			bright *= boost
+		}
+		return bright, drawable, visible, light
 	}
 }
 
