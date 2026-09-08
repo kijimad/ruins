@@ -60,10 +60,14 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	offX := x0 + (width-cellPx*cols)/2
 	offY := y0 + (height-cellPx*rows)/2
 
-	// 地形色のセルを敷く。セルが十分大きいときだけ種別記号を重ねる
+	// 地形色のセルを敷く。セルが十分大きいときだけ種別記号を重ねる。
+	// 未開放のチャンクは描かず、パネル背景のまま伏せてフォグにする。探索で徐々に開く
 	drawGlyph := cellPx >= data.Config.MinGlyphPx
 	for row := range data.View.Cells {
 		for col, cell := range data.View.Cells[row] {
+			if !cell.Discovered {
+				continue
+			}
 			cx := offX + col*cellPx
 			cy := offY + row*cellPx
 			cv.FillRect(image.Rect(cx, cy, cx+cellPx, cy+cellPx), macroGlyphColor(cell.Glyph))

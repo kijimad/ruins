@@ -18,7 +18,7 @@ type MacroWindow struct {
 }
 
 // FullBandWindow は帯全体を覆う窓を帯のプリミティブから組む。東西へ MacroMargin ぶん広げ、
-// この先の地形を先読みできる。全画面図も HUD もこの同じ窓を使う。
+// この先の地形を先読みできる。全画面の地形俯瞰図が使う。
 func FullBandWindow(eastIndex, cols, rows consts.Chunk) MacroWindow {
 	return MacroWindow{
 		OriginX: eastIndex - MacroMargin,
@@ -27,9 +27,20 @@ func FullBandWindow(eastIndex, cols, rows consts.Chunk) MacroWindow {
 	}
 }
 
-// MacroCell は窓内1チャンクの表示情報。今は種別文字だけを持つ。色は文字から引く。
+// PlayerCenteredWindow はプレイヤーの絶対チャンク列を中心に、左右へ radius チャンクぶんの窓を組む。
+// 縦は帯全体を見せる。HUD の右上地図が近傍だけを大きく描くために使う。
+func PlayerCenteredWindow(centerCol, rows consts.Chunk, radius int) MacroWindow {
+	return MacroWindow{
+		OriginX: centerCol - consts.Chunk(radius),
+		Cols:    2*radius + 1,
+		Rows:    max(rows, 1),
+	}
+}
+
+// MacroCell は窓内1チャンクの表示情報。種別文字と、フォグで開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
-	Glyph rune
+	Glyph      rune
+	Discovered bool // 探索で開放済みか。fog を使わないときは常に true
 }
 
 // MacroView はマクロ地図の描画モデル。窓内のチャンク格子と、マーカーの窓ローカル座標を持つ。
@@ -42,6 +53,7 @@ type MacroView struct {
 // BuildMacroView は帯のプリミティブとプレイヤー・キューブのタイル座標から、指定窓の描画モデルを組む。
 // ChunkPlace を窓の全チャンクへ適用し、マーカーはタイル座標をチャンク幅で割って窓ローカルへ移す。
 // eastIndex は帯ローカルなタイル座標を絶対チャンク列へ移すのに使う。
+// discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。nil なら全チャンクを開放済みにする。
 func BuildMacroView(
 	runSeed uint64,
 	eastIndex consts.Chunk,
@@ -50,6 +62,7 @@ func BuildMacroView(
 	playerTile consts.Coord[consts.Tile],
 	hasPlayer bool,
 	cubeTiles []consts.Coord[consts.Tile],
+	discovered map[consts.Coord[consts.Chunk]]bool,
 ) MacroView {
 	rows := max(win.Rows, 1)
 
@@ -58,7 +71,10 @@ func BuildMacroView(
 		cells[cy] = make([]MacroCell, win.Cols)
 		for i := range win.Cols {
 			c := consts.Coord[consts.Chunk]{X: win.OriginX + consts.Chunk(i), Y: cy}
-			cells[cy][i] = MacroCell{Glyph: ChunkPlace(runSeed, c, rows)}
+			cells[cy][i] = MacroCell{
+				Glyph:      ChunkPlace(runSeed, c, rows),
+				Discovered: discovered == nil || discovered[c],
+			}
 		}
 	}
 

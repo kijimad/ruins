@@ -115,14 +115,35 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 	if sb == nil || !sb.Active {
 		return hud.MacroMapData{HasBand: false, Config: config, Screen: screen}
 	}
-	// 窓構築とモデル生成は全画面の地形俯瞰図と共有する
+	// 近傍だけを大きく見せる。プレイヤーの絶対チャンク列を中心に窓を取る。プレイヤー不在時は帯全体
 	playerTile, hasPlayer := query.PlayerBandTile(world)
+	win := overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows)
+	if hasPlayer {
+		centerCol := sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
+		win = overworld.PlayerCenteredWindow(centerCol, sb.Rows, consts.MacroMapChunkRadius)
+	}
+	// 徐々に開くフォグ。探索済みチャンクだけを開放する。モデル生成は全画面図と共有する
 	view := overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
-		overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows),
-		playerTile, hasPlayer, query.DriveCubeTiles(world),
+		win, playerTile, hasPlayer, query.DriveCubeTiles(world), discoveredChunks(world, sb),
 	)
 	return hud.MacroMapData{HasBand: true, View: view, Config: config, Screen: screen}
+}
+
+// discoveredChunks は探索済みタイルを含むチャンクの集合を絶対チャンク座標で返す。タイル単位の
+// フォグ ExploredTiles をチャンク粒度へ畳み込み、マクロ地図のフォグにする。StageField が無ければ nil。
+func discoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[consts.Chunk]]bool {
+	field := query.GetCurrentStageField(world)
+	if field == nil {
+		return nil
+	}
+	out := make(map[consts.Coord[consts.Chunk]]bool)
+	for tile := range field.ExploredTiles {
+		col := sb.EastIndex + consts.Chunk(int(tile.X)/int(sb.ChunkW))
+		row := consts.Chunk(int(tile.Y) / int(sb.ChunkH))
+		out[consts.Coord[consts.Chunk]{X: col, Y: row}] = true
+	}
+	return out
 }
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する

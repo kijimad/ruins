@@ -56,6 +56,8 @@ const (
 	MacroMapHeight = 150
 	// MacroMapMinGlyphPx はセル辺がこのpx以上のとき種別記号を重ねる閾値。下回れば地形色セルのみ
 	MacroMapMinGlyphPx = 10
+	// MacroMapChunkRadius は右上マクロ地図がプレイヤーの左右へ見せるチャンク数。近傍だけを大きく描く
+	MacroMapChunkRadius = 3
 )
 
 const (

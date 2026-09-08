@@ -39,20 +39,40 @@ func TestExtractMacroMapData_帯なしはNoData(t *testing.T) {
 	assert.Equal(t, 800, data.Screen.Width, "画面幅を持つ")
 }
 
-// TestExtractMacroMapData_オーバーワールドは帯全体を出す は、オーバーワールドにいると帯全体の
-// チャンク俯瞰が組まれ HasBand が真になり、キューブのマーカーも載ることを固定する。
-func TestExtractMacroMapData_オーバーワールドは帯全体を出す(t *testing.T) {
+// TestExtractMacroMapData_オーバーワールドは近傍をフォグ付きで開く は、オーバーワールドにいると
+// プレイヤー中心の近傍窓が組まれ、探索済みチャンクだけが開放され未探索は伏せられることを固定する。
+func TestExtractMacroMapData_オーバーワールドは近傍をフォグ付きで開く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.SetScreenDimensions(800, 600)
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
 	require.NoError(t, drv.Start(world)) // プレイヤーとキューブをスポーンする
 
+	// 探索フォグを1タイルぶん開ける。VisionSystem が書くのと同じ ExploredTiles を直接埋める。
+	// Start 直後は未探索なので、そのままだと全チャンクがフォグで伏せられる
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	pg := world.Components.GridElement.Get(player)
+	query.GetCurrentStageField(world).ExploredTiles[gc.GridElement{Coord: pg.Coord}] = true
+
 	data := extractMacroMapData(world)
 
 	assert.True(t, data.HasBand, "オーバーワールドでは帯がある")
-	assert.NotEmpty(t, data.View.Cells, "帯全体のセルが並ぶ")
-	assert.NotEmpty(t, data.View.CubeCells, "キューブのチャンク位置が載る")
+	require.NotEmpty(t, data.View.Cells, "窓のセルが並ぶ")
+	assert.Len(t, data.View.Cells[0], 2*consts.MacroMapChunkRadius+1, "プレイヤー中心の近傍窓ぶんの列数")
+
+	var discovered, hidden int
+	for _, row := range data.View.Cells {
+		for _, cell := range row {
+			if cell.Discovered {
+				discovered++
+			} else {
+				hidden++
+			}
+		}
+	}
+	assert.Positive(t, discovered, "プレイヤー周辺は開放される")
+	assert.Positive(t, hidden, "未探索の近傍はフォグで伏せる")
 }
 
 func TestTileKeyFormat(t *testing.T) {

@@ -21,19 +21,32 @@ func TestBuildMacroView_窓の格子とマーカーを窓ローカルへ組む(t
 	win := MacroWindow{OriginX: 0, Cols: 3, Rows: 2}
 	player := consts.Coord[consts.Tile]{X: 15, Y: 5}     // チャンク(1,0)
 	cubes := []consts.Coord[consts.Tile]{{X: 25, Y: 12}} // チャンク(2,1)
-	view := BuildMacroView(1, 0, 10, 10, win, player, true, cubes)
+	view := BuildMacroView(1, 0, 10, 10, win, player, true, cubes, nil)
 
 	assert.Len(t, view.Cells, 2, "行数は窓の Rows")
 	assert.Len(t, view.Cells[0], 3, "列数は窓の Cols")
 	assert.Equal(t, consts.Coord[consts.Chunk]{X: 1, Y: 0}, view.PlayerCell, "プレイヤーは窓ローカル(1,0)")
 	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 2, Y: 1}}, view.CubeCells, "キューブは窓ローカル(2,1)")
+	assert.True(t, view.Cells[0][0].Discovered, "discovered が nil なら全チャンク開放済み")
+}
+
+func TestBuildMacroView_フォグは探索済みチャンクだけ開放する(t *testing.T) {
+	t.Parallel()
+	win := MacroWindow{OriginX: 0, Cols: 3, Rows: 1}
+	// 絶対チャンク(1,0)だけ開放済みにする
+	discovered := map[consts.Coord[consts.Chunk]]bool{{X: 1, Y: 0}: true}
+	view := BuildMacroView(1, 0, 10, 10, win, consts.Coord[consts.Tile]{}, false, nil, discovered)
+
+	assert.False(t, view.Cells[0][0].Discovered, "未探索チャンクは伏せる")
+	assert.True(t, view.Cells[0][1].Discovered, "探索済みチャンクは開放する")
+	assert.False(t, view.Cells[0][2].Discovered, "未探索チャンクは伏せる")
 }
 
 func TestBuildMacroView_窓外のマーカーは落とす(t *testing.T) {
 	t.Parallel()
 	win := MacroWindow{OriginX: 0, Cols: 2, Rows: 1}
 	player := consts.Coord[consts.Tile]{X: 55, Y: 5} // チャンク(5,0)。窓の外
-	view := BuildMacroView(1, 0, 10, 10, win, player, true, []consts.Coord[consts.Tile]{{X: 99, Y: 99}})
+	view := BuildMacroView(1, 0, 10, 10, win, player, true, []consts.Coord[consts.Tile]{{X: 99, Y: 99}}, nil)
 
 	assert.Equal(t, consts.Chunk(-1), view.PlayerCell.X, "窓外のプレイヤーは -1")
 	assert.Empty(t, view.CubeCells, "窓外のキューブは載せない")
@@ -42,7 +55,7 @@ func TestBuildMacroView_窓外のマーカーは落とす(t *testing.T) {
 func TestBuildMacroView_プレイヤー不在なら現在地なし(t *testing.T) {
 	t.Parallel()
 	win := MacroWindow{OriginX: 0, Cols: 2, Rows: 1}
-	view := BuildMacroView(1, 0, 10, 10, win, consts.Coord[consts.Tile]{}, false, nil)
+	view := BuildMacroView(1, 0, 10, 10, win, consts.Coord[consts.Tile]{}, false, nil, nil)
 
 	assert.Equal(t, consts.Chunk(-1), view.PlayerCell.X, "プレイヤー不在なら -1")
 }

@@ -50,10 +50,11 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		return fmt.Errorf("overworld band is not valid")
 	}
 	playerTile, hasPlayer := query.PlayerBandTile(world)
+	// 全画面の俯瞰図は全域を見せる。フォグは掛けないので discovered は nil
 	st.view = overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
 		overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows),
-		playerTile, hasPlayer, query.DriveCubeTiles(world),
+		playerTile, hasPlayer, query.DriveCubeTiles(world), nil,
 	)
 
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
