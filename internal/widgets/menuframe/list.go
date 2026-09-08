@@ -14,9 +14,8 @@ import (
 
 // Row は一覧の1行。Cells は各列のセルで、アイコンと文字列が混ざってよい。
 // Header が真なら見出し行でカーソルが止まらない。
-// Indent は字下げの段数。0 は段なし。見出しを0、その配下のエントリを1以上にすると
-// グルーピングが見えて、見出しとエントリの区別も付きやすくなる。詳細パネルの
-// entityspec.SpecRow.Indent と同じ概念で、行全体を Indent*Space4 だけ右へ寄せる。
+// Indent は字下げの段数。0 は段なし。見出しを0、配下のエントリを1以上にするとまとまりが見える。
+// 詳細パネルの entityspec.SpecRow.Indent と同じ概念で、行全体を Indent*Space4 だけ右へ寄せる。
 type Row struct {
 	Cells  []styled.Cell
 	Header bool

@@ -22,7 +22,7 @@ type Choice struct {
 	Label  string
 	Run    func(world w.World) (es.Transition[w.World], error)
 	Header bool
-	// Indent は字下げの段数。0 は段なし。見出し配下の項目を1以上にするとグルーピングが見える
+	// Indent は menuframe.Row.Indent へ渡す字下げの段数
 	Indent int
 }
 

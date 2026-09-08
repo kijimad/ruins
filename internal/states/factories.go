@@ -188,7 +188,7 @@ func NewLoadMenuState() (es.State[w.World], error) {
 				if i < len(autoSaves) {
 					choices = append(choices, loadSlotChoice(world, saveManager, autoSaves[i]))
 				} else {
-					choices = append(choices, Choice{Label: "---", Header: true, Indent: 1})
+					choices = append(choices, emptySlotChoice())
 				}
 			}
 			choices = append(choices, backChoice(world))
@@ -204,10 +204,16 @@ func backChoice(world w.World) Choice {
 	}}
 }
 
-// loadSlotChoice はロードスロット1つ分の選択肢を返す。空スロットは選べない見出し行にする
+// emptySlotChoice は空きスロットの行を返す。選べない見出し行にしつつ、埋まったスロットと
+// 同じ段へ字下げして縦に揃える
+func emptySlotChoice() Choice {
+	return Choice{Label: "---", Header: true, Indent: 1}
+}
+
+// loadSlotChoice はロードスロット1つ分の選択肢を返す
 func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotName string) Choice {
 	if !saveManager.SaveFileExists(slotName) {
-		return Choice{Label: "---", Header: true, Indent: 1}
+		return emptySlotChoice()
 	}
 	return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {

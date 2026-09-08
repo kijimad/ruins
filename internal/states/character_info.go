@@ -44,7 +44,7 @@ type statusItemData struct {
 	Description string
 	// IsHeader はカテゴリヘッダー行かどうか。真なら選択不可の見出し
 	IsHeader bool
-	// Indent は字下げの段数。見出し配下のエントリを1以上にすると見出しと見分けやすくなる
+	// Indent は menuframe.Row.Indent へ渡す字下げの段数
 	Indent int
 	// BodyPart は健康タブの症状エントリが属する部位
 	BodyPart gc.BodyPart
