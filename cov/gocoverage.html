@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.5%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -243,7 +243,7 @@
 				
 				<option value="file93">github.com/kijimaD/ruins/internal/engine/states/base.go (72.7%)</option>
 				
-				<option value="file94">github.com/kijimaD/ruins/internal/engine/states/lib.go (77.3%)</option>
+				<option value="file94">github.com/kijimaD/ruins/internal/engine/states/lib.go (100.0%)</option>
 				
 				<option value="file95">github.com/kijimaD/ruins/internal/engine/world/lib.go (75.0%)</option>
 				
@@ -553,7 +553,7 @@
 				
 				<option value="file248">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file249">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
+				<option value="file249">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
 				
 				<option value="file250">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -1664,7 +1664,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
+                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -1735,7 +1735,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1799,8 +1799,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -14635,7 +14635,7 @@ type StateMachine[T any] struct {
 // Init は新しいステートマシンを初期化する
 func Init[T any](s State[T], world T) (StateMachine[T], error) {
         <span class="cov8" title="1">if err := s.OnStart(world); err != nil </span>{
-                <span class="cov0" title="0">return StateMachine[T]{}, err
+                <span class="cov8" title="1">return StateMachine[T]{}, err
 </span>        }
         <span class="cov8" title="1">return StateMachine[T]{
                 states:         []State[T]{s},
@@ -14648,7 +14648,7 @@ func (sm *StateMachine[T]) Update(world T) error {
         // ファクトリー関数からステートを作成
         <span class="cov8" title="1">states, err := sm.createStatesFromFunc()
         if err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
 
         <span class="cov8" title="1">switch sm.lastTransition.Type </span>{
@@ -14656,23 +14656,23 @@ func (sm *StateMachine[T]) Update(world T) error {
                 // 何もしない
         case TransPop:
                 <span class="cov8" title="1">if err := sm.pop(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         case TransPush:
                 <span class="cov8" title="1">if err := sm.push(world, states); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         case TransSwitch:
                 <span class="cov8" title="1">if err := sm.switchState(world, states); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         case TransReplace:
                 <span class="cov8" title="1">if err := sm.replace(world, states); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         case TransQuit:
                 <span class="cov8" title="1">if err := sm.quit(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
 
@@ -14683,7 +14683,7 @@ func (sm *StateMachine[T]) Update(world T) error {
         // アクティブなステートを更新
         <span class="cov8" title="1">trans, err := sm.states[len(sm.states)-1].Update(world)
         if err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">sm.lastTransition = trans
         return nil</span>
@@ -14693,7 +14693,7 @@ func (sm *StateMachine[T]) Update(world T) error {
 func (sm *StateMachine[T]) Draw(world T, screen *ebiten.Image) error {
         <span class="cov8" title="1">for _, state := range sm.states </span>{
                 <span class="cov8" title="1">if err := state.Draw(world, screen); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -14709,7 +14709,7 @@ func (sm *StateMachine[T]) createStatesFromFunc() ([]State[T], error) {
         for i, factory := range sm.lastTransition.NewStateFuncs </span>{
                 <span class="cov8" title="1">s, err := factory()
                 if err != nil </span>{
-                        <span class="cov0" title="0">return nil, err
+                        <span class="cov8" title="1">return nil, err
 </span>                }
                 <span class="cov8" title="1">states[i] = s</span>
         }
@@ -14719,19 +14719,19 @@ func (sm *StateMachine[T]) createStatesFromFunc() ([]State[T], error) {
 // pop はアクティブなステートを削除して次のステートを再開する
 func (sm *StateMachine[T]) pop(world T) error {
         <span class="cov8" title="1">if len(sm.states) == 0 </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
 
         <span class="cov8" title="1">currentState := sm.states[len(sm.states)-1]
         if err := currentState.OnStop(world); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">sm.states = sm.states[:len(sm.states)-1]
 </span>
         <span class="cov8" title="1">if len(sm.states) &gt; 0 </span>{
                 <span class="cov8" title="1">resumeState := sm.states[len(sm.states)-1]
                 if err := resumeState.OnResume(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -14746,22 +14746,22 @@ func (sm *StateMachine[T]) push(world T, newStates []State[T]) error {
         <span class="cov8" title="1">if len(sm.states) &gt; 0 </span>{
                 <span class="cov8" title="1">currentState := sm.states[len(sm.states)-1]
                 if err := currentState.OnPause(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
 
         <span class="cov8" title="1">for _, state := range newStates[:len(newStates)-1] </span>{
                 <span class="cov8" title="1">if err := state.OnStart(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
                 <span class="cov8" title="1">if err := state.OnPause(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
 
         <span class="cov8" title="1">activeState := newStates[len(newStates)-1]
         if err := activeState.OnStart(world); err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
 
         <span class="cov8" title="1">sm.states = append(sm.states, newStates...)
@@ -14771,7 +14771,7 @@ func (sm *StateMachine[T]) push(world T, newStates []State[T]) error {
 // switchState はアクティブなステートを新しいものに置き換える
 func (sm *StateMachine[T]) switchState(world T, newStates []State[T]) error {
         <span class="cov8" title="1">if len(newStates) != 1 </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
 
         <span class="cov8" title="1">if len(sm.states) &gt; 0 </span>{
@@ -14779,10 +14779,10 @@ func (sm *StateMachine[T]) switchState(world T, newStates []State[T]) error {
                 newState := newStates[0]
 </span>
                 <span class="cov8" title="1">if err := currentState.OnStop(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
                 <span class="cov8" title="1">if err := newState.OnStart(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
                 <span class="cov8" title="1">sm.states[len(sm.states)-1] = newState</span>
         }
@@ -14794,7 +14794,7 @@ func (sm *StateMachine[T]) replace(world T, newStates []State[T]) error {
         <span class="cov8" title="1">for len(sm.states) &gt; 0 </span>{
                 <span class="cov8" title="1">currentState := sm.states[len(sm.states)-1]
                 if err := currentState.OnStop(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
                 <span class="cov8" title="1">sm.states = sm.states[:len(sm.states)-1]</span>
         }
@@ -14802,15 +14802,15 @@ func (sm *StateMachine[T]) replace(world T, newStates []State[T]) error {
         <span class="cov8" title="1">if len(newStates) &gt; 0 </span>{
                 <span class="cov8" title="1">for _, state := range newStates[:len(newStates)-1] </span>{
                         <span class="cov8" title="1">if err := state.OnStart(world); err != nil </span>{
-                                <span class="cov0" title="0">return err
+                                <span class="cov8" title="1">return err
 </span>                        }
                         <span class="cov8" title="1">if err := state.OnPause(world); err != nil </span>{
-                                <span class="cov0" title="0">return err
+                                <span class="cov8" title="1">return err
 </span>                        }
                 }
                 <span class="cov8" title="1">activeState := newStates[len(newStates)-1]
                 if err := activeState.OnStart(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
         <span class="cov8" title="1">sm.states = newStates
@@ -14822,7 +14822,7 @@ func (sm *StateMachine[T]) quit(world T) error {
         <span class="cov8" title="1">for len(sm.states) &gt; 0 </span>{
                 <span class="cov8" title="1">currentState := sm.states[len(sm.states)-1]
                 if err := currentState.OnStop(world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
                 <span class="cov8" title="1">sm.states = sm.states[:len(sm.states)-1]</span>
         }
@@ -39082,7 +39082,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 
