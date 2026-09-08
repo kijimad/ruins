@@ -24,6 +24,28 @@ func labelsOf(items []uicore.Drawable) []string {
 	return labels
 }
 
+// rowChildCount は1行ぶんのウィジェットの子要素数を返す。字下げは先頭に空トラックを足すので、
+// ラベルに現れない字下げの有無を子要素数で確かめる
+func rowChildCount(item uicore.Drawable) int {
+	if wgt, ok := item.(uicore.Widget); ok {
+		return len(wgt.Children())
+	}
+	return 0
+}
+
+func TestRenderMenuListUI_Indentは行全体を字下げする(t *testing.T) {
+	t.Parallel()
+	res := resources.UIResources{Text: &resources.TextResources{}}
+	cols := styled.Cols(styled.Name())
+
+	// itemIndex に負値を渡し選択を持たせず、字下げの有無だけを見る
+	plain, _ := menuframe.RenderList(-1, []menuframe.Row{{Cells: styled.TextCells("項目")}}, cols, menuframe.ListOpts{ItemsPerPage: 10}, res)
+	indented, _ := menuframe.RenderList(-1, []menuframe.Row{{Cells: styled.TextCells("項目"), Indent: 1}}, cols, menuframe.ListOpts{ItemsPerPage: 10}, res)
+
+	assert.Equal(t, rowChildCount(plain[0])+1, rowChildCount(indented[0]), "字下げは先頭に空トラックを1つ足す")
+	assert.Equal(t, labelsOf(plain), labelsOf(indented), "字下げしてもラベルは変わらない")
+}
+
 func TestRenderMenuListUI_単一ページは見出しと行を並べる(t *testing.T) {
 	t.Parallel()
 	rows := []menuframe.Row{
