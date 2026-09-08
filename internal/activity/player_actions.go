@@ -208,8 +208,15 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	loggedItemStacks := map[query.StackKey]bool{}
 	for _, entity := range entities {
 		interactable := world.Components.Interactable.Get(entity)
+		entityGrid := world.Components.GridElement.Get(entity)
 		for _, interaction := range interactable.Interactions {
-			if interaction.Config().ActivationWay != gc.ActivationWayManual {
+			config := interaction.Config()
+			if config.ActivationWay != gc.ActivationWayManual {
+				continue
+			}
+			// 実体はいずれかの相互作用で範囲内だが、ログはこの相互作用自身の範囲を満たすときだけ出す。
+			// 隣接で開くキューブメニューで範囲入りした実体の、直上専用の運転ログを隣接で出さない
+			if !query.IsInActivationRange(playerGrid, entityGrid, config.ActivationRange) {
 				continue
 			}
 			switch interaction {
