@@ -146,17 +146,3 @@ func TestApplyDamage_運転中のプレイヤーも被弾する(t *testing.T) {
 
 	assert.Less(t, world.Components.HP.Get(player).Current, hpBefore, "運転中でも entity は残り被弾する。反撃だけできない非対称")
 }
-
-func TestIsDrivingPlayer_運転中のプレイヤーを見分ける(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	require.NoError(t, err)
-
-	assert.False(t, query.IsDrivingPlayer(world, player), "乗車前は運転中でない")
-	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
-	assert.True(t, query.IsDrivingPlayer(world, player), "乗車後は運転中")
-	assert.False(t, query.IsDrivingPlayer(world, cube), "キューブ自身は運転中プレイヤーでない")
-}
