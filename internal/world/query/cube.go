@@ -18,6 +18,23 @@ func DriveCubeTiles(world w.World) []consts.Coord[consts.Tile] {
 	return out
 }
 
+// DiscoveredChunks は探索済みタイルを含むチャンクの集合を絶対チャンク座標で返す。タイル単位の
+// フォグ ExploredTiles をチャンク粒度へ畳み込み、マクロ地図のフォグにする。StageField が無ければ nil。
+// 全画面の地形俯瞰図と HUD の右上地図が同じフォグを共有する。
+func DiscoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[consts.Chunk]]bool {
+	field := GetCurrentStageField(world)
+	if field == nil {
+		return nil
+	}
+	out := make(map[consts.Coord[consts.Chunk]]bool)
+	for tile := range field.ExploredTiles {
+		col := sb.EastIndex + consts.Chunk(int(tile.X)/int(sb.ChunkW))
+		row := consts.Chunk(int(tile.Y) / int(sb.ChunkH))
+		out[consts.Coord[consts.Chunk]{X: col, Y: row}] = true
+	}
+	return out
+}
+
 // PlayerBandTile はプレイヤーの帯ローカルなタイル座標を返す。プレイヤーが居なければ ok=false。
 // マクロ地図のプレイヤーマーカーを置くのに使う。
 func PlayerBandTile(world w.World) (consts.Coord[consts.Tile], bool) {

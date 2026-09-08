@@ -50,11 +50,11 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		return fmt.Errorf("overworld band is not valid")
 	}
 	playerTile, hasPlayer := query.PlayerBandTile(world)
-	// 全画面の俯瞰図は全域を見せる。フォグは掛けないので discovered は nil
+	// 全画面の俯瞰図は帯全体を窓にするが、フォグは HUD と同じで探索済みチャンクだけを開放する
 	st.view = overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
 		overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows),
-		playerTile, hasPlayer, query.DriveCubeTiles(world), nil,
+		playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
@@ -116,10 +116,14 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	}
 	for row := range st.view.Cells {
 		for col, cell := range st.view.Cells[row] {
+			// 未開放チャンクは描かず背景のまま伏せてフォグにする。探索で徐々に開く
+			if !cell.Discovered {
+				continue
+			}
 			r := cell.Glyph
 			x := originX + consts.ScreenPixel(col)*mapCellPx
 			y := originY + consts.ScreenPixel(row)*mapCellPx
-			// 全チャンクを同一に扱う。色を塗り、種別の文字を重ねて記号でも読めるようにする。
+			// 開放済みチャンクは色を塗り、種別の文字を重ねて記号でも読めるようにする。
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
 			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
