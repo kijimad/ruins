@@ -469,7 +469,8 @@ const (
 	// dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
 	dungeonAmbient = 0.06
 	// lightFadeLow と lightFadeHigh は光源の寄与をフェードさせる環境光の帯。
-	// lightFadeLow 以下で満額、lightFadeHigh 以上で寄与なし
+	// lightFadeLow 以下で満額、lightFadeHigh 以上で寄与なし。
+	// これで消えた明るさは render3d.go の dayOverbright が日中の底上げで補う
 	lightFadeLow  = 0.45
 	lightFadeHigh = 0.8
 	// visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる

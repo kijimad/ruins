@@ -48,7 +48,9 @@ type r3quad struct {
 const r3cullRadius = 60.0
 
 // dayOverbright* は屋外の日照が強いほどタイルの明るさを乗算の天井 1.0 超へ持ち上げる帯。
-// テクスチャ本来の明るさを越えて晴天らしく明るく見せる。dayOverbrightLow 以下では持ち上げない
+// テクスチャ本来の明るさを越えて晴天らしく明るく見せる。dayOverbrightLow 以下では持ち上げない。
+// vision.go の lightFadeHigh と同じ overworldDaylight スケールの値で、役割ごとに段階が分かれる。
+// まず日照 lightFadeHigh までに光源の寄与を消し、そこからさらに明るい dayOverbrightHigh に向けて日中の底上げが最大になる。
 const (
 	dayOverbrightMax  = 0.3
 	dayOverbrightLow  = 0.6
