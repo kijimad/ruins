@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -609,7 +609,7 @@
 				
 				<option value="file276">github.com/kijimaD/ruins/internal/widgets/hud/chrome.go (100.0%)</option>
 				
-				<option value="file277">github.com/kijimaD/ruins/internal/widgets/hud/currency.go (96.6%)</option>
+				<option value="file277">github.com/kijimaD/ruins/internal/widgets/hud/currency.go (100.0%)</option>
 				
 				<option value="file278">github.com/kijimaD/ruins/internal/widgets/hud/debug_overlay.go (0.0%)</option>
 				
@@ -619,9 +619,9 @@
 				
 				<option value="file281">github.com/kijimaD/ruins/internal/widgets/hud/message_area.go (1.0%)</option>
 				
-				<option value="file282">github.com/kijimaD/ruins/internal/widgets/hud/minimap.go (0.0%)</option>
+				<option value="file282">github.com/kijimaD/ruins/internal/widgets/hud/minimap.go (100.0%)</option>
 				
-				<option value="file283">github.com/kijimaD/ruins/internal/widgets/hud/status_badges.go (72.0%)</option>
+				<option value="file283">github.com/kijimaD/ruins/internal/widgets/hud/status_badges.go (100.0%)</option>
 				
 				<option value="file284">github.com/kijimaD/ruins/internal/widgets/hud/text_helper.go (100.0%)</option>
 				
@@ -1644,7 +1644,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -43713,7 +43713,7 @@ func NewCurrencyDisplay(face text.Face) *CurrencyDisplay {
 
 // SetEnabled は表示の有効/無効を設定する
 func (c *CurrencyDisplay) SetEnabled(enabled bool) {
-        <span class="cov0" title="0">c.enabled = enabled
+        <span class="cov8" title="1">c.enabled = enabled
 </span>}
 
 // Update は更新処理（現在は何もしない）
@@ -43724,7 +43724,7 @@ func (c *CurrencyDisplay) Update(_ w.World) {<span class="cov0" title="0"></span
 // Draw は地髄を描画する
 func (c *CurrencyDisplay) Draw(cv uicore.Canvas, data CurrencyData) {
         <span class="cov8" title="1">if !c.enabled </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
 
         // 画面サイズを取得
@@ -44325,7 +44325,7 @@ type Minimap struct {
 
 // NewMinimap は新しいHUDMinimapを作成する
 func NewMinimap(face text.Face, chrome Chrome) *Minimap {
-        <span class="cov0" title="0">return &amp;Minimap{
+        <span class="cov8" title="1">return &amp;Minimap{
                 face:    face,
                 chrome:  chrome,
                 enabled: true,
@@ -44339,18 +44339,18 @@ func (minimap *Minimap) Update(_ w.World) {<span class="cov0" title="0"></span>
 
 // Draw はミニマップを描画する
 func (minimap *Minimap) Draw(cv uicore.Canvas, data MinimapData) {
-        <span class="cov0" title="0">if !minimap.enabled </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if !minimap.enabled </span>{
+                <span class="cov8" title="1">return
 </span>        }
 
         // 探索済みタイルがない場合は空のミニマップを描画
-        <span class="cov0" title="0">if len(data.ExploredTiles) == 0 </span>{
-                <span class="cov0" title="0">minimap.drawEmpty(cv, data)
+        <span class="cov8" title="1">if len(data.ExploredTiles) == 0 </span>{
+                <span class="cov8" title="1">minimap.drawEmpty(cv, data)
                 return
 </span>        }
 
         // ミニマップの設定
-        <span class="cov0" title="0">minimapWidth := data.MinimapConfig.Width
+        <span class="cov8" title="1">minimapWidth := data.MinimapConfig.Width
         minimapHeight := data.MinimapConfig.Height
         minimapScale := data.MinimapConfig.Scale
         screenWidth := data.ScreenDimensions.Width
@@ -44358,65 +44358,65 @@ func (minimap *Minimap) Draw(cv uicore.Canvas, data MinimapData) {
         minimapY := theme.Space4
 </span>
         // ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
-        <span class="cov0" title="0">if minimapWidth &gt; 0 &amp;&amp; minimapHeight &gt; 0 </span>{
-                <span class="cov0" title="0">minimap.chrome.Panel(cv, image.Rect(minimapX, minimapY, minimapX+minimapWidth, minimapY+minimapHeight))
+        <span class="cov8" title="1">if minimapWidth &gt; 0 &amp;&amp; minimapHeight &gt; 0 </span>{
+                <span class="cov8" title="1">minimap.chrome.Panel(cv, image.Rect(minimapX, minimapY, minimapX+minimapWidth, minimapY+minimapHeight))
 </span>        }
 
         // ミニマップの中心をプレイヤー位置に合わせる
-        <span class="cov0" title="0">centerX := minimapX + minimapWidth/2
+        <span class="cov8" title="1">centerX := minimapX + minimapWidth/2
         centerY := minimapY + minimapHeight/2
 </span>
         // 探索済みタイルを描画
-        <span class="cov0" title="0">for gridElement := range data.ExploredTiles </span>{
-                <span class="cov0" title="0">tileX := int(gridElement.X)
+        <span class="cov8" title="1">for gridElement := range data.ExploredTiles </span>{
+                <span class="cov8" title="1">tileX := int(gridElement.X)
                 tileY := int(gridElement.Y)
 </span>
                 // プレイヤー位置からの相対位置を計算
-                <span class="cov0" title="0">relativeX := tileX - int(data.PlayerTile.X)
+                <span class="cov8" title="1">relativeX := tileX - int(data.PlayerTile.X)
                 relativeY := tileY - int(data.PlayerTile.Y)
 </span>
                 // ミニマップ上の座標を計算（回転なし、素直な座標変換）
                 // X軸: 右方向が正、Y軸: 下方向が正
-                <span class="cov0" title="0">mapX := float32(centerX + relativeX*minimapScale)
+                <span class="cov8" title="1">mapX := float32(centerX + relativeX*minimapScale)
                 mapY := float32(centerY + relativeY*minimapScale)
 </span>
                 // ミニマップの範囲内かチェック
-                <span class="cov0" title="0">if mapX &gt;= float32(minimapX) &amp;&amp; mapX &lt;= float32(minimapX+minimapWidth-minimapScale) &amp;&amp;
+                <span class="cov8" title="1">if mapX &gt;= float32(minimapX) &amp;&amp; mapX &lt;= float32(minimapX+minimapWidth-minimapScale) &amp;&amp;
                         mapY &gt;= float32(minimapY) &amp;&amp; mapY &lt;= float32(minimapY+minimapHeight-minimapScale) </span>{
 
                         // タイル色情報を取得
-                        <span class="cov0" title="0">if colorInfo, exists := data.TileColors[gridElement]; exists </span>{
-                                <span class="cov0" title="0">tileColor := color.RGBA{colorInfo.R, colorInfo.G, colorInfo.B, colorInfo.A}
+                        <span class="cov8" title="1">if colorInfo, exists := data.TileColors[gridElement]; exists </span>{
+                                <span class="cov8" title="1">tileColor := color.RGBA{colorInfo.R, colorInfo.G, colorInfo.B, colorInfo.A}
 </span>                                // タイルの色は地形のデータから来るので、意匠のテクスチャでなく塗りで表す
-                                <span class="cov0" title="0">cv.FillRect(image.Rect(int(mapX), int(mapY), int(mapX)+minimapScale, int(mapY)+minimapScale), tileColor)
+                                <span class="cov8" title="1">cv.FillRect(image.Rect(int(mapX), int(mapY), int(mapX)+minimapScale, int(mapY)+minimapScale), tileColor)
 </span>                        }
                 }
         }
 
         // プレイヤーの位置を印で示す。地図の粒と同じ大きさの四角にして、タイルの並びから浮かせない
-        <span class="cov0" title="0">cv.FillRect(image.Rect(centerX-playerMarkerR, centerY-playerMarkerR, centerX+playerMarkerR, centerY+playerMarkerR),
+        <span class="cov8" title="1">cv.FillRect(image.Rect(centerX-playerMarkerR, centerY-playerMarkerR, centerX+playerMarkerR, centerY+playerMarkerR),
                 theme.HUDPlayerMarker)</span>
 }
 
 // drawEmpty は空のミニマップを描画する
 func (minimap *Minimap) drawEmpty(cv uicore.Canvas, data MinimapData) {
-        <span class="cov0" title="0">minimapWidth := data.MinimapConfig.Width
+        <span class="cov8" title="1">minimapWidth := data.MinimapConfig.Width
         minimapHeight := data.MinimapConfig.Height
         screenWidth := data.ScreenDimensions.Width
         minimapX := screenWidth - minimapWidth - theme.Space4
         minimapY := theme.Space4
 </span>
         // ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
-        <span class="cov0" title="0">if minimapWidth &gt; 0 &amp;&amp; minimapHeight &gt; 0 </span>{
-                <span class="cov0" title="0">minimap.chrome.Panel(cv, image.Rect(minimapX, minimapY, minimapX+minimapWidth, minimapY+minimapHeight))
+        <span class="cov8" title="1">if minimapWidth &gt; 0 &amp;&amp; minimapHeight &gt; 0 </span>{
+                <span class="cov8" title="1">minimap.chrome.Panel(cv, image.Rect(minimapX, minimapY, minimapX+minimapWidth, minimapY+minimapHeight))
 </span>        }
 
         // 中央に"No Data"テキストを表示（枠線付き）
-        <span class="cov0" title="0">textX := float64(minimapX + 50)
+        <span class="cov8" title="1">textX := float64(minimapX + 50)
         textY := float64(minimapY + 70)
         noDataText := "No Data"
 </span>
-        <span class="cov0" title="0">drawOutlinedText(cv, noDataText, minimap.face, image.Pt(int(textX), int(textY)), theme.TextPrimary)</span>
+        <span class="cov8" title="1">drawOutlinedText(cv, noDataText, minimap.face, image.Pt(int(textX), int(textY)), theme.TextPrimary)</span>
 }
 </pre>
 		
@@ -44463,7 +44463,7 @@ func NewStatusBadges(bodyFace text.Face) *StatusBadges {
 // Draw はステータスバッジを描画する
 func (sb *StatusBadges) Draw(cv uicore.Canvas, data StatusBadgesData) {
         <span class="cov8" title="1">if !sb.enabled || len(data.Badges) == 0 </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
 
         <span class="cov8" title="1">const (
@@ -44482,7 +44482,7 @@ func (sb *StatusBadges) Draw(cv uicore.Canvas, data StatusBadgesData) {
         <span class="cov8" title="1">badges := data.Badges
         hasMore := false
         if len(badges) &gt; maxVisible </span>{
-                <span class="cov0" title="0">badges = badges[:maxVisible]
+                <span class="cov8" title="1">badges = badges[:maxVisible]
                 hasMore = true
 </span>        }
 
@@ -44513,18 +44513,18 @@ func (sb *StatusBadges) Draw(cv uicore.Canvas, data StatusBadgesData) {
 
         // 表示しきれないバッジがある場合は「+N」を表示
         <span class="cov8" title="1">if hasMore </span>{
-                <span class="cov0" title="0">moreCount := len(data.Badges) - maxVisible
+                <span class="cov8" title="1">moreCount := len(data.Badges) - maxVisible
                 moreText := fmt.Sprintf("+%d", moreCount)
                 textWidth, textHeight := uicore.MeasureText(moreText, sb.bodyFace)
                 badgeHeight := float64(textHeight) + paddingY*2
                 badgeY := currentY - badgeHeight
 </span>
                 // グレーの背景。他バッジと同じ共通 chrome に揃える
-                <span class="cov0" title="0">bgX := theme.Space4
+                <span class="cov8" title="1">bgX := theme.Space4
                 bgWidth := uicore.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
                 badgeChrome(cv, image.Rect(bgX, int(badgeY), bgX+bgWidth, int(badgeY+badgeHeight)), theme.HUDBadgeBg)
 </span>
-                <span class="cov0" title="0">textY := badgeY + paddingY
+                <span class="cov8" title="1">textY := badgeY + paddingY
                 drawOutlinedText(cv, moreText, sb.bodyFace, image.Pt(int(theme.Space4F+paddingX), int(textY)), theme.TextPrimary)
 </span>        }
 }
