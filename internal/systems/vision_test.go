@@ -443,3 +443,40 @@ func TestCalculateLightSourceDarkness_明るさの合成(t *testing.T) {
 		assert.InDelta(t, 0.7, info.Darkness, 1e-9, "光が無ければ暗さは環境光で決まる")
 	})
 }
+
+// TestLightColorSuppress は環境光の明るさで光源の色の重みが決まることを固定する。
+// colorCutoff 以上で 0、暗いほど 1 へ近づき、単調に減る。
+func TestLightColorSuppress(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, 0.0, lightColorSuppress(0.9), "colorCutoff より明るいと色は乗らない")
+	assert.Equal(t, 0.0, lightColorSuppress(colorCutoff), "境界ちょうどで 0")
+	assert.InDelta(t, 0.5, lightColorSuppress(colorCutoff/2), 1e-9, "半分の明るさで 0.5")
+	assert.Equal(t, 1.0, lightColorSuppress(0.0), "真っ暗なら色は最大で乗る")
+	assert.Greater(t, lightColorSuppress(0.1), lightColorSuppress(0.5), "暗いほど色が乗る")
+}
+
+// TestCalculateLightSourceDarkness_明るい環境光では光源の色が乗らない は、
+// 日光の強い屋外の昼に火の暖色が乗らず、暗い環境光でだけ乗ることを固定する。
+func TestCalculateLightSourceDarkness_明るい環境光では光源の色が乗らない(t *testing.T) {
+	t.Parallel()
+
+	noWall := map[gc.GridElement]bool{}
+	world := testutil.InitTestWorld(t)
+	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+	e := world.ECS.NewEntity()
+	world.Components.GridElement.Add(e, &grid)
+	// 火を模した暖色の光源
+	world.Components.LightSource.Add(e, &gc.LightSource{
+		Radius:  10,
+		Color:   color.RGBA{R: 255, G: 128, B: 0, A: 255},
+		Enabled: true,
+	})
+
+	// 光源の中心タイルを、白い環境光の明暗2条件で見る
+	bright := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.9, [3]float64{1, 1, 1})
+	dark := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.06, [3]float64{1, 1, 1})
+
+	assert.Equal(t, color.RGBA{R: 255, G: 255, B: 255, A: 255}, bright.Color, "明るい屋外では火の色が乗らず環境光色のまま")
+	assert.Greater(t, dark.Color.R, dark.Color.B, "暗い環境光では火の暖色が乗り赤が青を上回る")
+}

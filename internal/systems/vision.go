@@ -386,6 +386,12 @@ func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
 // 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
 // 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
 // 色は各光源の寄与で加重平均する。
+// lightColorSuppress は環境光の明るさから光源の色の重み係数を返す。
+// colorCutoff 以上の明るさで 0 になり光源の色は乗らない。暗いほど 1 へ近づき色が乗る
+func lightColorSuppress(ambient float64) float64 {
+	return math.Max(0, math.Min(1, (colorCutoff-ambient)/colorCutoff))
+}
+
 func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
 	brightness := ambient
 
@@ -395,6 +401,10 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 	totalG := ambientColor[1] * 255 * ambient
 	totalB := ambientColor[2] * 255 * ambient
 	totalWeight := ambient
+
+	// 環境光が明るいほど光源の色の重みを絞る。日光の強い屋外の昼は火の色が乗らず日光色のままになる。
+	// 明るさへの寄与とは別で、色の主張だけを抑える。時間帯の切れ目でも連続に効かせポップを避ける
+	colorSuppress := lightColorSuppress(ambient)
 
 	// 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。
 	// 火は燃え尽きると自分の LightSource を外すので照らさなくなる
@@ -431,11 +441,12 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 		// 加算合成。重なるほど明るい
 		brightness += atten
 
-		// 色は寄与 atten で加重する
-		totalR += float64(lightSource.Color.R) * atten
-		totalG += float64(lightSource.Color.G) * atten
-		totalB += float64(lightSource.Color.B) * atten
-		totalWeight += atten
+		// 色は寄与 atten を環境光による抑制で絞って加重する。明るさの加算とは独立に色だけ弱める
+		colorWeight := atten * colorSuppress
+		totalR += float64(lightSource.Color.R) * colorWeight
+		totalG += float64(lightSource.Color.G) * colorWeight
+		totalB += float64(lightSource.Color.B) * colorWeight
+		totalWeight += colorWeight
 	}
 
 	brightness = math.Max(0, math.Min(1, brightness))
@@ -463,6 +474,9 @@ const (
 const (
 	// dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
 	dungeonAmbient = 0.06
+	// colorCutoff は光源の色が乗る環境光の上限。これ以上明るいと光源の色は乗らず環境光色のままになる。
+	// 日光の強い屋外の昼に火が赤く照らすのを防ぐ。値未満へ向けて色の重みを連続に立ち上げる
+	colorCutoff = 0.8
 	// visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる
 	visibilityThreshold = 0.10
 	// lightPlateau は光源の平坦域。正規化距離がこの値までは一様に明るく、外縁で滑らかに落とす
