@@ -382,10 +382,6 @@ func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
 	return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
 }
 
-// calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
-// 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
-// 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
-// 色は各光源の寄与で加重平均する。
 // lightSuppress は環境光の明るさから光源の寄与係数を返す。明るさと色の両方にかける。
 // lightFadeHigh 以上の明るさで 0 になり光源は何も足さない。lightFadeLow 以下では 1 で従来どおり効く。
 // 暗所と夜は 1 のまま温存し、明るい時間帯だけ滑らかに 0 へ落とす
@@ -393,6 +389,10 @@ func lightSuppress(ambient float64) float64 {
 	return 1 - smoothstep(lightFadeLow, lightFadeHigh, ambient)
 }
 
+// calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
+// 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
+// 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
+// 色は各光源の寄与で加重平均する。
 func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
 	brightness := ambient
 

@@ -486,3 +486,26 @@ func TestCalculateLightSourceDarkness_明るい環境光では光源が何も足
 	assert.Greater(t, dark.Color.R, dark.Color.B, "暗いと火の暖色が乗り赤が青を上回る")
 	assert.Less(t, dark.Darkness, 1-0.06, "暗いと火が明るさを足す")
 }
+
+// TestCalculateLightSourceDarkness_抑制時は有彩の環境光色をそのまま返す は、
+// 光源が寄与しない明るさのとき、白でなく環境光そのものの色味が出ることを固定する。
+// 夕方など有彩の環境光でも火色に染まらないことを保証する。
+func TestCalculateLightSourceDarkness_抑制時は有彩の環境光色をそのまま返す(t *testing.T) {
+	t.Parallel()
+
+	noWall := map[gc.GridElement]bool{}
+	world := testutil.InitTestWorld(t)
+	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+	e := world.ECS.NewEntity()
+	world.Components.GridElement.Add(e, &grid)
+	world.Components.LightSource.Add(e, &gc.LightSource{
+		Radius:  10,
+		Color:   color.RGBA{R: 255, G: 128, B: 0, A: 255},
+		Enabled: true,
+	})
+
+	// 暖色の環境光。lightFadeHigh 以上の明るさなので火は寄与せず、環境光色がそのまま出る
+	warm := [3]float64{1.0, 0.72, 0.52}
+	info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.9, warm)
+	assert.Equal(t, color.RGBA{R: 255, G: 183, B: 132, A: 255}, info.Color, "抑制時は白でなく環境光の暖色をそのまま返す")
+}
