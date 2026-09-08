@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">25</td>
-            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">13</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-08 11:55:39</td>
+            <td class="headerValue">2026-09-08 13:09:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,68 +63,37 @@
 <span id="L1"><span class="lineNum">       1</span>              : package query</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              : )</span>
-<span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // CubeWeight は内部ステージのフィールド上にある全 gc.Weight 保有エンティティの重量総和を返す。</span>
-<span id="L11"><span class="lineNum">      11</span>              : // item も、暖や作業の効果を持つ prop も、内部の床へ置けば等しく重量になる。</span>
-<span id="L12"><span class="lineNum">      12</span>              : // 所有者ベースの calculateOwnedWeight とは別軸で、StageBound.Key で集計する。</span>
-<span id="L13"><span class="lineNum">      13</span>              : //</span>
-<span id="L14"><span class="lineNum">      14</span>              : // LocationOnField を条件に含め、床にある物だけを数える。拾って背包へ移すと LocationOnField が</span>
-<span id="L15"><span class="lineNum">      15</span>              : // 外れて総重量から抜ける。StageBound は拾っても残るため、これが無いと持ち去った物まで数えてしまう。</span>
-<span id="L16"><span class="lineNum">      16</span>              : //</span>
-<span id="L17"><span class="lineNum">      17</span>              : // 内部は外にいる間 Suspended になるが、総重量は退避中も保持したい。Suspended は退避で付くが</span>
-<span id="L18"><span class="lineNum">      18</span>              : // LocationOnField は残るので、Suspended を除外する ActiveFilter でなく生のフィルタで全ステージを</span>
-<span id="L19"><span class="lineNum">      19</span>              : // 走査し、Key 一致で絞る。</span>
-<span id="L20"><span class="lineNum">      20</span>              : func CubeWeight(world w.World, interior gc.StageKey) consts.Milligram {</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 :         var total consts.Milligram</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         weightQuery := ecs.NewFilter2[gc.Weight, gc.LocationOnField](world.ECS).Query()</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         for weightQuery.Next() {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 entity := weightQuery.Entity()</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 if world.Components.StageBound.Has(entity) &amp;&amp; world.Components.StageBound.Get(entity).Key == interior {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                         total += GetEntityWeight(world, entity)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L28"><span class="lineNum">      28</span>              :         }</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L30"><span class="lineNum">      30</span>              : }</span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // PushCost は総重量から1タイル押すのに要するAPを返す。空のキューブでも歩行の10倍規模の</span>
-<span id="L33"><span class="lineNum">      33</span>              : // 基準がかかり、総重量に比例して増える。変わるのは行動点で何ターンで払えるかである。</span>
-<span id="L34"><span class="lineNum">      34</span>              : func PushCost(total consts.Milligram) int {</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         kg := int(total / consts.MilligramPerKg)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return consts.PushCostBase + consts.PushCostPerKg*kg</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              : // DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、</span>
-<span id="L40"><span class="lineNum">      40</span>              : // 総重量に比例して増える。PushCost が AP で表していた重量ペナルティを燃料へ移した対応物。</span>
-<span id="L41"><span class="lineNum">      41</span>              : func DriveFuelCost(total consts.Milligram) consts.Heat {</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         kg := int(total / consts.MilligramPerKg)</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return consts.Heat(consts.DriveFuelBase + consts.DriveFuelPerKg*kg)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // CubeFuelTotal はキューブ収納にある物の燃焼熱量の総和を返す。運転の燃料源。</span>
-<span id="L47"><span class="lineNum">      47</span>              : // 火への給油と同じ HeatContent を使い燃料値の定義を二重化しない。</span>
-<span id="L48"><span class="lineNum">      48</span>              : func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         var total consts.Heat</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         for _, item := range GetStorageItems(world, cube) {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 total += HeatContent(world, item)</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L54"><span class="lineNum">      54</span>              : }</span>
-<span id="L55"><span class="lineNum">      55</span>              : </span>
-<span id="L56"><span class="lineNum">      56</span>              : // PushPower はこのターン押しへ充てられるAP総量を返す。プレイヤーの TurnBased.AP.Current を用いる。</span>
-<span id="L57"><span class="lineNum">      57</span>              : // 同じ PushCost をより少ないターンで払えれば速く進む。押しコスト自体は不変。</span>
-<span id="L58"><span class="lineNum">      58</span>              : func PushPower(world w.World) int {</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         var total int</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         playerQuery := ActiveFilter2[gc.TurnBased, gc.Player](world).Query()</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         for playerQuery.Next() {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 total += world.Components.TurnBased.Get(playerQuery.Entity()).AP.Current</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : }</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // CubeWeight はキューブ収納にある物の総重量を返す。運転1タイルの燃料コスト算出に使う。</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 収納の中身から常に導けるので値を保持せず、読み取り時に合算する。</span>
+<span id="L11"><span class="lineNum">      11</span>              : func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {</span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         var total consts.Milligram</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         for _, item := range GetStorageItems(world, cube) {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L17"><span class="lineNum">      17</span>              : }</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : // DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、</span>
+<span id="L20"><span class="lineNum">      20</span>              : // 総重量に比例して増える。重いほど燃費が悪化する。</span>
+<span id="L21"><span class="lineNum">      21</span>              : func DriveFuelCost(total consts.Milligram) consts.Heat {</span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         kg := int(total / consts.MilligramPerKg)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         return consts.Heat(consts.DriveFuelBase + consts.DriveFuelPerKg*kg)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // CubeFuelTotal はキューブ収納にある物の燃焼熱量の総和を返す。運転の燃料源。</span>
+<span id="L27"><span class="lineNum">      27</span>              : // 火への給油と同じ HeatContent を使い燃料値の定義を二重化しない。</span>
+<span id="L28"><span class="lineNum">      28</span>              : func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         var total consts.Heat</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         for _, item := range GetStorageItems(world, cube) {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 total += HeatContent(world, item)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : }</span>
         </pre>
               </td>
             </tr>

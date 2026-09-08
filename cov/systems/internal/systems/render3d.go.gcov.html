@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-08 11:55:39</td>
+            <td class="headerValue">2026-09-08 13:09:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -317,111 +317,112 @@
 <span id="L255"><span class="lineNum">     255</span>              : </span>
 <span id="L256"><span class="lineNum">     256</span>              : // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。</span>
 <span id="L257"><span class="lineNum">     257</span>              : func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visFactor visFunc) []r3quad {</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC tlaBgGNC">           1 :         objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         for objQ.Next() {</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 e := objQ.Entity()</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 g := world.Components.GridElement.Get(e)</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius {</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L265"><span class="lineNum">     265</span>              :                 }</span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC tlaBgGNC">           1 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L270"><span class="lineNum">     270</span>              :                 }</span>
-<span id="L271"><span class="lineNum">     271</span>              :                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない</span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC tlaBgUNC">           0 :                 b, vok, vis, light := visFactor(g)</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 if !vok || !vis {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L275"><span class="lineNum">     275</span>              :                 }</span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                 base := render3d.At(fx+0.5, 0, fz+0.5)</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 const bw = 0.45</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                 const bh = render3d.BillboardHeight</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                 b0 := render3d.Add(base, render3d.Scale(right, -bw))</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 b1 := render3d.Add(base, render3d.Scale(right, bw))</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                 top := render3d.At(0, bh, 0)</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 tl, tr := render3d.Add(b0, top), render3d.Add(b1, top)</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 // 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が</span></span>
-<span id="L284"><span class="lineNum">     284</span>              :                 // 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく</span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 depth := int(sr.Depth)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 sys.addQuad(&amp;quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 quads[len(quads)-1].depth = depth</span></span>
-<span id="L288"><span class="lineNum">     288</span>              :         }</span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC tlaBgGNC">           1 :         return quads</span></span>
-<span id="L290"><span class="lineNum">     290</span>              : }</span>
-<span id="L291"><span class="lineNum">     291</span>              : </span>
-<span id="L292"><span class="lineNum">     292</span>              : // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。</span>
-<span id="L293"><span class="lineNum">     293</span>              : func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {</span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         for i := range quads {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 c := render3d.Vec{}</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 for _, p := range quads[i].p {</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         c = render3d.Add(c, p)</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                 quads[i].key = depth(render3d.Scale(c, 0.25))</span></span>
-<span id="L300"><span class="lineNum">     300</span>              :         }</span>
-<span id="L301"><span class="lineNum">     301</span>              :         // 奥行きが同値のときは depth で割る。同一タイルの立て板はここで前後が確定する。</span>
-<span id="L302"><span class="lineNum">     302</span>              :         // 大きい depth を後に描いて手前にし、プレイヤーを足元のアイテムより必ず上へ出す</span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :         sort.SliceStable(quads, func(i, j int) bool {</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 if quads[i].key != quads[j].key {</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                         return quads[i].key &lt; quads[j].key</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 return quads[i].depth &lt; quads[j].depth</span></span>
-<span id="L308"><span class="lineNum">     308</span>              :         })</span>
-<span id="L309"><span class="lineNum">     309</span>              : }</span>
-<span id="L310"><span class="lineNum">     310</span>              : </span>
-<span id="L311"><span class="lineNum">     311</span>              : // emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。</span>
-<span id="L312"><span class="lineNum">     312</span>              : func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {</span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC tlaBgUNC">           0 :         sortQuadsByDepth(quads, projector.Depth)</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :         var verts []ebiten.Vertex</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :         var inds []uint16</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :         var curAtlas *ebiten.Image</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         flush := func() {</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                 if len(inds) == 0 || curAtlas == nil {</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 screen.DrawTriangles(verts, inds, curAtlas, &amp;ebiten.DrawTrianglesOptions{})</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                 verts = verts[:0]</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 inds = inds[:0]</span></span>
-<span id="L325"><span class="lineNum">     325</span>              :         }</span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         for i := range quads {</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :                 q := &amp;quads[i]</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                 // アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。</span></span>
-<span id="L329"><span class="lineNum">     329</span>              :                 // 同一スプライトシートのタイルが大量に積まれても 65535 を超えると黙って描画化けするため</span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 if q.atlas != curAtlas || len(verts)+4 &gt; maxVertsPerBatch {</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                         flush()</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                         curAtlas = q.atlas</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 sys.emitQuad(&amp;verts, &amp;inds, q, projector.Point)</span></span>
-<span id="L335"><span class="lineNum">     335</span>              :         }</span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         flush()</span></span>
-<span id="L337"><span class="lineNum">     337</span>              : }</span>
-<span id="L338"><span class="lineNum">     338</span>              : </span>
-<span id="L339"><span class="lineNum">     339</span>              : // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。</span>
-<span id="L340"><span class="lineNum">     340</span>              : const maxVertsPerBatch = 65535</span>
-<span id="L341"><span class="lineNum">     341</span>              : </span>
-<span id="L342"><span class="lineNum">     342</span>              : // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。</span>
-<span id="L343"><span class="lineNum">     343</span>              : func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(render3d.Vec) (consts.Coord[consts.ScreenPixel], bool)) {</span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         var sp [4]consts.Coord[consts.ScreenPixel]</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         for k, p := range q.p {</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 screenPos, ok := project(p)</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 sp[k] = screenPos</span></span>
-<span id="L351"><span class="lineNum">     351</span>              :         }</span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         b := uint16(len(*verts))</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         for k := range 4 {</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 *verts = append(*verts, ebiten.Vertex{</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                         DstX: float32(sp[k].X), DstY: float32(sp[k].Y),</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                         SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                         ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         *inds = append(*inds, b, b+1, b+2, b, b+2, b+3)</span></span>
-<span id="L362"><span class="lineNum">     362</span>              : }</span>
+<span id="L258"><span class="lineNum">     258</span>              :         // 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC tlaBgGNC">           1 :         objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile](), ecs.C[gc.Driving]()).Query()</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         for objQ.Next() {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 e := objQ.Entity()</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                 g := world.Components.GridElement.Get(e)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius {</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L266"><span class="lineNum">     266</span>              :                 }</span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC tlaBgGNC">           1 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L271"><span class="lineNum">     271</span>              :                 }</span>
+<span id="L272"><span class="lineNum">     272</span>              :                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない</span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC tlaBgUNC">           0 :                 b, vok, vis, light := visFactor(g)</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 if !vok || !vis {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :                 }</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 base := render3d.At(fx+0.5, 0, fz+0.5)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                 const bw = 0.45</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                 const bh = render3d.BillboardHeight</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 b0 := render3d.Add(base, render3d.Scale(right, -bw))</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                 b1 := render3d.Add(base, render3d.Scale(right, bw))</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 top := render3d.At(0, bh, 0)</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 tl, tr := render3d.Add(b0, top), render3d.Add(b1, top)</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 // 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :                 // 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 depth := int(sr.Depth)</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 sys.addQuad(&amp;quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 quads[len(quads)-1].depth = depth</span></span>
+<span id="L289"><span class="lineNum">     289</span>              :         }</span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC tlaBgGNC">           1 :         return quads</span></span>
+<span id="L291"><span class="lineNum">     291</span>              : }</span>
+<span id="L292"><span class="lineNum">     292</span>              : </span>
+<span id="L293"><span class="lineNum">     293</span>              : // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。</span>
+<span id="L294"><span class="lineNum">     294</span>              : func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {</span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         for i := range quads {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 c := render3d.Vec{}</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                 for _, p := range quads[i].p {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                         c = render3d.Add(c, p)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                 quads[i].key = depth(render3d.Scale(c, 0.25))</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :         }</span>
+<span id="L302"><span class="lineNum">     302</span>              :         // 奥行きが同値のときは depth で割る。同一タイルの立て板はここで前後が確定する。</span>
+<span id="L303"><span class="lineNum">     303</span>              :         // 大きい depth を後に描いて手前にし、プレイヤーを足元のアイテムより必ず上へ出す</span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         sort.SliceStable(quads, func(i, j int) bool {</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                 if quads[i].key != quads[j].key {</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                         return quads[i].key &lt; quads[j].key</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 return quads[i].depth &lt; quads[j].depth</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :         })</span>
+<span id="L310"><span class="lineNum">     310</span>              : }</span>
+<span id="L311"><span class="lineNum">     311</span>              : </span>
+<span id="L312"><span class="lineNum">     312</span>              : // emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。</span>
+<span id="L313"><span class="lineNum">     313</span>              : func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC tlaBgUNC">           0 :         sortQuadsByDepth(quads, projector.Depth)</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :         var verts []ebiten.Vertex</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :         var inds []uint16</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         var curAtlas *ebiten.Image</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         flush := func() {</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 if len(inds) == 0 || curAtlas == nil {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                 screen.DrawTriangles(verts, inds, curAtlas, &amp;ebiten.DrawTrianglesOptions{})</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 verts = verts[:0]</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 inds = inds[:0]</span></span>
+<span id="L326"><span class="lineNum">     326</span>              :         }</span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         for i := range quads {</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                 q := &amp;quads[i]</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 // アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :                 // 同一スプライトシートのタイルが大量に積まれても 65535 を超えると黙って描画化けするため</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                 if q.atlas != curAtlas || len(verts)+4 &gt; maxVertsPerBatch {</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                         flush()</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                         curAtlas = q.atlas</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 sys.emitQuad(&amp;verts, &amp;inds, q, projector.Point)</span></span>
+<span id="L336"><span class="lineNum">     336</span>              :         }</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         flush()</span></span>
+<span id="L338"><span class="lineNum">     338</span>              : }</span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span>              : // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。</span>
+<span id="L341"><span class="lineNum">     341</span>              : const maxVertsPerBatch = 65535</span>
+<span id="L342"><span class="lineNum">     342</span>              : </span>
+<span id="L343"><span class="lineNum">     343</span>              : // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。</span>
+<span id="L344"><span class="lineNum">     344</span>              : func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(render3d.Vec) (consts.Coord[consts.ScreenPixel], bool)) {</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         var sp [4]consts.Coord[consts.ScreenPixel]</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :         for k, p := range q.p {</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 screenPos, ok := project(p)</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :                 sp[k] = screenPos</span></span>
+<span id="L352"><span class="lineNum">     352</span>              :         }</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         b := uint16(len(*verts))</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :         for k := range 4 {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 *verts = append(*verts, ebiten.Vertex{</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                         DstX: float32(sp[k].X), DstY: float32(sp[k].Y),</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                         SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                         ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         *inds = append(*inds, b, b+1, b+2, b, b+2, b+3)</span></span>
+<span id="L363"><span class="lineNum">     363</span>              : }</span>
         </pre>
               </td>
             </tr>

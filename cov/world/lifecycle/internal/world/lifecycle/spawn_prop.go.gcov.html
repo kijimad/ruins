@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">94.8&nbsp;%</td>
-            <td class="headerCovTableEntry">115</td>
-            <td class="headerCovTableEntry">109</td>
+            <td class="headerCovTableEntry">116</td>
+            <td class="headerCovTableEntry">110</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-08 11:55:39</td>
+            <td class="headerValue">2026-09-08 13:09:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -217,27 +217,27 @@
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }), nil</span></span>
 <span id="L156"><span class="lineNum">     156</span>              : }</span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
-<span id="L158"><span class="lineNum">     158</span>              : // SpawnCube は押して動かせる移動拠点キューブをオーバーワールドに生成する。</span>
-<span id="L159"><span class="lineNum">     159</span>              : // blue_cube のスプライトを流用した無地のキューブ。BlockPass だが Pushable なので</span>
-<span id="L160"><span class="lineNum">     160</span>              : // 歩き込むと通行でなく押しになる。オーバーワールドの地物として帯へ明示束縛する。</span>
-<span id="L161"><span class="lineNum">     161</span>              : func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         return world.Components.AddEntity(world.ECS, &amp;gc.EntitySpec{</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 Name:        &amp;gc.Name{Name: query.T(world, &quot;Cube&quot;)},</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 Description: &amp;gc.Description{Description: query.T(world, &quot;A mobile base you can push&quot;)},</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 GridElement: &amp;gc.GridElement{Coord: pos},</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         SpriteSheetName: fieldSpriteSheet,</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                         SpriteKey:       &quot;blue_cube&quot;,</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         Depth:           gc.DepthNumTaller,</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 Fixed:           &amp;gc.Fixed{},</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 BlockPass:       &amp;gc.BlockPass{},</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 Pushable:        &amp;gc.Pushable{},</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 Drivable:        &amp;gc.Drivable{},</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 LocationOnField: &amp;gc.LocationOnField{},</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 // 隣接して手動で内部へ入る、または引く。歩き込みは押し、明示的な入る/引くはメニューから</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube, gc.InteractionPullCube}},</span></span>
+<span id="L158"><span class="lineNum">     158</span>              : // SpawnCube は運転できる移動拠点キューブをオーバーワールドに生成する。</span>
+<span id="L159"><span class="lineNum">     159</span>              : // blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。</span>
+<span id="L160"><span class="lineNum">     160</span>              : func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         return world.Components.AddEntity(world.ECS, &amp;gc.EntitySpec{</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 Name:        &amp;gc.Name{Name: query.T(world, &quot;Cube&quot;)},</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 Description: &amp;gc.Description{Description: query.T(world, &quot;A mobile base you can drive&quot;)},</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 GridElement: &amp;gc.GridElement{Coord: pos},</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         SpriteSheetName: fieldSpriteSheet,</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         SpriteKey:       &quot;blue_cube&quot;,</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                         Depth:           gc.DepthNumTaller,</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 Fixed:           &amp;gc.Fixed{},</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 Drivable:        &amp;gc.Drivable{},</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 LocationOnField: &amp;gc.LocationOnField{},</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 // 収納を持ち、隣接時にキューブメニューから開ける。オークションの出荷元も兼ねる</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 WeightCapacity: &amp;gc.WeightCapacity{Max: consts.Milligram(500 * consts.MilligramPerKg)},</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 AuctionStation: &amp;gc.AuctionStation{},</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 // 直上で乗車、隣接でメニュー。BlockPass は持たず、直上に立てる通行可能な地物にする</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDrive, gc.InteractionOpenCubeMenu}},</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         }), nil</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>

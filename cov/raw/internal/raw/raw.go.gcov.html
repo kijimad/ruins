@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.8&nbsp;%</td>
-            <td class="headerCovTableEntry">597</td>
-            <td class="headerCovTableEntry">542</td>
+            <td class="headerCovTableEntryHi">90.6&nbsp;%</td>
+            <td class="headerCovTableEntry">587</td>
+            <td class="headerCovTableEntry">532</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-08 11:55:39</td>
+            <td class="headerValue">2026-09-08 13:09:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -808,150 +808,137 @@
 <span id="L746"><span class="lineNum">     746</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionPortalPrev)</span></span>
 <span id="L747"><span class="lineNum">     747</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L748"><span class="lineNum">     748</span>              : </span>
-<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">           1 :         if propRaw.WarpCubeExitTrigger != nil {</span></span>
-<span id="L750"><span class="lineNum">     750</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionExitCube)</span></span>
-<span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L752"><span class="lineNum">     752</span>              : </span>
-<span id="L753"><span class="lineNum">     753</span> <span class="tlaGNC">           1 :         if propRaw.CubePanelTrigger != nil {</span></span>
-<span id="L754"><span class="lineNum">     754</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionCubePanel)</span></span>
-<span id="L755"><span class="lineNum">     755</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L756"><span class="lineNum">     756</span>              : </span>
-<span id="L757"><span class="lineNum">     757</span> <span class="tlaGNC">           1 :         if propRaw.Storage != nil {</span></span>
-<span id="L758"><span class="lineNum">     758</span> <span class="tlaGNC">           1 :                 mg, err := consts.ParseWeight(propRaw.Storage.MaxWeight)</span></span>
-<span id="L759"><span class="lineNum">     759</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L760"><span class="lineNum">     760</span> <span class="tlaGNC">           1 :                         return gc.EntitySpec{}, fmt.Errorf(&quot;container '%s' max weight: %w&quot;, name, err)</span></span>
-<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">           1 :                 entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}</span></span>
-<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionStorage)</span></span>
-<span id="L764"><span class="lineNum">     764</span>              :         }</span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">           1 :         if propRaw.Storage != nil {</span></span>
+<span id="L750"><span class="lineNum">     750</span> <span class="tlaGNC">           1 :                 mg, err := consts.ParseWeight(propRaw.Storage.MaxWeight)</span></span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">           1 :                         return gc.EntitySpec{}, fmt.Errorf(&quot;container '%s' max weight: %w&quot;, name, err)</span></span>
+<span id="L753"><span class="lineNum">     753</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L754"><span class="lineNum">     754</span> <span class="tlaGNC">           1 :                 entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}</span></span>
+<span id="L755"><span class="lineNum">     755</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionStorage)</span></span>
+<span id="L756"><span class="lineNum">     756</span>              :         }</span>
+<span id="L757"><span class="lineNum">     757</span>              : </span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaGNC">           1 :         if propRaw.Disassembly != nil {</span></span>
+<span id="L759"><span class="lineNum">     759</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionDisassemble)</span></span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L761"><span class="lineNum">     761</span>              : </span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">           1 :         if len(interactions) &gt; 0 {</span></span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">           1 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: interactions}</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L765"><span class="lineNum">     765</span>              : </span>
-<span id="L766"><span class="lineNum">     766</span> <span class="tlaGNC">           1 :         if propRaw.ShippingStation != nil {</span></span>
-<span id="L767"><span class="lineNum">     767</span> <span class="tlaGNC">           1 :                 entitySpec.AuctionStation = &amp;gc.AuctionStation{}</span></span>
-<span id="L768"><span class="lineNum">     768</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionAuction)</span></span>
-<span id="L769"><span class="lineNum">     769</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L770"><span class="lineNum">     770</span>              : </span>
-<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">           1 :         if propRaw.Disassembly != nil {</span></span>
-<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">           1 :                 interactions = append(interactions, gc.InteractionDisassemble)</span></span>
+<span id="L766"><span class="lineNum">     766</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
+<span id="L767"><span class="lineNum">     767</span>              : }</span>
+<span id="L768"><span class="lineNum">     768</span>              : </span>
+<span id="L769"><span class="lineNum">     769</span>              : // FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す</span>
+<span id="L770"><span class="lineNum">     770</span>              : func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {</span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaGNC">           2 :         if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name); ok &amp;&amp; prop.Disassembly != nil {</span></span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaGNC">           1 :                 return prop.Disassembly, true</span></span>
 <span id="L773"><span class="lineNum">     773</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L774"><span class="lineNum">     774</span>              : </span>
-<span id="L775"><span class="lineNum">     775</span> <span class="tlaGNC">           1 :         if len(interactions) &gt; 0 {</span></span>
-<span id="L776"><span class="lineNum">     776</span> <span class="tlaGNC">           1 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: interactions}</span></span>
-<span id="L777"><span class="lineNum">     777</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L778"><span class="lineNum">     778</span>              : </span>
-<span id="L779"><span class="lineNum">     779</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
-<span id="L780"><span class="lineNum">     780</span>              : }</span>
-<span id="L781"><span class="lineNum">     781</span>              : </span>
-<span id="L782"><span class="lineNum">     782</span>              : // FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す</span>
-<span id="L783"><span class="lineNum">     783</span>              : func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {</span>
-<span id="L784"><span class="lineNum">     784</span> <span class="tlaGNC">           2 :         if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name); ok &amp;&amp; prop.Disassembly != nil {</span></span>
-<span id="L785"><span class="lineNum">     785</span> <span class="tlaGNC">           1 :                 return prop.Disassembly, true</span></span>
-<span id="L786"><span class="lineNum">     786</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L787"><span class="lineNum">     787</span> <span class="tlaGNC">           2 :         if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name); ok &amp;&amp; item.Disassembly != nil {</span></span>
-<span id="L788"><span class="lineNum">     788</span> <span class="tlaGNC">           1 :                 return item.Disassembly, true</span></span>
-<span id="L789"><span class="lineNum">     789</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L790"><span class="lineNum">     790</span> <span class="tlaGNC">           1 :         return nil, false</span></span>
-<span id="L791"><span class="lineNum">     791</span>              : }</span>
-<span id="L792"><span class="lineNum">     792</span>              : </span>
-<span id="L793"><span class="lineNum">     793</span>              : // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す</span>
-<span id="L794"><span class="lineNum">     794</span>              : func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {</span>
-<span id="L795"><span class="lineNum">     795</span> <span class="tlaGNC">           2 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)</span></span>
-<span id="L796"><span class="lineNum">     796</span> <span class="tlaGNC">           1 :         if !ok || item.DisassemblyTool == nil {</span></span>
-<span id="L797"><span class="lineNum">     797</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
-<span id="L798"><span class="lineNum">     798</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L799"><span class="lineNum">     799</span> <span class="tlaGNC">           1 :         return item.DisassemblyTool, true</span></span>
-<span id="L800"><span class="lineNum">     800</span>              : }</span>
-<span id="L801"><span class="lineNum">     801</span>              : </span>
-<span id="L802"><span class="lineNum">     802</span>              : // GetProfession は指定されたIDの職業データを返す</span>
-<span id="L803"><span class="lineNum">     803</span>              : func GetProfession(raws oapi.Raws, id string) (oapi.Profession, error) {</span>
-<span id="L804"><span class="lineNum">     804</span> <span class="tlaGNC">           2 :         prof, ok := findByKey(raws.Professions, func(p oapi.Profession) string { return p.Id }, id)</span></span>
-<span id="L805"><span class="lineNum">     805</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L806"><span class="lineNum">     806</span> <span class="tlaGNC">           1 :                 return oapi.Profession{}, NewKeyNotFoundError(id, &quot;Professions&quot;)</span></span>
-<span id="L807"><span class="lineNum">     807</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L808"><span class="lineNum">     808</span> <span class="tlaGNC">           1 :         return prof, nil</span></span>
-<span id="L809"><span class="lineNum">     809</span>              : }</span>
-<span id="L810"><span class="lineNum">     810</span>              : </span>
-<span id="L811"><span class="lineNum">     811</span>              : // SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する</span>
-<span id="L812"><span class="lineNum">     812</span>              : func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error) {</span>
-<span id="L813"><span class="lineNum">     813</span> <span class="tlaGNC">           1 :         return SelectByWeightFunc(</span></span>
-<span id="L814"><span class="lineNum">     814</span> <span class="tlaGNC">           1 :                 ct.Entries,</span></span>
-<span id="L815"><span class="lineNum">     815</span> <span class="tlaGNC">           2 :                 func(e oapi.CommandTableEntry) float64 { return e.Weight },</span></span>
-<span id="L816"><span class="lineNum">     816</span> <span class="tlaGNC">           1 :                 func(e oapi.CommandTableEntry) string { return e.Weapon },</span></span>
-<span id="L817"><span class="lineNum">     817</span>              :                 rng,</span>
-<span id="L818"><span class="lineNum">     818</span>              :         )</span>
-<span id="L819"><span class="lineNum">     819</span>              : }</span>
-<span id="L820"><span class="lineNum">     820</span>              : </span>
-<span id="L821"><span class="lineNum">     821</span>              : // SelectDropByWeight はドロップテーブルから重み付きランダム選択する</span>
-<span id="L822"><span class="lineNum">     822</span>              : func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {</span>
-<span id="L823"><span class="lineNum">     823</span> <span class="tlaGNC">           1 :         return SelectByWeightFunc(</span></span>
-<span id="L824"><span class="lineNum">     824</span> <span class="tlaGNC">           1 :                 dt.Entries,</span></span>
-<span id="L825"><span class="lineNum">     825</span> <span class="tlaGNC">           2 :                 func(e oapi.DropTableEntry) float64 { return e.Weight },</span></span>
-<span id="L826"><span class="lineNum">     826</span> <span class="tlaGNC">           1 :                 func(e oapi.DropTableEntry) string { return e.Material },</span></span>
-<span id="L827"><span class="lineNum">     827</span>              :                 rng,</span>
-<span id="L828"><span class="lineNum">     828</span>              :         )</span>
-<span id="L829"><span class="lineNum">     829</span>              : }</span>
-<span id="L830"><span class="lineNum">     830</span>              : </span>
-<span id="L831"><span class="lineNum">     831</span>              : // MinDanger は spawn テーブルが引ける最小の危険度。テーブルは1始まり設計で、これ未満は</span>
-<span id="L832"><span class="lineNum">     832</span>              : // 危険度の指定漏れとしてエラーにする。</span>
-<span id="L833"><span class="lineNum">     833</span>              : const MinDanger = 1</span>
-<span id="L834"><span class="lineNum">     834</span>              : </span>
-<span id="L835"><span class="lineNum">     835</span>              : // SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する</span>
-<span id="L836"><span class="lineNum">     836</span>              : // テーブルエントリからグループを選び、グループ内からアイテムを選択して返す</span>
-<span id="L837"><span class="lineNum">     837</span>              : func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {</span>
-<span id="L838"><span class="lineNum">     838</span> <span class="tlaGNC">           1 :         if danger &lt; MinDanger {</span></span>
-<span id="L839"><span class="lineNum">     839</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, fmt.Errorf(&quot;danger %d is below the minimum %d; the caller must specify a valid danger&quot;, danger, MinDanger)</span></span>
-<span id="L840"><span class="lineNum">     840</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L841"><span class="lineNum">     841</span> <span class="tlaGNC">           1 :         filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))</span></span>
-<span id="L842"><span class="lineNum">     842</span> <span class="tlaGNC">           1 :         for _, entry := range it.Entries {</span></span>
-<span id="L843"><span class="lineNum">     843</span> <span class="tlaGNC">           1 :                 if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger {</span></span>
-<span id="L844"><span class="lineNum">     844</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L845"><span class="lineNum">     845</span>              :                 }</span>
-<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC tlaBgGNC">           1 :                 filtered = append(filtered, entry)</span></span>
-<span id="L847"><span class="lineNum">     847</span>              :         }</span>
-<span id="L848"><span class="lineNum">     848</span>              : </span>
-<span id="L849"><span class="lineNum">     849</span>              :         // テーブルエントリからグループ名を重み付き選択する</span>
-<span id="L850"><span class="lineNum">     850</span> <span class="tlaGNC">           1 :         groupName, err := SelectByWeightFunc(</span></span>
-<span id="L851"><span class="lineNum">     851</span> <span class="tlaGNC">           1 :                 filtered,</span></span>
-<span id="L852"><span class="lineNum">     852</span> <span class="tlaGNC">           2 :                 func(e oapi.ItemTableEntry) float64 { return e.Weight },</span></span>
-<span id="L853"><span class="lineNum">     853</span> <span class="tlaGNC">           1 :                 func(e oapi.ItemTableEntry) string { return e.Id },</span></span>
-<span id="L854"><span class="lineNum">     854</span>              :                 rng,</span>
-<span id="L855"><span class="lineNum">     855</span>              :         )</span>
-<span id="L856"><span class="lineNum">     856</span> <span class="tlaGNC">           1 :         if err != nil || groupName == &quot;&quot; {</span></span>
-<span id="L857"><span class="lineNum">     857</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, err</span></span>
-<span id="L858"><span class="lineNum">     858</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L774"><span class="lineNum">     774</span> <span class="tlaGNC">           2 :         if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name); ok &amp;&amp; item.Disassembly != nil {</span></span>
+<span id="L775"><span class="lineNum">     775</span> <span class="tlaGNC">           1 :                 return item.Disassembly, true</span></span>
+<span id="L776"><span class="lineNum">     776</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L777"><span class="lineNum">     777</span> <span class="tlaGNC">           1 :         return nil, false</span></span>
+<span id="L778"><span class="lineNum">     778</span>              : }</span>
+<span id="L779"><span class="lineNum">     779</span>              : </span>
+<span id="L780"><span class="lineNum">     780</span>              : // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す</span>
+<span id="L781"><span class="lineNum">     781</span>              : func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {</span>
+<span id="L782"><span class="lineNum">     782</span> <span class="tlaGNC">           2 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)</span></span>
+<span id="L783"><span class="lineNum">     783</span> <span class="tlaGNC">           1 :         if !ok || item.DisassemblyTool == nil {</span></span>
+<span id="L784"><span class="lineNum">     784</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
+<span id="L785"><span class="lineNum">     785</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L786"><span class="lineNum">     786</span> <span class="tlaGNC">           1 :         return item.DisassemblyTool, true</span></span>
+<span id="L787"><span class="lineNum">     787</span>              : }</span>
+<span id="L788"><span class="lineNum">     788</span>              : </span>
+<span id="L789"><span class="lineNum">     789</span>              : // GetProfession は指定されたIDの職業データを返す</span>
+<span id="L790"><span class="lineNum">     790</span>              : func GetProfession(raws oapi.Raws, id string) (oapi.Profession, error) {</span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaGNC">           2 :         prof, ok := findByKey(raws.Professions, func(p oapi.Profession) string { return p.Id }, id)</span></span>
+<span id="L792"><span class="lineNum">     792</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L793"><span class="lineNum">     793</span> <span class="tlaGNC">           1 :                 return oapi.Profession{}, NewKeyNotFoundError(id, &quot;Professions&quot;)</span></span>
+<span id="L794"><span class="lineNum">     794</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaGNC">           1 :         return prof, nil</span></span>
+<span id="L796"><span class="lineNum">     796</span>              : }</span>
+<span id="L797"><span class="lineNum">     797</span>              : </span>
+<span id="L798"><span class="lineNum">     798</span>              : // SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する</span>
+<span id="L799"><span class="lineNum">     799</span>              : func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error) {</span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaGNC">           1 :         return SelectByWeightFunc(</span></span>
+<span id="L801"><span class="lineNum">     801</span> <span class="tlaGNC">           1 :                 ct.Entries,</span></span>
+<span id="L802"><span class="lineNum">     802</span> <span class="tlaGNC">           2 :                 func(e oapi.CommandTableEntry) float64 { return e.Weight },</span></span>
+<span id="L803"><span class="lineNum">     803</span> <span class="tlaGNC">           1 :                 func(e oapi.CommandTableEntry) string { return e.Weapon },</span></span>
+<span id="L804"><span class="lineNum">     804</span>              :                 rng,</span>
+<span id="L805"><span class="lineNum">     805</span>              :         )</span>
+<span id="L806"><span class="lineNum">     806</span>              : }</span>
+<span id="L807"><span class="lineNum">     807</span>              : </span>
+<span id="L808"><span class="lineNum">     808</span>              : // SelectDropByWeight はドロップテーブルから重み付きランダム選択する</span>
+<span id="L809"><span class="lineNum">     809</span>              : func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {</span>
+<span id="L810"><span class="lineNum">     810</span> <span class="tlaGNC">           1 :         return SelectByWeightFunc(</span></span>
+<span id="L811"><span class="lineNum">     811</span> <span class="tlaGNC">           1 :                 dt.Entries,</span></span>
+<span id="L812"><span class="lineNum">     812</span> <span class="tlaGNC">           2 :                 func(e oapi.DropTableEntry) float64 { return e.Weight },</span></span>
+<span id="L813"><span class="lineNum">     813</span> <span class="tlaGNC">           1 :                 func(e oapi.DropTableEntry) string { return e.Material },</span></span>
+<span id="L814"><span class="lineNum">     814</span>              :                 rng,</span>
+<span id="L815"><span class="lineNum">     815</span>              :         )</span>
+<span id="L816"><span class="lineNum">     816</span>              : }</span>
+<span id="L817"><span class="lineNum">     817</span>              : </span>
+<span id="L818"><span class="lineNum">     818</span>              : // MinDanger は spawn テーブルが引ける最小の危険度。テーブルは1始まり設計で、これ未満は</span>
+<span id="L819"><span class="lineNum">     819</span>              : // 危険度の指定漏れとしてエラーにする。</span>
+<span id="L820"><span class="lineNum">     820</span>              : const MinDanger = 1</span>
+<span id="L821"><span class="lineNum">     821</span>              : </span>
+<span id="L822"><span class="lineNum">     822</span>              : // SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する</span>
+<span id="L823"><span class="lineNum">     823</span>              : // テーブルエントリからグループを選び、グループ内からアイテムを選択して返す</span>
+<span id="L824"><span class="lineNum">     824</span>              : func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {</span>
+<span id="L825"><span class="lineNum">     825</span> <span class="tlaGNC">           1 :         if danger &lt; MinDanger {</span></span>
+<span id="L826"><span class="lineNum">     826</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, fmt.Errorf(&quot;danger %d is below the minimum %d; the caller must specify a valid danger&quot;, danger, MinDanger)</span></span>
+<span id="L827"><span class="lineNum">     827</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L828"><span class="lineNum">     828</span> <span class="tlaGNC">           1 :         filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))</span></span>
+<span id="L829"><span class="lineNum">     829</span> <span class="tlaGNC">           1 :         for _, entry := range it.Entries {</span></span>
+<span id="L830"><span class="lineNum">     830</span> <span class="tlaGNC">           1 :                 if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger {</span></span>
+<span id="L831"><span class="lineNum">     831</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L832"><span class="lineNum">     832</span>              :                 }</span>
+<span id="L833"><span class="lineNum">     833</span> <span class="tlaGNC tlaBgGNC">           1 :                 filtered = append(filtered, entry)</span></span>
+<span id="L834"><span class="lineNum">     834</span>              :         }</span>
+<span id="L835"><span class="lineNum">     835</span>              : </span>
+<span id="L836"><span class="lineNum">     836</span>              :         // テーブルエントリからグループ名を重み付き選択する</span>
+<span id="L837"><span class="lineNum">     837</span> <span class="tlaGNC">           1 :         groupName, err := SelectByWeightFunc(</span></span>
+<span id="L838"><span class="lineNum">     838</span> <span class="tlaGNC">           1 :                 filtered,</span></span>
+<span id="L839"><span class="lineNum">     839</span> <span class="tlaGNC">           2 :                 func(e oapi.ItemTableEntry) float64 { return e.Weight },</span></span>
+<span id="L840"><span class="lineNum">     840</span> <span class="tlaGNC">           1 :                 func(e oapi.ItemTableEntry) string { return e.Id },</span></span>
+<span id="L841"><span class="lineNum">     841</span>              :                 rng,</span>
+<span id="L842"><span class="lineNum">     842</span>              :         )</span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaGNC">           1 :         if err != nil || groupName == &quot;&quot; {</span></span>
+<span id="L844"><span class="lineNum">     844</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, err</span></span>
+<span id="L845"><span class="lineNum">     845</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L846"><span class="lineNum">     846</span>              : </span>
+<span id="L847"><span class="lineNum">     847</span>              :         // グループからアイテムを選択する</span>
+<span id="L848"><span class="lineNum">     848</span> <span class="tlaGNC">           1 :         group, err := GetItemGroup(raws, groupName)</span></span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L850"><span class="lineNum">     850</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, err</span></span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L852"><span class="lineNum">     852</span> <span class="tlaGNC tlaBgGNC">           1 :         return SelectByWeightFunc(</span></span>
+<span id="L853"><span class="lineNum">     853</span> <span class="tlaGNC">           1 :                 group.Entries,</span></span>
+<span id="L854"><span class="lineNum">     854</span> <span class="tlaGNC">           2 :                 func(e oapi.ItemGroupEntry) float64 { return e.Weight },</span></span>
+<span id="L855"><span class="lineNum">     855</span> <span class="tlaGNC">           1 :                 func(e oapi.ItemGroupEntry) string { return e.Id },</span></span>
+<span id="L856"><span class="lineNum">     856</span>              :                 rng,</span>
+<span id="L857"><span class="lineNum">     857</span>              :         )</span>
+<span id="L858"><span class="lineNum">     858</span>              : }</span>
 <span id="L859"><span class="lineNum">     859</span>              : </span>
-<span id="L860"><span class="lineNum">     860</span>              :         // グループからアイテムを選択する</span>
-<span id="L861"><span class="lineNum">     861</span> <span class="tlaGNC">           1 :         group, err := GetItemGroup(raws, groupName)</span></span>
-<span id="L862"><span class="lineNum">     862</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, err</span></span>
-<span id="L864"><span class="lineNum">     864</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L865"><span class="lineNum">     865</span> <span class="tlaGNC tlaBgGNC">           1 :         return SelectByWeightFunc(</span></span>
-<span id="L866"><span class="lineNum">     866</span> <span class="tlaGNC">           1 :                 group.Entries,</span></span>
-<span id="L867"><span class="lineNum">     867</span> <span class="tlaGNC">           2 :                 func(e oapi.ItemGroupEntry) float64 { return e.Weight },</span></span>
-<span id="L868"><span class="lineNum">     868</span> <span class="tlaGNC">           1 :                 func(e oapi.ItemGroupEntry) string { return e.Id },</span></span>
-<span id="L869"><span class="lineNum">     869</span>              :                 rng,</span>
-<span id="L870"><span class="lineNum">     870</span>              :         )</span>
-<span id="L871"><span class="lineNum">     871</span>              : }</span>
+<span id="L860"><span class="lineNum">     860</span>              : // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する</span>
+<span id="L861"><span class="lineNum">     861</span>              : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {</span>
+<span id="L862"><span class="lineNum">     862</span> <span class="tlaGNC">           1 :         if danger &lt; MinDanger {</span></span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, fmt.Errorf(&quot;danger %d is below the minimum %d; the caller must specify a valid danger&quot;, danger, MinDanger)</span></span>
+<span id="L864"><span class="lineNum">     864</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L865"><span class="lineNum">     865</span> <span class="tlaGNC">           1 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
+<span id="L866"><span class="lineNum">     866</span> <span class="tlaGNC">           1 :         for _, entry := range et.Entries {</span></span>
+<span id="L867"><span class="lineNum">     867</span> <span class="tlaGNC">           1 :                 if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger {</span></span>
+<span id="L868"><span class="lineNum">     868</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L869"><span class="lineNum">     869</span>              :                 }</span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaGNC">           1 :                 filtered = append(filtered, entry)</span></span>
+<span id="L871"><span class="lineNum">     871</span>              :         }</span>
 <span id="L872"><span class="lineNum">     872</span>              : </span>
-<span id="L873"><span class="lineNum">     873</span>              : // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する</span>
-<span id="L874"><span class="lineNum">     874</span>              : func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {</span>
-<span id="L875"><span class="lineNum">     875</span> <span class="tlaGNC">           1 :         if danger &lt; MinDanger {</span></span>
-<span id="L876"><span class="lineNum">     876</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, fmt.Errorf(&quot;danger %d is below the minimum %d; the caller must specify a valid danger&quot;, danger, MinDanger)</span></span>
-<span id="L877"><span class="lineNum">     877</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L878"><span class="lineNum">     878</span> <span class="tlaGNC">           1 :         filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))</span></span>
-<span id="L879"><span class="lineNum">     879</span> <span class="tlaGNC">           1 :         for _, entry := range et.Entries {</span></span>
-<span id="L880"><span class="lineNum">     880</span> <span class="tlaGNC">           1 :                 if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger {</span></span>
-<span id="L881"><span class="lineNum">     881</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L882"><span class="lineNum">     882</span>              :                 }</span>
-<span id="L883"><span class="lineNum">     883</span> <span class="tlaGNC">           1 :                 filtered = append(filtered, entry)</span></span>
-<span id="L884"><span class="lineNum">     884</span>              :         }</span>
-<span id="L885"><span class="lineNum">     885</span>              : </span>
-<span id="L886"><span class="lineNum">     886</span> <span class="tlaGNC">           1 :         return SelectByWeightFunc(</span></span>
-<span id="L887"><span class="lineNum">     887</span> <span class="tlaGNC">           1 :                 filtered,</span></span>
-<span id="L888"><span class="lineNum">     888</span> <span class="tlaGNC">           2 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
-<span id="L889"><span class="lineNum">     889</span> <span class="tlaGNC">           1 :                 func(e oapi.EnemyTableEntry) string { return e.Id },</span></span>
-<span id="L890"><span class="lineNum">     890</span>              :                 rng,</span>
-<span id="L891"><span class="lineNum">     891</span>              :         )</span>
-<span id="L892"><span class="lineNum">     892</span>              : }</span>
+<span id="L873"><span class="lineNum">     873</span> <span class="tlaGNC">           1 :         return SelectByWeightFunc(</span></span>
+<span id="L874"><span class="lineNum">     874</span> <span class="tlaGNC">           1 :                 filtered,</span></span>
+<span id="L875"><span class="lineNum">     875</span> <span class="tlaGNC">           2 :                 func(e oapi.EnemyTableEntry) float64 { return e.Weight },</span></span>
+<span id="L876"><span class="lineNum">     876</span> <span class="tlaGNC">           1 :                 func(e oapi.EnemyTableEntry) string { return e.Id },</span></span>
+<span id="L877"><span class="lineNum">     877</span>              :                 rng,</span>
+<span id="L878"><span class="lineNum">     878</span>              :         )</span>
+<span id="L879"><span class="lineNum">     879</span>              : }</span>
         </pre>
               </td>
             </tr>
