@@ -9,11 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// errFailingState はFailingStateが注入するエラーを識別するためのセンチネルである
+// errFailingState はFailingStateが注入するエラーを識別するセンチネル
 var errFailingState = errors.New("failing state error")
 
-// FailingState はOnStart/OnStop/OnPause/OnResume/Update/Drawの各フックへ
-// 個別にエラーを注入できるテスト用stateである
+// FailingState は各フックへ個別にエラーを注入できるテスト用state
 type FailingState struct {
 	failOnStart  bool
 	failOnStop   bool
@@ -361,9 +360,7 @@ func TestSwitchState_新しいstateのOnStartがエラーを返す場合(t *test
 	err := sm.switchState(world, []State[TestWorld]{newState})
 
 	require.ErrorIs(t, err, errFailingState)
-	// 既知の制限: OnStopは成功しているのでcurrentは停止済みだが、
-	// newStateのOnStart失敗によりスタックの置き換え自体は行われないため、
-	// スタックには停止済みのcurrentが残ったままになる。
+	// OnStopは成功するが新stateのOnStart失敗で置き換えは行われず、停止済みのcurrentが残る
 	assert.True(t, current.onStopCalled)
 	cs, ok := sm.GetCurrentState().(*TestState)
 	require.True(t, ok, "置き換え失敗時はスタックの内容自体は変わらない")
