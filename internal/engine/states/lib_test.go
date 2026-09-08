@@ -73,7 +73,7 @@ func (fs *FailingState) Draw(_ TestWorld, _ *ebiten.Image) error {
 	return nil
 }
 
-func TestInit_OnStartがエラーを返す場合(t *testing.T) {
+func TestInit_OnStartのエラーを伝播する(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	state := &FailingState{failOnStart: true}
@@ -83,7 +83,7 @@ func TestInit_OnStartがエラーを返す場合(t *testing.T) {
 	require.ErrorIs(t, err, errFailingState)
 }
 
-func TestStateMachineUpdate_ファクトリー関数がエラーを返す場合(t *testing.T) {
+func TestStateMachineUpdate_ファクトリー関数のエラーを伝播する(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	sm, err := Init(&TestState{name: "Base"}, world)
@@ -101,7 +101,7 @@ func TestStateMachineUpdate_ファクトリー関数がエラーを返す場合(
 	require.ErrorIs(t, err, errFailingState)
 }
 
-func TestStateMachineUpdate_アクティブstateのUpdateがエラーを返す場合(t *testing.T) {
+func TestStateMachineUpdate_アクティブstateのUpdateエラーを伝播する(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	failing := &FailingState{failUpdate: true}
@@ -113,7 +113,7 @@ func TestStateMachineUpdate_アクティブstateのUpdateがエラーを返す�
 	require.ErrorIs(t, err, errFailingState)
 }
 
-func TestStateMachineDraw_いずれかのstateのDrawがエラーを返す場合(t *testing.T) {
+func TestStateMachineDraw_stateのDrawエラーを伝播する(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	ok := &TestState{name: "OK"}
@@ -221,7 +221,7 @@ func TestPop_空スタックでは何もしない(t *testing.T) {
 	assert.Equal(t, 0, sm.GetStateCount())
 }
 
-func TestPop_対象stateのOnStopがエラーを返す場合(t *testing.T) {
+func TestPop_対象stateのOnStop失敗で取り除かない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	failing := &FailingState{failOnStop: true}
@@ -233,7 +233,7 @@ func TestPop_対象stateのOnStopがエラーを返す場合(t *testing.T) {
 	assert.Equal(t, 1, sm.GetStateCount(), "OnStopが失敗した場合はスタックから取り除かれない")
 }
 
-func TestPop_再開stateのOnResumeがエラーを返す場合(t *testing.T) {
+func TestPop_再開stateのOnResumeエラーを伝播する(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	base := &FailingState{failOnResume: true}
@@ -247,7 +247,7 @@ func TestPop_再開stateのOnResumeがエラーを返す場合(t *testing.T) {
 	assert.True(t, top.onStopCalled)
 }
 
-func TestPush_現在stateのOnPauseがエラーを返す場合(t *testing.T) {
+func TestPush_現在stateのOnPause失敗で追加しない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	base := &FailingState{failOnPause: true}
@@ -261,7 +261,7 @@ func TestPush_現在stateのOnPauseがエラーを返す場合(t *testing.T) {
 	assert.False(t, newState.onStartCalled)
 }
 
-func TestPush_中間stateのOnStartがエラーを返す場合(t *testing.T) {
+func TestPush_中間stateのOnStart失敗で追加しない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	base := &TestState{name: "Base"}
@@ -276,7 +276,7 @@ func TestPush_中間stateのOnStartがエラーを返す場合(t *testing.T) {
 	assert.False(t, top.onStartCalled, "先行するstateが失敗したら後続は処理されない")
 }
 
-func TestPush_中間stateのOnPauseがエラーを返す場合(t *testing.T) {
+func TestPush_中間stateのOnPause失敗で追加しない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	base := &TestState{name: "Base"}
@@ -292,7 +292,7 @@ func TestPush_中間stateのOnPauseがエラーを返す場合(t *testing.T) {
 	assert.False(t, top.onStartCalled)
 }
 
-func TestPush_対象stateのOnStartがエラーを返す場合(t *testing.T) {
+func TestPush_対象stateのOnStart失敗で追加しない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	base := &TestState{name: "Base"}
@@ -336,7 +336,7 @@ func TestSwitchState_newStatesの数が1でない場合は何もしない(t *tes
 	})
 }
 
-func TestSwitchState_現在stateのOnStopがエラーを返す場合(t *testing.T) {
+func TestSwitchState_現在stateのOnStop失敗で置き換えない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	current := &FailingState{failOnStop: true}
@@ -350,7 +350,7 @@ func TestSwitchState_現在stateのOnStopがエラーを返す場合(t *testing.
 	assert.Equal(t, 1, sm.GetStateCount())
 }
 
-func TestSwitchState_新しいstateのOnStartがエラーを返す場合(t *testing.T) {
+func TestSwitchState_新しいstateのOnStart失敗で置き換えない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	current := &TestState{name: "Current"}
@@ -367,7 +367,7 @@ func TestSwitchState_新しいstateのOnStartがエラーを返す場合(t *test
 	assert.Same(t, current, cs)
 }
 
-func TestReplace_現在stateのOnStopがエラーを返す場合(t *testing.T) {
+func TestReplace_現在stateのOnStop失敗で置き換えない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	current := &FailingState{failOnStop: true}
@@ -381,7 +381,7 @@ func TestReplace_現在stateのOnStopがエラーを返す場合(t *testing.T) {
 	assert.False(t, newState.onStartCalled)
 }
 
-func TestReplace_中間stateのOnStartがエラーを返す場合(t *testing.T) {
+func TestReplace_中間stateのOnStart失敗で新スタックを設定しない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	old := &TestState{name: "Old"}
@@ -397,7 +397,7 @@ func TestReplace_中間stateのOnStartがエラーを返す場合(t *testing.T) 
 	assert.Equal(t, 0, sm.GetStateCount(), "旧stateは除去済みだが新stateは設定されない")
 }
 
-func TestReplace_中間stateのOnPauseがエラーを返す場合(t *testing.T) {
+func TestReplace_中間stateのOnPause失敗で新スタックを設定しない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	old := &TestState{name: "Old"}
@@ -413,7 +413,7 @@ func TestReplace_中間stateのOnPauseがエラーを返す場合(t *testing.T) 
 	assert.Equal(t, 0, sm.GetStateCount())
 }
 
-func TestReplace_対象stateのOnStartがエラーを返す場合(t *testing.T) {
+func TestReplace_対象stateのOnStart失敗で新スタックを設定しない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	old := &TestState{name: "Old"}
@@ -427,7 +427,7 @@ func TestReplace_対象stateのOnStartがエラーを返す場合(t *testing.T) 
 	assert.Equal(t, 0, sm.GetStateCount())
 }
 
-func TestQuit_OnStopがエラーを返す場合(t *testing.T) {
+func TestQuit_OnStop失敗で取り除かない(t *testing.T) {
 	t.Parallel()
 	world := TestWorld{Name: "TestWorld"}
 	bottom := &TestState{name: "Bottom"}
