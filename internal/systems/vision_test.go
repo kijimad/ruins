@@ -488,8 +488,7 @@ func TestCalculateLightSourceDarkness_明るい環境光では光源が何も足
 }
 
 // TestCalculateLightSourceDarkness_抑制時は有彩の環境光色をそのまま返す は、
-// 光源が寄与しない明るさのとき、白でなく環境光そのものの色味が出ることを固定する。
-// 夕方など有彩の環境光でも火色に染まらないことを保証する。
+// 光源が寄与しない明るさで、白でなく環境光の色味がそのまま出ることを固定する。
 func TestCalculateLightSourceDarkness_抑制時は有彩の環境光色をそのまま返す(t *testing.T) {
 	t.Parallel()
 
