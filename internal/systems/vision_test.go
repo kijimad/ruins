@@ -444,19 +444,6 @@ func TestCalculateLightSourceDarkness_明るさの合成(t *testing.T) {
 	})
 }
 
-// TestLightSuppress は環境光の明るさで光源の寄与係数が決まることを固定する。
-// lightFadeLow 以下で 1、lightFadeHigh 以上で 0、間は単調に減る。
-func TestLightSuppress(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, 1.0, lightSuppress(0.06), "暗所では光源が満額効く")
-	assert.Equal(t, 1.0, lightSuppress(lightFadeLow), "フェード下端では満額")
-	assert.Equal(t, 0.0, lightSuppress(lightFadeHigh), "フェード上端では何も足さない")
-	assert.Equal(t, 0.0, lightSuppress(0.95), "日光下では何も足さない")
-	assert.InDelta(t, 0.5, lightSuppress((lightFadeLow+lightFadeHigh)/2), 1e-9, "帯の中央で 0.5")
-	assert.Greater(t, lightSuppress(0.5), lightSuppress(0.7), "明るいほど寄与が減る")
-}
-
 // TestCalculateLightSourceDarkness_明るい環境光では光源が何も足さない は、
 // 日光の強い屋外の昼に火が明るさも色も足さず、暗い環境光でだけ効くことを固定する。
 func TestCalculateLightSourceDarkness_明るい環境光では光源が何も足さない(t *testing.T) {

@@ -382,12 +382,6 @@ func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
 	return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
 }
 
-// lightSuppress は環境光の明るさから光源の寄与係数を返す。明るさと色の両方にかける。
-// lightFadeHigh 以上で 0 となり光源は何も足さず、lightFadeLow 以下では 1 で満額効く
-func lightSuppress(ambient float64) float64 {
-	return 1 - smoothstep(lightFadeLow, lightFadeHigh, ambient)
-}
-
 // calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
 // 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
 // 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
@@ -402,8 +396,8 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 	totalB := ambientColor[2] * 255 * ambient
 	totalWeight := ambient
 
-	// 環境光で光源の寄与を絞る係数
-	suppress := lightSuppress(ambient)
+	// 環境光で光源の寄与を絞る係数。lightFadeLow 以下で満額、lightFadeHigh 以上で 0。明るさと色の両方にかける
+	suppress := 1 - smoothstep(lightFadeLow, lightFadeHigh, ambient)
 
 	// 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。
 	// 火は燃え尽きると自分の LightSource を外すので照らさなくなる
