@@ -47,6 +47,8 @@ type statusItemData struct {
 	Description string
 	// IsHeader はカテゴリヘッダー行かどうか。真なら選択不可の見出し
 	IsHeader bool
+	// Indent は字下げの段数。見出し配下のエントリを1以上にすると見出しと見分けやすくなる
+	Indent int
 	// BodyPart は健康タブの症状エントリが属する部位
 	BodyPart gc.BodyPart
 	// Condition は症状エントリが指す不調の実体。保存不調も導出不調も同じ形で載せる。症状でない行は nil
@@ -150,6 +152,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 				Label:       query.T(world, gc.SkillName(id)),
 				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
 				Description: query.T(world, info.Summary),
+				Indent:      1, // カテゴリ見出しの配下として字下げする
 				Details: []statusDetailRow{
 					{Label: query.T(world, "Gained by"), Value: query.T(world, info.GainedBy)},
 					{Label: query.T(world, "Effect"), Value: query.T(world, info.Effect)},
@@ -396,7 +399,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 				cells[2] = it.Modifier
 			}
 		}
-		rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader, Indent: it.Indent}
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }
