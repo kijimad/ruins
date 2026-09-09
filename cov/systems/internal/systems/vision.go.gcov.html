@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">67.2&nbsp;%</td>
-            <td class="headerCovTableEntry">253</td>
-            <td class="headerCovTableEntry">170</td>
+            <td class="headerCovTableEntryLo">68.4&nbsp;%</td>
+            <td class="headerCovTableEntry">256</td>
+            <td class="headerCovTableEntry">175</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-08 23:52:25</td>
+            <td class="headerValue">2026-09-09 00:22:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -444,112 +444,132 @@
 <span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :         return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}</span></span>
 <span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L384"><span class="lineNum">     384</span>              : </span>
-<span id="L385"><span class="lineNum">     385</span>              : // calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。</span>
-<span id="L386"><span class="lineNum">     386</span>              : // 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、</span>
-<span id="L387"><span class="lineNum">     387</span>              : // 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。</span>
-<span id="L388"><span class="lineNum">     388</span>              : // 色は各光源の寄与で加重平均する。</span>
-<span id="L389"><span class="lineNum">     389</span>              : func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {</span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         brightness := ambient</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L392"><span class="lineNum">     392</span>              :         // 色は環境光と各光源の寄与で加重平均する。環境光を重み ambient の基底色として入れると、</span>
-<span id="L393"><span class="lineNum">     393</span>              :         // 無照明のタイルは環境光の色になり、松明の届くタイルは寄与の大きい松明色が勝つ。</span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :         totalR := ambientColor[0] * 255 * ambient</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :         totalG := ambientColor[1] * 255 * ambient</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         totalB := ambientColor[2] * 255 * ambient</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         totalWeight := ambient</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L399"><span class="lineNum">     399</span>              :         // 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。</span>
-<span id="L400"><span class="lineNum">     400</span>              :         // 火は燃え尽きると自分の LightSource を外すので照らさなくなる</span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         for lightQuery.Next() {</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                 lightEntity := lightQuery.Entity()</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                 lightSource := world.Components.LightSource.Get(lightEntity)</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                 if !lightSource.Enabled {</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L408"><span class="lineNum">     408</span>              :                 }</span>
-<span id="L409"><span class="lineNum">     409</span>              : </span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC tlaBgGNC">           1 :                 lightGrid := world.Components.GridElement.Get(lightEntity)</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 distance := geometry.Distance(float64(tile.X), float64(tile.Y), float64(lightGrid.X), float64(lightGrid.Y))</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 if distance &gt; float64(lightSource.Radius) {</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L414"><span class="lineNum">     414</span>              :                 }</span>
-<span id="L415"><span class="lineNum">     415</span>              :                 // 光源からタイルへの視線が壁で遮られているなら光は届かない。壁の裏へ漏らさない。</span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC tlaBgGNC">           1 :                 if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) {</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L418"><span class="lineNum">     418</span>              :                 }</span>
-<span id="L419"><span class="lineNum">     419</span>              : </span>
-<span id="L420"><span class="lineNum">     420</span>              :                 // 中心1タイルまでは最大の明るさにする</span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :                 if distance &lt; 1.0 {</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC tlaBgUNC">           0 :                         distance = 1.0</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC tlaBgGNC">           1 :                 nd := distance / float64(lightSource.Radius)</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L426"><span class="lineNum">     426</span>              :                 // 平坦な床を照らす見た目にする。半径の内側 lightPlateau までは一様に明るく、</span>
-<span id="L427"><span class="lineNum">     427</span>              :                 // 外縁だけ滑らかに0へ落とす。中心だけ極端に明るい逆二乗だと、トップダウンでは</span>
-<span id="L428"><span class="lineNum">     428</span>              :                 // 光った球のように見えてしまうのを避ける</span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                 atten := 1.0 - smoothstep(lightPlateau, 1.0, nd)</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L431"><span class="lineNum">     431</span>              :                 // 加算合成。重なるほど明るい</span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                 brightness += atten</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L434"><span class="lineNum">     434</span>              :                 // 色は寄与 atten で加重する</span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :                 totalR += float64(lightSource.Color.R) * atten</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :                 totalG += float64(lightSource.Color.G) * atten</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 totalB += float64(lightSource.Color.B) * atten</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 totalWeight += atten</span></span>
-<span id="L439"><span class="lineNum">     439</span>              :         }</span>
-<span id="L440"><span class="lineNum">     440</span>              : </span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :         brightness = math.Max(0, math.Min(1, brightness))</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :         col := color.RGBA{A: 255}</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :         if totalWeight &gt; 0 {</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                 col.R = uint8(math.Min(255, totalR/totalWeight))</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 col.G = uint8(math.Min(255, totalG/totalWeight))</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :                 col.B = uint8(math.Min(255, totalB/totalWeight))</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L449"><span class="lineNum">     449</span>              : </span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :         return gc.LightInfo{</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                 Darkness: 1.0 - brightness,</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                 Color:    col,</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L454"><span class="lineNum">     454</span>              : }</span>
-<span id="L455"><span class="lineNum">     455</span>              : </span>
-<span id="L456"><span class="lineNum">     456</span>              : // 各タイル状態の暗闇の強さ</span>
-<span id="L457"><span class="lineNum">     457</span>              : const (</span>
-<span id="L458"><span class="lineNum">     458</span>              :         DarknessVisible    VisibleDarkness    = 0.15</span>
-<span id="L459"><span class="lineNum">     459</span>              :         DarknessRemembered RememberedDarkness = 0.75</span>
-<span id="L460"><span class="lineNum">     460</span>              : )</span>
-<span id="L461"><span class="lineNum">     461</span>              : </span>
-<span id="L462"><span class="lineNum">     462</span>              : // ライティングの調整値</span>
-<span id="L463"><span class="lineNum">     463</span>              : const (</span>
-<span id="L464"><span class="lineNum">     464</span>              :         // dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い</span>
-<span id="L465"><span class="lineNum">     465</span>              :         dungeonAmbient = 0.06</span>
-<span id="L466"><span class="lineNum">     466</span>              :         // visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる</span>
-<span id="L467"><span class="lineNum">     467</span>              :         visibilityThreshold = 0.10</span>
-<span id="L468"><span class="lineNum">     468</span>              :         // lightPlateau は光源の平坦域。正規化距離がこの値までは一様に明るく、外縁で滑らかに落とす</span>
-<span id="L469"><span class="lineNum">     469</span>              :         lightPlateau = 0.45</span>
-<span id="L470"><span class="lineNum">     470</span>              : )</span>
-<span id="L471"><span class="lineNum">     471</span>              : </span>
-<span id="L472"><span class="lineNum">     472</span>              : // smoothstep は edge0..edge1 を 0..1 へ滑らかに写す。両端の傾きが0のS字。</span>
-<span id="L473"><span class="lineNum">     473</span>              : func smoothstep(edge0, edge1, x float64) float64 {</span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :         t := (x - edge0) / (edge1 - edge0)</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :         t = math.Max(0, math.Min(1, t))</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :         return t * t * (3 - 2*t)</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L478"><span class="lineNum">     478</span>              : </span>
-<span id="L479"><span class="lineNum">     479</span>              : // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する</span>
-<span id="L480"><span class="lineNum">     480</span>              : func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {</span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :         index := make(map[gc.GridElement]bool)</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :         // 退避中ステージの遮蔽物は現ステージの視界を遮らない</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :         blockViewQuery := query.ActiveFilter2[gc.GridElement, gc.BlockView](world).Query()</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :         for blockViewQuery.Next() {</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                 entity := blockViewQuery.Entity()</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :                 index[*grid] = true</span></span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :         return index</span></span>
-<span id="L490"><span class="lineNum">     490</span>              : }</span>
+<span id="L385"><span class="lineNum">     385</span>              : // lightAccum は環境光と光源を畳んで明るさと色を溜める。フィルタ列で順に組み立てる。</span>
+<span id="L386"><span class="lineNum">     386</span>              : type lightAccum struct {</span>
+<span id="L387"><span class="lineNum">     387</span>              :         brightness       float64 // 加算した明るさ。resolve で 0..1 にクランプする</span>
+<span id="L388"><span class="lineNum">     388</span>              :         sumR, sumG, sumB float64 // 色の加重和。weight で割って平均色にする</span>
+<span id="L389"><span class="lineNum">     389</span>              :         weight           float64 // 加重和の総重み</span>
+<span id="L390"><span class="lineNum">     390</span>              : }</span>
+<span id="L391"><span class="lineNum">     391</span>              : </span>
+<span id="L392"><span class="lineNum">     392</span>              : // ambientLight は環境光を基底に置いた accum を返す。無照明のタイルはこの色と明るさになる。</span>
+<span id="L393"><span class="lineNum">     393</span>              : func ambientLight(ambient float64, color [3]float64) lightAccum {</span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :         return lightAccum{</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                 brightness: ambient,</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                 sumR:       color[0] * 255 * ambient,</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                 sumG:       color[1] * 255 * ambient,</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 sumB:       color[2] * 255 * ambient,</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                 weight:     ambient,</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L401"><span class="lineNum">     401</span>              : }</span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span>              : // addSource は光源1つを寄与 contrib で足す。明るさは加算合成、色は加重和へ積む。</span>
+<span id="L404"><span class="lineNum">     404</span>              : func (a lightAccum) addSource(c color.RGBA, contrib float64) lightAccum {</span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         a.brightness += contrib</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :         a.sumR += float64(c.R) * contrib</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         a.sumG += float64(c.G) * contrib</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :         a.sumB += float64(c.B) * contrib</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :         a.weight += contrib</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :         return a</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L412"><span class="lineNum">     412</span>              : </span>
+<span id="L413"><span class="lineNum">     413</span>              : // resolve は溜めた明るさと色を LightInfo にまとめる。</span>
+<span id="L414"><span class="lineNum">     414</span>              : func (a lightAccum) resolve() gc.LightInfo {</span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :         brightness := math.Max(0, math.Min(1, a.brightness))</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         col := color.RGBA{A: 255}</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :         if a.weight &gt; 0 {</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :                 col.R = uint8(math.Min(255, a.sumR/a.weight))</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :                 col.G = uint8(math.Min(255, a.sumG/a.weight))</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :                 col.B = uint8(math.Min(255, a.sumB/a.weight))</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         return gc.LightInfo{Darkness: 1 - brightness, Color: col}</span></span>
+<span id="L423"><span class="lineNum">     423</span>              : }</span>
+<span id="L424"><span class="lineNum">     424</span>              : </span>
+<span id="L425"><span class="lineNum">     425</span>              : // calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。</span>
+<span id="L426"><span class="lineNum">     426</span>              : // 環境光を基底に、各光源を減衰と suppress で絞って足し込む。壁で視線が遮られた光源は寄与しない。</span>
+<span id="L427"><span class="lineNum">     427</span>              : func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {</span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         acc := ambientLight(ambient, ambientColor)</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L430"><span class="lineNum">     430</span>              :         // 環境光で光源の寄与を絞る係数。lightFadeLow 以下で満額、lightFadeHigh 以上で 0。明るさと色の両方にかける</span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :         suppress := 1 - smoothstep(lightFadeLow, lightFadeHigh, ambient)</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L433"><span class="lineNum">     433</span>              :         // 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。</span>
+<span id="L434"><span class="lineNum">     434</span>              :         // 火は燃え尽きると自分の LightSource を外すので照らさなくなる</span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :         lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :         for lightQuery.Next() {</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 lightEntity := lightQuery.Entity()</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 lightSource := world.Components.LightSource.Get(lightEntity)</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                 if !lightSource.Enabled {</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L442"><span class="lineNum">     442</span>              :                 }</span>
+<span id="L443"><span class="lineNum">     443</span>              : </span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC tlaBgGNC">           1 :                 lightGrid := world.Components.GridElement.Get(lightEntity)</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                 distance := geometry.Distance(float64(tile.X), float64(tile.Y), float64(lightGrid.X), float64(lightGrid.Y))</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 if distance &gt; float64(lightSource.Radius) {</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L448"><span class="lineNum">     448</span>              :                 }</span>
+<span id="L449"><span class="lineNum">     449</span>              :                 // 光源からタイルへの視線が壁で遮られているなら光は届かない。壁の裏へ漏らさない。</span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC tlaBgGNC">           1 :                 if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) {</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L452"><span class="lineNum">     452</span>              :                 }</span>
+<span id="L453"><span class="lineNum">     453</span>              : </span>
+<span id="L454"><span class="lineNum">     454</span>              :                 // 中心1タイルまでは最大の明るさにする</span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :                 if distance &lt; 1.0 {</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :                         distance = 1.0</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :                 nd := distance / float64(lightSource.Radius)</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L460"><span class="lineNum">     460</span>              :                 // 平坦な床を照らす見た目にする。半径の内側 lightPlateau までは一様に明るく、</span>
+<span id="L461"><span class="lineNum">     461</span>              :                 // 外縁だけ滑らかに0へ落とす。中心だけ極端に明るい逆二乗だと、トップダウンでは</span>
+<span id="L462"><span class="lineNum">     462</span>              :                 // 光った球のように見えてしまうのを避ける</span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                 atten := 1.0 - smoothstep(lightPlateau, 1.0, nd)</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :                 acc = acc.addSource(lightSource.Color, atten*suppress)</span></span>
+<span id="L466"><span class="lineNum">     466</span>              :         }</span>
+<span id="L467"><span class="lineNum">     467</span>              : </span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :         return acc.resolve()</span></span>
+<span id="L469"><span class="lineNum">     469</span>              : }</span>
+<span id="L470"><span class="lineNum">     470</span>              : </span>
+<span id="L471"><span class="lineNum">     471</span>              : // 各タイル状態の暗闇の強さ</span>
+<span id="L472"><span class="lineNum">     472</span>              : const (</span>
+<span id="L473"><span class="lineNum">     473</span>              :         DarknessVisible    VisibleDarkness    = 0.15</span>
+<span id="L474"><span class="lineNum">     474</span>              :         DarknessRemembered RememberedDarkness = 0.75</span>
+<span id="L475"><span class="lineNum">     475</span>              : )</span>
+<span id="L476"><span class="lineNum">     476</span>              : </span>
+<span id="L477"><span class="lineNum">     477</span>              : // ライティングの調整値</span>
+<span id="L478"><span class="lineNum">     478</span>              : const (</span>
+<span id="L479"><span class="lineNum">     479</span>              :         // dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い</span>
+<span id="L480"><span class="lineNum">     480</span>              :         dungeonAmbient = 0.06</span>
+<span id="L481"><span class="lineNum">     481</span>              :         // lightFadeLow は光源のフェードの下端。これ以下の環境光では光源が満額効く</span>
+<span id="L482"><span class="lineNum">     482</span>              :         lightFadeLow = 0.45</span>
+<span id="L483"><span class="lineNum">     483</span>              :         // lightFadeHigh は光源のフェードの上端。これ以上の環境光では光源が明るさも色も足さない。</span>
+<span id="L484"><span class="lineNum">     484</span>              :         // ここで消えた明るさは render3d.go の dayOverbright が日中の底上げで補う</span>
+<span id="L485"><span class="lineNum">     485</span>              :         lightFadeHigh = 0.8</span>
+<span id="L486"><span class="lineNum">     486</span>              :         // visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる</span>
+<span id="L487"><span class="lineNum">     487</span>              :         visibilityThreshold = 0.10</span>
+<span id="L488"><span class="lineNum">     488</span>              :         // lightPlateau は光源の平坦域。正規化距離がこの値までは一様に明るく、外縁で滑らかに落とす</span>
+<span id="L489"><span class="lineNum">     489</span>              :         lightPlateau = 0.45</span>
+<span id="L490"><span class="lineNum">     490</span>              : )</span>
+<span id="L491"><span class="lineNum">     491</span>              : </span>
+<span id="L492"><span class="lineNum">     492</span>              : // smoothstep は edge0..edge1 を 0..1 へ滑らかに写す。両端の傾きが0のS字。</span>
+<span id="L493"><span class="lineNum">     493</span>              : func smoothstep(edge0, edge1, x float64) float64 {</span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :         t := (x - edge0) / (edge1 - edge0)</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :         t = math.Max(0, math.Min(1, t))</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :         return t * t * (3 - 2*t)</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L498"><span class="lineNum">     498</span>              : </span>
+<span id="L499"><span class="lineNum">     499</span>              : // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する</span>
+<span id="L500"><span class="lineNum">     500</span>              : func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {</span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :         index := make(map[gc.GridElement]bool)</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :         // 退避中ステージの遮蔽物は現ステージの視界を遮らない</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :         blockViewQuery := query.ActiveFilter2[gc.GridElement, gc.BlockView](world).Query()</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :         for blockViewQuery.Next() {</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :                 entity := blockViewQuery.Entity()</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :                 index[*grid] = true</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :         return index</span></span>
+<span id="L510"><span class="lineNum">     510</span>              : }</span>
         </pre>
               </td>
             </tr>
