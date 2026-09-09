@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/designdoc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -115,4 +117,63 @@ func TestBuildImageTableFrom_ExactColumns(t *testing.T) {
 | <img src="DIR/A.png" width="200" /><br>A | <img src="DIR/B.png" width="200" /><br>B | <img src="DIR/C.png" width="200" /><br>C | <img src="DIR/D.png" width="200" /><br>D |
 `, "DIR", dir)
 	assert.Equal(t, want, result)
+}
+
+//nolint:paralleltest // t.Chdirとos.Stdoutのキャプチャがプロセス全体を変更するため並列化しない
+func TestRunGenReadme_成功時にプレースホルダを置換したREADMEを生成する(t *testing.T) {
+	t.Chdir(t.TempDir())
+
+	tmpl := "# タイトル\n\n<!-- VRT_IMAGES -->\n\n## 状況\n\n<!-- DESIGN_STATUS -->\n"
+	require.NoError(t, os.WriteFile(templateFile, []byte(tmpl), 0644))
+
+	require.NoError(t, os.MkdirAll(imageDir, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(imageDir, "TestGolden_Foo.png"), []byte("dummy"), 0644))
+
+	writeDesignDoc(t, "a.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# A\n")
+
+	var runErr error
+	out := captureOutput(func() {
+		runErr = runGenReadme(context.Background(), nil)
+	})
+	require.NoError(t, runErr)
+	assert.Equal(t, "Generated README.md from README.tmpl.md (internal/states/testdata)\n", out)
+
+	table, err := buildImageTableFrom(imageDir)
+	require.NoError(t, err)
+	docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+	require.NoError(t, err)
+	statusTable := designdoc.RenderStatusSection(docs)
+	want := strings.Replace(tmpl, placeholder, table, 1)
+	want = strings.Replace(want, designStatusPlacehldr, statusTable, 1)
+
+	got, err := os.ReadFile(outputFile)
+	require.NoError(t, err)
+	assert.Equal(t, want, string(got))
+}
+
+//nolint:paralleltest // t.Chdirがプロセス全体のカレントディレクトリを変更するため並列化しない
+func TestRunGenReadme_テンプレートが無ければエラーを返す(t *testing.T) {
+	t.Chdir(t.TempDir())
+
+	err := runGenReadme(context.Background(), nil)
+	require.ErrorIs(t, err, os.ErrNotExist)
+}
+
+//nolint:paralleltest // t.Chdirがプロセス全体のカレントディレクトリを変更するため並列化しない
+func TestRunGenReadme_画像テーブル構築に失敗すればエラーを返す(t *testing.T) {
+	t.Chdir(t.TempDir())
+	require.NoError(t, os.WriteFile(templateFile, []byte("<!-- VRT_IMAGES -->"), 0644))
+
+	err := runGenReadme(context.Background(), nil)
+	require.ErrorIs(t, err, os.ErrNotExist)
+}
+
+//nolint:paralleltest // t.Chdirがプロセス全体のカレントディレクトリを変更するため並列化しない
+func TestRunGenReadme_設計ドキュメント読み込みに失敗すればエラーを返す(t *testing.T) {
+	t.Chdir(t.TempDir())
+	require.NoError(t, os.WriteFile(templateFile, []byte("<!-- VRT_IMAGES -->"), 0644))
+	require.NoError(t, os.MkdirAll(imageDir, 0755))
+
+	err := runGenReadme(context.Background(), nil)
+	require.ErrorIs(t, err, os.ErrNotExist)
 }
