@@ -2,9 +2,16 @@ package uicore
 
 import (
 	"math"
+	"sync"
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 )
+
+// textMu は ebiten text/v2 の測定・描画を直列化する。GoTextFaceSource の遅延グリフキャッシュ
+// runeToBoolMap はスレッド安全でなく、共有フェイスへ同時に測定・描画するとキャッシュが壊れる。
+// 本番の描画は単一ゴルーチンなのでロックは常に無競合で、並列テストのときだけ直列化が効く。
+// ebiten text へ触れるのは MeasureText と EbitenCanvas.DrawText の2箇所なので、この mutex で全経路を覆う。
+var textMu sync.Mutex
 
 // MeasureText は face で描いたときの s の送り幅と高さを画素で返す。
 //
@@ -18,7 +25,9 @@ func MeasureText(s string, face text.Face) (int, int) {
 	if face == nil {
 		return 0, 0
 	}
+	textMu.Lock()
 	w, h := text.Measure(s, face, 0)
+	textMu.Unlock()
 	return int(math.Round(w)), int(math.Round(h))
 }
 

@@ -37,7 +37,10 @@ func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c col
 	op := &text.DrawOptions{}
 	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
 	op.ColorScale.ScaleWithColor(c)
+	// ebiten text/v2 の共有グリフキャッシュを壊さないよう測定・描画を直列化する。詳細は textMu を参照
+	textMu.Lock()
 	text.Draw(e.screen, s, face, op)
+	textMu.Unlock()
 }
 
 // DrawImage は EbitenCanvas を実装する。pos を左上として画像を描く。
