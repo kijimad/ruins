@@ -26,8 +26,9 @@ import (
 type OverworldMapState struct {
 	es.BaseState[w.World]
 
-	view      overworld.MacroView        // 帯全体のチャンク俯瞰。glyph 格子とプレイヤー・キューブのセル
+	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
 	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
+	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。窓半径の算出と描画で共有する
 	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
 }
 
@@ -42,23 +43,53 @@ func (st *OverworldMapState) OnResume(_ w.World) error { return nil }
 // OnStop はステートが終了する際に呼ばれる。
 func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 
-// mapCellPx は全画面図で1チャンクを描くセルの一辺ピクセル。1チャンクを1セルで描く。
-const mapCellPx consts.ScreenPixel = 22
+// 全画面図のセル寸法・半径の範囲。帯が短いとセルが巨大化、広いと潰れるのを両側で防ぐ
+const (
+	overworldMapMinCell   = 28 // セル寸法の下限px
+	overworldMapMaxCell   = 56 // セル寸法の上限px。帯が短くても巨大化させない
+	overworldMapMinRadius = 3  // プレイヤー左右へ最低限見せるチャンク数
+)
 
-// OnStart は帯全体の地形俯瞰モデルを算出して保持する。表示中はプレイヤーが動かないため一度だけ
-// 計算する。窓構築は overworld.FullBandWindow、モデル生成は overworld.BuildMacroView に委ね、
-// 右上の HUD 地図と同じ窓・同じモデルで描く。
+// modalInner はモーダルパネルの内側矩形を返す。窓半径・セル寸法の算出とパネル画像の寸法で共有する。
+func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
+	rect := menuframe.ModalRect(world)
+	return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+}
+
+// overworldMapCell は帯の行数からセル寸法を決める。見出し・凡例のぶんを足した行数で内側高さを割り、
+// 大きめのセルへ寄せる。帯が短いと巨大化するので上限で止める。
+func overworldMapCell(inner image.Rectangle, rows consts.Chunk) consts.ScreenPixel {
+	cell := min(max(inner.Dy()/(int(rows)+3), overworldMapMinCell), overworldMapMaxCell)
+	return consts.ScreenPixel(cell)
+}
+
+// overworldMapRadius はモーダル幅に収まるプレイヤー左右のチャンク数を返す。最低限は確保する。
+func overworldMapRadius(inner image.Rectangle, cell consts.ScreenPixel) int {
+	cols := inner.Dx() / int(cell)
+	return max((cols-1)/2, overworldMapMinRadius)
+}
+
+// OnStart はプレイヤー中心の地形俯瞰モデルを算出して保持する。表示中はプレイヤーが動かないため
+// 一度だけ計算する。セル寸法と半径をモーダル寸法から決めてモーダルいっぱいに大きく見せ、モデル
+// 生成は overworld.BuildMacroView に委ねる。フォグは HUD と同じで探索済みチャンクだけを開放する。
 func (st *OverworldMapState) OnStart(world w.World) error {
 	sb := query.GetSeamlessBand(world)
 	if sb == nil || !sb.Active {
 		return fmt.Errorf("overworld band is not valid")
 	}
 	playerTile, hasPlayer := query.PlayerBandTile(world)
-	// 全画面の俯瞰図は帯全体を窓にするが、フォグは HUD と同じで探索済みチャンクだけを開放する
+	// モーダルいっぱいに大きなセルで見せる。セル寸法は帯の高さから、半径はモーダル幅から決める。
+	// プレイヤーを横の中心に据え、フォグは HUD と同じで探索済みチャンクだけを開放する
+	inner := st.modalInner(world)
+	st.cellPx = overworldMapCell(inner, max(sb.Rows, 1))
+	centerCol := sb.EastIndex + sb.Cols/2
+	if hasPlayer {
+		centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
+	}
+	win := overworld.PlayerCenteredWindow(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
-		overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows),
-		playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		win, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
@@ -137,25 +168,36 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 
 	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 8, 6, theme.TextPrimary)
 
-	const originX, originY consts.ScreenPixel = 8, 32
-	// cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 mapCellPx-1
+	cell := st.cellPx
+	// 格子は横をモーダル内側の中央へ寄せ、縦は見出しの下から積む
+	cols := 0
+	if len(st.view.Cells) > 0 {
+		cols = len(st.view.Cells[0])
+	}
+	gridW := consts.ScreenPixel(cols) * cell
+	originX := (consts.ScreenPixel(dst.Bounds().Dx()) - gridW) / 2
+	if originX < 8 {
+		originX = 8
+	}
+	const originY consts.ScreenPixel = 40
+	// cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 cell-1
 	cellCenter := func(col, row consts.Chunk) (consts.ScreenPixel, consts.ScreenPixel) {
-		x := originX + consts.ScreenPixel(col)*mapCellPx
-		y := originY + consts.ScreenPixel(row)*mapCellPx
-		return x + (mapCellPx-1)/2, y + (mapCellPx-1)/2
+		x := originX + consts.ScreenPixel(col)*cell
+		y := originY + consts.ScreenPixel(row)*cell
+		return x + (cell-1)/2, y + (cell-1)/2
 	}
 	for row := range st.view.Cells {
-		for col, cell := range st.view.Cells[row] {
+		for col, c := range st.view.Cells[row] {
 			// 未開放チャンクは描かず地を透かしてフォグにする。探索で徐々に開く
-			if !cell.Discovered {
+			if !c.Discovered {
 				continue
 			}
-			r := cell.Glyph
-			x := originX + consts.ScreenPixel(col)*mapCellPx
-			y := originY + consts.ScreenPixel(row)*mapCellPx
+			r := c.Glyph
+			x := originX + consts.ScreenPixel(col)*cell
+			y := originY + consts.ScreenPixel(row)*cell
 			// 開放済みチャンクは色を塗り、種別の文字を重ねて記号でも読めるようにする。
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
-			vector.FillRect(dst, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
+			vector.FillRect(dst, float32(x), float32(y), float32(cell-1), float32(cell-1), glyphColor(r), false)
 			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
 			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)
 		}
@@ -171,12 +213,12 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	}
 	// 現在地マーカー。白枠でセルを囲む
 	if st.view.PlayerCell.X >= 0 {
-		x := originX + consts.ScreenPixel(st.view.PlayerCell.X)*mapCellPx
-		y := originY + consts.ScreenPixel(st.view.PlayerCell.Y)*mapCellPx
-		vector.StrokeRect(dst, float32(x-1), float32(y-1), float32(mapCellPx+1), float32(mapCellPx+1), 2, theme.OverworldMapPlayerMarker, false)
+		x := originX + consts.ScreenPixel(st.view.PlayerCell.X)*cell
+		y := originY + consts.ScreenPixel(st.view.PlayerCell.Y)*cell
+		vector.StrokeRect(dst, float32(x-1), float32(y-1), float32(cell+1), float32(cell+1), 2, theme.OverworldMapPlayerMarker, false)
 	}
 
-	st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*mapCellPx+16)
+	st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)
 }
 
 // drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、
