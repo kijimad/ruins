@@ -13,6 +13,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -177,9 +178,6 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 // CDDA の could_see_items が CONTAINER の中身を隣接で露出させるのに合わせる。
 const itemMarkerProximity = 1
 
-// itemMarkerColor はマーカーの色。緑のポーションや床に埋もれないよう高コントラストの黄にする。
-var itemMarkerColor = color.RGBA{R: 255, G: 235, B: 70, A: 255}
-
 // drawItemMarkers はプレイヤー近接かつ視界内の升に、開ける前には見えない中身があることを
 // ☰ マーカーで示す。対象は「中身のある収納」か「拾えるアイテムが2個以上重なった升」。
 // 単品で見えているアイテムは自前スプライトで分かるので出さない。CDDA の重なりハイライトに倣う。
@@ -258,7 +256,7 @@ func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render
 	cy := float32(sp.Y) + half
 	for i := -1; i <= 1; i++ {
 		y := cy + float32(i)*gap
-		vector.StrokeLine(screen, cx-half, y, cx+half, y, thick, itemMarkerColor, true)
+		vector.StrokeLine(screen, cx-half, y, cx+half, y, thick, theme.TextSelected, true)
 	}
 }
 
