@@ -9,11 +9,13 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
+	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -187,6 +189,7 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 		return
 	}
 	pc := world.Components.GridElement.Get(player).Coord
+	face := world.Resources.UIResources.Text.SmallFace
 	near := func(c consts.Coord[consts.Tile]) bool {
 		return absTile(c.X-pc.X) <= itemMarkerProximity && absTile(c.Y-pc.Y) <= itemMarkerProximity
 	}
@@ -228,14 +231,21 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 			if !query.IsInVision(world, pc, c) {
 				continue
 			}
-			sys.drawItemMarker(screen, projector, c)
+			sys.drawItemMarker(screen, projector, c, face)
 		}
 	}
 }
 
-// drawItemMarker はビルボードスプライトの右上隅に ☰ 状の3本線マーカーを描く。
+// itemMarkerGlyph はマーカーに出す汎用記号。中身や重なりがあることの合図。
+const itemMarkerGlyph = "!"
+
+// itemMarkerColor はマーカーの色。縁取りと組み合わせ、緑のアイテムとも黒縁で分離される
+// 蛍光緑にして、どの升にマーカーが付くかを目立たせる。
+var itemMarkerColor = color.RGBA{R: 60, G: 255, B: 90, A: 255}
+
+// drawItemMarker はビルボードスプライトの右上隅に汎用記号のマーカーを縁取り付きで描く。
 // 升中心でなくスプライトの右上へ貼り付けて、どの物にマーカーが付くかを分かりやすくする。
-func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render3d.Projector, c consts.Coord[consts.Tile]) {
+func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render3d.Projector, c consts.Coord[consts.Tile], face text.Face) {
 	// collectBillboards と同じ幾何でビルボード右上隅の world 座標を組み、画面へ投影する
 	const bw = 0.45
 	base := render3d.At(float64(c.X)+0.5, 0, float64(c.Y)+0.5)
@@ -244,30 +254,11 @@ func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render
 	if !ok {
 		return
 	}
-	scale, ok := projector.BillboardScale(c)
-	if !ok || scale <= 0 {
-		return
-	}
-	half := float32(scale * 0.16)
-	gap := float32(scale * 0.11)
-	thick := float32(math.Max(1.5, scale*0.05))
-	// 隅の少し内側へ寄せて、スプライトの右上に収める
-	cx := float32(sp.X) - half
-	cy := float32(sp.Y) + half
-	bars := [3]float32{cy - gap, cy, cy + gap}
-	// 先に暗い縁取りを全本、次に本体を全本描く。どんな背景でも埋もれず形が読める
-	outline := thick + float32(math.Max(2, scale*0.05))
-	for _, y := range bars {
-		vector.StrokeLine(screen, cx-half, y, cx+half, y, outline, theme.HUDTextOutline, true)
-	}
-	for _, y := range bars {
-		vector.StrokeLine(screen, cx-half, y, cx+half, y, thick, itemMarkerColor, true)
-	}
+	// 記号の右端を隅に合わせ、右上に収める。縁取りは背景から形を分離する
+	gw, _ := uicore.MeasureText(itemMarkerGlyph, face)
+	pos := image.Pt(int(sp.X)-gw, int(sp.Y))
+	hud.OutlinedText(uicore.NewEbitenCanvas(screen), itemMarkerGlyph, face, pos, itemMarkerColor, theme.HUDTextOutline)
 }
-
-// itemMarkerColor はマーカー本体の色。縁取りと組み合わせ、緑のアイテムとも黒縁で分離される
-// 蛍光緑にして、どの升にマーカーが付くかを目立たせる。
-var itemMarkerColor = color.RGBA{R: 60, G: 255, B: 90, A: 255}
 
 // absTile は Tile の絶対値を int で返す
 func absTile(t consts.Tile) int {
