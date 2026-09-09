@@ -235,9 +235,14 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 	}
 }
 
-// drawItemMarker は升の頭上に ☰ 状の3本線マーカーを描く。奥行きに応じた大きさにする。
+// drawItemMarker はビルボードスプライトの右上隅に ☰ 状の3本線マーカーを描く。
+// 升中心でなくスプライトの右上へ貼り付けて、どの物にマーカーが付くかを分かりやすくする。
 func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render3d.Projector, c consts.Coord[consts.Tile]) {
-	top, ok := projector.BillboardTop(c)
+	// collectBillboards と同じ幾何でビルボード右上隅の world 座標を組み、画面へ投影する
+	const bw = 0.45
+	base := render3d.At(float64(c.X)+0.5, 0, float64(c.Y)+0.5)
+	topRight := render3d.Add(render3d.Add(base, render3d.Scale(projector.Right(), bw)), render3d.At(0, render3d.BillboardHeight, 0))
+	sp, ok := projector.Point(topRight)
 	if !ok {
 		return
 	}
@@ -245,11 +250,12 @@ func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render
 	if !ok || scale <= 0 {
 		return
 	}
-	half := float32(scale * 0.28)
-	gap := float32(scale * 0.16)
-	thick := float32(math.Max(1.5, scale*0.06))
-	cx := float32(top.X)
-	cy := float32(top.Y) - float32(scale*0.35)
+	half := float32(scale * 0.16)
+	gap := float32(scale * 0.11)
+	thick := float32(math.Max(1.5, scale*0.05))
+	// 隅の少し内側へ寄せて、スプライトの右上に収める
+	cx := float32(sp.X) - half
+	cy := float32(sp.Y) + half
 	for i := -1; i <= 1; i++ {
 		y := cy + float32(i)*gap
 		vector.StrokeLine(screen, cx-half, y, cx+half, y, thick, itemMarkerColor, true)
