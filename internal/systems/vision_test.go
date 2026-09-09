@@ -443,3 +443,55 @@ func TestCalculateLightSourceDarkness_明るさの合成(t *testing.T) {
 		assert.InDelta(t, 0.7, info.Darkness, 1e-9, "光が無ければ暗さは環境光で決まる")
 	})
 }
+
+// TestCalculateLightSourceDarkness_明るい環境光では光源が何も足さない は、
+// 日光の強い屋外の昼に火が明るさも色も足さず、暗い環境光でだけ効くことを固定する。
+func TestCalculateLightSourceDarkness_明るい環境光では光源が何も足さない(t *testing.T) {
+	t.Parallel()
+
+	noWall := map[gc.GridElement]bool{}
+	world := testutil.InitTestWorld(t)
+	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+	e := world.ECS.NewEntity()
+	world.Components.GridElement.Add(e, &grid)
+	// 火を模した暖色の光源
+	world.Components.LightSource.Add(e, &gc.LightSource{
+		Radius:  10,
+		Color:   color.RGBA{R: 255, G: 128, B: 0, A: 255},
+		Enabled: true,
+	})
+
+	// 光源の中心タイルを、白い環境光の明暗2条件で見る
+	const brightAmbient = 0.9
+	bright := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, brightAmbient, [3]float64{1, 1, 1})
+	dark := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.06, [3]float64{1, 1, 1})
+
+	// 明るい屋外では火は色も明るさも足さない。色は環境光色、暗さは環境光だけで決まる
+	assert.Equal(t, color.RGBA{R: 255, G: 255, B: 255, A: 255}, bright.Color, "火の色が乗らず環境光色のまま")
+	assert.InDelta(t, 1-brightAmbient, bright.Darkness, 1e-9, "火が明るさを足さず環境光のままになる")
+	// 暗い環境光では火が効く。暖色が乗り、環境光だけより明るい
+	assert.Greater(t, dark.Color.R, dark.Color.B, "暗いと火の暖色が乗り赤が青を上回る")
+	assert.Less(t, dark.Darkness, 1-0.06, "暗いと火が明るさを足す")
+}
+
+// TestCalculateLightSourceDarkness_抑制時は有彩の環境光色をそのまま返す は、
+// 光源が寄与しない明るさで、白でなく環境光の色味がそのまま出ることを固定する。
+func TestCalculateLightSourceDarkness_抑制時は有彩の環境光色をそのまま返す(t *testing.T) {
+	t.Parallel()
+
+	noWall := map[gc.GridElement]bool{}
+	world := testutil.InitTestWorld(t)
+	grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+	e := world.ECS.NewEntity()
+	world.Components.GridElement.Add(e, &grid)
+	world.Components.LightSource.Add(e, &gc.LightSource{
+		Radius:  10,
+		Color:   color.RGBA{R: 255, G: 128, B: 0, A: 255},
+		Enabled: true,
+	})
+
+	// 暖色の環境光。lightFadeHigh 以上の明るさなので火は寄与せず、環境光色がそのまま出る
+	warm := [3]float64{1.0, 0.72, 0.52}
+	info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.9, warm)
+	assert.Equal(t, color.RGBA{R: 255, G: 183, B: 132, A: 255}, info.Color, "抑制時は白でなく環境光の暖色をそのまま返す")
+}

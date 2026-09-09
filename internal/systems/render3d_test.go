@@ -10,44 +10,55 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestTileVisFactor はタイル描画情報から明るさ・可視・光源色を導く純関数を固定する。
+// TestSampleOf はタイル描画情報から明るさと色のサンプルを起こす分岐を固定する。
 // 3Dの Draw を通さず、Darkness の明るさ反映と可視/記憶/未探索の分岐を単体で検証する。
-func TestTileVisFactor(t *testing.T) {
+func TestSampleOf(t *testing.T) {
 	t.Parallel()
 
 	t.Run("可視はDarknessを明るさへ反映する", func(t *testing.T) {
 		t.Parallel()
-		bright, drawable, visible, light := tileVisFactor(TileRenderVisible{Darkness: 0.3})
-		assert.InDelta(t, 0.7, bright, 1e-9, "bright = 1 - Darkness")
+		s, drawable, visible := sampleOf(TileRenderVisible{Darkness: 0.3})
+		assert.InDelta(t, 0.7, s.brightness, 1e-9, "brightness = 1 - Darkness")
 		assert.True(t, drawable)
 		assert.True(t, visible)
-		assert.Equal(t, [3]float64{1, 1, 1}, light, "無色の光源は白のまま")
+		assert.Equal(t, [3]float64{1, 1, 1}, s.color, "無色の光源は白のまま")
 	})
 
 	t.Run("可視の光源色は最大成分で正規化して色味だけ返す", func(t *testing.T) {
 		t.Parallel()
-		_, _, _, light := tileVisFactor(TileRenderVisible{LightColor: color.RGBA{R: 255, G: 128, B: 0, A: 255}})
-		assert.InDelta(t, 1.0, light[0], 1e-9)
-		assert.InDelta(t, 128.0/255, light[1], 1e-9)
-		assert.InDelta(t, 0.0, light[2], 1e-9)
+		s, _, _ := sampleOf(TileRenderVisible{LightColor: color.RGBA{R: 255, G: 128, B: 0, A: 255}})
+		assert.InDelta(t, 1.0, s.color[0], 1e-9)
+		assert.InDelta(t, 128.0/255, s.color[1], 1e-9)
+		assert.InDelta(t, 0.0, s.color[2], 1e-9)
 	})
 
 	t.Run("記憶は描画可だが可視ではない", func(t *testing.T) {
 		t.Parallel()
-		bright, drawable, visible, light := tileVisFactor(TileRenderRemembered{Darkness: 0.75})
-		assert.InDelta(t, 0.25, bright, 1e-9)
+		s, drawable, visible := sampleOf(TileRenderRemembered{Darkness: 0.75})
+		assert.InDelta(t, 0.25, s.brightness, 1e-9)
 		assert.True(t, drawable)
 		assert.False(t, visible)
-		assert.Equal(t, [3]float64{1, 1, 1}, light, "記憶は光源色を持たず白")
+		assert.Equal(t, [3]float64{1, 1, 1}, s.color, "記憶は光源色を持たず白")
 	})
 
 	t.Run("未探索は描画しない", func(t *testing.T) {
 		t.Parallel()
-		bright, drawable, visible, _ := tileVisFactor(nil)
-		assert.Zero(t, bright)
+		_, drawable, visible := sampleOf(nil)
 		assert.False(t, drawable)
 		assert.False(t, visible)
 	})
+}
+
+// TestLightSample_overbrightとtint はフィルタ列の合成を固定する。
+// 明るさを持ち上げてから色に掛け、乗算色を作ることを検証する。
+func TestLightSample_overbrightとtint(t *testing.T) {
+	t.Parallel()
+
+	s := lightSample{brightness: 0.7, color: [3]float64{1, 1, 1}}.overbright(1.3)
+	assert.InDelta(t, 0.91, s.brightness, 1e-9, "brightness *= boost")
+	tint := s.tint()
+	assert.InDelta(t, 0.91, tint[0], 1e-9, "tint = 色 × 明るさ")
+	assert.InDelta(t, 0.91, tint[2], 1e-9)
 }
 
 // TestNormalizeLight は光源色の正規化と、無効時に白へフォールバックすることを固定する。
@@ -76,15 +87,14 @@ func TestRender3DSystem_String(t *testing.T) {
 	assert.Equal(t, "Render3DSystem", (&Render3DSystem{}).String())
 }
 
-// TestVisFactorFunc_FOV無効は全タイルを等倍で描く は視界無効時の分岐を固定する。
-func TestVisFactorFunc_FOV無効は全タイルを等倍で描く(t *testing.T) {
+// TestVisTintFunc_FOV無効は全タイルを白で描く は視界無効時の分岐を固定する。
+func TestVisTintFunc_FOV無効は全タイルを白で描く(t *testing.T) {
 	t.Parallel()
 	sys := &Render3DSystem{UseFOV: false}
-	bright, drawable, visible, light := sys.visFactorFunc(w.World{})(&gc.GridElement{})
-	assert.InDelta(t, 1.0, bright, 1e-9)
+	tint, drawable, visible := sys.visTintFunc(w.World{})(&gc.GridElement{})
+	assert.Equal(t, [3]float64{1, 1, 1}, tint)
 	assert.True(t, drawable)
 	assert.True(t, visible)
-	assert.Equal(t, [3]float64{1, 1, 1}, light)
 }
 
 // TestSortQuadsByDepth_奥から手前へ並べる は画家アルゴリズムの前段ソートを固定する。
