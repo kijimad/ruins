@@ -24,6 +24,22 @@ func labelsOf(items []uicore.Drawable) []string {
 	return labels
 }
 
+func TestRenderMenuListUI_Indentは行全体を字下げする(t *testing.T) {
+	t.Parallel()
+	res := resources.UIResources{Text: &resources.TextResources{}}
+	cols := styled.Cols(styled.Name())
+
+	// itemIndex に負値を渡し選択を持たせず、字下げの有無だけを見る
+	plain, _ := menuframe.RenderList(-1, []menuframe.Row{{Cells: styled.TextCells("項目")}}, cols, menuframe.ListOpts{ItemsPerPage: 10}, res)
+	indented, _ := menuframe.RenderList(-1, []menuframe.Row{{Cells: styled.TextCells("項目"), Indent: 1}}, cols, menuframe.ListOpts{ItemsPerPage: 10}, res)
+
+	// 字下げ行は先頭に空トラックが1つ増える。ラベルは変わらない
+	plainChildren := len(uicore.Placeable(plain)[0].Children())
+	indentedChildren := len(uicore.Placeable(indented)[0].Children())
+	assert.Equal(t, plainChildren+1, indentedChildren, "字下げは先頭に空トラックを1つ足す")
+	assert.Equal(t, labelsOf(plain), labelsOf(indented), "字下げしてもラベルは変わらない")
+}
+
 func TestRenderMenuListUI_単一ページは見出しと行を並べる(t *testing.T) {
 	t.Parallel()
 	rows := []menuframe.Row{

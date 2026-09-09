@@ -590,7 +590,7 @@ msgstr "手動セーブ"
 msgid "Auto save"
 msgstr "オートセーブ"
 
-msgid "  Has data"
+msgid "Has data"
 msgstr "  データあり"
 
 msgid "Want to make a deal?\n\nI've got good stuff."

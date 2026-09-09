@@ -147,7 +147,7 @@ func NewSaveMenuState() (es.State[w.World], error) {
 		if choices == nil {
 			for i := 1; i <= 4; i++ {
 				slotName := fmt.Sprintf("slot%d", i)
-				choices = append(choices, Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
+				choices = append(choices, Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 					if err := saveManager.SaveWorld(world, slotName); err != nil {
 						return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
 					}
@@ -188,7 +188,7 @@ func NewLoadMenuState() (es.State[w.World], error) {
 				if i < len(autoSaves) {
 					choices = append(choices, loadSlotChoice(world, saveManager, autoSaves[i]))
 				} else {
-					choices = append(choices, Choice{Label: "  ---", Header: true})
+					choices = append(choices, emptySlotChoice())
 				}
 			}
 			choices = append(choices, backChoice(world))
@@ -204,12 +204,18 @@ func backChoice(world w.World) Choice {
 	}}
 }
 
-// loadSlotChoice はロードスロット1つ分の選択肢を返す。空スロットは選べない見出し行にする
+// emptySlotChoice は空きスロットの行を返す。選べない見出し行にしつつ、埋まったスロットと
+// 同じ段へ字下げして縦に揃える
+func emptySlotChoice() Choice {
+	return Choice{Label: "---", Header: true, Indent: 1}
+}
+
+// loadSlotChoice はロードスロット1つ分の選択肢を返す
 func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotName string) Choice {
 	if !saveManager.SaveFileExists(slotName) {
-		return Choice{Label: "  ---", Header: true}
+		return emptySlotChoice()
 	}
-	return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
+	return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
 			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
 			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
@@ -245,9 +251,9 @@ func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, 
 	timestamp, tsErr := saveManager.GetSaveFileTimestamp(slotName)
 
 	if nameErr == nil && tsErr == nil {
-		return fmt.Sprintf("  %s  %s", playerName, timestamp.Format("01/02 15:04"))
+		return fmt.Sprintf("%s  %s", playerName, timestamp.Format("01/02 15:04"))
 	}
-	return query.T(world, "  Has data")
+	return query.T(world, "Has data")
 }
 
 // NewMessageState は組み立て済みメッセージから MessageState を作成する。
