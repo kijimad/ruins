@@ -45,7 +45,7 @@ func TestMacroMap_Draw_帯がなければ地図を出さない(t *testing.T) {
 	})
 
 	assert.Equal(t, 0, cv.nineSlices, "帯が無ければ背景パネルも出さない")
-	assert.Empty(t, cv.texts, "No Data も出さない")
+	assert.Empty(t, cv.texts)
 	assert.Empty(t, cv.fillRects)
 }
 

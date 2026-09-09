@@ -22,9 +22,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestExtractMacroMapData_帯なしはNoData は、オーバーワールド外では帯が無く HasBand が偽になり、
-// パネル寸法だけが設定されることを固定する。
-func TestExtractMacroMapData_帯なしはNoData(t *testing.T) {
+// TestExtractMacroMapData_帯なしはHasBandを偽にする は、オーバーワールド外では帯が無く HasBand が
+// 偽になり、パネル寸法だけが設定されることを固定する。ウィジェットはこれを見て地図を描かない。
+func TestExtractMacroMapData_帯なしはHasBandを偽にする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.SetScreenDimensions(800, 600)
