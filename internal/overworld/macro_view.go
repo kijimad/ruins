@@ -37,10 +37,10 @@ func PlayerCenteredWindow(centerCol, rows consts.Chunk, radius int) MacroWindow 
 	}
 }
 
-// MacroCell は窓内1チャンクの表示情報。種別文字と、フォグで開放済みかを持つ。色は文字から引く。
+// MacroCell は窓内1チャンクの表示情報。種別文字と、探索で開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
 	Glyph      rune
-	Discovered bool // 探索で開放済みか。fog を使わないときは常に true
+	Discovered bool // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
 }
 
 // MacroView はマクロ地図の描画モデル。窓内のチャンク格子と、マーカーの窓ローカル座標を持つ。
@@ -53,7 +53,9 @@ type MacroView struct {
 // BuildMacroView は帯のプリミティブとプレイヤー・キューブのタイル座標から、指定窓の描画モデルを組む。
 // ChunkPlace を窓の全チャンクへ適用し、マーカーはタイル座標をチャンク幅で割って窓ローカルへ移す。
 // eastIndex は帯ローカルなタイル座標を絶対チャンク列へ移すのに使う。
-// discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。nil なら全チャンクを開放済みにする。
+// discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。含まれるチャンクだけを開放し、
+// 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
+// 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
 	runSeed uint64,
 	eastIndex consts.Chunk,
@@ -73,7 +75,7 @@ func BuildMacroView(
 			c := consts.Coord[consts.Chunk]{X: win.OriginX + consts.Chunk(i), Y: cy}
 			cells[cy][i] = MacroCell{
 				Glyph:      ChunkPlace(runSeed, c, rows),
-				Discovered: discovered == nil || discovered[c],
+				Discovered: discovered[c],
 			}
 		}
 	}

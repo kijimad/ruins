@@ -27,7 +27,7 @@ func TestBuildMacroView_窓の格子とマーカーを窓ローカルへ組む(t
 	assert.Len(t, view.Cells[0], 3, "列数は窓の Cols")
 	assert.Equal(t, consts.Coord[consts.Chunk]{X: 1, Y: 0}, view.PlayerCell, "プレイヤーは窓ローカル(1,0)")
 	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 2, Y: 1}}, view.CubeCells, "キューブは窓ローカル(2,1)")
-	assert.True(t, view.Cells[0][0].Discovered, "discovered が nil なら全チャンク開放済み")
+	assert.False(t, view.Cells[0][0].Discovered, "discovered が nil なら何も開放されずフォグになる")
 }
 
 func TestBuildMacroView_フォグは探索済みチャンクだけ開放する(t *testing.T) {
