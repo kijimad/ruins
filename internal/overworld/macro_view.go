@@ -13,7 +13,7 @@ const MacroMargin consts.Chunk = 6
 // MacroWindow はマクロ地図の窓。左端の絶対チャンク列と、窓の列数・行数をチャンク単位で持つ。
 type MacroWindow struct {
 	OriginX consts.Chunk // 窓左端の絶対チャンク列
-	Cols    int          // 窓の列数
+	Cols    consts.Chunk // 窓の列数
 	Rows    consts.Chunk // 窓の行数。帯の Rows と同じ
 }
 
@@ -22,7 +22,7 @@ type MacroWindow struct {
 func FullBandWindow(eastIndex, cols, rows consts.Chunk) MacroWindow {
 	return MacroWindow{
 		OriginX: eastIndex - MacroMargin,
-		Cols:    int(cols + 2*MacroMargin),
+		Cols:    cols + 2*MacroMargin,
 		Rows:    max(rows, 1),
 	}
 }
@@ -32,7 +32,7 @@ func FullBandWindow(eastIndex, cols, rows consts.Chunk) MacroWindow {
 func PlayerCenteredWindow(centerCol, rows consts.Chunk, radius int) MacroWindow {
 	return MacroWindow{
 		OriginX: centerCol - consts.Chunk(radius),
-		Cols:    2*radius + 1,
+		Cols:    consts.Chunk(2*radius + 1),
 		Rows:    max(rows, 1),
 	}
 }
@@ -72,7 +72,7 @@ func BuildMacroView(
 	for cy := range rows {
 		cells[cy] = make([]MacroCell, win.Cols)
 		for i := range win.Cols {
-			c := consts.Coord[consts.Chunk]{X: win.OriginX + consts.Chunk(i), Y: cy}
+			c := consts.Coord[consts.Chunk]{X: win.OriginX + i, Y: cy}
 			cells[cy][i] = MacroCell{
 				Glyph:      ChunkPlace(runSeed, c, rows),
 				Discovered: discovered[c],
@@ -81,11 +81,12 @@ func BuildMacroView(
 	}
 
 	// toCell は帯ローカルなタイル座標を窓ローカルのチャンクセルへ移す。窓外なら ok=false。
+	// chunkW/chunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない。
 	toCell := func(t consts.Coord[consts.Tile]) (consts.Coord[consts.Chunk], bool) {
 		worldCol := eastIndex + consts.Chunk(int(t.X)/int(chunkW))
 		col := worldCol - win.OriginX
 		row := consts.Chunk(int(t.Y) / int(chunkH))
-		if col >= 0 && int(col) < win.Cols && row >= 0 && row < rows {
+		if col >= 0 && col < win.Cols && row >= 0 && row < rows {
 			return consts.Coord[consts.Chunk]{X: col, Y: row}, true
 		}
 		return consts.Coord[consts.Chunk]{}, false

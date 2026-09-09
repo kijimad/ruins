@@ -27,6 +27,7 @@ func DiscoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[const
 		return nil
 	}
 	out := make(map[consts.Coord[consts.Chunk]]bool)
+	// ChunkW/ChunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない
 	for tile := range field.ExploredTiles {
 		col := sb.EastIndex + consts.Chunk(int(tile.X)/int(sb.ChunkW))
 		row := consts.Chunk(int(tile.Y) / int(sb.ChunkH))

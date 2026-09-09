@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"image/color"
 	"testing"
 
@@ -73,89 +72,6 @@ func TestExtractMacroMapData_オーバーワールドは近傍をフォグ付き
 	}
 	assert.Positive(t, discovered, "プレイヤー周辺は開放される")
 	assert.Positive(t, hidden, "未探索の近傍はフォグで伏せる")
-}
-
-func TestTileKeyFormat(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name        string
-		tileX       int
-		tileY       int
-		expectedKey string
-	}{
-		{
-			name:        "正の座標",
-			tileX:       5,
-			tileY:       10,
-			expectedKey: "5,10", // X,Y形式
-		},
-		{
-			name:        "負の座標",
-			tileX:       -3,
-			tileY:       -7,
-			expectedKey: "-3,-7",
-		},
-		{
-			name:        "原点",
-			tileX:       0,
-			tileY:       0,
-			expectedKey: "0,0",
-		},
-		{
-			name:        "大きな座標",
-			tileX:       100,
-			tileY:       200,
-			expectedKey: "100,200",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			// TileVisibilityから取得したCol,Rowを使った形式
-			tileData := struct {
-				Col int // X座標
-				Row int // Y座標
-			}{
-				Col: tt.tileX,
-				Row: tt.tileY,
-			}
-
-			// X,Y形式で統一
-			actualKey := fmt.Sprintf("%d,%d", tileData.Col, tileData.Row)
-			assert.Equal(t, tt.expectedKey, actualKey, "tileKeyの形式が正しくない")
-		})
-	}
-}
-
-func TestExploredTilesKeyConsistency(t *testing.T) {
-	t.Parallel()
-	// 他のシステムで使われているキー形式とvision.goでの形式が一致するかテスト
-
-	// 同じタイル座標に対して、異なるシステムが生成するキーを比較
-	testTileX := 15
-	testTileY := 20
-
-	// render_sprite.goのようなキー生成
-	renderKey := fmt.Sprintf("%d,%d", testTileX, testTileY)
-
-	// TileVisibilityから生成されるキー
-	tileData := struct {
-		Col int // X座標
-		Row int // Y座標
-	}{
-		Col: testTileX,
-		Row: testTileY,
-	}
-	visionKey := fmt.Sprintf("%d,%d", tileData.Col, tileData.Row)
-
-	// 両方のキーが同じであることを確認
-	assert.Equal(t, renderKey, visionKey, "システム間でtileKeyの形式が一致していない")
-
-	// 期待される形式であることを確認
-	expectedKey := "15,20"
-	assert.Equal(t, expectedKey, renderKey, "renderシステムのキー形式が正しくない")
-	assert.Equal(t, expectedKey, visionKey, "visionシステムのキー形式が正しくない")
 }
 
 func TestGetHungerBadgeColor(t *testing.T) {

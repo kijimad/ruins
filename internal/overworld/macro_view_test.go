@@ -11,7 +11,7 @@ func TestFullBandWindow_帯全体に東西の余白を足す(t *testing.T) {
 	t.Parallel()
 	win := FullBandWindow(10, 4, 3)
 	assert.Equal(t, 10-MacroMargin, win.OriginX, "窓左端は東進位置から余白ぶん西")
-	assert.Equal(t, int(4+2*MacroMargin), win.Cols, "列数は帯幅に東西の余白を足す")
+	assert.Equal(t, 4+2*MacroMargin, win.Cols, "列数は帯幅に東西の余白を足す")
 	assert.Equal(t, consts.Chunk(3), win.Rows, "行数は帯の高さ")
 }
 
