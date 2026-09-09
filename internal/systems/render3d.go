@@ -254,11 +254,20 @@ func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render
 	// 隅の少し内側へ寄せて、スプライトの右上に収める
 	cx := float32(sp.X) - half
 	cy := float32(sp.Y) + half
-	for i := -1; i <= 1; i++ {
-		y := cy + float32(i)*gap
-		vector.StrokeLine(screen, cx-half, y, cx+half, y, thick, theme.TextSelected, true)
+	bars := [3]float32{cy - gap, cy, cy + gap}
+	// 先に暗い縁取りを全本、次に本体を全本描く。どんな背景でも埋もれず形が読める
+	outline := thick + float32(math.Max(2, scale*0.05))
+	for _, y := range bars {
+		vector.StrokeLine(screen, cx-half, y, cx+half, y, outline, theme.HUDTextOutline, true)
+	}
+	for _, y := range bars {
+		vector.StrokeLine(screen, cx-half, y, cx+half, y, thick, itemMarkerColor, true)
 	}
 }
+
+// itemMarkerColor はマーカー本体の色。縁取りと組み合わせ、緑のアイテムとも黒縁で分離される
+// 蛍光緑にして、どの升にマーカーが付くかを目立たせる。
+var itemMarkerColor = color.RGBA{R: 60, G: 255, B: 90, A: 255}
 
 // absTile は Tile の絶対値を int で返す
 func absTile(t consts.Tile) int {
