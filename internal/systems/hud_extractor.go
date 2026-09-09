@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -15,20 +16,11 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// exploredTiles は現ステージの探索済みタイルを返す。現ステージの StageField が未生成なら nil を返す。
-// 探索履歴は StageField が持つため、HUD 抽出は StageField 経由で読む
-func exploredTiles(world w.World) map[gc.GridElement]bool {
-	if field := query.GetCurrentStageField(world); field != nil {
-		return field.ExploredTiles
-	}
-	return nil
-}
-
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
 	return hud.Data{
 		GameInfo:         extractGameInfo(world),
-		MinimapData:      extractMinimapData(world),
+		MacroMap:         extractMacroMapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
 		MessageData:      extractMessageData(world, query.GetGameLog(world)),
 		CurrencyData:     extractCurrencyData(world),
@@ -88,6 +80,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	return hud.GameInfoData{
 		FloorNumber:         floorNumber,
+		ShowFloor:           !query.IsOnOverworld(world),
 		PlayerHP:            playerHP,
 		PlayerMaxHP:         playerMaxHP,
 		PlayerWeight:        playerWeight,
@@ -107,47 +100,36 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	}
 }
 
-// extractMinimapData はミニマップデータを抽出する
-func extractMinimapData(world w.World) hud.MinimapData {
-	// プレイヤー位置を取得
-	var playerGridElement *gc.GridElement
-	playerQuery := ecs.NewFilter2[gc.GridElement, gc.Player](world.ECS).Query()
-	for playerQuery.Next() {
-		entity := playerQuery.Entity()
-		playerGridElement = world.Components.GridElement.Get(entity)
-	}
-
-	if playerGridElement == nil {
-		return hud.MinimapData{} // プレイヤーが見つからない場合は空データ
-	}
-
-	screenDimensions := hud.ScreenDimensions{
+// extractMacroMapData は右上のマクロ地図データを抽出する。オーバーワールドにいればプレイヤー近傍の
+// チャンク俯瞰モデルを組み、居なければ帯なしフラグだけ立ててウィジェットに地図を描かせない。
+func extractMacroMapData(world w.World) hud.MacroMapData {
+	screen := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,
 		Height: world.Resources.ScreenDimensions.Height,
 	}
-
-	// プレイヤーのタイル座標
-	playerTileX := playerGridElement.X
-	playerTileY := playerGridElement.Y
-
-	// タイル色情報を抽出
-	tileColors := buildTileColors(world)
-
-	return hud.MinimapData{
-		PlayerTile:    consts.Coord[consts.Tile]{X: playerTileX, Y: playerTileY},
-		ExploredTiles: exploredTiles(world),
-		TileColors:    tileColors,
-		MinimapConfig: hud.MinimapConfig{
-			Width:  consts.MinimapWidth,
-			Height: consts.MinimapHeight,
-			Scale:  consts.MinimapScale,
-		},
-		ScreenDimensions: screenDimensions,
+	config := hud.MacroMapConfig{
+		Width:      consts.MacroMapWidth,
+		Height:     consts.MacroMapHeight,
+		MinGlyphPx: consts.MacroMapMinGlyphPx,
 	}
+	sb := query.GetSeamlessBand(world)
+	if sb == nil || !sb.Active {
+		return hud.MacroMapData{HasBand: false, Config: config, Screen: screen}
+	}
+	// 近傍だけを大きく見せる。プレイヤーの絶対チャンク列を中心に窓を取る。プレイヤー不在時は帯全体
+	playerTile, hasPlayer := query.PlayerBandTile(world)
+	win := overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows)
+	if hasPlayer {
+		centerCol := sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
+		win = overworld.PlayerCenteredWindow(centerCol, sb.Rows, consts.MacroMapChunkRadius)
+	}
+	// 徐々に開くフォグ。探索済みチャンクだけを開放する。窓・モデル・フォグは全画面図と共有する
+	view := overworld.BuildMacroView(
+		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
+		win, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+	)
+	return hud.MacroMapData{HasBand: true, View: view, Config: config, Screen: screen}
 }
-
-// TileColorInfo はタイル色情報の内部型
-type TileColorInfo = hud.TileColorInfo
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する
 func extractDebugOverlay(world w.World) hud.DebugOverlayData {
@@ -294,44 +276,6 @@ func extractCurrencyData(world w.World) hud.CurrencyData {
 		ScreenDimensions: screenDimensions,
 		Config:           config,
 	}
-}
-
-// buildTileColors はタイル色マップを構築する
-func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
-	// 全エンティティをスキャンしてタイル情報をマップに格納
-	tileTypeMap := make(map[gc.GridElement]bool) // true=壁, false=床
-
-	tileQuery := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).Query()
-	for tileQuery.Next() {
-		entity := tileQuery.Entity()
-		grid := world.Components.GridElement.Get(entity)
-		gridElement := gc.GridElement{Coord: grid.Coord}
-		tileTypeMap[gridElement] = world.Components.BlockView.Has(entity)
-	}
-
-	// 探索済みタイルの色情報を一括生成
-	tileColors := make(map[gc.GridElement]TileColorInfo)
-	for gridElement := range exploredTiles(world) {
-		var tileColor color.RGBA
-		if isWall, exists := tileTypeMap[gridElement]; exists {
-			if isWall {
-				tileColor = color.RGBA{100, 100, 100, 255} // 壁は灰色
-			} else {
-				tileColor = color.RGBA{200, 200, 200, 128} // 床は薄い灰色
-			}
-		} else {
-			tileColor = color.RGBA{0, 0, 0, 0} // 透明
-		}
-
-		tileColors[gridElement] = TileColorInfo{
-			R: tileColor.R,
-			G: tileColor.G,
-			B: tileColor.B,
-			A: tileColor.A,
-		}
-	}
-
-	return tileColors
 }
 
 // extractWeaponSlotsData は武器スロットデータを抽出する

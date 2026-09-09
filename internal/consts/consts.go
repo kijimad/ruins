@@ -50,12 +50,14 @@ const (
 )
 
 const (
-	// MinimapWidth はミニマップの表示幅。ピクセル単位の固定 UI 値
-	MinimapWidth = 150
-	// MinimapHeight はミニマップの表示高さ
-	MinimapHeight = 150
-	// MinimapScale はミニマップのスケール。何ピクセルで1タイルを表すか
-	MinimapScale = 3
+	// MacroMapWidth は右上マクロ地図パネルの表示幅。ピクセル単位の固定 UI 値
+	MacroMapWidth = 150
+	// MacroMapHeight は右上マクロ地図パネルの表示高さ
+	MacroMapHeight = 150
+	// MacroMapMinGlyphPx はセル辺がこのpx以上のとき種別記号を重ねる閾値。下回れば地形色セルのみ
+	MacroMapMinGlyphPx = 10
+	// MacroMapChunkRadius は右上マクロ地図がプレイヤーの左右へ見せるチャンク数。近傍だけを大きく描く
+	MacroMapChunkRadius = 3
 )
 
 const (

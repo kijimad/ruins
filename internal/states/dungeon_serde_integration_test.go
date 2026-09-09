@@ -158,7 +158,7 @@ func TestPhaseG_多層の共存がセーブロードを跨いで保持され順�
 // TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元される は、遺跡から
 // オーバーワールドへ戻る際の復帰処理を固定する。遺跡進入で Level が遺跡寸法に置き換わるため、
 // 帰還時に帯寸法へ戻し視界を強制再計算しないと、プレイヤーが帯座標にいるのにマップが遺跡寸法の
-// ままで真っ暗・ミニマップ No Data になる。この一連を1本で固める。
+// ままで真っ暗になる。この一連を1本で固める。
 func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -179,7 +179,7 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 	require.NoError(t, aerr, "密集した着地点でも帰還が失敗しない")
 	require.True(t, handled, "上り階段の結線で地上へ戻れる")
 
-	// 帯寸法の Level が復元され、視界の強制再計算が要求される。遺跡寸法のままだと真っ暗・No Data。
+	// 帯寸法の Level が復元され、視界の強制再計算が要求される。遺跡寸法のままだと真っ暗になる。
 	sb := query.GetSeamlessBand(world)
 	field := query.GetCurrentStageField(world)
 	assert.Equal(t, sb.Cols.Tiles(sb.ChunkW), field.Level.TileWidth, "帯幅の Level が復元される")

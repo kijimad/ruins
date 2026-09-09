@@ -3,8 +3,6 @@ package hud
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,12 +13,10 @@ func TestHUDData(t *testing.T) {
 		GameInfo: GameInfoData{
 			FloorNumber: 3,
 		},
-		MinimapData: MinimapData{
-			PlayerTile:       consts.Coord[consts.Tile]{X: 5, Y: 7},
-			ExploredTiles:    map[gc.GridElement]bool{{Coord: consts.Coord[consts.Tile]{X: 5, Y: 7}}: true},
-			TileColors:       map[gc.GridElement]TileColorInfo{{Coord: consts.Coord[consts.Tile]{X: 5, Y: 7}}: {R: 255, G: 255, B: 255, A: 255}},
-			MinimapConfig:    MinimapConfig{Width: 150, Height: 150, Scale: 3},
-			ScreenDimensions: ScreenDimensions{Width: 1024, Height: 768},
+		MacroMap: MacroMapData{
+			HasBand: true,
+			Config:  MacroMapConfig{Width: 150, Height: 150, MinGlyphPx: 10},
+			Screen:  ScreenDimensions{Width: 1024, Height: 768},
 		},
 		DebugOverlay: DebugOverlayData{
 			Enabled: false,
@@ -34,22 +30,8 @@ func TestHUDData(t *testing.T) {
 
 	// データ構造が正しく作成されることを確認
 	assert.Equal(t, 3, hudData.GameInfo.FloorNumber)
-	assert.Equal(t, 5, int(hudData.MinimapData.PlayerTile.X))
+	assert.True(t, hudData.MacroMap.HasBand)
 	assert.Len(t, hudData.MessageData.Messages, 2)
-}
-
-// TestTileColorInfo はタイル色情報の構造をテスト
-func TestTileColorInfo(t *testing.T) {
-	t.Parallel()
-	colorInfo := TileColorInfo{
-		R: 128,
-		G: 64,
-		B: 32,
-		A: 255,
-	}
-
-	assert.Equal(t, uint8(128), colorInfo.R)
-	assert.Equal(t, uint8(255), colorInfo.A)
 }
 
 // TestScreenDimensions は画面サイズ情報をテスト

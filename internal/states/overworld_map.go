@@ -7,7 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -24,11 +23,8 @@ import (
 type OverworldMapState struct {
 	es.BaseState[w.World]
 
-	glyphs    [][]rune                     // 各チャンクの種別文字。行 = Y、列 = 東西の窓
-	playerCol consts.Chunk                 // 現在地の窓ローカル列。範囲外なら -1
-	playerRow consts.Chunk                 // 現在地の窓ローカル行
-	playerAbs consts.Coord[consts.Chunk]   // 現在地の絶対チャンク座標
-	cubeCells []consts.Coord[consts.Chunk] // 押せるキューブの窓ローカル (列, 行)。チャンク粒度
+	view      overworld.MacroView        // 帯全体のチャンク俯瞰。glyph 格子とプレイヤー・キューブのセル
+	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
 }
 
 var _ es.State[w.World] = &OverworldMapState{}
@@ -42,55 +38,31 @@ func (st *OverworldMapState) OnResume(_ w.World) error { return nil }
 // OnStop はステートが終了する際に呼ばれる。
 func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 
-// マップ描画の寸法。1チャンクを1セルで描く。
-const (
-	mapCellPx   consts.ScreenPixel = 22 // 1チャンクのセルの一辺ピクセル
-	marginChunk consts.Chunk       = 6  // 帯の東西に足す余白チャンク数。この先の地形を先読みできる
-)
+// mapCellPx は全画面図で1チャンクを描くセルの一辺ピクセル。1チャンクを1セルで描く。
+const mapCellPx consts.ScreenPixel = 22
 
-// OnStart は現在地周辺の各チャンクの種別を算出して保持する。表示中はプレイヤーが動かないため
-// 一度だけ計算する。
+// OnStart は帯全体の地形俯瞰モデルを算出して保持する。表示中はプレイヤーが動かないため一度だけ
+// 計算する。窓構築は overworld.FullBandWindow、モデル生成は overworld.BuildMacroView に委ね、
+// 右上の HUD 地図と同じ窓・同じモデルで描く。
 func (st *OverworldMapState) OnStart(world w.World) error {
 	sb := query.GetSeamlessBand(world)
 	if sb == nil || !sb.Active {
 		return fmt.Errorf("overworld band is not valid")
 	}
-	rows := max(sb.Rows, 1)
+	playerTile, hasPlayer := query.PlayerBandTile(world)
+	// 全画面の俯瞰図は帯全体を窓にするが、フォグは HUD と同じで探索済みチャンクだけを開放する
+	st.view = overworld.BuildMacroView(
+		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
+		overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows),
+		playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+	)
 
-	// 帯の Rows 行と、Cols 列に東西の余白チャンクを足した窓の各チャンクを種別文字にする
-	winChunksX := int(sb.Cols + 2*marginChunk)
-	winX0 := sb.EastIndex - marginChunk
-
-	st.glyphs = make([][]rune, rows)
-	for cy := range rows {
-		st.glyphs[cy] = make([]rune, winChunksX)
-		for i := range winChunksX {
-			c := consts.Coord[consts.Chunk]{X: winX0 + consts.Chunk(i), Y: cy}
-			st.glyphs[cy][i] = overworld.ChunkPlace(sb.RunSeed, c, rows)
-		}
-	}
-
-	// 現在地のチャンク。プレイヤー座標は帯ローカルで、窓の原点は西へ marginChunk
-	st.playerCol = -1
-	if player, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
-		g := world.Components.GridElement.Get(player)
-		// プレイヤーの帯ローカルなチャンク座標。窓ローカル列は西へ marginChunk ぶんずらす
-		localCol := consts.Chunk(int(g.X) / int(sb.ChunkW))
-		localRow := consts.Chunk(int(g.Y) / int(sb.ChunkH))
-		st.playerCol = localCol + marginChunk
-		st.playerRow = localRow
-		st.playerAbs = consts.Coord[consts.Chunk]{X: sb.EastIndex + localCol, Y: localRow}
-	}
-
-	// 移動拠点キューブのチャンク位置。窓の中に入るものだけを保持する。反復は最後まで回す
-	st.cubeCells = nil
-	cubeQuery := query.ActiveFilter2[gc.GridElement, gc.Drivable](world).Query()
-	for cubeQuery.Next() {
-		g := world.Components.GridElement.Get(cubeQuery.Entity())
-		col := consts.Chunk(int(g.X)/int(sb.ChunkW)) + marginChunk
-		row := consts.Chunk(int(g.Y) / int(sb.ChunkH))
-		if col >= 0 && int(col) < winChunksX && row >= 0 && row < rows {
-			st.cubeCells = append(st.cubeCells, consts.Coord[consts.Chunk]{X: col, Y: row})
+	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
+	st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
+	if hasPlayer {
+		st.playerAbs = consts.Coord[consts.Chunk]{
+			X: sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW)),
+			Y: consts.Chunk(int(playerTile.Y) / int(sb.ChunkH)),
 		}
 	}
 	return nil
@@ -142,11 +114,16 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		y := originY + consts.ScreenPixel(row)*mapCellPx
 		return x + (mapCellPx-1)/2, y + (mapCellPx-1)/2
 	}
-	for row := range st.glyphs {
-		for col, r := range st.glyphs[row] {
+	for row := range st.view.Cells {
+		for col, cell := range st.view.Cells[row] {
+			// 未開放チャンクは描かず背景のまま伏せてフォグにする。探索で徐々に開く
+			if !cell.Discovered {
+				continue
+			}
+			r := cell.Glyph
 			x := originX + consts.ScreenPixel(col)*mapCellPx
 			y := originY + consts.ScreenPixel(row)*mapCellPx
-			// 全チャンクを同一に扱う。色を塗り、種別の文字を重ねて記号でも読めるようにする。
+			// 開放済みチャンクは色を塗り、種別の文字を重ねて記号でも読めるようにする。
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(screen, float32(x), float32(y), float32(mapCellPx-1), float32(mapCellPx-1), glyphColor(r), false)
 			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
@@ -155,7 +132,7 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	}
 	// キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも
 	// 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く
-	for _, c := range st.cubeCells {
+	for _, c := range st.view.CubeCells {
 		cx, cy := cellCenter(c.X, c.Y)
 		for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
 			drawCellGlyph(consts.IconCube, cx+off[0], cy+off[1], theme.OverworldMapCubeOutline)
@@ -163,13 +140,13 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)
 	}
 	// 現在地マーカー。白枠でセルを囲む
-	if st.playerCol >= 0 {
-		x := originX + consts.ScreenPixel(st.playerCol)*mapCellPx
-		y := originY + consts.ScreenPixel(st.playerRow)*mapCellPx
+	if st.view.PlayerCell.X >= 0 {
+		x := originX + consts.ScreenPixel(st.view.PlayerCell.X)*mapCellPx
+		y := originY + consts.ScreenPixel(st.view.PlayerCell.Y)*mapCellPx
 		vector.StrokeRect(screen, float32(x-1), float32(y-1), float32(mapCellPx+1), float32(mapCellPx+1), 2, theme.OverworldMapPlayerMarker, false)
 	}
 
-	st.drawLegend(screen, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.glyphs))*mapCellPx+16)
+	st.drawLegend(screen, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*mapCellPx+16)
 	return nil
 }
 
@@ -190,20 +167,10 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
 	drawText("N / Esc to close", 16, y+26, theme.TextPrimary)
 }
 
-// glyphColorTable は文字から色への対応。色は overworld の GlyphInfo が記号と同居して持つので、
-// 記号定義から一度だけ引き写す。states 側で記号ごとの色を別に定義しない。記号を変えても色定義と
-// 同じ1レコードなのでずれない。凡例に出ない記号は表に入らず glyphColor の既定へ落ちる。
-var glyphColorTable = func() map[rune]color.RGBA {
-	table := map[rune]color.RGBA{}
-	for _, g := range overworld.LegendGlyphs() {
-		table[g.Label] = g.Color
-	}
-	return table
-}()
-
-// glyphColor は種別文字に対応する色を返す。未知の文字は灰色にする。
+// glyphColor は種別文字に対応する色を返す。既知の記号は overworld の色定義を引き、
+// 凡例に出ない未知の記号は灰色にする。既定色は theme に依存するのでここで決める。
 func glyphColor(r rune) color.RGBA {
-	if c, ok := glyphColorTable[r]; ok {
+	if c, ok := overworld.GlyphColor(r); ok {
 		return c
 	}
 	return theme.OverworldMapUnknownGlyph
