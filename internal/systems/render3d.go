@@ -189,7 +189,7 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 		return
 	}
 	pc := world.Components.GridElement.Get(player).Coord
-	face := world.Resources.UIResources.Text.SmallFace
+	face := world.Resources.UIResources.Text.BodyFace
 	near := func(c consts.Coord[consts.Tile]) bool {
 		return absTile(c.X-pc.X) <= itemMarkerProximity && absTile(c.Y-pc.Y) <= itemMarkerProximity
 	}
@@ -243,8 +243,30 @@ const itemMarkerGlyph = "!"
 // 蛍光緑にして、どの升にマーカーが付くかを目立たせる。
 var itemMarkerColor = color.RGBA{R: 60, G: 255, B: 90, A: 255}
 
+// itemMarkerHeightRatio はマーカーの高さをビルボード高の何割にするか。ズームや奥行きで
+// ビルボードが伸縮しても比率を保ち、常に同じ大きさに見せる。
+const itemMarkerHeightRatio = 0.5
+
+var (
+	itemMarkerImg     *ebiten.Image
+	itemMarkerImgOnce sync.Once
+)
+
+// itemMarkerImage は縁取り済みの記号を1枚の画像へ焼いて返す。text 描画は共有グリフキャッシュを
+// 触るので一度だけ行い、以降はこの画像を拡大して重ねる。拡大縮小しても縁取りごと比率が保たれる。
+func itemMarkerImage(face text.Face) *ebiten.Image {
+	itemMarkerImgOnce.Do(func() {
+		gw, gh := uicore.MeasureText(itemMarkerGlyph, face)
+		const pad = 2 // 縁取りのはみ出しぶんの余白
+		img := ebiten.NewImage(gw+pad*2, gh+pad*2)
+		hud.OutlinedText(uicore.NewEbitenCanvas(img), itemMarkerGlyph, face, image.Pt(pad, pad), itemMarkerColor, theme.HUDTextOutline)
+		itemMarkerImg = img
+	})
+	return itemMarkerImg
+}
+
 // drawItemMarker はビルボードスプライトの右上隅に汎用記号のマーカーを縁取り付きで描く。
-// 升中心でなくスプライトの右上へ貼り付けて、どの物にマーカーが付くかを分かりやすくする。
+// 升中心でなくスプライトの右上へ貼り付け、ビルボード高に比例した大きさにする。
 func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render3d.Projector, c consts.Coord[consts.Tile], face text.Face) {
 	// collectBillboards と同じ幾何でビルボード右上隅の world 座標を組み、画面へ投影する
 	const bw = 0.45
@@ -254,10 +276,22 @@ func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render
 	if !ok {
 		return
 	}
-	// 記号の右端を隅に合わせ、右上に収める。縁取りは背景から形を分離する
-	gw, _ := uicore.MeasureText(itemMarkerGlyph, face)
-	pos := image.Pt(int(sp.X)-gw, int(sp.Y))
-	hud.OutlinedText(uicore.NewEbitenCanvas(screen), itemMarkerGlyph, face, pos, itemMarkerColor, theme.HUDTextOutline)
+	scale, ok := projector.BillboardScale(c)
+	if !ok || scale <= 0 {
+		return
+	}
+	img := itemMarkerImage(face)
+	ih := img.Bounds().Dy()
+	if ih == 0 {
+		return
+	}
+	// ビルボード高に対する比率でスケールし、ズームしても見た目の比率を一定に保つ
+	s := (scale * itemMarkerHeightRatio) / float64(ih)
+	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
+	op.GeoM.Scale(s, s)
+	// 右端を隅に合わせて右上に収める
+	op.GeoM.Translate(float64(sp.X)-float64(img.Bounds().Dx())*s, float64(sp.Y))
+	screen.DrawImage(img, op)
 }
 
 // absTile は Tile の絶対値を int で返す
