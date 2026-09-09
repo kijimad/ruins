@@ -4,10 +4,12 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"slices"
 	"sort"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/render3d"
@@ -166,7 +168,100 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return err
 	}
 	sys.emit(screen, quads, projector)
+	// 3Dシーンの上に、隠れた中身を示すマーカーを重ねる
+	sys.drawItemMarkers(world, screen, projector)
 	return nil
+}
+
+// itemMarkerProximity はマーカーを出すプレイヤーからの近接距離。隣接1マス。
+// CDDA の could_see_items が CONTAINER の中身を隣接で露出させるのに合わせる。
+const itemMarkerProximity = 1
+
+// itemMarkerColor はマーカーの色。緑のポーションや床に埋もれないよう高コントラストの黄にする。
+var itemMarkerColor = color.RGBA{R: 255, G: 235, B: 70, A: 255}
+
+// drawItemMarkers はプレイヤー近接かつ視界内の升に、開ける前には見えない中身があることを
+// ☰ マーカーで示す。対象は「中身のある収納」か「拾えるアイテムが2個以上重なった升」。
+// 単品で見えているアイテムは自前スプライトで分かるので出さない。CDDA の重なりハイライトに倣う。
+func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, projector render3d.Projector) {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil || !world.Components.GridElement.Has(player) {
+		return
+	}
+	pc := world.Components.GridElement.Get(player).Coord
+	near := func(c consts.Coord[consts.Tile]) bool {
+		return absTile(c.X-pc.X) <= itemMarkerProximity && absTile(c.Y-pc.Y) <= itemMarkerProximity
+	}
+
+	// 拾えるフィールドアイテムを升ごとに数える。近接分だけでよい
+	itemCount := map[consts.Coord[consts.Tile]]int{}
+	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Query()
+	for itemQuery.Next() {
+		e := itemQuery.Entity()
+		c := world.Components.GridElement.Get(e).Coord
+		if near(c) && query.IsPickable(e, world) {
+			itemCount[c]++
+		}
+	}
+
+	// 中身のある収納の升を集める
+	storageHas := map[consts.Coord[consts.Tile]]bool{}
+	stQuery := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
+	for stQuery.Next() {
+		e := stQuery.Entity()
+		c := world.Components.GridElement.Get(e).Coord
+		if !near(c) {
+			continue
+		}
+		if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) {
+			continue
+		}
+		if len(query.GetStorageItems(world, e)) > 0 {
+			storageHas[c] = true
+		}
+	}
+
+	for dy := -itemMarkerProximity; dy <= itemMarkerProximity; dy++ {
+		for dx := -itemMarkerProximity; dx <= itemMarkerProximity; dx++ {
+			c := consts.Coord[consts.Tile]{X: pc.X + consts.Tile(dx), Y: pc.Y + consts.Tile(dy)}
+			if !storageHas[c] && itemCount[c] < 2 {
+				continue
+			}
+			if !query.IsInVision(world, pc, c) {
+				continue
+			}
+			sys.drawItemMarker(screen, projector, c)
+		}
+	}
+}
+
+// drawItemMarker は升の頭上に ☰ 状の3本線マーカーを描く。奥行きに応じた大きさにする。
+func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render3d.Projector, c consts.Coord[consts.Tile]) {
+	top, ok := projector.BillboardTop(c)
+	if !ok {
+		return
+	}
+	scale, ok := projector.BillboardScale(c)
+	if !ok || scale <= 0 {
+		return
+	}
+	half := float32(scale * 0.28)
+	gap := float32(scale * 0.16)
+	thick := float32(math.Max(1.5, scale*0.06))
+	cx := float32(top.X)
+	cy := float32(top.Y) - float32(scale*0.35)
+	for i := -1; i <= 1; i++ {
+		y := cy + float32(i)*gap
+		vector.StrokeLine(screen, cx-half, y, cx+half, y, thick, itemMarkerColor, true)
+	}
+}
+
+// absTile は Tile の絶対値を int で返す
+func absTile(t consts.Tile) int {
+	if t < 0 {
+		return int(-t)
+	}
+	return int(t)
 }
 
 // buildScene は投影とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。
