@@ -80,6 +80,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	return hud.GameInfoData{
 		FloorNumber:         floorNumber,
+		ShowFloor:           !query.IsOnOverworld(world),
 		PlayerHP:            playerHP,
 		PlayerMaxHP:         playerMaxHP,
 		PlayerWeight:        playerWeight,

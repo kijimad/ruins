@@ -46,6 +46,7 @@ func TestGolden_Story_GameInfoGauges(t *testing.T) {
 		return func(screen *ebiten.Image) {
 			info.Draw(uicore.NewEbitenCanvas(screen), hud.GameInfoData{
 				FloorNumber:       3,
+				ShowFloor:         true,
 				PlayerHP:          42,
 				PlayerMaxHP:       80,
 				PlayerWeight:      consts.Milligram(4_400_000),

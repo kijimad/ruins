@@ -31,6 +31,10 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	if !m.enabled {
 		return
 	}
+	// オーバーワールド外は帯が無いので、地図パネルごと出さない
+	if !data.HasBand || len(data.View.Cells) == 0 || len(data.View.Cells[0]) == 0 {
+		return
+	}
 	width, height := data.Config.Width, data.Config.Height
 	if width <= 0 || height <= 0 {
 		return
@@ -39,12 +43,6 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	y0 := theme.Space4
 	// 背景枠はメニュー枠と同じ共通 chrome に揃える
 	m.chrome.Panel(cv, image.Rect(x0, y0, x0+width, y0+height))
-
-	// オーバーワールド外は帯が無いので No Data を出す
-	if !data.HasBand || len(data.View.Cells) == 0 || len(data.View.Cells[0]) == 0 {
-		drawOutlinedText(cv, "No Data", m.face, image.Pt(x0+50, y0+70), theme.TextPrimary)
-		return
-	}
 
 	rows := len(data.View.Cells)
 	cols := len(data.View.Cells[0])

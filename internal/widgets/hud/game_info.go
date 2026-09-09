@@ -87,8 +87,11 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 	info.drawFloorNumber(cv, data)
 }
 
-// drawFloorNumber は階層番号を描画する
+// drawFloorNumber は階層番号を描画する。オーバーワールドでは階層の概念が無いので描かない
 func (info *GameInfo) drawFloorNumber(cv uicore.Canvas, data GameInfoData) {
+	if !data.ShowFloor {
+		return
+	}
 	floorText := fmt.Sprintf("%3dF", data.FloorNumber)
 
 	// テキストの幅を測定
