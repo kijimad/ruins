@@ -26,7 +26,7 @@ func NewMacroMap(face text.Face, chrome Chrome) *MacroMap {
 // Update はマクロ地図を更新する。描画データは毎フレーム抽出されるので保持状態は持たない。
 func (m *MacroMap) Update(_ w.World) {}
 
-// Draw は帯全体の地形俯瞰をパネルへ縮小して描く。オーバーワールド外は No Data を出す。
+// Draw はプレイヤー近傍の地形俯瞰をパネルへ描く。オーバーワールド外は地図を出さない。
 func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	if !m.enabled {
 		return

@@ -100,8 +100,8 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	}
 }
 
-// extractMacroMapData は右上のマクロ地図データを抽出する。オーバーワールドにいれば帯全体の
-// チャンク俯瞰モデルを組み、居なければ帯なしフラグだけ立てて No Data を出させる。
+// extractMacroMapData は右上のマクロ地図データを抽出する。オーバーワールドにいればプレイヤー近傍の
+// チャンク俯瞰モデルを組み、居なければ帯なしフラグだけ立ててウィジェットに地図を描かせない。
 func extractMacroMapData(world w.World) hud.MacroMapData {
 	screen := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,

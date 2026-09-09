@@ -41,7 +41,7 @@ type GameInfoData struct {
 // MacroMapData は右上のマクロ地図ウィジェットの描画データ。N キーで開く地形俯瞰と同じ内容を
 // 縮小して常時表示する。
 type MacroMapData struct {
-	HasBand bool                // オーバーワールドにいて帯があるか。偽なら No Data を出す
+	HasBand bool                // オーバーワールドにいて帯があるか。偽なら地図パネルごと出さない
 	View    overworld.MacroView // 帯全体のチャンク俯瞰
 	Config  MacroMapConfig      // パネル寸法と glyph 表示の閾値
 	Screen  ScreenDimensions    // 右上配置に使う画面サイズ
