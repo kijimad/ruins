@@ -3,6 +3,7 @@ package menuframe
 import (
 	"image"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/internal/resources"
@@ -10,6 +11,19 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
+
+// ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
+// ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
+func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
+	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+	bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+	bg.Layout(rect)
+	gfx := uicore.NewGraphic(img)
+	gfx.Layout(inner)
+	group := uicore.NewGroup(bg, gfx)
+	group.Layout(rect)
+	return group
+}
 
 // noteRowH は補助フェイスを載せる1行の高さ。操作ヒント・説明・版の注記・入力欄のエラーに使う。
 // 役割が同じ行はどの画面でも同じ高さにして、画面をまたいだ見た目のずれを防ぐ
