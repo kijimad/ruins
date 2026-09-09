@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-09 00:22:25</td>
+            <td class="headerValue">2026-09-09 16:01:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,7 +72,7 @@
 <span id="L10"><span class="lineNum">      10</span>              : // HUDRenderingSystem はクエリを実行し、UIを描画するシステム</span>
 <span id="L11"><span class="lineNum">      11</span>              : type HUDRenderingSystem struct {</span>
 <span id="L12"><span class="lineNum">      12</span>              :         gameInfo        *hud.GameInfo</span>
-<span id="L13"><span class="lineNum">      13</span>              :         minimap         *hud.Minimap</span>
+<span id="L13"><span class="lineNum">      13</span>              :         macroMap        *hud.MacroMap</span>
 <span id="L14"><span class="lineNum">      14</span>              :         debugOverlay    *hud.DebugOverlay</span>
 <span id="L15"><span class="lineNum">      15</span>              :         messageArea     *hud.MessageArea</span>
 <span id="L16"><span class="lineNum">      16</span>              :         currencyDisplay *hud.CurrencyDisplay</span>
@@ -89,7 +89,7 @@
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         return &amp;HUDRenderingSystem{</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                 gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 minimap:         hud.NewMinimap(titleFace, chrome),</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 macroMap:        hud.NewMacroMap(smallFace, chrome),</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 debugOverlay:    hud.NewDebugOverlay(smallFace),</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 messageArea:     hud.NewMessageArea(world),</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 currencyDisplay: hud.NewCurrencyDisplay(smallFace),</span></span>
@@ -123,8 +123,8 @@
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         if sys.gameInfo != nil {</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 sys.gameInfo.Update(world)</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         if sys.minimap != nil {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 sys.minimap.Update(world)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         if sys.macroMap != nil {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 sys.macroMap.Update(world)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         if sys.debugOverlay != nil {</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 sys.debugOverlay.Update(world)</span></span>
@@ -150,8 +150,8 @@
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         cv := uicore.NewEbitenCanvas(screen)</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L90"><span class="lineNum">      90</span>              :         // 各ウィジェットにデータを渡して描画する。描画順がある</span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         if sys.minimap != nil {</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 sys.minimap.Draw(cv, hudData.MinimapData)</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         if sys.macroMap != nil {</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 sys.macroMap.Draw(cv, hudData.MacroMap)</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         if sys.debugOverlay != nil {</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 sys.debugOverlay.Draw(screen, hudData.DebugOverlay)</span></span>
