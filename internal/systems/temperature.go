@@ -43,9 +43,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		return errors.New("dungeon resource is not set")
 	}
 
-	// 体温の生存機構はプレイヤーと味方だけに適用する。空腹・疲労と同じく敵には効かせない。
-	// FactionAlly を要求することで、HealthStatus を持つ敵が環境で冷えて凍死するのを防ぐ。
-	// 敵の位置に関係なく全員が同じターンに凍死する回帰を、対象を味方へ絞って断つ
+	// 体温の生存機構はプレイヤーと味方だけに適用する。空腹・疲労と同じく敵には効かせない
 	var toMark []ecs.Entity
 	healthQuery := query.ActiveFilter3[gc.HealthStatus, gc.GridElement, gc.FactionAlly](world).Query()
 	for healthQuery.Next() {
