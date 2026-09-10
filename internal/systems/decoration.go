@@ -19,24 +19,17 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 装飾は3Dシーンへ重ねる小さな絵で、寿命の持ち方が2種類ある。
-//   - 状態従属・視点相対のヒント: 収納マーカーのように、ワールド状態から毎フレーム導出して出す。
-//     エンティティ化せず collectDecorations で描画クアッドを直接積む。プレイヤーの移動で
-//     出没するのでエンティティにすると生成削除が絶えず、視点状態が ECS に漏れるため導出のままにする。
-//   - イベントで生じて残す物: 血痕・破片・撃破エフェクトのように、生成時に SpriteRender と
-//     GridElement を持つエンティティを spawn する。collectBillboards と VisualEffectSystem が描く。
-//     こちらはエンティティ自身が寿命を持つのでここでは扱わない。
-//
-// appendTileBillboard は両者に共通する「升にカメラ正面の板を1枚立てる」純幾何で、導出系はこれを通す。
+// 状態従属・視点相対のヒントはここで毎フレーム導出して描く。プレイヤーの移動で出没するので
+// エンティティ化すると生成削除が絶えず視点状態が ECS に漏れるため、導出のまま扱う。イベントで生じて
+// 残す装飾は血痕・破片・撃破エフェクトのように SpriteRender と GridElement を持つエンティティを
+// spawn し、collectBillboards と VisualEffectSystem が描く。
 
-// itemMarkerProximity はマーカーを出すプレイヤーからの近接距離。2マス以内。
-// 少し離れていても、漁る価値のある升が見えるようにする。
+// itemMarkerProximity はマーカーを出すプレイヤーからの近接距離。少し離れていても漁る価値のある升を見せる。
 const itemMarkerProximity = 2
 
-// collectDecorations は状態従属・視点相対の装飾クアッドを quads へ足す。今は収納マーカーだけを扱う。
-// マーカーはプレイヤー近接かつ視界内の升に、開ける前には見えない中身があることを示す。対象は
+// collectDecorations は状態従属の装飾クアッドを quads へ足す。今は収納マーカーだけを扱う。対象は
 // 「中身のある収納」か「拾えるアイテムが2個以上重なった升」。単品で見えているアイテムは自前スプライトで
-// 分かるので出さない。重なって隠れた分だけを指す。
+// 分かるので出さず、重なって隠れた分だけを指す。
 func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !world.Components.GridElement.Has(player) {
@@ -47,8 +40,7 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 		return geometry.ChebyshevDistance(pc, c) <= itemMarkerProximity
 	}
 
-	// 拾えるフィールドアイテムを升ごとに数える。近接分だけでよい。
-	// Fixed でないフィールド物が拾える物なので、フィルタで Fixed を除く
+	// 拾えるフィールドアイテムを升ごとに数える。Fixed でないフィールド物が拾える物なので Fixed を除く
 	itemCount := map[consts.Coord[consts.Tile]]int{}
 	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Without(ecs.C[gc.Fixed]()).Query()
 	for itemQuery.Next() {
@@ -59,7 +51,6 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 		}
 	}
 
-	// 中身のある収納の升を集める
 	storageHas := map[consts.Coord[consts.Tile]]bool{}
 	stQuery := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
 	for stQuery.Next() {
@@ -76,8 +67,7 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 		}
 	}
 
-	// マーカー画像は実際に1枚でも要るときだけ焼く。近くに対象が無い升配置では
-	// フォントリソースに触れずに済み、リソースを持たない最小 world でも通る
+	// 1枚でも要るときだけ画像を焼く。対象が無ければフォントに触れず、UI リソース無しの world でも通る
 	var img *ebiten.Image
 	var iw, ih int
 	for dy := -itemMarkerProximity; dy <= itemMarkerProximity; dy++ {
@@ -96,7 +86,7 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 					return quads
 				}
 			}
-			// 視界内の升にしか出さないので満照 tint で浮かせ、埋もれさせない
+			// 視界内の升にしか出さないので満照 tint で浮かせる
 			height := render3d.BillboardHeight * itemMarkerHeightRatio
 			quads = sys.appendTileBillboard(quads, projector, c, img, iw, ih, height, [3]float64{1, 1, 1})
 		}
@@ -107,8 +97,7 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 // itemMarkerGlyph はマーカーに出す汎用記号。中身や重なりがあることの合図。
 const itemMarkerGlyph = "!"
 
-// itemMarkerHeightRatio はマーカーの高さをビルボード高の何割にするか。ズームや奥行きで
-// ビルボードが伸縮しても比率を保ち、常に同じ大きさに見せる。
+// itemMarkerHeightRatio はマーカー高をビルボード高の何割にするか。奥行きやズームで見かけの比率を保つ。
 const itemMarkerHeightRatio = 0.65
 
 var (
@@ -117,18 +106,18 @@ var (
 )
 
 // itemMarkerImage は縁取り済みの記号を1枚の画像へ焼いて返す。text 描画は共有グリフキャッシュを
-// 触るので一度だけ行い、以降はこの画像を拡大して重ねる。拡大縮小しても縁取りごと比率が保たれる。
+// 触るので一度だけ行い、以降はこの画像を拡大して重ねる。
 func itemMarkerImage(face text.Face) *ebiten.Image {
 	itemMarkerImgOnce.Do(func() {
 		gw, gh := uicore.MeasureText(itemMarkerGlyph, face)
-		// 縁取りを太めに敷いて、細い記号でも太く見えるようにする
+		// 細い記号でも太く見えるよう縁取りを太めに敷く
 		const outline = 3
 		const pad = outline + 1
-		// 緑のアイテムとも黒縁で分離される蛍光緑にして、どの升にマーカーが付くかを目立たせる
+		// 緑のアイテムとも黒縁で分離される蛍光緑にして目立たせる
 		markerColor := color.RGBA{R: 60, G: 255, B: 90, A: 255}
 		img := ebiten.NewImage(gw+pad*2, gh+pad*2)
 		cv := uicore.NewEbitenCanvas(img)
-		// 暗色を周囲 outline 半径へずらして重ね、太い縁取りにする。中央に本体を重ねる
+		// 暗色を周囲 outline 半径へずらして重ね、中央へ本体を重ねる
 		for dy := -outline; dy <= outline; dy++ {
 			for dx := -outline; dx <= outline; dx++ {
 				if dx == 0 && dy == 0 {
@@ -155,7 +144,7 @@ func (sys *Render3DSystem) appendTileBillboard(quads []r3quad, projector render3
 		render3d.Add(render3d.At(float64(c.X)+0.5, 0, float64(c.Y)+0.5), render3d.Scale(right, bw)),
 		render3d.At(0, render3d.BillboardHeight, 0),
 	)
-	// 右上隅を基準に、左と下へ板を広げる。幅は画像縦横比で決める
+	// 右上隅を基準に左と下へ板を広げる。幅は画像縦横比で決める
 	fw := height * float64(iw) / float64(ih)
 	tr := corner
 	tl := render3d.Add(corner, render3d.Scale(right, -fw))
