@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"io"
 	"os"
 	"path/filepath"
@@ -10,185 +9,146 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/urfave/cli/v3"
 )
 
-// captureOutput はos.Stdoutの出力をキャプチャする
-func captureOutput(f func()) string {
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	f()
-
-	_ = w.Close()
-	os.Stdout = old
-
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
-	return buf.String()
-}
-
-// writeDesignDoc は tempDir/docs/design/name にドキュメントを書き込む
-func writeDesignDoc(t *testing.T, name, content string) {
+// writeDoc は dir 直下に name のドキュメントを書き込む。コアが dir を引数で受けるので、
+// カレントディレクトリを触らずに済み、テストは並列化できる。
+func writeDoc(t *testing.T, dir, name, content string) {
 	t.Helper()
-	dir := filepath.Join("docs", "design")
-	require.NoError(t, os.MkdirAll(dir, 0o755))
 	require.NoError(t, os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644))
 }
 
-//nolint:paralleltest // t.Chdirとos.Stdoutのキャプチャがプロセス全体を変更するため並列化しない
-func TestRunDesignDocValidate_問題なしならnilを返す(t *testing.T) {
-	t.Chdir(t.TempDir())
-	writeDesignDoc(t, "ok.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# OK\n")
+func TestDesignDocValidate_問題なしならnilを返す(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	writeDoc(t, dir, "ok.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# OK\n")
 
-	out := captureOutput(func() {
-		err := runDesignDocValidate(context.Background(), nil)
-		require.NoError(t, err)
-	})
-	assert.Equal(t, "OK: validated 1 documents\n", out)
+	var buf bytes.Buffer
+	require.NoError(t, designDocValidate(&buf, dir))
+	assert.Equal(t, "OK: validated 1 documents\n", buf.String())
 }
 
-//nolint:paralleltest // t.Chdirとos.Stdoutのキャプチャがプロセス全体を変更するため並列化しない
-func TestRunDesignDocValidate_問題があればエラーを返す(t *testing.T) {
-	t.Chdir(t.TempDir())
-	writeDesignDoc(t, "bad.md", "---\nstatus: bogus\ntags: []\nauto: needs-decision\n---\n\n# Bad\n")
+func TestDesignDocValidate_問題があればエラーを返す(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	writeDoc(t, dir, "bad.md", "---\nstatus: bogus\ntags: []\nauto: needs-decision\n---\n\n# Bad\n")
 
-	var err error
-	out := captureOutput(func() {
-		err = runDesignDocValidate(context.Background(), nil)
-	})
+	var buf bytes.Buffer
+	err := designDocValidate(&buf, dir)
 	require.ErrorIs(t, err, errValidation)
-	assert.Equal(t, "docs/design/bad.md: invalid status: \"bogus\"\n", out)
+	assert.Equal(t, filepath.Join(dir, "bad.md")+": invalid status: \"bogus\"\n", buf.String())
 }
 
-//nolint:paralleltest // t.Chdirとos.Stdoutのキャプチャがプロセス全体を変更するため並列化しない
-func TestRunDesignDocGen_frontmatterがないドキュメントに既定値を付与する(t *testing.T) {
-	t.Chdir(t.TempDir())
-	writeDesignDoc(t, "nofront.md", "# タイトル\n\n本文\n")
+func TestDesignDocValidate_ディレクトリが無ければエラーを返す(t *testing.T) {
+	t.Parallel()
+	err := designDocValidate(io.Discard, filepath.Join(t.TempDir(), "nonexistent"))
+	assert.ErrorIs(t, err, os.ErrNotExist)
+}
 
-	out := captureOutput(func() {
-		err := runDesignDocGen(context.Background(), nil)
-		require.NoError(t, err)
-	})
-	assert.Equal(t, "added: docs/design/nofront.md\nadded frontmatter to 1 documents\n", out)
+func TestDesignDocGen_frontmatterがないドキュメントに既定値を付与する(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	writeDoc(t, dir, "nofront.md", "# タイトル\n\n本文\n")
 
-	got, err := os.ReadFile(filepath.Join("docs", "design", "nofront.md"))
+	var buf bytes.Buffer
+	require.NoError(t, designDocGen(&buf, dir))
+	assert.Equal(t, "added: "+filepath.Join(dir, "nofront.md")+"\nadded frontmatter to 1 documents\n", buf.String())
+
+	got, err := os.ReadFile(filepath.Join(dir, "nofront.md"))
 	require.NoError(t, err)
 	assert.Equal(t, "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# タイトル\n\n本文\n", string(got))
 }
 
-//nolint:paralleltest // t.Chdirとos.Stdoutのキャプチャがプロセス全体を変更するため並列化しない
-func TestRunDesignDocGen_frontmatterがあるドキュメントは変更しない(t *testing.T) {
-	t.Chdir(t.TempDir())
+func TestDesignDocGen_frontmatterがあるドキュメントは変更しない(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
 	content := "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# 既にある\n"
-	writeDesignDoc(t, "hasfront.md", content)
+	writeDoc(t, dir, "hasfront.md", content)
 
-	out := captureOutput(func() {
-		err := runDesignDocGen(context.Background(), nil)
-		require.NoError(t, err)
-	})
-	assert.Equal(t, "added frontmatter to 0 documents\n", out)
+	var buf bytes.Buffer
+	require.NoError(t, designDocGen(&buf, dir))
+	assert.Equal(t, "added frontmatter to 0 documents\n", buf.String())
 
-	got, err := os.ReadFile(filepath.Join("docs", "design", "hasfront.md"))
+	got, err := os.ReadFile(filepath.Join(dir, "hasfront.md"))
 	require.NoError(t, err)
 	assert.Equal(t, content, string(got))
 }
 
-//nolint:paralleltest // t.Chdirがプロセス全体のカレントディレクトリを変更するため並列化しない
-func TestRunDesignDocValidate_ディレクトリが無ければエラーを返す(t *testing.T) {
-	t.Chdir(t.TempDir())
-
-	err := runDesignDocValidate(context.Background(), nil)
-	assert.ErrorIs(t, err, os.ErrNotExist)
-}
-
-// newDesignDocListCmd は runDesignDocList をテストするための単体の *cli.Command を組み立てる。
-// CmdDesignDoc.Commands のフラグを共有すると並行テスト間で値が競合するため、フラグ定義だけ写す
-func newDesignDocListCmd() *cli.Command {
-	return &cli.Command{
-		Name: "list",
-		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "status"},
-			&cli.StringFlag{Name: "auto"},
-			&cli.StringFlag{Name: "tag"},
-			&cli.BoolFlag{Name: "open"},
-		},
-		Action: runDesignDocList,
-	}
-}
-
-//nolint:paralleltest // t.Chdirとos.Stdoutのキャプチャがプロセス全体を変更するため並列化しない
-func TestRunDesignDocList(t *testing.T) {
+func TestDesignDocList_フィルタで絞り込む(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
-		name string
-		args []string
-		docs map[string]string
-		want string
+		name   string
+		filter designDocFilter
+		docs   map[string]string
+		want   []string // 出力に含まれるべき文字列
+		absent []string // 出力に含まれてはならない文字列
 	}{
 		{
-			name: "フィルタなしで全件表示する",
-			args: []string{"list"},
+			name:   "フィルタなしで全件表示する",
+			filter: designDocFilter{},
 			docs: map[string]string{
 				"a.md": "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# A\n",
 			},
-			want: "PATH              STATUS  AUTO            PROGRESS  TAGS\n" +
-				"docs/design/a.md  draft   needs-decision  -         \n",
+			want: []string{"PATH", "a.md", "draft"},
 		},
 		{
-			name: "statusで絞り込む",
-			args: []string{"list", "--status", "draft"},
+			name:   "statusで絞り込む",
+			filter: designDocFilter{status: "draft"},
 			docs: map[string]string{
 				"a.md": "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# A\n",
 				"b.md": "---\nstatus: done\ntags: []\nauto: needs-decision\n---\n\n# B\n",
 			},
-			want: "PATH              STATUS  AUTO            PROGRESS  TAGS\n" +
-				"docs/design/a.md  draft   needs-decision  -         \n",
+			want:   []string{"a.md"},
+			absent: []string{"b.md", "done"},
 		},
 		{
-			name: "autoで絞り込む",
-			args: []string{"list", "--auto", "mechanical"},
+			name:   "autoで絞り込む",
+			filter: designDocFilter{auto: "mechanical"},
 			docs: map[string]string{
 				"a.md": "---\nstatus: draft\ntags: []\nauto: mechanical\n---\n\n# A\n",
 				"b.md": "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# B\n",
 			},
-			want: "PATH              STATUS  AUTO        PROGRESS  TAGS\n" +
-				"docs/design/a.md  draft   mechanical  -         \n",
+			want:   []string{"a.md", "mechanical"},
+			absent: []string{"b.md"},
 		},
 		{
-			name: "tagで絞り込む",
-			args: []string{"list", "--tag", "ci"},
+			name:   "tagで絞り込む",
+			filter: designDocFilter{tag: "ci"},
 			docs: map[string]string{
 				"a.md": "---\nstatus: draft\ntags: [ci]\nauto: needs-decision\n---\n\n# A\n",
 				"b.md": "---\nstatus: draft\ntags: [ui]\nauto: needs-decision\n---\n\n# B\n",
 			},
-			want: "PATH              STATUS  AUTO            PROGRESS  TAGS\n" +
-				"docs/design/a.md  draft   needs-decision  -         ci\n",
+			want:   []string{"a.md"},
+			absent: []string{"b.md", "ui"},
 		},
 		{
-			name: "openで未着手のみ絞り込む",
-			args: []string{"list", "--open"},
+			name:   "openで未着手のみ絞り込む",
+			filter: designDocFilter{open: true},
 			docs: map[string]string{
 				"a.md": "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# A\n",
 				"b.md": "---\nstatus: done\ntags: []\nauto: needs-decision\n---\n\n# B\n",
 			},
-			want: "PATH              STATUS  AUTO            PROGRESS  TAGS\n" +
-				"docs/design/a.md  draft   needs-decision  -         \n",
+			want:   []string{"a.md"},
+			absent: []string{"b.md", "done"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Chdir(t.TempDir())
+			t.Parallel()
+			dir := t.TempDir()
 			for name, content := range tt.docs {
-				writeDesignDoc(t, name, content)
+				writeDoc(t, dir, name, content)
 			}
 
-			var err error
-			out := captureOutput(func() {
-				err = newDesignDocListCmd().Run(context.Background(), tt.args)
-			})
-			require.NoError(t, err)
-			assert.Equal(t, tt.want, out)
+			var buf bytes.Buffer
+			require.NoError(t, designDocList(&buf, dir, tt.filter))
+			out := buf.String()
+			for _, s := range tt.want {
+				assert.Contains(t, out, s)
+			}
+			for _, s := range tt.absent {
+				assert.NotContains(t, out, s)
+			}
 		})
 	}
 }

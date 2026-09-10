@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
+	"io"
 	"slices"
 	"strings"
 	"text/tabwriter"
@@ -46,64 +46,87 @@ var CmdDesignDoc = &cli.Command{
 	},
 }
 
-func runDesignDocValidate(_ context.Context, _ *cli.Command) error {
-	docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+// designDocFilter は list の絞り込み条件。空文字と false は無指定を表す。
+type designDocFilter struct {
+	status string
+	auto   string
+	tag    string
+	open   bool
+}
+
+func runDesignDocValidate(_ context.Context, cmd *cli.Command) error {
+	return designDocValidate(cmd.Writer, designdoc.DefaultDir)
+}
+
+// designDocValidate は dir 下の frontmatter を検証し、問題を out へ書く。問題があればエラーを返す。
+func designDocValidate(out io.Writer, dir string) error {
+	docs, err := designdoc.LoadDir(dir)
 	if err != nil {
 		return err
 	}
 
 	problems := designdoc.Validate(docs)
 	for _, p := range problems {
-		fmt.Printf("%s: %s\n", p.Path, p.Message)
+		_, _ = fmt.Fprintf(out, "%s: %s\n", p.Path, p.Message)
 	}
 
 	if len(problems) > 0 {
 		return errValidation
 	}
-	fmt.Printf("OK: validated %d documents\n", len(docs))
+	_, _ = fmt.Fprintf(out, "OK: validated %d documents\n", len(docs))
 
 	return nil
 }
 
-func runDesignDocGen(_ context.Context, _ *cli.Command) error {
-	changed, err := designdoc.BackfillDir(designdoc.DefaultDir)
+func runDesignDocGen(_ context.Context, cmd *cli.Command) error {
+	return designDocGen(cmd.Writer, designdoc.DefaultDir)
+}
+
+// designDocGen は dir 下の frontmatter を持たないドキュメントへ既定値を付与し、付与先を out へ書く。
+func designDocGen(out io.Writer, dir string) error {
+	changed, err := designdoc.BackfillDir(dir)
 	if err != nil {
 		return err
 	}
 
 	for _, path := range changed {
-		fmt.Printf("added: %s\n", path)
+		_, _ = fmt.Fprintf(out, "added: %s\n", path)
 	}
-	fmt.Printf("added frontmatter to %d documents\n", len(changed))
+	_, _ = fmt.Fprintf(out, "added frontmatter to %d documents\n", len(changed))
 
 	return nil
 }
 
 func runDesignDocList(_ context.Context, cmd *cli.Command) error {
-	docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+	return designDocList(cmd.Writer, designdoc.DefaultDir, designDocFilter{
+		status: cmd.String("status"),
+		auto:   cmd.String("auto"),
+		tag:    cmd.String("tag"),
+		open:   cmd.Bool("open"),
+	})
+}
+
+// designDocList は dir 下のドキュメントを filter で絞り、表として out へ書く。
+func designDocList(out io.Writer, dir string, filter designDocFilter) error {
+	docs, err := designdoc.LoadDir(dir)
 	if err != nil {
 		return err
 	}
 
-	status := cmd.String("status")
-	auto := cmd.String("auto")
-	tag := cmd.String("tag")
-	openOnly := cmd.Bool("open")
-
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	_, _ = fmt.Fprintln(w, "PATH\tSTATUS\tAUTO\tPROGRESS\tTAGS")
 	for _, doc := range docs {
 		f := doc.Front
-		if status != "" && string(f.Status) != status {
+		if filter.status != "" && string(f.Status) != filter.status {
 			continue
 		}
-		if auto != "" && string(f.Auto) != auto {
+		if filter.auto != "" && string(f.Auto) != filter.auto {
 			continue
 		}
-		if tag != "" && !slices.Contains(f.Tags, tag) {
+		if filter.tag != "" && !slices.Contains(f.Tags, filter.tag) {
 			continue
 		}
-		if openOnly && !f.Status.IsOpen() {
+		if filter.open && !f.Status.IsOpen() {
 			continue
 		}
 

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"go/format"
+	"io"
 	"os"
 	"text/template"
 
@@ -28,15 +29,20 @@ var CmdGenComponents = &cli.Command{
 	Action: runGenComponents,
 }
 
-func runGenComponents(_ context.Context, c *cli.Command) error {
+func runGenComponents(_ context.Context, cmd *cli.Command) error {
+	return genComponents(cmd.Writer, cmd.String("out"))
+}
+
+// genComponents は登録表から生成したコードを outPath へ書き、完了を out へ書く。
+func genComponents(out io.Writer, outPath string) error {
 	formatted, err := generateComponents()
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(c.String("out"), formatted, 0o644); err != nil {
+	if err := os.WriteFile(outPath, formatted, 0o644); err != nil {
 		return fmt.Errorf("failed to write generated code: %w", err)
 	}
-	fmt.Printf("Generated %s\n", c.String("out"))
+	_, _ = fmt.Fprintf(out, "Generated %s\n", outPath)
 	return nil
 }
 

@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -28,18 +29,24 @@ const (
 	columns               = 4
 )
 
-func runGenReadme(_ context.Context, _ *cli.Command) error {
-	tmpl, err := os.ReadFile(templateFile)
+func runGenReadme(_ context.Context, cmd *cli.Command) error {
+	return genReadme(cmd.Writer, templateFile, outputFile, imageDir, designdoc.DefaultDir)
+}
+
+// genReadme はテンプレートの各プレースホルダを画像テーブルと設計ドキュメント状態で置換し、
+// outputPath へ書き出す。読み書きするパスはすべて引数で受け、生成の完了を out へ書く。
+func genReadme(out io.Writer, templatePath, outputPath, imageDirPath, designDir string) error {
+	tmpl, err := os.ReadFile(templatePath)
 	if err != nil {
 		return fmt.Errorf("failed to read template: %w", err)
 	}
 
-	table, err := buildImageTable()
+	table, err := buildImageTableFrom(imageDirPath)
 	if err != nil {
 		return fmt.Errorf("failed to build image table: %w", err)
 	}
 
-	docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+	docs, err := designdoc.LoadDir(designDir)
 	if err != nil {
 		return fmt.Errorf("failed to read design documents: %w", err)
 	}
@@ -47,17 +54,12 @@ func runGenReadme(_ context.Context, _ *cli.Command) error {
 
 	result := strings.Replace(string(tmpl), placeholder, table, 1)
 	result = strings.Replace(result, designStatusPlacehldr, statusTable, 1)
-	if err := os.WriteFile(outputFile, []byte(result), 0o644); err != nil {
+	if err := os.WriteFile(outputPath, []byte(result), 0o644); err != nil {
 		return fmt.Errorf("failed to write README.md: %w", err)
 	}
 
-	fmt.Printf("Generated %s from %s (%s)\n", outputFile, templateFile, imageDir)
+	_, _ = fmt.Fprintf(out, "Generated %s from %s (%s)\n", outputPath, templatePath, imageDirPath)
 	return nil
-}
-
-// buildImageTable はtestdata内のPNG画像から4列のMarkdownテーブルを生成する
-func buildImageTable() (string, error) {
-	return buildImageTableFrom(imageDir)
 }
 
 // imageEntry はテーブルに載せる画像1枚。README からの相対パスと見出しを持つ。

@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"context"
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/urfave/cli/v3"
 )
 
 // TestGenerateComponents_Golden は登録表からの生成結果を、ゴールデンである
@@ -28,30 +28,14 @@ func TestGenerateComponents_Golden(t *testing.T) {
 		"components_gen.go が登録表と一致しない。`make generate` を実行すること")
 }
 
-// newGenComponentsApp はテストごとに独立したFlagインスタンスを持つコマンドを組み立てる。
-// CmdGenComponentsをそのまま共有すると、並列実行時にFlagの内部パース状態が競合する。
-func newGenComponentsApp() *cli.Command {
-	return &cli.Command{
-		Name: "ruins",
-		Commands: []*cli.Command{
-			{
-				Name: "gencomponents",
-				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "out", Value: "internal/components/components_gen.go"},
-				},
-				Action: runGenComponents,
-			},
-		},
-	}
-}
-
-func TestRunGenComponents_出力ファイルに生成コードを書き込む(t *testing.T) {
+func TestGenComponents_出力ファイルに生成コードを書き込む(t *testing.T) {
 	t.Parallel()
 
 	outPath := filepath.Join(t.TempDir(), "components_gen.go")
 
-	err := newGenComponentsApp().Run(context.Background(), []string{"ruins", "gencomponents", "--out", outPath})
-	require.NoError(t, err)
+	var buf bytes.Buffer
+	require.NoError(t, genComponents(&buf, outPath))
+	assert.Equal(t, "Generated "+outPath+"\n", buf.String())
 
 	got, err := os.ReadFile(outPath)
 	require.NoError(t, err)
@@ -61,13 +45,13 @@ func TestRunGenComponents_出力ファイルに生成コードを書き込む(t 
 	assert.Equal(t, string(want), string(got))
 }
 
-func TestRunGenComponents_書き込み失敗時はエラーを返す(t *testing.T) {
+func TestGenComponents_書き込み失敗時はエラーを返す(t *testing.T) {
 	t.Parallel()
 
 	// 存在しないディレクトリへの書き込みを指定してos.WriteFileを失敗させる
 	outPath := filepath.Join(t.TempDir(), "no-such-dir", "components_gen.go")
 
-	err := newGenComponentsApp().Run(context.Background(), []string{"ruins", "gencomponents", "--out", outPath})
+	err := genComponents(io.Discard, outPath)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "failed to write generated code")
 }

@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"context"
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -119,61 +120,66 @@ func TestBuildImageTableFrom_ExactColumns(t *testing.T) {
 	assert.Equal(t, want, result)
 }
 
-//nolint:paralleltest // t.Chdirとos.Stdoutのキャプチャがプロセス全体を変更するため並列化しない
-func TestRunGenReadme_成功時にプレースホルダを置換したREADMEを生成する(t *testing.T) {
-	t.Chdir(t.TempDir())
+func TestGenReadme_成功時にプレースホルダを置換したREADMEを生成する(t *testing.T) {
+	t.Parallel()
+	base := t.TempDir()
+	tmplPath := filepath.Join(base, "README.tmpl.md")
+	outPath := filepath.Join(base, "README.md")
+	imgDir := filepath.Join(base, "img")
+	designDir := filepath.Join(base, "design")
 
 	tmpl := "# タイトル\n\n<!-- VRT_IMAGES -->\n\n## 状況\n\n<!-- DESIGN_STATUS -->\n"
-	require.NoError(t, os.WriteFile(templateFile, []byte(tmpl), 0644))
+	require.NoError(t, os.WriteFile(tmplPath, []byte(tmpl), 0o644))
+	require.NoError(t, os.MkdirAll(imgDir, 0o755))
+	require.NoError(t, os.WriteFile(filepath.Join(imgDir, "TestGolden_Foo.png"), []byte("dummy"), 0o644))
+	require.NoError(t, os.MkdirAll(designDir, 0o755))
+	writeDoc(t, designDir, "a.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# A\n")
 
-	require.NoError(t, os.MkdirAll(imageDir, 0755))
-	require.NoError(t, os.WriteFile(filepath.Join(imageDir, "TestGolden_Foo.png"), []byte("dummy"), 0644))
+	var buf bytes.Buffer
+	require.NoError(t, genReadme(&buf, tmplPath, outPath, imgDir, designDir))
+	assert.Equal(t, "Generated "+outPath+" from "+tmplPath+" ("+imgDir+")\n", buf.String())
 
-	writeDesignDoc(t, "a.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# A\n")
-
-	var runErr error
-	out := captureOutput(func() {
-		runErr = runGenReadme(context.Background(), nil)
-	})
-	require.NoError(t, runErr)
-	assert.Equal(t, "Generated README.md from README.tmpl.md (internal/states/testdata)\n", out)
-
-	table, err := buildImageTableFrom(imageDir)
+	table, err := buildImageTableFrom(imgDir)
 	require.NoError(t, err)
-	docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+	docs, err := designdoc.LoadDir(designDir)
 	require.NoError(t, err)
 	statusTable := designdoc.RenderStatusSection(docs)
 	want := strings.Replace(tmpl, placeholder, table, 1)
 	want = strings.Replace(want, designStatusPlacehldr, statusTable, 1)
 
-	got, err := os.ReadFile(outputFile)
+	got, err := os.ReadFile(outPath)
 	require.NoError(t, err)
 	assert.Equal(t, want, string(got))
 }
 
-//nolint:paralleltest // t.Chdirがプロセス全体のカレントディレクトリを変更するため並列化しない
-func TestRunGenReadme_テンプレートが無ければエラーを返す(t *testing.T) {
-	t.Chdir(t.TempDir())
-
-	err := runGenReadme(context.Background(), nil)
+func TestGenReadme_テンプレートが無ければエラーを返す(t *testing.T) {
+	t.Parallel()
+	base := t.TempDir()
+	err := genReadme(io.Discard, filepath.Join(base, "missing.tmpl.md"),
+		filepath.Join(base, "README.md"), filepath.Join(base, "img"), filepath.Join(base, "design"))
 	require.ErrorIs(t, err, os.ErrNotExist)
 }
 
-//nolint:paralleltest // t.Chdirがプロセス全体のカレントディレクトリを変更するため並列化しない
-func TestRunGenReadme_画像テーブル構築に失敗すればエラーを返す(t *testing.T) {
-	t.Chdir(t.TempDir())
-	require.NoError(t, os.WriteFile(templateFile, []byte("<!-- VRT_IMAGES -->"), 0644))
+func TestGenReadme_画像テーブル構築に失敗すればエラーを返す(t *testing.T) {
+	t.Parallel()
+	base := t.TempDir()
+	tmplPath := filepath.Join(base, "README.tmpl.md")
+	require.NoError(t, os.WriteFile(tmplPath, []byte("<!-- VRT_IMAGES -->"), 0o644))
 
-	err := runGenReadme(context.Background(), nil)
+	err := genReadme(io.Discard, tmplPath, filepath.Join(base, "README.md"),
+		filepath.Join(base, "nonexistent-img"), filepath.Join(base, "design"))
 	require.ErrorIs(t, err, os.ErrNotExist)
 }
 
-//nolint:paralleltest // t.Chdirがプロセス全体のカレントディレクトリを変更するため並列化しない
-func TestRunGenReadme_設計ドキュメント読み込みに失敗すればエラーを返す(t *testing.T) {
-	t.Chdir(t.TempDir())
-	require.NoError(t, os.WriteFile(templateFile, []byte("<!-- VRT_IMAGES -->"), 0644))
-	require.NoError(t, os.MkdirAll(imageDir, 0755))
+func TestGenReadme_設計ドキュメント読み込みに失敗すればエラーを返す(t *testing.T) {
+	t.Parallel()
+	base := t.TempDir()
+	tmplPath := filepath.Join(base, "README.tmpl.md")
+	require.NoError(t, os.WriteFile(tmplPath, []byte("<!-- VRT_IMAGES -->"), 0o644))
+	imgDir := filepath.Join(base, "img")
+	require.NoError(t, os.MkdirAll(imgDir, 0o755))
 
-	err := runGenReadme(context.Background(), nil)
+	err := genReadme(io.Discard, tmplPath, filepath.Join(base, "README.md"),
+		imgDir, filepath.Join(base, "nonexistent-design"))
 	require.ErrorIs(t, err, os.ErrNotExist)
 }
