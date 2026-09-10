@@ -495,3 +495,22 @@ func TestCalculateLightSourceDarkness_抑制時は有彩の環境光色をその
 	info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.9, warm)
 	assert.Equal(t, color.RGBA{R: 255, G: 183, B: 132, A: 255}, info.Color, "抑制時は白でなく環境光の暖色をそのまま返す")
 }
+
+func TestTileRenderAt(t *testing.T) {
+	t.Parallel()
+
+	present := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}}
+	absent := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}}
+	visible := TileRenderVisible{Darkness: DarknessVisible}
+	m := map[gc.GridElement]TileRenderInfo{present: visible}
+
+	t.Run("マップにあればその描画情報を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, visible, tileRenderAt(m, present))
+	})
+
+	t.Run("マップに無ければ未探索を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, TileRenderUnexplored{}, tileRenderAt(m, absent))
+	})
+}

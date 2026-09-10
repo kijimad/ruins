@@ -366,3 +366,99 @@ func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
 		assert.Equal(t, hpBefore, world.Components.HP.Get(player).Current, "中度は血液量を下げないので削られない")
 	})
 }
+
+func TestGetWorseningMessage(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		condType gc.ConditionType
+		severity gc.Severity
+		expected string
+	}{
+		{
+			name:     "低体温の軽度",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeverityMinor,
+			expected: "The cold is setting in",
+		},
+		{
+			name:     "低体温の中度",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeverityMedium,
+			expected: "You are quite cold",
+		},
+		{
+			name:     "低体温の重度",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeveritySevere,
+			expected: "The cold is dangerous",
+		},
+		{
+			name:     "低体温でも段階なしは空文字",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeverityNone,
+			expected: "",
+		},
+		{
+			name:     "低体温以外は空文字",
+			condType: gc.ConditionFracture,
+			severity: gc.SeveritySevere,
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, getWorseningMessage(tt.condType, tt.severity))
+		})
+	}
+}
+
+func TestGetRecoveryMessage(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		condType gc.ConditionType
+		severity gc.Severity
+		expected string
+	}{
+		{
+			name:     "低体温が完全に治ると空文字ではなく回復メッセージ",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeverityNone,
+			expected: "You have warmed up",
+		},
+		{
+			name:     "低体温の軽度への回復",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeverityMinor,
+			expected: "You are warming up a little",
+		},
+		{
+			name:     "低体温の中度への回復",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeverityMedium,
+			expected: "Still cold, but a little better",
+		},
+		{
+			name:     "低体温の重度への回復は空文字",
+			condType: gc.ConditionHypothermia,
+			severity: gc.SeveritySevere,
+			expected: "",
+		},
+		{
+			name:     "低体温以外は空文字",
+			condType: gc.ConditionFracture,
+			severity: gc.SeverityNone,
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, getRecoveryMessage(tt.condType, tt.severity))
+		})
+	}
+}

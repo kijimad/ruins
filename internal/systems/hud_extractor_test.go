@@ -532,3 +532,109 @@ func TestTemperatureStateBadge_快適時は出さない(t *testing.T) {
 	_, ok := temperatureStateBadge(world, e)
 	assert.False(t, ok, "体温状態が無ければバッジを出さない")
 }
+
+func TestShelterMsgid(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		shelter  gc.ShelterType
+		expected string
+	}{
+		{
+			name:     "屋内はIndoor",
+			shelter:  gc.ShelterFull,
+			expected: "Indoor",
+		},
+		{
+			name:     "半屋外はSemi-outdoor",
+			shelter:  gc.ShelterPartial,
+			expected: "Semi-outdoor",
+		},
+		{
+			name:     "屋外はOutdoor",
+			shelter:  gc.ShelterNone,
+			expected: "Outdoor",
+		},
+		{
+			name:     "未知の値はOutdoorへ落とす",
+			shelter:  gc.ShelterType(99),
+			expected: "Outdoor",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, shelterMsgid(tt.shelter))
+		})
+	}
+}
+
+func TestGetFatigueBadgeColor(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		level    gc.FatigueLevel
+		expected color.RGBA
+	}{
+		{
+			name:     "過労は赤",
+			level:    gc.FatigueExhausted,
+			expected: color.RGBA{255, 50, 50, 255},
+		},
+		{
+			name:     "疲労は黄",
+			level:    gc.FatigueTired,
+			expected: color.RGBA{255, 200, 0, 255},
+		},
+		{
+			name:     "通常段階も黄のデフォルト",
+			level:    gc.FatigueNormal,
+			expected: color.RGBA{255, 200, 0, 255},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, getFatigueBadgeColor(tt.level))
+		})
+	}
+}
+
+func TestAmbientTempDisplayColor(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		temp     int
+		expected color.RGBA
+	}{
+		{
+			name:     "快適帯の下限を下回ると青",
+			temp:     query.ComfortableTempLower - 1,
+			expected: color.RGBA{150, 190, 255, 255},
+		},
+		{
+			name:     "快適帯の上限を上回ると赤",
+			temp:     query.ComfortableTempUpper + 1,
+			expected: color.RGBA{255, 170, 120, 255},
+		},
+		{
+			name:     "快適帯の下限ちょうどは白",
+			temp:     query.ComfortableTempLower,
+			expected: color.RGBA{255, 255, 255, 255},
+		},
+		{
+			name:     "快適帯の上限ちょうどは白",
+			temp:     query.ComfortableTempUpper,
+			expected: color.RGBA{255, 255, 255, 255},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, ambientTempDisplayColor(tt.temp))
+		})
+	}
+}
