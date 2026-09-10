@@ -12,10 +12,17 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// PanelInner はパネル矩形の内側、すなわち標準の内側余白ぶん縮めた矩形を返す。パネルに収める
+// 中身の寸法・配置は必ずこれを通す。ImagePanel の画像配置も、呼び出し側の画像サイズ決定も
+// 同じ式にして、余白の値が変わっても両者がずれないようにする。
+func PanelInner(rect image.Rectangle) image.Rectangle {
+	return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+}
+
 // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
 // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
 func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
-	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+	inner := PanelInner(rect)
 	bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
 	bg.Layout(rect)
 	gfx := uicore.NewGraphic(img)

@@ -53,8 +53,7 @@ const (
 
 // modalInner はモーダルパネルの内側矩形を返す。窓半径・セル寸法の算出とパネル画像の寸法で共有する。
 func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
-	rect := menuframe.ModalRect(world)
-	return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+	return menuframe.PanelInner(menuframe.ModalRect(world))
 }
 
 // overworldMapCell は帯の行数からセル寸法を決める。見出し・凡例のぶんを足した行数で内側高さを割り、
@@ -127,12 +126,14 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// buildBody は俯瞰図を他メニューと同じモーダルのパネルとして組む。格子・凡例・見出しを1枚の
-// 画像へ描き、menuframe の PanelBG パネルへ収めて意匠を他モーダルへ揃える。
+// buildBody は俯瞰図を他メニューと同じモーダルのパネルとして組む。格子・凡例・見出し・マーカーを
+// 1枚の画像へ描き、menuframe の PanelBG パネルへ収めて意匠を他モーダルへ揃える。
 func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	res := world.Resources.UIResources
 	rect := menuframe.ModalRect(world)
-	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+	// 画像は ImagePanel が画像を置く矩形と同じ寸法にする。PanelInner を両者で通し余白の値が
+	// 変わってもずれないようにする
+	inner := menuframe.PanelInner(rect)
 
 	// 内容はパネル内側いっぱいの画像へ原点ローカルで描く。透明地なので描かない部分は
 	// 背後のパネルテクスチャが透ける
