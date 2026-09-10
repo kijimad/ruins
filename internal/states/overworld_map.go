@@ -43,11 +43,12 @@ func (st *OverworldMapState) OnResume(_ w.World) error { return nil }
 // OnStop はステートが終了する際に呼ばれる。
 func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 
-// 全画面図のセル寸法・半径の範囲。帯が短いとセルが巨大化、広いと潰れるのを両側で防ぐ
+// 全画面図のセル寸法・半径の範囲。帯が短いとセルが巨大化、広いと潰れるのを両側で防ぐ。
+// セルを小さくするほどモーダル幅に多くのチャンクが収まり、見える範囲が広がる
 const (
-	overworldMapMinCell   = 28 // セル寸法の下限px
-	overworldMapMaxCell   = 56 // セル寸法の上限px。帯が短くても巨大化させない
-	overworldMapMinRadius = 3  // プレイヤー左右へ最低限見せるチャンク数
+	overworldMapMinCell   = 14
+	overworldMapMaxCell   = 28
+	overworldMapMinRadius = 3
 )
 
 // modalInner はモーダルパネルの内側矩形を返す。窓半径・セル寸法の算出とパネル画像の寸法で共有する。
@@ -78,8 +79,6 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		return fmt.Errorf("overworld band is not valid")
 	}
 	playerTile, hasPlayer := query.PlayerBandTile(world)
-	// モーダルいっぱいに大きなセルで見せる。セル寸法は帯の高さから、半径はモーダル幅から決める。
-	// プレイヤーを横の中心に据え、フォグは HUD と同じで探索済みチャンクだけを開放する
 	inner := st.modalInner(world)
 	st.cellPx = overworldMapCell(inner, max(sb.Rows, 1))
 	centerCol := sb.EastIndex + sb.Cols/2
@@ -143,8 +142,7 @@ func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	return menuframe.ImagePanel(res, rect, img)
 }
 
-// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。描画ロジックは
-// 従来と同じで、描き先が screen からパネル内側の画像へ変わっただけ。
+// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。
 func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	face := world.Resources.UIResources.Text.BodyFace
 
@@ -169,7 +167,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 8, 6, theme.TextPrimary)
 
 	cell := st.cellPx
-	// 格子は横をモーダル内側の中央へ寄せ、縦は見出しの下から積む
+	// 格子は横をモーダル内側の中央へ寄せる
 	cols := 0
 	if len(st.view.Cells) > 0 {
 		cols = len(st.view.Cells[0])
@@ -180,7 +178,6 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		originX = 8
 	}
 	const originY consts.ScreenPixel = 40
-	// cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 cell-1
 	cellCenter := func(col, row consts.Chunk) (consts.ScreenPixel, consts.ScreenPixel) {
 		x := originX + consts.ScreenPixel(col)*cell
 		y := originY + consts.ScreenPixel(row)*cell
