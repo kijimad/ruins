@@ -177,12 +177,12 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // itemMarkerProximity はマーカーを出すプレイヤーからの近接距離。隣接1マス。
-// CDDA の could_see_items が CONTAINER の中身を隣接で露出させるのに合わせる。
+// 収納やアイテムの中身は隣へ寄って初めて確かめられる、という近さに合わせる。
 const itemMarkerProximity = 1
 
 // drawItemMarkers はプレイヤー近接かつ視界内の升に、開ける前には見えない中身があることを
-// ☰ マーカーで示す。対象は「中身のある収納」か「拾えるアイテムが2個以上重なった升」。
-// 単品で見えているアイテムは自前スプライトで分かるので出さない。CDDA の重なりハイライトに倣う。
+// 記号マーカーで示す。対象は「中身のある収納」か「拾えるアイテムが2個以上重なった升」。
+// 単品で見えているアイテムは自前スプライトで分かるので出さない。重なって隠れた分だけを指す。
 func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, projector render3d.Projector) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !world.Components.GridElement.Has(player) {
