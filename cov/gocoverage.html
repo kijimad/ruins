@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.1%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -123,11 +123,11 @@
 				
 				<option value="file33">github.com/kijimaD/ruins/internal/cmd/cmd.go (100.0%)</option>
 				
-				<option value="file34">github.com/kijimaD/ruins/internal/cmd/designdoc.go (0.0%)</option>
+				<option value="file34">github.com/kijimaD/ruins/internal/cmd/designdoc.go (86.4%)</option>
 				
-				<option value="file35">github.com/kijimaD/ruins/internal/cmd/gencomponents.go (78.6%)</option>
+				<option value="file35">github.com/kijimaD/ruins/internal/cmd/gencomponents.go (73.3%)</option>
 				
-				<option value="file36">github.com/kijimaD/ruins/internal/cmd/genreadme.go (69.6%)</option>
+				<option value="file36">github.com/kijimaD/ruins/internal/cmd/genreadme.go (97.1%)</option>
 				
 				<option value="file37">github.com/kijimaD/ruins/internal/cmd/play.go (0.0%)</option>
 				
@@ -1733,7 +1733,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -7170,7 +7170,7 @@ import (
         "context"
         "errors"
         "fmt"
-        "os"
+        "io"
         "slices"
         "strings"
         "text/tabwriter"
@@ -7212,75 +7212,98 @@ var CmdDesignDoc = &amp;cli.Command{
         },
 }
 
-func runDesignDocValidate(_ context.Context, _ *cli.Command) error {
-        <span class="cov0" title="0">docs, err := designdoc.LoadDir(designdoc.DefaultDir)
-        if err != nil </span>{
-                <span class="cov0" title="0">return err
-</span>        }
-
-        <span class="cov0" title="0">problems := designdoc.Validate(docs)
-        for _, p := range problems </span>{
-                <span class="cov0" title="0">fmt.Printf("%s: %s\n", p.Path, p.Message)
-</span>        }
-
-        <span class="cov0" title="0">if len(problems) &gt; 0 </span>{
-                <span class="cov0" title="0">return errValidation
-</span>        }
-        <span class="cov0" title="0">fmt.Printf("OK: validated %d documents\n", len(docs))
-</span>
-        <span class="cov0" title="0">return nil</span>
+// designDocFilter は list の絞り込み条件。空文字と false は無指定を表す。
+type designDocFilter struct {
+        status string
+        auto   string
+        tag    string
+        open   bool
 }
 
-func runDesignDocGen(_ context.Context, _ *cli.Command) error {
-        <span class="cov0" title="0">changed, err := designdoc.BackfillDir(designdoc.DefaultDir)
+func runDesignDocValidate(_ context.Context, cmd *cli.Command) error {
+        <span class="cov0" title="0">return designDocValidate(cmd.Writer, designdoc.DefaultDir)
+</span>}
+
+// designDocValidate は dir 下の frontmatter を検証し、問題を out へ書く。問題があればエラーを返す。
+func designDocValidate(out io.Writer, dir string) error {
+        <span class="cov8" title="1">docs, err := designdoc.LoadDir(dir)
+        if err != nil </span>{
+                <span class="cov8" title="1">return err
+</span>        }
+
+        <span class="cov8" title="1">problems := designdoc.Validate(docs)
+        for _, p := range problems </span>{
+                <span class="cov8" title="1">_, _ = fmt.Fprintf(out, "%s: %s\n", p.Path, p.Message)
+</span>        }
+
+        <span class="cov8" title="1">if len(problems) &gt; 0 </span>{
+                <span class="cov8" title="1">return errValidation
+</span>        }
+        <span class="cov8" title="1">_, _ = fmt.Fprintf(out, "OK: validated %d documents\n", len(docs))
+</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func runDesignDocGen(_ context.Context, cmd *cli.Command) error {
+        <span class="cov0" title="0">return designDocGen(cmd.Writer, designdoc.DefaultDir)
+</span>}
+
+// designDocGen は dir 下の frontmatter を持たないドキュメントへ既定値を付与し、付与先を out へ書く。
+func designDocGen(out io.Writer, dir string) error {
+        <span class="cov8" title="1">changed, err := designdoc.BackfillDir(dir)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
 
-        <span class="cov0" title="0">for _, path := range changed </span>{
-                <span class="cov0" title="0">fmt.Printf("added: %s\n", path)
+        <span class="cov8" title="1">for _, path := range changed </span>{
+                <span class="cov8" title="1">_, _ = fmt.Fprintf(out, "added: %s\n", path)
 </span>        }
-        <span class="cov0" title="0">fmt.Printf("added frontmatter to %d documents\n", len(changed))
+        <span class="cov8" title="1">_, _ = fmt.Fprintf(out, "added frontmatter to %d documents\n", len(changed))
 </span>
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 func runDesignDocList(_ context.Context, cmd *cli.Command) error {
-        <span class="cov0" title="0">docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+        <span class="cov0" title="0">return designDocList(cmd.Writer, designdoc.DefaultDir, designDocFilter{
+                status: cmd.String("status"),
+                auto:   cmd.String("auto"),
+                tag:    cmd.String("tag"),
+                open:   cmd.Bool("open"),
+        })
+</span>}
+
+// designDocList は dir 下のドキュメントを filter で絞り、表として out へ書く。
+func designDocList(out io.Writer, dir string, filter designDocFilter) error {
+        <span class="cov8" title="1">docs, err := designdoc.LoadDir(dir)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
 
-        <span class="cov0" title="0">status := cmd.String("status")
-        auto := cmd.String("auto")
-        tag := cmd.String("tag")
-        openOnly := cmd.Bool("open")
-</span>
-        <span class="cov0" title="0">w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+        <span class="cov8" title="1">w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
         _, _ = fmt.Fprintln(w, "PATH\tSTATUS\tAUTO\tPROGRESS\tTAGS")
         for _, doc := range docs </span>{
-                <span class="cov0" title="0">f := doc.Front
-                if status != "" &amp;&amp; string(f.Status) != status </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">f := doc.Front
+                if filter.status != "" &amp;&amp; string(f.Status) != filter.status </span>{
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">if auto != "" &amp;&amp; string(f.Auto) != auto </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">if filter.auto != "" &amp;&amp; string(f.Auto) != filter.auto </span>{
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">if tag != "" &amp;&amp; !slices.Contains(f.Tags, tag) </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">if filter.tag != "" &amp;&amp; !slices.Contains(f.Tags, filter.tag) </span>{
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">if openOnly &amp;&amp; !f.Status.IsOpen() </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">if filter.open &amp;&amp; !f.Status.IsOpen() </span>{
+                        <span class="cov8" title="1">continue</span>
                 }
 
-                <span class="cov0" title="0">progress := "-"
+                <span class="cov8" title="1">progress := "-"
                 if doc.HasProgress </span>{
                         <span class="cov0" title="0">progress = fmt.Sprintf("%d/%d", doc.DoneTasks, doc.DoneTasks+doc.OpenTasks)
 </span>                }
-                <span class="cov0" title="0">_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", doc.Path, f.Status, f.Auto, progress, strings.Join(f.Tags, ","))</span>
+                <span class="cov8" title="1">_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", doc.Path, f.Status, f.Auto, progress, strings.Join(f.Tags, ","))</span>
         }
 
-        <span class="cov0" title="0">return w.Flush()</span>
+        <span class="cov8" title="1">return w.Flush()</span>
 }
 </pre>
 		
@@ -7291,6 +7314,7 @@ import (
         "context"
         "fmt"
         "go/format"
+        "io"
         "os"
         "text/template"
 
@@ -7314,15 +7338,20 @@ var CmdGenComponents = &amp;cli.Command{
         Action: runGenComponents,
 }
 
-func runGenComponents(_ context.Context, c *cli.Command) error {
+func runGenComponents(_ context.Context, cmd *cli.Command) error {
+        <span class="cov0" title="0">return genComponents(cmd.Writer, cmd.String("out"))
+</span>}
+
+// genComponents は登録表から生成したコードを outPath へ書き、完了を out へ書く。
+func genComponents(out io.Writer, outPath string) error {
         <span class="cov8" title="1">formatted, err := generateComponents()
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov8" title="1">if err := os.WriteFile(c.String("out"), formatted, 0o644); err != nil </span>{
+        <span class="cov8" title="1">if err := os.WriteFile(outPath, formatted, 0o644); err != nil </span>{
                 <span class="cov8" title="1">return fmt.Errorf("failed to write generated code: %w", err)
 </span>        }
-        <span class="cov8" title="1">fmt.Printf("Generated %s\n", c.String("out"))
+        <span class="cov8" title="1">_, _ = fmt.Fprintf(out, "Generated %s\n", outPath)
         return nil</span>
 }
 
@@ -7389,6 +7418,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 import (
         "context"
         "fmt"
+        "io"
         "os"
         "path/filepath"
         "slices"
@@ -7414,37 +7444,38 @@ const (
         columns               = 4
 )
 
-func runGenReadme(_ context.Context, _ *cli.Command) error {
-        <span class="cov0" title="0">tmpl, err := os.ReadFile(templateFile)
+func runGenReadme(_ context.Context, cmd *cli.Command) error {
+        <span class="cov0" title="0">return genReadme(cmd.Writer, templateFile, outputFile, imageDir, designdoc.DefaultDir)
+</span>}
+
+// genReadme はテンプレートの各プレースホルダを画像テーブルと設計ドキュメント状態で置換し、
+// outputPath へ書き出す。読み書きするパスはすべて引数で受け、生成の完了を out へ書く。
+func genReadme(out io.Writer, templatePath, outputPath, imageDirPath, designDir string) error {
+        <span class="cov8" title="1">tmpl, err := os.ReadFile(templatePath)
         if err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to read template: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("failed to read template: %w", err)
 </span>        }
 
-        <span class="cov0" title="0">table, err := buildImageTable()
+        <span class="cov8" title="1">table, err := buildImageTableFrom(imageDirPath)
         if err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to build image table: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("failed to build image table: %w", err)
 </span>        }
 
-        <span class="cov0" title="0">docs, err := designdoc.LoadDir(designdoc.DefaultDir)
+        <span class="cov8" title="1">docs, err := designdoc.LoadDir(designDir)
         if err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to read design documents: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("failed to read design documents: %w", err)
 </span>        }
-        <span class="cov0" title="0">statusTable := designdoc.RenderStatusSection(docs)
+        <span class="cov8" title="1">statusTable := designdoc.RenderStatusSection(docs)
 </span>
-        <span class="cov0" title="0">result := strings.Replace(string(tmpl), placeholder, table, 1)
+        <span class="cov8" title="1">result := strings.Replace(string(tmpl), placeholder, table, 1)
         result = strings.Replace(result, designStatusPlacehldr, statusTable, 1)
-        if err := os.WriteFile(outputFile, []byte(result), 0o644); err != nil </span>{
+        if err := os.WriteFile(outputPath, []byte(result), 0o644); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to write README.md: %w", err)
 </span>        }
 
-        <span class="cov0" title="0">fmt.Printf("Generated %s from %s (%s)\n", outputFile, templateFile, imageDir)
+        <span class="cov8" title="1">_, _ = fmt.Fprintf(out, "Generated %s from %s (%s)\n", outputPath, templatePath, imageDirPath)
         return nil</span>
 }
-
-// buildImageTable はtestdata内のPNG画像から4列のMarkdownテーブルを生成する
-func buildImageTable() (string, error) {
-        <span class="cov0" title="0">return buildImageTableFrom(imageDir)
-</span>}
 
 // imageEntry はテーブルに載せる画像1枚。README からの相対パスと見出しを持つ。
 type imageEntry struct {
