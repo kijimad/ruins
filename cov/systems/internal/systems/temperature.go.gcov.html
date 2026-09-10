@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-10 14:20:49</td>
+            <td class="headerValue">2026-09-10 14:43:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -105,9 +105,9 @@
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;dungeon resource is not set&quot;)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              :         // HealthStatusとGridElementを持つエンティティを処理。</span>
+<span id="L46"><span class="lineNum">      46</span>              :         // 体温の生存機構はプレイヤーと味方だけに適用する。空腹・疲労と同じく敵には効かせない</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         var toMark []ecs.Entity</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         healthQuery := query.ActiveFilter3[gc.HealthStatus, gc.GridElement, gc.FactionAlly](world).Query()</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         for healthQuery.Next() {</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 entity := healthQuery.Entity()</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 hs := world.Components.HealthStatus.Get(entity)</span></span>
