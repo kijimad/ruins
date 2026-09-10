@@ -24,7 +24,8 @@ import (
 // 残す装飾は血痕・破片・撃破エフェクトのように SpriteRender と GridElement を持つエンティティを
 // spawn し、collectBillboards と VisualEffectSystem が描く。
 
-// itemMarkerProximity はマーカーを出すプレイヤーからの近接距離。少し離れていても漁る価値のある升を見せる。
+// itemMarkerProximity はマーカーを出すチェビシェフ距離の上限。2マス以内。
+// 隣接だけだと真上に来ないと気づけないので、少し離れていても漁る価値のある升を見せる。
 const itemMarkerProximity = 2
 
 // collectDecorations は状態従属の装飾クアッドを quads へ足す。今は収納マーカーだけを扱う。対象は
