@@ -169,6 +169,26 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		assert.Greater(t, cond.Timer, 0.0)
 	})
 
+	t.Run("敵は環境温度で冷えず凍死しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		setStage(world, gc.NewDungeonStage(coldDungeonName, 1)) // 基本気温0度
+
+		// FactionAlly を持たない敵。HealthStatus と GridElement は持つが体温の生存機構の対象外
+		enemy := world.ECS.NewEntity()
+		world.Components.HealthStatus.Add(enemy, &gc.HealthStatus{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+
+		sys := &TemperatureSystem{}
+		for range 30 {
+			require.NoError(t, sys.Update(world))
+		}
+
+		hs := world.Components.HealthStatus.Get(enemy)
+		assert.Zero(t, hs.BodyTempOffset, "敵は環境で冷えず体温オフセットが動かない")
+		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia), "敵は低体温にならない")
+	})
+
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
