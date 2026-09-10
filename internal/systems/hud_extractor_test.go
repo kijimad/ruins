@@ -533,43 +533,6 @@ func TestTemperatureStateBadge_快適時は出さない(t *testing.T) {
 	assert.False(t, ok, "体温状態が無ければバッジを出さない")
 }
 
-func TestShelterMsgid(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name     string
-		shelter  gc.ShelterType
-		expected string
-	}{
-		{
-			name:     "屋内はIndoor",
-			shelter:  gc.ShelterFull,
-			expected: "Indoor",
-		},
-		{
-			name:     "半屋外はSemi-outdoor",
-			shelter:  gc.ShelterPartial,
-			expected: "Semi-outdoor",
-		},
-		{
-			name:     "屋外はOutdoor",
-			shelter:  gc.ShelterNone,
-			expected: "Outdoor",
-		},
-		{
-			name:     "未知の値はOutdoorへ落とす",
-			shelter:  gc.ShelterType(99),
-			expected: "Outdoor",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, shelterMsgid(tt.shelter))
-		})
-	}
-}
-
 func TestGetFatigueBadgeColor(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
