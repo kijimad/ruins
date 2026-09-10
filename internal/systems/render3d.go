@@ -242,7 +242,7 @@ const itemMarkerGlyph = "!"
 
 // itemMarkerHeightRatio はマーカーの高さをビルボード高の何割にするか。ズームや奥行きで
 // ビルボードが伸縮しても比率を保ち、常に同じ大きさに見せる。
-const itemMarkerHeightRatio = 0.9
+const itemMarkerHeightRatio = 0.65
 
 var (
 	itemMarkerImg     *ebiten.Image
