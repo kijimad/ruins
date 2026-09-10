@@ -221,11 +221,10 @@ func (sys *Render3DSystem) collectItemMarkers(world w.World, quads []r3quad, pro
 		}
 	}
 
-	img := itemMarkerImage(world.Resources.UIResources.Text.SplashFontFace)
-	iw, ih := img.Bounds().Dx(), img.Bounds().Dy()
-	if iw == 0 || ih == 0 {
-		return quads
-	}
+	// マーカー画像は実際に1枚でも要るときだけ焼く。近くに対象が無い升配置では
+	// フォントリソースに触れずに済み、リソースを持たない最小 world でも通る
+	var img *ebiten.Image
+	var iw, ih int
 	for dy := -itemMarkerProximity; dy <= itemMarkerProximity; dy++ {
 		for dx := -itemMarkerProximity; dx <= itemMarkerProximity; dx++ {
 			c := consts.Coord[consts.Tile]{X: pc.X + consts.Tile(dx), Y: pc.Y + consts.Tile(dy)}
@@ -234,6 +233,13 @@ func (sys *Render3DSystem) collectItemMarkers(world w.World, quads []r3quad, pro
 			}
 			if !query.IsInVision(world, pc, c) {
 				continue
+			}
+			if img == nil {
+				img = itemMarkerImage(world.Resources.UIResources.Text.SplashFontFace)
+				iw, ih = img.Bounds().Dx(), img.Bounds().Dy()
+				if iw == 0 || ih == 0 {
+					return quads
+				}
 			}
 			quads = sys.appendMarkerQuad(quads, projector, c, img, iw, ih)
 		}
