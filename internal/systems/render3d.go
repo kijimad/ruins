@@ -12,6 +12,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -191,16 +192,17 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 	pc := world.Components.GridElement.Get(player).Coord
 	face := world.Resources.UIResources.Text.BodyFace
 	near := func(c consts.Coord[consts.Tile]) bool {
-		return absTile(c.X-pc.X) <= itemMarkerProximity && absTile(c.Y-pc.Y) <= itemMarkerProximity
+		return geometry.ChebyshevDistance(pc, c) <= itemMarkerProximity
 	}
 
-	// 拾えるフィールドアイテムを升ごとに数える。近接分だけでよい
+	// 拾えるフィールドアイテムを升ごとに数える。近接分だけでよい。
+	// Fixed でないフィールド物が拾える物なので、フィルタで Fixed を除く
 	itemCount := map[consts.Coord[consts.Tile]]int{}
-	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Query()
+	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Without(ecs.C[gc.Fixed]()).Query()
 	for itemQuery.Next() {
 		e := itemQuery.Entity()
 		c := world.Components.GridElement.Get(e).Coord
-		if near(c) && query.IsPickable(e, world) {
+		if near(c) {
 			itemCount[c]++
 		}
 	}
@@ -217,7 +219,7 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 		if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) {
 			continue
 		}
-		if len(query.GetStorageItems(world, e)) > 0 {
+		if query.HasStorageItems(world, e) {
 			storageHas[c] = true
 		}
 	}
@@ -239,10 +241,6 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 // itemMarkerGlyph はマーカーに出す汎用記号。中身や重なりがあることの合図。
 const itemMarkerGlyph = "!"
 
-// itemMarkerColor はマーカーの色。縁取りと組み合わせ、緑のアイテムとも黒縁で分離される
-// 蛍光緑にして、どの升にマーカーが付くかを目立たせる。
-var itemMarkerColor = color.RGBA{R: 60, G: 255, B: 90, A: 255}
-
 // itemMarkerHeightRatio はマーカーの高さをビルボード高の何割にするか。ズームや奥行きで
 // ビルボードが伸縮しても比率を保ち、常に同じ大きさに見せる。
 const itemMarkerHeightRatio = 0.5
@@ -258,8 +256,10 @@ func itemMarkerImage(face text.Face) *ebiten.Image {
 	itemMarkerImgOnce.Do(func() {
 		gw, gh := uicore.MeasureText(itemMarkerGlyph, face)
 		const pad = 2 // 縁取りのはみ出しぶんの余白
+		// 緑のアイテムとも黒縁で分離される蛍光緑にして、どの升にマーカーが付くかを目立たせる
+		markerColor := color.RGBA{R: 60, G: 255, B: 90, A: 255}
 		img := ebiten.NewImage(gw+pad*2, gh+pad*2)
-		hud.OutlinedText(uicore.NewEbitenCanvas(img), itemMarkerGlyph, face, image.Pt(pad, pad), itemMarkerColor, theme.HUDTextOutline)
+		hud.OutlinedText(uicore.NewEbitenCanvas(img), itemMarkerGlyph, face, image.Pt(pad, pad), markerColor, theme.HUDTextOutline)
 		itemMarkerImg = img
 	})
 	return itemMarkerImg
@@ -292,14 +292,6 @@ func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render
 	// 右端を隅に合わせて右上に収める
 	op.GeoM.Translate(float64(sp.X)-float64(img.Bounds().Dx())*s, float64(sp.Y))
 	screen.DrawImage(img, op)
-}
-
-// absTile は Tile の絶対値を int で返す
-func absTile(t consts.Tile) int {
-	if t < 0 {
-		return int(-t)
-	}
-	return int(t)
 }
 
 // buildScene は投影とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。

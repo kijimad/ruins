@@ -37,7 +37,8 @@ func TestGolden_ItemMarker(t *testing.T) {
 	_, err = lifecycle.SpawnStorageItem(world, "healing_potion", 3, closet)
 	require.NoError(t, err)
 
-	// 単品アイテム(マーカー無し)と、重なった複数アイテム(マーカー有り)を隣接に置く
+	// 単品アイテム(マーカー無し)と、重なった複数アイテム(マーカー有り)を隣接に置く。
+	// SpawnFieldItem の末尾引数は同じ升に生成するエンティティ個数で、2 なら重なり2個になる
 	_, err = lifecycle.SpawnFieldItem(world, "healing_potion", pc.X, pc.Y-1, 1)
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnFieldItem(world, "healing_potion", pc.X-1, pc.Y, 2)

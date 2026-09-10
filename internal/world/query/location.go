@@ -7,6 +7,19 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// HasStorageItems は収納に中身が1つでもあるかを返す。1つ見つけ次第打ち切るので、
+// スライスを組む GetStorageItems と違い確保が無く、有無判定だけの用途に向く。
+func HasStorageItems(world w.World, storage ecs.Entity) bool {
+	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+	for q.Next() {
+		if world.Components.LocationInStorage.Get(q.Entity()).Owner == storage {
+			q.Close()
+			return true
+		}
+	}
+	return false
+}
+
 // GetStorageItems は収納内のアイテムを取得する
 func GetStorageItems(world w.World, storage ecs.Entity) []ecs.Entity {
 	var items []ecs.Entity
