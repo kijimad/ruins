@@ -171,8 +171,6 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return err
 	}
 	sys.emit(screen, quads, projector)
-	// 3Dシーンの上に、隠れた中身を示すマーカーを重ねる
-	sys.drawItemMarkers(world, screen, projector)
 	return nil
 }
 
@@ -180,16 +178,16 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 // 少し離れていても、漁る価値のある升が見えるようにする。
 const itemMarkerProximity = 2
 
-// drawItemMarkers はプレイヤー近接かつ視界内の升に、開ける前には見えない中身があることを
-// 記号マーカーで示す。対象は「中身のある収納」か「拾えるアイテムが2個以上重なった升」。
-// 単品で見えているアイテムは自前スプライトで分かるので出さない。重なって隠れた分だけを指す。
-func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, projector render3d.Projector) {
+// collectItemMarkers はプレイヤー近接かつ視界内の升に、開ける前には見えない中身があることを
+// 示す記号マーカーのクアッドを quads へ足す。対象は「中身のある収納」か「拾えるアイテムが2個以上
+// 重なった升」。単品で見えているアイテムは自前スプライトで分かるので出さない。重なって隠れた分だけを指す。
+// マーカーは 2D オーバーレイでなくシーンのクアッドとして積み、emit の深度ソートで手前の壁に隠させる。
+func (sys *Render3DSystem) collectItemMarkers(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !world.Components.GridElement.Has(player) {
-		return
+		return quads
 	}
 	pc := world.Components.GridElement.Get(player).Coord
-	face := world.Resources.UIResources.Text.SplashFontFace
 	near := func(c consts.Coord[consts.Tile]) bool {
 		return geometry.ChebyshevDistance(pc, c) <= itemMarkerProximity
 	}
@@ -223,6 +221,11 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 		}
 	}
 
+	img := itemMarkerImage(world.Resources.UIResources.Text.SplashFontFace)
+	iw, ih := img.Bounds().Dx(), img.Bounds().Dy()
+	if iw == 0 || ih == 0 {
+		return quads
+	}
 	for dy := -itemMarkerProximity; dy <= itemMarkerProximity; dy++ {
 		for dx := -itemMarkerProximity; dx <= itemMarkerProximity; dx++ {
 			c := consts.Coord[consts.Tile]{X: pc.X + consts.Tile(dx), Y: pc.Y + consts.Tile(dy)}
@@ -232,9 +235,10 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 			if !query.IsInVision(world, pc, c) {
 				continue
 			}
-			sys.drawItemMarker(screen, projector, c, face)
+			quads = sys.appendMarkerQuad(quads, projector, c, img, iw, ih)
 		}
 	}
+	return quads
 }
 
 // itemMarkerGlyph はマーカーに出す汎用記号。中身や重なりがあることの合図。
@@ -276,33 +280,28 @@ func itemMarkerImage(face text.Face) *ebiten.Image {
 	return itemMarkerImg
 }
 
-// drawItemMarker はビルボードスプライトの右上隅に汎用記号のマーカーを縁取り付きで描く。
-// 升中心でなくスプライトの右上へ貼り付け、ビルボード高に比例した大きさにする。
-func (sys *Render3DSystem) drawItemMarker(screen *ebiten.Image, projector render3d.Projector, c consts.Coord[consts.Tile], face text.Face) {
-	// collectBillboards と同じ幾何でビルボード右上隅の world 座標を組み、画面へ投影する
+// appendMarkerQuad はビルボード右上隅に張り付く記号マーカーのクアッドを1枚 quads へ足す。
+// ワールド空間の板としてカメラ正面へ立てるので、emit の深度ソートで手前の壁に隠れる。
+// 高さはビルボード高に比例させ、ズームや奥行きでも見かけの比率を一定に保つ。
+func (sys *Render3DSystem) appendMarkerQuad(quads []r3quad, projector render3d.Projector, c consts.Coord[consts.Tile], img *ebiten.Image, iw, ih int) []r3quad {
+	// collectBillboards と同じ幾何でビルボード右上隅の world 座標を組む
 	const bw = 0.45
-	base := render3d.At(float64(c.X)+0.5, 0, float64(c.Y)+0.5)
-	topRight := render3d.Add(render3d.Add(base, render3d.Scale(projector.Right(), bw)), render3d.At(0, render3d.BillboardHeight, 0))
-	sp, ok := projector.Point(topRight)
-	if !ok {
-		return
-	}
-	scale, ok := projector.BillboardScale(c)
-	if !ok || scale <= 0 {
-		return
-	}
-	img := itemMarkerImage(face)
-	ih := img.Bounds().Dy()
-	if ih == 0 {
-		return
-	}
-	// ビルボード高に対する比率でスケールし、ズームしても見た目の比率を一定に保つ
-	s := (scale * itemMarkerHeightRatio) / float64(ih)
-	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
-	op.GeoM.Scale(s, s)
-	// 右端を隅に合わせて右上に収める
-	op.GeoM.Translate(float64(sp.X)-float64(img.Bounds().Dx())*s, float64(sp.Y))
-	screen.DrawImage(img, op)
+	right := projector.Right()
+	up := render3d.At(0, 1, 0)
+	corner := render3d.Add(
+		render3d.Add(render3d.At(float64(c.X)+0.5, 0, float64(c.Y)+0.5), render3d.Scale(right, bw)),
+		render3d.At(0, render3d.BillboardHeight, 0),
+	)
+	// 右上隅を基準に、左と下へ板を広げる。高さはビルボード高の比率、幅は画像縦横比で決める
+	fh := render3d.BillboardHeight * itemMarkerHeightRatio
+	fw := fh * float64(iw) / float64(ih)
+	tr := corner
+	tl := render3d.Add(corner, render3d.Scale(right, -fw))
+	br := render3d.Add(corner, render3d.Scale(up, -fh))
+	bl := render3d.Add(tl, render3d.Scale(up, -fh))
+	// tint は満照。視界内の升にしか出さないので減光せず浮かせる
+	sys.addQuad(&quads, tl, tr, br, bl, img, 0, 0, float64(iw), float64(ih), [3]float64{1, 1, 1})
+	return quads
 }
 
 // buildScene は投影とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。
@@ -320,6 +319,8 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	visTint := sys.visTintFunc(world)
 	quads := sys.collectTiles(world, pcx, pcz, visTint)
 	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visTint)
+	// 隠れた中身を示すマーカーもクアッドとして積み、深度ソートで手前の壁に隠させる
+	quads = sys.collectItemMarkers(world, quads, projector)
 	return quads, projector, nil
 }
 
