@@ -46,8 +46,8 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 // 全画面図のセル寸法・半径の範囲。帯が短いとセルが巨大化、広いと潰れるのを両側で防ぐ。
 // セルを小さくするほどモーダル幅に多くのチャンクが収まり、見える範囲が広がる
 const (
-	overworldMapMinCell   = 14
-	overworldMapMaxCell   = 28
+	overworldMapMinCell   = 10
+	overworldMapMaxCell   = 18
 	overworldMapMinRadius = 3
 )
 
@@ -145,6 +145,8 @@ func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 // renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。
 func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	face := world.Resources.UIResources.Text.BodyFace
+	// セルの記号は小さいセルへ収めるため小フォントにする。見出し・凡例は BodyFace のまま
+	glyphFace := world.Resources.UIResources.Text.SmallFace
 
 	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
 		op := &text.DrawOptions{}
@@ -161,7 +163,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		op.ColorScale.ScaleWithColor(c)
 		op.PrimaryAlign = text.AlignCenter
 		op.SecondaryAlign = text.AlignCenter
-		text.Draw(dst, str, face, op)
+		text.Draw(dst, str, glyphFace, op)
 	}
 
 	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 8, 6, theme.TextPrimary)
