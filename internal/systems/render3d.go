@@ -14,7 +14,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/render3d"
-	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -190,7 +189,7 @@ func (sys *Render3DSystem) drawItemMarkers(world w.World, screen *ebiten.Image, 
 		return
 	}
 	pc := world.Components.GridElement.Get(player).Coord
-	face := world.Resources.UIResources.Text.BodyFace
+	face := world.Resources.UIResources.Text.SplashFontFace
 	near := func(c consts.Coord[consts.Tile]) bool {
 		return geometry.ChebyshevDistance(pc, c) <= itemMarkerProximity
 	}
@@ -243,7 +242,7 @@ const itemMarkerGlyph = "!"
 
 // itemMarkerHeightRatio はマーカーの高さをビルボード高の何割にするか。ズームや奥行きで
 // ビルボードが伸縮しても比率を保ち、常に同じ大きさに見せる。
-const itemMarkerHeightRatio = 0.5
+const itemMarkerHeightRatio = 0.9
 
 var (
 	itemMarkerImg     *ebiten.Image
@@ -255,11 +254,23 @@ var (
 func itemMarkerImage(face text.Face) *ebiten.Image {
 	itemMarkerImgOnce.Do(func() {
 		gw, gh := uicore.MeasureText(itemMarkerGlyph, face)
-		const pad = 2 // 縁取りのはみ出しぶんの余白
+		// 縁取りを太めに敷いて、細い記号でも太く見えるようにする
+		const outline = 3
+		const pad = outline + 1
 		// 緑のアイテムとも黒縁で分離される蛍光緑にして、どの升にマーカーが付くかを目立たせる
 		markerColor := color.RGBA{R: 60, G: 255, B: 90, A: 255}
 		img := ebiten.NewImage(gw+pad*2, gh+pad*2)
-		hud.OutlinedText(uicore.NewEbitenCanvas(img), itemMarkerGlyph, face, image.Pt(pad, pad), markerColor, theme.HUDTextOutline)
+		cv := uicore.NewEbitenCanvas(img)
+		// 暗色を周囲 outline 半径へずらして重ね、太い縁取りにする。中央に本体を重ねる
+		for dy := -outline; dy <= outline; dy++ {
+			for dx := -outline; dx <= outline; dx++ {
+				if dx == 0 && dy == 0 {
+					continue
+				}
+				cv.DrawText(image.Pt(pad+dx, pad+dy), itemMarkerGlyph, face, theme.HUDTextOutline)
+			}
+		}
+		cv.DrawText(image.Pt(pad, pad), itemMarkerGlyph, face, markerColor)
 		itemMarkerImg = img
 	})
 	return itemMarkerImg
