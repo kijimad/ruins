@@ -21,7 +21,7 @@
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.8.1",
-    "smol-toml": "^1.6.1"
+    "smol-toml": "^1.7.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
