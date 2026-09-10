@@ -43,9 +43,9 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		return errors.New("dungeon resource is not set")
 	}
 
-	// HealthStatusとGridElementを持つエンティティを処理。
+	// 体温の生存機構はプレイヤーと味方だけに適用する。空腹・疲労と同じく敵には効かせない
 	var toMark []ecs.Entity
-	healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()
+	healthQuery := query.ActiveFilter3[gc.HealthStatus, gc.GridElement, gc.FactionAlly](world).Query()
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
 		hs := world.Components.HealthStatus.Get(entity)
