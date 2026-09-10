@@ -176,9 +176,9 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// itemMarkerProximity はマーカーを出すプレイヤーからの近接距離。隣接1マス。
-// 収納やアイテムの中身は隣へ寄って初めて確かめられる、という近さに合わせる。
-const itemMarkerProximity = 1
+// itemMarkerProximity はマーカーを出すプレイヤーからの近接距離。2マス以内。
+// 少し離れていても、漁る価値のある升が見えるようにする。
+const itemMarkerProximity = 2
 
 // drawItemMarkers はプレイヤー近接かつ視界内の升に、開ける前には見えない中身があることを
 // 記号マーカーで示す。対象は「中身のある収納」か「拾えるアイテムが2個以上重なった升」。
