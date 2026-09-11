@@ -61,9 +61,7 @@ func buildPanelUI(res resources.UIResources, rect image.Rectangle, content Detai
 		}
 	}
 	items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)
-	// 用途は性能行の下に「用途」見出しでまとめて出す。性能行と同じ体裁で組むので
-	// 見出し色・インデントが数値スペックと揃う。最終ページにだけ出し、
-	// ページ送りは性能行の数だけで決める
+	// 用途は性能行の下に出す。最終ページにだけ出し、ページ送りは性能行の数だけで決める
 	if page == total-1 {
 		items = append(items, entityspec.SpecRowWidgets(content.Uses, face)...)
 	}

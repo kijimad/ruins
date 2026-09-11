@@ -143,8 +143,7 @@ var specParts = []specPart{
 	},
 }
 
-// basicParts は材質や重量など多くのアイテムに共通の単値属性。末尾に「基本」見出しでひとまとめにする。
-// specParts と同じ specPart なので、実体と raw spec の両ビューへ同じ規則で反映される
+// basicParts は材質や重量など多くのアイテムに共通の単値属性。末尾に「基本」見出しでひとまとめにする
 var basicParts = []specPart{
 	{ // 材質
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
@@ -251,7 +250,6 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 		collectEntityRows(world, entity, basicParts))
 }
 
-// collectEntityRows は parts を順に回し、実体から取れる行を連結する
 func collectEntityRows(world w.World, entity ecs.Entity, parts []specPart) []SpecRow {
 	var rows []SpecRow
 	for _, p := range parts {
@@ -262,8 +260,7 @@ func collectEntityRows(world w.World, entity ecs.Entity, parts []specPart) []Spe
 	return rows
 }
 
-// appendBasicGroup は基本属性の行を「基本」見出しでまとめて rows の末尾へ足す。
-// 基本属性が無ければ rows をそのまま返す。見出し配下は markChildren で1段下げる
+// appendBasicGroup は基本属性の行を「基本」見出しでまとめて rows の末尾へ足す。基本属性が無ければ rows をそのまま返す
 func appendBasicGroup(world w.World, rows, basic []SpecRow) []SpecRow {
 	if len(basic) == 0 {
 		return rows
@@ -296,17 +293,14 @@ func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
 }
 
 // SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。
-// エンティティを生成せず raw 定義から詳細を出す商店などで使う。
-// specParts を順に回し、fromSpec を持つ要素のうち spec が持つものだけを含める。
-// 鮮度など fromSpec が nil の要素は、生成後にしか定まらないのでここには出ない
+// エンティティを生成せず raw 定義から詳細を出す商店などで使う。鮮度など fromSpec が nil の要素は出ない
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	return appendBasicGroup(world,
 		collectSpecRows(world, spec, specParts),
 		collectSpecRows(world, spec, basicParts))
 }
 
-// collectSpecRows は parts を順に回し、raw spec から取れる行を連結する。
-// fromSpec が nil の要素は raw spec 表示に出ない
+// collectSpecRows は fromSpec を持つ parts の行だけを連結する。fromSpec が nil の要素は raw spec 表示に出ない
 func collectSpecRows(world w.World, spec gc.EntitySpec, parts []specPart) []SpecRow {
 	var rows []SpecRow
 	for _, p := range parts {

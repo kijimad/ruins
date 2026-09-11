@@ -17,8 +17,7 @@ var _ ScreenRenderer = (*Detail)(nil)
 
 // DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行・用途をそのまま持つ。
 // 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
-// 行の型は entityspec.SpecRow を使う。Uses は「食べられる」「読める」など性質・使い道を
-// 「用途」見出しでまとめた行で、説明文の下に描く。不要なら空でよい
+// 行の型は entityspec.SpecRow を使う。Uses は性質・使い道を「用途」見出しでまとめた行で、不要なら空でよい
 type DetailContent struct {
 	Name string
 	Desc string

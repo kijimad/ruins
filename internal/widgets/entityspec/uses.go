@@ -8,10 +8,7 @@ import (
 )
 
 // UseHints は実体の性質・使い道を「用途」見出しでまとめた行の並びを返す。
-// 見出し1行に続けて性質を1段下げて並べ、性能行と同じ体裁でグルーピングして描く。
-// 文言は query.T で現在言語へ訳す。各判定は item_action_state の動詞タブと同じ
-// コンポーネント条件を使い、「その動詞が使える」と「その性質が出る」を一致させる。
-// 装備や武器は専用画面で扱うため動詞タブには無いが、用途としてここに並べる。
+// 各判定は item_action_state の動詞タブの Accept と同条件にし、使える動詞と出る性質を一致させる。
 // 死んだ実体や性質を持たない実体には nil を返す。
 func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	if !world.ECS.Alive(e) {
@@ -23,18 +20,16 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	healing := c.ProvidesHealing.Has(e)
 
 	var uses []string
-	// 栄養か回復を持つ消費物は食べられる。acceptConsumeFood と同条件
-	if consumable && (nutrition || healing) {
+	if consumable && (nutrition || healing) { // acceptConsumeFood
 		uses = append(uses, query.T(world, "Edible"))
 	}
 	if c.Book.Has(e) {
 		uses = append(uses, query.T(world, "Readable"))
 	}
-	// 栄養も回復も持たない消費物は道具として使う。acceptUseTool と同条件
-	if consumable && !nutrition && !healing {
+	if consumable && !nutrition && !healing { // acceptUseTool
 		uses = append(uses, query.T(world, "Usable"))
 	}
-	// 防具も武器も装備スロットに付けるので同じ「装備できる」でまとめる
+	// 武器も防具も装備スロットに付けるので同じ「装備できる」にまとめる
 	if c.Wearable.Has(e) || c.Melee.Has(e) || c.Fire.Has(e) {
 		uses = append(uses, query.T(world, "Wearable"))
 	}
