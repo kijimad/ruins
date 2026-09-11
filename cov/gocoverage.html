@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -393,7 +393,7 @@
 				
 				<option value="file168">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (100.0%)</option>
 				
-				<option value="file169">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (88.5%)</option>
+				<option value="file169">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (93.5%)</option>
 				
 				<option value="file170">github.com/kijimaD/ruins/internal/maptemplate/palette.go (98.5%)</option>
 				
@@ -717,7 +717,7 @@
 				
 				<option value="file330">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file331">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
+				<option value="file331">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
 				
 				<option value="file332">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -1741,7 +1741,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1811,8 +1811,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -23620,13 +23620,13 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
                 <span class="cov8" title="1">return gc.Level{}, err
 </span>        }
         <span class="cov8" title="1">if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil </span>{
-                <span class="cov0" title="0">return gc.Level{}, err
+                <span class="cov8" title="1">return gc.Level{}, err
 </span>        }
         <span class="cov8" title="1">if err := spawnItems(world, metaPlan, offsetX, offsetY); err != nil </span>{
-                <span class="cov0" title="0">return gc.Level{}, err
+                <span class="cov8" title="1">return gc.Level{}, err
 </span>        }
         <span class="cov8" title="1">if err := spawnProps(world, metaPlan, offsetX, offsetY); err != nil </span>{
-                <span class="cov0" title="0">return gc.Level{}, err
+                <span class="cov8" title="1">return gc.Level{}, err
 </span>        }
         <span class="cov8" title="1">if err := spawnDoors(world, metaPlan, offsetX, offsetY); err != nil </span>{
                 <span class="cov0" title="0">return gc.Level{}, err
@@ -23837,7 +23837,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
         if propRaw.Storage.LootCount != nil </span>{
                 <span class="cov8" title="1">d, err := consts.ParseDice(*propRaw.Storage.LootCount)
                 if err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("invalid lootCount notation for container '%s': %w", propRaw.Name, err)
+                        <span class="cov8" title="1">return fmt.Errorf("invalid lootCount notation for container '%s': %w", propRaw.Name, err)
 </span>                }
                 <span class="cov8" title="1">lootDice = d</span>
         }
@@ -23849,14 +23849,14 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
         <span class="cov8" title="1">for range lootCount </span>{
                 <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, danger)
                 if err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to draw item: %w", err)
+                        <span class="cov8" title="1">return fmt.Errorf("failed to draw item: %w", err)
 </span>                }
                 <span class="cov8" title="1">if itemName == "" </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
 
                 <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to spawn item '%s': %w", itemName, err)
+                        <span class="cov8" title="1">return fmt.Errorf("failed to spawn item '%s': %w", itemName, err)
 </span>                }
         }
 
@@ -49574,7 +49574,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
