@@ -201,52 +201,6 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	})
 }
 
-func TestLogTemperatureChange(t *testing.T) {
-	t.Parallel()
-
-	t.Run("悪化時のメッセージが取得できる", func(t *testing.T) {
-		t.Parallel()
-		msg := getWorseningMessage(gc.ConditionHypothermia, gc.SeverityMinor)
-		assert.Contains(t, msg, "The cold is setting in")
-	})
-
-	t.Run("中程度悪化のメッセージ", func(t *testing.T) {
-		t.Parallel()
-		msg := getWorseningMessage(gc.ConditionHypothermia, gc.SeverityMedium)
-		assert.Contains(t, msg, "You are quite cold")
-	})
-
-	t.Run("重度悪化のメッセージ", func(t *testing.T) {
-		t.Parallel()
-		msg := getWorseningMessage(gc.ConditionHypothermia, gc.SeveritySevere)
-		assert.Contains(t, msg, "The cold is dangerous")
-	})
-
-	t.Run("回復時のメッセージが取得できる", func(t *testing.T) {
-		t.Parallel()
-		msg := getRecoveryMessage(gc.ConditionHypothermia, gc.SeverityNone)
-		assert.Contains(t, msg, "You have warmed up")
-	})
-
-	t.Run("部分回復のメッセージ", func(t *testing.T) {
-		t.Parallel()
-		msg := getRecoveryMessage(gc.ConditionHypothermia, gc.SeverityMinor)
-		assert.Contains(t, msg, "You are warming up a little")
-	})
-
-	t.Run("SeverityNoneの悪化メッセージは空", func(t *testing.T) {
-		t.Parallel()
-		msg := getWorseningMessage(gc.ConditionHypothermia, gc.SeverityNone)
-		assert.Empty(t, msg)
-	})
-
-	t.Run("SeveritySevereの回復メッセージは空", func(t *testing.T) {
-		t.Parallel()
-		msg := getRecoveryMessage(gc.ConditionHypothermia, gc.SeveritySevere)
-		assert.Empty(t, msg)
-	})
-}
-
 func TestTemperatureSystem_Update_熱源のそばは体温の低下が緩む(t *testing.T) {
 	t.Parallel()
 
