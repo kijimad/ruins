@@ -33,7 +33,7 @@ func TestSplitScreen_タイトル説明ヒントと左右を含む(t *testing.T)
 	tree := SplitScreen(world, res, "タイトル", left, right, "説明", "ヒント")
 
 	labels := uicore.CollectLabels(tree)
-	assert.Subset(t, labels, []string{"タイトル", "説明", "ヒント", "左", "右"})
+	assertContainsAll(t, labels, []string{"タイトル", "説明", "ヒント", "左", "右"})
 }
 
 // TestFormScreen_タイトル本文ヒントを含む は、フォーム画面を組んだツリーに要素のラベルが
@@ -50,7 +50,7 @@ func TestFormScreen_タイトル本文ヒントを含む(t *testing.T) {
 		tree := FormScreen(world, res, "フォーム", body, "エラー", "ヒント")
 
 		labels := uicore.CollectLabels(tree)
-		assert.Subset(t, labels, []string{"フォーム", "本文", "エラー", "ヒント"})
+		assertContainsAll(t, labels, []string{"フォーム", "本文", "エラー", "ヒント"})
 	})
 
 	t.Run("エラー文なしはエラー行を含まない", func(t *testing.T) {
@@ -62,7 +62,16 @@ func TestFormScreen_タイトル本文ヒントを含む(t *testing.T) {
 		tree := FormScreen(world, res, "フォーム", body, "", "ヒント")
 
 		labels := uicore.CollectLabels(tree)
-		assert.Subset(t, labels, []string{"フォーム", "本文", "ヒント"})
+		assertContainsAll(t, labels, []string{"フォーム", "本文", "ヒント"})
 		assert.NotContains(t, labels, "エラー")
 	})
+}
+
+// assertContainsAll は list が want の各要素をすべて含むことを検証する。
+// testify の Subset は引数順を誤読されやすいため、意図が明確なこのヘルパーで包む。
+func assertContainsAll(t *testing.T, list, want []string) {
+	t.Helper()
+	for _, w := range want {
+		assert.Contains(t, list, w)
+	}
 }
