@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"errors"
 	"fmt"
 	"image"
 
@@ -8,6 +9,18 @@ import (
 	"golang.org/x/image/draw"
 
 	"github.com/kijimaD/ruins/internal/components"
+)
+
+// スプライト解決のエラー。内部関数なので文字列でなく sentinel で同定する。
+var (
+	// ErrSpriteRenderNil は SpriteRender が nil のとき返す。
+	ErrSpriteRenderNil = errors.New("sprite render is nil")
+	// ErrSpriteSheetNotFound はシート名が未登録のとき返す。
+	ErrSpriteSheetNotFound = errors.New("sprite sheet not found")
+	// ErrSpriteKeyNotFound はスプライトキーがシートに無いとき返す。
+	ErrSpriteKeyNotFound = errors.New("sprite key not found in sheet")
+	// ErrSpriteNoTexture はシートにテクスチャ画像が無いとき返す。
+	ErrSpriteNoTexture = errors.New("sprite sheet has no texture image")
 )
 
 // SpriteStore は SpriteRender が指すスプライトの画像を解決してキャッシュする。
@@ -92,18 +105,18 @@ func (s *SpriteStore) Rect(sr *components.SpriteRender) (components.Texture, ima
 // 矩形はテクスチャ範囲へクランプするので、範囲外を指す指定でも安全に切り出せる
 func spriteRect(sheets map[string]components.SpriteSheet, sr *components.SpriteRender) (components.SpriteSheet, image.Rectangle, error) {
 	if sr == nil {
-		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite render is nil")
+		return components.SpriteSheet{}, image.Rectangle{}, ErrSpriteRenderNil
 	}
 	sheet, ok := sheets[sr.SpriteSheetName]
 	if !ok {
-		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite sheet %q not found", sr.SpriteSheetName)
+		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("%w: %q", ErrSpriteSheetNotFound, sr.SpriteSheetName)
 	}
 	sprite, ok := sheet.Sprites[sr.SpriteKey]
 	if !ok {
-		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite key %q not found in sheet %q", sr.SpriteKey, sr.SpriteSheetName)
+		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("%w: %q in sheet %q", ErrSpriteKeyNotFound, sr.SpriteKey, sr.SpriteSheetName)
 	}
 	if sheet.Texture.Image == nil {
-		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite sheet %q has no texture image", sr.SpriteSheetName)
+		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("%w: %q", ErrSpriteNoTexture, sr.SpriteSheetName)
 	}
 	w := sheet.Texture.Image.Bounds().Dx()
 	h := sheet.Texture.Image.Bounds().Dy()
