@@ -30,7 +30,7 @@ func buildPanelsUI(res resources.UIResources, rect image.Rectangle, contents []D
 
 // buildPanelUI は詳細内容1件を uicore のツリーとして組み、rect いっぱいに配置して返す。
 // 名前が空なら名前行を省き、説明が空なら説明行を省く。行が多いときは page でページ分割する。
-// 説明は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。
+// 説明は名前の直下に全ページで出し、用途は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。
 // 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。
 func buildPanelUI(res resources.UIResources, rect image.Rectangle, content DetailContent, page int) uicore.Widget {
 	face := res.Text.BodyFace
