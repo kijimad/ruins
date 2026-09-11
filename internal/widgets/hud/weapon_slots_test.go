@@ -42,9 +42,12 @@ func TestWeaponSlots_Draw_各スロットを描画する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cv := &fakeCanvas{}
 
+	// 武器スロットは仕様上最大5枠で番号は1桁に収まるため、番号は '0'+n で単純に描ける。
+	// テスト用シートは画像を持たないので、装備ありでもスプライトは解決に失敗する。
+	// ここでは WeaponName の有無で drawWeaponSprite の入口分岐が分かれることを通す
 	data := WeaponSlotsData{
 		Slots: []WeaponSlotInfo{
-			// 装備あり、既知シートのスプライト名。スプライト解決を試みる
+			// 装備あり。スプライト解決を試みるが画像が無く描画はしない
 			{WeaponName: "剣", SpriteSheet: "field", SpriteName: "player"},
 			// 装備あり、未知のスプライト名。解決に失敗し描画しない
 			{WeaponName: "槍", SpriteSheet: "field", SpriteName: "unknown_sprite"},
@@ -61,7 +64,8 @@ func TestWeaponSlots_Draw_各スロットを描画する(t *testing.T) {
 	assert.Equal(t, 3, cv.nineSlices, "スロット数ぶんの背景を描く")
 	// 選択中スロットにだけ枠線を重ねる
 	assert.Len(t, cv.strokeRects, 1, "選択スロットに枠線を1つ描く")
-	// スロット番号を各スロットに描く。番号は1始まり
+	// スロット番号を各スロットに描く。番号は1始まり。
+	// 以降は cv.texts をスロット順に添字参照するため、先に長さを固定してから内容を見る
 	require.Len(t, cv.texts, 3, "各スロットに番号を描く")
 	assert.Equal(t, "1", cv.texts[0].str, "先頭スロットの番号は1")
 	assert.Equal(t, "3", cv.texts[2].str, "末尾スロットの番号は3")
