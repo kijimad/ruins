@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestVisionSystem_NewAndString はコンストラクタと名前を検証する。
-func TestVisionSystem_NewAndString(t *testing.T) {
+// TestNewVisionSystem_初期化してStringを返す はコンストラクタと名前を検証する。
+func TestNewVisionSystem_初期化してStringを返す(t *testing.T) {
 	t.Parallel()
 
 	sys := NewVisionSystem()
@@ -19,9 +19,9 @@ func TestVisionSystem_NewAndString(t *testing.T) {
 	assert.Equal(t, "VisionSystem", sys.String())
 }
 
-// TestVisionSystem_Update_NoPlayer はプレイヤー不在時に何もせず nil を返すことを検証する。
+// TestVisionSystem_Update_プレイヤー不在なら早期returnしnilを返す を検証する。
 // InitTestWorld はプレイヤーもダンジョンも持たないため、Update は最初の早期 return を通る。
-func TestVisionSystem_Update_NoPlayer(t *testing.T) {
+func TestVisionSystem_Update_プレイヤー不在なら早期returnしnilを返す(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -30,9 +30,8 @@ func TestVisionSystem_Update_NoPlayer(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 }
 
-// TestTileRenderAt は描画情報の取得を検証する。
-// map にあればその状態を返し、無ければ未探索の番兵 TileRenderUnexplored を返す。
-func TestTileRenderAt(t *testing.T) {
+// TestTileRenderAt_格納済みは同じ状態を返し不在は未探索番兵を返す を検証する。
+func TestTileRenderAt_格納済みは同じ状態を返し不在は未探索番兵を返す(t *testing.T) {
 	t.Parallel()
 
 	present := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 2}}
@@ -40,12 +39,12 @@ func TestTileRenderAt(t *testing.T) {
 		present: TileRenderVisible{Darkness: 0.2},
 	}
 
-	// 在れば格納された状態を返す
-	_, ok := tileRenderAt(m, present).(TileRenderVisible)
-	assert.True(t, ok, "格納済みタイルは TileRenderVisible")
+	// 在れば格納された状態を、同じ値のまま返す
+	v, ok := tileRenderAt(m, present).(TileRenderVisible)
+	require.True(t, ok, "格納済みタイルは TileRenderVisible")
+	assert.Equal(t, VisibleDarkness(0.2), v.Darkness, "格納した値がそのまま返る")
 
 	// 不在は未探索の番兵
-	absent := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}
-	_, ok = tileRenderAt(m, absent).(TileRenderUnexplored)
+	_, ok = tileRenderAt(m, gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}).(TileRenderUnexplored)
 	assert.True(t, ok, "未格納タイルは TileRenderUnexplored")
 }
