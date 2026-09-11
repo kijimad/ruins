@@ -63,7 +63,7 @@ func TestDetailPageCount_実体の性能行数からページ数を算出する(
 // buildPanelUI は uicore のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
 // ロック無しで検証できる。Text は参照するので空の実体を渡す。フェイスが nil なら WrapText は
 // 測定せず desc を1行で返す。
-func TestBuildPanelUI_説明は最終ページにだけ表示する(t *testing.T) {
+func TestBuildPanelUI_説明はアイテム名の直下に全ページ表示する(t *testing.T) {
 	t.Parallel()
 	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
@@ -75,8 +75,10 @@ func TestBuildPanelUI_説明は最終ページにだけ表示する(t *testing.T
 
 	firstLabels := uicore.CollectLabels(firstPage)
 	lastLabels := uicore.CollectLabels(lastPage)
-	assert.NotContains(t, firstLabels, "説明文", "最終ページ以外には説明を出さない")
-	assert.Contains(t, lastLabels, "説明文", "最終ページには説明を出す")
+	// 説明はアイテム名の直下に、ページによらず出す
+	require.GreaterOrEqual(t, len(firstLabels), 2)
+	assert.Equal(t, []string{"名前", "説明文"}, firstLabels[:2], "説明はアイテム名の直下に出す")
+	assert.Contains(t, lastLabels, "説明文", "最終ページでも説明を出す")
 	assert.Contains(t, firstLabels, "項目00")
 	assert.NotContains(t, firstLabels, "項目14", "1ページ目には収まらない行を出さない")
 	assert.Contains(t, lastLabels, "項目14")

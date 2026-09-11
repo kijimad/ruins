@@ -6081,6 +6081,9 @@ msgstr "疲労度"
 msgid "Rested"
 msgstr "快調"
 
+msgid "Basic"
+msgstr "基本"
+
 msgid "Uses"
 msgstr "用途"
 

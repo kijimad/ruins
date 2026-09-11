@@ -54,14 +54,15 @@ func buildPanelUI(res resources.UIResources, rect image.Rectangle, content Detai
 	if content.Name != "" {
 		items = append(items, uicore.NewText(content.Name, face, theme.TextPrimary))
 	}
-	items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)
-	if content.Desc != "" && page == total-1 {
+	// 説明はアイテム名の直下に出す。名前と対の見出しなので全ページで示し、性能行の上に置く
+	if content.Desc != "" {
 		for _, line := range uicore.WrapText(content.Desc, smallFace, rect.Dx()-theme.Space7*2) {
 			items = append(items, uicore.NewText(line, smallFace, theme.TextSecondary))
 		}
 	}
-	// 用途は説明文の下に「用途」見出しでまとめて出す。性能行と同じ体裁で組むので
-	// 見出し色・インデントが数値スペックと揃う。説明と同じく最終ページにだけ出し、
+	items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)
+	// 用途は性能行の下に「用途」見出しでまとめて出す。性能行と同じ体裁で組むので
+	// 見出し色・インデントが数値スペックと揃う。最終ページにだけ出し、
 	// ページ送りは性能行の数だけで決める
 	if page == total-1 {
 		items = append(items, entityspec.SpecRowWidgets(content.Uses, face)...)
