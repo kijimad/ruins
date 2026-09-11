@@ -151,7 +151,7 @@ func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testi
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Equal(t, []string{"Vitality", "42"}, labels)
+	assert.Equal(t, []string{"Basic", "Vitality", "42"}, labels)
 }
 
 func TestUpdateSpec_回復量は割合指定ならパーセントで表示する(t *testing.T) {
@@ -163,7 +163,7 @@ func TestUpdateSpec_回復量は割合指定ならパーセントで表示する
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Equal(t, []string{"Vitality", "30%"}, labels)
+	assert.Equal(t, []string{"Basic", "Vitality", "30%"}, labels)
 }
 
 func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する(t *testing.T) {
@@ -178,7 +178,7 @@ func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 未知の種別はハイフン表示にフォールバックする
-	assert.Equal(t, []string{"Vitality", "-"}, labels)
+	assert.Equal(t, []string{"Basic", "Vitality", "-"}, labels)
 }
 
 func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
@@ -192,7 +192,8 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Equal(t, []string{"Nutrition", "25", "Value", consts.Currency(1200).String(), "Weight", "0㎎"}, labels)
+	// 栄養・価値・重量はいずれも基本属性なので「基本」見出しにまとまる
+	assert.Equal(t, []string{"Basic", "Nutrition", "25", "Value", consts.Currency(1200).String(), "Weight", "0㎎"}, labels)
 }
 
 func TestUpdateSpec_治療アイテムは治す対象と効力を表示する(t *testing.T) {
@@ -396,16 +397,18 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
-	// Fire・Wearable・Healing・Nutrition・Book・Value・Weight の行がこの並びで連結される
+	// Fire・Wearable・Book が先に並び、基本属性の Healing・Nutrition・Value・Weight は
+	// 末尾の「基本」見出しにまとまる
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackRifle.Label),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
 		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
 		query.T(world, gc.EquipmentTorso.String()),
 		"Defense", "+15", "Cold resist", "+3",
+		"Book", "Progress", "30%",
+		"Basic",
 		"Vitality", "42",
 		"Nutrition", "25",
-		"Book", "Progress", "30%",
 		"Value", consts.Currency(1200).String(),
 		"Weight", "0㎎",
 	}, labels)

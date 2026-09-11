@@ -37,12 +37,14 @@ func markChildren(rows []SpecRow) []SpecRow {
 
 // specPart は性能表示の1要素。実体と raw spec の2つのデータ源それぞれから行を作る。
 // fromSpec が nil の要素は raw spec 表示には出ない。生成後にしか定まらない鮮度や競売などが該当する。
-// component を足すときはこの specParts へ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない
+// component を足すときは specParts か basicParts へ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない
 type specPart struct {
 	fromEntity func(world w.World, entity ecs.Entity) []SpecRow
 	fromSpec   func(world w.World, spec gc.EntitySpec) []SpecRow
 }
 
+// specParts は独自の見出しを持つか単独で並ぶ性能要素。表示順を兼ねる。
+// 材質や重量など多くのアイテムに共通の単値属性は basicParts に分け、末尾の「基本」見出しへまとめる
 var specParts = []specPart{
 	{ // 能力値。実体のみ
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
@@ -81,6 +83,68 @@ var specParts = []specPart{
 			return append(attackerRows(world, s.Fire), fireAmmoRows(world, s.Fire)...)
 		},
 	},
+	{ // 防具
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Wearable.Has(e) {
+				return nil
+			}
+			return wearableRows(world, world.Components.Wearable.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Wearable == nil {
+				return nil
+			}
+			return wearableRows(world, s.Wearable)
+		},
+	},
+	{ // 本
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Book.Has(e) {
+				return nil
+			}
+			return bookRows(world, world.Components.Book.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Book == nil {
+				return nil
+			}
+			return bookRows(world, s.Book)
+		},
+	},
+	{ // 治療。価値や重量など多くのアイテムに共通の項目の後に置く
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Remedy.Has(e) {
+				return nil
+			}
+			return remedyRows(world, world.Components.Remedy.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Remedy == nil {
+				return nil
+			}
+			return remedyRows(world, s.Remedy)
+		},
+	},
+	{ // 出品中。実体のみ
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.AuctionListing.Has(e) {
+				return nil
+			}
+			return auctionListingRows(world, world.Components.AuctionListing.Get(e))
+		},
+	},
+	{ // 落札済み。実体のみ
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.AuctionSold.Has(e) {
+				return nil
+			}
+			return auctionSoldRows(world, world.Components.AuctionSold.Get(e))
+		},
+	},
+}
+
+// basicParts は材質や重量など多くのアイテムに共通の単値属性。末尾に「基本」見出しでひとまとめにする
+var basicParts = []specPart{
 	{ // 材質
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.Material.Has(e) {
@@ -110,20 +174,6 @@ var specParts = []specPart{
 				return []SpecRow{fuelRow(world, heat)}
 			}
 			return nil
-		},
-	},
-	{ // 防具
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Wearable.Has(e) {
-				return nil
-			}
-			return wearableRows(world, world.Components.Wearable.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Wearable == nil {
-				return nil
-			}
-			return wearableRows(world, s.Wearable)
 		},
 	},
 	{ // 回復
@@ -162,20 +212,6 @@ var specParts = []specPart{
 			return []SpecRow{freshnessRow(world, e)}
 		},
 	},
-	{ // 本
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Book.Has(e) {
-				return nil
-			}
-			return bookRows(world, world.Components.Book.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Book == nil {
-				return nil
-			}
-			return bookRows(world, s.Book)
-		},
-	},
 	{ // 価値
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.Value.Has(e) {
@@ -204,48 +240,35 @@ var specParts = []specPart{
 			return weightRows(world, s.Weight)
 		},
 	},
-	{ // 治療。価値や重量など多くのアイテムに共通の項目の後に置く
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Remedy.Has(e) {
-				return nil
-			}
-			return remedyRows(world, world.Components.Remedy.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Remedy == nil {
-				return nil
-			}
-			return remedyRows(world, s.Remedy)
-		},
-	},
-	{ // 出品中。実体のみ
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.AuctionListing.Has(e) {
-				return nil
-			}
-			return auctionListingRows(world, world.Components.AuctionListing.Get(e))
-		},
-	},
-	{ // 落札済み。実体のみ
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.AuctionSold.Has(e) {
-				return nil
-			}
-			return auctionSoldRows(world, world.Components.AuctionSold.Get(e))
-		},
-	},
 }
 
 // SpecRows はエンティティの性能表示を行の並びとして返す。
-// specParts を順に回し、実体が持つ要素だけを含める
+// specParts に続けて、basicParts を末尾の「基本」見出しでまとめて足す
 func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
+	return appendBasicGroup(world,
+		collectEntityRows(world, entity, specParts),
+		collectEntityRows(world, entity, basicParts))
+}
+
+func collectEntityRows(world w.World, entity ecs.Entity, parts []specPart) []SpecRow {
 	var rows []SpecRow
-	for _, p := range specParts {
+	for _, p := range parts {
 		if p.fromEntity != nil {
 			rows = append(rows, p.fromEntity(world, entity)...)
 		}
 	}
 	return rows
+}
+
+// appendBasicGroup は基本属性の行を「基本」見出しでまとめて rows の末尾へ足す。基本属性が無ければ rows をそのまま返す
+func appendBasicGroup(world w.World, rows, basic []SpecRow) []SpecRow {
+	if len(basic) == 0 {
+		return rows
+	}
+	group := make([]SpecRow, 0, len(basic)+1)
+	group = append(group, SpecRow{Label: query.T(world, "Basic"), Header: true})
+	group = append(group, basic...)
+	return append(rows, markChildren(group)...)
 }
 
 // auctionListingRows は出品中の品の番号と現在値を返す。先頭は見出し
@@ -270,12 +293,17 @@ func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
 }
 
 // SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。
-// エンティティを生成せず raw 定義から詳細を出す商店などで使う。
-// specParts を順に回し、fromSpec を持つ要素のうち spec が持つものだけを含める。
-// 鮮度など fromSpec が nil の要素は、生成後にしか定まらないのでここには出ない
+// エンティティを生成せず raw 定義から詳細を出す商店などで使う。鮮度など fromSpec が nil の要素は出ない
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
+	return appendBasicGroup(world,
+		collectSpecRows(world, spec, specParts),
+		collectSpecRows(world, spec, basicParts))
+}
+
+// collectSpecRows は fromSpec を持つ parts の行だけを連結する。fromSpec が nil の要素は raw spec 表示に出ない
+func collectSpecRows(world w.World, spec gc.EntitySpec, parts []specPart) []SpecRow {
 	var rows []SpecRow
-	for _, p := range specParts {
+	for _, p := range parts {
 		if p.fromSpec != nil {
 			rows = append(rows, p.fromSpec(world, spec)...)
 		}

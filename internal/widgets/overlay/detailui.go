@@ -30,7 +30,7 @@ func buildPanelsUI(res resources.UIResources, rect image.Rectangle, contents []D
 
 // buildPanelUI は詳細内容1件を uicore のツリーとして組み、rect いっぱいに配置して返す。
 // 名前が空なら名前行を省き、説明が空なら説明行を省く。行が多いときは page でページ分割する。
-// 説明は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。
+// 説明は名前の直下に全ページで出し、用途は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。
 // 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。
 func buildPanelUI(res resources.UIResources, rect image.Rectangle, content DetailContent, page int) uicore.Widget {
 	face := res.Text.BodyFace
@@ -54,11 +54,16 @@ func buildPanelUI(res resources.UIResources, rect image.Rectangle, content Detai
 	if content.Name != "" {
 		items = append(items, uicore.NewText(content.Name, face, theme.TextPrimary))
 	}
-	items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)
-	if content.Desc != "" && page == total-1 {
+	// 説明はアイテム名の直下に出す。名前と対の見出しなので全ページで示し、性能行の上に置く
+	if content.Desc != "" {
 		for _, line := range uicore.WrapText(content.Desc, smallFace, rect.Dx()-theme.Space7*2) {
 			items = append(items, uicore.NewText(line, smallFace, theme.TextSecondary))
 		}
+	}
+	items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)
+	// 用途は性能行の下に出す。ページ送りは性能行の数だけで決めるので用途は数えず、最終ページにまとめて出す
+	if page == total-1 {
+		items = append(items, entityspec.SpecRowWidgets(content.Uses, face)...)
 	}
 	items = append(items, uicore.NewText(fmt.Sprintf("%d/%d", pg.GetCurrentPage(), pg.GetTotalPages()), smallFace, theme.TextSecondary))
 
