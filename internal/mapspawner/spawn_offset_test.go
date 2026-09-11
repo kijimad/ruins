@@ -80,3 +80,51 @@ func TestSpawnAt_タイル生成エラーを伝播する(t *testing.T) {
 	require.ErrorContains(t, err, "存在しないタイル")
 	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
 }
+
+// TestSpawnAt_NPC生成エラーを伝播する は spawnNPCs のエラーが SpawnAt を
+// 打ち切り、呼び出し元へそのまま返ることを固定する。
+func TestSpawnAt_NPC生成エラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	plan := newTestSpawnPlan(world)
+	plan.NPCs = []mapplanner.NPCSpec{
+		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "存在しないNPC"},
+	}
+
+	level, err := SpawnAt(world, plan, 0, 0)
+	require.ErrorContains(t, err, "存在しないNPC")
+	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
+}
+
+// TestSpawnAt_アイテム生成エラーを伝播する は spawnItems のエラーが SpawnAt を
+// 打ち切り、呼び出し元へそのまま返ることを固定する。
+func TestSpawnAt_アイテム生成エラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	plan := newTestSpawnPlan(world)
+	plan.Items = []mapplanner.ItemSpec{
+		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "存在しないアイテム", Count: 1},
+	}
+
+	level, err := SpawnAt(world, plan, 0, 0)
+	require.ErrorContains(t, err, "存在しないアイテム")
+	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
+}
+
+// TestSpawnAt_Props生成エラーを伝播する は spawnProps のエラーが SpawnAt を
+// 打ち切り、呼び出し元へそのまま返ることを固定する。
+func TestSpawnAt_Props生成エラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	plan := newTestSpawnPlan(world)
+	plan.Props = []mapplanner.PropsSpec{
+		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "存在しないprops"},
+	}
+
+	level, err := SpawnAt(world, plan, 0, 0)
+	require.ErrorContains(t, err, "存在しないprops")
+	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
+}
