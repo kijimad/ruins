@@ -3,7 +3,6 @@ package systems
 import (
 	"image"
 	"image/color"
-	"math"
 	"sort"
 	"sync"
 
@@ -49,9 +48,6 @@ type r3quad struct {
 	// depth は画家ソートの副キー。quad は元エンティティを持たないので、立て板を作るときにSpriteRender.Depth をここへ焼き込む
 	depth int
 }
-
-// r3cullRadius はプレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
-const r3cullRadius = 60.0
 
 // dayOverbright* は屋外の日照が強いほどタイルの明るさを乗算の天井 1.0 超へ持ち上げる帯。
 // テクスチャ本来の明るさを越えて晴天らしく明るく見せる。dayOverbrightLow 以下では持ち上げない。
@@ -181,16 +177,11 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	if err != nil {
 		return nil, render3d.Projector{}, err
 	}
-	center, err := render3d.PlayerTile(world)
-	if err != nil {
-		return nil, render3d.Projector{}, err
-	}
-	pcx, pcz := float64(center.X), float64(center.Y)
 
 	visTint := sys.visTintFunc(world)
 	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
-	quads := sys.collectTiles(world, sys.quads[:0], pcx, pcz, visTint)
-	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visTint)
+	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint)
+	quads = sys.collectBillboards(world, quads, projector, visTint)
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
 	// 戻り値は sys.quads と同一スライス。emit がそのまま辿り、次フレームは [:0] で容量を使い回す
@@ -249,14 +240,15 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 }
 
 // collectTiles は床と壁のクアッドを quads へ追記して返す。
-func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, pcx, pcz float64, visTint tintFunc) []r3quad {
+func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
 	walls := render3d.WallTileSet(world)
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	for tileQ.Next() {
 		e := tileQ.Entity()
 		g := world.Components.GridElement.Get(e)
 		fx, fz := float64(g.X), float64(g.Y)
-		if math.Abs(fx-pcx) > r3cullRadius || math.Abs(fz-pcz) > r3cullRadius {
+		// 画面に掛からない升はクアッドを積む前に落とす。壁は上へ伸びるので天面 WallHeight まで含める
+		if !projector.TileOnScreen(g.Coord, render3d.WallHeight) {
 			continue
 		}
 		sr := world.Components.SpriteRender.Get(e)
@@ -297,14 +289,16 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visTint tintFunc) []r3quad {
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
+	right := projector.Right()
 	// 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile](), ecs.C[gc.Driving]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
 		g := world.Components.GridElement.Get(e)
 		fx, fz := float64(g.X), float64(g.Y)
-		if math.Abs(fx-pcx) > r3cullRadius || math.Abs(fz-pcz) > r3cullRadius {
+		// 立て板は上へ伸びるので天面 BillboardHeight まで含めて画面掛かりを判定する
+		if !projector.TileOnScreen(g.Coord, render3d.BillboardHeight) {
 			continue
 		}
 		sr := world.Components.SpriteRender.Get(e)
