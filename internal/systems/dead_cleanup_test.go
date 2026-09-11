@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -330,8 +331,10 @@ func TestDeadCleanupSystem_DropsBackpackItems(t *testing.T) {
 	world.Components.Name.Add(item, &gc.Name{Name: "遺品"})
 	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 
-	// 別の所有者のアイテムは巻き込まれないことも確認する
+	// 別の所有者のアイテムは巻き込まれないことも確認する。所有者に GridElement を付けて
+	// 座標を持たせても、Dead でなければ削除対象にならず在庫も巻き込まれないことを示す
 	otherOwner := world.ECS.NewEntity()
+	world.Components.GridElement.Add(otherOwner, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 8}})
 	other := world.ECS.NewEntity()
 	world.Components.Name.Add(other, &gc.Name{Name: "他人の物"})
 	world.Components.LocationInBackpack.Add(other, &gc.LocationInBackpack{Owner: otherOwner})
@@ -361,13 +364,19 @@ func TestDeadCleanupSystem_DisassemblesProp(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// 分解定義を持つ prop を生成し、破壊状態にする
+	// 分解定義を持つ prop を生成し、破壊状態にする。分解経路は Fixed と分解定義の両方を要するため、
+	// どちらの前提も明示して固定する
+	_, hasDef := raw.FindDisassembly(world.Resources.RawMaster, "barrel")
+	require.True(t, hasDef, "barrel は分解定義を持つ前提")
+
 	prop, err := lifecycle.SpawnProp(world, "barrel", 2, 3)
 	require.NoError(t, err)
 	require.True(t, world.Components.Fixed.Has(prop), "prop は Fixed を持つ前提")
 	world.Components.Dead.Add(prop, &gc.Dead{})
 
-	// 分解産出の回収パスを通り、エラーなく prop が削除される
+	// 分解産出の回収パスを通り、エラーなく prop が削除される。
+	// 破壊回収の産出は DestroySalvageChance の確率でしか出ないため、産出内容の件数は
+	// RNG 依存でフレークになる。ここでは分解経路が例外なく完走し prop が消えることを固定する
 	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
 	assert.False(t, world.ECS.Alive(prop), "破壊された prop は削除されるべき")
 }
