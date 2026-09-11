@@ -309,3 +309,65 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
 	}
 }
+
+// TestDeadCleanupSystem_DropsBackpackItems は死亡エンティティのバックパック内アイテムが
+// フィールドへドロップされることを確認する。所有者はフィールドへ移送され、アイテムは
+// 死亡位置の GridElement を得る。
+func TestDeadCleanupSystem_DropsBackpackItems(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// バックパックを持つ死亡エンティティ
+	deadCoord := consts.Coord[consts.Tile]{X: 4, Y: 6}
+	owner := world.ECS.NewEntity()
+	world.Components.Name.Add(owner, &gc.Name{Name: "所有者"})
+	world.Components.Dead.Add(owner, &gc.Dead{})
+	world.Components.GridElement.Add(owner, &gc.GridElement{Coord: deadCoord})
+
+	// 所有者のバックパックに入ったアイテム
+	item := world.ECS.NewEntity()
+	world.Components.Name.Add(item, &gc.Name{Name: "遺品"})
+	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
+
+	// 別の所有者のアイテムは巻き込まれないことも確認する
+	otherOwner := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+	world.Components.Name.Add(other, &gc.Name{Name: "他人の物"})
+	world.Components.LocationInBackpack.Add(other, &gc.LocationInBackpack{Owner: otherOwner})
+
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	// 死亡した所有者は削除される
+	assert.False(t, world.ECS.Alive(owner), "死亡した所有者は削除されるべき")
+
+	// バックパック内アイテムはフィールドへ移り、死亡位置の座標を得る
+	require.True(t, world.ECS.Alive(item), "遺品は残るべき")
+	assert.True(t, world.Components.LocationOnField.Has(item), "遺品はフィールドへ移るべき")
+	assert.False(t, world.Components.LocationInBackpack.Has(item), "遺品はバックパックから外れるべき")
+	require.True(t, world.Components.GridElement.Has(item), "遺品は座標を得るべき")
+	itemCoord := world.Components.GridElement.Get(item).Coord
+	assert.Equal(t, deadCoord, itemCoord, "遺品は死亡位置に落ちるべき")
+
+	// 生存する別所有者のアイテムはバックパックに残る
+	assert.True(t, world.Components.LocationInBackpack.Has(other), "他人の物は巻き込まれないべき")
+}
+
+// TestDeadCleanupSystem_DisassemblesProp は分解定義を持つ prop が破壊されたとき、
+// 分解産出の回収パスを通ってエンティティが削除されることを確認する。
+// barrel は raw で分解定義を持つ prop。
+func TestDeadCleanupSystem_DisassemblesProp(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// 分解定義を持つ prop を生成し、破壊状態にする
+	prop, err := lifecycle.SpawnProp(world, "barrel", 2, 3)
+	require.NoError(t, err)
+	require.True(t, world.Components.Fixed.Has(prop), "prop は Fixed を持つ前提")
+	world.Components.Dead.Add(prop, &gc.Dead{})
+
+	// 分解産出の回収パスを通り、エラーなく prop が削除される
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+	assert.False(t, world.ECS.Alive(prop), "破壊された prop は削除されるべき")
+}
