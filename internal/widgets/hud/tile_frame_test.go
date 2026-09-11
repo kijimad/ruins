@@ -9,9 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestTileFrame は投影済みの四隅を線で結ぶ枠描画が実 screen へ描いても落ちないことを検証する。
-// 台形でも四隅を順に結ぶだけなので、正方でない四隅でも描けることを確認する。
-func TestTileFrame(t *testing.T) {
+// TestTileFrame_台形の四隅を渡して描画しても落ちない は投影済みの四隅を線で結ぶ枠描画が
+// 実 screen へ描いても落ちないことを検証する。台形でも四隅を順に結ぶだけなので、正方でない
+// 四隅でも描けることを確認する。
+func TestTileFrame_台形の四隅を渡して描画しても落ちない(t *testing.T) {
 	t.Parallel()
 
 	screen := ebiten.NewImage(64, 64)
