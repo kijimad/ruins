@@ -6080,3 +6080,24 @@ msgstr "疲労度"
 
 msgid "Rested"
 msgstr "快調"
+
+msgid "Uses"
+msgstr "用途"
+
+msgid "Edible"
+msgstr "食べられる"
+
+msgid "Readable"
+msgstr "読める"
+
+msgid "Usable"
+msgstr "使える"
+
+msgid "Wearable"
+msgstr "装備できる"
+
+msgid "Usable as weapon"
+msgstr "武器として使える"
+
+msgid "Can disassemble items"
+msgstr "物を分解できる"

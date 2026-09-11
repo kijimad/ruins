@@ -7,12 +7,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// UseHints は実体の性質・使い道を表す短い文言を表示順に返す。
-// 判定は item_action_state の動詞タブと同じコンポーネント条件を使い、
-// 「その動詞が使える」と「その性質が出る」を一致させる。装備や武器は
-// 専用画面で扱うため動詞タブには無いが、用途としてここに並べる。
-// 死んだ実体には nil を返し、ゼロ実体への Get で落ちるのを防ぐ。
-func UseHints(world w.World, e ecs.Entity) []string {
+// UseHints は実体の性質・使い道を「用途」見出しでまとめた行の並びを返す。
+// 見出し1行に続けて性質を1段下げて並べ、性能行と同じ体裁でグルーピングして描く。
+// 文言は query.T で現在言語へ訳す。各判定は item_action_state の動詞タブと同じ
+// コンポーネント条件を使い、「その動詞が使える」と「その性質が出る」を一致させる。
+// 装備や武器は専用画面で扱うため動詞タブには無いが、用途としてここに並べる。
+// 死んだ実体や性質を持たない実体には nil を返す。
+func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	if !world.ECS.Alive(e) {
 		return nil
 	}
@@ -21,27 +22,36 @@ func UseHints(world w.World, e ecs.Entity) []string {
 	nutrition := c.ProvidesNutrition.Has(e)
 	healing := c.ProvidesHealing.Has(e)
 
-	var hints []string
+	var uses []string
 	// 栄養か回復を持つ消費物は食べられる。acceptConsumeFood と同条件
 	if consumable && (nutrition || healing) {
-		hints = append(hints, "Edible")
+		uses = append(uses, query.T(world, "Edible"))
 	}
 	if c.Book.Has(e) {
-		hints = append(hints, "Readable")
+		uses = append(uses, query.T(world, "Readable"))
 	}
 	// 栄養も回復も持たない消費物は道具として使う。acceptUseTool と同条件
 	if consumable && !nutrition && !healing {
-		hints = append(hints, "Usable")
+		uses = append(uses, query.T(world, "Usable"))
 	}
 	if c.Wearable.Has(e) {
-		hints = append(hints, "Wearable")
+		uses = append(uses, query.T(world, "Wearable"))
 	}
 	if c.Melee.Has(e) || c.Fire.Has(e) {
-		hints = append(hints, "Weapon")
+		uses = append(uses, query.T(world, "Usable as weapon"))
 	}
 	// 分解工具は専用コンポーネントを持たず raw 定義の有無で判定する
 	if _, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(e, world)); ok {
-		hints = append(hints, "Can disassemble items")
+		uses = append(uses, query.T(world, "Can disassemble items"))
 	}
-	return hints
+	if len(uses) == 0 {
+		return nil
+	}
+
+	rows := make([]SpecRow, 0, len(uses)+1)
+	rows = append(rows, SpecRow{Label: query.T(world, "Uses"), Header: true})
+	for _, u := range uses {
+		rows = append(rows, SpecRow{Label: u, Indent: 1})
+	}
+	return rows
 }

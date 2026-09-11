@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +18,8 @@ func TestUseHints(t *testing.T) {
 	tests := []struct {
 		name  string
 		setup func(world w.World, e ecs.Entity)
-		want  []string
+		// want は「用途」見出しに続けて並ぶ性質の msgid。見出しとインデントはテスト側で組む
+		want []string
 	}{
 		{
 			name: "栄養を持つ消費物は食べられる",
@@ -57,11 +59,11 @@ func TestUseHints(t *testing.T) {
 			want: []string{"Wearable"},
 		},
 		{
-			name: "近接武器は武器",
+			name: "近接武器は武器として使える",
 			setup: func(world w.World, e ecs.Entity) {
 				world.Components.Melee.Add(e, &gc.Melee{})
 			},
-			want: []string{"Weapon"},
+			want: []string{"Usable as weapon"},
 		},
 		{
 			name: "複数の性質は表示順に並ぶ",
@@ -86,7 +88,16 @@ func TestUseHints(t *testing.T) {
 			e := world.ECS.NewEntity()
 			tt.setup(world, e)
 
-			assert.Equal(t, tt.want, entityspec.UseHints(world, e))
+			var want []entityspec.SpecRow
+			if len(tt.want) > 0 {
+				// 先頭に「用途」見出し、続けて性質を1段下げた行
+				want = append(want, entityspec.SpecRow{Label: query.T(world, "Uses"), Header: true})
+				for _, msgid := range tt.want {
+					want = append(want, entityspec.SpecRow{Label: query.T(world, msgid), Indent: 1})
+				}
+			}
+
+			assert.Equal(t, want, entityspec.UseHints(world, e))
 		})
 	}
 }
