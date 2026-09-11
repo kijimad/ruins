@@ -45,9 +45,8 @@ func buildRoadOverlay(runSeed uint64, area MacroRange, rows consts.Chunk) map[co
 }
 
 // markRoadLShape は当選集落 a から b への L 字経路のチャンクへ接続方角を積む。分解は roadSegments を
-// 唯一の出典とし、舗装 road.go・散布 scatter.go と一致させる。各辺の内部チャンクは両隣へ、端点は内側の
-// 隣へだけ繋がる。角 (b.X, a.Y) は水平辺と垂直辺の両方の端点なので、両辺のビットが積まれて折れになり、
-// 複数の道が重なる交差はビットが増えて T・十字になる。
+// 唯一の出典にする。角 (b.X, a.Y) は両辺の端点なので両方のビットが積まれて折れになり、複数の道が
+// 重なる交差はビットが増えて T・十字になる。
 func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.Coord[consts.Chunk]) {
 	for _, seg := range roadSegments(a, b) {
 		for v := seg.lo; v <= seg.hi; v++ {
@@ -70,8 +69,7 @@ func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.
 					bits |= RoadS
 				}
 			}
-			// 単一チャンクの辺、a==b や集落が同じ行/列の退化辺、はビットが立たない。0 を書くと
-			// 空の道キーができるので積まない
+			// 退化辺、a==b や集落が同じ行/列、はビットが 0。空の道キーを作らないよう積まない
 			if bits != 0 {
 				overlay[cell] |= bits
 			}

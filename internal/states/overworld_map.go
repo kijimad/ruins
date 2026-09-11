@@ -242,10 +242,8 @@ func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string,
 	drawText("N / Esc to close", 8, y+26, theme.TextPrimary)
 }
 
-// drawCellRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。
-// 各方角の矩形はセル中央で半幅ぶん重なり、その重なりが道の節になる。角・T・十字は方角ビットの
-// 重なりでそのまま出る。二重に塗られる中央は同色なので無害。フォントに罫線素片が無いので記号でなく
-// 線分で方向を見せる。太さはセル辺への比で決め、縮小地図の drawMacroRoad とは縮尺に合わせて別に持つ。
+// drawCellRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。フォントに
+// 罫線素片が無いので記号でなく線分で方向を見せる。各方角の矩形は中央で重なるが同色なので無害。
 func drawCellRoad(dst *ebiten.Image, x, y, cell, cx, cy consts.ScreenPixel, road overworld.RoadDir) {
 	t := max(consts.ScreenPixel(2), cell/5)
 	half := float32(t) / 2

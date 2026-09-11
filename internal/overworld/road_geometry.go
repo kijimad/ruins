@@ -4,13 +4,12 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // 道の幾何の唯一の出典。道が「隣接リージョンの当選集落を L 字で結ぶ」という規則をここ一箇所に置き、
 // 舗装 road.go・散布回避 scatter.go・マクロ地図 road_overlay.go の3消費者が同じ分解を各粒度で解釈する。
-// 分解規則を1箇所にすることで、地図に出る道と実際に舗装される道が構造的に一致し続ける。集落中心は
-// WinnerOf で生成せずに算出できるので、この幾何もタイルを生成せず純関数で求まる。
+// 分解を1箇所にすることで、地図に出る道と実際に舗装される道が構造的に一致し続ける。
 
-// roadSeg は道の一辺。水平辺か垂直辺かと、固定軸のチャンク座標・可変軸の範囲を持つ。範囲は端点を含む。
+// roadSeg は道の一辺。
 type roadSeg struct {
-	horizontal bool         // true=水平辺で行を固定、false=垂直辺で列を固定
-	fixed      consts.Chunk // 水平辺なら固定する行、垂直辺なら固定する列
+	horizontal bool         // true=水平辺, false=垂直辺
+	fixed      consts.Chunk // horizontal なら固定する行、そうでなければ固定する列
 	lo, hi     consts.Chunk // 可変軸の範囲。lo<=hi で端点を含む
 }
 
