@@ -1,6 +1,10 @@
 package systems
 
 import (
+	"context"
+	"runtime/trace"
+	"strconv"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/aiinput"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -81,6 +85,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 // 複数ターン進める。1ターンは通常フローと同じ 継続ステップ→AI→ターン終了 を回すので、
 // ゲーム上の結果は1フレーム1ターンで進めた場合と変わらず、縮むのは実時間だけ。
 func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnState) error {
+	// fast-forward は1フレームで複数ターン回すので、turn:AI / turn:End が1つの TurnSystem region に連なる
 	for range fastForwardTurnsPerFrame {
 		if !playerHasActivity(world) {
 			break // 完了・中断したら通常進行へ戻す
@@ -101,6 +106,9 @@ func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnStat
 
 // runAIPhase は全AI・NPCを一括処理し、視界の再計算を要求する。
 func runAIPhase(world w.World) error {
+	region := trace.StartRegion(context.Background(), "turn:AI")
+	defer region.End()
+
 	// AIターン: 全AI・NPCを一括処理
 	if err := processAITurn(world); err != nil {
 		return err
@@ -112,12 +120,17 @@ func runAIPhase(world w.World) error {
 
 // runEndPhase はturn end processingをして1ゲームターンを確定させる。
 func runEndPhase(world w.World, turnState *gc.TurnState) error {
+	region := trace.StartRegion(context.Background(), "turn:End")
+	defer region.End()
+
 	if err := processTurnEnd(world); err != nil {
 		return err
 	}
 	// 空間インデックスを無効化する。次ターンで再構築される
 	query.InvalidateSpatialIndex(world)
 	turnState.TurnNumber++
+	// ターン確定はこの1点なので、ここでトレースへ番号を刻む
+	trace.Log(context.Background(), "turn", strconv.Itoa(int(turnState.TurnNumber)))
 	// ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
 	// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
 	query.GetGameTime(world).Advance()
@@ -235,8 +248,12 @@ func runTurnEndSystems(world w.World) error {
 		&FireSystem{},
 		&DeadCleanupSystem{},
 	} {
-		if sys, ok := world.Updaters[updater.String()]; ok {
-			if err := sys.Update(world); err != nil {
+		name := updater.String()
+		if sys, ok := world.Updaters[name]; ok {
+			r := trace.StartRegion(context.Background(), "turnend:"+name)
+			err := sys.Update(world)
+			r.End()
+			if err != nil {
 				return err
 			}
 		}
