@@ -291,7 +291,7 @@
 				
 				<option value="file117">github.com/kijimaD/ruins/internal/logger/logger.go (94.8%)</option>
 				
-				<option value="file118">github.com/kijimaD/ruins/internal/maingame/game.go (57.6%)</option>
+				<option value="file118">github.com/kijimaD/ruins/internal/maingame/game.go (64.6%)</option>
 				
 				<option value="file119">github.com/kijimaD/ruins/internal/maingame/renderer.go (82.4%)</option>
 				
@@ -511,7 +511,7 @@
 				
 				<option value="file227">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
 				
-				<option value="file228">github.com/kijimaD/ruins/internal/states/dungeon.go (80.0%)</option>
+				<option value="file228">github.com/kijimaD/ruins/internal/states/dungeon.go (81.3%)</option>
 				
 				<option value="file229">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
@@ -551,7 +551,7 @@
 				
 				<option value="file247">github.com/kijimaD/ruins/internal/states/storage_menu.go (41.2%)</option>
 				
-				<option value="file248">github.com/kijimaD/ruins/internal/states/updaters.go (71.4%)</option>
+				<option value="file248">github.com/kijimaD/ruins/internal/states/updaters.go (81.8%)</option>
 				
 				<option value="file249">github.com/kijimaD/ruins/internal/steam/lang.go (100.0%)</option>
 				
@@ -593,7 +593,7 @@
 				
 				<option value="file268">github.com/kijimaD/ruins/internal/systems/temperature.go (80.6%)</option>
 				
-				<option value="file269">github.com/kijimaD/ruins/internal/systems/turn_system.go (91.1%)</option>
+				<option value="file269">github.com/kijimaD/ruins/internal/systems/turn_system.go (92.5%)</option>
 				
 				<option value="file270">github.com/kijimaD/ruins/internal/systems/vision.go (69.1%)</option>
 				
@@ -16608,8 +16608,10 @@ func (l *Logger) log(level Level, msg string, keysAndValues ...any) {
 		<pre class="file" id="file118" style="display: none">package maingame
 
 import (
+        "context"
         "fmt"
         "runtime"
+        "runtime/trace"
         "time"
 
         "github.com/hajimehoshi/ebiten/v2"
@@ -16660,6 +16662,9 @@ func (game *MainGame) Layout(_, _ int) (int, int) {
 
 // Update はゲームの更新処理を行う
 func (game *MainGame) Update() error {
+        <span class="cov8" title="1">region := trace.StartRegion(context.Background(), "Update")
+        defer region.End()
+</span>
         // デバッグ表示をトグルする
         <span class="cov8" title="1">if ebiten.IsKeyPressed(ebiten.KeyShift) &amp;&amp; inpututil.IsKeyJustPressed(ebiten.KeyTab) </span>{
                 // パフォーマンスモニターは攻略に関係ないのでトグルできてよい
@@ -16681,6 +16686,9 @@ func (game *MainGame) Update() error {
 // Draw はゲームの描画処理を行う
 // interface method だからシグネチャは変更できない
 func (game *MainGame) Draw(screen *ebiten.Image) {
+        <span class="cov8" title="1">region := trace.StartRegion(context.Background(), "Draw")
+        defer region.End()
+</span>
         <span class="cov8" title="1">game.renderer.Draw(screen, game.StateMachine.GetStates(), game.World)
 </span>
         // パフォーマンスモニターは最前面のデバッグ表示なので、ポスト処理の外で screen へ直に描く。
@@ -34113,7 +34121,9 @@ func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error {
 		<pre class="file" id="file228" style="display: none">package states
 
 import (
+        "context"
         "fmt"
+        "runtime/trace"
 
         "github.com/hajimehoshi/ebiten/v2"
         gc "github.com/kijimaD/ruins/internal/components"
@@ -34376,7 +34386,10 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
                 <span class="cov8" title="1">screen.DrawImage(st.baseImage, nil)
 </span>        }
         // まず世界レイヤを screen へローポリ3Dで描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する
-        <span class="cov8" title="1">if err := st.three.draw(world, screen); err != nil </span>{
+        <span class="cov8" title="1">r := trace.StartRegion(context.Background(), "draw:3D")
+        err := st.three.draw(world, screen)
+        r.End()
+        if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
         // 時間帯の色は vision の環境光として per-tile に効く。全画面フィルタは松明で照らした
@@ -34388,12 +34401,16 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。
 func drawRenderers(world w.World, target *ebiten.Image, renderers ...w.Renderer) error {
         <span class="cov8" title="1">for _, renderer := range renderers </span>{
-                <span class="cov8" title="1">sys, ok := world.Renderers[renderer.String()]
+                <span class="cov8" title="1">name := renderer.String()
+                sys, ok := world.Renderers[name]
                 if !ok </span>{
                         // 未登録は描画されず無音で消える。登録漏れをエラーで表面化させる
-                        <span class="cov0" title="0">return fmt.Errorf("renderer not registered: %s", renderer.String())
+                        <span class="cov0" title="0">return fmt.Errorf("renderer not registered: %s", name)
 </span>                }
-                <span class="cov8" title="1">if err := sys.Draw(world, target); err != nil </span>{
+                <span class="cov8" title="1">r := trace.StartRegion(context.Background(), "draw:"+name)
+                err := sys.Draw(world, target)
+                r.End()
+                if err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
         }
@@ -38893,18 +38910,28 @@ func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {
 		
 		<pre class="file" id="file248" style="display: none">package states
 
-import w "github.com/kijimaD/ruins/internal/world"
+import (
+        "context"
+        "runtime/trace"
+
+        w "github.com/kijimaD/ruins/internal/world"
+)
 
 // runUpdaters は指定した updater を world.Updaters から名前で引いて順に回す。
 // メニュー state が HUD 用の再計算 system を毎フレーム回すのに使う。渡すインスタンスは
 // 名前の取得にだけ使い、状態を持つ登録済みインスタンスの実体を実行する。
 func runUpdaters(world w.World, updaters ...w.Updater) error {
         <span class="cov8" title="1">for _, updater := range updaters </span>{
-                <span class="cov8" title="1">sys, ok := world.Updaters[updater.String()]
+                <span class="cov8" title="1">name := updater.String()
+                sys, ok := world.Updaters[name]
                 if !ok </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov8" title="1">if err := sys.Update(world); err != nil </span>{
+                // ループ内は明示的に End を呼ぶ。defer だと関数終了まで region が閉じて重なる
+                <span class="cov8" title="1">r := trace.StartRegion(context.Background(), name)
+                err := sys.Update(world)
+                r.End()
+                if err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
         }
@@ -41926,6 +41953,10 @@ func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string 
 		<pre class="file" id="file269" style="display: none">package systems
 
 import (
+        "context"
+        "runtime/trace"
+        "strconv"
+
         "github.com/kijimaD/ruins/internal/activity"
         "github.com/kijimaD/ruins/internal/aiinput"
         gc "github.com/kijimaD/ruins/internal/components"
@@ -42006,6 +42037,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 // 複数ターン進める。1ターンは通常フローと同じ 継続ステップ→AI→ターン終了 を回すので、
 // ゲーム上の結果は1フレーム1ターンで進めた場合と変わらず、縮むのは実時間だけ。
 func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnState) error {
+        // fast-forward は1フレームで複数ターン回すので、turn:AI / turn:End が1つの TurnSystem region に連なる
         <span class="cov8" title="1">for range fastForwardTurnsPerFrame </span>{
                 <span class="cov8" title="1">if !playerHasActivity(world) </span>{
                         <span class="cov8" title="1">break</span> // 完了・中断したら通常進行へ戻す
@@ -42026,6 +42058,9 @@ func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnStat
 
 // runAIPhase は全AI・NPCを一括処理し、視界の再計算を要求する。
 func runAIPhase(world w.World) error {
+        <span class="cov8" title="1">region := trace.StartRegion(context.Background(), "turn:AI")
+        defer region.End()
+</span>
         // AIターン: 全AI・NPCを一括処理
         <span class="cov8" title="1">if err := processAITurn(world); err != nil </span>{
                 <span class="cov0" title="0">return err
@@ -42037,12 +42072,17 @@ func runAIPhase(world w.World) error {
 
 // runEndPhase はturn end processingをして1ゲームターンを確定させる。
 func runEndPhase(world w.World, turnState *gc.TurnState) error {
+        <span class="cov8" title="1">region := trace.StartRegion(context.Background(), "turn:End")
+        defer region.End()
+</span>
         <span class="cov8" title="1">if err := processTurnEnd(world); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
         // 空間インデックスを無効化する。次ターンで再構築される
         <span class="cov8" title="1">query.InvalidateSpatialIndex(world)
         turnState.TurnNumber++
+</span>        // ターン確定はこの1点なので、ここでトレースへ番号を刻む
+        <span class="cov8" title="1">trace.Log(context.Background(), "turn", strconv.Itoa(int(turnState.TurnNumber)))
 </span>        // ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
         // GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
         <span class="cov8" title="1">query.GetGameTime(world).Advance()
@@ -42160,8 +42200,12 @@ func runTurnEndSystems(world w.World) error {
                 &amp;FireSystem{},
                 &amp;DeadCleanupSystem{},
 </span>        } {
-                <span class="cov8" title="1">if sys, ok := world.Updaters[updater.String()]; ok </span>{
-                        <span class="cov8" title="1">if err := sys.Update(world); err != nil </span>{
+                <span class="cov8" title="1">name := updater.String()
+                if sys, ok := world.Updaters[name]; ok </span>{
+                        <span class="cov8" title="1">r := trace.StartRegion(context.Background(), "turnend:"+name)
+                        err := sys.Update(world)
+                        r.End()
+                        if err != nil </span>{
                                 <span class="cov0" title="0">return err
 </span>                        }
                 }
