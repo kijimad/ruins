@@ -38,8 +38,8 @@ func TestDetailHandleInput_ページ送りと閉じる(t *testing.T) {
 	var action inputmapper.ActionID
 	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return action, true }
 
-	// detailRowsPerPage=12 なので 25 行で 3 ページになる
-	rows := make([]entityspec.SpecRow, 25)
+	// 3ページになる行数。定数を直接使い、変更に自動追随させる
+	rows := make([]entityspec.SpecRow, detailRowsPerPage*2+1)
 	d := NewComparison(func(_ w.World) ([]DetailContent, bool) {
 		return []DetailContent{{Name: "A", Rows: rows}, {Name: "B"}}, true
 	})
