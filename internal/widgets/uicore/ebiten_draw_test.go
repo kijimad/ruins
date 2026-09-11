@@ -14,10 +14,23 @@ import (
 func TestStretchNeedsBlend(t *testing.T) {
 	t.Parallel()
 
-	assert.False(t, stretchNeedsBlend(1, 5), "等倍は混ぜない")
-	assert.True(t, stretchNeedsBlend(2, 5), "非等倍かつ2テクセル以上は混ぜる")
-	assert.False(t, stretchNeedsBlend(2, 1), "1テクセルは混ぜない")
-	assert.False(t, stretchNeedsBlend(1, 1), "等倍かつ1テクセルは混ぜない")
+	tests := []struct {
+		name   string
+		scale  float64
+		srcLen int
+		want   bool
+	}{
+		{"等倍は混ぜない", 1, 5, false},
+		{"非等倍かつ2テクセル以上は混ぜる", 2, 5, true},
+		{"非等倍でも1テクセルは混ぜない", 2, 1, false},
+		{"等倍かつ1テクセルは混ぜない", 1, 1, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, stretchNeedsBlend(tt.scale, tt.srcLen))
+		})
+	}
 }
 
 // TestEbitenCanvas_画像描画がpanicしない は、EbitenCanvas の各画像描画メソッドが
