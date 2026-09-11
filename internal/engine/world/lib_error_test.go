@@ -4,11 +4,22 @@ import (
 	"errors"
 	"testing"
 
+	c "github.com/kijimaD/ruins/internal/engine/components"
+	r "github.com/kijimaD/ruins/internal/engine/resources"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/require"
 )
 
 var errInit = errors.New("init failed")
+
+// インターフェース充足を明示する。InitGeneric の型引数が要求する初期化子であることを
+// コンパイル時に固定する。
+var (
+	_ c.ComponentInitializer = failComponents{}
+	_ c.ComponentInitializer = okComponents{}
+	_ r.ResourceInitializer  = failResources{}
+	_ r.ResourceInitializer  = okResources{}
+)
 
 // failComponents は InitializeComponents で失敗する初期化子。
 type failComponents struct{}
