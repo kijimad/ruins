@@ -11,6 +11,8 @@ import (
 
 // TestGetFatigueBadgeColor は疲労段階からバッジ色を導く純関数を固定する。
 // 過労だけ警告色、それ以外は注意色になる分岐を検証する。
+// 実際にこの関数が呼ばれるのは FatigueTired と FatigueExhausted のときだけだが、
+// 純関数として全段階の写像を固定しておく。
 func TestGetFatigueBadgeColor(t *testing.T) {
 	t.Parallel()
 
@@ -27,7 +29,8 @@ func TestShelterMsgid(t *testing.T) {
 
 	assert.Equal(t, "Indoor", shelterMsgid(gc.ShelterFull))
 	assert.Equal(t, "Semi-outdoor", shelterMsgid(gc.ShelterPartial))
-	assert.Equal(t, "Outdoor", shelterMsgid(gc.ShelterNone))
+	// ShelterNone は専用ケースを持たず、未知の値と同じ Outdoor フォールバックへ意図的に流れる
+	assert.Equal(t, "Outdoor", shelterMsgid(gc.ShelterNone), "遮蔽なしは屋外")
 	assert.Equal(t, "Outdoor", shelterMsgid(gc.ShelterType(99)), "未知の値は屋外へ落とす")
 }
 
@@ -40,8 +43,11 @@ func TestAmbientTempDisplayColor(t *testing.T) {
 	warm := color.RGBA{255, 170, 120, 255}
 	comfortable := color.RGBA{255, 255, 255, 255}
 
+	mid := (query.ComfortableTempLower + query.ComfortableTempUpper) / 2
+
 	assert.Equal(t, cold, ambientTempDisplayColor(query.ComfortableTempLower-1), "下限未満は寒色")
 	assert.Equal(t, comfortable, ambientTempDisplayColor(query.ComfortableTempLower), "下限ちょうどは快適")
+	assert.Equal(t, comfortable, ambientTempDisplayColor(mid), "快適域の中央は快適")
 	assert.Equal(t, comfortable, ambientTempDisplayColor(query.ComfortableTempUpper), "上限ちょうどは快適")
 	assert.Equal(t, warm, ambientTempDisplayColor(query.ComfortableTempUpper+1), "上限超は暖色")
 }
