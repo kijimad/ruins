@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">93.3&nbsp;%</td>
+            <td class="headerCovTableEntryHi">91.5&nbsp;%</td>
             <td class="headerCovTableEntry">330</td>
-            <td class="headerCovTableEntry">308</td>
+            <td class="headerCovTableEntry">302</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-11 09:20:54</td>
+            <td class="headerValue">2026-09-11 09:24:08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -487,9 +487,9 @@
 <span id="L425"><span class="lineNum">     425</span>              :         case temp &lt; query.ComfortableTempLower:</span>
 <span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                 return color.RGBA{150, 190, 255, 255}</span></span>
 <span id="L427"><span class="lineNum">     427</span>              :         case temp &gt; query.ComfortableTempUpper:</span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 170, 120, 255}</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC tlaBgUNC">           0 :                 return color.RGBA{255, 170, 120, 255}</span></span>
 <span id="L429"><span class="lineNum">     429</span>              :         }</span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         return color.RGBA{255, 255, 255, 255}</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :         return color.RGBA{255, 255, 255, 255}</span></span>
 <span id="L431"><span class="lineNum">     431</span>              : }</span>
 <span id="L432"><span class="lineNum">     432</span>              : </span>
 <span id="L433"><span class="lineNum">     433</span>              : // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界</span>
@@ -501,7 +501,7 @@
 <span id="L439"><span class="lineNum">     439</span>              : // temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。</span>
 <span id="L440"><span class="lineNum">     440</span>              : // 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う</span>
 <span id="L441"><span class="lineNum">     441</span>              : func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {</span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :         hs := world.Components.HealthStatus.Get(entity)</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC tlaBgGNC">           1 :         hs := world.Components.HealthStatus.Get(entity)</span></span>
 <span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :         part := &amp;hs.Parts[gc.BodyPartWholeBody]</span></span>
 <span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :         if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil {</span></span>
 <span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                 return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true</span></span>
@@ -550,15 +550,15 @@
 <span id="L488"><span class="lineNum">     488</span>              : </span>
 <span id="L489"><span class="lineNum">     489</span>              : // getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤</span>
 <span id="L490"><span class="lineNum">     490</span>              : func getFatigueBadgeColor(level gc.FatigueLevel) color.RGBA {</span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :         if level == gc.FatigueExhausted {</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :                 return color.RGBA{255, 50, 50, 255}</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :         return color.RGBA{255, 200, 0, 255}</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC tlaBgUNC">           0 :         if level == gc.FatigueExhausted {</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :                 return color.RGBA{255, 50, 50, 255}</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :         return color.RGBA{255, 200, 0, 255}</span></span>
 <span id="L495"><span class="lineNum">     495</span>              : }</span>
 <span id="L496"><span class="lineNum">     496</span>              : </span>
 <span id="L497"><span class="lineNum">     497</span>              : // getHungerBadgeColor は空腹度に応じたバッジ色を返す</span>
 <span id="L498"><span class="lineNum">     498</span>              : func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {</span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :         switch level {</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC tlaBgGNC">           1 :         switch level {</span></span>
 <span id="L500"><span class="lineNum">     500</span>              :         case gc.HungerSatiated:</span>
 <span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :                 return color.RGBA{100, 200, 100, 255} // 緑（満腹）</span></span>
 <span id="L502"><span class="lineNum">     502</span>              :         case gc.HungerHungry:</span>

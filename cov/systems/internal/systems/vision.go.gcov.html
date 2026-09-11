@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">69.9&nbsp;%</td>
+            <td class="headerCovTableEntryLo">68.4&nbsp;%</td>
             <td class="headerCovTableEntry">256</td>
-            <td class="headerCovTableEntry">179</td>
+            <td class="headerCovTableEntry">175</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-11 09:20:54</td>
+            <td class="headerValue">2026-09-11 09:24:08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -231,17 +231,17 @@
 <span id="L169"><span class="lineNum">     169</span>              : // tileRenderAt はタイルの描画情報を返す。map に無いタイルは未探索とみなし</span>
 <span id="L170"><span class="lineNum">     170</span>              : // TileRenderUnexplored を返す。不在を未探索へ明示的に写し、呼び出し側で3状態を網羅できるようにする。</span>
 <span id="L171"><span class="lineNum">     171</span>              : func tileRenderAt(m map[gc.GridElement]TileRenderInfo, grid gc.GridElement) TileRenderInfo {</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC tlaBgGNC">           1 :         if info, ok := m[grid]; ok {</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 return info</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         return TileRenderUnexplored{}</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         if info, ok := m[grid]; ok {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 return info</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         return TileRenderUnexplored{}</span></span>
 <span id="L176"><span class="lineNum">     176</span>              : }</span>
 <span id="L177"><span class="lineNum">     177</span>              : </span>
 <span id="L178"><span class="lineNum">     178</span>              : // computeTileRenderMap はタイルごとの描画情報を一括計算する。</span>
 <span id="L179"><span class="lineNum">     179</span>              : // VisibleTiles・ExploredTiles・光源情報を統合して、</span>
 <span id="L180"><span class="lineNum">     180</span>              : // 各描画関数が参照するだけで済む描画情報マップを返す</span>
 <span id="L181"><span class="lineNum">     181</span>              : func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo) map[gc.GridElement]TileRenderInfo {</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         result := make(map[gc.GridElement]TileRenderInfo)</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 :         result := make(map[gc.GridElement]TileRenderInfo)</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         field := query.GetCurrentStageField(world)</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         vs := query.GetVisionState(world)</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 : </span></span>
