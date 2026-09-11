@@ -37,14 +37,14 @@ func markChildren(rows []SpecRow) []SpecRow {
 
 // specPart は性能表示の1要素。実体と raw spec の2つのデータ源それぞれから行を作る。
 // fromSpec が nil の要素は raw spec 表示には出ない。生成後にしか定まらない鮮度や競売などが該当する。
-// component を足すときはこの specParts へ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない。
-// basic が真の要素は材質や重量など多くのアイテムに共通の単値属性で、末尾に「基本」見出しでまとめる
+// component を足すときは specParts か basicParts へ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない
 type specPart struct {
-	basic      bool
 	fromEntity func(world w.World, entity ecs.Entity) []SpecRow
 	fromSpec   func(world w.World, spec gc.EntitySpec) []SpecRow
 }
 
+// specParts は独自の見出しを持つか単独で並ぶ性能要素。表示順を兼ねる。
+// 材質や重量など多くのアイテムに共通の単値属性は basicParts に分け、末尾の「基本」見出しへまとめる
 var specParts = []specPart{
 	{ // 能力値。実体のみ
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
@@ -83,39 +83,6 @@ var specParts = []specPart{
 			return append(attackerRows(world, s.Fire), fireAmmoRows(world, s.Fire)...)
 		},
 	},
-	{ // 材質
-		basic: true,
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Material.Has(e) {
-				return nil
-			}
-			return []SpecRow{materialRow(world, world.Components.Material.Get(e))}
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Material == nil {
-				return nil
-			}
-			return []SpecRow{materialRow(world, s.Material)}
-		},
-	},
-	{ // 燃料。熱量は保持せず材質と重量から導くので、実体と spec で算出元が違う
-		basic: true,
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if heat := query.HeatContent(world, e); heat > 0 {
-				return []SpecRow{fuelRow(world, heat)}
-			}
-			return nil
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Material == nil || s.Weight == nil {
-				return nil
-			}
-			if heat := query.HeatOf(s.Material.Kind, s.Weight.Milligram); heat > 0 {
-				return []SpecRow{fuelRow(world, heat)}
-			}
-			return nil
-		},
-	},
 	{ // 防具
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.Wearable.Has(e) {
@@ -130,45 +97,6 @@ var specParts = []specPart{
 			return wearableRows(world, s.Wearable)
 		},
 	},
-	{ // 回復
-		basic: true,
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.ProvidesHealing.Has(e) {
-				return nil
-			}
-			return healingRows(world, world.Components.ProvidesHealing.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.ProvidesHealing == nil {
-				return nil
-			}
-			return healingRows(world, s.ProvidesHealing)
-		},
-	},
-	{ // 栄養
-		basic: true,
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.ProvidesNutrition.Has(e) {
-				return nil
-			}
-			return nutritionRows(world, world.Components.ProvidesNutrition.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.ProvidesNutrition == nil {
-				return nil
-			}
-			return nutritionRows(world, s.ProvidesNutrition)
-		},
-	},
-	{ // 鮮度。生成時の刻印が要るので実体のみ
-		basic: true,
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Perishable.Has(e) {
-				return nil
-			}
-			return []SpecRow{freshnessRow(world, e)}
-		},
-	},
 	{ // 本
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.Book.Has(e) {
@@ -181,36 +109,6 @@ var specParts = []specPart{
 				return nil
 			}
 			return bookRows(world, s.Book)
-		},
-	},
-	{ // 価値
-		basic: true,
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Value.Has(e) {
-				return nil
-			}
-			return valueRows(world, world.Components.Value.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Value == nil {
-				return nil
-			}
-			return valueRows(world, s.Value)
-		},
-	},
-	{ // 重量
-		basic: true,
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Weight.Has(e) {
-				return nil
-			}
-			return weightRows(world, world.Components.Weight.Get(e))
-		},
-		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.Weight == nil {
-				return nil
-			}
-			return weightRows(world, s.Weight)
 		},
 	},
 	{ // 治療。価値や重量など多くのアイテムに共通の項目の後に置く
@@ -245,23 +143,123 @@ var specParts = []specPart{
 	},
 }
 
+// basicParts は材質や重量など多くのアイテムに共通の単値属性。末尾に「基本」見出しでひとまとめにする。
+// specParts と同じ specPart なので、実体と raw spec の両ビューへ同じ規則で反映される
+var basicParts = []specPart{
+	{ // 材質
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Material.Has(e) {
+				return nil
+			}
+			return []SpecRow{materialRow(world, world.Components.Material.Get(e))}
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Material == nil {
+				return nil
+			}
+			return []SpecRow{materialRow(world, s.Material)}
+		},
+	},
+	{ // 燃料。熱量は保持せず材質と重量から導くので、実体と spec で算出元が違う
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if heat := query.HeatContent(world, e); heat > 0 {
+				return []SpecRow{fuelRow(world, heat)}
+			}
+			return nil
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Material == nil || s.Weight == nil {
+				return nil
+			}
+			if heat := query.HeatOf(s.Material.Kind, s.Weight.Milligram); heat > 0 {
+				return []SpecRow{fuelRow(world, heat)}
+			}
+			return nil
+		},
+	},
+	{ // 回復
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.ProvidesHealing.Has(e) {
+				return nil
+			}
+			return healingRows(world, world.Components.ProvidesHealing.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.ProvidesHealing == nil {
+				return nil
+			}
+			return healingRows(world, s.ProvidesHealing)
+		},
+	},
+	{ // 栄養
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.ProvidesNutrition.Has(e) {
+				return nil
+			}
+			return nutritionRows(world, world.Components.ProvidesNutrition.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.ProvidesNutrition == nil {
+				return nil
+			}
+			return nutritionRows(world, s.ProvidesNutrition)
+		},
+	},
+	{ // 鮮度。生成時の刻印が要るので実体のみ
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Perishable.Has(e) {
+				return nil
+			}
+			return []SpecRow{freshnessRow(world, e)}
+		},
+	},
+	{ // 価値
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Value.Has(e) {
+				return nil
+			}
+			return valueRows(world, world.Components.Value.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Value == nil {
+				return nil
+			}
+			return valueRows(world, s.Value)
+		},
+	},
+	{ // 重量
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if !world.Components.Weight.Has(e) {
+				return nil
+			}
+			return weightRows(world, world.Components.Weight.Get(e))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.Weight == nil {
+				return nil
+			}
+			return weightRows(world, s.Weight)
+		},
+	},
+}
+
 // SpecRows はエンティティの性能表示を行の並びとして返す。
-// specParts を順に回し、実体が持つ要素だけを含める。
-// basic の要素は末尾に「基本」見出しでまとめ、材質や重量などの単値属性を1グループに束ねる
+// specParts に続けて、basicParts を末尾の「基本」見出しでまとめて足す
 func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
-	var rows, basic []SpecRow
-	for _, p := range specParts {
-		if p.fromEntity == nil {
-			continue
-		}
-		got := p.fromEntity(world, entity)
-		if p.basic {
-			basic = append(basic, got...)
-		} else {
-			rows = append(rows, got...)
+	return appendBasicGroup(world,
+		collectEntityRows(world, entity, specParts),
+		collectEntityRows(world, entity, basicParts))
+}
+
+// collectEntityRows は parts を順に回し、実体から取れる行を連結する
+func collectEntityRows(world w.World, entity ecs.Entity, parts []specPart) []SpecRow {
+	var rows []SpecRow
+	for _, p := range parts {
+		if p.fromEntity != nil {
+			rows = append(rows, p.fromEntity(world, entity)...)
 		}
 	}
-	return appendBasicGroup(world, rows, basic)
+	return rows
 }
 
 // appendBasicGroup は基本属性の行を「基本」見出しでまとめて rows の末尾へ足す。
@@ -302,19 +300,21 @@ func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
 // specParts を順に回し、fromSpec を持つ要素のうち spec が持つものだけを含める。
 // 鮮度など fromSpec が nil の要素は、生成後にしか定まらないのでここには出ない
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
-	var rows, basic []SpecRow
-	for _, p := range specParts {
-		if p.fromSpec == nil {
-			continue
-		}
-		got := p.fromSpec(world, spec)
-		if p.basic {
-			basic = append(basic, got...)
-		} else {
-			rows = append(rows, got...)
+	return appendBasicGroup(world,
+		collectSpecRows(world, spec, specParts),
+		collectSpecRows(world, spec, basicParts))
+}
+
+// collectSpecRows は parts を順に回し、raw spec から取れる行を連結する。
+// fromSpec が nil の要素は raw spec 表示に出ない
+func collectSpecRows(world w.World, spec gc.EntitySpec, parts []specPart) []SpecRow {
+	var rows []SpecRow
+	for _, p := range parts {
+		if p.fromSpec != nil {
+			rows = append(rows, p.fromSpec(world, spec)...)
 		}
 	}
-	return appendBasicGroup(world, rows, basic)
+	return rows
 }
 
 // materialRow は材質の1行を返す。可燃性と燃焼熱量の根拠で、不燃の材質も見せて燃える/燃えないを読み取れる
