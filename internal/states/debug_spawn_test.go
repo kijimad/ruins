@@ -18,6 +18,7 @@ func countGridEntitiesAt(t *testing.T, world w.World, coord consts.Coord[consts.
 	t.Helper()
 	n := 0
 	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	defer q.Close() // 早期リターンを入れても world をアンロックする安全ネット
 	for q.Next() {
 		if world.Components.GridElement.Get(q.Entity()).Coord == coord {
 			n++
@@ -26,55 +27,65 @@ func countGridEntitiesAt(t *testing.T, world w.World, coord consts.Coord[consts.
 	return n
 }
 
-// TestSpawnPropNearPlayer はプレイヤーの近傍に prop を生成すること、プレイヤー不在では
-// エラーを返すことを検証する。
 func TestSpawnPropNearPlayer(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
+	t.Run("近傍にpropを生成する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
 
-	target := consts.Coord[consts.Tile]{X: 7, Y: 5} // playerX+2
-	before := countGridEntitiesAt(t, world, target)
-	require.NoError(t, spawnPropNearPlayer(world, "barrel"))
-	assert.Equal(t, before+1, countGridEntitiesAt(t, world, target), "近傍に prop を1体生成する")
+		target := consts.Coord[consts.Tile]{X: 7, Y: 5} // playerX+2
+		before := countGridEntitiesAt(t, world, target)
+		require.NoError(t, spawnPropNearPlayer(world, "barrel"))
+		assert.Equal(t, before+1, countGridEntitiesAt(t, world, target), "近傍に prop を1体生成する")
+	})
 
-	empty := testutil.InitTestWorld(t)
-	assert.Error(t, spawnPropNearPlayer(empty, "barrel"))
+	t.Run("プレイヤー不在はエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Error(t, spawnPropNearPlayer(testutil.InitTestWorld(t), "barrel"))
+	})
 }
 
-// TestSpawnEnemyNearPlayer はプレイヤーの近傍に敵を生成すること、プレイヤー不在では
-// エラーを返すことを検証する。
 func TestSpawnEnemyNearPlayer(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
+	t.Run("近傍に敵を生成する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
 
-	target := consts.Coord[consts.Tile]{X: 13, Y: 5} // playerX+8
-	require.NoError(t, spawnEnemyNearPlayer(world, "moss_turtle"))
-	assert.Equal(t, 1, countGridEntitiesAt(t, world, target), "近傍に敵を1体生成する")
+		target := consts.Coord[consts.Tile]{X: 13, Y: 5} // playerX+8
+		before := countGridEntitiesAt(t, world, target)
+		require.NoError(t, spawnEnemyNearPlayer(world, "moss_turtle"))
+		assert.Equal(t, before+1, countGridEntitiesAt(t, world, target), "近傍に敵を1体生成する")
+	})
 
-	empty := testutil.InitTestWorld(t)
-	assert.Error(t, spawnEnemyNearPlayer(empty, "moss_turtle"))
+	t.Run("プレイヤー不在はエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Error(t, spawnEnemyNearPlayer(testutil.InitTestWorld(t), "moss_turtle"))
+	})
 }
 
-// TestSpawnStorageWithItems は収納 prop とその在庫を生成すること、プレイヤー不在では
-// エラーを返すことを検証する。
 func TestSpawnStorageWithItems(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
+	t.Run("収納propを生成する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
 
-	target := consts.Coord[consts.Tile]{X: 7, Y: 5} // playerX+2
-	before := countGridEntitiesAt(t, world, target)
-	require.NoError(t, spawnStorageWithItems(world))
-	assert.Equal(t, before+1, countGridEntitiesAt(t, world, target), "収納 prop を1体生成する")
+		target := consts.Coord[consts.Tile]{X: 7, Y: 5} // playerX+2
+		before := countGridEntitiesAt(t, world, target)
+		require.NoError(t, spawnStorageWithItems(world))
+		assert.Equal(t, before+1, countGridEntitiesAt(t, world, target), "収納 prop を1体生成する")
+	})
 
-	empty := testutil.InitTestWorld(t)
-	assert.Error(t, spawnStorageWithItems(empty))
+	t.Run("プレイヤー不在はエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Error(t, spawnStorageWithItems(testutil.InitTestWorld(t)))
+	})
 }
