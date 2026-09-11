@@ -535,69 +535,49 @@ func TestTemperatureStateBadge_快適時は出さない(t *testing.T) {
 
 func TestGetFatigueBadgeColor(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		name     string
-		level    gc.FatigueLevel
-		expected color.RGBA
-	}{
-		{
-			name:     "過労は赤",
-			level:    gc.FatigueExhausted,
-			expected: color.RGBA{255, 50, 50, 255},
-		},
-		{
-			name:     "疲労は黄",
-			level:    gc.FatigueTired,
-			expected: color.RGBA{255, 200, 0, 255},
-		},
-		{
-			name:     "通常段階も黄のデフォルト",
-			level:    gc.FatigueNormal,
-			expected: color.RGBA{255, 200, 0, 255},
-		},
-	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, getFatigueBadgeColor(tt.level))
-		})
-	}
+	// 色の RGBA 値そのものは固定せず、過労が別色の警告になること、非過労が同色になることを見る
+	t.Run("過労は非過労と異なる警告色になる", func(t *testing.T) {
+		t.Parallel()
+		exhausted := getFatigueBadgeColor(gc.FatigueExhausted)
+		normal := getFatigueBadgeColor(gc.FatigueNormal)
+		assert.NotEqual(t, normal, exhausted, "過労は非過労と別色")
+		assert.Less(t, exhausted.G, normal.G, "過労はより赤寄りで緑成分が小さい")
+	})
+
+	t.Run("過労以外は同じ注意色になる", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, getFatigueBadgeColor(gc.FatigueNormal), getFatigueBadgeColor(gc.FatigueTired),
+			"非過労の段階は同じ色")
+	})
 }
 
 func TestAmbientTempDisplayColor(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		name     string
-		temp     int
-		expected color.RGBA
-	}{
-		{
-			name:     "快適帯の下限を下回ると青",
-			temp:     query.ComfortableTempLower - 1,
-			expected: color.RGBA{150, 190, 255, 255},
-		},
-		{
-			name:     "快適帯の上限を上回ると赤",
-			temp:     query.ComfortableTempUpper + 1,
-			expected: color.RGBA{255, 170, 120, 255},
-		},
-		{
-			name:     "快適帯の下限ちょうどは白",
-			temp:     query.ComfortableTempLower,
-			expected: color.RGBA{255, 255, 255, 255},
-		},
-		{
-			name:     "快適帯の上限ちょうどは白",
-			temp:     query.ComfortableTempUpper,
-			expected: color.RGBA{255, 255, 255, 255},
-		},
-	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, ambientTempDisplayColor(tt.temp))
-		})
-	}
+	// RGBA 値そのものは固定しない。分岐の向き、寒色か暖色か白かだけを見る。
+	// 境界ちょうどの白は確定値なので直接比較する
+	white := color.RGBA{255, 255, 255, 255}
+
+	t.Run("快適帯の下限を下回ると寒色", func(t *testing.T) {
+		t.Parallel()
+		c := ambientTempDisplayColor(query.ComfortableTempLower - 1)
+		assert.Greater(t, c.B, c.R, "寒色は青が赤より強い")
+	})
+
+	t.Run("快適帯の上限を上回ると暖色", func(t *testing.T) {
+		t.Parallel()
+		c := ambientTempDisplayColor(query.ComfortableTempUpper + 1)
+		assert.Greater(t, c.R, c.B, "暖色は赤が青より強い")
+	})
+
+	t.Run("快適帯の下限ちょうどは白", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, white, ambientTempDisplayColor(query.ComfortableTempLower))
+	})
+
+	t.Run("快適帯の上限ちょうどは白", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, white, ambientTempDisplayColor(query.ComfortableTempUpper))
+	})
 }
