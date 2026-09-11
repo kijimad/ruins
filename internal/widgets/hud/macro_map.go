@@ -69,6 +69,10 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 			cx := offX + col*cellPx
 			cy := offY + row*cellPx
 			cv.FillRect(image.Rect(cx, cy, cx+cellPx, cy+cellPx), macroGlyphColor(cell.Glyph))
+			// 道が通るチャンクは接続方角へ線分を引く。縮小地図でも街道の走りが読める
+			if cell.Road.Any() {
+				drawMacroRoad(cv, cx, cy, cellPx, cell.Road)
+			}
 			if drawGlyph {
 				drawCenteredGlyph(cv, string(cell.Glyph), m.face, cx, cy, cellPx, theme.OverworldMapGlyphText)
 			}
@@ -97,6 +101,27 @@ func macroGlyphColor(r rune) color.RGBA {
 		return c
 	}
 	return theme.OverworldMapUnknownGlyph
+}
+
+// drawMacroRoad は全画面図 drawCellRoad と同じ道の線分を、縮小地図の整数座標で描く。太さは cell/4・
+// 最低 1px とし、セルが小さくても道が消えないようにする。全画面図の cell/5・最低 2px とは縮尺ぶん差を付ける。
+func drawMacroRoad(cv uicore.Canvas, cx, cy, cell int, road overworld.RoadDir) {
+	t := max(cell/4, 1)
+	half := t / 2
+	ccx, ccy := cx+cell/2, cy+cell/2
+	col := theme.OverworldMapRoad
+	if road&overworld.RoadW != 0 {
+		cv.FillRect(image.Rect(cx, ccy-half, ccx+half, ccy-half+t), col)
+	}
+	if road&overworld.RoadE != 0 {
+		cv.FillRect(image.Rect(ccx-half, ccy-half, cx+cell, ccy-half+t), col)
+	}
+	if road&overworld.RoadN != 0 {
+		cv.FillRect(image.Rect(ccx-half, cy, ccx-half+t, ccy+half), col)
+	}
+	if road&overworld.RoadS != 0 {
+		cv.FillRect(image.Rect(ccx-half, ccy-half, ccx-half+t, cy+cell), col)
+	}
 }
 
 // drawCenteredGlyph はセルの中央に1文字を描く。DrawText は左上基準なので、文字の寸法を測って

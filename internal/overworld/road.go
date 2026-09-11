@@ -21,13 +21,9 @@ type roadFeature struct{}
 const roadWidth consts.Tile = 4
 
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-	r := floorDiv(c.X, settlementPlacement.Spacing)
 	tiles := g.tiles.get()
-	// c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ
-	for _, pr := range []consts.Chunk{r - 1, r} {
-		a := settlementPlacement.WinnerOf(runSeed, pr, rows)
-		b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)
-		if err := drawRoadSegments(world, tiles, a, b, c, g); err != nil {
+	for _, pair := range crossingRoads(runSeed, c, rows) {
+		if err := drawRoadSegments(world, tiles, pair[0], pair[1], c, g); err != nil {
 			return err
 		}
 	}
@@ -36,13 +32,8 @@ func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Ch
 
 // drawRoadSegments は集落 a の中心から b の中心への L 字経路のうち、チャンク c に
 // 含まれるマスだけを舗装する。既存タイルが土のマスだけを置き換え、市街地の壁や床、
-// 集落は壊さない。
+// 集落は壊さない。経路の分解は roadSegments を唯一の出典とし、地図・散布と一致させる。
 func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, c consts.Coord[consts.Chunk], g chunkGeom) error {
-	ax := a.X.Tiles(g.chunkW) + g.chunkW/2
-	ay := a.Y.Tiles(g.chunkH) + g.chunkH/2
-	bx := b.X.Tiles(g.chunkW) + g.chunkW/2
-	by := b.Y.Tiles(g.chunkH) + g.chunkH/2
-
 	pave := func(px, py consts.Tile) error {
 		loX := c.X.Tiles(g.chunkW)
 		loY := c.Y.Tiles(g.chunkH)
@@ -57,19 +48,20 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 		return nil
 	}
 
-	// 水平辺は y=ay を中心に Y 方向へ、垂直辺は x=bx を中心に X 方向へ、幅 roadWidth のバンドで敷く。
-	// 角の (bx, ay) 付近は両バンドが重なるが replaceDirtTile は冪等なので二重舗装は無害。
-	for x := min(ax, bx); x <= max(ax, bx); x++ {
-		for w := range roadWidth {
-			if err := pave(x, ay+w-roadWidth/2); err != nil {
-				return err
-			}
-		}
-	}
-	for y := min(ay, by); y <= max(ay, by); y++ {
-		for w := range roadWidth {
-			if err := pave(bx+w-roadWidth/2, y); err != nil {
-				return err
+	// 各辺を幅 roadWidth のバンドで敷く。進行軸に沿って可変軸を進め、垂直に roadWidth ぶん広げる。
+	// 角付近は両辺のバンドが重なるが replaceDirtTile は冪等なので二重舗装は無害。
+	for _, seg := range roadSegments(a, b) {
+		fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)
+		for v := lo; v <= hi; v++ {
+			for w := range roadWidth {
+				off := w - roadWidth/2
+				px, py := v, fixed+off
+				if seg.orient == orientVertical {
+					px, py = fixed+off, v
+				}
+				if err := pave(px, py); err != nil {
+					return err
+				}
 			}
 		}
 	}

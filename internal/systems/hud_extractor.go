@@ -116,17 +116,17 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 	if sb == nil || !sb.Active {
 		return hud.MacroMapData{HasBand: false, Config: config, Screen: screen}
 	}
-	// 近傍だけを大きく見せる。プレイヤーの絶対チャンク列を中心に窓を取る。プレイヤー不在時は帯全体
+	// 近傍だけを大きく見せる。プレイヤーの絶対チャンク列を中心に表示範囲を取る。プレイヤー不在時は帯全体
 	playerTile, hasPlayer := query.PlayerBandTile(world)
-	win := overworld.FullBandWindow(sb.EastIndex, sb.Cols, sb.Rows)
+	area := overworld.FullBandRange(sb.EastIndex, sb.Cols, sb.Rows)
 	if hasPlayer {
 		centerCol := sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
-		win = overworld.PlayerCenteredWindow(centerCol, sb.Rows, consts.MacroMapChunkRadius)
+		area = overworld.PlayerCenteredRange(centerCol, sb.Rows, consts.MacroMapChunkRadius)
 	}
-	// 徐々に開くフォグ。探索済みチャンクだけを開放する。窓・モデル・フォグは全画面図と共有する
+	// 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する
 	view := overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
-		win, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 	return hud.MacroMapData{HasBand: true, View: view, Config: config, Screen: screen}
 }

@@ -28,7 +28,7 @@ type OverworldMapState struct {
 
 	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
 	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
-	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。窓半径の算出と描画で共有する
+	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
 	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
 }
 
@@ -51,7 +51,7 @@ const (
 	overworldMapMinRadius = 3
 )
 
-// modalInner はモーダルパネルの内側矩形を返す。窓半径・セル寸法の算出とパネル画像の寸法で共有する。
+// modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
 func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
 	return menuframe.PanelInner(menuframe.ModalRect(world))
 }
@@ -84,10 +84,10 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	if hasPlayer {
 		centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
 	}
-	win := overworld.PlayerCenteredWindow(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
+	area := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
-		win, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
@@ -199,6 +199,10 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(dst, float32(x), float32(y), float32(cell-1), float32(cell-1), glyphColor(r), false)
 			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
+			// 道が通るチャンクは接続方角へ線分を引く。地形塗りの上、記号の下に重ねる
+			if c.Road.Any() {
+				drawCellRoad(dst, x, y, cell, cx, cy, c.Road)
+			}
 			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)
 		}
 	}
@@ -236,6 +240,29 @@ func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string,
 		}
 	}
 	drawText("N / Esc to close", 8, y+26, theme.TextPrimary)
+}
+
+// drawCellRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。フォントに
+// 罫線素片が無いので記号でなく線分で方向を見せる。各方角の矩形は中央で重なるが同色なので無害。
+func drawCellRoad(dst *ebiten.Image, x, y, cell, cx, cy consts.ScreenPixel, road overworld.RoadDir) {
+	t := max(consts.ScreenPixel(2), cell/5)
+	half := float32(t) / 2
+	left, top := float32(x), float32(y)
+	right, bottom := float32(x+cell-1), float32(y+cell-1)
+	cxF, cyF := float32(cx), float32(cy)
+	col := theme.OverworldMapRoad
+	if road&overworld.RoadW != 0 {
+		vector.FillRect(dst, left, cyF-half, (cxF+half)-left, float32(t), col, false)
+	}
+	if road&overworld.RoadE != 0 {
+		vector.FillRect(dst, cxF-half, cyF-half, right-(cxF-half), float32(t), col, false)
+	}
+	if road&overworld.RoadN != 0 {
+		vector.FillRect(dst, cxF-half, top, float32(t), (cyF+half)-top, col, false)
+	}
+	if road&overworld.RoadS != 0 {
+		vector.FillRect(dst, cxF-half, cyF-half, float32(t), bottom-(cyF-half), col, false)
+	}
 }
 
 // glyphColor は種別文字に対応する色を返す。既知の記号は overworld の色定義を引き、
