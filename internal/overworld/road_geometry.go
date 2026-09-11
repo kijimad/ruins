@@ -6,11 +6,19 @@ import "github.com/kijimaD/ruins/internal/consts"
 // 舗装 road.go・散布回避 scatter.go・マクロ地図 road_overlay.go の3消費者が同じ分解を各粒度で解釈する。
 // 分解を1箇所にすることで、地図に出る道と実際に舗装される道が構造的に一致し続ける。
 
+// roadOrient は道の一辺の向き。実体は文字列で、%v やテスト失敗の出力に種別名が出る。
+type roadOrient string
+
+const (
+	orientHorizontal roadOrient = "horizontal" // 行を固定して列方向へ伸びる
+	orientVertical   roadOrient = "vertical"   // 列を固定して行方向へ伸びる
+)
+
 // roadSeg は道の一辺。
 type roadSeg struct {
-	horizontal bool         // true=水平辺, false=垂直辺
-	fixed      consts.Chunk // horizontal なら固定する行、そうでなければ固定する列
-	lo, hi     consts.Chunk // 可変軸の範囲。lo<=hi で端点を含む
+	orient roadOrient
+	fixed  consts.Chunk // orient=horizontal なら固定する行、vertical なら固定する列
+	lo, hi consts.Chunk // 可変軸の範囲。lo<=hi で端点を含む
 }
 
 // roadSegments は当選集落 a から b への道を水平辺・垂直辺の2区間で返す。分解規則の唯一の出典で、
@@ -18,15 +26,15 @@ type roadSeg struct {
 // a と b の東西の大小に依らず同じ2辺になる。
 func roadSegments(a, b consts.Coord[consts.Chunk]) [2]roadSeg {
 	return [2]roadSeg{
-		{horizontal: true, fixed: a.Y, lo: min(a.X, b.X), hi: max(a.X, b.X)},
-		{horizontal: false, fixed: b.X, lo: min(a.Y, b.Y), hi: max(a.Y, b.Y)},
+		{orient: orientHorizontal, fixed: a.Y, lo: min(a.X, b.X), hi: max(a.X, b.X)},
+		{orient: orientVertical, fixed: b.X, lo: min(a.Y, b.Y), hi: max(a.Y, b.Y)},
 	}
 }
 
 // tileSpan は辺を帯の1チャンク寸法でタイル座標へ移す。固定軸のタイルと可変軸の範囲を返し、各軸を
 // チャンク中心へ寄せる。集落中心が当選チャンクのど真ん中に来るのに合わせる。
 func (s roadSeg) tileSpan(chunkW, chunkH consts.Tile) (fixed, lo, hi consts.Tile) {
-	if s.horizontal {
+	if s.orient == orientHorizontal {
 		// 固定は行→Y、可変は列→X
 		return s.fixed.Tiles(chunkH) + chunkH/2, s.lo.Tiles(chunkW) + chunkW/2, s.hi.Tiles(chunkW) + chunkW/2
 	}

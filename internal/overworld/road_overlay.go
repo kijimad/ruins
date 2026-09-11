@@ -52,7 +52,7 @@ func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.
 		for v := seg.lo; v <= seg.hi; v++ {
 			var cell consts.Coord[consts.Chunk]
 			var bits RoadDir
-			if seg.horizontal {
+			if seg.orient == orientHorizontal {
 				cell = consts.Coord[consts.Chunk]{X: v, Y: seg.fixed}
 				if v > seg.lo {
 					bits |= RoadW

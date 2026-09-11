@@ -307,7 +307,7 @@ func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Ch
 		for _, seg := range roadSegments(pair[0], pair[1]) {
 			fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)
 			var d consts.Tile
-			if seg.horizontal {
+			if seg.orient == orientHorizontal {
 				d = chebToHSeg(pos, fixed, lo, hi)
 			} else {
 				d = chebToVSeg(pos, fixed, lo, hi)

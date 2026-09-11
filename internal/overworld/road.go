@@ -56,7 +56,7 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 			for w := range roadWidth {
 				off := w - roadWidth/2
 				px, py := v, fixed+off
-				if !seg.horizontal {
+				if seg.orient == orientVertical {
 					px, py = fixed+off, v
 				}
 				if err := pave(px, py); err != nil {
