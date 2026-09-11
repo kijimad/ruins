@@ -20,8 +20,8 @@ func TestMarkRoadLShape_水平の直線は東西ビットを積む(t *testing.T)
 
 func TestMarkRoadLShape_西進でも東西ビットは対称に積む(t *testing.T) {
 	t.Parallel()
-	// buildRoadOverlay は常に a.X < b.X で呼ぶが、markRoadLShape 自体は符号で一般化している。
-	// 西進 a.X > b.X の分岐も東進と鏡像で同じ結線になることを固定する
+	// buildRoadOverlay は常に a.X < b.X で呼ぶが、markRoadLShape は roadSegments が端点を min/max で
+	// 正規化するので、西進 a.X > b.X でも東進と同じ結線になる。それを固定する
 	overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
 	markRoadLShape(overlay, consts.Coord[consts.Chunk]{X: 3, Y: 0}, consts.Coord[consts.Chunk]{X: 0, Y: 0})
 

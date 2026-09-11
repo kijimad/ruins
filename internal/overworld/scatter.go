@@ -302,19 +302,19 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
 func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
-	r := floorDiv(c.X, settlementPlacement.Spacing)
-	// c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ。roadFeature と同じ結線
-	for _, pr := range []consts.Chunk{r - 1, r} {
-		a := settlementPlacement.WinnerOf(runSeed, pr, rows)
-		b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)
-		ax := a.X.Tiles(g.chunkW) + g.chunkW/2
-		ay := a.Y.Tiles(g.chunkH) + g.chunkH/2
-		bx := b.X.Tiles(g.chunkW) + g.chunkW/2
-		by := b.Y.Tiles(g.chunkH) + g.chunkH/2
-		// 集落 a から b への L 字。水平辺 y=ay と垂直辺 x=bx の近い方までの距離を見る
-		d := min(chebToHSeg(pos, ay, ax, bx), chebToVSeg(pos, bx, ay, by))
-		if d <= scatterRouteBuffer {
-			return true
+	// 道の結線は roadSegments を唯一の出典にし、舗装 road.go と同じ経路への距離を測る
+	for _, pair := range crossingRoads(runSeed, c, rows) {
+		for _, seg := range roadSegments(pair[0], pair[1]) {
+			fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)
+			var d consts.Tile
+			if seg.horizontal {
+				d = chebToHSeg(pos, fixed, lo, hi)
+			} else {
+				d = chebToVSeg(pos, fixed, lo, hi)
+			}
+			if d <= scatterRouteBuffer {
+				return true
+			}
 		}
 	}
 	return false
