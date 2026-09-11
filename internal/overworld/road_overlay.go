@@ -29,10 +29,13 @@ func buildRoadOverlay(runSeed uint64, win MacroWindow, rows consts.Chunk) map[co
 	rows = max(rows, 1)
 	// 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は
 	// (pr+2)*Spacing 未満に収まる。よって窓 [OriginX, OriginX+Cols) に列が掛かりうる道は、窓左端の
-	// 属するリージョンの1つ西から窓右端の属するリージョンまで。取りこぼしを防ぐため左右へ1リージョンの
-	// 余裕を足す。窓外へ出たチャンクを印しても読み手が引かないので無害
-	rLo := floorDiv(win.OriginX, settlementPlacement.Spacing) - 2
-	rHi := floorDiv(win.OriginX+win.Cols-1, settlementPlacement.Spacing) + 1
+	// 属するリージョンの1つ西から窓右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ
+	// scanMargin ぶんの余裕を足す。窓外へ出たチャンクを印しても読み手が引かないので無害
+	const scanMargin consts.Chunk = 1
+	leftRegion := floorDiv(win.OriginX, settlementPlacement.Spacing)
+	rightRegion := floorDiv(win.OriginX+win.Cols-1, settlementPlacement.Spacing)
+	rLo := leftRegion - 1 - scanMargin // 1つ西のリージョンの道が東へ食い込みうる
+	rHi := rightRegion + scanMargin
 	for pr := rLo; pr <= rHi; pr++ {
 		a := settlementPlacement.WinnerOf(runSeed, pr, rows)
 		b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)
