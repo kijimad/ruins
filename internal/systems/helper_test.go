@@ -10,27 +10,43 @@ import (
 
 // TestInitializeSystems は全システムの登録を固定する。各システムを String() のキーで
 // updaters/renderers へ登録するので、代表的なシステムの存在と、キーが String() と一致する
-// 不変条件を検証する。
+// 不変条件、Updater と Renderer 両方へ登録される特殊システムを検証する。
+// WithUI は HUDRenderingSystem など UI リソースを要するシステムの初期化のため。
 func TestInitializeSystems(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t, testutil.WithUI())
-
 	updaters, renderers := InitializeSystems(world)
 
-	require.NotEmpty(t, updaters, "Updater が登録される")
-	require.NotEmpty(t, renderers, "Renderer が登録される")
+	t.Run("代表的なUpdaterが登録される", func(t *testing.T) {
+		t.Parallel()
+		require.NotEmpty(t, updaters)
+		for _, name := range []string{"CameraSystem", "AnimationSystem", "TurnSystem", "TemperatureSystem", "VisionSystem", "AuctionSystem"} {
+			assert.Contains(t, updaters, name, "%s が登録される", name)
+		}
+	})
 
-	// 代表的な Updater が登録されている
-	for _, name := range []string{"CameraSystem", "AnimationSystem", "TurnSystem", "TemperatureSystem", "VisionSystem", "AuctionSystem"} {
-		assert.Contains(t, updaters, name, "%s が登録される", name)
-	}
+	t.Run("代表的なRendererが登録される", func(t *testing.T) {
+		t.Parallel()
+		require.NotEmpty(t, renderers)
+		assert.Contains(t, renderers, "RenderSpriteSystem", "スプライト描画が登録される")
+	})
 
-	// マップのキーは対応するシステムの String() と一致する
-	for name, u := range updaters {
-		assert.Equal(t, name, u.String(), "Updater のキーは String() と一致する")
-	}
-	for name, r := range renderers {
-		assert.Equal(t, name, r.String(), "Renderer のキーは String() と一致する")
-	}
+	t.Run("HUDとVisualEffectはUpdaterとRendererの両方へ登録される", func(t *testing.T) {
+		t.Parallel()
+		for _, name := range []string{"HUDRenderingSystem", "VisualEffectSystem"} {
+			assert.Contains(t, updaters, name, "%s は Updater にも登録される", name)
+			assert.Contains(t, renderers, name, "%s は Renderer にも登録される", name)
+		}
+	})
+
+	t.Run("マップのキーは対応するStringと一致する", func(t *testing.T) {
+		t.Parallel()
+		for name, u := range updaters {
+			assert.Equal(t, name, u.String(), "Updater のキーは String() と一致する")
+		}
+		for name, r := range renderers {
+			assert.Equal(t, name, r.String(), "Renderer のキーは String() と一致する")
+		}
+	})
 }
