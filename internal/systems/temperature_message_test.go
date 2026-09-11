@@ -7,8 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestGetWorseningMessage は低体温の悪化メッセージを重症度ごとに固定する。
-// 低体温以外や重症度なしは空文字になる分岐も検証する。
+// TestGetWorseningMessage は getWorseningMessage の全分岐を固定する。
 func TestGetWorseningMessage(t *testing.T) {
 	t.Parallel()
 
@@ -32,8 +31,7 @@ func TestGetWorseningMessage(t *testing.T) {
 	}
 }
 
-// TestGetRecoveryMessage は低体温の回復メッセージを重症度ごとに固定する。
-// 重症のまま回復した場合や低体温以外は空文字になる分岐も検証する。
+// TestGetRecoveryMessage は getRecoveryMessage の全分岐を固定する。
 func TestGetRecoveryMessage(t *testing.T) {
 	t.Parallel()
 
@@ -43,7 +41,7 @@ func TestGetRecoveryMessage(t *testing.T) {
 		severity gc.Severity
 		want     string
 	}{
-		{"低体温なしまで回復", gc.ConditionHypothermia, gc.SeverityNone, "You have warmed up"},
+		{"重症度なしは完全回復メッセージ", gc.ConditionHypothermia, gc.SeverityNone, "You have warmed up"},
 		{"低体温軽", gc.ConditionHypothermia, gc.SeverityMinor, "You are warming up a little"},
 		{"低体温中", gc.ConditionHypothermia, gc.SeverityMedium, "Still cold, but a little better"},
 		{"低体温重は空", gc.ConditionHypothermia, gc.SeveritySevere, ""},
