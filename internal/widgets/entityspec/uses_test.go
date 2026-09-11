@@ -66,6 +66,21 @@ func TestUseHints(t *testing.T) {
 			want: []string{"Wearable"},
 		},
 		{
+			name: "遠距離武器は装備できる",
+			setup: func(world w.World, e ecs.Entity) {
+				world.Components.Fire.Add(e, &gc.Fire{})
+			},
+			want: []string{"Wearable"},
+		},
+		{
+			name: "分解工具は物を分解できる",
+			setup: func(world w.World, e ecs.Entity) {
+				// monkey_wrench は raw に分解工具定義を持つ。判定は RawID から raw を引く
+				world.Components.RawID.Add(e, &gc.RawID{ID: "monkey_wrench"})
+			},
+			want: []string{"Can disassemble items"},
+		},
+		{
 			name: "複数の性質は表示順に並ぶ",
 			setup: func(world w.World, e ecs.Entity) {
 				world.Components.Consumable.Add(e, &gc.Consumable{})
