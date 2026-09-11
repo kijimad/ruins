@@ -26,6 +26,12 @@ type Render3DSystem struct {
 	// 本番のダンジョンでは true、部屋全体を見せたいデモでは false にする。
 	// TODO: この切り替えは system でなく設定で保持する。設計は docs/design/260822112145.md
 	UseFOV bool
+
+	// 毎フレーム作り直さず使い回す描画バッファ。容量がフレーム間で保たれるので確保・コピー・GC を
+	// 起こさない。Draw は単一ゴルーチンなので共有して安全。
+	quads []r3quad
+	verts []ebiten.Vertex
+	inds  []uint16
 }
 
 // String は w.Renderer を満たす。
@@ -182,10 +188,13 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	pcx, pcz := float64(center.X), float64(center.Y)
 
 	visTint := sys.visTintFunc(world)
-	quads := sys.collectTiles(world, pcx, pcz, visTint)
+	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
+	quads := sys.collectTiles(world, sys.quads[:0], pcx, pcz, visTint)
 	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visTint)
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
+	// 戻り値は sys.quads と同一スライス。emit がそのまま辿り、次フレームは [:0] で容量を使い回す
+	sys.quads = quads
 	return quads, projector, nil
 }
 
@@ -239,9 +248,8 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 	}
 }
 
-// collectTiles は床と壁のクアッドを集める。
-func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visTint tintFunc) []r3quad {
-	var quads []r3quad
+// collectTiles は床と壁のクアッドを quads へ追記して返す。
+func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, pcx, pcz float64, visTint tintFunc) []r3quad {
 	walls := render3d.WallTileSet(world)
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	for tileQ.Next() {
@@ -326,6 +334,8 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 }
 
 // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。
+// クアッドを物理的に並べ替えるので、続く emit は連続アクセスで辿れる。添字ソートは emit が
+// ランダムアクセスになりキャッシュミスで却って遅くなるため採らない。
 func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {
 	for i := range quads {
 		c := render3d.Vec{}
@@ -344,12 +354,13 @@ func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {
 	})
 }
 
-// emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。
+// emit はクアッドを奥行き順の添字で辿り、アトラスが変わる境目でバッチに分けて描く。
+// 頂点バッファはフレーム間で使い回す。
 func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {
 	sortQuadsByDepth(quads, projector.Depth)
 
-	var verts []ebiten.Vertex
-	var inds []uint16
+	verts := sys.verts[:0]
+	inds := sys.inds[:0]
 	var curAtlas *ebiten.Image
 	flush := func() {
 		if len(inds) == 0 || curAtlas == nil {
@@ -370,6 +381,8 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector 
 		sys.emitQuad(&verts, &inds, q, projector.Point)
 	}
 	flush()
+	sys.verts = verts
+	sys.inds = inds
 }
 
 // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。
