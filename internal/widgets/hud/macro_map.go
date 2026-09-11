@@ -70,7 +70,7 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 			cy := offY + row*cellPx
 			cv.FillRect(image.Rect(cx, cy, cx+cellPx, cy+cellPx), macroGlyphColor(cell.Glyph))
 			// 道が通るチャンクは接続方角へ線分を引く。縮小地図でも街道の走りが読める
-			if cell.Road != 0 {
+			if cell.Road.Any() {
 				drawMacroRoad(cv, cx, cy, cellPx, cell.Road)
 			}
 			if drawGlyph {

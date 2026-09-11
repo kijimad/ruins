@@ -53,7 +53,7 @@ func TestBuildMacroView_道の接続方角をセルに埋める(t *testing.T) {
 	found := false
 	for _, row := range view.Cells {
 		for _, cell := range row {
-			if cell.Road != 0 {
+			if cell.Road.Any() {
 				found = true
 				assert.Zero(t, cell.Road&^(RoadN|RoadS|RoadE|RoadW), "未定義ビットは立たない")
 			}

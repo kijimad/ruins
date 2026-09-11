@@ -200,7 +200,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 			vector.FillRect(dst, float32(x), float32(y), float32(cell-1), float32(cell-1), glyphColor(r), false)
 			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
 			// 道が通るチャンクは接続方角へ線分を引く。地形塗りの上、記号の下に重ねる
-			if c.Road != 0 {
+			if c.Road.Any() {
 				drawCellRoad(dst, x, y, cell, cx, cy, c.Road)
 			}
 			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)

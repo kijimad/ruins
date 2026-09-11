@@ -21,6 +21,11 @@ const (
 	RoadW
 )
 
+// Any は道が1方角でも接続するかを返す。0 は道なしの空集合。
+func (d RoadDir) Any() bool {
+	return d != 0
+}
+
 // buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。
 // road.go と同じく隣接リージョンの当選集落どうしを L 字で結ぶ。生成を伴わない純関数で、
 // 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。
@@ -70,7 +75,7 @@ func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.
 				}
 			}
 			// 退化辺、a==b や集落が同じ行/列、はビットが 0。空の道キーを作らないよう積まない
-			if bits != 0 {
+			if bits.Any() {
 				overlay[cell] |= bits
 			}
 		}
