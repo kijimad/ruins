@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.8&nbsp;%</td>
+            <td class="headerCovTableEntryLo">65.7&nbsp;%</td>
             <td class="headerCovTableEntry">99</td>
-            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntry">65</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-11 09:24:08</td>
+            <td class="headerValue">2026-09-11 09:40:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -239,36 +239,36 @@
 <span id="L177"><span class="lineNum">     177</span>              : </span>
 <span id="L178"><span class="lineNum">     178</span>              : // getWorseningMessage は悪化時のメッセージを返す</span>
 <span id="L179"><span class="lineNum">     179</span>              : func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :         if condType == gc.ConditionHypothermia {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         if condType == gc.ConditionHypothermia {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
 <span id="L182"><span class="lineNum">     182</span>              :                 case gc.SeverityNone:</span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                         return &quot;&quot;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
 <span id="L184"><span class="lineNum">     184</span>              :                 case gc.SeverityMinor:</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         return &quot;The cold is setting in&quot;</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                         return &quot;The cold is setting in&quot;</span></span>
 <span id="L186"><span class="lineNum">     186</span>              :                 case gc.SeverityMedium:</span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                         return &quot;You are quite cold&quot;</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                         return &quot;You are quite cold&quot;</span></span>
 <span id="L188"><span class="lineNum">     188</span>              :                 case gc.SeveritySevere:</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                         return &quot;The cold is dangerous&quot;</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         return &quot;The cold is dangerous&quot;</span></span>
 <span id="L190"><span class="lineNum">     190</span>              :                 }</span>
 <span id="L191"><span class="lineNum">     191</span>              :         }</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :         return &quot;&quot;</span></span>
 <span id="L193"><span class="lineNum">     193</span>              : }</span>
 <span id="L194"><span class="lineNum">     194</span>              : </span>
 <span id="L195"><span class="lineNum">     195</span>              : // getRecoveryMessage は回復時のメッセージを返す</span>
 <span id="L196"><span class="lineNum">     196</span>              : func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">           1 :         if condType == gc.ConditionHypothermia {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         if condType == gc.ConditionHypothermia {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
 <span id="L199"><span class="lineNum">     199</span>              :                 case gc.SeverityNone:</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                         return &quot;You have warmed up&quot;</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                         return &quot;You have warmed up&quot;</span></span>
 <span id="L201"><span class="lineNum">     201</span>              :                 case gc.SeverityMinor:</span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                         return &quot;You are warming up a little&quot;</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                         return &quot;You are warming up a little&quot;</span></span>
 <span id="L203"><span class="lineNum">     203</span>              :                 case gc.SeverityMedium:</span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC tlaBgUNC">           0 :                         return &quot;Still cold, but a little better&quot;</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                         return &quot;Still cold, but a little better&quot;</span></span>
 <span id="L205"><span class="lineNum">     205</span>              :                 case gc.SeveritySevere:</span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC tlaBgGNC">           1 :                         return &quot;&quot;</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
 <span id="L207"><span class="lineNum">     207</span>              :                 }</span>
 <span id="L208"><span class="lineNum">     208</span>              :         }</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :         return &quot;&quot;</span></span>
 <span id="L210"><span class="lineNum">     210</span>              : }</span>
         </pre>
               </td>

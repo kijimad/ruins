@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -243,7 +243,7 @@
 				
 				<option value="file93">github.com/kijimaD/ruins/internal/engine/states/lib.go (100.0%)</option>
 				
-				<option value="file94">github.com/kijimaD/ruins/internal/engine/world/lib.go (75.0%)</option>
+				<option value="file94">github.com/kijimaD/ruins/internal/engine/world/lib.go (100.0%)</option>
 				
 				<option value="file95">github.com/kijimaD/ruins/internal/formula/formula.go (100.0%)</option>
 				
@@ -575,7 +575,7 @@
 				
 				<option value="file259">github.com/kijimaD/ruins/internal/systems/helper.go (0.0%)</option>
 				
-				<option value="file260">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (93.0%)</option>
+				<option value="file260">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (94.8%)</option>
 				
 				<option value="file261">github.com/kijimaD/ruins/internal/systems/hud_rendering.go (0.0%)</option>
 				
@@ -587,11 +587,11 @@
 				
 				<option value="file265">github.com/kijimaD/ruins/internal/systems/stats_changed.go (94.1%)</option>
 				
-				<option value="file266">github.com/kijimaD/ruins/internal/systems/temperature.go (89.1%)</option>
+				<option value="file266">github.com/kijimaD/ruins/internal/systems/temperature.go (80.6%)</option>
 				
 				<option value="file267">github.com/kijimaD/ruins/internal/systems/turn_system.go (91.1%)</option>
 				
-				<option value="file268">github.com/kijimaD/ruins/internal/systems/vision.go (68.1%)</option>
+				<option value="file268">github.com/kijimaD/ruins/internal/systems/vision.go (69.1%)</option>
 				
 				<option value="file269">github.com/kijimaD/ruins/internal/systems/visual_effect.go (14.8%)</option>
 				
@@ -711,7 +711,7 @@
 				
 				<option value="file327">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file328">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
+				<option value="file328">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
 				
 				<option value="file329">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -1735,7 +1735,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1805,8 +1805,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -14622,12 +14622,12 @@ func InitGeneric[C c.ComponentInitializer, R r.ResourceInitializer](gameComponen
         <span class="cov8" title="1">world := ecs.NewWorld()
         components, err := c.InitComponents(world, gameComponents)
         if err != nil </span>{
-                <span class="cov0" title="0">return Generic[C, R]{}, err
+                <span class="cov8" title="1">return Generic[C, R]{}, err
 </span>        }
 
         <span class="cov8" title="1">resources, err := r.InitResources(gameResources)
         if err != nil </span>{
-                <span class="cov0" title="0">return Generic[C, R]{}, err
+                <span class="cov8" title="1">return Generic[C, R]{}, err
 </span>        }
 
         <span class="cov8" title="1">return Generic[C, R]{
@@ -40264,9 +40264,9 @@ func ambientTempDisplayColor(temp int) color.RGBA {
         case temp &lt; query.ComfortableTempLower:
                 <span class="cov8" title="1">return color.RGBA{150, 190, 255, 255}</span>
         case temp &gt; query.ComfortableTempUpper:
-                <span class="cov0" title="0">return color.RGBA{255, 170, 120, 255}</span>
+                <span class="cov8" title="1">return color.RGBA{255, 170, 120, 255}</span>
         }
-        <span class="cov0" title="0">return color.RGBA{255, 255, 255, 255}</span>
+        <span class="cov8" title="1">return color.RGBA{255, 255, 255, 255}</span>
 }
 
 // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
@@ -40327,10 +40327,10 @@ func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
 
 // getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤
 func getFatigueBadgeColor(level gc.FatigueLevel) color.RGBA {
-        <span class="cov0" title="0">if level == gc.FatigueExhausted </span>{
-                <span class="cov0" title="0">return color.RGBA{255, 50, 50, 255}
+        <span class="cov8" title="1">if level == gc.FatigueExhausted </span>{
+                <span class="cov8" title="1">return color.RGBA{255, 50, 50, 255}
 </span>        }
-        <span class="cov0" title="0">return color.RGBA{255, 200, 0, 255}</span>
+        <span class="cov8" title="1">return color.RGBA{255, 200, 0, 255}</span>
 }
 
 // getHungerBadgeColor は空腹度に応じたバッジ色を返す
@@ -41718,16 +41718,16 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 
 // getWorseningMessage は悪化時のメッセージを返す
 func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {
-        <span class="cov8" title="1">if condType == gc.ConditionHypothermia </span>{
-                <span class="cov8" title="1">switch severity </span>{
+        <span class="cov0" title="0">if condType == gc.ConditionHypothermia </span>{
+                <span class="cov0" title="0">switch severity </span>{
                 case gc.SeverityNone:
-                        <span class="cov8" title="1">return ""</span>
+                        <span class="cov0" title="0">return ""</span>
                 case gc.SeverityMinor:
-                        <span class="cov8" title="1">return "The cold is setting in"</span>
+                        <span class="cov0" title="0">return "The cold is setting in"</span>
                 case gc.SeverityMedium:
-                        <span class="cov8" title="1">return "You are quite cold"</span>
+                        <span class="cov0" title="0">return "You are quite cold"</span>
                 case gc.SeveritySevere:
-                        <span class="cov8" title="1">return "The cold is dangerous"</span>
+                        <span class="cov0" title="0">return "The cold is dangerous"</span>
                 }
         }
         <span class="cov0" title="0">return ""</span>
@@ -41735,16 +41735,16 @@ func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string
 
 // getRecoveryMessage は回復時のメッセージを返す
 func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {
-        <span class="cov8" title="1">if condType == gc.ConditionHypothermia </span>{
-                <span class="cov8" title="1">switch severity </span>{
+        <span class="cov0" title="0">if condType == gc.ConditionHypothermia </span>{
+                <span class="cov0" title="0">switch severity </span>{
                 case gc.SeverityNone:
-                        <span class="cov8" title="1">return "You have warmed up"</span>
+                        <span class="cov0" title="0">return "You have warmed up"</span>
                 case gc.SeverityMinor:
-                        <span class="cov8" title="1">return "You are warming up a little"</span>
+                        <span class="cov0" title="0">return "You are warming up a little"</span>
                 case gc.SeverityMedium:
                         <span class="cov0" title="0">return "Still cold, but a little better"</span>
                 case gc.SeveritySevere:
-                        <span class="cov8" title="1">return ""</span>
+                        <span class="cov0" title="0">return ""</span>
                 }
         }
         <span class="cov0" title="0">return ""</span>
@@ -42199,10 +42199,10 @@ func (TileRenderUnexplored) tileRenderInfo() {<span class="cov0" title="0"></spa
 // tileRenderAt はタイルの描画情報を返す。map に無いタイルは未探索とみなし
 // TileRenderUnexplored を返す。不在を未探索へ明示的に写し、呼び出し側で3状態を網羅できるようにする。
 func tileRenderAt(m map[gc.GridElement]TileRenderInfo, grid gc.GridElement) TileRenderInfo {
-        <span class="cov0" title="0">if info, ok := m[grid]; ok </span>{
-                <span class="cov0" title="0">return info
+        <span class="cov8" title="1">if info, ok := m[grid]; ok </span>{
+                <span class="cov8" title="1">return info
 </span>        }
-        <span class="cov0" title="0">return TileRenderUnexplored{}</span>
+        <span class="cov8" title="1">return TileRenderUnexplored{}</span>
 }
 
 // computeTileRenderMap はタイルごとの描画情報を一括計算する。
@@ -49241,7 +49241,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
