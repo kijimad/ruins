@@ -24,13 +24,13 @@ import (
 // 残す装飾は血痕・破片・撃破エフェクトのように SpriteRender と GridElement を持つエンティティを
 // spawn し、collectBillboards と VisualEffectSystem が描く。
 
-// itemMarkerProximity はマーカーを出すチェビシェフ距離の上限。2マス以内。
+// itemMarkerProximity はマーカーを出すチェビシェフ距離の上限。
 // 隣接だけだと真上に来ないと気づけないので、少し離れていても漁る価値のある升を見せる。
 const itemMarkerProximity = 2
 
 // collectDecorations は状態従属の装飾クアッドを quads へ足す。今は収納マーカーだけを扱う。対象は
-// 「中身のある収納」か「拾えるアイテムが2個以上重なった升」。単品で見えているアイテムは自前スプライトで
-// 分かるので出さず、重なって隠れた分だけを指す。
+// 「中身のある収納」か「異なる品種が2つ以上重なった升」。単品や同種スタックは1スプライトと個数表示で
+// 見えるので出さず、異なる品種が重なって下の品種が隠れた升だけを指す。
 func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !world.Components.GridElement.Has(player) {
@@ -40,33 +40,7 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 	near := func(c consts.Coord[consts.Tile]) bool {
 		return geometry.ChebyshevDistance(pc, c) <= itemMarkerProximity
 	}
-
-	// 拾えるフィールドアイテムを升ごとに数える。Fixed でないフィールド物が拾える物なので Fixed を除く
-	itemCount := map[consts.Coord[consts.Tile]]int{}
-	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Without(ecs.C[gc.Fixed]()).Query()
-	for itemQuery.Next() {
-		e := itemQuery.Entity()
-		c := world.Components.GridElement.Get(e).Coord
-		if near(c) {
-			itemCount[c]++
-		}
-	}
-
-	storageHas := map[consts.Coord[consts.Tile]]bool{}
-	stQuery := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
-	for stQuery.Next() {
-		e := stQuery.Entity()
-		c := world.Components.GridElement.Get(e).Coord
-		if !near(c) {
-			continue
-		}
-		if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) {
-			continue
-		}
-		if query.HasStorageItems(world, e) {
-			storageHas[c] = true
-		}
-	}
+	markers := itemMarkerTiles(world, near)
 
 	// 1枚でも要るときだけ画像を焼く。対象が無ければフォントに触れず、UI リソース無しの world でも通る
 	var img *ebiten.Image
@@ -74,7 +48,7 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 	for dy := -itemMarkerProximity; dy <= itemMarkerProximity; dy++ {
 		for dx := -itemMarkerProximity; dx <= itemMarkerProximity; dx++ {
 			c := consts.Coord[consts.Tile]{X: pc.X + consts.Tile(dx), Y: pc.Y + consts.Tile(dy)}
-			if !storageHas[c] && itemCount[c] < 2 {
+			if !markers[c] {
 				continue
 			}
 			if !query.IsInVision(world, pc, c) {
@@ -93,6 +67,48 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 		}
 	}
 	return quads
+}
+
+// itemMarkerTiles はマーカーを出す升を中身の条件だけで判定して返す。within は調べる升を絞る述語で、
+// 描画側は近接升に限る near を渡し、テストは全升を通す。近接・視界・描画から切り離すことで、この
+// 「中身のある収納か、異なる品種が2つ以上重なった升」という数え方だけを単体で固定できる。
+// 同種はスタックして1スプライトと個数表示で見えるので隠れず、異なる品種が重なったときだけ下の品種が
+// 隠れる。品種数はスタック同一性で束ねたスタック数として導出する。
+func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]bool {
+	markers := map[consts.Coord[consts.Tile]]bool{}
+
+	// 拾えるフィールドアイテムを升ごとに集める。Fixed でないフィールド物が拾える物なので Fixed を除く
+	itemsByTile := map[consts.Coord[consts.Tile]][]ecs.Entity{}
+	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Without(ecs.C[gc.Fixed]()).Query()
+	for itemQuery.Next() {
+		e := itemQuery.Entity()
+		c := world.Components.GridElement.Get(e).Coord
+		if within(c) {
+			itemsByTile[c] = append(itemsByTile[c], e)
+		}
+	}
+	for c, items := range itemsByTile {
+		if len(query.GroupStacks(world, items)) >= 2 {
+			markers[c] = true
+		}
+	}
+
+	// 中身のある収納の升も対象にする
+	stQuery := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
+	for stQuery.Next() {
+		e := stQuery.Entity()
+		c := world.Components.GridElement.Get(e).Coord
+		if !within(c) {
+			continue
+		}
+		if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) {
+			continue
+		}
+		if query.HasStorageItems(world, e) {
+			markers[c] = true
+		}
+	}
+	return markers
 }
 
 // itemMarkerGlyph はマーカーに出す汎用記号。中身や重なりがあることの合図。
@@ -118,7 +134,6 @@ func itemMarkerImage(face text.Face) *ebiten.Image {
 		markerColor := color.RGBA{R: 60, G: 255, B: 90, A: 255}
 		img := ebiten.NewImage(gw+pad*2, gh+pad*2)
 		cv := uicore.NewEbitenCanvas(img)
-		// 暗色を周囲 outline 半径へずらして重ね、中央へ本体を重ねる
 		for dy := -outline; dy <= outline; dy++ {
 			for dx := -outline; dx <= outline; dx++ {
 				if dx == 0 && dy == 0 {
@@ -145,7 +160,6 @@ func (sys *Render3DSystem) appendTileBillboard(quads []r3quad, projector render3
 		render3d.Add(render3d.At(float64(c.X)+0.5, 0, float64(c.Y)+0.5), render3d.Scale(right, bw)),
 		render3d.At(0, render3d.BillboardHeight, 0),
 	)
-	// 右上隅を基準に左と下へ板を広げる。幅は画像縦横比で決める
 	fw := height * float64(iw) / float64(ih)
 	tr := corner
 	tl := render3d.Add(corner, render3d.Scale(right, -fw))
