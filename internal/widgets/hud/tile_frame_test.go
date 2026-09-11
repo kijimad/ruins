@@ -4,8 +4,29 @@ import (
 	"image/color"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
+
+// TestTileFrame は投影済みの四隅を線で結ぶ枠描画が実 screen へ描いても落ちないことを検証する。
+// 台形でも四隅を順に結ぶだけなので、正方でない四隅でも描けることを確認する。
+func TestTileFrame(t *testing.T) {
+	t.Parallel()
+
+	screen := ebiten.NewImage(64, 64)
+	// 北西・北東・南東・南西。透視で潰れた台形を模す
+	corners := [4]consts.Coord[consts.ScreenPixel]{
+		{X: 10, Y: 10},
+		{X: 54, Y: 12},
+		{X: 50, Y: 54},
+		{X: 14, Y: 50},
+	}
+
+	assert.NotPanics(t, func() {
+		TileFrame(screen, corners, 2, color.RGBA{R: 255, A: 255})
+	})
+}
 
 func TestScaleAlpha(t *testing.T) {
 	t.Parallel()
