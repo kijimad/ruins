@@ -131,6 +131,11 @@ jobs:
           path: _base
       - uses: ./.github/actions/setup-go-with-x
       - name: run benchmarks (PR and base)
+        # GOFLAGS で go test へ -count=6 を渡す。base 側は _base の Makefile を使うため、Makefile 変数だと
+        # base に変更が入るまで効かない鶏卵問題になる。環境変数なら base の Makefile を変えずに両側へ効く。
+        # benchstat は6サンプル以上で信頼区間と p 値を出せる。
+        env:
+          GOFLAGS: -count=6
         run: |
           # PRブランチで bench を実行する
           make bench > pr.txt
