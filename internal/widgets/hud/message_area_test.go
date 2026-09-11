@@ -38,17 +38,17 @@ func TestMessageArea_無効なら更新も描画もしない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t, testutil.WithUI())
-	area := NewMessageArea(world)
-	area.enabled = false
 
+	// 先にテスト用リソースと対象の状態を整えてからアクションする
 	cv := uicore.NewEbitenCanvas(ebiten.NewImage(800, 600))
 	data := MessageData{
 		ScreenDimensions: ScreenDimensions{Width: 800, Height: 600},
 		Config:           DefaultMessageAreaConfig,
 	}
+	area := NewMessageArea(world)
+	area.enabled = false
 
-	assert.NotPanics(t, func() {
-		area.Update()
-		area.Draw(cv, data)
-	})
+	// 有効時と同じく、どちらで panic したか分かるよう Update と Draw を分けて包む
+	assert.NotPanics(t, func() { area.Update() })
+	assert.NotPanics(t, func() { area.Draw(cv, data) })
 }
