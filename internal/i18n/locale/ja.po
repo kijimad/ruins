@@ -6099,8 +6099,5 @@ msgstr "使える"
 msgid "Wearable"
 msgstr "装備できる"
 
-msgid "Usable as weapon"
-msgstr "武器として使える"
-
 msgid "Can disassemble items"
 msgstr "物を分解できる"

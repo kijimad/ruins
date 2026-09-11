@@ -59,11 +59,11 @@ func TestUseHints(t *testing.T) {
 			want: []string{"Wearable"},
 		},
 		{
-			name: "近接武器は武器として使える",
+			name: "近接武器は装備できる",
 			setup: func(world w.World, e ecs.Entity) {
 				world.Components.Melee.Add(e, &gc.Melee{})
 			},
-			want: []string{"Usable as weapon"},
+			want: []string{"Wearable"},
 		},
 		{
 			name: "複数の性質は表示順に並ぶ",

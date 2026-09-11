@@ -34,11 +34,9 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	if consumable && !nutrition && !healing {
 		uses = append(uses, query.T(world, "Usable"))
 	}
-	if c.Wearable.Has(e) {
+	// 防具も武器も装備スロットに付けるので同じ「装備できる」でまとめる
+	if c.Wearable.Has(e) || c.Melee.Has(e) || c.Fire.Has(e) {
 		uses = append(uses, query.T(world, "Wearable"))
-	}
-	if c.Melee.Has(e) || c.Fire.Has(e) {
-		uses = append(uses, query.T(world, "Usable as weapon"))
 	}
 	// 分解工具は専用コンポーネントを持たず raw 定義の有無で判定する
 	if _, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(e, world)); ok {
