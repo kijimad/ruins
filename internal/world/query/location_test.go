@@ -38,6 +38,37 @@ func TestGetStorageItems_収納内が空なら空を返す(t *testing.T) {
 	assert.Empty(t, items)
 }
 
+func TestHasStorageItems_中身があればtrueを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storage := world.ECS.NewEntity()
+	item := world.ECS.NewEntity()
+	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: storage})
+
+	assert.True(t, query.HasStorageItems(world, storage))
+}
+
+func TestHasStorageItems_空ならfalseを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storage := world.ECS.NewEntity()
+	assert.False(t, query.HasStorageItems(world, storage))
+}
+
+func TestHasStorageItems_別の収納の中身は数えない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storage := world.ECS.NewEntity()
+	otherStorage := world.ECS.NewEntity()
+	item := world.ECS.NewEntity()
+	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: otherStorage})
+
+	assert.False(t, query.HasStorageItems(world, storage))
+}
+
 func TestGetStorageCurrentWeight_WeightCapacityがあれば現在重量を返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

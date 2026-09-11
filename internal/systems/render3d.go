@@ -184,6 +184,8 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	visTint := sys.visTintFunc(world)
 	quads := sys.collectTiles(world, pcx, pcz, visTint)
 	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visTint)
+	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
+	quads = sys.collectDecorations(world, quads, projector)
 	return quads, projector, nil
 }
 
