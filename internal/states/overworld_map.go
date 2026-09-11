@@ -84,10 +84,10 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	if hasPlayer {
 		centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
 	}
-	rng := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
+	area := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
-		rng, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする

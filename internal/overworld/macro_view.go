@@ -61,22 +61,22 @@ func BuildMacroView(
 	runSeed uint64,
 	eastIndex consts.Chunk,
 	chunkW, chunkH consts.Tile,
-	rng MacroRange,
+	area MacroRange,
 	playerTile consts.Coord[consts.Tile],
 	hasPlayer bool,
 	cubeTiles []consts.Coord[consts.Tile],
 	discovered map[consts.Coord[consts.Chunk]]bool,
 ) MacroView {
-	rows := max(rng.Rows, 1)
+	rows := max(area.Rows, 1)
 
 	// 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数
-	roads := buildRoadOverlay(runSeed, rng, rows)
+	roads := buildRoadOverlay(runSeed, area, rows)
 
 	cells := make([][]MacroCell, rows)
 	for cy := range rows {
-		cells[cy] = make([]MacroCell, rng.Cols)
-		for i := range rng.Cols {
-			c := consts.Coord[consts.Chunk]{X: rng.OriginX + i, Y: cy}
+		cells[cy] = make([]MacroCell, area.Cols)
+		for i := range area.Cols {
+			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: cy}
 			cells[cy][i] = MacroCell{
 				Glyph:      ChunkPlace(runSeed, c, rows),
 				Discovered: discovered[c],
@@ -89,9 +89,9 @@ func BuildMacroView(
 	// chunkW/chunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない。
 	toCell := func(t consts.Coord[consts.Tile]) (consts.Coord[consts.Chunk], bool) {
 		worldCol := eastIndex + consts.Chunk(int(t.X)/int(chunkW))
-		col := worldCol - rng.OriginX
+		col := worldCol - area.OriginX
 		row := consts.Chunk(int(t.Y) / int(chunkH))
-		if col >= 0 && col < rng.Cols && row >= 0 && row < rows {
+		if col >= 0 && col < area.Cols && row >= 0 && row < rows {
 			return consts.Coord[consts.Chunk]{X: col, Y: row}, true
 		}
 		return consts.Coord[consts.Chunk]{}, false

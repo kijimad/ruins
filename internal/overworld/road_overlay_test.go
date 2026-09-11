@@ -69,8 +69,8 @@ func TestBuildRoadOverlay_表示範囲に道が現れ端点が集落に一致す
 	const runSeed uint64 = 12345
 	const rows consts.Chunk = 9
 	// 集落は Spacing チャンクごとに1つ当たる。数リージョン跨ぐ表示範囲なら必ず道が出る
-	rng := MacroRange{OriginX: 0, Cols: 3 * settlementPlacement.Spacing, Rows: rows}
-	overlay := buildRoadOverlay(runSeed, rng, rows)
+	area := MacroRange{OriginX: 0, Cols: 3 * settlementPlacement.Spacing, Rows: rows}
+	overlay := buildRoadOverlay(runSeed, area, rows)
 
 	assert.NotEmpty(t, overlay, "複数リージョンを覆う表示範囲には道が出る")
 	for c, dir := range overlay {
