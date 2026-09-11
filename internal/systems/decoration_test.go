@@ -10,9 +10,6 @@ import (
 )
 
 // TestItemMarkerTiles はマーカーを出す升の判定を、視界・投影・描画から切り離して固定する。
-// 肝は「同種スタックには出さず、異なる品種が重なったときだけ出す」こと。2 回復薬のような同種の
-// 重なりは1スプライトと個数表示で見えるので隠れず、マーカーは不要。異なる品種が重なると下の品種が
-// 隠れるので、そこにだけ出す。
 func TestItemMarkerTiles(t *testing.T) {
 	t.Parallel()
 
@@ -35,7 +32,6 @@ func TestItemMarkerTiles(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		c := consts.Coord[consts.Tile]{X: 3, Y: 3}
-		// 3 個重ねても品種は1つ。1スプライトと個数表示で見えるので隠れるものはない
 		_, err := lifecycle.SpawnFieldItem(world, "healing_potion", c.X, c.Y, 3)
 		require.NoError(t, err)
 

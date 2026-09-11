@@ -28,9 +28,8 @@ import (
 // 隣接だけだと真上に来ないと気づけないので、少し離れていても漁る価値のある升を見せる。
 const itemMarkerProximity = 2
 
-// collectDecorations は状態従属の装飾クアッドを quads へ足す。今は収納マーカーだけを扱う。対象は
-// 「中身のある収納」か「異なる品種が2つ以上重なった升」。単品や同種スタックは1スプライトと個数表示で
-// 見えるので出さず、異なる品種が重なって下の品種が隠れた升だけを指す。
+// collectDecorations は状態従属の装飾クアッドを quads へ足す。今は収納マーカーだけを扱い、
+// itemMarkerTiles が返す升のうち視界内のものへマーカーのビルボードを立てる。
 func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !world.Components.GridElement.Has(player) {
@@ -69,11 +68,9 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 	return quads
 }
 
-// itemMarkerTiles はマーカーを出す升を中身の条件だけで判定して返す。within は調べる升を絞る述語で、
-// 描画側は近接升に限る near を渡し、テストは全升を通す。近接・視界・描画から切り離すことで、この
-// 「中身のある収納か、異なる品種が2つ以上重なった升」という数え方だけを単体で固定できる。
-// 同種はスタックして1スプライトと個数表示で見えるので隠れず、異なる品種が重なったときだけ下の品種が
-// 隠れる。品種数はスタック同一性で束ねたスタック数として導出する。
+// itemMarkerTiles はマーカーを出す升を返す。対象は「中身のある収納」か「異なる品種が2つ以上重なった升」。
+// 同種スタックは1スプライトと個数表示で見えて隠れないので出さず、異なる品種が重なって下が隠れた升だけを指す。
+// 品種数はスタック同一性で束ねたスタック数として導出する。within は調べる升を絞る述語。
 func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]bool {
 	markers := map[consts.Coord[consts.Tile]]bool{}
 
@@ -93,7 +90,6 @@ func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool)
 		}
 	}
 
-	// 中身のある収納の升も対象にする
 	stQuery := query.ActiveFilter2[gc.Interactable, gc.GridElement](world).Query()
 	for stQuery.Next() {
 		e := stQuery.Entity()
