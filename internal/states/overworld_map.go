@@ -28,7 +28,7 @@ type OverworldMapState struct {
 
 	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
 	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
-	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。窓半径の算出と描画で共有する
+	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
 	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
 }
 
@@ -51,7 +51,7 @@ const (
 	overworldMapMinRadius = 3
 )
 
-// modalInner はモーダルパネルの内側矩形を返す。窓半径・セル寸法の算出とパネル画像の寸法で共有する。
+// modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
 func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
 	return menuframe.PanelInner(menuframe.ModalRect(world))
 }
@@ -84,10 +84,10 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	if hasPlayer {
 		centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
 	}
-	win := overworld.PlayerCenteredWindow(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
+	rng := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
 		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
-		win, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		rng, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする

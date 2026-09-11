@@ -21,19 +21,19 @@ const (
 	RoadW
 )
 
-// buildRoadOverlay は窓に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。
+// buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。
 // road.go と同じく隣接リージョンの当選集落どうしを L 字で結ぶ。生成を伴わない純関数で、
-// 窓外へはみ出すチャンクも含みうるが、読み手が窓内だけを引くので無害。
-func buildRoadOverlay(runSeed uint64, win MacroWindow, rows consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {
+// 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。
+func buildRoadOverlay(runSeed uint64, rng MacroRange, rows consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {
 	overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
 	rows = max(rows, 1)
 	// 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は
-	// (pr+2)*Spacing 未満に収まる。よって窓 [OriginX, OriginX+Cols) に列が掛かりうる道は、窓左端の
-	// 属するリージョンの1つ西から窓右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ
-	// scanMargin ぶんの余裕を足す。窓外へ出たチャンクを印しても読み手が引かないので無害
+	// (pr+2)*Spacing 未満に収まる。よって表示範囲 [OriginX, OriginX+Cols) に列が掛かりうる道は、表示範囲の左端の
+	// 属するリージョンの1つ西から表示範囲の右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ
+	// scanMargin ぶんの余裕を足す。表示範囲外へ出たチャンクを印しても読み手が引かないので無害
 	const scanMargin consts.Chunk = 1
-	leftRegion := floorDiv(win.OriginX, settlementPlacement.Spacing)
-	rightRegion := floorDiv(win.OriginX+win.Cols-1, settlementPlacement.Spacing)
+	leftRegion := floorDiv(rng.OriginX, settlementPlacement.Spacing)
+	rightRegion := floorDiv(rng.OriginX+rng.Cols-1, settlementPlacement.Spacing)
 	rLo := leftRegion - 1 - scanMargin // 1つ西のリージョンの道が東へ食い込みうる
 	rHi := rightRegion + scanMargin
 	for pr := rLo; pr <= rHi; pr++ {
