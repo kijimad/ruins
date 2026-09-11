@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/internal/overworld/road_geometry.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">overworld/internal/overworld</a> - road_geometry.go<span style="font-size: 80%;"> (source / <a href="road_geometry.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">16</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-11 13:36:09</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // 道の幾何の唯一の出典。道が「隣接リージョンの当選集落を L 字で結ぶ」という規則をここ一箇所に置き、</span>
+<span id="L6"><span class="lineNum">       6</span>              : // 舗装 road.go・散布回避 scatter.go・マクロ地図 road_overlay.go の3消費者が同じ分解を各粒度で解釈する。</span>
+<span id="L7"><span class="lineNum">       7</span>              : // 分解を1箇所にすることで、地図に出る道と実際に舗装される道が構造的に一致し続ける。</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // roadOrient は道の一辺の向き。実体は文字列で、%v やテスト失敗の出力に種別名が出る。</span>
+<span id="L10"><span class="lineNum">      10</span>              : type roadOrient string</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : const (</span>
+<span id="L13"><span class="lineNum">      13</span>              :         orientHorizontal roadOrient = &quot;horizontal&quot; // 行を固定して列方向へ伸びる</span>
+<span id="L14"><span class="lineNum">      14</span>              :         orientVertical   roadOrient = &quot;vertical&quot;   // 列を固定して行方向へ伸びる</span>
+<span id="L15"><span class="lineNum">      15</span>              : )</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // roadSeg は道の一辺。</span>
+<span id="L18"><span class="lineNum">      18</span>              : type roadSeg struct {</span>
+<span id="L19"><span class="lineNum">      19</span>              :         orient roadOrient</span>
+<span id="L20"><span class="lineNum">      20</span>              :         fixed  consts.Chunk // orient=horizontal なら固定する行、vertical なら固定する列</span>
+<span id="L21"><span class="lineNum">      21</span>              :         lo, hi consts.Chunk // 可変軸の範囲。lo&lt;=hi で端点を含む</span>
+<span id="L22"><span class="lineNum">      22</span>              : }</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // roadSegments は当選集落 a から b への道を水平辺・垂直辺の2区間で返す。分解規則の唯一の出典で、</span>
+<span id="L25"><span class="lineNum">      25</span>              : // 水平辺は始点 a の行、垂直辺は終点 b の列、角は (b.X, a.Y)。端点は min/max で正規化するので、</span>
+<span id="L26"><span class="lineNum">      26</span>              : // a と b の東西の大小に依らず同じ2辺になる。</span>
+<span id="L27"><span class="lineNum">      27</span>              : func roadSegments(a, b consts.Coord[consts.Chunk]) [2]roadSeg {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 :         return [2]roadSeg{</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 {orient: orientHorizontal, fixed: a.Y, lo: min(a.X, b.X), hi: max(a.X, b.X)},</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 {orient: orientVertical, fixed: b.X, lo: min(a.Y, b.Y), hi: max(a.Y, b.Y)},</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // tileSpan は辺を帯の1チャンク寸法でタイル座標へ移す。固定軸のタイルと可変軸の範囲を返し、各軸を</span>
+<span id="L35"><span class="lineNum">      35</span>              : // チャンク中心へ寄せる。集落中心が当選チャンクのど真ん中に来るのに合わせる。</span>
+<span id="L36"><span class="lineNum">      36</span>              : func (s roadSeg) tileSpan(chunkW, chunkH consts.Tile) (fixed, lo, hi consts.Tile) {</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if s.orient == orientHorizontal {</span></span>
+<span id="L38"><span class="lineNum">      38</span>              :                 // 固定は行→Y、可変は列→X</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return s.fixed.Tiles(chunkH) + chunkH/2, s.lo.Tiles(chunkW) + chunkW/2, s.hi.Tiles(chunkW) + chunkW/2</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :         // 固定は列→X、可変は行→Y</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return s.fixed.Tiles(chunkW) + chunkW/2, s.lo.Tiles(chunkH) + chunkH/2, s.hi.Tiles(chunkH) + chunkH/2</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : }</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : // crossingRoads はチャンク c を横切りうる道の端点対を返す。c を横切りうるのは (r-1,r) と (r,r+1) を</span>
+<span id="L46"><span class="lineNum">      46</span>              : // 結ぶ2本だけ。road.go の舗装と scatter.go の回避が同じ結線を共有する。ホットパスで呼ぶので、</span>
+<span id="L47"><span class="lineNum">      47</span>              : // スライスを確保せず固定長配列で返す。</span>
+<span id="L48"><span class="lineNum">      48</span>              : func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) [2][2]consts.Coord[consts.Chunk] {</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         r := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         var pairs [2][2]consts.Coord[consts.Chunk]</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         for i := range 2 {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 pr := r - 1 + consts.Chunk(i)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, rows)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, rows)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return pairs</span></span>
+<span id="L57"><span class="lineNum">      57</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">87.8&nbsp;%</td>
-            <td class="headerCovTableEntry">156</td>
-            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntryMed">87.7&nbsp;%</td>
+            <td class="headerCovTableEntry">154</td>
+            <td class="headerCovTableEntry">135</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-11 13:34:11</td>
+            <td class="headerValue">2026-09-11 13:36:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -364,20 +364,20 @@
 <span id="L302"><span class="lineNum">     302</span>              : // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、</span>
 <span id="L303"><span class="lineNum">     303</span>              : // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。</span>
 <span id="L304"><span class="lineNum">     304</span>              : func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {</span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         r := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         // c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ。roadFeature と同じ結線</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         for _, pr := range []consts.Chunk{r - 1, r} {</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 a := settlementPlacement.WinnerOf(runSeed, pr, rows)</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 ax := a.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 ay := a.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 bx := b.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                 by := b.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 // 集落 a から b への L 字。水平辺 y=ay と垂直辺 x=bx の近い方までの距離を見る</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 d := min(chebToHSeg(pos, ay, ax, bx), chebToVSeg(pos, bx, ay, by))</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 if d &lt;= scatterRouteBuffer {</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                         return true</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L305"><span class="lineNum">     305</span>              :         // 道の結線は roadSegments を唯一の出典にし、舗装 road.go と同じ経路への距離を測る</span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         for _, pair := range crossingRoads(runSeed, c, rows) {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 for _, seg := range roadSegments(pair[0], pair[1]) {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                         fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                         var d consts.Tile</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                         if seg.orient == orientHorizontal {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                                 d = chebToHSeg(pos, fixed, lo, hi)</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                         } else {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                                 d = chebToVSeg(pos, fixed, lo, hi)</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                         if d &lt;= scatterRouteBuffer {</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                                 return true</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L318"><span class="lineNum">     318</span>              :                 }</span>
 <span id="L319"><span class="lineNum">     319</span>              :         }</span>
 <span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         return false</span></span>
 <span id="L321"><span class="lineNum">     321</span>              : }</span>

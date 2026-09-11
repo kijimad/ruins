@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.6&nbsp;%</td>
-            <td class="headerCovTableEntry">129</td>
-            <td class="headerCovTableEntry">122</td>
+            <td class="headerCovTableEntryHi">92.7&nbsp;%</td>
+            <td class="headerCovTableEntry">151</td>
+            <td class="headerCovTableEntry">140</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-11 13:34:11</td>
+            <td class="headerValue">2026-09-11 13:36:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,7 +90,7 @@
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              :         view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー</span>
 <span id="L30"><span class="lineNum">      30</span>              :         playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う</span>
-<span id="L31"><span class="lineNum">      31</span>              :         cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。窓半径の算出と描画で共有する</span>
+<span id="L31"><span class="lineNum">      31</span>              :         cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する</span>
 <span id="L32"><span class="lineNum">      32</span>              :         body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く</span>
 <span id="L33"><span class="lineNum">      33</span>              : }</span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
@@ -113,7 +113,7 @@
 <span id="L51"><span class="lineNum">      51</span>              :         overworldMapMinRadius = 3</span>
 <span id="L52"><span class="lineNum">      52</span>              : )</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              : // modalInner はモーダルパネルの内側矩形を返す。窓半径・セル寸法の算出とパネル画像の寸法で共有する。</span>
+<span id="L54"><span class="lineNum">      54</span>              : // modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。</span>
 <span id="L55"><span class="lineNum">      55</span>              : func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 :         return menuframe.PanelInner(menuframe.ModalRect(world))</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : }</span></span>
@@ -146,10 +146,10 @@
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         if hasPlayer {</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         win := overworld.PlayerCenteredWindow(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         area := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         st.view = overworld.BuildMacroView(</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 win, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         )</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L93"><span class="lineNum">      93</span>              :         // ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする</span>
@@ -261,53 +261,80 @@
 <span id="L199"><span class="lineNum">     199</span>              :                         // 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない</span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                         vector.FillRect(dst, float32(x), float32(y), float32(cell-1), float32(cell-1), glyphColor(r), false)</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                         cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                         drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)</span></span>
-<span id="L203"><span class="lineNum">     203</span>              :                 }</span>
-<span id="L204"><span class="lineNum">     204</span>              :         }</span>
-<span id="L205"><span class="lineNum">     205</span>              :         // キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも</span>
-<span id="L206"><span class="lineNum">     206</span>              :         // 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く</span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         for _, c := range st.view.CubeCells {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 cx, cy := cellCenter(c.X, c.Y)</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                         drawCellGlyph(consts.IconCube, cx+off[0], cy+off[1], theme.OverworldMapCubeOutline)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)</span></span>
-<span id="L213"><span class="lineNum">     213</span>              :         }</span>
-<span id="L214"><span class="lineNum">     214</span>              :         // 現在地マーカー。白枠でセルを囲む</span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         if st.view.PlayerCell.X &gt;= 0 {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 x := originX + consts.ScreenPixel(st.view.PlayerCell.X)*cell</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 y := originY + consts.ScreenPixel(st.view.PlayerCell.Y)*cell</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 vector.StrokeRect(dst, float32(x-1), float32(y-1), float32(cell+1), float32(cell+1), 2, theme.OverworldMapPlayerMarker, false)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L220"><span class="lineNum">     220</span>              : </span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)</span></span>
-<span id="L222"><span class="lineNum">     222</span>              : }</span>
-<span id="L223"><span class="lineNum">     223</span>              : </span>
-<span id="L224"><span class="lineNum">     224</span>              : // drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、</span>
-<span id="L225"><span class="lineNum">     225</span>              : // マップ上の1文字から凡例を引けるようにする。</span>
-<span id="L226"><span class="lineNum">     226</span>              : func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         const swatch consts.ScreenPixel = 14</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         x, y := consts.ScreenPixel(8), top</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         for _, g := range overworld.LegendGlyphs() {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 vector.FillRect(dst, float32(x), float32(y), float32(swatch), float32(swatch), glyphColor(g.Label), false)</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 drawGlyph(string(g.Label), x+swatch/2, y+swatch/2, theme.OverworldMapGlyphText)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 drawText(g.Name, x+20, y-2, theme.TextPrimary)</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 x += 120</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 if x &gt; 720 {</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         x, y = 8, y+22</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L237"><span class="lineNum">     237</span>              :         }</span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         drawText(&quot;N / Esc to close&quot;, 8, y+26, theme.TextPrimary)</span></span>
-<span id="L239"><span class="lineNum">     239</span>              : }</span>
-<span id="L240"><span class="lineNum">     240</span>              : </span>
-<span id="L241"><span class="lineNum">     241</span>              : // glyphColor は種別文字に対応する色を返す。既知の記号は overworld の色定義を引き、</span>
-<span id="L242"><span class="lineNum">     242</span>              : // 凡例に出ない未知の記号は灰色にする。既定色は theme に依存するのでここで決める。</span>
-<span id="L243"><span class="lineNum">     243</span>              : func glyphColor(r rune) color.RGBA {</span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         if c, ok := overworld.GlyphColor(r); ok {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 return c</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         return theme.OverworldMapUnknownGlyph</span></span>
-<span id="L248"><span class="lineNum">     248</span>              : }</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                         // 道が通るチャンクは接続方角へ線分を引く。地形塗りの上、記号の下に重ねる</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                         if c.Road.Any() {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                                 drawCellRoad(dst, x, y, cell, cx, cy, c.Road)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                         drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)</span></span>
+<span id="L207"><span class="lineNum">     207</span>              :                 }</span>
+<span id="L208"><span class="lineNum">     208</span>              :         }</span>
+<span id="L209"><span class="lineNum">     209</span>              :         // キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも</span>
+<span id="L210"><span class="lineNum">     210</span>              :         // 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         for _, c := range st.view.CubeCells {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 cx, cy := cellCenter(c.X, c.Y)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                         drawCellGlyph(consts.IconCube, cx+off[0], cy+off[1], theme.OverworldMapCubeOutline)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)</span></span>
+<span id="L217"><span class="lineNum">     217</span>              :         }</span>
+<span id="L218"><span class="lineNum">     218</span>              :         // 現在地マーカー。白枠でセルを囲む</span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         if st.view.PlayerCell.X &gt;= 0 {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 x := originX + consts.ScreenPixel(st.view.PlayerCell.X)*cell</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 y := originY + consts.ScreenPixel(st.view.PlayerCell.Y)*cell</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 vector.StrokeRect(dst, float32(x-1), float32(y-1), float32(cell+1), float32(cell+1), 2, theme.OverworldMapPlayerMarker, false)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L224"><span class="lineNum">     224</span>              : </span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)</span></span>
+<span id="L226"><span class="lineNum">     226</span>              : }</span>
+<span id="L227"><span class="lineNum">     227</span>              : </span>
+<span id="L228"><span class="lineNum">     228</span>              : // drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、</span>
+<span id="L229"><span class="lineNum">     229</span>              : // マップ上の1文字から凡例を引けるようにする。</span>
+<span id="L230"><span class="lineNum">     230</span>              : func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         const swatch consts.ScreenPixel = 14</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         x, y := consts.ScreenPixel(8), top</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         for _, g := range overworld.LegendGlyphs() {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 vector.FillRect(dst, float32(x), float32(y), float32(swatch), float32(swatch), glyphColor(g.Label), false)</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 drawGlyph(string(g.Label), x+swatch/2, y+swatch/2, theme.OverworldMapGlyphText)</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 drawText(g.Name, x+20, y-2, theme.TextPrimary)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 x += 120</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 if x &gt; 720 {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                         x, y = 8, y+22</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L241"><span class="lineNum">     241</span>              :         }</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         drawText(&quot;N / Esc to close&quot;, 8, y+26, theme.TextPrimary)</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : }</span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span>              : // drawCellRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。フォントに</span>
+<span id="L246"><span class="lineNum">     246</span>              : // 罫線素片が無いので記号でなく線分で方向を見せる。各方角の矩形は中央で重なるが同色なので無害。</span>
+<span id="L247"><span class="lineNum">     247</span>              : func drawCellRoad(dst *ebiten.Image, x, y, cell, cx, cy consts.ScreenPixel, road overworld.RoadDir) {</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         t := max(consts.ScreenPixel(2), cell/5)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         half := float32(t) / 2</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         left, top := float32(x), float32(y)</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         right, bottom := float32(x+cell-1), float32(y+cell-1)</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         cxF, cyF := float32(cx), float32(cy)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         col := theme.OverworldMapRoad</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         if road&amp;overworld.RoadW != 0 {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 vector.FillRect(dst, left, cyF-half, (cxF+half)-left, float32(t), col, false)</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         if road&amp;overworld.RoadE != 0 {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 vector.FillRect(dst, cxF-half, cyF-half, right-(cxF-half), float32(t), col, false)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         if road&amp;overworld.RoadN != 0 {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC tlaBgUNC">           0 :                 vector.FillRect(dst, cxF-half, top, float32(t), (cyF+half)-top, col, false)</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC tlaBgGNC">           1 :         if road&amp;overworld.RoadS != 0 {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC tlaBgUNC">           0 :                 vector.FillRect(dst, cxF-half, cyF-half, float32(t), bottom-(cyF-half), col, false)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L266"><span class="lineNum">     266</span>              : }</span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span>              : // glyphColor は種別文字に対応する色を返す。既知の記号は overworld の色定義を引き、</span>
+<span id="L269"><span class="lineNum">     269</span>              : // 凡例に出ない未知の記号は灰色にする。既定色は theme に依存するのでここで決める。</span>
+<span id="L270"><span class="lineNum">     270</span>              : func glyphColor(r rune) color.RGBA {</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC tlaBgGNC">           1 :         if c, ok := overworld.GlyphColor(r); ok {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 return c</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         return theme.OverworldMapUnknownGlyph</span></span>
+<span id="L275"><span class="lineNum">     275</span>              : }</span>
         </pre>
               </td>
             </tr>
