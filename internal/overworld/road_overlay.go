@@ -27,8 +27,10 @@ const (
 func buildRoadOverlay(runSeed uint64, win MacroWindow, rows consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {
 	overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
 	rows = max(rows, 1)
-	// 道はリージョン pr と pr+1 を結ぶ。1本の水平幅は高々 2*Spacing なので、窓の左右へ
-	// リージョン数個ぶん広げて走査すれば窓に掛かる道を漏らさない
+	// 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は
+	// (pr+2)*Spacing 未満に収まる。よって窓 [OriginX, OriginX+Cols) に列が掛かりうる道は、窓左端の
+	// 属するリージョンの1つ西から窓右端の属するリージョンまで。取りこぼしを防ぐため左右へ1リージョンの
+	// 余裕を足す。窓外へ出たチャンクを印しても読み手が引かないので無害
 	rLo := floorDiv(win.OriginX, settlementPlacement.Spacing) - 2
 	rHi := floorDiv(win.OriginX+win.Cols-1, settlementPlacement.Spacing) + 1
 	for pr := rLo; pr <= rHi; pr++ {
@@ -45,7 +47,7 @@ func buildRoadOverlay(runSeed uint64, win MacroWindow, rows consts.Chunk) map[co
 // 同一チャンクに積まれて折れになり、複数の道が重なる交差はビットが増えて T・十字になる。
 func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.Coord[consts.Chunk]) {
 	// 水平辺。始点 a の行に沿って a.X から b.X へ。a.X < b.X なので東進のみだが、符号で一般化する
-	stepX := signChunk(b.X - a.X)
+	stepX := chunkSign(b.X - a.X)
 	for x := a.X; x != b.X; x += stepX {
 		cur := consts.Coord[consts.Chunk]{X: x, Y: a.Y}
 		nxt := consts.Coord[consts.Chunk]{X: x + stepX, Y: a.Y}
@@ -58,7 +60,7 @@ func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.
 		}
 	}
 	// 垂直辺。終点 b の列に沿って a.Y から b.Y へ。角 (b.X, a.Y) に水平と垂直の両ビットが積まれる
-	stepY := signChunk(b.Y - a.Y)
+	stepY := chunkSign(b.Y - a.Y)
 	for y := a.Y; y != b.Y; y += stepY {
 		cur := consts.Coord[consts.Chunk]{X: b.X, Y: y}
 		nxt := consts.Coord[consts.Chunk]{X: b.X, Y: y + stepY}
@@ -72,8 +74,8 @@ func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.
 	}
 }
 
-// signChunk は符号を返す。0 のとき 0 を返し、markRoadLShape のループは進まず即座に終わる。
-func signChunk(d consts.Chunk) consts.Chunk {
+// chunkSign は符号を返す。0 のとき 0 を返し、markRoadLShape のループは進まず即座に終わる。
+func chunkSign(d consts.Chunk) consts.Chunk {
 	switch {
 	case d > 0:
 		return 1

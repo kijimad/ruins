@@ -104,7 +104,8 @@ func macroGlyphColor(r rune) color.RGBA {
 }
 
 // drawMacroRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。
-// 全画面図の drawCellRoad と同じ意匠を縮小地図の整数座標で描く。太さは最低 1px を確保する。
+// 全画面図の drawCellRoad と同じ意匠を縮小地図の整数座標で描く。太さは縮小地図に合わせ cell/4 とし、
+// セルが小さくても道が消えないよう最低 1px を保つ。全画面図の cell/5・最低 2px とは縮尺ぶん差を付ける。
 func drawMacroRoad(cv uicore.Canvas, cx, cy, cell int, road overworld.RoadDir) {
 	t := max(cell/4, 1)
 	half := t / 2
