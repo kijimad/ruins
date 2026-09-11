@@ -76,7 +76,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 
 }
 
-func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
+func TestComputeTileRenderMap_視界と記憶で暗さの値が変わる(t *testing.T) {
 	t.Parallel()
 
 	t.Run("視界内タイルにはDarknessVisibleが設定される", func(t *testing.T) {
@@ -107,7 +107,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 	})
 }
 
-func TestComputeTileRenderMap_VisibleOverridesRemembered(t *testing.T) {
+func TestComputeTileRenderMap_可視は記憶済みより優先される(t *testing.T) {
 	t.Parallel()
 
 	// 可視タイルが記憶済みタイルより優先されることを保証する
@@ -122,7 +122,7 @@ func TestComputeTileRenderMap_VisibleOverridesRemembered(t *testing.T) {
 		"可視+記憶済みのタイルはTileRenderVisibleになる")
 }
 
-func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
+func TestComputeTileRenderMap_光源の暗さ境界で光源色の有無が変わる(t *testing.T) {
 	t.Parallel()
 
 	t.Run("光源Darkness=1.0では光源色が設定されない", func(t *testing.T) {
@@ -167,7 +167,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 	})
 }
 
-func TestComputeTileRenderMap_EmptyState(t *testing.T) {
+func TestComputeTileRenderMap_空の状態では結果も空になる(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -178,7 +178,7 @@ func TestComputeTileRenderMap_EmptyState(t *testing.T) {
 	assert.Empty(t, result)
 }
 
-func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
+func TestComputeTileRenderMap_可視と記憶済みと未探索が混在する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -198,7 +198,7 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	assert.NotContains(t, result, unknown)
 }
 
-func TestComputeTileRenderMap_OutOfBoundsIncluded(t *testing.T) {
+func TestComputeTileRenderMap_マップ外座標も除外せず含める(t *testing.T) {
 	t.Parallel()
 
 	// computeTileRenderMapは境界チェックを行わない。
@@ -220,7 +220,7 @@ func TestComputeTileRenderMap_OutOfBoundsIncluded(t *testing.T) {
 	assert.IsType(t, TileRenderVisible{}, result[outsideGrid])
 }
 
-func TestIsInMapBounds(t *testing.T) {
+func TestIsInMapBounds_範囲内は真で範囲外と負座標は偽(t *testing.T) {
 	t.Parallel()
 
 	level := gc.Level{TileWidth: 10, TileHeight: 5}
