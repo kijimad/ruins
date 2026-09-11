@@ -1,6 +1,7 @@
 package mapspawner
 
 import (
+	"math"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -52,7 +53,8 @@ func TestSpawn_オフセットなしは原点配置(t *testing.T) {
 	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
-	minX, minY := consts.Tile(1<<30), consts.Tile(1<<30)
+	// 最小座標を求めるためのセンチネル。どの実タイル座標より大きい値を初期値に置く
+	minX, minY := consts.Tile(math.MaxInt32), consts.Tile(math.MaxInt32)
 	for query.Next() {
 		g := world.Components.GridElement.Get(query.Entity())
 		minX = min(minX, g.X)
