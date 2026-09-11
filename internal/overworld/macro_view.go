@@ -40,7 +40,8 @@ func PlayerCenteredWindow(centerCol, rows consts.Chunk, radius int) MacroWindow 
 // MacroCell は窓内1チャンクの表示情報。種別文字と、探索で開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
 	Glyph      rune
-	Discovered bool // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
+	Discovered bool    // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
+	Road       RoadDir // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
 }
 
 // MacroView はマクロ地図の描画モデル。窓内のチャンク格子と、マーカーの窓ローカル座標を持つ。
@@ -68,6 +69,9 @@ func BuildMacroView(
 ) MacroView {
 	rows := max(win.Rows, 1)
 
+	// 道の接続方角を窓の範囲で先に算出する。種別記号と同じく生成を伴わない純関数
+	roads := buildRoadOverlay(runSeed, win, rows)
+
 	cells := make([][]MacroCell, rows)
 	for cy := range rows {
 		cells[cy] = make([]MacroCell, win.Cols)
@@ -76,6 +80,7 @@ func BuildMacroView(
 			cells[cy][i] = MacroCell{
 				Glyph:      ChunkPlace(runSeed, c, rows),
 				Discovered: discovered[c],
+				Road:       roads[c],
 			}
 		}
 	}

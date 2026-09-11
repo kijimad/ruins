@@ -199,6 +199,10 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
 			vector.FillRect(dst, float32(x), float32(y), float32(cell-1), float32(cell-1), glyphColor(r), false)
 			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
+			// 道が通るチャンクは接続方角へ線分を引く。地形塗りの上、記号の下に重ねる
+			if c.Road != 0 {
+				drawCellRoad(dst, x, y, cell, cx, cy, c.Road)
+			}
 			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)
 		}
 	}
@@ -236,6 +240,30 @@ func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string,
 		}
 	}
 	drawText("N / Esc to close", 8, y+26, theme.TextPrimary)
+}
+
+// drawCellRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。
+// 中央の重なりが道の節になり、角・T・十字は方角ビットの重なりでそのまま出る。フォントに罫線素片が
+// 無いので記号でなく線分で方向を見せる。
+func drawCellRoad(dst *ebiten.Image, x, y, cell, cx, cy consts.ScreenPixel, road overworld.RoadDir) {
+	t := max(consts.ScreenPixel(2), cell/5)
+	half := float32(t) / 2
+	left, top := float32(x), float32(y)
+	right, bottom := float32(x+cell-1), float32(y+cell-1)
+	cxF, cyF := float32(cx), float32(cy)
+	col := theme.OverworldMapRoad
+	if road&overworld.RoadW != 0 {
+		vector.FillRect(dst, left, cyF-half, (cxF+half)-left, float32(t), col, false)
+	}
+	if road&overworld.RoadE != 0 {
+		vector.FillRect(dst, cxF-half, cyF-half, right-(cxF-half), float32(t), col, false)
+	}
+	if road&overworld.RoadN != 0 {
+		vector.FillRect(dst, cxF-half, top, float32(t), (cyF+half)-top, col, false)
+	}
+	if road&overworld.RoadS != 0 {
+		vector.FillRect(dst, cxF-half, cyF-half, float32(t), bottom-(cyF-half), col, false)
+	}
 }
 
 // glyphColor は種別文字に対応する色を返す。既知の記号は overworld の色定義を引き、

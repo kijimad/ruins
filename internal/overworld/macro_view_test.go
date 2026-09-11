@@ -42,6 +42,26 @@ func TestBuildMacroView_フォグは探索済みチャンクだけ開放する(t
 	assert.False(t, view.Cells[0][2].Discovered, "未探索チャンクは伏せる")
 }
 
+func TestBuildMacroView_道の接続方角をセルに埋める(t *testing.T) {
+	t.Parallel()
+	const runSeed uint64 = 12345
+	const rows consts.Chunk = 9
+	// 複数リージョンを覆う窓なら街道が必ず通る。道セルは Road のビットが立つ
+	win := MacroWindow{OriginX: 0, Cols: 3 * settlementPlacement.Spacing, Rows: rows}
+	view := BuildMacroView(runSeed, 0, 10, 10, win, consts.Coord[consts.Tile]{}, false, nil, nil)
+
+	found := false
+	for _, row := range view.Cells {
+		for _, cell := range row {
+			if cell.Road != 0 {
+				found = true
+				assert.Zero(t, cell.Road&^(RoadN|RoadS|RoadE|RoadW), "未定義ビットは立たない")
+			}
+		}
+	}
+	assert.True(t, found, "複数リージョンを覆う窓には道セルがある")
+}
+
 func TestBuildMacroView_窓外のマーカーは落とす(t *testing.T) {
 	t.Parallel()
 	win := MacroWindow{OriginX: 0, Cols: 2, Rows: 1}

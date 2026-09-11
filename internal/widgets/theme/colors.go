@@ -134,6 +134,9 @@ var (
 	OverworldMapCubeOutline = color.RGBA{R: 10, G: 12, B: 16, A: 255}
 	// OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色
 	OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}
+	// OverworldMapRoad はチャンクを通る道の線分色。舗装路に寄せた明るい暖灰。暗緑の荒れ地の上でも
+	// 集落の黄の上でも読めるようにする
+	OverworldMapRoad = color.RGBA{R: 205, G: 193, B: 165, A: 255}
 )
 
 // ========== ステータス色 ==========
