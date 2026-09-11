@@ -1,8 +1,10 @@
 package maingame
 
 import (
+	"context"
 	"fmt"
 	"runtime"
+	"runtime/trace"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -53,6 +55,9 @@ func (game *MainGame) Layout(_, _ int) (int, int) {
 
 // Update はゲームの更新処理を行う
 func (game *MainGame) Update() error {
+	region := trace.StartRegion(context.Background(), "Update")
+	defer region.End()
+
 	// デバッグ表示をトグルする
 	if ebiten.IsKeyPressed(ebiten.KeyShift) && inpututil.IsKeyJustPressed(ebiten.KeyTab) {
 		// パフォーマンスモニターは攻略に関係ないのでトグルできてよい
@@ -74,6 +79,9 @@ func (game *MainGame) Update() error {
 // Draw はゲームの描画処理を行う
 // interface method だからシグネチャは変更できない
 func (game *MainGame) Draw(screen *ebiten.Image) {
+	region := trace.StartRegion(context.Background(), "Draw")
+	defer region.End()
+
 	game.renderer.Draw(screen, game.StateMachine.GetStates(), game.World)
 
 	// パフォーマンスモニターは最前面のデバッグ表示なので、ポスト処理の外で screen へ直に描く。

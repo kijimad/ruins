@@ -1,7 +1,9 @@
 package states
 
 import (
+	"context"
 	"fmt"
+	"runtime/trace"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -264,7 +266,10 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 		screen.DrawImage(st.baseImage, nil)
 	}
 	// まず世界レイヤを screen へローポリ3Dで描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する
-	if err := st.three.draw(world, screen); err != nil {
+	r := trace.StartRegion(context.Background(), "draw:3D")
+	err := st.three.draw(world, screen)
+	r.End()
+	if err != nil {
 		return err
 	}
 	// 時間帯の色は vision の環境光として per-tile に効く。全画面フィルタは松明で照らした
@@ -276,12 +281,16 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。
 func drawRenderers(world w.World, target *ebiten.Image, renderers ...w.Renderer) error {
 	for _, renderer := range renderers {
-		sys, ok := world.Renderers[renderer.String()]
+		name := renderer.String()
+		sys, ok := world.Renderers[name]
 		if !ok {
 			// 未登録は描画されず無音で消える。登録漏れをエラーで表面化させる
-			return fmt.Errorf("renderer not registered: %s", renderer.String())
+			return fmt.Errorf("renderer not registered: %s", name)
 		}
-		if err := sys.Draw(world, target); err != nil {
+		r := trace.StartRegion(context.Background(), "draw:"+name)
+		err := sys.Draw(world, target)
+		r.End()
+		if err != nil {
 			return err
 		}
 	}
