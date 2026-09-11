@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
@@ -58,6 +59,14 @@ func buildPanelUI(res resources.UIResources, rect image.Rectangle, content Detai
 	if content.Desc != "" && page == total-1 {
 		for _, line := range uicore.WrapText(content.Desc, smallFace, rect.Dx()-theme.Space7*2) {
 			items = append(items, uicore.NewText(line, smallFace, theme.TextSecondary))
+		}
+	}
+	// 用途は説明文の下に出す。性質ごとに1行、アクセント色で数値スペックや説明と見分けやすくする。
+	// 先頭の記号は本文フォントに無いので Nerd フォントへ確実に落ちる IconCursor を使う。
+	// 説明と同じく最終ページにだけ出し、ページ送りは性能行の数だけで決める
+	if page == total-1 {
+		for _, use := range content.Uses {
+			items = append(items, uicore.NewText(consts.IconCursor+" "+use, smallFace, theme.TextAccent))
 		}
 	}
 	items = append(items, uicore.NewText(fmt.Sprintf("%d/%d", pg.GetCurrentPage(), pg.GetTotalPages()), smallFace, theme.TextSecondary))

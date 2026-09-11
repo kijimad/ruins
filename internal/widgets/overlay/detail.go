@@ -15,13 +15,15 @@ import (
 
 var _ ScreenRenderer = (*Detail)(nil)
 
-// DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
+// DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行・用途をそのまま持つ。
 // 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
-// 行の型は entityspec.SpecRow を使う
+// 行の型は entityspec.SpecRow を使う。Uses は「食べられる」「読める」など性質・使い道の短い文言で、
+// 説明文の下に列挙する。不要なら空でよい
 type DetailContent struct {
 	Name string
 	Desc string
 	Rows []entityspec.SpecRow
+	Uses []string
 }
 
 // EntityDetailContent は実体から名前・説明・性能行を組んだ詳細内容を返す。
@@ -39,6 +41,7 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
 		Name: query.GetEntityName(e, world),
 		Desc: desc,
 		Rows: entityspec.SpecRows(world, e),
+		Uses: entityspec.UseHints(world, e),
 	}
 }
 
