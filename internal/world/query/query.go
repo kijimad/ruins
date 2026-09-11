@@ -1,6 +1,7 @@
 package query
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -9,6 +10,10 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
+
+// ErrPlayerNotFound はプレイヤーエンティティが存在しないときに返す。
+// 呼び出し側が errors.Is で同定できるよう sentinel にする。
+var ErrPlayerNotFound = errors.New("no player entity exists")
 
 // Player はプレイヤーエンティティをVisitする。
 // f はエンティティ生成などの構造変更を行うことがあるため、
@@ -35,7 +40,7 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	}
 
 	if len(entities) == 0 {
-		return gc.InvalidEntity, fmt.Errorf("no player entity exists")
+		return gc.InvalidEntity, ErrPlayerNotFound
 	}
 	if len(entities) > 1 {
 		return gc.InvalidEntity, fmt.Errorf("multiple player entities exist: %d", len(entities))

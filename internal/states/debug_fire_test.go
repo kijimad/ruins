@@ -6,6 +6,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,10 +20,10 @@ func TestSpawnDebugStageFire(t *testing.T) {
 	t.Run("hearthがあれば火をその位置に燃焼状態で生成する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		// 本番の spawn 関数で hearth を組む。手作りは本番が付ける他コンポーネントを取りこぼす
 		hearthCoord := consts.Coord[consts.Tile]{X: 5, Y: 6}
-		h := world.ECS.NewEntity()
-		world.Components.RawID.Add(h, &gc.RawID{ID: "hearth"})
-		world.Components.GridElement.Add(h, &gc.GridElement{Coord: hearthCoord})
+		_, err := lifecycle.SpawnProp(world, "hearth", hearthCoord.X, hearthCoord.Y)
+		require.NoError(t, err)
 
 		require.NoError(t, spawnDebugStageFire(world))
 
@@ -82,6 +84,6 @@ func TestInteractionActionChoices(t *testing.T) {
 		require.Len(t, choices, 1)
 
 		_, err := choices[0].Run(testutil.InitTestWorld(t))
-		assert.ErrorContains(t, err, "player")
+		require.ErrorIs(t, err, query.ErrPlayerNotFound)
 	})
 }
