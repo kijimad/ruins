@@ -171,6 +171,119 @@ func TestPopulateStorageLoot_未知のルートテーブルはエラー(t *testi
 	assert.ErrorContains(t, err, "存在しないテーブル")
 }
 
+// newTestLootRaws は populateStorageLoot の危険度・アイテム解決の分岐を狙うための
+// 最小のItemTable/ItemGroupを持つRawMasterを生成する。エントリは実在しない
+// "nonexistent_item" を参照するため、実際のスポーンではworld側のRawMasterで解決に失敗する。
+func newTestLootRaws() oapi.Raws {
+	return oapi.Raws{
+		ItemTables: &[]oapi.ItemTable{
+			{
+				Id: "test_item_table",
+				Entries: []oapi.ItemTableEntry{
+					{Id: "test_item_group", Weight: 1, MinDanger: 1, MaxDanger: 5},
+				},
+			},
+		},
+		ItemGroups: &[]oapi.ItemGroup{
+			{
+				Id: "test_item_group",
+				Entries: []oapi.ItemGroupEntry{
+					{Id: "nonexistent_item", Weight: 1, Pack: "1d1"},
+				},
+			},
+		},
+	}
+}
+
+func TestPopulateStorageLoot_LootCount表記が不正ならエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	raws := newTestLootRaws()
+	plan := newTestSpawnPlan(world)
+	plan.RawMaster = &raws
+	plan.RNG = rand.New(rand.NewPCG(1, 1))
+	plan.Danger = 1
+
+	propRaw := oapi.Prop{
+		Storage: &oapi.StorageRaw{
+			LootTableId: new("test_item_table"),
+			LootCount:   new("不正な表記"),
+		},
+	}
+	storageEntity := world.ECS.NewEntity()
+
+	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "invalid lootCount notation")
+}
+
+func TestPopulateStorageLoot_危険度が最小値未満ならエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	raws := newTestLootRaws()
+	plan := newTestSpawnPlan(world)
+	plan.RawMaster = &raws
+	plan.RNG = rand.New(rand.NewPCG(1, 1))
+	plan.Danger = 0 // MinDanger(1)未満
+
+	propRaw := oapi.Prop{
+		Storage: &oapi.StorageRaw{LootTableId: new("test_item_table")},
+	}
+	storageEntity := world.ECS.NewEntity()
+
+	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to draw item")
+}
+
+func TestPopulateStorageLoot_危険度がテーブル範囲外ならアイテムを収納しない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	raws := newTestLootRaws()
+	plan := newTestSpawnPlan(world)
+	plan.RawMaster = &raws
+	plan.RNG = rand.New(rand.NewPCG(1, 1))
+	plan.Danger = 99 // エントリのMaxDanger(5)を超える
+
+	propRaw := oapi.Prop{
+		Storage: &oapi.StorageRaw{LootTableId: new("test_item_table")},
+	}
+	storageEntity := world.ECS.NewEntity()
+
+	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	require.NoError(t, err, "候補が無い場合はエラーにせず何も収納しない")
+
+	query := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+	count := 0
+	for query.Next() {
+		count++
+	}
+	assert.Equal(t, 0, count, "危険度が範囲外なら何も収納されない")
+}
+
+func TestPopulateStorageLoot_アイテム生成に失敗したらエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	raws := newTestLootRaws()
+	plan := newTestSpawnPlan(world)
+	plan.RawMaster = &raws // アイテム解決用。実体スポーンはworld側のRawMasterで行われる
+	plan.RNG = rand.New(rand.NewPCG(1, 1))
+	plan.Danger = 3 // エントリのMinDanger(1)〜MaxDanger(5)の範囲内
+
+	propRaw := oapi.Prop{
+		Storage: &oapi.StorageRaw{LootTableId: new("test_item_table")},
+	}
+	storageEntity := world.ECS.NewEntity()
+
+	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "nonexistent_item")
+}
+
 func TestPopulateStorageLoot_ルートテーブルからアイテムを収納する(t *testing.T) {
 	t.Parallel()
 
