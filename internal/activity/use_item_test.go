@@ -200,6 +200,36 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, 2, countBackpackByRawID(world, actor, "bread"))
 	})
 
+	t.Run("自傷ダメージアイテムを使用して使用者にダメージが入る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.Player.Add(actor, &gc.Player{})
+		world.Components.HP.Add(actor, &gc.HP{Current: 100, Max: 100})
+
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "毒薬"})
+		world.Components.RawID.Add(item, &gc.RawID{ID: "poison"})
+		world.Components.InflictsDamage.Add(item, &gc.InflictsDamage{Amount: 10})
+		world.Components.Consumable.Add(item, &gc.Consumable{})
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: actor})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			State:        gc.ActivityStateRunning,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err := ua.DoTurn(comp, actor, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+		assert.Equal(t, 90, world.Components.HP.Get(actor).Current, "自傷ダメージぶんHPが減る")
+		assert.Equal(t, 0, countBackpackByRawID(world, actor, "poison"), "使用したアイテムは消費される")
+	})
+
 	t.Run("Targetがnilの場合はキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

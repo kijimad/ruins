@@ -82,6 +82,21 @@ func TestActivityCancel(t *testing.T) {
 	assert.False(t, CanResume(comp), "Expected canceled activity to not be resumable")
 }
 
+func TestCanInterrupt_未知のBehaviorNameはfalse(t *testing.T) {
+	t.Parallel()
+
+	comp := NewActivity(gc.BehaviorName("unknown"), 10)
+	assert.False(t, CanInterrupt(comp), "GetBehaviorがエラーを返す場合は中断不可")
+}
+
+func TestCanResume_未知のBehaviorNameはfalse(t *testing.T) {
+	t.Parallel()
+
+	comp := NewActivity(gc.BehaviorName("unknown"), 10)
+	comp.State = gc.ActivityStatePaused
+	assert.False(t, CanResume(comp), "GetBehaviorがエラーを返す場合は再開不可")
+}
+
 func TestActivityComplete(t *testing.T) {
 	t.Parallel()
 

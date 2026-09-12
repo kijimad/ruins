@@ -391,3 +391,150 @@ func TestReadBehavior_Finish_本が消えていれば何もしない(t *testing.
 
 	require.NoError(t, ra.Finish(comp, actor, world))
 }
+
+func TestReadBehavior_Finish_読了した本は消費される(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	bookEntity := world.ECS.NewEntity()
+	world.Components.Name.Add(bookEntity, &gc.Name{Name: "テスト本"})
+	world.Components.Book.Add(bookEntity, &gc.Book{
+		Effort: gc.IntPool{Max: 10, Current: 10},
+	})
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}, State: gc.ActivityStateCompleted}
+
+	require.NoError(t, ra.Finish(comp, actor, world))
+	assert.False(t, world.ECS.Alive(bookEntity), "読了した本は消費されて消える")
+
+	store := query.GetGameLog(world)
+	recent := store.GetRecent(1)
+	require.Len(t, recent, 1)
+	assert.Contains(t, recent[0], "テスト本")
+}
+
+func TestReadBehavior_Finish_未読了なら本は消費されない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	bookEntity := world.ECS.NewEntity()
+	world.Components.Name.Add(bookEntity, &gc.Name{Name: "テスト本"})
+	world.Components.Book.Add(bookEntity, &gc.Book{
+		Effort: gc.IntPool{Max: 10, Current: 5},
+	})
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}, State: gc.ActivityStateRunning}
+
+	require.NoError(t, ra.Finish(comp, actor, world))
+	assert.True(t, world.ECS.Alive(bookEntity), "読了していない本は消費されない")
+
+	store := query.GetGameLog(world)
+	assert.Empty(t, store.GetRecent(1), "読了していないので完了ログは出ない")
+}
+
+func TestReadBehavior_Finish_パラメータ型不一致はエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{}
+
+	err := ra.Finish(comp, actor, world)
+	require.ErrorIs(t, err, ErrParamsTypeMismatch)
+}
+
+func TestReadBehavior_Start_開始ログが出る(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	bookEntity := world.ECS.NewEntity()
+	world.Components.Name.Add(bookEntity, &gc.Name{Name: "テスト本"})
+	world.Components.Book.Add(bookEntity, &gc.Book{
+		Effort: gc.IntPool{Max: 10},
+	})
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
+
+	require.NoError(t, ra.Start(comp, actor, world))
+
+	store := query.GetGameLog(world)
+	recent := store.GetRecent(1)
+	require.Len(t, recent, 1)
+	assert.Contains(t, recent[0], "テスト本")
+}
+
+func TestReadBehavior_Start_本がないとエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	target := world.ECS.NewEntity() // Bookコンポーネントなし
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{Params: &gc.ReadParams{Target: target}}
+
+	err := ra.Start(comp, actor, world)
+	assert.Error(t, err)
+}
+
+func TestReadBehavior_Start_パラメータ型不一致はエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{}
+
+	err := ra.Start(comp, actor, world)
+	require.ErrorIs(t, err, ErrParamsTypeMismatch)
+}
+
+func TestReadBehavior_Canceled_プレイヤーは本の名前が出る(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.Player.Add(actor, &gc.Player{})
+
+	bookEntity := world.ECS.NewEntity()
+	world.Components.Name.Add(bookEntity, &gc.Name{Name: "テスト本"})
+	world.Components.Book.Add(bookEntity, &gc.Book{Effort: gc.IntPool{Max: 10}})
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}, CancelReason: "テスト中断"}
+
+	require.NoError(t, ra.Canceled(comp, actor, world))
+
+	store := query.GetGameLog(world)
+	recent := store.GetRecent(1)
+	require.Len(t, recent, 1)
+	assert.Contains(t, recent[0], "テスト本")
+}
+
+func TestReadBehavior_Canceled_プレイヤー以外はログが出ない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity() // Playerコンポーネントなし
+
+	bookEntity := world.ECS.NewEntity()
+	world.Components.Name.Add(bookEntity, &gc.Name{Name: "テスト本"})
+	world.Components.Book.Add(bookEntity, &gc.Book{Effort: gc.IntPool{Max: 10}})
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}, CancelReason: "テスト中断"}
+
+	require.NoError(t, ra.Canceled(comp, actor, world))
+
+	store := query.GetGameLog(world)
+	assert.Empty(t, store.GetRecent(1), "プレイヤー以外の中断はログに出さない")
+}
