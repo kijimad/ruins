@@ -77,7 +77,8 @@ func (b *Band) ShiftNorth(world w.World, gen ChunkGen) error {
 	TranslateAllEntities(world, 0, b.chunkH)
 	// 3. 座標キー Map を追従させる。
 	b.rebaseCoordMaps(world, b.chunkH)
-	// 4. northIndex 前進 → 新しい北端の行を全列生成・配置する。北端の絶対チャンク Y は負へ伸びる
+	// 4. northIndex 前進 → 新しい北端の行を全列生成・配置する。北端の絶対チャンク Y は負へ伸びる。
+	// consts.Chunk は符号付き整数なので単項マイナスで北側の負インデックスになる
 	b.northIndex++
 	newChunkY := -b.northIndex
 	for cx := range b.cols {
