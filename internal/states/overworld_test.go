@@ -60,8 +60,10 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 30, 20
 	const cols = 3
+	// 遺跡入口は Y 方向のリージョンに並ぶので、リージョンを含む高さの帯にする
+	const rows = 9
 
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, 1), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, rows), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)

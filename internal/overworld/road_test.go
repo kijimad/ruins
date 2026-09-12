@@ -24,8 +24,9 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 30, 20
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 321, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+	// 集落は Y 方向のリージョンに並ぶので Y 方向に生成する
 	for i := range 16 {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 
 	// 商人の位置から集落中心を復元する。商人は中心の (-2,-1) に立つ
@@ -39,41 +40,40 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 		p := world.Components.GridElement.Get(e).Coord
 		centers = append(centers, consts.Coord[consts.Tile]{X: p.X + 2, Y: p.Y + 1})
 	}
-	sort.Slice(centers, func(i, j int) bool { return centers[i].X < centers[j].X })
+	sort.Slice(centers, func(i, j int) bool { return centers[i].Y < centers[j].Y })
 	require.GreaterOrEqual(t, len(centers), 2, "前提: 隣接リージョンに集落が2つある")
 
-	// 西集落の中心 Y の高さの水平路から、幅を持たせた横帯の1本を探す。列 x で west.Y を含む床の
-	// 縦連続が丁度 roadWidth なら、他の道や垂直辺と重ならない単独の横帯である。地物が密になったため
-	// 固定座標では市街地やランドマークと重なりうるが、集落間の全区間が覆われることはない
+	// 集落は Y 隣接なので道は縦に走る。集落中心 X の列で、幅を持たせた縦帯の1本を探す。行 y で
+	// north.X を含む床の横連続が丁度 roadWidth なら、他の道や水平辺と重ならない単独の縦帯である。
 	// road.go の非公開 roadWidth と一致させる。実装側を変えたらここも合わせる
 	const roadWidth = 4
-	west, east := centers[0], centers[1]
+	north, south := centers[0], centers[1]
 	isFloor := func(x, y consts.Tile) bool {
 		return strings.HasPrefix(spriteKeyAtOrEmpty(world, x, y), consts.TileNameFloor)
 	}
 	found := false
-	for x := west.X + 1; x < east.X; x++ {
-		if !isFloor(x, west.Y) || !isFloor(x-1, west.Y) || !isFloor(x+1, west.Y) {
-			continue // 水平に連続する床であること
+	for y := north.Y + 1; y < south.Y; y++ {
+		if !isFloor(north.X, y) || !isFloor(north.X, y-1) || !isFloor(north.X, y+1) {
+			continue // 垂直に連続する床であること
 		}
-		// west.Y を含む縦の床連続を測る。交差などで厚みが違う列は単独の横帯でないので飛ばす
-		top, bottom := west.Y, west.Y
-		for isFloor(x, top-1) {
-			top--
+		// north.X を含む横の床連続を測る。交差などで厚みが違う行は単独の縦帯でないので飛ばす
+		left, right := north.X, north.X
+		for isFloor(left-1, y) {
+			left--
 		}
-		for isFloor(x, bottom+1) {
-			bottom++
+		for isFloor(right+1, y) {
+			right++
 		}
-		if bottom-top+1 != roadWidth {
+		if right-left+1 != roadWidth {
 			continue
 		}
-		// 幅 roadWidth の横帯。内部タイルは四方が床なのでオートタイル添字15になる。仮の 0 のままなら
+		// 幅 roadWidth の縦帯。内部タイルは四方が床なのでオートタイル添字15になる。仮の 0 のままなら
 		// 孤立タイル絵が並ぶ退行なので固定する。上下左右すべて床の内部タイルを選ぶ
-		mid := top + 1
-		if !isFloor(x-1, mid) || !isFloor(x+1, mid) || !isFloor(x, mid-1) || !isFloor(x, mid+1) {
+		mid := left + 1
+		if !isFloor(mid-1, y) || !isFloor(mid+1, y) || !isFloor(mid, y-1) || !isFloor(mid, y+1) {
 			continue
 		}
-		key := spriteKeyAtOrEmpty(world, x, mid)
+		key := spriteKeyAtOrEmpty(world, mid, y)
 		assert.True(t, strings.HasSuffix(key, "_15"), "幅を持たせた道の内部は四方接続の添字15。実際: %q", key)
 		found = true
 		break

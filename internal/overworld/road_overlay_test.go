@@ -67,20 +67,20 @@ func TestMarkRoadLShape_同一チャンクは道を積まない(t *testing.T) {
 func TestBuildRoadOverlay_表示範囲に道が現れ端点が集落に一致する(t *testing.T) {
 	t.Parallel()
 	const runSeed uint64 = 12345
-	const rows consts.Chunk = 9
-	// 集落は Spacing チャンクごとに1つ当たる。数リージョン跨ぐ表示範囲なら必ず道が出る
-	area := MacroRange{OriginX: 0, Cols: 3 * settlementPlacement.Spacing, Rows: rows}
-	overlay := buildRoadOverlay(runSeed, area, rows)
+	const cols consts.Chunk = 5
+	// 集落は Spacing チャンクごとに1つ当たる。数リージョン跨ぐ表示範囲なら必ず道が出る。道は Y に沿って走る
+	area := MacroRange{OriginX: 0, OriginY: 0, Cols: cols, Rows: 3 * settlementPlacement.Spacing}
+	overlay := buildRoadOverlay(runSeed, area, cols)
 
 	assert.NotEmpty(t, overlay, "複数リージョンを覆う表示範囲には道が出る")
 	for c, dir := range overlay {
 		assert.NotZero(t, dir, "道ありのキーはビットが立つ")
 		assert.Zero(t, dir&^(RoadN|RoadS|RoadE|RoadW), "未定義ビットは立たない")
-		assert.GreaterOrEqual(t, c.Y, consts.Chunk(0), "行は帯の内側")
-		assert.Less(t, c.Y, rows, "行は帯の内側")
+		assert.GreaterOrEqual(t, c.X, consts.Chunk(0), "列は帯の内側")
+		assert.Less(t, c.X, cols, "列は帯の内側")
 	}
 
 	// 当選集落の当該チャンクは端点として道に含まれる。隣接リージョンを結ぶので道の端に来る
-	a := settlementPlacement.WinnerOf(runSeed, 1, rows)
+	a := settlementPlacement.WinnerOf(runSeed, 1, cols)
 	assert.NotZero(t, overlay[a], "当選集落チャンクには街道が届く")
 }

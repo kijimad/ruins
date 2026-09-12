@@ -7,12 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFullBandRange_帯全体に東西の余白を足す(t *testing.T) {
+func TestFullBandRange_帯全体に南北の余白を足す(t *testing.T) {
 	t.Parallel()
 	area := FullBandRange(10, 4, 3)
-	assert.Equal(t, 10-MacroMargin, area.OriginX, "表示範囲の左端は東進位置から余白ぶん西")
-	assert.Equal(t, 4+2*MacroMargin, area.Cols, "列数は帯幅に東西の余白を足す")
-	assert.Equal(t, consts.Chunk(3), area.Rows, "行数は帯の高さ")
+	assert.Equal(t, consts.Chunk(0), area.OriginX, "表示範囲の左端は帯左端の0")
+	assert.Equal(t, consts.Chunk(4), area.Cols, "列数は帯の有界幅そのまま")
+	assert.Equal(t, -10-MacroMargin, area.OriginY, "表示範囲の上端は北進位置から余白ぶん北。北は -Y")
+	assert.Equal(t, 3+2*MacroMargin, area.Rows, "行数は帯高に南北の余白を足す")
 }
 
 func TestBuildMacroView_表示範囲の格子とマーカーを表示範囲ローカルへ組む(t *testing.T) {

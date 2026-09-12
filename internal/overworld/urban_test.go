@@ -79,12 +79,13 @@ func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing
 	build := func(reverse bool) (map[gc.GridElement]string, []consts.Coord[consts.Tile], []string) {
 		world := testutil.InitTestWorld(t)
 		gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+		// 市街地は Y 方向のリージョンに並ぶので Y 方向に生成する
 		for i := range window {
-			x := i
+			y := i
 			if reverse {
-				x = window - 1 - i
+				y = window - 1 - i
 			}
-			require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(x)}, consts.Tile(x)*chunkW, 0))
+			require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(y)}, 0, consts.Tile(y)*chunkH))
 		}
 		tiles, enemies := snapshotWorld(world)
 		return tiles, enemies, snapshotNamed(world)
@@ -107,7 +108,7 @@ func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T)
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 
 	found := 0
@@ -135,7 +136,7 @@ func TestNewChunkGen_市街地の建物に見える扉が置かれる(t *testing
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 
 	doors := 0

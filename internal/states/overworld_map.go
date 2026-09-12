@@ -58,15 +58,18 @@ func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
 
 // overworldMapCell は帯の行数からセル寸法を決める。見出し・凡例のぶんを足した行数で内側高さを割り、
 // 大きめのセルへ寄せる。帯が短いと巨大化するので上限で止める。
-func overworldMapCell(inner image.Rectangle, rows consts.Chunk) consts.ScreenPixel {
-	cell := min(max(inner.Dy()/(int(rows)+3), overworldMapMinCell), overworldMapMaxCell)
+func overworldMapCell(inner image.Rectangle, cols consts.Chunk) consts.ScreenPixel {
+	// 北進帯は縦に伸びるので、有界の cols 列をモーダル幅に収める大きさにする
+	cell := min(max(inner.Dx()/(int(cols)+3), overworldMapMinCell), overworldMapMaxCell)
 	return consts.ScreenPixel(cell)
 }
 
-// overworldMapRadius はモーダル幅に収まるプレイヤー左右のチャンク数を返す。最低限は確保する。
+// overworldMapRadius はモーダル高さに収まるプレイヤー南北のチャンク数を返す。最低限は確保する。
+// 地図の下に見出しと凡例を置くので、そのぶんの高さを差し引いてから収まる行数を出す。
 func overworldMapRadius(inner image.Rectangle, cell consts.ScreenPixel) int {
-	cols := inner.Dx() / int(cell)
-	return max((cols-1)/2, overworldMapMinRadius)
+	const headerLegendReserve = 160
+	rows := (inner.Dy() - headerLegendReserve) / int(cell)
+	return max((rows-1)/2, overworldMapMinRadius)
 }
 
 // OnStart はプレイヤー中心の地形俯瞰モデルを算出して保持する。表示中はプレイヤーが動かないため
@@ -79,14 +82,16 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	}
 	playerTile, hasPlayer := query.PlayerBandTile(world)
 	inner := st.modalInner(world)
-	st.cellPx = overworldMapCell(inner, max(sb.Rows, 1))
-	centerCol := sb.EastIndex + sb.Cols/2
+	st.cellPx = overworldMapCell(inner, max(sb.Cols, 1))
+	// 北進帯は縦に伸びるので、プレイヤーの絶対チャンク行を中心に近傍を見せる。北は -Y なので
+	// 絶対チャンク行 = タイル行/chunkH - NorthIndex。プレイヤー不在時は帯の中央行
+	centerRow := sb.Rows/2 - sb.NorthIndex
 	if hasPlayer {
-		centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
+		centerRow = consts.Chunk(int(playerTile.Y)/int(sb.ChunkH)) - sb.NorthIndex
 	}
-	area := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
+	area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
-		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
+		sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
@@ -94,8 +99,8 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
 	if hasPlayer {
 		st.playerAbs = consts.Coord[consts.Chunk]{
-			X: sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW)),
-			Y: consts.Chunk(int(playerTile.Y) / int(sb.ChunkH)),
+			X: consts.Chunk(int(playerTile.X) / int(sb.ChunkW)),
+			Y: consts.Chunk(int(playerTile.Y)/int(sb.ChunkH)) - sb.NorthIndex,
 		}
 	}
 	return nil

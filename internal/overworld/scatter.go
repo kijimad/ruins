@@ -135,10 +135,10 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
-func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (scatterCatalog, bool) {
-	switch chunkTypeAt(runSeed, c, rows) {
+func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool) {
+	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkWasteland:
-		return scatterCatalogFor(outdoorZoneAt(runSeed, c, rows)), true
+		return scatterCatalogFor(outdoorZoneAt(runSeed, c, cols)), true
 	default:
 		return scatterCatalog{}, false
 	}
@@ -152,8 +152,8 @@ type openTerrainFeature struct{}
 // どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。選定はチャンク相対座標と
 // 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
 // エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
-func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-	cat, ok := scatterCatalogForChunk(runSeed, c, rows)
+func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+	cat, ok := scatterCatalogForChunk(runSeed, c, cols)
 	if !ok {
 		return nil
 	}
@@ -195,7 +195,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
 	for _, rel := range interior.ScatterArea(area, accept, selSeed, propCount) {
-		bigAllowed := onBigPhase(rel) && !onScatterRoute(runSeed, c, rows, g, absTile(rel))
+		bigAllowed := onBigPhase(rel) && !onScatterRoute(runSeed, c, cols, g, absTile(rel))
 		roll := hashTileCoord(selSeed, rel)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {
@@ -271,16 +271,17 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、
 // それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の
 // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
-func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) outdoorZone {
-	sr := floorDiv(c.X, settlementPlacement.Spacing)
+func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
+	// 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く
+	sr := floorDiv(c.Y, settlementPlacement.Spacing)
 	for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {
-		if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, rows)) <= scatterRoadsideRange {
+		if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
 			return zoneRoadside
 		}
 	}
-	ur := floorDiv(c.X, urbanPlacement.Spacing)
+	ur := floorDiv(c.Y, urbanPlacement.Spacing)
 	for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} {
-		if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, rows)) <= scatterRoadsideRange {
+		if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
 			return zoneRoadside
 		}
 	}
@@ -301,9 +302,9 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
-func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
+func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
 	// 道の結線は roadSegments を唯一の出典にし、舗装 road.go と同じ経路への距離を測る
-	for _, pair := range crossingRoads(runSeed, c, rows) {
+	for _, pair := range crossingRoads(runSeed, c, cols) {
 		for _, seg := range roadSegments(pair[0], pair[1]) {
 			fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)
 			var d consts.Tile

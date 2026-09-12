@@ -127,40 +127,41 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 	assert.NotEmpty(t, a, "壁が存在する（生成が空でない）")
 }
 
-// TestShiftEast_実チャンク生成との統合 は Band と実 ChunkGen を繋いで
-// 「実際に東へ1回シフトして東端を実生成し、帯全域が埋まったまま」を固定する。
-func TestShiftEast_実チャンク生成との統合(t *testing.T) {
+// TestShiftNorth_実チャンク生成との統合 は Band と実 ChunkGen を繋いで
+// 「実際に北へ1回シフトして北端を実生成し、帯全域が埋まったまま」を固定する。
+func TestShiftNorth_実チャンク生成との統合(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 30, 20
-	const cols = 3
-	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW * cols, TileHeight: chunkH}))
+	const rows = 3
+	const cols = 1
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW, TileHeight: chunkH * rows}))
 
-	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
-	// 初期帯: cols チャンクを各スロットへ生成
-	for i := range cols {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, cols, mapplanner.PlannerTypeSmallRoom)
+	// 初期帯: rows チャンクを各行スロットへ生成
+	for cy := range consts.Chunk(rows) {
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: cy}, 0, cy.Tiles(chunkH)))
 	}
-	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2 * chunkW, Y: chunkH / 2}, "ash")
+	// プレイヤーを中央行の北端に置く（localY=0 → 北シフト条件）
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: chunkW / 2, Y: 0}, "ash")
 	require.NoError(t, err)
 
-	band := worldstream.NewBand(chunkW, chunkH, cols, 1)
-	require.True(t, band.ShouldShiftEast(world.Components.GridElement.Get(player).X))
-	require.NoError(t, band.ShiftEast(world, gen))
+	band := worldstream.NewBand(chunkW, chunkH, cols, rows)
+	require.True(t, band.ShouldShiftNorth(world.Components.GridElement.Get(player).Y))
+	require.NoError(t, band.ShiftNorth(world, gen))
 
-	assert.Equal(t, 1, int(band.EastIndex()), "東へ1チャンク進む")
-	assert.Equal(t, chunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
+	assert.Equal(t, 1, int(band.NorthIndex()), "北へ1チャンク進む")
+	assert.Equal(t, chunkH, world.Components.GridElement.Get(player).Y, "プレイヤーは中央へ戻る")
 
-	// 帯を3スロットに分け、各スロットにタイルが存在する（破棄＋生成＋リベース後も全域が埋まる）
-	slotCounts := make([]int, cols)
+	// 帯を3行スロットに分け、各スロットにタイルが存在する（破棄＋生成＋リベース後も全域が埋まる）
+	slotCounts := make([]int, rows)
 	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for q.Next() {
-		x := world.Components.GridElement.Get(q.Entity()).X
-		if x < 0 || x >= chunkW*cols {
+		y := world.Components.GridElement.Get(q.Entity()).Y
+		if y < 0 || y >= chunkH*rows {
 			continue
 		}
-		slotCounts[int(x/chunkW)]++
+		slotCounts[int(y/chunkH)]++
 	}
 	for i, c := range slotCounts {
 		assert.NotZero(t, c, "スロット%d にタイルが存在する（帯全域が埋まっている）", i)
@@ -170,18 +171,18 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 // merchantName は小集落の店NPC名。テスト間で共有する。
 const merchantName = "Merchant"
 
-// settlementBucket は 商人 が立つチャンクスロットと、商人がいるかを返す。
+// settlementBucket は 商人 が立つチャンク行スロットと、商人がいるかを返す。集落は Y リージョンに並ぶ。
 func settlementBucket(world w.World) (int, bool) {
-	const chunkW consts.Tile = 30
+	const chunkH consts.Tile = 20
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
 		if world.Components.Name.Get(e).Name != merchantName {
 			continue
 		}
-		x := world.Components.GridElement.Get(e).X
+		y := world.Components.GridElement.Get(e).Y
 		q.Close()
-		return int(x / chunkW), true
+		return int(y / chunkH), true
 	}
 	return 0, false
 }
@@ -195,8 +196,9 @@ func TestNewChunkGen_小集落はリージョンにちょうど1つ生成され�
 	const regionSpan = 8 // settlementPlacement の Spacing。1リージョンぶんを生成する
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+	// 集落は Y リージョンに並ぶので、1リージョンぶんを Y 方向に生成する
 	for i := range regionSpan {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 
 	count := 0
@@ -215,15 +217,15 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 30, 20
-	// まず当選チャンクを探し、外れチャンクを1つ確定させる
+	// まず当選チャンクを探し、外れチャンクを1つ確定させる。集落は Y リージョンなので Y 方向に生成する
 	scout := testutil.InitTestWorld(t)
 	genScout := overworld.NewChunkGen(scout, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 	for i := range 8 {
-		require.NoError(t, genScout(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, genScout(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 	winner, ok := settlementBucket(scout)
 	require.True(t, ok, "前提: 当選チャンクが存在する")
-	loser := consts.Coord[consts.Chunk]{X: consts.Chunk((winner + 1) % 8)}
+	loser := consts.Coord[consts.Chunk]{Y: consts.Chunk((winner + 1) % 8)}
 
 	// 外れチャンク単体では小集落が出ない
 	plain := testutil.InitTestWorld(t)

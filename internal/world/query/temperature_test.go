@@ -29,12 +29,12 @@ func TestNorthDepthChunks(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 		sb := query.EnsureSeamlessBand(world)
-		// chunkW=30, cols=3 なら中央列は chunk1。ここが湧き位置で奥行き0の起点
-		sb.ChunkW, sb.Cols = 30, 3
+		// chunkH=30, rows=3 なら中央行は chunk1。ここが湧き位置で奥行き0の起点。北は -Y
+		sb.ChunkH, sb.Rows = 30, 3
 
-		assert.Equal(t, 0, query.NorthDepthChunks(world, 45), "中央列(chunk1)は起点なので0")
-		assert.Equal(t, 0, query.NorthDepthChunks(world, 15), "起点手前(chunk0)はクランプで0")
-		assert.Equal(t, 1, query.NorthDepthChunks(world, 75), "1つ奥(chunk2)は1")
+		assert.Equal(t, 0, query.NorthDepthChunks(world, 45), "中央行(chunk1)は起点なので0")
+		assert.Equal(t, 0, query.NorthDepthChunks(world, 75), "南(chunk2)はクランプで0")
+		assert.Equal(t, 1, query.NorthDepthChunks(world, 15), "1つ北(chunk0)は1")
 	})
 
 	t.Run("帯シフトぶん奥行きが増える", func(t *testing.T) {
@@ -42,10 +42,10 @@ func TestNorthDepthChunks(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 		sb := query.EnsureSeamlessBand(world)
-		sb.ChunkW, sb.Cols = 30, 3
-		sb.EastIndex = 5 // 5チャンク奥へストリーミング済み
+		sb.ChunkH, sb.Rows = 30, 3
+		sb.NorthIndex = 5 // 5チャンク北へストリーミング済み
 
-		// 絶対X = 45 + 5*30 = 195 → chunk6。起点 chunk1 から 5 奥
+		// 絶対Y = 45 - 5*30 = -105 → chunk-4。起点 chunk1 から 5 北
 		assert.Equal(t, 5, query.NorthDepthChunks(world, 45), "シフトぶん奥行きが増える")
 	})
 }

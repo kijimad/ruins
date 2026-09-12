@@ -25,19 +25,19 @@ func TranslateAllEntities(world w.World, dx, dy consts.Tile) {
 	}
 }
 
-// RemoveEntitiesInXRange は GridElement.X が [loX, hiX) にあるエンティティを削除する。
+// RemoveEntitiesInYRange は GridElement.Y が [loY, hiY) にあるエンティティを削除する。
 //
-// 帯シフト時の西端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す
+// 帯シフト時の南端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す
 // エンティティは削除しない。プレイヤーなど残すべきものが該当する。削除した数を返す。
 // 反復中の削除を避けるため、対象を収集してから削除する。
-func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {
+func RemoveEntitiesInYRange(world w.World, loY, hiY consts.Tile, keep func(ecs.Entity) bool) int {
 	var toRemove []ecs.Entity
-	// 西端チャンク破棄は現ステージ(帯)だけが対象。退避中ステージは消さない
+	// 南端チャンク破棄は現ステージ(帯)だけが対象。退避中ステージは消さない
 	q := query.ActiveFilter1[gc.GridElement](world).Query()
 	for q.Next() {
 		entity := q.Entity()
 		grid := world.Components.GridElement.Get(entity)
-		if grid.X < loX || grid.X >= hiX {
+		if grid.Y < loY || grid.Y >= hiY {
 			continue
 		}
 		if keep != nil && keep(entity) {

@@ -71,8 +71,8 @@ func (dr *Driver) Start(world w.World) error {
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 	// Rows がゼロ値なら1へ正規化して1行の帯として復元する
 	rows := max(sb.Rows, 1)
-	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.Cols, rows, sb.EastIndex)
-	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, rows, dr.planner)
+	dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.Cols, rows, sb.NorthIndex)
+	dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, max(sb.Cols, 1), dr.planner)
 	query.InvalidateSpatialIndex(world)
 	return nil
 }
@@ -95,14 +95,14 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
 	chunkW, chunkH, cols, rows := dr.definition.BandShape()
 	dr.band = worldstream.NewBand(chunkW, chunkH, cols, rows)
-	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, rows, dr.planner)
+	dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, cols, dr.planner)
 
 	// 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
 	// 以後この帯データの有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
 	sb := query.EnsureSeamlessBand(world)
 	sb.Active = true
 	sb.RunSeed = p.RunSeed
-	sb.EastIndex = dr.band.EastIndex()
+	sb.NorthIndex = dr.band.NorthIndex()
 	sb.ChunkW = chunkW
 	sb.ChunkH = chunkH
 	sb.Cols = dr.band.Cols()
@@ -177,7 +177,8 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
 	field.BaseTemp = dungeon.BaseTemperatureFor(overworldKey.Name)
 	for cy := range dr.band.Rows() {
 		for i := range dr.band.Cols() {
-			c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}
+			// X は有界なので絶対チャンク列はそのまま i。Y は北進ぶん負へずらした絶対チャンク行
+			c := consts.Coord[consts.Chunk]{X: i, Y: cy - dr.band.NorthIndex()}
 			if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {
 				return fmt.Errorf("failed to generate chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 			}
@@ -186,9 +187,9 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
 	return nil
 }
 
-// EastIndex は帯の現在の東インデックスを返す。テストや検証用。
-func (dr *Driver) EastIndex() consts.Chunk {
-	return dr.band.EastIndex()
+// NorthIndex は帯の現在の北インデックスを返す。テストや検証用。
+func (dr *Driver) NorthIndex() consts.Chunk {
+	return dr.band.NorthIndex()
 }
 
 // MaybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトし、シフトしたかを返す。
@@ -207,26 +208,26 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 	if query.HasActivity(world, playerEntity) {
 		return false, nil
 	}
-	// 中央チャンクに収まるまでシフトを繰り返す。各シフトはプレイヤーを chunkW ぶん中央へ寄せるため、
+	// 中央チャンクに収まるまでシフトを繰り返す。各シフトはプレイヤーを chunkH ぶん中央へ寄せるため、
 	// 必ず有限回で収束する。
 	shifted := false
 	for {
-		localX := world.Components.GridElement.Get(playerEntity).X
-		if dr.band.ShouldShiftEast(localX) {
-			if err := dr.band.ShiftEast(world, dr.gen); err != nil {
+		localY := world.Components.GridElement.Get(playerEntity).Y
+		if dr.band.ShouldShiftNorth(localY) {
+			if err := dr.band.ShiftNorth(world, dr.gen); err != nil {
 				return shifted, err
 			}
 			shifted = true
 			continue
 		}
-		// 西シフトはしない。帯は東へのみ進み破棄済みチャンクを再生成しないので、
-		// 到達した最西端より西へは戻れない。左戻り不可はこの東進だけで保つ
+		// 南シフトはしない。帯は北へのみ進み破棄済みチャンクを再生成しないので、
+		// 到達した最南端より南へは戻れない。後戻り不可はこの北進だけで保つ
 		break
 	}
 	if shifted {
-		// Band の最終 eastIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
+		// Band の最終 northIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
 		// シフトのたびでなくループを抜けてから一度だけ同期する
-		query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
+		query.GetSeamlessBand(world).NorthIndex = dr.band.NorthIndex()
 	}
 	return shifted, nil
 }

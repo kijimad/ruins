@@ -10,30 +10,33 @@ import "github.com/kijimaD/ruins/internal/consts"
 // この余白ぶん広い表示範囲を描く。
 const MacroMargin consts.Chunk = 6
 
-// MacroRange はマクロ地図の表示範囲。左端の絶対チャンク列と、表示範囲の列数・行数をチャンク単位で持つ。
+// MacroRange はマクロ地図の表示範囲。左上端の絶対チャンク座標と、表示範囲の列数・行数をチャンク単位で持つ。
 type MacroRange struct {
 	OriginX consts.Chunk // 表示範囲の左端の絶対チャンク列
-	Cols    consts.Chunk // 表示範囲の列数
-	Rows    consts.Chunk // 表示範囲の行数。帯の Rows と同じ
+	OriginY consts.Chunk // 表示範囲の上端の絶対チャンク行
+	Cols    consts.Chunk // 表示範囲の列数。帯の Cols と同じ有界幅
+	Rows    consts.Chunk // 表示範囲の行数
 }
 
-// FullBandRange は帯全体を覆う表示範囲を帯のプリミティブから組む。東西へ MacroMargin ぶん広げ、
-// この先の地形を先読みできる。全画面の地形俯瞰図が使う。
-func FullBandRange(eastIndex, cols, rows consts.Chunk) MacroRange {
+// FullBandRange は帯全体を覆う表示範囲を帯のプリミティブから組む。南北へ MacroMargin ぶん広げ、
+// この先の地形を先読みできる。全画面の地形俯瞰図が使う。北は -Y なので北端は -northIndex。
+func FullBandRange(northIndex, cols, rows consts.Chunk) MacroRange {
 	return MacroRange{
-		OriginX: eastIndex - MacroMargin,
-		Cols:    cols + 2*MacroMargin,
-		Rows:    max(rows, 1),
+		OriginX: 0,
+		OriginY: -northIndex - MacroMargin,
+		Cols:    max(cols, 1),
+		Rows:    rows + 2*MacroMargin,
 	}
 }
 
-// PlayerCenteredRange はプレイヤーの絶対チャンク列を中心に、左右へ radius チャンクぶんの表示範囲を組む。
-// 縦は帯全体を見せる。HUD の右上地図が近傍だけを大きく描くために使う。
-func PlayerCenteredRange(centerCol, rows consts.Chunk, radius int) MacroRange {
+// PlayerCenteredRange はプレイヤーの絶対チャンク行を中心に、南北へ radius チャンクぶんの表示範囲を組む。
+// 横は帯全体を見せる。HUD の右上地図が近傍だけを大きく描くために使う。
+func PlayerCenteredRange(centerRow, cols consts.Chunk, radius int) MacroRange {
 	return MacroRange{
-		OriginX: centerCol - consts.Chunk(radius),
-		Cols:    consts.Chunk(2*radius + 1),
-		Rows:    max(rows, 1),
+		OriginX: 0,
+		OriginY: centerRow - consts.Chunk(radius),
+		Cols:    max(cols, 1),
+		Rows:    consts.Chunk(2*radius + 1),
 	}
 }
 
@@ -59,7 +62,7 @@ type MacroView struct {
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
 	runSeed uint64,
-	eastIndex consts.Chunk,
+	northIndex consts.Chunk,
 	chunkW, chunkH consts.Tile,
 	area MacroRange,
 	playerTile consts.Coord[consts.Tile],
@@ -67,18 +70,20 @@ func BuildMacroView(
 	cubeTiles []consts.Coord[consts.Tile],
 	discovered map[consts.Coord[consts.Chunk]]bool,
 ) MacroView {
+	cols := max(area.Cols, 1)
 	rows := max(area.Rows, 1)
 
-	// 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数
-	roads := buildRoadOverlay(runSeed, area, rows)
+	// 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
+	// ChunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
+	roads := buildRoadOverlay(runSeed, area, cols)
 
 	cells := make([][]MacroCell, rows)
 	for cy := range rows {
-		cells[cy] = make([]MacroCell, area.Cols)
-		for i := range area.Cols {
-			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: cy}
+		cells[cy] = make([]MacroCell, cols)
+		for i := range cols {
+			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
 			cells[cy][i] = MacroCell{
-				Glyph:      ChunkPlace(runSeed, c, rows),
+				Glyph:      ChunkPlace(runSeed, c, cols),
 				Discovered: discovered[c],
 				Road:       roads[c],
 			}
@@ -87,11 +92,13 @@ func BuildMacroView(
 
 	// toCell は帯ローカルなタイル座標を表示範囲ローカルのチャンクセルへ移す。表示範囲外なら ok=false。
 	// chunkW/chunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない。
+	// X は有界なので絶対チャンク列はタイルを幅で割るだけ。Y は北進ぶん負へずらした絶対チャンク行
 	toCell := func(t consts.Coord[consts.Tile]) (consts.Coord[consts.Chunk], bool) {
-		worldCol := eastIndex + consts.Chunk(int(t.X)/int(chunkW))
+		worldCol := consts.Chunk(int(t.X) / int(chunkW))
+		worldRow := consts.Chunk(int(t.Y)/int(chunkH)) - northIndex
 		col := worldCol - area.OriginX
-		row := consts.Chunk(int(t.Y) / int(chunkH))
-		if col >= 0 && col < area.Cols && row >= 0 && row < rows {
+		row := worldRow - area.OriginY
+		if col >= 0 && col < cols && row >= 0 && row < rows {
 			return consts.Coord[consts.Chunk]{X: col, Y: row}, true
 		}
 		return consts.Coord[consts.Chunk]{}, false

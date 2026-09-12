@@ -8,32 +8,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBandOriginX(t *testing.T) {
+func TestBandOriginY(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, consts.AbsTileX(0), worldstream.BandOriginX(0, 100), "eastIndex=0 は原点0")
-	assert.Equal(t, consts.AbsTileX(300), worldstream.BandOriginX(3, 100), "eastIndex*chunkW")
+	assert.Equal(t, consts.AbsTileY(0), worldstream.BandOriginY(0, 100), "northIndex=0 は原点0")
+	assert.Equal(t, consts.AbsTileY(-300), worldstream.BandOriginY(3, 100), "北は -Y なので -northIndex*chunkH")
 }
 
 func TestAbsLocalRoundTrip(t *testing.T) {
 	t.Parallel()
 
-	origin := worldstream.BandOriginX(2, 100) // 絶対原点 200
+	origin := worldstream.BandOriginY(2, 100) // 絶対原点 -200
 
-	abs := worldstream.ToAbs(origin, 37) // 200 + 37
-	assert.Equal(t, consts.AbsTileX(237), abs, "ローカル→絶対はオフセット加算")
+	abs := worldstream.ToAbsY(origin, 37) // -200 + 37
+	assert.Equal(t, consts.AbsTileY(-163), abs, "ローカル→絶対はオフセット加算")
 
-	local := worldstream.ToLocal(origin, abs)
+	local := worldstream.ToLocalY(origin, abs)
 	assert.Equal(t, consts.Tile(37), local, "絶対→ローカルで元に戻る")
 }
 
-// TestToLocal_絶対Xを帯ローカルへ は「絶対 X を帯内のローカル X に落とす」変換を固定する。
-func TestToLocal_絶対Xを帯ローカルへ(t *testing.T) {
+// TestToLocalY_絶対Yを帯ローカルへ は「絶対 Y を帯内のローカル Y に落とす」変換を固定する。
+func TestToLocalY_絶対Yを帯ローカルへ(t *testing.T) {
 	t.Parallel()
 
-	origin := worldstream.BandOriginX(5, 100) // 帯ローカル0 = 絶対500
-	absX := consts.AbsTileX(540)              // 帯の40タイル目
+	origin := worldstream.BandOriginY(5, 100) // 帯ローカル0 = 絶対-500
+	absY := consts.AbsTileY(-460)             // 帯の40タイル目
 
-	assert.Equal(t, consts.Tile(40), worldstream.ToLocal(origin, absX),
-		"絶対540は帯ローカル40に写る")
+	assert.Equal(t, consts.Tile(40), worldstream.ToLocalY(origin, absY),
+		"絶対-460は帯ローカル40に写る")
 }

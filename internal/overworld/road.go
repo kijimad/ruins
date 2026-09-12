@@ -20,9 +20,9 @@ type roadFeature struct{}
 // -roadWidth/2 から始めてわずかに片側へ寄せる。
 const roadWidth consts.Tile = 4
 
-func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
+func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	tiles := g.tiles.get()
-	for _, pair := range crossingRoads(runSeed, c, rows) {
+	for _, pair := range crossingRoads(runSeed, c, cols) {
 		if err := drawRoadSegments(world, tiles, pair[0], pair[1], c, g); err != nil {
 			return err
 		}

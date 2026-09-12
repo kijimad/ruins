@@ -48,12 +48,12 @@ var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementS
 // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。
 type settlementFeature struct{}
 
-func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-	if !settlementPlacement.At(runSeed, c, rows) {
+func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+	if !settlementPlacement.At(runSeed, c, cols) {
 		return nil
 	}
 	// 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
-	if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {
+	if _, _, _, ok := urbanRegionOf(runSeed, c, cols); ok {
 		return nil
 	}
 	center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
