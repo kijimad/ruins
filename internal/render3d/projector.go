@@ -106,6 +106,47 @@ func (p Projector) TileCorners(c consts.Coord[consts.Tile], height float64) ([4]
 	return out, true
 }
 
+// TileOnScreen はタイル c が画面に掛かるかを返す視錐台カリングの判定。基底 y=0 と天面 y=topHeight の
+// 8隅を投影し、そのスクリーン bbox が画面矩形と重なるかを見る。壁やビルボードは上へ伸びるので、
+// 天面の高さ topHeight を渡して縦の広がりも含める。
+//
+// 近平面をまたぐタイルは一部の隅がカメラ後方で投影が破綻するため、bbox を信じず保守的に描く。
+// 全隅がカメラ後方のときだけ確実に落とす。bbox はタイルの実クアッドを必ず包むので、映るタイルを
+// 誤って落とすことはなく、映らないタイルを稀に残すだけ。ゆえに描画結果は変わらない。
+func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) bool {
+	fx, fz := float64(c.X), float64(c.Y)
+	corners := [8]Vec{
+		{fx, 0, fz}, {fx + 1, 0, fz}, {fx + 1, 0, fz + 1}, {fx, 0, fz + 1},
+		{fx, topHeight, fz}, {fx + 1, topHeight, fz}, {fx + 1, topHeight, fz + 1}, {fx, topHeight, fz + 1},
+	}
+	behind := 0
+	front := false
+	var minX, minY, maxX, maxY float64
+	for _, v := range corners {
+		sp, ok := p.Point(v)
+		if !ok {
+			behind++
+			continue
+		}
+		x, y := float64(sp.X), float64(sp.Y)
+		if !front {
+			minX, maxX, minY, maxY = x, x, y, y
+			front = true
+			continue
+		}
+		minX, maxX = min(minX, x), max(maxX, x)
+		minY, maxY = min(minY, y), max(maxY, y)
+	}
+	if !front {
+		return false // 全隅がカメラ後方。確実に映らない
+	}
+	if behind > 0 {
+		return true // 近平面をまたぐ。bbox が壊れるので保守的に描く
+	}
+	sw, sh := float64(p.sw), float64(p.sh)
+	return maxX >= 0 && minX <= sw && maxY >= 0 && minY <= sh
+}
+
 // BillboardTop はタイルに立つ立て板の頭をスクリーン座標へ写す。
 // エンティティの上へ出すダメージテキストやHP表示の基準点にする。
 func (p Projector) BillboardTop(c consts.Coord[consts.Tile]) (consts.Coord[consts.ScreenPixel], bool) {
