@@ -82,12 +82,8 @@ type mainMenuItem struct {
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
-	var startFuncs []es.StateFactory[w.World]
-	if world.Resources.Config.SkipOpening {
-		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
-	} else {
-		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
-	}
+	// オープニングはキャラ作成後にゲーム画面へモーダルとして重ねる。開始スタックには積まない
+	startFuncs := []es.StateFactory[w.World]{NewCharacterNamingState}
 
 	t := func(msgid string) string { return query.T(world, msgid) }
 	items := []mainMenuItem{

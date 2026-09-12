@@ -49,6 +49,10 @@ type DungeonState struct {
 
 	// three は3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
 	three dungeon3D
+
+	// showOpening が真なら最初の Update で視界計算後にオープニングをモーダルとして重ねる。
+	// 一度重ねたら偽に落とし、再入では出さない。新規開始のときだけ character 作成側が立てる
+	showOpening bool
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
@@ -220,6 +224,13 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.AuctionSystem{},
 	); err != nil {
 		return es.Transition[w.World]{}, err
+	}
+
+	// 新規開始の初回のみ、視界計算後にオープニングをモーダルとして重ねる。
+	// このフレームで既に本編が1度 Update され背後に実プレイ画面が描けている
+	if st.showOpening {
+		st.showOpening = false
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewOpeningState}}, nil
 	}
 
 	// プレイヤー死亡チェック。死亡で run は終わり結果画面へ移る

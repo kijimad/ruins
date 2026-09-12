@@ -136,9 +136,11 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "M key: Open base menu."))).Log()
 	gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "Space key: Open action menu."))).Log()
 
+	// ゲーム画面へ遷移する。オープニングは本編が1フレーム走って視界を計算した後、
+	// overworld 自身がモーダルとして重ねる。目的を読む間は本編が背後で静止する
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
-		NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)},
+		NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world, !world.Resources.Config.SkipOpening)},
 	})
 
 	return st.ConsumeTransition(), nil

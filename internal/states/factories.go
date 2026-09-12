@@ -99,10 +99,21 @@ func NewDemoStartState() (es.State[w.World], error) {
 // 街を含むオーバーワールドを RunSeed から決定的生成し、プレイヤーは街から始まる。
 // キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。
 // 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
-func newGameOverworldState(world w.World) es.StateFactory[w.World] {
-	return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
+func newGameOverworldState(world w.World, showOpening bool) es.StateFactory[w.World] {
+	base := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
 		RunSeed: world.Resources.Config.RNG.Uint64(),
 	})
+	// オープニングは本編を1フレーム動かして視界を計算した後、overworld 自身が重ねる
+	return func() (es.State[w.World], error) {
+		state, err := base()
+		if err != nil {
+			return nil, err
+		}
+		if ds, ok := state.(*DungeonState); ok {
+			ds.showOpening = showOpening
+		}
+		return state, nil
+	}
 }
 
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
@@ -368,8 +379,8 @@ func NewOpeningState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 	// 翻訳は world を要するので OnStart でページを組む
 	messageState.build = func(world w.World) *messagedata.MessageData {
-		// 目的を1ページで簡潔に伝える。専用の背景素材はまだ無いので宇宙にも闇にも馴染む黒背景で通す
-		page := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
+		// 目的を1ページで簡潔に伝える。背景キーを持たせず、土台のゲーム画面へモーダルとして重ねる
+		page := &messagedata.MessageData{Speaker: ""}
 		page.AddMarkup(query.T(world, "You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nA relay station may still stand far to the <keyword>east</keyword>.\nReach it to <keyword>repair</keyword> the cube and <keyword>escape</keyword>."))
 		return page
 	}

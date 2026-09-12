@@ -56,7 +56,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 		}},
 		{Label: "Start overworld", Run: func(world w.World) (es.Transition[w.World], error) {
-			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)}}, nil
+			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world, false)}}, nil
 		}},
 	}
 

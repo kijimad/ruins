@@ -45,7 +45,7 @@ func (st *DemoStartState) OnStart(world w.World) error {
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
-		NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)},
+		NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world, false)},
 	})
 
 	return nil
