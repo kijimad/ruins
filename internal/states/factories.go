@@ -370,7 +370,7 @@ func NewOpeningState() (es.State[w.World], error) {
 	messageState.build = func(world w.World) *messagedata.MessageData {
 		// 目的を1ページで簡潔に伝える。専用の背景素材はまだ無いので宇宙にも闇にも馴染む黒背景で通す
 		page := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
-		page.AddMarkup(query.T(world, "You are a space traveler, stranded on a frozen planet after your cube broke down.\nA relay station may still stand far to the <keyword>east</keyword>. Reach it to <keyword>repair</keyword> the cube and <keyword>escape</keyword>."))
+		page.AddMarkup(query.T(world, "You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nA relay station may still stand far to the <keyword>east</keyword>.\nReach it to <keyword>repair</keyword> the cube and <keyword>escape</keyword>."))
 		return page
 	}
 	return messageState, nil
