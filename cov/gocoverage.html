@@ -365,7 +365,7 @@
 				
 				<option value="file154">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (64.1%)</option>
 				
-				<option value="file155">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.9%)</option>
+				<option value="file155">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.4%)</option>
 				
 				<option value="file156">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -455,7 +455,7 @@
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/render3d/geometry.go (96.6%)</option>
 				
-				<option value="file200">github.com/kijimaD/ruins/internal/render3d/projector.go (93.3%)</option>
+				<option value="file200">github.com/kijimaD/ruins/internal/render3d/projector.go (95.9%)</option>
 				
 				<option value="file201">github.com/kijimaD/ruins/internal/render3d/world.go (86.2%)</option>
 				
@@ -587,7 +587,7 @@
 				
 				<option value="file265">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file266">github.com/kijimaD/ruins/internal/systems/render3d.go (34.2%)</option>
+				<option value="file266">github.com/kijimaD/ruins/internal/systems/render3d.go (36.8%)</option>
 				
 				<option value="file267">github.com/kijimaD/ruins/internal/systems/render_sprite.go (5.1%)</option>
 				
@@ -719,7 +719,7 @@
 				
 				<option value="file331">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file332">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
+				<option value="file332">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
 				
 				<option value="file333">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -21745,7 +21745,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov8" title="1">return false
+                <span class="cov0" title="0">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -29621,6 +29621,47 @@ func (p Projector) TileCorners(c consts.Coord[consts.Tile], height float64) ([4]
                 <span class="cov8" title="1">out[i] = sp</span>
         }
         <span class="cov8" title="1">return out, true</span>
+}
+
+// TileOnScreen はタイル c が画面に掛かるかを返す視錐台カリングの判定。基底 y=0 と天面 y=topHeight の
+// 8隅を投影し、そのスクリーン bbox が画面矩形と重なるかを見る。壁やビルボードは上へ伸びるので、
+// 天面の高さ topHeight を渡して縦の広がりも含める。
+//
+// 近平面をまたぐタイルは一部の隅がカメラ後方で投影が破綻するため、bbox を信じず保守的に描く。
+// 全隅がカメラ後方のときだけ確実に落とす。bbox はタイルの実クアッドを必ず包むので、映るタイルを
+// 誤って落とすことはなく、映らないタイルを稀に残すだけ。ゆえに描画結果は変わらない。
+func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) bool {
+        <span class="cov8" title="1">fx, fz := float64(c.X), float64(c.Y)
+        corners := [8]Vec{
+                {fx, 0, fz}, {fx + 1, 0, fz}, {fx + 1, 0, fz + 1}, {fx, 0, fz + 1},
+                {fx, topHeight, fz}, {fx + 1, topHeight, fz}, {fx + 1, topHeight, fz + 1}, {fx, topHeight, fz + 1},
+</span>        }
+        <span class="cov8" title="1">behind := 0
+        front := false
+        var minX, minY, maxX, maxY float64
+        for _, v := range corners </span>{
+                <span class="cov8" title="1">sp, ok := p.Point(v)
+                if !ok </span>{
+                        <span class="cov8" title="1">behind++
+                        continue</span>
+                }
+                <span class="cov8" title="1">x, y := float64(sp.X), float64(sp.Y)
+                if !front </span>{
+                        <span class="cov8" title="1">minX, maxX, minY, maxY = x, x, y, y
+                        front = true
+                        continue</span>
+                }
+                <span class="cov8" title="1">minX, maxX = min(minX, x), max(maxX, x)
+                minY, maxY = min(minY, y), max(maxY, y)</span>
+        }
+        <span class="cov8" title="1">if !front </span>{
+                <span class="cov8" title="1">return false // 全隅がカメラ後方。確実に映らない
+</span>        }
+        <span class="cov8" title="1">if behind &gt; 0 </span>{
+                <span class="cov8" title="1">return true // 近平面をまたぐ。bbox が壊れるので保守的に描く
+</span>        }
+        <span class="cov8" title="1">sw, sh := float64(p.sw), float64(p.sh)
+        return maxX &gt;= 0 &amp;&amp; minX &lt;= sw &amp;&amp; maxY &gt;= 0 &amp;&amp; minY &lt;= sh</span>
 }
 
 // BillboardTop はタイルに立つ立て板の頭をスクリーン座標へ写す。
@@ -40852,7 +40893,6 @@ func hungerNoise(entity ecs.Entity, turn consts.Turn) uint64 {
 import (
         "image"
         "image/color"
-        "math"
         "sort"
         "sync"
 
@@ -40875,6 +40915,12 @@ type Render3DSystem struct {
         // 本番のダンジョンでは true、部屋全体を見せたいデモでは false にする。
         // TODO: この切り替えは system でなく設定で保持する。設計は docs/design/260822112145.md
         UseFOV bool
+
+        // 毎フレーム作り直さず使い回す描画バッファ。容量がフレーム間で保たれるので確保・コピー・GC を
+        // 起こさない。Draw は単一ゴルーチンなので共有して安全。
+        quads []r3quad
+        verts []ebiten.Vertex
+        inds  []uint16
 }
 
 // String は w.Renderer を満たす。
@@ -40892,9 +40938,6 @@ type r3quad struct {
         // depth は画家ソートの副キー。quad は元エンティティを持たないので、立て板を作るときにSpriteRender.Depth をここへ焼き込む
         depth int
 }
-
-// r3cullRadius はプレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
-const r3cullRadius = 60.0
 
 // dayOverbright* は屋外の日照が強いほどタイルの明るさを乗算の天井 1.0 超へ持ち上げる帯。
 // テクスチャ本来の明るさを越えて晴天らしく明るく見せる。dayOverbrightLow 以下では持ち上げない。
@@ -41024,17 +41067,15 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, render3d.Projector{}, err
 </span>        }
-        <span class="cov8" title="1">center, err := render3d.PlayerTile(world)
-        if err != nil </span>{
-                <span class="cov0" title="0">return nil, render3d.Projector{}, err
-</span>        }
-        <span class="cov8" title="1">pcx, pcz := float64(center.X), float64(center.Y)
-</span>
+
         <span class="cov8" title="1">visTint := sys.visTintFunc(world)
-        quads := sys.collectTiles(world, pcx, pcz, visTint)
-        quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visTint)
+</span>        // 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
+        <span class="cov8" title="1">quads := sys.collectTiles(world, sys.quads[:0], projector, visTint)
+        quads = sys.collectBillboards(world, quads, projector, visTint)
 </span>        // 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
         <span class="cov8" title="1">quads = sys.collectDecorations(world, quads, projector)
+</span>        // 戻り値は sys.quads と同一スライス。emit がそのまま辿り、次フレームは [:0] で容量を使い回す
+        <span class="cov8" title="1">sys.quads = quads
         return quads, projector, nil</span>
 }
 
@@ -41088,16 +41129,16 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
         }
 }
 
-// collectTiles は床と壁のクアッドを集める。
-func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visTint tintFunc) []r3quad {
-        <span class="cov8" title="1">var quads []r3quad
-        walls := render3d.WallTileSet(world)
+// collectTiles は床と壁のクアッドを quads へ追記して返す。
+func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
+        <span class="cov8" title="1">walls := render3d.WallTileSet(world)
         tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
         for tileQ.Next() </span>{
                 <span class="cov0" title="0">e := tileQ.Entity()
                 g := world.Components.GridElement.Get(e)
                 fx, fz := float64(g.X), float64(g.Y)
-                if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius </span>{
+</span>                // 画面に掛からない升はクアッドを積む前に落とす。壁は上へ伸びるので天面 WallHeight まで含める
+                <span class="cov0" title="0">if !projector.TileOnScreen(g.Coord, render3d.WallHeight) </span>{
                         <span class="cov0" title="0">continue</span>
                 }
                 <span class="cov0" title="0">sr := world.Components.SpriteRender.Get(e)
@@ -41138,14 +41179,16 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visTint tintFunc) []r3quad {
-        // 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
+        <span class="cov8" title="1">right := projector.Right()
+</span>        // 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま
         <span class="cov8" title="1">objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile](), ecs.C[gc.Driving]()).Query()
         for objQ.Next() </span>{
                 <span class="cov8" title="1">e := objQ.Entity()
                 g := world.Components.GridElement.Get(e)
                 fx, fz := float64(g.X), float64(g.Y)
-                if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius </span>{
+</span>                // 立て板は上へ伸びるので天面 BillboardHeight まで含めて画面掛かりを判定する
+                <span class="cov8" title="1">if !projector.TileOnScreen(g.Coord, render3d.BillboardHeight) </span>{
                         <span class="cov0" title="0">continue</span>
                 }
                 <span class="cov8" title="1">sr := world.Components.SpriteRender.Get(e)
@@ -41175,6 +41218,8 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 }
 
 // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。
+// クアッドを物理的に並べ替えるので、続く emit は連続アクセスで辿れる。添字ソートは emit が
+// ランダムアクセスになりキャッシュミスで却って遅くなるため採らない。
 func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {
         <span class="cov8" title="1">for i := range quads </span>{
                 <span class="cov8" title="1">c := render3d.Vec{}
@@ -41193,12 +41238,13 @@ func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {
         })
 }
 
-// emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。
+// emit はクアッドを奥行き順の添字で辿り、アトラスが変わる境目でバッチに分けて描く。
+// 頂点バッファはフレーム間で使い回す。
 func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {
         <span class="cov0" title="0">sortQuadsByDepth(quads, projector.Depth)
 </span>
-        <span class="cov0" title="0">var verts []ebiten.Vertex
-        var inds []uint16
+        <span class="cov0" title="0">verts := sys.verts[:0]
+        inds := sys.inds[:0]
         var curAtlas *ebiten.Image
         flush := func() </span>{
                 <span class="cov0" title="0">if len(inds) == 0 || curAtlas == nil </span>{
@@ -41218,7 +41264,9 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector 
 </span>                }
                 <span class="cov0" title="0">sys.emitQuad(&amp;verts, &amp;inds, q, projector.Point)</span>
         }
-        <span class="cov0" title="0">flush()</span>
+        <span class="cov0" title="0">flush()
+        sys.verts = verts
+        sys.inds = inds</span>
 }
 
 // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。
@@ -49712,7 +49760,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する

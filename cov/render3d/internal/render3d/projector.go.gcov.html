@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.7&nbsp;%</td>
-            <td class="headerCovTableEntry">53</td>
-            <td class="headerCovTableEntry">47</td>
+            <td class="headerCovTableEntryHi">92.6&nbsp;%</td>
+            <td class="headerCovTableEntry">81</td>
+            <td class="headerCovTableEntry">75</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-12 09:25:15</td>
+            <td class="headerValue">2026-09-12 13:10:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -168,22 +168,63 @@
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         return out, true</span></span>
 <span id="L107"><span class="lineNum">     107</span>              : }</span>
 <span id="L108"><span class="lineNum">     108</span>              : </span>
-<span id="L109"><span class="lineNum">     109</span>              : // BillboardTop はタイルに立つ立て板の頭をスクリーン座標へ写す。</span>
-<span id="L110"><span class="lineNum">     110</span>              : // エンティティの上へ出すダメージテキストやHP表示の基準点にする。</span>
-<span id="L111"><span class="lineNum">     111</span>              : func (p Projector) BillboardTop(c consts.Coord[consts.Tile]) (consts.Coord[consts.ScreenPixel], bool) {</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         return p.Point(Vec{float64(c.X) + 0.5, BillboardHeight, float64(c.Y) + 0.5})</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L114"><span class="lineNum">     114</span>              : </span>
-<span id="L115"><span class="lineNum">     115</span>              : // BillboardScale は立て板1枚分の高さが画面上で何ピクセルになるかを返す。</span>
-<span id="L116"><span class="lineNum">     116</span>              : // 立て板と同じ大きさで重ねたいスプライトの拡大率を決めるのに使う。投影できなければ ok=false。</span>
-<span id="L117"><span class="lineNum">     117</span>              : func (p Projector) BillboardScale(c consts.Coord[consts.Tile]) (float64, bool) {</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         top, okTop := p.BillboardTop(c)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         base, okBase := p.TileCenter(c, 0)</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         if !okTop || !okBase {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, false</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC tlaBgGNC">           1 :         return math.Abs(float64(base.Y - top.Y)), true</span></span>
-<span id="L124"><span class="lineNum">     124</span>              : }</span>
+<span id="L109"><span class="lineNum">     109</span>              : // TileOnScreen はタイル c が画面に掛かるかを返す視錐台カリングの判定。基底 y=0 と天面 y=topHeight の</span>
+<span id="L110"><span class="lineNum">     110</span>              : // 8隅を投影し、そのスクリーン bbox が画面矩形と重なるかを見る。壁やビルボードは上へ伸びるので、</span>
+<span id="L111"><span class="lineNum">     111</span>              : // 天面の高さ topHeight を渡して縦の広がりも含める。</span>
+<span id="L112"><span class="lineNum">     112</span>              : //</span>
+<span id="L113"><span class="lineNum">     113</span>              : // 近平面をまたぐタイルは一部の隅がカメラ後方で投影が破綻するため、bbox を信じず保守的に描く。</span>
+<span id="L114"><span class="lineNum">     114</span>              : // 全隅がカメラ後方のときだけ確実に落とす。bbox はタイルの実クアッドを必ず包むので、映るタイルを</span>
+<span id="L115"><span class="lineNum">     115</span>              : // 誤って落とすことはなく、映らないタイルを稀に残すだけ。ゆえに描画結果は変わらない。</span>
+<span id="L116"><span class="lineNum">     116</span>              : func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) bool {</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         fx, fz := float64(c.X), float64(c.Y)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         corners := [8]Vec{</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 {fx, 0, fz}, {fx + 1, 0, fz}, {fx + 1, 0, fz + 1}, {fx, 0, fz + 1},</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 {fx, topHeight, fz}, {fx + 1, topHeight, fz}, {fx + 1, topHeight, fz + 1}, {fx, topHeight, fz + 1},</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         behind := 0</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         front := false</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         var minX, minY, maxX, maxY float64</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         for _, v := range corners {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 sp, ok := p.Point(v)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                         behind++</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L130"><span class="lineNum">     130</span>              :                 }</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 x, y := float64(sp.X), float64(sp.Y)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 if !front {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         minX, maxX, minY, maxY = x, x, y, y</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                         front = true</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L136"><span class="lineNum">     136</span>              :                 }</span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 minX, maxX = min(minX, x), max(maxX, x)</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 minY, maxY = min(minY, y), max(maxY, y)</span></span>
+<span id="L139"><span class="lineNum">     139</span>              :         }</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         if !front {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 return false // 全隅がカメラ後方。確実に映らない</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         if behind &gt; 0 {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 return true // 近平面をまたぐ。bbox が壊れるので保守的に描く</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         sw, sh := float64(p.sw), float64(p.sh)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         return maxX &gt;= 0 &amp;&amp; minX &lt;= sw &amp;&amp; maxY &gt;= 0 &amp;&amp; minY &lt;= sh</span></span>
+<span id="L148"><span class="lineNum">     148</span>              : }</span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span>              : // BillboardTop はタイルに立つ立て板の頭をスクリーン座標へ写す。</span>
+<span id="L151"><span class="lineNum">     151</span>              : // エンティティの上へ出すダメージテキストやHP表示の基準点にする。</span>
+<span id="L152"><span class="lineNum">     152</span>              : func (p Projector) BillboardTop(c consts.Coord[consts.Tile]) (consts.Coord[consts.ScreenPixel], bool) {</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return p.Point(Vec{float64(c.X) + 0.5, BillboardHeight, float64(c.Y) + 0.5})</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L155"><span class="lineNum">     155</span>              : </span>
+<span id="L156"><span class="lineNum">     156</span>              : // BillboardScale は立て板1枚分の高さが画面上で何ピクセルになるかを返す。</span>
+<span id="L157"><span class="lineNum">     157</span>              : // 立て板と同じ大きさで重ねたいスプライトの拡大率を決めるのに使う。投影できなければ ok=false。</span>
+<span id="L158"><span class="lineNum">     158</span>              : func (p Projector) BillboardScale(c consts.Coord[consts.Tile]) (float64, bool) {</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         top, okTop := p.BillboardTop(c)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         base, okBase := p.TileCenter(c, 0)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if !okTop || !okBase {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, false</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 :         return math.Abs(float64(base.Y - top.Y)), true</span></span>
+<span id="L165"><span class="lineNum">     165</span>              : }</span>
         </pre>
               </td>
             </tr>
