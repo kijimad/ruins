@@ -115,94 +115,70 @@ jobs:
       - name: grill changed tests
         run: make grill-branch
 
-  bench:
-    # main と PR のベンチを並列レグで走らせ、それぞれ結果を artifact に上げる。base と PR を別ジョブに
-    # 分けることで直列実行の待ち時間が半分になる。count=6 で実行時間が伸びるぶん効く。
+  bench-compare:
+    # main と PR のベンチを同一 runner で順に走らせ比較する。sticky コメント表示、sec/op の geomean が
+    # 2倍以上悪化したら失敗させる。
+    #
+    # 並列ジョブに分けると base と PR が別 CPU のホストランナーに載りうる。benchstat は cpu: を設定キーに
+    # 行をまとめるので、CPU が違うと横並び比較にならず vs base も gate も出ない。そもそも別 CPU 同士の
+    # time 比較は無効なので、比較の正しさを優先して同一 runner の直列で両方を測る。
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    # 全ベンチ×6サンプルが長引いたとき、runner 回収でなく明示的なタイムアウトで legible に落とす
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    strategy:
-      # 片側が落ちても他方は完走させる。compare 側で base 欠落を PR のみ表示へ倒すため
-      fail-fast: false
-      matrix:
-        include:
-          - side: pr
-            ref: ${{ github.event.pull_request.head.sha }}
-          - side: base
-            ref: ${{ github.event.pull_request.base.ref }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ matrix.ref }}
-      - uses: ./.github/actions/setup-go-with-x
-      - name: run benchmark (${{ matrix.side }})
-        # GOFLAGS で go test へ -count=6 -benchtime=100ms を渡す。環境変数なので base 側の Makefile を
-        # 変えずに効く。benchstat の信頼区間は6サンプルの平均から出るので、各サンプルの実行時間まで既定の
-        # 1秒に張る必要はない。-benchtime=100ms で反復を絞り、全ベンチ×6でも数分で終わらせる。長時間ジョブは
-        # runner 回収で落ちやすいので、完走の確実さを個々のサンプル精度より優先する。粗い geomean 2x gate は
-        # このノイズを許容する。各レグは自分の checkout で top-level 実行なので、直列版で必要だった -C 由来の
-        # "make: Entering directory" 対策は要らない。
-        env:
-          GOFLAGS: -count=6 -benchtime=100ms
-        run: make bench > bench-${{ matrix.side }}.txt
-      - name: record commit
-        # ベンチが落ちても実行コミットは記録し、compare 側の表示を保つ
-        if: always()
-        run: git rev-parse --short HEAD > bench-${{ matrix.side }}.sha
-      - uses: actions/upload-artifact@v4
-        # 途中失敗でも sha と部分結果を上げ、内容の検証は compare 側に委ねる
-        if: always()
-        with:
-          name: bench-${{ matrix.side }}
-          path: bench-${{ matrix.side }}.*
-          if-no-files-found: ignore
-
-  bench-compare:
-    # 並列ジョブの結果を突き合わせ、sticky コメント表示、sec/op の geomean が2倍以上悪化したら失敗させる。
-    needs: bench
-    # bench のどちらかが落ちても比較コメントは出す。base 欠落なら PR のみ表示へ倒す
-    if: ${{ always() && github.event_name == 'pull_request' }}
-    runs-on: ubuntu-latest
+    # base+PR を直列で回すと長引くので、runner 回収でなく明示的タイムアウトで legible に落とす
+    timeout-minutes: 25
     permissions:
       contents: read
       pull-requests: write # sticky コメント投稿用
     steps:
-      - uses: actions/checkout@v7 # setup-go と benchstat 用にリポジトリが要る
+      # base と PR を同一 runner に checkout する。同一 CPU で測るのが比較の前提
+      - uses: actions/checkout@v7 # PR を作業ルートに
+      - uses: actions/checkout@v7 # ベースを _base/ に
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          path: _base
       - uses: ./.github/actions/setup-go-with-x
-      - uses: actions/download-artifact@v4
-        with:
-          name: bench-pr
-          path: .
-      - uses: actions/download-artifact@v4
-        # base レグが失敗すると artifact が無いことがある。落とさず PR のみ表示へ倒す
-        continue-on-error: true
-        with:
-          name: bench-base
-          path: .
+      - name: run benchmarks (PR and base)
+        # GOFLAGS で go test へ -count=6 -benchtime=100ms を渡す。環境変数なので base 側の Makefile を
+        # 変えずに効く。benchstat の信頼区間は6サンプルの平均から出るので、各サンプルの実行時間まで既定の
+        # 1秒に張る必要はない。-benchtime=100ms で反復を絞り、全ベンチ×6でも OOM せず数分で終わる。
+        # 粗い geomean 2x gate はこのノイズを許容する。
+        env:
+          GOFLAGS: -count=6 -benchtime=100ms
+        run: |
+          # PRブランチで bench を実行する
+          make bench > pr.txt
+          # ベースブランチで bench を実行する。
+          # -s 必須: -C は top-level でも "make: Entering/Leaving directory" を stdout に出し、
+          # benchstat がそれを "make:" 設定行と誤解釈して base 側ベンチの突き合わせが壊れる。
+          # -s はこのメッセージも recipe echo も両方抑止する。
+          if ! make -s -C _base bench > base.txt 2> base_err.txt; then
+            echo "::warning::base のベンチ取得に失敗しました。比較をスキップします"
+            sed 's/^/base bench err: /' base_err.txt || true
+            # 途中クラッシュした base は部分データが残り、grep '^Benchmark' を通過して
+            # 切り詰めた base との誤比較を生む。失敗した base は破棄し PR のみ表示へ確実に倒す。
+            : > base.txt
+          fi
       - name: compare
         id: cmp
         run: |
           # 途中でクラッシュしても sticky comment ステップがファイル無しで失敗しないよう保証する
           touch cmp.md
           bad=
-          # 実際にベンチを実行した commit を表示する。sha は各レグが artifact に含める
+          # 実際にベンチを実行した commit を表示する
           REPO_URL="${{ github.server_url }}/${{ github.repository }}"
-          PR_SHA=$(cat bench-pr.sha 2>/dev/null || echo unknown)
-          BASE_SHA=$(cat bench-base.sha 2>/dev/null || echo unknown)
+          PR_SHA=$(git rev-parse --short HEAD)
+          BASE_SHA=$(git -C _base rev-parse --short HEAD 2>/dev/null || echo unknown)
           SHA_LINE="> 実行コミット: base [\`${BASE_SHA}\`](${REPO_URL}/commit/${BASE_SHA}) → PR [\`${PR_SHA}\`](${REPO_URL}/commit/${PR_SHA})"
           # benchstat -format csv の geomean 行は次の形:
           #   ,sec/op,CI,sec/op,CI,vs base,P        ← metric ヘッダ行（$1="" $2=metric）
           #   geomean,<base値>,,<pr値>,,+200.00%,    ← $1=geomean $2=base $4=pr
           # コメントは常に details で畳む。退化を検出したときだけ open で開き見逃さない。
           # summary 内で状態が読めるよう、見出しと退化有無を1行に出す
-          if grep -q '^Benchmark' bench-base.txt 2>/dev/null; then
+          if grep -q '^Benchmark' base.txt 2>/dev/null; then
             # sec/op の geomean が2倍以上悪化したパッケージを検出する。
             # 個別ベンチはノイズで簡単に2倍になり誤発火するため、集約値の geomean で判定する。
             # geomean が2倍動くには大半のベンチが劣化する必要がある。
-            bad=$(go tool benchstat -format csv bench-base.txt bench-pr.txt 2>/dev/null | awk -F, '
+            bad=$(go tool benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
               $1=="" && $2!="" { metric=$2; next }
               $1=="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
                 printf "- geomean: x%.2f\n", $4/$2 }')
@@ -214,15 +190,15 @@ jobs:
             # summary 直後と閉じタグ前の空行は details 内の Markdown を描画させるため必須
             { echo "<details${open_attr}><summary>${summary}</summary>";
               echo "";
-              echo "$SHA_LINE"; echo '```'; go tool benchstat bench-base.txt bench-pr.txt; echo '```';
+              echo "$SHA_LINE"; echo '```'; go tool benchstat base.txt pr.txt; echo '```';
               echo ""; echo '</details>'; } > cmp.md
           else
-            # base 側にベンチが無い（初回PR・リネーム・base レグ失敗等）場合、 PR のみ表示し比較不可を明示する
+            # base 側にベンチが無い（初回PR・リネーム・base ビルド失敗等）場合、 PR のみ表示し比較不可を明示する
             { echo '<details><summary>📊 ベンチ (PR のみ・base と比較不可)</summary>';
               echo "";
               echo "$SHA_LINE";
               echo '> base 側に比較対象のベンチが取得できなかったため、今回は PR の数値のみ表示します。';
-              echo '```'; go tool benchstat bench-pr.txt; echo '```';
+              echo '```'; go tool benchstat pr.txt; echo '```';
               echo ""; echo '</details>'; } > cmp.md
           fi
           # CI ログで生成した Markdown を確認する
