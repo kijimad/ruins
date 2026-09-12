@@ -50,7 +50,7 @@ type DungeonState struct {
 	// three は3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
 	three dungeon3D
 
-	// showOpening は新規開始のときだけ character 作成側が true にする。初回 Update で重ねた後は false にし、再入では出さない
+	// showOpening は newGameOverworldState が config.SkipOpening から決める。初回 Update で重ねた後は false にし、再入では出さない
 	showOpening bool
 }
 

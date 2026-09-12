@@ -99,10 +99,11 @@ func NewDemoStartState() (es.State[w.World], error) {
 // 街を含むオーバーワールドを RunSeed から決定的生成し、プレイヤーは街から始まる。
 // キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。
 // 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
-func newGameOverworldState(world w.World, showOpening bool) es.StateFactory[w.World] {
+func newGameOverworldState(world w.World) es.StateFactory[w.World] {
 	base := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
 		RunSeed: world.Resources.Config.RNG.Uint64(),
 	})
+	showOpening := !world.Resources.Config.SkipOpening
 	return func() (es.State[w.World], error) {
 		state, err := base()
 		if err != nil {
