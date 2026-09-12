@@ -116,8 +116,9 @@ jobs:
         run: make grill-branch
 
   bench-compare:
-    # main と PR のベンチを同一 runner で順に走らせ比較する。sticky コメント表示、sec/op の geomean が
-    # 2倍以上悪化したら失敗させる。base と PR を同一 CPU で測らないと benchstat が比較できないので直列にする。
+    # main と PR のベンチを同一 runner で順に走らせて比較する。結果を sticky コメントへ出し、sec/op の
+    # geomean が2倍以上悪化したら失敗させる。別 runner では別 CPU に載って時間比較が無意味になるため、
+    # 同一 CPU で測れるよう直列にする。
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     # 直列で長引いたとき runner 回収でなく明示的タイムアウトで落とす
