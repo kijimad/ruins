@@ -74,7 +74,7 @@ func TestApplyInjury_判定に外れると付かない(t *testing.T) {
 	}
 }
 
-func TestApplyInjury_同種の怪我はソフト上限で頭打ち(t *testing.T) {
+func TestApplyInjury_同種の怪我は1部位に1つで頭打ち(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
