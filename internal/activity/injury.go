@@ -14,8 +14,8 @@ const (
 	injuryChancePercent = 15
 	// injuryInitialTimer は付いた怪我の初期進行度。発症する 25 以上にして即座に効かせる
 	injuryInitialTimer = 40
-	// maxInjuriesPerPartType は1部位に積める同種の怪我の上限。独立傷が溢れないようにする
-	maxInjuriesPerPartType = 3
+	// maxInjuriesPerPartType は1部位に付く同種の怪我の上限。種類が違えば共存する
+	maxInjuriesPerPartType = 1
 )
 
 // injuryTypeFor は武器種から怪我の種類を導く。鈍器は骨折、刃と弾は切り傷。
@@ -29,9 +29,9 @@ func injuryTypeFor(attackType gc.AttackType) gc.ConditionType {
 	}
 }
 
-// applyInjury は命中時に確率で命中部位へ独立した怪我を1つ付ける。
+// applyInjury は命中時に確率で命中部位へ怪我を1つ付ける。
 // 怪我の種類は武器種から導き、命中部位は部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
-// 同じ部位に同種の怪我がソフト上限に達していれば付けない。独立に積むので身体機能と失血は全傷が合算される
+// 同じ部位に同種の怪我が既にあれば付けない。種類や部位が違う傷は独立で、身体機能と失血は全傷が合算される
 func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	if !world.Components.HealthStatus.Has(target) {
 		return
