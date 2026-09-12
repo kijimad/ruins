@@ -43,7 +43,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var ambientTempVisible bool
 	var ambientTempColor color.RGBA
 	var ambientShelterLabel string
-	// オーバーワールドでは階層番号の代わりに、湧き位置からの北への奥行きを出す
+	// オーバーワールドでは階層番号の代わりに、湧き位置からの北への奥行きを出す。
+	// northDepth はプレイヤー位置から導くので下のプレイヤーループ内でのみ代入する。
+	// プレイヤー不在時はゼロ値のままだが、その状況で HUD へ出しても起点の 0 で無害
 	onOverworld := query.IsOnOverworld(world)
 	var northDepth int
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()

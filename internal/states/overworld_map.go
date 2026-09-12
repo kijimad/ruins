@@ -59,8 +59,10 @@ func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
 // overworldMapCell は帯の行数からセル寸法を決める。見出し・凡例のぶんを足した行数で内側高さを割り、
 // 大きめのセルへ寄せる。帯が短いと巨大化するので上限で止める。
 func overworldMapCell(inner image.Rectangle, cols consts.Chunk) consts.ScreenPixel {
-	// 北進帯は縦に伸びるので、有界の cols 列をモーダル幅に収める大きさにする
-	cell := min(max(inner.Dx()/(int(cols)+3), overworldMapMinCell), overworldMapMaxCell)
+	// 北進帯は縦に伸びるので、有界の cols 列をモーダル幅に収める大きさにする。
+	// cols<=0 の退化入力でもゼロ除算しないよう、関数内で 1 以上へ丸めてから割る
+	denom := max(int(cols), 1) + 3
+	cell := min(max(inner.Dx()/denom, overworldMapMinCell), overworldMapMaxCell)
 	return consts.ScreenPixel(cell)
 }
 

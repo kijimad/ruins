@@ -118,9 +118,13 @@ const (
 // 奥行きは中央行の絶対チャンク Y から現在地の絶対チャンク Y を引いた差になる。
 func NorthDepthChunks(world w.World, y consts.Tile) int {
 	sb := GetSeamlessBand(world)
-	if sb == nil || sb.ChunkH <= 0 {
+	// ChunkH<=0 はゼロ除算を、Rows<=0 は SpawnChunkY の起点が壊れるのを防ぐ。帯が正しく生成されていれば
+	// どちらも正だが、未初期化の SeamlessBand を渡された退化ケースを起点計算より前に弾く
+	if sb == nil || sb.ChunkH <= 0 || sb.Rows <= 0 {
 		return 0
 	}
+	// 絶対 Y は北側で負になりうるので floorDivInt でチャンク境界を連続させる。プレイヤーがチャンク境界
+	// ちょうどに居ても、MaybeShift が Player フェーズの安定点で中央行へ収束させるので飛びは起きない
 	currentChunkY := floorDivInt(int(sb.LocalToAbsY(y)), int(sb.ChunkH))
 	// 起点は湧き位置の中央行。SeamlessBand が「湧き位置はどの行か」の唯一の出どころ
 	if depth := int(sb.SpawnChunkY()) - currentChunkY; depth > 0 {
@@ -133,7 +137,8 @@ func NorthDepthChunks(world w.World, y consts.Tile) int {
 // Go の / のゼロ方向丸めを床方向へ補正してチャンク境界を連続させる。
 //
 // overworld.floorDiv が consts.Chunk 版の同じロジックを持つ。query と overworld は依存方向が別で
-// 共通 leaf に出すと循環するため、int 版をここに置き重複を許容する。
+// 共通 leaf に出すと循環するため、int 版をここに置き重複を許容する。3つ目の利用者が現れたら
+// consts か独立した数値 leaf への切り出しを検討する。
 func floorDivInt(a, b int) int {
 	q := a / b
 	if (a%b != 0) && ((a < 0) != (b < 0)) {

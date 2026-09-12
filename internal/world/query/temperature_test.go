@@ -24,6 +24,16 @@ func TestNorthDepthChunks(t *testing.T) {
 		assert.Equal(t, 0, query.NorthDepthChunks(world, 45), "帯データが無ければ奥行きは0")
 	})
 
+	t.Run("退化した帯は0を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
+		// ChunkH=0 はゼロ除算を、Rows=0 は起点計算をそれぞれ壊すので、退化入力は0で弾く
+		sb.ChunkH, sb.Rows = 0, 0
+		assert.Equal(t, 0, query.NorthDepthChunks(world, 45), "ChunkH=0/Rows=0 の退化帯は0")
+	})
+
 	t.Run("湧き位置を起点に奥行きを測る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
