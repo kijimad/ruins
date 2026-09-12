@@ -12,27 +12,27 @@ func TestDangerLevel(t *testing.T) {
 
 	t.Run("0日目は最小の1", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 1, dangerLevel(0))
+		assert.Equal(t, 1, DangerLevelForDay(0))
 	})
 
 	t.Run("負の日数も1に丸める", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 1, dangerLevel(-5))
+		assert.Equal(t, 1, DangerLevelForDay(-5))
 	})
 
 	t.Run("dangerDaysPerLevel未満はまだ1段目", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 1, dangerLevel(dangerDaysPerLevel-1))
+		assert.Equal(t, 1, DangerLevelForDay(dangerDaysPerLevel-1))
 	})
 
 	t.Run("dangerDaysPerLevel経過でちょうど1段上がる", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 2, dangerLevel(dangerDaysPerLevel))
+		assert.Equal(t, 2, DangerLevelForDay(dangerDaysPerLevel))
 	})
 
 	t.Run("複数段の経過も比例して上がる", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 4, dangerLevel(dangerDaysPerLevel*3))
+		assert.Equal(t, 4, DangerLevelForDay(dangerDaysPerLevel*3))
 	})
 }
 
