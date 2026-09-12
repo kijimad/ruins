@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [北進サバイバル。寒冷勾配・深部施設・キューブ修理でクリアする](docs/design/260912190416.md) | 0/6 | worldgen, gamedesign |
 
 
 ## Reference
