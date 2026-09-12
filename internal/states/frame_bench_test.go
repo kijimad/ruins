@@ -8,9 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	gs "github.com/kijimaD/ruins/internal/states"
-	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -65,28 +65,28 @@ func BenchmarkDungeonFrame(b *testing.B) {
 	}
 }
 
-// BenchmarkTurn は実ダンジョンで1ゲームターン全体の実時間を測る。vrt.InitReplayWorld と es.Init で
-// 本番のシステム登録込みのワールドを組み、TurnSystem を Phase=AI にして Update を2回回すと、
-// AI フェーズと End フェーズが走って1ターンが確定する。
+// BenchmarkTurn は実ダンジョンで1ゲームターン全体の実時間を測る。InputSource に待機アクションを流し、
+// 入力処理も TurnSystem も含む実フレーム sm.Update を、ターン番号が1つ進むまで回す。内部を直接いじらず
+// 実プレイと同じ経路でターンを進めるので、入力・行動・AI・ターン末を丸ごと計測できる。
+//
+// 反復ごとにワールドが1ターン進み状態は累積する。実プレイの流れを測るため毎回リセットしない。
 func BenchmarkTurn(b *testing.B) {
 	for _, bld := range benchDungeons {
 		world := vrt.InitReplayWorld(b)
 		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
 		require.NoError(b, err)
-		// 数フレーム回して世界を落ち着かせてから測る
+		// 毎フレーム待機を供給し、プレイヤーが行動してターンが進むようにする
+		world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionWait, true }
 		for range 5 {
 			require.NoError(b, sm.Update(world))
 		}
 
-		turnState := query.GetTurnState(world)
-		sys := &systems.TurnSystem{}
-
 		b.Run(bld.name, func(b *testing.B) {
-			// 反復ごとにワールドが1ターン進み状態は累積する。実プレイの流れを測るため毎回リセットしない
 			for range b.N {
-				turnState.Phase = gc.TurnPhaseAI
-				require.NoError(b, sys.Update(world)) // AI フェーズ -> End へ
-				require.NoError(b, sys.Update(world)) // End フェーズ -> Player へ。ターンが1つ確定する
+				start := query.GetTurnState(world).TurnNumber
+				for query.GetTurnState(world).TurnNumber == start {
+					require.NoError(b, sm.Update(world))
+				}
 			}
 		})
 	}
