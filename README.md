@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| accepted | [バランスベースライン。目標×導出×照合のゲート化](docs/design/260913002926.md) | 0/6 | gamedesign |
 
 
 ## Reference
