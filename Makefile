@@ -98,8 +98,7 @@ toolsinstall: ## 開発ツールをインストールする
 	@./scripts/setup-hooks.sh
 
 .PHONY: balance
-# balance は check に含めない。dot の更新後は手動で make balance を実行して SVG を再生成する。
-# CI へ組み込むなら dot -Tsvg の出力と docs/balance/ruins_balance.svg の diff で整合を検査する
+# balance は check に含めない。dot を更新したら手動で make balance を実行して SVG を再生成する
 balance: ## ゲームバランス交換性マップを docs/balance/ruins_balance.dot から生成する
 	@command -v dot >/dev/null 2>&1 || { echo "dot が必要です。graphviz を入れてください" >&2; exit 1; }
 	@dot -Tsvg docs/balance/ruins_balance.dot -o docs/balance/ruins_balance.svg

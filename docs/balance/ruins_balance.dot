@@ -1,9 +1,6 @@
 // ruins ゲームバランス パラメータ交換性マップ (Graphviz DOT)
-// この図の正典ソース。ノード/辺を直接編集し、リポジトリルートで make balance を実行して図を出力する。
-// 数値の正典はコードの const・raw 値で、この図は手で同期する派生ビュー。食い違ったらコードが正。
-// 配置と矢印経路は dot が自動で引く。プレビューPNGが要るときは次を使う。
-//   make balance
-//   dot -Tpng docs/balance/ruins_balance.dot -o /tmp/preview.png
+// ノード/辺を直接編集し、リポジトリルートで make balance を実行して SVG を出力する。
+// 数値の正典はコードの const・raw。この図は手動同期の派生で、食い違えばコードが正。
 // 辺の種別: 無印=flow(増やす/生む)  破線橙=相互(双方向の相互関係。トレードオフ・連動・制約)  赤=drain(削る/ダメージ)
 digraph balance {
   rankdir=LR;
@@ -105,8 +102,7 @@ digraph balance {
   day -> danger [color="#475569", fontcolor="#334155", label="1+days/3"];
   day -> season [color="#475569", fontcolor="#334155"];
   day -> tod [color="#475569", fontcolor="#334155"];
-  // 前進と経過ターンはほぼ等価で相互に連動する。前進はターンを消費し、経過ターンは前進量を映す。
-  // 一方向の因果でなく双方向の等価カップリングなので dir=both にする
+  // 前進と経過ターンはほぼ等価で双方向に連動するので dir=both
   advance -> totalturns [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="≒時間"];
   danger -> enemypow [color="#475569", fontcolor="#334155", label="帯↑"];
   danger -> lootrar [color="#475569", fontcolor="#334155", label="帯↑"];
