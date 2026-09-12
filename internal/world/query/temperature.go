@@ -84,14 +84,55 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	baseTemp := stageBaseTemperature(world)
 
 	gt := GetGameTime(world)
-	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
-	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
+	// 屋外の世界温度。季節ベースに時間帯の揺れを重ね、奥地ほど寒くなる緯度勾配を差し引く。
+	// 勾配を世界温度に折り込むことで、屋内は shelteredWorldTemp で寒さが緩和され、
+	// 深部の施設が暖を取れる避難所になる。末尾で引くと屋内外が同じだけ寒くなり避難所にならない
+	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier() - latitudeCold(world, x)
 	shelter, tileModifier := TileEnvironmentAt(world, x, y)
 
 	return baseTemp +
 		shelteredWorldTemp(shelter, worldTemp) +
 		tileModifier +
 		ambientHeatAt(world, x, y), nil
+}
+
+// 奥地ほど寒い緯度勾配のパラメータ。無限軸を奥へ進んだチャンク距離が増えるほど世界温度を下げる。
+// 北極点へ近づくほど寒くなる惑星像を、進行距離の単調減少で表す。値は実プレイで調整する。
+const (
+	// latitudeColdPerChunk は1チャンク奥へ進むごとに下がる℃
+	latitudeColdPerChunk = 1
+	// latitudeColdMax は緯度勾配で下げる℃の上限。これ以上奥へ進んでも寒くならない
+	latitudeColdMax = 40
+)
+
+// latitudeCold は帯ローカル座標 x に対応する緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
+// 湧き位置すなわち初期帯の中央列を起点とし、そこから奥へ進んだチャンク距離が増えるほど大きくなる。
+// 帯を持たないステージでは0を返す。
+//
+// 起点を絶対チャンク0でなく中央列に置くのは、開始地点を穏やかに保つため。惑星の基礎的な寒さは
+// ステージの基本気温が担い、緯度勾配は「そこからさらに奥ほど寒い」加算分だけを表す。
+// 絶対軸 X で測るので帯シフトをまたいでも連続で、シフトの瞬間に気温が飛ばない。
+func latitudeCold(world w.World, x consts.Tile) int {
+	sb := GetSeamlessBand(world)
+	if sb == nil || sb.ChunkW <= 0 {
+		return 0
+	}
+	currentChunk := int(sb.LocalToAbsX(x)) / int(sb.ChunkW)
+	// 初期帯の中央列。プレイヤーはここに湧き、以後の東進で EastIndex ぶん奥へ進む
+	spawnChunk := int(sb.Cols) / 2
+	return latitudeColdForDepth(currentChunk - spawnChunk)
+}
+
+// latitudeColdForDepth は湧き位置から奥へ進んだチャンク距離から差し引く℃を返す純粋計算。
+// 距離に比例して単調増加し、latitudeColdMax で頭打ちになる。起点手前や負の距離では0。
+func latitudeColdForDepth(chunksDeep int) int {
+	if chunksDeep <= 0 {
+		return 0
+	}
+	if cold := chunksDeep * latitudeColdPerChunk; cold < latitudeColdMax {
+		return cold
+	}
+	return latitudeColdMax
 }
 
 // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。
