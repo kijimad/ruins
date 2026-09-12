@@ -602,8 +602,8 @@ msgstr "見る"
 msgid "No business"
 msgstr "用は無い"
 
-msgid "You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nA relay station may still stand far to the <keyword>east</keyword>.\nReach it to <keyword>repair</keyword> the cube and <keyword>escape</keyword>."
-msgstr "あなたは宇宙トラベラーだ。汎用個人船「キューブ」が\n故障し、極寒の惑星に墜落した。\nはるか<keyword>東</keyword>に中継施設が残っているかもしれない。\nそこへ辿り着き、キューブを<keyword>修理</keyword>して<keyword>脱出</keyword>せよ。"
+msgid "You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nA relay station may still stand far to the <keyword>north</keyword>.\nReach it to <keyword>repair</keyword> the cube and <keyword>escape</keyword>."
+msgstr "あなたは宇宙トラベラーだ。汎用個人船「キューブ」が\n故障し、極寒の惑星に墜落した。\nはるか<keyword>北</keyword>に中継施設が残っているかもしれない。\nそこへ辿り着き、キューブを<keyword>修理</keyword>して<keyword>脱出</keyword>せよ。"
 
 msgid "Tab"
 msgstr "タブ"
