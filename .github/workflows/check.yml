@@ -117,20 +117,15 @@ jobs:
 
   bench-compare:
     # main と PR のベンチを同一 runner で順に走らせ比較する。sticky コメント表示、sec/op の geomean が
-    # 2倍以上悪化したら失敗させる。
-    #
-    # 並列ジョブに分けると base と PR が別 CPU のホストランナーに載りうる。benchstat は cpu: を設定キーに
-    # 行をまとめるので、CPU が違うと横並び比較にならず vs base も gate も出ない。そもそも別 CPU 同士の
-    # time 比較は無効なので、比較の正しさを優先して同一 runner の直列で両方を測る。
+    # 2倍以上悪化したら失敗させる。base と PR を同一 CPU で測らないと benchstat が比較できないので直列にする。
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    # base+PR を直列で回すと長引くので、runner 回収でなく明示的タイムアウトで legible に落とす
+    # 直列で長引いたとき runner 回収でなく明示的タイムアウトで落とす
     timeout-minutes: 25
     permissions:
       contents: read
       pull-requests: write # sticky コメント投稿用
     steps:
-      # base と PR を同一 runner に checkout する。同一 CPU で測るのが比較の前提
       - uses: actions/checkout@v7 # PR を作業ルートに
       - uses: actions/checkout@v7 # ベースを _base/ に
         with:
@@ -138,16 +133,12 @@ jobs:
           path: _base
       - uses: ./.github/actions/setup-go-with-x
       - name: run benchmarks (PR and base)
-        # GOFLAGS で go test へ -count=6 -benchtime=100ms を渡す。環境変数なので base 側の Makefile を
-        # 変えずに効く。benchstat の信頼区間は6サンプルの平均から出るので、各サンプルの実行時間まで既定の
-        # 1秒に張る必要はない。-benchtime=100ms で反復を絞り、全ベンチ×6でも OOM せず数分で終わる。
-        # 粗い geomean 2x gate はこのノイズを許容する。
+        # 6サンプルで benchstat が信頼区間を出す。各100ms に絞ると全ベンチ×6でも OOM せず数分に収まる。
         env:
           GOFLAGS: -count=6 -benchtime=100ms
         run: |
-          # go の "go: downloading ..." 等のチャッターを除く。benchstat は "key: value" 行を設定キーとして
-          # 行をグループ化するので、base と PR で go: 行の値が違うと別設定扱いになり横並び比較にならない。
-          # goos/goarch/pkg/cpu は残し go: だけ落とすことで両者が揃い、benchstat が side-by-side を出す。
+          # benchstat は "key: value" 行を設定キーに行をグループ化する。base と PR で go: 行の値が違うと
+          # 別設定扱いで横並び比較が壊れるので、goos/goarch/pkg/cpu は残し go: 行だけ落とす。
           strip_go() { grep -vE '^go:' "$1" > "$2"; }
           # PRブランチで bench を実行する
           make bench > pr.raw
