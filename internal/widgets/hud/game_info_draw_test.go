@@ -103,3 +103,32 @@ func TestGameInfo_drawAmbientTemperature(t *testing.T) {
 		assert.Greater(t, temp.pos.X, label.pos.X, "気温はラベルの右に置く")
 	})
 }
+
+func TestGameInfo_drawNorthDepth(t *testing.T) {
+	t.Parallel()
+	info := newTestGameInfo(t)
+
+	t.Run("非表示なら何も描かない", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		info.drawNorthDepth(cv, GameInfoData{ShowNorthDepth: false})
+		assert.Empty(t, cv.texts)
+	})
+
+	t.Run("表示するとラベルと奥行きを右下へ描く", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		data := GameInfoData{
+			ShowNorthDepth:    true,
+			NorthLabel:        "North",
+			NorthDepth:        3,
+			MessageAreaHeight: 40,
+			ScreenDimensions:  ScreenDimensions{Width: 1024, Height: 768},
+		}
+		info.drawNorthDepth(cv, data)
+
+		txt := findText(t, cv.texts, "North 3")
+		assert.Equal(t, "North 3", txt.str)
+		assert.Equal(t, theme.TextPrimary, txt.color)
+	})
+}

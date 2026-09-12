@@ -88,3 +88,13 @@ func TestSeamlessBand_座標変換(t *testing.T) {
 	assert.Equal(t, consts.AbsTileY(-40), sb.BandOriginY(), "帯原点 = -NorthIndex*ChunkH")
 	assert.Equal(t, consts.AbsTileY(-30), sb.LocalToAbsY(10), "ローカル10 = 絶対-30")
 }
+
+func TestSeamlessBand_SpawnChunkY(t *testing.T) {
+	t.Parallel()
+
+	// 湧き位置は初期帯の中央行なので絶対チャンク Y は Rows/2。奇数偶数とも切り捨て
+	assert.Equal(t, consts.Chunk(4), SeamlessBand{Rows: 9}.SpawnChunkY(), "rows=9 の中央行は 4")
+	assert.Equal(t, consts.Chunk(1), SeamlessBand{Rows: 3}.SpawnChunkY(), "rows=3 の中央行は 1")
+	// 湧き位置は絶対軸に焼き込んだ不変値なので、NorthIndex がいくつでも起点は変わらない
+	assert.Equal(t, consts.Chunk(4), SeamlessBand{Rows: 9, NorthIndex: 5}.SpawnChunkY(), "起点は NorthIndex に依存しない")
+}

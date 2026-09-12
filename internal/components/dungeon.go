@@ -49,9 +49,10 @@ func (sb SeamlessBand) LocalToAbsY(localY consts.Tile) consts.AbsTileY {
 	return consts.AbsTileY(localY) + sb.BandOriginY()
 }
 
-// SpawnChunkY はプレイヤーが湧く初期帯の中央行の絶対チャンク Y。奥行きの起点となる。
+// SpawnChunkY はプレイヤーが湧いた位置の絶対チャンク Y。奥行きの起点となる。
+// プレイヤーは初期帯 NorthIndex=0 の中央行に湧くので、その絶対チャンク Y は Rows/2 で確定する。
+// これは湧き位置を絶対軸に焼き込んだ不変値で、以後 NorthIndex がいくつになっても変わらない。
 // 「湧き位置は中央行」の前提をここ1箇所に名付け、奥行き計算がこの起点を共有する。
-// 初期帯は NorthIndex=0 なので中央行の絶対チャンク Y は Rows/2 に等しい。
 func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
 	return sb.Rows / 2
 }
