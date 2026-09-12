@@ -12849,6 +12849,80 @@ maxDanger = 30
 minDanger = 1
 weight = 2
 
+[[items]]
+description = "A heavy chopping blade. Crude but its weight bites deep."
+name = "Cleaver"
+id = "cleaver"
+material = "METAL"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 60
+weight = "1.8 kg"
+
+[items.melee]
+accuracy = 85
+attackCategory = "SWORD"
+attackCount = 1
+cost = 2
+damage = 10
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[members]]
+animKeys = [ "skeleton" ]
+commandTableId = "veteran_husk"
+dropTableId = "skeleton_soldier"
+combatPolicy = "attack"
+movementPattern = "patrol"
+name = "Veteran Husk"
+id = "veteran_husk"
+spriteKey = "skeleton"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 3
+defense = 3
+dexterity = 5
+sensation = 3
+strength = 6
+vitality = 3
+
+[[members]]
+animKeys = [ "slime_0", "slime_1" ]
+commandTableId = "ash_wolf"
+dropTableId = "stray_dog"
+combatPolicy = "attack"
+movementPattern = "territorial"
+name = "Ash Wolf"
+id = "ash_wolf"
+spriteKey = "slime_0"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 5
+defense = 1
+dexterity = 6
+sensation = 3
+strength = 5
+vitality = 2
+
+[[commandTables]]
+name = "廃兵長"
+id = "veteran_husk"
+
+[[commandTables.entries]]
+weapon = "cleaver"
+weight = 1
+
+[[commandTables]]
+name = "灰狼"
+id = "ash_wolf"
+
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+
 [[enemyTables]]
 name = "廃墟"
 id = "ruins_area"
@@ -13082,6 +13156,20 @@ id = "guard_soldier"
 maxDanger = 22
 minDanger = 12
 weight = 0.1
+pack = "1d3"
+
+[[enemyTables.entries]]
+id = "veteran_husk"
+maxDanger = 14
+minDanger = 5
+weight = 1.4
+pack = "1d2"
+
+[[enemyTables.entries]]
+id = "ash_wolf"
+maxDanger = 12
+minDanger = 4
+weight = 1.2
 pack = "1d3"
 
 [[enemyTables]]
