@@ -195,6 +195,9 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: bench-compare
+          # 毎回、古いコメントを畳んで末尾に新規投稿する。in-place 更新だと初回位置に留まり埋もれる
+          hide_and_recreate: true
+          hide_classify: "OUTDATED"
           path: cmp.md
       - name: gate on catastrophic regression
         if: steps.cmp.outputs.bad != ''
