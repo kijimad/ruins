@@ -10,7 +10,12 @@
 <title>balance</title>
 <polygon fill="#f8fafc" stroke="none" points="-4,4 -4,-1537.07 2839.58,-1537.07 2839.58,4 -4,4"/>
 <text xml:space="preserve" text-anchor="start" x="1268.16" y="-1516.77" font-family="sans-serif" font-weight="bold" font-size="14.00">ruins ゲームバランス パラメータ交換性マップ</text>
-<text xml:space="preserve" text-anchor="start" x="1168.41" y="-1506.57" font-family="sans-serif" font-size="10.00">→ flow(増やす/生む) &#160;⇔ trade(一方↑で他方↓, 破線) &#160;→ drain(削る/ダメージ, 赤) &#160;／ 出典: 実コードの const・raw値</text>
+<text xml:space="preserve" text-anchor="start" x="1175.91" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#334155">→</text>
+<text xml:space="preserve" text-anchor="start" x="1184.16" y="-1506.57" font-family="sans-serif" font-size="10.00"> flow(増やす/生む) &#160;</text>
+<text xml:space="preserve" text-anchor="start" x="1268.91" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#d97706">⇔</text>
+<text xml:space="preserve" text-anchor="start" x="1277.16" y="-1506.57" font-family="sans-serif" font-size="10.00"> trade(一方↑で他方↓, 破線) &#160;</text>
+<text xml:space="preserve" text-anchor="start" x="1404.66" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#dc2626">→</text>
+<text xml:space="preserve" text-anchor="start" x="1412.91" y="-1506.57" font-family="sans-serif" font-size="10.00"> drain(削る/ダメージ) &#160;／ 出典: 実コードの const・raw値</text>
 <g id="clust1" class="cluster">
 <title>cluster_time</title>
 <path fill="#dbeafe" fill-opacity="0.266667" stroke="#3b82f6" stroke-width="1.2" d="M20,-1324.67C20,-1324.67 842.64,-1324.67 842.64,-1324.67 848.64,-1324.67 854.64,-1330.67 854.64,-1336.67 854.64,-1336.67 854.64,-1446.67 854.64,-1446.67 854.64,-1452.67 848.64,-1458.67 842.64,-1458.67 842.64,-1458.67 20,-1458.67 20,-1458.67 14,-1458.67 8,-1452.67 8,-1446.67 8,-1446.67 8,-1336.67 8,-1336.67 8,-1330.67 14,-1324.67 20,-1324.67"/>
@@ -830,16 +835,16 @@
 <polygon fill="#475569" stroke="#475569" points="1306.79,-583.7 1313.27,-580.1 1305.96,-578.87 1306.79,-583.7"/>
 <text xml:space="preserve" text-anchor="middle" x="1205" y="-607.57" font-family="sans-serif" font-size="9.00" fill="#334155">収納重量</text>
 </g>
-<!-- trade -->
+<!-- shop -->
 <g id="node44" class="node">
-<title>trade</title>
+<title>shop</title>
 <path fill="#e5e7eb" stroke="#6b7280" d="M1704.19,-1454.67C1704.19,-1454.67 1623.28,-1454.67 1623.28,-1454.67 1617.28,-1454.67 1611.28,-1448.67 1611.28,-1442.67 1611.28,-1442.67 1611.28,-1430.67 1611.28,-1430.67 1611.28,-1424.67 1617.28,-1418.67 1623.28,-1418.67 1623.28,-1418.67 1704.19,-1418.67 1704.19,-1418.67 1710.19,-1418.67 1716.19,-1424.67 1716.19,-1430.67 1716.19,-1430.67 1716.19,-1442.67 1716.19,-1442.67 1716.19,-1448.67 1710.19,-1454.67 1704.19,-1454.67"/>
 <text xml:space="preserve" text-anchor="start" x="1621.36" y="-1436.72" font-family="sans-serif" font-size="11.00">売買 買×2/売×0.5</text>
 <text xml:space="preserve" text-anchor="start" x="1630.73" y="-1428.57" font-family="sans-serif" font-size="8.00">交渉スキルで補正</text>
 </g>
-<!-- value&#45;&gt;trade -->
+<!-- value&#45;&gt;shop -->
 <g id="edge66" class="edge">
-<title>value&#45;&gt;trade</title>
+<title>value&#45;&gt;shop</title>
 <path fill="none" stroke="#475569" d="M1436.29,-1395.38C1485,-1404.26 1553.95,-1416.84 1602.95,-1425.77"/>
 <polygon fill="#475569" stroke="#475569" points="1602.43,-1428.17 1609.75,-1427.01 1603.3,-1423.35 1602.43,-1428.17"/>
 <text xml:space="preserve" text-anchor="middle" x="1518.82" y="-1419.53" font-family="sans-serif" font-size="9.00" fill="#334155">×2/×0.5</text>
@@ -857,9 +862,9 @@
 <path fill="#e5e7eb" stroke="#6b7280" d="M2002.72,-1442.67C2002.72,-1442.67 1935.31,-1442.67 1935.31,-1442.67 1929.31,-1442.67 1923.31,-1436.67 1923.31,-1430.67 1923.31,-1430.67 1923.31,-1418.67 1923.31,-1418.67 1923.31,-1412.67 1929.31,-1406.67 1935.31,-1406.67 1935.31,-1406.67 2002.72,-1406.67 2002.72,-1406.67 2008.72,-1406.67 2014.72,-1412.67 2014.72,-1418.67 2014.72,-1418.67 2014.72,-1430.67 2014.72,-1430.67 2014.72,-1436.67 2008.72,-1442.67 2002.72,-1442.67"/>
 <text xml:space="preserve" text-anchor="start" x="1933.39" y="-1420.3" font-family="sans-serif" font-size="11.00">通貨 Currency</text>
 </g>
-<!-- trade&#45;&gt;currency -->
+<!-- shop&#45;&gt;currency -->
 <g id="edge69" class="edge">
-<title>trade&#45;&gt;currency</title>
+<title>shop&#45;&gt;currency</title>
 <path fill="none" stroke="#475569" d="M1716.53,-1434.62C1771.72,-1432.44 1858.69,-1429 1914.53,-1426.79"/>
 <polygon fill="#475569" stroke="#475569" points="1914.46,-1429.24 1921.36,-1426.52 1914.27,-1424.35 1914.46,-1429.24"/>
 </g>

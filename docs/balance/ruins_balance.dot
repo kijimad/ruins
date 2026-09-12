@@ -15,7 +15,7 @@ digraph balance {
   concentrate=false;
   fontname="sans-serif";
   labelloc="t";
-  label=<<B>ruins ゲームバランス パラメータ交換性マップ</B><BR/><FONT POINT-SIZE="10">→ flow(増やす/生む)  ⇔ trade(一方↑で他方↓, 破線)  → drain(削る/ダメージ, 赤)  ／ 出典: 実コードの const・raw値</FONT>>;
+  label=<<B>ruins ゲームバランス パラメータ交換性マップ</B><BR/><FONT POINT-SIZE="10"><FONT COLOR="#334155">→</FONT> flow(増やす/生む)  <FONT COLOR="#d97706">⇔</FONT> trade(一方↑で他方↓, 破線)  <FONT COLOR="#dc2626">→</FONT> drain(削る/ダメージ)  ／ 出典: 実コードの const・raw値</FONT>>;
   node [shape=box, style="rounded,filled", fontname="sans-serif", fontsize=11, margin="0.14,0.07"];
   edge [fontname="sans-serif", fontsize=9, arrowsize=0.7];
   subgraph cluster_time {
@@ -95,7 +95,7 @@ digraph balance {
     fontcolor="#6b7280"; fontsize=13;
     style="filled,rounded"; color="#6b7280"; fillcolor="#e5e7eb44"; penwidth=1.2;
     value [label=<アイテム価値 Value>, fillcolor="#e5e7eb", color="#6b7280"];
-    trade [label=<売買 買×2/売×0.5<BR/><FONT POINT-SIZE="8">交渉スキルで補正</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
+    shop [label=<売買 買×2/売×0.5<BR/><FONT POINT-SIZE="8">交渉スキルで補正</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
     auction [label=<競売 Auction<BR/><FONT POINT-SIZE="8">送料25/kg・手数料12%・集荷100</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
     currency [label=<通貨 Currency>, fillcolor="#e5e7eb", color="#6b7280"];
     runstats [label=<RunStats 終端<BR/><FONT POINT-SIZE="8">撃破/漁り/売上/死因</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
@@ -104,6 +104,8 @@ digraph balance {
   day -> danger [color="#475569", fontcolor="#334155", label="1+days/3"];
   day -> season [color="#475569", fontcolor="#334155"];
   day -> tod [color="#475569", fontcolor="#334155"];
+  // 前進と経過ターンはほぼ等価で相互に連動する。前進はターンを消費し、経過ターンは前進量を映す。
+  // 一方向の因果でなく双方向の等価カップリングなので dir=both にする
   advance -> totalturns [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="≒時間"];
   danger -> enemypow [color="#475569", fontcolor="#334155", label="帯↑"];
   danger -> lootrar [color="#475569", fontcolor="#334155", label="帯↑"];
@@ -165,10 +167,10 @@ digraph balance {
   storage -> weight [color="#475569", fontcolor="#334155", label="収納重量"];
   movedist -> damage [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="運転中は戦闘不可"];
   lootrar -> value [color="#475569", fontcolor="#334155", label="希少度↑"];
-  value -> trade [color="#475569", fontcolor="#334155", label="×2/×0.5"];
+  value -> shop [color="#475569", fontcolor="#334155", label="×2/×0.5"];
   value -> auction [color="#475569", fontcolor="#334155", label="開始×0.4"];
   weight -> auction [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="送料×25/kg"];
-  trade -> currency [color="#475569", fontcolor="#334155"];
+  shop -> currency [color="#475569", fontcolor="#334155"];
   auction -> currency [color="#475569", fontcolor="#334155", label="手取り"];
   auction -> runstats [color="#475569", fontcolor="#334155", label="売上"];
   enemypow -> runstats [color="#475569", fontcolor="#334155", label="撃破数"];
