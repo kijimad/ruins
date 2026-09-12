@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [北進サバイバル。寒冷勾配・深部施設・キューブ修理でクリアする](docs/design/260912190416.md) | 1/6（見送り1） | worldgen, gamedesign |
+| in-progress | [北進サバイバル。寒冷勾配・深部施設・キューブ修理でクリアする](docs/design/260912190416.md) | 3/6（見送り1） | worldgen, gamedesign |
 
 
 ## Reference

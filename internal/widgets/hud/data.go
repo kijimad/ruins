@@ -23,6 +23,9 @@ type Data struct {
 type GameInfoData struct {
 	FloorNumber         int              // フロア番号
 	ShowFloor           bool             // 階層番号を出すか。オーバーワールドでは階層の概念が無いので出さない
+	NorthDepth          int              // 湧き位置から北へ進んだチャンク距離。奥ほど寒い
+	ShowNorthDepth      bool             // 北への奥行きを出すか。オーバーワールドでのみ出す
+	NorthLabel          string           // 北への奥行きの訳済みラベル
 	PlayerHP            int              // プレイヤーの現在HP
 	PlayerMaxHP         int              // プレイヤーの最大HP
 	PlayerWeight        consts.Milligram // プレイヤーの現在所持重量

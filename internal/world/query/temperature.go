@@ -105,22 +105,29 @@ const (
 	latitudeColdMax = 40
 )
 
-// latitudeCold は帯ローカル座標 x に対応する緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
-// 湧き位置すなわち初期帯の中央列を起点とし、そこから奥へ進んだチャンク距離が増えるほど大きくなる。
-// 帯を持たないステージでは0を返す。
+// NorthDepthChunks は帯ローカル座標 x が湧き位置から奥へ何チャンク進んだかを返す。
+// 起点は初期帯の中央列 cols/2。手前や帯を持たないステージでは0。
 //
-// 起点を絶対チャンク0でなく中央列に置くのは、開始地点を穏やかに保つため。惑星の基礎的な寒さは
-// ステージの基本気温が担い、緯度勾配は「そこからさらに奥ほど寒い」加算分だけを表す。
-// 絶対軸 X で測るので帯シフトをまたいでも連続で、シフトの瞬間に気温が飛ばない。
-func latitudeCold(world w.World, x consts.Tile) int {
+// 起点を絶対チャンク0でなく中央列に置くのは、開始地点を穏やかに保つため。緯度勾配の寒さと
+// HUD の奥地表示がこの1関数を共有し、気温と UI で同じ距離を指す。絶対軸 X で測るので帯シフトを
+// またいでも連続で、シフトの瞬間に値が飛ばない。
+func NorthDepthChunks(world w.World, x consts.Tile) int {
 	sb := GetSeamlessBand(world)
 	if sb == nil || sb.ChunkW <= 0 {
 		return 0
 	}
-	currentChunk := int(sb.LocalToAbsX(x)) / int(sb.ChunkW)
-	// 初期帯の中央列。プレイヤーはここに湧き、以後の東進で EastIndex ぶん奥へ進む
-	spawnChunk := int(sb.Cols) / 2
-	return latitudeColdForDepth(currentChunk - spawnChunk)
+	depth := int(sb.LocalToAbsX(x))/int(sb.ChunkW) - int(sb.Cols)/2
+	if depth < 0 {
+		return 0
+	}
+	return depth
+}
+
+// latitudeCold は帯ローカル座標 x に対応する緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
+// 奥へ進んだチャンク距離が増えるほど大きくなる。惑星の基礎的な寒さはステージの基本気温が担い、
+// 緯度勾配は「そこからさらに奥ほど寒い」加算分だけを表す。
+func latitudeCold(world w.World, x consts.Tile) int {
+	return latitudeColdForDepth(NorthDepthChunks(world, x))
 }
 
 // latitudeColdForDepth は湧き位置から奥へ進んだチャンク距離から差し引く℃を返す純粋計算。

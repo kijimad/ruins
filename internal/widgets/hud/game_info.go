@@ -83,11 +83,15 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 	// 周囲気温表示
 	info.drawAmbientTemperature(cv, data)
 
+	// 北への奥行き（右下、気温の1行上）
+	info.drawNorthDepth(cv, data)
+
 	// フロア情報（最後に描画して最前面に表示）
 	info.drawFloorNumber(cv, data)
 }
 
-// drawFloorNumber は階層番号を描画する。オーバーワールドでは階層の概念が無いので描かない
+// drawFloorNumber は階層番号を右上に描画する。オーバーワールドでは階層の概念が無いので描かない。
+// 右上はオーバーワールドではマクロ地図が占有するため、階層番号はダンジョンでのみ出る前提でよい
 func (info *GameInfo) drawFloorNumber(cv uicore.Canvas, data GameInfoData) {
 	if !data.ShowFloor {
 		return
@@ -100,6 +104,24 @@ func (info *GameInfo) drawFloorNumber(cv uicore.Canvas, data GameInfoData) {
 	// 右上に配置
 	x := data.ScreenDimensions.Width - textWidth - theme.Space4
 	drawOutlinedText(cv, floorText, info.headingFace, image.Pt(x, theme.Space4), theme.TextPrimary)
+}
+
+// drawNorthDepth は湧き位置からの北への奥行きを右下、周囲気温の1行上に描画する。オーバーワールドでのみ出す。
+// 右上はマクロ地図が占有するので、進捗と直結する気温の並びへ置く。北ほど寒く奥地の目的地へ近い
+func (info *GameInfo) drawNorthDepth(cv uicore.Canvas, data GameInfoData) {
+	if !data.ShowNorthDepth {
+		return
+	}
+	text := fmt.Sprintf("%s %d", data.NorthLabel, data.NorthDepth)
+	textWidth, textHeight := uicore.MeasureText(text, info.bodyFace)
+
+	// 通貨・所持重量・気温と同じ右端に揃え、気温からさらに1行分上げる
+	screenWidth := float64(data.ScreenDimensions.Width)
+	screenHeight := float64(data.ScreenDimensions.Height)
+	x := screenWidth - float64(textWidth) - theme.Space4F
+	y := screenHeight - float64(data.MessageAreaHeight) - theme.Space4F - float64(textHeight*4) - theme.Space2F*3
+
+	drawOutlinedText(cv, text, info.bodyFace, image.Pt(int(x), int(y)), theme.TextPrimary)
 }
 
 // ゲージ共通のレイアウト定数
