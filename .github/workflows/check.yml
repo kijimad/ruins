@@ -170,9 +170,9 @@ jobs:
           # コメントは常に details で畳む。退化を検出したときだけ open で開き見逃さない。
           # summary 内で状態が読めるよう、見出しと退化有無を1行に出す
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
-            # 退化判定は scripts/benchgate.go に委ねる。両方に在るベンチをパッケージごとに sec/op の
+            # 退化判定は benchgate サブコマンドに委ねる。両方に在るベンチをパッケージごとに sec/op の
             # geomean 比で見て、2倍以上悪化したパッケージを1行ずつ返す。悪化が無ければ空。
-            bad=$(go run scripts/benchgate.go base.txt pr.txt)
+            bad=$(go run . benchgate base.txt pr.txt)
             if [ -n "$bad" ]; then
               open_attr=' open'; summary='⚠️ ベンチ比較 (base vs PR) — 2倍以上の悪化を検出'
             else
