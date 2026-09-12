@@ -85,6 +85,48 @@ func TestProjector_カメラ後方のタイルは投影できない(t *testing.T
 	assert.False(t, ok)
 }
 
+func TestProjector_TileOnScreenは画面に掛かる升だけ通す(t *testing.T) {
+	t.Parallel()
+
+	projector := render3d.NewProjector(defaultView, playerTile, screenW, screenH)
+
+	t.Run("足元のタイルは画面に掛かる", func(t *testing.T) {
+		t.Parallel()
+		assert.True(t, projector.TileOnScreen(playerTile, render3d.WallHeight))
+	})
+	t.Run("遠く横に外れたタイルは落とす", func(t *testing.T) {
+		t.Parallel()
+		// カメラの前方だが真横へ大きく外れるので画面矩形に掛からない
+		assert.False(t, projector.TileOnScreen(consts.Coord[consts.Tile]{X: 200, Y: 25}, render3d.WallHeight))
+	})
+	t.Run("カメラ後方のタイルは落とす", func(t *testing.T) {
+		t.Parallel()
+		// 全隅が視線の裏側に回るので確実に落とせる
+		assert.False(t, projector.TileOnScreen(consts.Coord[consts.Tile]{X: 25, Y: 60}, render3d.WallHeight))
+	})
+}
+
+func TestProjector_TileOnScreenは大マップの大半を落とす(t *testing.T) {
+	t.Parallel()
+
+	// カリングが no-op に退化していないことのガード。100x100 マップの中央にプレイヤーを置くと、
+	// 画面に掛かるのは視野内の一部だけで、大半は描画前に落ちる。総升は n^2 で増えるのに対し
+	// 画面に掛かる升は視野で頭打ちなので、マップが大きいほど落とす割合は上がる。
+	const n = 100
+	center := consts.Coord[consts.Tile]{X: n / 2, Y: n / 2}
+	p := render3d.NewProjector(defaultView, center, screenW, screenH)
+
+	on := 0
+	for y := range n {
+		for x := range n {
+			if p.TileOnScreen(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, render3d.WallHeight) {
+				on++
+			}
+		}
+	}
+	assert.Less(t, on, n*n/2, "100x100 の升のうち画面に掛かるのは半分未満")
+}
+
 func TestProjector_BillboardScaleは立て板の画面上の高さを返す(t *testing.T) {
 	t.Parallel()
 

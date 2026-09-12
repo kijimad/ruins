@@ -1,0 +1,174 @@
+// ruins ゲームバランス パラメータ交換性マップ (Graphviz DOT)
+// ノード/辺を直接編集し、リポジトリルートで make balance を実行して SVG を出力する。
+// 数値の正典はコードの const・raw。この図は手動同期の派生で、食い違えばコードが正。
+// 辺の種別: 無印=flow(増やす/生む)  破線橙=相互(双方向の相互関係。トレードオフ・連動・制約)  赤=drain(削る/ダメージ)
+digraph balance {
+  rankdir=LR;
+  newrank=true;
+  bgcolor="#f8fafc";
+  splines=spline;
+  overlap=false;
+  nodesep=0.28;
+  ranksep=1.1;
+  concentrate=false;
+  fontname="sans-serif";
+  labelloc="t";
+  label=<<B>ruins ゲームバランス パラメータ交換性マップ</B><BR/><FONT POINT-SIZE="10"><FONT COLOR="#334155">→</FONT> flow(増やす/生む)  <FONT COLOR="#d97706">⇔</FONT> 相互(双方向, 破線)  <FONT COLOR="#dc2626">→</FONT> drain(削る/ダメージ)  ／ 出典: 実コードの const・raw値</FONT>>;
+  node [shape=box, style="rounded,filled", fontname="sans-serif", fontsize=11, margin="0.14,0.07"];
+  edge [fontname="sans-serif", fontsize=9, arrowsize=0.7];
+  subgraph cluster_time {
+    label=<<B>時間・進行</B>>;
+    fontcolor="#3b82f6"; fontsize=13;
+    style="filled,rounded"; color="#3b82f6"; fillcolor="#dbeafe44"; penwidth=1.2;
+    totalturns [label=<経過ターン TotalTurns<BR/><FONT POINT-SIZE="8">1500/日・250/時間帯</FONT>>, fillcolor="#dbeafe", color="#3b82f6"];
+    day [label=<経過日数 DayNumber<BR/><FONT POINT-SIZE="8">=TotalTurns/1500+1</FONT>>, fillcolor="#dbeafe", color="#3b82f6"];
+    season [label=<季節 Season<BR/><FONT POINT-SIZE="8">32日周期 夏+22/冬-30℃</FONT>>, fillcolor="#dbeafe", color="#3b82f6"];
+    tod [label=<時間帯 TimeOfDay<BR/><FONT POINT-SIZE="8">昼+10〜深夜-10℃</FONT>>, fillcolor="#dbeafe", color="#3b82f6"];
+    advance [label=<前進(東進) Advance<BR/><FONT POINT-SIZE="8">左戻り不可≒時間経過</FONT>>, fillcolor="#dbeafe", color="#3b82f6"];
+  }
+  subgraph cluster_world {
+    label=<<B>危険度・世界環境</B>>;
+    fontcolor="#14b8a6"; fontsize=13;
+    style="filled,rounded"; color="#14b8a6"; fillcolor="#ccfbf144"; penwidth=1.2;
+    danger [label=<DangerLevel<BR/><FONT POINT-SIZE="8">=1+days/3 (3日で+1)</FONT>>, fillcolor="#ccfbf1", color="#14b8a6"];
+    enemypow [label=<敵の強さ/湧き<BR/><FONT POINT-SIZE="8">minDanger..maxDanger 帯</FONT>>, fillcolor="#ccfbf1", color="#14b8a6"];
+    lootrar [label=<loot希少度<BR/><FONT POINT-SIZE="8">危険度で帯シフト</FONT>>, fillcolor="#ccfbf1", color="#14b8a6"];
+    worldtemp [label=<世界温度 worldTemp<BR/><FONT POINT-SIZE="8">=季節+時間帯</FONT>>, fillcolor="#ccfbf1", color="#14b8a6"];
+    shelter [label=<屋内外 Shelter<BR/><FONT POINT-SIZE="8">None0/Part5/Full10 緩和</FONT>>, fillcolor="#ccfbf1", color="#14b8a6"];
+    ambient [label=<周囲気温 AmbientTemp<BR/><FONT POINT-SIZE="8">=base+緩和worldTemp+熱源</FONT>>, fillcolor="#ccfbf1", color="#14b8a6"];
+    basetemp [label=<ステージ基本温度<BR/><FONT POINT-SIZE="8">0〜20℃ (床)</FONT>>, fillcolor="#ccfbf1", color="#14b8a6"];
+  }
+  subgraph cluster_surv {
+    label=<<B>サバイバル・身体</B>>;
+    fontcolor="#22c55e"; fontsize=13;
+    style="filled,rounded"; color="#22c55e"; fillcolor="#dcfce744"; penwidth=1.2;
+    hunger [label=<満腹度 Hunger<BR/><FONT POINT-SIZE="8">最大500・平均3ターンで-1</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    fatigue [label=<疲労 Fatigue<BR/><FONT POINT-SIZE="8">最大2000・+1/ターン</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    bodytemp [label=<体温 BodyTemp<BR/><FONT POINT-SIZE="8">平熱0〜-5・-2で低体温</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    cond [label=<状態異常 Conditions<BR/><FONT POINT-SIZE="8">低体温/骨折/切傷/栄養失調/過労/食中毒</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    blood [label=<血液 Blood<BR/><FONT POINT-SIZE="8">100・&lt;40でHP減</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    metab [label=<Metabolism 代謝<BR/><FONT POINT-SIZE="8">回復速度ハブ (+VIT×3)</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    bodyfunc [label=<身体機能<BR/><FONT POINT-SIZE="8">Consciousness/操作/移動/視覚</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    hp [label=<HP<BR/><FONT POINT-SIZE="8">=30+VIT×8+STR+SEN</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    sleep [label=<睡眠 Sleep<BR/><FONT POINT-SIZE="8">疲労-3×Q・代謝+50×Q</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    food [label=<食事 Food<BR/><FONT POINT-SIZE="8">栄養30-135・鮮度で目減り</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+  }
+  subgraph cluster_abil {
+    label=<<B>能力値</B>>;
+    fontcolor="#8b5cf6"; fontsize=13;
+    style="filled,rounded"; color="#8b5cf6"; fillcolor="#ede9fe44"; penwidth=1.2;
+    vit [label=<VIT 体力>, fillcolor="#ede9fe", color="#8b5cf6"];
+    str [label=<STR 筋力>, fillcolor="#ede9fe", color="#8b5cf6"];
+    sen [label=<SEN 感覚>, fillcolor="#ede9fe", color="#8b5cf6"];
+    dex [label=<DEX 器用>, fillcolor="#ede9fe", color="#8b5cf6"];
+    agi [label=<AGI 敏捷>, fillcolor="#ede9fe", color="#8b5cf6"];
+    def [label=<DEF 防御>, fillcolor="#ede9fe", color="#8b5cf6"];
+  }
+  subgraph cluster_cmb {
+    label=<<B>戦闘・装備</B>>;
+    fontcolor="#ef4444"; fontsize=13;
+    style="filled,rounded"; color="#ef4444"; fillcolor="#fee2e244"; penwidth=1.2;
+    damage [label=<ダメージ Damage<BR/><FONT POINT-SIZE="8">=能力+乱1-6+武器-防御</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+    hit [label=<命中 HitRate<BR/><FONT POINT-SIZE="8">80+(DEX-AGI)×2, 5-95%</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+    ap [label=<AP 行動力<BR/><FONT POINT-SIZE="8">標準100 (現状固定)</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+    wmelee [label=<近接武器<BR/><FONT POINT-SIZE="8">damage⇔accuracy</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+    wranged [label=<遠距離武器<BR/><FONT POINT-SIZE="8">射程/ペナ・弾数⇔リロード</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+    armor [label=<防具 Defense<BR/><FONT POINT-SIZE="8">被ダメ減</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+    insul [label=<断熱 Insulation<BR/><FONT POINT-SIZE="8">Cold/Heat 快適帯拡張</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+    skill [label=<スキル/CharModifiers<BR/><FONT POINT-SIZE="8">+5%dmg +3%hit -3%寒 +4%荷重</FONT>>, fillcolor="#fee2e2", color="#ef4444"];
+  }
+  subgraph cluster_log {
+    label=<<B>物流・キューブ</B>>;
+    fontcolor="#f59e0b"; fontsize=13;
+    style="filled,rounded"; color="#f59e0b"; fillcolor="#fef3c744"; penwidth=1.2;
+    weight [label=<重量 Weight<BR/><FONT POINT-SIZE="8">携行10+STR×2 / cube500kg</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
+    fuel [label=<燃料 Fuel (Heat)<BR/><FONT POINT-SIZE="8">OIL1000..WOOD200/kg</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
+    drivecost [label=<運転コスト<BR/><FONT POINT-SIZE="8">=10+1×収納kg /タイル</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
+    movedist [label=<移動距離<BR/><FONT POINT-SIZE="8">≒燃料/コスト</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
+    fire [label=<火 Fire<BR/><FONT POINT-SIZE="8">warmth・残量Remaining</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
+    storage [label=<収納 Storage<BR/><FONT POINT-SIZE="8">容量kg・出品元</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
+  }
+  subgraph cluster_eco {
+    label=<<B>経済・終端</B>>;
+    fontcolor="#6b7280"; fontsize=13;
+    style="filled,rounded"; color="#6b7280"; fillcolor="#e5e7eb44"; penwidth=1.2;
+    value [label=<アイテム価値 Value>, fillcolor="#e5e7eb", color="#6b7280"];
+    shop [label=<売買 買×2/売×0.5<BR/><FONT POINT-SIZE="8">交渉スキルで補正</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
+    auction [label=<競売 Auction<BR/><FONT POINT-SIZE="8">送料25/kg・手数料12%・集荷100</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
+    currency [label=<通貨 Currency>, fillcolor="#e5e7eb", color="#6b7280"];
+    runstats [label=<RunStats 終端<BR/><FONT POINT-SIZE="8">撃破/漁り/売上/死因</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
+  }
+  totalturns -> day [color="#475569", fontcolor="#334155", label="1500/日"];
+  day -> danger [color="#475569", fontcolor="#334155", label="1+days/3"];
+  day -> season [color="#475569", fontcolor="#334155"];
+  day -> tod [color="#475569", fontcolor="#334155"];
+  // 前進と経過ターンはほぼ等価で双方向に連動するので dir=both
+  advance -> totalturns [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="≒時間"];
+  danger -> enemypow [color="#475569", fontcolor="#334155", label="帯↑"];
+  danger -> lootrar [color="#475569", fontcolor="#334155", label="帯↑"];
+  season -> worldtemp [color="#475569", fontcolor="#334155", label="+22/-30"];
+  tod -> worldtemp [color="#475569", fontcolor="#334155", label="±10"];
+  worldtemp -> ambient [color="#475569", fontcolor="#334155", label="Shelter緩和"];
+  shelter -> ambient [color="#475569", fontcolor="#334155", label="緩和度"];
+  basetemp -> ambient [color="#475569", fontcolor="#334155"];
+  fire -> ambient [color="#475569", fontcolor="#334155", label="warmth×30"];
+  ambient -> bodytemp [color="#475569", fontcolor="#334155", label="有効温度"];
+  insul -> bodytemp [color="#475569", fontcolor="#334155", label="快適帯±"];
+  totalturns -> hunger [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="満腹-1"];
+  totalturns -> fatigue [color="#475569", fontcolor="#334155", label="+1"];
+  hunger -> cond [color="#475569", fontcolor="#334155", label="栄養失調"];
+  fatigue -> cond [color="#475569", fontcolor="#334155", label="過労"];
+  bodytemp -> cond [color="#475569", fontcolor="#334155", label="低体温"];
+  cond -> blood [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="切傷-25/低体温-22"];
+  cond -> metab [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="代謝↓"];
+  cond -> bodyfunc [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="怪我で機能↓"];
+  blood -> hp [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="<40でHP減"];
+  metab -> hp [color="#475569", fontcolor="#334155", label="回復+2×代謝"];
+  metab -> cond [color="#475569", fontcolor="#334155", label="病気回復↑"];
+  bodyfunc -> hit [color="#475569", fontcolor="#334155", label="命中×(操作/視覚)"];
+  sleep -> fatigue [color="#475569", fontcolor="#334155", label="-3×Q"];
+  sleep -> metab [color="#475569", fontcolor="#334155", label="+50×Q"];
+  food -> hunger [color="#475569", fontcolor="#334155", label="栄養+"];
+  food -> cond [color="#475569", fontcolor="#334155", label="腐敗25%食中毒"];
+  vit -> hp [color="#475569", fontcolor="#334155", label="×8"];
+  str -> hp [color="#475569", fontcolor="#334155", label="+1"];
+  sen -> hp [color="#475569", fontcolor="#334155", label="+1"];
+  vit -> metab [color="#475569", fontcolor="#334155", label="+3%/pt"];
+  str -> damage [color="#475569", fontcolor="#334155", label="近接"];
+  sen -> damage [color="#475569", fontcolor="#334155", label="遠隔"];
+  dex -> hit [color="#475569", fontcolor="#334155", label="+2%/pt"];
+  agi -> hit [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="回避 対抗"];
+  def -> armor [color="#475569", fontcolor="#334155"];
+  str -> weight [color="#475569", fontcolor="#334155", label="携行+2kg/pt"];
+  wmelee -> damage [color="#475569", fontcolor="#334155", label="武器dmg"];
+  wmelee -> hit [color="#475569", fontcolor="#334155", label="武器acc"];
+  wranged -> hit [color="#475569", fontcolor="#334155", label="射程ペナ"];
+  wranged -> ap [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="リロードでAP消費"];
+  damage -> hp [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="-防御→HP"];
+  armor -> damage [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="被ダメ↓"];
+  skill -> damage [color="#475569", fontcolor="#334155", label="+5%/Lv"];
+  skill -> hit [color="#475569", fontcolor="#334155", label="+3%/Lv"];
+  skill -> insul [color="#475569", fontcolor="#334155", label="寒-3%/Lv"];
+  hp -> runstats [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="0で死→死因"];
+  armor -> weight [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="装備で重量↑"];
+  armor -> agi [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="重装でAGI↓"];
+  wmelee -> weight [color="#475569", fontcolor="#334155", label="重量↑"];
+  wranged -> weight [color="#475569", fontcolor="#334155", label="重量↑"];
+  weight -> drivecost [color="#475569", fontcolor="#334155", label="10+1×kg"];
+  drivecost -> movedist [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="コスト↑で距離↓"];
+  fuel -> movedist [color="#475569", fontcolor="#334155", label="燃料/コスト"];
+  fuel -> weight [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="燃料も重い(自己ブレーキ)"];
+  fuel -> fire [color="#475569", fontcolor="#334155", label="火の燃料"];
+  fuel -> drivecost [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="運転⇔火 共用"];
+  fire -> bodytemp [color="#475569", fontcolor="#334155", label="暖 warmth"];
+  storage -> weight [color="#475569", fontcolor="#334155", label="収納重量"];
+  movedist -> damage [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="運転中は戦闘不可"];
+  lootrar -> value [color="#475569", fontcolor="#334155", label="希少度↑"];
+  value -> shop [color="#475569", fontcolor="#334155", label="×2/×0.5"];
+  value -> auction [color="#475569", fontcolor="#334155", label="開始×0.4"];
+  weight -> auction [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="送料×25/kg"];
+  shop -> currency [color="#475569", fontcolor="#334155"];
+  auction -> currency [color="#475569", fontcolor="#334155", label="手取り"];
+  auction -> runstats [color="#475569", fontcolor="#334155", label="売上"];
+  enemypow -> runstats [color="#475569", fontcolor="#334155", label="撃破数"];
+}

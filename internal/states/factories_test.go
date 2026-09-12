@@ -36,8 +36,8 @@ func TestNewOpeningState(t *testing.T) {
 	require.NotNil(t, md)
 	assert.NotEmpty(t, md.TextSegmentLines)
 
-	// 最初のページに背景キーが設定されている
-	assert.NotEmpty(t, md.BackgroundKey)
+	// 背景キーは持たない。土台のゲーム画面へモーダルとして重ねる
+	assert.Empty(t, md.BackgroundKey)
 
 	// 目的は1ページで簡潔に伝えるので後続ページは無い
 	assert.False(t, md.HasNextMessages(), "1ページで完結する")
