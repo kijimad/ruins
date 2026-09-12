@@ -21,15 +21,31 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      # 前回レビューを minimize するため write。issue コメントの畳み込みに要る
+      pull-requests: write
+      issues: write
       id-token: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+
+      # 新規レビューを投稿する前に、前回までの claude-review コメントを OUTDATED として畳む。
+      # sticky で同一コメントを上書きすると履歴を追えないため、毎回新規投稿にし古いのは hide する
+      - name: Hide previous Claude review comments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh api "repos/${REPO}/issues/${PR}/comments" --paginate \
+            --jq '.[] | select(.user.login == "claude[bot]") | select(.body | startswith("**Claude finished")) | .node_id' \
+          | while read -r node; do
+              [ -z "$node" ] && continue
+              gh api graphql -f query='mutation($id: ID!) { minimizeComment(input: {classifier: OUTDATED, subjectId: $id}) { minimizedComment { isMinimized } } }' -f id="$node"
+            done
 
       - name: Run Claude Code Review
         id: claude-review
@@ -50,8 +66,9 @@ jobs:
             
             Be constructive and helpful in your feedback.
 
-          # 同じ PR への push では同一コメントを更新し、古いレビューを溜めない。codecov と同じく最新だけ残す
-          use_sticky_comment: true
+          # sticky にすると同一コメントを上書きして履歴が追えない。毎回新規投稿にし、
+          # 前回ぶんは上の Hide ステップで OUTDATED として畳む。最新だけ展開され過去も辿れる
+          use_sticky_comment: false
           
           # Optional: Customize review based on file types
           # direct_prompt: |
