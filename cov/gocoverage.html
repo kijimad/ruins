@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.5%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -513,7 +513,7 @@
 				
 				<option value="file228">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
 				
-				<option value="file229">github.com/kijimaD/ruins/internal/states/dungeon.go (81.3%)</option>
+				<option value="file229">github.com/kijimaD/ruins/internal/states/dungeon.go (80.0%)</option>
 				
 				<option value="file230">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
@@ -523,7 +523,7 @@
 				
 				<option value="file233">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
-				<option value="file234">github.com/kijimaD/ruins/internal/states/factories.go (68.4%)</option>
+				<option value="file234">github.com/kijimaD/ruins/internal/states/factories.go (58.8%)</option>
 				
 				<option value="file235">github.com/kijimaD/ruins/internal/states/feed_fuel_menu.go (64.9%)</option>
 				
@@ -533,7 +533,7 @@
 				
 				<option value="file238">github.com/kijimaD/ruins/internal/states/look_around.go (82.9%)</option>
 				
-				<option value="file239">github.com/kijimaD/ruins/internal/states/main_menu.go (83.7%)</option>
+				<option value="file239">github.com/kijimaD/ruins/internal/states/main_menu.go (85.4%)</option>
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/states/mapgen_visualizer.go (0.0%)</option>
 				
@@ -719,7 +719,7 @@
 				
 				<option value="file331">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file332">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
+				<option value="file332">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
 				
 				<option value="file333">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -1656,7 +1656,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1807,8 +1807,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -34348,6 +34348,9 @@ type DungeonState struct {
 
         // three は3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
         three dungeon3D
+
+        // showOpening は newGameOverworldState が config.SkipOpening から決める。初回 Update で重ねた後は false にし、再入では出さない
+        showOpening bool
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
@@ -34519,6 +34522,12 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
                 &amp;gs.AuctionSystem{},
         ); err != nil </span>{
                 <span class="cov0" title="0">return es.Transition[w.World]{}, err
+</span>        }
+
+        // このフレームで視界を計算済みなので、背後に実プレイ画面を敷いたままオープニングを重ねられる
+        <span class="cov8" title="1">if st.showOpening </span>{
+                <span class="cov0" title="0">st.showOpening = false
+                return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewOpeningState}}, nil
 </span>        }
 
         // プレイヤー死亡チェック。死亡で run は終わり結果画面へ移る
@@ -35824,10 +35833,20 @@ func NewDemoStartState() (es.State[w.World], error) {
 // キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。
 // 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
 func newGameOverworldState(world w.World) es.StateFactory[w.World] {
-        <span class="cov8" title="1">return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &amp;overworld.NewGameParams{
+        <span class="cov8" title="1">base := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &amp;overworld.NewGameParams{
                 RunSeed: world.Resources.Config.RNG.Uint64(),
         })
-</span>}
+        return func() (es.State[w.World], error) </span>{
+                <span class="cov0" title="0">state, err := base()
+                if err != nil </span>{
+                        <span class="cov0" title="0">return nil, err
+</span>                }
+                <span class="cov0" title="0">if ds, ok := state.(*DungeonState); ok </span>{
+                        <span class="cov0" title="0">ds.showOpening = !world.Resources.Config.SkipOpening
+</span>                }
+                <span class="cov0" title="0">return state, nil</span>
+        }
+}
 
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
 func NewMainMenuState() (es.State[w.World], error) {
@@ -36092,26 +36111,10 @@ func NewOpeningState() (es.State[w.World], error) {
         <span class="cov8" title="1">messageState := &amp;MessageState{}
 </span>        // 翻訳は world を要するので OnStart でページを組む
         <span class="cov8" title="1">messageState.build = func(world w.World) *messagedata.MessageData </span>{
-                // 1. 黒背景: 荒野の大穴
-                <span class="cov8" title="1">page1a := &amp;messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
-                page1a.AddText(query.T(world, "A vast wasteland, with a single great hole gaping open."))
-</span>
-                // 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
-                <span class="cov8" title="1">blank := &amp;messagedata.MessageData{Speaker: "", BackgroundKey: "hole1"}
-                page1b := &amp;messagedata.MessageData{Speaker: ""}
-                page1b.AddText(query.T(world, "At the bottom of the hole lie ruins of an ancient civilization.\n")).
-                        AddText(query.T(world, "Treasure comes out. Monsters too. Half of those who dive never return.\n")).
-                        AddText(query.T(world, "Around the hole a town has formed of divers, sellers, and buyers."))
-</span>
-                // 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂
-                <span class="cov8" title="1">blankBar := &amp;messagedata.MessageData{Speaker: "", BackgroundKey: "bar1"}
-                page2 := &amp;messagedata.MessageData{Speaker: ""}
-                page2.AddText(query.T(world, "\"Heard about it? Another bottom-seeker vanished.\"\n")).
-                        AddText(query.T(world, "\"How many is that now?\"\n")).
-                        AddText(query.T(world, "\"Who knows. I quit counting long ago.\"\n\n")).
-                        AddMarkup(query.T(world, "\"So, the next &lt;keyword&gt;scavenger&lt;/keyword&gt; has shown up... a bottom-seeker too, they say.\"\n"))
-</span>
-                <span class="cov8" title="1">return messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)
+                // 背景キーを持たせず、土台のゲーム画面へモーダルとして重ねる
+                <span class="cov8" title="1">page := &amp;messagedata.MessageData{Speaker: ""}
+                page.AddMarkup(query.T(world, "You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nHead &lt;keyword&gt;north&lt;/keyword&gt;. A relay station may still remain.\nYou must &lt;keyword&gt;repair&lt;/keyword&gt; the cube and &lt;keyword&gt;escape&lt;/keyword&gt;."))
+                return page
 </span>        }
         <span class="cov8" title="1">return messageState, nil</span>
 }
@@ -37114,13 +37117,9 @@ type mainMenuItem struct {
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
-        <span class="cov8" title="1">var startFuncs []es.StateFactory[w.World]
-        if world.Resources.Config.SkipOpening </span>{
-                <span class="cov8" title="1">startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
-</span>        } else {
-                <span class="cov0" title="0">startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
-</span>        }
-
+        // オープニングはキャラ作成後にゲーム画面へモーダルとして重ねる。開始スタックには積まない
+        <span class="cov8" title="1">startFuncs := []es.StateFactory[w.World]{NewCharacterNamingState}
+</span>
         <span class="cov8" title="1">t := func(msgid string) string </span>{ <span class="cov8" title="1">return query.T(world, msgid) }</span>
         <span class="cov8" title="1">items := []mainMenuItem{
                 {Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
@@ -49760,7 +49759,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
