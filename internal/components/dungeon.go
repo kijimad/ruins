@@ -36,6 +36,9 @@ type SeamlessBand struct {
 }
 
 // BandOriginY は帯ローカル Y=0 すなわち北端が指す絶対タイル Y。北は -Y なので NorthIndex ぶん負へ伸びる。
+//
+// worldstream.BandOriginY と同じ式を持つ。components は leaf で worldstream が components を import するため、
+// 逆向きに worldstream を呼べず、依存方向の都合でこの2箇所に同じ式が要る。式は -NorthIndex*chunkH の1行。
 func (sb SeamlessBand) BandOriginY() consts.AbsTileY {
 	return consts.AbsTileY(-sb.NorthIndex.Tiles(sb.ChunkH))
 }
@@ -43,6 +46,13 @@ func (sb SeamlessBand) BandOriginY() consts.AbsTileY {
 // LocalToAbsY は帯ローカル Y を絶対 Y に変換する。
 func (sb SeamlessBand) LocalToAbsY(localY consts.Tile) consts.AbsTileY {
 	return consts.AbsTileY(localY) + sb.BandOriginY()
+}
+
+// SpawnChunkY はプレイヤーが湧く初期帯の中央行の絶対チャンク Y。奥行きの起点となる。
+// 「湧き位置は中央行」の前提をここ1箇所に名付け、奥行き計算がこの起点を共有する。
+// 初期帯は NorthIndex=0 なので中央行の絶対チャンク Y は Rows/2 に等しい。
+func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
+	return sb.Rows / 2
 }
 
 // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す

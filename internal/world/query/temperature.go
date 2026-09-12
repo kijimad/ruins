@@ -118,8 +118,8 @@ func NorthDepthChunks(world w.World, y consts.Tile) int {
 		return 0
 	}
 	currentChunkY := floorDivInt(int(sb.LocalToAbsY(y)), int(sb.ChunkH))
-	spawnChunkY := int(sb.Rows) / 2
-	if depth := spawnChunkY - currentChunkY; depth > 0 {
+	// 起点は湧き位置の中央行。SeamlessBand が「湧き位置はどの行か」の唯一の出どころ
+	if depth := int(sb.SpawnChunkY()) - currentChunkY; depth > 0 {
 		return depth
 	}
 	return 0
