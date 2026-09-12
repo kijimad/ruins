@@ -50,8 +50,7 @@ type DungeonState struct {
 	// three は3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
 	three dungeon3D
 
-	// showOpening が真なら最初の Update で視界計算後にオープニングをモーダルとして重ねる。
-	// 一度重ねたら偽に落とし、再入では出さない。新規開始のときだけ character 作成側が立てる
+	// showOpening は新規開始のときだけ character 作成側が立てる。初回 Update で重ねたら偽に落とす
 	showOpening bool
 }
 
@@ -226,8 +225,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{}, err
 	}
 
-	// 新規開始の初回のみ、視界計算後にオープニングをモーダルとして重ねる。
-	// このフレームで既に本編が1度 Update され背後に実プレイ画面が描けている
+	// このフレームで視界を計算済みなので、背後に実プレイ画面を敷いたままオープニングを重ねられる
 	if st.showOpening {
 		st.showOpening = false
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewOpeningState}}, nil

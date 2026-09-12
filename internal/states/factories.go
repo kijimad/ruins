@@ -103,7 +103,6 @@ func newGameOverworldState(world w.World, showOpening bool) es.StateFactory[w.Wo
 	base := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
 		RunSeed: world.Resources.Config.RNG.Uint64(),
 	})
-	// オープニングは本編を1フレーム動かして視界を計算した後、overworld 自身が重ねる
 	return func() (es.State[w.World], error) {
 		state, err := base()
 		if err != nil {
@@ -379,7 +378,7 @@ func NewOpeningState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 	// 翻訳は world を要するので OnStart でページを組む
 	messageState.build = func(world w.World) *messagedata.MessageData {
-		// 目的を1ページで簡潔に伝える。背景キーを持たせず、土台のゲーム画面へモーダルとして重ねる
+		// 背景キーを持たせず、土台のゲーム画面へモーダルとして重ねる
 		page := &messagedata.MessageData{Speaker: ""}
 		page.AddMarkup(query.T(world, "You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nA relay station may still stand far to the <keyword>north</keyword>.\nReach it to <keyword>repair</keyword> the cube and <keyword>escape</keyword>."))
 		return page
