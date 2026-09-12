@@ -106,6 +106,21 @@ func (info *GameInfo) drawFloorNumber(cv uicore.Canvas, data GameInfoData) {
 	drawOutlinedText(cv, floorText, info.headingFace, image.Pt(x, theme.Space4), theme.TextPrimary)
 }
 
+// 右下スタックの行番号。下から 0=通貨・1=所持重量・2=周囲気温・3=北への奥行きの順に積む。
+// 各行は同じ積み方を bottomRightLineY で共有し、行の増減で各行を手計算し直さずに済む。
+const (
+	bottomRightRowWeight     = 1
+	bottomRightRowAmbient    = 2
+	bottomRightRowNorthDepth = 3
+)
+
+// bottomRightLineY は右下スタックの下から row 段目のテキスト行の Y を返す。row=0 が最下段。
+// 段が1つ上がるごとに 1行の高さ textHeight と行間 Space2F ぶん上へ積む。
+func bottomRightLineY(data GameInfoData, textHeight, row int) float64 {
+	return float64(data.ScreenDimensions.Height) - float64(data.MessageAreaHeight) - theme.Space4F -
+		float64(textHeight*(row+1)) - theme.Space2F*float64(row)
+}
+
 // drawNorthDepth は湧き位置からの北への奥行きを右下、周囲気温の1行上に描画する。オーバーワールドでのみ出す。
 // 右上はマクロ地図が占有するので、進捗と直結する気温の並びへ置く。北ほど寒く奥地の目的地へ近い
 func (info *GameInfo) drawNorthDepth(cv uicore.Canvas, data GameInfoData) {
@@ -116,10 +131,8 @@ func (info *GameInfo) drawNorthDepth(cv uicore.Canvas, data GameInfoData) {
 	textWidth, textHeight := uicore.MeasureText(text, info.bodyFace)
 
 	// 通貨・所持重量・気温と同じ右端に揃え、気温からさらに1行分上げる
-	screenWidth := float64(data.ScreenDimensions.Width)
-	screenHeight := float64(data.ScreenDimensions.Height)
-	x := screenWidth - float64(textWidth) - theme.Space4F
-	y := screenHeight - float64(data.MessageAreaHeight) - theme.Space4F - float64(textHeight*4) - theme.Space2F*3
+	x := float64(data.ScreenDimensions.Width) - float64(textWidth) - theme.Space4F
+	y := bottomRightLineY(data, textHeight, bottomRightRowNorthDepth)
 
 	drawOutlinedText(cv, text, info.bodyFace, image.Pt(int(x), int(y)), theme.TextPrimary)
 }
@@ -245,10 +258,8 @@ func (info *GameInfo) drawAmbientTemperature(cv uicore.Canvas, data GameInfoData
 	tempWidth, textHeight := uicore.MeasureText(tempText, info.bodyFace)
 
 	// 通貨・所持重量と同じ右端に揃え、所持重量からさらに1行分上げる
-	screenWidth := float64(data.ScreenDimensions.Width)
-	screenHeight := float64(data.ScreenDimensions.Height)
-	x := screenWidth - float64(labelWidth+tempWidth) - theme.Space4F
-	y := screenHeight - float64(data.MessageAreaHeight) - theme.Space4F - float64(textHeight*3) - theme.Space2F*2
+	x := float64(data.ScreenDimensions.Width) - float64(labelWidth+tempWidth) - theme.Space4F
+	y := bottomRightLineY(data, textHeight, bottomRightRowAmbient)
 
 	drawOutlinedText(cv, labelText, info.bodyFace, image.Pt(int(x), int(y)), theme.TextPrimary)
 	drawOutlinedText(cv, tempText, info.bodyFace, image.Pt(int(x)+labelWidth, int(y)), data.AmbientTempColor)
@@ -262,14 +273,9 @@ func (info *GameInfo) drawWeightDisplay(cv uicore.Canvas, data GameInfoData) {
 	// テキストの幅を測定
 	textWidth, textHeight := uicore.MeasureText(weightText, info.bodyFace)
 
-	// メッセージエリアの高さを取得
-	messageAreaHeight := float64(data.MessageAreaHeight)
-
-	// 画面右下に配置（通貨表示の上に重ならないように2行分上げる）
-	screenWidth := float64(data.ScreenDimensions.Width)
-	screenHeight := float64(data.ScreenDimensions.Height)
-	x := screenWidth - float64(textWidth) - theme.Space4F
-	y := screenHeight - messageAreaHeight - theme.Space4F - float64(textHeight*2) - theme.Space2F
+	// 画面右下に配置（通貨表示の上に重ならないように1行分上げる）
+	x := float64(data.ScreenDimensions.Width) - float64(textWidth) - theme.Space4F
+	y := bottomRightLineY(data, textHeight, bottomRightRowWeight)
 
 	// 重量比率を計算して色を決定
 	var textColor color.RGBA

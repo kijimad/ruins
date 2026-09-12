@@ -59,7 +59,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols
 		// Bind が自然に除外する
 		stage.Bind(world, gc.NewOverworldStage())
 		// このチャンクの4境界を接合後に再計算して継ぎ目を消す。片側が空の帯端は自己スキップ
-		// されるため、東西南北を無条件にまとめて呼べる。東シフトは西境界、西シフトは東境界が実境界。
+		// されるため、東西南北を無条件にまとめて呼べる。北シフトは南境界が新チャンク側の実境界になる。
 		RecalcChunkSeams(world, offsetX, offsetY, chunkW, chunkH)
 		return nil
 	}

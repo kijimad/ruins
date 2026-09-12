@@ -58,7 +58,7 @@ func RemoveEntitiesInYRange(world w.World, loY, hiY consts.Tile, keep func(ecs.E
 }
 
 // KeepPlayer は「プレイヤーは残す」keep 述語を返す。
-// 西端破棄でプレイヤーを巻き込まないための定型。
+// 南端破棄でプレイヤーを巻き込まないための定型。
 func KeepPlayer(world w.World) func(ecs.Entity) bool {
 	return func(entity ecs.Entity) bool {
 		return world.Components.Player.Has(entity)
