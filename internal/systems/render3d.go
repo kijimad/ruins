@@ -26,7 +26,15 @@ type Render3DSystem struct {
 	// 本番のダンジョンでは true、部屋全体を見せたいデモでは false にする。
 	// TODO: この切り替えは system でなく設定で保持する。設計は docs/design/260822112145.md
 	UseFOV bool
+	// geoLow は幾何を直接ラスタライズする低解像度バッファ。sprBuf はスプライトを原寸で描き、
+	// maskBuf は原寸の遮蔽マスク。毎フレーム作り直さず使い回す
+	geoLow, sprBuf, maskBuf *ebiten.Image
 }
+
+// pixelScale は幾何を 1/pixelScale の解像度へラスタライズして最近傍拡大する倍率。輪郭もテクスチャも
+// 一緒に粗くなり、スーファミ風の一貫した低ポリになる。スプライトは原寸で描き、壁の手前だけマスクで
+// 消して遮蔽を保つ。値はスプライトのドット粒度に合うよう選ぶ。
+const pixelScale = 3
 
 // String は w.Renderer を満たす。
 func (sys *Render3DSystem) String() string { return "Render3DSystem" }
@@ -42,6 +50,8 @@ type r3quad struct {
 	key   float64
 	// depth は画家ソートの副キー。quad は元エンティティを持たないので、立て板を作るときにSpriteRender.Depth をここへ焼き込む
 	depth int
+	// occluder は遮蔽マスク専用の種別。幾何は true で後ろを削り、スプライトは false で塗る
+	occluder bool
 }
 
 // r3cullRadius はプレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
@@ -159,34 +169,91 @@ func avgSpriteColor(atlas *ebiten.Image, x, y, w, h float64) [3]float64 {
 	return res
 }
 
-// Draw は w.Renderer を満たす。3Dシーンを screen へ描く。
+// Draw は w.Renderer を満たす。幾何(床・壁)を低解像度で直接ラスタライズして最近傍拡大し、スーファミ風の
+// くっきりした低ポリにする。スプライトは原寸で鮮明に描く。深度バッファが無いので、幾何とスプライトを
+// 深度順に焼いた遮蔽マスクで、壁の手前のスプライトだけを削って遮蔽を保つ。
 func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
-	quads, projector, err := sys.buildScene(world)
+	sw, sh := world.Resources.GetScreenDimensions()
+	fullProj, err := render3d.WorldProjectorSized(world, sw, sh)
 	if err != nil {
 		return err
 	}
-	sys.emit(screen, quads, projector)
+	center, err := render3d.PlayerTile(world)
+	if err != nil {
+		return err
+	}
+	pcx, pcz := float64(center.X), float64(center.Y)
+	visTint := sys.visTintFunc(world)
+
+	geo := sys.collectTiles(world, pcx, pcz, visTint)
+	var spr []r3quad
+	spr = sys.collectBillboards(world, spr, pcx, pcz, fullProj.Right(), visTint)
+	// 状態従属の装飾もスプライトとして積み、同じ遮蔽で手前の壁に隠させる
+	spr = sys.collectDecorations(world, spr, fullProj)
+
+	if err := sys.drawGeometry(world, screen, geo, sw, sh); err != nil {
+		return err
+	}
+	sys.compositeSprites(screen, geo, spr, fullProj, sw, sh)
 	return nil
 }
 
-// buildScene は投影とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。
-func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Projector, error) {
-	projector, err := render3d.WorldProjector(world)
+// drawGeometry は幾何を低解像度バッファへ直接ラスタライズし、最近傍で screen へ拡大する。原寸で描いて
+// から縮小せず最初から低解像度で描くので、平均化のぼやけも縮小モアレも出ず、くっきりしたドットになる。
+func (sys *Render3DSystem) drawGeometry(world w.World, screen *ebiten.Image, geo []r3quad, sw, sh int) error {
+	lw, lh := sw/pixelScale, sh/pixelScale
+	lowProj, err := render3d.WorldProjectorSized(world, lw, lh)
 	if err != nil {
-		return nil, render3d.Projector{}, err
+		return err
 	}
-	center, err := render3d.PlayerTile(world)
-	if err != nil {
-		return nil, render3d.Projector{}, err
-	}
-	pcx, pcz := float64(center.X), float64(center.Y)
+	sys.geoLow = ensureBuffer(sys.geoLow, lw, lh)
+	sys.geoLow.Clear()
+	// 低解像度の幾何は線形標本化。後退する床のテクセルの拾いがなめらかになり、移動時のちらつきを抑える。
+	// 拡大は最近傍のままなので大きなドット感は保たれる
+	sys.emit(sys.geoLow, geo, lowProj, ebiten.Blend{}, ebiten.FilterLinear)
+	up := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+	up.GeoM.Scale(float64(pixelScale), float64(pixelScale))
+	screen.DrawImage(sys.geoLow, up)
+	return nil
+}
 
-	visTint := sys.visTintFunc(world)
-	quads := sys.collectTiles(world, pcx, pcz, visTint)
-	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visTint)
-	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
-	quads = sys.collectDecorations(world, quads, projector)
-	return quads, projector, nil
+// compositeSprites は原寸スプライトを描き、遮蔽マスクで壁の手前のぶんだけ削って幾何の上へ重ねる。
+// マスクは深度順に、スプライトを source-over で塗り、幾何を destination-out で削る。手前の幾何だけが
+// スプライトを切り、スプライト同士は透明部分で欠けない。
+func (sys *Render3DSystem) compositeSprites(screen *ebiten.Image, geo, spr []r3quad, projector render3d.Projector, sw, sh int) {
+	sys.sprBuf = ensureBuffer(sys.sprBuf, sw, sh)
+	sys.maskBuf = ensureBuffer(sys.maskBuf, sw, sh)
+
+	sys.sprBuf.Clear()
+	sys.emit(sys.sprBuf, spr, projector, ebiten.Blend{}, ebiten.FilterNearest)
+
+	mask := make([]r3quad, 0, len(geo)+len(spr))
+	for i := range geo {
+		q := geo[i]
+		q.occluder = true
+		mask = append(mask, q)
+	}
+	for i := range spr {
+		q := spr[i]
+		q.occluder = false
+		mask = append(mask, q)
+	}
+	sys.maskBuf.Clear()
+	sys.emitMask(sys.maskBuf, mask, projector)
+
+	// マスクの α で原寸スプライトを削る。壁の手前のスプライトは α0 で消える。等倍なので縁は保たれる
+	cut := &ebiten.DrawImageOptions{Blend: ebiten.BlendDestinationIn}
+	sys.sprBuf.DrawImage(sys.maskBuf, cut)
+
+	screen.DrawImage(sys.sprBuf, nil)
+}
+
+// ensureBuffer は指定サイズの描画バッファを返す。サイズが違えば作り直す
+func ensureBuffer(buf *ebiten.Image, w, h int) *ebiten.Image {
+	if buf == nil || buf.Bounds().Dx() != w || buf.Bounds().Dy() != h {
+		return ebiten.NewImage(w, h)
+	}
+	return buf
 }
 
 // lightSample は解決済みの明るさと色。フィルタ列で乗算色まで変換する。
@@ -345,7 +412,10 @@ func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {
 }
 
 // emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。
-func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {
+// blend は合成方法。通常描画は既定の source-over、遮蔽マスクは前面で上書きする Copy を渡す。
+// filter はテクスチャ標本化。スプライトとマスクは最近傍で鮮明さと硬いエッジを保つ。低解像度の幾何は
+// 線形にすると、後退する床のテクセルの拾いがフレーム間でなめらかになり、動いたときのちらつきが減る。
+func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector, blend ebiten.Blend, filter ebiten.Filter) {
 	sortQuadsByDepth(quads, projector.Depth)
 
 	var verts []ebiten.Vertex
@@ -355,10 +425,13 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector 
 		if len(inds) == 0 || curAtlas == nil {
 			return
 		}
-		screen.DrawTriangles(verts, inds, curAtlas, &ebiten.DrawTrianglesOptions{})
+		screen.DrawTriangles(verts, inds, curAtlas, &ebiten.DrawTrianglesOptions{Blend: blend, Filter: filter})
 		verts = verts[:0]
 		inds = inds[:0]
 	}
+	// 線形標本化のときだけ UV をハーフテクセル内側へ寄せ、共有アトラスの隣タイルを拾って
+	// 境界に黒線が出るのを防ぐ。最近傍では拾う texel が矩形内に収まるので不要
+	insetUV := filter == ebiten.FilterLinear
 	for i := range quads {
 		q := &quads[i]
 		// アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。
@@ -367,7 +440,46 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector 
 			flush()
 			curAtlas = q.atlas
 		}
-		sys.emitQuad(&verts, &inds, q, projector.Point)
+		sys.emitQuad(&verts, &inds, q, projector.Point, insetUV)
+	}
+	flush()
+}
+
+// emitMask は遮蔽マスクを焼く。深度順に、スプライト(occluder=false)は source-over で α を塗り重ね、
+// 幾何(occluder=true)は destination-out で後ろの α を削る。手前の幾何だけがスプライトを切るので、
+// 壁遮蔽は保ちつつ、スプライト同士は透明部分で後ろを消さない。emit と別なのは per-quad で blend が
+// 変わり、種別の変わり目でもバッチを flush する点。焼いた α を sprBuf の切り抜きに使う。
+func (sys *Render3DSystem) emitMask(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {
+	sortQuadsByDepth(quads, projector.Depth)
+
+	var verts []ebiten.Vertex
+	var inds []uint16
+	var curAtlas *ebiten.Image
+	var curOccluder, started bool
+	blendFor := func(occluder bool) ebiten.Blend {
+		if occluder {
+			return ebiten.BlendDestinationOut
+		}
+		return ebiten.BlendSourceOver
+	}
+	flush := func() {
+		if len(inds) == 0 || curAtlas == nil {
+			return
+		}
+		screen.DrawTriangles(verts, inds, curAtlas, &ebiten.DrawTrianglesOptions{Blend: blendFor(curOccluder), Filter: ebiten.FilterNearest})
+		verts = verts[:0]
+		inds = inds[:0]
+	}
+	for i := range quads {
+		q := &quads[i]
+		// アトラスまたは種別の変わり目、頂点上限の手前で flush する。種別が変わると blend も変わるため
+		if !started || q.atlas != curAtlas || q.occluder != curOccluder || len(verts)+4 > maxVertsPerBatch {
+			flush()
+			curAtlas = q.atlas
+			curOccluder = q.occluder
+			started = true
+		}
+		sys.emitQuad(&verts, &inds, q, projector.Point, false)
 	}
 	flush()
 }
@@ -376,7 +488,8 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector 
 const maxVertsPerBatch = 65535
 
 // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。
-func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(render3d.Vec) (consts.Coord[consts.ScreenPixel], bool)) {
+// insetUV が真なら UV 矩形を半テクセル内側へ寄せ、線形標本化が隣タイルを拾う滲みを防ぐ。
+func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(render3d.Vec) (consts.Coord[consts.ScreenPixel], bool), insetUV bool) {
 	var sp [4]consts.Coord[consts.ScreenPixel]
 	for k, p := range q.p {
 		screenPos, ok := project(p)
@@ -385,14 +498,47 @@ func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r
 		}
 		sp[k] = screenPos
 	}
+	uv := insetUVRect(q.uv, insetUV)
 	b := uint16(len(*verts))
 	cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)
 	for k := range 4 {
 		*verts = append(*verts, ebiten.Vertex{
 			DstX: float32(sp[k].X), DstY: float32(sp[k].Y),
-			SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),
+			SrcX: float32(uv[k][0]), SrcY: float32(uv[k][1]),
 			ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,
 		})
 	}
 	*inds = append(*inds, b, b+1, b+2, b, b+2, b+3)
+}
+
+// insetUVRect は UV 矩形を各辺 0.5 テクセル内側へ寄せる。矩形が半テクセルより狭い、または inset が
+// 偽ならそのまま返す。ハーフテクセル・インセットで、線形フィルタが矩形の外へはみ出さないようにする。
+func insetUVRect(uv [4][2]float64, inset bool) [4][2]float64 {
+	if !inset {
+		return uv
+	}
+	minx := min(uv[0][0], uv[2][0])
+	maxx := max(uv[0][0], uv[2][0])
+	miny := min(uv[0][1], uv[2][1])
+	maxy := max(uv[0][1], uv[2][1])
+	const half = 0.5
+	if maxx-minx <= 2*half || maxy-miny <= 2*half {
+		return uv
+	}
+	out := uv
+	for k := range 4 {
+		switch out[k][0] {
+		case minx:
+			out[k][0] += half
+		case maxx:
+			out[k][0] -= half
+		}
+		switch out[k][1] {
+		case miny:
+			out[k][1] += half
+		case maxy:
+			out[k][1] -= half
+		}
+	}
+	return out
 }

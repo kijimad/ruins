@@ -27,11 +27,11 @@ func TestBuildScene_世界描画と重ねる側が同じ投影を使う(t *testi
 	camera.Orient = 3
 	camera.Pitch = 0.9
 
-	sys := &Render3DSystem{UseFOV: false}
-	_, projector, err := sys.buildScene(world)
-	require.NoError(t, err)
-
+	// スプライトは原寸で重ねるので WorldProjectorSized(原寸) を使う。これがオーバーレイの
+	// WorldProjector と一致しないと、カーソルや当たり判定が見た目とずれる
 	fromWorld, err := render3d.WorldProjector(world)
 	require.NoError(t, err)
-	assert.Equal(t, fromWorld, projector, "世界描画とオーバーレイが同じ投影を使う")
+	sized, err := render3d.WorldProjectorSized(world, 960, 720)
+	require.NoError(t, err)
+	assert.Equal(t, fromWorld, sized, "原寸のスプライト投影がオーバーレイと同じになる")
 }

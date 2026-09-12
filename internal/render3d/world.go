@@ -16,6 +16,12 @@ import (
 // error を返して呼び出し側の描画をやめさせる。
 func WorldProjector(world w.World) (Projector, error) {
 	sw, sh := world.Resources.GetScreenDimensions()
+	return WorldProjectorSized(world, sw, sh)
+}
+
+// WorldProjectorSized は投影先の解像度を明示して投影を組む。3D世界を低解像度バッファへ描いて
+// ドット感を出すときに、画面本来の解像度でなくバッファの解像度を渡す。
+func WorldProjectorSized(world w.World, sw, sh int) (Projector, error) {
 	camera := query.GetPlayerCamera(world)
 	if camera == nil {
 		return Projector{}, fmt.Errorf("player camera not found")
