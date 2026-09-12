@@ -116,14 +116,17 @@ jobs:
         run: make grill-branch
 
   bench-compare:
-    # mainとPRでベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
+    # main と PR のベンチを同一 runner で順に走らせて比較する。結果を sticky コメントへ出し、sec/op の
+    # geomean が2倍以上悪化したら失敗させる。別 runner では別 CPU に載って時間比較が無意味になるため、
+    # 同一 CPU で測れるよう直列にする。
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    # 直列で長引いたとき runner 回収でなく明示的タイムアウトで落とす
+    timeout-minutes: 25
     permissions:
       contents: read
       pull-requests: write # sticky コメント投稿用
     steps:
-      # base と PR を別々に checkout する
       - uses: actions/checkout@v7 # PR を作業ルートに
       - uses: actions/checkout@v7 # ベースを _base/ に
         with:
@@ -131,16 +134,21 @@ jobs:
           path: _base
       - uses: ./.github/actions/setup-go-with-x
       - name: run benchmarks (PR and base)
+        # 6サンプルで benchstat が信頼区間を出す。各100ms に絞ると全ベンチ×6でも OOM せず数分に収まる。
+        env:
+          GOFLAGS: -count=6 -benchtime=100ms
         run: |
-          # PRブランチで bench を実行する
-          make bench > pr.txt
-          # ベースブランチで bench を実行する。
-          # -s 必須: -C は top-level でも "make: Entering/Leaving directory" を stdout に出し、
-          # benchstat がそれを "make:" 設定行と誤解釈して base 側ベンチの突き合わせが壊れる。
-          # -s はこのメッセージも recipe echo も両方抑止する（Makefile の @ では -C 由来は消せない）。
-          if ! make -s -C _base bench > base.txt 2> base_err.txt; then
+          # benchstat は "key: value" 行を設定キーに行をグループ化する。base と PR で go: 行の値が違うと
+          # 別設定扱いで横並び比較が壊れるので、goos/goarch/pkg/cpu は残し go: 行だけ落とす。
+          strip_go() { grep -vE '^go:' "$1" > "$2"; }
+          make bench > pr.raw
+          strip_go pr.raw pr.txt
+          # base 側は -s 必須: -C は "make: Entering/Leaving directory" を stdout に出し、benchstat が
+          # それを設定行と誤解釈して突き合わせが壊れる。-s はこのメッセージも recipe echo も抑止する。
+          if make -s -C _base bench > base.raw 2> base_err.txt; then
+            strip_go base.raw base.txt
+          else
             echo "::warning::base のベンチ取得に失敗しました。比較をスキップします"
-            # エラー原因を base_err.txt に残す。
             sed 's/^/base bench err: /' base_err.txt || true
             # 途中クラッシュした base は部分データが残り、grep '^Benchmark' を通過して
             # 切り詰めた base との誤比較を生む。失敗した base は破棄し PR のみ表示へ確実に倒す。
@@ -152,24 +160,15 @@ jobs:
           # 途中でクラッシュしても sticky comment ステップがファイル無しで失敗しないよう保証する
           touch cmp.md
           bad=
-          # 実際にベンチを実行した commit を表示する
           REPO_URL="${{ github.server_url }}/${{ github.repository }}"
           PR_SHA=$(git rev-parse --short HEAD)
           BASE_SHA=$(git -C _base rev-parse --short HEAD 2>/dev/null || echo unknown)
           SHA_LINE="> 実行コミット: base [\`${BASE_SHA}\`](${REPO_URL}/commit/${BASE_SHA}) → PR [\`${PR_SHA}\`](${REPO_URL}/commit/${PR_SHA})"
-          # benchstat -format csv の geomean 行は次の形:
-          #   ,sec/op,CI,sec/op,CI,vs base,P        ← metric ヘッダ行（$1="" $2=metric）
-          #   geomean,<base値>,,<pr値>,,+200.00%,    ← $1=geomean $2=base $4=pr
-          # コメントは常に details で畳む。退化を検出したときだけ open で開き見逃さない。
-          # summary 内で状態が読めるよう、見出しと退化有無を1行に出す
+          # コメントは details で畳み、退化検出時だけ open で開いて見逃さない
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
-            # sec/op の geomean が2倍以上悪化したパッケージを検出する。
-            # 個別ベンチはサンプル数1だとノイズで簡単に2倍になり誤発火するため、
-            # 集約値の geomean で判定する。 geomean が2倍動くには大半のベンチが劣化する必要がある。
-            bad=$(go tool benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
-              $1=="" && $2!="" { metric=$2; next }
-              $1=="geomean" && metric=="sec/op" && ($2+0==$2) && ($4+0==$4) && $2>0 && $4/$2>=2 {
-                printf "- geomean: x%.2f\n", $4/$2 }')
+            # 退化判定は benchgate サブコマンドに委ねる。悪化パッケージが1行ずつ返り、無ければ空。
+            # ゲームバイナリは起動時に GLFW を初期化するので、他サブコマンド同様 xvfb 下で走らせる。
+            bad=$(xvfb-run -a go run . benchgate base.txt pr.txt)
             if [ -n "$bad" ]; then
               open_attr=' open'; summary='⚠️ ベンチ比較 (base vs PR) — 2倍以上の悪化を検出'
             else
@@ -189,7 +188,6 @@ jobs:
               echo '```'; go tool benchstat pr.txt; echo '```';
               echo ""; echo '</details>'; } > cmp.md
           fi
-          # CI ログで生成した Markdown を確認する
           cat cmp.md
           { echo "bad<<EOF"; echo "$bad"; echo "EOF"; } >> "$GITHUB_OUTPUT"
       - name: sticky comment

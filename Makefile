@@ -43,7 +43,7 @@ grill: ## 全テストを時間予算いっぱい反復してフレーキーを�
 	$(BWRAP_CMD) scripts/grill.sh
 
 .PHONY: bench
-bench: ## ベンチマークを全て実行する
+bench: ## ベンチマークを全て実行する。反復数は GOFLAGS=-count=N で変える
 	RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a go test -run '^$$' -bench=. -benchmem \
 		$(GO_TEST_PKGS)

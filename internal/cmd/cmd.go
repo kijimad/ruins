@@ -30,6 +30,7 @@ func NewMainApp() *cli.Command {
 			CmdGenReadme,
 			CmdGenComponents,
 			CmdDesignDoc,
+			CmdBenchgate,
 		},
 	}
 
