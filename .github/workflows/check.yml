@@ -167,21 +167,12 @@ jobs:
           PR_SHA=$(git rev-parse --short HEAD)
           BASE_SHA=$(git -C _base rev-parse --short HEAD 2>/dev/null || echo unknown)
           SHA_LINE="> 実行コミット: base [\`${BASE_SHA}\`](${REPO_URL}/commit/${BASE_SHA}) → PR [\`${PR_SHA}\`](${REPO_URL}/commit/${PR_SHA})"
-          # benchstat -format csv の geomean 行は次の形:
-          #   ,sec/op,CI,sec/op,CI,vs base,P        ← metric ヘッダ行（$1="" $2=metric）
-          #   geomean,<base値>,,<pr値>,,+200.00%,    ← $1=geomean $2=base $4=pr $6=vs base%
           # コメントは常に details で畳む。退化を検出したときだけ open で開き見逃さない。
           # summary 内で状態が読めるよう、見出しと退化有無を1行に出す
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
-            # sec/op の geomean が2倍以上悪化したパッケージを検出する。個別ベンチはノイズで簡単に2倍に
-            # なり誤発火するため集約値で見る。生の geomean 比ではなく benchstat の vs base 列 ($6) を使う。
-            # PR が新規ベンチ (Turn 等) を足すと base に対応が無く、geomean 列が別集合で計算され比較不能に
-            # なるが、vs base は共通ベンチだけで比べるので歪まない。+100% 以上、すなわち2倍を検出する。
-            bad=$(go tool benchstat -format csv base.txt pr.txt 2>/dev/null | awk -F, '
-              $1=="" && $2!="" { metric=$2; next }
-              $1=="geomean" && metric=="sec/op" && $6 ~ /%/ {
-                pct=$6; gsub(/[+%]/,"",pct);
-                if (pct+0>=100) printf "- geomean: +%s%%\n", pct }')
+            # 退化判定は scripts/benchgate.go に委ねる。両方に在るベンチをパッケージごとに sec/op の
+            # geomean 比で見て、2倍以上悪化したパッケージを1行ずつ返す。悪化が無ければ空。
+            bad=$(go run scripts/benchgate.go base.txt pr.txt)
             if [ -n "$bad" ]; then
               open_attr=' open'; summary='⚠️ ベンチ比較 (base vs PR) — 2倍以上の悪化を検出'
             else
