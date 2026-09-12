@@ -103,14 +103,13 @@ func newGameOverworldState(world w.World) es.StateFactory[w.World] {
 	base := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
 		RunSeed: world.Resources.Config.RNG.Uint64(),
 	})
-	showOpening := !world.Resources.Config.SkipOpening
 	return func() (es.State[w.World], error) {
 		state, err := base()
 		if err != nil {
 			return nil, err
 		}
 		if ds, ok := state.(*DungeonState); ok {
-			ds.showOpening = showOpening
+			ds.showOpening = !world.Resources.Config.SkipOpening
 		}
 		return state, nil
 	}
