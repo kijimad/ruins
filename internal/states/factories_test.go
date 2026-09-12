@@ -36,11 +36,11 @@ func TestNewOpeningState(t *testing.T) {
 	require.NotNil(t, md)
 	assert.NotEmpty(t, md.TextSegmentLines)
 
-	// 最初のページに背景キーが設定されている
-	assert.NotEmpty(t, md.BackgroundKey)
+	// 背景キーは持たない。土台のゲーム画面へモーダルとして重ねる
+	assert.Empty(t, md.BackgroundKey)
 
-	// 後続ページが連結されている
-	assert.True(t, md.HasNextMessages(), "後続メッセージが存在する")
+	// 目的は1ページで簡潔に伝えるので後続ページは無い
+	assert.False(t, md.HasNextMessages(), "1ページで完結する")
 }
 
 func TestDungeonMenuChoices_有効時はセーブ項目を出す(t *testing.T) {
