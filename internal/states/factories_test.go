@@ -39,8 +39,8 @@ func TestNewOpeningState(t *testing.T) {
 	// 最初のページに背景キーが設定されている
 	assert.NotEmpty(t, md.BackgroundKey)
 
-	// 後続ページが連結されている
-	assert.True(t, md.HasNextMessages(), "後続メッセージが存在する")
+	// 目的は1ページで簡潔に伝えるので後続ページは無い
+	assert.False(t, md.HasNextMessages(), "1ページで完結する")
 }
 
 func TestDungeonMenuChoices_有効時はセーブ項目を出す(t *testing.T) {

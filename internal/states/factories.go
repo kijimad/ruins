@@ -368,26 +368,10 @@ func NewOpeningState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 	// 翻訳は world を要するので OnStart でページを組む
 	messageState.build = func(world w.World) *messagedata.MessageData {
-		// 1. 黒背景: 荒野の大穴
-		page1a := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
-		page1a.AddText(query.T(world, "A vast wasteland, with a single great hole gaping open."))
-
-		// 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
-		blank := &messagedata.MessageData{Speaker: "", BackgroundKey: "hole1"}
-		page1b := &messagedata.MessageData{Speaker: ""}
-		page1b.AddText(query.T(world, "At the bottom of the hole lie ruins of an ancient civilization.\n")).
-			AddText(query.T(world, "Treasure comes out. Monsters too. Half of those who dive never return.\n")).
-			AddText(query.T(world, "Around the hole a town has formed of divers, sellers, and buyers."))
-
-		// 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂
-		blankBar := &messagedata.MessageData{Speaker: "", BackgroundKey: "bar1"}
-		page2 := &messagedata.MessageData{Speaker: ""}
-		page2.AddText(query.T(world, "\"Heard about it? Another bottom-seeker vanished.\"\n")).
-			AddText(query.T(world, "\"How many is that now?\"\n")).
-			AddText(query.T(world, "\"Who knows. I quit counting long ago.\"\n\n")).
-			AddMarkup(query.T(world, "\"So, the next <keyword>scavenger</keyword> has shown up... a bottom-seeker too, they say.\"\n"))
-
-		return messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)
+		// 目的を1ページで簡潔に伝える。専用の背景素材はまだ無いので宇宙にも闇にも馴染む黒背景で通す
+		page := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
+		page.AddMarkup(query.T(world, "You are a space traveler, stranded on a frozen planet after your cube broke down.\nA relay station may still stand far to the <keyword>east</keyword>. Reach it to <keyword>repair</keyword> the cube and <keyword>escape</keyword>."))
+		return page
 	}
 	return messageState, nil
 }
