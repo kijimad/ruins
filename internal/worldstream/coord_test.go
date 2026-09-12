@@ -3,10 +3,30 @@ package worldstream_test
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/worldstream"
 	"github.com/stretchr/testify/assert"
 )
+
+// TestBandOriginY_SeamlessBandと一致する は worldstream.BandOriginY と
+// components.SeamlessBand.BandOriginY が同一値であることを固定する。依存方向の都合で同じ式が
+// 2箇所にあるので、片方だけ変えた乖離をここで機械的に検知する。
+func TestBandOriginY_SeamlessBandと一致する(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		north  consts.Chunk
+		chunkH consts.Tile
+	}{
+		{0, 100}, {1, 24}, {5, 30}, {9, 20},
+	}
+	for _, c := range cases {
+		sb := gc.SeamlessBand{NorthIndex: c.north, ChunkH: c.chunkH}
+		assert.Equalf(t, worldstream.BandOriginY(c.north, c.chunkH), sb.BandOriginY(),
+			"north=%d chunkH=%d で両実装が一致する", c.north, c.chunkH)
+	}
+}
 
 func TestBandOriginY(t *testing.T) {
 	t.Parallel()

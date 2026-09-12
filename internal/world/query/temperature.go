@@ -77,6 +77,10 @@ func stageBaseTemperature(world w.World) int {
 
 // AmbientTemperatureAt はタイルの周囲気温を返す。ステージの基本気温、囲われに応じて
 // 受け方を変えた世界温度、タイルの加算℃、熱源の押し上げの4項の和になる。
+//
+// 緯度勾配は引数の y、すなわちそのタイル固有の緯度で測る。プレイヤーの緯度ではない。
+// 同じ帯でも北端のタイルは南端のタイルより寒い、という場所ごとの気温を返すのが意図。
+// プレイヤーの体感気温はプレイヤーの居るタイルの (x, y) で呼ぶことで得る。
 func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	if GetDungeon(world) == nil {
 		return 0, errors.New("dungeon resource is not set")
@@ -127,6 +131,9 @@ func NorthDepthChunks(world w.World, y consts.Tile) int {
 
 // floorDivInt は負の被除数でも床方向へ丸める整数除算。絶対 Y は北側で負になりうるため、
 // Go の / のゼロ方向丸めを床方向へ補正してチャンク境界を連続させる。
+//
+// overworld.floorDiv が consts.Chunk 版の同じロジックを持つ。query と overworld は依存方向が別で
+// 共通 leaf に出すと循環するため、int 版をここに置き重複を許容する。
 func floorDivInt(a, b int) int {
 	q := a / b
 	if (a%b != 0) && ((a < 0) != (b < 0)) {
