@@ -427,7 +427,8 @@ func TestReadBehavior_Finish_未読了なら本は消費されない(t *testing.
 	})
 
 	ra := &ReadBehavior{}
-	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}, State: gc.ActivityStateRunning}
+	// 消費の分岐は comp.State ではなく book.IsCompleted() で決まる。ここは Current<Max で未読了
+	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
 
 	require.NoError(t, ra.Finish(comp, actor, world))
 	assert.True(t, world.ECS.Alive(bookEntity), "読了していない本は消費されない")

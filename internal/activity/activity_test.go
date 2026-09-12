@@ -85,6 +85,7 @@ func TestActivityCancel(t *testing.T) {
 func TestCanInterrupt_未知のBehaviorNameはfalse(t *testing.T) {
 	t.Parallel()
 
+	// NewActivity の既定 State は Running。GetBehavior のエラーだけで false になる分岐を見る
 	comp := NewActivity(gc.BehaviorName("unknown"), 10)
 	assert.False(t, CanInterrupt(comp), "GetBehaviorがエラーを返す場合は中断不可")
 }

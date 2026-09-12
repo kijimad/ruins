@@ -166,3 +166,19 @@ func TestSleepBehavior_Canceled_プレイヤーは中断理由がログに出る
 	require.Len(t, recent, 1)
 	assert.Contains(t, recent[0], "Sleep interrupted")
 }
+
+func TestSleepBehavior_Canceled_プレイヤー以外はメッセージが出ない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity() // Playerコンポーネントなし
+	world.Components.Sleeping.Add(actor, &gc.Sleeping{Quality: consts.PercentBase})
+
+	sb := &SleepBehavior{}
+	comp := &gc.Activity{CancelReason: "woke up from the cold"}
+	require.NoError(t, sb.Canceled(comp, actor, world))
+
+	assert.False(t, world.Components.Sleeping.Has(actor), "中断でSleepingが外れる")
+
+	store := query.GetGameLog(world)
+	assert.Empty(t, store.GetRecent(1), "プレイヤー以外は中断ログを出さない")
+}
