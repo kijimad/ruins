@@ -97,6 +97,12 @@ toolsinstall: ## 開発ツールをインストールする
 	@npm install
 	@./scripts/setup-hooks.sh
 
+.PHONY: balance
+balance: ## ゲームバランス交換性マップを docs/balance/ruins_balance.dot から生成する
+	@command -v dot >/dev/null 2>&1 || { echo "dot が必要です。graphviz を入れてください"; exit 1; }
+	@dot -Tsvg docs/balance/ruins_balance.dot -o docs/balance/ruins_balance.svg
+	@echo "generated docs/balance/ruins_balance.svg"
+
 .PHONY: generate
 generate: ## コードを生成する
 	$(BWRAP_CMD) xvfb-run -a go generate ./...
