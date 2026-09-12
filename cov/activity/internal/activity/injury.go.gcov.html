@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-12 07:54:33</td>
+            <td class="headerValue">2026-09-12 09:25:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,8 +76,8 @@
 <span id="L14"><span class="lineNum">      14</span>              :         injuryChancePercent = 15</span>
 <span id="L15"><span class="lineNum">      15</span>              :         // injuryInitialTimer は付いた怪我の初期進行度。発症する 25 以上にして即座に効かせる</span>
 <span id="L16"><span class="lineNum">      16</span>              :         injuryInitialTimer = 40</span>
-<span id="L17"><span class="lineNum">      17</span>              :         // maxInjuriesPerPartType は1部位に積める同種の怪我の上限。独立傷が溢れないようにする</span>
-<span id="L18"><span class="lineNum">      18</span>              :         maxInjuriesPerPartType = 3</span>
+<span id="L17"><span class="lineNum">      17</span>              :         // maxInjuriesPerPartType は1部位に付く同種の怪我の上限。種類が違えば共存する</span>
+<span id="L18"><span class="lineNum">      18</span>              :         maxInjuriesPerPartType = 1</span>
 <span id="L19"><span class="lineNum">      19</span>              : )</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // injuryTypeFor は武器種から怪我の種類を導く。鈍器は骨折、刃と弾は切り傷。</span>
@@ -91,9 +91,9 @@
 <span id="L29"><span class="lineNum">      29</span>              :         }</span>
 <span id="L30"><span class="lineNum">      30</span>              : }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // applyInjury は命中時に確率で命中部位へ独立した怪我を1つ付ける。</span>
+<span id="L32"><span class="lineNum">      32</span>              : // applyInjury は命中時に確率で命中部位へ怪我を1つ付ける。</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 怪我の種類は武器種から導き、命中部位は部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。</span>
-<span id="L34"><span class="lineNum">      34</span>              : // 同じ部位に同種の怪我がソフト上限に達していれば付けない。独立に積むので身体機能と失血は全傷が合算される</span>
+<span id="L34"><span class="lineNum">      34</span>              : // 同じ部位に同種の怪我が既にあれば付けない。種類や部位が違う傷は独立で、身体機能と失血は全傷が合算される</span>
 <span id="L35"><span class="lineNum">      35</span>              : func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(target) {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return</span></span>
