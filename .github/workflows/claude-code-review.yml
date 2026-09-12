@@ -50,8 +50,8 @@ jobs:
             
             Be constructive and helpful in your feedback.
 
-          # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
-          # use_sticky_comment: true
+          # 同じ PR への push では同一コメントを更新し、古いレビューを溜めない。codecov と同じく最新だけ残す
+          use_sticky_comment: true
           
           # Optional: Customize review based on file types
           # direct_prompt: |
