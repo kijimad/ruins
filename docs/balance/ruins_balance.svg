@@ -443,9 +443,9 @@
 <!-- food&#45;&gt;cond -->
 <g id="edge31" class="edge">
 <title>food&#45;&gt;cond</title>
-<path fill="none" stroke="#dc2626" stroke-width="1.6" d="M1436.53,-866.41C1442.77,-864.14 1448.91,-861.57 1454.62,-858.67 1470.71,-850.49 1469.56,-839.55 1486.62,-833.67 1556.4,-809.64 1757.11,-842.14 1876.19,-864.9"/>
-<polygon fill="#dc2626" stroke="#dc2626" stroke-width="1.6" points="1875.61,-867.28 1882.95,-866.2 1876.53,-862.47 1875.61,-867.28"/>
-<text xml:space="preserve" text-anchor="middle" x="1663.73" y="-844.51" font-family="sans-serif" font-size="9.00" fill="#b91c1c">腐敗25%食中毒</text>
+<path fill="none" stroke="#475569" d="M1436.53,-866.41C1442.77,-864.14 1448.91,-861.57 1454.62,-858.67 1470.71,-850.49 1469.56,-839.55 1486.62,-833.67 1556.61,-809.57 1758.31,-842.33 1877.26,-865.1"/>
+<polygon fill="#475569" stroke="#475569" points="1876.5,-867.45 1883.84,-866.37 1877.43,-862.64 1876.5,-867.45"/>
+<text xml:space="preserve" text-anchor="middle" x="1663.73" y="-844.51" font-family="sans-serif" font-size="9.00" fill="#334155">腐敗25%食中毒</text>
 </g>
 <!-- vit -->
 <g id="node23" class="node">
@@ -636,7 +636,7 @@
 <path fill="none" stroke="#d97706" stroke-dasharray="5,2" d="M1101.69,-342.3C1166.56,-340.02 1263.21,-336.62 1322.65,-334.53"/>
 <polygon fill="#d97706" stroke="#d97706" points="1101.99,-339.83 1095.08,-342.53 1102.16,-344.73 1101.99,-339.83"/>
 <polygon fill="#d97706" stroke="#d97706" points="1322.72,-336.98 1329.62,-334.29 1322.54,-332.08 1322.72,-336.98"/>
-<text xml:space="preserve" text-anchor="middle" x="1205" y="-344.99" font-family="sans-serif" font-size="9.00" fill="#b45309">弾数⇔リロード</text>
+<text xml:space="preserve" text-anchor="middle" x="1205" y="-345.19" font-family="sans-serif" font-size="9.00" fill="#b45309">リロードでAP消費</text>
 </g>
 <!-- wranged&#45;&gt;weight -->
 <g id="edge55" class="edge">

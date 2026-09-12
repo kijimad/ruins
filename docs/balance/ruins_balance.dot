@@ -129,7 +129,7 @@ digraph balance {
   sleep -> fatigue [color="#475569", fontcolor="#334155", label="-3×Q"];
   sleep -> metab [color="#475569", fontcolor="#334155", label="+50×Q"];
   food -> hunger [color="#475569", fontcolor="#334155", label="栄養+"];
-  food -> cond [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="腐敗25%食中毒"];
+  food -> cond [color="#475569", fontcolor="#334155", label="腐敗25%食中毒"];
   vit -> hp [color="#475569", fontcolor="#334155", label="×8"];
   str -> hp [color="#475569", fontcolor="#334155", label="+1"];
   sen -> hp [color="#475569", fontcolor="#334155", label="+1"];
@@ -143,7 +143,7 @@ digraph balance {
   wmelee -> damage [color="#475569", fontcolor="#334155", label="武器dmg"];
   wmelee -> hit [color="#475569", fontcolor="#334155", label="武器acc"];
   wranged -> hit [color="#475569", fontcolor="#334155", label="射程ペナ"];
-  wranged -> ap [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="弾数⇔リロード"];
+  wranged -> ap [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="リロードでAP消費"];
   damage -> hp [color="#dc2626", fontcolor="#b91c1c", penwidth=1.6, label="-防御→HP"];
   armor -> damage [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="被ダメ↓"];
   skill -> damage [color="#475569", fontcolor="#334155", label="+5%/Lv"];
