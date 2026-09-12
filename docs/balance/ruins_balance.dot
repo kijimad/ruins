@@ -1,9 +1,10 @@
 // ruins ゲームバランス パラメータ交換性マップ (Graphviz DOT)
-// 正典ソース。ノード/辺を直接編集し、リポジトリルートで make balance を実行して図を出力する。
+// この図の正典ソース。ノード/辺を直接編集し、リポジトリルートで make balance を実行して図を出力する。
+// 数値の正典はコードの const・raw 値で、この図は手で同期する派生ビュー。食い違ったらコードが正。
 // 配置と矢印経路は dot が自動で引く。プレビューPNGが要るときは次を使う。
 //   make balance
 //   dot -Tpng docs/balance/ruins_balance.dot -o /tmp/preview.png
-// 辺の種別: 無印=flow(増やす/生む)  破線橙=trade(一方↑で他方↓)  赤=drain(削る/ダメージ)
+// 辺の種別: 無印=flow(増やす/生む)  破線橙=相互(双方向の相互関係。トレードオフ・連動・制約)  赤=drain(削る/ダメージ)
 digraph balance {
   rankdir=LR;
   newrank=true;
@@ -15,7 +16,7 @@ digraph balance {
   concentrate=false;
   fontname="sans-serif";
   labelloc="t";
-  label=<<B>ruins ゲームバランス パラメータ交換性マップ</B><BR/><FONT POINT-SIZE="10"><FONT COLOR="#334155">→</FONT> flow(増やす/生む)  <FONT COLOR="#d97706">⇔</FONT> trade(一方↑で他方↓, 破線)  <FONT COLOR="#dc2626">→</FONT> drain(削る/ダメージ)  ／ 出典: 実コードの const・raw値</FONT>>;
+  label=<<B>ruins ゲームバランス パラメータ交換性マップ</B><BR/><FONT POINT-SIZE="10"><FONT COLOR="#334155">→</FONT> flow(増やす/生む)  <FONT COLOR="#d97706">⇔</FONT> 相互(双方向, 破線)  <FONT COLOR="#dc2626">→</FONT> drain(削る/ダメージ)  ／ 出典: 実コードの const・raw値</FONT>>;
   node [shape=box, style="rounded,filled", fontname="sans-serif", fontsize=11, margin="0.14,0.07"];
   edge [fontname="sans-serif", fontsize=9, arrowsize=0.7];
   subgraph cluster_time {
@@ -44,7 +45,7 @@ digraph balance {
     label=<<B>サバイバル・身体</B>>;
     fontcolor="#22c55e"; fontsize=13;
     style="filled,rounded"; color="#22c55e"; fillcolor="#dcfce744"; penwidth=1.2;
-    hunger [label=<満腹度 Hunger<BR/><FONT POINT-SIZE="8">最大500・3ターンで-1</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
+    hunger [label=<満腹度 Hunger<BR/><FONT POINT-SIZE="8">最大500・平均3ターンで-1</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
     fatigue [label=<疲労 Fatigue<BR/><FONT POINT-SIZE="8">最大2000・+1/ターン</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
     bodytemp [label=<体温 BodyTemp<BR/><FONT POINT-SIZE="8">平熱0〜-5・-2で低体温</FONT>>, fillcolor="#dcfce7", color="#22c55e"];
     cond [label=<状態異常 Conditions<BR/><FONT POINT-SIZE="8">低体温/骨折/切傷/栄養失調/過労/食中毒</FONT>>, fillcolor="#dcfce7", color="#22c55e"];

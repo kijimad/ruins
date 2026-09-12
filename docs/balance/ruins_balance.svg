@@ -10,12 +10,12 @@
 <title>balance</title>
 <polygon fill="#f8fafc" stroke="none" points="-4,4 -4,-1537.07 2839.58,-1537.07 2839.58,4 -4,4"/>
 <text xml:space="preserve" text-anchor="start" x="1268.16" y="-1516.77" font-family="sans-serif" font-weight="bold" font-size="14.00">ruins ゲームバランス パラメータ交換性マップ</text>
-<text xml:space="preserve" text-anchor="start" x="1175.91" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#334155">→</text>
-<text xml:space="preserve" text-anchor="start" x="1184.16" y="-1506.57" font-family="sans-serif" font-size="10.00"> flow(増やす/生む) &#160;</text>
-<text xml:space="preserve" text-anchor="start" x="1268.91" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#d97706">⇔</text>
-<text xml:space="preserve" text-anchor="start" x="1277.16" y="-1506.57" font-family="sans-serif" font-size="10.00"> trade(一方↑で他方↓, 破線) &#160;</text>
-<text xml:space="preserve" text-anchor="start" x="1404.66" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#dc2626">→</text>
-<text xml:space="preserve" text-anchor="start" x="1412.91" y="-1506.57" font-family="sans-serif" font-size="10.00"> drain(削る/ダメージ) &#160;／ 出典: 実コードの const・raw値</text>
+<text xml:space="preserve" text-anchor="start" x="1196.54" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#334155">→</text>
+<text xml:space="preserve" text-anchor="start" x="1204.79" y="-1506.57" font-family="sans-serif" font-size="10.00"> flow(増やす/生む) &#160;</text>
+<text xml:space="preserve" text-anchor="start" x="1289.54" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#d97706">⇔</text>
+<text xml:space="preserve" text-anchor="start" x="1297.79" y="-1506.57" font-family="sans-serif" font-size="10.00"> 相互(双方向, 破線) &#160;</text>
+<text xml:space="preserve" text-anchor="start" x="1384.04" y="-1506.57" font-family="sans-serif" font-size="10.00" fill="#dc2626">→</text>
+<text xml:space="preserve" text-anchor="start" x="1392.29" y="-1506.57" font-family="sans-serif" font-size="10.00"> drain(削る/ダメージ) &#160;／ 出典: 実コードの const・raw値</text>
 <g id="clust1" class="cluster">
 <title>cluster_time</title>
 <path fill="#dbeafe" fill-opacity="0.266667" stroke="#3b82f6" stroke-width="1.2" d="M20,-1324.67C20,-1324.67 842.64,-1324.67 842.64,-1324.67 848.64,-1324.67 854.64,-1330.67 854.64,-1336.67 854.64,-1336.67 854.64,-1446.67 854.64,-1446.67 854.64,-1452.67 848.64,-1458.67 842.64,-1458.67 842.64,-1458.67 20,-1458.67 20,-1458.67 14,-1458.67 8,-1452.67 8,-1446.67 8,-1446.67 8,-1336.67 8,-1336.67 8,-1330.67 14,-1324.67 20,-1324.67"/>
@@ -75,9 +75,9 @@
 <!-- hunger -->
 <g id="node13" class="node">
 <title>hunger</title>
-<path fill="#dcfce7" stroke="#22c55e" d="M1703.06,-1006.67C1703.06,-1006.67 1624.4,-1006.67 1624.4,-1006.67 1618.4,-1006.67 1612.4,-1000.67 1612.4,-994.67 1612.4,-994.67 1612.4,-982.67 1612.4,-982.67 1612.4,-976.67 1618.4,-970.67 1624.4,-970.67 1624.4,-970.67 1703.06,-970.67 1703.06,-970.67 1709.06,-970.67 1715.06,-976.67 1715.06,-982.67 1715.06,-982.67 1715.06,-994.67 1715.06,-994.67 1715.06,-1000.67 1709.06,-1006.67 1703.06,-1006.67"/>
+<path fill="#dcfce7" stroke="#22c55e" d="M1711.31,-1006.67C1711.31,-1006.67 1616.15,-1006.67 1616.15,-1006.67 1610.15,-1006.67 1604.15,-1000.67 1604.15,-994.67 1604.15,-994.67 1604.15,-982.67 1604.15,-982.67 1604.15,-976.67 1610.15,-970.67 1616.15,-970.67 1616.15,-970.67 1711.31,-970.67 1711.31,-970.67 1717.31,-970.67 1723.31,-976.67 1723.31,-982.67 1723.31,-982.67 1723.31,-994.67 1723.31,-994.67 1723.31,-1000.67 1717.31,-1006.67 1711.31,-1006.67"/>
 <text xml:space="preserve" text-anchor="start" x="1625.86" y="-988.72" font-family="sans-serif" font-size="11.00">満腹度 Hunger</text>
-<text xml:space="preserve" text-anchor="start" x="1622.48" y="-980.57" font-family="sans-serif" font-size="8.00">最大500・3ターンで&#45;1</text>
+<text xml:space="preserve" text-anchor="start" x="1614.23" y="-980.57" font-family="sans-serif" font-size="8.00">最大500・平均3ターンで&#45;1</text>
 </g>
 <!-- totalturns&#45;&gt;hunger -->
 <g id="edge16" class="edge">
@@ -296,7 +296,7 @@
 <!-- hunger&#45;&gt;cond -->
 <g id="edge18" class="edge">
 <title>hunger&#45;&gt;cond</title>
-<path fill="none" stroke="#475569" d="M1715.37,-982.94C1752.26,-977.73 1802.99,-968.39 1845.44,-952.67 1877.19,-940.91 1910.51,-921.65 1934.38,-906.46"/>
+<path fill="none" stroke="#475569" d="M1723.8,-981.71C1759.74,-976.31 1806.14,-967.22 1845.44,-952.67 1877.19,-940.91 1910.51,-921.65 1934.38,-906.46"/>
 <polygon fill="#475569" stroke="#475569" points="1935.64,-908.56 1940.2,-902.71 1932.99,-904.44 1935.64,-908.56"/>
 <text xml:space="preserve" text-anchor="middle" x="1810.94" y="-976.14" font-family="sans-serif" font-size="9.00" fill="#334155">栄養失調</text>
 </g>
@@ -436,8 +436,8 @@
 <!-- food&#45;&gt;hunger -->
 <g id="edge30" class="edge">
 <title>food&#45;&gt;hunger</title>
-<path fill="none" stroke="#475569" d="M1420.07,-899.05C1462.86,-917.25 1530.95,-945.4 1591.03,-966.67 1595.25,-968.17 1599.63,-969.66 1604.05,-971.11"/>
-<polygon fill="#475569" stroke="#475569" points="1603.17,-973.4 1610.58,-973.24 1604.68,-968.74 1603.17,-973.4"/>
+<path fill="none" stroke="#475569" d="M1420.07,-899.05C1462.86,-917.25 1530.95,-945.4 1591.03,-966.67 1592.73,-967.27 1594.45,-967.87 1596.19,-968.47"/>
+<polygon fill="#475569" stroke="#475569" points="1595.05,-970.67 1602.47,-970.58 1596.62,-966.03 1595.05,-970.67"/>
 <text xml:space="preserve" text-anchor="middle" x="1518.82" y="-955.88" font-family="sans-serif" font-size="9.00" fill="#334155">栄養+</text>
 </g>
 <!-- food&#45;&gt;cond -->
