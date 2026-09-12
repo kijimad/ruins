@@ -172,7 +172,8 @@ jobs:
           if grep -q '^Benchmark' base.txt 2>/dev/null; then
             # 退化判定は benchgate サブコマンドに委ねる。両方に在るベンチをパッケージごとに sec/op の
             # geomean 比で見て、2倍以上悪化したパッケージを1行ずつ返す。悪化が無ければ空。
-            bad=$(go run . benchgate base.txt pr.txt)
+            # ゲームバイナリは起動時に GLFW を初期化するので、他のサブコマンド同様 xvfb 下で走らせる。
+            bad=$(xvfb-run -a go run . benchgate base.txt pr.txt)
             if [ -n "$bad" ]; then
               open_attr=' open'; summary='⚠️ ベンチ比較 (base vs PR) — 2倍以上の悪化を検出'
             else
