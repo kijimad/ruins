@@ -145,13 +145,20 @@ jobs:
         env:
           GOFLAGS: -count=6 -benchtime=100ms
         run: |
+          # go の "go: downloading ..." 等のチャッターを除く。benchstat は "key: value" 行を設定キーとして
+          # 行をグループ化するので、base と PR で go: 行の値が違うと別設定扱いになり横並び比較にならない。
+          # goos/goarch/pkg/cpu は残し go: だけ落とすことで両者が揃い、benchstat が side-by-side を出す。
+          strip_go() { grep -vE '^go:' "$1" > "$2"; }
           # PRブランチで bench を実行する
-          make bench > pr.txt
+          make bench > pr.raw
+          strip_go pr.raw pr.txt
           # ベースブランチで bench を実行する。
           # -s 必須: -C は top-level でも "make: Entering/Leaving directory" を stdout に出し、
           # benchstat がそれを "make:" 設定行と誤解釈して base 側ベンチの突き合わせが壊れる。
           # -s はこのメッセージも recipe echo も両方抑止する。
-          if ! make -s -C _base bench > base.txt 2> base_err.txt; then
+          if make -s -C _base bench > base.raw 2> base_err.txt; then
+            strip_go base.raw base.txt
+          else
             echo "::warning::base のベンチ取得に失敗しました。比較をスキップします"
             sed 's/^/base bench err: /' base_err.txt || true
             # 途中クラッシュした base は部分データが残り、grep '^Benchmark' を通過して
