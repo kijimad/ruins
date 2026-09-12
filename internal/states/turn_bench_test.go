@@ -40,6 +40,7 @@ func BenchmarkTurn(b *testing.B) {
 		sys := &systems.TurnSystem{}
 
 		b.Run(bld.name, func(b *testing.B) {
+			// 反復ごとにワールドが1ターン進み状態は累積する。実プレイの流れを測るため毎回リセットしない
 			for range b.N {
 				turnState.Phase = gc.TurnPhaseAI
 				require.NoError(b, sys.Update(world)) // AI フェーズ -> End へ
