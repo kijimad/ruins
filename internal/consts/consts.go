@@ -40,6 +40,8 @@ const (
 	DriveFuelBase = 10
 	// DriveFuelPerKg はキューブ収納の総重量1kgあたりに加算する運転燃料。総重量に比例して燃費が悪化する
 	DriveFuelPerKg = 1
+	// CubeWeightCapacityKg はキューブ収納の重量容量。kg 単位。spawn とバランス導出で共有する
+	CubeWeightCapacityKg = 500
 )
 
 // ========== ゲーム定数 ==========

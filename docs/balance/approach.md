@@ -32,7 +32,7 @@
 | サバイバル（連鎖） | 空腹/低体温→状態異常→血液→HP、代謝→回復 | B | 状態異常からの HP 減到達ターン、無回復での生存打数 | `components/health_status.go` BloodLossHPDrain/Metabolism | 未着手 |
 | 疲労・睡眠 | 経過→疲労、睡眠→疲労回復・代謝 | A/B | 睡眠なしの限界ターン、睡眠1回の回復量 | `systems/fatigue.go`、`activity/sleep.go` | 未着手 |
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
-| 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost/CubeWeight、`consts` DriveFuelBase/DriveFuelPerKg、`query/fire.go` FuelBurnTurns | 次に着手 |
+| 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf` → `balance/logistics.go` | 実装済み |
 | 経済・終端 | loot価値→売買/競売、送料・手数料→手取り | A+C | 探索1回の期待収支、競売手取り率 | 純部分は `query/auction.go`（送料25/kg・手数料0.12・集荷100・開始0.4）。行動依存は `balance/run.go` モンテカルロ | 後回し |
 
 補足。競売は毎ターン確率 0.6 で入札が延びる確率過程（`query/auction.go` AuctionBidChance）。手取りの定常近似は A で出せるが、実際の落札額分布は C で測る。
@@ -60,6 +60,6 @@
 
 ## 現状と次
 
-- 実装済み: 戦闘（戦力比カーブ）、生存の飢え・寒さ。凍結ゲート・感度・単変数探索。
-- 次: 物流（航続・積載トレード）。純関数で A、戦闘と同じ速さで進む。
-- 後: サバイバル連鎖 B、疲労・睡眠、経済 A+C。
+- 実装済み: 戦闘（戦力比カーブ）、生存の飢え・寒さ、物流（航続・積載トレード）。凍結ゲート・感度・単変数探索。
+- 次: サバイバル連鎖 B（空腹/低体温→状態異常→血液→HP）、疲労・睡眠。
+- 後: 経済 A+C。
