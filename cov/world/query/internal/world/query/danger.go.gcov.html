@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 03:30:42</td>
+            <td class="headerValue">2026-09-13 03:31:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,19 +69,20 @@
 <span id="L7"><span class="lineNum">       7</span>              : // dangerDaysPerLevel は危険度が1段上がる経過日数。値は暫定で、実プレイの伸びを測って振り直す。</span>
 <span id="L8"><span class="lineNum">       8</span>              : const dangerDaysPerLevel = 3</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // dangerLevel は経過日数から危険度を返す純関数。危険度は1始まりで最小は1。</span>
-<span id="L11"><span class="lineNum">      11</span>              : // 単調非減少で、同じ入力は常に同じ危険度を返す。</span>
-<span id="L12"><span class="lineNum">      12</span>              : func dangerLevel(days int) int {</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         if days &lt; 0 {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 days = 0</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         return 1 + days/dangerDaysPerLevel</span></span>
-<span id="L17"><span class="lineNum">      17</span>              : }</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // DangerLevelAt は world から経過日数を引いて危険度を返す。</span>
-<span id="L20"><span class="lineNum">      20</span>              : func DangerLevelAt(world w.World) int {</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return dangerLevel(GetGameTime(world).GetDayNumber())</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L10"><span class="lineNum">      10</span>              : // DangerLevelForDay は経過日数から危険度を返す純関数。危険度は1始まりで最小は1。</span>
+<span id="L11"><span class="lineNum">      11</span>              : // 単調非減少で、同じ入力は常に同じ危険度を返す。バランス導出が world 抜きで時系列の</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 難易度カーブを引けるよう公開する。</span>
+<span id="L13"><span class="lineNum">      13</span>              : func DangerLevelForDay(days int) int {</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 :         if days &lt; 0 {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 days = 0</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return 1 + days/dangerDaysPerLevel</span></span>
+<span id="L18"><span class="lineNum">      18</span>              : }</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // DangerLevelAt は world から経過日数を引いて危険度を返す。</span>
+<span id="L21"><span class="lineNum">      21</span>              : func DangerLevelAt(world w.World) int {</span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return DangerLevelForDay(GetGameTime(world).GetDayNumber())</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

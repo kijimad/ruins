@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 03:30:42</td>
+            <td class="headerValue">2026-09-13 03:31:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -198,37 +198,39 @@
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         return WeaponStats{}, fmt.Errorf(&quot;item %q has neither Melee nor Fire&quot;, name)</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : }</span>
 <span id="L138"><span class="lineNum">     138</span>              : </span>
-<span id="L139"><span class="lineNum">     139</span>              : // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す</span>
-<span id="L140"><span class="lineNum">     140</span>              : func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         member, err := raw.FindMember(master, enemyName)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, err</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L145"><span class="lineNum">     145</span>              : </span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if member.CommandTableId == nil {</span></span>
-<span id="L147"><span class="lineNum">     147</span>              :                 // CommandTableがない場合は素手</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :                 return LoadWeaponFromItem(master, &quot;bare_hands&quot;)</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L150"><span class="lineNum">     150</span>              : </span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 :         ct, err := raw.GetCommandTable(master, *member.CommandTableId)</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC tlaBgUNC">           0 :                 return WeaponStats{}, err</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC tlaBgGNC">           1 :         if len(ct.Entries) == 0 {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC tlaBgUNC">           0 :                 return LoadWeaponFromItem(master, &quot;bare_hands&quot;)</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L159"><span class="lineNum">     159</span>              : </span>
-<span id="L160"><span class="lineNum">     160</span>              :         // 最も重みの高い攻撃を代表として使う</span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC tlaBgGNC">           1 :         bestEntry := ct.Entries[0]</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         for _, entry := range ct.Entries[1:] {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 if entry.Weight &gt; bestEntry.Weight {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         bestEntry = entry</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L166"><span class="lineNum">     166</span>              :         }</span>
-<span id="L167"><span class="lineNum">     167</span>              : </span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         return LoadWeaponFromItem(master, bestEntry.Weapon)</span></span>
-<span id="L169"><span class="lineNum">     169</span>              : }</span>
+<span id="L139"><span class="lineNum">     139</span>              : // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す。</span>
+<span id="L140"><span class="lineNum">     140</span>              : // 攻撃コマンドは最も重みの高い1つを代表に使う簡略化で、コマンドの重み分布は反映しない。</span>
+<span id="L141"><span class="lineNum">     141</span>              : // DifficultyCurve の敵プールの重みとは別の近似なので、両者で二重の簡略化になる点に注意する。</span>
+<span id="L142"><span class="lineNum">     142</span>              : func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         member, err := raw.FindMember(master, enemyName)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, err</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         if member.CommandTableId == nil {</span></span>
+<span id="L149"><span class="lineNum">     149</span>              :                 // CommandTableがない場合は素手</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC tlaBgUNC">           0 :                 return LoadWeaponFromItem(master, &quot;bare_hands&quot;)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           1 :         ct, err := raw.GetCommandTable(master, *member.CommandTableId)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC tlaBgUNC">           0 :                 return WeaponStats{}, err</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">           1 :         if len(ct.Entries) == 0 {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC tlaBgUNC">           0 :                 return LoadWeaponFromItem(master, &quot;bare_hands&quot;)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span>              :         // 最も重みの高い攻撃を代表として使う</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC tlaBgGNC">           1 :         bestEntry := ct.Entries[0]</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         for _, entry := range ct.Entries[1:] {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 if entry.Weight &gt; bestEntry.Weight {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         bestEntry = entry</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L168"><span class="lineNum">     168</span>              :         }</span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return LoadWeaponFromItem(master, bestEntry.Weapon)</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : }</span>
         </pre>
               </td>
             </tr>

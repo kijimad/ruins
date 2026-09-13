@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - balance/internal/balance/baseline.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">balance/internal/balance</a> - baseline.go<span style="font-size: 80%;"> (source / <a href="baseline.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">89.5&nbsp;%</td>
+            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntry">68</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-13 03:31:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package balance</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;sort&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;strings&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // ベースライン導出の基準。プレイヤーは強化なしの素手を最悪ケースとして固定する。cmd と探索で</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 同じ値を参照し、テーブルと実機能がずれるのを防ぐ。</span>
+<span id="L14"><span class="lineNum">      14</span>              : const (</span>
+<span id="L15"><span class="lineNum">      15</span>              :         BaselinePlayer    = &quot;ash&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         BaselineWeapon    = &quot;bare_hands&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         BaselineDays      = 21</span>
+<span id="L18"><span class="lineNum">      18</span>              :         BaselineAreaTable = &quot;ruins_area&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              : )</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : // TargetPowerRatio は序盤戦闘の目標帯の中心値を返す。day1=2.5 から day20=1.3 へ線形に下げ、</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 序盤は余裕あり、終盤で拮抗へ寄せる。値は人間が決める設計仮説で、プレイで見直す。</span>
+<span id="L23"><span class="lineNum">      23</span>              : func TargetPowerRatio(day int) float64 {</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :         const d0, m0, d1, m1 = 1, 2.5, 20, 1.3</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L26"><span class="lineNum">      26</span>              :         case day &lt;= d0:</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 return m0</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         case day &gt;= d1:</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return m1</span></span>
+<span id="L30"><span class="lineNum">      30</span>              :         default:</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 return m0 + (m1-m0)*float64(day-d0)/float64(d1-d0)</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :         }</span>
+<span id="L33"><span class="lineNum">      33</span>              : }</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // targetBand は目標帯の許容幅。中心±この値を目標帯内とみなす。</span>
+<span id="L36"><span class="lineNum">      36</span>              : const targetBand = 0.3</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // BaselineRow はベースライン表の1行。ある日の実測 powerRatio と目標帯の関係を持つ。</span>
+<span id="L39"><span class="lineNum">      39</span>              : type BaselineRow struct {</span>
+<span id="L40"><span class="lineNum">      40</span>              :         Day        int</span>
+<span id="L41"><span class="lineNum">      41</span>              :         Danger     int</span>
+<span id="L42"><span class="lineNum">      42</span>              :         PowerRatio float64</span>
+<span id="L43"><span class="lineNum">      43</span>              :         Target     float64</span>
+<span id="L44"><span class="lineNum">      44</span>              :         InRange    bool</span>
+<span id="L45"><span class="lineNum">      45</span>              : }</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              : // Baseline は指定した敵テーブルの序盤戦闘ベースラインを返す。プレイヤーは強化なしの素手を</span>
+<span id="L48"><span class="lineNum">      48</span>              : // 最悪ケースとして固定し、難易度カーブを目標帯と突き合わせる。</span>
+<span id="L49"><span class="lineNum">      49</span>              : func Baseline(master oapi.Raws, playerName, weaponName, enemyTableName string, days int) ([]BaselineRow, error) {</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">           1 :         weapon, err := LoadWeaponFromItem(master, weaponName)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC tlaBgGNC">           1 :         curve, err := DifficultyCurve(master, player, weapon, enemyTableName, days)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :         rows := make([]BaselineRow, len(curve))</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         for i, m := range curve {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 tg := TargetPowerRatio(m.Day)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 rows[i] = BaselineRow{</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                         Day:        m.Day,</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                         Danger:     m.Danger,</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                         PowerRatio: m.PowerRatio,</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         Target:     tg,</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         InRange:    m.PowerRatio &gt;= tg-targetBand &amp;&amp; m.PowerRatio &lt;= tg+targetBand,</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L72"><span class="lineNum">      72</span>              :         }</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         return rows, nil</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : }</span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span>              : // RenderBaselineMarkdown は全敵テーブルのベースラインを markdown 表にする。パラメータ変更の</span>
+<span id="L77"><span class="lineNum">      77</span>              : // 影響が diff で読めるよう、テーブルごとに日次の powerRatio と目標・目標帯内かを並べる。</span>
+<span id="L78"><span class="lineNum">      78</span>              : // 文字列リテラルは源泉英語化の方針に合わせ英語にする。テーブル名は raw 由来の実行時データ。</span>
+<span id="L79"><span class="lineNum">      79</span>              : func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, days int) (string, error) {</span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         var b strings.Builder</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;# バランスベースライン\n\n&quot;)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;実コードの戦闘式と raw.toml から乱数なしで導出したバランスの現状値。`make balance-report` で再生成する。\n&quot;)</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;パラメータを変えたときはこのファイルの差分が影響を示す。目標や式の詳細は docs/balance/approach.md を参照。\n\n&quot;)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L85"><span class="lineNum">      85</span>              :         // 序盤戦闘のカーブ</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;## 序盤戦闘の難易度カーブ\n\n&quot;)</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;**概要**: 各日にプレイヤーがどれだけ有利かを戦力比で表す。戦力比は敵を倒す速さ÷敵に倒される速さで、1.0が互角、大きいほど楽。\n&quot;)</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;プレイヤーは強化なしの `%s` + `%s` を最悪ケースとして固定する。実プレイは武器強化でこれより楽になる。\n&quot;, playerName, weaponName)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;目標帯は day1=2.5 から day20=1.3 へ下げ、許容幅±%.1f。目標は設計仮説でプレイで見直す。判定「内」が目標帯の中、「外」が外。\n\n&quot;, targetBand)</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         tables := raw.PtrSlice(master.EnemyTables)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           2 :         sort.Slice(tables, func(i, j int) bool { return tables[i].Id &lt; tables[j].Id })</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         for _, table := range tables {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 rows, err := Baseline(master, playerName, weaponName, table.Id, days)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC tlaBgUNC">           0 :                         return &quot;&quot;, err</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC tlaBgGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;### %s (%s)\n\n&quot;, table.Name, table.Id)</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;| 日 | 危険度 | 戦力比 | 目標 | 判定 |\n&quot;)</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;|---:|---:|---:|---:|:--:|\n&quot;)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 for _, r := range rows {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                         mark := &quot;外&quot;</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                         if r.InRange {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                                 mark = &quot;内&quot;</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                         fmt.Fprintf(&amp;b, &quot;| %d | %d | %.2f | %.2f | %s |\n&quot;, r.Day, r.Danger, r.PowerRatio, r.Target, mark)</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :                 }</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;\n&quot;)</span></span>
+<span id="L109"><span class="lineNum">     109</span>              :         }</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              :         // 生存圧</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;## 生存圧\n\n&quot;)</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;**概要**: 補給なしで生き延びられる時間。食料は日単位、寒さはターン単位で時間スケールが大きく違う。\n&quot;)</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;飢えは満腹度が尽きるまで、寒さは平熱から低体温が発生するまでを表す。実効温度は周囲温度に断熱を足した値。\n\n&quot;)</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;| 指標 | 値 |\n|---|---:|\n&quot;)</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;| 栄養失調まで（満腹度33%%未満）の日数 | %.2f |\n&quot;, DaysUntilStarving())</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;| 満腹度が尽きるまでの日数 | %.2f |\n&quot;, DaysUntilHungerEmpty())</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;\n| 実効温度(℃) | 低体温までのターン |\n|---:|---:|\n&quot;)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         for _, temp := range []int{-20, -10, 0, 5, 10, 15} {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;| %d | %.0f |\n&quot;, temp, TurnsToHypothermia(temp))</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;\n&quot;)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L124"><span class="lineNum">     124</span>              :         // 感度</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;## 感度（廃墟 day20 戦力比、各つまみ+10%%）\n\n&quot;)</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;**概要**: どのパラメータを動かすと難易度が動くかの目安。各武器のダメージを+10%%したとき、廃墟 day20 の戦力比がどれだけ変わるかを示す。\n&quot;)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;変化が大きいほど効くつまみ。整数ダメージの丸めで小さな値の変化は表に出ないことがある。\n\n&quot;)</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;| つまみ | 現状 | +10%% | 変化 |\n|---|---:|---:|---:|\n&quot;)</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         for _, s := range SensitivityDay20(master) {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;| %s | %.2f | %.2f | %+.1f%% |\n&quot;, s.Knob, s.Base, s.Plus10, s.DeltaRatio*100)</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;\n&quot;)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         return b.String(), nil</span></span>
+<span id="L134"><span class="lineNum">     134</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">21</td>
-            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">22</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 03:30:42</td>
+            <td class="headerValue">2026-09-13 03:31:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -89,25 +89,26 @@
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Commands: []*cli.Command{</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                         CmdPlay,</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         CmdSimulateBalance,</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         CmdGenReadme,</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         CmdGenComponents,</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                         CmdDesignDoc,</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         CmdBenchgate,</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return app</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span>              : // RunMainApp はメインアプリケーションを実行する</span>
-<span id="L41"><span class="lineNum">      41</span>              : func RunMainApp(app *cli.Command, args ...string) error {</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         err := app.Run(context.Background(), args)</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;command execution failed: %w&quot;, err)</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L48"><span class="lineNum">      48</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         CmdBalanceReport,</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         CmdGenReadme,</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                         CmdGenComponents,</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         CmdDesignDoc,</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                         CmdBenchgate,</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return app</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : // RunMainApp はメインアプリケーションを実行する</span>
+<span id="L42"><span class="lineNum">      42</span>              : func RunMainApp(app *cli.Command, args ...string) error {</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         err := app.Run(context.Background(), args)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;command execution failed: %w&quot;, err)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : }</span>
         </pre>
               </td>
             </tr>
