@@ -102,6 +102,8 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 
 // 奥地ほど寒い緯度勾配のパラメータ。無限軸を奥へ進んだチャンク距離が増えるほど世界温度を下げる。
 // 北極点へ近づくほど寒くなる惑星像を、進行距離の単調減少で表す。値は実プレイで調整する。
+// 最寒の組み合わせは季節の最低に latitudeColdMax を足したもの。屋外はここまで冷え、屋内は
+// shelteredWorldTemp で緩和される。過酷すぎれば下限を下げる。
 const (
 	// latitudeColdPerChunk は1チャンク奥へ進むごとに下がる℃
 	latitudeColdPerChunk = 1
