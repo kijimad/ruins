@@ -167,7 +167,12 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	// 生の text.Draw はロックを迂回するため
 	cv := uicore.NewEbitenCanvas(dst)
 
-	cv.DrawText(image.Pt(8, 6), fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), face, theme.TextPrimary)
+	// プレイヤー不在は playerAbs.X が負。座標を出さず見出しだけにして -1 を漏らさない
+	header := "Overworld Map"
+	if st.playerAbs.X >= 0 {
+		header = fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y)
+	}
+	cv.DrawText(image.Pt(8, 6), header, face, theme.TextPrimary)
 
 	cell := st.cellPx
 	// 格子は横をモーダル内側の中央へ寄せる

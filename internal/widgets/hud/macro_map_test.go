@@ -208,6 +208,23 @@ func TestDrawMapGrid_道を持つセルは接続方角ごとに線分を描く(t
 	assert.Len(t, cv.fillRects, 5, "地色1つと4方角の道4つを描く")
 }
 
+func TestDrawMapGrid_極小セルでも道が消えない(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	// t = max(cell/5, 1) のクランプで、cell=3 でも太さ1pxの道が残る
+	view := overworld.MacroView{
+		Cells: [][]overworld.MacroCell{{{
+			Glyph:      '.',
+			Discovered: true,
+			Road:       overworld.RoadN | overworld.RoadS | overworld.RoadE | overworld.RoadW,
+		}}},
+	}
+	DrawMapGrid(cv, view, MapGridStyle{CellPx: 3, MinGlyphPx: 999})
+
+	assert.Len(t, cv.fillRects, 5, "極小セルでも地色1つと4方角の道4つを描く")
+}
+
 func TestDrawMapGrid_キューブは縁取り付きの記号で描く(t *testing.T) {
 	t.Parallel()
 	cv := &fakeCanvas{}
