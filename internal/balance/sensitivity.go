@@ -36,38 +36,56 @@ func knobRegistry() []Knob {
 // SensitivityMetricNames は感度行列の列。ドメイン横断の代表メトリクス。
 var SensitivityMetricNames = []string{"戦力比d20", "飢餓まで日数", "睡眠時間割合", "OIL航続", "loot手取り", "Lv30攻撃数"}
 
-// metricsAt はパラメータベクトル p の下で SensitivityMetricNames の各メトリクスを評価して返す。
-// 導出はすべて p の純関数なので、成分を摂動すれば任意のつまみの影響を測れる。
-// p が効かないメトリクスは現状値のままになり弾力性0になる。
+// metricValue はパラメータベクトル p の下で idx 番目のメトリクスだけを評価して返す。
+// 導出はすべて p の純関数なので、成分を摂動すれば任意のつまみの影響を測れる。単一メトリクス
+// 単位にするのは、交換レートの求解が対象メトリクス以外の重い計算を回さないようにするため。
+// idx が範囲外なら 0 を返す。
+func metricValue(master oapi.Raws, p Params, idx int) float64 {
+	switch idx {
+	case 0: // 戦闘。敵武器ダメージとプレイヤー筋力の倍率を適用して廃墟 day20 戦力比を測る
+		player, err := LoadCombatantFromMember(master, BaselinePlayer)
+		if err != nil {
+			return 0
+		}
+		weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+		if err != nil {
+			return 0
+		}
+		player.Strength = int(math.Round(float64(player.Strength) * p.PlayerStrengthScale))
+		ratio := 0.0
+		withScaledMeleeDamage(master, "bite", p.EnemyWeaponScale, func() {
+			if curve, e := DifficultyCurve(master, player, weapon, BaselineAreaTable, 20); e == nil && len(curve) >= 20 {
+				ratio = curve[19].PowerRatio
+			}
+		})
+		return ratio
+	case 1: // 生存
+		return DaysUntilStarving(p)
+	case 2: // 疲労
+		return SleepTimeFraction(p)
+	case 3: // 物流。燃料熱量の倍率を掛けて満載 OIL の航続を測る
+		capacity := consts.Milligram(consts.CubeWeightCapacityKg) * consts.MilligramPerKg
+		fuel := float64(query.HeatOf(oapi.OIL, capacity)) * p.FuelHeatScale
+		return DriveRangeTiles(consts.Heat(fuel), capacity)
+	case 4: // 経済。loot 価値の倍率を掛けて1個あたり手取りを測る。送料が固定なので弾力性は1を超える
+		lv := ExpectedLootValue(master, "ruins_area", 8) * p.LootValueScale
+		if lv <= 0 {
+			return 0
+		}
+		return float64(query.AuctionNetProceeds(consts.Currency(math.Round(lv)), ExpectedLootWeightKg(master, "ruins_area", 8)))
+	case 5: // 進行。現状の成分では動かない。他ドメインのつまみが成長へ波及しないことを見せる列
+		return float64(AttacksToSkillLevel(0, 30))
+	}
+	return 0
+}
+
+// metricsAt はパラメータベクトル p の下で全メトリクスを評価して返す。感度行列が全列を要するので
+// metricValue を全 idx について回す。
 func metricsAt(master oapi.Raws, p Params) []float64 {
 	out := make([]float64, len(SensitivityMetricNames))
-
-	// 戦闘。敵武器ダメージとプレイヤー筋力の倍率を適用して廃墟 day20 戦力比を測る
-	if player, err := LoadCombatantFromMember(master, BaselinePlayer); err == nil {
-		if weapon, err := LoadWeaponFromItem(master, BaselineWeapon); err == nil {
-			player.Strength = int(math.Round(float64(player.Strength) * p.PlayerStrengthScale))
-			withScaledMeleeDamage(master, "bite", p.EnemyWeaponScale, func() {
-				if curve, e := DifficultyCurve(master, player, weapon, BaselineAreaTable, 20); e == nil && len(curve) >= 20 {
-					out[0] = curve[19].PowerRatio
-				}
-			})
-		}
+	for i := range out {
+		out[i] = metricValue(master, p, i)
 	}
-	// 生存
-	out[1] = DaysUntilStarving(p)
-	// 疲労
-	out[2] = SleepTimeFraction(p)
-	// 物流。燃料熱量の倍率を掛けて満載 OIL の航続を測る
-	capacity := consts.Milligram(consts.CubeWeightCapacityKg) * consts.MilligramPerKg
-	fuel := float64(query.HeatOf(oapi.OIL, capacity)) * p.FuelHeatScale
-	out[3] = DriveRangeTiles(consts.Heat(fuel), capacity)
-	// 経済。loot 価値の倍率を掛けて1個あたり手取りを測る。送料は固定なので価値に対し弾力性が1を超える
-	lv := ExpectedLootValue(master, "ruins_area", 8) * p.LootValueScale
-	if lv > 0 {
-		out[4] = float64(query.AuctionNetProceeds(consts.Currency(math.Round(lv)), ExpectedLootWeightKg(master, "ruins_area", 8)))
-	}
-	// 進行。現状の成分では動かない。他ドメインのつまみが成長に波及しないことを見せる列
-	out[5] = float64(AttacksToSkillLevel(0, 30))
 	return out
 }
 

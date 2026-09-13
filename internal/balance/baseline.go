@@ -225,6 +225,9 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	// 感度行列。つまみ×メトリクスの横断ヤコビアン
 	renderSensitivityMatrix(&b, master)
 
+	// 交換レート。同じメトリクスを保つためのつまみ間の相互補償
+	renderExchangeRates(&b, master)
+
 	// ビルド別のブレ。静的下限に加え、スキル・装備・バフで戦力が振れる幅を見る
 	if builds, err := RepresentativeBuilds(master); err == nil {
 		fmt.Fprintf(&b, "## ビルド別のブレ（廃墟）\n\n")
@@ -317,4 +320,40 @@ func renderSensitivityMatrix(b *strings.Builder, master oapi.Raws) {
 		fmt.Fprintf(b, " |\n")
 	}
 	fmt.Fprintf(b, "\n")
+}
+
+// renderExchangeRates はメトリクスごとの交換レート表を markdown で書き出す。行のつまみを+10%した
+// とき、列のつまみをどれだけ動かせば同じメトリクスに据え置けるかの相互補償を示す。
+func renderExchangeRates(b *strings.Builder, master oapi.Raws) {
+	fmt.Fprintf(b, "## 交換レート（相互補償）\n\n")
+	fmt.Fprintf(b, "**概要**: あるつまみを+10%%したとき、同じメトリクスを元へ戻すには別のつまみをどれだけ動かせばよいか。\n")
+	fmt.Fprintf(b, "行のつまみを+10%%し、列のつまみの変化率で打ち消す。実式を二分探索で解いた値で、感度の比の線形近似より正確。\n")
+	fmt.Fprintf(b, "そのメトリクスを動かすつまみが2つ以上あるときだけ表を出す。負は相手を減らして打ち消すことを表す。範囲外で両立不能なら「×」。\n\n")
+	for _, mx := range ExchangeRates(master) {
+		fmt.Fprintf(b, "### %s\n\n", mx.Metric)
+		fmt.Fprintf(b, "| +10%%↓ \\ 補償→")
+		for _, name := range mx.Knobs {
+			fmt.Fprintf(b, " | %s", name)
+		}
+		fmt.Fprintf(b, " |\n|---")
+		for range mx.Knobs {
+			fmt.Fprintf(b, "|---:")
+		}
+		fmt.Fprintf(b, "|\n")
+		for _, row := range mx.Rows {
+			fmt.Fprintf(b, "| %s", row.Knob)
+			for _, c := range row.Cells {
+				switch {
+				case c.Compensator == row.Knob:
+					fmt.Fprintf(b, " | -")
+				case !c.OK:
+					fmt.Fprintf(b, " | ×")
+				default:
+					fmt.Fprintf(b, " | %+.1f%%", c.PctChange)
+				}
+			}
+			fmt.Fprintf(b, " |\n")
+		}
+		fmt.Fprintf(b, "\n")
+	}
 }
