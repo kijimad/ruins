@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -28,6 +30,7 @@ type OverworldMapState struct {
 
 	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
 	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
+	facing    gc.Orient                  // カメラの水平向き。右上のコンパスが指す方角
 	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
 	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
 }
@@ -96,6 +99,12 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
+
+	// カメラの水平向き。向きマーカーが指す方角。カメラ不在時は北を既定にする
+	st.facing = 0
+	if cam := query.GetPlayerCamera(world); cam != nil {
+		st.facing = cam.Orient
+	}
 
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
 	st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
@@ -222,11 +231,12 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		}
 		drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)
 	}
-	// 現在地マーカー。白枠でセルを囲む
+	// 現在地マーカー。プレイヤーはナビのポインタで示し、カメラ前方へ回して位置と向きを兼ねる。地図は
+	// 北=上なので指す向きがそのまま世界の方角になる。location-arrow は北東向きなので -π/4 で北へ補正し -yaw で前方へ回す
 	if st.view.PlayerCell.X >= 0 {
-		x := originX + consts.ScreenPixel(st.view.PlayerCell.X)*cell
-		y := originY + consts.ScreenPixel(st.view.PlayerCell.Y)*cell
-		vector.StrokeRect(dst, float32(x-1), float32(y-1), float32(cell+1), float32(cell+1), 2, theme.OverworldMapPlayerMarker, false)
+		mcx, mcy := cellCenter(st.view.PlayerCell.X, st.view.PlayerCell.Y)
+		angle := -st.facing.Yaw() - math.Pi/4
+		uicore.NewEbitenCanvas(dst).DrawGlyphRotated(image.Pt(int(mcx), int(mcy)), consts.IconLocationArrow, face, angle, theme.TextAccent)
 	}
 
 	st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)

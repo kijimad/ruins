@@ -3,8 +3,10 @@ package hud
 import (
 	"image"
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/overworld"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -13,14 +15,15 @@ import (
 
 // MacroMap は HUD 右上のマクロ地図エリア。N キーで開く地形俯瞰と同じ内容を縮小して常時表示する。
 type MacroMap struct {
-	face    text.Face
-	chrome  Chrome
-	enabled bool
+	face       text.Face // 地形セルの記号に使う小フォント
+	markerFace text.Face // 現在地のポインタに使う、セル記号より大きいフォント
+	chrome     Chrome
+	enabled    bool
 }
 
 // NewMacroMap は新しい HUD マクロ地図を作成する。
-func NewMacroMap(face text.Face, chrome Chrome) *MacroMap {
-	return &MacroMap{face: face, chrome: chrome, enabled: true}
+func NewMacroMap(face, markerFace text.Face, chrome Chrome) *MacroMap {
+	return &MacroMap{face: face, markerFace: markerFace, chrome: chrome, enabled: true}
 }
 
 // Update はマクロ地図を更新する。描画データは毎フレーム抽出されるので保持状態は持たない。
@@ -87,11 +90,13 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 		cv.FillRect(image.Rect(cx+inset, cy+inset, cx+cellPx-inset, cy+cellPx-inset), theme.OverworldMapCubeMarker)
 	}
 
-	// 現在地マーカー。白枠でセルを囲む
+	// 現在地マーカー。プレイヤーはナビのポインタで示し、カメラ前方へ回して位置と向きを兼ねる。地図は
+	// 北=上なので指す向きがそのまま世界の方角になる。location-arrow は北東向きなので -π/4 で北へ補正し -yaw で前方へ回す
 	if data.View.PlayerCell.X >= 0 {
-		px := offX + int(data.View.PlayerCell.X)*cellPx
-		py := offY + int(data.View.PlayerCell.Y)*cellPx
-		cv.StrokeRect(image.Rect(px, py, px+cellPx, py+cellPx), 1, theme.OverworldMapPlayerMarker)
+		cx := offX + int(data.View.PlayerCell.X)*cellPx + cellPx/2
+		cy := offY + int(data.View.PlayerCell.Y)*cellPx + cellPx/2
+		angle := -data.PlayerFacing.Yaw() - math.Pi/4
+		cv.DrawGlyphRotated(image.Pt(cx, cy), consts.IconLocationArrow, m.markerFace, angle, theme.TextAccent)
 	}
 }
 

@@ -111,8 +111,10 @@ func BuildMacroView(
 			view.PlayerCell = pc
 		}
 	}
+	// 現在地と重なるキューブは描かない。プレイヤーの向きポインタと被って見づらくなるため、
+	// 同じセルではポインタだけを見せる。PlayerCell はプレイヤー不在時 X=-1 でどのキューブとも一致しない
 	for _, ct := range cubeTiles {
-		if cc, ok := toCell(ct); ok {
+		if cc, ok := toCell(ct); ok && cc != view.PlayerCell {
 			view.CubeCells = append(view.CubeCells, cc)
 		}
 	}

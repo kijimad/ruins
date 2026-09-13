@@ -55,6 +55,21 @@ func TestBuildMacroView_表示範囲の格子とマーカーを表示範囲ロ�
 	assert.False(t, view.Cells[0][0].Discovered, "discovered が nil なら何も開放されずフォグになる")
 }
 
+func TestBuildMacroView_現在地と重なるキューブは落とす(t *testing.T) {
+	t.Parallel()
+	// 1チャンク=10タイル。プレイヤーとキューブが同じチャンク(1,0)に居る
+	area := MacroRange{OriginX: 0, Cols: 3, Rows: 2}
+	player := consts.Coord[consts.Tile]{X: 15, Y: 5}
+	cubes := []consts.Coord[consts.Tile]{
+		{X: 15, Y: 5},  // チャンク(1,0)。プレイヤーと重なるので落とす
+		{X: 25, Y: 12}, // チャンク(2,1)。重ならないので残す
+	}
+	view := BuildMacroView(1, 0, 10, 10, area, player, true, cubes, nil)
+
+	assert.Equal(t, consts.Coord[consts.Chunk]{X: 1, Y: 0}, view.PlayerCell)
+	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 2, Y: 1}}, view.CubeCells, "現在地セルのキューブは落とし、向きポインタだけ見せる")
+}
+
 func TestBuildMacroView_フォグは探索済みチャンクだけ開放する(t *testing.T) {
 	t.Parallel()
 	area := MacroRange{OriginX: 0, Cols: 3, Rows: 1}

@@ -14,7 +14,7 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	t.Helper()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	return NewMacroMap(nil, NewChrome(res))
+	return NewMacroMap(nil, nil, NewChrome(res))
 }
 
 func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {
@@ -85,4 +85,25 @@ func TestMacroMap_Draw_開放セルを塗り未開放は伏せる(t *testing.T) 
 
 	assert.Equal(t, 1, cv.nineSlices, "背景パネルを描く")
 	assert.Len(t, cv.fillRects, 1, "開放済みセルだけ塗り、未開放は伏せる")
+}
+
+func TestMacroMap_Draw_現在地は回転ポインタで描く(t *testing.T) {
+	t.Parallel()
+	m := newTestMacroMap(t)
+	cv := &fakeCanvas{}
+
+	view := overworld.MacroView{
+		Cells:      [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
+		PlayerCell: consts.Coord[consts.Chunk]{X: 0, Y: 0},
+	}
+	m.Draw(cv, MacroMapData{
+		HasBand:      true,
+		View:         view,
+		PlayerFacing: 0,
+		Config:       MacroMapConfig{Width: 150, Height: 150, MinGlyphPx: 999},
+		Screen:       ScreenDimensions{Width: 1024, Height: 768},
+	})
+
+	assert.Equal(t, []string{consts.IconLocationArrow}, cv.rotatedGlyphs, "現在地はカメラ前方へ回したポインタ1つで示す")
+	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
 }

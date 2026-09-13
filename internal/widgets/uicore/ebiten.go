@@ -32,6 +32,19 @@ func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
 	vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)
 }
 
+// DrawGlyphRotated は EbitenCanvas を実装する。center を中心に angle だけ回した1文字を描く。
+func (e *EbitenCanvas) DrawGlyphRotated(center image.Point, s string, face text.Face, angle float64, c color.Color) {
+	op := &text.DrawOptions{}
+	op.GeoM.Rotate(angle)
+	op.GeoM.Translate(float64(center.X), float64(center.Y))
+	op.ColorScale.ScaleWithColor(c)
+	op.PrimaryAlign = text.AlignCenter
+	op.SecondaryAlign = text.AlignCenter
+	textMu.Lock()
+	text.Draw(e.screen, s, face, op)
+	textMu.Unlock()
+}
+
 // DrawText は EbitenCanvas を実装する。pos を左上として1行を描く。
 func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c color.Color) {
 	op := &text.DrawOptions{}

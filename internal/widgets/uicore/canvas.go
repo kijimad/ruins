@@ -16,6 +16,9 @@ type Canvas interface {
 	FillRect(r image.Rectangle, c color.Color)
 	// StrokeRect は矩形の枠を width の太さで描く。
 	StrokeRect(r image.Rectangle, width int, c color.Color)
+	// DrawGlyphRotated は center を中心に、angle ラジアンだけ回した1文字を描く。
+	// 地図のコンパスのアイコングリフをカメラ前方へ回して向きを示すのに使う。
+	DrawGlyphRotated(center image.Point, s string, face text.Face, angle float64, c color.Color)
 	// DrawText は pos を左上として1行を描く。
 	DrawText(pos image.Point, s string, face text.Face, c color.Color)
 	// DrawImage は pos を左上として画像を描く。
