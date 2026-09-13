@@ -22,9 +22,8 @@ func TestBand_ShouldShiftNorth(t *testing.T) {
 	assert.True(t, b.ShouldShiftNorth(99), "中央チャンクを北へ出たら北シフト")
 }
 
-// TestBand_ShouldShiftNorth_1行帯は発火しない は退化した rows=1 帯の安全性を固定する。
-// centerSlot=rows/2=0 で閾値が0になり、非負の帯ローカル Y は決してこれを下回らないので、
-// 南端全域を破棄するシフトへ入らない。Rows ゼロ値のフォールバックが1行帯になっても安全。
+// TestBand_ShouldShiftNorth_1行帯は発火しない は退化した rows=1 帯でシフトが発火しないことを固定する。
+// centerSlot=rows/2=0 で閾値0となり、非負の帯ローカル Y は下回らない。Rows ゼロ値フォールバックでも安全。
 func TestBand_ShouldShiftNorth_1行帯は発火しない(t *testing.T) {
 	t.Parallel()
 
