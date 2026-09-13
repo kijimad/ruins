@@ -19,7 +19,7 @@ type MapGridStyle struct {
 	CellPx           int       // 1セルの辺
 	MinGlyphPx       int       // セル辺がこれ以上のときセル記号を重ねる。0 なら常に描く。キューブと現在地の印は閾値によらず常に描く
 	GlyphFace        text.Face // セル記号とキューブに使うフォント
-	MarkerFace       text.Face // 現在地ポインタに使うフォント。地図ごとにセル記号と同じか大きいかを選ぶ
+	MarkerFace       text.Face // 現在地ポインタのフォント。未指定なら GlyphFace を使い、記号と同じ大きさで描く
 	PlayerFacing     gc.Orient // 現在地ポインタの向き
 }
 
@@ -53,10 +53,15 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 	// 現在地。ナビのポインタをカメラ前方へ回して位置と向きを兼ねる。北=上なので指す向きが方角になる。
 	// location-arrow は北東向きなので -π/4 で北へ補正し -yaw で前方へ回す
 	if view.PlayerCell != nil {
+		// MarkerFace 未指定ならセル記号と同じ GlyphFace でポインタを描く
+		markerFace := style.MarkerFace
+		if markerFace == nil {
+			markerFace = style.GlyphFace
+		}
 		cx := style.OriginX + int(view.PlayerCell.X)*style.CellPx + style.CellPx/2
 		cy := style.OriginY + int(view.PlayerCell.Y)*style.CellPx + style.CellPx/2
 		angle := -style.PlayerFacing.Yaw() - math.Pi/4
-		cv.DrawText(image.Pt(cx, cy), consts.IconLocationArrow, style.MarkerFace, theme.TextAccent, uicore.Rotated(angle))
+		cv.DrawText(image.Pt(cx, cy), consts.IconLocationArrow, markerFace, theme.TextAccent, uicore.Rotated(angle))
 	}
 }
 

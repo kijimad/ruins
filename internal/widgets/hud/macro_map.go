@@ -58,14 +58,14 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	offX := x0 + (width-cellPx*cols)/2
 	offY := y0 + (height-cellPx*rows)/2
 
-	// 格子・道・キューブ・現在地を DrawMapGrid で描く。ミニマップは記号表示に閾値を持つ
+	// 格子・道・キューブ・現在地を DrawMapGrid で描く。ミニマップは記号表示に閾値を持つ。
+	// MarkerFace は省く。ミニマップはポインタもセル記号と同じ GlyphFace で描く
 	DrawMapGrid(cv, data.View, MapGridStyle{
 		OriginX:      offX,
 		OriginY:      offY,
 		CellPx:       cellPx,
 		MinGlyphPx:   data.Config.MinGlyphPx,
 		GlyphFace:    m.face,
-		MarkerFace:   m.face,
 		PlayerFacing: data.PlayerFacing,
 	})
 }
