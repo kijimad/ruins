@@ -6,7 +6,6 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -172,8 +171,14 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		cv.DrawText(image.Pt(int(x), int(y)), str, face, c)
 	}
 
-	// drawCellGlyph はセルの中央に1文字を描く。基準点をセル中央に置き、水平・垂直とも中央揃えに
-	// することで、字形の幅高に依らず四辺の余白が揃う。回転なしのポインタ描画で中央揃えを兼ねる
+	// 凡例の色見本。塗りも Canvas 経由にして、画面側は uicore の面を名指しせず描画関数だけを受け渡す
+	fillSwatch := func(x, y, size consts.ScreenPixel, c color.Color) {
+		cv.FillRect(image.Rect(int(x), int(y), int(x+size), int(y+size)), c)
+	}
+
+	// drawCellGlyph はセルの中央に1文字を描く。基準点をセル中央に置き、水平・垂直とも中央揃えにする
+	// ことで、字形の幅高に依らず四辺の余白が揃う。Canvas は中央揃えの描画を回転付きでしか持たないので、
+	// 角度0の DrawGlyphRotated で中央揃えだけを借りる。生の text.Draw を避け同じロック経路に載せる
 	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
 		cv.DrawGlyphRotated(image.Pt(int(cx), int(cy)), str, glyphFace, 0, c)
 	}
@@ -203,16 +208,16 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		PlayerFacing: st.facing,
 	})
 
-	st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)
+	st.drawLegend(fillSwatch, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)
 }
 
 // drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、
 // マップ上の1文字から凡例を引けるようにする。
-func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
+func (st *OverworldMapState) drawLegend(fillSwatch func(consts.ScreenPixel, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
 	const swatch consts.ScreenPixel = 14
 	x, y := consts.ScreenPixel(8), top
 	for _, g := range overworld.LegendGlyphs() {
-		vector.FillRect(dst, float32(x), float32(y), float32(swatch), float32(swatch), glyphColor(g.Label), false)
+		fillSwatch(x, y, swatch, glyphColor(g.Label))
 		drawGlyph(string(g.Label), x+swatch/2, y+swatch/2, theme.OverworldMapGlyphText)
 		drawText(g.Name, x+20, y-2, theme.TextPrimary)
 		x += 120
