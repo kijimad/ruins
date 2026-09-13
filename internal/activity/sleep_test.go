@@ -182,3 +182,14 @@ func TestSleepBehavior_Canceled_プレイヤー以外はメッセージが出な
 	store := query.GetGameLog(world)
 	assert.Empty(t, store.GetRecent(1), "プレイヤー以外は中断ログを出さない")
 }
+
+func TestSleepBehavior_Canceled_Sleepingがなくてもpanicしない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity() // Sleepingを付けていない
+	world.Components.Player.Add(actor, &gc.Player{})
+
+	sb := &SleepBehavior{}
+	comp := &gc.Activity{CancelReason: "woke up from the cold"}
+	require.NoError(t, sb.Canceled(comp, actor, world))
+}

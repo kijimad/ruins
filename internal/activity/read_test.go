@@ -538,3 +538,21 @@ func TestReadBehavior_Canceled_プレイヤー以外はログが出ない(t *tes
 	store := query.GetGameLog(world)
 	assert.Empty(t, store.GetRecent(1), "プレイヤー以外の中断はログに出さない")
 }
+
+func TestReadBehavior_Canceled_パラメータ型不一致でも汎用メッセージが出る(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.Player.Add(actor, &gc.Player{})
+
+	ra := &ReadBehavior{}
+	comp := &gc.Activity{CancelReason: "テスト中断"} // Params が *ReadParams でないので本の名前は出せない
+
+	require.NoError(t, ra.Canceled(comp, actor, world))
+
+	store := query.GetGameLog(world)
+	recent := store.GetRecent(1)
+	require.Len(t, recent, 1)
+	assert.Contains(t, recent[0], "interrupted reading")
+}
