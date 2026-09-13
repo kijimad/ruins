@@ -108,6 +108,14 @@ func TestTileCenterToWorld(t *testing.T) {
 	}
 }
 
+// TestBandOriginY は北進チャンク数と帯高から帯の絶対原点 Y を固定する。北は -Y なので負へ伸びる。
+func TestBandOriginY(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, consts.AbsTileY(0), consts.BandOriginY(0, 100), "northIndex=0 は原点0")
+	assert.Equal(t, consts.AbsTileY(-300), consts.BandOriginY(3, 100), "北は -Y なので -northIndex*chunkH")
+}
+
 // TestFloorDiv は負の被除数でも床方向へ連続することを固定する。Go の / はゼロ方向へ丸めるため、
 // 負側で境界が二重にならないことを検証する。query の int と overworld の Chunk が同じ1関数を共有する。
 func TestFloorDiv(t *testing.T) {

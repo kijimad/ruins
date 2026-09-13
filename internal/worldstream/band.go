@@ -48,7 +48,7 @@ func (b *Band) Cols() consts.Chunk { return b.cols }
 func (b *Band) NorthIndex() consts.Chunk { return b.northIndex }
 
 // BandOriginY は帯ローカル Y=0 すなわち北端が指す絶対 Y。
-func (b *Band) BandOriginY() consts.AbsTileY { return BandOriginY(b.northIndex, b.chunkH) }
+func (b *Band) BandOriginY() consts.AbsTileY { return consts.BandOriginY(b.northIndex, b.chunkH) }
 
 // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。
 func (b *Band) Width() consts.Tile { return b.cols.Tiles(b.chunkW) }

@@ -8,17 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBandOriginY(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, consts.AbsTileY(0), worldstream.BandOriginY(0, 100), "northIndex=0 は原点0")
-	assert.Equal(t, consts.AbsTileY(-300), worldstream.BandOriginY(3, 100), "北は -Y なので -northIndex*chunkH")
-}
-
 func TestAbsLocalRoundTrip(t *testing.T) {
 	t.Parallel()
 
-	origin := worldstream.BandOriginY(2, 100) // 絶対原点 -200
+	origin := consts.BandOriginY(2, 100) // 絶対原点 -200
 
 	abs := worldstream.ToAbsY(origin, 37) // -200 + 37
 	assert.Equal(t, consts.AbsTileY(-163), abs, "ローカル→絶対はオフセット加算")
@@ -31,8 +24,8 @@ func TestAbsLocalRoundTrip(t *testing.T) {
 func TestToLocalY_絶対Yを帯ローカルへ(t *testing.T) {
 	t.Parallel()
 
-	origin := worldstream.BandOriginY(5, 100) // 帯ローカル0 = 絶対-500
-	absY := consts.AbsTileY(-460)             // 帯の40タイル目
+	origin := consts.BandOriginY(5, 100) // 帯ローカル0 = 絶対-500
+	absY := consts.AbsTileY(-460)        // 帯の40タイル目
 
 	assert.Equal(t, consts.Tile(40), worldstream.ToLocalY(origin, absY),
 		"絶対-460は帯ローカル40に写る")
