@@ -151,7 +151,9 @@ func TestDrawMapGrid_現在地ポインタの回転角は向きで決まる(t *t
 		want   float64
 	}{
 		{"北", 0, -math.Pi / 4},
+		{"東", 2, -math.Pi/2 - math.Pi/4},
 		{"南", 4, -math.Pi - math.Pi/4},
+		{"西", 6, -3*math.Pi/2 - math.Pi/4},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
