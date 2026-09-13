@@ -107,3 +107,22 @@ func TestMacroMap_Draw_現在地は回転ポインタで描く(t *testing.T) {
 	assert.Equal(t, []string{consts.IconLocationArrow}, cv.rotatedGlyphs, "現在地はカメラ前方へ回したポインタ1つで示す")
 	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
 }
+
+func TestDrawMapGrid_道を持つセルは接続方角ごとに線分を描く(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	// 4方角すべてに繋がる道を持つ開放済み1セル。プレイヤー不在・キューブ無しにして道だけを数える
+	view := overworld.MacroView{
+		Cells: [][]overworld.MacroCell{{{
+			Glyph:      '.',
+			Discovered: true,
+			Road:       overworld.RoadN | overworld.RoadS | overworld.RoadE | overworld.RoadW,
+		}}},
+		PlayerCell: consts.Coord[consts.Chunk]{X: -1},
+	}
+	DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999})
+
+	// セルの地色1つと、接続方角4つの道で計5つの矩形を塗る
+	assert.Len(t, cv.fillRects, 5, "地色1つと4方角の道4つを描く")
+}

@@ -12,8 +12,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// MapGridStyle はチャンク俯瞰グリッドの寸法とフォント。ミニマップと全画面図で見た目を揃えるため、
-// サイズ依存の値だけを持つ。色とキューブ・ポインタの意匠は DrawMapGrid が共通に決める。
+// MapGridStyle はチャンク俯瞰グリッドを描くのに地図ごとに変わる値。寸法・フォント・現在地の向きを持つ。
+// 色とキューブ・ポインタの意匠は地図で揃えるため DrawMapGrid が共通に決め、ここには持たせない。
 type MapGridStyle struct {
 	OriginX, OriginY int       // グリッド左上のピクセル
 	CellPx           int       // 1セルの辺
