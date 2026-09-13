@@ -12228,47 +12228,47 @@ id = "forest"
 id = "slime"
 maxDanger = 6
 minDanger = 1
-weight = 1.5
+weight = 0.8
 pack = "1d3"
 [[enemyTables.entries]]
 id = "bat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_mushroom"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.7
 pack = "1d3"
 [[enemyTables.entries]]
 id = "giant_bee"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 0.8
 pack = "1d3"
 [[enemyTables.entries]]
 id = "glow_bug"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
-weight = 1
+weight = 0.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_frog"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shadow_rat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "moss_turtle"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.6
 pack = "1d3"
@@ -12276,25 +12276,25 @@ pack = "1d3"
 id = "fire_cat"
 maxDanger = 20
 minDanger = 4
-weight = 1.5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "stray_dog"
 maxDanger = 22
 minDanger = 3
-weight = 1.5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dream_moth"
 maxDanger = 25
 minDanger = 5
-weight = 1.5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "fireball"
 maxDanger = 22
 minDanger = 6
-weight = 1.5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dark_crab"
@@ -12322,7 +12322,7 @@ weight = 0.4
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gold_slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 3
 weight = 0.2
 pack = "1d3"
@@ -12342,7 +12342,7 @@ pack = "1d3"
 id = "green_devourer"
 maxDanger = 22
 minDanger = 5
-weight = 1.5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
@@ -12372,13 +12372,13 @@ pack = "1d3"
 id = "butterfly"
 maxDanger = 6
 minDanger = 1
-weight = 3
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "pink_slime"
 maxDanger = 6
 minDanger = 1
-weight = 1.5
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gorilla"
@@ -12393,55 +12393,55 @@ id = "cave"
 id = "slime"
 maxDanger = 6
 minDanger = 1
-weight = 1.5
+weight = 0.8
 pack = "1d3"
 [[enemyTables.entries]]
 id = "rat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
-weight = 1.2
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "bat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "glow_bug"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "ash_bug"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_frog"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "moss_turtle"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_spider"
-maxDanger = 20
+maxDanger = 8
 minDanger = 3
 weight = 0.7
 pack = "1d3"
 [[enemyTables.entries]]
 id = "ice_dog"
 maxDanger = 22
-minDanger = 6
-weight = 1.5
+minDanger = 4
+weight = 2.0
 pack = "1d3"
 [[enemyTables.entries]]
 id = "skeleton_soldier"
@@ -12452,8 +12452,8 @@ pack = "1d3"
 [[enemyTables.entries]]
 id = "fireball"
 maxDanger = 22
-minDanger = 7
-weight = 1.5
+minDanger = 5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "iron_sentinel"
@@ -12488,8 +12488,8 @@ pack = "1d3"
 [[enemyTables.entries]]
 id = "blue_beast"
 maxDanger = 22
-minDanger = 7
-weight = 1.5
+minDanger = 4
+weight = 2.0
 pack = "1d3"
 [[enemyTables.entries]]
 id = "three_headed_dragon"
@@ -12499,7 +12499,7 @@ weight = 0.2
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gold_slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 3
 weight = 0.2
 pack = "1d3"
@@ -12512,8 +12512,8 @@ pack = "1d3"
 [[enemyTables.entries]]
 id = "green_devourer"
 maxDanger = 22
-minDanger = 6
-weight = 1.5
+minDanger = 3
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
@@ -12553,9 +12553,9 @@ weight = 0.3
 pack = "1d3"
 [[enemyTables.entries]]
 id = "penguin"
-maxDanger = 10
+maxDanger = 6
 minDanger = 1
-weight = 1.5
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "purple_floater"

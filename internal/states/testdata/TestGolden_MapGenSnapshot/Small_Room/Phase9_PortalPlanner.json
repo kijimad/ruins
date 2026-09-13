@@ -38608,27 +38608,27 @@
     {
       "X": 44,
       "Y": 27,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 45,
       "Y": 30,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 42,
       "Y": 29,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 43,
       "Y": 30,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 16,
       "Y": 7,
-      "Name": "giant_bee"
+      "Name": "bat"
     }
   ],
   "Items": [
