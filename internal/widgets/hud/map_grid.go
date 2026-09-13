@@ -49,7 +49,7 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 		y := style.OriginY + int(c.Y)*style.CellPx
 		drawCubeMarker(cv, style.GlyphFace, x, y, style.CellPx)
 	}
-	// 現在地。上向きの三角形をカメラ前方へ回して位置と向きを兼ねる。北=上なので指す向きが方角になる。
+	// 現在地。上向きの三角形を向きだけ回して位置と向きを兼ねる
 	if view.PlayerCell != nil {
 		cx := float64(style.OriginX + int(view.PlayerCell.X)*style.CellPx + style.CellPx/2)
 		cy := float64(style.OriginY + int(view.PlayerCell.Y)*style.CellPx + style.CellPx/2)
@@ -57,7 +57,7 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 	}
 }
 
-// 現在地三角形の各頂点のセル辺への比。縦横を近づけて縦長を避ける。tip の比はテストも参照する
+// 現在地三角形の各頂点のセル辺への比。縦横を近づけて縦長を避ける
 const (
 	playerMarkerTip  = 0.42 // tip の前方距離
 	playerMarkerHalf = 0.30 // 底辺の半幅
@@ -109,9 +109,8 @@ func drawMapRoad(cv uicore.Canvas, x, y, cell int, road overworld.RoadDir) {
 	t := max(cell/5, 1)
 	half := t / 2
 	ccx, ccy := x+cell/2, y+cell/2
-	// 水平の道は太さ t の横帯 bandTop..bandTop+t、垂直の道は縦帯 bandLeft..bandLeft+t を共有する。
-	// 西は左端から中央+half、東は中央-half から右端まで引く。image.Rect の Max は排他なので、
-	// 両者は中央で隙間なく接し、t が奇数で half を切り捨てても切れない。南北も同じ
+	// 水平の道は横帯 bandTop..bandTop+t、垂直の道は縦帯 bandLeft..bandLeft+t を共有する。西と東は
+	// 中央で重なり、image.Rect の Max 排他で t が奇数でも隙間なく接する。南北も同じ
 	bandTop := ccy - half
 	bandLeft := ccx - half
 	col := theme.OverworldMapRoad
