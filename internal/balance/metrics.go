@@ -33,7 +33,7 @@ func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponSta
 	return sum / float64(formula.DamageRandomRange)
 }
 
-// ExpectedTTK は attacker が defender を倒すのに要する実効撃破打数を返す。HP を1撃期待ダメージで
+// ExpectedTTK は attacker が defender を倒すのに要する撃破所要打数を返す。HP を1撃期待ダメージで
 // 割った定義で、最後の一撃のオーバーキルは無視する。停止時刻の期待値とは別物で、こちらは
 // 難易度の比較指標として素直な連続近似になる。期待ダメージがゼロなら倒せないので 0 を返す。
 func ExpectedTTK(attacker, defender CombatantStats, weapon WeaponStats) float64 {
@@ -47,11 +47,11 @@ func ExpectedTTK(attacker, defender CombatantStats, weapon WeaponStats) float64 
 // DayMetric は経過日1日ぶんの序盤戦闘の難易度指標。危険度から敵プールを引き、
 // プレイヤーと敵の期待撃破ターンを重み付き期待で評価する。
 type DayMetric struct {
-	Day       int     // 経過日数
-	Danger    int     // その日の危険度
-	PlayerTTK float64 // プレイヤーが敵を倒す期待ターン。小さいほど有利
-	EnemyTTK  float64 // 敵がプレイヤーを倒す期待ターン。大きいほど安全
-	Margin    float64 // EnemyTTK / PlayerTTK。1超で有利、1近傍で拮抗、1未満で劣勢
+	Day        int     // 経過日数
+	Danger     int     // その日の危険度
+	PlayerTTK  float64 // プレイヤーが敵を倒す期待ターン。小さいほど有利
+	EnemyTTK   float64 // 敵がプレイヤーを倒す期待ターン。大きいほど安全
+	PowerRatio float64 // 戦力比 EnemyTTK / PlayerTTK。1超で有利、1近傍で拮抗、1未満で劣勢
 }
 
 // DifficultyCurve は経過日 1..days の序盤戦闘難易度を返す。dangerLevel(day) から
@@ -92,11 +92,11 @@ func DifficultyCurve(master oapi.Raws, player CombatantStats, playerWeapon Weapo
 
 		playerTTK := playerTTKSum / wSum
 		enemyTTK := enemyTTKSum / wSum
-		margin := 0.0
+		powerRatio := 0.0
 		if playerTTK > 0 {
-			margin = enemyTTK / playerTTK
+			powerRatio = enemyTTK / playerTTK
 		}
-		out = append(out, DayMetric{Day: day, Danger: danger, PlayerTTK: playerTTK, EnemyTTK: enemyTTK, Margin: margin})
+		out = append(out, DayMetric{Day: day, Danger: danger, PlayerTTK: playerTTK, EnemyTTK: enemyTTK, PowerRatio: powerRatio})
 	}
 	return out, nil
 }

@@ -1,12 +1,12 @@
 # Balance baseline
 
 Early-combat difficulty curve. Player is fixed to the worst case of un-upgraded `ash` + `bare_hands`.
-margin is the ratio of how fast the player kills to how fast the player dies; 1.0 is even, higher is easier.
-Target corridor is day1=2.5 to day20=1.3, band +/-0.3. The corridor is a design hypothesis to revisit by playing.
+power ratio is the ratio of how fast the player kills to how fast the player dies; 1.0 is even, higher is easier.
+Target power ratio is day1=2.5 to day20=1.3, band +/-0.3. The target is a design hypothesis to revisit by playing.
 
 ## 洞窟 (cave)
 
-| day | danger | margin | target | corridor |
+| day | danger | power ratio | target | in band |
 |---:|---:|---:|---:|:--:|
 | 1 | 1 | 2.46 | 2.50 | in |
 | 2 | 1 | 2.46 | 2.44 | in |
@@ -32,7 +32,7 @@ Target corridor is day1=2.5 to day20=1.3, band +/-0.3. The corridor is a design 
 
 ## 森 (forest)
 
-| day | danger | margin | target | corridor |
+| day | danger | power ratio | target | in band |
 |---:|---:|---:|---:|:--:|
 | 1 | 1 | 2.84 | 2.50 | out |
 | 2 | 1 | 2.84 | 2.44 | out |
@@ -58,7 +58,7 @@ Target corridor is day1=2.5 to day20=1.3, band +/-0.3. The corridor is a design 
 
 ## 廃墟 (ruins_area)
 
-| day | danger | margin | target | corridor |
+| day | danger | power ratio | target | in band |
 |---:|---:|---:|---:|:--:|
 | 1 | 1 | 2.59 | 2.50 | in |
 | 2 | 1 | 2.59 | 2.44 | in |
