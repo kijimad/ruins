@@ -28,7 +28,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 
 	return &HUDRenderingSystem{
 		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
-		macroMap:        hud.NewMacroMap(smallFace, bodyFace, chrome),
+		macroMap:        hud.NewMacroMap(bodyFace, chrome),
 		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),

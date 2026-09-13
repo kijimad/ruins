@@ -13,15 +13,14 @@ import (
 
 // MacroMap は HUD 右上のマクロ地図エリア。N キーで開く地形俯瞰と同じ内容を縮小して常時表示する。
 type MacroMap struct {
-	face       text.Face // 地形セルの記号に使う小フォント
-	markerFace text.Face // 現在地のポインタに使う、セル記号より大きいフォント
-	chrome     Chrome
-	enabled    bool
+	face    text.Face // 地形セルの記号と現在地ポインタに使うフォント
+	chrome  Chrome
+	enabled bool
 }
 
 // NewMacroMap は新しい HUD マクロ地図を作成する。
-func NewMacroMap(face, markerFace text.Face, chrome Chrome) *MacroMap {
-	return &MacroMap{face: face, markerFace: markerFace, chrome: chrome, enabled: true}
+func NewMacroMap(face text.Face, chrome Chrome) *MacroMap {
+	return &MacroMap{face: face, chrome: chrome, enabled: true}
 }
 
 // Update はマクロ地図を更新する。描画データは毎フレーム抽出されるので保持状態は持たない。
@@ -66,7 +65,7 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 		CellPx:       cellPx,
 		MinGlyphPx:   data.Config.MinGlyphPx,
 		GlyphFace:    m.face,
-		MarkerFace:   m.markerFace,
+		MarkerFace:   m.face,
 		PlayerFacing: data.PlayerFacing,
 	})
 }

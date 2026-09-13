@@ -16,7 +16,7 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	require.NoError(t, err)
 	// フェイスは nil でよい。fakeCanvas は DrawText/DrawGlyphRotated を記録するだけで実描画しないため、
 	// フェイスに触れない。本番の EbitenCanvas には loader 由来の非 nil フェイスが渡る
-	return NewMacroMap(nil, nil, NewChrome(res))
+	return NewMacroMap(nil, NewChrome(res))
 }
 
 func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {
