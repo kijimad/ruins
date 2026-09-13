@@ -33,7 +33,7 @@
 | 疲労・睡眠 | 経過→疲労 | A | 疲労/過労までの日数 | `components.FatigueTiredRatio` 他 → `balance/survival.go` | 実装済み(睡眠回復は今後) |
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
 | 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf` → `balance/logistics.go` | 実装済み |
-| 経済・終端 | 競売の手数料・送料→手取り | A+C | 競売の手取り率(純)。探索1回の収支はC | `query.AuctionNetProceeds` → `balance/economy.go`。収支はモンテカルロ | 純部分実装済み |
+| 経済・終端 | 競売の手数料・送料→手取り | A+C | 競売の手取り率(純)。探索1回の収支はC | `query.AuctionNetProceeds`(手取り) と itemTable→group→value(loot期待) → `balance/economy.go`。探索1回の収支はC | 純部分実装済み |
 
 補足。競売は毎ターン確率 0.6 で入札が延びる確率過程（`query/auction.go` AuctionBidChance）。手取りの定常近似は A で出せるが、実際の落札額分布は C で測る。
 

@@ -146,6 +146,16 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	}{{1000, 0.1}, {1000, 1}, {1000, 3}, {1000, 10}, {200, 3}} {
 		fmt.Fprintf(&b, "| %d | %g | %.0f%% |\n", c.value, c.weight, AuctionTakeHomeRate(c.value, c.weight)*100)
 	}
+
+	// 収入側。危険度ごとに拾えるアイテムの期待価値
+	fmt.Fprintf(&b, "\n収入側。危険度ごとに拾える1個あたりの期待価値。危険度が上がるほど高価な loot が出る。\n\n")
+	fmt.Fprintf(&b, "| 危険度 | %s | %s | %s |\n|---:|---:|---:|---:|\n", "廃墟", "森", "洞窟")
+	for _, danger := range []int{1, 3, 5, 8} {
+		fmt.Fprintf(&b, "| %d | %.0f | %.0f | %.0f |\n", danger,
+			ExpectedLootValue(master, "ruins_area", danger),
+			ExpectedLootValue(master, "forest", danger),
+			ExpectedLootValue(master, "cave", danger))
+	}
 	fmt.Fprintf(&b, "\n")
 
 	// 物流
