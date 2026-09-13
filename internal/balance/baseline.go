@@ -232,6 +232,26 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	}
 	fmt.Fprintf(&b, "\n")
 
+	// ビルド別のブレ。静的下限に加え、スキル・装備・バフで戦力が振れる幅を見る
+	if builds, err := RepresentativeBuilds(master); err == nil {
+		fmt.Fprintf(&b, "## ビルド別のブレ（廃墟）\n\n")
+		fmt.Fprintf(&b, "**概要**: 強化なしの下限に加え、武器ダメージ倍率で中盤・後半のビルドを想定し、戦力比が振れる幅を見る。\n")
+		names := make([]string, 0, len(builds))
+		for _, bp := range builds {
+			names = append(names, bp.Name)
+		}
+		fmt.Fprintf(&b, "ビルドは %v。幅が広いほどビルド次第で難易度が振れ、後半で急に開くならバフが強すぎて終盤が崩れやすい。倍率は設計仮説。\n\n", names)
+		if spread, err := BuildSpread(master, builds, "ruins_area", 21); err == nil {
+			fmt.Fprintf(&b, "| 日 | 下限の戦力比 | 最強の戦力比 | 幅 |\n|---:|---:|---:|---:|\n")
+			for _, r := range spread {
+				if r.Day%4 == 1 || r.Day == 21 {
+					fmt.Fprintf(&b, "| %d | %.2f | %.2f | %.2f |\n", r.Day, r.MinRatio, r.MaxRatio, r.Spread())
+				}
+			}
+			fmt.Fprintf(&b, "\n")
+		}
+	}
+
 	// 多目的探索。序盤・中盤・終盤の目標逸脱を同時に小さくする武器倍率の非劣集合
 	fmt.Fprintf(&b, "## 多目的探索（Pareto 前線）\n\n")
 	fmt.Fprintf(&b, "**概要**: プレイヤー武器 bare_hands と敵武器 bite のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n")

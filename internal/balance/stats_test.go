@@ -68,6 +68,19 @@ func TestRunStats_MedianDepth(t *testing.T) {
 	assert.Equal(t, 5, s.MedianDepth())
 }
 
+func TestRunStats_LootIncome_中央値と分位(t *testing.T) {
+	t.Parallel()
+
+	s := RunStats{Results: []RunResult{
+		{LootIncome: 100},
+		{LootIncome: 500},
+		{LootIncome: 900},
+	}}
+	assert.Equal(t, 500, s.MedianLootIncome(), "手取り総額の中央値")
+	assert.Equal(t, 100, s.LootIncomePercentile(0.0), "最小分位")
+	assert.Equal(t, 900, s.LootIncomePercentile(1.0), "最大分位")
+}
+
 func TestRunStats_HPAtDepth(t *testing.T) {
 	t.Parallel()
 

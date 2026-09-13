@@ -54,6 +54,28 @@ func (s RunStats) MedianDepth() int {
 	return Median(depths)
 }
 
+// lootIncomes は各ランの loot 手取り総額を返す。
+func (s RunStats) lootIncomes() []int {
+	out := make([]int, len(s.Results))
+	for i, r := range s.Results {
+		out[i] = r.LootIncome
+	}
+	return out
+}
+
+// MedianLootIncome は loot 手取り総額の中央値を返す。早死にするランほど少ないので、閉形式の
+// 期待収入より低く出る。生存を織り込んだ実収入の代表値。
+func (s RunStats) MedianLootIncome() int {
+	return Median(s.lootIncomes())
+}
+
+// LootIncomePercentile は loot 手取り総額の p 分位を返す。p は 0.0〜1.0。収入のばらつきを見る。
+func (s RunStats) LootIncomePercentile(p float64) int {
+	v := s.lootIncomes()
+	slices.Sort(v)
+	return Percentile(v, p)
+}
+
 // hpPercentile は指定深度でのHPパーセンタイルを算出する汎用ヘルパー。
 // selector は各 RunResult から対象のHP mapを返す
 func (s RunStats) hpPercentile(depth int, selector func(RunResult) map[int]int, p float64) int {

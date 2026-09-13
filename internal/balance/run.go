@@ -4,8 +4,10 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // フロアあたりの敵数定数。mapplanner/hostile_npc_planner.go と同じ値を使う
@@ -37,6 +39,7 @@ type RunResult struct {
 	WeaponDamageByDepth map[int]int    // 各深度での武器ダメージ値
 	AvgKillTurnsByDepth map[int]int    // 各深度での1戦あたり平均キルターン
 	HungerByDepth       map[int]int    // 各深度終了時の空腹度
+	LootIncome          int            // ラン中に拾った loot の競売手取り総額。早死にするほど少ない
 }
 
 // SimulateRun はラン全体を模擬する。
@@ -135,6 +138,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 			currentWeaponName = loot.weaponName
 		}
 		foodStock += loot.nutrition
+		result.LootIncome += loot.income
 
 		// 空腹（33%未満）になったら食料ストックを消費する
 		if hunger.GetLevel() >= gc.HungerHungry && foodStock > 0 {
@@ -161,6 +165,7 @@ type floorLoot struct {
 	nutrition  int
 	weapon     *WeaponStats
 	weaponName string
+	income     int // 拾った loot を競売に出したときの手取り総額
 }
 
 // rollFloorLoot はフロアで拾えるアイテムを計算する。
@@ -199,6 +204,13 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 		if err == nil && (result.weapon == nil || w.Damage > result.weapon.Damage) {
 			result.weapon = &w
 			result.weaponName = itemName
+		}
+
+		// 拾った loot を競売に出したときの手取りを積む。重い安物は割れるので、赤字なら売らない
+		if it, e := raw.FindItem(master, itemName); e == nil {
+			if net := query.AuctionNetProceeds(consts.Currency(it.Value), itemWeightKg(it)); net > 0 {
+				result.income += int(net)
+			}
 		}
 	}
 
