@@ -25,3 +25,14 @@ func TestDriveRangeAllFuel_自己ブレーキ(t *testing.T) {
 	// 不燃材質は熱量0で航続0
 	assert.Equal(t, 0.0, DriveRangeAllFuel(oapi.METAL, 500))
 }
+
+func TestFuelBurnTurns_熱量と効率で決まる(t *testing.T) {
+	t.Parallel()
+	// WOOD 1kg: 熱量200、地面効率50%で 200*50/100 = 100 ターン。重量に比例する。
+	assert.Equal(t, 100, FuelBurnTurns(oapi.WOOD, 1))
+	assert.Equal(t, 1000, FuelBurnTurns(oapi.WOOD, 10))
+	// OIL は kg あたり熱量が高いので同じ重さでも長く燃える
+	assert.Greater(t, FuelBurnTurns(oapi.OIL, 10), FuelBurnTurns(oapi.WOOD, 10))
+	// 不燃材質は0
+	assert.Equal(t, 0, FuelBurnTurns(oapi.METAL, 10))
+}

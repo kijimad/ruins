@@ -26,14 +26,14 @@
 | ドメイン | 主要な関係 | 層 | 採用メトリクス | コード出典（単一出典） | 状態 |
 |---|---|---|---|---|---|
 | 時間・進行 | 経過日→危険度、季節→世界温度 | ― | 単独メトリクスなし。他ドメインの進行軸 d に使う | `components/game_time.go` TurnsPerDay、`query/danger.go` DangerLevelForDay | 土台 |
-| 危険度・世界 | 危険度→敵プール、季節+時間→世界温度 | A | 難易度カーブ（戦力比 対 日）。世界温度の季節変動 | `query/danger.go`、`query/temperature.go` | 戦闘側で実装済み |
+| 危険度・世界 | 危険度→敵プール、季節+時間→世界温度 | A | 難易度カーブ（戦力比 対 日）。世界温度の季節変動 | `query/danger.go` → `balance/metrics.go`、`components.SeasonalTemperatureForDay` → `balance/climate.go` | 実装済み |
 | 戦闘・装備 | 能力+武器−防御→ダメージ、命中、TTK | A | 戦力比 PowerRatio、ExpectedTTK、ExpectedDamagePerAttack | `formula`（CalcHitRate/ApplyCritical/CalcHP）→ `balance/metrics.go` | 実装済み |
 | サバイバル（飢え・寒さ） | 満腹→減耗、体温→低体温 | A | DaysUntilStarving/DaysUntilHungerEmpty、TurnsToHypothermia | `components/hunger.go`、`systems/temperature.go`（CalcBodyTempRate/BodyTempColdBand）→ `balance/survival.go` | 実装済み |
 | サバイバル（連鎖） | 状態異常→血液→HP | B | 血液量ごとのHP減 | `components.BloodLossHPDrainRate` → `balance/survival.go` | 実装済み |
 | 疲労・睡眠 | 経過→疲労、睡眠→回復 | A | 疲労/過労までの日数、満タン回復までの睡眠ターン、釣り合いに要する睡眠時間の割合 | `components.FatigueTiredRatio`・`systems.FatigueRecoverPerTurn` → `balance/survival.go` | 実装済み |
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
 | 進行・成長 | 攻撃→スキル経験→スキル値 | A | Lv N 到達に要する攻撃回数 | `skill.GainExp` の反復・`skill.MaxLevel` → `balance/growth.go` | 実装済み。攻撃回数のみ、日への写像はC |
-| 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf` → `balance/logistics.go` | 実装済み |
+| 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf`・`query.GroundBurnEfficiency` → `balance/logistics.go` | 実装済み |
 | 経済・終端 | 競売の手数料・送料→手取り、loot→手取り | A+C | 競売の手取り率、1個あたりの期待手取り(純)。探索1回の総収支はC | `query.AuctionNetProceeds`・itemTable→group→value/weight → `balance/economy.go`。移動タイル数を要する総収支はC | 実装済み。総収支の集計のみC |
 
 補足。競売は毎ターン確率 0.6 で入札が延びる確率過程（`query/auction.go` AuctionBidChance）。手取りの定常近似は A で出せるが、実際の落札額分布は C で測る。

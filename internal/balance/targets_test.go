@@ -50,6 +50,16 @@ func TestBaselineSnapshot_物流(t *testing.T) {
 	t.Parallel()
 	assert.InDelta(t, 980, DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg), 1, "OIL満載の航続")
 	assert.InDelta(t, 196, DriveRangeAllFuel(oapi.WOOD, consts.CubeWeightCapacityKg), 1, "WOOD満載の航続")
+	assert.Equal(t, 5000, FuelBurnTurns(oapi.OIL, 10), "OIL 10kg の燃焼ターン")
+	assert.Equal(t, 1000, FuelBurnTurns(oapi.WOOD, 10), "WOOD 10kg の燃焼ターン")
+}
+
+func TestBaselineSnapshot_気候(t *testing.T) {
+	t.Parallel()
+	// 世界温度の季節変動。1年32日で春5→夏ピーク22→冬底付近へ巡る。
+	assert.Equal(t, 5, WorldTemperatureAtDay(1), "春の中点")
+	assert.Equal(t, 22, WorldTemperatureAtDay(8), "夏ピーク")
+	assert.Equal(t, -29, WorldTemperatureAtDay(24), "冬底付近")
 }
 
 func TestBaselineSnapshot_身体と経済(t *testing.T) {

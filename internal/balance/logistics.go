@@ -24,3 +24,11 @@ func DriveRangeAllFuel(material oapi.Material, capacityKg int) float64 {
 	fuel := query.HeatOf(material, weight)
 	return DriveRangeTiles(fuel, weight)
 }
+
+// FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。
+// 熱量を地面の燃焼効率で割り引く。query.HeatOf と consts.Heat.BurnTurns をそのまま使い、
+// 熱量式や効率の変更に自動追従する。移動燃料と同じ熱量が、火では暖と燃焼時間へ変換される。
+func FuelBurnTurns(material oapi.Material, weightKg int) int {
+	weight := consts.Milligram(weightKg) * consts.MilligramPerKg
+	return int(query.HeatOf(material, weight).BurnTurns(query.GroundBurnEfficiency))
+}

@@ -110,6 +110,16 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		fmt.Fprintf(&b, "\n")
 	}
 
+	// 気候。世界温度の季節変動
+	fmt.Fprintf(&b, "## 気候（世界温度の季節変動）\n\n")
+	fmt.Fprintf(&b, "**概要**: 屋外の世界温度は1年周期で春から夏ピーク、秋、冬底へ巡る。緯度勾配・時間帯・遮蔽を含まない季節そのもの。\n")
+	fmt.Fprintf(&b, "冬は準備なしでは生存できない寒さになり、生存圧の寒さ側の上流入力になる。\n\n")
+	fmt.Fprintf(&b, "| 経過日 | 世界温度(℃) |\n|---:|---:|\n")
+	for _, day := range []int{1, 4, 8, 12, 16, 20, 24, 28} {
+		fmt.Fprintf(&b, "| %d | %d |\n", day, WorldTemperatureAtDay(day))
+	}
+	fmt.Fprintf(&b, "\n")
+
 	// 生存圧
 	fmt.Fprintf(&b, "## 生存圧\n\n")
 	fmt.Fprintf(&b, "**概要**: 補給なしで生き延びられる時間。食料は日単位、寒さはターン単位で時間スケールが大きく違う。\n")
@@ -184,6 +194,12 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "\n積荷とのトレード。OIL燃料250kgのとき、積荷0なら航続%.0f、積荷250kg追加で航続%.0fへ縮む。\n\n",
 		DriveRangeTiles(query.HeatOf(oapi.OIL, 250*consts.MilligramPerKg), 250*consts.MilligramPerKg),
 		DriveRangeTiles(query.HeatOf(oapi.OIL, 250*consts.MilligramPerKg), 500*consts.MilligramPerKg))
+
+	fmt.Fprintf(&b, "同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n")
+	fmt.Fprintf(&b, "| 燃料 | 燃焼ターン |\n|---|---:|\n")
+	fmt.Fprintf(&b, "| OIL 10kg | %d |\n", FuelBurnTurns(oapi.OIL, 10))
+	fmt.Fprintf(&b, "| WOOD 10kg | %d |\n", FuelBurnTurns(oapi.WOOD, 10))
+	fmt.Fprintf(&b, "\n")
 
 	// 感度
 	fmt.Fprintf(&b, "## 感度（廃墟 day20 戦力比、各つまみ+10%%）\n\n")
