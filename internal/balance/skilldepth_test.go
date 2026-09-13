@@ -18,9 +18,9 @@ func TestSkillDepthProfileFor_実効と死んだティアで全段を分ける(t
 	transitions := len(prof.Tiers) - 1
 	assert.Equal(t, transitions, prof.EffectiveSteps+prof.DeadTiers, "実効と死んだティアで全遷移を尽くす")
 
-	// スキルが上がると武器ダメージは非減少で、撃破ターンは非増加。強くなるほど速く倒せる。
+	// スキルが上がると熟練度倍率は非減少で、撃破ターンは非増加。強くなるほど速く倒せる。
 	for i := 1; i < len(prof.Tiers); i++ {
-		assert.GreaterOrEqual(t, prof.Tiers[i].WeaponDamage, prof.Tiers[i-1].WeaponDamage, "ダメージは非減少")
+		assert.GreaterOrEqual(t, prof.Tiers[i].DamageMult, prof.Tiers[i-1].DamageMult, "倍率は非減少")
 		assert.LessOrEqual(t, prof.Tiers[i].PlayerTTK, prof.Tiers[i-1].PlayerTTK+1e-9, "撃破ターンは非増加")
 	}
 }

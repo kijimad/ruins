@@ -237,13 +237,8 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	// 境界マージン。目標帯を割るまでのつまみの余白
 	renderBoundaryMargins(&b, master)
 
-	// 要素の劣化量。武器を素手へ制限したときの死亡確率の上昇
-	if err := renderWeaponRestriction(&b, master); err != nil {
-		return "", err
-	}
-
-	// スキル深度。レベルアップが体験に響くティアと、丸めで死んだティア
-	if err := renderSkillDepth(&b, master); err != nil {
+	// 武器・スキルの各分析。劣化量・viability・スキル深度をまとめて書き出す
+	if err := renderWeaponSkillSections(&b, master); err != nil {
 		return "", err
 	}
 
@@ -462,13 +457,53 @@ func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {
 	return nil
 }
 
+// renderWeaponSkillSections は武器・スキルの各分析を順に書き出す。RenderBaselineMarkdown の複雑度を
+// 抑えるため、エラーを返すレンダラをまとめる。
+func renderWeaponSkillSections(b *strings.Builder, master oapi.Raws) error {
+	if err := renderWeaponRestriction(b, master); err != nil {
+		return err
+	}
+	if err := renderViability(b, master); err != nil {
+		return err
+	}
+	return renderSkillDepth(b, master)
+}
+
+// renderViability は武器ロスターの viability を markdown で書き出す。Pfau の知見に基づき、使える武器が
+// 多く、罠が少なく、viable どうしに差がある状態を健全とみなす。全ビルド等価な symmetry は避ける。
+func renderViability(b *strings.Builder, master oapi.Raws) error {
+	const day = 20
+	s, err := WeaponViability(master, BaselineAreaTable, day)
+	if err != nil {
+		return err
+	}
+	if s.Total == 0 {
+		return nil
+	}
+	fmt.Fprintf(b, "## 武器の viability（廃墟day%d）\n\n", day)
+	fmt.Fprintf(b, "**概要**: プレイヤーは全選択肢が等価な symmetry を嫌い、どれも使えるが差がある viability を好む。\n")
+	fmt.Fprintf(b, "死亡確率が %.0f%%以下を viable とし、素手より弱いものを罠として数える。viable どうしの決着ターンに幅があれば選択に意味がある。\n\n", s.Ceiling*100)
+	fmt.Fprintf(b, "| 指標 | 値 |\n|---|---:|\n")
+	fmt.Fprintf(b, "| 評価した近接武器 | %d |\n", s.Total)
+	fmt.Fprintf(b, "| viable（死亡確率%.0f%%以下） | %d (%.0f%%) |\n", s.Ceiling*100, s.Viable, s.ViableRate()*100)
+	fmt.Fprintf(b, "| 罠（素手より弱い） | %d |\n", s.Traps)
+	fmt.Fprintf(b, "| viable の決着ターン幅 | %.1f〜%.1f |\n", s.ViableTTKMin, s.ViableTTKMax)
+	verdict := "symmetry寄り。選択の差が小さい"
+	if s.Distinct() {
+		verdict = "viabilityあり。使える武器に差がある"
+	}
+	fmt.Fprintf(b, "| 判定 | %s |\n\n", verdict)
+	fmt.Fprintf(b, "罠は装備すると素手より不利になる死にコンテンツ候補。viable が多く差があるほど、ビルドの選択が意味を持つ。\n\n")
+	return nil
+}
+
 // renderSkillDepth はスキル進行の手応えを markdown で書き出す。弱い武器と強い武器で、レベルアップが
 // 体験に響く実効ティアと、丸めで死んだティアの割合を対比する。
 func renderSkillDepth(b *strings.Builder, master oapi.Raws) error {
 	const day = 20
 	fmt.Fprintf(b, "## スキル深度（レベルアップの手応え・廃墟day%d）\n\n", day)
-	fmt.Fprintf(b, "**概要**: 素手スキルを1レベル上げるたびに、敵プールの撃破ターンがどれだけ縮むか。熟練度倍率は+5%%/レベルだが\n")
-	fmt.Fprintf(b, "武器ダメージは整数丸めなので、ダメージが変わらないレベルは体験に響かない死んだティアになる。NTBEA のティア識別性を翻案した指標。\n\n")
+	fmt.Fprintf(b, "**概要**: 素手スキルを1レベル上げるたびに、敵プールの撃破ターンがどれだけ縮むか。熟練度倍率は実ゲームと同じく\n")
+	fmt.Fprintf(b, "能力+ダイス+武器の base 全体へ切り捨てで掛かる。撃破ターンが動かないレベルは体験に響かない死んだティア。NTBEA のティア識別性を翻案した指標。\n\n")
 
 	fmt.Fprintf(b, "| 武器 | 総レベル | 実効ティア | 死んだティア | 実効の最小改善(ターン) |\n|---|---:|---:|---:|---:|\n")
 	weapons := []string{BaselineWeapon, "iron_sword"}
@@ -487,6 +522,6 @@ func renderSkillDepth(b *strings.Builder, master oapi.Raws) error {
 		}
 		fmt.Fprintf(b, "| %s | %d | %d | %d | %s |\n", wn, total, prof.EffectiveSteps, prof.DeadTiers, gap)
 	}
-	fmt.Fprintf(b, "\n死んだティアが多いほど、レベルを上げても手応えがない区間が長い。弱い武器ほど丸めの影響で死にやすい。\n\n")
+	fmt.Fprintf(b, "\n熟練度が base 全体へ効くので進行の大半は手応えがある。死んだティアは撃破ターンが既に短い高レベル帯に偏る。弱い武器ほど base が小さく、切り捨てでわずかに死にやすい。\n\n")
 	return nil
 }

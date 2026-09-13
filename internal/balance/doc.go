@@ -95,6 +95,7 @@
 //   - boundary.go: つまみを動かして目標帯を割るまでの余白を解く境界マージン。凍結ゲートの余白監視版
 //   - restriction.go: 武器を素手へ制限したときの死亡確率の劣化量。要素の必須度を測る Restricted Play 系
 //   - skilldepth.go: スキル進行の手応え。丸めで死んだティアと実効ティアを分ける NTBEA 系のティア識別性
+//   - viability.go: 武器ロスターの viability 要約。使える武器の割合と symmetry 判定。Pfau のプレイヤー選好系
 //   - targets.go: ドメイン横断のスカラー指標と目標帯の照合
 //   - baseline.go: 目標帯との照合とベースライン markdown 生成
 //   - combat.go: 戦闘計算式とデータロード

@@ -110,8 +110,9 @@ func TestBaselineSnapshot_ビルドブレ(t *testing.T) {
 	stages, err := StageSpreads(master, builds, "ruins_area")
 	require.NoError(t, err)
 	require.Len(t, stages, 3)
-	// 終盤のブレ幅。スキル成長由来の倍率だと現状は許容内。
-	assert.InDelta(t, 0.92, stages[2].MaxSpread, 0.1, "終盤のブレ幅")
+	// 終盤のブレ幅。熟練度を実ゲーム同様 base 全体へ掛ける正しいモデルでは、スキル成長の効果が大きく、
+	// ブレ幅は許容帯の仮説を超える。これは計測修正で露見した実態で、許容帯かバフ設計の見直し対象。
+	assert.InDelta(t, 3.15, stages[2].MaxSpread, 0.2, "終盤のブレ幅")
 }
 
 func TestTargetCheck_InRange_帯の内外(t *testing.T) {

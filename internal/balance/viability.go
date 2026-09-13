@@ -1,0 +1,65 @@
+package balance
+
+import (
+	"math"
+
+	"github.com/kijimaD/ruins/internal/oapi"
+)
+
+// viabilityCeiling は viable とみなす死亡確率の上限。これ以下ならその武器で概ね生き延びられる。
+// 設計仮説で、素手の死亡確率より十分低い値に置く。
+const viabilityCeiling = 0.10
+
+// viabilityDistinctFloor は viable な武器群が symmetric でない、すなわち選択に意味があるとみなす
+// 決着ターンの幅の下限。これ未満だとどれを選んでも同じで、Pfau のいう拒否される symmetry になる。
+const viabilityDistinctFloor = 0.5
+
+// ViabilitySummary は武器ロスターの健全性を Pfau の視点で要約する。プレイヤーは symmetry すなわち
+// 全選択肢が等価な状態を拒み、viability すなわちどれも使えるが差がある状態を求める。viable が多く、
+// 罠が少なく、viable どうしに差があるロスターが健全。
+type ViabilitySummary struct {
+	Day          int
+	Total        int     // 評価した近接武器の数
+	Viable       int     // 死亡確率が viabilityCeiling 以下の武器数
+	Traps        int     // 素手より弱い、すなわち劣化量が負の武器数
+	ViableTTKMin float64 // viable な武器の決着ターンの最小
+	ViableTTKMax float64 // viable な武器の決着ターンの最大
+	Ceiling      float64 // 判定に使った死亡確率の上限
+}
+
+// ViableRate は評価した武器のうち viable の割合を返す。
+func (s ViabilitySummary) ViableRate() float64 {
+	if s.Total == 0 {
+		return 0
+	}
+	return float64(s.Viable) / float64(s.Total)
+}
+
+// Distinct は viable な武器群が symmetric でないかを返す。決着ターンの幅が下限を超えれば選択に意味がある。
+func (s ViabilitySummary) Distinct() bool {
+	return s.ViableTTKMax-s.ViableTTKMin >= viabilityDistinctFloor
+}
+
+// WeaponViability は経過日 day の廃墟プールに対する武器ロスターの viability を要約する。要素制限の
+// 劣化量計算を再利用し、viable 数・罠数・viable どうしの決着ターンの幅を集計する。
+func WeaponViability(master oapi.Raws, enemyTableName string, day int) (ViabilitySummary, error) {
+	values, _, err := WeaponRestrictionValues(master, enemyTableName, day)
+	if err != nil {
+		return ViabilitySummary{}, err
+	}
+	s := ViabilitySummary{Day: day, Total: len(values), Ceiling: viabilityCeiling, ViableTTKMin: math.Inf(1), ViableTTKMax: math.Inf(-1)}
+	for _, v := range values {
+		if v.Degradation < 0 {
+			s.Traps++
+		}
+		if v.DeathProbWith <= viabilityCeiling {
+			s.Viable++
+			s.ViableTTKMin = math.Min(s.ViableTTKMin, v.ExpTurnsWith)
+			s.ViableTTKMax = math.Max(s.ViableTTKMax, v.ExpTurnsWith)
+		}
+	}
+	if s.Viable == 0 {
+		s.ViableTTKMin, s.ViableTTKMax = 0, 0
+	}
+	return s, nil
+}

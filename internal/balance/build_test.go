@@ -13,9 +13,10 @@ func TestRepresentativeBuilds_倍率で武器が強くなる(t *testing.T) {
 	builds, err := RepresentativeBuilds(master)
 	require.NoError(t, err)
 	require.Len(t, builds, 3, "下限・中盤・後半の3ビルド")
-	// 段階が進むほど武器ダメージが強い
-	assert.Less(t, builds[0].Weapon.Damage, builds[1].Weapon.Damage, "中盤は下限より強い")
-	assert.Less(t, builds[1].Weapon.Damage, builds[2].Weapon.Damage, "後半は中盤より強い")
+	// 強化は武器ダメージでなく熟練度倍率で表す。実ゲームと同じく base 全体へ効かせるため。
+	// 段階が進むほど倍率が高い。
+	assert.Less(t, builds[0].SkillMult, builds[1].SkillMult, "中盤は下限より強い")
+	assert.Less(t, builds[1].SkillMult, builds[2].SkillMult, "後半は中盤より強い")
 }
 
 func TestBuildSpread_強ビルドほど戦力比が高い(t *testing.T) {

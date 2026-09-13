@@ -3,15 +3,17 @@ package balance
 import (
 	"math"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-// BuildProfile は評価するプレイヤーのビルド。能力と武器の組で、スキル成長や装備・バフを織り込んだ
-// 想定像を表す。静的下限は強化なしの1プロファイルとして扱う。
+// BuildProfile は評価するプレイヤーのビルド。能力と武器に加え、スキル成長ぶんの熟練度倍率を持つ。
+// 倍率は実ゲームと同じく base 全体へ切り捨てで掛かる。静的下限は倍率 PercentBase の1プロファイル。
 type BuildProfile struct {
-	Name   string
-	Player CombatantStats
-	Weapon WeaponStats
+	Name      string
+	Player    CombatantStats
+	Weapon    WeaponStats
+	SkillMult consts.Percent
 }
 
 // buildStages は代表ビルドの段階と、その段階までに想定する累積攻撃回数。攻撃回数は scenario 入力で、
@@ -39,10 +41,8 @@ func RepresentativeBuilds(master oapi.Raws) ([]BuildProfile, error) {
 	}
 	builds := make([]BuildProfile, 0, len(buildStages))
 	for _, st := range buildStages {
-		mult := SkillDamageMultiplier(SkillLevelAfterAttacks(0, st.attacks))
-		w := weapon
-		w.Damage = int(math.Round(float64(weapon.Damage) * mult))
-		builds = append(builds, BuildProfile{Name: st.name, Player: player, Weapon: w})
+		mult := SkillDamagePercent(SkillLevelAfterAttacks(0, st.attacks))
+		builds = append(builds, BuildProfile{Name: st.name, Player: player, Weapon: weapon, SkillMult: mult})
 	}
 	return builds, nil
 }
@@ -66,7 +66,7 @@ func (r DaySpreadRow) Spread() float64 {
 func BuildSpread(master oapi.Raws, profiles []BuildProfile, enemyTableName string, days int) ([]DaySpreadRow, error) {
 	curves := make([][]DayMetric, 0, len(profiles))
 	for _, p := range profiles {
-		c, err := DifficultyCurve(master, p.Player, p.Weapon, enemyTableName, days)
+		c, err := DifficultyCurveWithSkill(master, p.Player, p.Weapon, enemyTableName, days, p.SkillMult)
 		if err != nil {
 			return nil, err
 		}

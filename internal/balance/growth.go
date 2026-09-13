@@ -33,12 +33,18 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 	return s.Value
 }
 
-// SkillDamageMultiplier は素手スキルが skillLevel のときの近接ダメージ倍率を返す。攻撃時に baseDamage へ
-// 掛かる熟練度倍率を実システム components.CalcProficiencyValue から引く。能力・体調は中立にして
-// スキル値だけの寄与を見る。想定ビルドの強化度合いをスキル成長から導くのに使う。
-func SkillDamageMultiplier(skillLevel int) float64 {
+// SkillDamagePercent は素手スキルが skillLevel のときの近接ダメージ倍率を、実システムの生の Percent で
+// 返す。攻撃時に baseDamage へ掛かる熟練度倍率を components.CalcProficiencyValue から引く。能力・体調は
+// 中立にしてスキル値だけの寄与を見る。倍率適用は実ゲームと同じ ApplyInt の切り捨てで行うため、丸め前の
+// Percent をそのまま渡せるこの形を単一出典にする。
+func SkillDamagePercent(skillLevel int) consts.Percent {
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFist).Value = skillLevel
-	pct := gc.CalcProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), gc.WeaponDamageKey(gc.SkillFist))
-	return float64(pct) / float64(consts.PercentBase)
+	return gc.CalcProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), gc.WeaponDamageKey(gc.SkillFist))
+}
+
+// SkillDamageMultiplier は SkillDamagePercent を等倍1.0基準の float で見た値。表示や概算に使う。
+// ダメージへの実適用は SkillDamagePercent と ApplyInt の切り捨てで行い、float の丸めに頼らない。
+func SkillDamageMultiplier(skillLevel int) float64 {
+	return float64(SkillDamagePercent(skillLevel)) / float64(consts.PercentBase)
 }
