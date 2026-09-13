@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [ゲーム段階ごとの想定ビルドで後半のブレを抑える](docs/design/260913182537.md) | 0/3 | gamedesign |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

@@ -2,6 +2,7 @@ package balance
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/skill"
 )
 
@@ -30,4 +31,14 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 		skill.GainExp(s, abilityValue)
 	}
 	return s.Value
+}
+
+// SkillDamageMultiplier は素手スキルが skillLevel のときの近接ダメージ倍率を返す。攻撃時に baseDamage へ
+// 掛かる熟練度倍率を実システム components.CalcProficiencyValue から引く。能力・体調は中立にして
+// スキル値だけの寄与を見る。想定ビルドの強化度合いをスキル成長から導くのに使う。
+func SkillDamageMultiplier(skillLevel int) float64 {
+	skills := gc.NewSkills()
+	skills.Get(gc.SkillFist).Value = skillLevel
+	pct := gc.CalcProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), gc.WeaponDamageKey(gc.SkillFist))
+	return float64(pct) / float64(consts.PercentBase)
 }

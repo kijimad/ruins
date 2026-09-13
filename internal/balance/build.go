@@ -14,8 +14,20 @@ type BuildProfile struct {
 	Weapon WeaponStats
 }
 
-// RepresentativeBuilds は基準プレイヤーを土台に、武器ダメージ倍率で段階を表した代表ビルドを返す。
-// 下限は強化なし、中盤・後半はスキル成長と装備・バフでダメージが伸びた想定。倍率は設計仮説で見直す。
+// buildStages は代表ビルドの段階と、その段階までに想定する累積攻撃回数。攻撃回数は scenario 入力で、
+// スキル成長 SkillLevelAfterAttacks と熟練度 SkillDamageMultiplier を経由してダメージ倍率になる。
+var buildStages = []struct {
+	name    string
+	attacks int
+}{
+	{"下限(0攻撃)", 0},
+	{"中盤(500攻撃)", 500},
+	{"後半(2000攻撃)", 2000},
+}
+
+// RepresentativeBuilds は基準プレイヤーを土台に、想定攻撃回数から導いた強化度合いで段階を表した
+// 代表ビルドを返す。倍率は恣意的な値でなく、スキル成長と熟練度の実システムから導く。装備による
+// 強化は別軸で、ここではスキル由来のダメージ倍率だけを反映する。攻撃回数は設計仮説で見直す。
 func RepresentativeBuilds(master oapi.Raws) ([]BuildProfile, error) {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
@@ -25,16 +37,14 @@ func RepresentativeBuilds(master oapi.Raws) ([]BuildProfile, error) {
 	if err != nil {
 		return nil, err
 	}
-	scaled := func(mult float64) WeaponStats {
+	builds := make([]BuildProfile, 0, len(buildStages))
+	for _, st := range buildStages {
+		mult := SkillDamageMultiplier(SkillLevelAfterAttacks(0, st.attacks))
 		w := weapon
 		w.Damage = int(math.Round(float64(weapon.Damage) * mult))
-		return w
+		builds = append(builds, BuildProfile{Name: st.name, Player: player, Weapon: w})
 	}
-	return []BuildProfile{
-		{Name: "下限(強化なし)", Player: player, Weapon: scaled(1.0)},
-		{Name: "中盤想定(×2)", Player: player, Weapon: scaled(2.0)},
-		{Name: "後半想定(×3.5)", Player: player, Weapon: scaled(3.5)},
-	}, nil
+	return builds, nil
 }
 
 // DaySpreadRow は代表ビルド間の、ある日の戦力比の幅。強武器ほど戦力比が上がるので、最大は最強ビルド、
@@ -71,6 +81,53 @@ func BuildSpread(master oapi.Raws, profiles []BuildProfile, enemyTableName strin
 			mx = math.Max(mx, r)
 		}
 		out = append(out, DaySpreadRow{Day: i + 1, MinRatio: mn, MaxRatio: mx})
+	}
+	return out, nil
+}
+
+// StageSpread は1つのゲーム段階での、代表ビルド間の戦力比の幅の最大と、その許容幅。
+type StageSpread struct {
+	Stage     string
+	FromDay   int
+	ToDay     int
+	MaxSpread float64 // 段階内の日で最大の戦力比の幅
+	Tolerance float64 // 許容する幅
+}
+
+// InRange は段階内の最大の幅が許容幅に収まるかを返す。
+func (s StageSpread) InRange() bool {
+	return s.MaxSpread <= s.Tolerance
+}
+
+// stageBands はゲーム段階の日範囲とブレの許容幅。後半ほどバフで開きやすいので許容を絞る。設計仮説で見直す。
+var stageBands = []struct {
+	name     string
+	from, to int
+	tol      float64
+}{
+	{"序盤", 1, 7, 2.0},
+	{"中盤", 8, 14, 1.6},
+	{"終盤", 15, 21, 1.2},
+}
+
+// StageSpreads は代表ビルドの戦力比の幅を段階ごとに集計し、各段階での最大の幅と許容帯を返す。
+// 幅が許容を超える段階はビルド次第で難易度が振れすぎる。特に終盤の超過はバフが強すぎる兆候。
+func StageSpreads(master oapi.Raws, profiles []BuildProfile, enemyTableName string) ([]StageSpread, error) {
+	spread, err := BuildSpread(master, profiles, enemyTableName, 21)
+	if err != nil {
+		return nil, err
+	}
+	byDay := make(map[int]float64, len(spread))
+	for _, r := range spread {
+		byDay[r.Day] = r.Spread()
+	}
+	out := make([]StageSpread, 0, len(stageBands))
+	for _, st := range stageBands {
+		mx := 0.0
+		for d := st.from; d <= st.to; d++ {
+			mx = math.Max(mx, byDay[d])
+		}
+		out = append(out, StageSpread{Stage: st.name, FromDay: st.from, ToDay: st.to, MaxSpread: mx, Tolerance: st.tol})
 	}
 	return out, nil
 }

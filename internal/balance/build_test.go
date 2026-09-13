@@ -38,3 +38,19 @@ func TestBuildSpread_強ビルドほど戦力比が高い(t *testing.T) {
 	}
 	assert.Positive(t, maxSpread, "ビルド差で戦力比に幅が出る")
 }
+
+func TestStageSpreads_段階ごとの幅と判定(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	builds, err := RepresentativeBuilds(master)
+	require.NoError(t, err)
+	stages, err := StageSpreads(master, builds, "ruins_area")
+	require.NoError(t, err)
+	require.Len(t, stages, 3, "序盤・中盤・終盤の3段階")
+	for _, s := range stages {
+		assert.GreaterOrEqual(t, s.MaxSpread, 0.0, s.Stage+" の最大幅は非負")
+		assert.Positive(t, s.Tolerance, s.Stage+" の許容幅は正")
+		// InRange は MaxSpread<=Tolerance と一致する
+		assert.Equal(t, s.MaxSpread <= s.Tolerance, s.InRange())
+	}
+}

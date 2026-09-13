@@ -235,18 +235,30 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	// ビルド別のブレ。静的下限に加え、スキル・装備・バフで戦力が振れる幅を見る
 	if builds, err := RepresentativeBuilds(master); err == nil {
 		fmt.Fprintf(&b, "## ビルド別のブレ（廃墟）\n\n")
-		fmt.Fprintf(&b, "**概要**: 強化なしの下限に加え、武器ダメージ倍率で中盤・後半のビルドを想定し、戦力比が振れる幅を見る。\n")
+		fmt.Fprintf(&b, "**概要**: 強化なしの下限に加え、想定攻撃回数から導いたスキル熟練度でダメージが伸びたビルドを重ね、戦力比が振れる幅を見る。\n")
 		names := make([]string, 0, len(builds))
 		for _, bp := range builds {
 			names = append(names, bp.Name)
 		}
-		fmt.Fprintf(&b, "ビルドは %v。幅が広いほどビルド次第で難易度が振れ、後半で急に開くならバフが強すぎて終盤が崩れやすい。倍率は設計仮説。\n\n", names)
+		fmt.Fprintf(&b, "ビルドは %v。倍率は恣意的でなくスキル成長と熟練度から導く。幅が広いほどビルド次第で難易度が振れ、終盤で許容を超えるならバフが強すぎる。\n\n", names)
 		if spread, err := BuildSpread(master, builds, "ruins_area", 21); err == nil {
 			fmt.Fprintf(&b, "| 日 | 下限の戦力比 | 最強の戦力比 | 幅 |\n|---:|---:|---:|---:|\n")
 			for _, r := range spread {
 				if r.Day%4 == 1 || r.Day == 21 {
 					fmt.Fprintf(&b, "| %d | %.2f | %.2f | %.2f |\n", r.Day, r.MinRatio, r.MaxRatio, r.Spread())
 				}
+			}
+			fmt.Fprintf(&b, "\n")
+		}
+		if stages, err := StageSpreads(master, builds, "ruins_area"); err == nil {
+			fmt.Fprintf(&b, "段階ごとのブレ幅と許容帯。終盤ほど許容を絞る。判定「外」はビルド次第で振れすぎる段階。許容帯は設計仮説。\n\n")
+			fmt.Fprintf(&b, "| 段階 | 日 | 最大の幅 | 許容 | 判定 |\n|---|---|---:|---:|:--:|\n")
+			for _, s := range stages {
+				mark := "外"
+				if s.InRange() {
+					mark = "内"
+				}
+				fmt.Fprintf(&b, "| %s | %d-%d | %.2f | %.2f | %s |\n", s.Stage, s.FromDay, s.ToDay, s.MaxSpread, s.Tolerance, mark)
 			}
 			fmt.Fprintf(&b, "\n")
 		}

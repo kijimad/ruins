@@ -85,6 +85,20 @@ func TestBaselineSnapshot_進行成長(t *testing.T) {
 	assert.Equal(t, 1626, AttacksToSkillLevel(0, 30), "Lv30到達の攻撃回数")
 }
 
+func TestBaselineSnapshot_ビルドブレ(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	// 熟練度はレベル1あたり+5%。Lv20で2.0倍。
+	assert.InDelta(t, 2.0, SkillDamageMultiplier(20), 1e-9, "スキルLv20のダメージ倍率")
+	builds, err := RepresentativeBuilds(master)
+	require.NoError(t, err)
+	stages, err := StageSpreads(master, builds, "ruins_area")
+	require.NoError(t, err)
+	require.Len(t, stages, 3)
+	// 終盤のブレ幅。スキル成長由来の倍率だと現状は許容内。
+	assert.InDelta(t, 0.92, stages[2].MaxSpread, 0.1, "終盤のブレ幅")
+}
+
 func TestTargetCheck_InRange_帯の内外(t *testing.T) {
 	t.Parallel()
 	assert.True(t, TargetCheck{Value: 1.0, Lo: 0.8, Hi: 1.3}.InRange(), "帯内は真")

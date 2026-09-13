@@ -20,6 +20,14 @@ func TestAttacksToSkillLevel_レベルとともに増え能力で減る(t *testi
 	assert.Less(t, AttacksToSkillLevel(10, 30), AttacksToSkillLevel(0, 30), "能力が高いほど少ない攻撃で到達")
 }
 
+func TestSkillDamageMultiplier_レベルで単調に増える(t *testing.T) {
+	t.Parallel()
+	// スキル0は倍率1.0。レベルが上がるほど熟練度でダメージが伸びる。
+	assert.InDelta(t, 1.0, SkillDamageMultiplier(0), 1e-9, "スキル0は等倍")
+	assert.Greater(t, SkillDamageMultiplier(20), SkillDamageMultiplier(0), "高レベルほど倍率が高い")
+	assert.Greater(t, SkillDamageMultiplier(50), SkillDamageMultiplier(20), "さらに高レベルで伸びる")
+}
+
 func TestSkillLevelAfterAttacks_逆関数と整合(t *testing.T) {
 	t.Parallel()
 	// Lv30 到達に要した攻撃回数を打てば、ちょうど Lv30 以上に届く。
