@@ -108,7 +108,9 @@ func drawMapRoad(cv uicore.Canvas, x, y, cell int, road overworld.RoadDir) {
 	t := max(cell/5, 1)
 	half := t / 2
 	ccx, ccy := x+cell/2, y+cell/2
-	// 水平の道は太さ t の横帯 bandTop..bandTop+t、垂直の道は縦帯 bandLeft..bandLeft+t を共有する
+	// 水平の道は太さ t の横帯 bandTop..bandTop+t、垂直の道は縦帯 bandLeft..bandLeft+t を共有する。
+	// 西は左端から中央+half、東は中央-half から右端まで引く。image.Rect の Max は排他なので、
+	// 両者は中央で隙間なく接し、t が奇数で half を切り捨てても切れない。南北も同じ
 	bandTop := ccy - half
 	bandLeft := ccx - half
 	col := theme.OverworldMapRoad
