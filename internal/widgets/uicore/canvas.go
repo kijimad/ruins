@@ -43,19 +43,25 @@ const (
 )
 
 // TextParams は TextOpt を畳んだ描画属性。DrawText の実装とテストの記録が opts をここへ解決する。
+// 不変条件は「Angle が非0なら Anchor は AnchorCenter」。回転は中央を軸にするので両者は常に整合する。
+// ResolveText がこの整合を保証するので、opts の順や組み合わせに依らず矛盾した状態は残らない。
 type TextParams struct {
 	Anchor TextAnchor // pos が指す基準点。既定は左上
-	Angle  float64    // 中央を軸に回すラジアン。回転は中央揃えを伴う
+	Angle  float64    // 中央を軸に回すラジアン。非0なら Anchor は AnchorCenter へ揃う
 }
 
 // TextOpt は DrawText の描画を細かく変える。
 type TextOpt func(*TextParams)
 
-// ResolveText は opts を畳んで描画属性にする。
+// ResolveText は opts を畳んで描画属性にする。角度があれば基準点を中央へ正規化し、
+// Angle と Anchor の不変条件を保つ。
 func ResolveText(opts ...TextOpt) TextParams {
 	var p TextParams
 	for _, o := range opts {
 		o(&p)
+	}
+	if p.Angle != 0 {
+		p.Anchor = AnchorCenter
 	}
 	return p
 }
