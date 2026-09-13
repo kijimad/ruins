@@ -5454,9 +5454,6 @@ msgstr "影司祭"
 msgid "Shadow Rat"
 msgstr "影鼠"
 
-msgid "Suspicious Scientist"
-msgstr "怪しい科学者"
-
 msgid "Old Tank"
 msgstr "旧式戦車"
 
