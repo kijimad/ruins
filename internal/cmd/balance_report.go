@@ -25,6 +25,7 @@ const reportPath = "docs/balance/baseline.md"
 // runBalanceReport は I/O 副作用を持つ CLI 層で、意図的に単体テストを持たない。導出ロジックは
 // balance パッケージ側でテストする。
 func runBalanceReport(_ context.Context, _ *cli.Command) error {
+	// パスは埋め込み assets FS 基準。ルートが assets/ を剥がした位置なので assets/ 接頭辞は付けない
 	master, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	if err != nil {
 		return fmt.Errorf("failed to load raw.toml: %w", err)

@@ -1,6 +1,8 @@
 package balance
 
 import (
+	"math"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
@@ -31,7 +33,8 @@ func withScaledMeleeDamage(master oapi.Raws, itemID string, factor float64, fn f
 	for i := range items {
 		if items[i].Id == itemID && items[i].Melee != nil {
 			orig := items[i].Melee.Damage
-			items[i].Melee.Damage = int(float64(orig) * factor)
+			// 丸めで反映する。切り捨てだと factor=1.1 で奇数値が変化せず摂動が無反応になる
+			items[i].Melee.Damage = int(math.Round(float64(orig) * factor))
 			fn()
 			items[i].Melee.Damage = orig
 			return
@@ -42,6 +45,7 @@ func withScaledMeleeDamage(master oapi.Raws, itemID string, factor float64, fn f
 
 // SolveScalar は eval が単調な区間 [lo,hi] で eval(x)=target となる x を二分探索で返す。
 // 端点が target を挟まなければ、その区間では両立不能として ok=false を返す。
+// iters は正の反復回数を渡す。0以下だと精緻化せず区間中点を返す。
 func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) (float64, bool) {
 	flo, fhi := eval(lo), eval(hi)
 	if (flo-target)*(fhi-target) > 0 {

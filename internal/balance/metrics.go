@@ -77,9 +77,11 @@ func DifficultyCurve(master oapi.Raws, player CombatantStats, playerWeapon Weapo
 			if err != nil {
 				return nil, err
 			}
+			// LoadEnemyWeapon は武器を持たない敵を内部で素手へフォールバックする。それでもエラーなら
+			// 本物のデータ異常なので握り潰さず伝播する。LoadCombatantFromMember と扱いを揃える。
 			enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)
 			if err != nil {
-				enemyWeapon = WeaponStats{}
+				return nil, err
 			}
 			w := entry.Weight
 			wSum += w
