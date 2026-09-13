@@ -15,6 +15,7 @@ type fakeCanvas struct {
 	fillRects     []image.Rectangle
 	strokeRects   []image.Rectangle
 	rotatedGlyphs []string
+	rotatedAngles []float64
 	nineSlices    int
 	tintedRects   []image.Rectangle
 }
@@ -34,8 +35,9 @@ func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
 	c.strokeRects = append(c.strokeRects, r)
 }
 
-func (c *fakeCanvas) DrawGlyphRotated(_ image.Point, s string, _ text.Face, _ float64, _ color.Color) {
+func (c *fakeCanvas) DrawGlyphRotated(_ image.Point, s string, _ text.Face, angle float64, _ color.Color) {
 	c.rotatedGlyphs = append(c.rotatedGlyphs, s)
+	c.rotatedAngles = append(c.rotatedAngles, angle)
 }
 
 func (c *fakeCanvas) DrawText(pos image.Point, s string, _ text.Face, col color.Color) {

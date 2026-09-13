@@ -1,6 +1,7 @@
 package hud
 
 import (
+	"math"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -106,6 +107,9 @@ func TestMacroMap_Draw_現在地は回転ポインタで描く(t *testing.T) {
 	})
 
 	assert.Equal(t, []string{consts.IconLocationArrow}, cv.rotatedGlyphs, "現在地はカメラ前方へ回したポインタ1つで示す")
+	// 北向き PlayerFacing=0 は Yaw=0。location-arrow は北東向きなので -π/4 で北へ補正する
+	require.Len(t, cv.rotatedAngles, 1)
+	assert.InDelta(t, -math.Pi/4, cv.rotatedAngles[0], 1e-9, "北向きのポインタは北東基準から -π/4 回す")
 	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
 }
 

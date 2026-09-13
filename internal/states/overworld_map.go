@@ -6,7 +6,6 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -165,22 +164,18 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	// セルの記号は小さいセルへ収めるため小フォントにする。見出し・凡例は BodyFace のまま
 	glyphFace := world.Resources.UIResources.Text.SmallFace
 
+	// 見出し・凡例・格子をすべて同じ Canvas 越しに描く。text/v2 のグリフキャッシュは並行安全でないため、
+	// 生の text.Draw を混ぜず EbitenCanvas に集約してロックを1箇所へ通す
+	cv := uicore.NewEbitenCanvas(dst)
+
 	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(float64(x), float64(y))
-		op.ColorScale.ScaleWithColor(c)
-		text.Draw(dst, str, face, op)
+		cv.DrawText(image.Pt(int(x), int(y)), str, face, c)
 	}
 
 	// drawCellGlyph はセルの中央に1文字を描く。基準点をセル中央に置き、水平・垂直とも中央揃えに
-	// することで、字形の幅高に依らず四辺の余白が揃う
+	// することで、字形の幅高に依らず四辺の余白が揃う。回転なしのポインタ描画で中央揃えを兼ねる
 	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(float64(cx), float64(cy))
-		op.ColorScale.ScaleWithColor(c)
-		op.PrimaryAlign = text.AlignCenter
-		op.SecondaryAlign = text.AlignCenter
-		text.Draw(dst, str, glyphFace, op)
+		cv.DrawGlyphRotated(image.Pt(int(cx), int(cy)), str, glyphFace, 0, c)
 	}
 
 	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 8, 6, theme.TextPrimary)
@@ -198,7 +193,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	}
 	const originY consts.ScreenPixel = 40
 	// 格子・道・キューブ・現在地を hud.DrawMapGrid で描く。全画面図は常に記号を出す
-	hud.DrawMapGrid(uicore.NewEbitenCanvas(dst), st.view, hud.MapGridStyle{
+	hud.DrawMapGrid(cv, st.view, hud.MapGridStyle{
 		OriginX:      int(originX),
 		OriginY:      int(originY),
 		CellPx:       int(cell),
