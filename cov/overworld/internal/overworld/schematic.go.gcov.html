@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -205,17 +205,17 @@
 <span id="L143"><span class="lineNum">     143</span>              : // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に</span>
 <span id="L144"><span class="lineNum">     144</span>              : // 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在ランドマーク &gt; 荒れ地。地図も生成もこの</span>
 <span id="L145"><span class="lineNum">     145</span>              : // 分類を唯一の源にするので、地図の記号と実体が食い違わない。</span>
-<span id="L146"><span class="lineNum">     146</span>              : func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {</span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         if _, _, ok := urbanChunkInfo(runSeed, c, cols); ok {</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 return chunkUrban</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         if dungeonEntrancePlacement.At(runSeed, c, rows) {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         if dungeonEntrancePlacement.At(runSeed, c, cols) {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 return chunkDungeonEntrance</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         if settlementPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         if settlementPlacement.At(runSeed, c, cols) {</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 return chunkSettlement</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         if landmarkPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         if landmarkPlacement.At(runSeed, c, cols) {</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return chunkLandmark</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return chunkWasteland</span></span>
@@ -223,12 +223,12 @@
 <span id="L161"><span class="lineNum">     161</span>              : </span>
 <span id="L162"><span class="lineNum">     162</span>              : // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は</span>
 <span id="L163"><span class="lineNum">     163</span>              : // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。</span>
-<span id="L164"><span class="lineNum">     164</span>              : func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(runSeed, c, rows) {</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(runSeed, c, cols) {</span></span>
 <span id="L166"><span class="lineNum">     166</span>              :         case chunkUrban:</span>
 <span id="L167"><span class="lineNum">     167</span>              :                 // 施設種は urbanChunkInfo が別途返す動的な値で、facilityGlyphs に無い種が来うるので</span>
 <span id="L168"><span class="lineNum">     168</span>              :                 // ok チェックする。他の種別は placeType が局所で保証されるので直接引く</span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 kind, _, _ := urbanChunkInfo(runSeed, c, rows)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 kind, _, _ := urbanChunkInfo(runSeed, c, cols)</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 if g, ok := facilityGlyphs[kind]; ok {</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 }</span></span>

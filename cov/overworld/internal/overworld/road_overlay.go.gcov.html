@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,21 +91,21 @@
 <span id="L29"><span class="lineNum">      29</span>              : // buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。</span>
 <span id="L30"><span class="lineNum">      30</span>              : // road.go と同じく隣接リージョンの当選集落どうしを L 字で結ぶ。生成を伴わない純関数で、</span>
 <span id="L31"><span class="lineNum">      31</span>              : // 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。</span>
-<span id="L32"><span class="lineNum">      32</span>              : func buildRoadOverlay(runSeed uint64, area MacroRange, rows consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {</span>
+<span id="L32"><span class="lineNum">      32</span>              : func buildRoadOverlay(runSeed uint64, area MacroRange, cols consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         overlay := map[consts.Coord[consts.Chunk]]RoadDir{}</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         rows = max(rows, 1)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         cols = max(cols, 1)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         // 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は</span></span>
 <span id="L36"><span class="lineNum">      36</span>              :         // (pr+2)*Spacing 未満に収まる。よって表示範囲 [OriginX, OriginX+Cols) に列が掛かりうる道は、表示範囲の左端の</span>
 <span id="L37"><span class="lineNum">      37</span>              :         // 属するリージョンの1つ西から表示範囲の右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ</span>
 <span id="L38"><span class="lineNum">      38</span>              :         // scanMargin ぶんの余裕を足す。表示範囲外へ出たチャンクを印しても読み手が引かないので無害</span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         const scanMargin consts.Chunk = 1</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         leftRegion := floorDiv(area.OriginX, settlementPlacement.Spacing)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         rightRegion := floorDiv(area.OriginX+area.Cols-1, settlementPlacement.Spacing)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         rLo := leftRegion - 1 - scanMargin // 1つ西のリージョンの道が東へ食い込みうる</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         rHi := rightRegion + scanMargin</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         topRegion := consts.FloorDiv(area.OriginY, settlementPlacement.Spacing)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         botRegion := consts.FloorDiv(area.OriginY+area.Rows-1, settlementPlacement.Spacing)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         rLo := topRegion - 1 - scanMargin // 1つ北のリージョンの道が南へ食い込みうる</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         rHi := botRegion + scanMargin</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         for pr := rLo; pr &lt;= rHi; pr++ {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 a := settlementPlacement.WinnerOf(runSeed, pr, rows)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 a := settlementPlacement.WinnerOf(runSeed, pr, cols)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 b := settlementPlacement.WinnerOf(runSeed, pr+1, cols)</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 markRoadLShape(overlay, a, b)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return overlay</span></span>

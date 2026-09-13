@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">36.1&nbsp;%</td>
-            <td class="headerCovTableEntry">36</td>
-            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">62.9&nbsp;%</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">22</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,24 +84,24 @@
 <span id="L22"><span class="lineNum">      22</span>              : // フォグ ExploredTiles をチャンク粒度へ畳み込み、マクロ地図のフォグにする。StageField が無ければ nil。</span>
 <span id="L23"><span class="lineNum">      23</span>              : // 全画面の地形俯瞰図と HUD の右上地図が同じフォグを共有する。</span>
 <span id="L24"><span class="lineNum">      24</span>              : func DiscoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[consts.Chunk]]bool {</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         field := GetCurrentStageField(world)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         if field == nil {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         field := GetCurrentStageField(world)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if field == nil {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         out := make(map[consts.Coord[consts.Chunk]]bool)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         // ChunkW/ChunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         for tile := range field.ExploredTiles {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 col := sb.EastIndex + consts.Chunk(int(tile.X)/int(sb.ChunkW))</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 row := consts.Chunk(int(tile.Y) / int(sb.ChunkH))</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 out[consts.Coord[consts.Chunk]{X: col, Y: row}] = true</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         return out</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         out := make(map[consts.Coord[consts.Chunk]]bool)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         // ChunkW は帯が有効なら正なのでゼロ除算しない。X は有界なので絶対チャンク列はタイルを幅で割るだけ。</span></span>
+<span id="L31"><span class="lineNum">      31</span>              :         // Y は AbsChunkRow が帯ローカルの非負タイル行を絶対チャンク行へ移す。単一出どころを共有する</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         for tile := range field.ExploredTiles {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 col := consts.Chunk(int(tile.X) / int(sb.ChunkW))</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 out[consts.Coord[consts.Chunk]{X: col, Y: sb.AbsChunkRow(tile.Y)}] = true</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return out</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : }</span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // PlayerBandTile はプレイヤーの帯ローカルなタイル座標を返す。プレイヤーが居なければ ok=false。</span>
 <span id="L40"><span class="lineNum">      40</span>              : // マクロ地図のプレイヤーマーカーを置くのに使う。</span>
 <span id="L41"><span class="lineNum">      41</span>              : func PlayerBandTile(world w.World) (consts.Coord[consts.Tile], bool) {</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         player, err := GetPlayerEntity(world)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :         player, err := GetPlayerEntity(world)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         if err != nil || !world.Components.GridElement.Has(player) {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return consts.Coord[consts.Tile]{}, false</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>

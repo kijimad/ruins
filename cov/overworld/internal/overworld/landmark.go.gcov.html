@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -126,8 +126,8 @@
 <span id="L64"><span class="lineNum">      64</span>              : // place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を</span>
 <span id="L65"><span class="lineNum">      65</span>              : // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が</span>
 <span id="L66"><span class="lineNum">      66</span>              : // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。</span>
-<span id="L67"><span class="lineNum">      67</span>              : func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           1 :         if chunkTypeAt(runSeed, c, rows) != chunkLandmark {</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           1 :         if chunkTypeAt(runSeed, c, cols) != chunkLandmark {</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>

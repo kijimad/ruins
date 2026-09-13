@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -106,14 +106,14 @@
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // crossingRoads はチャンク c を横切りうる道の端点対を返す。c を横切りうるのは (r-1,r) と (r,r+1) を</span>
 <span id="L46"><span class="lineNum">      46</span>              : // 結ぶ2本だけ。road.go の舗装と scatter.go の回避が同じ結線を共有する。ホットパスで呼ぶので、</span>
-<span id="L47"><span class="lineNum">      47</span>              : // スライスを確保せず固定長配列で返す。</span>
-<span id="L48"><span class="lineNum">      48</span>              : func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) [2][2]consts.Coord[consts.Chunk] {</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         r := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : // スライスを確保せず固定長配列で返す。集落は Y 方向のリージョンに並ぶので region は c.Y から引く。</span>
+<span id="L48"><span class="lineNum">      48</span>              : func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) [2][2]consts.Coord[consts.Chunk] {</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         r := consts.FloorDiv(c.Y, settlementPlacement.Spacing)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         var pairs [2][2]consts.Coord[consts.Chunk]</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         for i := range 2 {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 pr := r - 1 + consts.Chunk(i)</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, rows)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, rows)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, cols)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, cols)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return pairs</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : }</span>

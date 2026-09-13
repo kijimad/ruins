@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,9 +82,9 @@
 <span id="L20"><span class="lineNum">      20</span>              : // -roadWidth/2 から始めてわずかに片側へ寄せる。</span>
 <span id="L21"><span class="lineNum">      21</span>              : const roadWidth consts.Tile = 4</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              : func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
+<span id="L23"><span class="lineNum">      23</span>              : func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :         tiles := g.tiles.get()</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         for _, pair := range crossingRoads(runSeed, c, rows) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         for _, pair := range crossingRoads(runSeed, c, cols) {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 if err := drawRoadSegments(world, tiles, pair[0], pair[1], c, g); err != nil {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                 }</span></span>

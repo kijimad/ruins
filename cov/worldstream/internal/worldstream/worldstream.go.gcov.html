@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,19 +87,19 @@
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // RemoveEntitiesInXRange は GridElement.X が [loX, hiX) にあるエンティティを削除する。</span>
+<span id="L28"><span class="lineNum">      28</span>              : // RemoveEntitiesInYRange は GridElement.Y が [loY, hiY) にあるエンティティを削除する。</span>
 <span id="L29"><span class="lineNum">      29</span>              : //</span>
-<span id="L30"><span class="lineNum">      30</span>              : // 帯シフト時の西端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す</span>
+<span id="L30"><span class="lineNum">      30</span>              : // 帯シフト時の南端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す</span>
 <span id="L31"><span class="lineNum">      31</span>              : // エンティティは削除しない。プレイヤーなど残すべきものが該当する。削除した数を返す。</span>
 <span id="L32"><span class="lineNum">      32</span>              : // 反復中の削除を避けるため、対象を収集してから削除する。</span>
-<span id="L33"><span class="lineNum">      33</span>              : func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {</span>
+<span id="L33"><span class="lineNum">      33</span>              : func RemoveEntitiesInYRange(world w.World, loY, hiY consts.Tile, keep func(ecs.Entity) bool) int {</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         var toRemove []ecs.Entity</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         // 西端チャンク破棄は現ステージ(帯)だけが対象。退避中ステージは消さない</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         // 南端チャンク破棄は現ステージ(帯)だけが対象。退避中ステージは消さない</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter1[gc.GridElement](world).Query()</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 if grid.X &lt; loX || grid.X &gt;= hiX {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 if grid.Y &lt; loY || grid.Y &gt;= hiY {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L42"><span class="lineNum">      42</span>              :                 }</span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 if keep != nil &amp;&amp; keep(entity) {</span></span>
@@ -120,7 +120,7 @@
 <span id="L58"><span class="lineNum">      58</span>              : }</span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span>              : // KeepPlayer は「プレイヤーは残す」keep 述語を返す。</span>
-<span id="L61"><span class="lineNum">      61</span>              : // 西端破棄でプレイヤーを巻き込まないための定型。</span>
+<span id="L61"><span class="lineNum">      61</span>              : // 南端破棄でプレイヤーを巻き込まないための定型。</span>
 <span id="L62"><span class="lineNum">      62</span>              : func KeepPlayer(world w.World) func(ecs.Entity) bool {</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return func(entity ecs.Entity) bool {</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return world.Components.Player.Has(entity)</span></span>

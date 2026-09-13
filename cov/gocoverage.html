@@ -151,7 +151,7 @@
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/components/components_gen.go (100.0%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/components/dungeon.go (91.7%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/components/dungeon.go (92.9%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/components/enum.go (97.1%)</option>
 				
@@ -417,15 +417,15 @@
 				
 				<option value="file180">github.com/kijimaD/ruins/internal/overworld/dungeon_entrance.go (81.8%)</option>
 				
-				<option value="file181">github.com/kijimaD/ruins/internal/overworld/feature.go (94.4%)</option>
+				<option value="file181">github.com/kijimaD/ruins/internal/overworld/feature.go (92.9%)</option>
 				
 				<option value="file182">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.0%)</option>
 				
 				<option value="file183">github.com/kijimaD/ruins/internal/overworld/landmark.go (91.0%)</option>
 				
-				<option value="file184">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (80.5%)</option>
+				<option value="file184">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (92.7%)</option>
 				
-				<option value="file185">github.com/kijimaD/ruins/internal/overworld/macro_view.go (97.0%)</option>
+				<option value="file185">github.com/kijimaD/ruins/internal/overworld/macro_view.go (100.0%)</option>
 				
 				<option value="file186">github.com/kijimaD/ruins/internal/overworld/road.go (88.2%)</option>
 				
@@ -539,7 +539,7 @@
 				
 				<option value="file241">github.com/kijimaD/ruins/internal/states/message.go (46.2%)</option>
 				
-				<option value="file242">github.com/kijimaD/ruins/internal/states/overworld_map.go (95.7%)</option>
+				<option value="file242">github.com/kijimaD/ruins/internal/states/overworld_map.go (95.2%)</option>
 				
 				<option value="file243">github.com/kijimaD/ruins/internal/states/persistent_message_state.go (43.8%)</option>
 				
@@ -561,7 +561,7 @@
 				
 				<option value="file252">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file253">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
+				<option value="file253">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
 				
 				<option value="file254">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -735,7 +735,7 @@
 				
 				<option value="file339">github.com/kijimaD/ruins/internal/world/query/body_funcs.go (100.0%)</option>
 				
-				<option value="file340">github.com/kijimaD/ruins/internal/world/query/cube.go (33.3%)</option>
+				<option value="file340">github.com/kijimaD/ruins/internal/world/query/cube.go (65.5%)</option>
 				
 				<option value="file341">github.com/kijimaD/ruins/internal/world/query/currency.go (94.1%)</option>
 				
@@ -775,7 +775,7 @@
 				
 				<option value="file359">github.com/kijimaD/ruins/internal/world/query/stackkey.go (96.6%)</option>
 				
-				<option value="file360">github.com/kijimaD/ruins/internal/world/query/temperature.go (94.4%)</option>
+				<option value="file360">github.com/kijimaD/ruins/internal/world/query/temperature.go (95.3%)</option>
 				
 				<option value="file361">github.com/kijimaD/ruins/internal/world/query/turn.go (96.7%)</option>
 				
@@ -785,7 +785,7 @@
 				
 				<option value="file364">github.com/kijimaD/ruins/internal/world/world.go (98.0%)</option>
 				
-				<option value="file365">github.com/kijimaD/ruins/internal/worldstream/band.go (89.7%)</option>
+				<option value="file365">github.com/kijimaD/ruins/internal/worldstream/band.go (89.1%)</option>
 				
 				<option value="file366">github.com/kijimaD/ruins/internal/worldstream/coord.go (100.0%)</option>
 				
@@ -9252,26 +9252,38 @@ type SeamlessBand struct {
         Active bool
         // RunSeed はチャンク決定的生成の元 seed
         RunSeed uint64
-        // EastIndex は東進したチャンク数
-        EastIndex consts.Chunk
+        // NorthIndex は北進したチャンク数。北へ進むほど増える
+        NorthIndex consts.Chunk
         // ChunkW は1チャンクの幅
         ChunkW consts.Tile
         // ChunkH は帯の高さ
         ChunkH consts.Tile
-        // Cols は帯の横のチャンク列数
+        // Cols は帯の横のチャンク列数。有界
         Cols consts.Chunk
         // Rows は帯の縦チャンク行数。ゼロ値なら復元時に 1 へ正規化する
         Rows consts.Chunk
 }
 
-// BandOriginX は帯ローカル X=0 が指す絶対タイル X。
-func (sb SeamlessBand) BandOriginX() consts.AbsTileX {
-        <span class="cov8" title="1">return consts.AbsTileX(sb.EastIndex.Tiles(sb.ChunkW))
+// BandOriginY は帯ローカル Y=0 すなわち北端が指す絶対タイル Y。北は -Y なので NorthIndex ぶん負へ伸びる。
+func (sb SeamlessBand) BandOriginY() consts.AbsTileY {
+        <span class="cov8" title="1">return consts.BandOriginY(sb.NorthIndex, sb.ChunkH)
 </span>}
 
-// LocalToAbsX は帯ローカル X を絶対 X に変換する。
-func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.AbsTileX {
-        <span class="cov8" title="1">return consts.AbsTileX(localX) + sb.BandOriginX()
+// LocalToAbsY は帯ローカル Y を絶対 Y に変換する。
+func (sb SeamlessBand) LocalToAbsY(localY consts.Tile) consts.AbsTileY {
+        <span class="cov8" title="1">return consts.AbsTileY(localY) + sb.BandOriginY()
+</span>}
+
+// AbsChunkRow は帯ローカルなタイル行 localY を絶対チャンク行へ移す。localY は帯ローカルで非負なので
+// 素の整数除算で足りる。北は -Y なので NorthIndex ぶん引く。探索フォグ・マクロ地図・全画面図の単一出どころ。
+func (sb SeamlessBand) AbsChunkRow(localY consts.Tile) consts.Chunk {
+        <span class="cov8" title="1">return consts.Chunk(int(localY)/int(sb.ChunkH)) - sb.NorthIndex
+</span>}
+
+// SpawnChunkY はプレイヤーが湧いた位置の絶対チャンク Y。奥行きの起点。プレイヤーは初期帯の中央行に
+// 湧くので Rows/2 で確定し、以後 NorthIndex がいくつでも変わらない不変値になる。
+func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
+        <span class="cov8" title="1">return sb.Rows / 2
 </span>}
 
 // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す
@@ -13225,10 +13237,8 @@ func settingsExistAt(path string) (bool, error) {
 
 // Chunk はチャンクで数える量。1 ＝ チャンク1枚ぶん。
 //
-// タイル単位の Tile や絶対タイルの AbsTileX とは別物で、チャンクの絶対インデックスや
-// 帯のチャンク数といった「チャンクで数える量」を型で区別する。
-// Tile と同じく軸に依らないスカラーで、東西インデックスにも枚数にも使う。X を焼き込まない。
-// タイルへは Tiles() で明示的に変換する。
+// タイルの Tile や絶対タイルの AbsTileY とは別物。軸に依らないスカラーで、東西インデックスにも
+// 枚数にも使い、X を焼き込まない。タイルへは Tiles() で明示的に変換する。
 type Chunk int
 
 // Tiles はチャンク量をタイル数へ変換する。c チャンク ＝ c × chunkSize タイル。
@@ -13275,16 +13285,32 @@ func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
         return Coord[WorldPixel]{X: WorldPixel(grid.X)*TileSize + half, Y: WorldPixel(grid.Y)*TileSize + half}
 </span>}
 
-// AbsTileX は東西の絶対タイル X 座標。
+// AbsTileY は南北の絶対タイル Y 座標。
 //
-// 東へ進むほど無限に増える絶対軸で、帯ローカルの GridElement.X とは別物。GridElement.X は
-// 常に 0..cols*chunkW の有界。絶対と局所の取り違えを Go の型で弾くための別名型。
-// 帯原点はこの絶対軸で扱う。
-// 南北はストリーミングせず高さ固定の帯なので、絶対軸は X のみで足りる。
+// 北が上すなわち -Y で、奥へ進むほど負へ無限に伸びる絶対軸。帯ローカルの GridElement.Y とは別物で、
+// GridElement.Y は常に 0..rows*chunkH の有界。絶対と局所の取り違えを Go の型で弾くための別名型。
+// 帯原点はこの絶対軸で扱う。東西はストリーミングせず幅固定なので、絶対軸は Y のみで足りる。
 //
 // worldstream の帯ドライバも components の永続状態 SeamlessBand も同じ絶対軸を扱うため、
 // 双方から import できる leaf の consts に置く。これで境界のキャストを無くせる。
-type AbsTileX int
+type AbsTileY int
+
+// BandOriginY は北進チャンク数 northIndex と帯高 chunkH から帯の絶対原点 Y を返す。
+// 帯ローカル Y=0 すなわち北端が絶対軸で指す位置。北は -Y なので northIndex ぶん負へ伸びる。
+// worldstream と components の双方が同じ式を要るので、両者が import する leaf の consts を単一出典にする。
+func BandOriginY(northIndex Chunk, chunkH Tile) AbsTileY {
+        <span class="cov8" title="1">return AbsTileY(-int(northIndex.Tiles(chunkH)))
+</span>}
+
+// FloorDiv は負の被除数でも床方向へ丸める整数除算。Go の / はゼロ方向へ丸めるので負側で境界が
+// 二重になるのを防ぐ。北側の負座標のチャンク割り・リージョン割りで query と overworld が共有する。
+func FloorDiv[T ~int](a, b T) T {
+        <span class="cov8" title="1">q := a / b
+        if (a%b != 0) &amp;&amp; ((a &lt; 0) != (b &lt; 0)) </span>{
+                <span class="cov8" title="1">q--
+</span>        }
+        <span class="cov8" title="1">return q</span>
+}
 </pre>
 		
 		<pre class="file" id="file79" style="display: none">package consts
@@ -25703,9 +25729,9 @@ func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
 
 // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。
 // チャンク座標ごとに (runSeed, 座標) から決定的に、地形→地物の層の順で生成し、
-// 帯ローカルの (offsetX, offsetY) へ配置する。東西は無限にストリーミングし、南北は帯の行数に有界。
-// rows は帯の行数で当選行の抽選に使う。
-func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
+// 帯ローカルの (offsetX, offsetY) へ配置する。南北は北へ無限にストリーミングし、東西は帯の列数に有界。
+// cols は帯の列数で当選列の抽選に使う。
+func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
         <span class="cov8" title="1">return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error </span>{
                 <span class="cov8" title="1">plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)
                 if err != nil </span>{
@@ -25715,7 +25741,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
                         <span class="cov0" title="0">return fmt.Errorf("failed to place chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 </span>                }
                 // 地形の上に地物の層を重ねる。小集落などの当選判定は (runSeed, 座標) の純関数
-                <span class="cov8" title="1">if err := PlaceFeatures(world, runSeed, c, rows, offsetX, offsetY, chunkW, chunkH); err != nil </span>{
+                <span class="cov8" title="1">if err := PlaceFeatures(world, runSeed, c, cols, offsetX, offsetY, chunkW, chunkH); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
                 // 地物がタイルを置換した後、チャンク全域のオートタイルを実状態から再計算する。
@@ -25727,7 +25753,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
                 // Bind が自然に除外する
                 <span class="cov8" title="1">stage.Bind(world, gc.NewOverworldStage())
 </span>                // このチャンクの4境界を接合後に再計算して継ぎ目を消す。片側が空の帯端は自己スキップ
-                // されるため、東西南北を無条件にまとめて呼べる。東シフトは西境界、西シフトは東境界が実境界。
+                // されるため、東西南北を無条件にまとめて呼べる。北シフトは南境界が新チャンク側の実境界になる。
                 <span class="cov8" title="1">RecalcChunkSeams(world, offsetX, offsetY, chunkW, chunkH)
                 return nil</span>
         }
@@ -25807,8 +25833,8 @@ func (dr *Driver) Start(world w.World) error {
 func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
         // Rows がゼロ値なら1へ正規化して1行の帯として復元する
         <span class="cov8" title="1">rows := max(sb.Rows, 1)
-        dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.Cols, rows, sb.EastIndex)
-        dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, rows, dr.planner)
+        dr.band = worldstream.NewBandAt(sb.ChunkW, sb.ChunkH, sb.Cols, rows, sb.NorthIndex)
+        dr.gen = NewChunkGen(world, sb.RunSeed, sb.ChunkW, sb.ChunkH, max(sb.Cols, 1), dr.planner)
         query.InvalidateSpatialIndex(world)
         return nil
 </span>}
@@ -25831,14 +25857,14 @@ func (dr *Driver) startInitialBand(world w.World) error {
         // 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
         <span class="cov8" title="1">chunkW, chunkH, cols, rows := dr.definition.BandShape()
         dr.band = worldstream.NewBand(chunkW, chunkH, cols, rows)
-        dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, rows, dr.planner)
+        dr.gen = NewChunkGen(world, p.RunSeed, chunkW, chunkH, cols, dr.planner)
 </span>
         // 帯データを現ステージ、すなわちオーバーワールドの StageField エンティティへ確保する。
         // 以後この帯データの有無がオーバーワールド判定を兼ねる。値を書き込んでセーブに対応する
         <span class="cov8" title="1">sb := query.EnsureSeamlessBand(world)
         sb.Active = true
         sb.RunSeed = p.RunSeed
-        sb.EastIndex = dr.band.EastIndex()
+        sb.NorthIndex = dr.band.NorthIndex()
         sb.ChunkW = chunkW
         sb.ChunkH = chunkH
         sb.Cols = dr.band.Cols()
@@ -25913,7 +25939,8 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
         field.BaseTemp = dungeon.BaseTemperatureFor(overworldKey.Name)
         for cy := range dr.band.Rows() </span>{
                 <span class="cov8" title="1">for i := range dr.band.Cols() </span>{
-                        <span class="cov8" title="1">c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}
+                        // X は有界なので絶対チャンク列はそのまま i。Y は北進ぶん負へずらした絶対チャンク行
+                        <span class="cov8" title="1">c := consts.Coord[consts.Chunk]{X: i, Y: cy - dr.band.NorthIndex()}
                         if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil </span>{
                                 <span class="cov0" title="0">return fmt.Errorf("failed to generate chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 </span>                        }
@@ -25922,9 +25949,9 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
         <span class="cov8" title="1">return nil</span>
 }
 
-// EastIndex は帯の現在の東インデックスを返す。テストや検証用。
-func (dr *Driver) EastIndex() consts.Chunk {
-        <span class="cov8" title="1">return dr.band.EastIndex()
+// NorthIndex は帯の現在の北インデックスを返す。テストや検証用。
+func (dr *Driver) NorthIndex() consts.Chunk {
+        <span class="cov8" title="1">return dr.band.NorthIndex()
 </span>}
 
 // MaybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトし、シフトしたかを返す。
@@ -25943,26 +25970,26 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
         <span class="cov8" title="1">if query.HasActivity(world, playerEntity) </span>{
                 <span class="cov0" title="0">return false, nil
 </span>        }
-        // 中央チャンクに収まるまでシフトを繰り返す。各シフトはプレイヤーを chunkW ぶん中央へ寄せるため、
+        // 中央チャンクに収まるまでシフトを繰り返す。各シフトはプレイヤーを chunkH ぶん中央へ寄せるため、
         // 必ず有限回で収束する。
         <span class="cov8" title="1">shifted := false
         for </span>{
-                <span class="cov8" title="1">localX := world.Components.GridElement.Get(playerEntity).X
-                if dr.band.ShouldShiftEast(localX) </span>{
-                        <span class="cov8" title="1">if err := dr.band.ShiftEast(world, dr.gen); err != nil </span>{
+                <span class="cov8" title="1">localY := world.Components.GridElement.Get(playerEntity).Y
+                if dr.band.ShouldShiftNorth(localY) </span>{
+                        <span class="cov8" title="1">if err := dr.band.ShiftNorth(world, dr.gen); err != nil </span>{
                                 <span class="cov0" title="0">return shifted, err
 </span>                        }
                         <span class="cov8" title="1">shifted = true
                         continue</span>
                 }
-                // 西シフトはしない。帯は東へのみ進み破棄済みチャンクを再生成しないので、
-                // 到達した最西端より西へは戻れない。左戻り不可はこの東進だけで保つ
+                // 南シフトはしない。帯は北へのみ進み破棄済みチャンクを再生成しないので、
+                // 到達した最南端より南へは戻れない。後戻り不可はこの北進だけで保つ
                 <span class="cov8" title="1">break</span>
         }
         <span class="cov8" title="1">if shifted </span>{
-                // Band の最終 eastIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
+                // Band の最終 northIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
                 // シフトのたびでなくループを抜けてから一度だけ同期する
-                <span class="cov8" title="1">query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
+                <span class="cov8" title="1">query.GetSeamlessBand(world).NorthIndex = dr.band.NorthIndex()
 </span>        }
         <span class="cov8" title="1">return shifted, nil</span>
 }
@@ -25995,8 +26022,8 @@ type dungeonEntranceFeature struct{}
 // place は当選チャンクの中心付近へ遺跡入口を置く。進入先の遺跡定義は登録済み一覧から
 // チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途
 // 置くため、ここでは重複を避けてスキップする。
-func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-        <span class="cov8" title="1">if !dungeonEntrancePlacement.At(runSeed, c, rows) </span>{
+func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+        <span class="cov8" title="1">if !dungeonEntrancePlacement.At(runSeed, c, cols) </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">defs := dungeon.GetAllDungeons()
@@ -26020,52 +26047,42 @@ import (
         w "github.com/kijimaD/ruins/internal/world"
 )
 
-// Placement はリージョン方式の配置ルール。世界を X 方向 Spacing チャンク幅の縦帯リージョンに
+// Placement はリージョン方式の配置ルール。世界を Y 方向 Spacing チャンク高の横帯リージョンに
 // 分け、リージョンごとに、地物を置く1チャンクを (seed, リージョン) から決定的に選ぶ。この選ばれた
 // 1チャンクを「当選チャンク」と呼ぶ。抽選のメタファーだが乱数でなく座標の純関数で、実行のたびに
-// 同じチャンクが当たる。Y は帯が有界なので分割せず、リージョンは帯の全行を覆う。よってリージョンは
-// Spacing(横) × rows(縦) チャンクの縦帯で、そこにちょうど1つ地物が出る。「1リージョンに高々1つ」と
+// 同じチャンクが当たる。X は帯が有界なので分割せず、リージョンは帯の全列を覆う。よってリージョンは
+// 横 cols × 縦 Spacing チャンクの横帯で、そこにちょうど1つ地物が出る。「1リージョンに高々1つ」と
 // 最小間隔 Separation を O(1) で保証する。密な散布が要る地物が現れたら Scatter モードをここに拡張する。
 type Placement struct {
-        Spacing    consts.Chunk // リージョンの X 幅。おおよそ Spacing チャンクに1つ当選する
+        Spacing    consts.Chunk // リージョンの Y 高。おおよそ Spacing チャンクに1つ当選する
         Separation consts.Chunk // 隣接リージョンの当選どうしが最低これだけ離れる。Spacing より小さいこと
         Salt       uint64       // 地物の種類ごとに相関を切る
 }
 
-// At は c がこの配置の当選チャンクかを返す。(runSeed, 座標, 帯の行数) の純関数で、
+// At は c がこの配置の当選チャンクかを返す。runSeed・座標・列数の純関数で、
 // 近傍のチャンクを生成せずに判定できる。
 //
-// X はリージョンで割り、オフセットを [0, Spacing-Separation) から引く。Y は帯が [0, rows) に
-// 有界なのでリージョンで割らず、帯の全行から当選行を1つ引く。こうしないと行数より大きい
-// オフセットを引いたリージョンの当選が帯の外へ落ち、行数の少ない帯に地物がほぼ出なくなる。
-func (p Placement) At(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) bool {
-        <span class="cov8" title="1">return c == p.WinnerOf(runSeed, floorDiv(c.X, p.Spacing), rows)
+// Y はリージョンで割り、オフセットを [0, Spacing-Separation) から引く。X は帯が [0, cols) に
+// 有界なのでリージョンで割らず、帯の全列から当選列を1つ引く。こうしないと列数より大きい
+// オフセットを引いたリージョンの当選が帯の外へ落ち、列数の少ない帯に地物がほぼ出なくなる。
+func (p Placement) At(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) bool {
+        <span class="cov8" title="1">return c == p.WinnerOf(runSeed, consts.FloorDiv(c.Y, p.Spacing), cols)
 </span>}
 
-// WinnerOf はリージョン rx の当選チャンク座標を返す。生成を伴わない純関数なので、
+// WinnerOf はリージョン ry の当選チャンク座標を返す。生成を伴わない純関数なので、
 // 道の結線や情報サービスが近傍の地物位置を「生成せずに算出」する基盤になる。
-func (p Placement) WinnerOf(runSeed uint64, rx, rows consts.Chunk) consts.Coord[consts.Chunk] {
+func (p Placement) WinnerOf(runSeed uint64, ry, cols consts.Chunk) consts.Coord[consts.Chunk] {
         // Spacing &lt;= Separation だと差が負になり uint64 キャストで巨大値へアンダーフローし、
         // オフセット抽選が壊れる。Placement は内部定数なので設定ミスは never として弾く
         <span class="cov8" title="1">if p.Spacing &lt;= p.Separation </span>{
                 <span class="cov8" title="1">panic("Placement: Spacing must be greater than Separation")</span>
         }
         <span class="cov8" title="1">span := uint64(p.Spacing - p.Separation)
-        h := ChunkSeed2D(runSeed^p.Salt, rx, 0)
+        h := ChunkSeed2D(runSeed^p.Salt, ry, 0)
         return consts.Coord[consts.Chunk]{
-                X: rx*p.Spacing + consts.Chunk(h%span),
-                Y: consts.Chunk((h / span) % uint64(rows)),
+                X: consts.Chunk((h / span) % uint64(cols)),
+                Y: ry*p.Spacing + consts.Chunk(h%span),
 </span>        }
-}
-
-// floorDiv は負の座標でもリージョン割りが連続になる床除算。Go の / はゼロ方向へ丸めるため、
-// 負側で境界が二重にならないよう床方向へ丸める。
-func floorDiv(a, b consts.Chunk) consts.Chunk {
-        <span class="cov8" title="1">q := a / b
-        if (a%b != 0) &amp;&amp; ((a &lt; 0) != (b &lt; 0)) </span>{
-                <span class="cov8" title="1">q--
-</span>        }
-        <span class="cov8" title="1">return q</span>
 }
 
 // chunkGeom は生成中チャンクの帯ローカル配置と、地物が共有するタイル索引。座標計算と
@@ -26076,10 +26093,10 @@ type chunkGeom struct {
         tiles            *tileIndex
 }
 
-// feature は1種類の地物。c がその地物に該当するかを (runSeed, 座標, rows) の純関数で判定し、
+// feature は1種類の地物。c がその地物に該当するかを runSeed・座標・cols の純関数で判定し、
 // 該当すれば中身を配置する。種類の追加は実装を1つ足すことに還元し、分岐は増やさない。
 type feature interface {
-        place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error
+        place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error
 }
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
@@ -26106,14 +26123,14 @@ const (
 )
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
-// 判定はすべて (runSeed, 座標, rows) の純関数で、開始チャンクの特例は持たない。
-func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
+// 判定はすべて runSeed・座標・cols の純関数で、開始チャンクの特例は持たない。
+func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
         <span class="cov8" title="1">g := chunkGeom{
                 offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,
                 tiles: &amp;tileIndex{world: world, loX: offsetX, hiX: offsetX + chunkW},
 </span>        }
         <span class="cov8" title="1">for _, f := range features() </span>{
-                <span class="cov8" title="1">if err := f.place(world, runSeed, c, rows, g); err != nil </span>{
+                <span class="cov8" title="1">if err := f.place(world, runSeed, c, cols, g); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
         }
@@ -26382,8 +26399,8 @@ type wildernessLandmarkFeature struct{}
 // place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
 // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。
-func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-        <span class="cov8" title="1">if chunkTypeAt(runSeed, c, rows) != chunkLandmark </span>{
+func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+        <span class="cov8" title="1">if chunkTypeAt(runSeed, c, cols) != chunkLandmark </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
 
@@ -26529,16 +26546,16 @@ func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chu
                 <span class="cov8" title="1">if len(draws) == 0 </span>{
                         <span class="cov8" title="1">continue</span> // 屑物 group は確率が低く、何も出ないタイルが多い。そのタイルは空けておく
                 }
-                <span class="cov0" title="0">bl := consts.Coord[consts.Tile]{X: g.offsetX + rel.X, Y: g.offsetY + rel.Y}
+                <span class="cov8" title="1">bl := consts.Coord[consts.Tile]{X: g.offsetX + rel.X, Y: g.offsetY + rel.Y}
                 for _, d := range draws </span>{
-                        <span class="cov0" title="0">if d.Name == "" </span>{
+                        <span class="cov8" title="1">if d.Name == "" </span>{
                                 <span class="cov0" title="0">continue</span>
                         }
-                        <span class="cov0" title="0">if _, err := lifecycle.SpawnFieldItem(world, d.Name, bl.X, bl.Y, d.Count); err != nil </span>{
+                        <span class="cov8" title="1">if _, err := lifecycle.SpawnFieldItem(world, d.Name, bl.X, bl.Y, d.Count); err != nil </span>{
                                 <span class="cov0" title="0">return fmt.Errorf("failed to place outdoor loot (%s): %w", d.Name, err)
 </span>                        }
                 }
-                <span class="cov0" title="0">occupied[gc.GridElement{Coord: bl}] = true</span>
+                <span class="cov8" title="1">occupied[gc.GridElement{Coord: bl}] = true</span>
         }
         <span class="cov8" title="1">return nil</span>
 }
@@ -26552,34 +26569,37 @@ import "github.com/kijimaD/ruins/internal/consts"
 // 全画面の俯瞰図も HUD の右上地図も、この同じモデルを各自の基盤で描く。ピクセルの描き方は
 // 共有せず、どのチャンクに何が立ちマーカーが表示範囲のどこに来るかというモデルだけを共有する。
 
-// MacroMargin は帯の東西へ足す余白チャンク数。この先の地形を先読みできる。全画面図も HUD も
-// この余白ぶん広い表示範囲を描く。
+// MacroMargin は帯の南北へ足す余白チャンク数。北はこの先の地形を先読みし、南は通った地形を見返せる。
+// 全画面図も HUD もこの余白ぶん広い表示範囲を描く。
 const MacroMargin consts.Chunk = 6
 
-// MacroRange はマクロ地図の表示範囲。左端の絶対チャンク列と、表示範囲の列数・行数をチャンク単位で持つ。
+// MacroRange はマクロ地図の表示範囲。左上端の絶対チャンク座標と、表示範囲の列数・行数をチャンク単位で持つ。
 type MacroRange struct {
         OriginX consts.Chunk // 表示範囲の左端の絶対チャンク列
-        Cols    consts.Chunk // 表示範囲の列数
-        Rows    consts.Chunk // 表示範囲の行数。帯の Rows と同じ
+        OriginY consts.Chunk // 表示範囲の上端の絶対チャンク行
+        Cols    consts.Chunk // 表示範囲の列数。帯の Cols と同じ有界幅
+        Rows    consts.Chunk // 表示範囲の行数
 }
 
-// FullBandRange は帯全体を覆う表示範囲を帯のプリミティブから組む。東西へ MacroMargin ぶん広げ、
-// この先の地形を先読みできる。全画面の地形俯瞰図が使う。
-func FullBandRange(eastIndex, cols, rows consts.Chunk) MacroRange {
+// FullBandRange は帯全体を覆う表示範囲を帯のプリミティブから組む。南北へ MacroMargin ぶん広げ、
+// この先の地形を先読みできる。全画面の地形俯瞰図が使う。北は -Y なので北端は -northIndex。
+func FullBandRange(northIndex, cols, rows consts.Chunk) MacroRange {
         <span class="cov8" title="1">return MacroRange{
-                OriginX: eastIndex - MacroMargin,
-                Cols:    cols + 2*MacroMargin,
-                Rows:    max(rows, 1),
+                OriginX: 0,
+                OriginY: -northIndex - MacroMargin,
+                Cols:    max(cols, 1),
+                Rows:    rows + 2*MacroMargin,
 </span>        }
 }
 
-// PlayerCenteredRange はプレイヤーの絶対チャンク列を中心に、左右へ radius チャンクぶんの表示範囲を組む。
-// 縦は帯全体を見せる。HUD の右上地図が近傍だけを大きく描くために使う。
-func PlayerCenteredRange(centerCol, rows consts.Chunk, radius int) MacroRange {
-        <span class="cov0" title="0">return MacroRange{
-                OriginX: centerCol - consts.Chunk(radius),
-                Cols:    consts.Chunk(2*radius + 1),
-                Rows:    max(rows, 1),
+// PlayerCenteredRange はプレイヤーの絶対チャンク行を中心に、南北へ radius チャンクぶんの表示範囲を組む。
+// 横は帯全体を見せる。HUD の右上地図が近傍だけを大きく描くために使う。
+func PlayerCenteredRange(centerRow, cols consts.Chunk, radius int) MacroRange {
+        <span class="cov8" title="1">return MacroRange{
+                OriginX: 0,
+                OriginY: centerRow - consts.Chunk(radius),
+                Cols:    max(cols, 1),
+                Rows:    consts.Chunk(2*radius + 1),
 </span>        }
 }
 
@@ -26598,14 +26618,14 @@ type MacroView struct {
 }
 
 // BuildMacroView は帯のプリミティブとプレイヤー・キューブのタイル座標から、指定表示範囲の描画モデルを組む。
-// ChunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク幅で割って表示範囲ローカルへ移す。
-// eastIndex は帯ローカルなタイル座標を絶対チャンク列へ移すのに使う。
+// ChunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク寸法で割って表示範囲ローカルへ移す。
+// northIndex は帯ローカルなタイル座標を絶対チャンク行へ移すのに使う。X は有界なので列は割るだけ。
 // discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。含まれるチャンクだけを開放し、
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
         runSeed uint64,
-        eastIndex consts.Chunk,
+        northIndex consts.Chunk,
         chunkW, chunkH consts.Tile,
         area MacroRange,
         playerTile consts.Coord[consts.Tile],
@@ -26613,18 +26633,20 @@ func BuildMacroView(
         cubeTiles []consts.Coord[consts.Tile],
         discovered map[consts.Coord[consts.Chunk]]bool,
 ) MacroView {
-        <span class="cov8" title="1">rows := max(area.Rows, 1)
+        <span class="cov8" title="1">cols := max(area.Cols, 1)
+        rows := max(area.Rows, 1)
 </span>
-        // 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数
-        <span class="cov8" title="1">roads := buildRoadOverlay(runSeed, area, rows)
+        // 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
+        // ChunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
+        <span class="cov8" title="1">roads := buildRoadOverlay(runSeed, area, cols)
 </span>
         <span class="cov8" title="1">cells := make([][]MacroCell, rows)
         for cy := range rows </span>{
-                <span class="cov8" title="1">cells[cy] = make([]MacroCell, area.Cols)
-                for i := range area.Cols </span>{
-                        <span class="cov8" title="1">c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: cy}
+                <span class="cov8" title="1">cells[cy] = make([]MacroCell, cols)
+                for i := range cols </span>{
+                        <span class="cov8" title="1">c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
                         cells[cy][i] = MacroCell{
-                                Glyph:      ChunkPlace(runSeed, c, rows),
+                                Glyph:      ChunkPlace(runSeed, c, cols),
                                 Discovered: discovered[c],
                                 Road:       roads[c],
 </span>                        }
@@ -26633,11 +26655,14 @@ func BuildMacroView(
 
         // toCell は帯ローカルなタイル座標を表示範囲ローカルのチャンクセルへ移す。表示範囲外なら ok=false。
         // chunkW/chunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない。
+        // X は有界なので絶対チャンク列はタイルを幅で割るだけ。Y は北進ぶん負へずらした絶対チャンク行。
+        // 帯ローカルの t は非負なので素の整数除算で足り、負座標用の FloorDiv は要らない
         <span class="cov8" title="1">toCell := func(t consts.Coord[consts.Tile]) (consts.Coord[consts.Chunk], bool) </span>{
-                <span class="cov8" title="1">worldCol := eastIndex + consts.Chunk(int(t.X)/int(chunkW))
+                <span class="cov8" title="1">worldCol := consts.Chunk(int(t.X) / int(chunkW))
+                worldRow := consts.Chunk(int(t.Y)/int(chunkH)) - northIndex
                 col := worldCol - area.OriginX
-                row := consts.Chunk(int(t.Y) / int(chunkH))
-                if col &gt;= 0 &amp;&amp; col &lt; area.Cols &amp;&amp; row &gt;= 0 &amp;&amp; row &lt; rows </span>{
+                row := worldRow - area.OriginY
+                if col &gt;= 0 &amp;&amp; col &lt; cols &amp;&amp; row &gt;= 0 &amp;&amp; row &lt; rows </span>{
                         <span class="cov8" title="1">return consts.Coord[consts.Chunk]{X: col, Y: row}, true
 </span>                }
                 <span class="cov8" title="1">return consts.Coord[consts.Chunk]{}, false</span>
@@ -26680,9 +26705,9 @@ type roadFeature struct{}
 // -roadWidth/2 から始めてわずかに片側へ寄せる。
 const roadWidth consts.Tile = 4
 
-func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
+func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
         <span class="cov8" title="1">tiles := g.tiles.get()
-        for _, pair := range crossingRoads(runSeed, c, rows) </span>{
+        for _, pair := range crossingRoads(runSeed, c, cols) </span>{
                 <span class="cov8" title="1">if err := drawRoadSegments(world, tiles, pair[0], pair[1], c, g); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
@@ -26790,14 +26815,14 @@ func (s roadSeg) tileSpan(chunkW, chunkH consts.Tile) (fixed, lo, hi consts.Tile
 
 // crossingRoads はチャンク c を横切りうる道の端点対を返す。c を横切りうるのは (r-1,r) と (r,r+1) を
 // 結ぶ2本だけ。road.go の舗装と scatter.go の回避が同じ結線を共有する。ホットパスで呼ぶので、
-// スライスを確保せず固定長配列で返す。
-func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) [2][2]consts.Coord[consts.Chunk] {
-        <span class="cov8" title="1">r := floorDiv(c.X, settlementPlacement.Spacing)
+// スライスを確保せず固定長配列で返す。集落は Y 方向のリージョンに並ぶので region は c.Y から引く。
+func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) [2][2]consts.Coord[consts.Chunk] {
+        <span class="cov8" title="1">r := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
         var pairs [2][2]consts.Coord[consts.Chunk]
         for i := range 2 </span>{
                 <span class="cov8" title="1">pr := r - 1 + consts.Chunk(i)
-                pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, rows)
-                pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, rows)
+                pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, cols)
+                pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, cols)
 </span>        }
         <span class="cov8" title="1">return pairs</span>
 }
@@ -26834,21 +26859,21 @@ func (d RoadDir) Any() bool {
 // buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。
 // road.go と同じく隣接リージョンの当選集落どうしを L 字で結ぶ。生成を伴わない純関数で、
 // 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。
-func buildRoadOverlay(runSeed uint64, area MacroRange, rows consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {
+func buildRoadOverlay(runSeed uint64, area MacroRange, cols consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {
         <span class="cov8" title="1">overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
-        rows = max(rows, 1)
+        cols = max(cols, 1)
 </span>        // 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は
         // (pr+2)*Spacing 未満に収まる。よって表示範囲 [OriginX, OriginX+Cols) に列が掛かりうる道は、表示範囲の左端の
         // 属するリージョンの1つ西から表示範囲の右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ
         // scanMargin ぶんの余裕を足す。表示範囲外へ出たチャンクを印しても読み手が引かないので無害
         <span class="cov8" title="1">const scanMargin consts.Chunk = 1
-        leftRegion := floorDiv(area.OriginX, settlementPlacement.Spacing)
-        rightRegion := floorDiv(area.OriginX+area.Cols-1, settlementPlacement.Spacing)
-        rLo := leftRegion - 1 - scanMargin // 1つ西のリージョンの道が東へ食い込みうる
-        rHi := rightRegion + scanMargin
+        topRegion := consts.FloorDiv(area.OriginY, settlementPlacement.Spacing)
+        botRegion := consts.FloorDiv(area.OriginY+area.Rows-1, settlementPlacement.Spacing)
+        rLo := topRegion - 1 - scanMargin // 1つ北のリージョンの道が南へ食い込みうる
+        rHi := botRegion + scanMargin
         for pr := rLo; pr &lt;= rHi; pr++ </span>{
-                <span class="cov8" title="1">a := settlementPlacement.WinnerOf(runSeed, pr, rows)
-                b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)
+                <span class="cov8" title="1">a := settlementPlacement.WinnerOf(runSeed, pr, cols)
+                b := settlementPlacement.WinnerOf(runSeed, pr+1, cols)
                 markRoadLShape(overlay, a, b)
 </span>        }
         <span class="cov8" title="1">return overlay</span>
@@ -27025,10 +27050,10 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
-func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (scatterCatalog, bool) {
-        <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, rows) </span>{
+func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool) {
+        <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, cols) </span>{
         case chunkWasteland:
-                <span class="cov8" title="1">return scatterCatalogFor(outdoorZoneAt(runSeed, c, rows)), true</span>
+                <span class="cov8" title="1">return scatterCatalogFor(outdoorZoneAt(runSeed, c, cols)), true</span>
         default:
                 <span class="cov8" title="1">return scatterCatalog{}, false</span>
         }
@@ -27042,8 +27067,8 @@ type openTerrainFeature struct{}
 // どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。選定はチャンク相対座標と
 // 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
 // エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
-func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-        <span class="cov8" title="1">cat, ok := scatterCatalogForChunk(runSeed, c, rows)
+func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+        <span class="cov8" title="1">cat, ok := scatterCatalogForChunk(runSeed, c, cols)
         if !ok </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
@@ -27085,7 +27110,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
         <span class="cov8" title="1">selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
         propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
         for _, rel := range interior.ScatterArea(area, accept, selSeed, propCount) </span>{
-                <span class="cov8" title="1">bigAllowed := onBigPhase(rel) &amp;&amp; !onScatterRoute(runSeed, c, rows, g, absTile(rel))
+                <span class="cov8" title="1">bigAllowed := onBigPhase(rel) &amp;&amp; !onScatterRoute(runSeed, c, cols, g, absTile(rel))
                 roll := hashTileCoord(selSeed, rel)
                 entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
                 if entry.Ref == "" </span>{
@@ -27161,16 +27186,17 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、
 // それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の
 // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
-func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) outdoorZone {
-        <span class="cov8" title="1">sr := floorDiv(c.X, settlementPlacement.Spacing)
+func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
+        // 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く
+        <span class="cov8" title="1">sr := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
         for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} </span>{
-                <span class="cov8" title="1">if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, rows)) &lt;= scatterRoadsideRange </span>{
+                <span class="cov8" title="1">if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, cols)) &lt;= scatterRoadsideRange </span>{
                         <span class="cov8" title="1">return zoneRoadside
 </span>                }
         }
-        <span class="cov8" title="1">ur := floorDiv(c.X, urbanPlacement.Spacing)
+        <span class="cov8" title="1">ur := consts.FloorDiv(c.Y, urbanPlacement.Spacing)
         for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} </span>{
-                <span class="cov8" title="1">if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, rows)) &lt;= scatterRoadsideRange </span>{
+                <span class="cov8" title="1">if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, cols)) &lt;= scatterRoadsideRange </span>{
                         <span class="cov8" title="1">return zoneRoadside
 </span>                }
         }
@@ -27191,9 +27217,9 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
-func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
+func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
         // 道の結線は roadSegments を唯一の出典にし、舗装 road.go と同じ経路への距離を測る
-        <span class="cov8" title="1">for _, pair := range crossingRoads(runSeed, c, rows) </span>{
+        <span class="cov8" title="1">for _, pair := range crossingRoads(runSeed, c, cols) </span>{
                 <span class="cov8" title="1">for _, seg := range roadSegments(pair[0], pair[1]) </span>{
                         <span class="cov8" title="1">fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)
                         var d consts.Tile
@@ -27423,17 +27449,17 @@ const (
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
 // 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在ランドマーク &gt; 荒れ地。地図も生成もこの
 // 分類を唯一の源にするので、地図の記号と実体が食い違わない。
-func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {
-        <span class="cov8" title="1">if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok </span>{
+func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
+        <span class="cov8" title="1">if _, _, ok := urbanChunkInfo(runSeed, c, cols); ok </span>{
                 <span class="cov8" title="1">return chunkUrban
 </span>        }
-        <span class="cov8" title="1">if dungeonEntrancePlacement.At(runSeed, c, rows) </span>{
+        <span class="cov8" title="1">if dungeonEntrancePlacement.At(runSeed, c, cols) </span>{
                 <span class="cov8" title="1">return chunkDungeonEntrance
 </span>        }
-        <span class="cov8" title="1">if settlementPlacement.At(runSeed, c, rows) </span>{
+        <span class="cov8" title="1">if settlementPlacement.At(runSeed, c, cols) </span>{
                 <span class="cov8" title="1">return chunkSettlement
 </span>        }
-        <span class="cov8" title="1">if landmarkPlacement.At(runSeed, c, rows) </span>{
+        <span class="cov8" title="1">if landmarkPlacement.At(runSeed, c, cols) </span>{
                 <span class="cov8" title="1">return chunkLandmark
 </span>        }
         <span class="cov8" title="1">return chunkWasteland</span>
@@ -27441,12 +27467,12 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 
 // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
 // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
-func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {
-        <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, rows) </span>{
+func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+        <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, cols) </span>{
         case chunkUrban:
                 // 施設種は urbanChunkInfo が別途返す動的な値で、facilityGlyphs に無い種が来うるので
                 // ok チェックする。他の種別は placeType が局所で保証されるので直接引く
-                <span class="cov8" title="1">kind, _, _ := urbanChunkInfo(runSeed, c, rows)
+                <span class="cov8" title="1">kind, _, _ := urbanChunkInfo(runSeed, c, cols)
                 if g, ok := facilityGlyphs[kind]; ok </span>{
                         <span class="cov8" title="1">return g.Label
 </span>                }
@@ -27678,12 +27704,12 @@ var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementS
 // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。
 type settlementFeature struct{}
 
-func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-        <span class="cov8" title="1">if !settlementPlacement.At(runSeed, c, rows) </span>{
+func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+        <span class="cov8" title="1">if !settlementPlacement.At(runSeed, c, cols) </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
         // 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
-        <span class="cov8" title="1">if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok </span>{
+        <span class="cov8" title="1">if _, _, _, ok := urbanRegionOf(runSeed, c, cols); ok </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
@@ -27771,11 +27797,11 @@ type urbanFeature struct{}
 // w×h チャンク広がる。該当しなければ ok=false。走査窓には当選アンカーが複数入りうるので
 // 早期に false を返さず探索を続ける。市街地どうしは urbanPlacement の Separation で重ならない
 // ため c を覆うアンカーは高々1つで、最初に見つかったものを返せば一意に定まる。
-func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {
+func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {
         <span class="cov8" title="1">for dy := range urbanMaxSpan </span>{
                 <span class="cov8" title="1">for dx := range urbanMaxSpan </span>{
                         <span class="cov8" title="1">a := c.Sub(consts.Coord[consts.Chunk]{X: dx, Y: dy})
-                        if !urbanPlacement.At(runSeed, a, rows) </span>{
+                        if !urbanPlacement.At(runSeed, a, cols) </span>{
                                 <span class="cov8" title="1">continue</span>
                         }
                         <span class="cov8" title="1">cw, ch := urbanSizeOf(ChunkSeed2D(runSeed^urbanSalt, a.X, a.Y))
@@ -27898,8 +27924,8 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
 // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
 // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
-        <span class="cov8" title="1">anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
+func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
+        <span class="cov8" title="1">anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
         if !ok </span>{
                 <span class="cov8" title="1">return "", 0, false
 </span>        }
@@ -27915,14 +27941,14 @@ func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Ch
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
 // 生成順に依存しない。
-func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-        <span class="cov8" title="1">anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)
+func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+        <span class="cov8" title="1">anchor, _, _, ok := urbanRegionOf(runSeed, c, cols)
         if !ok </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
 
         // 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
-        <span class="cov8" title="1">fac, size, _ := urbanChunkInfo(runSeed, c, rows)
+        <span class="cov8" title="1">fac, size, _ := urbanChunkInfo(runSeed, c, cols)
         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
         return renderUrbanChunk(world, g, chunkSeed, size, fac)</span>
@@ -37575,9 +37601,10 @@ func (st *OverworldMapState) OnStop(_ w.World) error { <span class="cov0" title=
 // 全画面図のセル寸法・半径の範囲。帯が短いとセルが巨大化、広いと潰れるのを両側で防ぐ。
 // セルを小さくするほどモーダル幅に多くのチャンクが収まり、見える範囲が広がる
 const (
-        overworldMapMinCell   = 10
-        overworldMapMaxCell   = 18
-        overworldMapMinRadius = 3
+        overworldMapMinCell    = 10
+        overworldMapMaxCell    = 18
+        overworldMapMinRadius  = 3
+        overworldMapMarginCols = 3 // セル幅算出で cols に足す左右の余白の列相当ぶん
 )
 
 // modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
@@ -37585,17 +37612,21 @@ func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
         <span class="cov8" title="1">return menuframe.PanelInner(menuframe.ModalRect(world))
 </span>}
 
-// overworldMapCell は帯の行数からセル寸法を決める。見出し・凡例のぶんを足した行数で内側高さを割り、
-// 大きめのセルへ寄せる。帯が短いと巨大化するので上限で止める。
-func overworldMapCell(inner image.Rectangle, rows consts.Chunk) consts.ScreenPixel {
-        <span class="cov8" title="1">cell := min(max(inner.Dy()/(int(rows)+3), overworldMapMinCell), overworldMapMaxCell)
+// overworldMapCell は有界の cols 列がモーダル幅に収まるセル寸法を決める。左右の余白ぶんを足した
+// 列数で内側幅を割り、上限下限で挟む。帯が細いとセルが巨大化するので上限で止める。
+func overworldMapCell(inner image.Rectangle, cols consts.Chunk) consts.ScreenPixel {
+        // cols&lt;=0 の退化入力でもゼロ除算しないよう、関数内で 1 以上へ丸めてから割る
+        <span class="cov8" title="1">denom := max(int(cols), 1) + overworldMapMarginCols
+        cell := min(max(inner.Dx()/denom, overworldMapMinCell), overworldMapMaxCell)
         return consts.ScreenPixel(cell)
 </span>}
 
-// overworldMapRadius はモーダル幅に収まるプレイヤー左右のチャンク数を返す。最低限は確保する。
+// overworldMapRadius はモーダル高さに収まるプレイヤー南北のチャンク数を返す。最低限は確保する。
+// 地図の下に見出しと凡例を置くので、そのぶんの高さを差し引いてから収まる行数を出す。
 func overworldMapRadius(inner image.Rectangle, cell consts.ScreenPixel) int {
-        <span class="cov8" title="1">cols := inner.Dx() / int(cell)
-        return max((cols-1)/2, overworldMapMinRadius)
+        <span class="cov8" title="1">const headerLegendReserve = 160
+        rows := (inner.Dy() - headerLegendReserve) / int(cell)
+        return max((rows-1)/2, overworldMapMinRadius)
 </span>}
 
 // OnStart はプレイヤー中心の地形俯瞰モデルを算出して保持する。表示中はプレイヤーが動かないため
@@ -37608,14 +37639,16 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 </span>        }
         <span class="cov8" title="1">playerTile, hasPlayer := query.PlayerBandTile(world)
         inner := st.modalInner(world)
-        st.cellPx = overworldMapCell(inner, max(sb.Rows, 1))
-        centerCol := sb.EastIndex + sb.Cols/2
+        st.cellPx = overworldMapCell(inner, max(sb.Cols, 1))
+</span>        // 北進帯は縦に伸びるので、プレイヤーの絶対チャンク行を中心に近傍を見せる。
+        // プレイヤー不在時は帯の中央行。絶対チャンク行への変換は SeamlessBand.AbsChunkRow に集約する
+        <span class="cov8" title="1">centerRow := sb.AbsChunkRow((sb.Rows / 2).Tiles(sb.ChunkH))
         if hasPlayer </span>{
-                <span class="cov8" title="1">centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
+                <span class="cov8" title="1">centerRow = sb.AbsChunkRow(playerTile.Y)
 </span>        }
-        <span class="cov8" title="1">area := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
+        <span class="cov8" title="1">area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
         st.view = overworld.BuildMacroView(
-                sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
+                sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
                 area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
         )
 </span>
@@ -37623,8 +37656,8 @@ func (st *OverworldMapState) OnStart(world w.World) error {
         <span class="cov8" title="1">st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
         if hasPlayer </span>{
                 <span class="cov8" title="1">st.playerAbs = consts.Coord[consts.Chunk]{
-                        X: sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW)),
-                        Y: consts.Chunk(int(playerTile.Y) / int(sb.ChunkH)),
+                        X: consts.Chunk(int(playerTile.X) / int(sb.ChunkW)),
+                        Y: sb.AbsChunkRow(playerTile.Y),
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -37707,7 +37740,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
         <span class="cov8" title="1">gridW := consts.ScreenPixel(cols) * cell
         originX := (consts.ScreenPixel(dst.Bounds().Dx()) - gridW) / 2
         if originX &lt; 8 </span>{
-                <span class="cov8" title="1">originX = 8
+                <span class="cov0" title="0">originX = 8
 </span>        }
         <span class="cov8" title="1">const originY consts.ScreenPixel = 40
         cellCenter := func(col, row consts.Chunk) (consts.ScreenPixel, consts.ScreenPixel) </span>{
@@ -37781,16 +37814,16 @@ func drawCellRoad(dst *ebiten.Image, x, y, cell, cx, cy consts.ScreenPixel, road
         cxF, cyF := float32(cx), float32(cy)
         col := theme.OverworldMapRoad
         if road&amp;overworld.RoadW != 0 </span>{
-                <span class="cov8" title="1">vector.FillRect(dst, left, cyF-half, (cxF+half)-left, float32(t), col, false)
+                <span class="cov0" title="0">vector.FillRect(dst, left, cyF-half, (cxF+half)-left, float32(t), col, false)
 </span>        }
         <span class="cov8" title="1">if road&amp;overworld.RoadE != 0 </span>{
-                <span class="cov8" title="1">vector.FillRect(dst, cxF-half, cyF-half, right-(cxF-half), float32(t), col, false)
+                <span class="cov0" title="0">vector.FillRect(dst, cxF-half, cyF-half, right-(cxF-half), float32(t), col, false)
 </span>        }
         <span class="cov8" title="1">if road&amp;overworld.RoadN != 0 </span>{
-                <span class="cov0" title="0">vector.FillRect(dst, cxF-half, top, float32(t), (cyF+half)-top, col, false)
+                <span class="cov8" title="1">vector.FillRect(dst, cxF-half, top, float32(t), (cyF+half)-top, col, false)
 </span>        }
         <span class="cov8" title="1">if road&amp;overworld.RoadS != 0 </span>{
-                <span class="cov0" title="0">vector.FillRect(dst, cxF-half, cyF-half, float32(t), bottom-(cyF-half), col, false)
+                <span class="cov8" title="1">vector.FillRect(dst, cxF-half, cyF-half, float32(t), bottom-(cyF-half), col, false)
 </span>        }
 }
 
@@ -39346,7 +39379,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 
@@ -40332,16 +40365,16 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
         if sb == nil || !sb.Active </span>{
                 <span class="cov8" title="1">return hud.MacroMapData{HasBand: false, Config: config, Screen: screen}
 </span>        }
-        // 近傍だけを大きく見せる。プレイヤーの絶対チャンク列を中心に表示範囲を取る。プレイヤー不在時は帯全体
+        // 近傍だけを大きく見せる。プレイヤーの絶対チャンク行を中心に表示範囲を取る。プレイヤー不在時は帯全体
         <span class="cov8" title="1">playerTile, hasPlayer := query.PlayerBandTile(world)
-        area := overworld.FullBandRange(sb.EastIndex, sb.Cols, sb.Rows)
+        area := overworld.FullBandRange(sb.NorthIndex, sb.Cols, sb.Rows)
         if hasPlayer </span>{
-                <span class="cov8" title="1">centerCol := sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
-                area = overworld.PlayerCenteredRange(centerCol, sb.Rows, consts.MacroMapChunkRadius)
+                <span class="cov8" title="1">centerRow := sb.AbsChunkRow(playerTile.Y)
+                area = overworld.PlayerCenteredRange(centerRow, sb.Cols, consts.MacroMapChunkRadius)
 </span>        }
         // 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する
         <span class="cov8" title="1">view := overworld.BuildMacroView(
-                sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
+                sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
                 area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
         )
         return hud.MacroMapData{HasBand: true, View: view, Config: config, Screen: screen}</span>
@@ -50679,18 +50712,18 @@ func DriveCubeTiles(world w.World) []consts.Coord[consts.Tile] {
 // フォグ ExploredTiles をチャンク粒度へ畳み込み、マクロ地図のフォグにする。StageField が無ければ nil。
 // 全画面の地形俯瞰図と HUD の右上地図が同じフォグを共有する。
 func DiscoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[consts.Chunk]]bool {
-        <span class="cov0" title="0">field := GetCurrentStageField(world)
+        <span class="cov8" title="1">field := GetCurrentStageField(world)
         if field == nil </span>{
                 <span class="cov0" title="0">return nil
 </span>        }
-        <span class="cov0" title="0">out := make(map[consts.Coord[consts.Chunk]]bool)
-</span>        // ChunkW/ChunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない
-        <span class="cov0" title="0">for tile := range field.ExploredTiles </span>{
-                <span class="cov0" title="0">col := sb.EastIndex + consts.Chunk(int(tile.X)/int(sb.ChunkW))
-                row := consts.Chunk(int(tile.Y) / int(sb.ChunkH))
-                out[consts.Coord[consts.Chunk]{X: col, Y: row}] = true
+        <span class="cov8" title="1">out := make(map[consts.Coord[consts.Chunk]]bool)
+</span>        // ChunkW は帯が有効なら正なのでゼロ除算しない。X は有界なので絶対チャンク列はタイルを幅で割るだけ。
+        // Y は AbsChunkRow が帯ローカルの非負タイル行を絶対チャンク行へ移す。単一出どころを共有する
+        <span class="cov8" title="1">for tile := range field.ExploredTiles </span>{
+                <span class="cov8" title="1">col := consts.Chunk(int(tile.X) / int(sb.ChunkW))
+                out[consts.Coord[consts.Chunk]{X: col, Y: sb.AbsChunkRow(tile.Y)}] = true
 </span>        }
-        <span class="cov0" title="0">return out</span>
+        <span class="cov8" title="1">return out</span>
 }
 
 // PlayerBandTile はプレイヤーの帯ローカルなタイル座標を返す。プレイヤーが居なければ ok=false。
@@ -52351,6 +52384,7 @@ func stageBaseTemperature(world w.World) int {
 
 // AmbientTemperatureAt はタイルの周囲気温を返す。ステージの基本気温、囲われに応じて
 // 受け方を変えた世界温度、タイルの加算℃、熱源の押し上げの4項の和になる。
+// 緯度勾配は引数 y のタイル固有の緯度で測るので、同じ帯でも北のタイルほど寒い。
 func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
         <span class="cov8" title="1">if GetDungeon(world) == nil </span>{
                 <span class="cov0" title="0">return 0, errors.New("dungeon resource is not set")
@@ -52358,14 +52392,58 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
         <span class="cov8" title="1">baseTemp := stageBaseTemperature(world)
 </span>
         <span class="cov8" title="1">gt := GetGameTime(world)
-</span>        // 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
-        <span class="cov8" title="1">worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
+</span>        // 屋外の世界温度。季節+時間帯から緯度勾配を引く。worldTemp に折り込むと屋内は
+        // shelteredWorldTemp で緩和され、末尾で引くと屋内外が同じだけ寒くなってしまう
+        <span class="cov8" title="1">worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier() - latitudeCold(world, y)
         shelter, tileModifier := TileEnvironmentAt(world, x, y)
 </span>
         <span class="cov8" title="1">return baseTemp +
                 shelteredWorldTemp(shelter, worldTemp) +
                 tileModifier +
                 ambientHeatAt(world, x, y), nil</span>
+}
+
+// 奥地ほど寒い緯度勾配のパラメータ。奥へ進んだチャンク距離が増えるほど世界温度を下げる。値は実プレイで調整する。
+const (
+        // latitudeColdPerChunk は1チャンク奥へ進むごとに下がる℃
+        latitudeColdPerChunk = 1
+        // latitudeColdMax は緯度勾配で下げる℃の上限。これ以上奥へ進んでも寒くならない
+        latitudeColdMax = 40
+)
+
+// NorthDepthChunks は帯ローカル座標 y が湧き位置から北へ何チャンク進んだかを返す。
+// 起点は初期帯の中央行 SpawnChunkY で、開始地点を穏やかに保つ。手前や帯を持たないステージでは0。
+// 緯度勾配と HUD の奥地表示がこの1関数を共有する。絶対軸 Y で測るので帯シフトをまたいでも連続。
+func NorthDepthChunks(world w.World, y consts.Tile) int {
+        <span class="cov8" title="1">sb := GetSeamlessBand(world)
+</span>        // ChunkH&lt;=0 はゼロ除算を、Rows&lt;=0 は起点計算を壊す。未初期化の退化帯を計算より前に弾く
+        <span class="cov8" title="1">if sb == nil || sb.ChunkH &lt;= 0 || sb.Rows &lt;= 0 </span>{
+                <span class="cov8" title="1">return 0
+</span>        }
+        // 絶対 Y は北側で負になりうるので consts.FloorDiv でチャンク境界を連続させる
+        <span class="cov8" title="1">currentChunkY := consts.FloorDiv(int(sb.LocalToAbsY(y)), int(sb.ChunkH))
+        if depth := int(sb.SpawnChunkY()) - currentChunkY; depth &gt; 0 </span>{
+                <span class="cov8" title="1">return depth
+</span>        }
+        <span class="cov8" title="1">return 0</span>
+}
+
+// latitudeCold は帯ローカル座標 y の緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
+// 基礎的な寒さはステージの基本気温が担い、緯度勾配は北ほど寒い加算分だけを表す。
+func latitudeCold(world w.World, y consts.Tile) int {
+        <span class="cov8" title="1">return latitudeColdForDepth(NorthDepthChunks(world, y))
+</span>}
+
+// latitudeColdForDepth は湧き位置から奥へ進んだチャンク距離から差し引く℃を返す純粋計算。
+// 距離に比例して単調増加し、latitudeColdMax で頭打ちになる。起点手前や負の距離では0。
+func latitudeColdForDepth(chunksDeep int) int {
+        <span class="cov8" title="1">if chunksDeep &lt;= 0 </span>{
+                <span class="cov8" title="1">return 0
+</span>        }
+        <span class="cov8" title="1">if cold := chunksDeep * latitudeColdPerChunk; cold &lt; latitudeColdMax </span>{
+                <span class="cov8" title="1">return cold
+</span>        }
+        <span class="cov8" title="1">return latitudeColdMax</span>
 }
 
 // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。
@@ -52921,18 +52999,18 @@ import (
 )
 
 // Band はアクティブ帯を管理する。アクティブ帯は横 cols 列・縦 rows 行の隣接チャンクを
-// 1連続座標空間に並べた単一マップ。東西は無限にストリーミングし、南北は rows に有界で
+// 1連続座標空間に並べた単一マップ。南北は北へ無限にストリーミングし、東西は cols に有界で
 // ストリーミングしない。
 //
-// プレイヤーは常に中央チャンク列に保たれ、中央列を東へ出るとシフトする。シフトは東端列の
-// 生成・西端列の破棄・リベースからなる。これにより帯ローカル座標は常に 0..cols*chunkW に
-// 収まり、既存の単一マップ機構を変えずに無限東進を実現する。
+// プレイヤーは常に中央チャンク行に保たれ、中央行を北へ出るとシフトする。シフトは北端行の
+// 生成・南端行の破棄・リベースからなる。これにより帯ローカル座標は常に 0..rows*chunkH に
+// 収まり、既存の単一マップ機構を変えずに無限北進を実現する。北は画面の上すなわち -Y。
 type Band struct {
-        chunkW    consts.Tile  // 1チャンクの幅。構築後不変
-        chunkH    consts.Tile  // 1チャンクの高さ。縦スロットへの配置に使う。構築後不変
-        cols      consts.Chunk // X方向のチャンク列数。奇数で中央チャンクを持つ。構築後不変
-        rows      consts.Chunk // Y方向のチャンク行数。1 なら1行の帯。構築後不変
-        eastIndex consts.Chunk // 東進したチャンク数。帯西端チャンクの絶対インデックス。シフトで変化
+        chunkW     consts.Tile  // 1チャンクの幅。横スロットへの配置に使う。構築後不変
+        chunkH     consts.Tile  // 1チャンクの高さ。構築後不変
+        cols       consts.Chunk // X方向のチャンク列数。有界。構築後不変
+        rows       consts.Chunk // Y方向のチャンク行数。奇数で中央チャンクを持つ。構築後不変
+        northIndex consts.Chunk // 北進したチャンク数。0以上で北へ進むほど増える。シフトで変化
 }
 
 // ChunkGen はチャンク座標 c の地形を帯ローカルの (offsetX, offsetY) 位置へ生成・配置する。
@@ -52940,15 +53018,15 @@ type Band struct {
 // worldstream を mapplanner/mapspawner に依存させないための注入点。
 type ChunkGen func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error
 
-// NewBand は幅 chunkW・高さ chunkH のチャンクを横 cols 列・縦 rows 行並べた帯を eastIndex=0 で作る。
-// cols は奇数を推奨する。rows=1 なら1行の帯になる。
+// NewBand は幅 chunkW・高さ chunkH のチャンクを横 cols 列・縦 rows 行並べた帯を northIndex=0 で作る。
+// rows は奇数を推奨する。cols=1 なら1列の帯になる。
 func NewBand(chunkW, chunkH consts.Tile, cols, rows consts.Chunk) *Band {
         <span class="cov8" title="1">return NewBandAt(chunkW, chunkH, cols, rows, 0)
 </span>}
 
-// NewBandAt は eastIndex を指定して帯を作る。セーブからの復元で使う。
-func NewBandAt(chunkW, chunkH consts.Tile, cols, rows, eastIndex consts.Chunk) *Band {
-        <span class="cov8" title="1">return &amp;Band{chunkW: chunkW, chunkH: chunkH, cols: cols, rows: rows, eastIndex: eastIndex}
+// NewBandAt は northIndex を指定して帯を作る。セーブからの復元で使う。
+func NewBandAt(chunkW, chunkH consts.Tile, cols, rows, northIndex consts.Chunk) *Band {
+        <span class="cov8" title="1">return &amp;Band{chunkW: chunkW, chunkH: chunkH, cols: cols, rows: rows, northIndex: northIndex}
 </span>}
 
 // ChunkW は1チャンクの幅を返す。
@@ -52957,44 +53035,45 @@ func (b *Band) ChunkW() consts.Tile { <span class="cov0" title="0">return b.chun
 // Cols は帯の横のチャンク列数を返す。
 func (b *Band) Cols() consts.Chunk { <span class="cov0" title="0">return b.cols }</span>
 
-// EastIndex は東進したチャンク数を返す。帯西端チャンクの絶対インデックス。
-func (b *Band) EastIndex() consts.Chunk { <span class="cov8" title="1">return b.eastIndex }</span>
+// NorthIndex は北進したチャンク数を返す。北へ進むほど増える。
+func (b *Band) NorthIndex() consts.Chunk { <span class="cov8" title="1">return b.northIndex }</span>
 
-// BandOriginX は帯ローカル X=0 が指す絶対 X。
-func (b *Band) BandOriginX() consts.AbsTileX { <span class="cov8" title="1">return BandOriginX(b.eastIndex, b.chunkW) }</span>
+// BandOriginY は帯ローカル Y=0 すなわち北端が指す絶対 Y。
+func (b *Band) BandOriginY() consts.AbsTileY { <span class="cov8" title="1">return consts.BandOriginY(b.northIndex, b.chunkH) }</span>
 
 // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。
-func (b *Band) Width() consts.Tile { <span class="cov8" title="1">return b.cols.Tiles(b.chunkW) }</span>
+func (b *Band) Width() consts.Tile { <span class="cov0" title="0">return b.cols.Tiles(b.chunkW) }</span>
 
 // Rows は Y 方向のチャンク行数を返す。
 func (b *Band) Rows() consts.Chunk { <span class="cov0" title="0">return b.rows }</span>
 
 // Height は帯の総高。帯ローカル Y の有効範囲は [0, Height())。
-func (b *Band) Height() consts.Tile { <span class="cov0" title="0">return b.rows.Tiles(b.chunkH) }</span>
+func (b *Band) Height() consts.Tile { <span class="cov8" title="1">return b.rows.Tiles(b.chunkH) }</span>
 
-// centerSlot は中央チャンクのスロット番号。cols が奇数なら真ん中。
-func (b *Band) centerSlot() consts.Chunk { <span class="cov8" title="1">return b.cols / 2 }</span>
+// centerSlot は中央チャンクの行スロット番号。rows が奇数なら真ん中。
+func (b *Band) centerSlot() consts.Chunk { <span class="cov8" title="1">return b.rows / 2 }</span>
 
-// ShouldShiftEast はプレイヤーの帯ローカル X が中央チャンクを東へ出たかを返す。判定はヒステリシスを持つ。
-func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {
-        <span class="cov8" title="1">return playerLocalX &gt;= (b.centerSlot() + 1).Tiles(b.chunkW)
+// ShouldShiftNorth はプレイヤーの帯ローカル Y が中央チャンクを北へ出たかを返す。判定はヒステリシスを持つ。
+// 北は -Y なので、中央行より上、すなわち localY が中央行の上端未満へ入ったらシフトする。
+func (b *Band) ShouldShiftNorth(playerLocalY consts.Tile) bool {
+        <span class="cov8" title="1">return playerLocalY &lt; b.centerSlot().Tiles(b.chunkH)
 </span>}
 
-// ShiftEast は帯を東へ1チャンク進める。
-// 西端列の破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端列の生成。
-func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
-        // 1. 西端の列を全行破棄する。プレイヤーは残す
-        <span class="cov8" title="1">RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayer(world))
-</span>        // 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す
-        <span class="cov8" title="1">TranslateAllEntities(world, -b.chunkW, 0)
+// ShiftNorth は帯を北へ1チャンク進める。
+// 南端行の破棄 → リベース → 座標キー Map 追従 → northIndex 前進 → 北端行の生成。
+func (b *Band) ShiftNorth(world w.World, gen ChunkGen) error {
+        // 1. 南端の行を全列破棄する。シフトは中央より北でしか発火しないのでプレイヤーは破棄範囲へ入らないが、
+        // 中央行が南端に重なる退化帯に備え KeepPlayer で保険をかける
+        <span class="cov8" title="1">RemoveEntitiesInYRange(world, (b.rows - 1).Tiles(b.chunkH), b.rows.Tiles(b.chunkH), KeepPlayer(world))
+</span>        // 2. リベース。全エンティティを南へ chunkH ずらしてプレイヤーを中央へ戻す
+        <span class="cov8" title="1">TranslateAllEntities(world, 0, b.chunkH)
 </span>        // 3. 座標キー Map を追従させる。
-        <span class="cov8" title="1">b.rebaseCoordMaps(world, -b.chunkW)
-</span>        // 4. eastIndex 前進 → 新しい東端の列を全行生成・配置する
-        <span class="cov8" title="1">b.eastIndex++
-        newChunkX := b.eastIndex + b.cols - 1
-        offsetX := (b.cols - 1).Tiles(b.chunkW)
-        for cy := range b.rows </span>{
-                <span class="cov8" title="1">if err := gen(consts.Coord[consts.Chunk]{X: newChunkX, Y: cy}, offsetX, cy.Tiles(b.chunkH)); err != nil </span>{
+        <span class="cov8" title="1">b.rebaseCoordMaps(world, b.chunkH)
+</span>        // 4. northIndex 前進 → 新しい北端の行を全列生成・配置する。北端の絶対チャンク Y は負へ伸びる
+        <span class="cov8" title="1">b.northIndex++
+        newChunkY := -b.northIndex
+        for cx := range b.cols </span>{
+                <span class="cov8" title="1">if err := gen(consts.Coord[consts.Chunk]{X: cx, Y: newChunkY}, cx.Tiles(b.chunkW), 0); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
         }
@@ -53003,22 +53082,22 @@ func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 
 // rebaseCoordMaps はリベースに伴い座標キーの Map を追従させる。
 // 永続の ExploredTiles はキーを平行移動し、揮発キャッシュはクリアして次フレーム再構築させる。
-func (b *Band) rebaseCoordMaps(world w.World, dx consts.Tile) {
+func (b *Band) rebaseCoordMaps(world w.World, dy consts.Tile) {
         <span class="cov8" title="1">field := query.GetCurrentStageField(world)
         if field == nil </span>{
                 <span class="cov0" title="0">return
 </span>        }
         <span class="cov8" title="1">inBand := func(g gc.GridElement) bool </span>{
-                <span class="cov8" title="1">return g.X &gt;= 0 &amp;&amp; g.X &lt; b.Width()
+                <span class="cov8" title="1">return g.Y &gt;= 0 &amp;&amp; g.Y &lt; b.Height()
 </span>        }
         // リベースは純粋な座標シフトなので、座標キーの Map はすべてキー付け替えで追従させる。
         // 視界の VisibleTiles と LightSourceCache もクリアでなく付け替える。こうするとシフトと同じ
         // フレームの描画で有効なまま保て、チャンク境界越え時のチラつきを防ぐ。チラつきは1フレームの
         // 暗転として現れる。次フレームの VisionSystem がどのみち再計算するが、その1フレームの穴を無くす。
-        <span class="cov8" title="1">field.ExploredTiles = translateTileKeyMap(field.ExploredTiles, dx, 0, inBand)
+        <span class="cov8" title="1">field.ExploredTiles = translateTileKeyMap(field.ExploredTiles, 0, dy, inBand)
         vs := query.GetVisionState(world)
-        vs.VisibleTiles = translateTileKeyMap(vs.VisibleTiles, dx, 0, inBand)
-        vs.LightSourceCache = translateTileKeyMap(vs.LightSourceCache, dx, 0, inBand)
+        vs.VisibleTiles = translateTileKeyMap(vs.VisibleTiles, 0, dy, inBand)
+        vs.LightSourceCache = translateTileKeyMap(vs.LightSourceCache, 0, dy, inBand)
 </span>        // シフトで帯ローカル座標に対する壁配置が変わるため、視界の強制再計算を要求する。
         // これにより VisionSystem は壁配置依存のレイキャストキャッシュも破棄する
         <span class="cov8" title="1">vs.RequestUpdate()
@@ -53047,20 +53126,14 @@ func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, ke
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// BandOriginX は eastIndex（東進したチャンク数）と chunkW から帯の絶対原点 X を返す。
-// 帯ローカル X=0 が絶対軸で指す位置。
-func BandOriginX(eastIndex consts.Chunk, chunkW consts.Tile) consts.AbsTileX {
-        <span class="cov8" title="1">return consts.AbsTileX(int(eastIndex) * int(chunkW))
+// ToAbsY は帯ローカル Y を絶対 Y に変換する。absY = localY + bandOriginY。
+func ToAbsY(bandOriginY consts.AbsTileY, localY consts.Tile) consts.AbsTileY {
+        <span class="cov8" title="1">return bandOriginY + consts.AbsTileY(localY)
 </span>}
 
-// ToAbs は帯ローカル X を絶対 X に変換する。absX = localX + bandOriginX。
-func ToAbs(bandOriginX consts.AbsTileX, localX consts.Tile) consts.AbsTileX {
-        <span class="cov8" title="1">return bandOriginX + consts.AbsTileX(localX)
-</span>}
-
-// ToLocal は絶対 X を帯ローカル X に変換する。localX = absX - bandOriginX。
-func ToLocal(bandOriginX consts.AbsTileX, absX consts.AbsTileX) consts.Tile {
-        <span class="cov8" title="1">return consts.Tile(absX - bandOriginX)
+// ToLocalY は絶対 Y を帯ローカル Y に変換する。localY = absY - bandOriginY。
+func ToLocalY(bandOriginY consts.AbsTileY, absY consts.AbsTileY) consts.Tile {
+        <span class="cov8" title="1">return consts.Tile(absY - bandOriginY)
 </span>}
 </pre>
 		
@@ -53091,19 +53164,19 @@ func TranslateAllEntities(world w.World, dx, dy consts.Tile) {
 </span>        }
 }
 
-// RemoveEntitiesInXRange は GridElement.X が [loX, hiX) にあるエンティティを削除する。
+// RemoveEntitiesInYRange は GridElement.Y が [loY, hiY) にあるエンティティを削除する。
 //
-// 帯シフト時の西端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す
+// 帯シフト時の南端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す
 // エンティティは削除しない。プレイヤーなど残すべきものが該当する。削除した数を返す。
 // 反復中の削除を避けるため、対象を収集してから削除する。
-func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {
+func RemoveEntitiesInYRange(world w.World, loY, hiY consts.Tile, keep func(ecs.Entity) bool) int {
         <span class="cov8" title="1">var toRemove []ecs.Entity
-</span>        // 西端チャンク破棄は現ステージ(帯)だけが対象。退避中ステージは消さない
+</span>        // 南端チャンク破棄は現ステージ(帯)だけが対象。退避中ステージは消さない
         <span class="cov8" title="1">q := query.ActiveFilter1[gc.GridElement](world).Query()
         for q.Next() </span>{
                 <span class="cov8" title="1">entity := q.Entity()
                 grid := world.Components.GridElement.Get(entity)
-                if grid.X &lt; loX || grid.X &gt;= hiX </span>{
+                if grid.Y &lt; loY || grid.Y &gt;= hiY </span>{
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">if keep != nil &amp;&amp; keep(entity) </span>{
@@ -53124,7 +53197,7 @@ func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.E
 }
 
 // KeepPlayer は「プレイヤーは残す」keep 述語を返す。
-// 西端破棄でプレイヤーを巻き込まないための定型。
+// 南端破棄でプレイヤーを巻き込まないための定型。
 func KeepPlayer(world w.World) func(ecs.Entity) bool {
         <span class="cov8" title="1">return func(entity ecs.Entity) bool </span>{
                 <span class="cov8" title="1">return world.Components.Player.Has(entity)

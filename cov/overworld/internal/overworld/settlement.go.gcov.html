@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -110,12 +110,12 @@
 <span id="L48"><span class="lineNum">      48</span>              : // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。</span>
 <span id="L49"><span class="lineNum">      49</span>              : type settlementFeature struct{}</span>
 <span id="L50"><span class="lineNum">      50</span>              : </span>
-<span id="L51"><span class="lineNum">      51</span>              : func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :         if !settlementPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :         if !settlementPlacement.At(runSeed, c, cols) {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span>              :         // 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         if _, _, _, ok := urbanRegionOf(runSeed, c, cols); ok {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}</span></span>

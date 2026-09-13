@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-13 01:14:00</td>
+            <td class="headerValue">2026-09-13 03:30:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,11 +111,11 @@
 <span id="L49"><span class="lineNum">      49</span>              : // w×h チャンク広がる。該当しなければ ok=false。走査窓には当選アンカーが複数入りうるので</span>
 <span id="L50"><span class="lineNum">      50</span>              : // 早期に false を返さず探索を続ける。市街地どうしは urbanPlacement の Separation で重ならない</span>
 <span id="L51"><span class="lineNum">      51</span>              : // ため c を覆うアンカーは高々1つで、最初に見つかったものを返せば一意に定まる。</span>
-<span id="L52"><span class="lineNum">      52</span>              : func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {</span>
+<span id="L52"><span class="lineNum">      52</span>              : func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {</span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         for dy := range urbanMaxSpan {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 for dx := range urbanMaxSpan {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         a := c.Sub(consts.Coord[consts.Chunk]{X: dx, Y: dy})</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         if !urbanPlacement.At(runSeed, a, rows) {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         if !urbanPlacement.At(runSeed, a, cols) {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :                         }</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         cw, ch := urbanSizeOf(ChunkSeed2D(runSeed^urbanSalt, a.X, a.Y))</span></span>
@@ -238,8 +238,8 @@
 <span id="L176"><span class="lineNum">     176</span>              : // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。</span>
 <span id="L177"><span class="lineNum">     177</span>              : // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで</span>
 <span id="L178"><span class="lineNum">     178</span>              : // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。</span>
-<span id="L179"><span class="lineNum">     179</span>              : func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :         anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :         anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, 0, false</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -255,14 +255,14 @@
 <span id="L193"><span class="lineNum">     193</span>              : </span>
 <span id="L194"><span class="lineNum">     194</span>              : // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので</span>
 <span id="L195"><span class="lineNum">     195</span>              : // 生成順に依存しない。</span>
-<span id="L196"><span class="lineNum">     196</span>              : func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         anchor, _, _, ok := urbanRegionOf(runSeed, c, cols)</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L201"><span class="lineNum">     201</span>              : </span>
 <span id="L202"><span class="lineNum">     202</span>              :         // 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う</span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         fac, size, _ := urbanChunkInfo(runSeed, c, rows)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         fac, size, _ := urbanChunkInfo(runSeed, c, cols)</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         return renderUrbanChunk(world, g, chunkSeed, size, fac)</span></span>
