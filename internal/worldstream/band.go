@@ -71,7 +71,8 @@ func (b *Band) ShouldShiftNorth(playerLocalY consts.Tile) bool {
 // ShiftNorth は帯を北へ1チャンク進める。
 // 南端行の破棄 → リベース → 座標キー Map 追従 → northIndex 前進 → 北端行の生成。
 func (b *Band) ShiftNorth(world w.World, gen ChunkGen) error {
-	// 1. 南端の行を全列破棄する。プレイヤーは残す
+	// 1. 南端の行を全列破棄する。シフトは中央より北でしか発火しないのでプレイヤーは破棄範囲へ入らないが、
+	// 中央行が南端に重なる退化帯に備え KeepPlayer で保険をかける
 	RemoveEntitiesInYRange(world, (b.rows - 1).Tiles(b.chunkH), b.rows.Tiles(b.chunkH), KeepPlayer(world))
 	// 2. リベース。全エンティティを南へ chunkH ずらしてプレイヤーを中央へ戻す
 	TranslateAllEntities(world, 0, b.chunkH)

@@ -92,7 +92,8 @@ func BuildMacroView(
 
 	// toCell は帯ローカルなタイル座標を表示範囲ローカルのチャンクセルへ移す。表示範囲外なら ok=false。
 	// chunkW/chunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない。
-	// X は有界なので絶対チャンク列はタイルを幅で割るだけ。Y は北進ぶん負へずらした絶対チャンク行
+	// X は有界なので絶対チャンク列はタイルを幅で割るだけ。Y は北進ぶん負へずらした絶対チャンク行。
+	// 帯ローカルの t は非負なので素の整数除算で足り、負座標用の FloorDiv は要らない
 	toCell := func(t consts.Coord[consts.Tile]) (consts.Coord[consts.Chunk], bool) {
 		worldCol := consts.Chunk(int(t.X) / int(chunkW))
 		worldRow := consts.Chunk(int(t.Y)/int(chunkH)) - northIndex

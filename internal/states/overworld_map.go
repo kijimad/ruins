@@ -87,7 +87,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	st.cellPx = overworldMapCell(inner, max(sb.Cols, 1))
 	// 北進帯は縦に伸びるので、プレイヤーの絶対チャンク行を中心に近傍を見せる。
 	// プレイヤー不在時は帯の中央行。絶対チャンク行への変換は SeamlessBand.AbsChunkRow に集約する
-	centerRow := sb.Rows/2 - sb.NorthIndex
+	centerRow := sb.AbsChunkRow((sb.Rows / 2).Tiles(sb.ChunkH))
 	if hasPlayer {
 		centerRow = sb.AbsChunkRow(playerTile.Y)
 	}
