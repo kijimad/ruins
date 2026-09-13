@@ -117,9 +117,34 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "| 指標 | 値 |\n|---|---:|\n")
 	fmt.Fprintf(&b, "| 栄養失調まで（満腹度33%%未満）の日数 | %.2f |\n", DaysUntilStarving())
 	fmt.Fprintf(&b, "| 満腹度が尽きるまでの日数 | %.2f |\n", DaysUntilHungerEmpty())
+	fmt.Fprintf(&b, "| 睡眠なしで疲労までの日数 | %.2f |\n", DaysUntilTired())
+	fmt.Fprintf(&b, "| 睡眠なしで過労までの日数 | %.2f |\n", DaysUntilExhausted())
 	fmt.Fprintf(&b, "\n| 実効温度(℃) | 低体温までのターン |\n|---:|---:|\n")
 	for _, temp := range []int{-20, -10, 0, 5, 10, 15} {
 		fmt.Fprintf(&b, "| %d | %.0f |\n", temp, TurnsToHypothermia(temp))
+	}
+	fmt.Fprintf(&b, "\n")
+
+	// 身体の連鎖。状態異常→血液低下→HP減
+	fmt.Fprintf(&b, "## 身体の連鎖（血液→HP）\n\n")
+	fmt.Fprintf(&b, "**概要**: 状態異常は血液を下げ、血液が危険域(40)を割ると毎ターンHPが減り始める。連鎖の終端を示す。\n")
+	fmt.Fprintf(&b, "上流は状態異常の重症度で、切傷は重症度1段あたり血液-25、低体温は-22。重症(×3)の切傷1つで血液は約25まで落ちる。\n\n")
+	fmt.Fprintf(&b, "| 血液 | HP減(/ターン) |\n|---:|---:|\n")
+	for _, blood := range []int{100, 50, 40, 30, 20, 10, 0} {
+		fmt.Fprintf(&b, "| %d | %d |\n", blood, HPDrainPerTurnAtBlood(blood))
+	}
+	fmt.Fprintf(&b, "\n")
+
+	// 経済
+	fmt.Fprintf(&b, "## 経済（競売の手取り）\n\n")
+	fmt.Fprintf(&b, "**概要**: 基準価値どおりに落札されたときの手取り率。手取り=落札額−手数料12%%−発送料25/kg。集荷料は別立て。\n")
+	fmt.Fprintf(&b, "重い安物ほど発送料に食われ手取りが下がる。落札額の分散や入札の伸びは確率過程で、実分布はモンテカルロで測る。\n\n")
+	fmt.Fprintf(&b, "| 価値 | 重量(kg) | 手取り率 |\n|---:|---:|---:|\n")
+	for _, c := range []struct {
+		value  consts.Currency
+		weight float64
+	}{{1000, 0.1}, {1000, 1}, {1000, 3}, {1000, 10}, {200, 3}} {
+		fmt.Fprintf(&b, "| %d | %g | %.0f%% |\n", c.value, c.weight, AuctionTakeHomeRate(c.value, c.weight)*100)
 	}
 	fmt.Fprintf(&b, "\n")
 

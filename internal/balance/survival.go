@@ -26,6 +26,24 @@ func DaysUntilStarving() float64 {
 	return turns / float64(gc.TurnsPerDay)
 }
 
+// HPDrainPerTurnAtBlood は血液量から失血による1ターンのHP減少量を返す。状態異常→血液低下→HP減の
+// 連鎖の終端。血液は components.BloodLossHPDrainRate の単一出典を参照する。
+func HPDrainPerTurnAtBlood(blood int) int {
+	return gc.BloodLossHPDrainRate(blood)
+}
+
+// DaysUntilTired は起床し続けて疲労状態になるまでの日数を返す。疲労は毎ターン一定量たまる。
+func DaysUntilTired() float64 {
+	turns := gc.FatigueTiredRatio * float64(gc.DefaultMaxFatigue) / float64(gc.FatigueGainPerTurn)
+	return turns / float64(gc.TurnsPerDay)
+}
+
+// DaysUntilExhausted は起床し続けて過労状態になるまでの日数を返す。
+func DaysUntilExhausted() float64 {
+	turns := gc.FatigueExhaustedRatio * float64(gc.DefaultMaxFatigue) / float64(gc.FatigueGainPerTurn)
+	return turns / float64(gc.TurnsPerDay)
+}
+
 // TurnsToHypothermia は実効温度で低体温が発生し始めるまでのターン数を返す。実効温度は
 // 周囲温度に断熱を足した値。体温は systems.CalcBodyTempRate の速さで平熱から冷え、低体温帯
 // BodyTempColdBand を割るとタイマーが進み始める。

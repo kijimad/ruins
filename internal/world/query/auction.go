@@ -49,6 +49,14 @@ func AuctionFee(bid consts.Currency) consts.Currency {
 	return consts.Currency(float64(bid) * auctionFeeRate)
 }
 
+// AuctionNetProceeds は落札額 bid と重量から、集荷料を除く1品の手取りを返す純関数。
+// 手取り = 落札額 − 手数料 − 発送料。集荷料は集荷1回ごとに別立てなのでここには含めない。
+// バランス導出が world 抜きで競売の手取りを評価できるよう公開する。
+func AuctionNetProceeds(bid consts.Currency, weightKg float64) consts.Currency {
+	shipping := consts.Currency(weightKg * auctionShipRatePerKg)
+	return bid - AuctionFee(bid) - shipping
+}
+
 // GetAuctionHistory は出荷実績の履歴シングルトンを取得する。
 func GetAuctionHistory(world w.World) *gc.AuctionHistory {
 	return GetSingleton[gc.AuctionHistory](world, world.Components.AuctionHistory)

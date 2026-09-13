@@ -42,3 +42,10 @@ func TestBaselineSnapshot_物流(t *testing.T) {
 	assert.InDelta(t, 980, DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg), 1, "OIL満載の航続")
 	assert.InDelta(t, 196, DriveRangeAllFuel(oapi.WOOD, consts.CubeWeightCapacityKg), 1, "WOOD満載の航続")
 }
+
+func TestBaselineSnapshot_身体と経済(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, 4, HPDrainPerTurnAtBlood(0), "血液0でのHP減")
+	assert.InDelta(t, 1.07, DaysUntilExhausted(), 0.02, "過労までの日数")
+	assert.InDelta(t, 0.855, AuctionTakeHomeRate(1000, 1), 0.001, "競売の手取り率")
+}
