@@ -142,40 +142,53 @@ type DayRisk struct {
 	ExpTurns  float64 // 重み付き期待決着ターン
 }
 
+// PoolCombatRisk は危険度 danger の敵プールに1体遭遇したときの、重み付き死亡確率と期待決着ターンを
+// 返す。各敵との1対1をマルコフ連鎖で解き、出現重みで平均する。その帯に敵がいなければ ok=false。
+func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int) (deathProb, expTurns float64, ok bool, err error) {
+	table, err := raw.GetEnemyTable(master, enemyTableName)
+	if err != nil {
+		return 0, 0, false, err
+	}
+	var wSum, deathSum, turnSum float64
+	for _, entry := range table.Entries {
+		if danger < entry.MinDanger || danger > entry.MaxDanger {
+			continue
+		}
+		enemy, err := LoadCombatantFromMember(master, entry.Id)
+		if err != nil {
+			return 0, 0, false, err
+		}
+		enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)
+		if err != nil {
+			return 0, 0, false, err
+		}
+		o := CombatDistribution(player, enemy, playerWeapon, enemyWeapon)
+		w := entry.Weight
+		wSum += w
+		deathSum += w * o.PlayerDeathProb
+		turnSum += w * o.ExpectedTurns
+	}
+	if wSum == 0 {
+		return 0, 0, false, nil
+	}
+	return deathSum / wSum, turnSum / wSum, true, nil
+}
+
 // CombatRiskCurve は経過日 1..days の戦闘リスクを敵プールの重みで期待して返す。各敵との1対1を
 // マルコフ連鎖で解き、出現重みで平均する。乱数を使わない。
 func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {
-	table, err := raw.GetEnemyTable(master, enemyTableName)
-	if err != nil {
-		return nil, err
-	}
 	out := make([]DayRisk, 0, days)
 	for day := 1; day <= days; day++ {
 		danger := query.DangerLevelForDay(day)
-		var wSum, deathSum, turnSum float64
-		for _, entry := range table.Entries {
-			if danger < entry.MinDanger || danger > entry.MaxDanger {
-				continue
-			}
-			enemy, err := LoadCombatantFromMember(master, entry.Id)
-			if err != nil {
-				return nil, err
-			}
-			enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)
-			if err != nil {
-				return nil, err
-			}
-			o := CombatDistribution(player, enemy, playerWeapon, enemyWeapon)
-			w := entry.Weight
-			wSum += w
-			deathSum += w * o.PlayerDeathProb
-			turnSum += w * o.ExpectedTurns
+		death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger)
+		if err != nil {
+			return nil, err
 		}
-		if wSum == 0 {
+		if !ok {
 			out = append(out, DayRisk{Day: day, Danger: danger})
 			continue
 		}
-		out = append(out, DayRisk{Day: day, Danger: danger, DeathProb: deathSum / wSum, ExpTurns: turnSum / wSum})
+		out = append(out, DayRisk{Day: day, Danger: danger, DeathProb: death, ExpTurns: turns})
 	}
 	return out, nil
 }

@@ -2,6 +2,7 @@ package balance
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -233,6 +234,14 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	// 交換レート。同じメトリクスを保つためのつまみ間の相互補償
 	renderExchangeRates(&b, master)
 
+	// 境界マージン。目標帯を割るまでのつまみの余白
+	renderBoundaryMargins(&b, master)
+
+	// 要素の劣化量。武器を素手へ制限したときの死亡確率の上昇
+	if err := renderWeaponRestriction(&b, master); err != nil {
+		return "", err
+	}
+
 	// ビルド別のブレ。静的下限に加え、スキル・装備・バフで戦力が振れる幅を見る
 	if builds, err := RepresentativeBuilds(master); err == nil {
 		fmt.Fprintf(&b, "## ビルド別のブレ（廃墟）\n\n")
@@ -387,4 +396,63 @@ func renderExchangeRates(b *strings.Builder, master oapi.Raws) {
 		}
 		fmt.Fprintf(b, "\n")
 	}
+}
+
+// renderBoundaryMargins は目標帯の余白を markdown で書き出す。各つまみを動かして目標帯を割るまでの
+// 変化率を、崖の近い順に並べる。凍結ゲートの点固定を余白監視へ拡張したもの。
+func renderBoundaryMargins(b *strings.Builder, master oapi.Raws) {
+	margins := BoundaryMargins(master)
+	sort.Slice(margins, func(i, j int) bool {
+		if margins[i].OK != margins[j].OK {
+			return margins[i].OK
+		}
+		return math.Abs(margins[i].NearestPct) < math.Abs(margins[j].NearestPct)
+	})
+	fmt.Fprintf(b, "## 目標帯の余白（境界マージン）\n\n")
+	fmt.Fprintf(b, "**概要**: 各つまみを動かしたとき、メトリクスが目標帯を割るまでの余白。崖の近い順に並ぶ。\n")
+	fmt.Fprintf(b, "凍結ゲートが現在値の点を固定するのに対し、こちらは崖までの距離を測る。余白が小さいつまみほど、少しの調整で帯を外れる。範囲内で端に届かなければ「遠い」。\n\n")
+	fmt.Fprintf(b, "| メトリクス | つまみ | 最寄りの端 | 余白 |\n|---|---|:--:|---:|\n")
+	for _, m := range margins {
+		if !m.OK {
+			fmt.Fprintf(b, "| %s | %s | - | 遠い |\n", m.Metric, m.Knob)
+			continue
+		}
+		fmt.Fprintf(b, "| %s | %s | %s | %+.1f%% |\n", m.Metric, m.Knob, m.Edge, m.NearestPct)
+	}
+	fmt.Fprintf(b, "\n")
+}
+
+// renderWeaponRestriction は武器を素手へ制限したときの死亡確率の劣化量を markdown で書き出す。
+// Restricted Play の発想で、要素を封じたときの体験劣化からその要素の必須度を測る。必須な順に上位を、
+// 効かない死にコンテンツの候補として下位を見せる。
+func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {
+	const day = 20
+	values, baseDeath, err := WeaponRestrictionValues(master, BaselineAreaTable, day)
+	if err != nil {
+		return err
+	}
+	if len(values) == 0 {
+		return nil
+	}
+	fmt.Fprintf(b, "## 要素の劣化量（武器を素手へ制限・廃墟day%d）\n\n", day)
+	fmt.Fprintf(b, "**概要**: 各近接武器を持たせたときの死亡確率と、素手へ制限したときの死亡確率の上昇量。上昇量が大きいほどその武器は必須で、\n")
+	fmt.Fprintf(b, "ゼロに近いほど素手と大差ない死にコンテンツ候補。素手の死亡確率は %.1f%%。Restricted Play をサバイバルへ翻案した指標。\n\n", baseDeath*100)
+
+	const top, bottom = 15, 5
+	fmt.Fprintf(b, "| 武器 | 死亡確率 | 劣化量(素手比) | 期待決着ターン |\n|---|---:|---:|---:|\n")
+	for i, v := range values {
+		if len(values) > top+bottom && i >= top && i < len(values)-bottom {
+			continue
+		}
+		if i == top && len(values) > top+bottom {
+			fmt.Fprintf(b, "| … (%d件省略) | | | |\n", len(values)-top-bottom)
+		}
+		fmt.Fprintf(b, "| %s | %.1f%% | %+.1f%% | %.1f |\n", v.Element, v.DeathProbWith*100, v.Degradation*100, v.ExpTurnsWith)
+	}
+	if len(values) > top+bottom {
+		fmt.Fprintf(b, "\n全%d武器のうち上位%d件と下位%d件を表示。\n\n", len(values), top, bottom)
+	} else {
+		fmt.Fprintf(b, "\n全%d武器を表示。\n\n", len(values))
+	}
+	return nil
 }
