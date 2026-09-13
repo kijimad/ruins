@@ -13,54 +13,42 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestNewMainGame_フィルタ有効時はレトロフィルタ込みで構築する は、
-// DisableScreenFilter が false のときに NewMainGame がエラーなく構築でき、
-// 組み込まれたレトロフィルタ込みの pipeline で Draw がパニックしないことを確認する。
-func TestNewMainGame_フィルタ有効時はレトロフィルタ込みで構築する(t *testing.T) {
+// TestNewMainGame は、DisableScreenFilter の真偽どちらでも NewMainGame が
+// エラーなく構築でき、組み込まれた pipeline で Draw がパニックしないことを確認する。
+func TestNewMainGame(t *testing.T) {
 	t.Parallel()
 
-	cfg := &config.Config{Profile: config.ProfileDevelopment}
-	cfg.ApplyProfileDefaults()
-	cfg.DisableScreenFilter = false
-	world, err := InitWorld(cfg)
-	require.NoError(t, err)
+	tests := []struct {
+		name                string
+		disableScreenFilter bool
+	}{
+		{"フィルタ有効時はレトロフィルタ込みで構築する", false},
+		{"フィルタ無効時はフィルタなしで構築する", true},
+	}
 
-	stateMachine, err := es.Init(&gs.MainMenuState{}, world)
-	require.NoError(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	game, err := NewMainGame(world, stateMachine)
-	require.NoError(t, err)
-	require.NotNil(t, game)
+			cfg := &config.Config{Profile: config.ProfileDevelopment}
+			cfg.ApplyProfileDefaults()
+			cfg.DisableScreenFilter = tt.disableScreenFilter
+			world, err := InitWorld(cfg)
+			require.NoError(t, err)
 
-	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-	assert.NotPanics(t, func() {
-		game.Draw(screen)
-	})
-}
+			stateMachine, err := es.Init(&gs.MainMenuState{}, world)
+			require.NoError(t, err)
 
-// TestNewMainGame_フィルタ無効時はフィルタなしで構築する は、
-// DisableScreenFilter が true のとき、レトロフィルタを組まずにエラーなく構築でき、
-// フィルタなしの pipeline で Draw がパニックしないことを確認する。
-func TestNewMainGame_フィルタ無効時はフィルタなしで構築する(t *testing.T) {
-	t.Parallel()
+			game, err := NewMainGame(world, stateMachine)
+			require.NoError(t, err)
+			require.NotNil(t, game)
 
-	cfg := &config.Config{Profile: config.ProfileDevelopment}
-	cfg.ApplyProfileDefaults()
-	cfg.DisableScreenFilter = true
-	world, err := InitWorld(cfg)
-	require.NoError(t, err)
-
-	stateMachine, err := es.Init(&gs.MainMenuState{}, world)
-	require.NoError(t, err)
-
-	game, err := NewMainGame(world, stateMachine)
-	require.NoError(t, err)
-	require.NotNil(t, game)
-
-	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-	assert.NotPanics(t, func() {
-		game.Draw(screen)
-	})
+			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+			assert.NotPanics(t, func() {
+				game.Draw(screen)
+			})
+		})
+	}
 }
 
 // TestGetPerformanceInfo_GC実施後は経過時間を表示する は、
