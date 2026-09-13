@@ -133,7 +133,7 @@ func TestDrawMapGrid_現在地ポインタは向きへtipを向ける(t *testing
 
 	// PlayerCell(0,0)・cell=20 なので中央は (10,10)。tip はローカル (0,-0.42*cell) を向きだけ回した位置
 	const cell = 20
-	cx, cy, fwd := 10.0, 10.0, 0.42*float64(cell)
+	cx, cy, fwd := 10.0, 10.0, playerMarkerTip*float64(cell)
 	cases := []struct {
 		name               string
 		facing             gc.Orient

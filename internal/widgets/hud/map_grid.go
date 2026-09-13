@@ -57,14 +57,21 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 	}
 }
 
+// 現在地三角形の各頂点のセル辺への比。縦横を近づけて縦長を避ける。tip の比はテストも参照する
+const (
+	playerMarkerTip  = 0.42 // tip の前方距離
+	playerMarkerHalf = 0.30 // 底辺の半幅
+	playerMarkerBack = 0.24 // 底辺の後方距離
+)
+
 // drawPlayerMarker は現在地の三角形を描く。無回転で北(上)を指す三角形を、中央を軸に向きだけ回す。
-// tip が前方、底辺2点が後方。縦横の比を近づけて縦長を避ける。
+// tip が前方、底辺2点が後方。
 func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) {
 	// 中央原点のローカル頂点。y は下向きなので前方(北)は負
 	local := [3][2]float64{
-		{0, -cell * 0.42},           // tip 前方
-		{-cell * 0.30, cell * 0.24}, // 底辺左
-		{cell * 0.30, cell * 0.24},  // 底辺右
+		{0, -cell * playerMarkerTip},                        // tip 前方
+		{-cell * playerMarkerHalf, cell * playerMarkerBack}, // 底辺左
+		{cell * playerMarkerHalf, cell * playerMarkerBack},  // 底辺右
 	}
 	sin, cos := math.Sin(facing.Yaw()), math.Cos(facing.Yaw())
 	var p [3][2]float32
