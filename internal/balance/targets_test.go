@@ -39,6 +39,21 @@ func TestBaselineSnapshot_序盤戦闘(t *testing.T) {
 	assert.InDelta(t, 1.16, cave[19].PowerRatio, 0.05, "洞窟 day20 の戦力比")
 }
 
+func TestBaselineSnapshot_戦闘リスク(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	player, err := LoadCombatantFromMember(master, "ash")
+	require.NoError(t, err)
+	weapon, err := LoadWeaponFromItem(master, "bare_hands")
+	require.NoError(t, err)
+	curve, err := CombatRiskCurve(master, player, weapon, "ruins_area", 21)
+	require.NoError(t, err)
+	// 死亡確率は期待値の比では見えない突然死の裾。危険度4の崖で 0.6%→6.6% と跳ねる。
+	assert.InDelta(t, 0.001, curve[7].DeathProb, 0.01, "廃墟 day8 の死亡確率。危険度3までは安全")
+	assert.InDelta(t, 0.066, curve[8].DeathProb, 0.02, "廃墟 day9 の死亡確率。危険度4で崖が立つ")
+	assert.InDelta(t, 0.174, curve[19].DeathProb, 0.03, "廃墟 day20 の死亡確率")
+}
+
 func TestBaselineSnapshot_生存圧(t *testing.T) {
 	t.Parallel()
 	assert.InDelta(t, 0.67, DaysUntilStarving(DefaultParams()), 0.02, "栄養失調まで日数")

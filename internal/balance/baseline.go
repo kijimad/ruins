@@ -124,6 +124,11 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		fmt.Fprintf(&b, "\n")
 	}
 
+	// 戦闘リスク。期待値の比でなく、分布から突然死の確率を測る
+	if err := renderCombatRisk(&b, master, playerName, weaponName, days); err != nil {
+		return "", err
+	}
+
 	// 気候。世界温度の季節変動
 	fmt.Fprintf(&b, "## 気候（世界温度の季節変動）\n\n")
 	fmt.Fprintf(&b, "**概要**: 屋外の世界温度は1年周期で春から夏ピーク、秋、冬底へ巡る。緯度勾配・時間帯・遮蔽を含まない季節そのもの。\n")
@@ -291,6 +296,32 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	}
 	fmt.Fprintf(&b, "\n")
 	return b.String(), nil
+}
+
+// renderCombatRisk は戦闘リスクのカーブを markdown で書き出す。難易度カーブが期待値の比を見るのに対し、
+// こちらは吸収マルコフ連鎖で解いた死亡確率と決着ターンを日ごとに出す。突然死の裾を可視化する。
+func renderCombatRisk(b *strings.Builder, master oapi.Raws, playerName, weaponName string, days int) error {
+	player, err := LoadCombatantFromMember(master, playerName)
+	if err != nil {
+		return err
+	}
+	weapon, err := LoadWeaponFromItem(master, weaponName)
+	if err != nil {
+		return err
+	}
+	curve, err := CombatRiskCurve(master, player, weapon, BaselineAreaTable, days)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(b, "## 戦闘リスク（死亡確率・廃墟）\n\n")
+	fmt.Fprintf(b, "**概要**: その日の敵プールに1体遭遇したときに倒される確率と、決着までの期待ターン。戦力比が期待値の比なのに対し、\n")
+	fmt.Fprintf(b, "こちらは戦闘を吸収マルコフ連鎖として厳密に解き、平均では見えない突然死の裾を測る。プレイヤーは強化なしの `%s` + `%s` 固定。\n\n", playerName, weaponName)
+	fmt.Fprintf(b, "| 日 | 危険度 | 死亡確率 | 期待決着ターン |\n|---:|---:|---:|---:|\n")
+	for _, d := range curve {
+		fmt.Fprintf(b, "| %d | %d | %.1f%% | %.1f |\n", d.Day, d.Danger, d.DeathProb*100, d.ExpTurns)
+	}
+	fmt.Fprintf(b, "\n")
+	return nil
 }
 
 // renderSensitivityMatrix はドメイン横断の感度行列を markdown で書き出す。RenderBaselineMarkdown の

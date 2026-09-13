@@ -28,7 +28,7 @@
 |---|---|---|---|---|---|
 | 時間・進行 | 経過日→危険度、季節→世界温度 | ― | 単独メトリクスなし。他ドメインの進行軸 d に使う | `components/game_time.go` TurnsPerDay、`query/danger.go` DangerLevelForDay | 土台 |
 | 危険度・世界 | 危険度→敵プール、季節+時間→世界温度 | A | 難易度カーブ（戦力比 対 日）。世界温度の季節変動 | `query/danger.go` → `balance/metrics.go`、`components.SeasonalTemperatureForDay` → `balance/climate.go` | 実装済み |
-| 戦闘・装備 | 能力+武器−防御→ダメージ、命中、TTK | A | 戦力比 PowerRatio、ExpectedTTK、ExpectedDamagePerAttack | `formula`（CalcHitRate/ApplyCritical/CalcHP）→ `balance/metrics.go` | 実装済み |
+| 戦闘・装備 | 能力+武器−防御→ダメージ、命中、TTK | A | 戦力比 PowerRatio、ExpectedTTK、ExpectedDamagePerAttack、死亡確率とTTK分布 | `formula`（CalcHitRate/ApplyCritical/CalcHP）→ `balance/metrics.go`・`balance/markov.go` | 実装済み |
 | サバイバル（飢え・寒さ） | 満腹→減耗、体温→低体温 | A | DaysUntilStarving/DaysUntilHungerEmpty、TurnsToHypothermia | `components/hunger.go`、`systems/temperature.go`（CalcBodyTempRate/BodyTempColdBand）→ `balance/survival.go` | 実装済み |
 | サバイバル（連鎖） | 状態異常→血液→HP | B | 血液量ごとのHP減 | `components.BloodLossHPDrainRate` → `balance/survival.go` | 実装済み |
 | 疲労・睡眠 | 経過→疲労、睡眠→回復 | A | 疲労/過労までの日数、満タン回復までの睡眠ターン、釣り合いに要する睡眠時間の割合 | `components.FatigueTiredRatio`・`systems.FatigueRecoverPerTurn` → `balance/survival.go` | 実装済み |
@@ -84,7 +84,8 @@
 
 ## 現状と次
 
-- 実装済み: 戦闘・生存（飢え/寒さ/血液→HP/疲労/睡眠回復）・物流・経済（競売手取り・1個あたり期待手取り）・進行成長・気候の各導出。凍結ゲート・感度・単変数探索・多目的Pareto探索。全ドメインが baseline.md に載る。
+- 実装済み: 戦闘・生存（飢え/寒さ/血液→HP/疲労/睡眠回復）・物流・経済（競売手取り・1個あたり期待手取り）・進行成長・気候の各導出。凍結ゲート・感度・交換レート・単変数探索・多目的Pareto探索。全ドメインが baseline.md に載る。
+- 期待値だけでなく分布: 戦闘は `balance/markov.go` の `CombatDistribution` が吸収マルコフ連鎖で死亡確率とTTK分布を厳密に解く。先攻固定の交互攻撃なので自分と敵の撃破攻撃数は独立で、勝敗は Kp<=Ke、死亡確率は P(Ke<Kp) に分解できる。`rollAttack` のダメージを PMF へ写して残HPを状態とする1次元DPで撃破攻撃数分布を出す。閉形式が実戦闘と一致することは markov_test.go で MC と突き合わせて担保する。戦力比の期待値が滑らかでも死亡確率は危険度の崖で跳ねるので、突然死の検知に効く。baseline.md に死亡確率カーブとして載る。
 - 目標帯: 戦闘の日次カーブに加え、生存・物流・経済・進行成長のスカラー指標に横断の目標帯を置いた（`balance/targets.go` の `DomainTargets`）。baseline.md 冒頭のダッシュボードで内外を一望する。帯は設計仮説で、静的下限がこの範囲に収まればという下限側の目安。
 - 感度と索引: ドメイン横断の感度行列（つまみ×メトリクスの弾力性、`CrossDomainSensitivity`）を baseline.md に出す。つまみは `knobRegistry` の全成分を機械的に回すので、Params に成分を足せば行列へ自動で載る。ほぼブロック対角でドメインは疎結合、横断するのは1日ターン数のような共通分母だけ、と可視化する。外れをどのつまみで戻すかの手掛かりになる。全パラメータの所在と編集経路は `docs/balance/tuning.md` に索引化した。
 - ビルド帯: 想定攻撃回数→スキル値→熟練度倍率で代表ビルドを作り、段階別(序盤/中盤/終盤)のブレ幅と許容帯を baseline.md に出す(`balance/build.go`)。倍率は恣意でなくスキル成長と熟練度の実システム由来。設計は `docs/design/260913182537.md`(done)。
