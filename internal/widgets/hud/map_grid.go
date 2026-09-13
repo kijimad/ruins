@@ -60,6 +60,23 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 	}
 }
 
+// DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
+// 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。
+func DrawMapLegend(cv uicore.Canvas, face, glyphFace text.Face, top int) {
+	const swatch = 14
+	x, y := 8, top
+	for _, g := range overworld.LegendGlyphs() {
+		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label))
+		cv.DrawText(image.Pt(x+swatch/2, y+swatch/2), string(g.Label), glyphFace, theme.OverworldMapGlyphText, uicore.Centered())
+		cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
+		x += 120
+		if x > 720 {
+			x, y = 8, y+22
+		}
+	}
+	cv.DrawText(image.Pt(8, y+26), "N / Esc to close", face, theme.TextPrimary)
+}
+
 // drawMapRoad はチャンクセルを通る道を接続方角ごとに、セル中央から辺の中点へ細い矩形で引く。
 // 太さはセル辺の1/5で最低1px。縮小地図でも街道の走りが読める。
 func drawMapRoad(cv uicore.Canvas, x, y, cell int, road overworld.RoadDir) {

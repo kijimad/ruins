@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 	"image"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -157,7 +156,8 @@ func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	return menuframe.ImagePanel(res, rect, img)
 }
 
-// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。
+// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。格子と凡例の描画は
+// hud に集約し、ここは見出しと配置の算出だけを持つ。
 func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	face := world.Resources.UIResources.Text.BodyFace
 	// セルの記号は小さいセルへ収めるため小フォントにする。見出し・凡例は BodyFace のまま
@@ -167,19 +167,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	// 生の text.Draw はロックを迂回するため
 	cv := uicore.NewEbitenCanvas(dst)
 
-	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
-		cv.DrawText(image.Pt(int(x), int(y)), str, face, c)
-	}
-
-	fillSwatch := func(x, y, size consts.ScreenPixel, c color.Color) {
-		cv.FillRect(image.Rect(int(x), int(y), int(x+size), int(y+size)), c)
-	}
-
-	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
-		cv.DrawText(image.Pt(int(cx), int(cy)), str, glyphFace, c, uicore.Centered())
-	}
-
-	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 8, 6, theme.TextPrimary)
+	cv.DrawText(image.Pt(8, 6), fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), face, theme.TextPrimary)
 
 	cell := st.cellPx
 	// 格子は横をモーダル内側の中央へ寄せる
@@ -204,31 +192,5 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		PlayerFacing: st.facing,
 	})
 
-	st.drawLegend(fillSwatch, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)
-}
-
-// drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、
-// マップ上の1文字から凡例を引けるようにする。
-func (st *OverworldMapState) drawLegend(fillSwatch func(consts.ScreenPixel, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
-	const swatch consts.ScreenPixel = 14
-	x, y := consts.ScreenPixel(8), top
-	for _, g := range overworld.LegendGlyphs() {
-		fillSwatch(x, y, swatch, glyphColor(g.Label))
-		drawGlyph(string(g.Label), x+swatch/2, y+swatch/2, theme.OverworldMapGlyphText)
-		drawText(g.Name, x+20, y-2, theme.TextPrimary)
-		x += 120
-		if x > 720 {
-			x, y = 8, y+22
-		}
-	}
-	drawText("N / Esc to close", 8, y+26, theme.TextPrimary)
-}
-
-// glyphColor は凡例の色見本に使う種別記号の色を返す。既知の記号は overworld の色定義を引き、
-// 凡例に出ない未知の記号は灰色にする。既定色は theme に依存するのでここで決める。
-func glyphColor(r rune) color.RGBA {
-	if c, ok := overworld.GlyphColor(r); ok {
-		return c
-	}
-	return theme.OverworldMapUnknownGlyph
+	hud.DrawMapLegend(cv, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
 }

@@ -21,6 +21,24 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	return NewMacroMap(nil, NewChrome(res))
 }
 
+func TestMacroGlyphColor_全ての種別記号に色が割り当てられている(t *testing.T) {
+	t.Parallel()
+
+	fallback := macroGlyphColor('\x00') // 未知の文字の色
+	for _, g := range overworld.PlaceGlyphs() {
+		assert.NotEqualf(t, fallback, macroGlyphColor(g.Label), "地物 %s(%c) に固有色がある", g.Name, g.Label)
+	}
+	for _, g := range overworld.FacilityGlyphs() {
+		assert.NotEqualf(t, fallback, macroGlyphColor(g.Label), "施設 %s(%c) に固有色がある", g.Name, g.Label)
+	}
+}
+
+func TestMacroGlyphColor_未知の文字は灰色のフォールバック(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, macroGlyphColor('\x00'), macroGlyphColor('Z'), "未知の文字は同じフォールバック色になる")
+}
+
 func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {
 	t.Parallel()
 	m := newTestMacroMap(t)
