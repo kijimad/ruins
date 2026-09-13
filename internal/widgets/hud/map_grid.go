@@ -17,7 +17,7 @@ import (
 type MapGridStyle struct {
 	OriginX, OriginY int       // グリッド左上のピクセル
 	CellPx           int       // 1セルの辺
-	MinGlyphPx       int       // セル辺がこれ以上のとき種別記号を重ねる。0 なら常に描く
+	MinGlyphPx       int       // セル辺がこれ以上のときセル記号を重ねる。0 なら常に描く。キューブと現在地の印は閾値によらず常に描く
 	GlyphFace        text.Face // セル記号とキューブに使うフォント
 	MarkerFace       text.Face // 現在地ポインタに使うフォント。地図ごとにセル記号と同じか大きいかを選ぶ
 	PlayerFacing     gc.Orient // 現在地ポインタの向き
