@@ -58,6 +58,19 @@ func TestNorthDepthChunks(t *testing.T) {
 		// 絶対Y = 45 - 5*30 = -105 → chunk-4。起点 chunk1 から 5 北
 		assert.Equal(t, 5, query.NorthDepthChunks(world, 45), "シフトぶん奥行きが増える")
 	})
+
+	t.Run("シフト境界で奥行きが1ずつ連続する", func(t *testing.T) {
+		t.Parallel()
+		depthAt := func(northIndex consts.Chunk) int {
+			world := testutil.InitTestWorld(t)
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			sb := query.EnsureSeamlessBand(world)
+			sb.ChunkH, sb.Rows, sb.NorthIndex = 30, 3, northIndex
+			return query.NorthDepthChunks(world, 45)
+		}
+		// 同じ帯ローカル Y=45 で、北シフトが1増えると奥行きも丁度1増える。負の絶対Yの床除算で境界が飛ばない
+		assert.Equal(t, depthAt(4)+1, depthAt(5), "シフトをまたいで奥行きが連続する")
+	})
 }
 
 func TestTileEnvironmentAt(t *testing.T) {

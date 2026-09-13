@@ -85,13 +85,11 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	playerTile, hasPlayer := query.PlayerBandTile(world)
 	inner := st.modalInner(world)
 	st.cellPx = overworldMapCell(inner, max(sb.Cols, 1))
-	// 北進帯は縦に伸びるので、プレイヤーの絶対チャンク行を中心に近傍を見せる。北は -Y なので
-	// 絶対チャンク行 = タイル行/chunkH - NorthIndex。プレイヤー不在時は帯の中央行。
-	// タイル行は帯ローカルで常に [0, 寸法) の非負なので素の整数除算で足り、絶対 Y へ変換してから
-	// floorDivInt する temperature.go の NorthDepthChunks とは非対称になる。
+	// 北進帯は縦に伸びるので、プレイヤーの絶対チャンク行を中心に近傍を見せる。
+	// プレイヤー不在時は帯の中央行。絶対チャンク行への変換は SeamlessBand.AbsChunkRow に集約する
 	centerRow := sb.Rows/2 - sb.NorthIndex
 	if hasPlayer {
-		centerRow = consts.Chunk(int(playerTile.Y)/int(sb.ChunkH)) - sb.NorthIndex
+		centerRow = sb.AbsChunkRow(playerTile.Y)
 	}
 	area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
@@ -104,7 +102,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	if hasPlayer {
 		st.playerAbs = consts.Coord[consts.Chunk]{
 			X: consts.Chunk(int(playerTile.X) / int(sb.ChunkW)),
-			Y: consts.Chunk(int(playerTile.Y)/int(sb.ChunkH)) - sb.NorthIndex,
+			Y: sb.AbsChunkRow(playerTile.Y),
 		}
 	}
 	return nil

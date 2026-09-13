@@ -48,6 +48,8 @@ func TestBand_ShiftNorth(t *testing.T) {
 	}
 	// 視界も付け替え対象（チラつき防止のためクリアでなく平行移動する）
 	visState.VisibleTiles = map[gc.GridElement]bool{{Coord: consts.Coord[consts.Tile]{X: 30, Y: 150}}: true}
+	// 光源キャッシュもチラつき防止のため付け替え対象。値は問わずキーの追従だけ見る
+	visState.LightSourceCache = map[gc.GridElement]gc.LightInfo{{Coord: consts.Coord[consts.Tile]{X: 30, Y: 150}}: {Darkness: 0.5}}
 
 	b := worldstream.NewBand(60, 100, 1, 3)
 	require.True(t, b.ShouldShiftNorth(90), "前提: 北シフト条件を満たす")
@@ -89,6 +91,11 @@ func TestBand_ShiftNorth(t *testing.T) {
 	// 視界も付け替えられる（クリアでなく平行移動。シフトフレームの暗転＝チラつきを防ぐ）
 	assert.True(t, visState.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 30, Y: 250}}], "VisibleTiles も付け替わって残る")
 	assert.False(t, visState.VisibleTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 30, Y: 150}}], "元キーは残らない")
+
+	// LightSourceCache も同じく付け替えられる。VisibleTiles と揃ってチラつきを防ぐ要のロジック
+	_, lightMoved := visState.LightSourceCache[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 30, Y: 250}}]
+	assert.True(t, lightMoved, "LightSourceCache も付け替わって残る")
+	assert.NotContains(t, visState.LightSourceCache, gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 30, Y: 150}}, "元キーは残らない")
 
 	// 壁配置が帯ローカル座標に対して変わったので、視界の強制再計算を要求する。
 	// 立てないと VisionSystem のレイキャストキャッシュが旧壁配置の遮蔽結果を再利用し、幽霊影が出る

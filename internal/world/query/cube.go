@@ -27,14 +27,11 @@ func DiscoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[const
 		return nil
 	}
 	out := make(map[consts.Coord[consts.Chunk]]bool)
-	// ChunkW/ChunkH は帯の1チャンクのタイル寸法で、帯が有効なら必ず正なのでゼロ除算しない。
-	// ExploredTiles のキーは帯ローカルなタイル座標で常に [0, 寸法) の非負。よって素の整数除算で足り、
-	// temperature.go の NorthDepthChunks が絶対 Y へ変換してから floorDivInt で床除算するのとは非対称になる。
-	// X は有界なので絶対チャンク列はタイルを幅で割るだけ。Y は割った行から北進 NorthIndex を引いて絶対チャンク行にする
+	// ChunkW は帯が有効なら正なのでゼロ除算しない。X は有界なので絶対チャンク列はタイルを幅で割るだけ。
+	// Y は AbsChunkRow が帯ローカルの非負タイル行を絶対チャンク行へ移す。単一出どころを共有する
 	for tile := range field.ExploredTiles {
 		col := consts.Chunk(int(tile.X) / int(sb.ChunkW))
-		row := consts.Chunk(int(tile.Y)/int(sb.ChunkH)) - sb.NorthIndex
-		out[consts.Coord[consts.Chunk]{X: col, Y: row}] = true
+		out[consts.Coord[consts.Chunk]{X: col, Y: sb.AbsChunkRow(tile.Y)}] = true
 	}
 	return out
 }

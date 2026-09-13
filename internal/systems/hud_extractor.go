@@ -133,7 +133,7 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 	playerTile, hasPlayer := query.PlayerBandTile(world)
 	area := overworld.FullBandRange(sb.NorthIndex, sb.Cols, sb.Rows)
 	if hasPlayer {
-		centerRow := consts.Chunk(int(playerTile.Y)/int(sb.ChunkH)) - sb.NorthIndex
+		centerRow := sb.AbsChunkRow(playerTile.Y)
 		area = overworld.PlayerCenteredRange(centerRow, sb.Cols, consts.MacroMapChunkRadius)
 	}
 	// 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する

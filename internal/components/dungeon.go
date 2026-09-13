@@ -49,6 +49,13 @@ func (sb SeamlessBand) LocalToAbsY(localY consts.Tile) consts.AbsTileY {
 	return consts.AbsTileY(localY) + sb.BandOriginY()
 }
 
+// AbsChunkRow は帯ローカルなタイル行 localY を絶対チャンク行へ移す。localY は帯ローカルで常に非負なので
+// 素の整数除算で足りる。北は -Y なので NorthIndex ぶん引いて北側の負インデックスにする。
+// 探索フォグ・マクロ地図・全画面図が同じ変換を共有する単一の出どころ。
+func (sb SeamlessBand) AbsChunkRow(localY consts.Tile) consts.Chunk {
+	return consts.Chunk(int(localY)/int(sb.ChunkH)) - sb.NorthIndex
+}
+
 // SpawnChunkY はプレイヤーが湧いた位置の絶対チャンク Y。奥行きの起点となる。
 // プレイヤーは初期帯 NorthIndex=0 の中央行に湧くので、その絶対チャンク Y は Rows/2 で確定する。
 // これは湧き位置を絶対軸に焼き込んだ不変値で、以後 NorthIndex がいくつになっても変わらない。
