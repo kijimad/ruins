@@ -44,6 +44,15 @@
 - **置き場を固定**。A/B の導出は `internal/balance` に置く。ドメインごとにファイルを分ける。`metrics.go`（戦闘）、`survival.go`（生存）、物流は `logistics.go`、経済の純部分は `economy.go` を予定。1ドメイン1ファイル。
 - **モンテカルロは C 専用**。`balance/run.go`・`combat.go` の `Simulate*` は創発ドメインの測定にだけ使う。導出可能なドメインへ拡張しない。拡張したくなったら、それは A か B で書けるはずと疑う。
 - **凍結ゲート**。導出したメトリクスは `balance/targets_test.go` に現状値で pin し、`make check` で変化を検知する。目標帯そのものは assert しない。意図した調整で値が動いたら期待値を更新する。
+- **raw.toml の書き戻しは yq で行う**。導出で決めた値を書き戻すときは jq 風の式で該当フィールドだけを更新する。独自ツールは作らない。編集後の正規形は `make fmt` が整える。
+  ```sh
+  # 武器の近接ダメージを更新する
+  go run github.com/mikefarah/yq/v4@v4.53.6 -p toml -o toml -i \
+    '(.items[] | select(.id=="cleaver").melee.damage) = 12' assets/metadata/entities/raw/raw.toml
+  # 敵テーブルの出現重み・危険度を更新する
+  go run github.com/mikefarah/yq/v4@v4.53.6 -p toml -o toml -i \
+    '(.enemyTables[] | select(.id=="ruins_area").entries[] | select(.id=="slime").maxDanger) = 6' assets/metadata/entities/raw/raw.toml
+  ```
 - **旧経路の扱い**。`simulate-balance` cmd → `balance.json` → editor-ui の BalancePage/DPSPage は C 層として残置する。導出系（baseline.md）に役割が移ったら、editor 各ページの実依存を精査してから別 PR で整理を判断する。今は消さない。
 
 ## 依存順
