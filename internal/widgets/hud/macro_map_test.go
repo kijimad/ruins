@@ -3,6 +3,7 @@ package hud
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/overworld"
@@ -14,7 +15,27 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	t.Helper()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
+	// フェイスは nil でよい。fakeCanvas は DrawText を記録するだけで実描画しないため、フェイスに
+	// 触れない。本番の EbitenCanvas には loader 由来の非 nil フェイスが渡る
 	return NewMacroMap(nil, NewChrome(res))
+}
+
+func TestMacroGlyphColor_全ての種別記号に色が割り当てられている(t *testing.T) {
+	t.Parallel()
+
+	fallback := macroGlyphColor('\x00') // 未知の文字の色
+	for _, g := range overworld.PlaceGlyphs() {
+		assert.NotEqualf(t, fallback, macroGlyphColor(g.Label), "地物 %s(%c) に固有色がある", g.Name, g.Label)
+	}
+	for _, g := range overworld.FacilityGlyphs() {
+		assert.NotEqualf(t, fallback, macroGlyphColor(g.Label), "施設 %s(%c) に固有色がある", g.Name, g.Label)
+	}
+}
+
+func TestMacroGlyphColor_未知の文字は灰色のフォールバック(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, macroGlyphColor('\x00'), macroGlyphColor('Z'), "未知の文字は同じフォールバック色になる")
 }
 
 func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {
@@ -74,7 +95,6 @@ func TestMacroMap_Draw_開放セルを塗り未開放は伏せる(t *testing.T) 
 			{Glyph: '.', Discovered: true},
 			{Glyph: '.', Discovered: false},
 		}},
-		PlayerCell: consts.Coord[consts.Chunk]{X: -1},
 	}
 	m.Draw(cv, MacroMapData{
 		HasBand: true,
@@ -85,4 +105,148 @@ func TestMacroMap_Draw_開放セルを塗り未開放は伏せる(t *testing.T) 
 
 	assert.Equal(t, 1, cv.nineSlices, "背景パネルを描く")
 	assert.Len(t, cv.fillRects, 1, "開放済みセルだけ塗り、未開放は伏せる")
+}
+
+func TestMacroMap_Draw_現在地は三角ポインタで描く(t *testing.T) {
+	t.Parallel()
+	m := newTestMacroMap(t)
+	cv := &fakeCanvas{}
+
+	view := overworld.MacroView{
+		Cells:      [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
+		PlayerCell: &consts.Coord[consts.Chunk]{X: 0, Y: 0},
+	}
+	m.Draw(cv, MacroMapData{
+		HasBand:      true,
+		View:         view,
+		PlayerFacing: 0,
+		Config:       MacroMapConfig{Width: 150, Height: 150, MinGlyphPx: 999},
+		Screen:       ScreenDimensions{Width: 1024, Height: 768},
+	})
+
+	assert.Len(t, cv.triangles, 1, "現在地はカメラ前方へ向けた三角ポインタ1つで示す")
+	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
+}
+
+func TestDrawMapGrid_現在地ポインタは向きへtipを向ける(t *testing.T) {
+	t.Parallel()
+
+	// PlayerCell(0,0)・cell=20 なので中央は (10,10)。tip はローカル (0,-0.42*cell) を向きだけ回した位置
+	const cell = 20
+	cx, cy, fwd := 10.0, 10.0, playerMarkerTip*float64(cell)
+	cases := []struct {
+		name               string
+		facing             gc.Orient
+		wantTipX, wantTipY float64
+	}{
+		{"北", 0, cx, cy - fwd},
+		{"東", 2, cx + fwd, cy},
+		{"南", 4, cx, cy + fwd},
+		{"西", 6, cx - fwd, cy},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			cv := &fakeCanvas{}
+			view := overworld.MacroView{
+				Cells:      [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
+				PlayerCell: &consts.Coord[consts.Chunk]{X: 0, Y: 0},
+			}
+			DrawMapGrid(cv, view, MapGridStyle{CellPx: cell, MinGlyphPx: 999, PlayerFacing: tc.facing})
+
+			require.Len(t, cv.triangles, 1, "現在地ポインタを1つ描く")
+			tip := cv.triangles[0][0] // 頂点0は前方の tip
+			assert.InDelta(t, tc.wantTipX, float64(tip[0]), 1e-4)
+			assert.InDelta(t, tc.wantTipY, float64(tip[1]), 1e-4)
+		})
+	}
+}
+
+func TestDrawMapGrid_プレイヤー不在なら現在地ポインタを描かない(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	// PlayerCell を nil のままにする
+	view := overworld.MacroView{
+		Cells: [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
+	}
+	DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999})
+
+	assert.Empty(t, cv.triangles, "プレイヤー不在なら現在地ポインタを描かない")
+}
+
+func TestDrawMapGrid_道を持つセルは接続方角ごとに線分を描く(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	// 4方角すべてに繋がる道を持つ開放済み1セル。プレイヤー不在・キューブ無しにして道だけを数える
+	view := overworld.MacroView{
+		Cells: [][]overworld.MacroCell{{{
+			Glyph:      '.',
+			Discovered: true,
+			Road:       overworld.RoadN | overworld.RoadS | overworld.RoadE | overworld.RoadW,
+		}}},
+	}
+	DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999})
+
+	// セルの地色1つと、接続方角4つの道で計5つの矩形を塗る
+	assert.Len(t, cv.fillRects, 5, "地色1つと4方角の道4つを描く")
+}
+
+func TestDrawMapLegend_種別ごとに色見本と名前を描く(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	// フェイスは nil でよい。fakeCanvas は描画命令を記録するだけで実描画しない
+	DrawMapLegend(cv, nil, nil, 100)
+
+	glyphs := overworld.LegendGlyphs()
+	require.NotEmpty(t, glyphs)
+	assert.Len(t, cv.fillRects, len(glyphs), "種別ごとに色見本を1つ塗る")
+	// 種別ごとに記号1つと名前1つ、末尾に閉じ方の案内を描く
+	assert.Len(t, cv.texts, len(glyphs)*2+1)
+
+	var hasClose bool
+	for _, tc := range cv.texts {
+		if tc.str == "N / Esc to close" {
+			hasClose = true
+		}
+	}
+	assert.True(t, hasClose, "閉じ方の案内を描く")
+}
+
+func TestDrawMapGrid_極小セルでも道が消えない(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	// t = max(cell/5, 1) のクランプで、cell=3 でも太さ1pxの道が残る
+	view := overworld.MacroView{
+		Cells: [][]overworld.MacroCell{{{
+			Glyph:      '.',
+			Discovered: true,
+			Road:       overworld.RoadN | overworld.RoadS | overworld.RoadE | overworld.RoadW,
+		}}},
+	}
+	DrawMapGrid(cv, view, MapGridStyle{CellPx: 3, MinGlyphPx: 999})
+
+	assert.Len(t, cv.fillRects, 5, "極小セルでも地色1つと4方角の道4つを描く")
+}
+
+func TestDrawMapGrid_キューブは縁取り付きの記号で描く(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	view := overworld.MacroView{
+		Cells:     [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
+		CubeCells: []consts.Coord[consts.Chunk]{{X: 0, Y: 0}},
+	}
+	DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999})
+
+	cubes := 0
+	for _, tc := range cv.texts {
+		if tc.str == consts.IconCube {
+			cubes++
+		}
+	}
+	assert.Equal(t, 5, cubes, "キューブは縁取り4つと本体1つで計5回描く")
 }

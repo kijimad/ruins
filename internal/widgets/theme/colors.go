@@ -108,10 +108,6 @@ var (
 	HUDHealthEmpty = color.RGBA{R: 255, G: 0, B: 0, A: 255}
 	// SpecLabel は spec パネルのラベルと見出しの色
 	SpecLabel = color.RGBA{R: 255, G: 255, B: 255, A: 255}
-	// HUDMinimapBg はミニマップの背景色
-	HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}
-	// HUDPlayerMarker はミニマップのプレイヤー表示色
-	HUDPlayerMarker = color.RGBA{R: 255, G: 0, B: 0, A: 255}
 	// HUDTextOutline はテキストのアウトライン色
 	HUDTextOutline = color.RGBA{R: 0, G: 0, B: 0, A: 255}
 	// HUDWeightDanger は重量超過時のテキスト色
@@ -125,8 +121,6 @@ var (
 var (
 	// OverworldMapGlyphText はチャンクセルに重ねる種別記号の文字色
 	OverworldMapGlyphText = color.RGBA{R: 20, G: 20, B: 24, A: 255}
-	// OverworldMapPlayerMarker は現在地セルを囲む白枠の色
-	OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	// OverworldMapCubeMarker は移動拠点キューブのチャンク位置を示すマーカー色。blue_cube に寄せた水色。
 	OverworldMapCubeMarker = color.RGBA{R: 90, G: 180, B: 255, A: 255}
 	// OverworldMapCubeOutline はキューブアイコンの縁取り色。地形を塗りつぶさず、アイコンだけに

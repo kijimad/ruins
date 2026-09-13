@@ -23,11 +23,12 @@ type HUDRenderingSystem struct {
 func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 	smallFace := world.Resources.UIResources.Text.SmallFace
 	titleFace := world.Resources.UIResources.Text.TitleFontFace
+	bodyFace := world.Resources.UIResources.Text.BodyFace
 	chrome := hud.NewChrome(world.Resources.UIResources)
 
 	return &HUDRenderingSystem{
 		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
-		macroMap:        hud.NewMacroMap(smallFace, chrome),
+		macroMap:        hud.NewMacroMap(bodyFace, chrome),
 		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
