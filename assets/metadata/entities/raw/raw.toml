@@ -9815,14 +9815,14 @@ b = 50
 g = 200
 r = 255
 [[members]]
-animKeys = ["slime_0", "slime_1"]
+animKeys = ["ice_dog"]
 commandTableId = "stray_dog"
 dropTableId = "stray_dog"
 combatPolicy = "attack"
 movementPattern = "territorial"
 name = "Stray Dog"
 id = "stray_dog"
-spriteKey = "slime_0"
+spriteKey = "ice_dog"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -9851,14 +9851,14 @@ sensation = 2
 strength = 1
 vitality = 2
 [[members]]
-animKeys = ["slime_0", "slime_1"]
+animKeys = ["canon_tank"]
 commandTableId = "iron_sentinel"
 dropTableId = "iron_sentinel"
 combatPolicy = "attack"
 movementPattern = "stationary"
 name = "Iron Sentinel"
 id = "iron_sentinel"
-spriteKey = "slime_0"
+spriteKey = "canon_tank"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -10049,14 +10049,14 @@ sensation = 3
 strength = 6
 vitality = 3
 [[members]]
-animKeys = ["slime_0", "slime_1"]
+animKeys = ["blue_beast"]
 commandTableId = "ash_wolf"
 dropTableId = "stray_dog"
 combatPolicy = "attack"
 movementPattern = "territorial"
 name = "Ash Wolf"
 id = "ash_wolf"
-spriteKey = "slime_0"
+spriteKey = "blue_beast"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -10067,14 +10067,14 @@ sensation = 3
 strength = 5
 vitality = 2
 [[members]]
-animKeys = ["fire_cat"]
+animKeys = ["ice_dog"]
 commandTableId = "bat"
 dropTableId = "bat"
 combatPolicy = "attack"
 movementPattern = "random"
 name = "Razor Hound"
 id = "razor_hound"
-spriteKey = "fire_cat"
+spriteKey = "ice_dog"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -10085,14 +10085,14 @@ sensation = 3
 strength = 4
 vitality = 2
 [[members]]
-animKeys = ["slime_0", "slime_1"]
+animKeys = ["old_tank"]
 commandTableId = "iron_sentinel"
 dropTableId = "iron_sentinel"
 combatPolicy = "attack"
 movementPattern = "stationary"
 name = "Rust Golem"
 id = "rust_golem"
-spriteKey = "slime_0"
+spriteKey = "old_tank"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -10103,14 +10103,14 @@ sensation = 2
 strength = 4
 vitality = 5
 [[members]]
-animKeys = ["dream_fly"]
+animKeys = ["butterfly"]
 commandTableId = "fire_cat"
 dropTableId = "fire_cat"
 combatPolicy = "attack"
 movementPattern = "random"
 name = "Ember Moth"
 id = "ember_moth"
-spriteKey = "dream_fly"
+spriteKey = "butterfly"
 spriteSheetName = "field"
 
 [members.abilities]
