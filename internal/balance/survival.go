@@ -18,20 +18,18 @@ func DaysUntilHungerEmpty() float64 {
 	return turns / float64(gc.TurnsPerDay)
 }
 
-// hungerStarvingRatio は空腹度がこの割合を下回ると栄養失調に入るしきい値。
-// components/hunger.go の GetLevel が HungerStarving を返す 33% に一致させる。
-const hungerStarvingRatio = 0.33
-
-// DaysUntilStarving は満腹から栄養失調に入るまでの日数を返す。空腹度が33%を割ると栄養失調になる。
+// DaysUntilStarving は満腹から栄養失調に入るまでの日数を返す。空腹度が飢餓しきい値を割ると栄養失調になる。
+// しきい値は components の単一出典 HungerStarvingRatio を参照し、ゲーム側の変更に追従する。
 func DaysUntilStarving() float64 {
-	lost := float64(gc.DefaultMaxHunger) * (1 - hungerStarvingRatio)
+	lost := float64(gc.DefaultMaxHunger) * (1 - gc.HungerStarvingRatio)
 	turns := lost / hungerDrainPerTurn()
 	return turns / float64(gc.TurnsPerDay)
 }
 
 // TurnsToHypothermia は実効温度で低体温が発生し始めるまでのターン数を返す。実効温度は
 // 周囲温度に断熱を足した値。体温は systems.CalcBodyTempRate の速さで平熱から冷え、低体温帯
-// BodyTempColdBand を割るとタイマーが進み始める。冷却が起きない適温では 0 を返す。
+// BodyTempColdBand を割るとタイマーが進み始める。
+// rate は温まる向きが正・冷える向きが負。冷えない適温すなわち rate >= 0 では低体温に至らず 0 を返す。
 func TurnsToHypothermia(effectiveTemp int) float64 {
 	rate := systems.CalcBodyTempRate(effectiveTemp)
 	if rate >= 0 {

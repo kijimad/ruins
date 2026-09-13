@@ -15,7 +15,7 @@ import (
 var CmdBalanceReport = &cli.Command{
 	Name:        "balance-report",
 	Usage:       "balance-report",
-	Description: "Derive the early-combat difficulty curve and write docs/balance/baseline.md",
+	Description: "Derive the early-combat difficulty curve and write docs/balance/baseline.md. Run from the repository root; paths are relative to it",
 	Action:      runBalanceReport,
 }
 

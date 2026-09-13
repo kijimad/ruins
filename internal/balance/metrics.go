@@ -11,6 +11,8 @@ import (
 // combat.go の rollAttack と同じ式から期待値を計算する。命中判定、クリティカル、ダイス1-6、
 // 防御差し引きの下限保証まで含む。ダイスと防御の max が非線形なのでダイス6面を列挙して厳密化する。
 func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponStats) float64 {
+	// CalcHitRate は MinHitRate 以上へクランプするので hitRate は 0 にならない。よって命中確率と
+	// max(...,1) の下限から期待ダメージは常に正になり、ExpectedTTK もゼロ除算や 0 に落ちない。
 	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
 
 	baseAbil := attacker.Strength

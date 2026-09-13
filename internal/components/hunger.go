@@ -44,6 +44,16 @@ func (h HungerLevel) String() string {
 // 0が飢餓状態、値が大きいほど満腹
 type Hunger Pool[int]
 
+// 空腹度レベルを分ける満腹度の割合。バランス導出が単一出典で参照できるよう公開する。
+const (
+	// HungerSatiatedRatio 以上は満腹
+	HungerSatiatedRatio = 0.95
+	// HungerNormalRatio 以上は普通
+	HungerNormalRatio = 0.66
+	// HungerStarvingRatio を下回ると飢餓
+	HungerStarvingRatio = 0.33
+)
+
 // GetLevel は現在の空腹度レベルを取得する
 func (h *Hunger) GetLevel() HungerLevel {
 	if h.Max <= 0 {
@@ -52,13 +62,13 @@ func (h *Hunger) GetLevel() HungerLevel {
 
 	ratio := float64(h.Current) / float64(h.Max)
 	switch {
-	case ratio >= 0.95: // 95%以上
+	case ratio >= HungerSatiatedRatio:
 		return HungerSatiated
-	case ratio >= 0.66: // 66%以上
+	case ratio >= HungerNormalRatio:
 		return HungerNormal
-	case ratio >= 0.33: // 33%以上
+	case ratio >= HungerStarvingRatio:
 		return HungerHungry
-	default: // 33%未満
+	default:
 		return HungerStarving
 	}
 }

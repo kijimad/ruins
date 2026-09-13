@@ -24,6 +24,8 @@ func ruinsDay20PowerRatio(master oapi.Raws) float64 {
 
 // withScaledMeleeDamage は itemID の近接ダメージを factor 倍した状態で fn を呼び、呼び出し後に元へ戻す。
 // master の item は backing array を共有するので、値を退避・復元して master を汚さずに評価する。
+// 同一 master を並行して変更すると退避・復元が競合する。並行で使うときは master を共有せず、
+// 呼び出しごとに独立した master をロードすること。
 func withScaledMeleeDamage(master oapi.Raws, itemID string, factor float64, fn func()) {
 	items := raw.PtrSlice(master.Items)
 	for i := range items {
