@@ -6080,3 +6080,15 @@ msgstr "装備できる"
 
 msgid "Can disassemble items"
 msgstr "物を分解できる"
+
+msgid "Cleaver"
+msgstr "クリーバー"
+
+msgid "A heavy chopping blade. Crude but its weight bites deep."
+msgstr "重い鉈。粗いが重量で深く食い込む。"
+
+msgid "Veteran Husk"
+msgstr "廃兵長"
+
+msgid "Ash Wolf"
+msgstr "灰狼"

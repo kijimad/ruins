@@ -42,8 +42,11 @@ func (t TimeOfDay) String() string {
 	}
 }
 
-// 1日のターン数
-const turnsPerDay consts.Turn = 1500
+// TurnsPerDay は1日のターン数。バランス導出が生存日数を日単位で出せるよう公開する。
+const TurnsPerDay consts.Turn = 1500
+
+// turnsPerDay は当パッケージ内で使う別名。
+const turnsPerDay = TurnsPerDay
 
 // 時間帯ごとのターン数
 const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン

@@ -23,7 +23,7 @@ func TestNewMainApp_サブコマンドが揃っている(t *testing.T) {
 	for _, c := range app.Commands {
 		names = append(names, c.Name)
 	}
-	assert.Equal(t, []string{"play", "simulate-balance", "genreadme", "gencomponents", "designdoc", "benchgate"}, names)
+	assert.Equal(t, []string{"play", "simulate-balance", "balance-report", "genreadme", "gencomponents", "designdoc", "benchgate"}, names)
 }
 
 func TestRunMainApp_成功時はnilを返す(t *testing.T) {

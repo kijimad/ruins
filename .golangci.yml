@@ -48,6 +48,10 @@ linters:
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
       - linters: [gosmopolitan]
         path: '_test\.go$'
+      # バランスレポート生成器の日本語は開発者向けの baseline.md 出力で、プレイヤー向け UI の
+      # 源泉英語化の対象外。テストと同じ扱いにする
+      - linters: [gosmopolitan]
+        path: 'internal/balance/baseline\.go$'
       # マップ生成の実体カタログは同じ実体名を定義・レシピ・配置の各ファイルで参照するので、
       # 短い識別子文字列がファイルを跨いで必然的に重複する。goconst はこれを定数化候補として
       # 集計するが、実体名は typed な参照であり定数化しても単一化しない。誤検知なので当該
