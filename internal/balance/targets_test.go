@@ -27,7 +27,7 @@ func TestBaselineSnapshot_序盤戦闘(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.InDelta(t, 2.59, curve[0].PowerRatio, 0.05, "廃墟 day1 の戦力比")
-	assert.InDelta(t, 1.88, curve[19].PowerRatio, 0.05, "廃墟 day20 の戦力比")
+	assert.InDelta(t, 1.58, curve[19].PowerRatio, 0.05, "廃墟 day20 の戦力比。傾き調整で後半が下がった")
 }
 
 func TestBaselineSnapshot_生存圧(t *testing.T) {

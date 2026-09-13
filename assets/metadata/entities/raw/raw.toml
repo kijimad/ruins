@@ -12013,7 +12013,7 @@ name = "廃墟"
 id = "ruins_area"
 [[enemyTables.entries]]
 id = "slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 1
 weight = 1.5
 pack = "1d3"
@@ -12069,7 +12069,7 @@ pack = "1d3"
 id = "stray_dog"
 maxDanger = 22
 minDanger = 3
-weight = 0.8
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "skeleton_soldier"
@@ -12081,13 +12081,13 @@ pack = "1d3"
 id = "fireball"
 maxDanger = 25
 minDanger = 7
-weight = 0.3
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "iron_sentinel"
 maxDanger = 25
 minDanger = 10
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "crystal_wraith"
@@ -12111,7 +12111,7 @@ pack = "1d3"
 id = "blue_beast"
 maxDanger = 25
 minDanger = 7
-weight = 0.4
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dark_doctor"
@@ -12129,13 +12129,13 @@ pack = "1d3"
 id = "black_corpse"
 maxDanger = 25
 minDanger = 10
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
 maxDanger = 25
 minDanger = 9
-weight = 0.3
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gray_tank"
@@ -12169,7 +12169,7 @@ weight = 0.2
 pack = "1d3"
 [[enemyTables.entries]]
 id = "pink_slime"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.8
 pack = "1d3"
@@ -12177,13 +12177,13 @@ pack = "1d3"
 id = "purple_floater"
 maxDanger = 20
 minDanger = 10
-weight = 0.2
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shock_orb"
 maxDanger = 22
 minDanger = 12
-weight = 0.15
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dragon_head"
@@ -12195,19 +12195,19 @@ pack = "1d3"
 id = "armor_ghost"
 maxDanger = 25
 minDanger = 14
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shadow_priest"
 maxDanger = 25
 minDanger = 16
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "guard_soldier"
 maxDanger = 22
 minDanger = 12
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "veteran_husk"
@@ -12226,7 +12226,7 @@ name = "森"
 id = "forest"
 [[enemyTables.entries]]
 id = "slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 1
 weight = 1.5
 pack = "1d3"
@@ -12276,31 +12276,31 @@ pack = "1d3"
 id = "fire_cat"
 maxDanger = 20
 minDanger = 4
-weight = 0.5
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "stray_dog"
 maxDanger = 22
 minDanger = 3
-weight = 0.8
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dream_moth"
 maxDanger = 25
 minDanger = 5
-weight = 0.5
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "fireball"
 maxDanger = 22
 minDanger = 6
-weight = 0.4
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dark_crab"
 maxDanger = 25
 minDanger = 8
-weight = 0.5
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "light_tank"
@@ -12342,13 +12342,13 @@ pack = "1d3"
 id = "green_devourer"
 maxDanger = 22
 minDanger = 5
-weight = 0.4
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
 maxDanger = 25
 minDanger = 9
-weight = 0.3
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "desert_tank"
@@ -12370,13 +12370,13 @@ weight = 0.25
 pack = "1d3"
 [[enemyTables.entries]]
 id = "butterfly"
-maxDanger = 15
+maxDanger = 6
 minDanger = 1
 weight = 3
 pack = "1d3"
 [[enemyTables.entries]]
 id = "pink_slime"
-maxDanger = 12
+maxDanger = 6
 minDanger = 1
 weight = 1.5
 pack = "1d3"
@@ -12391,7 +12391,7 @@ name = "洞窟"
 id = "cave"
 [[enemyTables.entries]]
 id = "slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 1
 weight = 1.5
 pack = "1d3"
@@ -12441,7 +12441,7 @@ pack = "1d3"
 id = "ice_dog"
 maxDanger = 22
 minDanger = 6
-weight = 0.5
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "skeleton_soldier"
@@ -12453,13 +12453,13 @@ pack = "1d3"
 id = "fireball"
 maxDanger = 22
 minDanger = 7
-weight = 0.4
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "iron_sentinel"
 maxDanger = 25
 minDanger = 10
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "crystal_wraith"
@@ -12489,7 +12489,7 @@ pack = "1d3"
 id = "blue_beast"
 maxDanger = 22
 minDanger = 7
-weight = 0.4
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "three_headed_dragon"
@@ -12507,19 +12507,19 @@ pack = "1d3"
 id = "black_corpse"
 maxDanger = 25
 minDanger = 9
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "green_devourer"
 maxDanger = 22
 minDanger = 6
-weight = 0.4
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
 maxDanger = 25
 minDanger = 10
-weight = 0.25
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_tank"
@@ -12555,19 +12555,19 @@ pack = "1d3"
 id = "penguin"
 maxDanger = 10
 minDanger = 1
-weight = 1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "purple_floater"
 maxDanger = 20
 minDanger = 10
-weight = 0.2
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shock_orb"
 maxDanger = 22
 minDanger = 12
-weight = 0.15
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dragon_head"
@@ -12579,13 +12579,13 @@ pack = "1d3"
 id = "armor_ghost"
 maxDanger = 25
 minDanger = 14
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shadow_priest"
 maxDanger = 25
 minDanger = 16
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 
 [[spriteSheets]]
