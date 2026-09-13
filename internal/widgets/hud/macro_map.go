@@ -59,7 +59,7 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	offX := x0 + (width-cellPx*cols)/2
 	offY := y0 + (height-cellPx*rows)/2
 
-	// 格子・道・キューブ・現在地は全画面図と同じ DrawMapGrid で描く。ミニマップは記号表示の閾値を持つ
+	// 格子・道・キューブ・現在地を DrawMapGrid で描く。ミニマップは記号表示に閾値を持つ
 	DrawMapGrid(cv, data.View, MapGridStyle{
 		OriginX:      offX,
 		OriginY:      offY,

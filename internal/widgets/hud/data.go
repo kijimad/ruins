@@ -43,7 +43,7 @@ type GameInfoData struct {
 type MacroMapData struct {
 	HasBand      bool                // オーバーワールドにいて帯があるか。偽なら地図パネルごと出さない
 	View         overworld.MacroView // 帯全体のチャンク俯瞰
-	PlayerFacing gc.Orient           // カメラの水平向き。右上のコンパスが指す方角
+	PlayerFacing gc.Orient           // カメラの水平向き。現在地ポインタが指す方角
 	Config       MacroMapConfig      // パネル寸法と glyph 表示の閾値
 	Screen       ScreenDimensions    // 右上配置に使う画面サイズ
 }

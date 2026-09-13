@@ -128,7 +128,7 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 		sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
-	// カメラの水平向き。向きマーカーが指す方角。カメラ不在時は北を既定にする
+	// カメラ不在時は北を既定にする
 	var facing gc.Orient
 	if cam := query.GetPlayerCamera(world); cam != nil {
 		facing = cam.Orient

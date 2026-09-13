@@ -30,7 +30,7 @@ type OverworldMapState struct {
 
 	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
 	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
-	facing    gc.Orient                  // カメラの水平向き。右上のコンパスが指す方角
+	facing    gc.Orient                  // カメラの水平向き。現在地ポインタが指す方角
 	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
 	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
 }
@@ -100,7 +100,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
-	// カメラの水平向き。向きマーカーが指す方角。カメラ不在時は北を既定にする
+	// カメラ不在時は北を既定にする
 	st.facing = 0
 	if cam := query.GetPlayerCamera(world); cam != nil {
 		st.facing = cam.Orient
@@ -197,7 +197,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		originX = 8
 	}
 	const originY consts.ScreenPixel = 40
-	// 格子・道・キューブ・現在地はミニマップと同じ hud.DrawMapGrid で描く。全画面図は常に記号を出す
+	// 格子・道・キューブ・現在地を hud.DrawMapGrid で描く。全画面図は常に記号を出す
 	hud.DrawMapGrid(uicore.NewEbitenCanvas(dst), st.view, hud.MapGridStyle{
 		OriginX:      int(originX),
 		OriginY:      int(originY),
