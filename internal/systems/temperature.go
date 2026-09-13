@@ -145,6 +145,13 @@ func timerProgress(excess float64) float64 {
 	return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)
 }
 
+// BodyTempColdBand は平熱からこれだけ下がると低体温タイマーが進む帯。バランス導出が
+// 低体温の到達時間を出せるよう公開する。
+const BodyTempColdBand = bodyTempColdBand
+
+// CalcBodyTempRate は実効温度から1ターンの体温変化量を返す純関数。バランス導出用の公開窓。
+func CalcBodyTempRate(effectiveTemp int) float64 { return calcBodyTempRate(effectiveTemp) }
+
 // calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない
 func calcBodyTempRate(effectiveTemp int) float64 {
 	switch {

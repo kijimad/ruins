@@ -82,3 +82,21 @@ Target power ratio is day1=2.5 to day20=1.3, band +/-0.3. The target is a design
 | 20 | 7 | 1.88 | 1.30 | out |
 | 21 | 8 | 1.88 | 1.30 | out |
 
+## survival pressure
+
+Time to starve without food, and time to hypothermia by effective temperature (ambient + insulation).
+
+| metric | value |
+|---|---:|
+| days until starving (hunger < 33%) | 0.67 |
+| days until hunger empty | 1.00 |
+
+| effective temp (C) | turns to hypothermia |
+|---:|---:|
+| -20 | 10 |
+| -10 | 10 |
+| 0 | 10 |
+| 5 | 20 |
+| 10 | 20 |
+| 15 | 0 |
+

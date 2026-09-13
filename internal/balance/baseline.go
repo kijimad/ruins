@@ -93,5 +93,17 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		}
 		fmt.Fprintf(&b, "\n")
 	}
+
+	// 生存圧。食料は日単位、寒さはターン単位で時間スケールが異なる
+	fmt.Fprintf(&b, "## survival pressure\n\n")
+	fmt.Fprintf(&b, "Time to starve without food, and time to hypothermia by effective temperature (ambient + insulation).\n\n")
+	fmt.Fprintf(&b, "| metric | value |\n|---|---:|\n")
+	fmt.Fprintf(&b, "| days until starving (hunger < 33%%) | %.2f |\n", DaysUntilStarving())
+	fmt.Fprintf(&b, "| days until hunger empty | %.2f |\n", DaysUntilHungerEmpty())
+	fmt.Fprintf(&b, "\n| effective temp (C) | turns to hypothermia |\n|---:|---:|\n")
+	for _, temp := range []int{-20, -10, 0, 5, 10, 15} {
+		fmt.Fprintf(&b, "| %d | %.0f |\n", temp, TurnsToHypothermia(temp))
+	}
+	fmt.Fprintf(&b, "\n")
 	return b.String(), nil
 }
