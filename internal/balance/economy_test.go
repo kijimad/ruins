@@ -38,3 +38,13 @@ func TestExpectedNetLootValue_手取りは額面より小さく正(t *testing.T)
 	assert.Less(t, net, face, "手数料と発送料を引くので手取りは額面より小さい")
 	assert.Equal(t, 0.0, ExpectedNetLootValue(master, "no_such_table", 1), "不明テーブルは0")
 }
+
+func TestExpectedRunLootIncome_層数で単調に増える(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	assert.Equal(t, 0.0, ExpectedRunLootIncome(master, "ruins_area", 0), "0層は収入0")
+	i1 := ExpectedRunLootIncome(master, "ruins_area", 1)
+	i5 := ExpectedRunLootIncome(master, "ruins_area", 5)
+	assert.Positive(t, i1, "1層でも期待収入は正")
+	assert.Greater(t, i5, i1, "層が深いほど高危険度の loot で収入が増える")
+}

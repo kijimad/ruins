@@ -20,6 +20,13 @@ const (
 	randomStepsPerFloor = 40 // 平均80歩（60+rand(40)）
 )
 
+// フロアあたりの loot 配置数。mapplanner のアイテム配置ロジックと同じ 15 + rand(0..8)。
+// 期待値は 15 + (9-1)/2 = 19 個。閉形式の収入導出 ExpectedRunLootIncome もこの定数を参照する。
+const (
+	floorItemBase   = 15
+	floorItemRandom = 9
+)
+
 // RunResult は1ランの結果
 type RunResult struct {
 	ReachedDepth        int
@@ -166,8 +173,8 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 		return result
 	}
 
-	// mapplanner のアイテム配置ロジック: 15 + rand(0..8)
-	itemCount := 15 + rng.IntN(9)
+	// mapplanner のアイテム配置ロジック: floorItemBase + rand(0..floorItemRandom-1)
+	itemCount := floorItemBase + rng.IntN(floorItemRandom)
 
 	for range itemCount {
 		itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)

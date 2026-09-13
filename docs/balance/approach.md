@@ -35,7 +35,7 @@
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
 | 進行・成長 | 攻撃→スキル経験→スキル値 | A | Lv N 到達に要する攻撃回数 | `skill.GainExp` の反復・`skill.MaxLevel` → `balance/growth.go` | 実装済み。攻撃回数のみ、日への写像はC |
 | 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf`・`query.GroundBurnEfficiency` → `balance/logistics.go` | 実装済み |
-| 経済・終端 | 競売の手数料・送料→手取り、loot→手取り | A+C | 競売の手取り率、1個あたりの期待手取り(純)。探索1回の総収支はC | `query.AuctionNetProceeds`・itemTable→group→value/weight → `balance/economy.go`。移動タイル数を要する総収支はC | 実装済み。総収支の集計のみC |
+| 経済・終端 | 競売の手数料・送料→手取り、loot→手取り→探索収入 | A+C | 競売の手取り率、1個あたりの期待手取り、探索1回の期待収入(層数入力) | `query.AuctionNetProceeds`・itemTable→group→value/weight・`floorItemBase/Random` → `balance/economy.go` | 実装済み。到達層数の分布と移動コスト側のみC/設計値 |
 
 補足。競売は毎ターン確率 0.6 で入札が延びる確率過程（`query/auction.go` AuctionBidChance）。手取りの定常近似は A で出せるが、実際の落札額分布は C で測る。
 
@@ -86,5 +86,5 @@
 - 実装済み: 戦闘・生存（飢え/寒さ/血液→HP/疲労/睡眠回復）・物流・経済（競売手取り・1個あたり期待手取り）・進行成長・気候の各導出。凍結ゲート・感度・単変数探索・多目的Pareto探索。全ドメインが baseline.md に載る。
 - 目標帯: 戦闘の日次カーブに加え、生存・物流・経済・進行成長のスカラー指標に横断の目標帯を置いた（`balance/targets.go` の `DomainTargets`）。baseline.md 冒頭のダッシュボードで内外を一望する。帯は設計仮説で、静的下限がこの範囲に収まればという下限側の目安。
 - 感度と索引: 感度行列（つまみ×day1/10/20 の戦力比変化率、`SensitivityMatrix`）を baseline.md に出し、外れをどのつまみで戻すかの手掛かりにする。全パラメータの所在と編集経路は `docs/balance/tuning.md` に索引化した。
-- 残る発展: 探索1回の総収支（移動タイル数が設計値で閉形式では導けずCへ）。定数側を数値摂動する窓の拡充。ゲーム段階ごとの想定ビルドで後半のブレを抑える設計は `docs/design/260913182537.md`。
+- 残る発展: 探索1回の期待収入は閉形式で出した（層数を入力）。残るのは到達層数の分布(C・モンテカルロ)と移動燃料コスト側(移動タイル数という設計値)。定数側を数値摂動する窓の拡充。ゲーム段階ごとの想定ビルドで後半のブレを抑える設計は `docs/design/260913182537.md`。
 - 運用: パラメータ調整は baseline.md の目標帯ダッシュボードと感度行列、差分、凍結ゲートで回す。目標帯を人間が決め、tuning.md でつまみを引き当て、探索や手編集で値を寄せる。

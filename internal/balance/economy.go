@@ -131,6 +131,24 @@ func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) fl
 	return float64(net)
 }
 
+// expectedItemsPerFloor はフロアで拾える loot 個数の期待値。配置数 floorItemBase + rand(0..floorItemRandom-1)
+// の期待値で、rand の期待値は (floorItemRandom-1)/2 なので閉形式で定まる。run.go の配置数と単一出典。
+const expectedItemsPerFloor = floorItemBase + (floorItemRandom-1)/2
+
+// ExpectedRunLootIncome は floors 層を探索したときに拾える loot の期待手取り総額を返す。
+// 各層で expectedItemsPerFloor 個を拾い、層の深さを危険度として1個あたりの期待手取り
+// ExpectedNetLootValue を積む。拾える個数の期待値は閉形式なので乱数を要さない。
+//
+// 実際に何層潜れるかは生存に依る scenario 入力で、その分布はモンテカルロの領域。総収支はこの収入から
+// 移動燃料コストを引いて出るが、1回の移動タイル数はコードにない設計値なのでコスト側は別途与える。
+func ExpectedRunLootIncome(master oapi.Raws, itemTableName string, floors int) float64 {
+	total := 0.0
+	for depth := 1; depth <= floors; depth++ {
+		total += expectedItemsPerFloor * ExpectedNetLootValue(master, itemTableName, depth)
+	}
+	return total
+}
+
 // AuctionTakeHomeRate は基準価値どおりに落札されたときの競売の手取り率を返す。
 // 手取り = 落札額 − 手数料 − 発送料を落札額で割る。集荷料は集荷1回ごとで品単位でないためここには含めない。
 // 重い安物ほど発送料が手取りを食い、率が下がる。query.AuctionNetProceeds を単一出典で参照する。

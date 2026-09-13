@@ -183,14 +183,20 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 			ExpectedLootValue(master, "cave", danger))
 	}
 
-	fmt.Fprintf(&b, "\n手取り側。上の額面から手数料と発送料を引いた1個あたりの期待手取り。発送料は重量比例なので額面より縮む。\n")
-	fmt.Fprintf(&b, "探索1回の総収支はこれに拾える個数と移動燃料を掛けて出るが、1回の移動タイル数はコードにない設計値なので閉形式では出さない。\n\n")
+	fmt.Fprintf(&b, "\n手取り側。上の額面から手数料と発送料を引いた1個あたりの期待手取り。発送料は重量比例なので額面より縮む。\n\n")
 	fmt.Fprintf(&b, "| 危険度 | 廃墟 | 森 | 洞窟 |\n|---:|---:|---:|---:|\n")
 	for _, danger := range []int{1, 3, 5, 8} {
 		fmt.Fprintf(&b, "| %d | %.0f | %.0f | %.0f |\n", danger,
 			ExpectedNetLootValue(master, "ruins_area", danger),
 			ExpectedNetLootValue(master, "forest", danger),
 			ExpectedNetLootValue(master, "cave", danger))
+	}
+
+	fmt.Fprintf(&b, "\n探索1回の期待収入。各層で約%d個拾い層の深さを危険度として手取りを積んだ閉形式。層数は生存に依る scenario 入力。\n", expectedItemsPerFloor)
+	fmt.Fprintf(&b, "総収支はこの収入から移動燃料コストを引くが、1回の移動タイル数はコードにない設計値なのでコスト側は別途与える。\n\n")
+	fmt.Fprintf(&b, "| 探索層数 | 廃墟の期待収入 |\n|---:|---:|\n")
+	for _, floors := range []int{1, 3, 5, 10} {
+		fmt.Fprintf(&b, "| %d | %.0f |\n", floors, ExpectedRunLootIncome(master, "ruins_area", floors))
 	}
 	fmt.Fprintf(&b, "\n")
 

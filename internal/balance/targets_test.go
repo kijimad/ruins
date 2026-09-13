@@ -75,6 +75,7 @@ func TestBaselineSnapshot_探索収入(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 	assert.InDelta(t, 47, ExpectedNetLootValue(master, "ruins_area", 8), 2, "危険度8の廃墟で拾える1個あたりの期待手取り")
+	assert.InDelta(t, 2565, ExpectedRunLootIncome(master, "ruins_area", 5), 50, "廃墟5層探索の期待収入")
 }
 
 func TestBaselineSnapshot_進行成長(t *testing.T) {
