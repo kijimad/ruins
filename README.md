@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [進行後半の緩化。想定プレイヤーの緊張回復は敵・スキル定数では埋まらない](docs/design/260914081735.md) | 3/4（見送り1） | gamedesign, combat |
+| accepted | [進行後半の緩化。想定装備トラックと敵の絶対ダメージ強化で緊張を回復する](docs/design/260914081735.md) | 5/8（見送り1） | gamedesign, combat |
 
 
 ## Reference
