@@ -501,13 +501,21 @@ func ConditionBloodDrop(cond *HealthCondition) int {
 // BloodLossHPDrain は血液量の低下による毎ターンの HP 減少量と死因を返す。
 // 血液量が危険域を下回ると、不足に応じてじわじわ HP を削る。失血・凍死・衰弱死はすべてここを通る
 func (hs *HealthStatus) BloodLossHPDrain() (int, DeathCause) {
-	blood := int(hs.BodyFuncs().Blood)
-	if blood >= bloodCriticalThreshold {
+	drain := BloodLossHPDrainRate(int(hs.BodyFuncs().Blood))
+	if drain == 0 {
 		return 0, ""
 	}
-	deficit := bloodCriticalThreshold - blood
-	drain := (deficit + bloodDrainStep - 1) / bloodDrainStep
 	return drain, hs.bloodLossCause()
+}
+
+// BloodLossHPDrainRate は血液量から失血による1ターンのHP減少量を返す純関数。危険域 bloodCriticalThreshold
+// 以上なら0、下回るほど段階的に増える。バランス導出が血液→HPの連鎖を単一出典で評価できるよう公開する。
+func BloodLossHPDrainRate(blood int) int {
+	if blood >= bloodCriticalThreshold {
+		return 0
+	}
+	deficit := bloodCriticalThreshold - blood
+	return (deficit + bloodDrainStep - 1) / bloodDrainStep
 }
 
 // bloodLossCause は血液量を最も下げている不調の死因を返す。該当が無ければ失血に落とす

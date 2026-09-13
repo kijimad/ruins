@@ -33,16 +33,26 @@ func (f *Fatigue) GetLevel() FatigueLevel {
 
 	ratio := float64(f.Current) / float64(f.Max)
 	switch {
-	case ratio < 0.3:
+	case ratio < FatigueRestedRatio:
 		return FatigueRested
-	case ratio < 0.5:
+	case ratio < FatigueTiredRatio:
 		return FatigueNormal
-	case ratio < 0.8:
+	case ratio < FatigueExhaustedRatio:
 		return FatigueTired
 	default:
 		return FatigueExhausted
 	}
 }
+
+// 疲労レベルを分ける最大疲労に対する割合。バランス導出が単一出典で参照できるよう公開する。
+const (
+	// FatigueRestedRatio 未満は休息済み
+	FatigueRestedRatio = 0.3
+	// FatigueTiredRatio 以上で疲労
+	FatigueTiredRatio = 0.5
+	// FatigueExhaustedRatio 以上で過労
+	FatigueExhaustedRatio = 0.8
+)
 
 // FatigueSeverity は疲労段階を過労の不調の重症度へ写す。ok=false なら不調は立たない
 func (f *Fatigue) FatigueSeverity() (Severity, bool) {

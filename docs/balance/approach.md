@@ -29,11 +29,11 @@
 | 危険度・世界 | 危険度→敵プール、季節+時間→世界温度 | A | 難易度カーブ（戦力比 対 日）。世界温度の季節変動 | `query/danger.go`、`query/temperature.go` | 戦闘側で実装済み |
 | 戦闘・装備 | 能力+武器−防御→ダメージ、命中、TTK | A | 戦力比 PowerRatio、ExpectedTTK、ExpectedDamagePerAttack | `formula`（CalcHitRate/ApplyCritical/CalcHP）→ `balance/metrics.go` | 実装済み |
 | サバイバル（飢え・寒さ） | 満腹→減耗、体温→低体温 | A | DaysUntilStarving/DaysUntilHungerEmpty、TurnsToHypothermia | `components/hunger.go`、`systems/temperature.go`（CalcBodyTempRate/BodyTempColdBand）→ `balance/survival.go` | 実装済み |
-| サバイバル（連鎖） | 空腹/低体温→状態異常→血液→HP、代謝→回復 | B | 状態異常からの HP 減到達ターン、無回復での生存打数 | `components/health_status.go` BloodLossHPDrain/Metabolism | 未着手 |
-| 疲労・睡眠 | 経過→疲労、睡眠→疲労回復・代謝 | A/B | 睡眠なしの限界ターン、睡眠1回の回復量 | `systems/fatigue.go`、`activity/sleep.go` | 未着手 |
+| サバイバル（連鎖） | 状態異常→血液→HP | B | 血液量ごとのHP減 | `components.BloodLossHPDrainRate` → `balance/survival.go` | 実装済み |
+| 疲労・睡眠 | 経過→疲労 | A | 疲労/過労までの日数 | `components.FatigueTiredRatio` 他 → `balance/survival.go` | 実装済み(睡眠回復は今後) |
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
 | 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf` → `balance/logistics.go` | 実装済み |
-| 経済・終端 | loot価値→売買/競売、送料・手数料→手取り | A+C | 探索1回の期待収支、競売手取り率 | 純部分は `query/auction.go`（送料25/kg・手数料0.12・集荷100・開始0.4）。行動依存は `balance/run.go` モンテカルロ | 後回し |
+| 経済・終端 | 競売の手数料・送料→手取り | A+C | 競売の手取り率(純)。探索1回の収支はC | `query.AuctionNetProceeds` → `balance/economy.go`。収支はモンテカルロ | 純部分実装済み |
 
 補足。競売は毎ターン確率 0.6 で入札が延びる確率過程（`query/auction.go` AuctionBidChance）。手取りの定常近似は A で出せるが、実際の落札額分布は C で測る。
 
@@ -41,7 +41,7 @@
 
 - **単一出典**。メトリクスは `formula`・`consts`・`query` の実式と実定数だけを参照する。戦闘式や燃費式を `balance` 内に再実装しない。式が変われば導出も自動追従する。
 - **公開窓は最小限**。world 抜きで導出するために純関数だけを公開する。既存の窓は `query.DangerLevelForDay`、`systems.CalcBodyTempRate`、`systems.BodyTempColdBand`、`components.TurnsPerDay`。窓を増やすときはこの一覧に足し、乱用しない。
-- **置き場を固定**。A/B の導出は `internal/balance` に置く。ドメインごとにファイルを分ける。`metrics.go`（戦闘）、`survival.go`（生存）、物流は `logistics.go`、経済の純部分は `economy.go` を予定。1ドメイン1ファイル。
+- **置き場を固定**。A/B の導出は `internal/balance` に置く。ドメインごとにファイルを分ける。`metrics.go`（戦闘）、`survival.go`（生存・疲労・血液）、`logistics.go`（物流）、`economy.go`（経済の純部分）。1ドメイン1ファイル。基準値は共有定数、すなわち `BaselinePlayer` 等や `consts` の公開定数を使い各所へ直書きしない。
 - **モンテカルロは C 専用**。`balance/run.go`・`combat.go` の `Simulate*` は創発ドメインの測定にだけ使う。導出可能なドメインへ拡張しない。拡張したくなったら、それは A か B で書けるはずと疑う。
 - **凍結ゲート**。導出したメトリクスは `balance/targets_test.go` に現状値で pin し、`make check` で変化を検知する。目標帯そのものは assert しない。意図した調整で値が動いたら期待値を更新する。
 - **旧経路の扱い**。`simulate-balance` cmd → `balance.json` → editor-ui の BalancePage/DPSPage は C 層として残置する。導出系（baseline.md）に役割が移ったら、editor 各ページの実依存を精査してから別 PR で整理を判断する。今は消さない。
@@ -60,6 +60,6 @@
 
 ## 現状と次
 
-- 実装済み: 戦闘（戦力比カーブ）、生存の飢え・寒さ、物流（航続・積載トレード）。凍結ゲート・感度・単変数探索。
-- 次: サバイバル連鎖 B（空腹/低体温→状態異常→血液→HP）、疲労・睡眠。
-- 後: 経済 A+C。
+- 実装済み: 戦闘・生存（飢え/寒さ/血液→HP/疲労）・物流・経済（競売手取り）の各導出。凍結ゲート・感度・単変数探索。全ドメインが baseline.md に載る。
+- 残る発展: 睡眠による疲労回復量、経済の探索1回の収支（C・モンテカルロ）、多目的 Pareto 探索。いずれも土台の上に足せる。
+- 運用: パラメータ調整は baseline.md の差分と凍結ゲートで回す。目標帯を人間が決め、探索で raw 値を寄せる。

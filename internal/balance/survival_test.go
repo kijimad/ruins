@@ -27,3 +27,21 @@ func TestTurnsToHypothermia_温度帯ごとに一致(t *testing.T) {
 	assert.InDelta(t, 20, TurnsToHypothermia(10), 1e-9)
 	assert.Equal(t, 0.0, TurnsToHypothermia(15))
 }
+
+func TestHPDrainPerTurnAtBlood_崖と段階(t *testing.T) {
+	t.Parallel()
+	// 危険域40以上は0。40未満で ceil((40-blood)/10) 段階的に増える
+	assert.Equal(t, 0, HPDrainPerTurnAtBlood(40))
+	assert.Equal(t, 1, HPDrainPerTurnAtBlood(39))
+	assert.Equal(t, 1, HPDrainPerTurnAtBlood(30))
+	assert.Equal(t, 2, HPDrainPerTurnAtBlood(20))
+	assert.Equal(t, 4, HPDrainPerTurnAtBlood(0))
+}
+
+func TestDaysUntilTired_手計算と一致(t *testing.T) {
+	t.Parallel()
+	// 疲労0.5 × 最大2000 / 1per turn / 1500per日 = 0.666...日
+	assert.InDelta(t, 0.667, DaysUntilTired(), 0.01)
+	// 過労 0.8 × 2000 / 1 / 1500 = 1.066...日
+	assert.InDelta(t, 1.067, DaysUntilExhausted(), 0.01)
+}
