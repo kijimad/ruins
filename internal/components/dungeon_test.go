@@ -89,6 +89,17 @@ func TestSeamlessBand_座標変換(t *testing.T) {
 	assert.Equal(t, consts.AbsTileY(-30), sb.LocalToAbsY(10), "ローカル10 = 絶対-30")
 }
 
+func TestSeamlessBand_AbsChunkRow(t *testing.T) {
+	t.Parallel()
+
+	sb := SeamlessBand{NorthIndex: 1, ChunkH: 40}
+
+	assert.Equal(t, consts.Chunk(-1), sb.AbsChunkRow(0), "北端チャンクは絶対チャンク行 -NorthIndex")
+	assert.Equal(t, consts.Chunk(-1), sb.AbsChunkRow(39), "同じチャンク内は同じ行へ切り捨てる")
+	assert.Equal(t, consts.Chunk(0), sb.AbsChunkRow(40), "次のチャンク境界で1つ南の行へ進む")
+	assert.Equal(t, consts.Chunk(1), sb.AbsChunkRow(90), "ローカル90はチャンク行2、NorthIndexぶん引いて1")
+}
+
 func TestSeamlessBand_SpawnChunkY(t *testing.T) {
 	t.Parallel()
 
