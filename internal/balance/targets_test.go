@@ -66,3 +66,10 @@ func TestBaselineSnapshot_探索収入(t *testing.T) {
 	master := loadTestMaster(t)
 	assert.InDelta(t, 47, ExpectedNetLootValue(master, "ruins_area", 8), 2, "危険度8の廃墟で拾える1個あたりの期待手取り")
 }
+
+func TestBaselineSnapshot_進行成長(t *testing.T) {
+	t.Parallel()
+	// 能力値0の下限で、スキルを上げるのに要する攻撃回数。減衰で高レベルほど急に増える。
+	assert.Equal(t, 210, AttacksToSkillLevel(0, 10), "Lv10到達の攻撃回数")
+	assert.Equal(t, 1626, AttacksToSkillLevel(0, 30), "Lv30到達の攻撃回数")
+}

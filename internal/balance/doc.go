@@ -77,6 +77,7 @@
 //   - survival.go: 飢え・寒さ・血液→HP・疲労・睡眠回復の生存圧を閉形式で導出
 //   - logistics.go: 燃料・重量・航続の物流指標を閉形式で導出
 //   - economy.go: 競売の手取り率と1個あたりの期待手取りを閉形式で導出。移動タイル数を要する総収支はモンテカルロ側
+//   - growth.go: スキル成長を実物 skill.GainExp の反復で導出。Lv到達までの攻撃回数
 //   - search.go: 単変数の目標探索・感度・多目的Pareto探索
 //   - baseline.go: 目標帯との照合とベースライン markdown 生成
 //   - combat.go: 戦闘計算式とデータロード

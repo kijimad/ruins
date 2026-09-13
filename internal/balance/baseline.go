@@ -213,5 +213,17 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 			p.Factors[paretoKnobs[0]], p.Factors[paretoKnobs[1]], p.Deviations[0], p.Deviations[1], p.Deviations[2])
 	}
 	fmt.Fprintf(&b, "\n")
+
+	// 進行・成長。スキルを上げるのに要する攻撃回数
+	fmt.Fprintf(&b, "## 進行・成長（スキル）\n\n")
+	fmt.Fprintf(&b, "**概要**: 武器スキルを上げるのに要する攻撃回数。1攻撃ごとに減衰しながら経験値が入り、スキル値が高いほど遅くなる。\n")
+	fmt.Fprintf(&b, "能力値が高いほど成長が速い。ここは静的下限として攻撃回数だけを見る。経過日への写像は攻撃頻度に依るので載せない。\n\n")
+	fmt.Fprintf(&b, "| 能力値 | Lv10まで | Lv30まで | Lv50まで | 100攻撃で到達Lv |\n|---:|---:|---:|---:|---:|\n")
+	for _, abil := range []int{0, 5, 10} {
+		fmt.Fprintf(&b, "| %d | %d | %d | %d | %d |\n", abil,
+			AttacksToSkillLevel(abil, 10), AttacksToSkillLevel(abil, 30), AttacksToSkillLevel(abil, 50),
+			SkillLevelAfterAttacks(abil, 100))
+	}
+	fmt.Fprintf(&b, "\n")
 	return b.String(), nil
 }

@@ -32,6 +32,7 @@
 | サバイバル（連鎖） | 状態異常→血液→HP | B | 血液量ごとのHP減 | `components.BloodLossHPDrainRate` → `balance/survival.go` | 実装済み |
 | 疲労・睡眠 | 経過→疲労、睡眠→回復 | A | 疲労/過労までの日数、満タン回復までの睡眠ターン、釣り合いに要する睡眠時間の割合 | `components.FatigueTiredRatio`・`systems.FatigueRecoverPerTurn` → `balance/survival.go` | 実装済み |
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
+| 進行・成長 | 攻撃→スキル経験→スキル値 | A | Lv N 到達に要する攻撃回数 | `skill.GainExp` の反復・`skill.MaxLevel` → `balance/growth.go` | 実装済み。攻撃回数のみ、日への写像はC |
 | 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf` → `balance/logistics.go` | 実装済み |
 | 経済・終端 | 競売の手数料・送料→手取り、loot→手取り | A+C | 競売の手取り率、1個あたりの期待手取り(純)。探索1回の総収支はC | `query.AuctionNetProceeds`・itemTable→group→value/weight → `balance/economy.go`。移動タイル数を要する総収支はC | 実装済み。総収支の集計のみC |
 
@@ -65,7 +66,7 @@
 ## 武器・スキルの調整方針
 
 - **武器**。武器ステータスは戦闘メトリクスの入力そのもの。`formula` 経由で `ExpectedDamagePerAttack` に効くので、raw の `melee.damage` 等を yq で変え、戦力比カーブと感度表・Pareto 前線で目標帯へ寄せる。武器調整は戦闘ドメインの既存ワークフローで完結する。
-- **スキル**。スキル成長は上記のとおり戦闘の下限には含めない。`skill/growth.go` の BaseExp・AbilBonus・DecayPerLevel・MaxLevel を決定論的に調整したいなら、別ドメイン「進行・成長」として成長メトリクスを新設する。例えばスキルを Lv N へ上げるのに要する攻撃回数、経過日 d での到達スキル値を導出し、目標、例えば主要武器スキルが day10 で Lv30 に対して合わせる。現状この成長メトリクスは未実装で、着手時は設計 doc から起こす。
+- **スキル**。スキル成長は戦闘の下限には含めないが、成長そのものを別ドメイン「進行・成長」で導出する。`balance/growth.go` の `AttacksToSkillLevel` が実物 `skill.GainExp` の反復で Lv N 到達に要する攻撃回数を返す。`skill/growth.go` の BaseExp・AbilBonus・DecayPerLevel・MaxLevel を変えるとこの攻撃回数が動くので、目標、例えば主要武器スキルが想定攻撃回数で程よく上がるに対して合わせる。経過日 d への写像は攻撃頻度という行動依存量が要るので C 層に残す。設計は `docs/design/260913164022.md`。
 
 ## 依存順
 
