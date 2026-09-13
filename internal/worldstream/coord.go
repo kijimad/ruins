@@ -2,7 +2,7 @@ package worldstream
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// BandOriginY は northIndex（北進したチャンク数）と chunkH から帯の絶対原点 Y を返す。
+// BandOriginY は北進したチャンク数 northIndex と chunkH から帯の絶対原点 Y を返す。
 // 帯ローカル Y=0 すなわち北端が絶対軸で指す位置。北は -Y なので northIndex ぶん負へ伸びる。
 func BandOriginY(northIndex consts.Chunk, chunkH consts.Tile) consts.AbsTileY {
 	return consts.BandOriginY(northIndex, chunkH)

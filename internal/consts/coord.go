@@ -37,10 +37,9 @@ func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
 
 // AbsTileY は南北の絶対タイル Y 座標。
 //
-// 北へ進むほど無限に減る絶対軸で、帯ローカルの GridElement.Y とは別物。GridElement.Y は
-// 常に 0..rows*chunkH の有界。絶対と局所の取り違えを Go の型で弾くための別名型。
-// 帯原点はこの絶対軸で扱う。北が上すなわち -Y なので、奥へ進むほど絶対 Y は負へ伸びる。
-// 東西はストリーミングせず幅固定の帯なので、絶対軸は Y のみで足りる。
+// 北が上すなわち -Y で、奥へ進むほど負へ無限に伸びる絶対軸。帯ローカルの GridElement.Y とは別物で、
+// GridElement.Y は常に 0..rows*chunkH の有界。絶対と局所の取り違えを Go の型で弾くための別名型。
+// 帯原点はこの絶対軸で扱う。東西はストリーミングせず幅固定なので、絶対軸は Y のみで足りる。
 //
 // worldstream の帯ドライバも components の永続状態 SeamlessBand も同じ絶対軸を扱うため、
 // 双方から import できる leaf の consts に置く。これで境界のキャストを無くせる。

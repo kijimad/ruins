@@ -96,8 +96,7 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 		ambientHeatAt(world, x, y), nil
 }
 
-// 奥地ほど寒い緯度勾配のパラメータ。奥へ進んだチャンク距離が増えるほど世界温度を下げる。
-// 北極点へ近づくほど寒くなる惑星像を表す。値は実プレイで調整する。
+// 奥地ほど寒い緯度勾配のパラメータ。奥へ進んだチャンク距離が増えるほど世界温度を下げる。値は実プレイで調整する。
 const (
 	// latitudeColdPerChunk は1チャンク奥へ進むごとに下がる℃
 	latitudeColdPerChunk = 1
@@ -132,9 +131,8 @@ func floorDivInt(a, b int) int {
 	return q
 }
 
-// latitudeCold は帯ローカル座標 y に対応する緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
-// 北へ進んだチャンク距離が増えるほど大きくなる。惑星の基礎的な寒さはステージの基本気温が担い、
-// 緯度勾配は「そこからさらに北ほど寒い」加算分だけを表す。
+// latitudeCold は帯ローカル座標 y の緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
+// 基礎的な寒さはステージの基本気温が担い、緯度勾配は北ほど寒い加算分だけを表す。
 func latitudeCold(world w.World, y consts.Tile) int {
 	return latitudeColdForDepth(NorthDepthChunks(world, y))
 }

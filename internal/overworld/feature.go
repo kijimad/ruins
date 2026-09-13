@@ -9,7 +9,7 @@ import (
 // 分け、リージョンごとに、地物を置く1チャンクを (seed, リージョン) から決定的に選ぶ。この選ばれた
 // 1チャンクを「当選チャンク」と呼ぶ。抽選のメタファーだが乱数でなく座標の純関数で、実行のたびに
 // 同じチャンクが当たる。X は帯が有界なので分割せず、リージョンは帯の全列を覆う。よってリージョンは
-// cols(横) × Spacing(縦) チャンクの横帯で、そこにちょうど1つ地物が出る。「1リージョンに高々1つ」と
+// 横 cols × 縦 Spacing チャンクの横帯で、そこにちょうど1つ地物が出る。「1リージョンに高々1つ」と
 // 最小間隔 Separation を O(1) で保証する。密な散布が要る地物が現れたら Scatter モードをここに拡張する。
 type Placement struct {
 	Spacing    consts.Chunk // リージョンの Y 高。おおよそ Spacing チャンクに1つ当選する
@@ -17,7 +17,7 @@ type Placement struct {
 	Salt       uint64       // 地物の種類ごとに相関を切る
 }
 
-// At は c がこの配置の当選チャンクかを返す。(runSeed, 座標, 帯の列数) の純関数で、
+// At は c がこの配置の当選チャンクかを返す。runSeed・座標・列数の純関数で、
 // 近傍のチャンクを生成せずに判定できる。
 //
 // Y はリージョンで割り、オフセットを [0, Spacing-Separation) から引く。X は帯が [0, cols) に
@@ -61,7 +61,7 @@ type chunkGeom struct {
 	tiles            *tileIndex
 }
 
-// feature は1種類の地物。c がその地物に該当するかを (runSeed, 座標, cols) の純関数で判定し、
+// feature は1種類の地物。c がその地物に該当するかを runSeed・座標・cols の純関数で判定し、
 // 該当すれば中身を配置する。種類の追加は実装を1つ足すことに還元し、分岐は増やさない。
 type feature interface {
 	place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error
@@ -91,7 +91,7 @@ const (
 )
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
-// 判定はすべて (runSeed, 座標, cols) の純関数で、開始チャンクの特例は持たない。
+// 判定はすべて runSeed・座標・cols の純関数で、開始チャンクの特例は持たない。
 func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
 	g := chunkGeom{
 		offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,
