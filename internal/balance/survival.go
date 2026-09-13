@@ -21,9 +21,16 @@ func DaysUntilHungerEmpty() float64 {
 // DaysUntilStarving は満腹から栄養失調に入るまでの日数を返す。空腹度が飢餓しきい値を割ると栄養失調になる。
 // しきい値は components の単一出典 HungerStarvingRatio を参照し、ゲーム側の変更に追従する。
 func DaysUntilStarving() float64 {
-	lost := float64(gc.DefaultMaxHunger) * (1 - gc.HungerStarvingRatio)
-	turns := lost / hungerDrainPerTurn()
-	return turns / float64(gc.TurnsPerDay)
+	return daysUntilStarvingWith(float64(gc.DefaultMaxHunger), float64(gc.HungerDrainTurns), float64(gc.TurnsPerDay))
+}
+
+// daysUntilStarvingWith は満腹度・減耗ターン・1日ターンを引数で受ける DaysUntilStarving の本体。
+// 感度分析がこれらのつまみを摂動して弾力性を測るために公開窓でなく内部関数として分ける。
+// 減耗は1ターンあたり 1/drainTurns なので、栄養失調まで失う量に drainTurns を掛けるとターン数になる。
+func daysUntilStarvingWith(maxHunger, drainTurns, turnsPerDay float64) float64 {
+	lost := maxHunger * (1 - gc.HungerStarvingRatio)
+	turns := lost * drainTurns
+	return turns / turnsPerDay
 }
 
 // HPDrainPerTurnAtBlood は血液量から失血による1ターンのHP減少量を返す。状態異常→血液低下→HP減の
@@ -56,8 +63,12 @@ func SleepTurnsToFullRecover() float64 {
 // 必要があるかの割合を返す。起床は毎ターン FatigueGainPerTurn 溜まり、睡眠は基準 Quality で
 // FatigueRecoverPerTurn 抜けるので、gain/(gain+recover) が定常の睡眠時間比になる。
 func SleepTimeFraction() float64 {
-	gain := float64(gc.FatigueGainPerTurn)
-	recoverRate := float64(systems.FatigueRecoverPerTurn)
+	return sleepTimeFractionWith(float64(gc.FatigueGainPerTurn), float64(systems.FatigueRecoverPerTurn))
+}
+
+// sleepTimeFractionWith は起床の蓄積量と睡眠の回復量を引数で受ける SleepTimeFraction の本体。
+// 感度分析が回復量を摂動して弾力性を測るために分ける。
+func sleepTimeFractionWith(gain, recoverRate float64) float64 {
 	return gain / (gain + recoverRate)
 }
 

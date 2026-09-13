@@ -221,16 +221,8 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "| WOOD 10kg | %d |\n", FuelBurnTurns(oapi.WOOD, 10))
 	fmt.Fprintf(&b, "\n")
 
-	// 感度行列。つまみ×代表日のヤコビアン
-	fmt.Fprintf(&b, "## 感度行列（各つまみ+10%%、廃墟の戦力比変化率）\n\n")
-	fmt.Fprintf(&b, "**概要**: どのつまみがどの時期にどれだけ効くか。各武器のダメージを+10%%したとき、廃墟の戦力比が day1・day10・day20 でどれだけ変わるかを示す。\n")
-	fmt.Fprintf(&b, "変化率の絶対値が大きいほど強い結合で、目標帯を外れたときにどのつまみを引くべきかの手掛かりになる。整数ダメージの丸めで小さな値は表に出ないことがある。\n\n")
-	sensDays := []int{1, 10, 20}
-	fmt.Fprintf(&b, "| つまみ | day1 | day10 | day20 |\n|---|---:|---:|---:|\n")
-	for _, s := range SensitivityMatrix(master, sensDays) {
-		fmt.Fprintf(&b, "| %s | %+.1f%% | %+.1f%% | %+.1f%% |\n", s.Knob, s.Deltas[0]*100, s.Deltas[1]*100, s.Deltas[2]*100)
-	}
-	fmt.Fprintf(&b, "\n")
+	// 感度行列。つまみ×メトリクスの横断ヤコビアン
+	renderSensitivityMatrix(&b, master)
 
 	// ビルド別のブレ。静的下限に加え、スキル・装備・バフで戦力が振れる幅を見る
 	if builds, err := RepresentativeBuilds(master); err == nil {
@@ -295,4 +287,33 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	}
 	fmt.Fprintf(&b, "\n")
 	return b.String(), nil
+}
+
+// renderSensitivityMatrix はドメイン横断の感度行列を markdown で書き出す。RenderBaselineMarkdown の
+// 複雑度を抑えるため別関数にする。
+func renderSensitivityMatrix(b *strings.Builder, master oapi.Raws) {
+	fmt.Fprintf(b, "## 感度行列（各つまみ+10%%、ドメイン横断）\n\n")
+	fmt.Fprintf(b, "**概要**: どのつまみがどのメトリクスをどれだけ動かすか。各つまみを+10%%したときの各メトリクスの変化率。\n")
+	fmt.Fprintf(b, "多くはブロック対角、すなわち各つまみは自分のドメインだけを動かす。横断するのは1日ターン数のような共通の分母だけ。整数丸めで小さな値は表に出ないことがある。\n\n")
+	fmt.Fprintf(b, "| つまみ(ドメイン)")
+	for _, m := range SensitivityMetricNames {
+		fmt.Fprintf(b, " | %s", m)
+	}
+	fmt.Fprintf(b, " |\n|---")
+	for range SensitivityMetricNames {
+		fmt.Fprintf(b, "|---:")
+	}
+	fmt.Fprintf(b, "|\n")
+	for _, k := range CrossDomainSensitivity(master) {
+		fmt.Fprintf(b, "| %s(%s)", k.Knob, k.Domain)
+		for _, c := range k.Cells {
+			if c.PctChange == 0 {
+				fmt.Fprintf(b, " | -")
+			} else {
+				fmt.Fprintf(b, " | %+.1f%%", c.PctChange)
+			}
+		}
+		fmt.Fprintf(b, " |\n")
+	}
+	fmt.Fprintf(b, "\n")
 }

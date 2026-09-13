@@ -64,66 +64,6 @@ func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) 
 	return (lo + hi) / 2, true
 }
 
-// SensitivityMatrixRow は1つのつまみを+10%したときの、代表日ごとの戦力比の変化率。
-// つまみ×メトリクスのヤコビアンの1行で、変化率の絶対値が大きいほど強い結合。関係グラフの矢印の重み。
-type SensitivityMatrixRow struct {
-	Knob   string    // 動かしたつまみ
-	Days   []int     // 代表日
-	Deltas []float64 // 各日の変化率。(Plus10-Base)/Base。Days と同順
-}
-
-// sensitivityKnobs は感度表に載せる近接武器アイテム。序盤〜中盤の戦力比に効く敵武器とプレイヤー武器。
-var sensitivityKnobs = []string{"bite", "cleaver", "flame_attack", "bare_hands"}
-
-// ruinsPowerRatiosAtDays は現行 master の廃墟カーブで、代表日ごとの戦力比を返す。感度の測定に使う。
-func ruinsPowerRatiosAtDays(master oapi.Raws, repDays []int) []float64 {
-	out := make([]float64, len(repDays))
-	player, err := LoadCombatantFromMember(master, BaselinePlayer)
-	if err != nil {
-		return out
-	}
-	weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
-	if err != nil {
-		return out
-	}
-	maxDay := 0
-	for _, d := range repDays {
-		if d > maxDay {
-			maxDay = d
-		}
-	}
-	curve, err := DifficultyCurve(master, player, weapon, BaselineAreaTable, maxDay)
-	if err != nil {
-		return out
-	}
-	for i, d := range repDays {
-		if d >= 1 && d <= len(curve) {
-			out[i] = curve[d-1].PowerRatio
-		}
-	}
-	return out
-}
-
-// SensitivityMatrix は各つまみを+10%したときの、代表日ごとの廃墟戦力比の変化率を返す。
-// つまみ×代表日のヤコビアンで、どのつまみがどの時期にどれだけ効くかを定量化する。
-// 単変数探索が day20 しか合わせられないのに対し、複数日への効き方の違いをここで見る。
-func SensitivityMatrix(master oapi.Raws, repDays []int) []SensitivityMatrixRow {
-	base := ruinsPowerRatiosAtDays(master, repDays)
-	rows := make([]SensitivityMatrixRow, 0, len(sensitivityKnobs))
-	for _, knob := range sensitivityKnobs {
-		var plus []float64
-		withScaledMeleeDamage(master, knob, 1.1, func() { plus = ruinsPowerRatiosAtDays(master, repDays) })
-		deltas := make([]float64, len(repDays))
-		for i := range repDays {
-			if i < len(base) && i < len(plus) && base[i] != 0 {
-				deltas[i] = (plus[i] - base[i]) / base[i]
-			}
-		}
-		rows = append(rows, SensitivityMatrixRow{Knob: knob, Days: repDays, Deltas: deltas})
-	}
-	return rows
-}
-
 // withScaledMeleeDamages は複数アイテムの近接ダメージを同時に factor 倍した状態で fn を呼び、
 // 呼び出し後にすべて元へ戻す。単変数の withScaledMeleeDamage を多変数へ広げたもの。
 // 単一 master を並行変更すると退避・復元が競合する点は withScaledMeleeDamage と同じ。
