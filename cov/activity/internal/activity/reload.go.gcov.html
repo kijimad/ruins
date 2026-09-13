@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.4&nbsp;%</td>
+            <td class="headerCovTableEntryMed">87.0&nbsp;%</td>
             <td class="headerCovTableEntry">92</td>
-            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntry">80</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-12 15:11:52</td>
+            <td class="headerValue">2026-09-13 01:14:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -206,16 +206,16 @@
 <span id="L144"><span class="lineNum">     144</span>              : </span>
 <span id="L145"><span class="lineNum">     145</span>              : // Canceled はリロードキャンセル時の処理</span>
 <span id="L146"><span class="lineNum">     146</span>              : func (rb *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 Markup(query.T(world, &quot;interrupted reloading&quot;)).</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 Log()</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         log.Debug(&quot;reload canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 Markup(query.T(world, &quot;interrupted reloading&quot;)).</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         log.Debug(&quot;reload canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
 <span id="L154"><span class="lineNum">     154</span>              : // calcEffortPerTurn は1ターンあたりの装填工数を計算する</span>
 <span id="L155"><span class="lineNum">     155</span>              : func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, world w.World) int {</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC tlaBgGNC">           1 :         effort := BaseReloadEffort</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         effort := BaseReloadEffort</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L158"><span class="lineNum">     158</span>              :         // DEXを加算</span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         if world.Components.Abilities.Has(actor) {</span></span>

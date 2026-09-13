@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (86.0%)</option>
+				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (89.5%)</option>
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
@@ -81,21 +81,21 @@
 				
 				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (89.9%)</option>
 				
-				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (67.3%)</option>
+				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (88.0%)</option>
 				
-				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (87.4%)</option>
+				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (90.8%)</option>
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/rest.go (93.1%)</option>
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (91.1%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/activity/sleep.go (65.5%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/activity/sleep.go (76.4%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/activity/sleep_conditions.go (100.0%)</option>
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/activity/talk.go (87.5%)</option>
 				
-				<option value="file20">github.com/kijimaD/ruins/internal/activity/use_effect.go (63.2%)</option>
+				<option value="file20">github.com/kijimaD/ruins/internal/activity/use_effect.go (73.7%)</option>
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/activity/use_item.go (84.6%)</option>
 				
@@ -923,7 +923,7 @@ func perTurnAP(actor ecs.Entity, world w.World) int {
 func CanInterrupt(comp *gc.Activity) bool {
         <span class="cov8" title="1">behavior, err := GetBehavior(comp.BehaviorName)
         if err != nil </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">return behavior.Info().Interruptible &amp;&amp; comp.State == gc.ActivityStateRunning</span>
 }
@@ -932,7 +932,7 @@ func CanInterrupt(comp *gc.Activity) bool {
 func CanResume(comp *gc.Activity) bool {
         <span class="cov8" title="1">behavior, err := GetBehavior(comp.BehaviorName)
         if err != nil </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">return behavior.Info().Resumable &amp;&amp; comp.State == gc.ActivityStatePaused</span>
 }
@@ -3744,22 +3744,22 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は読書開始時の処理を実行する
 func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-        <span class="cov0" title="0">p, ok := comp.Params.(*gc.ReadParams)
+        <span class="cov8" title="1">p, ok := comp.Params.(*gc.ReadParams)
         if !ok </span>{
-                <span class="cov0" title="0">return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
 
-        <span class="cov0" title="0">book := getBook(p.Target, world)
+        <span class="cov8" title="1">book := getBook(p.Target, world)
         if book == nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("book component not found")
+                <span class="cov8" title="1">return fmt.Errorf("book component not found")
 </span>        }
 
-        <span class="cov0" title="0">name := query.GetEntityName(p.Target, world)
+        <span class="cov8" title="1">name := query.GetEntityName(p.Target, world)
         gamelog.New(query.GetGameLog(world)).
                 Markup(query.T(world, "started reading \"%s\"", name)).
                 Log()
 </span>
-        <span class="cov0" title="0">log.Debug("reading started", "actor", actor, "book", name, "effort", book.Effort.Max)
+        <span class="cov8" title="1">log.Debug("reading started", "actor", actor, "book", name, "effort", book.Effort.Max)
         return nil</span>
 }
 
@@ -3812,27 +3812,27 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.ReadParams)
         if !ok </span>{
-                <span class="cov0" title="0">return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
 
-        <span class="cov0" title="0">book := getBook(p.Target, world)
+        <span class="cov8" title="1">book := getBook(p.Target, world)
         name := query.GetEntityName(p.Target, world)
 </span>
-        <span class="cov0" title="0">if book != nil &amp;&amp; book.IsCompleted() </span>{
-                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+        <span class="cov8" title="1">if book != nil &amp;&amp; book.IsCompleted() </span>{
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                         Markup(query.T(world, "finished reading \"%s\"", name)).
                         Log()
 </span>
                 // 読了した本を消費する
-                <span class="cov0" title="0">if err := lifecycle.ChangeItemCount(world, p.Target, -1); err != nil </span>{
+                <span class="cov8" title="1">if err := lifecycle.ChangeItemCount(world, p.Target, -1); err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to consume book: %w", err)
 </span>                }
         }
 
-        <span class="cov0" title="0">log.Debug("reading finished", "actor", actor, "book", name)
+        <span class="cov8" title="1">log.Debug("reading finished", "actor", actor, "book", name)
         return nil</span>
 }
 
@@ -3840,11 +3840,11 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 // 本が消えたことによる中断もあるため、名前は本が残っている場合だけ出す
 func (rb *ReadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">if world.Components.Player.Has(actor) </span>{
-                <span class="cov0" title="0">message := query.T(world, "interrupted reading")
+                <span class="cov8" title="1">message := query.T(world, "interrupted reading")
                 if p, ok := comp.Params.(*gc.ReadParams); ok &amp;&amp; world.ECS.Alive(p.Target) </span>{
-                        <span class="cov0" title="0">message = query.T(world, "interrupted reading \"%s\"", query.GetEntityName(p.Target, world))
+                        <span class="cov8" title="1">message = query.T(world, "interrupted reading \"%s\"", query.GetEntityName(p.Target, world))
 </span>                }
-                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                         Markup(message).
                         Log()</span>
         }
@@ -4062,7 +4062,7 @@ func (rb *ReloadBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) er
 
 // Canceled はリロードキャンセル時の処理
 func (rb *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-        <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+        <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                 Markup(query.T(world, "interrupted reloading")).
                 Log()
         log.Debug("reload canceled", "actor", actor, "reason", comp.CancelReason)
@@ -4579,15 +4579,15 @@ func (sb *SleepBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 
 // Finish は起床時に Sleeping を外す。Ark の Remove は不在で panic するので Has で守る
 func (sb *SleepBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-        <span class="cov0" title="0">if world.Components.Sleeping.Has(actor) </span>{
-                <span class="cov0" title="0">world.Components.Sleeping.Remove(actor)
+        <span class="cov8" title="1">if world.Components.Sleeping.Has(actor) </span>{
+                <span class="cov8" title="1">world.Components.Sleeping.Remove(actor)
 </span>        }
-        <span class="cov0" title="0">if world.Components.Player.Has(actor) </span>{
-                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+        <span class="cov8" title="1">if world.Components.Player.Has(actor) </span>{
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                         Markup(query.T(world, "Woke up refreshed.")).
                         Log()
 </span>        }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // Canceled は中断時に Sleeping を外す
@@ -4599,7 +4599,7 @@ func (sb *SleepBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.W
                 <span class="cov8" title="1">world.Components.Sleeping.Remove(actor)
 </span>        }
         <span class="cov8" title="1">if world.Components.Player.Has(actor) </span>{
-                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                         Markup(query.T(world, "Sleep interrupted: %s", query.T(world, reason))).
                         Log()
 </span>        }
@@ -4900,7 +4900,7 @@ func (damageEffect) present(world w.World, item ecs.Entity) bool {
 func (damageEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov0" title="0">return nil }</span>
 
 func (damageEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
-        <span class="cov0" title="0">gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)
+        <span class="cov8" title="1">gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)
         return nil
 </span>}
 
