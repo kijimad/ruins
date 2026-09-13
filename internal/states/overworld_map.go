@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -15,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -197,47 +197,16 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		originX = 8
 	}
 	const originY consts.ScreenPixel = 40
-	cellCenter := func(col, row consts.Chunk) (consts.ScreenPixel, consts.ScreenPixel) {
-		x := originX + consts.ScreenPixel(col)*cell
-		y := originY + consts.ScreenPixel(row)*cell
-		return x + (cell-1)/2, y + (cell-1)/2
-	}
-	for row := range st.view.Cells {
-		for col, c := range st.view.Cells[row] {
-			// 未開放チャンクは描かず地を透かしてフォグにする。探索で徐々に開く
-			if !c.Discovered {
-				continue
-			}
-			r := c.Glyph
-			x := originX + consts.ScreenPixel(col)*cell
-			y := originY + consts.ScreenPixel(row)*cell
-			// 開放済みチャンクは色を塗り、種別の文字を重ねて記号でも読めるようにする。
-			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
-			vector.FillRect(dst, float32(x), float32(y), float32(cell-1), float32(cell-1), glyphColor(r), false)
-			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
-			// 道が通るチャンクは接続方角へ線分を引く。地形塗りの上、記号の下に重ねる
-			if c.Road.Any() {
-				drawCellRoad(dst, x, y, cell, cx, cy, c.Road)
-			}
-			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)
-		}
-	}
-	// キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも
-	// 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く
-	for _, c := range st.view.CubeCells {
-		cx, cy := cellCenter(c.X, c.Y)
-		for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
-			drawCellGlyph(consts.IconCube, cx+off[0], cy+off[1], theme.OverworldMapCubeOutline)
-		}
-		drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)
-	}
-	// 現在地マーカー。プレイヤーはナビのポインタで示し、カメラ前方へ回して位置と向きを兼ねる。地図は
-	// 北=上なので指す向きがそのまま世界の方角になる。location-arrow は北東向きなので -π/4 で北へ補正し -yaw で前方へ回す
-	if st.view.PlayerCell.X >= 0 {
-		mcx, mcy := cellCenter(st.view.PlayerCell.X, st.view.PlayerCell.Y)
-		angle := -st.facing.Yaw() - math.Pi/4
-		uicore.NewEbitenCanvas(dst).DrawGlyphRotated(image.Pt(int(mcx), int(mcy)), consts.IconLocationArrow, face, angle, theme.TextAccent)
-	}
+	// 格子・道・キューブ・現在地はミニマップと同じ hud.DrawMapGrid で描く。全画面図は常に記号を出す
+	hud.DrawMapGrid(uicore.NewEbitenCanvas(dst), st.view, hud.MapGridStyle{
+		OriginX:      int(originX),
+		OriginY:      int(originY),
+		CellPx:       int(cell),
+		MinGlyphPx:   0,
+		GlyphFace:    glyphFace,
+		MarkerFace:   face,
+		PlayerFacing: st.facing,
+	})
 
 	st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)
 }
@@ -259,30 +228,7 @@ func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string,
 	drawText("N / Esc to close", 8, y+26, theme.TextPrimary)
 }
 
-// drawCellRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。フォントに
-// 罫線素片が無いので記号でなく線分で方向を見せる。各方角の矩形は中央で重なるが同色なので無害。
-func drawCellRoad(dst *ebiten.Image, x, y, cell, cx, cy consts.ScreenPixel, road overworld.RoadDir) {
-	t := max(consts.ScreenPixel(2), cell/5)
-	half := float32(t) / 2
-	left, top := float32(x), float32(y)
-	right, bottom := float32(x+cell-1), float32(y+cell-1)
-	cxF, cyF := float32(cx), float32(cy)
-	col := theme.OverworldMapRoad
-	if road&overworld.RoadW != 0 {
-		vector.FillRect(dst, left, cyF-half, (cxF+half)-left, float32(t), col, false)
-	}
-	if road&overworld.RoadE != 0 {
-		vector.FillRect(dst, cxF-half, cyF-half, right-(cxF-half), float32(t), col, false)
-	}
-	if road&overworld.RoadN != 0 {
-		vector.FillRect(dst, cxF-half, top, float32(t), (cyF+half)-top, col, false)
-	}
-	if road&overworld.RoadS != 0 {
-		vector.FillRect(dst, cxF-half, cyF-half, float32(t), bottom-(cyF-half), col, false)
-	}
-}
-
-// glyphColor は種別文字に対応する色を返す。既知の記号は overworld の色定義を引き、
+// glyphColor は凡例の色見本に使う種別記号の色を返す。既知の記号は overworld の色定義を引き、
 // 凡例に出ない未知の記号は灰色にする。既定色は theme に依存するのでここで決める。
 func glyphColor(r rune) color.RGBA {
 	if c, ok := overworld.GlyphColor(r); ok {

@@ -3,10 +3,8 @@ package hud
 import (
 	"image"
 	"image/color"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/overworld"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -61,43 +59,16 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	offX := x0 + (width-cellPx*cols)/2
 	offY := y0 + (height-cellPx*rows)/2
 
-	// 地形色のセルを敷く。セルが十分大きいときだけ種別記号を重ねる。
-	// 未開放のチャンクは描かず、パネル背景のまま伏せてフォグにする。探索で徐々に開く
-	drawGlyph := cellPx >= data.Config.MinGlyphPx
-	for row := range data.View.Cells {
-		for col, cell := range data.View.Cells[row] {
-			if !cell.Discovered {
-				continue
-			}
-			cx := offX + col*cellPx
-			cy := offY + row*cellPx
-			cv.FillRect(image.Rect(cx, cy, cx+cellPx, cy+cellPx), macroGlyphColor(cell.Glyph))
-			// 道が通るチャンクは接続方角へ線分を引く。縮小地図でも街道の走りが読める
-			if cell.Road.Any() {
-				drawMacroRoad(cv, cx, cy, cellPx, cell.Road)
-			}
-			if drawGlyph {
-				drawCenteredGlyph(cv, string(cell.Glyph), m.face, cx, cy, cellPx, theme.OverworldMapGlyphText)
-			}
-		}
-	}
-
-	// キューブマーカー。地形色を残すためセルより内側に水色の四角を置く
-	for _, c := range data.View.CubeCells {
-		cx := offX + int(c.X)*cellPx
-		cy := offY + int(c.Y)*cellPx
-		inset := cellPx / 4
-		cv.FillRect(image.Rect(cx+inset, cy+inset, cx+cellPx-inset, cy+cellPx-inset), theme.OverworldMapCubeMarker)
-	}
-
-	// 現在地マーカー。プレイヤーはナビのポインタで示し、カメラ前方へ回して位置と向きを兼ねる。地図は
-	// 北=上なので指す向きがそのまま世界の方角になる。location-arrow は北東向きなので -π/4 で北へ補正し -yaw で前方へ回す
-	if data.View.PlayerCell.X >= 0 {
-		cx := offX + int(data.View.PlayerCell.X)*cellPx + cellPx/2
-		cy := offY + int(data.View.PlayerCell.Y)*cellPx + cellPx/2
-		angle := -data.PlayerFacing.Yaw() - math.Pi/4
-		cv.DrawGlyphRotated(image.Pt(cx, cy), consts.IconLocationArrow, m.markerFace, angle, theme.TextAccent)
-	}
+	// 格子・道・キューブ・現在地は全画面図と同じ DrawMapGrid で描く。ミニマップは記号表示の閾値を持つ
+	DrawMapGrid(cv, data.View, MapGridStyle{
+		OriginX:      offX,
+		OriginY:      offY,
+		CellPx:       cellPx,
+		MinGlyphPx:   data.Config.MinGlyphPx,
+		GlyphFace:    m.face,
+		MarkerFace:   m.markerFace,
+		PlayerFacing: data.PlayerFacing,
+	})
 }
 
 // macroGlyphColor は種別文字の色を返す。既知の記号は overworld の色定義を引き、未知は灰色にする。
@@ -106,27 +77,6 @@ func macroGlyphColor(r rune) color.RGBA {
 		return c
 	}
 	return theme.OverworldMapUnknownGlyph
-}
-
-// drawMacroRoad は全画面図 drawCellRoad と同じ道の線分を、縮小地図の整数座標で描く。太さは cell/4・
-// 最低 1px とし、セルが小さくても道が消えないようにする。全画面図の cell/5・最低 2px とは縮尺ぶん差を付ける。
-func drawMacroRoad(cv uicore.Canvas, cx, cy, cell int, road overworld.RoadDir) {
-	t := max(cell/4, 1)
-	half := t / 2
-	ccx, ccy := cx+cell/2, cy+cell/2
-	col := theme.OverworldMapRoad
-	if road&overworld.RoadW != 0 {
-		cv.FillRect(image.Rect(cx, ccy-half, ccx+half, ccy-half+t), col)
-	}
-	if road&overworld.RoadE != 0 {
-		cv.FillRect(image.Rect(ccx-half, ccy-half, cx+cell, ccy-half+t), col)
-	}
-	if road&overworld.RoadN != 0 {
-		cv.FillRect(image.Rect(ccx-half, cy, ccx-half+t, ccy+half), col)
-	}
-	if road&overworld.RoadS != 0 {
-		cv.FillRect(image.Rect(ccx-half, ccy-half, ccx-half+t, cy+cell), col)
-	}
 }
 
 // drawCenteredGlyph はセルの中央に1文字を描く。DrawText は左上基準なので、文字の寸法を測って
