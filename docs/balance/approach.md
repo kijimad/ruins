@@ -30,10 +30,10 @@
 | 戦闘・装備 | 能力+武器−防御→ダメージ、命中、TTK | A | 戦力比 PowerRatio、ExpectedTTK、ExpectedDamagePerAttack | `formula`（CalcHitRate/ApplyCritical/CalcHP）→ `balance/metrics.go` | 実装済み |
 | サバイバル（飢え・寒さ） | 満腹→減耗、体温→低体温 | A | DaysUntilStarving/DaysUntilHungerEmpty、TurnsToHypothermia | `components/hunger.go`、`systems/temperature.go`（CalcBodyTempRate/BodyTempColdBand）→ `balance/survival.go` | 実装済み |
 | サバイバル（連鎖） | 状態異常→血液→HP | B | 血液量ごとのHP減 | `components.BloodLossHPDrainRate` → `balance/survival.go` | 実装済み |
-| 疲労・睡眠 | 経過→疲労 | A | 疲労/過労までの日数 | `components.FatigueTiredRatio` 他 → `balance/survival.go` | 実装済み(睡眠回復は今後) |
+| 疲労・睡眠 | 経過→疲労、睡眠→回復 | A | 疲労/過労までの日数、満タン回復までの睡眠ターン、釣り合いに要する睡眠時間の割合 | `components.FatigueTiredRatio`・`systems.FatigueRecoverPerTurn` → `balance/survival.go` | 実装済み |
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
 | 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf` → `balance/logistics.go` | 実装済み |
-| 経済・終端 | 競売の手数料・送料→手取り | A+C | 競売の手取り率(純)。探索1回の収支はC | `query.AuctionNetProceeds`(手取り) と itemTable→group→value(loot期待) → `balance/economy.go`。探索1回の収支はC | 純部分実装済み |
+| 経済・終端 | 競売の手数料・送料→手取り、loot→手取り | A+C | 競売の手取り率、1個あたりの期待手取り(純)。探索1回の総収支はC | `query.AuctionNetProceeds`・itemTable→group→value/weight → `balance/economy.go`。移動タイル数を要する総収支はC | 実装済み。総収支の集計のみC |
 
 補足。競売は毎ターン確率 0.6 で入札が延びる確率過程（`query/auction.go` AuctionBidChance）。手取りの定常近似は A で出せるが、実際の落札額分布は C で測る。
 
@@ -69,6 +69,6 @@
 
 ## 現状と次
 
-- 実装済み: 戦闘・生存（飢え/寒さ/血液→HP/疲労）・物流・経済（競売手取り）の各導出。凍結ゲート・感度・単変数探索。全ドメインが baseline.md に載る。
-- 残る発展: 睡眠による疲労回復量、経済の探索1回の収支（C・モンテカルロ）、多目的 Pareto 探索。いずれも土台の上に足せる。
-- 運用: パラメータ調整は baseline.md の差分と凍結ゲートで回す。目標帯を人間が決め、探索で raw 値を寄せる。
+- 実装済み: 戦闘・生存（飢え/寒さ/血液→HP/疲労/睡眠回復）・物流・経済（競売手取り・1個あたり期待手取り）の各導出。凍結ゲート・感度・単変数探索・多目的Pareto探索。全ドメインが baseline.md に載る。
+- 残る発展: 探索1回の総収支。1個あたりの期待手取りは閉形式で出したが、総収支はこれに拾える個数と移動燃料を掛ける。1回の移動タイル数はコードにない設計値なので閉形式では導けず、モンテカルロと設計値の領域に残す。
+- 運用: パラメータ調整は baseline.md の差分と凍結ゲートで回す。目標帯を人間が決め、探索で raw 値を寄せる。多目的Pareto探索は複数日のトレードオフを非劣集合で見せる。

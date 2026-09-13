@@ -45,3 +45,15 @@ func TestDaysUntilTired_手計算と一致(t *testing.T) {
 	// 過労 0.8 × 2000 / 1 / 1500 = 1.066...日
 	assert.InDelta(t, 1.067, DaysUntilExhausted(), 0.01)
 }
+
+func TestSleepTurnsToFullRecover_手計算と一致(t *testing.T) {
+	t.Parallel()
+	// 最大2000 / 回復3per turn = 666.6...ターン。ゲームは整数回復で実際は切り上げ667ターン。
+	assert.InDelta(t, 666.667, SleepTurnsToFullRecover(), 0.01)
+}
+
+func TestSleepTimeFraction_手計算と一致(t *testing.T) {
+	t.Parallel()
+	// 起床蓄積1、睡眠回復3なので、釣り合いに要する睡眠時間比は 1/(1+3)=0.25。
+	assert.InDelta(t, 0.25, SleepTimeFraction(), 1e-9)
+}

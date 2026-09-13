@@ -119,6 +119,8 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "| 満腹度が尽きるまでの日数 | %.2f |\n", DaysUntilHungerEmpty())
 	fmt.Fprintf(&b, "| 睡眠なしで疲労までの日数 | %.2f |\n", DaysUntilTired())
 	fmt.Fprintf(&b, "| 睡眠なしで過労までの日数 | %.2f |\n", DaysUntilExhausted())
+	fmt.Fprintf(&b, "| 満タンから睡眠で回復し切るターン(地べた) | %.0f |\n", SleepTurnsToFullRecover())
+	fmt.Fprintf(&b, "| 釣り合いに要する睡眠時間の割合 | %.0f%% |\n", SleepTimeFraction()*100)
 	fmt.Fprintf(&b, "\n| 実効温度(℃) | 低体温までのターン |\n|---:|---:|\n")
 	for _, temp := range []int{-20, -10, 0, 5, 10, 15} {
 		fmt.Fprintf(&b, "| %d | %.0f |\n", temp, TurnsToHypothermia(temp))
@@ -156,6 +158,16 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 			ExpectedLootValue(master, "forest", danger),
 			ExpectedLootValue(master, "cave", danger))
 	}
+
+	fmt.Fprintf(&b, "\n手取り側。上の額面から手数料と発送料を引いた1個あたりの期待手取り。発送料は重量比例なので額面より縮む。\n")
+	fmt.Fprintf(&b, "探索1回の総収支はこれに拾える個数と移動燃料を掛けて出るが、1回の移動タイル数はコードにない設計値なので閉形式では出さない。\n\n")
+	fmt.Fprintf(&b, "| 危険度 | 廃墟 | 森 | 洞窟 |\n|---:|---:|---:|---:|\n")
+	for _, danger := range []int{1, 3, 5, 8} {
+		fmt.Fprintf(&b, "| %d | %.0f | %.0f | %.0f |\n", danger,
+			ExpectedNetLootValue(master, "ruins_area", danger),
+			ExpectedNetLootValue(master, "forest", danger),
+			ExpectedNetLootValue(master, "cave", danger))
+	}
 	fmt.Fprintf(&b, "\n")
 
 	// 物流
@@ -180,6 +192,25 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "| つまみ | 現状 | +10%% | 変化 |\n|---|---:|---:|---:|\n")
 	for _, s := range SensitivityDay20(master) {
 		fmt.Fprintf(&b, "| %s | %.2f | %.2f | %+.1f%% |\n", s.Knob, s.Base, s.Plus10, s.DeltaRatio*100)
+	}
+	fmt.Fprintf(&b, "\n")
+
+	// 多目的探索。序盤・中盤・終盤の目標逸脱を同時に小さくする武器倍率の非劣集合
+	fmt.Fprintf(&b, "## 多目的探索（Pareto 前線）\n\n")
+	fmt.Fprintf(&b, "**概要**: プレイヤー武器 bare_hands と敵武器 bite のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n")
+	fmt.Fprintf(&b, "単変数探索は day20 しか合わせられないが、複数日はトレードオフになる。どれかを詰めると別が緩む非劣な組だけを載せる。逸脱は小さいほど目標に近い。\n\n")
+	paretoKnobs := []string{BaselineWeapon, "bite"}
+	front := ParetoFront(master, paretoKnobs, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})
+	sort.Slice(front, func(i, j int) bool {
+		if front[i].Factors[paretoKnobs[0]] != front[j].Factors[paretoKnobs[0]] {
+			return front[i].Factors[paretoKnobs[0]] < front[j].Factors[paretoKnobs[0]]
+		}
+		return front[i].Factors[paretoKnobs[1]] < front[j].Factors[paretoKnobs[1]]
+	})
+	fmt.Fprintf(&b, "| bare_hands倍率 | bite倍率 | day1逸脱 | day10逸脱 | day20逸脱 |\n|---:|---:|---:|---:|---:|\n")
+	for _, p := range front {
+		fmt.Fprintf(&b, "| %.1f | %.1f | %.2f | %.2f | %.2f |\n",
+			p.Factors[paretoKnobs[0]], p.Factors[paretoKnobs[1]], p.Deviations[0], p.Deviations[1], p.Deviations[2])
 	}
 	fmt.Fprintf(&b, "\n")
 	return b.String(), nil

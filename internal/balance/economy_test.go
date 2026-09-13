@@ -26,3 +26,15 @@ func TestExpectedLootValue_危険度で上がり正の値(t *testing.T) {
 	assert.Greater(t, d8, d1, "危険度が上がると期待価値も上がる")
 	assert.Equal(t, 0.0, ExpectedLootValue(master, "no_such_table", 1), "不明テーブルは0")
 }
+
+func TestExpectedNetLootValue_手取りは額面より小さく正(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	face := ExpectedLootValue(master, "ruins_area", 8)
+	net := ExpectedNetLootValue(master, "ruins_area", 8)
+	weightKg := ExpectedLootWeightKg(master, "ruins_area", 8)
+	assert.Positive(t, weightKg, "期待重量は正")
+	assert.Positive(t, net, "手取りは正")
+	assert.Less(t, net, face, "手数料と発送料を引くので手取りは額面より小さい")
+	assert.Equal(t, 0.0, ExpectedNetLootValue(master, "no_such_table", 1), "不明テーブルは0")
+}

@@ -44,6 +44,23 @@ func DaysUntilExhausted() float64 {
 	return turns / float64(gc.TurnsPerDay)
 }
 
+// SleepTurnsToFullRecover は最大まで溜まった疲労を基準 Quality の寝床で睡眠して回復し切るのに要する
+// ターン数を返す。回復レートは systems.FatigueRecoverPerTurn の単一出典を参照する。寝具 Quality が
+// 高いほど速いが、ここは地べた基準で見る。ゲームは整数回復で疲労が 0 以下になった時点で目覚めるため、
+// 実ターン数はこの値の切り上げになる。
+func SleepTurnsToFullRecover() float64 {
+	return float64(gc.DefaultMaxFatigue) / float64(systems.FatigueRecoverPerTurn)
+}
+
+// SleepTimeFraction は疲労を溜めも減らしもしない釣り合いを保つのに、時間のどれだけを睡眠へ充てる
+// 必要があるかの割合を返す。起床は毎ターン FatigueGainPerTurn 溜まり、睡眠は基準 Quality で
+// FatigueRecoverPerTurn 抜けるので、gain/(gain+recover) が定常の睡眠時間比になる。
+func SleepTimeFraction() float64 {
+	gain := float64(gc.FatigueGainPerTurn)
+	recoverRate := float64(systems.FatigueRecoverPerTurn)
+	return gain / (gain + recoverRate)
+}
+
 // TurnsToHypothermia は実効温度で低体温が発生し始めるまでのターン数を返す。実効温度は
 // 周囲温度に断熱を足した値。体温は systems.CalcBodyTempRate の速さで平熱から冷え、低体温帯
 // BodyTempColdBand を割るとタイマーが進み始める。
