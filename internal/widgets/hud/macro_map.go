@@ -13,7 +13,7 @@ import (
 
 // MacroMap は HUD 右上のマクロ地図エリア。N キーで開く地形俯瞰と同じ内容を縮小して常時表示する。
 type MacroMap struct {
-	face    text.Face // 地形セルの記号と現在地ポインタに使うフォント
+	face    text.Face // 地形セルの記号とキューブに使うフォント
 	chrome  Chrome
 	enabled bool
 }
