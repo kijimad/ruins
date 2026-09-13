@@ -13913,6 +13913,12 @@ weight = 1.2
 minDanger = 4
 maxDanger = 14
 pack = "1d3"
+[[enemyTables.entries]]
+id = "jeep"
+weight = 0.2
+minDanger = 12
+maxDanger = 30
+pack = "1d1"
 [[enemyTables]]
 name = "森"
 id = "forest"
@@ -14303,6 +14309,18 @@ weight = 1.2
 minDanger = 8
 maxDanger = 20
 pack = "1d2"
+[[enemyTables.entries]]
+id = "jeep"
+weight = 0.2
+minDanger = 12
+maxDanger = 30
+pack = "1d1"
+[[enemyTables.entries]]
+id = "frozen_hunter"
+weight = 0.05
+minDanger = 22
+maxDanger = 35
+pack = "1d1"
 
 [[spriteSheets]]
 name = "bg"
