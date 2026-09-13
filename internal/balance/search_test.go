@@ -22,6 +22,19 @@ func TestSolveScalar_範囲外は両立不能(t *testing.T) {
 	assert.False(t, ok)
 }
 
+func TestWithScaledMeleeDamage_不在アイテムはそのまま実行する(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	before := ruinsDay20PowerRatio(master)
+	called := false
+	// 存在しないアイテムIDでは何も変更せず fn だけ呼ぶ。指標は変わらない
+	withScaledMeleeDamage(master, "no_such_item", 2.0, func() {
+		called = true
+		assert.InDelta(t, before, ruinsDay20PowerRatio(master), 1e-9, "変更されない")
+	})
+	assert.True(t, called, "不在でも fn は呼ばれる")
+}
+
 func TestSolveScalar_敵武器スケールで目標戦力比を探す(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)

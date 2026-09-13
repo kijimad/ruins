@@ -19,19 +19,17 @@ var CmdBalanceReport = &cli.Command{
 	Action:      runBalanceReport,
 }
 
-const (
-	reportPlayer = "ash"
-	reportWeapon = "bare_hands"
-	reportDays   = 21
-	reportPath   = "docs/balance/baseline.md"
-)
+// reportPath は生成先。基準の player/weapon/days は balance の共有定数を使い二重化を避ける。
+const reportPath = "docs/balance/baseline.md"
 
+// runBalanceReport は I/O 副作用を持つ CLI 層で、意図的に単体テストを持たない。導出ロジックは
+// balance パッケージ側でテストする。
 func runBalanceReport(_ context.Context, _ *cli.Command) error {
 	master, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	if err != nil {
 		return fmt.Errorf("failed to load raw.toml: %w", err)
 	}
-	md, err := balance.RenderBaselineMarkdown(master, reportPlayer, reportWeapon, reportDays)
+	md, err := balance.RenderBaselineMarkdown(master, balance.BaselinePlayer, balance.BaselineWeapon, balance.BaselineDays)
 	if err != nil {
 		return fmt.Errorf("failed to render baseline: %w", err)
 	}

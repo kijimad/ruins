@@ -9,6 +9,15 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
+// ベースライン導出の基準。プレイヤーは強化なしの素手を最悪ケースとして固定する。cmd と探索で
+// 同じ値を参照し、テーブルと実機能がずれるのを防ぐ。
+const (
+	BaselinePlayer    = "ash"
+	BaselineWeapon    = "bare_hands"
+	BaselineDays      = 21
+	BaselineAreaTable = "ruins_area"
+)
+
 // TargetPowerRatio は序盤戦闘の目標帯の中心値を返す。day1=2.5 から day20=1.3 へ線形に下げ、
 // 序盤は余裕あり、終盤で拮抗へ寄せる。値は人間が決める設計仮説で、プレイで見直す。
 func TargetPowerRatio(day int) float64 {

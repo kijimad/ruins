@@ -7,15 +7,15 @@ import (
 
 // ruinsDay20PowerRatio は現行 master の廃墟 day20 の戦力比を返す。探索と感度の目的関数。
 func ruinsDay20PowerRatio(master oapi.Raws) float64 {
-	player, err := LoadCombatantFromMember(master, "ash")
+	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
 		return 0
 	}
-	weapon, err := LoadWeaponFromItem(master, "bare_hands")
+	weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
 	if err != nil {
 		return 0
 	}
-	curve, err := DifficultyCurve(master, player, weapon, "ruins_area", 21)
+	curve, err := DifficultyCurve(master, player, weapon, BaselineAreaTable, BaselineDays)
 	if err != nil || len(curve) == 0 {
 		return 0
 	}
