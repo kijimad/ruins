@@ -94,6 +94,7 @@ func DrawMapLegend(cv uicore.Canvas, face, glyphFace text.Face, top int) {
 		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label))
 		drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
 		cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
+		// 1項目120px幅で並べ、モーダル幅に収まる右端720pxを超えたら次の行へ折り返す
 		x += 120
 		if x > 720 {
 			x, y = 8, y+22
