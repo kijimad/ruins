@@ -12,20 +12,20 @@ import (
 // fakeCanvas は uicore.Canvas の記録用実装。ebiten の描画コンテキスト無しで
 // どの描画命令が何回・どの引数で呼ばれたかだけを検証する。
 type fakeCanvas struct {
-	texts         []textCall
-	fillRects     []image.Rectangle
-	strokeRects   []image.Rectangle
-	rotatedGlyphs []string
-	rotatedAngles []float64
-	nineSlices    int
-	tintedRects   []image.Rectangle
+	texts       []textCall
+	fillRects   []image.Rectangle
+	strokeRects []image.Rectangle
+	nineSlices  int
+	tintedRects []image.Rectangle
 }
 
-// textCall は DrawText 呼び出し1回ぶんの記録
+// textCall は DrawText 呼び出し1回ぶんの記録。基準点と回転角も残し、テストが記号ごとに引ける
 type textCall struct {
-	pos   image.Point
-	str   string
-	color color.Color
+	pos    image.Point
+	str    string
+	color  color.Color
+	anchor uicore.TextAnchor
+	angle  float64
 }
 
 func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color) {
@@ -37,13 +37,8 @@ func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
 }
 
 func (c *fakeCanvas) DrawText(pos image.Point, s string, _ text.Face, col color.Color, opts ...uicore.TextOpt) {
-	// 回したグリフは角度付きで別に記録し、左上基準のテキストと区別する
-	if p := uicore.ResolveText(opts...); p.Angle != 0 {
-		c.rotatedGlyphs = append(c.rotatedGlyphs, s)
-		c.rotatedAngles = append(c.rotatedAngles, p.Angle)
-		return
-	}
-	c.texts = append(c.texts, textCall{pos: pos, str: s, color: col})
+	p := uicore.ResolveText(opts...)
+	c.texts = append(c.texts, textCall{pos: pos, str: s, color: col, anchor: p.Anchor, angle: p.Angle})
 }
 
 func (c *fakeCanvas) DrawImage(_ image.Point, _ *ebiten.Image) {}

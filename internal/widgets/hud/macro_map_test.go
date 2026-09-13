@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -106,10 +107,18 @@ func TestMacroMap_Draw_現在地は回転ポインタで描く(t *testing.T) {
 		Screen:       ScreenDimensions{Width: 1024, Height: 768},
 	})
 
-	assert.Equal(t, []string{consts.IconLocationArrow}, cv.rotatedGlyphs, "現在地はカメラ前方へ回したポインタ1つで示す")
+	// 現在地は location-arrow を1つだけ描く。記号で引き当てて基準点と回転角を確かめる
+	var pointer *textCall
+	for i := range cv.texts {
+		if cv.texts[i].str == consts.IconLocationArrow {
+			require.Nil(t, pointer, "現在地ポインタは1つだけ")
+			pointer = &cv.texts[i]
+		}
+	}
+	require.NotNil(t, pointer, "現在地ポインタを描く")
+	assert.Equal(t, uicore.AnchorCenter, pointer.anchor, "ポインタは中央基準で描く")
 	// 北向き PlayerFacing=0 は Yaw=0。location-arrow は北東向きなので -π/4 で北へ補正する
-	require.Len(t, cv.rotatedAngles, 1)
-	assert.InDelta(t, -math.Pi/4, cv.rotatedAngles[0], 1e-9, "北向きのポインタは北東基準から -π/4 回す")
+	assert.InDelta(t, -math.Pi/4, pointer.angle, 1e-9, "北向きのポインタは北東基準から -π/4 回す")
 	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
 }
 
