@@ -3,6 +3,7 @@ package balance
 import (
 	"sort"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -31,7 +32,7 @@ func WeaponRestrictionValues(master oapi.Raws, enemyTableName string, day int) (
 	if err != nil {
 		return nil, 0, err
 	}
-	baseDeath, _, ok, err := PoolCombatRisk(master, player, bare, enemyTableName, danger)
+	baseDeath, _, ok, err := PoolCombatRisk(master, player, bare, enemyTableName, danger, consts.PercentBase)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -42,16 +43,16 @@ func WeaponRestrictionValues(master oapi.Raws, enemyTableName string, day int) (
 	items := raw.PtrSlice(master.Items)
 	values := make([]ElementValue, 0, len(items))
 	for i := range items {
-		// 近接武器だけを対象にする。素手は基準そのものなので除く。遠距離は弾薬と Sensation 依存で
-		// 別モデルが要るため、ここでは扱わない。
-		if items[i].Melee == nil || items[i].Id == BaselineWeapon {
+		// 近接と遠距離の武器を対象にする。素手は基準そのものなので除く。遠距離は Sensation で撃つが、
+		// 弾薬の消費と費用はこの指標に含めないので、遠距離の劣化量は弾薬コストを無視した上限になる。
+		if (items[i].Melee == nil && items[i].Fire == nil) || items[i].Id == BaselineWeapon {
 			continue
 		}
 		weapon, err := LoadWeaponFromItem(master, items[i].Id)
 		if err != nil {
 			return nil, 0, err
 		}
-		death, turns, ok, err := PoolCombatRisk(master, player, weapon, enemyTableName, danger)
+		death, turns, ok, err := PoolCombatRisk(master, player, weapon, enemyTableName, danger, consts.PercentBase)
 		if err != nil {
 			return nil, 0, err
 		}

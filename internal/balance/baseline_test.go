@@ -58,7 +58,7 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	assert.Less(t, iCave, iForest, "cave が forest より前")
 	assert.Less(t, iForest, iRuins, "forest が ruins_area より前")
 
-	// 各テーブルに day1 行が出る。難易度カーブ行は戦力比が3列目に来る5列で、戦闘リスクの
-	// 同じ日行(死亡確率が3列目)と区別するため day1 の戦力比が 2.x であることまで含めて数える。
-	assert.Equal(t, 3, strings.Count(md, "| 1 | 1 | 2"), "各テーブルの day1 難易度カーブ行")
+	// 各テーブルに day1 行が出る。難易度カーブの戦力比は小数なので、day1 危険度1の行を戦力比 2.x で
+	// 数えると、死亡確率や経済など整数3列目を持つ他の進行表と区別できる。
+	assert.Equal(t, 3, strings.Count(md, "| 1 | 1 | 2."), "各テーブルの day1 難易度カーブ行")
 }

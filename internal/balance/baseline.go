@@ -207,6 +207,15 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	}
 	fmt.Fprintf(&b, "\n")
 
+	// 経済の進行。支出側の生活費と、日ごとに loot がそれを賄えるか
+	fmt.Fprintf(&b, "経済の進行。1日の食費は満腹度減耗を最安の食料で埋め戻す費用で %.0f。日が進むと危険度が上がり loot 手取りも上がるので、\n", CostOfLivingPerDay(master, DefaultParams()))
+	fmt.Fprintf(&b, "1日分の食費を賄うのに要る loot 個数が減る。個数が小さいほど、その日の探索は生活費に対して割が良い。\n\n")
+	fmt.Fprintf(&b, "| 日 | 危険度 | 1個あたり手取り | 1日分の食費に要る loot 個数 |\n|---:|---:|---:|---:|\n")
+	for _, d := range EconomyProgression(master, "ruins_area", days) {
+		fmt.Fprintf(&b, "| %d | %d | %.0f | %.2f |\n", d.Day, d.Danger, d.NetLootValue, d.LootPerDayFood)
+	}
+	fmt.Fprintf(&b, "\n")
+
 	// 物流
 	fmt.Fprintf(&b, "## 物流（燃料・重量・航続）\n\n")
 	fmt.Fprintf(&b, "**概要**: キューブがどれだけ走れるか。1タイルの燃費は基準%d+積載1kgごとに%dで、積むほど悪化する。\n", consts.DriveFuelBase, consts.DriveFuelPerKg)
@@ -330,6 +339,25 @@ func renderCombatRisk(b *strings.Builder, master oapi.Raws, playerName, weaponNa
 		fmt.Fprintf(b, "| %d | %d | %.1f%% | %.1f |\n", d.Day, d.Danger, d.DeathProb*100, d.ExpTurns)
 	}
 	fmt.Fprintf(b, "\n")
+	return renderProgression(b, master, player, weapon, days)
+}
+
+// renderProgression は静的下限と想定プレイヤーの進行カーブを markdown で書き出す。難易度の側は日→危険度で
+// 進み、プレイヤーの側は想定攻撃頻度からその日の想定スキルで進む。床と想定の帯で進行度調整を見る。
+func renderProgression(b *strings.Builder, master oapi.Raws, player CombatantStats, weapon WeaponStats, days int) error {
+	curve, err := ProgressionCurve(master, player, weapon, BaselineAreaTable, days, DefaultAttacksPerDay)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(b, "## 進行カーブ（床 vs 想定プレイヤー・廃墟）\n\n")
+	fmt.Fprintf(b, "**概要**: 難易度の側は日→危険度で進み、プレイヤーの側は1日%d攻撃の仮説からその日の想定スキルで進む。\n", DefaultAttacksPerDay)
+	fmt.Fprintf(b, "床はスキル0の最悪ケース、想定はその日までに育ったスキルを織り込んだ体験。両者の差が、成長が難易度をどれだけ上回るかを表す。攻撃頻度は設計仮説。\n\n")
+	fmt.Fprintf(b, "| 日 | 危険度 | 想定Lv | 死亡(床) | 死亡(想定) | 決着ターン(床) | 決着ターン(想定) |\n|---:|---:|---:|---:|---:|---:|---:|\n")
+	for _, d := range curve {
+		fmt.Fprintf(b, "| %d | %d | %d | %.1f%% | %.1f%% | %.1f | %.1f |\n",
+			d.Day, d.Danger, d.SkillLevel, d.DeathFloor*100, d.DeathExpected*100, d.TurnsFloor, d.TurnsExpected)
+	}
+	fmt.Fprintf(b, "\n想定の死亡確率が全日ほぼ0なら、成長が難易度を上回り進行するほど楽になっている兆候。床と想定が近いほど、成長込みでも緊張が保たれている。\n\n")
 	return nil
 }
 
@@ -435,8 +463,9 @@ func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {
 		return nil
 	}
 	fmt.Fprintf(b, "## 要素の劣化量（武器を素手へ制限・廃墟day%d）\n\n", day)
-	fmt.Fprintf(b, "**概要**: 各近接武器を持たせたときの死亡確率と、素手へ制限したときの死亡確率の上昇量。上昇量が大きいほどその武器は必須で、\n")
-	fmt.Fprintf(b, "ゼロに近いほど素手と大差ない死にコンテンツ候補。素手の死亡確率は %.1f%%。Restricted Play をサバイバルへ翻案した指標。\n\n", baseDeath*100)
+	fmt.Fprintf(b, "**概要**: 各武器(近接・遠距離)を持たせたときの死亡確率と、素手へ制限したときの死亡確率の上昇量。上昇量が大きいほどその武器は必須で、\n")
+	fmt.Fprintf(b, "ゼロに近いほど素手と大差ない死にコンテンツ候補。素手の死亡確率は %.1f%%。Restricted Play をサバイバルへ翻案した指標。\n", baseDeath*100)
+	fmt.Fprintf(b, "遠距離武器は弾薬の消費と費用を含めないので、その劣化量は弾薬コストを無視した上限として読む。\n\n")
 
 	const top, bottom = 15, 5
 	fmt.Fprintf(b, "| 武器 | 死亡確率 | 劣化量(素手比) | 期待決着ターン |\n|---|---:|---:|---:|\n")
@@ -484,7 +513,7 @@ func renderViability(b *strings.Builder, master oapi.Raws) error {
 	fmt.Fprintf(b, "**概要**: プレイヤーは全選択肢が等価な symmetry を嫌い、どれも使えるが差がある viability を好む。\n")
 	fmt.Fprintf(b, "死亡確率が %.0f%%以下を viable とし、素手より弱いものを罠として数える。viable どうしの決着ターンに幅があれば選択に意味がある。\n\n", s.Ceiling*100)
 	fmt.Fprintf(b, "| 指標 | 値 |\n|---|---:|\n")
-	fmt.Fprintf(b, "| 評価した近接武器 | %d |\n", s.Total)
+	fmt.Fprintf(b, "| 評価した武器(近接・遠距離) | %d |\n", s.Total)
 	fmt.Fprintf(b, "| viable（死亡確率%.0f%%以下） | %d (%.0f%%) |\n", s.Ceiling*100, s.Viable, s.ViableRate()*100)
 	fmt.Fprintf(b, "| 罠（素手より弱い） | %d |\n", s.Traps)
 	fmt.Fprintf(b, "| viable の決着ターン幅 | %.1f〜%.1f |\n", s.ViableTTKMin, s.ViableTTKMax)

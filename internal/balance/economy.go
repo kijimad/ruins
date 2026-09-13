@@ -149,6 +149,58 @@ func ExpectedRunLootIncome(master oapi.Raws, itemTableName string, floors int) f
 	return total
 }
 
+// CheapestFoodCostPerNutrition は満腹度1点を回復するのに要する最小の購入価値を返す。栄養価を持つ
+// アイテムのうち、価値÷栄養が最小のものを賢い調達とみなす。食料が無ければ0を返す。
+func CheapestFoodCostPerNutrition(master oapi.Raws) float64 {
+	best := 0.0
+	items := raw.PtrSlice(master.Items)
+	for i := range items {
+		it := &items[i]
+		if it.ProvidesNutrition == nil || *it.ProvidesNutrition <= 0 || it.Value <= 0 {
+			continue
+		}
+		cost := float64(it.Value) / float64(*it.ProvidesNutrition)
+		if best == 0 || cost < best {
+			best = cost
+		}
+	}
+	return best
+}
+
+// CostOfLivingPerDay は補給なしの1日で失う満腹度を、最安の食料で埋め戻す購入費用を返す。1日の満腹度
+// 減耗は turnsPerDay/HungerDrainTurns で、これに満腹度1点あたりの最小食料費を掛ける。経済の支出側の下端。
+func CostOfLivingPerDay(master oapi.Raws, p Params) float64 {
+	hungerPerDay := p.TurnsPerDay / p.HungerDrainTurns
+	return hungerPerDay * CheapestFoodCostPerNutrition(master)
+}
+
+// EconomyDay は経過日1日ぶんの経済の断面。危険度に応じた1個あたり手取りと、1日の食費を賄うのに要する
+// loot 個数を持つ。個数が小さいほど、その日の loot は生活費に対して価値が高い。
+type EconomyDay struct {
+	Day            int
+	Danger         int
+	NetLootValue   float64 // 1個あたりの期待手取り
+	LootPerDayFood float64 // 1日の食費を賄うのに要する loot 個数
+}
+
+// EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと生活費で表す。難易度と同じく
+// 危険度で進行するので、進むほど loot 価値が上がり生活費が相対的に軽くなるかを見る。生活費は日に依らず
+// 一定なので、変化するのは loot 側。乱数を使わない。
+func EconomyProgression(master oapi.Raws, itemTableName string, days int) []EconomyDay {
+	costPerDay := CostOfLivingPerDay(master, DefaultParams())
+	out := make([]EconomyDay, 0, days)
+	for day := 1; day <= days; day++ {
+		danger := query.DangerLevelForDay(day)
+		net := ExpectedNetLootValue(master, itemTableName, danger)
+		perFood := 0.0
+		if net > 0 {
+			perFood = costPerDay / net
+		}
+		out = append(out, EconomyDay{Day: day, Danger: danger, NetLootValue: net, LootPerDayFood: perFood})
+	}
+	return out
+}
+
 // AuctionTakeHomeRate は基準価値どおりに落札されたときの競売の手取り率を返す。
 // 手取り = 落札額 − 手数料 − 発送料を落札額で割る。集荷料は集荷1回ごとで品単位でないためここには含めない。
 // 重い安物ほど発送料が手取りを食い、率が下がる。query.AuctionNetProceeds を単一出典で参照する。

@@ -91,6 +91,22 @@ func TestBaselineSnapshot_探索収入(t *testing.T) {
 	master := loadTestMaster(t)
 	assert.InDelta(t, 68, ExpectedNetLootValue(master, "ruins_area", 8), 3, "危険度8の廃墟で拾える1個あたりの期待手取り")
 	assert.InDelta(t, 4332, ExpectedRunLootIncome(master, "ruins_area", 5), 80, "廃墟5層探索の期待収入")
+	assert.InDelta(t, 83.3, CostOfLivingPerDay(master, DefaultParams()), 2, "1日の食費。最安食料で満腹度減耗を賄う")
+}
+
+func TestBaselineSnapshot_進行カーブ(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	player, err := LoadCombatantFromMember(master, "ash")
+	require.NoError(t, err)
+	weapon, err := LoadWeaponFromItem(master, "bare_hands")
+	require.NoError(t, err)
+	curve, err := ProgressionCurve(master, player, weapon, "ruins_area", 21, DefaultAttacksPerDay)
+	require.NoError(t, err)
+	// 終盤の床は危険だが、想定プレイヤーは成長で危険をほぼ無効化する。成長が難易度を上回る実態を固定する。
+	assert.InDelta(t, 0.174, curve[19].DeathFloor, 0.03, "day20 床の死亡確率")
+	assert.Less(t, curve[19].DeathExpected, 0.01, "day20 想定プレイヤーの死亡確率はほぼ0")
+	assert.InDelta(t, 30, curve[19].SkillLevel, 3, "day20 の想定スキル値")
 }
 
 func TestBaselineSnapshot_進行成長(t *testing.T) {

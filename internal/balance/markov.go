@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -21,9 +22,10 @@ type CombatOutcome struct {
 }
 
 // attackDamagePMF は1回の攻撃が与えるダメージの確率分布を返す。添字がダメージ量、値が確率で、
-// 添字0は命中しなかった場合。combat.go の rollAttack と同じ命中判定・クリティカル・ダイス1-6・
-// 防御下限をそのまま確率へ写す。乱数を使わずに rollAttack の分布を厳密に再現する。
-func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats) map[int]float64 {
+// 添字0は命中しなかった場合。activity/attack.go の calculateDamage と同じく熟練度倍率 skillMult を
+// base 全体へ切り捨てで掛け、次にクリティカル、最後に防御下限をする。乱数を使わずに分布を厳密に再現する。
+// skillMult が PercentBase なら熟練度なしで、combat.go の rollAttack の分布に一致する。
+func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) map[int]float64 {
 	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
 	baseAbil := attacker.Strength
 	if weapon.IsRanged {
@@ -37,7 +39,7 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats) map[
 	pmf := make(map[int]float64, 2*formula.DamageRandomRange+1)
 	pmf[0] += pMiss
 	for die := 1; die <= formula.DamageRandomRange; die++ {
-		base := baseAbil + die + weapon.Damage
+		base := skillMult.ApplyInt(baseAbil + die + weapon.Damage)
 		normal := max(base-defender.Defense, formula.MinDamage)
 		crit := max(formula.ApplyCritical(base)-defender.Defense, formula.MinDamage)
 		pmf[normal] += pNormal / float64(formula.DamageRandomRange)
@@ -85,12 +87,19 @@ func killDistribution(pmf map[int]float64, hp int) []float64 {
 	return kill
 }
 
-// CombatDistribution は1対1戦闘の結果分布を厳密に解く。プレイヤー先攻の交互攻撃なので、自分の撃破
-// 攻撃数 Kp と敵の撃破攻撃数 Ke は独立で、勝敗は Kp<=Ke で決まる。よって死亡確率は P(Ke<Kp)、決着
-// ターンは min(Kp,Ke) の分布として畳み込みで求まる。
+// CombatDistribution は熟練度なしの1対1戦闘の結果分布を解く。静的下限で、スキルを織り込むときは
+// CombatDistributionWithSkill を使う。
 func CombatDistribution(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats) CombatOutcome {
-	kp := killDistribution(attackDamagePMF(player, enemy, playerWeapon), enemy.HP)
-	ke := killDistribution(attackDamagePMF(enemy, player, enemyWeapon), player.HP)
+	return CombatDistributionWithSkill(player, enemy, playerWeapon, enemyWeapon, consts.PercentBase)
+}
+
+// CombatDistributionWithSkill はプレイヤーの熟練度倍率 playerSkillMult を織り込んだ1対1戦闘の結果分布を
+// 厳密に解く。プレイヤー先攻の交互攻撃なので、自分の撃破攻撃数 Kp と敵の撃破攻撃数 Ke は独立で、勝敗は
+// Kp<=Ke で決まる。よって死亡確率は P(Ke<Kp)、決着ターンは min(Kp,Ke) の分布として畳み込みで求まる。
+// 倍率はプレイヤーの攻撃にだけ効き、敵は静的下限のまま。
+func CombatDistributionWithSkill(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, playerSkillMult consts.Percent) CombatOutcome {
+	kp := killDistribution(attackDamagePMF(player, enemy, playerWeapon, playerSkillMult), enemy.HP)
+	ke := killDistribution(attackDamagePMF(enemy, player, enemyWeapon, consts.PercentBase), player.HP)
 
 	// 累積分布。cumKp[k]=P(Kp<=k)
 	cumKp := make([]float64, len(kp))
@@ -143,8 +152,9 @@ type DayRisk struct {
 }
 
 // PoolCombatRisk は危険度 danger の敵プールに1体遭遇したときの、重み付き死亡確率と期待決着ターンを
-// 返す。各敵との1対1をマルコフ連鎖で解き、出現重みで平均する。その帯に敵がいなければ ok=false。
-func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int) (deathProb, expTurns float64, ok bool, err error) {
+// 返す。プレイヤーの熟練度倍率 playerSkillMult を織り込む。各敵との1対1をマルコフ連鎖で解き、出現重みで
+// 平均する。その帯に敵がいなければ ok=false。熟練度なしの静的下限は PercentBase を渡す。
+func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, playerSkillMult consts.Percent) (deathProb, expTurns float64, ok bool, err error) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {
 		return 0, 0, false, err
@@ -162,7 +172,7 @@ func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon Weapon
 		if err != nil {
 			return 0, 0, false, err
 		}
-		o := CombatDistribution(player, enemy, playerWeapon, enemyWeapon)
+		o := CombatDistributionWithSkill(player, enemy, playerWeapon, enemyWeapon, playerSkillMult)
 		w := entry.Weight
 		wSum += w
 		deathSum += w * o.PlayerDeathProb
@@ -174,13 +184,13 @@ func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon Weapon
 	return deathSum / wSum, turnSum / wSum, true, nil
 }
 
-// CombatRiskCurve は経過日 1..days の戦闘リスクを敵プールの重みで期待して返す。各敵との1対1を
-// マルコフ連鎖で解き、出現重みで平均する。乱数を使わない。
+// CombatRiskCurve は経過日 1..days の戦闘リスクを敵プールの重みで期待して返す。プレイヤーは熟練度なしの
+// 静的下限で見る。各敵との1対1をマルコフ連鎖で解き、出現重みで平均する。乱数を使わない。
 func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {
 	out := make([]DayRisk, 0, days)
 	for day := 1; day <= days; day++ {
 		danger := query.DangerLevelForDay(day)
-		death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger)
+		death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger, consts.PercentBase)
 		if err != nil {
 			return nil, err
 		}
