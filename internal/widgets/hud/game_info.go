@@ -121,8 +121,8 @@ func bottomRightLineY(data GameInfoData, textHeight, row int) float64 {
 		float64(textHeight*(row+1)) - theme.Space2F*float64(row)
 }
 
-// drawNorthDepth は湧き位置からの北への奥行きを右下、周囲気温の1行上に描画する。オーバーワールドでのみ出す。
-// 右上はマクロ地図が占有するので、進捗と直結する気温の並びへ置く。北ほど寒く奥地の目的地へ近い
+// drawNorthDepth は北への奥行きを右下、周囲気温の1行上に描画する。オーバーワールドでのみ出す。
+// 右上はマクロ地図が占有するので、進捗と直結する気温の並びへ置く。
 func (info *GameInfo) drawNorthDepth(cv uicore.Canvas, data GameInfoData) {
 	if !data.ShowNorthDepth {
 		return

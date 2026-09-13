@@ -77,10 +77,7 @@ func stageBaseTemperature(world w.World) int {
 
 // AmbientTemperatureAt はタイルの周囲気温を返す。ステージの基本気温、囲われに応じて
 // 受け方を変えた世界温度、タイルの加算℃、熱源の押し上げの4項の和になる。
-//
-// 緯度勾配は引数の y、すなわちそのタイル固有の緯度で測る。プレイヤーの緯度ではない。
-// 同じ帯でも北端のタイルは南端のタイルより寒い、という場所ごとの気温を返すのが意図。
-// プレイヤーの体感気温はプレイヤーの居るタイルの (x, y) で呼ぶことで得る。
+// 緯度勾配は引数 y のタイル固有の緯度で測るので、同じ帯でも北のタイルほど寒い。
 func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	if GetDungeon(world) == nil {
 		return 0, errors.New("dungeon resource is not set")
@@ -88,9 +85,8 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	baseTemp := stageBaseTemperature(world)
 
 	gt := GetGameTime(world)
-	// 屋外の世界温度。季節ベースに時間帯の揺れを重ね、奥地ほど寒くなる緯度勾配を差し引く。
-	// 勾配を世界温度に折り込むことで、屋内は shelteredWorldTemp で寒さが緩和され、
-	// 深部の施設が暖を取れる避難所になる。末尾で引くと屋内外が同じだけ寒くなり避難所にならない
+	// 屋外の世界温度。季節+時間帯から緯度勾配を引く。worldTemp に折り込むと屋内は
+	// shelteredWorldTemp で緩和され、末尾で引くと屋内外が同じだけ寒くなってしまう
 	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier() - latitudeCold(world, y)
 	shelter, tileModifier := TileEnvironmentAt(world, x, y)
 
@@ -100,10 +96,8 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 		ambientHeatAt(world, x, y), nil
 }
 
-// 奥地ほど寒い緯度勾配のパラメータ。無限軸を奥へ進んだチャンク距離が増えるほど世界温度を下げる。
-// 北極点へ近づくほど寒くなる惑星像を、進行距離の単調減少で表す。値は実プレイで調整する。
-// 最寒の組み合わせは季節の最低に latitudeColdMax を足したもの。屋外はここまで冷え、屋内は
-// shelteredWorldTemp で緩和される。過酷すぎれば下限を下げる。
+// 奥地ほど寒い緯度勾配のパラメータ。奥へ進んだチャンク距離が増えるほど世界温度を下げる。
+// 北極点へ近づくほど寒くなる惑星像を表す。値は実プレイで調整する。
 const (
 	// latitudeColdPerChunk は1チャンク奥へ進むごとに下がる℃
 	latitudeColdPerChunk = 1
@@ -112,35 +106,24 @@ const (
 )
 
 // NorthDepthChunks は帯ローカル座標 y が湧き位置から北へ何チャンク進んだかを返す。
-// 起点は初期帯の中央行 rows/2。手前や帯を持たないステージでは0。
-//
-// 起点を絶対チャンク0でなく中央行に置くのは、開始地点を穏やかに保つため。緯度勾配の寒さと
-// HUD の奥地表示がこの1関数を共有し、気温と UI で同じ距離を指す。絶対軸 Y で測るので帯シフトを
-// またいでも連続で、シフトの瞬間に値が飛ばない。北は -Y なので絶対 Y が小さいほど北で、
-// 奥行きは中央行の絶対チャンク Y から現在地の絶対チャンク Y を引いた差になる。
+// 起点は初期帯の中央行 SpawnChunkY で、開始地点を穏やかに保つ。手前や帯を持たないステージでは0。
+// 緯度勾配と HUD の奥地表示がこの1関数を共有する。絶対軸 Y で測るので帯シフトをまたいでも連続。
 func NorthDepthChunks(world w.World, y consts.Tile) int {
 	sb := GetSeamlessBand(world)
-	// ChunkH<=0 はゼロ除算を、Rows<=0 は SpawnChunkY の起点が壊れるのを防ぐ。帯が正しく生成されていれば
-	// どちらも正だが、未初期化の SeamlessBand を渡された退化ケースを起点計算より前に弾く
+	// ChunkH<=0 はゼロ除算を、Rows<=0 は起点計算を壊す。未初期化の退化帯を計算より前に弾く
 	if sb == nil || sb.ChunkH <= 0 || sb.Rows <= 0 {
 		return 0
 	}
-	// 絶対 Y は北側で負になりうるので floorDivInt でチャンク境界を連続させる。プレイヤーがチャンク境界
-	// ちょうどに居ても、MaybeShift が Player フェーズの安定点で中央行へ収束させるので飛びは起きない
+	// 絶対 Y は北側で負になりうるので floorDivInt でチャンク境界を連続させる
 	currentChunkY := floorDivInt(int(sb.LocalToAbsY(y)), int(sb.ChunkH))
-	// 起点は湧き位置の中央行。SeamlessBand が「湧き位置はどの行か」の唯一の出どころ
 	if depth := int(sb.SpawnChunkY()) - currentChunkY; depth > 0 {
 		return depth
 	}
 	return 0
 }
 
-// floorDivInt は負の被除数でも床方向へ丸める整数除算。絶対 Y は北側で負になりうるため、
-// Go の / のゼロ方向丸めを床方向へ補正してチャンク境界を連続させる。
-//
-// overworld.floorDiv が consts.Chunk 版の同じロジックを持つ。query と overworld は依存方向が別で
-// 共通 leaf に出すと循環するため、int 版をここに置き重複を許容する。3つ目の利用者が現れたら
-// consts か独立した数値 leaf への切り出しを検討する。
+// floorDivInt は負の被除数でも床方向へ丸める整数除算。絶対 Y が北側で負になるため床除算にする。
+// overworld.floorDiv が consts.Chunk 版の同ロジックを持つ。依存方向が別で共通 leaf に出すと循環するので重複を許容する。
 func floorDivInt(a, b int) int {
 	q := a / b
 	if (a%b != 0) && ((a < 0) != (b < 0)) {

@@ -44,7 +44,4 @@ func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
 //
 // worldstream の帯ドライバも components の永続状態 SeamlessBand も同じ絶対軸を扱うため、
 // 双方から import できる leaf の consts に置く。これで境界のキャストを無くせる。
-//
-// 基底は int。奥行き計算は int(AbsTileY) で受けて演算するので、幅を int より狭い型へ変えると
-// 無言の切り詰めが起きる。狭める必要が出たら int(...) の各キャストを見直すこと。
 type AbsTileY int

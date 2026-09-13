@@ -36,10 +36,8 @@ type SeamlessBand struct {
 }
 
 // BandOriginY は帯ローカル Y=0 すなわち北端が指す絶対タイル Y。北は -Y なので NorthIndex ぶん負へ伸びる。
-//
-// worldstream.BandOriginY と Chunk.Tiles で揃えた同一の式を持つ。components は leaf で worldstream が
-// components を import するため、逆向きに worldstream を呼べず、依存方向の都合でこの2箇所に同じ式が要る。
-// 等価性は worldstream 側の TestBandOriginY_SeamlessBandと一致する で機械的に固定する。
+// worldstream.BandOriginY と同じ式。components は leaf で worldstream を呼べないので2箇所に置き、
+// 等価性を worldstream 側の TestBandOriginY_SeamlessBandと一致する で固定する。
 func (sb SeamlessBand) BandOriginY() consts.AbsTileY {
 	return consts.AbsTileY(-int(sb.NorthIndex.Tiles(sb.ChunkH)))
 }
@@ -49,17 +47,14 @@ func (sb SeamlessBand) LocalToAbsY(localY consts.Tile) consts.AbsTileY {
 	return consts.AbsTileY(localY) + sb.BandOriginY()
 }
 
-// AbsChunkRow は帯ローカルなタイル行 localY を絶対チャンク行へ移す。localY は帯ローカルで常に非負なので
-// 素の整数除算で足りる。北は -Y なので NorthIndex ぶん引いて北側の負インデックスにする。
-// 探索フォグ・マクロ地図・全画面図が同じ変換を共有する単一の出どころ。
+// AbsChunkRow は帯ローカルなタイル行 localY を絶対チャンク行へ移す。localY は帯ローカルで非負なので
+// 素の整数除算で足りる。北は -Y なので NorthIndex ぶん引く。探索フォグ・マクロ地図・全画面図の単一出どころ。
 func (sb SeamlessBand) AbsChunkRow(localY consts.Tile) consts.Chunk {
 	return consts.Chunk(int(localY)/int(sb.ChunkH)) - sb.NorthIndex
 }
 
-// SpawnChunkY はプレイヤーが湧いた位置の絶対チャンク Y。奥行きの起点となる。
-// プレイヤーは初期帯 NorthIndex=0 の中央行に湧くので、その絶対チャンク Y は Rows/2 で確定する。
-// これは湧き位置を絶対軸に焼き込んだ不変値で、以後 NorthIndex がいくつになっても変わらない。
-// 「湧き位置は中央行」の前提をここ1箇所に名付け、奥行き計算がこの起点を共有する。
+// SpawnChunkY はプレイヤーが湧いた位置の絶対チャンク Y。奥行きの起点。プレイヤーは初期帯の中央行に
+// 湧くので Rows/2 で確定し、以後 NorthIndex がいくつでも変わらない不変値になる。
 func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
 	return sb.Rows / 2
 }
