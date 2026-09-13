@@ -3,6 +3,8 @@ package balance
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,4 +35,10 @@ func TestBaselineSnapshot_生存圧(t *testing.T) {
 	assert.InDelta(t, 0.67, DaysUntilStarving(), 0.02, "栄養失調まで日数")
 	assert.InDelta(t, 1.00, DaysUntilHungerEmpty(), 0.02, "満腹度が尽きるまで日数")
 	assert.InDelta(t, 10, TurnsToHypothermia(0), 0.5, "0度で低体温まで")
+}
+
+func TestBaselineSnapshot_物流(t *testing.T) {
+	t.Parallel()
+	assert.InDelta(t, 980, DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg), 1, "OIL満載の航続")
+	assert.InDelta(t, 196, DriveRangeAllFuel(oapi.WOOD, consts.CubeWeightCapacityKg), 1, "WOOD満載の航続")
 }

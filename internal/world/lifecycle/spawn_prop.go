@@ -172,7 +172,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
 		// 収納を持ち、隣接時にキューブメニューから開ける。オークションの出荷元も兼ねる
-		WeightCapacity: &gc.WeightCapacity{Max: consts.Milligram(500 * consts.MilligramPerKg)},
+		WeightCapacity: &gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},
 		AuctionStation: &gc.AuctionStation{},
 		// 直上で乗車、隣接でメニュー。BlockPass は持たず、直上に立てる通行可能な地物にする
 		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDrive, gc.InteractionOpenCubeMenu}},

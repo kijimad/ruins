@@ -5,8 +5,10 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // ベースライン導出の基準。プレイヤーは強化なしの素手を最悪ケースとして固定する。cmd と探索で
@@ -120,6 +122,21 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		fmt.Fprintf(&b, "| %d | %.0f |\n", temp, TurnsToHypothermia(temp))
 	}
 	fmt.Fprintf(&b, "\n")
+
+	// 物流
+	fmt.Fprintf(&b, "## 物流（燃料・重量・航続）\n\n")
+	fmt.Fprintf(&b, "**概要**: キューブがどれだけ走れるか。1タイルの燃費は基準%d+積載1kgごとに%dで、積むほど悪化する。\n", consts.DriveFuelBase, consts.DriveFuelPerKg)
+	fmt.Fprintf(&b, "燃料自身も重量になるので積むほど頭打ちになる。容量は%dkg。\n\n", consts.CubeWeightCapacityKg)
+	fmt.Fprintf(&b, "| 積載(kg) | 燃費(/タイル) |\n|---:|---:|\n")
+	for _, kg := range []int{0, 100, 250, 500} {
+		fmt.Fprintf(&b, "| %d | %d |\n", kg, query.DriveFuelCost(consts.Milligram(kg)*consts.MilligramPerKg))
+	}
+	fmt.Fprintf(&b, "\n| 満載時の燃料 | 航続(タイル) |\n|---|---:|\n")
+	fmt.Fprintf(&b, "| OIL 500kg | %.0f |\n", DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg))
+	fmt.Fprintf(&b, "| WOOD 500kg | %.0f |\n", DriveRangeAllFuel(oapi.WOOD, consts.CubeWeightCapacityKg))
+	fmt.Fprintf(&b, "\n積荷とのトレード。OIL燃料250kgのとき、積荷0なら航続%.0f、積荷250kg追加で航続%.0fへ縮む。\n\n",
+		DriveRangeTiles(query.HeatOf(oapi.OIL, 250*consts.MilligramPerKg), 250*consts.MilligramPerKg),
+		DriveRangeTiles(query.HeatOf(oapi.OIL, 250*consts.MilligramPerKg), 500*consts.MilligramPerKg))
 
 	// 感度
 	fmt.Fprintf(&b, "## 感度（廃墟 day20 戦力比、各つまみ+10%%）\n\n")
