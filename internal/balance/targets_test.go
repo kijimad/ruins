@@ -83,3 +83,20 @@ func TestBaselineSnapshot_進行成長(t *testing.T) {
 	assert.Equal(t, 210, AttacksToSkillLevel(0, 10), "Lv10到達の攻撃回数")
 	assert.Equal(t, 1626, AttacksToSkillLevel(0, 30), "Lv30到達の攻撃回数")
 }
+
+func TestTargetCheck_InRange_帯の内外(t *testing.T) {
+	t.Parallel()
+	assert.True(t, TargetCheck{Value: 1.0, Lo: 0.8, Hi: 1.3}.InRange(), "帯内は真")
+	assert.False(t, TargetCheck{Value: 1.5, Lo: 0.8, Hi: 1.3}.InRange(), "上限超過は偽")
+	assert.False(t, TargetCheck{Value: 0.5, Lo: 0.8, Hi: 1.3}.InRange(), "下限未満は偽")
+}
+
+func TestDomainTargets_全ドメインが健全な帯を持つ(t *testing.T) {
+	t.Parallel()
+	// 目標帯そのものは assert しない。ドメインが揃い帯が妥当な向きかだけを検証する。
+	checks := DomainTargets()
+	assert.Len(t, checks, 6, "戦闘以外のスカラー6ドメイン")
+	for _, c := range checks {
+		assert.Less(t, c.Lo, c.Hi, c.Domain+" の目標帯は下限<上限")
+	}
+}

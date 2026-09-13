@@ -84,6 +84,20 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "実コードの戦闘式と raw.toml から乱数なしで導出したバランスの現状値。`make balance-report` で再生成する。\n")
 	fmt.Fprintf(&b, "パラメータを変えたときはこのファイルの差分が影響を示す。目標や式の詳細は docs/balance/approach.md を参照。\n\n")
 
+	// 目標帯ダッシュボード。ドメイン横断でスカラー指標が設計上の許容帯に収まるかを一望する
+	fmt.Fprintf(&b, "## 目標帯（ドメイン横断）\n\n")
+	fmt.Fprintf(&b, "**概要**: 各ドメインのスカラー指標が設計上の目標帯に収まるか。戦闘は日で変わるので下の難易度カーブ側で内外を持つ。\n")
+	fmt.Fprintf(&b, "目標帯は設計仮説でプレイで見直す。静的下限がこの範囲に収まれば実プレイは少なくともこれだけ快適という下限側の目安。\n\n")
+	fmt.Fprintf(&b, "| ドメイン | 指標 | 現状 | 目標帯 | 判定 |\n|---|---|---:|:--:|:--:|\n")
+	for _, c := range DomainTargets() {
+		mark := "外"
+		if c.InRange() {
+			mark = "内"
+		}
+		fmt.Fprintf(&b, "| %s | %s | %.2f | %.2f〜%.2f | %s |\n", c.Domain, c.Metric, c.Value, c.Lo, c.Hi, mark)
+	}
+	fmt.Fprintf(&b, "\n")
+
 	// 序盤戦闘のカーブ
 	fmt.Fprintf(&b, "## 序盤戦闘の難易度カーブ\n\n")
 	fmt.Fprintf(&b, "**概要**: 各日にプレイヤーがどれだけ有利かを戦力比で表す。戦力比は敵を倒す速さ÷敵に倒される速さで、1.0が互角、大きいほど楽。\n")
