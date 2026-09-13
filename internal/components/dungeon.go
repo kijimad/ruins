@@ -36,10 +36,8 @@ type SeamlessBand struct {
 }
 
 // BandOriginY は帯ローカル Y=0 すなわち北端が指す絶対タイル Y。北は -Y なので NorthIndex ぶん負へ伸びる。
-// worldstream.BandOriginY と同じ式。components は leaf で worldstream を呼べないので2箇所に置き、
-// 等価性を worldstream 側の TestBandOriginY_SeamlessBandと一致する で固定する。
 func (sb SeamlessBand) BandOriginY() consts.AbsTileY {
-	return consts.AbsTileY(-int(sb.NorthIndex.Tiles(sb.ChunkH)))
+	return consts.BandOriginY(sb.NorthIndex, sb.ChunkH)
 }
 
 // LocalToAbsY は帯ローカル Y を絶対 Y に変換する。

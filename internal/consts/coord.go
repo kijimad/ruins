@@ -45,3 +45,10 @@ func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
 // worldstream の帯ドライバも components の永続状態 SeamlessBand も同じ絶対軸を扱うため、
 // 双方から import できる leaf の consts に置く。これで境界のキャストを無くせる。
 type AbsTileY int
+
+// BandOriginY は北進チャンク数 northIndex と帯高 chunkH から帯の絶対原点 Y を返す。
+// 帯ローカル Y=0 すなわち北端が絶対軸で指す位置。北は -Y なので northIndex ぶん負へ伸びる。
+// worldstream と components の双方が同じ式を要るので、両者が import する leaf の consts を単一出典にする。
+func BandOriginY(northIndex Chunk, chunkH Tile) AbsTileY {
+	return AbsTileY(-int(northIndex.Tiles(chunkH)))
+}

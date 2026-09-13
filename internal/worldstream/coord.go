@@ -4,9 +4,8 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // BandOriginY は northIndex（北進したチャンク数）と chunkH から帯の絶対原点 Y を返す。
 // 帯ローカル Y=0 すなわち北端が絶対軸で指す位置。北は -Y なので northIndex ぶん負へ伸びる。
-// components.SeamlessBand.BandOriginY と同一の式。Chunk.Tiles で揃えてキャスト経路の乖離を無くす。
 func BandOriginY(northIndex consts.Chunk, chunkH consts.Tile) consts.AbsTileY {
-	return consts.AbsTileY(-int(northIndex.Tiles(chunkH)))
+	return consts.BandOriginY(northIndex, chunkH)
 }
 
 // ToAbsY は帯ローカル Y を絶対 Y に変換する。absY = localY + bandOriginY。
