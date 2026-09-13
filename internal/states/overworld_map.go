@@ -193,7 +193,6 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		CellPx:       int(cell),
 		MinGlyphPx:   0,
 		GlyphFace:    glyphFace,
-		MarkerFace:   face,
 		PlayerFacing: st.facing,
 	})
 

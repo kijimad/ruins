@@ -1,14 +1,12 @@
 package hud
 
 import (
-	"math"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/overworld"
-	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -109,7 +107,7 @@ func TestMacroMap_Draw_開放セルを塗り未開放は伏せる(t *testing.T) 
 	assert.Len(t, cv.fillRects, 1, "開放済みセルだけ塗り、未開放は伏せる")
 }
 
-func TestMacroMap_Draw_現在地は回転ポインタで描く(t *testing.T) {
+func TestMacroMap_Draw_現在地は三角ポインタで描く(t *testing.T) {
 	t.Parallel()
 	m := newTestMacroMap(t)
 	cv := &fakeCanvas{}
@@ -126,34 +124,25 @@ func TestMacroMap_Draw_現在地は回転ポインタで描く(t *testing.T) {
 		Screen:       ScreenDimensions{Width: 1024, Height: 768},
 	})
 
-	// 現在地は location-arrow を1つだけ描く。記号で引き当てて基準点と回転角を確かめる
-	var pointer *textCall
-	for i := range cv.texts {
-		if cv.texts[i].str == consts.IconLocationArrow {
-			require.Nil(t, pointer, "現在地ポインタは1つだけ")
-			pointer = &cv.texts[i]
-		}
-	}
-	require.NotNil(t, pointer, "現在地ポインタを描く")
-	assert.Equal(t, uicore.AnchorCenter, pointer.anchor, "ポインタは中央基準で描く")
-	// 北向き PlayerFacing=0 は Yaw=0。location-arrow は北東向きなので -π/4 で北へ補正する
-	assert.InDelta(t, -math.Pi/4, pointer.angle, 1e-9, "北向きのポインタは北東基準から -π/4 回す")
+	assert.Len(t, cv.triangles, 1, "現在地はカメラ前方へ向けた三角ポインタ1つで示す")
 	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
 }
 
-func TestDrawMapGrid_現在地ポインタの回転角は向きで決まる(t *testing.T) {
+func TestDrawMapGrid_現在地ポインタは向きへtipを向ける(t *testing.T) {
 	t.Parallel()
 
-	// angle = -Yaw - π/4。北 Orient0 は Yaw0、南 Orient4 は Yaw=π
+	// PlayerCell(0,0)・cell=20 なので中央は (10,10)。tip はローカル (0,-0.42*cell) を向きだけ回した位置
+	const cell = 20
+	cx, cy, fwd := 10.0, 10.0, 0.42*float64(cell)
 	cases := []struct {
-		name   string
-		facing gc.Orient
-		want   float64
+		name               string
+		facing             gc.Orient
+		wantTipX, wantTipY float64
 	}{
-		{"北", 0, -math.Pi / 4},
-		{"東", 2, -math.Pi/2 - math.Pi/4},
-		{"南", 4, -math.Pi - math.Pi/4},
-		{"西", 6, -3*math.Pi/2 - math.Pi/4},
+		{"北", 0, cx, cy - fwd},
+		{"東", 2, cx + fwd, cy},
+		{"南", 4, cx, cy + fwd},
+		{"西", 6, cx - fwd, cy},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -163,16 +152,12 @@ func TestDrawMapGrid_現在地ポインタの回転角は向きで決まる(t *t
 				Cells:      [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
 				PlayerCell: &consts.Coord[consts.Chunk]{X: 0, Y: 0},
 			}
-			DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999, PlayerFacing: tc.facing})
+			DrawMapGrid(cv, view, MapGridStyle{CellPx: cell, MinGlyphPx: 999, PlayerFacing: tc.facing})
 
-			var pointer *textCall
-			for i := range cv.texts {
-				if cv.texts[i].str == consts.IconLocationArrow {
-					pointer = &cv.texts[i]
-				}
-			}
-			require.NotNil(t, pointer, "現在地ポインタを描く")
-			assert.InDelta(t, tc.want, pointer.angle, 1e-9)
+			require.Len(t, cv.triangles, 1, "現在地ポインタを1つ描く")
+			tip := cv.triangles[0][0] // 頂点0は前方の tip
+			assert.InDelta(t, tc.wantTipX, float64(tip[0]), 1e-4)
+			assert.InDelta(t, tc.wantTipY, float64(tip[1]), 1e-4)
 		})
 	}
 }
@@ -187,9 +172,7 @@ func TestDrawMapGrid_プレイヤー不在なら現在地ポインタを描か�
 	}
 	DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999})
 
-	for _, tc := range cv.texts {
-		assert.NotEqual(t, consts.IconLocationArrow, tc.str, "プレイヤー不在なら現在地ポインタを描かない")
-	}
+	assert.Empty(t, cv.triangles, "プレイヤー不在なら現在地ポインタを描かない")
 }
 
 func TestDrawMapGrid_道を持つセルは接続方角ごとに線分を描く(t *testing.T) {

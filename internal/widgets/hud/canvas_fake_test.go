@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // fakeCanvas は uicore.Canvas の記録用実装。ebiten の描画コンテキスト無しで
@@ -15,30 +14,32 @@ type fakeCanvas struct {
 	texts       []textCall
 	fillRects   []image.Rectangle
 	strokeRects []image.Rectangle
+	triangles   [][3][2]float32
 	nineSlices  int
 	tintedRects []image.Rectangle
 }
 
-// textCall は DrawText 呼び出し1回ぶんの記録。基準点と回転角も残し、テストが記号ごとに引ける
+// textCall は DrawText 呼び出し1回ぶんの記録
 type textCall struct {
-	pos    image.Point
-	str    string
-	color  color.Color
-	anchor uicore.TextAnchor
-	angle  float64
+	pos   image.Point
+	str   string
+	color color.Color
 }
 
 func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color) {
 	c.fillRects = append(c.fillRects, r)
 }
 
+func (c *fakeCanvas) FillTriangle(p0, p1, p2 [2]float32, _ color.Color) {
+	c.triangles = append(c.triangles, [3][2]float32{p0, p1, p2})
+}
+
 func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
 	c.strokeRects = append(c.strokeRects, r)
 }
 
-func (c *fakeCanvas) DrawText(pos image.Point, s string, _ text.Face, col color.Color, opts ...uicore.TextOpt) {
-	p := uicore.ResolveText(opts...)
-	c.texts = append(c.texts, textCall{pos: pos, str: s, color: col, anchor: p.Anchor, angle: p.Angle})
+func (c *fakeCanvas) DrawText(pos image.Point, s string, _ text.Face, col color.Color) {
+	c.texts = append(c.texts, textCall{pos: pos, str: s, color: col})
 }
 
 func (c *fakeCanvas) DrawImage(_ image.Point, _ *ebiten.Image) {}

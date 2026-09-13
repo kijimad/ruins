@@ -19,7 +19,6 @@ type MapGridStyle struct {
 	CellPx           int       // 1セルの辺
 	MinGlyphPx       int       // セル辺がこれ以上のときセル記号を重ねる。0 なら常に描く。キューブと現在地の印は閾値によらず常に描く
 	GlyphFace        text.Face // セル記号とキューブに使うフォント
-	MarkerFace       text.Face // 現在地ポインタのフォント。未指定なら GlyphFace を使い、記号と同じ大きさで描く
 	PlayerFacing     gc.Orient // 現在地ポインタの向き
 }
 
@@ -50,19 +49,33 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 		y := style.OriginY + int(c.Y)*style.CellPx
 		drawCubeMarker(cv, style.GlyphFace, x, y, style.CellPx)
 	}
-	// 現在地。ナビのポインタをカメラ前方へ回して位置と向きを兼ねる。北=上なので指す向きが方角になる。
-	// location-arrow は北東向きなので -π/4 で北へ補正し -yaw で前方へ回す
+	// 現在地。上向きの三角形をカメラ前方へ回して位置と向きを兼ねる。北=上なので指す向きが方角になる。
 	if view.PlayerCell != nil {
-		// MarkerFace 未指定ならセル記号と同じ GlyphFace でポインタを描く
-		markerFace := style.MarkerFace
-		if markerFace == nil {
-			markerFace = style.GlyphFace
-		}
-		cx := style.OriginX + int(view.PlayerCell.X)*style.CellPx + style.CellPx/2
-		cy := style.OriginY + int(view.PlayerCell.Y)*style.CellPx + style.CellPx/2
-		angle := -style.PlayerFacing.Yaw() - math.Pi/4
-		cv.DrawText(image.Pt(cx, cy), consts.IconLocationArrow, markerFace, theme.TextAccent, uicore.Rotated(angle))
+		cx := float64(style.OriginX + int(view.PlayerCell.X)*style.CellPx + style.CellPx/2)
+		cy := float64(style.OriginY + int(view.PlayerCell.Y)*style.CellPx + style.CellPx/2)
+		drawPlayerMarker(cv, cx, cy, float64(style.CellPx), style.PlayerFacing)
 	}
+}
+
+// drawPlayerMarker は現在地の三角形を描く。無回転で北(上)を指す三角形を、中央を軸に向きだけ回す。
+// tip が前方、底辺2点が後方。縦横の比を近づけて縦長を避ける。
+func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) {
+	// 中央原点のローカル頂点。y は下向きなので前方(北)は負
+	local := [3][2]float64{
+		{0, -cell * 0.42},           // tip 前方
+		{-cell * 0.30, cell * 0.24}, // 底辺左
+		{cell * 0.30, cell * 0.24},  // 底辺右
+	}
+	sin, cos := math.Sin(facing.Yaw()), math.Cos(facing.Yaw())
+	var p [3][2]float32
+	for i, v := range local {
+		// 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
+		p[i] = [2]float32{
+			float32(cx + v[0]*cos - v[1]*sin),
+			float32(cy + v[0]*sin + v[1]*cos),
+		}
+	}
+	cv.FillTriangle(p[0], p[1], p[2], theme.TextAccent)
 }
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
@@ -72,7 +85,7 @@ func DrawMapLegend(cv uicore.Canvas, face, glyphFace text.Face, top int) {
 	x, y := 8, top
 	for _, g := range overworld.LegendGlyphs() {
 		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label))
-		cv.DrawText(image.Pt(x+swatch/2, y+swatch/2), string(g.Label), glyphFace, theme.OverworldMapGlyphText, uicore.Centered())
+		drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
 		cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
 		x += 120
 		if x > 720 {

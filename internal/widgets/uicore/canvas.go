@@ -14,10 +14,12 @@ import (
 type Canvas interface {
 	// FillRect は矩形を塗る。
 	FillRect(r image.Rectangle, c color.Color)
+	// FillTriangle は3頂点の三角形を塗る。頂点はサブピクセルの向きを保つため float32 で受ける。
+	FillTriangle(p0, p1, p2 [2]float32, c color.Color)
 	// StrokeRect は矩形の枠を width の太さで描く。
 	StrokeRect(r image.Rectangle, width int, c color.Color)
-	// DrawText は pos を基準に1行を描く。既定は左上基準・回転なし。opts で中央揃えや回転へ変える。
-	DrawText(pos image.Point, s string, face text.Face, c color.Color, opts ...TextOpt)
+	// DrawText は pos を左上として1行を描く。
+	DrawText(pos image.Point, s string, face text.Face, c color.Color)
 	// DrawImage は pos を左上として画像を描く。
 	DrawImage(pos image.Point, img *ebiten.Image)
 	// DrawImageRect は img を dst に収まるよう縦横比を保って縮小し、拡大はせず、左寄せ・縦中央で描く。
@@ -29,54 +31,6 @@ type Canvas interface {
 	// DrawImageTintedRect は img を dst いっぱいに引き伸ばし、tint で色を掛けて描く。
 	// 横グラデーションのテクスチャを行幅へ伸ばし、色を付けて一覧の区切り線にするのに使う。
 	DrawImageTintedRect(dst image.Rectangle, img *ebiten.Image, tint color.Color)
-}
-
-// TextAnchor は pos がテキストのどの点を指すか。基準点を bool でなく名前で表し、
-// 将来ほかの寄せが要っても値を足すだけで済むようにする。
-type TextAnchor int
-
-const (
-	// AnchorTopLeft は pos を左上に置く。既定。
-	AnchorTopLeft TextAnchor = iota
-	// AnchorCenter は pos を字形中央に置く。回転はこの中央を軸にする。
-	AnchorCenter
-)
-
-// TextParams は TextOpt を畳んだ描画属性。DrawText の実装とテストの記録が opts をここへ解決する。
-// 不変条件は「Angle が非0なら Anchor は AnchorCenter」。回転は中央を軸にするので両者は常に整合する。
-// ResolveText がこの整合を保証するので、opts の順や組み合わせに依らず矛盾した状態は残らない。
-type TextParams struct {
-	Anchor TextAnchor // pos が指す基準点。既定は左上
-	Angle  float64    // 中央を軸に回すラジアン。非0なら Anchor は AnchorCenter へ揃う
-}
-
-// TextOpt は DrawText の描画を細かく変える。
-type TextOpt func(*TextParams)
-
-// ResolveText は opts を畳んで描画属性にする。角度があれば基準点を中央へ正規化し、
-// Angle と Anchor の不変条件を保つ。
-func ResolveText(opts ...TextOpt) TextParams {
-	var p TextParams
-	for _, o := range opts {
-		o(&p)
-	}
-	if p.Angle != 0 {
-		p.Anchor = AnchorCenter
-	}
-	return p
-}
-
-// Centered は pos を字形中央に据え、水平・垂直とも中央揃えで描く。
-func Centered() TextOpt {
-	return func(p *TextParams) { p.Anchor = AnchorCenter }
-}
-
-// Rotated は angle ラジアンだけ回して描く。回転は中央を軸にするので中央揃えを伴う。
-func Rotated(angle float64) TextOpt {
-	return func(p *TextParams) {
-		p.Anchor = AnchorCenter
-		p.Angle = angle
-	}
 }
 
 // BoxStyle は矩形の塗りと枠。塗りと枠はそれぞれ色が nil なら描かない。

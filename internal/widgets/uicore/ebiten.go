@@ -32,22 +32,21 @@ func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
 	vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)
 }
 
-// DrawText は EbitenCanvas を実装する。既定は pos を左上として描く。Centered なら pos を字形中央に、
-// Rotated なら中央を軸に回す。
-func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c color.Color, opts ...TextOpt) {
-	p := ResolveText(opts...)
+// FillTriangle は EbitenCanvas を実装する。3頂点の三角形を塗る。text/v2 を通らないのでロックは要らない。
+func (e *EbitenCanvas) FillTriangle(p0, p1, p2 [2]float32, c color.Color) {
+	var path vector.Path
+	path.MoveTo(p0[0], p0[1])
+	path.LineTo(p1[0], p1[1])
+	path.LineTo(p2[0], p2[1])
+	path.Close()
+	dop := &vector.DrawPathOptions{AntiAlias: true}
+	dop.ColorScale.ScaleWithColor(c)
+	vector.FillPath(e.screen, &path, &vector.FillOptions{}, dop)
+}
+
+// DrawText は EbitenCanvas を実装する。pos を左上として1行を描く。
+func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c color.Color) {
 	op := &text.DrawOptions{}
-	// default を置かず全 Anchor を列挙して、値が増えたら exhaustive lint で気づけるようにする
-	switch p.Anchor {
-	case AnchorTopLeft:
-		op.PrimaryAlign = text.AlignStart
-		op.SecondaryAlign = text.AlignStart
-	case AnchorCenter:
-		op.PrimaryAlign = text.AlignCenter
-		op.SecondaryAlign = text.AlignCenter
-	}
-	// GeoM は Rotate→Translate の順が要。逆順だと回転軸が原点へずれる。angle 0 は恒等変換
-	op.GeoM.Rotate(p.Angle)
 	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
 	op.ColorScale.ScaleWithColor(c)
 	// ebiten text/v2 の共有グリフキャッシュを壊さないよう描画を直列化する。詳細は textMu を参照
