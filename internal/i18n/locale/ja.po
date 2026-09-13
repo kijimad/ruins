@@ -143,9 +143,6 @@ msgstr "屋内"
 msgid "Outdoor"
 msgstr "屋外"
 
-msgid "North"
-msgstr "北"
-
 msgid "Semi-outdoor"
 msgstr "半屋外"
 

@@ -43,11 +43,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var ambientTempVisible bool
 	var ambientTempColor color.RGBA
 	var ambientShelterLabel string
-	// オーバーワールドでは階層番号の代わりに、湧き位置からの北への奥行きを出す。プレイヤー位置から
-	// 導けたときだけ表示し、プレイヤー不在で North 0 を誤表示しないよう northDepthVisible で可否を持つ
-	onOverworld := query.IsOnOverworld(world)
-	var northDepth int
-	var northDepthVisible bool
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
@@ -73,10 +68,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 				shelter, _ := query.TileEnvironmentAt(world, grid.X, grid.Y)
 				ambientShelterLabel = query.T(world, shelterMsgid(shelter))
 			}
-			if onOverworld {
-				northDepth = query.NorthDepthChunks(world, grid.Y)
-				northDepthVisible = true
-			}
 		}
 	}
 
@@ -89,10 +80,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	return hud.GameInfoData{
 		FloorNumber:         floorNumber,
-		ShowFloor:           !onOverworld,
-		NorthDepth:          northDepth,
-		ShowNorthDepth:      northDepthVisible,
-		NorthLabel:          query.T(world, "North"),
+		ShowFloor:           !query.IsOnOverworld(world),
 		PlayerHP:            playerHP,
 		PlayerMaxHP:         playerMaxHP,
 		PlayerWeight:        playerWeight,
