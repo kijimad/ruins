@@ -26,7 +26,7 @@ func TestBaselineSnapshot_序盤戦闘(t *testing.T) {
 	curve, err := DifficultyCurve(master, player, weapon, "ruins_area", 21)
 	require.NoError(t, err)
 	assert.InDelta(t, 2.59, curve[0].PowerRatio, 0.05, "廃墟 day1 の戦力比")
-	assert.InDelta(t, 1.52, curve[19].PowerRatio, 0.05, "廃墟 day20 の戦力比。新敵追加で後半が僅かに下がった")
+	assert.InDelta(t, 1.22, curve[19].PowerRatio, 0.05, "廃墟 day20 の戦力比。後半に居座る雑魚の出現上限を絞り目標帯へ寄せた")
 
 	forest, err := DifficultyCurve(master, player, weapon, "forest", 21)
 	require.NoError(t, err)
@@ -51,7 +51,7 @@ func TestBaselineSnapshot_戦闘リスク(t *testing.T) {
 	// 死亡確率は期待値の比では見えない突然死の裾。危険度4の崖で 0.6%→6.6% と跳ねる。
 	assert.InDelta(t, 0.001, curve[7].DeathProb, 0.01, "廃墟 day8 の死亡確率。危険度3までは安全")
 	assert.InDelta(t, 0.066, curve[8].DeathProb, 0.02, "廃墟 day9 の死亡確率。危険度4で崖が立つ")
-	assert.InDelta(t, 0.174, curve[19].DeathProb, 0.03, "廃墟 day20 の死亡確率")
+	assert.InDelta(t, 0.248, curve[19].DeathProb, 0.03, "廃墟 day20 の死亡確率。雑魚を後半から外し無償勝利を減らした")
 }
 
 func TestBaselineSnapshot_生存圧(t *testing.T) {
@@ -104,8 +104,8 @@ func TestBaselineSnapshot_進行カーブ(t *testing.T) {
 	curve, err := ProgressionCurve(master, player, weapon, "ruins_area", 21, DefaultAttacksPerDay)
 	require.NoError(t, err)
 	// 終盤の床は危険だが、想定プレイヤーは成長で危険をほぼ無効化する。成長が難易度を上回る実態を固定する。
-	assert.InDelta(t, 0.174, curve[19].DeathFloor, 0.03, "day20 床の死亡確率")
-	assert.Less(t, curve[19].DeathExpected, 0.01, "day20 想定プレイヤーの死亡確率はほぼ0")
+	assert.InDelta(t, 0.248, curve[19].DeathFloor, 0.03, "day20 床の死亡確率。雑魚を後半から外し床を締めた")
+	assert.Less(t, curve[19].DeathExpected, 0.01, "day20 想定プレイヤーの死亡確率はほぼ0。敵強化では埋まらず成長側の調整が要る")
 	assert.InDelta(t, 30, curve[19].SkillLevel, 3, "day20 の想定スキル値")
 }
 
@@ -128,7 +128,7 @@ func TestBaselineSnapshot_ビルドブレ(t *testing.T) {
 	require.Len(t, stages, 3)
 	// 終盤のブレ幅。熟練度を実ゲーム同様 base 全体へ掛ける正しいモデルでは、スキル成長の効果が大きく、
 	// ブレ幅は許容帯の仮説を超える。これは計測修正で露見した実態で、許容帯かバフ設計の見直し対象。
-	assert.InDelta(t, 3.15, stages[2].MaxSpread, 0.2, "終盤のブレ幅")
+	assert.InDelta(t, 2.81, stages[2].MaxSpread, 0.2, "終盤のブレ幅")
 }
 
 func TestTargetCheck_InRange_帯の内外(t *testing.T) {
