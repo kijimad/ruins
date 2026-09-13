@@ -37,8 +37,8 @@ func buildRoadOverlay(runSeed uint64, area MacroRange, cols consts.Chunk) map[co
 	// 属するリージョンの1つ西から表示範囲の右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ
 	// scanMargin ぶんの余裕を足す。表示範囲外へ出たチャンクを印しても読み手が引かないので無害
 	const scanMargin consts.Chunk = 1
-	topRegion := floorDiv(area.OriginY, settlementPlacement.Spacing)
-	botRegion := floorDiv(area.OriginY+area.Rows-1, settlementPlacement.Spacing)
+	topRegion := consts.FloorDiv(area.OriginY, settlementPlacement.Spacing)
+	botRegion := consts.FloorDiv(area.OriginY+area.Rows-1, settlementPlacement.Spacing)
 	rLo := topRegion - 1 - scanMargin // 1つ北のリージョンの道が南へ食い込みうる
 	rHi := botRegion + scanMargin
 	for pr := rLo; pr <= rHi; pr++ {

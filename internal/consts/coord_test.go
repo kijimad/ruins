@@ -107,3 +107,29 @@ func TestTileCenterToWorld(t *testing.T) {
 		})
 	}
 }
+
+// TestFloorDiv は負の被除数でも床方向へ連続することを固定する。Go の / はゼロ方向へ丸めるため、
+// 負側で境界が二重にならないことを検証する。query の int と overworld の Chunk が同じ1関数を共有する。
+func TestFloorDiv(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		a, b consts.Chunk
+		want consts.Chunk
+	}{
+		{"正で割り切れる", 6, 3, 2},
+		{"正で余りあり", 7, 3, 2},
+		{"ゼロ", 0, 3, 0},
+		{"負で割り切れる", -3, 3, -1},
+		{"負で余りあり床方向へ", -1, 3, -1},
+		{"負で余りあり床方向へ2", -4, 3, -2},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, c.want, consts.FloorDiv(c.a, c.b), "Chunk 版が床方向へ丸める")
+			assert.Equal(t, int(c.want), consts.FloorDiv(int(c.a), int(c.b)), "int 版も同じ結果")
+		})
+	}
+}

@@ -86,6 +86,7 @@ func TestBand_ShiftNorth(t *testing.T) {
 	// ExploredTiles 追従: (30,150)→(30,250) 生存、(30,250)→(30,350) は帯外で破棄
 	assert.True(t, field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 30, Y: 250}}], "中央の探索済みは付け替わって残る")
 	assert.False(t, field.ExploredTiles[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 30, Y: 150}}], "元キーは残らない")
+	assert.NotContains(t, field.ExploredTiles, gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 30, Y: 350}}, "帯外へリベースされた探索済みはキーごと破棄される")
 	assert.Len(t, field.ExploredTiles, 1, "帯外に落ちた探索済みキーは捨てられる")
 
 	// 視界も付け替えられる（クリアでなく平行移動。シフトフレームの暗転＝チラつきを防ぐ）

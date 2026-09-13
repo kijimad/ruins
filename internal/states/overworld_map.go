@@ -46,9 +46,10 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 // 全画面図のセル寸法・半径の範囲。帯が短いとセルが巨大化、広いと潰れるのを両側で防ぐ。
 // セルを小さくするほどモーダル幅に多くのチャンクが収まり、見える範囲が広がる
 const (
-	overworldMapMinCell   = 10
-	overworldMapMaxCell   = 18
-	overworldMapMinRadius = 3
+	overworldMapMinCell    = 10
+	overworldMapMaxCell    = 18
+	overworldMapMinRadius  = 3
+	overworldMapMarginCols = 3 // セル幅算出で cols に足す左右の余白の列相当ぶん
 )
 
 // modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
@@ -56,12 +57,11 @@ func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
 	return menuframe.PanelInner(menuframe.ModalRect(world))
 }
 
-// overworldMapCell は帯の行数からセル寸法を決める。見出し・凡例のぶんを足した行数で内側高さを割り、
-// 大きめのセルへ寄せる。帯が短いと巨大化するので上限で止める。
+// overworldMapCell は有界の cols 列がモーダル幅に収まるセル寸法を決める。左右の余白ぶんを足した
+// 列数で内側幅を割り、上限下限で挟む。帯が細いとセルが巨大化するので上限で止める。
 func overworldMapCell(inner image.Rectangle, cols consts.Chunk) consts.ScreenPixel {
-	// 北進帯は縦に伸びるので、有界の cols 列をモーダル幅に収める大きさにする。
 	// cols<=0 の退化入力でもゼロ除算しないよう、関数内で 1 以上へ丸めてから割る
-	denom := max(int(cols), 1) + 3
+	denom := max(int(cols), 1) + overworldMapMarginCols
 	cell := min(max(inner.Dx()/denom, overworldMapMinCell), overworldMapMaxCell)
 	return consts.ScreenPixel(cell)
 }

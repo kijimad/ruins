@@ -113,22 +113,12 @@ func NorthDepthChunks(world w.World, y consts.Tile) int {
 	if sb == nil || sb.ChunkH <= 0 || sb.Rows <= 0 {
 		return 0
 	}
-	// 絶対 Y は北側で負になりうるので floorDivInt でチャンク境界を連続させる
-	currentChunkY := floorDivInt(int(sb.LocalToAbsY(y)), int(sb.ChunkH))
+	// 絶対 Y は北側で負になりうるので consts.FloorDiv でチャンク境界を連続させる
+	currentChunkY := consts.FloorDiv(int(sb.LocalToAbsY(y)), int(sb.ChunkH))
 	if depth := int(sb.SpawnChunkY()) - currentChunkY; depth > 0 {
 		return depth
 	}
 	return 0
-}
-
-// floorDivInt は負の被除数でも床方向へ丸める整数除算。絶対 Y が北側で負になるため床除算にする。
-// overworld.floorDiv が consts.Chunk 版の同ロジックを持つ。依存方向が別で共通 leaf に出すと循環するので重複を許容する。
-func floorDivInt(a, b int) int {
-	q := a / b
-	if (a%b != 0) && ((a < 0) != (b < 0)) {
-		q--
-	}
-	return q
 }
 
 // latitudeCold は帯ローカル座標 y の緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。

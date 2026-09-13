@@ -24,7 +24,7 @@ type Placement struct {
 // 有界なのでリージョンで割らず、帯の全列から当選列を1つ引く。こうしないと列数より大きい
 // オフセットを引いたリージョンの当選が帯の外へ落ち、列数の少ない帯に地物がほぼ出なくなる。
 func (p Placement) At(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) bool {
-	return c == p.WinnerOf(runSeed, floorDiv(c.Y, p.Spacing), cols)
+	return c == p.WinnerOf(runSeed, consts.FloorDiv(c.Y, p.Spacing), cols)
 }
 
 // WinnerOf はリージョン ry の当選チャンク座標を返す。生成を伴わない純関数なので、
@@ -41,16 +41,6 @@ func (p Placement) WinnerOf(runSeed uint64, ry, cols consts.Chunk) consts.Coord[
 		X: consts.Chunk((h / span) % uint64(cols)),
 		Y: ry*p.Spacing + consts.Chunk(h%span),
 	}
-}
-
-// floorDiv は負の座標でもリージョン割りが連続になる床除算。Go の / はゼロ方向へ丸めるため、
-// 負側で境界が二重にならないよう床方向へ丸める。
-func floorDiv(a, b consts.Chunk) consts.Chunk {
-	q := a / b
-	if (a%b != 0) && ((a < 0) != (b < 0)) {
-		q--
-	}
-	return q
 }
 
 // chunkGeom は生成中チャンクの帯ローカル配置と、地物が共有するタイル索引。座標計算と

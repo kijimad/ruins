@@ -273,13 +273,13 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
 func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
 	// 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く
-	sr := floorDiv(c.Y, settlementPlacement.Spacing)
+	sr := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
 	for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {
 		if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
 			return zoneRoadside
 		}
 	}
-	ur := floorDiv(c.Y, urbanPlacement.Spacing)
+	ur := consts.FloorDiv(c.Y, urbanPlacement.Spacing)
 	for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} {
 		if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
 			return zoneRoadside

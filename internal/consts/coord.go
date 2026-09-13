@@ -51,3 +51,14 @@ type AbsTileY int
 func BandOriginY(northIndex Chunk, chunkH Tile) AbsTileY {
 	return AbsTileY(-int(northIndex.Tiles(chunkH)))
 }
+
+// FloorDiv は負の被除数でも床方向へ丸める整数除算。Go の / はゼロ方向へ丸めるため、
+// 負側で境界が二重にならないよう床方向へ丸める。絶対 Y のチャンク割りとリージョン割りが
+// 北側の負座標で連続するよう、query と overworld の双方がこの1関数を共有する。
+func FloorDiv[T ~int](a, b T) T {
+	q := a / b
+	if (a%b != 0) && ((a < 0) != (b < 0)) {
+		q--
+	}
+	return q
+}
