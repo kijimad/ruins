@@ -28,18 +28,14 @@ func TestWeaponRestrictionValues_必須な武器ほど劣化量が大きい(t *t
 	}
 }
 
-func TestWeaponRestrictionValues_素手より弱い武器は劣化量が負(t *testing.T) {
+func TestWeaponRestrictionValues_trap武器を解消済み(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 	values, _, err := WeaponRestrictionValues(master, "ruins_area", 20)
 	require.NoError(t, err)
-	// 裁縫キットやフォークのような非武器は素手より死亡確率を上げるので、劣化量が負の武器が存在する。
-	// 装備すると罠になる死にコンテンツを機械的に検出できることを固定する。
-	hasNegative := false
+	// バランス調整で、素手より有意に弱い装備可能武器(trap)を解消した。新たに trap を持ち込んだら
+	// この回帰ゲートで検知する。劣化量が負なら素手より弱いことを意味する。
 	for _, v := range values {
-		if v.Degradation < 0 {
-			hasNegative = true
-		}
+		assert.GreaterOrEqual(t, v.Degradation, -0.005, v.Element+" は素手より有意に弱くない")
 	}
-	assert.True(t, hasNegative, "素手より弱い装備可能武器が検出される")
 }

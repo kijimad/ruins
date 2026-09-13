@@ -18,8 +18,8 @@ func TestWeaponViability_viableと罠と差を集計する(t *testing.T) {
 	assert.LessOrEqual(t, s.Viable, s.Total)
 	assert.GreaterOrEqual(t, s.ViableRate(), 0.0)
 	assert.LessOrEqual(t, s.ViableRate(), 1.0)
-	// 罠、すなわち素手より弱い武器が検出される。fork や sewing_kit が該当する。
-	assert.Positive(t, s.Traps, "罠となる武器が数えられる")
+	// バランス調整で trap を解消したので罠は0。新たな trap を持ち込んだら検知する回帰ゲート。
+	assert.Zero(t, s.Traps, "調整後は素手より弱い装備可能武器がない")
 	// viable が存在するなら決着ターンの幅は非負で、その差が選択の意味になる。
 	if s.Viable > 0 {
 		assert.GreaterOrEqual(t, s.ViableTTKMax, s.ViableTTKMin)
