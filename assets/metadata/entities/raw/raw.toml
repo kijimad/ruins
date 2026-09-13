@@ -12617,6 +12617,10 @@ pack = "1d1"
 id = "reinforced_mechanical_arm"
 weight = 0.3
 pack = "1d1"
+[[itemGroups.entries]]
+id = "50mm_cannon"
+weight = 1.0
+pack = "1d1"
 [[itemGroups]]
 name = "射撃武器"
 id = "ranged_weapon"
