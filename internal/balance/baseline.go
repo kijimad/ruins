@@ -215,13 +215,14 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "| WOOD 10kg | %d |\n", FuelBurnTurns(oapi.WOOD, 10))
 	fmt.Fprintf(&b, "\n")
 
-	// 感度
-	fmt.Fprintf(&b, "## 感度（廃墟 day20 戦力比、各つまみ+10%%）\n\n")
-	fmt.Fprintf(&b, "**概要**: どのパラメータを動かすと難易度が動くかの目安。各武器のダメージを+10%%したとき、廃墟 day20 の戦力比がどれだけ変わるかを示す。\n")
-	fmt.Fprintf(&b, "変化が大きいほど効くつまみ。整数ダメージの丸めで小さな値の変化は表に出ないことがある。\n\n")
-	fmt.Fprintf(&b, "| つまみ | 現状 | +10%% | 変化 |\n|---|---:|---:|---:|\n")
-	for _, s := range SensitivityDay20(master) {
-		fmt.Fprintf(&b, "| %s | %.2f | %.2f | %+.1f%% |\n", s.Knob, s.Base, s.Plus10, s.DeltaRatio*100)
+	// 感度行列。つまみ×代表日のヤコビアン
+	fmt.Fprintf(&b, "## 感度行列（各つまみ+10%%、廃墟の戦力比変化率）\n\n")
+	fmt.Fprintf(&b, "**概要**: どのつまみがどの時期にどれだけ効くか。各武器のダメージを+10%%したとき、廃墟の戦力比が day1・day10・day20 でどれだけ変わるかを示す。\n")
+	fmt.Fprintf(&b, "変化率の絶対値が大きいほど強い結合で、目標帯を外れたときにどのつまみを引くべきかの手掛かりになる。整数ダメージの丸めで小さな値は表に出ないことがある。\n\n")
+	sensDays := []int{1, 10, 20}
+	fmt.Fprintf(&b, "| つまみ | day1 | day10 | day20 |\n|---|---:|---:|---:|\n")
+	for _, s := range SensitivityMatrix(master, sensDays) {
+		fmt.Fprintf(&b, "| %s | %+.1f%% | %+.1f%% | %+.1f%% |\n", s.Knob, s.Deltas[0]*100, s.Deltas[1]*100, s.Deltas[2]*100)
 	}
 	fmt.Fprintf(&b, "\n")
 

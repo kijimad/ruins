@@ -62,6 +62,30 @@ func TestDominates_全目的以下かつ一部真に小で支配(t *testing.T) {
 	assert.False(t, dominates([]float64{0.1, 0.3}, []float64{0.2, 0.2}), "一勝一敗は支配しない")
 }
 
+func TestSensitivityMatrix_つまみ数と代表日を返す(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	days := []int{1, 10, 20}
+	rows := SensitivityMatrix(master, days)
+	assert.Len(t, rows, len(sensitivityKnobs), "つまみの数だけ行が出る")
+	for _, r := range rows {
+		assert.Len(t, r.Deltas, len(days), "各行は代表日ぶんの変化率を持つ")
+	}
+	// 敵武器 bite を+10%すると戦力比は下がる。少なくとも1つの代表日で負の変化。
+	var bite SensitivityMatrixRow
+	for _, r := range rows {
+		if r.Knob == "bite" {
+			bite = r
+		}
+	}
+	require.Equal(t, "bite", bite.Knob, "bite 行が存在する")
+	minDelta := bite.Deltas[0]
+	for _, d := range bite.Deltas {
+		minDelta = min(minDelta, d)
+	}
+	assert.Negative(t, minDelta, "敵武器強化は戦力比を下げる向きに効く")
+}
+
 func TestParetoFront_非劣集合を返す(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
