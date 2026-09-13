@@ -40,3 +40,14 @@ func TestResolveText_角度があれば順序によらず中央基準へ揃う(t
 	assert.Equal(t, uicore.AnchorCenter, p.Anchor)
 	assert.InDelta(t, math.Pi/2, p.Angle, 1e-9)
 }
+
+func TestResolveText_Rotated0は回転なしの中央揃えになる(t *testing.T) {
+	t.Parallel()
+
+	// Rotated(0) は Angle=0 なので正規化は働かないが、Rotated が中央基準を立てる。
+	// 結果は回転なし・中央揃えで Centered() と等価になる
+	p := uicore.ResolveText(uicore.Rotated(0))
+	assert.Equal(t, uicore.AnchorCenter, p.Anchor)
+	assert.Zero(t, p.Angle)
+	assert.Equal(t, uicore.ResolveText(uicore.Centered()), p, "Rotated(0) は Centered() と等価")
+}

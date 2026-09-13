@@ -88,18 +88,21 @@ func drawMapRoad(cv uicore.Canvas, x, y, cell int, road overworld.RoadDir) {
 	t := max(cell/5, 1)
 	half := t / 2
 	ccx, ccy := x+cell/2, y+cell/2
+	// 水平の道は太さ t の横帯 bandTop..bandTop+t、垂直の道は縦帯 bandLeft..bandLeft+t を共有する
+	bandTop := ccy - half
+	bandLeft := ccx - half
 	col := theme.OverworldMapRoad
 	if road&overworld.RoadW != 0 {
-		cv.FillRect(image.Rect(x, ccy-half, ccx+half, ccy-half+t), col)
+		cv.FillRect(image.Rect(x, bandTop, ccx+half, bandTop+t), col)
 	}
 	if road&overworld.RoadE != 0 {
-		cv.FillRect(image.Rect(ccx-half, ccy-half, x+cell, ccy-half+t), col)
+		cv.FillRect(image.Rect(bandLeft, bandTop, x+cell, bandTop+t), col)
 	}
 	if road&overworld.RoadN != 0 {
-		cv.FillRect(image.Rect(ccx-half, y, ccx-half+t, ccy+half), col)
+		cv.FillRect(image.Rect(bandLeft, y, bandLeft+t, ccy+half), col)
 	}
 	if road&overworld.RoadS != 0 {
-		cv.FillRect(image.Rect(ccx-half, ccy-half, ccx-half+t, y+cell), col)
+		cv.FillRect(image.Rect(bandLeft, bandTop, bandLeft+t, y+cell), col)
 	}
 }
 
