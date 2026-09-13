@@ -15,8 +15,8 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	t.Helper()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	// フェイスは nil でよい。fakeCanvas は DrawText/DrawGlyphRotated を記録するだけで実描画しないため、
-	// フェイスに触れない。本番の EbitenCanvas には loader 由来の非 nil フェイスが渡る
+	// フェイスは nil でよい。fakeCanvas は DrawText を記録するだけで実描画しないため、フェイスに
+	// 触れない。本番の EbitenCanvas には loader 由来の非 nil フェイスが渡る
 	return NewMacroMap(nil, NewChrome(res))
 }
 

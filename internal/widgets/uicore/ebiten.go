@@ -32,27 +32,20 @@ func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
 	vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)
 }
 
-// DrawGlyphRotated は EbitenCanvas を実装する。center を中心に angle だけ回した1文字を描く。
-func (e *EbitenCanvas) DrawGlyphRotated(center image.Point, s string, face text.Face, angle float64, c color.Color) {
+// DrawText は EbitenCanvas を実装する。既定は pos を左上として描く。Centered なら pos を字形中央に、
+// Rotated なら中央を軸に回す。
+func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c color.Color, opts ...TextOpt) {
+	p := ResolveText(opts...)
 	op := &text.DrawOptions{}
-	// AlignCenter でグリフ原点を字形中央に置き、その中央を軸に回す。GeoM は Rotate→Translate の順が要。
-	// 逆順だと回転軸が原点へずれる。
-	op.PrimaryAlign = text.AlignCenter
-	op.SecondaryAlign = text.AlignCenter
-	op.GeoM.Rotate(angle)
-	op.GeoM.Translate(float64(center.X), float64(center.Y))
-	op.ColorScale.ScaleWithColor(c)
-	textMu.Lock()
-	text.Draw(e.screen, s, face, op)
-	textMu.Unlock()
-}
-
-// DrawText は EbitenCanvas を実装する。pos を左上として1行を描く。
-func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c color.Color) {
-	op := &text.DrawOptions{}
+	if p.Center {
+		op.PrimaryAlign = text.AlignCenter
+		op.SecondaryAlign = text.AlignCenter
+	}
+	// GeoM は Rotate→Translate の順が要。逆順だと回転軸が原点へずれる。angle 0 は恒等変換
+	op.GeoM.Rotate(p.Angle)
 	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
 	op.ColorScale.ScaleWithColor(c)
-	// ebiten text/v2 の共有グリフキャッシュを壊さないよう測定・描画を直列化する。詳細は textMu を参照
+	// ebiten text/v2 の共有グリフキャッシュを壊さないよう描画を直列化する。詳細は textMu を参照
 	textMu.Lock()
 	text.Draw(e.screen, s, face, op)
 	textMu.Unlock()

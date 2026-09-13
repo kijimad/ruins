@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // fakeCanvas は uicore.Canvas の記録用実装。ebiten の描画コンテキスト無しで
@@ -35,12 +36,13 @@ func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
 	c.strokeRects = append(c.strokeRects, r)
 }
 
-func (c *fakeCanvas) DrawGlyphRotated(_ image.Point, s string, _ text.Face, angle float64, _ color.Color) {
-	c.rotatedGlyphs = append(c.rotatedGlyphs, s)
-	c.rotatedAngles = append(c.rotatedAngles, angle)
-}
-
-func (c *fakeCanvas) DrawText(pos image.Point, s string, _ text.Face, col color.Color) {
+func (c *fakeCanvas) DrawText(pos image.Point, s string, _ text.Face, col color.Color, opts ...uicore.TextOpt) {
+	// 回したグリフは角度付きで別に記録し、左上基準のテキストと区別する
+	if p := uicore.ResolveText(opts...); p.Angle != 0 {
+		c.rotatedGlyphs = append(c.rotatedGlyphs, s)
+		c.rotatedAngles = append(c.rotatedAngles, p.Angle)
+		return
+	}
 	c.texts = append(c.texts, textCall{pos: pos, str: s, color: col})
 }
 

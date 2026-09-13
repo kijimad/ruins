@@ -175,9 +175,8 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		cv.FillRect(image.Rect(int(x), int(y), int(x+size), int(y+size)), c)
 	}
 
-	// Canvas は中央揃えを回転付きでしか持たないので、角度0で中央揃えだけ借りる
 	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
-		cv.DrawGlyphRotated(image.Pt(int(cx), int(cy)), str, glyphFace, 0, c)
+		cv.DrawText(image.Pt(int(cx), int(cy)), str, glyphFace, c, uicore.Centered())
 	}
 
 	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 8, 6, theme.TextPrimary)

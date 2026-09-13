@@ -26,10 +26,7 @@ func (c *recordCanvas) FillRect(r image.Rectangle, _ color.Color) { c.fills = ap
 func (c *recordCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
 	c.strokes = append(c.strokes, r)
 }
-func (c *recordCanvas) DrawGlyphRotated(_ image.Point, s string, _ text.Face, _ float64, _ color.Color) {
-	c.texts = append(c.texts, s)
-}
-func (c *recordCanvas) DrawText(_ image.Point, s string, _ text.Face, _ color.Color) {
+func (c *recordCanvas) DrawText(_ image.Point, s string, _ text.Face, _ color.Color, _ ...uicore.TextOpt) {
 	c.texts = append(c.texts, s)
 }
 func (c *recordCanvas) DrawImage(p image.Point, _ *ebiten.Image) { c.images = append(c.images, p) }

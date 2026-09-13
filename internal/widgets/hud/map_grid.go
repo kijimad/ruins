@@ -56,7 +56,7 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 		cx := style.OriginX + int(view.PlayerCell.X)*style.CellPx + style.CellPx/2
 		cy := style.OriginY + int(view.PlayerCell.Y)*style.CellPx + style.CellPx/2
 		angle := -style.PlayerFacing.Yaw() - math.Pi/4
-		cv.DrawGlyphRotated(image.Pt(cx, cy), consts.IconLocationArrow, style.MarkerFace, angle, theme.TextAccent)
+		cv.DrawText(image.Pt(cx, cy), consts.IconLocationArrow, style.MarkerFace, theme.TextAccent, uicore.Rotated(angle))
 	}
 }
 

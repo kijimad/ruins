@@ -44,6 +44,7 @@ var screenUICoreSymbols = map[string]bool{
 	"NewEbitenCanvas":  true,
 	"MeasureText":      true,
 	"MeasureTextWidth": true,
+	"Centered":         true,
 }
 
 // TestScreenLayerStyleLint は画面層がスタイルを手組みしていないことを静的に検証する。
