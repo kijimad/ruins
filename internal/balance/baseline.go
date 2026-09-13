@@ -242,6 +242,11 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		return "", err
 	}
 
+	// スキル深度。レベルアップが体験に響くティアと、丸めで死んだティア
+	if err := renderSkillDepth(&b, master); err != nil {
+		return "", err
+	}
+
 	// ビルド別のブレ。静的下限に加え、スキル・装備・バフで戦力が振れる幅を見る
 	if builds, err := RepresentativeBuilds(master); err == nil {
 		fmt.Fprintf(&b, "## ビルド別のブレ（廃墟）\n\n")
@@ -454,5 +459,34 @@ func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {
 	} else {
 		fmt.Fprintf(b, "\n全%d武器を表示。\n\n", len(values))
 	}
+	return nil
+}
+
+// renderSkillDepth はスキル進行の手応えを markdown で書き出す。弱い武器と強い武器で、レベルアップが
+// 体験に響く実効ティアと、丸めで死んだティアの割合を対比する。
+func renderSkillDepth(b *strings.Builder, master oapi.Raws) error {
+	const day = 20
+	fmt.Fprintf(b, "## スキル深度（レベルアップの手応え・廃墟day%d）\n\n", day)
+	fmt.Fprintf(b, "**概要**: 素手スキルを1レベル上げるたびに、敵プールの撃破ターンがどれだけ縮むか。熟練度倍率は+5%%/レベルだが\n")
+	fmt.Fprintf(b, "武器ダメージは整数丸めなので、ダメージが変わらないレベルは体験に響かない死んだティアになる。NTBEA のティア識別性を翻案した指標。\n\n")
+
+	fmt.Fprintf(b, "| 武器 | 総レベル | 実効ティア | 死んだティア | 実効の最小改善(ターン) |\n|---|---:|---:|---:|---:|\n")
+	weapons := []string{BaselineWeapon, "iron_sword"}
+	for _, wn := range weapons {
+		prof, err := SkillDepthProfileFor(master, wn, BaselineAreaTable, day)
+		if err != nil {
+			return err
+		}
+		total := len(prof.Tiers) - 1
+		if total < 1 {
+			continue
+		}
+		gap := "-"
+		if prof.EffectiveSteps > 0 {
+			gap = fmt.Sprintf("%.3f", prof.MinEffectiveGap)
+		}
+		fmt.Fprintf(b, "| %s | %d | %d | %d | %s |\n", wn, total, prof.EffectiveSteps, prof.DeadTiers, gap)
+	}
+	fmt.Fprintf(b, "\n死んだティアが多いほど、レベルを上げても手応えがない区間が長い。弱い武器ほど丸めの影響で死にやすい。\n\n")
 	return nil
 }
