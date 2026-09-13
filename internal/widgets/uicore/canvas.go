@@ -31,10 +31,21 @@ type Canvas interface {
 	DrawImageTintedRect(dst image.Rectangle, img *ebiten.Image, tint color.Color)
 }
 
+// TextAnchor は pos がテキストのどの点を指すか。基準点を bool でなく名前で表し、
+// 将来ほかの寄せが要っても値を足すだけで済むようにする。
+type TextAnchor int
+
+const (
+	// AnchorTopLeft は pos を左上に置く。既定。
+	AnchorTopLeft TextAnchor = iota
+	// AnchorCenter は pos を字形中央に置く。回転はこの中央を軸にする。
+	AnchorCenter
+)
+
 // TextParams は TextOpt を畳んだ描画属性。DrawText の実装とテストの記録が opts をここへ解決する。
 type TextParams struct {
-	Center bool    // pos を字形中央に据え中央揃えで描く。既定は左上基準
-	Angle  float64 // 中央を軸に回すラジアン。回転は中央揃えを伴う
+	Anchor TextAnchor // pos が指す基準点。既定は左上
+	Angle  float64    // 中央を軸に回すラジアン。回転は中央揃えを伴う
 }
 
 // TextOpt は DrawText の描画を細かく変える。
@@ -51,13 +62,13 @@ func ResolveText(opts ...TextOpt) TextParams {
 
 // Centered は pos を字形中央に据え、水平・垂直とも中央揃えで描く。
 func Centered() TextOpt {
-	return func(p *TextParams) { p.Center = true }
+	return func(p *TextParams) { p.Anchor = AnchorCenter }
 }
 
 // Rotated は angle ラジアンだけ回して描く。回転は中央を軸にするので中央揃えを伴う。
 func Rotated(angle float64) TextOpt {
 	return func(p *TextParams) {
-		p.Center = true
+		p.Anchor = AnchorCenter
 		p.Angle = angle
 	}
 }

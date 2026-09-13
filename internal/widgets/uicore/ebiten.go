@@ -37,7 +37,12 @@ func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
 func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c color.Color, opts ...TextOpt) {
 	p := ResolveText(opts...)
 	op := &text.DrawOptions{}
-	if p.Center {
+	// default を置かず全 Anchor を列挙して、値が増えたら exhaustive lint で気づけるようにする
+	switch p.Anchor {
+	case AnchorTopLeft:
+		op.PrimaryAlign = text.AlignStart
+		op.SecondaryAlign = text.AlignStart
+	case AnchorCenter:
 		op.PrimaryAlign = text.AlignCenter
 		op.SecondaryAlign = text.AlignCenter
 	}
