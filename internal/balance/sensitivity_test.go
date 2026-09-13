@@ -28,15 +28,29 @@ func TestCrossDomainSensitivity_ブロック対角と符号(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 	rows := CrossDomainSensitivity(master)
-	require.Len(t, rows, 8, "8つのつまみ")
+	require.Len(t, rows, len(knobRegistry()), "レジストリの全つまみが行になる")
 	for _, k := range rows {
 		assert.Len(t, k.Cells, len(SensitivityMetricNames), "各つまみは全メトリクス列を持つ")
+	}
+
+	// 全つまみが少なくとも1つのメトリクスを動かす。動かないつまみはレジストリの死角で、
+	// Params に成分だけあって metricsAt が読んでいない配線漏れを検知する。
+	for _, k := range rows {
+		moved := false
+		for _, c := range k.Cells {
+			if c.PctChange != 0 {
+				moved = true
+			}
+		}
+		assert.True(t, moved, k.Knob+" はどのメトリクスも動かしていない")
 	}
 
 	// 各ドメインのつまみは自分のメトリクスだけを動かす(ブロック対角)。
 	assert.Negative(t, cell(t, rows, "敵武器ダメージ(bite)", "戦力比d20"), "敵武器強化は戦力比を下げる")
 	assert.Positive(t, cell(t, rows, "プレイヤー筋力", "戦力比d20"), "筋力は戦力比を上げる")
 	assert.InDelta(t, 10, cell(t, rows, "最大満腹度", "飢餓まで日数"), 0.5, "満腹度は飢餓日数に線形")
+	assert.Negative(t, cell(t, rows, "飢餓しきい値", "飢餓まで日数"), "しきい値が上がると飢餓に早く入る")
+	assert.Positive(t, cell(t, rows, "疲労蓄積量", "睡眠時間割合"), "溜まりが速いほど睡眠時間割合は上がる")
 	assert.Negative(t, cell(t, rows, "疲労回復量", "睡眠時間割合"), "回復が速いほど睡眠時間割合は下がる")
 	assert.Positive(t, cell(t, rows, "燃料熱量", "OIL航続"), "燃料熱量は航続を伸ばす")
 	// 送料が固定なので loot 価値に対する手取りの弾力性は1を超える(+10%で+10%超)。

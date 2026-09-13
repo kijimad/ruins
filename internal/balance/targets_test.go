@@ -41,8 +41,8 @@ func TestBaselineSnapshot_序盤戦闘(t *testing.T) {
 
 func TestBaselineSnapshot_生存圧(t *testing.T) {
 	t.Parallel()
-	assert.InDelta(t, 0.67, DaysUntilStarving(), 0.02, "栄養失調まで日数")
-	assert.InDelta(t, 1.00, DaysUntilHungerEmpty(), 0.02, "満腹度が尽きるまで日数")
+	assert.InDelta(t, 0.67, DaysUntilStarving(DefaultParams()), 0.02, "栄養失調まで日数")
+	assert.InDelta(t, 1.00, DaysUntilHungerEmpty(DefaultParams()), 0.02, "満腹度が尽きるまで日数")
 	assert.InDelta(t, 10, TurnsToHypothermia(0), 0.5, "0度で低体温まで")
 }
 
@@ -65,10 +65,10 @@ func TestBaselineSnapshot_気候(t *testing.T) {
 func TestBaselineSnapshot_身体と経済(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, 4, HPDrainPerTurnAtBlood(0), "血液0でのHP減")
-	assert.InDelta(t, 1.07, DaysUntilExhausted(), 0.02, "過労までの日数")
+	assert.InDelta(t, 1.07, DaysUntilExhausted(DefaultParams()), 0.02, "過労までの日数")
 	assert.InDelta(t, 0.855, AuctionTakeHomeRate(1000, 1), 0.001, "競売の手取り率")
-	assert.InDelta(t, 0.25, SleepTimeFraction(), 0.001, "釣り合いに要する睡眠時間の割合")
-	assert.InDelta(t, 666.67, SleepTurnsToFullRecover(), 1, "満タンから睡眠で回復し切るターン数")
+	assert.InDelta(t, 0.25, SleepTimeFraction(DefaultParams()), 0.001, "釣り合いに要する睡眠時間の割合")
+	assert.InDelta(t, 666.67, SleepTurnsToFullRecover(DefaultParams()), 1, "満タンから睡眠で回復し切るターン数")
 }
 
 func TestBaselineSnapshot_探索収入(t *testing.T) {

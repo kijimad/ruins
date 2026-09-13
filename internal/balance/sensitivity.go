@@ -3,55 +3,70 @@ package balance
 import (
 	"math"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// sensScales は各つまみの倍率。1.0 が現状。感度分析はどれか1つを 1.1 にして +10% の影響を測る。
-type sensScales struct {
-	weapon, playerStr, maxHunger, hungerDrain, fatigueRecover, fuelHeat, lootValue, turnsPerDay float64
+// Knob は分析機械が動かすパラメータベクトルの1成分。Ptr が Params 内の成分を指すので、
+// 感度・交換レート・探索は成分の意味を知らずに摂動できる。
+type Knob struct {
+	Name   string
+	Domain string
+	Ptr    func(*Params) *float64
 }
 
-func baseScales() sensScales {
-	return sensScales{1, 1, 1, 1, 1, 1, 1, 1}
+// knobRegistry は分析機械が回すつまみの一覧。つまみを増やすときはここに1行足すだけでよい。
+// Params に成分がある値なら導出・感度・交換レートへ自動で載る。
+func knobRegistry() []Knob {
+	return []Knob{
+		{"敵武器ダメージ(bite)", "戦闘", func(p *Params) *float64 { return &p.EnemyWeaponScale }},
+		{"プレイヤー筋力", "戦闘", func(p *Params) *float64 { return &p.PlayerStrengthScale }},
+		{"最大満腹度", "生存", func(p *Params) *float64 { return &p.MaxHunger }},
+		{"空腹減耗ターン", "生存", func(p *Params) *float64 { return &p.HungerDrainTurns }},
+		{"飢餓しきい値", "生存", func(p *Params) *float64 { return &p.HungerStarvingRatio }},
+		{"疲労蓄積量", "疲労", func(p *Params) *float64 { return &p.FatigueGainPerTurn }},
+		{"疲労回復量", "疲労", func(p *Params) *float64 { return &p.FatigueRecoverPerTurn }},
+		{"燃料熱量", "物流", func(p *Params) *float64 { return &p.FuelHeatScale }},
+		{"loot価値", "経済", func(p *Params) *float64 { return &p.LootValueScale }},
+		{"1日ターン数", "横断", func(p *Params) *float64 { return &p.TurnsPerDay }},
+	}
 }
 
 // SensitivityMetricNames は感度行列の列。ドメイン横断の代表メトリクス。
 var SensitivityMetricNames = []string{"戦力比d20", "飢餓まで日数", "睡眠時間割合", "OIL航続", "loot手取り", "Lv30攻撃数"}
 
-// sensMetrics は倍率 s の下で SensitivityMetricNames の各メトリクスを評価して返す。単一出典の導出式を
-// パラメータ化した本体に摂動値を渡す。つまみが効かないメトリクスは現状値のままになり弾力性0になる。
-func sensMetrics(master oapi.Raws, s sensScales) []float64 {
-	out := make([]float64, 6)
+// metricsAt はパラメータベクトル p の下で SensitivityMetricNames の各メトリクスを評価して返す。
+// 導出はすべて p の純関数なので、成分を摂動すれば任意のつまみの影響を測れる。
+// p が効かないメトリクスは現状値のままになり弾力性0になる。
+func metricsAt(master oapi.Raws, p Params) []float64 {
+	out := make([]float64, len(SensitivityMetricNames))
 
-	// 戦闘。敵武器 bite のダメージとプレイヤー筋力を摂動して廃墟 day20 戦力比を測る
+	// 戦闘。敵武器ダメージとプレイヤー筋力の倍率を適用して廃墟 day20 戦力比を測る
 	if player, err := LoadCombatantFromMember(master, BaselinePlayer); err == nil {
 		if weapon, err := LoadWeaponFromItem(master, BaselineWeapon); err == nil {
-			player.Strength = int(math.Round(float64(player.Strength) * s.playerStr))
-			withScaledMeleeDamage(master, "bite", s.weapon, func() {
+			player.Strength = int(math.Round(float64(player.Strength) * p.PlayerStrengthScale))
+			withScaledMeleeDamage(master, "bite", p.EnemyWeaponScale, func() {
 				if curve, e := DifficultyCurve(master, player, weapon, BaselineAreaTable, 20); e == nil && len(curve) >= 20 {
 					out[0] = curve[19].PowerRatio
 				}
 			})
 		}
 	}
-	// 生存。満腹度・減耗ターン・1日ターンを摂動
-	out[1] = daysUntilStarvingWith(float64(gc.DefaultMaxHunger)*s.maxHunger, float64(gc.HungerDrainTurns)*s.hungerDrain, float64(gc.TurnsPerDay)*s.turnsPerDay)
-	// 疲労。睡眠回復量を摂動
-	out[2] = sleepTimeFractionWith(float64(gc.FatigueGainPerTurn), float64(systems.FatigueRecoverPerTurn)*s.fatigueRecover)
-	// 物流。燃料熱量を摂動して満載 OIL の航続を測る
+	// 生存
+	out[1] = DaysUntilStarving(p)
+	// 疲労
+	out[2] = SleepTimeFraction(p)
+	// 物流。燃料熱量の倍率を掛けて満載 OIL の航続を測る
 	capacity := consts.Milligram(consts.CubeWeightCapacityKg) * consts.MilligramPerKg
-	fuel := float64(query.HeatOf(oapi.OIL, capacity)) * s.fuelHeat
+	fuel := float64(query.HeatOf(oapi.OIL, capacity)) * p.FuelHeatScale
 	out[3] = DriveRangeTiles(consts.Heat(fuel), capacity)
-	// 経済。loot 価値を摂動して1個あたり手取りを測る。送料は固定なので価値に対し弾力性が1を超える
-	lv := ExpectedLootValue(master, "ruins_area", 8) * s.lootValue
+	// 経済。loot 価値の倍率を掛けて1個あたり手取りを測る。送料は固定なので価値に対し弾力性が1を超える
+	lv := ExpectedLootValue(master, "ruins_area", 8) * p.LootValueScale
 	if lv > 0 {
 		out[4] = float64(query.AuctionNetProceeds(consts.Currency(math.Round(lv)), ExpectedLootWeightKg(master, "ruins_area", 8)))
 	}
-	// 進行。今回のつまみでは動かさない。他ドメインのつまみが成長に波及しないことを見せる列
+	// 進行。現状の成分では動かない。他ドメインのつまみが成長に波及しないことを見せる列
 	out[5] = float64(AttacksToSkillLevel(0, 30))
 	return out
 }
@@ -69,29 +84,18 @@ type KnobSensitivity struct {
 	Cells  []SensitivityCell
 }
 
-// CrossDomainSensitivity はドメイン横断の感度行列を返す。各つまみを+10%し、全ドメインの代表
-// メトリクスがどれだけ動くかを測る。ヤコビアンで、多くはブロック対角、すなわち各つまみは自分の
-// ドメインのメトリクスだけを動かす。横断するのは1日ターン数のような共通の分母だけ。
+// CrossDomainSensitivity はドメイン横断の感度行列を返す。knobRegistry の各つまみを+10%し、
+// 全ドメインの代表メトリクスがどれだけ動くかを測る。ヤコビアンで、多くはブロック対角、
+// すなわち各つまみは自分のドメインのメトリクスだけを動かす。横断するのは1日ターン数の
+// ような共通の分母だけ。
 func CrossDomainSensitivity(master oapi.Raws) []KnobSensitivity {
-	knobs := []struct {
-		name, domain string
-		apply        func(*sensScales)
-	}{
-		{"敵武器ダメージ(bite)", "戦闘", func(s *sensScales) { s.weapon = 1.1 }},
-		{"プレイヤー筋力", "戦闘", func(s *sensScales) { s.playerStr = 1.1 }},
-		{"最大満腹度", "生存", func(s *sensScales) { s.maxHunger = 1.1 }},
-		{"空腹減耗ターン", "生存", func(s *sensScales) { s.hungerDrain = 1.1 }},
-		{"疲労回復量", "疲労", func(s *sensScales) { s.fatigueRecover = 1.1 }},
-		{"燃料熱量", "物流", func(s *sensScales) { s.fuelHeat = 1.1 }},
-		{"loot価値", "経済", func(s *sensScales) { s.lootValue = 1.1 }},
-		{"1日ターン数", "横断", func(s *sensScales) { s.turnsPerDay = 1.1 }},
-	}
-	base := sensMetrics(master, baseScales())
+	base := metricsAt(master, DefaultParams())
+	knobs := knobRegistry()
 	rows := make([]KnobSensitivity, 0, len(knobs))
 	for _, k := range knobs {
-		s := baseScales()
-		k.apply(&s)
-		pert := sensMetrics(master, s)
+		p := DefaultParams()
+		*k.Ptr(&p) *= 1.1
+		pert := metricsAt(master, p)
 		cells := make([]SensitivityCell, len(SensitivityMetricNames))
 		for i := range SensitivityMetricNames {
 			pct := 0.0
@@ -100,7 +104,7 @@ func CrossDomainSensitivity(master oapi.Raws) []KnobSensitivity {
 			}
 			cells[i] = SensitivityCell{Metric: SensitivityMetricNames[i], PctChange: pct}
 		}
-		rows = append(rows, KnobSensitivity{Knob: k.name, Domain: k.domain, Cells: cells})
+		rows = append(rows, KnobSensitivity{Knob: k.Name, Domain: k.Domain, Cells: cells})
 	}
 	return rows
 }

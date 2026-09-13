@@ -24,9 +24,10 @@ func (c TargetCheck) InRange() bool {
 // 目標帯は「静的下限がこの範囲に収まれば実プレイは少なくともこれだけ快適」という下限側の仮説。
 // 回復や成長を足した実プレイは楽側へ振れるので、帯は厳しめの下限で引く。
 func DomainTargets() []TargetCheck {
+	p := DefaultParams()
 	return []TargetCheck{
-		{"生存・飢え", "DaysUntilHungerEmpty(日)", DaysUntilHungerEmpty(), 0.8, 1.3},
-		{"生存・疲労", "SleepTimeFraction", SleepTimeFraction(), 0.20, 0.33},
+		{"生存・飢え", "DaysUntilHungerEmpty(日)", DaysUntilHungerEmpty(p), 0.8, 1.3},
+		{"生存・疲労", "SleepTimeFraction", SleepTimeFraction(p), 0.20, 0.33},
 		{"生存・寒さ", "TurnsToHypothermia(0℃)", TurnsToHypothermia(0), 8, 20},
 		{"物流", "DriveRangeAllFuel(OIL満載,タイル)", DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg), 800, 1200},
 		{"経済", "AuctionTakeHomeRate(価値200,1kg)", AuctionTakeHomeRate(200, 1), 0.5, 0.85},
