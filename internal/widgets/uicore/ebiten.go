@@ -35,9 +35,8 @@ func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
 // DrawGlyphRotated は EbitenCanvas を実装する。center を中心に angle だけ回した1文字を描く。
 func (e *EbitenCanvas) DrawGlyphRotated(center image.Point, s string, face text.Face, angle float64, c color.Color) {
 	op := &text.DrawOptions{}
-	// AlignCenter でグリフの原点を字形中央に置き、その中央を軸に Rotate→Translate で center へ移す。
-	// GeoM は Rotate→Translate の順が要。逆順だと回転軸が原点へずれる。Align は GeoM と独立なので
-	// 代入順は問わないが、揃える対象を先に宣言してから動かす流れで読めるよう前に置く。
+	// AlignCenter でグリフ原点を字形中央に置き、その中央を軸に回す。GeoM は Rotate→Translate の順が要。
+	// 逆順だと回転軸が原点へずれる。
 	op.PrimaryAlign = text.AlignCenter
 	op.SecondaryAlign = text.AlignCenter
 	op.GeoM.Rotate(angle)

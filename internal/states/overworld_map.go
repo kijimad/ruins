@@ -163,22 +163,19 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	// セルの記号は小さいセルへ収めるため小フォントにする。見出し・凡例は BodyFace のまま
 	glyphFace := world.Resources.UIResources.Text.SmallFace
 
-	// 見出し・凡例・格子をすべて同じ Canvas 越しに描く。text/v2 のグリフキャッシュは並行安全でないため、
-	// 生の text.Draw を混ぜず EbitenCanvas に集約してロックを1箇所へ通す
+	// 文字も塗りも EbitenCanvas に集約する。text/v2 のグリフキャッシュは並行安全でなく、
+	// 生の text.Draw はロックを迂回するため
 	cv := uicore.NewEbitenCanvas(dst)
 
 	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
 		cv.DrawText(image.Pt(int(x), int(y)), str, face, c)
 	}
 
-	// 凡例の色見本。塗りも Canvas 経由にして、画面側は uicore の面を名指しせず描画関数だけを受け渡す
 	fillSwatch := func(x, y, size consts.ScreenPixel, c color.Color) {
 		cv.FillRect(image.Rect(int(x), int(y), int(x+size), int(y+size)), c)
 	}
 
-	// drawCellGlyph はセルの中央に1文字を描く。基準点をセル中央に置き、水平・垂直とも中央揃えにする
-	// ことで、字形の幅高に依らず四辺の余白が揃う。Canvas は中央揃えの描画を回転付きでしか持たないので、
-	// 角度0の DrawGlyphRotated で中央揃えだけを借りる。生の text.Draw を避け同じロック経路に載せる
+	// Canvas は中央揃えを回転付きでしか持たないので、角度0で中央揃えだけ借りる
 	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
 		cv.DrawGlyphRotated(image.Pt(int(cx), int(cy)), str, glyphFace, 0, c)
 	}
