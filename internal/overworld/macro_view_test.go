@@ -27,7 +27,7 @@ func TestBuildMacroView_北進帯は絶対チャンク行をnorthIndexでずら�
 	require.Len(t, view.Cells, 3, "窓は 2*radius+1 行")
 	require.Len(t, view.Cells[0], 3, "窓は cols 列")
 	// northIndex ずらしを含めてプレイヤーは窓ローカルの中央行・列0へ来る
-	assert.Equal(t, consts.Coord[consts.Chunk]{X: 0, Y: 1}, view.PlayerCell, "プレイヤーが中央行へ来る")
+	assert.Equal(t, &consts.Coord[consts.Chunk]{X: 0, Y: 1}, view.PlayerCell, "プレイヤーが中央行へ来る")
 	assert.Empty(t, view.CubeCells, "表示範囲外のキューブは落とす")
 }
 
@@ -50,7 +50,7 @@ func TestBuildMacroView_表示範囲の格子とマーカーを表示範囲ロ�
 
 	assert.Len(t, view.Cells, 2, "行数は表示範囲の Rows")
 	assert.Len(t, view.Cells[0], 3, "列数は表示範囲の Cols")
-	assert.Equal(t, consts.Coord[consts.Chunk]{X: 1, Y: 0}, view.PlayerCell, "プレイヤーは表示範囲ローカル(1,0)")
+	assert.Equal(t, &consts.Coord[consts.Chunk]{X: 1, Y: 0}, view.PlayerCell, "プレイヤーは表示範囲ローカル(1,0)")
 	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 2, Y: 1}}, view.CubeCells, "キューブは表示範囲ローカル(2,1)")
 	assert.False(t, view.Cells[0][0].Discovered, "discovered が nil なら何も開放されずフォグになる")
 }
@@ -66,7 +66,7 @@ func TestBuildMacroView_現在地と重なるキューブは落とす(t *testing
 	}
 	view := BuildMacroView(1, 0, 10, 10, area, player, true, cubes, nil)
 
-	assert.Equal(t, consts.Coord[consts.Chunk]{X: 1, Y: 0}, view.PlayerCell)
+	assert.Equal(t, &consts.Coord[consts.Chunk]{X: 1, Y: 0}, view.PlayerCell)
 	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 2, Y: 1}}, view.CubeCells, "現在地セルのキューブは落とし、向きポインタだけ見せる")
 }
 
@@ -108,7 +108,7 @@ func TestBuildMacroView_表示範囲外のマーカーは落とす(t *testing.T)
 	player := consts.Coord[consts.Tile]{X: 55, Y: 5} // チャンク(5,0)。表示範囲の外
 	view := BuildMacroView(1, 0, 10, 10, area, player, true, []consts.Coord[consts.Tile]{{X: 99, Y: 99}}, nil)
 
-	assert.Equal(t, consts.Chunk(-1), view.PlayerCell.X, "表示範囲外のプレイヤーは -1")
+	assert.Nil(t, view.PlayerCell, "表示範囲外のプレイヤーは現在地なし")
 	assert.Empty(t, view.CubeCells, "表示範囲外のキューブは載せない")
 }
 
@@ -117,5 +117,5 @@ func TestBuildMacroView_プレイヤー不在なら現在地なし(t *testing.T)
 	area := MacroRange{OriginX: 0, Cols: 2, Rows: 1}
 	view := BuildMacroView(1, 0, 10, 10, area, consts.Coord[consts.Tile]{}, false, nil, nil)
 
-	assert.Equal(t, consts.Chunk(-1), view.PlayerCell.X, "プレイヤー不在なら -1")
+	assert.Nil(t, view.PlayerCell, "プレイヤー不在なら現在地なし")
 }

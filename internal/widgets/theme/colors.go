@@ -108,10 +108,6 @@ var (
 	HUDHealthEmpty = color.RGBA{R: 255, G: 0, B: 0, A: 255}
 	// SpecLabel は spec パネルのラベルと見出しの色
 	SpecLabel = color.RGBA{R: 255, G: 255, B: 255, A: 255}
-	// HUDMinimapBg はミニマップの背景色
-	HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}
-	// HUDPlayerMarker はミニマップのプレイヤー表示色
-	HUDPlayerMarker = color.RGBA{R: 255, G: 0, B: 0, A: 255}
 	// HUDTextOutline はテキストのアウトライン色
 	HUDTextOutline = color.RGBA{R: 0, G: 0, B: 0, A: 255}
 	// HUDWeightDanger は重量超過時のテキスト色

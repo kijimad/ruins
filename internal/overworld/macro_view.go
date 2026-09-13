@@ -50,7 +50,7 @@ type MacroCell struct {
 // MacroView はマクロ地図の描画モデル。表示範囲内のチャンク格子と、マーカーの表示範囲ローカル座標を持つ。
 type MacroView struct {
 	Cells      [][]MacroCell                // [row][col] の種別文字格子
-	PlayerCell consts.Coord[consts.Chunk]   // 表示範囲ローカル (列,行)。表示範囲外や不在なら X が -1
+	PlayerCell *consts.Coord[consts.Chunk]  // 表示範囲ローカル (列,行)。nil ならプレイヤーは表示範囲外か不在
 	CubeCells  []consts.Coord[consts.Chunk] // 表示範囲ローカルのキューブ位置。表示範囲内のものだけ
 }
 
@@ -105,16 +105,16 @@ func BuildMacroView(
 		return consts.Coord[consts.Chunk]{}, false
 	}
 
-	view := MacroView{Cells: cells, PlayerCell: consts.Coord[consts.Chunk]{X: -1}}
+	view := MacroView{Cells: cells}
 	if hasPlayer {
 		if pc, ok := toCell(playerTile); ok {
-			view.PlayerCell = pc
+			view.PlayerCell = &pc
 		}
 	}
 	// 現在地と重なるキューブは描かない。プレイヤーの向きポインタと被って見づらくなるため、
-	// 同じセルではポインタだけを見せる。PlayerCell はプレイヤー不在時 X=-1 でどのキューブとも一致しない
+	// 同じセルではポインタだけを見せる
 	for _, ct := range cubeTiles {
-		if cc, ok := toCell(ct); ok && cc != view.PlayerCell {
+		if cc, ok := toCell(ct); ok && (view.PlayerCell == nil || cc != *view.PlayerCell) {
 			view.CubeCells = append(view.CubeCells, cc)
 		}
 	}

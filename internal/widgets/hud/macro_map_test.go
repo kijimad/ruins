@@ -74,7 +74,6 @@ func TestMacroMap_Draw_開放セルを塗り未開放は伏せる(t *testing.T) 
 			{Glyph: '.', Discovered: true},
 			{Glyph: '.', Discovered: false},
 		}},
-		PlayerCell: consts.Coord[consts.Chunk]{X: -1},
 	}
 	m.Draw(cv, MacroMapData{
 		HasBand: true,
@@ -94,7 +93,7 @@ func TestMacroMap_Draw_現在地は回転ポインタで描く(t *testing.T) {
 
 	view := overworld.MacroView{
 		Cells:      [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
-		PlayerCell: consts.Coord[consts.Chunk]{X: 0, Y: 0},
+		PlayerCell: &consts.Coord[consts.Chunk]{X: 0, Y: 0},
 	}
 	m.Draw(cv, MacroMapData{
 		HasBand:      true,
@@ -119,10 +118,28 @@ func TestDrawMapGrid_道を持つセルは接続方角ごとに線分を描く(t
 			Discovered: true,
 			Road:       overworld.RoadN | overworld.RoadS | overworld.RoadE | overworld.RoadW,
 		}}},
-		PlayerCell: consts.Coord[consts.Chunk]{X: -1},
 	}
 	DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999})
 
 	// セルの地色1つと、接続方角4つの道で計5つの矩形を塗る
 	assert.Len(t, cv.fillRects, 5, "地色1つと4方角の道4つを描く")
+}
+
+func TestDrawMapGrid_キューブは縁取り付きの記号で描く(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+
+	view := overworld.MacroView{
+		Cells:     [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
+		CubeCells: []consts.Coord[consts.Chunk]{{X: 0, Y: 0}},
+	}
+	DrawMapGrid(cv, view, MapGridStyle{CellPx: 20, MinGlyphPx: 999})
+
+	cubes := 0
+	for _, tc := range cv.texts {
+		if tc.str == consts.IconCube {
+			cubes++
+		}
+	}
+	assert.Equal(t, 5, cubes, "キューブは縁取り4つと本体1つで計5回描く")
 }

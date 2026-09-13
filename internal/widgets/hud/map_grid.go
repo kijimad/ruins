@@ -52,7 +52,7 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 	}
 	// 現在地。ナビのポインタをカメラ前方へ回して位置と向きを兼ねる。北=上なので指す向きが方角になる。
 	// location-arrow は北東向きなので -π/4 で北へ補正し -yaw で前方へ回す
-	if view.PlayerCell.X >= 0 {
+	if view.PlayerCell != nil {
 		cx := style.OriginX + int(view.PlayerCell.X)*style.CellPx + style.CellPx/2
 		cy := style.OriginY + int(view.PlayerCell.Y)*style.CellPx + style.CellPx/2
 		angle := -style.PlayerFacing.Yaw() - math.Pi/4
