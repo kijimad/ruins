@@ -78,10 +78,15 @@ func Baseline(master oapi.Raws, playerName, weaponName, enemyTableName string, d
 // 文字列リテラルは源泉英語化の方針に合わせ英語にする。テーブル名は raw 由来の実行時データ。
 func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, days int) (string, error) {
 	var b strings.Builder
-	fmt.Fprintf(&b, "# Balance baseline\n\n")
-	fmt.Fprintf(&b, "Early-combat difficulty curve. Player is fixed to the worst case of un-upgraded `%s` + `%s`.\n", playerName, weaponName)
-	fmt.Fprintf(&b, "power ratio is the ratio of how fast the player kills to how fast the player dies; 1.0 is even, higher is easier.\n")
-	fmt.Fprintf(&b, "Target power ratio is day1=2.5 to day20=1.3, band +/-%.1f. The target is a design hypothesis to revisit by playing.\n\n", targetBand)
+	fmt.Fprintf(&b, "# バランスベースライン\n\n")
+	fmt.Fprintf(&b, "実コードの戦闘式と raw.toml から乱数なしで導出したバランスの現状値。`make balance-report` で再生成する。\n")
+	fmt.Fprintf(&b, "パラメータを変えたときはこのファイルの差分が影響を示す。目標や式の詳細は docs/balance/approach.md を参照。\n\n")
+
+	// 序盤戦闘のカーブ
+	fmt.Fprintf(&b, "## 序盤戦闘の難易度カーブ\n\n")
+	fmt.Fprintf(&b, "**概要**: 各日にプレイヤーがどれだけ有利かを戦力比で表す。戦力比は敵を倒す速さ÷敵に倒される速さで、1.0が互角、大きいほど楽。\n")
+	fmt.Fprintf(&b, "プレイヤーは強化なしの `%s` + `%s` を最悪ケースとして固定する。実プレイは武器強化でこれより楽になる。\n", playerName, weaponName)
+	fmt.Fprintf(&b, "目標帯は day1=2.5 から day20=1.3 へ下げ、許容幅±%.1f。目標は設計仮説でプレイで見直す。判定「内」が目標帯の中、「外」が外。\n\n", targetBand)
 
 	tables := raw.PtrSlice(master.EnemyTables)
 	sort.Slice(tables, func(i, j int) bool { return tables[i].Id < tables[j].Id })
@@ -90,34 +95,37 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		if err != nil {
 			return "", err
 		}
-		fmt.Fprintf(&b, "## %s (%s)\n\n", table.Name, table.Id)
-		fmt.Fprintf(&b, "| day | danger | power ratio | target | in band |\n")
+		fmt.Fprintf(&b, "### %s (%s)\n\n", table.Name, table.Id)
+		fmt.Fprintf(&b, "| 日 | 危険度 | 戦力比 | 目標 | 判定 |\n")
 		fmt.Fprintf(&b, "|---:|---:|---:|---:|:--:|\n")
 		for _, r := range rows {
-			mark := "out"
+			mark := "外"
 			if r.InRange {
-				mark = "in"
+				mark = "内"
 			}
 			fmt.Fprintf(&b, "| %d | %d | %.2f | %.2f | %s |\n", r.Day, r.Danger, r.PowerRatio, r.Target, mark)
 		}
 		fmt.Fprintf(&b, "\n")
 	}
 
-	// 生存圧。食料は日単位、寒さはターン単位で時間スケールが異なる
-	fmt.Fprintf(&b, "## survival pressure\n\n")
-	fmt.Fprintf(&b, "Time to starve without food, and time to hypothermia by effective temperature (ambient + insulation).\n\n")
-	fmt.Fprintf(&b, "| metric | value |\n|---|---:|\n")
-	fmt.Fprintf(&b, "| days until starving (hunger < 33%%) | %.2f |\n", DaysUntilStarving())
-	fmt.Fprintf(&b, "| days until hunger empty | %.2f |\n", DaysUntilHungerEmpty())
-	fmt.Fprintf(&b, "\n| effective temp (C) | turns to hypothermia |\n|---:|---:|\n")
+	// 生存圧
+	fmt.Fprintf(&b, "## 生存圧\n\n")
+	fmt.Fprintf(&b, "**概要**: 補給なしで生き延びられる時間。食料は日単位、寒さはターン単位で時間スケールが大きく違う。\n")
+	fmt.Fprintf(&b, "飢えは満腹度が尽きるまで、寒さは平熱から低体温が発生するまでを表す。実効温度は周囲温度に断熱を足した値。\n\n")
+	fmt.Fprintf(&b, "| 指標 | 値 |\n|---|---:|\n")
+	fmt.Fprintf(&b, "| 栄養失調まで（満腹度33%%未満）の日数 | %.2f |\n", DaysUntilStarving())
+	fmt.Fprintf(&b, "| 満腹度が尽きるまでの日数 | %.2f |\n", DaysUntilHungerEmpty())
+	fmt.Fprintf(&b, "\n| 実効温度(℃) | 低体温までのターン |\n|---:|---:|\n")
 	for _, temp := range []int{-20, -10, 0, 5, 10, 15} {
 		fmt.Fprintf(&b, "| %d | %.0f |\n", temp, TurnsToHypothermia(temp))
 	}
 	fmt.Fprintf(&b, "\n")
 
-	// 感度。各つまみを+10%したとき廃墟 day20 の戦力比がどれだけ動くか。どのパラメータが効くかの目安
-	fmt.Fprintf(&b, "## sensitivity (ruins day20 power ratio, +10%% each knob)\n\n")
-	fmt.Fprintf(&b, "| knob | base | +10%% | change |\n|---|---:|---:|---:|\n")
+	// 感度
+	fmt.Fprintf(&b, "## 感度（廃墟 day20 戦力比、各つまみ+10%%）\n\n")
+	fmt.Fprintf(&b, "**概要**: どのパラメータを動かすと難易度が動くかの目安。各武器のダメージを+10%%したとき、廃墟 day20 の戦力比がどれだけ変わるかを示す。\n")
+	fmt.Fprintf(&b, "変化が大きいほど効くつまみ。整数ダメージの丸めで小さな値の変化は表に出ないことがある。\n\n")
+	fmt.Fprintf(&b, "| つまみ | 現状 | +10%% | 変化 |\n|---|---:|---:|---:|\n")
 	for _, s := range SensitivityDay20(master) {
 		fmt.Fprintf(&b, "| %s | %.2f | %.2f | %+.1f%% |\n", s.Knob, s.Base, s.Plus10, s.DeltaRatio*100)
 	}

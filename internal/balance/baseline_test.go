@@ -43,9 +43,9 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	require.NoError(t, err)
 
 	// 見出しと各セクションが出る
-	assert.Contains(t, md, "# Balance baseline")
-	assert.Contains(t, md, "## survival pressure")
-	assert.Contains(t, md, "## sensitivity")
+	assert.Contains(t, md, "# バランスベースライン")
+	assert.Contains(t, md, "## 生存圧")
+	assert.Contains(t, md, "## 感度")
 
 	// 敵テーブルは id 昇順で並ぶ。cave < forest < ruins_area
 	iCave := strings.Index(md, "(cave)")
