@@ -105,5 +105,13 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		fmt.Fprintf(&b, "| %d | %.0f |\n", temp, TurnsToHypothermia(temp))
 	}
 	fmt.Fprintf(&b, "\n")
+
+	// 感度。各つまみを+10%したとき廃墟 day20 の戦力比がどれだけ動くか。どのパラメータが効くかの目安
+	fmt.Fprintf(&b, "## sensitivity (ruins day20 power ratio, +10%% each knob)\n\n")
+	fmt.Fprintf(&b, "| knob | base | +10%% | change |\n|---|---:|---:|---:|\n")
+	for _, s := range SensitivityDay20(master) {
+		fmt.Fprintf(&b, "| %s | %.2f | %.2f | %+.1f%% |\n", s.Knob, s.Base, s.Plus10, s.DeltaRatio*100)
+	}
+	fmt.Fprintf(&b, "\n")
 	return b.String(), nil
 }

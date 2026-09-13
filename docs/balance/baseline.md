@@ -100,3 +100,12 @@ Time to starve without food, and time to hypothermia by effective temperature (a
 | 10 | 20 |
 | 15 | 0 |
 
+## sensitivity (ruins day20 power ratio, +10% each knob)
+
+| knob | base | +10% | change |
+|---|---:|---:|---:|
+| bite | 1.88 | 1.84 | -2.0% |
+| cleaver | 1.88 | 1.88 | -0.4% |
+| flame_attack | 1.88 | 1.88 | -0.1% |
+| bare_hands | 1.88 | 1.88 | +0.0% |
+
