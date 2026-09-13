@@ -37585,13 +37585,13 @@
     {
       "X": 46,
       "Y": 35,
-      "Name": "green_herb",
+      "Name": "yellow_herb",
       "Count": 1
     },
     {
       "X": 9,
       "Y": 49,
-      "Name": "screwdriver",
+      "Name": "monkey_wrench",
       "Count": 1
     },
     {

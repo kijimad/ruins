@@ -37556,49 +37556,49 @@
     {
       "X": 1,
       "Y": 45,
-      "Name": "pickaxe",
+      "Name": "nunchaku",
       "Count": 1
     },
     {
       "X": 31,
       "Y": 24,
-      "Name": "chef_hat",
+      "Name": "tool_vest",
       "Count": 1
     },
     {
       "X": 40,
       "Y": 36,
-      "Name": "yellow_herb",
+      "Name": "antidote",
       "Count": 1
     },
     {
       "X": 23,
       "Y": 34,
-      "Name": "broccoli",
+      "Name": "flat_meat",
       "Count": 1
     },
     {
       "X": 10,
       "Y": 34,
-      "Name": "shrimp",
+      "Name": "sushi_roll",
       "Count": 1
     },
     {
       "X": 13,
       "Y": 0,
-      "Name": "pancake",
+      "Name": "churros",
       "Count": 1
     },
     {
       "X": 39,
       "Y": 21,
-      "Name": "ramen",
+      "Name": "minced_meat",
       "Count": 1
     },
     {
       "X": 3,
       "Y": 24,
-      "Name": "jerky",
+      "Name": "banana",
       "Count": 1
     },
     {
@@ -37610,7 +37610,7 @@
     {
       "X": 38,
       "Y": 23,
-      "Name": "chef_hat",
+      "Name": "winter_gloves",
       "Count": 1
     }
   ],

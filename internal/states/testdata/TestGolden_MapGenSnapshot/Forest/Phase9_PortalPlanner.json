@@ -37597,13 +37597,13 @@
     {
       "X": 38,
       "Y": 34,
-      "Name": "pancake",
+      "Name": "chili_pepper",
       "Count": 1
     },
     {
       "X": 38,
       "Y": 30,
-      "Name": "screwdriver",
+      "Name": "monkey_wrench",
       "Count": 1
     },
     {
@@ -37621,25 +37621,25 @@
     {
       "X": 42,
       "Y": 34,
-      "Name": "antidote",
+      "Name": "toothbrush_set",
       "Count": 1
     },
     {
       "X": 44,
       "Y": 28,
-      "Name": "pickaxe",
+      "Name": "fire_extinguisher",
       "Count": 1
     },
     {
       "X": 41,
       "Y": 30,
-      "Name": "pumpkin",
+      "Name": "green_soda",
       "Count": 1
     },
     {
       "X": 24,
       "Y": 36,
-      "Name": "cola",
+      "Name": "almond",
       "Count": 2
     }
   ],

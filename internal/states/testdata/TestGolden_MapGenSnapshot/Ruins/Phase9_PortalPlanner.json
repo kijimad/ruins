@@ -37566,7 +37566,7 @@
     {
       "X": 37,
       "Y": 27,
-      "Name": "cheese",
+      "Name": "bagel",
       "Count": 1
     },
     {
@@ -37584,7 +37584,7 @@
     {
       "X": 13,
       "Y": 18,
-      "Name": "smoothie",
+      "Name": "lemon_soda",
       "Count": 1
     },
     {
@@ -37596,37 +37596,43 @@
     {
       "X": 43,
       "Y": 26,
-      "Name": "healing_potion",
+      "Name": "green_herb",
       "Count": 1
     },
     {
       "X": 40,
       "Y": 33,
-      "Name": "green_clothes",
+      "Name": "leather_gaiters",
       "Count": 1
     },
     {
       "X": 19,
       "Y": 23,
-      "Name": "popcorn",
-      "Count": 2
+      "Name": "raw_meat",
+      "Count": 1
     },
     {
       "X": 19,
       "Y": 26,
-      "Name": "antidote",
+      "Name": "toothbrush_set",
       "Count": 1
     },
     {
       "X": 46,
       "Y": 31,
-      "Name": "fork",
+      "Name": "screwdriver",
       "Count": 1
     },
     {
       "X": 42,
       "Y": 25,
-      "Name": "bread",
+      "Name": "cola",
+      "Count": 1
+    },
+    {
+      "X": 12,
+      "Y": 18,
+      "Name": "chef_hat",
       "Count": 1
     }
   ],
@@ -37635,7 +37641,7 @@
   "NextPortals": [
     {
       "X": 38,
-      "Y": 29
+      "Y": 28
     }
   ],
   "SpawnPoints": null

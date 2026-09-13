@@ -38647,8 +38647,8 @@
     {
       "X": 16,
       "Y": 2,
-      "Name": "tomato",
-      "Count": 2
+      "Name": "corn",
+      "Count": 1
     },
     {
       "X": 9,
@@ -38666,6 +38666,12 @@
       "X": 19,
       "Y": 12,
       "Name": "wooden_stick",
+      "Count": 1
+    },
+    {
+      "X": 45,
+      "Y": 31,
+      "Name": "lemon_soda",
       "Count": 1
     }
   ],
