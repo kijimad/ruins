@@ -46,9 +46,10 @@ func (st *OverworldMapState) OnStop(_ w.World) error { return nil }
 // 全画面図のセル寸法・半径の範囲。帯が短いとセルが巨大化、広いと潰れるのを両側で防ぐ。
 // セルを小さくするほどモーダル幅に多くのチャンクが収まり、見える範囲が広がる
 const (
-	overworldMapMinCell   = 10
-	overworldMapMaxCell   = 18
-	overworldMapMinRadius = 3
+	overworldMapMinCell    = 10
+	overworldMapMaxCell    = 18
+	overworldMapMinRadius  = 3
+	overworldMapMarginCols = 3 // セル幅算出で cols に足す左右の余白の列相当ぶん
 )
 
 // modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
@@ -56,17 +57,21 @@ func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
 	return menuframe.PanelInner(menuframe.ModalRect(world))
 }
 
-// overworldMapCell は帯の行数からセル寸法を決める。見出し・凡例のぶんを足した行数で内側高さを割り、
-// 大きめのセルへ寄せる。帯が短いと巨大化するので上限で止める。
-func overworldMapCell(inner image.Rectangle, rows consts.Chunk) consts.ScreenPixel {
-	cell := min(max(inner.Dy()/(int(rows)+3), overworldMapMinCell), overworldMapMaxCell)
+// overworldMapCell は有界の cols 列がモーダル幅に収まるセル寸法を決める。左右の余白ぶんを足した
+// 列数で内側幅を割り、上限下限で挟む。帯が細いとセルが巨大化するので上限で止める。
+func overworldMapCell(inner image.Rectangle, cols consts.Chunk) consts.ScreenPixel {
+	// cols<=0 の退化入力でもゼロ除算しないよう、関数内で 1 以上へ丸めてから割る
+	denom := max(int(cols), 1) + overworldMapMarginCols
+	cell := min(max(inner.Dx()/denom, overworldMapMinCell), overworldMapMaxCell)
 	return consts.ScreenPixel(cell)
 }
 
-// overworldMapRadius はモーダル幅に収まるプレイヤー左右のチャンク数を返す。最低限は確保する。
+// overworldMapRadius はモーダル高さに収まるプレイヤー南北のチャンク数を返す。最低限は確保する。
+// 地図の下に見出しと凡例を置くので、そのぶんの高さを差し引いてから収まる行数を出す。
 func overworldMapRadius(inner image.Rectangle, cell consts.ScreenPixel) int {
-	cols := inner.Dx() / int(cell)
-	return max((cols-1)/2, overworldMapMinRadius)
+	const headerLegendReserve = 160
+	rows := (inner.Dy() - headerLegendReserve) / int(cell)
+	return max((rows-1)/2, overworldMapMinRadius)
 }
 
 // OnStart はプレイヤー中心の地形俯瞰モデルを算出して保持する。表示中はプレイヤーが動かないため
@@ -79,14 +84,16 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	}
 	playerTile, hasPlayer := query.PlayerBandTile(world)
 	inner := st.modalInner(world)
-	st.cellPx = overworldMapCell(inner, max(sb.Rows, 1))
-	centerCol := sb.EastIndex + sb.Cols/2
+	st.cellPx = overworldMapCell(inner, max(sb.Cols, 1))
+	// 北進帯は縦に伸びるので、プレイヤーの絶対チャンク行を中心に近傍を見せる。
+	// プレイヤー不在時は帯の中央行。絶対チャンク行への変換は SeamlessBand.AbsChunkRow に集約する
+	centerRow := sb.AbsChunkRow((sb.Rows / 2).Tiles(sb.ChunkH))
 	if hasPlayer {
-		centerCol = sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW))
+		centerRow = sb.AbsChunkRow(playerTile.Y)
 	}
-	area := overworld.PlayerCenteredRange(centerCol, sb.Rows, overworldMapRadius(inner, st.cellPx))
+	area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
-		sb.RunSeed, sb.EastIndex, sb.ChunkW, sb.ChunkH,
+		sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
@@ -94,8 +101,8 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
 	if hasPlayer {
 		st.playerAbs = consts.Coord[consts.Chunk]{
-			X: sb.EastIndex + consts.Chunk(int(playerTile.X)/int(sb.ChunkW)),
-			Y: consts.Chunk(int(playerTile.Y) / int(sb.ChunkH)),
+			X: consts.Chunk(int(playerTile.X) / int(sb.ChunkW)),
+			Y: sb.AbsChunkRow(playerTile.Y),
 		}
 	}
 	return nil

@@ -35,9 +35,9 @@ func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
 
 // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。
 // チャンク座標ごとに (runSeed, 座標) から決定的に、地形→地物の層の順で生成し、
-// 帯ローカルの (offsetX, offsetY) へ配置する。東西は無限にストリーミングし、南北は帯の行数に有界。
-// rows は帯の行数で当選行の抽選に使う。
-func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
+// 帯ローカルの (offsetX, offsetY) へ配置する。南北は北へ無限にストリーミングし、東西は帯の列数に有界。
+// cols は帯の列数で当選列の抽選に使う。
+func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
 	return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {
 		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)
 		if err != nil {
@@ -47,7 +47,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 			return fmt.Errorf("failed to place chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 		}
 		// 地形の上に地物の層を重ねる。小集落などの当選判定は (runSeed, 座標) の純関数
-		if err := PlaceFeatures(world, runSeed, c, rows, offsetX, offsetY, chunkW, chunkH); err != nil {
+		if err := PlaceFeatures(world, runSeed, c, cols, offsetX, offsetY, chunkW, chunkH); err != nil {
 			return err
 		}
 		// 地物がタイルを置換した後、チャンク全域のオートタイルを実状態から再計算する。
@@ -59,7 +59,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 		// Bind が自然に除外する
 		stage.Bind(world, gc.NewOverworldStage())
 		// このチャンクの4境界を接合後に再計算して継ぎ目を消す。片側が空の帯端は自己スキップ
-		// されるため、東西南北を無条件にまとめて呼べる。東シフトは西境界、西シフトは東境界が実境界。
+		// されるため、東西南北を無条件にまとめて呼べる。北シフトは南境界が新チャンク側の実境界になる。
 		RecalcChunkSeams(world, offsetX, offsetY, chunkW, chunkH)
 		return nil
 	}

@@ -77,6 +77,7 @@ func stageBaseTemperature(world w.World) int {
 
 // AmbientTemperatureAt はタイルの周囲気温を返す。ステージの基本気温、囲われに応じて
 // 受け方を変えた世界温度、タイルの加算℃、熱源の押し上げの4項の和になる。
+// 緯度勾配は引数 y のタイル固有の緯度で測るので、同じ帯でも北のタイルほど寒い。
 func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	if GetDungeon(world) == nil {
 		return 0, errors.New("dungeon resource is not set")
@@ -84,14 +85,58 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	baseTemp := stageBaseTemperature(world)
 
 	gt := GetGameTime(world)
-	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
-	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
+	// 屋外の世界温度。季節+時間帯から緯度勾配を引く。worldTemp に折り込むと屋内は
+	// shelteredWorldTemp で緩和され、末尾で引くと屋内外が同じだけ寒くなってしまう
+	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier() - latitudeCold(world, y)
 	shelter, tileModifier := TileEnvironmentAt(world, x, y)
 
 	return baseTemp +
 		shelteredWorldTemp(shelter, worldTemp) +
 		tileModifier +
 		ambientHeatAt(world, x, y), nil
+}
+
+// 奥地ほど寒い緯度勾配のパラメータ。奥へ進んだチャンク距離が増えるほど世界温度を下げる。値は実プレイで調整する。
+const (
+	// latitudeColdPerChunk は1チャンク奥へ進むごとに下がる℃
+	latitudeColdPerChunk = 1
+	// latitudeColdMax は緯度勾配で下げる℃の上限。これ以上奥へ進んでも寒くならない
+	latitudeColdMax = 40
+)
+
+// NorthDepthChunks は帯ローカル座標 y が湧き位置から北へ何チャンク進んだかを返す。
+// 起点は初期帯の中央行 SpawnChunkY で、開始地点を穏やかに保つ。手前や帯を持たないステージでは0。
+// 緯度勾配と HUD の奥地表示がこの1関数を共有する。絶対軸 Y で測るので帯シフトをまたいでも連続。
+func NorthDepthChunks(world w.World, y consts.Tile) int {
+	sb := GetSeamlessBand(world)
+	// ChunkH<=0 はゼロ除算を、Rows<=0 は起点計算を壊す。未初期化の退化帯を計算より前に弾く
+	if sb == nil || sb.ChunkH <= 0 || sb.Rows <= 0 {
+		return 0
+	}
+	// 絶対 Y は北側で負になりうるので consts.FloorDiv でチャンク境界を連続させる
+	currentChunkY := consts.FloorDiv(int(sb.LocalToAbsY(y)), int(sb.ChunkH))
+	if depth := int(sb.SpawnChunkY()) - currentChunkY; depth > 0 {
+		return depth
+	}
+	return 0
+}
+
+// latitudeCold は帯ローカル座標 y の緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
+// 基礎的な寒さはステージの基本気温が担い、緯度勾配は北ほど寒い加算分だけを表す。
+func latitudeCold(world w.World, y consts.Tile) int {
+	return latitudeColdForDepth(NorthDepthChunks(world, y))
+}
+
+// latitudeColdForDepth は湧き位置から奥へ進んだチャンク距離から差し引く℃を返す純粋計算。
+// 距離に比例して単調増加し、latitudeColdMax で頭打ちになる。起点手前や負の距離では0。
+func latitudeColdForDepth(chunksDeep int) int {
+	if chunksDeep <= 0 {
+		return 0
+	}
+	if cold := chunksDeep * latitudeColdPerChunk; cold < latitudeColdMax {
+		return cold
+	}
+	return latitudeColdMax
 }
 
 // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。

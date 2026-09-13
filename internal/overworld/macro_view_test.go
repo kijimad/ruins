@@ -5,14 +5,39 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestFullBandRange_帯全体に東西の余白を足す(t *testing.T) {
+// TestBuildMacroView_北進帯は絶対チャンク行をnorthIndexでずらす は、北進した帯で toCell が
+// タイル行を northIndex ぶんずらして絶対チャンク行へ移し、プレイヤー中心の縦窓へ正しく落とすことを固定する。
+// 表示範囲外のマーカーを落とす分岐も northIndex 込みで押さえる。
+func TestBuildMacroView_北進帯は絶対チャンク行をnorthIndexでずらす(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 10, 10
+	const northIndex consts.Chunk = 2
+	// プレイヤーは帯ローカル (5,5) すなわちチャンク列0。絶対チャンク行 = 0 - northIndex = -2
+	player := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	centerRow := consts.Chunk(int(player.Y)/int(chunkH)) - northIndex // -2
+	area := PlayerCenteredRange(centerRow, 3, 1)                      // OriginY=-3, Rows=3, Cols=3
+	// 表示範囲外のキューブ。ずっと南のチャンクに置く
+	cubes := []consts.Coord[consts.Tile]{{X: 5, Y: 95}}
+	view := BuildMacroView(1, northIndex, chunkW, chunkH, area, player, true, cubes, nil)
+
+	require.Len(t, view.Cells, 3, "窓は 2*radius+1 行")
+	require.Len(t, view.Cells[0], 3, "窓は cols 列")
+	// northIndex ずらしを含めてプレイヤーは窓ローカルの中央行・列0へ来る
+	assert.Equal(t, consts.Coord[consts.Chunk]{X: 0, Y: 1}, view.PlayerCell, "プレイヤーが中央行へ来る")
+	assert.Empty(t, view.CubeCells, "表示範囲外のキューブは落とす")
+}
+
+func TestFullBandRange_帯全体に南北の余白を足す(t *testing.T) {
 	t.Parallel()
 	area := FullBandRange(10, 4, 3)
-	assert.Equal(t, 10-MacroMargin, area.OriginX, "表示範囲の左端は東進位置から余白ぶん西")
-	assert.Equal(t, 4+2*MacroMargin, area.Cols, "列数は帯幅に東西の余白を足す")
-	assert.Equal(t, consts.Chunk(3), area.Rows, "行数は帯の高さ")
+	assert.Equal(t, consts.Chunk(0), area.OriginX, "表示範囲の左端は帯左端の0")
+	assert.Equal(t, consts.Chunk(4), area.Cols, "列数は帯の有界幅そのまま")
+	assert.Equal(t, -10-MacroMargin, area.OriginY, "表示範囲の上端は北進位置から余白ぶん北。北は -Y")
+	assert.Equal(t, 3+2*MacroMargin, area.Rows, "行数は帯高に南北の余白を足す")
 }
 
 func TestBuildMacroView_表示範囲の格子とマーカーを表示範囲ローカルへ組む(t *testing.T) {

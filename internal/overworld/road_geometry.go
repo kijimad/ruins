@@ -44,14 +44,14 @@ func (s roadSeg) tileSpan(chunkW, chunkH consts.Tile) (fixed, lo, hi consts.Tile
 
 // crossingRoads はチャンク c を横切りうる道の端点対を返す。c を横切りうるのは (r-1,r) と (r,r+1) を
 // 結ぶ2本だけ。road.go の舗装と scatter.go の回避が同じ結線を共有する。ホットパスで呼ぶので、
-// スライスを確保せず固定長配列で返す。
-func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) [2][2]consts.Coord[consts.Chunk] {
-	r := floorDiv(c.X, settlementPlacement.Spacing)
+// スライスを確保せず固定長配列で返す。集落は Y 方向のリージョンに並ぶので region は c.Y から引く。
+func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) [2][2]consts.Coord[consts.Chunk] {
+	r := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
 	var pairs [2][2]consts.Coord[consts.Chunk]
 	for i := range 2 {
 		pr := r - 1 + consts.Chunk(i)
-		pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, rows)
-		pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, rows)
+		pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, cols)
+		pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, cols)
 	}
 	return pairs
 }

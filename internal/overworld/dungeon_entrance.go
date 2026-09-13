@@ -25,8 +25,8 @@ type dungeonEntranceFeature struct{}
 // place は当選チャンクの中心付近へ遺跡入口を置く。進入先の遺跡定義は登録済み一覧から
 // チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途
 // 置くため、ここでは重複を避けてスキップする。
-func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-	if !dungeonEntrancePlacement.At(runSeed, c, rows) {
+func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+	if !dungeonEntrancePlacement.At(runSeed, c, cols) {
 		return nil
 	}
 	defs := dungeon.GetAllDungeons()

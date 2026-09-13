@@ -23,26 +23,38 @@ type SeamlessBand struct {
 	Active bool
 	// RunSeed はチャンク決定的生成の元 seed
 	RunSeed uint64
-	// EastIndex は東進したチャンク数
-	EastIndex consts.Chunk
+	// NorthIndex は北進したチャンク数。北へ進むほど増える
+	NorthIndex consts.Chunk
 	// ChunkW は1チャンクの幅
 	ChunkW consts.Tile
 	// ChunkH は帯の高さ
 	ChunkH consts.Tile
-	// Cols は帯の横のチャンク列数
+	// Cols は帯の横のチャンク列数。有界
 	Cols consts.Chunk
 	// Rows は帯の縦チャンク行数。ゼロ値なら復元時に 1 へ正規化する
 	Rows consts.Chunk
 }
 
-// BandOriginX は帯ローカル X=0 が指す絶対タイル X。
-func (sb SeamlessBand) BandOriginX() consts.AbsTileX {
-	return consts.AbsTileX(sb.EastIndex.Tiles(sb.ChunkW))
+// BandOriginY は帯ローカル Y=0 すなわち北端が指す絶対タイル Y。北は -Y なので NorthIndex ぶん負へ伸びる。
+func (sb SeamlessBand) BandOriginY() consts.AbsTileY {
+	return consts.BandOriginY(sb.NorthIndex, sb.ChunkH)
 }
 
-// LocalToAbsX は帯ローカル X を絶対 X に変換する。
-func (sb SeamlessBand) LocalToAbsX(localX consts.Tile) consts.AbsTileX {
-	return consts.AbsTileX(localX) + sb.BandOriginX()
+// LocalToAbsY は帯ローカル Y を絶対 Y に変換する。
+func (sb SeamlessBand) LocalToAbsY(localY consts.Tile) consts.AbsTileY {
+	return consts.AbsTileY(localY) + sb.BandOriginY()
+}
+
+// AbsChunkRow は帯ローカルなタイル行 localY を絶対チャンク行へ移す。localY は帯ローカルで非負なので
+// 素の整数除算で足りる。北は -Y なので NorthIndex ぶん引く。探索フォグ・マクロ地図・全画面図の単一出どころ。
+func (sb SeamlessBand) AbsChunkRow(localY consts.Tile) consts.Chunk {
+	return consts.Chunk(int(localY)/int(sb.ChunkH)) - sb.NorthIndex
+}
+
+// SpawnChunkY はプレイヤーが湧いた位置の絶対チャンク Y。奥行きの起点。プレイヤーは初期帯の中央行に
+// 湧くので Rows/2 で確定し、以後 NorthIndex がいくつでも変わらない不変値になる。
+func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
+	return sb.Rows / 2
 }
 
 // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す

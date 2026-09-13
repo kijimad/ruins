@@ -27,6 +27,13 @@ func countCubes(world w.World) int {
 	return count
 }
 
+const (
+	testChunkW consts.Tile  = 30
+	testChunkH consts.Tile  = 20
+	testCols   consts.Chunk = 1 // 有界の回廊幅
+	testRows   consts.Chunk = 3 // 北へ流す窓の行数
+)
+
 func TestDriver_Start_プレイヤー先在でもキューブをスポーンする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -34,7 +41,7 @@ func TestDriver_Start_プレイヤー先在でもキューブをスポーンす�
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	assert.Equal(t, 1, countCubes(world), "プレイヤーが先在してもキューブが1体スポーンする")
@@ -49,7 +56,7 @@ func TestDriver_Start_復帰経路ではキューブを生成しない(t *testin
 	world := testutil.InitTestWorld(t)
 
 	// 新規開始でキューブが1体湧き、帯が active になる
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	require.Equal(t, 1, countCubes(world), "前提: 新規開始でキューブが1体湧く")
 
@@ -59,126 +66,122 @@ func TestDriver_Start_復帰経路ではキューブを生成しない(t *testin
 	assert.Equal(t, 1, countCubes(world), "復帰経路ではドライバはキューブを生成しない")
 }
 
-const (
-	testChunkW consts.Tile  = 30
-	testChunkH consts.Tile  = 20
-	testCols   consts.Chunk = 3
-)
-
-func TestDriver_MaybeShift_東へ進むとシフトする(t *testing.T) {
+func TestDriver_MaybeShift_北へ進むとシフトする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	world.Components.GridElement.Get(player).X = 2 * testChunkW // 東チャンクへ踏み込む
+	// 北は -Y。中央行の北すなわち localY=0 の行へ踏み込む
+	world.Components.GridElement.Get(player).Y = 0
 
 	shifted, err := s.MaybeShift(world)
 	require.NoError(t, err)
-	assert.True(t, shifted, "東へ踏み込むとシフトする")
-	assert.Equal(t, 1, int(s.EastIndex()), "東シフトで eastIndex が進む")
-	assert.Equal(t, testChunkW, world.Components.GridElement.Get(player).X, "プレイヤーは中央へ戻る")
+	assert.True(t, shifted, "北へ踏み込むとシフトする")
+	assert.Equal(t, 1, int(s.NorthIndex()), "北シフトで northIndex が進む")
+	assert.Equal(t, testChunkH, world.Components.GridElement.Get(player).Y, "プレイヤーは中央へ戻る")
 }
 
 func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	world.Components.GridElement.Get(player).X = 100 // 2チャンク以上東（帯外）
+	world.Components.GridElement.Get(player).Y = -10 // 2チャンク以上北（帯外）
 
 	shifted, err := s.MaybeShift(world)
 	require.NoError(t, err)
 	assert.True(t, shifted)
-	assert.Equal(t, 2, int(s.EastIndex()), "収まるまで連続シフトして eastIndex=2")
-	px := world.Components.GridElement.Get(player).X
-	assert.GreaterOrEqual(t, px, consts.Tile(testCols/2)*testChunkW, "プレイヤーは中央チャンク内に収まる")
-	assert.Less(t, px, consts.Tile(testCols/2+1)*testChunkW, "プレイヤーは中央チャンク内に収まる")
+	assert.Equal(t, 2, int(s.NorthIndex()), "収まるまで連続シフトして northIndex=2")
+	py := world.Components.GridElement.Get(player).Y
+	assert.GreaterOrEqual(t, py, consts.Tile(testRows/2)*testChunkH, "プレイヤーは中央チャンク内に収まる")
+	assert.Less(t, py, consts.Tile(testRows/2+1)*testChunkH, "プレイヤーは中央チャンク内に収まる")
 }
 
-// TestDriver_MaybeShift_開始点より西へはシフトしない は eastIndex=0 で西へ移動しても
-// eastIndex を負にしないことを固定する。
-func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing.T) {
+// TestDriver_MaybeShift_開始点より南へはシフトしない は northIndex=0 で南へ移動しても
+// northIndex を負にしないことを固定する。
+func TestDriver_MaybeShift_開始点より南へはシフトしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
-	require.Equal(t, 0, int(s.EastIndex()), "前提: 開始時 eastIndex=0")
+	require.Equal(t, 0, int(s.NorthIndex()), "前提: 開始時 northIndex=0")
 
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	world.Components.GridElement.Get(player).X = 10 // 中央チャンクより西
+	world.Components.GridElement.Get(player).Y = 2 * testChunkH // 中央チャンクより南
 
 	_, err = s.MaybeShift(world)
 	require.NoError(t, err)
-	assert.Equal(t, 0, int(s.EastIndex()), "開始点より西へはシフトしない（eastIndex は負にならない）")
+	assert.Equal(t, 0, int(s.NorthIndex()), "開始点より南へはシフトしない（northIndex は負にならない）")
 }
 
-// TestDriver_MaybeShift_東進後は西へ戻らない は、東へシフトした後に西端より西へ移動しても
-// 西シフトが起きず eastIndex が戻らないことを固定する。帯は東へのみ進み破棄済み西チャンクを
-// 再生成しないので、到達最西端より西へは戻れない。ShiftWest 再導入への抑止線を兼ねる。
-func TestDriver_MaybeShift_東進後は西へ戻らない(t *testing.T) {
+// TestDriver_MaybeShift_北進後は南へ戻らない は、北へシフトした後に南端より南へ移動しても
+// 南シフトが起きず northIndex が戻らないことを固定する。帯は北へのみ進み破棄済み南チャンクを
+// 再生成しないので、到達最南端より南へは戻れない。ShiftSouth 再導入への抑止線を兼ねる。
+func TestDriver_MaybeShift_北進後は南へ戻らない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 
-	// 東チャンクへ踏み込んで1回シフトさせる
-	world.Components.GridElement.Get(player).X = 2 * testChunkW
+	// 北チャンクへ踏み込んで1回シフトさせる
+	world.Components.GridElement.Get(player).Y = 0
 	shifted, err := s.MaybeShift(world)
 	require.NoError(t, err)
-	require.True(t, shifted, "前提: 東へ1回シフトする")
-	require.Equal(t, 1, int(s.EastIndex()), "前提: eastIndex=1 になる")
+	require.True(t, shifted, "前提: 北へ1回シフトする")
+	require.Equal(t, 1, int(s.NorthIndex()), "前提: northIndex=1 になる")
 
-	// 帯西端より西へ移動しても西シフトは起きず eastIndex は戻らない
-	world.Components.GridElement.Get(player).X = 0
+	// 帯南端より南へ移動しても南シフトは起きず northIndex は戻らない
+	world.Components.GridElement.Get(player).Y = testRows.Tiles(testChunkH) - 1
 	shifted, err = s.MaybeShift(world)
 	require.NoError(t, err)
-	assert.False(t, shifted, "西へ移動してもシフトしない")
-	assert.Equal(t, 1, int(s.EastIndex()), "到達最西端より西へは戻れない（西チャンクを再生成しない）")
+	assert.False(t, shifted, "南へ移動してもシフトしない")
+	assert.Equal(t, 1, int(s.NorthIndex()), "到達最南端より南へは戻れない（南チャンクを再生成しない）")
 }
 
 func TestDriver_MaybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	shifted, err := s.MaybeShift(world)
 	require.NoError(t, err)
 	assert.False(t, shifted, "中央チャンク内ではシフトしない")
-	assert.Equal(t, 0, int(s.EastIndex()), "中央チャンク内では eastIndex 据え置き")
+	assert.Equal(t, 0, int(s.NorthIndex()), "中央チャンク内では northIndex 据え置き")
 }
 
 // TestDriver_セーブ往復で帯状態が復元される は、SeamlessBand が serde に乗り、ロード後に
-// ドライバが同じ eastIndex で再構築できることを固定する。
+// ドライバが同じ northIndex で再構築できることを固定する。
 func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 40, 20
-	const cols = 3
+	const cols consts.Chunk = 1
+	const rows consts.Chunk = 3
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, 1), &NewGameParams{RunSeed: 12345})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, rows), &NewGameParams{RunSeed: 12345})
 	require.NoError(t, s.Start(world))
 
-	// 東へ1回シフトして eastIndex=1 にする
+	// 北へ1回シフトして northIndex=1 にする
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	world.Components.GridElement.Get(player).X = 2 * chunkW
+	world.Components.GridElement.Get(player).Y = 0
 	shifted, err := s.MaybeShift(world)
 	require.NoError(t, err)
 	require.True(t, shifted)
-	require.Equal(t, 1, int(s.EastIndex()))
-	require.Equal(t, 1, int(query.GetSeamlessBand(world).EastIndex), "永続状態に同期される")
+	require.Equal(t, 1, int(s.NorthIndex()))
+	require.Equal(t, 1, int(query.GetSeamlessBand(world).NorthIndex), "永続状態に同期される")
 
 	// セーブ往復（メモリ内）
 	sm, err := save.NewSerializationManager()
@@ -192,16 +195,16 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	// SeamlessBand が復元されている
 	sb := *query.GetSeamlessBand(world2)
 	assert.True(t, sb.Active, "Active が復元される")
-	assert.Equal(t, 1, int(sb.EastIndex), "EastIndex が復元される")
+	assert.Equal(t, 1, int(sb.NorthIndex), "NorthIndex が復元される")
 	assert.Equal(t, uint64(12345), sb.RunSeed, "RunSeed が復元される")
-	assert.Equal(t, chunkW, sb.ChunkW, "ChunkW が復元される")
-	assert.Equal(t, cols, int(sb.Cols), "Cols が復元される")
+	assert.Equal(t, chunkH, sb.ChunkH, "ChunkH が復元される")
+	assert.Equal(t, rows, sb.Rows, "Rows が復元される")
 
-	// 復元ワールドでロード用ドライバを起動 → Band が eastIndex=1 で再構築される
+	// 復元ワールドでロード用ドライバを起動 → Band が northIndex=1 で再構築される
 	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	require.NoError(t, s2.Start(world2))
-	assert.Equal(t, 1, int(s2.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
-	assert.Equal(t, chunkW*cols, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
+	assert.Equal(t, 1, int(s2.NorthIndex()), "ロード復元で Band が northIndex=1 で再構築される")
+	assert.Equal(t, rows.Tiles(chunkH), query.GetCurrentStageField(world2).Level.TileHeight, "帯全高の Level が保たれる")
 
 	// 復元ワールドに帯タイルが存在する（serde 復元）
 	count := 0
@@ -214,22 +217,20 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 
 // TestNewChunkGen_集落は種別分類と一致し帯へ束縛される は、chunkTypeAt が集落と分類する
 // チャンクに集落の会話NPCが実際に spawn され、オーバーワールド帯へ束縛され相互作用を持つことを
-// 固定する。開始特例が無くなり chunkTypeAt が地図と生成の唯一の分類になったので、種別で追跡して
-// 検証できる。これで街が専用ステージでなくオーバーワールドの地物として常在し、遺跡進入時に帯とともに
-// 退避される。
+// 固定する。集落は Y 方向のリージョンに並ぶので、Y を走査して当選チャンクを探す。
 func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 30, 20
-	const rows consts.Chunk = 1
-	// chunkTypeAt が集落と分類するチャンクを探す
+	const cols consts.Chunk = 1
+	// chunkTypeAt が集落と分類するチャンクを探す。集落は Y リージョンなので Y を振る
 	var seed uint64
 	var c consts.Coord[consts.Chunk]
 	found := false
 	for s := uint64(1); s < 500 && !found; s++ {
-		for x := range consts.Chunk(12) {
-			if chunkTypeAt(s, consts.Coord[consts.Chunk]{X: x}, rows) == chunkSettlement {
-				seed, c, found = s, consts.Coord[consts.Chunk]{X: x}, true
+		for y := range consts.Chunk(12) {
+			if chunkTypeAt(s, consts.Coord[consts.Chunk]{Y: y}, cols) == chunkSettlement {
+				seed, c, found = s, consts.Coord[consts.Chunk]{Y: y}, true
 				break
 			}
 		}
@@ -237,7 +238,7 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	require.True(t, found, "前提: 集落と分類されるチャンクが見つかる")
 
 	world := testutil.InitTestWorld(t)
-	gen := NewChunkGen(world, seed, chunkW, chunkH, rows, mapplanner.PlannerTypeSmallRoom)
+	gen := NewChunkGen(world, seed, chunkW, chunkH, cols, mapplanner.PlannerTypeSmallRoom)
 	require.NoError(t, gen(c, 0, 0))
 
 	// 商人が spawn され、オーバーワールド帯へ束縛され、相互作用を持つ
@@ -262,9 +263,9 @@ func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
-	assert.Equal(t, consts.Chunk(1), query.GetSeamlessBand(world).Rows, "新規開始で Rows がセーブ対象へ書き込まれる")
+	assert.Equal(t, testRows, query.GetSeamlessBand(world).Rows, "新規開始で Rows がセーブ対象へ書き込まれる")
 
 	// Rows がゼロ値で復元される場合。1行帯へ正規化される
 	oldWorld := testutil.InitTestWorld(t)
@@ -281,7 +282,7 @@ func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
 	assert.Equal(t, consts.Chunk(3), dr3.band.Rows(), "Rows=3 のセーブは3行で復元される")
 }
 
-// TestDriver_3行帯の通し は rows=3 の帯で、新規開始の全行生成・列単位の東シフト・
+// TestDriver_3行帯の通し は rows=3 の帯で、新規開始の全行生成・行単位の北シフト・
 // セーブ復元までが一貫して3行のまま保たれることを固定する。
 func TestDriver_3行帯の通し(t *testing.T) {
 	t.Parallel()
@@ -319,12 +320,12 @@ func TestDriver_3行帯の通し(t *testing.T) {
 	assert.Equal(t, (testCols/2).Tiles(testChunkW)+testChunkW/2, pg.X, "中央チャンクの中央 X")
 	assert.Equal(t, (rows/2).Tiles(testChunkH)+testChunkH/2, pg.Y, "中央行の中央 Y")
 
-	// 東シフトは列単位で全行を入れ替え、3行とも埋まったまま
-	pg.X = 2 * testChunkW
+	// 北シフトは行単位で全列を入れ替え、3行とも埋まったまま
+	pg.Y = 0
 	shifted, err := s.MaybeShift(world)
 	require.NoError(t, err)
-	require.True(t, shifted, "東へ踏み込むとシフトする")
-	assert.Equal(t, 1, int(s.EastIndex()), "eastIndex が進む")
+	require.True(t, shifted, "北へ踏み込むとシフトする")
+	assert.Equal(t, 1, int(s.NorthIndex()), "northIndex が進む")
 	for r, c := range countRows(world) {
 		assert.Positivef(t, c, "シフト後も行%d にタイルがある", r)
 	}
@@ -347,31 +348,31 @@ func TestDriver_3行帯の通し(t *testing.T) {
 	}
 }
 
-// TestDriver_シフト後もタイルは座標ごとに1枚 は、市街地を含む帯を東へ複数回シフトしても
+// TestDriver_シフト後もタイルは座標ごとに1枚 は、市街地を含む帯を北へ複数回シフトしても
 // タイルエンティティが座標ごとに1枚のままであることを固定する。置換や破棄の取りこぼしが
 // あると同一座標に古いタイルが残留し、見えない壁の影などの怪奇現象になる。
 func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 	t.Parallel()
 
-	// 初期帯の視界内に市街地の断片が入る seed を選ぶ。開始チャンク(スロット1)は避ける
+	// 初期帯の視界内に市街地の断片が入る seed を選ぶ。市街地は Y リージョンに並ぶ。開始チャンク(行1)は避ける
 	var seed uint64
 	for s := uint64(1); s < 500; s++ {
-		if urbanPlacement.At(s, consts.Coord[consts.Chunk]{X: 2}, 1) {
+		if urbanPlacement.At(s, consts.Coord[consts.Chunk]{Y: 2}, testCols) {
 			seed = s
 			break
 		}
 	}
-	require.NotZero(t, seed, "前提: 市街地がスロット2に当たる seed がある")
+	require.NotZero(t, seed, "前提: 市街地が行2に当たる seed がある")
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: seed})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: seed})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 
 	for range 3 {
-		world.Components.GridElement.Get(player).X = 2 * testChunkW
+		world.Components.GridElement.Get(player).Y = 0
 		shifted, err := s.MaybeShift(world)
 		require.NoError(t, err)
 		require.True(t, shifted)

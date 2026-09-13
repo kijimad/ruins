@@ -49,11 +49,11 @@ type urbanFeature struct{}
 // w×h チャンク広がる。該当しなければ ok=false。走査窓には当選アンカーが複数入りうるので
 // 早期に false を返さず探索を続ける。市街地どうしは urbanPlacement の Separation で重ならない
 // ため c を覆うアンカーは高々1つで、最初に見つかったものを返せば一意に定まる。
-func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {
+func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {
 	for dy := range urbanMaxSpan {
 		for dx := range urbanMaxSpan {
 			a := c.Sub(consts.Coord[consts.Chunk]{X: dx, Y: dy})
-			if !urbanPlacement.At(runSeed, a, rows) {
+			if !urbanPlacement.At(runSeed, a, cols) {
 				continue
 			}
 			cw, ch := urbanSizeOf(ChunkSeed2D(runSeed^urbanSalt, a.X, a.Y))
@@ -176,8 +176,8 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
 // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
 // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
-	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
+func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
+	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
 	if !ok {
 		return "", 0, false
 	}
@@ -193,14 +193,14 @@ func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Ch
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
 // 生成順に依存しない。
-func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-	anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)
+func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+	anchor, _, _, ok := urbanRegionOf(runSeed, c, cols)
 	if !ok {
 		return nil
 	}
 
 	// 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
-	fac, size, _ := urbanChunkInfo(runSeed, c, rows)
+	fac, size, _ := urbanChunkInfo(runSeed, c, cols)
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
 	return renderUrbanChunk(world, g, chunkSeed, size, fac)

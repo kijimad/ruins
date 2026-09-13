@@ -64,8 +64,8 @@ type wildernessLandmarkFeature struct{}
 // place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
 // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。
-func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-	if chunkTypeAt(runSeed, c, rows) != chunkLandmark {
+func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+	if chunkTypeAt(runSeed, c, cols) != chunkLandmark {
 		return nil
 	}
 

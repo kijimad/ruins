@@ -15,6 +15,64 @@ import (
 // coldDungeonName は基本気温0度のテスト用ダンジョン定義名。DungeonForest の英語 id。
 const coldDungeonName = "Dead forest"
 
+func TestNorthDepthChunks(t *testing.T) {
+	t.Parallel()
+
+	t.Run("帯を持たないステージでは0", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		assert.Equal(t, 0, query.NorthDepthChunks(world, 45), "帯データが無ければ奥行きは0")
+	})
+
+	t.Run("退化した帯は0を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
+		// ChunkH=0 はゼロ除算を、Rows=0 は起点計算をそれぞれ壊すので、退化入力は0で弾く
+		sb.ChunkH, sb.Rows = 0, 0
+		assert.Equal(t, 0, query.NorthDepthChunks(world, 45), "ChunkH=0/Rows=0 の退化帯は0")
+	})
+
+	t.Run("湧き位置を起点に奥行きを測る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
+		// chunkH=30, rows=3 なら中央行は chunk1。ここが湧き位置で奥行き0の起点。北は -Y
+		sb.ChunkH, sb.Rows = 30, 3
+
+		assert.Equal(t, 0, query.NorthDepthChunks(world, 45), "中央行(chunk1)は起点なので0")
+		assert.Equal(t, 0, query.NorthDepthChunks(world, 75), "南(chunk2)はクランプで0")
+		assert.Equal(t, 1, query.NorthDepthChunks(world, 15), "1つ北(chunk0)は1")
+	})
+
+	t.Run("帯シフトぶん奥行きが増える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
+		sb.ChunkH, sb.Rows = 30, 3
+		sb.NorthIndex = 5 // 5チャンク北へストリーミング済み
+
+		// 絶対Y = 45 - 5*30 = -105 → chunk-4。起点 chunk1 から 5 北
+		assert.Equal(t, 5, query.NorthDepthChunks(world, 45), "シフトぶん奥行きが増える")
+	})
+
+	t.Run("シフト境界で奥行きが1ずつ連続する", func(t *testing.T) {
+		t.Parallel()
+		depthAt := func(northIndex consts.Chunk) int {
+			world := testutil.InitTestWorld(t)
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			sb := query.EnsureSeamlessBand(world)
+			sb.ChunkH, sb.Rows, sb.NorthIndex = 30, 3, northIndex
+			return query.NorthDepthChunks(world, 45)
+		}
+		// 同じ帯ローカル Y=45 で、北シフトが1増えると奥行きも丁度1増える。負の絶対Yの床除算で境界が飛ばない
+		assert.Equal(t, depthAt(4)+1, depthAt(5), "シフトをまたいで奥行きが連続する")
+	})
+}
+
 func TestTileEnvironmentAt(t *testing.T) {
 	t.Parallel()
 

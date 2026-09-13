@@ -303,10 +303,10 @@ func TestOutdoorZoneAt_集落近傍は道沿い(t *testing.T) {
 	winner := settlementPlacement.WinnerOf(scatterTestSeed, 2, scatterTestRows)
 	assert.Equal(t, zoneRoadside, outdoorZoneAt(scatterTestSeed, winner, scatterTestRows), "集落の当選チャンクは道沿い")
 
-	// 奥地ゾーンのチャンクが少なくとも1つ存在し、関数がゾーンを識別できる
+	// 奥地ゾーンのチャンクが少なくとも1つ存在し、関数がゾーンを識別できる。奥地は北へ進んだ Y に現れる
 	foundWild := false
-	for cx := range consts.Chunk(100) {
-		if outdoorZoneAt(scatterTestSeed, consts.Coord[consts.Chunk]{X: cx, Y: 0}, scatterTestRows) == zoneWild {
+	for cy := range consts.Chunk(100) {
+		if outdoorZoneAt(scatterTestSeed, consts.Coord[consts.Chunk]{X: 0, Y: cy}, scatterTestRows) == zoneWild {
 			foundWild = true
 			break
 		}

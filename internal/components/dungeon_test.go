@@ -82,9 +82,30 @@ func TestLevel_CoordToIndex_and_IndexToCoord_roundtrip(t *testing.T) {
 func TestSeamlessBand_座標変換(t *testing.T) {
 	t.Parallel()
 
-	// EastIndex=1, ChunkW=40 → 帯原点は絶対40
-	sb := SeamlessBand{EastIndex: 1, ChunkW: 40}
+	// NorthIndex=1, ChunkH=40 → 北は -Y なので帯原点は絶対-40
+	sb := SeamlessBand{NorthIndex: 1, ChunkH: 40}
 
-	assert.Equal(t, consts.AbsTileX(40), sb.BandOriginX(), "帯原点 = EastIndex*ChunkW")
-	assert.Equal(t, consts.AbsTileX(50), sb.LocalToAbsX(10), "ローカル10 = 絶対50")
+	assert.Equal(t, consts.AbsTileY(-40), sb.BandOriginY(), "帯原点 = -NorthIndex*ChunkH")
+	assert.Equal(t, consts.AbsTileY(-30), sb.LocalToAbsY(10), "ローカル10 = 絶対-30")
+}
+
+func TestSeamlessBand_AbsChunkRow(t *testing.T) {
+	t.Parallel()
+
+	sb := SeamlessBand{NorthIndex: 1, ChunkH: 40}
+
+	assert.Equal(t, consts.Chunk(-1), sb.AbsChunkRow(0), "北端チャンクは絶対チャンク行 -NorthIndex")
+	assert.Equal(t, consts.Chunk(-1), sb.AbsChunkRow(39), "同じチャンク内は同じ行へ切り捨てる")
+	assert.Equal(t, consts.Chunk(0), sb.AbsChunkRow(40), "次のチャンク境界で1つ南の行へ進む")
+	assert.Equal(t, consts.Chunk(1), sb.AbsChunkRow(90), "ローカル90はチャンク行2、NorthIndexぶん引いて1")
+}
+
+func TestSeamlessBand_SpawnChunkY(t *testing.T) {
+	t.Parallel()
+
+	// 湧き位置は初期帯の中央行なので絶対チャンク Y は Rows/2。奇数偶数とも切り捨て
+	assert.Equal(t, consts.Chunk(4), SeamlessBand{Rows: 9}.SpawnChunkY(), "rows=9 の中央行は 4")
+	assert.Equal(t, consts.Chunk(1), SeamlessBand{Rows: 3}.SpawnChunkY(), "rows=3 の中央行は 1")
+	// 湧き位置は絶対軸に焼き込んだ不変値なので、NorthIndex がいくつでも起点は変わらない
+	assert.Equal(t, consts.Chunk(4), SeamlessBand{Rows: 9, NorthIndex: 5}.SpawnChunkY(), "起点は NorthIndex に依存しない")
 }

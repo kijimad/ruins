@@ -21,8 +21,9 @@ func TestNewChunkGen_遺跡入口が帯全域に決定的に配置される(t *t
 	const chunkW, chunkH consts.Tile = 30, 20
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 500, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+	// 遺跡入口は Y 方向のリージョンに並ぶので、リージョン3つぶんを Y 方向に生成する
 	for i := range 12 {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 
 	count := 0

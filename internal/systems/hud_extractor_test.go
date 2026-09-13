@@ -58,7 +58,8 @@ func TestExtractMacroMapData_オーバーワールドは近傍をフォグ付き
 
 	assert.True(t, data.HasBand, "オーバーワールドでは帯がある")
 	require.NotEmpty(t, data.View.Cells, "窓のセルが並ぶ")
-	assert.Len(t, data.View.Cells[0], 2*consts.MacroMapChunkRadius+1, "プレイヤー中心の近傍窓ぶんの列数")
+	// 北進帯は縦に伸びるので、近傍窓はプレイヤー中心の 2*radius+1 行になる
+	assert.Len(t, data.View.Cells, 2*consts.MacroMapChunkRadius+1, "プレイヤー中心の近傍窓ぶんの行数")
 
 	var discovered, hidden int
 	for _, row := range data.View.Cells {
