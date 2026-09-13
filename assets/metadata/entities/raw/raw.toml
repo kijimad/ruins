@@ -10093,6 +10093,60 @@ dexterity = 6
 sensation = 3
 strength = 5
 vitality = 2
+[[members]]
+animKeys = ["fire_cat"]
+commandTableId = "bat"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "random"
+name = "Razor Hound"
+id = "razor_hound"
+spriteKey = "fire_cat"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 5
+defense = 0
+dexterity = 4
+sensation = 3
+strength = 4
+vitality = 2
+[[members]]
+animKeys = ["slime_0", "slime_1"]
+commandTableId = "iron_sentinel"
+dropTableId = "iron_sentinel"
+combatPolicy = "attack"
+movementPattern = "stationary"
+name = "Rust Golem"
+id = "rust_golem"
+spriteKey = "slime_0"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 1
+defense = 4
+dexterity = 2
+sensation = 2
+strength = 4
+vitality = 5
+[[members]]
+animKeys = ["dream_fly"]
+commandTableId = "fire_cat"
+dropTableId = "fire_cat"
+combatPolicy = "attack"
+movementPattern = "random"
+name = "Ember Moth"
+id = "ember_moth"
+spriteKey = "dream_fly"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 4
+defense = 1
+dexterity = 3
+sensation = 4
+strength = 2
+vitality = 2
 
 [[commandTables]]
 name = "コウモリ"
@@ -12221,6 +12275,24 @@ maxDanger = 12
 minDanger = 4
 weight = 1.2
 pack = "1d3"
+[[enemyTables.entries]]
+id = "razor_hound"
+weight = 1.2
+minDanger = 6
+maxDanger = 18
+pack = "1d2"
+[[enemyTables.entries]]
+id = "rust_golem"
+weight = 0.25
+minDanger = 10
+maxDanger = 25
+pack = "1d1"
+[[enemyTables.entries]]
+id = "ember_moth"
+weight = 1.2
+minDanger = 4
+maxDanger = 14
+pack = "1d3"
 [[enemyTables]]
 name = "森"
 id = "forest"
@@ -12386,6 +12458,18 @@ maxDanger = 22
 minDanger = 12
 weight = 0.1
 pack = "1d3"
+[[enemyTables.entries]]
+id = "ember_moth"
+weight = 1.2
+minDanger = 4
+maxDanger = 14
+pack = "1d3"
+[[enemyTables.entries]]
+id = "razor_hound"
+weight = 1.2
+minDanger = 8
+maxDanger = 20
+pack = "1d2"
 [[enemyTables]]
 name = "洞窟"
 id = "cave"
@@ -12587,6 +12671,18 @@ maxDanger = 25
 minDanger = 16
 weight = 1.5
 pack = "1d3"
+[[enemyTables.entries]]
+id = "rust_golem"
+weight = 0.25
+minDanger = 10
+maxDanger = 25
+pack = "1d1"
+[[enemyTables.entries]]
+id = "razor_hound"
+weight = 1.2
+minDanger = 8
+maxDanger = 20
+pack = "1d2"
 
 [[spriteSheets]]
 name = "bg"

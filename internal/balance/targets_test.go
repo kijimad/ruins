@@ -26,12 +26,12 @@ func TestBaselineSnapshot_序盤戦闘(t *testing.T) {
 	curve, err := DifficultyCurve(master, player, weapon, "ruins_area", 21)
 	require.NoError(t, err)
 	assert.InDelta(t, 2.59, curve[0].PowerRatio, 0.05, "廃墟 day1 の戦力比")
-	assert.InDelta(t, 1.58, curve[19].PowerRatio, 0.05, "廃墟 day20 の戦力比。傾き調整で後半が下がった")
+	assert.InDelta(t, 1.52, curve[19].PowerRatio, 0.05, "廃墟 day20 の戦力比。新敵追加で後半が僅かに下がった")
 
 	forest, err := DifficultyCurve(master, player, weapon, "forest", 21)
 	require.NoError(t, err)
 	assert.InDelta(t, 2.50, forest[0].PowerRatio, 0.05, "森 day1 の戦力比。全日を目標帯へ寄せた")
-	assert.InDelta(t, 1.24, forest[19].PowerRatio, 0.05, "森 day20 の戦力比")
+	assert.InDelta(t, 1.22, forest[19].PowerRatio, 0.05, "森 day20 の戦力比")
 
 	cave, err := DifficultyCurve(master, player, weapon, "cave", 21)
 	require.NoError(t, err)

@@ -5406,6 +5406,15 @@ msgstr "ジープ"
 msgid "Slime"
 msgstr "スライム"
 
+msgid "Razor Hound"
+msgstr "カミソリ犬"
+
+msgid "Rust Golem"
+msgstr "錆のゴーレム"
+
+msgid "Ember Moth"
+msgstr "燠火の蛾"
+
 msgid "Rat"
 msgstr "ネズミ"
 
