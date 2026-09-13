@@ -539,7 +539,7 @@ func TestReadBehavior_Canceled_プレイヤー以外はログが出ない(t *tes
 	assert.Empty(t, store.GetRecent(1), "プレイヤー以外の中断はログに出さない")
 }
 
-func TestReadBehavior_Canceled_パラメータ型不一致でも汎用メッセージが出る(t *testing.T) {
+func TestReadBehavior_Canceled_本の名前が取れないときは汎用メッセージが出る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -547,7 +547,7 @@ func TestReadBehavior_Canceled_パラメータ型不一致でも汎用メッセ�
 	world.Components.Player.Add(actor, &gc.Player{})
 
 	ra := &ReadBehavior{}
-	comp := &gc.Activity{CancelReason: "テスト中断"} // Params が *ReadParams でないので本の名前は出せない
+	comp := &gc.Activity{CancelReason: "テスト中断"} // Params が *ReadParams でないので本の名前は取れない
 
 	require.NoError(t, ra.Canceled(comp, actor, world))
 
