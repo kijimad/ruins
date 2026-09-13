@@ -78,8 +78,8 @@ func macroGlyphColor(r rune) color.RGBA {
 	return theme.OverworldMapUnknownGlyph
 }
 
-// drawCenteredGlyph はセルの中央に1文字を描く。DrawText は左上基準なので、文字の寸法を測って
-// セル内で中央へ寄せる。
+// drawCenteredGlyph はセルの中央に1文字を描く。字形の外接矩形を測って四辺の余白を揃えるので、
+// フォントの行メトリクスでなく実際の字形がセル中央へ来る。小さいセルでも記号が上下へ偏らない。
 func drawCenteredGlyph(cv uicore.Canvas, s string, face text.Face, x, y, cell int, col color.Color) {
 	tw, th := uicore.MeasureText(s, face)
 	cv.DrawText(image.Pt(x+(cell-tw)/2, y+(cell-th)/2), s, face, col)
