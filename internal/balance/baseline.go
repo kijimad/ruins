@@ -21,8 +21,9 @@ const (
 	BaselineAreaTable = "ruins_area"
 )
 
-// TargetPowerRatio は序盤戦闘の目標帯の中心値を返す。day1=2.5 から day20=1.3 へ線形に下げ、
-// 序盤は余裕あり、終盤で拮抗へ寄せる。値は人間が決める設計仮説で、プレイで見直す。
+// TargetPowerRatio は素手・無装備の床の戦力比の目標中心値を返す。床は難易度の下限リファレンスで、
+// 主基準ではない。主基準は想定プレイヤーの死亡確率で TargetExpectedDeath が定める。敵を進行で強化する
+// 設計では床は目標帯を下回るハードモードになり、後半は 外 になるのが正常。値は設計仮説でプレイで見直す。
 func TargetPowerRatio(day int) float64 {
 	const d0, m0, d1, m1 = 1, 2.5, 20, 1.3
 	switch {
@@ -33,6 +34,15 @@ func TargetPowerRatio(day int) float64 {
 	default:
 		return m0 + (m1-m0)*float64(day-d0)/float64(d1-d0)
 	}
+}
+
+// TargetExpectedDeath は想定プレイヤーの死亡確率の目標帯を返す。主基準。序盤は安全で、後半に緊張が
+// 立つよう day1 の [0,2%] から day15 以降の [2%,9%] へ線形に開く。想定プレイヤーはスキルと装備で
+// 育つので、床でなくこの帯を難易度設計の基準線にする。値は設計仮説でプレイで見直す。
+func TargetExpectedDeath(day int) (lo, hi float64) {
+	t := float64(day-1) / 14
+	t = max(0, min(1, t))
+	return 0.02 * t, 0.02 + 0.07*t
 }
 
 // targetBand は目標帯の許容幅。中心±この値を目標帯内とみなす。
@@ -101,8 +111,9 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 
 	// 序盤戦闘のカーブ
 	fmt.Fprintf(&b, "## 序盤戦闘の難易度カーブ\n\n")
-	fmt.Fprintf(&b, "**概要**: 各日にプレイヤーがどれだけ有利かを戦力比で表す。戦力比は敵を倒す速さ÷敵に倒される速さで、1.0が互角、大きいほど楽。\n")
-	fmt.Fprintf(&b, "プレイヤーは強化なしの `%s` + `%s` を最悪ケースとして固定する。実プレイは武器強化でこれより楽になる。\n", playerName, weaponName)
+	fmt.Fprintf(&b, "**概要**: 各日に素手・無装備の床プレイヤーがどれだけ有利かを戦力比で表す。戦力比は敵を倒す速さ÷敵に倒される速さで、1.0が互角、大きいほど楽。\n")
+	fmt.Fprintf(&b, "床は難易度の下限リファレンスで主基準ではない。主基準は「進行カーブ」の想定プレイヤーの死亡確率。敵を進行で強化する設計では床は後半に目標帯を下回り 外 になるのが正常で、装備しないと生き残れないことを表す。\n")
+	fmt.Fprintf(&b, "プレイヤーは強化なしの `%s` + `%s` に固定する。\n", playerName, weaponName)
 	fmt.Fprintf(&b, "目標帯は day1=2.5 から day20=1.3 へ下げ、許容幅±%.1f。目標は設計仮説でプレイで見直す。判定「内」が目標帯の中、「外」が外。\n\n", targetBand)
 
 	tables := raw.PtrSlice(master.EnemyTables)
@@ -351,13 +362,18 @@ func renderProgression(b *strings.Builder, master oapi.Raws, player CombatantSta
 	}
 	fmt.Fprintf(b, "## 進行カーブ（床 vs 想定プレイヤー・廃墟）\n\n")
 	fmt.Fprintf(b, "**概要**: 難易度の側は日→危険度で進み、プレイヤーの側は1日%d攻撃の仮説からその日の想定スキルで進む。\n", DefaultAttacksPerDay)
-	fmt.Fprintf(b, "床はスキル0・無装備の最悪ケース、想定はその日までに育ったスキルと装備防御を織り込んだ体験。両者の差が、成長が難易度をどれだけ上回るかを表す。攻撃頻度と装備防御は設計仮説。\n\n")
-	fmt.Fprintf(b, "| 日 | 危険度 | 想定Lv | 想定防御 | 死亡(床) | 死亡(想定) | 決着ターン(床) | 決着ターン(想定) |\n|---:|---:|---:|---:|---:|---:|---:|---:|\n")
+	fmt.Fprintf(b, "床はスキル0・無装備の最悪ケース、想定はその日までに育ったスキルと装備防御を織り込んだ体験。主基準は想定の死亡確率で、目標帯 TargetExpectedDeath と照合して 内/外 を出す。床は難易度の下限リファレンスで、後半は目標を下回るハードモードになるのが正常。攻撃頻度と装備防御は設計仮説。\n\n")
+	fmt.Fprintf(b, "| 日 | 危険度 | 想定Lv | 想定防御 | 死亡(床) | 死亡(想定) | 想定の目標帯 | 判定 | 決着ターン(床) | 決着ターン(想定) |\n|---:|---:|---:|---:|---:|---:|:--:|:--:|---:|---:|\n")
 	for _, d := range curve {
-		fmt.Fprintf(b, "| %d | %d | %d | +%d | %.1f%% | %.1f%% | %.1f | %.1f |\n",
-			d.Day, d.Danger, d.SkillLevel, d.GearDefense, d.DeathFloor*100, d.DeathExpected*100, d.TurnsFloor, d.TurnsExpected)
+		lo, hi := TargetExpectedDeath(d.Day)
+		mark := "外"
+		if d.DeathExpected >= lo && d.DeathExpected <= hi {
+			mark = "内"
+		}
+		fmt.Fprintf(b, "| %d | %d | %d | +%d | %.1f%% | %.1f%% | %.0f〜%.0f%% | %s | %.1f | %.1f |\n",
+			d.Day, d.Danger, d.SkillLevel, d.GearDefense, d.DeathFloor*100, d.DeathExpected*100, lo*100, hi*100, mark, d.TurnsFloor, d.TurnsExpected)
 	}
-	fmt.Fprintf(b, "\n想定の死亡確率が全日ほぼ0なら、成長が難易度を上回り進行するほど楽になっている兆候。床と想定が近いほど、成長込みでも緊張が保たれている。\n\n")
+	fmt.Fprintf(b, "\n想定の死亡確率が目標帯に収まれば、成長込みでも後半に狙った緊張が保たれている。床は無装備・無成長の下限で、後半に目標を下回る=装備しないと生き残れないことを表す。\n\n")
 	return nil
 }
 

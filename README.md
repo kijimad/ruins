@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [進行後半の緩化。想定装備トラックと敵の絶対ダメージ強化で緊張を回復する](docs/design/260914081735.md) | 5/8（見送り1） | gamedesign, combat |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

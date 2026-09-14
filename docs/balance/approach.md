@@ -89,6 +89,11 @@
 - スキル深度: `balance/skilldepth.go` の `SkillDepthProfileFor` はスキルを1レベル上げるたびに撃破ターンがどれだけ縮むかを測り、撃破ターンが動かない死んだティアと体験が動く実効ティアに分ける。NTBEA のティア識別性を対戦でなく体験メトリクスへ翻案したもの。熟練度は実ゲームと同じく能力+ダイス+武器の base 全体へ切り捨てで掛かる。素手でも100段中95段は手応えがあり、死んだティアは撃破ターンが既に短い高レベル帯に偏る。
 - 熟練度の適用箇所: 熟練度倍率は `activity/attack.go` の calculateDamage と同じく base 全体へ切り捨てで掛かる。`balance/metrics.go` の `ExpectedDamagePerAttackWithSkill`・`ExpectedTTKWithSkill`・`DifficultyCurveWithSkill`、`balance/markov.go` の `CombatDistributionWithSkill`・`PoolCombatRisk` がこの適用を単一出典で提供し、武器ダメージだけを丸める近似は使わない。静的下限は倍率 PercentBase で、既存の `ExpectedDamagePerAttack` に一致する。build.go のビルド別ブレもこの経路を通す。
 - 進行度の両側化: 難易度の側は日→危険度で進むが、プレイヤーの側は静的下限で固定していた。`balance/progression.go` の `ProgressionCurve` が、想定攻撃頻度 `DefaultAttacksPerDay` からその日の想定スキルを `SkillLevelAfterAttacks` で導き、床すなわちスキル0と、想定プレイヤーの死亡確率・決着ターンを同じ日軸で並べる。攻撃頻度は行動依存の設計仮説だが、これを1つ置くことで進行度調整が下限だけでなく実プレイヤーの体験曲線として見える。攻撃回数→日の写像は従来 C 層に先送りしていたが、仮説を明示する前提で A 層へ引き上げた。baseline.md に床 vs 想定の帯として載る。所見として、現状は想定プレイヤーの死亡確率が全日ほぼ0で、成長が難易度を上回り進行するほど楽になっている。
+- 難易度目標の基準を想定プレイヤーへ: 主基準は床でなく想定プレイヤーの死亡確率にした。`TargetExpectedDeath` が
+  序盤は安全、後半に5%前後の緊張を負う目標帯を定め、進行カーブの想定死亡と 内/外 で照合する。床の戦力比目標
+  `TargetPowerRatio` は下限リファレンスとして残し、敵を進行で強化する設計では床が後半に目標を下回るハードモードに
+  なるのが正常。感度メトリクスの戦力比帯 `metricBands` も床のハードモード帯へ更新した。実際の難易度調整は後半専用敵
+  (veteran_husk・razor_hound・fireball・blue_beast・blue_figure)の STR 強化で、想定 day20 死亡を目標帯へ寄せている。
 - 経済の進行と支出: `balance/economy.go` の `EconomyProgression` が日→危険度→1個あたり手取りを曲線化し、支出側の `CostOfLivingPerDay` すなわち1日の満腹度減耗を最安食料で埋め戻す費用と突き合わせる。「1日分の食費を賄うのに要る loot 個数」を日ごとに出すので、収入と支出を同じ軸で見られる。個数は行動依存の探索回数を仮定せずに済む純比。遠距離武器は要素制限・viability に含めるが、弾薬の消費と費用は未モデルなので遠距離の評価は弾薬コストを無視した上限。
 - viability: `balance/viability.go` の `WeaponViability` は武器ロスターのうち viable な割合、罠すなわち素手より弱い武器の数、viable どうしの決着ターンの幅を集計する。Pfau らの調査に基づき、全ビルド等価な symmetry でなく、どれも使えるが差がある viability を健全とみなす。目標帯を「全ビルド等強度」に置かない根拠。baseline.md に載る。
 - 目標帯: 戦闘の日次カーブに加え、生存・物流・経済・進行成長のスカラー指標に横断の目標帯を置いた（`balance/targets.go` の `DomainTargets`）。baseline.md 冒頭のダッシュボードで内外を一望する。帯は設計仮説で、静的下限がこの範囲に収まればという下限側の目安。

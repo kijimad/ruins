@@ -9444,7 +9444,7 @@ agility = 4
 defense = 2
 dexterity = 3
 sensation = 3
-strength = 2
+strength = 24
 vitality = 1
 
 [members.lightSource]
@@ -9974,7 +9974,7 @@ agility = 5
 defense = 2
 dexterity = 4
 sensation = 6
-strength = 2
+strength = 24
 vitality = 3
 [[members]]
 animKeys = ["blue_beast"]
@@ -9992,7 +9992,7 @@ agility = 4
 defense = 2
 dexterity = 3
 sensation = 3
-strength = 3
+strength = 25
 vitality = 2
 [[members]]
 animKeys = ["skeleton"]
@@ -10046,7 +10046,7 @@ agility = 3
 defense = 3
 dexterity = 5
 sensation = 3
-strength = 6
+strength = 28
 vitality = 3
 [[members]]
 animKeys = ["blue_beast"]
@@ -10082,7 +10082,7 @@ agility = 5
 defense = 0
 dexterity = 4
 sensation = 3
-strength = 4
+strength = 26
 vitality = 2
 [[members]]
 animKeys = ["old_tank"]

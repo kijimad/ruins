@@ -32,12 +32,13 @@ func TestProgressionCurve_想定は床より安全(t *testing.T) {
 	require.Len(t, curve, BaselineDays)
 
 	for _, d := range curve {
-		// 成長は攻撃力だけを上げるので、想定プレイヤーは床以上に安全で、決着も速い。
+		// 想定プレイヤーはスキルと装備防御で育つので、常に床以上に安全。
 		assert.LessOrEqual(t, d.DeathExpected, d.DeathFloor+1e-9, "想定は床より死ににくい")
-		assert.LessOrEqual(t, d.TurnsExpected, d.TurnsFloor+1e-9, "想定は床より速く倒す")
 	}
-	// 終盤は床では危険だが、想定プレイヤーは成長で危険をほぼ無効化する。進行度調整の効き具合を固定する。
+	// 終盤は床ではハードモードで、想定プレイヤーは目標帯の緊張を負う。進行度調整の効き具合を固定する。
 	last := curve[BaselineDays-1]
-	assert.Greater(t, last.DeathFloor, 0.10, "終盤の床は危険")
-	assert.Less(t, last.DeathExpected, 0.02, "終盤の想定は成長でほぼ無害")
+	assert.Greater(t, last.DeathFloor, 0.30, "終盤の床はハードモード")
+	lo, hi := TargetExpectedDeath(BaselineDays)
+	assert.GreaterOrEqual(t, last.DeathExpected, lo, "終盤の想定死亡は目標帯の下限以上")
+	assert.LessOrEqual(t, last.DeathExpected, hi, "終盤の想定死亡は目標帯の上限以下")
 }
