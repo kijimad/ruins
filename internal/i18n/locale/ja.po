@@ -6170,3 +6170,66 @@ msgstr "todo: 出血を付与する攻撃。状態異常のスキーマが未実
 
 msgid "Toxin Barb"
 msgstr "毒の棘"
+
+msgid "Thunder Spear"
+msgstr "雷の槍"
+
+msgid "Sun Blade"
+msgstr "太陽の剣"
+
+msgid "Flame Gun"
+msgstr "火炎銃"
+
+msgid "Frost Bolt"
+msgstr "氷結の弓"
+
+msgid "Paralyze Rod"
+msgstr "麻痺の杖"
+
+msgid "Curse Dagger"
+msgstr "呪いの短剣"
+
+msgid "Scrap Battery"
+msgstr "使用済み電池"
+
+msgid "Dummy Medkit"
+msgstr "ダミー救急箱"
+
+msgid "Static Mite"
+msgstr "帯電ダニ"
+
+msgid "Chill Slime"
+msgstr "冷たい粘体"
+
+msgid "Sunbug"
+msgstr "光虫"
+
+msgid "Paralyzer"
+msgstr "麻痺獣"
+
+msgid "Curse Wraith"
+msgstr "呪縛の亡霊"
+
+msgid "A spear humming with charge."
+msgstr "帯電して唸る槍。"
+
+msgid "A blade that glows with harsh light."
+msgstr "強い光を放つ剣。"
+
+msgid "An energy weapon that spits fire."
+msgstr "火を吐くエネルギー武器。"
+
+msgid "A bow that looses freezing bolts."
+msgstr "凍える矢を放つ弓。"
+
+msgid "A depleted battery worth a little at auction."
+msgstr "競売で少し値が付く使用済み電池。"
+
+msgid "A placeholder medkit."
+msgstr "仮の救急箱。"
+
+msgid "todo: applies paralysis. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 麻痺を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies weakening curse. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 衰弱の呪いを付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"

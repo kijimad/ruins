@@ -37561,13 +37561,13 @@
     {
       "X": 12,
       "Y": 36,
-      "Name": "yellow_herb",
+      "Name": "antidote",
       "Count": 1
     },
     {
       "X": 20,
       "Y": 34,
-      "Name": "healing_potion",
+      "Name": "green_herb",
       "Count": 1
     },
     {
@@ -37579,8 +37579,8 @@
     {
       "X": 10,
       "Y": 17,
-      "Name": "healing_potion",
-      "Count": 2
+      "Name": "green_herb",
+      "Count": 1
     },
     {
       "X": 46,
@@ -37597,16 +37597,22 @@
     {
       "X": 6,
       "Y": 33,
-      "Name": "healing_potion",
-      "Count": 2
+      "Name": "green_herb",
+      "Count": 1
+    },
+    {
+      "X": 11,
+      "Y": 13,
+      "Name": "green_herb",
+      "Count": 1
     }
   ],
   "Props": [],
   "Doors": [],
   "NextPortals": [
     {
-      "X": 12,
-      "Y": 22
+      "X": 43,
+      "Y": 16
     }
   ],
   "SpawnPoints": null

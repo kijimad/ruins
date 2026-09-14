@@ -37539,27 +37539,27 @@
     {
       "X": 38,
       "Y": 33,
-      "Name": "floating_eye"
+      "Name": "bat"
     },
     {
       "X": 37,
       "Y": 33,
-      "Name": "floating_eye"
+      "Name": "bat"
     },
     {
       "X": 37,
       "Y": 26,
-      "Name": "floating_eye"
+      "Name": "bat"
     },
     {
       "X": 39,
       "Y": 30,
-      "Name": "floating_eye"
+      "Name": "bat"
     },
     {
       "X": 36,
       "Y": 26,
-      "Name": "floating_eye"
+      "Name": "bat"
     }
   ],
   "Items": [
@@ -37614,7 +37614,7 @@
     {
       "X": 19,
       "Y": 26,
-      "Name": "toothbrush_set",
+      "Name": "dummy_medkit",
       "Count": 1
     },
     {

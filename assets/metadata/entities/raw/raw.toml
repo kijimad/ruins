@@ -8904,6 +8904,144 @@ damage = 15
 element = "PHOTON"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+[[items]]
+id = "thunder_spear"
+name = "Thunder Spear"
+description = "A spear humming with charge."
+spriteKey = "dummy_8"
+spriteSheetName = "field"
+value = 135
+weight = "1500 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 1
+damage = 11
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "sun_blade"
+name = "Sun Blade"
+description = "A blade that glows with harsh light."
+spriteKey = "dummy_9"
+spriteSheetName = "field"
+value = 160
+weight = "1400 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 12
+element = "PHOTON"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "flame_gun"
+name = "Flame Gun"
+description = "An energy weapon that spits fire."
+spriteKey = "dummy_10"
+spriteSheetName = "field"
+value = 180
+weight = "2000 g"
+
+[items.fire]
+accuracy = 85
+attackCategory = "HANDGUN"
+attackCount = 1
+cost = 2
+damage = 14
+element = "FIRE"
+magazineSize = 6
+reloadEffort = 15
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "frost_bolt"
+name = "Frost Bolt"
+description = "A bow that looses freezing bolts."
+spriteKey = "dummy_11"
+spriteSheetName = "field"
+value = 150
+weight = "1600 g"
+
+[items.fire]
+accuracy = 85
+attackCategory = "BOW"
+attackCount = 1
+cost = 2
+damage = 13
+element = "CHILL"
+magazineSize = 1
+reloadEffort = 2
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "paralyze_rod"
+name = "Paralyze Rod"
+description = "todo: applies paralysis. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_12"
+spriteSheetName = "field"
+value = 110
+weight = "900 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 9
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "curse_dagger"
+name = "Curse Dagger"
+description = "todo: applies weakening curse. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_13"
+spriteSheetName = "field"
+value = 120
+weight = "500 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 10
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "scrap_battery"
+name = "Scrap Battery"
+description = "A depleted battery worth a little at auction."
+spriteKey = "dummy_14"
+spriteSheetName = "field"
+value = 45
+weight = "700 g"
+[[items]]
+id = "dummy_medkit"
+name = "Dummy Medkit"
+description = "A placeholder medkit."
+spriteKey = "dummy_15"
+spriteSheetName = "field"
+value = 80
+weight = "300 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[items.providesHealing]
+amount = 0
+ratio = 0.3
+valueType = "PERCENTAGE"
 
 [[recipes]]
 name = "レイガン"
@@ -10363,6 +10501,96 @@ dexterity = 6
 sensation = 3
 strength = 18
 vitality = 3
+[[members]]
+id = "static_mite"
+name = "Static Mite"
+spriteKey = "dummy_8"
+spriteSheetName = "field"
+animKeys = ["dummy_8"]
+commandTableId = "ct_static_mite"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 7
+defense = 0
+dexterity = 5
+sensation = 3
+strength = 3
+vitality = 1
+[[members]]
+id = "chill_slime"
+name = "Chill Slime"
+spriteKey = "dummy_11"
+spriteSheetName = "field"
+animKeys = ["dummy_11"]
+commandTableId = "ct_chill_slime"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "random"
+
+[members.abilities]
+agility = 3
+defense = 1
+dexterity = 4
+sensation = 3
+strength = 5
+vitality = 2
+[[members]]
+id = "sunbug"
+name = "Sunbug"
+spriteKey = "dummy_9"
+spriteSheetName = "field"
+animKeys = ["dummy_9"]
+commandTableId = "ct_sunbug"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 6
+defense = 1
+dexterity = 6
+sensation = 3
+strength = 5
+vitality = 1
+[[members]]
+id = "paralyzer"
+name = "Paralyzer"
+spriteKey = "dummy_12"
+spriteSheetName = "field"
+animKeys = ["dummy_12"]
+commandTableId = "ct_paralyzer"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 7
+vitality = 2
+[[members]]
+id = "curse_wraith"
+name = "Curse Wraith"
+spriteKey = "dummy_13"
+spriteSheetName = "field"
+animKeys = ["dummy_13"]
+commandTableId = "ct_curse_wraith"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 6
+sensation = 3
+strength = 14
+vitality = 3
 
 [[commandTables]]
 name = "コウモリ"
@@ -10948,6 +11176,51 @@ weapon = "bite"
 weight = 1
 [[commandTables.entries]]
 weapon = "bleed_claw"
+weight = 2
+[[commandTables]]
+id = "ct_static_mite"
+name = "帯電"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "shock_bite"
+weight = 2
+[[commandTables]]
+id = "ct_chill_slime"
+name = "冷たい粘体"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "frost_maw"
+weight = 2
+[[commandTables]]
+id = "ct_sunbug"
+name = "閃光の虫"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "photon_flash"
+weight = 2
+[[commandTables]]
+id = "ct_paralyzer"
+name = "麻痺"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "paralyze_rod"
+weight = 2
+[[commandTables]]
+id = "ct_curse_wraith"
+name = "呪縛"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "curse_dagger"
 weight = 2
 
 [[dropTables]]
@@ -11553,6 +11826,10 @@ pack = "1d1"
 [[itemGroups.entries]]
 id = "toothbrush_set"
 weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dummy_medkit"
+weight = 2
 pack = "1d1"
 [[itemGroups]]
 name = "投擲武器"
@@ -12402,6 +12679,10 @@ pack = "1d1"
 id = "yellow_wire"
 weight = 1.0
 pack = "1d1"
+[[itemGroups.entries]]
+id = "scrap_battery"
+weight = 3
+pack = "1d2"
 [[itemGroups]]
 name = "食料"
 id = "food"
@@ -12846,6 +13127,18 @@ pack = "1d1"
 id = "bleed_claw"
 weight = 2
 pack = "1d1"
+[[itemGroups.entries]]
+id = "thunder_spear"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "paralyze_rod"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "curse_dagger"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "終盤近接武器"
 id = "endgame_melee_weapon"
@@ -12906,6 +13199,10 @@ pack = "1d1"
 id = "prism_rod"
 weight = 1
 pack = "1d1"
+[[itemGroups.entries]]
+id = "sun_blade"
+weight = 1
+pack = "1d1"
 [[itemGroups]]
 name = "射撃武器"
 id = "ranged_weapon"
@@ -12949,6 +13246,14 @@ pack = "1d1"
 [[itemGroups.entries]]
 id = "shock_grenade"
 weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "flame_gun"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "frost_bolt"
+weight = 1
 pack = "1d1"
 [[itemGroups]]
 name = "投げ武器"
@@ -14238,6 +14543,24 @@ minDanger = 7
 maxDanger = 12
 weight = 0.5
 pack = "1d1"
+[[enemyTables.entries]]
+id = "static_mite"
+minDanger = 1
+maxDanger = 4
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "sunbug"
+minDanger = 3
+maxDanger = 6
+weight = 0.9
+pack = "1d2"
+[[enemyTables.entries]]
+id = "curse_wraith"
+minDanger = 6
+maxDanger = 9
+weight = 0.6
+pack = "1d1"
 [[enemyTables]]
 name = "森"
 id = "forest"
@@ -14414,6 +14737,12 @@ id = "razor_hound"
 weight = 1.2
 minDanger = 8
 maxDanger = 20
+pack = "1d2"
+[[enemyTables.entries]]
+id = "chill_slime"
+minDanger = 2
+maxDanger = 6
+weight = 1.0
 pack = "1d2"
 [[enemyTables]]
 name = "洞窟"
@@ -14639,6 +14968,12 @@ id = "frozen_hunter"
 weight = 0.05
 minDanger = 22
 maxDanger = 35
+pack = "1d1"
+[[enemyTables.entries]]
+id = "paralyzer"
+minDanger = 3
+maxDanger = 7
+weight = 0.8
 pack = "1d1"
 
 [[spriteSheets]]

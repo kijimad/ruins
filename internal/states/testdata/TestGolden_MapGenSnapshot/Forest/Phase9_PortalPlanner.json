@@ -37591,7 +37591,7 @@
     {
       "X": 41,
       "Y": 34,
-      "Name": "antidote",
+      "Name": "dummy_medkit",
       "Count": 1
     },
     {
@@ -37621,7 +37621,7 @@
     {
       "X": 42,
       "Y": 34,
-      "Name": "toothbrush_set",
+      "Name": "dummy_medkit",
       "Count": 1
     },
     {
