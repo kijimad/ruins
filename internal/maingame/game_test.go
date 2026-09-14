@@ -51,6 +51,28 @@ func TestNewMainGame(t *testing.T) {
 	}
 }
 
+// TestBuildScreenFilters は、DisableScreenFilter の真偽でフィルタの組み立てが
+// 分岐し、有効時はレトロフィルタ1枚、無効時は空になることを確認する。
+func TestBuildScreenFilters(t *testing.T) {
+	t.Parallel()
+
+	t.Run("フィルタ有効時はレトロフィルタを1枚組み込む", func(t *testing.T) {
+		t.Parallel()
+
+		filters, err := buildScreenFilters(false)
+		require.NoError(t, err)
+		assert.Len(t, filters, 1)
+	})
+
+	t.Run("フィルタ無効時は空にして素通しにする", func(t *testing.T) {
+		t.Parallel()
+
+		filters, err := buildScreenFilters(true)
+		require.NoError(t, err)
+		assert.Empty(t, filters)
+	})
+}
+
 // TestGetPerformanceInfo_GC実施後は経過時間を表示する は、
 // runtime.GC() 実施後に LastGC が "N/A" ではなく経過秒数として表示され、
 // 期待するフィールドが期待する順序で並ぶことを確認する。
