@@ -158,13 +158,6 @@ type ProficiencySource struct {
 	Value    int          // この要因による変化量。例: +10, -15
 }
 
-// IsWeaponAccuracyKey は key が武器命中の効果キーかを返す。疲労など武器命中だけに
-// 効く補正を query 層で畳むときの判定に使う
-func IsWeaponAccuracyKey(key ProficiencyKey) bool {
-	_, ok := accuracySkillByKey[key]
-	return ok
-}
-
 // weaponAccuracyBodyFunc は武器スキルの命中に効く身体機能の種別と乗数を返す。
 // 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする
 func weaponAccuracyBodyFunc(bodyFuncs BodyFuncs, id SkillID) (BodyFuncKind, consts.Percent) {
