@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [コード監査: マップ生成境界とUIヒント整合性 2026-09-14](docs/design/260914001354.md) | 0/2 | worldgen, ui |
 
 
 ## Reference
