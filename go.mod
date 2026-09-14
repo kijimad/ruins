@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/getkin/kin-openapi v0.149.0
 	github.com/go-text/typesetting v0.3.5
-	github.com/hajimehoshi/ebiten/v2 v2.9.11
+	github.com/hajimehoshi/ebiten/v2 v2.10.2
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/mlange-42/ark v0.8.3
@@ -30,9 +30,9 @@ require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/avito-tech/go-mutesting v0.0.0-20251226130216-48d0401f00fb // indirect
-	github.com/ebitengine/gomobile v0.0.0-20250923094054-ea854a63cce1 // indirect
+	github.com/ebitengine/gomobile v0.0.0-20260820040257-d11f821a26a6 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
-	github.com/ebitengine/purego v0.9.1 // indirect
+	github.com/ebitengine/purego v0.11.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
@@ -42,7 +42,6 @@ require (
 	github.com/google/renameio/v2 v2.0.2 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
-	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
@@ -55,6 +54,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/schollz/progressbar/v3 v3.14.2 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
+	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/termie/go-shutil v0.0.0-20140729215957-bcacb06fecae // indirect
 	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/vanng822/css v1.0.1 // indirect
