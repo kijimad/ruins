@@ -351,11 +351,11 @@ func renderProgression(b *strings.Builder, master oapi.Raws, player CombatantSta
 	}
 	fmt.Fprintf(b, "## 進行カーブ（床 vs 想定プレイヤー・廃墟）\n\n")
 	fmt.Fprintf(b, "**概要**: 難易度の側は日→危険度で進み、プレイヤーの側は1日%d攻撃の仮説からその日の想定スキルで進む。\n", DefaultAttacksPerDay)
-	fmt.Fprintf(b, "床はスキル0の最悪ケース、想定はその日までに育ったスキルを織り込んだ体験。両者の差が、成長が難易度をどれだけ上回るかを表す。攻撃頻度は設計仮説。\n\n")
-	fmt.Fprintf(b, "| 日 | 危険度 | 想定Lv | 死亡(床) | 死亡(想定) | 決着ターン(床) | 決着ターン(想定) |\n|---:|---:|---:|---:|---:|---:|---:|\n")
+	fmt.Fprintf(b, "床はスキル0・無装備の最悪ケース、想定はその日までに育ったスキルと装備防御を織り込んだ体験。両者の差が、成長が難易度をどれだけ上回るかを表す。攻撃頻度と装備防御は設計仮説。\n\n")
+	fmt.Fprintf(b, "| 日 | 危険度 | 想定Lv | 想定防御 | 死亡(床) | 死亡(想定) | 決着ターン(床) | 決着ターン(想定) |\n|---:|---:|---:|---:|---:|---:|---:|---:|\n")
 	for _, d := range curve {
-		fmt.Fprintf(b, "| %d | %d | %d | %.1f%% | %.1f%% | %.1f | %.1f |\n",
-			d.Day, d.Danger, d.SkillLevel, d.DeathFloor*100, d.DeathExpected*100, d.TurnsFloor, d.TurnsExpected)
+		fmt.Fprintf(b, "| %d | %d | %d | +%d | %.1f%% | %.1f%% | %.1f | %.1f |\n",
+			d.Day, d.Danger, d.SkillLevel, d.GearDefense, d.DeathFloor*100, d.DeathExpected*100, d.TurnsFloor, d.TurnsExpected)
 	}
 	fmt.Fprintf(b, "\n想定の死亡確率が全日ほぼ0なら、成長が難易度を上回り進行するほど楽になっている兆候。床と想定が近いほど、成長込みでも緊張が保たれている。\n\n")
 	return nil

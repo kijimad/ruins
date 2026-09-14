@@ -1,6 +1,8 @@
 package balance
 
 import (
+	"sort"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -21,11 +23,19 @@ type CombatOutcome struct {
 	TTKp95          int     // 決着ターンの95パーセンタイル。長引く不運側の裾
 }
 
-// attackDamagePMF は1回の攻撃が与えるダメージの確率分布を返す。添字がダメージ量、値が確率で、
-// 添字0は命中しなかった場合。activity/attack.go の calculateDamage と同じく熟練度倍率 skillMult を
-// base 全体へ切り捨てで掛け、次にクリティカル、最後に防御下限をする。乱数を使わずに分布を厳密に再現する。
+// damageProb はダメージ量とその確率の組。攻撃1回のダメージ分布をダメージ量の昇順スライスで持つ。
+// map で持つと反復順がランダムになり、浮動小数の加算が非結合なため撃破確率が実行ごとに微差を持つ。
+// 昇順スライスにして加算順を固定し、結果を決定論的にする。
+type damageProb struct {
+	dmg int
+	p   float64
+}
+
+// attackDamagePMF は1回の攻撃が与えるダメージの確率分布を、ダメージ量の昇順スライスで返す。dmg=0 は
+// 命中しなかった場合。activity/attack.go の calculateDamage と同じく熟練度倍率 skillMult を base 全体へ
+// 切り捨てで掛け、次にクリティカル、最後に防御下限をする。乱数を使わずに分布を厳密に再現する。
 // skillMult が PercentBase なら熟練度なしで、combat.go の rollAttack の分布に一致する。
-func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) map[int]float64 {
+func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) []damageProb {
 	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
 	baseAbil := attacker.Strength
 	if weapon.IsRanged {
@@ -36,14 +46,23 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 	pNormal := float64(hitRate-critRolls) / float64(formula.DiceMax)
 	pMiss := float64(formula.DiceMax-hitRate) / float64(formula.DiceMax)
 
-	pmf := make(map[int]float64, 2*formula.DamageRandomRange+1)
-	pmf[0] += pMiss
+	acc := make(map[int]float64, 2*formula.DamageRandomRange+1)
+	acc[0] += pMiss
 	for die := 1; die <= formula.DamageRandomRange; die++ {
 		base := skillMult.ApplyInt(baseAbil + die + weapon.Damage)
 		normal := max(base-defender.Defense, formula.MinDamage)
 		crit := max(formula.ApplyCritical(base)-defender.Defense, formula.MinDamage)
-		pmf[normal] += pNormal / float64(formula.DamageRandomRange)
-		pmf[crit] += pCrit / float64(formula.DamageRandomRange)
+		acc[normal] += pNormal / float64(formula.DamageRandomRange)
+		acc[crit] += pCrit / float64(formula.DamageRandomRange)
+	}
+	dmgs := make([]int, 0, len(acc))
+	for d := range acc {
+		dmgs = append(dmgs, d)
+	}
+	sort.Ints(dmgs)
+	pmf := make([]damageProb, len(dmgs))
+	for i, d := range dmgs {
+		pmf[i] = damageProb{dmg: d, p: acc[d]}
 	}
 	return pmf
 }
@@ -51,7 +70,7 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 // killDistribution は attacker がダメージ分布 pmf で HP hp の defender を倒すのに要する攻撃回数 k の
 // 確率分布を返す。添字が攻撃回数で kill[k]=P(ちょうど k 回目で倒す)。残 HP を状態とする1次元 DP で、
 // 各攻撃は生存質量を減らしていく。生存質量が無視できるまで早期終了する。
-func killDistribution(pmf map[int]float64, hp int) []float64 {
+func killDistribution(pmf []damageProb, hp int) []float64 {
 	kill := make([]float64, combatAttackCap+1)
 	if hp <= 0 {
 		kill[1] = 1
@@ -66,15 +85,15 @@ func killDistribution(pmf map[int]float64, hp int) []float64 {
 			if alive[r] == 0 {
 				continue
 			}
-			for d, p := range pmf {
-				if p == 0 {
+			for _, dp := range pmf {
+				if dp.p == 0 {
 					continue
 				}
-				if d >= r {
-					killed += alive[r] * p
+				if dp.dmg >= r {
+					killed += alive[r] * dp.p
 				} else {
-					next[r-d] += alive[r] * p
-					aliveMass += alive[r] * p
+					next[r-dp.dmg] += alive[r] * dp.p
+					aliveMass += alive[r] * dp.p
 				}
 			}
 		}
