@@ -183,7 +183,7 @@
 				
 				<option value="file63">github.com/kijimaD/ruins/internal/components/perishable.go (100.0%)</option>
 				
-				<option value="file64">github.com/kijimaD/ruins/internal/components/proficiency.go (94.5%)</option>
+				<option value="file64">github.com/kijimaD/ruins/internal/components/proficiency.go (97.2%)</option>
 				
 				<option value="file65">github.com/kijimaD/ruins/internal/components/run.go (66.7%)</option>
 				
@@ -11902,13 +11902,6 @@ type ProficiencySource struct {
         Amount   int          // 要因の量。スキルLv・能力値・身体機能%
         Value    int          // この要因による変化量。例: +10, -15
 }
-
-// IsWeaponAccuracyKey は key が武器命中の効果キーかを返す。疲労など武器命中だけに
-// 効く補正を query 層で畳むときの判定に使う
-func IsWeaponAccuracyKey(key ProficiencyKey) bool {
-        <span class="cov0" title="0">_, ok := accuracySkillByKey[key]
-        return ok
-</span>}
 
 // weaponAccuracyBodyFunc は武器スキルの命中に効く身体機能の種別と乗数を返す。
 // 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする
