@@ -854,3 +854,36 @@ func TestTemperatureStateBadge_快適時は出さない(t *testing.T) {
 	_, ok := temperatureStateBadge(world, e)
 	assert.False(t, ok, "体温状態が無ければバッジを出さない")
 }
+
+// TestAmbientTempDisplayColor は快適帯の下限未満・境界ちょうど・上限超過で色の分岐が
+// 切り替わることを固定する。RGBA の具体値には依存させない
+func TestAmbientTempDisplayColor(t *testing.T) {
+	t.Parallel()
+
+	low := ambientTempDisplayColor(query.ComfortableTempLower - 1)
+	atLower := ambientTempDisplayColor(query.ComfortableTempLower)
+	mid := ambientTempDisplayColor((query.ComfortableTempLower + query.ComfortableTempUpper) / 2)
+	atUpper := ambientTempDisplayColor(query.ComfortableTempUpper)
+	high := ambientTempDisplayColor(query.ComfortableTempUpper + 1)
+
+	t.Run("下限未満は快適帯と異なる色になる", func(t *testing.T) {
+		t.Parallel()
+		assert.NotEqual(t, mid, low)
+	})
+
+	t.Run("上限超過は快適帯と異なる色になる", func(t *testing.T) {
+		t.Parallel()
+		assert.NotEqual(t, mid, high)
+	})
+
+	t.Run("下限未満と上限超過は異なる色になる", func(t *testing.T) {
+		t.Parallel()
+		assert.NotEqual(t, low, high)
+	})
+
+	t.Run("境界ちょうどは快適帯の色と同じになる", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, mid, atLower, "下限ちょうどは快適帯側の分岐になる")
+		assert.Equal(t, mid, atUpper, "上限ちょうどは快適帯側の分岐になる")
+	})
+}

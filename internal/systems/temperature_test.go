@@ -225,6 +225,68 @@ func TestLogTemperatureChange(t *testing.T) {
 		msg := getRecoveryMessage(gc.ConditionHypothermia, gc.SeveritySevere)
 		assert.Empty(t, msg)
 	})
+
+	t.Run("SeverityMediumの回復メッセージが取得できる", func(t *testing.T) {
+		t.Parallel()
+		msg := getRecoveryMessage(gc.ConditionHypothermia, gc.SeverityMedium)
+		assert.Contains(t, msg, "Still cold, but a little better")
+	})
+
+	t.Run("低体温以外の悪化メッセージは常に空", func(t *testing.T) {
+		t.Parallel()
+		for _, severity := range []gc.Severity{gc.SeverityNone, gc.SeverityMinor, gc.SeverityMedium, gc.SeveritySevere} {
+			assert.Empty(t, getWorseningMessage(gc.ConditionFracture, severity))
+		}
+	})
+
+	t.Run("低体温以外の回復メッセージは常に空", func(t *testing.T) {
+		t.Parallel()
+		for _, severity := range []gc.Severity{gc.SeverityNone, gc.SeverityMinor, gc.SeverityMedium, gc.SeveritySevere} {
+			assert.Empty(t, getRecoveryMessage(gc.ConditionFracture, severity))
+		}
+	})
+}
+
+// TestLogTemperatureChange_ログへの反映 はメッセージが空でなければログへ1件積み、空なら積まないことを固定する
+func TestLogTemperatureChange_ログへの反映(t *testing.T) {
+	t.Parallel()
+
+	t.Run("悪化してメッセージがあればログへ1件積む", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeverityMinor, gc.SeverityNone)
+
+		assert.Equal(t, 1, query.GetGameLog(world).Count())
+	})
+
+	t.Run("回復してメッセージがあればログへ1件積む", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeverityNone, gc.SeverityMinor)
+
+		assert.Equal(t, 1, query.GetGameLog(world).Count())
+	})
+
+	t.Run("回復してもメッセージが空ならログへ積まない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// currentがprevを上回らないので回復扱いになり、SeveritySevereへの回復メッセージは空文字
+		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeveritySevere, gc.SeveritySevere)
+
+		assert.Equal(t, 0, query.GetGameLog(world).Count())
+	})
+
+	t.Run("低体温以外の状態種別はログへ積まない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		logTemperatureChange(world, gc.ConditionFracture, gc.SeverityMinor, gc.SeverityNone)
+
+		assert.Equal(t, 0, query.GetGameLog(world).Count())
+	})
 }
 
 func TestTemperatureSystem_Update_熱源のそばは体温の低下が緩む(t *testing.T) {
