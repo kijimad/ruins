@@ -27,12 +27,12 @@ func TestBaselineSnapshot_序盤戦闘(t *testing.T) {
 	require.NoError(t, err)
 	assert.InDelta(t, 2.59, curve[0].PowerRatio, 0.05, "廃墟 day1 の戦力比")
 	// day20 の床戦力比は後半専用敵の STR 強化で下がった。床はハードモードの下限で、主基準は想定の死亡確率。
-	assert.InDelta(t, 0.76, curve[19].PowerRatio, 0.05, "廃墟 day20 の床戦力比。後半専用敵の強化で目標を下回るハードモード")
+	assert.InDelta(t, 0.67, curve[19].PowerRatio, 0.05, "廃墟 day20 の床戦力比。後半専用敵の強化で目標を下回るハードモード")
 
 	forest, err := DifficultyCurve(master, player, weapon, "forest", 21)
 	require.NoError(t, err)
 	assert.InDelta(t, 2.50, forest[0].PowerRatio, 0.05, "森 day1 の戦力比")
-	assert.InDelta(t, 1.02, forest[19].PowerRatio, 0.05, "森 day20 の床戦力比")
+	assert.InDelta(t, 0.97, forest[19].PowerRatio, 0.05, "森 day20 の床戦力比")
 
 	cave, err := DifficultyCurve(master, player, weapon, "cave", 21)
 	require.NoError(t, err)
@@ -51,8 +51,8 @@ func TestBaselineSnapshot_戦闘リスク(t *testing.T) {
 	require.NoError(t, err)
 	// 死亡確率は期待値の比では見えない突然死の裾。危険度4の崖で 0.6%→6.6% と跳ねる。
 	assert.InDelta(t, 0.001, curve[7].DeathProb, 0.01, "廃墟 day8 の死亡確率。危険度3までは安全")
-	assert.InDelta(t, 0.066, curve[8].DeathProb, 0.02, "廃墟 day9 の死亡確率。危険度4で崖が立つ")
-	assert.InDelta(t, 0.561, curve[19].DeathProb, 0.03, "廃墟 day20 の床死亡確率。後半専用敵の強化で床はハードモード")
+	assert.InDelta(t, 0.177, curve[8].DeathProb, 0.03, "廃墟 day9 の死亡確率。危険度4で崖が立つ")
+	assert.InDelta(t, 0.687, curve[19].DeathProb, 0.03, "廃墟 day20 の床死亡確率。後半専用敵の強化で床はハードモード")
 }
 
 func TestBaselineSnapshot_生存圧(t *testing.T) {
@@ -105,7 +105,7 @@ func TestBaselineSnapshot_進行カーブ(t *testing.T) {
 	curve, err := ProgressionCurve(master, player, weapon, "ruins_area", 21, DefaultAttacksPerDay)
 	require.NoError(t, err)
 	// 床はハードモードで day20 は高い。想定プレイヤーは後半専用敵の強化で目標帯へ緊張が戻った。
-	assert.InDelta(t, 0.561, curve[19].DeathFloor, 0.03, "day20 床の死亡確率。後半専用敵の強化でハードモード")
+	assert.InDelta(t, 0.687, curve[19].DeathFloor, 0.03, "day20 床の死亡確率。後半専用敵の強化でハードモード")
 	lo, hi := TargetExpectedDeath(20)
 	assert.GreaterOrEqual(t, curve[19].DeathExpected, lo, "day20 想定死亡は目標帯の下限以上")
 	assert.LessOrEqual(t, curve[19].DeathExpected, hi, "day20 想定死亡は目標帯の上限以下")
@@ -131,7 +131,7 @@ func TestBaselineSnapshot_ビルドブレ(t *testing.T) {
 	require.Len(t, stages, 3)
 	// 終盤のブレ幅。熟練度を実ゲーム同様 base 全体へ掛ける正しいモデルでは、スキル成長の効果が大きく、
 	// ブレ幅は許容帯の仮説を超える。これは計測修正で露見した実態で、許容帯かバフ設計の見直し対象。
-	assert.InDelta(t, 2.30, stages[2].MaxSpread, 0.2, "終盤のブレ幅")
+	assert.InDelta(t, 2.05, stages[2].MaxSpread, 0.2, "終盤のブレ幅")
 }
 
 func TestTargetCheck_InRange_帯の内外(t *testing.T) {

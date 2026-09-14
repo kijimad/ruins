@@ -10064,7 +10064,7 @@ agility = 5
 defense = 1
 dexterity = 6
 sensation = 3
-strength = 5
+strength = 17
 vitality = 2
 [[members]]
 animKeys = ["ice_dog"]
@@ -10118,7 +10118,7 @@ agility = 4
 defense = 1
 dexterity = 3
 sensation = 4
-strength = 2
+strength = 14
 vitality = 2
 
 [[commandTables]]
