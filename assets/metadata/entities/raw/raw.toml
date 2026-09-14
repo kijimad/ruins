@@ -14518,79 +14518,104 @@ weight = 0.5
 name = "食料庫"
 id = "pantry"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
-minDanger = 1
-weight = 1
-[[itemTables.entries]]
 id = "food"
-maxDanger = 30
+weight = 6
 minDanger = 1
-weight = 5
+maxDanger = 30
 [[itemTables.entries]]
-id = "healing_item"
-maxDanger = 30
-minDanger = 1
+id = "materials"
 weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "junk"
+weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "scrap_of_paper"
+weight = 1
+minDanger = 1
+maxDanger = 30
 [[itemTables]]
 name = "薬棚"
 id = "medicine_shelf"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
-minDanger = 1
-weight = 1
-[[itemTables.entries]]
 id = "healing_item"
-maxDanger = 30
+weight = 6
 minDanger = 1
-weight = 5
+maxDanger = 30
 [[itemTables.entries]]
-id = "food"
-maxDanger = 30
+id = "scrap_of_paper"
+weight = 2
 minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "materials"
 weight = 1
+minDanger = 1
+maxDanger = 30
 [[itemTables]]
 name = "物入れ"
 id = "storage_box"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
+id = "materials"
+weight = 3
 minDanger = 1
-weight = 1
+maxDanger = 30
 [[itemTables.entries]]
-id = "food"
-maxDanger = 30
+id = "junk"
+weight = 3
 minDanger = 1
-weight = 2
+maxDanger = 30
 [[itemTables.entries]]
 id = "early_armor"
-maxDanger = 30
-minDanger = 1
-weight = 3
-[[itemTables.entries]]
-id = "healing_item"
-maxDanger = 30
-minDanger = 1
 weight = 2
+minDanger = 1
+maxDanger = 8
+[[itemTables.entries]]
+id = "midgame_armor"
+weight = 2
+minDanger = 6
+maxDanger = 30
+[[itemTables.entries]]
+id = "scrap_of_paper"
+weight = 1
+minDanger = 1
+maxDanger = 30
 [[itemTables]]
 name = "商品棚"
 id = "store_shelf"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
-minDanger = 1
-weight = 1
-[[itemTables.entries]]
 id = "food"
-maxDanger = 30
-minDanger = 1
 weight = 3
+minDanger = 1
+maxDanger = 30
 [[itemTables.entries]]
 id = "healing_item"
-maxDanger = 30
+weight = 3
 minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "junk"
+weight = 1
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "early_armor"
 weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "midgame_melee_weapon"
+weight = 2
+minDanger = 4
+maxDanger = 30
+[[itemTables.entries]]
+id = "ranged_weapon"
+weight = 1
+minDanger = 6
+maxDanger = 30
 
 [[enemyTables]]
 name = "廃墟"
