@@ -6233,3 +6233,72 @@ msgstr "todo: 麻痺を付与する攻撃。状態異常のスキーマが未実
 
 msgid "todo: applies weakening curse. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
 msgstr "todo: 衰弱の呪いを付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "Storm Hammer"
+msgstr "嵐の大槌"
+
+msgid "Glacier Axe"
+msgstr "氷河の斧"
+
+msgid "Ember Whip"
+msgstr "燠の鞭"
+
+msgid "Radiant Bow"
+msgstr "光輝の弓"
+
+msgid "Drowsy Pipe"
+msgstr "眠りの笛"
+
+msgid "Blind Powder"
+msgstr "盲目の粉"
+
+msgid "Slow Net"
+msgstr "鈍足の網"
+
+msgid "Energy Bar"
+msgstr "エナジーバー"
+
+msgid "Rusted Gear"
+msgstr "錆びた歯車"
+
+msgid "Storm Drake"
+msgstr "嵐竜"
+
+msgid "Glacier Golem"
+msgstr "氷河のゴーレム"
+
+msgid "Ember Imp"
+msgstr "燠の小鬼"
+
+msgid "Dozer"
+msgstr "まどろむ獣"
+
+msgid "Blinder"
+msgstr "盲目化獣"
+
+msgid "A heavy hammer wreathed in sparks."
+msgstr "火花をまとう重い大槌。"
+
+msgid "An axe of everlasting ice."
+msgstr "溶けない氷の斧。"
+
+msgid "A whip trailing embers."
+msgstr "燠を引く鞭。"
+
+msgid "A bow that fires bolts of light."
+msgstr "光の矢を放つ弓。"
+
+msgid "A compact ration bar."
+msgstr "携帯用の栄養バー。"
+
+msgid "A rusted gear worth a little at auction."
+msgstr "競売で少し値が付く錆びた歯車。"
+
+msgid "todo: applies sleep. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 睡眠を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies blindness. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 盲目を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies slow. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 鈍足を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"

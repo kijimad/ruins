@@ -9042,6 +9042,151 @@ usableScene = "ANY"
 amount = 0
 ratio = 0.3
 valueType = "PERCENTAGE"
+[[items]]
+id = "storm_hammer"
+name = "Storm Hammer"
+description = "A heavy hammer wreathed in sparks."
+spriteKey = "dummy_0"
+spriteSheetName = "field"
+value = 170
+weight = "3000 g"
+
+[items.melee]
+accuracy = 80
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 2
+damage = 16
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "glacier_axe"
+name = "Glacier Axe"
+description = "An axe of everlasting ice."
+spriteKey = "dummy_1"
+spriteSheetName = "field"
+value = 150
+weight = "2200 g"
+
+[items.melee]
+accuracy = 85
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 13
+element = "CHILL"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "ember_whip"
+name = "Ember Whip"
+description = "A whip trailing embers."
+spriteKey = "dummy_2"
+spriteSheetName = "field"
+value = 140
+weight = "1100 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 11
+element = "FIRE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "radiant_bow"
+name = "Radiant Bow"
+description = "A bow that fires bolts of light."
+spriteKey = "dummy_3"
+spriteSheetName = "field"
+value = 175
+weight = "1500 g"
+
+[items.fire]
+accuracy = 88
+attackCategory = "BOW"
+attackCount = 1
+cost = 2
+damage = 14
+element = "PHOTON"
+magazineSize = 1
+reloadEffort = 2
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "drowsy_pipe"
+name = "Drowsy Pipe"
+description = "todo: applies sleep. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_4"
+spriteSheetName = "field"
+value = 95
+weight = "700 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 7
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "blind_powder"
+name = "Blind Powder"
+description = "todo: applies blindness. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_5"
+spriteSheetName = "field"
+value = 105
+weight = "300 g"
+
+[items.melee]
+accuracy = 92
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 6
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "slow_net"
+name = "Slow Net"
+description = "todo: applies slow. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_6"
+spriteSheetName = "field"
+value = 100
+weight = "1000 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 1
+damage = 8
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "energy_bar"
+name = "Energy Bar"
+description = "A compact ration bar."
+spriteKey = "dummy_7"
+spriteSheetName = "field"
+value = 40
+weight = "200 g"
+providesNutrition = 260
+[[items]]
+id = "rusted_gear"
+name = "Rusted Gear"
+description = "A rusted gear worth a little at auction."
+spriteKey = "dummy_8"
+spriteSheetName = "field"
+value = 55
+weight = "900 g"
 
 [[recipes]]
 name = "レイガン"
@@ -10591,6 +10736,96 @@ dexterity = 6
 sensation = 3
 strength = 14
 vitality = 3
+[[members]]
+id = "storm_drake"
+name = "Storm Drake"
+spriteKey = "dummy_10"
+spriteSheetName = "field"
+animKeys = ["dummy_10"]
+commandTableId = "ct_storm_drake"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 5
+defense = 2
+dexterity = 6
+sensation = 3
+strength = 12
+vitality = 3
+[[members]]
+id = "glacier_golem"
+name = "Glacier Golem"
+spriteKey = "dummy_11"
+spriteSheetName = "field"
+animKeys = ["dummy_11"]
+commandTableId = "ct_glacier_golem"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "stationary"
+
+[members.abilities]
+agility = 2
+defense = 4
+dexterity = 4
+sensation = 3
+strength = 9
+vitality = 4
+[[members]]
+id = "ember_imp"
+name = "Ember Imp"
+spriteKey = "dummy_12"
+spriteSheetName = "field"
+animKeys = ["dummy_12"]
+commandTableId = "ct_ember_imp"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 6
+defense = 1
+dexterity = 5
+sensation = 3
+strength = 5
+vitality = 1
+[[members]]
+id = "dozer"
+name = "Dozer"
+spriteKey = "dummy_13"
+spriteSheetName = "field"
+animKeys = ["dummy_13"]
+commandTableId = "ct_dozer"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "random"
+
+[members.abilities]
+agility = 3
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 7
+vitality = 2
+[[members]]
+id = "blinder"
+name = "Blinder"
+spriteKey = "dummy_14"
+spriteSheetName = "field"
+animKeys = ["dummy_14"]
+commandTableId = "ct_blinder"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 5
+defense = 2
+dexterity = 6
+sensation = 3
+strength = 11
+vitality = 2
 
 [[commandTables]]
 name = "コウモリ"
@@ -11221,6 +11456,51 @@ weapon = "tackle"
 weight = 1
 [[commandTables.entries]]
 weapon = "curse_dagger"
+weight = 2
+[[commandTables]]
+id = "ct_storm_drake"
+name = "嵐竜"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "shock_bite"
+weight = 2
+[[commandTables]]
+id = "ct_glacier_golem"
+name = "氷像"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "frost_maw"
+weight = 2
+[[commandTables]]
+id = "ct_ember_imp"
+name = "燠の小鬼"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "flame_attack"
+weight = 2
+[[commandTables]]
+id = "ct_dozer"
+name = "眠りの獣"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "drowsy_pipe"
+weight = 2
+[[commandTables]]
+id = "ct_blinder"
+name = "盲目化"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "blind_powder"
 weight = 2
 
 [[dropTables]]
@@ -12683,6 +12963,10 @@ pack = "1d1"
 id = "scrap_battery"
 weight = 3
 pack = "1d2"
+[[itemGroups.entries]]
+id = "rusted_gear"
+weight = 3
+pack = "1d2"
 [[itemGroups]]
 name = "食料"
 id = "food"
@@ -12947,6 +13231,10 @@ pack = "1d1"
 id = "dummy_ration"
 weight = 3
 pack = "1d2"
+[[itemGroups.entries]]
+id = "energy_bar"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "序盤近接武器"
 id = "early_melee_weapon"
@@ -13139,6 +13427,26 @@ pack = "1d1"
 id = "curse_dagger"
 weight = 2
 pack = "1d1"
+[[itemGroups.entries]]
+id = "glacier_axe"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ember_whip"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "drowsy_pipe"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blind_powder"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "slow_net"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "終盤近接武器"
 id = "endgame_melee_weapon"
@@ -13203,6 +13511,10 @@ pack = "1d1"
 id = "sun_blade"
 weight = 1
 pack = "1d1"
+[[itemGroups.entries]]
+id = "storm_hammer"
+weight = 1
+pack = "1d1"
 [[itemGroups]]
 name = "射撃武器"
 id = "ranged_weapon"
@@ -13253,6 +13565,10 @@ weight = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "frost_bolt"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "radiant_bow"
 weight = 1
 pack = "1d1"
 [[itemGroups]]
@@ -14561,6 +14877,24 @@ minDanger = 6
 maxDanger = 9
 weight = 0.6
 pack = "1d1"
+[[enemyTables.entries]]
+id = "ember_imp"
+minDanger = 2
+maxDanger = 5
+weight = 1.0
+pack = "1d2"
+[[enemyTables.entries]]
+id = "storm_drake"
+minDanger = 5
+maxDanger = 9
+weight = 0.6
+pack = "1d1"
+[[enemyTables.entries]]
+id = "blinder"
+minDanger = 5
+maxDanger = 9
+weight = 0.6
+pack = "1d1"
 [[enemyTables]]
 name = "森"
 id = "forest"
@@ -14744,6 +15078,12 @@ minDanger = 2
 maxDanger = 6
 weight = 1.0
 pack = "1d2"
+[[enemyTables.entries]]
+id = "glacier_golem"
+minDanger = 4
+maxDanger = 8
+weight = 0.8
+pack = "1d1"
 [[enemyTables]]
 name = "洞窟"
 id = "cave"
@@ -14971,6 +15311,12 @@ maxDanger = 35
 pack = "1d1"
 [[enemyTables.entries]]
 id = "paralyzer"
+minDanger = 3
+maxDanger = 7
+weight = 0.8
+pack = "1d1"
+[[enemyTables.entries]]
+id = "dozer"
 minDanger = 3
 maxDanger = 7
 weight = 0.8

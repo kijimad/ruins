@@ -32,7 +32,7 @@ func TestBaselineSnapshot_序盤戦闘(t *testing.T) {
 	forest, err := DifficultyCurve(master, player, weapon, "forest", 21)
 	require.NoError(t, err)
 	assert.InDelta(t, 2.50, forest[0].PowerRatio, 0.05, "森 day1 の戦力比")
-	assert.InDelta(t, 0.97, forest[19].PowerRatio, 0.05, "森 day20 の床戦力比")
+	assert.InDelta(t, 0.92, forest[19].PowerRatio, 0.05, "森 day20 の床戦力比")
 
 	cave, err := DifficultyCurve(master, player, weapon, "cave", 21)
 	require.NoError(t, err)
@@ -50,9 +50,9 @@ func TestBaselineSnapshot_戦闘リスク(t *testing.T) {
 	curve, err := CombatRiskCurve(master, player, weapon, "ruins_area", 21)
 	require.NoError(t, err)
 	// 死亡確率は期待値の比では見えない突然死の裾。危険度4の崖で 0.6%→6.6% と跳ねる。
-	assert.InDelta(t, 0.057, curve[7].DeathProb, 0.02, "廃墟 day8 の死亡確率。危険度3に毒這い・光虫等が入り立つ")
+	assert.InDelta(t, 0.083, curve[7].DeathProb, 0.03, "廃墟 day8 の死亡確率。危険度3に毒這い・光虫・小鬼等が入り立つ")
 	assert.InDelta(t, 0.212, curve[8].DeathProb, 0.03, "廃墟 day9 の死亡確率。危険度4で崖が立つ")
-	assert.InDelta(t, 0.687, curve[19].DeathProb, 0.03, "廃墟 day20 の床死亡確率。後半専用敵の強化で床はハードモード")
+	assert.InDelta(t, 0.718, curve[19].DeathProb, 0.03, "廃墟 day20 の床死亡確率。後半専用敵の強化で床はハードモード")
 }
 
 func TestBaselineSnapshot_生存圧(t *testing.T) {
@@ -105,7 +105,7 @@ func TestBaselineSnapshot_進行カーブ(t *testing.T) {
 	curve, err := ProgressionCurve(master, player, weapon, "ruins_area", 21, DefaultAttacksPerDay)
 	require.NoError(t, err)
 	// 床はハードモードで day20 は高い。想定プレイヤーは後半専用敵の強化で目標帯へ緊張が戻った。
-	assert.InDelta(t, 0.687, curve[19].DeathFloor, 0.03, "day20 床の死亡確率。後半専用敵の強化でハードモード")
+	assert.InDelta(t, 0.718, curve[19].DeathFloor, 0.03, "day20 床の死亡確率。後半専用敵の強化でハードモード")
 	lo, hi := TargetExpectedDeath(20)
 	assert.GreaterOrEqual(t, curve[19].DeathExpected, lo, "day20 想定死亡は目標帯の下限以上")
 	assert.LessOrEqual(t, curve[19].DeathExpected, hi, "day20 想定死亡は目標帯の上限以下")
