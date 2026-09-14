@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestNewRenderer_pipelineを保持しフレーム未生成で始まる は、
-// newRenderer が渡された pipeline をそのまま保持し、frame をまだ確保していないことを確認する。
-func TestNewRenderer_pipelineを保持しフレーム未生成で始まる(t *testing.T) {
+// TestNewRenderer_パイプラインを保持しフレーム未生成で始まる は、
+// newRenderer が渡されたパイプラインをそのまま保持し、フレームをまだ確保していないことを確認する。
+func TestNewRenderer_パイプラインを保持しフレーム未生成で始まる(t *testing.T) {
 	t.Parallel()
 
 	pipeline := screeneffect.NewPipeline()

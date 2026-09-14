@@ -14,7 +14,7 @@ import (
 )
 
 // TestNewMainGame は、DisableScreenFilter の真偽どちらでも NewMainGame が
-// エラーなく構築でき、組み込まれた pipeline で Draw がパニックしないことを確認する。
+// エラーなく構築でき、組み込まれたパイプラインで Draw がパニックしないことを確認する。
 func TestNewMainGame(t *testing.T) {
 	t.Parallel()
 
