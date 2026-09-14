@@ -614,7 +614,7 @@ element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
 [[items]]
-description = "Attacks with venom-laced fangs and spines."
+description = "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
 name = "Venom Fang"
 id = "venom_fang"
 spriteKey = "field_item"
@@ -8751,6 +8751,159 @@ spriteKey = "angel"
 spriteSheetName = "field"
 value = 60
 weight = "500 g"
+[[items]]
+id = "spark_blade"
+name = "Spark Blade"
+description = "A blade crackling with lightning."
+spriteKey = "dummy_0"
+spriteSheetName = "dummy"
+value = 120
+weight = "1200 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 10
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "frost_edge"
+name = "Frost Edge"
+description = "A blade rimed with frost."
+spriteKey = "dummy_1"
+spriteSheetName = "dummy"
+value = 130
+weight = "1300 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 11
+element = "CHILL"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "prism_rod"
+name = "Prism Rod"
+description = "A rod that focuses light into a beam."
+spriteKey = "dummy_2"
+spriteSheetName = "dummy"
+value = 140
+weight = "900 g"
+
+[items.melee]
+accuracy = 92
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 9
+element = "PHOTON"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "toxin_barb"
+name = "Toxin Barb"
+description = "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_3"
+spriteSheetName = "dummy"
+value = 90
+weight = "600 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 1
+damage = 8
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "bleed_claw"
+name = "Bleed Claw"
+description = "todo: applies bleeding. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_5"
+spriteSheetName = "dummy"
+value = 100
+weight = "800 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 10
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "dummy_ration"
+name = "Dummy Ration"
+description = "A bland placeholder ration."
+spriteKey = "dummy_7"
+spriteSheetName = "dummy"
+value = 30
+weight = "400 g"
+providesNutrition = 200
+[[items]]
+id = "shock_bite"
+name = "Shock Bite"
+description = "An enemy attack that jolts with electricity."
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = "0 g"
+
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 12
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "frost_maw"
+name = "Frost Maw"
+description = "An enemy attack of biting cold."
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = "0 g"
+
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 13
+element = "CHILL"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "photon_flash"
+name = "Photon Flash"
+description = "An enemy attack of searing light."
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = "0 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 15
+element = "PHOTON"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
 
 [[recipes]]
 name = "レイガン"
@@ -10120,6 +10273,96 @@ dexterity = 3
 sensation = 4
 strength = 14
 vitality = 2
+[[members]]
+id = "spark_wisp"
+name = "Spark Wisp"
+spriteKey = "dummy_4"
+spriteSheetName = "dummy"
+animKeys = ["dummy_4"]
+commandTableId = "ct_spark_wisp"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 6
+defense = 1
+dexterity = 5
+sensation = 3
+strength = 4
+vitality = 1
+[[members]]
+id = "frost_lurker"
+name = "Frost Lurker"
+spriteKey = "dummy_6"
+spriteSheetName = "dummy"
+animKeys = ["dummy_6"]
+commandTableId = "ct_frost_lurker"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 6
+vitality = 2
+[[members]]
+id = "venom_crawler"
+name = "Venom Crawler"
+spriteKey = "dummy_3"
+spriteSheetName = "dummy"
+animKeys = ["dummy_3"]
+commandTableId = "ct_venom_crawler"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 6
+vitality = 2
+[[members]]
+id = "bleeding_hound"
+name = "Bleeding Hound"
+spriteKey = "dummy_5"
+spriteSheetName = "dummy"
+animKeys = ["dummy_5"]
+commandTableId = "ct_bleeding_hound"
+dropTableId = "rat"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 5
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 10
+vitality = 2
+[[members]]
+id = "prism_eye"
+name = "Prism Eye"
+spriteKey = "dummy_2"
+spriteSheetName = "dummy"
+animKeys = ["dummy_2"]
+commandTableId = "ct_prism_eye"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "stationary"
+
+[members.abilities]
+agility = 3
+defense = 3
+dexterity = 6
+sensation = 3
+strength = 18
+vitality = 3
 
 [[commandTables]]
 name = "コウモリ"
@@ -10661,6 +10904,51 @@ id = "ash_wolf"
 [[commandTables.entries]]
 weapon = "bite"
 weight = 1
+[[commandTables]]
+id = "ct_spark_wisp"
+name = "火花"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "shock_bite"
+weight = 2
+[[commandTables]]
+id = "ct_frost_lurker"
+name = "氷潜み"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "frost_maw"
+weight = 2
+[[commandTables]]
+id = "ct_prism_eye"
+name = "光の目"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "photon_flash"
+weight = 2
+[[commandTables]]
+id = "ct_venom_crawler"
+name = "毒這い"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "toxin_barb"
+weight = 2
+[[commandTables]]
+id = "ct_bleeding_hound"
+name = "出血犬"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "bleed_claw"
+weight = 2
 
 [[dropTables]]
 name = "コウモリ"
@@ -12374,6 +12662,10 @@ pack = "1d1"
 id = "swirl_bread"
 weight = 1.0
 pack = "1d1"
+[[itemGroups.entries]]
+id = "dummy_ration"
+weight = 3
+pack = "1d2"
 [[itemGroups]]
 name = "序盤近接武器"
 id = "early_melee_weapon"
@@ -12538,6 +12830,22 @@ pack = "1d1"
 id = "ice_spear"
 weight = 1.0
 pack = "1d1"
+[[itemGroups.entries]]
+id = "spark_blade"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "frost_edge"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "toxin_barb"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bleed_claw"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "終盤近接武器"
 id = "endgame_melee_weapon"
@@ -12593,6 +12901,10 @@ pack = "1d1"
 [[itemGroups.entries]]
 id = "50mm_cannon"
 weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "prism_rod"
+weight = 1
 pack = "1d1"
 [[itemGroups]]
 name = "射撃武器"
@@ -13896,6 +14208,36 @@ weight = 0.2
 minDanger = 12
 maxDanger = 30
 pack = "1d1"
+[[enemyTables.entries]]
+id = "spark_wisp"
+minDanger = 2
+maxDanger = 6
+weight = 1.0
+pack = "1d2"
+[[enemyTables.entries]]
+id = "venom_crawler"
+minDanger = 3
+maxDanger = 7
+weight = 0.8
+pack = "1d1"
+[[enemyTables.entries]]
+id = "frost_lurker"
+minDanger = 4
+maxDanger = 8
+weight = 1.0
+pack = "1d1"
+[[enemyTables.entries]]
+id = "bleeding_hound"
+minDanger = 5
+maxDanger = 9
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "prism_eye"
+minDanger = 7
+maxDanger = 12
+weight = 0.5
+pack = "1d1"
 [[enemyTables]]
 name = "森"
 id = "forest"
@@ -14308,6 +14650,9 @@ path = "file/textures/dist/single.json"
 [[spriteSheets]]
 name = "tile"
 path = "file/textures/dist/tiles.json"
+[[spriteSheets]]
+name = "dummy"
+path = "file/textures/dist/dummy.json"
 
 [[tiles]]
 blockPass = false

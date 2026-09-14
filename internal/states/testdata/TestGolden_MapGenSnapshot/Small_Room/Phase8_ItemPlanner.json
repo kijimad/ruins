@@ -38647,7 +38647,7 @@
     {
       "X": 16,
       "Y": 2,
-      "Name": "corn",
+      "Name": "cured_sausage",
       "Count": 1
     },
     {
@@ -38671,7 +38671,7 @@
     {
       "X": 45,
       "Y": 31,
-      "Name": "lemon_soda",
+      "Name": "minced_meat",
       "Count": 1
     }
   ],

@@ -6098,3 +6098,75 @@ msgstr "廃兵長"
 
 msgid "Ash Wolf"
 msgstr "灰狼"
+
+msgid "Spark Blade"
+msgstr "火花の剣"
+
+msgid "Frost Edge"
+msgstr "氷結の刃"
+
+msgid "Prism Rod"
+msgstr "プリズムロッド"
+
+msgid "Venom Fang"
+msgstr "毒牙"
+
+msgid "Bleed Claw"
+msgstr "出血の爪"
+
+msgid "Dummy Ration"
+msgstr "ダミー携行食"
+
+msgid "Shock Bite"
+msgstr "電撃噛み"
+
+msgid "Frost Maw"
+msgstr "氷の顎"
+
+msgid "Photon Flash"
+msgstr "光子閃"
+
+msgid "Spark Wisp"
+msgstr "火花の霊"
+
+msgid "Frost Lurker"
+msgstr "氷潜み"
+
+msgid "Venom Crawler"
+msgstr "毒這い"
+
+msgid "Bleeding Hound"
+msgstr "出血犬"
+
+msgid "Prism Eye"
+msgstr "光の目"
+
+msgid "A blade crackling with lightning."
+msgstr "雷をまとった剣。"
+
+msgid "A blade rimed with frost."
+msgstr "霜に覆われた刃。"
+
+msgid "A rod that focuses light into a beam."
+msgstr "光を束ねて放つ杖。"
+
+msgid "A bland placeholder ration."
+msgstr "味気ない仮の携行食。"
+
+msgid "An enemy attack of biting cold."
+msgstr "凍てつく敵の攻撃。"
+
+msgid "An enemy attack of searing light."
+msgstr "灼く光の敵の攻撃。"
+
+msgid "An enemy attack that jolts with electricity."
+msgstr "電撃を帯びた敵の攻撃。"
+
+msgid "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 毒を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies bleeding. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 出血を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "Toxin Barb"
+msgstr "毒の棘"

@@ -50,8 +50,8 @@ func TestBaselineSnapshot_戦闘リスク(t *testing.T) {
 	curve, err := CombatRiskCurve(master, player, weapon, "ruins_area", 21)
 	require.NoError(t, err)
 	// 死亡確率は期待値の比では見えない突然死の裾。危険度4の崖で 0.6%→6.6% と跳ねる。
-	assert.InDelta(t, 0.001, curve[7].DeathProb, 0.01, "廃墟 day8 の死亡確率。危険度3までは安全")
-	assert.InDelta(t, 0.177, curve[8].DeathProb, 0.03, "廃墟 day9 の死亡確率。危険度4で崖が立つ")
+	assert.InDelta(t, 0.034, curve[7].DeathProb, 0.02, "廃墟 day8 の死亡確率。危険度3に毒這い等が入り僅かに立つ")
+	assert.InDelta(t, 0.212, curve[8].DeathProb, 0.03, "廃墟 day9 の死亡確率。危険度4で崖が立つ")
 	assert.InDelta(t, 0.687, curve[19].DeathProb, 0.03, "廃墟 day20 の床死亡確率。後半専用敵の強化で床はハードモード")
 }
 
@@ -92,7 +92,7 @@ func TestBaselineSnapshot_探索収入(t *testing.T) {
 	master := loadTestMaster(t)
 	assert.InDelta(t, 68, ExpectedNetLootValue(master, "ruins_area", 8), 3, "危険度8の廃墟で拾える1個あたりの期待手取り")
 	assert.InDelta(t, 4332, ExpectedRunLootIncome(master, "ruins_area", 5), 80, "廃墟5層探索の期待収入")
-	assert.InDelta(t, 83.3, CostOfLivingPerDay(master, DefaultParams()), 2, "1日の食費。最安食料で満腹度減耗を賄う")
+	assert.InDelta(t, 75.0, CostOfLivingPerDay(master, DefaultParams()), 2, "1日の食費。最安食料(ダミー携行食)で満腹度減耗を賄う")
 }
 
 func TestBaselineSnapshot_進行カーブ(t *testing.T) {

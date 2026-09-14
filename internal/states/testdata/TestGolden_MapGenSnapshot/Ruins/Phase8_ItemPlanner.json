@@ -37566,7 +37566,7 @@
     {
       "X": 37,
       "Y": 27,
-      "Name": "bagel",
+      "Name": "bagel_sesame",
       "Count": 1
     },
     {
@@ -37584,7 +37584,7 @@
     {
       "X": 13,
       "Y": 18,
-      "Name": "lemon_soda",
+      "Name": "meat_on_bone",
       "Count": 1
     },
     {
@@ -37608,7 +37608,7 @@
     {
       "X": 19,
       "Y": 23,
-      "Name": "raw_meat",
+      "Name": "salmon",
       "Count": 1
     },
     {
@@ -37626,7 +37626,7 @@
     {
       "X": 42,
       "Y": 25,
-      "Name": "cola",
+      "Name": "cheese",
       "Count": 1
     },
     {

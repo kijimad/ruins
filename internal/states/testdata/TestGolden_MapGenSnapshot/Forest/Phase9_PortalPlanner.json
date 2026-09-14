@@ -37597,7 +37597,7 @@
     {
       "X": 38,
       "Y": 34,
-      "Name": "chili_pepper",
+      "Name": "corn",
       "Count": 1
     },
     {
@@ -37633,14 +37633,14 @@
     {
       "X": 41,
       "Y": 30,
-      "Name": "green_soda",
+      "Name": "meatball",
       "Count": 1
     },
     {
       "X": 24,
       "Y": 36,
-      "Name": "almond",
-      "Count": 2
+      "Name": "bagel",
+      "Count": 1
     }
   ],
   "Props": [],
