@@ -7805,7 +7805,7 @@ id = "beast_fur"
 material = "LEATHER"
 spriteKey = "field_item"
 spriteSheetName = "field"
-value = 0
+value = 15
 weight = "1 kg"
 [[items]]
 description = "A gem of fossilized ancient sap, with a tiny insect trapped inside."
@@ -7814,7 +7814,7 @@ id = "amber"
 material = "CRYSTAL"
 spriteKey = "ammonite_fossil"
 spriteSheetName = "field"
-value = 0
+value = 45
 weight = "100 g"
 [[items]]
 description = "A stack of plates, fragile so handle with care."
@@ -7958,7 +7958,7 @@ id = "amethyst"
 material = "CRYSTAL"
 spriteKey = "amethyst_stone"
 spriteSheetName = "field"
-value = 0
+value = 50
 weight = "400 g"
 [[items]]
 description = "A deep purple ore said to be a source of magic."
@@ -8165,7 +8165,7 @@ id = "blood_red_stone"
 material = "STONE"
 spriteKey = "crimson_crystal"
 spriteSheetName = "field"
-value = 0
+value = 60
 weight = "800 g"
 [[items]]
 description = "A withering houseplant. A little green still remains."
@@ -8237,7 +8237,7 @@ id = "iron"
 material = "METAL"
 spriteKey = "iron_content"
 spriteSheetName = "field"
-value = 0
+value = 12
 weight = "2 kg"
 [[items]]
 description = "A lump of metal rich in iron."
@@ -8246,7 +8246,7 @@ id = "scrap_iron"
 material = "METAL"
 spriteKey = "scrap_metal"
 spriteSheetName = "field"
-value = 0
+value = 4
 weight = "1 kg"
 [[items]]
 description = "Raw iron ore that becomes iron once smelted."
@@ -8264,7 +8264,7 @@ id = "silver_shard"
 material = "METAL"
 spriteKey = "round_pebble"
 spriteSheetName = "field"
-value = 0
+value = 40
 weight = "200 g"
 [[items]]
 description = "A piece of old chain that once held something bound."
@@ -8273,7 +8273,7 @@ id = "rusted_chain"
 material = "METAL"
 spriteKey = "field_item"
 spriteSheetName = "field"
-value = 0
+value = 3
 weight = "1.2 kg"
 [[items]]
 description = "A rare ore mined from a fallen meteorite."
@@ -8291,7 +8291,7 @@ id = "lightning_stone"
 material = "STONE"
 spriteKey = "yellow_crystal_stone"
 spriteSheetName = "field"
-value = 0
+value = 35
 weight = "600 g"
 [[items]]
 description = "A copper-colored wire with excellent conductivity."
@@ -8309,7 +8309,7 @@ id = "mist_crystal"
 material = "CRYSTAL"
 spriteKey = "soul_stone"
 spriteSheetName = "field"
-value = 0
+value = 45
 weight = "300 g"
 [[items]]
 description = "A clear blue crystal that radiates a chill."
@@ -8372,7 +8372,7 @@ id = "obsidian"
 material = "GLASS"
 spriteKey = "obsidian"
 spriteSheetName = "field"
-value = 0
+value = 30
 weight = "500 g"
 [[items]]
 description = "A jet-black pearl from the deep sea, exceedingly rare."
