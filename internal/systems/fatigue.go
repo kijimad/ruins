@@ -12,6 +12,10 @@ import (
 // 速すぎると夜半に目覚めて夜が手持ち無沙汰になるため、この比で夜を埋める
 const fatigueRecoverPerTurn = 3
 
+// FatigueRecoverPerTurn は睡眠中に1ターンで抜ける疲労の基準量を world 抜きで参照するための公開窓。
+// バランス導出が睡眠回復を閉形式で算出するのに使う。寝具 Quality での乗算は導出側が行う。
+const FatigueRecoverPerTurn = fatigueRecoverPerTurn
+
 // progressTurnFatigue は Fatigue を持つ現ステージの全エンティティの疲労を1ターン進める。
 // 起床中は蓄積し、睡眠中は寝具 Quality に比例して減る。空腹と同じくターン終了で呼び、
 // 行動種別に依らず時間経過で溜まる。Current は 0..Max にクランプし、上限でも死なせない。

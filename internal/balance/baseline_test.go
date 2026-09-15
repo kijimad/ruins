@@ -46,6 +46,7 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	assert.Contains(t, md, "# バランスベースライン")
 	assert.Contains(t, md, "## 生存圧")
 	assert.Contains(t, md, "## 感度")
+	assert.Contains(t, md, "## 戦闘リスク")
 
 	// 敵テーブルは id 昇順で並ぶ。cave < forest < ruins_area
 	iCave := strings.Index(md, "(cave)")
@@ -57,6 +58,7 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	assert.Less(t, iCave, iForest, "cave が forest より前")
 	assert.Less(t, iForest, iRuins, "forest が ruins_area より前")
 
-	// 各テーブルに day 行が21日ぶん出る
-	assert.Equal(t, 3, strings.Count(md, "| 1 | 1 |"), "各テーブルの day1 行")
+	// 各テーブルに day1 行が出る。難易度カーブの戦力比は小数なので、day1 危険度1の行を戦力比 2.x で
+	// 数えると、死亡確率や経済など整数3列目を持つ他の進行表と区別できる。
+	assert.Equal(t, 3, strings.Count(md, "| 1 | 1 | 2."), "各テーブルの day1 難易度カーブ行")
 }

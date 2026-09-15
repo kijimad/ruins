@@ -1,16 +1,25 @@
 package balance
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// ExpectedDamagePerAttack は1回の攻撃で与える期待ダメージを閉形式で返す。乱数を使わず、
-// combat.go の rollAttack と同じ式から期待値を計算する。命中判定、クリティカル、ダイス1-6、
-// 防御差し引きの下限保証まで含む。ダイスと防御の max が非線形なのでダイス6面を列挙して厳密化する。
+// ExpectedDamagePerAttack は1回の攻撃で与える期待ダメージを閉形式で返す。熟練度倍率のない静的下限で、
+// スキルを織り込むときは ExpectedDamagePerAttackWithSkill を使う。
 func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponStats) float64 {
+	return ExpectedDamagePerAttackWithSkill(attacker, defender, weapon, consts.PercentBase)
+}
+
+// ExpectedDamagePerAttackWithSkill は熟練度倍率 skillMult を織り込んだ1回の攻撃の期待ダメージを返す。
+// 乱数を使わず activity/attack.go の calculateDamage と同じ順序・丸めで計算する。base すなわち
+// 能力+ダイス+武器ダメージ全体に熟練度倍率を切り捨てで掛け、次にクリティカル、最後に防御差し引きの
+// 下限保証をする。武器ダメージだけを丸める近似ではなく実ゲームの適用箇所に合わせる。skillMult が
+// PercentBase なら静的下限に一致する。ダイスと防御の max が非線形なのでダイス6面を列挙して厳密化する。
+func ExpectedDamagePerAttackWithSkill(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) float64 {
 	// CalcHitRate は MinHitRate 以上へクランプするので hitRate は 0 にならない。よって命中確率と
 	// max(...,1) の下限から期待ダメージは常に正になり、ExpectedTTK もゼロ除算や 0 に落ちない。
 	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
@@ -27,7 +36,7 @@ func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponSta
 
 	sum := 0.0
 	for die := 1; die <= formula.DamageRandomRange; die++ {
-		base := baseAbil + die + weapon.Damage
+		base := skillMult.ApplyInt(baseAbil + die + weapon.Damage)
 		normal := max(base-defender.Defense, formula.MinDamage)
 		crit := max(formula.ApplyCritical(base)-defender.Defense, formula.MinDamage)
 		sum += pCrit*float64(crit) + pNormalHit*float64(normal)
@@ -39,7 +48,13 @@ func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponSta
 // 割った定義で、最後の一撃のオーバーキルは無視する。停止時刻の期待値とは別物で、こちらは
 // 難易度の比較指標として素直な連続近似になる。期待ダメージがゼロなら倒せないので 0 を返す。
 func ExpectedTTK(attacker, defender CombatantStats, weapon WeaponStats) float64 {
-	dmg := ExpectedDamagePerAttack(attacker, defender, weapon)
+	return ExpectedTTKWithSkill(attacker, defender, weapon, consts.PercentBase)
+}
+
+// ExpectedTTKWithSkill は熟練度倍率 skillMult を織り込んだ撃破所要打数を返す。スキルの手応えを
+// 撃破速度で見るときに使う。
+func ExpectedTTKWithSkill(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) float64 {
+	dmg := ExpectedDamagePerAttackWithSkill(attacker, defender, weapon, skillMult)
 	if dmg <= 0 {
 		return 0
 	}
@@ -58,7 +73,15 @@ type DayMetric struct {
 
 // DifficultyCurve は経過日 1..days の序盤戦闘難易度を返す。dangerLevel(day) から
 // 敵テーブルの該当帯を重みで期待し、期待撃破ターンとその比を日ごとに評価する。乱数を使わない。
+// プレイヤーは熟練度なしの静的下限で見る。スキルを織り込むときは DifficultyCurveWithSkill を使う。
 func DifficultyCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayMetric, error) {
+	return DifficultyCurveWithSkill(master, player, playerWeapon, enemyTableName, days, consts.PercentBase)
+}
+
+// DifficultyCurveWithSkill はプレイヤーの熟練度倍率 skillMult を織り込んだ難易度カーブを返す。倍率は
+// プレイヤーの攻撃にだけ効き、敵は静的下限のまま。ビルド別のブレ評価で、スキル成長ぶんの強化を実ゲームと
+// 同じ base 全体への切り捨て適用で反映するのに使う。
+func DifficultyCurveWithSkill(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int, skillMult consts.Percent) ([]DayMetric, error) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {
 		return nil, err
@@ -85,7 +108,7 @@ func DifficultyCurve(master oapi.Raws, player CombatantStats, playerWeapon Weapo
 			}
 			w := entry.Weight
 			wSum += w
-			playerTTKSum += w * ExpectedTTK(player, enemy, playerWeapon)
+			playerTTKSum += w * ExpectedTTKWithSkill(player, enemy, playerWeapon, skillMult)
 			enemyTTKSum += w * ExpectedTTK(enemy, player, enemyWeapon)
 		}
 		if wSum == 0 {

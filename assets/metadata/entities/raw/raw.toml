@@ -43,7 +43,7 @@ accuracy = 85
 attackCategory = "SPEAR"
 attackCount = 1
 cost = 1
-damage = 4
+damage = 6
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
@@ -252,7 +252,7 @@ accuracy = 90
 attackCategory = "FIST"
 attackCount = 2
 cost = 1
-damage = 2
+damage = 4
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
@@ -614,7 +614,7 @@ element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
 [[items]]
-description = "Attacks with venom-laced fangs and spines."
+description = "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
 name = "Venom Fang"
 id = "venom_fang"
 spriteKey = "field_item"
@@ -870,7 +870,7 @@ accuracy = 95
 attackCategory = "FIST"
 attackCount = 2
 cost = 1
-damage = 2
+damage = 4
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
@@ -1450,7 +1450,7 @@ accuracy = 80
 attackCategory = "BOW"
 attackCount = 2
 cost = 2
-damage = 5
+damage = 7
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
@@ -8751,6 +8751,442 @@ spriteKey = "angel"
 spriteSheetName = "field"
 value = 60
 weight = "500 g"
+[[items]]
+id = "spark_blade"
+name = "Spark Blade"
+description = "A blade crackling with lightning."
+spriteKey = "dummy_spark_blade"
+spriteSheetName = "field"
+value = 120
+weight = "1200 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 10
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "frost_edge"
+name = "Frost Edge"
+description = "A blade rimed with frost."
+spriteKey = "dummy_frost_edge"
+spriteSheetName = "field"
+value = 130
+weight = "1300 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 11
+element = "CHILL"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "prism_rod"
+name = "Prism Rod"
+description = "A rod that focuses light into a beam."
+spriteKey = "dummy_prism_rod"
+spriteSheetName = "field"
+value = 140
+weight = "900 g"
+
+[items.melee]
+accuracy = 92
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 9
+element = "PHOTON"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "toxin_barb"
+name = "Toxin Barb"
+description = "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_toxin_barb"
+spriteSheetName = "field"
+value = 90
+weight = "600 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 1
+damage = 8
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "bleed_claw"
+name = "Bleed Claw"
+description = "todo: applies bleeding. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_bleed_claw"
+spriteSheetName = "field"
+value = 100
+weight = "800 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 10
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "dummy_ration"
+name = "Dummy Ration"
+description = "A bland placeholder ration."
+spriteKey = "dummy_ration"
+spriteSheetName = "field"
+value = 30
+weight = "400 g"
+providesNutrition = 200
+[[items]]
+id = "shock_bite"
+name = "Shock Bite"
+description = "An enemy attack that jolts with electricity."
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = "0 g"
+
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 12
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "frost_maw"
+name = "Frost Maw"
+description = "An enemy attack of biting cold."
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = "0 g"
+
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 13
+element = "CHILL"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "photon_flash"
+name = "Photon Flash"
+description = "An enemy attack of searing light."
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = "0 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 15
+element = "PHOTON"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "thunder_spear"
+name = "Thunder Spear"
+description = "A spear humming with charge."
+spriteKey = "dummy_thunder_spear"
+spriteSheetName = "field"
+value = 135
+weight = "1500 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 1
+damage = 11
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "sun_blade"
+name = "Sun Blade"
+description = "A blade that glows with harsh light."
+spriteKey = "dummy_sun_blade"
+spriteSheetName = "field"
+value = 160
+weight = "1400 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 12
+element = "PHOTON"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "flame_gun"
+name = "Flame Gun"
+description = "An energy weapon that spits fire."
+spriteKey = "dummy_flame_gun"
+spriteSheetName = "field"
+value = 180
+weight = "2000 g"
+
+[items.fire]
+accuracy = 85
+attackCategory = "HANDGUN"
+attackCount = 1
+cost = 2
+damage = 14
+element = "FIRE"
+magazineSize = 6
+reloadEffort = 15
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "frost_bolt"
+name = "Frost Bolt"
+description = "A bow that looses freezing bolts."
+spriteKey = "dummy_frost_bolt"
+spriteSheetName = "field"
+value = 150
+weight = "1600 g"
+
+[items.fire]
+accuracy = 85
+attackCategory = "BOW"
+attackCount = 1
+cost = 2
+damage = 13
+element = "CHILL"
+magazineSize = 1
+reloadEffort = 2
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "paralyze_rod"
+name = "Paralyze Rod"
+description = "todo: applies paralysis. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_paralyze_rod"
+spriteSheetName = "field"
+value = 110
+weight = "900 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 9
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "curse_dagger"
+name = "Curse Dagger"
+description = "todo: applies weakening curse. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_curse_dagger"
+spriteSheetName = "field"
+value = 120
+weight = "500 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 10
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "scrap_battery"
+name = "Scrap Battery"
+description = "A depleted battery worth a little at auction."
+spriteKey = "dummy_scrap_battery"
+spriteSheetName = "field"
+value = 45
+weight = "700 g"
+[[items]]
+id = "dummy_medkit"
+name = "Dummy Medkit"
+description = "A placeholder medkit."
+spriteKey = "dummy_medkit"
+spriteSheetName = "field"
+value = 80
+weight = "300 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[items.providesHealing]
+amount = 0
+ratio = 0.3
+valueType = "PERCENTAGE"
+[[items]]
+id = "storm_hammer"
+name = "Storm Hammer"
+description = "A heavy hammer wreathed in sparks."
+spriteKey = "dummy_storm_hammer"
+spriteSheetName = "field"
+value = 170
+weight = "3000 g"
+
+[items.melee]
+accuracy = 80
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 2
+damage = 16
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "glacier_axe"
+name = "Glacier Axe"
+description = "An axe of everlasting ice."
+spriteKey = "dummy_glacier_axe"
+spriteSheetName = "field"
+value = 150
+weight = "2200 g"
+
+[items.melee]
+accuracy = 85
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 13
+element = "CHILL"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "ember_whip"
+name = "Ember Whip"
+description = "A whip trailing embers."
+spriteKey = "dummy_ember_whip"
+spriteSheetName = "field"
+value = 140
+weight = "1100 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 11
+element = "FIRE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "radiant_bow"
+name = "Radiant Bow"
+description = "A bow that fires bolts of light."
+spriteKey = "dummy_radiant_bow"
+spriteSheetName = "field"
+value = 175
+weight = "1500 g"
+
+[items.fire]
+accuracy = 88
+attackCategory = "BOW"
+attackCount = 1
+cost = 2
+damage = 14
+element = "PHOTON"
+magazineSize = 1
+reloadEffort = 2
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "drowsy_pipe"
+name = "Drowsy Pipe"
+description = "todo: applies sleep. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_drowsy_pipe"
+spriteSheetName = "field"
+value = 95
+weight = "700 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 7
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "blind_powder"
+name = "Blind Powder"
+description = "todo: applies blindness. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_blind_powder"
+spriteSheetName = "field"
+value = 105
+weight = "300 g"
+
+[items.melee]
+accuracy = 92
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 6
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "slow_net"
+name = "Slow Net"
+description = "todo: applies slow. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+spriteKey = "dummy_slow_net"
+spriteSheetName = "field"
+value = 100
+weight = "1000 g"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 1
+damage = 8
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+id = "energy_bar"
+name = "Energy Bar"
+description = "A compact ration bar."
+spriteKey = "dummy_energy_bar"
+spriteSheetName = "field"
+value = 40
+weight = "200 g"
+providesNutrition = 260
+[[items]]
+id = "rusted_gear"
+name = "Rusted Gear"
+description = "A rusted gear worth a little at auction."
+spriteKey = "dummy_rusted_gear"
+spriteSheetName = "field"
+value = 55
+weight = "900 g"
 
 [[recipes]]
 name = "レイガン"
@@ -9211,33 +9647,6 @@ sensation = 2
 strength = 1
 vitality = 1
 [[members]]
-animKeys = ["doctor_0", "doctor_1"]
-factionType = "FactionNeutral"
-combatPolicy = "ignore"
-movementPattern = "wander"
-name = "Suspicious Scientist"
-id = "suspicious_scientist"
-spriteKey = "doctor_0"
-spriteSheetName = "field"
-
-[members.abilities]
-agility = 7
-defense = 5
-dexterity = 10
-sensation = 15
-strength = 5
-vitality = 10
-
-[members.lightSource]
-enabled = true
-radius = 3
-
-[members.lightSource.color]
-a = 255
-b = 100
-g = 175
-r = 255
-[[members]]
 animKeys = ["old_tank"]
 commandTableId = "old_tank"
 dropTableId = "old_tank"
@@ -9471,7 +9880,7 @@ agility = 4
 defense = 2
 dexterity = 3
 sensation = 3
-strength = 2
+strength = 24
 vitality = 1
 
 [members.lightSource]
@@ -9842,14 +10251,14 @@ b = 50
 g = 200
 r = 255
 [[members]]
-animKeys = ["slime_0", "slime_1"]
+animKeys = ["ice_dog"]
 commandTableId = "stray_dog"
 dropTableId = "stray_dog"
 combatPolicy = "attack"
 movementPattern = "territorial"
 name = "Stray Dog"
 id = "stray_dog"
-spriteKey = "slime_0"
+spriteKey = "ice_dog"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -9878,14 +10287,14 @@ sensation = 2
 strength = 1
 vitality = 2
 [[members]]
-animKeys = ["slime_0", "slime_1"]
+animKeys = ["canon_tank"]
 commandTableId = "iron_sentinel"
 dropTableId = "iron_sentinel"
 combatPolicy = "attack"
 movementPattern = "stationary"
 name = "Iron Sentinel"
 id = "iron_sentinel"
-spriteKey = "slime_0"
+spriteKey = "canon_tank"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -10001,7 +10410,7 @@ agility = 5
 defense = 2
 dexterity = 4
 sensation = 6
-strength = 2
+strength = 24
 vitality = 3
 [[members]]
 animKeys = ["blue_beast"]
@@ -10019,7 +10428,7 @@ agility = 4
 defense = 2
 dexterity = 3
 sensation = 3
-strength = 3
+strength = 25
 vitality = 2
 [[members]]
 animKeys = ["skeleton"]
@@ -10073,17 +10482,17 @@ agility = 3
 defense = 3
 dexterity = 5
 sensation = 3
-strength = 6
+strength = 28
 vitality = 3
 [[members]]
-animKeys = ["slime_0", "slime_1"]
+animKeys = ["blue_beast"]
 commandTableId = "ash_wolf"
 dropTableId = "stray_dog"
 combatPolicy = "attack"
 movementPattern = "territorial"
 name = "Ash Wolf"
 id = "ash_wolf"
-spriteKey = "slime_0"
+spriteKey = "blue_beast"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -10091,7 +10500,331 @@ agility = 5
 defense = 1
 dexterity = 6
 sensation = 3
+strength = 17
+vitality = 2
+[[members]]
+animKeys = ["ice_dog"]
+commandTableId = "bat"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "random"
+name = "Razor Hound"
+id = "razor_hound"
+spriteKey = "ice_dog"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 5
+defense = 0
+dexterity = 4
+sensation = 3
+strength = 26
+vitality = 2
+[[members]]
+animKeys = ["old_tank"]
+commandTableId = "iron_sentinel"
+dropTableId = "iron_sentinel"
+combatPolicy = "attack"
+movementPattern = "stationary"
+name = "Rust Golem"
+id = "rust_golem"
+spriteKey = "old_tank"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 1
+defense = 4
+dexterity = 2
+sensation = 2
+strength = 4
+vitality = 5
+[[members]]
+animKeys = ["butterfly"]
+commandTableId = "fire_cat"
+dropTableId = "fire_cat"
+combatPolicy = "attack"
+movementPattern = "random"
+name = "Ember Moth"
+id = "ember_moth"
+spriteKey = "butterfly"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 4
+defense = 1
+dexterity = 3
+sensation = 4
+strength = 14
+vitality = 2
+[[members]]
+id = "spark_wisp"
+name = "Spark Wisp"
+spriteKey = "dummy_spark_wisp"
+spriteSheetName = "field"
+animKeys = ["dummy_spark_wisp"]
+commandTableId = "ct_spark_wisp"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 6
+defense = 1
+dexterity = 5
+sensation = 3
+strength = 4
+vitality = 1
+[[members]]
+id = "frost_lurker"
+name = "Frost Lurker"
+spriteKey = "dummy_frost_lurker"
+spriteSheetName = "field"
+animKeys = ["dummy_frost_lurker"]
+commandTableId = "ct_frost_lurker"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 6
+vitality = 2
+[[members]]
+id = "venom_crawler"
+name = "Venom Crawler"
+spriteKey = "dummy_venom_crawler"
+spriteSheetName = "field"
+animKeys = ["dummy_venom_crawler"]
+commandTableId = "ct_venom_crawler"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 6
+vitality = 2
+[[members]]
+id = "bleeding_hound"
+name = "Bleeding Hound"
+spriteKey = "dummy_bleeding_hound"
+spriteSheetName = "field"
+animKeys = ["dummy_bleeding_hound"]
+commandTableId = "ct_bleeding_hound"
+dropTableId = "rat"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 5
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 10
+vitality = 2
+[[members]]
+id = "prism_eye"
+name = "Prism Eye"
+spriteKey = "dummy_prism_eye"
+spriteSheetName = "field"
+animKeys = ["dummy_prism_eye"]
+commandTableId = "ct_prism_eye"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "stationary"
+
+[members.abilities]
+agility = 3
+defense = 3
+dexterity = 6
+sensation = 3
+strength = 18
+vitality = 3
+[[members]]
+id = "static_mite"
+name = "Static Mite"
+spriteKey = "dummy_static_mite"
+spriteSheetName = "field"
+animKeys = ["dummy_static_mite"]
+commandTableId = "ct_static_mite"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 7
+defense = 0
+dexterity = 5
+sensation = 3
+strength = 3
+vitality = 1
+[[members]]
+id = "chill_slime"
+name = "Chill Slime"
+spriteKey = "dummy_chill_slime"
+spriteSheetName = "field"
+animKeys = ["dummy_chill_slime"]
+commandTableId = "ct_chill_slime"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "random"
+
+[members.abilities]
+agility = 3
+defense = 1
+dexterity = 4
+sensation = 3
 strength = 5
+vitality = 2
+[[members]]
+id = "sunbug"
+name = "Sunbug"
+spriteKey = "dummy_sunbug"
+spriteSheetName = "field"
+animKeys = ["dummy_sunbug"]
+commandTableId = "ct_sunbug"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 6
+defense = 1
+dexterity = 6
+sensation = 3
+strength = 5
+vitality = 1
+[[members]]
+id = "paralyzer"
+name = "Paralyzer"
+spriteKey = "dummy_paralyzer"
+spriteSheetName = "field"
+animKeys = ["dummy_paralyzer"]
+commandTableId = "ct_paralyzer"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 7
+vitality = 2
+[[members]]
+id = "curse_wraith"
+name = "Curse Wraith"
+spriteKey = "dummy_curse_wraith"
+spriteSheetName = "field"
+animKeys = ["dummy_curse_wraith"]
+commandTableId = "ct_curse_wraith"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 4
+defense = 2
+dexterity = 6
+sensation = 3
+strength = 14
+vitality = 3
+[[members]]
+id = "storm_drake"
+name = "Storm Drake"
+spriteKey = "dummy_storm_drake"
+spriteSheetName = "field"
+animKeys = ["dummy_storm_drake"]
+commandTableId = "ct_storm_drake"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "patrol"
+
+[members.abilities]
+agility = 5
+defense = 2
+dexterity = 6
+sensation = 3
+strength = 12
+vitality = 3
+[[members]]
+id = "glacier_golem"
+name = "Glacier Golem"
+spriteKey = "dummy_glacier_golem"
+spriteSheetName = "field"
+animKeys = ["dummy_glacier_golem"]
+commandTableId = "ct_glacier_golem"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "stationary"
+
+[members.abilities]
+agility = 2
+defense = 4
+dexterity = 4
+sensation = 3
+strength = 9
+vitality = 4
+[[members]]
+id = "ember_imp"
+name = "Ember Imp"
+spriteKey = "dummy_ember_imp"
+spriteSheetName = "field"
+animKeys = ["dummy_ember_imp"]
+commandTableId = "ct_ember_imp"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 6
+defense = 1
+dexterity = 5
+sensation = 3
+strength = 5
+vitality = 1
+[[members]]
+id = "dozer"
+name = "Dozer"
+spriteKey = "dummy_dozer"
+spriteSheetName = "field"
+animKeys = ["dummy_dozer"]
+commandTableId = "ct_dozer"
+dropTableId = "slime"
+combatPolicy = "attack"
+movementPattern = "random"
+
+[members.abilities]
+agility = 3
+defense = 2
+dexterity = 5
+sensation = 3
+strength = 7
+vitality = 2
+[[members]]
+id = "blinder"
+name = "Blinder"
+spriteKey = "dummy_blinder"
+spriteSheetName = "field"
+animKeys = ["dummy_blinder"]
+commandTableId = "ct_blinder"
+dropTableId = "bat"
+combatPolicy = "attack"
+movementPattern = "wander"
+
+[members.abilities]
+agility = 5
+defense = 2
+dexterity = 6
+sensation = 3
+strength = 11
 vitality = 2
 
 [[commandTables]]
@@ -10634,6 +11367,141 @@ id = "ash_wolf"
 [[commandTables.entries]]
 weapon = "bite"
 weight = 1
+[[commandTables]]
+id = "ct_spark_wisp"
+name = "火花"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "shock_bite"
+weight = 2
+[[commandTables]]
+id = "ct_frost_lurker"
+name = "氷潜み"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "frost_maw"
+weight = 2
+[[commandTables]]
+id = "ct_prism_eye"
+name = "光の目"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "photon_flash"
+weight = 2
+[[commandTables]]
+id = "ct_venom_crawler"
+name = "毒這い"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "toxin_barb"
+weight = 2
+[[commandTables]]
+id = "ct_bleeding_hound"
+name = "出血犬"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "bleed_claw"
+weight = 2
+[[commandTables]]
+id = "ct_static_mite"
+name = "帯電"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "shock_bite"
+weight = 2
+[[commandTables]]
+id = "ct_chill_slime"
+name = "冷たい粘体"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "frost_maw"
+weight = 2
+[[commandTables]]
+id = "ct_sunbug"
+name = "閃光の虫"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "photon_flash"
+weight = 2
+[[commandTables]]
+id = "ct_paralyzer"
+name = "麻痺"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "paralyze_rod"
+weight = 2
+[[commandTables]]
+id = "ct_curse_wraith"
+name = "呪縛"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "curse_dagger"
+weight = 2
+[[commandTables]]
+id = "ct_storm_drake"
+name = "嵐竜"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "shock_bite"
+weight = 2
+[[commandTables]]
+id = "ct_glacier_golem"
+name = "氷像"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "frost_maw"
+weight = 2
+[[commandTables]]
+id = "ct_ember_imp"
+name = "燠の小鬼"
+[[commandTables.entries]]
+weapon = "tackle"
+weight = 1
+[[commandTables.entries]]
+weapon = "flame_attack"
+weight = 2
+[[commandTables]]
+id = "ct_dozer"
+name = "眠りの獣"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "drowsy_pipe"
+weight = 2
+[[commandTables]]
+id = "ct_blinder"
+name = "盲目化"
+[[commandTables.entries]]
+weapon = "bite"
+weight = 1
+[[commandTables.entries]]
+weapon = "blind_powder"
+weight = 2
 
 [[dropTables]]
 name = "コウモリ"
@@ -11235,6 +12103,14 @@ pack = "1d1"
 id = "antidote"
 weight = 1.5
 pack = "1d1"
+[[itemGroups.entries]]
+id = "toothbrush_set"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dummy_medkit"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "投擲武器"
 id = "thrown_weapon"
@@ -11287,6 +12163,690 @@ pack = "1d1"
 id = "lightning_stone"
 weight = 8
 pack = "1d1"
+[[itemGroups.entries]]
+id = "abyss_entertainment_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "airplane_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "aluminum"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ancient_gold_coin"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ancient_pot"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "angel_feather"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "angel_statue"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "animal_feelings"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "arcade_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "army_shooting_manual"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "art_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "art_book_2"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ash_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ash_moon_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "atomic_core"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "automation_engineering_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "azure_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bandage"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bean_extract"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_core_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_pearl"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_powder"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bloodstained_ruby"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blue_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blue_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blue_crystal_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bright_green_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "brilliant_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "brown_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "brown_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "brown_gear"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "brown_medicine_bottle"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cable_bundle"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "car_life"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cell_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "charger"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "chemical_container"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "coffee_beans"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "coffee_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "compass"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cord_bundle"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_cornerstone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cyborg_days"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "diary_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "distilled_water"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dragon_skull"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dye"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "electronics_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "emerald"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "equipment_core"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "experiment_container"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ferrite_core"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "fine_amber"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "fire_arrow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "floating_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "folding_fan"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "frost_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gamers_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gardening_guide"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gold_gear"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "grape_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "great_rainbow_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_crystal_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_lattice"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hamburger_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hard_disk"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hardwood"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "heart"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "heart_charm"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hefty_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "history_guide"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "holy_arrow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "honey"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "houseplant"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ice_arrow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ice_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ice_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_ore"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "its_ruins"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "jar_of_sand"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "jar_of_snake_venom"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "jar_of_spores"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "kettle"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "lumber_pile"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "machinegun_magazine_vol43"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "magnelite"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "meteoric_iron"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mineral_life"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mobile_device"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "moon_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "moonlit_night_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mossy_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mushroom_extract"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "octahedron_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "offroad_car_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "old_globe"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "omega"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "orange_ore"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "orrery"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "parasol"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "peak_survival_life"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pie_cookbook"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "plant_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pure_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "purple_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "purple_core"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "purple_gem"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "purple_star"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "purple_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pyramid_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rainbow_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rainbow_orb"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rainbow_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "raw_ruby"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "record"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "red_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "red_stone_gear"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "replaceable_cell"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "resin_craft"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "resin_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ring_cell"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "robotics_49"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rough_brown_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "scale"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "scripture_black"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "scripture_brown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sea_cube"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "seaweed_fossil"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "seed_core"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "serpentine_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sewing_machine"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "shield_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ship_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "skeleton_gear"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "slanted_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sorcery_life"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "spirit_level"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "splint"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "star_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "star_crystal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "star_fragment"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "star_iron"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "stone_pedestal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "stone_tablet"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sun_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "swirl_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sword_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "tank_model"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "teapot"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "teddy_bear"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "tesla_coil_orb"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "test_tube"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "the_science"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thin_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "toaster"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "topaz"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "tricolor_staff"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ufo_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "universe_news"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "unknown_face"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "vehicle_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "vial_of_blood"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "void_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "volcano_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "white_mania_book"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "wire_cutter"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "yellow_orb"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "zaeko"
+weight = 1.0
+pack = "1d1"
 [[itemGroups]]
 name = "がらくた"
 id = "junk"
@@ -11299,6 +12859,114 @@ pack = "1d1"
 id = "old_gear"
 weight = 10
 pack = "1d1"
+[[itemGroups.entries]]
+id = "ancient_bone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ashes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blood"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "clay"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "coal"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "electric_wire"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "energy_cell"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "feather"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hay"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "heavy_round"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_arrow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "origami"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "photo"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pile_of_plates"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pillow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rifle_round"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sharp_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "small_caliber_round_gray"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "small_caliber_round_yellow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "toilet_paper"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "towel"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "water_arrow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "wooden_arrow"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "yellow_wire"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "scrap_battery"
+weight = 3
+pack = "1d2"
+[[itemGroups.entries]]
+id = "rusted_gear"
+weight = 3
+pack = "1d2"
 [[itemGroups]]
 name = "食料"
 id = "food"
@@ -11403,6 +13071,170 @@ pack = "1d2"
 id = "shrimp"
 weight = 0.8
 pack = "1d1"
+[[itemGroups.entries]]
+id = "bagel"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bagel_sesame"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "baguette"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "beef_jerky"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "beef_tongue"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "belly_meat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_bread"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_tea"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bread_loaf"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "chicken"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "chicken_meat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "chili_pepper"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "churros"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "corn"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cupcake"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cured_sausage"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dried_meat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "flat_meat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "fried_chicken"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "garlic_bread"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "grape_soda"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_soda"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hawaiian_soda"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "lemon_soda"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "meatball"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "meat_on_bone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "minced_meat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mint"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "naan"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pig_head"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pizza"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "prosciutto"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "raw_meat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "round_meat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "salmon"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sausage"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sliced_bread"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sushi_roll"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "swirl_bread"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dummy_ration"
+weight = 3
+pack = "1d2"
+[[itemGroups.entries]]
+id = "energy_bar"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "序盤近接武器"
 id = "early_melee_weapon"
@@ -11469,6 +13301,18 @@ weight = 1.5
 pack = "1d1"
 [[itemGroups.entries]]
 id = "cast_iron_sword"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cleaver"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_screwdriver"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sewing_kit"
 weight = 1.0
 pack = "1d1"
 [[itemGroups]]
@@ -11551,6 +13395,58 @@ pack = "1d1"
 id = "ice_mace"
 weight = 0.8
 pack = "1d1"
+[[itemGroups.entries]]
+id = "ice_spear"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "spark_blade"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "frost_edge"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "toxin_barb"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bleed_claw"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thunder_spear"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "paralyze_rod"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "curse_dagger"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "glacier_axe"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ember_whip"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "drowsy_pipe"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blind_powder"
+weight = 2
+pack = "1d1"
+[[itemGroups.entries]]
+id = "slow_net"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "終盤近接武器"
 id = "endgame_melee_weapon"
@@ -11603,6 +13499,22 @@ pack = "1d1"
 id = "reinforced_mechanical_arm"
 weight = 0.3
 pack = "1d1"
+[[itemGroups.entries]]
+id = "50mm_cannon"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "prism_rod"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sun_blade"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "storm_hammer"
+weight = 1
+pack = "1d1"
 [[itemGroups]]
 name = "射撃武器"
 id = "ranged_weapon"
@@ -11618,6 +13530,46 @@ pack = "1d1"
 [[itemGroups.entries]]
 id = "iron_crossbow"
 weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dissolving_fluid"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "freeze_grenade"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "m1919_heavy_machine_gun"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "m72_law"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rapid_fire_cannon"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ray_gun"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "shock_grenade"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "flame_gun"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "frost_bolt"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "radiant_bow"
+weight = 1
 pack = "1d1"
 [[itemGroups]]
 name = "投げ武器"
@@ -11657,6 +13609,178 @@ weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "chef_hat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "adventurer_clothes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_jacket"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blue_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bone_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "check_shirt"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_armband"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_gloves"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_hat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_pants"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_shirt"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_shoes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "copper_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "denim_clothes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gauntlet_brown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "grain_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hide_gloves"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_bandage"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_bandana"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_belt"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_bracer"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_footwear"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_gloves"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_hand"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_quiver"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_shoes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_vest"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "messenger_bag_large"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "messenger_bag_waist"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pointy_shoes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "polka_dot_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sailor_uniform"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "stitched_shirt"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thick_belt"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thick_sole_leather_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "tool_vest"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "travel_bag"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "veiled_hat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "winter_gloves"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "wood_cord_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "wooden_shield"
 weight = 1.0
 pack = "1d1"
 [[itemGroups]]
@@ -11699,6 +13823,218 @@ pack = "1d1"
 id = "iron_leg_armor"
 weight = 0.8
 pack = "1d1"
+[[itemGroups.entries]]
+id = "anchor_pendant"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blood_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blue_line_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blue_stone_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "claw_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cleric_robe"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "fur_hat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "fur_jacket"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gauntlet_blue"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gauntlet_iron"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gold_cord_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_stone_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "heart_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "host_clothes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hunter_cloak"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hunter_hat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hunter_leggings"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_breastplate"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_claw"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_gauntlet"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_gloves"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_greaves"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_spiked_knuckles"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_vambrace"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "knight_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_cloak"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_clothes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_coat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_duster_coat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_jumpsuit"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_long_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "machine_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "manager_clothes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "merchant_clothes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "military_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mountaineering_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "octopus_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "plant_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "purple_stone_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "red_stone_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "shadow_hood"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "silver_cord_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "silver_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "skeleton_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "snake_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thick_copper_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thick_silver_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "traveler_clothes"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "winter_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "work_helmet"
+weight = 1.0
+pack = "1d1"
 [[itemGroups]]
 name = "終盤防具"
 id = "endgame_armor"
@@ -11718,6 +14054,254 @@ pack = "1d1"
 [[itemGroups.entries]]
 id = "crusader_clothes"
 weight = 0.8
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ancient_robe"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_crown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_space_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blue_crown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "captain_coat"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cleric_crown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_boots_blue"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_boots_green"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_boots_red"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_crown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_shield_blue"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cosmic_shield_red"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "crest_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "crown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dark_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "demon_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "diamond_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dragon_helmet"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "dragon_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "electric_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "fine_chainmail"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "flame_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gauntlet_gold"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gauntlet_magic"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "general_helmet"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "golden_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "golden_bell"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "golden_boots"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "golden_helmet"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "golden_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gold_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_gem_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_crown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "jewel_belt"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "jewel_gold_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "jewel_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "knight_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "knight_leg_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "knight_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "lion_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "moon_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "old_knight_helmet"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "owl_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "paladin_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pegasus_barding"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "queen_crown"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rainbow_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "red_gem_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "royal_crest_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "shadow_cloak"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "silver_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "star_accessory"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "star_iron_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "strength_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sun_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "superior_knight_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thick_gold_ring"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "western_armor"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "wolf_head_shield"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "yellow_armor"
+weight = 1.0
 pack = "1d1"
 [[itemGroups]]
 name = "紙片"
@@ -11934,92 +14518,117 @@ weight = 0.5
 name = "食料庫"
 id = "pantry"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
-minDanger = 1
-weight = 1
-[[itemTables.entries]]
 id = "food"
-maxDanger = 30
+weight = 6
 minDanger = 1
-weight = 5
+maxDanger = 30
 [[itemTables.entries]]
-id = "healing_item"
-maxDanger = 30
-minDanger = 1
+id = "materials"
 weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "junk"
+weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "scrap_of_paper"
+weight = 1
+minDanger = 1
+maxDanger = 30
 [[itemTables]]
 name = "薬棚"
 id = "medicine_shelf"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
-minDanger = 1
-weight = 1
-[[itemTables.entries]]
 id = "healing_item"
-maxDanger = 30
+weight = 6
 minDanger = 1
-weight = 5
+maxDanger = 30
 [[itemTables.entries]]
-id = "food"
-maxDanger = 30
+id = "scrap_of_paper"
+weight = 2
 minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "materials"
 weight = 1
+minDanger = 1
+maxDanger = 30
 [[itemTables]]
 name = "物入れ"
 id = "storage_box"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
+id = "materials"
+weight = 3
 minDanger = 1
-weight = 1
+maxDanger = 30
 [[itemTables.entries]]
-id = "food"
-maxDanger = 30
+id = "junk"
+weight = 3
 minDanger = 1
-weight = 2
+maxDanger = 30
 [[itemTables.entries]]
 id = "early_armor"
-maxDanger = 30
-minDanger = 1
-weight = 3
-[[itemTables.entries]]
-id = "healing_item"
-maxDanger = 30
-minDanger = 1
 weight = 2
+minDanger = 1
+maxDanger = 8
+[[itemTables.entries]]
+id = "midgame_armor"
+weight = 2
+minDanger = 6
+maxDanger = 30
+[[itemTables.entries]]
+id = "scrap_of_paper"
+weight = 1
+minDanger = 1
+maxDanger = 30
 [[itemTables]]
 name = "商品棚"
 id = "store_shelf"
 [[itemTables.entries]]
-id = "scrap_of_paper"
-maxDanger = 30
-minDanger = 1
-weight = 1
-[[itemTables.entries]]
 id = "food"
-maxDanger = 30
-minDanger = 1
 weight = 3
+minDanger = 1
+maxDanger = 30
 [[itemTables.entries]]
 id = "healing_item"
-maxDanger = 30
+weight = 3
 minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "junk"
+weight = 1
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "early_armor"
 weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "midgame_melee_weapon"
+weight = 2
+minDanger = 4
+maxDanger = 30
+[[itemTables.entries]]
+id = "ranged_weapon"
+weight = 1
+minDanger = 6
+maxDanger = 30
 
 [[enemyTables]]
 name = "廃墟"
 id = "ruins_area"
 [[enemyTables.entries]]
 id = "slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 1
 weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "rat"
-maxDanger = 8
+maxDanger = 5
 minDanger = 1
 weight = 1.2
 pack = "1d3"
@@ -12031,25 +14640,25 @@ weight = 0.8
 pack = "1d3"
 [[enemyTables.entries]]
 id = "floating_eye"
-maxDanger = 8
+maxDanger = 5
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "bat"
-maxDanger = 8
+maxDanger = 5
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "ash_bug"
-maxDanger = 8
+maxDanger = 5
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shadow_rat"
-maxDanger = 8
+maxDanger = 5
 minDanger = 1
 weight = 1
 pack = "1d3"
@@ -12069,7 +14678,7 @@ pack = "1d3"
 id = "stray_dog"
 maxDanger = 22
 minDanger = 3
-weight = 0.8
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "skeleton_soldier"
@@ -12081,13 +14690,13 @@ pack = "1d3"
 id = "fireball"
 maxDanger = 25
 minDanger = 7
-weight = 0.3
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "iron_sentinel"
 maxDanger = 25
 minDanger = 10
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "crystal_wraith"
@@ -12111,7 +14720,7 @@ pack = "1d3"
 id = "blue_beast"
 maxDanger = 25
 minDanger = 7
-weight = 0.4
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dark_doctor"
@@ -12129,13 +14738,13 @@ pack = "1d3"
 id = "black_corpse"
 maxDanger = 25
 minDanger = 10
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
 maxDanger = 25
 minDanger = 9
-weight = 0.3
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gray_tank"
@@ -12169,7 +14778,7 @@ weight = 0.2
 pack = "1d3"
 [[enemyTables.entries]]
 id = "pink_slime"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.8
 pack = "1d3"
@@ -12177,13 +14786,13 @@ pack = "1d3"
 id = "purple_floater"
 maxDanger = 20
 minDanger = 10
-weight = 0.2
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shock_orb"
 maxDanger = 22
 minDanger = 12
-weight = 0.15
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dragon_head"
@@ -12195,19 +14804,19 @@ pack = "1d3"
 id = "armor_ghost"
 maxDanger = 25
 minDanger = 14
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shadow_priest"
 maxDanger = 25
 minDanger = 16
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "guard_soldier"
 maxDanger = 22
 minDanger = 12
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "veteran_husk"
@@ -12221,54 +14830,144 @@ maxDanger = 12
 minDanger = 4
 weight = 1.2
 pack = "1d3"
+[[enemyTables.entries]]
+id = "razor_hound"
+weight = 1.2
+minDanger = 6
+maxDanger = 18
+pack = "1d2"
+[[enemyTables.entries]]
+id = "rust_golem"
+weight = 0.25
+minDanger = 10
+maxDanger = 25
+pack = "1d1"
+[[enemyTables.entries]]
+id = "ember_moth"
+weight = 1.2
+minDanger = 4
+maxDanger = 14
+pack = "1d3"
+[[enemyTables.entries]]
+id = "jeep"
+weight = 0.2
+minDanger = 12
+maxDanger = 30
+pack = "1d1"
+[[enemyTables.entries]]
+id = "spark_wisp"
+minDanger = 2
+maxDanger = 6
+weight = 1.0
+pack = "1d2"
+[[enemyTables.entries]]
+id = "venom_crawler"
+minDanger = 3
+maxDanger = 7
+weight = 0.8
+pack = "1d1"
+[[enemyTables.entries]]
+id = "frost_lurker"
+minDanger = 4
+maxDanger = 8
+weight = 1.0
+pack = "1d1"
+[[enemyTables.entries]]
+id = "bleeding_hound"
+minDanger = 5
+maxDanger = 9
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "prism_eye"
+minDanger = 7
+maxDanger = 12
+weight = 0.5
+pack = "1d1"
+[[enemyTables.entries]]
+id = "static_mite"
+minDanger = 1
+maxDanger = 4
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "sunbug"
+minDanger = 3
+maxDanger = 6
+weight = 0.9
+pack = "1d2"
+[[enemyTables.entries]]
+id = "curse_wraith"
+minDanger = 6
+maxDanger = 9
+weight = 0.6
+pack = "1d1"
+[[enemyTables.entries]]
+id = "ember_imp"
+minDanger = 2
+maxDanger = 5
+weight = 1.0
+pack = "1d2"
+[[enemyTables.entries]]
+id = "storm_drake"
+minDanger = 5
+maxDanger = 9
+weight = 0.6
+pack = "1d1"
+[[enemyTables.entries]]
+id = "blinder"
+minDanger = 5
+maxDanger = 9
+weight = 0.6
+pack = "1d1"
 [[enemyTables]]
 name = "森"
 id = "forest"
 [[enemyTables.entries]]
 id = "slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 1
-weight = 1.5
+weight = 0.8
 pack = "1d3"
 [[enemyTables.entries]]
 id = "bat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_mushroom"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.7
 pack = "1d3"
 [[enemyTables.entries]]
 id = "giant_bee"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 0.8
 pack = "1d3"
 [[enemyTables.entries]]
 id = "glow_bug"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
-weight = 1
+weight = 0.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_frog"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shadow_rat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "moss_turtle"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.6
 pack = "1d3"
@@ -12276,31 +14975,31 @@ pack = "1d3"
 id = "fire_cat"
 maxDanger = 20
 minDanger = 4
-weight = 0.5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "stray_dog"
 maxDanger = 22
 minDanger = 3
-weight = 0.8
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dream_moth"
 maxDanger = 25
 minDanger = 5
-weight = 0.5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "fireball"
 maxDanger = 22
 minDanger = 6
-weight = 0.4
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dark_crab"
 maxDanger = 25
 minDanger = 8
-weight = 0.5
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "light_tank"
@@ -12322,7 +15021,7 @@ weight = 0.4
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gold_slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 3
 weight = 0.2
 pack = "1d3"
@@ -12342,13 +15041,13 @@ pack = "1d3"
 id = "green_devourer"
 maxDanger = 22
 minDanger = 5
-weight = 0.4
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
 maxDanger = 25
 minDanger = 9
-weight = 0.3
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "desert_tank"
@@ -12370,15 +15069,15 @@ weight = 0.25
 pack = "1d3"
 [[enemyTables.entries]]
 id = "butterfly"
-maxDanger = 15
+maxDanger = 6
 minDanger = 1
-weight = 3
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "pink_slime"
-maxDanger = 12
+maxDanger = 6
 minDanger = 1
-weight = 1.5
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gorilla"
@@ -12386,62 +15085,86 @@ maxDanger = 22
 minDanger = 12
 weight = 0.1
 pack = "1d3"
+[[enemyTables.entries]]
+id = "ember_moth"
+weight = 1.2
+minDanger = 4
+maxDanger = 14
+pack = "1d3"
+[[enemyTables.entries]]
+id = "razor_hound"
+weight = 1.2
+minDanger = 8
+maxDanger = 20
+pack = "1d2"
+[[enemyTables.entries]]
+id = "chill_slime"
+minDanger = 2
+maxDanger = 6
+weight = 1.0
+pack = "1d2"
+[[enemyTables.entries]]
+id = "glacier_golem"
+minDanger = 4
+maxDanger = 8
+weight = 0.8
+pack = "1d1"
 [[enemyTables]]
 name = "洞窟"
 id = "cave"
 [[enemyTables.entries]]
 id = "slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 1
-weight = 1.5
+weight = 0.8
 pack = "1d3"
 [[enemyTables.entries]]
 id = "rat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
-weight = 1.2
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "bat"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "glow_bug"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "ash_bug"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_frog"
-maxDanger = 8
+maxDanger = 6
 minDanger = 1
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "moss_turtle"
-maxDanger = 10
+maxDanger = 6
 minDanger = 2
 weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "poison_spider"
-maxDanger = 20
+maxDanger = 8
 minDanger = 3
 weight = 0.7
 pack = "1d3"
 [[enemyTables.entries]]
 id = "ice_dog"
 maxDanger = 22
-minDanger = 6
-weight = 0.5
+minDanger = 4
+weight = 2.0
 pack = "1d3"
 [[enemyTables.entries]]
 id = "skeleton_soldier"
@@ -12452,14 +15175,14 @@ pack = "1d3"
 [[enemyTables.entries]]
 id = "fireball"
 maxDanger = 22
-minDanger = 7
-weight = 0.4
+minDanger = 5
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "iron_sentinel"
 maxDanger = 25
 minDanger = 10
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "crystal_wraith"
@@ -12488,8 +15211,8 @@ pack = "1d3"
 [[enemyTables.entries]]
 id = "blue_beast"
 maxDanger = 22
-minDanger = 7
-weight = 0.4
+minDanger = 4
+weight = 2.0
 pack = "1d3"
 [[enemyTables.entries]]
 id = "three_headed_dragon"
@@ -12499,7 +15222,7 @@ weight = 0.2
 pack = "1d3"
 [[enemyTables.entries]]
 id = "gold_slime"
-maxDanger = 25
+maxDanger = 6
 minDanger = 3
 weight = 0.2
 pack = "1d3"
@@ -12507,19 +15230,19 @@ pack = "1d3"
 id = "black_corpse"
 maxDanger = 25
 minDanger = 9
-weight = 0.35
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "green_devourer"
 maxDanger = 22
-minDanger = 6
-weight = 0.4
+minDanger = 3
+weight = 2.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_line_man"
 maxDanger = 25
 minDanger = 10
-weight = 0.25
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "red_tank"
@@ -12553,21 +15276,21 @@ weight = 0.3
 pack = "1d3"
 [[enemyTables.entries]]
 id = "penguin"
-maxDanger = 10
+maxDanger = 6
 minDanger = 1
-weight = 1
+weight = 0.6
 pack = "1d3"
 [[enemyTables.entries]]
 id = "purple_floater"
 maxDanger = 20
 minDanger = 10
-weight = 0.2
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shock_orb"
 maxDanger = 22
 minDanger = 12
-weight = 0.15
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "dragon_head"
@@ -12579,14 +15302,50 @@ pack = "1d3"
 id = "armor_ghost"
 maxDanger = 25
 minDanger = 14
-weight = 0.1
+weight = 1.5
 pack = "1d3"
 [[enemyTables.entries]]
 id = "shadow_priest"
 maxDanger = 25
 minDanger = 16
-weight = 0.1
+weight = 1.5
 pack = "1d3"
+[[enemyTables.entries]]
+id = "rust_golem"
+weight = 0.25
+minDanger = 10
+maxDanger = 25
+pack = "1d1"
+[[enemyTables.entries]]
+id = "razor_hound"
+weight = 1.2
+minDanger = 8
+maxDanger = 20
+pack = "1d2"
+[[enemyTables.entries]]
+id = "jeep"
+weight = 0.2
+minDanger = 12
+maxDanger = 30
+pack = "1d1"
+[[enemyTables.entries]]
+id = "frozen_hunter"
+weight = 0.05
+minDanger = 22
+maxDanger = 35
+pack = "1d1"
+[[enemyTables.entries]]
+id = "paralyzer"
+minDanger = 3
+maxDanger = 7
+weight = 0.8
+pack = "1d1"
+[[enemyTables.entries]]
+id = "dozer"
+minDanger = 3
+maxDanger = 7
+weight = 0.8
+pack = "1d1"
 
 [[spriteSheets]]
 name = "bg"
@@ -14794,6 +17553,160 @@ a = 200
 b = 255
 g = 200
 r = 100
+[[props]]
+id = "dummy_supply_locker"
+name = "Supply Locker"
+description = "[dummy] 補給物資のロッカー。商品棚由来の loot が入る。実アート未実装の仮素材"
+blockPass = true
+blockView = true
+hp = 30
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_supply_locker"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "50 kg"
+lootTableId = "store_shelf"
+lootCount = "2d3"
+
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2000
+[[props.disassembly.yields]]
+id = "scrap_iron"
+count = "1d2"
+[[props]]
+id = "dummy_ration_crate"
+name = "Ration Crate"
+description = "[dummy] 食料の木箱。食料庫由来の loot が入る。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+hp = 20
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_ration_crate"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableId = "pantry"
+lootCount = "1d3"
+
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 1500
+[[props.disassembly.yields]]
+id = "hardwood"
+count = "1d2"
+[[props]]
+id = "dummy_med_cabinet"
+name = "Med Cabinet"
+description = "[dummy] 薬棚。回復品中心の loot が入る。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+hp = 20
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_med_cabinet"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "20 kg"
+lootTableId = "medicine_shelf"
+lootCount = "1d2"
+[[props]]
+id = "dummy_boulder"
+name = "Boulder"
+description = "[dummy] 通れない大岩。視線は通す。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+hp = 80
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_boulder"
+spriteSheetName = "field"
+[[props]]
+id = "dummy_thicket"
+name = "Thicket"
+description = "[dummy] 生い茂る茂み。通れるが遅く、視線を遮る。実アート未実装の仮素材"
+blockPass = false
+blockView = true
+passCost = 60
+
+[props.spriteRender]
+depth = 1
+spriteKey = "dummy_thicket"
+spriteSheetName = "field"
+[[props]]
+id = "dummy_brazier"
+name = "Brazier"
+description = "[dummy] 火鉢。暖と光を放つ。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_brazier"
+spriteSheetName = "field"
+
+[props.heatSource]
+radius = 2
+warmth = 0.6
+
+[props.lightSource]
+enabled = true
+radius = 4
+
+[props.lightSource.color]
+a = 255
+r = 255
+g = 170
+b = 80
+[[props]]
+id = "dummy_floor_lamp"
+name = "Floor Lamp"
+description = "[dummy] 床置きランプ。光を放つ。実アート未実装の仮素材"
+blockPass = false
+blockView = false
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_floor_lamp"
+spriteSheetName = "field"
+
+[props.lightSource]
+enabled = true
+radius = 5
+
+[props.lightSource.color]
+a = 255
+r = 255
+g = 240
+b = 200
+[[props]]
+id = "dummy_scrap_heap"
+name = "Scrap Heap"
+description = "[dummy] がらくたの山。通れるが遅い。分解で素材。実アート未実装の仮素材"
+blockPass = false
+blockView = false
+passCost = 40
+
+[props.spriteRender]
+depth = 1
+spriteKey = "dummy_scrap_heap"
+spriteSheetName = "field"
+
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 1000
+[[props.disassembly.yields]]
+id = "scrap_iron"
+count = "1d3"
 
 [[professions]]
 description = "An ordinary person who fled the collapse."

@@ -191,7 +191,9 @@ var externallyReferencedSprites = []string{
 
 // knownOrphanSprites は raw からも Go からも参照されない既存スプライトの逃げ道。
 // やむを得ず孤児化したものだけをここに載せ、原則は空を保つ。
-var knownOrphanSprites = []string{}
+// doctor_0/doctor_1 は未使用NPC suspicious_scientist を削除して孤児化した。ドクター系スプライトは
+// 将来のドクターNPC用に残す。使う member を足したらここから外す。
+var knownOrphanSprites = []string{"doctor_0", "doctor_1"}
 
 // TestSpriteOrphan は field/tile シートの全スプライトが raw から参照されることを検証する。
 // 参照とは spriteKey の直接一致、animKeys、オートタイル(base_N の base が key)、
