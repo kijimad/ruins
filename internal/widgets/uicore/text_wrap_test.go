@@ -42,3 +42,26 @@ func TestWrapText_改行文字は強制改行になる(t *testing.T) {
 	lines := uicore.WrapText("一行目\n二行目", res.Text.BodyFace, 10000)
 	assert.Equal(t, []string{"一行目", "二行目"}, lines, "幅が十分でも改行文字で行が分かれる")
 }
+
+// TestWrapText はガード条件を確かめる。face が nil か maxWidth が非正か s が空文字なら
+// 折り返さずそのまま返す契約を固定する。
+func TestWrapText(t *testing.T) {
+	t.Parallel()
+	res := borrowRes()
+	t.Cleanup(func() { facePool.Put(res) })
+
+	t.Run("フェイスがnilなら折り返さずそのまま返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, []string{"hello world"}, uicore.WrapText("hello world", nil, 100))
+	})
+
+	t.Run("最大幅が0以下なら折り返さずそのまま返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, []string{"hello world"}, uicore.WrapText("hello world", res.Text.BodyFace, 0))
+	})
+
+	t.Run("空文字はそのまま返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, []string{""}, uicore.WrapText("", res.Text.BodyFace, 100))
+	})
+}
