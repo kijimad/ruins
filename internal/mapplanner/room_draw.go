@@ -24,7 +24,7 @@ func (b RoomDraw) rectangle(planData *MetaPlan, room gc.Rect) {
 	for x := room.Min.X; x <= room.Max.X; x++ {
 		for y := room.Min.Y; y <= room.Max.Y; y++ {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-			if 0 < int(idx) && int(idx) < int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 {
+			if isValidTileIdx(planData, idx) {
 				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
