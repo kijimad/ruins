@@ -105,7 +105,7 @@
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
-				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.0%)</option>
+				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/processor.go (91.4%)</option>
 				
@@ -5594,7 +5594,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 </span>
         <span class="cov8" title="1">target := rp.findNearestHostile(world, entity)
         if target == nil </span>{
-                <span class="cov0" title="0">return rp.planDrivingAction(world, entity, solo, grid)
+                <span class="cov8" title="1">return rp.planDrivingAction(world, entity, solo, grid)
 </span>        }
 
         <span class="cov8" title="1">turnNumber := query.GetTurnState(world).TurnNumber
@@ -23486,7 +23486,7 @@ func (b RoomDraw) rectangle(planData *MetaPlan, room gc.Rect) {
         <span class="cov8" title="1">for x := room.Min.X; x &lt;= room.Max.X; x++ </span>{
                 <span class="cov8" title="1">for y := room.Min.Y; y &lt;= room.Max.Y; y++ </span>{
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                        if 0 &lt; int(idx) &amp;&amp; int(idx) &lt; int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 </span>{
+                        if isValidTileIdx(planData, idx) </span>{
                                 <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile("floor")
 </span>                        }
                 }
@@ -37434,7 +37434,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
         <span class="cov8" title="1">st.drawTileEnvironment(world, entities, panel)
 </span>
         <span class="cov8" title="1">panel.SeekBottom(30)
-        drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
+        drawText(query.T(world, "Arrows: Move  Esc: Close"))
 </span>
         <span class="cov8" title="1">return nil</span>
 }
