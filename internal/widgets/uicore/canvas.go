@@ -14,6 +14,8 @@ import (
 type Canvas interface {
 	// FillRect は矩形を塗る。
 	FillRect(r image.Rectangle, c color.Color)
+	// FillTriangle は3頂点の三角形を塗る。頂点はサブピクセルの向きを保つため float32 で受ける。
+	FillTriangle(p0, p1, p2 [2]float32, c color.Color)
 	// StrokeRect は矩形の枠を width の太さで描く。
 	StrokeRect(r image.Rectangle, width int, c color.Color)
 	// DrawText は pos を左上として1行を描く。

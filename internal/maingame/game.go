@@ -29,14 +29,9 @@ type MainGame struct {
 
 // NewMainGame はMainGameを初期化する
 func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {
-	// フィルタを切ったときはシェーダを組み立てず、素通しのパイプラインにする
-	var filters []screeneffect.Filter
-	if !world.Resources.Config.DisableScreenFilter {
-		retroFilter, err := screeneffect.NewRetroFilter()
-		if err != nil {
-			return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
-		}
-		filters = append(filters, retroFilter)
+	filters, err := buildScreenFilters(world.Resources.Config.DisableScreenFilter)
+	if err != nil {
+		return nil, err
 	}
 
 	return &MainGame{
@@ -44,6 +39,21 @@ func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGam
 		StateMachine: stateMachine,
 		renderer:     newRenderer(screeneffect.NewPipeline(filters...)),
 	}, nil
+}
+
+// buildScreenFilters は画面に重ねるポスト処理フィルタを設定に応じて組み立てる。
+// フィルタを切ったときはシェーダを組み立てず、素通しのパイプラインになるよう空を返す。
+func buildScreenFilters(disableScreenFilter bool) ([]screeneffect.Filter, error) {
+	if disableScreenFilter {
+		return nil, nil
+	}
+
+	retroFilter, err := screeneffect.NewRetroFilter()
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
+	}
+
+	return []screeneffect.Filter{retroFilter}, nil
 }
 
 // Layout は論理解像度を返す。スプライトが32x32固定のため論理解像度は固定とし、

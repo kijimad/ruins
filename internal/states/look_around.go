@@ -196,7 +196,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	st.drawTileEnvironment(world, entities, panel)
 
 	panel.SeekBottom(30)
-	drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
+	drawText(query.T(world, "Arrows: Move  Esc: Close"))
 
 	return nil
 }

@@ -122,8 +122,8 @@ msgstr "暗闇"
 msgid "Nothing here"
 msgstr "何もありません"
 
-msgid "Arrows: Move  X/Esc: Close"
-msgstr "矢印: 移動  X/Esc: 閉じる"
+msgid "Arrows: Move  Esc: Close"
+msgstr "矢印: 移動  Esc: 閉じる"
 
 msgid "Durability"
 msgstr "耐久"

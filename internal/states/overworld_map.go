@@ -3,16 +3,15 @@ package states
 import (
 	"fmt"
 	"image"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -28,6 +27,7 @@ type OverworldMapState struct {
 
 	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
 	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
+	facing    gc.Orient                  // カメラの水平向き。現在地ポインタが指す方角
 	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
 	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
 }
@@ -97,6 +97,12 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
+	// カメラ不在時は北を既定にする
+	st.facing = 0
+	if cam := query.GetPlayerCamera(world); cam != nil {
+		st.facing = cam.Orient
+	}
+
 	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
 	st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
 	if hasPlayer {
@@ -150,31 +156,23 @@ func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	return menuframe.ImagePanel(res, rect, img)
 }
 
-// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。
+// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。格子と凡例の描画は
+// hud に集約し、ここは見出しと配置の算出だけを持つ。
 func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	face := world.Resources.UIResources.Text.BodyFace
 	// セルの記号は小さいセルへ収めるため小フォントにする。見出し・凡例は BodyFace のまま
 	glyphFace := world.Resources.UIResources.Text.SmallFace
 
-	drawText := func(str string, x, y consts.ScreenPixel, c color.Color) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(float64(x), float64(y))
-		op.ColorScale.ScaleWithColor(c)
-		text.Draw(dst, str, face, op)
-	}
+	// 文字も塗りも EbitenCanvas に集約する。text/v2 のグリフキャッシュは並行安全でなく、
+	// 生の text.Draw はロックを迂回するため
+	cv := uicore.NewEbitenCanvas(dst)
 
-	// drawCellGlyph はセルの中央に1文字を描く。基準点をセル中央に置き、水平・垂直とも中央揃えに
-	// することで、字形の幅高に依らず四辺の余白が揃う
-	drawCellGlyph := func(str string, cx, cy consts.ScreenPixel, c color.Color) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(float64(cx), float64(cy))
-		op.ColorScale.ScaleWithColor(c)
-		op.PrimaryAlign = text.AlignCenter
-		op.SecondaryAlign = text.AlignCenter
-		text.Draw(dst, str, glyphFace, op)
+	// プレイヤー不在は playerAbs.X が負。座標を出さず見出しだけにして -1 を漏らさない
+	header := "Overworld Map"
+	if st.playerAbs.X >= 0 {
+		header = fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y)
 	}
-
-	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 8, 6, theme.TextPrimary)
+	cv.DrawText(image.Pt(8, 6), header, face, theme.TextPrimary)
 
 	cell := st.cellPx
 	// 格子は横をモーダル内側の中央へ寄せる
@@ -188,95 +186,15 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		originX = 8
 	}
 	const originY consts.ScreenPixel = 40
-	cellCenter := func(col, row consts.Chunk) (consts.ScreenPixel, consts.ScreenPixel) {
-		x := originX + consts.ScreenPixel(col)*cell
-		y := originY + consts.ScreenPixel(row)*cell
-		return x + (cell-1)/2, y + (cell-1)/2
-	}
-	for row := range st.view.Cells {
-		for col, c := range st.view.Cells[row] {
-			// 未開放チャンクは描かず地を透かしてフォグにする。探索で徐々に開く
-			if !c.Discovered {
-				continue
-			}
-			r := c.Glyph
-			x := originX + consts.ScreenPixel(col)*cell
-			y := originY + consts.ScreenPixel(row)*cell
-			// 開放済みチャンクは色を塗り、種別の文字を重ねて記号でも読めるようにする。
-			// 荒れ地も含め記号は overworld が唯一の源で、UI 側で特定の記号を特別扱いしない
-			vector.FillRect(dst, float32(x), float32(y), float32(cell-1), float32(cell-1), glyphColor(r), false)
-			cx, cy := cellCenter(consts.Chunk(col), consts.Chunk(row))
-			// 道が通るチャンクは接続方角へ線分を引く。地形塗りの上、記号の下に重ねる
-			if c.Road.Any() {
-				drawCellRoad(dst, x, y, cell, cx, cy, c.Road)
-			}
-			drawCellGlyph(string(r), cx, cy, theme.OverworldMapGlyphText)
-		}
-	}
-	// キューブマーカー。下地は塗らず地形を残す。アイコンに暗い縁取りを付け、どの地形色でも
-	// 読めるようにする。縁取りは同じアイコンを上下左右へ1pxずらして暗色で先に描く
-	for _, c := range st.view.CubeCells {
-		cx, cy := cellCenter(c.X, c.Y)
-		for _, off := range [][2]consts.ScreenPixel{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
-			drawCellGlyph(consts.IconCube, cx+off[0], cy+off[1], theme.OverworldMapCubeOutline)
-		}
-		drawCellGlyph(consts.IconCube, cx, cy, theme.OverworldMapCubeMarker)
-	}
-	// 現在地マーカー。白枠でセルを囲む
-	if st.view.PlayerCell.X >= 0 {
-		x := originX + consts.ScreenPixel(st.view.PlayerCell.X)*cell
-		y := originY + consts.ScreenPixel(st.view.PlayerCell.Y)*cell
-		vector.StrokeRect(dst, float32(x-1), float32(y-1), float32(cell+1), float32(cell+1), 2, theme.OverworldMapPlayerMarker, false)
-	}
+	// 格子・道・キューブ・現在地を hud.DrawMapGrid で描く。全画面図は常に記号を出す
+	hud.DrawMapGrid(cv, st.view, hud.MapGridStyle{
+		OriginX:      int(originX),
+		OriginY:      int(originY),
+		CellPx:       int(cell),
+		MinGlyphPx:   0,
+		GlyphFace:    glyphFace,
+		PlayerFacing: st.facing,
+	})
 
-	st.drawLegend(dst, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.view.Cells))*cell+16)
-}
-
-// drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、
-// マップ上の1文字から凡例を引けるようにする。
-func (st *OverworldMapState) drawLegend(dst *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
-	const swatch consts.ScreenPixel = 14
-	x, y := consts.ScreenPixel(8), top
-	for _, g := range overworld.LegendGlyphs() {
-		vector.FillRect(dst, float32(x), float32(y), float32(swatch), float32(swatch), glyphColor(g.Label), false)
-		drawGlyph(string(g.Label), x+swatch/2, y+swatch/2, theme.OverworldMapGlyphText)
-		drawText(g.Name, x+20, y-2, theme.TextPrimary)
-		x += 120
-		if x > 720 {
-			x, y = 8, y+22
-		}
-	}
-	drawText("N / Esc to close", 8, y+26, theme.TextPrimary)
-}
-
-// drawCellRoad はチャンクセルを通る道を、接続方角ごとにセル中央から辺の中点へ細い矩形で引く。フォントに
-// 罫線素片が無いので記号でなく線分で方向を見せる。各方角の矩形は中央で重なるが同色なので無害。
-func drawCellRoad(dst *ebiten.Image, x, y, cell, cx, cy consts.ScreenPixel, road overworld.RoadDir) {
-	t := max(consts.ScreenPixel(2), cell/5)
-	half := float32(t) / 2
-	left, top := float32(x), float32(y)
-	right, bottom := float32(x+cell-1), float32(y+cell-1)
-	cxF, cyF := float32(cx), float32(cy)
-	col := theme.OverworldMapRoad
-	if road&overworld.RoadW != 0 {
-		vector.FillRect(dst, left, cyF-half, (cxF+half)-left, float32(t), col, false)
-	}
-	if road&overworld.RoadE != 0 {
-		vector.FillRect(dst, cxF-half, cyF-half, right-(cxF-half), float32(t), col, false)
-	}
-	if road&overworld.RoadN != 0 {
-		vector.FillRect(dst, cxF-half, top, float32(t), (cyF+half)-top, col, false)
-	}
-	if road&overworld.RoadS != 0 {
-		vector.FillRect(dst, cxF-half, cyF-half, float32(t), bottom-(cyF-half), col, false)
-	}
-}
-
-// glyphColor は種別文字に対応する色を返す。既知の記号は overworld の色定義を引き、
-// 凡例に出ない未知の記号は灰色にする。既定色は theme に依存するのでここで決める。
-func glyphColor(r rune) color.RGBA {
-	if c, ok := overworld.GlyphColor(r); ok {
-		return c
-	}
-	return theme.OverworldMapUnknownGlyph
+	hud.DrawMapLegend(cv, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
 }
