@@ -17553,6 +17553,160 @@ a = 200
 b = 255
 g = 200
 r = 100
+[[props]]
+id = "dummy_supply_locker"
+name = "Supply Locker"
+description = "[dummy] 補給物資のロッカー。商品棚由来の loot が入る。実アート未実装の仮素材"
+blockPass = true
+blockView = true
+hp = 30
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_supply_locker"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "50 kg"
+lootTableId = "store_shelf"
+lootCount = "2d3"
+
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 2000
+[[props.disassembly.yields]]
+id = "scrap_iron"
+count = "1d2"
+[[props]]
+id = "dummy_ration_crate"
+name = "Ration Crate"
+description = "[dummy] 食料の木箱。食料庫由来の loot が入る。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+hp = 20
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_ration_crate"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "30 kg"
+lootTableId = "pantry"
+lootCount = "1d3"
+
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 1500
+[[props.disassembly.yields]]
+id = "hardwood"
+count = "1d2"
+[[props]]
+id = "dummy_med_cabinet"
+name = "Med Cabinet"
+description = "[dummy] 薬棚。回復品中心の loot が入る。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+hp = 20
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_med_cabinet"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "20 kg"
+lootTableId = "medicine_shelf"
+lootCount = "1d2"
+[[props]]
+id = "dummy_boulder"
+name = "Boulder"
+description = "[dummy] 通れない大岩。視線は通す。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+hp = 80
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_boulder"
+spriteSheetName = "field"
+[[props]]
+id = "dummy_thicket"
+name = "Thicket"
+description = "[dummy] 生い茂る茂み。通れるが遅く、視線を遮る。実アート未実装の仮素材"
+blockPass = false
+blockView = true
+passCost = 60
+
+[props.spriteRender]
+depth = 1
+spriteKey = "dummy_thicket"
+spriteSheetName = "field"
+[[props]]
+id = "dummy_brazier"
+name = "Brazier"
+description = "[dummy] 火鉢。暖と光を放つ。実アート未実装の仮素材"
+blockPass = true
+blockView = false
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_brazier"
+spriteSheetName = "field"
+
+[props.heatSource]
+radius = 2
+warmth = 0.6
+
+[props.lightSource]
+enabled = true
+radius = 4
+
+[props.lightSource.color]
+a = 255
+r = 255
+g = 170
+b = 80
+[[props]]
+id = "dummy_floor_lamp"
+name = "Floor Lamp"
+description = "[dummy] 床置きランプ。光を放つ。実アート未実装の仮素材"
+blockPass = false
+blockView = false
+
+[props.spriteRender]
+depth = 2
+spriteKey = "dummy_floor_lamp"
+spriteSheetName = "field"
+
+[props.lightSource]
+enabled = true
+radius = 5
+
+[props.lightSource.color]
+a = 255
+r = 255
+g = 240
+b = 200
+[[props]]
+id = "dummy_scrap_heap"
+name = "Scrap Heap"
+description = "[dummy] がらくたの山。通れるが遅い。分解で素材。実アート未実装の仮素材"
+blockPass = false
+blockView = false
+passCost = 40
+
+[props.spriteRender]
+depth = 1
+spriteKey = "dummy_scrap_heap"
+spriteSheetName = "field"
+
+[props.disassembly]
+toolCategory = "prying"
+baseAP = 1000
+[[props.disassembly.yields]]
+id = "scrap_iron"
+count = "1d3"
 
 [[professions]]
 description = "An ordinary person who fled the collapse."

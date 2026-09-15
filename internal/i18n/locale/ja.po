@@ -6302,3 +6302,27 @@ msgstr "todo: 盲目を付与する攻撃。状態異常のスキーマが未実
 
 msgid "todo: applies slow. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
 msgstr "todo: 鈍足を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "Supply Locker"
+msgstr "補給ロッカー"
+
+msgid "Ration Crate"
+msgstr "食料箱"
+
+msgid "Med Cabinet"
+msgstr "薬棚(仮)"
+
+msgid "Boulder"
+msgstr "大岩"
+
+msgid "Thicket"
+msgstr "茂み"
+
+msgid "Brazier"
+msgstr "火鉢"
+
+msgid "Floor Lamp"
+msgstr "床ランプ"
+
+msgid "Scrap Heap"
+msgstr "がらくたの山"
