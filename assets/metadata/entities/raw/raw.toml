@@ -12847,6 +12847,34 @@ pack = "1d1"
 id = "zaeko"
 weight = 1.0
 pack = "1d1"
+[[itemGroups.entries]]
+id = "iron"
+weight = 12
+pack = "1d1"
+[[itemGroups.entries]]
+id = "beast_fur"
+weight = 10
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rusted_chain"
+weight = 8
+pack = "1d1"
+[[itemGroups.entries]]
+id = "amber"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "amethyst"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "blood_red_stone"
+weight = 1.0
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mist_crystal"
+weight = 1.0
+pack = "1d1"
 [[itemGroups]]
 name = "がらくた"
 id = "junk"
