@@ -8,6 +8,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestExpectedItemsPerFloor_奇数前提で厳密(t *testing.T) {
+	t.Parallel()
+	// rand(0..floorItemRandom-1) の期待値 (floorItemRandom-1)/2 が整数除算で厳密になるのは奇数のときだけ。
+	// 偶数化すると expectedItemsPerFloor が無言で切り捨てに落ちるので、前提を機械で守る。
+	assert.Equal(t, 1, floorItemRandom%2, "floorItemRandom は奇数")
+}
+
 func TestAuctionTakeHomeRate_手数料と発送料(t *testing.T) {
 	t.Parallel()
 	// 価値1000・1kg: 手数料120 + 発送料25 を引き 855。手取り率85.5%

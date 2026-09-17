@@ -80,10 +80,12 @@ func killDistribution(pmf []damageProb, hp int) []float64 {
 	// kill[k]=P(ちょうど k 回目で倒す)。到達した攻撃回数ぶんだけ append で伸ばす。生存質量が尽きれば
 	// 早期終了するので、命中率が高いほど短くなり combatAttackCap 分の確保を避けられる。
 	kill := []float64{0}
+	// alive と next を2枚だけ確保し ping-pong で使い回す。毎攻撃ぶん確保すると累積するため。
 	alive := make([]float64, hp+1)
+	next := make([]float64, hp+1)
 	alive[hp] = 1
 	for k := 1; k <= combatAttackCap; k++ {
-		next := make([]float64, hp+1)
+		clear(next)
 		var killed, aliveMass float64
 		for r := 1; r <= hp; r++ {
 			if alive[r] == 0 {
@@ -102,7 +104,7 @@ func killDistribution(pmf []damageProb, hp int) []float64 {
 			}
 		}
 		kill = append(kill, killed)
-		alive = next
+		alive, next = next, alive
 		if aliveMass < 1e-12 {
 			break
 		}

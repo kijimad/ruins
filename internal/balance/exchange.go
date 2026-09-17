@@ -1,6 +1,8 @@
 package balance
 
 import (
+	"math"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -77,7 +79,8 @@ func metricMovers(master oapi.Raws, knobs []Knob, base float64, idx int) []Knob 
 	for _, k := range knobs {
 		p := DefaultParams()
 		*k.Ptr(&p) *= exchangePerturb
-		if metricValue(master, p, idx) != base {
+		// 戦力比など非整数メトリクスの FP 誤差で誤判定しないよう、相対許容で動いたか見る。
+		if math.Abs(metricValue(master, p, idx)-base) > 1e-9*math.Max(1, math.Abs(base)) {
 			movers = append(movers, k)
 		}
 	}
