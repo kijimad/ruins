@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [panic 時のスタックトレースをファイルへ保存するクラッシュレポート](docs/design/260916000431.md) | 0/6（見送り1） | steam, meta |
+| accepted | [panic 時のスタックトレースをファイルへ保存するクラッシュレポート](docs/design/260916000431.md) | 0/7（見送り1） | steam, meta |
 
 
 ## Reference
