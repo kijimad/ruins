@@ -4,9 +4,41 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestAttackDamagePMF_命中は0ダメージにならない(t *testing.T) {
+	t.Parallel()
+	// 防御が高くダメージが下限に張り付く組でも、命中は MinDamage 以上で 0 にならない。dmg=0 は miss
+	// だけを表し、その確率は不命中率に一致する。この不変条件が崩れると 0 キーに miss と命中が混ざる。
+	attacker := CombatantStats{Strength: 1, Sensation: 1, Dexterity: 5, Agility: 5}
+	defender := CombatantStats{HP: 30, Agility: 5, Defense: 50}
+	weapon := WeaponStats{Damage: 1, Accuracy: 80}
+
+	pmf := attackDamagePMF(attacker, defender, weapon, consts.PercentBase)
+
+	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
+	wantMiss := float64(formula.DiceMax-hitRate) / float64(formula.DiceMax)
+
+	assert.GreaterOrEqual(t, formula.MinDamage, 1, "MinDamage が1以上でないと 0 キーが miss と命中で混ざる")
+	var sum, missP float64
+	zeros := 0
+	for _, dp := range pmf {
+		sum += dp.p
+		if dp.dmg == 0 {
+			zeros++
+			missP = dp.p
+		} else {
+			assert.GreaterOrEqual(t, dp.dmg, formula.MinDamage, "命中ダメージは MinDamage 以上")
+		}
+	}
+	assert.Equal(t, 1, zeros, "dmg=0 は miss だけの単一エントリ")
+	assert.InDelta(t, wantMiss, missP, 1e-12, "dmg=0 の確率は不命中率に一致")
+	assert.InDelta(t, 1.0, sum, 1e-12, "確率の総和は1")
+}
 
 func TestCombatDistribution_モンテカルロと一致(t *testing.T) {
 	t.Parallel()

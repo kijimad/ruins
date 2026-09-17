@@ -133,6 +133,7 @@ func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) fl
 
 // expectedItemsPerFloor はフロアで拾える loot 個数の期待値。配置数 floorItemBase + rand(0..floorItemRandom-1)
 // の期待値で、rand の期待値は (floorItemRandom-1)/2 なので閉形式で定まる。run.go の配置数と単一出典。
+// floorItemRandom は奇数なので整数除算でも厳密。偶数にすると切り捨てで期待値がわずかに下振れする。
 const expectedItemsPerFloor = floorItemBase + (floorItemRandom-1)/2
 
 // ExpectedRunLootIncome は floors 層を探索したときに拾える loot の期待手取り総額を返す。

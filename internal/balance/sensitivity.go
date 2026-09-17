@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -39,7 +40,8 @@ var SensitivityMetricNames = []string{"戦力比d20", "飢餓まで日数", "睡
 // metricValue はパラメータベクトル p の下で idx 番目のメトリクスだけを評価して返す。
 // 導出はすべて p の純関数なので、成分を摂動すれば任意のつまみの影響を測れる。単一メトリクス
 // 単位にするのは、交換レートの求解が対象メトリクス以外の重い計算を回さないようにするため。
-// idx が範囲外なら 0 を返す。
+// idx は SensitivityMetricNames のインデックスと1対1で対応する。未知の idx は panic し、メトリクス
+// 追加時の case 追加漏れが silent にならないようにする。
 func metricValue(master oapi.Raws, p Params, idx int) float64 {
 	switch idx {
 	case 0: // 戦闘。敵武器ダメージとプレイヤー筋力の倍率を適用して廃墟 day20 戦力比を測る
@@ -75,8 +77,9 @@ func metricValue(master oapi.Raws, p Params, idx int) float64 {
 		return float64(query.AuctionNetProceeds(consts.Currency(math.Round(lv)), ExpectedLootWeightKg(master, "ruins_area", 8)))
 	case 5: // 進行。現状の成分では動かない。他ドメインのつまみが成長へ波及しないことを見せる列
 		return float64(AttacksToSkillLevel(0, 30))
+	default:
+		panic(fmt.Sprintf("未知のメトリクス idx: %d。case と SensitivityMetricNames を揃える", idx))
 	}
-	return 0
 }
 
 // metricsAt はパラメータベクトル p の下で全メトリクスを評価して返す。感度行列が全列を要するので

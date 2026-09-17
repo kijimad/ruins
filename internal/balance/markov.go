@@ -47,6 +47,9 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 	pMiss := float64(formula.DiceMax-hitRate) / float64(formula.DiceMax)
 
 	acc := make(map[int]float64, 2*formula.DamageRandomRange+1)
+	// dmg=0 は命中しなかった場合を一意に表す。命中時の normal/crit は max(..., formula.MinDamage) で
+	// 下限が MinDamage>=1 なので 0 にならず、acc[0] は miss だけを集める。この不変条件が崩れると 0 キーに
+	// miss と命中が混ざり分布が壊れる。TestAttackDamagePMF_命中は0ダメージにならない で担保する。
 	acc[0] += pMiss
 	for die := 1; die <= formula.DamageRandomRange; die++ {
 		base := skillMult.ApplyInt(baseAbil + die + weapon.Damage)
@@ -71,11 +74,12 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 // 確率分布を返す。添字が攻撃回数で kill[k]=P(ちょうど k 回目で倒す)。残 HP を状態とする1次元 DP で、
 // 各攻撃は生存質量を減らしていく。生存質量が無視できるまで早期終了する。
 func killDistribution(pmf []damageProb, hp int) []float64 {
-	kill := make([]float64, combatAttackCap+1)
 	if hp <= 0 {
-		kill[1] = 1
-		return kill
+		return []float64{0, 1} // 0回では倒せず、1回目で確定して倒す
 	}
+	// kill[k]=P(ちょうど k 回目で倒す)。到達した攻撃回数ぶんだけ append で伸ばす。生存質量が尽きれば
+	// 早期終了するので、命中率が高いほど短くなり combatAttackCap 分の確保を避けられる。
+	kill := []float64{0}
 	alive := make([]float64, hp+1)
 	alive[hp] = 1
 	for k := 1; k <= combatAttackCap; k++ {
@@ -97,7 +101,7 @@ func killDistribution(pmf []damageProb, hp int) []float64 {
 				}
 			}
 		}
-		kill[k] = killed
+		kill = append(kill, killed)
 		alive = next
 		if aliveMass < 1e-12 {
 			break
@@ -119,6 +123,16 @@ func CombatDistribution(player, enemy CombatantStats, playerWeapon, enemyWeapon 
 func CombatDistributionWithSkill(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, playerSkillMult consts.Percent) CombatOutcome {
 	kp := killDistribution(attackDamagePMF(player, enemy, playerWeapon, playerSkillMult), enemy.HP)
 	ke := killDistribution(attackDamagePMF(enemy, player, enemyWeapon, consts.PercentBase), player.HP)
+
+	// kp と ke は早期終了で長さが異なりうる。以降の畳み込みは相手側を同じ添字で引くので、短い方を
+	// ゼロ詰めして長さを揃える。撃破質量が尽きた後の kill は0なので、詰めても分布は変わらない。
+	n := max(len(kp), len(ke))
+	for len(kp) < n {
+		kp = append(kp, 0)
+	}
+	for len(ke) < n {
+		ke = append(ke, 0)
+	}
 
 	// 累積分布。cumKp[k]=P(Kp<=k)
 	cumKp := make([]float64, len(kp))

@@ -163,6 +163,8 @@ func dominates(a, b []float64) bool {
 // ParetoFront は knobs×levels の格子で武器ダメージ倍率を動かし、代表日 repDays の目標逸脱を目的とする
 // 非劣な点の集合を返す。序盤を緩く終盤を締めるといった複数日のトレードオフは単変数探索では表せず、
 // 逸脱ベクトルの非劣集合として初めて意味を持つ。決定変数は既存の感度つまみ、すなわち近接武器の倍率。
+// withScaledMeleeDamages が master を退避・復元しながら書き換えるので、この格子ループは並行化しない。
+// 並行で回すなら格子点ごとに独立した master をロードすること。
 func ParetoFront(master oapi.Raws, knobs []string, levels []float64, repDays []int) []ParetoPoint {
 	combos := gridFactors(knobs, levels)
 	points := make([]ParetoPoint, 0, len(combos))

@@ -1,8 +1,6 @@
 package balance
 
 import (
-	"math"
-
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -47,19 +45,24 @@ func WeaponViability(master oapi.Raws, enemyTableName string, day int) (Viabilit
 	if err != nil {
 		return ViabilitySummary{}, err
 	}
-	s := ViabilitySummary{Day: day, Total: len(values), Ceiling: viabilityCeiling, ViableTTKMin: math.Inf(1), ViableTTKMax: math.Inf(-1)}
+	// Inf で初期化して最後にゼロへ戻す方式は、上書き漏れで Inf が外へ出る壊れ方をする。
+	// viable が0件なら min/max はゼロ値のまま、1件目で両方をその値に据えてから広げる。
+	s := ViabilitySummary{Day: day, Total: len(values), Ceiling: viabilityCeiling}
+	first := true
 	for _, v := range values {
 		if v.Degradation < 0 {
 			s.Traps++
 		}
 		if v.DeathProbWith <= viabilityCeiling {
 			s.Viable++
-			s.ViableTTKMin = math.Min(s.ViableTTKMin, v.ExpTurnsWith)
-			s.ViableTTKMax = math.Max(s.ViableTTKMax, v.ExpTurnsWith)
+			if first || v.ExpTurnsWith < s.ViableTTKMin {
+				s.ViableTTKMin = v.ExpTurnsWith
+			}
+			if first || v.ExpTurnsWith > s.ViableTTKMax {
+				s.ViableTTKMax = v.ExpTurnsWith
+			}
+			first = false
 		}
-	}
-	if s.Viable == 0 {
-		s.ViableTTKMin, s.ViableTTKMax = 0, 0
 	}
 	return s, nil
 }
