@@ -6,10 +6,8 @@ import (
 	"github.com/kijimaD/ruins/internal/skill"
 )
 
-// AttacksToSkillLevel は能力値 abilityValue でスキルを Lv0 から targetLevel へ上げるのに要する
-// 攻撃回数を返す。成長は1攻撃ごとに減衰しながら経験値が入り、スキル値が上がるほど遅くなる。
-// 実物の skill.GainExp を反復適用して数えるので成長式を balance 内に再実装しない。
-// targetLevel が 1..MaxLevel の外なら 0 を返す。exp は常に 1 以上なので上限未満なら必ず有限回で到達する。
+// AttacksToSkillLevel は abilityValue でスキルを Lv0 から targetLevel へ上げるのに要する攻撃回数を返す。
+// 実物の skill.GainExp を反復して数える。範囲外は 0。exp は常に1以上なので上限未満なら有限回で到達する。
 func AttacksToSkillLevel(abilityValue, targetLevel int) int {
 	if targetLevel <= 0 || targetLevel > skill.MaxLevel() {
 		return 0
@@ -33,10 +31,8 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 	return s.Value
 }
 
-// SkillDamagePercent は素手スキルが skillLevel のときの近接ダメージ倍率を、実システムの生の Percent で
-// 返す。攻撃時に baseDamage へ掛かる熟練度倍率を components.CalcProficiencyValue から引く。能力・体調は
-// 中立にしてスキル値だけの寄与を見る。倍率適用は実ゲームと同じ ApplyInt の切り捨てで行うため、丸め前の
-// Percent をそのまま渡せるこの形を単一出典にする。
+// SkillDamagePercent は素手スキル skillLevel の近接ダメージ倍率を実システムの生 Percent で返す。能力・体調は
+// 中立にしスキル寄与だけを見る。適用は ApplyInt の切り捨てなので、丸め前の Percent を渡せるこの形を単一出典にする。
 func SkillDamagePercent(skillLevel int) consts.Percent {
 	skills := gc.NewSkills()
 	skills.Get(gc.SkillFist).Value = skillLevel

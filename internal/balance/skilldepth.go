@@ -31,10 +31,8 @@ type SkillDepthProfile struct {
 	MinGapAt        int     // 最小の実効ギャップが起きるレベル
 }
 
-// SkillDepthProfileFor は weaponName をスキルで強化していったときの進行の手応えを、危険度 danger の
-// 敵プールに対して測る。熟練度倍率は実ゲームと同じく base 全体へ切り捨てで掛ける。
-// レベルは0から skill.MaxLevel まで全段を見る。丸めの粒を実ゲームに合わせるため、武器ダメージだけを
-// 丸める近似はしない。
+// SkillDepthProfileFor は weaponName をスキルで強化したときの進行の手応えを、危険度 danger の敵プールに対し測る。
+// 熟練度倍率は実ゲームと同じく base 全体へ切り捨てで掛け、0..skill.MaxLevel の全段を見る。
 func SkillDepthProfileFor(master oapi.Raws, weaponName, enemyTableName string, day int) (SkillDepthProfile, error) {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {

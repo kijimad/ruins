@@ -105,10 +105,8 @@ type KnobSensitivity struct {
 	Cells  []SensitivityCell
 }
 
-// CrossDomainSensitivity はドメイン横断の感度行列を返す。knobRegistry の各つまみを+10%し、
-// 全ドメインの代表メトリクスがどれだけ動くかを測る。ヤコビアンで、多くはブロック対角、
-// すなわち各つまみは自分のドメインのメトリクスだけを動かす。横断するのは1日ターン数の
-// ような共通の分母だけ。
+// CrossDomainSensitivity はドメイン横断の感度行列を返す。各つまみを+10%し全ドメインの代表メトリクスの変化を測る。
+// 多くはブロック対角で、横断するのは1日ターン数のような共通の分母だけ。
 func CrossDomainSensitivity(master oapi.Raws) []KnobSensitivity {
 	base := metricsAt(master, DefaultParams())
 	knobs := knobRegistry()

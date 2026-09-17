@@ -10,12 +10,10 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// combatAttackCap は撃破攻撃数分布を打ち切る上限。命中率が低いほど裾が長く伸びるので大きめに取る。
-// 生存質量が無視できるまで下の DP は早期終了するため、通常はこの上限に達しない。
+// combatAttackCap は撃破攻撃数分布の打ち切り上限。DP は生存質量が尽きると早期終了するため通常は到達しない。
 const combatAttackCap = 4000
 
-// CombatOutcome は1対1戦闘を吸収マルコフ連鎖として厳密に解いた結果。期待値でなく分布を持つので、
-// 平均では見えない突然死の裾を捉える。ExpectedTTK が捨てていた分散側の情報。
+// CombatOutcome は1対1戦闘を吸収マルコフ連鎖で解いた結果分布。平均でなく分布なので突然死の裾を捉える。
 type CombatOutcome struct {
 	PlayerDeathProb float64 // プレイヤーが倒される確率。P(敵の撃破攻撃数 < 自分の撃破攻撃数)
 	ExpectedTurns   float64 // 決着までの期待ターン数。min(自分の撃破攻撃数, 敵の撃破攻撃数)の期待値
@@ -23,18 +21,14 @@ type CombatOutcome struct {
 	TTKp95          int     // 決着ターンの95パーセンタイル。長引く不運側の裾
 }
 
-// damageProb はダメージ量とその確率の組。攻撃1回のダメージ分布をダメージ量の昇順スライスで持つ。
-// map で持つと反復順がランダムになり、浮動小数の加算が非結合なため撃破確率が実行ごとに微差を持つ。
-// 昇順スライスにして加算順を固定し、結果を決定論的にする。
+// damageProb はダメージ量と確率の組。map だと加算順が不定で非決定論になるため昇順スライスで持つ。
 type damageProb struct {
 	dmg int
 	p   float64
 }
 
-// attackDamagePMF は1回の攻撃が与えるダメージの確率分布を、ダメージ量の昇順スライスで返す。dmg=0 は
-// 命中しなかった場合。activity/attack.go の calculateDamage と同じく熟練度倍率 skillMult を base 全体へ
-// 切り捨てで掛け、次にクリティカル、最後に防御下限をする。乱数を使わずに分布を厳密に再現する。
-// skillMult が PercentBase なら熟練度なしで、combat.go の rollAttack の分布に一致する。
+// attackDamagePMF は1回の攻撃のダメージ分布を昇順スライスで返す。dmg=0 は miss。calculateDamage と同じく
+// skillMult を base 全体へ切り捨てで掛け、クリティカル、防御下限の順で乱数なしに再現する。
 func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) []damageProb {
 	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
 	baseAbil := attacker.Strength
@@ -47,9 +41,8 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 	pMiss := float64(formula.DiceMax-hitRate) / float64(formula.DiceMax)
 
 	acc := make(map[int]float64, 2*formula.DamageRandomRange+1)
-	// dmg=0 は命中しなかった場合を一意に表す。命中時の normal/crit は max(..., formula.MinDamage) で
-	// 下限が MinDamage>=1 なので 0 にならず、acc[0] は miss だけを集める。この不変条件が崩れると 0 キーに
-	// miss と命中が混ざり分布が壊れる。TestAttackDamagePMF_命中は0ダメージにならない で担保する。
+	// 不変条件。命中は max(...,MinDamage) で MinDamage>=1 ゆえ 0 にならず、acc[0] は miss 一意になる。
+	// TestAttackDamagePMF_命中は0ダメージにならない で担保する。
 	acc[0] += pMiss
 	for die := 1; die <= formula.DamageRandomRange; die++ {
 		base := skillMult.ApplyInt(baseAbil + die + weapon.Damage)
@@ -70,17 +63,14 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 	return pmf
 }
 
-// killDistribution は attacker がダメージ分布 pmf で HP hp の defender を倒すのに要する攻撃回数 k の
-// 確率分布を返す。添字が攻撃回数で kill[k]=P(ちょうど k 回目で倒す)。残 HP を状態とする1次元 DP で、
-// 各攻撃は生存質量を減らしていく。生存質量が無視できるまで早期終了する。
+// killDistribution は pmf で HP hp を倒すのに要する攻撃回数の分布を返す。kill[k]=P(ちょうど k 回で倒す)。
+// 残 HP を状態とする1次元 DP で、生存質量が尽きると早期終了する。
 func killDistribution(pmf []damageProb, hp int) []float64 {
 	if hp <= 0 {
 		return []float64{0, 1} // 0回では倒せず、1回目で確定して倒す
 	}
-	// kill[k]=P(ちょうど k 回目で倒す)。到達した攻撃回数ぶんだけ append で伸ばす。生存質量が尽きれば
-	// 早期終了するので、命中率が高いほど短くなり combatAttackCap 分の確保を避けられる。
+	// kill は到達攻撃回数ぶんだけ伸ばし、alive/next は2枚で ping-pong する。毎攻撃ぶん確保すると累積するため。
 	kill := []float64{0}
-	// alive と next を2枚だけ確保し ping-pong で使い回す。毎攻撃ぶん確保すると累積するため。
 	alive := make([]float64, hp+1)
 	next := make([]float64, hp+1)
 	alive[hp] = 1

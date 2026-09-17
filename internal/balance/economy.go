@@ -114,13 +114,8 @@ func ExpectedLootWeightKg(master oapi.Raws, itemTableName string, danger int) fl
 	return kgSum / wSum
 }
 
-// ExpectedNetLootValue は危険度 danger で拾える1個あたりの、競売に出して手元に残る期待手取り額を返す。
-// 手取りは落札額と重量の線形式なので、期待価値と期待重量を query.AuctionNetProceeds に入れれば
-// 期待手取りになる。額面の ExpectedLootValue に対し、手数料と発送料を引いた実収入側の終端指標。
-// 集荷料は集荷1回ごとで品単位でないためここには含めない。
-//
-// 探索1回の総収支は、これに拾える個数と移動燃料コストを掛け合わせて出るが、1回の移動タイル数は
-// コードに定数が無い設計値なので閉形式では導けない。総収支はモンテカルロと設計値の領域に残す。
+// ExpectedNetLootValue は危険度 danger で拾える1個あたりの競売の期待手取り額を返す。額面の
+// ExpectedLootValue から手数料と発送料を引いた実収入側の終端指標。集荷料は品単位でないため含めない。
 func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) float64 {
 	value := ExpectedLootValue(master, itemTableName, danger)
 	if value <= 0 {
@@ -131,17 +126,12 @@ func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) fl
 	return float64(net)
 }
 
-// expectedItemsPerFloor はフロアで拾える loot 個数の期待値。配置数 floorItemBase + rand(0..floorItemRandom-1)
-// の期待値で、rand の期待値は (floorItemRandom-1)/2 なので閉形式で定まる。run.go の配置数と単一出典。
-// floorItemRandom は奇数なので整数除算でも厳密。偶数にすると切り捨てで期待値がわずかに下振れする。
+// expectedItemsPerFloor はフロアで拾える loot 個数の期待値。floorItemBase + rand(0..floorItemRandom-1) の
+// 期待値で run.go と単一出典。floorItemRandom は奇数なので (floorItemRandom-1)/2 は整数除算でも厳密。
 const expectedItemsPerFloor = floorItemBase + (floorItemRandom-1)/2
 
-// ExpectedRunLootIncome は floors 層を探索したときに拾える loot の期待手取り総額を返す。
-// 各層で expectedItemsPerFloor 個を拾い、層の深さを危険度として1個あたりの期待手取り
-// ExpectedNetLootValue を積む。拾える個数の期待値は閉形式なので乱数を要さない。
-//
-// 実際に何層潜れるかは生存に依る scenario 入力で、その分布はモンテカルロの領域。総収支はこの収入から
-// 移動燃料コストを引いて出るが、1回の移動タイル数はコードにない設計値なのでコスト側は別途与える。
+// ExpectedRunLootIncome は floors 層を探索して拾う loot の期待手取り総額を返す。各層で expectedItemsPerFloor
+// 個を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。
 func ExpectedRunLootIncome(master oapi.Raws, itemTableName string, floors int) float64 {
 	total := 0.0
 	for depth := 1; depth <= floors; depth++ {
@@ -202,12 +192,8 @@ func EconomyProgression(master oapi.Raws, itemTableName string, days int) []Econ
 	return out
 }
 
-// AuctionTakeHomeRate は基準価値どおりに落札されたときの競売の手取り率を返す。
-// 手取り = 落札額 − 手数料 − 発送料を落札額で割る。集荷料は集荷1回ごとで品単位でないためここには含めない。
-// 重い安物ほど発送料が手取りを食い、率が下がる。query.AuctionNetProceeds を単一出典で参照する。
-//
-// 落札額の分散や入札の伸びは確率過程で、実際の落札額分布はモンテカルロで測る領域。ここは基準価値で
-// 売れた場合の決定論的な手取り率だけを見る。
+// AuctionTakeHomeRate は基準価値どおり落札されたときの手取り率を返す。手取り=落札額−手数料−発送料 を
+// 落札額で割る。重い安物ほど発送料に食われ率が下がる。落札額分布はモンテカルロの領域で、ここは決定論。
 func AuctionTakeHomeRate(saleValue consts.Currency, weightKg float64) float64 {
 	if saleValue <= 0 {
 		return 0

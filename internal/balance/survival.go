@@ -59,10 +59,8 @@ func SleepTimeFraction(p Params) float64 {
 	return p.FatigueGainPerTurn / (p.FatigueGainPerTurn + p.FatigueRecoverPerTurn)
 }
 
-// TurnsToHypothermia は実効温度で低体温が発生し始めるまでのターン数を返す。実効温度は
-// 周囲温度に断熱を足した値。体温は systems.CalcBodyTempRate の速さで平熱から冷え、低体温帯
-// BodyTempColdBand を割るとタイマーが進み始める。
-// rate は温まる向きが正・冷える向きが負。冷えない適温すなわち rate >= 0 では低体温に至らず 0 を返す。
+// TurnsToHypothermia は実効温度で低体温が始まるまでのターン数を返す。実効温度は周囲温度に断熱を足した値。
+// rate は温まる向きが正・冷える向きが負で、冷えない適温 rate>=0 では低体温に至らず 0 を返す。
 func TurnsToHypothermia(effectiveTemp int) float64 {
 	rate := systems.CalcBodyTempRate(effectiveTemp)
 	if rate >= 0 {
