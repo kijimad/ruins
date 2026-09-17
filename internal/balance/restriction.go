@@ -19,8 +19,8 @@ type ElementValue struct {
 	ExpTurnsWith  float64 // その武器での期待決着ターン
 }
 
-// WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な近接武器それぞれを持たせた
-// ときの死亡確率と、素手へ制限したときの劣化量を返す。劣化量の降順、すなわち必須な武器から並べる。
+// WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器すなわち近接と遠距離の
+// それぞれを持たせたときの死亡確率と、素手へ制限したときの劣化量を返す。劣化量の降順、すなわち必須な武器から並べる。
 // 基準プレイヤーは強化なしの BaselinePlayer。素手 BaselineWeapon が制限時のフォールバックになる。
 func WeaponRestrictionValues(master oapi.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {
 	danger := query.DangerLevelForDay(day)
