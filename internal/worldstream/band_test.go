@@ -1,6 +1,7 @@
 package worldstream_test
 
 import (
+	"errors"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -12,6 +13,30 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestNewBand_getterは構築時の寸法・チャンク数がそのまま各getterに反映されることを固定する。
+func TestNewBand_getter(t *testing.T) {
+	t.Parallel()
+
+	b := worldstream.NewBand(60, 100, 4, 3)
+
+	assert.Equal(t, consts.Tile(60), b.ChunkW(), "ChunkWはコンストラクタのchunkWをそのまま返す")
+	assert.Equal(t, consts.Chunk(4), b.Cols(), "Colsはコンストラクタのcolsをそのまま返す")
+	assert.Equal(t, consts.Chunk(3), b.Rows(), "Rowsはコンストラクタのrowsをそのまま返す")
+	assert.Equal(t, consts.Tile(240), b.Width(), "Widthはcols×chunkWのタイル数")
+	assert.Equal(t, consts.Tile(300), b.Height(), "Heightはrows×chunkHのタイル数")
+	assert.Equal(t, consts.Chunk(0), b.NorthIndex(), "NewBandはnorthIndex=0で作る")
+}
+
+// TestNewBandAt_getterはnorthIndexを指定した復元時に、原点も連動して求まることを固定する。
+func TestNewBandAt_getter(t *testing.T) {
+	t.Parallel()
+
+	b := worldstream.NewBandAt(60, 100, 1, 3, 5)
+
+	assert.Equal(t, consts.Chunk(5), b.NorthIndex(), "NewBandAtは指定したnorthIndexで作る")
+	assert.Equal(t, consts.AbsTileY(-500), b.BandOriginY(), "帯原点はnorthIndex×chunkHぶん北(負)へ伸びる")
+}
 
 func TestBand_ShouldShiftNorth(t *testing.T) {
 	t.Parallel()
@@ -112,4 +137,45 @@ func TestBand_ShiftNorth(t *testing.T) {
 	// 壁配置が帯ローカル座標に対して変わったので、視界の強制再計算を要求する。
 	// 立てないと VisionSystem のレイキャストキャッシュが旧壁配置の遮蔽結果を再利用し、幽霊影が出る
 	assert.True(t, visState.ConsumePendingUpdate(), "シフト後は視界の強制再計算が要求される")
+}
+
+// TestBand_ShiftNorth_gen関数のエラーを伝播する は、チャンク生成が失敗したら
+// ShiftNorth がそのエラーをそのまま返すことを固定する。
+func TestBand_ShiftNorth_gen関数のエラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 60, TileHeight: 300}))
+
+	errGen := errors.New("生成失敗")
+	gen := func(_ consts.Coord[consts.Chunk], _, _ consts.Tile) error {
+		return errGen
+	}
+
+	b := worldstream.NewBand(60, 100, 1, 3)
+	err := b.ShiftNorth(world, gen)
+
+	require.ErrorIs(t, err, errGen, "genが返したエラーがそのまま返る")
+}
+
+// TestBand_ShiftNorth_未束縛ステージでは座標マップ追従をスキップする は、現ステージに
+// StageField が束縛されていなくても panic せず、northIndex 前進とチャンク生成は続くことを固定する。
+func TestBand_ShiftNorth_未束縛ステージでは座標マップ追従をスキップする(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 60, TileHeight: 300}))
+	// 現ステージを、StageFieldが束縛されていない別ステージへ切り替える
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("未束縛ステージ", 1)
+	require.Nil(t, query.GetCurrentStageField(world), "前提: 切り替え後は現ステージのStageFieldが無い")
+
+	genCalled := false
+	gen := func(_ consts.Coord[consts.Chunk], _, _ consts.Tile) error {
+		genCalled = true
+		return nil
+	}
+
+	b := worldstream.NewBand(60, 100, 1, 3)
+	require.NoError(t, b.ShiftNorth(world, gen))
+
+	assert.Equal(t, consts.Chunk(1), b.NorthIndex(), "StageField不在でもnorthIndexは前進する")
+	assert.True(t, genCalled, "StageField不在でも北端チャンクの生成は呼ばれる")
 }
