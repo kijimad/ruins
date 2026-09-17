@@ -124,10 +124,10 @@ func TestDetailHandleInput_未対応アクションは何もしない(t *testing
 }
 
 // TestDetailHandleInput_ページ送りは境界で止まる は、複数ページある詳細で左右アクションが
-// 先頭・末尾ページを超えて送られないことを固定する。detailRowsPerPage(12)を超える行数で2ページにする。
+// 先頭・末尾ページを超えて送られないことを固定する。detailRowsPerPage を1つ超える行数で2ページにする。
 func TestDetailHandleInput_ページ送りは境界で止まる(t *testing.T) {
 	t.Parallel()
-	rows := make([]entityspec.SpecRow, 13)
+	rows := make([]entityspec.SpecRow, detailRowsPerPage+1)
 	world := testutil.InitTestWorld(t)
 	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuTabNext, true }
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
@@ -265,6 +265,7 @@ func TestDetailRenderOverlay_対象があれば名前とページ位置を表示
 
 	require.NotNil(t, tree)
 	labels := uicore.CollectLabels(uicore.Placeable([]uicore.Drawable{tree})[0])
+	// ツリーを辿って現れる表示順を固定する。名前・効果・値・ページ表示の並び
 	assert.Equal(t, []string{"回復薬", "効果", "10", "1/1"}, labels)
 }
 
