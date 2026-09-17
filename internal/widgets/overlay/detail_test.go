@@ -129,12 +129,12 @@ func TestDetailHandleInput_ページ送りは境界で止まる(t *testing.T) {
 	t.Parallel()
 	rows := make([]entityspec.SpecRow, 13)
 	world := testutil.InitTestWorld(t)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuTabNext, true }
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
 		return DetailContent{Name: "回復薬", Rows: rows}, true
 	})
 	d.Open(world)
 
-	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuTabNext, true }
 	require.NoError(t, d.HandleInput(world))
 	assert.Equal(t, 1, d.page, "次ページへ進む")
 
@@ -260,7 +260,7 @@ func TestDetailRenderOverlay_対象があれば名前とページ位置を表示
 	})
 	d.Open(world)
 
-	// uicore のツリーを組むだけ。独立フェイスなのでロックは要らない
+	// uicore のツリーを組んで構造を確認する
 	tree := d.RenderOverlay(world, image.Rect(0, 0, 400, 400))
 
 	require.NotNil(t, tree)
