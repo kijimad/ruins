@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -66,6 +67,86 @@ func TestDetailHandleInput_非表示のときは何もしない(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, called, "非表示のときprovideは呼ばれない")
 	assert.False(t, d.Active())
+}
+
+func TestDetailHandleInput_キャンセルで閉じる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuCancel, true }
+	d := NewDetail(func(_ w.World) (DetailContent, bool) { return DetailContent{Name: "回復薬"}, true })
+	d.Open(world)
+
+	err := d.HandleInput(world)
+
+	require.NoError(t, err)
+	assert.False(t, d.Active(), "キャンセルで閉じる")
+}
+
+func TestDetailHandleInput_決定で閉じる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true }
+	d := NewDetail(func(_ w.World) (DetailContent, bool) { return DetailContent{Name: "回復薬"}, true })
+	d.Open(world)
+
+	err := d.HandleInput(world)
+
+	require.NoError(t, err)
+	assert.False(t, d.Active(), "決定で閉じる")
+}
+
+func TestDetailHandleInput_入力が無ければ開いたまま(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return "", false }
+	d := NewDetail(func(_ w.World) (DetailContent, bool) { return DetailContent{Name: "回復薬"}, true })
+	d.Open(world)
+
+	err := d.HandleInput(world)
+
+	require.NoError(t, err)
+	assert.True(t, d.Active(), "入力が無ければ開いたまま")
+	assert.Equal(t, 0, d.page)
+}
+
+func TestDetailHandleInput_未対応アクションは何もしない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionWait, true }
+	d := NewDetail(func(_ w.World) (DetailContent, bool) { return DetailContent{Name: "回復薬"}, true })
+	d.Open(world)
+
+	err := d.HandleInput(world)
+
+	require.NoError(t, err)
+	assert.True(t, d.Active(), "未対応アクションでは閉じない")
+	assert.Equal(t, 0, d.page, "未対応アクションではページも動かない")
+}
+
+// TestDetailHandleInput_ページ送りは境界で止まる は、複数ページある詳細で左右アクションが
+// 先頭・末尾ページを超えて送られないことを固定する。detailRowsPerPage(12)を超える行数で2ページにする。
+func TestDetailHandleInput_ページ送りは境界で止まる(t *testing.T) {
+	t.Parallel()
+	rows := make([]entityspec.SpecRow, 13)
+	world := testutil.InitTestWorld(t)
+	d := NewDetail(func(_ w.World) (DetailContent, bool) {
+		return DetailContent{Name: "回復薬", Rows: rows}, true
+	})
+	d.Open(world)
+
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuTabNext, true }
+	require.NoError(t, d.HandleInput(world))
+	assert.Equal(t, 1, d.page, "次ページへ進む")
+
+	require.NoError(t, d.HandleInput(world))
+	assert.Equal(t, 1, d.page, "末尾ページを超えない")
+
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuTabPrev, true }
+	require.NoError(t, d.HandleInput(world))
+	assert.Equal(t, 0, d.page, "前ページへ戻る")
+
+	require.NoError(t, d.HandleInput(world))
+	assert.Equal(t, 0, d.page, "先頭ページを下回らない")
 }
 
 // TestEntityDetailContent_死んだ実体は空を返しpanicしない は、生存していない実体を渡しても
@@ -185,4 +266,35 @@ func TestDetailRenderOverlay_対象があれば名前とページ位置を表示
 	require.NotNil(t, tree)
 	labels := uicore.CollectLabels(uicore.Placeable([]uicore.Drawable{tree})[0])
 	assert.Equal(t, []string{"回復薬", "効果", "10", "1/1"}, labels)
+}
+
+// TestDetailRenderOverlay_複数件は横並びで組む は、NewComparison が返す複数件を
+// buildPanelsUI 経由で横並びに組むことを固定する。単数件は buildPanelUI を直接使う分岐と区別する。
+func TestDetailRenderOverlay_複数件は横並びで組む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t, testutil.WithUI())
+	d := NewComparison(func(_ w.World) ([]DetailContent, bool) {
+		return []DetailContent{
+			{Name: "剣", Rows: []entityspec.SpecRow{{Label: "攻撃力", Value: "10"}}},
+			{Name: "盾", Rows: []entityspec.SpecRow{{Label: "防御力", Value: "5"}}},
+		}, true
+	})
+	d.Open(world)
+
+	tree := d.RenderOverlay(world, image.Rect(0, 0, 800, 400))
+
+	require.NotNil(t, tree)
+	labels := uicore.CollectLabels(uicore.Placeable([]uicore.Drawable{tree})[0])
+	assert.Equal(t, []string{"剣", "攻撃力", "10", "1/1", "盾", "防御力", "5", "1/1"}, labels)
+}
+
+// TestDetailRenderOverlay_複数件で中身が無ければnilを返す は、NewComparison でも
+// provide が ok=false のときは buildPanelsUI を組まずnilを返すことを固定する。
+func TestDetailRenderOverlay_複数件で中身が無ければnilを返す(t *testing.T) {
+	t.Parallel()
+	d := NewComparison(func(_ w.World) ([]DetailContent, bool) { return nil, false })
+
+	got := d.RenderOverlay(w.World{}, image.Rect(0, 0, 100, 100))
+
+	assert.Nil(t, got)
 }
