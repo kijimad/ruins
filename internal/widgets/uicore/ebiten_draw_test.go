@@ -10,7 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// pixelAlpha は screen 上の1点のアルファ値を返す。
+// pixelAlpha は screen 上の1点のアルファ値を返す。x,y は screen の範囲内を呼び元が保証する。
+// 範囲外を渡すと pix の添字が範囲外になり panic する。
 func pixelAlpha(screen *ebiten.Image, x, y int) byte {
 	b := screen.Bounds()
 	pix := make([]byte, b.Dx()*b.Dy()*4)
