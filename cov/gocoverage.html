@@ -797,7 +797,7 @@
 				
 				<option value="file370">github.com/kijimaD/ruins/internal/world/world.go (98.0%)</option>
 				
-				<option value="file371">github.com/kijimaD/ruins/internal/worldstream/band.go (89.1%)</option>
+				<option value="file371">github.com/kijimaD/ruins/internal/worldstream/band.go (100.0%)</option>
 				
 				<option value="file372">github.com/kijimaD/ruins/internal/worldstream/coord.go (100.0%)</option>
 				
@@ -53517,10 +53517,10 @@ func NewBandAt(chunkW, chunkH consts.Tile, cols, rows, northIndex consts.Chunk) 
 </span>}
 
 // ChunkW は1チャンクの幅を返す。
-func (b *Band) ChunkW() consts.Tile { <span class="cov0" title="0">return b.chunkW }</span>
+func (b *Band) ChunkW() consts.Tile { <span class="cov8" title="1">return b.chunkW }</span>
 
 // Cols は帯の横のチャンク列数を返す。
-func (b *Band) Cols() consts.Chunk { <span class="cov0" title="0">return b.cols }</span>
+func (b *Band) Cols() consts.Chunk { <span class="cov8" title="1">return b.cols }</span>
 
 // NorthIndex は北進したチャンク数を返す。北へ進むほど増える。
 func (b *Band) NorthIndex() consts.Chunk { <span class="cov8" title="1">return b.northIndex }</span>
@@ -53529,10 +53529,10 @@ func (b *Band) NorthIndex() consts.Chunk { <span class="cov8" title="1">return b
 func (b *Band) BandOriginY() consts.AbsTileY { <span class="cov8" title="1">return consts.BandOriginY(b.northIndex, b.chunkH) }</span>
 
 // Width は帯の総幅。帯ローカル X の有効範囲は [0, Width())。
-func (b *Band) Width() consts.Tile { <span class="cov0" title="0">return b.cols.Tiles(b.chunkW) }</span>
+func (b *Band) Width() consts.Tile { <span class="cov8" title="1">return b.cols.Tiles(b.chunkW) }</span>
 
 // Rows は Y 方向のチャンク行数を返す。
-func (b *Band) Rows() consts.Chunk { <span class="cov0" title="0">return b.rows }</span>
+func (b *Band) Rows() consts.Chunk { <span class="cov8" title="1">return b.rows }</span>
 
 // Height は帯の総高。帯ローカル Y の有効範囲は [0, Height())。
 func (b *Band) Height() consts.Tile { <span class="cov8" title="1">return b.rows.Tiles(b.chunkH) }</span>
@@ -53561,7 +53561,7 @@ func (b *Band) ShiftNorth(world w.World, gen ChunkGen) error {
         newChunkY := -b.northIndex
         for cx := range b.cols </span>{
                 <span class="cov8" title="1">if err := gen(consts.Coord[consts.Chunk]{X: cx, Y: newChunkY}, cx.Tiles(b.chunkW), 0); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -53572,7 +53572,7 @@ func (b *Band) ShiftNorth(world w.World, gen ChunkGen) error {
 func (b *Band) rebaseCoordMaps(world w.World, dy consts.Tile) {
         <span class="cov8" title="1">field := query.GetCurrentStageField(world)
         if field == nil </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
         <span class="cov8" title="1">inBand := func(g gc.GridElement) bool </span>{
                 <span class="cov8" title="1">return g.Y &gt;= 0 &amp;&amp; g.Y &lt; b.Height()
@@ -53595,7 +53595,7 @@ func (b *Band) rebaseCoordMaps(world w.World, dy consts.Tile) {
 // keep が false を返すキーは捨てる。帯外に落ちたキーが該当する。keep が nil のときはフィルタせず全キーを通す。
 func translateTileKeyMap[V any](src map[gc.GridElement]V, dx, dy consts.Tile, keep func(gc.GridElement) bool) map[gc.GridElement]V {
         <span class="cov8" title="1">if src == nil </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">dst := make(map[gc.GridElement]V, len(src))
         for k, v := range src </span>{
