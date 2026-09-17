@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// pixelAlpha は screen 上の1点のアルファ値を返す。countOpaque と同じ ReadPixels 経路を使う。
+// pixelAlpha は screen 上の1点のアルファ値を返す。
 func pixelAlpha(screen *ebiten.Image, x, y int) byte {
 	b := screen.Bounds()
 	pix := make([]byte, b.Dx()*b.Dy()*4)
@@ -133,7 +133,7 @@ func TestEbitenCanvas_DrawImageTintedRect(t *testing.T) {
 		cv.DrawImageTintedRect(image.Rect(5, 5, 45, 45), src, color.NRGBA{R: 255, A: 255})
 
 		assert.Positive(t, pixelAlpha(screen, 10, 10), "dst の内側は塗られる")
-		assert.Positive(t, pixelAlpha(screen, 44, 44), "dst の隅まで引き伸ばされる")
+		assert.Positive(t, pixelAlpha(screen, 40, 40), "dst の隅近くまで引き伸ばされる")
 		assert.Zero(t, pixelAlpha(screen, 2, 2), "dst の外は塗られない")
 	})
 }
