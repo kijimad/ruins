@@ -105,7 +105,7 @@
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
-				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
+				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.0%)</option>
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/processor.go (91.4%)</option>
 				
@@ -697,13 +697,13 @@
 				
 				<option value="file320">github.com/kijimaD/ruins/internal/widgets/theme/colors.go (0.0%)</option>
 				
-				<option value="file321">github.com/kijimaD/ruins/internal/widgets/uicore/ebiten.go (12.4%)</option>
+				<option value="file321">github.com/kijimaD/ruins/internal/widgets/uicore/ebiten.go (99.2%)</option>
 				
 				<option value="file322">github.com/kijimaD/ruins/internal/widgets/uicore/flex.go (100.0%)</option>
 				
 				<option value="file323">github.com/kijimaD/ruins/internal/widgets/uicore/measure.go (100.0%)</option>
 				
-				<option value="file324">github.com/kijimaD/ruins/internal/widgets/uicore/text.go (92.9%)</option>
+				<option value="file324">github.com/kijimaD/ruins/internal/widgets/uicore/text.go (96.4%)</option>
 				
 				<option value="file325">github.com/kijimaD/ruins/internal/widgets/uicore/widget.go (98.1%)</option>
 				
@@ -5594,7 +5594,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 </span>
         <span class="cov8" title="1">target := rp.findNearestHostile(world, entity)
         if target == nil </span>{
-                <span class="cov8" title="1">return rp.planDrivingAction(world, entity, solo, grid)
+                <span class="cov0" title="0">return rp.planDrivingAction(world, entity, solo, grid)
 </span>        }
 
         <span class="cov8" title="1">turnNumber := query.GetTurnState(world).TurnNumber
@@ -48475,7 +48475,7 @@ func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
 
 // FillTriangle は EbitenCanvas を実装する。3頂点の三角形を塗る。text/v2 を通らないのでロックは要らない。
 func (e *EbitenCanvas) FillTriangle(p0, p1, p2 [2]float32, c color.Color) {
-        <span class="cov0" title="0">var path vector.Path
+        <span class="cov8" title="1">var path vector.Path
         path.MoveTo(p0[0], p0[1])
         path.LineTo(p1[0], p1[1])
         path.LineTo(p2[0], p2[1])
@@ -48498,25 +48498,25 @@ func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c col
 
 // DrawImage は EbitenCanvas を実装する。pos を左上として画像を描く。
 func (e *EbitenCanvas) DrawImage(pos image.Point, img *ebiten.Image) {
-        <span class="cov0" title="0">op := &amp;ebiten.DrawImageOptions{}
+        <span class="cov8" title="1">op := &amp;ebiten.DrawImageOptions{}
         op.GeoM.Translate(float64(pos.X), float64(pos.Y))
         e.screen.DrawImage(img, op)
 </span>}
 
 // DrawImageRect は EbitenCanvas を実装する。dst に収まるよう縦横比を保って縮小し、左寄せ・縦中央で描く。
 func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
-        <span class="cov0" title="0">if img == nil </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if img == nil </span>{
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">b := img.Bounds()
+        <span class="cov8" title="1">b := img.Bounds()
         iw, ih := b.Dx(), b.Dy()
         if iw &lt;= 0 || ih &lt;= 0 || dst.Dx() &lt;= 0 || dst.Dy() &lt;= 0 </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">scale := math.Min(math.Min(float64(dst.Dx())/float64(iw), float64(dst.Dy())/float64(ih)), 1)
+        <span class="cov8" title="1">scale := math.Min(math.Min(float64(dst.Dx())/float64(iw), float64(dst.Dy())/float64(ih)), 1)
         dh := float64(ih) * scale
 </span>        // 左寄せ・縦中央。アイコンとキーキャップを列の左に揃え、行の高さの中央へ置く
-        <span class="cov0" title="0">ox := float64(dst.Min.X)
+        <span class="cov8" title="1">ox := float64(dst.Min.X)
         oy := float64(dst.Min.Y) + (float64(dst.Dy())-dh)/2
         op := &amp;ebiten.DrawImageOptions{}
         op.GeoM.Scale(scale, scale)
@@ -48524,76 +48524,76 @@ func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 </span>        // 収まりきらない画像だけがここで縮む。端数倍率の nearest はテクセル境界の画素が
         // 揺れるので linear にする。一覧のアイコンは表示サイズで渡ってくるため等倍で通り、
         // この分岐には入らない
-        <span class="cov0" title="0">if scale != 1 </span>{
-                <span class="cov0" title="0">op.Filter = ebiten.FilterLinear
+        <span class="cov8" title="1">if scale != 1 </span>{
+                <span class="cov8" title="1">op.Filter = ebiten.FilterLinear
 </span>        }
-        <span class="cov0" title="0">e.screen.DrawImage(img, op)</span>
+        <span class="cov8" title="1">e.screen.DrawImage(img, op)</span>
 }
 
 // DrawImageTintedRect は EbitenCanvas を実装する。img を dst いっぱいに引き伸ばし tint を掛けて描く。
 func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Image, tint color.Color) {
-        <span class="cov0" title="0">if img == nil </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if img == nil </span>{
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">b := img.Bounds()
+        <span class="cov8" title="1">b := img.Bounds()
         if b.Dx() &lt;= 0 || b.Dy() &lt;= 0 || dst.Dx() &lt;= 0 || dst.Dy() &lt;= 0 </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">sx, sy := float64(dst.Dx())/float64(b.Dx()), float64(dst.Dy())/float64(b.Dy())
+        <span class="cov8" title="1">sx, sy := float64(dst.Dx())/float64(b.Dx()), float64(dst.Dy())/float64(b.Dy())
         op := &amp;ebiten.DrawImageOptions{}
         op.GeoM.Scale(sx, sy)
         op.GeoM.Translate(float64(dst.Min.X), float64(dst.Min.Y))
         op.ColorScale.ScaleWithColor(tint)
 </span>        // 伸ばす軸がどれも2テクセル以上あるときだけ linear にする。判定の理由は stretchNeedsBlend を参照
-        <span class="cov0" title="0">if stretchNeedsBlend(sx, b.Dx()) &amp;&amp; stretchNeedsBlend(sy, b.Dy()) </span>{
-                <span class="cov0" title="0">op.Filter = ebiten.FilterLinear
+        <span class="cov8" title="1">if stretchNeedsBlend(sx, b.Dx()) &amp;&amp; stretchNeedsBlend(sy, b.Dy()) </span>{
+                <span class="cov8" title="1">op.Filter = ebiten.FilterLinear
 </span>        }
-        <span class="cov0" title="0">e.screen.DrawImage(img, op)</span>
+        <span class="cov8" title="1">e.screen.DrawImage(img, op)</span>
 }
 
 // stretchNeedsBlend はその軸を混ぜるべきかを返す。端数倍率の nearest はテクセル境界の
 // 画素が揺れるので、混ぜられる軸は linear で混ぜたい。等倍なら境界をまたがず混ぜる必要が無い。
 // 1テクセルしか無い軸は混ぜる相手が画像の外側の透明しかなく、端がぼやけるだけなので混ぜない。
 func stretchNeedsBlend(scale float64, srcLen int) bool {
-        <span class="cov0" title="0">return scale != 1 &amp;&amp; srcLen &gt; 1
+        <span class="cov8" title="1">return scale != 1 &amp;&amp; srcLen &gt; 1
 </span>}
 
 // DrawNineSlice は EbitenCanvas を実装する。ソースを縦横3分割し、四隅は原寸、辺は片方向、
 // 中央は両方向へ伸ばして9セルを dst へ描く。
 func (e *EbitenCanvas) DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx, by [3]int) {
-        <span class="cov0" title="0">if img == nil </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if img == nil </span>{
+                <span class="cov8" title="1">return
 </span>        }
         // ソースの分割境界
-        <span class="cov0" title="0">sx := [4]int{0, bx[0], bx[0] + bx[1], bx[0] + bx[1] + bx[2]}
+        <span class="cov8" title="1">sx := [4]int{0, bx[0], bx[0] + bx[1], bx[0] + bx[1] + bx[2]}
         sy := [4]int{0, by[0], by[0] + by[1], by[0] + by[1] + by[2]}
 </span>        // dst の分割境界。四隅は原寸、中央は残りを埋める
-        <span class="cov0" title="0">midW := max(dst.Dx()-bx[0]-bx[2], 0)
+        <span class="cov8" title="1">midW := max(dst.Dx()-bx[0]-bx[2], 0)
         midH := max(dst.Dy()-by[0]-by[2], 0)
         dx := [4]int{dst.Min.X, dst.Min.X + bx[0], dst.Min.X + bx[0] + midW, dst.Max.X}
         dy := [4]int{dst.Min.Y, dst.Min.Y + by[0], dst.Min.Y + by[0] + midH, dst.Max.Y}
 </span>
-        <span class="cov0" title="0">for r := range 3 </span>{
-                <span class="cov0" title="0">for c := range 3 </span>{
-                        <span class="cov0" title="0">sw, sh := sx[c+1]-sx[c], sy[r+1]-sy[r]
+        <span class="cov8" title="1">for r := range 3 </span>{
+                <span class="cov8" title="1">for c := range 3 </span>{
+                        <span class="cov8" title="1">sw, sh := sx[c+1]-sx[c], sy[r+1]-sy[r]
                         dw, dh := dx[c+1]-dx[c], dy[r+1]-dy[r]
                         if sw &lt;= 0 || sh &lt;= 0 || dw &lt;= 0 || dh &lt;= 0 </span>{
-                                <span class="cov0" title="0">continue</span>
+                                <span class="cov8" title="1">continue</span>
                         }
-                        <span class="cov0" title="0">sub, ok := img.SubImage(image.Rect(sx[c], sy[r], sx[c+1], sy[r+1])).(*ebiten.Image)
+                        <span class="cov8" title="1">sub, ok := img.SubImage(image.Rect(sx[c], sy[r], sx[c+1], sy[r+1])).(*ebiten.Image)
                         if !ok </span>{
                                 <span class="cov0" title="0">continue</span>
                         }
-                        <span class="cov0" title="0">ssx, ssy := float64(dw)/float64(sw), float64(dh)/float64(sh)
+                        <span class="cov8" title="1">ssx, ssy := float64(dw)/float64(sw), float64(dh)/float64(sh)
                         op := &amp;ebiten.DrawImageOptions{}
                         op.GeoM.Scale(ssx, ssy)
                         op.GeoM.Translate(float64(dx[c]), float64(dy[r]))
 </span>                        // 四隅は原寸で通り、伸びるのは辺と中央だけ。端数倍率の nearest は
                         // テクセル境界の画素が揺れるので linear にする
-                        <span class="cov0" title="0">if ssx != 1 || ssy != 1 </span>{
-                                <span class="cov0" title="0">op.Filter = ebiten.FilterLinear
+                        <span class="cov8" title="1">if ssx != 1 || ssy != 1 </span>{
+                                <span class="cov8" title="1">op.Filter = ebiten.FilterLinear
 </span>                        }
-                        <span class="cov0" title="0">e.screen.DrawImage(sub, op)</span>
+                        <span class="cov8" title="1">e.screen.DrawImage(sub, op)</span>
                 }
         }
 }
@@ -48747,7 +48747,7 @@ import (
 // フェイスが nil か maxWidth が非正なら折らずにそのまま1行で返す。
 func WrapText(s string, face text.Face, maxWidth int) []string {
         <span class="cov8" title="1">if face == nil || maxWidth &lt;= 0 || s == "" </span>{
-                <span class="cov0" title="0">return []string{s}
+                <span class="cov8" title="1">return []string{s}
 </span>        }
         <span class="cov8" title="1">var seg segmenter.Segmenter
         seg.Init([]rune(s))
