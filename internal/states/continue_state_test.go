@@ -9,9 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestNewContinueState は起動時の継続読み込みの2つの契約を固定する。make run の既定の
-// 起動口なので、オートセーブがあれば最新から復帰し、無ければプロセスを落とさず ok=false で
-// 新規開始へフォールバックする挙動が要になる。セーブ先は WithSaveDir で隔離して並列に回す。
+// TestNewContinueState は継続起動の2契約を固定する。オートセーブがあれば最新から復帰し、
+// 無ければ ok=false でフォールバックする。セーブ先は WithSaveDir で隔離する。
 
 func TestNewContinueState_オートセーブが無ければフォールバックする(t *testing.T) {
 	t.Parallel()
@@ -32,7 +31,7 @@ func TestNewContinueState_最新オートセーブから復帰する(t *testing.
 	saveManager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 
-	// オートセーブを1件作る。保存元と復元先は起動時と同じく別ワールドにする
+	// 保存元と復元先は起動時と同じく別ワールドにする
 	saved := testutil.InitTestWorld(t)
 	require.NoError(t, saveManager.AutoSave(saved))
 

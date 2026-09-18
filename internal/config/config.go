@@ -49,8 +49,7 @@ type Config struct {
 
 	// オープニング演出をスキップするかどうか
 	SkipOpening bool `env:"RUINS_SKIP_OPENING"`
-	// 起動時に最新のオートセーブを読み込んで続きから始めるかどうか。読み込めるセーブが
-	// 無い、または復元に失敗したときは通常の開始ステートへ落ちる
+	// 起動時に最新のオートセーブを読み込んで続きから始めるかどうか
 	Continue bool `env:"RUINS_CONTINUE"`
 	// アニメーション演出を無効化するかどうか
 	DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`

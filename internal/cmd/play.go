@@ -110,8 +110,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	// 開始ステートの決定。続きから起動する設定なら最新のオートセーブを読み込み、
-	// 読み込めなければ通常の開始ステートへ落ちる
+	// 開始ステートの決定。続きから起動する設定なら最新のオートセーブから復帰する
 	var initialState es.State[w.World]
 	if cfg.Continue && cfg.SaveLoadEnabled {
 		if saveManager, smErr := save.NewSerializationManager(); smErr != nil {
