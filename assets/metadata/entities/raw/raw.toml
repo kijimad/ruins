@@ -13677,6 +13677,10 @@ pack = "1d1"
 id = "ember_lash"
 weight = 1
 pack = "1d1"
+[[itemGroups.entries]]
+id = "slag_cleaver"
+weight = 1
+pack = "1d1"
 [[itemGroups]]
 name = "終盤近接武器"
 id = "endgame_melee_weapon"
@@ -13743,10 +13747,6 @@ weight = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "storm_hammer"
-weight = 1
-pack = "1d1"
-[[itemGroups.entries]]
-id = "slag_cleaver"
 weight = 1
 pack = "1d1"
 [[itemGroups]]
