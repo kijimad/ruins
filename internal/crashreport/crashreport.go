@@ -12,16 +12,14 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 )
 
-// saveOnce はクラッシュ保存を1プロセス1回に限る。Guard は必ず通る関数ごとに置くので、同一 goroutine で
-// 入れ子になった Guard が再 panic を再捕捉しても、クラッシュ1件につきファイルは1つに保たれる。
+// saveOnce はクラッシュ保存を1プロセス1回に限る。複数箇所の Guard が発火してもファイルは1つに保つ。
 var saveOnce sync.Once
 
-// stateProvider は落ちた時点の最上位ステート名を取り出す関数。起動時に SetStateProvider で登録し、
-// Save がクラッシュ時に引く。登録側と読み取り側が別 goroutine になるので atomic で共有する。
+// stateProvider は落ちた時点の最上位ステート名を取り出す関数。登録側と読み取り側が別 goroutine なので
+// atomic で共有する。
 var stateProvider atomic.Pointer[func() string]
 
-// SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼ぶ。
-// Guard の呼び出し側を増やさず、保存時にステート名を添える唯一の受け渡し経路。
+// SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼び、Save がクラッシュ時に引く。
 func SetStateProvider(f func() string) { stateProvider.Store(&f) }
 
 // Guard は defer で使う。panic を捕らえて1回だけ Save し、握りつぶさず再 panic する。
@@ -33,9 +31,8 @@ func Guard() {
 	}
 }
 
-// Save はクラッシュ情報を1ファイルへ書く。desktop のみ実ファイルを作り、WASM は何もしない。
-// ディレクトリ作成と書き込みの失敗は writeRecord が握りつぶす。クラッシュ処理でさらに落ちて元の
-// panic を覆い隠さないため。保存できたらコンソールへ道標の1行を出す。
+// Save はクラッシュ情報を1ファイルへ書く。desktop のみ、WASM は何もしない。失敗はベストエフォートで
+// 握りつぶし、クラッシュ処理でさらに落ちて元の panic を覆わない。保存できたら道標の1行を出す。
 func Save(recovered any, stack []byte) {
 	rec := buildRecord(recovered, stack, currentState())
 	if path := writeRecord(rec); path != "" {
@@ -76,10 +73,10 @@ type CrashRecord struct {
 	Level     string `json:"level"`           // "FATAL"
 	Category  string `json:"category"`        // "crash"
 	Message   string `json:"message"`         // recover した値の文字列。全文は Stack にある
-	Version   string `json:"version"`         // consts.AppVersion
-	GOOS      string `json:"goos"`            // runtime.GOOS
-	GOARCH    string `json:"goarch"`          // runtime.GOARCH
-	Steam     bool   `json:"steam"`           // consts.IsSteamBuild
-	State     string `json:"state,omitempty"` // provider 由来の最上位ステート名。無ければ空
-	Stack     string `json:"stack"`           // debug.Stack の文字列
+	Version   string `json:"version"`
+	GOOS      string `json:"goos"`
+	GOARCH    string `json:"goarch"`
+	Steam     bool   `json:"steam"`
+	State     string `json:"state,omitempty"` // 最上位ステート名。無ければ空
+	Stack     string `json:"stack"`
 }

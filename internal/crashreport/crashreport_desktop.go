@@ -10,13 +10,12 @@ import (
 	"time"
 )
 
-// userConfigDir は保存先の基底を解決する。既定は os.UserConfigDir。テストが一時ディレクトリへ
-// 差し替えられるようパッケージ変数にする。これが唯一の保存先注入経路。
+// userConfigDir は保存先の基底を解決する。テストが一時ディレクトリへ差し替えるためパッケージ変数にする。
 var userConfigDir = os.UserConfigDir
 
-// writeRecord は rec を UserConfigDir 下のファイルへ書き、その保存先を返す。失敗時は空を返す。
+// writeRecord は rec を UserConfigDir 下のファイルへ書き保存先を返す。失敗時は空を返す。
 // 実行ファイル隣でなく UserConfigDir にするのは、出荷ビルドの実行ディレクトリが Program Files など
-// 書き込み不可なことが多いため。UserConfigDir はセーブ・設定と同じ親で必ず書ける。
+// 書き込み不可なことが多いため。
 func writeRecord(rec CrashRecord) string {
 	base, err := userConfigDir()
 	if err != nil {
