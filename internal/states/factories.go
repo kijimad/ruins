@@ -250,6 +250,34 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())
 }
 
+// NewContinueState は最新のオートセーブを saveManager から読み込み、その地点の復帰ステートを返す。
+// 起動時の継続プレイから使う。読み込めるオートセーブが無い、または復元に失敗したときは
+// ok=false を返し、呼び出し側は通常の開始へフォールバックする。復元失敗時も
+// RestoreWorldFromJSON の probe 検証により world は無傷なので、そのまま新規開始に使える。
+// 継続はあくまで開発と再開の利便なので、どの失敗もプロセスを落とさずログに残して握りつぶす。
+func NewContinueState(world w.World, saveManager *save.SerializationManager) (es.State[w.World], bool) {
+	log := logger.New(logger.CategorySave)
+	autoSaves, err := saveManager.ListAutoSaves()
+	if err != nil {
+		log.Error("continue: failed to list auto saves", "error", err.Error())
+		return nil, false
+	}
+	if len(autoSaves) == 0 {
+		return nil, false
+	}
+	latest := autoSaves[0]
+	if err := saveManager.LoadWorld(world, latest); err != nil {
+		log.Error("continue: failed to load auto save", "slot", latest, "error", err.Error())
+		return nil, false
+	}
+	state, err := newResumeStateFactory(world)()
+	if err != nil {
+		log.Error("continue: failed to build resume state", "error", err.Error())
+		return nil, false
+	}
+	return state, true
+}
+
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。
 // データがあればプレイヤー名と日時を、無ければダッシュを返す。
 func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) string {

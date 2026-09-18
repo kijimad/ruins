@@ -49,6 +49,9 @@ type Config struct {
 
 	// オープニング演出をスキップするかどうか
 	SkipOpening bool `env:"RUINS_SKIP_OPENING"`
+	// 起動時に最新のオートセーブを読み込んで続きから始めるかどうか。読み込めるセーブが
+	// 無い、または復元に失敗したときは通常の開始ステートへ落ちる
+	Continue bool `env:"RUINS_CONTINUE"`
 	// アニメーション演出を無効化するかどうか
 	DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
 	// 画面のポスト処理、レトロフィルタのスキャンラインと色収差、を無効化するかどうか。
@@ -213,6 +216,9 @@ func (c *Config) applyDevelopmentDefaults() {
 	// ゲーム設定
 	if os.Getenv("RUINS_SKIP_OPENING") == "" {
 		c.SkipOpening = true
+	}
+	if os.Getenv("RUINS_CONTINUE") == "" {
+		c.Continue = true
 	}
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false
