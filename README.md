@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [panic 時のスタックトレースをファイルへ保存するクラッシュレポート](docs/design/260916000431.md) | 6/6（見送り2） | steam, meta |
+| in-progress | [panic 時のスタックトレースをファイルへ保存するクラッシュレポート](docs/design/260916000431.md) | 7/7（見送り1） | steam, meta |
 
 
 ## Reference
