@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -16,12 +17,12 @@ import (
 var saveOnce sync.Once
 
 // stateProvider は落ちた時点の最上位ステート名を取り出す関数。起動時に SetStateProvider で登録し、
-// Save がクラッシュ時に引く。登録しなければ State は空になる。
-var stateProvider func() string
+// Save がクラッシュ時に引く。登録側と読み取り側が別 goroutine になるので atomic で共有する。
+var stateProvider atomic.Pointer[func() string]
 
 // SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼ぶ。
 // Guard の呼び出し側を増やさず、保存時にステート名を添える唯一の受け渡し経路。
-func SetStateProvider(f func() string) { stateProvider = f }
+func SetStateProvider(f func() string) { stateProvider.Store(&f) }
 
 // Guard は defer で使う。panic を捕らえて1回だけ Save し、握りつぶさず再 panic する。
 // recover は同一 goroutine の panic だけを捕らえるので、必ず通る関数の先頭へ置く。
@@ -46,8 +47,8 @@ func Save(recovered any, stack []byte) {
 func buildRecord(recovered any, stack []byte, state string) CrashRecord {
 	return CrashRecord{
 		Timestamp: time.Now().Format(time.RFC3339),
-		Level:     logger.LevelFatal.String(), // "FATAL"。logger の表記を単一出典にして取り違えを防ぐ
-		Category:  "crash",
+		Level:     logger.LevelFatal.String(),        // "FATAL"。logger の表記を単一出典にして取り違えを防ぐ
+		Category:  string(logger.CategoryCrash),      // "crash"。同じく logger を単一出典にする
 		Message:   fmt.Sprintf("%v", recovered),
 		Version:   consts.AppVersion,
 		GOOS:      runtime.GOOS,
@@ -60,11 +61,12 @@ func buildRecord(recovered any, stack []byte, state string) CrashRecord {
 
 // currentState は登録済み provider を安全に引く。provider 自体が落ちても元の panic を覆わない。
 func currentState() (name string) {
-	if stateProvider == nil {
+	p := stateProvider.Load()
+	if p == nil {
 		return ""
 	}
 	defer func() { _ = recover() }()
-	return stateProvider()
+	return (*p)()
 }
 
 // CrashRecord は1回のクラッシュを表す構造化ログレコード。

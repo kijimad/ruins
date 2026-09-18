@@ -43,6 +43,8 @@ func writeRecordTo(dir string, rec CrashRecord) string {
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(rec); err != nil {
+		// 書きかけの空ファイルを残さない。ユーザーが中身の無いクラッシュ記録を見て混乱しないため
+		_ = os.Remove(path)
 		return ""
 	}
 	return path

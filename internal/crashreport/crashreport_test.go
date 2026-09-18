@@ -65,9 +65,10 @@ func TestWriteRecordTo_書けない場所なら空を返す(t *testing.T) {
 // currentState と Guard はパッケージ変数の seam を差し替えるので直列に走らせる。
 
 func TestCurrentState_providerがpanicしても空を返す(t *testing.T) { //nolint:paralleltest // stateProvider を差し替えるため直列
-	origProvider := stateProvider
-	stateProvider = func() string { panic("provider broke") }
-	t.Cleanup(func() { stateProvider = origProvider })
+	origProvider := stateProvider.Load()
+	broke := func() string { panic("provider broke") }
+	stateProvider.Store(&broke)
+	t.Cleanup(func() { stateProvider.Store(origProvider) })
 
 	assert.NotPanics(t, func() {
 		assert.Empty(t, currentState())
@@ -79,7 +80,10 @@ func TestGuard_保存して再panicする(t *testing.T) { //nolint:paralleltest 
 	origDir := userConfigDir
 	userConfigDir = func() (string, error) { return dir, nil }
 	saveOnce = sync.Once{}
-	t.Cleanup(func() { userConfigDir = origDir })
+	t.Cleanup(func() {
+		userConfigDir = origDir
+		saveOnce = sync.Once{} // 使用済みの Once を残さない。後続テストが Guard を使っても壊れないように
+	})
 
 	assert.PanicsWithValue(t, "kaboom", func() {
 		defer Guard()
