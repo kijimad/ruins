@@ -62,28 +62,61 @@ func TestWriteRecordTo_書けない場所なら空を返す(t *testing.T) {
 	assert.Empty(t, writeRecordTo(filepath.Join(f, "crash"), CrashRecord{}))
 }
 
-// currentState と Guard はパッケージ変数の seam を差し替えるので直列に走らせる。
+// seamMu はパッケージ変数の seam を差し替えるテストを直列化する。各テストは paralleltest を満たすため
+// t.Parallel を呼ぶが、この mutex で seam の critical section は1つずつ実行される。
+var seamMu sync.Mutex
 
-func TestCurrentState_providerがpanicしても空を返す(t *testing.T) { //nolint:paralleltest // stateProvider を差し替えるため直列
+// withSeams は seam をロックして現在値を退避し、テスト終了時に戻して解放する。t.Parallel の後に呼ぶ。
+func withSeams(t *testing.T) {
+	t.Helper()
+	seamMu.Lock()
+	origDir := userConfigDir
 	origProvider := stateProvider.Load()
+	t.Cleanup(func() {
+		userConfigDir = origDir
+		stateProvider.Store(origProvider)
+		saveOnce = sync.Once{} // 使用済みの Once を残さない
+		seamMu.Unlock()
+	})
+}
+
+func TestSetStateProvider_登録した取り出し方をcurrentStateが引く(t *testing.T) {
+	t.Parallel()
+	withSeams(t)
+
+	SetStateProvider(func() string { return "*states.MainMenuState" })
+
+	assert.Equal(t, "*states.MainMenuState", currentState())
+}
+
+func TestWriteRecord_基底解決に失敗したら空を返す(t *testing.T) {
+	t.Parallel()
+	withSeams(t)
+
+	userConfigDir = func() (string, error) { return "", os.ErrPermission }
+
+	assert.Empty(t, writeRecord(CrashRecord{Message: "x"}), "UserConfigDir が引けなければ保存しない")
+}
+
+func TestCurrentState_providerがpanicしても空を返す(t *testing.T) {
+	t.Parallel()
+	withSeams(t)
+
 	broke := func() string { panic("provider broke") }
 	stateProvider.Store(&broke)
-	t.Cleanup(func() { stateProvider.Store(origProvider) })
 
 	assert.NotPanics(t, func() {
 		assert.Empty(t, currentState())
 	}, "provider の panic を握りつぶし元の panic を覆わない")
 }
 
-func TestGuard_保存して再panicする(t *testing.T) { //nolint:paralleltest // userConfigDir と saveOnce を差し替えるため直列
+func TestGuard_保存して再panicする(t *testing.T) {
+	t.Parallel()
+	withSeams(t)
+
 	dir := t.TempDir()
-	origDir := userConfigDir
 	userConfigDir = func() (string, error) { return dir, nil }
 	saveOnce = sync.Once{}
-	t.Cleanup(func() {
-		userConfigDir = origDir
-		saveOnce = sync.Once{} // 使用済みの Once を残さない。後続テストが Guard を使っても壊れないように
-	})
 
 	assert.PanicsWithValue(t, "kaboom", func() {
 		defer Guard()

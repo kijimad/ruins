@@ -44,8 +44,8 @@ func Save(recovered any, stack []byte) {
 func buildRecord(recovered any, stack []byte, state string) CrashRecord {
 	return CrashRecord{
 		Timestamp: time.Now().Format(time.RFC3339),
-		Level:     logger.LevelFatal.String(),        // "FATAL"。logger の表記を単一出典にして取り違えを防ぐ
-		Category:  string(logger.CategoryCrash),      // "crash"。同じく logger を単一出典にする
+		Level:     logger.LevelFatal.String(),   // "FATAL"。logger の表記を単一出典にして取り違えを防ぐ
+		Category:  string(logger.CategoryCrash), // "crash"。同じく logger を単一出典にする
 		Message:   fmt.Sprintf("%v", recovered),
 		Version:   consts.AppVersion,
 		GOOS:      runtime.GOOS,
@@ -69,10 +69,10 @@ func currentState() (name string) {
 // CrashRecord は1回のクラッシュを表す構造化ログレコード。
 // フィールド名は logger の JSON エントリ timestamp・level・category・message に揃える。
 type CrashRecord struct {
-	Timestamp string `json:"timestamp"`       // RFC3339
-	Level     string `json:"level"`           // "FATAL"
-	Category  string `json:"category"`        // "crash"
-	Message   string `json:"message"`         // recover した値の文字列。全文は Stack にある
+	Timestamp string `json:"timestamp"` // RFC3339
+	Level     string `json:"level"`     // "FATAL"
+	Category  string `json:"category"`  // "crash"
+	Message   string `json:"message"`   // recover した値の文字列。全文は Stack にある
 	Version   string `json:"version"`
 	GOOS      string `json:"goos"`
 	GOARCH    string `json:"goarch"`
