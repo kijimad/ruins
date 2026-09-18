@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - balance/internal/balance/sensitivity.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">balance/internal/balance</a> - sensitivity.go<span style="font-size: 80%;"> (source / <a href="sensitivity.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">89.9&nbsp;%</td>
+            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntry">62</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-18 15:05:41</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package balance</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;math&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // Knob は分析機械が動かすパラメータベクトルの1成分。Ptr が Params 内の成分を指すので、</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 感度・交換レート・探索は成分の意味を知らずに摂動できる。</span>
+<span id="L14"><span class="lineNum">      14</span>              : type Knob struct {</span>
+<span id="L15"><span class="lineNum">      15</span>              :         Name   string</span>
+<span id="L16"><span class="lineNum">      16</span>              :         Domain string</span>
+<span id="L17"><span class="lineNum">      17</span>              :         Ptr    func(*Params) *float64</span>
+<span id="L18"><span class="lineNum">      18</span>              : }</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // knobRegistry は分析機械が回すつまみの一覧。つまみを増やすときはここに1行足すだけでよい。</span>
+<span id="L21"><span class="lineNum">      21</span>              : // Params に成分がある値なら導出・感度・交換レートへ自動で載る。</span>
+<span id="L22"><span class="lineNum">      22</span>              : func knobRegistry() []Knob {</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 :         return []Knob{</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :                 {&quot;敵武器ダメージ(bite)&quot;, &quot;戦闘&quot;, func(p *Params) *float64 { return &amp;p.EnemyWeaponScale }},</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 {&quot;プレイヤー筋力&quot;, &quot;戦闘&quot;, func(p *Params) *float64 { return &amp;p.PlayerStrengthScale }},</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 {&quot;最大満腹度&quot;, &quot;生存&quot;, func(p *Params) *float64 { return &amp;p.MaxHunger }},</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 {&quot;空腹減耗ターン&quot;, &quot;生存&quot;, func(p *Params) *float64 { return &amp;p.HungerDrainTurns }},</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 {&quot;飢餓しきい値&quot;, &quot;生存&quot;, func(p *Params) *float64 { return &amp;p.HungerStarvingRatio }},</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 {&quot;疲労蓄積量&quot;, &quot;疲労&quot;, func(p *Params) *float64 { return &amp;p.FatigueGainPerTurn }},</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 {&quot;疲労回復量&quot;, &quot;疲労&quot;, func(p *Params) *float64 { return &amp;p.FatigueRecoverPerTurn }},</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 {&quot;燃料熱量&quot;, &quot;物流&quot;, func(p *Params) *float64 { return &amp;p.FuelHeatScale }},</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 {&quot;loot価値&quot;, &quot;経済&quot;, func(p *Params) *float64 { return &amp;p.LootValueScale }},</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 {&quot;1日ターン数&quot;, &quot;横断&quot;, func(p *Params) *float64 { return &amp;p.TurnsPerDay }},</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :         }</span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : // SensitivityMetricNames は感度行列の列。ドメイン横断の代表メトリクス。</span>
+<span id="L38"><span class="lineNum">      38</span>              : var SensitivityMetricNames = []string{&quot;戦力比d20&quot;, &quot;飢餓まで日数&quot;, &quot;睡眠時間割合&quot;, &quot;OIL航続&quot;, &quot;loot手取り&quot;, &quot;Lv30攻撃数&quot;}</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : // metricValue はパラメータベクトル p の下で idx 番目のメトリクスだけを評価して返す。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // 導出はすべて p の純関数なので、成分を摂動すれば任意のつまみの影響を測れる。単一メトリクス</span>
+<span id="L42"><span class="lineNum">      42</span>              : // 単位にするのは、交換レートの求解が対象メトリクス以外の重い計算を回さないようにするため。</span>
+<span id="L43"><span class="lineNum">      43</span>              : // idx は SensitivityMetricNames のインデックスと1対1で対応する。未知の idx は panic し、メトリクス</span>
+<span id="L44"><span class="lineNum">      44</span>              : // 追加時の case 追加漏れが silent にならないようにする。</span>
+<span id="L45"><span class="lineNum">      45</span>              : func metricValue(master oapi.Raws, p Params, idx int) float64 {</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         switch idx {</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :         case 0: // 戦闘。敵武器ダメージとプレイヤー筋力の倍率を適用して廃墟 day20 戦力比を測る</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :                 weapon, err := LoadWeaponFromItem(master, BaselineWeapon)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 :                 player.Strength = int(math.Round(float64(player.Strength) * p.PlayerStrengthScale))</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 ratio := 0.0</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 withScaledMeleeDamage(master, &quot;bite&quot;, p.EnemyWeaponScale, func() {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         if curve, e := DifficultyCurve(master, player, weapon, BaselineAreaTable, 20); e == nil &amp;&amp; len(curve) &gt;= 20 {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                                 ratio = curve[19].PowerRatio</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :                 })</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return ratio</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         case 1: // 生存</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 return DaysUntilStarving(p)</span></span>
+<span id="L66"><span class="lineNum">      66</span>              :         case 2: // 疲労</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 return SleepTimeFraction(p)</span></span>
+<span id="L68"><span class="lineNum">      68</span>              :         case 3: // 物流。燃料熱量の倍率を掛けて満載 OIL の航続を測る</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 capacity := consts.Milligram(consts.CubeWeightCapacityKg) * consts.MilligramPerKg</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 fuel := float64(query.HeatOf(oapi.OIL, capacity)) * p.FuelHeatScale</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 return DriveRangeTiles(consts.Heat(fuel), capacity)</span></span>
+<span id="L72"><span class="lineNum">      72</span>              :         case 4: // 経済。loot 価値の倍率を掛けて1個あたり手取りを測る。送料が固定なので弾力性は1を超える</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 lv := ExpectedLootValue(master, &quot;ruins_area&quot;, 8) * p.LootValueScale</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 if lv &lt;= 0 {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 :                 return float64(query.AuctionNetProceeds(consts.Currency(math.Round(lv)), ExpectedLootWeightKg(master, &quot;ruins_area&quot;, 8)))</span></span>
+<span id="L78"><span class="lineNum">      78</span>              :         case 5: // 進行。現状の成分では動かない。他ドメインのつまみが成長へ波及しないことを見せる列</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 return float64(AttacksToSkillLevel(0, 30))</span></span>
+<span id="L80"><span class="lineNum">      80</span>              :         default:</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;未知のメトリクス idx: %d。case と SensitivityMetricNames を揃える&quot;, idx))</span></span>
+<span id="L82"><span class="lineNum">      82</span>              :         }</span>
+<span id="L83"><span class="lineNum">      83</span>              : }</span>
+<span id="L84"><span class="lineNum">      84</span>              : </span>
+<span id="L85"><span class="lineNum">      85</span>              : // metricsAt はパラメータベクトル p の下で全メトリクスを評価して返す。感度行列が全列を要するので</span>
+<span id="L86"><span class="lineNum">      86</span>              : // metricValue を全 idx について回す。</span>
+<span id="L87"><span class="lineNum">      87</span>              : func metricsAt(master oapi.Raws, p Params) []float64 {</span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC tlaBgGNC">           1 :         out := make([]float64, len(SensitivityMetricNames))</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         for i := range out {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 out[i] = metricValue(master, p, i)</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L93"><span class="lineNum">      93</span>              : }</span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              : // metricMovers は idx 番目のメトリクスを +10% 摂動で動かすつまみだけを抽出する。動かさないつまみは</span>
+<span id="L96"><span class="lineNum">      96</span>              : // そのメトリクスの交換・境界に参加できないので除く。境界マージンと交換レートが共用する。</span>
+<span id="L97"><span class="lineNum">      97</span>              : func metricMovers(master oapi.Raws, knobs []Knob, base float64, idx int) []Knob {</span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         movers := make([]Knob, 0, len(knobs))</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         for _, k := range knobs {</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 p := DefaultParams()</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 *k.Ptr(&amp;p) *= exchangePerturb</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 // 戦力比など非整数メトリクスの FP 誤差で誤判定しないよう、相対許容で動いたか見る。</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 if math.Abs(metricValue(master, p, idx)-base) &gt; 1e-9*math.Max(1, math.Abs(base)) {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                         movers = append(movers, k)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L106"><span class="lineNum">     106</span>              :         }</span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         return movers</span></span>
+<span id="L108"><span class="lineNum">     108</span>              : }</span>
+<span id="L109"><span class="lineNum">     109</span>              : </span>
+<span id="L110"><span class="lineNum">     110</span>              : // SensitivityCell は1つのメトリクスへの、つまみ+10%あたりの変化率。絶対値が大きいほど強い結合。</span>
+<span id="L111"><span class="lineNum">     111</span>              : type SensitivityCell struct {</span>
+<span id="L112"><span class="lineNum">     112</span>              :         Metric    string</span>
+<span id="L113"><span class="lineNum">     113</span>              :         PctChange float64 // (摂動値-現状)/現状 の百分率。つまみ+10%あたり</span>
+<span id="L114"><span class="lineNum">     114</span>              : }</span>
+<span id="L115"><span class="lineNum">     115</span>              : </span>
+<span id="L116"><span class="lineNum">     116</span>              : // KnobSensitivity は1つのつまみを+10%したときの、各メトリクスへの影響。</span>
+<span id="L117"><span class="lineNum">     117</span>              : type KnobSensitivity struct {</span>
+<span id="L118"><span class="lineNum">     118</span>              :         Knob   string</span>
+<span id="L119"><span class="lineNum">     119</span>              :         Domain string</span>
+<span id="L120"><span class="lineNum">     120</span>              :         Cells  []SensitivityCell</span>
+<span id="L121"><span class="lineNum">     121</span>              : }</span>
+<span id="L122"><span class="lineNum">     122</span>              : </span>
+<span id="L123"><span class="lineNum">     123</span>              : // CrossDomainSensitivity はドメイン横断の感度行列を返す。各つまみを+10%し全ドメインの代表メトリクスの変化を測る。</span>
+<span id="L124"><span class="lineNum">     124</span>              : // 多くはブロック対角で、横断するのは1日ターン数のような共通の分母だけ。</span>
+<span id="L125"><span class="lineNum">     125</span>              : func CrossDomainSensitivity(master oapi.Raws) []KnobSensitivity {</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams())</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         knobs := knobRegistry()</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         rows := make([]KnobSensitivity, 0, len(knobs))</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         for _, k := range knobs {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 p := DefaultParams()</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 *k.Ptr(&amp;p) *= 1.1</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 pert := metricsAt(master, p)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 cells := make([]SensitivityCell, len(SensitivityMetricNames))</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 for i := range SensitivityMetricNames {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         pct := 0.0</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         if base[i] != 0 {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                                 pct = (pert[i] - base[i]) / base[i] * 100</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                         cells[i] = SensitivityCell{Metric: SensitivityMetricNames[i], PctChange: pct}</span></span>
+<span id="L140"><span class="lineNum">     140</span>              :                 }</span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 rows = append(rows, KnobSensitivity{Knob: k.Name, Domain: k.Domain, Cells: cells})</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :         }</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         return rows</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-18 00:13:26</td>
+            <td class="headerValue">2026-09-18 15:05:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -234,7 +234,7 @@
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 LocationOnField: &amp;gc.LocationOnField{},</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 // 収納を持ち、隣接時にキューブメニューから開ける。オークションの出荷元も兼ねる</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 WeightCapacity: &amp;gc.WeightCapacity{Max: consts.Milligram(500 * consts.MilligramPerKg)},</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 WeightCapacity: &amp;gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 AuctionStation: &amp;gc.AuctionStation{},</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 // 直上で乗車、隣接でメニュー。BlockPass は持たず、直上に立てる通行可能な地物にする</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDrive, gc.InteractionOpenCubeMenu}},</span></span>

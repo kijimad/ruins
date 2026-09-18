@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - balance/internal/balance/targets.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">balance/internal/balance</a> - targets.go<span style="font-size: 80%;"> (source / <a href="targets.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">11</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-18 15:05:41</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package balance</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : )</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : // TargetCheck はドメイン横断のスカラー指標を目標帯と照合した1件。戦闘は日次カーブで内外を持つので</span>
+<span id="L9"><span class="lineNum">       9</span>              : // ここには入れず、日で変わらないスカラー指標だけを扱う。目標帯は設計仮説でプレイで見直す。</span>
+<span id="L10"><span class="lineNum">      10</span>              : type TargetCheck struct {</span>
+<span id="L11"><span class="lineNum">      11</span>              :         Domain string  // ドメイン名</span>
+<span id="L12"><span class="lineNum">      12</span>              :         Metric string  // 指標名と単位</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Value  float64 // 現状の導出値</span>
+<span id="L14"><span class="lineNum">      14</span>              :         Lo     float64 // 目標帯の下限</span>
+<span id="L15"><span class="lineNum">      15</span>              :         Hi     float64 // 目標帯の上限</span>
+<span id="L16"><span class="lineNum">      16</span>              : }</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : // InRange は現状値が目標帯 [Lo, Hi] に収まるかを返す。</span>
+<span id="L19"><span class="lineNum">      19</span>              : func (c TargetCheck) InRange() bool {</span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 :         return c.Value &gt;= c.Lo &amp;&amp; c.Value &lt;= c.Hi</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // DomainTargets は各ドメインのスカラー指標を現状値で評価し目標帯と照合する。目標帯は「静的下限がここに収まれば実プレイは</span>
+<span id="L24"><span class="lineNum">      24</span>              : // 少なくともこれだけ快適」という下限側の仮説。戦闘は日次カーブで別管理する。</span>
+<span id="L25"><span class="lineNum">      25</span>              : func DomainTargets() []TargetCheck {</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         p := DefaultParams()</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return []TargetCheck{</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 {&quot;生存・飢え&quot;, &quot;DaysUntilHungerEmpty(日)&quot;, DaysUntilHungerEmpty(p), 0.8, 1.3},</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 {&quot;生存・疲労&quot;, &quot;SleepTimeFraction&quot;, SleepTimeFraction(p), 0.20, 0.33},</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 {&quot;生存・寒さ&quot;, &quot;TurnsToHypothermia(0℃)&quot;, TurnsToHypothermia(0), 8, 20},</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 {&quot;物流&quot;, &quot;DriveRangeAllFuel(OIL満載,タイル)&quot;, DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg), 800, 1200},</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 {&quot;経済&quot;, &quot;AuctionTakeHomeRate(価値200,1kg)&quot;, AuctionTakeHomeRate(200, 1), 0.5, 0.85},</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 {&quot;進行・成長&quot;, &quot;AttacksToSkillLevel(能力0,Lv30)&quot;, float64(AttacksToSkillLevel(0, 30)), 1000, 2500},</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

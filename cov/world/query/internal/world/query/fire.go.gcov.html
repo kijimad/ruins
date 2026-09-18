@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-18 00:13:26</td>
+            <td class="headerValue">2026-09-18 15:05:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,28 +72,32 @@
 <span id="L10"><span class="lineNum">      10</span>              : // 効率は熱の強さでなく燃焼時間に効く。良い火の見返りは暖かさでなく薪の節約になる</span>
 <span id="L11"><span class="lineNum">      11</span>              : const groundBurnEfficiency = 50</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span>              : // BurnEfficiency は火が燃えている場所の燃焼効率をパーセントで返す。</span>
-<span id="L14"><span class="lineNum">      14</span>              : // 今は地面直だけなので定数。将来かまどを足すときは Hearth の効率をここで分ける。</span>
-<span id="L15"><span class="lineNum">      15</span>              : // 燃料を燃やし始めるたびにこの値を引くので、後からかまどを足しても同じ機構に載る</span>
-<span id="L16"><span class="lineNum">      16</span>              : func BurnEfficiency(_ w.World, _ ecs.Entity) int {</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">           1 :         return groundBurnEfficiency</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span>              : // EstimateBurnTurns は火があと何ターン燃えるかを返す。</span>
-<span id="L21"><span class="lineNum">      21</span>              : // 火は燃料を貯めず残量だけを持ち、残量は毎ターン1ずつ減るので残量がそのままターン数になる。</span>
-<span id="L22"><span class="lineNum">      22</span>              : // 燃えていなければ0</span>
-<span id="L23"><span class="lineNum">      23</span>              : func EstimateBurnTurns(world w.World, fire ecs.Entity) consts.Turn {</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if !world.Components.Burning.Has(fire) {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return world.Components.Burning.Get(fire).Remaining</span></span>
-<span id="L28"><span class="lineNum">      28</span>              : }</span>
-<span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span>              : // FuelBurnTurns は fuel を fire へくべたとき増える燃焼ターン数を返す。</span>
-<span id="L31"><span class="lineNum">      31</span>              : // 熱量を火の場所の効率で割り引いた値で、給油メニューの「+Nターン」表示に使う</span>
-<span id="L32"><span class="lineNum">      32</span>              : func FuelBurnTurns(world w.World, fire ecs.Entity, fuel ecs.Entity) consts.Turn {</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         return HeatContent(world, fuel).BurnTurns(BurnEfficiency(world, fire))</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L13"><span class="lineNum">      13</span>              : // GroundBurnEfficiency は地面直の火の燃焼効率をパーセントで返す公開窓。バランス導出が燃料の</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 燃焼ターンを world 抜きで算出するのに使う。</span>
+<span id="L15"><span class="lineNum">      15</span>              : const GroundBurnEfficiency = groundBurnEfficiency</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // BurnEfficiency は火が燃えている場所の燃焼効率をパーセントで返す。</span>
+<span id="L18"><span class="lineNum">      18</span>              : // 今は地面直だけなので定数。将来かまどを足すときは Hearth の効率をここで分ける。</span>
+<span id="L19"><span class="lineNum">      19</span>              : // 燃料を燃やし始めるたびにこの値を引くので、後からかまどを足しても同じ機構に載る</span>
+<span id="L20"><span class="lineNum">      20</span>              : func BurnEfficiency(_ w.World, _ ecs.Entity) int {</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 :         return groundBurnEfficiency</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // EstimateBurnTurns は火があと何ターン燃えるかを返す。</span>
+<span id="L25"><span class="lineNum">      25</span>              : // 火は燃料を貯めず残量だけを持ち、残量は毎ターン1ずつ減るので残量がそのままターン数になる。</span>
+<span id="L26"><span class="lineNum">      26</span>              : // 燃えていなければ0</span>
+<span id="L27"><span class="lineNum">      27</span>              : func EstimateBurnTurns(world w.World, fire ecs.Entity) consts.Turn {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         if !world.Components.Burning.Has(fire) {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return world.Components.Burning.Get(fire).Remaining</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // FuelBurnTurns は fuel を fire へくべたとき増える燃焼ターン数を返す。</span>
+<span id="L35"><span class="lineNum">      35</span>              : // 熱量を火の場所の効率で割り引いた値で、給油メニューの「+Nターン」表示に使う</span>
+<span id="L36"><span class="lineNum">      36</span>              : func FuelBurnTurns(world w.World, fire ecs.Entity, fuel ecs.Entity) consts.Turn {</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return HeatContent(world, fuel).BurnTurns(BurnEfficiency(world, fire))</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

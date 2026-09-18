@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - balance/internal/balance/params.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">balance/internal/balance</a> - params.go<span style="font-size: 80%;"> (source / <a href="params.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-18 15:05:41</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package balance</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : )</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : // Params はバランス導出が参照する全つまみを1つに集約したベクトル。導出はこの純関数として書き、感度・交換・探索は</span>
+<span id="L9"><span class="lineNum">       9</span>              : // 成分を摂動する汎用機械になる。成分はゲーム定数を写した絶対値と、集計へ掛ける倍率の2種。絶対値は DefaultParams</span>
+<span id="L10"><span class="lineNum">      10</span>              : // だけがゲーム定数から取り込み、接点を1箇所に限る。</span>
+<span id="L11"><span class="lineNum">      11</span>              : type Params struct {</span>
+<span id="L12"><span class="lineNum">      12</span>              :         // 時間。日換算メトリクスの共通分母</span>
+<span id="L13"><span class="lineNum">      13</span>              :         TurnsPerDay float64</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              :         // 生存</span>
+<span id="L16"><span class="lineNum">      16</span>              :         MaxHunger           float64 // 最大満腹度</span>
+<span id="L17"><span class="lineNum">      17</span>              :         HungerDrainTurns    float64 // 満腹度1点の減耗に要する期待ターン数</span>
+<span id="L18"><span class="lineNum">      18</span>              :         HungerStarvingRatio float64 // 栄養失調に入る満腹度割合のしきい値</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              :         // 疲労</span>
+<span id="L21"><span class="lineNum">      21</span>              :         MaxFatigue            float64 // 最大疲労</span>
+<span id="L22"><span class="lineNum">      22</span>              :         FatigueGainPerTurn    float64 // 起床時に毎ターン溜まる疲労量</span>
+<span id="L23"><span class="lineNum">      23</span>              :         FatigueRecoverPerTurn float64 // 基準の寝床で毎ターン抜ける疲労量</span>
+<span id="L24"><span class="lineNum">      24</span>              :         FatigueTiredRatio     float64 // 疲労状態に入る割合のしきい値</span>
+<span id="L25"><span class="lineNum">      25</span>              :         FatigueExhaustedRatio float64 // 過労状態に入る割合のしきい値</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              :         // 倍率つまみ。1が現状</span>
+<span id="L28"><span class="lineNum">      28</span>              :         EnemyWeaponScale    float64 // 敵武器の近接ダメージ倍率</span>
+<span id="L29"><span class="lineNum">      29</span>              :         PlayerStrengthScale float64 // 基準プレイヤーの筋力倍率</span>
+<span id="L30"><span class="lineNum">      30</span>              :         FuelHeatScale       float64 // 燃料熱量の倍率</span>
+<span id="L31"><span class="lineNum">      31</span>              :         LootValueScale      float64 // loot期待価値の倍率</span>
+<span id="L32"><span class="lineNum">      32</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // DefaultParams は現行のゲーム定数から初期化した基準ベクトルを返す。</span>
+<span id="L35"><span class="lineNum">      35</span>              : // ゲーム定数との接点はこの関数だけに限り、定数が変われば導出も自動追従する。</span>
+<span id="L36"><span class="lineNum">      36</span>              : func DefaultParams() Params {</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           1 :         return Params{</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 TurnsPerDay: float64(gc.TurnsPerDay),</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 MaxHunger:           float64(gc.DefaultMaxHunger),</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 HungerDrainTurns:    float64(gc.HungerDrainTurns),</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 HungerStarvingRatio: gc.HungerStarvingRatio,</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 MaxFatigue:            float64(gc.DefaultMaxFatigue),</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 FatigueGainPerTurn:    float64(gc.FatigueGainPerTurn),</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 FatigueRecoverPerTurn: float64(systems.FatigueRecoverPerTurn),</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 FatigueTiredRatio:     gc.FatigueTiredRatio,</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 FatigueExhaustedRatio: gc.FatigueExhaustedRatio,</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 EnemyWeaponScale:    1,</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 PlayerStrengthScale: 1,</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 FuelHeatScale:       1,</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 LootValueScale:      1,</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">14</td>
-            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">26</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-18 00:13:26</td>
+            <td class="headerValue">2026-09-18 15:05:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,38 +67,65 @@
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
-<span id="L8"><span class="lineNum">       8</span>              : // hungerDrainPerTurn は空腹進行が基準100%のときの1ターンあたり満腹度減耗を返す。</span>
-<span id="L9"><span class="lineNum">       9</span>              : // systems/hunger.go の確率ゲート pct/(PercentBase*HungerDrainTurns) は、pct=PercentBase の基準で</span>
-<span id="L10"><span class="lineNum">      10</span>              : // 1/HungerDrainTurns に約分される。その期待値を導出に使う。</span>
-<span id="L11"><span class="lineNum">      11</span>              : func hungerDrainPerTurn() float64 {</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         return 1.0 / float64(gc.HungerDrainTurns)</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span>              : // DaysUntilHungerEmpty は満腹から補給なしで満腹度が尽きるまでの日数を返す。</span>
-<span id="L16"><span class="lineNum">      16</span>              : func DaysUntilHungerEmpty() float64 {</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         turns := float64(gc.DefaultMaxHunger) / hungerDrainPerTurn()</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         return turns / float64(gc.TurnsPerDay)</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L20"><span class="lineNum">      20</span>              : </span>
-<span id="L21"><span class="lineNum">      21</span>              : // DaysUntilStarving は満腹から栄養失調に入るまでの日数を返す。空腹度が飢餓しきい値を割ると栄養失調になる。</span>
-<span id="L22"><span class="lineNum">      22</span>              : // しきい値は components の単一出典 HungerStarvingRatio を参照し、ゲーム側の変更に追従する。</span>
-<span id="L23"><span class="lineNum">      23</span>              : func DaysUntilStarving() float64 {</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         lost := float64(gc.DefaultMaxHunger) * (1 - gc.HungerStarvingRatio)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         turns := lost / hungerDrainPerTurn()</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return turns / float64(gc.TurnsPerDay)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span>              : // TurnsToHypothermia は実効温度で低体温が発生し始めるまでのターン数を返す。実効温度は</span>
-<span id="L30"><span class="lineNum">      30</span>              : // 周囲温度に断熱を足した値。体温は systems.CalcBodyTempRate の速さで平熱から冷え、低体温帯</span>
-<span id="L31"><span class="lineNum">      31</span>              : // BodyTempColdBand を割るとタイマーが進み始める。</span>
-<span id="L32"><span class="lineNum">      32</span>              : // rate は温まる向きが正・冷える向きが負。冷えない適温すなわち rate &gt;= 0 では低体温に至らず 0 を返す。</span>
-<span id="L33"><span class="lineNum">      33</span>              : func TurnsToHypothermia(effectiveTemp int) float64 {</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         rate := systems.CalcBodyTempRate(effectiveTemp)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         if rate &gt;= 0 {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return systems.BodyTempColdBand / -rate</span></span>
-<span id="L39"><span class="lineNum">      39</span>              : }</span>
+<span id="L8"><span class="lineNum">       8</span>              : // hungerDrainPerTurn は空腹進行が基準100%のときの1ターンあたり満腹度減耗を返す。systems の確率ゲートは基準で</span>
+<span id="L9"><span class="lineNum">       9</span>              : // 1/HungerDrainTurns に約分され、その期待値を導出に使う。</span>
+<span id="L10"><span class="lineNum">      10</span>              : func hungerDrainPerTurn(p Params) float64 {</span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">           1 :         return 1.0 / p.HungerDrainTurns</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              : // DaysUntilHungerEmpty は満腹から補給なしで満腹度が尽きるまでの日数を返す。</span>
+<span id="L15"><span class="lineNum">      15</span>              : func DaysUntilHungerEmpty(p Params) float64 {</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         turns := p.MaxHunger / hungerDrainPerTurn(p)</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return turns / p.TurnsPerDay</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // DaysUntilStarving は満腹から栄養失調に入るまでの日数を返す。減耗は1ターン 1/HungerDrainTurns なので、飢餓しきい値まで</span>
+<span id="L21"><span class="lineNum">      21</span>              : // 失う量に HungerDrainTurns を掛けてターン数にする。</span>
+<span id="L22"><span class="lineNum">      22</span>              : func DaysUntilStarving(p Params) float64 {</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         lost := p.MaxHunger * (1 - p.HungerStarvingRatio)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         turns := lost * p.HungerDrainTurns</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return turns / p.TurnsPerDay</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // HPDrainPerTurnAtBlood は血液量から失血による1ターンのHP減少量を返す。状態異常→血液低下→HP減の</span>
+<span id="L29"><span class="lineNum">      29</span>              : // 連鎖の終端。血液は components.BloodLossHPDrainRate の単一出典を参照する。</span>
+<span id="L30"><span class="lineNum">      30</span>              : func HPDrainPerTurnAtBlood(blood int) int {</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return gc.BloodLossHPDrainRate(blood)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // DaysUntilTired は起床し続けて疲労状態になるまでの日数を返す。疲労は毎ターン一定量たまる。</span>
+<span id="L35"><span class="lineNum">      35</span>              : func DaysUntilTired(p Params) float64 {</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         turns := p.FatigueTiredRatio * p.MaxFatigue / p.FatigueGainPerTurn</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return turns / p.TurnsPerDay</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : // DaysUntilExhausted は起床し続けて過労状態になるまでの日数を返す。</span>
+<span id="L41"><span class="lineNum">      41</span>              : func DaysUntilExhausted(p Params) float64 {</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         turns := p.FatigueExhaustedRatio * p.MaxFatigue / p.FatigueGainPerTurn</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return turns / p.TurnsPerDay</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : // SleepTurnsToFullRecover は満タンの疲労を地べた基準の睡眠で回復し切るターン数を返す。整数回復で0以下になった時点で</span>
+<span id="L47"><span class="lineNum">      47</span>              : // 目覚めるため、実ターン数はこの値の切り上げ。</span>
+<span id="L48"><span class="lineNum">      48</span>              : func SleepTurnsToFullRecover(p Params) float64 {</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return p.MaxFatigue / p.FatigueRecoverPerTurn</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : // SleepTimeFraction は疲労を釣り合わせるのに時間のどれだけを睡眠へ充てるかの割合を返す。起床は FatigueGainPerTurn 溜まり</span>
+<span id="L53"><span class="lineNum">      53</span>              : // 睡眠は FatigueRecoverPerTurn 抜けるので、gain/(gain+recover) が定常の睡眠時間比になる。</span>
+<span id="L54"><span class="lineNum">      54</span>              : func SleepTimeFraction(p Params) float64 {</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         return p.FatigueGainPerTurn / (p.FatigueGainPerTurn + p.FatigueRecoverPerTurn)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : // TurnsToHypothermia は実効温度で低体温が始まるまでのターン数を返す。実効温度は周囲温度に断熱を足した値。</span>
+<span id="L59"><span class="lineNum">      59</span>              : // rate は温まる向きが正・冷える向きが負で、冷えない適温 rate&gt;=0 では低体温に至らず 0 を返す。</span>
+<span id="L60"><span class="lineNum">      60</span>              : func TurnsToHypothermia(effectiveTemp int) float64 {</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         rate := systems.CalcBodyTempRate(effectiveTemp)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         if rate &gt;= 0 {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         return systems.BodyTempColdBand / -rate</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
         </pre>
               </td>
             </tr>

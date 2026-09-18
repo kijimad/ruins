@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">84.0&nbsp;%</td>
-            <td class="headerCovTableEntry">212</td>
-            <td class="headerCovTableEntry">178</td>
+            <td class="headerCovTableEntryMed">84.2&nbsp;%</td>
+            <td class="headerCovTableEntry">215</td>
+            <td class="headerCovTableEntry">181</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-18 00:13:26</td>
+            <td class="headerValue">2026-09-18 15:05:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -563,128 +563,136 @@
 <span id="L501"><span class="lineNum">     501</span>              : // BloodLossHPDrain は血液量の低下による毎ターンの HP 減少量と死因を返す。</span>
 <span id="L502"><span class="lineNum">     502</span>              : // 血液量が危険域を下回ると、不足に応じてじわじわ HP を削る。失血・凍死・衰弱死はすべてここを通る</span>
 <span id="L503"><span class="lineNum">     503</span>              : func (hs *HealthStatus) BloodLossHPDrain() (int, DeathCause) {</span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :         blood := int(hs.BodyFuncs().Blood)</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         if blood &gt;= bloodCriticalThreshold {</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :         drain := BloodLossHPDrainRate(int(hs.BodyFuncs().Blood))</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         if drain == 0 {</span></span>
 <span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 return 0, &quot;&quot;</span></span>
 <span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :         deficit := bloodCriticalThreshold - blood</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :         drain := (deficit + bloodDrainStep - 1) / bloodDrainStep</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 :         return drain, hs.bloodLossCause()</span></span>
-<span id="L511"><span class="lineNum">     511</span>              : }</span>
-<span id="L512"><span class="lineNum">     512</span>              : </span>
-<span id="L513"><span class="lineNum">     513</span>              : // bloodLossCause は血液量を最も下げている不調の死因を返す。該当が無ければ失血に落とす</span>
-<span id="L514"><span class="lineNum">     514</span>              : func (hs *HealthStatus) bloodLossCause() DeathCause {</span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         cause := CauseBloodLoss</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         best := 0</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :         for i := range hs.Parts {</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :                 for j := range hs.Parts[i].Conditions {</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                         c := &amp;hs.Parts[i].Conditions[j]</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :                         if d := conditionBloodDrop(c); d &gt; best {</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :                                 best = d</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :                                 if def := conditionDefs[c.Type]; def.Cause != &quot;&quot; {</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :                                         cause = def.Cause</span></span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L525"><span class="lineNum">     525</span>              :                         }</span>
-<span id="L526"><span class="lineNum">     526</span>              :                 }</span>
-<span id="L527"><span class="lineNum">     527</span>              :         }</span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :         return cause</span></span>
-<span id="L529"><span class="lineNum">     529</span>              : }</span>
-<span id="L530"><span class="lineNum">     530</span>              : </span>
-<span id="L531"><span class="lineNum">     531</span>              : // IsHPDraining はいま HP を削る要因があるかを返す。血液量が危険域なら削っている。</span>
-<span id="L532"><span class="lineNum">     532</span>              : // 削っているあいだは自然回復を止め、減っているのを読み取れるようにする</span>
-<span id="L533"><span class="lineNum">     533</span>              : func (hs *HealthStatus) IsHPDraining() bool {</span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC tlaBgUNC">           0 :         drain, _ := hs.BloodLossHPDrain()</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :         return drain &gt; 0</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L537"><span class="lineNum">     537</span>              : </span>
-<span id="L538"><span class="lineNum">     538</span>              : // BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。</span>
-<span id="L539"><span class="lineNum">     539</span>              : // 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を全体乗数として局所機能へ掛ける。</span>
-<span id="L540"><span class="lineNum">     540</span>              : // needConds に全身性の不調を渡すと保存された不調と一緒に集約する。渡さなければ保存された不調だけで導出する</span>
-<span id="L541"><span class="lineNum">     541</span>              : func (hs *HealthStatus) BodyFuncs(needConds ...HealthCondition) BodyFuncs {</span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC tlaBgGNC">           1 :         pain := 0</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :         bloodDrop := 0</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :         var manip, moving, sight, systemic int // 各機能の低下量</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :         for i := range hs.Parts {</span></span>
-<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :                 for j := range hs.Parts[i].Conditions {</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :                         cond := &amp;hs.Parts[i].Conditions[j]</span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :                         p, drop := conditionSeverityImpact(cond)</span></span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           1 :                         pain += p</span></span>
-<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :                         bloodDrop += conditionBloodDrop(cond)</span></span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :                         switch bodyPartFunction(BodyPart(i)) {</span></span>
-<span id="L552"><span class="lineNum">     552</span>              :                         case BodyFuncManipulation:</span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 :                                 manip += drop</span></span>
-<span id="L554"><span class="lineNum">     554</span>              :                         case BodyFuncMoving:</span>
-<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :                                 moving += drop</span></span>
-<span id="L556"><span class="lineNum">     556</span>              :                         case BodyFuncSight:</span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 :                                 sight += drop</span></span>
-<span id="L558"><span class="lineNum">     558</span>              :                         case BodyFuncConsciousness:</span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           1 :                                 systemic += drop</span></span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC tlaBgUNC">           0 :                         case BodyFuncMetabolism:</span></span>
-<span id="L561"><span class="lineNum">     561</span>              :                                 // 代謝は部位に割り当てない。疲労・空腹の不調から下記で導く</span>
-<span id="L562"><span class="lineNum">     562</span>              :                         }</span>
-<span id="L563"><span class="lineNum">     563</span>              :                 }</span>
-<span id="L564"><span class="lineNum">     564</span>              :         }</span>
-<span id="L565"><span class="lineNum">     565</span>              : </span>
-<span id="L566"><span class="lineNum">     566</span>              :         // 疲労・空腹の不調は全身性。意識へ集約し、代謝を下げる量 needDrop としても集計する</span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC tlaBgGNC">           1 :         needDrop := 0</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 :         for i := range needConds {</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC tlaBgUNC">           0 :                 p, drop := conditionSeverityImpact(&amp;needConds[i])</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 pain += p</span></span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :                 systemic += drop</span></span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :                 needDrop += drop</span></span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L574"><span class="lineNum">     574</span>              : </span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC tlaBgGNC">           1 :         pain = clamp(pain, 0, 100)</span></span>
-<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">           1 :         // 意識は全身性の低下と痛みで下がる。怪我・病気・過労・栄養失調がすべて systemic へ集約されている</span></span>
-<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">           1 :         consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)</span></span>
-<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           1 :         // 局所機能は低下を引いたうえで意識を全体乗数として掛ける</span></span>
-<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :         withConsciousness := func(local int) consts.Percent {</span></span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           1 :                 return consts.Percent(clamp(local, 0, 100) * consciousness / 100)</span></span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">           1 :         return BodyFuncs{</span></span>
-<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           1 :                 Pain:          consts.Percent(pain),</span></span>
-<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :                 Blood:         consts.Percent(clamp(100-bloodDrop, 0, 100)),</span></span>
-<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :                 Consciousness: consts.Percent(consciousness),</span></span>
-<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :                 Manipulation:  withConsciousness(100 - manip),</span></span>
-<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :                 Moving:        withConsciousness(100 - moving),</span></span>
-<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :                 Sight:         withConsciousness(100 - sight),</span></span>
-<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 :                 // 代謝は回復の身体機能側。過労・栄養失調でだけ下がり、痛み・全身病は含めない</span></span>
-<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           1 :                 Metabolism: consts.Percent(clamp(100-needDrop, 0, 100)),</span></span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L592"><span class="lineNum">     592</span>              : }</span>
-<span id="L593"><span class="lineNum">     593</span>              : </span>
-<span id="L594"><span class="lineNum">     594</span>              : // ConsciousnessDrops は意識を下げる不調由来の内訳を返す。全身性の低下ぶんと痛みぶんに分けて返す。</span>
-<span id="L595"><span class="lineNum">     595</span>              : // 疲労・空腹は量由来で保存しないため含めない。呼び出し側が量から足す。内訳表示に使う</span>
-<span id="L596"><span class="lineNum">     596</span>              : func (hs *HealthStatus) ConsciousnessDrops() (systemic, pain int) {</span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC tlaBgUNC">           0 :         rawPain := 0</span></span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :         for i := range hs.Parts {</span></span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :                 for j := range hs.Parts[i].Conditions {</span></span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :                         cond := &amp;hs.Parts[i].Conditions[j]</span></span>
-<span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :                         p, drop := conditionSeverityImpact(cond)</span></span>
-<span id="L602"><span class="lineNum">     602</span> <span class="tlaUNC">           0 :                         rawPain += p</span></span>
-<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :                         if bodyPartFunction(BodyPart(i)) == BodyFuncConsciousness {</span></span>
-<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :                                 systemic += drop</span></span>
-<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L606"><span class="lineNum">     606</span>              :                 }</span>
-<span id="L607"><span class="lineNum">     607</span>              :         }</span>
-<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :         return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor</span></span>
-<span id="L609"><span class="lineNum">     609</span>              : }</span>
-<span id="L610"><span class="lineNum">     610</span>              : </span>
-<span id="L611"><span class="lineNum">     611</span>              : // LocalDrop は指定した局所身体機能を下げる部位の不調ぶんを返す。意識の 全体乗数を掛ける前の局所低下で、</span>
-<span id="L612"><span class="lineNum">     612</span>              : // 局所機能の内訳表示に使う。全身性の Consciousness を渡すと 0 を返す</span>
-<span id="L613"><span class="lineNum">     613</span>              : func (hs *HealthStatus) LocalDrop(bf BodyFuncKind) int {</span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaUNC">           0 :         drop := 0</span></span>
-<span id="L615"><span class="lineNum">     615</span> <span class="tlaUNC">           0 :         for i := range hs.Parts {</span></span>
-<span id="L616"><span class="lineNum">     616</span> <span class="tlaUNC">           0 :                 if bodyPartFunction(BodyPart(i)) != bf {</span></span>
-<span id="L617"><span class="lineNum">     617</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L618"><span class="lineNum">     618</span>              :                 }</span>
-<span id="L619"><span class="lineNum">     619</span> <span class="tlaUNC">           0 :                 for j := range hs.Parts[i].Conditions {</span></span>
-<span id="L620"><span class="lineNum">     620</span> <span class="tlaUNC">           0 :                         _, d := conditionSeverityImpact(&amp;hs.Parts[i].Conditions[j])</span></span>
-<span id="L621"><span class="lineNum">     621</span> <span class="tlaUNC">           0 :                         drop += d</span></span>
-<span id="L622"><span class="lineNum">     622</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L623"><span class="lineNum">     623</span>              :         }</span>
-<span id="L624"><span class="lineNum">     624</span> <span class="tlaUNC">           0 :         return drop</span></span>
-<span id="L625"><span class="lineNum">     625</span>              : }</span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :         return drain, hs.bloodLossCause()</span></span>
+<span id="L509"><span class="lineNum">     509</span>              : }</span>
+<span id="L510"><span class="lineNum">     510</span>              : </span>
+<span id="L511"><span class="lineNum">     511</span>              : // BloodLossHPDrainRate は血液量から失血による1ターンのHP減少量を返す純関数。危険域 bloodCriticalThreshold</span>
+<span id="L512"><span class="lineNum">     512</span>              : // 以上なら0、下回るほど段階的に増える。バランス導出が血液→HPの連鎖を単一出典で評価できるよう公開する。</span>
+<span id="L513"><span class="lineNum">     513</span>              : func BloodLossHPDrainRate(blood int) int {</span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :         if blood &gt;= bloodCriticalThreshold {</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :         deficit := bloodCriticalThreshold - blood</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :         return (deficit + bloodDrainStep - 1) / bloodDrainStep</span></span>
+<span id="L519"><span class="lineNum">     519</span>              : }</span>
+<span id="L520"><span class="lineNum">     520</span>              : </span>
+<span id="L521"><span class="lineNum">     521</span>              : // bloodLossCause は血液量を最も下げている不調の死因を返す。該当が無ければ失血に落とす</span>
+<span id="L522"><span class="lineNum">     522</span>              : func (hs *HealthStatus) bloodLossCause() DeathCause {</span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :         cause := CauseBloodLoss</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :         best := 0</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :         for i := range hs.Parts {</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :                 for j := range hs.Parts[i].Conditions {</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :                         c := &amp;hs.Parts[i].Conditions[j]</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :                         if d := conditionBloodDrop(c); d &gt; best {</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :                                 best = d</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :                                 if def := conditionDefs[c.Type]; def.Cause != &quot;&quot; {</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :                                         cause = def.Cause</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L533"><span class="lineNum">     533</span>              :                         }</span>
+<span id="L534"><span class="lineNum">     534</span>              :                 }</span>
+<span id="L535"><span class="lineNum">     535</span>              :         }</span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :         return cause</span></span>
+<span id="L537"><span class="lineNum">     537</span>              : }</span>
+<span id="L538"><span class="lineNum">     538</span>              : </span>
+<span id="L539"><span class="lineNum">     539</span>              : // IsHPDraining はいま HP を削る要因があるかを返す。血液量が危険域なら削っている。</span>
+<span id="L540"><span class="lineNum">     540</span>              : // 削っているあいだは自然回復を止め、減っているのを読み取れるようにする</span>
+<span id="L541"><span class="lineNum">     541</span>              : func (hs *HealthStatus) IsHPDraining() bool {</span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC tlaBgUNC">           0 :         drain, _ := hs.BloodLossHPDrain()</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :         return drain &gt; 0</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L545"><span class="lineNum">     545</span>              : </span>
+<span id="L546"><span class="lineNum">     546</span>              : // BodyFuncs は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。</span>
+<span id="L547"><span class="lineNum">     547</span>              : // 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識を全体乗数として局所機能へ掛ける。</span>
+<span id="L548"><span class="lineNum">     548</span>              : // needConds に全身性の不調を渡すと保存された不調と一緒に集約する。渡さなければ保存された不調だけで導出する</span>
+<span id="L549"><span class="lineNum">     549</span>              : func (hs *HealthStatus) BodyFuncs(needConds ...HealthCondition) BodyFuncs {</span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC tlaBgGNC">           1 :         pain := 0</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :         bloodDrop := 0</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :         var manip, moving, sight, systemic int // 各機能の低下量</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 :         for i := range hs.Parts {</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :                 for j := range hs.Parts[i].Conditions {</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :                         cond := &amp;hs.Parts[i].Conditions[j]</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :                         p, drop := conditionSeverityImpact(cond)</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 :                         pain += p</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           1 :                         bloodDrop += conditionBloodDrop(cond)</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           1 :                         switch bodyPartFunction(BodyPart(i)) {</span></span>
+<span id="L560"><span class="lineNum">     560</span>              :                         case BodyFuncManipulation:</span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :                                 manip += drop</span></span>
+<span id="L562"><span class="lineNum">     562</span>              :                         case BodyFuncMoving:</span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :                                 moving += drop</span></span>
+<span id="L564"><span class="lineNum">     564</span>              :                         case BodyFuncSight:</span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">           1 :                                 sight += drop</span></span>
+<span id="L566"><span class="lineNum">     566</span>              :                         case BodyFuncConsciousness:</span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 :                                 systemic += drop</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC tlaBgUNC">           0 :                         case BodyFuncMetabolism:</span></span>
+<span id="L569"><span class="lineNum">     569</span>              :                                 // 代謝は部位に割り当てない。疲労・空腹の不調から下記で導く</span>
+<span id="L570"><span class="lineNum">     570</span>              :                         }</span>
+<span id="L571"><span class="lineNum">     571</span>              :                 }</span>
+<span id="L572"><span class="lineNum">     572</span>              :         }</span>
+<span id="L573"><span class="lineNum">     573</span>              : </span>
+<span id="L574"><span class="lineNum">     574</span>              :         // 疲労・空腹の不調は全身性。意識へ集約し、代謝を下げる量 needDrop としても集計する</span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC tlaBgGNC">           1 :         needDrop := 0</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">           1 :         for i := range needConds {</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC tlaBgUNC">           0 :                 p, drop := conditionSeverityImpact(&amp;needConds[i])</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :                 pain += p</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :                 systemic += drop</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :                 needDrop += drop</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L582"><span class="lineNum">     582</span>              : </span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC tlaBgGNC">           1 :         pain = clamp(pain, 0, 100)</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :         // 意識は全身性の低下と痛みで下がる。怪我・病気・過労・栄養失調がすべて systemic へ集約されている</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :         consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :         // 局所機能は低下を引いたうえで意識を全体乗数として掛ける</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         withConsciousness := func(local int) consts.Percent {</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :                 return consts.Percent(clamp(local, 0, 100) * consciousness / 100)</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           1 :         return BodyFuncs{</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           1 :                 Pain:          consts.Percent(pain),</span></span>
+<span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">           1 :                 Blood:         consts.Percent(clamp(100-bloodDrop, 0, 100)),</span></span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           1 :                 Consciousness: consts.Percent(consciousness),</span></span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           1 :                 Manipulation:  withConsciousness(100 - manip),</span></span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 :                 Moving:        withConsciousness(100 - moving),</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :                 Sight:         withConsciousness(100 - sight),</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :                 // 代謝は回復の身体機能側。過労・栄養失調でだけ下がり、痛み・全身病は含めない</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 :                 Metabolism: consts.Percent(clamp(100-needDrop, 0, 100)),</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L600"><span class="lineNum">     600</span>              : }</span>
+<span id="L601"><span class="lineNum">     601</span>              : </span>
+<span id="L602"><span class="lineNum">     602</span>              : // ConsciousnessDrops は意識を下げる不調由来の内訳を返す。全身性の低下ぶんと痛みぶんに分けて返す。</span>
+<span id="L603"><span class="lineNum">     603</span>              : // 疲労・空腹は量由来で保存しないため含めない。呼び出し側が量から足す。内訳表示に使う</span>
+<span id="L604"><span class="lineNum">     604</span>              : func (hs *HealthStatus) ConsciousnessDrops() (systemic, pain int) {</span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC tlaBgUNC">           0 :         rawPain := 0</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :         for i := range hs.Parts {</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :                 for j := range hs.Parts[i].Conditions {</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :                         cond := &amp;hs.Parts[i].Conditions[j]</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                         p, drop := conditionSeverityImpact(cond)</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :                         rawPain += p</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :                         if bodyPartFunction(BodyPart(i)) == BodyFuncConsciousness {</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaUNC">           0 :                                 systemic += drop</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L614"><span class="lineNum">     614</span>              :                 }</span>
+<span id="L615"><span class="lineNum">     615</span>              :         }</span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaUNC">           0 :         return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor</span></span>
+<span id="L617"><span class="lineNum">     617</span>              : }</span>
+<span id="L618"><span class="lineNum">     618</span>              : </span>
+<span id="L619"><span class="lineNum">     619</span>              : // LocalDrop は指定した局所身体機能を下げる部位の不調ぶんを返す。意識の 全体乗数を掛ける前の局所低下で、</span>
+<span id="L620"><span class="lineNum">     620</span>              : // 局所機能の内訳表示に使う。全身性の Consciousness を渡すと 0 を返す</span>
+<span id="L621"><span class="lineNum">     621</span>              : func (hs *HealthStatus) LocalDrop(bf BodyFuncKind) int {</span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaUNC">           0 :         drop := 0</span></span>
+<span id="L623"><span class="lineNum">     623</span> <span class="tlaUNC">           0 :         for i := range hs.Parts {</span></span>
+<span id="L624"><span class="lineNum">     624</span> <span class="tlaUNC">           0 :                 if bodyPartFunction(BodyPart(i)) != bf {</span></span>
+<span id="L625"><span class="lineNum">     625</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L626"><span class="lineNum">     626</span>              :                 }</span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaUNC">           0 :                 for j := range hs.Parts[i].Conditions {</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaUNC">           0 :                         _, d := conditionSeverityImpact(&amp;hs.Parts[i].Conditions[j])</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaUNC">           0 :                         drop += d</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L631"><span class="lineNum">     631</span>              :         }</span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaUNC">           0 :         return drop</span></span>
+<span id="L633"><span class="lineNum">     633</span>              : }</span>
         </pre>
               </td>
             </tr>
