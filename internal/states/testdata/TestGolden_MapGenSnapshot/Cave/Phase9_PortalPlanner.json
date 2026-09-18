@@ -37568,49 +37568,43 @@
     {
       "X": 40,
       "Y": 36,
-      "Name": "toothbrush_set",
+      "Name": "field_dressing",
       "Count": 1
     },
     {
       "X": 23,
       "Y": 34,
-      "Name": "grape_soda",
+      "Name": "naan",
       "Count": 1
     },
     {
       "X": 10,
       "Y": 34,
-      "Name": "energy_bar",
+      "Name": "smoked_fish",
       "Count": 1
     },
     {
       "X": 13,
       "Y": 0,
-      "Name": "cured_sausage",
+      "Name": "hawaiian_soda",
       "Count": 1
     },
     {
       "X": 39,
       "Y": 21,
-      "Name": "pizza",
-      "Count": 1
+      "Name": "dummy_ration",
+      "Count": 2
     },
     {
       "X": 3,
       "Y": 24,
-      "Name": "cookie",
+      "Name": "donut",
       "Count": 1
     },
     {
       "X": 45,
       "Y": 3,
-      "Name": "antidote",
-      "Count": 1
-    },
-    {
-      "X": 38,
-      "Y": 23,
-      "Name": "winter_gloves",
+      "Name": "field_dressing",
       "Count": 1
     }
   ],
@@ -37618,8 +37612,8 @@
   "Doors": [],
   "NextPortals": [
     {
-      "X": 36,
-      "Y": 32
+      "X": 19,
+      "Y": 17
     }
   ],
   "SpawnPoints": null

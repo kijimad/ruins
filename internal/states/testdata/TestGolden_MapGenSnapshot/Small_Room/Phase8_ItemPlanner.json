@@ -38647,7 +38647,7 @@
     {
       "X": 16,
       "Y": 2,
-      "Name": "dried_meat",
+      "Name": "lemon_soda",
       "Count": 1
     },
     {
@@ -38659,7 +38659,7 @@
     {
       "X": 34,
       "Y": 49,
-      "Name": "healing_potion",
+      "Name": "green_herb",
       "Count": 1
     },
     {
@@ -38671,7 +38671,7 @@
     {
       "X": 45,
       "Y": 31,
-      "Name": "mint",
+      "Name": "sliced_bread",
       "Count": 1
     }
   ],

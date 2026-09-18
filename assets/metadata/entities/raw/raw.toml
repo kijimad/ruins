@@ -9187,6 +9187,196 @@ spriteKey = "dummy_rusted_gear"
 spriteSheetName = "field"
 value = 55
 weight = "900 g"
+[[items]]
+description = "A stun baton that discharges a stored jolt on contact."
+name = "Pulse Baton"
+id = "pulse_baton"
+material = "METAL"
+spriteKey = "dummy_pulse_baton"
+spriteSheetName = "field"
+value = 150
+weight = "1.2 kg"
+
+[items.melee]
+accuracy = 88
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 12
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+description = "A crude blade cut from furnace slag, heavy and unbalanced."
+name = "Slag Cleaver"
+id = "slag_cleaver"
+material = "METAL"
+spriteKey = "dummy_slag_cleaver"
+spriteSheetName = "field"
+value = 110
+weight = "2.4 kg"
+
+[items.melee]
+accuracy = 80
+attackCategory = "SWORD"
+attackCount = 1
+cost = 1
+damage = 16
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+description = "A fuel-soaked lash that ignites as it whips out."
+name = "Ember Lash"
+id = "ember_lash"
+material = "LEATHER"
+spriteKey = "dummy_ember_lash"
+spriteSheetName = "field"
+value = 140
+weight = "900 g"
+
+[items.melee]
+accuracy = 90
+attackCategory = "SPEAR"
+attackCount = 1
+cost = 1
+damage = 11
+element = "FIRE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+[[items]]
+description = "A dense plate of mixed-metal alloy, prized by smiths."
+name = "Alloy Plate"
+id = "alloy_plate"
+material = "METAL"
+spriteKey = "dummy_alloy_plate"
+spriteSheetName = "field"
+value = 40
+weight = "1.5 kg"
+[[items]]
+description = "A ground optical lens, clear and precisely curved."
+name = "Optic Lens"
+id = "optic_lens"
+material = "GLASS"
+spriteKey = "dummy_optic_lens"
+spriteSheetName = "field"
+value = 55
+weight = "200 g"
+[[items]]
+description = "A sealed vial of coolant fluid drained from old machinery."
+name = "Coolant Vial"
+id = "coolant_vial"
+material = "LIQUID"
+spriteKey = "dummy_coolant_vial"
+spriteSheetName = "field"
+value = 35
+weight = "400 g"
+[[items]]
+description = "A quick bandage that stops bleeding and restores some HP."
+name = "Field Dressing"
+id = "field_dressing"
+material = "CLOTH"
+spriteKey = "dummy_field_dressing"
+spriteSheetName = "field"
+value = 45
+weight = "80 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[items.providesHealing]
+amount = 0
+ratio = 0.25
+valueType = "PERCENTAGE"
+[[items]]
+description = "A full trauma kit that patches serious wounds."
+name = "Trauma Kit"
+id = "trauma_kit"
+material = "CLOTH"
+spriteKey = "dummy_trauma_kit"
+spriteSheetName = "field"
+value = 170
+weight = "500 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[items.providesHealing]
+amount = 0
+ratio = 0.7
+valueType = "PERCENTAGE"
+[[items]]
+description = "A dense pressed bar of survival rations."
+name = "Ration Bar"
+id = "ration_bar"
+material = "FOOD"
+stageLength = 2000
+providesNutrition = 90
+spriteKey = "dummy_ration_bar"
+spriteSheetName = "field"
+value = 25
+weight = "150 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+[[items]]
+description = "A layered fiber vest that blunts impacts."
+name = "Kevlar Vest"
+id = "kevlar_vest"
+material = "CLOTH"
+spriteKey = "dummy_kevlar_vest"
+spriteSheetName = "field"
+value = 180
+weight = "2 kg"
+
+[items.wearable]
+defense = 4
+equipmentCategory = "TORSO"
+insulationCold = 1
+insulationHeat = 1
+
+[items.equipBonus]
+vitality = 2
+[[items]]
+description = "A visored helmet built to take hits."
+name = "Riot Helmet"
+id = "riot_helmet"
+material = "PLASTIC"
+spriteKey = "dummy_riot_helmet"
+spriteSheetName = "field"
+value = 130
+weight = "1.2 kg"
+
+[items.wearable]
+defense = 3
+equipmentCategory = "HEAD"
+insulationCold = 1
+insulationHeat = 0
+
+[items.equipBonus]
+vitality = 1
+[[items]]
+description = "Smoke-cured fish that keeps without refrigeration."
+name = "Smoked Fish"
+id = "smoked_fish"
+material = "FOOD"
+stageLength = 1500
+providesNutrition = 100
+spriteKey = "dummy_smoked_fish"
+spriteSheetName = "field"
+value = 28
+weight = "200 g"
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
 
 [[recipes]]
 name = "レイガン"
@@ -12111,6 +12301,14 @@ pack = "1d1"
 id = "dummy_medkit"
 weight = 2
 pack = "1d1"
+[[itemGroups.entries]]
+id = "field_dressing"
+weight = 5
+pack = "1d1"
+[[itemGroups.entries]]
+id = "trauma_kit"
+weight = 2
+pack = "1d1"
 [[itemGroups]]
 name = "投擲武器"
 id = "thrown_weapon"
@@ -12875,6 +13073,18 @@ pack = "1d1"
 id = "mist_crystal"
 weight = 1.0
 pack = "1d1"
+[[itemGroups.entries]]
+id = "alloy_plate"
+weight = 12
+pack = "1d1"
+[[itemGroups.entries]]
+id = "optic_lens"
+weight = 8
+pack = "1d1"
+[[itemGroups.entries]]
+id = "coolant_vial"
+weight = 10
+pack = "1d1"
 [[itemGroups]]
 name = "がらくた"
 id = "junk"
@@ -13263,6 +13473,14 @@ pack = "1d2"
 id = "energy_bar"
 weight = 2
 pack = "1d1"
+[[itemGroups.entries]]
+id = "ration_bar"
+weight = 6
+pack = "1d2"
+[[itemGroups.entries]]
+id = "smoked_fish"
+weight = 5
+pack = "1d1"
 [[itemGroups]]
 name = "序盤近接武器"
 id = "early_melee_weapon"
@@ -13475,6 +13693,14 @@ pack = "1d1"
 id = "slow_net"
 weight = 2
 pack = "1d1"
+[[itemGroups.entries]]
+id = "pulse_baton"
+weight = 6
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ember_lash"
+weight = 6
+pack = "1d1"
 [[itemGroups]]
 name = "終盤近接武器"
 id = "endgame_melee_weapon"
@@ -13542,6 +13768,10 @@ pack = "1d1"
 [[itemGroups.entries]]
 id = "storm_hammer"
 weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "slag_cleaver"
+weight = 6
 pack = "1d1"
 [[itemGroups]]
 name = "射撃武器"
@@ -14063,6 +14293,14 @@ pack = "1d1"
 id = "work_helmet"
 weight = 1.0
 pack = "1d1"
+[[itemGroups.entries]]
+id = "kevlar_vest"
+weight = 5
+pack = "1d1"
+[[itemGroups.entries]]
+id = "riot_helmet"
+weight = 6
+pack = "1d1"
 [[itemGroups]]
 name = "終盤防具"
 id = "endgame_armor"
@@ -14367,6 +14605,34 @@ pack = "1d1"
 id = "someones_scrawl"
 weight = 1
 pack = "1d1"
+[[itemGroups]]
+id = "ammo"
+name = "弾薬"
+subtype = "collection"
+[[itemGroups.entries]]
+id = "9mm_fmj"
+weight = 12
+pack = "2d3"
+[[itemGroups.entries]]
+id = "9mm_ap"
+weight = 6
+pack = "1d3"
+[[itemGroups.entries]]
+id = "9mm_hp"
+weight = 6
+pack = "1d3"
+[[itemGroups.entries]]
+id = "rifle_round"
+weight = 8
+pack = "2d2"
+[[itemGroups.entries]]
+id = "energy_cell"
+weight = 6
+pack = "1d2"
+[[itemGroups.entries]]
+id = "cannon_shell"
+weight = 3
+pack = "1d2"
 
 [[itemTables]]
 name = "廃墟"
@@ -14431,6 +14697,11 @@ id = "ranged_weapon"
 maxDanger = 20
 minDanger = 5
 weight = 0.3
+[[itemTables.entries]]
+id = "ammo"
+minDanger = 2
+maxDanger = 30
+weight = 1
 [[itemTables]]
 name = "森"
 id = "forest"
@@ -14484,6 +14755,11 @@ id = "thrown_weapon"
 maxDanger = 25
 minDanger = 8
 weight = 0.6
+[[itemTables.entries]]
+id = "ammo"
+minDanger = 2
+maxDanger = 30
+weight = 1
 [[itemTables]]
 name = "洞窟"
 id = "cave"
@@ -14542,6 +14818,11 @@ id = "thrown_weapon"
 maxDanger = 30
 minDanger = 8
 weight = 0.5
+[[itemTables.entries]]
+id = "ammo"
+minDanger = 2
+maxDanger = 30
+weight = 1
 [[itemTables]]
 name = "食料庫"
 id = "pantry"
