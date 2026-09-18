@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.5%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -683,9 +683,9 @@
 				
 				<option value="file313">github.com/kijimaD/ruins/internal/widgets/messagewindow/window.go (68.0%)</option>
 				
-				<option value="file314">github.com/kijimaD/ruins/internal/widgets/overlay/detail.go (60.4%)</option>
+				<option value="file314">github.com/kijimaD/ruins/internal/widgets/overlay/detail.go (100.0%)</option>
 				
-				<option value="file315">github.com/kijimaD/ruins/internal/widgets/overlay/detailui.go (82.8%)</option>
+				<option value="file315">github.com/kijimaD/ruins/internal/widgets/overlay/detailui.go (100.0%)</option>
 				
 				<option value="file316">github.com/kijimaD/ruins/internal/widgets/overlay/window.go (100.0%)</option>
 				
@@ -1668,7 +1668,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1684,7 +1684,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
+                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -47899,7 +47899,7 @@ func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {
 
 // NewComparison は複数の詳細内容を返す provide を受け取り Detail を作る。返った内容を横並びで描く
 func NewComparison(provide func(world w.World) ([]DetailContent, bool)) Detail {
-        <span class="cov0" title="0">return Detail{provide: provide}
+        <span class="cov8" title="1">return Detail{provide: provide}
 </span>}
 
 // NewEntityDetail は選択中の実体をそのまま詳細に出す Detail を作る。
@@ -47936,34 +47936,34 @@ func (d *Detail) HandleInput(world w.World) error {
 </span>        }
         // メニューと同じ入力供給源から読む。再生ドライバが差した Action もここに届くので、
         // overlay 表示中も本番フローのまま駆動できる
-        <span class="cov0" title="0">action, ok := keybind.ReadInput(world, keybind.MenuCommon)
+        <span class="cov8" title="1">action, ok := keybind.ReadInput(world, keybind.MenuCommon)
         if !ok </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
-        <span class="cov0" title="0">total := 1
+        <span class="cov8" title="1">total := 1
         if contents, ok := d.provide(world); ok </span>{
                 // 複数枚は行数の最も多い枚に合わせてページ数を決める
-                <span class="cov0" title="0">for _, c := range contents </span>{
-                        <span class="cov0" title="0">if p := detailPageCount(len(c.Rows)); p &gt; total </span>{
-                                <span class="cov0" title="0">total = p
+                <span class="cov8" title="1">for _, c := range contents </span>{
+                        <span class="cov8" title="1">if p := detailPageCount(len(c.Rows)); p &gt; total </span>{
+                                <span class="cov8" title="1">total = p
 </span>                        }
                 }
         }
-        <span class="cov0" title="0">switch action </span>{
+        <span class="cov8" title="1">switch action </span>{
         case inputmapper.ActionMenuCancel, inputmapper.ActionMenuSelect:
-                <span class="cov0" title="0">d.active = false</span>
+                <span class="cov8" title="1">d.active = false</span>
         case inputmapper.ActionMenuTabPrev, inputmapper.ActionMenuLeft:
-                <span class="cov0" title="0">if d.page &gt; 0 </span>{
-                        <span class="cov0" title="0">d.page--
+                <span class="cov8" title="1">if d.page &gt; 0 </span>{
+                        <span class="cov8" title="1">d.page--
 </span>                }
         case inputmapper.ActionMenuTabNext, inputmapper.ActionMenuRight:
-                <span class="cov0" title="0">if d.page &lt; total-1 </span>{
-                        <span class="cov0" title="0">d.page++
+                <span class="cov8" title="1">if d.page &lt; total-1 </span>{
+                        <span class="cov8" title="1">d.page++
 </span>                }
-        default:<span class="cov0" title="0"></span>
+        default:<span class="cov8" title="1"></span>
                 // 詳細モーダルは閉じるとページ送りしか扱わない
         }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // RenderOverlay は現在の内容から詳細モーダルを uicore のツリーへ組み、rect 内に配置して返す。
@@ -47978,7 +47978,7 @@ func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawa
                 <span class="cov8" title="1">return buildPanelUI(res, rect, contents[0], d.page)
 </span>        }
         // 複数枚は狭い WindowRect でなく画面幅の大半へ横並びで描く。上下は rect と揃える
-        <span class="cov0" title="0">sw := world.Resources.ScreenDimensions.Width
+        <span class="cov8" title="1">sw := world.Resources.ScreenDimensions.Width
         wide := image.Rect(theme.MenuModalMarginX, rect.Min.Y, sw-theme.MenuModalMarginX, rect.Max.Y)
         return buildPanelsUI(res, wide, contents, d.page)</span>
 }
@@ -48000,16 +48000,16 @@ import (
 // buildPanelsUI は複数の詳細内容を rect 内へ等幅で横並びに組む。各枠は buildPanelUI と
 // 同じ組み方で、枠間は一定の間隔を空ける。
 func buildPanelsUI(res resources.UIResources, rect image.Rectangle, contents []DetailContent, page int) uicore.Widget {
-        <span class="cov0" title="0">gap := theme.Space7
+        <span class="cov8" title="1">gap := theme.Space7
         n := len(contents)
         panelW := (rect.Dx() - gap*(n-1)) / n
         panels := make([]uicore.Widget, n)
         for i, c := range contents </span>{
-                <span class="cov0" title="0">x := rect.Min.X + i*(panelW+gap)
+                <span class="cov8" title="1">x := rect.Min.X + i*(panelW+gap)
                 panelRect := image.Rect(x, rect.Min.Y, x+panelW, rect.Max.Y)
                 panels[i] = buildPanelUI(res, panelRect, c, page)
 </span>        }
-        <span class="cov0" title="0">group := uicore.NewGroup(panels...)
+        <span class="cov8" title="1">group := uicore.NewGroup(panels...)
         group.Layout(rect)
         return group</span>
 }
