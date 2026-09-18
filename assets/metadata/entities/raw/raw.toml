@@ -12303,7 +12303,7 @@ weight = 2
 pack = "1d1"
 [[itemGroups.entries]]
 id = "field_dressing"
-weight = 5
+weight = 2
 pack = "1d1"
 [[itemGroups.entries]]
 id = "trauma_kit"
@@ -12974,10 +12974,6 @@ id = "teddy_bear"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
-id = "tesla_coil_orb"
-weight = 1.0
-pack = "1d1"
-[[itemGroups.entries]]
 id = "test_tube"
 weight = 1.0
 pack = "1d1"
@@ -13130,10 +13126,6 @@ id = "hay"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
-id = "heavy_round"
-weight = 1.0
-pack = "1d1"
-[[itemGroups.entries]]
 id = "iron_arrow"
 weight = 1.0
 pack = "1d1"
@@ -13155,14 +13147,6 @@ weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "sharp_stone"
-weight = 1.0
-pack = "1d1"
-[[itemGroups.entries]]
-id = "small_caliber_round_gray"
-weight = 1.0
-pack = "1d1"
-[[itemGroups.entries]]
-id = "small_caliber_round_yellow"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
@@ -13687,11 +13671,11 @@ weight = 2
 pack = "1d1"
 [[itemGroups.entries]]
 id = "pulse_baton"
-weight = 6
+weight = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ember_lash"
-weight = 6
+weight = 1
 pack = "1d1"
 [[itemGroups]]
 name = "終盤近接武器"
@@ -13763,7 +13747,7 @@ weight = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "slag_cleaver"
-weight = 6
+weight = 1
 pack = "1d1"
 [[itemGroups]]
 name = "射撃武器"
@@ -14287,11 +14271,11 @@ weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "kevlar_vest"
-weight = 5
+weight = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "riot_helmet"
-weight = 6
+weight = 1
 pack = "1d1"
 [[itemGroups]]
 name = "終盤防具"
@@ -14624,6 +14608,22 @@ pack = "1d2"
 [[itemGroups.entries]]
 id = "cannon_shell"
 weight = 3
+pack = "1d2"
+[[itemGroups.entries]]
+id = "small_caliber_round_gray"
+weight = 8
+pack = "2d3"
+[[itemGroups.entries]]
+id = "small_caliber_round_yellow"
+weight = 8
+pack = "2d3"
+[[itemGroups.entries]]
+id = "heavy_round"
+weight = 8
+pack = "2d2"
+[[itemGroups.entries]]
+id = "tesla_coil_orb"
+weight = 6
 pack = "1d2"
 
 [[itemTables]]

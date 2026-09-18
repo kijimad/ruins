@@ -37561,7 +37561,7 @@
     {
       "X": 12,
       "Y": 36,
-      "Name": "field_dressing",
+      "Name": "dummy_medkit",
       "Count": 1
     },
     {
@@ -37579,7 +37579,7 @@
     {
       "X": 10,
       "Y": 17,
-      "Name": "yellow_herb",
+      "Name": "green_herb",
       "Count": 1
     },
     {
@@ -37603,7 +37603,7 @@
     {
       "X": 11,
       "Y": 13,
-      "Name": "antidote",
+      "Name": "yellow_herb",
       "Count": 1
     }
   ],
