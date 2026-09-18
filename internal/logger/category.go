@@ -54,4 +54,7 @@ const (
 
 	// CategorySave はセーブ処理のログカテゴリ
 	CategorySave Category = "save" // セーブ処理
+
+	// CategoryCrash はクラッシュレポートのログカテゴリ
+	CategoryCrash Category = "crash" // クラッシュレポート
 )

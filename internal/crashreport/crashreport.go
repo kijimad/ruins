@@ -1,0 +1,83 @@
+package crashreport
+
+import (
+	"fmt"
+	"runtime"
+	"runtime/debug"
+	"sync"
+	"time"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/logger"
+)
+
+// saveOnce はクラッシュ保存を1プロセス1回に限る。Guard は必ず通る関数ごとに置くので、同一 goroutine で
+// 入れ子になった Guard が再 panic を再捕捉しても、クラッシュ1件につきファイルは1つに保たれる。
+var saveOnce sync.Once
+
+// stateProvider は落ちた時点の最上位ステート名を取り出す関数。起動時に SetStateProvider で登録し、
+// Save がクラッシュ時に引く。登録しなければ State は空になる。
+var stateProvider func() string
+
+// SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼ぶ。
+// Guard の呼び出し側を増やさず、保存時にステート名を添える唯一の受け渡し経路。
+func SetStateProvider(f func() string) { stateProvider = f }
+
+// Guard は defer で使う。panic を捕らえて1回だけ Save し、握りつぶさず再 panic する。
+// recover は同一 goroutine の panic だけを捕らえるので、必ず通る関数の先頭へ置く。
+func Guard() {
+	if r := recover(); r != nil {
+		saveOnce.Do(func() { Save(r, debug.Stack()) })
+		panic(r) // 保存後に本来の落ち方へ戻す。stderr へのトレース出力と非0終了を保つ
+	}
+}
+
+// Save はクラッシュ情報を1ファイルへ書く。desktop のみ実ファイルを作り、WASM は何もしない。
+// ディレクトリ作成と書き込みの失敗は writeRecord が握りつぶす。クラッシュ処理でさらに落ちて元の
+// panic を覆い隠さないため。保存できたらコンソールへ道標の1行を出す。
+func Save(recovered any, stack []byte) {
+	rec := buildRecord(recovered, stack, currentState())
+	if path := writeRecord(rec); path != "" {
+		logger.New(logger.CategoryCrash).Error("crash report saved", "path", path)
+	}
+}
+
+// buildRecord は諸元を集めて CrashRecord にする。ステート名は呼び出し側が渡す純関数。
+func buildRecord(recovered any, stack []byte, state string) CrashRecord {
+	return CrashRecord{
+		Timestamp: time.Now().Format(time.RFC3339),
+		Level:     "FATAL", // logger.Level.String() の表記に揃える
+		Category:  "crash",
+		Message:   fmt.Sprintf("%v", recovered),
+		Version:   consts.AppVersion,
+		GOOS:      runtime.GOOS,
+		GOARCH:    runtime.GOARCH,
+		Steam:     consts.IsSteamBuild,
+		State:     state,
+		Stack:     string(stack),
+	}
+}
+
+// currentState は登録済み provider を安全に引く。provider 自体が落ちても元の panic を覆わない。
+func currentState() (name string) {
+	if stateProvider == nil {
+		return ""
+	}
+	defer func() { _ = recover() }()
+	return stateProvider()
+}
+
+// CrashRecord は1回のクラッシュを表す構造化ログレコード。
+// フィールド名は logger の JSON エントリ timestamp・level・category・message に揃える。
+type CrashRecord struct {
+	Timestamp string `json:"timestamp"`       // RFC3339
+	Level     string `json:"level"`           // "FATAL"
+	Category  string `json:"category"`        // "crash"
+	Message   string `json:"message"`         // recover した値の文字列。全文は Stack にある
+	Version   string `json:"version"`         // consts.AppVersion
+	GOOS      string `json:"goos"`            // runtime.GOOS
+	GOARCH    string `json:"goarch"`          // runtime.GOARCH
+	Steam     bool   `json:"steam"`           // consts.IsSteamBuild
+	State     string `json:"state,omitempty"` // provider 由来の最上位ステート名。無ければ空
+	Stack     string `json:"stack"`           // debug.Stack の文字列
+}

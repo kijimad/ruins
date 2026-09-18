@@ -9,6 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/crashreport"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/maingame"
 	"github.com/kijimaD/ruins/internal/steam"
@@ -32,6 +33,9 @@ var CmdPlay = &cli.Command{
 }
 
 func runPlay(_ context.Context, _ *cli.Command) error {
+	// 初期化フェーズの panic をここで受ける。RunGame 中のゲーム panic は MainGame の各コールバックが受ける
+	defer crashreport.Guard()
+
 	// Steam APIの初期化。steamタグなしではno-op
 	if err := steam.Init(); err != nil {
 		return fmt.Errorf("steam initialization failed: %w", err)
@@ -121,6 +125,15 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	if err != nil {
 		return err
 	}
+
+	// クラッシュ諸元へ載せる最上位ステート名の取り出し方を登録する。Save がクラッシュ時に引く
+	crashreport.SetStateProvider(func() string {
+		s := stateMachine.GetCurrentState()
+		if s == nil {
+			return ""
+		}
+		return fmt.Sprintf("%T", s)
+	})
 
 	game, err := maingame.NewMainGame(world, stateMachine)
 	if err != nil {
