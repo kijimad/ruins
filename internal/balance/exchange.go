@@ -1,8 +1,6 @@
 package balance
 
 import (
-	"math"
-
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -70,21 +68,6 @@ func ExchangeRates(master oapi.Raws) []MetricExchange {
 		out = append(out, MetricExchange{Metric: metric, Knobs: names, Rows: rows})
 	}
 	return out
-}
-
-// metricMovers は idx 番目のメトリクスを +10% 摂動で動かすつまみだけを抽出する。動かさないつまみは
-// そのメトリクスの交換に参加できないので除く。
-func metricMovers(master oapi.Raws, knobs []Knob, base float64, idx int) []Knob {
-	movers := make([]Knob, 0, len(knobs))
-	for _, k := range knobs {
-		p := DefaultParams()
-		*k.Ptr(&p) *= exchangePerturb
-		// 戦力比など非整数メトリクスの FP 誤差で誤判定しないよう、相対許容で動いたか見る。
-		if math.Abs(metricValue(master, p, idx)-base) > 1e-9*math.Max(1, math.Abs(base)) {
-			movers = append(movers, k)
-		}
-	}
-	return movers
 }
 
 // solveExchange は基準つまみ a を+10%した状態で、メトリクス idx を target へ戻す相手つまみ b の

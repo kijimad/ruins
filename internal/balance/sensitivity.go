@@ -92,6 +92,21 @@ func metricsAt(master oapi.Raws, p Params) []float64 {
 	return out
 }
 
+// metricMovers は idx 番目のメトリクスを +10% 摂動で動かすつまみだけを抽出する。動かさないつまみは
+// そのメトリクスの交換・境界に参加できないので除く。境界マージンと交換レートが共用する。
+func metricMovers(master oapi.Raws, knobs []Knob, base float64, idx int) []Knob {
+	movers := make([]Knob, 0, len(knobs))
+	for _, k := range knobs {
+		p := DefaultParams()
+		*k.Ptr(&p) *= exchangePerturb
+		// 戦力比など非整数メトリクスの FP 誤差で誤判定しないよう、相対許容で動いたか見る。
+		if math.Abs(metricValue(master, p, idx)-base) > 1e-9*math.Max(1, math.Abs(base)) {
+			movers = append(movers, k)
+		}
+	}
+	return movers
+}
+
 // SensitivityCell は1つのメトリクスへの、つまみ+10%あたりの変化率。絶対値が大きいほど強い結合。
 type SensitivityCell struct {
 	Metric    string
