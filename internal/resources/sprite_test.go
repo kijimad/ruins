@@ -149,6 +149,48 @@ func TestSpriteStoreSized_サイズが0以下ならnil(t *testing.T) {
 	assert.Nil(t, s.Sized(sr, 0))
 }
 
+func TestSpriteStoreSized_同じキーは同じ画像を返す(t *testing.T) {
+	t.Parallel()
+	s := newSpriteStore(t, map[string]components.SpriteSheet{
+		"sheet": {
+			Texture: components.Texture{
+				Image:  ebiten.NewImage(40, 40),
+				Source: image.NewRGBA(image.Rect(0, 0, 40, 40)),
+			},
+			Sprites: map[string]components.Sprite{"key": {X: 0, Y: 0, Width: 40, Height: 40}},
+		},
+	})
+	sr := &components.SpriteRender{SpriteSheetName: "sheet", SpriteKey: "key"}
+
+	first := s.Sized(sr, 20)
+	require.NotNil(t, first)
+
+	// 2度目はキャッシュから同じインスタンスが返る
+	assert.Same(t, first, s.Sized(sr, 20))
+}
+
+func TestSpriteStoreSized_矩形が解決できなければnil(t *testing.T) {
+	t.Parallel()
+	s := newSpriteStore(t, map[string]components.SpriteSheet{})
+	sr := &components.SpriteRender{SpriteSheetName: "missing", SpriteKey: "key"}
+
+	assert.Nil(t, s.Sized(sr, 16))
+}
+
+func TestSpriteStoreSized_矩形の幅が0なら面積0でnil(t *testing.T) {
+	t.Parallel()
+	// Width=0のスプライトはspriteRectでMin.X==Max.Xの矩形になり、shrinkToFitが面積0として扱う
+	s := newSpriteStore(t, map[string]components.SpriteSheet{
+		"sheet": {
+			Texture: components.Texture{Image: ebiten.NewImage(10, 10)},
+			Sprites: map[string]components.Sprite{"key": {X: 3, Y: 0, Width: 0, Height: 5}},
+		},
+	})
+	sr := &components.SpriteRender{SpriteSheetName: "sheet", SpriteKey: "key"}
+
+	assert.Nil(t, s.Sized(sr, 16))
+}
+
 func TestSpriteStoreImage_等倍と縮小は別のキーで共存する(t *testing.T) {
 	t.Parallel()
 	s := newSpriteStore(t, map[string]components.SpriteSheet{
@@ -170,4 +212,34 @@ func TestSpriteStoreImage_等倍と縮小は別のキーで共存する(t *testi
 	require.NotNil(t, small)
 	assert.Equal(t, 40, full.Bounds().Dx())
 	assert.Equal(t, 20, small.Bounds().Dx())
+}
+
+func TestSpriteRect_SpriteRenderがnilならエラー(t *testing.T) {
+	t.Parallel()
+
+	_, _, err := spriteRect(map[string]components.SpriteSheet{}, nil)
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "sprite render is nil")
+}
+
+func TestSpriteStoreSized_縦長の矩形は縦を基準に縮める(t *testing.T) {
+	t.Parallel()
+	// 幅20・高さ40の縦長矩形をsize=20へ収める。sw<shなのでdw側をshrinkToFitのelse分岐で計算する
+	s := newSpriteStore(t, map[string]components.SpriteSheet{
+		"sheet": {
+			Texture: components.Texture{
+				Image:  ebiten.NewImage(20, 40),
+				Source: image.NewRGBA(image.Rect(0, 0, 20, 40)),
+			},
+			Sprites: map[string]components.Sprite{"key": {X: 0, Y: 0, Width: 20, Height: 40}},
+		},
+	})
+	sr := &components.SpriteRender{SpriteSheetName: "sheet", SpriteKey: "key"}
+
+	img := s.Sized(sr, 20)
+
+	require.NotNil(t, img)
+	assert.Equal(t, 20, img.Bounds().Dy())
+	assert.Equal(t, 10, img.Bounds().Dx())
 }

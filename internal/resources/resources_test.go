@@ -3,6 +3,8 @@ package resources
 import (
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/components"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,6 +28,37 @@ func TestInitGameResources_マップフィールドが空で初期化される(t
 	require.NotNil(t, r.SpriteSheets)
 	assert.Empty(t, r.SpriteSheets)
 	assert.Equal(t, ScreenDimensions{}, r.ScreenDimensions)
+}
+
+func TestSetSpriteSheets_シートと解決キャッシュの両方を更新する(t *testing.T) {
+	t.Parallel()
+
+	r := InitGameResources()
+	sr := &components.SpriteRender{SpriteSheetName: "sheet", SpriteKey: "key"}
+	sheetsA := map[string]components.SpriteSheet{
+		"sheet": {
+			Texture: components.Texture{Image: ebiten.NewImage(10, 10)},
+			Sprites: map[string]components.Sprite{"key": {X: 0, Y: 0, Width: 4, Height: 4}},
+		},
+	}
+	sheetsB := map[string]components.SpriteSheet{
+		"sheet": {
+			Texture: components.Texture{Image: ebiten.NewImage(10, 10)},
+			Sprites: map[string]components.Sprite{"key": {X: 0, Y: 0, Width: 4, Height: 4}},
+		},
+	}
+
+	r.SetSpriteSheets(sheetsA)
+	cachedUnderA := r.Sprites.Image(sr)
+	require.NotNil(t, cachedUnderA)
+
+	r.SetSpriteSheets(sheetsB)
+
+	assert.Equal(t, sheetsB, r.SpriteSheets)
+	// キャッシュが捨てられ、差し替え後のシートから改めて解決される
+	resolvedUnderB := r.Sprites.Image(sr)
+	require.NotNil(t, resolvedUnderB)
+	assert.NotSame(t, cachedUnderA, resolvedUnderB)
 }
 
 func TestInitializeResources_エラーなくフィールドを置き換える(t *testing.T) {

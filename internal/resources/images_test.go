@@ -26,3 +26,21 @@ func TestNewImageFromFile_存在しないパスはエラー(t *testing.T) {
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "assets/graphics/not-exist.png")
 }
+
+func TestNewImageFromFile_画像として復号できなければエラー(t *testing.T) {
+	t.Parallel()
+
+	// ディレクトリはOpenできるがimage.Decodeが読めるバイト列を返さない
+	_, err := newImageFromFile("assets/graphics")
+
+	require.Error(t, err)
+}
+
+func TestNewNineSliceTex_画像読み込みに失敗したらエラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	tex, err := newNineSliceTex("assets/graphics/not-exist.png", 10, 10)
+
+	require.ErrorContains(t, err, "assets/graphics/not-exist.png")
+	assert.Nil(t, tex)
+}

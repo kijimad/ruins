@@ -25,3 +25,12 @@ func TestNewFont_存在しないパスはエラー(t *testing.T) {
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "file/fonts/not-exist.ttf")
 }
+
+func TestNewFont_フォント形式でないファイルはエラー(t *testing.T) {
+	t.Parallel()
+
+	f, err := NewFont("file/shaders/white_silhouette.kage")
+
+	require.Error(t, err)
+	assert.Equal(t, Font{}, f)
+}
