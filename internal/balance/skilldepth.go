@@ -19,9 +19,8 @@ type SkillTier struct {
 	GapFromPrev float64 // 前ティアからの PlayerTTK の改善量。0 なら手応えなし
 }
 
-// SkillDepthProfile はスキル進行の手応えを測る。NTBEA の「ティア間の最小ギャップを最大化して各段を
-// 識別可能にする」発想を、対戦でなく体験メトリクスへ翻案したもの。撃破ターンが動かない死んだティアが
-// 多いほど、レベルアップの多くが体験に響かない平坦な進行になる。
+// SkillDepthProfile はスキル進行の手応えを測る。撃破ターンが動かない死んだティアが多いほど、レベルアップの多くが
+// 体験に響かない平坦な進行になる。NTBEA のティア識別性の翻案。
 type SkillDepthProfile struct {
 	Weapon          string
 	Tiers           []SkillTier
@@ -74,9 +73,8 @@ func SkillDepthProfileFor(master oapi.Raws, weaponName, enemyTableName string, d
 	return prof, nil
 }
 
-// poolPlayerTTK は危険度 danger の敵プールに対する、熟練度倍率 skillMult 込みのプレイヤーの重み付き
-// 期待撃破ターンを返す。PlayerTTK はプレイヤーの攻撃力側だけを見る指標で、敵の攻撃力に依らずスキルの
-// 手応えを測るのに向く。
+// poolPlayerTTK は危険度 danger の敵プールに対する、熟練度倍率 skillMult 込みのプレイヤーの重み付き期待撃破ターンを
+// 返す。敵の攻撃力に依らずスキルの手応えを測る。
 func poolPlayerTTK(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, skillMult consts.Percent) (float64, bool) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {

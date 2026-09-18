@@ -9,9 +9,8 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// ElementValue は1つの武器を持たせたときと、素手へ制限したときの死亡確率の差。Restricted Play の
-// 発想を対戦でないサバイバルへ翻案したもの。要素を封じたときの体験メトリクスの劣化量で、その要素が
-// どれだけ効いているかを測る。劣化が大きいほど必須で、ゼロに近いほど死にコンテンツ。
+// ElementValue は武器を持たせたときと素手へ制限したときの死亡確率の差。劣化が大きいほど必須、ゼロ近いほど死にコンテンツ。
+// Restricted Play をサバイバルへ翻案した指標。
 type ElementValue struct {
 	Element       string  // 武器 id
 	DeathProbWith float64 // その武器を持たせたときの死亡確率
@@ -19,9 +18,8 @@ type ElementValue struct {
 	ExpTurnsWith  float64 // その武器での期待決着ターン
 }
 
-// WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器すなわち近接と遠距離の
-// それぞれを持たせたときの死亡確率と、素手へ制限したときの劣化量を返す。劣化量の降順、すなわち必須な武器から並べる。
-// 基準プレイヤーは強化なしの BaselinePlayer。素手 BaselineWeapon が制限時のフォールバックになる。
+// WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器(近接・遠距離)それぞれの死亡確率と素手へ
+// 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 BaselineWeapon がフォールバック。
 func WeaponRestrictionValues(master oapi.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {
 	danger := query.DangerLevelForDay(day)
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)

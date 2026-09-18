@@ -43,9 +43,8 @@ type BoundaryMargin struct {
 	OK         bool    // 与えた範囲で端に到達できたか
 }
 
-// BoundaryMargins はメトリクス×つまみごとの境界マージンを返す。各つまみを動かして目標帯の端に達する
-// までの変化率を二分探索で解く。凍結ゲートの点固定を、余白の監視へ拡張する。目標帯を持つメトリクスと、
-// それを動かすつまみの組だけを対象にする。
+// BoundaryMargins はメトリクス×つまみごとの境界マージンを返す。各つまみを動かして目標帯の端に達するまでの
+// 変化率を二分探索で解く。凍結ゲートの点固定を余白監視へ拡張する。
 func BoundaryMargins(master oapi.Raws) []BoundaryMargin {
 	knobs := knobRegistry()
 	base := metricsAt(master, DefaultParams())

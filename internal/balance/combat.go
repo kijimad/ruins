@@ -136,9 +136,8 @@ func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {
 	return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", name)
 }
 
-// LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す。
-// 攻撃コマンドは最も重みの高い1つを代表に使う簡略化で、コマンドの重み分布は反映しない。
-// DifficultyCurve の敵プールの重みとは別の近似なので、両者で二重の簡略化になる点に注意する。
+// LoadEnemyWeapon は敵の CommandTable から最も重みの高い武器を代表に取り WeaponStats を返す。コマンドの重み分布は
+// 反映しない簡略化で、DifficultyCurve の敵プール重みとは別の近似なので二重の簡略化になる点に注意する。
 func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
 	member, err := raw.FindMember(master, enemyName)
 	if err != nil {

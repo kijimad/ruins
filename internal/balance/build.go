@@ -27,9 +27,8 @@ var buildStages = []struct {
 	{"後半(2000攻撃)", 2000},
 }
 
-// RepresentativeBuilds は基準プレイヤーを土台に、想定攻撃回数から導いた強化度合いで段階を表した
-// 代表ビルドを返す。倍率は恣意的な値でなく、スキル成長と熟練度の実システムから導く。装備による
-// 強化は別軸で、ここではスキル由来のダメージ倍率だけを反映する。攻撃回数は設計仮説で見直す。
+// RepresentativeBuilds は基準プレイヤーを土台に、想定攻撃回数から導いた強化度合いで段階を表した代表ビルドを返す。
+// 倍率はスキル成長と熟練度の実システムから導き、スキル由来のダメージ倍率だけを反映する。攻撃回数は設計仮説。
 func RepresentativeBuilds(master oapi.Raws) ([]BuildProfile, error) {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
@@ -60,8 +59,7 @@ func (r DaySpreadRow) Spread() float64 {
 	return r.MaxRatio - r.MinRatio
 }
 
-// BuildSpread は代表ビルドで敵テーブルのカーブを評価し、各日の戦力比の最小と最大を返す。
-// 静的下限だけでなく、スキル・装備・バフで戦力が振れる幅を可視化する。後半で幅が急に開くなら、
+// BuildSpread は代表ビルドで敵テーブルのカーブを評価し、各日の戦力比の最小と最大を返す。後半で幅が急に開くなら
 // バフが強すぎて終盤が崩れやすいことを示す。
 func BuildSpread(master oapi.Raws, profiles []BuildProfile, enemyTableName string, days int) ([]DaySpreadRow, error) {
 	curves := make([][]DayMetric, 0, len(profiles))

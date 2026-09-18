@@ -42,9 +42,7 @@ type RunResult struct {
 	LootIncome          int            // ラン中に拾った loot の競売手取り総額。早死にするほど少ない
 }
 
-// SimulateRun はラン全体を模擬する。
-// maxDepth まで進み、死亡したらそこで終了する。
-// フロアのアイテムドロップから武器を取得した場合、より強い武器に切り替える
+// SimulateRun はラン全体を模擬する。maxDepth まで進み死亡で終了する。フロアのドロップでより強い武器へ切り替える。
 func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
 	result := RunResult{
 		HPByDepth:           make(map[int]int),

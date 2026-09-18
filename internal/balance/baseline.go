@@ -25,9 +25,8 @@ const (
 // colDanger は複数の表で使う危険度列の見出し。文字列の重複を1つにまとめる。
 const colDanger = "危険度"
 
-// TargetPowerRatio は素手・無装備の床の戦力比の目標中心値を返す。床は難易度の下限リファレンスで、
-// 主基準ではない。主基準は想定プレイヤーの死亡確率で TargetExpectedDeath が定める。敵を進行で強化する
-// 設計では床は目標帯を下回るハードモードになり、後半は 外 になるのが正常。値は設計仮説でプレイで見直す。
+// TargetPowerRatio は素手・無装備の床の戦力比の目標中心値を返す。床は下限リファレンスで主基準ではない。
+// 主基準は想定プレイヤーの死亡確率 TargetExpectedDeath。敵を進行で強化する設計では後半に床が下回るのが正常。
 func TargetPowerRatio(day int) float64 {
 	const d0, m0, d1, m1 = 1, 2.5, 20, 1.3
 	switch {
@@ -40,9 +39,8 @@ func TargetPowerRatio(day int) float64 {
 	}
 }
 
-// TargetExpectedDeath は想定プレイヤーの死亡確率の目標帯を返す。主基準。序盤は安全で、後半に緊張が
-// 立つよう day1 の [0,2%] から day15 以降の [2%,9%] へ線形に開く。想定プレイヤーはスキルと装備で
-// 育つので、床でなくこの帯を難易度設計の基準線にする。値は設計仮説でプレイで見直す。
+// TargetExpectedDeath は想定プレイヤーの死亡確率の目標帯を返す。主基準。day1 の [0,2%] から day15 以降の
+// [2%,9%] へ線形に開き、序盤は安全・後半に緊張を立てる。値は設計仮説でプレイで見直す。
 func TargetExpectedDeath(day int) (lo, hi float64) {
 	t := float64(day-1) / 14
 	t = max(0, min(1, t))
@@ -90,9 +88,8 @@ func Baseline(master oapi.Raws, playerName, weaponName, enemyTableName string, d
 	return rows, nil
 }
 
-// RenderBaselineMarkdown は全敵テーブルのベースラインを markdown 表にする。パラメータ変更の
-// 影響が diff で読めるよう、テーブルごとに日次の powerRatio と目標・目標帯内かを並べる。
-// 文字列リテラルは源泉英語化の方針に合わせ英語にする。テーブル名は raw 由来の実行時データ。
+// RenderBaselineMarkdown は全敵テーブルのベースラインを markdown 表にする。日次の powerRatio と目標・帯内かを
+// 並べ、パラメータ変更の影響を diff で読めるようにする。テーブル名は raw 由来の実行時データ。
 func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, days int) (string, error) {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# バランスベースライン\n\n")
@@ -479,9 +476,8 @@ func renderBoundaryMargins(b *strings.Builder, master oapi.Raws) {
 	writeMDTable(b, []string{"メトリクス", "つまみ", "最寄りの端", "余白"}, []tw.Align{alignL, alignL, alignC, alignR}, rows)
 }
 
-// renderWeaponRestriction は武器を素手へ制限したときの死亡確率の劣化量を markdown で書き出す。
-// Restricted Play の発想で、要素を封じたときの体験劣化からその要素の必須度を測る。必須な順に上位を、
-// 効かない死にコンテンツの候補として下位を見せる。
+// renderWeaponRestriction は武器を素手へ制限したときの死亡確率の劣化量を書き出す。劣化が大きい順に必須な武器を、
+// 小さい順に効かない死にコンテンツ候補を見せる。Restricted Play の翻案。
 func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {
 	const day = 20
 	values, baseDeath, err := WeaponRestrictionValues(master, BaselineAreaTable, day)

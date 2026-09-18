@@ -20,9 +20,8 @@ func (c TargetCheck) InRange() bool {
 	return c.Value >= c.Lo && c.Value <= c.Hi
 }
 
-// DomainTargets は各ドメインのスカラー指標を現状値で評価し、目標帯との照合を返す。
-// 目標帯は「静的下限がこの範囲に収まれば実プレイは少なくともこれだけ快適」という下限側の仮説。
-// 回復や成長を足した実プレイは楽側へ振れるので、帯は厳しめの下限で引く。
+// DomainTargets は各ドメインのスカラー指標を現状値で評価し目標帯と照合する。目標帯は「静的下限がここに収まれば実プレイは
+// 少なくともこれだけ快適」という下限側の仮説。戦闘は日次カーブで別管理する。
 func DomainTargets() []TargetCheck {
 	p := DefaultParams()
 	return []TargetCheck{

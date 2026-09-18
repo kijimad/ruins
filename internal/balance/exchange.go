@@ -38,9 +38,8 @@ type MetricExchange struct {
 	Rows   []KnobExchange // 各基準つまみの補償
 }
 
-// ExchangeRates はメトリクスごとの交換レート表を返す。あるつまみを+10%したとき、同じメトリクスを
-// 元へ戻すには別のどのつまみをどれだけ動かせばよいかを、実式を二分探索で解いて求める。感度の比
-// -eA/eB は線形近似だが、戦闘のように丸めで非線形なメトリクスでは解いた方が正確なので直接解く。
+// ExchangeRates はメトリクスごとの交換レート表を返す。あるつまみを+10%したとき同じメトリクスを元へ戻すのに
+// 別のつまみをどれだけ動かすかを二分探索で解く。丸めで非線形なメトリクスでは感度の比より解いた方が正確。
 func ExchangeRates(master oapi.Raws) []MetricExchange {
 	knobs := knobRegistry()
 	base := metricsAt(master, DefaultParams())

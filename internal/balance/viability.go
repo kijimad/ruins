@@ -12,9 +12,8 @@ const viabilityCeiling = 0.10
 // 決着ターンの幅の下限。これ未満だとどれを選んでも同じで、Pfau のいう拒否される symmetry になる。
 const viabilityDistinctFloor = 0.5
 
-// ViabilitySummary は武器ロスターの健全性を Pfau の視点で要約する。プレイヤーは symmetry すなわち
-// 全選択肢が等価な状態を拒み、viability すなわちどれも使えるが差がある状態を求める。viable が多く、
-// 罠が少なく、viable どうしに差があるロスターが健全。
+// ViabilitySummary は武器ロスターの健全性を要約する。全選択肢が等価な symmetry を避け、どれも使えるが差がある
+// viability を良しとする。viable が多く罠が少なく viable どうしに差があるほど健全。
 type ViabilitySummary struct {
 	Day          int
 	Total        int     // 評価した近接武器の数

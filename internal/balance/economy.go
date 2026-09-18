@@ -9,9 +9,8 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// ExpectedLootValue は危険度 danger で itemTable から拾える1個あたりの期待売買価値を返す。
-// itemTable の該当帯エントリを重みで期待し、各エントリが指すアイテムグループの中身をさらに重みで
-// 期待する2段の重み付き平均。収入側の指標で、探索1回の収支の loot 項に当たる。
+// ExpectedLootValue は危険度 danger で itemTable から拾える1個あたりの期待売買価値を返す。該当帯エントリと
+// その指すアイテムグループの中身を2段で重み付き平均する。収入側の指標。
 func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float64 {
 	table, err := raw.GetItemTable(master, itemTableName)
 	if err != nil {
@@ -176,9 +175,8 @@ type EconomyDay struct {
 	LootPerDayFood float64 // 1日の食費を賄うのに要する loot 個数
 }
 
-// EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと生活費で表す。難易度と同じく
-// 危険度で進行するので、進むほど loot 価値が上がり生活費が相対的に軽くなるかを見る。生活費は日に依らず
-// 一定なので、変化するのは loot 側。乱数を使わない。
+// EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと一定の生活費で表す。進むほど loot
+// 価値が上がり生活費が相対的に軽くなるかを見る。乱数を使わない。
 func EconomyProgression(master oapi.Raws, itemTableName string, days int) []EconomyDay {
 	costPerDay := CostOfLivingPerDay(master, DefaultParams())
 	out := make([]EconomyDay, 0, days)

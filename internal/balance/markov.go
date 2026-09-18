@@ -110,10 +110,8 @@ func CombatDistribution(player, enemy CombatantStats, playerWeapon, enemyWeapon 
 	return CombatDistributionWithSkill(player, enemy, playerWeapon, enemyWeapon, consts.PercentBase)
 }
 
-// CombatDistributionWithSkill はプレイヤーの熟練度倍率 playerSkillMult を織り込んだ1対1戦闘の結果分布を
-// 厳密に解く。プレイヤー先攻の交互攻撃なので、自分の撃破攻撃数 Kp と敵の撃破攻撃数 Ke は独立で、勝敗は
-// Kp<=Ke で決まる。よって死亡確率は P(Ke<Kp)、決着ターンは min(Kp,Ke) の分布として畳み込みで求まる。
-// 倍率はプレイヤーの攻撃にだけ効き、敵は静的下限のまま。
+// CombatDistributionWithSkill は熟練度倍率 playerSkillMult を織り込んだ1対1戦闘の結果分布を厳密に解く。先攻の
+// 交互攻撃で撃破攻撃数 Kp と Ke は独立、死亡確率は P(Ke<Kp)、決着ターンは min(Kp,Ke) の分布。倍率はプレイヤー側だけに効く。
 func CombatDistributionWithSkill(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, playerSkillMult consts.Percent) CombatOutcome {
 	kp := killDistribution(attackDamagePMF(player, enemy, playerWeapon, playerSkillMult), enemy.HP)
 	ke := killDistribution(attackDamagePMF(enemy, player, enemyWeapon, consts.PercentBase), player.HP)
@@ -178,9 +176,8 @@ type DayRisk struct {
 	ExpTurns  float64 // 重み付き期待決着ターン
 }
 
-// PoolCombatRisk は危険度 danger の敵プールに1体遭遇したときの、重み付き死亡確率と期待決着ターンを
-// 返す。プレイヤーの熟練度倍率 playerSkillMult を織り込む。各敵との1対1をマルコフ連鎖で解き、出現重みで
-// 平均する。その帯に敵がいなければ ok=false。熟練度なしの静的下限は PercentBase を渡す。
+// PoolCombatRisk は危険度 danger の敵プールに1体遭遇したときの重み付き死亡確率と期待決着ターンを返す。各敵との
+// 1対1をマルコフ連鎖で解き出現重みで平均する。帯に敵がいなければ ok=false。静的下限は PercentBase を渡す。
 func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, playerSkillMult consts.Percent) (deathProb, expTurns float64, ok bool, err error) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {

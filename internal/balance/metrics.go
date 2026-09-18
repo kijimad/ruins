@@ -42,9 +42,8 @@ func ExpectedDamagePerAttackWithSkill(attacker, defender CombatantStats, weapon 
 	return sum / float64(formula.DamageRandomRange)
 }
 
-// ExpectedTTK は attacker が defender を倒すのに要する撃破所要打数を返す。HP を1撃期待ダメージで
-// 割った定義で、最後の一撃のオーバーキルは無視する。停止時刻の期待値とは別物で、こちらは
-// 難易度の比較指標として素直な連続近似になる。期待ダメージがゼロなら倒せないので 0 を返す。
+// ExpectedTTK は attacker が defender を倒すのに要する撃破所要打数を返す。HP を1撃期待ダメージで割った連続近似で、
+// オーバーキルは無視する。難易度の比較指標。期待ダメージ0なら倒せず 0 を返す。
 func ExpectedTTK(attacker, defender CombatantStats, weapon WeaponStats) float64 {
 	return ExpectedTTKWithSkill(attacker, defender, weapon, consts.PercentBase)
 }
@@ -69,16 +68,14 @@ type DayMetric struct {
 	PowerRatio float64 // 戦力比 EnemyTTK / PlayerTTK。1超で有利、1近傍で拮抗、1未満で劣勢
 }
 
-// DifficultyCurve は経過日 1..days の序盤戦闘難易度を返す。dangerLevel(day) から
-// 敵テーブルの該当帯を重みで期待し、期待撃破ターンとその比を日ごとに評価する。乱数を使わない。
-// プレイヤーは熟練度なしの静的下限で見る。スキルを織り込むときは DifficultyCurveWithSkill を使う。
+// DifficultyCurve は経過日 1..days の序盤戦闘難易度を返す。dangerLevel(day) から敵テーブルの該当帯を重みで期待し、
+// 期待撃破ターンと比を評価する。静的下限で見る。スキル込みは DifficultyCurveWithSkill。乱数なし。
 func DifficultyCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayMetric, error) {
 	return DifficultyCurveWithSkill(master, player, playerWeapon, enemyTableName, days, consts.PercentBase)
 }
 
-// DifficultyCurveWithSkill はプレイヤーの熟練度倍率 skillMult を織り込んだ難易度カーブを返す。倍率は
-// プレイヤーの攻撃にだけ効き、敵は静的下限のまま。ビルド別のブレ評価で、スキル成長ぶんの強化を実ゲームと
-// 同じ base 全体への切り捨て適用で反映するのに使う。
+// DifficultyCurveWithSkill は熟練度倍率 skillMult を織り込んだ難易度カーブを返す。倍率はプレイヤー側だけに効き、
+// スキル成長ぶんを実ゲームと同じ base 全体への切り捨てで反映する。
 func DifficultyCurveWithSkill(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int, skillMult consts.Percent) ([]DayMetric, error) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {

@@ -47,9 +47,8 @@ type ProgressionDay struct {
 	TurnsExpected float64 // 想定の期待決着ターン
 }
 
-// ProgressionCurve は経過日 1..days について、静的下限と想定プレイヤーの戦闘リスクを並べて返す。
-// 難易度の側は日→危険度で進み、プレイヤーの側は attacksPerDay からその日の想定スキルで進む。両者を
-// 同じ日軸で突き合わせることで、下限だけでなく普通に育ったプレイヤーの体験曲線を見る。乱数を使わない。
+// ProgressionCurve は経過日 1..days の静的下限と想定プレイヤーの戦闘リスクを並べて返す。難易度は日→危険度、プレイヤーは
+// attacksPerDay からその日の想定スキルで進む。下限と想定の帯で体験曲線を見る。乱数を使わない。
 func ProgressionCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days, attacksPerDay int) ([]ProgressionDay, error) {
 	out := make([]ProgressionDay, 0, days)
 	for day := 1; day <= days; day++ {

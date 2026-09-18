@@ -6,9 +6,8 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// DriveRangeTiles は所持燃料 fuel と積載重量 load でキューブが運転できるタイル数を返す。
-// query.DriveFuelCost をそのまま使い、燃費式の変更に自動追従する。積荷が重いほど1タイルの
-// コストが上がり航続が縮む。これが重量↔移動のトレード。
+// DriveRangeTiles は所持燃料 fuel と積載重量 load でキューブが運転できるタイル数を返す。query.DriveFuelCost を
+// そのまま使い燃費式に自動追従する。積荷が重いほど1タイルのコストが上がり航続が縮む重量↔移動のトレード。
 func DriveRangeTiles(fuel consts.Heat, load consts.Milligram) float64 {
 	cost := query.DriveFuelCost(load)
 	if cost <= 0 {
@@ -25,9 +24,8 @@ func DriveRangeAllFuel(material oapi.Material, capacityKg int) float64 {
 	return DriveRangeTiles(fuel, weight)
 }
 
-// FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。
-// 熱量を地面の燃焼効率で割り引く。query.HeatOf と consts.Heat.BurnTurns をそのまま使い、
-// 熱量式や効率の変更に自動追従する。移動燃料と同じ熱量が、火では暖と燃焼時間へ変換される。
+// FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。熱量を地面の燃焼効率で
+// 割り引く。query.HeatOf と consts.Heat.BurnTurns に自動追従する。移動燃料と同じ熱量が火では燃焼時間へ変わる。
 func FuelBurnTurns(material oapi.Material, weightKg int) int {
 	weight := consts.Milligram(weightKg) * consts.MilligramPerKg
 	return int(query.HeatOf(material, weight).BurnTurns(query.GroundBurnEfficiency))

@@ -25,10 +25,8 @@ func ruinsDay20PowerRatio(master oapi.Raws) float64 {
 	return curve[len(curve)-1].PowerRatio
 }
 
-// withScaledMeleeDamage は itemID の近接ダメージを factor 倍した状態で fn を呼び、呼び出し後に元へ戻す。
-// master の item は backing array を共有するので、値を退避・復元して master を汚さずに評価する。
-// 同一 master を並行して変更すると退避・復元が競合する。並行で使うときは master を共有せず、
-// 呼び出しごとに独立した master をロードすること。
+// withScaledMeleeDamage は itemID の近接ダメージを factor 倍した状態で fn を呼び、後で元へ戻す。master の item は
+// backing array を共有するので値を退避・復元する。並行変更は競合するので、使うなら master を呼び出しごとに独立させる。
 func withScaledMeleeDamage(master oapi.Raws, itemID string, factor float64, fn func()) {
 	items := raw.PtrSlice(master.Items)
 	for i := range items {
@@ -44,9 +42,8 @@ func withScaledMeleeDamage(master oapi.Raws, itemID string, factor float64, fn f
 	fn()
 }
 
-// SolveScalar は eval が単調な区間 [lo,hi] で eval(x)=target となる x を二分探索で返す。
-// 端点が target を挟まなければ、その区間では両立不能として ok=false を返す。
-// iters は正の反復回数を渡す。0以下だと精緻化せず区間中点を返す。
+// SolveScalar は eval が単調な区間 [lo,hi] で eval(x)=target となる x を二分探索で返す。端点が挟まなければ ok=false。
+// iters が0以下なら精緻化せず区間中点を返す。
 func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) (float64, bool) {
 	flo, fhi := eval(lo), eval(hi)
 	if (flo-target)*(fhi-target) > 0 {
@@ -64,9 +61,8 @@ func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) 
 	return (lo + hi) / 2, true
 }
 
-// withScaledMeleeDamages は複数アイテムの近接ダメージを同時に factor 倍した状態で fn を呼び、
-// 呼び出し後にすべて元へ戻す。単変数の withScaledMeleeDamage を多変数へ広げたもの。
-// 単一 master を並行変更すると退避・復元が競合する点は withScaledMeleeDamage と同じ。
+// withScaledMeleeDamages は複数アイテムの近接ダメージを同時に factor 倍して fn を呼び、後で全て戻す。単変数版の
+// 多変数化で、並行変更が競合する点も同じ。
 func withScaledMeleeDamages(master oapi.Raws, factors map[string]float64, fn func()) {
 	items := raw.PtrSlice(master.Items)
 	type saved struct {
@@ -160,11 +156,9 @@ func dominates(a, b []float64) bool {
 	return strictly
 }
 
-// ParetoFront は knobs×levels の格子で武器ダメージ倍率を動かし、代表日 repDays の目標逸脱を目的とする
-// 非劣な点の集合を返す。序盤を緩く終盤を締めるといった複数日のトレードオフは単変数探索では表せず、
-// 逸脱ベクトルの非劣集合として初めて意味を持つ。決定変数は既存の感度つまみ、すなわち近接武器の倍率。
-// withScaledMeleeDamages が master を退避・復元しながら書き換えるので、この格子ループは並行化しない。
-// 並行で回すなら格子点ごとに独立した master をロードすること。
+// ParetoFront は knobs×levels の格子で武器ダメージ倍率を動かし、代表日 repDays の目標逸脱の非劣な点集合を返す。
+// 複数日のトレードオフは逸脱ベクトルの非劣集合で初めて意味を持つ。withScaledMeleeDamages が master を書き換えるので
+// この格子ループは並行化しない。並行なら格子点ごとに独立した master をロードすること。
 func ParetoFront(master oapi.Raws, knobs []string, levels []float64, repDays []int) []ParetoPoint {
 	combos := gridFactors(knobs, levels)
 	points := make([]ParetoPoint, 0, len(combos))
