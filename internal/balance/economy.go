@@ -122,6 +122,8 @@ func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) fl
 		return 0
 	}
 	weightKg := ExpectedLootWeightKg(master, itemTableName, danger)
+	// AuctionNetProceeds は Currency 整数を取るので期待価値を1個ぶんだけ丸める。丸めは1品あたり0.5未満で、
+	// 実ゲームの落札額も整数なので意図的。ExpectedRunLootIncome の積算でも増幅は個数×0.5未満に収まる。
 	net := query.AuctionNetProceeds(consts.Currency(math.Round(value)), weightKg)
 	return float64(net)
 }

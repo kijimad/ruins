@@ -7,6 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestWeaponRestrictionValues_不明なテーブルはエラー(t *testing.T) {
+	t.Parallel()
+	// 存在しない敵テーブルは基準の死亡確率が引けずエラーになる。
+	master := loadTestMaster(t)
+	_, _, err := WeaponRestrictionValues(master, "nonexistent", 20)
+	require.Error(t, err)
+}
+
 func TestWeaponRestrictionValues_必須な武器ほど劣化量が大きい(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)

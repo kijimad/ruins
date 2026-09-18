@@ -7,6 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestWeaponViability_不明なテーブルはエラー(t *testing.T) {
+	t.Parallel()
+	// 存在しない敵テーブルは WeaponRestrictionValues のエラーをそのまま返す。
+	master := loadTestMaster(t)
+	_, err := WeaponViability(master, "nonexistent", 20)
+	require.Error(t, err)
+}
+
 func TestWeaponViability_viableと罠と差を集計する(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)

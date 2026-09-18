@@ -14,6 +14,7 @@ const DefaultAttacksPerDay = 80
 
 // 想定装備トラックの仮説。能力は成長させず装備で生存力を伸ばす方針で、進行に沿って装備由来の防御が増える。
 // 防御は per-hit を緩和し、床には即死級の敵ダメージを想定では多ターン消耗に変える。見直す前提の値。
+// Params のつまみでなく定数なので、感度・交換レートの摂動対象外。動かした影響を分析機械では測れない。
 const (
 	DefaultDefensePerDay   = 0.8
 	ExpectedGearDefenseCap = 16

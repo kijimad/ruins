@@ -67,7 +67,9 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 // 残 HP を状態とする1次元 DP で、生存質量が尽きると早期終了する。
 func killDistribution(pmf []damageProb, hp int) []float64 {
 	if hp <= 0 {
-		return []float64{0, 1} // 0回では倒せず、1回目で確定して倒す
+		// 防御ガード。formula.CalcHP の下限が HPBaseValue なので実敵の HP は0にならないが、念のため
+		// 1回で確定して倒すとして扱う。kill[1]=1。
+		return []float64{0, 1}
 	}
 	// kill は到達攻撃回数ぶんだけ伸ばし、alive/next は2枚で ping-pong する。毎攻撃ぶん確保すると累積するため。
 	kill := []float64{0}

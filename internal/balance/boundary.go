@@ -50,7 +50,7 @@ func BoundaryMargins(master oapi.Raws) []BoundaryMargin {
 	knobs := knobRegistry()
 	base := metricsAt(master, DefaultParams())
 	bands := metricBands()
-	out := make([]BoundaryMargin, 0)
+	out := make([]BoundaryMargin, 0, len(SensitivityMetricNames)*len(knobs))
 	for i, name := range SensitivityMetricNames {
 		if !bands[i].has {
 			continue
