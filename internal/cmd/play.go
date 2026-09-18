@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/maingame"
+	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/steam"
 	"github.com/pkg/profile"
 	"github.com/urfave/cli/v3"
@@ -105,16 +106,26 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	// 開始ステートの決定
+	// 開始ステートの決定。続きから起動する設定なら最新のオートセーブを読み込み、
+	// 読み込めなければ通常の開始ステートへ落ちる
 	var initialState es.State[w.World]
-	if cfg.SkipOpening {
-		var stateErr error
-		initialState, stateErr = gs.NewDemoStartState()
-		if stateErr != nil {
-			return stateErr
+	if cfg.Continue && cfg.SaveLoadEnabled {
+		if saveManager, smErr := save.NewSerializationManager(); smErr != nil {
+			logger.New(logger.CategorySave).Error("continue: failed to create save manager", "error", smErr.Error())
+		} else if resumeState, ok := gs.NewContinueState(world, saveManager); ok {
+			initialState = resumeState
 		}
-	} else {
-		initialState = &gs.MainMenuState{}
+	}
+	if initialState == nil {
+		if cfg.SkipOpening {
+			var stateErr error
+			initialState, stateErr = gs.NewDemoStartState()
+			if stateErr != nil {
+				return stateErr
+			}
+		} else {
+			initialState = &gs.MainMenuState{}
+		}
 	}
 
 	stateMachine, err := es.Init(initialState, world)

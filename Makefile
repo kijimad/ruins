@@ -9,7 +9,7 @@ BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null
 GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$$')
 
 .PHONY: run
-run: ## 実行する。スクショのキーを指定している
+run: ## 実行する。最新のオートセーブから続きで起動する。新規で始めるときは RUINS_CONTINUE=0 を渡す
 	RUINS_PROFILE=development \
 	go run . play
 
