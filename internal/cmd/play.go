@@ -106,25 +106,9 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	// 開始ステートの決定。続きから起動する設定なら最新のオートセーブから復帰する
-	var initialState es.State[w.World]
-	if cfg.Continue && cfg.SaveLoadEnabled {
-		if saveManager, smErr := save.NewSerializationManager(); smErr != nil {
-			logger.New(logger.CategorySave).Error("continue: failed to create save manager", "error", smErr.Error())
-		} else if resumeState, ok := gs.NewContinueState(world, saveManager); ok {
-			initialState = resumeState
-		}
-	}
-	if initialState == nil {
-		if cfg.SkipOpening {
-			var stateErr error
-			initialState, stateErr = gs.NewDemoStartState()
-			if stateErr != nil {
-				return stateErr
-			}
-		} else {
-			initialState = &gs.MainMenuState{}
-		}
+	initialState, err := initialPlayState(world, cfg)
+	if err != nil {
+		return err
 	}
 
 	stateMachine, err := es.Init(initialState, world)
@@ -143,4 +127,32 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		X11ClassName:    "Coldward",
 		X11InstanceName: "ruins",
 	})
+}
+
+// initialPlayState は起動時の開始ステートを決める。継続でオートセーブを読み込めればその地点から
+// 復帰し、そうでなければ SkipOpening に応じてデモまたはメインメニューから始める。
+func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
+	resume, resumed := maybeContinue(world, cfg)
+	switch {
+	case resumed:
+		return resume, nil
+	case cfg.SkipOpening:
+		return gs.NewDemoStartState()
+	default:
+		return &gs.MainMenuState{}, nil
+	}
+}
+
+// maybeContinue は継続設定が有効でオートセーブを読み込めたとき、その地点の復帰ステートを返す。
+// 継続しない設定、またはセーブマネージャ生成やロードの失敗時は ok=false を返す。失敗はログに残す。
+func maybeContinue(world w.World, cfg *config.Config) (es.State[w.World], bool) {
+	if !cfg.Continue || !cfg.SaveLoadEnabled {
+		return nil, false
+	}
+	saveManager, err := save.NewSerializationManager()
+	if err != nil {
+		logger.New(logger.CategorySave).Error("continue: failed to create save manager", "error", err.Error())
+		return nil, false
+	}
+	return gs.NewContinueState(world, saveManager)
 }
