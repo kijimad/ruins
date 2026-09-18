@@ -8,6 +8,12 @@ BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null
 # - /oapi: OpenAPI生成コード。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
 GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$$')
 
+# ゴールデンテストのソフトウェア描画強制。基準画像は CI の GPU 無し Mesa llvmpipe で撮るため、
+# ローカルの GPU ハードウェア描画だとテクセル丸めがぶれて差分が閾値を超えて落ちる。llvmpipe を
+# 強制して描画経路を CI と揃える。__GLX_VENDOR_LIBRARY_NAME で NVIDIA など GPU の GLX を避ける。
+# GPU 無しの CI では無害。
+SOFTWARE_GL := LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe __GLX_VENDOR_LIBRARY_NAME=mesa
+
 .PHONY: run
 run: ## 実行する。最新のオートセーブから続きで起動する。新規で始めるときは RUINS_CONTINUE=0 を渡す
 	RUINS_PROFILE=development \
@@ -23,23 +29,23 @@ test: ## テストを実行する。RACE=-race で競合検出できる
 	# xvfb-run: ebitenのゴールデンテストがウィンドウを開くのを防ぐ
 	# coverprofile: カバレッジをテスト実行と同時に採る。別実行にすると
 	# xvfbセッションが2本立ち、2本目のディスプレイ初期化が稀に失敗する
-	RUINS_LOG_LEVEL=ignore \
+	RUINS_LOG_LEVEL=ignore $(SOFTWARE_GL) \
 	$(BWRAP_CMD) xvfb-run -a go test $(RACE) -v -cover -coverprofile=coverage.out -shuffle=on -timeout=60m \
 		$(GO_TEST_PKGS)
 
 .PHONY: updategolden
 updategolden: ## ゴールデンテスト用の基準画像を生成する
-	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore \
+	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore $(SOFTWARE_GL) \
 	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
 .PHONY: grill-branch
 grill-branch: ## ブランチで変更したテストを反復実行してフレーキーを検査する
-	RUINS_LOG_LEVEL=ignore \
+	RUINS_LOG_LEVEL=ignore $(SOFTWARE_GL) \
 	$(BWRAP_CMD) xvfb-run -a scripts/grill_branch.sh
 
 .PHONY: grill
 grill: ## 全テストを時間予算いっぱい反復してフレーキーを検査する
-	RUINS_LOG_LEVEL=ignore \
+	RUINS_LOG_LEVEL=ignore $(SOFTWARE_GL) \
 	$(BWRAP_CMD) scripts/grill.sh
 
 .PHONY: bench
