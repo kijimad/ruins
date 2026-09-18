@@ -38608,27 +38608,27 @@
     {
       "X": 44,
       "Y": 27,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 45,
       "Y": 30,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 42,
       "Y": 29,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 43,
       "Y": 30,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 16,
       "Y": 7,
-      "Name": "giant_bee"
+      "Name": "bat"
     }
   ],
   "Items": [
@@ -38647,8 +38647,8 @@
     {
       "X": 16,
       "Y": 2,
-      "Name": "tomato",
-      "Count": 2
+      "Name": "dried_meat",
+      "Count": 1
     },
     {
       "X": 9,
@@ -38666,6 +38666,12 @@
       "X": 19,
       "Y": 12,
       "Name": "wooden_stick",
+      "Count": 1
+    },
+    {
+      "X": 45,
+      "Y": 31,
+      "Name": "mint",
       "Count": 1
     }
   ],

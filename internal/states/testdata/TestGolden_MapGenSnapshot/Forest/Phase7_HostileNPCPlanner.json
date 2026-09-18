@@ -37559,12 +37559,12 @@
     {
       "X": 17,
       "Y": 22,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 21,
       "Y": 24,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 22,
@@ -37584,7 +37584,7 @@
     {
       "X": 38,
       "Y": 32,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     }
   ],
   "Items": [],

@@ -18,6 +18,12 @@ var growthConfig = struct {
 	MaxLevel:      100,
 }
 
+// MaxLevel はスキルの上限レベルを返す。0 は上限なし。バランス導出が成長メトリクスの上限を
+// world 抜きで参照するための公開窓。
+func MaxLevel() int {
+	return growthConfig.MaxLevel
+}
+
 // GainExp はスキルに経験値を加算する。スキルアップしたらtrueを返す。
 // abilityValueは対応する能力値で、高いほど獲得経験値が増える。
 func GainExp(s *gc.Skill, abilityValue int) bool {

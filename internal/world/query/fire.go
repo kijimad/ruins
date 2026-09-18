@@ -10,6 +10,10 @@ import (
 // 効率は熱の強さでなく燃焼時間に効く。良い火の見返りは暖かさでなく薪の節約になる
 const groundBurnEfficiency = 50
 
+// GroundBurnEfficiency は地面直の火の燃焼効率をパーセントで返す公開窓。バランス導出が燃料の
+// 燃焼ターンを world 抜きで算出するのに使う。
+const GroundBurnEfficiency = groundBurnEfficiency
+
 // BurnEfficiency は火が燃えている場所の燃焼効率をパーセントで返す。
 // 今は地面直だけなので定数。将来かまどを足すときは Hearth の効率をここで分ける。
 // 燃料を燃やし始めるたびにこの値を引くので、後からかまどを足しても同じ機構に載る

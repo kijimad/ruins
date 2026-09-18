@@ -24,9 +24,8 @@ const (
 // reportFacilities は集計対象の施設種別。interior の FacilityKind 定数と同じ文字列。
 var reportFacilities = []interior.FacilityKind{"house", "store", "antique", "clinic", "lab", "office", "depot"}
 
-// GenerateRoomLoot は各施設種別を trials 回生成し、床 loot と収納 loot を実際の抽選経路で materialize して
-// 部屋役割ごとにアイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで、PickN・Amount・pack・
-// lootRaw・収納テーブルの相互作用をそのまま反映する。同一 seed で同一結果になる。
+// GenerateRoomLoot は各施設種別を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに
+// アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。
 func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceFacilityLoot {
 	footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 14, Y: 0}

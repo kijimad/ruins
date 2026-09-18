@@ -39,17 +39,48 @@ func TestSolveScalar_敵武器スケールで目標戦力比を探す(t *testing
 	t.Parallel()
 	master := loadTestMaster(t)
 	// 敵武器 bite のダメージ倍率 k を動かし、廃墟 day20 戦力比を目標へ寄せる k を探す。
-	// bite を強くするほど戦力比は下がるので単調。現状 day20 より少し下げる目標を狙う。
+	// bite を強くするほど戦力比は下がるので単調。探索区間の端点の中点を目標にすれば、敵の強弱に依らず
+	// 必ず区間内で挟める。
 	base := ruinsDay20PowerRatio(master)
-	target := base - 0.2
 	eval := func(k float64) float64 {
 		var got float64
 		withScaledMeleeDamage(master, "bite", k, func() { got = ruinsDay20PowerRatio(master) })
 		return got
 	}
+	target := (eval(1.0) + eval(4.0)) / 2
 	k, ok := SolveScalar(eval, target, 1.0, 4.0, 40)
 	require.True(t, ok, "現実的な倍率で目標を挟めること")
 	assert.InDelta(t, target, eval(k), 0.03, "見つけた倍率で目標戦力比に収まる")
 	// master を汚していないこと。探索後も base に戻る
+	assert.InDelta(t, base, ruinsDay20PowerRatio(master), 1e-9)
+}
+
+func TestDominates_全目的以下かつ一部真に小で支配(t *testing.T) {
+	t.Parallel()
+	// 全目的で以下かつ少なくとも1つで真に小さいときだけ支配する。
+	assert.True(t, dominates([]float64{0.1, 0.2}, []float64{0.1, 0.3}), "片方が小・他方が同じは支配")
+	assert.False(t, dominates([]float64{0.1, 0.2}, []float64{0.1, 0.2}), "同一は支配しない")
+	assert.False(t, dominates([]float64{0.1, 0.3}, []float64{0.2, 0.2}), "一勝一敗は支配しない")
+}
+
+func TestParetoFront_非劣集合を返す(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	base := ruinsDay20PowerRatio(master)
+	// プレイヤー武器と敵武器を動かし、序盤day1・中盤day10・終盤day20の目標逸脱を目的にする。
+	front := ParetoFront(master, []string{"bare_hands", "bite"}, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})
+	require.NotEmpty(t, front, "非劣集合は空でない")
+	for _, p := range front {
+		assert.Len(t, p.Deviations, 3, "代表日3つ分の逸脱を持つ")
+	}
+	// 前線内の任意の2点は互いに支配しない
+	for i := range front {
+		for j := range front {
+			if i != j {
+				assert.False(t, dominates(front[i].Deviations, front[j].Deviations), "前線内は互いに非劣")
+			}
+		}
+	}
+	// 探索後も master を汚していない
 	assert.InDelta(t, base, ruinsDay20PowerRatio(master), 1e-9)
 }

@@ -37559,12 +37559,12 @@
     {
       "X": 17,
       "Y": 22,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 21,
       "Y": 24,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     },
     {
       "X": 22,
@@ -37584,26 +37584,26 @@
     {
       "X": 38,
       "Y": 32,
-      "Name": "butterfly"
+      "Name": "poison_frog"
     }
   ],
   "Items": [
     {
       "X": 41,
       "Y": 34,
-      "Name": "antidote",
+      "Name": "dummy_medkit",
       "Count": 1
     },
     {
       "X": 38,
       "Y": 34,
-      "Name": "pancake",
+      "Name": "cupcake",
       "Count": 1
     },
     {
       "X": 38,
       "Y": 30,
-      "Name": "screwdriver",
+      "Name": "monkey_wrench",
       "Count": 1
     },
     {
@@ -37621,26 +37621,26 @@
     {
       "X": 42,
       "Y": 34,
-      "Name": "antidote",
+      "Name": "dummy_medkit",
       "Count": 1
     },
     {
       "X": 44,
       "Y": 28,
-      "Name": "pickaxe",
+      "Name": "fire_extinguisher",
       "Count": 1
     },
     {
       "X": 41,
       "Y": 30,
-      "Name": "pumpkin",
+      "Name": "meat_on_bone",
       "Count": 1
     },
     {
       "X": 24,
       "Y": 36,
-      "Name": "cola",
-      "Count": 2
+      "Name": "bagel",
+      "Count": 1
     }
   ],
   "Props": [],

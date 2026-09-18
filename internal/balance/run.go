@@ -4,8 +4,10 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // フロアあたりの敵数定数。mapplanner/hostile_npc_planner.go と同じ値を使う
@@ -20,6 +22,13 @@ const (
 	randomStepsPerFloor = 40 // 平均80歩（60+rand(40)）
 )
 
+// フロアあたりの loot 配置数。mapplanner のアイテム配置ロジックと同じ 15 + rand(0..8)。
+// 期待値は 15 + (9-1)/2 = 19 個。閉形式の収入導出 ExpectedRunLootIncome もこの定数を参照する。
+const (
+	floorItemBase   = 15
+	floorItemRandom = 9
+)
+
 // RunResult は1ランの結果
 type RunResult struct {
 	ReachedDepth        int
@@ -30,11 +39,10 @@ type RunResult struct {
 	WeaponDamageByDepth map[int]int    // 各深度での武器ダメージ値
 	AvgKillTurnsByDepth map[int]int    // 各深度での1戦あたり平均キルターン
 	HungerByDepth       map[int]int    // 各深度終了時の空腹度
+	LootIncome          int            // ラン中に拾った loot の競売手取り総額。早死にするほど少ない
 }
 
-// SimulateRun はラン全体を模擬する。
-// maxDepth まで進み、死亡したらそこで終了する。
-// フロアのアイテムドロップから武器を取得した場合、より強い武器に切り替える
+// SimulateRun はラン全体を模擬する。maxDepth まで進み死亡で終了する。フロアのドロップでより強い武器へ切り替える。
 func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
 	result := RunResult{
 		HPByDepth:           make(map[int]int),
@@ -128,6 +136,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 			currentWeaponName = loot.weaponName
 		}
 		foodStock += loot.nutrition
+		result.LootIncome += loot.income
 
 		// 空腹（33%未満）になったら食料ストックを消費する
 		if hunger.GetLevel() >= gc.HungerHungry && foodStock > 0 {
@@ -154,6 +163,7 @@ type floorLoot struct {
 	nutrition  int
 	weapon     *WeaponStats
 	weaponName string
+	income     int // 拾った loot を競売に出したときの手取り総額
 }
 
 // rollFloorLoot はフロアで拾えるアイテムを計算する。
@@ -166,8 +176,8 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 		return result
 	}
 
-	// mapplanner のアイテム配置ロジック: 15 + rand(0..8)
-	itemCount := 15 + rng.IntN(9)
+	// mapplanner のアイテム配置ロジック: floorItemBase + rand(0..floorItemRandom-1)
+	itemCount := floorItemBase + rng.IntN(floorItemRandom)
 
 	for range itemCount {
 		itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)
@@ -192,6 +202,13 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 		if err == nil && (result.weapon == nil || w.Damage > result.weapon.Damage) {
 			result.weapon = &w
 			result.weaponName = itemName
+		}
+
+		// 拾った loot を競売に出したときの手取りを積む。重い安物は割れるので、赤字なら売らない
+		if it, e := raw.FindItem(master, itemName); e == nil {
+			if net := query.AuctionNetProceeds(consts.Currency(it.Value), itemWeightKg(it)); net > 0 {
+				result.income += int(net)
+			}
 		}
 	}
 

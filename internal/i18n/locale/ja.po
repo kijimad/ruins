@@ -5406,6 +5406,15 @@ msgstr "ジープ"
 msgid "Slime"
 msgstr "スライム"
 
+msgid "Razor Hound"
+msgstr "カミソリ犬"
+
+msgid "Rust Golem"
+msgstr "錆のゴーレム"
+
+msgid "Ember Moth"
+msgstr "燠火の蛾"
+
 msgid "Rat"
 msgstr "ネズミ"
 
@@ -5444,9 +5453,6 @@ msgstr "影司祭"
 
 msgid "Shadow Rat"
 msgstr "影鼠"
-
-msgid "Suspicious Scientist"
-msgstr "怪しい科学者"
 
 msgid "Old Tank"
 msgstr "旧式戦車"
@@ -6092,3 +6098,231 @@ msgstr "廃兵長"
 
 msgid "Ash Wolf"
 msgstr "灰狼"
+
+msgid "Spark Blade"
+msgstr "火花の剣"
+
+msgid "Frost Edge"
+msgstr "氷結の刃"
+
+msgid "Prism Rod"
+msgstr "プリズムロッド"
+
+msgid "Venom Fang"
+msgstr "毒牙"
+
+msgid "Bleed Claw"
+msgstr "出血の爪"
+
+msgid "Dummy Ration"
+msgstr "ダミー携行食"
+
+msgid "Shock Bite"
+msgstr "電撃噛み"
+
+msgid "Frost Maw"
+msgstr "氷の顎"
+
+msgid "Photon Flash"
+msgstr "光子閃"
+
+msgid "Spark Wisp"
+msgstr "火花の霊"
+
+msgid "Frost Lurker"
+msgstr "氷潜み"
+
+msgid "Venom Crawler"
+msgstr "毒這い"
+
+msgid "Bleeding Hound"
+msgstr "出血犬"
+
+msgid "Prism Eye"
+msgstr "光の目"
+
+msgid "A blade crackling with lightning."
+msgstr "雷をまとった剣。"
+
+msgid "A blade rimed with frost."
+msgstr "霜に覆われた刃。"
+
+msgid "A rod that focuses light into a beam."
+msgstr "光を束ねて放つ杖。"
+
+msgid "A bland placeholder ration."
+msgstr "味気ない仮の携行食。"
+
+msgid "An enemy attack of biting cold."
+msgstr "凍てつく敵の攻撃。"
+
+msgid "An enemy attack of searing light."
+msgstr "灼く光の敵の攻撃。"
+
+msgid "An enemy attack that jolts with electricity."
+msgstr "電撃を帯びた敵の攻撃。"
+
+msgid "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 毒を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies bleeding. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 出血を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "Toxin Barb"
+msgstr "毒の棘"
+
+msgid "Thunder Spear"
+msgstr "雷の槍"
+
+msgid "Sun Blade"
+msgstr "太陽の剣"
+
+msgid "Flame Gun"
+msgstr "火炎銃"
+
+msgid "Frost Bolt"
+msgstr "氷結の弓"
+
+msgid "Paralyze Rod"
+msgstr "麻痺の杖"
+
+msgid "Curse Dagger"
+msgstr "呪いの短剣"
+
+msgid "Scrap Battery"
+msgstr "使用済み電池"
+
+msgid "Dummy Medkit"
+msgstr "ダミー救急箱"
+
+msgid "Static Mite"
+msgstr "帯電ダニ"
+
+msgid "Chill Slime"
+msgstr "冷たい粘体"
+
+msgid "Sunbug"
+msgstr "光虫"
+
+msgid "Paralyzer"
+msgstr "麻痺獣"
+
+msgid "Curse Wraith"
+msgstr "呪縛の亡霊"
+
+msgid "A spear humming with charge."
+msgstr "帯電して唸る槍。"
+
+msgid "A blade that glows with harsh light."
+msgstr "強い光を放つ剣。"
+
+msgid "An energy weapon that spits fire."
+msgstr "火を吐くエネルギー武器。"
+
+msgid "A bow that looses freezing bolts."
+msgstr "凍える矢を放つ弓。"
+
+msgid "A depleted battery worth a little at auction."
+msgstr "競売で少し値が付く使用済み電池。"
+
+msgid "A placeholder medkit."
+msgstr "仮の救急箱。"
+
+msgid "todo: applies paralysis. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 麻痺を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies weakening curse. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 衰弱の呪いを付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "Storm Hammer"
+msgstr "嵐の大槌"
+
+msgid "Glacier Axe"
+msgstr "氷河の斧"
+
+msgid "Ember Whip"
+msgstr "燠の鞭"
+
+msgid "Radiant Bow"
+msgstr "光輝の弓"
+
+msgid "Drowsy Pipe"
+msgstr "眠りの笛"
+
+msgid "Blind Powder"
+msgstr "盲目の粉"
+
+msgid "Slow Net"
+msgstr "鈍足の網"
+
+msgid "Energy Bar"
+msgstr "エナジーバー"
+
+msgid "Rusted Gear"
+msgstr "錆びた歯車"
+
+msgid "Storm Drake"
+msgstr "嵐竜"
+
+msgid "Glacier Golem"
+msgstr "氷河のゴーレム"
+
+msgid "Ember Imp"
+msgstr "燠の小鬼"
+
+msgid "Dozer"
+msgstr "まどろむ獣"
+
+msgid "Blinder"
+msgstr "盲目化獣"
+
+msgid "A heavy hammer wreathed in sparks."
+msgstr "火花をまとう重い大槌。"
+
+msgid "An axe of everlasting ice."
+msgstr "溶けない氷の斧。"
+
+msgid "A whip trailing embers."
+msgstr "燠を引く鞭。"
+
+msgid "A bow that fires bolts of light."
+msgstr "光の矢を放つ弓。"
+
+msgid "A compact ration bar."
+msgstr "携帯用の栄養バー。"
+
+msgid "A rusted gear worth a little at auction."
+msgstr "競売で少し値が付く錆びた歯車。"
+
+msgid "todo: applies sleep. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 睡眠を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies blindness. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 盲目を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "todo: applies slow. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
+msgstr "todo: 鈍足を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"
+
+msgid "Supply Locker"
+msgstr "補給ロッカー"
+
+msgid "Ration Crate"
+msgstr "食料箱"
+
+msgid "Med Cabinet"
+msgstr "薬棚(仮)"
+
+msgid "Boulder"
+msgstr "大岩"
+
+msgid "Thicket"
+msgstr "茂み"
+
+msgid "Brazier"
+msgstr "火鉢"
+
+msgid "Floor Lamp"
+msgstr "床ランプ"
+
+msgid "Scrap Heap"
+msgstr "がらくたの山"

@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
@@ -46,6 +47,7 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	assert.Contains(t, md, "# バランスベースライン")
 	assert.Contains(t, md, "## 生存圧")
 	assert.Contains(t, md, "## 感度")
+	assert.Contains(t, md, "## 戦闘リスク")
 
 	// 敵テーブルは id 昇順で並ぶ。cave < forest < ruins_area
 	iCave := strings.Index(md, "(cave)")
@@ -57,6 +59,9 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	assert.Less(t, iCave, iForest, "cave が forest より前")
 	assert.Less(t, iForest, iRuins, "forest が ruins_area より前")
 
-	// 各テーブルに day 行が21日ぶん出る
-	assert.Equal(t, 3, strings.Count(md, "| 1 | 1 |"), "各テーブルの day1 行")
+	// 各テーブルに day1 行が出る。難易度カーブの戦力比は小数なので、day1 危険度1の行を戦力比 2.x で
+	// 数えると、死亡確率や経済など整数3列目を持つ他の進行表と区別できる。表は列幅で桁揃えされるので
+	// 空白数に依らず正規表現で数える。
+	day1Curve := regexp.MustCompile(`\|\s+1 \|\s+1 \|\s+2\.`)
+	assert.Len(t, day1Curve.FindAllString(md, -1), 3, "各テーブルの day1 難易度カーブ行")
 }
