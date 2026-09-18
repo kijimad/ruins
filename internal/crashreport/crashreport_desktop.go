@@ -38,11 +38,15 @@ func writeRecordTo(dir string, rec CrashRecord) string {
 	if err != nil {
 		return ""
 	}
-	defer func() { _ = f.Close() }()
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "  ")
-	if err := enc.Encode(rec); err != nil {
-		// 書きかけの空ファイルを残さない。ユーザーが中身の無いクラッシュ記録を見て混乱しないため
+	err = enc.Encode(rec)
+	// remove の前に閉じる。Windows は open 中のファイルを消せない。Close 時の書き込み失敗も拾う
+	if cerr := f.Close(); err == nil {
+		err = cerr
+	}
+	if err != nil {
+		// 書きかけの空ファイルを残さない。中身の無いクラッシュ記録でユーザーを混乱させないため
 		_ = os.Remove(path)
 		return ""
 	}
