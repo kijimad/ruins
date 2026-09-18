@@ -177,8 +177,8 @@ type EconomyDay struct {
 
 // EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと一定の生活費で表す。進むほど loot
 // 価値が上がり生活費が相対的に軽くなるかを見る。乱数を使わない。
-func EconomyProgression(master oapi.Raws, itemTableName string, days int) []EconomyDay {
-	costPerDay := CostOfLivingPerDay(master, DefaultParams())
+func EconomyProgression(master oapi.Raws, itemTableName string, days int, p Params) []EconomyDay {
+	costPerDay := CostOfLivingPerDay(master, p)
 	out := make([]EconomyDay, 0, days)
 	for day := 1; day <= days; day++ {
 		danger := query.DangerLevelForDay(day)

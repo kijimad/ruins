@@ -227,7 +227,7 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "経済の進行。1日の食費は満腹度減耗を最安の食料で埋め戻す費用で %.0f。日が進むと危険度が上がり loot 手取りも上がるので、\n", CostOfLivingPerDay(master, DefaultParams()))
 	fmt.Fprintf(&b, "1日分の食費を賄うのに要る loot 個数が減る。個数が小さいほど、その日の探索は生活費に対して割が良い。\n\n")
 	var econProgRows [][]string
-	for _, d := range EconomyProgression(master, "ruins_area", days) {
+	for _, d := range EconomyProgression(master, "ruins_area", days, params) {
 		econProgRows = append(econProgRows, []string{fmt.Sprintf("%d", d.Day), fmt.Sprintf("%d", d.Danger), fmt.Sprintf("%.0f", d.NetLootValue), fmt.Sprintf("%.2f", d.LootPerDayFood)})
 	}
 	writeMDTable(&b, []string{"日", colDanger, "1個あたり手取り", "1日分の食費に要る loot 個数"}, []tw.Align{alignR, alignR, alignR, alignR}, econProgRows)

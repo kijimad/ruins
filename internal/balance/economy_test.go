@@ -78,7 +78,7 @@ func TestCostOfLivingPerDay_最安食料で満腹度減耗を賄う(t *testing.T
 func TestEconomyProgression_進行で1日分の食費が軽くなる(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	curve := EconomyProgression(master, "ruins_area", BaselineDays)
+	curve := EconomyProgression(master, "ruins_area", BaselineDays, DefaultParams())
 	require.Len(t, curve, BaselineDays)
 	// 危険度が上がると loot 手取りが増えるので、1日分の食費を賄う loot 個数は序盤より終盤で減る。
 	assert.Greater(t, curve[0].LootPerDayFood, curve[BaselineDays-1].LootPerDayFood, "終盤ほど食費が軽い")

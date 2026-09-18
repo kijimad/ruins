@@ -44,8 +44,7 @@ func WeaponViability(master oapi.Raws, enemyTableName string, day int) (Viabilit
 	if err != nil {
 		return ViabilitySummary{}, err
 	}
-	// Inf で初期化して最後にゼロへ戻す方式は、上書き漏れで Inf が外へ出る壊れ方をする。
-	// viable が0件なら min/max はゼロ値のまま、1件目で両方をその値に据えてから広げる。
+	// viable が0件なら min/max はゼロ値のまま。1件目で両方をその値に据えてから広げるので、番兵の Inf を使わずに済む。
 	s := ViabilitySummary{Day: day, Total: len(values), Ceiling: viabilityCeiling}
 	first := true
 	for _, v := range values {

@@ -66,10 +66,12 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 // killDistribution は pmf で HP hp を倒すのに要する攻撃回数の分布を返す。kill[k]=P(ちょうど k 回で倒す)。
 // 残 HP を状態とする1次元 DP で、生存質量が尽きると早期終了する。
 func killDistribution(pmf []damageProb, hp int) []float64 {
-	if hp <= 0 {
-		// 防御ガード。formula.CalcHP の下限が HPBaseValue なので実敵の HP は0にならないが、念のため
-		// 1回で確定して倒すとして扱う。kill[1]=1。
-		return []float64{0, 1}
+	if hp < 0 {
+		// 実敵の HP は formula.CalcHP の下限 HPBaseValue 以上で負にならない。負は呼び出し側のバグなので早期に落とす。
+		panic("killDistribution called with negative hp")
+	}
+	if hp == 0 {
+		return []float64{0, 1} // 既に倒れている扱い。1回で確定して倒す
 	}
 	// kill は到達攻撃回数ぶんだけ伸ばし、alive/next は2枚で ping-pong する。毎攻撃ぶん確保すると累積するため。
 	kill := []float64{0}
