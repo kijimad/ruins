@@ -55,7 +55,8 @@ func TestSetSpriteSheets_シートと解決キャッシュの両方を更新す�
 	r.SetSpriteSheets(sheetsB)
 
 	assert.Equal(t, sheetsB, r.SpriteSheets)
-	// キャッシュが捨てられ、差し替え後のシートから改めて解決される
+	// キャッシュが捨てられ、差し替え後のシートから改めて解決される。
+	// ebiten.NewImageは呼び出しごとに新しいインスタンスを返すため、sheetsBのTextureはsheetsAと別ポインタになる
 	resolvedUnderB := r.Sprites.Image(sr)
 	require.NotNil(t, resolvedUnderB)
 	assert.NotSame(t, cachedUnderA, resolvedUnderB)

@@ -225,7 +225,7 @@ func TestSpriteRect_SpriteRenderがnilならエラー(t *testing.T) {
 
 func TestSpriteStoreSized_縦長の矩形は縦を基準に縮める(t *testing.T) {
 	t.Parallel()
-	// 幅20・高さ40の縦長矩形をsize=20へ収める。sw<shなのでdw側をshrinkToFitのelse分岐で計算する
+	// 幅20・高さ40の縦長矩形をsize=20へ収める。高さ>=幅なので高さ基準でアスペクト比を保って縮める
 	s := newSpriteStore(t, map[string]components.SpriteSheet{
 		"sheet": {
 			Texture: components.Texture{

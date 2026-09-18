@@ -30,8 +30,8 @@ func TestNewImageFromFile_存在しないパスはエラー(t *testing.T) {
 func TestNewImageFromFile_画像として復号できなければエラー(t *testing.T) {
 	t.Parallel()
 
-	// ディレクトリはOpenできるがimage.Decodeが読めるバイト列を返さない
-	_, err := newImageFromFile("assets/graphics")
+	// graphics.svgはOpenできるがimage.Decodeが対応するPNG/JPEG等の形式ではない
+	_, err := newImageFromFile("assets/graphics/graphics.svg")
 
 	require.Error(t, err)
 }
