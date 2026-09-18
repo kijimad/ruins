@@ -46,7 +46,7 @@ func Save(recovered any, stack []byte) {
 func buildRecord(recovered any, stack []byte, state string) CrashRecord {
 	return CrashRecord{
 		Timestamp: time.Now().Format(time.RFC3339),
-		Level:     "FATAL", // logger.Level.String() の表記に揃える
+		Level:     logger.LevelFatal.String(), // "FATAL"。logger の表記を単一出典にして取り違えを防ぐ
 		Category:  "crash",
 		Message:   fmt.Sprintf("%v", recovered),
 		Version:   consts.AppVersion,
