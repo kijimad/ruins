@@ -8,10 +8,9 @@ BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null
 # - /oapi: OpenAPI生成コード。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
 GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$$')
 
-# ゴールデンテストのソフトウェア描画強制。基準画像は CI の GPU 無し Mesa llvmpipe で撮るため、
-# ローカルの GPU ハードウェア描画だとテクセル丸めがぶれて差分が閾値を超えて落ちる。llvmpipe を
-# 強制して描画経路を CI と揃える。__GLX_VENDOR_LIBRARY_NAME で NVIDIA など GPU の GLX を避ける。
-# GPU 無しの CI では無害。
+# ゴールデンの基準画像は CI の GPU 無し Mesa llvmpipe で撮る。GPU 機はハードウェア描画だと
+# テクセル丸めがぶれて差分が閾値を超えるので、llvmpipe を強制して描画経路を CI と揃える。
+# __GLX_VENDOR_LIBRARY_NAME は GPU の GLX を避ける。GPU 無しの CI では無害。
 SOFTWARE_GL := LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe __GLX_VENDOR_LIBRARY_NAME=mesa
 
 .PHONY: run

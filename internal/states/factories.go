@@ -251,10 +251,7 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 }
 
 // NewContinueState は最新のオートセーブを saveManager から読み込み、その地点の復帰ステートを返す。
-// 起動時の継続プレイから使う。読み込めるオートセーブが無い、または復元に失敗したときは
-// ok=false を返し、呼び出し側は通常の開始へフォールバックする。復元失敗時も
-// RestoreWorldFromJSON の probe 検証により world は無傷なので、そのまま新規開始に使える。
-// 継続はあくまで開発と再開の利便なので、どの失敗もプロセスを落とさずログに残して握りつぶす。
+// 読み込めるオートセーブが無い、または復元に失敗したときは ok=false を返す。失敗はログに残す。
 func NewContinueState(world w.World, saveManager *save.SerializationManager) (es.State[w.World], bool) {
 	log := logger.New(logger.CategorySave)
 	autoSaves, err := saveManager.ListAutoSaves()
