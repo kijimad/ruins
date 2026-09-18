@@ -37566,7 +37566,7 @@
     {
       "X": 37,
       "Y": 27,
-      "Name": "black_tea",
+      "Name": "belly_meat",
       "Count": 1
     },
     {
@@ -37584,7 +37584,7 @@
     {
       "X": 13,
       "Y": 18,
-      "Name": "sausage",
+      "Name": "prosciutto",
       "Count": 1
     },
     {
@@ -37608,7 +37608,7 @@
     {
       "X": 19,
       "Y": 23,
-      "Name": "ration_bar",
+      "Name": "dummy_ration",
       "Count": 2
     },
     {
@@ -37626,7 +37626,7 @@
     {
       "X": 42,
       "Y": 25,
-      "Name": "hamburger",
+      "Name": "croissant",
       "Count": 1
     }
   ],

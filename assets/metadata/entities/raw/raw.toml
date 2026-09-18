@@ -13075,15 +13075,15 @@ weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "alloy_plate"
-weight = 12
+weight = 4
 pack = "1d1"
 [[itemGroups.entries]]
 id = "optic_lens"
-weight = 8
+weight = 3
 pack = "1d1"
 [[itemGroups.entries]]
 id = "coolant_vial"
-weight = 10
+weight = 3
 pack = "1d1"
 [[itemGroups]]
 name = "がらくた"
@@ -13122,10 +13122,6 @@ id = "electric_wire"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
-id = "energy_cell"
-weight = 1.0
-pack = "1d1"
-[[itemGroups.entries]]
 id = "feather"
 weight = 1.0
 pack = "1d1"
@@ -13155,10 +13151,6 @@ weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "pillow"
-weight = 1.0
-pack = "1d1"
-[[itemGroups.entries]]
-id = "rifle_round"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
@@ -13475,11 +13467,11 @@ weight = 2
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ration_bar"
-weight = 6
+weight = 3
 pack = "1d2"
 [[itemGroups.entries]]
 id = "smoked_fish"
-weight = 5
+weight = 2
 pack = "1d1"
 [[itemGroups]]
 name = "序盤近接武器"

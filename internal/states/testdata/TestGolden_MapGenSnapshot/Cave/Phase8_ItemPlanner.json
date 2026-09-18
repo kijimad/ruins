@@ -37574,7 +37574,7 @@
     {
       "X": 23,
       "Y": 34,
-      "Name": "naan",
+      "Name": "lemon_soda",
       "Count": 1
     },
     {
@@ -37586,25 +37586,31 @@
     {
       "X": 13,
       "Y": 0,
-      "Name": "hawaiian_soda",
+      "Name": "fried_chicken",
       "Count": 1
     },
     {
       "X": 39,
       "Y": 21,
-      "Name": "dummy_ration",
-      "Count": 2
+      "Name": "salmon",
+      "Count": 1
     },
     {
       "X": 3,
       "Y": 24,
-      "Name": "donut",
+      "Name": "cookie",
       "Count": 1
     },
     {
       "X": 45,
       "Y": 3,
       "Name": "field_dressing",
+      "Count": 1
+    },
+    {
+      "X": 38,
+      "Y": 23,
+      "Name": "winter_gloves",
       "Count": 1
     }
   ],

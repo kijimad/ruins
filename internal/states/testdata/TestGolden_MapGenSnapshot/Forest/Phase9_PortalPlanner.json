@@ -37597,7 +37597,7 @@
     {
       "X": 38,
       "Y": 34,
-      "Name": "green_soda",
+      "Name": "flat_meat",
       "Count": 1
     },
     {
@@ -37633,13 +37633,13 @@
     {
       "X": 41,
       "Y": 30,
-      "Name": "salmon",
+      "Name": "pig_head",
       "Count": 1
     },
     {
       "X": 24,
       "Y": 36,
-      "Name": "belly_meat",
+      "Name": "beef_jerky",
       "Count": 1
     }
   ],
