@@ -37591,13 +37591,13 @@
     {
       "X": 41,
       "Y": 34,
-      "Name": "dummy_medkit",
+      "Name": "field_dressing",
       "Count": 1
     },
     {
       "X": 38,
       "Y": 34,
-      "Name": "cupcake",
+      "Name": "flat_meat",
       "Count": 1
     },
     {
@@ -37615,13 +37615,13 @@
     {
       "X": 38,
       "Y": 28,
-      "Name": "green_herb",
+      "Name": "yellow_herb",
       "Count": 1
     },
     {
       "X": 42,
       "Y": 34,
-      "Name": "dummy_medkit",
+      "Name": "trauma_kit",
       "Count": 1
     },
     {
@@ -37633,13 +37633,13 @@
     {
       "X": 41,
       "Y": 30,
-      "Name": "meat_on_bone",
+      "Name": "pig_head",
       "Count": 1
     },
     {
       "X": 24,
       "Y": 36,
-      "Name": "bagel",
+      "Name": "beef_jerky",
       "Count": 1
     }
   ],

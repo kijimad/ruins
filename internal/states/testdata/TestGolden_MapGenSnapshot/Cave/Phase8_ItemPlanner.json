@@ -37568,31 +37568,31 @@
     {
       "X": 40,
       "Y": 36,
-      "Name": "toothbrush_set",
+      "Name": "field_dressing",
       "Count": 1
     },
     {
       "X": 23,
       "Y": 34,
-      "Name": "grape_soda",
+      "Name": "lemon_soda",
       "Count": 1
     },
     {
       "X": 10,
       "Y": 34,
-      "Name": "energy_bar",
+      "Name": "smoked_fish",
       "Count": 1
     },
     {
       "X": 13,
       "Y": 0,
-      "Name": "cured_sausage",
+      "Name": "fried_chicken",
       "Count": 1
     },
     {
       "X": 39,
       "Y": 21,
-      "Name": "pizza",
+      "Name": "salmon",
       "Count": 1
     },
     {
@@ -37604,7 +37604,7 @@
     {
       "X": 45,
       "Y": 3,
-      "Name": "antidote",
+      "Name": "dummy_medkit",
       "Count": 1
     },
     {

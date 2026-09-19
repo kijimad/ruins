@@ -37566,7 +37566,7 @@
     {
       "X": 37,
       "Y": 27,
-      "Name": "baguette",
+      "Name": "belly_meat",
       "Count": 1
     },
     {
@@ -37578,13 +37578,13 @@
     {
       "X": 41,
       "Y": 28,
-      "Name": "healing_potion",
+      "Name": "green_herb",
       "Count": 1
     },
     {
       "X": 13,
       "Y": 18,
-      "Name": "mint",
+      "Name": "prosciutto",
       "Count": 1
     },
     {
@@ -37608,13 +37608,13 @@
     {
       "X": 19,
       "Y": 23,
-      "Name": "sliced_bread",
-      "Count": 1
+      "Name": "dummy_ration",
+      "Count": 2
     },
     {
       "X": 19,
       "Y": 26,
-      "Name": "dummy_medkit",
+      "Name": "trauma_kit",
       "Count": 1
     },
     {
@@ -37626,13 +37626,7 @@
     {
       "X": 42,
       "Y": 25,
-      "Name": "cheese",
-      "Count": 1
-    },
-    {
-      "X": 12,
-      "Y": 18,
-      "Name": "chef_hat",
+      "Name": "croissant",
       "Count": 1
     }
   ],

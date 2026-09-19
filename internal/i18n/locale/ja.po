@@ -6326,3 +6326,75 @@ msgstr "床ランプ"
 
 msgid "Scrap Heap"
 msgstr "がらくたの山"
+
+msgid "Pulse Baton"
+msgstr "パルスバトン"
+
+msgid "A stun baton that discharges a stored jolt on contact."
+msgstr "接触した瞬間に蓄えた電撃を放つスタンバトン"
+
+msgid "Slag Cleaver"
+msgstr "スラグクリーバー"
+
+msgid "A crude blade cut from furnace slag, heavy and unbalanced."
+msgstr "炉のスラグから削り出した粗い刃。重く扱いにくい"
+
+msgid "Ember Lash"
+msgstr "エンバーラッシュ"
+
+msgid "A fuel-soaked lash that ignites as it whips out."
+msgstr "燃料を染み込ませた鞭。振るうと発火する"
+
+msgid "Alloy Plate"
+msgstr "合金板"
+
+msgid "A dense plate of mixed-metal alloy, prized by smiths."
+msgstr "各種金属を混ぜた緻密な合金板。鍛冶師に重宝される"
+
+msgid "Optic Lens"
+msgstr "光学レンズ"
+
+msgid "A ground optical lens, clear and precisely curved."
+msgstr "研磨した光学レンズ。透明で精密に湾曲している"
+
+msgid "Coolant Vial"
+msgstr "冷却液の小瓶"
+
+msgid "A sealed vial of coolant fluid drained from old machinery."
+msgstr "古い機械から抜き取った冷却液を封じた小瓶"
+
+msgid "Field Dressing"
+msgstr "応急包帯"
+
+msgid "A quick bandage that stops bleeding and restores some HP."
+msgstr "出血を止めHPを少し回復する簡易包帯"
+
+msgid "Trauma Kit"
+msgstr "外傷キット"
+
+msgid "A full trauma kit that patches serious wounds."
+msgstr "重傷を手当てする本格的な外傷キット"
+
+msgid "Ration Bar"
+msgstr "携行食バー"
+
+msgid "A dense pressed bar of survival rations."
+msgstr "圧縮したサバイバル用の携行食バー"
+
+msgid "Smoked Fish"
+msgstr "燻製魚"
+
+msgid "Smoke-cured fish that keeps without refrigeration."
+msgstr "冷蔵せずに保つ燻製の魚"
+
+msgid "Kevlar Vest"
+msgstr "ケブラーベスト"
+
+msgid "A layered fiber vest that blunts impacts."
+msgstr "衝撃を和らげる多層繊維のベスト"
+
+msgid "Riot Helmet"
+msgstr "暴動鎮圧用ヘルメット"
+
+msgid "A visored helmet built to take hits."
+msgstr "打撃に耐えるバイザー付きヘルメット"
