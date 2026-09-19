@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.5&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">83</td>
-            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntry">83</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-18 15:05:41</td>
+            <td class="headerValue">2026-09-19 02:12:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -125,17 +125,17 @@
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         key := spriteKey{sheet: sr.SpriteSheetName, sprite: sr.SpriteKey, size: size}</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         if img, ok := s.images[key]; ok {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                 return img</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           1 :         tex, rect, ok := s.Rect(sr)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 return img</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         tex, rect, ok := s.Rect(sr)</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         img := shrinkToFit(tex, rect, size)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         img := shrinkToFit(tex, rect, size)</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         if img == nil {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           1 :         s.images[key] = img</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         s.images[key] = img</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         return img</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : }</span>
 <span id="L79"><span class="lineNum">      79</span>              : </span>
@@ -154,9 +154,9 @@
 <span id="L92"><span class="lineNum">      92</span>              : // 矩形はテクスチャ範囲へクランプするので、範囲外を指す指定でも安全に切り出せる</span>
 <span id="L93"><span class="lineNum">      93</span>              : func spriteRect(sheets map[string]components.SpriteSheet, sr *components.SpriteRender) (components.SpriteSheet, image.Rectangle, error) {</span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         if sr == nil {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC tlaBgUNC">           0 :                 return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf(&quot;sprite render is nil&quot;)</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC tlaBgGNC">           1 :         sheet, ok := sheets[sr.SpriteSheetName]</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf(&quot;sprite render is nil&quot;)</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         sheet, ok := sheets[sr.SpriteSheetName]</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf(&quot;sprite sheet %q not found&quot;, sr.SpriteSheetName)</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -185,20 +185,20 @@
 <span id="L123"><span class="lineNum">     123</span>              : func shrinkToFit(tex components.Texture, rect image.Rectangle, size int) *ebiten.Image {</span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         sw, sh := rect.Dx(), rect.Dy()</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         if sw &lt;= 0 || sh &lt;= 0 {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           1 :         if (sw &lt;= size &amp;&amp; sh &lt;= size) || tex.Source == nil {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         if (sw &lt;= size &amp;&amp; sh &lt;= size) || tex.Source == nil {</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return components.SubImage(tex.Image, rect)</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         dw, dh := size, size</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         if sw &gt;= sh {</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 dh = max(1, sh*size/sw)</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         } else {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC tlaBgUNC">           0 :                 dw = max(1, sw*size/sh)</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 dw = max(1, sw*size/sh)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : </span>
 <span id="L138"><span class="lineNum">     138</span>              :         // image.RGBA は乗算済みアルファなので、透過の境界でも色がにじまない重み付けになる</span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC tlaBgGNC">           1 :         dst := image.NewRGBA(image.Rect(0, 0, dw, dh))</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         dst := image.NewRGBA(image.Rect(0, 0, dw, dh))</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         draw.CatmullRom.Scale(dst, dst.Bounds(), tex.Source, rect, draw.Src, nil)</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         out := ebiten.NewImage(dw, dh)</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">73.9&nbsp;%</td>
+            <td class="headerCovTableEntryHi">91.3&nbsp;%</td>
             <td class="headerCovTableEntry">23</td>
-            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">21</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-18 15:05:41</td>
+            <td class="headerValue">2026-09-19 02:12:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,10 +86,10 @@
 <span id="L24"><span class="lineNum">      24</span>              :         }()</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         src, _, err := image.Decode(f)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :         // アトラス配置に画素が左右されないよう unmanaged で作る。機構は components.Texture を参照</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         return ebiten.NewImageFromImageWithOptions(src, &amp;ebiten.NewImageFromImageOptions{Unmanaged: true}), nil</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return ebiten.NewImageFromImageWithOptions(src, &amp;ebiten.NewImageFromImageOptions{Unmanaged: true}), nil</span></span>
 <span id="L31"><span class="lineNum">      31</span>              : }</span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // newNineSliceTex はテクスチャを読み込み、中央サイズから9スライスの分割幅を導いて返す。</span>
@@ -97,9 +97,9 @@
 <span id="L35"><span class="lineNum">      35</span>              : func newNineSliceTex(path string, centerW, centerH int) (*NineSliceTex, error) {</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         img, err := newImageFromFile(path)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :         w, h := img.Bounds().Dx(), img.Bounds().Dy()</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         w, h := img.Bounds().Dx(), img.Bounds().Dy()</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         return &amp;NineSliceTex{</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 Image: img,</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 BX:    [3]int{(w - centerW) / 2, centerW, w - (w-centerW)/2 - centerW},</span></span>

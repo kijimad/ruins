@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -407,7 +407,7 @@
 				
 				<option value="file175">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (64.1%)</option>
 				
-				<option value="file176">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.9%)</option>
+				<option value="file176">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.4%)</option>
 				
 				<option value="file177">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -501,15 +501,15 @@
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/render3d/world.go (86.2%)</option>
 				
-				<option value="file223">github.com/kijimaD/ruins/internal/resources/font.go (85.7%)</option>
+				<option value="file223">github.com/kijimaD/ruins/internal/resources/font.go (100.0%)</option>
 				
 				<option value="file224">github.com/kijimaD/ruins/internal/resources/fonts.go (83.3%)</option>
 				
-				<option value="file225">github.com/kijimaD/ruins/internal/resources/images.go (80.0%)</option>
+				<option value="file225">github.com/kijimaD/ruins/internal/resources/images.go (93.3%)</option>
 				
-				<option value="file226">github.com/kijimaD/ruins/internal/resources/resources.go (75.0%)</option>
+				<option value="file226">github.com/kijimaD/ruins/internal/resources/resources.go (100.0%)</option>
 				
-				<option value="file227">github.com/kijimaD/ruins/internal/resources/sprite.go (90.6%)</option>
+				<option value="file227">github.com/kijimaD/ruins/internal/resources/sprite.go (100.0%)</option>
 				
 				<option value="file228">github.com/kijimaD/ruins/internal/resources/ui.go (75.0%)</option>
 				
@@ -1787,7 +1787,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -24384,7 +24384,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov8" title="1">return false
+                <span class="cov0" title="0">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -32436,7 +32436,7 @@ func NewFont(fontPath string) (Font, error) {
 
         <span class="cov8" title="1">s, err := text.NewGoTextFaceSource(fontFile)
         if err != nil </span>{
-                <span class="cov0" title="0">return Font{}, err
+                <span class="cov8" title="1">return Font{}, err
 </span>        }
 
         <span class="cov8" title="1">return Font{
@@ -32559,7 +32559,7 @@ func newImageFromFile(path string) (*ebiten.Image, error) {
         }()
         <span class="cov8" title="1">src, _, err := image.Decode(f)
         if err != nil </span>{
-                <span class="cov0" title="0">return nil, err
+                <span class="cov8" title="1">return nil, err
 </span>        }
         // アトラス配置に画素が左右されないよう unmanaged で作る。機構は components.Texture を参照
         <span class="cov8" title="1">return ebiten.NewImageFromImageWithOptions(src, &amp;ebiten.NewImageFromImageOptions{Unmanaged: true}), nil</span>
@@ -32570,7 +32570,7 @@ func newImageFromFile(path string) (*ebiten.Image, error) {
 func newNineSliceTex(path string, centerW, centerH int) (*NineSliceTex, error) {
         <span class="cov8" title="1">img, err := newImageFromFile(path)
         if err != nil </span>{
-                <span class="cov0" title="0">return nil, err
+                <span class="cov8" title="1">return nil, err
 </span>        }
         <span class="cov8" title="1">w, h := img.Bounds().Dx(), img.Bounds().Dy()
         return &amp;NineSliceTex{
@@ -32631,7 +32631,7 @@ func (r *Resources) SetScreenDimensions(width, height int) {
 // SetSpriteSheets はスプライトシートを設定し、解決キャッシュにも同じシートを渡す。
 // 元画像と解決キャッシュがずれないよう、設定はこの1経路にまとめる。
 func (r *Resources) SetSpriteSheets(sheets map[string]components.SpriteSheet) {
-        <span class="cov0" title="0">r.SpriteSheets = sheets
+        <span class="cov8" title="1">r.SpriteSheets = sheets
         r.Sprites.SetSheets(sheets)
 </span>}
 
@@ -32718,15 +32718,15 @@ func (s *SpriteStore) Sized(sr *components.SpriteRender, size int) *ebiten.Image
 </span>        }
         <span class="cov8" title="1">key := spriteKey{sheet: sr.SpriteSheetName, sprite: sr.SpriteKey, size: size}
         if img, ok := s.images[key]; ok </span>{
-                <span class="cov0" title="0">return img
+                <span class="cov8" title="1">return img
 </span>        }
         <span class="cov8" title="1">tex, rect, ok := s.Rect(sr)
         if !ok </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">img := shrinkToFit(tex, rect, size)
         if img == nil </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">s.images[key] = img
         return img</span>
@@ -32747,7 +32747,7 @@ func (s *SpriteStore) Rect(sr *components.SpriteRender) (components.Texture, ima
 // 矩形はテクスチャ範囲へクランプするので、範囲外を指す指定でも安全に切り出せる
 func spriteRect(sheets map[string]components.SpriteSheet, sr *components.SpriteRender) (components.SpriteSheet, image.Rectangle, error) {
         <span class="cov8" title="1">if sr == nil </span>{
-                <span class="cov0" title="0">return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite render is nil")
+                <span class="cov8" title="1">return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite render is nil")
 </span>        }
         <span class="cov8" title="1">sheet, ok := sheets[sr.SpriteSheetName]
         if !ok </span>{
@@ -32778,7 +32778,7 @@ func spriteRect(sheets map[string]components.SpriteSheet, sr *components.SpriteR
 func shrinkToFit(tex components.Texture, rect image.Rectangle, size int) *ebiten.Image {
         <span class="cov8" title="1">sw, sh := rect.Dx(), rect.Dy()
         if sw &lt;= 0 || sh &lt;= 0 </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">if (sw &lt;= size &amp;&amp; sh &lt;= size) || tex.Source == nil </span>{
                 <span class="cov8" title="1">return components.SubImage(tex.Image, rect)
@@ -32787,7 +32787,7 @@ func shrinkToFit(tex components.Texture, rect image.Rectangle, size int) *ebiten
         if sw &gt;= sh </span>{
                 <span class="cov8" title="1">dh = max(1, sh*size/sw)
 </span>        } else {
-                <span class="cov0" title="0">dw = max(1, sw*size/sh)
+                <span class="cov8" title="1">dw = max(1, sw*size/sh)
 </span>        }
 
         // image.RGBA は乗算済みアルファなので、透過の境界でも色がにじまない重み付けになる
@@ -52445,9 +52445,9 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
