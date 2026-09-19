@@ -110,10 +110,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	initialState, err := initialPlayState(world, cfg)
-	if err != nil {
-		return err
-	}
+	initialState := initialPlayState(world, cfg)
 
 	stateMachine, err := es.Init(initialState, world)
 	if err != nil {
@@ -145,17 +142,12 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 }
 
 // initialPlayState は起動時の開始ステートを決める。継続でオートセーブを読み込めればその地点から
-// 復帰し、そうでなければ SkipOpening に応じてデモまたはメインメニューから始める。
-func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
-	resume, resumed := maybeContinue(world, cfg)
-	switch {
-	case resumed:
-		return resume, nil
-	case cfg.SkipOpening:
-		return gs.NewDemoStartState()
-	default:
-		return &gs.MainMenuState{}, nil
+// 復帰し、そうでなければメインメニューから始める。
+func initialPlayState(world w.World, cfg *config.Config) es.State[w.World] {
+	if resume, resumed := maybeContinue(world, cfg); resumed {
+		return resume
 	}
+	return &gs.MainMenuState{}
 }
 
 // maybeContinue は継続設定が有効でオートセーブを読み込めたとき、その地点の復帰ステートを返す。

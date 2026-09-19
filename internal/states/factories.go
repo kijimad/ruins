@@ -89,12 +89,6 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 	}
 }
 
-// NewDemoStartState はデモ用の初期化ステートを作成するファクトリー関数
-// キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する
-func NewDemoStartState() (es.State[w.World], error) {
-	return &DemoStartState{}, nil
-}
-
 // newGameOverworldState は新規ゲーム開始用のオーバーワールド探索ステートを返す。
 // 街を含むオーバーワールドを RunSeed から決定的生成し、プレイヤーは街から始まる。
 // キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。

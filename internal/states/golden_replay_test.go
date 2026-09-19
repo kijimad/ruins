@@ -429,8 +429,7 @@ func TestGolden(t *testing.T) {
 				return []es.State[w.World]{&gs.MainMenuState{}}, nil
 			},
 			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown},             // Start から Demo へ
-				{action: inputmapper.ActionMenuDown},             // Demo から Load へ
+				{action: inputmapper.ActionMenuDown},             // Start から Load へ
 				{action: inputmapper.ActionMenuDown, shot: true}, // Load から Settings へ。移った画を撮る
 				{action: inputmapper.ActionMenuSelect},           // Settings を開いて push する
 			},
