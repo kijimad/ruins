@@ -16,8 +16,7 @@ import (
 var saveOnce sync.Once
 
 // stateProvider は落ちた時点の最上位ステート名を取り出す関数。登録側と読み取り側が別 goroutine なので
-// atomic で共有する。関数を型付きのまま差し替えられるよう、型アサーションの要る atomic.Value でなく
-// atomic.Pointer を使う。
+// atomic.Pointer で型安全に共有する。
 var stateProvider atomic.Pointer[func() string]
 
 // SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼び、Save がクラッシュ時に引く。
@@ -32,8 +31,8 @@ func Guard() {
 	}
 }
 
-// Save はクラッシュ情報を1ファイルへ書く。desktop のみ、WASM は何もしない。失敗はベストエフォートで
-// 握りつぶし、クラッシュ処理でさらに落ちて元の panic を覆わない。保存できたら道標の1行を出す。
+// Save はクラッシュ情報を1ファイルへ書く。失敗はベストエフォートで握りつぶし、クラッシュ処理で
+// さらに落ちて元の panic を覆わないようにする。
 func Save(recovered any, stack []byte) {
 	rec := buildRecord(recovered, stack, currentState())
 	if path := writeRecord(rec); path != "" {
@@ -48,7 +47,7 @@ func buildRecord(recovered any, stack []byte, state string) CrashRecord {
 		at:        now,
 		Timestamp: now.Format(time.RFC3339),
 		Level:     logger.LevelFatal.String(),   // "FATAL"。logger の表記を単一出典にして取り違えを防ぐ
-		Category:  string(logger.CategoryCrash), // "crash"。同じく logger を単一出典にする
+		Category:  string(logger.CategoryCrash), // "crash"
 		Message:   fmt.Sprintf("%v", recovered),
 		Version:   consts.AppVersion,
 		GOOS:      runtime.GOOS,

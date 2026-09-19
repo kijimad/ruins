@@ -127,10 +127,8 @@ func TestGuard_保存して再panicする(t *testing.T) {
 	assert.Len(t, entries, 1, "クラッシュ1件につきファイル1つ")
 }
 
-// TestWriteRecordTo_生成JSONの仕様 は writeRecordTo が書くファイル内容を期待文字列と全文一致させ、
-// 生成 JSON の仕様を固定する。フィールド名・順序・2スペースインデント・末尾改行・steam の bool・
-// omitempty による state 省略を、テスト本体に埋め込んだ現物として残す。書式変更はここで検知される。
-// 時刻や版など環境依存の値は固定レコードを直接与えて決定論にする。
+// TestWriteRecordTo_生成JSONの仕様 は生成 JSON の書式を期待文字列と全文一致で固定する。フィールド名・
+// 順序・インデント・末尾改行・omitempty を検証する。時刻や版は固定レコードを与えて決定論にする。
 func TestWriteRecordTo_生成JSONの仕様(t *testing.T) {
 	t.Parallel()
 
