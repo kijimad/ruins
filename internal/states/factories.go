@@ -1,6 +1,7 @@
 package states
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/activity"
@@ -244,30 +245,31 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())
 }
 
+// ErrNoContinuePoint は継続できるセーブが無いことを表す。エラーではなく、呼び出し側はこれを見て
+// メニューへ退避する。復元の失敗と区別するためのセンチネル。
+var ErrNoContinuePoint = errors.New("no save to continue")
+
 // NewContinueState は最新のオートセーブを saveManager から読み込み、その地点の復帰ステートを返す。
-// 読み込めるオートセーブが無い、または復元に失敗したときは ok=false を返す。失敗はログに残す。
-func NewContinueState(world w.World, saveManager *save.SerializationManager) (es.State[w.World], bool) {
-	log := logger.New(logger.CategorySave)
+// 読み込めるセーブが無いときは ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。復元に
+// 失敗したときはそのエラーを返し、握りつぶさない。
+func NewContinueState(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
 	// 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
 	saves, err := saveManager.ListSaves()
 	if err != nil {
-		log.Error("continue: failed to list saves", "error", err.Error())
-		return nil, false
+		return nil, fmt.Errorf("continue: list saves: %w", err)
 	}
 	if len(saves) == 0 {
-		return nil, false
+		return nil, ErrNoContinuePoint
 	}
 	latest := saves[0]
 	if err := saveManager.LoadWorld(world, latest); err != nil {
-		log.Error("continue: failed to load save", "slot", latest, "error", err.Error())
-		return nil, false
+		return nil, fmt.Errorf("continue: load save %q: %w", latest, err)
 	}
 	state, err := newResumeStateFactory(world)()
 	if err != nil {
-		log.Error("continue: failed to build resume state", "error", err.Error())
-		return nil, false
+		return nil, fmt.Errorf("continue: build resume state: %w", err)
 	}
-	return state, true
+	return state, nil
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。

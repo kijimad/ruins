@@ -21,10 +21,10 @@ func TestNewContinueState_オートセーブが無ければフォールバック
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	state, ok := NewContinueState(world, saveManager)
+	state, err := NewContinueState(world, saveManager)
 
-	assert.False(t, ok, "読み込めるオートセーブが無ければ ok=false でフォールバックさせる")
-	assert.Nil(t, state)
+	require.ErrorIs(t, err, ErrNoContinuePoint, "セーブが無いときは ErrNoContinuePoint を返す")
+	assert.Nil(t, state, "セーブが無ければ state は nil でメニューへ退避させる")
 }
 
 func TestNewContinueState_最新オートセーブから復帰する(t *testing.T) {
@@ -38,9 +38,9 @@ func TestNewContinueState_最新オートセーブから復帰する(t *testing.
 	require.NoError(t, saveManager.AutoSave(saved))
 
 	fresh := testutil.InitTestWorld(t)
-	state, ok := NewContinueState(fresh, saveManager)
+	state, err := NewContinueState(fresh, saveManager)
 
-	require.True(t, ok, "オートセーブがあれば読み込んで復帰する")
+	require.NoError(t, err, "オートセーブがあれば読み込んで復帰する")
 	require.NotNil(t, state)
 	// 復帰先はオーバーワールドでも通常ダンジョンでも実体は DungeonState なので、どちらの経路でも
 	// この型アサートは通る。IsOnOverworld の分岐に依らず復帰ステートが DungeonState であることを固定する
@@ -65,9 +65,9 @@ func TestNewContinueState_手動が最新なら手動を読む(t *testing.T) {
 	require.NoError(t, saveManager.SaveWorld(newer, "slot1"))
 
 	fresh := testutil.InitTestWorld(t)
-	state, ok := NewContinueState(fresh, saveManager)
+	state, err := NewContinueState(fresh, saveManager)
 
-	require.True(t, ok)
+	require.NoError(t, err)
 	require.NotNil(t, state)
 	assert.Equal(t, consts.Turn(20), query.GetTurnState(fresh).TurnNumber,
 		"手動が最新なら自動でなく手動を読む")
