@@ -249,10 +249,11 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 // メニューへ退避する。復元の失敗と区別するためのセンチネル。
 var ErrNoContinuePoint = errors.New("no save to continue")
 
-// NewContinueState は最新のオートセーブを saveManager から読み込み、その地点の復帰ステートを返す。
-// 読み込めるセーブが無いときは ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。復元に
-// 失敗したときはそのエラーを返し、握りつぶさない。
-func NewContinueState(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
+// ResumeFromSave は最新のセーブを saveManager から world へ読み込み、その地点の復帰ステートを返す。
+// ContinueState という型は無く、返るのは復元された DungeonState。読み込めるセーブが無いときは
+// ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。復元に失敗したときはそのエラーを返し、
+// 握りつぶさない。
+func ResumeFromSave(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
 	// 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
 	saves, err := saveManager.ListSaves()
 	if err != nil {

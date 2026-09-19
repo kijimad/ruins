@@ -161,5 +161,5 @@ func maybeContinue(world w.World, cfg *config.Config) (es.State[w.World], error)
 	if err != nil {
 		return nil, fmt.Errorf("continue: create save manager: %w", err)
 	}
-	return gs.NewContinueState(world, saveManager)
+	return gs.ResumeFromSave(world, saveManager)
 }

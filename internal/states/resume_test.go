@@ -11,23 +11,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestNewContinueState は継続起動の契約を固定する。手動と自動の全スロットから最新を読み、
+// TestResumeFromSave は継続起動の契約を固定する。手動と自動の全スロットから最新を読み、
 // 読めるセーブが無ければ ok=false でフォールバックする。セーブ先は WithSaveDir で隔離する。
 
-func TestNewContinueState_オートセーブが無ければフォールバックする(t *testing.T) {
+func TestResumeFromSave_オートセーブが無ければフォールバックする(t *testing.T) {
 	t.Parallel()
 
 	saveManager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	state, err := NewContinueState(world, saveManager)
+	state, err := ResumeFromSave(world, saveManager)
 
 	require.ErrorIs(t, err, ErrNoContinuePoint, "セーブが無いときは ErrNoContinuePoint を返す")
 	assert.Nil(t, state, "セーブが無ければ state は nil でメニューへ退避させる")
 }
 
-func TestNewContinueState_最新オートセーブから復帰する(t *testing.T) {
+func TestResumeFromSave_最新オートセーブから復帰する(t *testing.T) {
 	t.Parallel()
 
 	saveManager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
@@ -38,7 +38,7 @@ func TestNewContinueState_最新オートセーブから復帰する(t *testing.
 	require.NoError(t, saveManager.AutoSave(saved))
 
 	fresh := testutil.InitTestWorld(t)
-	state, err := NewContinueState(fresh, saveManager)
+	state, err := ResumeFromSave(fresh, saveManager)
 
 	require.NoError(t, err, "オートセーブがあれば読み込んで復帰する")
 	require.NotNil(t, state)
@@ -48,7 +48,7 @@ func TestNewContinueState_最新オートセーブから復帰する(t *testing.
 	assert.True(t, isDungeon, "復帰先は DungeonState")
 }
 
-func TestNewContinueState_手動が最新なら手動を読む(t *testing.T) {
+func TestResumeFromSave_手動が最新なら手動を読む(t *testing.T) {
 	t.Parallel()
 
 	saveManager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
@@ -65,7 +65,7 @@ func TestNewContinueState_手動が最新なら手動を読む(t *testing.T) {
 	require.NoError(t, saveManager.SaveWorld(newer, "slot1"))
 
 	fresh := testutil.InitTestWorld(t)
-	state, err := NewContinueState(fresh, saveManager)
+	state, err := ResumeFromSave(fresh, saveManager)
 
 	require.NoError(t, err)
 	require.NotNil(t, state)
