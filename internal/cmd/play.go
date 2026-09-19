@@ -126,19 +126,21 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	// クラッシュ諸元へ載せる最上位ステート名の取り出し方を登録する。Save がクラッシュ時に引く
+	game, err := maingame.NewMainGame(world, stateMachine)
+	if err != nil {
+		return err
+	}
+
+	// クラッシュ諸元へ載せる最上位ステート名の取り出し方を登録する。Save がクラッシュ時に引く。
+	// StateMachine は値型で、ゲームループが動かすのは game が持つ実体。登録前のローカル stateMachine を
+	// 捕捉するとコピーを掴み遷移を追えないので、game を捕捉して落ちた時点の状態を引く
 	crashreport.SetStateProvider(func() string {
-		s := stateMachine.GetCurrentState()
+		s := game.StateMachine.GetCurrentState()
 		if s == nil {
 			return ""
 		}
 		return fmt.Sprintf("%T", s)
 	})
-
-	game, err := maingame.NewMainGame(world, stateMachine)
-	if err != nil {
-		return err
-	}
 	// Linux のタスクバーや Steam Deck は SetWindowTitle でなく X11 の WM_CLASS でアプリを同定する。
 	// 既定のままだと "Ebitengine-Application" と表示される。WM_CLASS の class 側は表示・グルーピングに
 	// 使われるので表示名の Coldward、instance 側は実行体の同定子なので内部名の ruins にする。
