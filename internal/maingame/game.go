@@ -13,6 +13,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/crashreport"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/screeneffect"
@@ -60,11 +61,13 @@ func buildScreenFilters(disableScreenFilter bool) ([]screeneffect.Filter, error)
 // ウィンドウサイズへの拡大縮小は Ebiten に任せる（ウィンドウは可変）。
 // interface method のためシグネチャは変更できない
 func (game *MainGame) Layout(_, _ int) (int, int) {
+	defer crashreport.Guard()
 	return consts.GameWidth, consts.GameHeight
 }
 
 // Update はゲームの更新処理を行う
 func (game *MainGame) Update() error {
+	defer crashreport.Guard()
 	region := trace.StartRegion(context.Background(), "Update")
 	defer region.End()
 
@@ -89,6 +92,7 @@ func (game *MainGame) Update() error {
 // Draw はゲームの描画処理を行う
 // interface method だからシグネチャは変更できない
 func (game *MainGame) Draw(screen *ebiten.Image) {
+	defer crashreport.Guard()
 	region := trace.StartRegion(context.Background(), "Draw")
 	defer region.End()
 

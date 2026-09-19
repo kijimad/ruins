@@ -9,6 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/crashreport"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/maingame"
 	"github.com/kijimaD/ruins/internal/steam"
@@ -32,6 +33,9 @@ var CmdPlay = &cli.Command{
 }
 
 func runPlay(_ context.Context, _ *cli.Command) error {
+	// 初期化フェーズの panic をここで受ける。RunGame 中のゲーム panic は MainGame の各コールバックが受ける
+	defer crashreport.Guard()
+
 	// Steam APIの初期化。steamタグなしではno-op
 	if err := steam.Init(); err != nil {
 		return fmt.Errorf("steam initialization failed: %w", err)
@@ -126,6 +130,17 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	if err != nil {
 		return err
 	}
+
+	// クラッシュ諸元へ載せる最上位ステート名の取り出し方を登録する。Save がクラッシュ時に引く。
+	// StateMachine は値型で、ゲームループが動かすのは game が持つ実体。登録前のローカル stateMachine を
+	// 捕捉するとコピーを掴み遷移を追えないので、game を捕捉して落ちた時点の状態を引く
+	crashreport.SetStateProvider(func() string {
+		s := game.StateMachine.GetCurrentState()
+		if s == nil {
+			return ""
+		}
+		return fmt.Sprintf("%T", s)
+	})
 	// Linux のタスクバーや Steam Deck は SetWindowTitle でなく X11 の WM_CLASS でアプリを同定する。
 	// 既定のままだと "Ebitengine-Application" と表示される。WM_CLASS の class 側は表示・グルーピングに
 	// 使われるので表示名の Coldward、instance 側は実行体の同定子なので内部名の ruins にする。
