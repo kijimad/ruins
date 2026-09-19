@@ -10,10 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// HealthRegenSystem は ActiveFilter1[HP] で回すだけなので裸エンティティで動作する。
-// あえて SpawnPlayer を使わないのは、能力値と満腹度を持たせず代謝を確定的に100%へ固定し、
-// 回復量を厳密に検証するため。回復は healthRegenIntervalTurns ターンに一度なので、回復を期待する
-// ケースでは TurnNumber を回復ターンへ合わせる。
+// HealthRegenSystem は ActiveFilter1[HP] で回るので裸エンティティで検証する。SpawnPlayer を避けるのは
+// 代謝を100%に固定して回復量を厳密に見るため。回復を期待するケースは TurnNumber を回復ターンへ合わせる。
 func TestHealthRegenSystem_Update(t *testing.T) {
 	t.Parallel()
 
@@ -133,7 +131,7 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		entity := world.ECS.NewEntity()
 		world.Components.HP.Add(entity, &gc.HP{Current: 10, Max: 30})
 		hs := &gc.HealthStatus{}
-		// 出血だけでなく、重症の低体温のように HP を削る不調があるあいだは回復を止める
+		// 重症の低体温も HP を削る不調なので回復を止める
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 90, Severity: gc.SeveritySevere})
 		world.Components.HealthStatus.Add(entity, hs)
 

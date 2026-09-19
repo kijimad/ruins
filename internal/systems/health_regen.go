@@ -8,10 +8,9 @@ import (
 )
 
 const (
-	// healthRegenIntervalTurns ターンに一度だけ自然回復する。毎ターン回復だと全快が速すぎるため間引き、
-	// 実効を代謝100%で 0.2 HP/ターンにする。
+	// healthRegenIntervalTurns ターンに一度だけ回復する。毎ターンだと全快が速すぎるため間引く。
 	healthRegenIntervalTurns = 5
-	// healthRegenPerInterval は回復ターンに足す基準 HP。Metabolism 倍率を掛け、代謝100%未満は切り捨て0で回復しない。
+	// healthRegenPerInterval は回復ターンに足す基準 HP。Metabolism を掛け、代謝100%未満は0で回復しない。
 	healthRegenPerInterval = 1
 )
 
@@ -23,10 +22,9 @@ func (sys *HealthRegenSystem) String() string {
 	return "HealthRegenSystem"
 }
 
-// Update は healthRegenIntervalTurns ターンに一度、生存エンティティの HP を代謝ぶん回復させる。
-// 回復数値を出す ApplyHealing は使わず静かに直接足す。
+// Update は healthRegenIntervalTurns ターンに一度、生存エンティティの HP を代謝ぶん回復させる。数値は出さず直接足す。
 func (sys *HealthRegenSystem) Update(world w.World) error {
-	// TurnState は turn system 内で必ず存在する。TurnNumber は1始まりで最初の回復は healthRegenIntervalTurns ターン目
+	// TurnNumber は1始まりで最初の回復は healthRegenIntervalTurns ターン目
 	if int(query.GetTurnState(world).TurnNumber)%healthRegenIntervalTurns != 0 {
 		return nil
 	}
@@ -41,7 +39,7 @@ func (sys *HealthRegenSystem) Update(world w.World) error {
 		if world.Components.Dead.Has(entity) {
 			continue
 		}
-		// HP を削る不調があるあいだは自然回復しない。回復が相殺して、じわじわ減っているのを隠さないようにする
+		// HP を削る不調のあいだは回復しない。回復が相殺して減少を隠さないため
 		if world.Components.HealthStatus.Has(entity) && world.Components.HealthStatus.Get(entity).IsHPDraining() {
 			continue
 		}
