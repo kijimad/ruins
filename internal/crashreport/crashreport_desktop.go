@@ -29,8 +29,9 @@ func writeRecordTo(dir string, rec CrashRecord) string {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return ""
 	}
-	// ファイル名の時刻はコロンを使わない。Windows はコロンを許さない。秒未満まで入れて同秒の衝突を避ける。
-	// rec.at を使い、ファイル名と JSON の Timestamp を同一時刻から作る
+	// ファイル名の時刻はコロンを使わない。Windows はコロンを許さない。保存は saveOnce で1プロセス1回に
+	// 限るので、ナノ秒まで入れれば再起動を跨いでも実質衝突しない。rec.at からファイル名と Timestamp を
+	// 同一時刻で作る
 	name := fmt.Sprintf("crash-%s-%09d.json", rec.at.Format("20060102-150405"), rec.at.Nanosecond())
 	path := filepath.Join(dir, name)
 	f, err := os.Create(path)

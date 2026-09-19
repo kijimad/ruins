@@ -9,6 +9,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,6 +26,8 @@ func TestBuildRecord_諸元を埋める(t *testing.T) {
 	assert.Contains(t, rec.Stack, "goroutine 1", "スタックトレースを載せる")
 	assert.NotEmpty(t, rec.Timestamp)
 	assert.NotEmpty(t, rec.GOOS)
+	assert.Equal(t, consts.AppVersion, rec.Version, "版を定数から載せる")
+	assert.Equal(t, consts.IsSteamBuild, rec.Steam, "Steamビルドフラグを定数から載せる")
 }
 
 func TestBuildRecord_stateが空でも組める(t *testing.T) {

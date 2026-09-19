@@ -19,21 +19,21 @@ var saveOnce sync.Once
 // atomic.Pointer で型安全に共有する。
 var stateProvider atomic.Pointer[func() string]
 
-// SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼び、Save がクラッシュ時に引く。
+// SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼び、保存時に引く。
 func SetStateProvider(f func() string) { stateProvider.Store(&f) }
 
-// Guard は defer で使う。panic を捕らえて1回だけ Save し、握りつぶさず再 panic する。
+// Guard は defer で使う。panic を捕らえて1回だけ保存し、握りつぶさず再 panic する。
 // recover は同一 goroutine の panic だけを捕らえるので、必ず通る関数の先頭へ置く。
 func Guard() {
 	if r := recover(); r != nil {
-		saveOnce.Do(func() { Save(r, debug.Stack()) })
+		saveOnce.Do(func() { save(r, debug.Stack()) })
 		panic(r) // 保存後に本来の落ち方へ戻す。stderr へのトレース出力と非0終了を保つ
 	}
 }
 
-// Save はクラッシュ情報を1ファイルへ書く。失敗はベストエフォートで握りつぶし、クラッシュ処理で
-// さらに落ちて元の panic を覆わないようにする。
-func Save(recovered any, stack []byte) {
+// save はクラッシュ情報を1ファイルへ書く。失敗はベストエフォートで握りつぶし、クラッシュ処理で
+// さらに落ちて元の panic を覆わないようにする。呼ぶのは Guard だけ。
+func save(recovered any, stack []byte) {
 	rec := buildRecord(recovered, stack, currentState())
 	if path := writeRecord(rec); path != "" {
 		logger.New(logger.CategoryCrash).Error("crash report saved", "path", path)
