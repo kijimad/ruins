@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	// healthRegenIntervalTurns ターンに一度だけ自然回復する。毎ターン整数を足すと実効が最低 1/turn になり、
-	// 戦闘外で全快が速すぎて HP が遭遇をまたぐ資源にならない。間引いて実効回復を下げる。
+	// healthRegenIntervalTurns ターンに一度だけ自然回復する。毎ターン整数を足すと実効の下限が 1/turn になり
+	// 戦闘外の全快が速すぎるため、間引いて実効を代謝100%で 0.2 HP/ターンにする。
 	healthRegenIntervalTurns = 5
 	// healthRegenPerInterval は回復ターンに足す基準 HP。代謝が基準 100 のときの値で、実際は Metabolism
 	// 倍率を掛ける。代謝が 100 未満だと切り捨てで 0 になり回復しない。値は実プレイで調整する。
@@ -24,12 +24,12 @@ func (sys *HealthRegenSystem) String() string {
 	return "HealthRegenSystem"
 }
 
-// Update は HP を持つ生存エンティティの HP を代謝ぶん回復させる。healthRegenIntervalTurns ターンに一度だけ
-// 回復し、それ以外のターンは何もしない。毎ターン回復だと戦闘外で全快が速すぎるため間引く。
-// 自然回復は静かに進めるので回復数値を出す ApplyHealing は使わず HP を直接足す。
+// Update は healthRegenIntervalTurns ターンに一度、HP を持つ生存エンティティの HP を代謝ぶん回復させる。
+// 回復ターン以外は何もしない。自然回復は静かに進めるので回復数値を出す ApplyHealing は使わず HP を直接足す。
 // 数値を出す即時回復はアイテム使用に限る。
 func (sys *HealthRegenSystem) Update(world w.World) error {
-	// 回復ターン以外は間引く。TurnState は turn system の中で必ず存在する
+	// 回復ターン以外は間引く。TurnState は turn system の中で必ず存在し、TurnNumber は1始まりなので
+	// 0 での早期回復は起きず、最初の回復は healthRegenIntervalTurns ターン目になる
 	if int(query.GetTurnState(world).TurnNumber)%healthRegenIntervalTurns != 0 {
 		return nil
 	}
