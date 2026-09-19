@@ -145,8 +145,8 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	})
 }
 
-// initialPlayState は起動時の開始ステートを決める。継続が有効でセーブを読めればその地点から、
-// 読めるセーブが無いか継続しない設定ならメインメニューから始める。ロードの失敗は握りつぶさず返す。
+// initialPlayState は起動時の開始ステートを決める。継続でセーブを読めればその地点から、無ければ
+// メインメニューから始める。ロードの失敗は握りつぶさず返す。
 func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
 	if cfg.Continue && cfg.SaveLoadEnabled {
 		saveManager, err := save.NewSerializationManager()

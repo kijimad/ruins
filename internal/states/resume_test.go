@@ -42,8 +42,8 @@ func TestResumeFromLatestSave_最新オートセーブから復帰する(t *test
 
 	require.NoError(t, err, "オートセーブがあれば読み込んで復帰する")
 	require.NotNil(t, state)
-	// 復帰先はオーバーワールドでも通常ダンジョンでも実体は DungeonState なので、どちらの経路でも
-	// この型アサートは通る。IsOnOverworld の分岐に依らず復帰ステートが DungeonState であることを固定する
+	// 復帰先はオーバーワールドでも通常ダンジョンでも実体は DungeonState なので、IsOnOverworld の
+	// 分岐に依らずこのアサートが復帰先を固定する
 	_, isDungeon := state.(*DungeonState)
 	assert.True(t, isDungeon, "復帰先は DungeonState")
 }
