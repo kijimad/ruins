@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-09-19T12:00:00Z",
+  "level": "FATAL",
+  "category": "crash",
+  "message": "runtime error: index out of range [3] with length 2",
+  "version": "v1.2.3",
+  "goos": "linux",
+  "goarch": "amd64",
+  "steam": true,
+  "state": "*states.MainMenuState",
+  "stack": "goroutine 1 [running]:\nmain.main()\n\t/app/main.go:10 +0x1d"
+}
