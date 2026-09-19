@@ -111,15 +111,9 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	// 継続でオートセーブを読み込めればその地点から、そうでなければメインメニューから始める。
-	// セーブが無いだけの ErrNoContinuePoint はメニューへ退避し、それ以外の失敗は握りつぶさず返す
-	var initialState es.State[w.World] = &gs.MainMenuState{}
-	resume, err := maybeContinue(world, cfg)
-	if err != nil && !errors.Is(err, gs.ErrNoContinuePoint) {
+	initialState, err := initialPlayState(world, cfg)
+	if err != nil {
 		return err
-	}
-	if resume != nil {
-		initialState = resume
 	}
 
 	stateMachine, err := es.Init(initialState, world)
@@ -151,15 +145,21 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	})
 }
 
-// maybeContinue は継続設定が有効でオートセーブを読み込めたとき、その地点の復帰ステートを返す。
-// 継続しない設定や読み込めるセーブが無いときは gs.ErrNoContinuePoint を返す。失敗はそのエラーで返し握りつぶさない。
-func maybeContinue(world w.World, cfg *config.Config) (es.State[w.World], error) {
-	if !cfg.Continue || !cfg.SaveLoadEnabled {
-		return nil, gs.ErrNoContinuePoint
+// initialPlayState は起動時の開始ステートを決める。継続が有効でセーブを読めればその地点から、
+// 読めるセーブが無いか継続しない設定ならメインメニューから始める。ロードの失敗は握りつぶさず返す。
+func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
+	if cfg.Continue && cfg.SaveLoadEnabled {
+		saveManager, err := save.NewSerializationManager()
+		if err != nil {
+			return nil, fmt.Errorf("continue: create save manager: %w", err)
+		}
+		resume, err := gs.ResumeFromLatestSave(world, saveManager)
+		if err != nil && !errors.Is(err, gs.ErrNoContinuePoint) {
+			return nil, err
+		}
+		if resume != nil {
+			return resume, nil
+		}
 	}
-	saveManager, err := save.NewSerializationManager()
-	if err != nil {
-		return nil, fmt.Errorf("continue: create save manager: %w", err)
-	}
-	return gs.ResumeFromLatestSave(world, saveManager)
+	return &gs.MainMenuState{}, nil
 }
