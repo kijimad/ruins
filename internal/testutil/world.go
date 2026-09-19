@@ -74,6 +74,8 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Resources.Config.LogLevel = "ignore"
 	world.Resources.Config.Seed = rand.Uint64()
 	world.Resources.Config.RNG = rand.New(rand.NewPCG(world.Resources.Config.Seed, 0))
+	// テスト world は永続化の副作用を持たない。新規開始や入眠のオートセーブでセーブファイルを書かない
+	world.Resources.Config.DisableAutoSave = true
 	world.Resources.SetScreenDimensions(960, 720)
 
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）

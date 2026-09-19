@@ -122,6 +122,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 		}
 		// 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で大書きして示す
 		lifecycle.SpawnSplashText(world, query.T(world, "Day %d", query.GetGameTime(world).GetDayNumber()))
+		// 新規開始直後に最初の復帰点を作る。ロード復帰では newGame が nil なので保存しない
+		if st.newGame != nil {
+			st.autoSave.save(world)
+		}
 		return nil
 	}
 
@@ -229,11 +233,6 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.AuctionSystem{},
 	); err != nil {
 		return es.Transition[w.World]{}, err
-	}
-
-	// ターンが進んだ後にオートセーブを判定する。継続中の抑止と間隔判定は maybeSave が持つ
-	if st.autoSave != nil {
-		st.autoSave.maybeSave(world)
 	}
 
 	// このフレームで視界を計算済みなので、背後に実プレイ画面を敷いたままオープニングを重ねられる
