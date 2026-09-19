@@ -111,7 +111,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	query.GetVisionState(world).RequestUpdate()
 
 	// 新規開始とロード復帰のどちらもここを通る
-	st.autoSave = newAutoSaver(world)
+	st.autoSave = &autoSaver{}
 
 	// Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは
 	// overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする

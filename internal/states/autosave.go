@@ -12,18 +12,14 @@ import (
 // save のテストが vrt 経由で systems と maingame を引くため、その2パッケージから save を import
 // するとテスト循環になる。states は save を既に import しており循環しないので、ここに置く。
 type autoSaver struct {
-	enabled bool
 	manager *save.SerializationManager // テスト注入用。nil なら save が都度生成する
 }
 
-func newAutoSaver(world w.World) *autoSaver {
-	cfg := world.Resources.Config
-	return &autoSaver{enabled: cfg.SaveLoadEnabled && !cfg.DisableAutoSave}
-}
-
-// save は現在のワールドをオートセーブする。失敗はエラーで返し、扱いは呼び出し側に委ねる。
+// save は現在のワールドをオートセーブする。セーブ無効や再生では何もしない。失敗はエラーで返し、扱いは
+// 呼び出し側に委ねる。
 func (a *autoSaver) save(world w.World) error {
-	if !a.enabled {
+	cfg := world.Resources.Config
+	if !cfg.SaveLoadEnabled || cfg.DisableAutoSave {
 		return nil
 	}
 	m := a.manager

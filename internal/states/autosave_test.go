@@ -34,47 +34,45 @@ func countAutoSaves(t *testing.T, sm *save.SerializationManager) int {
 func TestAutoSaver_saveがファイルを書く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	world.Resources.Config.DisableAutoSave = false
 	m := newTempManager(t)
-	a := &autoSaver{enabled: true, manager: m}
+	a := &autoSaver{manager: m}
 
 	require.NoError(t, a.save(world))
 
 	assert.Equal(t, 1, countAutoSaves(t, m), "save でオートセーブファイルが1つできる")
 }
 
-func TestAutoSaver_無効なら何もしない(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	a := &autoSaver{enabled: false}
-
-	assert.NoError(t, a.save(world), "無効なら nil を返し何もしない")
-}
-
-func TestNewAutoSaver_セーブ無効なら無効化する(t *testing.T) {
+func TestAutoSaver_セーブ無効なら保存しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.Config.SaveLoadEnabled = false
-	world.Resources.Config.DisableAutoSave = false // SaveLoadEnabled だけを要因に絞る
+	world.Resources.Config.DisableAutoSave = false
+	m := newTempManager(t)
+	a := &autoSaver{manager: m}
 
-	a := newAutoSaver(world)
+	require.NoError(t, a.save(world))
 
-	assert.False(t, a.enabled, "セーブ無効では有効化しない")
+	assert.Equal(t, 0, countAutoSaves(t, m), "セーブ無効では保存しない")
 }
 
-func TestNewAutoSaver_再生時は無効化する(t *testing.T) {
+func TestAutoSaver_再生時は保存しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.Config.SaveLoadEnabled = true
-	world.Resources.Config.DisableAutoSave = true // DisableAutoSave だけを要因に絞る
+	world.Resources.Config.DisableAutoSave = true
+	m := newTempManager(t)
+	a := &autoSaver{manager: m}
 
-	a := newAutoSaver(world)
+	require.NoError(t, a.save(world))
 
-	assert.False(t, a.enabled, "再生では有効化せず副作用を出さない")
+	assert.Equal(t, 0, countAutoSaves(t, m), "再生では保存しない")
 }
 
 func TestDungeonState_入眠でオートセーブする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	world.Resources.Config.DisableAutoSave = false
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	// 過労にして入眠可能にする。SpawnPlayer が既に Fatigue を持つので値を書き換える
@@ -88,7 +86,7 @@ func TestDungeonState_入眠でオートセーブする(t *testing.T) {
 	require.True(t, activity.EvaluateSleepConditions(world, player).CanSleep(), "前提: 入眠可能")
 
 	m := newTempManager(t)
-	st := &DungeonState{autoSave: &autoSaver{enabled: true, manager: m}}
+	st := &DungeonState{autoSave: &autoSaver{manager: m}}
 
 	_, choices := st.sleepConfirmChoices(world)
 	var sleepRun func(w.World) (es.Transition[w.World], error)
