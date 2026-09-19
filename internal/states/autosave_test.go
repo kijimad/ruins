@@ -37,7 +37,7 @@ func TestAutoSaver_saveがファイルを書く(t *testing.T) {
 	m := newTempManager(t)
 	a := &autoSaver{enabled: true, manager: m}
 
-	a.save(world)
+	require.NoError(t, a.save(world))
 
 	assert.Equal(t, 1, countAutoSaves(t, m), "save でオートセーブファイルが1つできる")
 }
@@ -47,7 +47,7 @@ func TestAutoSaver_無効なら何もしない(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	a := &autoSaver{enabled: false}
 
-	assert.NotPanics(t, func() { a.save(world) }, "no-op で panic しない")
+	assert.NoError(t, a.save(world), "無効なら nil を返し何もしない")
 }
 
 func TestNewAutoSaver_セーブ無効なら無効化する(t *testing.T) {

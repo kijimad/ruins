@@ -1,7 +1,8 @@
 package states
 
 import (
-	"github.com/kijimaD/ruins/internal/logger"
+	"fmt"
+
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -20,21 +21,22 @@ func newAutoSaver(world w.World) *autoSaver {
 	return &autoSaver{enabled: cfg.SaveLoadEnabled && !cfg.DisableAutoSave}
 }
 
-// save は現在のワールドをオートセーブする。失敗してもゲーム進行は止めず、ログに残すだけにする。
-func (a *autoSaver) save(world w.World) {
+// save は現在のワールドをオートセーブする。無効なら nil を返す。マネージャは都度生成する。
+// 失敗はエラーで返し、ゲーム進行を止めるかは呼び出し側に委ねる。
+func (a *autoSaver) save(world w.World) error {
 	if !a.enabled {
-		return
+		return nil
 	}
 	m := a.manager
 	if m == nil {
 		var err error
 		m, err = save.NewSerializationManager()
 		if err != nil {
-			logger.New(logger.CategorySave).Warn("autosave: failed to init manager", "error", err.Error())
-			return
+			return fmt.Errorf("init save manager: %w", err)
 		}
 	}
 	if err := m.AutoSave(world); err != nil {
-		logger.New(logger.CategorySave).Warn("autosave failed", "error", err.Error())
+		return fmt.Errorf("autosave: %w", err)
 	}
+	return nil
 }

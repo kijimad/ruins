@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
+	"github.com/kijimaD/ruins/internal/logger"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
@@ -431,9 +432,12 @@ func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {
 				if eerr != nil {
 					return es.Transition[w.World]{}, eerr
 				}
-				// 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため
+				// 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため。
+				// 保存失敗で入眠を止めず、ログに残すだけにする
 				if res != nil && res.Success {
-					st.autoSave.save(world)
+					if serr := st.autoSave.save(world); serr != nil {
+						logger.New(logger.CategorySave).Warn("autosave failed", "error", serr.Error())
+					}
 				}
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			},
