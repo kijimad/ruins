@@ -30,8 +30,9 @@ func (tp TurnPhase) String() string {
 
 // TurnState はターン状態を保持する。singleton componentとして管理される
 type TurnState struct {
-	Phase      TurnPhase   // 現在のターンフェーズ
-	TurnNumber consts.Turn // ターン番号（1から開始）
+	Phase            TurnPhase   // 現在のターンフェーズ
+	TurnNumber       consts.Turn // ターン番号（1から開始）
+	LastAutoSaveTurn consts.Turn // 最後にオートセーブしたターン。0 は未オートセーブを表す
 }
 
 // NewTurnState は初期化されたTurnStateを返す

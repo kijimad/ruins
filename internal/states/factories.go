@@ -254,17 +254,18 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 // 読み込めるオートセーブが無い、または復元に失敗したときは ok=false を返す。失敗はログに残す。
 func NewContinueState(world w.World, saveManager *save.SerializationManager) (es.State[w.World], bool) {
 	log := logger.New(logger.CategorySave)
-	autoSaves, err := saveManager.ListAutoSaves()
+	// 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
+	saves, err := saveManager.ListSaves()
 	if err != nil {
-		log.Error("continue: failed to list auto saves", "error", err.Error())
+		log.Error("continue: failed to list saves", "error", err.Error())
 		return nil, false
 	}
-	if len(autoSaves) == 0 {
+	if len(saves) == 0 {
 		return nil, false
 	}
-	latest := autoSaves[0]
+	latest := saves[0]
 	if err := saveManager.LoadWorld(world, latest); err != nil {
-		log.Error("continue: failed to load auto save", "slot", latest, "error", err.Error())
+		log.Error("continue: failed to load save", "slot", latest, "error", err.Error())
 		return nil, false
 	}
 	state, err := newResumeStateFactory(world)()

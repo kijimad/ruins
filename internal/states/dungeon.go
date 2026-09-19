@@ -52,6 +52,9 @@ type DungeonState struct {
 
 	// showOpening は newGameOverworldState が config.SkipOpening から決める。初回 Update で重ねた後は false にし、再入では出さない
 	showOpening bool
+
+	// autoSave は一定ターンごとと新規開始直後のオートセーブを担う。OnStart で構成する
+	autoSave *autoSaver
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
@@ -106,6 +109,9 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// VisionState を空で復元するため、放置すると空の VisibleTiles のまま真っ暗になる。
 	// オーバーワールドと通常ダンジョンで同じ扱いにするため、分岐前のここで立てる。
 	query.GetVisionState(world).RequestUpdate()
+
+	// オートセーバを構成する。新規開始とロード復帰のどちらでもここを通る
+	st.autoSave = newAutoSaver(world)
 
 	// Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは
 	// overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする
@@ -223,6 +229,11 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.AuctionSystem{},
 	); err != nil {
 		return es.Transition[w.World]{}, err
+	}
+
+	// ターンが進んだ後にオートセーブを判定する。継続中の抑止と間隔判定は maybeSave が持つ
+	if st.autoSave != nil {
+		st.autoSave.maybeSave(world)
 	}
 
 	// このフレームで視界を計算済みなので、背後に実プレイ画面を敷いたままオープニングを重ねられる

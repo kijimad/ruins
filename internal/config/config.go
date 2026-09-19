@@ -57,6 +57,9 @@ type Config struct {
 	// VRT はこれを立てて撮る。スキャンラインは全画面の高周波パターンで、フォントの
 	// アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
 	DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
+	// オートセーブを無効化するか。VRT とベンチは InitReplayWorld でこれを立て、再生の副作用で
+	// セーブファイルを書かないようにする。実プロファイルの既定は false でオートセーブが働く
+	DisableAutoSave bool
 
 	// セーブ・ロードを有効にするか。env でなく profile と steam タグで決まる導出値。
 	// development は常に true で、開発時の起動とテストが保存を試せる。production は steam タグの
