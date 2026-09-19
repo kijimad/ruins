@@ -37,6 +37,11 @@ func GetGameTime(world w.World) *gc.GameTime {
 	return GetSingleton[gc.GameTime](world, world.Components.GameTime)
 }
 
+// GetPlayTime はシングルトンから累積プレイ実時間を取得する
+func GetPlayTime(world w.World) *gc.PlayTime {
+	return GetSingleton[gc.PlayTime](world, world.Components.PlayTime)
+}
+
 // GetVisionState はシングルトンから視界計算の一時状態を取得する
 func GetVisionState(world w.World) *gc.VisionState {
 	return GetSingleton[gc.VisionState](world, world.Components.VisionState)
