@@ -429,10 +429,14 @@ func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {
 				if perr != nil {
 					return es.Transition[w.World]{}, perr
 				}
-				if _, eerr := activity.Execute(activity.NewSleepActivity(), p, world); eerr != nil {
+				res, eerr := activity.Execute(activity.NewSleepActivity(), p, world)
+				if eerr != nil {
 					return es.Transition[w.World]{}, eerr
 				}
-				st.autoSave.save(world)
+				// 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため
+				if res != nil && res.Success {
+					st.autoSave.save(world)
+				}
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			},
 		},
