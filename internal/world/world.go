@@ -70,6 +70,7 @@ func (world World) InitSingleton() {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
+	world.Components.PlayTime.Add(singleton, &gc.PlayTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// config は構築時に渡されているので、設定言語をそのまま種にする。
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))

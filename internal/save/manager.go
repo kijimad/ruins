@@ -59,6 +59,7 @@ func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error)
 	env := saveEnvelope{
 		Version:    saveDataVersion,
 		Timestamp:  time.Now(),
+		PlayTime:   extractPlayTime(world),
 		PlayerName: extractPlayerName(world),
 		World:      worldJSON,
 	}
@@ -282,6 +283,23 @@ func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, erro
 		return "", fmt.Errorf("player name not found in save data")
 	}
 	return partial.PlayerName, nil
+}
+
+// GetSavePlayTime はセーブデータから累積プレイ実時間を取得する。
+// セーブデータ全体をデシリアライズせず、封筒のメタ情報だけを読む。0は新規開始直後の正常値なので
+// エラー扱いにしない。
+func (sm *SerializationManager) GetSavePlayTime(slotName string) (time.Duration, error) {
+	data, err := sm.loadSaveJSON(slotName)
+	if err != nil {
+		return 0, err
+	}
+	var partial struct {
+		PlayTime time.Duration `json:"playTime"`
+	}
+	if err := json.Unmarshal(data, &partial); err != nil {
+		return 0, fmt.Errorf("failed to parse save data: %w", err)
+	}
+	return partial.PlayTime, nil
 }
 
 // validateChecksum はセーブデータのチェックサムを検証する

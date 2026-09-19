@@ -10,14 +10,16 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	arkserde "github.com/mlange-42/ark-serde"
 	"github.com/mlange-42/ark/ecs"
 )
 
 // saveEnvelope はセーブファイルの外枠。ark-serde のワールドJSONをメタ情報で包む
 type saveEnvelope struct {
-	Version   string    `json:"version"`
-	Timestamp time.Time `json:"timestamp"`
+	Version   string        `json:"version"`
+	Timestamp time.Time     `json:"timestamp"`
+	PlayTime  time.Duration `json:"playTime"`
 	// Checksum はキーレスSHA-256による破損検知用の値。改ざん検知（攻撃者が
 	// world改変後にchecksumを再計算できる）は目的としない
 	Checksum   string          `json:"checksum"`
@@ -157,6 +159,15 @@ func extractPlayerName(world w.World) string {
 	return name
 }
 
+// extractPlayTime はワールドから累積プレイ実時間を取得する。シングルトンが無ければ0を返す。
+func extractPlayTime(world w.World) time.Duration {
+	pt := query.GetPlayTime(world)
+	if pt == nil {
+		return 0
+	}
+	return pt.Duration
+}
+
 // checksumOf は破損検知用にチェックサムを除いた封筒のSHA-256を計算する。
 // json.Marshal は json.RawMessage を compact するため、保存ファイルが
 // MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。
@@ -165,6 +176,7 @@ func checksumOf(env *saveEnvelope) string {
 	target := saveEnvelope{
 		Version:    env.Version,
 		Timestamp:  env.Timestamp,
+		PlayTime:   env.PlayTime,
 		PlayerName: env.PlayerName,
 		World:      env.World,
 	}
