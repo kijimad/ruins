@@ -21,8 +21,7 @@ func newAutoSaver(world w.World) *autoSaver {
 	return &autoSaver{enabled: cfg.SaveLoadEnabled && !cfg.DisableAutoSave}
 }
 
-// save は現在のワールドをオートセーブする。無効なら nil を返す。マネージャは都度生成する。
-// 失敗はエラーで返し、ゲーム進行を止めるかは呼び出し側に委ねる。
+// save は現在のワールドをオートセーブする。失敗はエラーで返し、扱いは呼び出し側に委ねる。
 func (a *autoSaver) save(world w.World) error {
 	if !a.enabled {
 		return nil
