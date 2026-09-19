@@ -7,9 +7,8 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// autoSave は現在のワールドをオートセーブする。セーブ無効や再生では何もしない。manager が nil なら
-// 既定の保存先で都度生成する。テストは一時ディレクトリの manager を渡して隔離する。失敗はエラーで返し、
-// 扱いは呼び出し側に委ねる。
+// autoSave は現在のワールドをオートセーブする。manager が nil なら既定の保存先で都度生成し、テストは
+// 一時ディレクトリの manager を渡して隔離する。失敗はエラーで返す。
 //
 // テストが vrt 経由で systems と maingame を引くため、その2パッケージから save を import すると
 // テスト循環になる。states は save を既に import しており循環しないので、ここに置く。

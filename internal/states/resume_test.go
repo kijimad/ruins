@@ -12,7 +12,7 @@ import (
 )
 
 // TestResumeFromSave は継続起動の契約を固定する。手動と自動の全スロットから最新を読み、
-// 読めるセーブが無ければ ok=false でフォールバックする。セーブ先は WithSaveDir で隔離する。
+// 読めるセーブが無ければ ErrNoContinuePoint を返す。セーブ先は WithSaveDir で隔離する。
 
 func TestResumeFromSave_オートセーブが無ければフォールバックする(t *testing.T) {
 	t.Parallel()
