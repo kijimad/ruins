@@ -9,7 +9,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/logger"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -123,11 +122,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 		}
 		// 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で大書きして示す
 		lifecycle.SpawnSplashText(world, query.T(world, "Day %d", query.GetGameTime(world).GetDayNumber()))
-		// 新規開始直後に最初の復帰点を作る。ロード復帰では newGame が nil なので保存しない。
-		// 保存失敗でゲーム開始は止めず、ログに残すだけにする
+		// 新規開始直後に最初の復帰点を作る。ロード復帰では newGame が nil なので保存しない
 		if st.newGame != nil {
 			if err := st.autoSave.save(world); err != nil {
-				logger.New(logger.CategorySave).Warn("autosave failed", "error", err.Error())
+				return err
 			}
 		}
 		return nil
