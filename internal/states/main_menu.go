@@ -73,7 +73,7 @@ type MainMenuProps struct {
 }
 
 // mainMenuItem はメインメニューの項目。ResetsWorld が真の項目は遷移の前に前のゲームの
-// 全実体を消す。新しいゲームを始める Start・Demo が立てる。ロードは save 側が担うので立てない
+// 全実体を消す。新しいゲームを始める Start が立てる。ロードは save 側が担うので立てない
 type mainMenuItem struct {
 	Label       string
 	Transition  es.Transition[w.World]
