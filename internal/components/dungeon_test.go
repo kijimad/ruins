@@ -7,6 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewDungeon(t *testing.T) {
+	t.Parallel()
+
+	d := NewDungeon()
+	assert.Equal(t, StageKey{}, d.CurrentStage, "初期状態はゼロ値のステージキー")
+}
+
 func TestNewStageField(t *testing.T) {
 	t.Parallel()
 

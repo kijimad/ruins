@@ -18,4 +18,7 @@ func TestDeathCause_DisplayName(t *testing.T) {
 
 	// 未登録の死因は素のIDへ落とす。未信頼な旧セーブ値を受ける経路
 	assert.Equal(t, "unknown", DeathCause("unknown").DisplayName())
+
+	// 登録済みの死因は表の表示名を返す
+	assert.Equal(t, "killed in battle", CauseKilled.DisplayName())
 }

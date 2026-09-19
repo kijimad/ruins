@@ -113,3 +113,27 @@ func TestHungerLevel_String_InvalidValue(t *testing.T) {
 		_ = HungerLevel(99).String()
 	})
 }
+
+func TestHungerSeverity_段階ごとに不調の重症度を返す(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		level   HungerLevel
+		wantSev Severity
+		wantOK  bool
+	}{
+		{"満腹は不調なし", HungerSatiated, SeverityNone, false},
+		{"普通は不調なし", HungerNormal, SeverityNone, false},
+		{"空腹は軽度の栄養失調", HungerHungry, SeverityMinor, true},
+		{"飢餓は中度の栄養失調", HungerStarving, SeverityMedium, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			sev, ok := HungerSeverity(tt.level)
+			assert.Equal(t, tt.wantOK, ok)
+			assert.Equal(t, tt.wantSev, sev)
+		})
+	}
+}

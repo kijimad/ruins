@@ -114,6 +114,13 @@ func TestEquipmentType_SlotNumber(t *testing.T) {
 	}
 }
 
+func TestEquipmentType_SlotNumber_不正な値はpanicする(t *testing.T) {
+	t.Parallel()
+	assert.Panics(t, func() {
+		_ = EquipmentType("INVALID").SlotNumber()
+	})
+}
+
 func TestElementType_String(t *testing.T) {
 	t.Parallel()
 
