@@ -42,8 +42,10 @@ func TestNewContinueState_最新オートセーブから復帰する(t *testing.
 
 	require.True(t, ok, "オートセーブがあれば読み込んで復帰する")
 	require.NotNil(t, state)
+	// 復帰先はオーバーワールドでも通常ダンジョンでも実体は DungeonState なので、どちらの経路でも
+	// この型アサートは通る。IsOnOverworld の分岐に依らず復帰ステートが DungeonState であることを固定する
 	_, isDungeon := state.(*DungeonState)
-	assert.True(t, isDungeon, "統合後の復帰先は DungeonState")
+	assert.True(t, isDungeon, "復帰先は DungeonState")
 }
 
 func TestNewContinueState_手動が最新なら手動を読む(t *testing.T) {
