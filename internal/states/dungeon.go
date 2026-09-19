@@ -110,7 +110,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// オーバーワールドと通常ダンジョンで同じ扱いにするため、分岐前のここで立てる。
 	query.GetVisionState(world).RequestUpdate()
 
-	// オートセーバを構成する。新規開始とロード復帰のどちらでもここを通る
+	// 新規開始とロード復帰のどちらもここを通る
 	st.autoSave = newAutoSaver(world)
 
 	// Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは

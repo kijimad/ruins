@@ -414,11 +414,9 @@ func sleepBlockReason(sc activity.SleepConditions) (msgid string, blocked bool) 
 	return "", false
 }
 
-// sleepConfirmChoices は睡眠プロンプトの本文と選択肢を組む。各条件を Header 行でチェック/バツの
-// アイコン付きに見せ、入眠可能なら Sleep を選べる。ブロック条件があるときは Sleep を非選択のバツ表示にして理由を残す。
 // sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が
-// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。
-// 入眠は安全・気温・疲労を Validate 済みのチェックポイントなので、入った直後にオートセーブする。
+// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。入眠は
+// Validate 済みのチェックポイントなので、入った直後にオートセーブする。
 func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {
 	title := query.T(world, "Sleep here?")
 	return title, []Choice{
