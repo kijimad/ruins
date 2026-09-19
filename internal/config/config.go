@@ -58,7 +58,7 @@ type Config struct {
 	// アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
 	DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
 	// オートセーブを無効化するか。再生とテストが立て、副作用でセーブファイルを書かないようにする
-	DisableAutoSave bool
+	DisableAutoSave bool `env:"RUINS_DISABLE_AUTOSAVE"`
 
 	// セーブ・ロードを有効にするか。env でなく profile と steam タグで決まる導出値。
 	// development は常に true で、開発時の起動とテストが保存を試せる。production は steam タグの
@@ -161,6 +161,9 @@ func (c *Config) applyProductionDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
+	if os.Getenv("RUINS_DISABLE_AUTOSAVE") == "" {
+		c.DisableAutoSave = false
+	}
 	c.SaveLoadEnabled = consts.IsSteamBuild
 
 	// パフォーマンス設定
@@ -226,6 +229,9 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
+	}
+	if os.Getenv("RUINS_DISABLE_AUTOSAVE") == "" {
+		c.DisableAutoSave = false
 	}
 	c.SaveLoadEnabled = true
 
