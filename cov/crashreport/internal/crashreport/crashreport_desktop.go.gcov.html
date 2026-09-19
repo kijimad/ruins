@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - crashreport/internal/crashreport/crashreport_desktop.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">crashreport/internal/crashreport</a> - crashreport_desktop.go<span style="font-size: 80%;"> (source / <a href="crashreport_desktop.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">80.8&nbsp;%</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">21</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-19 07:54:45</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : //go:build !js</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : package crashreport</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : import (</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;encoding/json&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;fmt&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;os&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;path/filepath&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // userConfigDir は保存先の基底を解決する。テストが一時ディレクトリへ差し替えるためパッケージ変数にする。</span>
+<span id="L13"><span class="lineNum">      13</span>              : var userConfigDir = os.UserConfigDir</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              : // writeRecord は rec を UserConfigDir 下のファイルへ書き保存先を返す。失敗時は空を返す。</span>
+<span id="L16"><span class="lineNum">      16</span>              : // 実行ファイル隣でなく UserConfigDir にするのは、出荷ビルドの実行ディレクトリが Program Files など</span>
+<span id="L17"><span class="lineNum">      17</span>              : // 書き込み不可なことが多いため。</span>
+<span id="L18"><span class="lineNum">      18</span>              : func writeRecord(rec CrashRecord) string {</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         base, err := userConfigDir()</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return &quot;&quot;</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         return writeRecordTo(filepath.Join(base, &quot;ruins&quot;, &quot;crash&quot;), rec)</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : }</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // writeRecordTo は rec を dir 下のファイルへ書き、その保存先を返す。失敗時は空を返す。</span>
+<span id="L27"><span class="lineNum">      27</span>              : // dir を引数にとる純関数なので、テストはグローバルを触らず一時ディレクトリで検証できる。</span>
+<span id="L28"><span class="lineNum">      28</span>              : func writeRecordTo(dir string, rec CrashRecord) string {</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         if err := os.MkdirAll(dir, 0o755); err != nil {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 return &quot;&quot;</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :         // ファイル名の時刻はコロンを使わない。Windows はコロンを許さない。保存は saveOnce で1プロセス1回に</span>
+<span id="L33"><span class="lineNum">      33</span>              :         // 限るので、ナノ秒まで入れれば再起動を跨いでも実質衝突しない。rec.at からファイル名と Timestamp を</span>
+<span id="L34"><span class="lineNum">      34</span>              :         // 同一時刻で作る</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         name := fmt.Sprintf(&quot;crash-%s-%09d.json&quot;, rec.at.Format(&quot;20060102-150405&quot;), rec.at.Nanosecond())</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         path := filepath.Join(dir, name)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         f, err := os.Create(path)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         enc := json.NewEncoder(f)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         enc.SetIndent(&quot;&quot;, &quot;  &quot;)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         err = enc.Encode(rec)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         // remove の前に閉じる。Windows は open 中のファイルを消せない。Close 時の書き込み失敗も拾う</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         if cerr := f.Close(); err == nil {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 err = cerr</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :                 // 書きかけの空ファイルを残さない。中身の無いクラッシュ記録でユーザーを混乱させないため</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                 _ = os.Remove(path)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return &quot;&quot;</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 :         return path</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
