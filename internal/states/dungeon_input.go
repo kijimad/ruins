@@ -433,7 +433,7 @@ func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {
 				}
 				// 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため
 				if res != nil && res.Success {
-					if serr := st.autoSave.save(world); serr != nil {
+					if serr := autoSave(world, nil); serr != nil {
 						return es.Transition[w.World]{}, serr
 					}
 				}
