@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.5%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -623,7 +623,7 @@
 				
 				<option value="file283">github.com/kijimaD/ruins/internal/systems/fire.go (93.8%)</option>
 				
-				<option value="file284">github.com/kijimaD/ruins/internal/systems/health_regen.go (95.0%)</option>
+				<option value="file284">github.com/kijimaD/ruins/internal/systems/health_regen.go (100.0%)</option>
 				
 				<option value="file285">github.com/kijimaD/ruins/internal/systems/helper.go (0.0%)</option>
 				
@@ -767,7 +767,7 @@
 				
 				<option value="file355">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
+				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
 				
 				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -1704,7 +1704,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1720,7 +1720,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
+                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -42839,11 +42839,14 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
-// healthRegenBasePerTurn は代謝が基準 100 のとき毎ターン回復する HP。
-// 実際の回復量はこれに Metabolism 倍率を掛ける。値は実プレイで調整する
-const healthRegenBasePerTurn = 2
+const (
+        // healthRegenIntervalTurns ターンに一度だけ回復する。毎ターンだと全快が速すぎるため間引く。
+        healthRegenIntervalTurns = 5
+        // healthRegenPerInterval は回復ターンに足す基準 HP。Metabolism を掛け、代謝100%未満は0で回復しない。
+        healthRegenPerInterval = 1
+)
 
-// HealthRegenSystem は毎ターン HP を代謝ぶん自然回復させるシステム
+// HealthRegenSystem は HP を代謝ぶん自然回復させるシステム
 type HealthRegenSystem struct{}
 
 // String はシステム名を返す
@@ -42851,10 +42854,12 @@ func (sys *HealthRegenSystem) String() string {
         <span class="cov8" title="1">return "HealthRegenSystem"
 </span>}
 
-// Update は HP を持つ生存エンティティの HP を代謝ぶん回復させる。
-// 自然回復は静かに進めるので回復数値を出す ApplyHealing は使わず HP を直接足す。
-// 数値を出す即時回復はアイテム使用に限る。
+// Update は healthRegenIntervalTurns ターンに一度、生存エンティティの HP を代謝ぶん回復させる。数値は出さず直接足す。
 func (sys *HealthRegenSystem) Update(world w.World) error {
+        <span class="cov8" title="1">if int(query.GetTurnState(world).TurnNumber)%healthRegenIntervalTurns != 0 </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+
         <span class="cov8" title="1">var targets []ecs.Entity
         hpQuery := query.ActiveFilter1[gc.HP](world).Query()
         for hpQuery.Next() </span>{
@@ -42865,7 +42870,7 @@ func (sys *HealthRegenSystem) Update(world w.World) error {
                 <span class="cov8" title="1">if world.Components.Dead.Has(entity) </span>{
                         <span class="cov8" title="1">continue</span>
                 }
-                // HP を削る不調があるあいだは自然回復しない。回復が相殺して、じわじわ減っているのを隠さないようにする
+                // HP を削る不調のあいだは回復しない。回復が相殺して減少を隠さないため
                 <span class="cov8" title="1">if world.Components.HealthStatus.Has(entity) &amp;&amp; world.Components.HealthStatus.Get(entity).IsHPDraining() </span>{
                         <span class="cov8" title="1">continue</span>
                 }
@@ -42873,9 +42878,9 @@ func (sys *HealthRegenSystem) Update(world w.World) error {
                 if hp.Current &gt;= hp.Max </span>{
                         <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov8" title="1">regen := query.Metabolism(world, entity).ApplyInt(healthRegenBasePerTurn)
+                <span class="cov8" title="1">regen := query.Metabolism(world, entity).ApplyInt(healthRegenPerInterval)
                 if regen &lt;= 0 </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">hp.Current += regen
                 if hp.Current &gt; hp.Max </span>{
@@ -52611,7 +52616,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
