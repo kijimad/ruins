@@ -24,7 +24,6 @@ func (sys *HealthRegenSystem) String() string {
 
 // Update は healthRegenIntervalTurns ターンに一度、生存エンティティの HP を代謝ぶん回復させる。数値は出さず直接足す。
 func (sys *HealthRegenSystem) Update(world w.World) error {
-	// TurnNumber は1始まりで最初の回復は healthRegenIntervalTurns ターン目
 	if int(query.GetTurnState(world).TurnNumber)%healthRegenIntervalTurns != 0 {
 		return nil
 	}
