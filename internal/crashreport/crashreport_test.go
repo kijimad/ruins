@@ -9,7 +9,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -128,58 +127,79 @@ func TestGuard_保存して再panicする(t *testing.T) {
 	assert.Len(t, entries, 1, "クラッシュ1件につきファイル1つ")
 }
 
-// TestGolden_生成JSONの仕様 は writeRecordTo が書くファイル内容を golden で固定する。フィールド名・
-// 順序・インデント・omitempty といった生成 JSON の仕様を1枚の現物として残し、意図しない書式変更を
-// make check で止める。時刻や版など環境依存の値は固定レコードを直接与えて決定論にする。
-func TestGolden_生成JSONの仕様(t *testing.T) {
+// TestWriteRecordTo_生成JSONの仕様 は writeRecordTo が書くファイル内容を期待文字列と全文一致させ、
+// 生成 JSON の仕様を固定する。フィールド名・順序・2スペースインデント・末尾改行・steam の bool・
+// omitempty による state 省略を、テスト本体に埋め込んだ現物として残す。書式変更はここで検知される。
+// 時刻や版など環境依存の値は固定レコードを直接与えて決定論にする。
+func TestWriteRecordTo_生成JSONの仕様(t *testing.T) {
 	t.Parallel()
-	g := goldie.New(t, goldie.WithNameSuffix(".json"))
 
-	cases := []struct {
-		golden string
-		rec    CrashRecord
-	}{
-		{
-			golden: "crash_record_full",
-			rec: CrashRecord{
-				Timestamp: "2026-09-19T12:00:00Z",
-				Level:     "FATAL",
-				Category:  "crash",
-				Message:   "runtime error: index out of range [3] with length 2",
-				Version:   "v1.2.3",
-				GOOS:      "linux",
-				GOARCH:    "amd64",
-				Steam:     true,
-				State:     "*states.MainMenuState",
-				Stack:     "goroutine 1 [running]:\nmain.main()\n\t/app/main.go:10 +0x1d",
-			},
-		},
-		{
-			// State 空は omitempty で消える。落ちた時点でステート未登録・空のときの形
-			golden: "crash_record_no_state",
-			rec: CrashRecord{
-				Timestamp: "2026-09-19T12:00:00Z",
-				Level:     "FATAL",
-				Category:  "crash",
-				Message:   "boom",
-				Version:   "v1.2.3",
-				GOOS:      "windows",
-				GOARCH:    "amd64",
-				Steam:     false,
-				State:     "",
-				Stack:     "goroutine 1 [running]:",
-			},
-		},
-	}
-	for _, tc := range cases {
-		t.Run(tc.golden, func(t *testing.T) {
-			t.Parallel()
-			dir := t.TempDir()
-			path := writeRecordTo(dir, tc.rec)
-			require.NotEmpty(t, path, "保存先パスを返す")
-			b, err := os.ReadFile(path)
-			require.NoError(t, err)
-			g.Assert(t, tc.golden, b)
-		})
-	}
+	t.Run("全フィールドあり", func(t *testing.T) {
+		t.Parallel()
+		rec := CrashRecord{
+			Timestamp: "2026-09-19T12:00:00Z",
+			Level:     "FATAL",
+			Category:  "crash",
+			Message:   "runtime error: index out of range [3] with length 2",
+			Version:   "v1.2.3",
+			GOOS:      "linux",
+			GOARCH:    "amd64",
+			Steam:     true,
+			State:     "*states.MainMenuState",
+			Stack:     "goroutine 1 [running]:\nmain.main()\n\t/app/main.go:10 +0x1d",
+		}
+		want := `{
+  "timestamp": "2026-09-19T12:00:00Z",
+  "level": "FATAL",
+  "category": "crash",
+  "message": "runtime error: index out of range [3] with length 2",
+  "version": "v1.2.3",
+  "goos": "linux",
+  "goarch": "amd64",
+  "steam": true,
+  "state": "*states.MainMenuState",
+  "stack": "goroutine 1 [running]:\nmain.main()\n\t/app/main.go:10 +0x1d"
+}
+`
+		assert.Equal(t, want, writeAndRead(t, rec))
+	})
+
+	t.Run("state空はomitemptyで省く", func(t *testing.T) {
+		t.Parallel()
+		rec := CrashRecord{
+			Timestamp: "2026-09-19T12:00:00Z",
+			Level:     "FATAL",
+			Category:  "crash",
+			Message:   "boom",
+			Version:   "v1.2.3",
+			GOOS:      "windows",
+			GOARCH:    "amd64",
+			Steam:     false,
+			State:     "",
+			Stack:     "goroutine 1 [running]:",
+		}
+		want := `{
+  "timestamp": "2026-09-19T12:00:00Z",
+  "level": "FATAL",
+  "category": "crash",
+  "message": "boom",
+  "version": "v1.2.3",
+  "goos": "windows",
+  "goarch": "amd64",
+  "steam": false,
+  "stack": "goroutine 1 [running]:"
+}
+`
+		assert.Equal(t, want, writeAndRead(t, rec))
+	})
+}
+
+// writeAndRead は rec を一時ディレクトリへ書き、書けたファイルの中身を文字列で返す。
+func writeAndRead(t *testing.T, rec CrashRecord) string {
+	t.Helper()
+	path := writeRecordTo(t.TempDir(), rec)
+	require.NotEmpty(t, path, "保存先パスを返す")
+	b, err := os.ReadFile(path)
+	require.NoError(t, err)
+	return string(b)
 }
