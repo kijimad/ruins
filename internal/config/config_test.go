@@ -45,6 +45,7 @@ func TestApplyProfileDefaults_Development(t *testing.T) {
 	assert.Equal(t, 960, cfg.User.WindowWidth)
 	assert.Equal(t, 720, cfg.User.WindowHeight)
 	assert.True(t, cfg.SkipOpening)
+	assert.True(t, cfg.Continue, "開発は既定で続きから起動し、make run が継続プレイになる")
 }
 
 func TestApplyProfileDefaults_UnknownProfile(t *testing.T) {

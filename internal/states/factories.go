@@ -1,6 +1,7 @@
 package states
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/activity"
@@ -87,12 +88,6 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 		}
 		return ds, nil
 	}
-}
-
-// NewDemoStartState はデモ用の初期化ステートを作成するファクトリー関数
-// キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する
-func NewDemoStartState() (es.State[w.World], error) {
-	return &DemoStartState{}, nil
 }
 
 // newGameOverworldState は新規ゲーム開始用のオーバーワールド探索ステートを返す。
@@ -248,6 +243,32 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	}
 	d := query.GetDungeon(world)
 	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())
+}
+
+// ErrNoContinuePoint は継続できるセーブが無いことを表す。エラーではなく、呼び出し側はこれを見て
+// メニューへ退避する。復元の失敗と区別するためのセンチネル。
+var ErrNoContinuePoint = errors.New("no save to continue")
+
+// ResumeFromLatestSave は最新のセーブを saveManager から world へ読み込み、その地点の復帰ステートを返す。
+// 読み込めるセーブが無いときは ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。
+func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
+	// 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
+	saves, err := saveManager.ListSaves()
+	if err != nil {
+		return nil, fmt.Errorf("continue: list saves: %w", err)
+	}
+	if len(saves) == 0 {
+		return nil, ErrNoContinuePoint
+	}
+	latest := saves[0]
+	if err := saveManager.LoadWorld(world, latest); err != nil {
+		return nil, fmt.Errorf("continue: load save %q: %w", latest, err)
+	}
+	state, err := newResumeStateFactory(world)()
+	if err != nil {
+		return nil, fmt.Errorf("continue: build resume state: %w", err)
+	}
+	return state, nil
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。

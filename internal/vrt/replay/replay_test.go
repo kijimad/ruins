@@ -71,8 +71,7 @@ func TestPlayScenario_押し込んだ先のstateも同じ列で駆動する(t *t
 			return []es.State[w.World]{&states.MainMenuState{}}
 		},
 		[]inputmapper.ActionID{
-			inputmapper.ActionMenuDown,   // Start から Demo へ
-			inputmapper.ActionMenuDown,   // Demo から Load へ
+			inputmapper.ActionMenuDown,   // Start から Load へ
 			inputmapper.ActionMenuDown,   // Load から Settings へ
 			inputmapper.ActionMenuSelect, // Settings を開いて push する
 			replay.NoInput,               // 積まれた設定メニューのタブ登録を待つ

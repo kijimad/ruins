@@ -116,6 +116,12 @@ func (st *DungeonState) OnStart(world w.World) error {
 		}
 		// 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で大書きして示す
 		lifecycle.SpawnSplashText(world, query.T(world, "Day %d", query.GetGameTime(world).GetDayNumber()))
+		// 新規開始直後に最初の復帰点を作る。ロード復帰では newGame が nil なので保存しない
+		if st.newGame != nil {
+			if err := autoSave(world, nil); err != nil {
+				return err
+			}
+		}
 		return nil
 	}
 

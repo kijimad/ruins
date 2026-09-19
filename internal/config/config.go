@@ -49,12 +49,16 @@ type Config struct {
 
 	// オープニング演出をスキップするかどうか
 	SkipOpening bool `env:"RUINS_SKIP_OPENING"`
+	// 起動時に最新のオートセーブを読み込んで続きから始めるかどうか
+	Continue bool `env:"RUINS_CONTINUE"`
 	// アニメーション演出を無効化するかどうか
 	DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
 	// 画面のポスト処理、レトロフィルタのスキャンラインと色収差、を無効化するかどうか。
 	// VRT はこれを立てて撮る。スキャンラインは全画面の高周波パターンで、フォントの
 	// アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
 	DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
+	// オートセーブを無効化するか。再生とテストが立て、副作用でセーブファイルを書かないようにする
+	DisableAutoSave bool `env:"RUINS_DISABLE_AUTOSAVE"`
 
 	// セーブ・ロードを有効にするか。env でなく profile と steam タグで決まる導出値。
 	// development は常に true で、開発時の起動とテストが保存を試せる。production は steam タグの
@@ -157,6 +161,9 @@ func (c *Config) applyProductionDefaults() {
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
 	}
+	if os.Getenv("RUINS_DISABLE_AUTOSAVE") == "" {
+		c.DisableAutoSave = false
+	}
 	c.SaveLoadEnabled = consts.IsSteamBuild
 
 	// パフォーマンス設定
@@ -214,11 +221,17 @@ func (c *Config) applyDevelopmentDefaults() {
 	if os.Getenv("RUINS_SKIP_OPENING") == "" {
 		c.SkipOpening = true
 	}
+	if os.Getenv("RUINS_CONTINUE") == "" {
+		c.Continue = true
+	}
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false
 	}
 	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
 		c.DisableScreenFilter = false
+	}
+	if os.Getenv("RUINS_DISABLE_AUTOSAVE") == "" {
+		c.DisableAutoSave = false
 	}
 	c.SaveLoadEnabled = true
 

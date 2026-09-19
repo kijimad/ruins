@@ -73,7 +73,7 @@ type MainMenuProps struct {
 }
 
 // mainMenuItem はメインメニューの項目。ResetsWorld が真の項目は遷移の前に前のゲームの
-// 全実体を消す。新しいゲームを始める Start・Demo が立てる。ロードは save 側が担うので立てない
+// 全実体を消す。新しいゲームを始める Start が立てる。ロードは save 側が担うので立てない
 type mainMenuItem struct {
 	Label       string
 	Transition  es.Transition[w.World]
@@ -88,7 +88,6 @@ func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 	t := func(msgid string) string { return query.T(world, msgid) }
 	items := []mainMenuItem{
 		{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
-		{Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
 	}
 	if world.Resources.Config.SaveLoadEnabled {
 		items = append(items, mainMenuItem{Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}})

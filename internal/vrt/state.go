@@ -87,6 +87,9 @@ func InitReplayWorld(tb testing.TB) w.World {
 	// ポスト処理を切って撮る。スキャンラインの高周波パターンが無くなり、golden の
 	// 差分がUIの実変化だけを映すようになる。トレランスを絞れる
 	cfg.DisableScreenFilter = true
+	// 再生は描画確認であって永続化セッションではない。オートセーブの副作用でセーブファイルを
+	// 書かない。UI には影響しないので Load や Save メニュー項目はそのまま出る
+	cfg.DisableAutoSave = true
 	require.NoError(tb, cfg.Validate())
 
 	loadMu.Lock()

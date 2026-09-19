@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/crashreport"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/maingame"
+	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/steam"
 	"github.com/pkg/profile"
 	"github.com/urfave/cli/v3"
@@ -109,16 +111,9 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	// 開始ステートの決定
-	var initialState es.State[w.World]
-	if cfg.SkipOpening {
-		var stateErr error
-		initialState, stateErr = gs.NewDemoStartState()
-		if stateErr != nil {
-			return stateErr
-		}
-	} else {
-		initialState = &gs.MainMenuState{}
+	initialState, err := initialPlayState(world, cfg)
+	if err != nil {
+		return err
 	}
 
 	stateMachine, err := es.Init(initialState, world)
@@ -148,4 +143,23 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		X11ClassName:    "Coldward",
 		X11InstanceName: "ruins",
 	})
+}
+
+// initialPlayState は起動時の開始ステートを決める。継続でセーブを読めればその地点から、無ければ
+// メインメニューから始める。ロードの失敗は握りつぶさず返す。
+func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
+	if cfg.Continue && cfg.SaveLoadEnabled {
+		saveManager, err := save.NewSerializationManager()
+		if err != nil {
+			return nil, fmt.Errorf("continue: create save manager: %w", err)
+		}
+		resume, err := gs.ResumeFromLatestSave(world, saveManager)
+		if err != nil && !errors.Is(err, gs.ErrNoContinuePoint) {
+			return nil, err
+		}
+		if resume != nil {
+			return resume, nil
+		}
+	}
+	return &gs.MainMenuState{}, nil
 }

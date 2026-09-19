@@ -395,7 +395,7 @@ func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], erro
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 	return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-		func() (es.State[w.World], error) { return NewChoiceMenu(sleepConfirmChoices), nil },
+		func() (es.State[w.World], error) { return NewChoiceMenu(st.sleepConfirmChoices), nil },
 	}}, nil
 }
 
@@ -414,11 +414,10 @@ func sleepBlockReason(sc activity.SleepConditions) (msgid string, blocked bool) 
 	return "", false
 }
 
-// sleepConfirmChoices は睡眠プロンプトの本文と選択肢を組む。各条件を Header 行でチェック/バツの
-// アイコン付きに見せ、入眠可能なら Sleep を選べる。ブロック条件があるときは Sleep を非選択のバツ表示にして理由を残す。
 // sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が
-// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。
-func sleepConfirmChoices(world w.World) (string, []Choice) {
+// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。入眠は
+// Validate 済みのチェックポイントなので、入った直後にオートセーブする。
+func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {
 	title := query.T(world, "Sleep here?")
 	return title, []Choice{
 		{
@@ -428,8 +427,15 @@ func sleepConfirmChoices(world w.World) (string, []Choice) {
 				if perr != nil {
 					return es.Transition[w.World]{}, perr
 				}
-				if _, eerr := activity.Execute(activity.NewSleepActivity(), p, world); eerr != nil {
+				res, eerr := activity.Execute(activity.NewSleepActivity(), p, world)
+				if eerr != nil {
 					return es.Transition[w.World]{}, eerr
+				}
+				// 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため
+				if res != nil && res.Success {
+					if serr := autoSave(world, nil); serr != nil {
+						return es.Transition[w.World]{}, serr
+					}
 				}
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			},

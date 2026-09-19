@@ -24,24 +24,22 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	t.Parallel()
 
 	state := &MainMenuState{}
-	// InitTestWorld は開発プロファイルなので SaveLoadEnabled が真になり、ロードを含む5項目が出る
+	// InitTestWorld は開発プロファイルなので SaveLoadEnabled が真になり、ロードを含む4項目が出る
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	props, err := state.Fetch(world)
 	require.NoError(t, err)
 
-	require.Len(t, props.Items, 5, "メニュー項目は5つ")
+	require.Len(t, props.Items, 4, "メニュー項目は4つ")
 	assert.Equal(t, "Start", props.Items[0].Label)
 	assert.Equal(t, es.TransReplace, props.Items[0].Transition.Type, "開始は Replace")
-	assert.Equal(t, "Demo", props.Items[1].Label)
-	assert.Equal(t, es.TransReplace, props.Items[1].Transition.Type, "デモは Replace")
-	assert.Equal(t, "Load", props.Items[2].Label)
-	assert.Equal(t, es.TransPush, props.Items[2].Transition.Type, "読込は Push")
-	assert.Equal(t, "Settings", props.Items[3].Label)
-	assert.Equal(t, es.TransPush, props.Items[3].Transition.Type, "設定は Push")
-	assert.Equal(t, "Quit", props.Items[4].Label)
-	assert.Equal(t, es.TransQuit, props.Items[4].Transition.Type, "終了は Quit")
+	assert.Equal(t, "Load", props.Items[1].Label)
+	assert.Equal(t, es.TransPush, props.Items[1].Transition.Type, "読込は Push")
+	assert.Equal(t, "Settings", props.Items[2].Label)
+	assert.Equal(t, es.TransPush, props.Items[2].Transition.Type, "設定は Push")
+	assert.Equal(t, "Quit", props.Items[3].Label)
+	assert.Equal(t, es.TransQuit, props.Items[3].Transition.Type, "終了は Quit")
 }
 
 func TestMainMenuState_体験版はロード項目を出さない(t *testing.T) {
@@ -60,7 +58,7 @@ func TestMainMenuState_体験版はロード項目を出さない(t *testing.T) 
 	for i, item := range props.Items {
 		labels[i] = item.Label
 	}
-	assert.Equal(t, []string{"Start", "Demo", "Settings", "Quit"}, labels, "体験版では Load が消えて4項目")
+	assert.Equal(t, []string{"Start", "Settings", "Quit"}, labels, "体験版では Load が消えて3項目")
 }
 
 func TestMainMenuState_言語切替でラベルが変わる(t *testing.T) {
@@ -80,7 +78,7 @@ func TestMainMenuState_言語切替でラベルが変わる(t *testing.T) {
 	ja, err := state.Fetch(world)
 	require.NoError(t, err)
 	assert.Equal(t, "開始", ja.Items[0].Label, "ja は日本語")
-	assert.Equal(t, "設定", ja.Items[3].Label, "ja は日本語")
+	assert.Equal(t, "設定", ja.Items[2].Label, "ja は日本語")
 }
 
 func TestMainMenuState_DoAction_Cancel(t *testing.T) {
