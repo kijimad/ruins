@@ -110,7 +110,11 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	initialState := initialPlayState(world, cfg)
+	// 継続でオートセーブを読み込めればその地点から、そうでなければメインメニューから始める
+	var initialState es.State[w.World] = &gs.MainMenuState{}
+	if resume, resumed := maybeContinue(world, cfg); resumed {
+		initialState = resume
+	}
 
 	stateMachine, err := es.Init(initialState, world)
 	if err != nil {
@@ -139,15 +143,6 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		X11ClassName:    "Coldward",
 		X11InstanceName: "ruins",
 	})
-}
-
-// initialPlayState は起動時の開始ステートを決める。継続でオートセーブを読み込めればその地点から
-// 復帰し、そうでなければメインメニューから始める。
-func initialPlayState(world w.World, cfg *config.Config) es.State[w.World] {
-	if resume, resumed := maybeContinue(world, cfg); resumed {
-		return resume
-	}
-	return &gs.MainMenuState{}
 }
 
 // maybeContinue は継続設定が有効でオートセーブを読み込めたとき、その地点の復帰ステートを返す。
