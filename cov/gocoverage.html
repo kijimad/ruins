@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.5%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
@@ -535,29 +535,29 @@
 				
 				<option value="file239">github.com/kijimaD/ruins/internal/states/auction_menu.go (0.0%)</option>
 				
-				<option value="file240">github.com/kijimaD/ruins/internal/states/character_info.go (94.6%)</option>
+				<option value="file240">github.com/kijimaD/ruins/internal/states/autosave.go (58.3%)</option>
 				
-				<option value="file241">github.com/kijimaD/ruins/internal/states/character_job.go (50.5%)</option>
+				<option value="file241">github.com/kijimaD/ruins/internal/states/character_info.go (94.6%)</option>
 				
-				<option value="file242">github.com/kijimaD/ruins/internal/states/character_naming.go (76.0%)</option>
+				<option value="file242">github.com/kijimaD/ruins/internal/states/character_job.go (50.5%)</option>
 				
-				<option value="file243">github.com/kijimaD/ruins/internal/states/character_state.go (70.1%)</option>
+				<option value="file243">github.com/kijimaD/ruins/internal/states/character_naming.go (76.0%)</option>
 				
-				<option value="file244">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
+				<option value="file244">github.com/kijimaD/ruins/internal/states/character_state.go (70.1%)</option>
 				
-				<option value="file245">github.com/kijimaD/ruins/internal/states/choice.go (79.5%)</option>
+				<option value="file245">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
 				
-				<option value="file246">github.com/kijimaD/ruins/internal/states/component_debug_state.go (89.1%)</option>
+				<option value="file246">github.com/kijimaD/ruins/internal/states/choice.go (79.5%)</option>
 				
-				<option value="file247">github.com/kijimaD/ruins/internal/states/craft_menu.go (66.7%)</option>
+				<option value="file247">github.com/kijimaD/ruins/internal/states/component_debug_state.go (89.1%)</option>
 				
-				<option value="file248">github.com/kijimaD/ruins/internal/states/cube_info.go (21.4%)</option>
+				<option value="file248">github.com/kijimaD/ruins/internal/states/craft_menu.go (66.7%)</option>
 				
-				<option value="file249">github.com/kijimaD/ruins/internal/states/cube_menu.go (33.3%)</option>
+				<option value="file249">github.com/kijimaD/ruins/internal/states/cube_info.go (21.4%)</option>
 				
-				<option value="file250">github.com/kijimaD/ruins/internal/states/debug_menu.go (7.2%)</option>
+				<option value="file250">github.com/kijimaD/ruins/internal/states/cube_menu.go (33.3%)</option>
 				
-				<option value="file251">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
+				<option value="file251">github.com/kijimaD/ruins/internal/states/debug_menu.go (7.2%)</option>
 				
 				<option value="file252">github.com/kijimaD/ruins/internal/states/dungeon.go (80.0%)</option>
 				
@@ -565,11 +565,11 @@
 				
 				<option value="file254">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (81.0%)</option>
 				
-				<option value="file255">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.6%)</option>
+				<option value="file255">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.1%)</option>
 				
 				<option value="file256">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
-				<option value="file257">github.com/kijimaD/ruins/internal/states/factories.go (58.8%)</option>
+				<option value="file257">github.com/kijimaD/ruins/internal/states/factories.go (58.5%)</option>
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/states/feed_fuel_menu.go (64.9%)</option>
 				
@@ -767,7 +767,7 @@
 				
 				<option value="file355">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
+				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
 				
 				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -5534,7 +5534,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -10267,6 +10267,7 @@ func renderImageTable(entries []imageEntry) string {
 
 import (
         "context"
+        "errors"
         "fmt"
         "log"
         "net/http"
@@ -10277,6 +10278,7 @@ import (
         "github.com/kijimaD/ruins/internal/crashreport"
         "github.com/kijimaD/ruins/internal/logger"
         "github.com/kijimaD/ruins/internal/maingame"
+        "github.com/kijimaD/ruins/internal/save"
         "github.com/kijimaD/ruins/internal/steam"
         "github.com/pkg/profile"
         "github.com/urfave/cli/v3"
@@ -10374,16 +10376,9 @@ func runPlay(_ context.Context, _ *cli.Command) error {
                 <span class="cov0" title="0">return err
 </span>        }
 
-        // 開始ステートの決定
-        <span class="cov0" title="0">var initialState es.State[w.World]
-        if cfg.SkipOpening </span>{
-                <span class="cov0" title="0">var stateErr error
-                initialState, stateErr = gs.NewDemoStartState()
-                if stateErr != nil </span>{
-                        <span class="cov0" title="0">return stateErr
-</span>                }
-        } else {
-                <span class="cov0" title="0">initialState = &amp;gs.MainMenuState{}
+        <span class="cov0" title="0">initialState, err := initialPlayState(world, cfg)
+        if err != nil </span>{
+                <span class="cov0" title="0">return err
 </span>        }
 
         <span class="cov0" title="0">stateMachine, err := es.Init(initialState, world)
@@ -10413,6 +10408,25 @@ func runPlay(_ context.Context, _ *cli.Command) error {
                 X11ClassName:    "Coldward",
                 X11InstanceName: "ruins",
         })</span>
+}
+
+// initialPlayState は起動時の開始ステートを決める。継続でセーブを読めればその地点から、無ければ
+// メインメニューから始める。ロードの失敗は握りつぶさず返す。
+func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
+        <span class="cov0" title="0">if cfg.Continue &amp;&amp; cfg.SaveLoadEnabled </span>{
+                <span class="cov0" title="0">saveManager, err := save.NewSerializationManager()
+                if err != nil </span>{
+                        <span class="cov0" title="0">return nil, fmt.Errorf("continue: create save manager: %w", err)
+</span>                }
+                <span class="cov0" title="0">resume, err := gs.ResumeFromLatestSave(world, saveManager)
+                if err != nil &amp;&amp; !errors.Is(err, gs.ErrNoContinuePoint) </span>{
+                        <span class="cov0" title="0">return nil, err
+</span>                }
+                <span class="cov0" title="0">if resume != nil </span>{
+                        <span class="cov0" title="0">return resume, nil
+</span>                }
+        }
+        <span class="cov0" title="0">return &amp;gs.MainMenuState{}, nil</span>
 }
 </pre>
 		
@@ -15385,12 +15399,16 @@ type Config struct {
 
         // オープニング演出をスキップするかどうか
         SkipOpening bool `env:"RUINS_SKIP_OPENING"`
+        // 起動時に最新のオートセーブを読み込んで続きから始めるかどうか
+        Continue bool `env:"RUINS_CONTINUE"`
         // アニメーション演出を無効化するかどうか
         DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
         // 画面のポスト処理、レトロフィルタのスキャンラインと色収差、を無効化するかどうか。
         // VRT はこれを立てて撮る。スキャンラインは全画面の高周波パターンで、フォントの
         // アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
         DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
+        // オートセーブを無効化するか。再生とテストが立て、副作用でセーブファイルを書かないようにする
+        DisableAutoSave bool `env:"RUINS_DISABLE_AUTOSAVE"`
 
         // セーブ・ロードを有効にするか。env でなく profile と steam タグで決まる導出値。
         // development は常に true で、開発時の起動とテストが保存を試せる。production は steam タグの
@@ -15493,6 +15511,9 @@ func (c *Config) applyProductionDefaults() {
         <span class="cov8" title="1">if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" </span>{
                 <span class="cov8" title="1">c.DisableScreenFilter = false
 </span>        }
+        <span class="cov8" title="1">if os.Getenv("RUINS_DISABLE_AUTOSAVE") == "" </span>{
+                <span class="cov8" title="1">c.DisableAutoSave = false
+</span>        }
         <span class="cov8" title="1">c.SaveLoadEnabled = consts.IsSteamBuild
 </span>
         // パフォーマンス設定
@@ -15550,11 +15571,17 @@ func (c *Config) applyDevelopmentDefaults() {
         <span class="cov8" title="1">if os.Getenv("RUINS_SKIP_OPENING") == "" </span>{
                 <span class="cov8" title="1">c.SkipOpening = true
 </span>        }
+        <span class="cov8" title="1">if os.Getenv("RUINS_CONTINUE") == "" </span>{
+                <span class="cov8" title="1">c.Continue = true
+</span>        }
         <span class="cov8" title="1">if os.Getenv("RUINS_DISABLE_ANIMATION") == "" </span>{
                 <span class="cov8" title="1">c.DisableAnimation = false
 </span>        }
         <span class="cov8" title="1">if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" </span>{
                 <span class="cov8" title="1">c.DisableScreenFilter = false
+</span>        }
+        <span class="cov8" title="1">if os.Getenv("RUINS_DISABLE_AUTOSAVE") == "" </span>{
+                <span class="cov8" title="1">c.DisableAutoSave = false
 </span>        }
         <span class="cov8" title="1">c.SaveLoadEnabled = true
 </span>
@@ -34671,6 +34698,40 @@ func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailConten
 import (
         "fmt"
 
+        "github.com/kijimaD/ruins/internal/save"
+        w "github.com/kijimaD/ruins/internal/world"
+)
+
+// autoSave は現在のワールドをオートセーブする。manager が nil なら既定の保存先で都度生成し、テストは
+// 一時ディレクトリの manager を渡して隔離する。失敗はエラーで返す。
+//
+// テストが vrt 経由で systems と maingame を引くため、その2パッケージから save を import すると
+// テスト循環になる。states は save を既に import しており循環しないので、ここに置く。
+func autoSave(world w.World, manager *save.SerializationManager) error {
+        <span class="cov8" title="1">cfg := world.Resources.Config
+        if !cfg.SaveLoadEnabled || cfg.DisableAutoSave </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov8" title="1">m := manager
+        if m == nil </span>{
+                <span class="cov0" title="0">var err error
+                m, err = save.NewSerializationManager()
+                if err != nil </span>{
+                        <span class="cov0" title="0">return fmt.Errorf("init save manager: %w", err)
+</span>                }
+        }
+        <span class="cov8" title="1">if err := m.AutoSave(world); err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("autosave: %w", err)
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file241" style="display: none">package states
+
+import (
+        "fmt"
+
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/resources"
@@ -35080,7 +35141,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 }
 </pre>
 		
-		<pre class="file" id="file241" style="display: none">package states
+		<pre class="file" id="file242" style="display: none">package states
 
 import (
         "fmt"
@@ -35292,7 +35353,7 @@ func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face
 }
 </pre>
 		
-		<pre class="file" id="file242" style="display: none">package states
+		<pre class="file" id="file243" style="display: none">package states
 
 import (
         "fmt"
@@ -35544,7 +35605,7 @@ func (st *CharacterNamingState) buildUI(world w.World) uicore.Drawable {
 }
 </pre>
 		
-		<pre class="file" id="file243" style="display: none">package states
+		<pre class="file" id="file244" style="display: none">package states
 
 import (
         "fmt"
@@ -35976,7 +36037,7 @@ func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {
 }
 </pre>
 		
-		<pre class="file" id="file244" style="display: none">package states
+		<pre class="file" id="file245" style="display: none">package states
 
 import (
         "github.com/hajimehoshi/ebiten/v2"
@@ -36020,7 +36081,7 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 }
 </pre>
 		
-		<pre class="file" id="file245" style="display: none">package states
+		<pre class="file" id="file246" style="display: none">package states
 
 import (
         "fmt"
@@ -36162,7 +36223,7 @@ func pushMessage(md *messagedata.MessageData) func(w.World) (es.Transition[w.Wor
 }
 </pre>
 		
-		<pre class="file" id="file246" style="display: none">package states
+		<pre class="file" id="file247" style="display: none">package states
 
 import (
         "cmp"
@@ -36293,7 +36354,7 @@ func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, 
 }
 </pre>
 		
-		<pre class="file" id="file247" style="display: none">package states
+		<pre class="file" id="file248" style="display: none">package states
 
 import (
         "fmt"
@@ -36592,7 +36653,7 @@ func (st *CraftMenuState) detailContent(world w.World) (overlay.DetailContent, b
 }
 </pre>
 		
-		<pre class="file" id="file248" style="display: none">package states
+		<pre class="file" id="file249" style="display: none">package states
 
 import (
         "fmt"
@@ -36707,7 +36768,7 @@ func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
 }
 </pre>
 		
-		<pre class="file" id="file249" style="display: none">package states
+		<pre class="file" id="file250" style="display: none">package states
 
 import (
         es "github.com/kijimaD/ruins/internal/engine/states"
@@ -36738,7 +36799,7 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 }
 </pre>
 		
-		<pre class="file" id="file250" style="display: none">package states
+		<pre class="file" id="file251" style="display: none">package states
 
 import (
         "fmt"
@@ -37018,98 +37079,6 @@ func spawnEnemyNearPlayer(world w.World, name string) error {
 }
 </pre>
 		
-		<pre class="file" id="file251" style="display: none">package states
-
-import (
-        "fmt"
-
-        "github.com/hajimehoshi/ebiten/v2"
-        "github.com/kijimaD/ruins/internal/consts"
-        es "github.com/kijimaD/ruins/internal/engine/states"
-        "github.com/kijimaD/ruins/internal/raw"
-        "github.com/kijimaD/ruins/internal/widgets/theme"
-        w "github.com/kijimaD/ruins/internal/world"
-
-        "github.com/kijimaD/ruins/internal/world/gameaction"
-        "github.com/kijimaD/ruins/internal/world/lifecycle"
-)
-
-// DemoStartState はデモ開始時のプレイヤー初期化を行うステート。
-// OnStartでプレイヤー生成と職業適用を行い、最初のUpdateで街を含むオーバーワールドへ遷移する
-type DemoStartState struct {
-        es.BaseState[w.World]
-}
-
-// OnStart はステート開始時にデフォルトプレイヤーを生成し、オーバーワールドへの遷移を設定する
-func (st *DemoStartState) OnStart(world w.World) error {
-        <span class="cov8" title="1">player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-        if err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to spawn player: %w", err)
-</span>        }
-
-        <span class="cov8" title="1">professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-        if len(professions) &gt; 0 </span>{
-                <span class="cov8" title="1">if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to apply profession: %w", err)
-</span>                }
-        }
-
-        <span class="cov8" title="1">if err := spawnDebugBiscuits(world); err != nil </span>{
-                <span class="cov0" title="0">return err
-</span>        }
-
-        // デバッグ用に本を初期所持へ積む。読書アクティビティを開始直後に試せるようにする
-        <span class="cov8" title="1">if _, err := lifecycle.SpawnBackpackItem(world, "grape_book", 1); err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug book: %w", err)
-</span>        }
-
-        <span class="cov8" title="1">st.SetTransition(es.Transition[w.World]{
-                Type:          es.TransReplace,
-                NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)},
-        })
-</span>
-        <span class="cov8" title="1">return nil</span>
-}
-
-// spawnDebugBiscuits はデバッグ用に鮮度の違うビスケットを初期所持へ積む。
-// 鮮度でスタックが分かれることを手元で確認するための仕込みで、新鮮・劣化・腐敗を各2個そろえる。
-// 開始直後は実効劣化が RotAccrued に等しいので、StageLength の倍数で置けば段階が決まり raw の変更にも追随する。
-func spawnDebugBiscuits(world w.World) error {
-        // 新鮮 [0, SL) 劣化 [SL, 2SL) 腐敗 [2SL, ) の各段階を作る RotAccrued の倍率
-        <span class="cov8" title="1">for _, mul := range []float64{0, 1, 2} </span>{
-                <span class="cov8" title="1">for range 2 </span>{
-                        <span class="cov8" title="1">entity, err := lifecycle.SpawnBackpackItem(world, "biscuit", 1)
-                        if err != nil </span>{
-                                <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug biscuit: %w", err)
-</span>                        }
-                        <span class="cov8" title="1">perishable := world.Components.Perishable.Get(entity)
-                        perishable.RotAccrued = consts.Turn(float64(perishable.StageLength) * mul)</span>
-                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *DemoStartState) OnStop(_ w.World) error { <span class="cov0" title="0">return nil }</span>
-
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *DemoStartState) OnPause(_ w.World) error { <span class="cov0" title="0">return nil }</span>
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *DemoStartState) OnResume(_ w.World) error { <span class="cov0" title="0">return nil }</span>
-
-// Update はOnStartで設定された遷移を消費してオーバーワールドに遷移する
-func (st *DemoStartState) Update(_ w.World) (es.Transition[w.World], error) {
-        <span class="cov8" title="1">return st.ConsumeTransition(), nil
-</span>}
-
-// Draw はスクリーンに描画する
-func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error {
-        <span class="cov0" title="0">screen.Fill(theme.ScreenBackground)
-        return nil
-</span>}
-</pre>
-		
 		<pre class="file" id="file252" style="display: none">package states
 
 import (
@@ -37228,7 +37197,13 @@ func (st *DungeonState) OnStart(world w.World) error {
 </span>                }
                 // 生き延びた日数がこのゲームの目的であることを、新規開始とロード復帰の節目で大書きして示す
                 <span class="cov8" title="1">lifecycle.SpawnSplashText(world, query.T(world, "Day %d", query.GetGameTime(world).GetDayNumber()))
-                return nil</span>
+</span>                // 新規開始直後に最初の復帰点を作る。ロード復帰では newGame が nil なので保存しない
+                <span class="cov8" title="1">if st.newGame != nil </span>{
+                        <span class="cov8" title="1">if err := autoSave(world, nil); err != nil </span>{
+                                <span class="cov0" title="0">return err
+</span>                        }
+                }
+                <span class="cov8" title="1">return nil</span>
         }
 
         // 進入先の遺跡定義名を決める。State に明示指定があればそれを使い、無ければ現ステージ、
@@ -38288,7 +38263,7 @@ func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], erro
                 return es.Transition[w.World]{Type: es.TransNone}, nil
 </span>        }
         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                func() (es.State[w.World], error) </span>{ <span class="cov0" title="0">return NewChoiceMenu(sleepConfirmChoices), nil }</span>,
+                func() (es.State[w.World], error) </span>{ <span class="cov0" title="0">return NewChoiceMenu(st.sleepConfirmChoices), nil }</span>,
         }}, nil
 }
 
@@ -38307,11 +38282,10 @@ func sleepBlockReason(sc activity.SleepConditions) (msgid string, blocked bool) 
         <span class="cov0" title="0">return "", false</span>
 }
 
-// sleepConfirmChoices は睡眠プロンプトの本文と選択肢を組む。各条件を Header 行でチェック/バツの
-// アイコン付きに見せ、入眠可能なら Sleep を選べる。ブロック条件があるときは Sleep を非選択のバツ表示にして理由を残す。
 // sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が
-// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。
-func sleepConfirmChoices(world w.World) (string, []Choice) {
+// 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。入眠は
+// Validate 済みのチェックポイントなので、入った直後にオートセーブする。
+func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {
         <span class="cov0" title="0">title := query.T(world, "Sleep here?")
         return title, []Choice{
                 {
@@ -38321,9 +38295,16 @@ func sleepConfirmChoices(world w.World) (string, []Choice) {
                                 if perr != nil </span>{
                                         <span class="cov0" title="0">return es.Transition[w.World]{}, perr
 </span>                                }
-                                <span class="cov0" title="0">if _, eerr := activity.Execute(activity.NewSleepActivity(), p, world); eerr != nil </span>{
+                                <span class="cov0" title="0">res, eerr := activity.Execute(activity.NewSleepActivity(), p, world)
+                                if eerr != nil </span>{
                                         <span class="cov0" title="0">return es.Transition[w.World]{}, eerr
 </span>                                }
+                                // 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため
+                                <span class="cov0" title="0">if res != nil &amp;&amp; res.Success </span>{
+                                        <span class="cov0" title="0">if serr := autoSave(world, nil); serr != nil </span>{
+                                                <span class="cov0" title="0">return es.Transition[w.World]{}, serr
+</span>                                        }
+                                }
                                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
                         },
                 },
@@ -38547,6 +38528,7 @@ func buildEquipSelectUI(world w.World, props EquipSelectProps, selectedIndex int
 		<pre class="file" id="file257" style="display: none">package states
 
 import (
+        "errors"
         "fmt"
 
         "github.com/kijimaD/ruins/internal/activity"
@@ -38635,18 +38617,12 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
         }
 }
 
-// NewDemoStartState はデモ用の初期化ステートを作成するファクトリー関数
-// キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する
-func NewDemoStartState() (es.State[w.World], error) {
-        <span class="cov8" title="1">return &amp;DemoStartState{}, nil
-</span>}
-
 // newGameOverworldState は新規ゲーム開始用のオーバーワールド探索ステートを返す。
 // 街を含むオーバーワールドを RunSeed から決定的生成し、プレイヤーは街から始まる。
 // キャラ作成・デモ・デバッグ開始で共通に使い、開始点を1箇所に集約する。RunSeed は都度引く。
 // 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
 func newGameOverworldState(world w.World) es.StateFactory[w.World] {
-        <span class="cov8" title="1">base := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &amp;overworld.NewGameParams{
+        <span class="cov0" title="0">base := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &amp;overworld.NewGameParams{
                 RunSeed: world.Resources.Config.RNG.Uint64(),
         })
         return func() (es.State[w.World], error) </span>{
@@ -38794,6 +38770,32 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 </span>        }
         <span class="cov8" title="1">d := query.GetDungeon(world)
         return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())</span>
+}
+
+// ErrNoContinuePoint は継続できるセーブが無いことを表す。エラーではなく、呼び出し側はこれを見て
+// メニューへ退避する。復元の失敗と区別するためのセンチネル。
+var ErrNoContinuePoint = errors.New("no save to continue")
+
+// ResumeFromLatestSave は最新のセーブを saveManager から world へ読み込み、その地点の復帰ステートを返す。
+// 読み込めるセーブが無いときは ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。
+func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
+        // 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
+        <span class="cov8" title="1">saves, err := saveManager.ListSaves()
+        if err != nil </span>{
+                <span class="cov0" title="0">return nil, fmt.Errorf("continue: list saves: %w", err)
+</span>        }
+        <span class="cov8" title="1">if len(saves) == 0 </span>{
+                <span class="cov8" title="1">return nil, ErrNoContinuePoint
+</span>        }
+        <span class="cov8" title="1">latest := saves[0]
+        if err := saveManager.LoadWorld(world, latest); err != nil </span>{
+                <span class="cov0" title="0">return nil, fmt.Errorf("continue: load save %q: %w", latest, err)
+</span>        }
+        <span class="cov8" title="1">state, err := newResumeStateFactory(world)()
+        if err != nil </span>{
+                <span class="cov0" title="0">return nil, fmt.Errorf("continue: build resume state: %w", err)
+</span>        }
+        <span class="cov8" title="1">return state, nil</span>
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。
@@ -39921,7 +39923,7 @@ type MainMenuProps struct {
 }
 
 // mainMenuItem はメインメニューの項目。ResetsWorld が真の項目は遷移の前に前のゲームの
-// 全実体を消す。新しいゲームを始める Start・Demo が立てる。ロードは save 側が担うので立てない
+// 全実体を消す。新しいゲームを始める Start が立てる。ロードは save 側が担うので立てない
 type mainMenuItem struct {
         Label       string
         Transition  es.Transition[w.World]
@@ -39936,7 +39938,6 @@ func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
         <span class="cov8" title="1">t := func(msgid string) string </span>{ <span class="cov8" title="1">return query.T(world, msgid) }</span>
         <span class="cov8" title="1">items := []mainMenuItem{
                 {Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
-                {Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
 </span>        }
         <span class="cov8" title="1">if world.Resources.Config.SaveLoadEnabled </span>{
                 <span class="cov8" title="1">items = append(items, mainMenuItem{Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}})
@@ -46105,6 +46106,8 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
         <span class="cov0" title="0">world.Resources.Config.LogLevel = "ignore"
         world.Resources.Config.Seed = rand.Uint64()
         world.Resources.Config.RNG = rand.New(rand.NewPCG(world.Resources.Config.Seed, 0))
+</span>        // テスト world は永続化の副作用を持たない。新規開始や入眠のオートセーブでセーブファイルを書かない
+        <span class="cov0" title="0">world.Resources.Config.DisableAutoSave = true
         world.Resources.SetScreenDimensions(960, 720)
 </span>
         // RawMasterのみを共有リソースから取得（一度だけ読み込む）
@@ -46568,6 +46571,9 @@ func InitReplayWorld(tb testing.TB) w.World {
 </span>        // ポスト処理を切って撮る。スキャンラインの高周波パターンが無くなり、golden の
         // 差分がUIの実変化だけを映すようになる。トレランスを絞れる
         <span class="cov0" title="0">cfg.DisableScreenFilter = true
+</span>        // 再生は描画確認であって永続化セッションではない。オートセーブの副作用でセーブファイルを
+        // 書かない。UI には影響しないので Load や Save メニュー項目はそのまま出る
+        <span class="cov0" title="0">cfg.DisableAutoSave = true
         require.NoError(tb, cfg.Validate())
 </span>
         <span class="cov0" title="0">loadMu.Lock()
@@ -52616,7 +52622,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">24.5&nbsp;%</td>
-            <td class="headerCovTableEntry">200</td>
+            <td class="headerCovTableEntryLo">23.9&nbsp;%</td>
+            <td class="headerCovTableEntry">205</td>
             <td class="headerCovTableEntry">49</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-19 08:59:39</td>
+            <td class="headerValue">2026-09-19 15:11:08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -457,7 +457,7 @@
 <span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 func() (es.State[w.World], error) { return NewChoiceMenu(sleepConfirmChoices), nil },</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 func() (es.State[w.World], error) { return NewChoiceMenu(st.sleepConfirmChoices), nil },</span></span>
 <span id="L399"><span class="lineNum">     399</span>              :         }}, nil</span>
 <span id="L400"><span class="lineNum">     400</span>              : }</span>
 <span id="L401"><span class="lineNum">     401</span>              : </span>
@@ -476,32 +476,38 @@
 <span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         return &quot;&quot;, false</span></span>
 <span id="L415"><span class="lineNum">     415</span>              : }</span>
 <span id="L416"><span class="lineNum">     416</span>              : </span>
-<span id="L417"><span class="lineNum">     417</span>              : // sleepConfirmChoices は睡眠プロンプトの本文と選択肢を組む。各条件を Header 行でチェック/バツの</span>
-<span id="L418"><span class="lineNum">     418</span>              : // アイコン付きに見せ、入眠可能なら Sleep を選べる。ブロック条件があるときは Sleep を非選択のバツ表示にして理由を残す。</span>
-<span id="L419"><span class="lineNum">     419</span>              : // sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が</span>
-<span id="L420"><span class="lineNum">     420</span>              : // 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。</span>
-<span id="L421"><span class="lineNum">     421</span>              : func sleepConfirmChoices(world w.World) (string, []Choice) {</span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :         title := query.T(world, &quot;Sleep here?&quot;)</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         return title, []Choice{</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                 {</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                         Label: query.T(world, &quot;Sleep&quot;),</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :                         Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                                 p, perr := query.GetPlayerEntity(world)</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                                 if perr != nil {</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, perr</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                                 if _, eerr := activity.Execute(activity.NewSleepActivity(), p, world); eerr != nil {</span></span>
+<span id="L417"><span class="lineNum">     417</span>              : // sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が</span>
+<span id="L418"><span class="lineNum">     418</span>              : // 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。入眠は</span>
+<span id="L419"><span class="lineNum">     419</span>              : // Validate 済みのチェックポイントなので、入った直後にオートセーブする。</span>
+<span id="L420"><span class="lineNum">     420</span>              : func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {</span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :         title := query.T(world, &quot;Sleep here?&quot;)</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :         return title, []Choice{</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                 {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                         Label: query.T(world, &quot;Sleep&quot;),</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                         Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :                                 p, perr := query.GetPlayerEntity(world)</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                                 if perr != nil {</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, perr</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                                 res, eerr := activity.Execute(activity.NewSleepActivity(), p, world)</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                                 if eerr != nil {</span></span>
 <span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, eerr</span></span>
 <span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L435"><span class="lineNum">     435</span>              :                         },</span>
-<span id="L436"><span class="lineNum">     436</span>              :                 },</span>
-<span id="L437"><span class="lineNum">     437</span>              :                 {</span>
-<span id="L438"><span class="lineNum">     438</span>              :                         Label: query.T(world, &quot;Cancel&quot;),</span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :                         Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },</span></span>
-<span id="L440"><span class="lineNum">     440</span>              :                 },</span>
-<span id="L441"><span class="lineNum">     441</span>              :         }</span>
-<span id="L442"><span class="lineNum">     442</span>              : }</span>
+<span id="L434"><span class="lineNum">     434</span>              :                                 // 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため</span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                                 if res != nil &amp;&amp; res.Success {</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :                                         if serr := autoSave(world, nil); serr != nil {</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :                                                 return es.Transition[w.World]{}, serr</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :                                         }</span></span>
+<span id="L439"><span class="lineNum">     439</span>              :                                 }</span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L441"><span class="lineNum">     441</span>              :                         },</span>
+<span id="L442"><span class="lineNum">     442</span>              :                 },</span>
+<span id="L443"><span class="lineNum">     443</span>              :                 {</span>
+<span id="L444"><span class="lineNum">     444</span>              :                         Label: query.T(world, &quot;Cancel&quot;),</span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                         Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },</span></span>
+<span id="L446"><span class="lineNum">     446</span>              :                 },</span>
+<span id="L447"><span class="lineNum">     447</span>              :         }</span>
+<span id="L448"><span class="lineNum">     448</span>              : }</span>
         </pre>
               </td>
             </tr>
