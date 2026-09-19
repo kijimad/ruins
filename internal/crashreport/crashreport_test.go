@@ -70,12 +70,12 @@ var seamMu sync.Mutex
 func withSeams(t *testing.T) {
 	t.Helper()
 	seamMu.Lock()
+	saveOnce = sync.Once{} // 各テストを未使用の Once から始める
 	origDir := userConfigDir
 	origProvider := stateProvider.Load()
 	t.Cleanup(func() {
 		userConfigDir = origDir
 		stateProvider.Store(origProvider)
-		saveOnce = sync.Once{} // 使用済みの Once を残さない
 		seamMu.Unlock()
 	})
 }
@@ -116,7 +116,6 @@ func TestGuard_保存して再panicする(t *testing.T) {
 
 	dir := t.TempDir()
 	userConfigDir = func() (string, error) { return dir, nil }
-	saveOnce = sync.Once{}
 
 	assert.PanicsWithValue(t, "kaboom", func() {
 		defer Guard()

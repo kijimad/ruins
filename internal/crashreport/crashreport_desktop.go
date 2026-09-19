@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 // userConfigDir は保存先の基底を解決する。テストが一時ディレクトリへ差し替えるためパッケージ変数にする。
@@ -30,9 +29,9 @@ func writeRecordTo(dir string, rec CrashRecord) string {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return ""
 	}
-	// ファイル名の時刻はコロンを使わない。Windows はコロンを許さない。秒未満まで入れて同秒の衝突を避ける
-	now := time.Now()
-	name := fmt.Sprintf("crash-%s-%09d.json", now.Format("20060102-150405"), now.Nanosecond())
+	// ファイル名の時刻はコロンを使わない。Windows はコロンを許さない。秒未満まで入れて同秒の衝突を避ける。
+	// rec.at を使い、ファイル名と JSON の Timestamp を同一時刻から作る
+	name := fmt.Sprintf("crash-%s-%09d.json", rec.at.Format("20060102-150405"), rec.at.Nanosecond())
 	path := filepath.Join(dir, name)
 	f, err := os.Create(path)
 	if err != nil {

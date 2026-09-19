@@ -16,7 +16,8 @@ import (
 var saveOnce sync.Once
 
 // stateProvider は落ちた時点の最上位ステート名を取り出す関数。登録側と読み取り側が別 goroutine なので
-// atomic で共有する。
+// atomic で共有する。関数を型付きのまま差し替えられるよう、型アサーションの要る atomic.Value でなく
+// atomic.Pointer を使う。
 var stateProvider atomic.Pointer[func() string]
 
 // SetStateProvider は最上位ステート名の取り出し方を登録する。起動時に1度呼び、Save がクラッシュ時に引く。
@@ -42,8 +43,10 @@ func Save(recovered any, stack []byte) {
 
 // buildRecord は諸元を集めて CrashRecord にする。ステート名は呼び出し側が渡す純関数。
 func buildRecord(recovered any, stack []byte, state string) CrashRecord {
+	now := time.Now()
 	return CrashRecord{
-		Timestamp: time.Now().Format(time.RFC3339),
+		at:        now,
+		Timestamp: now.Format(time.RFC3339),
 		Level:     logger.LevelFatal.String(),   // "FATAL"。logger の表記を単一出典にして取り違えを防ぐ
 		Category:  string(logger.CategoryCrash), // "crash"。同じく logger を単一出典にする
 		Message:   fmt.Sprintf("%v", recovered),
@@ -69,14 +72,15 @@ func currentState() (name string) {
 // CrashRecord は1回のクラッシュを表す構造化ログレコード。
 // フィールド名は logger の JSON エントリ timestamp・level・category・message に揃える。
 type CrashRecord struct {
-	Timestamp string `json:"timestamp"` // RFC3339
-	Level     string `json:"level"`     // "FATAL"
-	Category  string `json:"category"`  // "crash"
-	Message   string `json:"message"`   // recover した値の文字列。全文は Stack にある
-	Version   string `json:"version"`
-	GOOS      string `json:"goos"`
-	GOARCH    string `json:"goarch"`
-	Steam     bool   `json:"steam"`
-	State     string `json:"state,omitempty"` // 最上位ステート名。無ければ空
-	Stack     string `json:"stack"`
+	at        time.Time // ファイル名と Timestamp を同一時刻から作るための内部保持。JSON には出さない
+	Timestamp string    `json:"timestamp"` // RFC3339
+	Level     string    `json:"level"`     // "FATAL"
+	Category  string    `json:"category"`  // "crash"
+	Message   string    `json:"message"`   // recover した値の文字列。全文は Stack にある
+	Version   string    `json:"version"`
+	GOOS      string    `json:"goos"`
+	GOARCH    string    `json:"goarch"`
+	Steam     bool      `json:"steam"`
+	State     string    `json:"state,omitempty"` // 最上位ステート名。無ければ空
+	Stack     string    `json:"stack"`
 }
