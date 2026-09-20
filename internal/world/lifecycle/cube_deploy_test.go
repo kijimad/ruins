@@ -51,6 +51,20 @@ func TestDeployCube(t *testing.T) {
 		assert.False(t, world.Components.Deployed.Has(cube), "展開しないのでマーカーは付かない")
 	})
 
+	t.Run("プレイヤーが展開マスに立っていても展開できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+		require.NoError(t, err)
+		// メニューは隣接で開くのでプレイヤーは展開マスに立つ。プレイヤー自身は妨げにしない
+		_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "ash")
+		require.NoError(t, err)
+		query.InvalidateSpatialIndex(world)
+
+		assert.True(t, DeployCube(world, cube))
+		assert.Equal(t, len(deployOffsets), countDeployedTiles(world), "プレイヤーの立つマスにも展開タイルが出る")
+	})
+
 	t.Run("既に展開中なら真を返しタイルを増やさない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

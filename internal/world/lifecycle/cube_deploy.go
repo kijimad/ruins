@@ -72,13 +72,16 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	if si == nil {
 		return false
 	}
+	// メニューは隣接で開くのでプレイヤーは展開マスに立つ。展開タイルは通行を妨げないため、
+	// プレイヤーの立ち位置は妨げにしない。取得失敗時は InvalidEntity になり誰も除外しない
+	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
 	for _, off := range deployOffsets {
 		t := base.Add(off)
 		if si.IsBlockPass(t) {
 			return false
 		}
-		if _, ok := si.CharacterAt(t); ok {
+		if e, ok := si.CharacterAt(t); ok && e != player {
 			return false
 		}
 	}
