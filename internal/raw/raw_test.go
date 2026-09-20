@@ -614,15 +614,16 @@ Depth = 1
 	assert.True(t, ok, "HPを持つPropにはMeleeInteractionが設定されるべき")
 }
 
-func TestPropWithoutHP(t *testing.T) {
+func TestPropFromHP(t *testing.T) {
 	t.Parallel()
 	str := `
 [[Props]]
-Name = "壊れないProp"
-id = "壊れないProp"
-Description = "破壊不能な置物"
+Name = "木の机"
+id = "木の机"
+Description = "殴れば壊れる机"
 BlockPass = true
 BlockView = false
+hp = 30
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -632,10 +633,12 @@ Depth = 1
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	entitySpec, err := NewPropSpec(raws, "壊れないProp")
+	entitySpec, err := NewPropSpec(raws, "木の机")
 	require.NoError(t, err)
-	assert.Nil(t, entitySpec.WeightCapacity)
-	assert.Nil(t, entitySpec.Interactable, "HPを持たないPropにはInteractableが設定されないべき")
+	require.NotNil(t, entitySpec.HP, "prop は hp から HP を得る")
+	assert.Equal(t, 30, entitySpec.HP.Max)
+	require.NotNil(t, entitySpec.Interactable)
+	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionMelee, "全 prop は殴って壊せる")
 }
 
 func TestPropWithStorage(t *testing.T) {
@@ -647,6 +650,7 @@ id = "木箱"
 Description = "古びた木箱"
 BlockPass = true
 BlockView = false
+hp = 30
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -666,9 +670,8 @@ MaxWeight = "20 kg"
 	assert.Equal(t, consts.MustParseWeight("20 kg"), entitySpec.WeightCapacity.Max)
 
 	require.NotNil(t, entitySpec.Interactable, "Storage付きPropにはInteractableが設定されるべき")
-	assert.NotEmpty(t, entitySpec.Interactable.Interactions, "Storage付きPropにはInteractionsが設定されるべき")
-	ok := entitySpec.Interactable.Interactions[0] == gc.InteractionStorage
-	assert.True(t, ok, "Storage付きPropにはStorageInteractionが設定されるべき")
+	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionStorage, "Storage付きPropにはStorageInteractionが設定されるべき")
+	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionMelee, "全 prop は殴って壊せる")
 }
 
 func TestPropWithWarpPrev(t *testing.T) {

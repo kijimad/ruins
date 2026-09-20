@@ -85,7 +85,7 @@ scalar EntityID extends string;
 @minValue(0)
 scalar EntryWeight extends float64;
 
-/** 耐久値。設定すると破壊可能になる */
+/** 耐久値。削り切られると壊れる */
 @minValue(1)
 @maxValue(9999)
 scalar HitPoints extends integer;

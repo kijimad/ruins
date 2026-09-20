@@ -1182,7 +1182,7 @@ type HeatSource struct {
 // HeatWarmth 熱源が毎ターン下げる低体温タイマーの量
 type HeatWarmth = float64
 
-// HitPoints 耐久値。設定すると破壊可能になる
+// HitPoints 耐久値。削り切られると壊れる
 type HitPoints = int
 
 // ImagePath 画像ファイルパス
@@ -1583,8 +1583,8 @@ type Prop struct {
 	// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する
 	HeatSource *HeatSource `json:"heatSource,omitempty"`
 
-	// Hp 耐久値。設定すると破壊可能になる
-	Hp *HitPoints `json:"hp,omitempty"`
+	// Hp 耐久値。削り切られると壊れる
+	Hp HitPoints `json:"hp"`
 
 	// Id エンティティの英語 id
 	Id EntityID `json:"id"`

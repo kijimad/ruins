@@ -2354,7 +2354,7 @@ components:
       type: integer
       minimum: 1
       maximum: 9999
-      description: 耐久値。設定すると破壊可能になる
+      description: 耐久値。削り切られると壊れる
     ImagePath:
       type: string
       minLength: 1
@@ -2894,6 +2894,7 @@ components:
         - spriteRender
         - blockPass
         - blockView
+        - hp
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
