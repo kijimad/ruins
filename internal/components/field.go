@@ -72,6 +72,9 @@ type Renderable struct{}
 // Drivable は運転可能であることを示すマーカー。SpawnCube が付与する。
 type Drivable struct{}
 
+// Deployed はキューブが展開中であることを示すマーカー。運転は Deployed が無いときのみ許す。一時状態なので保存しない。
+type Deployed struct{}
+
 // Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。
 // Vehicle の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
 type Driving struct {
