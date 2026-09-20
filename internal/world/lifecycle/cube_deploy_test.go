@@ -6,10 +6,21 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func countDeployedTiles(world w.World) int {
+	q := ecs.NewFilter1[gc.DeployedTile](world.ECS).Query()
+	n := 0
+	for q.Next() {
+		n++
+	}
+	return n
+}
 
 func TestDeployCube(t *testing.T) {
 	t.Parallel()
@@ -22,6 +33,7 @@ func TestDeployCube(t *testing.T) {
 
 		assert.True(t, DeployCube(world, cube))
 		assert.True(t, world.Components.Deployed.Has(cube), "展開中マーカーが付く")
+		assert.Equal(t, len(deployOffsets), countDeployedTiles(world), "四方に展開タイルが出る")
 	})
 
 	t.Run("塞がれていれば展開しない", func(t *testing.T) {
@@ -55,8 +67,10 @@ func TestStowCube(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 	require.NoError(t, err)
-	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	require.True(t, DeployCube(world, cube))
+	require.Equal(t, len(deployOffsets), countDeployedTiles(world))
 
 	StowCube(world, cube)
 	assert.False(t, world.Components.Deployed.Has(cube), "収納で展開中マーカーが外れる")
+	assert.Equal(t, 0, countDeployedTiles(world), "収納で展開タイルが片付く")
 }

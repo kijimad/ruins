@@ -107,6 +107,17 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 	// グローバル設定は serde 除外なので config から再構築する
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
+	// 展開タイルは実行時のみの投影。展開状態は保存しないので、保存に残った展開タイルを消して
+	// 収納中から始める。ロック中の反復では構造変更しないため、対象を集めてから消す
+	var deployedTiles []ecs.Entity
+	dtq := ecs.NewFilter1[gc.DeployedTile](world.ECS).Query()
+	for dtq.Next() {
+		deployedTiles = append(deployedTiles, dtq.Entity())
+	}
+	for _, e := range deployedTiles {
+		world.ECS.RemoveEntity(e)
+	}
+
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する
 	var metas []ecs.Entity

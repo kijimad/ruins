@@ -49,6 +49,7 @@ var Registry = []Def{
 	{Field: "Drivable"},        // 運転可能であることを示す。移動拠点キューブが持つ
 	{Field: "Driving"},         // 運転中であることと運転対象の乗り物を保持する。プレイヤーへ付く一時状態
 	{Field: "Deployed"},        // キューブが展開中であることを示す。運転は非展開時のみ。一時状態
+	{Field: "DeployedTile"},    // キューブ展開中に周囲へ出す構造物タイル。ロード時に掃除する
 	{Field: "LightSource"},     // 光源であることを表す
 	{Field: "Interactable"},    // 相互作用可能であることを示す
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する

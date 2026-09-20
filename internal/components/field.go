@@ -75,6 +75,10 @@ type Drivable struct{}
 // Deployed はキューブが展開中であることを示すマーカー。運転は Deployed が無いときのみ許す。一時状態なので保存しない。
 type Deployed struct{}
 
+// DeployedTile はキューブ展開中に周囲へ出す構造物タイル。収納で despawn し、ロード時にも掃除する。
+// 展開状態は保存しないので、保存に残ってもロードで消して宙に浮かせない。
+type DeployedTile struct{}
+
 // Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。
 // Vehicle の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
 type Driving struct {
