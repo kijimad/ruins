@@ -120,6 +120,10 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			continue
 		}
 		coord := world.Components.GridElement.Get(entity).Coord
+		// 収納 prop を壊した時に中身を足元へ出し、失わせない
+		if world.Components.WeightCapacity.Has(entity) {
+			lifecycle.SpillStorageItems(world, entity, coord.X, coord.Y)
+		}
 		owner := entity
 		var items []ecs.Entity
 		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()

@@ -16327,6 +16327,7 @@ description = "地面で燃える火。燃料を継がなければ燃え尽き�
 name = "Fire"
 id = "fire"
 animKeys = ["fire_0", "fire_1"]
+hp = 9999
 
 [props.spriteRender]
 depth = 1
@@ -16617,6 +16618,7 @@ blockView = false
 description = "青い縦長の扉。出入口"
 name = "Door"
 id = "door"
+hp = 50
 
 [props.spriteRender]
 depth = 1
@@ -16922,6 +16924,7 @@ description = "紫の結晶が突き出た石。微かに振動する特殊オ�
 passCost = 50
 name = "Moving Stone"
 id = "moving_stone"
+hp = 20
 
 [props.spriteRender]
 depth = 0
@@ -16934,6 +16937,7 @@ description = "[dummy] ごろりと転がる岩。屋外散布の石。乗り越
 passCost = 50
 name = "Rock"
 id = "rock"
+hp = 20
 
 [props.spriteRender]
 depth = 0
@@ -16945,6 +16949,7 @@ blockView = false
 description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
 name = "Grass"
 id = "grass"
+hp = 1
 
 [props.spriteRender]
 depth = 0
@@ -16956,6 +16961,7 @@ blockView = false
 description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
 name = "Weeds"
 id = "weeds"
+hp = 1
 
 [props.spriteRender]
 depth = 0
@@ -17156,6 +17162,7 @@ blockView = false
 description = "金色に渦巻くポータル。次の階層へ続く"
 name = "Stairs Down"
 id = "warp_next"
+hp = 9999
 
 [props.spriteRender]
 depth = 1
@@ -17180,6 +17187,7 @@ blockView = false
 description = "金色に渦巻くポータル。1つ上の階層へ戻る"
 name = "Stairs Up"
 id = "warp_prev"
+hp = 9999
 
 [props.spriteRender]
 depth = 1
@@ -17839,6 +17847,7 @@ blockView = false
 description = "青白く明滅する魔法陣。淡い光の輪が脈打つように輝く"
 name = "Escape Exit"
 id = "warp_escape"
+hp = 9999
 
 [props.spriteRender]
 depth = 1
@@ -17938,6 +17947,7 @@ description = "[dummy] 生い茂る茂み。通れるが遅く、視線を遮る
 blockPass = false
 blockView = true
 passCost = 60
+hp = 3
 
 [props.spriteRender]
 depth = 1
@@ -17949,6 +17959,7 @@ name = "Brazier"
 description = "[dummy] 火鉢。暖と光を放つ。実アート未実装の仮素材"
 blockPass = true
 blockView = false
+hp = 10
 
 [props.spriteRender]
 depth = 2
@@ -17974,6 +17985,7 @@ name = "Floor Lamp"
 description = "[dummy] 床置きランプ。光を放つ。実アート未実装の仮素材"
 blockPass = false
 blockView = false
+hp = 5
 
 [props.spriteRender]
 depth = 2
@@ -17996,6 +18008,7 @@ description = "[dummy] がらくたの山。通れるが遅い。分解で素材
 blockPass = false
 blockView = false
 passCost = 40
+hp = 10
 
 [props.spriteRender]
 depth = 1

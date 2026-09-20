@@ -721,11 +721,8 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 1つのPropが複数のインタラクションを持てる
 	var interactions []gc.InteractionKind
 
-	if propRaw.Hp != nil {
-		hp := *propRaw.Hp
-		entitySpec.HP = &gc.HP{Max: hp, Current: hp}
-		interactions = append(interactions, gc.InteractionMelee)
-	}
+	entitySpec.HP = &gc.HP{Max: propRaw.Hp, Current: propRaw.Hp}
+	interactions = append(interactions, gc.InteractionMelee)
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)

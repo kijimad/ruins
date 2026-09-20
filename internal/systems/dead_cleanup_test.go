@@ -309,3 +309,24 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
 	}
 }
+
+func TestDeadCleanupSystem_壊れた収納propは中身を足元へ出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 4, 4)
+	require.NoError(t, err)
+	item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, crate)
+	require.NoError(t, err)
+	require.True(t, world.Components.LocationInStorage.Has(item), "初期状態は収納内")
+
+	world.Components.Dead.Add(crate, &gc.Dead{})
+	sys := &DeadCleanupSystem{}
+	require.NoError(t, sys.Update(world))
+
+	assert.False(t, world.ECS.Alive(crate), "壊れた収納propは消える")
+	assert.True(t, world.ECS.Alive(item), "中身は消えず残る")
+	assert.True(t, world.Components.LocationOnField.Has(item), "中身は足元のフィールドへ出る")
+	assert.False(t, world.Components.LocationInStorage.Has(item), "収納内位置は解除される")
+}

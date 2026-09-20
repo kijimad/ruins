@@ -1254,9 +1254,9 @@ export interface Prop {
      */
     'passCost'?: number;
     /**
-     * 耐久値。設定すると破壊可能になる
+     * 耐久値。削り切られると壊れる
      */
-    'hp'?: number;
+    'hp': number;
     'lightSource'?: LightSource;
     'heatSource'?: HeatSource;
     'bedding'?: Bedding;

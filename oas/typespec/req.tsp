@@ -343,7 +343,7 @@ model Prop {
   blockPass: BlocksPassage;
   blockView: BlocksView;
   passCost?: PassCost;
-  hp?: HitPoints;
+  hp: HitPoints;
   lightSource?: LightSource;
   heatSource?: HeatSource;
   bedding?: Bedding;
