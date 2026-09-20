@@ -539,6 +539,9 @@ msgstr "概要"
 msgid "Environment"
 msgstr "環境"
 
+msgid "Play time"
+msgstr "プレイ時間"
+
 msgid "Days"
 msgstr "生存日数"
 

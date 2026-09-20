@@ -1,6 +1,8 @@
 package query
 
 import (
+	"time"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -40,6 +42,15 @@ func GetGameTime(world w.World) *gc.GameTime {
 // GetPlayTime はシングルトンから累積プレイ実時間と計測基準を取得する
 func GetPlayTime(world w.World) *gc.PlayTime {
 	return GetSingleton[gc.PlayTime](world, world.Components.PlayTime)
+}
+
+// PlayTimeElapsed は基準時刻からの経過をプレイ実時間として返す。基準ゼロのラン外は0。
+func PlayTimeElapsed(world w.World) time.Duration {
+	pt := GetPlayTime(world)
+	if pt == nil || pt.SessionStart.IsZero() {
+		return 0
+	}
+	return time.Since(pt.SessionStart)
 }
 
 // GetVisionState はシングルトンから視界計算の一時状態を取得する

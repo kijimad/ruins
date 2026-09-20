@@ -60,7 +60,7 @@ func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error)
 	env := saveEnvelope{
 		Version:    saveDataVersion,
 		Timestamp:  time.Now(),
-		PlayTime:   extractPlayTime(world),
+		PlayTime:   query.PlayTimeElapsed(world),
 		PlayerName: extractPlayerName(world),
 		World:      worldJSON,
 	}

@@ -10,7 +10,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
 	arkserde "github.com/mlange-42/ark-serde"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -160,15 +159,6 @@ func extractPlayerName(world w.World) string {
 		}
 	}
 	return name
-}
-
-// extractPlayTime は基準時刻からの経過をプレイ実時間として返す。基準ゼロのラン外は0を返す。
-func extractPlayTime(world w.World) time.Duration {
-	pt := query.GetPlayTime(world)
-	if pt == nil || pt.SessionStart.IsZero() {
-		return 0
-	}
-	return time.Since(pt.SessionStart)
 }
 
 // checksumOf は破損検知用にチェックサムを除いたenvelopeのSHA-256を計算する。
