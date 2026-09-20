@@ -52,8 +52,6 @@ func NewSerializationManager(opts ...Option) (*SerializationManager, error) {
 
 // GenerateWorldJSON はワールドからJSON文字列を生成する
 func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error) {
-	accruePlayTime(world)
-
 	worldJSON, err := serializeWorld(world)
 	if err != nil {
 		return "", fmt.Errorf("failed to serialize world: %w", err)
@@ -144,10 +142,8 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := restoreInto(world, env.World); err != nil {
 		return err
 	}
-	// PlayTime は serde 非対象なので、累積を envelope から seed し直す。基準を今に置き再開時点から数える
-	pt := query.GetPlayTime(world)
-	pt.Total = env.PlayTime
-	pt.SessionStart = time.Now()
+	// PlayTime は serde 非対象。基準を now から保存値ぶん過去へ置くと time.Since が復元後の累積になる
+	query.GetPlayTime(world).SessionStart = time.Now().Add(-env.PlayTime)
 	return nil
 }
 

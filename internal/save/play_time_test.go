@@ -10,66 +10,37 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPlayTime_保存とロードで往復する(t *testing.T) {
+func TestPlayTime_基準からの経過を保存しロードで継続する(t *testing.T) {
 	t.Parallel()
 	sm, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
 	want := 101*time.Hour + 34*time.Minute
-	query.GetPlayTime(world).Total = want
+	// 基準を want だけ過去に置くと、いまのプレイ実時間は want になる
+	query.GetPlayTime(world).SessionStart = time.Now().Add(-want)
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
 	got, err := sm.GetSavePlayTime("slot1")
 	require.NoError(t, err)
-	assert.Equal(t, want, got, "envelopeから累積プレイ時間を読める")
+	assert.InDelta(t, want.Seconds(), got.Seconds(), 5, "基準からの経過が保存される")
 
+	// ロードで基準がずれて復元され、time.Since が累積を続ける
 	fresh := testutil.InitTestWorld(t)
 	require.NoError(t, sm.LoadWorld(fresh, "slot1"))
-	assert.Equal(t, want, query.GetPlayTime(fresh).Total, "ロードで累積プレイ時間が復元される")
+	elapsed := time.Since(query.GetPlayTime(fresh).SessionStart)
+	assert.InDelta(t, want.Seconds(), elapsed.Seconds(), 5, "ロードで累積が復元され継続する")
 }
 
-func TestPlayTime_セーブ時にセッション経過を加算する(t *testing.T) {
+func TestGetSavePlayTime_基準ゼロのラン外はゼロ(t *testing.T) {
 	t.Parallel()
 	sm, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 
-	world := testutil.InitTestWorld(t)
-	pt := query.GetPlayTime(world)
-	pt.Total = 2 * time.Hour
-	pt.SessionStart = time.Now().Add(-time.Hour)
-	require.NoError(t, sm.SaveWorld(world, "slot1"))
-
-	got, err := sm.GetSavePlayTime("slot1")
-	require.NoError(t, err)
-	assert.Greater(t, got, 2*time.Hour+50*time.Minute, "セーブ時にセッション経過を足す")
-	assert.Less(t, got, 2*time.Hour+70*time.Minute)
-	assert.Equal(t, got, query.GetPlayTime(world).Total, "累積も畳まれる")
-}
-
-func TestPlayTime_基準ゼロのラン外セーブは加算しない(t *testing.T) {
-	t.Parallel()
-	sm, err := NewSerializationManager(WithSaveDir(t.TempDir()))
-	require.NoError(t, err)
-
-	world := testutil.InitTestWorld(t)
-	query.GetPlayTime(world).Total = 5 * time.Minute
-	require.NoError(t, sm.SaveWorld(world, "slot1"))
-
-	got, err := sm.GetSavePlayTime("slot1")
-	require.NoError(t, err)
-	assert.Equal(t, 5*time.Minute, got, "基準ゼロでは加算しない")
-}
-
-func TestGetSavePlayTime_ゼロは正常値(t *testing.T) {
-	t.Parallel()
-	sm, err := NewSerializationManager(WithSaveDir(t.TempDir()))
-	require.NoError(t, err)
-
-	world := testutil.InitTestWorld(t)
+	world := testutil.InitTestWorld(t) // SessionStart はゼロ
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
 	got, err := sm.GetSavePlayTime("slot1")
 	require.NoError(t, err, "0 はエラーでなく正常値")
-	assert.Zero(t, got)
+	assert.Zero(t, got, "基準ゼロのラン外は0")
 }

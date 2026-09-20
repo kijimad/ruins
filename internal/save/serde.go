@@ -162,24 +162,13 @@ func extractPlayerName(world w.World) string {
 	return name
 }
 
-// extractPlayTime は累積プレイ実時間を返す。永続の実体はセーブ envelope で、これはセッションの現在値。
+// extractPlayTime は基準時刻からの経過をプレイ実時間として返す。基準ゼロのラン外は0を返す。
 func extractPlayTime(world w.World) time.Duration {
 	pt := query.GetPlayTime(world)
-	if pt == nil {
+	if pt == nil || pt.SessionStart.IsZero() {
 		return 0
 	}
-	return pt.Total
-}
-
-// accruePlayTime はセッション基準からの経過を累積へ畳み、基準を今へ進める。基準ゼロのラン外は何もしない。
-func accruePlayTime(world w.World) {
-	pt := query.GetPlayTime(world)
-	if pt == nil || pt.SessionStart.IsZero() {
-		return
-	}
-	now := time.Now()
-	pt.Total += now.Sub(pt.SessionStart)
-	pt.SessionStart = now
+	return time.Since(pt.SessionStart)
 }
 
 // checksumOf は破損検知用にチェックサムを除いたenvelopeのSHA-256を計算する。
