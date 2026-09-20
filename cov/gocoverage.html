@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.5%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
 				
@@ -185,7 +185,7 @@
 				
 				<option value="file64">github.com/kijimaD/ruins/internal/components/ai_policy.go (85.7%)</option>
 				
-				<option value="file65">github.com/kijimaD/ruins/internal/components/auction.go (0.0%)</option>
+				<option value="file65">github.com/kijimaD/ruins/internal/components/auction.go (100.0%)</option>
 				
 				<option value="file66">github.com/kijimaD/ruins/internal/components/book.go (100.0%)</option>
 				
@@ -193,9 +193,9 @@
 				
 				<option value="file68">github.com/kijimaD/ruins/internal/components/components_gen.go (100.0%)</option>
 				
-				<option value="file69">github.com/kijimaD/ruins/internal/components/dungeon.go (92.9%)</option>
+				<option value="file69">github.com/kijimaD/ruins/internal/components/dungeon.go (100.0%)</option>
 				
-				<option value="file70">github.com/kijimaD/ruins/internal/components/enum.go (97.1%)</option>
+				<option value="file70">github.com/kijimaD/ruins/internal/components/enum.go (100.0%)</option>
 				
 				<option value="file71">github.com/kijimaD/ruins/internal/components/event.go (62.5%)</option>
 				
@@ -203,21 +203,21 @@
 				
 				<option value="file73">github.com/kijimaD/ruins/internal/components/field.go (97.6%)</option>
 				
-				<option value="file74">github.com/kijimaD/ruins/internal/components/game_time.go (75.0%)</option>
+				<option value="file74">github.com/kijimaD/ruins/internal/components/game_time.go (89.7%)</option>
 				
-				<option value="file75">github.com/kijimaD/ruins/internal/components/health_status.go (84.9%)</option>
+				<option value="file75">github.com/kijimaD/ruins/internal/components/health_status.go (95.9%)</option>
 				
-				<option value="file76">github.com/kijimaD/ruins/internal/components/hunger.go (82.1%)</option>
+				<option value="file76">github.com/kijimaD/ruins/internal/components/hunger.go (96.4%)</option>
 				
 				<option value="file77">github.com/kijimaD/ruins/internal/components/interactable.go (100.0%)</option>
 				
-				<option value="file78">github.com/kijimaD/ruins/internal/components/invariant.go (93.9%)</option>
+				<option value="file78">github.com/kijimaD/ruins/internal/components/invariant.go (97.0%)</option>
 				
 				<option value="file79">github.com/kijimaD/ruins/internal/components/perishable.go (100.0%)</option>
 				
 				<option value="file80">github.com/kijimaD/ruins/internal/components/proficiency.go (97.2%)</option>
 				
-				<option value="file81">github.com/kijimaD/ruins/internal/components/run.go (66.7%)</option>
+				<option value="file81">github.com/kijimaD/ruins/internal/components/run.go (100.0%)</option>
 				
 				<option value="file82">github.com/kijimaD/ruins/internal/components/skills.go (100.0%)</option>
 				
@@ -235,7 +235,7 @@
 				
 				<option value="file89">github.com/kijimaD/ruins/internal/components/types.go (100.0%)</option>
 				
-				<option value="file90">github.com/kijimaD/ruins/internal/components/user_settings.go (0.0%)</option>
+				<option value="file90">github.com/kijimaD/ruins/internal/components/user_settings.go (100.0%)</option>
 				
 				<option value="file91">github.com/kijimaD/ruins/internal/components/vision_state.go (100.0%)</option>
 				
@@ -1704,7 +1704,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1855,8 +1855,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -10984,7 +10984,7 @@ const auctionStartingReputation = 100
 
 // NewAuctionHistory は初期状態の履歴シングルトンを返す。評判を初期値にし、明細と実績は空で始める。
 func NewAuctionHistory() *AuctionHistory {
-        <span class="cov0" title="0">return &amp;AuctionHistory{Reputation: auctionStartingReputation}
+        <span class="cov8" title="1">return &amp;AuctionHistory{Reputation: auctionStartingReputation}
 </span>}
 </pre>
 		
@@ -11904,7 +11904,7 @@ type Dungeon struct {
 
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
-        <span class="cov0" title="0">return &amp;Dungeon{}
+        <span class="cov8" title="1">return &amp;Dungeon{}
 </span>}
 
 // Level は現在の階層
@@ -12145,7 +12145,7 @@ func (enum EquipmentType) SlotNumber() EquipmentSlotNumber {
         case EquipmentJewelry:
                 <span class="cov8" title="1">return SlotJewelry</span>
         }
-        <span class="cov0" title="0">panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))</span>
+        <span class="cov8" title="1">panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))</span>
 }
 
 func (enum EquipmentType) String() string {
@@ -12646,9 +12646,9 @@ const numTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)
 // turnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。
 func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
         // 中心へアンカーするため半区間ずらす。turnsPerTimeOfDay=250 は偶数で端数は出ない
-        <span class="cov0" title="0">half := turnsPerTimeOfDay / 2
+        <span class="cov8" title="1">half := turnsPerTimeOfDay / 2
 </span>        // 中心より前は1つ前の区間へ回り込むので turnsPerDay を足して正へ寄せる
-        <span class="cov0" title="0">rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay
+        <span class="cov8" title="1">rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay
         idx := int(rel / turnsPerTimeOfDay)
         t = float64(rel%turnsPerTimeOfDay) / float64(turnsPerTimeOfDay)
         return TimeOfDay(idx), TimeOfDay((idx + 1) % numTimeOfDay), t
@@ -13343,7 +13343,7 @@ func (hs *HealthStatus) bloodLossCause() DeathCause {
 // IsHPDraining はいま HP を削る要因があるかを返す。血液量が危険域なら削っている。
 // 削っているあいだは自然回復を止め、減っているのを読み取れるようにする
 func (hs *HealthStatus) IsHPDraining() bool {
-        <span class="cov0" title="0">drain, _ := hs.BloodLossHPDrain()
+        <span class="cov8" title="1">drain, _ := hs.BloodLossHPDrain()
         return drain &gt; 0
 </span>}
 
@@ -13406,34 +13406,34 @@ func (hs *HealthStatus) BodyFuncs(needConds ...HealthCondition) BodyFuncs {
 // ConsciousnessDrops は意識を下げる不調由来の内訳を返す。全身性の低下ぶんと痛みぶんに分けて返す。
 // 疲労・空腹は量由来で保存しないため含めない。呼び出し側が量から足す。内訳表示に使う
 func (hs *HealthStatus) ConsciousnessDrops() (systemic, pain int) {
-        <span class="cov0" title="0">rawPain := 0
+        <span class="cov8" title="1">rawPain := 0
         for i := range hs.Parts </span>{
-                <span class="cov0" title="0">for j := range hs.Parts[i].Conditions </span>{
-                        <span class="cov0" title="0">cond := &amp;hs.Parts[i].Conditions[j]
+                <span class="cov8" title="1">for j := range hs.Parts[i].Conditions </span>{
+                        <span class="cov8" title="1">cond := &amp;hs.Parts[i].Conditions[j]
                         p, drop := conditionSeverityImpact(cond)
                         rawPain += p
                         if bodyPartFunction(BodyPart(i)) == BodyFuncConsciousness </span>{
-                                <span class="cov0" title="0">systemic += drop
+                                <span class="cov8" title="1">systemic += drop
 </span>                        }
                 }
         }
-        <span class="cov0" title="0">return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor</span>
+        <span class="cov8" title="1">return systemic, clamp(rawPain, 0, 100) / painConsciousnessDivisor</span>
 }
 
 // LocalDrop は指定した局所身体機能を下げる部位の不調ぶんを返す。意識の 全体乗数を掛ける前の局所低下で、
 // 局所機能の内訳表示に使う。全身性の Consciousness を渡すと 0 を返す
 func (hs *HealthStatus) LocalDrop(bf BodyFuncKind) int {
-        <span class="cov0" title="0">drop := 0
+        <span class="cov8" title="1">drop := 0
         for i := range hs.Parts </span>{
-                <span class="cov0" title="0">if bodyPartFunction(BodyPart(i)) != bf </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">if bodyPartFunction(BodyPart(i)) != bf </span>{
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">for j := range hs.Parts[i].Conditions </span>{
-                        <span class="cov0" title="0">_, d := conditionSeverityImpact(&amp;hs.Parts[i].Conditions[j])
+                <span class="cov8" title="1">for j := range hs.Parts[i].Conditions </span>{
+                        <span class="cov8" title="1">_, d := conditionSeverityImpact(&amp;hs.Parts[i].Conditions[j])
                         drop += d
 </span>                }
         }
-        <span class="cov0" title="0">return drop</span>
+        <span class="cov8" title="1">return drop</span>
 }
 </pre>
 		
@@ -13514,13 +13514,13 @@ func (h *Hunger) GetLevel() HungerLevel {
 
 // HungerSeverity は空腹段階を栄養失調の不調の重症度へ写す。ok=false なら不調は立たない
 func HungerSeverity(level HungerLevel) (Severity, bool) {
-        <span class="cov0" title="0">switch level </span>{
+        <span class="cov8" title="1">switch level </span>{
         case HungerSatiated, HungerNormal:
-                <span class="cov0" title="0">return SeverityNone, false</span>
+                <span class="cov8" title="1">return SeverityNone, false</span>
         case HungerHungry:
-                <span class="cov0" title="0">return SeverityMinor, true</span>
+                <span class="cov8" title="1">return SeverityMinor, true</span>
         case HungerStarving:
-                <span class="cov0" title="0">return SeverityMedium, true</span>
+                <span class="cov8" title="1">return SeverityMedium, true</span>
         }
         <span class="cov0" title="0">return SeverityNone, false</span>
 }
@@ -13863,7 +13863,7 @@ func (c *Components) CategoryOf(key CategoryGroupKey, entity ecs.Entity) (string
                         <span class="cov8" title="1">return cat.Name, true
 </span>                }
         }
-        <span class="cov0" title="0">return "", false</span>
+        <span class="cov8" title="1">return "", false</span>
 }
 </pre>
 		
@@ -14264,7 +14264,7 @@ var deathCauseDisplayNames = map[DeathCause]string{
 // 未登録の死因は素の文字列へ落とし、未信頼な旧セーブ値もこの経路で受ける
 func (c DeathCause) DisplayName() string {
         <span class="cov8" title="1">if name, ok := deathCauseDisplayNames[c]; ok </span>{
-                <span class="cov0" title="0">return name
+                <span class="cov8" title="1">return name
 </span>        }
         <span class="cov8" title="1">return string(c)</span>
 }
@@ -15089,7 +15089,7 @@ type UserSettings struct {
 
 // NewUserSettings は指定言語で初期化された UserSettings を返す
 func NewUserSettings(lang string) *UserSettings {
-        <span class="cov0" title="0">return &amp;UserSettings{Language: lang}
+        <span class="cov8" title="1">return &amp;UserSettings{Language: lang}
 </span>}
 </pre>
 		
@@ -33554,6 +33554,7 @@ type saveEnvelope struct {
 // skipComponents はserde除外対象を返す。
 // serde非互換（struct-keyed map / interface / mutex）と、毎フレーム・毎ターン
 // 再生成される一時状態のみを除外し、地形・敵・アイテムを含む残りは丸ごと保存する。
+// フラグ駆動で再計算する派生はこの一時状態に当たらないので、ダーティフラグでも保存する。
 func skipComponents() []ecs.Comp {
         <span class="cov8" title="1">return []ecs.Comp{
                 ecs.C[gc.SpatialIndex](),       // struct-keyed map。ロード時に再構築
@@ -33562,8 +33563,6 @@ func skipComponents() []ecs.Comp {
                 ecs.C[gc.VisualEffects](),      // interfaceスライス・毎フレーム再生成
                 ecs.C[gc.Position](),           // GridElementから毎フレーム算出
                 ecs.C[gc.StateChangeRequest](), // イベント・毎ターン消費
-                ecs.C[gc.StatsChanged](),       // ダーティフラグ
-                ecs.C[gc.WeightDirty](),        // ダーティフラグ
                 ecs.C[gc.Dead](),               // 一時・毎ターン掃除
                 ecs.C[gc.Activity](),           // 実行中アクティビティ・毎ターン変動
                 ecs.C[gc.LastActivity](),       // ターン進行で消費
