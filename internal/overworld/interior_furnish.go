@@ -107,8 +107,8 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			if !ok {
 				continue
 			}
-			// 同じタイルに既に prop があれば重ねない。廃墟化の瓦礫や生活痕の小物が家具へ乗るのを避け、
-			// 1タイルに prop は1つを保つ。装飾は落として構わない
+			// 同じタイルに家具や扉など既に prop があれば装飾を重ねない。廃墟化の瓦礫や生活痕の小物が
+			// prop へ乗るのを避け、1タイルに prop は1つを保つ。装飾は落として構わない
 			if slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) {
 				continue
 			}
