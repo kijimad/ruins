@@ -326,17 +326,17 @@ func TestDropBehavior_performDrop_AdjacentTile(t *testing.T) {
 func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 	t.Parallel()
 
-	t.Run("固定物由来アイテムをドロップすると Fixed コンポーネントが保持される", func(t *testing.T) {
+	t.Run("設置物由来アイテムをドロップすると Prop コンポーネントが保持される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		// 固定物を拾った状態をシミュレート: Fixed+Item+BlockPassがバックパックにある
+		// 設置物を拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
 		prop := world.ECS.NewEntity()
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.BlockPass.Add(prop, &gc.BlockPass{})
 		require.NoError(t, lifecycle.MoveToBackpack(world, prop, player))
 
@@ -350,8 +350,8 @@ func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 		err = da.performDrop(comp, player, world)
 		require.NoError(t, err)
 
-		// Fixed コンポーネントが保持されていることを確認
-		assert.True(t, world.Components.Fixed.Has(prop))
+		// Prop コンポーネントが保持されていることを確認
+		assert.True(t, world.Components.Prop.Has(prop))
 		// BlockPassも保持されていることを確認
 		assert.True(t, world.Components.BlockPass.Has(prop))
 		// フィールドに配置されていることを確認
@@ -401,7 +401,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		gridElement := world.Components.GridElement.Get(item)
 		assert.Equal(t, 9, int(gridElement.X))
 		assert.Equal(t, 9, int(gridElement.Y))
-		// 通常アイテムは Fixed コンポーネントを持たない
-		assert.False(t, world.Components.Fixed.Has(item))
+		// 通常アイテムは Prop コンポーネントを持たない
+		assert.False(t, world.Components.Prop.Has(item))
 	})
 }

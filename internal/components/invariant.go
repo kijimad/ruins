@@ -120,7 +120,8 @@ const (
 	CategoryPlayer = "Self"
 	CategoryEnemy  = "Enemy"
 	CategoryNPC    = "NPC"
-	CategoryFixed  = "Fixed object"
+	CategoryItem   = "Item"
+	CategoryProp   = "Object"
 	CategoryTile   = "Tile"
 )
 
@@ -145,7 +146,8 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryPlayer, Pred: c.has(c.Player)},
 			{Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},
 			{Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},
-			{Name: CategoryFixed, Pred: c.has(c.Fixed)},
+			{Name: CategoryItem, Pred: c.has(c.Item)},
+			{Name: CategoryProp, Pred: c.has(c.Prop)},
 			{Name: CategoryTile, Pred: c.has(c.Tile)},
 		},
 	}

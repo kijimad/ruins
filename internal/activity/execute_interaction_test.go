@@ -427,8 +427,8 @@ func TestExecuteInteraction_Disassemble_工具がなければ何もしない(t *
 	assert.Equal(t, gc.BehaviorDisassemble, result.ActivityName)
 }
 
-// TestExecuteInteraction_Fixed は固定物へのMeleeInteractionの動作を確認する
-func TestExecuteInteraction_Fixed(t *testing.T) {
+// TestExecuteInteraction_Prop は設置物へのMeleeInteractionの動作を確認する
+func TestExecuteInteraction_Prop(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Propを攻撃できる", func(t *testing.T) {
@@ -448,7 +448,7 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
@@ -481,7 +481,7 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Name.Add(prop, &gc.Name{Name: "壊れた木箱"})
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 0})
 		world.Components.Dead.Add(prop, &gc.Dead{})
 		world.Components.Interactable.Add(prop, &gc.Interactable{

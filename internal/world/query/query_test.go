@@ -117,14 +117,25 @@ func TestGetPlayerEntity(t *testing.T) {
 func TestIsPickable(t *testing.T) {
 	t.Parallel()
 
-	t.Run("LocationOnFieldを持つエンティティは拾える", func(t *testing.T) {
+	t.Run("LocationOnFieldとItemを持つエンティティは拾える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.ECS.NewEntity()
+		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
+		world.Components.Item.Add(entity, &gc.Item{})
+
+		assert.True(t, IsPickable(entity, world))
+	})
+
+	t.Run("Itemを持たないフィールド物は拾えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
 		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
 
-		assert.True(t, IsPickable(entity, world))
+		assert.False(t, IsPickable(entity, world), "Item を持たない投影タイル等は拾えない")
 	})
 
 	t.Run("LocationOnFieldがないエンティティは拾えない", func(t *testing.T) {
@@ -142,7 +153,7 @@ func TestIsPickable(t *testing.T) {
 
 		entity := world.ECS.NewEntity()
 		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
-		world.Components.Fixed.Add(entity, &gc.Fixed{})
+		world.Components.Prop.Add(entity, &gc.Prop{})
 
 		assert.False(t, IsPickable(entity, world), "Propは設置物なので拾えない")
 	})
@@ -175,11 +186,12 @@ func TestPickablesAt_拾得可能なエンティティだけを返す(t *testing
 	pickable := world.ECS.NewEntity()
 	world.Components.GridElement.Add(pickable, &gc.GridElement{Coord: tile})
 	world.Components.LocationOnField.Add(pickable, &gc.LocationOnField{})
+	world.Components.Item.Add(pickable, &gc.Item{})
 
-	fixedProp := world.ECS.NewEntity()
-	world.Components.GridElement.Add(fixedProp, &gc.GridElement{Coord: tile})
-	world.Components.LocationOnField.Add(fixedProp, &gc.LocationOnField{})
-	world.Components.Fixed.Add(fixedProp, &gc.Fixed{})
+	prop := world.ECS.NewEntity()
+	world.Components.GridElement.Add(prop, &gc.GridElement{Coord: tile})
+	world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
+	world.Components.Prop.Add(prop, &gc.Prop{})
 
 	otherTile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(otherTile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}})

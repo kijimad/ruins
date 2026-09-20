@@ -50,17 +50,10 @@ func AliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {
 	return world.ECS.Alive(entity) && comp.Has(entity)
 }
 
-// IsPickable はエンティティが拾得可能かを判定する。
-// LocationOnField を持ち Fixed でないエンティティが対象。
-// Fixed は固定物なので拾えない。破壊や収納経由でアイテムを取得する
+// IsPickable はフィールド上のアイテムだけを拾える物とみなす。prop や投影タイルは Item を持たず除外される
 func IsPickable(entity ecs.Entity, world w.World) bool {
-	if !world.Components.LocationOnField.Has(entity) {
-		return false
-	}
-	if world.Components.Fixed.Has(entity) {
-		return false
-	}
-	return true
+	return world.Components.LocationOnField.Has(entity) &&
+		world.Components.Item.Has(entity)
 }
 
 // PickablesAt は指定タイル上の拾得可能なエンティティを返す。拾得アクションの構築側が

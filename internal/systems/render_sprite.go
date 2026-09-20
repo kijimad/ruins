@@ -238,8 +238,8 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 	moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()
 	for moverShadowQuery.Next() {
 		entity := moverShadowQuery.Entity()
-		// TurnBased または Fixed を持つエンティティのみ
-		if !world.Components.TurnBased.Has(entity) && !world.Components.Fixed.Has(entity) {
+		// TurnBased または Prop を持つエンティティのみ
+		if !world.Components.TurnBased.Has(entity) && !world.Components.Prop.Has(entity) {
 			continue
 		}
 

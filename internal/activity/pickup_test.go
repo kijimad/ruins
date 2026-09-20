@@ -235,7 +235,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("Targetが固定物の場合はエラー", func(t *testing.T) {
+	t.Run("Targetが設置物の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -243,8 +243,8 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
@@ -257,10 +257,10 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 	})
 }
 
-func TestPickupBehavior_Validate_Fixed(t *testing.T) {
+func TestPickupBehavior_Validate_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("固定物は拾えない", func(t *testing.T) {
+	t.Run("設置物は拾えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -268,12 +268,12 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		// 固定物は PickablesAt で除かれ Targets が空になる
+		// 設置物は PickablesAt で除かれ Targets が空になる
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
@@ -282,7 +282,7 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		require.ErrorAs(t, err, &ve)
 	})
 
-	t.Run("アイテムと固定物が同じタイルにある場合も拾える", func(t *testing.T) {
+	t.Run("アイテムと設置物が同じタイルにある場合も拾える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -291,10 +291,10 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 
 		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
 		require.NoError(t, err)
-		// Interactableを持つ固定物も同じタイルにある
+		// Interactableを持つ設置物も同じタイルにある
 		prop := world.ECS.NewEntity()
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}})
 
@@ -306,10 +306,10 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 	})
 }
 
-func TestPickupBehavior_DoTurn_Fixed(t *testing.T) {
+func TestPickupBehavior_DoTurn_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("固定物のみのタイルでは拾得に失敗する", func(t *testing.T) {
+	t.Run("設置物のみのタイルでは拾得に失敗する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -317,8 +317,8 @@ func TestPickupBehavior_DoTurn_Fixed(t *testing.T) {
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.Name.Add(prop, &gc.Name{Name: "テスト固定物"})
+		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.HP.Add(prop, &gc.HP{Max: 10, Current: 10})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
@@ -328,7 +328,7 @@ func TestPickupBehavior_DoTurn_Fixed(t *testing.T) {
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
 
-		require.Error(t, err, "固定物は拾えない")
+		require.Error(t, err, "設置物は拾えない")
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
