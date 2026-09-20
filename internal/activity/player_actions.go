@@ -148,8 +148,8 @@ func interactablesAtSameTile(world w.World, targetGrid *gc.GridElement) []ecs.En
 	return found
 }
 
-// GetAllInteractiveInteractablesInRange は範囲内の生存インタラクティブなInteractableエンティティを取得する
-// Manual と OnCollision 方式のInteractableが対象。死体は攻撃対象などに提示すると再攻撃で不変条件違反になるため除外する
+// GetAllInteractiveInteractablesInRange は範囲内の生存 Interactable を返す。Manual と OnCollision が対象。
+// 死体を含めると再攻撃で不変条件違反になるため除外する
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
 	var results []ecs.Entity
 
