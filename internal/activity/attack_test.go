@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -553,6 +554,8 @@ func TestMeleeBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "bat")
 		require.NoError(t, err)
+		// applyAttackDamageの命中判定がRNGに依存するため、固定シードで命中を保証する
+		world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 
 		comp := NewMeleeActivity(enemy)
 		comp.State = gc.ActivityStateRunning
