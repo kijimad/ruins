@@ -10,7 +10,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	arkserde "github.com/mlange-42/ark-serde"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -108,10 +107,8 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 	// グローバル設定は serde 除外なので config から再構築する
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
-	// 展開タイルは実行時のみの投影。DeployedTile だけを skipComponents で外しても entity は
-	// GridElement 等で保存され、マーカーの無い孤児として残る。よって entity ごとロード後に掃除し、
-	// 収納中から始める。掃除は lifecycle に一元化する
-	lifecycle.DespawnDeployedTiles(world)
+	// 展開状態は保存しないのでロードは収納中から始まる。畳んだ貨物は Stowed 付きでタンクに保存され、
+	// 収納中と整合するのでそのまま復元してよい。
 
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する

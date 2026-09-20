@@ -8,82 +8,96 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// deployOffsets は展開時にキューブの周りで占有する相対タイル。今は四方の隣接に固定する。
-var deployOffsets = []consts.Coord[consts.Tile]{
-	{X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0},
-}
+// deployCampRadius は収納で畳み込む野営の広さ。キューブ中心のチェビシェフ距離で、斜めも含む。
+const deployCampRadius = 2
 
-// deployTileSprite は展開タイルの見た目。資材の樽で野営の広がりを表す。
-const deployTileSprite = "wood_barrel"
-
-// DeployCube はキューブを展開状態にする。必要タイルがすべて空いていれば Deployed を付けて構造物タイルを
-// spawn し true を返す。1タイルでも塞がれていれば状態を変えず false を返す。展開は全か無かで部分展開はしない。
+// DeployCube はキューブを展開状態にする。畳み込んでいた貨物を元の相対位置へ出し直す。
+// タイルを置かないので地形の空きは要らず、常に成功する。
 func DeployCube(world w.World, cube ecs.Entity) bool {
 	if world.Components.Deployed.Has(cube) {
 		return true
 	}
-	if !deploySpaceFree(world, cube) {
-		return false
-	}
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
-	spawnDeployedTiles(world, cube)
+	releaseStowedItems(world, cube)
 	return true
 }
 
-// StowCube はキューブを収納状態へ戻し、展開タイルを片付ける。
+// StowCube はキューブを収納状態へ戻す。野営の貨物を相対位置ごと畳み込む。
 func StowCube(world w.World, cube ecs.Entity) {
 	if !world.Components.Deployed.Has(cube) {
 		return
 	}
+	stowNearbyItems(world, cube)
 	world.Components.Deployed.Remove(cube)
-	DespawnDeployedTiles(world)
 }
 
-// DespawnDeployedTiles は展開タイルをすべて消す。収納時とロード後の掃除で使う。
-func DespawnDeployedTiles(world w.World) {
-	q := ecs.NewFilter1[gc.DeployedTile](world.ECS).Query()
-	var tiles []ecs.Entity
+// stowNearbyItems は野営内のフィールドアイテムをキューブへ畳み込む。Stowed を付けて燃料と区別し、
+// キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。容量に入る分だけ取り込み、
+// 入りきらないものはその場に残す。キャラクターやキューブ自身は対象外。
+func stowNearbyItems(world w.World, cube ecs.Entity) {
+	if !world.Components.WeightCapacity.Has(cube) {
+		return
+	}
+	maxCap := world.Components.WeightCapacity.Get(cube).Max
+	// キャッシュの WeightCapacity.Current は WeightDirtySystem が非同期に更新するため、同一バッチの
+	// 追加を反映しない。実測の収納重量を基準にし、取り込むたびに加算して容量を正しく判定する
+	used := query.CubeWeight(world, cube)
+	base := world.Components.GridElement.Get(cube).Coord
+
+	var items []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
 	for q.Next() {
-		tiles = append(tiles, q.Entity())
+		e := q.Entity()
+		if e == cube || !world.Components.GridElement.Has(e) {
+			continue
+		}
+		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= deployCampRadius {
+			items = append(items, e)
+		}
 	}
-	for _, e := range tiles {
-		world.ECS.RemoveEntity(e)
+	for _, item := range items {
+		iw := query.GetEntityWeight(world, item)
+		if used+iw > maxCap {
+			continue
+		}
+		offset := world.Components.GridElement.Get(item).Coord.Sub(base)
+		if err := MoveToStorage(world, item, cube); err != nil {
+			continue
+		}
+		world.Components.Stowed.Add(item, &gc.Stowed{Offset: offset})
+		used += iw
 	}
 }
 
-// spawnDeployedTiles は展開タイルをキューブの周りへ出す。キューブと同じステージ・オーバーワールドに置く。
-func spawnDeployedTiles(world w.World, cube ecs.Entity) {
+// releaseStowedItems は畳み込んだ貨物を、記録した相対位置へ出し直す。燃料はタンクに残す。
+// キューブが移動していても相対位置で戻すので、置いた配置を保ったまま野営を再現する。
+func releaseStowedItems(world w.World, cube ecs.Entity) {
+	var cargo []ecs.Entity
+	for _, item := range query.GetStorageItems(world, cube) {
+		if world.Components.Stowed.Has(item) {
+			cargo = append(cargo, item)
+		}
+	}
 	base := world.Components.GridElement.Get(cube).Coord
-	stage := *world.Components.StageBound.Get(cube)
-	for _, off := range deployOffsets {
-		world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-			GridElement:     &gc.GridElement{Coord: base.Add(off)},
-			SpriteRender:    &gc.SpriteRender{SpriteSheetName: fieldSpriteSheet, SpriteKey: deployTileSprite, Depth: gc.DepthNumTaller},
-			DeployedTile:    &gc.DeployedTile{},
-			LocationOnField: &gc.LocationOnField{},
-			StageBound:      &stage,
-		})
+	for _, item := range cargo {
+		coord := base.Add(world.Components.Stowed.Get(item).Offset)
+		world.Components.Stowed.Remove(item)
+		MoveMembersToField(world, []ecs.Entity{item}, coord, cube)
 	}
 }
 
-// deploySpaceFree は展開に要する全タイルが空いているかを返す。壁・不可通行の物・キャラクターがいれば偽。
-func deploySpaceFree(world w.World, cube ecs.Entity) bool {
-	si := query.GetSpatialIndex(world)
-	if si == nil {
-		return false
+// chebyshev は2タイル間のチェビシェフ距離を返す。斜め1マスも距離1として野営の広さに含める。
+func chebyshev(a, b consts.Coord[consts.Tile]) int {
+	dx := int(a.X - b.X)
+	if dx < 0 {
+		dx = -dx
 	}
-	// メニューは隣接で開くのでプレイヤーは展開マスに立つ。展開タイルは通行を妨げないため、
-	// プレイヤーの立ち位置は妨げにしない。取得失敗時は InvalidEntity になり誰も除外しない
-	player, _ := query.GetPlayerEntity(world)
-	base := world.Components.GridElement.Get(cube).Coord
-	for _, off := range deployOffsets {
-		t := base.Add(off)
-		if si.IsBlockPass(t) {
-			return false
-		}
-		if e, ok := si.CharacterAt(t); ok && e != player {
-			return false
-		}
+	dy := int(a.Y - b.Y)
+	if dy < 0 {
+		dy = -dy
 	}
-	return true
+	if dx > dy {
+		return dx
+	}
+	return dy
 }

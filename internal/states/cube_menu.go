@@ -9,14 +9,21 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、展開・収納の切替と、
-// 収納・オークション・キューブ情報の下位項目へ分岐する。乗車は直上 Enter で完結するのでここには並べない。
+// isFuelItem は燃料タンクとして扱う品かを返す。運転燃料に使える可燃物であり、畳み込んだ貨物でないもの。
+// 貨物は Stowed が付き燃料に数えないので、燃料投入メニューにも出さない。
+func isFuelItem(world w.World, e ecs.Entity) bool {
+	return query.IsCombustible(world, e) && !world.Components.Stowed.Has(e)
+}
+
+// NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、展開と収納の切替と、
+// 燃料投入・オークション・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
+// 乗車は直上 Enter で完結するのでここには並べない。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
 		return query.T(world, "Cube"), []Choice{
 			deployChoice(world, cube),
-			{Label: query.T(world, "Storage"), Run: pushChoice(func() (es.State[w.World], error) {
-				return NewStorageMenuState(cube)
+			{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
+				return NewStorageMenuState(cube, WithItemFilter(isFuelItem))
 			})},
 			{Label: query.T(world, "Auction"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewAuctionMenuState(cube)

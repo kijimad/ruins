@@ -311,9 +311,13 @@ func NewShopMenuState(merchant ecs.Entity) (es.State[w.World], error) {
 	return &ShopMenuState{merchant: merchant}, nil
 }
 
-// NewStorageMenuState は収納メニューStateを作成する
-func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
-	return &StorageMenuState{storageEntity: storageEntity}, nil
+// NewStorageMenuState は収納メニューStateを作成する。opts で投入品目の制限などを指定できる
+func NewStorageMenuState(storageEntity ecs.Entity, opts ...StorageOption) (es.State[w.World], error) {
+	st := &StorageMenuState{storageEntity: storageEntity}
+	for _, opt := range opts {
+		opt(st)
+	}
+	return st, nil
 }
 
 // NewAuctionMenuState は出荷場所のメニューStateを作成する

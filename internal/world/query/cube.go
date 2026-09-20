@@ -68,6 +68,10 @@ func DriveFuelCost(total consts.Milligram) consts.Heat {
 func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	var total consts.Heat
 	for _, item := range GetStorageItems(world, cube) {
+		// 畳み込んだ貨物は燃料でなく荷物なので燃料に数えない
+		if world.Components.Stowed.Has(item) {
+			continue
+		}
 		total += HeatContent(world, item)
 	}
 	return total
