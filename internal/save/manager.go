@@ -60,7 +60,7 @@ func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error)
 	env := saveEnvelope{
 		Version:    saveDataVersion,
 		Timestamp:  time.Now(),
-		PlayTime:   query.PlayTimeElapsed(world),
+		PlayTime:   query.GetPlayTime(world).Elapsed(),
 		PlayerName: extractPlayerName(world),
 		World:      worldJSON,
 	}
@@ -142,10 +142,8 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := restoreInto(world, env.World); err != nil {
 		return err
 	}
-	// PlayTime は serde 非対象。蓄積を envelope から復元し、今のセッション開始時刻を置き直す
-	pt := query.GetPlayTime(world)
-	pt.Total = env.PlayTime
-	pt.SessionStartedAt = time.Now()
+	// PlayTime は serde 非対象。蓄積を envelope から復元し、今からセッションの計測を始める
+	query.GetPlayTime(world).Start(env.PlayTime)
 	return nil
 }
 

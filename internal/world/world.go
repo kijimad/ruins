@@ -2,8 +2,6 @@
 package world
 
 import (
-	"time"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
@@ -94,7 +92,7 @@ func (world World) ResetForNewGame() {
 	}
 	world.InitSingleton()
 	// 新規ランは計測基準を今に置く。InitSingleton の PlayTime は Total=0
-	world.Components.PlayTime.Get(world.Resources.SingletonEntity).SessionStartedAt = time.Now()
+	world.Components.PlayTime.Get(world.Resources.SingletonEntity).Start(0)
 }
 
 // GetWorld は entities.World インターフェースを満たすためのメソッド

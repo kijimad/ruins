@@ -148,7 +148,7 @@ func runStatsItems(world w.World) []statusItemData {
 		rows = append(rows, statusItemData{Label: query.T(world, "Cause of death"), Value: query.T(world, s.Cause.DisplayName())})
 	}
 	return append(rows,
-		statusItemData{Label: query.T(world, "Play time"), Value: formatPlayTime(query.PlayTimeElapsed(world))},
+		statusItemData{Label: query.T(world, "Play time"), Value: formatPlayTime(query.GetPlayTime(world).Elapsed())},
 		statusItemData{Label: query.T(world, "Days"), Value: fmt.Sprintf("%d", days)},
 		statusItemData{Label: query.T(world, "Turns"), Value: fmt.Sprintf("%d", turns)},
 		statusItemData{Label: query.T(world, "Enemies killed"), Value: fmt.Sprintf("%d", kills)},
