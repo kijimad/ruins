@@ -29,8 +29,7 @@ type Resources struct {
 	// world 単位で持つことでグローバル可変状態を作らず、押し込んだ先の state にも同じ源が効く
 	InputSource inputmapper.Source
 
-	// PlayTimeSessionStart はプレイ実時間の計測基準。ラン開始と再開でセットし、セーブ時に差分を
-	// PlayTime シングルトンへ畳んで再セットする。ゼロ値はラン外を表す。serde 非対象のセッション状態
+	// PlayTimeSessionStart はプレイ実時間の計測基準。ゼロ値はラン外。serde 非対象のセッション状態
 	PlayTimeSessionStart time.Time
 }
 
