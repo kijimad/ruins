@@ -28,8 +28,7 @@ type saveEnvelope struct {
 // skipComponents はserde除外対象を返す。
 // serde非互換（struct-keyed map / interface / mutex）と、毎フレーム・毎ターン
 // 再生成される一時状態のみを除外し、地形・敵・アイテムを含む残りは丸ごと保存する。
-// StatsChanged・WeightDirty はダーティフラグだが除外しない。フラグが立つときだけ再計算する派生の
-// 出力 LightSource・WeightCapacity を保存するので、フラグを捨てると再計算されず古い値が残る。
+// StatsChanged・WeightDirty はダーティフラグだが毎フレーム再生成ではなくフラグ駆動なので保存する。
 func skipComponents() []ecs.Comp {
 	return []ecs.Comp{
 		ecs.C[gc.SpatialIndex](),       // struct-keyed map。ロード時に再構築
