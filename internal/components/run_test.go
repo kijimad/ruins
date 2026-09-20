@@ -9,16 +9,21 @@ import (
 func TestDeathCause_DisplayName(t *testing.T) {
 	t.Parallel()
 
-	// 既知の死因はすべて表に登録されている。表への登録漏れを検知する。
-	// 表示名の文字列そのものはデータなので照合しない
-	for _, c := range []DeathCause{CauseFrozen, CauseIllness, CauseBloodLoss, CauseKilled, CauseDebug} {
-		_, ok := deathCauseDisplayNames[c]
-		assert.True(t, ok, "%s が表に登録されている", c)
+	// 登録済みの死因は表示名を返す。死因を足して表示名を忘れると素のIDが返り、全文一致で露見する。
+	// 公開 API の DisplayName だけを見て、非公開の表には触れない
+	for _, tt := range []struct {
+		cause DeathCause
+		want  string
+	}{
+		{CauseFrozen, "froze to death"},
+		{CauseIllness, "died of illness"},
+		{CauseBloodLoss, "bled out"},
+		{CauseKilled, "killed in battle"},
+		{CauseDebug, "debug"},
+	} {
+		assert.Equal(t, tt.want, tt.cause.DisplayName(), "%s の表示名", tt.cause)
 	}
 
 	// 未登録の死因は素のIDへ落とす。未信頼な旧セーブ値を受ける経路
 	assert.Equal(t, "unknown", DeathCause("unknown").DisplayName())
-
-	// 登録済みの死因は表の表示名を返す
-	assert.Equal(t, "killed in battle", CauseKilled.DisplayName())
 }
