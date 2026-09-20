@@ -288,11 +288,12 @@ func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, 
 	return query.T(world, "Has data")
 }
 
-// formatPlayTime は累積プレイ実時間を時:分で表す。時は無制限、分は0埋め。例 101:34
+// formatPlayTime は累積プレイ実時間を時:分:秒で表す。時は無制限、分と秒は0埋め。例 101:34:07
 func formatPlayTime(d time.Duration) string {
 	h := int(d / time.Hour)
 	m := int(d % time.Hour / time.Minute)
-	return fmt.Sprintf("%d:%02d", h, m)
+	s := int(d % time.Minute / time.Second)
+	return fmt.Sprintf("%d:%02d:%02d", h, m, s)
 }
 
 // NewMessageState は組み立て済みメッセージから MessageState を作成する。
