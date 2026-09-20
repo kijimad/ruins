@@ -4,8 +4,11 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -433,6 +436,201 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			assert.True(t, world.Components.Activity.Has(target),
 				"applyAttackDamage時点ではアクティビティは削除されない")
 		}
+	})
+}
+
+func TestGetAttackParams_プレイヤーが装備した近接武器のパラメータを返す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	weapon, err := lifecycle.SpawnBackpackItem(world, "torch", 1)
+	require.NoError(t, err)
+	lifecycle.MoveToEquip(world, weapon, player, gc.SlotWeapon1)
+	query.GetWeaponSelection(world).Slot = 1
+
+	attack, name, err := getAttackParams(player, world)
+	require.NoError(t, err)
+	assert.Equal(t, "Torch", name)
+	melee, ok := attack.(*gc.Melee)
+	require.True(t, ok)
+	assert.Equal(t, 5, melee.Damage)
+}
+
+func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォールバックする(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	// プレイヤーは生成時に松明を武器スロット1へ装備している。外して未装備の状態を作る
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	query.GetWeaponSelection(world).Slot = 1
+
+	attack, name, err := getAttackParams(player, world)
+	require.NoError(t, err)
+	assert.Equal(t, "Bare Hands", name)
+	melee, ok := attack.(*gc.Melee)
+	require.True(t, ok)
+	assert.Equal(t, 3, melee.Damage)
+}
+
+func TestGetAttackParams_不正なスロット番号でエラーになる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	// 武器スロットは1-5が正当範囲
+	query.GetWeaponSelection(world).Slot = 6
+
+	_, _, err = getAttackParams(player, world)
+	assert.ErrorContains(t, err, "invalid weapon slot number: 6")
+}
+
+func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "bat")
+	require.NoError(t, err)
+
+	attack, name, err := getAttackParams(enemy, world)
+	require.NoError(t, err)
+	// CommandTable経由の攻撃名はraw定義のid。表示名への翻訳はlogAttackResult側で行う
+	assert.Contains(t, []string{"bite", "tackle"}, name)
+	_, ok := attack.(*gc.Melee)
+	require.True(t, ok)
+}
+
+func TestGetAttackParams_CommandTable取得失敗で素手にフォールバックする(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	enemy := world.ECS.NewEntity()
+	// 未登録のコマンドテーブル名 → GetAttackFromCommandTableが失敗する
+	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "no_such_table"})
+
+	attack, name, err := getAttackParams(enemy, world)
+	require.NoError(t, err)
+	assert.Equal(t, "Bare Hands", name)
+	melee, ok := attack.(*gc.Melee)
+	require.True(t, ok)
+	assert.Equal(t, 3, melee.Damage)
+}
+
+func TestGetAttackParams_プレイヤーでも敵でもない場合はエラーになる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	entity := world.ECS.NewEntity()
+
+	_, _, err := getAttackParams(entity, world)
+	assert.ErrorContains(t, err, "cannot get attack parameters: attacker has neither Player nor CommandTable component")
+}
+
+func TestGetBareHandsAttack_素手武器のパラメータを返す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	attack, name, err := getBareHandsAttack(world)
+	require.NoError(t, err)
+	assert.Equal(t, "Bare Hands", name)
+	assert.Equal(t, 3, attack.GetDamage())
+}
+
+func TestMeleeBehavior_DoTurn(t *testing.T) {
+	t.Parallel()
+
+	t.Run("射程内の対象への攻撃が成功して完了する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "bat")
+		require.NoError(t, err)
+
+		comp := NewMeleeActivity(enemy)
+		comp.State = gc.ActivityStateRunning
+
+		ab := &MeleeBehavior{}
+		err = ab.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+	})
+
+	t.Run("Paramsの型が不一致だとキャンセルされる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorMelee,
+			State:        gc.ActivityStateRunning,
+			Params:       &gc.MoveParams{},
+		}
+
+		ab := &MeleeBehavior{}
+		err = ab.DoTurn(comp, player, world)
+
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
+		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	})
+
+	t.Run("射程外の対象だとキャンセルされる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "bat")
+		require.NoError(t, err)
+
+		comp := NewMeleeActivity(enemy)
+		comp.State = gc.ActivityStateRunning
+
+		ab := &MeleeBehavior{}
+		err = ab.DoTurn(comp, player, world)
+
+		require.ErrorIs(t, err, ErrAttackTargetInvalid)
+		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	})
+}
+
+func TestMeleeBehavior_canAttack(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Paramsの型が不一致ならfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		comp := &gc.Activity{Params: &gc.MoveParams{}}
+		ab := &MeleeBehavior{}
+
+		assert.False(t, ab.canAttack(comp, player, world))
+	})
+
+	t.Run("Validateが通ればtrue", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "bat")
+		require.NoError(t, err)
+
+		comp := NewMeleeActivity(enemy)
+		ab := &MeleeBehavior{}
+
+		assert.True(t, ab.canAttack(comp, player, world))
 	})
 }
 
