@@ -20,7 +20,7 @@ import (
 // 画面を閉じる、別画面へ進む、などを表す。Header が真の行はカーソルが止まらない見出し
 type Choice struct {
 	Label string
-	// Value はラベルに添える値。セーブスロットのプレイ時間などに使う。右寄せ列で描く。空なら列を作らない
+	// Value はラベルに添える値。右寄せ列で描く。空なら列を作らない
 	Value  string
 	Run    func(world w.World) (es.Transition[w.World], error)
 	Header bool

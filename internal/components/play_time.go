@@ -3,7 +3,6 @@ package components
 import "time"
 
 // PlayTime はそのランの累積プレイ実時間を測るシングルトン。serde 非対象で、永続の実体はセーブ envelope。
-// total が累積で常に最新、lastTick は前回計測時刻。ラン進行中に Tick を毎フレーム呼んで実経過を足す。
 type PlayTime struct {
 	total    time.Duration
 	lastTick time.Time
@@ -24,7 +23,7 @@ func (pt *PlayTime) Tick() {
 	pt.lastTick = now
 }
 
-// Elapsed は現在の累積プレイ実時間を返す。Tick で常に最新なので total をそのまま返す。nil セーフ。
+// Elapsed は現在の累積プレイ実時間を返す。nil セーフ。
 func (pt *PlayTime) Elapsed() time.Duration {
 	if pt == nil {
 		return 0

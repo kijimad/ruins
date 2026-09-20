@@ -99,7 +99,7 @@ func reestablishSingleton(world w.World) error {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	// 視界計算の一時状態は serde 除外なのでロード後に再構築する
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
-	// プレイ実時間も serde 除外。付け直したうえで Total は RestoreWorldFromJSON が envelope から seed する
+	// プレイ実時間も serde 除外なので付け直す。Total は RestoreWorldFromJSON が envelope から seed する
 	world.Components.PlayTime.Add(singleton, &gc.PlayTime{})
 	// グローバル設定は serde 除外なので config から再構築する
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))

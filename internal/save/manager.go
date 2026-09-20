@@ -142,7 +142,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := restoreInto(world, env.World); err != nil {
 		return err
 	}
-	// PlayTime は serde 非対象。蓄積を envelope から復元し、今からセッションの計測を始める
+	// PlayTime は serde 非対象なので envelope から復元して計測を始める
 	query.GetPlayTime(world).Start(env.PlayTime)
 	return nil
 }
