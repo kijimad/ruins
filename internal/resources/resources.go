@@ -13,7 +13,6 @@ import (
 
 // Resources はゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
-// 大半は初期化時にセットする。InputSource と PlayTimeSessionStart は実行中に変わるセッション状態
 type Resources struct {
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
