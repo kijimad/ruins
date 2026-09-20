@@ -1,6 +1,8 @@
 package resources
 
 import (
+	"time"
+
 	"github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -11,7 +13,7 @@ import (
 
 // Resources はゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
-// 初期化時のみセットされ、あとから変更はされない
+// 大半は初期化時にセットする。InputSource と PlayTimeSessionStart は実行中に変わるセッション状態
 type Resources struct {
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
@@ -26,6 +28,10 @@ type Resources struct {
 	// 再生ドライバだけが Action 列を返す供給源を差し、キー入力を経由せず本番フローを駆動する。
 	// world 単位で持つことでグローバル可変状態を作らず、押し込んだ先の state にも同じ源が効く
 	InputSource inputmapper.Source
+
+	// PlayTimeSessionStart はプレイ実時間の計測基準。ラン開始と再開でセットし、セーブ時に差分を
+	// PlayTime シングルトンへ畳んで再セットする。ゼロ値はラン外を表す。serde 非対象のセッション状態
+	PlayTimeSessionStart time.Time
 }
 
 // ScreenDimensions contains current screen dimensions

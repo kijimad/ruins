@@ -168,6 +168,22 @@ func extractPlayTime(world w.World) time.Duration {
 	return pt.Duration
 }
 
+// accruePlayTime はセッション基準からの経過実時間を PlayTime へ畳み、基準を今へ進める。PlayTime は
+// セーブ時にしか読まないので、毎フレーム積算せずここで一度だけ足す。基準がゼロのラン外では何もしない。
+func accruePlayTime(world w.World) {
+	start := world.Resources.PlayTimeSessionStart
+	if start.IsZero() {
+		return
+	}
+	pt := query.GetPlayTime(world)
+	if pt == nil {
+		return
+	}
+	now := time.Now()
+	pt.Duration += now.Sub(start)
+	world.Resources.PlayTimeSessionStart = now
+}
+
 // checksumOf は破損検知用にチェックサムを除いた封筒のSHA-256を計算する。
 // json.Marshal は json.RawMessage を compact するため、保存ファイルが
 // MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。

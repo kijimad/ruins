@@ -19,7 +19,6 @@ import (
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -27,8 +26,6 @@ type MainGame struct {
 	World        w.World
 	StateMachine es.StateMachine[w.World]
 	renderer     renderer
-	// lastPlayTick はプレイ時間加算の前回計測時刻。ゼロ値は初回で基準がまだ無いことを表す
-	lastPlayTick time.Time
 }
 
 // NewMainGame はMainGameを初期化する
@@ -74,8 +71,6 @@ func (game *MainGame) Update() error {
 	region := trace.StartRegion(context.Background(), "Update")
 	defer region.End()
 
-	game.accumulatePlayTime()
-
 	// デバッグ表示をトグルする
 	if ebiten.IsKeyPressed(ebiten.KeyShift) && inpututil.IsKeyJustPressed(ebiten.KeyTab) {
 		// パフォーマンスモニターは攻略に関係ないのでトグルできてよい
@@ -92,21 +87,6 @@ func (game *MainGame) Update() error {
 	}
 
 	return nil
-}
-
-// accumulatePlayTime はラン進行中だけ経過実時間を PlayTime へ足す。プレイヤー不在のメインメニューでは
-// 計測時刻だけ進めて加算しない。ランのサブメニューはプレイヤーが居るので数える。
-func (game *MainGame) accumulatePlayTime() {
-	now := time.Now()
-	last := game.lastPlayTick
-	game.lastPlayTick = now
-	if last.IsZero() {
-		return // 初回は基準だけ置く
-	}
-	if _, err := query.GetPlayerEntity(game.World); err != nil {
-		return // ラン外は数えない
-	}
-	query.GetPlayTime(game.World).Duration += now.Sub(last)
 }
 
 // Draw はゲームの描画処理を行う

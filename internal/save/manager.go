@@ -51,6 +51,9 @@ func NewSerializationManager(opts ...Option) (*SerializationManager, error) {
 
 // GenerateWorldJSON はワールドからJSON文字列を生成する
 func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error) {
+	// 直列化の前にセッション基準からの経過を PlayTime へ畳む。畳んだ値が world にも封筒にも乗る
+	accruePlayTime(world)
+
 	worldJSON, err := serializeWorld(world)
 	if err != nil {
 		return "", fmt.Errorf("failed to serialize world: %w", err)
@@ -138,7 +141,12 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 		return err
 	}
 
-	return restoreInto(world, env.World)
+	if err := restoreInto(world, env.World); err != nil {
+		return err
+	}
+	// 復元は run の再開。ここを計測基準に置き、以後のセーブが再開時点からの経過を足す
+	world.Resources.PlayTimeSessionStart = time.Now()
+	return nil
 }
 
 // restoreInto はリセット済みワールドへ復元の全工程を適用する。deserialize は事前の

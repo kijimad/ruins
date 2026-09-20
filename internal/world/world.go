@@ -2,6 +2,8 @@
 package world
 
 import (
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
@@ -91,6 +93,8 @@ func (world World) ResetForNewGame() {
 		world.ECS.RemoveEntity(e)
 	}
 	world.InitSingleton()
+	// 新規ランの計測基準を今に置く。ここより前のメインメニュー滞在は数えない
+	world.Resources.PlayTimeSessionStart = time.Now()
 }
 
 // GetWorld は entities.World インターフェースを満たすためのメソッド
