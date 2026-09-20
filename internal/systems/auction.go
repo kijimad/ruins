@@ -1,6 +1,8 @@
 package systems
 
 import (
+	"slices"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -91,7 +93,9 @@ func updateShippingTimers(world w.World, now int) {
 		stations = append(stations, q.Entity())
 	}
 	for _, station := range stations {
-		staged := len(query.GetStorageItems(world, station)) > 0
+		// 積荷とみなすのは落札済みの品だけ。キューブは燃料タンク・貨物庫も兼ねるので、
+		// 収納に燃料や貨物があるだけで集荷タイマーを回さない
+		staged := slices.ContainsFunc(query.GetStorageItems(world, station), world.Components.AuctionSold.Has)
 		s := world.Components.AuctionStation.Get(station)
 		switch {
 		case !staged:

@@ -82,29 +82,28 @@ func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
 // だから小分けに集荷するほど集荷料金の請求がかさみ、1回にまとめるほど得になる。
 // 集荷した総件数と、受取金の明細を発生させた件数を返す。
 func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts int) {
+	// 出荷対象は落札済みの品だけ。キューブは出荷場所と燃料タンク・貨物庫を兼ねるので、
+	// 収納の全品を集荷すると燃料や畳んだ貨物まで出荷してしまう。落札済み以外は残す。
 	// GetStorageItems は確定したスライスを返すので、反復中に削除してよい
-	items := GetStorageItems(world, station)
-	if len(items) == 0 {
-		return 0, 0
-	}
-	// 明細を一旦ためる。履歴シングルトンへの追記は品の削除が終わってから行う。
-	// エンティティ削除で Get のポインタが無効化されうるので、構造変更を跨いで history を保持しない
 	var entries []gc.AuctionEntry
-	for _, item := range items {
-		if world.Components.AuctionSold.Has(item) {
-			sold := world.Components.AuctionSold.Get(item)
-			bid := sold.Bid
-			ship := AuctionShippingCost(world, item)
-			fee := AuctionFee(bid)
-			entries = append(entries, gc.AuctionEntry{
-				Kind: gc.AuctionEntryReceipt, Number: sold.Number, Name: GetEntityName(item, world),
-				Amount: bid - ship - fee, Bid: bid, Ship: ship, Fee: fee,
-			})
-			receipts++
+	for _, item := range GetStorageItems(world, station) {
+		if !world.Components.AuctionSold.Has(item) {
+			continue
 		}
-		// 落札済みでない品は明細を生まず、ただ手放される
+		sold := world.Components.AuctionSold.Get(item)
+		bid := sold.Bid
+		ship := AuctionShippingCost(world, item)
+		fee := AuctionFee(bid)
+		entries = append(entries, gc.AuctionEntry{
+			Kind: gc.AuctionEntryReceipt, Number: sold.Number, Name: GetEntityName(item, world),
+			Amount: bid - ship - fee, Bid: bid, Ship: ship, Fee: fee,
+		})
+		receipts++
 		world.ECS.RemoveEntity(item)
 		collected++
+	}
+	if collected == 0 {
+		return 0, 0
 	}
 	// 集荷料金の請求を1件立てる。品ごとの配送料や手数料とは別立て
 	entries = append(entries, gc.AuctionEntry{

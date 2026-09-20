@@ -159,7 +159,7 @@ func TestCollectStagedItems_集荷は明細を発生させ所持金は動かさ�
 	}
 	require.True(t, world.Components.AuctionSold.Has(won), "won は落札済みになる")
 
-	// 両方をステーションの積荷へ入れる。集荷は落札済みだけ受取金を立て、それ以外は精算されず消える
+	// 両方をステーションの収納へ入れる。集荷は落札済みだけを出荷し、未落札の品は残す
 	require.NoError(t, lifecycle.MoveToStorage(world, won, station))
 	require.NoError(t, lifecycle.MoveToStorage(world, junk, station))
 
@@ -169,11 +169,11 @@ func TestCollectStagedItems_集荷は明細を発生させ所持金は動かさ�
 
 	collected, receipts := query.CollectStagedItems(world, station)
 
-	assert.Equal(t, 2, collected, "積んだ品はすべて集荷される")
+	assert.Equal(t, 1, collected, "集荷は落札済みだけ")
 	assert.Equal(t, 1, receipts, "受取金の明細は落札済みの分だけ")
 	assert.Equal(t, before, query.GetCurrency(world, player), "集荷では所持金は動かない")
 	assert.False(t, world.ECS.Alive(won), "落札済みは集荷で手放す")
-	assert.False(t, world.ECS.Alive(junk), "未落札も集荷され金にならず消える")
+	assert.True(t, world.ECS.Alive(junk), "未落札の品は出荷されず残る")
 
 	entries := query.GetAuctionHistory(world).Entries
 	require.Len(t, entries, 2, "受取金1件と集荷料金の請求1件が金銭タブへ届く")
@@ -244,6 +244,30 @@ func TestAuctionSystem_積荷はタイマーで集荷され明細が届く(t *te
 	assert.False(t, world.ECS.Alive(item), "積荷はタイマー満了で集荷され手放す")
 	assert.Equal(t, before, query.GetCurrency(world, player), "集荷だけでは所持金は動かない。精算で入る")
 	assert.NotEmpty(t, query.GetAuctionHistory(world).Entries, "受取金と請求の明細が金銭タブへ届く")
+}
+
+func TestAuctionSystem_落札済みでない品は出荷しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	station, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 6})
+	require.NoError(t, err)
+
+	// 収納した貨物や燃料を模す。落札していないのでタイマーは回らず出荷されない
+	cargo, err := lifecycle.SpawnBackpackItem(world, "shovel", 1)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.MoveToStorage(world, cargo, station))
+
+	sys := &AuctionSystem{}
+	for range auctionShipDelay + 5 {
+		query.GetGameTime(world).Advance()
+		require.NoError(t, sys.Update(world))
+	}
+
+	assert.True(t, world.ECS.Alive(cargo), "落札済みでない品は出荷されず収納に残る")
+	assert.Empty(t, query.GetAuctionHistory(world).Entries, "出荷が起きないので明細も出ない")
 }
 
 func TestCollectStagedItems_積荷が無ければ何もしない(t *testing.T) {

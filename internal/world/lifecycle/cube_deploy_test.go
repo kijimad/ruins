@@ -3,6 +3,7 @@ package lifecycle
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -22,6 +23,35 @@ func TestDeployCube(t *testing.T) {
 
 		assert.True(t, DeployCube(world, cube))
 		assert.True(t, world.Components.Deployed.Has(cube), "展開中マーカーが付く")
+	})
+
+	t.Run("四方が壁で塞がれていれば展開しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+		require.NoError(t, err)
+		// 隣の1マスを壁にすると全か無かで展開が拒否される
+		wall := world.ECS.NewEntity()
+		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}})
+		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+		query.InvalidateSpatialIndex(world)
+
+		assert.False(t, DeployCube(world, cube))
+		assert.False(t, world.Components.Deployed.Has(cube), "展開しないのでマーカーは付かない")
+	})
+
+	t.Run("斜め隣接にアイテムやpropがあれば展開しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+		require.NoError(t, err)
+		// 斜め隣接(9,9)にフィールドアイテムがあっても全か無かで展開が拒否される。草の散布は密で斜めに乗る
+		_, err = SpawnFieldItem(world, "wooden_sword", 9, 9, 1)
+		require.NoError(t, err)
+		query.InvalidateSpatialIndex(world)
+
+		assert.False(t, DeployCube(world, cube))
+		assert.False(t, world.Components.Deployed.Has(cube), "展開しないのでマーカーは付かない")
 	})
 
 	t.Run("既に展開中なら何もせず真を返す", func(t *testing.T) {
