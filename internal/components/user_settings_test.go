@@ -9,18 +9,7 @@ import (
 func TestNewUserSettings(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		lang string
-	}{
-		{"ja"},
-		{"en"},
-		{""},
-	}
-	for _, tt := range tests {
-		t.Run(tt.lang, func(t *testing.T) {
-			t.Parallel()
-			s := NewUserSettings(tt.lang)
-			assert.Equal(t, tt.lang, s.Language)
-		})
-	}
+	// コンストラクタが言語コードを格納することだけ確かめる。値の写経を避け1本にする
+	s := NewUserSettings("ja")
+	assert.Equal(t, "ja", s.Language)
 }

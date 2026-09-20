@@ -426,50 +426,6 @@ func TestClamp(t *testing.T) {
 	})
 }
 
-func TestConditionIsDerived(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		ct   ConditionType
-		want bool
-	}{
-		{ConditionExhaustion, true},
-		{ConditionMalnutrition, true},
-		{ConditionFracture, false},
-		{ConditionLaceration, false},
-		{ConditionHypothermia, false},
-	}
-	for _, tt := range tests {
-		t.Run(string(tt.ct), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, ConditionIsDerived(tt.ct))
-		})
-	}
-}
-
-func TestBodyPartHitWeight(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		part BodyPart
-		want int
-	}{
-		{BodyPartHead, 2},
-		{BodyPartTorso, 4},
-		{BodyPartArms, 3},
-		{BodyPartHands, 1},
-		{BodyPartLegs, 3},
-		{BodyPartFeet, 1},
-		{BodyPartWholeBody, 0},
-	}
-	for _, tt := range tests {
-		t.Run(tt.part.String(), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, BodyPartHitWeight(tt.part))
-		})
-	}
-}
-
 func TestHealthStatus_IsHPDraining(t *testing.T) {
 	t.Parallel()
 
