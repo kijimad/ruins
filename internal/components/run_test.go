@@ -22,7 +22,10 @@ func TestDeathCause_DisplayName(t *testing.T) {
 		{CauseDebug, "debug"},
 	}
 	for _, tt := range tests {
-		assert.Equal(t, tt.want, tt.cause.DisplayName(), "%s の表示名", tt.cause)
+		t.Run(string(tt.cause), func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.cause.DisplayName())
+		})
 	}
 
 	// 未登録の死因は素のIDへ落とす。未信頼な旧セーブ値を受ける経路
