@@ -1,26 +1,28 @@
-package components_test
+package components
 
 import (
 	"testing"
 	"time"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPlayTime_未開始は0(t *testing.T) {
+func TestPlayTime_未開始とnilは0(t *testing.T) {
 	t.Parallel()
-	var pt gc.PlayTime // ゼロ値
+	var pt PlayTime
 	assert.Zero(t, pt.Elapsed(), "Start 前は0")
-	var nilPt *gc.PlayTime
-	assert.Zero(t, nilPt.Elapsed(), "nil でも0を返す")
+	var nilPt *PlayTime
+	assert.Zero(t, nilPt.Elapsed(), "nil でも0")
 }
 
-func TestPlayTime_Startは蓄積に今からの経過を足す(t *testing.T) {
+func TestPlayTime_Startは累積をセットしTickが実経過を足す(t *testing.T) {
 	t.Parallel()
-	pt := &gc.PlayTime{}
+	pt := &PlayTime{}
 	pt.Start(2 * time.Hour)
-	got := pt.Elapsed()
-	assert.GreaterOrEqual(t, got, 2*time.Hour, "蓄積を下回らない")
-	assert.Less(t, got, 2*time.Hour+time.Minute, "今セッションの経過はごくわずか")
+	assert.Equal(t, 2*time.Hour, pt.Elapsed(), "Start は累積をセットする")
+
+	pt.lastTick = time.Now().Add(-time.Minute) // 1分前を起点にする
+	pt.Tick()
+	assert.Greater(t, pt.Elapsed(), 2*time.Hour+50*time.Second, "Tick が前回からの実経過を足す")
+	assert.Less(t, pt.Elapsed(), 2*time.Hour+70*time.Second)
 }

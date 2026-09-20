@@ -2,25 +2,32 @@ package components
 
 import "time"
 
-// PlayTime はそのランのプレイ実時間を測るシングルトン。serde 非対象で、永続の実体はセーブ envelope。
-// Start でセッションの計測を始め、Elapsed で現在のプレイ実時間を読む。
-// total は今セッション開始前までの蓄積、startedAt は今の開始実時刻。
+// PlayTime はそのランの累積プレイ実時間を測るシングルトン。serde 非対象で、永続の実体はセーブ envelope。
+// total が累積で常に最新、lastTick は前回計測時刻。ラン進行中に Tick を毎フレーム呼んで実経過を足す。
 type PlayTime struct {
-	total     time.Duration
-	startedAt time.Time
+	total    time.Duration
+	lastTick time.Time
 }
 
-// Start は prior を蓄積の初期値として、今からセッションの計測を始める。
-// 新規開始は Start(0)、ロード復帰は Start(保存済みのプレイ時間)。
+// Start は prior を累積の初期値にし、計測の起点を今へ置く。新規は Start(0)、ロードは Start(保存値)。
 func (pt *PlayTime) Start(prior time.Duration) {
 	pt.total = prior
-	pt.startedAt = time.Now()
+	pt.lastTick = time.Now()
 }
 
-// Elapsed は現在のプレイ実時間を返す。蓄積に今セッションの経過を足す。未開始のラン外は0。
+// Tick はラン進行中に毎フレーム呼び、前回からの実経過を累積へ足す。初回は起点だけ置く。
+func (pt *PlayTime) Tick() {
+	now := time.Now()
+	if !pt.lastTick.IsZero() {
+		pt.total += now.Sub(pt.lastTick)
+	}
+	pt.lastTick = now
+}
+
+// Elapsed は現在の累積プレイ実時間を返す。Tick で常に最新なので total をそのまま返す。nil セーフ。
 func (pt *PlayTime) Elapsed() time.Duration {
-	if pt == nil || pt.startedAt.IsZero() {
+	if pt == nil {
 		return 0
 	}
-	return pt.total + time.Since(pt.startedAt)
+	return pt.total
 }

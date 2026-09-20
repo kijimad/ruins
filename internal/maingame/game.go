@@ -19,6 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -71,6 +72,8 @@ func (game *MainGame) Update() error {
 	region := trace.StartRegion(context.Background(), "Update")
 	defer region.End()
 
+	game.tickPlayTime()
+
 	// デバッグ表示をトグルする
 	if ebiten.IsKeyPressed(ebiten.KeyShift) && inpututil.IsKeyJustPressed(ebiten.KeyTab) {
 		// パフォーマンスモニターは攻略に関係ないのでトグルできてよい
@@ -87,6 +90,14 @@ func (game *MainGame) Update() error {
 	}
 
 	return nil
+}
+
+// tickPlayTime はラン進行中だけ累積プレイ実時間を進める。プレイヤー不在のメインメニューは数えない。
+func (game *MainGame) tickPlayTime() {
+	if _, err := query.GetPlayerEntity(game.World); err != nil {
+		return
+	}
+	query.GetPlayTime(game.World).Tick()
 }
 
 // Draw はゲームの描画処理を行う
