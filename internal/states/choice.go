@@ -20,8 +20,8 @@ import (
 // 画面を閉じる、別画面へ進む、などを表す。Header が真の行はカーソルが止まらない見出し
 type Choice struct {
 	Label string
-	// Right は右寄せで並べる副次テキスト。セーブスロットのプレイ時間などに使う。空なら列を作らない
-	Right  string
+	// Value はラベルに添える値。セーブスロットのプレイ時間などに使う。右寄せ列で描く。空なら列を作らない
+	Value  string
 	Run    func(world w.World) (es.Transition[w.World], error)
 	Header bool
 	// Indent は menuframe.Row.Indent へ渡す字下げの段数
@@ -102,23 +102,23 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 // ViewUI は選択肢の一覧を中央パネルに uicore のツリーで組んで返す。
 // Screen はこれを EbitenCanvas で本体として描く。
 func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
-	// いずれかが Right を持つなら右寄せ列を足し、全行を2セルで揃える
-	hasRight := false
+	// いずれかが Value を持つなら右寄せ列を足し、全行を2セルで揃える
+	hasValue := false
 	for _, c := range props.Choices {
-		if c.Right != "" {
-			hasRight = true
+		if c.Value != "" {
+			hasValue = true
 			break
 		}
 	}
 	cols := styled.Cols(styled.Name())
-	if hasRight {
+	if hasValue {
 		cols = styled.Cols(styled.Name(), styled.Num())
 	}
 	rows := make([]menuframe.Row, len(props.Choices))
 	for i, c := range props.Choices {
 		cells := styled.TextCells(c.Label)
-		if hasRight {
-			cells = styled.TextCells(c.Label, c.Right)
+		if hasValue {
+			cells = styled.TextCells(c.Label, c.Value)
 		}
 		rows[i] = menuframe.Row{Cells: cells, Header: c.Header, Indent: c.Indent}
 	}

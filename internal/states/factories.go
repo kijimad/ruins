@@ -153,8 +153,8 @@ func NewSaveMenuState() (es.State[w.World], error) {
 		if choices == nil {
 			for i := 1; i <= 4; i++ {
 				slotName := fmt.Sprintf("slot%d", i)
-				label, right := formatSaveSlotLabel(world, saveManager, slotName)
-				choices = append(choices, Choice{Label: label, Right: right, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
+				label, value := formatSaveSlotLabel(world, saveManager, slotName)
+				choices = append(choices, Choice{Label: label, Value: value, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 					if err := saveManager.SaveWorld(world, slotName); err != nil {
 						return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
 					}
@@ -222,8 +222,8 @@ func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotN
 	if !saveManager.SaveFileExists(slotName) {
 		return emptySlotChoice()
 	}
-	label, right := formatSaveSlotLabel(world, saveManager, slotName)
-	return Choice{Label: label, Right: right, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
+	label, value := formatSaveSlotLabel(world, saveManager, slotName)
+	return Choice{Label: label, Value: value, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
 			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
 			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
@@ -274,8 +274,8 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 	return state, nil
 }
 
-// formatSaveSlotLabel はスロット行の左ラベルと、右寄せで並べるプレイ時間を返す。時間が無ければ right は空。
-func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) (label, right string) {
+// formatSaveSlotLabel はスロット行の左ラベルと、値のプレイ時間を返す。時間が無ければ value は空。値は右寄せ列で描く。
+func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) (label, value string) {
 	if !saveManager.SaveFileExists(slotName) {
 		return "---", ""
 	}
