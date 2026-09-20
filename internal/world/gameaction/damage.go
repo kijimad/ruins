@@ -72,7 +72,7 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 }
 
 // logDeath は死亡・破壊ログを出力する。
-// Fixed は「壊れた」、それ以外は「倒れた」と表示する。
+// Prop は「壊れた」、それ以外は「倒れた」と表示する。
 // プレイヤーが関与する場合のみログを出力する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world)
@@ -83,7 +83,7 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	targetName := query.GetEntityName(target, world)
 
 	suffix := query.T(world, " was defeated.")
-	if world.Components.Fixed.Has(target) {
+	if world.Components.Prop.Has(target) {
 		suffix = query.T(world, " was destroyed.")
 	}
 

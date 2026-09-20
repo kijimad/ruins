@@ -44,7 +44,8 @@ var Registry = []Def{
 	{Field: "BlockPass"},       // 通行不可であることを示す
 	{Field: "PassCost"},        // タイルの移動コスト修正を保持する
 	{Field: "Door"},            // 開閉可能な扉であることを表す
-	{Field: "Fixed"},           // 世界に固定され拾えない固定物であることを示す
+	{Field: "Item"},            // 可搬アイテムであることを示す
+	{Field: "Prop"},            // 設置物であることを示す
 	{Field: "Drivable"},        // 運転可能であることを示す。移動拠点キューブが持つ
 	{Field: "Driving"},         // 運転中であることと運転対象の乗り物を保持する。プレイヤーへ付く一時状態
 	{Field: "LightSource"},     // 光源であることを表す

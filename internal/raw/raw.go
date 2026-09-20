@@ -243,6 +243,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
+	entitySpec.Item = &gc.Item{}
 	entitySpec.Name = &gc.Name{Name: item.Name}
 	entitySpec.RawID = &gc.RawID{ID: item.Id}
 	entitySpec.Description = &gc.Description{Description: item.Description}
@@ -692,7 +693,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Fixed = &gc.Fixed{}
+	entitySpec.Prop = &gc.Prop{}
 	entitySpec.Name = &gc.Name{Name: propRaw.Name}
 	entitySpec.RawID = &gc.RawID{ID: propRaw.Id}
 	entitySpec.Description = &gc.Description{Description: propRaw.Description}

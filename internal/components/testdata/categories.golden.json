@@ -13,8 +13,12 @@
       "pred": "(FactionAlly OR FactionNeutral)"
     },
     {
-      "name": "Fixed object",
-      "pred": "Fixed"
+      "name": "Item",
+      "pred": "Item"
+    },
+    {
+      "name": "Prop",
+      "pred": "Prop"
     },
     {
       "name": "Tile",

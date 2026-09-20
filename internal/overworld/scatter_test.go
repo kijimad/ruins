@@ -72,11 +72,11 @@ type propAt struct {
 	name string
 }
 
-// collectProps は Fixed を持つ全 prop を座標順で集める。草・岩は BlockPass を持たないので、散布物の
-// 網羅は固定物マーカーの Fixed で引く。SpawnProp は全 prop へ Fixed を付ける。タイルは Fixed を持たない。
+// collectProps は Prop を持つ全 prop を座標順で集める。草・岩は BlockPass を持たないので、散布物の
+// 網羅は設置物マーカーの Prop で引く。SpawnProp は全 prop へ Prop を付ける。タイルは Prop を持たない。
 func collectProps(world w.World) []propAt {
 	var out []propAt
-	q := query.ActiveFilter2[gc.GridElement, gc.Fixed](world).Query()
+	q := query.ActiveFilter2[gc.GridElement, gc.Prop](world).Query()
 	for q.Next() {
 		e := q.Entity()
 		ge := *world.Components.GridElement.Get(e)

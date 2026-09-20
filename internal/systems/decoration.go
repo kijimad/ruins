@@ -74,9 +74,9 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]bool {
 	markers := map[consts.Coord[consts.Tile]]bool{}
 
-	// 拾えるフィールドアイテムを升ごとに集める。Fixed でないフィールド物が拾える物なので Fixed を除く
+	// 拾えるフィールドアイテムを升ごとに集める。Item を持つフィールド物が拾える物
 	itemsByTile := map[consts.Coord[consts.Tile]][]ecs.Entity{}
-	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Without(ecs.C[gc.Fixed]()).Query()
+	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).With(ecs.C[gc.Item]()).Query()
 	for itemQuery.Next() {
 		e := itemQuery.Entity()
 		c := world.Components.GridElement.Get(e).Coord

@@ -123,14 +123,24 @@ func TestCategory(t *testing.T) {
 		assert.Equal(t, "NPC", cat)
 	})
 
-	t.Run("フィールド観察: 固定物", func(t *testing.T) {
+	t.Run("フィールド観察: 設置物", func(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
-		c.Fixed.Add(entity, &Fixed{})
+		c.Prop.Add(entity, &Prop{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Fixed object", cat)
+		assert.Equal(t, "Prop", cat)
+	})
+
+	t.Run("フィールド観察: アイテム", func(t *testing.T) {
+		t.Parallel()
+		manager, c := setupComponents(t)
+		entity := manager.NewEntity()
+		c.Item.Add(entity, &Item{})
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "Item", cat)
 	})
 
 	t.Run("フィールド観察: タイル", func(t *testing.T) {

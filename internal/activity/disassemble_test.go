@@ -160,6 +160,32 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	assert.Positive(t, mechanic.Exp.Current)
 }
 
+func TestDisassembleBehavior_Finish_propでもitemでもない対象はエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
+	require.NoError(t, err)
+
+	da := &DisassembleBehavior{}
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
+	require.NoError(t, da.Start(comp, player, world))
+	for comp.State == gc.ActivityStateRunning {
+		require.NoError(t, da.DoTurn(comp, player, world))
+	}
+
+	// Finish 直前に Prop マーカーを剥がし、prop でも item でもない不変条件の破れを作る
+	world.Components.Prop.Remove(crate)
+
+	require.ErrorIs(t, da.Finish(comp, player, world), ErrDisassembleTargetKind)
+}
+
 func TestDisassembleBehavior_アイテムを分解すると消費して素材が所持品に入る(t *testing.T) {
 	t.Parallel()
 

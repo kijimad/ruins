@@ -20,7 +20,7 @@ func TestSpawnCube_運転できる移動拠点として生成される(t *testin
 
 	assert.True(t, world.Components.Drivable.Has(cube), "運転できる印を持つ")
 	assert.False(t, world.Components.BlockPass.Has(cube), "直上に立てるよう通行可能にする")
-	assert.True(t, world.Components.Fixed.Has(cube), "固定物である")
+	assert.True(t, world.Components.Prop.Has(cube), "設置物である")
 	assert.True(t, world.Components.WeightCapacity.Has(cube), "収納容量を持つ")
 	assert.True(t, world.Components.AuctionStation.Has(cube), "オークション出荷元を兼ねる")
 	require.True(t, world.Components.Interactable.Has(cube), "相互作用を持つ")

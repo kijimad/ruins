@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"slices"
@@ -19,6 +20,9 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
+
+// ErrDisassembleTargetKind は分解対象が prop でも item でもないときに返す。Validate 通過後は起きない不変条件の破れ
+var ErrDisassembleTargetKind = errors.New("disassembly target is neither prop nor item")
 
 // DisassembleBehavior は工具でpropやアイテムを分解して素材を得るアクティビティの実装。
 // 工具は開始時に固定せず、毎回actorの所持品から分類に適合する最良の1つを解決する。
@@ -162,7 +166,8 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 		return fmt.Errorf("failed to roll disassembly yields: %w", err)
 	}
 
-	if world.Components.Fixed.Has(target) && world.Components.GridElement.Has(target) {
+	switch {
+	case world.Components.Prop.Has(target):
 		// 座標は除去前に値で控える
 		coord := world.Components.GridElement.Get(target).Coord
 		// 収納propの場合は中身を足元へ出してから取り壊す
@@ -172,7 +177,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 		if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil {
 			return fmt.Errorf("failed to spawn disassembly yields: %w", err)
 		}
-	} else {
+	case world.Components.Item.Has(target):
 		if err := lifecycle.ChangeItemCount(world, target, -1); err != nil {
 			return fmt.Errorf("failed to consume disassembly target: %w", err)
 		}
@@ -181,6 +186,9 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 				return fmt.Errorf("failed to spawn disassembly yields: %w", err)
 			}
 		}
+	default:
+		// prop でも item でもない target は分解できない。呼び出し元が保証するがここでも弾く
+		return ErrDisassembleTargetKind
 	}
 
 	targetMarkup := gamelog.Tag("item", name)

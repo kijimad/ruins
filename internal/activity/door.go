@@ -186,7 +186,7 @@ func doorTileOccupied(world w.World, coord consts.Coord[consts.Tile]) bool {
 			return true
 		}
 	}
-	// 扉自身も LocationOnField を持つため、Fixed を除く IsPickable で拾える物だけ見る
+	// 扉自身も LocationOnField を持つため、Item を持つ拾える物だけ IsPickable で見る
 	return slices.ContainsFunc(query.GetEntitiesAt(world, coord.X, coord.Y), func(e ecs.Entity) bool {
 		return query.IsPickable(e, world)
 	})

@@ -225,7 +225,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, coun
 	if world.Components.HP.Has(entity) {
 		hp := world.Components.HP.Get(entity)
 		label := "HP"
-		if world.Components.Fixed.Has(entity) {
+		if world.Components.Prop.Has(entity) {
 			label = query.T(world, "Durability")
 		}
 		drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))

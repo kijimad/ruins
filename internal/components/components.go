@@ -365,8 +365,12 @@ type LocationInStorage struct {
 	Owner ecs.Entity // 収納コンテナのエンティティ
 }
 
-// Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント
-type Fixed struct{}
+// Item は可搬アイテムであることを示すマーカーコンポーネント。拾えてバックパックへ入る
+type Item struct{}
+
+// Prop は設置物であることを示すマーカーコンポーネント。1タイルに1つ置かれ、既定で拾えない
+// 家具・構造物・自然物・場の効果の総称
+type Prop struct{}
 
 // LightSource は光源コンポーネント
 type LightSource struct {

@@ -38,7 +38,8 @@ type EntitySpec struct {
 	BlockPass          *BlockPass
 	PassCost           *PassCost
 	Door               *Door
-	Fixed              *Fixed
+	Item               *Item
+	Prop               *Prop
 	Drivable           *Drivable
 	Driving            *Driving
 	LightSource        *LightSource
@@ -130,7 +131,8 @@ type Components struct {
 	BlockPass          *ecs.Map[BlockPass]
 	PassCost           *ecs.Map[PassCost]
 	Door               *ecs.Map[Door]
-	Fixed              *ecs.Map[Fixed]
+	Item               *ecs.Map[Item]
+	Prop               *ecs.Map[Prop]
 	Drivable           *ecs.Map[Drivable]
 	Driving            *ecs.Map[Driving]
 	LightSource        *ecs.Map[LightSource]
@@ -222,7 +224,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.BlockPass = ecs.NewMap[BlockPass](world)
 	c.PassCost = ecs.NewMap[PassCost](world)
 	c.Door = ecs.NewMap[Door](world)
-	c.Fixed = ecs.NewMap[Fixed](world)
+	c.Item = ecs.NewMap[Item](world)
+	c.Prop = ecs.NewMap[Prop](world)
 	c.Drivable = ecs.NewMap[Drivable](world)
 	c.Driving = ecs.NewMap[Driving](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
@@ -316,7 +319,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.BlockPass, entity, spec.BlockPass)
 	addComp(c.PassCost, entity, spec.PassCost)
 	addComp(c.Door, entity, spec.Door)
-	addComp(c.Fixed, entity, spec.Fixed)
+	addComp(c.Item, entity, spec.Item)
+	addComp(c.Prop, entity, spec.Prop)
 	addComp(c.Drivable, entity, spec.Drivable)
 	addComp(c.Driving, entity, spec.Driving)
 	addComp(c.LightSource, entity, spec.LightSource)

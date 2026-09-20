@@ -82,7 +82,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 // executeDriveMove は運転中の移動を処理する。キューブを1タイル進め、燃料と行動ターンを消費し、
 // プレイヤーを同乗させて追随させる。壁・敵で不可なら停止し、燃料不足なら立往生する。
 func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) error {
-	// 運転中のキューブは Fixed で HP も分解定義も持たず、帯シフトの削除範囲にも入らないので
+	// 運転中のキューブは Prop で HP も分解定義も持たず、帯シフトの削除範囲にも入らないので
 	// 消えない。降車すると Driving が外れて executeDriveMove を通らなくなる。よって生存確認は不要
 	cube := world.Components.Driving.Get(player).Vehicle
 	current := world.Components.GridElement.Get(cube).Coord
