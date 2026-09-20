@@ -45,6 +45,7 @@ func deployChoice(world w.World, cube ecs.Entity) Choice {
 				Markup(query.T(world, "Not enough open space to deploy.")).
 				Log()
 		}
+		// 成否によらずメニューは閉じる。失敗理由はログに出るので、場所を変えて開き直して再挑戦する
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}}
 }

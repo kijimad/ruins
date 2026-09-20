@@ -51,14 +51,16 @@ func TestDeployCube(t *testing.T) {
 		assert.False(t, world.Components.Deployed.Has(cube), "展開しないのでマーカーは付かない")
 	})
 
-	t.Run("既に展開中なら真を返し変えない", func(t *testing.T) {
+	t.Run("既に展開中なら真を返しタイルを増やさない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 		require.NoError(t, err)
-		world.Components.Deployed.Add(cube, &gc.Deployed{})
+		require.True(t, DeployCube(world, cube))
+		require.Equal(t, len(deployOffsets), countDeployedTiles(world))
 
 		assert.True(t, DeployCube(world, cube))
+		assert.Equal(t, len(deployOffsets), countDeployedTiles(world), "再展開でタイルは増えない")
 	})
 }
 
