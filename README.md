@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [キューブの強化を停車時に展開するタイルで見せる](docs/design/260920004814.md) | 0/8（見送り3） | gamedesign, movement, item |
+| accepted | [キューブの強化を停車時に展開するタイルで見せる](docs/design/260920004814.md) | 0/9（見送り3） | gamedesign, movement, item |
 
 
 ## Reference
