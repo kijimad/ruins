@@ -29,7 +29,9 @@ type Resources struct {
 	// world 単位で持つことでグローバル可変状態を作らず、押し込んだ先の state にも同じ源が効く
 	InputSource inputmapper.Source
 
-	// PlayTimeSessionStart はプレイ実時間の計測基準。ゼロ値はラン外。serde 非対象のセッション状態
+	// PlayTimeTotal は累積プレイ実時間。永続の実体はセーブ封筒で、ロード時に封筒から seed する。
+	// PlayTimeSessionStart は計測基準。ゼロ値はラン外。どちらも serde 非対象のセッション状態
+	PlayTimeTotal        time.Duration
 	PlayTimeSessionStart time.Time
 }
 

@@ -72,7 +72,6 @@ func (world World) InitSingleton() {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
-	world.Components.PlayTime.Add(singleton, &gc.PlayTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// config は構築時に渡されているので、設定言語をそのまま種にする。
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
@@ -93,7 +92,8 @@ func (world World) ResetForNewGame() {
 		world.ECS.RemoveEntity(e)
 	}
 	world.InitSingleton()
-	// 新規ランの計測基準を今に置く。ここより前のメインメニュー滞在は数えない
+	// 新規ランはプレイ実時間を0から。計測基準を今に置き、ここより前のメインメニュー滞在は数えない
+	world.Resources.PlayTimeTotal = 0
 	world.Resources.PlayTimeSessionStart = time.Now()
 }
 

@@ -144,7 +144,8 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := restoreInto(world, env.World); err != nil {
 		return err
 	}
-	// 復元は run の再開。ここを計測基準に置き、以後のセーブが再開時点からの経過を足す
+	// 復元は run の再開。累積を封筒から seed し、計測基準を今に置いて再開時点からの経過を足す
+	world.Resources.PlayTimeTotal = env.PlayTime
 	world.Resources.PlayTimeSessionStart = time.Now()
 	return nil
 }

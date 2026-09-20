@@ -10,7 +10,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
 	arkserde "github.com/mlange-42/ark-serde"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -159,27 +158,19 @@ func extractPlayerName(world w.World) string {
 	return name
 }
 
-// extractPlayTime はワールドから累積プレイ実時間を取得する。シングルトンが無ければ0を返す。
+// extractPlayTime は累積プレイ実時間を返す。永続の実体はセーブ封筒で、これはセッションの現在値。
 func extractPlayTime(world w.World) time.Duration {
-	pt := query.GetPlayTime(world)
-	if pt == nil {
-		return 0
-	}
-	return pt.Duration
+	return world.Resources.PlayTimeTotal
 }
 
-// accruePlayTime はセッション基準からの経過を PlayTime へ畳み、基準を今へ進める。基準ゼロのラン外は何もしない。
+// accruePlayTime はセッション基準からの経過を累積へ畳み、基準を今へ進める。基準ゼロのラン外は何もしない。
 func accruePlayTime(world w.World) {
 	start := world.Resources.PlayTimeSessionStart
 	if start.IsZero() {
 		return
 	}
-	pt := query.GetPlayTime(world)
-	if pt == nil {
-		return
-	}
 	now := time.Now()
-	pt.Duration += now.Sub(start)
+	world.Resources.PlayTimeTotal += now.Sub(start)
 	world.Resources.PlayTimeSessionStart = now
 }
 

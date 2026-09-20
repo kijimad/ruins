@@ -106,7 +106,6 @@ var Registry = []Def{
 	{Field: "SpatialIndex"},    // 空間インデックスを保持するシングルトン
 	{Field: "WeaponSelection"}, // 選択中の武器スロットを保持するシングルトン
 	{Field: "GameTime"},        // ゲーム内時間を保持するシングルトン
-	{Field: "PlayTime"},        // 累積プレイ実時間を保持するシングルトン
 	{Field: "VisionState"},     // 視界計算の一時状態を保持するシングルトン
 	{Field: "UserSettings"},    // 設定画面で変更するグローバル設定を保持するシングルトン
 	{Field: "AuctionHistory"},  // 通信販売の金銭明細と出荷実績履歴、採番カウンタ、評判を保持するシングルトン

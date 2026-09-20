@@ -86,7 +86,6 @@ type EntitySpec struct {
 	SpatialIndex       *SpatialIndex
 	WeaponSelection    *WeaponSelection
 	GameTime           *GameTime
-	PlayTime           *PlayTime
 	VisionState        *VisionState
 	UserSettings       *UserSettings
 	AuctionHistory     *AuctionHistory
@@ -178,7 +177,6 @@ type Components struct {
 	SpatialIndex       *ecs.Map[SpatialIndex]
 	WeaponSelection    *ecs.Map[WeaponSelection]
 	GameTime           *ecs.Map[GameTime]
-	PlayTime           *ecs.Map[PlayTime]
 	VisionState        *ecs.Map[VisionState]
 	UserSettings       *ecs.Map[UserSettings]
 	AuctionHistory     *ecs.Map[AuctionHistory]
@@ -270,7 +268,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
 	c.WeaponSelection = ecs.NewMap[WeaponSelection](world)
 	c.GameTime = ecs.NewMap[GameTime](world)
-	c.PlayTime = ecs.NewMap[PlayTime](world)
 	c.VisionState = ecs.NewMap[VisionState](world)
 	c.UserSettings = ecs.NewMap[UserSettings](world)
 	c.AuctionHistory = ecs.NewMap[AuctionHistory](world)
@@ -364,7 +361,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
 	addComp(c.WeaponSelection, entity, spec.WeaponSelection)
 	addComp(c.GameTime, entity, spec.GameTime)
-	addComp(c.PlayTime, entity, spec.PlayTime)
 	addComp(c.VisionState, entity, spec.VisionState)
 	addComp(c.UserSettings, entity, spec.UserSettings)
 	addComp(c.AuctionHistory, entity, spec.AuctionHistory)
