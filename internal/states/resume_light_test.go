@@ -13,10 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// プレイヤー光源は StatsChangedSystem が装備から都度転写する派生値で、その再計算トリガ StatsChanged は
-// ダーティフラグ。転写前、すなわちフラグが保留のまま保存されると派生光源は消灯で焼き付く。フラグを
-// 保存対象にしたので、ロードで復元され次の転写で松明の灯りが戻る。WeightDirty も同じ理由で往復する。
-// 保存直後に走る新規開始オートセーブがこの保留状態を捉える経路だったため、往復で復元することを固定する。
+// 保留のまま保存されたダーティフラグ StatsChanged・WeightDirty がロードで復元され、再計算で松明の
+// 灯りが戻ることを固定する。新規開始オートセーブが転写前の保留状態を捉える経路だった。
 func TestSaveLoad_保留中のダーティフラグを保存し再導出で松明の灯りが戻る(t *testing.T) {
 	t.Parallel()
 
@@ -37,7 +35,7 @@ func TestSaveLoad_保留中のダーティフラグを保存し再導出で松�
 	p2, err := query.GetPlayerEntity(loaded)
 	require.NoError(t, err)
 
-	// 保留フラグが保存・復元される。skipComponents へ戻すとここで落ちる
+	// 保留フラグが保存・復元される
 	require.True(t, loaded.Components.StatsChanged.Has(p2), "StatsChanged がロードで復元される")
 	require.True(t, loaded.Components.WeightDirty.Has(p2), "WeightDirty がロードで復元される")
 
