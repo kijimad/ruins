@@ -3,6 +3,7 @@ package states
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/dungeon"
@@ -152,7 +153,8 @@ func NewSaveMenuState() (es.State[w.World], error) {
 		if choices == nil {
 			for i := 1; i <= 4; i++ {
 				slotName := fmt.Sprintf("slot%d", i)
-				choices = append(choices, Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
+				label, value := formatSaveSlotLabel(world, saveManager, slotName)
+				choices = append(choices, Choice{Label: label, Value: value, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 					if err := saveManager.SaveWorld(world, slotName); err != nil {
 						return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
 					}
@@ -220,7 +222,8 @@ func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotN
 	if !saveManager.SaveFileExists(slotName) {
 		return emptySlotChoice()
 	}
-	return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
+	label, value := formatSaveSlotLabel(world, saveManager, slotName)
+	return Choice{Label: label, Value: value, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
 			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
 			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
@@ -271,20 +274,27 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 	return state, nil
 }
 
-// formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。
-// データがあればプレイヤー名と日時を、無ければダッシュを返す。
-func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) string {
+// formatSaveSlotLabel はスロット行の左ラベルと、値のプレイ時間を返す。時間が無ければ value は空。値は右寄せ列で描く。
+func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) (label, value string) {
 	if !saveManager.SaveFileExists(slotName) {
-		return "---"
+		return "---", ""
 	}
 
 	playerName, nameErr := saveManager.GetSavePlayerName(slotName)
-	timestamp, tsErr := saveManager.GetSaveFileTimestamp(slotName)
+	playTime, ptErr := saveManager.GetSavePlayTime(slotName)
 
-	if nameErr == nil && tsErr == nil {
-		return fmt.Sprintf("%s  %s", playerName, timestamp.Format("01/02 15:04"))
+	if nameErr == nil && ptErr == nil {
+		return playerName, formatPlayTime(playTime)
 	}
-	return query.T(world, "Has data")
+	return query.T(world, "Has data"), ""
+}
+
+// formatPlayTime は累積プレイ実時間を時:分:秒で表す。時は無制限、分と秒は0埋め。例 101:34:07
+func formatPlayTime(d time.Duration) string {
+	h := int(d / time.Hour)
+	m := int(d % time.Hour / time.Minute)
+	s := int(d % time.Minute / time.Second)
+	return fmt.Sprintf("%d:%02d:%02d", h, m, s)
 }
 
 // NewMessageState は組み立て済みメッセージから MessageState を作成する。

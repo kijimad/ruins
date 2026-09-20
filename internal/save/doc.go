@@ -13,7 +13,7 @@ ark-serde でワールド全体をJSON化して保存し、ロード時にその
 
   - Version:    セーブ形式バージョン
   - Timestamp:  保存日時
-  - Checksum:   破損検知用のキーレスSHA-256（Checksum自身を除いた封筒に対して計算）。
+  - Checksum:   破損検知用のキーレスSHA-256（Checksum自身を除いたenvelopeに対して計算）。
     キーを持たないため攻撃者による改ざん検知は目的とせず、あくまで破損検知に用いる
   - PlayerName: 一覧表示用にプレイヤー名をメタとして保持（ワールド全体を展開せず参照できる）
   - World:      ark-serde が出力するワールドJSON
@@ -38,7 +38,7 @@ world.ECS.Reset() を行う。復元後、reestablishSingleton がスキップ�
 
 ## パッケージ責務
 
-  - serde.go:   ark-serde ラッパー、skipリスト、封筒、シングルトン再確立
+  - serde.go:   ark-serde ラッパー、skipリスト、envelope、シングルトン再確立
   - manager.go: セーブ・ロード処理とスロット/オートセーブ管理
   - desktop.go / wasm.go: プラットフォーム別のファイルI/O
 */

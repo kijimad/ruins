@@ -9,6 +9,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 const saveDataVersion = "2.0.0"
@@ -59,6 +60,7 @@ func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error)
 	env := saveEnvelope{
 		Version:    saveDataVersion,
 		Timestamp:  time.Now(),
+		PlayTime:   query.GetPlayTime(world).Elapsed(),
 		PlayerName: extractPlayerName(world),
 		World:      worldJSON,
 	}
@@ -133,16 +135,16 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err != nil {
 		return fmt.Errorf("failed to create probe world: %w", err)
 	}
-	if err := restoreInto(probe, env.World); err != nil {
+	if err := restoreInto(probe, env.World, env.PlayTime); err != nil {
 		return err
 	}
 
-	return restoreInto(world, env.World)
+	return restoreInto(world, env.World, env.PlayTime)
 }
 
 // restoreInto はリセット済みワールドへ復元の全工程を適用する。deserialize は事前の
 // world.ECS.Reset() を要求する。probe と本番ワールドの両方でこの手順を共有する。
-func restoreInto(world w.World, worldJSON []byte) error {
+func restoreInto(world w.World, worldJSON []byte, playTime time.Duration) error {
 	// ark-serdeのDeserializeはリセット済みワールドを要求する
 	world.ECS.Reset()
 
@@ -151,7 +153,7 @@ func restoreInto(world w.World, worldJSON []byte) error {
 	}
 
 	// スキップした一時コンポーネントとシングルトン参照を再確立する
-	if err := reestablishSingleton(world); err != nil {
+	if err := reestablishSingleton(world, playTime); err != nil {
 		return fmt.Errorf("failed to reestablish singleton: %w", err)
 	}
 
@@ -266,7 +268,7 @@ func (sm *SerializationManager) rotateAutoSaves() error {
 }
 
 // GetSavePlayerName はセーブデータからプレイヤー名を取得する。
-// セーブデータ全体をデシリアライズせず、封筒のメタ情報だけを読む。
+// セーブデータ全体をデシリアライズせず、envelopeのメタ情報だけを読む。
 func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) {
 	data, err := sm.loadSaveJSON(slotName)
 	if err != nil {
@@ -282,6 +284,23 @@ func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, erro
 		return "", fmt.Errorf("player name not found in save data")
 	}
 	return partial.PlayerName, nil
+}
+
+// GetSavePlayTime はセーブデータから累積プレイ実時間を取得する。
+// セーブデータ全体をデシリアライズせず、envelopeのメタ情報だけを読む。0は新規開始直後の正常値なので
+// エラー扱いにしない。
+func (sm *SerializationManager) GetSavePlayTime(slotName string) (time.Duration, error) {
+	data, err := sm.loadSaveJSON(slotName)
+	if err != nil {
+		return 0, err
+	}
+	var partial struct {
+		PlayTime time.Duration `json:"playTime"`
+	}
+	if err := json.Unmarshal(data, &partial); err != nil {
+		return 0, fmt.Errorf("failed to parse save data: %w", err)
+	}
+	return partial.PlayTime, nil
 }
 
 // validateChecksum はセーブデータのチェックサムを検証する

@@ -11,7 +11,6 @@ import (
 
 // Resources はゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
-// 初期化時のみセットされ、あとから変更はされない
 type Resources struct {
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
