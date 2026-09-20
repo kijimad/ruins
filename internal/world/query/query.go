@@ -44,6 +44,19 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	return entities[0], nil
 }
 
+// PlayerExists はプレイヤーエンティティが存在するかを返す。
+// プレイヤー不在はメインメニューなどの正常な状態でありエラーではないため、
+// 有無だけを問う場面では GetPlayerEntity のエラーを流用せずこの述語を使う。
+// 途中で return するとワールドがロックされたまま残るため、クエリは最後まで反復する。
+func PlayerExists(world w.World) bool {
+	exists := false
+	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
+	for playerQuery.Next() {
+		exists = true
+	}
+	return exists
+}
+
 // AliveHas はエンティティが生存しコンポーネントを保持する場合のみ true を返す。
 // Ark は死亡エンティティへの Has でパニックするため、生存確認と組み合わせて安全に判定する
 func AliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {

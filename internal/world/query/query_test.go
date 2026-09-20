@@ -114,6 +114,39 @@ func TestGetPlayerEntity(t *testing.T) {
 	})
 }
 
+func TestPlayerExists(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーが存在すればtrue", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+
+		assert.True(t, PlayerExists(world))
+	})
+
+	t.Run("プレイヤーが不在ならfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		assert.False(t, PlayerExists(world))
+	})
+
+	t.Run("プレイヤーが複数でもtrue", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player1 := world.ECS.NewEntity()
+		world.Components.Player.Add(player1, &gc.Player{})
+		player2 := world.ECS.NewEntity()
+		world.Components.Player.Add(player2, &gc.Player{})
+
+		assert.True(t, PlayerExists(world))
+	})
+}
+
 func TestIsPickable(t *testing.T) {
 	t.Parallel()
 

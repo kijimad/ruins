@@ -94,7 +94,7 @@ func (game *MainGame) Update() error {
 
 // tickPlayTime はラン進行中だけ累積プレイ実時間を進める。プレイヤー不在のメインメニューは数えない。
 func (game *MainGame) tickPlayTime() {
-	if _, err := query.GetPlayerEntity(game.World); err != nil {
+	if !query.PlayerExists(game.World) {
 		return
 	}
 	query.GetPlayTime(game.World).Tick(time.Now())
