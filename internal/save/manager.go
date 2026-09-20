@@ -142,8 +142,10 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := restoreInto(world, env.World); err != nil {
 		return err
 	}
-	// PlayTime は serde 非対象。基準を now から保存値ぶん過去へ置くと time.Since が復元後の累積になる
-	query.GetPlayTime(world).SessionStart = time.Now().Add(-env.PlayTime)
+	// PlayTime は serde 非対象。蓄積を envelope から復元し、今のセッション開始時刻を置き直す
+	pt := query.GetPlayTime(world)
+	pt.Total = env.PlayTime
+	pt.SessionStartedAt = time.Now()
 	return nil
 }
 

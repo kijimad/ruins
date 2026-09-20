@@ -44,13 +44,13 @@ func GetPlayTime(world w.World) *gc.PlayTime {
 	return GetSingleton[gc.PlayTime](world, world.Components.PlayTime)
 }
 
-// PlayTimeElapsed は基準時刻からの経過をプレイ実時間として返す。基準ゼロのラン外は0。
+// PlayTimeElapsed は蓄積に今セッションの経過を足したプレイ実時間を返す。ラン外は0。
 func PlayTimeElapsed(world w.World) time.Duration {
 	pt := GetPlayTime(world)
-	if pt == nil || pt.SessionStart.IsZero() {
+	if pt == nil || pt.SessionStartedAt.IsZero() {
 		return 0
 	}
-	return time.Since(pt.SessionStart)
+	return pt.Total + time.Since(pt.SessionStartedAt)
 }
 
 // GetVisionState はシングルトンから視界計算の一時状態を取得する

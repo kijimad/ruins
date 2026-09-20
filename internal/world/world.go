@@ -94,7 +94,7 @@ func (world World) ResetForNewGame() {
 	}
 	world.InitSingleton()
 	// 新規ランは計測基準を今に置く。InitSingleton の PlayTime は Total=0
-	world.Components.PlayTime.Get(world.Resources.SingletonEntity).SessionStart = time.Now()
+	world.Components.PlayTime.Get(world.Resources.SingletonEntity).SessionStartedAt = time.Now()
 }
 
 // GetWorld は entities.World インターフェースを満たすためのメソッド
