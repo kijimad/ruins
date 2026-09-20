@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-20 12:19:03</td>
+            <td class="headerValue">2026-09-20 14:19:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -136,9 +136,9 @@
 <span id="L74"><span class="lineNum">      74</span>              : func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]bool {</span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         markers := map[consts.Coord[consts.Tile]]bool{}</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L77"><span class="lineNum">      77</span>              :         // 拾えるフィールドアイテムを升ごとに集める。Fixed でないフィールド物が拾える物なので Fixed を除く</span>
+<span id="L77"><span class="lineNum">      77</span>              :         // 拾えるフィールドアイテムを升ごとに集める。Item を持つフィールド物が拾える物</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         itemsByTile := map[consts.Coord[consts.Tile]][]ecs.Entity{}</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Without(ecs.C[gc.Fixed]()).Query()</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).With(ecs.C[gc.Item]()).Query()</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         for itemQuery.Next() {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 e := itemQuery.Entity()</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 c := world.Components.GridElement.Get(e).Coord</span></span>

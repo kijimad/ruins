@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-20 12:19:03</td>
+            <td class="headerValue">2026-09-20 14:19:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -300,8 +300,8 @@
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         for moverShadowQuery.Next() {</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 entity := moverShadowQuery.Entity()</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                 // TurnBased または Fixed を持つエンティティのみ</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                 if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Fixed.Has(entity) {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                 // TurnBased または Prop を持つエンティティのみ</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                 if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Prop.Has(entity) {</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L244"><span class="lineNum">     244</span>              :                 }</span>
 <span id="L245"><span class="lineNum">     245</span>              : </span>

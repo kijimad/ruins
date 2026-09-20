@@ -59,9 +59,9 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.1%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
 				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (81.8%)</option>
 				
@@ -467,7 +467,7 @@
 				
 				<option value="file205">github.com/kijimaD/ruins/internal/overworld/feature.go (92.9%)</option>
 				
-				<option value="file206">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.0%)</option>
+				<option value="file206">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.3%)</option>
 				
 				<option value="file207">github.com/kijimaD/ruins/internal/overworld/landmark.go (91.0%)</option>
 				
@@ -1793,7 +1793,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1882,6 +1882,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 		<pre class="file" id="file3" style="display: none">package activity
 
 import (
+        "errors"
         "fmt"
         "math"
         "slices"
@@ -1900,6 +1901,9 @@ import (
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
+
+// ErrDisassembleTargetKind は分解対象が prop でも item でもないときに返す。Validate 通過後は起きない不変条件の破れ
+var ErrDisassembleTargetKind = errors.New("disassembly target is neither prop nor item")
 
 // DisassembleBehavior は工具でpropやアイテムを分解して素材を得るアクティビティの実装。
 // 工具は開始時に固定せず、毎回actorの所持品から分類に適合する最良の1つを解決する。
@@ -2043,7 +2047,8 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
                 <span class="cov0" title="0">return fmt.Errorf("failed to roll disassembly yields: %w", err)
 </span>        }
 
-        <span class="cov8" title="1">if world.Components.Fixed.Has(target) &amp;&amp; world.Components.GridElement.Has(target) </span>{
+        <span class="cov8" title="1">switch </span>{
+        case world.Components.Prop.Has(target):
                 // 座標は除去前に値で控える
                 <span class="cov8" title="1">coord := world.Components.GridElement.Get(target).Coord
 </span>                // 収納propの場合は中身を足元へ出してから取り壊す
@@ -2053,7 +2058,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
                 if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to spawn disassembly yields: %w", err)
 </span>                }
-        } else {
+        case world.Components.Item.Has(target):
                 <span class="cov8" title="1">if err := lifecycle.ChangeItemCount(world, target, -1); err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to consume disassembly target: %w", err)
 </span>                }
@@ -2062,6 +2067,9 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
                                 <span class="cov0" title="0">return fmt.Errorf("failed to spawn disassembly yields: %w", err)
 </span>                        }
                 }
+        default:
+                // prop でも item でもない target は分解できない。呼び出し元が保証するがここでも弾く
+                <span class="cov8" title="1">return ErrDisassembleTargetKind</span>
         }
 
         <span class="cov8" title="1">targetMarkup := gamelog.Tag("item", name)
@@ -2405,7 +2413,7 @@ func doorTileOccupied(world w.World, coord consts.Coord[consts.Tile]) bool {
                         <span class="cov8" title="1">return true
 </span>                }
         }
-        // 扉自身も LocationOnField を持つため、Fixed を除く IsPickable で拾える物だけ見る
+        // 扉自身も LocationOnField を持つため、Item を持つ拾える物だけ IsPickable で見る
         <span class="cov8" title="1">return slices.ContainsFunc(query.GetEntitiesAt(world, coord.X, coord.Y), func(e ecs.Entity) bool </span>{
                 <span class="cov8" title="1">return query.IsPickable(e, world)
 </span>        })
@@ -3529,7 +3537,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 // executeDriveMove は運転中の移動を処理する。キューブを1タイル進め、燃料と行動ターンを消費し、
 // プレイヤーを同乗させて追随させる。壁・敵で不可なら停止し、燃料不足なら立往生する。
 func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) error {
-        // 運転中のキューブは Fixed で HP も分解定義も持たず、帯シフトの削除範囲にも入らないので
+        // 運転中のキューブは Prop で HP も分解定義も持たず、帯シフトの削除範囲にも入らないので
         // 消えない。降車すると Driving が外れて executeDriveMove を通らなくなる。よって生存確認は不要
         <span class="cov8" title="1">cube := world.Components.Driving.Get(player).Vehicle
         current := world.Components.GridElement.Get(cube).Coord
@@ -11433,8 +11441,12 @@ type LocationInStorage struct {
         Owner ecs.Entity // 収納コンテナのエンティティ
 }
 
-// Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント
-type Fixed struct{}
+// Item は可搬アイテムであることを示すマーカーコンポーネント。拾えてバックパックへ入る
+type Item struct{}
+
+// Prop は設置物であることを示すマーカーコンポーネント。1タイルに1つ置かれ、既定で拾えない
+// 家具・構造物・自然物・場の効果の総称
+type Prop struct{}
 
 // LightSource は光源コンポーネント
 type LightSource struct {
@@ -11500,7 +11512,8 @@ type EntitySpec struct {
         BlockPass          *BlockPass
         PassCost           *PassCost
         Door               *Door
-        Fixed              *Fixed
+        Item               *Item
+        Prop               *Prop
         Drivable           *Drivable
         Driving            *Driving
         LightSource        *LightSource
@@ -11592,7 +11605,8 @@ type Components struct {
         BlockPass          *ecs.Map[BlockPass]
         PassCost           *ecs.Map[PassCost]
         Door               *ecs.Map[Door]
-        Fixed              *ecs.Map[Fixed]
+        Item               *ecs.Map[Item]
+        Prop               *ecs.Map[Prop]
         Drivable           *ecs.Map[Drivable]
         Driving            *ecs.Map[Driving]
         LightSource        *ecs.Map[LightSource]
@@ -11684,7 +11698,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.BlockPass = ecs.NewMap[BlockPass](world)
         c.PassCost = ecs.NewMap[PassCost](world)
         c.Door = ecs.NewMap[Door](world)
-        c.Fixed = ecs.NewMap[Fixed](world)
+        c.Item = ecs.NewMap[Item](world)
+        c.Prop = ecs.NewMap[Prop](world)
         c.Drivable = ecs.NewMap[Drivable](world)
         c.Driving = ecs.NewMap[Driving](world)
         c.LightSource = ecs.NewMap[LightSource](world)
@@ -11778,7 +11793,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.BlockPass, entity, spec.BlockPass)
         addComp(c.PassCost, entity, spec.PassCost)
         addComp(c.Door, entity, spec.Door)
-        addComp(c.Fixed, entity, spec.Fixed)
+        addComp(c.Item, entity, spec.Item)
+        addComp(c.Prop, entity, spec.Prop)
         addComp(c.Drivable, entity, spec.Drivable)
         addComp(c.Driving, entity, spec.Driving)
         addComp(c.LightSource, entity, spec.LightSource)
@@ -13830,7 +13846,8 @@ const (
         CategoryPlayer = "Self"
         CategoryEnemy  = "Enemy"
         CategoryNPC    = "NPC"
-        CategoryFixed  = "Fixed object"
+        CategoryItem   = "Item"
+        CategoryProp   = "Prop"
         CategoryTile   = "Tile"
 )
 
@@ -13855,7 +13872,8 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
                         {Name: CategoryPlayer, Pred: c.has(c.Player)},
                         {Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},
                         {Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},
-                        {Name: CategoryFixed, Pred: c.has(c.Fixed)},
+                        {Name: CategoryItem, Pred: c.has(c.Item)},
+                        {Name: CategoryProp, Pred: c.has(c.Prop)},
                         {Name: CategoryTile, Pred: c.has(c.Tile)},
                 },
 </span>        }
@@ -28999,6 +29017,7 @@ func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], 
 import (
         "fmt"
         "math/rand/v2"
+        "slices"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -29100,6 +29119,12 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
                         // 収納家具には戦利品を格納する。raw の無い装飾や、敵・罠など prop でない指示は置かない
                         <span class="cov8" title="1">name, ok := interior.PropRawName(p.Ref)
                         if !ok </span>{
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        // 同じタイルに家具や扉など既に prop があれば装飾を重ねない。廃墟化の瓦礫や生活痕の小物が
+                        // prop へ乗るのを避け、1タイルに prop は1つを保つ。装飾は落として構わない。
+                        // タイル走査は線形だが内装生成の1回限りなので許容する
+                        <span class="cov8" title="1">if slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) </span>{
                                 <span class="cov8" title="1">continue</span>
                         }
                         <span class="cov8" title="1">ent, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y)
@@ -31330,6 +31355,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 </span>        }
 
         <span class="cov8" title="1">entitySpec := gc.EntitySpec{}
+        entitySpec.Item = &amp;gc.Item{}
         entitySpec.Name = &amp;gc.Name{Name: item.Name}
         entitySpec.RawID = &amp;gc.RawID{ID: item.Id}
         entitySpec.Description = &amp;gc.Description{Description: item.Description}
@@ -31779,7 +31805,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 </span>        }
 
         <span class="cov8" title="1">entitySpec := gc.EntitySpec{}
-        entitySpec.Fixed = &amp;gc.Fixed{}
+        entitySpec.Prop = &amp;gc.Prop{}
         entitySpec.Name = &amp;gc.Name{Name: propRaw.Name}
         entitySpec.RawID = &amp;gc.RawID{ID: propRaw.Id}
         entitySpec.Description = &amp;gc.Description{Description: propRaw.Description}
@@ -39899,7 +39925,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, coun
         <span class="cov8" title="1">if world.Components.HP.Has(entity) </span>{
                 <span class="cov8" title="1">hp := world.Components.HP.Get(entity)
                 label := "HP"
-                if world.Components.Fixed.Has(entity) </span>{
+                if world.Components.Prop.Has(entity) </span>{
                         <span class="cov0" title="0">label = query.T(world, "Durability")
 </span>                }
                 <span class="cov8" title="1">drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))</span>
@@ -42596,7 +42622,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
         // 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、
         // 確定枠のみを低確率で落とす。工具分解より明確に不利な入手経路にする
         <span class="cov8" title="1">for _, entity := range toDelete </span>{
-                <span class="cov8" title="1">if !world.Components.Fixed.Has(entity) || !world.Components.GridElement.Has(entity) </span>{
+                <span class="cov8" title="1">if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) </span>{
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov0" title="0">def, ok := raw.FindDisassembly(rawMaster, query.GetEntityID(entity, world))
@@ -42745,9 +42771,9 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]bool {
         <span class="cov8" title="1">markers := map[consts.Coord[consts.Tile]]bool{}
 </span>
-        // 拾えるフィールドアイテムを升ごとに集める。Fixed でないフィールド物が拾える物なので Fixed を除く
+        // 拾えるフィールドアイテムを升ごとに集める。Item を持つフィールド物が拾える物
         <span class="cov8" title="1">itemsByTile := map[consts.Coord[consts.Tile]][]ecs.Entity{}
-        itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Without(ecs.C[gc.Fixed]()).Query()
+        itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).With(ecs.C[gc.Item]()).Query()
         for itemQuery.Next() </span>{
                 <span class="cov8" title="1">e := itemQuery.Entity()
                 c := world.Components.GridElement.Get(e).Coord
@@ -44392,8 +44418,8 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
         <span class="cov0" title="0">moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()
         for moverShadowQuery.Next() </span>{
                 <span class="cov0" title="0">entity := moverShadowQuery.Entity()
-</span>                // TurnBased または Fixed を持つエンティティのみ
-                <span class="cov0" title="0">if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Fixed.Has(entity) </span>{
+</span>                // TurnBased または Prop を持つエンティティのみ
+                <span class="cov0" title="0">if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Prop.Has(entity) </span>{
                         <span class="cov0" title="0">continue</span>
                 }
 
@@ -51793,7 +51819,7 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 }
 
 // logDeath は死亡・破壊ログを出力する。
-// Fixed は「壊れた」、それ以外は「倒れた」と表示する。
+// Prop は「壊れた」、それ以外は「倒れた」と表示する。
 // プレイヤーが関与する場合のみログを出力する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
         <span class="cov8" title="1">isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world)
@@ -51804,7 +51830,7 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
         <span class="cov8" title="1">targetName := query.GetEntityName(target, world)
 </span>
         <span class="cov8" title="1">suffix := query.T(world, " was defeated.")
-        if world.Components.Fixed.Has(target) </span>{
+        if world.Components.Prop.Has(target) </span>{
                 <span class="cov8" title="1">suffix = query.T(world, " was destroyed.")
 </span>        }
 
@@ -53203,7 +53229,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
                         SpriteKey:       spriteKey,
                         Depth:           gc.DepthNumTaller,
                 },
-                Fixed:           &amp;gc.Fixed{},
+                Prop:            &amp;gc.Prop{},
                 BlockPass:       &amp;gc.BlockPass{},
                 BlockView:       &amp;gc.BlockView{},
                 LocationOnField: &amp;gc.LocationOnField{},
@@ -53227,7 +53253,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
                         SpriteKey:       "blue_cube",
                         Depth:           gc.DepthNumTaller,
                 },
-                Fixed:           &amp;gc.Fixed{},
+                Prop:            &amp;gc.Prop{},
                 Drivable:        &amp;gc.Drivable{},
                 LocationOnField: &amp;gc.LocationOnField{},
                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},
@@ -54617,18 +54643,11 @@ func AliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {
         <span class="cov8" title="1">return world.ECS.Alive(entity) &amp;&amp; comp.Has(entity)
 </span>}
 
-// IsPickable はエンティティが拾得可能かを判定する。
-// LocationOnField を持ち Fixed でないエンティティが対象。
-// Fixed は固定物なので拾えない。破壊や収納経由でアイテムを取得する
+// IsPickable はフィールド上のアイテムだけを拾える物とみなす。prop や投影タイルは Item を持たず除外される
 func IsPickable(entity ecs.Entity, world w.World) bool {
-        <span class="cov8" title="1">if !world.Components.LocationOnField.Has(entity) </span>{
-                <span class="cov8" title="1">return false
-</span>        }
-        <span class="cov8" title="1">if world.Components.Fixed.Has(entity) </span>{
-                <span class="cov8" title="1">return false
-</span>        }
-        <span class="cov8" title="1">return true</span>
-}
+        <span class="cov8" title="1">return world.Components.LocationOnField.Has(entity) &amp;&amp;
+                world.Components.Item.Has(entity)
+</span>}
 
 // PickablesAt は指定タイル上の拾得可能なエンティティを返す。拾得アクションの構築側が
 // 「どのタイルを拾うか」から「どのエンティティを拾うか」へ解決するのに使う。

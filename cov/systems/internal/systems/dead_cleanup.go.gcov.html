@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-20 12:19:03</td>
+            <td class="headerValue">2026-09-20 14:19:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -147,7 +147,7 @@
 <span id="L85"><span class="lineNum">      85</span>              :         // 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、</span>
 <span id="L86"><span class="lineNum">      86</span>              :         // 確定枠のみを低確率で落とす。工具分解より明確に不利な入手経路にする</span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         for _, entity := range toDelete {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 if !world.Components.Fixed.Has(entity) || !world.Components.GridElement.Has(entity) {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L90"><span class="lineNum">      90</span>              :                 }</span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC tlaBgUNC">           0 :                 def, ok := raw.FindDisassembly(rawMaster, query.GetEntityID(entity, world))</span></span>

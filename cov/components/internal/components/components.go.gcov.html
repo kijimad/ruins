@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-20 12:19:03</td>
+            <td class="headerValue">2026-09-20 14:19:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -427,31 +427,35 @@
 <span id="L365"><span class="lineNum">     365</span>              :         Owner ecs.Entity // 収納コンテナのエンティティ</span>
 <span id="L366"><span class="lineNum">     366</span>              : }</span>
 <span id="L367"><span class="lineNum">     367</span>              : </span>
-<span id="L368"><span class="lineNum">     368</span>              : // Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント</span>
-<span id="L369"><span class="lineNum">     369</span>              : type Fixed struct{}</span>
+<span id="L368"><span class="lineNum">     368</span>              : // Item は可搬アイテムであることを示すマーカーコンポーネント。拾えてバックパックへ入る</span>
+<span id="L369"><span class="lineNum">     369</span>              : type Item struct{}</span>
 <span id="L370"><span class="lineNum">     370</span>              : </span>
-<span id="L371"><span class="lineNum">     371</span>              : // LightSource は光源コンポーネント</span>
-<span id="L372"><span class="lineNum">     372</span>              : type LightSource struct {</span>
-<span id="L373"><span class="lineNum">     373</span>              :         Radius  consts.Tile // 照明範囲</span>
-<span id="L374"><span class="lineNum">     374</span>              :         Color   color.RGBA  // 光の色</span>
-<span id="L375"><span class="lineNum">     375</span>              :         Enabled bool        // 有効/無効</span>
-<span id="L376"><span class="lineNum">     376</span>              : }</span>
-<span id="L377"><span class="lineNum">     377</span>              : </span>
-<span id="L378"><span class="lineNum">     378</span>              : // Door は開閉可能な扉コンポーネント</span>
-<span id="L379"><span class="lineNum">     379</span>              : type Door struct {</span>
-<span id="L380"><span class="lineNum">     380</span>              :         IsOpen      bool            // 開いているかどうか</span>
-<span id="L381"><span class="lineNum">     381</span>              :         Orientation DoorOrientation // 扉の向き</span>
-<span id="L382"><span class="lineNum">     382</span>              : }</span>
-<span id="L383"><span class="lineNum">     383</span>              : </span>
-<span id="L384"><span class="lineNum">     384</span>              : // DoorOrientation は扉の向き</span>
-<span id="L385"><span class="lineNum">     385</span>              : type DoorOrientation int</span>
-<span id="L386"><span class="lineNum">     386</span>              : </span>
-<span id="L387"><span class="lineNum">     387</span>              : const (</span>
-<span id="L388"><span class="lineNum">     388</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
-<span id="L389"><span class="lineNum">     389</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
-<span id="L390"><span class="lineNum">     390</span>              :         // DoorOrientationVertical は縦向きの扉</span>
-<span id="L391"><span class="lineNum">     391</span>              :         DoorOrientationVertical</span>
-<span id="L392"><span class="lineNum">     392</span>              : )</span>
+<span id="L371"><span class="lineNum">     371</span>              : // Prop は設置物であることを示すマーカーコンポーネント。1タイルに1つ置かれ、既定で拾えない</span>
+<span id="L372"><span class="lineNum">     372</span>              : // 家具・構造物・自然物・場の効果の総称</span>
+<span id="L373"><span class="lineNum">     373</span>              : type Prop struct{}</span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span>              : // LightSource は光源コンポーネント</span>
+<span id="L376"><span class="lineNum">     376</span>              : type LightSource struct {</span>
+<span id="L377"><span class="lineNum">     377</span>              :         Radius  consts.Tile // 照明範囲</span>
+<span id="L378"><span class="lineNum">     378</span>              :         Color   color.RGBA  // 光の色</span>
+<span id="L379"><span class="lineNum">     379</span>              :         Enabled bool        // 有効/無効</span>
+<span id="L380"><span class="lineNum">     380</span>              : }</span>
+<span id="L381"><span class="lineNum">     381</span>              : </span>
+<span id="L382"><span class="lineNum">     382</span>              : // Door は開閉可能な扉コンポーネント</span>
+<span id="L383"><span class="lineNum">     383</span>              : type Door struct {</span>
+<span id="L384"><span class="lineNum">     384</span>              :         IsOpen      bool            // 開いているかどうか</span>
+<span id="L385"><span class="lineNum">     385</span>              :         Orientation DoorOrientation // 扉の向き</span>
+<span id="L386"><span class="lineNum">     386</span>              : }</span>
+<span id="L387"><span class="lineNum">     387</span>              : </span>
+<span id="L388"><span class="lineNum">     388</span>              : // DoorOrientation は扉の向き</span>
+<span id="L389"><span class="lineNum">     389</span>              : type DoorOrientation int</span>
+<span id="L390"><span class="lineNum">     390</span>              : </span>
+<span id="L391"><span class="lineNum">     391</span>              : const (</span>
+<span id="L392"><span class="lineNum">     392</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
+<span id="L393"><span class="lineNum">     393</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
+<span id="L394"><span class="lineNum">     394</span>              :         // DoorOrientationVertical は縦向きの扉</span>
+<span id="L395"><span class="lineNum">     395</span>              :         DoorOrientationVertical</span>
+<span id="L396"><span class="lineNum">     396</span>              : )</span>
         </pre>
               </td>
             </tr>
