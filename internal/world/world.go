@@ -92,7 +92,6 @@ func (world World) ResetForNewGame() {
 		world.ECS.RemoveEntity(e)
 	}
 	world.InitSingleton()
-	// 新規ランはプレイ実時間を0から。計測基準を今に置き、ここより前のメインメニュー滞在は数えない
 	world.Resources.PlayTimeTotal = 0
 	world.Resources.PlayTimeSessionStart = time.Now()
 }

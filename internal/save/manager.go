@@ -51,7 +51,6 @@ func NewSerializationManager(opts ...Option) (*SerializationManager, error) {
 
 // GenerateWorldJSON はワールドからJSON文字列を生成する
 func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error) {
-	// 直列化の前にセッション基準からの経過を PlayTime へ畳む。畳んだ値が world にも封筒にも乗る
 	accruePlayTime(world)
 
 	worldJSON, err := serializeWorld(world)
@@ -144,7 +143,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := restoreInto(world, env.World); err != nil {
 		return err
 	}
-	// 復元は run の再開。累積を封筒から seed し、計測基準を今に置いて再開時点からの経過を足す
+	// Resources は serde 非対象なので、累積をロードで seed し直す。基準を今に置き再開時点から数える
 	world.Resources.PlayTimeTotal = env.PlayTime
 	world.Resources.PlayTimeSessionStart = time.Now()
 	return nil
@@ -276,7 +275,7 @@ func (sm *SerializationManager) rotateAutoSaves() error {
 }
 
 // GetSavePlayerName はセーブデータからプレイヤー名を取得する。
-// セーブデータ全体をデシリアライズせず、封筒のメタ情報だけを読む。
+// セーブデータ全体をデシリアライズせず、envelopeのメタ情報だけを読む。
 func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) {
 	data, err := sm.loadSaveJSON(slotName)
 	if err != nil {
@@ -295,7 +294,7 @@ func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, erro
 }
 
 // GetSavePlayTime はセーブデータから累積プレイ実時間を取得する。
-// セーブデータ全体をデシリアライズせず、封筒のメタ情報だけを読む。0は新規開始直後の正常値なので
+// セーブデータ全体をデシリアライズせず、envelopeのメタ情報だけを読む。0は新規開始直後の正常値なので
 // エラー扱いにしない。
 func (sm *SerializationManager) GetSavePlayTime(slotName string) (time.Duration, error) {
 	data, err := sm.loadSaveJSON(slotName)

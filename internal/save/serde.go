@@ -158,7 +158,7 @@ func extractPlayerName(world w.World) string {
 	return name
 }
 
-// extractPlayTime は累積プレイ実時間を返す。永続の実体はセーブ封筒で、これはセッションの現在値。
+// extractPlayTime は累積プレイ実時間を返す。永続の実体はセーブenvelopeで、これはセッションの現在値。
 func extractPlayTime(world w.World) time.Duration {
 	return world.Resources.PlayTimeTotal
 }
@@ -174,10 +174,10 @@ func accruePlayTime(world w.World) {
 	world.Resources.PlayTimeSessionStart = now
 }
 
-// checksumOf は破損検知用にチェックサムを除いた封筒のSHA-256を計算する。
+// checksumOf は破損検知用にチェックサムを除いたenvelopeのSHA-256を計算する。
 // json.Marshal は json.RawMessage を compact するため、保存ファイルが
 // MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。
-// 封筒は全てJSON互換型のためMarshalは失敗しないが、万一失敗した場合はpanicする
+// envelopeは全てJSON互換型のためMarshalは失敗しないが、万一失敗した場合はpanicする
 func checksumOf(env *saveEnvelope) string {
 	target := saveEnvelope{
 		Version:    env.Version,

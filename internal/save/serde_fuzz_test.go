@@ -39,7 +39,7 @@ func FuzzDeserializeWorld(f *testing.F) {
 	})
 }
 
-// FuzzRestoreWorldFromJSON はロードの全経路（封筒パース→チェックサム→デシリアライズ→シングルトン再確立）
+// FuzzRestoreWorldFromJSON はロードの全経路（envelopeパース→チェックサム→デシリアライズ→シングルトン再確立）
 // に任意文字列を流し、壊れたセーブファイルでも panic しないことを保証する。
 func FuzzRestoreWorldFromJSON(f *testing.F) {
 	base := testutil.InitTestWorld(f)
