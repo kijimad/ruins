@@ -1340,7 +1340,7 @@ msgstr "材質"
 msgid "Ammunition"
 msgstr "弾薬"
 
-msgid "Object"
+msgid "Prop"
 msgstr "設置物"
 
 msgid "Consumable"

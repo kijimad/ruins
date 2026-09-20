@@ -130,7 +130,7 @@ func TestCategory(t *testing.T) {
 		c.Prop.Add(entity, &Prop{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Object", cat)
+		assert.Equal(t, "Prop", cat)
 	})
 
 	t.Run("フィールド観察: アイテム", func(t *testing.T) {

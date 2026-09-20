@@ -121,7 +121,7 @@ const (
 	CategoryEnemy  = "Enemy"
 	CategoryNPC    = "NPC"
 	CategoryItem   = "Item"
-	CategoryProp   = "Object"
+	CategoryProp   = "Prop"
 	CategoryTile   = "Tile"
 )
 
