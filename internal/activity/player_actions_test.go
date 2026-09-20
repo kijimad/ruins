@@ -334,6 +334,24 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		require.Len(t, results, 1)
 		assert.Equal(t, collisionEntity, results[0])
 	})
+
+	t.Run("死亡したInteractableは範囲対象から除外する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// 破壊済みの prop は Dead を持つがフィールドに残りうる。再攻撃で不変条件違反になるため除外する
+		deadEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(deadEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
+		world.Components.Interactable.Add(deadEntity, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionMelee},
+		})
+		world.Components.Dead.Add(deadEntity, &gc.Dead{})
+
+		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
+		results := GetAllInteractiveInteractablesInRange(world, targetGrid)
+
+		assert.Empty(t, results)
+	})
 }
 
 func TestGetDirectionLabel(t *testing.T) {
