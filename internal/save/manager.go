@@ -135,21 +135,16 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err != nil {
 		return fmt.Errorf("failed to create probe world: %w", err)
 	}
-	if err := restoreInto(probe, env.World); err != nil {
+	if err := restoreInto(probe, env.World, env.PlayTime); err != nil {
 		return err
 	}
 
-	if err := restoreInto(world, env.World); err != nil {
-		return err
-	}
-	// PlayTime は serde 非対象なので envelope から復元して計測を始める
-	query.GetPlayTime(world).Start(env.PlayTime, time.Now())
-	return nil
+	return restoreInto(world, env.World, env.PlayTime)
 }
 
 // restoreInto はリセット済みワールドへ復元の全工程を適用する。deserialize は事前の
 // world.ECS.Reset() を要求する。probe と本番ワールドの両方でこの手順を共有する。
-func restoreInto(world w.World, worldJSON []byte) error {
+func restoreInto(world w.World, worldJSON []byte, playTime time.Duration) error {
 	// ark-serdeのDeserializeはリセット済みワールドを要求する
 	world.ECS.Reset()
 
@@ -158,7 +153,7 @@ func restoreInto(world w.World, worldJSON []byte) error {
 	}
 
 	// スキップした一時コンポーネントとシングルトン参照を再確立する
-	if err := reestablishSingleton(world); err != nil {
+	if err := reestablishSingleton(world, playTime); err != nil {
 		return fmt.Errorf("failed to reestablish singleton: %w", err)
 	}
 

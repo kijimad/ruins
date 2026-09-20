@@ -75,7 +75,8 @@ func deserializeWorld(world w.World, worldJSON []byte) (err error) {
 // reestablishSingleton は復元後のシングルトンエンティティを再確立する。
 // スキップした一時コンポーネント（GameLog/SpatialIndex）を再付与し、
 // json:"-"で除外された視界マップを初期化し、Resourcesの参照を張り直す。
-func reestablishSingleton(world w.World) error {
+// playTime は envelope から読んだ累積で、PlayTime の計測をこの値から始める。
+func reestablishSingleton(world w.World, playTime time.Duration) error {
 	// Dungeonを持つ最初のエンティティをシングルトンとする。Dungeon はシングルトン専用の
 	// 保存対象コンポーネントで、復元後も残る。途中returnはワールドをロックしたまま残すため、
 	// クエリは最後まで反復する
@@ -99,8 +100,10 @@ func reestablishSingleton(world w.World) error {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	// 視界計算の一時状態は serde 除外なのでロード後に再構築する
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
-	// プレイ実時間も serde 除外なので付け直す。Total は RestoreWorldFromJSON が envelope から seed する
-	world.Components.PlayTime.Add(singleton, &gc.PlayTime{})
+	// プレイ実時間も serde 除外なので付け直し、envelope の値で計測を始める
+	pt := &gc.PlayTime{}
+	pt.Start(playTime, time.Now())
+	world.Components.PlayTime.Add(singleton, pt)
 	// グローバル設定は serde 除外なので config から再構築する
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
