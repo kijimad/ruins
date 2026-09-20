@@ -3,6 +3,7 @@ package overworld
 import (
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -104,6 +105,11 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			// 収納家具には戦利品を格納する。raw の無い装飾や、敵・罠など prop でない指示は置かない
 			name, ok := interior.PropRawName(p.Ref)
 			if !ok {
+				continue
+			}
+			// 同じタイルに既に prop があれば重ねない。廃墟化の瓦礫や生活痕の小物が家具へ乗るのを避け、
+			// 1タイルに prop は1つを保つ。装飾は落として構わない
+			if slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) {
 				continue
 			}
 			ent, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y)

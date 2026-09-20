@@ -107,7 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | accepted | [キューブに収納中と展開中の状態を足す](docs/design/260920004814.md) | 0/5（見送り3） | gamedesign, movement, item |
-| draft | [prop と item を層と正のマーカーで分ける](docs/design/260920200432.md) | 8/10（見送り3） | refactor, ecs, item, gamedesign |
+| draft | [prop と item を層と正のマーカーで分ける](docs/design/260920200432.md) | 9/9（見送り5） | refactor, ecs, item, gamedesign |
 
 
 ## Reference
