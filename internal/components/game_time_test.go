@@ -193,6 +193,37 @@ func TestGameTime_GetSeason(t *testing.T) {
 	}
 }
 
+// TestGameTime_GetDaylightLerp は前後の時間帯アンカーとその間の位置 0..1 を確認する。
+// 各時間帯の中心を境目のアンカーとする。turn 0 は Dawn の中心から半区間手前なので、
+// 前日 Midnight の中心と当日 Dawn の中心のちょうど中間になる。
+func TestGameTime_GetDaylightLerp(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		totalTurns consts.Turn
+		wantFrom   TimeOfDay
+		wantTo     TimeOfDay
+		wantT      float64
+	}{
+		{"経過0はMidnightとDawnの中間", 0, TimeMidnight, TimeDawn, 0.5},
+		{"Dawn中心のt=125はDawnからMorningへの起点", 125, TimeDawn, TimeMorning, 0},
+		{"DawnとMorningの区切り250はその中間", 250, TimeDawn, TimeMorning, 0.5},
+		{"Morning中心の375はMorningからDayへの起点", 375, TimeMorning, TimeDay, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: tt.totalTurns}
+			from, to, lerpT := gt.GetDaylightLerp()
+			assert.Equal(t, tt.wantFrom, from)
+			assert.Equal(t, tt.wantTo, to)
+			assert.InDelta(t, tt.wantT, lerpT, 0.001)
+		})
+	}
+}
+
 func TestGameTime_Advance(t *testing.T) {
 	t.Parallel()
 

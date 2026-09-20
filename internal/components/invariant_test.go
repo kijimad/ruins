@@ -154,6 +154,15 @@ func TestCategory(t *testing.T) {
 		assert.Equal(t, "Self", cat)
 	})
 
+	t.Run("フィールド観察: どのカテゴリにも属さない場合は空文字とfalse", func(t *testing.T) {
+		t.Parallel()
+		manager, c := setupComponents(t)
+		entity := manager.NewEntity()
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.False(t, ok)
+		assert.Empty(t, cat)
+	})
+
 	t.Run("CategoryはPredとして使える", func(t *testing.T) {
 		t.Parallel()
 		manager, c := setupComponents(t)

@@ -426,6 +426,88 @@ func TestClamp(t *testing.T) {
 	})
 }
 
+func TestHealthStatus_IsHPDraining(t *testing.T) {
+	t.Parallel()
+
+	t.Run("不調なしは削っていない", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		assert.False(t, hs.IsHPDraining())
+	})
+
+	t.Run("重度の切り傷で危険域を下回ると削っている", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80)})
+		assert.True(t, hs.IsHPDraining())
+	})
+
+	t.Run("治療済みは削らない", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80), TendQuality: 100})
+		assert.False(t, hs.IsHPDraining())
+	})
+}
+
+func TestHealthStatus_ConsciousnessDrops(t *testing.T) {
+	t.Parallel()
+
+	t.Run("不調なしはゼロ", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		systemic, pain := hs.ConsciousnessDrops()
+		assert.Equal(t, 0, systemic)
+		assert.Equal(t, 0, pain)
+	})
+
+	t.Run("胴体の骨折は全身性の低下として計上する", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartTorso].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
+		systemic, pain := hs.ConsciousnessDrops()
+		// 骨折 中度: 機能低下 20*2=40、痛み 18*2=36 を痛み係数2で割って18
+		assert.Equal(t, 40, systemic)
+		assert.Equal(t, 18, pain)
+	})
+
+	t.Run("腕の骨折は全身性に含めないが痛みは計上する", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
+		systemic, pain := hs.ConsciousnessDrops()
+		assert.Equal(t, 0, systemic, "腕はConsciousnessでなくManipulationを下げる")
+		assert.Equal(t, 18, pain, "痛みは部位によらず計上する")
+	})
+}
+
+func TestHealthStatus_LocalDrop(t *testing.T) {
+	t.Parallel()
+
+	t.Run("不調なしはゼロ", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		assert.Equal(t, 0, hs.LocalDrop(BodyFuncManipulation))
+	})
+
+	t.Run("腕の骨折はManipulationの低下として計上する", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
+		assert.Equal(t, 40, hs.LocalDrop(BodyFuncManipulation), "中度の骨折は20*2")
+		assert.Equal(t, 0, hs.LocalDrop(BodyFuncMoving), "脚を下げないのでMovingは0")
+	})
+
+	t.Run("手の骨折もManipulationへ合算する", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMinor})
+		hs.Parts[BodyPartHands].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMinor})
+		// 軽度の骨折はそれぞれ20*1=20。腕と手はどちらもManipulationなので合算する
+		assert.Equal(t, 40, hs.LocalDrop(BodyFuncManipulation))
+	})
+}
+
 func TestConditionBodyFuncImpact(t *testing.T) {
 	t.Parallel()
 
