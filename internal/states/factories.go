@@ -153,7 +153,8 @@ func NewSaveMenuState() (es.State[w.World], error) {
 		if choices == nil {
 			for i := 1; i <= 4; i++ {
 				slotName := fmt.Sprintf("slot%d", i)
-				choices = append(choices, Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
+				label, right := formatSaveSlotLabel(world, saveManager, slotName)
+				choices = append(choices, Choice{Label: label, Right: right, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 					if err := saveManager.SaveWorld(world, slotName); err != nil {
 						return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
 					}
@@ -221,7 +222,8 @@ func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotN
 	if !saveManager.SaveFileExists(slotName) {
 		return emptySlotChoice()
 	}
-	return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
+	label, right := formatSaveSlotLabel(world, saveManager, slotName)
+	return Choice{Label: label, Right: right, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
 			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
 			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
@@ -272,20 +274,19 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 	return state, nil
 }
 
-// formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。
-// データがあればプレイヤー名とプレイ実時間を、無ければダッシュを返す。
-func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) string {
+// formatSaveSlotLabel はスロット行の左ラベルと、右寄せで並べるプレイ時間を返す。時間が無ければ right は空。
+func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) (label, right string) {
 	if !saveManager.SaveFileExists(slotName) {
-		return "---"
+		return "---", ""
 	}
 
 	playerName, nameErr := saveManager.GetSavePlayerName(slotName)
 	playTime, ptErr := saveManager.GetSavePlayTime(slotName)
 
 	if nameErr == nil && ptErr == nil {
-		return fmt.Sprintf("%s  %s", playerName, formatPlayTime(playTime))
+		return playerName, formatPlayTime(playTime)
 	}
-	return query.T(world, "Has data")
+	return query.T(world, "Has data"), ""
 }
 
 // formatPlayTime は累積プレイ実時間を時:分:秒で表す。時は無制限、分と秒は0埋め。例 101:34:07
