@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -495,7 +495,7 @@
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file220">github.com/kijimaD/ruins/internal/raw/raw.go (93.9%)</option>
+				<option value="file220">github.com/kijimaD/ruins/internal/raw/raw.go (94.0%)</option>
 				
 				<option value="file221">github.com/kijimaD/ruins/internal/raw/validate.go (94.3%)</option>
 				
@@ -579,7 +579,7 @@
 				
 				<option value="file261">github.com/kijimaD/ruins/internal/states/lib.go (92.3%)</option>
 				
-				<option value="file262">github.com/kijimaD/ruins/internal/states/look_around.go (82.9%)</option>
+				<option value="file262">github.com/kijimaD/ruins/internal/states/look_around.go (83.4%)</option>
 				
 				<option value="file263">github.com/kijimaD/ruins/internal/states/main_menu.go (85.4%)</option>
 				
@@ -617,7 +617,7 @@
 				
 				<option value="file280">github.com/kijimaD/ruins/internal/systems/condition.go (98.1%)</option>
 				
-				<option value="file281">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (80.9%)</option>
+				<option value="file281">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (91.4%)</option>
 				
 				<option value="file282">github.com/kijimaD/ruins/internal/systems/decoration.go (45.7%)</option>
 				
@@ -1706,7 +1706,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1793,7 +1793,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1857,8 +1857,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -31833,12 +31833,9 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         // 1つのPropが複数のインタラクションを持てる
         <span class="cov8" title="1">var interactions []gc.InteractionKind
 </span>
-        <span class="cov8" title="1">if propRaw.Hp != nil </span>{
-                <span class="cov8" title="1">hp := *propRaw.Hp
-                entitySpec.HP = &amp;gc.HP{Max: hp, Current: hp}
-                interactions = append(interactions, gc.InteractionMelee)
-</span>        }
-
+        <span class="cov8" title="1">entitySpec.HP = &amp;gc.HP{Max: propRaw.Hp, Current: propRaw.Hp}
+        interactions = append(interactions, gc.InteractionMelee)
+</span>
         <span class="cov8" title="1">entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
         entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
         entitySpec.Bedding = toGCBedding(propRaw.Bedding)
@@ -39926,7 +39923,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, coun
                 <span class="cov8" title="1">hp := world.Components.HP.Get(entity)
                 label := "HP"
                 if world.Components.Prop.Has(entity) </span>{
-                        <span class="cov0" title="0">label = query.T(world, "Durability")
+                        <span class="cov8" title="1">label = query.T(world, "Durability")
 </span>                }
                 <span class="cov8" title="1">drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))</span>
         }
@@ -42625,18 +42622,18 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
                 <span class="cov8" title="1">if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) </span>{
                         <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">def, ok := raw.FindDisassembly(rawMaster, query.GetEntityID(entity, world))
+                <span class="cov8" title="1">def, ok := raw.FindDisassembly(rawMaster, query.GetEntityID(entity, world))
                 if !ok </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov0" title="0">grid := world.Components.GridElement.Get(entity)
+                <span class="cov8" title="1">grid := world.Components.GridElement.Get(entity)
 </span>                // 産出名・個数表記はロード時に検証済みで、ここで失敗するのは整合性バグ。
                 // 握りつぶすと産出が静かに消えるため loud に返す
-                <span class="cov0" title="0">stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, 0, 0, false)
+                <span class="cov8" title="1">stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, 0, 0, false)
                 if err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to draw salvage item: %w", err)
 </span>                }
-                <span class="cov0" title="0">if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil </span>{
+                <span class="cov8" title="1">if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to spawn salvage item: %w", err)
 </span>                }
         }
@@ -42657,7 +42654,11 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">coord := world.Components.GridElement.Get(entity).Coord
-                owner := entity
+</span>                // 収納 prop を壊した時に中身を足元へ出し、失わせない
+                <span class="cov8" title="1">if world.Components.WeightCapacity.Has(entity) </span>{
+                        <span class="cov8" title="1">lifecycle.SpillStorageItems(world, entity, coord.X, coord.Y)
+</span>                }
+                <span class="cov8" title="1">owner := entity
                 var items []ecs.Entity
                 backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
                 for backpackQuery.Next() </span>{
