@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +17,7 @@ func TestPlayTime_保存とロードで往復する(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	want := 101*time.Hour + 34*time.Minute
-	world.Resources.PlayTimeTotal = want
+	query.GetPlayTime(world).Total = want
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
 	got, err := sm.GetSavePlayTime("slot1")
@@ -25,7 +26,7 @@ func TestPlayTime_保存とロードで往復する(t *testing.T) {
 
 	fresh := testutil.InitTestWorld(t)
 	require.NoError(t, sm.LoadWorld(fresh, "slot1"))
-	assert.Equal(t, want, fresh.Resources.PlayTimeTotal, "ロードで累積プレイ時間が復元される")
+	assert.Equal(t, want, query.GetPlayTime(fresh).Total, "ロードで累積プレイ時間が復元される")
 }
 
 func TestPlayTime_セーブ時にセッション経過を加算する(t *testing.T) {
@@ -34,15 +35,16 @@ func TestPlayTime_セーブ時にセッション経過を加算する(t *testing
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.PlayTimeTotal = 2 * time.Hour
-	world.Resources.PlayTimeSessionStart = time.Now().Add(-time.Hour)
+	pt := query.GetPlayTime(world)
+	pt.Total = 2 * time.Hour
+	pt.SessionStart = time.Now().Add(-time.Hour)
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
 	got, err := sm.GetSavePlayTime("slot1")
 	require.NoError(t, err)
 	assert.Greater(t, got, 2*time.Hour+50*time.Minute, "セーブ時にセッション経過を足す")
 	assert.Less(t, got, 2*time.Hour+70*time.Minute)
-	assert.Equal(t, got, world.Resources.PlayTimeTotal, "セッションの累積も畳まれる")
+	assert.Equal(t, got, query.GetPlayTime(world).Total, "累積も畳まれる")
 }
 
 func TestPlayTime_基準ゼロのラン外セーブは加算しない(t *testing.T) {
@@ -51,7 +53,7 @@ func TestPlayTime_基準ゼロのラン外セーブは加算しない(t *testing
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.PlayTimeTotal = 5 * time.Minute
+	query.GetPlayTime(world).Total = 5 * time.Minute
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
 	got, err := sm.GetSavePlayTime("slot1")

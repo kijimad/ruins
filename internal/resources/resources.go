@@ -1,8 +1,6 @@
 package resources
 
 import (
-	"time"
-
 	"github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -27,11 +25,6 @@ type Resources struct {
 	// 再生ドライバだけが Action 列を返す供給源を差し、キー入力を経由せず本番フローを駆動する。
 	// world 単位で持つことでグローバル可変状態を作らず、押し込んだ先の state にも同じ源が効く
 	InputSource inputmapper.Source
-
-	// プレイ実時間のセッション状態。serde 非対象。PlayTimeTotal はロードでセーブから seed する累積、
-	// PlayTimeSessionStart は計測基準でゼロ値はラン外
-	PlayTimeTotal        time.Duration
-	PlayTimeSessionStart time.Time
 }
 
 // ScreenDimensions contains current screen dimensions

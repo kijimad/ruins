@@ -9,6 +9,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 const saveDataVersion = "2.0.0"
@@ -143,9 +144,10 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	if err := restoreInto(world, env.World); err != nil {
 		return err
 	}
-	// Resources は serde 非対象なので、累積をロードで seed し直す。基準を今に置き再開時点から数える
-	world.Resources.PlayTimeTotal = env.PlayTime
-	world.Resources.PlayTimeSessionStart = time.Now()
+	// PlayTime は serde 非対象なので、累積を envelope から seed し直す。基準を今に置き再開時点から数える
+	pt := query.GetPlayTime(world)
+	pt.Total = env.PlayTime
+	pt.SessionStart = time.Now()
 	return nil
 }
 

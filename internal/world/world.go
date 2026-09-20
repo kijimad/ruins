@@ -72,6 +72,7 @@ func (world World) InitSingleton() {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
+	world.Components.PlayTime.Add(singleton, &gc.PlayTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// config は構築時に渡されているので、設定言語をそのまま種にする。
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
@@ -92,8 +93,8 @@ func (world World) ResetForNewGame() {
 		world.ECS.RemoveEntity(e)
 	}
 	world.InitSingleton()
-	world.Resources.PlayTimeTotal = 0
-	world.Resources.PlayTimeSessionStart = time.Now()
+	// 新規ランは計測基準を今に置く。InitSingleton の PlayTime は Total=0
+	world.Components.PlayTime.Get(world.Resources.SingletonEntity).SessionStart = time.Now()
 }
 
 // GetWorld は entities.World インターフェースを満たすためのメソッド
