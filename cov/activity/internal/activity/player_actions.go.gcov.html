@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-20 16:02:44</td>
+            <td class="headerValue">2026-09-20 17:29:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -210,12 +210,12 @@
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         return found</span></span>
 <span id="L149"><span class="lineNum">     149</span>              : }</span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
-<span id="L151"><span class="lineNum">     151</span>              : // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する</span>
-<span id="L152"><span class="lineNum">     152</span>              : // Manual と OnCollision 方式のInteractableが対象</span>
+<span id="L151"><span class="lineNum">     151</span>              : // GetAllInteractiveInteractablesInRange は範囲内の生存 Interactable を返す。Manual と OnCollision が対象。</span>
+<span id="L152"><span class="lineNum">     152</span>              : // 死体を含めると再攻撃で不変条件違反になるため除外する</span>
 <span id="L153"><span class="lineNum">     153</span>              : func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {</span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         var results []ecs.Entity</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         rangeQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         rangeQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         for rangeQuery.Next() {</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 entity := rangeQuery.Entity()</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 interactable := world.Components.Interactable.Get(entity)</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-20 16:02:44</td>
+            <td class="headerValue">2026-09-20 17:29:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -298,60 +298,59 @@
 <span id="L236"><span class="lineNum">     236</span>              : }</span>
 <span id="L237"><span class="lineNum">     237</span>              : </span>
 <span id="L238"><span class="lineNum">     238</span>              : // runTurnEndSystems はターン終了時に実行するシステム群を呼び出す。</span>
-<span id="L239"><span class="lineNum">     239</span>              : // DeadCleanupSystem を末尾に置き、そのターンに死んだものを同じターンで回収する。</span>
-<span id="L240"><span class="lineNum">     240</span>              : // 死は必ずターン処理で起きるので回収もターンに閉じる。fast-forward は毎ターンこれを回すため、</span>
-<span id="L241"><span class="lineNum">     241</span>              : // 燃え尽きた火が数ターン残って暖め・照らし続けることがない。</span>
-<span id="L242"><span class="lineNum">     242</span>              : func runTurnEndSystems(world w.World) error {</span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         for _, updater := range []w.Updater{</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 &amp;AutoInteractionSystem{},</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 &amp;TemperatureSystem{},</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 &amp;HealthRegenSystem{},</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 &amp;ConditionSystem{},</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 &amp;FireSystem{},</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 &amp;DeadCleanupSystem{},</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         } {</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 name := updater.String()</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 if sys, ok := world.Updaters[name]; ok {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                         r := trace.StartRegion(context.Background(), &quot;turnend:&quot;+name)</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                         err := sys.Update(world)</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         r.End()</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return err</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L259"><span class="lineNum">     259</span>              :                 }</span>
-<span id="L260"><span class="lineNum">     260</span>              :         }</span>
-<span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L263"><span class="lineNum">     263</span>              : }</span>
-<span id="L264"><span class="lineNum">     264</span>              : </span>
-<span id="L265"><span class="lineNum">     265</span>              : // processPlayerContinuousActivity はプレイヤーの継続アクションを1ステップ処理する。</span>
-<span id="L266"><span class="lineNum">     266</span>              : // 進行中なら true を返し、呼び出し側がAIフェーズへ遷移させて世界を1ターン進める</span>
-<span id="L267"><span class="lineNum">     267</span>              : func processPlayerContinuousActivity(world w.World) bool {</span>
-<span id="L268"><span class="lineNum">     268</span>              :         // プレイヤーエンティティを取得</span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L273"><span class="lineNum">     273</span>              : </span>
-<span id="L274"><span class="lineNum">     274</span>              :         // プレイヤーの継続アクションをチェック</span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         if !query.HasActivity(world, playerEntity) {</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L278"><span class="lineNum">     278</span>              : </span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         log.Debug(&quot;player continuous action processing&quot;)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L282"><span class="lineNum">     282</span>              :         // 継続アクションの1ターン分を処理</span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         activity.ProcessContinuousActivities(world)</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         if !query.HasActivity(world, playerEntity) {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;player continuous action done&quot;)</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L288"><span class="lineNum">     288</span>              : </span>
-<span id="L289"><span class="lineNum">     289</span>              :         // 継続中でも完了でもターンコストを消費する</span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         query.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         return true</span></span>
-<span id="L292"><span class="lineNum">     292</span>              : }</span>
+<span id="L239"><span class="lineNum">     239</span>              : // DeadCleanupSystem は dungeon 側で毎フレーム走るが、fast-forward は1フレームで複数ターンを回すため、</span>
+<span id="L240"><span class="lineNum">     240</span>              : // 燃え尽きた火を各ターンで回収できるよう FireSystem の後ろに置いてここでも回す。</span>
+<span id="L241"><span class="lineNum">     241</span>              : func runTurnEndSystems(world w.World) error {</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         for _, updater := range []w.Updater{</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 &amp;AutoInteractionSystem{},</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 &amp;TemperatureSystem{},</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 &amp;HealthRegenSystem{},</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 &amp;ConditionSystem{},</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 &amp;FireSystem{},</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 &amp;DeadCleanupSystem{},</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         } {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 name := updater.String()</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 if sys, ok := world.Updaters[name]; ok {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         r := trace.StartRegion(context.Background(), &quot;turnend:&quot;+name)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                         err := sys.Update(world)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                         r.End()</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return err</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L258"><span class="lineNum">     258</span>              :                 }</span>
+<span id="L259"><span class="lineNum">     259</span>              :         }</span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L262"><span class="lineNum">     262</span>              : }</span>
+<span id="L263"><span class="lineNum">     263</span>              : </span>
+<span id="L264"><span class="lineNum">     264</span>              : // processPlayerContinuousActivity はプレイヤーの継続アクションを1ステップ処理する。</span>
+<span id="L265"><span class="lineNum">     265</span>              : // 進行中なら true を返し、呼び出し側がAIフェーズへ遷移させて世界を1ターン進める</span>
+<span id="L266"><span class="lineNum">     266</span>              : func processPlayerContinuousActivity(world w.World) bool {</span>
+<span id="L267"><span class="lineNum">     267</span>              :         // プレイヤーエンティティを取得</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L272"><span class="lineNum">     272</span>              : </span>
+<span id="L273"><span class="lineNum">     273</span>              :         // プレイヤーの継続アクションをチェック</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         if !query.HasActivity(world, playerEntity) {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         log.Debug(&quot;player continuous action processing&quot;)</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L281"><span class="lineNum">     281</span>              :         // 継続アクションの1ターン分を処理</span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         activity.ProcessContinuousActivities(world)</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         if !query.HasActivity(world, playerEntity) {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;player continuous action done&quot;)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L287"><span class="lineNum">     287</span>              : </span>
+<span id="L288"><span class="lineNum">     288</span>              :         // 継続中でも完了でもターンコストを消費する</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         query.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         return true</span></span>
+<span id="L291"><span class="lineNum">     291</span>              : }</span>
         </pre>
               </td>
             </tr>

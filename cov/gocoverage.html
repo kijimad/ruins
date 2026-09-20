@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -769,7 +769,7 @@
 				
 				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
+				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
 				
 				<option value="file358">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -1706,7 +1706,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1793,7 +1793,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1857,8 +1857,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -3603,12 +3603,12 @@ func interactablesAtSameTile(world w.World, targetGrid *gc.GridElement) []ecs.En
         <span class="cov8" title="1">return found</span>
 }
 
-// GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する
-// Manual と OnCollision 方式のInteractableが対象
+// GetAllInteractiveInteractablesInRange は範囲内の生存 Interactable を返す。Manual と OnCollision が対象。
+// 死体を含めると再攻撃で不変条件違反になるため除外する
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
         <span class="cov8" title="1">var results []ecs.Entity
 </span>
-        <span class="cov8" title="1">rangeQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()
+        <span class="cov8" title="1">rangeQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()
         for rangeQuery.Next() </span>{
                 <span class="cov8" title="1">entity := rangeQuery.Entity()
                 interactable := world.Components.Interactable.Get(entity)
@@ -37417,6 +37417,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
         <span class="cov8" title="1">if err := runUpdaters(world,
                 &amp;gs.AnimationSystem{},
                 &amp;gs.TurnSystem{},
+                // 死者回収は Dead マーカーの反応系。プレイヤーは1ターンに複数回行動できるので毎フレーム回す。
+                // TurnSystem の後に置き、このフレームの AI ターンで死んだ敵も同フレームで撤去する
+                &amp;gs.DeadCleanupSystem{},
                 &amp;gs.VisionSystem{},
                 &amp;gs.CameraSystem{},
                 &amp;gs.HUDRenderingSystem{},
@@ -45265,9 +45268,8 @@ func processTurnEnd(world w.World) error {
 }
 
 // runTurnEndSystems はターン終了時に実行するシステム群を呼び出す。
-// DeadCleanupSystem を末尾に置き、そのターンに死んだものを同じターンで回収する。
-// 死は必ずターン処理で起きるので回収もターンに閉じる。fast-forward は毎ターンこれを回すため、
-// 燃え尽きた火が数ターン残って暖め・照らし続けることがない。
+// DeadCleanupSystem は dungeon 側で毎フレーム走るが、fast-forward は1フレームで複数ターンを回すため、
+// 燃え尽きた火を各ターンで回収できるよう FireSystem の後ろに置いてここでも回す。
 func runTurnEndSystems(world w.World) error {
         <span class="cov8" title="1">for _, updater := range []w.Updater{
                 &amp;AutoInteractionSystem{},
@@ -52753,7 +52755,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
