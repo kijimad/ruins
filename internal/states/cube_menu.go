@@ -2,16 +2,19 @@ package states
 
 import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、収納・オークション・
-// キューブ情報の下位項目へ分岐する。乗車は直上 Enter で完結するのでここには並べない。
+// NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、展開・収納の切替と、
+// 収納・オークション・キューブ情報の下位項目へ分岐する。乗車は直上 Enter で完結するのでここには並べない。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
 		return query.T(world, "Cube"), []Choice{
+			deployChoice(world, cube),
 			{Label: query.T(world, "Storage"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewStorageMenuState(cube)
 			})},
@@ -26,4 +29,22 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 			}},
 		}
 	}), nil
+}
+
+// deployChoice は展開中なら収納、収納中なら展開の項目を返す。展開は必要な空きが無ければ拒否してログを出す。
+func deployChoice(world w.World, cube ecs.Entity) Choice {
+	if world.Components.Deployed.Has(cube) {
+		return Choice{Label: query.T(world, "Stow"), Run: func(world w.World) (es.Transition[w.World], error) {
+			lifecycle.StowCube(world, cube)
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		}}
+	}
+	return Choice{Label: query.T(world, "Deploy"), Run: func(world w.World) (es.Transition[w.World], error) {
+		if !lifecycle.DeployCube(world, cube) {
+			gamelog.New(query.GetGameLog(world)).
+				Markup(query.T(world, "Not enough open space to deploy.")).
+				Log()
+		}
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}}
 }

@@ -86,6 +86,12 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 // executeDrive はキューブに乗車する。プレイヤーへ Driving を付け、以後の移動入力がキューブを動かす。
 // 既に運転中なら何もしない。
 func executeDrive(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
+	if world.Components.Deployed.Has(cube) {
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "The cube is deployed. Stow it before driving.")).
+			Log()
+		return &ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "cube is deployed"}, nil
+	}
 	if world.Components.Driving.Has(actor) {
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "already driving"}, nil
 	}
