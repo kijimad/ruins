@@ -236,9 +236,8 @@ func processTurnEnd(world w.World) error {
 }
 
 // runTurnEndSystems はターン終了時に実行するシステム群を呼び出す。
-// DeadCleanupSystem を末尾に置き、そのターンに死んだものを同じターンで回収する。
-// 死は必ずターン処理で起きるので回収もターンに閉じる。fast-forward は毎ターンこれを回すため、
-// 燃え尽きた火が数ターン残って暖め・照らし続けることがない。
+// DeadCleanupSystem は dungeon 側で毎フレーム走るが、fast-forward は1フレームで複数ターンを回すため、
+// 燃え尽きた火を各ターンで回収できるよう FireSystem の後ろに置いてここでも回す。
 func runTurnEndSystems(world w.World) error {
 	for _, updater := range []w.Updater{
 		&AutoInteractionSystem{},

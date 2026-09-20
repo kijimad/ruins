@@ -220,6 +220,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	if err := runUpdaters(world,
 		&gs.AnimationSystem{},
 		&gs.TurnSystem{},
+		// 死者回収は Dead マーカーの反応系。プレイヤーは1ターンに複数回行動できるので毎フレーム回す。
+		// TurnSystem の後に置き、このフレームの AI ターンで死んだ敵も同フレームで撤去する
+		&gs.DeadCleanupSystem{},
 		&gs.VisionSystem{},
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},

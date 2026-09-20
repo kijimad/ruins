@@ -145,19 +145,20 @@ func TestTurnSystem_Update(t *testing.T) {
 	})
 }
 
-// TestDeadCleanupBeforeTurnSystem はDungeonState.Updateと同じ実行順序
-// （DeadCleanupSystem → TurnSystem）で、複数回行動時にDeadが即座に消えることを検証する
-func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
+// TestDeadCleanupInDungeonFrame はDungeonState.Updateと同じ実行順序
+// （TurnSystem → DeadCleanupSystem）で、複数回行動時にDeadが即座に消えることを検証する
+func TestDeadCleanupInDungeonFrame(t *testing.T) {
 	t.Parallel()
 
-	// runFrame はDungeonState.Updateのシステム実行順序を模擬する
+	// runFrame はDungeonState.Updateのシステム実行順序を模擬する。DeadCleanupSystem は TurnSystem の後に走り、
+	// このフレームの AI ターンで死んだ敵も同フレームで撤去する
 	runFrame := func(world w.World) error {
-		deadSys := &DeadCleanupSystem{}
-		if err := deadSys.Update(world); err != nil {
+		turnSys := &TurnSystem{}
+		if err := turnSys.Update(world); err != nil {
 			return err
 		}
-		turnSys := &TurnSystem{}
-		return turnSys.Update(world)
+		deadSys := &DeadCleanupSystem{}
+		return deadSys.Update(world)
 	}
 
 	t.Run("APが余っているPlayerPhase中でもDeadエンティティが削除される", func(t *testing.T) {
