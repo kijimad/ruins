@@ -97,7 +97,7 @@ func (game *MainGame) tickPlayTime() {
 	if _, err := query.GetPlayerEntity(game.World); err != nil {
 		return
 	}
-	query.GetPlayTime(game.World).Tick()
+	query.GetPlayTime(game.World).Tick(time.Now())
 }
 
 // Draw はゲームの描画処理を行う

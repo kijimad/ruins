@@ -15,14 +15,25 @@ func TestPlayTime_未開始とnilは0(t *testing.T) {
 	assert.Zero(t, nilPt.Elapsed(), "nil でも0")
 }
 
-func TestPlayTime_Startは累積をセットしTickが実経過を足す(t *testing.T) {
+func TestPlayTime_Startの蓄積にTickが実経過を足す(t *testing.T) {
 	t.Parallel()
+	t0 := time.Unix(1000, 0)
 	pt := &PlayTime{}
-	pt.Start(2 * time.Hour)
-	assert.Equal(t, 2*time.Hour, pt.Elapsed(), "Start は累積をセットする")
+	pt.Start(2*time.Hour, t0)
+	assert.Equal(t, 2*time.Hour, pt.Elapsed(), "Start は蓄積をセットする")
 
-	pt.lastTick = time.Now().Add(-time.Minute) // 1分前を起点にする
-	pt.Tick()
-	assert.Greater(t, pt.Elapsed(), 2*time.Hour+50*time.Second, "Tick が前回からの実経過を足す")
-	assert.Less(t, pt.Elapsed(), 2*time.Hour+70*time.Second)
+	pt.Tick(t0.Add(time.Minute))
+	assert.Equal(t, 2*time.Hour+time.Minute, pt.Elapsed(), "前回からの経過を足す")
+	pt.Tick(t0.Add(3 * time.Minute))
+	assert.Equal(t, 2*time.Hour+3*time.Minute, pt.Elapsed(), "累積し続ける")
+}
+
+func TestPlayTime_Tick初回は起点だけ置く(t *testing.T) {
+	t.Parallel()
+	t0 := time.Unix(1000, 0)
+	pt := &PlayTime{} // lastTick はゼロ
+	pt.Tick(t0)
+	assert.Zero(t, pt.Elapsed(), "初回は足さない")
+	pt.Tick(t0.Add(time.Minute))
+	assert.Equal(t, time.Minute, pt.Elapsed(), "2回目から足す")
 }
