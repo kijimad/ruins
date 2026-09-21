@@ -44,7 +44,6 @@ func skipComponents() []ecs.Comp {
 		ecs.C[gc.LastActivity](),       // ターン進行で消費
 		ecs.C[gc.UserSettings](),       // config 由来のランタイムミラー。ロード時に config から再構築
 		ecs.C[gc.Driving](),            // 運転中の一時状態。entity 参照を持つ。セーブ時は降車扱いにする
-		ecs.C[gc.Deployed](),           // 展開中の一時状態。ロード時は収納中から始める
 	}
 }
 
@@ -107,8 +106,9 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 	// グローバル設定は serde 除外なので config から再構築する
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
-	// 展開状態は保存しないのでロードは収納中から始まる。畳んだ貨物は Stowed 付きでタンクに保存され、
-	// 収納中と整合するのでそのまま復元してよい。
+	// 展開状態は Deployed とフィールドの貨物、収納の Stowed 貨物がすべて保存されるので、展開中でも
+	// 収納中でも保存時の状態のまま復元される。展開エリアのレーザー壁は Deployed から毎フレーム導出するので
+	// 保存不要で、宙に浮いた投影も生じない。
 
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する

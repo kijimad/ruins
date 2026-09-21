@@ -72,7 +72,8 @@ type Renderable struct{}
 // Drivable は運転可能であることを示すマーカー。SpawnCube が付与する。
 type Drivable struct{}
 
-// Deployed はキューブが展開中であることを示すマーカー。運転は Deployed が無いときのみ許す。一時状態なので保存しない。
+// Deployed はキューブが展開中であることを示すマーカー。運転は Deployed が無いときのみ許す。
+// 展開状態は保存する。展開中に保存すればロードでも展開のまま、貨物も配置ごと復元される。
 type Deployed struct{}
 
 // Stowed はキューブに畳み込んだ貨物であることを示す。収納でフィールドから取り込むアイテムに付け、
