@@ -22,14 +22,14 @@ const defaultCubeCargoItem = "garlic_bread"
 // defaultCubeCargoOffset は既定貨物を展開で出す相対位置。左上へ置いて往復が目に見えるようにする。
 var defaultCubeCargoOffset = consts.Coord[consts.Tile]{X: -1, Y: -1}
 
-// StowDefaultCubeCargo はキューブに既定の貨物を1つ Stowed で畳み込んで入れる。展開すると左上に現れ、
-// 格納で畳まれる往復が一目で分かる。ゲーム開始時のキューブ生成でだけ呼び、キューブは初期から格納中で始まる。
+// StowDefaultCubeCargo はキューブに既定の貨物を1つ畳み込んで入れる。展開すると左上に現れ、
+// 圧縮で畳まれる往復が一目で分かる。ゲーム開始時のキューブ生成でだけ呼び、キューブは初期から圧縮で始まる。
 func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
-	item, err := SpawnStorageItem(world, defaultCubeCargoItem, 1, cube)
+	item, err := spawnItemBase(world, defaultCubeCargoItem)
 	if err != nil {
 		return err
 	}
-	world.Components.Stowed.Add(item, &gc.Stowed{Offset: defaultCubeCargoOffset})
+	MoveToStowed(world, item, cube, defaultCubeCargoOffset)
 	return nil
 }
 
@@ -83,7 +83,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	return true
 }
 
-// StowCube はキューブを格納状態へ戻す。野営の貨物を相対位置ごと畳み込む。
+// StowCube はキューブを圧縮状態へ戻す。野営の貨物を相対位置ごと畳み込む。
 func StowCube(world w.World, cube ecs.Entity) {
 	if !world.Components.Deployed.Has(cube) {
 		return
@@ -96,7 +96,7 @@ func StowCube(world w.World, cube ecs.Entity) {
 // キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。容量に入る分だけ取り込み、
 // 入りきらないものはその場に残す。キャラクターやキューブ自身は対象外。
 // 畳み込む範囲は野営 CubeDeployCampRadius で、展開判定の周囲8マス、すなわちチェビシェフ距離1より広い。
-// 展開は開けた足場を1マス分だけ要求し、格納は野営に広げた物を余さず回収するので、範囲が非対称でよい。
+// 展開は開けた足場を1マス分だけ要求し、圧縮は野営に広げた物を余さず回収するので、範囲が非対称でよい。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	if !world.Components.WeightCapacity.Has(cube) {
 		return
@@ -126,27 +126,18 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 			continue
 		}
 		offset := world.Components.GridElement.Get(item).Sub(base)
-		if err := MoveToStorage(world, item, cube); err != nil {
-			continue
-		}
-		world.Components.Stowed.Add(item, &gc.Stowed{Offset: offset})
+		MoveToStowed(world, item, cube, offset)
 		used += iw
 	}
 }
 
-// releaseStowedItems は畳み込んだ貨物を、記録した相対位置へ出し直す。燃料はタンクに残す。
+// releaseStowedItems は畳み込んだ貨物を、記録した相対位置へ出し直す。燃料タンクの中身は残す。
 // キューブが移動していても相対位置で戻すので、置いた配置を保ったまま野営を再現する。
 func releaseStowedItems(world w.World, cube ecs.Entity) {
-	var cargo []ecs.Entity
-	for _, item := range query.GetStorageItems(world, cube) {
-		if world.Components.Stowed.Has(item) {
-			cargo = append(cargo, item)
-		}
-	}
+	cargo := query.StowedCargo(world, cube)
 	base := world.Components.GridElement.Get(cube).Coord
 	for _, item := range cargo {
-		coord := base.Add(world.Components.Stowed.Get(item).Offset)
-		world.Components.Stowed.Remove(item)
+		coord := base.Add(world.Components.LocationStowed.Get(item).Offset)
 		MoveMembersToField(world, []ecs.Entity{item}, coord, cube)
 	}
 }

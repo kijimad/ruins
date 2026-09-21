@@ -88,7 +88,7 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 func executeDrive(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
 	if world.Components.Deployed.Has(cube) {
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "The cube is deployed. Stow it before driving.")).
+			Markup(query.T(world, "The cube is deployed. Compress it before driving.")).
 			Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "cube is deployed"}, nil
 	}

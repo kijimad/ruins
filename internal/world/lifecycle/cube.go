@@ -23,10 +23,6 @@ func ConsumeCubeFuel(world w.World, cube ecs.Entity, amount consts.Heat) bool {
 		if consumed >= amount {
 			break
 		}
-		// 畳み込んだ貨物は燃料でなく荷物なので燃やさない
-		if world.Components.Stowed.Has(item) {
-			continue
-		}
 		h := query.HeatContent(world, item)
 		if h <= 0 {
 			continue

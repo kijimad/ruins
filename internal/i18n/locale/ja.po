@@ -6405,11 +6405,11 @@ msgstr "打撃に耐えるバイザー付きヘルメット"
 msgid "Deploy"
 msgstr "展開する"
 
-msgid "Stow"
-msgstr "格納する"
+msgid "Compress"
+msgstr "圧縮する"
 
 msgid "Not enough open space to deploy."
 msgstr "展開する空きが足りない"
 
-msgid "The cube is deployed. Stow it before driving."
-msgstr "キューブは展開中だ。運転する前に格納する"
+msgid "The cube is deployed. Compress it before driving."
+msgstr "キューブは展開中だ。運転する前に圧縮する"

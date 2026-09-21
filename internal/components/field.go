@@ -76,11 +76,12 @@ type Drivable struct{}
 // 展開状態は保存する。展開中に保存すればロードでも展開のまま、貨物も配置ごと復元される。
 type Deployed struct{}
 
-// Stowed はキューブに畳み込んだ貨物であることを示す。格納でフィールドから取り込むアイテムに付け、
-// 展開でフィールドへ戻すときに外す。キューブ収納は運転燃料タンクを兼ねるため、この印が付く物は
-// 燃料計算から除外して運転で燃やさない。収納状態と整合させるため保存する。
-// Offset は収納時のキューブからの相対位置。展開で同じ相対位置へ戻し、置いた配置を再現する。
-type Stowed struct {
+// LocationStowed はキューブに畳み込んだ貨物であることを示すロケーション。Backpack・Storage・Equipped・
+// Field と排他で、圧縮時にフィールドから取り込むアイテムに付き、展開でフィールドへ戻すときに外れる。
+// 燃料タンク LocationInStorage とは別ロケーションなので、燃料計算に貨物が混ざらない。
+// Owner は畳み込んだキューブ。Offset はキューブからの相対位置で、展開で同じ配置へ戻す。保存する。
+type LocationStowed struct {
+	Owner  ecs.Entity
 	Offset consts.Coord[consts.Tile]
 }
 

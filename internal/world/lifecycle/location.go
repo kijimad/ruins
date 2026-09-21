@@ -212,11 +212,25 @@ func clearLocation(world w.World, entity ecs.Entity) {
 		owner := world.Components.LocationInStorage.Get(entity).Owner
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
+	if world.Components.LocationStowed.Has(entity) {
+		owner := world.Components.LocationStowed.Get(entity).Owner
+		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+	}
 
 	ensureRemoved(world.Components.LocationInBackpack, entity)
 	ensureRemoved(world.Components.LocationEquipped, entity)
 	ensureRemoved(world.Components.LocationOnField, entity)
 	ensureRemoved(world.Components.LocationInStorage, entity)
+	ensureRemoved(world.Components.LocationStowed, entity)
+}
+
+// MoveToStowed はアイテムをキューブへ畳み込む。他ロケーションと排他になるよう clearLocation してから
+// LocationStowed を付ける。offset はキューブからの相対位置で、展開時に同じ配置へ戻すために持つ。
+func MoveToStowed(world w.World, entity ecs.Entity, cube ecs.Entity, offset consts.Coord[consts.Tile]) {
+	clearLocation(world, entity)
+	world.Components.LocationStowed.Add(entity, &gc.LocationStowed{Owner: cube, Offset: offset})
+	ensureRemoved(world.Components.GridElement, entity)
+	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる

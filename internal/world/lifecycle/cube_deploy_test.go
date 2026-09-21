@@ -74,7 +74,7 @@ func TestStowCube(t *testing.T) {
 	require.True(t, DeployCube(world, cube))
 
 	StowCube(world, cube)
-	assert.False(t, world.Components.Deployed.Has(cube), "格納で展開中マーカーが外れる")
+	assert.False(t, world.Components.Deployed.Has(cube), "圧縮で展開中マーカーが外れる")
 }
 
 func TestStowCube_足元のアイテムを畳み込み展開で戻す(t *testing.T) {
@@ -89,9 +89,9 @@ func TestStowCube_足元のアイテムを畳み込み展開で戻す(t *testing
 	require.NoError(t, err)
 	query.InvalidateSpatialIndex(world)
 
-	// 格納で畳み込む
+	// 圧縮で畳み込む
 	StowCube(world, cube)
-	assert.True(t, world.Components.Stowed.Has(item), "野営のアイテムは Stowed で畳み込まれる")
+	assert.True(t, world.Components.LocationStowed.Has(item), "野営のアイテムは Stowed で畳み込まれる")
 	require.True(t, world.Components.LocationInStorage.Has(item), "キューブ収納へ移る")
 	assert.Equal(t, cube, world.Components.LocationInStorage.Get(item).Owner)
 	assert.False(t, world.Components.LocationOnField.Has(item), "フィールドから外れる")
@@ -99,7 +99,7 @@ func TestStowCube_足元のアイテムを畳み込み展開で戻す(t *testing
 
 	// 展開で戻す
 	require.True(t, DeployCube(world, cube))
-	assert.False(t, world.Components.Stowed.Has(item), "展開で Stowed が外れる")
+	assert.False(t, world.Components.LocationStowed.Has(item), "展開で Stowed が外れる")
 	assert.True(t, world.Components.LocationOnField.Has(item), "フィールドへ戻る")
 }
 
@@ -131,7 +131,7 @@ func TestStowCube_草などのpropは畳み込まない(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 	require.NoError(t, err)
-	// 野営半径2内だが展開判定の8マス外(12,10)に草propを置く。展開は成立し、格納で吸い込まれてはいけない
+	// 野営半径2内だが展開判定の8マス外(12,10)に草propを置く。展開は成立し、圧縮で吸い込まれてはいけない
 	grass, err := SpawnProp(world, "grass", 12, 10)
 	require.NoError(t, err)
 	query.InvalidateSpatialIndex(world)
@@ -139,7 +139,7 @@ func TestStowCube_草などのpropは畳み込まない(t *testing.T) {
 	require.True(t, DeployCube(world, cube))
 	StowCube(world, cube)
 
-	assert.False(t, world.Components.Stowed.Has(grass), "草propは畳み込まない")
+	assert.False(t, world.Components.LocationStowed.Has(grass), "草propは畳み込まない")
 	assert.True(t, world.Components.LocationOnField.Has(grass), "草はフィールドに残る")
 }
 
@@ -187,7 +187,7 @@ func TestStowCube_容量を超える分は足元に残す(t *testing.T) {
 
 	stowed := 0
 	for _, e := range []ecs.Entity{a, b} {
-		if world.Components.Stowed.Has(e) {
+		if world.Components.LocationStowed.Has(e) {
 			stowed++
 		}
 	}
