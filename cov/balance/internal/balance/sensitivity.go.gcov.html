@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 07:47:27</td>
+            <td class="headerValue">2026-09-21 11:31:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -131,12 +131,12 @@
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 capacity := consts.Milligram(consts.CubeWeightCapacityKg) * consts.MilligramPerKg</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 fuel := float64(query.HeatOf(oapi.OIL, capacity)) * p.FuelHeatScale</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 return DriveRangeTiles(consts.Heat(fuel), capacity)</span></span>
-<span id="L72"><span class="lineNum">      72</span>              :         case 4: // 経済。loot 価値の倍率を掛けて1個あたり手取りを測る。送料が固定なので弾力性は1を超える</span>
+<span id="L72"><span class="lineNum">      72</span>              :         case 4: // 経済。loot 価値の倍率を掛けて1個あたり店売り手取りを測る。売却は価値の一定割合なので弾力性は1</span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 lv := ExpectedLootValue(master, &quot;ruins_area&quot;, 8) * p.LootValueScale</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 if lv &lt;= 0 {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 :                 return float64(query.AuctionNetProceeds(consts.Currency(math.Round(lv)), ExpectedLootWeightKg(master, &quot;ruins_area&quot;, 8)))</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 :                 return float64(query.CalculateSellPrice(int(math.Round(lv))))</span></span>
 <span id="L78"><span class="lineNum">      78</span>              :         case 5: // 進行。現状の成分では動かない。他ドメインのつまみが成長へ波及しないことを見せる列</span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 return float64(AttacksToSkillLevel(0, 30))</span></span>
 <span id="L80"><span class="lineNum">      80</span>              :         default:</span>

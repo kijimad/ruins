@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.8&nbsp;%</td>
-            <td class="headerCovTableEntry">113</td>
-            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntryMed">86.4&nbsp;%</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntry">57</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 07:47:27</td>
+            <td class="headerValue">2026-09-21 11:31:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,204 +65,132 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              : )</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // ExpectedLootValue は危険度 danger で itemTable から拾える1個あたりの期待売買価値を返す。該当帯エントリと</span>
-<span id="L13"><span class="lineNum">      13</span>              : // その指すアイテムグループの中身を2段で重み付き平均する。収入側の指標。</span>
-<span id="L14"><span class="lineNum">      14</span>              : func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float64 {</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         table, err := raw.GetItemTable(master, itemTableName)</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         var wSum, vSum float64</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         for _, e := range table.Entries {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 if danger &lt; e.MinDanger || danger &gt; e.MaxDanger {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L23"><span class="lineNum">      23</span>              :                 }</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 wSum += e.Weight</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 vSum += e.Weight * expectedGroupValue(master, e.Id)</span></span>
-<span id="L26"><span class="lineNum">      26</span>              :         }</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         return vSum / wSum</span></span>
-<span id="L31"><span class="lineNum">      31</span>              : }</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // expectedGroupValue はアイテムグループの中身の重み付き期待売買価値を返す。グループでなく</span>
-<span id="L34"><span class="lineNum">      34</span>              : // アイテムを直接指す場合はその価値を返す。</span>
-<span id="L35"><span class="lineNum">      35</span>              : func expectedGroupValue(master oapi.Raws, id string) float64 {</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         g, err := raw.GetItemGroup(master, id)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 if it, e := raw.FindItem(master, id); e == nil {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                         return float64(it.Value)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 return 0</span></span>
-<span id="L42"><span class="lineNum">      42</span>              :         }</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 :         var wSum, vSum float64</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         for _, e := range g.Entries {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 it, err := raw.FindItem(master, e.Id)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L48"><span class="lineNum">      48</span>              :                 }</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">           1 :                 wSum += e.Weight</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 vSum += e.Weight * float64(it.Value)</span></span>
-<span id="L51"><span class="lineNum">      51</span>              :         }</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 :         return vSum / wSum</span></span>
-<span id="L56"><span class="lineNum">      56</span>              : }</span>
-<span id="L57"><span class="lineNum">      57</span>              : </span>
-<span id="L58"><span class="lineNum">      58</span>              : // itemWeightKg はアイテムの重量を kg で返す。重量未設定やパース不能は0とみなす。</span>
-<span id="L59"><span class="lineNum">      59</span>              : func itemWeightKg(it oapi.Item) float64 {</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         if it.Weight == nil {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC tlaBgGNC">           1 :         mg, err := consts.ParseWeight(*it.Weight)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 :         return float64(mg) / float64(consts.MilligramPerKg)</span></span>
-<span id="L68"><span class="lineNum">      68</span>              : }</span>
-<span id="L69"><span class="lineNum">      69</span>              : </span>
-<span id="L70"><span class="lineNum">      70</span>              : // expectedGroupWeightKg はアイテムグループの中身の重み付き期待重量を kg で返す。グループでなく</span>
-<span id="L71"><span class="lineNum">      71</span>              : // アイテムを直接指す場合はその重量を返す。ExpectedLootValue の価値版と同じ2段重み付け。</span>
-<span id="L72"><span class="lineNum">      72</span>              : func expectedGroupWeightKg(master oapi.Raws, id string) float64 {</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         g, err := raw.GetItemGroup(master, id)</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 :                 if it, e := raw.FindItem(master, id); e == nil {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                         return itemWeightKg(it)</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 return 0</span></span>
-<span id="L79"><span class="lineNum">      79</span>              :         }</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC tlaBgGNC">           1 :         var wSum, kgSum float64</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         for _, e := range g.Entries {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 it, err := raw.FindItem(master, e.Id)</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L85"><span class="lineNum">      85</span>              :                 }</span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC tlaBgGNC">           1 :                 wSum += e.Weight</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 kgSum += e.Weight * itemWeightKg(it)</span></span>
-<span id="L88"><span class="lineNum">      88</span>              :         }</span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC tlaBgGNC">           1 :         return kgSum / wSum</span></span>
-<span id="L93"><span class="lineNum">      93</span>              : }</span>
-<span id="L94"><span class="lineNum">      94</span>              : </span>
-<span id="L95"><span class="lineNum">      95</span>              : // ExpectedLootWeightKg は危険度 danger で itemTable から拾える1個あたりの期待重量を kg で返す。</span>
-<span id="L96"><span class="lineNum">      96</span>              : // ExpectedLootValue と同じ2段の重み付き平均で、手取りの発送料項に使う。</span>
-<span id="L97"><span class="lineNum">      97</span>              : func ExpectedLootWeightKg(master oapi.Raws, itemTableName string, danger int) float64 {</span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         table, err := raw.GetItemTable(master, itemTableName)</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC tlaBgGNC">           1 :         var wSum, kgSum float64</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         for _, e := range table.Entries {</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 if danger &lt; e.MinDanger || danger &gt; e.MaxDanger {</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L106"><span class="lineNum">     106</span>              :                 }</span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 wSum += e.Weight</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 kgSum += e.Weight * expectedGroupWeightKg(master, e.Id)</span></span>
-<span id="L109"><span class="lineNum">     109</span>              :         }</span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC tlaBgGNC">           1 :         return kgSum / wSum</span></span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // ExpectedLootValue は危険度 danger で itemTable から拾える1個あたりの期待売買価値を返す。該当帯エントリと</span>
+<span id="L12"><span class="lineNum">      12</span>              : // その指すアイテムグループの中身を2段で重み付き平均する。収入側の指標。</span>
+<span id="L13"><span class="lineNum">      13</span>              : func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float64 {</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 :         table, err := raw.GetItemTable(master, itemTableName)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         var wSum, vSum float64</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         for _, e := range table.Entries {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 if danger &lt; e.MinDanger || danger &gt; e.MaxDanger {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L22"><span class="lineNum">      22</span>              :                 }</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 wSum += e.Weight</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 vSum += e.Weight * expectedGroupValue(master, e.Id)</span></span>
+<span id="L25"><span class="lineNum">      25</span>              :         }</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         return vSum / wSum</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // expectedGroupValue はアイテムグループの中身の重み付き期待売買価値を返す。グループでなく</span>
+<span id="L33"><span class="lineNum">      33</span>              : // アイテムを直接指す場合はその価値を返す。</span>
+<span id="L34"><span class="lineNum">      34</span>              : func expectedGroupValue(master oapi.Raws, id string) float64 {</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         g, err := raw.GetItemGroup(master, id)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 :                 if it, e := raw.FindItem(master, id); e == nil {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                         return float64(it.Value)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return 0</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :         }</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         var wSum, vSum float64</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         for _, e := range g.Entries {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 it, err := raw.FindItem(master, e.Id)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :                 }</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 :                 wSum += e.Weight</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 vSum += e.Weight * float64(it.Value)</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :         }</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">           1 :         return vSum / wSum</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : }</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : // ExpectedNetLootValue は危険度 danger で拾える1個あたりの店売りの期待手取り額を返す。額面の</span>
+<span id="L58"><span class="lineNum">      58</span>              : // ExpectedLootValue に売却倍率を掛けた実収入側の終端指標。</span>
+<span id="L59"><span class="lineNum">      59</span>              : func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) float64 {</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         value := ExpectedLootValue(master, itemTableName, danger)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         if value &lt;= 0 {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         // CalculateSellPrice は Currency 整数を取るので期待価値を1個ぶんだけ丸める。丸めは1品あたり0.5未満。</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         return float64(query.CalculateSellPrice(int(math.Round(value))))</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : // expectedItemsPerFloor はフロアで拾える loot 個数の期待値。floorItemBase + rand(0..floorItemRandom-1) の</span>
+<span id="L69"><span class="lineNum">      69</span>              : // 期待値で run.go と単一出典。floorItemRandom は奇数なので (floorItemRandom-1)/2 は整数除算でも厳密。</span>
+<span id="L70"><span class="lineNum">      70</span>              : const expectedItemsPerFloor = floorItemBase + (floorItemRandom-1)/2</span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span>              : // ExpectedRunLootIncome は floors 層を探索して拾う loot の期待手取り総額を返す。各層で expectedItemsPerFloor</span>
+<span id="L73"><span class="lineNum">      73</span>              : // 個を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。</span>
+<span id="L74"><span class="lineNum">      74</span>              : func ExpectedRunLootIncome(master oapi.Raws, itemTableName string, floors int) float64 {</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         total := 0.0</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         for depth := 1; depth &lt;= floors; depth++ {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 total += expectedItemsPerFloor * ExpectedNetLootValue(master, itemTableName, depth)</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : // CheapestFoodCostPerNutrition は満腹度1点を回復するのに要する最小の購入価値を返す。栄養価を持つ</span>
+<span id="L83"><span class="lineNum">      83</span>              : // アイテムのうち、価値÷栄養が最小のものを賢い調達とみなす。食料が無ければ0を返す。</span>
+<span id="L84"><span class="lineNum">      84</span>              : func CheapestFoodCostPerNutrition(master oapi.Raws) float64 {</span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         best := 0.0</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 it := &amp;items[i]</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 if it.ProvidesNutrition == nil || *it.ProvidesNutrition &lt;= 0 || it.Value &lt;= 0 {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L91"><span class="lineNum">      91</span>              :                 }</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 cost := float64(it.Value) / float64(*it.ProvidesNutrition)</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 if best == 0 || cost &lt; best {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                         best = cost</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L96"><span class="lineNum">      96</span>              :         }</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         return best</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : }</span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : // CostOfLivingPerDay は補給なしの1日で失う満腹度を、最安の食料で埋め戻す購入費用を返す。1日の満腹度</span>
+<span id="L101"><span class="lineNum">     101</span>              : // 減耗は turnsPerDay/HungerDrainTurns で、これに満腹度1点あたりの最小食料費を掛ける。経済の支出側の下端。</span>
+<span id="L102"><span class="lineNum">     102</span>              : func CostOfLivingPerDay(master oapi.Raws, p Params) float64 {</span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         hungerPerDay := p.TurnsPerDay / p.HungerDrainTurns</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         return hungerPerDay * CheapestFoodCostPerNutrition(master)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L106"><span class="lineNum">     106</span>              : </span>
+<span id="L107"><span class="lineNum">     107</span>              : // EconomyDay は経過日1日ぶんの経済の断面。危険度に応じた1個あたり手取りと、1日の食費を賄うのに要する</span>
+<span id="L108"><span class="lineNum">     108</span>              : // loot 個数を持つ。個数が小さいほど、その日の loot は生活費に対して価値が高い。</span>
+<span id="L109"><span class="lineNum">     109</span>              : type EconomyDay struct {</span>
+<span id="L110"><span class="lineNum">     110</span>              :         Day            int</span>
+<span id="L111"><span class="lineNum">     111</span>              :         Danger         int</span>
+<span id="L112"><span class="lineNum">     112</span>              :         NetLootValue   float64 // 1個あたりの期待手取り</span>
+<span id="L113"><span class="lineNum">     113</span>              :         LootPerDayFood float64 // 1日の食費を賄うのに要する loot 個数</span>
 <span id="L114"><span class="lineNum">     114</span>              : }</span>
 <span id="L115"><span class="lineNum">     115</span>              : </span>
-<span id="L116"><span class="lineNum">     116</span>              : // ExpectedNetLootValue は危険度 danger で拾える1個あたりの競売の期待手取り額を返す。額面の</span>
-<span id="L117"><span class="lineNum">     117</span>              : // ExpectedLootValue から手数料と発送料を引いた実収入側の終端指標。集荷料は品単位でないため含めない。</span>
-<span id="L118"><span class="lineNum">     118</span>              : func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) float64 {</span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         value := ExpectedLootValue(master, itemTableName, danger)</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         if value &lt;= 0 {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         weightKg := ExpectedLootWeightKg(master, itemTableName, danger)</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         // AuctionNetProceeds は Currency 整数を取るので期待価値を1個ぶんだけ丸める。丸めは1品あたり0.5未満で、</span></span>
-<span id="L125"><span class="lineNum">     125</span>              :         // 実ゲームの落札額も整数なので意図的。ExpectedRunLootIncome の積算でも増幅は個数×0.5未満に収まる。</span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         net := query.AuctionNetProceeds(consts.Currency(math.Round(value)), weightKg)</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         return float64(net)</span></span>
-<span id="L128"><span class="lineNum">     128</span>              : }</span>
-<span id="L129"><span class="lineNum">     129</span>              : </span>
-<span id="L130"><span class="lineNum">     130</span>              : // expectedItemsPerFloor はフロアで拾える loot 個数の期待値。floorItemBase + rand(0..floorItemRandom-1) の</span>
-<span id="L131"><span class="lineNum">     131</span>              : // 期待値で run.go と単一出典。floorItemRandom は奇数なので (floorItemRandom-1)/2 は整数除算でも厳密。</span>
-<span id="L132"><span class="lineNum">     132</span>              : const expectedItemsPerFloor = floorItemBase + (floorItemRandom-1)/2</span>
-<span id="L133"><span class="lineNum">     133</span>              : </span>
-<span id="L134"><span class="lineNum">     134</span>              : // ExpectedRunLootIncome は floors 層を探索して拾う loot の期待手取り総額を返す。各層で expectedItemsPerFloor</span>
-<span id="L135"><span class="lineNum">     135</span>              : // 個を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。</span>
-<span id="L136"><span class="lineNum">     136</span>              : func ExpectedRunLootIncome(master oapi.Raws, itemTableName string, floors int) float64 {</span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         total := 0.0</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         for depth := 1; depth &lt;= floors; depth++ {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 total += expectedItemsPerFloor * ExpectedNetLootValue(master, itemTableName, depth)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L142"><span class="lineNum">     142</span>              : }</span>
-<span id="L143"><span class="lineNum">     143</span>              : </span>
-<span id="L144"><span class="lineNum">     144</span>              : // CheapestFoodCostPerNutrition は満腹度1点を回復するのに要する最小の購入価値を返す。栄養価を持つ</span>
-<span id="L145"><span class="lineNum">     145</span>              : // アイテムのうち、価値÷栄養が最小のものを賢い調達とみなす。食料が無ければ0を返す。</span>
-<span id="L146"><span class="lineNum">     146</span>              : func CheapestFoodCostPerNutrition(master oapi.Raws) float64 {</span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         best := 0.0</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 it := &amp;items[i]</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 if it.ProvidesNutrition == nil || *it.ProvidesNutrition &lt;= 0 || it.Value &lt;= 0 {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L153"><span class="lineNum">     153</span>              :                 }</span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 cost := float64(it.Value) / float64(*it.ProvidesNutrition)</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 if best == 0 || cost &lt; best {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                         best = cost</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L158"><span class="lineNum">     158</span>              :         }</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return best</span></span>
-<span id="L160"><span class="lineNum">     160</span>              : }</span>
-<span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span>              : // CostOfLivingPerDay は補給なしの1日で失う満腹度を、最安の食料で埋め戻す購入費用を返す。1日の満腹度</span>
-<span id="L163"><span class="lineNum">     163</span>              : // 減耗は turnsPerDay/HungerDrainTurns で、これに満腹度1点あたりの最小食料費を掛ける。経済の支出側の下端。</span>
-<span id="L164"><span class="lineNum">     164</span>              : func CostOfLivingPerDay(master oapi.Raws, p Params) float64 {</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         hungerPerDay := p.TurnsPerDay / p.HungerDrainTurns</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         return hungerPerDay * CheapestFoodCostPerNutrition(master)</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L168"><span class="lineNum">     168</span>              : </span>
-<span id="L169"><span class="lineNum">     169</span>              : // EconomyDay は経過日1日ぶんの経済の断面。危険度に応じた1個あたり手取りと、1日の食費を賄うのに要する</span>
-<span id="L170"><span class="lineNum">     170</span>              : // loot 個数を持つ。個数が小さいほど、その日の loot は生活費に対して価値が高い。</span>
-<span id="L171"><span class="lineNum">     171</span>              : type EconomyDay struct {</span>
-<span id="L172"><span class="lineNum">     172</span>              :         Day            int</span>
-<span id="L173"><span class="lineNum">     173</span>              :         Danger         int</span>
-<span id="L174"><span class="lineNum">     174</span>              :         NetLootValue   float64 // 1個あたりの期待手取り</span>
-<span id="L175"><span class="lineNum">     175</span>              :         LootPerDayFood float64 // 1日の食費を賄うのに要する loot 個数</span>
-<span id="L176"><span class="lineNum">     176</span>              : }</span>
-<span id="L177"><span class="lineNum">     177</span>              : </span>
-<span id="L178"><span class="lineNum">     178</span>              : // EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと一定の生活費で表す。進むほど loot</span>
-<span id="L179"><span class="lineNum">     179</span>              : // 価値が上がり生活費が相対的に軽くなるかを見る。乱数を使わない。</span>
-<span id="L180"><span class="lineNum">     180</span>              : func EconomyProgression(master oapi.Raws, itemTableName string, days int, p Params) []EconomyDay {</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         costPerDay := CostOfLivingPerDay(master, p)</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         out := make([]EconomyDay, 0, days)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 danger := query.DangerLevelForDay(day)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 net := ExpectedNetLootValue(master, itemTableName, danger)</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 perFood := 0.0</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 if net &gt; 0 {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                         perFood = costPerDay / net</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 out = append(out, EconomyDay{Day: day, Danger: danger, NetLootValue: net, LootPerDayFood: perFood})</span></span>
-<span id="L191"><span class="lineNum">     191</span>              :         }</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return out</span></span>
-<span id="L193"><span class="lineNum">     193</span>              : }</span>
-<span id="L194"><span class="lineNum">     194</span>              : </span>
-<span id="L195"><span class="lineNum">     195</span>              : // AuctionTakeHomeRate は基準価値どおり落札されたときの手取り率を返す。手取り=落札額−手数料−発送料 を</span>
-<span id="L196"><span class="lineNum">     196</span>              : // 落札額で割る。重い安物ほど発送料に食われ率が下がる。落札額分布はモンテカルロの領域で、ここは決定論。</span>
-<span id="L197"><span class="lineNum">     197</span>              : func AuctionTakeHomeRate(saleValue consts.Currency, weightKg float64) float64 {</span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         if saleValue &lt;= 0 {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         net := query.AuctionNetProceeds(saleValue, weightKg)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         return float64(net) / float64(saleValue)</span></span>
-<span id="L203"><span class="lineNum">     203</span>              : }</span>
+<span id="L116"><span class="lineNum">     116</span>              : // EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと一定の生活費で表す。進むほど loot</span>
+<span id="L117"><span class="lineNum">     117</span>              : // 価値が上がり生活費が相対的に軽くなるかを見る。乱数を使わない。</span>
+<span id="L118"><span class="lineNum">     118</span>              : func EconomyProgression(master oapi.Raws, itemTableName string, days int, p Params) []EconomyDay {</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         costPerDay := CostOfLivingPerDay(master, p)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         out := make([]EconomyDay, 0, days)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 danger := query.DangerLevelForDay(day)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 net := ExpectedNetLootValue(master, itemTableName, danger)</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 perFood := 0.0</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 if net &gt; 0 {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                         perFood = costPerDay / net</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 out = append(out, EconomyDay{Day: day, Danger: danger, NetLootValue: net, LootPerDayFood: perFood})</span></span>
+<span id="L129"><span class="lineNum">     129</span>              :         }</span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : }</span>
         </pre>
               </td>
             </tr>
