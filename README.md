@@ -107,6 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | accepted | [キューブに収納中と展開中の状態を足す](docs/design/260920004814.md) | 0/5（見送り3） | gamedesign, movement, item |
+| draft | [コード監査: 手続き生成ドアの破壊不能化 2026-09-21](docs/design/260921001438.md) | 0/2 | worldgen, combat, item |
 
 
 ## Reference
