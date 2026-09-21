@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [キューブに格納中と展開中の状態を足す](docs/design/260920004814.md) | 3/7（見送り3） | gamedesign, movement, item |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference
