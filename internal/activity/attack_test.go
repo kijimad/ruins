@@ -332,6 +332,8 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 	t.Run("中断可能なアクティビティは被ダメージでキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		// 命中を確定させ、被ダメージでキャンセルされることを確定的に検証する
+		world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 
 		target := world.ECS.NewEntity()
 		world.Components.HP.Add(target, &gc.HP{Current: 100, Max: 100})
@@ -358,14 +360,8 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 
 		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
-		// アクティビティがキャンセルされている（命中時）、または残っている（ミス時）
-		currentComp := world.Components.Activity.Get(target)
-		if currentComp != nil {
-			// ミスした場合はアクティビティが残る。状態がRunningなら中断処理は正しく動作している
-			assert.Equal(t, gc.ActivityStateRunning, currentComp.State,
-				"ミス時はアクティビティがRunningのまま残る")
-		}
-		// 命中時はRemoveActivityで削除されているのでcurrentCompはnil
+		assert.False(t, world.Components.Activity.Has(target),
+			"被ダメージで中断可能なアクティビティがキャンセルされる")
 	})
 
 	t.Run("中断不可のアクティビティは被ダメージでもキャンセルされない", func(t *testing.T) {
@@ -490,8 +486,7 @@ func TestGetAttackParams_不正なスロット番号でエラーになる(t *tes
 	query.GetWeaponSelection(world).Slot = 6
 
 	_, _, err = getAttackParams(player, world)
-	// 埋め込むスロット値でなく、安定した意味の断片だけを見る
-	assert.ErrorContains(t, err, "invalid weapon slot number")
+	require.ErrorIs(t, err, ErrInvalidWeaponSlot)
 }
 
 func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testing.T) {
@@ -533,8 +528,7 @@ func TestGetAttackParams_プレイヤーでも敵でもない場合はエラー�
 	entity := world.ECS.NewEntity()
 
 	_, _, err := getAttackParams(entity, world)
-	// 内側の文言でなく、この分岐を一意に指す外側 wrap だけを見る
-	assert.ErrorContains(t, err, "cannot get attack parameters")
+	require.ErrorIs(t, err, ErrNoAttackSource)
 }
 
 func TestGetBareHandsAttack_素手武器のパラメータを返す(t *testing.T) {

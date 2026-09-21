@@ -27,6 +27,8 @@ var (
 	ErrAttackTargetInvalid = errors.New("attack target is invalid")
 	ErrAttackerDead        = errors.New("attacker is dead")
 	ErrTargetNoHPComponent = errors.New("target has no HP component")
+	ErrInvalidWeaponSlot   = errors.New("invalid weapon slot number")
+	ErrNoAttackSource      = errors.New("cannot get attack parameters: attacker has neither Player nor CommandTable component")
 
 	// 射撃関連エラー
 	ErrShootNoFireWeapon = errors.New("no ranged weapon equipped")
