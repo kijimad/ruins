@@ -106,6 +106,9 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 	// グローバル設定は serde 除外なので config から再構築する
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
+	// 展開状態は Deployed と貨物がそのまま保存され復元される。レーザー壁は描画時に Deployed から
+	// 毎フレーム作るだけでエンティティを持たないので、保存も掃除も要らない。
+
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する
 	var metas []ecs.Entity

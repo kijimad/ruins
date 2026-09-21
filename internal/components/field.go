@@ -72,6 +72,19 @@ type Renderable struct{}
 // Drivable は運転可能であることを示すマーカー。SpawnCube が付与する。
 type Drivable struct{}
 
+// Deployed はキューブが展開中であることを示すマーカー。運転は Deployed が無いときのみ許す。
+// 展開状態は保存する。展開中に保存すればロードでも展開のまま、貨物も配置ごと復元される。
+type Deployed struct{}
+
+// LocationStowed はキューブに畳み込んだ貨物であることを示すロケーション。Backpack・Storage・Equipped・
+// Field と排他で、圧縮時にフィールドから取り込むアイテムに付き、展開でフィールドへ戻すときに外れる。
+// 燃料タンク LocationInStorage とは別ロケーションなので、燃料計算に貨物が混ざらない。
+// Owner は畳み込んだキューブ。Offset はキューブからの相対位置で、展開で同じ配置へ戻す。保存する。
+type LocationStowed struct {
+	Owner  ecs.Entity
+	Offset consts.Coord[consts.Tile]
+}
+
 // Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。
 // Vehicle の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
 type Driving struct {

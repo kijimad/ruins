@@ -125,7 +125,7 @@ func TestCollectStagedItems_積荷が空なら何も集荷しない(t *testing.T
 	assert.Empty(t, GetAuctionHistory(world).Entries, "明細も増えない")
 }
 
-func TestCollectStagedItems_落札済みと未落札を集荷して明細をためる(t *testing.T) {
+func TestCollectStagedItems_落札済みだけ集荷し未落札は残す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -136,15 +136,16 @@ func TestCollectStagedItems_落札済みと未落札を集荷して明細をた�
 	world.Components.LocationInStorage.Add(sold, &gc.LocationInStorage{Owner: station})
 	world.Components.AuctionSold.Add(sold, &gc.AuctionSold{Number: 1, Bid: 1000})
 
+	// 落札済みでない品。燃料や貨物を模す。出荷せず収納に残す
 	unsold := world.ECS.NewEntity()
 	world.Components.LocationInStorage.Add(unsold, &gc.LocationInStorage{Owner: station})
 
 	collected, receipts := CollectStagedItems(world, station)
 
-	assert.Equal(t, 2, collected, "積荷2件をまとめて集荷")
+	assert.Equal(t, 1, collected, "集荷は落札済みの1件だけ")
 	assert.Equal(t, 1, receipts, "受取金の明細は落札済みの1件だけ")
 	assert.False(t, world.ECS.Alive(sold), "集荷した品は消える")
-	assert.False(t, world.ECS.Alive(unsold), "未落札の品も消える")
+	assert.True(t, world.ECS.Alive(unsold), "未落札の品は出荷されず残る")
 
 	history := GetAuctionHistory(world)
 	require.Len(t, history.Entries, 2, "受取金1件+集荷料金の請求1件")

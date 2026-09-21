@@ -28,6 +28,7 @@ type EntitySpec struct {
 	LocationEquipped   *LocationEquipped
 	LocationOnField    *LocationOnField
 	LocationInStorage  *LocationInStorage
+	LocationStowed     *LocationStowed
 	Tile               *Tile
 	SoloAI             *SoloAI
 	Camera             *Camera
@@ -42,6 +43,7 @@ type EntitySpec struct {
 	Prop               *Prop
 	Drivable           *Drivable
 	Driving            *Driving
+	Deployed           *Deployed
 	LightSource        *LightSource
 	Interactable       *Interactable
 	VisualEffects      *VisualEffects
@@ -121,6 +123,7 @@ type Components struct {
 	LocationEquipped   *ecs.Map[LocationEquipped]
 	LocationOnField    *ecs.Map[LocationOnField]
 	LocationInStorage  *ecs.Map[LocationInStorage]
+	LocationStowed     *ecs.Map[LocationStowed]
 	Tile               *ecs.Map[Tile]
 	SoloAI             *ecs.Map[SoloAI]
 	Camera             *ecs.Map[Camera]
@@ -135,6 +138,7 @@ type Components struct {
 	Prop               *ecs.Map[Prop]
 	Drivable           *ecs.Map[Drivable]
 	Driving            *ecs.Map[Driving]
+	Deployed           *ecs.Map[Deployed]
 	LightSource        *ecs.Map[LightSource]
 	Interactable       *ecs.Map[Interactable]
 	VisualEffects      *ecs.Map[VisualEffects]
@@ -214,6 +218,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
 	c.LocationOnField = ecs.NewMap[LocationOnField](world)
 	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
+	c.LocationStowed = ecs.NewMap[LocationStowed](world)
 	c.Tile = ecs.NewMap[Tile](world)
 	c.SoloAI = ecs.NewMap[SoloAI](world)
 	c.Camera = ecs.NewMap[Camera](world)
@@ -228,6 +233,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Prop = ecs.NewMap[Prop](world)
 	c.Drivable = ecs.NewMap[Drivable](world)
 	c.Driving = ecs.NewMap[Driving](world)
+	c.Deployed = ecs.NewMap[Deployed](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
@@ -309,6 +315,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LocationEquipped, entity, spec.LocationEquipped)
 	addComp(c.LocationOnField, entity, spec.LocationOnField)
 	addComp(c.LocationInStorage, entity, spec.LocationInStorage)
+	addComp(c.LocationStowed, entity, spec.LocationStowed)
 	addComp(c.Tile, entity, spec.Tile)
 	addComp(c.SoloAI, entity, spec.SoloAI)
 	addComp(c.Camera, entity, spec.Camera)
@@ -323,6 +330,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Prop, entity, spec.Prop)
 	addComp(c.Drivable, entity, spec.Drivable)
 	addComp(c.Driving, entity, spec.Driving)
+	addComp(c.Deployed, entity, spec.Deployed)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)

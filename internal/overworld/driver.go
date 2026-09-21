@@ -130,8 +130,13 @@ func (dr *Driver) startInitialBand(world w.World) error {
 
 	// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く
 	cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
-	if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
+	cube, cerr := lifecycle.SpawnCube(world, cubePos)
+	if cerr != nil {
 		return fmt.Errorf("failed to spawn cube: %w", cerr)
+	}
+	// 展開すると貨物が現れる往復を最初から見せるため、既定の貨物を1つ畳んで入れておく
+	if derr := lifecycle.StowDefaultCubeCargo(world, cube); derr != nil {
+		return fmt.Errorf("failed to stow default cube cargo: %w", derr)
 	}
 
 	query.InvalidateSpatialIndex(world)

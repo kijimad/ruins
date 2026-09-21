@@ -184,9 +184,71 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	quads = sys.collectBillboards(world, quads, projector, visTint)
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
+	// 展開中キューブの野営エリアを囲むレーザー壁も状態従属の装飾として積む
+	quads = sys.collectDeployField(world, quads, projector)
 	// 戻り値は sys.quads と同一スライス。emit がそのまま辿り、次フレームは [:0] で容量を使い回す
 	sys.quads = quads
 	return quads, projector, nil
+}
+
+// deployFieldColor は展開エリアを囲むレーザー壁の色。強化マスを思わせる青。
+var deployFieldColor = [3]float64{0.3, 0.6, 1.0}
+
+const (
+	// deployFieldAlpha は壁の半透明度。エネルギー幕らしく向こうが透ける
+	deployFieldAlpha = 0.45
+	// deployFieldHeight は壁の高さ。建物ほど高くせず、囲いと分かる程度に立てる。単位はタイル幅
+	deployFieldHeight = 0.6
+)
+
+// collectDeployField は展開中キューブの野営エリアを囲む青いレーザー壁を積む。エリアはキューブ中心の
+// チェビシェフ半径 CubeDeployCampRadius。隣がエリア外の辺にだけ縦面を張り、外周だけを描く。
+// エネルギー幕なので明るさに依らず一定の青で光らせ、visTint は掛けない。
+func (sys *Render3DSystem) collectDeployField(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
+	area := make(map[consts.Coord[consts.Tile]]bool)
+	q := query.ActiveFilter2[gc.Deployed, gc.GridElement](world).Query()
+	for q.Next() {
+		c := world.Components.GridElement.Get(q.Entity()).Coord
+		for dy := -consts.CubeDeployCampRadius; dy <= consts.CubeDeployCampRadius; dy++ {
+			for dx := -consts.CubeDeployCampRadius; dx <= consts.CubeDeployCampRadius; dx++ {
+				area[consts.Coord[consts.Tile]{X: c.X + consts.Tile(dx), Y: c.Y + consts.Tile(dy)}] = true
+			}
+		}
+	}
+	if len(area) == 0 {
+		return quads
+	}
+	h := deployFieldHeight
+	for tile := range area {
+		if !projector.TileOnScreen(tile, h) {
+			continue
+		}
+		fx, fz := float64(tile.X), float64(tile.Y)
+		if !area[tile.Add(consts.Coord[consts.Tile]{X: 0, Y: -1})] {
+			sys.addFieldWall(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, h, fz), render3d.At(fx, h, fz))
+		}
+		if !area[tile.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})] {
+			sys.addFieldWall(&quads, render3d.At(fx, 0, fz+1), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, h, fz+1), render3d.At(fx, h, fz+1))
+		}
+		if !area[tile.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})] {
+			sys.addFieldWall(&quads, render3d.At(fx, 0, fz), render3d.At(fx, 0, fz+1), render3d.At(fx, h, fz+1), render3d.At(fx, h, fz))
+		}
+		if !area[tile.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})] {
+			sys.addFieldWall(&quads, render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, h, fz+1), render3d.At(fx+1, h, fz))
+		}
+	}
+	return quads
+}
+
+// addFieldWall はレーザー壁の縦面を1枚積む。白1pxを青の頂点色と半透明で塗り、エネルギー幕にする。
+func (sys *Render3DSystem) addFieldWall(out *[]r3quad, p0, p1, p2, p3 render3d.Vec) {
+	*out = append(*out, r3quad{
+		p:     [4]render3d.Vec{p0, p1, p2, p3},
+		uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
+		atlas: whitePixel(),
+		col:   deployFieldColor,
+		alpha: deployFieldAlpha,
+	})
 }
 
 // lightSample は解決済みの明るさと色。フィルタ列で乗算色まで変換する。

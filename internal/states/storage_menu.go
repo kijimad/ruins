@@ -35,8 +35,19 @@ const (
 type StorageMenuState struct {
 	es.BaseState[w.World]
 	storageEntity ecs.Entity
-	detail        overlay.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen        *menuloop.Screen[StorageProps]
+	// itemFilter は取り出し・投入の両タブに出す品を絞る述語。nil なら全許可。
+	// キューブの燃料投入で、燃料だけを見せ貨物を隠す用途で使う
+	itemFilter func(w.World, ecs.Entity) bool
+	detail     overlay.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen     *menuloop.Screen[StorageProps]
+}
+
+// StorageOption は StorageMenuState の任意設定
+type StorageOption func(*StorageMenuState)
+
+// WithItemFilter は両タブに出す品を述語で絞る。燃料投入のように扱う品目を限定する用途で使う
+func WithItemFilter(pred func(w.World, ecs.Entity) bool) StorageOption {
+	return func(st *StorageMenuState) { st.itemFilter = pred }
 }
 
 // State interface ================
@@ -112,10 +123,24 @@ func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {
 	}
 	return StorageProps{
 		Tabs: []storageTabData{
-			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, query.StorageStacks(world, st.storageEntity))},
-			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, query.BackpackStacks(world, player))},
+			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, st.filterStacks(world, query.StorageStacks(world, st.storageEntity)))},
+			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))},
 		},
 	}, nil
+}
+
+// filterStacks は両タブに出す束を itemFilter で絞る。フィルタ未指定なら素通しする
+func (st *StorageMenuState) filterStacks(world w.World, stacks []query.Stack) []query.Stack {
+	if st.itemFilter == nil {
+		return stacks
+	}
+	filtered := make([]query.Stack, 0, len(stacks))
+	for _, stack := range stacks {
+		if st.itemFilter(world, stack.Rep) {
+			filtered = append(filtered, stack)
+		}
+	}
+	return filtered
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
@@ -173,6 +198,10 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 			return err
 		}
 	case tabIDStore:
+		// 表示は filterStacks で絞り済みだが、投入実行でもフィルタを再確認して受け入れ品目を守る
+		if st.itemFilter != nil && !st.itemFilter(world, item.Entity) {
+			return nil
+		}
 		// 容量判定が束の合計重量を要するため、ここだけ実体列を先に束ねて可否を見てから移す
 		members := query.StackMembers(world, item.Entity)
 		if !query.CanAddStackToStorage(world, st.storageEntity, members) {

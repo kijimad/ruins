@@ -46,11 +46,28 @@ func PlayerBandTile(world w.World) (consts.Coord[consts.Tile], bool) {
 	return world.Components.GridElement.Get(player).Coord, true
 }
 
-// CubeWeight はキューブ収納にある物の総重量を返す。運転1タイルの燃料コスト算出に使う。
-// 収納の中身から常に導けるので値を保持せず、読み取り時に合算する。
+// StowedCargo はキューブに畳み込んだ貨物の一覧を返す。LocationStowed で燃料タンクと別管理する。
+// 反復中に return するとロックが残るので、対象を集めてから返す。
+func StowedCargo(world w.World, cube ecs.Entity) []ecs.Entity {
+	var items []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationStowed](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationStowed.Get(e).Owner == cube {
+			items = append(items, e)
+		}
+	}
+	return items
+}
+
+// CubeWeight はキューブが積む物の総重量を返す。運転1タイルの燃料コスト算出に使う。
+// 燃料タンクの中身と畳み込んだ貨物の両方が機動に効くので合算する。値は保持せず読み取り時に導く。
 func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {
 	var total consts.Milligram
 	for _, item := range GetStorageItems(world, cube) {
+		total += GetEntityWeight(world, item)
+	}
+	for _, item := range StowedCargo(world, cube) {
 		total += GetEntityWeight(world, item)
 	}
 	return total
@@ -67,6 +84,7 @@ func DriveFuelCost(total consts.Milligram) consts.Heat {
 // 火への給油と同じ HeatContent を使い燃料値の定義を二重化しない。
 func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	var total consts.Heat
+	// 燃料タンクは LocationInStorage。畳み込んだ貨物は LocationStowed で別管理なので混ざらない
 	for _, item := range GetStorageItems(world, cube) {
 		total += HeatContent(world, item)
 	}
