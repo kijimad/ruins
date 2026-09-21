@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 03:23:11</td>
+            <td class="headerValue">2026-09-21 03:56:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -212,7 +212,7 @@
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC tlaBgGNC">           1 :         selectedSlot := query.GetWeaponSelection(world).Slot</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         weaponIndex := selectedSlot - 1</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         if weaponIndex &lt; 0 || weaponIndex &gt;= 5 {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;invalid weapon slot number: %d&quot;, selectedSlot)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;%w: %d&quot;, ErrInvalidWeaponSlot, selectedSlot)</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L155"><span class="lineNum">     155</span>              : </span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC tlaBgGNC">           1 :         weapons := query.GetWeapons(world, actor)</span></span>
