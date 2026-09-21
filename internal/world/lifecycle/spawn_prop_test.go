@@ -124,3 +124,15 @@ func TestCloseDoor_扉でないエンティティはエラーになる(t *testin
 	require.Error(t, err)
 	assert.EqualError(t, err, "entity is not a door")
 }
+
+func TestSpawnDoor_扉は殴って壊せる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 3, Y: 4}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	require.True(t, world.Components.HP.Has(door), "扉は HP を持ち破壊できる")
+	assert.Positive(t, world.Components.HP.Get(door).Max)
+	require.True(t, world.Components.Interactable.Has(door))
+	assert.Contains(t, world.Components.Interactable.Get(door).Interactions, gc.InteractionMelee, "扉は殴る対象になる")
+}
