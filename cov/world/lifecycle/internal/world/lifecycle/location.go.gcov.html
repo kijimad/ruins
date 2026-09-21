@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">93.5&nbsp;%</td>
+            <td class="headerCovTableEntryHi">93.9&nbsp;%</td>
+            <td class="headerCovTableEntry">165</td>
             <td class="headerCovTableEntry">155</td>
-            <td class="headerCovTableEntry">145</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 03:56:30</td>
+            <td class="headerValue">2026-09-21 07:47:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -274,71 +274,85 @@
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 owner := world.Components.LocationInStorage.Get(entity).Owner</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 ensureMarker(world, world.Components.WeightDirty, owner, &amp;gc.WeightDirty{})</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L215"><span class="lineNum">     215</span>              : </span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationInBackpack, entity)</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationEquipped, entity)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationOnField, entity)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationInStorage, entity)</span></span>
-<span id="L220"><span class="lineNum">     220</span>              : }</span>
-<span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span>              : // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる</span>
-<span id="L223"><span class="lineNum">     223</span>              : func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         var found bool</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L227"><span class="lineNum">     227</span>              :         // query.GetPlayerEntity でなくフィルタで探す。後続の Get が座標・スプライト・カメラの</span>
-<span id="L228"><span class="lineNum">     228</span>              :         // 存在を前提にするため、4成分そろったプレイヤーだけをここで担保する。</span>
-<span id="L229"><span class="lineNum">     229</span>              :         // プレイヤーは1体なので最初の1件で確定し、残りの走査を打ち切る</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         if playerQuery.Next() {</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 playerEntity = playerQuery.Entity()</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 found = true</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 playerQuery.Close()</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         if !found {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;no player entity with required components found&quot;)</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L239"><span class="lineNum">     239</span>              : </span>
-<span id="L240"><span class="lineNum">     240</span>              :         // プレイヤーの位置を更新する</span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(playerEntity)</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         gridElement.X = pos.X</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         gridElement.Y = pos.Y</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L245"><span class="lineNum">     245</span>              :         // カメラ位置も同期する</span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         camera := world.Components.Camera.Get(playerEntity)</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         camera.Pos = consts.TileCenterToWorld(pos)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         camera.Target = camera.Pos</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L251"><span class="lineNum">     251</span>              : }</span>
-<span id="L252"><span class="lineNum">     252</span>              : </span>
-<span id="L253"><span class="lineNum">     253</span>              : // RemoveOwnedStorage は owners のいずれかが所有する収納内の実体を削除する。</span>
-<span id="L254"><span class="lineNum">     254</span>              : // 収納在庫は GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を</span>
-<span id="L255"><span class="lineNum">     255</span>              : // 消すときに一緒に消さないと、死んだ所有者を指す孤児として world に残り serde で蓄積する。</span>
-<span id="L256"><span class="lineNum">     256</span>              : // 反復中の削除を避け、収集してから削除する</span>
-<span id="L257"><span class="lineNum">     257</span>              : func RemoveOwnedStorage(world w.World, owners []ecs.Entity) {</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         if len(owners) == 0 {</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         ownerSet := make(map[ecs.Entity]bool, len(owners))</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         for _, o := range owners {</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 ownerSet[o] = true</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L265"><span class="lineNum">     265</span>              : </span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         var toRemove []ecs.Entity</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] {</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, entity)</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L273"><span class="lineNum">     273</span>              :         }</span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         for _, entity := range toRemove {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 if world.ECS.Alive(entity) {</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         world.ECS.RemoveEntity(entity)</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L278"><span class="lineNum">     278</span>              :         }</span>
-<span id="L279"><span class="lineNum">     279</span>              : }</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         if world.Components.LocationStowed.Has(entity) {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 owner := world.Components.LocationStowed.Get(entity).Owner</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 ensureMarker(world, world.Components.WeightDirty, owner, &amp;gc.WeightDirty{})</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationInBackpack, entity)</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationEquipped, entity)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationOnField, entity)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationInStorage, entity)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.LocationStowed, entity)</span></span>
+<span id="L225"><span class="lineNum">     225</span>              : }</span>
+<span id="L226"><span class="lineNum">     226</span>              : </span>
+<span id="L227"><span class="lineNum">     227</span>              : // MoveToStowed はアイテムをキューブへ畳み込む。他ロケーションと排他になるよう clearLocation してから</span>
+<span id="L228"><span class="lineNum">     228</span>              : // LocationStowed を付ける。offset はキューブからの相対位置で、展開時に同じ配置へ戻すために持つ。</span>
+<span id="L229"><span class="lineNum">     229</span>              : func MoveToStowed(world w.World, entity ecs.Entity, cube ecs.Entity, offset consts.Coord[consts.Tile]) {</span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         clearLocation(world, entity)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         world.Components.LocationStowed.Add(entity, &amp;gc.LocationStowed{Owner: cube, Offset: offset})</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.GridElement, entity)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         ensureMarker(world, world.Components.WeightDirty, cube, &amp;gc.WeightDirty{})</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : </span>
+<span id="L236"><span class="lineNum">     236</span>              : // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる</span>
+<span id="L237"><span class="lineNum">     237</span>              : func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         var found bool</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L241"><span class="lineNum">     241</span>              :         // query.GetPlayerEntity でなくフィルタで探す。後続の Get が座標・スプライト・カメラの</span>
+<span id="L242"><span class="lineNum">     242</span>              :         // 存在を前提にするため、4成分そろったプレイヤーだけをここで担保する。</span>
+<span id="L243"><span class="lineNum">     243</span>              :         // プレイヤーは1体なので最初の1件で確定し、残りの走査を打ち切る</span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         if playerQuery.Next() {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 playerEntity = playerQuery.Entity()</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 found = true</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 playerQuery.Close()</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         if !found {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;no player entity with required components found&quot;)</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L253"><span class="lineNum">     253</span>              : </span>
+<span id="L254"><span class="lineNum">     254</span>              :         // プレイヤーの位置を更新する</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(playerEntity)</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         gridElement.X = pos.X</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         gridElement.Y = pos.Y</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L259"><span class="lineNum">     259</span>              :         // カメラ位置も同期する</span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         camera := world.Components.Camera.Get(playerEntity)</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         camera.Pos = consts.TileCenterToWorld(pos)</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         camera.Target = camera.Pos</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L265"><span class="lineNum">     265</span>              : }</span>
+<span id="L266"><span class="lineNum">     266</span>              : </span>
+<span id="L267"><span class="lineNum">     267</span>              : // RemoveOwnedStorage は owners のいずれかが所有する収納内の実体を削除する。</span>
+<span id="L268"><span class="lineNum">     268</span>              : // 収納在庫は GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を</span>
+<span id="L269"><span class="lineNum">     269</span>              : // 消すときに一緒に消さないと、死んだ所有者を指す孤児として world に残り serde で蓄積する。</span>
+<span id="L270"><span class="lineNum">     270</span>              : // 反復中の削除を避け、収集してから削除する</span>
+<span id="L271"><span class="lineNum">     271</span>              : func RemoveOwnedStorage(world w.World, owners []ecs.Entity) {</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         if len(owners) == 0 {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         ownerSet := make(map[ecs.Entity]bool, len(owners))</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         for _, o := range owners {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 ownerSet[o] = true</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L279"><span class="lineNum">     279</span>              : </span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         var toRemove []ecs.Entity</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, entity)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L287"><span class="lineNum">     287</span>              :         }</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         for _, entity := range toRemove {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 if world.ECS.Alive(entity) {</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                         world.ECS.RemoveEntity(entity)</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L292"><span class="lineNum">     292</span>              :         }</span>
+<span id="L293"><span class="lineNum">     293</span>              : }</span>
         </pre>
               </td>
             </tr>

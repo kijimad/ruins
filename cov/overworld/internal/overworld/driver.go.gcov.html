@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.9&nbsp;%</td>
-            <td class="headerCovTableEntry">117</td>
-            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntryMed">76.0&nbsp;%</td>
+            <td class="headerCovTableEntry">121</td>
+            <td class="headerCovTableEntry">92</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 03:56:30</td>
+            <td class="headerValue">2026-09-21 07:47:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -192,107 +192,112 @@
 <span id="L130"><span class="lineNum">     130</span>              : </span>
 <span id="L131"><span class="lineNum">     131</span>              :         // 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く</span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :         cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn cube: %w&quot;, cerr)</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC tlaBgGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L139"><span class="lineNum">     139</span>              : }</span>
-<span id="L140"><span class="lineNum">     140</span>              : </span>
-<span id="L141"><span class="lineNum">     141</span>              : // walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を</span>
-<span id="L142"><span class="lineNum">     142</span>              : // 返す。開始チャンクが荒れ地でなく建物や遺跡入口でも、プレイヤーを壁の中へ湧かせないための安全策。</span>
-<span id="L143"><span class="lineNum">     143</span>              : // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。</span>
-<span id="L144"><span class="lineNum">     144</span>              : func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {</span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         blocked := make(map[gc.GridElement]bool)</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 blocked[*world.Components.GridElement.Get(q.Entity())] = true</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         x0, y0 := int(center.X), int(center.Y)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         at := func(x, y int) consts.Coord[consts.Tile] {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           2 :         isBlocked := func(x, y int) bool { return blocked[gc.GridElement{Coord: at(x, y)}] }</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         for r := range 100 {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 for dy := -r; dy &lt;= r; dy++ {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                         for dx := -r; dx &lt;= r; dx++ {</span></span>
-<span id="L158"><span class="lineNum">     158</span>              :                                 // リングの外周だけ見る。内側は前の r で確認済み</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                                 if r &gt; 0 &amp;&amp; dx &gt; -r &amp;&amp; dx &lt; r &amp;&amp; dy &gt; -r &amp;&amp; dy &lt; r {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                                         continue</span></span>
-<span id="L161"><span class="lineNum">     161</span>              :                                 }</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                                 if !isBlocked(x0+dx, y0+dy) {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                                         return at(x0+dx, y0+dy)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L165"><span class="lineNum">     165</span>              :                         }</span>
-<span id="L166"><span class="lineNum">     166</span>              :                 }</span>
-<span id="L167"><span class="lineNum">     167</span>              :         }</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC tlaBgUNC">           0 :         return at(x0, y0)</span></span>
-<span id="L169"><span class="lineNum">     169</span>              : }</span>
-<span id="L170"><span class="lineNum">     170</span>              : </span>
-<span id="L171"><span class="lineNum">     171</span>              : // generateBandChunks は Level を帯全域に設定し、rows × K のチャンクを各スロットへ決定的生成する。</span>
-<span id="L172"><span class="lineNum">     172</span>              : // Level 設定は帯寸法が不変なので再設定しても冪等で無害。</span>
-<span id="L173"><span class="lineNum">     173</span>              : func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {</span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC tlaBgGNC">           1 :         overworldKey := gc.NewOverworldStage()</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         field := query.EnsureStageField(world, overworldKey)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         field.Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         field.BaseTemp = dungeon.BaseTemperatureFor(overworldKey.Name)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         for cy := range dr.band.Rows() {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 for i := range dr.band.Cols() {</span></span>
-<span id="L180"><span class="lineNum">     180</span>              :                         // X は有界なので絶対チャンク列はそのまま i。Y は北進ぶん負へずらした絶対チャンク行</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                         c := consts.Coord[consts.Chunk]{X: i, Y: cy - dr.band.NorthIndex()}</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to generate chunk (x=%d, y=%d): %w&quot;, c.X, c.Y, err)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L185"><span class="lineNum">     185</span>              :                 }</span>
-<span id="L186"><span class="lineNum">     186</span>              :         }</span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L188"><span class="lineNum">     188</span>              : }</span>
-<span id="L189"><span class="lineNum">     189</span>              : </span>
-<span id="L190"><span class="lineNum">     190</span>              : // NorthIndex は帯の現在の北インデックスを返す。テストや検証用。</span>
-<span id="L191"><span class="lineNum">     191</span>              : func (dr *Driver) NorthIndex() consts.Chunk {</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return dr.band.NorthIndex()</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         cube, cerr := lifecycle.SpawnCube(world, cubePos)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         if cerr != nil {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn cube: %w&quot;, cerr)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :         // 展開すると貨物が現れる往復を最初から見せるため、既定の貨物を1つ畳んで入れておく</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 :         if derr := lifecycle.StowDefaultCubeCargo(world, cube); derr != nil {</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to stow default cube cargo: %w&quot;, derr)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : </span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC tlaBgGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : }</span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span>              : // walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を</span>
+<span id="L147"><span class="lineNum">     147</span>              : // 返す。開始チャンクが荒れ地でなく建物や遺跡入口でも、プレイヤーを壁の中へ湧かせないための安全策。</span>
+<span id="L148"><span class="lineNum">     148</span>              : // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。</span>
+<span id="L149"><span class="lineNum">     149</span>              : func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         blocked := make(map[gc.GridElement]bool)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 blocked[*world.Components.GridElement.Get(q.Entity())] = true</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         x0, y0 := int(center.X), int(center.Y)</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         at := func(x, y int) consts.Coord[consts.Tile] {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :         isBlocked := func(x, y int) bool { return blocked[gc.GridElement{Coord: at(x, y)}] }</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         for r := range 100 {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 for dy := -r; dy &lt;= r; dy++ {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                         for dx := -r; dx &lt;= r; dx++ {</span></span>
+<span id="L163"><span class="lineNum">     163</span>              :                                 // リングの外周だけ見る。内側は前の r で確認済み</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                                 if r &gt; 0 &amp;&amp; dx &gt; -r &amp;&amp; dx &lt; r &amp;&amp; dy &gt; -r &amp;&amp; dy &lt; r {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                                         continue</span></span>
+<span id="L166"><span class="lineNum">     166</span>              :                                 }</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                                 if !isBlocked(x0+dx, y0+dy) {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                                         return at(x0+dx, y0+dy)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L170"><span class="lineNum">     170</span>              :                         }</span>
+<span id="L171"><span class="lineNum">     171</span>              :                 }</span>
+<span id="L172"><span class="lineNum">     172</span>              :         }</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC tlaBgUNC">           0 :         return at(x0, y0)</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : }</span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              : // generateBandChunks は Level を帯全域に設定し、rows × K のチャンクを各スロットへ決定的生成する。</span>
+<span id="L177"><span class="lineNum">     177</span>              : // Level 設定は帯寸法が不変なので再設定しても冪等で無害。</span>
+<span id="L178"><span class="lineNum">     178</span>              : func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) error {</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC tlaBgGNC">           1 :         overworldKey := gc.NewOverworldStage()</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         field := query.EnsureStageField(world, overworldKey)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         field.Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         field.BaseTemp = dungeon.BaseTemperatureFor(overworldKey.Name)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         for cy := range dr.band.Rows() {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 for i := range dr.band.Cols() {</span></span>
+<span id="L185"><span class="lineNum">     185</span>              :                         // X は有界なので絶対チャンク列はそのまま i。Y は北進ぶん負へずらした絶対チャンク行</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                         c := consts.Coord[consts.Chunk]{X: i, Y: cy - dr.band.NorthIndex()}</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                         if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to generate chunk (x=%d, y=%d): %w&quot;, c.X, c.Y, err)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L190"><span class="lineNum">     190</span>              :                 }</span>
+<span id="L191"><span class="lineNum">     191</span>              :         }</span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : }</span>
 <span id="L194"><span class="lineNum">     194</span>              : </span>
-<span id="L195"><span class="lineNum">     195</span>              : // MaybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトし、シフトしたかを返す。</span>
-<span id="L196"><span class="lineNum">     196</span>              : // シフトするとリベースでプレイヤーが中央へ動くため、呼び出し側はカメラを再センタリングする。</span>
-<span id="L197"><span class="lineNum">     197</span>              : //</span>
-<span id="L198"><span class="lineNum">     198</span>              : // 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち</span>
-<span id="L199"><span class="lineNum">     199</span>              : // プレイヤーターンの Player フェーズかつプレイヤーが継続アクティビティ中でないとき。</span>
-<span id="L200"><span class="lineNum">     200</span>              : func (dr *Driver) MaybeShift(world w.World) (bool, error) {</span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         if query.GetTurnState(world).Phase != gc.TurnPhasePlayer {</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, nil</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC tlaBgGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, fmt.Errorf(&quot;shift check requires a player: %w&quot;, err)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC tlaBgGNC">           1 :         if query.HasActivity(world, playerEntity) {</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, nil</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L211"><span class="lineNum">     211</span>              :         // 中央チャンクに収まるまでシフトを繰り返す。各シフトはプレイヤーを chunkH ぶん中央へ寄せるため、</span>
-<span id="L212"><span class="lineNum">     212</span>              :         // 必ず有限回で収束する。</span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC tlaBgGNC">           1 :         shifted := false</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         for {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 localY := world.Components.GridElement.Get(playerEntity).Y</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 if dr.band.ShouldShiftNorth(localY) {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         if err := dr.band.ShiftNorth(world, dr.gen); err != nil {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return shifted, err</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC tlaBgGNC">           1 :                         shifted = true</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L222"><span class="lineNum">     222</span>              :                 }</span>
-<span id="L223"><span class="lineNum">     223</span>              :                 // 南シフトはしない。帯は北へのみ進み破棄済みチャンクを再生成しないので、</span>
-<span id="L224"><span class="lineNum">     224</span>              :                 // 到達した最南端より南へは戻れない。後戻り不可はこの北進だけで保つ</span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 break</span></span>
-<span id="L226"><span class="lineNum">     226</span>              :         }</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         if shifted {</span></span>
-<span id="L228"><span class="lineNum">     228</span>              :                 // Band の最終 northIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、</span>
-<span id="L229"><span class="lineNum">     229</span>              :                 // シフトのたびでなくループを抜けてから一度だけ同期する</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 query.GetSeamlessBand(world).NorthIndex = dr.band.NorthIndex()</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         return shifted, nil</span></span>
-<span id="L233"><span class="lineNum">     233</span>              : }</span>
+<span id="L195"><span class="lineNum">     195</span>              : // NorthIndex は帯の現在の北インデックスを返す。テストや検証用。</span>
+<span id="L196"><span class="lineNum">     196</span>              : func (dr *Driver) NorthIndex() consts.Chunk {</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         return dr.band.NorthIndex()</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L199"><span class="lineNum">     199</span>              : </span>
+<span id="L200"><span class="lineNum">     200</span>              : // MaybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトし、シフトしたかを返す。</span>
+<span id="L201"><span class="lineNum">     201</span>              : // シフトするとリベースでプレイヤーが中央へ動くため、呼び出し側はカメラを再センタリングする。</span>
+<span id="L202"><span class="lineNum">     202</span>              : //</span>
+<span id="L203"><span class="lineNum">     203</span>              : // 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち</span>
+<span id="L204"><span class="lineNum">     204</span>              : // プレイヤーターンの Player フェーズかつプレイヤーが継続アクティビティ中でないとき。</span>
+<span id="L205"><span class="lineNum">     205</span>              : func (dr *Driver) MaybeShift(world w.World) (bool, error) {</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         if query.GetTurnState(world).Phase != gc.TurnPhasePlayer {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, nil</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, fmt.Errorf(&quot;shift check requires a player: %w&quot;, err)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC tlaBgGNC">           1 :         if query.HasActivity(world, playerEntity) {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, nil</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L216"><span class="lineNum">     216</span>              :         // 中央チャンクに収まるまでシフトを繰り返す。各シフトはプレイヤーを chunkH ぶん中央へ寄せるため、</span>
+<span id="L217"><span class="lineNum">     217</span>              :         // 必ず有限回で収束する。</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 :         shifted := false</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         for {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 localY := world.Components.GridElement.Get(playerEntity).Y</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 if dr.band.ShouldShiftNorth(localY) {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                         if err := dr.band.ShiftNorth(world, dr.gen); err != nil {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return shifted, err</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 :                         shifted = true</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L227"><span class="lineNum">     227</span>              :                 }</span>
+<span id="L228"><span class="lineNum">     228</span>              :                 // 南シフトはしない。帯は北へのみ進み破棄済みチャンクを再生成しないので、</span>
+<span id="L229"><span class="lineNum">     229</span>              :                 // 到達した最南端より南へは戻れない。後戻り不可はこの北進だけで保つ</span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 break</span></span>
+<span id="L231"><span class="lineNum">     231</span>              :         }</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if shifted {</span></span>
+<span id="L233"><span class="lineNum">     233</span>              :                 // Band の最終 northIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、</span>
+<span id="L234"><span class="lineNum">     234</span>              :                 // シフトのたびでなくループを抜けてから一度だけ同期する</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 query.GetSeamlessBand(world).NorthIndex = dr.band.NorthIndex()</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         return shifted, nil</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : }</span>
         </pre>
               </td>
             </tr>
