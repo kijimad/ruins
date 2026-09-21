@@ -14,8 +14,7 @@ const defaultCubeCargoItem = "garlic_bread"
 // defaultCubeCargoOffset は既定貨物を展開で出す相対位置。左上へ置いて往復が目に見えるようにする。
 var defaultCubeCargoOffset = consts.Coord[consts.Tile]{X: -1, Y: -1}
 
-// StowDefaultCubeCargo はキューブに既定の貨物を1つ畳み込んで入れる。展開すると左上に現れ、
-// 圧縮で畳まれる往復が一目で分かる。ゲーム開始時のキューブ生成でだけ呼び、キューブは初期から圧縮で始まる。
+// StowDefaultCubeCargo はキューブに既定の貨物を1つ畳み込む。ゲーム開始時のキューブ生成でだけ呼ぶ。
 func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	item, err := spawnItemBase(world, defaultCubeCargoItem)
 	if err != nil {
@@ -25,9 +24,8 @@ func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	return nil
 }
 
-// DeployCube はキューブを展開状態にする。野営 CubeDeployCampRadius 内が開けていれば Deployed を付け、
-// 畳み込んでいた貨物を元の相対位置へ出し直して true を返す。1タイルでも壁や敵、物で塞がれていれば
-// 状態を変えず false を返す。プレイヤーは展開前に草などを壊して野営分の場所を空ける。
+// DeployCube はキューブを展開する。野営 CubeDeployCampRadius 内が開いていれば Deployed を付けて
+// 貨物を相対位置へ出し直し true、1タイルでも塞がれていれば状態を変えず false を返す。
 func DeployCube(world w.World, cube ecs.Entity) bool {
 	if world.Components.Deployed.Has(cube) {
 		return true
@@ -40,18 +38,15 @@ func DeployCube(world w.World, cube ecs.Entity) bool {
 	return true
 }
 
-// deploySpaceFree は野営 CubeDeployCampRadius 内が展開に使えるかを返す。壁・敵・フィールドのアイテムや
-// prop が1つでもあれば偽。判定範囲を圧縮時の畳み込み範囲と同じにすることで、展開できたら野営全体は空だと
-// 保証され、圧縮で畳む物はすべてプレイヤーが後から置いた物になる。メニューは隣接で開くのでプレイヤーは
-// 野営内に立つ。展開を妨げないよう本人は除外する。
+// deploySpaceFree は野営 CubeDeployCampRadius 内が展開に使えるかを返す。壁・敵・アイテム・prop が
+// 1つでもあれば偽。判定範囲を畳み込み範囲と同じにするので、展開できたら野営は空だと保証される。
 func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return false
 	}
-	// プレイヤーは野営内に立ってメニューを開くので、本人のタイルで展開を拒否しないよう除外する。
-	// 取得できないときは player が InvalidEntity になるが、CharacterAt が返す実キャラは決して
-	// InvalidEntity と一致しないため、誰も除外しないだけで安全側に倒れる。
+	// プレイヤーは野営内に立ってメニューを開くので本人のタイルでは拒否しない。取得失敗時は
+	// InvalidEntity になるが実キャラと一致しないので、誰も除外しないだけで安全側に倒れる。
 	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
 	for dy := -consts.CubeDeployCampRadius; dy <= consts.CubeDeployCampRadius; dy++ {
@@ -68,8 +63,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 			}
 		}
 	}
-	// フィールドのアイテムや prop が野営内にあれば展開しない。空間索引は BlockPass と character しか
-	// 持たないので LocationOnField を走査する。早期 return でもロックを残さないよう defer で Close する
+	// 空間索引は BlockPass と character しか持たないのでアイテム・prop は LocationOnField を走査する
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
 	defer q.Close()
 	for q.Next() {
@@ -93,11 +87,8 @@ func StowCube(world w.World, cube ecs.Entity) {
 	world.Components.Deployed.Remove(cube)
 }
 
-// stowNearbyItems は野営 CubeDeployCampRadius 内のフィールドのアイテムと prop をキューブへ畳み込む。
-// LocationStowed へ移して燃料と区別し、キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。
-// 展開時に野営内は空だと保証されるので、ここにあるのはプレイヤーが後から置いた物だけで、自然の草・木を
-// 吸い込む心配はない。プレイヤーの所持と同じく積める重量に硬い上限はなく、積みすぎれば運転の燃費が上がり
-// 燃料が尽きて動けなくなるだけ。キャラクターは LocationOnField を持たず対象外、キューブ自身も除外する。
+// stowNearbyItems は野営 CubeDeployCampRadius 内のアイテムと prop を LocationStowed へ畳み込み、燃料と
+// 区別しつつ相対位置を覚えて展開で戻せるようにする。展開時に野営は空なので、畳むのはプレイヤーが置いた物だけ。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	base := world.Components.GridElement.Get(cube).Coord
 
@@ -122,18 +113,20 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 	}
 }
 
-// releaseStowedItems は畳み込んだ貨物を、記録した相対位置へ出し直す。燃料タンクの中身は残す。
-// キューブが移動していても相対位置で戻すので、置いた配置を保ったまま野営を再現する。
+// releaseStowedItems は畳み込んだ貨物を記録した相対位置へ出し直す。キューブが移動していても相対位置で戻す。
 func releaseStowedItems(world w.World, cube ecs.Entity) {
 	cargo := query.StowedCargo(world, cube)
 	base := world.Components.GridElement.Get(cube).Coord
+	// 貨物ごとに別タイルへ戻すので MoveMembersToField を1件ずつ呼ぶ。スライスを使い回して確保を避ける
+	single := make([]ecs.Entity, 1)
 	for _, item := range cargo {
+		single[0] = item
 		coord := base.Add(world.Components.LocationStowed.Get(item).Offset)
-		MoveMembersToField(world, []ecs.Entity{item}, coord, cube)
+		MoveMembersToField(world, single, coord, cube)
 	}
 }
 
-// chebyshev は2タイル間のチェビシェフ距離を返す。斜め1マスも距離1として野営の広さに含める。
+// chebyshev は2タイル間のチェビシェフ距離を返す。斜めも距離1に含める。
 func chebyshev(a, b consts.Coord[consts.Tile]) int {
 	dx := int(a.X - b.X)
 	if dx < 0 {
