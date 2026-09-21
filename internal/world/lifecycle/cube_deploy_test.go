@@ -126,6 +126,31 @@ func TestStowCube_置いた相対位置を保持して戻す(t *testing.T) {
 		"移動後も相対位置(0,-1)を保って戻る")
 }
 
+func TestStowDefaultCubeCargo_展開で左上に既定貨物が現れる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	require.NoError(t, StowDefaultCubeCargo(world, cube))
+	query.InvalidateSpatialIndex(world)
+
+	require.True(t, DeployCube(world, cube))
+
+	// 展開すると既定貨物が左上(9,9)へ現れる
+	found := false
+	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if e == cube || !world.Components.GridElement.Has(e) {
+			continue
+		}
+		if world.Components.GridElement.Get(e).Coord == (consts.Coord[consts.Tile]{X: 9, Y: 9}) {
+			found = true
+		}
+	}
+	assert.True(t, found, "展開で既定貨物が左上に現れる")
+}
+
 func TestStowCube_容量を超える分は足元に残す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

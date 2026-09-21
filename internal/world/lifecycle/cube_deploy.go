@@ -16,6 +16,23 @@ var deployOffsets = []consts.Coord[consts.Tile]{
 	{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
 }
 
+// defaultCubeCargoItem は展開の効果を示すため最初から畳んで入れておく貨物。
+const defaultCubeCargoItem = "garlic_bread"
+
+// defaultCubeCargoOffset は既定貨物を展開で出す相対位置。左上へ置いて往復が目に見えるようにする。
+var defaultCubeCargoOffset = consts.Coord[consts.Tile]{X: -1, Y: -1}
+
+// StowDefaultCubeCargo はキューブに既定の貨物を1つ Stowed で畳み込んで入れる。展開すると左上に現れ、
+// 収納で畳まれる往復が一目で分かる。ゲーム開始時のキューブ生成でだけ呼び、収納は初期から収納中で始まる。
+func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
+	item, err := SpawnStorageItem(world, defaultCubeCargoItem, 1, cube)
+	if err != nil {
+		return err
+	}
+	world.Components.Stowed.Add(item, &gc.Stowed{Offset: defaultCubeCargoOffset})
+	return nil
+}
+
 // DeployCube はキューブを展開状態にする。周囲8マスが開けていれば Deployed を付け、畳み込んでいた貨物を
 // 元の相対位置へ出し直して true を返す。1タイルでも壁や敵、物で塞がれていれば状態を変えず false を返す。
 func DeployCube(world w.World, cube ecs.Entity) bool {
