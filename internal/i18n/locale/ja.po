@@ -1749,14 +1749,14 @@ msgstr "収納"
 msgid "Cube info"
 msgstr "キューブ情報"
 
-msgid "Open cube menu (%s)"
-msgstr "キューブメニューを開く (%s)"
+msgid "Open cube menu"
+msgstr "キューブメニューを開く"
 
 msgid "Drive"
 msgstr "運転する"
 
-msgid "You are on the cube. Press Enter to drive."
-msgstr "キューブの上にいる。Enter で運転する。"
+msgid "You are on the cube. Press Enter to open the menu."
+msgstr "キューブの上にいる。Enter でメニューを開く。"
 
 msgid "You board the cube and start driving."
 msgstr "キューブに乗り込んで運転を始めた。"
@@ -6295,6 +6295,3 @@ msgstr "圧縮する"
 
 msgid "Not enough open space to deploy."
 msgstr "展開する空きが足りない"
-
-msgid "The cube is deployed. Compress it before driving."
-msgstr "キューブは展開中だ。運転する前に圧縮する"

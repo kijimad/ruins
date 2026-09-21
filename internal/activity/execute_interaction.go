@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -48,8 +47,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeDisassemble(actor, target, world)
 	case gc.InteractionOpenCubeMenu:
 		return executePortal(world, gc.OpenCubeMenuEvent(target), "cube menu state change request error", "opened cube menu")
-	case gc.InteractionDrive:
-		return executeDrive(actor, target, world)
 	case gc.InteractionIgnite:
 		return executeIgnite(target, world)
 	case gc.InteractionFeedFuel:
@@ -81,25 +78,6 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 		return nil, fmt.Errorf("dungeon entry state change request error: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "dungeon entry"}, nil
-}
-
-// executeDrive はキューブに乗車する。プレイヤーへ Driving を付け、以後の移動入力がキューブを動かす。
-// 既に運転中なら何もしない。
-func executeDrive(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
-	if world.Components.Deployed.Has(cube) {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "The cube is deployed. Compress it before driving.")).
-			Log()
-		return &ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "cube is deployed"}, nil
-	}
-	if world.Components.Driving.Has(actor) {
-		return &ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "already driving"}, nil
-	}
-	world.Components.Driving.Add(actor, &gc.Driving{Vehicle: cube})
-	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "You board the cube and start driving.")).
-		Log()
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorDrive, Message: "boarded cube"}, nil
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {

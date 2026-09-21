@@ -1,6 +1,7 @@
 package states
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -16,24 +17,46 @@ func isFuelItem(world w.World, e ecs.Entity) bool {
 	return query.HeatContent(world, e) > 0
 }
 
-// NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、展開と圧縮の切替と、
-// 燃料投入・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
-// 乗車は直上 Enter で完結するのでここには並べない。
+// NewCubeMenuState は移動拠点キューブの入口メニューを作る。直上で Enter すると開き、運転・展開と圧縮の
+// 切替・燃料投入・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
+// 運転は展開中にはできないので、圧縮中のときだけ項目に出す。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
-		return query.T(world, "Cube"), []Choice{
-			deployChoice(world, cube),
-			{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
+		choices := []Choice{deployChoice(world, cube)}
+		if !world.Components.Deployed.Has(cube) {
+			choices = append(choices, driveChoice(world, cube))
+		}
+		choices = append(choices,
+			Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewStorageMenuState(cube, WithItemFilter(isFuelItem))
 			})},
-			{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
+			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)
 			})},
-			{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
+			Choice{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			}},
-		}
+		)
+		return query.T(world, "Cube"), choices
 	}), nil
+}
+
+// driveChoice は圧縮中のキューブに乗り込んで運転を始める項目。プレイヤーへ Driving を付けると、以後の
+// 移動入力がキューブを動かす。展開中は呼び出し側が項目に出さない。運転中は DungeonState が入力を移動と
+// 降車だけに絞りメニューを開けないので、Driving が既に付いた状態でここへ来ることはない。ゆえに二重付与の
+// ガードは置かず、万一その不変条件が破れたら Ark の二重 Add で loud に露見させる。
+func driveChoice(world w.World, cube ecs.Entity) Choice {
+	return Choice{Label: query.T(world, "Drive"), Run: func(world w.World) (es.Transition[w.World], error) {
+		player, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "You board the cube and start driving.")).
+			Log()
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}}
 }
 
 // deployChoice は展開中なら圧縮、圧縮中なら展開の項目を返す。展開は必要な空きが無ければ拒否してログを出す。

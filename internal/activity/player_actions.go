@@ -216,7 +216,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				continue
 			}
 			// 実体はいずれかの相互作用で範囲内だが、ログはこの相互作用自身の範囲を満たすときだけ出す。
-			// 隣接で開くキューブメニューで範囲入りした実体の、直上専用の運転ログを隣接で出さない
+			// 別の相互作用で範囲入りした実体の、直上専用ログを隣接で出さない
 			if !query.IsInActivationRange(playerGrid, entityGrid, config.ActivationRange) {
 				continue
 			}
@@ -245,11 +245,11 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
-			case gc.InteractionDrive:
+			case gc.InteractionOpenCubeMenu:
 				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "You are on the cube. Press Enter to drive.")).
+					Markup(query.T(world, "You are on the cube. Press Enter to open the menu.")).
 					Log()
-			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel, gc.InteractionOpenCubeMenu:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

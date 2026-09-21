@@ -32,11 +32,12 @@ func TestNewCubeMenuState_圧縮中は展開を先頭に5項目を並べる(t *t
 	}
 	want := []string{
 		query.T(world, "Deploy"),
+		query.T(world, "Drive"),
 		query.T(world, "Fuel"),
 		query.T(world, "Cube info"),
 		query.T(world, "Close"),
 	}
-	assert.Equal(t, want, labels, "圧縮中は展開・燃料・キューブ情報・閉じるを順に並べる")
+	assert.Equal(t, want, labels, "圧縮中は展開・運転・燃料・キューブ情報・閉じるを順に並べる")
 }
 
 func TestNewCubeMenuState_展開中は先頭が圧縮になる(t *testing.T) {
@@ -53,6 +54,37 @@ func TestNewCubeMenuState_展開中は先頭が圧縮になる(t *testing.T) {
 
 	_, choices := menu.provide(world)
 	assert.Equal(t, query.T(world, "Compress"), choices[0].Label, "展開中は先頭が圧縮")
+	labels := make([]string, len(choices))
+	for i, c := range choices {
+		labels[i] = c.Label
+	}
+	assert.NotContains(t, labels, query.T(world, "Drive"), "展開中は運転できないので運転を出さない")
+}
+
+// TestDriveChoice_運転を選ぶとDrivingが付く は、キューブメニューの運転項目で乗車が始まることを固定する。
+// 運転の開始経路はこのメニュー1本に集約したので、Driving 付与とログをここで担保する。
+func TestDriveChoice_運転を選ぶとDrivingが付く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+
+	trans, err := driveChoice(world, cube).Run(world)
+	require.NoError(t, err)
+
+	require.True(t, world.Components.Driving.Has(player), "運転で Driving が付く")
+	assert.Equal(t, cube, world.Components.Driving.Get(player).Vehicle, "運転対象はそのキューブ")
+	assert.Equal(t, es.TransPop, trans.Type, "運転を始めたらメニューを閉じる")
+
+	var logged bool
+	for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
+		if strings.Contains(e.Text(), "board the cube") {
+			logged = true
+		}
+	}
+	assert.True(t, logged, "乗車をゲームログに出す")
 }
 
 func TestDeployChoice_展開できないときログを出しメニューを閉じる(t *testing.T) {

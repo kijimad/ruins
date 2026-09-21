@@ -1,7 +1,6 @@
 package activity
 
 import (
-	"strings"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -24,29 +23,6 @@ func addDriveFuel(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Materi
 	world.Components.Material.Add(e, &gc.Material{Kind: kind})
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: mg})
 	world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: cube})
-}
-
-func TestExecuteInteraction_乗車でDrivingが付く(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	require.NoError(t, err)
-
-	_, err = ExecuteInteraction(player, cube, gc.InteractionDrive, world)
-	require.NoError(t, err)
-
-	require.True(t, world.Components.Driving.Has(player), "乗車で Driving が付く")
-	assert.Equal(t, cube, world.Components.Driving.Get(player).Vehicle, "運転対象はそのキューブ")
-
-	var logged bool
-	for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
-		if strings.Contains(e.Text(), "board the cube") {
-			logged = true
-		}
-	}
-	assert.True(t, logged, "乗車をゲームログに出す")
 }
 
 func TestExecuteMoveAction_運転中はキューブとプレイヤーが一緒に動く(t *testing.T) {
@@ -95,7 +71,7 @@ func TestExecuteMoveAction_燃料切れは立往生する(t *testing.T) {
 	require.NoError(t, err)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
-	// 燃料を積まずに乗車する
+	// 燃料を積まずに運転状態にする
 	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
 
 	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))

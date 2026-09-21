@@ -24,6 +24,7 @@ func TestInteractionKind_Config(t *testing.T) {
 		{InteractionItemAll, ActivationRangeSameTile, ActivationWayManual, MenuUnitEntity},
 		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual, MenuUnitEntity},
 		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual, MenuUnitEntity},
+		{InteractionOpenCubeMenu, ActivationRangeSameTile, ActivationWayManual, MenuUnitEntity},
 	}
 
 	for _, tt := range tests {
@@ -151,7 +152,7 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 		InteractionDoor, InteractionTalk, InteractionItem, InteractionItemAll,
 		InteractionStorage, InteractionMelee, InteractionDisassemble,
 		InteractionIgnite, InteractionFeedFuel,
-		InteractionOpenCubeMenu, InteractionDrive,
+		InteractionOpenCubeMenu,
 	}
 
 	for _, kind := range kinds {
