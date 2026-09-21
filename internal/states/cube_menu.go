@@ -23,7 +23,6 @@ func isFuelItem(world w.World, e ecs.Entity) bool {
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
 		choices := []Choice{deployChoice(world, cube)}
-		// 展開中は運転できないので、圧縮中のときだけ運転を出す
 		if !world.Components.Deployed.Has(cube) {
 			choices = append(choices, driveChoice(world, cube))
 		}

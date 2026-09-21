@@ -216,7 +216,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				continue
 			}
 			// 実体はいずれかの相互作用で範囲内だが、ログはこの相互作用自身の範囲を満たすときだけ出す。
-			// 隣接で開くキューブメニューで範囲入りした実体の、直上専用の運転ログを隣接で出さない
+			// 別の相互作用で範囲入りした実体の、直上専用ログを隣接で出さない
 			if !query.IsInActivationRange(playerGrid, entityGrid, config.ActivationRange) {
 				continue
 			}

@@ -765,8 +765,8 @@ func actionKinds(actions []InteractionAction) []gc.InteractionKind {
 	return kinds
 }
 
-// TestGetInteractionActions_隣接ではキューブの乗車を出さない は、隣接の space メニューに乗車が
-// 出ず、乗車が直上でしか発動しないことを固定する。
+// TestGetInteractionActions_隣接ではキューブメニューを出さない は、隣接の space メニューにキューブ
+// メニューが出ず、メニューが直上でしか発動しないことを固定する。
 func TestGetInteractionActions_隣接ではキューブメニューを出さない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
