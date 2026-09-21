@@ -332,7 +332,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 	t.Run("中断可能なアクティビティは被ダメージでキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// 命中を確定させ、被ダメージでキャンセルされることを確定的に検証する
+		// 攻撃者の Dexterity 99 で命中率がほぼ上限。固定シードで命中を確定させ、被ダメージでのキャンセルを無分岐で検証する
 		world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 
 		target := world.ECS.NewEntity()
