@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 11:31:55</td>
+            <td class="headerValue">2026-09-21 14:44:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -116,7 +116,7 @@
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return &amp;DisassembleBehavior{}, nil</span></span>
 <span id="L55"><span class="lineNum">      55</span>              :         case gc.BehaviorSleep:</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 return &amp;SleepBehavior{}, nil</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC tlaBgUNC">           0 :         case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel, gc.BehaviorDrive:</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC tlaBgUNC">           0 :         case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :                 // ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない</span>
 <span id="L59"><span class="lineNum">      59</span>              :         }</span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil, fmt.Errorf(&quot;unregistered behavior: %s&quot;, name)</span></span>

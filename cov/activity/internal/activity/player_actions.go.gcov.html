@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">84.2&nbsp;%</td>
+            <td class="headerCovTableEntryMed">82.9&nbsp;%</td>
             <td class="headerCovTableEntry">158</td>
-            <td class="headerCovTableEntry">133</td>
+            <td class="headerCovTableEntry">131</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 11:31:55</td>
+            <td class="headerValue">2026-09-21 14:44:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -278,11 +278,11 @@
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
 <span id="L217"><span class="lineNum">     217</span>              :                         }</span>
 <span id="L218"><span class="lineNum">     218</span>              :                         // 実体はいずれかの相互作用で範囲内だが、ログはこの相互作用自身の範囲を満たすときだけ出す。</span>
-<span id="L219"><span class="lineNum">     219</span>              :                         // 隣接で開くキューブメニューで範囲入りした実体の、直上専用の運転ログを隣接で出さない</span>
+<span id="L219"><span class="lineNum">     219</span>              :                         // 別の相互作用で範囲入りした実体の、直上専用ログを隣接で出さない</span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC tlaBgGNC">           1 :                         if !query.IsInActivationRange(playerGrid, entityGrid, config.ActivationRange) {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
 <span id="L222"><span class="lineNum">     222</span>              :                         }</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                         switch interaction {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC tlaBgGNC">           1 :                         switch interaction {</span></span>
 <span id="L224"><span class="lineNum">     224</span>              :                         case gc.InteractionItem:</span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                                 key, ok := query.StackKeyOf(world, entity)</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                                 if ok &amp;&amp; loggedItemStacks[key] {</span></span>
@@ -307,11 +307,11 @@
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is a ruins entrance. Press Enter to enter.&quot;)).</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L248"><span class="lineNum">     248</span>              :                         case gc.InteractionDrive:</span>
+<span id="L248"><span class="lineNum">     248</span>              :                         case gc.InteractionOpenCubeMenu:</span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC tlaBgGNC">           1 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                                         Markup(query.T(world, &quot;You are on the cube. Press Enter to drive.&quot;)).</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                                         Markup(query.T(world, &quot;You are on the cube. Press Enter to open the menu.&quot;)).</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                                         Log()</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel, gc.InteractionOpenCubeMenu:</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC tlaBgUNC">           0 :                         case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel:</span></span>
 <span id="L253"><span class="lineNum">     253</span>              :                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を</span>
 <span id="L254"><span class="lineNum">     254</span>              :                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
 <span id="L255"><span class="lineNum">     255</span>              :                         }</span>

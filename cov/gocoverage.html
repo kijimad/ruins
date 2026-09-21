@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -69,7 +69,7 @@
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (100.0%)</option>
 				
-				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (83.2%)</option>
+				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (82.6%)</option>
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/injury.go (95.0%)</option>
 				
@@ -79,7 +79,7 @@
 				
 				<option value="file11">github.com/kijimaD/ruins/internal/activity/pickup.go (86.9%)</option>
 				
-				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (89.9%)</option>
+				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (89.3%)</option>
 				
 				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (88.0%)</option>
 				
@@ -531,7 +531,7 @@
 				
 				<option value="file237">github.com/kijimaD/ruins/internal/skill/growth.go (96.0%)</option>
 				
-				<option value="file238">github.com/kijimaD/ruins/internal/states/action_handlers.go (87.9%)</option>
+				<option value="file238">github.com/kijimaD/ruins/internal/states/action_handlers.go (87.8%)</option>
 				
 				<option value="file239">github.com/kijimaD/ruins/internal/states/autosave.go (58.3%)</option>
 				
@@ -553,7 +553,7 @@
 				
 				<option value="file248">github.com/kijimaD/ruins/internal/states/cube_info.go (21.4%)</option>
 				
-				<option value="file249">github.com/kijimaD/ruins/internal/states/cube_menu.go (64.3%)</option>
+				<option value="file249">github.com/kijimaD/ruins/internal/states/cube_menu.go (76.0%)</option>
 				
 				<option value="file250">github.com/kijimaD/ruins/internal/states/debug_menu.go (7.2%)</option>
 				
@@ -905,7 +905,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
                 <span class="cov8" title="1">return &amp;DisassembleBehavior{}, nil</span>
         case gc.BehaviorSleep:
                 <span class="cov8" title="1">return &amp;SleepBehavior{}, nil</span>
-        case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel, gc.BehaviorDrive:<span class="cov0" title="0"></span>
+        case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:<span class="cov0" title="0"></span>
                 // ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
         }
         <span class="cov8" title="1">return nil, fmt.Errorf("unregistered behavior: %s", name)</span>
@@ -1700,7 +1700,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -2674,7 +2674,6 @@ import (
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
-        "github.com/kijimaD/ruins/internal/gamelog"
         w "github.com/kijimaD/ruins/internal/world"
 
         "github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -2717,8 +2716,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
                 <span class="cov8" title="1">return executeDisassemble(actor, target, world)</span>
         case gc.InteractionOpenCubeMenu:
                 <span class="cov0" title="0">return executePortal(world, gc.OpenCubeMenuEvent(target), "cube menu state change request error", "opened cube menu")</span>
-        case gc.InteractionDrive:
-                <span class="cov8" title="1">return executeDrive(actor, target, world)</span>
         case gc.InteractionIgnite:
                 <span class="cov8" title="1">return executeIgnite(target, world)</span>
         case gc.InteractionFeedFuel:
@@ -2750,25 +2747,6 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
                 <span class="cov0" title="0">return nil, fmt.Errorf("dungeon entry state change request error: %w", err)
 </span>        }
         <span class="cov8" title="1">return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "dungeon entry"}, nil</span>
-}
-
-// executeDrive はキューブに乗車する。プレイヤーへ Driving を付け、以後の移動入力がキューブを動かす。
-// 既に運転中なら何もしない。
-func executeDrive(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
-        <span class="cov8" title="1">if world.Components.Deployed.Has(cube) </span>{
-                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "The cube is deployed. Compress it before driving.")).
-                        Log()
-                return &amp;ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "cube is deployed"}, nil
-</span>        }
-        <span class="cov8" title="1">if world.Components.Driving.Has(actor) </span>{
-                <span class="cov0" title="0">return &amp;ActionResult{Success: false, ActivityName: gc.BehaviorDrive, Message: "already driving"}, nil
-</span>        }
-        <span class="cov8" title="1">world.Components.Driving.Add(actor, &amp;gc.Driving{Vehicle: cube})
-        gamelog.New(query.GetGameLog(world)).
-                Markup(query.T(world, "You board the cube and start driving.")).
-                Log()
-        return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorDrive, Message: "boarded cube"}, nil</span>
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
@@ -3673,9 +3651,9 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
                                 <span class="cov0" title="0">continue</span>
                         }
                         // 実体はいずれかの相互作用で範囲内だが、ログはこの相互作用自身の範囲を満たすときだけ出す。
-                        // 隣接で開くキューブメニューで範囲入りした実体の、直上専用の運転ログを隣接で出さない
+                        // 別の相互作用で範囲入りした実体の、直上専用ログを隣接で出さない
                         <span class="cov8" title="1">if !query.IsInActivationRange(playerGrid, entityGrid, config.ActivationRange) </span>{
-                                <span class="cov8" title="1">continue</span>
+                                <span class="cov0" title="0">continue</span>
                         }
                         <span class="cov8" title="1">switch interaction </span>{
                         case gc.InteractionItem:
@@ -3702,11 +3680,11 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
                                 <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
                                         Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
                                         Log()</span>
-                        case gc.InteractionDrive:
+                        case gc.InteractionOpenCubeMenu:
                                 <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
-                                        Markup(query.T(world, "You are on the cube. Press Enter to drive.")).
+                                        Markup(query.T(world, "You are on the cube. Press Enter to open the menu.")).
                                         Log()</span>
-                        case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel, gc.InteractionOpenCubeMenu:<span class="cov8" title="1"></span>
+                        case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionIgnite, gc.InteractionFeedFuel:<span class="cov0" title="0"></span>
                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を
                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する
                         }
@@ -10584,8 +10562,6 @@ const (
         BehaviorFeedFuel BehaviorName = "FeedFuel"
         // BehaviorSleep は疲労が抜けるまで眠り続ける。外因で中断される
         BehaviorSleep BehaviorName = "Sleep"
-        // BehaviorDrive は移動拠点キューブへの乗車。ExecuteInteraction が直接処理する結果ラベル
-        BehaviorDrive BehaviorName = "Drive"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント
@@ -13483,12 +13459,9 @@ const (
         InteractionIgnite InteractionKind = "IGNITE"
         // InteractionFeedFuel は隣接の火へ燃料をくべる相互作用。給油メニューを開く。燃料の所持を条件に出す
         InteractionFeedFuel InteractionKind = "FEED_FUEL"
-        // InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。隣接で発動し、展開・
-        // 燃料・情報の入口になる
+        // InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。直上で発動し、運転・展開・
+        // 燃料・情報の入口になる。キューブのタイルに立って Enter でメニューを開く
         InteractionOpenCubeMenu InteractionKind = "OPEN_CUBE_MENU"
-        // InteractionDrive は移動拠点キューブに乗り込んで運転を始める相互作用。直上で発動する。
-        // ワープの階層移動と同じく、キューブのタイルに立って Enter で乗車する
-        InteractionDrive InteractionKind = "DRIVE"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -13498,11 +13471,11 @@ func (k InteractionKind) Config() InteractionConfig {
         <span class="cov8" title="1">switch k </span>{
         case InteractionItem:
                 <span class="cov8" title="1">return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}</span>
-        case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll, InteractionDrive:
+        case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll, InteractionOpenCubeMenu:
                 <span class="cov8" title="1">return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span>
         case InteractionDoor, InteractionTalk, InteractionMelee:
                 <span class="cov8" title="1">return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}</span>
-        case InteractionStorage, InteractionDisassemble, InteractionIgnite, InteractionFeedFuel, InteractionOpenCubeMenu:
+        case InteractionStorage, InteractionDisassemble, InteractionIgnite, InteractionFeedFuel:
                 <span class="cov8" title="1">return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span>
         }
         <span class="cov8" title="1">return InteractionConfig{}</span>
@@ -33895,7 +33868,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
                 <span class="cov8" title="1">interactable := world.Components.Interactable.Get(interactableEntity)
                 interactableGrid := world.Components.GridElement.Get(interactableEntity)
 </span>                // 実体単位でなく相互作用単位で発動範囲を絞る。隣接に来た実体でも、直上でしか発動しない
-                // 相互作用、例えば乗車 InteractionDrive は隣接メニューへ出さない。範囲判定は
+                // 相互作用、例えばキューブメニュー InteractionOpenCubeMenu は隣接メニューへ出さない。範囲判定は
                 // GetAllInteractiveInteractablesInRange と同じ IsInActivationRange を使う
                 <span class="cov8" title="1">var inRange []gc.InteractionKind
                 for _, interaction := range interactable.Interactions </span>{
@@ -34144,14 +34117,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
                                 })
 </span>                        }
                 case gc.InteractionOpenCubeMenu:
+                        // SameTile 発動なので方向は常に直上。他の直上相互作用と同じく方向ラベルを付けない
                         <span class="cov8" title="1">result = append(result, InteractionAction{
-                                Label:       query.T(world, "Open cube menu (%s)", dirLabel),
-                                Target:      interactableEntity,
-                                Interaction: interaction,
-                        })</span>
-                case gc.InteractionDrive:
-                        <span class="cov8" title="1">result = append(result, InteractionAction{
-                                Label:       query.T(world, "Drive"),
+                                Label:       query.T(world, "Open cube menu"),
                                 Target:      interactableEntity,
                                 Interaction: interaction,
                         })</span>
@@ -36267,6 +36235,7 @@ func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
 		<pre class="file" id="file249" style="display: none">package states
 
 import (
+        gc "github.com/kijimaD/ruins/internal/components"
         es "github.com/kijimaD/ruins/internal/engine/states"
         "github.com/kijimaD/ruins/internal/gamelog"
         w "github.com/kijimaD/ruins/internal/world"
@@ -36282,24 +36251,46 @@ func isFuelItem(world w.World, e ecs.Entity) bool {
         <span class="cov8" title="1">return query.HeatContent(world, e) &gt; 0
 </span>}
 
-// NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、展開と圧縮の切替と、
-// 燃料投入・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
-// 乗車は直上 Enter で完結するのでここには並べない。
+// NewCubeMenuState は移動拠点キューブの入口メニューを作る。直上で Enter すると開き、運転・展開と圧縮の
+// 切替・燃料投入・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
+// 運転は展開中にはできないので、圧縮中のときだけ項目に出す。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
         <span class="cov8" title="1">return NewChoiceMenu(func(world w.World) (string, []Choice) </span>{
-                <span class="cov8" title="1">return query.T(world, "Cube"), []Choice{
-                        deployChoice(world, cube),
-                        {Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) </span>{
+                <span class="cov8" title="1">choices := []Choice{deployChoice(world, cube)}
+                if !world.Components.Deployed.Has(cube) </span>{
+                        <span class="cov8" title="1">choices = append(choices, driveChoice(world, cube))
+</span>                }
+                <span class="cov8" title="1">choices = append(choices,
+                        Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) </span>{
                                 <span class="cov0" title="0">return NewStorageMenuState(cube, WithItemFilter(isFuelItem))
 </span>                        })},
-                        {Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
+                        Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
                                 <span class="cov0" title="0">return NewCubeInfoState(cube)
 </span>                        })},
-                        {Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
+                        Choice{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
                                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil
 </span>                        }},
-                }
+                )
+                <span class="cov8" title="1">return query.T(world, "Cube"), choices</span>
         }), nil
+}
+
+// driveChoice は圧縮中のキューブに乗り込んで運転を始める項目。プレイヤーへ Driving を付けると、以後の
+// 移動入力がキューブを動かす。展開中は呼び出し側が項目に出さない。運転中は DungeonState が入力を移動と
+// 降車だけに絞りメニューを開けないので、Driving が既に付いた状態でここへ来ることはない。ゆえに二重付与の
+// ガードは置かず、万一その不変条件が破れたら Ark の二重 Add で loud に露見させる。
+func driveChoice(world w.World, cube ecs.Entity) Choice {
+        <span class="cov8" title="1">return Choice{Label: query.T(world, "Drive"), Run: func(world w.World) (es.Transition[w.World], error) </span>{
+                <span class="cov8" title="1">player, err := query.GetPlayerEntity(world)
+                if err != nil </span>{
+                        <span class="cov0" title="0">return es.Transition[w.World]{}, err
+</span>                }
+                <span class="cov8" title="1">world.Components.Driving.Add(player, &amp;gc.Driving{Vehicle: cube})
+                gamelog.New(query.GetGameLog(world)).
+                        Markup(query.T(world, "You board the cube and start driving.")).
+                        Log()
+                return es.Transition[w.World]{Type: es.TransPop}, nil</span>
+        }}
 }
 
 // deployChoice は展開中なら圧縮、圧縮中なら展開の項目を返す。展開は必要な空きが無ければ拒否してログを出す。
@@ -52682,8 +52673,9 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},
                 // 収納を持ち、隣接時にキューブメニューから開ける
                 WeightCapacity: &amp;gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},
-                // 直上で乗車、隣接でメニュー。BlockPass は持たず、直上に立てる通行可能な地物にする
-                Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDrive, gc.InteractionOpenCubeMenu}},
+                // 直上で Enter するとキューブメニューが開き、運転もそこから始める。BlockPass は持たず、
+                // 直上に立てる通行可能な地物にする
+                Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu}},
         }), nil
 </span>}
 </pre>

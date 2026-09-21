@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.6&nbsp;%</td>
-            <td class="headerCovTableEntry">215</td>
-            <td class="headerCovTableEntry">169</td>
+            <td class="headerCovTableEntryMed">78.1&nbsp;%</td>
+            <td class="headerCovTableEntry">210</td>
+            <td class="headerCovTableEntry">164</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-21 11:31:55</td>
+            <td class="headerValue">2026-09-21 14:44:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC tlaBgGNC">           1 :                 interactable := world.Components.Interactable.Get(interactableEntity)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 interactableGrid := world.Components.GridElement.Get(interactableEntity)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 // 実体単位でなく相互作用単位で発動範囲を絞る。隣接に来た実体でも、直上でしか発動しない</span></span>
-<span id="L50"><span class="lineNum">      50</span>              :                 // 相互作用、例えば乗車 InteractionDrive は隣接メニューへ出さない。範囲判定は</span>
+<span id="L50"><span class="lineNum">      50</span>              :                 // 相互作用、例えばキューブメニュー InteractionOpenCubeMenu は隣接メニューへ出さない。範囲判定は</span>
 <span id="L51"><span class="lineNum">      51</span>              :                 // GetAllInteractiveInteractablesInRange と同じ IsInActivationRange を使う</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 var inRange []gc.InteractionKind</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 for _, interaction := range interactable.Interactions {</span></span>
@@ -358,31 +358,26 @@
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                                 })</span></span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L298"><span class="lineNum">     298</span>              :                 case gc.InteractionOpenCubeMenu:</span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC tlaBgGNC">           1 :                         result = append(result, InteractionAction{</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Open cube menu (%s)&quot;, dirLabel),</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L304"><span class="lineNum">     304</span>              :                 case gc.InteractionDrive:</span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Drive&quot;),</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.InteractionItemAll:</span></span>
-<span id="L311"><span class="lineNum">     311</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
-<span id="L312"><span class="lineNum">     312</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                 case gc.InteractionIgnite:</span></span>
-<span id="L314"><span class="lineNum">     314</span>              :                         // 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で</span>
-<span id="L315"><span class="lineNum">     315</span>              :                         // タイル単位に組む。ここには来ないが exhaustive のため case を明示する</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 case gc.InteractionFeedFuel:</span></span>
-<span id="L317"><span class="lineNum">     317</span>              :                         // 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。</span>
-<span id="L318"><span class="lineNum">     318</span>              :                         // ここには来ないが exhaustive のため case を明示する</span>
-<span id="L319"><span class="lineNum">     319</span>              :                 }</span>
-<span id="L320"><span class="lineNum">     320</span>              :         }</span>
-<span id="L321"><span class="lineNum">     321</span>              : </span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
-<span id="L323"><span class="lineNum">     323</span>              : }</span>
+<span id="L299"><span class="lineNum">     299</span>              :                         // SameTile 発動なので方向は常に直上。他の直上相互作用と同じく方向ラベルを付けない</span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC tlaBgGNC">           1 :                         result = append(result, InteractionAction{</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Open cube menu&quot;),</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.InteractionItemAll:</span></span>
+<span id="L306"><span class="lineNum">     306</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
+<span id="L307"><span class="lineNum">     307</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 case gc.InteractionIgnite:</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :                         // 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で</span>
+<span id="L310"><span class="lineNum">     310</span>              :                         // タイル単位に組む。ここには来ないが exhaustive のため case を明示する</span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                 case gc.InteractionFeedFuel:</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :                         // 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。</span>
+<span id="L313"><span class="lineNum">     313</span>              :                         // ここには来ないが exhaustive のため case を明示する</span>
+<span id="L314"><span class="lineNum">     314</span>              :                 }</span>
+<span id="L315"><span class="lineNum">     315</span>              :         }</span>
+<span id="L316"><span class="lineNum">     316</span>              : </span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
+<span id="L318"><span class="lineNum">     318</span>              : }</span>
         </pre>
               </td>
             </tr>
