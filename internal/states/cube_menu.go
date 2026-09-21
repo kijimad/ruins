@@ -43,19 +43,19 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 }
 
 // driveChoice は圧縮中のキューブに乗り込んで運転を始める項目。プレイヤーへ Driving を付けると、以後の
-// 移動入力がキューブを動かす。既に運転中なら二重に付けない。展開中は呼び出し側が項目に出さない。
+// 移動入力がキューブを動かす。展開中は呼び出し側が項目に出さない。運転中は DungeonState が入力を移動と
+// 降車だけに絞りメニューを開けないので、Driving が既に付いた状態でここへ来ることはない。ゆえに二重付与の
+// ガードは置かず、万一その不変条件が破れたら Ark の二重 Add で loud に露見させる。
 func driveChoice(world w.World, cube ecs.Entity) Choice {
 	return Choice{Label: query.T(world, "Drive"), Run: func(world w.World) (es.Transition[w.World], error) {
 		player, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		if !world.Components.Driving.Has(player) {
-			world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
-			gamelog.New(query.GetGameLog(world)).
-				Markup(query.T(world, "You board the cube and start driving.")).
-				Log()
-		}
+		world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "You board the cube and start driving.")).
+			Log()
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}}
 }
