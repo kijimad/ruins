@@ -203,7 +203,8 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 			result.weaponName = itemName
 		}
 
-		// 拾った loot を店で売ったときの手取りを積む
+		// 拾った loot をすべて店で売ったと仮定した粗収入。装備・消費する品も一律に売却額として積む。
+		// 収入の上限側を測る指標で、実際に何を手元に残すかとは独立に評価する
 		if it, e := raw.FindItem(master, itemName); e == nil {
 			if net := query.CalculateSellPrice(it.Value); net > 0 {
 				result.income += int(net)

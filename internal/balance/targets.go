@@ -21,7 +21,8 @@ func (c TargetCheck) InRange() bool {
 }
 
 // DomainTargets は各ドメインのスカラー指標を現状値で評価し目標帯と照合する。目標帯は「静的下限がここに収まれば実プレイは
-// 少なくともこれだけ快適」という下限側の仮説。戦闘は日次カーブで別管理する。
+// 少なくともこれだけ快適」という下限側の仮説。戦闘は日次カーブで別管理する。経済の loot 収入は到達層数依存の
+// scenario 指標でゲートに向かないので、ここには含めず TestBaselineSnapshot_探索収入 で追う。
 func DomainTargets() []TargetCheck {
 	p := DefaultParams()
 	return []TargetCheck{

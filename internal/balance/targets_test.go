@@ -89,8 +89,8 @@ func TestBaselineSnapshot_身体と経済(t *testing.T) {
 func TestBaselineSnapshot_探索収入(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	assert.InDelta(t, 46, ExpectedNetLootValue(master, "ruins_area", 8), 3, "危険度8の廃墟で拾える1個あたりの店売り期待手取り。額面に売却倍率を掛けた値")
-	assert.InDelta(t, 2945, ExpectedRunLootIncome(master, "ruins_area", 5), 80, "廃墟5層探索の店売り期待収入")
+	assert.Equal(t, 46.0, ExpectedNetLootValue(master, "ruins_area", 8), "危険度8の廃墟で拾える1個あたりの店売り期待手取り。額面に売却倍率を掛けた値")
+	assert.Equal(t, 2945.0, ExpectedRunLootIncome(master, "ruins_area", 5), "廃墟5層探索の店売り期待収入")
 	assert.InDelta(t, 75.0, CostOfLivingPerDay(master, DefaultParams()), 2, "1日の食費。最安食料(ダミー携行食)で満腹度減耗を賄う")
 }
 
