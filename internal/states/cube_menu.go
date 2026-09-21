@@ -9,10 +9,11 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// isFuelItem は燃料タンクとして扱う品かを返す。運転燃料に使える可燃物だけを受け入れる。
-// 畳み込んだ貨物は別ロケーション LocationStowed なので燃料タンク LocationInStorage には現れない。
+// isFuelItem は燃料タンクへ入れられる品かを返す。運転で消費するのと同じ燃焼熱量、すなわち燃料性能を
+// 持つ物だけ受け入れる。CubeFuelTotal/ConsumeCubeFuel と同じ HeatContent で判定し、メニューに出るのに
+// 燃料にならないズレを防ぐ。畳み込んだ貨物は別ロケーション LocationStowed なので燃料タンクには現れない。
 func isFuelItem(world w.World, e ecs.Entity) bool {
-	return query.IsCombustible(world, e)
+	return query.HeatContent(world, e) > 0
 }
 
 // NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、展開と圧縮の切替と、
