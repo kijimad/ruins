@@ -77,12 +77,9 @@ const (
 	InteractionIgnite InteractionKind = "IGNITE"
 	// InteractionFeedFuel は隣接の火へ燃料をくべる相互作用。給油メニューを開く。燃料の所持を条件に出す
 	InteractionFeedFuel InteractionKind = "FEED_FUEL"
-	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。隣接で発動し、展開・
-	// 燃料・情報の入口になる
+	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。直上で発動し、運転・展開・
+	// 燃料・情報の入口になる。キューブのタイルに立って Enter でメニューを開く
 	InteractionOpenCubeMenu InteractionKind = "OPEN_CUBE_MENU"
-	// InteractionDrive は移動拠点キューブに乗り込んで運転を始める相互作用。直上で発動する。
-	// ワープの階層移動と同じく、キューブのタイルに立って Enter で乗車する
-	InteractionDrive InteractionKind = "DRIVE"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -92,11 +89,11 @@ func (k InteractionKind) Config() InteractionConfig {
 	switch k {
 	case InteractionItem:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}
-	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll, InteractionDrive:
+	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll, InteractionOpenCubeMenu:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}
-	case InteractionStorage, InteractionDisassemble, InteractionIgnite, InteractionFeedFuel, InteractionOpenCubeMenu:
+	case InteractionStorage, InteractionDisassemble, InteractionIgnite, InteractionFeedFuel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	}
 	return InteractionConfig{}

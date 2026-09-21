@@ -47,7 +47,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		interactable := world.Components.Interactable.Get(interactableEntity)
 		interactableGrid := world.Components.GridElement.Get(interactableEntity)
 		// 実体単位でなく相互作用単位で発動範囲を絞る。隣接に来た実体でも、直上でしか発動しない
-		// 相互作用、例えば乗車 InteractionDrive は隣接メニューへ出さない。範囲判定は
+		// 相互作用、例えばキューブメニュー InteractionOpenCubeMenu は隣接メニューへ出さない。範囲判定は
 		// GetAllInteractiveInteractablesInRange と同じ IsInActivationRange を使う
 		var inRange []gc.InteractionKind
 		for _, interaction := range interactable.Interactions {
@@ -298,12 +298,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		case gc.InteractionOpenCubeMenu:
 			result = append(result, InteractionAction{
 				Label:       query.T(world, "Open cube menu (%s)", dirLabel),
-				Target:      interactableEntity,
-				Interaction: interaction,
-			})
-		case gc.InteractionDrive:
-			result = append(result, InteractionAction{
-				Label:       query.T(world, "Drive"),
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})

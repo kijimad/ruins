@@ -151,7 +151,7 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 		InteractionDoor, InteractionTalk, InteractionItem, InteractionItemAll,
 		InteractionStorage, InteractionMelee, InteractionDisassemble,
 		InteractionIgnite, InteractionFeedFuel,
-		InteractionOpenCubeMenu, InteractionDrive,
+		InteractionOpenCubeMenu,
 	}
 
 	for _, kind := range kinds {
