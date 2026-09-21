@@ -86,7 +86,7 @@ digraph balance {
     drivecost [label=<運転コスト<BR/><FONT POINT-SIZE="8">=10+1×収納kg /タイル</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
     movedist [label=<移動距離<BR/><FONT POINT-SIZE="8">≒燃料/コスト</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
     fire [label=<火 Fire<BR/><FONT POINT-SIZE="8">warmth・残量Remaining</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
-    storage [label=<収納 Storage<BR/><FONT POINT-SIZE="8">容量kg・出品元</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
+    storage [label=<収納 Storage<BR/><FONT POINT-SIZE="8">容量kg</FONT>>, fillcolor="#fef3c7", color="#f59e0b"];
   }
   subgraph cluster_eco {
     label=<<B>経済・終端</B>>;
@@ -94,7 +94,6 @@ digraph balance {
     style="filled,rounded"; color="#6b7280"; fillcolor="#e5e7eb44"; penwidth=1.2;
     value [label=<アイテム価値 Value>, fillcolor="#e5e7eb", color="#6b7280"];
     shop [label=<売買 買×2/売×0.5<BR/><FONT POINT-SIZE="8">交渉スキルで補正</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
-    auction [label=<競売 Auction<BR/><FONT POINT-SIZE="8">送料25/kg・手数料12%・集荷100</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
     currency [label=<通貨 Currency>, fillcolor="#e5e7eb", color="#6b7280"];
     runstats [label=<RunStats 終端<BR/><FONT POINT-SIZE="8">撃破/漁り/売上/死因</FONT>>, fillcolor="#e5e7eb", color="#6b7280"];
   }
@@ -165,10 +164,7 @@ digraph balance {
   movedist -> damage [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="運転中は戦闘不可"];
   lootrar -> value [color="#475569", fontcolor="#334155", label="希少度↑"];
   value -> shop [color="#475569", fontcolor="#334155", label="×2/×0.5"];
-  value -> auction [color="#475569", fontcolor="#334155", label="開始×0.4"];
-  weight -> auction [color="#d97706", fontcolor="#b45309", style="dashed", dir="both", label="送料×25/kg"];
   shop -> currency [color="#475569", fontcolor="#334155"];
-  auction -> currency [color="#475569", fontcolor="#334155", label="手取り"];
-  auction -> runstats [color="#475569", fontcolor="#334155", label="売上"];
+  shop -> runstats [color="#475569", fontcolor="#334155", label="売上"];
   enemypow -> runstats [color="#475569", fontcolor="#334155", label="撃破数"];
 }

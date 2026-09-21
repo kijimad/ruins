@@ -15,7 +15,7 @@
 |---|---|---|---|
 | A 閉形式 | 体験指標が少数のパラメータの純関数で書ける | 戦闘・生存タイマー・物流 | `internal/balance` の導出関数。乱数なし・決定論的・ミリ秒 |
 | B 連鎖 | 複数の式を合成すれば決定論的に導ける | 空腹→血液→HP、体温→状態異常→HP | A の関数を組み合わせる。ステートの遷移を1本の式列で表す |
-| C 創発 | 行動依存でランダム。閉形式は定常近似止まり | 経済ループ、複数ドメインの戦略、競売の確率入札 | モンテカルロ `simulate-balance`、将来はエージェント対戦 |
+| C 創発 | 行動依存でランダム。閉形式は定常近似止まり | 経済ループ、複数ドメインの戦略、到達層数依存の探索収入 | モンテカルロ `simulate-balance`、将来はエージェント対戦 |
 
 3層は対立でなく、導出しやすさに応じた使い分け。まず A、無理なら B、それでも無理なら C。
 
@@ -34,9 +34,9 @@
 | 能力値 | VIT/STR/SEN→HP、STR/DEX/AGI→戦闘 | ― | 単独メトリクスなし。戦闘・生存の入力で、探索が動かすつまみ | `formula.CalcHP`、`formula.CalcHitRate` | 戦闘に内包 |
 | 進行・成長 | 攻撃→スキル経験→スキル値 | A | Lv N 到達に要する攻撃回数 | `skill.GainExp` の反復・`skill.MaxLevel` → `balance/growth.go` | 実装済み。攻撃回数のみ、日への写像はC |
 | 物流・キューブ | 燃料/(基準+kg)→航続、積載↔移動、火→暖 | A | 満載時の航続タイル、積載と航続のトレード、燃料の燃焼ターン | `query/cube.go` DriveFuelCost、`consts` DriveFuelBase/DriveFuelPerKg/CubeWeightCapacityKg、`query.HeatOf`・`query.GroundBurnEfficiency` → `balance/logistics.go` | 実装済み |
-| 経済・終端 | 競売の手数料・送料→手取り、loot→手取り→探索収入 | A+C | 競売の手取り率、1個あたりの期待手取り、探索1回の期待収入(層数入力) | `query.AuctionNetProceeds`・itemTable→group→value/weight・`floorItemBase/Random` → `balance/economy.go` | 実装済み。到達層数の分布と移動コスト側のみC/設計値 |
+| 経済・終端 | loot→店売り手取り→探索収入 | A+C | 1個あたりの期待手取り、探索1回の期待収入(層数入力) | `query.CalculateSellPrice`・itemTable→group→value・`floorItemBase/Random` → `balance/economy.go` | 実装済み。到達層数の分布と移動コスト側のみC/設計値 |
 
-補足。競売は毎ターン確率 0.6 で入札が延びる確率過程（`query/auction.go` AuctionBidChance）。手取りの定常近似は A で出せるが、実際の落札額分布は C で測る。
+補足。店売りは価値×0.5 の決定論的な手取りで、1個あたりは A で厳密に出せる。探索収入の確率的な部分は到達層数の分布に移り、これは生存側の帰結として C で測る。
 
 ## 実装規約（死にコード・重複を防ぐ）
 
@@ -73,7 +73,7 @@
 ```
 
 - 能力値は戦闘と生存の共通入力。能力値を調整するなら、戦闘の凍結ゲートが差分を教える。
-- 経済は最下流。戦闘結果・loot・競売の合流点なので、上流が固まってから。
+- 経済は最下流。戦闘結果・loot・店売りの合流点なので、上流が固まってから。
 
 ## 分析ツール
 
