@@ -360,6 +360,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 
 		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
+		// CancelActivity は RemoveActivity で Activity を削除するので、キャンセルは Has で観測する
 		assert.False(t, world.Components.Activity.Has(target),
 			"被ダメージで中断可能なアクティビティがキャンセルされる")
 	})
