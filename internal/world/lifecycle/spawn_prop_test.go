@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
@@ -123,4 +124,31 @@ func TestCloseDoor_扉でないエンティティはエラーになる(t *testin
 
 	require.Error(t, err)
 	assert.EqualError(t, err, "entity is not a door")
+}
+
+func TestSpawnDoor_扉は殴って壊せる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 3, Y: 4}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	require.True(t, world.Components.HP.Has(door), "扉は HP を持ち破壊できる")
+	assert.Positive(t, world.Components.HP.Get(door).Max)
+	require.True(t, world.Components.Interactable.Has(door))
+	assert.Contains(t, world.Components.Interactable.Get(door).Interactions, gc.InteractionMelee, "扉は殴る対象になる")
+}
+
+func TestSpawnDoor_扉のHPはrawのdoor定義と一致する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 3, Y: 4}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	// bespoke な SpawnDoor の doorHP が raw の door prop から乖離したら失敗する。
+	// raw と bespoke の二重管理を人手のコメントでなくテストで担保する
+	rawSpec, err := raw.NewPropSpec(world.Resources.RawMaster, "door")
+	require.NoError(t, err)
+	require.NotNil(t, rawSpec.HP)
+	assert.Equal(t, rawSpec.HP.Max, world.Components.HP.Get(door).Max, "SpawnDoor の扉 HP は raw の door 定義と一致すべき")
 }

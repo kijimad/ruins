@@ -125,6 +125,9 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
+// doorHP は扉の耐久値。raw の door prop と同じ値にする
+const doorHP = 50
+
 // SpawnDoor は扉を生成する
 func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation) (ecs.Entity, error) {
 	var spriteKey string
@@ -144,6 +147,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 			Depth:           gc.DepthNumTaller,
 		},
 		Prop:            &gc.Prop{},
+		HP:              &gc.HP{Max: doorHP, Current: doorHP},
 		BlockPass:       &gc.BlockPass{},
 		BlockView:       &gc.BlockView{},
 		LocationOnField: &gc.LocationOnField{},
@@ -151,7 +155,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 			IsOpen:      false,
 			Orientation: orientation,
 		},
-		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}},
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor, gc.InteractionMelee}},
 	}), nil
 }
 
