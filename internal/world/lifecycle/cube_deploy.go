@@ -8,8 +8,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// deployOffsets は展開に開けた場所を要求する周囲8マス。斜めも含む。ここが塞がれていると展開を拒否し、
-// 開けた地形を探す判断を生む。
+// deployOffsets は展開に開けた場所を要求する周囲8マス、すなわちチェビシェフ距離1の隣接。斜めも含む。
+// ここが塞がれていると展開を拒否し、開けた地形を探す判断を生む。畳み込む野営 CubeDeployCampRadius は
+// 距離2でこれより広い。展開は足場1マス分の開けだけを要求し、圧縮は広げた物を余さず回収する非対称でよい。
 var deployOffsets = []consts.Coord[consts.Tile]{
 	{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
 	{X: -1, Y: 0}, {X: 1, Y: 0},
@@ -68,15 +69,15 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 		tiles[t] = true
 	}
 	// フィールドのアイテムや prop が周囲8マスにあれば展開しない。空間索引は BlockPass と character しか
-	// 持たないので LocationOnField を走査する。見つけたら Close でロックを解いて早期に返す
+	// 持たないので LocationOnField を走査する。早期 return でもロックを残さないよう defer で Close する
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	defer q.Close()
 	for q.Next() {
 		e := q.Entity()
 		if e == cube || !world.Components.GridElement.Has(e) {
 			continue
 		}
 		if tiles[world.Components.GridElement.Get(e).Coord] {
-			q.Close()
 			return false
 		}
 	}
@@ -92,11 +93,9 @@ func StowCube(world w.World, cube ecs.Entity) {
 	world.Components.Deployed.Remove(cube)
 }
 
-// stowNearbyItems は野営内のフィールドアイテムをキューブへ畳み込む。Stowed を付けて燃料と区別し、
-// キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。容量に入る分だけ取り込み、
-// 入りきらないものはその場に残す。キャラクターやキューブ自身は対象外。
-// 畳み込む範囲は野営 CubeDeployCampRadius で、展開判定の周囲8マス、すなわちチェビシェフ距離1より広い。
-// 展開は開けた足場を1マス分だけ要求し、圧縮は野営に広げた物を余さず回収するので、範囲が非対称でよい。
+// stowNearbyItems は野営 CubeDeployCampRadius 内のフィールドアイテムをキューブへ畳み込む。LocationStowed へ
+// 移して燃料と区別し、キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。容量に入る分だけ
+// 取り込み、入りきらないものはその場に残す。キャラクターやキューブ自身は対象外。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	if !world.Components.WeightCapacity.Has(cube) {
 		return

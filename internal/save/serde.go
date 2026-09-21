@@ -107,8 +107,8 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
 	// 展開状態は Deployed とフィールドの貨物、LocationStowed の貨物がすべて保存されるので、展開中でも
-	// 圧縮中でも保存時の状態のまま復元される。展開エリアのレーザー壁は Deployed から毎フレーム導出するので
-	// 保存不要で、宙に浮いた投影も生じない。
+	// 圧縮中でも保存時の状態のまま復元される。展開エリアのレーザー壁は描画時に Deployed から毎フレーム作る
+	// だけでエンティティを持たないので、保存も掃除も要らない。
 
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する
