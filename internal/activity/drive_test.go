@@ -71,7 +71,7 @@ func TestExecuteMoveAction_燃料切れは立往生する(t *testing.T) {
 	require.NoError(t, err)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
-	// 燃料を積まずに乗車する
+	// 燃料を積まずに運転状態にする
 	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
 
 	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))

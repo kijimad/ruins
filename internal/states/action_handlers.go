@@ -296,8 +296,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				})
 			}
 		case gc.InteractionOpenCubeMenu:
+			// SameTile 発動なので方向は常に直上。他の直上相互作用と同じく方向ラベルを付けない
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Open cube menu (%s)", dirLabel),
+				Label:       query.T(world, "Open cube menu"),
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})

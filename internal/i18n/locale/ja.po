@@ -1749,8 +1749,8 @@ msgstr "収納"
 msgid "Cube info"
 msgstr "キューブ情報"
 
-msgid "Open cube menu (%s)"
-msgstr "キューブメニューを開く (%s)"
+msgid "Open cube menu"
+msgstr "キューブメニューを開く"
 
 msgid "Drive"
 msgstr "運転する"
