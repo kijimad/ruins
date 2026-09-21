@@ -214,7 +214,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 		selectedSlot := query.GetWeaponSelection(world).Slot
 		weaponIndex := selectedSlot - 1 // 1-based to 0-based
 		if weaponIndex < 0 || weaponIndex >= 5 {
-			return nil, "", fmt.Errorf("invalid weapon slot number: %d", selectedSlot)
+			return nil, "", fmt.Errorf("%w: %d", ErrInvalidWeaponSlot, selectedSlot)
 		}
 
 		weapons := query.GetWeapons(world, attacker)
@@ -242,7 +242,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 		return getBareHandsAttack(world)
 	}
 
-	return nil, "", fmt.Errorf("cannot get attack parameters: attacker has neither Player nor CommandTable component")
+	return nil, "", ErrNoAttackSource
 }
 
 // getSkillMult はスキル倍率(%)を返す。

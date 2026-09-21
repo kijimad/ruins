@@ -150,7 +150,7 @@ func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) 
 	selectedSlot := query.GetWeaponSelection(world).Slot
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= 5 {
-		return nil, "", fmt.Errorf("invalid weapon slot number: %d", selectedSlot)
+		return nil, "", fmt.Errorf("%w: %d", ErrInvalidWeaponSlot, selectedSlot)
 	}
 
 	weapons := query.GetWeapons(world, actor)
