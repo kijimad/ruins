@@ -91,15 +91,15 @@ func TestStowCube_足元のアイテムを畳み込み展開で戻す(t *testing
 
 	// 圧縮で畳み込む
 	StowCube(world, cube)
-	assert.True(t, world.Components.LocationStowed.Has(item), "野営のアイテムは Stowed で畳み込まれる")
-	require.True(t, world.Components.LocationInStorage.Has(item), "キューブ収納へ移る")
-	assert.Equal(t, cube, world.Components.LocationInStorage.Get(item).Owner)
+	require.True(t, world.Components.LocationStowed.Has(item), "野営のアイテムは LocationStowed で畳み込まれる")
+	assert.Equal(t, cube, world.Components.LocationStowed.Get(item).Owner, "畳み込み先はこのキューブ")
+	assert.False(t, world.Components.LocationInStorage.Has(item), "燃料タンクには入らない")
 	assert.False(t, world.Components.LocationOnField.Has(item), "フィールドから外れる")
 	assert.Equal(t, consts.Heat(0), query.CubeFuelTotal(world, cube), "畳み込んだ貨物は燃料に数えない")
 
 	// 展開で戻す
 	require.True(t, DeployCube(world, cube))
-	assert.False(t, world.Components.LocationStowed.Has(item), "展開で Stowed が外れる")
+	assert.False(t, world.Components.LocationStowed.Has(item), "展開で LocationStowed が外れる")
 	assert.True(t, world.Components.LocationOnField.Has(item), "フィールドへ戻る")
 }
 
