@@ -67,7 +67,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 		}
 		tiles[t] = true
 	}
-	// フィールドのアイテムや prop が四方にあれば展開しない。空間索引は BlockPass と character しか
+	// フィールドのアイテムや prop が周囲8マスにあれば展開しない。空間索引は BlockPass と character しか
 	// 持たないので LocationOnField を走査する。反復中の早期 return はロックを残すのでフラグに畳む
 	occupied := false
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
@@ -105,8 +105,10 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 	used := query.CubeWeight(world, cube)
 	base := world.Components.GridElement.Get(cube).Coord
 
+	// 畳み込むのはアイテムだけ。草・木・岩・遺跡入口などの prop も LocationOnField を持つが、
+	// Item は持たない。Item に限らないと野営周りの地物まで吸い込んでしまう
 	var items []ecs.Entity
-	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	q := ecs.NewFilter2[gc.Item, gc.LocationOnField](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
 		if e == cube || !world.Components.GridElement.Has(e) {

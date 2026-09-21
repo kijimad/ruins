@@ -126,6 +126,23 @@ func TestStowCube_置いた相対位置を保持して戻す(t *testing.T) {
 		"移動後も相対位置(0,-1)を保って戻る")
 }
 
+func TestStowCube_草などのpropは畳み込まない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	// 野営半径2内だが展開判定の8マス外(12,10)に草propを置く。展開は成立し、収納で吸い込まれてはいけない
+	grass, err := SpawnProp(world, "grass", 12, 10)
+	require.NoError(t, err)
+	query.InvalidateSpatialIndex(world)
+
+	require.True(t, DeployCube(world, cube))
+	StowCube(world, cube)
+
+	assert.False(t, world.Components.Stowed.Has(grass), "草propは畳み込まない")
+	assert.True(t, world.Components.LocationOnField.Has(grass), "草はフィールドに残る")
+}
+
 func TestStowDefaultCubeCargo_展開で左上に既定貨物が現れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
