@@ -49,6 +49,9 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	if si == nil {
 		return false
 	}
+	// プレイヤーは野営内に立ってメニューを開くので、本人のタイルで展開を拒否しないよう除外する。
+	// 取得できないときは player が InvalidEntity になるが、CharacterAt が返す実キャラは決して
+	// InvalidEntity と一致しないため、誰も除外しないだけで安全側に倒れる。
 	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
 	for dy := -consts.CubeDeployCampRadius; dy <= consts.CubeDeployCampRadius; dy++ {
@@ -100,6 +103,7 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 
 	var targets []ecs.Entity
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	defer q.Close()
 	for q.Next() {
 		e := q.Entity()
 		if e == cube || !world.Components.GridElement.Has(e) {
