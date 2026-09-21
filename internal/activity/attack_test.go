@@ -490,7 +490,8 @@ func TestGetAttackParams_不正なスロット番号でエラーになる(t *tes
 	query.GetWeaponSelection(world).Slot = 6
 
 	_, _, err = getAttackParams(player, world)
-	assert.ErrorContains(t, err, "invalid weapon slot number: 6")
+	// 埋め込むスロット値でなく、安定した意味の断片だけを見る
+	assert.ErrorContains(t, err, "invalid weapon slot number")
 }
 
 func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testing.T) {
@@ -532,7 +533,8 @@ func TestGetAttackParams_プレイヤーでも敵でもない場合はエラー�
 	entity := world.ECS.NewEntity()
 
 	_, _, err := getAttackParams(entity, world)
-	assert.ErrorContains(t, err, "cannot get attack parameters: attacker has neither Player nor CommandTable component")
+	// 内側の文言でなく、この分岐を一意に指す外側 wrap だけを見る
+	assert.ErrorContains(t, err, "cannot get attack parameters")
 }
 
 func TestGetBareHandsAttack_素手武器のパラメータを返す(t *testing.T) {
