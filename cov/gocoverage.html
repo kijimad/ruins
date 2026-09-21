@@ -769,7 +769,7 @@
 				
 				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
+				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
 				
 				<option value="file358">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -52755,7 +52755,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
@@ -53214,6 +53214,9 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
         <span class="cov8" title="1">return world.Components.AddEntity(world.ECS, &amp;entitySpec), nil</span>
 }
 
+// doorHP は扉の耐久値。raw の door prop と同じ値にする
+const doorHP = 50
+
 // SpawnDoor は扉を生成する
 func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation) (ecs.Entity, error) {
         <span class="cov8" title="1">var spriteKey string
@@ -53233,6 +53236,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
                         Depth:           gc.DepthNumTaller,
                 },
                 Prop:            &amp;gc.Prop{},
+                HP:              &amp;gc.HP{Max: doorHP, Current: doorHP},
                 BlockPass:       &amp;gc.BlockPass{},
                 BlockView:       &amp;gc.BlockView{},
                 LocationOnField: &amp;gc.LocationOnField{},
@@ -53240,7 +53244,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
                         IsOpen:      false,
                         Orientation: orientation,
                 },
-                Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}},
+                Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor, gc.InteractionMelee}},
         }), nil</span>
 }
 
