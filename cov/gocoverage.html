@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.5%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
@@ -1502,7 +1502,7 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 </span>        }
 
         <span class="cov8" title="1">if !ab.isInRange(actor, p.Target, world) </span>{
-                <span class="cov0" title="0">return fmt.Errorf("target is out of melee range")
+                <span class="cov8" title="1">return fmt.Errorf("target is out of melee range")
 </span>        }
 
         <span class="cov8" title="1">if !ab.canPerformAttack(actor, world) </span>{
@@ -1523,12 +1523,12 @@ func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 // DoTurn はBehaviorの実装
 func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">if _, ok := comp.Params.(*gc.MeleeParams); !ok </span>{
-                <span class="cov0" title="0">Cancel(comp, "attack target is not set")
+                <span class="cov8" title="1">Cancel(comp, "attack target is not set")
                 return ErrParamsTypeMismatch
 </span>        }
 
         <span class="cov8" title="1">if !ab.canAttack(comp, actor, world) </span>{
-                <span class="cov0" title="0">Cancel(comp, "cannot attack")
+                <span class="cov8" title="1">Cancel(comp, "cannot attack")
                 return ErrAttackTargetInvalid
 </span>        }
 
@@ -1579,11 +1579,11 @@ func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, worl
 
 func (ab *MeleeBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
         <span class="cov8" title="1">if _, ok := comp.Params.(*gc.MeleeParams); !ok </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
 
         <span class="cov8" title="1">if err := ab.Validate(comp, actor, world); err != nil </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -1638,7 +1638,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
                 <span class="cov8" title="1">selectedSlot := query.GetWeaponSelection(world).Slot
                 weaponIndex := selectedSlot - 1 // 1-based to 0-based
                 if weaponIndex &lt; 0 || weaponIndex &gt;= 5 </span>{
-                        <span class="cov0" title="0">return nil, "", fmt.Errorf("invalid weapon slot number: %d", selectedSlot)
+                        <span class="cov8" title="1">return nil, "", fmt.Errorf("invalid weapon slot number: %d", selectedSlot)
 </span>                }
 
                 <span class="cov8" title="1">weapons := query.GetWeapons(world, attacker)
@@ -1656,17 +1656,17 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
         }
 
         // 敵の場合: CommandTableから攻撃パラメータを取得
-        <span class="cov0" title="0">if world.Components.CommandTable.Has(attacker) </span>{
-                <span class="cov0" title="0">attack, weaponName, err := query.GetAttackFromCommandTable(world, attacker)
+        <span class="cov8" title="1">if world.Components.CommandTable.Has(attacker) </span>{
+                <span class="cov8" title="1">attack, weaponName, err := query.GetAttackFromCommandTable(world, attacker)
                 if err == nil &amp;&amp; attack != nil </span>{
-                        <span class="cov0" title="0">return attack, weaponName, nil
+                        <span class="cov8" title="1">return attack, weaponName, nil
 </span>                }
 
                 // CommandTableから取得できない場合は素手武器を使用
-                <span class="cov0" title="0">return getBareHandsAttack(world)</span>
+                <span class="cov8" title="1">return getBareHandsAttack(world)</span>
         }
 
-        <span class="cov0" title="0">return nil, "", fmt.Errorf("cannot get attack parameters: attacker has neither Player nor CommandTable component")</span>
+        <span class="cov8" title="1">return nil, "", fmt.Errorf("cannot get attack parameters: attacker has neither Player nor CommandTable component")</span>
 }
 
 // getSkillMult はスキル倍率(%)を返す。
@@ -1706,7 +1706,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -5544,7 +5544,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
