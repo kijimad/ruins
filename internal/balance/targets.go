@@ -29,7 +29,6 @@ func DomainTargets() []TargetCheck {
 		{"生存・疲労", "SleepTimeFraction", SleepTimeFraction(p), 0.20, 0.33},
 		{"生存・寒さ", "TurnsToHypothermia(0℃)", TurnsToHypothermia(0), 8, 20},
 		{"物流", "DriveRangeAllFuel(OIL満載,タイル)", DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg), 800, 1200},
-		{"経済", "AuctionTakeHomeRate(価値200,1kg)", AuctionTakeHomeRate(200, 1), 0.5, 0.85},
 		{"進行・成長", "AttacksToSkillLevel(能力0,Lv30)", float64(AttacksToSkillLevel(0, 30)), 1000, 2500},
 	}
 }

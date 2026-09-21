@@ -76,7 +76,6 @@ func (world World) InitSingleton() {
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// config は構築時に渡されているので、設定言語をそのまま種にする。
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
-	world.Components.AuctionHistory.Add(singleton, gc.NewAuctionHistory())
 	world.Components.RunStats.Add(singleton, &gc.RunStats{})
 	world.Resources.SingletonEntity = singleton
 }

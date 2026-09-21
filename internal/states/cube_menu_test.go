@@ -33,11 +33,10 @@ func TestNewCubeMenuState_圧縮中は展開を先頭に5項目を並べる(t *t
 	want := []string{
 		query.T(world, "Deploy"),
 		query.T(world, "Fuel"),
-		query.T(world, "Auction"),
 		query.T(world, "Cube info"),
 		query.T(world, "Close"),
 	}
-	assert.Equal(t, want, labels, "圧縮中は展開・燃料・オークション・キューブ情報・閉じるを順に並べる")
+	assert.Equal(t, want, labels, "圧縮中は展開・燃料・キューブ情報・閉じるを順に並べる")
 }
 
 func TestNewCubeMenuState_展開中は先頭が圧縮になる(t *testing.T) {

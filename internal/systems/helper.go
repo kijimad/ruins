@@ -46,9 +46,6 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	visionSystem := NewVisionSystem()
 	updaters[visionSystem.String()] = visionSystem
 
-	auctionSystem := &AuctionSystem{}
-	updaters[auctionSystem.String()] = auctionSystem
-
 	// Renderers（描画システム） ================
 	renderSpriteSystem := NewRenderSpriteSystem()
 	renderers[renderSpriteSystem.String()] = renderSpriteSystem

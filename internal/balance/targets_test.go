@@ -82,7 +82,6 @@ func TestBaselineSnapshot_身体と経済(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, 4, HPDrainPerTurnAtBlood(0), "血液0でのHP減")
 	assert.InDelta(t, 1.07, DaysUntilExhausted(DefaultParams()), 0.02, "過労までの日数")
-	assert.InDelta(t, 0.855, AuctionTakeHomeRate(1000, 1), 0.001, "競売の手取り率")
 	assert.InDelta(t, 0.25, SleepTimeFraction(DefaultParams()), 0.001, "釣り合いに要する睡眠時間の割合")
 	assert.InDelta(t, 666.67, SleepTurnsToFullRecover(DefaultParams()), 1, "満タンから睡眠で回復し切るターン数")
 }
@@ -90,8 +89,8 @@ func TestBaselineSnapshot_身体と経済(t *testing.T) {
 func TestBaselineSnapshot_探索収入(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	assert.InDelta(t, 61, ExpectedNetLootValue(master, "ruins_area", 8), 3, "危険度8の廃墟で拾える1個あたりの期待手取り。弾薬を loot に加えた分だけ薄まる")
-	assert.InDelta(t, 4161, ExpectedRunLootIncome(master, "ruins_area", 5), 80, "廃墟5層探索の期待収入。追加 loot は控えめな weight にし、散在弾薬を ammo グループへ集約した後の正味")
+	assert.InDelta(t, 46, ExpectedNetLootValue(master, "ruins_area", 8), 3, "危険度8の廃墟で拾える1個あたりの店売り期待手取り。額面に売却倍率を掛けた値")
+	assert.InDelta(t, 2945, ExpectedRunLootIncome(master, "ruins_area", 5), 80, "廃墟5層探索の店売り期待収入")
 	assert.InDelta(t, 75.0, CostOfLivingPerDay(master, DefaultParams()), 2, "1日の食費。最安食料(ダミー携行食)で満腹度減耗を賄う")
 }
 
@@ -145,7 +144,7 @@ func TestDomainTargets_全ドメインが健全な帯を持つ(t *testing.T) {
 	t.Parallel()
 	// 目標帯そのものは assert しない。ドメインが揃い帯が妥当な向きかだけを検証する。
 	checks := DomainTargets()
-	assert.Len(t, checks, 6, "戦闘以外のスカラー6ドメイン")
+	assert.Len(t, checks, 5, "戦闘以外のスカラー5ドメイン")
 	for _, c := range checks {
 		assert.Less(t, c.Lo, c.Hi, c.Domain+" の目標帯は下限<上限")
 	}

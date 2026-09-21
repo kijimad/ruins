@@ -77,8 +77,8 @@ const (
 	InteractionIgnite InteractionKind = "IGNITE"
 	// InteractionFeedFuel は隣接の火へ燃料をくべる相互作用。給油メニューを開く。燃料の所持を条件に出す
 	InteractionFeedFuel InteractionKind = "FEED_FUEL"
-	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。隣接で発動し、収納・
-	// オークション・情報の入口になる
+	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。隣接で発動し、展開・
+	// 燃料・情報の入口になる
 	InteractionOpenCubeMenu InteractionKind = "OPEN_CUBE_MENU"
 	// InteractionDrive は移動拠点キューブに乗り込んで運転を始める相互作用。直上で発動する。
 	// ワープの階層移動と同じく、キューブのタイルに立って Enter で乗車する

@@ -9019,7 +9019,7 @@ targetNum = "SINGLE"
 [[items]]
 id = "scrap_battery"
 name = "Scrap Battery"
-description = "A depleted battery worth a little at auction."
+description = "A depleted battery worth a little when sold."
 spriteKey = "dummy_scrap_battery"
 spriteSheetName = "field"
 value = 45
@@ -9182,7 +9182,7 @@ providesNutrition = 260
 [[items]]
 id = "rusted_gear"
 name = "Rusted Gear"
-description = "A rusted gear worth a little at auction."
+description = "A rusted gear worth a little when sold."
 spriteKey = "dummy_rusted_gear"
 spriteSheetName = "field"
 value = 55
