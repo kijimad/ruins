@@ -8,15 +8,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// deployOffsets は展開に開けた場所を要求する周囲8マス、すなわちチェビシェフ距離1の隣接。斜めも含む。
-// ここが塞がれていると展開を拒否し、開けた地形を探す判断を生む。畳み込む野営 CubeDeployCampRadius は
-// 距離2でこれより広い。展開は足場1マス分の開けだけを要求し、圧縮は広げた物を余さず回収する非対称でよい。
-var deployOffsets = []consts.Coord[consts.Tile]{
-	{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
-	{X: -1, Y: 0}, {X: 1, Y: 0},
-	{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
-}
-
 // defaultCubeCargoItem は展開の効果を示すため最初から畳んで入れておく貨物。
 const defaultCubeCargoItem = "garlic_bread"
 
@@ -34,8 +25,9 @@ func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	return nil
 }
 
-// DeployCube はキューブを展開状態にする。周囲8マスが開けていれば Deployed を付け、畳み込んでいた貨物を
-// 元の相対位置へ出し直して true を返す。1タイルでも壁や敵、物で塞がれていれば状態を変えず false を返す。
+// DeployCube はキューブを展開状態にする。野営 CubeDeployCampRadius 内が開けていれば Deployed を付け、
+// 畳み込んでいた貨物を元の相対位置へ出し直して true を返す。1タイルでも壁や敵、物で塞がれていれば
+// 状態を変えず false を返す。プレイヤーは展開前に草などを壊して野営分の場所を空ける。
 func DeployCube(world w.World, cube ecs.Entity) bool {
 	if world.Components.Deployed.Has(cube) {
 		return true
@@ -48,8 +40,10 @@ func DeployCube(world w.World, cube ecs.Entity) bool {
 	return true
 }
 
-// deploySpaceFree は周囲8マスが展開に使えるかを返す。壁・敵・フィールドのアイテムや prop があれば偽。
-// メニューは隣接で開くのでプレイヤーは周囲のどれかに立つ。展開を妨げないよう本人は除外する。
+// deploySpaceFree は野営 CubeDeployCampRadius 内が展開に使えるかを返す。壁・敵・フィールドのアイテムや
+// prop が1つでもあれば偽。判定範囲を圧縮時の畳み込み範囲と同じにすることで、展開できたら野営全体は空だと
+// 保証され、圧縮で畳む物はすべてプレイヤーが後から置いた物になる。メニューは隣接で開くのでプレイヤーは
+// 野営内に立つ。展開を妨げないよう本人は除外する。
 func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
@@ -57,18 +51,21 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	}
 	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
-	tiles := make(map[consts.Coord[consts.Tile]]bool, len(deployOffsets))
-	for _, off := range deployOffsets {
-		t := base.Add(off)
-		if si.IsBlockPass(t) {
-			return false
+	for dy := -consts.CubeDeployCampRadius; dy <= consts.CubeDeployCampRadius; dy++ {
+		for dx := -consts.CubeDeployCampRadius; dx <= consts.CubeDeployCampRadius; dx++ {
+			if dx == 0 && dy == 0 {
+				continue
+			}
+			t := base.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
+			if si.IsBlockPass(t) {
+				return false
+			}
+			if e, ok := si.CharacterAt(t); ok && e != player {
+				return false
+			}
 		}
-		if e, ok := si.CharacterAt(t); ok && e != player {
-			return false
-		}
-		tiles[t] = true
 	}
-	// フィールドのアイテムや prop が周囲8マスにあれば展開しない。空間索引は BlockPass と character しか
+	// フィールドのアイテムや prop が野営内にあれば展開しない。空間索引は BlockPass と character しか
 	// 持たないので LocationOnField を走査する。早期 return でもロックを残さないよう defer で Close する
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
 	defer q.Close()
@@ -77,7 +74,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 		if e == cube || !world.Components.GridElement.Has(e) {
 			continue
 		}
-		if tiles[world.Components.GridElement.Get(e).Coord] {
+		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= consts.CubeDeployCampRadius {
 			return false
 		}
 	}
@@ -93,40 +90,31 @@ func StowCube(world w.World, cube ecs.Entity) {
 	world.Components.Deployed.Remove(cube)
 }
 
-// stowNearbyItems は野営 CubeDeployCampRadius 内のフィールドアイテムをキューブへ畳み込む。LocationStowed へ
-// 移して燃料と区別し、キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。容量に入る分だけ
-// 取り込み、入りきらないものはその場に残す。キャラクターやキューブ自身は対象外。
+// stowNearbyItems は野営 CubeDeployCampRadius 内のフィールドのアイテムと prop をキューブへ畳み込む。
+// LocationStowed へ移して燃料と区別し、キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。
+// 展開時に野営内は空だと保証されるので、ここにあるのはプレイヤーが後から置いた物だけで、自然の草・木を
+// 吸い込む心配はない。プレイヤーの所持と同じく積める重量に硬い上限はなく、積みすぎれば運転の燃費が上がり
+// 燃料が尽きて動けなくなるだけ。キャラクターは LocationOnField を持たず対象外、キューブ自身も除外する。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
-	if !world.Components.WeightCapacity.Has(cube) {
-		return
-	}
-	maxCap := world.Components.WeightCapacity.Get(cube).Max
-	// キャッシュの WeightCapacity.Current は WeightDirtySystem が非同期に更新するため、同一バッチの
-	// 追加を反映しない。実測の収納重量を基準にし、取り込むたびに加算して容量を正しく判定する
-	used := query.CubeWeight(world, cube)
 	base := world.Components.GridElement.Get(cube).Coord
 
-	// 畳み込むのはアイテムだけ。草・木・岩・遺跡入口などの prop も LocationOnField を持つが、
-	// Item は持たない。Item に限らないと野営周りの地物まで吸い込んでしまう
-	var items []ecs.Entity
-	q := ecs.NewFilter2[gc.Item, gc.LocationOnField](world.ECS).Query()
+	var targets []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
 		if e == cube || !world.Components.GridElement.Has(e) {
 			continue
 		}
-		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= consts.CubeDeployCampRadius {
-			items = append(items, e)
-		}
-	}
-	for _, item := range items {
-		iw := query.GetEntityWeight(world, item)
-		if used+iw > maxCap {
+		if !world.Components.Item.Has(e) && !world.Components.Prop.Has(e) {
 			continue
 		}
-		offset := world.Components.GridElement.Get(item).Sub(base)
-		MoveToStowed(world, item, cube, offset)
-		used += iw
+		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= consts.CubeDeployCampRadius {
+			targets = append(targets, e)
+		}
+	}
+	for _, e := range targets {
+		offset := world.Components.GridElement.Get(e).Sub(base)
+		MoveToStowed(world, e, cube, offset)
 	}
 }
 

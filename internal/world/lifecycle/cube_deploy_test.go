@@ -25,7 +25,7 @@ func TestDeployCube(t *testing.T) {
 		assert.True(t, world.Components.Deployed.Has(cube), "展開中マーカーが付く")
 	})
 
-	t.Run("四方が壁で塞がれていれば展開しない", func(t *testing.T) {
+	t.Run("野営内が壁で塞がれていれば展開しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
@@ -47,6 +47,20 @@ func TestDeployCube(t *testing.T) {
 		require.NoError(t, err)
 		// 斜め隣接(9,9)にフィールドアイテムがあっても全か無かで展開が拒否される。草の散布は密で斜めに乗る
 		_, err = SpawnFieldItem(world, "wooden_sword", 9, 9, 1)
+		require.NoError(t, err)
+		query.InvalidateSpatialIndex(world)
+
+		assert.False(t, DeployCube(world, cube))
+		assert.False(t, world.Components.Deployed.Has(cube), "展開しないのでマーカーは付かない")
+	})
+
+	t.Run("野営外周の半径2にpropがあれば展開しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+		require.NoError(t, err)
+		// 距離2の外周(12,10)。展開判定を畳み込み範囲と同じ半径2にそろえたので拒否される
+		_, err = SpawnProp(world, "grass", 12, 10)
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -126,21 +140,27 @@ func TestStowCube_置いた相対位置を保持して戻す(t *testing.T) {
 		"移動後も相対位置(0,-1)を保って戻る")
 }
 
-func TestStowCube_草などのpropは畳み込まない(t *testing.T) {
+func TestStowCube_propも畳み込み展開で相対位置に戻す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 	require.NoError(t, err)
-	// 野営半径2内だが展開判定の8マス外(12,10)に草propを置く。展開は成立し、圧縮で吸い込まれてはいけない
-	grass, err := SpawnProp(world, "grass", 12, 10)
+	require.True(t, DeployCube(world, cube))
+
+	// 展開後にプレイヤーが野営内(11,11)へ prop を設置した状況を作る
+	prop, err := SpawnProp(world, "grass", 11, 11)
 	require.NoError(t, err)
 	query.InvalidateSpatialIndex(world)
 
-	require.True(t, DeployCube(world, cube))
 	StowCube(world, cube)
+	require.True(t, world.Components.LocationStowed.Has(prop), "野営の prop も畳み込まれる")
+	assert.Equal(t, cube, world.Components.LocationStowed.Get(prop).Owner, "畳み込み先はこのキューブ")
+	assert.False(t, world.Components.LocationOnField.Has(prop), "フィールドから外れる")
 
-	assert.False(t, world.Components.LocationStowed.Has(grass), "草propは畳み込まない")
-	assert.True(t, world.Components.LocationOnField.Has(grass), "草はフィールドに残る")
+	require.True(t, DeployCube(world, cube))
+	assert.True(t, world.Components.LocationOnField.Has(prop), "展開で prop がフィールドへ戻る")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 11}, world.Components.GridElement.Get(prop).Coord,
+		"prop は相対位置を保って戻る")
 }
 
 func TestStowDefaultCubeCargo_展開で左上に既定貨物が現れる(t *testing.T) {
@@ -168,7 +188,7 @@ func TestStowDefaultCubeCargo_展開で左上に既定貨物が現れる(t *test
 	assert.True(t, found, "展開で既定貨物が左上に現れる")
 }
 
-func TestStowCube_容量を超える分は足元に残す(t *testing.T) {
+func TestStowCube_容量を超えても畳み込む(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
@@ -179,7 +199,8 @@ func TestStowCube_容量を超える分は足元に残す(t *testing.T) {
 	require.NoError(t, err)
 	b, err := SpawnFieldItem(world, "wooden_sword", 11, 10, 1)
 	require.NoError(t, err)
-	// 容量を1つ分ちょうどに絞る。2つ目は入らず足元に残る
+	// 容量を1つ分に絞っても、プレイヤーの所持と同じく硬い上限はなく両方畳み込む。
+	// 積みすぎは運転の燃費で跳ね返る
 	world.Components.WeightCapacity.Get(cube).Max = query.GetEntityWeight(world, a)
 	query.InvalidateSpatialIndex(world)
 
@@ -191,5 +212,5 @@ func TestStowCube_容量を超える分は足元に残す(t *testing.T) {
 			stowed++
 		}
 	}
-	assert.Equal(t, 1, stowed, "容量に入る1つだけ畳み込み、残りは足元に残す")
+	assert.Equal(t, 2, stowed, "容量に関わらず野営内のアイテムをすべて畳み込む")
 }
