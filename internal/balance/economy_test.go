@@ -3,7 +3,6 @@ package balance
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -22,16 +21,6 @@ func TestExpectedItemsPerFloor_奇数前提で厳密(t *testing.T) {
 	assert.Equal(t, 1, floorItemRandom%2, "floorItemRandom は奇数")
 }
 
-func TestAuctionTakeHomeRate_手数料と発送料(t *testing.T) {
-	t.Parallel()
-	// 価値1000・1kg: 手数料120 + 発送料25 を引き 855。手取り率85.5%
-	assert.InDelta(t, 0.855, AuctionTakeHomeRate(1000, 1), 1e-9)
-	// 重い安物は発送料に食われる。価値1000・10kg: 手数料120 + 発送料250 → 630 = 63%
-	assert.InDelta(t, 0.630, AuctionTakeHomeRate(1000, 10), 1e-9)
-	// 価値0は0を返す
-	assert.Equal(t, 0.0, AuctionTakeHomeRate(consts.Currency(0), 1))
-}
-
 func TestExpectedLootValue_危険度で上がり正の値(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
@@ -47,10 +36,8 @@ func TestExpectedNetLootValue_手取りは額面より小さく正(t *testing.T)
 	master := loadTestMaster(t)
 	face := ExpectedLootValue(master, "ruins_area", 8)
 	net := ExpectedNetLootValue(master, "ruins_area", 8)
-	weightKg := ExpectedLootWeightKg(master, "ruins_area", 8)
-	assert.Positive(t, weightKg, "期待重量は正")
 	assert.Positive(t, net, "手取りは正")
-	assert.Less(t, net, face, "手数料と発送料を引くので手取りは額面より小さい")
+	assert.Less(t, net, face, "売却倍率を掛けるので手取りは額面より小さい")
 	assert.Equal(t, 0.0, ExpectedNetLootValue(master, "no_such_table", 1), "不明テーブルは0")
 }
 

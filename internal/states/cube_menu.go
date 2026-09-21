@@ -17,7 +17,7 @@ func isFuelItem(world w.World, e ecs.Entity) bool {
 }
 
 // NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接時に開き、展開と圧縮の切替と、
-// 燃料投入・オークション・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
+// 燃料投入・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
 // 乗車は直上 Enter で完結するのでここには並べない。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
@@ -25,9 +25,6 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 			deployChoice(world, cube),
 			{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewStorageMenuState(cube, WithItemFilter(isFuelItem))
-			})},
-			{Label: query.T(world, "Auction"), Run: pushChoice(func() (es.State[w.World], error) {
-				return NewAuctionMenuState(cube)
 			})},
 			{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)

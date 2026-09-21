@@ -36,7 +36,7 @@ func markChildren(rows []SpecRow) []SpecRow {
 }
 
 // specPart は性能表示の1要素。実体と raw spec の2つのデータ源それぞれから行を作る。
-// fromSpec が nil の要素は raw spec 表示には出ない。生成後にしか定まらない鮮度や競売などが該当する。
+// fromSpec が nil の要素は raw spec 表示には出ない。生成後にしか定まらない鮮度などが該当する。
 // component を足すときは specParts か basicParts へ1要素足すだけで両ビューに反映され、片方への入れ忘れが起きない
 type specPart struct {
 	fromEntity func(world w.World, entity ecs.Entity) []SpecRow
@@ -123,22 +123,6 @@ var specParts = []specPart{
 				return nil
 			}
 			return remedyRows(world, s.Remedy)
-		},
-	},
-	{ // 出品中。実体のみ
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.AuctionListing.Has(e) {
-				return nil
-			}
-			return auctionListingRows(world, world.Components.AuctionListing.Get(e))
-		},
-	},
-	{ // 落札済み。実体のみ
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.AuctionSold.Has(e) {
-				return nil
-			}
-			return auctionSoldRows(world, world.Components.AuctionSold.Get(e))
 		},
 	},
 }
@@ -269,27 +253,6 @@ func appendBasicGroup(world w.World, rows, basic []SpecRow) []SpecRow {
 	group = append(group, SpecRow{Label: query.T(world, "Basic"), Header: true})
 	group = append(group, basic...)
 	return append(rows, markChildren(group)...)
-}
-
-// auctionListingRows は出品中の品の番号と現在値を返す。先頭は見出し
-func auctionListingRows(world w.World, l *gc.AuctionListing) []SpecRow {
-	return markChildren([]SpecRow{
-		{Label: query.T(world, "Auction"), Header: true},
-		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(l.Number)},
-		{Label: query.T(world, "Status"), Value: query.T(world, "Bidding")},
-		{Label: query.T(world, "Current bid"), Value: l.CurrentBid.String()},
-	})
-}
-
-// auctionSoldRows は落札済みの品の番号と落札額、出荷期限を返す。先頭は見出し
-func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
-	return markChildren([]SpecRow{
-		{Label: query.T(world, "Auction"), Header: true},
-		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(s.Number)},
-		{Label: query.T(world, "Status"), Value: query.T(world, "Won")},
-		{Label: query.T(world, "Bid"), Value: s.Bid.String()},
-		{Label: query.T(world, "Ship by turn"), Value: strconv.Itoa(s.DueTurn)},
-	})
 }
 
 // SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。

@@ -69,12 +69,12 @@ func metricValue(master oapi.Raws, p Params, idx int) float64 {
 		capacity := consts.Milligram(consts.CubeWeightCapacityKg) * consts.MilligramPerKg
 		fuel := float64(query.HeatOf(oapi.OIL, capacity)) * p.FuelHeatScale
 		return DriveRangeTiles(consts.Heat(fuel), capacity)
-	case 4: // 経済。loot 価値の倍率を掛けて1個あたり手取りを測る。送料が固定なので弾力性は1を超える
+	case 4: // 経済。loot 価値の倍率を掛けて1個あたり店売り手取りを測る。売却は価値の一定割合なので弾力性は1
 		lv := ExpectedLootValue(master, "ruins_area", 8) * p.LootValueScale
 		if lv <= 0 {
 			return 0
 		}
-		return float64(query.AuctionNetProceeds(consts.Currency(math.Round(lv)), ExpectedLootWeightKg(master, "ruins_area", 8)))
+		return float64(query.CalculateSellPrice(int(math.Round(lv))))
 	case 5: // 進行。現状の成分では動かない。他ドメインのつまみが成長へ波及しないことを見せる列
 		return float64(AttacksToSkillLevel(0, 30))
 	default:

@@ -53,8 +53,9 @@ func TestCrossDomainSensitivity_ブロック対角と符号(t *testing.T) {
 	assert.Positive(t, cell(t, rows, "疲労蓄積量", "睡眠時間割合"), "溜まりが速いほど睡眠時間割合は上がる")
 	assert.Negative(t, cell(t, rows, "疲労回復量", "睡眠時間割合"), "回復が速いほど睡眠時間割合は下がる")
 	assert.Positive(t, cell(t, rows, "燃料熱量", "OIL航続"), "燃料熱量は航続を伸ばす")
-	// 送料が固定なので loot 価値に対する手取りの弾力性は1を超える(+10%で+10%超)。
-	assert.Greater(t, cell(t, rows, "loot価値", "loot手取り"), 10.0, "手取りは loot 価値に対し弾力性>1")
+	// 店売りは価値の一定割合なので手取りは loot 価値に線形、弾力性はほぼ1(+10%で+10%前後)。
+	// 整数手取りの丸めで操作点ごとに小さく振れるため、1超1未満に厳密固定せず近傍で見る。
+	assert.InDelta(t, 10.0, cell(t, rows, "loot価値", "loot手取り"), 2.0, "手取りは loot 価値に線形、弾力性≒1")
 	// 横断つまみは日換算メトリクスだけに効く。
 	assert.Negative(t, cell(t, rows, "1日ターン数", "飢餓まで日数"), "1日ターンが増えると日数は減る")
 	assert.Equal(t, 0.0, cell(t, rows, "1日ターン数", "戦力比d20"), "1日ターンは戦力比に効かない")

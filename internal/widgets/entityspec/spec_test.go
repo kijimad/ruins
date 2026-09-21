@@ -284,45 +284,6 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	}, labels)
 }
 
-func TestUpdateSpec_出品中のオークション情報を表示する(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	e := world.ECS.NewEntity()
-	world.Components.AuctionListing.Add(e, &gc.AuctionListing{
-		Number:     7,
-		CurrentBid: consts.Currency(3000),
-	})
-
-	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
-
-	assert.Contains(t, labels, query.T(world, "Auction"), "出品ヘッダーが表示される")
-	assert.Contains(t, labels, "#7", "出品番号が表示される")
-	assert.Contains(t, labels, query.T(world, "Bidding"), "入札中ステータスが表示される")
-	assert.Contains(t, labels, consts.Currency(3000).String(), "現在の入札額が表示される")
-}
-
-func TestUpdateSpec_落札済みのオークション情報を表示する(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	e := world.ECS.NewEntity()
-	world.Components.AuctionSold.Add(e, &gc.AuctionSold{
-		Number:  9,
-		Bid:     consts.Currency(5000),
-		DueTurn: 42,
-	})
-
-	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
-
-	assert.Contains(t, labels, query.T(world, "Auction"), "出品ヘッダーが表示される")
-	assert.Contains(t, labels, "#9", "出品番号が表示される")
-	assert.Contains(t, labels, query.T(world, "Won"), "落札済みステータスが表示される")
-	assert.Contains(t, labels, consts.Currency(5000).String(), "落札額が表示される")
-	assert.Contains(t, labels, query.T(world, "Ship by turn"), "出荷期限ラベルが表示される")
-	assert.Contains(t, labels, "42", "出荷期限のターンが表示される")
-}
-
 func TestUpdateSpec_能力値を表示する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

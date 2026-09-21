@@ -3,7 +3,6 @@ package balance
 import (
 	"math"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -55,76 +54,15 @@ func expectedGroupValue(master oapi.Raws, id string) float64 {
 	return vSum / wSum
 }
 
-// itemWeightKg はアイテムの重量を kg で返す。重量未設定やパース不能は0とみなす。
-func itemWeightKg(it oapi.Item) float64 {
-	if it.Weight == nil {
-		return 0
-	}
-	mg, err := consts.ParseWeight(*it.Weight)
-	if err != nil {
-		return 0
-	}
-	return float64(mg) / float64(consts.MilligramPerKg)
-}
-
-// expectedGroupWeightKg はアイテムグループの中身の重み付き期待重量を kg で返す。グループでなく
-// アイテムを直接指す場合はその重量を返す。ExpectedLootValue の価値版と同じ2段重み付け。
-func expectedGroupWeightKg(master oapi.Raws, id string) float64 {
-	g, err := raw.GetItemGroup(master, id)
-	if err != nil {
-		if it, e := raw.FindItem(master, id); e == nil {
-			return itemWeightKg(it)
-		}
-		return 0
-	}
-	var wSum, kgSum float64
-	for _, e := range g.Entries {
-		it, err := raw.FindItem(master, e.Id)
-		if err != nil {
-			continue
-		}
-		wSum += e.Weight
-		kgSum += e.Weight * itemWeightKg(it)
-	}
-	if wSum == 0 {
-		return 0
-	}
-	return kgSum / wSum
-}
-
-// ExpectedLootWeightKg は危険度 danger で itemTable から拾える1個あたりの期待重量を kg で返す。
-// ExpectedLootValue と同じ2段の重み付き平均で、手取りの発送料項に使う。
-func ExpectedLootWeightKg(master oapi.Raws, itemTableName string, danger int) float64 {
-	table, err := raw.GetItemTable(master, itemTableName)
-	if err != nil {
-		return 0
-	}
-	var wSum, kgSum float64
-	for _, e := range table.Entries {
-		if danger < e.MinDanger || danger > e.MaxDanger {
-			continue
-		}
-		wSum += e.Weight
-		kgSum += e.Weight * expectedGroupWeightKg(master, e.Id)
-	}
-	if wSum == 0 {
-		return 0
-	}
-	return kgSum / wSum
-}
-
-// ExpectedNetLootValue は危険度 danger で拾える1個あたりの競売の期待手取り額を返す。額面の
-// ExpectedLootValue から手数料と発送料を引いた実収入側の終端指標。集荷料は品単位でないため含めない。
+// ExpectedNetLootValue は危険度 danger で拾える1個あたりの店売りの期待手取り額を返す。額面の
+// ExpectedLootValue に売却倍率を掛けた実収入側の終端指標。
 func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) float64 {
 	value := ExpectedLootValue(master, itemTableName, danger)
 	if value <= 0 {
 		return 0
 	}
-	weightKg := ExpectedLootWeightKg(master, itemTableName, danger)
-	// AuctionNetProceeds は Currency 整数を取るので期待価値を1個ぶんだけ丸める。丸めは1品あたり0.5未満で、
-	// 実ゲームの落札額も整数なので意図的。ExpectedRunLootIncome の積算でも増幅は個数×0.5未満に収まる。
-	net := query.AuctionNetProceeds(consts.Currency(math.Round(value)), weightKg)
-	return float64(net)
+	// CalculateSellPrice は Currency 整数を取るので期待価値を1個ぶんだけ丸める。丸めは1品あたり0.5未満。
+	return float64(query.CalculateSellPrice(int(math.Round(value))))
 }
 
 // expectedItemsPerFloor はフロアで拾える loot 個数の期待値。floorItemBase + rand(0..floorItemRandom-1) の
@@ -190,14 +128,4 @@ func EconomyProgression(master oapi.Raws, itemTableName string, days int, p Para
 		out = append(out, EconomyDay{Day: day, Danger: danger, NetLootValue: net, LootPerDayFood: perFood})
 	}
 	return out
-}
-
-// AuctionTakeHomeRate は基準価値どおり落札されたときの手取り率を返す。手取り=落札額−手数料−発送料 を
-// 落札額で割る。重い安物ほど発送料に食われ率が下がる。落札額分布はモンテカルロの領域で、ここは決定論。
-func AuctionTakeHomeRate(saleValue consts.Currency, weightKg float64) float64 {
-	if saleValue <= 0 {
-		return 0
-	}
-	net := query.AuctionNetProceeds(saleValue, weightKg)
-	return float64(net) / float64(saleValue)
 }

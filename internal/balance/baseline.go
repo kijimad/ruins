@@ -182,17 +182,8 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	writeMDTable(&b, []string{"血液", "HP減(/ターン)"}, []tw.Align{alignR, alignR}, bloodRows)
 
 	// 経済
-	fmt.Fprintf(&b, "## 経済（競売の手取り）\n\n")
-	fmt.Fprintf(&b, "**概要**: 基準価値どおりに落札されたときの手取り率。手取り=落札額−手数料12%%−発送料25/kg。集荷料は別立て。\n")
-	fmt.Fprintf(&b, "重い安物ほど発送料に食われ手取りが下がる。落札額の分散や入札の伸びは確率過程で、実分布はモンテカルロで測る。\n\n")
-	var takeHomeRows [][]string
-	for _, c := range []struct {
-		value  consts.Currency
-		weight float64
-	}{{1000, 0.1}, {1000, 1}, {1000, 3}, {1000, 10}, {200, 3}} {
-		takeHomeRows = append(takeHomeRows, []string{fmt.Sprintf("%d", c.value), fmt.Sprintf("%g", c.weight), fmt.Sprintf("%.0f%%", AuctionTakeHomeRate(c.value, c.weight)*100)})
-	}
-	writeMDTable(&b, []string{"価値", "重量(kg)", "手取り率"}, []tw.Align{alignR, alignR, alignR}, takeHomeRows)
+	fmt.Fprintf(&b, "## 経済（loot の手取り）\n\n")
+	fmt.Fprintf(&b, "**概要**: 拾った loot を店で売った実収入。売値は価値の一定割合。\n\n")
 
 	// 収入側。危険度ごとに拾えるアイテムの期待価値
 	fmt.Fprintf(&b, "収入側。危険度ごとに拾える1個あたりの期待価値。危険度が上がるほど高価な loot が出る。\n\n")
@@ -205,7 +196,7 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	}
 	writeMDTable(&b, []string{colDanger, "廃墟", "森", "洞窟"}, []tw.Align{alignR, alignR, alignR, alignR}, lootValueRows)
 
-	fmt.Fprintf(&b, "手取り側。上の額面から手数料と発送料を引いた1個あたりの期待手取り。発送料は重量比例なので額面より縮む。\n\n")
+	fmt.Fprintf(&b, "手取り側。上の額面に売却倍率を掛けた1個あたりの期待手取り。\n\n")
 	var netLootRows [][]string
 	for _, danger := range []int{1, 3, 5, 8} {
 		netLootRows = append(netLootRows, []string{fmt.Sprintf("%d", danger),

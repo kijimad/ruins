@@ -39,7 +39,6 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeyE, Action: inputmapper.ActionVerbConsume, Label: "Eat"},
 	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
 	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
-	{Key: ebiten.KeyS, Action: inputmapper.ActionVerbList, Label: "List"},
 	{Key: ebiten.KeyB, Action: inputmapper.ActionSleep, Label: "Sleep"},
 	// 移動。WASD は動詞へ空けるため矢印キーのみを使う。斜めへは視点を回してから直進する
 	{Key: ebiten.KeyUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
@@ -113,7 +112,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	// UI系アクションは常に実行可能
 	switch action {
 	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot,
-		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList,
+		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow,
 		inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:
 		// UI系と視点操作はターンを消費しないのでターンチェック不要
 	default:
@@ -174,7 +173,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSleep:
 		return st.handleSleep(world)
-	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
+	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
 		verb, ok := verbByAction(action)
 		if !ok {
 			return es.Transition[w.World]{Type: es.TransNone}, nil

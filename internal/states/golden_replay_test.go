@@ -114,7 +114,7 @@ func TestGolden(t *testing.T) {
 			steps: []replayStep{{shot: true}},
 		},
 		// ItemAction は動詞タブ画面の全タブを撮る。動詞ごとにバックパックのアイテムが
-		// 適用可否で絞られる。回復薬は調べる・置く・食べる・使う・出品に出て、読むには出ない
+		// 適用可否で絞られる。回復薬は調べる・置く・食べる・使うに出て、読むには出ない
 		{
 			name: "ItemAction",
 			build: func(world w.World) ([]es.State[w.World], error) {
@@ -129,7 +129,6 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Eat"},
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Read"},
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Use"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "List"},
 			},
 		},
 		// ItemAction_VerbJump は動詞キーでのタブジャンプが画面へ反映されることを固定する。
