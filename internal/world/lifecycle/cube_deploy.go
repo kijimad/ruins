@@ -8,9 +8,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// deployCampRadius は収納で畳み込む野営の広さ。キューブ中心のチェビシェフ距離で、斜めも含む。
-const deployCampRadius = 2
-
 // deployOffsets は展開に開けた場所を要求する周囲8マス。斜めも含む。ここが塞がれていると展開を拒否し、
 // 開けた地形を探す判断を生む。
 var deployOffsets = []consts.Coord[consts.Tile]{
@@ -98,7 +95,7 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 		if e == cube || !world.Components.GridElement.Has(e) {
 			continue
 		}
-		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= deployCampRadius {
+		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= consts.CubeDeployCampRadius {
 			items = append(items, e)
 		}
 	}

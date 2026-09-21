@@ -42,6 +42,9 @@ const (
 	DriveFuelPerKg = 1
 	// CubeWeightCapacityKg はキューブ収納の重量容量。kg 単位。spawn とバランス導出で共有する
 	CubeWeightCapacityKg = 500
+	// CubeDeployCampRadius は展開中の野営の広さ。キューブ中心のチェビシェフ距離で斜めも含む。
+	// アイテムの往復範囲と、エリアを囲むレーザー壁の描画で共有する
+	CubeDeployCampRadius = 2
 )
 
 // ========== ゲーム定数 ==========
