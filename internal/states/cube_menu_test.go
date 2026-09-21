@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewCubeMenuState_収納中は展開を先頭に5項目を並べる(t *testing.T) {
+func TestNewCubeMenuState_格納中は展開を先頭に5項目を並べる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
@@ -35,10 +35,10 @@ func TestNewCubeMenuState_収納中は展開を先頭に5項目を並べる(t *t
 		query.T(world, "Cube info"),
 		query.T(world, "Close"),
 	}
-	assert.Equal(t, want, labels, "収納中は展開・収納・オークション・キューブ情報・閉じるを順に並べる")
+	assert.Equal(t, want, labels, "格納中は展開・燃料・オークション・キューブ情報・閉じるを順に並べる")
 }
 
-func TestNewCubeMenuState_展開中は先頭が収納になる(t *testing.T) {
+func TestNewCubeMenuState_展開中は先頭が格納になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
@@ -51,5 +51,5 @@ func TestNewCubeMenuState_展開中は先頭が収納になる(t *testing.T) {
 	require.True(t, ok)
 
 	_, choices := menu.provide(world)
-	assert.Equal(t, query.T(world, "Stow"), choices[0].Label, "展開中は先頭が収納")
+	assert.Equal(t, query.T(world, "Stow"), choices[0].Label, "展開中は先頭が格納")
 }

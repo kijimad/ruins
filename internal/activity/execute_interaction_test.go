@@ -515,3 +515,21 @@ func TestExecuteInteraction_FeedFuel_給油メニューを開くイベントを�
 	require.True(t, ok, "OpenFeedFuel が要求される")
 	assert.Equal(t, fire, payload.FireEntity, "くべる先の火が載る")
 }
+
+// TestExecuteDrive_展開中は乗車を拒否する は、展開中のキューブへ乗車しようとしても Driving が付かず
+// 失敗結果を返すことを確認する。運転は格納中のみ許す不変条件を activity 層で固定する。
+func TestExecuteDrive_展開中は乗車を拒否する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 5})
+	require.NoError(t, err)
+	query.InvalidateSpatialIndex(world)
+	require.True(t, lifecycle.DeployCube(world, cube))
+
+	result, err := executeDrive(player, cube, world)
+	require.NoError(t, err)
+	assert.False(t, result.Success, "展開中は乗車できない")
+	assert.False(t, world.Components.Driving.Has(player), "Driving は付かない")
+}

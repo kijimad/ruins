@@ -6406,10 +6406,10 @@ msgid "Deploy"
 msgstr "展開する"
 
 msgid "Stow"
-msgstr "収納する"
+msgstr "格納する"
 
 msgid "Not enough open space to deploy."
 msgstr "展開する空きが足りない"
 
 msgid "The cube is deployed. Stow it before driving."
-msgstr "キューブは展開中だ。運転する前に収納する"
+msgstr "キューブは展開中だ。運転する前に格納する"

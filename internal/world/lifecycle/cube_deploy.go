@@ -23,7 +23,7 @@ const defaultCubeCargoItem = "garlic_bread"
 var defaultCubeCargoOffset = consts.Coord[consts.Tile]{X: -1, Y: -1}
 
 // StowDefaultCubeCargo はキューブに既定の貨物を1つ Stowed で畳み込んで入れる。展開すると左上に現れ、
-// 収納で畳まれる往復が一目で分かる。ゲーム開始時のキューブ生成でだけ呼び、収納は初期から収納中で始まる。
+// 格納で畳まれる往復が一目で分かる。ゲーム開始時のキューブ生成でだけ呼び、キューブは初期から格納中で始まる。
 func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	item, err := SpawnStorageItem(world, defaultCubeCargoItem, 1, cube)
 	if err != nil {
@@ -68,8 +68,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 		tiles[t] = true
 	}
 	// フィールドのアイテムや prop が周囲8マスにあれば展開しない。空間索引は BlockPass と character しか
-	// 持たないので LocationOnField を走査する。反復中の早期 return はロックを残すのでフラグに畳む
-	occupied := false
+	// 持たないので LocationOnField を走査する。見つけたら Close でロックを解いて早期に返す
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
@@ -77,13 +76,14 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 			continue
 		}
 		if tiles[world.Components.GridElement.Get(e).Coord] {
-			occupied = true
+			q.Close()
+			return false
 		}
 	}
-	return !occupied
+	return true
 }
 
-// StowCube はキューブを収納状態へ戻す。野営の貨物を相対位置ごと畳み込む。
+// StowCube はキューブを格納状態へ戻す。野営の貨物を相対位置ごと畳み込む。
 func StowCube(world w.World, cube ecs.Entity) {
 	if !world.Components.Deployed.Has(cube) {
 		return
@@ -95,6 +95,8 @@ func StowCube(world w.World, cube ecs.Entity) {
 // stowNearbyItems は野営内のフィールドアイテムをキューブへ畳み込む。Stowed を付けて燃料と区別し、
 // キューブからの相対位置を覚えて展開で同じ配置へ戻せるようにする。容量に入る分だけ取り込み、
 // 入りきらないものはその場に残す。キャラクターやキューブ自身は対象外。
+// 畳み込む範囲は野営 CubeDeployCampRadius で、展開判定の周囲8マス、すなわちチェビシェフ距離1より広い。
+// 展開は開けた足場を1マス分だけ要求し、格納は野営に広げた物を余さず回収するので、範囲が非対称でよい。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	if !world.Components.WeightCapacity.Has(cube) {
 		return
@@ -123,7 +125,7 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 		if used+iw > maxCap {
 			continue
 		}
-		offset := world.Components.GridElement.Get(item).Coord.Sub(base)
+		offset := world.Components.GridElement.Get(item).Sub(base)
 		if err := MoveToStorage(world, item, cube); err != nil {
 			continue
 		}

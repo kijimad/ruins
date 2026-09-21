@@ -106,8 +106,8 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 	// グローバル設定は serde 除外なので config から再構築する
 	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
-	// 展開状態は Deployed とフィールドの貨物、収納の Stowed 貨物がすべて保存されるので、展開中でも
-	// 収納中でも保存時の状態のまま復元される。展開エリアのレーザー壁は Deployed から毎フレーム導出するので
+	// 展開状態は Deployed とフィールドの貨物、タンクの Stowed 貨物がすべて保存されるので、展開中でも
+	// 格納中でも保存時の状態のまま復元される。展開エリアのレーザー壁は Deployed から毎フレーム導出するので
 	// 保存不要で、宙に浮いた投影も生じない。
 
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。

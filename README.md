@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [キューブに収納中と展開中の状態を足す](docs/design/260920004814.md) | 2/7（見送り3） | gamedesign, movement, item |
+| accepted | [キューブに格納中と展開中の状態を足す](docs/design/260920004814.md) | 3/7（見送り3） | gamedesign, movement, item |
 
 
 ## Reference
