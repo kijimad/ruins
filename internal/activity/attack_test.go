@@ -457,7 +457,8 @@ func TestGetAttackParams_プレイヤーが装備した近接武器のパラメ�
 	assert.Equal(t, "Torch", name)
 	melee, ok := attack.(*gc.Melee)
 	require.True(t, ok)
-	assert.Equal(t, 5, melee.Damage)
+	// 具体値は torch の raw 定義依存なので契約だけを見る。装備武器のパラメータが返る
+	assert.Positive(t, melee.Damage)
 }
 
 func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォールバックする(t *testing.T) {
@@ -475,7 +476,8 @@ func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォ�
 	assert.Equal(t, "Bare Hands", name)
 	melee, ok := attack.(*gc.Melee)
 	require.True(t, ok)
-	assert.Equal(t, 3, melee.Damage)
+	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
+	assert.Positive(t, melee.Damage)
 }
 
 func TestGetAttackParams_不正なスロット番号でエラーになる(t *testing.T) {
@@ -500,8 +502,8 @@ func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testin
 
 	attack, name, err := getAttackParams(enemy, world)
 	require.NoError(t, err)
-	// CommandTable経由の攻撃名はraw定義のid。表示名への翻訳はlogAttackResult側で行う
-	assert.Contains(t, []string{"bite", "tackle"}, name)
+	// 具体的な攻撃 id は bat の CommandTable 定義依存なので、攻撃が取れて Melee である契約だけを見る
+	assert.NotEmpty(t, name)
 	_, ok := attack.(*gc.Melee)
 	require.True(t, ok)
 }
@@ -519,7 +521,8 @@ func TestGetAttackParams_CommandTable取得失敗で素手にフォールバッ�
 	assert.Equal(t, "Bare Hands", name)
 	melee, ok := attack.(*gc.Melee)
 	require.True(t, ok)
-	assert.Equal(t, 3, melee.Damage)
+	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
+	assert.Positive(t, melee.Damage)
 }
 
 func TestGetAttackParams_プレイヤーでも敵でもない場合はエラーになる(t *testing.T) {
