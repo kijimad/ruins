@@ -27,17 +27,11 @@ type InfoPanel struct {
 	y    int // 次に書き込む行の上端
 }
 
-// NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。パネルの右上配置は
-// FlexColumn/Row へ委ね、画面幅からの逆算をしない。行はパネル矩形を基準に上から書き足す。
+// NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。単一固定パネルなので
+// 右上座標を直に求める。行はパネル矩形を基準に上から書き足す。
 func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {
-	// 先頭0幅列で右寄せし、1行だけの FlexColumn で上端へ置いて右上のパネル矩形を得る
-	holder := &rectHolder{}
-	row := uicore.Row([]int{0, infoPanelWidth}, uicore.NewGroup(), holder)
-	uicore.FlexColumn(
-		image.Rect(0, infoPanelMargin, screenWidth-infoPanelMargin, infoPanelMargin+height),
-		[]uicore.FlexItem{{W: row, Height: height}},
-	)
-	rect := holder.rect
+	x := screenWidth - infoPanelWidth - infoPanelMargin
+	rect := image.Rect(x, infoPanelMargin, x+infoPanelWidth, infoPanelMargin+height)
 	chrome.Panel(cv, rect)
 	return &InfoPanel{
 		cv:   cv,
@@ -46,19 +40,6 @@ func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, 
 		y:    rect.Min.Y + infoPanelPad,
 	}
 }
-
-// rectHolder は FlexColumn/Row から確定矩形を受け取るだけの Widget。自身は何も描かず、隅へ固定サイズの
-// パネルを置くときに配置結果の矩形を取り出すのに使う。
-type rectHolder struct{ rect image.Rectangle }
-
-// Layout は uicore.Widget を満たす。
-func (h *rectHolder) Layout(r image.Rectangle) { h.rect = r }
-
-// Draw は uicore.Widget を満たす。何も描かない。
-func (h *rectHolder) Draw(uicore.Canvas) {}
-
-// Children は uicore.Widget を満たす。子は持たない。
-func (h *rectHolder) Children() []uicore.Widget { return nil }
 
 // Line は1行書き、書き込み位置を1行ぶん送る。
 func (p *InfoPanel) Line(s string) {
