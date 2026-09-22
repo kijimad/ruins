@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [世界全体の天候を追加する](docs/design/260922101542.md) | 11/12（見送り1） | gamedesign, ecs, save |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference
