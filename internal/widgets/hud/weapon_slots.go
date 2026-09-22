@@ -42,75 +42,77 @@ func NewWeaponSlots(face text.Face, chrome Chrome) *WeaponSlots {
 // slotNumberPad はスロット番号を左上へ置くときの余白
 const slotNumberPad = 4
 
-// Draw は武器スロットを画面上部中央に描画する
+// Draw は武器スロットを画面上部中央へ横並びに描画する。中央寄せは Row の両端0幅列に委ね、
+// 画面幅からの中央計算をしない。
 func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.World) {
 	if len(data.Slots) == 0 {
 		return
 	}
 
 	config := defaultWeaponSlotsConfig
-
-	// 全体の幅を計算
-	totalWidth := len(data.Slots)*config.SlotSize + (len(data.Slots)-1)*config.SlotSpacing
-
-	// 画面中央に配置するためのX座標
-	startX := (data.ScreenDimensions.Width - totalWidth) / 2
-
-	// 画面上部に配置するためのY座標
-	startY := config.YOffset
-
 	sprites := world.Resources.Sprites
 
-	// 各スロットを描画
+	// 両端0幅列で中央寄せし、スロットとスロット間隔を交互に並べる
+	widths := make([]int, 0, len(data.Slots)*2+1)
+	cells := make([]uicore.Widget, 0, len(data.Slots)*2+1)
+	widths = append(widths, 0)
+	cells = append(cells, uicore.NewGroup())
 	for i, slot := range data.Slots {
-		x := startX + i*(config.SlotSize+config.SlotSpacing)
-		y := startY
-
-		// 選択中のスロットかどうか
-		isSelected := i == data.SelectedSlot
-
-		// スロットの背景を描画
-		ws.drawSlotBackground(cv, x, y, config.SlotSize, isSelected)
-
-		// 武器スプライトを描画
-		drawWeaponSprite(cv, x, y, config.SlotSize, slot, sprites)
-
-		// スロット番号を描画
-		drawSlotNumber(cv, ws.face, x, y, config.SlotSize, i+1)
+		if i > 0 {
+			widths = append(widths, config.SlotSpacing)
+			cells = append(cells, uicore.NewGroup())
+		}
+		widths = append(widths, config.SlotSize)
+		cells = append(cells, &slotWidget{
+			chrome:   ws.chrome,
+			face:     ws.face,
+			slot:     slot,
+			number:   i + 1,
+			selected: i == data.SelectedSlot,
+			sprites:  sprites,
+		})
 	}
+	widths = append(widths, 0)
+	cells = append(cells, uicore.NewGroup())
+
+	row := uicore.Row(widths, cells...)
+	items := []uicore.FlexItem{{W: row, Height: config.SlotSize}, {Grow: true}}
+	inner := image.Rect(0, config.YOffset, data.ScreenDimensions.Width, data.ScreenDimensions.Height)
+	uicore.FlexColumn(inner, items)
+	drawFlexItems(cv, items)
 }
 
-// drawSlotBackground はスロット背景をNineSlice描画する
-func (ws *WeaponSlots) drawSlotBackground(cv uicore.Canvas, x, y, size int, selected bool) {
-	r := image.Rect(x, y, x+size, y+size)
-	ws.chrome.Panel(cv, r)
-
-	// 選択中のスロットには明るい枠線を重ねる
-	if selected {
-		cv.StrokeRect(r, 2, theme.HUDSlotSelectedBorder)
-	}
+// slotWidget は武器スロット1枚。与えられた矩形へ背景枠を敷き、選択中なら枠線を重ね、武器スプライトを
+// 中央に、番号を左上に描く。位置は Row/FlexColumn が確定し、内部は矩形基準で自己完結する。
+type slotWidget struct {
+	rect     image.Rectangle
+	chrome   Chrome
+	face     text.Face
+	slot     WeaponSlotInfo
+	number   int
+	selected bool
+	sprites  *resources.SpriteStore
 }
 
-// drawSlotNumber はスロット番号を左上に描画
-func drawSlotNumber(cv uicore.Canvas, face text.Face, x, y, _ int, number int) {
-	numberText := string(rune('0' + number))
-	cv.DrawText(image.Pt(x+slotNumberPad, y+slotNumberPad), numberText, face, theme.TextPrimary)
+// Layout は uicore.Widget を満たす。
+func (s *slotWidget) Layout(r image.Rectangle) { s.rect = r }
+
+// Draw は uicore.Widget を満たす。背景・選択枠・武器スプライト・番号を描く。
+func (s *slotWidget) Draw(cv uicore.Canvas) {
+	s.chrome.Panel(cv, s.rect)
+	if s.selected {
+		// 選択中のスロットには明るい枠線を重ねる
+		cv.StrokeRect(s.rect, 2, theme.HUDSlotSelectedBorder)
+	}
+	if s.slot.WeaponName != "" {
+		if img := s.sprites.Image(&gc.SpriteRender{SpriteSheetName: s.slot.SpriteSheet, SpriteKey: s.slot.SpriteName}); img != nil {
+			b := img.Bounds()
+			cv.DrawImage(image.Pt(s.rect.Min.X+(s.rect.Dx()-b.Dx())/2, s.rect.Min.Y+(s.rect.Dy()-b.Dy())/2), img)
+		}
+	}
+	numberText := string(rune('0' + s.number))
+	cv.DrawText(image.Pt(s.rect.Min.X+slotNumberPad, s.rect.Min.Y+slotNumberPad), numberText, s.face, theme.TextPrimary)
 }
 
-// drawWeaponSprite は武器スプライトを中央に描画
-func drawWeaponSprite(cv uicore.Canvas, x, y, slotSize int, slot WeaponSlotInfo, sprites *resources.SpriteStore) {
-	// 武器が装備されていない場合は何も描画しない
-	if slot.WeaponName == "" {
-		return
-	}
-
-	// スプライトを解決する。シートやキーが無ければ描画しない
-	img := sprites.Image(&gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
-	if img == nil {
-		return
-	}
-
-	// スプライトをスロットの中央に置く
-	b := img.Bounds()
-	cv.DrawImage(image.Pt(x+(slotSize-b.Dx())/2, y+(slotSize-b.Dy())/2), img)
-}
+// Children は uicore.Widget を満たす。子は持たない。
+func (s *slotWidget) Children() []uicore.Widget { return nil }
