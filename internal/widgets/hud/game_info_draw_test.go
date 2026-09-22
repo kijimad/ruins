@@ -73,6 +73,32 @@ func TestGameInfo_arrowWidget(t *testing.T) {
 	}
 }
 
+func TestGameInfo_drawFloorNumber(t *testing.T) {
+	t.Parallel()
+	info := newTestGameInfo(t)
+
+	t.Run("非表示なら描かない", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		info.drawFloorNumber(cv, GameInfoData{ShowFloor: false, FloorNumber: 3})
+		assert.Empty(t, cv.texts)
+	})
+
+	t.Run("表示すると右上へ縁取り付きで描く", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		info.drawFloorNumber(cv, GameInfoData{
+			ShowFloor:        true,
+			FloorNumber:      3,
+			ScreenDimensions: ScreenDimensions{Width: 1024, Height: 768},
+		})
+		txt := findText(t, cv.texts, "  3F")
+		assert.Equal(t, theme.TextPrimary, txt.color, "本体は白")
+		assert.Greater(t, txt.pos.X, 512, "画面右半分へ寄せる")
+		assert.Equal(t, theme.Space4, txt.pos.Y, "上端は Space4")
+	})
+}
+
 func TestGameInfo_drawBottomRightStack_気温(t *testing.T) {
 	t.Parallel()
 	info := newTestGameInfo(t)

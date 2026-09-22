@@ -1,6 +1,7 @@
 package hud
 
 import (
+	"fmt"
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -110,7 +111,8 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 			cv.DrawImage(image.Pt(s.rect.Min.X+(s.rect.Dx()-b.Dx())/2, s.rect.Min.Y+(s.rect.Dy()-b.Dy())/2), img)
 		}
 	}
-	numberText := string(rune('0' + s.number))
+	// 番号は2桁以上でも壊れないよう文字列化する。rune('0'+n) は 0..9 でしか正しくない
+	numberText := fmt.Sprint(s.number)
 	cv.DrawText(image.Pt(s.rect.Min.X+slotNumberPad, s.rect.Min.Y+slotNumberPad), numberText, s.face, theme.TextPrimary)
 }
 

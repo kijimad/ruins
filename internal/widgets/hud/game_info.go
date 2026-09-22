@@ -82,8 +82,11 @@ func (info *GameInfo) drawFloorNumber(cv uicore.Canvas, data GameInfoData) {
 		return
 	}
 	floorText := fmt.Sprintf("%3dF", data.FloorNumber)
+	// テキスト高ぶんの矩形を右上へ置く。Max.Y を Min.Y と同値にすると高さ0の矩形になり、
+	// VCenter や将来の高さ参照が無言で壊れる
+	_, h := uicore.MeasureText(floorText, info.headingFace)
 	t := &uicore.Text{Value: floorText, Face: info.headingFace, Color: theme.TextPrimary, OutlineColor: theme.HUDTextOutline, Align: uicore.AlignRight}
-	t.Layout(image.Rect(0, theme.Space4, data.ScreenDimensions.Width-theme.Space4, theme.Space4))
+	t.Layout(image.Rect(0, theme.Space4, data.ScreenDimensions.Width-theme.Space4, theme.Space4+h))
 	t.Draw(cv)
 }
 
