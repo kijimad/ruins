@@ -268,7 +268,8 @@ func (c *Container) SetPadding(pad int) *Container {
 	return c
 }
 
-// SetStyle は背景の塗りと枠を設定する。選択行の強調などに使う。
+// SetStyle は単色ボックスの背景 style を設定する。BoxStyle.Radius でパネルの角丸背景にもできる。
+// style が塗りか枠を持てば NineSlice 背景より優先される。
 func (c *Container) SetStyle(s BoxStyle) *Container {
 	c.style = s
 	return c
@@ -279,13 +280,6 @@ func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Co
 	c.bgImage = img
 	c.bgBX = bx
 	c.bgBY = by
-	return c
-}
-
-// SetRoundedBackground は単色の角丸背景を敷く。パネルの意匠に使う。border が nil なら枠を描かない。
-// 背景 style を設定するので、SetBackgroundNineSlice と両方を立てると単色が優先され NineSlice は描かれない。
-func (c *Container) SetRoundedBackground(fill, border color.Color, radius int) *Container {
-	c.style = BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}
 	return c
 }
 

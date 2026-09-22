@@ -38,7 +38,7 @@ const noteRowH = 16
 
 // panelBackground はパネルの背景を敷く。
 func panelBackground(c *uicore.Container, _ resources.UIResources) *uicore.Container {
-	return c.SetRoundedBackground(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
+	return c.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})
 }
 
 // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。

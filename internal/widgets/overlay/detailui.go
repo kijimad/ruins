@@ -69,7 +69,7 @@ func buildPanelUI(res resources.UIResources, rect image.Rectangle, content Detai
 
 	// 内側余白はパネルテクスチャの枠を避けて内容を内側へ寄せる
 	panel := uicore.VBox(rowH, items...).SetPadding(theme.Space7)
-	panel.SetRoundedBackground(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
+	panel.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})
 	panel.Layout(rect)
 	return panel
 }

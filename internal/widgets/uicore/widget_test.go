@@ -176,9 +176,9 @@ func TestBox_Draw_borderがnilなら枠を描かない(t *testing.T) {
 	assert.Empty(t, cv.roundedStrokes, "border が nil なら枠を描かない")
 }
 
-func TestContainer_SetRoundedBackground_角丸背景を敷く(t *testing.T) {
+func TestContainer_SetStyle_角丸背景を敷く(t *testing.T) {
 	t.Parallel()
-	c := uicore.Panel(uicore.BoxStyle{}, 16).SetRoundedBackground(color.Gray{Y: 20}, color.White, 7)
+	c := uicore.Panel(uicore.BoxStyle{}, 16).SetStyle(uicore.BoxStyle{Fill: color.Gray{Y: 20}, Border: color.White, BorderWidth: 1, Radius: 7})
 	c.Layout(image.Rect(0, 0, 120, 60))
 	cv := &recordCanvas{}
 	c.Draw(cv)
