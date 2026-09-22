@@ -23,7 +23,6 @@ func ExtractHUDData(world w.World) hud.Data {
 		MacroMap:         extractMacroMapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
 		MessageData:      extractMessageData(world, query.GetGameLog(world)),
-		CurrencyData:     extractCurrencyData(world),
 		WeaponSlotsData:  extractWeaponSlotsData(world),
 		StatusBadgesData: extractStatusBadgesData(world),
 	}
@@ -43,11 +42,13 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var ambientTempVisible bool
 	var ambientTempColor color.RGBA
 	var ambientShelterLabel string
+	var currency consts.Currency
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		hp := world.Components.HP.Get(entity)
 		cw := world.Components.WeightCapacity.Get(entity)
+		currency = query.GetCurrency(world, entity)
 		playerHP = hp.Current
 		playerMaxHP = hp.Max
 		playerWeight = cw.Current
@@ -93,6 +94,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		AmbientTempColor:    ambientTempColor,
 		AmbientShelterLabel: ambientShelterLabel,
 		MessageAreaHeight:   messageAreaHeight,
+		Currency:            currency,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
 			Height: screenHeight,
@@ -255,29 +257,6 @@ func extractMessageData(world w.World, store *gamelog.SafeSlice) hud.MessageData
 
 	return hud.MessageData{
 		Messages:         store.GetHistory(),
-		ScreenDimensions: screenDimensions,
-		Config:           config,
-	}
-}
-
-// extractCurrencyData は通貨データを抽出する
-func extractCurrencyData(world w.World) hud.CurrencyData {
-	screenDimensions := hud.ScreenDimensions{
-		Width:  world.Resources.ScreenDimensions.Width,
-		Height: world.Resources.ScreenDimensions.Height,
-	}
-
-	// デフォルト設定を使用
-	config := hud.DefaultMessageAreaConfig
-
-	// プレイヤーの地髄を取得
-	var currency consts.Currency
-	query.Player(world, func(entity ecs.Entity) {
-		currency = query.GetCurrency(world, entity)
-	})
-
-	return hud.CurrencyData{
-		Currency:         currency,
 		ScreenDimensions: screenDimensions,
 		Config:           config,
 	}

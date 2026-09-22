@@ -153,36 +153,6 @@ func TestExtractGameInfo(t *testing.T) {
 	})
 }
 
-func TestExtractCurrencyData(t *testing.T) {
-	t.Parallel()
-
-	t.Run("プレイヤーの所持金を返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		world.Resources.SetScreenDimensions(320, 240)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
-		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 12345})
-
-		data := extractCurrencyData(world)
-
-		assert.Equal(t, consts.Currency(12345), data.Currency)
-		assert.Equal(t, 320, data.ScreenDimensions.Width)
-		assert.Equal(t, 240, data.ScreenDimensions.Height)
-	})
-
-	t.Run("プレイヤー不在時は0を返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		data := extractCurrencyData(world)
-
-		assert.Equal(t, consts.Currency(0), data.Currency)
-	})
-}
-
 func TestExtractWeaponSlotsData(t *testing.T) {
 	t.Parallel()
 
@@ -402,7 +372,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	data := ExtractHUDData(world)
 
 	assert.Equal(t, 10, data.GameInfo.PlayerHP)
-	assert.Equal(t, consts.Currency(500), data.CurrencyData.Currency)
+	assert.Equal(t, consts.Currency(500), data.GameInfo.Currency)
 	require.Len(t, data.WeaponSlotsData.Slots, 5)
 	assert.Equal(t, 800, data.MacroMap.Screen.Width)
 }

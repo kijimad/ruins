@@ -53,6 +53,7 @@ func TestGolden_Story_GameInfoGauges(t *testing.T) {
 				PlayerMaxWeight:   consts.Milligram(21_000_000),
 				BodyTempRatio:     0.3,
 				BodyTempVisible:   true,
+				Currency:          consts.Currency(10000),
 				MessageAreaHeight: hud.DefaultMessageAreaConfig.Height(),
 				ScreenDimensions:  storyScreen,
 			})
@@ -74,21 +75,6 @@ func TestGolden_Story_StatusBadges(t *testing.T) {
 				},
 				MessageAreaHeight: hud.DefaultMessageAreaConfig.Height(),
 				ScreenDimensions:  storyScreen,
-			})
-		}
-	}, storyScreen.Width, storyScreen.Height)
-}
-
-func TestGolden_Story_Currency(t *testing.T) {
-	t.Parallel()
-	res := storyRes(t)
-	vrt.AssertScreenGolden(t, func() func(screen *ebiten.Image) {
-		cur := hud.NewCurrencyDisplay(res.Text.SmallFace)
-		return func(screen *ebiten.Image) {
-			cur.Draw(uicore.NewEbitenCanvas(screen), hud.CurrencyData{
-				Currency:         consts.Currency(10000),
-				ScreenDimensions: storyScreen,
-				Config:           hud.DefaultMessageAreaConfig,
 			})
 		}
 	}, storyScreen.Width, storyScreen.Height)

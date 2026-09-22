@@ -78,11 +78,12 @@ const (
 // Text は1行のラベル。既定は左上寄せで、Align で右寄せや中央寄せに、VCenter で縦中央にできる。
 type Text struct {
 	base
-	Value   string
-	Face    text.Face
-	Color   color.Color
-	Align   Align
-	VCenter bool // 真なら矩形内で縦中央へ寄せる。行高が本文より高い一覧行でアイコンや強調とそろえる
+	Value        string
+	Face         text.Face
+	Color        color.Color
+	OutlineColor color.Color // 非nilなら本体の前に8方向へずらした縁取りを描く。世界へ重ねるHUD文字を背景の明暗によらず読ませる
+	Align        Align
+	VCenter      bool // 真なら矩形内で縦中央へ寄せる。行高が本文より高い一覧行でアイコンや強調とそろえる
 }
 
 // NewText は左上寄せのラベルを作る。
@@ -111,7 +112,21 @@ func (t *Text) Draw(cv Canvas) {
 			y = t.rect.Min.Y + (t.rect.Dy()-height)/2
 		}
 	}
-	cv.DrawText(image.Pt(x, y), t.Value, t.Face, t.Color)
+	pos := image.Pt(x, y)
+	if t.OutlineColor != nil {
+		for _, off := range textOutlineOffsets {
+			cv.DrawText(pos.Add(off), t.Value, t.Face, t.OutlineColor)
+		}
+	}
+	cv.DrawText(pos, t.Value, t.Face, t.Color)
+}
+
+// textOutlineOffsets は OutlineColor 付き Text の縁取りを描く8方向のずらし量。本体の前にこの分だけ
+// ずらして縁色で描き、世界へ重ねる文字を背景の明暗によらず読ませる。
+var textOutlineOffsets = []image.Point{
+	{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
+	{X: -1, Y: 0}, {X: 1, Y: 0},
+	{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
 }
 
 // Children は Text を実装する。子は持たない。

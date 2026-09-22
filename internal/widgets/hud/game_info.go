@@ -77,11 +77,8 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 	// HPゲージ。体温ゲージの下段
 	info.drawHealthBar(cv, data.PlayerHP, data.PlayerMaxHP)
 
-	// 所持重量表示（右下）
-	info.drawWeightDisplay(cv, data)
-
-	// 周囲気温表示
-	info.drawAmbientTemperature(cv, data)
+	// 右下スタック。周囲気温・所持重量・所持通貨をメッセージエリアの上へ下から積む
+	info.drawBottomRightStack(cv, data)
 
 	// フロア情報（最後に描画して最前面に表示）
 	info.drawFloorNumber(cv, data)
@@ -209,64 +206,70 @@ func (info *GameInfo) drawGaugeBar(cv uicore.Canvas, x, y, width, ratio float64,
 	}
 }
 
-// drawAmbientTemperature はプレイヤーがいる地点の囲われと周囲気温を右下、所持重量の1行上に描画する。
-// 温度が場所依存なので、屋内へ入る・火に近づくといった移動の効果がその場で読める。
-// 囲われラベルは白、温度は快適帯の内外の色で描き分ける
-func (info *GameInfo) drawAmbientTemperature(cv uicore.Canvas, data GameInfoData) {
-	if !data.AmbientTempVisible {
-		return
+// drawBottomRightStack は周囲気温・所持重量・所持通貨を右下、メッセージエリアの上へ下から積んで描く。
+// 画面端からの逆算や段の手積みをせず、下寄せの FlexColumn へ流して各行を右端に揃える。先頭の Grow
+// スペーサが上の余りを吸収して全体を下端へ押し、末尾スペーサがメッセージエリアの高さを確保する。
+// 温度は場所依存なので、屋内へ入る・火に近づく効果がその場で読める。囲われラベルは白、温度は快適帯の
+// 内外の色、重量は積載率で色を変える。
+func (info *GameInfo) drawBottomRightStack(cv uicore.Canvas, data GameInfoData) {
+	face := info.bodyFace
+	outline := theme.HUDTextOutline
+
+	items := []uicore.FlexItem{{Grow: true}}
+
+	if data.AmbientTempVisible {
+		labelText := data.AmbientShelterLabel + " "
+		tempText := fmt.Sprintf("%d%s", data.AmbientTemp, consts.IconDegree)
+		labelW, h := uicore.MeasureText(labelText, face)
+		tempW, _ := uicore.MeasureText(tempText, face)
+		// 先頭0幅列が余り幅を吸収し、ラベルと温度を右端へ寄せる
+		row := uicore.Row([]int{0, labelW, tempW},
+			uicore.NewGroup(),
+			&uicore.Text{Value: labelText, Face: face, Color: theme.TextPrimary, OutlineColor: outline},
+			&uicore.Text{Value: tempText, Face: face, Color: data.AmbientTempColor, OutlineColor: outline},
+		)
+		items = append(items, uicore.FlexItem{W: row, Height: h}, uicore.FlexItem{Height: theme.Space2})
 	}
 
-	labelText := data.AmbientShelterLabel + " "
-	tempText := fmt.Sprintf("%d%s", data.AmbientTemp, consts.IconDegree)
-	labelWidth, _ := uicore.MeasureText(labelText, info.bodyFace)
-	tempWidth, textHeight := uicore.MeasureText(tempText, info.bodyFace)
+	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())
+	_, wh := uicore.MeasureText(weightText, face)
+	items = append(items,
+		uicore.FlexItem{W: &uicore.Text{Value: weightText, Face: face, Color: weightColor(data), OutlineColor: outline, Align: uicore.AlignRight}, Height: wh},
+		uicore.FlexItem{Height: theme.Space2},
+	)
 
-	// 通貨・所持重量と同じ右端に揃え、所持重量からさらに1行分上げる
-	screenWidth := float64(data.ScreenDimensions.Width)
-	screenHeight := float64(data.ScreenDimensions.Height)
-	x := screenWidth - float64(labelWidth+tempWidth) - theme.Space4F
-	y := screenHeight - float64(data.MessageAreaHeight) - theme.Space4F - float64(textHeight*3) - theme.Space2F*2
+	currencyText := data.Currency.String()
+	_, ch := uicore.MeasureText(currencyText, face)
+	items = append(items, uicore.FlexItem{W: &uicore.Text{Value: currencyText, Face: face, Color: theme.TextPrimary, OutlineColor: outline, Align: uicore.AlignRight}, Height: ch})
 
-	drawOutlinedText(cv, labelText, info.bodyFace, image.Pt(int(x), int(y)), theme.TextPrimary)
-	drawOutlinedText(cv, tempText, info.bodyFace, image.Pt(int(x)+labelWidth, int(y)), data.AmbientTempColor)
+	// スタックの下端をメッセージログ枠の上端の1余白ぶん上へ置く
+	items = append(items, uicore.FlexItem{Height: data.MessageAreaHeight + theme.Space4})
+
+	inner := image.Rect(0, 0, data.ScreenDimensions.Width-theme.Space4, data.ScreenDimensions.Height)
+	uicore.FlexColumn(inner, items)
+	drawFlexItems(cv, items)
 }
 
-// drawWeightDisplay はプレイヤーの所持重量を右下に描画する
-func (info *GameInfo) drawWeightDisplay(cv uicore.Canvas, data GameInfoData) {
-	// 所持重量テキストを作成する
-	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())
-
-	// テキストの幅を測定
-	textWidth, textHeight := uicore.MeasureText(weightText, info.bodyFace)
-
-	// メッセージエリアの高さを取得
-	messageAreaHeight := float64(data.MessageAreaHeight)
-
-	// 画面右下に配置（通貨表示の上に重ならないように2行分上げる）
-	screenWidth := float64(data.ScreenDimensions.Width)
-	screenHeight := float64(data.ScreenDimensions.Height)
-	x := screenWidth - float64(textWidth) - theme.Space4F
-	y := screenHeight - messageAreaHeight - theme.Space4F - float64(textHeight*2) - theme.Space2F
-
-	// 重量比率を計算して色を決定
-	var textColor color.RGBA
-	if data.PlayerMaxWeight > 0 {
-		ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight)
-		switch {
-		case ratio > 1.0:
-			// 超過: 赤
-			textColor = theme.HUDWeightDanger
-		case ratio > 0.8:
-			// 80%以上: 黄色
-			textColor = theme.HUDWeightWarning
-		default:
-			// 通常: 白
-			textColor = theme.TextPrimary
-		}
-	} else {
-		textColor = theme.TextPrimary
+// weightColor は所持重量の文字色を返す。積載超過は赤、8割超は黄、通常は白。
+func weightColor(data GameInfoData) color.RGBA {
+	if data.PlayerMaxWeight <= 0 {
+		return theme.TextPrimary
 	}
+	switch ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight); {
+	case ratio > 1.0:
+		return theme.HUDWeightDanger
+	case ratio > 0.8:
+		return theme.HUDWeightWarning
+	default:
+		return theme.TextPrimary
+	}
+}
 
-	drawOutlinedText(cv, weightText, info.bodyFace, image.Pt(int(x), int(y)), textColor)
+// drawFlexItems は FlexColumn/Row で矩形が確定済みの各行 Widget を描く。W が nil のスペーサ行は飛ばす。
+func drawFlexItems(cv uicore.Canvas, items []uicore.FlexItem) {
+	for _, it := range items {
+		if it.W != nil {
+			it.W.Draw(cv)
+		}
+	}
 }

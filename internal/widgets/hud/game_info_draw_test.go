@@ -67,18 +67,24 @@ func TestGameInfo_drawTemperatureArrow(t *testing.T) {
 	}
 }
 
-func TestGameInfo_drawAmbientTemperature(t *testing.T) {
+func TestGameInfo_drawBottomRightStack_気温(t *testing.T) {
 	t.Parallel()
 	info := newTestGameInfo(t)
 
-	t.Run("非表示なら何も描かない", func(t *testing.T) {
+	t.Run("気温が非表示ならラベルを描かない", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
-		info.drawAmbientTemperature(cv, GameInfoData{AmbientTempVisible: false})
-		assert.Empty(t, cv.texts)
+		info.drawBottomRightStack(cv, GameInfoData{
+			AmbientTempVisible: false,
+			MessageAreaHeight:  40,
+			ScreenDimensions:   ScreenDimensions{Width: 1024, Height: 768},
+		})
+		for _, tx := range cv.texts {
+			assert.NotContains(t, tx.str, "屋内", "気温非表示なら囲われラベルは出さない")
+		}
 	})
 
-	t.Run("表示するとラベルと気温を右寄せで描く", func(t *testing.T) {
+	t.Run("気温表示でラベルと気温を右寄せで描く", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
 		tempColor := color.RGBA{R: 10, G: 20, B: 30, A: 255}
@@ -90,7 +96,7 @@ func TestGameInfo_drawAmbientTemperature(t *testing.T) {
 			MessageAreaHeight:   40,
 			ScreenDimensions:    ScreenDimensions{Width: 1024, Height: 768},
 		}
-		info.drawAmbientTemperature(cv, data)
+		info.drawBottomRightStack(cv, data)
 
 		label := findText(t, cv.texts, "屋内 ")
 		temp := findText(t, cv.texts, "25℃")
