@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -25,10 +26,7 @@ func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas {
 // FillRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて塗る。
 func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts ...RectOptions) {
 	if len(opts) > 0 && opts[0].Radius > 0 {
-		p := roundedRectPath(r, opts[0].Radius)
-		dop := &vector.DrawPathOptions{AntiAlias: true}
-		dop.ColorScale.ScaleWithColor(c)
-		vector.FillPath(e.screen, &p, &vector.FillOptions{}, dop)
+		e.drawShape(r.Min, roundedFillShape(r.Dx(), r.Dy(), opts[0].Radius, c))
 		return
 	}
 	vector.FillRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), c, false)
@@ -37,13 +35,18 @@ func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts ...RectOp
 // StrokeRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて枠を描く。
 func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, opts ...RectOptions) {
 	if len(opts) > 0 && opts[0].Radius > 0 {
-		p := roundedRectPath(r, opts[0].Radius)
-		dop := &vector.DrawPathOptions{AntiAlias: true}
-		dop.ColorScale.ScaleWithColor(c)
-		vector.StrokePath(e.screen, &p, &vector.StrokeOptions{Width: float32(width)}, dop)
+		shape, offset := roundedStrokeShape(r.Dx(), r.Dy(), width, opts[0].Radius, c)
+		e.drawShape(r.Min.Add(offset), shape)
 		return
 	}
 	vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)
+}
+
+// drawShape は焼き済みの形状画像を pos へ素で描く。色は焼き込み済みなので色掛けはしない。
+func (e *EbitenCanvas) drawShape(pos image.Point, shape *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
+	e.screen.DrawImage(shape, op)
 }
 
 // roundedRectPath は四隅を半径 radius で丸めた矩形のパスを組む。半径は矩形の短辺の半分までに丸める。
@@ -69,6 +72,66 @@ func roundedRectPath(r image.Rectangle, radius int) vector.Path {
 	p.ArcTo(x, y, x+rad, y, rad)
 	p.Close()
 	return p
+}
+
+// 角丸は毎フレーム vector.FillPath でラスタライズすると CPU 実描画で重く、パスの分割で
+// フレームごとにアロケーションも出る。同じ寸法・色は繰り返し使われるので、形状を色ごと画像へ
+// 一度だけ焼き、描画は素の DrawImage で済ませる。旧 NineSlice と同じ blit の負荷に戻る。
+// 焼く画像は Unmanaged にして共有アトラスへ載せない。アトラス配置は生成順に依存し、並行する
+// ゴールデンテストで描画結果がぶれる。Unmanaged なら各形状が独立テクスチャで決定的になる。
+// 色を描画時に掛けると半透明色で量子化が二重になり直接描画とずれるため、色は焼く時点で塗り込む。
+// Draw は単一ゴルーチンだがテストが並行にキャッシュへ触れるので map は mutex で守る。
+var (
+	roundedShapeMu      sync.Mutex
+	roundedFillShapes   = map[roundedFillKey]*ebiten.Image{}
+	roundedStrokeShapes = map[roundedStrokeKey]*ebiten.Image{}
+)
+
+type roundedFillKey struct {
+	w, h, radius int
+	c            color.RGBA
+}
+type roundedStrokeKey struct {
+	w, h, width, radius int
+	c                   color.RGBA
+}
+
+// roundedFillShape は w×h の角丸塗りを色 c で焼いた画像を返す。左上を原点として描く。
+func roundedFillShape(w, h, radius int, c color.Color) *ebiten.Image {
+	rgba, _ := color.RGBAModel.Convert(c).(color.RGBA)
+	key := roundedFillKey{w, h, radius, rgba}
+	roundedShapeMu.Lock()
+	defer roundedShapeMu.Unlock()
+	if img, ok := roundedFillShapes[key]; ok {
+		return img
+	}
+	img := ebiten.NewImageWithOptions(image.Rect(0, 0, w, h), &ebiten.NewImageOptions{Unmanaged: true})
+	p := roundedRectPath(image.Rect(0, 0, w, h), radius)
+	dop := &vector.DrawPathOptions{AntiAlias: true}
+	dop.ColorScale.ScaleWithColor(c)
+	vector.FillPath(img, &p, &vector.FillOptions{}, dop)
+	roundedFillShapes[key] = img
+	return img
+}
+
+// roundedStrokeShape は w×h の角丸枠を色 c で焼いた画像と、矩形左上へ合わせる描画オフセットを返す。
+// 枠は線幅の半分だけ矩形の外へはみ出すので、線幅ぶん画像を広げて焼き、オフセットで左上へずらす。
+func roundedStrokeShape(w, h, width, radius int, c color.Color) (*ebiten.Image, image.Point) {
+	offset := image.Pt(-width, -width)
+	rgba, _ := color.RGBAModel.Convert(c).(color.RGBA)
+	key := roundedStrokeKey{w, h, width, radius, rgba}
+	roundedShapeMu.Lock()
+	defer roundedShapeMu.Unlock()
+	if img, ok := roundedStrokeShapes[key]; ok {
+		return img, offset
+	}
+	img := ebiten.NewImageWithOptions(image.Rect(0, 0, w+width*2, h+width*2), &ebiten.NewImageOptions{Unmanaged: true})
+	p := roundedRectPath(image.Rect(width, width, width+w, width+h), radius)
+	dop := &vector.DrawPathOptions{AntiAlias: true}
+	dop.ColorScale.ScaleWithColor(c)
+	vector.StrokePath(img, &p, &vector.StrokeOptions{Width: float32(width)}, dop)
+	roundedStrokeShapes[key] = img
+	return img, offset
 }
 
 // FillTriangle は EbitenCanvas を実装する。3頂点の三角形を塗る。text/v2 を通らないのでロックは要らない。
