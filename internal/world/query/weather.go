@@ -64,10 +64,16 @@ func NextWeather(current gc.WeatherKind, season gc.Season, northDepth int, rng *
 }
 
 // drawWeighted は重み配列から1つの添字を確率抽選する。総和が0以下なら0を返す安全側の縮退。
+// 丸め誤差で末尾まで抜けた場合は、末尾でなく最大重みの添字へ縮退する。末尾に落とすと微小重みの
+// 天候が過剰に選ばれ分布の意図とずれるため。
 func drawWeighted(weights []float64, rng *rand.Rand) int {
 	var total float64
-	for _, w := range weights {
+	maxIdx := 0
+	for i, w := range weights {
 		total += w
+		if w > weights[maxIdx] {
+			maxIdx = i
+		}
 	}
 	if total <= 0 {
 		return 0
@@ -79,7 +85,7 @@ func drawWeighted(weights []float64, rng *rand.Rand) int {
 			return i
 		}
 	}
-	return len(weights) - 1
+	return maxIdx
 }
 
 // spellTurnRange は天候種ごとのスペル基準長の下限と上限。晴れは長く吹雪は短い。値は暫定。

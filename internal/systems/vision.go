@@ -78,7 +78,8 @@ func (sys *VisionSystem) Update(world w.World) error {
 	// 視界遮断タイルのインデックスを構築する
 	blockViewIndex := buildBlockViewIndex(world)
 
-	// タイルの可視性マップを更新。天候で視程を縮める。VisionDelta はタイル単位で、下限で床を打ち0にはしない
+	// タイルの可視性マップを更新。天候で視程を縮める。VisionDelta はタイル単位で、下限で床を打ち0にはしない。
+	// VisionDelta は負か0のみを想定するので上限の cap は置かない。正の値を足す天候を作るなら cap を足す
 	const minVisionTiles consts.Tile = 8
 	effectiveTiles := max(consts.VisionRadiusTiles+consts.Tile(query.GetWeather(world).Current.Effect().VisionDelta), minVisionTiles)
 	visionRadius := consts.WorldPixel(effectiveTiles) * consts.TileSize

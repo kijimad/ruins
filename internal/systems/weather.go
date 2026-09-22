@@ -22,6 +22,8 @@ func (sys *WeatherSystem) String() string {
 func (sys *WeatherSystem) Update(world w.World) error {
 	gt := query.GetGameTime(world)
 	weather := query.GetWeather(world)
+	// 遷移するとその場で UntilTurn を先へ進めるので、同じターンに Update が再び呼ばれてもここで早期に返る。
+	// rng を都度シードで作る作りだが、同ターン多重実行になっても二重遷移しない
 	if gt.TotalTurns < weather.UntilTurn {
 		return nil
 	}

@@ -20,6 +20,10 @@ const InitialWeatherSpellTurns consts.Turn = 2500
 
 // WeatherKind は天候の種類。降水の重さと表示の順で並べる。寒さの厳しさは Severity で別に持つ。
 // 雨は暖候期の降水で寒さ軸では軽いが、降水として雪の手前に置くため、並び順は Severity と一致しない。
+//
+// enum は基本 string にする規約から外れて iota の int にしている。Season・TimeOfDay と同じ順序数 enum で、
+// seasonAffinity の行列添字や重み配列 NumWeatherKind に整数値を直に使うため。保存値の互換は未リリースなので
+// 考慮しない。リリース後に並びを変えるなら serde の移行が要る。
 type WeatherKind int
 
 const (
@@ -46,20 +50,25 @@ type WeatherEffect struct {
 	VisionDelta  int // 視程レンジへの加算。負で狭くなる。加算側で下限の床を打つ
 }
 
-// weatherEffects は天候種ごとの効果。値は暫定で実プレイで調整する。
-// VisionDelta は視程半径 VisionRadiusTiles=40 に対するタイル単位の増減。荒天ほど大きく削る。
-var weatherEffects = map[WeatherKind]WeatherEffect{
-	WeatherClear:    {TempModifier: 2, VisionDelta: 0},
-	WeatherCloudy:   {TempModifier: 0, VisionDelta: 0},
-	WeatherRain:     {TempModifier: -2, VisionDelta: -6},
-	WeatherSnow:     {TempModifier: -3, VisionDelta: -10},
-	WeatherBlizzard: {TempModifier: -8, VisionDelta: -28},
-	WeatherColdSnap: {TempModifier: -15, VisionDelta: 0},
-}
-
-// Effect は天候種の効果を返す。未知の種類はゼロ値の無効果を返す。
+// Effect は天候種の効果を返す。値は暫定で実プレイで調整する。VisionDelta は視程半径
+// VisionRadiusTiles=40 に対するタイル単位の増減で、荒天ほど大きく削る。default を置かず exhaustive に
+// 全種を強制し、種の追加漏れを String と同じく panic と linter で露見させる。
 func (k WeatherKind) Effect() WeatherEffect {
-	return weatherEffects[k]
+	switch k {
+	case WeatherClear:
+		return WeatherEffect{TempModifier: 2, VisionDelta: 0}
+	case WeatherCloudy:
+		return WeatherEffect{TempModifier: 0, VisionDelta: 0}
+	case WeatherRain:
+		return WeatherEffect{TempModifier: -2, VisionDelta: -6}
+	case WeatherSnow:
+		return WeatherEffect{TempModifier: -3, VisionDelta: -10}
+	case WeatherBlizzard:
+		return WeatherEffect{TempModifier: -8, VisionDelta: -28}
+	case WeatherColdSnap:
+		return WeatherEffect{TempModifier: -15, VisionDelta: 0}
+	}
+	panic(fmt.Sprintf("unknown WeatherKind: %d", k))
 }
 
 // Severity は寒さの厳しさを返す。placeFactor が奥地ほど厳しい天候を厚くするのに使う。並び順とは別。
