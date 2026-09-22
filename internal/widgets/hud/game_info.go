@@ -157,9 +157,9 @@ func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
 	}
 	var fill color.RGBA
 	if ratio > 0.5 {
-		fill = lerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-ratio)*2)
+		fill = theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-ratio)*2)
 	} else {
-		fill = lerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)
+		fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)
 	}
 	return &gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}
 }
@@ -167,13 +167,7 @@ func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
 // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向
 func bodyTempFillColor(ratio float64) color.RGBA {
 	// 体温は片方向。0が平熱かつ上限で寒さ方向へ負に動くので、ratio=1 が平熱、下がるほど冷えの色へ寄る
-	return lerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)
-}
-
-// lerpColor は2色を t (0..1) で線形補間する。ゲージの塗りを比率で連続に変えるのに使う
-func lerpColor(a, b color.RGBA, t float64) color.RGBA {
-	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
-	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+	return theme.LerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)
 }
 
 // gaugeOverhang はセパレーターライン・枠線がゲージ塗りから左右にはみ出す量

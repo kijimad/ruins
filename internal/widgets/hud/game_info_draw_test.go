@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -97,6 +98,19 @@ func TestGameInfo_drawFloorNumber(t *testing.T) {
 		assert.Greater(t, txt.pos.X, 512, "画面右半分へ寄せる")
 		assert.Equal(t, theme.Space4, txt.pos.Y, "上端は Space4")
 	})
+}
+
+func TestDrawFlexItems_W無しの行はスキップする(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+	items := []uicore.FlexItem{
+		{Grow: true}, // W が nil のスペーサ行
+		{W: &uicore.Text{Value: "hello"}, Height: 10},
+	}
+	drawFlexItems(cv, items)
+
+	require.Len(t, cv.texts, 1, "W がある行だけ描く")
+	assert.Equal(t, "hello", cv.texts[0].str)
 }
 
 func TestGameInfo_drawBottomRightStack_気温(t *testing.T) {

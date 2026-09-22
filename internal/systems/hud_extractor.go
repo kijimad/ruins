@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -453,15 +454,9 @@ func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA 
 	}
 	intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)
 	if dir == hud.TempDirectionUp {
-		return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
+		return theme.LerpColor(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
 	}
-	return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
-}
-
-// lerpRGBA は2色を t (0..1) で線形補間する
-func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
-	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
-	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+	return theme.LerpColor(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
 }
 
 // getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤
