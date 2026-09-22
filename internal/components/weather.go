@@ -6,8 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
-// Weather は世界全体の天候を保持するシングルトン。天候はスペルすなわち「種類と続く長さ」で持ち、
-// 1日ごとでなく可変長で移ろう。遷移の記憶と持続の残りは日数から導けないので保存する。
+// Weather は世界全体の天候を保持するシングルトン。遷移の記憶と持続の残りは日数から導けないので保存する。
 type Weather struct {
 	Current   WeatherKind
 	UntilTurn consts.Turn // このスペルが続く終端の総ターン数。TotalTurns が到達したら次のスペルへ遷移する
@@ -19,11 +18,8 @@ type Weather struct {
 const InitialWeatherSpellTurns consts.Turn = 2500
 
 // WeatherKind は天候の種類。降水の重さと表示の順で並べる。寒さの厳しさは Severity で別に持つ。
-// 雨は暖候期の降水で寒さ軸では軽いが、降水として雪の手前に置くため、並び順は Severity と一致しない。
-//
-// enum は基本 string にする規約から外れて iota の int にしている。Season・TimeOfDay と同じ順序数 enum で、
-// seasonAffinity の行列添字や重み配列 NumWeatherKind に整数値を直に使うため。保存値の互換は未リリースなので
-// 考慮しない。リリース後に並びを変えるなら serde の移行が要る。
+// enum は基本 string の規約から外れ iota の int にする。Season・TimeOfDay と同じ順序数 enum で、
+// seasonAffinity の行列添字や NumWeatherKind に整数値を直に使うため。
 type WeatherKind int
 
 const (
@@ -50,9 +46,8 @@ type WeatherEffect struct {
 	VisionDelta  int // 視程レンジへの加算。負で狭くなる。加算側で下限の床を打つ
 }
 
-// Effect は天候種の効果を返す。値は暫定で実プレイで調整する。VisionDelta は視程半径
-// VisionRadiusTiles=40 に対するタイル単位の増減で、荒天ほど大きく削る。default を置かず exhaustive に
-// 全種を強制し、種の追加漏れを String と同じく panic と linter で露見させる。
+// Effect は天候種の効果を返す。値は暫定。VisionDelta は視程半径 VisionRadiusTiles=40 に対するタイル単位の
+// 増減。default を置かず exhaustive に全種を強制し、追加漏れを panic と linter で止める。
 func (k WeatherKind) Effect() WeatherEffect {
 	switch k {
 	case WeatherClear:

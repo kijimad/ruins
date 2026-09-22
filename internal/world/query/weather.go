@@ -28,10 +28,8 @@ const placeSeverityCoef = 0.05
 // weatherStayWeight は遷移の粘り。同じ天候を引き継ぐ重み。1より大きいほど regime が続く。値は暫定。
 const weatherStayWeight = 2.5
 
-// stickiness は前の天候から次への遷移の粘りを返す。同一は重く、離れるほど 1/距離 で細る。
-// 並び順は降水の重さなので、距離が離れるほど急な天候変化になり起きにくい。段階を踏む移ろいを表す。
-// 距離が WeatherKind の並び順に密結合する点に注意。並びを変えると遷移の起きやすさも変わる。寒波は
-// 晴れている別種の厳しさで降水軸から外れるため、晴れとの距離が5で急変扱いになる非対称がある。値は暫定。
+// stickiness は前の天候から次への遷移の粘りを返す。同一は重く、離れるほど 1/距離 で細る。段階を踏む
+// 移ろいを表す。距離は WeatherKind の並び順に密結合するので、並びを変えると遷移の起きやすさも変わる。
 func stickiness(current, next gc.WeatherKind) float64 {
 	if current == next {
 		return weatherStayWeight
@@ -70,8 +68,7 @@ func NextWeather(current gc.WeatherKind, season gc.Season, northDepth int, rng *
 // 天候が過剰に選ばれ分布の意図とずれるため。
 func drawWeighted(weights []float64, rng *rand.Rand) int {
 	var total float64
-	// maxIdx は最大重みの添字。添字0を初期値にし、より大きいものが出たときだけ更新する。
-	// 0 が最大ならそのまま0で正しい。縮退時にここへ落とす
+	// maxIdx は最大重みの添字。丸め誤差での縮退先に使う
 	maxIdx := 0
 	for i, w := range weights {
 		total += w
