@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [世界全体の天候を追加する](docs/design/260922101542.md) | 0/12 | gamedesign, ecs, save |
+| accepted | [世界全体の天候を追加する](docs/design/260922101542.md) | 0/12（見送り1） | gamedesign, ecs, save |
 
 
 ## Reference
