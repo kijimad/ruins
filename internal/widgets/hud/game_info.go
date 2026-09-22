@@ -196,6 +196,7 @@ func (g *gaugeWidget) Layout(r image.Rectangle) { g.rect = r }
 // Draw は uicore.Widget を満たす。上下の白枠を左右へはみ出して引き、比率ぶんの塗りを重ねる。
 func (g *gaugeWidget) Draw(cv uicore.Canvas) {
 	top := g.rect.Min.Y
+	// 枠は塗りより左右へ overhang ぶん、割り当て矩形の外側へ意図的にはみ出す。隣に要素を置くと重なる
 	left := g.rect.Min.X - gaugeOverhang
 	right := g.rect.Max.X + gaugeOverhang
 	cv.FillRect(image.Rect(left, top, right, top+1), g.border)
@@ -270,6 +271,7 @@ func weightColor(data GameInfoData) color.RGBA {
 }
 
 // drawFlexItems は FlexColumn/Row で矩形が確定済みの各行 Widget を描く。W が nil のスペーサ行は飛ばす。
+// 呼び出し前に必ず FlexColumn/Row で items を Layout すること。未 Layout の Widget は rect がゼロ値のまま描かれる。
 func drawFlexItems(cv uicore.Canvas, items []uicore.FlexItem) {
 	for _, it := range items {
 		if it.W != nil {

@@ -19,13 +19,6 @@ type weaponSlotsConfig struct {
 	YOffset     int // 画面上端からのオフセット（ピクセル）
 }
 
-// defaultWeaponSlotsConfig はデフォルトの武器スロット設定
-var defaultWeaponSlotsConfig = weaponSlotsConfig{
-	SlotSize:    48,
-	SlotSpacing: 8,
-	YOffset:     theme.Space4,
-}
-
 // WeaponSlots は武器スロット表示ウィジェット
 type WeaponSlots struct {
 	face   text.Face
@@ -50,7 +43,7 @@ func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.Worl
 		return
 	}
 
-	config := defaultWeaponSlotsConfig
+	config := weaponSlotsConfig{SlotSize: 48, SlotSpacing: 8, YOffset: theme.Space4}
 	sprites := world.Resources.Sprites
 
 	// 両端0幅列で中央寄せし、スロットとスロット間隔を交互に並べる

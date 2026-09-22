@@ -81,7 +81,7 @@ type Text struct {
 	Value        string
 	Face         text.Face
 	Color        color.Color
-	OutlineColor color.Color // 非nilなら本体の前に8方向へずらした縁取りを描く。世界へ重ねるHUD文字を背景の明暗によらず読ませる
+	OutlineColor color.Color // 非nilなら本体の前に8方向へずらした縁取りを描く。nilで無効。color.RGBA{}はゼロ値でも非nilで無駄な8方向描画になる点に注意。世界へ重ねるHUD文字を背景の明暗によらず読ませる
 	Align        Align
 	VCenter      bool // 真なら矩形内で縦中央へ寄せる。行高が本文より高い一覧行でアイコンや強調とそろえる
 }
