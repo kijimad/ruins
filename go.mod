@@ -18,7 +18,7 @@ require (
 	github.com/sebdah/goldie/v2 v2.8.0
 	github.com/stretchr/testify v1.12.1
 	github.com/urfave/cli/v3 v3.12.0
-	github.com/yohamta/furex/v2 v2.4.9
+	github.com/yohamta/furex/v2 v2.5.0
 	golang.org/x/image v0.46.0
 	golang.org/x/perf v0.0.0-20260709024250-82a0b07e230d
 	golang.org/x/tools v0.50.0
