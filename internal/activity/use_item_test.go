@@ -493,6 +493,29 @@ func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
 	}
 }
 
+func TestUseItemBehavior_getItemName(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Nameコンポーネントがあれば訳された名前を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
+
+		u := &UseItemBehavior{}
+		assert.Equal(t, "パン", u.getItemName(item, world))
+	})
+
+	t.Run("Nameコンポーネントがなければ汎用名を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		item := world.ECS.NewEntity() // Nameコンポーネントなし
+
+		u := &UseItemBehavior{}
+		assert.Equal(t, "Item", u.getItemName(item, world))
+	})
+}
+
 func TestUseItemBehavior_Name(t *testing.T) {
 	t.Parallel()
 
@@ -576,5 +599,56 @@ func TestUseItemBehavior_applyHealing(t *testing.T) {
 
 		hp := world.Components.HP.Get(actor)
 		assert.Equal(t, 11, hp.Current, "回復量0でも最低1は回復するべき")
+	})
+}
+
+func TestUseItemBehavior_logItemUse(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤー以外はログを出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity() // Playerコンポーネントなし
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "薬"})
+
+		u := &UseItemBehavior{}
+		u.logItemUse(actor, world, item, 10, true)
+
+		assert.Empty(t, query.GetGameLog(world).GetRecent(1), "プレイヤー以外はログを出さない")
+	})
+
+	t.Run("回復のとき回復量がログに出る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.Player.Add(actor, &gc.Player{})
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "薬"})
+
+		u := &UseItemBehavior{}
+		u.logItemUse(actor, world, item, 25, true)
+
+		recent := query.GetGameLog(world).GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "recovered")
+		assert.Contains(t, recent[0], "25")
+	})
+
+	t.Run("自傷ダメージのときダメージ量がログに出る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.Player.Add(actor, &gc.Player{})
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "毒薬"})
+
+		u := &UseItemBehavior{}
+		u.logItemUse(actor, world, item, 10, false)
+
+		recent := query.GetGameLog(world).GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "damage")
+		assert.Contains(t, recent[0], "10")
 	})
 }
