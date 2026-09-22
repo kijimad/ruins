@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// weatherSpellSeedSalt はスペル長の乱数を次の天候の抽選と別ストリームにするための塩。
+// weatherSpellSeedSalt はスペル長の乱数を次の天候の抽選と別ストリームにするための塩。値は任意で、
+// RunSeed と XOR してストリームが分かれれば何でもよい。乱数から選んだ非ゼロの定数。
 const weatherSpellSeedSalt uint64 = 0x5715_9EA7_4E12_3D5B
 
 // WeatherSystem は世界全体の天候スペルを進めるシステム。スペルが尽きたら次の天候を引き直す。
