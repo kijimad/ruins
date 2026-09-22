@@ -1,6 +1,7 @@
 package query
 
 import (
+	"fmt"
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -89,15 +90,24 @@ func drawWeighted(weights []float64, rng *rand.Rand) int {
 	return maxIdx
 }
 
-// spellTurnRange は天候種ごとのスペル基準長の下限と上限。晴れは長く吹雪は短い。値は暫定。
-// TurnsPerDay=1500 が1日。
-var spellTurnRange = map[gc.WeatherKind][2]int{
-	gc.WeatherClear:    {2250, 4500}, // 1.5〜3日
-	gc.WeatherCloudy:   {1500, 3000}, // 1〜2日
-	gc.WeatherRain:     {750, 2250},  // 0.5〜1.5日
-	gc.WeatherSnow:     {1200, 2250}, // 0.8〜1.5日
-	gc.WeatherBlizzard: {450, 900},   // 0.3〜0.6日
-	gc.WeatherColdSnap: {1500, 3000}, // 1〜2日
+// spellTurnRange は天候種ごとのスペル基準長の下限と上限を返す。晴れは長く吹雪は短い。値は暫定。
+// TurnsPerDay=1500 が1日。default を置かず exhaustive に全種を強制し、追加漏れを panic と linter で止める。
+func spellTurnRange(kind gc.WeatherKind) (lo, hi int) {
+	switch kind {
+	case gc.WeatherClear:
+		return 2250, 4500 // 1.5〜3日
+	case gc.WeatherCloudy:
+		return 1500, 3000 // 1〜2日
+	case gc.WeatherRain:
+		return 750, 2250 // 0.5〜1.5日
+	case gc.WeatherSnow:
+		return 1200, 2250 // 0.8〜1.5日
+	case gc.WeatherBlizzard:
+		return 450, 900 // 0.3〜0.6日
+	case gc.WeatherColdSnap:
+		return 1500, 3000 // 1〜2日
+	}
+	panic(fmt.Sprintf("unknown WeatherKind: %d", kind))
 }
 
 // harshSpellStretchPerChunk は奥地1チャンクあたり厳しい天候のスペルをどれだけ伸ばすか。値は暫定。
@@ -109,8 +119,7 @@ func RollSpellTurns(kind gc.WeatherKind, season gc.Season, northDepth int, rng *
 	if northDepth < 0 {
 		northDepth = 0
 	}
-	rng2 := spellTurnRange[kind]
-	lo, hi := rng2[0], rng2[1]
+	lo, hi := spellTurnRange(kind)
 	turns := lo
 	if hi > lo {
 		turns += rng.IntN(hi - lo)

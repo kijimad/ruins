@@ -241,6 +241,8 @@ func processTurnEnd(world w.World) error {
 func runTurnEndSystems(world w.World) error {
 	for _, updater := range []w.Updater{
 		&AutoInteractionSystem{},
+		// 気温が天候を読むので TemperatureSystem より前に天候を進める
+		&WeatherSystem{},
 		&TemperatureSystem{},
 		&HealthRegenSystem{},
 		&ConditionSystem{},
