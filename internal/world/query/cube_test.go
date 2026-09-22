@@ -32,6 +32,28 @@ func TestDriveFuelCost(t *testing.T) {
 	}
 }
 
+func TestFuelGaugeRatio(t *testing.T) {
+	t.Parallel()
+	full := consts.FuelGaugeFullHeat
+	tests := []struct {
+		name string
+		fuel consts.Heat
+		want float64
+	}{
+		{"空は0", 0, 0},
+		{"満量基準の半分で0.5", full / 2, 0.5},
+		{"満量基準ちょうどで1", full, 1},
+		{"満量基準を超えても1に丸める", full * 2, 1},
+		{"負の熱量は0に丸める", -full, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.InDelta(t, tt.want, query.FuelGaugeRatio(tt.fuel), 1e-9)
+		})
+	}
+}
+
 // addCubeFuel はキューブ収納に材質と重量を持つ燃料アイテムを1つ足す。
 // 生エンティティで足りる query 層のユニットテスト用。SpawnCube を使う統合テストは
 // activity パッケージ側の同名ヘルパを使い、こちらとは抽象レベルが異なる。

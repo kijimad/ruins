@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [キューブUI強化。運転中の燃料ゲージと燃料メニューの熱量列](docs/design/260922192517.md) | 0/12 | ui, item, movement |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

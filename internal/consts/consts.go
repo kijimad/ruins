@@ -42,6 +42,10 @@ const (
 	DriveFuelPerKg = 1
 	// CubeWeightCapacityKg はキューブ収納の重量容量。kg 単位。spawn とバランス導出で共有する
 	CubeWeightCapacityKg = 500
+	// FuelGaugeFullHeat は運転HUDの燃料ゲージが満タン表示になる熱量。実在の上限ではなく表示上の
+	// タンク容量で、これに対する比でゲージを描く。DriveFuelCost と対比すると空キューブで約600タイル、
+	// 満載500kgで約6タイルぶんにあたる。値は暫定で実プレイで手応えを見て調整する
+	FuelGaugeFullHeat Heat = 3000
 	// CubeDeployCampRadius は展開中の野営の広さ。キューブ中心のチェビシェフ距離で斜めも含む。
 	// アイテムの往復範囲と、エリアを囲むレーザー壁の描画で共有する
 	CubeDeployCampRadius = 2

@@ -90,3 +90,22 @@ func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	}
 	return total
 }
+
+// FuelGaugeRatio は運転HUDの燃料ゲージ充填率を返す。満量基準に対する現在熱量の比を 0..1 に丸める。
+// キューブに実在の燃料上限は無いので、表示専用の基準 FuelGaugeFullHeat に対する割合で見せる。
+func FuelGaugeRatio(fuel consts.Heat) float64 {
+	if consts.FuelGaugeFullHeat <= 0 {
+		return 0
+	}
+	return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))
+}
+
+// PlayerDriving はプレイヤーが運転中なら Driving を返す。運転HUDの燃料ゲージの出し分けに使う。
+// Vehicle の生存は参照側の責務なので、燃料量を読む前に呼び出し側で world.ECS.Alive を確認する。
+func PlayerDriving(world w.World) (*gc.Driving, bool) {
+	player, err := GetPlayerEntity(world)
+	if err != nil || !world.Components.Driving.Has(player) {
+		return nil, false
+	}
+	return world.Components.Driving.Get(player), true
+}

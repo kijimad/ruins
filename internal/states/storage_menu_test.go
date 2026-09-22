@@ -33,6 +33,25 @@ func TestStorageMenuState_燃料投入は可燃物だけ通す(t *testing.T) {
 	assert.Equal(t, fuel, filtered[0].Rep)
 }
 
+func TestStorageMenuState_熱量列はshowHeatのときだけ埋まる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// COAL は 800/kg。1kg を2個で束の総熱量は 800 × 2 = 1600
+	fuel := world.ECS.NewEntity()
+	world.Components.Material.Add(fuel, &gc.Material{Kind: oapi.COAL})
+	world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.MilligramPerKg})
+	stack := []query.Stack{{Rep: fuel, Count: 2}}
+
+	off := (&StorageMenuState{}).toStorageItemData(world, stack)
+	require.Len(t, off, 1)
+	assert.Empty(t, off[0].Heat, "showHeat 未指定は熱量列を出さない")
+
+	on := (&StorageMenuState{showHeat: true}).toStorageItemData(world, stack)
+	require.Len(t, on, 1)
+	assert.Equal(t, consts.Heat(1600).String(), on[0].Heat, "showHeat は束の総熱量を出す")
+}
+
 func TestStorageMenuState_フィルタ未指定なら全て通す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

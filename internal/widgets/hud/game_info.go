@@ -115,8 +115,19 @@ func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
 		{W: tempRow, Height: gaugeHeight},
 		{Height: gaugeSpacing},
 		{W: hpRow, Height: gaugeHeight},
-		{Grow: true},
 	}
+	// 運転中だけ燃料ゲージを HP の下へ足す。降車すれば data.Driving が落ちて消える
+	if data.Driving {
+		fuelRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},
+			uicore.NewGroup(),
+			info.fuelGauge(data),
+		)
+		items = append(items,
+			uicore.FlexItem{Height: gaugeSpacing},
+			uicore.FlexItem{W: fuelRow, Height: gaugeHeight},
+		)
+	}
+	items = append(items, uicore.FlexItem{Grow: true})
 	inner := image.Rect(gaugeBaseX, gaugeBaseY, gaugeBaseX+tempArrowSlotW+gaugeWidth, data.ScreenDimensions.Height)
 	uicore.FlexColumn(inner, items)
 	drawFlexItems(cv, items)
@@ -162,6 +173,12 @@ func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
 		fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)
 	}
 	return &gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}
+}
+
+// fuelGauge は運転中の燃料ゲージを返す。満で琥珀、空へ近づくほど赤へ寄り残量警告になる。
+func (info *GameInfo) fuelGauge(data GameInfoData) uicore.Widget {
+	fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, data.FuelRatio)
+	return &gaugeWidget{fill: info.gaugeFill, ratio: data.FuelRatio, fillColor: fill, border: theme.HUDGaugeBorder}
 }
 
 // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向

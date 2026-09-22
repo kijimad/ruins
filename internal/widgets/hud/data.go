@@ -34,6 +34,8 @@ type GameInfoData struct {
 	AmbientTempColor    color.RGBA       // 周囲気温の文字色。快適帯の内外を示す
 	AmbientShelterLabel string           // プレイヤー位置の囲われの訳済み表示名。屋外・屋内・半屋外
 	WeatherName         string           // 現在の世界天候の訳済み表示名
+	Driving             bool             // 運転中か。true のときだけ燃料ゲージを描く
+	FuelRatio           float64          // 燃料ゲージの充填率。0..1
 	MessageAreaHeight   int              // メッセージエリアの高さ（ステータス表示位置計算用）
 	Currency            consts.Currency  // プレイヤーの所持通貨。右下スタックに表示する
 	ScreenDimensions    ScreenDimensions // 画面サイズ。階層表示位置計算用

@@ -38,8 +38,10 @@ type StorageMenuState struct {
 	// itemFilter は取り出し・投入の両タブに出す品を絞る述語。nil なら全許可。
 	// キューブの燃料投入で、燃料だけを見せ貨物を隠す用途で使う
 	itemFilter func(w.World, ecs.Entity) bool
-	detail     overlay.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen     *menuloop.Screen[StorageProps]
+	// showHeat は各行に熱量列を重量の左へ出すか。燃料メニューでだけ true にする
+	showHeat bool
+	detail   overlay.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen   *menuloop.Screen[StorageProps]
 }
 
 // StorageOption は StorageMenuState の任意設定
@@ -48,6 +50,12 @@ type StorageOption func(*StorageMenuState)
 // WithItemFilter は両タブに出す品を述語で絞る。燃料投入のように扱う品目を限定する用途で使う
 func WithItemFilter(pred func(w.World, ecs.Entity) bool) StorageOption {
 	return func(st *StorageMenuState) { st.itemFilter = pred }
+}
+
+// WithHeatColumn は各行に熱量列を重量の左へ足す。燃料メニューで燃料性能を熱量で比べる用途で使う。
+// 汎用の収納メニューには渡さず、この文脈でだけ列を増やす
+func WithHeatColumn() StorageOption {
+	return func(st *StorageMenuState) { st.showHeat = true }
 }
 
 // State interface ================
@@ -158,10 +166,16 @@ func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stac
 	for i, stack := range stacks {
 		rep := stack.Rep
 		total := query.GetEntityWeight(world, rep) * consts.Milligram(stack.Count)
+		// 熱量列は燃料メニューでだけ出す。重量と同じく束の総量にする
+		var heat string
+		if st.showHeat {
+			heat = (query.HeatContent(world, rep) * consts.Heat(stack.Count)).String()
+		}
 		items[i] = itemRowData{
 			Entity: rep,
 			Name:   query.GetEntityName(rep, world),
 			Weight: total.KgString(),
+			Heat:   heat,
 			Count:  stack.Count,
 		}
 	}
@@ -236,10 +250,19 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 		return nil, ""
 	}
 	currentTab := props.Tabs[tabIndex]
+	// 熱量列を出すときはアイコン・名前の後ろに熱量・重量の2数値列、出さないときは重量のみ。
+	// 列とセルは同じ順序で組み、片方だけずれる不整合を避ける
 	cols := itemMenuColumns(styled.Num())
+	if st.showHeat {
+		cols = itemMenuColumns(styled.Num(), styled.Num())
+	}
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+		if st.showHeat {
+			rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Heat, it.Weight)
+		} else {
+			rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+		}
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
 }
