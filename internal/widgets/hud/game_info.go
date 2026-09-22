@@ -100,8 +100,8 @@ const (
 	gaugeSpacing    = 4                              // ゲージ間の間隔
 )
 
-// drawGauges は燃料・体温・HP のゲージを左上へ縦に積む。矢印スロットとゲージを横に並べ、
-// 各ゲージの間へ間隔を空ける。位置決めは FlexColumn/Row に委ね、段や右寄せの手計算をしない。
+// drawGauges は体温矢印・体温ゲージ・HPゲージを左上へ縦に積む。矢印スロットとゲージを横に並べ、
+// 体温の下へ間隔を空けて HP を置く。位置決めは FlexColumn/Row に委ね、段や右寄せの手計算をしない。
 func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
 	tempRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},
 		info.arrowWidget(data.TempArrow),
@@ -111,24 +111,23 @@ func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
 		uicore.NewGroup(),
 		info.healthGauge(data),
 	)
-	var items []uicore.FlexItem
-	// 運転中だけ燃料ゲージを最上段へ足す。降車すれば data.Driving が落ちて消える
+	items := []uicore.FlexItem{
+		{W: tempRow, Height: gaugeHeight},
+		{Height: gaugeSpacing},
+		{W: hpRow, Height: gaugeHeight},
+	}
+	// 運転中だけ燃料ゲージを HP の下へ足す。降車すれば data.Driving が落ちて消える
 	if data.Driving {
 		fuelRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},
 			uicore.NewGroup(),
 			info.fuelGauge(data),
 		)
 		items = append(items,
-			uicore.FlexItem{W: fuelRow, Height: gaugeHeight},
 			uicore.FlexItem{Height: gaugeSpacing},
+			uicore.FlexItem{W: fuelRow, Height: gaugeHeight},
 		)
 	}
-	items = append(items,
-		uicore.FlexItem{W: tempRow, Height: gaugeHeight},
-		uicore.FlexItem{Height: gaugeSpacing},
-		uicore.FlexItem{W: hpRow, Height: gaugeHeight},
-		uicore.FlexItem{Grow: true},
-	)
+	items = append(items, uicore.FlexItem{Grow: true})
 	inner := image.Rect(gaugeBaseX, gaugeBaseY, gaugeBaseX+tempArrowSlotW+gaugeWidth, data.ScreenDimensions.Height)
 	uicore.FlexColumn(inner, items)
 	drawFlexItems(cv, items)
