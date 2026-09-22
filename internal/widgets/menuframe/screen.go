@@ -21,9 +21,9 @@ func PanelInner(rect image.Rectangle) image.Rectangle {
 
 // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
 // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
-func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
+func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
 	inner := PanelInner(rect)
-	bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+	bg := uicore.NewRoundedRect(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)
 	gfx := uicore.NewGraphic(img)
 	gfx.Layout(inner)
