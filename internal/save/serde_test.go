@@ -247,6 +247,31 @@ func TestSerde_GameTimePersists(t *testing.T) {
 	assert.Equal(t, consts.Turn(1234), query.GetGameTime(newWorld).TotalTurns, "総ターン数が復元される")
 }
 
+// TestSerde_Weatherが往復する は世界天候がセーブ・ロードで復元されることを検証する。
+// 天候は遷移の記憶とスペルの残りを持つステートフルなので、往復で保たれる必要がある。
+func TestSerde_Weatherが往復する(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	weather := query.GetWeather(world)
+	weather.Current = gc.WeatherBlizzard
+	weather.UntilTurn = consts.Turn(4321)
+
+	require.NoError(t, manager.SaveWorld(world, "weather"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "weather"))
+
+	restored := query.GetWeather(newWorld)
+	assert.Equal(t, gc.WeatherBlizzard, restored.Current, "天候の種類が復元される")
+	assert.Equal(t, consts.Turn(4321), restored.UntilTurn, "スペルの残り終端が復元される")
+}
+
 // TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。
 // RotAccrued と RotUpdatedTurn が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
 func TestSerde_Perishableが往復する(t *testing.T) {

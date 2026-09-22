@@ -215,7 +215,7 @@ func (info *GameInfo) drawBottomRightStack(cv uicore.Canvas, data GameInfoData) 
 	items := []uicore.FlexItem{{Grow: true}}
 
 	if data.AmbientTempVisible {
-		labelText := data.AmbientShelterLabel + " "
+		labelText := data.WeatherName + " " + data.AmbientShelterLabel + " "
 		tempText := fmt.Sprintf("%d%s", data.AmbientTemp, consts.IconDegree)
 		labelW, h := uicore.MeasureText(labelText, face)
 		tempW, _ := uicore.MeasureText(tempText, face)

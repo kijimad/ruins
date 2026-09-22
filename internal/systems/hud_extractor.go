@@ -92,6 +92,7 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		AmbientTempVisible:  ambientTempVisible,
 		AmbientTempColor:    ambientTempColor,
 		AmbientShelterLabel: ambientShelterLabel,
+		WeatherName:         query.T(world, query.GetWeather(world).Current.String()),
 		MessageAreaHeight:   messageAreaHeight,
 		Currency:            currency,
 		ScreenDimensions: hud.ScreenDimensions{

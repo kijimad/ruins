@@ -31,6 +31,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	inventoryChangedSystem := &WeightDirtySystem{}
 	updaters[inventoryChangedSystem.String()] = inventoryChangedSystem
 
+	weatherSystem := &WeatherSystem{}
+	updaters[weatherSystem.String()] = weatherSystem
+
 	temperatureSystem := &TemperatureSystem{}
 	updaters[temperatureSystem.String()] = temperatureSystem
 

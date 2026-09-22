@@ -902,6 +902,27 @@ msgstr "秋"
 msgid "Winter"
 msgstr "冬"
 
+msgid "Clear"
+msgstr "晴れ"
+
+msgid "Cloudy"
+msgstr "曇り"
+
+msgid "Rain"
+msgstr "雨"
+
+msgid "Snow"
+msgstr "雪"
+
+msgid "Blizzard"
+msgstr "吹雪"
+
+msgid "Cold snap"
+msgstr "寒波"
+
+msgid "The weather changed to %s."
+msgstr "天候が%sに変わった。"
+
 msgid "Full"
 msgstr "満腹"
 

@@ -139,15 +139,16 @@ func TestGameInfo_drawBottomRightStack_気温(t *testing.T) {
 			AmbientTemp:         25,
 			AmbientTempColor:    tempColor,
 			AmbientShelterLabel: "屋内",
+			WeatherName:         "晴れ",
 			MessageAreaHeight:   40,
 			ScreenDimensions:    ScreenDimensions{Width: 1024, Height: 768},
 		}
 		info.drawBottomRightStack(cv, data)
 
-		label := findText(t, cv.texts, "屋内 ")
+		label := findText(t, cv.texts, "晴れ 屋内 ")
 		temp := findText(t, cv.texts, "25℃")
 
-		assert.Equal(t, "屋内 ", label.str)
+		assert.Equal(t, "晴れ 屋内 ", label.str, "天候名と囲われを気温の左に並べる")
 		assert.Equal(t, theme.TextPrimary, label.color)
 		assert.Equal(t, "25℃", temp.str)
 		assert.Equal(t, tempColor, temp.color)
