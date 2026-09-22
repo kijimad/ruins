@@ -82,7 +82,7 @@ func (k WeatherKind) Severity() int {
 	case WeatherBlizzard, WeatherColdSnap:
 		return 2
 	}
-	return 0
+	panic(fmt.Sprintf("unknown WeatherKind: %d", k))
 }
 
 // String は天候名を返す。表示側が i18n の訳を引く msgid になる。Season.String に倣う。
