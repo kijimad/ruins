@@ -18,18 +18,20 @@ import (
 
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
+	// メッセージエリアの高さは右下スタックと左下バッジの下端固定に共通で使う
+	messageAreaHeight := hud.DefaultMessageAreaConfig.Height()
 	return hud.Data{
-		GameInfo:         extractGameInfo(world),
+		GameInfo:         extractGameInfo(world, messageAreaHeight),
 		MacroMap:         extractMacroMapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
 		MessageData:      extractMessageData(world, query.GetGameLog(world)),
 		WeaponSlotsData:  extractWeaponSlotsData(world),
-		StatusBadgesData: extractStatusBadgesData(world),
+		StatusBadgesData: extractStatusBadgesData(world, messageAreaHeight),
 	}
 }
 
-// extractGameInfo はゲーム基本情報を抽出する
-func extractGameInfo(world w.World) hud.GameInfoData {
+// extractGameInfo はゲーム基本情報を抽出する。messageAreaHeight は右下スタックの下端固定に使う
+func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 	floorNumber := query.GetDungeon(world).CurrentStage.Depth
 
 	// プレイヤー情報を抽出する
@@ -74,10 +76,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
-
-	// メッセージエリアの高さを計算（message_area.goのDefaultMessageAreaConfigと同じ）
-	messageAreaConfig := hud.DefaultMessageAreaConfig
-	messageAreaHeight := messageAreaConfig.Height()
 
 	return hud.GameInfoData{
 		FloorNumber:         floorNumber,
@@ -319,7 +317,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 }
 
 // extractStatusBadgesData はステータスバッジデータを抽出する
-func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
+func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBadgesData {
 	var badges []hud.StatusBadge
 
 	// プレイヤーの空腹度を取得
@@ -375,10 +373,6 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
-
-	// メッセージエリアの高さを計算
-	messageAreaConfig := hud.DefaultMessageAreaConfig
-	messageAreaHeight := messageAreaConfig.Height()
 
 	return hud.StatusBadgesData{
 		Badges:            badges,

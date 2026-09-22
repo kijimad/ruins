@@ -81,7 +81,7 @@ type Text struct {
 	Value        string
 	Face         text.Face
 	Color        color.Color
-	OutlineColor color.Color // 非nilなら本体の前に8方向へずらした縁取りを描く。color.RGBA{}はゼロ値でも非nilになる点に注意
+	OutlineColor color.RGBA // A が非ゼロなら本体の前に8方向へずらした縁取りを描く。ゼロ値は縁取りなし
 	Align        Align
 	VCenter      bool // 真なら矩形内で縦中央へ寄せる。行高が本文より高い一覧行でアイコンや強調とそろえる
 }
@@ -113,7 +113,7 @@ func (t *Text) Draw(cv Canvas) {
 		}
 	}
 	pos := image.Pt(x, y)
-	if t.OutlineColor != nil {
+	if t.OutlineColor.A != 0 {
 		for _, off := range textOutlineOffsets {
 			cv.DrawText(pos.Add(off), t.Value, t.Face, t.OutlineColor)
 		}

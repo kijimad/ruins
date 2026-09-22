@@ -2,6 +2,7 @@ package uicore_test
 
 import (
 	"image"
+	"image/color"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -9,6 +10,28 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestText_OutlineColorで縁取りの有無が変わる(t *testing.T) {
+	t.Parallel()
+
+	t.Run("非ゼロアルファは本体の前に8方向の縁取りを描く", func(t *testing.T) {
+		t.Parallel()
+		txt := &uicore.Text{Value: "x", OutlineColor: color.RGBA{A: 255}}
+		txt.Layout(image.Rect(0, 0, 10, 10))
+		cv := &recordCanvas{}
+		txt.Draw(cv)
+		assert.Len(t, cv.texts, 9, "縁取り8回と本体1回")
+	})
+
+	t.Run("ゼロ値の縁取りは本体だけ描く", func(t *testing.T) {
+		t.Parallel()
+		txt := &uicore.Text{Value: "x"} // OutlineColor ゼロ値は A=0 で縁取りなし
+		txt.Layout(image.Rect(0, 0, 10, 10))
+		cv := &recordCanvas{}
+		txt.Draw(cv)
+		assert.Len(t, cv.texts, 1, "本体のみ")
+	})
+}
 
 func TestGraphic_画像があれば描く(t *testing.T) {
 	t.Parallel()
