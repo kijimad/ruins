@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-22 08:43:48</td>
+            <td class="headerValue">2026-09-22 09:54:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -277,7 +277,7 @@
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         items := []uicore.FlexItem{{Grow: true}}</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         if data.AmbientTempVisible {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 labelText := data.AmbientShelterLabel + &quot; &quot;</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 labelText := data.WeatherName + &quot; &quot; + data.AmbientShelterLabel + &quot; &quot;</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 tempText := fmt.Sprintf(&quot;%d%s&quot;, data.AmbientTemp, consts.IconDegree)</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 labelW, h := uicore.MeasureText(labelText, face)</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 tempW, _ := uicore.MeasureText(tempText, face)</span></span>
