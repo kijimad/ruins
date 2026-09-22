@@ -81,6 +81,7 @@ func roundedRectPath(r image.Rectangle, radius int) vector.Path {
 // ゴールデンテストで描画結果がぶれる。Unmanaged なら各形状が独立テクスチャで決定的になる。
 // 色を描画時に掛けると半透明色で量子化が二重になり直接描画とずれるため、色は焼く時点で塗り込む。
 // Draw は単一ゴルーチンだがテストが並行にキャッシュへ触れるので map は mutex で守る。
+// キーはパネルの数種の寸法と theme の色に限られ有限なので、測定キャッシュと違い上限は要らない。
 var (
 	roundedShapeMu      sync.Mutex
 	roundedFillShapes   = map[roundedFillKey]*ebiten.Image{}
