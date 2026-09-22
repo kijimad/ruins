@@ -205,29 +205,32 @@ func (g *Group) Draw(cv Canvas) {
 // Children は Group を実装する。
 func (g *Group) Children() []Widget { return g.children }
 
-// RoundedRect は塗りと枠を1つ描くウィジェット。単体のパネル背景に使う。
+// RoundedRect は BoxStyle の単色ボックスを1つ描く葉ウィジェット。Group の層として単体で敷く
+// パネル背景に使う。子を持たず自分の矩形だけを塗る点が Container の背景と違う。
 type RoundedRect struct {
 	base
-	Fill   color.Color
-	Border color.Color
-	Radius int
+	Style BoxStyle
 }
 
-// NewRoundedRect は背景ウィジェットを作る。border が nil なら枠を描かない。
+// NewRoundedRect は単色ボックスの葉を作る。border が nil なら枠を描かない。枠幅は1。
 func NewRoundedRect(fill, border color.Color, radius int) *RoundedRect {
-	return &RoundedRect{Fill: fill, Border: border, Radius: radius}
+	return &RoundedRect{Style: BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}}
 }
 
 // Layout は RoundedRect を実装する。
 func (r *RoundedRect) Layout(b image.Rectangle) { r.rect = b }
 
-// Draw は RoundedRect を実装する。塗りと、border があれば枠を描く。
-func (r *RoundedRect) Draw(cv Canvas) {
-	if r.Fill != nil {
-		cv.FillRect(r.rect, r.Fill, RectOptions{Radius: r.Radius})
+// Draw は RoundedRect を実装する。
+func (r *RoundedRect) Draw(cv Canvas) { drawBox(cv, r.rect, r.Style) }
+
+// drawBox は単色ボックスを敷く。Fill があれば塗り、Border があり幅が正なら枠を描く。Radius が正
+// なら四隅を丸める。RoundedRect 葉と Container 背景の共通描画で、単色ボックスの描き方を1箇所にする。
+func drawBox(cv Canvas, rect image.Rectangle, s BoxStyle) {
+	if s.Fill != nil {
+		cv.FillRect(rect, s.Fill, RectOptions{Radius: s.Radius})
 	}
-	if r.Border != nil {
-		cv.StrokeRect(r.rect, 1, r.Border, RectOptions{Radius: r.Radius})
+	if s.Border != nil && s.BorderWidth > 0 {
+		cv.StrokeRect(rect, s.BorderWidth, s.Border, RectOptions{Radius: s.Radius})
 	}
 }
 
@@ -247,19 +250,16 @@ const (
 // Container は子を主軸方向に並べる入れ物。背景の塗りと枠、テクスチャ背景、内側余白を持てる。
 type Container struct {
 	base
-	dir           Dir
-	sizes         []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
-	style         BoxStyle
-	bgImage       *ebiten.Image // 9スライスで敷くテクスチャ背景。選択行など横帯の意匠に使う
-	bgBX          [3]int
-	bgBY          [3]int
-	roundedFill   color.Color   // 非nilなら塗り背景を敷く。パネルに使う
-	roundedBorder color.Color   // 背景の枠色。nilなら枠なし
-	roundedRadius int           // 四隅を丸める半径
-	lineImg       *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
-	lineTint      color.Color   // 区切り線の色。テクスチャに掛ける
-	pad           int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
-	children      []Widget
+	dir      Dir
+	sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
+	style    BoxStyle
+	bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。選択行など横帯の意匠に使う
+	bgBX     [3]int
+	bgBY     [3]int
+	lineImg  *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
+	lineTint color.Color   // 区切り線の色。テクスチャに掛ける
+	pad      int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
+	children []Widget
 }
 
 // SetPadding は内側余白を設定する。子を余白ぶん内側へ寄せる。
@@ -282,12 +282,10 @@ func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Co
 	return c
 }
 
-// SetRoundedBackground は塗りと枠の背景を敷く。パネルの意匠に使う。border が nil なら枠を描かない。
-// SetBackgroundNineSlice と両方を立てると、こちらが優先され NineSlice は描かれない。
+// SetRoundedBackground は単色の角丸背景を敷く。パネルの意匠に使う。border が nil なら枠を描かない。
+// 背景 style を設定するので、SetBackgroundNineSlice と両方を立てると単色が優先され NineSlice は描かれない。
 func (c *Container) SetRoundedBackground(fill, border color.Color, radius int) *Container {
-	c.roundedFill = fill
-	c.roundedBorder = border
-	c.roundedRadius = radius
+	c.style = BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}
 	return c
 }
 
@@ -352,21 +350,13 @@ func (c *Container) Layout(b image.Rectangle) {
 	root.Draw(layoutProbe())
 }
 
-// Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。
+// Draw は Container を実装する。背景を敷いてから子を描く。単色 style と NineSlice は排他で、
+// style が塗りか枠を持てばそちらを優先し、無ければ NineSlice を敷く。
 func (c *Container) Draw(cv Canvas) {
-	if c.roundedFill != nil {
-		cv.FillRect(c.rect, c.roundedFill, RectOptions{Radius: c.roundedRadius})
-		if c.roundedBorder != nil {
-			cv.StrokeRect(c.rect, 1, c.roundedBorder, RectOptions{Radius: c.roundedRadius})
-		}
+	if c.style.Fill != nil || (c.style.Border != nil && c.style.BorderWidth > 0) {
+		drawBox(cv, c.rect, c.style)
 	} else if c.bgImage != nil {
 		cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
-	}
-	if c.style.Fill != nil {
-		cv.FillRect(c.rect, c.style.Fill)
-	}
-	if c.style.Border != nil && c.style.BorderWidth > 0 {
-		cv.StrokeRect(c.rect, c.style.BorderWidth, c.style.Border)
 	}
 	for _, ch := range c.children {
 		ch.Draw(cv)

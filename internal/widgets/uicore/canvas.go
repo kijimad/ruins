@@ -33,11 +33,13 @@ type Canvas interface {
 	DrawImageTintedRect(dst image.Rectangle, img *ebiten.Image, tint color.Color)
 }
 
-// BoxStyle は矩形の塗りと枠。塗りと枠はそれぞれ色が nil なら描かない。
+// BoxStyle は単色ボックスの意匠。塗りと枠はそれぞれ色が nil なら描かない。
+// Radius が正なら四隅を丸める。直角と角丸を1つの表現で扱う。
 type BoxStyle struct {
 	Fill        color.Color
 	Border      color.Color
 	BorderWidth int
+	Radius      int
 }
 
 // RectOptions は矩形描画の追加指定。FillRect/StrokeRect の任意引数として渡す。省略すれば直角。
