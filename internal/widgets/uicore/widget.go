@@ -283,6 +283,7 @@ func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Co
 }
 
 // SetRoundedBackground は塗りと枠の背景を敷く。パネルの意匠に使う。border が nil なら枠を描かない。
+// SetBackgroundNineSlice と両方を立てると、こちらが優先され NineSlice は描かれない。
 func (c *Container) SetRoundedBackground(fill, border color.Color, radius int) *Container {
 	c.roundedFill = fill
 	c.roundedBorder = border

@@ -49,17 +49,24 @@ func (e *EbitenCanvas) drawShape(pos image.Point, shape *ebiten.Image) {
 	e.screen.DrawImage(shape, op)
 }
 
+// clampRadius は半径を矩形の短辺の半分までに抑える。小さな矩形へ大きな半径を与えても
+// 円弧が交差してパスが壊れないようにする。
+func clampRadius(radius, w, h int) float32 {
+	rad := float32(radius)
+	if rad > float32(w)/2 {
+		rad = float32(w) / 2
+	}
+	if rad > float32(h)/2 {
+		rad = float32(h) / 2
+	}
+	return rad
+}
+
 // roundedRectPath は四隅を半径 radius で丸めた矩形のパスを組む。半径は矩形の短辺の半分までに丸める。
 func roundedRectPath(r image.Rectangle, radius int) vector.Path {
 	x, y := float32(r.Min.X), float32(r.Min.Y)
 	w, h := float32(r.Dx()), float32(r.Dy())
-	rad := float32(radius)
-	if rad > w/2 {
-		rad = w / 2
-	}
-	if rad > h/2 {
-		rad = h / 2
-	}
+	rad := clampRadius(radius, r.Dx(), r.Dy())
 	var p vector.Path
 	p.MoveTo(x+rad, y)
 	p.LineTo(x+w-rad, y)
@@ -76,7 +83,7 @@ func roundedRectPath(r image.Rectangle, radius int) vector.Path {
 
 // 角丸は毎フレーム vector.FillPath でラスタライズすると CPU 実描画で重く、パスの分割で
 // フレームごとにアロケーションも出る。同じ寸法・色は繰り返し使われるので、形状を色ごと画像へ
-// 一度だけ焼き、描画は素の DrawImage で済ませる。旧 NineSlice と同じ blit の負荷に戻る。
+// 一度だけ焼き、描画は素の DrawImage で済ませる。
 // 焼く画像は Unmanaged にして共有アトラスへ載せない。アトラス配置は生成順に依存し、並行する
 // ゴールデンテストで描画結果がぶれる。Unmanaged なら各形状が独立テクスチャで決定的になる。
 // 色を描画時に掛けると半透明色で量子化が二重になり直接描画とずれるため、色は焼く時点で塗り込む。
@@ -136,6 +143,7 @@ func roundedStrokeShape(w, h, width, radius int, c color.Color) (*ebiten.Image, 
 }
 
 // FillTriangle は EbitenCanvas を実装する。3頂点の三角形を塗る。text/v2 を通らないのでロックは要らない。
+// 頂点が呼び出しごとに変わり形が定まらないので、角丸のような形状キャッシュは持たず毎回パスを組む。
 func (e *EbitenCanvas) FillTriangle(p0, p1, p2 [2]float32, c color.Color) {
 	var path vector.Path
 	path.MoveTo(p0[0], p0[1])
