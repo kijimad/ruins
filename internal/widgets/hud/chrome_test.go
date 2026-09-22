@@ -13,6 +13,6 @@ func TestChrome_Panel(t *testing.T) {
 	cv := &fakeCanvas{}
 	chrome.Panel(cv, image.Rect(0, 0, 100, 50))
 
-	assert.Equal(t, 1, cv.roundedFills, "角丸の背景塗りを1回敷く")
-	assert.Equal(t, 1, cv.roundedStrokes, "角丸の枠を1回描く")
+	assert.Equal(t, 1, cv.roundedFills, "背景塗りを1回敷く")
+	assert.Equal(t, 1, cv.roundedStrokes, "枠を1回描く")
 }

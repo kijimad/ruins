@@ -81,13 +81,13 @@ func hasText(texts []textCall, s string) bool {
 	return false
 }
 
-func TestBadgeChrome_角丸の塗りと枠を描く(t *testing.T) {
+func TestBadgeChrome_塗りと枠を描く(t *testing.T) {
 	t.Parallel()
 	cv := &fakeCanvas{}
 	r := image.Rect(0, 0, 40, 20)
 
 	badgeChrome(cv, r, theme.HUDBadgeBg)
 
-	assert.Equal(t, 1, cv.roundedFills, "背景を角丸で1つ塗る")
-	assert.Equal(t, 1, cv.roundedStrokes, "外枠を角丸で1つ描く")
+	assert.Equal(t, 1, cv.roundedFills, "背景を1つ塗る")
+	assert.Equal(t, 1, cv.roundedStrokes, "外枠を1つ描く")
 }

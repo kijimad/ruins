@@ -205,7 +205,7 @@ func (g *Group) Draw(cv Canvas) {
 // Children は Group を実装する。
 func (g *Group) Children() []Widget { return g.children }
 
-// RoundedRect は角丸の塗りと枠を1つ描くウィジェット。単体のパネル背景に使う。
+// RoundedRect は塗りと枠を1つ描くウィジェット。単体のパネル背景に使う。
 type RoundedRect struct {
 	base
 	Fill   color.Color
@@ -213,7 +213,7 @@ type RoundedRect struct {
 	Radius int
 }
 
-// NewRoundedRect は角丸背景ウィジェットを作る。border が nil なら枠を描かない。
+// NewRoundedRect は背景ウィジェットを作る。border が nil なら枠を描かない。
 func NewRoundedRect(fill, border color.Color, radius int) *RoundedRect {
 	return &RoundedRect{Fill: fill, Border: border, Radius: radius}
 }
@@ -221,7 +221,7 @@ func NewRoundedRect(fill, border color.Color, radius int) *RoundedRect {
 // Layout は RoundedRect を実装する。
 func (r *RoundedRect) Layout(b image.Rectangle) { r.rect = b }
 
-// Draw は RoundedRect を実装する。角丸の塗りと、border があれば枠を描く。
+// Draw は RoundedRect を実装する。塗りと、border があれば枠を描く。
 func (r *RoundedRect) Draw(cv Canvas) {
 	if r.Fill != nil {
 		cv.FillRect(r.rect, r.Fill, RectOptions{Radius: r.Radius})
@@ -253,9 +253,9 @@ type Container struct {
 	bgImage       *ebiten.Image // 9スライスで敷くテクスチャ背景。選択行など横帯の意匠に使う
 	bgBX          [3]int
 	bgBY          [3]int
-	roundedFill   color.Color   // 非nilなら角丸の塗り背景を敷く。パネルに使う
-	roundedBorder color.Color   // 角丸背景の枠色。nilなら枠なし
-	roundedRadius int           // 角丸の半径
+	roundedFill   color.Color   // 非nilなら塗り背景を敷く。パネルに使う
+	roundedBorder color.Color   // 背景の枠色。nilなら枠なし
+	roundedRadius int           // 四隅を丸める半径
 	lineImg       *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
 	lineTint      color.Color   // 区切り線の色。テクスチャに掛ける
 	pad           int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
@@ -282,7 +282,7 @@ func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Co
 	return c
 }
 
-// SetRoundedBackground は角丸の塗りと枠の背景を敷く。パネルの意匠に使う。border が nil なら枠を描かない。
+// SetRoundedBackground は塗りと枠の背景を敷く。パネルの意匠に使う。border が nil なら枠を描かない。
 func (c *Container) SetRoundedBackground(fill, border color.Color, radius int) *Container {
 	c.roundedFill = fill
 	c.roundedBorder = border

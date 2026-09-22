@@ -173,7 +173,7 @@ func bodyTempFillColor(ratio float64) color.RGBA {
 // gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。
 const gaugeCornerRadius = 4
 
-// gaugeWidget は1本のゲージ。与えられた矩形へ角丸の白枠を引き、比率ぶんの塗りをグラデーションの
+// gaugeWidget は1本のゲージ。与えられた矩形へ白枠を引き、比率ぶんの塗りをグラデーションの
 // テクスチャで色掛けする。上が明るく下が暗い光沢になる。
 type gaugeWidget struct {
 	rect      image.Rectangle
@@ -186,7 +186,7 @@ type gaugeWidget struct {
 // Layout は uicore.Widget を満たす。
 func (g *gaugeWidget) Layout(r image.Rectangle) { g.rect = r }
 
-// Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、角丸の白枠を重ねる。
+// Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、白枠を重ねる。
 func (g *gaugeWidget) Draw(cv uicore.Canvas) {
 	if g.ratio > 0 && g.fill != nil {
 		fillW := int(float64(g.rect.Dx()) * g.ratio)
