@@ -1,6 +1,7 @@
 package hud
 
 import (
+	"image"
 	"image/color"
 	"slices"
 	"testing"
@@ -32,14 +33,17 @@ func findText(t *testing.T, texts []textCall, s string) textCall {
 	return textCall{}
 }
 
-func TestGameInfo_drawTemperatureArrow(t *testing.T) {
+func TestGameInfo_arrowWidget(t *testing.T) {
 	t.Parallel()
 	info := newTestGameInfo(t)
+	rect := image.Rect(0, 0, tempArrowSlotW, gaugeHeight)
 
 	t.Run("非表示なら何も描かない", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
-		info.drawTemperatureArrow(cv, TemperatureArrow{Visible: false, Direction: TempDirectionUp})
+		wgt := info.arrowWidget(TemperatureArrow{Visible: false, Direction: TempDirectionUp})
+		wgt.Layout(rect)
+		wgt.Draw(cv)
 		assert.Empty(t, cv.texts)
 	})
 
@@ -57,7 +61,9 @@ func TestGameInfo_drawTemperatureArrow(t *testing.T) {
 			t.Parallel()
 			cv := &fakeCanvas{}
 			arrowColor := color.RGBA{R: 1, G: 2, B: 3, A: 4}
-			info.drawTemperatureArrow(cv, TemperatureArrow{Visible: true, Direction: tt.dir, Color: arrowColor})
+			wgt := info.arrowWidget(TemperatureArrow{Visible: true, Direction: tt.dir, Color: arrowColor})
+			wgt.Layout(rect)
+			wgt.Draw(cv)
 
 			require.NotEmpty(t, cv.texts)
 			last := cv.texts[len(cv.texts)-1]
