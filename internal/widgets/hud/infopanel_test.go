@@ -15,7 +15,7 @@ func TestInfoPanel(t *testing.T) {
 
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	chrome := NewChrome(res)
+	chrome := Chrome{}
 
 	cv := &fakeCanvas{}
 	const screenWidth = 800

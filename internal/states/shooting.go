@@ -233,7 +233,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	face := world.Resources.UIResources.Text.BodyFace
 
 	const panelHeight = 250
-	panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)
+	panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.Chrome{}, face, screen.Bounds().Dx(), panelHeight)
 	drawText := panel.Line
 
 	drawText(query.T(world, "== Shooting Mode =="))

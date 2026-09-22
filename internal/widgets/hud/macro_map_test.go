@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -13,11 +12,9 @@ import (
 
 func newTestMacroMap(t *testing.T) *MacroMap {
 	t.Helper()
-	res, err := loader.LoadUIResources()
-	require.NoError(t, err)
 	// フェイスは nil でよい。fakeCanvas は DrawText を記録するだけで実描画しないため、フェイスに
 	// 触れない。本番の EbitenCanvas には loader 由来の非 nil フェイスが渡る
-	return NewMacroMap(nil, NewChrome(res))
+	return NewMacroMap(nil, Chrome{})
 }
 
 func TestMacroGlyphColor_全ての種別記号に色が割り当てられている(t *testing.T) {

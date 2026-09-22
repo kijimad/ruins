@@ -14,7 +14,7 @@ func TestSlotWidget_Draw(t *testing.T) {
 	t.Parallel()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	chrome := NewChrome(res)
+	chrome := Chrome{}
 	rect := image.Rect(10, 20, 58, 68) // 48x48 のスロット矩形
 
 	t.Run("空スロットは背景と番号を描き枠線は出さない", func(t *testing.T) {
@@ -44,7 +44,7 @@ func TestWeaponSlots_Draw(t *testing.T) {
 	t.Parallel()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	ws := NewWeaponSlots(res.Text.SmallFace, NewChrome(res))
+	ws := NewWeaponSlots(res.Text.SmallFace, Chrome{})
 	screen := ScreenDimensions{Width: 960, Height: 720}
 
 	t.Run("スロット0件なら何も描かない", func(t *testing.T) {

@@ -157,7 +157,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	face := world.Resources.UIResources.Text.BodyFace
 
 	const panelHeight = 200
-	panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)
+	panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.Chrome{}, face, screen.Bounds().Dx(), panelHeight)
 	drawText := panel.Line
 
 	// 座標表示
