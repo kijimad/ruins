@@ -34,6 +34,7 @@ type GameInfoData struct {
 	AmbientTempVisible  bool             // 周囲気温を表示するか
 	AmbientTempColor    color.RGBA       // 周囲気温の文字色。快適帯の内外を示す
 	AmbientShelterLabel string           // プレイヤー位置の囲われの訳済み表示名。屋外・屋内・半屋外
+	WeatherName         string           // 現在の世界天候の訳済み表示名
 	MessageAreaHeight   int              // メッセージエリアの高さ（ステータス表示位置計算用）
 	ScreenDimensions    ScreenDimensions // 画面サイズ。階層表示位置計算用
 }

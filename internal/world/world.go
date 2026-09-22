@@ -72,6 +72,9 @@ func (world World) InitSingleton() {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
+	// 中立の曇りで穏やかに始め、InitialWeatherSpellTurns だけ続けてから WeatherSystem が遷移を始める。
+	// turn0 で即ロールすると開始直後に荒天になりうるので固定長の立ち上がりにする
+	world.Components.Weather.Add(singleton, &gc.Weather{Current: gc.WeatherCloudy, UntilTurn: gc.InitialWeatherSpellTurns})
 	world.Components.PlayTime.Add(singleton, &gc.PlayTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// config は構築時に渡されているので、設定言語をそのまま種にする。

@@ -109,6 +109,7 @@ var Registry = []Def{
 	{Field: "SpatialIndex"},    // 空間インデックスを保持するシングルトン
 	{Field: "WeaponSelection"}, // 選択中の武器スロットを保持するシングルトン
 	{Field: "GameTime"},        // ゲーム内時間を保持するシングルトン
+	{Field: "Weather"},         // 世界全体の天候を保持するシングルトン。serde 保存
 	{Field: "PlayTime"},        // 累積プレイ実時間と計測基準を保持するシングルトン
 	{Field: "VisionState"},     // 視界計算の一時状態を保持するシングルトン
 	{Field: "UserSettings"},    // 設定画面で変更するグローバル設定を保持するシングルトン

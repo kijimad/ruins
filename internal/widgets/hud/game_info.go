@@ -217,7 +217,7 @@ func (info *GameInfo) drawAmbientTemperature(cv uicore.Canvas, data GameInfoData
 		return
 	}
 
-	labelText := data.AmbientShelterLabel + " "
+	labelText := data.WeatherName + " " + data.AmbientShelterLabel + " "
 	tempText := fmt.Sprintf("%d%s", data.AmbientTemp, consts.IconDegree)
 	labelWidth, _ := uicore.MeasureText(labelText, info.bodyFace)
 	tempWidth, textHeight := uicore.MeasureText(tempText, info.bodyFace)
