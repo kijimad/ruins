@@ -16,17 +16,27 @@ import (
 
 // recordCanvas は描画呼び出しを記録する Canvas。ebiten の描画コンテキスト無しで検証できる。
 type recordCanvas struct {
-	texts   []string
-	fills   []image.Rectangle
-	strokes []image.Rectangle
-	images  []image.Point
+	texts          []string
+	fills          []image.Rectangle
+	strokes        []image.Rectangle
+	roundedFills   []image.Rectangle
+	roundedStrokes []image.Rectangle
+	images         []image.Point
 }
 
-func (c *recordCanvas) FillRect(r image.Rectangle, _ color.Color, _ ...uicore.RectOptions) {
+func (c *recordCanvas) FillRect(r image.Rectangle, _ color.Color, opts ...uicore.RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
+		c.roundedFills = append(c.roundedFills, r)
+		return
+	}
 	c.fills = append(c.fills, r)
 }
 func (c *recordCanvas) FillTriangle(_, _, _ [2]float32, _ color.Color) {}
-func (c *recordCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, _ ...uicore.RectOptions) {
+func (c *recordCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, opts ...uicore.RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
+		c.roundedStrokes = append(c.roundedStrokes, r)
+		return
+	}
 	c.strokes = append(c.strokes, r)
 }
 func (c *recordCanvas) DrawText(_ image.Point, s string, _ text.Face, _ color.Color) {
@@ -143,4 +153,36 @@ func TestConcurrentLayoutDraw_インスタンスごとに独立(t *testing.T) {
 		}(w)
 	}
 	wg.Wait()
+}
+
+func TestRoundedRect_Draw_塗りと枠を角丸で描く(t *testing.T) {
+	t.Parallel()
+	rr := uicore.NewRoundedRect(color.Gray{Y: 30}, color.White, 7)
+	rr.Layout(image.Rect(0, 0, 100, 50))
+	cv := &recordCanvas{}
+	rr.Draw(cv)
+	assert.Len(t, cv.roundedFills, 1, "塗りを角丸で1つ描く")
+	assert.Len(t, cv.roundedStrokes, 1, "枠を角丸で1つ描く")
+	assert.Empty(t, cv.fills, "直角の塗りは描かない")
+}
+
+func TestRoundedRect_Draw_borderがnilなら枠を描かない(t *testing.T) {
+	t.Parallel()
+	rr := uicore.NewRoundedRect(color.Gray{Y: 30}, nil, 7)
+	rr.Layout(image.Rect(0, 0, 100, 50))
+	cv := &recordCanvas{}
+	rr.Draw(cv)
+	assert.Len(t, cv.roundedFills, 1)
+	assert.Empty(t, cv.roundedStrokes, "border が nil なら枠を描かない")
+}
+
+func TestContainer_SetRoundedBackground_角丸背景を敷く(t *testing.T) {
+	t.Parallel()
+	c := uicore.Panel(uicore.BoxStyle{}, 16).SetRoundedBackground(color.Gray{Y: 20}, color.White, 7)
+	c.Layout(image.Rect(0, 0, 120, 60))
+	cv := &recordCanvas{}
+	c.Draw(cv)
+	assert.Len(t, cv.roundedFills, 1, "背景の塗りを角丸で1つ敷く")
+	assert.Len(t, cv.roundedStrokes, 1, "枠を角丸で1つ敷く")
+	assert.Empty(t, cv.fills, "直角の塗りは描かない")
 }
