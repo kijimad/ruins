@@ -12,12 +12,12 @@ import (
 // テストは記録用の実装を渡し、ebiten の描画コンテキスト無しでレイアウトとテキストを検証できる。
 // 本番は ebiten 実装 EbitenCanvas を渡す。
 type Canvas interface {
-	// FillRect は矩形を塗る。radius を1つ渡すと四隅をその半径で丸める。省略すると直角。
-	FillRect(r image.Rectangle, c color.Color, radius ...int)
+	// FillRect は矩形を塗る。opts を渡すと角丸などの描画指定を効かせる。省略すると直角。
+	FillRect(r image.Rectangle, c color.Color, opts ...RectOptions)
 	// FillTriangle は3頂点の三角形を塗る。頂点はサブピクセルの向きを保つため float32 で受ける。
 	FillTriangle(p0, p1, p2 [2]float32, c color.Color)
-	// StrokeRect は矩形の枠を width の太さで描く。radius を1つ渡すと四隅をその半径で丸める。省略すると直角。
-	StrokeRect(r image.Rectangle, width int, c color.Color, radius ...int)
+	// StrokeRect は矩形の枠を width の太さで描く。opts を渡すと角丸などの描画指定を効かせる。省略すると直角。
+	StrokeRect(r image.Rectangle, width int, c color.Color, opts ...RectOptions)
 	// DrawText は pos を左上として1行を描く。
 	DrawText(pos image.Point, s string, face text.Face, c color.Color)
 	// DrawImage は pos を左上として画像を描く。
@@ -38,4 +38,10 @@ type BoxStyle struct {
 	Fill        color.Color
 	Border      color.Color
 	BorderWidth int
+}
+
+// RectOptions は矩形描画の追加指定。FillRect/StrokeRect の任意引数として渡す。
+// 省略すれば直角の矩形になる。隅ごとの半径など描画オプションを増やすときはこの型にフィールドを足す。
+type RectOptions struct {
+	Radius int // 四隅を丸める半径。0 なら直角
 }

@@ -22,10 +22,10 @@ func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas {
 	return &EbitenCanvas{screen: screen}
 }
 
-// FillRect は EbitenCanvas を実装する。radius があれば四隅を丸めて塗る。
-func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, radius ...int) {
-	if len(radius) > 0 && radius[0] > 0 {
-		p := roundedRectPath(r, radius[0])
+// FillRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて塗る。
+func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts ...RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
+		p := roundedRectPath(r, opts[0].Radius)
 		dop := &vector.DrawPathOptions{AntiAlias: true}
 		dop.ColorScale.ScaleWithColor(c)
 		vector.FillPath(e.screen, &p, &vector.FillOptions{}, dop)
@@ -34,10 +34,10 @@ func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, radius ...int)
 	vector.FillRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), c, false)
 }
 
-// StrokeRect は EbitenCanvas を実装する。radius があれば四隅を丸めて枠を描く。
-func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, radius ...int) {
-	if len(radius) > 0 && radius[0] > 0 {
-		p := roundedRectPath(r, radius[0])
+// StrokeRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて枠を描く。
+func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, opts ...RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
+		p := roundedRectPath(r, opts[0].Radius)
 		dop := &vector.DrawPathOptions{AntiAlias: true}
 		dop.ColorScale.ScaleWithColor(c)
 		vector.StrokePath(e.screen, &p, &vector.StrokeOptions{Width: float32(width)}, dop)

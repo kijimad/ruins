@@ -193,7 +193,7 @@ func (g *gaugeWidget) Draw(cv uicore.Canvas) {
 		dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)
 		cv.DrawImageTintedRect(dst, g.fill, color.NRGBA(g.fillColor))
 	}
-	cv.StrokeRect(g.rect, 1, g.border, gaugeCornerRadius)
+	cv.StrokeRect(g.rect, 1, g.border, uicore.RectOptions{Radius: gaugeCornerRadius})
 }
 
 // Children は uicore.Widget を満たす。子は持たない。

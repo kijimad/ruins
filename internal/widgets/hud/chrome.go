@@ -20,6 +20,6 @@ func NewChrome(_ resources.UIResources) Chrome {
 
 // Panel は矩形へパネルの角丸背景と枠を敷く。
 func (c Chrome) Panel(cv uicore.Canvas, r image.Rectangle) {
-	cv.FillRect(r, theme.PanelBackground, theme.CornerRadius)
-	cv.StrokeRect(r, 1, theme.PanelHighlight, theme.CornerRadius)
+	cv.FillRect(r, theme.PanelBackground, uicore.RectOptions{Radius: theme.CornerRadius})
+	cv.StrokeRect(r, 1, theme.PanelHighlight, uicore.RectOptions{Radius: theme.CornerRadius})
 }

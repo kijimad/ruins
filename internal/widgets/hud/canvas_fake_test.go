@@ -6,6 +6,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
+
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // fakeCanvas は uicore.Canvas の記録用実装。ebiten の描画コンテキスト無しで
@@ -28,8 +30,8 @@ type textCall struct {
 	color color.Color
 }
 
-func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color, radius ...int) {
-	if len(radius) > 0 && radius[0] > 0 {
+func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color, opts ...uicore.RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
 		c.roundedFills++
 		return
 	}
@@ -40,8 +42,8 @@ func (c *fakeCanvas) FillTriangle(p0, p1, p2 [2]float32, _ color.Color) {
 	c.triangles = append(c.triangles, [3][2]float32{p0, p1, p2})
 }
 
-func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, radius ...int) {
-	if len(radius) > 0 && radius[0] > 0 {
+func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, opts ...uicore.RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
 		c.roundedStrokes++
 		return
 	}

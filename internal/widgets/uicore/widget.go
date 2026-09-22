@@ -224,10 +224,10 @@ func (r *RoundedRect) Layout(b image.Rectangle) { r.rect = b }
 // Draw は RoundedRect を実装する。角丸の塗りと、border があれば枠を描く。
 func (r *RoundedRect) Draw(cv Canvas) {
 	if r.Fill != nil {
-		cv.FillRect(r.rect, r.Fill, r.Radius)
+		cv.FillRect(r.rect, r.Fill, RectOptions{Radius: r.Radius})
 	}
 	if r.Border != nil {
-		cv.StrokeRect(r.rect, 1, r.Border, r.Radius)
+		cv.StrokeRect(r.rect, 1, r.Border, RectOptions{Radius: r.Radius})
 	}
 }
 
@@ -354,9 +354,9 @@ func (c *Container) Layout(b image.Rectangle) {
 // Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。
 func (c *Container) Draw(cv Canvas) {
 	if c.roundedFill != nil {
-		cv.FillRect(c.rect, c.roundedFill, c.roundedRadius)
+		cv.FillRect(c.rect, c.roundedFill, RectOptions{Radius: c.roundedRadius})
 		if c.roundedBorder != nil {
-			cv.StrokeRect(c.rect, 1, c.roundedBorder, c.roundedRadius)
+			cv.StrokeRect(c.rect, 1, c.roundedBorder, RectOptions{Radius: c.roundedRadius})
 		}
 	} else if c.bgImage != nil {
 		cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
