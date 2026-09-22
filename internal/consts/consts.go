@@ -36,8 +36,8 @@ const (
 	// DefaultPlayerMoves はプレイヤーの初期移動ポイント
 	DefaultPlayerMoves = 100
 	// DriveFuelBase は空のキューブを1タイル運転するのに要する基準燃料量。何も積んでいなくても
-	// 運転は燃料を食う決断になるようにする。燃料値の単位は火への給油 FeedFuel と共通。要調整
-	DriveFuelBase = 10
+	// 運転は燃料を食う決断になるようにする。燃料値の単位は火への給油 FeedFuel と共通
+	DriveFuelBase = 5
 	// DriveFuelPerKg はキューブ収納の総重量1kgあたりに加算する運転燃料。総重量に比例して燃費が悪化する
 	DriveFuelPerKg = 1
 	// CubeWeightCapacityKg はキューブ収納の重量容量。kg 単位。spawn とバランス導出で共有する
