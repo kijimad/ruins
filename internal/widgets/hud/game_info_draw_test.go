@@ -1,6 +1,7 @@
 package hud
 
 import (
+	"image"
 	"image/color"
 	"slices"
 	"testing"
@@ -8,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -32,14 +34,17 @@ func findText(t *testing.T, texts []textCall, s string) textCall {
 	return textCall{}
 }
 
-func TestGameInfo_drawTemperatureArrow(t *testing.T) {
+func TestGameInfo_arrowWidget(t *testing.T) {
 	t.Parallel()
 	info := newTestGameInfo(t)
+	rect := image.Rect(0, 0, tempArrowSlotW, gaugeHeight)
 
 	t.Run("非表示なら何も描かない", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
-		info.drawTemperatureArrow(cv, TemperatureArrow{Visible: false, Direction: TempDirectionUp})
+		wgt := info.arrowWidget(TemperatureArrow{Visible: false, Direction: TempDirectionUp})
+		wgt.Layout(rect)
+		wgt.Draw(cv)
 		assert.Empty(t, cv.texts)
 	})
 
@@ -57,7 +62,9 @@ func TestGameInfo_drawTemperatureArrow(t *testing.T) {
 			t.Parallel()
 			cv := &fakeCanvas{}
 			arrowColor := color.RGBA{R: 1, G: 2, B: 3, A: 4}
-			info.drawTemperatureArrow(cv, TemperatureArrow{Visible: true, Direction: tt.dir, Color: arrowColor})
+			wgt := info.arrowWidget(TemperatureArrow{Visible: true, Direction: tt.dir, Color: arrowColor})
+			wgt.Layout(rect)
+			wgt.Draw(cv)
 
 			require.NotEmpty(t, cv.texts)
 			last := cv.texts[len(cv.texts)-1]
@@ -67,18 +74,63 @@ func TestGameInfo_drawTemperatureArrow(t *testing.T) {
 	}
 }
 
-func TestGameInfo_drawAmbientTemperature(t *testing.T) {
+func TestGameInfo_drawFloorNumber(t *testing.T) {
 	t.Parallel()
 	info := newTestGameInfo(t)
 
-	t.Run("非表示なら何も描かない", func(t *testing.T) {
+	t.Run("非表示なら描かない", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
-		info.drawAmbientTemperature(cv, GameInfoData{AmbientTempVisible: false})
+		info.drawFloorNumber(cv, GameInfoData{ShowFloor: false, FloorNumber: 3})
 		assert.Empty(t, cv.texts)
 	})
 
-	t.Run("表示するとラベルと気温を右寄せで描く", func(t *testing.T) {
+	t.Run("表示すると右上へ縁取り付きで描く", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		info.drawFloorNumber(cv, GameInfoData{
+			ShowFloor:        true,
+			FloorNumber:      3,
+			ScreenDimensions: ScreenDimensions{Width: 1024, Height: 768},
+		})
+		txt := findText(t, cv.texts, "  3F")
+		assert.Equal(t, theme.TextPrimary, txt.color, "本体は白")
+		assert.Greater(t, txt.pos.X, 512, "画面右半分へ寄せる")
+		assert.Equal(t, theme.Space4, txt.pos.Y, "上端は Space4")
+	})
+}
+
+func TestDrawFlexItems_W無しの行はスキップする(t *testing.T) {
+	t.Parallel()
+	cv := &fakeCanvas{}
+	items := []uicore.FlexItem{
+		{Grow: true}, // W が nil のスペーサ行
+		{W: &uicore.Text{Value: "hello"}, Height: 10},
+	}
+	drawFlexItems(cv, items)
+
+	require.Len(t, cv.texts, 1, "W がある行だけ描く")
+	assert.Equal(t, "hello", cv.texts[0].str)
+}
+
+func TestGameInfo_drawBottomRightStack_気温(t *testing.T) {
+	t.Parallel()
+	info := newTestGameInfo(t)
+
+	t.Run("気温が非表示ならラベルを描かない", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		info.drawBottomRightStack(cv, GameInfoData{
+			AmbientTempVisible: false,
+			MessageAreaHeight:  40,
+			ScreenDimensions:   ScreenDimensions{Width: 1024, Height: 768},
+		})
+		for _, tx := range cv.texts {
+			assert.NotContains(t, tx.str, "屋内", "気温非表示なら囲われラベルは出さない")
+		}
+	})
+
+	t.Run("気温表示でラベルと気温を右寄せで描く", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
 		tempColor := color.RGBA{R: 10, G: 20, B: 30, A: 255}
@@ -90,7 +142,7 @@ func TestGameInfo_drawAmbientTemperature(t *testing.T) {
 			MessageAreaHeight:   40,
 			ScreenDimensions:    ScreenDimensions{Width: 1024, Height: 768},
 		}
-		info.drawAmbientTemperature(cv, data)
+		info.drawBottomRightStack(cv, data)
 
 		label := findText(t, cv.texts, "屋内 ")
 		temp := findText(t, cv.texts, "25℃")

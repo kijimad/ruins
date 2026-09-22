@@ -27,7 +27,8 @@ type InfoPanel struct {
 	y    int // 次に書き込む行の上端
 }
 
-// NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。
+// NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。単一固定パネルなので
+// 右上座標を直に求める。行はパネル矩形を基準に上から書き足す。
 func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {
 	x := screenWidth - infoPanelWidth - infoPanelMargin
 	rect := image.Rect(x, infoPanelMargin, x+infoPanelWidth, infoPanelMargin+height)

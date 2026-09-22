@@ -9,14 +9,13 @@ import (
 
 // HUDRenderingSystem はクエリを実行し、UIを描画するシステム
 type HUDRenderingSystem struct {
-	gameInfo        *hud.GameInfo
-	macroMap        *hud.MacroMap
-	debugOverlay    *hud.DebugOverlay
-	messageArea     *hud.MessageArea
-	currencyDisplay *hud.CurrencyDisplay
-	weaponSlots     *hud.WeaponSlots
-	statusBadges    *hud.StatusBadges
-	enabled         bool
+	gameInfo     *hud.GameInfo
+	macroMap     *hud.MacroMap
+	debugOverlay *hud.DebugOverlay
+	messageArea  *hud.MessageArea
+	weaponSlots  *hud.WeaponSlots
+	statusBadges *hud.StatusBadges
+	enabled      bool
 }
 
 // NewHUDRenderingSystem は新しいHUD描画システムを作成する
@@ -27,14 +26,13 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 	chrome := hud.NewChrome(world.Resources.UIResources)
 
 	return &HUDRenderingSystem{
-		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
-		macroMap:        hud.NewMacroMap(bodyFace, chrome),
-		debugOverlay:    hud.NewDebugOverlay(smallFace),
-		messageArea:     hud.NewMessageArea(world),
-		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
-		weaponSlots:     hud.NewWeaponSlots(smallFace, chrome),
-		statusBadges:    hud.NewStatusBadges(smallFace),
-		enabled:         true,
+		gameInfo:     hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
+		macroMap:     hud.NewMacroMap(bodyFace, chrome),
+		debugOverlay: hud.NewDebugOverlay(smallFace),
+		messageArea:  hud.NewMessageArea(world),
+		weaponSlots:  hud.NewWeaponSlots(smallFace, chrome),
+		statusBadges: hud.NewStatusBadges(smallFace),
+		enabled:      true,
 	}
 }
 
@@ -71,9 +69,6 @@ func (sys *HUDRenderingSystem) Update(world w.World) error {
 	if sys.messageArea != nil {
 		sys.messageArea.Update()
 	}
-	if sys.currencyDisplay != nil {
-		sys.currencyDisplay.Update(world)
-	}
 	return nil
 }
 
@@ -97,9 +92,6 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 	}
 	if sys.messageArea != nil {
 		sys.messageArea.Draw(cv, hudData.MessageData)
-	}
-	if sys.currencyDisplay != nil {
-		sys.currencyDisplay.Draw(cv, hudData.CurrencyData)
 	}
 	if sys.weaponSlots != nil {
 		sys.weaponSlots.Draw(cv, hudData.WeaponSlotsData, world)
