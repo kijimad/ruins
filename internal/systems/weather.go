@@ -8,6 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
+// weatherSpellSeedSalt はスペル長の乱数を次の天候の抽選と別ストリームにするための塩。
+const weatherSpellSeedSalt uint64 = 0x5715_9EA7_4E12_3D5B
+
 // WeatherSystem は世界全体の天候スペルを進めるシステム。スペルが尽きたら次の天候を引き直す。
 type WeatherSystem struct{}
 
@@ -32,12 +35,16 @@ func (sys *WeatherSystem) Update(world w.World) error {
 	}
 	season := gt.GetSeason()
 	northDepth := playerNorthDepth(world)
-	rng := rand.New(rand.NewPCG(band.RunSeed, uint64(gt.TotalTurns)))
+	// 次の天候とスペル長で別ストリームを引く。1つの rng を順に消費すると、NextWeather の抽選が
+	// 内部で何回引くかに RollSpellTurns の入力が依存して決定論が崩れるため、塩で分ける
+	turn := uint64(gt.TotalTurns)
+	rngNext := rand.New(rand.NewPCG(band.RunSeed, turn))
+	rngSpell := rand.New(rand.NewPCG(band.RunSeed^weatherSpellSeedSalt, turn))
 
 	prev := weather.Current
-	next := query.NextWeather(prev, season, northDepth, rng)
+	next := query.NextWeather(prev, season, northDepth, rngNext)
 	weather.Current = next
-	weather.UntilTurn = gt.TotalTurns + query.RollSpellTurns(next, season, northDepth, rng)
+	weather.UntilTurn = gt.TotalTurns + query.RollSpellTurns(next, season, northDepth, rngSpell)
 
 	if next != prev {
 		name := query.T(world, next.String())

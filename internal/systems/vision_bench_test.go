@@ -8,7 +8,7 @@ import (
 )
 
 // 視界再計算 calculateTileVisibilityWithDistance の実寸を測るベンチ。半径は実ゲームと同じ
-// VisionRadiusTiles=24。荒れ地は壁が無くレイが最後まで伸びる最悪ケース、市街地は建物で
+// VisionRadiusTiles=40。荒れ地は壁が無くレイが最後まで伸びる最悪ケース、市街地は建物で
 // レイが早期終了しつつ blockIndex 参照が重いケース。視界更新は毎ターンここを丸ごと引き直すので、
 // 1回のコストが体感に直結する。回帰の番人として置く。
 

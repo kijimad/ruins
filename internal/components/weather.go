@@ -18,12 +18,13 @@ type Weather struct {
 const InitialWeatherSpellTurns consts.Turn = 2500
 
 // WeatherKind は天候の種類。降水の重さと表示の順で並べる。寒さの厳しさは Severity で別に持つ。
+// 並び順は query の stickiness の距離計算に効くので、種を足すときは並びの影響に注意する。
 // enum は基本 string の規約から外れ iota の int にする。Season・TimeOfDay と同じ順序数 enum で、
 // seasonAffinity の行列添字や NumWeatherKind に整数値を直に使うため。
 type WeatherKind int
 
 const (
-	// WeatherClear は晴れ。わずかに暖かく視界も良い
+	// WeatherClear は晴れ。わずかに暖かく、視界は削られない
 	WeatherClear WeatherKind = iota
 	// WeatherCloudy は曇り。中立
 	WeatherCloudy
