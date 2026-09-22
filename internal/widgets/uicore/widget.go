@@ -205,26 +205,26 @@ func (g *Group) Draw(cv Canvas) {
 // Children は Group を実装する。
 func (g *Group) Children() []Widget { return g.children }
 
-// RoundedRect は BoxStyle の単色ボックスを1つ描く葉ウィジェット。Group の層として単体で敷く
+// Box は BoxStyle の単色ボックスを1つ描く葉ウィジェット。Group の層として単体で敷く
 // パネル背景に使う。子を持たず自分の矩形だけを塗る点が Container の背景と違う。
-type RoundedRect struct {
+type Box struct {
 	base
 	Style BoxStyle
 }
 
-// NewRoundedRect は単色ボックスの葉を作る。border が nil なら枠を描かない。枠幅は1。
-func NewRoundedRect(fill, border color.Color, radius int) *RoundedRect {
-	return &RoundedRect{Style: BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}}
+// NewBox は単色ボックスの葉を作る。border が nil なら枠を描かない。枠幅は1。
+func NewBox(fill, border color.Color, radius int) *Box {
+	return &Box{Style: BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}}
 }
 
-// Layout は RoundedRect を実装する。
-func (r *RoundedRect) Layout(b image.Rectangle) { r.rect = b }
+// Layout は Box を実装する。
+func (r *Box) Layout(b image.Rectangle) { r.rect = b }
 
-// Draw は RoundedRect を実装する。
-func (r *RoundedRect) Draw(cv Canvas) { drawBox(cv, r.rect, r.Style) }
+// Draw は Box を実装する。
+func (r *Box) Draw(cv Canvas) { drawBox(cv, r.rect, r.Style) }
 
 // drawBox は単色ボックスを敷く。Fill があれば塗り、Border があり幅が正なら枠を描く。Radius が正
-// なら四隅を丸める。RoundedRect 葉と Container 背景の共通描画で、単色ボックスの描き方を1箇所にする。
+// なら四隅を丸める。Box 葉と Container 背景の共通描画で、単色ボックスの描き方を1箇所にする。
 func drawBox(cv Canvas, rect image.Rectangle, s BoxStyle) {
 	if s.Fill != nil {
 		cv.FillRect(rect, s.Fill, RectOptions{Radius: s.Radius})
@@ -234,8 +234,8 @@ func drawBox(cv Canvas, rect image.Rectangle, s BoxStyle) {
 	}
 }
 
-// Children は RoundedRect を実装する。子は持たない。
-func (r *RoundedRect) Children() []Widget { return nil }
+// Children は Box を実装する。子は持たない。
+func (r *Box) Children() []Widget { return nil }
 
 // Dir はコンテナの主軸方向。
 type Dir int

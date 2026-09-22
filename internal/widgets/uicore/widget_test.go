@@ -155,9 +155,9 @@ func TestConcurrentLayoutDraw_インスタンスごとに独立(t *testing.T) {
 	wg.Wait()
 }
 
-func TestRoundedRect_Draw_塗りと枠を角丸で描く(t *testing.T) {
+func TestBox_Draw_塗りと枠を角丸で描く(t *testing.T) {
 	t.Parallel()
-	rr := uicore.NewRoundedRect(color.Gray{Y: 30}, color.White, 7)
+	rr := uicore.NewBox(color.Gray{Y: 30}, color.White, 7)
 	rr.Layout(image.Rect(0, 0, 100, 50))
 	cv := &recordCanvas{}
 	rr.Draw(cv)
@@ -166,9 +166,9 @@ func TestRoundedRect_Draw_塗りと枠を角丸で描く(t *testing.T) {
 	assert.Empty(t, cv.fills, "直角の塗りは描かない")
 }
 
-func TestRoundedRect_Draw_borderがnilなら枠を描かない(t *testing.T) {
+func TestBox_Draw_borderがnilなら枠を描かない(t *testing.T) {
 	t.Parallel()
-	rr := uicore.NewRoundedRect(color.Gray{Y: 30}, nil, 7)
+	rr := uicore.NewBox(color.Gray{Y: 30}, nil, 7)
 	rr.Layout(image.Rect(0, 0, 100, 50))
 	cv := &recordCanvas{}
 	rr.Draw(cv)

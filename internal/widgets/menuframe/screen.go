@@ -23,7 +23,7 @@ func PanelInner(rect image.Rectangle) image.Rectangle {
 // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
 func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
 	inner := PanelInner(rect)
-	bg := uicore.NewRoundedRect(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
+	bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)
 	gfx := uicore.NewGraphic(img)
 	gfx.Layout(inner)
@@ -177,7 +177,7 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 
 // groupWithPanelBG はパネルの背景と、配置済みの flex 行を1つの Group に束ねる。
 func groupWithPanelBG(rect image.Rectangle, _ resources.UIResources, items []uicore.FlexItem) uicore.Widget {
-	bg := uicore.NewRoundedRect(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
+	bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)
 	children := make([]uicore.Widget, 0, len(items)+1)
 	children = append(children, bg)

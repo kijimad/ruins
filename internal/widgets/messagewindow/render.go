@@ -65,7 +65,7 @@ func (win *Window) buildTree() uicore.Widget {
 
 	var children []uicore.Widget
 
-	frame := uicore.NewRoundedRect(theme.WindowBackground, theme.WindowBorder, theme.CornerRadius)
+	frame := uicore.NewBox(theme.WindowBackground, theme.WindowBorder, theme.CornerRadius)
 	frame.Layout(rect)
 	children = append(children, frame)
 
