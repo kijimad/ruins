@@ -30,7 +30,6 @@ type InfoPanel struct {
 // NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。パネルの右上配置は
 // FlexColumn/Row へ委ね、画面幅からの逆算をしない。行はパネル矩形を基準に上から書き足す。
 func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {
-	// uicore は隅への固定サイズ配置ヘルパを持たないので、rectHolder で flex の配置結果の矩形だけを取り出す。
 	// 先頭0幅列で右寄せし、1行だけの FlexColumn で上端へ置いて右上のパネル矩形を得る
 	holder := &rectHolder{}
 	row := uicore.Row([]int{0, infoPanelWidth}, uicore.NewGroup(), holder)
