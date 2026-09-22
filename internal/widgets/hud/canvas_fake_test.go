@@ -28,7 +28,11 @@ type textCall struct {
 	color color.Color
 }
 
-func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color) {
+func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color, radius ...int) {
+	if len(radius) > 0 && radius[0] > 0 {
+		c.roundedFills++
+		return
+	}
 	c.fillRects = append(c.fillRects, r)
 }
 
@@ -36,7 +40,11 @@ func (c *fakeCanvas) FillTriangle(p0, p1, p2 [2]float32, _ color.Color) {
 	c.triangles = append(c.triangles, [3][2]float32{p0, p1, p2})
 }
 
-func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
+func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, radius ...int) {
+	if len(radius) > 0 && radius[0] > 0 {
+		c.roundedStrokes++
+		return
+	}
 	c.strokeRects = append(c.strokeRects, r)
 }
 
@@ -54,12 +62,4 @@ func (c *fakeCanvas) DrawNineSlice(_ image.Rectangle, _ *ebiten.Image, _, _ [3]i
 
 func (c *fakeCanvas) DrawImageTintedRect(dst image.Rectangle, _ *ebiten.Image, _ color.Color) {
 	c.tintedRects = append(c.tintedRects, dst)
-}
-
-func (c *fakeCanvas) FillRoundedRect(_ image.Rectangle, _ int, _ color.Color) {
-	c.roundedFills++
-}
-
-func (c *fakeCanvas) StrokeRoundedRect(_ image.Rectangle, _, _ int, _ color.Color) {
-	c.roundedStrokes++
 }

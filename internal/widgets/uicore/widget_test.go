@@ -22,9 +22,11 @@ type recordCanvas struct {
 	images  []image.Point
 }
 
-func (c *recordCanvas) FillRect(r image.Rectangle, _ color.Color)      { c.fills = append(c.fills, r) }
+func (c *recordCanvas) FillRect(r image.Rectangle, _ color.Color, _ ...int) {
+	c.fills = append(c.fills, r)
+}
 func (c *recordCanvas) FillTriangle(_, _, _ [2]float32, _ color.Color) {}
-func (c *recordCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
+func (c *recordCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, _ ...int) {
 	c.strokes = append(c.strokes, r)
 }
 func (c *recordCanvas) DrawText(_ image.Point, s string, _ text.Face, _ color.Color) {
@@ -39,12 +41,6 @@ func (c *recordCanvas) DrawImageTintedRect(dst image.Rectangle, _ *ebiten.Image,
 }
 func (c *recordCanvas) DrawNineSlice(dst image.Rectangle, _ *ebiten.Image, _, _ [3]int) {
 	c.images = append(c.images, dst.Min)
-}
-func (c *recordCanvas) FillRoundedRect(r image.Rectangle, _ int, _ color.Color) {
-	c.fills = append(c.fills, r)
-}
-func (c *recordCanvas) StrokeRoundedRect(r image.Rectangle, _, _ int, _ color.Color) {
-	c.strokes = append(c.strokes, r)
 }
 
 // specRow は ruins の entityspec.SpecRow を模した表示データ。pure。

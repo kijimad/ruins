@@ -22,13 +22,27 @@ func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas {
 	return &EbitenCanvas{screen: screen}
 }
 
-// FillRect は EbitenCanvas を実装する。
-func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color) {
+// FillRect は EbitenCanvas を実装する。radius があれば四隅を丸めて塗る。
+func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, radius ...int) {
+	if len(radius) > 0 && radius[0] > 0 {
+		p := roundedRectPath(r, radius[0])
+		dop := &vector.DrawPathOptions{AntiAlias: true}
+		dop.ColorScale.ScaleWithColor(c)
+		vector.FillPath(e.screen, &p, &vector.FillOptions{}, dop)
+		return
+	}
 	vector.FillRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), c, false)
 }
 
-// StrokeRect は EbitenCanvas を実装する。
-func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
+// StrokeRect は EbitenCanvas を実装する。radius があれば四隅を丸めて枠を描く。
+func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, radius ...int) {
+	if len(radius) > 0 && radius[0] > 0 {
+		p := roundedRectPath(r, radius[0])
+		dop := &vector.DrawPathOptions{AntiAlias: true}
+		dop.ColorScale.ScaleWithColor(c)
+		vector.StrokePath(e.screen, &p, &vector.StrokeOptions{Width: float32(width)}, dop)
+		return
+	}
 	vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)
 }
 
@@ -55,22 +69,6 @@ func roundedRectPath(r image.Rectangle, radius int) vector.Path {
 	p.ArcTo(x, y, x+rad, y, rad)
 	p.Close()
 	return p
-}
-
-// FillRoundedRect は EbitenCanvas を実装する。四隅を丸めた矩形を塗る。
-func (e *EbitenCanvas) FillRoundedRect(r image.Rectangle, radius int, c color.Color) {
-	p := roundedRectPath(r, radius)
-	dop := &vector.DrawPathOptions{AntiAlias: true}
-	dop.ColorScale.ScaleWithColor(c)
-	vector.FillPath(e.screen, &p, &vector.FillOptions{}, dop)
-}
-
-// StrokeRoundedRect は EbitenCanvas を実装する。四隅を丸めた矩形の枠を width の太さで描く。
-func (e *EbitenCanvas) StrokeRoundedRect(r image.Rectangle, width, radius int, c color.Color) {
-	p := roundedRectPath(r, radius)
-	dop := &vector.DrawPathOptions{AntiAlias: true}
-	dop.ColorScale.ScaleWithColor(c)
-	vector.StrokePath(e.screen, &p, &vector.StrokeOptions{Width: float32(width)}, dop)
 }
 
 // FillTriangle は EbitenCanvas を実装する。3頂点の三角形を塗る。text/v2 を通らないのでロックは要らない。
