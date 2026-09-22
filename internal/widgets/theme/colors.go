@@ -14,6 +14,12 @@ func rgb(v uint64) color.RGBA {
 	}
 }
 
+// LerpColor は2色を t (0..1) で線形補間する。ゲージの塗りや気温表示の色を比率で連続に変えるのに使う。
+func LerpColor(a, b color.RGBA, t float64) color.RGBA {
+	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
+	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+}
+
 // ========== テキスト色 ==========
 
 var (

@@ -74,34 +74,42 @@ func (area *MessageArea) Update() {
 	area.widget.Update()
 }
 
-// Draw はメッセージエリアを描画する
+// Draw はメッセージエリアを画面下部へ左右マージン付きで描画する。下端固定は FlexColumn の先頭 Grow
+// スペーサに委ね、画面高からの逆算をしない。
 func (area *MessageArea) Draw(cv uicore.Canvas, data MessageData) {
 	if !area.enabled || area.widget == nil {
 		return
 	}
 
-	// 画面サイズを取得
-	screenWidth := data.ScreenDimensions.Width
-	screenHeight := data.ScreenDimensions.Height
-
-	// ログエリアの位置とサイズを計算（画面下部、左右と下にマージン）
 	boxMargin := theme.Space3
-	logAreaX := boxMargin
-	logAreaWidth := screenWidth - boxMargin*2
-
-	// 設定を使用してサイズを計算
-	fixedHeight := area.config.Height()
-	logAreaY := screenHeight - fixedHeight - boxMargin
-
-	// 背景を描画
-	area.chrome.Panel(cv, image.Rect(logAreaX, logAreaY, logAreaX+logAreaWidth, logAreaY+fixedHeight))
-
-	// オフスクリーンサイズ
-	offscreenWidth := logAreaWidth - area.config.LogAreaMargin*2
-	offscreenHeight := fixedHeight - area.config.LogAreaMargin*2
-
-	// メッセージウィジェットを描画
-	drawX := logAreaX + area.config.LogAreaMargin
-	drawY := logAreaY + area.config.LogAreaMargin
-	area.widget.Draw(cv, drawX, drawY, offscreenWidth, offscreenHeight)
+	panel := &messagePanelWidget{chrome: area.chrome, widget: area.widget, margin: area.config.LogAreaMargin}
+	items := []uicore.FlexItem{
+		{Grow: true},
+		{W: panel, Height: area.config.Height()},
+		{Height: boxMargin},
+	}
+	inner := image.Rect(boxMargin, 0, data.ScreenDimensions.Width-boxMargin, data.ScreenDimensions.Height)
+	uicore.FlexColumn(inner, items)
+	drawFlexItems(cv, items)
 }
+
+// messagePanelWidget はメッセージログのパネル。与えられた矩形へ背景枠を敷き、内側余白ぶん縮めた領域へ
+// ログ本体を描く。パネルの画面内配置は FlexColumn へ委ね、内部は矩形基準で自己完結する。
+type messagePanelWidget struct {
+	rect   image.Rectangle
+	chrome Chrome
+	widget *messagelog.Widget
+	margin int
+}
+
+// Layout は uicore.Widget を満たす。
+func (m *messagePanelWidget) Layout(r image.Rectangle) { m.rect = r }
+
+// Draw は uicore.Widget を満たす。背景枠と、内側へ寄せたログ本体を描く。
+func (m *messagePanelWidget) Draw(cv uicore.Canvas) {
+	m.chrome.Panel(cv, m.rect)
+	m.widget.Draw(cv, m.rect.Min.X+m.margin, m.rect.Min.Y+m.margin, m.rect.Dx()-m.margin*2, m.rect.Dy()-m.margin*2)
+}
+
+// Children は uicore.Widget を満たす。子は持たない。
+func (m *messagePanelWidget) Children() []uicore.Widget { return nil }

@@ -125,7 +125,7 @@ func TestExtractGameInfo(t *testing.T) {
 		world.Components.HP.Add(player, &gc.HP{Current: 30, Max: 50})
 		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{Current: 1000, Max: 5000})
 
-		info := extractGameInfo(world)
+		info := extractGameInfo(world, hud.DefaultMessageAreaConfig.Height())
 
 		assert.Equal(t, 3, info.FloorNumber)
 		assert.Equal(t, 30, info.PlayerHP)
@@ -144,42 +144,12 @@ func TestExtractGameInfo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		info := extractGameInfo(world)
+		info := extractGameInfo(world, hud.DefaultMessageAreaConfig.Height())
 
 		assert.Equal(t, 0, info.PlayerHP)
 		assert.Equal(t, 0, info.PlayerMaxHP)
 		assert.Equal(t, consts.Milligram(0), info.PlayerWeight)
 		assert.Equal(t, consts.Milligram(0), info.PlayerMaxWeight)
-	})
-}
-
-func TestExtractCurrencyData(t *testing.T) {
-	t.Parallel()
-
-	t.Run("プレイヤーの所持金を返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		world.Resources.SetScreenDimensions(320, 240)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
-		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 12345})
-
-		data := extractCurrencyData(world)
-
-		assert.Equal(t, consts.Currency(12345), data.Currency)
-		assert.Equal(t, 320, data.ScreenDimensions.Width)
-		assert.Equal(t, 240, data.ScreenDimensions.Height)
-	})
-
-	t.Run("プレイヤー不在時は0を返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		data := extractCurrencyData(world)
-
-		assert.Equal(t, consts.Currency(0), data.Currency)
 	})
 }
 
@@ -273,7 +243,7 @@ func TestExtractStatusBadgesData(t *testing.T) {
 			hunger := tt.hunger
 			world.Components.Hunger.Add(player, &hunger)
 
-			data := extractStatusBadgesData(world)
+			data := extractStatusBadgesData(world, hud.DefaultMessageAreaConfig.Height())
 
 			require.Len(t, data.Badges, tt.wantBadges)
 			if tt.wantBadges > 0 {
@@ -298,7 +268,7 @@ func TestExtractStatusBadgesData_不調バッジ(t *testing.T) {
 	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 60, Severity: gc.TimerToSeverity(60)})
 	world.Components.HealthStatus.Add(player, hs)
 
-	data := extractStatusBadgesData(world)
+	data := extractStatusBadgesData(world, hud.DefaultMessageAreaConfig.Height())
 
 	// 骨折は不調バッジ、低体温は体温バッジ。低体温を不調バッジに二重で出さないので合計2つ
 	texts := make([]string, 0, len(data.Badges))
@@ -402,7 +372,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	data := ExtractHUDData(world)
 
 	assert.Equal(t, 10, data.GameInfo.PlayerHP)
-	assert.Equal(t, consts.Currency(500), data.CurrencyData.Currency)
+	assert.Equal(t, consts.Currency(500), data.GameInfo.Currency)
 	require.Len(t, data.WeaponSlotsData.Slots, 5)
 	assert.Equal(t, 800, data.MacroMap.Screen.Width)
 }
@@ -425,7 +395,7 @@ func TestExtractGameInfo_体温ゲージの割合を返す(t *testing.T) {
 	t.Parallel()
 	world, _ := newColdPlayer(t)
 
-	info := extractGameInfo(world)
+	info := extractGameInfo(world, hud.DefaultMessageAreaConfig.Height())
 
 	require.True(t, info.BodyTempVisible)
 	assert.InDelta(t, 0.4, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..0の 0.4 に写る")
@@ -437,10 +407,10 @@ func TestExtractGameInfo_異常な体温オフセットでも割合を0から1�
 
 	// セーブの編集などでクランプ幅の外の値が入っても、ゲージ描画が枠外へ出ない
 	world.Components.HealthStatus.Get(e).BodyTempOffset = -100
-	assert.InDelta(t, 0.0, extractGameInfo(world).BodyTempRatio, 1e-9)
+	assert.InDelta(t, 0.0, extractGameInfo(world, hud.DefaultMessageAreaConfig.Height()).BodyTempRatio, 1e-9)
 
 	world.Components.HealthStatus.Get(e).BodyTempOffset = 100
-	assert.InDelta(t, 1.0, extractGameInfo(world).BodyTempRatio, 1e-9)
+	assert.InDelta(t, 1.0, extractGameInfo(world, hud.DefaultMessageAreaConfig.Height()).BodyTempRatio, 1e-9)
 }
 
 func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {

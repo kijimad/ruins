@@ -39,35 +39,62 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	if width <= 0 || height <= 0 {
 		return
 	}
-	x0 := data.Screen.Width - width - theme.Space4
-	y0 := theme.Space4
-	// 背景枠はメニュー枠と同じ共通 chrome に揃える
-	m.chrome.Panel(cv, image.Rect(x0, y0, x0+width, y0+height))
+	// 右上へ固定サイズのパネルを置く。先頭0幅列で右寄せ、末尾 Grow で上寄せする
+	panel := &macroPanelWidget{chrome: m.chrome, face: m.face, data: data}
+	row := uicore.Row([]int{0, width}, uicore.NewGroup(), panel)
+	items := []uicore.FlexItem{
+		{W: row, Height: height},
+		{Grow: true},
+	}
+	inner := image.Rect(0, theme.Space4, data.Screen.Width-theme.Space4, data.Screen.Height)
+	uicore.FlexColumn(inner, items)
+	drawFlexItems(cv, items)
+}
 
-	rows := len(data.View.Cells)
-	cols := len(data.View.Cells[0])
+// macroPanelWidget は右上のマクロ地図パネル。与えられた矩形に背景枠を敷き、帯全体を中央寄せで描く。
+// 地図のセル座標計算は地図の本質なのでここに残し、パネルの画面内配置だけ FlexColumn/Row へ委ねる。
+type macroPanelWidget struct {
+	rect   image.Rectangle
+	chrome Chrome
+	face   text.Face
+	data   MacroMapData
+}
+
+// Layout は uicore.Widget を満たす。
+func (m *macroPanelWidget) Layout(r image.Rectangle) { m.rect = r }
+
+// Draw は uicore.Widget を満たす。背景枠と、帯全体を収める正方セルの地図を描く。
+func (m *macroPanelWidget) Draw(cv uicore.Canvas) {
+	// 背景枠はメニュー枠と同じ共通 chrome に揃える
+	m.chrome.Panel(cv, m.rect)
+
+	rows := len(m.data.View.Cells)
+	cols := len(m.data.View.Cells[0])
 	// 帯全体がパネルに収まるようセル辺を決める。縦横で小さいほうに合わせて正方セルにする
-	cellPx := width / cols
-	if h := height / rows; h < cellPx {
+	cellPx := m.rect.Dx() / cols
+	if h := m.rect.Dy() / rows; h < cellPx {
 		cellPx = h
 	}
 	if cellPx < 1 {
 		cellPx = 1
 	}
 	// 地図をパネル内で中央寄せする余白
-	offX := x0 + (width-cellPx*cols)/2
-	offY := y0 + (height-cellPx*rows)/2
+	offX := m.rect.Min.X + (m.rect.Dx()-cellPx*cols)/2
+	offY := m.rect.Min.Y + (m.rect.Dy()-cellPx*rows)/2
 
 	// 格子・道・キューブ・現在地を DrawMapGrid で描く。ミニマップは記号表示に閾値を持つ
-	DrawMapGrid(cv, data.View, MapGridStyle{
+	DrawMapGrid(cv, m.data.View, MapGridStyle{
 		OriginX:      offX,
 		OriginY:      offY,
 		CellPx:       cellPx,
-		MinGlyphPx:   data.Config.MinGlyphPx,
+		MinGlyphPx:   m.data.Config.MinGlyphPx,
 		GlyphFace:    m.face,
-		PlayerFacing: data.PlayerFacing,
+		PlayerFacing: m.data.PlayerFacing,
 	})
 }
+
+// Children は uicore.Widget を満たす。子は持たない。
+func (m *macroPanelWidget) Children() []uicore.Widget { return nil }
 
 // macroGlyphColor は種別文字の色を返す。既知の記号は overworld の色定義を引き、未知は灰色にする。
 func macroGlyphColor(r rune) color.RGBA {

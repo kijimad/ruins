@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -18,19 +19,20 @@ import (
 
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
+	// メッセージエリアの高さは右下スタックと左下バッジの下端固定に共通で使う
+	messageAreaHeight := hud.DefaultMessageAreaConfig.Height()
 	return hud.Data{
-		GameInfo:         extractGameInfo(world),
+		GameInfo:         extractGameInfo(world, messageAreaHeight),
 		MacroMap:         extractMacroMapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
 		MessageData:      extractMessageData(world, query.GetGameLog(world)),
-		CurrencyData:     extractCurrencyData(world),
 		WeaponSlotsData:  extractWeaponSlotsData(world),
-		StatusBadgesData: extractStatusBadgesData(world),
+		StatusBadgesData: extractStatusBadgesData(world, messageAreaHeight),
 	}
 }
 
-// extractGameInfo はゲーム基本情報を抽出する
-func extractGameInfo(world w.World) hud.GameInfoData {
+// extractGameInfo はゲーム基本情報を抽出する。messageAreaHeight は右下スタックの下端固定に使う
+func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 	floorNumber := query.GetDungeon(world).CurrentStage.Depth
 
 	// プレイヤー情報を抽出する
@@ -43,11 +45,13 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var ambientTempVisible bool
 	var ambientTempColor color.RGBA
 	var ambientShelterLabel string
+	var currency consts.Currency
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
 		hp := world.Components.HP.Get(entity)
 		cw := world.Components.WeightCapacity.Get(entity)
+		currency = query.GetCurrency(world, entity)
 		playerHP = hp.Current
 		playerMaxHP = hp.Max
 		playerWeight = cw.Current
@@ -74,10 +78,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
-	// メッセージエリアの高さを計算（message_area.goのDefaultMessageAreaConfigと同じ）
-	messageAreaConfig := hud.DefaultMessageAreaConfig
-	messageAreaHeight := messageAreaConfig.Height()
-
 	return hud.GameInfoData{
 		FloorNumber:         floorNumber,
 		ShowFloor:           !query.IsOnOverworld(world),
@@ -94,6 +94,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		AmbientShelterLabel: ambientShelterLabel,
 		WeatherName:         query.T(world, query.GetWeather(world).Current.String()),
 		MessageAreaHeight:   messageAreaHeight,
+		Currency:            currency,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
 			Height: screenHeight,
@@ -261,29 +262,6 @@ func extractMessageData(world w.World, store *gamelog.SafeSlice) hud.MessageData
 	}
 }
 
-// extractCurrencyData は通貨データを抽出する
-func extractCurrencyData(world w.World) hud.CurrencyData {
-	screenDimensions := hud.ScreenDimensions{
-		Width:  world.Resources.ScreenDimensions.Width,
-		Height: world.Resources.ScreenDimensions.Height,
-	}
-
-	// デフォルト設定を使用
-	config := hud.DefaultMessageAreaConfig
-
-	// プレイヤーの地髄を取得
-	var currency consts.Currency
-	query.Player(world, func(entity ecs.Entity) {
-		currency = query.GetCurrency(world, entity)
-	})
-
-	return hud.CurrencyData{
-		Currency:         currency,
-		ScreenDimensions: screenDimensions,
-		Config:           config,
-	}
-}
-
 // extractWeaponSlotsData は武器スロットデータを抽出する
 func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 	screenDimensions := hud.ScreenDimensions{
@@ -341,7 +319,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 }
 
 // extractStatusBadgesData はステータスバッジデータを抽出する
-func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
+func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBadgesData {
 	var badges []hud.StatusBadge
 
 	// プレイヤーの空腹度を取得
@@ -397,10 +375,6 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
-
-	// メッセージエリアの高さを計算
-	messageAreaConfig := hud.DefaultMessageAreaConfig
-	messageAreaHeight := messageAreaConfig.Height()
 
 	return hud.StatusBadgesData{
 		Badges:            badges,
@@ -481,15 +455,9 @@ func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA 
 	}
 	intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)
 	if dir == hud.TempDirectionUp {
-		return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
+		return theme.LerpColor(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
 	}
-	return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
-}
-
-// lerpRGBA は2色を t (0..1) で線形補間する
-func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
-	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
-	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+	return theme.LerpColor(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
 }
 
 // getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤

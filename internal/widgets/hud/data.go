@@ -14,7 +14,6 @@ type Data struct {
 	MacroMap         MacroMapData
 	DebugOverlay     DebugOverlayData
 	MessageData      MessageData
-	CurrencyData     CurrencyData
 	WeaponSlotsData  WeaponSlotsData
 	StatusBadgesData StatusBadgesData
 }
@@ -36,6 +35,7 @@ type GameInfoData struct {
 	AmbientShelterLabel string           // プレイヤー位置の囲われの訳済み表示名。屋外・屋内・半屋外
 	WeatherName         string           // 現在の世界天候の訳済み表示名
 	MessageAreaHeight   int              // メッセージエリアの高さ（ステータス表示位置計算用）
+	Currency            consts.Currency  // プレイヤーの所持通貨。右下スタックに表示する
 	ScreenDimensions    ScreenDimensions // 画面サイズ。階層表示位置計算用
 }
 
@@ -95,13 +95,6 @@ type MessageData struct {
 	Messages         []string          // 表示するメッセージ一覧
 	ScreenDimensions ScreenDimensions  // 画面サイズ
 	Config           MessageAreaConfig // メッセージエリア設定
-}
-
-// CurrencyData は通貨表示に必要なデータ
-type CurrencyData struct {
-	Currency         consts.Currency   // プレイヤーの所持地髄
-	ScreenDimensions ScreenDimensions  // 画面サイズ
-	Config           MessageAreaConfig // 位置計算にメッセージエリアの情報が必要
 }
 
 // WeaponSlotsData は武器スロット表示に必要なデータ
