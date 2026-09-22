@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -645,7 +645,7 @@
 				
 				<option value="file294">github.com/kijimaD/ruins/internal/systems/weight_dirty.go (88.9%)</option>
 				
-				<option value="file295">github.com/kijimaD/ruins/internal/testutil/world.go (0.0%)</option>
+				<option value="file295">github.com/kijimaD/ruins/internal/testutil/world.go (100.0%)</option>
 				
 				<option value="file296">github.com/kijimaD/ruins/internal/vrt/golden.go (36.1%)</option>
 				
@@ -1787,7 +1787,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1857,8 +1857,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -45469,6 +45469,7 @@ import (
 var (
         rawMasterOnce sync.Once
         rawMaster     oapi.Raws
+        errRawMaster  error
 )
 
 // initConfig は InitTestWorld の初期化オプションを集約する。
@@ -45484,20 +45485,20 @@ type Option func(*initConfig)
 // WithCurrentStage は初期化時の現ステージキーを指定する。省略時はオーバーワールド。
 // ステージ跨ぎのテストで、最初から特定のステージ上で始めたいときに使う。
 func WithCurrentStage(key gc.StageKey) Option {
-        <span class="cov0" title="0">return func(c *initConfig) </span>{ <span class="cov0" title="0">c.stageKey = key }</span>
+        <span class="cov8" title="1">return func(c *initConfig) </span>{ <span class="cov8" title="1">c.stageKey = key }</span>
 }
 
 // WithStageLevel は現ステージのフィールド寸法を指定する。省略時は 50x50。
 // 実ゲームではフィールド寸法はステージ生成時に一度決まるため、テストも生成相当の初期化時に与える。
 func WithStageLevel(level gc.Level) Option {
-        <span class="cov0" title="0">return func(c *initConfig) </span>{ <span class="cov0" title="0">c.stageLevel = level }</span>
+        <span class="cov8" title="1">return func(c *initConfig) </span>{ <span class="cov8" title="1">c.stageLevel = level }</span>
 }
 
 // WithUI はフォントフェイス込みの UIResources を積む。UI を描くテストはこれを付ける。
 // フェイスはテストが排他所有する。text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、
 // 共有フェイスを並行描画すると競合するが、排他所有ならロック無しで並列に実描画できる。
 func WithUI() Option {
-        <span class="cov0" title="0">return func(c *initConfig) </span>{ <span class="cov0" title="0">c.ui = true }</span>
+        <span class="cov8" title="1">return func(c *initConfig) </span>{ <span class="cov8" title="1">c.ui = true }</span>
 }
 
 // InitTestWorld はテスト用 world の唯一の入り口。選び方はこの2行で尽きる。
@@ -45508,36 +45509,37 @@ func WithUI() Option {
 // 付け忘れて描くとフェイスが nil で即座に落ちるので、静かに壊れることはない。
 // 例外は states の golden_replay だけで、実プレイ再現のため vrt.InitReplayWorld を使う。
 func InitTestWorld(tb testing.TB, opts ...Option) w.World {
-        <span class="cov0" title="0">tb.Helper()
+        <span class="cov8" title="1">tb.Helper()
 </span>
-        <span class="cov0" title="0">cfg := initConfig{stageKey: gc.NewOverworldStage(), stageLevel: gc.Level{TileWidth: 50, TileHeight: 50}}
+        <span class="cov8" title="1">cfg := initConfig{stageKey: gc.NewOverworldStage(), stageLevel: gc.Level{TileWidth: 50, TileHeight: 50}}
         for _, opt := range opts </span>{
-                <span class="cov0" title="0">opt(&amp;cfg)
+                <span class="cov8" title="1">opt(&amp;cfg)
 </span>        }
 
         // テスト用configを構築してからWorldを初期化する。シングルトンが config を読むため先に渡す。
-        <span class="cov0" title="0">testCfg := &amp;config.Config{Profile: config.ProfileDevelopment}
+        <span class="cov8" title="1">testCfg := &amp;config.Config{Profile: config.ProfileDevelopment}
         testCfg.ApplyProfileDefaults()
         world, err := w.InitWorld(&amp;gc.Components{}, testCfg)
         require.NoError(tb, err)
 </span>
-        <span class="cov0" title="0">world.Resources.Config.LogLevel = "ignore"
+        <span class="cov8" title="1">world.Resources.Config.LogLevel = "ignore"
         world.Resources.Config.Seed = rand.Uint64()
         world.Resources.Config.RNG = rand.New(rand.NewPCG(world.Resources.Config.Seed, 0))
 </span>        // テスト world は永続化の副作用を持たない。新規開始や入眠のオートセーブでセーブファイルを書かない
-        <span class="cov0" title="0">world.Resources.Config.DisableAutoSave = true
+        <span class="cov8" title="1">world.Resources.Config.DisableAutoSave = true
         world.Resources.SetScreenDimensions(960, 720)
 </span>
-        // RawMasterのみを共有リソースから取得（一度だけ読み込む）
-        <span class="cov0" title="0">rawMasterOnce.Do(func() </span>{
-                <span class="cov0" title="0">rw, err := loader.LoadRaws()
-                require.NoError(tb, err, "failed to load RawMaster")
-                rawMaster = rw
+        // RawMaster を共有リソースから一度だけ読み込む。
+        // require は Once の外で行う。Once 内で FailNow すると Goexit により Once が
+        // 完了扱いになり、rawMaster が空のまま以後の全呼び出しへ漏れるため。
+        <span class="cov8" title="1">rawMasterOnce.Do(func() </span>{
+                <span class="cov8" title="1">rawMaster, errRawMaster = loader.LoadRaws()
 </span>        })
-        <span class="cov0" title="0">world.Resources.RawMaster = rawMaster
+        <span class="cov8" title="1">require.NoError(tb, errRawMaster, "failed to load RawMaster")
+        world.Resources.RawMaster = rawMaster
 </span>
         // テスト用スプライトシートを初期化
-        <span class="cov0" title="0">spriteSheets := map[string]gc.SpriteSheet{
+        <span class="cov8" title="1">spriteSheets := map[string]gc.SpriteSheet{
                 "field": {
                         Sprites: map[string]gc.Sprite{
                                 "void":         {Width: 32, Height: 32},
@@ -45551,7 +45553,7 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
                         },
                 },
 </span>        }
-        <span class="cov0" title="0">world.Resources.SetSpriteSheets(spriteSheets)
+        <span class="cov8" title="1">world.Resources.SetSpriteSheets(spriteSheets)
 </span>
         // テスト用の現ステージを用意する。フィールド寸法は現ステージの StageField が持つため、
         // 現ステージを cfg.stageKey に確定し、そのキーに束縛した StageField を Level 付きで作る。
@@ -45560,7 +45562,7 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
         // オーバーワールド判定は帯データ SeamlessBand の有無で行うので、帯を付けない既定では
         // IsOnOverworld は偽のまま。帯を要するテストは EnsureSeamlessBand で付ける。
         // query の循環 import を避けるため world.Components を直接使う
-        <span class="cov0" title="0">d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
+        <span class="cov8" title="1">d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
         d.CurrentStage = cfg.stageKey
         fieldEntity := world.ECS.NewEntity()
         world.Components.StageBound.Add(fieldEntity, &amp;gc.StageBound{Key: cfg.stageKey})
@@ -45568,11 +45570,11 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
         field.Level = cfg.stageLevel
         world.Components.StageField.Add(fieldEntity, field)
 </span>
-        <span class="cov0" title="0">if cfg.ui </span>{
-                <span class="cov0" title="0">world.Resources.UIResources = borrowUIResources(tb)
+        <span class="cov8" title="1">if cfg.ui </span>{
+                <span class="cov8" title="1">world.Resources.UIResources = borrowUIResources(tb)
 </span>        }
 
-        <span class="cov0" title="0">return world</span>
+        <span class="cov8" title="1">return world</span>
 }
 
 // uiResPool は WithUI が積む UIResources の置き場。フェイスの構築は重く、描画は
@@ -45584,15 +45586,15 @@ var uiResPool sync.Pool
 // borrowUIResources はプールから UIResources を借り、テスト終了時に返す。
 // 空なら独立したフェイス一式を構築する
 func borrowUIResources(tb testing.TB) resources.UIResources {
-        <span class="cov0" title="0">tb.Helper()
+        <span class="cov8" title="1">tb.Helper()
         uir, ok := uiResPool.Get().(*resources.UIResources)
         if !ok </span>{
-                <span class="cov0" title="0">fresh, err := loader.LoadUIResources()
+                <span class="cov8" title="1">fresh, err := loader.LoadUIResources()
                 require.NoError(tb, err)
                 uir = &amp;fresh
 </span>        }
-        <span class="cov0" title="0">tb.Cleanup(func() </span>{ <span class="cov0" title="0">uiResPool.Put(uir) }</span>)
-        <span class="cov0" title="0">return *uir</span>
+        <span class="cov8" title="1">tb.Cleanup(func() </span>{ <span class="cov8" title="1">uiResPool.Put(uir) }</span>)
+        <span class="cov8" title="1">return *uir</span>
 }
 </pre>
 		
