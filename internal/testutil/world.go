@@ -19,6 +19,7 @@ import (
 var (
 	rawMasterOnce sync.Once
 	rawMaster     oapi.Raws
+	errRawMaster  error
 )
 
 // initConfig は InitTestWorld の初期化オプションを集約する。
@@ -78,12 +79,13 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Resources.Config.DisableAutoSave = true
 	world.Resources.SetScreenDimensions(960, 720)
 
-	// RawMasterのみを共有リソースから取得（一度だけ読み込む）
+	// RawMaster を共有リソースから一度だけ読み込む。
+	// require は Once の外で行う。Once 内で FailNow すると Goexit により Once が
+	// 完了扱いになり、rawMaster が空のまま以後の全呼び出しへ漏れるため。
 	rawMasterOnce.Do(func() {
-		rw, err := loader.LoadRaws()
-		require.NoError(tb, err, "failed to load RawMaster")
-		rawMaster = rw
+		rawMaster, errRawMaster = loader.LoadRaws()
 	})
+	require.NoError(tb, errRawMaster, "failed to load RawMaster")
 	world.Resources.RawMaster = rawMaster
 
 	// テスト用スプライトシートを初期化
