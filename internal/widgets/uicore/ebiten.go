@@ -32,6 +32,47 @@ func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
 	vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)
 }
 
+// roundedRectPath は四隅を半径 radius で丸めた矩形のパスを組む。半径は矩形の短辺の半分までに丸める。
+func roundedRectPath(r image.Rectangle, radius int) vector.Path {
+	x, y := float32(r.Min.X), float32(r.Min.Y)
+	w, h := float32(r.Dx()), float32(r.Dy())
+	rad := float32(radius)
+	if rad > w/2 {
+		rad = w / 2
+	}
+	if rad > h/2 {
+		rad = h / 2
+	}
+	var p vector.Path
+	p.MoveTo(x+rad, y)
+	p.LineTo(x+w-rad, y)
+	p.ArcTo(x+w, y, x+w, y+rad, rad)
+	p.LineTo(x+w, y+h-rad)
+	p.ArcTo(x+w, y+h, x+w-rad, y+h, rad)
+	p.LineTo(x+rad, y+h)
+	p.ArcTo(x, y+h, x, y+h-rad, rad)
+	p.LineTo(x, y+rad)
+	p.ArcTo(x, y, x+rad, y, rad)
+	p.Close()
+	return p
+}
+
+// FillRoundedRect は EbitenCanvas を実装する。四隅を丸めた矩形を塗る。
+func (e *EbitenCanvas) FillRoundedRect(r image.Rectangle, radius int, c color.Color) {
+	p := roundedRectPath(r, radius)
+	dop := &vector.DrawPathOptions{AntiAlias: true}
+	dop.ColorScale.ScaleWithColor(c)
+	vector.FillPath(e.screen, &p, &vector.FillOptions{}, dop)
+}
+
+// StrokeRoundedRect は EbitenCanvas を実装する。四隅を丸めた矩形の枠を width の太さで描く。
+func (e *EbitenCanvas) StrokeRoundedRect(r image.Rectangle, width, radius int, c color.Color) {
+	p := roundedRectPath(r, radius)
+	dop := &vector.DrawPathOptions{AntiAlias: true}
+	dop.ColorScale.ScaleWithColor(c)
+	vector.StrokePath(e.screen, &p, &vector.StrokeOptions{Width: float32(width)}, dop)
+}
+
 // FillTriangle は EbitenCanvas を実装する。3頂点の三角形を塗る。text/v2 を通らないのでロックは要らない。
 func (e *EbitenCanvas) FillTriangle(p0, p1, p2 [2]float32, c color.Color) {
 	var path vector.Path

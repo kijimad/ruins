@@ -11,25 +11,13 @@ import (
 
 func TestChrome_Panel(t *testing.T) {
 	t.Parallel()
+	res, err := loader.LoadUIResources()
+	require.NoError(t, err)
 
-	t.Run("テクスチャがあれば9スライスで矩形へ敷く", func(t *testing.T) {
-		t.Parallel()
-		res, err := loader.LoadUIResources()
-		require.NoError(t, err)
+	chrome := NewChrome(res)
+	cv := &fakeCanvas{}
+	chrome.Panel(cv, image.Rect(0, 0, 100, 50))
 
-		chrome := NewChrome(res)
-		cv := &fakeCanvas{}
-		chrome.Panel(cv, image.Rect(0, 0, 100, 50))
-
-		assert.Equal(t, 1, cv.nineSlices)
-	})
-
-	t.Run("テクスチャが無ければ何も描かない", func(t *testing.T) {
-		t.Parallel()
-		chrome := Chrome{}
-		cv := &fakeCanvas{}
-		chrome.Panel(cv, image.Rect(0, 0, 10, 10))
-
-		assert.Equal(t, 0, cv.nineSlices)
-	})
+	assert.Equal(t, 1, cv.roundedFills, "角丸の背景塗りを1回敷く")
+	assert.Equal(t, 1, cv.roundedStrokes, "角丸の枠を1回描く")
 }

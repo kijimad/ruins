@@ -111,12 +111,9 @@ func (b *badgeWidget) Draw(cv uicore.Canvas) {
 // Children は uicore.Widget を満たす。子は持たない。
 func (b *badgeWidget) Children() []uicore.Widget { return nil }
 
-// badgeChrome はバッジの箱を描く。塗りの色は状態を表すデータなので、意匠のテクスチャでなく
+// badgeChrome はバッジの箱を角丸で描く。塗りの色は状態を表すデータなので、意匠のテクスチャでなく
 // 塗りと枠で表す。枠の色はパネルと同じにして、HUD の他の箱と質感を揃える
 func badgeChrome(cv uicore.Canvas, r image.Rectangle, fill color.RGBA) {
-	cv.StrokeRect(r, 1, theme.PanelHighlight)
-	inner := image.Rect(r.Min.X+1, r.Min.Y+1, r.Max.X-1, r.Max.Y-1)
-	cv.FillRect(inner, fill)
-	cv.FillRect(image.Rect(inner.Min.X, inner.Min.Y, inner.Max.X, inner.Min.Y+1), theme.PanelHighlight)
-	cv.FillRect(image.Rect(inner.Min.X, inner.Max.Y-1, inner.Max.X, inner.Max.Y), theme.PanelShadow)
+	cv.FillRoundedRect(r, theme.CornerRadius, fill)
+	cv.StrokeRoundedRect(r, 1, theme.CornerRadius, theme.PanelHighlight)
 }

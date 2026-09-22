@@ -40,6 +40,12 @@ func (c *recordCanvas) DrawImageTintedRect(dst image.Rectangle, _ *ebiten.Image,
 func (c *recordCanvas) DrawNineSlice(dst image.Rectangle, _ *ebiten.Image, _, _ [3]int) {
 	c.images = append(c.images, dst.Min)
 }
+func (c *recordCanvas) FillRoundedRect(r image.Rectangle, _ int, _ color.Color) {
+	c.fills = append(c.fills, r)
+}
+func (c *recordCanvas) StrokeRoundedRect(r image.Rectangle, _, _ int, _ color.Color) {
+	c.strokes = append(c.strokes, r)
+}
 
 // specRow は ruins の entityspec.SpecRow を模した表示データ。pure。
 type specRow struct {

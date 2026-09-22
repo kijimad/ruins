@@ -36,9 +36,9 @@ func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Ima
 // 役割が同じ行はどの画面でも同じ高さにして、画面をまたいだ見た目のずれを防ぐ
 const noteRowH = 16
 
-// panelBackground はパネル背景のテクスチャを敷く。
-func panelBackground(c *uicore.Container, res resources.UIResources) *uicore.Container {
-	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+// panelBackground はパネルの角丸背景を敷く。
+func panelBackground(c *uicore.Container, _ resources.UIResources) *uicore.Container {
+	return c.SetRoundedBackground(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 }
 
 // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。
@@ -175,9 +175,9 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 	return groupWithPanelBG(rect, res, items)
 }
 
-// groupWithPanelBG はパネルテクスチャの背景と、配置済みの flex 行を1つの Group に束ねる。
-func groupWithPanelBG(rect image.Rectangle, res resources.UIResources, items []uicore.FlexItem) uicore.Widget {
-	bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+// groupWithPanelBG はパネルの角丸背景と、配置済みの flex 行を1つの Group に束ねる。
+func groupWithPanelBG(rect image.Rectangle, _ resources.UIResources, items []uicore.FlexItem) uicore.Widget {
+	bg := uicore.NewRoundedRect(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)
 	children := make([]uicore.Widget, 0, len(items)+1)
 	children = append(children, bg)

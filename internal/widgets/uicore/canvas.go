@@ -18,6 +18,10 @@ type Canvas interface {
 	FillTriangle(p0, p1, p2 [2]float32, c color.Color)
 	// StrokeRect は矩形の枠を width の太さで描く。
 	StrokeRect(r image.Rectangle, width int, c color.Color)
+	// FillRoundedRect は四隅を半径 radius で丸めた矩形を塗る。
+	FillRoundedRect(r image.Rectangle, radius int, c color.Color)
+	// StrokeRoundedRect は四隅を半径 radius で丸めた矩形の枠を width の太さで描く。
+	StrokeRoundedRect(r image.Rectangle, width, radius int, c color.Color)
 	// DrawText は pos を左上として1行を描く。
 	DrawText(pos image.Point, s string, face text.Face, c color.Color)
 	// DrawImage は pos を左上として画像を描く。

@@ -205,6 +205,35 @@ func (g *Group) Draw(cv Canvas) {
 // Children は Group を実装する。
 func (g *Group) Children() []Widget { return g.children }
 
+// RoundedRect は角丸の塗りと枠を1つ描くウィジェット。単体のパネル背景に使う。
+type RoundedRect struct {
+	base
+	Fill   color.Color
+	Border color.Color
+	Radius int
+}
+
+// NewRoundedRect は角丸背景ウィジェットを作る。border が nil なら枠を描かない。
+func NewRoundedRect(fill, border color.Color, radius int) *RoundedRect {
+	return &RoundedRect{Fill: fill, Border: border, Radius: radius}
+}
+
+// Layout は RoundedRect を実装する。
+func (r *RoundedRect) Layout(b image.Rectangle) { r.rect = b }
+
+// Draw は RoundedRect を実装する。角丸の塗りと、border があれば枠を描く。
+func (r *RoundedRect) Draw(cv Canvas) {
+	if r.Fill != nil {
+		cv.FillRoundedRect(r.rect, r.Radius, r.Fill)
+	}
+	if r.Border != nil {
+		cv.StrokeRoundedRect(r.rect, 1, r.Radius, r.Border)
+	}
+}
+
+// Children は RoundedRect を実装する。子は持たない。
+func (r *RoundedRect) Children() []Widget { return nil }
+
 // Dir はコンテナの主軸方向。
 type Dir int
 
@@ -218,16 +247,19 @@ const (
 // Container は子を主軸方向に並べる入れ物。背景の塗りと枠、テクスチャ背景、内側余白を持てる。
 type Container struct {
 	base
-	dir      Dir
-	sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
-	style    BoxStyle
-	bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。パネルや選択行に使う
-	bgBX     [3]int
-	bgBY     [3]int
-	lineImg  *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
-	lineTint color.Color   // 区切り線の色。テクスチャに掛ける
-	pad      int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
-	children []Widget
+	dir           Dir
+	sizes         []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
+	style         BoxStyle
+	bgImage       *ebiten.Image // 9スライスで敷くテクスチャ背景。選択行など横帯の意匠に使う
+	bgBX          [3]int
+	bgBY          [3]int
+	roundedFill   color.Color   // 非nilなら角丸の塗り背景を敷く。パネルに使う
+	roundedBorder color.Color   // 角丸背景の枠色。nilなら枠なし
+	roundedRadius int           // 角丸の半径
+	lineImg       *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
+	lineTint      color.Color   // 区切り線の色。テクスチャに掛ける
+	pad           int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
+	children      []Widget
 }
 
 // SetPadding は内側余白を設定する。子を余白ぶん内側へ寄せる。
@@ -242,11 +274,19 @@ func (c *Container) SetStyle(s BoxStyle) *Container {
 	return c
 }
 
-// SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。パネルや選択行の意匠に使う。
+// SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。選択行など横帯の意匠に使う。
 func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Container {
 	c.bgImage = img
 	c.bgBX = bx
 	c.bgBY = by
+	return c
+}
+
+// SetRoundedBackground は角丸の塗りと枠の背景を敷く。パネルの意匠に使う。border が nil なら枠を描かない。
+func (c *Container) SetRoundedBackground(fill, border color.Color, radius int) *Container {
+	c.roundedFill = fill
+	c.roundedBorder = border
+	c.roundedRadius = radius
 	return c
 }
 
@@ -313,7 +353,12 @@ func (c *Container) Layout(b image.Rectangle) {
 
 // Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。
 func (c *Container) Draw(cv Canvas) {
-	if c.bgImage != nil {
+	if c.roundedFill != nil {
+		cv.FillRoundedRect(c.rect, c.roundedRadius, c.roundedFill)
+		if c.roundedBorder != nil {
+			cv.StrokeRoundedRect(c.rect, 1, c.roundedRadius, c.roundedBorder)
+		}
+	} else if c.bgImage != nil {
 		cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
 	}
 	if c.style.Fill != nil {

@@ -11,12 +11,14 @@ import (
 // fakeCanvas は uicore.Canvas の記録用実装。ebiten の描画コンテキスト無しで
 // どの描画命令が何回・どの引数で呼ばれたかだけを検証する。
 type fakeCanvas struct {
-	texts       []textCall
-	fillRects   []image.Rectangle
-	strokeRects []image.Rectangle
-	triangles   [][3][2]float32
-	nineSlices  int
-	tintedRects []image.Rectangle
+	texts          []textCall
+	fillRects      []image.Rectangle
+	strokeRects    []image.Rectangle
+	triangles      [][3][2]float32
+	nineSlices     int
+	tintedRects    []image.Rectangle
+	roundedFills   int
+	roundedStrokes int
 }
 
 // textCall は DrawText 呼び出し1回ぶんの記録
@@ -52,4 +54,12 @@ func (c *fakeCanvas) DrawNineSlice(_ image.Rectangle, _ *ebiten.Image, _, _ [3]i
 
 func (c *fakeCanvas) DrawImageTintedRect(dst image.Rectangle, _ *ebiten.Image, _ color.Color) {
 	c.tintedRects = append(c.tintedRects, dst)
+}
+
+func (c *fakeCanvas) FillRoundedRect(_ image.Rectangle, _ int, _ color.Color) {
+	c.roundedFills++
+}
+
+func (c *fakeCanvas) StrokeRoundedRect(_ image.Rectangle, _, _ int, _ color.Color) {
+	c.roundedStrokes++
 }

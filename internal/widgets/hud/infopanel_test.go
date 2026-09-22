@@ -22,7 +22,7 @@ func TestInfoPanel(t *testing.T) {
 	const height = 200
 	panel := NewInfoPanel(cv, chrome, res.Text.BodyFace, screenWidth, height)
 
-	assert.Equal(t, 1, cv.nineSlices, "生成時にパネルの意匠を1回敷く")
+	assert.Equal(t, 1, cv.roundedFills, "生成時にパネルの意匠を1回敷く")
 
 	panel.Line("1行目")
 	panel.Line("2行目")

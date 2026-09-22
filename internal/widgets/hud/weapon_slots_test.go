@@ -23,11 +23,11 @@ func TestSlotWidget_Draw(t *testing.T) {
 		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: WeaponSlotInfo{}, number: 1}
 		s.Draw(cv)
 
-		assert.Positive(t, cv.nineSlices, "背景パネルを敷く")
+		assert.Positive(t, cv.roundedFills, "背景パネルを敷く")
 		txt := findText(t, cv.texts, "1")
 		assert.Equal(t, rect.Min.X+slotNumberPad, txt.pos.X, "番号は左上パディング位置のX")
 		assert.Equal(t, rect.Min.Y+slotNumberPad, txt.pos.Y, "番号は左上パディング位置のY")
-		assert.Empty(t, cv.strokeRects, "非選択なら選択枠は描かない")
+		assert.Equal(t, 1, cv.roundedStrokes, "非選択は背景の枠だけで選択枠は描かない")
 	})
 
 	t.Run("選択中は矩形いっぱいに枠線を重ねる", func(t *testing.T) {
@@ -36,7 +36,7 @@ func TestSlotWidget_Draw(t *testing.T) {
 		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: WeaponSlotInfo{}, number: 2, selected: true}
 		s.Draw(cv)
 
-		assert.Contains(t, cv.strokeRects, rect, "選択枠をスロット矩形いっぱいに描く")
+		assert.Equal(t, 2, cv.roundedStrokes, "背景の枠に選択枠を重ねて2本")
 	})
 }
 
@@ -53,7 +53,7 @@ func TestWeaponSlots_Draw(t *testing.T) {
 		cv := &fakeCanvas{}
 		ws.Draw(cv, WeaponSlotsData{Slots: nil, ScreenDimensions: screen}, world)
 		assert.Empty(t, cv.texts)
-		assert.Zero(t, cv.nineSlices)
+		assert.Zero(t, cv.roundedFills)
 	})
 
 	t.Run("複数スロットは中央寄せで番号を左から順に並べる", func(t *testing.T) {
@@ -68,7 +68,7 @@ func TestWeaponSlots_Draw(t *testing.T) {
 		n3 := findText(t, cv.texts, "3")
 		assert.Less(t, n1.pos.X, n2.pos.X, "番号は左から右へ並ぶ")
 		assert.Less(t, n2.pos.X, n3.pos.X)
-		assert.Equal(t, 3, cv.nineSlices, "スロットごとに背景を敷く")
+		assert.Equal(t, 3, cv.roundedFills, "スロットごとに背景を敷く")
 
 		// 中央寄せ: 左端スロットの左に等しい余白が右端スロットの右にもある
 		const slotSize, spacing = 48, 8

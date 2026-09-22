@@ -49,7 +49,7 @@ func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {
 		Screen: ScreenDimensions{Width: 1024, Height: 768},
 	})
 
-	assert.Equal(t, 0, cv.nineSlices)
+	assert.Equal(t, 0, cv.roundedFills)
 	assert.Empty(t, cv.texts)
 	assert.Empty(t, cv.fillRects)
 }
@@ -65,7 +65,7 @@ func TestMacroMap_Draw_帯がなければ地図を出さない(t *testing.T) {
 		Screen:  ScreenDimensions{Width: 1024, Height: 768},
 	})
 
-	assert.Equal(t, 0, cv.nineSlices, "帯が無ければ背景パネルも出さない")
+	assert.Equal(t, 0, cv.roundedFills, "帯が無ければ背景パネルも出さない")
 	assert.Empty(t, cv.texts)
 	assert.Empty(t, cv.fillRects)
 }
@@ -81,7 +81,7 @@ func TestMacroMap_Draw_サイズ0なら背景パネルを描かない(t *testing
 		Screen:  ScreenDimensions{Width: 1024, Height: 768},
 	})
 
-	assert.Equal(t, 0, cv.nineSlices, "サイズ0のときは背景を敷かない")
+	assert.Equal(t, 0, cv.roundedFills, "サイズ0のときは背景を敷かない")
 }
 
 func TestMacroMap_Draw_開放セルを塗り未開放は伏せる(t *testing.T) {
@@ -103,7 +103,7 @@ func TestMacroMap_Draw_開放セルを塗り未開放は伏せる(t *testing.T) 
 		Screen:  ScreenDimensions{Width: 1024, Height: 768},
 	})
 
-	assert.Equal(t, 1, cv.nineSlices, "背景パネルを描く")
+	assert.Equal(t, 1, cv.roundedFills, "背景パネルを描く")
 	assert.Len(t, cv.fillRects, 1, "開放済みセルだけ塗り、未開放は伏せる")
 }
 
