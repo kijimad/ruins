@@ -8,9 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// weatherSpellSeedSalt はスペル長の乱数を次の天候の抽選と別ストリームにするための塩。値は任意で、
-// RunSeed と XOR してストリームが分かれれば何でもよい。乱数から選んだ非ゼロの定数。
-const weatherSpellSeedSalt uint64 = 0x5715_9EA7_4E12_3D5B
+// weatherSpellStreamKey はスペル長の乱数を次の天候の抽選と別系列にするための定数。RunSeed と XOR して
+// 系列を分けるだけで、値そのものに意味はない。ストリームが分かれれば何でもよい非ゼロの任意値。
+const weatherSpellStreamKey uint64 = 0x5715_9EA7_4E12_3D5B
 
 // WeatherSystem は世界全体の天候スペルを進めるシステム。スペルが尽きたら次の天候を引き直す。
 type WeatherSystem struct{}
@@ -36,11 +36,11 @@ func (sys *WeatherSystem) Update(world w.World) error {
 	}
 	season := gt.GetSeason()
 	northDepth := playerNorthDepth(world)
-	// 次の天候とスペル長で別ストリームを引く。1つの rng を順に消費すると、NextWeather の抽選が
-	// 内部で何回引くかに RollSpellTurns の入力が依存して決定論が崩れるため、塩で分ける
+	// 次の天候とスペル長で別系列の乱数を使う。1つの rng を順に消費すると NextWeather の抽選回数に
+	// RollSpellTurns の入力が依存して決定論が崩れるため、系列を分ける
 	turn := uint64(gt.TotalTurns)
 	rngNext := rand.New(rand.NewPCG(band.RunSeed, turn))
-	rngSpell := rand.New(rand.NewPCG(band.RunSeed^weatherSpellSeedSalt, turn))
+	rngSpell := rand.New(rand.NewPCG(band.RunSeed^weatherSpellStreamKey, turn))
 
 	prev := weather.Current
 	next := query.NextWeather(prev, season, northDepth, rngNext)

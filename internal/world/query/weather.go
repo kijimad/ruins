@@ -64,9 +64,8 @@ func NextWeather(current gc.WeatherKind, season gc.Season, northDepth int, rng *
 	return gc.WeatherKind(drawWeighted(weights[:], rng))
 }
 
-// drawWeighted は重み配列から1つの添字を確率抽選する。総和が0以下なら0を返す安全側の縮退。
-// 丸め誤差で末尾まで抜けた場合は、末尾でなく最大重みの添字へ縮退する。末尾に落とすと微小重みの
-// 天候が過剰に選ばれ分布の意図とずれるため。
+// drawWeighted は重み配列から1つの添字を確率抽選する。総和0以下は0へ、丸め誤差で末尾まで抜けたら
+// 最大重みの添字へ縮退する。末尾へ落とすと微小重みの天候が過剰に選ばれ分布の意図とずれるため。
 func drawWeighted(weights []float64, rng *rand.Rand) int {
 	var total float64
 	// maxIdx は最大重みの添字。丸め誤差での縮退先に使う

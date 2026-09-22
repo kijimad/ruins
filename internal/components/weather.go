@@ -12,9 +12,8 @@ type Weather struct {
 	UntilTurn consts.Turn // このスペルが続く終端の総ターン数。TotalTurns が到達したら次のスペルへ遷移する
 }
 
-// InitialWeatherSpellTurns は run 開始の天候スペルの長さ。中立の曇りをこの長さだけ続けてから最初の
-// 遷移を始める。turn0 で即ロールすると開始直後に荒天になりうるので、穏やかな立ち上がりにする。
-// 曇りの通常スペル長の範囲内の値。
+// InitialWeatherSpellTurns は run 開始の天候スペルの長さ。中立の曇りをこの長さだけ続けてから遷移を
+// 始める。turn0 で即ロールすると開始直後に荒天になりうるので、穏やかな立ち上がりにする。
 const InitialWeatherSpellTurns consts.Turn = 2500
 
 // WeatherKind は天候の種類。降水の重さと表示の順で並べる。寒さの厳しさは Severity で別に持つ。
@@ -67,8 +66,8 @@ func (k WeatherKind) Effect() WeatherEffect {
 	panic(fmt.Sprintf("unknown WeatherKind: %d", k))
 }
 
-// Severity は寒さの厳しさを返す。placeFactor が奥地ほど厳しい天候を厚くするのに使う。並び順とは別。
-// 晴れ0・曇り0・雨0・雪1・吹雪2・寒波2。雨は降水だが寒さ軸では軽いので0。
+// Severity は寒さの厳しさを返す。placeFactor が奥地ほど厳しい天候を厚くするのに使う。雨は降水だが
+// 寒さ軸では軽いので0にする。
 func (k WeatherKind) Severity() int {
 	switch k {
 	case WeatherClear, WeatherCloudy, WeatherRain:
