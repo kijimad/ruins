@@ -56,28 +56,32 @@ func TestCubeModuleMenuFetch_スロット範囲外はエラー(t *testing.T) {
 	require.Error(t, err, "範囲外スロットは握りつぶさず error で返す")
 }
 
-func TestApplyCubeModuleChoice_収納から装着する(t *testing.T) {
+func TestApplyCubeModuleChoice_バックパックから装着する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube := world.ECS.NewEntity()
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
 
 	m := world.ECS.NewEntity()
 	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
-	world.Components.LocationInStorage.Add(m, &gc.LocationInStorage{Owner: cube})
+	world.Components.LocationInBackpack.Add(m, &gc.LocationInBackpack{Owner: player})
 
 	err := applyCubeModuleChoice(world, cube, 0, cubeModuleChoice{entity: m}, nil)
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.LocationInstalled.Has(m), "装着で LocationInstalled が付く")
 	assert.Equal(t, 0, world.Components.LocationInstalled.Get(m).Slot, "指定スロットに入る")
-	assert.False(t, world.Components.LocationInStorage.Has(m), "収納からは外れる")
+	assert.False(t, world.Components.LocationInBackpack.Has(m), "バックパックからは外れる")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 3}, query.CubeDeployRange(world, cube), "装着で範囲が伸びる")
 }
 
-func TestApplyCubeModuleChoice_外して収納へ戻す(t *testing.T) {
+func TestApplyCubeModuleChoice_外してバックパックへ戻す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube := world.ECS.NewEntity()
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
 
 	m := world.ECS.NewEntity()
 	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
@@ -86,7 +90,7 @@ func TestApplyCubeModuleChoice_外して収納へ戻す(t *testing.T) {
 	err := applyCubeModuleChoice(world, cube, 0, cubeModuleChoice{remove: true}, &m)
 	require.NoError(t, err)
 
-	assert.True(t, world.Components.LocationInStorage.Has(m), "外すと収納へ戻る")
+	assert.True(t, world.Components.LocationInBackpack.Has(m), "外すとバックパックへ戻る")
 	assert.False(t, world.Components.LocationInstalled.Has(m), "装着は外れる")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, query.CubeDeployRange(world, cube), "外すと基準へ戻る")
 }
@@ -95,18 +99,20 @@ func TestApplyCubeModuleChoice_スロットを外しても他は繰り上がら�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube := world.ECS.NewEntity()
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
 
-	storageModule := func() ecs.Entity {
+	backpackModule := func() ecs.Entity {
 		e := world.ECS.NewEntity()
 		world.Components.CubeModule.Add(e, &gc.CubeModule{RangeBonus: 1})
-		world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: cube})
+		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
 		return e
 	}
 
 	// スロット0と1にモジュールを装着する
-	m0 := storageModule()
+	m0 := backpackModule()
 	require.NoError(t, applyCubeModuleChoice(world, cube, 0, cubeModuleChoice{entity: m0}, nil))
-	m1 := storageModule()
+	m1 := backpackModule()
 	require.NoError(t, applyCubeModuleChoice(world, cube, 1, cubeModuleChoice{entity: m1}, nil))
 
 	// スロット0を外す。スロット1のモジュールはスロット1のまま繰り上がらない

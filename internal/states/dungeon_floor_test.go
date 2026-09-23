@@ -20,8 +20,8 @@ func TestSpawnDebugStageModules_木箱に範囲モジュールを入れる(t *te
 
 	require.NoError(t, spawnDebugStageModules(world))
 
-	modules := query.StorageCubeModules(world, crate)
-	assert.Len(t, modules, debugStageModuleCount, "木箱に範囲モジュールが入る")
+	items := query.GetStorageItems(world, crate)
+	assert.Len(t, items, debugStageModuleCount, "木箱に範囲モジュールが入る")
 }
 
 func TestSpawnDebugStageModules_木箱が無ければエラー(t *testing.T) {

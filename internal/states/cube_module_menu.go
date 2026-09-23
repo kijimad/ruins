@@ -171,15 +171,14 @@ func (st *CubeModuleSelectState) KeyBindings() []keybind.Binding {
 	return detailOpenBindings
 }
 
-// Fetch は世界から表示 props を構築する。候補はキューブ収納とプレイヤーのバックパックから集める。
+// Fetch は世界から表示 props を構築する。候補はプレイヤーのバックパックから集める。
 // プレイヤー不在は握りつぶさず error で返して早期に検知する。
 func (st *CubeModuleSelectState) Fetch(world w.World) (CubeModuleSelectProps, error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return CubeModuleSelectProps{}, fmt.Errorf("cube module select: %w", err)
 	}
-	candidates := append(query.StorageCubeModules(world, st.cube), query.BackpackCubeModules(world, player)...)
-	return CubeModuleSelectProps{Candidates: candidates, Installed: st.installed}, nil
+	return CubeModuleSelectProps{Candidates: query.BackpackCubeModules(world, player), Installed: st.installed}, nil
 }
 
 // Menu は単一リストの構成を返す。装着済みなら先頭の「外す」ぶんを1つ足す
@@ -271,17 +270,22 @@ func cubeModuleChoiceCount(props CubeModuleSelectProps) int {
 	return len(props.Candidates)
 }
 
-// applyCubeModuleChoice は選択を指定スロットへ実行する。「外す」なら装着中を収納へ戻し、候補なら装着する。
-// スロットに装着中があれば先に収納へ戻してから付け替える。
+// applyCubeModuleChoice は選択を指定スロットへ実行する。「外す」なら装着中をプレイヤーのバックパックへ戻し、
+// 候補なら装着する。スロットに装着中があれば先にバックパックへ戻してから付け替える。キューブは browse できる
+// 収納を持たないので、外したモジュールは取り出せるバックパックへ返す。
 func applyCubeModuleChoice(world w.World, cube ecs.Entity, slot int, choice cubeModuleChoice, installed *ecs.Entity) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return fmt.Errorf("cube module: %w", err)
+	}
 	if choice.remove {
 		if installed == nil {
 			return nil
 		}
-		return lifecycle.MoveToStorage(world, *installed, cube)
+		return lifecycle.MoveToBackpack(world, *installed, player)
 	}
 	if installed != nil {
-		if err := lifecycle.MoveToStorage(world, *installed, cube); err != nil {
+		if err := lifecycle.MoveToBackpack(world, *installed, player); err != nil {
 			return err
 		}
 	}

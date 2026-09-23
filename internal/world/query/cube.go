@@ -89,20 +89,6 @@ func BackpackCubeModules(world w.World, player ecs.Entity) []ecs.Entity {
 	return items
 }
 
-// StorageCubeModules はキューブ収納にあるモジュールを返す。装着候補の一覧に使う。
-// 反復中に return するとロックが残るので、対象を集めてから返す。
-func StorageCubeModules(world w.World, cube ecs.Entity) []ecs.Entity {
-	var items []ecs.Entity
-	q := ecs.NewFilter2[gc.LocationInStorage, gc.CubeModule](world.ECS).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.LocationInStorage.Get(e).Owner == cube {
-			items = append(items, e)
-		}
-	}
-	return items
-}
-
 // CubeDeployRange はキューブの展開野営の縦横別の半径を返す。基準 consts.CubeDeployBaseRange に、
 // 装着した各モジュールの RangeBonus を縦横一律に加算する。範囲は保持せず読み取り時に導く。
 // 展開判定・畳み込み・レーザー壁描画がこの単一出典を参照する。
