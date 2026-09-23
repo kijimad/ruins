@@ -6320,8 +6320,8 @@ msgstr "展開する空きが足りない"
 msgid "Range Module"
 msgstr "範囲モジュール"
 
-msgid "A deployment module. Installed on a cube, it widens the camp all around."
-msgstr "展開モジュール。キューブに装着すると野営を縦横一律に広げる"
+msgid "A deployment module. Installed on a cube, it widens the camp all around. The new size takes effect the next time you deploy."
+msgstr "展開モジュール。キューブに装着すると野営を縦横一律に広げる。新しい広さは次の展開で反映される"
 
 msgid "Module"
 msgstr "モジュール"
