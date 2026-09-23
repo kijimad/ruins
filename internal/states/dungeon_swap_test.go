@@ -139,7 +139,7 @@ func TestEnterDungeon_遺跡へ入り上り階段が入口へ結線される(t *
 }
 
 // TestEnterDungeon_入口の北進深度が危険度に反映される は、深い北で入った遺跡ほど危険度が上がる結合を固定する。
-// DangerForDepth と DepthOfChunkRow は単体で検査済みだが、進入時に入口座標から深度を引いて st.Danger へ
+// DangerLevelForDepth と DepthOfChunkRow は単体で検査済みだが、進入時に入口座標から深度を引いて st.Danger へ
 // 反映する経路は結合でしか見えない。日数版を深度版が上回るよう帯と北位置を仕込み、深度が主軸で効くことを守る。
 func TestEnterDungeon_入口の北進深度が危険度に反映される(t *testing.T) {
 	t.Parallel()
@@ -148,8 +148,9 @@ func TestEnterDungeon_入口の北進深度が危険度に反映される(t *tes
 	d := query.GetDungeon(world)
 	d.CurrentStage = gc.NewOverworldStage()
 
-	// 帯を用意する。ChunkH=10・Rows=20 なので起点チャンク行は Rows/2=10。プレイヤーのタイル Y=10 は
-	// チャンク行1で起点より9チャンク北になり、DangerForDepth(9)=4 が日数版 DangerLevelForDay(0)=1 を上回る
+	// 帯を用意する。ChunkH=10 タイル・Rows=20 チャンクなので起点チャンク行は Rows/2=10 チャンク。
+	// プレイヤーの入口はタイル Y=10 で、AbsChunkRow=10/10=チャンク行1。起点より9チャンク北なので
+	// DangerLevelForDepth(9)=4 が日数版 DangerLevelForDay(0)=1 を上回る
 	sb := query.EnsureSeamlessBand(world)
 	sb.Active = true
 	sb.ChunkH = 10
@@ -160,7 +161,7 @@ func TestEnterDungeon_入口の北進深度が危険度に反映される(t *tes
 	require.NoError(t, err)
 
 	dayDanger := query.DangerLevelAt(world)
-	depthDanger := query.DangerForDepth(9)
+	depthDanger := query.DangerLevelForDepth(9)
 	require.Greater(t, depthDanger, dayDanger, "深度が日数を上回る前提を確かめる")
 
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}

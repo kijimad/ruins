@@ -305,7 +305,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	// 進入時に確定し全階で共有する。swapTo 前の確実な入口座標 fromPos から、市街地と同じ DepthOfChunkRow で引く
 	st.Danger = query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
-		if d := query.DangerForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d > st.Danger {
+		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d > st.Danger {
 			st.Danger = d
 		}
 	}

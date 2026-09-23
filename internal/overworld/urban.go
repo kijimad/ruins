@@ -211,7 +211,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
 	danger := query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
-		if d := query.DangerForDepth(sb.DepthOfChunkRow(c.Y)); d > danger {
+		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d > danger {
 			danger = d
 		}
 	}

@@ -183,11 +183,12 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 	}
 	// 危険度は北進度(空間)と経過日数(時間)の高い方。深い北の建物ほど希少な loot が出る。
 	// 深度は市街地の敵と同じ DepthOfChunkRow で引き、収納物のタイル位置は AbsChunkRow でチャンク行へ移す。
-	// prop は SpawnProp が必ず GridElement を付けるので Has ガードは要らない
+	// prop は SpawnProp が必ず GridElement を付けるので Has ガードは要らない。契約が崩れれば
+	// Get が Ark の strict semantics で panic し、黙って深度0に落ちず即座に気づける
 	danger := query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
 		depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
-		if d := query.DangerForDepth(depth); d > danger {
+		if d := query.DangerLevelForDepth(depth); d > danger {
 			danger = d
 		}
 	}
