@@ -24,16 +24,16 @@ type recordCanvas struct {
 	images         []image.Point
 }
 
-func (c *recordCanvas) FillRect(r image.Rectangle, _ color.Color, opts ...uicore.RectOptions) {
-	if len(opts) > 0 && opts[0].Radius > 0 {
+func (c *recordCanvas) FillRect(r image.Rectangle, _ color.Color, opts uicore.RectOptions) {
+	if opts.Radius > 0 {
 		c.roundedFills = append(c.roundedFills, r)
 		return
 	}
 	c.fills = append(c.fills, r)
 }
 func (c *recordCanvas) FillTriangle(_, _, _ [2]float32, _ color.Color) {}
-func (c *recordCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, opts ...uicore.RectOptions) {
-	if len(opts) > 0 && opts[0].Radius > 0 {
+func (c *recordCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, opts uicore.RectOptions) {
+	if opts.Radius > 0 {
 		c.roundedStrokes = append(c.roundedStrokes, r)
 		return
 	}

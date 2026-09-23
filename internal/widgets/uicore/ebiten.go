@@ -24,19 +24,19 @@ func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas {
 }
 
 // FillRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて塗る。
-func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts ...RectOptions) {
-	if len(opts) > 0 && opts[0].Radius > 0 {
-		e.drawShape(r.Min, roundedFillShape(r.Dx(), r.Dy(), opts[0].Radius, c))
+func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts RectOptions) {
+	if opts.Radius > 0 {
+		e.drawShape(r.Min, roundedFillShape(r.Dx(), r.Dy(), opts.Radius, c))
 		return
 	}
 	vector.FillRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), c, false)
 }
 
 // StrokeRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて枠を描く。
-func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, opts ...RectOptions) {
-	if len(opts) > 0 && opts[0].Radius > 0 {
+func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, opts RectOptions) {
+	if opts.Radius > 0 {
 		// 枠は線幅の半分だけ矩形の外へ出る。画像は線幅ぶん広く焼いてあるので、左上を線幅ぶん戻して重ねる
-		shape := roundedStrokeShape(r.Dx(), r.Dy(), width, opts[0].Radius, c)
+		shape := roundedStrokeShape(r.Dx(), r.Dy(), width, opts.Radius, c)
 		e.drawShape(r.Min.Sub(image.Pt(width, width)), shape)
 		return
 	}

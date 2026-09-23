@@ -30,8 +30,8 @@ type textCall struct {
 	color color.Color
 }
 
-func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color, opts ...uicore.RectOptions) {
-	if len(opts) > 0 && opts[0].Radius > 0 {
+func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color, opts uicore.RectOptions) {
+	if opts.Radius > 0 {
 		c.roundedFills++
 		return
 	}
@@ -42,8 +42,8 @@ func (c *fakeCanvas) FillTriangle(p0, p1, p2 [2]float32, _ color.Color) {
 	c.triangles = append(c.triangles, [3][2]float32{p0, p1, p2})
 }
 
-func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, opts ...uicore.RectOptions) {
-	if len(opts) > 0 && opts[0].Radius > 0 {
+func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, opts uicore.RectOptions) {
+	if opts.Radius > 0 {
 		c.roundedStrokes++
 		return
 	}
