@@ -60,11 +60,12 @@ func StowedCargo(world w.World, cube ecs.Entity) []ecs.Entity {
 	return items
 }
 
-// GetCubeModules はキューブに装着したモジュールの一覧を返す。LocationCubeModule で Owner を辿る。
+// GetCubeModules はキューブに装着したモジュールの一覧を返す。LocationCubeModule で Owner を辿り、
+// CubeModule も併せて絞るので、返る実体は性能コンポーネントを必ず持つ。読み取り側の Has チェックが要らない。
 // 反復中に return するとロックが残るので、対象を集めてから返す。
 func GetCubeModules(world w.World, cube ecs.Entity) []ecs.Entity {
 	var items []ecs.Entity
-	q := ecs.NewFilter1[gc.LocationCubeModule](world.ECS).Query()
+	q := ecs.NewFilter2[gc.LocationCubeModule, gc.CubeModule](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
 		if world.Components.LocationCubeModule.Get(e).Owner == cube {
@@ -76,12 +77,12 @@ func GetCubeModules(world w.World, cube ecs.Entity) []ecs.Entity {
 
 // BackpackCubeModules はプレイヤーのバックパックにあるキューブモジュールを返す。装着候補の一覧に使う。
 // 反復中に return するとロックが残るので、対象を集めてから返す。
-func BackpackCubeModules(world w.World, owner ecs.Entity) []ecs.Entity {
+func BackpackCubeModules(world w.World, player ecs.Entity) []ecs.Entity {
 	var items []ecs.Entity
 	q := ecs.NewFilter2[gc.LocationInBackpack, gc.CubeModule](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.LocationInBackpack.Get(e).Owner == owner {
+		if world.Components.LocationInBackpack.Get(e).Owner == player {
 			items = append(items, e)
 		}
 	}
@@ -108,9 +109,6 @@ func StorageCubeModules(world w.World, cube ecs.Entity) []ecs.Entity {
 func CubeDeployRange(world w.World, cube ecs.Entity) consts.Coord[consts.Tile] {
 	r := consts.CubeDeployBaseRange()
 	for _, m := range GetCubeModules(world, cube) {
-		if !world.Components.CubeModule.Has(m) {
-			continue
-		}
 		bonus := world.Components.CubeModule.Get(m).RangeBonus
 		r.X += bonus
 		r.Y += bonus

@@ -261,7 +261,9 @@ func cubeModuleChoiceCount(props CubeModuleSelectProps) int {
 }
 
 // applyCubeModuleChoice は選択を実行する。「外す」なら装着中を収納へ戻し、候補なら装着する。
-// スロットに装着中があれば先に収納へ戻してから付け替える
+// スロットに装着中があれば先に収納へ戻してから付け替える。
+// モジュールは一律・交換可能なのでスロット番号は持たず、装着中は暗黙にスロット0から順に並ぶ。ゆえに
+// 付け替えは装着中を1つ収納へ戻して新しいのを足すだけでよく、スロット位置の追跡は要らない。
 func applyCubeModuleChoice(world w.World, cube ecs.Entity, choice cubeModuleChoice, installed *ecs.Entity) error {
 	if choice.remove {
 		if installed == nil {
