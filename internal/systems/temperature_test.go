@@ -320,3 +320,87 @@ func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
 		assert.Equal(t, hpBefore, world.Components.HP.Get(player).Current, "中度は血液量を下げないので削られない")
 	})
 }
+
+// TestCalcBodyTempRate_公開ラッパーは内部計算に委譲する は、バランス導出用に公開された
+// CalcBodyTempRate が非公開の calcBodyTempRate と同じ値を返すことを固定する。
+func TestCalcBodyTempRate_公開ラッパーは内部計算に委譲する(t *testing.T) {
+	t.Parallel()
+
+	for _, effectiveTemp := range []int{-100, -50, -49, 0, 10, 40} {
+		assert.Equal(t, calcBodyTempRate(effectiveTemp), CalcBodyTempRate(effectiveTemp))
+	}
+}
+
+func TestGetWorseningMessage(t *testing.T) {
+	t.Parallel()
+
+	t.Run("低体温以外は空", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, getWorseningMessage(gc.ConditionFracture, gc.SeverityMedium))
+	})
+
+	t.Run("Noneは空", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, getWorseningMessage(gc.ConditionHypothermia, gc.SeverityNone))
+	})
+
+	t.Run("Minor以上は非空", func(t *testing.T) {
+		t.Parallel()
+		for _, sev := range []gc.Severity{gc.SeverityMinor, gc.SeverityMedium, gc.SeveritySevere} {
+			assert.NotEmpty(t, getWorseningMessage(gc.ConditionHypothermia, sev))
+		}
+	})
+}
+
+func TestGetRecoveryMessage(t *testing.T) {
+	t.Parallel()
+
+	t.Run("低体温以外は空", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, getRecoveryMessage(gc.ConditionFracture, gc.SeverityMinor))
+	})
+
+	t.Run("Severeは空", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, getRecoveryMessage(gc.ConditionHypothermia, gc.SeveritySevere))
+	})
+
+	t.Run("Medium以下は非空", func(t *testing.T) {
+		t.Parallel()
+		for _, sev := range []gc.Severity{gc.SeverityNone, gc.SeverityMinor, gc.SeverityMedium} {
+			assert.NotEmpty(t, getRecoveryMessage(gc.ConditionHypothermia, sev))
+		}
+	})
+}
+
+func TestLogTemperatureChange(t *testing.T) {
+	t.Parallel()
+
+	t.Run("悪化でメッセージがあればログを1件出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeverityMinor, gc.SeverityNone)
+		assert.Equal(t, 1, query.GetGameLog(world).Count())
+	})
+
+	t.Run("低体温以外はログを出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		logTemperatureChange(world, gc.ConditionFracture, gc.SeverityMedium, gc.SeverityMinor)
+		assert.Equal(t, 0, query.GetGameLog(world).Count())
+	})
+
+	t.Run("回復方向でメッセージがあればログを出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeverityNone, gc.SeverityMinor)
+		assert.Equal(t, 1, query.GetGameLog(world).Count())
+	})
+
+	t.Run("回復方向でメッセージが空ならログを出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeveritySevere, gc.SeveritySevere)
+		assert.Equal(t, 0, query.GetGameLog(world).Count())
+	})
+}
