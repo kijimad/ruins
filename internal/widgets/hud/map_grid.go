@@ -80,8 +80,8 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 	rot := func(v [2]float64) [2]float32 {
 		return [2]float32{float32(cx + v[0]*cos - v[1]*sin), float32(cy + v[0]*sin + v[1]*cos)}
 	}
-	cv.FillTriangle(rot(tip), rot(baseL), rot(baseR), theme.HUDMapMarkerBack)
-	cv.FillTriangle(rot(tip), rot(noseL), rot(noseR), theme.HUDMapMarkerFront)
+	cv.FillTriangle(rot(tip), rot(baseL), rot(baseR), theme.OverworldMapMarkerBack)
+	cv.FillTriangle(rot(tip), rot(noseL), rot(noseR), theme.OverworldMapMarkerFront)
 }
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
