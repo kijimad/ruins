@@ -101,11 +101,12 @@ func TestSpecPanel_能力値を表示する(t *testing.T) {
 	assert.Contains(t, cv.texts, "15", "防御の値が表示される")
 }
 
-func TestSpecPanel_背景を塗り枠を描く(t *testing.T) {
+func TestSpecPanel_背景をパネル全体に1つ塗り枠を描く(t *testing.T) {
 	t.Parallel()
 	cv := drawFixture(1)
-	assert.NotEmpty(t, cv.fills, "背景の塗りが描かれる")
-	assert.NotEmpty(t, cv.strokes, "枠が描かれる")
+	// 背景はパネル1枚ぶんだけ。行は個別の背景を持たない
+	assert.Equal(t, []image.Rectangle{image.Rect(0, 0, 300, 400)}, cv.fills, "塗りはパネル全体を1つだけ覆う")
+	assert.Equal(t, []image.Rectangle{image.Rect(0, 0, 300, 400)}, cv.strokes, "枠もパネル全体を1つだけ描く")
 }
 
 func TestSpecPanel_行数ぶんのラベルが出る(t *testing.T) {
