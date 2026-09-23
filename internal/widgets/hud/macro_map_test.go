@@ -121,7 +121,7 @@ func TestMacroMap_Draw_現在地は三角ポインタで描く(t *testing.T) {
 		Screen:       ScreenDimensions{Width: 1024, Height: 768},
 	})
 
-	assert.Len(t, cv.triangles, 2, "現在地は尾と前方の鼻先で二色に塗った三角ポインタで示す")
+	assert.Len(t, cv.triangles, 2, "現在地は上下対称の二色コンパス針(前方赤・後方シルバー)で示す")
 	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
 }
 
@@ -151,8 +151,8 @@ func TestDrawMapGrid_現在地ポインタは向きへtipを向ける(t *testing
 			}
 			DrawMapGrid(cv, view, MapGridStyle{CellPx: cell, MinGlyphPx: 999, PlayerFacing: tc.facing})
 
-			require.Len(t, cv.triangles, 2, "尾と鼻先の2枚を描く")
-			tip := cv.triangles[0][0] // 尾の三角の頂点0は前方の tip。鼻先も同じ tip を共有する
+			require.Len(t, cv.triangles, 2, "前方と後方の2枚を描く")
+			tip := cv.triangles[0][0] // 前方の三角(赤)の頂点0が前方の針先
 			assert.InDelta(t, tc.wantTipX, float64(tip[0]), 1e-4)
 			assert.InDelta(t, tc.wantTipY, float64(tip[1]), 1e-4)
 		})
