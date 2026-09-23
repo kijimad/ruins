@@ -42,7 +42,7 @@ type BoxStyle struct {
 	Radius      int
 }
 
-// RectOptions は矩形描画の追加指定。FillRect/StrokeRect の任意引数として渡す。省略すれば直角。
+// RectOptions は矩形描画の追加指定。FillRect/StrokeRect に渡す。Radius が 0 なら直角。
 type RectOptions struct {
 	Radius int // 四隅を丸める半径。0 なら直角
 }
