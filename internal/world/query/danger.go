@@ -26,7 +26,7 @@ func DangerLevelAt(world w.World) int {
 const dangerChunksPerLevel = 3
 
 // DangerForDepth は北へ chunksNorth 進んだ場所の危険度を返す純関数。空間の難易度勾配。
-// world を引かず座標で決めるので生成の再訪一致を壊さない。日数版 DangerLevelForDay と対をなす
+// world を引かず座標で決めるので生成の再訪一致を壊さない。日数版 DangerLevelForDay と対をなす。
 func DangerForDepth(chunksNorth int) int {
 	if chunksNorth < 0 {
 		chunksNorth = 0

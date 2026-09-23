@@ -72,8 +72,9 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	// 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
-	// 通常進入と降下は enterDungeonWith が入口深度込みで st.Danger を確定済み。
-	// ここに 0 で来るのはデバッグ自己スワップ経路だけで、深度文脈を持たないので日数版で足りる
+	// 危険度は enterDungeonWith が入口深度込みで確定させ全階で共有する。ここは未設定時だけ初期化する
+	// フォールバックで、深度文脈のないデバッグ経路なので日数版で足りる。デバッグの自己スワップ再生成は
+	// 非ゼロの st.Danger をそのまま引き継ぎ、最初の進入時の危険度を保つ
 	if st.Danger == 0 {
 		st.Danger = query.DangerLevelAt(world)
 	}
