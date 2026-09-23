@@ -188,8 +188,8 @@ func (g *gaugeWidget) Layout(r image.Rectangle) { g.rect = r }
 
 // Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、白枠を重ねる。
 func (g *gaugeWidget) Draw(cv uicore.Canvas) {
-	if g.ratio > 0 && g.fill != nil {
-		fillW := int(float64(g.rect.Dx()) * g.ratio)
+	fillW := int(float64(g.rect.Dx()) * g.ratio)
+	if fillW > 0 && g.fill != nil {
 		// 塗りは上下1pxだけ内へ寄せ、枠の線と角の丸みに塗りが食み出さないようにする
 		dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)
 		cv.DrawImageTintedRect(dst, g.fill, color.NRGBA(g.fillColor))
