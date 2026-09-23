@@ -105,14 +105,6 @@ func TestCubeWeight_空の収納は0(t *testing.T) {
 	assert.Equal(t, consts.Milligram(0), query.CubeWeight(world, cube))
 }
 
-func TestCubeDeployRange_モジュール未装着は基準値を返す(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	cube := world.ECS.NewEntity()
-
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, query.CubeDeployRange(world, cube))
-}
-
 func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

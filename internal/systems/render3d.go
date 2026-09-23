@@ -202,7 +202,7 @@ const (
 )
 
 // collectDeployField は展開中キューブの野営エリアを囲む青いレーザー壁を積む。エリアはキューブ中心の
-// 縦横別半径 CubeDeployRange の矩形。隣がエリア外の辺にだけ縦面を張り、外周だけを描く。
+// 縦横別半径 CubeDeployBaseRange の矩形。隣がエリア外の辺にだけ縦面を張り、外周だけを描く。
 // エネルギー幕なので明るさに依らず一定の青で光らせ、visTint は掛けない。
 func (sys *Render3DSystem) collectDeployField(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
 	area := make(map[consts.Coord[consts.Tile]]bool)
@@ -210,7 +210,7 @@ func (sys *Render3DSystem) collectDeployField(world w.World, quads []r3quad, pro
 	for q.Next() {
 		e := q.Entity()
 		c := world.Components.GridElement.Get(e).Coord
-		r := query.CubeDeployRange(world, e)
+		r := consts.CubeDeployBaseRange()
 		for dy := -r.Y; dy <= r.Y; dy++ {
 			for dx := -r.X; dx <= r.X; dx++ {
 				area[consts.Coord[consts.Tile]{X: c.X + dx, Y: c.Y + dy}] = true
