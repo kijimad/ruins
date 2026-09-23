@@ -147,22 +147,21 @@ func TestNewItemSpec_キューブモジュールの範囲が設定される(t *t
 
 	str := `
 [[Items]]
-Name = "範囲モジュールX"
-id = "範囲モジュールX"
-Description = "東西を広げる"
+Name = "範囲モジュール"
+id = "範囲モジュール"
+Description = "縦横一律に広げる"
 
 [Items.CubeModule]
-RangeX = 2
-RangeY = 0
+RangeBonus = 2
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	spec, err := NewItemSpec(raws, "範囲モジュールX")
+	spec, err := NewItemSpec(raws, "範囲モジュール")
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.CubeModule)
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 0}, spec.CubeModule.RangeBonus)
+	assert.Equal(t, consts.Tile(2), spec.CubeModule.RangeBonus)
 }
 
 func TestNewItemSpec_本が設定される(t *testing.T) {

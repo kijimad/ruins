@@ -103,7 +103,7 @@ func StorageCubeModules(world w.World, cube ecs.Entity) []ecs.Entity {
 }
 
 // CubeDeployRange はキューブの展開野営の縦横別の半径を返す。基準 consts.CubeDeployBaseRange に、
-// 装着した各モジュールの RangeBonus を X/Y それぞれ加算する。範囲は保持せず読み取り時に導く。
+// 装着した各モジュールの RangeBonus を縦横一律に加算する。範囲は保持せず読み取り時に導く。
 // 展開判定・畳み込み・レーザー壁描画がこの単一出典を参照する。
 func CubeDeployRange(world w.World, cube ecs.Entity) consts.Coord[consts.Tile] {
 	r := consts.CubeDeployBaseRange()
@@ -112,8 +112,8 @@ func CubeDeployRange(world w.World, cube ecs.Entity) consts.Coord[consts.Tile] {
 			continue
 		}
 		bonus := world.Components.CubeModule.Get(m).RangeBonus
-		r.X += bonus.X
-		r.Y += bonus.Y
+		r.X += bonus
+		r.Y += bonus
 	}
 	return r
 }

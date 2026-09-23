@@ -7502,9 +7502,9 @@ spriteSheetName = "field"
 value = 30
 weight = "300 g"
 [[items]]
-description = "A deployment module. Installed on a cube, it widens the camp east-west."
-name = "Range Module X"
-id = "cube_range_module_x"
+description = "A deployment module. Installed on a cube, it widens the camp all around."
+name = "Range Module"
+id = "cube_range_module"
 material = "METAL"
 spriteKey = "gear_iron"
 spriteSheetName = "field"
@@ -7512,21 +7512,7 @@ value = 200
 weight = "3 kg"
 
 [items.cubeModule]
-rangeX = 1
-rangeY = 0
-[[items]]
-description = "A deployment module. Installed on a cube, it widens the camp north-south."
-name = "Range Module Y"
-id = "cube_range_module_y"
-material = "METAL"
-spriteKey = "gear_gold"
-spriteSheetName = "field"
-value = 200
-weight = "3 kg"
-
-[items.cubeModule]
-rangeX = 0
-rangeY = 1
+rangeBonus = 1
 [[items]]
 description = "A finely decorated ceramic pot, prized as an antique."
 name = "Ancient Pot"

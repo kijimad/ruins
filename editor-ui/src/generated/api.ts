@@ -488,17 +488,13 @@ export interface Consumable {
 
 
 /**
- * キューブモジュール設定。装着すると展開野営の範囲を縦横それぞれ広げる
+ * キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
  */
 export interface CubeModule {
     /**
-     * キューブ展開範囲の東西の伸び幅。タイル数
+     * キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
      */
-    'rangeX': number;
-    /**
-     * キューブ展開範囲の南北の伸び幅。タイル数
-     */
-    'rangeY': number;
+    'rangeBonus': number;
 }
 /**
  * 会話データ

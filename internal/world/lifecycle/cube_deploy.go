@@ -25,10 +25,10 @@ func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	return nil
 }
 
-// defaultCubeModuleItems はゲーム開始時にキューブへ積んでおく範囲モジュール。装着で展開範囲が伸びるのを
-// 序盤から試せるようにする。工作台での作成は将来。プレイヤーのバックパックでなくキューブ収納へ入れるので、
-// プレイヤーの所持重量は変わらず、装着はキューブメニューから行う。
-var defaultCubeModuleItems = []string{"cube_range_module_x", "cube_range_module_y"}
+// defaultCubeModuleItems はゲーム開始時にキューブへ積んでおく範囲モジュール。共通の拡張モジュールを2つ
+// 積み、装着で展開範囲が段階的に伸びるのを序盤から試せるようにする。工作台での作成は将来。プレイヤーの
+// バックパックでなくキューブ収納へ入れるので、所持重量は変わらず、装着はキューブメニューから行う。
+var defaultCubeModuleItems = []string{"cube_range_module", "cube_range_module"}
 
 // StockDefaultCubeModules はキューブ収納へ既定の範囲モジュールを積む。ゲーム開始時のキューブ生成でだけ呼ぶ。
 func StockDefaultCubeModules(world w.World, cube ecs.Entity) error {

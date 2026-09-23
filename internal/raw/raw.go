@@ -349,10 +349,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	if item.CubeModule != nil {
 		entitySpec.CubeModule = &gc.CubeModule{
-			RangeBonus: consts.Coord[consts.Tile]{
-				X: consts.Tile(item.CubeModule.RangeX),
-				Y: consts.Tile(item.CubeModule.RangeY),
-			},
+			RangeBonus: consts.Tile(item.CubeModule.RangeBonus),
 		}
 	}
 

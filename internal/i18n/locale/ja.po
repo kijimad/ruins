@@ -6317,17 +6317,11 @@ msgstr "圧縮する"
 msgid "Not enough open space to deploy."
 msgstr "展開する空きが足りない"
 
-msgid "Range Module X"
-msgstr "範囲モジュールX"
+msgid "Range Module"
+msgstr "範囲モジュール"
 
-msgid "Range Module Y"
-msgstr "範囲モジュールY"
-
-msgid "A deployment module. Installed on a cube, it widens the camp east-west."
-msgstr "展開モジュール。キューブに装着すると野営を東西に広げる"
-
-msgid "A deployment module. Installed on a cube, it widens the camp north-south."
-msgstr "展開モジュール。キューブに装着すると野営を南北に広げる"
+msgid "A deployment module. Installed on a cube, it widens the camp all around."
+msgstr "展開モジュール。キューブに装着すると野営を縦横一律に広げる"
 
 msgid "Module"
 msgstr "モジュール"
