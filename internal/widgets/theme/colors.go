@@ -141,9 +141,10 @@ var (
 	// OverworldMapRoad はチャンクを通る道の線分色。舗装路に寄せた明るい暖灰。暗緑の荒れ地の上でも
 	// 集落の黄の上でも読めるようにする
 	OverworldMapRoad = color.RGBA{R: 205, G: 193, B: 165, A: 255}
-	// OverworldMapMarkerFront は現在地マーカーの前方(針先)の色。羅針盤の針に倣い赤で向きの前を示す
-	OverworldMapMarkerFront = rgb(0xe23b30)
-	// OverworldMapMarkerBack は現在地マーカーの後方(尾)の色。針先の赤に対し明るいシルバーで前後を分ける
+	// OverworldMapMarkerFront は現在地マーカーの前方(針先)の色。向いている方向を示す。
+	// 赤は羅針盤の北と誤読されるため暖色の金にする。マーカーの向きは北でなくプレイヤーの向き
+	OverworldMapMarkerFront = rgb(0xffcf50)
+	// OverworldMapMarkerBack は現在地マーカーの後方(尾)の色。前方の金に対し明るいシルバーで前後を分ける
 	OverworldMapMarkerBack = rgb(0xe6e6e6)
 )
 

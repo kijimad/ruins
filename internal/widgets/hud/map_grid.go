@@ -60,11 +60,11 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 // 現在地マーカーの各頂点のセル辺への比。中央から前後の針先までの距離と、中央の半幅
 const (
 	playerMarkerTip  = 0.42 // 中央から前後の針先までの距離
-	playerMarkerHalf = 0.22 // 中央の半幅
+	playerMarkerHalf = 0.22 // 中央(y=0)の半幅。前後の三角はこの左右2点を共有底辺にする
 )
 
-// drawPlayerMarker は現在地を羅針盤の針で描く。中央で背中合わせの2つの三角を上下対称に並べ、
-// 前方の針先を赤、後方をシルバーにして向きの前後を色で示す。無回転で北(上)を指し、向きだけ回す。
+// drawPlayerMarker は現在地を上下対称の二色針で描く。中央で背中合わせの2つの三角を並べ、
+// 前方の針先を金、後方をシルバーにして向きの前後を示す。無回転で北(上)を指し、向きだけ回す。
 func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) {
 	// 中央原点のローカル頂点。y は下向きなので前方(北)は負
 	fwd := [2]float64{0, -cell * playerMarkerTip} // 前方の針先
@@ -77,7 +77,7 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 	rot := func(v [2]float64) [2]float32 {
 		return [2]float32{float32(cx + v[0]*cos - v[1]*sin), float32(cy + v[0]*sin + v[1]*cos)}
 	}
-	cv.FillTriangle(rot(fwd), rot(left), rot(right), theme.OverworldMapMarkerFront) // 前方=赤
+	cv.FillTriangle(rot(fwd), rot(left), rot(right), theme.OverworldMapMarkerFront) // 前方=金
 	cv.FillTriangle(rot(back), rot(left), rot(right), theme.OverworldMapMarkerBack) // 後方=シルバー
 }
 
