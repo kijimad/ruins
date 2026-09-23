@@ -112,8 +112,8 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		if err := spawnDebugStageFire(world); err != nil {
 			return zero, noEntity, err
 		}
-		// キューブの範囲モジュールをスポーン地点へ落としておく。装着 UI を入ってすぐ試せる。工作台での作成は将来
-		if err := spawnDebugStageModules(world, start); err != nil {
+		// キューブの範囲モジュールを木箱の中へ入れておく。装着 UI を入ってすぐ試せる。工作台での作成は将来
+		if err := spawnDebugStageModules(world); err != nil {
 			return zero, noEntity, err
 		}
 	}
@@ -154,13 +154,28 @@ func spawnDebugStageFire(world w.World) error {
 	return nil
 }
 
-// debugStageModuleCount はデバッグ街に落としておく範囲モジュールの数。スロット上限まで試せる数にする
+// debugStageModuleCount はデバッグ街の木箱へ入れておく範囲モジュールの数。スロット上限まで試せる数にする
 const debugStageModuleCount = 4
 
-// spawnDebugStageModules はデバッグ街のスポーン地点へキューブの範囲モジュールを落としておく。
-// 装着 UI を入ってすぐ試せるようにする。アイテムは通行を塞がないのでスポーンタイルへ重ねてよい。
-func spawnDebugStageModules(world w.World, start consts.Coord[consts.Tile]) error {
-	if _, err := lifecycle.SpawnFieldItem(world, "cube_range_module", start.X, start.Y, debugStageModuleCount); err != nil {
+// spawnDebugStageModules はテンプレートが置いた木箱の中へキューブの範囲モジュールを入れておく。
+// 装着 UI を入ってすぐ試せるようにする。木箱が無ければ何もしない。
+func spawnDebugStageModules(world w.World) error {
+	var crate ecs.Entity
+	found := false
+	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID == "wooden_crate" {
+			crate = e
+			found = true
+			q.Close()
+			break
+		}
+	}
+	if !found {
+		return nil
+	}
+	if _, err := lifecycle.SpawnStorageItem(world, "cube_range_module", debugStageModuleCount, crate); err != nil {
 		return fmt.Errorf("failed to spawn debug stage modules: %w", err)
 	}
 	return nil
