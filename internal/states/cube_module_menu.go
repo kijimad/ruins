@@ -33,7 +33,7 @@ var _ es.State[w.World] = &CubeModuleMenuState{}
 // CubeModuleMenuProps はスロット一覧の表示 props
 type CubeModuleMenuProps struct {
 	Installed []ecs.Entity // 装着中モジュール。スロット0から順に埋まる
-	Footprint string       // 展開フットプリント WxH
+	Title     string       // 見出し。展開範囲を WxH タイルで出す
 }
 
 // NewCubeModuleMenuState はキューブのモジュールスロット一覧を開くファクトリを返す
@@ -63,7 +63,7 @@ func (st *CubeModuleMenuState) Fetch(world w.World) (CubeModuleMenuProps, error)
 	r := query.CubeDeployRange(world, st.cube)
 	return CubeModuleMenuProps{
 		Installed: query.GetCubeModules(world, st.cube),
-		Footprint: fmt.Sprintf("%s %dx%d", query.T(world, "Deploy range"), 2*r.X+1, 2*r.Y+1),
+		Title:     fmt.Sprintf("%s %dx%d", query.T(world, "Deploy range"), 2*r.X+1, 2*r.Y+1),
 	}, nil
 }
 
@@ -88,7 +88,7 @@ func (st *CubeModuleMenuState) ViewUI(world w.World, props CubeModuleMenuProps, 
 		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(label), styled.TextCell(""), styled.IconCell(icon), styled.TextCell(name)}}
 	}
 	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{}, res)
-	return menuframe.PanelScreen(world, res, props.Footprint, list, keybind.HelpHint(world), pager)
+	return menuframe.PanelScreen(world, res, props.Title, list, keybind.HelpHint(world), pager)
 }
 
 // DoAction はActionを実行する。スロットを選ぶと候補選択へ進む
