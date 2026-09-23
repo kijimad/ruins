@@ -88,3 +88,31 @@ func TestAbs(t *testing.T) {
 	assert.Equal(t, 5, Abs(-5))
 	assert.Equal(t, 0, Abs(0))
 }
+
+func TestWithinExtent(t *testing.T) {
+	t.Parallel()
+
+	center := consts.Coord[consts.Tile]{X: 10, Y: 10}
+	// 東西3・南北1の横長の矩形。チェビシェフでは表せない縦横別の内外を確かめる
+	ext := consts.Coord[consts.Tile]{X: 3, Y: 1}
+
+	tests := []struct {
+		name  string
+		coord consts.Coord[consts.Tile]
+		want  bool
+	}{
+		{"中心は内", consts.Coord[consts.Tile]{X: 10, Y: 10}, true},
+		{"東の境界は内", consts.Coord[consts.Tile]{X: 13, Y: 10}, true},
+		{"東の境界外は外", consts.Coord[consts.Tile]{X: 14, Y: 10}, false},
+		{"西の境界は内", consts.Coord[consts.Tile]{X: 7, Y: 10}, true},
+		{"南北の境界は内", consts.Coord[consts.Tile]{X: 10, Y: 11}, true},
+		{"南北の境界外は外", consts.Coord[consts.Tile]{X: 10, Y: 12}, false},
+		{"横は入るが縦で外れる角", consts.Coord[consts.Tile]{X: 13, Y: 12}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, WithinExtent(tt.coord, center, ext))
+		})
+	}
+}

@@ -105,6 +105,17 @@ func TestCubeWeight_空の収納は0(t *testing.T) {
 	assert.Equal(t, consts.Milligram(0), query.CubeWeight(world, cube))
 }
 
+// TestCubeDeployRange_モジュール未装着は基準値を返す は、展開範囲がモジュール未装着で
+// 基準値 consts.CubeDeployBaseRange の縦横別半径になることを固定する。展開判定・畳み込み・
+// レーザー壁描画はこの単一出典を参照するので、初期の実効範囲を押さえる。
+func TestCubeDeployRange_モジュール未装着は基準値を返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	assert.Equal(t, consts.CubeDeployBaseRange, query.CubeDeployRange(world, cube))
+}
+
 func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
