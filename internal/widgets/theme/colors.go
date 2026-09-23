@@ -112,6 +112,10 @@ var (
 	HUDHealthHalf = color.RGBA{R: 255, G: 255, B: 0, A: 255}
 	// HUDHealthEmpty はHPが尽きかけたときのゲージの塗り色
 	HUDHealthEmpty = color.RGBA{R: 255, G: 0, B: 0, A: 255}
+	// HUDFuelFull は燃料が十分あるときの燃料ゲージの塗り色。琥珀
+	HUDFuelFull = color.RGBA{R: 255, G: 180, B: 40, A: 255}
+	// HUDFuelEmpty は燃料が尽きかけたときの燃料ゲージの塗り色。赤
+	HUDFuelEmpty = color.RGBA{R: 255, G: 60, B: 40, A: 255}
 	// SpecLabel は spec パネルのラベルと見出しの色
 	SpecLabel = color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	// HUDTextOutline はテキストのアウトライン色

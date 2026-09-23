@@ -90,3 +90,18 @@ func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	}
 	return total
 }
+
+// FuelGaugeRatio は燃料ゲージ充填率を返す。表示基準 FuelGaugeFullHeat に対する比を 0..1 に丸める。
+func FuelGaugeRatio(fuel consts.Heat) float64 {
+	// 満量基準は正の定数なのでゼロ除算は起きない
+	return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))
+}
+
+// PlayerDriving はプレイヤーが運転中なら Driving を返す。Vehicle の生存確認は呼び出し側の責務。
+func PlayerDriving(world w.World) (*gc.Driving, bool) {
+	player, err := GetPlayerEntity(world)
+	if err != nil || !world.Components.Driving.Has(player) {
+		return nil, false
+	}
+	return world.Components.Driving.Get(player), true
+}

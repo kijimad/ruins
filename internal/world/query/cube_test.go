@@ -32,6 +32,47 @@ func TestDriveFuelCost(t *testing.T) {
 	}
 }
 
+func TestFuelGaugeRatio(t *testing.T) {
+	t.Parallel()
+	full := consts.FuelGaugeFullHeat
+	tests := []struct {
+		name string
+		fuel consts.Heat
+		want float64
+	}{
+		{"空は0", 0, 0},
+		// 途中は浮動小数で線形に割る。期待値を満量基準から導き、値の偶奇に依らず整数割りの切り捨てを弾く
+		{"満量基準の半分は線形", full / 2, float64(full/2) / float64(full)},
+		{"満量基準ちょうどで1", full, 1},
+		{"満量基準を超えても1に丸める", full * 2, 1},
+		{"負の熱量は0に丸める", -full, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.InDelta(t, tt.want, query.FuelGaugeRatio(tt.fuel), 1e-9)
+		})
+	}
+}
+
+func TestPlayerDriving(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+
+	_, ok := query.PlayerDriving(world)
+	assert.False(t, ok, "Driving を持たなければ false")
+
+	cube := world.ECS.NewEntity()
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+	got, ok := query.PlayerDriving(world)
+	assert.True(t, ok, "Driving を持てば返す")
+	if ok {
+		assert.Equal(t, cube, got.Vehicle, "運転対象を返す")
+	}
+}
+
 // addCubeFuel はキューブ収納に材質と重量を持つ燃料アイテムを1つ足す。
 // 生エンティティで足りる query 層のユニットテスト用。SpawnCube を使う統合テストは
 // activity パッケージ側の同名ヘルパを使い、こちらとは抽象レベルが異なる。

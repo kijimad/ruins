@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -110,4 +111,16 @@ func TestDeployChoice_展開できないときログを出しメニューを閉�
 		}
 	}
 	assert.True(t, logged, "空き不足をゲームログに出す")
+}
+
+func TestFuelHeatCell(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// COAL は 800/kg。1kg を2個で束の総熱量は 800 × 2 = 1600
+	fuel := world.ECS.NewEntity()
+	world.Components.Material.Add(fuel, &gc.Material{Kind: oapi.COAL})
+	world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.MilligramPerKg})
+
+	assert.Equal(t, consts.Heat(1600).String(), fuelHeatCell(world, fuel, 2), "束の総熱量を炎アイコン付きで出す")
 }

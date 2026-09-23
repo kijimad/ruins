@@ -75,6 +75,14 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		}
 	}
 
+	// 運転中だけ燃料ゲージを出す。Vehicle の生存を確かめてから燃料量を読む
+	var driving bool
+	var fuelRatio float64
+	if d, ok := query.PlayerDriving(world); ok && world.ECS.Alive(d.Vehicle) {
+		driving = true
+		fuelRatio = query.FuelGaugeRatio(query.CubeFuelTotal(world, d.Vehicle))
+	}
+
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -93,6 +101,8 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		AmbientTempColor:    ambientTempColor,
 		AmbientShelterLabel: ambientShelterLabel,
 		WeatherName:         query.T(world, query.GetWeather(world).Current.String()),
+		Driving:             driving,
+		FuelRatio:           fuelRatio,
 		MessageAreaHeight:   messageAreaHeight,
 		Currency:            currency,
 		ScreenDimensions: hud.ScreenDimensions{

@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,6 +32,26 @@ func TestStorageMenuState_燃料投入は可燃物だけ通す(t *testing.T) {
 
 	require.Len(t, filtered, 1, "可燃物だけ残す。貨物は別ロケーションなので燃料タンクには現れない")
 	assert.Equal(t, fuel, filtered[0].Rep)
+}
+
+func TestStorageMenuState_WithTabsで表示タブを絞る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	storage := world.ECS.NewEntity()
+
+	only := &StorageMenuState{storageEntity: storage, tabs: []tabID{tabIDStore}}
+	props, err := only.Fetch(world)
+	require.NoError(t, err)
+	require.Len(t, props.Tabs, 1, "指定した投入タブだけを出す")
+	assert.Equal(t, tabIDStore, props.Tabs[0].ID)
+
+	both := &StorageMenuState{storageEntity: storage}
+	props2, err := both.Fetch(world)
+	require.NoError(t, err)
+	require.Len(t, props2.Tabs, 2, "既定は取り出し・投入の両タブ")
+	assert.Equal(t, tabIDRetrieve, props2.Tabs[0].ID)
 }
 
 func TestStorageMenuState_フィルタ未指定なら全て通す(t *testing.T) {

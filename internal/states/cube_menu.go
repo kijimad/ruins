@@ -2,8 +2,10 @@ package states
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -17,6 +19,11 @@ func isFuelItem(world w.World, e ecs.Entity) bool {
 	return query.HeatContent(world, e) > 0
 }
 
+// fuelHeatCell は燃料メニューの熱量列のセルを返す。束の総熱量を炎アイコン付きで整形する
+func fuelHeatCell(world w.World, e ecs.Entity, count int) string {
+	return (query.HeatContent(world, e) * consts.Heat(count)).String()
+}
+
 // NewCubeMenuState は移動拠点キューブの入口メニューを作る。直上で Enter すると開き、運転・展開と圧縮の
 // 切替・燃料投入・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
 // 運転は展開中にはできないので、圧縮中のときだけ項目に出す。
@@ -28,7 +35,20 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 		}
 		choices = append(choices,
 			Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
-				return NewStorageMenuState(cube, WithItemFilter(isFuelItem))
+				// 見出しに残燃料を出し、投入で即増えるのを見せる
+				fuelTitle := func(world w.World) string {
+					return query.CubeFuelTotal(world, cube).String()
+				}
+				// 熱量を重量の左へ。数値どうしが詰まらないよう間に空の間隔列を挟む
+				emptyCell := func(w.World, ecs.Entity, int) string { return "" }
+				return NewStorageMenuState(cube,
+					WithItemFilter(isFuelItem),
+					// 燃料は投入して消費するものなので投入タブだけ出す
+					WithTabs(tabIDStore),
+					WithTitle(fuelTitle),
+					WithColumn(styled.Num(), fuelHeatCell),
+					WithColumn(styled.Fit(), emptyCell),
+				)
 			})},
 			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)

@@ -38,8 +38,14 @@ type StorageMenuState struct {
 	// itemFilter は取り出し・投入の両タブに出す品を絞る述語。nil なら全許可。
 	// キューブの燃料投入で、燃料だけを見せ貨物を隠す用途で使う
 	itemFilter func(w.World, ecs.Entity) bool
-	detail     overlay.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen     *menuloop.Screen[StorageProps]
+	// extraCols は名前と重量の間へ差し込む追加列。燃料メニューの熱量列に使う
+	extraCols []trailingColumn
+	// tabs は表示するタブを順に持つ。空なら取り出し・投入の両方を出す
+	tabs []tabID
+	// titleFunc は見出しを世界から導く。nil なら見出し無し
+	titleFunc func(w.World) string
+	detail    overlay.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen    *menuloop.Screen[StorageProps]
 }
 
 // StorageOption は StorageMenuState の任意設定
@@ -48,6 +54,30 @@ type StorageOption func(*StorageMenuState)
 // WithItemFilter は両タブに出す品を述語で絞る。燃料投入のように扱う品目を限定する用途で使う
 func WithItemFilter(pred func(w.World, ecs.Entity) bool) StorageOption {
 	return func(st *StorageMenuState) { st.itemFilter = pred }
+}
+
+// trailingColumn は追加列の様式とセルを持つ。収納メニューは列の意味を知らず、呼ぶ側が渡す。
+// cell は entity と束の個数からセルを導く
+type trailingColumn struct {
+	style styled.Col
+	cell  func(w.World, ecs.Entity, int) string
+}
+
+// WithColumn は名前と重量の間へ列を1つ足す。複数渡すと渡した順に並ぶ
+func WithColumn(style styled.Col, cell func(w.World, ecs.Entity, int) string) StorageOption {
+	return func(st *StorageMenuState) {
+		st.extraCols = append(st.extraCols, trailingColumn{style: style, cell: cell})
+	}
+}
+
+// WithTabs は表示するタブと順序を指定する。既定は取り出しと投入の両方。投入だけにするなど絞る用途で使う
+func WithTabs(ids ...tabID) StorageOption {
+	return func(st *StorageMenuState) { st.tabs = ids }
+}
+
+// WithTitle は画面上部の見出しを世界から導く関数を設定する。毎フレーム呼ぶので軽い読み取りにする
+func WithTitle(fn func(w.World) string) StorageOption {
+	return func(st *StorageMenuState) { st.titleFunc = fn }
 }
 
 // State interface ================
@@ -121,12 +151,26 @@ func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {
 	if err != nil {
 		return StorageProps{}, err
 	}
-	return StorageProps{
-		Tabs: []storageTabData{
-			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, st.filterStacks(world, query.StorageStacks(world, st.storageEntity)))},
-			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))},
-		},
-	}, nil
+	ids := st.tabs
+	if len(ids) == 0 {
+		ids = []tabID{tabIDRetrieve, tabIDStore}
+	}
+	tabs := make([]storageTabData, len(ids))
+	for i, id := range ids {
+		tabs[i] = st.buildTab(world, player, id)
+	}
+	return StorageProps{Tabs: tabs}, nil
+}
+
+// buildTab は指定タブの表示データを組む。取り出しは収納の中身、投入はプレイヤーの所持品を出す
+func (st *StorageMenuState) buildTab(world w.World, player ecs.Entity, id tabID) storageTabData {
+	switch id {
+	case tabIDRetrieve:
+		return storageTabData{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, st.filterStacks(world, query.StorageStacks(world, st.storageEntity)))}
+	case tabIDStore:
+		return storageTabData{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))}
+	}
+	panic("unknown tab: " + string(id))
 }
 
 // filterStacks は両タブに出す束を itemFilter で絞る。フィルタ未指定なら素通しする
@@ -227,7 +271,15 @@ func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor men
 		labels[i] = tab.Label
 	}
 	content, pager := st.buildActiveListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	title := ""
+	if st.titleFunc != nil {
+		title = st.titleFunc(world)
+	}
+	// タブが1つのときは選択中のタブ表示が浮くので、タブ無しのパネルで出す
+	if len(props.Tabs) == 1 {
+		return menuframe.PanelScreen(world, res, title, content, keybind.HelpHint(world), pager)
+	}
+	return menuframe.TabScreen(world, res, title, labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildActiveListUI は行列とフッタ右端のページ表示を返す。
@@ -236,10 +288,20 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 		return nil, ""
 	}
 	currentTab := props.Tabs[tabIndex]
-	cols := itemMenuColumns(styled.Num())
+	// 追加列を名前と重量の間に、渡された順で並べる。末尾は常に重量列。列とセルを同じ順序で組む
+	styles := make([]styled.Col, 0, len(st.extraCols)+1)
+	for _, ec := range st.extraCols {
+		styles = append(styles, ec.style)
+	}
+	cols := itemMenuColumns(append(styles, styled.Num())...)
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+		trailing := make([]string, 0, len(st.extraCols)+1)
+		for _, ec := range st.extraCols {
+			trailing = append(trailing, ec.cell(world, it.Entity, it.Count))
+		}
+		trailing = append(trailing, it.Weight)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, trailing...)
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
 }
