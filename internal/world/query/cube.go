@@ -46,11 +46,11 @@ func PlayerBandTile(world w.World) (consts.Coord[consts.Tile], bool) {
 	return world.Components.GridElement.Get(player).Coord, true
 }
 
-// CubeDeployRange は展開中の野営の縦横別の半径を返す。基準値 consts.CubeDeployBaseRange を起点に、
+// CubeDeployRange は展開中の野営の縦横別の半径を返す。基準値 consts.CubeDeployBaseRangeX/Y を起点に、
 // 将来は装着した展開範囲モジュールの寄与を X/Y それぞれへ加算する。範囲は保持せず読み取り時に導く。
 // 展開判定・畳み込み・レーザー壁描画がこの単一出典を参照する。
 func CubeDeployRange(_ w.World, _ ecs.Entity) consts.Coord[consts.Tile] {
-	return consts.CubeDeployBaseRange
+	return consts.Coord[consts.Tile]{X: consts.CubeDeployBaseRangeX, Y: consts.CubeDeployBaseRangeY}
 }
 
 // StowedCargo はキューブに畳み込んだ貨物の一覧を返す。LocationStowed で燃料タンクと別管理する。

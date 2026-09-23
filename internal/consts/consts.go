@@ -44,12 +44,12 @@ const (
 	CubeWeightCapacityKg = 500
 	// FuelGaugeFullHeat は燃料ゲージが満タン表示になる熱量。実在の上限でなく表示上のタンク容量。値は暫定
 	FuelGaugeFullHeat Heat = 3000
+	// CubeDeployBaseRangeX はモジュール未装着時の展開野営の東西の半径。展開範囲モジュールの寄与を
+	// これへ加算して実効半径を導く。矩形の組み立てと実効半径の導出は query.CubeDeployRange に閉じる
+	CubeDeployBaseRangeX Tile = 2
+	// CubeDeployBaseRangeY はモジュール未装着時の展開野営の南北の半径。用途は東西と対
+	CubeDeployBaseRangeY Tile = 2
 )
-
-// CubeDeployBaseRange はモジュール未装着時の展開野営の縦横別の半径。X が東西、Y が南北。
-// 展開範囲モジュールの寄与をこの基準値へ加算して実効半径を導く。展開できる矩形はキューブ中心の
-// この半径で、アイテムの往復範囲とエリアを囲むレーザー壁の描画が同じ半径を参照する。
-var CubeDeployBaseRange = Coord[Tile]{X: 2, Y: 2}
 
 // ========== ゲーム定数 ==========
 
