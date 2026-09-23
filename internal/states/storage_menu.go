@@ -42,6 +42,9 @@ type StorageMenuState struct {
 	showHeat bool
 	// storeOnly は投入タブだけを出すか。燃料は入れたら即残数になり取り出さないので取り出しタブを隠す
 	storeOnly bool
+	// titleFunc は画面上部の見出しを世界から導く。nil なら見出し無し。ViewUI で毎フレーム呼ぶので
+	// 燃料の残数など投入で変わる値を出すと即座に反映される
+	titleFunc func(w.World) string
 	detail    overlay.Detail // 詳細モーダル。overlay として Screen に登録する
 	screen    *menuloop.Screen[StorageProps]
 }
@@ -64,6 +67,12 @@ func WithHeatColumn() StorageOption {
 // 取り出しの選択肢自体を無くす
 func WithStoreOnly() StorageOption {
 	return func(st *StorageMenuState) { st.storeOnly = true }
+}
+
+// WithTitle は画面上部の見出しを世界から導く関数を設定する。燃料メニューで残燃料を出し、投入で即座に
+// 反映を見せる用途で使う。毎フレーム呼ぶので純粋な読み取りにする
+func WithTitle(fn func(w.World) string) StorageOption {
+	return func(st *StorageMenuState) { st.titleFunc = fn }
 }
 
 // State interface ================
@@ -250,7 +259,11 @@ func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor men
 		labels[i] = tab.Label
 	}
 	content, pager := st.buildActiveListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	title := ""
+	if st.titleFunc != nil {
+		title = st.titleFunc(world)
+	}
+	return menuframe.TabScreen(world, res, title, labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildActiveListUI は行列とフッタ右端のページ表示を返す。

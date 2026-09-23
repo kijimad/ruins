@@ -28,7 +28,11 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 		}
 		choices = append(choices,
 			Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
-				return NewStorageMenuState(cube, WithItemFilter(isFuelItem), WithHeatColumn(), WithStoreOnly())
+				// 見出しに残燃料を出し、投入するたび即座に増えるのを見せる
+				fuelTitle := func(world w.World) string {
+					return query.T(world, "Fuel") + " " + query.CubeFuelTotal(world, cube).String()
+				}
+				return NewStorageMenuState(cube, WithItemFilter(isFuelItem), WithHeatColumn(), WithStoreOnly(), WithTitle(fuelTitle))
 			})},
 			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)
