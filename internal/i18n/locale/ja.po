@@ -6326,8 +6326,8 @@ msgstr "展開モジュール。キューブに装着すると展開空間を縦
 msgid "Module"
 msgstr "モジュール"
 
-msgid "Deploy range"
-msgstr "展開範囲"
+msgid "Deploy size"
+msgstr "展開サイズ"
 
 msgid "Slot %d"
 msgstr "スロット%d"
