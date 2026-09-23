@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">59.6&nbsp;%</td>
-            <td class="headerCovTableEntry">47</td>
-            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">64.8&nbsp;%</td>
+            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntry">35</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-23 03:43:47</td>
+            <td class="headerValue">2026-09-23 05:05:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -152,6 +152,21 @@
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         return total</span></span>
 <span id="L92"><span class="lineNum">      92</span>              : }</span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span>              : // FuelGaugeRatio は燃料ゲージ充填率を返す。表示基準 FuelGaugeFullHeat に対する比を 0..1 に丸める。</span>
+<span id="L95"><span class="lineNum">      95</span>              : func FuelGaugeRatio(fuel consts.Heat) float64 {</span>
+<span id="L96"><span class="lineNum">      96</span>              :         // 満量基準は正の定数なのでゼロ除算は起きない</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : // PlayerDriving はプレイヤーが運転中なら Driving を返す。Vehicle の生存確認は呼び出し側の責務。</span>
+<span id="L101"><span class="lineNum">     101</span>              : func PlayerDriving(world w.World) (*gc.Driving, bool) {</span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         player, err := GetPlayerEntity(world)</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         if err != nil || !world.Components.Driving.Has(player) {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         return world.Components.Driving.Get(player), true</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.7&nbsp;%</td>
-            <td class="headerCovTableEntry">121</td>
+            <td class="headerCovTableEntryMed">83.5&nbsp;%</td>
+            <td class="headerCovTableEntry">133</td>
             <td class="headerCovTableEntry">111</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-23 03:43:47</td>
+            <td class="headerValue">2026-09-23 05:05:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -177,158 +177,175 @@
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 {W: tempRow, Height: gaugeHeight},</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 {Height: gaugeSpacing},</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 {W: hpRow, Height: gaugeHeight},</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 {Grow: true},</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         inner := image.Rect(gaugeBaseX, gaugeBaseY, gaugeBaseX+tempArrowSlotW+gaugeWidth, data.ScreenDimensions.Height)</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         uicore.FlexColumn(inner, items)</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         drawFlexItems(cv, items)</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L124"><span class="lineNum">     124</span>              : </span>
-<span id="L125"><span class="lineNum">     125</span>              : // arrowWidget は体温変化の矢印を返す。温まると上向き、冷えると下向き、一定は右向き。三角形でなく</span>
-<span id="L126"><span class="lineNum">     126</span>              : // アイコンフォントの字で描き、キーキャップの記号と意匠も描画経路もそろえる。非表示なら空を返す。</span>
-<span id="L127"><span class="lineNum">     127</span>              : func (info *GameInfo) arrowWidget(arrow TemperatureArrow) uicore.Widget {</span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         if !arrow.Visible {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return uicore.NewGroup()</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         var glyph string</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         switch arrow.Direction {</span></span>
-<span id="L133"><span class="lineNum">     133</span>              :         case TempDirectionUp:</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 glyph = consts.IconArrowUp</span></span>
-<span id="L135"><span class="lineNum">     135</span>              :         case TempDirectionDown:</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 glyph = consts.IconArrowDown</span></span>
-<span id="L137"><span class="lineNum">     137</span>              :         case TempDirectionSteady:</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 glyph = consts.IconArrowRight</span></span>
-<span id="L139"><span class="lineNum">     139</span>              :         }</span>
-<span id="L140"><span class="lineNum">     140</span>              :         // VCenter で体温ゲージの縦中心にそろえる</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         return &amp;uicore.Text{Value: glyph, Face: info.bodyFace, Color: arrow.Color, OutlineColor: theme.HUDTextOutline, VCenter: true}</span></span>
-<span id="L142"><span class="lineNum">     142</span>              : }</span>
-<span id="L143"><span class="lineNum">     143</span>              : </span>
-<span id="L144"><span class="lineNum">     144</span>              : // bodyTempGauge は体温ゲージを返す。満タンが平熱、減って青くなるほど冷える片方向。非表示なら空を返す。</span>
-<span id="L145"><span class="lineNum">     145</span>              : func (info *GameInfo) bodyTempGauge(data GameInfoData) uicore.Widget {</span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if !data.BodyTempVisible {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 return uicore.NewGroup()</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.BodyTempRatio, fillColor: bodyTempFillColor(data.BodyTempRatio), border: theme.HUDGaugeBorder}</span></span>
-<span id="L150"><span class="lineNum">     150</span>              : }</span>
-<span id="L151"><span class="lineNum">     151</span>              : </span>
-<span id="L152"><span class="lineNum">     152</span>              : // healthGauge は HP ゲージを返す。半分を境に緑から黄、黄から赤へ寄る。</span>
-<span id="L153"><span class="lineNum">     153</span>              : func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {</span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         ratio := 0.0</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         if data.PlayerMaxHP &gt; 0 {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 ratio = max(0, min(1, float64(data.PlayerHP)/float64(data.PlayerMaxHP)))</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         var fill color.RGBA</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         if ratio &gt; 0.5 {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 fill = theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-ratio)*2)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         } else {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC tlaBgUNC">           0 :                 fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : }</span>
-<span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span>              : // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向</span>
-<span id="L168"><span class="lineNum">     168</span>              : func bodyTempFillColor(ratio float64) color.RGBA {</span>
-<span id="L169"><span class="lineNum">     169</span>              :         // 体温は片方向。0が平熱かつ上限で寒さ方向へ負に動くので、ratio=1 が平熱、下がるほど冷えの色へ寄る</span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return theme.LerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L172"><span class="lineNum">     172</span>              : </span>
-<span id="L173"><span class="lineNum">     173</span>              : // gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。</span>
-<span id="L174"><span class="lineNum">     174</span>              : const gaugeCornerRadius = 4</span>
-<span id="L175"><span class="lineNum">     175</span>              : </span>
-<span id="L176"><span class="lineNum">     176</span>              : // gaugeWidget は1本のゲージ。与えられた矩形へ白枠を引き、比率ぶんの塗りをグラデーションの</span>
-<span id="L177"><span class="lineNum">     177</span>              : // テクスチャで色掛けする。上が明るく下が暗い光沢になる。</span>
-<span id="L178"><span class="lineNum">     178</span>              : type gaugeWidget struct {</span>
-<span id="L179"><span class="lineNum">     179</span>              :         rect      image.Rectangle</span>
-<span id="L180"><span class="lineNum">     180</span>              :         fill      *ebiten.Image</span>
-<span id="L181"><span class="lineNum">     181</span>              :         ratio     float64</span>
-<span id="L182"><span class="lineNum">     182</span>              :         fillColor color.RGBA</span>
-<span id="L183"><span class="lineNum">     183</span>              :         border    color.RGBA</span>
-<span id="L184"><span class="lineNum">     184</span>              : }</span>
-<span id="L185"><span class="lineNum">     185</span>              : </span>
-<span id="L186"><span class="lineNum">     186</span>              : // Layout は uicore.Widget を満たす。</span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : func (g *gaugeWidget) Layout(r image.Rectangle) { g.rect = r }</span></span>
-<span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span>              : // Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、白枠を重ねる。</span>
-<span id="L190"><span class="lineNum">     190</span>              : func (g *gaugeWidget) Draw(cv uicore.Canvas) {</span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         fillW := int(float64(g.rect.Dx()) * g.ratio)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         if fillW &gt; 0 &amp;&amp; g.fill != nil {</span></span>
-<span id="L193"><span class="lineNum">     193</span>              :                 // 塗りは上下1pxだけ内へ寄せ、枠の線と角の丸みに塗りが食み出さないようにする</span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 cv.DrawImageTintedRect(dst, g.fill, color.NRGBA(g.fillColor))</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         cv.StrokeRect(g.rect, 1, g.border, uicore.RectOptions{Radius: gaugeCornerRadius})</span></span>
-<span id="L198"><span class="lineNum">     198</span>              : }</span>
-<span id="L199"><span class="lineNum">     199</span>              : </span>
-<span id="L200"><span class="lineNum">     200</span>              : // Children は uicore.Widget を満たす。子は持たない。</span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC tlaBgUNC">           0 : func (g *gaugeWidget) Children() []uicore.Widget { return nil }</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L119"><span class="lineNum">     119</span>              :         // 運転中だけ燃料ゲージを HP の下へ足す</span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         if data.Driving {</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 :                 fuelRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                         uicore.NewGroup(),</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                         info.fuelGauge(data),</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 )</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 items = append(items,</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                         uicore.FlexItem{Height: gaugeSpacing},</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                         uicore.FlexItem{W: fuelRow, Height: gaugeHeight},</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 )</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC tlaBgGNC">           1 :         items = append(items, uicore.FlexItem{Grow: true})</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         inner := image.Rect(gaugeBaseX, gaugeBaseY, gaugeBaseX+tempArrowSlotW+gaugeWidth, data.ScreenDimensions.Height)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         uicore.FlexColumn(inner, items)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         drawFlexItems(cv, items)</span></span>
+<span id="L134"><span class="lineNum">     134</span>              : }</span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span>              : // arrowWidget は体温変化の矢印を返す。温まると上向き、冷えると下向き、一定は右向き。三角形でなく</span>
+<span id="L137"><span class="lineNum">     137</span>              : // アイコンフォントの字で描き、キーキャップの記号と意匠も描画経路もそろえる。非表示なら空を返す。</span>
+<span id="L138"><span class="lineNum">     138</span>              : func (info *GameInfo) arrowWidget(arrow TemperatureArrow) uicore.Widget {</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         if !arrow.Visible {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 return uicore.NewGroup()</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         var glyph string</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         switch arrow.Direction {</span></span>
+<span id="L144"><span class="lineNum">     144</span>              :         case TempDirectionUp:</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 glyph = consts.IconArrowUp</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :         case TempDirectionDown:</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 glyph = consts.IconArrowDown</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         case TempDirectionSteady:</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 glyph = consts.IconArrowRight</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         }</span>
+<span id="L151"><span class="lineNum">     151</span>              :         // VCenter で体温ゲージの縦中心にそろえる</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         return &amp;uicore.Text{Value: glyph, Face: info.bodyFace, Color: arrow.Color, OutlineColor: theme.HUDTextOutline, VCenter: true}</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : }</span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span>              : // bodyTempGauge は体温ゲージを返す。満タンが平熱、減って青くなるほど冷える片方向。非表示なら空を返す。</span>
+<span id="L156"><span class="lineNum">     156</span>              : func (info *GameInfo) bodyTempGauge(data GameInfoData) uicore.Widget {</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         if !data.BodyTempVisible {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :                 return uicore.NewGroup()</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.BodyTempRatio, fillColor: bodyTempFillColor(data.BodyTempRatio), border: theme.HUDGaugeBorder}</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : }</span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              : // healthGauge は HP ゲージを返す。半分を境に緑から黄、黄から赤へ寄る。</span>
+<span id="L164"><span class="lineNum">     164</span>              : func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         ratio := 0.0</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         if data.PlayerMaxHP &gt; 0 {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 ratio = max(0, min(1, float64(data.PlayerHP)/float64(data.PlayerMaxHP)))</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         var fill color.RGBA</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         if ratio &gt; 0.5 {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 fill = theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-ratio)*2)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         } else {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC tlaBgUNC">           0 :                 fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}</span></span>
+<span id="L176"><span class="lineNum">     176</span>              : }</span>
+<span id="L177"><span class="lineNum">     177</span>              : </span>
+<span id="L178"><span class="lineNum">     178</span>              : // fuelGauge は運転中の燃料ゲージを返す。満で琥珀、空へ近づくと赤へ寄る。</span>
+<span id="L179"><span class="lineNum">     179</span>              : func (info *GameInfo) fuelGauge(data GameInfoData) uicore.Widget {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC tlaBgUNC">           0 :         fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, data.FuelRatio)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.FuelRatio, fillColor: fill, border: theme.HUDGaugeBorder}</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span>              : // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向</span>
+<span id="L185"><span class="lineNum">     185</span>              : func bodyTempFillColor(ratio float64) color.RGBA {</span>
+<span id="L186"><span class="lineNum">     186</span>              :         // 体温は片方向。0が平熱かつ上限で寒さ方向へ負に動くので、ratio=1 が平熱、下がるほど冷えの色へ寄る</span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">           1 :         return theme.LerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L189"><span class="lineNum">     189</span>              : </span>
+<span id="L190"><span class="lineNum">     190</span>              : // gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。</span>
+<span id="L191"><span class="lineNum">     191</span>              : const gaugeCornerRadius = 4</span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span>              : // gaugeWidget は1本のゲージ。与えられた矩形へ白枠を引き、比率ぶんの塗りをグラデーションの</span>
+<span id="L194"><span class="lineNum">     194</span>              : // テクスチャで色掛けする。上が明るく下が暗い光沢になる。</span>
+<span id="L195"><span class="lineNum">     195</span>              : type gaugeWidget struct {</span>
+<span id="L196"><span class="lineNum">     196</span>              :         rect      image.Rectangle</span>
+<span id="L197"><span class="lineNum">     197</span>              :         fill      *ebiten.Image</span>
+<span id="L198"><span class="lineNum">     198</span>              :         ratio     float64</span>
+<span id="L199"><span class="lineNum">     199</span>              :         fillColor color.RGBA</span>
+<span id="L200"><span class="lineNum">     200</span>              :         border    color.RGBA</span>
+<span id="L201"><span class="lineNum">     201</span>              : }</span>
 <span id="L202"><span class="lineNum">     202</span>              : </span>
-<span id="L203"><span class="lineNum">     203</span>              : // drawBottomRightStack は周囲気温・所持重量・所持通貨を右下、メッセージエリアの上へ下から積んで描く。</span>
-<span id="L204"><span class="lineNum">     204</span>              : // 画面端からの逆算や段の手積みをせず、下寄せの FlexColumn へ流して各行を右端に揃える。先頭の Grow</span>
-<span id="L205"><span class="lineNum">     205</span>              : // スペーサが上の余りを吸収して全体を下端へ押し、末尾スペーサがメッセージエリアの高さを確保する。</span>
-<span id="L206"><span class="lineNum">     206</span>              : // 温度は場所依存なので、屋内へ入る・火に近づく効果がその場で読める。囲われラベルは白、温度は快適帯の</span>
-<span id="L207"><span class="lineNum">     207</span>              : // 内外の色、重量は積載率で色を変える。</span>
-<span id="L208"><span class="lineNum">     208</span>              : func (info *GameInfo) drawBottomRightStack(cv uicore.Canvas, data GameInfoData) {</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 :         face := info.bodyFace</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         outline := theme.HUDTextOutline</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         items := []uicore.FlexItem{{Grow: true}}</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         if data.AmbientTempVisible {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 labelText := data.WeatherName + &quot; &quot; + data.AmbientShelterLabel + &quot; &quot;</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 tempText := fmt.Sprintf(&quot;%d%s&quot;, data.AmbientTemp, consts.IconDegree)</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 labelW, h := uicore.MeasureText(labelText, face)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 tempW, _ := uicore.MeasureText(tempText, face)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 // 先頭0幅列が余り幅を吸収し、ラベルと温度を右端へ寄せる</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 row := uicore.Row([]int{0, labelW, tempW},</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                         uicore.NewGroup(),</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                         &amp;uicore.Text{Value: labelText, Face: face, Color: theme.TextPrimary, OutlineColor: outline},</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                         &amp;uicore.Text{Value: tempText, Face: face, Color: data.AmbientTempColor, OutlineColor: outline},</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 )</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.FlexItem{W: row, Height: h}, uicore.FlexItem{Height: theme.Space2})</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L227"><span class="lineNum">     227</span>              : </span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         weightText := fmt.Sprintf(&quot;%s / %s&quot;, data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         _, wh := uicore.MeasureText(weightText, face)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 uicore.FlexItem{W: &amp;uicore.Text{Value: weightText, Face: face, Color: weightColor(data), OutlineColor: outline, Align: uicore.AlignRight}, Height: wh},</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 uicore.FlexItem{Height: theme.Space2},</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         currencyText := data.Currency.String()</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         _, ch := uicore.MeasureText(currencyText, face)</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         items = append(items, uicore.FlexItem{W: &amp;uicore.Text{Value: currencyText, Face: face, Color: theme.TextPrimary, OutlineColor: outline, Align: uicore.AlignRight}, Height: ch})</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L239"><span class="lineNum">     239</span>              :         // スタックの下端をメッセージログ枠の上端の1余白ぶん上へ置く</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         items = append(items, uicore.FlexItem{Height: data.MessageAreaHeight + theme.Space4})</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         inner := image.Rect(0, 0, data.ScreenDimensions.Width-theme.Space4, data.ScreenDimensions.Height)</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         uicore.FlexColumn(inner, items)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         drawFlexItems(cv, items)</span></span>
-<span id="L245"><span class="lineNum">     245</span>              : }</span>
-<span id="L246"><span class="lineNum">     246</span>              : </span>
-<span id="L247"><span class="lineNum">     247</span>              : // weightColor は所持重量の文字色を返す。積載超過は赤、8割超は黄、通常は白。</span>
-<span id="L248"><span class="lineNum">     248</span>              : func weightColor(data GameInfoData) color.RGBA {</span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         if data.PlayerMaxWeight &lt;= 0 {</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 return theme.TextPrimary</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         switch ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight); {</span></span>
-<span id="L253"><span class="lineNum">     253</span>              :         case ratio &gt; 1.0:</span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC tlaBgUNC">           0 :                 return theme.HUDWeightDanger</span></span>
-<span id="L255"><span class="lineNum">     255</span>              :         case ratio &gt; 0.8:</span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                 return theme.HUDWeightWarning</span></span>
-<span id="L257"><span class="lineNum">     257</span>              :         default:</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC tlaBgGNC">           1 :                 return theme.TextPrimary</span></span>
-<span id="L259"><span class="lineNum">     259</span>              :         }</span>
-<span id="L260"><span class="lineNum">     260</span>              : }</span>
-<span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span>              : // drawFlexItems は FlexColumn/Row で矩形が確定済みの各行 Widget を描く。W が nil のスペーサ行は飛ばす。</span>
-<span id="L263"><span class="lineNum">     263</span>              : func drawFlexItems(cv uicore.Canvas, items []uicore.FlexItem) {</span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         for _, it := range items {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 if it.W != nil {</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                         it.W.Draw(cv)</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L268"><span class="lineNum">     268</span>              :         }</span>
-<span id="L269"><span class="lineNum">     269</span>              : }</span>
+<span id="L203"><span class="lineNum">     203</span>              : // Layout は uicore.Widget を満たす。</span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 : func (g *gaugeWidget) Layout(r image.Rectangle) { g.rect = r }</span></span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span>              : // Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、白枠を重ねる。</span>
+<span id="L207"><span class="lineNum">     207</span>              : func (g *gaugeWidget) Draw(cv uicore.Canvas) {</span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         fillW := int(float64(g.rect.Dx()) * g.ratio)</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         if fillW &gt; 0 &amp;&amp; g.fill != nil {</span></span>
+<span id="L210"><span class="lineNum">     210</span>              :                 // 塗りは上下1pxだけ内へ寄せ、枠の線と角の丸みに塗りが食み出さないようにする</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 cv.DrawImageTintedRect(dst, g.fill, color.NRGBA(g.fillColor))</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         cv.StrokeRect(g.rect, 1, g.border, uicore.RectOptions{Radius: gaugeCornerRadius})</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : }</span>
+<span id="L216"><span class="lineNum">     216</span>              : </span>
+<span id="L217"><span class="lineNum">     217</span>              : // Children は uicore.Widget を満たす。子は持たない。</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC tlaBgUNC">           0 : func (g *gaugeWidget) Children() []uicore.Widget { return nil }</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              : // drawBottomRightStack は周囲気温・所持重量・所持通貨を右下、メッセージエリアの上へ下から積んで描く。</span>
+<span id="L221"><span class="lineNum">     221</span>              : // 画面端からの逆算や段の手積みをせず、下寄せの FlexColumn へ流して各行を右端に揃える。先頭の Grow</span>
+<span id="L222"><span class="lineNum">     222</span>              : // スペーサが上の余りを吸収して全体を下端へ押し、末尾スペーサがメッセージエリアの高さを確保する。</span>
+<span id="L223"><span class="lineNum">     223</span>              : // 温度は場所依存なので、屋内へ入る・火に近づく効果がその場で読める。囲われラベルは白、温度は快適帯の</span>
+<span id="L224"><span class="lineNum">     224</span>              : // 内外の色、重量は積載率で色を変える。</span>
+<span id="L225"><span class="lineNum">     225</span>              : func (info *GameInfo) drawBottomRightStack(cv uicore.Canvas, data GameInfoData) {</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">           1 :         face := info.bodyFace</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         outline := theme.HUDTextOutline</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         items := []uicore.FlexItem{{Grow: true}}</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         if data.AmbientTempVisible {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 labelText := data.WeatherName + &quot; &quot; + data.AmbientShelterLabel + &quot; &quot;</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 tempText := fmt.Sprintf(&quot;%d%s&quot;, data.AmbientTemp, consts.IconDegree)</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 labelW, h := uicore.MeasureText(labelText, face)</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 tempW, _ := uicore.MeasureText(tempText, face)</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 // 先頭0幅列が余り幅を吸収し、ラベルと温度を右端へ寄せる</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 row := uicore.Row([]int{0, labelW, tempW},</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                         uicore.NewGroup(),</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                         &amp;uicore.Text{Value: labelText, Face: face, Color: theme.TextPrimary, OutlineColor: outline},</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                         &amp;uicore.Text{Value: tempText, Face: face, Color: data.AmbientTempColor, OutlineColor: outline},</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 )</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.FlexItem{W: row, Height: h}, uicore.FlexItem{Height: theme.Space2})</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         weightText := fmt.Sprintf(&quot;%s / %s&quot;, data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         _, wh := uicore.MeasureText(weightText, face)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 uicore.FlexItem{W: &amp;uicore.Text{Value: weightText, Face: face, Color: weightColor(data), OutlineColor: outline, Align: uicore.AlignRight}, Height: wh},</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 uicore.FlexItem{Height: theme.Space2},</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         currencyText := data.Currency.String()</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         _, ch := uicore.MeasureText(currencyText, face)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         items = append(items, uicore.FlexItem{W: &amp;uicore.Text{Value: currencyText, Face: face, Color: theme.TextPrimary, OutlineColor: outline, Align: uicore.AlignRight}, Height: ch})</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L256"><span class="lineNum">     256</span>              :         // スタックの下端をメッセージログ枠の上端の1余白ぶん上へ置く</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         items = append(items, uicore.FlexItem{Height: data.MessageAreaHeight + theme.Space4})</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         inner := image.Rect(0, 0, data.ScreenDimensions.Width-theme.Space4, data.ScreenDimensions.Height)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         uicore.FlexColumn(inner, items)</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         drawFlexItems(cv, items)</span></span>
+<span id="L262"><span class="lineNum">     262</span>              : }</span>
+<span id="L263"><span class="lineNum">     263</span>              : </span>
+<span id="L264"><span class="lineNum">     264</span>              : // weightColor は所持重量の文字色を返す。積載超過は赤、8割超は黄、通常は白。</span>
+<span id="L265"><span class="lineNum">     265</span>              : func weightColor(data GameInfoData) color.RGBA {</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         if data.PlayerMaxWeight &lt;= 0 {</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 return theme.TextPrimary</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         switch ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight); {</span></span>
+<span id="L270"><span class="lineNum">     270</span>              :         case ratio &gt; 1.0:</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC tlaBgUNC">           0 :                 return theme.HUDWeightDanger</span></span>
+<span id="L272"><span class="lineNum">     272</span>              :         case ratio &gt; 0.8:</span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 return theme.HUDWeightWarning</span></span>
+<span id="L274"><span class="lineNum">     274</span>              :         default:</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC tlaBgGNC">           1 :                 return theme.TextPrimary</span></span>
+<span id="L276"><span class="lineNum">     276</span>              :         }</span>
+<span id="L277"><span class="lineNum">     277</span>              : }</span>
+<span id="L278"><span class="lineNum">     278</span>              : </span>
+<span id="L279"><span class="lineNum">     279</span>              : // drawFlexItems は FlexColumn/Row で矩形が確定済みの各行 Widget を描く。W が nil のスペーサ行は飛ばす。</span>
+<span id="L280"><span class="lineNum">     280</span>              : func drawFlexItems(cv uicore.Canvas, items []uicore.FlexItem) {</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         for _, it := range items {</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 if it.W != nil {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                         it.W.Draw(cv)</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :         }</span>
+<span id="L286"><span class="lineNum">     286</span>              : }</span>
         </pre>
               </td>
             </tr>
