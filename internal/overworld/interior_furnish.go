@@ -181,8 +181,15 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		}
 		lootDice = d
 	}
-	// 危険度は経過日数で決める。日が進むほど希少な loot が出る。
+	// 危険度は北進度(空間)と経過日数(時間)の高い方。北へ進むほど・日が進むほど希少な loot が出る。
+	// 深度は収納物の設置位置から引くので、深い北の建物ほど良い loot になる。
 	danger := query.DangerLevelAt(world)
+	if world.Components.GridElement.Has(entity) {
+		depthDanger := query.DangerForDepth(query.NorthDepthChunks(world, world.Components.GridElement.Get(entity).Y))
+		if depthDanger > danger {
+			danger = depthDanger
+		}
+	}
 	n := lootDice.Roll(rng)
 	for range n {
 		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)
