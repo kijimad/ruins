@@ -73,7 +73,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 		if e == cube || !world.Components.GridElement.Has(e) {
 			continue
 		}
-		if geometry.WithinExtent(world.Components.GridElement.Get(e).Coord, base, r) {
+		if geometry.WithinRect(world.Components.GridElement.Get(e).Coord, base, r) {
 			return false
 		}
 	}
@@ -106,7 +106,7 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 		if !world.Components.Item.Has(e) && !world.Components.Prop.Has(e) {
 			continue
 		}
-		if geometry.WithinExtent(world.Components.GridElement.Get(e).Coord, base, r) {
+		if geometry.WithinRect(world.Components.GridElement.Get(e).Coord, base, r) {
 			targets = append(targets, e)
 		}
 	}

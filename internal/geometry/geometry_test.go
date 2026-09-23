@@ -89,7 +89,7 @@ func TestAbs(t *testing.T) {
 	assert.Equal(t, 0, Abs(0))
 }
 
-func TestWithinExtent(t *testing.T) {
+func TestWithinRect(t *testing.T) {
 	t.Parallel()
 
 	center := consts.Coord[consts.Tile]{X: 10, Y: 10}
@@ -112,7 +112,7 @@ func TestWithinExtent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, WithinExtent(tt.coord, center, ext))
+			assert.Equal(t, tt.want, WithinRect(tt.coord, center, ext))
 		})
 	}
 }

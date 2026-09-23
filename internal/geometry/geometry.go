@@ -72,8 +72,8 @@ func ChebyshevDistance[T consts.Numeric](a, b consts.Coord[T]) int {
 	return int(dy)
 }
 
-// WithinExtent は center から見て coord が縦横別の半径 ext の矩形に入るかを返す。境界を含む。
-func WithinExtent[T consts.Numeric](coord, center, ext consts.Coord[T]) bool {
+// WithinRect は center から見て coord が縦横別の半径 ext の矩形に入るかを返す。境界を含む。
+func WithinRect[T consts.Numeric](coord, center, ext consts.Coord[T]) bool {
 	return Abs(coord.X-center.X) <= ext.X && Abs(coord.Y-center.Y) <= ext.Y
 }
 
