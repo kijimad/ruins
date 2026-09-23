@@ -7502,7 +7502,7 @@ spriteSheetName = "field"
 value = 30
 weight = "300 g"
 [[items]]
-description = "A deployment module. Installed on a cube, it widens the camp all around. The new size takes effect the next time you deploy."
+description = "A deployment module. Installed on a cube, it widens the deployed space all around. The new size takes effect the next time you deploy."
 name = "Range Module"
 id = "cube_range_module"
 material = "METAL"
