@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -32,8 +33,8 @@ var _ es.State[w.World] = &CubeModuleMenuState{}
 
 // CubeModuleMenuProps はスロット一覧の表示 props
 type CubeModuleMenuProps struct {
-	Installed []ecs.Entity // 装着中モジュール。スロット0から順に埋まる
-	Title     string       // 見出し。展開範囲を WxH タイルで出す
+	Slots []ecs.Entity // 長さ consts.CubeModuleSlots。各スロットの装着モジュール。空きは gc.InvalidEntity
+	Title string       // 見出し。展開範囲を WxH タイルで出す
 }
 
 // NewCubeModuleMenuState はキューブのモジュールスロット一覧を開くファクトリを返す
@@ -58,12 +59,23 @@ func (st *CubeModuleMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// Fetch は世界から表示 props を構築する
+// Fetch は世界から表示 props を構築する。装着モジュールを保存スロット番号どおりに並べ、あるスロットを
+// 外しても他が繰り上がらないようにする
 func (st *CubeModuleMenuState) Fetch(world w.World) (CubeModuleMenuProps, error) {
+	slots := make([]ecs.Entity, consts.CubeModuleSlots)
+	for i := range slots {
+		slots[i] = gc.InvalidEntity
+	}
+	for _, m := range query.GetCubeModules(world, st.cube) {
+		s := world.Components.LocationInstalled.Get(m).Slot
+		if s >= 0 && s < consts.CubeModuleSlots {
+			slots[s] = m
+		}
+	}
 	r := query.CubeDeployRange(world, st.cube)
 	return CubeModuleMenuProps{
-		Installed: query.GetCubeModules(world, st.cube),
-		Title:     fmt.Sprintf("%s %dx%d", query.T(world, "Deploy range"), 2*r.X+1, 2*r.Y+1),
+		Slots: slots,
+		Title: fmt.Sprintf("%s %dx%d", query.T(world, "Deploy range"), 2*r.X+1, 2*r.Y+1),
 	}, nil
 }
 
@@ -81,9 +93,9 @@ func (st *CubeModuleMenuState) ViewUI(world w.World, props CubeModuleMenuProps, 
 		label := query.T(world, "Slot %d", i+1)
 		var icon *ebiten.Image
 		name := query.T(world, "(empty)")
-		if i < len(props.Installed) {
-			icon = menuIcon(world, props.Installed[i])
-			name = query.GetEntityName(props.Installed[i], world)
+		if props.Slots[i] != gc.InvalidEntity {
+			icon = menuIcon(world, props.Slots[i])
+			name = query.GetEntityName(props.Slots[i], world)
 		}
 		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(label), styled.TextCell(""), styled.IconCell(icon), styled.TextCell(name)}}
 	}
@@ -97,15 +109,16 @@ func (st *CubeModuleMenuState) DoAction(_ w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
-		installed := st.screen.Props().Installed
+		slots := st.screen.Props().Slots
 		idx := st.screen.Selection().ItemIndex
 		var current *ecs.Entity
-		if idx < len(installed) {
-			current = &installed[idx]
+		if idx >= 0 && idx < len(slots) && slots[idx] != gc.InvalidEntity {
+			m := slots[idx]
+			current = &m
 		}
 		return es.Transition[w.World]{
 			Type:          es.TransPush,
-			NewStateFuncs: []es.StateFactory[w.World]{newCubeModuleSelectState(st.cube, current)},
+			NewStateFuncs: []es.StateFactory[w.World]{newCubeModuleSelectState(st.cube, idx, current)},
 		}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("cubeModuleMenu: unsupported action: %s", action)
@@ -117,6 +130,7 @@ func (st *CubeModuleMenuState) DoAction(_ w.World, action inputmapper.ActionID) 
 type CubeModuleSelectState struct {
 	es.BaseState[w.World]
 	cube      ecs.Entity
+	slot      int         // 編集対象のスロット番号
 	installed *ecs.Entity // このスロットの装着中モジュール。空きなら nil
 	detail    overlay.Detail
 	screen    *menuloop.Screen[CubeModuleSelectProps]
@@ -132,9 +146,9 @@ type CubeModuleSelectProps struct {
 }
 
 // newCubeModuleSelectState はスロットに対するモジュール選択を開くファクトリを返す
-func newCubeModuleSelectState(cube ecs.Entity, installed *ecs.Entity) es.StateFactory[w.World] {
+func newCubeModuleSelectState(cube ecs.Entity, slot int, installed *ecs.Entity) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
-		return &CubeModuleSelectState{cube: cube, installed: installed}, nil
+		return &CubeModuleSelectState{cube: cube, slot: slot, installed: installed}, nil
 	}
 }
 
@@ -200,7 +214,7 @@ func (st *CubeModuleSelectState) DoAction(world w.World, action inputmapper.Acti
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		if choice, ok := st.selection(); ok {
-			if err := applyCubeModuleChoice(world, st.cube, choice, st.installed); err != nil {
+			if err := applyCubeModuleChoice(world, st.cube, st.slot, choice, st.installed); err != nil {
 				return es.Transition[w.World]{}, err
 			}
 		}
@@ -260,11 +274,10 @@ func cubeModuleChoiceCount(props CubeModuleSelectProps) int {
 	return len(props.Candidates)
 }
 
-// applyCubeModuleChoice は選択を実行する。「外す」なら装着中を収納へ戻し、候補なら装着する。
-// スロットに装着中があれば先に収納へ戻してから付け替える。
-// モジュールは一律・交換可能なのでスロット番号は持たず、装着中は暗黙にスロット0から順に並ぶ。ゆえに
-// 付け替えは装着中を1つ収納へ戻して新しいのを足すだけでよく、スロット位置の追跡は要らない。
-func applyCubeModuleChoice(world w.World, cube ecs.Entity, choice cubeModuleChoice, installed *ecs.Entity) error {
+// applyCubeModuleChoice は選択を指定スロットへ実行する。「外す」なら装着中を収納へ戻し、候補なら装着する。
+// スロットに装着中があれば先に収納へ戻してから付け替える。スロット番号を保存するので、あるスロットを
+// 外しても他のスロットは繰り上がらない。
+func applyCubeModuleChoice(world w.World, cube ecs.Entity, slot int, choice cubeModuleChoice, installed *ecs.Entity) error {
 	if choice.remove {
 		if installed == nil {
 			return nil
@@ -276,6 +289,6 @@ func applyCubeModuleChoice(world w.World, cube ecs.Entity, choice cubeModuleChoi
 			return err
 		}
 	}
-	lifecycle.MoveToInstalled(world, choice.entity, cube)
+	lifecycle.MoveToInstalled(world, choice.entity, cube, slot)
 	return nil
 }

@@ -99,8 +99,10 @@ type CubeModule struct {
 
 // LocationInstalled はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
 // Equipped・Field・Stowed と排他。Owner は装着先のキューブ。装着関係を保存し、実効 stat は導出する。
+// Slot は装着スロット番号。装備スロットと同様にスロットを固定し、あるスロットを外しても他が繰り上がらない。
 type LocationInstalled struct {
 	Owner ecs.Entity
+	Slot  int
 }
 
 // Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。

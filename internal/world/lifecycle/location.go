@@ -229,12 +229,12 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	ensureRemoved(world.Components.LocationInstalled, entity)
 }
 
-// MoveToInstalled はモジュールアイテムをキューブへ装着する。他ロケーションと排他になるよう
+// MoveToInstalled はモジュールアイテムをキューブの指定スロットへ装着する。他ロケーションと排他になるよう
 // clearLocation してから LocationInstalled を付ける。実効 stat は装着関係から読み取り時に導くので
 // ここでは stat を書かない。重量は装着でキューブに乗るので WeightDirty を付ける。
-func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity) {
+func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity, slot int) {
 	clearLocation(world, entity)
-	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube})
+	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube, Slot: slot})
 	ensureRemoved(world.Components.GridElement, entity)
 	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
