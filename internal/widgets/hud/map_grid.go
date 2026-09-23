@@ -57,32 +57,28 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 	}
 }
 
-// 現在地三角形の各頂点のセル辺への比。縦横を近づけて縦長を避ける
+// 現在地マーカーの各頂点のセル辺への比。中央から前後の針先までの距離と、中央の半幅
 const (
-	playerMarkerTip  = 0.42 // tip の前方距離
-	playerMarkerHalf = 0.30 // 底辺の半幅
-	playerMarkerBack = 0.24 // 底辺の後方距離
+	playerMarkerTip  = 0.42 // 中央から前後の針先までの距離
+	playerMarkerHalf = 0.22 // 中央(y=0)の半幅。前後の三角はこの左右2点を共有底辺にする
 )
 
-// drawPlayerMarker は現在地の三角形を描く。無回転で北(上)を指す三角形を、中央を軸に向きだけ回す。
-// tip が前方、底辺2点が後方。
+// drawPlayerMarker は現在地を上下対称の二色針で描く。中央で背中合わせの2つの三角を並べ、
+// 前方の針先を金、後方をシルバーにして向きの前後を示す。無回転で北(上)を指し、向きだけ回す。
 func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) {
 	// 中央原点のローカル頂点。y は下向きなので前方(北)は負
-	local := [3][2]float64{
-		{0, -cell * playerMarkerTip},                        // tip 前方
-		{-cell * playerMarkerHalf, cell * playerMarkerBack}, // 底辺左
-		{cell * playerMarkerHalf, cell * playerMarkerBack},  // 底辺右
-	}
+	fwd := [2]float64{0, -cell * playerMarkerTip} // 前方の針先
+	back := [2]float64{0, cell * playerMarkerTip} // 後方の針先
+	left := [2]float64{-cell * playerMarkerHalf, 0}
+	right := [2]float64{cell * playerMarkerHalf, 0}
+
 	sin, cos := math.Sin(facing.Yaw()), math.Cos(facing.Yaw())
-	var p [3][2]float32
-	for i, v := range local {
-		// 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
-		p[i] = [2]float32{
-			float32(cx + v[0]*cos - v[1]*sin),
-			float32(cy + v[0]*sin + v[1]*cos),
-		}
+	// 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
+	rot := func(v [2]float64) [2]float32 {
+		return [2]float32{float32(cx + v[0]*cos - v[1]*sin), float32(cy + v[0]*sin + v[1]*cos)}
 	}
-	cv.FillTriangle(p[0], p[1], p[2], theme.TextAccent)
+	cv.FillTriangle(rot(fwd), rot(left), rot(right), theme.OverworldMapMarkerFront) // 前方=金
+	cv.FillTriangle(rot(back), rot(left), rot(right), theme.OverworldMapMarkerBack) // 後方=シルバー
 }
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
