@@ -13,3 +13,8 @@ func TestConstants(t *testing.T) {
 	assert.Equal(t, 720, GameHeight, "GameHeightの値が正しくない")
 	assert.Equal(t, 32, int(TileSize), "TileSizeの値が正しくない")
 }
+
+func TestCubeDeployBaseRange(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, Coord[Tile]{X: 2, Y: 2}, CubeDeployBaseRange())
+}

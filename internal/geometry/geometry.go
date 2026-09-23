@@ -72,6 +72,11 @@ func ChebyshevDistance[T consts.Numeric](a, b consts.Coord[T]) int {
 	return int(dy)
 }
 
+// WithinRect は center から見て coord が縦横別の半径 ext の矩形に入るかを返す。境界を含む。
+func WithinRect[T consts.Numeric](coord, center, ext consts.Coord[T]) bool {
+	return Abs(coord.X-center.X) <= ext.X && Abs(coord.Y-center.Y) <= ext.Y
+}
+
 // Abs は絶対値を返す。int だけでなく consts.Tile/WorldPixel などの単位型でも使える
 func Abs[T consts.Numeric](x T) T {
 	if x < 0 {

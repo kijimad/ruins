@@ -44,10 +44,15 @@ const (
 	CubeWeightCapacityKg = 500
 	// FuelGaugeFullHeat は燃料ゲージが満タン表示になる熱量。実在の上限でなく表示上のタンク容量。値は暫定
 	FuelGaugeFullHeat Heat = 3000
-	// CubeDeployCampRadius は展開中の野営の広さ。キューブ中心のチェビシェフ距離で斜めも含む。
-	// アイテムの往復範囲と、エリアを囲むレーザー壁の描画で共有する
-	CubeDeployCampRadius = 2
 )
+
+// ========== キューブ展開 ==========
+
+// CubeDeployBaseRange はモジュール未装着時の展開野営の縦横別の半径を返す。X が東西、Y が南北。
+// Coord は struct で const にできず var は書き換え可能なので、関数で返して不変にする。
+func CubeDeployBaseRange() Coord[Tile] {
+	return Coord[Tile]{X: 2, Y: 2}
+}
 
 // ========== ゲーム定数 ==========
 

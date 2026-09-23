@@ -3,6 +3,7 @@ package lifecycle
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -24,7 +25,7 @@ func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	return nil
 }
 
-// DeployCube はキューブを展開する。野営 CubeDeployCampRadius 内が開いていれば Deployed を付けて
+// DeployCube はキューブを展開する。野営が開いていれば Deployed を付けて
 // 貨物を相対位置へ出し直し true、1タイルでも塞がれていれば状態を変えず false を返す。
 func DeployCube(world w.World, cube ecs.Entity) bool {
 	if world.Components.Deployed.Has(cube) {
@@ -38,7 +39,7 @@ func DeployCube(world w.World, cube ecs.Entity) bool {
 	return true
 }
 
-// deploySpaceFree は野営 CubeDeployCampRadius 内が展開に使えるかを返す。壁・敵・アイテム・prop が
+// deploySpaceFree は野営内が展開に使えるかを返す。壁・敵・アイテム・prop が
 // 1つでもあれば偽。判定範囲を畳み込み範囲と同じにするので、展開できたら野営は空だと保証される。
 func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
@@ -49,12 +50,14 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	// InvalidEntity になるが実キャラと一致しないので、誰も除外しないだけで安全側に倒れる。
 	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
-	for dy := -consts.CubeDeployCampRadius; dy <= consts.CubeDeployCampRadius; dy++ {
-		for dx := -consts.CubeDeployCampRadius; dx <= consts.CubeDeployCampRadius; dx++ {
+	r := consts.CubeDeployBaseRange()
+	for dy := -r.Y; dy <= r.Y; dy++ {
+		for dx := -r.X; dx <= r.X; dx++ {
+			// キューブ自身のタイルは障害物として見ない
 			if dx == 0 && dy == 0 {
 				continue
 			}
-			t := base.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
+			t := base.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})
 			if si.IsBlockPass(t) {
 				return false
 			}
@@ -71,7 +74,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 		if e == cube || !world.Components.GridElement.Has(e) {
 			continue
 		}
-		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= consts.CubeDeployCampRadius {
+		if geometry.WithinRect(world.Components.GridElement.Get(e).Coord, base, r) {
 			return false
 		}
 	}
@@ -87,10 +90,11 @@ func StowCube(world w.World, cube ecs.Entity) {
 	world.Components.Deployed.Remove(cube)
 }
 
-// stowNearbyItems は野営 CubeDeployCampRadius 内のアイテムと prop を LocationStowed へ畳み込み、燃料と
+// stowNearbyItems は野営内のアイテムと prop を LocationStowed へ畳み込み、燃料と
 // 区別しつつ相対位置を覚えて展開で戻せるようにする。展開時に野営は空なので、畳むのはプレイヤーが置いた物だけ。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	base := world.Components.GridElement.Get(cube).Coord
+	r := consts.CubeDeployBaseRange()
 
 	var targets []ecs.Entity
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
@@ -103,7 +107,7 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 		if !world.Components.Item.Has(e) && !world.Components.Prop.Has(e) {
 			continue
 		}
-		if chebyshev(world.Components.GridElement.Get(e).Coord, base) <= consts.CubeDeployCampRadius {
+		if geometry.WithinRect(world.Components.GridElement.Get(e).Coord, base, r) {
 			targets = append(targets, e)
 		}
 	}
@@ -124,20 +128,4 @@ func releaseStowedItems(world w.World, cube ecs.Entity) {
 		coord := base.Add(world.Components.LocationStowed.Get(item).Offset)
 		MoveMembersToField(world, single, coord, cube)
 	}
-}
-
-// chebyshev は2タイル間のチェビシェフ距離を返す。斜めも距離1に含める。
-func chebyshev(a, b consts.Coord[consts.Tile]) int {
-	dx := int(a.X - b.X)
-	if dx < 0 {
-		dx = -dx
-	}
-	dy := int(a.Y - b.Y)
-	if dy < 0 {
-		dy = -dy
-	}
-	if dx > dy {
-		return dx
-	}
-	return dy
 }
