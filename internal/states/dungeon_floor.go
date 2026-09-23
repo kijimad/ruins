@@ -112,6 +112,10 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		if err := spawnDebugStageFire(world); err != nil {
 			return zero, noEntity, err
 		}
+		// キューブの範囲モジュールをスポーン地点へ落としておく。装着 UI を入ってすぐ試せる。工作台での作成は将来
+		if err := spawnDebugStageModules(world, start); err != nil {
+			return zero, noEntity, err
+		}
 	}
 
 	// 生成物(上り階段を含む)をこのステージへ束縛して識別できるようにする
@@ -147,6 +151,18 @@ func spawnDebugStageFire(world w.World) error {
 		return fmt.Errorf("failed to spawn debug stage fire: %w", err)
 	}
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugStageFireBurnTurns})
+	return nil
+}
+
+// debugStageModuleCount はデバッグ街に落としておく範囲モジュールの数。スロット上限まで試せる数にする
+const debugStageModuleCount = 4
+
+// spawnDebugStageModules はデバッグ街のスポーン地点へキューブの範囲モジュールを落としておく。
+// 装着 UI を入ってすぐ試せるようにする。アイテムは通行を塞がないのでスポーンタイルへ重ねてよい。
+func spawnDebugStageModules(world w.World, start consts.Coord[consts.Tile]) error {
+	if _, err := lifecycle.SpawnFieldItem(world, "cube_range_module", start.X, start.Y, debugStageModuleCount); err != nil {
+		return fmt.Errorf("failed to spawn debug stage modules: %w", err)
+	}
 	return nil
 }
 

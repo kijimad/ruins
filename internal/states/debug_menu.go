@@ -258,7 +258,6 @@ func spawnStorageWithItems(world w.World) error {
 		{"healing_potion", 3},
 		{"grenade", 1},
 		{"torch", 1},
-		{"cube_range_module", 4},
 	}
 	for _, item := range items {
 		if _, err := lifecycle.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {
