@@ -66,7 +66,7 @@ func (st *CubeModuleMenuState) Fetch(world w.World) (CubeModuleMenuProps, error)
 	}
 	for _, m := range query.GetCubeModules(world, st.cube) {
 		s := world.Components.LocationInstalled.Get(m).Slot
-		// 範囲外は握りつぶさず error で返す。モジュールが表示から消えて宙に浮くより早期に検知したい
+		// 範囲外は握りつぶさず error で返して早期に検知する
 		if s < 0 || s >= consts.CubeModuleSlots {
 			return CubeModuleMenuProps{}, fmt.Errorf("cube module: slot %d out of range [0,%d)", s, consts.CubeModuleSlots)
 		}
@@ -172,7 +172,7 @@ func (st *CubeModuleSelectState) KeyBindings() []keybind.Binding {
 }
 
 // Fetch は世界から表示 props を構築する。候補はキューブ収納とプレイヤーのバックパックから集める。
-// この画面はプレイヤーがキューブに居る前提で開くので、プレイヤー不在は握りつぶさず error で返して早期に検知する。
+// プレイヤー不在は握りつぶさず error で返して早期に検知する。
 func (st *CubeModuleSelectState) Fetch(world w.World) (CubeModuleSelectProps, error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {

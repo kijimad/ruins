@@ -42,6 +42,20 @@ func TestCubeModuleChoiceAt_空きは候補だけ(t *testing.T) {
 	assert.False(t, got.remove, "空きスロットは先頭から候補")
 }
 
+func TestCubeModuleMenuFetch_スロット範囲外はエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
+	world.Components.LocationInstalled.Add(m, &gc.LocationInstalled{Owner: cube, Slot: 99})
+
+	st := &CubeModuleMenuState{cube: cube}
+	_, err := st.Fetch(world)
+	require.Error(t, err, "範囲外スロットは握りつぶさず error で返す")
+}
+
 func TestApplyCubeModuleChoice_収納から装着する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

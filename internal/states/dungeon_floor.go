@@ -158,8 +158,7 @@ func spawnDebugStageFire(world w.World) error {
 const debugStageModuleCount = 4
 
 // spawnDebugStageModules はテンプレートが置いた木箱の中へキューブの範囲モジュールを入れておく。
-// 装着 UI を入ってすぐ試せるようにする。木箱はデバッグ街テンプレートが必ず置くので、見つからなければ
-// テンプレートの退行として握りつぶさず error で返す。
+// 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
 func spawnDebugStageModules(world w.World) error {
 	var crate ecs.Entity
 	found := false
