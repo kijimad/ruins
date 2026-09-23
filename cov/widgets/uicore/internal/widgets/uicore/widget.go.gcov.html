@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">97.8&nbsp;%</td>
-            <td class="headerCovTableEntry">138</td>
-            <td class="headerCovTableEntry">135</td>
+            <td class="headerCovTableEntryHi">97.2&nbsp;%</td>
+            <td class="headerCovTableEntry">145</td>
+            <td class="headerCovTableEntry">141</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-22 11:05:56</td>
+            <td class="headerValue">2026-09-23 02:46:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -267,170 +267,200 @@
 <span id="L205"><span class="lineNum">     205</span>              : // Children は Group を実装する。</span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 : func (g *Group) Children() []Widget { return g.children }</span></span>
 <span id="L207"><span class="lineNum">     207</span>              : </span>
-<span id="L208"><span class="lineNum">     208</span>              : // Dir はコンテナの主軸方向。</span>
-<span id="L209"><span class="lineNum">     209</span>              : type Dir int</span>
-<span id="L210"><span class="lineNum">     210</span>              : </span>
-<span id="L211"><span class="lineNum">     211</span>              : const (</span>
-<span id="L212"><span class="lineNum">     212</span>              :         // Vertical は子を縦に積む。</span>
-<span id="L213"><span class="lineNum">     213</span>              :         Vertical Dir = iota</span>
-<span id="L214"><span class="lineNum">     214</span>              :         // Horizontal は子を横に並べる。</span>
-<span id="L215"><span class="lineNum">     215</span>              :         Horizontal</span>
-<span id="L216"><span class="lineNum">     216</span>              : )</span>
-<span id="L217"><span class="lineNum">     217</span>              : </span>
-<span id="L218"><span class="lineNum">     218</span>              : // Container は子を主軸方向に並べる入れ物。背景の塗りと枠、テクスチャ背景、内側余白を持てる。</span>
-<span id="L219"><span class="lineNum">     219</span>              : type Container struct {</span>
-<span id="L220"><span class="lineNum">     220</span>              :         base</span>
-<span id="L221"><span class="lineNum">     221</span>              :         dir      Dir</span>
-<span id="L222"><span class="lineNum">     222</span>              :         sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅</span>
-<span id="L223"><span class="lineNum">     223</span>              :         style    BoxStyle</span>
-<span id="L224"><span class="lineNum">     224</span>              :         bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。パネルや選択行に使う</span>
-<span id="L225"><span class="lineNum">     225</span>              :         bgBX     [3]int</span>
-<span id="L226"><span class="lineNum">     226</span>              :         bgBY     [3]int</span>
-<span id="L227"><span class="lineNum">     227</span>              :         lineImg  *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす</span>
-<span id="L228"><span class="lineNum">     228</span>              :         lineTint color.Color   // 区切り線の色。テクスチャに掛ける</span>
-<span id="L229"><span class="lineNum">     229</span>              :         pad      int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く</span>
-<span id="L230"><span class="lineNum">     230</span>              :         children []Widget</span>
-<span id="L231"><span class="lineNum">     231</span>              : }</span>
-<span id="L232"><span class="lineNum">     232</span>              : </span>
-<span id="L233"><span class="lineNum">     233</span>              : // SetPadding は内側余白を設定する。子を余白ぶん内側へ寄せる。</span>
-<span id="L234"><span class="lineNum">     234</span>              : func (c *Container) SetPadding(pad int) *Container {</span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         c.pad = pad</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         return c</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L238"><span class="lineNum">     238</span>              : </span>
-<span id="L239"><span class="lineNum">     239</span>              : // SetStyle は背景の塗りと枠を設定する。選択行の強調などに使う。</span>
-<span id="L240"><span class="lineNum">     240</span>              : func (c *Container) SetStyle(s BoxStyle) *Container {</span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         c.style = s</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         return c</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L244"><span class="lineNum">     244</span>              : </span>
-<span id="L245"><span class="lineNum">     245</span>              : // SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。パネルや選択行の意匠に使う。</span>
-<span id="L246"><span class="lineNum">     246</span>              : func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Container {</span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         c.bgImage = img</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         c.bgBX = bx</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         c.bgBY = by</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         return c</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L252"><span class="lineNum">     252</span>              : </span>
-<span id="L253"><span class="lineNum">     253</span>              : // SetBottomLine は下端に区切り線のテクスチャを敷く。横グラデを行幅へ伸ばし tint で着色する。</span>
-<span id="L254"><span class="lineNum">     254</span>              : // 一覧行の下線に使う。</span>
-<span id="L255"><span class="lineNum">     255</span>              : func (c *Container) SetBottomLine(img *ebiten.Image, tint color.Color) *Container {</span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         c.lineImg = img</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         c.lineTint = tint</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         return c</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L260"><span class="lineNum">     260</span>              : </span>
-<span id="L261"><span class="lineNum">     261</span>              : // Layout は Container を実装する。余白を除いた内側に、furex の flexbox で子を並べる。</span>
-<span id="L262"><span class="lineNum">     262</span>              : // 縦は sizes の固定高で積む。横は sizes の固定幅で並べ、0 幅の列すべて、1つも無ければ末尾の列が</span>
-<span id="L263"><span class="lineNum">     263</span>              : // flex-grow で余り幅を吸収して内側を埋める。名前列を伸ばし右の数値列を右端へ寄せる用途。</span>
-<span id="L264"><span class="lineNum">     264</span>              : // 交差軸は既定の AlignItemStretch で内側いっぱいに広がる。座標計算は furex に委譲し、</span>
-<span id="L265"><span class="lineNum">     265</span>              : // 自前の数式を持たない。</span>
-<span id="L266"><span class="lineNum">     266</span>              : func (c *Container) Layout(b image.Rectangle) {</span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         c.rect = b</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         if len(c.children) == 0 {</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         inner := image.Rect(b.Min.X+c.pad, b.Min.Y+c.pad, b.Max.X-c.pad, b.Max.Y-c.pad)</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         dir := furex.Column</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         fallbackIdx := -1</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         if c.dir == Horizontal {</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 dir = furex.Row</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 hasZero := slices.Contains(c.sizes, 0)</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 if !hasZero {</span></span>
-<span id="L279"><span class="lineNum">     279</span>              :                         // 0 幅の列が無ければ末尾の列が余り幅を吸収する。sizes と children の長さは</span>
-<span id="L280"><span class="lineNum">     280</span>              :                         // Row・VBox の構築で一致する。万一 sizes が短くても範囲外の子を伸ばして</span>
-<span id="L281"><span class="lineNum">     281</span>              :                         // 余り幅が消えないよう、幅を持つ末尾の子に上界を切る</span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         fallbackIdx = min(len(c.children), len(c.sizes)) - 1</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L284"><span class="lineNum">     284</span>              :         }</span>
+<span id="L208"><span class="lineNum">     208</span>              : // Box は BoxStyle の単色ボックスを1つ描く葉ウィジェット。Group の層として単体で敷く</span>
+<span id="L209"><span class="lineNum">     209</span>              : // パネル背景に使う。子を持たず自分の矩形だけを塗る点が Container の背景と違う。</span>
+<span id="L210"><span class="lineNum">     210</span>              : type Box struct {</span>
+<span id="L211"><span class="lineNum">     211</span>              :         base</span>
+<span id="L212"><span class="lineNum">     212</span>              :         Style BoxStyle</span>
+<span id="L213"><span class="lineNum">     213</span>              : }</span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span>              : // NewBox は単色ボックスの葉を作る。border が nil なら枠を描かない。枠幅は1。</span>
+<span id="L216"><span class="lineNum">     216</span>              : func NewBox(fill, border color.Color, radius int) *Box {</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         return &amp;Box{Style: BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}}</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              : // Layout は Box を実装する。</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 : func (r *Box) Layout(b image.Rectangle) { r.rect = b }</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : </span>
+<span id="L223"><span class="lineNum">     223</span>              : // Draw は Box を実装する。</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 : func (r *Box) Draw(cv Canvas) { drawBox(cv, r.rect, r.Style) }</span></span>
+<span id="L225"><span class="lineNum">     225</span>              : </span>
+<span id="L226"><span class="lineNum">     226</span>              : // drawBox は単色ボックスを敷く。Fill があれば塗り、Border があり幅が正なら枠を描く。Radius が正</span>
+<span id="L227"><span class="lineNum">     227</span>              : // なら四隅を丸める。Box 葉と Container 背景の共通描画で、単色ボックスの描き方を1箇所にする。</span>
+<span id="L228"><span class="lineNum">     228</span>              : func drawBox(cv Canvas, rect image.Rectangle, s BoxStyle) {</span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         if s.Fill != nil {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 cv.FillRect(rect, s.Fill, RectOptions{Radius: s.Radius})</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if s.Border != nil &amp;&amp; s.BorderWidth &gt; 0 {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 cv.StrokeRect(rect, s.BorderWidth, s.Border, RectOptions{Radius: s.Radius})</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : }</span>
+<span id="L236"><span class="lineNum">     236</span>              : </span>
+<span id="L237"><span class="lineNum">     237</span>              : // Children は Box を実装する。子は持たない。</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC tlaBgUNC">           0 : func (r *Box) Children() []Widget { return nil }</span></span>
+<span id="L239"><span class="lineNum">     239</span>              : </span>
+<span id="L240"><span class="lineNum">     240</span>              : // Dir はコンテナの主軸方向。</span>
+<span id="L241"><span class="lineNum">     241</span>              : type Dir int</span>
+<span id="L242"><span class="lineNum">     242</span>              : </span>
+<span id="L243"><span class="lineNum">     243</span>              : const (</span>
+<span id="L244"><span class="lineNum">     244</span>              :         // Vertical は子を縦に積む。</span>
+<span id="L245"><span class="lineNum">     245</span>              :         Vertical Dir = iota</span>
+<span id="L246"><span class="lineNum">     246</span>              :         // Horizontal は子を横に並べる。</span>
+<span id="L247"><span class="lineNum">     247</span>              :         Horizontal</span>
+<span id="L248"><span class="lineNum">     248</span>              : )</span>
+<span id="L249"><span class="lineNum">     249</span>              : </span>
+<span id="L250"><span class="lineNum">     250</span>              : // Container は子を主軸方向に並べる入れ物。背景の塗りと枠、テクスチャ背景、内側余白を持てる。</span>
+<span id="L251"><span class="lineNum">     251</span>              : type Container struct {</span>
+<span id="L252"><span class="lineNum">     252</span>              :         base</span>
+<span id="L253"><span class="lineNum">     253</span>              :         dir      Dir</span>
+<span id="L254"><span class="lineNum">     254</span>              :         sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅</span>
+<span id="L255"><span class="lineNum">     255</span>              :         style    BoxStyle</span>
+<span id="L256"><span class="lineNum">     256</span>              :         bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。選択行など横帯の意匠に使う</span>
+<span id="L257"><span class="lineNum">     257</span>              :         bgBX     [3]int</span>
+<span id="L258"><span class="lineNum">     258</span>              :         bgBY     [3]int</span>
+<span id="L259"><span class="lineNum">     259</span>              :         lineImg  *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす</span>
+<span id="L260"><span class="lineNum">     260</span>              :         lineTint color.Color   // 区切り線の色。テクスチャに掛ける</span>
+<span id="L261"><span class="lineNum">     261</span>              :         pad      int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く</span>
+<span id="L262"><span class="lineNum">     262</span>              :         children []Widget</span>
+<span id="L263"><span class="lineNum">     263</span>              : }</span>
+<span id="L264"><span class="lineNum">     264</span>              : </span>
+<span id="L265"><span class="lineNum">     265</span>              : // SetPadding は内側余白を設定する。子を余白ぶん内側へ寄せる。</span>
+<span id="L266"><span class="lineNum">     266</span>              : func (c *Container) SetPadding(pad int) *Container {</span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC tlaBgGNC">           1 :         c.pad = pad</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         return c</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L270"><span class="lineNum">     270</span>              : </span>
+<span id="L271"><span class="lineNum">     271</span>              : // SetStyle は単色ボックスの背景 style を設定する。BoxStyle.Radius でパネルの角丸背景にもできる。</span>
+<span id="L272"><span class="lineNum">     272</span>              : // style が塗りか枠を持てば NineSlice 背景より優先される。</span>
+<span id="L273"><span class="lineNum">     273</span>              : func (c *Container) SetStyle(s BoxStyle) *Container {</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         c.style = s</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         return c</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L277"><span class="lineNum">     277</span>              : </span>
+<span id="L278"><span class="lineNum">     278</span>              : // SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。選択行など横帯の意匠に使う。</span>
+<span id="L279"><span class="lineNum">     279</span>              : func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Container {</span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         c.bgImage = img</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         c.bgBX = bx</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         c.bgBY = by</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         return c</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L285"><span class="lineNum">     285</span>              : </span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         root := &amp;furex.View{</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                 Left:      inner.Min.X,</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 Top:       inner.Min.Y,</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 Width:     inner.Dx(),</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 Height:    inner.Dy(),</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 Direction: dir,</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         for i, ch := range c.children {</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 size := 0</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 if i &lt; len(c.sizes) {</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                         size = c.sizes[i]</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                 child := &amp;furex.View{Handler: frameTo{w: ch}}</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                 if c.dir == Vertical {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         child.Height = size</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                 } else {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                         child.Width = size</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         // 0 幅の列はすべて余り幅を等分して伸びる。複数あれば均等割になる</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                         if (size == 0 &amp;&amp; i &lt; len(c.sizes)) || i == fallbackIdx {</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                                 child.Grow = 1</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L307"><span class="lineNum">     307</span>              :                 }</span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 root.AddChild(child)</span></span>
-<span id="L309"><span class="lineNum">     309</span>              :         }</span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         root.Layout()</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         root.Draw(layoutProbe())</span></span>
-<span id="L312"><span class="lineNum">     312</span>              : }</span>
-<span id="L313"><span class="lineNum">     313</span>              : </span>
-<span id="L314"><span class="lineNum">     314</span>              : // Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。</span>
-<span id="L315"><span class="lineNum">     315</span>              : func (c *Container) Draw(cv Canvas) {</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         if c.bgImage != nil {</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         if c.style.Fill != nil {</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :                 cv.FillRect(c.rect, c.style.Fill)</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         if c.style.Border != nil &amp;&amp; c.style.BorderWidth &gt; 0 {</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                 cv.StrokeRect(c.rect, c.style.BorderWidth, c.style.Border)</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         for _, ch := range c.children {</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                 ch.Draw(cv)</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         if c.lineImg != nil {</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 h := c.lineImg.Bounds().Dy()</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 cv.DrawImageTintedRect(image.Rect(c.rect.Min.X, c.rect.Max.Y-h, c.rect.Max.X, c.rect.Max.Y), c.lineImg, c.lineTint)</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L332"><span class="lineNum">     332</span>              : }</span>
-<span id="L333"><span class="lineNum">     333</span>              : </span>
-<span id="L334"><span class="lineNum">     334</span>              : // Children は Container を実装する。</span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 : func (c *Container) Children() []Widget { return c.children }</span></span>
-<span id="L336"><span class="lineNum">     336</span>              : </span>
-<span id="L337"><span class="lineNum">     337</span>              : // ---- 宣言的コンストラクタ ----</span>
-<span id="L338"><span class="lineNum">     338</span>              : // ツリーを式として組む。状態が変わったら画面を組み直す。可変グローバルには触れない。</span>
-<span id="L339"><span class="lineNum">     339</span>              : </span>
-<span id="L340"><span class="lineNum">     340</span>              : // VBox は子を縦に積む。rowH は各行の高さ。</span>
-<span id="L341"><span class="lineNum">     341</span>              : func VBox(rowH int, children ...Widget) *Container {</span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         sizes := make([]int, len(children))</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         for i := range sizes {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                 sizes[i] = rowH</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :         return &amp;Container{dir: Vertical, sizes: sizes, children: children}</span></span>
-<span id="L347"><span class="lineNum">     347</span>              : }</span>
-<span id="L348"><span class="lineNum">     348</span>              : </span>
-<span id="L349"><span class="lineNum">     349</span>              : // Row は子を横に並べる。colWidths は各列の幅。</span>
-<span id="L350"><span class="lineNum">     350</span>              : func Row(colWidths []int, cells ...Widget) *Container {</span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :         return &amp;Container{dir: Horizontal, sizes: colWidths, children: cells}</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L353"><span class="lineNum">     353</span>              : </span>
-<span id="L354"><span class="lineNum">     354</span>              : // Panel は背景付きの縦積み。rowH は各行の高さ。</span>
-<span id="L355"><span class="lineNum">     355</span>              : func Panel(style BoxStyle, rowH int, children ...Widget) *Container {</span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :         c := VBox(rowH, children...)</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :         c.style = style</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         return c</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L360"><span class="lineNum">     360</span>              : </span>
-<span id="L361"><span class="lineNum">     361</span>              : // CollectLabels はツリー内の Text.Value を出現順に集める。</span>
-<span id="L362"><span class="lineNum">     362</span>              : func CollectLabels(w Widget) []string {</span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         var out []string</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         if t, ok := w.(*Text); ok {</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :                 out = append(out, t.Value)</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         for _, ch := range w.Children() {</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :                 out = append(out, CollectLabels(ch)...)</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         return out</span></span>
-<span id="L371"><span class="lineNum">     371</span>              : }</span>
+<span id="L286"><span class="lineNum">     286</span>              : // SetBottomLine は下端に区切り線のテクスチャを敷く。横グラデを行幅へ伸ばし tint で着色する。</span>
+<span id="L287"><span class="lineNum">     287</span>              : // 一覧行の下線に使う。</span>
+<span id="L288"><span class="lineNum">     288</span>              : func (c *Container) SetBottomLine(img *ebiten.Image, tint color.Color) *Container {</span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         c.lineImg = img</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         c.lineTint = tint</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         return c</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L293"><span class="lineNum">     293</span>              : </span>
+<span id="L294"><span class="lineNum">     294</span>              : // Layout は Container を実装する。余白を除いた内側に、furex の flexbox で子を並べる。</span>
+<span id="L295"><span class="lineNum">     295</span>              : // 縦は sizes の固定高で積む。横は sizes の固定幅で並べ、0 幅の列すべて、1つも無ければ末尾の列が</span>
+<span id="L296"><span class="lineNum">     296</span>              : // flex-grow で余り幅を吸収して内側を埋める。名前列を伸ばし右の数値列を右端へ寄せる用途。</span>
+<span id="L297"><span class="lineNum">     297</span>              : // 交差軸は既定の AlignItemStretch で内側いっぱいに広がる。座標計算は furex に委譲し、</span>
+<span id="L298"><span class="lineNum">     298</span>              : // 自前の数式を持たない。</span>
+<span id="L299"><span class="lineNum">     299</span>              : func (c *Container) Layout(b image.Rectangle) {</span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         c.rect = b</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         if len(c.children) == 0 {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         inner := image.Rect(b.Min.X+c.pad, b.Min.Y+c.pad, b.Max.X-c.pad, b.Max.Y-c.pad)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         dir := furex.Column</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         fallbackIdx := -1</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         if c.dir == Horizontal {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 dir = furex.Row</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 hasZero := slices.Contains(c.sizes, 0)</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 if !hasZero {</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :                         // 0 幅の列が無ければ末尾の列が余り幅を吸収する。sizes と children の長さは</span>
+<span id="L313"><span class="lineNum">     313</span>              :                         // Row・VBox の構築で一致する。万一 sizes が短くても範囲外の子を伸ばして</span>
+<span id="L314"><span class="lineNum">     314</span>              :                         // 余り幅が消えないよう、幅を持つ末尾の子に上界を切る</span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                         fallbackIdx = min(len(c.children), len(c.sizes)) - 1</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :         }</span>
+<span id="L318"><span class="lineNum">     318</span>              : </span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         root := &amp;furex.View{</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :                 Left:      inner.Min.X,</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 Top:       inner.Min.Y,</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 Width:     inner.Dx(),</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                 Height:    inner.Dy(),</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 Direction: dir,</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         for i, ch := range c.children {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 size := 0</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 if i &lt; len(c.sizes) {</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                         size = c.sizes[i]</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 child := &amp;furex.View{Handler: frameTo{w: ch}}</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 if c.dir == Vertical {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                         child.Height = size</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 } else {</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                         child.Width = size</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                         // 0 幅の列はすべて余り幅を等分して伸びる。複数あれば均等割になる</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                         if (size == 0 &amp;&amp; i &lt; len(c.sizes)) || i == fallbackIdx {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                                 child.Grow = 1</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :                 }</span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                 root.AddChild(child)</span></span>
+<span id="L342"><span class="lineNum">     342</span>              :         }</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         root.Layout()</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         root.Draw(layoutProbe())</span></span>
+<span id="L345"><span class="lineNum">     345</span>              : }</span>
+<span id="L346"><span class="lineNum">     346</span>              : </span>
+<span id="L347"><span class="lineNum">     347</span>              : // Draw は Container を実装する。背景を敷いてから子を描く。単色 style と NineSlice は排他で、</span>
+<span id="L348"><span class="lineNum">     348</span>              : // style が塗りか枠を持てばそちらを優先し、無ければ NineSlice を敷く。</span>
+<span id="L349"><span class="lineNum">     349</span>              : func (c *Container) Draw(cv Canvas) {</span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         if c.style.Fill != nil || (c.style.Border != nil &amp;&amp; c.style.BorderWidth &gt; 0) {</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                 drawBox(cv, c.rect, c.style)</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           2 :         } else if c.bgImage != nil {</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :                 cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :         for _, ch := range c.children {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :                 ch.Draw(cv)</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         if c.lineImg != nil {</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 h := c.lineImg.Bounds().Dy()</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :                 cv.DrawImageTintedRect(image.Rect(c.rect.Min.X, c.rect.Max.Y-h, c.rect.Max.X, c.rect.Max.Y), c.lineImg, c.lineTint)</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L362"><span class="lineNum">     362</span>              : }</span>
+<span id="L363"><span class="lineNum">     363</span>              : </span>
+<span id="L364"><span class="lineNum">     364</span>              : // Children は Container を実装する。</span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 : func (c *Container) Children() []Widget { return c.children }</span></span>
+<span id="L366"><span class="lineNum">     366</span>              : </span>
+<span id="L367"><span class="lineNum">     367</span>              : // ---- 宣言的コンストラクタ ----</span>
+<span id="L368"><span class="lineNum">     368</span>              : // ツリーを式として組む。状態が変わったら画面を組み直す。可変グローバルには触れない。</span>
+<span id="L369"><span class="lineNum">     369</span>              : </span>
+<span id="L370"><span class="lineNum">     370</span>              : // VBox は子を縦に積む。rowH は各行の高さ。</span>
+<span id="L371"><span class="lineNum">     371</span>              : func VBox(rowH int, children ...Widget) *Container {</span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         sizes := make([]int, len(children))</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :         for i := range sizes {</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                 sizes[i] = rowH</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         return &amp;Container{dir: Vertical, sizes: sizes, children: children}</span></span>
+<span id="L377"><span class="lineNum">     377</span>              : }</span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span>              : // Row は子を横に並べる。colWidths は各列の幅。</span>
+<span id="L380"><span class="lineNum">     380</span>              : func Row(colWidths []int, cells ...Widget) *Container {</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         return &amp;Container{dir: Horizontal, sizes: colWidths, children: cells}</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L383"><span class="lineNum">     383</span>              : </span>
+<span id="L384"><span class="lineNum">     384</span>              : // Panel は背景付きの縦積み。rowH は各行の高さ。</span>
+<span id="L385"><span class="lineNum">     385</span>              : func Panel(style BoxStyle, rowH int, children ...Widget) *Container {</span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         c := VBox(rowH, children...)</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         c.style = style</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         return c</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L390"><span class="lineNum">     390</span>              : </span>
+<span id="L391"><span class="lineNum">     391</span>              : // CollectLabels はツリー内の Text.Value を出現順に集める。</span>
+<span id="L392"><span class="lineNum">     392</span>              : func CollectLabels(w Widget) []string {</span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :         var out []string</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :         if t, ok := w.(*Text); ok {</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                 out = append(out, t.Value)</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         for _, ch := range w.Children() {</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 out = append(out, CollectLabels(ch)...)</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L401"><span class="lineNum">     401</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-22 11:05:56</td>
+            <td class="headerValue">2026-09-23 02:46:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,29 +65,19 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;image&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // Chrome は世界の上に重ねるパネルの意匠。メニューと同じテクスチャを使い、</span>
-<span id="L11"><span class="lineNum">      11</span>              : // 画面をまたいで枠の見た目を1つにする。図形の手組みで別の描き方が増えるのを防ぎ、</span>
-<span id="L12"><span class="lineNum">      12</span>              : // 意匠の差し替えも1箇所で済ませる。</span>
-<span id="L13"><span class="lineNum">      13</span>              : type Chrome struct {</span>
-<span id="L14"><span class="lineNum">      14</span>              :         panel *resources.NineSliceTex</span>
-<span id="L15"><span class="lineNum">      15</span>              : }</span>
-<span id="L16"><span class="lineNum">      16</span>              : </span>
-<span id="L17"><span class="lineNum">      17</span>              : // NewChrome はパネルのテクスチャを与えて意匠を作る。</span>
-<span id="L18"><span class="lineNum">      18</span>              : func NewChrome(res resources.UIResources) Chrome {</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         return Chrome{panel: res.PanelBG}</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // Panel は矩形へパネルの枠と背景を敷く。</span>
-<span id="L23"><span class="lineNum">      23</span>              : func (c Chrome) Panel(cv uicore.Canvas, r image.Rectangle) {</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if c.panel == nil {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         cv.DrawNineSlice(r, c.panel.Image, c.panel.BX, c.panel.BY)</span></span>
-<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L10"><span class="lineNum">      10</span>              : // Chrome は世界の上に重ねるパネルの意匠。塗りと枠で描き、画面をまたいで見た目を1つにする。</span>
+<span id="L11"><span class="lineNum">      11</span>              : // 意匠の差し替えも1箇所で済ませる。状態は持たないので Chrome{} で作る。</span>
+<span id="L12"><span class="lineNum">      12</span>              : type Chrome struct{}</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              : // Panel は矩形へパネルの背景と枠を敷く。</span>
+<span id="L15"><span class="lineNum">      15</span>              : func (c Chrome) Panel(cv uicore.Canvas, r image.Rectangle) {</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 :         cv.FillRect(r, theme.PanelBackground, uicore.RectOptions{Radius: theme.CornerRadius})</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         cv.StrokeRect(r, 1, theme.PanelHighlight, uicore.RectOptions{Radius: theme.CornerRadius})</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

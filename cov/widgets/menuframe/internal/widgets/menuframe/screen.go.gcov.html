@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-22 11:05:56</td>
+            <td class="headerValue">2026-09-23 02:46:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,9 +83,9 @@
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま</span>
 <span id="L23"><span class="lineNum">      23</span>              : // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。</span>
-<span id="L24"><span class="lineNum">      24</span>              : func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {</span>
+<span id="L24"><span class="lineNum">      24</span>              : func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         inner := PanelInner(rect)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         bg.Layout(rect)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         gfx := uicore.NewGraphic(img)</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         gfx.Layout(inner)</span></span>
@@ -98,9 +98,9 @@
 <span id="L36"><span class="lineNum">      36</span>              : // 役割が同じ行はどの画面でも同じ高さにして、画面をまたいだ見た目のずれを防ぐ</span>
 <span id="L37"><span class="lineNum">      37</span>              : const noteRowH = 16</span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              : // panelBackground はパネル背景のテクスチャを敷く。</span>
-<span id="L40"><span class="lineNum">      40</span>              : func panelBackground(c *uicore.Container, res resources.UIResources) *uicore.Container {</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : // panelBackground はパネルの背景を敷く。</span>
+<span id="L40"><span class="lineNum">      40</span>              : func panelBackground(c *uicore.Container, _ resources.UIResources) *uicore.Container {</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         return c.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。</span>
@@ -237,9 +237,9 @@
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         return groupWithPanelBG(rect, res, items)</span></span>
 <span id="L176"><span class="lineNum">     176</span>              : }</span>
 <span id="L177"><span class="lineNum">     177</span>              : </span>
-<span id="L178"><span class="lineNum">     178</span>              : // groupWithPanelBG はパネルテクスチャの背景と、配置済みの flex 行を1つの Group に束ねる。</span>
-<span id="L179"><span class="lineNum">     179</span>              : func groupWithPanelBG(rect image.Rectangle, res resources.UIResources, items []uicore.FlexItem) uicore.Widget {</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : // groupWithPanelBG はパネルの背景と、配置済みの flex 行を1つの Group に束ねる。</span>
+<span id="L179"><span class="lineNum">     179</span>              : func groupWithPanelBG(rect image.Rectangle, _ resources.UIResources, items []uicore.FlexItem) uicore.Widget {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         bg.Layout(rect)</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         children := make([]uicore.Widget, 0, len(items)+1)</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         children = append(children, bg)</span></span>

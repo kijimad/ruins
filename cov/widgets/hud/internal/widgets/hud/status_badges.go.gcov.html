@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">98.2&nbsp;%</td>
-            <td class="headerCovTableEntry">55</td>
-            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntryHi">98.1&nbsp;%</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntry">51</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-22 11:05:56</td>
+            <td class="headerValue">2026-09-23 02:46:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -176,12 +176,9 @@
 <span id="L114"><span class="lineNum">     114</span>              : // badgeChrome はバッジの箱を描く。塗りの色は状態を表すデータなので、意匠のテクスチャでなく</span>
 <span id="L115"><span class="lineNum">     115</span>              : // 塗りと枠で表す。枠の色はパネルと同じにして、HUD の他の箱と質感を揃える</span>
 <span id="L116"><span class="lineNum">     116</span>              : func badgeChrome(cv uicore.Canvas, r image.Rectangle, fill color.RGBA) {</span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           1 :         cv.StrokeRect(r, 1, theme.PanelHighlight)</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         inner := image.Rect(r.Min.X+1, r.Min.Y+1, r.Max.X-1, r.Max.Y-1)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         cv.FillRect(inner, fill)</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         cv.FillRect(image.Rect(inner.Min.X, inner.Min.Y, inner.Max.X, inner.Min.Y+1), theme.PanelHighlight)</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         cv.FillRect(image.Rect(inner.Min.X, inner.Max.Y-1, inner.Max.X, inner.Max.Y), theme.PanelShadow)</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           1 :         cv.FillRect(r, fill, uicore.RectOptions{Radius: theme.CornerRadius})</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         cv.StrokeRect(r, 1, theme.PanelHighlight, uicore.RectOptions{Radius: theme.CornerRadius})</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

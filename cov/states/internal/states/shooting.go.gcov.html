@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-22 11:05:56</td>
+            <td class="headerValue">2026-09-23 02:46:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -295,7 +295,7 @@
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC tlaBgGNC">           1 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         const panelHeight = 250</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.Chrome{}, face, screen.Bounds().Dx(), panelHeight)</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         drawText := panel.Line</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         drawText(query.T(world, &quot;== Shooting Mode ==&quot;))</span></span>

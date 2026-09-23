@@ -669,7 +669,7 @@
 				
 				<option value="file306">github.com/kijimaD/ruins/internal/widgets/hud/debug_overlay.go (0.0%)</option>
 				
-				<option value="file307">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (95.7%)</option>
+				<option value="file307">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (95.6%)</option>
 				
 				<option value="file308">github.com/kijimaD/ruins/internal/widgets/hud/infopanel.go (100.0%)</option>
 				
@@ -679,7 +679,7 @@
 				
 				<option value="file311">github.com/kijimaD/ruins/internal/widgets/hud/message_area.go (2.6%)</option>
 				
-				<option value="file312">github.com/kijimaD/ruins/internal/widgets/hud/status_badges.go (97.8%)</option>
+				<option value="file312">github.com/kijimaD/ruins/internal/widgets/hud/status_badges.go (97.7%)</option>
 				
 				<option value="file313">github.com/kijimaD/ruins/internal/widgets/hud/text_helper.go (100.0%)</option>
 				
@@ -731,15 +731,15 @@
 				
 				<option value="file337">github.com/kijimaD/ruins/internal/widgets/theme/colors.go (100.0%)</option>
 				
-				<option value="file338">github.com/kijimaD/ruins/internal/widgets/uicore/ebiten.go (99.2%)</option>
+				<option value="file338">github.com/kijimaD/ruins/internal/widgets/uicore/ebiten.go (87.6%)</option>
 				
 				<option value="file339">github.com/kijimaD/ruins/internal/widgets/uicore/flex.go (100.0%)</option>
 				
-				<option value="file340">github.com/kijimaD/ruins/internal/widgets/uicore/measure.go (100.0%)</option>
+				<option value="file340">github.com/kijimaD/ruins/internal/widgets/uicore/measure.go (95.2%)</option>
 				
 				<option value="file341">github.com/kijimaD/ruins/internal/widgets/uicore/text.go (96.4%)</option>
 				
-				<option value="file342">github.com/kijimaD/ruins/internal/widgets/uicore/widget.go (98.2%)</option>
+				<option value="file342">github.com/kijimaD/ruins/internal/widgets/uicore/widget.go (97.4%)</option>
 				
 				<option value="file343">github.com/kijimaD/ruins/internal/world/gameaction/craft.go (84.8%)</option>
 				
@@ -39320,7 +39320,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
         <span class="cov8" title="1">face := world.Resources.UIResources.Text.BodyFace
 </span>
         <span class="cov8" title="1">const panelHeight = 200
-        panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)
+        panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.Chrome{}, face, screen.Bounds().Dx(), panelHeight)
         drawText := panel.Line
 </span>
         // 座標表示
@@ -40839,7 +40839,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
         <span class="cov8" title="1">face := world.Resources.UIResources.Text.BodyFace
 </span>
         <span class="cov8" title="1">const panelHeight = 250
-        panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)
+        panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.Chrome{}, face, screen.Bounds().Dx(), panelHeight)
         drawText := panel.Line
 </span>
         <span class="cov8" title="1">drawText(query.T(world, "== Shooting Mode =="))
@@ -42942,7 +42942,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
         <span class="cov0" title="0">smallFace := world.Resources.UIResources.Text.SmallFace
         titleFace := world.Resources.UIResources.Text.TitleFontFace
         bodyFace := world.Resources.UIResources.Text.BodyFace
-        chrome := hud.NewChrome(world.Resources.UIResources)
+        chrome := hud.Chrome{}
 </span>
         <span class="cov0" title="0">return &amp;HUDRenderingSystem{
                 gameInfo:     hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
@@ -46815,29 +46815,19 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
 import (
         "image"
 
-        "github.com/kijimaD/ruins/internal/resources"
+        "github.com/kijimaD/ruins/internal/widgets/theme"
         "github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// Chrome は世界の上に重ねるパネルの意匠。メニューと同じテクスチャを使い、
-// 画面をまたいで枠の見た目を1つにする。図形の手組みで別の描き方が増えるのを防ぎ、
-// 意匠の差し替えも1箇所で済ませる。
-type Chrome struct {
-        panel *resources.NineSliceTex
-}
+// Chrome は世界の上に重ねるパネルの意匠。塗りと枠で描き、画面をまたいで見た目を1つにする。
+// 意匠の差し替えも1箇所で済ませる。状態は持たないので Chrome{} で作る。
+type Chrome struct{}
 
-// NewChrome はパネルのテクスチャを与えて意匠を作る。
-func NewChrome(res resources.UIResources) Chrome {
-        <span class="cov8" title="1">return Chrome{panel: res.PanelBG}
-</span>}
-
-// Panel は矩形へパネルの枠と背景を敷く。
+// Panel は矩形へパネルの背景と枠を敷く。
 func (c Chrome) Panel(cv uicore.Canvas, r image.Rectangle) {
-        <span class="cov8" title="1">if c.panel == nil </span>{
-                <span class="cov8" title="1">return
-</span>        }
-        <span class="cov8" title="1">cv.DrawNineSlice(r, c.panel.Image, c.panel.BX, c.panel.BY)</span>
-}
+        <span class="cov8" title="1">cv.FillRect(r, theme.PanelBackground, uicore.RectOptions{Radius: theme.CornerRadius})
+        cv.StrokeRect(r, 1, theme.PanelHighlight, uicore.RectOptions{Radius: theme.CornerRadius})
+</span>}
 </pre>
 		
 		<pre class="file" id="file306" style="display: none">package hud
@@ -47127,11 +47117,11 @@ func bodyTempFillColor(ratio float64) color.RGBA {
         <span class="cov8" title="1">return theme.LerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)
 </span>}
 
-// gaugeOverhang はセパレーターライン・枠線がゲージ塗りから左右にはみ出す量
-const gaugeOverhang = 6
+// gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。
+const gaugeCornerRadius = 4
 
-// gaugeWidget は1本のゲージ。与えられた矩形を塗り部分とし、上下の白枠を左右へ overhang ぶんはみ出して
-// 引き、比率ぶんの塗りをグラデーションのテクスチャで色掛けする。上が明るく下が暗い光沢になる。
+// gaugeWidget は1本のゲージ。与えられた矩形へ白枠を引き、比率ぶんの塗りをグラデーションの
+// テクスチャで色掛けする。上が明るく下が暗い光沢になる。
 type gaugeWidget struct {
         rect      image.Rectangle
         fill      *ebiten.Image
@@ -47143,18 +47133,15 @@ type gaugeWidget struct {
 // Layout は uicore.Widget を満たす。
 func (g *gaugeWidget) Layout(r image.Rectangle) { <span class="cov8" title="1">g.rect = r }</span>
 
-// Draw は uicore.Widget を満たす。上下の白枠を左右へはみ出して引き、比率ぶんの塗りを重ねる。
+// Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、白枠を重ねる。
 func (g *gaugeWidget) Draw(cv uicore.Canvas) {
-        <span class="cov8" title="1">top := g.rect.Min.Y
-        left := g.rect.Min.X - gaugeOverhang
-        right := g.rect.Max.X + gaugeOverhang
-        cv.FillRect(image.Rect(left, top, right, top+1), g.border)
-        cv.FillRect(image.Rect(left, g.rect.Max.Y-1, right, g.rect.Max.Y), g.border)
-        if g.ratio &gt; 0 &amp;&amp; g.fill != nil </span>{
-                <span class="cov8" title="1">fillW := int(float64(g.rect.Dx()) * g.ratio)
-                dst := image.Rect(g.rect.Min.X, top+1, g.rect.Min.X+fillW, top+1+gaugeFillHeight)
+        <span class="cov8" title="1">fillW := int(float64(g.rect.Dx()) * g.ratio)
+        if fillW &gt; 0 &amp;&amp; g.fill != nil </span>{
+                // 塗りは上下1pxだけ内へ寄せ、枠の線と角の丸みに塗りが食み出さないようにする
+                <span class="cov8" title="1">dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)
                 cv.DrawImageTintedRect(dst, g.fill, color.NRGBA(g.fillColor))
 </span>        }
+        <span class="cov8" title="1">cv.StrokeRect(g.rect, 1, g.border, uicore.RectOptions{Radius: gaugeCornerRadius})</span>
 }
 
 // Children は uicore.Widget を満たす。子は持たない。
@@ -47602,7 +47589,7 @@ func NewMessageArea(world w.World) *MessageArea {
         <span class="cov0" title="0">return &amp;MessageArea{
                 widget:  widget,
                 config:  config,
-                chrome:  NewChrome(world.Resources.UIResources),
+                chrome:  Chrome{},
                 enabled: true,
 </span>        }
 }
@@ -47773,11 +47760,8 @@ func (b *badgeWidget) Children() []uicore.Widget { <span class="cov0" title="0">
 // badgeChrome はバッジの箱を描く。塗りの色は状態を表すデータなので、意匠のテクスチャでなく
 // 塗りと枠で表す。枠の色はパネルと同じにして、HUD の他の箱と質感を揃える
 func badgeChrome(cv uicore.Canvas, r image.Rectangle, fill color.RGBA) {
-        <span class="cov8" title="1">cv.StrokeRect(r, 1, theme.PanelHighlight)
-        inner := image.Rect(r.Min.X+1, r.Min.Y+1, r.Max.X-1, r.Max.Y-1)
-        cv.FillRect(inner, fill)
-        cv.FillRect(image.Rect(inner.Min.X, inner.Min.Y, inner.Max.X, inner.Min.Y+1), theme.PanelHighlight)
-        cv.FillRect(image.Rect(inner.Min.X, inner.Max.Y-1, inner.Max.X, inner.Max.Y), theme.PanelShadow)
+        <span class="cov8" title="1">cv.FillRect(r, fill, uicore.RectOptions{Radius: theme.CornerRadius})
+        cv.StrokeRect(r, 1, theme.PanelHighlight, uicore.RectOptions{Radius: theme.CornerRadius})
 </span>}
 </pre>
 		
@@ -47944,7 +47928,7 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
         <span class="cov8" title="1">s.chrome.Panel(cv, s.rect)
         if s.selected </span>{
                 // 選択中のスロットには明るい枠線を重ねる
-                <span class="cov8" title="1">cv.StrokeRect(s.rect, 2, theme.HUDSlotSelectedBorder)
+                <span class="cov8" title="1">cv.StrokeRect(s.rect, 2, theme.HUDSlotSelectedBorder, uicore.RectOptions{Radius: theme.CornerRadius})
 </span>        }
         <span class="cov8" title="1">if s.slot.WeaponName != "" </span>{
                 <span class="cov0" title="0">if img := s.sprites.Image(&amp;gc.SpriteRender{SpriteSheetName: s.slot.SpriteSheet, SpriteKey: s.slot.SpriteName}); img != nil </span>{
@@ -48370,9 +48354,9 @@ func PanelInner(rect image.Rectangle) image.Rectangle {
 
 // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
 // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
-func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
+func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
         <span class="cov0" title="0">inner := PanelInner(rect)
-        bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+        bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
         bg.Layout(rect)
         gfx := uicore.NewGraphic(img)
         gfx.Layout(inner)
@@ -48385,9 +48369,9 @@ func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Ima
 // 役割が同じ行はどの画面でも同じ高さにして、画面をまたいだ見た目のずれを防ぐ
 const noteRowH = 16
 
-// panelBackground はパネル背景のテクスチャを敷く。
-func panelBackground(c *uicore.Container, res resources.UIResources) *uicore.Container {
-        <span class="cov8" title="1">return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+// panelBackground はパネルの背景を敷く。
+func panelBackground(c *uicore.Container, _ resources.UIResources) *uicore.Container {
+        <span class="cov8" title="1">return c.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})
 </span>}
 
 // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。
@@ -48524,9 +48508,9 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
         <span class="cov8" title="1">return groupWithPanelBG(rect, res, items)</span>
 }
 
-// groupWithPanelBG はパネルテクスチャの背景と、配置済みの flex 行を1つの Group に束ねる。
-func groupWithPanelBG(rect image.Rectangle, res resources.UIResources, items []uicore.FlexItem) uicore.Widget {
-        <span class="cov8" title="1">bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+// groupWithPanelBG はパネルの背景と、配置済みの flex 行を1つの Group に束ねる。
+func groupWithPanelBG(rect image.Rectangle, _ resources.UIResources, items []uicore.FlexItem) uicore.Widget {
+        <span class="cov8" title="1">bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
         bg.Layout(rect)
         children := make([]uicore.Widget, 0, len(items)+1)
         children = append(children, bg)
@@ -49073,7 +49057,7 @@ func (win *Window) buildTree() uicore.Widget {
 </span>
         <span class="cov0" title="0">var children []uicore.Widget
 </span>
-        <span class="cov0" title="0">frame := uicore.NewNineSlice(res.WindowBG.Image, res.WindowBG.BX, res.WindowBG.BY)
+        <span class="cov0" title="0">frame := uicore.NewBox(theme.WindowBackground, theme.WindowBorder, theme.CornerRadius)
         frame.Layout(rect)
         children = append(children, frame)
 </span>
@@ -49915,10 +49899,8 @@ func buildPanelUI(res resources.UIResources, rect image.Rectangle, content Detai
 </span>
         // 内側余白はパネルテクスチャの枠を避けて内容を内側へ寄せる
         <span class="cov8" title="1">panel := uicore.VBox(rowH, items...).SetPadding(theme.Space7)
-        if res.PanelBG != nil </span>{
-                <span class="cov8" title="1">panel.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
-</span>        }
-        <span class="cov8" title="1">panel.Layout(rect)
+        panel.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})
+        panel.Layout(rect)
         return panel</span>
 }
 </pre>
@@ -50311,6 +50293,7 @@ import (
         "image"
         "image/color"
         "math"
+        "sync"
 
         "github.com/hajimehoshi/ebiten/v2"
         text "github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -50329,17 +50312,129 @@ func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas {
         <span class="cov8" title="1">return &amp;EbitenCanvas{screen: screen}
 </span>}
 
-// FillRect は EbitenCanvas を実装する。
-func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color) {
-        <span class="cov8" title="1">vector.FillRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), c, false)
+// FillRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて塗る。
+func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts ...RectOptions) {
+        <span class="cov8" title="1">if len(opts) &gt; 0 &amp;&amp; opts[0].Radius &gt; 0 </span>{
+                <span class="cov0" title="0">e.drawShape(r.Min, roundedFillShape(r.Dx(), r.Dy(), opts[0].Radius, c))
+                return
+</span>        }
+        <span class="cov8" title="1">vector.FillRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), c, false)</span>
+}
+
+// StrokeRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて枠を描く。
+func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, opts ...RectOptions) {
+        <span class="cov8" title="1">if len(opts) &gt; 0 &amp;&amp; opts[0].Radius &gt; 0 </span>{
+                // 枠は線幅の半分だけ矩形の外へ出る。画像は線幅ぶん広く焼いてあるので、左上を線幅ぶん戻して重ねる
+                <span class="cov0" title="0">shape := roundedStrokeShape(r.Dx(), r.Dy(), width, opts[0].Radius, c)
+                e.drawShape(r.Min.Sub(image.Pt(width, width)), shape)
+                return
+</span>        }
+        <span class="cov8" title="1">vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)</span>
+}
+
+// drawShape は焼き済みの形状画像を pos へ素で描く。色は焼き込み済みなので色掛けはしない。
+func (e *EbitenCanvas) drawShape(pos image.Point, shape *ebiten.Image) {
+        <span class="cov0" title="0">op := &amp;ebiten.DrawImageOptions{}
+        op.GeoM.Translate(float64(pos.X), float64(pos.Y))
+        e.screen.DrawImage(shape, op)
 </span>}
 
-// StrokeRect は EbitenCanvas を実装する。
-func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color) {
-        <span class="cov8" title="1">vector.StrokeRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), float32(width), c, false)
+// clampRadius は半径を矩形の短辺の半分までに抑える。小さな矩形へ大きな半径を与えても
+// 円弧が交差してパスが壊れないようにする。
+func clampRadius(radius, w, h int) float32 {
+        <span class="cov8" title="1">rad := float32(radius)
+        if rad &gt; float32(w)/2 </span>{
+                <span class="cov8" title="1">rad = float32(w) / 2
+</span>        }
+        <span class="cov8" title="1">if rad &gt; float32(h)/2 </span>{
+                <span class="cov8" title="1">rad = float32(h) / 2
+</span>        }
+        <span class="cov8" title="1">return rad</span>
+}
+
+// roundedRectPath は四隅を半径 radius で丸めた矩形のパスを組む。半径は矩形の短辺の半分までに丸める。
+func roundedRectPath(r image.Rectangle, radius int) vector.Path {
+        <span class="cov8" title="1">x, y := float32(r.Min.X), float32(r.Min.Y)
+        w, h := float32(r.Dx()), float32(r.Dy())
+        rad := clampRadius(radius, r.Dx(), r.Dy())
+        var p vector.Path
+        p.MoveTo(x+rad, y)
+        p.LineTo(x+w-rad, y)
+        p.ArcTo(x+w, y, x+w, y+rad, rad)
+        p.LineTo(x+w, y+h-rad)
+        p.ArcTo(x+w, y+h, x+w-rad, y+h, rad)
+        p.LineTo(x+rad, y+h)
+        p.ArcTo(x, y+h, x, y+h-rad, rad)
+        p.LineTo(x, y+rad)
+        p.ArcTo(x, y, x+rad, y, rad)
+        p.Close()
+        return p
 </span>}
+
+// 角丸は毎フレーム vector.FillPath でラスタライズすると CPU 実描画で重く、パスの分割で
+// フレームごとにアロケーションも出る。同じ寸法・色は繰り返し使われるので、形状を色ごと画像へ
+// 一度だけ焼き、描画は素の DrawImage で済ませる。
+// 焼く画像は Unmanaged にして共有アトラスへ載せない。アトラス配置は生成順に依存し、並行する
+// ゴールデンテストで描画結果がぶれる。Unmanaged なら各形状が独立テクスチャで決定的になる。
+// 色を描画時に掛けると半透明色で量子化が二重になり直接描画とずれるため、色は焼く時点で塗り込む。
+// Draw は単一ゴルーチンだがテストが並行にキャッシュへ触れるので map は mutex で守る。生成も
+// ロック内に置き、並行テストで ebiten の画像生成が同時に走らないようにする。二重チェックで
+// ロック外へ出すと生成が並行しうるので、あえて直列化する。
+// キーはパネルの数種の寸法と theme の色に限られ有限なので、測定キャッシュと違い上限は要らない。
+var (
+        roundedShapeMu      sync.Mutex
+        roundedFillShapes   = map[roundedFillKey]*ebiten.Image{}
+        roundedStrokeShapes = map[roundedStrokeKey]*ebiten.Image{}
+)
+
+type roundedFillKey struct {
+        w, h, radius int
+        c            color.RGBA
+}
+type roundedStrokeKey struct {
+        w, h, width, radius int
+        c                   color.RGBA
+}
+
+// roundedFillShape は w×h の角丸塗りを色 c で焼いた画像を返す。左上を原点として描く。
+func roundedFillShape(w, h, radius int, c color.Color) *ebiten.Image {
+        <span class="cov8" title="1">rgba, _ := color.RGBAModel.Convert(c).(color.RGBA)
+        key := roundedFillKey{w, h, radius, rgba}
+        roundedShapeMu.Lock()
+        defer roundedShapeMu.Unlock()
+        if img, ok := roundedFillShapes[key]; ok </span>{
+                <span class="cov8" title="1">return img
+</span>        }
+        <span class="cov8" title="1">img := ebiten.NewImageWithOptions(image.Rect(0, 0, w, h), &amp;ebiten.NewImageOptions{Unmanaged: true})
+        p := roundedRectPath(image.Rect(0, 0, w, h), radius)
+        dop := &amp;vector.DrawPathOptions{AntiAlias: true}
+        dop.ColorScale.ScaleWithColor(c)
+        vector.FillPath(img, &amp;p, &amp;vector.FillOptions{}, dop)
+        roundedFillShapes[key] = img
+        return img</span>
+}
+
+// roundedStrokeShape は w×h の角丸枠を色 c で焼いた画像を返す。枠は線幅の半分だけ矩形の外へ
+// はみ出すので、線幅ぶん広げた画像に焼く。左上へ合わせるずらしは呼び出し側が線幅から決める。
+func roundedStrokeShape(w, h, width, radius int, c color.Color) *ebiten.Image {
+        <span class="cov0" title="0">rgba, _ := color.RGBAModel.Convert(c).(color.RGBA)
+        key := roundedStrokeKey{w, h, width, radius, rgba}
+        roundedShapeMu.Lock()
+        defer roundedShapeMu.Unlock()
+        if img, ok := roundedStrokeShapes[key]; ok </span>{
+                <span class="cov0" title="0">return img
+</span>        }
+        <span class="cov0" title="0">img := ebiten.NewImageWithOptions(image.Rect(0, 0, w+width*2, h+width*2), &amp;ebiten.NewImageOptions{Unmanaged: true})
+        p := roundedRectPath(image.Rect(width, width, width+w, width+h), radius)
+        dop := &amp;vector.DrawPathOptions{AntiAlias: true}
+        dop.ColorScale.ScaleWithColor(c)
+        vector.StrokePath(img, &amp;p, &amp;vector.StrokeOptions{Width: float32(width)}, dop)
+        roundedStrokeShapes[key] = img
+        return img</span>
+}
 
 // FillTriangle は EbitenCanvas を実装する。3頂点の三角形を塗る。text/v2 を通らないのでロックは要らない。
+// 頂点が呼び出しごとに変わり形が定まらないので、角丸のような形状キャッシュは持たず毎回パスを組む。
 func (e *EbitenCanvas) FillTriangle(p0, p1, p2 [2]float32, c color.Color) {
         <span class="cov8" title="1">var path vector.Path
         path.MoveTo(p0[0], p0[1])
@@ -50542,11 +50637,27 @@ import (
         text "github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
-// textMu は ebiten text/v2 の測定・描画を直列化する。GoTextFaceSource の遅延グリフキャッシュ
-// runeToBoolMap はスレッド安全でなく、共有フェイスへ同時に測定・描画するとキャッシュが壊れる。
-// 本番の描画は単一ゴルーチンなのでロックは常に無競合で、並列テストのときだけ直列化が効く。
-// ebiten text へ触れるのは MeasureText と EbitenCanvas.DrawText の2箇所なので、この mutex で全経路を覆う。
+// textMu は ebiten text/v2 の測定・描画と、測定結果キャッシュへのアクセスを直列化する。
+// GoTextFaceSource の遅延グリフキャッシュ runeToBoolMap はスレッド安全でなく、共有フェイスへ
+// 同時に測定・描画するとキャッシュが壊れる。本番の描画は単一ゴルーチンなのでロックは常に無競合で、
+// 並列テストのときだけ直列化が効く。ebiten text へ触れるのは MeasureText と
+// EbitenCanvas.DrawText の2箇所なので、この mutex で全経路を覆う。
 var textMu sync.Mutex
+
+// measureCache は (文字列, フェイス) ごとの測定結果を覚える。Text.Draw が位置決めのため毎フレーム
+// MeasureText を呼ぶが、結果は決定的なので一度測れば使い回せる。フェイスは起動時に生成した
+// *GoTextFace か *MultiFace のポインタ実体で、比較可能かつ不変なのでキーに使える。
+//
+// 動的文字列でキーが際限なく増えないよう上限で丸ごと捨てる。捨てても再測定で正しく埋め直すので、
+// キャッシュミスが増えるだけで結果は変わらない。
+var measureCache = map[measureKey][2]int{}
+
+type measureKey struct {
+        s    string
+        face text.Face
+}
+
+const measureCacheMax = 4096
 
 // MeasureText は face で描いたときの s の送り幅と高さを画素で返す。
 //
@@ -50560,10 +50671,19 @@ func MeasureText(s string, face text.Face) (int, int) {
         <span class="cov8" title="1">if face == nil </span>{
                 <span class="cov8" title="1">return 0, 0
 </span>        }
-        <span class="cov8" title="1">textMu.Lock()
-        w, h := text.Measure(s, face, 0)
-        textMu.Unlock()
-        return int(math.Round(w)), int(math.Round(h))</span>
+        <span class="cov8" title="1">key := measureKey{s: s, face: face}
+        textMu.Lock()
+        defer textMu.Unlock()
+        if wh, ok := measureCache[key]; ok </span>{
+                <span class="cov8" title="1">return wh[0], wh[1]
+</span>        }
+        <span class="cov8" title="1">w, h := text.Measure(s, face, 0)
+        wh := [2]int{int(math.Round(w)), int(math.Round(h))}
+        if len(measureCache) &gt;= measureCacheMax </span>{
+                <span class="cov0" title="0">clear(measureCache)
+</span>        }
+        <span class="cov8" title="1">measureCache[key] = wh
+        return wh[0], wh[1]</span>
 }
 
 // MeasureTextWidth は MeasureText の幅だけを返す。列幅や送り幅の算出に使う。
@@ -50851,6 +50971,38 @@ func (g *Group) Draw(cv Canvas) {
 // Children は Group を実装する。
 func (g *Group) Children() []Widget { <span class="cov8" title="1">return g.children }</span>
 
+// Box は BoxStyle の単色ボックスを1つ描く葉ウィジェット。Group の層として単体で敷く
+// パネル背景に使う。子を持たず自分の矩形だけを塗る点が Container の背景と違う。
+type Box struct {
+        base
+        Style BoxStyle
+}
+
+// NewBox は単色ボックスの葉を作る。border が nil なら枠を描かない。枠幅は1。
+func NewBox(fill, border color.Color, radius int) *Box {
+        <span class="cov8" title="1">return &amp;Box{Style: BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}}
+</span>}
+
+// Layout は Box を実装する。
+func (r *Box) Layout(b image.Rectangle) { <span class="cov8" title="1">r.rect = b }</span>
+
+// Draw は Box を実装する。
+func (r *Box) Draw(cv Canvas) { <span class="cov8" title="1">drawBox(cv, r.rect, r.Style) }</span>
+
+// drawBox は単色ボックスを敷く。Fill があれば塗り、Border があり幅が正なら枠を描く。Radius が正
+// なら四隅を丸める。Box 葉と Container 背景の共通描画で、単色ボックスの描き方を1箇所にする。
+func drawBox(cv Canvas, rect image.Rectangle, s BoxStyle) {
+        <span class="cov8" title="1">if s.Fill != nil </span>{
+                <span class="cov8" title="1">cv.FillRect(rect, s.Fill, RectOptions{Radius: s.Radius})
+</span>        }
+        <span class="cov8" title="1">if s.Border != nil &amp;&amp; s.BorderWidth &gt; 0 </span>{
+                <span class="cov8" title="1">cv.StrokeRect(rect, s.BorderWidth, s.Border, RectOptions{Radius: s.Radius})
+</span>        }
+}
+
+// Children は Box を実装する。子は持たない。
+func (r *Box) Children() []Widget { <span class="cov0" title="0">return nil }</span>
+
 // Dir はコンテナの主軸方向。
 type Dir int
 
@@ -50867,7 +51019,7 @@ type Container struct {
         dir      Dir
         sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
         style    BoxStyle
-        bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。パネルや選択行に使う
+        bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。選択行など横帯の意匠に使う
         bgBX     [3]int
         bgBY     [3]int
         lineImg  *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
@@ -50882,13 +51034,14 @@ func (c *Container) SetPadding(pad int) *Container {
         return c
 </span>}
 
-// SetStyle は背景の塗りと枠を設定する。選択行の強調などに使う。
+// SetStyle は単色ボックスの背景 style を設定する。BoxStyle.Radius でパネルの角丸背景にもできる。
+// style が塗りか枠を持てば NineSlice 背景より優先される。
 func (c *Container) SetStyle(s BoxStyle) *Container {
         <span class="cov8" title="1">c.style = s
         return c
 </span>}
 
-// SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。パネルや選択行の意匠に使う。
+// SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。選択行など横帯の意匠に使う。
 func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Container {
         <span class="cov8" title="1">c.bgImage = img
         c.bgBX = bx
@@ -50957,16 +51110,13 @@ func (c *Container) Layout(b image.Rectangle) {
         root.Draw(layoutProbe())</span>
 }
 
-// Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。
+// Draw は Container を実装する。背景を敷いてから子を描く。単色 style と NineSlice は排他で、
+// style が塗りか枠を持てばそちらを優先し、無ければ NineSlice を敷く。
 func (c *Container) Draw(cv Canvas) {
-        <span class="cov8" title="1">if c.bgImage != nil </span>{
+        <span class="cov8" title="1">if c.style.Fill != nil || (c.style.Border != nil &amp;&amp; c.style.BorderWidth &gt; 0) </span>{
+                <span class="cov8" title="1">drawBox(cv, c.rect, c.style)
+</span>        } else <span class="cov8" title="1">if c.bgImage != nil </span>{
                 <span class="cov8" title="1">cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
-</span>        }
-        <span class="cov8" title="1">if c.style.Fill != nil </span>{
-                <span class="cov8" title="1">cv.FillRect(c.rect, c.style.Fill)
-</span>        }
-        <span class="cov8" title="1">if c.style.Border != nil &amp;&amp; c.style.BorderWidth &gt; 0 </span>{
-                <span class="cov8" title="1">cv.StrokeRect(c.rect, c.style.BorderWidth, c.style.Border)
 </span>        }
         <span class="cov8" title="1">for _, ch := range c.children </span>{
                 <span class="cov8" title="1">ch.Draw(cv)
