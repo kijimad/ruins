@@ -29,6 +29,10 @@ var (
 	TextSecondary = rgb(0xa9a9a9)
 	// TextAccent はアクセントカラーとして使う緑色
 	TextAccent = rgb(0x9dd793)
+	// HUDMapMarkerFront は地図の現在地マーカーの前方(鼻先)の色。暖色で向きの前を示す
+	HUDMapMarkerFront = rgb(0xffcf50)
+	// HUDMapMarkerBack は現在地マーカーの後方(尾)の色。前方より暗くして前後を分ける
+	HUDMapMarkerBack = rgb(0x4e7a46)
 	// TextSelected は選択中の項目に使う明るい白
 	TextSelected = color.RGBA{R: 255, G: 255, B: 240, A: 255}
 	// TextDisabled は無効状態のテキスト色

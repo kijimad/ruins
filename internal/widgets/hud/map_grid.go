@@ -65,24 +65,23 @@ const (
 )
 
 // drawPlayerMarker は現在地の三角形を描く。無回転で北(上)を指す三角形を、中央を軸に向きだけ回す。
-// tip が前方、底辺2点が後方。
+// tip が前方、底辺2点が後方。全体を尾の色で塗り、前方の鼻先を明るい色で重ねて向きを際立たせる。
 func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) {
 	// 中央原点のローカル頂点。y は下向きなので前方(北)は負
-	local := [3][2]float64{
-		{0, -cell * playerMarkerTip},                        // tip 前方
-		{-cell * playerMarkerHalf, cell * playerMarkerBack}, // 底辺左
-		{cell * playerMarkerHalf, cell * playerMarkerBack},  // 底辺右
-	}
+	tip := [2]float64{0, -cell * playerMarkerTip}
+	baseL := [2]float64{-cell * playerMarkerHalf, cell * playerMarkerBack}
+	baseR := [2]float64{cell * playerMarkerHalf, cell * playerMarkerBack}
+	// tip から底辺へ半分進んだ2点で前後を分け、前方だけ明るくする
+	mid := func(a, b [2]float64) [2]float64 { return [2]float64{(a[0] + b[0]) / 2, (a[1] + b[1]) / 2} }
+	noseL, noseR := mid(tip, baseL), mid(tip, baseR)
+
 	sin, cos := math.Sin(facing.Yaw()), math.Cos(facing.Yaw())
-	var p [3][2]float32
-	for i, v := range local {
-		// 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
-		p[i] = [2]float32{
-			float32(cx + v[0]*cos - v[1]*sin),
-			float32(cy + v[0]*sin + v[1]*cos),
-		}
+	// 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
+	rot := func(v [2]float64) [2]float32 {
+		return [2]float32{float32(cx + v[0]*cos - v[1]*sin), float32(cy + v[0]*sin + v[1]*cos)}
 	}
-	cv.FillTriangle(p[0], p[1], p[2], theme.TextAccent)
+	cv.FillTriangle(rot(tip), rot(baseL), rot(baseR), theme.HUDMapMarkerBack)
+	cv.FillTriangle(rot(tip), rot(noseL), rot(noseR), theme.HUDMapMarkerFront)
 }
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
