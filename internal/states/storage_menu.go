@@ -263,6 +263,10 @@ func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor men
 	if st.titleFunc != nil {
 		title = st.titleFunc(world)
 	}
+	// タブが1つのときは選択中のタブ表示が浮くので、タブ無しのパネルで出す
+	if len(props.Tabs) == 1 {
+		return menuframe.PanelScreen(world, res, title, content, keybind.HelpHint(world), pager)
+	}
 	return menuframe.TabScreen(world, res, title, labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
