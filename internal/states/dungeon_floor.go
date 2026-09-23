@@ -72,6 +72,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	// 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
+	// 危険度は enterDungeonWith が入口深度込みで確定し全階で共有する。未設定のデバッグ経路だけ日数版で補う
 	if st.Danger == 0 {
 		st.Danger = query.DangerLevelAt(world)
 	}
@@ -297,6 +298,14 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	}
 	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
 	fromPos := world.Components.GridElement.Get(player).Coord
+
+	// 危険度は入口の北進度と日数の高い方で進入ごとに引き直し全階で共有する。swapTo 前の入口座標 fromPos から引く
+	st.Danger = query.DangerLevelAt(world)
+	if sb := query.GetSeamlessBand(world); sb != nil {
+		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d > st.Danger {
+			st.Danger = d
+		}
+	}
 
 	target := gc.NewDungeonStage(defName, 1)
 	// 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で

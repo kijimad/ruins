@@ -159,7 +159,7 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item
 // テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の
 // DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
-// overworld は建物ローカルの決定的 RNG を使う。地上フロアなので深度は 0。
+// overworld は建物ローカルの決定的 RNG を使う。
 func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng *rand.Rand) error {
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
 	if err != nil {
@@ -181,8 +181,14 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		}
 		lootDice = d
 	}
-	// 危険度は経過日数で決める。日が進むほど希少な loot が出る。
+	// 危険度は北進度と経過日数の高い方。収納物のタイル位置を AbsChunkRow でチャンク行へ移して深度を引く
 	danger := query.DangerLevelAt(world)
+	if sb := query.GetSeamlessBand(world); sb != nil {
+		depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
+		if d := query.DangerLevelForDepth(depth); d > danger {
+			danger = d
+		}
+	}
 	n := lootDice.Roll(rng)
 	for range n {
 		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)
