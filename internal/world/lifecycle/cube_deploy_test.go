@@ -163,21 +163,6 @@ func TestStowCube_propも畳み込み展開で相対位置に戻す(t *testing.T
 		"prop は相対位置を保って戻る")
 }
 
-func TestStockDefaultCubeModules_収納に範囲モジュールを積む(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
-	require.NoError(t, err)
-
-	require.NoError(t, StockDefaultCubeModules(world, cube))
-
-	modules := query.StorageCubeModules(world, cube)
-	assert.Len(t, modules, 2, "共通の範囲モジュールを2つ積む")
-	for _, m := range modules {
-		assert.True(t, world.Components.CubeModule.Has(m), "各モジュールは性能を持つ")
-	}
-}
-
 // TestStowCube_展開後に範囲が伸びても元野営外は巻き込まない は、展開中にモジュールで範囲が伸びても、
 // 圧縮は展開時に凍結した範囲だけを畳むことを固定する。凍結しないと展開時に空だと検証していない外周の
 // 既存 prop を巻き込む。半径2で展開し、距離3の prop を置き、範囲を伸ばすモジュールを装着してから圧縮する。

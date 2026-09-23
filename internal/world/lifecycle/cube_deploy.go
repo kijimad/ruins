@@ -25,22 +25,6 @@ func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	return nil
 }
 
-// StockDefaultCubeModules はキューブ収納へ既定の範囲モジュールを積む。ゲーム開始時のキューブ生成でだけ呼ぶ。
-// 共通の拡張モジュールを2つ積み、装着で展開空間が段階的に伸びるのを序盤から試せるようにする。工作台での
-// 作成は将来。プレイヤーのバックパックでなくキューブ収納へ入れるので所持重量は変わらず、装着はメニューから行う。
-func StockDefaultCubeModules(world w.World, cube ecs.Entity) error {
-	for range 2 {
-		item, err := spawnItemBase(world, "cube_range_module")
-		if err != nil {
-			return err
-		}
-		if err := MoveToStorage(world, item, cube); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // DeployCube はキューブを展開する。野営が開いていれば Deployed を付けて
 // 貨物を相対位置へ出し直し true、1タイルでも塞がれていれば状態を変えず false を返す。
 func DeployCube(world w.World, cube ecs.Entity) bool {
