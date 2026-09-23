@@ -17,7 +17,6 @@ type itemRowData struct {
 	Entity ecs.Entity
 	Name   string
 	Weight string
-	Heat   string // 束の総熱量の表示。燃料メニューでだけ列に出す。他画面では空
 	Count  int
 	Desc   string
 }

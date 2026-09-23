@@ -38,8 +38,9 @@ type StorageMenuState struct {
 	// itemFilter は取り出し・投入の両タブに出す品を絞る述語。nil なら全許可。
 	// キューブの燃料投入で、燃料だけを見せ貨物を隠す用途で使う
 	itemFilter func(w.World, ecs.Entity) bool
-	// showHeat は各行に熱量列を重量の左へ出すか。燃料メニューでだけ true にする
-	showHeat bool
+	// extraCols は名前列と重量列の間へ差し込む追加列。収納メニューは列の意味を知らず、呼ぶ側が
+	// 様式とセル文字列を渡す。燃料メニューの熱量列のように文脈固有の列をここへ注入する
+	extraCols []trailingColumn
 	// storeOnly は投入タブだけを出すか。燃料は入れたら即残数になり取り出さないので取り出しタブを隠す
 	storeOnly bool
 	// titleFunc は画面上部の見出しを世界から導く。nil なら見出し無し。ViewUI で毎フレーム呼ぶので
@@ -57,10 +58,19 @@ func WithItemFilter(pred func(w.World, ecs.Entity) bool) StorageOption {
 	return func(st *StorageMenuState) { st.itemFilter = pred }
 }
 
-// WithHeatColumn は各行に熱量列を重量の左へ足す。燃料メニューで燃料性能を熱量で比べる用途で使う。
-// 汎用の収納メニューには渡さず、この文脈でだけ列を増やす
-func WithHeatColumn() StorageOption {
-	return func(st *StorageMenuState) { st.showHeat = true }
+// trailingColumn は名前列と重量列の間へ差し込む追加列。収納メニューは列の意味を知らず、呼ぶ側が
+// 様式 style とセル文字列 cell を持つ。cell は entity と束の個数からセルを導く
+type trailingColumn struct {
+	style styled.Col
+	cell  func(w.World, ecs.Entity, int) string
+}
+
+// WithColumn は名前列と重量列の間へ列を1つ足す。収納メニューへ列の意味を持ち込まず、呼ぶ側が熱量の
+// ような文脈固有の列を注入する。複数渡すと渡した順に並ぶ
+func WithColumn(style styled.Col, cell func(w.World, ecs.Entity, int) string) StorageOption {
+	return func(st *StorageMenuState) {
+		st.extraCols = append(st.extraCols, trailingColumn{style: style, cell: cell})
+	}
 }
 
 // WithStoreOnly は取り出しタブを隠し投入タブだけにする。燃料は入れたら即残数になり取り出さないので、
@@ -70,7 +80,7 @@ func WithStoreOnly() StorageOption {
 }
 
 // WithTitle は画面上部の見出しを世界から導く関数を設定する。燃料メニューで残燃料を出し、投入で即座に
-// 反映を見せる用途で使う。毎フレーム呼ぶので純粋な読み取りにする
+// 反映を見せる用途で使う。毎フレーム呼ぶので軽い純粋な読み取りにする
 func WithTitle(fn func(w.World) string) StorageOption {
 	return func(st *StorageMenuState) { st.titleFunc = fn }
 }
@@ -184,16 +194,10 @@ func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stac
 	for i, stack := range stacks {
 		rep := stack.Rep
 		total := query.GetEntityWeight(world, rep) * consts.Milligram(stack.Count)
-		// 熱量列は燃料メニューでだけ出す。重量と同じく束の総量にする
-		var heat string
-		if st.showHeat {
-			heat = (query.HeatContent(world, rep) * consts.Heat(stack.Count)).String()
-		}
 		items[i] = itemRowData{
 			Entity: rep,
 			Name:   query.GetEntityName(rep, world),
 			Weight: total.KgString(),
-			Heat:   heat,
 			Count:  stack.Count,
 		}
 	}
@@ -276,20 +280,20 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 		return nil, ""
 	}
 	currentTab := props.Tabs[tabIndex]
-	// 熱量列を出すときはアイコン・名前の後ろに熱量・重量の2数値列、出さないときは重量のみ。
-	// 熱量と重量は右寄せの数値どうしで隣接すると詰まって見えるので、間に空の間隔列を1つ挟む。
-	// 列とセルは同じ順序で組み、片方だけずれる不整合を避ける
-	cols := itemMenuColumns(styled.Num())
-	if st.showHeat {
-		cols = itemMenuColumns(styled.Num(), styled.Fit(), styled.Num())
+	// 追加列を名前と重量の間に、渡された順で並べる。末尾は常に重量列。列とセルを同じ順序で組む
+	styles := make([]styled.Col, 0, len(st.extraCols)+1)
+	for _, ec := range st.extraCols {
+		styles = append(styles, ec.style)
 	}
+	cols := itemMenuColumns(append(styles, styled.Num())...)
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		if st.showHeat {
-			rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Heat, "", it.Weight)
-		} else {
-			rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+		trailing := make([]string, 0, len(st.extraCols)+1)
+		for _, ec := range st.extraCols {
+			trailing = append(trailing, ec.cell(world, it.Entity, it.Count))
 		}
+		trailing = append(trailing, it.Weight)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, trailing...)
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
 }

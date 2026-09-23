@@ -94,10 +94,7 @@ func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 // FuelGaugeRatio は運転HUDの燃料ゲージ充填率を返す。満量基準に対する現在熱量の比を 0..1 に丸める。
 // キューブに実在の燃料上限は無いので、表示専用の基準 FuelGaugeFullHeat に対する割合で見せる。
 func FuelGaugeRatio(fuel consts.Heat) float64 {
-	// 満量基準は正の表示定数。0 に変えられたときのゼロ除算だけ防ぐ。負値のクランプは max/min が担う
-	if consts.FuelGaugeFullHeat == 0 {
-		return 0
-	}
+	// 満量基準は正の定数なのでゼロ除算は起きない。負値やオーバーのクランプは max/min が担う
 	return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))
 }
 

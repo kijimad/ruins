@@ -2,8 +2,10 @@ package states
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -15,6 +17,12 @@ import (
 // 燃料にならないズレを防ぐ。畳み込んだ貨物は別ロケーション LocationStowed なので燃料タンクには現れない。
 func isFuelItem(world w.World, e ecs.Entity) bool {
 	return query.HeatContent(world, e) > 0
+}
+
+// fuelHeatCell は燃料メニューの熱量列のセルを返す。束の総熱量を炎アイコン付きで整形する。
+// 熱量という燃料ドメインの知識をここに閉じ、汎用の収納メニューへ持ち込まない
+func fuelHeatCell(world w.World, e ecs.Entity, count int) string {
+	return (query.HeatContent(world, e) * consts.Heat(count)).String()
 }
 
 // NewCubeMenuState は移動拠点キューブの入口メニューを作る。直上で Enter すると開き、運転・展開と圧縮の
@@ -32,7 +40,15 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 				fuelTitle := func(world w.World) string {
 					return query.CubeFuelTotal(world, cube).String()
 				}
-				return NewStorageMenuState(cube, WithItemFilter(isFuelItem), WithHeatColumn(), WithStoreOnly(), WithTitle(fuelTitle))
+				// 熱量を重量の左へ。右寄せ数値どうしが詰まらないよう空の間隔列を挟む
+				emptyCell := func(w.World, ecs.Entity, int) string { return "" }
+				return NewStorageMenuState(cube,
+					WithItemFilter(isFuelItem),
+					WithStoreOnly(),
+					WithTitle(fuelTitle),
+					WithColumn(styled.Num(), fuelHeatCell),
+					WithColumn(styled.Fit(), emptyCell),
+				)
 			})},
 			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)
