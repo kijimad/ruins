@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -1791,7 +1791,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -47423,7 +47423,7 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
                         }
                         <span class="cov8" title="1">x := style.OriginX + col*style.CellPx
                         y := style.OriginY + row*style.CellPx
-                        cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), macroGlyphColor(cell.Glyph))
+                        cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), macroGlyphColor(cell.Glyph), uicore.RectOptions{})
                         if cell.Road.Any() </span>{
                                 <span class="cov8" title="1">drawMapRoad(cv, x, y, style.CellPx, cell.Road)
 </span>                        }
@@ -47480,7 +47480,7 @@ func DrawMapLegend(cv uicore.Canvas, face, glyphFace text.Face, top int) {
         <span class="cov8" title="1">const swatch = 14
         x, y := 8, top
         for _, g := range overworld.LegendGlyphs() </span>{
-                <span class="cov8" title="1">cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label))
+                <span class="cov8" title="1">cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label), uicore.RectOptions{})
                 drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
                 cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
 </span>                // 1項目120px幅で並べ、モーダル幅に収まる右端720pxを超えたら次の行へ折り返す
@@ -47504,16 +47504,16 @@ func drawMapRoad(cv uicore.Canvas, x, y, cell int, road overworld.RoadDir) {
         bandLeft := ccx - half
         col := theme.OverworldMapRoad
         if road&amp;overworld.RoadW != 0 </span>{
-                <span class="cov8" title="1">cv.FillRect(image.Rect(x, bandTop, ccx+half, bandTop+t), col)
+                <span class="cov8" title="1">cv.FillRect(image.Rect(x, bandTop, ccx+half, bandTop+t), col, uicore.RectOptions{})
 </span>        }
         <span class="cov8" title="1">if road&amp;overworld.RoadE != 0 </span>{
-                <span class="cov8" title="1">cv.FillRect(image.Rect(bandLeft, bandTop, x+cell, bandTop+t), col)
+                <span class="cov8" title="1">cv.FillRect(image.Rect(bandLeft, bandTop, x+cell, bandTop+t), col, uicore.RectOptions{})
 </span>        }
         <span class="cov8" title="1">if road&amp;overworld.RoadN != 0 </span>{
-                <span class="cov8" title="1">cv.FillRect(image.Rect(bandLeft, y, bandLeft+t, ccy+half), col)
+                <span class="cov8" title="1">cv.FillRect(image.Rect(bandLeft, y, bandLeft+t, ccy+half), col, uicore.RectOptions{})
 </span>        }
         <span class="cov8" title="1">if road&amp;overworld.RoadS != 0 </span>{
-                <span class="cov8" title="1">cv.FillRect(image.Rect(bandLeft, bandTop, bandLeft+t, y+cell), col)
+                <span class="cov8" title="1">cv.FillRect(image.Rect(bandLeft, bandTop, bandLeft+t, y+cell), col, uicore.RectOptions{})
 </span>        }
 }
 
@@ -50313,19 +50313,19 @@ func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas {
 </span>}
 
 // FillRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて塗る。
-func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts ...RectOptions) {
-        <span class="cov8" title="1">if len(opts) &gt; 0 &amp;&amp; opts[0].Radius &gt; 0 </span>{
-                <span class="cov0" title="0">e.drawShape(r.Min, roundedFillShape(r.Dx(), r.Dy(), opts[0].Radius, c))
+func (e *EbitenCanvas) FillRect(r image.Rectangle, c color.Color, opts RectOptions) {
+        <span class="cov8" title="1">if opts.Radius &gt; 0 </span>{
+                <span class="cov0" title="0">e.drawShape(r.Min, roundedFillShape(r.Dx(), r.Dy(), opts.Radius, c))
                 return
 </span>        }
         <span class="cov8" title="1">vector.FillRect(e.screen, float32(r.Min.X), float32(r.Min.Y), float32(r.Dx()), float32(r.Dy()), c, false)</span>
 }
 
 // StrokeRect は EbitenCanvas を実装する。opts に正の Radius があれば四隅を丸めて枠を描く。
-func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, opts ...RectOptions) {
-        <span class="cov8" title="1">if len(opts) &gt; 0 &amp;&amp; opts[0].Radius &gt; 0 </span>{
+func (e *EbitenCanvas) StrokeRect(r image.Rectangle, width int, c color.Color, opts RectOptions) {
+        <span class="cov8" title="1">if opts.Radius &gt; 0 </span>{
                 // 枠は線幅の半分だけ矩形の外へ出る。画像は線幅ぶん広く焼いてあるので、左上を線幅ぶん戻して重ねる
-                <span class="cov0" title="0">shape := roundedStrokeShape(r.Dx(), r.Dy(), width, opts[0].Radius, c)
+                <span class="cov0" title="0">shape := roundedStrokeShape(r.Dx(), r.Dy(), width, opts.Radius, c)
                 e.drawShape(r.Min.Sub(image.Pt(width, width)), shape)
                 return
 </span>        }
