@@ -24,10 +24,10 @@ func TestSpawnDebugStageModules_木箱に範囲モジュールを入れる(t *te
 	assert.Len(t, modules, debugStageModuleCount, "木箱に範囲モジュールが入る")
 }
 
-func TestSpawnDebugStageModules_木箱が無ければ何もしない(t *testing.T) {
+func TestSpawnDebugStageModules_木箱が無ければエラー(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 木箱を置かずに呼んでもエラーにしない
-	require.NoError(t, spawnDebugStageModules(world))
+	// 木箱はテンプレートが必ず置く。無いのは退行なので握りつぶさず error を返す
+	require.Error(t, spawnDebugStageModules(world))
 }

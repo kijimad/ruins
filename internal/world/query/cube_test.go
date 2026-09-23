@@ -167,6 +167,40 @@ func TestGetCubeModules_装着したモジュールだけ返す(t *testing.T) {
 	assert.Equal(t, []ecs.Entity{m}, got, "このキューブに装着した1件だけ")
 }
 
+func TestBackpackCubeModules_バックパックのモジュールだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
+	world.Components.LocationInBackpack.Add(m, &gc.LocationInBackpack{Owner: player})
+	// 別プレイヤーのモジュールと、モジュールでないバックパック品は除く
+	m2 := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m2, &gc.CubeModule{RangeBonus: 1})
+	world.Components.LocationInBackpack.Add(m2, &gc.LocationInBackpack{Owner: other})
+	nonmod := world.ECS.NewEntity()
+	world.Components.LocationInBackpack.Add(nonmod, &gc.LocationInBackpack{Owner: player})
+
+	assert.Equal(t, []ecs.Entity{m}, query.BackpackCubeModules(world, player), "このプレイヤーのモジュール1件だけ")
+}
+
+func TestStorageCubeModules_収納のモジュールだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
+	world.Components.LocationInStorage.Add(m, &gc.LocationInStorage{Owner: cube})
+	// 収納の非モジュール品(燃料など)は除く
+	fuel := world.ECS.NewEntity()
+	world.Components.LocationInStorage.Add(fuel, &gc.LocationInStorage{Owner: cube})
+
+	assert.Equal(t, []ecs.Entity{m}, query.StorageCubeModules(world, cube), "収納のモジュール1件だけ")
+}
+
 func TestCubeWeight_装着モジュールも合算する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

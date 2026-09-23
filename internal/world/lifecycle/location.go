@@ -279,11 +279,11 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	return nil
 }
 
-// RemoveOwnedStorage は owners のいずれかが所有する収納内の実体を削除する。
-// 収納在庫は GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を
-// 消すときに一緒に消さないと、死んだ所有者を指す孤児として world に残り serde で蓄積する。
-// 反復中の削除を避け、収集してから削除する
-func RemoveOwnedStorage(world w.World, owners []ecs.Entity) {
+// RemoveOwnedEntities は owners のいずれかが所有する、座標を持たないロケーションの実体を削除する。
+// 収納在庫 LocationInStorage・畳んだ貨物 LocationStowed・装着モジュール LocationInstalled はどれも
+// GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を消すときに一緒に消さないと、
+// 死んだ所有者を指す孤児として world に残り serde で蓄積する。反復中の削除を避け、収集してから削除する。
+func RemoveOwnedEntities(world w.World, owners []ecs.Entity) {
 	if len(owners) == 0 {
 		return
 	}
@@ -293,16 +293,30 @@ func RemoveOwnedStorage(world w.World, owners []ecs.Entity) {
 	}
 
 	var toRemove []ecs.Entity
-	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
-	for q.Next() {
-		entity := q.Entity()
-		if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] {
-			toRemove = append(toRemove, entity)
+	qs := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+	for qs.Next() {
+		e := qs.Entity()
+		if ownerSet[world.Components.LocationInStorage.Get(e).Owner] {
+			toRemove = append(toRemove, e)
 		}
 	}
-	for _, entity := range toRemove {
-		if world.ECS.Alive(entity) {
-			world.ECS.RemoveEntity(entity)
+	qw := ecs.NewFilter1[gc.LocationStowed](world.ECS).Query()
+	for qw.Next() {
+		e := qw.Entity()
+		if ownerSet[world.Components.LocationStowed.Get(e).Owner] {
+			toRemove = append(toRemove, e)
+		}
+	}
+	qi := ecs.NewFilter1[gc.LocationInstalled](world.ECS).Query()
+	for qi.Next() {
+		e := qi.Entity()
+		if ownerSet[world.Components.LocationInstalled.Get(e).Owner] {
+			toRemove = append(toRemove, e)
+		}
+	}
+	for _, e := range toRemove {
+		if world.ECS.Alive(e) {
+			world.ECS.RemoveEntity(e)
 		}
 	}
 }
