@@ -21,3 +21,16 @@ func DangerLevelForDay(days int) int {
 func DangerLevelAt(world w.World) int {
 	return DangerLevelForDay(GetGameTime(world).GetDayNumber())
 }
+
+// dangerChunksPerLevel は危険度が1段上がる北進チャンク数。値は暫定で、実プレイの伸びを測って振り直す。
+const dangerChunksPerLevel = 3
+
+// DangerForDepth は北へ chunksNorth チャンク進んだ場所の危険度を返す純関数。空間の難易度勾配で、
+// 北進サバイバルの主軸。生成の再訪一致のため world を引かず座標だけで決める。日数版 DangerLevelForDay
+// と対で、1始まり・単調非減少。
+func DangerForDepth(chunksNorth int) int {
+	if chunksNorth < 0 {
+		chunksNorth = 0
+	}
+	return 1 + chunksNorth/dangerChunksPerLevel
+}

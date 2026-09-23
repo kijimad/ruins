@@ -25,7 +25,7 @@ const (
 	urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
 	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
-	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
+	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。危険度で種別をフィルタする
 	urbanEnemyTable = "ruins_area"
 )
 
@@ -203,11 +203,23 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	fac, size, _ := urbanChunkInfo(runSeed, c, cols)
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-	return renderUrbanChunk(world, g, chunkSeed, size, fac)
+	return renderUrbanChunk(world, g, chunkSeed, size, fac, urbanDangerAt(world, c))
+}
+
+// urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と経過日数(時間)の高い方で、
+// 北へ進むほど強敵が解禁される。深度は c.Y から純粋に引くので生成の再訪一致を壊さない。
+func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
+	danger := query.DangerLevelAt(world)
+	if sb := query.GetSeamlessBand(world); sb != nil {
+		if d := query.DangerForDepth(sb.DepthOfChunkRow(c.Y)); d > danger {
+			danger = d
+		}
+	}
+	return danger
 }
 
 // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger int) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	footprint, door, err := planUrbanLot(world, g, rng)
@@ -218,7 +230,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	if err != nil {
 		return err
 	}
-	return spawnUrbanEnemies(world, g, rng, size, isWall, occupied)
+	return spawnUrbanEnemies(world, g, rng, size, danger, isWall, occupied)
 }
 
 // planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
@@ -261,15 +273,14 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
-// 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+// 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger int, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
 	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
-	// 湧き数は街の規模で決める。敵種別は経過日数の危険度でフィルタし、日が進むほど強敵が出る。
+	// 湧き数は街の規模で決める。敵種別は危険度でフィルタし、北へ進むほど・日が進むほど強敵が出る。
 	count := 1 + rng.IntN(int(size))
-	danger := query.DangerLevelAt(world)
 	for range count {
 		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)
 		if err != nil {

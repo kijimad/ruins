@@ -57,6 +57,16 @@ func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
 	return sb.Rows / 2
 }
 
+// DepthOfChunkRow は絶対チャンク行の北進深度を返す。起点 SpawnChunkY からの北進チャンク数で、
+// 起点手前は0。query.NorthDepthChunks の座標版で、ChunkGen の c.Y から純粋に引ける。生成の難易度を
+// 深度で決めるとき、world を引く NorthDepthChunks でなくこちらを使い再訪一致を保つ。
+func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) int {
+	if depth := int(sb.SpawnChunkY()) - int(absChunkRow); depth > 0 {
+		return depth
+	}
+	return 0
+}
+
 // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す
 // identity だけを持つ。フィールド寸法・探索履歴・帯データなどステージ固有の状態は各ステージの
 // StageField が、時間や視界などグローバルな状態は専用シングルトンが持つ。
