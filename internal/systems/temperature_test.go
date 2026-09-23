@@ -25,7 +25,7 @@ func setStage(world w.World, key gc.StageKey) {
 	query.EnsureStageField(world, key).BaseTemp = dungeon.BaseTemperatureFor(key.Name)
 }
 
-func TestCalcBodyTempRate(t *testing.T) {
+func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -323,10 +323,12 @@ func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
 
 // TestCalcBodyTempRate_公開ラッパーは内部計算に委譲する は、バランス導出用に公開された
 // CalcBodyTempRate が非公開の calcBodyTempRate と同じ値を返すことを固定する。
+// 閾値ごとの分岐網羅は TestCalcBodyTempRate_閾値ごとの変化量を固定する が担うので、
+// ここでは委譲の契約を示す代表値のみを使う。
 func TestCalcBodyTempRate_公開ラッパーは内部計算に委譲する(t *testing.T) {
 	t.Parallel()
 
-	for _, effectiveTemp := range []int{-100, -50, -49, 0, 10, 40} {
+	for _, effectiveTemp := range []int{-100, 5} {
 		assert.Equal(t, calcBodyTempRate(effectiveTemp), CalcBodyTempRate(effectiveTemp))
 	}
 }
@@ -365,11 +367,16 @@ func TestGetRecoveryMessage(t *testing.T) {
 		assert.Empty(t, getRecoveryMessage(gc.ConditionHypothermia, gc.SeveritySevere))
 	})
 
-	t.Run("Medium以下は非空", func(t *testing.T) {
+	t.Run("Minor・Mediumは非空", func(t *testing.T) {
 		t.Parallel()
-		for _, sev := range []gc.Severity{gc.SeverityNone, gc.SeverityMinor, gc.SeverityMedium} {
+		for _, sev := range []gc.Severity{gc.SeverityMinor, gc.SeverityMedium} {
 			assert.NotEmpty(t, getRecoveryMessage(gc.ConditionHypothermia, sev))
 		}
+	})
+
+	t.Run("Noneは低体温が消えたことを告げる非空メッセージ", func(t *testing.T) {
+		t.Parallel()
+		assert.NotEmpty(t, getRecoveryMessage(gc.ConditionHypothermia, gc.SeverityNone))
 	})
 }
 
@@ -397,9 +404,10 @@ func TestLogTemperatureChange(t *testing.T) {
 		assert.Equal(t, 1, query.GetGameLog(world).Count())
 	})
 
-	t.Run("回復方向でメッセージが空ならログを出さない", func(t *testing.T) {
+	t.Run("回復メッセージが空ならログを出さない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		// Severeは回復メッセージを持たない最重症区分。current<=prevの分岐に入っても空になる
 		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeveritySevere, gc.SeveritySevere)
 		assert.Equal(t, 0, query.GetGameLog(world).Count())
 	})
