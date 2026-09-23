@@ -40,7 +40,7 @@ type StorageMenuState struct {
 	itemFilter func(w.World, ecs.Entity) bool
 	// extraCols は名前と重量の間へ差し込む追加列。燃料メニューの熱量列に使う
 	extraCols []trailingColumn
-	// storeOnly は投入タブだけを出すか
+	// storeOnly は取り出しタブを隠し投入タブだけを出す
 	storeOnly bool
 	// titleFunc は見出しを世界から導く。nil なら見出し無し
 	titleFunc func(w.World) string
@@ -70,7 +70,7 @@ func WithColumn(style styled.Col, cell func(w.World, ecs.Entity, int) string) St
 	}
 }
 
-// WithStoreOnly は取り出しタブを隠し投入タブだけにする。燃料は入れたら即残数になり取り出さないため
+// WithStoreOnly は取り出しタブを隠し投入タブだけにする。入れて使うだけの一方向の収納で使う
 func WithStoreOnly() StorageOption {
 	return func(st *StorageMenuState) { st.storeOnly = true }
 }

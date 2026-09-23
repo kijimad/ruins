@@ -43,6 +43,7 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 				emptyCell := func(w.World, ecs.Entity, int) string { return "" }
 				return NewStorageMenuState(cube,
 					WithItemFilter(isFuelItem),
+					// 燃料は投入して消費するものなので取り出しタブは出さない
 					WithStoreOnly(),
 					WithTitle(fuelTitle),
 					WithColumn(styled.Num(), fuelHeatCell),
