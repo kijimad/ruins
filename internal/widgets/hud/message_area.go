@@ -60,7 +60,7 @@ func NewMessageArea(world w.World) *MessageArea {
 	return &MessageArea{
 		widget:  widget,
 		config:  config,
-		chrome:  NewChrome(world.Resources.UIResources),
+		chrome:  Chrome{},
 		enabled: true,
 	}
 }

@@ -96,7 +96,7 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 	s.chrome.Panel(cv, s.rect)
 	if s.selected {
 		// 選択中のスロットには明るい枠線を重ねる
-		cv.StrokeRect(s.rect, 2, theme.HUDSlotSelectedBorder)
+		cv.StrokeRect(s.rect, 2, theme.HUDSlotSelectedBorder, uicore.RectOptions{Radius: theme.CornerRadius})
 	}
 	if s.slot.WeaponName != "" {
 		if img := s.sprites.Image(&gc.SpriteRender{SpriteSheetName: s.slot.SpriteSheet, SpriteKey: s.slot.SpriteName}); img != nil {
