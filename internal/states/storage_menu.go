@@ -40,8 +40,8 @@ type StorageMenuState struct {
 	itemFilter func(w.World, ecs.Entity) bool
 	// extraCols は名前と重量の間へ差し込む追加列。燃料メニューの熱量列に使う
 	extraCols []trailingColumn
-	// storeOnly は取り出しタブを隠し投入タブだけを出す
-	storeOnly bool
+	// tabs は表示するタブを順に持つ。空なら取り出し・投入の両方を出す
+	tabs []tabID
 	// titleFunc は見出しを世界から導く。nil なら見出し無し
 	titleFunc func(w.World) string
 	detail    overlay.Detail // 詳細モーダル。overlay として Screen に登録する
@@ -70,9 +70,9 @@ func WithColumn(style styled.Col, cell func(w.World, ecs.Entity, int) string) St
 	}
 }
 
-// WithStoreOnly は取り出しタブを隠し投入タブだけにする。入れて使うだけの一方向の収納で使う
-func WithStoreOnly() StorageOption {
-	return func(st *StorageMenuState) { st.storeOnly = true }
+// WithTabs は表示するタブと順序を指定する。既定は取り出しと投入の両方。投入だけにするなど絞る用途で使う
+func WithTabs(ids ...tabID) StorageOption {
+	return func(st *StorageMenuState) { st.tabs = ids }
 }
 
 // WithTitle は画面上部の見出しを世界から導く関数を設定する。毎フレーム呼ぶので軽い読み取りにする
@@ -151,12 +151,26 @@ func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {
 	if err != nil {
 		return StorageProps{}, err
 	}
-	storeTab := storageTabData{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))}
-	if st.storeOnly {
-		return StorageProps{Tabs: []storageTabData{storeTab}}, nil
+	ids := st.tabs
+	if len(ids) == 0 {
+		ids = []tabID{tabIDRetrieve, tabIDStore}
 	}
-	retrieveTab := storageTabData{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, st.filterStacks(world, query.StorageStacks(world, st.storageEntity)))}
-	return StorageProps{Tabs: []storageTabData{retrieveTab, storeTab}}, nil
+	tabs := make([]storageTabData, len(ids))
+	for i, id := range ids {
+		tabs[i] = st.buildTab(world, player, id)
+	}
+	return StorageProps{Tabs: tabs}, nil
+}
+
+// buildTab は指定タブの表示データを組む。取り出しは収納の中身、投入はプレイヤーの所持品を出す
+func (st *StorageMenuState) buildTab(world w.World, player ecs.Entity, id tabID) storageTabData {
+	switch id {
+	case tabIDRetrieve:
+		return storageTabData{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, st.filterStacks(world, query.StorageStacks(world, st.storageEntity)))}
+	case tabIDStore:
+		return storageTabData{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))}
+	}
+	panic("unknown tab: " + string(id))
 }
 
 // filterStacks は両タブに出す束を itemFilter で絞る。フィルタ未指定なら素通しする

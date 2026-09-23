@@ -34,17 +34,17 @@ func TestStorageMenuState_燃料投入は可燃物だけ通す(t *testing.T) {
 	assert.Equal(t, fuel, filtered[0].Rep)
 }
 
-func TestStorageMenuState_storeOnlyは投入タブだけ返す(t *testing.T) {
+func TestStorageMenuState_WithTabsで表示タブを絞る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 	storage := world.ECS.NewEntity()
 
-	only := &StorageMenuState{storageEntity: storage, storeOnly: true}
+	only := &StorageMenuState{storageEntity: storage, tabs: []tabID{tabIDStore}}
 	props, err := only.Fetch(world)
 	require.NoError(t, err)
-	require.Len(t, props.Tabs, 1, "取り出しタブを隠し投入タブだけにする")
+	require.Len(t, props.Tabs, 1, "指定した投入タブだけを出す")
 	assert.Equal(t, tabIDStore, props.Tabs[0].ID)
 
 	both := &StorageMenuState{storageEntity: storage}
