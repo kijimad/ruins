@@ -36,6 +36,35 @@ func TestDangerLevel(t *testing.T) {
 	})
 }
 
+func TestDangerLevelForDepth(t *testing.T) {
+	t.Parallel()
+
+	t.Run("起点は最小の1", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 1, DangerLevelForDepth(0))
+	})
+
+	t.Run("負の深度も1に丸める", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 1, DangerLevelForDepth(-5))
+	})
+
+	t.Run("dangerChunksPerLevel未満はまだ1段目", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 1, DangerLevelForDepth(dangerChunksPerLevel-1))
+	})
+
+	t.Run("dangerChunksPerLevel進むとちょうど1段上がる", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 2, DangerLevelForDepth(dangerChunksPerLevel))
+	})
+
+	t.Run("複数段の北進も比例して上がる", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 4, DangerLevelForDepth(dangerChunksPerLevel*3))
+	})
+}
+
 func TestDangerLevelAt_worldのゲーム内時間から危険度を求める(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

@@ -138,6 +138,36 @@ func TestEnterDungeon_遺跡へ入り上り階段が入口へ結線される(t *
 	assert.Equal(t, entrancePos, world.Components.GridElement.Get(player).Coord, "入った入口へ戻る")
 }
 
+// TestEnterDungeon_入口の北進深度が危険度に反映される は、深い北で入った遺跡ほど危険度が上がる結合を固定する。
+// 単体では見えない「入口座標→深度→st.Danger」の伝播を、深度版が日数版を上回る北位置で確かめる。
+func TestEnterDungeon_入口の北進深度が危険度に反映される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	d := query.GetDungeon(world)
+	d.CurrentStage = gc.NewOverworldStage()
+
+	// 起点チャンク行は Rows/2=10。入口タイル Y=10 はチャンク行1で、北ほど行番号が小さいので起点より9北。
+	// 深度9の DangerLevelForDepth=4 が日数版 DangerLevelForDay(0)=1 を上回る
+	sb := query.EnsureSeamlessBand(world)
+	sb.Active = true
+	sb.ChunkH = 10
+	sb.Rows = 20
+
+	entrancePos := consts.Coord[consts.Tile]{X: 4, Y: 10}
+	_, err := lifecycle.SpawnPlayer(world, entrancePos, "ash")
+	require.NoError(t, err)
+
+	dayDanger := query.DangerLevelAt(world)
+	depthDanger := query.DangerLevelForDepth(9)
+	require.Greater(t, depthDanger, dayDanger, "深度が日数を上回る前提を確かめる")
+
+	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
+	require.NoError(t, st.enterDungeon(world, dungeon.DungeonDebug.Name()))
+
+	assert.Equal(t, depthDanger, st.Danger, "入口の深度で危険度が引き直される")
+}
+
 // TestDescend_現階を退避し訪問済み階を再稼働する は共存方式の下りを検証する。
 // 訪問済みの階へ降りると、現階は破棄されず退避され、行き先は再生成でなく再稼働される。
 // これが「行き来しても保持」の実挙動。実生成を通らない resume 経路で orchestration を確かめる。
