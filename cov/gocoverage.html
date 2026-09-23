@@ -413,7 +413,7 @@
 				
 				<option value="file178">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (64.1%)</option>
 				
-				<option value="file179">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.9%)</option>
+				<option value="file179">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.4%)</option>
 				
 				<option value="file180">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -675,7 +675,7 @@
 				
 				<option value="file309">github.com/kijimaD/ruins/internal/widgets/hud/macro_map.go (92.2%)</option>
 				
-				<option value="file310">github.com/kijimaD/ruins/internal/widgets/hud/map_grid.go (98.6%)</option>
+				<option value="file310">github.com/kijimaD/ruins/internal/widgets/hud/map_grid.go (98.8%)</option>
 				
 				<option value="file311">github.com/kijimaD/ruins/internal/widgets/hud/message_area.go (2.6%)</option>
 				
@@ -24557,7 +24557,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov8" title="1">return false
+                <span class="cov0" title="0">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -47555,32 +47555,28 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 </span>        }
 }
 
-// 現在地三角形の各頂点のセル辺への比。縦横を近づけて縦長を避ける
+// 現在地マーカーの各頂点のセル辺への比。中央から前後の針先までの距離と、中央の半幅
 const (
-        playerMarkerTip  = 0.42 // tip の前方距離
-        playerMarkerHalf = 0.30 // 底辺の半幅
-        playerMarkerBack = 0.24 // 底辺の後方距離
+        playerMarkerTip  = 0.42 // 中央から前後の針先までの距離
+        playerMarkerHalf = 0.22 // 中央(y=0)の半幅。前後の三角はこの左右2点を共有底辺にする
 )
 
-// drawPlayerMarker は現在地の三角形を描く。無回転で北(上)を指す三角形を、中央を軸に向きだけ回す。
-// tip が前方、底辺2点が後方。
+// drawPlayerMarker は現在地を上下対称の二色針で描く。中央で背中合わせの2つの三角を並べ、
+// 前方の針先を金、後方をシルバーにして向きの前後を示す。無回転で北(上)を指し、向きだけ回す。
 func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) {
         // 中央原点のローカル頂点。y は下向きなので前方(北)は負
-        <span class="cov8" title="1">local := [3][2]float64{
-                {0, -cell * playerMarkerTip},                        // tip 前方
-                {-cell * playerMarkerHalf, cell * playerMarkerBack}, // 底辺左
-                {cell * playerMarkerHalf, cell * playerMarkerBack},  // 底辺右
-</span>        }
+        <span class="cov8" title="1">fwd := [2]float64{0, -cell * playerMarkerTip} // 前方の針先
+        back := [2]float64{0, cell * playerMarkerTip} // 後方の針先
+        left := [2]float64{-cell * playerMarkerHalf, 0}
+        right := [2]float64{cell * playerMarkerHalf, 0}
+</span>
         <span class="cov8" title="1">sin, cos := math.Sin(facing.Yaw()), math.Cos(facing.Yaw())
-        var p [3][2]float32
-        for i, v := range local </span>{
-                // 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
-                <span class="cov8" title="1">p[i] = [2]float32{
-                        float32(cx + v[0]*cos - v[1]*sin),
-                        float32(cy + v[0]*sin + v[1]*cos),
-</span>                }
-        }
-        <span class="cov8" title="1">cv.FillTriangle(p[0], p[1], p[2], theme.TextAccent)</span>
+</span>        // 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
+        <span class="cov8" title="1">rot := func(v [2]float64) [2]float32 </span>{
+                <span class="cov8" title="1">return [2]float32{float32(cx + v[0]*cos - v[1]*sin), float32(cy + v[0]*sin + v[1]*cos)}
+</span>        }
+        <span class="cov8" title="1">cv.FillTriangle(rot(fwd), rot(left), rot(right), theme.OverworldMapMarkerFront) // 前方=金
+        cv.FillTriangle(rot(back), rot(left), rot(right), theme.OverworldMapMarkerBack)</span> // 後方=シルバー
 }
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
@@ -50375,6 +50371,11 @@ var (
         // OverworldMapRoad はチャンクを通る道の線分色。舗装路に寄せた明るい暖灰。暗緑の荒れ地の上でも
         // 集落の黄の上でも読めるようにする
         OverworldMapRoad = color.RGBA{R: 205, G: 193, B: 165, A: 255}
+        // OverworldMapMarkerFront は現在地マーカーの前方(針先)の色。向いている方向を示す。
+        // 赤は羅針盤の北と誤読されるため暖色の金にする。マーカーの向きは北でなくプレイヤーの向き
+        OverworldMapMarkerFront = rgb(0xffcf50)
+        // OverworldMapMarkerBack は現在地マーカーの後方(尾)の色。前方の金に対し明るいシルバーで前後を分ける
+        OverworldMapMarkerBack = rgb(0xe6e6e6)
 )
 
 // ========== ステータス色 ==========
