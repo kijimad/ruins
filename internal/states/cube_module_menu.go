@@ -59,8 +59,7 @@ func (st *CubeModuleMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// Fetch は世界から表示 props を構築する。装着モジュールを保存スロット番号どおりに並べ、あるスロットを
-// 外しても他が繰り上がらないようにする
+// Fetch は世界から表示 props を構築する。装着モジュールを保存スロット番号どおりに並べる
 func (st *CubeModuleMenuState) Fetch(world w.World) (CubeModuleMenuProps, error) {
 	slots := make([]ecs.Entity, consts.CubeModuleSlots)
 	for i := range slots {
@@ -275,8 +274,7 @@ func cubeModuleChoiceCount(props CubeModuleSelectProps) int {
 }
 
 // applyCubeModuleChoice は選択を指定スロットへ実行する。「外す」なら装着中を収納へ戻し、候補なら装着する。
-// スロットに装着中があれば先に収納へ戻してから付け替える。スロット番号を保存するので、あるスロットを
-// 外しても他のスロットは繰り上がらない。
+// スロットに装着中があれば先に収納へ戻してから付け替える。
 func applyCubeModuleChoice(world w.World, cube ecs.Entity, slot int, choice cubeModuleChoice, installed *ecs.Entity) error {
 	if choice.remove {
 		if installed == nil {

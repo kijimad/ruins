@@ -112,7 +112,6 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		if err := spawnDebugStageFire(world); err != nil {
 			return zero, noEntity, err
 		}
-		// キューブの範囲モジュールを木箱の中へ入れておく。装着 UI を入ってすぐ試せる。工作台での作成は将来
 		if err := spawnDebugStageModules(world); err != nil {
 			return zero, noEntity, err
 		}
