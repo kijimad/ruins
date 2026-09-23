@@ -240,7 +240,8 @@ func deployFieldArea(world w.World) map[consts.Coord[consts.Tile]]bool {
 	for q.Next() {
 		e := q.Entity()
 		c := world.Components.GridElement.Get(e).Coord
-		r := query.CubeDeployRange(world, e)
+		// 壁は展開時に凍結した範囲で描く。展開中にモジュールで範囲が伸びても野営の見た目は変えない
+		r := world.Components.Deployed.Get(e).Range
 		for dy := -r.Y; dy <= r.Y; dy++ {
 			for dx := -r.X; dx <= r.X; dx++ {
 				area[consts.Coord[consts.Tile]{X: c.X + dx, Y: c.Y + dy}] = true

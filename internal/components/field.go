@@ -72,9 +72,14 @@ type Renderable struct{}
 // Drivable は運転可能であることを示すマーカー。SpawnCube が付与する。
 type Drivable struct{}
 
-// Deployed はキューブが展開中であることを示すマーカー。運転は Deployed が無いときのみ許す。
+// Deployed はキューブが展開中であることを示す。運転は Deployed が無いときのみ許す。
+// Range は展開した時点の野営フットプリントの縦横別半径を凍結して持つ。圧縮の畳み込みとレーザー壁描画は
+// この凍結値を参照する。展開中にモジュールで範囲が伸びても野営は展開時のまま変わらず、拡張は次の再展開で
+// 反映する。凍結しないと展開時に空だと検証していない外周まで圧縮で畳み込み、既存の prop を巻き込む。
 // 展開状態は保存する。展開中に保存すればロードでも展開のまま、貨物も配置ごと復元される。
-type Deployed struct{}
+type Deployed struct {
+	Range consts.Coord[consts.Tile]
+}
 
 // LocationStowed はキューブに畳み込んだ貨物であることを示すロケーション。Backpack・Storage・Equipped・
 // Field と排他で、圧縮時にフィールドから取り込むアイテムに付き、展開でフィールドへ戻すときに外れる。

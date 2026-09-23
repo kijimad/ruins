@@ -163,6 +163,33 @@ func TestStowCube_propも畳み込み展開で相対位置に戻す(t *testing.T
 		"prop は相対位置を保って戻る")
 }
 
+// TestStowCube_展開後に範囲が伸びても元野営外は巻き込まない は、展開中にモジュールで範囲が伸びても、
+// 圧縮は展開時に凍結した範囲だけを畳むことを固定する。凍結しないと展開時に空だと検証していない外周の
+// 既存 prop を巻き込む。半径2で展開し、距離3の prop を置き、範囲を伸ばすモジュールを装着してから圧縮する。
+func TestStowCube_展開後に範囲が伸びても元野営外は巻き込まない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	require.True(t, DeployCube(world, cube), "半径2で展開する")
+
+	// 展開時の野営半径2の外、距離3にある既存 prop。展開時の空き判定には含まれていない
+	outer, err := SpawnProp(world, "grass", 13, 10)
+	require.NoError(t, err)
+	query.InvalidateSpatialIndex(world)
+
+	// 展開中に範囲+1モジュールを装着するとライブ範囲は3になる。凍結範囲は展開時の2のまま
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
+	world.Components.LocationCubeModule.Add(m, &gc.LocationCubeModule{Owner: cube})
+	require.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 3}, query.CubeDeployRange(world, cube), "ライブ範囲は伸びる")
+
+	StowCube(world, cube)
+
+	assert.True(t, world.Components.LocationOnField.Has(outer), "距離3の既存 prop はフィールドに残る")
+	assert.False(t, world.Components.LocationStowed.Has(outer), "元野営外なので巻き込まれない")
+}
+
 func TestStowDefaultCubeCargo_展開で左上に既定貨物が現れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
