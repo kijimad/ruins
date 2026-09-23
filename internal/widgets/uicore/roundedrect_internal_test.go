@@ -1,6 +1,7 @@
 package uicore
 
 import (
+	"image/color"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,4 +27,16 @@ func TestClampRadius(t *testing.T) {
 			assert.Equal(t, tc.want, clampRadius(tc.radius, tc.w, tc.h))
 		})
 	}
+}
+
+// roundedFillShape は焼き済み画像をキャッシュから使い回す。命中すれば同じポインタ、キーが違えば
+// 別画像を返すことを確かめる。キャッシュが常にミスすると性能が落ちるが golden では気づけない。
+func TestRoundedFillShape_同じキーは焼き済み画像を使い回す(t *testing.T) {
+	t.Parallel()
+	// 他テストと衝突しない一意な寸法を使う
+	c := color.RGBA{R: 1, G: 2, B: 3, A: 255}
+	a := roundedFillShape(13, 17, 3, c)
+	assert.Same(t, a, roundedFillShape(13, 17, 3, c), "同じ寸法・半径・色は同じ画像を返す")
+	assert.NotSame(t, a, roundedFillShape(13, 17, 5, c), "半径が違えば別の画像")
+	assert.NotSame(t, a, roundedFillShape(13, 17, 3, color.RGBA{R: 9, G: 9, B: 9, A: 255}), "色が違えば別の画像")
 }
