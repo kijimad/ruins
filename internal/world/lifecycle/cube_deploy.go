@@ -50,7 +50,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	// InvalidEntity になるが実キャラと一致しないので、誰も除外しないだけで安全側に倒れる。
 	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
-	r := consts.CubeDeployBaseRange
+	r := consts.CubeDeployBaseRange()
 	for dy := -r.Y; dy <= r.Y; dy++ {
 		for dx := -r.X; dx <= r.X; dx++ {
 			if dx == 0 && dy == 0 {
@@ -93,7 +93,7 @@ func StowCube(world w.World, cube ecs.Entity) {
 // 区別しつつ相対位置を覚えて展開で戻せるようにする。展開時に野営は空なので、畳むのはプレイヤーが置いた物だけ。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	base := world.Components.GridElement.Get(cube).Coord
-	r := consts.CubeDeployBaseRange
+	r := consts.CubeDeployBaseRange()
 
 	var targets []ecs.Entity
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()

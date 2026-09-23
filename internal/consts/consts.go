@@ -46,9 +46,12 @@ const (
 	FuelGaugeFullHeat Heat = 3000
 )
 
-// CubeDeployBaseRange はモジュール未装着時の展開野営の縦横別の半径。X が東西、Y が南北。
-// 展開判定・畳み込み・レーザー壁描画がこの単一出典を参照する。Coord は struct で const にできないため var
-var CubeDeployBaseRange = Coord[Tile]{X: 2, Y: 2}
+// CubeDeployBaseRange はモジュール未装着時の展開野営の縦横別の半径を返す。X が東西、Y が南北。
+// 展開判定・畳み込み・レーザー壁描画がこの単一出典を参照する。Coord は struct で const にできず、
+// var は外部から書き換え可能なので、関数で返して不変にする。
+func CubeDeployBaseRange() Coord[Tile] {
+	return Coord[Tile]{X: 2, Y: 2}
+}
 
 // ========== ゲーム定数 ==========
 
