@@ -90,16 +90,15 @@ type LocationStowed struct {
 	Offset consts.Coord[consts.Tile]
 }
 
-// CubeModule はキューブに装着するモジュールの性能。展開範囲を縦横一律に何タイル広げるかを持つ。
-// 装着の有無に依らずアイテムが常に持つ性能で、spawn 時に raw から設定する。実効範囲は装着関係から
-// 読み取り時に導く。値そのものは導出でなくアイテム固有の性能なので保持する。
+// CubeModule はキューブに装着するモジュールの性能。値は導出でなくアイテム固有なので spawn 時に raw から
+// 設定して保持し、実効範囲は装着関係から読み取り時に導く。
 type CubeModule struct {
 	RangeBonus consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
 }
 
 // LocationInstalled はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
 // Equipped・Field・Stowed と排他。Owner は装着先のキューブ。装着関係を保存し、実効 stat は導出する。
-// Slot は装着スロット番号。装備スロットと同様にスロットを固定し、あるスロットを外しても他が繰り上がらない。
+// Slot は装着スロット番号。装備と同様に固定し、外しても他のスロットは繰り上がらない。
 type LocationInstalled struct {
 	Owner ecs.Entity
 	Slot  int
