@@ -72,9 +72,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	// 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
-	// 危険度は enterDungeonWith が入口深度込みで確定させ全階で共有する。ここは未設定時だけ初期化する
-	// フォールバックで、深度文脈のないデバッグ経路なので日数版で足りる。デバッグの自己スワップ再生成は
-	// 非ゼロの st.Danger をそのまま引き継ぎ、最初の進入時の危険度を保つ
+	// 危険度は enterDungeonWith が入口深度込みで確定し全階で共有する。未設定のデバッグ経路だけ日数版で補う
 	if st.Danger == 0 {
 		st.Danger = query.DangerLevelAt(world)
 	}
@@ -301,8 +299,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
 	fromPos := world.Components.GridElement.Get(player).Coord
 
-	// 遺跡の危険度は進入ごとに入口の北進度と日数の高い方で引き直す。深い北で入った遺跡ほど強い。
-	// 進入時に確定し全階で共有する。swapTo 前の確実な入口座標 fromPos から、市街地と同じ DepthOfChunkRow で引く
+	// 危険度は入口の北進度と日数の高い方で進入ごとに引き直し全階で共有する。swapTo 前の入口座標 fromPos から引く
 	st.Danger = query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
 		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d > st.Danger {
