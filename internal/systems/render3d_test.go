@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 )
@@ -128,4 +130,35 @@ func TestSortQuadsByDepth_奥行き同値はdepthの大きい方を手前にす�
 	sortQuadsByDepth(reversed, func(v render3d.Vec) float64 { return v.Z })
 	assert.Equal(t, 1, reversed[0].depth, "積む順に依らず depth 昇順で並ぶ")
 	assert.Equal(t, 3, reversed[1].depth)
+}
+
+// TestDeployFieldArea は展開野営のタイル集合を投影・描画から切り離して固定する。
+// 基準 2x2 の縦横別半径なので中心の周り 5x5=25 タイルの矩形になる。
+func TestDeployFieldArea(t *testing.T) {
+	t.Parallel()
+
+	t.Run("展開中キューブは中心周りの矩形を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube := world.ECS.NewEntity()
+		world.Components.GridElement.Add(cube, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		world.Components.Deployed.Add(cube, &gc.Deployed{})
+
+		area := deployFieldArea(world)
+
+		assert.Len(t, area, 25, "基準 2x2 なので 5x5 タイル")
+		assert.True(t, area[consts.Coord[consts.Tile]{X: 10, Y: 10}], "中心を含む")
+		assert.True(t, area[consts.Coord[consts.Tile]{X: 12, Y: 12}], "角(+2,+2)を含む")
+		assert.True(t, area[consts.Coord[consts.Tile]{X: 8, Y: 8}], "角(-2,-2)を含む")
+		assert.False(t, area[consts.Coord[consts.Tile]{X: 13, Y: 10}], "範囲外(+3,0)は含まない")
+	})
+
+	t.Run("展開していないキューブは空を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube := world.ECS.NewEntity()
+		world.Components.GridElement.Add(cube, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		assert.Empty(t, deployFieldArea(world), "Deployed が無ければ野営は無い")
+	})
 }

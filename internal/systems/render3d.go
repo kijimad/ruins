@@ -205,18 +205,7 @@ const (
 // 縦横別半径 CubeDeployBaseRange の矩形。隣がエリア外の辺にだけ縦面を張り、外周だけを描く。
 // エネルギー幕なので明るさに依らず一定の青で光らせ、visTint は掛けない。
 func (sys *Render3DSystem) collectDeployField(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
-	area := make(map[consts.Coord[consts.Tile]]bool)
-	q := query.ActiveFilter2[gc.Deployed, gc.GridElement](world).Query()
-	for q.Next() {
-		e := q.Entity()
-		c := world.Components.GridElement.Get(e).Coord
-		r := consts.CubeDeployBaseRange()
-		for dy := -r.Y; dy <= r.Y; dy++ {
-			for dx := -r.X; dx <= r.X; dx++ {
-				area[consts.Coord[consts.Tile]{X: c.X + dx, Y: c.Y + dy}] = true
-			}
-		}
-	}
+	area := deployFieldArea(world)
 	if len(area) == 0 {
 		return quads
 	}
@@ -240,6 +229,23 @@ func (sys *Render3DSystem) collectDeployField(world w.World, quads []r3quad, pro
 		}
 	}
 	return quads
+}
+
+// deployFieldArea は展開中の各キューブの野営矩形を合わせたタイル集合を返す。矩形はキューブ中心の
+// 縦横別半径 CubeDeployBaseRange。投影・描画から切り離した純関数で、レーザー壁の外周判定の元になる。
+func deployFieldArea(world w.World) map[consts.Coord[consts.Tile]]bool {
+	area := make(map[consts.Coord[consts.Tile]]bool)
+	q := query.ActiveFilter2[gc.Deployed, gc.GridElement](world).Query()
+	for q.Next() {
+		c := world.Components.GridElement.Get(q.Entity()).Coord
+		r := consts.CubeDeployBaseRange
+		for dy := -r.Y; dy <= r.Y; dy++ {
+			for dx := -r.X; dx <= r.X; dx++ {
+				area[consts.Coord[consts.Tile]{X: c.X + dx, Y: c.Y + dy}] = true
+			}
+		}
+	}
+	return area
 }
 
 // addFieldWall はレーザー壁の縦面を1枚積む。白1pxを青の頂点色と半透明で塗り、エネルギー幕にする。

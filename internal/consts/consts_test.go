@@ -16,5 +16,5 @@ func TestConstants(t *testing.T) {
 
 func TestCubeDeployBaseRange(t *testing.T) {
 	t.Parallel()
-	assert.Equal(t, Coord[Tile]{X: 2, Y: 2}, CubeDeployBaseRange())
+	assert.Equal(t, Coord[Tile]{X: 2, Y: 2}, CubeDeployBaseRange)
 }
