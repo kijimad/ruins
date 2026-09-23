@@ -2436,9 +2436,7 @@ components:
         ammo:
           $ref: '#/components/schemas/Ammo'
         cubeModule:
-          allOf:
-            - $ref: '#/components/schemas/CubeModule'
-          description: キューブモジュール。キューブに装着すると展開範囲を広げる
+          $ref: '#/components/schemas/CubeModule'
         melee:
           $ref: '#/components/schemas/Melee'
         fire:

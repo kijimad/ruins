@@ -1218,7 +1218,7 @@ type Item struct {
 	// Consumable 消費可能アイテムの設定
 	Consumable *Consumable `json:"consumable,omitempty"`
 
-	// CubeModule キューブモジュール。キューブに装着すると展開範囲を広げる
+	// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
 	CubeModule *CubeModule `json:"cubeModule,omitempty"`
 
 	// Description 説明文

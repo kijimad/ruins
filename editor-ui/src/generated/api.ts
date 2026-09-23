@@ -862,9 +862,6 @@ export interface Item {
     'wearable'?: Wearable;
     'equipBonus'?: EquipBonus;
     'ammo'?: Ammo;
-    /**
-     * キューブモジュール。キューブに装着すると展開範囲を広げる
-     */
     'cubeModule'?: CubeModule;
     'melee'?: Melee;
     'fire'?: Fire;
