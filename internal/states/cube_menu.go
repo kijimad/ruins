@@ -28,7 +28,7 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 		}
 		choices = append(choices,
 			Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
-				return NewStorageMenuState(cube, WithItemFilter(isFuelItem), WithHeatColumn())
+				return NewStorageMenuState(cube, WithItemFilter(isFuelItem), WithHeatColumn(), WithStoreOnly())
 			})},
 			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)

@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,6 +51,26 @@ func TestStorageMenuState_熱量列はshowHeatのときだけ埋まる(t *testin
 	on := (&StorageMenuState{showHeat: true}).toStorageItemData(world, stack)
 	require.Len(t, on, 1)
 	assert.Equal(t, consts.Heat(1600).String(), on[0].Heat, "showHeat は束の総熱量を出す")
+}
+
+func TestStorageMenuState_storeOnlyは投入タブだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	storage := world.ECS.NewEntity()
+
+	only := &StorageMenuState{storageEntity: storage, storeOnly: true}
+	props, err := only.Fetch(world)
+	require.NoError(t, err)
+	require.Len(t, props.Tabs, 1, "取り出しタブを隠し投入タブだけにする")
+	assert.Equal(t, tabIDStore, props.Tabs[0].ID)
+
+	both := &StorageMenuState{storageEntity: storage}
+	props2, err := both.Fetch(world)
+	require.NoError(t, err)
+	require.Len(t, props2.Tabs, 2, "既定は取り出し・投入の両タブ")
+	assert.Equal(t, tabIDRetrieve, props2.Tabs[0].ID)
 }
 
 func TestStorageMenuState_フィルタ未指定なら全て通す(t *testing.T) {

@@ -40,8 +40,10 @@ type StorageMenuState struct {
 	itemFilter func(w.World, ecs.Entity) bool
 	// showHeat は各行に熱量列を重量の左へ出すか。燃料メニューでだけ true にする
 	showHeat bool
-	detail   overlay.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen   *menuloop.Screen[StorageProps]
+	// storeOnly は投入タブだけを出すか。燃料は入れたら即残数になり取り出さないので取り出しタブを隠す
+	storeOnly bool
+	detail    overlay.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen    *menuloop.Screen[StorageProps]
 }
 
 // StorageOption は StorageMenuState の任意設定
@@ -56,6 +58,12 @@ func WithItemFilter(pred func(w.World, ecs.Entity) bool) StorageOption {
 // 汎用の収納メニューには渡さず、この文脈でだけ列を増やす
 func WithHeatColumn() StorageOption {
 	return func(st *StorageMenuState) { st.showHeat = true }
+}
+
+// WithStoreOnly は取り出しタブを隠し投入タブだけにする。燃料は入れたら即残数になり取り出さないので、
+// 取り出しの選択肢自体を無くす
+func WithStoreOnly() StorageOption {
+	return func(st *StorageMenuState) { st.storeOnly = true }
 }
 
 // State interface ================
@@ -129,12 +137,13 @@ func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {
 	if err != nil {
 		return StorageProps{}, err
 	}
-	return StorageProps{
-		Tabs: []storageTabData{
-			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, st.filterStacks(world, query.StorageStacks(world, st.storageEntity)))},
-			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))},
-		},
-	}, nil
+	storeTab := storageTabData{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))}
+	// 燃料は入れたら即残数になり取り出さないので、投入タブだけにする
+	if st.storeOnly {
+		return StorageProps{Tabs: []storageTabData{storeTab}}, nil
+	}
+	retrieveTab := storageTabData{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, st.filterStacks(world, query.StorageStacks(world, st.storageEntity)))}
+	return StorageProps{Tabs: []storageTabData{retrieveTab, storeTab}}, nil
 }
 
 // filterStacks は両タブに出す束を itemFilter で絞る。フィルタ未指定なら素通しする
