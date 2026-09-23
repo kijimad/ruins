@@ -238,8 +238,9 @@ func deployFieldArea(world w.World) map[consts.Coord[consts.Tile]]bool {
 	q := query.ActiveFilter2[gc.Deployed, gc.GridElement](world).Query()
 	defer q.Close()
 	for q.Next() {
-		c := world.Components.GridElement.Get(q.Entity()).Coord
-		r := consts.CubeDeployBaseRange()
+		e := q.Entity()
+		c := world.Components.GridElement.Get(e).Coord
+		r := query.CubeDeployRange(world, e)
 		for dy := -r.Y; dy <= r.Y; dy++ {
 			for dx := -r.X; dx <= r.X; dx++ {
 				area[consts.Coord[consts.Tile]{X: c.X + dx, Y: c.Y + dy}] = true

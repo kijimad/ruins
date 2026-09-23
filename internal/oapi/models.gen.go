@@ -931,6 +931,21 @@ type Consumable struct {
 	UsableScene UsableScene `json:"usableScene"`
 }
 
+// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横それぞれ広げる
+type CubeModule struct {
+	// RangeX キューブ展開範囲の東西の伸び幅。タイル数
+	RangeX CubeRangeBonusX `json:"rangeX"`
+
+	// RangeY キューブ展開範囲の南北の伸び幅。タイル数
+	RangeY CubeRangeBonusY `json:"rangeY"`
+}
+
+// CubeRangeBonusX キューブ展開範囲の東西の伸び幅。タイル数
+type CubeRangeBonusX = int
+
+// CubeRangeBonusY キューブ展開範囲の南北の伸び幅。タイル数
+type CubeRangeBonusY = int
+
 // DamageBonus ダメージ補正値
 type DamageBonus = int
 
@@ -1208,6 +1223,9 @@ type Item struct {
 
 	// Consumable 消費可能アイテムの設定
 	Consumable *Consumable `json:"consumable,omitempty"`
+
+	// CubeModule キューブモジュール。キューブに装着すると展開範囲を広げる
+	CubeModule *CubeModule `json:"cubeModule,omitempty"`
 
 	// Description 説明文
 	Description EntityDescription `json:"description"`

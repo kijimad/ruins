@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -139,6 +140,29 @@ Dexterity = 1
 	assert.Equal(t, gc.EquipmentType("FEET"), spec.Wearable.EquipmentCategory)
 	assert.Equal(t, 1, spec.Wearable.EquipBonus.Agility)
 	assert.Equal(t, 1, spec.Wearable.EquipBonus.Dexterity)
+}
+
+func TestNewItemSpec_キューブモジュールの範囲が設定される(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "範囲モジュールX"
+id = "範囲モジュールX"
+Description = "東西を広げる"
+
+[Items.CubeModule]
+RangeX = 2
+RangeY = 0
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "範囲モジュールX")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.CubeModule)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 0}, spec.CubeModule.RangeBonus)
 }
 
 func TestNewItemSpec_本が設定される(t *testing.T) {

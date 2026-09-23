@@ -125,6 +125,16 @@ scalar InsulationCold extends integer;
 @maxValue(100)
 scalar InsulationHeat extends integer;
 
+/** キューブ展開範囲の東西の伸び幅。タイル数 */
+@minValue(0)
+@maxValue(20)
+scalar CubeRangeBonusX extends integer;
+
+/** キューブ展開範囲の南北の伸び幅。タイル数 */
+@minValue(0)
+@maxValue(20)
+scalar CubeRangeBonusY extends integer;
+
 /** プレイヤーキャラクターかどうか */
 scalar IsPlayer extends boolean;
 

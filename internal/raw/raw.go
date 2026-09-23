@@ -347,6 +347,15 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
+	if item.CubeModule != nil {
+		entitySpec.CubeModule = &gc.CubeModule{
+			RangeBonus: consts.Coord[consts.Tile]{
+				X: consts.Tile(item.CubeModule.RangeX),
+				Y: consts.Tile(item.CubeModule.RangeY),
+			},
+		}
+	}
+
 	entitySpec.Value = &gc.Value{Value: item.Value}
 
 	if item.Weight != nil {

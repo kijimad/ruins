@@ -1968,6 +1968,27 @@ components:
         targetNum:
           $ref: '#/components/schemas/TargetNum'
       description: 消費可能アイテムの設定
+    CubeModule:
+      type: object
+      required:
+        - rangeX
+        - rangeY
+      properties:
+        rangeX:
+          $ref: '#/components/schemas/CubeRangeBonusX'
+        rangeY:
+          $ref: '#/components/schemas/CubeRangeBonusY'
+      description: キューブモジュール設定。装着すると展開野営の範囲を縦横それぞれ広げる
+    CubeRangeBonusX:
+      type: integer
+      minimum: 0
+      maximum: 20
+      description: キューブ展開範囲の東西の伸び幅。タイル数
+    CubeRangeBonusY:
+      type: integer
+      minimum: 0
+      maximum: 20
+      description: キューブ展開範囲の南北の伸び幅。タイル数
     DamageBonus:
       type: integer
       minimum: -100
@@ -2422,6 +2443,10 @@ components:
           $ref: '#/components/schemas/EquipBonus'
         ammo:
           $ref: '#/components/schemas/Ammo'
+        cubeModule:
+          allOf:
+            - $ref: '#/components/schemas/CubeModule'
+          description: キューブモジュール。キューブに装着すると展開範囲を広げる
         melee:
           $ref: '#/components/schemas/Melee'
         fire:

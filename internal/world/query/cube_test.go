@@ -117,6 +117,68 @@ func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, cube))
 }
 
+// attachCubeModule はテスト用に RangeBonus を持つモジュールをキューブへ装着する。
+func attachCubeModule(world w.World, cube ecs.Entity, bonus consts.Coord[consts.Tile]) ecs.Entity {
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: bonus})
+	world.Components.LocationCubeModule.Add(m, &gc.LocationCubeModule{Owner: cube})
+	return m
+}
+
+func TestCubeDeployRange_モジュールで縦横が別々に伸びる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, query.CubeDeployRange(world, cube),
+		"未装着は基準 2x2")
+
+	attachCubeModule(world, cube, consts.Coord[consts.Tile]{X: 1, Y: 0})
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 2}, query.CubeDeployRange(world, cube),
+		"range_x +1 で X だけ伸びる")
+
+	attachCubeModule(world, cube, consts.Coord[consts.Tile]{X: 0, Y: 2})
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 4}, query.CubeDeployRange(world, cube),
+		"range_y +2 で Y も伸びる")
+}
+
+func TestCubeDeployRange_別キューブのモジュールは数えない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	attachCubeModule(world, other, consts.Coord[consts.Tile]{X: 5, Y: 5})
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, query.CubeDeployRange(world, cube),
+		"別キューブのモジュールは効かない")
+}
+
+func TestGetCubeModules_装着したモジュールだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	m := attachCubeModule(world, cube, consts.Coord[consts.Tile]{X: 1, Y: 0})
+	attachCubeModule(world, other, consts.Coord[consts.Tile]{X: 1, Y: 0})
+
+	got := query.GetCubeModules(world, cube)
+	assert.Equal(t, []ecs.Entity{m}, got, "このキューブに装着した1件だけ")
+}
+
+func TestCubeWeight_装着モジュールも合算する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	m := attachCubeModule(world, cube, consts.Coord[consts.Tile]{X: 1, Y: 0})
+	world.Components.Weight.Add(m, &gc.Weight{Milligram: consts.Milligram(4 * consts.MilligramPerKg)})
+
+	assert.Equal(t, consts.Milligram(4*consts.MilligramPerKg), query.CubeWeight(world, cube),
+		"装着モジュールの重量が燃費に効く")
+}
+
 // TestDiscoveredChunks_北進ぶん絶対チャンク行をずらす は、探索済みタイルをチャンク粒度へ畳むとき
 // X は有界なので列は割るだけ、Y は北進 NorthIndex ぶん絶対チャンク行を負へずらすことを固定する。
 // マクロ地図フォグの座標の正確さに直結するので、NorthIndex>0 のシフト後を押さえる。

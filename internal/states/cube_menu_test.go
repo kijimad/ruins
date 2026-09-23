@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewCubeMenuState_圧縮中は展開を先頭に5項目を並べる(t *testing.T) {
+func TestNewCubeMenuState_圧縮中は展開を先頭に6項目を並べる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
@@ -35,10 +35,11 @@ func TestNewCubeMenuState_圧縮中は展開を先頭に5項目を並べる(t *t
 		query.T(world, "Deploy"),
 		query.T(world, "Drive"),
 		query.T(world, "Fuel"),
+		query.T(world, "Module"),
 		query.T(world, "Cube info"),
 		query.T(world, "Close"),
 	}
-	assert.Equal(t, want, labels, "圧縮中は展開・運転・燃料・キューブ情報・閉じるを順に並べる")
+	assert.Equal(t, want, labels, "圧縮中は展開・運転・燃料・モジュール・キューブ情報・閉じるを順に並べる")
 }
 
 func TestNewCubeMenuState_展開中は先頭が圧縮になる(t *testing.T) {

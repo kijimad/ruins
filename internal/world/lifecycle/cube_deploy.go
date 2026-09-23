@@ -25,6 +25,25 @@ func StowDefaultCubeCargo(world w.World, cube ecs.Entity) error {
 	return nil
 }
 
+// defaultCubeModuleItems はゲーム開始時にキューブへ積んでおく範囲モジュール。装着で展開範囲が伸びるのを
+// 序盤から試せるようにする。工作台での作成は将来。プレイヤーのバックパックでなくキューブ収納へ入れるので、
+// プレイヤーの所持重量は変わらず、装着はキューブメニューから行う。
+var defaultCubeModuleItems = []string{"cube_range_module_x", "cube_range_module_y"}
+
+// StockDefaultCubeModules はキューブ収納へ既定の範囲モジュールを積む。ゲーム開始時のキューブ生成でだけ呼ぶ。
+func StockDefaultCubeModules(world w.World, cube ecs.Entity) error {
+	for _, name := range defaultCubeModuleItems {
+		item, err := spawnItemBase(world, name)
+		if err != nil {
+			return err
+		}
+		if err := MoveToStorage(world, item, cube); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // DeployCube はキューブを展開する。野営が開いていれば Deployed を付けて
 // 貨物を相対位置へ出し直し true、1タイルでも塞がれていれば状態を変えず false を返す。
 func DeployCube(world w.World, cube ecs.Entity) bool {
@@ -50,7 +69,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	// InvalidEntity になるが実キャラと一致しないので、誰も除外しないだけで安全側に倒れる。
 	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
-	r := consts.CubeDeployBaseRange()
+	r := query.CubeDeployRange(world, cube)
 	for dy := -r.Y; dy <= r.Y; dy++ {
 		for dx := -r.X; dx <= r.X; dx++ {
 			// キューブ自身のタイルは障害物として見ない
@@ -94,7 +113,7 @@ func StowCube(world w.World, cube ecs.Entity) {
 // 区別しつつ相対位置を覚えて展開で戻せるようにする。展開時に野営は空なので、畳むのはプレイヤーが置いた物だけ。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	base := world.Components.GridElement.Get(cube).Coord
-	r := consts.CubeDeployBaseRange()
+	r := query.CubeDeployRange(world, cube)
 
 	var targets []ecs.Entity
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()

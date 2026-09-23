@@ -85,6 +85,19 @@ type LocationStowed struct {
 	Offset consts.Coord[consts.Tile]
 }
 
+// CubeModule はキューブに装着するモジュールの性能。展開範囲を X/Y それぞれ何タイル広げるかを持つ。
+// 装着の有無に依らずアイテムが常に持つ性能で、spawn 時に raw から設定する。実効範囲は装着関係から
+// 読み取り時に導く。値そのものは導出でなくアイテム固有の性能なので保持する。
+type CubeModule struct {
+	RangeBonus consts.Coord[consts.Tile] // 展開範囲の縦横の伸び幅
+}
+
+// LocationCubeModule はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
+// Equipped・Field・Stowed と排他。Owner は装着先のキューブ。装着関係を保存し、実効 stat は導出する。
+type LocationCubeModule struct {
+	Owner ecs.Entity
+}
+
 // Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。
 // Vehicle の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
 type Driving struct {

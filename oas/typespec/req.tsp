@@ -46,6 +46,12 @@ model Ammo {
   accuracyBonus: AccuracyBonus;
 }
 
+/** キューブモジュール設定。装着すると展開野営の範囲を縦横それぞれ広げる */
+model CubeModule {
+  rangeX: CubeRangeBonusX;
+  rangeY: CubeRangeBonusY;
+}
+
 /** 近接攻撃設定 */
 model Melee {
   accuracy: Accuracy;
@@ -106,6 +112,8 @@ model Item {
   wearable?: Wearable;
   equipBonus?: EquipBonus;
   ammo?: Ammo;
+  /** キューブモジュール。キューブに装着すると展開範囲を広げる */
+  cubeModule?: CubeModule;
   melee?: Melee;
   fire?: Fire;
   book?: Book;

@@ -138,6 +138,10 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	if derr := lifecycle.StowDefaultCubeCargo(world, cube); derr != nil {
 		return fmt.Errorf("failed to stow default cube cargo: %w", derr)
 	}
+	// 範囲モジュールをキューブ収納に積み、装着で展開範囲が伸びるのを序盤から試せるようにする
+	if merr := lifecycle.StockDefaultCubeModules(world, cube); merr != nil {
+		return fmt.Errorf("failed to stock default cube modules: %w", merr)
+	}
 
 	query.InvalidateSpatialIndex(world)
 	return nil
