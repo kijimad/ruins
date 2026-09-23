@@ -53,6 +53,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	r := consts.CubeDeployBaseRange()
 	for dy := -r.Y; dy <= r.Y; dy++ {
 		for dx := -r.X; dx <= r.X; dx++ {
+			// キューブ自身のタイルは障害物として見ない
 			if dx == 0 && dy == 0 {
 				continue
 			}

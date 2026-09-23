@@ -232,10 +232,11 @@ func (sys *Render3DSystem) collectDeployField(world w.World, quads []r3quad, pro
 }
 
 // deployFieldArea は展開中の各キューブの野営矩形を合わせたタイル集合を返す。矩形はキューブ中心の
-// 縦横別半径 CubeDeployBaseRange。投影・描画から切り離した純関数で、レーザー壁の外周判定の元になる。
+// 縦横別半径 CubeDeployBaseRange。レーザー壁の外周判定の元になる。
 func deployFieldArea(world w.World) map[consts.Coord[consts.Tile]]bool {
 	area := make(map[consts.Coord[consts.Tile]]bool)
 	q := query.ActiveFilter2[gc.Deployed, gc.GridElement](world).Query()
+	defer q.Close()
 	for q.Next() {
 		c := world.Components.GridElement.Get(q.Entity()).Coord
 		r := consts.CubeDeployBaseRange()
