@@ -251,15 +251,16 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 	}
 	currentTab := props.Tabs[tabIndex]
 	// 熱量列を出すときはアイコン・名前の後ろに熱量・重量の2数値列、出さないときは重量のみ。
+	// 熱量と重量は右寄せの数値どうしで隣接すると詰まって見えるので、間に空の間隔列を1つ挟む。
 	// 列とセルは同じ順序で組み、片方だけずれる不整合を避ける
 	cols := itemMenuColumns(styled.Num())
 	if st.showHeat {
-		cols = itemMenuColumns(styled.Num(), styled.Num())
+		cols = itemMenuColumns(styled.Num(), styled.Fit(), styled.Num())
 	}
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		if st.showHeat {
-			rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Heat, it.Weight)
+			rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Heat, "", it.Weight)
 		} else {
 			rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 		}
