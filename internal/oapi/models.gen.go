@@ -934,11 +934,8 @@ type Consumable struct {
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
 type CubeModule struct {
 	// RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
-	RangeBonus CubeRangeBonus `json:"rangeBonus"`
+	RangeBonus RangeBonus `json:"rangeBonus"`
 }
-
-// CubeRangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
-type CubeRangeBonus = int
 
 // DamageBonus ダメージ補正値
 type DamageBonus = int
@@ -1655,6 +1652,9 @@ type RGBAColor struct {
 	// R RGBA色チャネル値 (0-255)
 	R ColorChannel `json:"r"`
 }
+
+// RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
+type RangeBonus = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {

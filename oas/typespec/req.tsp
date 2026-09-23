@@ -48,7 +48,7 @@ model Ammo {
 
 /** キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる */
 model CubeModule {
-  rangeBonus: CubeRangeBonus;
+  rangeBonus: RangeBonus;
 }
 
 /** 近接攻撃設定 */
