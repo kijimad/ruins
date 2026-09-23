@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -192,4 +193,121 @@ func TestSleepBehavior_Canceled_Sleepingがなくてもpanicしない(t *testing
 	sb := &SleepBehavior{}
 	comp := &gc.Activity{CancelReason: "woke up from the cold"}
 	require.NoError(t, sb.Canceled(comp, actor, world))
+}
+
+func TestHasActiveHypothermia(t *testing.T) {
+	t.Parallel()
+
+	t.Run("HealthStatusがなければfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+
+		assert.False(t, hasActiveHypothermia(actor, world))
+	})
+
+	t.Run("低体温の不調がなければfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
+
+		assert.False(t, hasActiveHypothermia(actor, world))
+	})
+
+	t.Run("低体温だがTimerが閾値未満ならfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		hs := &gc.HealthStatus{}
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+			Type:  gc.ConditionHypothermia,
+			Timer: 24,
+		})
+		world.Components.HealthStatus.Add(actor, hs)
+
+		assert.False(t, hasActiveHypothermia(actor, world), "IsActiveの閾値25未満は発症扱いしない")
+	})
+
+	t.Run("低体温がIsActiveの閾値以上ならtrue", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		hs := &gc.HealthStatus{}
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+			Type:  gc.ConditionHypothermia,
+			Timer: 25,
+		})
+		world.Components.HealthStatus.Add(actor, hs)
+
+		assert.True(t, hasActiveHypothermia(actor, world))
+	})
+}
+
+func TestSleepBehavior_DoTurn_低体温が発症すると起床して中断理由が記録される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	// IsAreaSafe は GridElement が無いと不在扱いで安全と判定しないため、周辺に敵のいない座標を与える
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 1000, Max: 2000})
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+		Type:  gc.ConditionHypothermia,
+		Timer: 30,
+	})
+	world.Components.HealthStatus.Add(actor, hs)
+
+	sb := &SleepBehavior{}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSleep, State: gc.ActivityStateRunning}
+	require.NoError(t, sb.DoTurn(comp, actor, world))
+
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	assert.Equal(t, "woke up from the cold", comp.CancelReason)
+}
+
+func TestSleepBehavior_DoTurn_敵が近いと起床して中断理由が記録される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
+	// SpawnPlayerが既にFatigueを付けているので、上書きでなく既存コンポーネントの値を変える
+	world.Components.Fatigue.Get(actor).Current = 1000
+
+	sb := &SleepBehavior{}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSleep, State: gc.ActivityStateRunning}
+	require.NoError(t, sb.DoTurn(comp, actor, world))
+
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	assert.Equal(t, "sleep interrupted because enemies are nearby", comp.CancelReason)
+}
+
+func TestSleepBehavior_DoTurn_疲労が尽きると完了する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 0, Max: 2000})
+
+	sb := &SleepBehavior{}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSleep, State: gc.ActivityStateRunning}
+	require.NoError(t, sb.DoTurn(comp, actor, world))
+
+	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+}
+
+func TestSleepBehavior_DoTurn_疲労が残っていれば眠り続ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 500, Max: 2000})
+
+	sb := &SleepBehavior{}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSleep, State: gc.ActivityStateRunning}
+	require.NoError(t, sb.DoTurn(comp, actor, world))
+
+	assert.Equal(t, gc.ActivityStateRunning, comp.State, "疲労が残っていれば中断も完了もしない")
 }
