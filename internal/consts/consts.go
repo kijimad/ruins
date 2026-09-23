@@ -44,10 +44,9 @@ const (
 	CubeWeightCapacityKg = 500
 	// FuelGaugeFullHeat は燃料ゲージが満タン表示になる熱量。実在の上限でなく表示上のタンク容量。値は暫定
 	FuelGaugeFullHeat Heat = 3000
-	// CubeDeployBaseRangeX はモジュール未装着時の展開野営の東西の半径。展開範囲モジュールの寄与を
-	// これへ加算して実効半径を導く。矩形の組み立てと実効半径の導出は query.CubeDeployRange に閉じる
+	// CubeDeployBaseRangeX はモジュール未装着時の展開野営の東西の半径
 	CubeDeployBaseRangeX Tile = 2
-	// CubeDeployBaseRangeY はモジュール未装着時の展開野営の南北の半径。用途は東西と対
+	// CubeDeployBaseRangeY はモジュール未装着時の展開野営の南北の半径
 	CubeDeployBaseRangeY Tile = 2
 )
 

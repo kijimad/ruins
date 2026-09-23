@@ -72,8 +72,7 @@ func ChebyshevDistance[T consts.Numeric](a, b consts.Coord[T]) int {
 	return int(dy)
 }
 
-// WithinExtent は center から見て coord が縦横別の半径 ext の矩形に入るかを返す。チェビシェフが
-// 正方に限るのに対し、東西 ext.X と南北 ext.Y を別々に取る矩形の内外判定に使う。境界を含む。
+// WithinExtent は center から見て coord が縦横別の半径 ext の矩形に入るかを返す。境界を含む。
 func WithinExtent[T consts.Numeric](coord, center, ext consts.Coord[T]) bool {
 	return Abs(coord.X-center.X) <= ext.X && Abs(coord.Y-center.Y) <= ext.Y
 }

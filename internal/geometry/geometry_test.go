@@ -93,7 +93,7 @@ func TestWithinExtent(t *testing.T) {
 	t.Parallel()
 
 	center := consts.Coord[consts.Tile]{X: 10, Y: 10}
-	// 東西3・南北1の横長の矩形。チェビシェフでは表せない縦横別の内外を確かめる
+	// 東西3・南北1の横長で縦横別の内外を確かめる
 	ext := consts.Coord[consts.Tile]{X: 3, Y: 1}
 
 	tests := []struct {
