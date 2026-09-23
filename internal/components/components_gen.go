@@ -30,7 +30,7 @@ type EntitySpec struct {
 	LocationOnField    *LocationOnField
 	LocationInStorage  *LocationInStorage
 	LocationStowed     *LocationStowed
-	LocationCubeModule *LocationCubeModule
+	LocationInstalled  *LocationInstalled
 	Tile               *Tile
 	SoloAI             *SoloAI
 	Camera             *Camera
@@ -124,7 +124,7 @@ type Components struct {
 	LocationOnField    *ecs.Map[LocationOnField]
 	LocationInStorage  *ecs.Map[LocationInStorage]
 	LocationStowed     *ecs.Map[LocationStowed]
-	LocationCubeModule *ecs.Map[LocationCubeModule]
+	LocationInstalled  *ecs.Map[LocationInstalled]
 	Tile               *ecs.Map[Tile]
 	SoloAI             *ecs.Map[SoloAI]
 	Camera             *ecs.Map[Camera]
@@ -218,7 +218,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LocationOnField = ecs.NewMap[LocationOnField](world)
 	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
 	c.LocationStowed = ecs.NewMap[LocationStowed](world)
-	c.LocationCubeModule = ecs.NewMap[LocationCubeModule](world)
+	c.LocationInstalled = ecs.NewMap[LocationInstalled](world)
 	c.Tile = ecs.NewMap[Tile](world)
 	c.SoloAI = ecs.NewMap[SoloAI](world)
 	c.Camera = ecs.NewMap[Camera](world)
@@ -314,7 +314,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LocationOnField, entity, spec.LocationOnField)
 	addComp(c.LocationInStorage, entity, spec.LocationInStorage)
 	addComp(c.LocationStowed, entity, spec.LocationStowed)
-	addComp(c.LocationCubeModule, entity, spec.LocationCubeModule)
+	addComp(c.LocationInstalled, entity, spec.LocationInstalled)
 	addComp(c.Tile, entity, spec.Tile)
 	addComp(c.SoloAI, entity, spec.SoloAI)
 	addComp(c.Camera, entity, spec.Camera)

@@ -97,9 +97,9 @@ type CubeModule struct {
 	RangeBonus consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
 }
 
-// LocationCubeModule はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
+// LocationInstalled はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
 // Equipped・Field・Stowed と排他。Owner は装着先のキューブ。装着関係を保存し、実効 stat は導出する。
-type LocationCubeModule struct {
+type LocationInstalled struct {
 	Owner ecs.Entity
 }
 

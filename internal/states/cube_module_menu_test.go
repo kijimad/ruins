@@ -54,7 +54,7 @@ func TestApplyCubeModuleChoice_収納から装着する(t *testing.T) {
 	err := applyCubeModuleChoice(world, cube, cubeModuleChoice{entity: m}, nil)
 	require.NoError(t, err)
 
-	assert.True(t, world.Components.LocationCubeModule.Has(m), "装着で LocationCubeModule が付く")
+	assert.True(t, world.Components.LocationInstalled.Has(m), "装着で LocationInstalled が付く")
 	assert.False(t, world.Components.LocationInStorage.Has(m), "収納からは外れる")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 3}, query.CubeDeployRange(world, cube), "装着で範囲が伸びる")
 }
@@ -66,12 +66,12 @@ func TestApplyCubeModuleChoice_外して収納へ戻す(t *testing.T) {
 
 	m := world.ECS.NewEntity()
 	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
-	world.Components.LocationCubeModule.Add(m, &gc.LocationCubeModule{Owner: cube})
+	world.Components.LocationInstalled.Add(m, &gc.LocationInstalled{Owner: cube})
 
 	err := applyCubeModuleChoice(world, cube, cubeModuleChoice{remove: true}, &m)
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.LocationInStorage.Has(m), "外すと収納へ戻る")
-	assert.False(t, world.Components.LocationCubeModule.Has(m), "装着は外れる")
+	assert.False(t, world.Components.LocationInstalled.Has(m), "装着は外れる")
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, query.CubeDeployRange(world, cube), "外すと基準へ戻る")
 }

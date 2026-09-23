@@ -276,6 +276,6 @@ func applyCubeModuleChoice(world w.World, cube ecs.Entity, choice cubeModuleChoi
 			return err
 		}
 	}
-	lifecycle.MoveToCubeModule(world, choice.entity, cube)
+	lifecycle.MoveToInstalled(world, choice.entity, cube)
 	return nil
 }

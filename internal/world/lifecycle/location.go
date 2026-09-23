@@ -216,8 +216,8 @@ func clearLocation(world w.World, entity ecs.Entity) {
 		owner := world.Components.LocationStowed.Get(entity).Owner
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
-	if world.Components.LocationCubeModule.Has(entity) {
-		owner := world.Components.LocationCubeModule.Get(entity).Owner
+	if world.Components.LocationInstalled.Has(entity) {
+		owner := world.Components.LocationInstalled.Get(entity).Owner
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 
@@ -226,15 +226,15 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	ensureRemoved(world.Components.LocationOnField, entity)
 	ensureRemoved(world.Components.LocationInStorage, entity)
 	ensureRemoved(world.Components.LocationStowed, entity)
-	ensureRemoved(world.Components.LocationCubeModule, entity)
+	ensureRemoved(world.Components.LocationInstalled, entity)
 }
 
-// MoveToCubeModule はモジュールアイテムをキューブへ装着する。他ロケーションと排他になるよう
-// clearLocation してから LocationCubeModule を付ける。実効 stat は装着関係から読み取り時に導くので
+// MoveToInstalled はモジュールアイテムをキューブへ装着する。他ロケーションと排他になるよう
+// clearLocation してから LocationInstalled を付ける。実効 stat は装着関係から読み取り時に導くので
 // ここでは stat を書かない。重量は装着でキューブに乗るので WeightDirty を付ける。
-func MoveToCubeModule(world w.World, entity ecs.Entity, cube ecs.Entity) {
+func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity) {
 	clearLocation(world, entity)
-	world.Components.LocationCubeModule.Add(entity, &gc.LocationCubeModule{Owner: cube})
+	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube})
 	ensureRemoved(world.Components.GridElement, entity)
 	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }

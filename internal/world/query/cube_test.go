@@ -121,7 +121,7 @@ func TestCubeWeight_収納の物を合算する(t *testing.T) {
 func attachCubeModule(world w.World, cube ecs.Entity, bonus consts.Tile) ecs.Entity {
 	m := world.ECS.NewEntity()
 	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: bonus})
-	world.Components.LocationCubeModule.Add(m, &gc.LocationCubeModule{Owner: cube})
+	world.Components.LocationInstalled.Add(m, &gc.LocationInstalled{Owner: cube})
 	return m
 }
 

@@ -60,15 +60,15 @@ func StowedCargo(world w.World, cube ecs.Entity) []ecs.Entity {
 	return items
 }
 
-// GetCubeModules はキューブに装着したモジュールの一覧を返す。LocationCubeModule で Owner を辿り、
+// GetCubeModules はキューブに装着したモジュールの一覧を返す。LocationInstalled で Owner を辿り、
 // CubeModule も併せて絞るので、返る実体は性能コンポーネントを必ず持つ。読み取り側の Has チェックが要らない。
 // 反復中に return するとロックが残るので、対象を集めてから返す。
 func GetCubeModules(world w.World, cube ecs.Entity) []ecs.Entity {
 	var items []ecs.Entity
-	q := ecs.NewFilter2[gc.LocationCubeModule, gc.CubeModule](world.ECS).Query()
+	q := ecs.NewFilter2[gc.LocationInstalled, gc.CubeModule](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.LocationCubeModule.Get(e).Owner == cube {
+		if world.Components.LocationInstalled.Get(e).Owner == cube {
 			items = append(items, e)
 		}
 	}

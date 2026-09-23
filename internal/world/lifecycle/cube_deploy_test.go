@@ -181,7 +181,7 @@ func TestStowCube_展開後に範囲が伸びても元野営外は巻き込ま�
 	// 展開中に範囲+1モジュールを装着するとライブ範囲は3になる。凍結範囲は展開時の2のまま
 	m := world.ECS.NewEntity()
 	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
-	world.Components.LocationCubeModule.Add(m, &gc.LocationCubeModule{Owner: cube})
+	world.Components.LocationInstalled.Add(m, &gc.LocationInstalled{Owner: cube})
 	require.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 3}, query.CubeDeployRange(world, cube), "ライブ範囲は伸びる")
 
 	StowCube(world, cube)
