@@ -116,7 +116,7 @@ func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
 		{Height: gaugeSpacing},
 		{W: hpRow, Height: gaugeHeight},
 	}
-	// 運転中だけ燃料ゲージを HP の下へ足す。降車すれば data.Driving が落ちて消える
+	// 運転中だけ燃料ゲージを HP の下へ足す
 	if data.Driving {
 		fuelRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},
 			uicore.NewGroup(),
@@ -175,7 +175,7 @@ func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
 	return &gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}
 }
 
-// fuelGauge は運転中の燃料ゲージを返す。満で琥珀、空へ近づくほど赤へ寄り残量警告になる。
+// fuelGauge は運転中の燃料ゲージを返す。満で琥珀、空へ近づくと赤へ寄る。
 func (info *GameInfo) fuelGauge(data GameInfoData) uicore.Widget {
 	fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, data.FuelRatio)
 	return &gaugeWidget{fill: info.gaugeFill, ratio: data.FuelRatio, fillColor: fill, border: theme.HUDGaugeBorder}

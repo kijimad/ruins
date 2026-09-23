@@ -19,8 +19,7 @@ func isFuelItem(world w.World, e ecs.Entity) bool {
 	return query.HeatContent(world, e) > 0
 }
 
-// fuelHeatCell は燃料メニューの熱量列のセルを返す。束の総熱量を炎アイコン付きで整形する。
-// 熱量という燃料ドメインの知識をここに閉じ、汎用の収納メニューへ持ち込まない
+// fuelHeatCell は燃料メニューの熱量列のセルを返す。束の総熱量を炎アイコン付きで整形する
 func fuelHeatCell(world w.World, e ecs.Entity, count int) string {
 	return (query.HeatContent(world, e) * consts.Heat(count)).String()
 }
@@ -36,11 +35,11 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 		}
 		choices = append(choices,
 			Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
-				// 見出しに残燃料を出し、投入するたび即座に増えるのを見せる。炎アイコンと数字で燃料と分かる
+				// 見出しに残燃料を出し、投入で即増えるのを見せる
 				fuelTitle := func(world w.World) string {
 					return query.CubeFuelTotal(world, cube).String()
 				}
-				// 熱量を重量の左へ。右寄せ数値どうしが詰まらないよう空の間隔列を挟む
+				// 熱量を重量の左へ。数値どうしが詰まらないよう間に空の間隔列を挟む
 				emptyCell := func(w.World, ecs.Entity, int) string { return "" }
 				return NewStorageMenuState(cube,
 					WithItemFilter(isFuelItem),

@@ -38,13 +38,11 @@ type StorageMenuState struct {
 	// itemFilter は取り出し・投入の両タブに出す品を絞る述語。nil なら全許可。
 	// キューブの燃料投入で、燃料だけを見せ貨物を隠す用途で使う
 	itemFilter func(w.World, ecs.Entity) bool
-	// extraCols は名前列と重量列の間へ差し込む追加列。収納メニューは列の意味を知らず、呼ぶ側が
-	// 様式とセル文字列を渡す。燃料メニューの熱量列のように文脈固有の列をここへ注入する
+	// extraCols は名前と重量の間へ差し込む追加列。燃料メニューの熱量列に使う
 	extraCols []trailingColumn
-	// storeOnly は投入タブだけを出すか。燃料は入れたら即残数になり取り出さないので取り出しタブを隠す
+	// storeOnly は投入タブだけを出すか
 	storeOnly bool
-	// titleFunc は画面上部の見出しを世界から導く。nil なら見出し無し。ViewUI で毎フレーム呼ぶので
-	// 燃料の残数など投入で変わる値を出すと即座に反映される
+	// titleFunc は見出しを世界から導く。nil なら見出し無し
 	titleFunc func(w.World) string
 	detail    overlay.Detail // 詳細モーダル。overlay として Screen に登録する
 	screen    *menuloop.Screen[StorageProps]
@@ -58,29 +56,26 @@ func WithItemFilter(pred func(w.World, ecs.Entity) bool) StorageOption {
 	return func(st *StorageMenuState) { st.itemFilter = pred }
 }
 
-// trailingColumn は名前列と重量列の間へ差し込む追加列。収納メニューは列の意味を知らず、呼ぶ側が
-// 様式 style とセル文字列 cell を持つ。cell は entity と束の個数からセルを導く
+// trailingColumn は追加列の様式とセルを持つ。収納メニューは列の意味を知らず、呼ぶ側が渡す。
+// cell は entity と束の個数からセルを導く
 type trailingColumn struct {
 	style styled.Col
 	cell  func(w.World, ecs.Entity, int) string
 }
 
-// WithColumn は名前列と重量列の間へ列を1つ足す。収納メニューへ列の意味を持ち込まず、呼ぶ側が熱量の
-// ような文脈固有の列を注入する。複数渡すと渡した順に並ぶ
+// WithColumn は名前と重量の間へ列を1つ足す。複数渡すと渡した順に並ぶ
 func WithColumn(style styled.Col, cell func(w.World, ecs.Entity, int) string) StorageOption {
 	return func(st *StorageMenuState) {
 		st.extraCols = append(st.extraCols, trailingColumn{style: style, cell: cell})
 	}
 }
 
-// WithStoreOnly は取り出しタブを隠し投入タブだけにする。燃料は入れたら即残数になり取り出さないので、
-// 取り出しの選択肢自体を無くす
+// WithStoreOnly は取り出しタブを隠し投入タブだけにする。燃料は入れたら即残数になり取り出さないため
 func WithStoreOnly() StorageOption {
 	return func(st *StorageMenuState) { st.storeOnly = true }
 }
 
-// WithTitle は画面上部の見出しを世界から導く関数を設定する。燃料メニューで残燃料を出し、投入で即座に
-// 反映を見せる用途で使う。毎フレーム呼ぶので軽い純粋な読み取りにする
+// WithTitle は画面上部の見出しを世界から導く関数を設定する。毎フレーム呼ぶので軽い読み取りにする
 func WithTitle(fn func(w.World) string) StorageOption {
 	return func(st *StorageMenuState) { st.titleFunc = fn }
 }
@@ -157,7 +152,6 @@ func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {
 		return StorageProps{}, err
 	}
 	storeTab := storageTabData{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, st.filterStacks(world, query.BackpackStacks(world, player)))}
-	// 燃料は入れたら即残数になり取り出さないので、投入タブだけにする
 	if st.storeOnly {
 		return StorageProps{Tabs: []storageTabData{storeTab}}, nil
 	}
