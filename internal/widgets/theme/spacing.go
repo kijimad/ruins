@@ -11,6 +11,9 @@ const (
 	Space7 = 24 // 大きなセクション間
 )
 
+// CornerRadius は UI の箱・パネルの角丸半径。全 UI で共通に使う。
+const CornerRadius = 7
+
 // float64版。描画計算で頻繁に使う。変換を省略する
 const (
 	Space2F = float64(Space2)

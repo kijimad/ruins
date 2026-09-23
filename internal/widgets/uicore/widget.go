@@ -205,6 +205,38 @@ func (g *Group) Draw(cv Canvas) {
 // Children は Group を実装する。
 func (g *Group) Children() []Widget { return g.children }
 
+// Box は BoxStyle の単色ボックスを1つ描く葉ウィジェット。Group の層として単体で敷く
+// パネル背景に使う。子を持たず自分の矩形だけを塗る点が Container の背景と違う。
+type Box struct {
+	base
+	Style BoxStyle
+}
+
+// NewBox は単色ボックスの葉を作る。border が nil なら枠を描かない。枠幅は1。
+func NewBox(fill, border color.Color, radius int) *Box {
+	return &Box{Style: BoxStyle{Fill: fill, Border: border, BorderWidth: 1, Radius: radius}}
+}
+
+// Layout は Box を実装する。
+func (r *Box) Layout(b image.Rectangle) { r.rect = b }
+
+// Draw は Box を実装する。
+func (r *Box) Draw(cv Canvas) { drawBox(cv, r.rect, r.Style) }
+
+// drawBox は単色ボックスを敷く。Fill があれば塗り、Border があり幅が正なら枠を描く。Radius が正
+// なら四隅を丸める。Box 葉と Container 背景の共通描画で、単色ボックスの描き方を1箇所にする。
+func drawBox(cv Canvas, rect image.Rectangle, s BoxStyle) {
+	if s.Fill != nil {
+		cv.FillRect(rect, s.Fill, RectOptions{Radius: s.Radius})
+	}
+	if s.Border != nil && s.BorderWidth > 0 {
+		cv.StrokeRect(rect, s.BorderWidth, s.Border, RectOptions{Radius: s.Radius})
+	}
+}
+
+// Children は Box を実装する。子は持たない。
+func (r *Box) Children() []Widget { return nil }
+
 // Dir はコンテナの主軸方向。
 type Dir int
 
@@ -221,7 +253,7 @@ type Container struct {
 	dir      Dir
 	sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
 	style    BoxStyle
-	bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。パネルや選択行に使う
+	bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。選択行など横帯の意匠に使う
 	bgBX     [3]int
 	bgBY     [3]int
 	lineImg  *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
@@ -236,13 +268,14 @@ func (c *Container) SetPadding(pad int) *Container {
 	return c
 }
 
-// SetStyle は背景の塗りと枠を設定する。選択行の強調などに使う。
+// SetStyle は単色ボックスの背景 style を設定する。BoxStyle.Radius でパネルの角丸背景にもできる。
+// style が塗りか枠を持てば NineSlice 背景より優先される。
 func (c *Container) SetStyle(s BoxStyle) *Container {
 	c.style = s
 	return c
 }
 
-// SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。パネルや選択行の意匠に使う。
+// SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。選択行など横帯の意匠に使う。
 func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Container {
 	c.bgImage = img
 	c.bgBX = bx
@@ -311,16 +344,13 @@ func (c *Container) Layout(b image.Rectangle) {
 	root.Draw(layoutProbe())
 }
 
-// Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。
+// Draw は Container を実装する。背景を敷いてから子を描く。単色 style と NineSlice は排他で、
+// style が塗りか枠を持てばそちらを優先し、無ければ NineSlice を敷く。
 func (c *Container) Draw(cv Canvas) {
-	if c.bgImage != nil {
+	if c.style.Fill != nil || (c.style.Border != nil && c.style.BorderWidth > 0) {
+		drawBox(cv, c.rect, c.style)
+	} else if c.bgImage != nil {
 		cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
-	}
-	if c.style.Fill != nil {
-		cv.FillRect(c.rect, c.style.Fill)
-	}
-	if c.style.Border != nil && c.style.BorderWidth > 0 {
-		cv.StrokeRect(c.rect, c.style.BorderWidth, c.style.Border)
 	}
 	for _, ch := range c.children {
 		ch.Draw(cv)

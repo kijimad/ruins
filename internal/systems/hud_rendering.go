@@ -23,7 +23,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 	smallFace := world.Resources.UIResources.Text.SmallFace
 	titleFace := world.Resources.UIResources.Text.TitleFontFace
 	bodyFace := world.Resources.UIResources.Text.BodyFace
-	chrome := hud.NewChrome(world.Resources.UIResources)
+	chrome := hud.Chrome{}
 
 	return &HUDRenderingSystem{
 		gameInfo:     hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),

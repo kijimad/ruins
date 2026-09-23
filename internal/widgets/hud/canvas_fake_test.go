@@ -6,17 +6,21 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
+
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // fakeCanvas は uicore.Canvas の記録用実装。ebiten の描画コンテキスト無しで
 // どの描画命令が何回・どの引数で呼ばれたかだけを検証する。
 type fakeCanvas struct {
-	texts       []textCall
-	fillRects   []image.Rectangle
-	strokeRects []image.Rectangle
-	triangles   [][3][2]float32
-	nineSlices  int
-	tintedRects []image.Rectangle
+	texts          []textCall
+	fillRects      []image.Rectangle
+	strokeRects    []image.Rectangle
+	triangles      [][3][2]float32
+	nineSlices     int
+	tintedRects    []image.Rectangle
+	roundedFills   int
+	roundedStrokes int
 }
 
 // textCall は DrawText 呼び出し1回ぶんの記録
@@ -26,7 +30,11 @@ type textCall struct {
 	color color.Color
 }
 
-func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color) {
+func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color, opts ...uicore.RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
+		c.roundedFills++
+		return
+	}
 	c.fillRects = append(c.fillRects, r)
 }
 
@@ -34,7 +42,11 @@ func (c *fakeCanvas) FillTriangle(p0, p1, p2 [2]float32, _ color.Color) {
 	c.triangles = append(c.triangles, [3][2]float32{p0, p1, p2})
 }
 
-func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color) {
+func (c *fakeCanvas) StrokeRect(r image.Rectangle, _ int, _ color.Color, opts ...uicore.RectOptions) {
+	if len(opts) > 0 && opts[0].Radius > 0 {
+		c.roundedStrokes++
+		return
+	}
 	c.strokeRects = append(c.strokeRects, r)
 }
 

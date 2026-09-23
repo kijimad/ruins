@@ -170,11 +170,11 @@ func bodyTempFillColor(ratio float64) color.RGBA {
 	return theme.LerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)
 }
 
-// gaugeOverhang はセパレーターライン・枠線がゲージ塗りから左右にはみ出す量
-const gaugeOverhang = 6
+// gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。
+const gaugeCornerRadius = 4
 
-// gaugeWidget は1本のゲージ。与えられた矩形を塗り部分とし、上下の白枠を左右へ overhang ぶんはみ出して
-// 引き、比率ぶんの塗りをグラデーションのテクスチャで色掛けする。上が明るく下が暗い光沢になる。
+// gaugeWidget は1本のゲージ。与えられた矩形へ白枠を引き、比率ぶんの塗りをグラデーションの
+// テクスチャで色掛けする。上が明るく下が暗い光沢になる。
 type gaugeWidget struct {
 	rect      image.Rectangle
 	fill      *ebiten.Image
@@ -186,18 +186,15 @@ type gaugeWidget struct {
 // Layout は uicore.Widget を満たす。
 func (g *gaugeWidget) Layout(r image.Rectangle) { g.rect = r }
 
-// Draw は uicore.Widget を満たす。上下の白枠を左右へはみ出して引き、比率ぶんの塗りを重ねる。
+// Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、白枠を重ねる。
 func (g *gaugeWidget) Draw(cv uicore.Canvas) {
-	top := g.rect.Min.Y
-	left := g.rect.Min.X - gaugeOverhang
-	right := g.rect.Max.X + gaugeOverhang
-	cv.FillRect(image.Rect(left, top, right, top+1), g.border)
-	cv.FillRect(image.Rect(left, g.rect.Max.Y-1, right, g.rect.Max.Y), g.border)
-	if g.ratio > 0 && g.fill != nil {
-		fillW := int(float64(g.rect.Dx()) * g.ratio)
-		dst := image.Rect(g.rect.Min.X, top+1, g.rect.Min.X+fillW, top+1+gaugeFillHeight)
+	fillW := int(float64(g.rect.Dx()) * g.ratio)
+	if fillW > 0 && g.fill != nil {
+		// 塗りは上下1pxだけ内へ寄せ、枠の線と角の丸みに塗りが食み出さないようにする
+		dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)
 		cv.DrawImageTintedRect(dst, g.fill, color.NRGBA(g.fillColor))
 	}
+	cv.StrokeRect(g.rect, 1, g.border, uicore.RectOptions{Radius: gaugeCornerRadius})
 }
 
 // Children は uicore.Widget を満たす。子は持たない。

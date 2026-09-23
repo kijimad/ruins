@@ -21,9 +21,9 @@ func PanelInner(rect image.Rectangle) image.Rectangle {
 
 // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
 // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
-func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
+func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
 	inner := PanelInner(rect)
-	bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+	bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)
 	gfx := uicore.NewGraphic(img)
 	gfx.Layout(inner)
@@ -36,9 +36,9 @@ func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Ima
 // 役割が同じ行はどの画面でも同じ高さにして、画面をまたいだ見た目のずれを防ぐ
 const noteRowH = 16
 
-// panelBackground はパネル背景のテクスチャを敷く。
-func panelBackground(c *uicore.Container, res resources.UIResources) *uicore.Container {
-	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+// panelBackground はパネルの背景を敷く。
+func panelBackground(c *uicore.Container, _ resources.UIResources) *uicore.Container {
+	return c.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})
 }
 
 // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。
@@ -175,9 +175,9 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 	return groupWithPanelBG(rect, res, items)
 }
 
-// groupWithPanelBG はパネルテクスチャの背景と、配置済みの flex 行を1つの Group に束ねる。
-func groupWithPanelBG(rect image.Rectangle, res resources.UIResources, items []uicore.FlexItem) uicore.Widget {
-	bg := uicore.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+// groupWithPanelBG はパネルの背景と、配置済みの flex 行を1つの Group に束ねる。
+func groupWithPanelBG(rect image.Rectangle, _ resources.UIResources, items []uicore.FlexItem) uicore.Widget {
+	bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)
 	children := make([]uicore.Widget, 0, len(items)+1)
 	children = append(children, bg)
