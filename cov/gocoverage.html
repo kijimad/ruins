@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (92.1%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (91.1%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/activity/sleep.go (76.4%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/activity/sleep.go (90.9%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/activity/sleep_conditions.go (100.0%)</option>
 				
@@ -97,7 +97,7 @@
 				
 				<option value="file20">github.com/kijimaD/ruins/internal/activity/use_effect.go (73.7%)</option>
 				
-				<option value="file21">github.com/kijimaD/ruins/internal/activity/use_item.go (84.6%)</option>
+				<option value="file21">github.com/kijimaD/ruins/internal/activity/use_item.go (93.1%)</option>
 				
 				<option value="file22">github.com/kijimaD/ruins/internal/activity/wait.go (96.7%)</option>
 				
@@ -1704,7 +1704,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1791,7 +1791,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1855,8 +1855,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -4602,11 +4602,11 @@ func (sb *SleepBehavior) Start(_ *gc.Activity, actor ecs.Entity, world w.World) 
 // progressTurnFatigue が Sleeping を見て行うので、ここでは起床・中断の判定に徹する
 func (sb *SleepBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">if !query.IsAreaSafe(world, actor) </span>{
-                <span class="cov0" title="0">Cancel(comp, "sleep interrupted because enemies are nearby")
+                <span class="cov8" title="1">Cancel(comp, "sleep interrupted because enemies are nearby")
                 return nil
 </span>        }
         <span class="cov8" title="1">if hasActiveHypothermia(actor, world) </span>{
-                <span class="cov0" title="0">Cancel(comp, "woke up from the cold")
+                <span class="cov8" title="1">Cancel(comp, "woke up from the cold")
                 return nil
 </span>        }
         <span class="cov8" title="1">if isStarving(actor, world) </span>{
@@ -4614,7 +4614,7 @@ func (sb *SleepBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
                 return nil
 </span>        }
         <span class="cov8" title="1">if world.Components.Fatigue.Has(actor) &amp;&amp; world.Components.Fatigue.Get(actor).Current &lt;= 0 </span>{
-                <span class="cov0" title="0">Complete(comp)
+                <span class="cov8" title="1">Complete(comp)
 </span>        }
         <span class="cov8" title="1">return nil</span>
 }
@@ -4655,7 +4655,7 @@ func hasActiveHypothermia(actor ecs.Entity, world w.World) bool {
         <span class="cov8" title="1">if !world.Components.HealthStatus.Has(actor) </span>{
                 <span class="cov8" title="1">return false
 </span>        }
-        <span class="cov0" title="0">hs := world.Components.HealthStatus.Get(actor)
+        <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(actor)
         cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
         return cond != nil &amp;&amp; cond.IsActive()</span>
 }
@@ -5236,18 +5236,18 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
                 <span class="cov8" title="1">return
 </span>        }
 
-        <span class="cov0" title="0">itemName := u.getItemName(item, world)
+        <span class="cov8" title="1">itemName := u.getItemName(item, world)
         actorName := query.GetEntityName(actor, world)
 </span>
-        <span class="cov0" title="0">actorMarkup := query.NameMarkup(actor, actorName, world)
+        <span class="cov8" title="1">actorMarkup := query.NameMarkup(actor, actorName, world)
         itemMarkup := gamelog.Tag("item", itemName)
         logger := gamelog.New(query.GetGameLog(world))
         if isHealing </span>{
-                <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
+                <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
 </span>        } else {
-                <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s and took %d damage.", actorMarkup, itemMarkup, amount))
+                <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s and took %d damage.", actorMarkup, itemMarkup, amount))
 </span>        }
-        <span class="cov0" title="0">logger.Log()</span>
+        <span class="cov8" title="1">logger.Log()</span>
 }
 
 // logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える
@@ -5290,7 +5290,7 @@ func (u *UseItemBehavior) getItemName(item ecs.Entity, world w.World) string {
         <span class="cov8" title="1">if world.Components.Name.Has(item) </span>{
                 <span class="cov8" title="1">return query.T(world, world.Components.Name.Get(item).Name)
 </span>        }
-        <span class="cov0" title="0">return query.T(world, "Item")</span>
+        <span class="cov8" title="1">return query.T(world, "Item")</span>
 }
 </pre>
 		
