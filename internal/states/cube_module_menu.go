@@ -74,7 +74,8 @@ func (st *CubeModuleMenuState) Menu(_ CubeModuleMenuProps) menuloop.MenuConfig {
 
 // ViewUI はスロット一覧を中央パネルへ組む
 func (st *CubeModuleMenuState) ViewUI(world w.World, props CubeModuleMenuProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
-	cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name())
+	// スロット名を左、アイコンとアイテム名を右へ寄せる。間の伸縮スペーサで両者を離す
+	cols := styled.Cols(styled.Fit(), styled.Name(), styled.Icon(), styled.Fit())
 	rows := make([]menuframe.Row, consts.CubeModuleSlots)
 	for i := range rows {
 		label := query.T(world, "Slot %d", i+1)
@@ -84,7 +85,7 @@ func (st *CubeModuleMenuState) ViewUI(world w.World, props CubeModuleMenuProps, 
 			icon = menuIcon(world, props.Installed[i])
 			name = query.GetEntityName(props.Installed[i], world)
 		}
-		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(label), styled.IconCell(icon), styled.TextCell(name)}}
+		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(label), styled.TextCell(""), styled.IconCell(icon), styled.TextCell(name)}}
 	}
 	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{}, res)
 	return menuframe.PanelScreen(world, res, props.Footprint, list, keybind.HelpHint(world), pager)
