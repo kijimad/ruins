@@ -298,8 +298,10 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
 	fromPos := world.Components.GridElement.Get(player).Coord
 
-	// 入口の北進深度で危険度を底上げする。深い北で入った遺跡ほど強い。swapTo 前の入口座標から引く。
-	// spawnFloor は st.Danger==0 のときだけ日数から決めるので、ここで先に確定させれば深度が効く
+	// 入口の北進深度で危険度を底上げする。深い北で入った遺跡ほど強い。危険度は進入時に1度だけ確定して
+	// 全階で共有する実行時の値なので、生成の再訪一致は不要で NorthDepthChunks でよい。生成中で状態が
+	// 過渡的な spawnFloor でなく、swapTo 前の確実な入口座標 fromPos から引く。spawnFloor は
+	// st.Danger==0 のときだけ日数から決めるので、ここで先に確定させれば深度が効く
 	if st.Danger == 0 {
 		st.Danger = query.DangerLevelAt(world)
 		if d := query.DangerForDepth(query.NorthDepthChunks(world, fromPos.Y)); d > st.Danger {
