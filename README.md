@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [移動拠点キューブを展開式の携行基地へ拡張する](docs/design/260923140706.md) | 0/10 | gamedesign, item, ecs, movement |
 
 
 ## Reference
