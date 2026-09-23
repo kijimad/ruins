@@ -6329,14 +6329,17 @@ msgstr "モジュール"
 msgid "Deploy range"
 msgstr "展開範囲"
 
-msgid "Installed"
-msgstr "装着中"
+msgid "Slot %d"
+msgstr "スロット%d"
 
-msgid "Attach"
-msgstr "装着"
+msgid "(empty)"
+msgstr "(空き)"
 
 msgid "Remove"
 msgstr "取り外す"
 
-msgid "Install"
-msgstr "取り付ける"
+msgid "Choose module"
+msgstr "モジュールを選ぶ"
+
+msgid "No modules to install"
+msgstr "装着できるモジュールがない"
