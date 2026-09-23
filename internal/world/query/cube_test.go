@@ -55,6 +55,24 @@ func TestFuelGaugeRatio(t *testing.T) {
 	}
 }
 
+func TestPlayerDriving(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+
+	_, ok := query.PlayerDriving(world)
+	assert.False(t, ok, "Driving を持たなければ false")
+
+	cube := world.ECS.NewEntity()
+	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
+	got, ok := query.PlayerDriving(world)
+	assert.True(t, ok, "Driving を持てば返す")
+	if ok {
+		assert.Equal(t, cube, got.Vehicle, "運転対象を返す")
+	}
+}
+
 // addCubeFuel はキューブ収納に材質と重量を持つ燃料アイテムを1つ足す。
 // 生エンティティで足りる query 層のユニットテスト用。SpawnCube を使う統合テストは
 // activity パッケージ側の同名ヘルパを使い、こちらとは抽象レベルが異なる。
