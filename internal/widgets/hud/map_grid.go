@@ -34,7 +34,7 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 			}
 			x := style.OriginX + col*style.CellPx
 			y := style.OriginY + row*style.CellPx
-			cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), macroGlyphColor(cell.Glyph))
+			cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), macroGlyphColor(cell.Glyph), uicore.RectOptions{})
 			if cell.Road.Any() {
 				drawMapRoad(cv, x, y, style.CellPx, cell.Road)
 			}
@@ -91,7 +91,7 @@ func DrawMapLegend(cv uicore.Canvas, face, glyphFace text.Face, top int) {
 	const swatch = 14
 	x, y := 8, top
 	for _, g := range overworld.LegendGlyphs() {
-		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label))
+		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label), uicore.RectOptions{})
 		drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
 		cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
 		// 1項目120px幅で並べ、モーダル幅に収まる右端720pxを超えたら次の行へ折り返す
@@ -115,16 +115,16 @@ func drawMapRoad(cv uicore.Canvas, x, y, cell int, road overworld.RoadDir) {
 	bandLeft := ccx - half
 	col := theme.OverworldMapRoad
 	if road&overworld.RoadW != 0 {
-		cv.FillRect(image.Rect(x, bandTop, ccx+half, bandTop+t), col)
+		cv.FillRect(image.Rect(x, bandTop, ccx+half, bandTop+t), col, uicore.RectOptions{})
 	}
 	if road&overworld.RoadE != 0 {
-		cv.FillRect(image.Rect(bandLeft, bandTop, x+cell, bandTop+t), col)
+		cv.FillRect(image.Rect(bandLeft, bandTop, x+cell, bandTop+t), col, uicore.RectOptions{})
 	}
 	if road&overworld.RoadN != 0 {
-		cv.FillRect(image.Rect(bandLeft, y, bandLeft+t, ccy+half), col)
+		cv.FillRect(image.Rect(bandLeft, y, bandLeft+t, ccy+half), col, uicore.RectOptions{})
 	}
 	if road&overworld.RoadS != 0 {
-		cv.FillRect(image.Rect(bandLeft, bandTop, bandLeft+t, y+cell), col)
+		cv.FillRect(image.Rect(bandLeft, bandTop, bandLeft+t, y+cell), col, uicore.RectOptions{})
 	}
 }
 
