@@ -47,7 +47,7 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.NPCs = []NPCSpec{}
 	}
 
-	entries, err := resolveEnemyEntries(planData.RawMaster, n.plannerType.EnemyTableName, n.plannerType.Danger)
+	entries, err := resolveEnemyEntries(planData.RawMaster, n.plannerType.EnemyTableName, int(n.plannerType.Danger))
 	if err != nil {
 		return err
 	}

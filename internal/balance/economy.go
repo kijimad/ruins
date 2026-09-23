@@ -119,7 +119,7 @@ func EconomyProgression(master oapi.Raws, itemTableName string, days int, p Para
 	costPerDay := CostOfLivingPerDay(master, p)
 	out := make([]EconomyDay, 0, days)
 	for day := 1; day <= days; day++ {
-		danger := query.DangerLevelForDay(day)
+		danger := int(query.DangerLevelForDay(day))
 		net := ExpectedNetLootValue(master, itemTableName, danger)
 		perFood := 0.0
 		if net > 0 {

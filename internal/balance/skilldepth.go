@@ -41,7 +41,7 @@ func SkillDepthProfileFor(master oapi.Raws, weaponName, enemyTableName string, d
 	if err != nil {
 		return SkillDepthProfile{}, err
 	}
-	danger := query.DangerLevelForDay(day)
+	danger := int(query.DangerLevelForDay(day))
 
 	prof := SkillDepthProfile{Weapon: weaponName, MinEffectiveGap: math.Inf(1)}
 	prevTTK := math.NaN()

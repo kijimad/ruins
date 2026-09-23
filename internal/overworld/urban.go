@@ -208,7 +208,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 
 // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
 // c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。
-func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
+func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	danger := query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
 		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d > danger {
@@ -219,7 +219,7 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
 }
 
 // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger int) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger consts.Danger) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	footprint, door, err := planUrbanLot(world, g, rng)
@@ -274,7 +274,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger int, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
 	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
@@ -282,7 +282,7 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 	// 湧き数は街の規模で決める。敵種別は危険度でフィルタし、北へ進むほど・日が進むほど強敵が出る。
 	count := 1 + rng.IntN(int(size))
 	for range count {
-		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)
+		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(danger))
 		if err != nil {
 			return fmt.Errorf("failed to select urban enemy: %w", err)
 		}
