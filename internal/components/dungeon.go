@@ -57,9 +57,8 @@ func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
 	return sb.Rows / 2
 }
 
-// DepthOfChunkRow は絶対チャンク行の北進深度を返す。起点 SpawnChunkY からの北進チャンク数で、
-// 起点手前は0。query.NorthDepthChunks の座標版で、ChunkGen の c.Y から純粋に引ける。生成の難易度を
-// 深度で決めるとき、world を引く NorthDepthChunks でなくこちらを使い再訪一致を保つ。
+// DepthOfChunkRow は絶対チャンク行の北進深度を返す。起点 SpawnChunkY からの北進チャンク数で手前は0。
+// world を引く NorthDepthChunks の座標純関数版で、生成の難易度を深度で決めるのに使い再訪一致を保つ。
 func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) int {
 	if depth := int(sb.SpawnChunkY()) - int(absChunkRow); depth > 0 {
 		return depth

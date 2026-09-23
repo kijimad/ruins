@@ -181,15 +181,13 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		}
 		lootDice = d
 	}
-	// 危険度は北進度(空間)と経過日数(時間)の高い方。北へ進むほど・日が進むほど希少な loot が出る。
-	// 生成側は c.Y から DepthOfChunkRow で引くが、ここは収納物のタイル位置しか無いのでタイル座標版の
-	// NorthDepthChunks を使う。どちらも絶対座標へ解決して NorthIndex が相殺されるため、同じチャンクなら
-	// 同じ深度になり再訪一致は保たれる。深い北の建物ほど良い loot になる。
+	// 危険度は北進度(空間)と経過日数(時間)の高い方。深い北の建物ほど希少な loot が出る。
+	// 深度は市街地の敵と同じ DepthOfChunkRow で引き、収納物のタイル位置は AbsChunkRow でチャンク行へ移す
 	danger := query.DangerLevelAt(world)
-	if world.Components.GridElement.Has(entity) {
-		depthDanger := query.DangerForDepth(query.NorthDepthChunks(world, world.Components.GridElement.Get(entity).Y))
-		if depthDanger > danger {
-			danger = depthDanger
+	if sb := query.GetSeamlessBand(world); sb != nil && world.Components.GridElement.Has(entity) {
+		depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
+		if d := query.DangerForDepth(depth); d > danger {
+			danger = d
 		}
 	}
 	n := lootDice.Roll(rng)

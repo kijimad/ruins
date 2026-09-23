@@ -206,8 +206,8 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	return renderUrbanChunk(world, g, chunkSeed, size, fac, urbanDangerAt(world, c))
 }
 
-// urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と経過日数(時間)の高い方で、
-// 北へ進むほど強敵が解禁される。深度は c.Y から純粋に引くので生成の再訪一致を壊さない。
+// urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
+// c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。
 func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
 	danger := query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
