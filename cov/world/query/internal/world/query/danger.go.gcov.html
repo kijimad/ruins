@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-23 12:00:14</td>
+            <td class="headerValue">2026-09-23 16:27:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,6 +83,18 @@
 <span id="L21"><span class="lineNum">      21</span>              : func DangerLevelAt(world w.World) int {</span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return DangerLevelForDay(GetGameTime(world).GetDayNumber())</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // dangerChunksPerLevel は危険度が1段上がる北進チャンク数。値は暫定で、実プレイの伸びを測って振り直す。</span>
+<span id="L26"><span class="lineNum">      26</span>              : const dangerChunksPerLevel = 3</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // DangerLevelForDepth は北へ chunksNorth 進んだ場所の危険度を返す純関数。空間の難易度勾配。</span>
+<span id="L29"><span class="lineNum">      29</span>              : // world を引かず座標で決めるので生成の再訪一致を壊さない。日数版 DangerLevelForDay と対をなす。</span>
+<span id="L30"><span class="lineNum">      30</span>              : func DangerLevelForDepth(chunksNorth int) int {</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if chunksNorth &lt; 0 {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 chunksNorth = 0</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return 1 + chunksNorth/dangerChunksPerLevel</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
         </pre>
               </td>
             </tr>

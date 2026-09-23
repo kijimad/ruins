@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.1&nbsp;%</td>
-            <td class="headerCovTableEntry">113</td>
-            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntryMed">77.1&nbsp;%</td>
+            <td class="headerCovTableEntry">118</td>
+            <td class="headerCovTableEntry">91</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-23 12:00:14</td>
+            <td class="headerValue">2026-09-23 16:27:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,7 +221,7 @@
 <span id="L159"><span class="lineNum">     159</span>              : // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item</span>
 <span id="L160"><span class="lineNum">     160</span>              : // テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の</span>
 <span id="L161"><span class="lineNum">     161</span>              : // DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、</span>
-<span id="L162"><span class="lineNum">     162</span>              : // overworld は建物ローカルの決定的 RNG を使う。地上フロアなので深度は 0。</span>
+<span id="L162"><span class="lineNum">     162</span>              : // overworld は建物ローカルの決定的 RNG を使う。</span>
 <span id="L163"><span class="lineNum">     163</span>              : func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng *rand.Rand) error {</span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
@@ -243,23 +243,29 @@
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 :                 lootDice = d</span></span>
 <span id="L183"><span class="lineNum">     183</span>              :         }</span>
-<span id="L184"><span class="lineNum">     184</span>              :         // 危険度は経過日数で決める。日が進むほど希少な loot が出る。</span>
+<span id="L184"><span class="lineNum">     184</span>              :         // 危険度は北進度と経過日数の高い方。収納物のタイル位置を AbsChunkRow でチャンク行へ移して深度を引く</span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         danger := query.DangerLevelAt(world)</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         n := lootDice.Roll(rng)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         for range n {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L194"><span class="lineNum">     194</span>              :                 }</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         if sb := query.GetSeamlessBand(world); sb != nil {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 if d := query.DangerLevelForDepth(depth); d &gt; danger {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                         danger = d</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L191"><span class="lineNum">     191</span>              :         }</span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         n := lootDice.Roll(rng)</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         for range n {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L198"><span class="lineNum">     198</span>              :         }</span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L200"><span class="lineNum">     200</span>              : }</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L200"><span class="lineNum">     200</span>              :                 }</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L204"><span class="lineNum">     204</span>              :         }</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L206"><span class="lineNum">     206</span>              : }</span>
         </pre>
               </td>
             </tr>

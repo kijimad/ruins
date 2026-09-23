@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.5%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
@@ -469,7 +469,7 @@
 				
 				<option value="file206">github.com/kijimaD/ruins/internal/overworld/feature.go (92.9%)</option>
 				
-				<option value="file207">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.3%)</option>
+				<option value="file207">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.8%)</option>
 				
 				<option value="file208">github.com/kijimaD/ruins/internal/overworld/landmark.go (91.0%)</option>
 				
@@ -491,7 +491,7 @@
 				
 				<option value="file217">github.com/kijimaD/ruins/internal/overworld/settlement.go (88.9%)</option>
 				
-				<option value="file218">github.com/kijimaD/ruins/internal/overworld/urban.go (93.1%)</option>
+				<option value="file218">github.com/kijimaD/ruins/internal/overworld/urban.go (93.2%)</option>
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
@@ -565,7 +565,7 @@
 				
 				<option value="file254">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
-				<option value="file255">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (81.0%)</option>
+				<option value="file255">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (81.5%)</option>
 				
 				<option value="file256">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.1%)</option>
 				
@@ -5530,7 +5530,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -11714,6 +11714,15 @@ func (sb SeamlessBand) AbsChunkRow(localY consts.Tile) consts.Chunk {
 func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
         <span class="cov8" title="1">return sb.Rows / 2
 </span>}
+
+// DepthOfChunkRow は絶対チャンク行の北進深度を返す。起点 SpawnChunkY からの北進チャンク数で手前は0。
+// world を引く NorthDepthChunks の座標純関数版で、生成の難易度を深度で決めるのに使い再訪一致を保つ。
+func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) int {
+        <span class="cov8" title="1">if depth := int(sb.SpawnChunkY()) - int(absChunkRow); depth &gt; 0 </span>{
+                <span class="cov8" title="1">return depth
+</span>        }
+        <span class="cov8" title="1">return 0</span>
+}
 
 // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す
 // identity だけを持つ。フィールド寸法・探索履歴・帯データなどステージ固有の状態は各ステージの
@@ -29210,7 +29219,7 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item
 // テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の
 // DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
-// overworld は建物ローカルの決定的 RNG を使う。地上フロアなので深度は 0。
+// overworld は建物ローカルの決定的 RNG を使う。
 func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng *rand.Rand) error {
         <span class="cov8" title="1">propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
         if err != nil </span>{
@@ -29232,9 +29241,15 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 </span>                }
                 <span class="cov8" title="1">lootDice = d</span>
         }
-        // 危険度は経過日数で決める。日が進むほど希少な loot が出る。
+        // 危険度は北進度と経過日数の高い方。収納物のタイル位置を AbsChunkRow でチャンク行へ移して深度を引く
         <span class="cov8" title="1">danger := query.DangerLevelAt(world)
-        n := lootDice.Roll(rng)
+        if sb := query.GetSeamlessBand(world); sb != nil </span>{
+                <span class="cov8" title="1">depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
+                if d := query.DangerLevelForDepth(depth); d &gt; danger </span>{
+                        <span class="cov8" title="1">danger = d
+</span>                }
+        }
+        <span class="cov8" title="1">n := lootDice.Roll(rng)
         for range n </span>{
                 <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)
                 if err != nil </span>{
@@ -30693,7 +30708,7 @@ const (
         urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
         urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
-        // urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
+        // urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。危険度で種別をフィルタする
         urbanEnemyTable = "ruins_area"
 )
 
@@ -30871,11 +30886,23 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
         <span class="cov8" title="1">fac, size, _ := urbanChunkInfo(runSeed, c, cols)
         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-        return renderUrbanChunk(world, g, chunkSeed, size, fac)</span>
+        return renderUrbanChunk(world, g, chunkSeed, size, fac, urbanDangerAt(world, c))</span>
+}
+
+// urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
+// c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。
+func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
+        <span class="cov8" title="1">danger := query.DangerLevelAt(world)
+        if sb := query.GetSeamlessBand(world); sb != nil </span>{
+                <span class="cov8" title="1">if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d &gt; danger </span>{
+                        <span class="cov8" title="1">danger = d
+</span>                }
+        }
+        <span class="cov8" title="1">return danger</span>
 }
 
 // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger int) error {
         // ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
         <span class="cov8" title="1">rng := rand.New(rand.NewPCG(seed, 0x2))
         footprint, door, err := planUrbanLot(world, g, rng)
@@ -30886,7 +30913,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov8" title="1">return spawnUrbanEnemies(world, g, rng, size, isWall, occupied)</span>
+        <span class="cov8" title="1">return spawnUrbanEnemies(world, g, rng, size, danger, isWall, occupied)</span>
 }
 
 // planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
@@ -30929,15 +30956,14 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
-// 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+// 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger int, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
         <span class="cov8" title="1">enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to get urban enemy table: %w", err)
 </span>        }
-        // 湧き数は街の規模で決める。敵種別は経過日数の危険度でフィルタし、日が進むほど強敵が出る。
+        // 湧き数は街の規模で決める。敵種別は危険度でフィルタし、北へ進むほど・日が進むほど強敵が出る。
         <span class="cov8" title="1">count := 1 + rng.IntN(int(size))
-        danger := query.DangerLevelAt(world)
         for range count </span>{
                 <span class="cov8" title="1">enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)
                 if err != nil </span>{
@@ -37312,7 +37338,8 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
         // 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
         <span class="cov8" title="1">builderType.EnemyTableName = def.EnemyTableName()
         builderType.ItemTableName = def.ItemTableName()
-        if st.Danger == 0 </span>{
+</span>        // 危険度は enterDungeonWith が入口深度込みで確定し全階で共有する。未設定のデバッグ経路だけ日数版で補う
+        <span class="cov8" title="1">if st.Danger == 0 </span>{
                 <span class="cov8" title="1">st.Danger = query.DangerLevelAt(world)
 </span>        }
         <span class="cov8" title="1">builderType.Danger = st.Danger
@@ -37538,6 +37565,14 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
         // 入口のオーバーワールド座標。swapTo 前に値でコピーする
         <span class="cov8" title="1">fromPos := world.Components.GridElement.Get(player).Coord
 </span>
+        // 危険度は入口の北進度と日数の高い方で進入ごとに引き直し全階で共有する。swapTo 前の入口座標 fromPos から引く
+        <span class="cov8" title="1">st.Danger = query.DangerLevelAt(world)
+        if sb := query.GetSeamlessBand(world); sb != nil </span>{
+                <span class="cov8" title="1">if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d &gt; st.Danger </span>{
+                        <span class="cov8" title="1">st.Danger = d
+</span>                }
+        }
+
         <span class="cov8" title="1">target := gc.NewDungeonStage(defName, 1)
 </span>        // 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で
         // 今いる遺跡を選んだ場合など。SwapTo は自己スワップを前提としない
@@ -53639,6 +53674,18 @@ func DangerLevelForDay(days int) int {
 func DangerLevelAt(world w.World) int {
         <span class="cov8" title="1">return DangerLevelForDay(GetGameTime(world).GetDayNumber())
 </span>}
+
+// dangerChunksPerLevel は危険度が1段上がる北進チャンク数。値は暫定で、実プレイの伸びを測って振り直す。
+const dangerChunksPerLevel = 3
+
+// DangerLevelForDepth は北へ chunksNorth 進んだ場所の危険度を返す純関数。空間の難易度勾配。
+// world を引かず座標で決めるので生成の再訪一致を壊さない。日数版 DangerLevelForDay と対をなす。
+func DangerLevelForDepth(chunksNorth int) int {
+        <span class="cov8" title="1">if chunksNorth &lt; 0 </span>{
+                <span class="cov8" title="1">chunksNorth = 0
+</span>        }
+        <span class="cov8" title="1">return 1 + chunksNorth/dangerChunksPerLevel</span>
+}
 </pre>
 		
 		<pre class="file" id="file367" style="display: none">package query
