@@ -71,7 +71,7 @@ func TestCubeFacilityMenu_cellKindAtがマス種別を分ける(t *testing.T) {
 	require.NoError(t, err)
 	kind, facility := st.cellKindAt(world, used)
 	assert.Equal(t, hud.FacilityCellUsed, kind)
-	assert.Equal(t, item, facility, "Used のとき据わっている設備を併せて返す")
+	assert.Equal(t, item, facility, "Used のとき装着されている設備を併せて返す")
 }
 
 func TestCubeFacilityMenu_cursorInfoが内容と操作を返す(t *testing.T) {
@@ -87,7 +87,7 @@ func TestCubeFacilityMenu_cursorInfoが内容と操作を返す(t *testing.T) {
 	assert.Equal(t, query.T(world, "Empty"), content)
 	assert.Equal(t, query.T(world, "Enter: place"), hint)
 
-	// 据えた設備のマスは設備名と撤去操作を出す
+	// 装着した設備のマスは設備名と撤去操作を出す
 	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
 	require.NoError(t, err)
 	used := base.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})
@@ -112,33 +112,33 @@ func TestCubeFacilityMenu_doActionが入力を捌く(t *testing.T) {
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 1, Y: 0}, st.cursor, "方向キーでカーソルが動く")
 }
 
-func TestCubeFacilityMenu_selectCellの空きマスは据付選択へ進む(t *testing.T) {
+func TestCubeFacilityMenu_selectCellの空きマスは装着選択へ進む(t *testing.T) {
 	t.Parallel()
 	world, st, _ := deployedFacilityState(t)
-	// 据える候補をバックパックに用意する。無いとログのみで進まない
+	// 装着する候補をバックパックに用意する。無いとログのみで進まない
 	_, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
 	require.NoError(t, err)
 	st.cursor = consts.Coord[consts.Tile]{X: 1, Y: 0}
 
 	trans, err := st.selectCell(world)
 	require.NoError(t, err)
-	assert.Equal(t, es.TransPush, trans.Type, "空きマスで決定すると据付アイテム選択へ進む")
+	assert.Equal(t, es.TransPush, trans.Type, "空きマスで決定すると装着アイテム選択へ進む")
 }
 
-func TestPlaceFacilityChoice_範囲内は据え範囲外は何もしない(t *testing.T) {
+func TestPlaceFacilityChoice_範囲内は装着し範囲外は何もしない(t *testing.T) {
 	t.Parallel()
 	world, _, cube := deployedFacilityState(t)
 	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
 	require.NoError(t, err)
 	coord := world.Components.GridElement.Get(cube).Add(consts.Coord[consts.Tile]{X: 1, Y: 0})
 
-	// 範囲外は据えない
+	// 範囲外は装着しない
 	require.NoError(t, placeFacilityChoice(world, cube, coord, []ecs.Entity{item}, 5))
-	assert.True(t, world.Components.LocationInBackpack.Has(item), "範囲外の idx では据えない")
+	assert.True(t, world.Components.LocationInBackpack.Has(item), "範囲外の idx では装着しない")
 
-	// 範囲内は据える
+	// 範囲内は装着する
 	require.NoError(t, placeFacilityChoice(world, cube, coord, []ecs.Entity{item}, 0))
-	assert.True(t, world.Components.LocationOnField.Has(item), "範囲内の idx で据える")
+	assert.True(t, world.Components.LocationOnField.Has(item), "範囲内の idx で装着する")
 }
 
 func TestCubeFacilityMenu_Updateは展開中でなければ閉じる(t *testing.T) {
@@ -156,7 +156,7 @@ func TestCubeFacilityMenu_Updateは展開中でなければ閉じる(t *testing.
 	require.NoError(t, st.Draw(world, nil), "展開中でなければ描かず nil を返す")
 }
 
-func TestCubeFacilitySelect_Fetchが据付候補を返す(t *testing.T) {
+func TestCubeFacilitySelect_Fetchが装着候補を返す(t *testing.T) {
 	t.Parallel()
 	world, _, cube := deployedFacilityState(t)
 	_, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
@@ -165,7 +165,7 @@ func TestCubeFacilitySelect_Fetchが据付候補を返す(t *testing.T) {
 	st := &CubeFacilitySelectState{cube: cube, coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}
 	props, err := st.Fetch(world)
 	require.NoError(t, err)
-	assert.Len(t, props.Candidates, 1, "バックパックの据付アイテムを候補に出す")
+	assert.Len(t, props.Candidates, 1, "バックパックの装着アイテムを候補に出す")
 }
 
 func TestCubeFacilitySelect_Fetchはプレイヤー不在でエラー(t *testing.T) {

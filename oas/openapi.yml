@@ -2069,10 +2069,12 @@ components:
       type: object
       properties:
         storage:
-          allOf:
-            - $ref: '#/components/schemas/StorageRaw'
-          description: 収納設備の容量。据えると収納として開ける
-      description: 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
+          $ref: '#/components/schemas/StorageRaw'
+        lightSource:
+          $ref: '#/components/schemas/LightSource'
+        bedding:
+          $ref: '#/components/schemas/Bedding'
+      description: 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
     Dexterity:
       type: integer
       minimum: -100

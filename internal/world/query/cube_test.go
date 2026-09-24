@@ -188,7 +188,7 @@ func TestBackpackCubeModules_バックパックのモジュールだけ返す(t 
 	assert.Equal(t, []ecs.Entity{m}, query.BackpackCubeModules(world, player), "このプレイヤーのモジュール1件だけ")
 }
 
-func TestBackpackDeployables_バックパックの据付アイテムだけ返す(t *testing.T) {
+func TestBackpackDeployables_バックパックの装着アイテムだけ返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player := world.ECS.NewEntity()
@@ -197,17 +197,17 @@ func TestBackpackDeployables_バックパックの据付アイテムだけ返す
 	d := world.ECS.NewEntity()
 	world.Components.Deployable.Add(d, &gc.Deployable{})
 	world.Components.LocationInBackpack.Add(d, &gc.LocationInBackpack{Owner: player})
-	// 別プレイヤーの据付と、据付でないバックパック品は除く
+	// 別プレイヤーの装着と、装着でないバックパック品は除く
 	d2 := world.ECS.NewEntity()
 	world.Components.Deployable.Add(d2, &gc.Deployable{})
 	world.Components.LocationInBackpack.Add(d2, &gc.LocationInBackpack{Owner: other})
 	nondep := world.ECS.NewEntity()
 	world.Components.LocationInBackpack.Add(nondep, &gc.LocationInBackpack{Owner: player})
 
-	assert.Equal(t, []ecs.Entity{d}, query.BackpackDeployables(world, player), "このプレイヤーの据付アイテム1件だけ")
+	assert.Equal(t, []ecs.Entity{d}, query.BackpackDeployables(world, player), "このプレイヤーの装着アイテム1件だけ")
 }
 
-func TestFacilityAt_フィールドの据付設備だけを引く(t *testing.T) {
+func TestFacilityAt_フィールドの装着設備だけを引く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -223,10 +223,10 @@ func TestFacilityAt_フィールドの据付設備だけを引く(t *testing.T) 
 	require.NoError(t, err)
 
 	got, ok := query.FacilityAt(world, coord)
-	require.True(t, ok, "据えたマスの設備を引く")
+	require.True(t, ok, "装着したマスの設備を引く")
 	assert.Equal(t, item, got)
 
-	// バックパックの据付は座標を持たないので引かれない。空きマスも引かれない
+	// バックパックの装着は座標を持たないので引かれない。空きマスも引かれない
 	_, err = lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
 	require.NoError(t, err)
 	_, ok = query.FacilityAt(world, consts.Coord[consts.Tile]{X: 12, Y: 10})

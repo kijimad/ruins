@@ -29,7 +29,7 @@ var Registry = []Def{
 	{Field: "Abilities"},          // エンティティの能力値を保持する
 	{Field: "Ammo"},               // 弾薬アイテムの性能を保持する
 	{Field: "CubeModule"},         // キューブに装着するモジュールの性能を保持する
-	{Field: "Deployable"},         // キューブの展開空間へ据えられるアイテムであることを表す
+	{Field: "Deployable"},         // キューブの展開空間へ装着できるアイテムであることを表す
 	{Field: "LocationInBackpack"}, // バックパック内にあることを表す
 	{Field: "LocationEquipped"},   // 装備中であることを表す
 	{Field: "LocationOnField"},    // フィールド上にあることを表す

@@ -89,7 +89,7 @@ func BackpackCubeModules(world w.World, player ecs.Entity) []ecs.Entity {
 	return items
 }
 
-// BackpackDeployables はプレイヤーのバックパックにある据付アイテムを返す。設備画面の設置候補に使う。
+// BackpackDeployables はプレイヤーのバックパックにある装着アイテムを返す。設備画面の装着候補に使う。
 // 反復中に return するとロックが残るので、対象を集めてから返す。
 func BackpackDeployables(world w.World, player ecs.Entity) []ecs.Entity {
 	var items []ecs.Entity
@@ -103,8 +103,8 @@ func BackpackDeployables(world w.World, player ecs.Entity) []ecs.Entity {
 	return items
 }
 
-// FacilityAt は指定タイルのフィールドにある据付設備を返す。設備画面で撤去対象を引くのに使う。
-// フィールドに据わっている Deployable だけを対象にするので、grass など据付でない prop は撤去できない。
+// FacilityAt は指定タイルのフィールドにある装着設備を返す。設備画面で撤去対象を引くのに使う。
+// フィールドに装着されている Deployable だけを対象にするので、grass など装着でない prop は撤去できない。
 // LocationOnField を明示して確認し、座標だけ残った別ロケーションの実体を誤って引かない。
 func FacilityAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
 	for _, e := range GetEntitiesAt(world, coord.X, coord.Y) {

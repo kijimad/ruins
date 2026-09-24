@@ -78,7 +78,7 @@ func TestNewCubeMenuState_展開中は設備が有効で運転が無効(t *testi
 	assert.True(t, drive.Disabled, "展開中は運転できないので無効")
 	facility, ok := choiceByLabel(choices, query.T(world, "Facility"))
 	require.True(t, ok, "展開中も設備は並ぶ")
-	assert.False(t, facility.Disabled, "展開中は設備を据えられる")
+	assert.False(t, facility.Disabled, "展開中は設備を装着できる")
 }
 
 // TestDriveChoice_運転を選ぶとDrivingが付く は、キューブメニューの運転項目で乗車が始まることを固定する。

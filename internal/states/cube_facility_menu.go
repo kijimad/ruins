@@ -21,9 +21,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// CubeFacilityMenuState はキューブの展開空間へ設備を据える画面。展開空間を表す UI 内グリッドを描き、
-// カーソルでマスを選ぶ。空きマスで決定すると据付アイテムの選択へ進み、設備マスで決定すると撤去する。
-// フィールドを歩いて設置/撤去する経路は持たず、設置と撤去をこの画面へ集約する。展開中のみ開く。
+// CubeFacilityMenuState はキューブの展開空間へ設備を装着する画面。展開空間を表す UI 内グリッドを描き、
+// カーソルでマスを選ぶ。空きマスで決定すると装着アイテムの選択へ進み、設備マスで決定すると撤去する。
+// フィールドを歩いて装着/撤去する経路は持たず、装着と撤去をこの画面へ集約する。展開中のみ開く。
 type CubeFacilityMenuState struct {
 	es.BaseState[w.World]
 	cube   ecs.Entity
@@ -33,7 +33,7 @@ type CubeFacilityMenuState struct {
 var _ es.State[w.World] = &CubeFacilityMenuState{}
 
 // NewCubeFacilityMenuState はキューブの設備画面を開くファクトリを返す。カーソルはキューブ本体でなく
-// 隣のマスから始める。本体マスは据付先にならず、そこから始めると初手の決定が空振りして戸惑うため。
+// 隣のマスから始める。本体マスは装着先にならず、そこから始めると初手の決定が空振りして戸惑うため。
 func NewCubeFacilityMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return &CubeFacilityMenuState{cube: cube, cursor: consts.Coord[consts.Tile]{X: 1}}, nil
 }
@@ -94,7 +94,7 @@ func (st *CubeFacilityMenuState) moveCursor(world w.World, dx consts.Tile, dy co
 	st.cursor = next
 }
 
-// selectCell はカーソルのマスを決定する。空きなら据付アイテム選択へ、設備なら撤去する
+// selectCell はカーソルのマスを決定する。空きなら装着アイテム選択へ、設備なら撤去する
 func (st *CubeFacilityMenuState) selectCell(world w.World) (es.Transition[w.World], error) {
 	base := world.Components.GridElement.Get(st.cube).Coord
 	coord := base.Add(st.cursor)
@@ -142,7 +142,7 @@ func (st *CubeFacilityMenuState) removeAt(world w.World, coord consts.Coord[cons
 	return st.ConsumeTransition(), nil
 }
 
-// cellKindAt は coord のマスの見た目種別と、Used のとき据わっている設備を返す。据付でない prop や壁は障害物。
+// cellKindAt は coord のマスの見た目種別と、Used のとき装着されている設備を返す。装着でない prop や壁は障害物。
 func (st *CubeFacilityMenuState) cellKindAt(world w.World, coord consts.Coord[consts.Tile]) (hud.FacilityCellKind, ecs.Entity) {
 	if world.Components.GridElement.Get(st.cube).Coord == coord {
 		return hud.FacilityCellCube, ecs.Entity{}
@@ -194,7 +194,7 @@ func (st *CubeFacilityMenuState) Draw(world w.World, screen *ebiten.Image) error
 	return nil
 }
 
-// iconFor はマスに重ねるスプライトを返す。キューブ本体と据わった設備だけ絵を持つ。
+// iconFor はマスに重ねるスプライトを返す。キューブ本体と装着された設備だけ絵を持つ。
 func (st *CubeFacilityMenuState) iconFor(world w.World, kind hud.FacilityCellKind, facility ecs.Entity) *ebiten.Image {
 	switch kind {
 	case hud.FacilityCellCube:
@@ -221,8 +221,8 @@ func (st *CubeFacilityMenuState) cursorInfo(world w.World, coord consts.Coord[co
 	}
 }
 
-// CubeFacilitySelectState は空きマスへ据える据付アイテムを選ぶメニュー。モジュール選択と同型で、
-// バックパックの据付アイテムを並べ、選ぶと coord へ据えて閉じる。
+// CubeFacilitySelectState は空きマスへ装着する装着アイテムを選ぶメニュー。モジュール選択と同型で、
+// バックパックの装着アイテムを並べ、選ぶと coord へ装着して閉じる。
 type CubeFacilitySelectState struct {
 	es.BaseState[w.World]
 	cube   ecs.Entity
@@ -232,12 +232,12 @@ type CubeFacilitySelectState struct {
 
 var _ es.State[w.World] = &CubeFacilitySelectState{}
 
-// CubeFacilitySelectProps は据付アイテム選択の表示 props
+// CubeFacilitySelectProps は装着アイテム選択の表示 props
 type CubeFacilitySelectProps struct {
-	Candidates []ecs.Entity // 据えられる据付アイテム。プレイヤーのバックパックから集める
+	Candidates []ecs.Entity // 装着できる装着アイテム。プレイヤーのバックパックから集める
 }
 
-// newCubeFacilitySelectState は coord への据付アイテム選択を開くファクトリを返す
+// newCubeFacilitySelectState は coord への装着アイテム選択を開くファクトリを返す
 func newCubeFacilitySelectState(cube ecs.Entity, coord consts.Coord[consts.Tile]) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
 		return &CubeFacilitySelectState{cube: cube, coord: coord}, nil
@@ -287,7 +287,7 @@ func (st *CubeFacilitySelectState) ViewUI(world w.World, props CubeFacilitySelec
 	return menuframe.PanelScreen(world, res, query.T(world, "Choose facility"), list, keybind.HelpHint(world), pager)
 }
 
-// DoAction はActionを実行する。選択で据えて閉じる
+// DoAction はActionを実行する。選択で装着して閉じる
 func (st *CubeFacilitySelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
@@ -302,8 +302,8 @@ func (st *CubeFacilitySelectState) DoAction(world w.World, action inputmapper.Ac
 	}
 }
 
-// placeFacilityChoice は候補一覧の idx を coord へ据える。範囲外の idx は据えず nil を返す。
-// 画面の選択状態から据付を切り出し、UI ループを介さずに設置ロジックを試験できるようにする。
+// placeFacilityChoice は候補一覧の idx を coord へ装着する。範囲外の idx は装着せず nil を返す。
+// 画面の選択状態から装着を切り出し、UI ループを介さずに装着ロジックを試験できるようにする。
 func placeFacilityChoice(world w.World, cube ecs.Entity, coord consts.Coord[consts.Tile], candidates []ecs.Entity, idx int) error {
 	if idx < 0 || idx >= len(candidates) {
 		return nil

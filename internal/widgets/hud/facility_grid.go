@@ -10,15 +10,15 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// FacilityCellKind は設備グリッドの1マスの見た目の種別。据付可否と下地色を分ける。
+// FacilityCellKind は設備グリッドの1マスの見た目の種別。装着可否と下地色を分ける。
 type FacilityCellKind int
 
-// 設備グリッドのマス種別。据付可否と下地色を分ける
+// 設備グリッドのマス種別。装着可否と下地色を分ける
 const (
 	FacilityCellCube    FacilityCellKind = iota // キューブ本体
-	FacilityCellEmpty                           // 空き。据付できる
-	FacilityCellUsed                            // 設備が据わっている
-	FacilityCellBlocked                         // 壁や障害物。据付できない
+	FacilityCellEmpty                           // 空き。装着できる
+	FacilityCellUsed                            // 設備が装着されている
+	FacilityCellBlocked                         // 壁や障害物。装着できない
 )
 
 // FacilityCell は設備グリッドの1マス。下地の種別と、重ねるスプライトを持つ。
