@@ -18,6 +18,7 @@ func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.
 	if world.Components.GridElement.Get(cube).Coord == coord {
 		return false
 	}
+	// 空間索引が未構築なら nil。その間は空きなし扱いで据付を拒否し、安全側に倒す
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return false

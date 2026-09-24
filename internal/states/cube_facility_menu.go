@@ -168,6 +168,8 @@ func (st *CubeFacilityMenuState) Draw(world w.World, screen *ebiten.Image) error
 	cols := 2*int(r.X) + 1
 	rows := 2*int(r.Y) + 1
 
+	// マスごとに cellKindAt が LocationOnField を走査するが、展開空間は小さくメニュー1画面の描画なので
+	// 事前のセット化はせず許容する。範囲が大きくなり負荷が問題化したら1度の走査でマップを組む
 	cells := make([]hud.FacilityCell, 0, cols*rows)
 	for row := range rows {
 		for col := range cols {
