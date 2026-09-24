@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">94.9&nbsp;%</td>
-            <td class="headerCovTableEntry">117</td>
-            <td class="headerCovTableEntry">111</td>
+            <td class="headerCovTableEntry">118</td>
+            <td class="headerCovTableEntry">112</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:39:39</td>
+            <td class="headerValue">2026-09-24 02:17:07</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,29 +221,33 @@
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         }), nil</span></span>
 <span id="L160"><span class="lineNum">     160</span>              : }</span>
 <span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span>              : // SpawnCube は運転できる移動拠点キューブをオーバーワールドに生成する。</span>
-<span id="L163"><span class="lineNum">     163</span>              : // blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。</span>
-<span id="L164"><span class="lineNum">     164</span>              : func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         return world.Components.AddEntity(world.ECS, &amp;gc.EntitySpec{</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 Name:        &amp;gc.Name{Name: query.T(world, &quot;Cube&quot;)},</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 Description: &amp;gc.Description{Description: query.T(world, &quot;A mobile base you can drive&quot;)},</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 GridElement: &amp;gc.GridElement{Coord: pos},</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         SpriteSheetName: fieldSpriteSheet,</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         SpriteKey:       &quot;blue_cube&quot;,</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                         Depth:           gc.DepthNumTaller,</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 Prop:            &amp;gc.Prop{},</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 Drivable:        &amp;gc.Drivable{},</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 LocationOnField: &amp;gc.LocationOnField{},</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 // 収納を持ち、隣接時にキューブメニューから開ける</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 WeightCapacity: &amp;gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 // 直上で Enter するとキューブメニューが開き、運転もそこから始める。BlockPass は持たず、</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 // 直上に立てる通行可能な地物にする</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu}},</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }), nil</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : // cubeHP はキューブの耐久値。扉と同じ prop 標準の HP 機構に乗せる。移動拠点なので扉より頑丈にする</span>
+<span id="L163"><span class="lineNum">     163</span>              : const cubeHP = 200</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // SpawnCube は運転できる移動拠点キューブをオーバーワールドに生成する。</span>
+<span id="L166"><span class="lineNum">     166</span>              : // blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。</span>
+<span id="L167"><span class="lineNum">     167</span>              : func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         return world.Components.AddEntity(world.ECS, &amp;gc.EntitySpec{</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 Name:        &amp;gc.Name{Name: query.T(world, &quot;Cube&quot;)},</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 Description: &amp;gc.Description{Description: query.T(world, &quot;A mobile base you can drive&quot;)},</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 GridElement: &amp;gc.GridElement{Coord: pos},</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 SpriteRender: &amp;gc.SpriteRender{</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                         SpriteSheetName: fieldSpriteSheet,</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                         SpriteKey:       &quot;blue_cube&quot;,</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                         Depth:           gc.DepthNumTaller,</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 Prop:            &amp;gc.Prop{},</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 Drivable:        &amp;gc.Drivable{},</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 HP:              &amp;gc.HP{Max: cubeHP, Current: cubeHP},</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 LocationOnField: &amp;gc.LocationOnField{},</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 StageBound:      &amp;gc.StageBound{Key: gc.NewOverworldStage()},</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 // 収納を持ち、隣接時にキューブメニューから開ける</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 WeightCapacity: &amp;gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 // 直上で Enter するとキューブメニューが開き、運転もそこから始める。BlockPass は持たず、</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 // 直上に立てる通行可能な地物にする</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu}},</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         }), nil</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
