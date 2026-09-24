@@ -407,6 +407,65 @@ func TestValidateFacilityEnemyTableReferences(t *testing.T) {
 	})
 }
 
+func TestValidateInteriorContentReferences(t *testing.T) {
+	t.Parallel()
+
+	contents := &[]oapi.InteriorContent{{Id: "house"}, {Id: "bedroom"}}
+
+	t.Run("実在する content 参照は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityContents: &[]oapi.FacilityContent{{Facility: "house", Variants: []oapi.EntityID{"house"}}},
+			FacilityRooms: &[]oapi.FacilityRooms{{
+				Facility: "house",
+				Rooms:    &[]oapi.RoomContent{{Role: "bedroom", Content: "bedroom"}},
+				Fallback: "bedroom",
+			}},
+		}
+		require.NoError(t, validateInteriorContentReferences(raws))
+	})
+
+	t.Run("存在しない変種はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityContents: &[]oapi.FacilityContent{{Facility: "house", Variants: []oapi.EntityID{"no_such"}}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentRefUndefined)
+	})
+
+	t.Run("存在しない奥室 content はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityRooms: &[]oapi.FacilityRooms{{
+				Facility: "house",
+				Rooms:    &[]oapi.RoomContent{{Role: "bedroom", Content: "no_such"}},
+				Fallback: "bedroom",
+			}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentRefUndefined)
+	})
+
+	t.Run("存在しない fallback はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityRooms:    &[]oapi.FacilityRooms{{Facility: "house", Fallback: "no_such"}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentRefUndefined)
+	})
+
+	t.Run("id が重複するとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: &[]oapi.InteriorContent{{Id: "house"}, {Id: "house"}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentDuplicateID)
+	})
+}
+
 func TestValidateCommandTableWeaponReferences(t *testing.T) {
 	t.Parallel()
 

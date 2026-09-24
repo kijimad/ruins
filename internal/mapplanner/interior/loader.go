@@ -105,7 +105,7 @@ func (cs *ContentSet) backRoomContent(facility FacilityKind) Content {
 
 // clone は Content をディープコピーする。cs.byID は共有レシピを1つずつ保持するので、返り値を
 // applyDensity などが in-place で書き換えても共有元を壊さないよう、Groups/Items/Satellites/Offsets まで
-// 複製する。旧 content_catalog は呼び出しごとに新規構築していたので、その挙動をコピーで再現する。
+// 複製する。
 func (c Content) clone() Content {
 	if c.Groups == nil {
 		return c

@@ -21,6 +21,8 @@ var (
 	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
 	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
+	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
+	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
 	errInvalidPackNotation            = errors.New("invalid pack notation")
 	errInvalidLootCountNotation       = errors.New("invalid lootCount notation")
 )
@@ -84,6 +86,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateFacilityEnemyTableReferences(raws); err != nil {
+		return err
+	}
+	if err := validateInteriorContentReferences(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -171,6 +176,50 @@ func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
 		}
 		if _, ok := tableIDs[fe.EnemyTable]; !ok {
 			return fmt.Errorf("facility %q references enemy table %q: %w", fe.Facility, fe.EnemyTable, errFacilityEnemyTableRefUndefined)
+		}
+	}
+	return nil
+}
+
+// validateInteriorContentReferences は内装レシピの content 参照が interiorContents に存在することを検証する。
+// facilityContents の変種、facilityRooms の役割別 content と fallback が指す id を、typo による空部屋の silent
+// 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複を検出する。id は生成側 byID の一意
+// キーで、重複すると後勝ちで上書きされレシピが取り違わる。
+func validateInteriorContentReferences(raws oapi.Raws) error {
+	contents := PtrSlice(raws.InteriorContents)
+	contentIDs := make(map[string]struct{}, len(contents))
+	for i := range contents {
+		if _, dup := contentIDs[contents[i].Id]; dup {
+			return fmt.Errorf("interior content %q: %w", contents[i].Id, errInteriorContentDuplicateID)
+		}
+		contentIDs[contents[i].Id] = struct{}{}
+	}
+
+	for _, fc := range PtrSlice(raws.FacilityContents) {
+		for _, id := range fc.Variants {
+			if id == "" {
+				continue
+			}
+			if _, ok := contentIDs[id]; !ok {
+				return fmt.Errorf("facility %q variant %q: %w", fc.Facility, id, errInteriorContentRefUndefined)
+			}
+		}
+	}
+
+	for _, fr := range PtrSlice(raws.FacilityRooms) {
+		for _, r := range PtrSlice(fr.Rooms) {
+			if r.Content == "" {
+				continue
+			}
+			if _, ok := contentIDs[r.Content]; !ok {
+				return fmt.Errorf("facility %q room %q content %q: %w", fr.Facility, r.Role, r.Content, errInteriorContentRefUndefined)
+			}
+		}
+		if fr.Fallback == "" {
+			continue
+		}
+		if _, ok := contentIDs[fr.Fallback]; !ok {
+			return fmt.Errorf("facility %q fallback %q: %w", fr.Facility, fr.Fallback, errInteriorContentRefUndefined)
 		}
 	}
 	return nil
