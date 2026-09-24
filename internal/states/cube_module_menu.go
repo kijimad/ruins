@@ -108,10 +108,11 @@ func (st *CubeModuleMenuState) DoAction(_ w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
+		// menuloop が ItemCounts=CubeModuleSlots でカーソルを範囲内に保つので slots[idx] は安全
 		slots := st.screen.Props().Slots
 		idx := st.screen.Selection().ItemIndex
 		var current *ecs.Entity
-		if idx >= 0 && idx < len(slots) && slots[idx] != gc.InvalidEntity {
+		if slots[idx] != gc.InvalidEntity {
 			m := slots[idx]
 			current = &m
 		}

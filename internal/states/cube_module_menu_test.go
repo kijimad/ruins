@@ -73,6 +73,19 @@ func TestCubeModuleMenuFetch_スロット重複はエラー(t *testing.T) {
 	require.Error(t, err, "スロット重複は握りつぶさず error で返す")
 }
 
+func TestApplyCubeModuleChoice_プレイヤー不在はエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
+
+	// プレイヤーを用意しない。装着先の解決に必要なので握りつぶさず error で返す
+	err := applyCubeModuleChoice(world, cube, 0, cubeModuleChoice{entity: m}, nil)
+	require.Error(t, err, "プレイヤー不在は握りつぶさず error で返す")
+}
+
 func TestApplyCubeModuleChoice_バックパックから装着する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
