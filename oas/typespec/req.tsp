@@ -343,10 +343,24 @@ enum Placement {
   row,
 }
 
-/** 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない */
+/** 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向 */
+model ContentVec {
+  x: int32;
+  y: int32;
+}
+
+/** anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ */
+model ContentSatellite {
+  kind: StuffKind;
+  ref: EntityID;
+  /** anchor 相対の候補座標。前から試し、空きに置ければ確定 */
+  offsets: ContentVec[];
+}
+
+/** 内装レシピの1配置指示 */
 model ContentStuff {
   kind: StuffKind;
-  /** 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める */
+  /** 家具型や戦利品グループの参照名 */
   ref: EntityID;
   /** pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く */
   weight?: EntryWeight;
@@ -356,6 +370,8 @@ model ContentStuff {
   amount: Dice;
   /** どこへ置くか。省略時は archetype の既定へ落ちる */
   placement?: Placement;
+  /** anchor 相対に束ねる衛星。机+椅子など。省略時は束なし */
+  satellites?: ContentSatellite[];
 }
 
 /** 抽選単位の束 */
@@ -369,7 +385,8 @@ model ContentGroup {
 /** 内装レシピ。施設まるごと、または奥室1つに対応する */
 model InteriorContent {
   id: EntityID;
-  groups: ContentGroup[];
+  /** 抽選グループ。何も置かない空部屋(廊下など)は省略する */
+  groups?: ContentGroup[];
 }
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
@@ -392,8 +409,8 @@ model RoomContent {
 model FacilityRooms {
   /** 施設種別。facilityType の文字列と揃える */
   facility: EntityID;
-  /** 役割→content の対 */
-  rooms: RoomContent[];
+  /** 役割→content の対。専用カタログを持たない施設は省略し fallback だけ持つ */
+  rooms?: RoomContent[];
   /** カタログに無い役割の既定 content */
   fallback: EntityID;
 }

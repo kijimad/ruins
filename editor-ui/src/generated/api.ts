@@ -501,12 +501,28 @@ export interface ContentGroup {
 
 
 /**
- * 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない
+ * anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
+ */
+export interface ContentSatellite {
+    'kind': StuffKind;
+    /**
+     * エンティティの英語 id
+     */
+    'ref': string;
+    /**
+     * anchor 相対の候補座標。前から試し、空きに置ければ確定
+     */
+    'offsets': Array<ContentVec>;
+}
+
+
+/**
+ * 内装レシピの1配置指示
  */
 export interface ContentStuff {
     'kind': StuffKind;
     /**
-     * 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める
+     * 家具型や戦利品グループの参照名
      */
     'ref': string;
     /**
@@ -525,9 +541,20 @@ export interface ContentStuff {
      * どこへ置くか。省略時は archetype の既定へ落ちる
      */
     'placement'?: Placement;
+    /**
+     * anchor 相対に束ねる衛星。机+椅子など。省略時は束なし
+     */
+    'satellites'?: Array<ContentSatellite>;
 }
 
 
+/**
+ * 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
+ */
+export interface ContentVec {
+    'x': number;
+    'y': number;
+}
 /**
  * キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
  */
@@ -810,9 +837,9 @@ export interface FacilityRooms {
      */
     'facility': string;
     /**
-     * 役割→content の対
+     * 役割→content の対。専用カタログを持たない施設は省略し fallback だけ持つ
      */
-    'rooms': Array<RoomContent>;
+    'rooms'?: Array<RoomContent>;
     /**
      * カタログに無い役割の既定 content
      */
@@ -925,7 +952,10 @@ export interface InteriorContent {
      * エンティティの英語 id
      */
     'id': string;
-    'groups': Array<ContentGroup>;
+    /**
+     * 抽選グループ。何も置かない空部屋(廊下など)は省略する
+     */
+    'groups'?: Array<ContentGroup>;
 }
 /**
  * アイテム

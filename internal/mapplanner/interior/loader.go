@@ -41,8 +41,9 @@ func LoadContents(raws oapi.Raws) (*ContentSet, error) {
 		cs.facilityMain[FacilityKind(fc.Facility)] = append([]string(nil), fc.Variants...)
 	}
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
-		rc := roomSet{rooms: make(map[roleName]string, len(fr.Rooms)), fallback: fr.Fallback}
-		for _, r := range fr.Rooms {
+		rooms := raw.PtrSlice(fr.Rooms)
+		rc := roomSet{rooms: make(map[roleName]string, len(rooms)), fallback: fr.Fallback}
+		for _, r := range rooms {
 			rc.rooms[roleName(r.Role)] = r.Content
 		}
 		cs.facilityRooms[FacilityKind(fr.Facility)] = rc
@@ -54,7 +55,7 @@ func LoadContents(raws oapi.Raws) (*ContentSet, error) {
 // ここでは空のまま。抽選順に効く Groups と Items の並びは配列の記述順をそのまま保つ。
 func toContent(ic oapi.InteriorContent) (Content, error) {
 	c := Content{ID: ic.Id}
-	for _, g := range ic.Groups {
+	for _, g := range raw.PtrSlice(ic.Groups) {
 		grp := Group{Style: GroupStyle(g.Style), Pick: derefInt32(g.Pick)}
 		for _, s := range g.Items {
 			amount, err := consts.ParseDice(s.Amount)
@@ -62,12 +63,13 @@ func toContent(ic oapi.InteriorContent) (Content, error) {
 				return Content{}, fmt.Errorf("interior content %q ref %q amount: %w", ic.Id, s.Ref, err)
 			}
 			grp.Items = append(grp.Items, Stuff{
-				Kind:      StuffKind(s.Kind),
-				Ref:       s.Ref,
-				Weight:    derefWeight(s.Weight),
-				Chance:    derefInt32(s.Chance),
-				Amount:    amount,
-				Placement: derefPlacement(s.Placement),
+				Kind:       StuffKind(s.Kind),
+				Ref:        s.Ref,
+				Weight:     derefWeight(s.Weight),
+				Chance:     derefInt32(s.Chance),
+				Amount:     amount,
+				Placement:  derefPlacement(s.Placement),
+				Satellites: toSatellites(s.Satellites),
 			})
 		}
 		c.Groups = append(c.Groups, grp)
@@ -97,4 +99,22 @@ func derefPlacement(p *oapi.Placement) Placement {
 		return ""
 	}
 	return Placement(*p)
+}
+
+// toSatellites は oapi の衛星束を interior.Satellite へ変換する。束が無ければ nil を返し、束のない Stuff の
+// Go レシピと等価になるようにする。offsets の consts.Tile は負値も取り、anchor から上/左方向を表す。
+func toSatellites(in *[]oapi.ContentSatellite) []Satellite {
+	items := raw.PtrSlice(in)
+	if len(items) == 0 {
+		return nil
+	}
+	out := make([]Satellite, 0, len(items))
+	for _, s := range items {
+		sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref}
+		for _, o := range s.Offsets {
+			sat.Offsets = append(sat.Offsets, Vec{X: consts.Tile(o.X), Y: consts.Tile(o.Y)})
+		}
+		out = append(out, sat)
+	}
+	return out
 }

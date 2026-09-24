@@ -1985,6 +1985,23 @@ components:
           items:
             $ref: '#/components/schemas/ContentStuff'
       description: 抽選単位の束
+    ContentSatellite:
+      type: object
+      required:
+        - kind
+        - ref
+        - offsets
+      properties:
+        kind:
+          $ref: '#/components/schemas/StuffKind'
+        ref:
+          $ref: '#/components/schemas/EntityID'
+        offsets:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentVec'
+          description: anchor 相対の候補座標。前から試し、空きに置ければ確定
+      description: anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
     ContentStuff:
       type: object
       required:
@@ -1997,7 +2014,7 @@ components:
         ref:
           allOf:
             - $ref: '#/components/schemas/EntityID'
-          description: 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める
+          description: 家具型や戦利品グループの参照名
         weight:
           allOf:
             - $ref: '#/components/schemas/EntryWeight'
@@ -2014,7 +2031,25 @@ components:
           allOf:
             - $ref: '#/components/schemas/Placement'
           description: どこへ置くか。省略時は archetype の既定へ落ちる
-      description: 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない
+        satellites:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentSatellite'
+          description: anchor 相対に束ねる衛星。机+椅子など。省略時は束なし
+      description: 内装レシピの1配置指示
+    ContentVec:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: integer
+          format: int32
+        y:
+          type: integer
+          format: int32
+      description: 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
     CubeModule:
       type: object
       required:
@@ -2359,7 +2394,6 @@ components:
       type: object
       required:
         - facility
-        - rooms
         - fallback
       properties:
         facility:
@@ -2370,7 +2404,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RoomContent'
-          description: 役割→content の対
+          description: 役割→content の対。専用カタログを持たない施設は省略し fallback だけ持つ
         fallback:
           allOf:
             - $ref: '#/components/schemas/EntityID'
@@ -2499,7 +2533,6 @@ components:
       type: object
       required:
         - id
-        - groups
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
@@ -2507,6 +2540,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContentGroup'
+          description: 抽選グループ。何も置かない空部屋(廊下など)は省略する
       description: 内装レシピ。施設まるごと、または奥室1つに対応する
     IsPlayer:
       type: boolean

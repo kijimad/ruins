@@ -1020,7 +1020,19 @@ type ContentGroup struct {
 	Style GroupStyle `json:"style"`
 }
 
-// ContentStuff 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない
+// ContentSatellite anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
+type ContentSatellite struct {
+	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+	Kind StuffKind `json:"kind"`
+
+	// Offsets anchor 相対の候補座標。前から試し、空きに置ければ確定
+	Offsets []ContentVec `json:"offsets"`
+
+	// Ref エンティティの英語 id
+	Ref EntityID `json:"ref"`
+}
+
+// ContentStuff 内装レシピの1配置指示
 type ContentStuff struct {
 	// Amount 置く個数のダイス表記
 	Amount Dice `json:"amount"`
@@ -1034,11 +1046,20 @@ type ContentStuff struct {
 	// Placement どこへ置くか。省略時は archetype の既定へ落ちる
 	Placement *Placement `json:"placement,omitempty"`
 
-	// Ref 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める
+	// Ref 家具型や戦利品グループの参照名
 	Ref EntityID `json:"ref"`
+
+	// Satellites anchor 相対に束ねる衛星。机+椅子など。省略時は束なし
+	Satellites *[]ContentSatellite `json:"satellites,omitempty"`
 
 	// Weight pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く
 	Weight *EntryWeight `json:"weight,omitempty"`
+}
+
+// ContentVec 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
+type ContentVec struct {
+	X int32 `json:"x"`
+	Y int32 `json:"y"`
 }
 
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
@@ -1262,8 +1283,8 @@ type FacilityRooms struct {
 	// Fallback カタログに無い役割の既定 content
 	Fallback EntityID `json:"fallback"`
 
-	// Rooms 役割→content の対
-	Rooms []RoomContent `json:"rooms"`
+	// Rooms 役割→content の対。専用カタログを持たない施設は省略し fallback だけ持つ
+	Rooms *[]RoomContent `json:"rooms,omitempty"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -1352,7 +1373,8 @@ type InsulationHeat = int
 
 // InteriorContent 内装レシピ。施設まるごと、または奥室1つに対応する
 type InteriorContent struct {
-	Groups []ContentGroup `json:"groups"`
+	// Groups 抽選グループ。何も置かない空部屋(廊下など)は省略する
+	Groups *[]ContentGroup `json:"groups,omitempty"`
 
 	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
