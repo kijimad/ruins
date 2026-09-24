@@ -2,38 +2,11 @@ package interior
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
-
-// rawsPath は内装レシピを含む raw データの資材パス。activeContents が一度だけ読む。
-const rawsPath = "metadata/entities/raw/raw.toml"
-
-var (
-	pkgContents     *ContentSet
-	pkgContentsOnce sync.Once
-)
-
-// activeContents は現在の内装レシピ一式を返す。raw.toml から一度だけ組んで package に保持する。
-// レシピは施設生成の共有データなので、呼び出しごとに渡さず package で一元管理して呼び出しを簡潔に保つ。
-// raw は起動時に検証済みなので、ここでの読込失敗は不変条件違反として panic で露見させる。
-func activeContents() *ContentSet {
-	pkgContentsOnce.Do(func() {
-		master, err := raw.LoadFromFile(rawsPath)
-		if err != nil {
-			panic(fmt.Sprintf("interior: load raw for contents: %v", err))
-		}
-		cs, err := LoadContents(master)
-		if err != nil {
-			panic(fmt.Sprintf("interior: build contents: %v", err))
-		}
-		pkgContents = cs
-	})
-	return pkgContents
-}
 
 // ContentSet はロードした内装レシピ一式。id から Content を、施設種別から主室変種と奥室カタログを引く。
 // content_catalog.go と facility.go が Go 定数で持っていたレシピと写像を raw.toml のデータへ移す受け皿。

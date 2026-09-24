@@ -23,23 +23,23 @@ const (
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
 // 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
-func Furnish(seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
+func Furnish(cs *ContentSet, seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
 	prof := rollProfile(seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
-	placed := FillRoom(seed, room, applyDensity(activeContents().facilityContent(facility, seed), prof.density))
+	placed := FillRoom(seed, room, applyDensity(cs.facilityContent(facility, seed), prof.density))
 	// 時間の層。損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷の建物は新品のまま
 	placed = Age(seed, room, placed, prof.damage)
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
-	placed = Flavor(seed, room, placed, facilityFlavor(facility))
+	placed = Flavor(seed, room, placed, cs.facilityFlavor(facility))
 	// 散らかりの小物を家具の隣へ落とし、生活感を足す
 	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter, roleMain)
 }
 
 // facilityFlavor は施設種別ごとの flavor machine の content を返す。flavor は FillRoom の furnishing とは別軸で、
 // 家具の隙間へ廃墟の痕を1つ足す。今は全施設共通で、施設別の差し込みは archetype が増えてから。
-func facilityFlavor(facility FacilityKind) Content {
+func (cs *ContentSet) facilityFlavor(facility FacilityKind) Content {
 	_ = facility // 施設別カタログは今後。まずは全施設に共通の痕を置く
-	return activeContents().byID["flavor"].clone()
+	return cs.byID["flavor"].clone()
 }
 
 // applyDensity は content の家具量を密度係数 factor(×/10)で増減する。個数1の必須什器は1を保ち、詰め物の

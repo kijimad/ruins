@@ -17,7 +17,7 @@ func TestFurnishBuilding_同じタイルに複数のpropを置かない(t *testi
 	door := Vec{X: 10, Y: 0}
 	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
 		for seed := range uint64(300) {
-			_, placed := FurnishBuilding(seed, footprint, door, fac)
+			_, placed := FurnishBuilding(testContents(), seed, footprint, door, fac)
 			seen := map[Vec]string{}
 			for _, p := range placed {
 				prev, dup := seen[p.Pos]
@@ -67,7 +67,7 @@ func TestFurnishBuilding_内寄せ破綻の小footprintでも完走する(t *tes
 		for fp := consts.Tile(5); fp <= 9; fp++ {
 			for seed := range uint64(100) {
 				require.NotPanicsf(t, func() {
-					FurnishBuilding(seed, Rect{X: 0, Y: 0, W: fp, H: fp}, Vec{X: fp / 2, Y: 0}, fac)
+					FurnishBuilding(testContents(), seed, Rect{X: 0, Y: 0, W: fp, H: fp}, Vec{X: fp / 2, Y: 0}, fac)
 				}, "施設 %q fp=%d seed=%d の生成が panic した", fac, fp, seed)
 			}
 		}

@@ -21,7 +21,13 @@ import (
 // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。
 func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac facilityType, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
-	site, placed := interior.FurnishBuilding(iseed, footprint, door, interior.FacilityKind(fac))
+	// 内装レシピは起動時にロード済みの RawMaster から組む。ファイルの再読込ではなくメモリ上の Raws を
+	// 施設種別の写像へ整えるだけなので安価。
+	cs, err := interior.LoadContents(world.Resources.RawMaster)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to build interior contents: %w", err)
+	}
+	site, placed := interior.FurnishBuilding(cs, iseed, footprint, door, interior.FacilityKind(fac))
 
 	wallSet := make(map[interior.Vec]bool)
 	for _, wv := range site.Walls() {

@@ -1,12 +1,40 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"sync"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
+)
+
+var (
+	testCS     *ContentSet
+	testCSOnce sync.Once
+)
+
+// testContents は raw.toml から組んだレシピ一式をテスト用に一度だけ返す。本番は呼び出し側が Raws から
+// 組んで FurnishBuilding へ渡すが、テストは資材から直接ロードして全テストで共有する。読み込み失敗は
+// テストの前提崩れなので panic。
+func testContents() *ContentSet {
+	testCSOnce.Do(func() {
+		master, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
+		if err != nil {
+			panic("interior test: load raw: " + err.Error())
+		}
+		cs, err := LoadContents(master)
+		if err != nil {
+			panic("interior test: build contents: " + err.Error())
+		}
+		testCS = cs
+	})
+	return testCS
+}
 
 // testContent は id からロード済みレシピを引くテスト補助。旧 content_catalog の関数の代わりに、raw.toml から
-// 組んだ activeContents を引く。返り値は clone で、テストが in-place で書き換えても共有元を壊さない。
+// 組んだ testContents を引く。返り値は clone で、テストが in-place で書き換えても共有元を壊さない。
 // 存在しない id は空 Content で silent に通ってしまうので、引数ミスを panic で早期に露見させる。
 func testContent(id string) Content {
-	c, ok := activeContents().byID[id]
+	c, ok := testContents().byID[id]
 	if !ok {
 		panic("interior test: unknown content id " + id)
 	}
@@ -15,7 +43,7 @@ func testContent(id string) Content {
 
 // testRoomContents は施設の役割別 content をテスト用に map で返す。旧 houseRoomContents 等の代わり。
 func testRoomContents(fac FacilityKind) map[roleName]Content {
-	cs := activeContents()
+	cs := testContents()
 	rs := cs.facilityRooms[fac]
 	out := make(map[roleName]Content, len(rs.rooms))
 	for role, id := range rs.rooms {

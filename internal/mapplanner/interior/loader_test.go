@@ -13,7 +13,7 @@ import (
 func TestActiveContents_コード必須のidが存在する(t *testing.T) {
 	t.Parallel()
 
-	cs := activeContents()
+	cs := testContents()
 	for _, id := range []string{"generic", "flavor"} {
 		require.Containsf(t, cs.byID, id, "コードが必須とする content %q が raw.toml に無い", id)
 	}

@@ -152,7 +152,7 @@ func TestGolden_BuildingHouse(t *testing.T) {
 	door := Vec{X: prodFootprint / 2, Y: 0} // 北壁の入口
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
-		return FurnishBuilding(seed, footprint, door, facHouse)
+		return FurnishBuilding(testContents(), seed, footprint, door, facHouse)
 	}))
 }
 
@@ -166,7 +166,7 @@ func TestGolden_BuildingStore(t *testing.T) {
 	door := Vec{X: prodFootprint / 2, Y: 0}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
-		return FurnishBuilding(seed, footprint, door, "store")
+		return FurnishBuilding(testContents(), seed, footprint, door, "store")
 	}))
 }
 
@@ -179,7 +179,7 @@ func TestGolden_BuildingClinic(t *testing.T) {
 	door := Vec{X: prodFootprint / 2, Y: 0}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
-		return FurnishBuilding(seed, footprint, door, facClinic)
+		return FurnishBuilding(testContents(), seed, footprint, door, facClinic)
 	}))
 }
 
@@ -195,7 +195,7 @@ func TestGolden_StagesHouse(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
-	site, stages := FurnishStages(1, footprint, door, facHouse)
+	site, stages := FurnishStages(testContents(), 1, footprint, door, facHouse)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
@@ -207,7 +207,7 @@ func TestGolden_StagesStore(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
-	site, stages := FurnishStages(1, footprint, door, "store")
+	site, stages := FurnishStages(testContents(), 1, footprint, door, "store")
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
@@ -218,7 +218,7 @@ func TestGolden_StagesClinic(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
-	site, stages := FurnishStages(1, footprint, door, facClinic)
+	site, stages := FurnishStages(testContents(), 1, footprint, door, facClinic)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }

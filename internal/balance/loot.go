@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"sort"
 
@@ -30,6 +31,12 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceF
 	footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 14, Y: 0}
 
+	// master は検証済みロード由来なので構築は失敗しない。想定外は panic で露見させる。
+	cs, err := interior.LoadContents(master)
+	if err != nil {
+		panic(fmt.Sprintf("balance: build interior contents: %v", err))
+	}
+
 	result := make([]oapi.BalanceFacilityLoot, 0, len(reportFacilities))
 	for _, fac := range reportFacilities {
 		// role -> item -> 合計個数 / 出た試行数
@@ -48,7 +55,7 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceF
 		for i := range trials {
 			trialSeed := seed + uint64(i)
 			rng := rand.New(rand.NewPCG(trialSeed, roomLootStream))
-			site, placed := interior.FurnishBuilding(trialSeed, footprint, door, fac)
+			site, placed := interior.FurnishBuilding(cs, trialSeed, footprint, door, fac)
 
 			// この試行の role -> item -> 個数。試行内で集めてから present を1回だけ加算する
 			perRole := map[string]map[string]int{}
