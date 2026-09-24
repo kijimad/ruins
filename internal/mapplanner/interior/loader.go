@@ -99,8 +99,14 @@ func (cs *ContentSet) roomContent(facility FacilityKind, role roleName) (Content
 }
 
 // backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。
+// facilityRooms に無い未知施設は fallback が空になるので、facilityContent と同じく generic へ落として
+// 空部屋の silent 生成を防ぐ。
 func (cs *ContentSet) backRoomContent(facility FacilityKind) Content {
-	return cs.byID[cs.facilityRooms[facility].fallback].clone()
+	id := cs.facilityRooms[facility].fallback
+	if id == "" {
+		id = "generic"
+	}
+	return cs.byID[id].clone()
 }
 
 // clone は Content をディープコピーする。cs.byID は共有レシピを1つずつ保持するので、返り値を

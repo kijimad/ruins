@@ -4,8 +4,13 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // testContent は id からロード済みレシピを引くテスト補助。旧 content_catalog の関数の代わりに、raw.toml から
 // 組んだ activeContents を引く。返り値は clone で、テストが in-place で書き換えても共有元を壊さない。
+// 存在しない id は空 Content で silent に通ってしまうので、引数ミスを panic で早期に露見させる。
 func testContent(id string) Content {
-	return activeContents().byID[id].clone()
+	c, ok := activeContents().byID[id]
+	if !ok {
+		panic("interior test: unknown content id " + id)
+	}
+	return c.clone()
 }
 
 // testRoomContents は施設の役割別 content をテスト用に map で返す。旧 houseRoomContents 等の代わり。
