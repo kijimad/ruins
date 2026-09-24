@@ -946,6 +946,12 @@ type DangerLevel = int
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
 
+// Deployable 据付設定。キューブの展開空間へ据えると propId の prop になる
+type Deployable struct {
+	// PropId 据えたときに生成する prop の id
+	PropId EntityID `json:"propId"`
+}
+
 // Dexterity 器用さ。クリティカル率に影響する
 type Dexterity = int
 
@@ -1217,6 +1223,9 @@ type Item struct {
 
 	// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
 	CubeModule *CubeModule `json:"cubeModule,omitempty"`
+
+	// Deployable 据付設定。キューブの展開空間へ据えると prop になる
+	Deployable *Deployable `json:"deployable,omitempty"`
 
 	// Description 説明文
 	Description EntityDescription `json:"description"`

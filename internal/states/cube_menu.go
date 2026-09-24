@@ -53,6 +53,16 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 			Choice{Label: query.T(world, "Module"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeModuleMenuState(cube)
 			})},
+		)
+		// 設備は展開空間のマスへ据えるので、展開中だけ項目に出す
+		if world.Components.Deployed.Has(cube) {
+			choices = append(choices,
+				Choice{Label: query.T(world, "Facility"), Run: pushChoice(func() (es.State[w.World], error) {
+					return NewCubeFacilityMenuState(cube)
+				})},
+			)
+		}
+		choices = append(choices,
 			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)
 			})},

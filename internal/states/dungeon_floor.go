@@ -113,7 +113,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		if err := spawnDebugStageFire(world); err != nil {
 			return zero, noEntity, err
 		}
-		if err := spawnDebugStageModules(world); err != nil {
+		if err := spawnDebugStageCubeGear(world); err != nil {
 			return zero, noEntity, err
 		}
 	}
@@ -157,9 +157,12 @@ func spawnDebugStageFire(world w.World) error {
 // debugStageModuleCount はデバッグ街の木箱へ入れておく範囲モジュールの数。全スロットを試せるよう上限に合わせる
 const debugStageModuleCount = consts.CubeModuleSlots
 
-// spawnDebugStageModules はテンプレートが置いた木箱の中へキューブの範囲モジュールを入れておく。
+// debugStageFacilityCount はデバッグ街の木箱へ入れておく据付アイテムの数。展開空間へ据えて往復を試せるようにする
+const debugStageFacilityCount = 2
+
+// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと据付アイテムを入れておく。
 // 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
-func spawnDebugStageModules(world w.World) error {
+func spawnDebugStageCubeGear(world w.World) error {
 	var crate ecs.Entity
 	found := false
 	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
@@ -173,10 +176,13 @@ func spawnDebugStageModules(world w.World) error {
 		}
 	}
 	if !found {
-		return fmt.Errorf("debug stage: wooden_crate not found for cube modules")
+		return fmt.Errorf("debug stage: wooden_crate not found for cube gear")
 	}
 	if _, err := lifecycle.SpawnStorageItem(world, "cube_range_module", debugStageModuleCount, crate); err != nil {
 		return fmt.Errorf("failed to spawn debug stage modules: %w", err)
+	}
+	if _, err := lifecycle.SpawnStorageItem(world, "deployable_storage", debugStageFacilityCount, crate); err != nil {
+		return fmt.Errorf("failed to spawn debug stage facilities: %w", err)
 	}
 	return nil
 }

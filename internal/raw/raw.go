@@ -353,6 +353,12 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
+	if item.Deployable != nil {
+		entitySpec.Deployable = &gc.Deployable{
+			PropID: item.Deployable.PropId,
+		}
+	}
+
 	entitySpec.Value = &gc.Value{Value: item.Value}
 
 	if item.Weight != nil {

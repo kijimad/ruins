@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSpawnDebugStageModules_木箱に範囲モジュールを入れる(t *testing.T) {
+func TestSpawnDebugStageCubeGear_木箱にモジュールと据付アイテムを入れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -18,16 +18,16 @@ func TestSpawnDebugStageModules_木箱に範囲モジュールを入れる(t *te
 	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 5, 5)
 	require.NoError(t, err)
 
-	require.NoError(t, spawnDebugStageModules(world))
+	require.NoError(t, spawnDebugStageCubeGear(world))
 
 	items := query.GetStorageItems(world, crate)
-	assert.Len(t, items, debugStageModuleCount, "木箱に範囲モジュールが入る")
+	assert.Len(t, items, debugStageModuleCount+debugStageFacilityCount, "木箱にモジュールと据付アイテムが入る")
 }
 
-func TestSpawnDebugStageModules_木箱が無ければエラー(t *testing.T) {
+func TestSpawnDebugStageCubeGear_木箱が無ければエラー(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	// 木箱はテンプレートが必ず置く。無いのは退行なので握りつぶさず error を返す
-	require.Error(t, spawnDebugStageModules(world))
+	require.Error(t, spawnDebugStageCubeGear(world))
 }

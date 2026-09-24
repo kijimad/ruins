@@ -89,6 +89,31 @@ func BackpackCubeModules(world w.World, player ecs.Entity) []ecs.Entity {
 	return items
 }
 
+// BackpackDeployables はプレイヤーのバックパックにある据付アイテムを返す。設備画面の設置候補に使う。
+// 反復中に return するとロックが残るので、対象を集めてから返す。
+func BackpackDeployables(world w.World, player ecs.Entity) []ecs.Entity {
+	var items []ecs.Entity
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.Deployable](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInBackpack.Get(e).Owner == player {
+			items = append(items, e)
+		}
+	}
+	return items
+}
+
+// FacilityAt は指定タイルにある据付設備 prop を返す。設備画面で撤去対象を引くのに使う。
+// DeployedFacility を持つ prop だけを対象にするので、grass など据付でない prop は撤去できない。
+func FacilityAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
+	for _, e := range GetEntitiesAt(world, coord.X, coord.Y) {
+		if world.Components.DeployedFacility.Has(e) {
+			return e, true
+		}
+	}
+	return gc.InvalidEntity, false
+}
+
 // CubeDeployRange はキューブの展開野営の縦横別の半径を返す。基準 consts.CubeDeployBaseRange に、
 // 装着した各モジュールの RangeBonus を縦横一律に加算する。範囲は保持せず読み取り時に導く。
 // 展開判定・畳み込み・レーザー壁描画がこの単一出典を参照する。

@@ -25,6 +25,8 @@ type EntitySpec struct {
 	Abilities          *Abilities
 	Ammo               *Ammo
 	CubeModule         *CubeModule
+	Deployable         *Deployable
+	DeployedFacility   *DeployedFacility
 	LocationInBackpack *LocationInBackpack
 	LocationEquipped   *LocationEquipped
 	LocationOnField    *LocationOnField
@@ -119,6 +121,8 @@ type Components struct {
 	Abilities          *ecs.Map[Abilities]
 	Ammo               *ecs.Map[Ammo]
 	CubeModule         *ecs.Map[CubeModule]
+	Deployable         *ecs.Map[Deployable]
+	DeployedFacility   *ecs.Map[DeployedFacility]
 	LocationInBackpack *ecs.Map[LocationInBackpack]
 	LocationEquipped   *ecs.Map[LocationEquipped]
 	LocationOnField    *ecs.Map[LocationOnField]
@@ -213,6 +217,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Abilities = ecs.NewMap[Abilities](world)
 	c.Ammo = ecs.NewMap[Ammo](world)
 	c.CubeModule = ecs.NewMap[CubeModule](world)
+	c.Deployable = ecs.NewMap[Deployable](world)
+	c.DeployedFacility = ecs.NewMap[DeployedFacility](world)
 	c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)
 	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
 	c.LocationOnField = ecs.NewMap[LocationOnField](world)
@@ -309,6 +315,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Abilities, entity, spec.Abilities)
 	addComp(c.Ammo, entity, spec.Ammo)
 	addComp(c.CubeModule, entity, spec.CubeModule)
+	addComp(c.Deployable, entity, spec.Deployable)
+	addComp(c.DeployedFacility, entity, spec.DeployedFacility)
 	addComp(c.LocationInBackpack, entity, spec.LocationInBackpack)
 	addComp(c.LocationEquipped, entity, spec.LocationEquipped)
 	addComp(c.LocationOnField, entity, spec.LocationOnField)

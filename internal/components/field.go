@@ -96,6 +96,18 @@ type CubeModule struct {
 	RangeBonus consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
 }
 
+// Deployable はキューブの展開空間へ据えると prop になるアイテムであることを表す。値はアイテム固有なので
+// spawn 時に raw から設定して保持する。設置は設備画面から行い、選んだマスへ PropID の prop を生成する。
+type Deployable struct {
+	PropID string // 据えたときに生成する prop の raw id
+}
+
+// DeployedFacility はキューブの展開空間へ据えた設備 prop であることを表す。撤去で戻すアイテムを覚える。
+// 設置時に据付アイテムの RawID を写して保持し、撤去でその id からアイテムを再生成する。保存する。
+type DeployedFacility struct {
+	ItemID string // 撤去で再生成する据付アイテムの raw id
+}
+
 // LocationInstalled はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
 // Equipped・Field・Stowed と排他。Owner は装着先のキューブ。装着関係を保存し、実効 stat は導出する。
 // Slot は装着スロット番号。装備と同様に固定し、外しても他のスロットは繰り上がらない。

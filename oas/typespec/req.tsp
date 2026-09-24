@@ -51,6 +51,12 @@ model CubeModule {
   rangeBonus: RangeBonus;
 }
 
+/** 据付設定。キューブの展開空間へ据えると propId の prop になる */
+model Deployable {
+  /** 据えたときに生成する prop の id */
+  propId: EntityID;
+}
+
 /** 近接攻撃設定 */
 model Melee {
   accuracy: Accuracy;
@@ -112,6 +118,8 @@ model Item {
   equipBonus?: EquipBonus;
   ammo?: Ammo;
   cubeModule?: CubeModule;
+  /** 据付設定。キューブの展開空間へ据えると prop になる */
+  deployable?: Deployable;
   melee?: Melee;
   fire?: Fire;
   book?: Book;

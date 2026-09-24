@@ -1991,6 +1991,16 @@ components:
       minimum: -100
       maximum: 100
       description: 防御力。被ダメージを軽減する
+    Deployable:
+      type: object
+      required:
+        - propId
+      properties:
+        propId:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 据えたときに生成する prop の id
+      description: 据付設定。キューブの展開空間へ据えると propId の prop になる
     Dexterity:
       type: integer
       minimum: -100
@@ -2432,6 +2442,10 @@ components:
           $ref: '#/components/schemas/Ammo'
         cubeModule:
           $ref: '#/components/schemas/CubeModule'
+        deployable:
+          allOf:
+            - $ref: '#/components/schemas/Deployable'
+          description: 据付設定。キューブの展開空間へ据えると prop になる
         melee:
           $ref: '#/components/schemas/Melee'
         fire:
