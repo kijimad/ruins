@@ -51,7 +51,7 @@ func TestNewCubeMenuState_圧縮中は運転が有効で設備が無効(t *testi
 		query.T(world, "Cube info"),
 		query.T(world, "Close"),
 	}
-	assert.Equal(t, want, labels, "圧縮中は展開・運転・燃料・モジュール・設備・キューブ情報・閉じるを順に並べる")
+	assert.Equal(t, want, labels)
 
 	drive, _ := choiceByLabel(choices, query.T(world, "Drive"))
 	assert.False(t, drive.Disabled, "圧縮中は運転できる")
