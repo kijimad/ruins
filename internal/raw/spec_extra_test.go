@@ -247,6 +247,31 @@ r = 255
 	assert.Empty(t, spec.Interactable.Interactions, "照明設備はフィールド相互作用ゼロ")
 }
 
+func TestNewItemSpec_据付寝具設備が設定される(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "野営ベッド"
+id = "野営ベッド"
+Description = "据える寝具"
+
+[Items.Deployable.Bedding]
+quality = 150
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "野営ベッド")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Deployable, "据付マーカーが付く")
+	require.NotNil(t, spec.Bedding, "寝具設備は Bedding を持つ")
+	assert.Equal(t, consts.Percent(150), spec.Bedding.Quality)
+	// 寝具は受動。フィールドで拾える・開ける相互作用は持たない
+	assert.Empty(t, spec.Interactable.Interactions, "寝具設備はフィールド相互作用ゼロ")
+}
+
 func TestNewItemSpec_本が設定される(t *testing.T) {
 	t.Parallel()
 

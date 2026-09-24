@@ -55,6 +55,7 @@ model CubeModule {
 model Deployable {
   storage?: StorageRaw;
   lightSource?: LightSource;
+  bedding?: Bedding;
 }
 
 /** 近接攻撃設定 */

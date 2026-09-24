@@ -1890,6 +1890,12 @@ msgstr "野営ランタン"
 msgid "A folded camp lantern. Deploy it into your cube's space to light the area, then fold it back up to move on."
 msgstr "折り畳んだ野営ランタン。キューブの展開空間に据えて周囲を照らし、畳んで持ち運べる。"
 
+msgid "Camp Bed"
+msgstr "野営ベッド"
+
+msgid "A folded camp bed. Deploy it into your cube's space to sleep well, then fold it back up to move on."
+msgstr "折り畳んだ野営ベッド。キューブの展開空間に据えてよく眠り、畳んで持ち運べる。"
+
 msgid "Facility"
 msgstr "設備"
 

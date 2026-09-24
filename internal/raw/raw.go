@@ -413,6 +413,10 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 	if dep.LightSource != nil {
 		entitySpec.LightSource = toGCLightSource(dep.LightSource)
 	}
+	// 寝具設備は受動。据えると Bedding を持ち、隣で眠ると睡眠品質が上がる。相互作用は持たない
+	if dep.Bedding != nil {
+		entitySpec.Bedding = toGCBedding(dep.Bedding)
+	}
 	return nil
 }
 

@@ -7545,6 +7545,18 @@ b = 150
 g = 200
 r = 255
 [[items]]
+description = "A folded camp bed. Deploy it into your cube's space to sleep well, then fold it back up to move on."
+name = "Camp Bed"
+id = "deployable_bed"
+material = "CLOTH"
+spriteKey = "bed"
+spriteSheetName = "field"
+value = 90
+weight = "6 kg"
+
+[items.deployable.bedding]
+quality = 150
+[[items]]
 description = "A finely decorated ceramic pot, prized as an antique."
 name = "Ancient Pot"
 id = "ancient_pot"

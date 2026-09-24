@@ -502,6 +502,7 @@ export interface CubeModule {
 export interface Deployable {
     'storage'?: StorageRaw;
     'lightSource'?: LightSource;
+    'bedding'?: Bedding;
 }
 /**
  * 会話データ

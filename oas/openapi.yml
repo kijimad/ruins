@@ -1998,6 +1998,8 @@ components:
           $ref: '#/components/schemas/StorageRaw'
         lightSource:
           $ref: '#/components/schemas/LightSource'
+        bedding:
+          $ref: '#/components/schemas/Bedding'
       description: 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
     Dexterity:
       type: integer
