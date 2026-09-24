@@ -48,6 +48,35 @@ func TestPlaceFacility(t *testing.T) {
 	assert.False(t, query.IsPickable(item, world), "造作なので歩いて拾えない")
 }
 
+func TestPlaceFacility_据付でないアイテムは据えない(t *testing.T) {
+	t.Parallel()
+	world, cube := deployedCubeWithPlayer(t)
+	item, err := SpawnBackpackItem(world, "wooden_sword", 1)
+	require.NoError(t, err)
+	_, err = PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
+	require.Error(t, err, "Deployable でないアイテムは据えられない")
+}
+
+func TestPlaceFacility_バックパック以外からは据えない(t *testing.T) {
+	t.Parallel()
+	world, cube := deployedCubeWithPlayer(t)
+	// ロケーションを持たない据付アイテム。バックパック以外からの据付は前提違反で error
+	item, err := spawnItemBase(world, "deployable_storage")
+	require.NoError(t, err)
+	_, err = PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
+	require.Error(t, err, "バックパック以外の据付は据えられない")
+}
+
+func TestRemoveFacility_据付でない実体は戻さない(t *testing.T) {
+	t.Parallel()
+	world, _ := deployedCubeWithPlayer(t)
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	prop, err := SpawnProp(world, "grass", 11, 10)
+	require.NoError(t, err)
+	require.Error(t, RemoveFacility(world, prop, player), "Deployable でない prop は戻せない")
+}
+
 func TestPlaceFacility_塞がったマスには据えない(t *testing.T) {
 	t.Parallel()
 	world, cube := deployedCubeWithPlayer(t)

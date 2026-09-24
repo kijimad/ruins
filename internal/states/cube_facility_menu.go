@@ -98,7 +98,8 @@ func (st *CubeFacilityMenuState) moveCursor(world w.World, dx consts.Tile, dy co
 func (st *CubeFacilityMenuState) selectCell(world w.World) (es.Transition[w.World], error) {
 	base := world.Components.GridElement.Get(st.cube).Coord
 	coord := base.Add(st.cursor)
-	switch st.cellKindAt(world, coord) {
+	kind, _ := st.cellKindAt(world, coord)
+	switch kind {
 	case hud.FacilityCellEmpty:
 		player, err := query.GetPlayerEntity(world)
 		if err != nil {
@@ -132,6 +133,7 @@ func (st *CubeFacilityMenuState) removeAt(world w.World, coord consts.Coord[cons
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
+	// FacilityAt が Deployable を保証するので、ここへ来る err は収納非空のみ。他種別が増えたら文言を分ける
 	if err := lifecycle.RemoveFacility(world, prop, player); err != nil {
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "Cannot remove: empty its contents first.")).
@@ -140,18 +142,19 @@ func (st *CubeFacilityMenuState) removeAt(world w.World, coord consts.Coord[cons
 	return st.ConsumeTransition(), nil
 }
 
-// cellKindAt は coord のマスの見た目種別を返す。据付でない prop や壁は据付できない障害物になる
-func (st *CubeFacilityMenuState) cellKindAt(world w.World, coord consts.Coord[consts.Tile]) hud.FacilityCellKind {
+// cellKindAt は coord のマスの見た目種別と、Used のとき据わっている設備を返す。設備を1度だけ引いて
+// 種別とアイコン両方に使い、Draw ループでの二重取得を避ける。据付でない prop や壁は障害物になる。
+func (st *CubeFacilityMenuState) cellKindAt(world w.World, coord consts.Coord[consts.Tile]) (hud.FacilityCellKind, ecs.Entity) {
 	if world.Components.GridElement.Get(st.cube).Coord == coord {
-		return hud.FacilityCellCube
+		return hud.FacilityCellCube, ecs.Entity{}
 	}
-	if _, ok := query.FacilityAt(world, coord); ok {
-		return hud.FacilityCellUsed
+	if e, ok := query.FacilityAt(world, coord); ok {
+		return hud.FacilityCellUsed, e
 	}
 	if lifecycle.FacilityCellFree(world, st.cube, coord) {
-		return hud.FacilityCellEmpty
+		return hud.FacilityCellEmpty, ecs.Entity{}
 	}
-	return hud.FacilityCellBlocked
+	return hud.FacilityCellBlocked, ecs.Entity{}
 }
 
 // Draw は展開空間のグリッドを組んで hud へ渡す。uicore の組み立ては hud に閉じ、画面はデータを渡すだけにする
@@ -165,8 +168,8 @@ func (st *CubeFacilityMenuState) Draw(world w.World, screen *ebiten.Image) error
 	for row := range rows {
 		for col := range cols {
 			coord := base.Add(consts.Coord[consts.Tile]{X: consts.Tile(col) - r.X, Y: consts.Tile(row) - r.Y})
-			kind := st.cellKindAt(world, coord)
-			cells = append(cells, hud.FacilityCell{Kind: kind, Icon: st.cellIcon(world, coord, kind)})
+			kind, facility := st.cellKindAt(world, coord)
+			cells = append(cells, hud.FacilityCell{Kind: kind, Icon: st.iconFor(world, kind, facility)})
 		}
 	}
 
@@ -185,15 +188,14 @@ func (st *CubeFacilityMenuState) Draw(world w.World, screen *ebiten.Image) error
 	return nil
 }
 
-// cellIcon はマスに重ねるスプライトを返す。キューブ本体と据わった設備だけ絵を持つ
-func (st *CubeFacilityMenuState) cellIcon(world w.World, coord consts.Coord[consts.Tile], kind hud.FacilityCellKind) *ebiten.Image {
+// iconFor はマスに重ねるスプライトを返す。キューブ本体と据わった設備だけ絵を持つ。設備は
+// cellKindAt が引いた実体をそのまま使い、FacilityAt を再度呼ばない。
+func (st *CubeFacilityMenuState) iconFor(world w.World, kind hud.FacilityCellKind, facility ecs.Entity) *ebiten.Image {
 	switch kind {
 	case hud.FacilityCellCube:
 		return menuIcon(world, st.cube)
 	case hud.FacilityCellUsed:
-		if prop, ok := query.FacilityAt(world, coord); ok {
-			return menuIcon(world, prop)
-		}
+		return menuIcon(world, facility)
 	case hud.FacilityCellEmpty, hud.FacilityCellBlocked:
 	}
 	return nil
@@ -201,14 +203,12 @@ func (st *CubeFacilityMenuState) cellIcon(world w.World, coord consts.Coord[cons
 
 // cursorInfo はカーソルのマスの内容名と押せる操作を返す
 func (st *CubeFacilityMenuState) cursorInfo(world w.World, coord consts.Coord[consts.Tile]) (content string, hint string) {
-	switch st.cellKindAt(world, coord) {
+	kind, facility := st.cellKindAt(world, coord)
+	switch kind {
 	case hud.FacilityCellCube:
 		return query.T(world, "Cube"), ""
 	case hud.FacilityCellUsed:
-		if prop, ok := query.FacilityAt(world, coord); ok {
-			return query.GetEntityName(prop, world), query.T(world, "Enter: remove")
-		}
-		return "", ""
+		return query.GetEntityName(facility, world), query.T(world, "Enter: remove")
 	case hud.FacilityCellEmpty:
 		return query.T(world, "Empty"), query.T(world, "Enter: place")
 	default:

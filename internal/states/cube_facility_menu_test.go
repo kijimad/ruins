@@ -49,24 +49,29 @@ func TestCubeFacilityMenu_cellKindAtがマス種別を分ける(t *testing.T) {
 	world, st, cube := deployedFacilityState(t)
 	base := world.Components.GridElement.Get(cube).Coord
 
-	assert.Equal(t, hud.FacilityCellCube, st.cellKindAt(world, base))
+	kind, _ := st.cellKindAt(world, base)
+	assert.Equal(t, hud.FacilityCellCube, kind)
 
 	empty := base.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})
-	assert.Equal(t, hud.FacilityCellEmpty, st.cellKindAt(world, empty))
+	kind, _ = st.cellKindAt(world, empty)
+	assert.Equal(t, hud.FacilityCellEmpty, kind)
 
 	blocked := base.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})
 	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: blocked})
 	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 	query.InvalidateSpatialIndex(world)
-	assert.Equal(t, hud.FacilityCellBlocked, st.cellKindAt(world, blocked))
+	kind, _ = st.cellKindAt(world, blocked)
+	assert.Equal(t, hud.FacilityCellBlocked, kind)
 
 	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
 	require.NoError(t, err)
 	used := base.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})
 	_, err = lifecycle.PlaceFacility(world, cube, item, used)
 	require.NoError(t, err)
-	assert.Equal(t, hud.FacilityCellUsed, st.cellKindAt(world, used))
+	kind, facility := st.cellKindAt(world, used)
+	assert.Equal(t, hud.FacilityCellUsed, kind)
+	assert.Equal(t, item, facility, "Used のとき据わっている設備を併せて返す")
 }
 
 func TestCubeFacilityMenu_cursorInfoが内容と操作を返す(t *testing.T) {
@@ -81,6 +86,16 @@ func TestCubeFacilityMenu_cursorInfoが内容と操作を返す(t *testing.T) {
 	content, hint = st.cursorInfo(world, base.Add(consts.Coord[consts.Tile]{X: 1, Y: 0}))
 	assert.Equal(t, query.T(world, "Empty"), content)
 	assert.Equal(t, query.T(world, "Enter: place"), hint)
+
+	// 据えた設備のマスは設備名と撤去操作を出す
+	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	used := base.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})
+	_, err = lifecycle.PlaceFacility(world, cube, item, used)
+	require.NoError(t, err)
+	content, hint = st.cursorInfo(world, used)
+	assert.Equal(t, query.GetEntityName(item, world), content)
+	assert.Equal(t, query.T(world, "Enter: remove"), hint)
 }
 
 func TestCubeFacilityMenu_doActionが入力を捌く(t *testing.T) {
