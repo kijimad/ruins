@@ -633,8 +633,6 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 }
 
 // FacilityEnemyTableName は施設種別に割り当てられた敵テーブル id を返す。割り当てが無ければ ok=false。
-// 市街地生成が施設で敵テーブルを切り替えるのに使う。割り当ての有無だけを返し、既定への落とし方は
-// 呼び出し側に委ねる。
 func FacilityEnemyTableName(raws oapi.Raws, facility string) (string, bool) {
 	fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string { return t.Facility }, facility)
 	if !ok {

@@ -83,12 +83,8 @@ const (
 	facilityLab     facilityType = "lab"     // 研究施設
 )
 
-// urbanEnemyTableFor は施設に割り当てられた敵テーブルを返す。割り当ては raw.toml の facilityEnemyTables
-// が持ち、似た施設は同じテーブルを指す。施設は zoneCatalog で地区ごとに固まって湧くので、施設別に引いても
-// 近隣は同種へ寄り、地区スケールのまとまりが地区概念を新設せずに現れる。
-//
-// 未割り当ての施設は既定 urbanEnemyTable へ落とす。これは正常。ただし割り当てがあるのにその敵テーブルが
-// 実在しなければ raw.toml の設定ミスなので error を返す。silent に既定へすり替えると誤りに気づけない。
+// urbanEnemyTableFor は施設に割り当てられた敵テーブルを返す。割り当ては raw.toml の facilityEnemyTables。
+// 未割り当ての施設は既定 urbanEnemyTable へ落とす。割り当てがあるのに実在しなければ設定ミスなので error。
 func urbanEnemyTableFor(world w.World, fac facilityType) (oapi.EnemyTable, error) {
 	name := urbanEnemyTable
 	if assigned, ok := raw.FacilityEnemyTableName(world.Resources.RawMaster, string(fac)); ok {

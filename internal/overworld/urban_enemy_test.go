@@ -10,9 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestUrbanEnemyTableFor_施設で敵テーブルを引き未割り当ては既定へ落ちる は、raw.toml の
-// facilityEnemyTables による施設→敵テーブルの割り当てと、未割り当て施設が既定の廃墟テーブルへ
-// 落ちるフォールバックを固定する。
+// TestUrbanEnemyTableFor_施設で敵テーブルを引き未割り当ては既定へ落ちる は施設→敵テーブルの割り当てと
+// 未割り当てのフォールバックを固定する。
 func TestUrbanEnemyTableFor_施設で敵テーブルを引き未割り当ては既定へ落ちる(t *testing.T) {
 	t.Parallel()
 
@@ -33,9 +32,8 @@ func TestUrbanEnemyTableFor_施設で敵テーブルを引き未割り当ては�
 	assert.Equal(t, urbanEnemyTable, tableID(facilityType("unknown")), "未知の施設は既定へ落ちる")
 }
 
-// TestFacilityEnemyTables_全施設種別を網羅する は、全 facilityType に敵テーブルの割り当てがあることを
-// 固定する。施設を足して割り当てを忘れると、その施設が既定の汎用テーブルへ落ちて顔ぶれがのっぺりする
-// ので、ここで漏れを止める。all は facilityType の全定数と揃える。
+// TestFacilityEnemyTables_全施設種別を網羅する は、全 facilityType に割り当てがあることを固定し、施設を
+// 足して割り当てを忘れる漏れを止める。all は facilityType の全定数と揃える。
 func TestFacilityEnemyTables_全施設種別を網羅する(t *testing.T) {
 	t.Parallel()
 
@@ -50,8 +48,8 @@ func TestFacilityEnemyTables_全施設種別を網羅する(t *testing.T) {
 	}
 }
 
-// TestUrbanEnemyTableFor_割り当て先が実在しなければerror は、施設に割り当てた敵テーブルが raw に
-// 無いとき silent に既定へすり替えず error を返すことを固定する。raw.toml の設定ミスを生成時に露見させる。
+// TestUrbanEnemyTableFor_割り当て先が実在しなければerror は、割り当て先が raw に無いとき silent に既定へ
+// すり替えず error を返すことを固定する。
 func TestUrbanEnemyTableFor_割り当て先が実在しなければerror(t *testing.T) {
 	t.Parallel()
 
@@ -63,9 +61,8 @@ func TestUrbanEnemyTableFor_割り当て先が実在しなければerror(t *test
 	require.Error(t, err, "割り当て先が実在しなければ設定ミスとして error")
 }
 
-// TestFacilityEnemyTables_割り当て先と既定が実在する は、raw.toml の facilityEnemyTables が指す
-// 敵テーブルと既定テーブルが実在し GetEnemyTable が error にならないことを固定する。テーブル名の
-// typo が生成時の runtime エラーになるのを、この単体テストで前もって止める。
+// TestFacilityEnemyTables_割り当て先と既定が実在する は、割り当て先と既定テーブルが実在することを固定し、
+// テーブル名の typo を生成前に止める。
 func TestFacilityEnemyTables_割り当て先と既定が実在する(t *testing.T) {
 	t.Parallel()
 
