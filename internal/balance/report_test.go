@@ -25,7 +25,7 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 	require.NotNil(t, report.Weapon)
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
-	require.Len(t, report.EnemyTables, 3, "raw.tomlのenemyTables数と一致する")
+	require.Len(t, report.EnemyTables, 5, "raw.tomlのenemyTables数と一致する。廃墟/森/洞窟に施設別の高危険施設/産業機械を加えた5個")
 	for _, run := range report.EnemyTables {
 		assert.Equal(t, 3, run.MaxDepth)
 		assert.Equal(t, 5, run.Trials)

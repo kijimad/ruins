@@ -82,6 +82,28 @@ const (
 	facilityLab     facilityType = "lab"     // 研究施設
 )
 
+// facilityEnemyTable は施設種別ごとの敵テーブル名。似た施設は同じテーブルを共有する。施設は
+// zoneCatalog で地区ごとに固まって湧くので、施設別に引いても近隣は同種へ寄り、地区スケールの
+// まとまりが地区概念を新設せずに現れる。テーブル名はエリアでなく施設クラスを表す。未設定の施設は
+// urbanEnemyTable へ落ちる。中身の敵選定はバランス調整対象。
+var facilityEnemyTable = map[facilityType]string{
+	facilityClinic: "downtown_enemies",   // 診療所。警備・医療実験系の顔ぶれ
+	facilityLab:    "downtown_enemies",   // 研究施設。診療所と同じ
+	facilityDepot:  "industrial_enemies", // 倉庫。機械・自律系の顔ぶれ
+	facilityOffice: "industrial_enemies", // 事務所。倉庫と同じ
+	// house/store/antique は当面 urbanEnemyTable(ruins_area)を流用する
+}
+
+// urbanEnemyTableFor は施設の敵テーブル名を返す。未登録なら既定の廃墟テーブル。
+// facilityEnemyTable は実在テーブル名だけを値に持つので、登録の有無だけを見れば
+// GetEnemyTable が存在しない名前で error にならない。
+func urbanEnemyTableFor(fac facilityType) string {
+	if name, ok := facilityEnemyTable[fac]; ok {
+		return name
+	}
+	return urbanEnemyTable
+}
+
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
 // 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
 type facilityWeight struct {
@@ -230,7 +252,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	if err != nil {
 		return err
 	}
-	return spawnUrbanEnemies(world, g, rng, size, danger, isWall, occupied)
+	return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)
 }
 
 // planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
@@ -274,8 +296,8 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
-	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac facilityType, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTableFor(fac))
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}

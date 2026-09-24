@@ -15659,6 +15659,84 @@ minDanger = 3
 maxDanger = 7
 weight = 0.8
 pack = "1d1"
+[[enemyTables]]
+name = "高危険施設"
+id = "downtown_enemies"
+[[enemyTables.entries]]
+id = "decayed_soldier"
+minDanger = 1
+maxDanger = 10
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "floating_eye"
+minDanger = 2
+maxDanger = 8
+weight = 1
+pack = "1d2"
+[[enemyTables.entries]]
+id = "skeleton_soldier"
+minDanger = 3
+maxDanger = 25
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "dark_doctor"
+minDanger = 7
+maxDanger = 25
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "crystal_wraith"
+minDanger = 10
+maxDanger = 25
+weight = 0.7
+pack = "1d2"
+[[enemyTables.entries]]
+id = "guard_soldier"
+minDanger = 16
+maxDanger = 25
+weight = 0.6
+pack = "1d2"
+[[enemyTables]]
+name = "産業機械"
+id = "industrial_enemies"
+[[enemyTables.entries]]
+id = "rusted_doll"
+minDanger = 1
+maxDanger = 10
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "static_mite"
+minDanger = 1
+maxDanger = 6
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "spark_wisp"
+minDanger = 2
+maxDanger = 8
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "rust_golem"
+minDanger = 8
+maxDanger = 25
+weight = 0.7
+pack = "1d2"
+[[enemyTables.entries]]
+id = "iron_sentinel"
+minDanger = 7
+maxDanger = 25
+weight = 0.7
+pack = "1d2"
+[[enemyTables.entries]]
+id = "gray_tank"
+minDanger = 12
+maxDanger = 30
+weight = 0.5
+pack = "1d1"
 
 [[spriteSheets]]
 name = "bg"
