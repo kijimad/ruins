@@ -409,8 +409,13 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
 	}
-	// 照明設備は受動。据えると LightSource を持ち視界システムが照らす。相互作用は持たない
+	// 照明設備は受動。据えると LightSource を持ち視界システムが照らす。相互作用は持たない。
+	// entitySpec.LightSource は先に item.LightSource(携行光源)が写る。両方定義すると据付が携行を
+	// 黙って上書きするので、曖昧な設定を握りつぶさず error にする
 	if dep.LightSource != nil {
+		if entitySpec.LightSource != nil {
+			return fmt.Errorf("item '%s': carried lightSource and deployable lightSource conflict", name)
+		}
 		entitySpec.LightSource = toGCLightSource(dep.LightSource)
 	}
 	// 寝具設備は受動。据えると Bedding を持ち、隣で眠ると睡眠品質が上がる。相互作用は持たない

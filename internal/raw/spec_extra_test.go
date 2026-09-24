@@ -247,6 +247,34 @@ r = 255
 	assert.Empty(t, spec.Interactable.Interactions, "照明設備はフィールド相互作用ゼロ")
 }
 
+func TestNewItemSpec_携行光源と据付照明の両立はエラー(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "両刀ランタン"
+id = "両刀ランタン"
+Description = "携行と据付の両方を定義した曖昧なアイテム"
+
+[Items.LightSource]
+enabled = false
+radius = 3
+[Items.LightSource.color]
+a = 255
+
+[Items.Deployable.LightSource]
+enabled = true
+radius = 4
+[Items.Deployable.LightSource.color]
+a = 255
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewItemSpec(raws, "両刀ランタン")
+	require.Error(t, err, "携行光源と据付照明の両立は据付が携行を上書きするので曖昧。握りつぶさず error")
+}
+
 func TestNewItemSpec_据付寝具設備が設定される(t *testing.T) {
 	t.Parallel()
 
