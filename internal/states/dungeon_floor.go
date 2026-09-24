@@ -157,10 +157,13 @@ func spawnDebugStageFire(world w.World) error {
 // debugStageModuleCount はデバッグ街の木箱へ入れておく範囲モジュールの数。全スロットを試せるよう上限に合わせる
 const debugStageModuleCount = consts.CubeModuleSlots
 
-// debugStageFacilityCount はデバッグ街の木箱へ入れておく据付アイテムの数。展開空間へ据えて往復を試せるようにする
+// debugStageFacilityCount はデバッグ街の木箱へ入れておく装着アイテムの種類ごとの数。展開空間へ装着して往復を試せるようにする
 const debugStageFacilityCount = 2
 
-// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと据付アイテムを入れておく。
+// debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
+var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed"}
+
+// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムを入れておく。
 // 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
 func spawnDebugStageCubeGear(world w.World) error {
 	var crate ecs.Entity
@@ -181,8 +184,10 @@ func spawnDebugStageCubeGear(world w.World) error {
 	if _, err := lifecycle.SpawnStorageItem(world, "cube_range_module", debugStageModuleCount, crate); err != nil {
 		return fmt.Errorf("failed to spawn debug stage modules: %w", err)
 	}
-	if _, err := lifecycle.SpawnStorageItem(world, "deployable_storage", debugStageFacilityCount, crate); err != nil {
-		return fmt.Errorf("failed to spawn debug stage facilities: %w", err)
+	for _, id := range debugStageFacilityItems {
+		if _, err := lifecycle.SpawnStorageItem(world, id, debugStageFacilityCount, crate); err != nil {
+			return fmt.Errorf("failed to spawn debug stage facility %s: %w", id, err)
+		}
 	}
 	return nil
 }

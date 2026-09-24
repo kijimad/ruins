@@ -946,9 +946,15 @@ type DangerLevel = int
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
 
-// Deployable 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
+// Deployable 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 type Deployable struct {
-	// Storage 収納設備の容量。据えると収納として開ける
+	// Bedding 寝具設定。眠るときの睡眠効率を決める
+	Bedding *Bedding `json:"bedding,omitempty"`
+
+	// LightSource 光源設定
+	LightSource *LightSource `json:"lightSource,omitempty"`
+
+	// Storage 収納ローデータ
 	Storage *StorageRaw `json:"storage,omitempty"`
 }
 
@@ -1234,7 +1240,7 @@ type Item struct {
 	// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
 	CubeModule *CubeModule `json:"cubeModule,omitempty"`
 
-	// Deployable 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
+	// Deployable 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 	Deployable *Deployable `json:"deployable,omitempty"`
 
 	// Description 説明文

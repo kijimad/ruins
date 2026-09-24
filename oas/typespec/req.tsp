@@ -51,10 +51,11 @@ model CubeModule {
   rangeBonus: RangeBonus;
 }
 
-/** 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す */
+/** 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す */
 model Deployable {
-  /** 収納設備の容量。据えると収納として開ける */
   storage?: StorageRaw;
+  lightSource?: LightSource;
+  bedding?: Bedding;
 }
 
 /** 近接攻撃設定 */

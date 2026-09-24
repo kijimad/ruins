@@ -1882,7 +1882,19 @@ msgid "Storage Crate"
 msgstr "保管木箱"
 
 msgid "A folded storage crate. Deploy it into your cube's space to hold cargo, then fold it back up to move on."
-msgstr "折り畳んだ保管用の木箱。キューブの展開空間に据えて貨物を入れ、畳んで持ち運べる。"
+msgstr "折り畳んだ保管用の木箱。キューブの展開空間に装着して貨物を入れ、畳んで持ち運べる。"
+
+msgid "Camp Lantern"
+msgstr "野営ランタン"
+
+msgid "A folded camp lantern. Deploy it into your cube's space to light the area, then fold it back up to move on."
+msgstr "折り畳んだ野営ランタン。キューブの展開空間に装着して周囲を照らし、畳んで持ち運べる。"
+
+msgid "Camp Bed"
+msgstr "野営ベッド"
+
+msgid "A folded camp bed. Deploy it into your cube's space to sleep well, then fold it back up to move on."
+msgstr "折り畳んだ野営ベッド。キューブの展開空間に装着してよく眠り、畳んで持ち運べる。"
 
 msgid "Facility"
 msgstr "設備"
@@ -1894,19 +1906,19 @@ msgid "Occupied"
 msgstr "ふさがっている"
 
 msgid "Enter: place"
-msgstr "Enter: 据える"
+msgstr "Enter: 装着"
 
 msgid "Enter: remove"
 msgstr "Enter: 撤去"
 
 msgid "Choose facility"
-msgstr "据える設備を選ぶ"
+msgstr "装着する設備を選ぶ"
 
 msgid "No items to deploy"
-msgstr "据える物がない"
+msgstr "装着する物がない"
 
 msgid "You have nothing to deploy."
-msgstr "据えられる物を持っていない。"
+msgstr "装着できる物を持っていない。"
 
 msgid "Cannot remove: empty its contents first."
 msgstr "撤去できない。先に中身を空にする。"
@@ -6025,6 +6037,9 @@ msgstr "使える"
 
 msgid "Wearable"
 msgstr "装備できる"
+
+msgid "Deployable"
+msgstr "装着できる"
 
 msgid "Can disassemble items"
 msgstr "物を分解できる"
