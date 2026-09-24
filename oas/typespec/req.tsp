@@ -312,6 +312,92 @@ model FacilityEnemyTable {
   enemyTable: EntityID;
 }
 
+// ================== 内装レシピ ==================
+
+/** 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う */
+enum StuffKind {
+  furniture,
+  loot,
+  being,
+  decor,
+  trap,
+}
+
+/** グループの抽選方式。保証セットとランダム充填を分ける */
+enum GroupStyle {
+  /** Items を全部置く。各 Stuff は chance で個別に gate する */
+  pick_each,
+  /** Items から重みで1つ選ぶ */
+  pick_one,
+  /** Items から重複なく pick 個選ぶ */
+  pick_n,
+}
+
+/** 配置の置き方。空なら家具型の archetype 既定へ落ちる */
+enum Placement {
+  center,
+  wall,
+  full_area,
+  near_door,
+  far_from_door,
+  row,
+}
+
+/** 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない */
+model ContentStuff {
+  kind: StuffKind;
+  /** 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める */
+  ref: EntityID;
+  /** pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く */
+  weight?: EntryWeight;
+  /** 0..100。pick_each でこの Stuff を置く確率。省略時は常置 */
+  chance?: int32;
+  /** 置く個数のダイス表記 */
+  amount: Dice;
+  /** どこへ置くか。省略時は archetype の既定へ落ちる */
+  placement?: Placement;
+}
+
+/** 抽選単位の束 */
+model ContentGroup {
+  style: GroupStyle;
+  /** pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可 */
+  pick?: int32;
+  items: ContentStuff[];
+}
+
+/** 内装レシピ。施設まるごと、または奥室1つに対応する */
+model InteriorContent {
+  id: EntityID;
+  groups: ContentGroup[];
+}
+
+/** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
+model FacilityContent {
+  /** 施設種別。overworld の facilityType の文字列と揃える */
+  facility: EntityID;
+  /** InteriorContent の id 参照。抽選で1つ選ぶ */
+  variants: EntityID[];
+}
+
+/** 奥室の役割名と内装レシピの対 */
+model RoomContent {
+  /** 役割名。roleName に相当する */
+  role: EntityID;
+  /** InteriorContent の id 参照 */
+  content: EntityID;
+}
+
+/** 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック */
+model FacilityRooms {
+  /** 施設種別。facilityType の文字列と揃える */
+  facility: EntityID;
+  /** 役割→content の対 */
+  rooms: RoomContent[];
+  /** カタログに無い役割の既定 content */
+  fallback: EntityID;
+}
+
 // ================== タイル ==================
 
 /** スプライトレンダー設定 */
@@ -461,6 +547,9 @@ model Raws {
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
   facilityEnemyTables?: FacilityEnemyTable[];
+  interiorContents?: InteriorContent[];
+  facilityContents?: FacilityContent[];
+  facilityRooms?: FacilityRooms[];
   spriteSheets?: SpriteSheet[];
   tiles?: Tile[];
   props?: Prop[];

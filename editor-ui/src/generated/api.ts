@@ -488,6 +488,47 @@ export interface Consumable {
 
 
 /**
+ * 抽選単位の束
+ */
+export interface ContentGroup {
+    'style': GroupStyle;
+    /**
+     * pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
+     */
+    'pick'?: number;
+    'items': Array<ContentStuff>;
+}
+
+
+/**
+ * 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない
+ */
+export interface ContentStuff {
+    'kind': StuffKind;
+    /**
+     * 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める
+     */
+    'ref': string;
+    /**
+     * pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く
+     */
+    'weight'?: number;
+    /**
+     * 0..100。pick_each でこの Stuff を置く確率。省略時は常置
+     */
+    'chance'?: number;
+    /**
+     * 置く個数のダイス表記
+     */
+    'amount': string;
+    /**
+     * どこへ置くか。省略時は archetype の既定へ落ちる
+     */
+    'placement'?: Placement;
+}
+
+
+/**
  * キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
  */
 export interface CubeModule {
@@ -735,6 +776,19 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
+ * 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
+ */
+export interface FacilityContent {
+    /**
+     * 施設種別。overworld の facilityType の文字列と揃える
+     */
+    'facility': string;
+    /**
+     * InteriorContent の id 参照。抽選で1つ選ぶ
+     */
+    'variants': Array<string>;
+}
+/**
  * 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
  */
 export interface FacilityEnemyTable {
@@ -746,6 +800,23 @@ export interface FacilityEnemyTable {
      * 割り当てる敵テーブルの id。enemyTables のいずれかを指す
      */
     'enemyTable': string;
+}
+/**
+ * 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
+ */
+export interface FacilityRooms {
+    /**
+     * 施設種別。facilityType の文字列と揃える
+     */
+    'facility': string;
+    /**
+     * 役割→content の対
+     */
+    'rooms': Array<RoomContent>;
+    /**
+     * カタログに無い役割の既定 content
+     */
+    'fallback': string;
 }
 /**
  * 派閥タイプ
@@ -808,6 +879,19 @@ export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
 
 
 /**
+ * グループの抽選方式。保証セットとランダム充填を分ける
+ */
+
+export const GroupStyle = {
+    PickEach: 'pick_each',
+    PickOne: 'pick_one',
+    PickN: 'pick_n',
+} as const;
+
+export type GroupStyle = typeof GroupStyle[keyof typeof GroupStyle];
+
+
+/**
  * 回復量の計算方式
  */
 
@@ -832,6 +916,16 @@ export interface HeatSource {
      * 熱源が毎ターン下げる低体温タイマーの量
      */
     'warmth': number;
+}
+/**
+ * 内装レシピ。施設まるごと、または奥室1つに対応する
+ */
+export interface InteriorContent {
+    /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    'groups': Array<ContentGroup>;
 }
 /**
  * アイテム
@@ -1191,6 +1285,22 @@ export interface PaletteList {
     'totalCount': number;
 }
 /**
+ * 配置の置き方。空なら家具型の archetype 既定へ落ちる
+ */
+
+export const Placement = {
+    Center: 'center',
+    Wall: 'wall',
+    FullArea: 'full_area',
+    NearDoor: 'near_door',
+    FarFromDoor: 'far_from_door',
+    Row: 'row',
+} as const;
+
+export type Placement = typeof Placement[keyof typeof Placement];
+
+
+/**
  * 職業
  */
 export interface Profession {
@@ -1365,6 +1475,9 @@ export interface Raws {
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
     'facilityEnemyTables'?: Array<FacilityEnemyTable>;
+    'interiorContents'?: Array<InteriorContent>;
+    'facilityContents'?: Array<FacilityContent>;
+    'facilityRooms'?: Array<FacilityRooms>;
     'spriteSheets'?: Array<SpriteSheet>;
     'tiles'?: Array<Tile>;
     'props'?: Array<Prop>;
@@ -1413,6 +1526,19 @@ export interface Remedy {
      * 治療の質。基準100の倍率。100が標準、150で回復1.5倍
      */
     'potency': number;
+}
+/**
+ * 奥室の役割名と内装レシピの対
+ */
+export interface RoomContent {
+    /**
+     * 役割名。roleName に相当する
+     */
+    'role': string;
+    /**
+     * InteriorContent の id 参照
+     */
+    'content': string;
 }
 /**
  * 遮蔽タイプ
@@ -1511,6 +1637,21 @@ export interface StorageRaw {
      */
     'lootCount'?: string;
 }
+/**
+ * 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+ */
+
+export const StuffKind = {
+    Furniture: 'furniture',
+    Loot: 'loot',
+    Being: 'being',
+    Decor: 'decor',
+    Trap: 'trap',
+} as const;
+
+export type StuffKind = typeof StuffKind[keyof typeof StuffKind];
+
+
 /**
  * ターゲットグループ
  */

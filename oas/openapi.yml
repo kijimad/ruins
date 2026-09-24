@@ -1968,6 +1968,53 @@ components:
         targetNum:
           $ref: '#/components/schemas/TargetNum'
       description: 消費可能アイテムの設定
+    ContentGroup:
+      type: object
+      required:
+        - style
+        - items
+      properties:
+        style:
+          $ref: '#/components/schemas/GroupStyle'
+        pick:
+          type: integer
+          format: int32
+          description: pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentStuff'
+      description: 抽選単位の束
+    ContentStuff:
+      type: object
+      required:
+        - kind
+        - ref
+        - amount
+      properties:
+        kind:
+          $ref: '#/components/schemas/StuffKind'
+        ref:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める
+        weight:
+          allOf:
+            - $ref: '#/components/schemas/EntryWeight'
+          description: pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く
+        chance:
+          type: integer
+          format: int32
+          description: 0..100。pick_each でこの Stuff を置く確率。省略時は常置
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Dice'
+          description: 置く個数のダイス表記
+        placement:
+          allOf:
+            - $ref: '#/components/schemas/Placement'
+          description: どこへ置くか。省略時は archetype の既定へ落ちる
+      description: 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない
     CubeModule:
       type: object
       required:
@@ -2275,6 +2322,22 @@ components:
           type: string
           description: エラーメッセージ
       description: エラーレスポンス
+    FacilityContent:
+      type: object
+      required:
+        - facility
+        - variants
+      properties:
+        facility:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 施設種別。overworld の facilityType の文字列と揃える
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityID'
+          description: InteriorContent の id 参照。抽選で1つ選ぶ
+      description: 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
     FacilityEnemyTable:
       type: object
       required:
@@ -2292,6 +2355,27 @@ components:
       description: |-
         施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
         enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
+    FacilityRooms:
+      type: object
+      required:
+        - facility
+        - rooms
+        - fallback
+      properties:
+        facility:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 施設種別。facilityType の文字列と揃える
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoomContent'
+          description: 役割→content の対
+        fallback:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: カタログに無い役割の既定 content
+      description: 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
     FactionMemberType:
       type: string
       enum:
@@ -2344,6 +2428,13 @@ components:
         - -1
         - -3
       description: 植生タイプ
+    GroupStyle:
+      type: string
+      enum:
+        - pick_each
+        - pick_one
+        - pick_n
+      description: グループの抽選方式。保証セットとランダム充填を分ける
     HealAmount:
       type: integer
       minimum: 0
@@ -2404,6 +2495,19 @@ components:
       minimum: -100
       maximum: 100
       description: 耐暑性能
+    InteriorContent:
+      type: object
+      required:
+        - id
+        - groups
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentGroup'
+      description: 内装レシピ。施設まるごと、または奥室1つに対応する
     IsPlayer:
       type: boolean
       description: プレイヤーキャラクターかどうか
@@ -2834,6 +2938,16 @@ components:
       minimum: 0
       maximum: 9999
       description: 通行コスト加算値。0で変化なし、50でベースコスト+50
+    Placement:
+      type: string
+      enum:
+        - center
+        - wall
+        - full_area
+        - near_door
+        - far_from_door
+        - row
+      description: 配置の置き方。空なら家具型の archetype 既定へ落ちる
     Potency:
       type: integer
       minimum: 0
@@ -3058,6 +3172,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FacilityEnemyTable'
+        interiorContents:
+          type: array
+          items:
+            $ref: '#/components/schemas/InteriorContent'
+        facilityContents:
+          type: array
+          items:
+            $ref: '#/components/schemas/FacilityContent'
+        facilityRooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/FacilityRooms'
         spriteSheets:
           type: array
           items:
@@ -3138,6 +3264,21 @@ components:
         potency:
           $ref: '#/components/schemas/Potency'
       description: 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+    RoomContent:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 役割名。roleName に相当する
+        content:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: InteriorContent の id 参照
+      description: 奥室の役割名と内装レシピの対
     Sensation:
       type: integer
       minimum: -100
@@ -3261,6 +3402,15 @@ components:
       minimum: -100
       maximum: 100
       description: 筋力。物理ダメージに影響する
+    StuffKind:
+      type: string
+      enum:
+        - furniture
+        - loot
+        - being
+        - decor
+        - trap
+      description: 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
     TargetGroup:
       type: string
       enum:

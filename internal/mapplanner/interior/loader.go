@@ -1,0 +1,100 @@
+package interior
+
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
+)
+
+// ContentSet はロードした内装レシピ一式。id から Content を、施設種別から主室変種と奥室カタログを引く。
+// content_catalog.go と facility.go が Go 定数で持っていたレシピと写像を raw.toml のデータへ移す受け皿。
+type ContentSet struct {
+	byID          map[string]Content
+	facilityMain  map[FacilityKind][]string
+	facilityRooms map[FacilityKind]roomSet
+}
+
+// roomSet は1施設の奥室カタログ。役割名から content id を引き、カタログに無い役割は fallback へ落とす。
+type roomSet struct {
+	rooms    map[roleName]string
+	fallback string
+}
+
+// LoadContents は oapi.Raws の内装レシピ定義から ContentSet を組む。ダイス表記のパース失敗だけを error に
+// し、参照の実在は raw の ValidateReferences 側に委ねる。
+func LoadContents(raws oapi.Raws) (*ContentSet, error) {
+	cs := &ContentSet{
+		byID:          make(map[string]Content),
+		facilityMain:  make(map[FacilityKind][]string),
+		facilityRooms: make(map[FacilityKind]roomSet),
+	}
+	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
+		c, err := toContent(ic)
+		if err != nil {
+			return nil, err
+		}
+		cs.byID[ic.Id] = c
+	}
+	for _, fc := range raw.PtrSlice(raws.FacilityContents) {
+		cs.facilityMain[FacilityKind(fc.Facility)] = append([]string(nil), fc.Variants...)
+	}
+	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
+		rc := roomSet{rooms: make(map[roleName]string, len(fr.Rooms)), fallback: fr.Fallback}
+		for _, r := range fr.Rooms {
+			rc.rooms[roleName(r.Role)] = r.Content
+		}
+		cs.facilityRooms[FacilityKind(fr.Facility)] = rc
+	}
+	return cs, nil
+}
+
+// toContent は oapi の内装レシピを interior.Content へ変換する。相対配置 Satellites は archetype 側が補うので
+// ここでは空のまま。抽選順に効く Groups と Items の並びは配列の記述順をそのまま保つ。
+func toContent(ic oapi.InteriorContent) (Content, error) {
+	c := Content{ID: ic.Id}
+	for _, g := range ic.Groups {
+		grp := Group{Style: GroupStyle(g.Style), Pick: derefInt32(g.Pick)}
+		for _, s := range g.Items {
+			amount, err := consts.ParseDice(s.Amount)
+			if err != nil {
+				return Content{}, fmt.Errorf("interior content %q ref %q amount: %w", ic.Id, s.Ref, err)
+			}
+			grp.Items = append(grp.Items, Stuff{
+				Kind:      StuffKind(s.Kind),
+				Ref:       s.Ref,
+				Weight:    derefWeight(s.Weight),
+				Chance:    derefInt32(s.Chance),
+				Amount:    amount,
+				Placement: derefPlacement(s.Placement),
+			})
+		}
+		c.Groups = append(c.Groups, grp)
+	}
+	return c, nil
+}
+
+// derefInt32 は optional な int32 を int へ。未設定は 0 で、消費側が 0 を既定へ倒す規約に従う。
+func derefInt32(p *int32) int {
+	if p == nil {
+		return 0
+	}
+	return int(*p)
+}
+
+// derefWeight は optional な重みを int へ。未設定は 0 で、消費側が 0 を 1 とみなす規約に従う。
+func derefWeight(p *oapi.EntryWeight) int {
+	if p == nil {
+		return 0
+	}
+	return int(*p)
+}
+
+// derefPlacement は optional な配置を Placement へ。未設定は空文字で、archetype の既定へ落ちる。
+func derefPlacement(p *oapi.Placement) Placement {
+	if p == nil {
+		return ""
+	}
+	return Placement(*p)
+}

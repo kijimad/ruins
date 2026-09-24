@@ -222,6 +222,27 @@ func (e FoliageType) Valid() bool {
 	}
 }
 
+// Defines values for GroupStyle.
+const (
+	PickEach GroupStyle = "pick_each"
+	PickN    GroupStyle = "pick_n"
+	PickOne  GroupStyle = "pick_one"
+)
+
+// Valid indicates whether the value is a known member of the GroupStyle enum.
+func (e GroupStyle) Valid() bool {
+	switch e {
+	case PickEach:
+		return true
+	case PickN:
+		return true
+	case PickOne:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for HealingValueType.
 const (
 	ABSOLUTE   HealingValueType = "ABSOLUTE"
@@ -354,6 +375,36 @@ func (e MovementPatternType) Valid() bool {
 	}
 }
 
+// Defines values for Placement.
+const (
+	Center      Placement = "center"
+	FarFromDoor Placement = "far_from_door"
+	FullArea    Placement = "full_area"
+	NearDoor    Placement = "near_door"
+	Row         Placement = "row"
+	Wall        Placement = "wall"
+)
+
+// Valid indicates whether the value is a known member of the Placement enum.
+func (e Placement) Valid() bool {
+	switch e {
+	case Center:
+		return true
+	case FarFromDoor:
+		return true
+	case FullArea:
+		return true
+	case NearDoor:
+		return true
+	case Row:
+		return true
+	case Wall:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ShelterType.
 const (
 	ShelterTypeN0  ShelterType = 0
@@ -393,6 +444,33 @@ func (e SpriteDepth) Valid() bool {
 	case SpriteDepthN2:
 		return true
 	case SpriteDepthN3:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for StuffKind.
+const (
+	Being     StuffKind = "being"
+	Decor     StuffKind = "decor"
+	Furniture StuffKind = "furniture"
+	Loot      StuffKind = "loot"
+	Trap      StuffKind = "trap"
+)
+
+// Valid indicates whether the value is a known member of the StuffKind enum.
+func (e StuffKind) Valid() bool {
+	switch e {
+	case Being:
+		return true
+	case Decor:
+		return true
+	case Furniture:
+		return true
+	case Loot:
+		return true
+	case Trap:
 		return true
 	default:
 		return false
@@ -931,6 +1009,38 @@ type Consumable struct {
 	UsableScene UsableScene `json:"usableScene"`
 }
 
+// ContentGroup 抽選単位の束
+type ContentGroup struct {
+	Items []ContentStuff `json:"items"`
+
+	// Pick pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
+	Pick *int32 `json:"pick,omitempty"`
+
+	// Style グループの抽選方式。保証セットとランダム充填を分ける
+	Style GroupStyle `json:"style"`
+}
+
+// ContentStuff 内装レシピの1配置指示。相対配置 Satellites は Go の archetype に残すのでここには持たない
+type ContentStuff struct {
+	// Amount 置く個数のダイス表記
+	Amount Dice `json:"amount"`
+
+	// Chance 0..100。pick_each でこの Stuff を置く確率。省略時は常置
+	Chance *int32 `json:"chance,omitempty"`
+
+	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+	Kind StuffKind `json:"kind"`
+
+	// Placement どこへ置くか。省略時は archetype の既定へ落ちる
+	Placement *Placement `json:"placement,omitempty"`
+
+	// Ref 家具型や戦利品グループの参照名。幾何は archetype が Ref から決める
+	Ref EntityID `json:"ref"`
+
+	// Weight pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く
+	Weight *EntryWeight `json:"weight,omitempty"`
+}
+
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
 type CubeModule struct {
 	// RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
@@ -1125,6 +1235,15 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
+type FacilityContent struct {
+	// Facility 施設種別。overworld の facilityType の文字列と揃える
+	Facility EntityID `json:"facility"`
+
+	// Variants InteriorContent の id 参照。抽選で1つ選ぶ
+	Variants []EntityID `json:"variants"`
+}
+
 // FacilityEnemyTable 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
 // enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
 type FacilityEnemyTable struct {
@@ -1133,6 +1252,18 @@ type FacilityEnemyTable struct {
 
 	// Facility 施設種別。overworld の facilityType の文字列と揃える
 	Facility EntityID `json:"facility"`
+}
+
+// FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
+type FacilityRooms struct {
+	// Facility 施設種別。facilityType の文字列と揃える
+	Facility EntityID `json:"facility"`
+
+	// Fallback カタログに無い役割の既定 content
+	Fallback EntityID `json:"fallback"`
+
+	// Rooms 役割→content の対
+	Rooms []RoomContent `json:"rooms"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -1180,6 +1311,9 @@ type FireStarter = map[string]interface{}
 // FoliageType 植生タイプ
 type FoliageType float32
 
+// GroupStyle グループの抽選方式。保証セットとランダム充填を分ける
+type GroupStyle string
+
 // HealAmount 回復固定量
 type HealAmount = int
 
@@ -1215,6 +1349,14 @@ type InsulationCold = int
 
 // InsulationHeat 耐暑性能
 type InsulationHeat = int
+
+// InteriorContent 内装レシピ。施設まるごと、または奥室1つに対応する
+type InteriorContent struct {
+	Groups []ContentGroup `json:"groups"`
+
+	// Id エンティティの英語 id
+	Id EntityID `json:"id"`
+}
 
 // IsPlayer プレイヤーキャラクターかどうか
 type IsPlayer = bool
@@ -1529,6 +1671,9 @@ type PaletteList struct {
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 type PassCost = int
 
+// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
+type Placement string
+
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 type Potency = int
 
@@ -1680,7 +1825,10 @@ type Raws struct {
 	CommandTables       *[]CommandTable       `json:"commandTables,omitempty"`
 	DropTables          *[]DropTable          `json:"dropTables,omitempty"`
 	EnemyTables         *[]EnemyTable         `json:"enemyTables,omitempty"`
+	FacilityContents    *[]FacilityContent    `json:"facilityContents,omitempty"`
 	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
+	FacilityRooms       *[]FacilityRooms      `json:"facilityRooms,omitempty"`
+	InteriorContents    *[]InteriorContent    `json:"interiorContents,omitempty"`
 	ItemGroups          *[]ItemGroup          `json:"itemGroups,omitempty"`
 	ItemTables          *[]ItemTable          `json:"itemTables,omitempty"`
 	Items               *[]Item               `json:"items,omitempty"`
@@ -1728,6 +1876,15 @@ type Remedy struct {
 	// Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 	Potency Potency             `json:"potency"`
 	Treats  []ConditionTypeName `json:"treats"`
+}
+
+// RoomContent 奥室の役割名と内装レシピの対
+type RoomContent struct {
+	// Content InteriorContent の id 参照
+	Content EntityID `json:"content"`
+
+	// Role 役割名。roleName に相当する
+	Role EntityID `json:"role"`
 }
 
 // Sensation 感覚。命中率と回避率に影響する
@@ -1807,6 +1964,9 @@ type StorageRaw struct {
 
 // Strength 筋力。物理ダメージに影響する
 type Strength = int
+
+// StuffKind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+type StuffKind string
 
 // TargetGroup ターゲットグループ
 type TargetGroup string
