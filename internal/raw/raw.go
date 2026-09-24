@@ -408,7 +408,8 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
 	}
-	// 携行光源と装着照明を両方定義すると装着が携行を黙って上書きするので、曖昧な設定は error にする
+	// 携行光源と装着照明はどちらも実体の LightSource を使うが共存できず後勝ちになる。
+	// 片方が痕跡なく消える矛盾記述なので、後勝ちを許さず error で弾く
 	if dep.LightSource != nil {
 		if entitySpec.LightSource != nil {
 			return fmt.Errorf("item '%s': carried lightSource and deployable lightSource conflict", name)
