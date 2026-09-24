@@ -1119,6 +1119,16 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// FacilityEnemyTable 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
+// enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
+type FacilityEnemyTable struct {
+	// EnemyTable 割り当てる敵テーブルの id。enemyTables のいずれかを指す
+	EnemyTable EntityID `json:"enemyTable"`
+
+	// Facility 施設種別。overworld の facilityType の文字列と揃える
+	Facility EntityID `json:"facility"`
+}
+
 // FactionMemberType 派閥タイプ
 type FactionMemberType string
 
@@ -1658,18 +1668,19 @@ type RangeBonus = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
-	CommandTables *[]CommandTable `json:"commandTables,omitempty"`
-	DropTables    *[]DropTable    `json:"dropTables,omitempty"`
-	EnemyTables   *[]EnemyTable   `json:"enemyTables,omitempty"`
-	ItemGroups    *[]ItemGroup    `json:"itemGroups,omitempty"`
-	ItemTables    *[]ItemTable    `json:"itemTables,omitempty"`
-	Items         *[]Item         `json:"items,omitempty"`
-	Members       *[]Member       `json:"members,omitempty"`
-	Professions   *[]Profession   `json:"professions,omitempty"`
-	Props         *[]Prop         `json:"props,omitempty"`
-	Recipes       *[]Recipe       `json:"recipes,omitempty"`
-	SpriteSheets  *[]SpriteSheet  `json:"spriteSheets,omitempty"`
-	Tiles         *[]Tile         `json:"tiles,omitempty"`
+	CommandTables       *[]CommandTable       `json:"commandTables,omitempty"`
+	DropTables          *[]DropTable          `json:"dropTables,omitempty"`
+	EnemyTables         *[]EnemyTable         `json:"enemyTables,omitempty"`
+	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
+	ItemGroups          *[]ItemGroup          `json:"itemGroups,omitempty"`
+	ItemTables          *[]ItemTable          `json:"itemTables,omitempty"`
+	Items               *[]Item               `json:"items,omitempty"`
+	Members             *[]Member             `json:"members,omitempty"`
+	Professions         *[]Profession         `json:"professions,omitempty"`
+	Props               *[]Prop               `json:"props,omitempty"`
+	Recipes             *[]Recipe             `json:"recipes,omitempty"`
+	SpriteSheets        *[]SpriteSheet        `json:"spriteSheets,omitempty"`
+	Tiles               *[]Tile               `json:"tiles,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量

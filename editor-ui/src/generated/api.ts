@@ -726,6 +726,19 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
+ * 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
+ */
+export interface FacilityEnemyTable {
+    /**
+     * 施設種別。overworld の facilityType の文字列と揃える
+     */
+    'facility': string;
+    /**
+     * 割り当てる敵テーブルの id。enemyTables のいずれかを指す
+     */
+    'enemyTable': string;
+}
+/**
  * 派閥タイプ
  */
 
@@ -1341,6 +1354,7 @@ export interface Raws {
     'itemGroups'?: Array<ItemGroup>;
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
+    'facilityEnemyTables'?: Array<FacilityEnemyTable>;
     'spriteSheets'?: Array<SpriteSheet>;
     'tiles'?: Array<Tile>;
     'props'?: Array<Prop>;

@@ -15738,6 +15738,19 @@ maxDanger = 30
 weight = 0.5
 pack = "1d1"
 
+[[facilityEnemyTables]]
+facility = "clinic"
+enemyTable = "downtown_enemies"
+[[facilityEnemyTables]]
+facility = "lab"
+enemyTable = "downtown_enemies"
+[[facilityEnemyTables]]
+facility = "depot"
+enemyTable = "industrial_enemies"
+[[facilityEnemyTables]]
+facility = "office"
+enemyTable = "industrial_enemies"
+
 [[spriteSheets]]
 name = "bg"
 path = "file/textures/dist/bg.json"

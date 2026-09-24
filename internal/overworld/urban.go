@@ -82,30 +82,12 @@ const (
 	facilityLab     facilityType = "lab"     // 研究施設
 )
 
-// 施設クラスごとの敵テーブル名。似た施設が同じテーブルを共有することを1定数で表し、片方だけ書き換える
-// 編集ミスを防ぐ。値は raw.toml の enemyTables.id と一致させる。
-const (
-	enemyTableDowntown   = "downtown_enemies"   // 警備・医療実験系。診療所・研究施設
-	enemyTableIndustrial = "industrial_enemies" // 機械・自律系。倉庫・事務所
-)
-
-// facilityEnemyTable は施設種別ごとの敵テーブル名。似た施設は同じテーブルを共有する。施設は
-// zoneCatalog で地区ごとに固まって湧くので、施設別に引いても近隣は同種へ寄り、地区スケールの
-// まとまりが地区概念を新設せずに現れる。テーブル名はエリアでなく施設クラスを表す。未設定の施設は
-// urbanEnemyTable へ落ちる。中身の敵選定はバランス調整対象。
-var facilityEnemyTable = map[facilityType]string{
-	facilityClinic: enemyTableDowntown,
-	facilityLab:    enemyTableDowntown,
-	facilityDepot:  enemyTableIndustrial,
-	facilityOffice: enemyTableIndustrial,
-	// house/store/antique は当面 urbanEnemyTable(ruins_area)を流用する
-}
-
-// urbanEnemyTableFor は施設の敵テーブル名を返す。未登録なら既定の廃墟テーブル。
-// facilityEnemyTable は実在テーブル名だけを値に持つので、登録の有無だけを見れば
-// GetEnemyTable が存在しない名前で error にならない。
-func urbanEnemyTableFor(fac facilityType) string {
-	if name, ok := facilityEnemyTable[fac]; ok {
+// urbanEnemyTableFor は施設の敵テーブル名を返す。割り当ては raw.toml の facilityEnemyTables が持ち、
+// 似た施設は同じテーブルを指す。施設は zoneCatalog で地区ごとに固まって湧くので、施設別に引いても近隣は
+// 同種へ寄り、地区スケールのまとまりが地区概念を新設せずに現れる。未割り当てや空文字の施設は既定の
+// urbanEnemyTable へ落ち、GetEnemyTable が存在しない名前で error にならないようにする。
+func urbanEnemyTableFor(world w.World, fac facilityType) string {
+	if name, ok := raw.FacilityEnemyTableName(world.Resources.RawMaster, string(fac)); ok && name != "" {
 		return name
 	}
 	return urbanEnemyTable
@@ -304,7 +286,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
 func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac facilityType, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
-	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTableFor(fac))
+	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTableFor(world, fac))
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
