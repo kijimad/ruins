@@ -37,16 +37,7 @@ func NewCubeFacilityMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return &CubeFacilityMenuState{cube: cube}, nil
 }
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *CubeFacilityMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *CubeFacilityMenuState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが終了する際に呼ばれる
-func (st *CubeFacilityMenuState) OnStop(_ w.World) error { return nil }
-
-// OnStart はステートが開始される際に呼ばれる
+// OnStart はステートが開始される際に呼ばれる。OnPause/OnResume/OnStop は BaseState の既定に委ねる
 func (st *CubeFacilityMenuState) OnStart(_ w.World) error { return nil }
 
 // cubeFacilityBindings は設備画面の束縛表。矢印でカーソルを動かし、Enter で決定、Esc で閉じる

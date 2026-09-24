@@ -57,18 +57,20 @@ func PlaceFacility(world w.World, cube ecs.Entity, item ecs.Entity, coord consts
 	if !world.Components.Deployable.Has(item) {
 		return gc.InvalidEntity, fmt.Errorf("place facility: item is not deployable")
 	}
+	// 据付は設備画面がバックパックの据付アイテムから呼ぶ。他ロケーションからの経路は現状無いが、
+	// 前提を握りつぶさず error にして、将来の経路追加で総重量の再計算が漏れるのを早期に検知する
+	if !world.Components.LocationInBackpack.Has(item) {
+		return gc.InvalidEntity, fmt.Errorf("place facility: item is not in backpack")
+	}
 	if !FacilityCellFree(world, cube, coord) {
 		return gc.InvalidEntity, fmt.Errorf("place facility: cell %s is occupied", coord)
 	}
 	// バックパックから移すので、前の所有者を渡して総重量の再計算を促す
-	var previousOwner ecs.Entity
-	if world.Components.LocationInBackpack.Has(item) {
-		previousOwner = world.Components.LocationInBackpack.Get(item).Owner
-	}
+	owner := world.Components.LocationInBackpack.Get(item).Owner
 	// 携行アイテムからフィールドの造作へ。Prop になれば拾得対象から外れ、造作として振る舞う
 	ensureRemoved(world.Components.Item, item)
 	ensureMarker(world, world.Components.Prop, item, &gc.Prop{})
-	MoveMembersToField(world, []ecs.Entity{item}, coord, previousOwner)
+	MoveMembersToField(world, []ecs.Entity{item}, coord, owner)
 	return item, nil
 }
 

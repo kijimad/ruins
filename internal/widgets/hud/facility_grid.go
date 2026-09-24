@@ -39,8 +39,12 @@ type FacilityGridView struct {
 	Footer               string // 共通の操作説明
 }
 
-// facilityGridCellPx は設備グリッドの1マスの辺
-const facilityGridCellPx = 44
+// 設備グリッドの寸法。1マスの辺と、下端から情報行を持ち上げる量
+const (
+	facilityGridCellPx      = 44 // 1マスの辺
+	facilityContentBottomPx = 52 // 選択マスの内容名を下端から上げる量
+	facilityFooterBottomPx  = 28 // 操作説明を下端から上げる量
+)
 
 // DrawFacilityGrid は設備画面のパネル・グリッド・カーソル・説明を cv へ描く。画面側は view を組んで渡すだけで、
 // uicore の組み立てはここへ閉じる。
@@ -67,12 +71,12 @@ func DrawFacilityGrid(cv uicore.Canvas, rect image.Rectangle, face text.Face, vi
 		}
 	}
 
-	cv.DrawText(image.Pt(rect.Min.X+16, rect.Max.Y-52), view.Content, face, theme.TextPrimary)
+	cv.DrawText(image.Pt(rect.Min.X+16, rect.Max.Y-facilityContentBottomPx), view.Content, face, theme.TextPrimary)
 	footer := view.Footer
 	if view.Hint != "" {
 		footer = view.Hint + "  " + footer
 	}
-	cv.DrawText(image.Pt(rect.Min.X+16, rect.Max.Y-28), footer, face, theme.TextDisabled)
+	cv.DrawText(image.Pt(rect.Min.X+16, rect.Max.Y-facilityFooterBottomPx), footer, face, theme.TextDisabled)
 }
 
 // facilityCellColor はマス種別ごとの下地色を返す
