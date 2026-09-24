@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 12:13:39</td>
+            <td class="headerValue">2026-09-24 13:15:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -205,7 +205,7 @@
 <span id="L143"><span class="lineNum">     143</span>              : // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。</span>
 <span id="L144"><span class="lineNum">     144</span>              : // 体温タイマーへの直接回復とは別の効きで、火を焚けば周囲気温そのものが上がる。</span>
 <span id="L145"><span class="lineNum">     145</span>              : // 状態は持たず、毎回そのターンの熱源から平衡値を出す。値は実プレイで調整する。</span>
-<span id="L146"><span class="lineNum">     146</span>              : // 焚き火 warmth 0.75 の隣接タイルで +15℃ になり、春の夜が火のそばで快適帯に入る</span>
+<span id="L146"><span class="lineNum">     146</span>              : // 焚き火 warmth 0.75 の半径内で +23℃ になり、春の夜が火のそばで快適帯に入る</span>
 <span id="L147"><span class="lineNum">     147</span>              : const ambientHeatPerWarmth = 30</span>
 <span id="L148"><span class="lineNum">     148</span>              : </span>
 <span id="L149"><span class="lineNum">     149</span>              : // ambientHeatAt はタイル座標に届く熱源の環境気温への押し上げ℃を返す</span>
@@ -254,24 +254,22 @@
 <span id="L192"><span class="lineNum">     192</span>              : }</span>
 <span id="L193"><span class="lineNum">     193</span>              : </span>
 <span id="L194"><span class="lineNum">     194</span>              : // HeatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。</span>
-<span id="L195"><span class="lineNum">     195</span>              : // 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する。</span>
-<span id="L196"><span class="lineNum">     196</span>              : // HeatSource を持つものを数える。暖房かどうかは HeatSource だけで決まり Burning とは独立で、</span>
-<span id="L197"><span class="lineNum">     197</span>              : // 電熱のように燃えない熱源も暖房になる。火は燃え尽きると自分の HeatSource を外すので数から外れる</span>
-<span id="L198"><span class="lineNum">     198</span>              : func HeatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {</span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         at := consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         var warmth float64</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         heatQuery := ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         for heatQuery.Next() {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 entity := heatQuery.Entity()</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 src := world.Components.HeatSource.Get(entity)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 if d := geometry.ChebyshevDistance(at, grid.Coord); d &lt;= int(src.Radius) {</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                         reach := int(src.Radius) + 1</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                         warmth += src.Warmth * float64(reach-d) / float64(reach)</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L210"><span class="lineNum">     210</span>              :         }</span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         return warmth</span></span>
-<span id="L212"><span class="lineNum">     212</span>              : }</span>
+<span id="L195"><span class="lineNum">     195</span>              : // 各熱源は半径内で距離によらず一律に効き、半径外は効かない。複数の熱源は加算する。</span>
+<span id="L196"><span class="lineNum">     196</span>              : func HeatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         at := consts.Coord[consts.Tile]{X: x, Y: y}</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         var warmth float64</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         heatQuery := ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         defer heatQuery.Close()</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         for heatQuery.Next() {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 entity := heatQuery.Entity()</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 src := world.Components.HeatSource.Get(entity)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 if geometry.ChebyshevDistance(at, grid.Coord) &lt;= int(src.Radius) {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                         warmth += src.Warmth</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L208"><span class="lineNum">     208</span>              :         }</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         return warmth</span></span>
+<span id="L210"><span class="lineNum">     210</span>              : }</span>
         </pre>
               </td>
             </tr>
