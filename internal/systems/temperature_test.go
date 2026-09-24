@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"strconv"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -329,7 +330,10 @@ func TestCalcBodyTempRate_公開ラッパーは内部計算に委譲する(t *te
 	t.Parallel()
 
 	for _, effectiveTemp := range []int{-100, 5} {
-		assert.Equal(t, calcBodyTempRate(effectiveTemp), CalcBodyTempRate(effectiveTemp))
+		t.Run(strconv.Itoa(effectiveTemp), func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, calcBodyTempRate(effectiveTemp), CalcBodyTempRate(effectiveTemp))
+		})
 	}
 }
 
@@ -407,7 +411,7 @@ func TestLogTemperatureChange(t *testing.T) {
 	t.Run("回復メッセージが空ならログを出さない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		// Severeは回復メッセージを持たない最重症区分。current<=prevの分岐に入っても空になる
+		// current <= prev のとき回復メッセージを見る。Severe は回復メッセージが空なのでログを出さない
 		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeveritySevere, gc.SeveritySevere)
 		assert.Equal(t, 0, query.GetGameLog(world).Count())
 	})
