@@ -1224,7 +1224,7 @@ type Item struct {
 	// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
 	CubeModule *CubeModule `json:"cubeModule,omitempty"`
 
-	// Deployable 据付設定。キューブの展開空間へ据えると prop になる
+	// Deployable 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
 	Deployable *Deployable `json:"deployable,omitempty"`
 
 	// Description 説明文

@@ -2441,9 +2441,7 @@ components:
         cubeModule:
           $ref: '#/components/schemas/CubeModule'
         deployable:
-          allOf:
-            - $ref: '#/components/schemas/Deployable'
-          description: 据付設定。キューブの展開空間へ据えると prop になる
+          $ref: '#/components/schemas/Deployable'
         melee:
           $ref: '#/components/schemas/Melee'
         fire:

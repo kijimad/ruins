@@ -118,7 +118,6 @@ model Item {
   equipBonus?: EquipBonus;
   ammo?: Ammo;
   cubeModule?: CubeModule;
-  /** 据付設定。キューブの展開空間へ据えると prop になる */
   deployable?: Deployable;
   melee?: Melee;
   fire?: Fire;
