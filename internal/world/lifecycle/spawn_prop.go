@@ -159,6 +159,9 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	}), nil
 }
 
+// cubeHP はキューブの耐久値。扉と同じ prop 標準の HP 機構に乗せる。移動拠点なので扉より頑丈にする
+const cubeHP = 200
+
 // SpawnCube は運転できる移動拠点キューブをオーバーワールドに生成する。
 // blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
@@ -171,8 +174,10 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 			SpriteKey:       "blue_cube",
 			Depth:           gc.DepthNumTaller,
 		},
-		Prop:            &gc.Prop{},
-		Drivable:        &gc.Drivable{},
+		Prop:     &gc.Prop{},
+		Drivable: &gc.Drivable{},
+		// 扉と同じ prop 標準の耐久度。攻撃・環境ダメージは damage.go 経路で効く。自前の HP 機構は作らない
+		HP:              &gc.HP{Max: cubeHP, Current: cubeHP},
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
 		// 収納を持ち、隣接時にキューブメニューから開ける
