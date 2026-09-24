@@ -26,14 +26,16 @@ func fuelHeatCell(world w.World, e ecs.Entity, count int) string {
 
 // NewCubeMenuState は移動拠点キューブの入口メニューを作る。直上で Enter すると開き、運転・展開と圧縮の
 // 切替・燃料投入・キューブ情報の下位項目へ分岐する。燃料投入は可燃物だけを受け入れ、運転燃料に充てる。
-// 運転は展開中にはできないので、圧縮中のときだけ項目に出す。
+// 状態で使えない項目は消さずに無効表示で残す。運転は展開中、設備は圧縮中に無効になる。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
-		choices := []Choice{deployChoice(world, cube)}
-		if !world.Components.Deployed.Has(cube) {
-			choices = append(choices, driveChoice(world, cube))
-		}
-		choices = append(choices,
+		deployed := world.Components.Deployed.Has(cube)
+		// 運転は1マスの圧縮形態でだけできる。展開中は無効表示にして消さない
+		drive := driveChoice(world, cube)
+		drive.Disabled = deployed
+		choices := []Choice{
+			deployChoice(world, cube),
+			drive,
 			Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
 				// 見出しに残燃料を出し、投入で即増えるのを見せる
 				fuelTitle := func(world w.World) string {
@@ -53,20 +55,24 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 			Choice{Label: query.T(world, "Module"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeModuleMenuState(cube)
 			})},
+			// 設備は展開空間のマスへ据えるので、圧縮中は無効表示にする
+			Choice{Label: query.T(world, "Facility"), Disabled: !deployed, Run: pushChoice(func() (es.State[w.World], error) {
+				return NewCubeFacilityMenuState(cube)
+			})},
 			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)
 			})},
 			Choice{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			}},
-		)
+		}
 		return query.T(world, "Cube"), choices
 	}), nil
 }
 
 // driveChoice は圧縮中のキューブに乗り込んで運転を始める項目。プレイヤーへ Driving を付けると、以後の
-// 移動入力がキューブを動かす。展開中は呼び出し側が項目に出さない。運転中は DungeonState が入力を移動と
-// 降車だけに絞りメニューを開けないので、Driving が既に付いた状態でここへ来ることはない。ゆえに二重付与の
+// 移動入力がキューブを動かす。展開中は呼び出し側が無効表示にして選べなくする。運転中は DungeonState が入力を
+// 移動と降車だけに絞りメニューを開けないので、Driving が既に付いた状態でここへ来ることはない。ゆえに二重付与の
 // ガードは置かず、万一その不変条件が破れたら Ark の二重 Add で loud に露見させる。
 func driveChoice(world w.World, cube ecs.Entity) Choice {
 	return Choice{Label: query.T(world, "Drive"), Run: func(world w.World) (es.Transition[w.World], error) {

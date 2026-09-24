@@ -51,6 +51,12 @@ model CubeModule {
   rangeBonus: RangeBonus;
 }
 
+/** 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す */
+model Deployable {
+  /** 収納設備の容量。据えると収納として開ける */
+  storage?: StorageRaw;
+}
+
 /** 近接攻撃設定 */
 model Melee {
   accuracy: Accuracy;
@@ -112,6 +118,7 @@ model Item {
   equipBonus?: EquipBonus;
   ammo?: Ammo;
   cubeModule?: CubeModule;
+  deployable?: Deployable;
   melee?: Melee;
   fire?: Fire;
   book?: Book;

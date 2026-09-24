@@ -15,7 +15,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewCubeMenuState_圧縮中は展開を先頭に6項目を並べる(t *testing.T) {
+// choiceByLabel はラベルで選択肢を1つ引く。無効フラグの検査に使う
+func choiceByLabel(choices []Choice, label string) (Choice, bool) {
+	for _, c := range choices {
+		if c.Label == label {
+			return c, true
+		}
+	}
+	return Choice{}, false
+}
+
+func TestNewCubeMenuState_圧縮中は運転が有効で設備が無効(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
@@ -31,18 +41,25 @@ func TestNewCubeMenuState_圧縮中は展開を先頭に6項目を並べる(t *t
 	for i, c := range choices {
 		labels[i] = c.Label
 	}
+	// 状態で使えない項目も消さず無効表示で残すので、圧縮中も設備は並ぶ
 	want := []string{
 		query.T(world, "Deploy"),
 		query.T(world, "Drive"),
 		query.T(world, "Fuel"),
 		query.T(world, "Module"),
+		query.T(world, "Facility"),
 		query.T(world, "Cube info"),
 		query.T(world, "Close"),
 	}
-	assert.Equal(t, want, labels, "圧縮中は展開・運転・燃料・モジュール・キューブ情報・閉じるを順に並べる")
+	assert.Equal(t, want, labels)
+
+	drive, _ := choiceByLabel(choices, query.T(world, "Drive"))
+	assert.False(t, drive.Disabled, "圧縮中は運転できる")
+	facility, _ := choiceByLabel(choices, query.T(world, "Facility"))
+	assert.True(t, facility.Disabled, "圧縮中は展開空間が無いので設備は無効")
 }
 
-func TestNewCubeMenuState_展開中は先頭が圧縮になる(t *testing.T) {
+func TestNewCubeMenuState_展開中は設備が有効で運転が無効(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
@@ -56,11 +73,12 @@ func TestNewCubeMenuState_展開中は先頭が圧縮になる(t *testing.T) {
 
 	_, choices := menu.provide(world)
 	assert.Equal(t, query.T(world, "Compress"), choices[0].Label, "展開中は先頭が圧縮")
-	labels := make([]string, len(choices))
-	for i, c := range choices {
-		labels[i] = c.Label
-	}
-	assert.NotContains(t, labels, query.T(world, "Drive"), "展開中は運転できないので運転を出さない")
+
+	drive, _ := choiceByLabel(choices, query.T(world, "Drive"))
+	assert.True(t, drive.Disabled, "展開中は運転できないので無効")
+	facility, ok := choiceByLabel(choices, query.T(world, "Facility"))
+	require.True(t, ok, "展開中も設備は並ぶ")
+	assert.False(t, facility.Disabled, "展開中は設備を据えられる")
 }
 
 // TestDriveChoice_運転を選ぶとDrivingが付く は、キューブメニューの運転項目で乗車が始まることを固定する。

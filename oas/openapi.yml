@@ -1991,6 +1991,14 @@ components:
       minimum: -100
       maximum: 100
       description: 防御力。被ダメージを軽減する
+    Deployable:
+      type: object
+      properties:
+        storage:
+          allOf:
+            - $ref: '#/components/schemas/StorageRaw'
+          description: 収納設備の容量。据えると収納として開ける
+      description: 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
     Dexterity:
       type: integer
       minimum: -100
@@ -2432,6 +2440,8 @@ components:
           $ref: '#/components/schemas/Ammo'
         cubeModule:
           $ref: '#/components/schemas/CubeModule'
+        deployable:
+          $ref: '#/components/schemas/Deployable'
         melee:
           $ref: '#/components/schemas/Melee'
         fire:
