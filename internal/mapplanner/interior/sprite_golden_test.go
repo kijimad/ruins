@@ -234,7 +234,7 @@ func TestGolden_RoomConvStore(t *testing.T) {
 
 	room := storeRoom()
 	assertRoomGolden(t, room, "store", func(seed uint64) []Placed {
-		return FillRoom(seed, room, testContent("conv_store"))
+		return FillRoom(seed, room, testContent("convenience_store"))
 	})
 }
 

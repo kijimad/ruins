@@ -57,7 +57,7 @@ func houseRoom() Room {
 func TestFillRoom_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
-	room, content := storeRoom(), testContent("conv_store")
+	room, content := storeRoom(), testContent("convenience_store")
 	first := FillRoom(42, room, content)
 	for range 5 {
 		require.Equal(t, first, FillRoom(42, room, content), "同じ seed なら配置も完全一致する")

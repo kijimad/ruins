@@ -25,7 +25,7 @@ func TestFlavor_到達性を壊さない(t *testing.T) {
 
 	room := storeRoom()
 	for seed := range uint64(30) {
-		base := FillRoom(seed, room, testContent("conv_store"))
+		base := FillRoom(seed, room, testContent("convenience_store"))
 		flavored := Flavor(seed, room, base, abandonedFlavor())
 
 		blocked := blockingTiles(flavored)

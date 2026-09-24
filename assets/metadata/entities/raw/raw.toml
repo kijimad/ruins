@@ -16014,7 +16014,7 @@ ref = "walkin_cooler"
 amount = "4d1"
 placement = "wall"
 [[interiorContents]]
-id = "conv_store"
+id = "convenience_store"
 [[interiorContents.groups]]
 style = "pick_each"
 [[interiorContents.groups.items]]
@@ -16082,7 +16082,7 @@ kind = "furniture"
 ref = "sink"
 amount = "1d1"
 [[interiorContents]]
-id = "exam"
+id = "examination_room"
 [[interiorContents.groups]]
 style = "pick_each"
 [[interiorContents.groups.items]]
@@ -16702,10 +16702,10 @@ facility = "house"
 variants = ["house", "studio"]
 [[facilityContents]]
 facility = "store"
-variants = ["conv_store", "pharmacy", "grocery"]
+variants = ["convenience_store", "pharmacy", "grocery"]
 [[facilityContents]]
 facility = "antique"
-variants = ["conv_store"]
+variants = ["convenience_store"]
 [[facilityContents]]
 facility = "clinic"
 variants = ["clinic"]
@@ -16781,10 +16781,10 @@ role = "storeroom"
 content = "storage"
 [[facilityRooms]]
 facility = "clinic"
-fallback = "exam"
+fallback = "examination_room"
 [[facilityRooms.rooms]]
-role = "exam"
-content = "exam"
+role = "examination_room"
+content = "examination_room"
 [[facilityRooms.rooms]]
 role = "office"
 content = "office_room"
@@ -16799,10 +16799,10 @@ role = "waiting"
 content = "waiting"
 [[facilityRooms]]
 facility = "lab"
-fallback = "exam"
+fallback = "examination_room"
 [[facilityRooms.rooms]]
-role = "exam"
-content = "exam"
+role = "examination_room"
+content = "examination_room"
 [[facilityRooms.rooms]]
 role = "office"
 content = "office_room"

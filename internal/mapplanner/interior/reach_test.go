@@ -12,7 +12,7 @@ import (
 func TestFillRoom_歩行可能な床が戸口から全て到達できる(t *testing.T) {
 	t.Parallel()
 
-	room, content := storeRoom(), testContent("conv_store")
+	room, content := storeRoom(), testContent("convenience_store")
 	for s := range uint64(40) {
 		placed := FillRoom(s, room, content)
 		blocked := blockingTiles(placed)

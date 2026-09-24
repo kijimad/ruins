@@ -17,7 +17,7 @@ func TestClassifyRoom_施設が役割どおりに分類される(t *testing.T) {
 		role string
 		got  []Placed
 	}{
-		{"店", "store", FillRoom(42, storeRoom(), testContent("conv_store"))},
+		{"店", "store", FillRoom(42, storeRoom(), testContent("convenience_store"))},
 		{"診療所", "clinic", FillRoom(7, clinicRoom(), testContent("clinic"))},
 		{"寝室", "bedroom", FillRoom(1, houseSmallRoom(), byRole["bedroom"])},
 		{"浴室", "bath", FillRoom(1, houseSmallRoom(), byRole["bath"])},
@@ -41,7 +41,7 @@ func TestClassifyRoom_多seedで店と診療所は役割どおりに見える(t 
 	t.Parallel()
 
 	for seed := range uint64(50) {
-		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), testContent("conv_store")), dmgMinor)
+		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), testContent("convenience_store")), dmgMinor)
 		assert.Equalf(t, "store", classifyRoom(store), "seed=%d の店は店に見える", seed)
 
 		clinic := FillRoom(seed, clinicRoom(), testContent("clinic"))

@@ -13,7 +13,7 @@ import (
 // sampleContent はコンビニを模した Content。保証枠・N抽選・1抽選の3 Group を持つ。
 func sampleContent() Content {
 	return Content{
-		ID: "conv_store",
+		ID: "convenience_store",
 		Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},

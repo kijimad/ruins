@@ -79,7 +79,7 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 		roles    []roleName // このどれかが必ず出る施設固有の役割
 	}{
 		{"store", []roleName{"storeroom", "office", "restroom", "coldroom"}},
-		{"clinic", []roleName{"exam", "pharmacy", "restroom", "office"}},
+		{"clinic", []roleName{"examination_room", "pharmacy", "restroom", "office"}},
 		{"house", []roleName{"kitchen", "bedroom", "bath"}},
 	}
 	for _, c := range cases {
