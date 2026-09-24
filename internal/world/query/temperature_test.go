@@ -214,7 +214,7 @@ func TestAmbientTemperatureAt_熱源は環境気温を押し上げる(t *testing
 
 	temp, err := query.AmbientTemperatureAt(world, 1, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -5, temp, "隣接の押し上げは 0.75*2/3*30=15℃ で -20 が -5 になる")
+	assert.Equal(t, 3, temp, "半径内は一律。押し上げは 0.75*30=22.5→23℃ で -20 が 3 になる")
 }
 
 func TestAmbientTemperatureAt_半屋外タイルは世界温度を中間の強さで受ける(t *testing.T) {
@@ -321,7 +321,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	})
 }
 
-func TestHeatSourceWarmthAt_距離に応じて減衰し半径外は無視する(t *testing.T) {
+func TestHeatSourceWarmthAt_半径内は一律で効き半径外は無視する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -333,9 +333,11 @@ func TestHeatSourceWarmthAt_距離に応じて減衰し半径外は無視する(
 	addHeatSource(5, 5, 2, 0.6)
 	addHeatSource(20, 20, 1, 9.9)
 
+	// 半径内は距離によらず満額。減衰しない
 	assert.InDelta(t, 0.6, query.HeatSourceWarmthAt(world, 5, 5), 1e-9)
-	assert.InDelta(t, 0.4, query.HeatSourceWarmthAt(world, 6, 5), 1e-9)
-	assert.InDelta(t, 0.2, query.HeatSourceWarmthAt(world, 7, 5), 1e-9)
+	assert.InDelta(t, 0.6, query.HeatSourceWarmthAt(world, 6, 5), 1e-9)
+	assert.InDelta(t, 0.6, query.HeatSourceWarmthAt(world, 7, 5), 1e-9)
+	// 半径外は効かない
 	assert.InDelta(t, 0.0, query.HeatSourceWarmthAt(world, 8, 5), 1e-9)
 }
 
@@ -351,5 +353,6 @@ func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
 	addHeatSource(5, 5, 1, 0.5)
 	addHeatSource(6, 6, 2, 0.3)
 
-	assert.InDelta(t, 0.7, query.HeatSourceWarmthAt(world, 5, 5), 1e-9)
+	// (5,5) は両熱源の半径内なので満額どうしを加算する
+	assert.InDelta(t, 0.8, query.HeatSourceWarmthAt(world, 5, 5), 1e-9)
 }

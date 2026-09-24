@@ -143,7 +143,7 @@ func latitudeColdForDepth(chunksDeep int) int {
 // ambientHeatPerWarmth は熱源の暖かさ1あたり環境気温へ押し上げる℃。
 // 体温タイマーへの直接回復とは別の効きで、火を焚けば周囲気温そのものが上がる。
 // 状態は持たず、毎回そのターンの熱源から平衡値を出す。値は実プレイで調整する。
-// 焚き火 warmth 0.75 の隣接タイルで +15℃ になり、春の夜が火のそばで快適帯に入る
+// 焚き火 warmth 0.75 の半径内で +23℃ になり、春の夜が火のそばで快適帯に入る
 const ambientHeatPerWarmth = 30
 
 // ambientHeatAt はタイル座標に届く熱源の環境気温への押し上げ℃を返す
@@ -192,7 +192,7 @@ func TileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
 }
 
 // HeatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。
-// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する。
+// 各熱源は半径内で距離によらず一律に効き、半径外は効かない。複数の熱源は加算する。
 // HeatSource を持つものを数える。暖房かどうかは HeatSource だけで決まり Burning とは独立で、
 // 電熱のように燃えない熱源も暖房になる。火は燃え尽きると自分の HeatSource を外すので数から外れる
 func HeatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
@@ -203,9 +203,8 @@ func HeatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 		entity := heatQuery.Entity()
 		src := world.Components.HeatSource.Get(entity)
 		grid := world.Components.GridElement.Get(entity)
-		if d := geometry.ChebyshevDistance(at, grid.Coord); d <= int(src.Radius) {
-			reach := int(src.Radius) + 1
-			warmth += src.Warmth * float64(reach-d) / float64(reach)
+		if geometry.ChebyshevDistance(at, grid.Coord) <= int(src.Radius) {
+			warmth += src.Warmth
 		}
 	}
 	return warmth
