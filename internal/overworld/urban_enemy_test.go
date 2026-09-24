@@ -17,10 +17,10 @@ func TestUrbanEnemyTableFor_施設で敵テーブルを引き未割り当ては�
 
 	world := testutil.InitTestWorld(t)
 
-	assert.Equal(t, "downtown_enemies", urbanEnemyTableFor(world, facilityClinic), "診療所は高危険施設テーブル")
-	assert.Equal(t, "downtown_enemies", urbanEnemyTableFor(world, facilityLab), "研究施設は診療所と同じ")
-	assert.Equal(t, "industrial_enemies", urbanEnemyTableFor(world, facilityDepot), "倉庫は産業機械テーブル")
-	assert.Equal(t, "industrial_enemies", urbanEnemyTableFor(world, facilityOffice), "事務所は倉庫と同じ")
+	assert.Equal(t, "clinic_enemies", urbanEnemyTableFor(world, facilityClinic), "診療所は診療所テーブル")
+	assert.Equal(t, "lab_enemies", urbanEnemyTableFor(world, facilityLab), "研究施設は研究施設テーブル")
+	assert.Equal(t, "depot_enemies", urbanEnemyTableFor(world, facilityDepot), "倉庫は倉庫テーブル")
+	assert.Equal(t, "office_enemies", urbanEnemyTableFor(world, facilityOffice), "事務所は事務所テーブル")
 	assert.Equal(t, urbanEnemyTable, urbanEnemyTableFor(world, facilityHouse), "未割り当ての住宅は既定の廃墟テーブル")
 	assert.Equal(t, urbanEnemyTable, urbanEnemyTableFor(world, facilityType("unknown")), "未知の施設も既定へ落ちる")
 }

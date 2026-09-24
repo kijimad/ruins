@@ -15660,8 +15660,8 @@ maxDanger = 7
 weight = 0.8
 pack = "1d1"
 [[enemyTables]]
-name = "高危険施設"
-id = "downtown_enemies"
+name = "診療所"
+id = "clinic_enemies"
 [[enemyTables.entries]]
 id = "decayed_soldier"
 minDanger = 1
@@ -15675,43 +15675,31 @@ maxDanger = 8
 weight = 1
 pack = "1d2"
 [[enemyTables.entries]]
-id = "skeleton_soldier"
-minDanger = 3
-maxDanger = 25
-weight = 1
-pack = "1d3"
+id = "poison_spider"
+minDanger = 2
+maxDanger = 20
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "curse_wraith"
+minDanger = 6
+maxDanger = 9
+weight = 0.8
+pack = "1d1"
 [[enemyTables.entries]]
 id = "dark_doctor"
 minDanger = 7
 maxDanger = 25
-weight = 0.8
-pack = "1d2"
-[[enemyTables.entries]]
-id = "crystal_wraith"
-minDanger = 10
-maxDanger = 25
-weight = 0.7
-pack = "1d2"
-[[enemyTables.entries]]
-id = "guard_soldier"
-minDanger = 16
-maxDanger = 25
-weight = 0.6
-pack = "1d2"
+weight = 0.9
+pack = "1d1"
 [[enemyTables]]
-name = "産業機械"
-id = "industrial_enemies"
-[[enemyTables.entries]]
-id = "rusted_doll"
-minDanger = 1
-maxDanger = 10
-weight = 1.2
-pack = "1d3"
+name = "研究施設"
+id = "lab_enemies"
 [[enemyTables.entries]]
 id = "static_mite"
 minDanger = 1
-maxDanger = 6
-weight = 1
+maxDanger = 4
+weight = 1.1
 pack = "1d3"
 [[enemyTables.entries]]
 id = "spark_wisp"
@@ -15720,36 +15708,102 @@ maxDanger = 8
 weight = 1
 pack = "1d3"
 [[enemyTables.entries]]
-id = "rust_golem"
-minDanger = 8
-maxDanger = 25
-weight = 0.7
+id = "prism_eye"
+minDanger = 7
+maxDanger = 12
+weight = 0.8
 pack = "1d2"
 [[enemyTables.entries]]
-id = "iron_sentinel"
-minDanger = 7
+id = "shock_orb"
+minDanger = 10
+maxDanger = 22
+weight = 0.7
+pack = "1d1"
+[[enemyTables.entries]]
+id = "crystal_wraith"
+minDanger = 10
 maxDanger = 25
 weight = 0.7
+pack = "1d1"
+[[enemyTables.entries]]
+id = "shadow_priest"
+minDanger = 14
+maxDanger = 25
+weight = 0.6
+pack = "1d1"
+[[enemyTables]]
+name = "倉庫"
+id = "depot_enemies"
+[[enemyTables.entries]]
+id = "shadow_rat"
+minDanger = 1
+maxDanger = 5
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "rusted_doll"
+minDanger = 1
+maxDanger = 10
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "venom_crawler"
+minDanger = 3
+maxDanger = 7
+weight = 0.9
 pack = "1d2"
+[[enemyTables.entries]]
+id = "rust_golem"
+minDanger = 10
+maxDanger = 25
+weight = 0.7
+pack = "1d1"
 [[enemyTables.entries]]
 id = "gray_tank"
 minDanger = 12
 maxDanger = 30
 weight = 0.5
 pack = "1d1"
+[[enemyTables]]
+name = "事務所"
+id = "office_enemies"
+[[enemyTables.entries]]
+id = "ash_bug"
+minDanger = 1
+maxDanger = 5
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "decayed_soldier"
+minDanger = 1
+maxDanger = 10
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "skeleton_soldier"
+minDanger = 3
+maxDanger = 25
+weight = 0.9
+pack = "1d2"
+[[enemyTables.entries]]
+id = "guard_soldier"
+minDanger = 16
+maxDanger = 25
+weight = 0.6
+pack = "1d1"
 
 [[facilityEnemyTables]]
 facility = "clinic"
-enemyTable = "downtown_enemies"
+enemyTable = "clinic_enemies"
 [[facilityEnemyTables]]
 facility = "lab"
-enemyTable = "downtown_enemies"
+enemyTable = "lab_enemies"
 [[facilityEnemyTables]]
 facility = "depot"
-enemyTable = "industrial_enemies"
+enemyTable = "depot_enemies"
 [[facilityEnemyTables]]
 facility = "office"
-enemyTable = "industrial_enemies"
+enemyTable = "office_enemies"
 
 [[spriteSheets]]
 name = "bg"
