@@ -392,8 +392,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}
 
-	// フィールドでの相互作用を1つ持たせる。収納設備は開ける相互作用、通常アイテムは拾える相互作用。
-	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{fieldInteraction(item)}}
+	entitySpec.Interactable = &gc.Interactable{Interactions: fieldInteractions(item)}
 
 	return entitySpec, nil
 }
@@ -412,13 +411,17 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 	return nil
 }
 
-// fieldInteraction は据付アイテムかどうかでフィールドの相互作用を選ぶ。収納設備は開ける相互作用にし、
-// 据付は設備画面からのみ扱うのでフィールドで拾える相互作用は与えない。通常アイテムは拾える相互作用。
-func fieldInteraction(item oapi.Item) gc.InteractionKind {
-	if item.Deployable != nil && item.Deployable.Storage != nil {
-		return gc.InteractionStorage
+// fieldInteractions はフィールドでの相互作用を返す。据付は設備画面からのみ扱うので、収納以外の据付には
+// 拾える相互作用を与えない。収納設備は開ける相互作用、通常アイテムは拾える相互作用を持つ。据付に一律で
+// InteractionItem を付けると、将来 storage を持たない据付設備がフィールドで拾えてしまうため分岐で防ぐ。
+func fieldInteractions(item oapi.Item) []gc.InteractionKind {
+	if item.Deployable != nil {
+		if item.Deployable.Storage != nil {
+			return []gc.InteractionKind{gc.InteractionStorage}
+		}
+		return []gc.InteractionKind{}
 	}
-	return gc.InteractionItem
+	return []gc.InteractionKind{gc.InteractionItem}
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する

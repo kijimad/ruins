@@ -32,9 +32,10 @@ type CubeFacilityMenuState struct {
 
 var _ es.State[w.World] = &CubeFacilityMenuState{}
 
-// NewCubeFacilityMenuState はキューブの設備画面を開くファクトリを返す
+// NewCubeFacilityMenuState はキューブの設備画面を開くファクトリを返す。カーソルはキューブ本体でなく
+// 隣のマスから始める。本体マスは据付先にならず、そこから始めると初手の決定が空振りして戸惑うため。
 func NewCubeFacilityMenuState(cube ecs.Entity) (es.State[w.World], error) {
-	return &CubeFacilityMenuState{cube: cube}, nil
+	return &CubeFacilityMenuState{cube: cube, cursor: consts.Coord[consts.Tile]{X: 1}}, nil
 }
 
 // OnStart はステートが開始される際に呼ばれる。OnPause/OnResume/OnStop は BaseState の既定に委ねる

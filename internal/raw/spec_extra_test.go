@@ -192,6 +192,28 @@ maxWeight = "50 kg"
 	assert.NotContains(t, spec.Interactable.Interactions, gc.InteractionItem)
 }
 
+func TestNewItemSpec_収納なし据付は拾える相互作用を持たない(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "照明"
+id = "照明"
+Description = "据える受動設備"
+
+[Items.Deployable]
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "照明")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Deployable)
+	// storage を持たない据付でも、据付は設備画面で扱うのでフィールドで拾える相互作用は付かない
+	assert.NotContains(t, spec.Interactable.Interactions, gc.InteractionItem)
+}
+
 func TestNewItemSpec_本が設定される(t *testing.T) {
 	t.Parallel()
 

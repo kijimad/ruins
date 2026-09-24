@@ -186,6 +186,25 @@ func TestBackpackCubeModules_バックパックのモジュールだけ返す(t 
 	assert.Equal(t, []ecs.Entity{m}, query.BackpackCubeModules(world, player), "このプレイヤーのモジュール1件だけ")
 }
 
+func TestBackpackDeployables_バックパックの据付アイテムだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	d := world.ECS.NewEntity()
+	world.Components.Deployable.Add(d, &gc.Deployable{})
+	world.Components.LocationInBackpack.Add(d, &gc.LocationInBackpack{Owner: player})
+	// 別プレイヤーの据付と、据付でないバックパック品は除く
+	d2 := world.ECS.NewEntity()
+	world.Components.Deployable.Add(d2, &gc.Deployable{})
+	world.Components.LocationInBackpack.Add(d2, &gc.LocationInBackpack{Owner: other})
+	nondep := world.ECS.NewEntity()
+	world.Components.LocationInBackpack.Add(nondep, &gc.LocationInBackpack{Owner: player})
+
+	assert.Equal(t, []ecs.Entity{d}, query.BackpackDeployables(world, player), "このプレイヤーの据付アイテム1件だけ")
+}
+
 func TestCubeWeight_装着モジュールも合算する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

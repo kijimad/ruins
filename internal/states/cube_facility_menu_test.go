@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -80,6 +81,20 @@ func TestCubeFacilityMenu_cursorInfoが内容と操作を返す(t *testing.T) {
 	content, hint = st.cursorInfo(world, base.Add(consts.Coord[consts.Tile]{X: 1, Y: 0}))
 	assert.Equal(t, query.T(world, "Empty"), content)
 	assert.Equal(t, query.T(world, "Enter: place"), hint)
+}
+
+func TestCubeFacilityMenu_doActionが入力を捌く(t *testing.T) {
+	t.Parallel()
+	world, st, _ := deployedFacilityState(t)
+
+	trans, err := st.doAction(world, inputmapper.ActionMenuCancel)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPop, trans.Type, "キャンセルで閉じる")
+
+	st.cursor = consts.Coord[consts.Tile]{X: 0, Y: 0}
+	_, err = st.doAction(world, inputmapper.ActionMenuRight)
+	require.NoError(t, err)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 1, Y: 0}, st.cursor, "方向キーでカーソルが動く")
 }
 
 func TestCubeFacilityMenu_selectCellの空きマスは据付選択へ進む(t *testing.T) {
