@@ -946,10 +946,10 @@ type DangerLevel = int
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
 
-// Deployable 据付設定。キューブの展開空間へ据えると propId の prop になる
+// Deployable 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
 type Deployable struct {
-	// PropId 据えたときに生成する prop の id
-	PropId EntityID `json:"propId"`
+	// Storage 収納設備の容量。据えると収納として開ける
+	Storage *StorageRaw `json:"storage,omitempty"`
 }
 
 // Dexterity 器用さ。クリティカル率に影響する

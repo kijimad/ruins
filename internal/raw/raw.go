@@ -353,9 +353,11 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
+	// 据付アイテム。据えると展開空間で設備として働く。効果は実体のコンポーネントに内在させ、設置は
+	// ロケーションを移すだけにする。
 	if item.Deployable != nil {
-		entitySpec.Deployable = &gc.Deployable{
-			PropID: item.Deployable.PropId,
+		if err := applyDeployable(&entitySpec, item.Deployable, name); err != nil {
+			return gc.EntitySpec{}, err
 		}
 	}
 
@@ -390,10 +392,33 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}
 
-	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
-	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
+	// フィールドでの相互作用を1つ持たせる。収納設備は開ける相互作用、通常アイテムは拾える相互作用。
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{fieldInteraction(item)}}
 
 	return entitySpec, nil
+}
+
+// applyDeployable は据付アイテムに設備コンポーネントを付ける。効果は実体に内在させ、収納設備は
+// 据付定義の容量から WeightCapacity を持たせる。設置はロケーションを移すだけで実体を作り直さない。
+func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
+	entitySpec.Deployable = &gc.Deployable{}
+	if dep.Storage != nil {
+		mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
+		if err != nil {
+			return fmt.Errorf("item '%s' deployable storage: %w", name, err)
+		}
+		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
+	}
+	return nil
+}
+
+// fieldInteraction は据付アイテムかどうかでフィールドの相互作用を選ぶ。収納設備は開ける相互作用にし、
+// 据付は設備画面からのみ扱うのでフィールドで拾える相互作用は与えない。通常アイテムは拾える相互作用。
+func fieldInteraction(item oapi.Item) gc.InteractionKind {
+	if item.Deployable != nil && item.Deployable.Storage != nil {
+		return gc.InteractionStorage
+	}
+	return gc.InteractionItem
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する

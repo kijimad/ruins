@@ -7523,8 +7523,8 @@ spriteSheetName = "field"
 value = 60
 weight = "5 kg"
 
-[items.deployable]
-propId = "camp_storage"
+[items.deployable.storage]
+maxWeight = "50 kg"
 [[items]]
 description = "A finely decorated ceramic pot, prized as an antique."
 name = "Ancient Pot"
@@ -16578,21 +16578,6 @@ chance = 50
 id = "hardwood"
 count = "1d1"
 minSkill = 10
-[[props]]
-blockPass = true
-blockView = false
-description = "キューブの展開空間に据えた保管用の木箱。貨物を入れておける。設備画面から畳んで持ち運べる"
-hp = 30
-name = "Storage Crate"
-id = "camp_storage"
-
-[props.spriteRender]
-depth = 2
-spriteKey = "wooden_crate"
-spriteSheetName = "field"
-
-[props.storage]
-maxWeight = "50 kg"
 [[props]]
 blockPass = true
 blockView = false

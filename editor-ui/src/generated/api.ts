@@ -497,13 +497,13 @@ export interface CubeModule {
     'rangeBonus': number;
 }
 /**
- * 据付設定。キューブの展開空間へ据えると propId の prop になる
+ * 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
  */
 export interface Deployable {
     /**
-     * 据えたときに生成する prop の id
+     * 収納設備の容量。据えると収納として開ける
      */
-    'propId': string;
+    'storage'?: StorageRaw;
 }
 /**
  * 会話データ

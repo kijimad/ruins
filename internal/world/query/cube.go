@@ -103,11 +103,11 @@ func BackpackDeployables(world w.World, player ecs.Entity) []ecs.Entity {
 	return items
 }
 
-// FacilityAt は指定タイルにある据付設備 prop を返す。設備画面で撤去対象を引くのに使う。
-// DeployedFacility を持つ prop だけを対象にするので、grass など据付でない prop は撤去できない。
+// FacilityAt は指定タイルにある据付設備を返す。設備画面で撤去対象を引くのに使う。
+// Deployable を持つ実体だけを対象にするので、grass など据付でない prop は撤去できない。
 func FacilityAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
 	for _, e := range GetEntitiesAt(world, coord.X, coord.Y) {
-		if world.Components.DeployedFacility.Has(e) {
+		if world.Components.Deployable.Has(e) {
 			return e, true
 		}
 	}

@@ -51,10 +51,10 @@ model CubeModule {
   rangeBonus: RangeBonus;
 }
 
-/** 据付設定。キューブの展開空間へ据えると propId の prop になる */
+/** 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す */
 model Deployable {
-  /** 据えたときに生成する prop の id */
-  propId: EntityID;
+  /** 収納設備の容量。据えると収納として開ける */
+  storage?: StorageRaw;
 }
 
 /** 近接攻撃設定 */
