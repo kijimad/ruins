@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.5%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
@@ -497,7 +497,7 @@
 				
 				<option value="file220">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file221">github.com/kijimaD/ruins/internal/raw/raw.go (92.9%)</option>
+				<option value="file221">github.com/kijimaD/ruins/internal/raw/raw.go (93.2%)</option>
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/raw/validate.go (93.5%)</option>
 				
@@ -569,7 +569,7 @@
 				
 				<option value="file256">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
-				<option value="file257">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (81.3%)</option>
+				<option value="file257">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (81.4%)</option>
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.1%)</option>
 				
@@ -669,7 +669,7 @@
 				
 				<option value="file306">github.com/kijimaD/ruins/internal/widgets/entityspec/uipanel.go (100.0%)</option>
 				
-				<option value="file307">github.com/kijimaD/ruins/internal/widgets/entityspec/uses.go (96.7%)</option>
+				<option value="file307">github.com/kijimaD/ruins/internal/widgets/entityspec/uses.go (96.9%)</option>
 				
 				<option value="file308">github.com/kijimaD/ruins/internal/widgets/hud/chrome.go (100.0%)</option>
 				
@@ -5538,7 +5538,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -12334,9 +12334,9 @@ type CubeModule struct {
         RangeBonus consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
 }
 
-// Deployable はキューブの展開空間へ据えられるアイテムであることを表すマーカー。設備の効果は据えた実体が
-// 持つコンポーネントに内在する。装備品の実効 stat が装備品自身に内在するのと同じで、設置は実体を削除せず
-// ロケーションを移すだけ。設置・撤去は設備画面からのみ行い、フィールドで歩いて拾えないよう拾得から除外する。
+// Deployable はキューブの展開空間へ装着できるアイテムであることを表すマーカー。設備の効果は装着した実体が
+// 持つコンポーネントに内在する。装備品の実効 stat が装備品自身に内在するのと同じで、装着は実体を削除せず
+// ロケーションを移すだけ。装着・撤去は設備画面からのみ行い、フィールドで歩いて拾えないよう拾得から除外する。
 type Deployable struct{}
 
 // LocationInstalled はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
@@ -31623,20 +31623,19 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
                 <span class="cov0" title="0">entitySpec.FireStarter = &amp;gc.FireStarter{}
 </span>        }
 
-        // フィールドの相互作用。既定は拾えるアイテム。据付は applyDeployable が設備に応じて上書きする
+        // フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
         <span class="cov8" title="1">entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
         if item.Deployable != nil </span>{
                 <span class="cov8" title="1">if err := applyDeployable(&amp;entitySpec, item.Deployable, name); err != nil </span>{
-                        <span class="cov0" title="0">return gc.EntitySpec{}, err
+                        <span class="cov8" title="1">return gc.EntitySpec{}, err
 </span>                }
         }
 
         <span class="cov8" title="1">return entitySpec, nil</span>
 }
 
-// applyDeployable は据付アイテムの設備設定を1箇所に集める。マーカーに加え、能力ごとにコンポーネントと
-// フィールドの相互作用を対で決める。収納設備は容量から WeightCapacity と開ける相互作用を持つ。据付は設備画面で
-// 扱うので、拾える相互作用は与えず既定の InteractionItem を空へ上書きする。新設備はここに能力の枝を1つ足す。
+// applyDeployable は装着アイテムの設備設定を1箇所に集める。マーカーと能力ごとのコンポーネントを付ける。
+// 装着は設備画面で扱うので拾える相互作用は与えない。新設備は能力の枝を1つ足す。
 func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
         <span class="cov8" title="1">entitySpec.Deployable = &amp;gc.Deployable{}
         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{}}
@@ -31648,6 +31647,17 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
                 <span class="cov8" title="1">entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}
                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}</span>
         }
+        // 携行光源と装着照明はどちらも実体の LightSource を使うが共存できず後勝ちになる。
+        // 片方が痕跡なく消える矛盾記述なので、後勝ちを許さず error で弾く
+        <span class="cov8" title="1">if dep.LightSource != nil </span>{
+                <span class="cov8" title="1">if entitySpec.LightSource != nil </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("item '%s': carried lightSource and deployable lightSource conflict", name)
+</span>                }
+                <span class="cov8" title="1">entitySpec.LightSource = toGCLightSource(dep.LightSource)</span>
+        }
+        <span class="cov8" title="1">if dep.Bedding != nil </span>{
+                <span class="cov8" title="1">entitySpec.Bedding = toGCBedding(dep.Bedding)
+</span>        }
         <span class="cov8" title="1">return nil</span>
 }
 
@@ -36523,9 +36533,9 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
-// CubeFacilityMenuState はキューブの展開空間へ設備を据える画面。展開空間を表す UI 内グリッドを描き、
-// カーソルでマスを選ぶ。空きマスで決定すると据付アイテムの選択へ進み、設備マスで決定すると撤去する。
-// フィールドを歩いて設置/撤去する経路は持たず、設置と撤去をこの画面へ集約する。展開中のみ開く。
+// CubeFacilityMenuState はキューブの展開空間へ設備を装着する画面。展開空間を表す UI 内グリッドを描き、
+// カーソルでマスを選ぶ。空きマスで決定すると装着アイテムの選択へ進み、設備マスで決定すると撤去する。
+// フィールドを歩いて装着/撤去する経路は持たず、装着と撤去をこの画面へ集約する。展開中のみ開く。
 type CubeFacilityMenuState struct {
         es.BaseState[w.World]
         cube   ecs.Entity
@@ -36535,7 +36545,7 @@ type CubeFacilityMenuState struct {
 var _ es.State[w.World] = &amp;CubeFacilityMenuState{}
 
 // NewCubeFacilityMenuState はキューブの設備画面を開くファクトリを返す。カーソルはキューブ本体でなく
-// 隣のマスから始める。本体マスは据付先にならず、そこから始めると初手の決定が空振りして戸惑うため。
+// 隣のマスから始める。本体マスは装着先にならず、そこから始めると初手の決定が空振りして戸惑うため。
 func NewCubeFacilityMenuState(cube ecs.Entity) (es.State[w.World], error) {
         <span class="cov0" title="0">return &amp;CubeFacilityMenuState{cube: cube, cursor: consts.Coord[consts.Tile]{X: 1}}, nil
 </span>}
@@ -36596,7 +36606,7 @@ func (st *CubeFacilityMenuState) moveCursor(world w.World, dx consts.Tile, dy co
         <span class="cov8" title="1">st.cursor = next</span>
 }
 
-// selectCell はカーソルのマスを決定する。空きなら据付アイテム選択へ、設備なら撤去する
+// selectCell はカーソルのマスを決定する。空きなら装着アイテム選択へ、設備なら撤去する
 func (st *CubeFacilityMenuState) selectCell(world w.World) (es.Transition[w.World], error) {
         <span class="cov8" title="1">base := world.Components.GridElement.Get(st.cube).Coord
         coord := base.Add(st.cursor)
@@ -36644,7 +36654,7 @@ func (st *CubeFacilityMenuState) removeAt(world w.World, coord consts.Coord[cons
         <span class="cov8" title="1">return st.ConsumeTransition(), nil</span>
 }
 
-// cellKindAt は coord のマスの見た目種別と、Used のとき据わっている設備を返す。据付でない prop や壁は障害物。
+// cellKindAt は coord のマスの見た目種別と、Used のとき装着されている設備を返す。装着でない prop や壁は障害物。
 func (st *CubeFacilityMenuState) cellKindAt(world w.World, coord consts.Coord[consts.Tile]) (hud.FacilityCellKind, ecs.Entity) {
         <span class="cov8" title="1">if world.Components.GridElement.Get(st.cube).Coord == coord </span>{
                 <span class="cov8" title="1">return hud.FacilityCellCube, ecs.Entity{}
@@ -36696,7 +36706,7 @@ func (st *CubeFacilityMenuState) Draw(world w.World, screen *ebiten.Image) error
         return nil</span>
 }
 
-// iconFor はマスに重ねるスプライトを返す。キューブ本体と据わった設備だけ絵を持つ。
+// iconFor はマスに重ねるスプライトを返す。キューブ本体と装着された設備だけ絵を持つ。
 func (st *CubeFacilityMenuState) iconFor(world w.World, kind hud.FacilityCellKind, facility ecs.Entity) *ebiten.Image {
         <span class="cov0" title="0">switch kind </span>{
         case hud.FacilityCellCube:
@@ -36723,8 +36733,8 @@ func (st *CubeFacilityMenuState) cursorInfo(world w.World, coord consts.Coord[co
         }
 }
 
-// CubeFacilitySelectState は空きマスへ据える据付アイテムを選ぶメニュー。モジュール選択と同型で、
-// バックパックの据付アイテムを並べ、選ぶと coord へ据えて閉じる。
+// CubeFacilitySelectState は空きマスへ装着する装着アイテムを選ぶメニュー。モジュール選択と同型で、
+// バックパックの装着アイテムを並べ、選ぶと coord へ装着して閉じる。
 type CubeFacilitySelectState struct {
         es.BaseState[w.World]
         cube   ecs.Entity
@@ -36734,12 +36744,12 @@ type CubeFacilitySelectState struct {
 
 var _ es.State[w.World] = &amp;CubeFacilitySelectState{}
 
-// CubeFacilitySelectProps は据付アイテム選択の表示 props
+// CubeFacilitySelectProps は装着アイテム選択の表示 props
 type CubeFacilitySelectProps struct {
-        Candidates []ecs.Entity // 据えられる据付アイテム。プレイヤーのバックパックから集める
+        Candidates []ecs.Entity // 装着できる装着アイテム。プレイヤーのバックパックから集める
 }
 
-// newCubeFacilitySelectState は coord への据付アイテム選択を開くファクトリを返す
+// newCubeFacilitySelectState は coord への装着アイテム選択を開くファクトリを返す
 func newCubeFacilitySelectState(cube ecs.Entity, coord consts.Coord[consts.Tile]) es.StateFactory[w.World] {
         <span class="cov8" title="1">return func() (es.State[w.World], error) </span>{
                 <span class="cov0" title="0">return &amp;CubeFacilitySelectState{cube: cube, coord: coord}, nil
@@ -36789,7 +36799,7 @@ func (st *CubeFacilitySelectState) ViewUI(world w.World, props CubeFacilitySelec
         return menuframe.PanelScreen(world, res, query.T(world, "Choose facility"), list, keybind.HelpHint(world), pager)</span>
 }
 
-// DoAction はActionを実行する。選択で据えて閉じる
+// DoAction はActionを実行する。選択で装着して閉じる
 func (st *CubeFacilitySelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
         <span class="cov0" title="0">switch action </span>{
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
@@ -36804,8 +36814,8 @@ func (st *CubeFacilitySelectState) DoAction(world w.World, action inputmapper.Ac
         }
 }
 
-// placeFacilityChoice は候補一覧の idx を coord へ据える。範囲外の idx は据えず nil を返す。
-// 画面の選択状態から据付を切り出し、UI ループを介さずに設置ロジックを試験できるようにする。
+// placeFacilityChoice は候補一覧の idx を coord へ装着する。範囲外の idx は装着せず nil を返す。
+// 画面の選択状態から装着を切り出し、UI ループを介さずに装着ロジックを試験できるようにする。
 func placeFacilityChoice(world w.World, cube ecs.Entity, coord consts.Coord[consts.Tile], candidates []ecs.Entity, idx int) error {
         <span class="cov8" title="1">if idx &lt; 0 || idx &gt;= len(candidates) </span>{
                 <span class="cov8" title="1">return nil
@@ -36989,7 +36999,7 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
                         Choice{Label: query.T(world, "Module"), Run: pushChoice(func() (es.State[w.World], error) {
                                 <span class="cov0" title="0">return NewCubeModuleMenuState(cube)
 </span>                        })},
-                        // 設備は展開空間のマスへ据えるので、圧縮中は無効表示にする
+                        // 設備は展開空間のマスへ装着するので、圧縮中は無効表示にする
                         Choice{Label: query.T(world, "Facility"), Disabled: !deployed, Run: pushChoice(func() (es.State[w.World], error) {
                                 <span class="cov0" title="0">return NewCubeFacilityMenuState(cube)
 </span>                        })},
@@ -38177,10 +38187,13 @@ func spawnDebugStageFire(world w.World) error {
 // debugStageModuleCount はデバッグ街の木箱へ入れておく範囲モジュールの数。全スロットを試せるよう上限に合わせる
 const debugStageModuleCount = consts.CubeModuleSlots
 
-// debugStageFacilityCount はデバッグ街の木箱へ入れておく据付アイテムの数。展開空間へ据えて往復を試せるようにする
+// debugStageFacilityCount はデバッグ街の木箱へ入れておく装着アイテムの種類ごとの数。展開空間へ装着して往復を試せるようにする
 const debugStageFacilityCount = 2
 
-// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと据付アイテムを入れておく。
+// debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
+var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed"}
+
+// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムを入れておく。
 // 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
 func spawnDebugStageCubeGear(world w.World) error {
         <span class="cov8" title="1">var crate ecs.Entity
@@ -38201,9 +38214,11 @@ func spawnDebugStageCubeGear(world w.World) error {
         <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, "cube_range_module", debugStageModuleCount, crate); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug stage modules: %w", err)
 </span>        }
-        <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, "deployable_storage", debugStageFacilityCount, crate); err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug stage facilities: %w", err)
-</span>        }
+        <span class="cov8" title="1">for _, id := range debugStageFacilityItems </span>{
+                <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, id, debugStageFacilityCount, crate); err != nil </span>{
+                        <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug stage facility %s: %w", id, err)
+</span>                }
+        }
         <span class="cov8" title="1">return nil</span>
 }
 
@@ -39745,7 +39760,7 @@ var verbList = []itemVerb{
                 KeyHint: "d",
                 Key:     ebiten.KeyD,
                 Action:  inputmapper.ActionVerbPlace,
-                // 据付アイテムは設備画面からのみ据え置きする。素で落とすと展開空間外に設備が残るので落とさせない
+                // 装着アイテムは設備画面からのみ装着する。素で落とすと展開空間外に設備が残るので落とさせない
                 Accept: func(world w.World, entity ecs.Entity) bool { <span class="cov8" title="1">return !world.Components.Deployable.Has(entity) }</span>,
                 Exec:   execPlace,
         },
@@ -47842,6 +47857,10 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
         <span class="cov8" title="1">if c.Wearable.Has(e) || c.Melee.Has(e) || c.Fire.Has(e) </span>{
                 <span class="cov8" title="1">uses = append(uses, query.T(world, "Wearable"))
 </span>        }
+        // 装着アイテムはキューブの展開空間の設備画面から装着できる
+        <span class="cov8" title="1">if c.Deployable.Has(e) </span>{
+                <span class="cov8" title="1">uses = append(uses, query.T(world, "Deployable"))
+</span>        }
         // 分解工具は専用コンポーネントを持たず raw 定義の有無で判定する
         <span class="cov8" title="1">if _, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(e, world)); ok </span>{
                 <span class="cov8" title="1">uses = append(uses, query.T(world, "Can disassemble items"))
@@ -48006,15 +48025,15 @@ import (
         "github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// FacilityCellKind は設備グリッドの1マスの見た目の種別。据付可否と下地色を分ける。
+// FacilityCellKind は設備グリッドの1マスの見た目の種別。装着可否と下地色を分ける。
 type FacilityCellKind int
 
-// 設備グリッドのマス種別。据付可否と下地色を分ける
+// 設備グリッドのマス種別。装着可否と下地色を分ける
 const (
         FacilityCellCube    FacilityCellKind = iota // キューブ本体
-        FacilityCellEmpty                           // 空き。据付できる
-        FacilityCellUsed                            // 設備が据わっている
-        FacilityCellBlocked                         // 壁や障害物。据付できない
+        FacilityCellEmpty                           // 空き。装着できる
+        FacilityCellUsed                            // 設備が装着されている
+        FacilityCellBlocked                         // 壁や障害物。装着できない
 )
 
 // FacilityCell は設備グリッドの1マス。下地の種別と、重ねるスプライトを持つ。
@@ -53042,15 +53061,15 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
-// FacilityCellFree は展開空間のマスが設備を据えられる空きかを返す。壁・キャラ・prop・アイテムが
-// 1つでもあれば偽。キューブ自身のマスは据付先にしない。メニューを開いたプレイヤーのマスは障害物として
-// 見ない。deploySpaceFree の判定を1マスに絞ったもので、設置 UI のマス表示と PlaceFacility の
+// FacilityCellFree は展開空間のマスが設備を装着できる空きかを返す。壁・キャラ・prop・アイテムが
+// 1つでもあれば偽。キューブ自身のマスは装着先にしない。メニューを開いたプレイヤーのマスは障害物として
+// 見ない。deploySpaceFree の判定を1マスに絞ったもので、装着 UI のマス表示と PlaceFacility の
 // 最終ガードが同じ判定を共有する。
 func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.Tile]) bool {
         <span class="cov8" title="1">if world.Components.GridElement.Get(cube).Coord == coord </span>{
                 <span class="cov0" title="0">return false
 </span>        }
-        // 空間索引が未構築なら nil。その間は空きなし扱いで据付を拒否し、安全側に倒す
+        // 空間索引が未構築なら nil。その間は空きなし扱いで装着を拒否し、安全側に倒す
         <span class="cov8" title="1">si := query.GetSpatialIndex(world)
         if si == nil </span>{
                 <span class="cov0" title="0">return false
@@ -53081,13 +53100,13 @@ func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.
         <span class="cov8" title="1">return true</span>
 }
 
-// PlaceFacility は据付アイテムをキューブの展開空間の coord へ据える。実体は削除せず、Item を外し Prop を
-// 付けてロケーションをフィールドへ移す。マスが空いていなければ据えず error を返す。
+// PlaceFacility は装着アイテムをキューブの展開空間の coord へ装着する。実体は削除せず、Item を外し Prop を
+// 付けてロケーションをフィールドへ移す。マスが空いていなければ装着せず error を返す。
 func PlaceFacility(world w.World, cube ecs.Entity, item ecs.Entity, coord consts.Coord[consts.Tile]) (ecs.Entity, error) {
         <span class="cov8" title="1">if !world.Components.Deployable.Has(item) </span>{
                 <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("place facility: item is not deployable")
 </span>        }
-        // 据付は設備画面がバックパックの据付アイテムから呼ぶ。他ロケーションからの経路は現状無いが、
+        // 装着は設備画面がバックパックの装着アイテムから呼ぶ。他ロケーションからの経路は現状無いが、
         // 前提を握りつぶさず error にして、将来の経路追加で総重量の再計算が漏れるのを早期に検知する
         <span class="cov8" title="1">if !world.Components.LocationInBackpack.Has(item) </span>{
                 <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("place facility: item is not in backpack")
@@ -53103,7 +53122,7 @@ func PlaceFacility(world w.World, cube ecs.Entity, item ecs.Entity, coord consts
         return item, nil</span>
 }
 
-// RemoveFacility は据えた設備をプレイヤーのバックパックへ戻す。実体は削除せず、Prop を外し Item を付けて
+// RemoveFacility は装着した設備をプレイヤーのバックパックへ戻す。実体は削除せず、Prop を外し Item を付けて
 // 移す。収納に中身が残るときは孤児化を避けるため戻さず error を返す。
 func RemoveFacility(world w.World, facility ecs.Entity, player ecs.Entity) error {
         <span class="cov8" title="1">if !world.Components.Deployable.Has(facility) </span>{
@@ -54602,7 +54621,7 @@ func BackpackCubeModules(world w.World, player ecs.Entity) []ecs.Entity {
         <span class="cov8" title="1">return items</span>
 }
 
-// BackpackDeployables はプレイヤーのバックパックにある据付アイテムを返す。設備画面の設置候補に使う。
+// BackpackDeployables はプレイヤーのバックパックにある装着アイテムを返す。設備画面の装着候補に使う。
 // 反復中に return するとロックが残るので、対象を集めてから返す。
 func BackpackDeployables(world w.World, player ecs.Entity) []ecs.Entity {
         <span class="cov8" title="1">var items []ecs.Entity
@@ -54616,8 +54635,8 @@ func BackpackDeployables(world w.World, player ecs.Entity) []ecs.Entity {
         <span class="cov8" title="1">return items</span>
 }
 
-// FacilityAt は指定タイルのフィールドにある据付設備を返す。設備画面で撤去対象を引くのに使う。
-// フィールドに据わっている Deployable だけを対象にするので、grass など据付でない prop は撤去できない。
+// FacilityAt は指定タイルのフィールドにある装着設備を返す。設備画面で撤去対象を引くのに使う。
+// フィールドに装着されている Deployable だけを対象にするので、grass など装着でない prop は撤去できない。
 // LocationOnField を明示して確認し、座標だけ残った別ロケーションの実体を誤って引かない。
 func FacilityAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
         <span class="cov8" title="1">for _, e := range GetEntitiesAt(world, coord.X, coord.Y) </span>{

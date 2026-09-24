@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 13:15:43</td>
+            <td class="headerValue">2026-09-24 16:40:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -134,7 +134,7 @@
 <span id="L72"><span class="lineNum">      72</span>              :                 KeyHint: &quot;d&quot;,</span>
 <span id="L73"><span class="lineNum">      73</span>              :                 Key:     ebiten.KeyD,</span>
 <span id="L74"><span class="lineNum">      74</span>              :                 Action:  inputmapper.ActionVerbPlace,</span>
-<span id="L75"><span class="lineNum">      75</span>              :                 // 据付アイテムは設備画面からのみ据え置きする。素で落とすと展開空間外に設備が残るので落とさせない</span>
+<span id="L75"><span class="lineNum">      75</span>              :                 // 装着アイテムは設備画面からのみ装着する。素で落とすと展開空間外に設備が残るので落とさせない</span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 Accept: func(world w.World, entity ecs.Entity) bool { return !world.Components.Deployable.Has(entity) },</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :                 Exec:   execPlace,</span>
 <span id="L78"><span class="lineNum">      78</span>              :         },</span>

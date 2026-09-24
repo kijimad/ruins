@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 13:15:43</td>
+            <td class="headerValue">2026-09-24 16:40:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,9 +83,9 @@
 <span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              : )</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              : // CubeFacilityMenuState はキューブの展開空間へ設備を据える画面。展開空間を表す UI 内グリッドを描き、</span>
-<span id="L25"><span class="lineNum">      25</span>              : // カーソルでマスを選ぶ。空きマスで決定すると据付アイテムの選択へ進み、設備マスで決定すると撤去する。</span>
-<span id="L26"><span class="lineNum">      26</span>              : // フィールドを歩いて設置/撤去する経路は持たず、設置と撤去をこの画面へ集約する。展開中のみ開く。</span>
+<span id="L24"><span class="lineNum">      24</span>              : // CubeFacilityMenuState はキューブの展開空間へ設備を装着する画面。展開空間を表す UI 内グリッドを描き、</span>
+<span id="L25"><span class="lineNum">      25</span>              : // カーソルでマスを選ぶ。空きマスで決定すると装着アイテムの選択へ進み、設備マスで決定すると撤去する。</span>
+<span id="L26"><span class="lineNum">      26</span>              : // フィールドを歩いて装着/撤去する経路は持たず、装着と撤去をこの画面へ集約する。展開中のみ開く。</span>
 <span id="L27"><span class="lineNum">      27</span>              : type CubeFacilityMenuState struct {</span>
 <span id="L28"><span class="lineNum">      28</span>              :         es.BaseState[w.World]</span>
 <span id="L29"><span class="lineNum">      29</span>              :         cube   ecs.Entity</span>
@@ -95,7 +95,7 @@
 <span id="L33"><span class="lineNum">      33</span>              : var _ es.State[w.World] = &amp;CubeFacilityMenuState{}</span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // NewCubeFacilityMenuState はキューブの設備画面を開くファクトリを返す。カーソルはキューブ本体でなく</span>
-<span id="L36"><span class="lineNum">      36</span>              : // 隣のマスから始める。本体マスは据付先にならず、そこから始めると初手の決定が空振りして戸惑うため。</span>
+<span id="L36"><span class="lineNum">      36</span>              : // 隣のマスから始める。本体マスは装着先にならず、そこから始めると初手の決定が空振りして戸惑うため。</span>
 <span id="L37"><span class="lineNum">      37</span>              : func NewCubeFacilityMenuState(cube ecs.Entity) (es.State[w.World], error) {</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;CubeFacilityMenuState{cube: cube, cursor: consts.Coord[consts.Tile]{X: 1}}, nil</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : }</span></span>
@@ -156,7 +156,7 @@
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         st.cursor = next</span></span>
 <span id="L95"><span class="lineNum">      95</span>              : }</span>
 <span id="L96"><span class="lineNum">      96</span>              : </span>
-<span id="L97"><span class="lineNum">      97</span>              : // selectCell はカーソルのマスを決定する。空きなら据付アイテム選択へ、設備なら撤去する</span>
+<span id="L97"><span class="lineNum">      97</span>              : // selectCell はカーソルのマスを決定する。空きなら装着アイテム選択へ、設備なら撤去する</span>
 <span id="L98"><span class="lineNum">      98</span>              : func (st *CubeFacilityMenuState) selectCell(world w.World) (es.Transition[w.World], error) {</span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         base := world.Components.GridElement.Get(st.cube).Coord</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         coord := base.Add(st.cursor)</span></span>
@@ -204,7 +204,7 @@
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L143"><span class="lineNum">     143</span>              : }</span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
-<span id="L145"><span class="lineNum">     145</span>              : // cellKindAt は coord のマスの見た目種別と、Used のとき据わっている設備を返す。据付でない prop や壁は障害物。</span>
+<span id="L145"><span class="lineNum">     145</span>              : // cellKindAt は coord のマスの見た目種別と、Used のとき装着されている設備を返す。装着でない prop や壁は障害物。</span>
 <span id="L146"><span class="lineNum">     146</span>              : func (st *CubeFacilityMenuState) cellKindAt(world w.World, coord consts.Coord[consts.Tile]) (hud.FacilityCellKind, ecs.Entity) {</span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         if world.Components.GridElement.Get(st.cube).Coord == coord {</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 return hud.FacilityCellCube, ecs.Entity{}</span></span>
@@ -256,7 +256,7 @@
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L195"><span class="lineNum">     195</span>              : }</span>
 <span id="L196"><span class="lineNum">     196</span>              : </span>
-<span id="L197"><span class="lineNum">     197</span>              : // iconFor はマスに重ねるスプライトを返す。キューブ本体と据わった設備だけ絵を持つ。</span>
+<span id="L197"><span class="lineNum">     197</span>              : // iconFor はマスに重ねるスプライトを返す。キューブ本体と装着された設備だけ絵を持つ。</span>
 <span id="L198"><span class="lineNum">     198</span>              : func (st *CubeFacilityMenuState) iconFor(world w.World, kind hud.FacilityCellKind, facility ecs.Entity) *ebiten.Image {</span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         switch kind {</span></span>
 <span id="L200"><span class="lineNum">     200</span>              :         case hud.FacilityCellCube:</span>
@@ -283,8 +283,8 @@
 <span id="L221"><span class="lineNum">     221</span>              :         }</span>
 <span id="L222"><span class="lineNum">     222</span>              : }</span>
 <span id="L223"><span class="lineNum">     223</span>              : </span>
-<span id="L224"><span class="lineNum">     224</span>              : // CubeFacilitySelectState は空きマスへ据える据付アイテムを選ぶメニュー。モジュール選択と同型で、</span>
-<span id="L225"><span class="lineNum">     225</span>              : // バックパックの据付アイテムを並べ、選ぶと coord へ据えて閉じる。</span>
+<span id="L224"><span class="lineNum">     224</span>              : // CubeFacilitySelectState は空きマスへ装着する装着アイテムを選ぶメニュー。モジュール選択と同型で、</span>
+<span id="L225"><span class="lineNum">     225</span>              : // バックパックの装着アイテムを並べ、選ぶと coord へ装着して閉じる。</span>
 <span id="L226"><span class="lineNum">     226</span>              : type CubeFacilitySelectState struct {</span>
 <span id="L227"><span class="lineNum">     227</span>              :         es.BaseState[w.World]</span>
 <span id="L228"><span class="lineNum">     228</span>              :         cube   ecs.Entity</span>
@@ -294,12 +294,12 @@
 <span id="L232"><span class="lineNum">     232</span>              : </span>
 <span id="L233"><span class="lineNum">     233</span>              : var _ es.State[w.World] = &amp;CubeFacilitySelectState{}</span>
 <span id="L234"><span class="lineNum">     234</span>              : </span>
-<span id="L235"><span class="lineNum">     235</span>              : // CubeFacilitySelectProps は据付アイテム選択の表示 props</span>
+<span id="L235"><span class="lineNum">     235</span>              : // CubeFacilitySelectProps は装着アイテム選択の表示 props</span>
 <span id="L236"><span class="lineNum">     236</span>              : type CubeFacilitySelectProps struct {</span>
-<span id="L237"><span class="lineNum">     237</span>              :         Candidates []ecs.Entity // 据えられる据付アイテム。プレイヤーのバックパックから集める</span>
+<span id="L237"><span class="lineNum">     237</span>              :         Candidates []ecs.Entity // 装着できる装着アイテム。プレイヤーのバックパックから集める</span>
 <span id="L238"><span class="lineNum">     238</span>              : }</span>
 <span id="L239"><span class="lineNum">     239</span>              : </span>
-<span id="L240"><span class="lineNum">     240</span>              : // newCubeFacilitySelectState は coord への据付アイテム選択を開くファクトリを返す</span>
+<span id="L240"><span class="lineNum">     240</span>              : // newCubeFacilitySelectState は coord への装着アイテム選択を開くファクトリを返す</span>
 <span id="L241"><span class="lineNum">     241</span>              : func newCubeFacilitySelectState(cube ecs.Entity, coord consts.Coord[consts.Tile]) es.StateFactory[w.World] {</span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC tlaBgGNC">           1 :         return func() (es.State[w.World], error) {</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &amp;CubeFacilitySelectState{cube: cube, coord: coord}, nil</span></span>
@@ -349,7 +349,7 @@
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         return menuframe.PanelScreen(world, res, query.T(world, &quot;Choose facility&quot;), list, keybind.HelpHint(world), pager)</span></span>
 <span id="L288"><span class="lineNum">     288</span>              : }</span>
 <span id="L289"><span class="lineNum">     289</span>              : </span>
-<span id="L290"><span class="lineNum">     290</span>              : // DoAction はActionを実行する。選択で据えて閉じる</span>
+<span id="L290"><span class="lineNum">     290</span>              : // DoAction はActionを実行する。選択で装着して閉じる</span>
 <span id="L291"><span class="lineNum">     291</span>              : func (st *CubeFacilitySelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         switch action {</span></span>
 <span id="L293"><span class="lineNum">     293</span>              :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span>
@@ -364,8 +364,8 @@
 <span id="L302"><span class="lineNum">     302</span>              :         }</span>
 <span id="L303"><span class="lineNum">     303</span>              : }</span>
 <span id="L304"><span class="lineNum">     304</span>              : </span>
-<span id="L305"><span class="lineNum">     305</span>              : // placeFacilityChoice は候補一覧の idx を coord へ据える。範囲外の idx は据えず nil を返す。</span>
-<span id="L306"><span class="lineNum">     306</span>              : // 画面の選択状態から据付を切り出し、UI ループを介さずに設置ロジックを試験できるようにする。</span>
+<span id="L305"><span class="lineNum">     305</span>              : // placeFacilityChoice は候補一覧の idx を coord へ装着する。範囲外の idx は装着せず nil を返す。</span>
+<span id="L306"><span class="lineNum">     306</span>              : // 画面の選択状態から装着を切り出し、UI ループを介さずに装着ロジックを試験できるようにする。</span>
 <span id="L307"><span class="lineNum">     307</span>              : func placeFacilityChoice(world w.World, cube ecs.Entity, coord consts.Coord[consts.Tile], candidates []ecs.Entity, idx int) error {</span>
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC tlaBgGNC">           1 :         if idx &lt; 0 || idx &gt;= len(candidates) {</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 return nil</span></span>
