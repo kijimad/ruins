@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -82,15 +83,22 @@ const (
 	facilityLab     facilityType = "lab"     // 研究施設
 )
 
-// urbanEnemyTableFor は施設の敵テーブル名を返す。割り当ては raw.toml の facilityEnemyTables が持ち、
-// 似た施設は同じテーブルを指す。施設は zoneCatalog で地区ごとに固まって湧くので、施設別に引いても近隣は
-// 同種へ寄り、地区スケールのまとまりが地区概念を新設せずに現れる。未割り当てや空文字の施設は既定の
-// urbanEnemyTable へ落ち、GetEnemyTable が存在しない名前で error にならないようにする。
-func urbanEnemyTableFor(world w.World, fac facilityType) string {
-	if name, ok := raw.FacilityEnemyTableName(world.Resources.RawMaster, string(fac)); ok && name != "" {
-		return name
+// urbanEnemyTableFor は施設に割り当てられた敵テーブルを返す。割り当ては raw.toml の facilityEnemyTables
+// が持ち、似た施設は同じテーブルを指す。施設は zoneCatalog で地区ごとに固まって湧くので、施設別に引いても
+// 近隣は同種へ寄り、地区スケールのまとまりが地区概念を新設せずに現れる。
+//
+// 未割り当ての施設は既定 urbanEnemyTable へ落とす。これは正常。ただし割り当てがあるのにその敵テーブルが
+// 実在しなければ raw.toml の設定ミスなので error を返す。silent に既定へすり替えると誤りに気づけない。
+func urbanEnemyTableFor(world w.World, fac facilityType) (oapi.EnemyTable, error) {
+	name := urbanEnemyTable
+	if assigned, ok := raw.FacilityEnemyTableName(world.Resources.RawMaster, string(fac)); ok {
+		name = assigned
 	}
-	return urbanEnemyTable
+	et, err := raw.GetEnemyTable(world.Resources.RawMaster, name)
+	if err != nil {
+		return oapi.EnemyTable{}, fmt.Errorf("urban enemy table for facility %q: %w", fac, err)
+	}
+	return et, nil
 }
 
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
@@ -286,7 +294,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
 func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac facilityType, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
-	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTableFor(world, fac))
+	enemyTable, err := urbanEnemyTableFor(world, fac)
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
