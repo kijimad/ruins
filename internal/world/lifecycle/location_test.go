@@ -281,6 +281,7 @@ func TestMoveToInstalled(t *testing.T) {
 
 	item, err := spawnItemBase(world, "wooden_sword")
 	require.NoError(t, err)
+	world.Components.CubeModule.Add(item, &gc.CubeModule{RangeBonus: 1})
 	// 排他と GridElement 除去を確かめるため、バックパックと座標を持たせてから装着する
 	require.NoError(t, MoveToBackpack(world, item, player))
 	world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})

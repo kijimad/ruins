@@ -66,9 +66,12 @@ func (st *CubeModuleMenuState) Fetch(world w.World) (CubeModuleMenuProps, error)
 	}
 	for _, m := range query.GetCubeModules(world, st.cube) {
 		s := world.Components.LocationInstalled.Get(m).Slot
-		// 範囲外は握りつぶさず error で返して早期に検知する
+		// 範囲外・スロット重複は握りつぶさず error で返して早期に検知する。片方を黙って捨てると不整合を隠す
 		if s < 0 || s >= consts.CubeModuleSlots {
 			return CubeModuleMenuProps{}, fmt.Errorf("cube module: slot %d out of range [0,%d)", s, consts.CubeModuleSlots)
+		}
+		if slots[s] != gc.InvalidEntity {
+			return CubeModuleMenuProps{}, fmt.Errorf("cube module: duplicate slot %d", s)
 		}
 		slots[s] = m
 	}

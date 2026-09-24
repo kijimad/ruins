@@ -154,8 +154,8 @@ func spawnDebugStageFire(world w.World) error {
 	return nil
 }
 
-// debugStageModuleCount はデバッグ街の木箱へ入れておく範囲モジュールの数。スロット上限まで試せる数にする
-const debugStageModuleCount = 4
+// debugStageModuleCount はデバッグ街の木箱へ入れておく範囲モジュールの数。全スロットを試せるよう上限に合わせる
+const debugStageModuleCount = consts.CubeModuleSlots
 
 // spawnDebugStageModules はテンプレートが置いた木箱の中へキューブの範囲モジュールを入れておく。
 // 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。

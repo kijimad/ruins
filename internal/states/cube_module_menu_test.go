@@ -56,6 +56,23 @@ func TestCubeModuleMenuFetch_スロット範囲外はエラー(t *testing.T) {
 	require.Error(t, err, "範囲外スロットは握りつぶさず error で返す")
 }
 
+func TestCubeModuleMenuFetch_スロット重複はエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	// 同じスロット0を指す2モジュールは不整合。片方を黙って捨てず error で返す
+	for range 2 {
+		m := world.ECS.NewEntity()
+		world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
+		world.Components.LocationInstalled.Add(m, &gc.LocationInstalled{Owner: cube, Slot: 0})
+	}
+
+	st := &CubeModuleMenuState{cube: cube}
+	_, err := st.Fetch(world)
+	require.Error(t, err, "スロット重複は握りつぶさず error で返す")
+}
+
 func TestApplyCubeModuleChoice_バックパックから装着する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
