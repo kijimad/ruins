@@ -1023,9 +1023,7 @@ type ContentGroup struct {
 // ContentSatellite anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
 type ContentSatellite struct {
 	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
-	Kind StuffKind `json:"kind"`
-
-	// Offsets anchor 相対の候補座標。前から試し、空きに置ければ確定
+	Kind    StuffKind    `json:"kind"`
 	Offsets []ContentVec `json:"offsets"`
 
 	// Ref エンティティの英語 id
@@ -1043,16 +1041,14 @@ type ContentStuff struct {
 	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
 	Kind StuffKind `json:"kind"`
 
-	// Placement どこへ置くか。省略時は archetype の既定へ落ちる
+	// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
 	Placement *Placement `json:"placement,omitempty"`
 
-	// Ref 家具型や戦利品グループの参照名
-	Ref EntityID `json:"ref"`
-
-	// Satellites anchor 相対に束ねる衛星。机+椅子など。省略時は束なし
+	// Ref エンティティの英語 id
+	Ref        EntityID            `json:"ref"`
 	Satellites *[]ContentSatellite `json:"satellites,omitempty"`
 
-	// Weight pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight *EntryWeight `json:"weight,omitempty"`
 }
 
@@ -1258,11 +1254,9 @@ type Error struct {
 
 // FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
 type FacilityContent struct {
-	// Facility 施設種別。overworld の facilityType の文字列と揃える
-	Facility EntityID `json:"facility"`
-
-	// Variants InteriorContent の id 参照。抽選で1つ選ぶ
-	Variants []EntityID `json:"variants"`
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+	Facility FacilityKind `json:"facility"`
+	Variants []EntityID   `json:"variants"`
 }
 
 // FacilityEnemyTable 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
@@ -1271,20 +1265,21 @@ type FacilityEnemyTable struct {
 	// EnemyTable 割り当てる敵テーブルの id。enemyTables のいずれかを指す
 	EnemyTable EntityID `json:"enemyTable"`
 
-	// Facility 施設種別。overworld の facilityType の文字列と揃える
-	Facility EntityID `json:"facility"`
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+	Facility FacilityKind `json:"facility"`
 }
+
+// FacilityKind 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+type FacilityKind = string
 
 // FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
 type FacilityRooms struct {
-	// Facility 施設種別。facilityType の文字列と揃える
-	Facility EntityID `json:"facility"`
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+	Facility FacilityKind `json:"facility"`
 
-	// Fallback カタログに無い役割の既定 content
-	Fallback EntityID `json:"fallback"`
-
-	// Rooms 役割→content の対。専用カタログを持たない施設は省略し fallback だけ持つ
-	Rooms *[]RoomContent `json:"rooms,omitempty"`
+	// Fallback エンティティの英語 id
+	Fallback EntityID       `json:"fallback"`
+	Rooms    *[]RoomContent `json:"rooms,omitempty"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -1373,7 +1368,6 @@ type InsulationHeat = int
 
 // InteriorContent 内装レシピ。施設まるごと、または奥室1つに対応する
 type InteriorContent struct {
-	// Groups 抽選グループ。何も置かない空部屋(廊下など)は省略する
 	Groups *[]ContentGroup `json:"groups,omitempty"`
 
 	// Id エンティティの英語 id
@@ -1902,12 +1896,15 @@ type Remedy struct {
 
 // RoomContent 奥室の役割名と内装レシピの対
 type RoomContent struct {
-	// Content InteriorContent の id 参照
+	// Content エンティティの英語 id
 	Content EntityID `json:"content"`
 
-	// Role 役割名。roleName に相当する
-	Role EntityID `json:"role"`
+	// Role 部屋の役割名。interior の roleName に相当する
+	Role RoomRole `json:"role"`
 }
+
+// RoomRole 部屋の役割名。interior の roleName に相当する
+type RoomRole = string
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int

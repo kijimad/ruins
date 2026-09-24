@@ -509,9 +509,6 @@ export interface ContentSatellite {
      * エンティティの英語 id
      */
     'ref': string;
-    /**
-     * anchor 相対の候補座標。前から試し、空きに置ければ確定
-     */
     'offsets': Array<ContentVec>;
 }
 
@@ -522,11 +519,11 @@ export interface ContentSatellite {
 export interface ContentStuff {
     'kind': StuffKind;
     /**
-     * 家具型や戦利品グループの参照名
+     * エンティティの英語 id
      */
     'ref': string;
     /**
-     * pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く
+     * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight'?: number;
     /**
@@ -537,13 +534,7 @@ export interface ContentStuff {
      * 置く個数のダイス表記
      */
     'amount': string;
-    /**
-     * どこへ置くか。省略時は archetype の既定へ落ちる
-     */
     'placement'?: Placement;
-    /**
-     * anchor 相対に束ねる衛星。机+椅子など。省略時は束なし
-     */
     'satellites'?: Array<ContentSatellite>;
 }
 
@@ -807,12 +798,9 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
  */
 export interface FacilityContent {
     /**
-     * 施設種別。overworld の facilityType の文字列と揃える
+     * 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
      */
     'facility': string;
-    /**
-     * InteriorContent の id 参照。抽選で1つ選ぶ
-     */
     'variants': Array<string>;
 }
 /**
@@ -820,7 +808,7 @@ export interface FacilityContent {
  */
 export interface FacilityEnemyTable {
     /**
-     * 施設種別。overworld の facilityType の文字列と揃える
+     * 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
      */
     'facility': string;
     /**
@@ -833,15 +821,12 @@ export interface FacilityEnemyTable {
  */
 export interface FacilityRooms {
     /**
-     * 施設種別。facilityType の文字列と揃える
+     * 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
      */
     'facility': string;
-    /**
-     * 役割→content の対。専用カタログを持たない施設は省略し fallback だけ持つ
-     */
     'rooms'?: Array<RoomContent>;
     /**
-     * カタログに無い役割の既定 content
+     * エンティティの英語 id
      */
     'fallback': string;
 }
@@ -952,9 +937,6 @@ export interface InteriorContent {
      * エンティティの英語 id
      */
     'id': string;
-    /**
-     * 抽選グループ。何も置かない空部屋(廊下など)は省略する
-     */
     'groups'?: Array<ContentGroup>;
 }
 /**
@@ -1562,11 +1544,11 @@ export interface Remedy {
  */
 export interface RoomContent {
     /**
-     * 役割名。roleName に相当する
+     * 部屋の役割名。interior の roleName に相当する
      */
     'role': string;
     /**
-     * InteriorContent の id 参照
+     * エンティティの英語 id
      */
     'content': string;
 }

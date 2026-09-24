@@ -85,6 +85,12 @@ scalar EntityID extends string;
 @minValue(0)
 scalar EntryWeight extends float64;
 
+/** 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる */
+scalar FacilityKind extends string;
+
+/** 部屋の役割名。interior の roleName に相当する */
+scalar RoomRole extends string;
+
 /** 耐久値。削り切られると壊れる */
 @minValue(1)
 @maxValue(9999)

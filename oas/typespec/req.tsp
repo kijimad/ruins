@@ -306,8 +306,7 @@ model EnemyTable {
 /** 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
 enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。 */
 model FacilityEnemyTable {
-  /** 施設種別。overworld の facilityType の文字列と揃える */
-  facility: EntityID;
+  facility: FacilityKind;
   /** 割り当てる敵テーブルの id。enemyTables のいずれかを指す */
   enemyTable: EntityID;
 }
@@ -353,24 +352,19 @@ model ContentVec {
 model ContentSatellite {
   kind: StuffKind;
   ref: EntityID;
-  /** anchor 相対の候補座標。前から試し、空きに置ければ確定 */
   offsets: ContentVec[];
 }
 
 /** 内装レシピの1配置指示 */
 model ContentStuff {
   kind: StuffKind;
-  /** 家具型や戦利品グループの参照名 */
   ref: EntityID;
-  /** pick_one / pick_n の抽選重み。省略時は 1。pick_each では使わないので省く */
   weight?: EntryWeight;
   /** 0..100。pick_each でこの Stuff を置く確率。省略時は常置 */
   chance?: int32;
   /** 置く個数のダイス表記 */
   amount: Dice;
-  /** どこへ置くか。省略時は archetype の既定へ落ちる */
   placement?: Placement;
-  /** anchor 相対に束ねる衛星。机+椅子など。省略時は束なし */
   satellites?: ContentSatellite[];
 }
 
@@ -385,33 +379,25 @@ model ContentGroup {
 /** 内装レシピ。施設まるごと、または奥室1つに対応する */
 model InteriorContent {
   id: EntityID;
-  /** 抽選グループ。何も置かない空部屋(廊下など)は省略する */
   groups?: ContentGroup[];
 }
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
 model FacilityContent {
-  /** 施設種別。overworld の facilityType の文字列と揃える */
-  facility: EntityID;
-  /** InteriorContent の id 参照。抽選で1つ選ぶ */
+  facility: FacilityKind;
   variants: EntityID[];
 }
 
 /** 奥室の役割名と内装レシピの対 */
 model RoomContent {
-  /** 役割名。roleName に相当する */
-  role: EntityID;
-  /** InteriorContent の id 参照 */
+  role: RoomRole;
   content: EntityID;
 }
 
 /** 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック */
 model FacilityRooms {
-  /** 施設種別。facilityType の文字列と揃える */
-  facility: EntityID;
-  /** 役割→content の対。専用カタログを持たない施設は省略し fallback だけ持つ */
+  facility: FacilityKind;
   rooms?: RoomContent[];
-  /** カタログに無い役割の既定 content */
   fallback: EntityID;
 }
 
