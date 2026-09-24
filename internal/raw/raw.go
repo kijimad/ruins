@@ -397,8 +397,8 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	return entitySpec, nil
 }
 
-// applyDeployable は据付アイテムに設備コンポーネントを付ける。効果は実体に内在させ、収納設備は
-// 据付定義の容量から WeightCapacity を持たせる。設置はロケーションを移すだけで実体を作り直さない。
+// applyDeployable は据付アイテムに設備コンポーネントを付ける。収納設備は据付定義の容量から
+// WeightCapacity を持たせる。
 func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
 	if dep.Storage != nil {
@@ -411,9 +411,8 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 	return nil
 }
 
-// fieldInteractions はフィールドでの相互作用を返す。据付は設備画面からのみ扱うので、収納以外の据付には
-// 拾える相互作用を与えない。収納設備は開ける相互作用、通常アイテムは拾える相互作用を持つ。据付に一律で
-// InteractionItem を付けると、将来 storage を持たない据付設備がフィールドで拾えてしまうため分岐で防ぐ。
+// fieldInteractions はフィールドでの相互作用を返す。通常アイテムは拾える、収納設備は開ける。据付に一律で
+// InteractionItem を付けると storage を持たない将来の据付設備が拾えてしまうので、据付には拾う相互作用を与えない。
 func fieldInteractions(item oapi.Item) []gc.InteractionKind {
 	if item.Deployable != nil {
 		if item.Deployable.Storage != nil {

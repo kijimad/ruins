@@ -142,8 +142,7 @@ func (st *CubeFacilityMenuState) removeAt(world w.World, coord consts.Coord[cons
 	return st.ConsumeTransition(), nil
 }
 
-// cellKindAt は coord のマスの見た目種別と、Used のとき据わっている設備を返す。設備を1度だけ引いて
-// 種別とアイコン両方に使い、Draw ループでの二重取得を避ける。据付でない prop や壁は障害物になる。
+// cellKindAt は coord のマスの見た目種別と、Used のとき据わっている設備を返す。据付でない prop や壁は障害物。
 func (st *CubeFacilityMenuState) cellKindAt(world w.World, coord consts.Coord[consts.Tile]) (hud.FacilityCellKind, ecs.Entity) {
 	if world.Components.GridElement.Get(st.cube).Coord == coord {
 		return hud.FacilityCellCube, ecs.Entity{}
@@ -193,8 +192,7 @@ func (st *CubeFacilityMenuState) Draw(world w.World, screen *ebiten.Image) error
 	return nil
 }
 
-// iconFor はマスに重ねるスプライトを返す。キューブ本体と据わった設備だけ絵を持つ。設備は
-// cellKindAt が引いた実体をそのまま使い、FacilityAt を再度呼ばない。
+// iconFor はマスに重ねるスプライトを返す。キューブ本体と据わった設備だけ絵を持つ。
 func (st *CubeFacilityMenuState) iconFor(world w.World, kind hud.FacilityCellKind, facility ecs.Entity) *ebiten.Image {
 	switch kind {
 	case hud.FacilityCellCube:
