@@ -199,6 +199,7 @@ func HeatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 	at := consts.Coord[consts.Tile]{X: x, Y: y}
 	var warmth float64
 	heatQuery := ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()
+	defer heatQuery.Close()
 	for heatQuery.Next() {
 		entity := heatQuery.Entity()
 		src := world.Components.HeatSource.Get(entity)

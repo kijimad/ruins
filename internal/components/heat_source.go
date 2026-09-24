@@ -9,5 +9,5 @@ import "github.com/kijimaD/ruins/internal/consts"
 // 火は燃え尽きるとエンティティごと除去されるので数から外れる。
 type HeatSource struct {
 	Radius consts.Tile // 一律に暖まる到達半径。チェビシェフ距離
-	Warmth float64     // 半径内で毎ターン下げる低体温タイマーの量
+	Warmth float64     // 半径内で効く暖かさの強度。低体温タイマーの回復量と環境気温の押し上げの係数
 }
