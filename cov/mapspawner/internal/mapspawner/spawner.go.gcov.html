@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td class="headerValue">2026-09-24 01:39:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -324,7 +324,7 @@
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         danger := metaPlan.Danger</span></span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         for range lootCount {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, danger)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))</span></span>
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;failed to draw item: %w&quot;, err)</span></span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 }</span></span>

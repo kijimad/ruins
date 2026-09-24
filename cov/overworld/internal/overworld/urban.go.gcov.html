@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td class="headerValue">2026-09-24 01:39:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -270,7 +270,7 @@
 <span id="L208"><span class="lineNum">     208</span>              : </span>
 <span id="L209"><span class="lineNum">     209</span>              : // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。</span>
 <span id="L210"><span class="lineNum">     210</span>              : // c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。</span>
-<span id="L211"><span class="lineNum">     211</span>              : func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {</span>
+<span id="L211"><span class="lineNum">     211</span>              : func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {</span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         danger := query.DangerLevelAt(world)</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         if sb := query.GetSeamlessBand(world); sb != nil {</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d &gt; danger {</span></span>
@@ -281,7 +281,7 @@
 <span id="L219"><span class="lineNum">     219</span>              : }</span>
 <span id="L220"><span class="lineNum">     220</span>              : </span>
 <span id="L221"><span class="lineNum">     221</span>              : // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。</span>
-<span id="L222"><span class="lineNum">     222</span>              : func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger int) error {</span>
+<span id="L222"><span class="lineNum">     222</span>              : func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger consts.Danger) error {</span>
 <span id="L223"><span class="lineNum">     223</span>              :         // ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける</span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0x2))</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         footprint, door, err := planUrbanLot(world, g, rng)</span></span>
@@ -336,7 +336,7 @@
 <span id="L274"><span class="lineNum">     274</span>              : </span>
 <span id="L275"><span class="lineNum">     275</span>              : // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから</span>
 <span id="L276"><span class="lineNum">     276</span>              : // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。</span>
-<span id="L277"><span class="lineNum">     277</span>              : func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger int, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {</span>
+<span id="L277"><span class="lineNum">     277</span>              : func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {</span>
 <span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)</span></span>
 <span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to get urban enemy table: %w&quot;, err)</span></span>
@@ -344,7 +344,7 @@
 <span id="L282"><span class="lineNum">     282</span>              :         // 湧き数は街の規模で決める。敵種別は危険度でフィルタし、北へ進むほど・日が進むほど強敵が出る。</span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC tlaBgGNC">           1 :         count := 1 + rng.IntN(int(size))</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         for range count {</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(danger))</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to select urban enemy: %w&quot;, err)</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 }</span></span>

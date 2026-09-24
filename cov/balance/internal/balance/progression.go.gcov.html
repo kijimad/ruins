@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td class="headerValue">2026-09-24 01:39:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span>              : func ProgressionCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days, attacksPerDay int) ([]ProgressionDay, error) {</span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         out := make([]ProgressionDay, 0, days)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 danger := query.DangerLevelForDay(day)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 danger := int(query.DangerLevelForDay(day))</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 level := ExpectedSkillLevelAtDay(0, attacksPerDay, day)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 mult := SkillDamagePercent(level)</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 gearDef := ExpectedGearDefenseAtDay(day)</span></span>

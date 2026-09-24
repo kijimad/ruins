@@ -7192,7 +7192,7 @@ func EconomyProgression(master oapi.Raws, itemTableName string, days int, p Para
         <span class="cov8" title="1">costPerDay := CostOfLivingPerDay(master, p)
         out := make([]EconomyDay, 0, days)
         for day := 1; day &lt;= days; day++ </span>{
-                <span class="cov8" title="1">danger := query.DangerLevelForDay(day)
+                <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
                 net := ExpectedNetLootValue(master, itemTableName, danger)
                 perFood := 0.0
                 if net &gt; 0 </span>{
@@ -7815,7 +7815,7 @@ func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon Weapon
 func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {
         <span class="cov8" title="1">out := make([]DayRisk, 0, days)
         for day := 1; day &lt;= days; day++ </span>{
-                <span class="cov8" title="1">danger := query.DangerLevelForDay(day)
+                <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
                 death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger, consts.PercentBase)
                 if err != nil </span>{
                         <span class="cov0" title="0">return nil, err
@@ -7951,7 +7951,7 @@ func DifficultyCurveWithSkill(master oapi.Raws, player CombatantStats, playerWea
 
         <span class="cov8" title="1">out := make([]DayMetric, 0, days)
         for day := 1; day &lt;= days; day++ </span>{
-                <span class="cov8" title="1">danger := query.DangerLevelForDay(day)
+                <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
 </span>
                 <span class="cov8" title="1">var wSum, playerTTKSum, enemyTTKSum float64
                 for _, entry := range table.Entries </span>{
@@ -8102,7 +8102,7 @@ type ProgressionDay struct {
 func ProgressionCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days, attacksPerDay int) ([]ProgressionDay, error) {
         <span class="cov8" title="1">out := make([]ProgressionDay, 0, days)
         for day := 1; day &lt;= days; day++ </span>{
-                <span class="cov8" title="1">danger := query.DangerLevelForDay(day)
+                <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
                 level := ExpectedSkillLevelAtDay(0, attacksPerDay, day)
                 mult := SkillDamagePercent(level)
                 gearDef := ExpectedGearDefenseAtDay(day)
@@ -8350,7 +8350,7 @@ type ElementValue struct {
 // WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器(近接・遠距離)それぞれの死亡確率と素手へ
 // 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 BaselineWeapon がフォールバック。
 func WeaponRestrictionValues(master oapi.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {
-        <span class="cov8" title="1">danger := query.DangerLevelForDay(day)
+        <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
         player, err := LoadCombatantFromMember(master, BaselinePlayer)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, 0, err
@@ -9042,7 +9042,7 @@ func SkillDepthProfileFor(master oapi.Raws, weaponName, enemyTableName string, d
         if err != nil </span>{
                 <span class="cov0" title="0">return SkillDepthProfile{}, err
 </span>        }
-        <span class="cov8" title="1">danger := query.DangerLevelForDay(day)
+        <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
 </span>
         <span class="cov8" title="1">prof := SkillDepthProfile{Weapon: weaponName, MinEffectiveGap: math.Inf(1)}
         prevTTK := math.NaN()
@@ -11727,8 +11727,8 @@ func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
 
 // DepthOfChunkRow は絶対チャンク行の北進深度を返す。起点 SpawnChunkY からの北進チャンク数で手前は0。
 // world を引く NorthDepthChunks の座標純関数版で、生成の難易度を深度で決めるのに使い再訪一致を保つ。
-func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) int {
-        <span class="cov8" title="1">if depth := int(sb.SpawnChunkY()) - int(absChunkRow); depth &gt; 0 </span>{
+func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) consts.Chunk {
+        <span class="cov8" title="1">if depth := sb.SpawnChunkY() - absChunkRow; depth &gt; 0 </span>{
                 <span class="cov8" title="1">return depth
 </span>        }
         <span class="cov8" title="1">return 0</span>
@@ -21270,7 +21270,7 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
                 <span class="cov0" title="0">planData.NPCs = []NPCSpec{}
 </span>        }
 
-        <span class="cov8" title="1">entries, err := resolveEnemyEntries(planData.RawMaster, n.plannerType.EnemyTableName, n.plannerType.Danger)
+        <span class="cov8" title="1">entries, err := resolveEnemyEntries(planData.RawMaster, n.plannerType.EnemyTableName, int(n.plannerType.Danger))
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -24547,7 +24547,7 @@ func NewItemPlanner(world w.World, plannerType PlannerType) *ItemPlanner {
 
 // PlanMeta はアイテム配置情報をMetaPlanに追加する
 func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
-        <span class="cov8" title="1">sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, i.plannerType.Danger)
+        <span class="cov8" title="1">sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, int(i.plannerType.Danger))
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -24677,7 +24677,7 @@ type DoorSpec struct {
 type MetaPlan struct {
         // Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。
         // 呼び出し側が世界の現在地から確定して渡す。
-        Danger int
+        Danger consts.Danger
         // 階層情報
         Level gc.Level
         // 部屋群。部屋は長方形の移動可能な空間のことをいう。
@@ -24972,7 +24972,7 @@ type PlannerType struct {
         // アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する
         ItemTableName string
         // 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
-        Danger int
+        Danger consts.Danger
         // プランナー関数
         PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -26957,7 +26957,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
         <span class="cov8" title="1">danger := metaPlan.Danger
 </span>
         <span class="cov8" title="1">for range lootCount </span>{
-                <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, danger)
+                <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
                 if err != nil </span>{
                         <span class="cov8" title="1">return fmt.Errorf("failed to draw item: %w", err)
 </span>                }
@@ -29284,7 +29284,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
         }
         <span class="cov8" title="1">n := lootDice.Roll(rng)
         for range n </span>{
-                <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)
+                <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))
                 if err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
@@ -30924,7 +30924,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 
 // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
 // c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。
-func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
+func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
         <span class="cov8" title="1">danger := query.DangerLevelAt(world)
         if sb := query.GetSeamlessBand(world); sb != nil </span>{
                 <span class="cov8" title="1">if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d &gt; danger </span>{
@@ -30935,7 +30935,7 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) int {
 }
 
 // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger int) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger consts.Danger) error {
         // ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
         <span class="cov8" title="1">rng := rand.New(rand.NewPCG(seed, 0x2))
         footprint, door, err := planUrbanLot(world, g, rng)
@@ -30990,7 +30990,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger int, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
         <span class="cov8" title="1">enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to get urban enemy table: %w", err)
@@ -30998,7 +30998,7 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
         // 湧き数は街の規模で決める。敵種別は危険度でフィルタし、北へ進むほど・日が進むほど強敵が出る。
         <span class="cov8" title="1">count := 1 + rng.IntN(int(size))
         for range count </span>{
-                <span class="cov8" title="1">enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)
+                <span class="cov8" title="1">enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(danger))
                 if err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to select urban enemy: %w", err)
 </span>                }
@@ -37222,6 +37222,7 @@ import (
 
         "github.com/hajimehoshi/ebiten/v2"
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/dungeon"
         es "github.com/kijimaD/ruins/internal/engine/states"
         mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
@@ -37244,7 +37245,7 @@ type DungeonState struct {
         Depth     int
         // Danger はこの遺跡の危険度。最初のフロア生成時に確定し全階で共有する。階を降りても変わらない。
         // ゼロ値は未確定を表す。
-        Danger int
+        Danger consts.Danger
         // BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
         BuilderType mapplanner.PlannerType
         // DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
@@ -54107,6 +54108,7 @@ func ConsumeCurrency(world w.World, entity ecs.Entity, amount consts.Currency) b
 		<pre class="file" id="file367" style="display: none">package query
 
 import (
+        "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -54116,15 +54118,15 @@ const dangerDaysPerLevel = 3
 // DangerLevelForDay は経過日数から危険度を返す純関数。危険度は1始まりで最小は1。
 // 単調非減少で、同じ入力は常に同じ危険度を返す。バランス導出が world 抜きで時系列の
 // 難易度カーブを引けるよう公開する。
-func DangerLevelForDay(days int) int {
+func DangerLevelForDay(days int) consts.Danger {
         <span class="cov8" title="1">if days &lt; 0 </span>{
                 <span class="cov8" title="1">days = 0
 </span>        }
-        <span class="cov8" title="1">return 1 + days/dangerDaysPerLevel</span>
+        <span class="cov8" title="1">return 1 + consts.Danger(days)/dangerDaysPerLevel</span>
 }
 
 // DangerLevelAt は world から経過日数を引いて危険度を返す。
-func DangerLevelAt(world w.World) int {
+func DangerLevelAt(world w.World) consts.Danger {
         <span class="cov8" title="1">return DangerLevelForDay(GetGameTime(world).GetDayNumber())
 </span>}
 
@@ -54133,11 +54135,11 @@ const dangerChunksPerLevel = 3
 
 // DangerLevelForDepth は北へ chunksNorth 進んだ場所の危険度を返す純関数。空間の難易度勾配。
 // world を引かず座標で決めるので生成の再訪一致を壊さない。日数版 DangerLevelForDay と対をなす。
-func DangerLevelForDepth(chunksNorth int) int {
+func DangerLevelForDepth(chunksNorth consts.Chunk) consts.Danger {
         <span class="cov8" title="1">if chunksNorth &lt; 0 </span>{
                 <span class="cov8" title="1">chunksNorth = 0
 </span>        }
-        <span class="cov8" title="1">return 1 + chunksNorth/dangerChunksPerLevel</span>
+        <span class="cov8" title="1">return 1 + consts.Danger(chunksNorth)/dangerChunksPerLevel</span>
 }
 </pre>
 		

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td class="headerValue">2026-09-24 01:39:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,7 +83,7 @@
 <span id="L21"><span class="lineNum">      21</span>              : // WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器(近接・遠距離)それぞれの死亡確率と素手へ</span>
 <span id="L22"><span class="lineNum">      22</span>              : // 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 BaselineWeapon がフォールバック。</span>
 <span id="L23"><span class="lineNum">      23</span>              : func WeaponRestrictionValues(master oapi.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :         danger := query.DangerLevelForDay(day)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :         danger := int(query.DangerLevelForDay(day))</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, 0, err</span></span>

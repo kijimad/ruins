@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td class="headerValue">2026-09-24 01:39:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -121,8 +121,8 @@
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span>              : // DepthOfChunkRow は絶対チャンク行の北進深度を返す。起点 SpawnChunkY からの北進チャンク数で手前は0。</span>
 <span id="L61"><span class="lineNum">      61</span>              : // world を引く NorthDepthChunks の座標純関数版で、生成の難易度を深度で決めるのに使い再訪一致を保つ。</span>
-<span id="L62"><span class="lineNum">      62</span>              : func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) int {</span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         if depth := int(sb.SpawnChunkY()) - int(absChunkRow); depth &gt; 0 {</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) consts.Chunk {</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         if depth := sb.SpawnChunkY() - absChunkRow; depth &gt; 0 {</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return depth</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         return 0</span></span>

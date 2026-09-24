@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td class="headerValue">2026-09-24 01:39:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -253,7 +253,7 @@
 <span id="L191"><span class="lineNum">     191</span>              :         }</span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         n := lootDice.Roll(rng)</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         for range n {</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 }</span></span>

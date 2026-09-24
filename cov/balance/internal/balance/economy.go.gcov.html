@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td class="headerValue">2026-09-24 01:39:39</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -181,7 +181,7 @@
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         costPerDay := CostOfLivingPerDay(master, p)</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         out := make([]EconomyDay, 0, days)</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 danger := query.DangerLevelForDay(day)</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 danger := int(query.DangerLevelForDay(day))</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 net := ExpectedNetLootValue(master, itemTableName, danger)</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 perFood := 0.0</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 if net &gt; 0 {</span></span>
