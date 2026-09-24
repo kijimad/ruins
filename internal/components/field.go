@@ -72,9 +72,14 @@ type Renderable struct{}
 // Drivable は運転可能であることを示すマーカー。SpawnCube が付与する。
 type Drivable struct{}
 
-// Deployed はキューブが展開中であることを示すマーカー。運転は Deployed が無いときのみ許す。
+// Deployed はキューブが展開中であることを示す。運転は Deployed が無いときのみ許す。
+// Range は展開した時点の野営フットプリントの縦横別半径を凍結して持つ。圧縮の畳み込みとレーザー壁描画は
+// この凍結値を参照する。展開中にモジュールで範囲が伸びても野営は展開時のまま変わらず、拡張は次の再展開で
+// 反映する。凍結しないと展開時に空だと検証していない外周まで圧縮で畳み込み、既存の prop を巻き込む。
 // 展開状態は保存する。展開中に保存すればロードでも展開のまま、貨物も配置ごと復元される。
-type Deployed struct{}
+type Deployed struct {
+	Range consts.Coord[consts.Tile]
+}
 
 // LocationStowed はキューブに畳み込んだ貨物であることを示すロケーション。Backpack・Storage・Equipped・
 // Field と排他で、圧縮時にフィールドから取り込むアイテムに付き、展開でフィールドへ戻すときに外れる。
@@ -83,6 +88,20 @@ type Deployed struct{}
 type LocationStowed struct {
 	Owner  ecs.Entity
 	Offset consts.Coord[consts.Tile]
+}
+
+// CubeModule はキューブに装着するモジュールの性能。値は導出でなくアイテム固有なので spawn 時に raw から
+// 設定して保持し、実効範囲は装着関係から読み取り時に導く。
+type CubeModule struct {
+	RangeBonus consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
+}
+
+// LocationInstalled はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
+// Equipped・Field・Stowed と排他。Owner は装着先のキューブ。装着関係を保存し、実効 stat は導出する。
+// Slot は装着スロット番号。装備と同様に固定し、外しても他のスロットは繰り上がらない。
+type LocationInstalled struct {
+	Owner ecs.Entity
+	Slot  int
 }
 
 // Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。

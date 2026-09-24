@@ -931,6 +931,12 @@ type Consumable struct {
 	UsableScene UsableScene `json:"usableScene"`
 }
 
+// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
+type CubeModule struct {
+	// RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
+	RangeBonus RangeBonus `json:"rangeBonus"`
+}
+
 // DamageBonus ダメージ補正値
 type DamageBonus = int
 
@@ -1208,6 +1214,9 @@ type Item struct {
 
 	// Consumable 消費可能アイテムの設定
 	Consumable *Consumable `json:"consumable,omitempty"`
+
+	// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
+	CubeModule *CubeModule `json:"cubeModule,omitempty"`
 
 	// Description 説明文
 	Description EntityDescription `json:"description"`
@@ -1643,6 +1652,9 @@ type RGBAColor struct {
 	// R RGBA色チャネル値 (0-255)
 	R ColorChannel `json:"r"`
 }
+
+// RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
+type RangeBonus = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {

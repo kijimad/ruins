@@ -31,17 +31,20 @@ func DeployCube(world w.World, cube ecs.Entity) bool {
 	if world.Components.Deployed.Has(cube) {
 		return true
 	}
-	if !deploySpaceFree(world, cube) {
+	// 展開時のライブ範囲でフットプリントの空きを判定し、その範囲を凍結して持たせる。以後の畳み込みと
+	// 壁描画は凍結値を使うので、展開中に装備で範囲が伸びても野営は変わらず既存 prop を巻き込まない。
+	r := query.CubeDeployRange(world, cube)
+	if !deploySpaceFree(world, cube, r) {
 		return false
 	}
-	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	world.Components.Deployed.Add(cube, &gc.Deployed{Range: r})
 	releaseStowedItems(world, cube)
 	return true
 }
 
 // deploySpaceFree は野営内が展開に使えるかを返す。壁・敵・アイテム・prop が
-// 1つでもあれば偽。判定範囲を畳み込み範囲と同じにするので、展開できたら野営は空だと保証される。
-func deploySpaceFree(world w.World, cube ecs.Entity) bool {
+// 1つでもあれば偽。判定範囲 r を畳み込み範囲と同じにするので、展開できたら野営は空だと保証される。
+func deploySpaceFree(world w.World, cube ecs.Entity, r consts.Coord[consts.Tile]) bool {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return false
@@ -50,7 +53,6 @@ func deploySpaceFree(world w.World, cube ecs.Entity) bool {
 	// InvalidEntity になるが実キャラと一致しないので、誰も除外しないだけで安全側に倒れる。
 	player, _ := query.GetPlayerEntity(world)
 	base := world.Components.GridElement.Get(cube).Coord
-	r := consts.CubeDeployBaseRange()
 	for dy := -r.Y; dy <= r.Y; dy++ {
 		for dx := -r.X; dx <= r.X; dx++ {
 			// キューブ自身のタイルは障害物として見ない
@@ -92,9 +94,10 @@ func StowCube(world w.World, cube ecs.Entity) {
 
 // stowNearbyItems は野営内のアイテムと prop を LocationStowed へ畳み込み、燃料と
 // 区別しつつ相対位置を覚えて展開で戻せるようにする。展開時に野営は空なので、畳むのはプレイヤーが置いた物だけ。
+// 畳み込み範囲は展開時に凍結した Deployed.Range を使う。ライブ範囲だと展開後に伸びたぶん外周を巻き込む。
 func stowNearbyItems(world w.World, cube ecs.Entity) {
 	base := world.Components.GridElement.Get(cube).Coord
-	r := consts.CubeDeployBaseRange()
+	r := world.Components.Deployed.Get(cube).Range
 
 	var targets []ecs.Entity
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()

@@ -28,11 +28,13 @@ var Registry = []Def{
 	{Field: "Wearable"},           // 装備品の性能を保持する
 	{Field: "Abilities"},          // エンティティの能力値を保持する
 	{Field: "Ammo"},               // 弾薬アイテムの性能を保持する
+	{Field: "CubeModule"},         // キューブに装着するモジュールの性能を保持する
 	{Field: "LocationInBackpack"}, // バックパック内にあることを表す
 	{Field: "LocationEquipped"},   // 装備中であることを表す
 	{Field: "LocationOnField"},    // フィールド上にあることを表す
 	{Field: "LocationInStorage"},  // 収納内にあることを表す
 	{Field: "LocationStowed"},     // キューブに畳み込んだ貨物のロケーション。相対位置を保持し燃料タンクと排他
+	{Field: "LocationInstalled"},  // キューブに装着したモジュールのロケーション。装着先キューブを保持する
 
 	// field ================
 	{Field: "Tile"},            // タイルエンティティであることを示す

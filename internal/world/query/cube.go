@@ -60,14 +60,59 @@ func StowedCargo(world w.World, cube ecs.Entity) []ecs.Entity {
 	return items
 }
 
+// GetCubeModules はキューブに装着したモジュールの一覧を返す。LocationInstalled で Owner を辿り、
+// CubeModule も併せて絞るので、返る実体は性能コンポーネントを必ず持つ。読み取り側の Has チェックが要らない。
+// 反復中に return するとロックが残るので、対象を集めてから返す。
+func GetCubeModules(world w.World, cube ecs.Entity) []ecs.Entity {
+	var items []ecs.Entity
+	q := ecs.NewFilter2[gc.LocationInstalled, gc.CubeModule](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInstalled.Get(e).Owner == cube {
+			items = append(items, e)
+		}
+	}
+	return items
+}
+
+// BackpackCubeModules はプレイヤーのバックパックにあるキューブモジュールを返す。装着候補の一覧に使う。
+// 反復中に return するとロックが残るので、対象を集めてから返す。
+func BackpackCubeModules(world w.World, player ecs.Entity) []ecs.Entity {
+	var items []ecs.Entity
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.CubeModule](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInBackpack.Get(e).Owner == player {
+			items = append(items, e)
+		}
+	}
+	return items
+}
+
+// CubeDeployRange はキューブの展開野営の縦横別の半径を返す。基準 consts.CubeDeployBaseRange に、
+// 装着した各モジュールの RangeBonus を縦横一律に加算する。範囲は保持せず読み取り時に導く。
+// 展開判定・畳み込み・レーザー壁描画がこの単一出典を参照する。
+func CubeDeployRange(world w.World, cube ecs.Entity) consts.Coord[consts.Tile] {
+	r := consts.CubeDeployBaseRange()
+	for _, m := range GetCubeModules(world, cube) {
+		bonus := world.Components.CubeModule.Get(m).RangeBonus
+		r.X += bonus
+		r.Y += bonus
+	}
+	return r
+}
+
 // CubeWeight はキューブが積む物の総重量を返す。運転1タイルの燃料コスト算出に使う。
-// 燃料タンクの中身と畳み込んだ貨物の両方が機動に効くので合算する。値は保持せず読み取り時に導く。
+// 燃料タンクの中身・畳み込んだ貨物・装着モジュールが機動に効くので合算する。値は保持せず読み取り時に導く。
 func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {
 	var total consts.Milligram
 	for _, item := range GetStorageItems(world, cube) {
 		total += GetEntityWeight(world, item)
 	}
 	for _, item := range StowedCargo(world, cube) {
+		total += GetEntityWeight(world, item)
+	}
+	for _, item := range GetCubeModules(world, cube) {
 		total += GetEntityWeight(world, item)
 	}
 	return total

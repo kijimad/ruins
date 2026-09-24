@@ -50,6 +50,9 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 					WithColumn(styled.Fit(), emptyCell),
 				)
 			})},
+			Choice{Label: query.T(world, "Module"), Run: pushChoice(func() (es.State[w.World], error) {
+				return NewCubeModuleMenuState(cube)
+			})},
 			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)
 			})},

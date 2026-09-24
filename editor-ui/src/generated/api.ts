@@ -488,6 +488,15 @@ export interface Consumable {
 
 
 /**
+ * キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
+ */
+export interface CubeModule {
+    /**
+     * キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
+     */
+    'rangeBonus': number;
+}
+/**
  * 会話データ
  */
 export interface Dialog {
@@ -853,6 +862,7 @@ export interface Item {
     'wearable'?: Wearable;
     'equipBonus'?: EquipBonus;
     'ammo'?: Ammo;
+    'cubeModule'?: CubeModule;
     'melee'?: Melee;
     'fire'?: Fire;
     'book'?: Book;
