@@ -197,16 +197,16 @@ func TestNewItemSpec_収納なし装着は拾える相互作用を持たない(t
 
 	str := `
 [[Items]]
-Name = "照明"
-id = "照明"
-Description = "装着する受動設備"
+Name = "能力なし設備"
+id = "能力なし設備"
+Description = "能力を持たない装着"
 
 [Items.Deployable]
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	spec, err := NewItemSpec(raws, "照明")
+	spec, err := NewItemSpec(raws, "能力なし設備")
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Deployable)
