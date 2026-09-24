@@ -107,7 +107,6 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | draft | [移動拠点キューブを展開式の携行基地へ拡張する](docs/design/260923140706.md) | 7/12 | gamedesign, item, ecs, movement |
-| draft | [市街地の敵テーブルを施設で変える。深度の縦に対する横の多様性](docs/design/260924111008.md) | 0/5 | worldgen, gamedesign, combat |
 | draft | [内装レシピを raw.toml へ移す。施設の中身をデータ駆動にする](docs/design/260924113529.md) | 0/8 | worldgen, item, gamedesign |
 
 

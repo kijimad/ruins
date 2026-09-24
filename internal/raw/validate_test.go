@@ -382,6 +382,31 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 	})
 }
 
+func TestValidateFacilityEnemyTableReferences(t *testing.T) {
+	t.Parallel()
+
+	enemyTables := &[]oapi.EnemyTable{{Id: "clinic_enemies", Name: "診療所"}}
+
+	t.Run("実在する敵テーブルは通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables:         enemyTables,
+			FacilityEnemyTables: &[]oapi.FacilityEnemyTable{{Facility: "clinic", EnemyTable: "clinic_enemies"}},
+		}
+		require.NoError(t, validateFacilityEnemyTableReferences(raws))
+	})
+
+	t.Run("敵テーブルが存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables:         enemyTables,
+			FacilityEnemyTables: &[]oapi.FacilityEnemyTable{{Facility: "clinic", EnemyTable: "no_such_table"}},
+		}
+		err := validateFacilityEnemyTableReferences(raws)
+		require.ErrorIs(t, err, errFacilityEnemyTableRefUndefined)
+	})
+}
+
 func TestValidateCommandTableWeaponReferences(t *testing.T) {
 	t.Parallel()
 

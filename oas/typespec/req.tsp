@@ -303,6 +303,15 @@ model EnemyTable {
   entries: EnemyTableEntry[];
 }
 
+/** 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
+enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。 */
+model FacilityEnemyTable {
+  /** 施設種別。overworld の facilityType の文字列と揃える */
+  facility: EntityID;
+  /** 割り当てる敵テーブルの id。enemyTables のいずれかを指す */
+  enemyTable: EntityID;
+}
+
 // ================== タイル ==================
 
 /** スプライトレンダー設定 */
@@ -451,6 +460,7 @@ model Raws {
   itemGroups?: ItemGroup[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
+  facilityEnemyTables?: FacilityEnemyTable[];
   spriteSheets?: SpriteSheet[];
   tiles?: Tile[];
   props?: Prop[];

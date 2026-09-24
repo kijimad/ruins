@@ -14,6 +14,7 @@ var (
 	errItemTableRefUndefinedGroup     = errors.New("item table references undefined item group")
 	errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
 	errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
+	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
 	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
 	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
 	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -82,6 +83,9 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateEnemyTableReferences(raws); err != nil {
 		return err
 	}
+	if err := validateFacilityEnemyTableReferences(raws); err != nil {
+		return err
+	}
 	return validateCommandTableWeaponReferences(raws)
 }
 
@@ -147,6 +151,26 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 			if _, ok := memberNames[entry.Id]; !ok {
 				return fmt.Errorf("enemy table %q references enemy %q: %w", enemyTables[i].Name, entry.Id, errEnemyTableRefUndefinedEnemy)
 			}
+		}
+	}
+	return nil
+}
+
+// validateFacilityEnemyTableReferences は施設ごとの敵テーブル割り当てが指す敵テーブル id が enemyTables に
+// 存在することを検証する。市街地生成はこの id で GetEnemyTable するので、typo をロード時に前倒しで弾く。
+func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
+	enemyTables := PtrSlice(raws.EnemyTables)
+	tableIDs := make(map[string]struct{}, len(enemyTables))
+	for i := range enemyTables {
+		tableIDs[enemyTables[i].Id] = struct{}{}
+	}
+
+	for _, fe := range PtrSlice(raws.FacilityEnemyTables) {
+		if fe.EnemyTable == "" {
+			continue
+		}
+		if _, ok := tableIDs[fe.EnemyTable]; !ok {
+			return fmt.Errorf("facility %q references enemy table %q: %w", fe.Facility, fe.EnemyTable, errFacilityEnemyTableRefUndefined)
 		}
 	}
 	return nil
