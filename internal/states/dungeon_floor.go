@@ -161,7 +161,7 @@ const debugStageModuleCount = consts.CubeModuleSlots
 const debugStageFacilityCount = 2
 
 // debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
-var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed"}
+var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed", "deployable_workbench"}
 
 // spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムを入れておく。
 // 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。

@@ -1881,20 +1881,26 @@ msgstr "木箱"
 msgid "Storage Crate"
 msgstr "保管木箱"
 
-msgid "A folded storage crate. Deploy it into your cube's space to hold cargo, then fold it back up to move on."
-msgstr "折り畳んだ保管用の木箱。キューブの展開空間に装着して貨物を入れ、畳んで持ち運べる。"
+msgid "A storage crate. Deploy it into your cube's space to hold cargo. It is stowed away when the cube folds up."
+msgstr "保管用の木箱。キューブの展開空間に装着すると貨物を入れられる。キューブを畳むと一緒に収納される。"
 
 msgid "Camp Lantern"
 msgstr "野営ランタン"
 
-msgid "A folded camp lantern. Deploy it into your cube's space to light the area, then fold it back up to move on."
-msgstr "折り畳んだ野営ランタン。キューブの展開空間に装着して周囲を照らし、畳んで持ち運べる。"
+msgid "A camp lantern. Deploy it into your cube's space to light the area. It is stowed away when the cube folds up."
+msgstr "野営ランタン。キューブの展開空間に装着すると周囲を照らす。キューブを畳むと一緒に収納される。"
 
 msgid "Camp Bed"
 msgstr "野営ベッド"
 
-msgid "A folded camp bed. Deploy it into your cube's space to sleep well, then fold it back up to move on."
-msgstr "折り畳んだ野営ベッド。キューブの展開空間に装着してよく眠り、畳んで持ち運べる。"
+msgid "A camp bed. Deploy it into your cube's space to sleep well. It is stowed away when the cube folds up."
+msgstr "野営ベッド。キューブの展開空間に装着するとよく眠れる。キューブを畳むと一緒に収納される。"
+
+msgid "Workbench"
+msgstr "工作台"
+
+msgid "A workbench. Deploy it into your cube's space as a crafting station. It is stowed away when the cube folds up."
+msgstr "工作台。キューブの展開空間に装着すると作業場になる。キューブを畳むと一緒に収納される。"
 
 msgid "Facility"
 msgstr "設備"
