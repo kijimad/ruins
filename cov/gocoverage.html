@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.5%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
@@ -141,11 +141,11 @@
 				
 				<option value="file42">github.com/kijimaD/ruins/internal/balance/progression.go (85.7%)</option>
 				
-				<option value="file43">github.com/kijimaD/ruins/internal/balance/report.go (95.7%)</option>
+				<option value="file43">github.com/kijimaD/ruins/internal/balance/report.go (96.7%)</option>
 				
 				<option value="file44">github.com/kijimaD/ruins/internal/balance/restriction.go (80.6%)</option>
 				
-				<option value="file45">github.com/kijimaD/ruins/internal/balance/run.go (95.3%)</option>
+				<option value="file45">github.com/kijimaD/ruins/internal/balance/run.go (95.9%)</option>
 				
 				<option value="file46">github.com/kijimaD/ruins/internal/balance/search.go (92.7%)</option>
 				
@@ -153,7 +153,7 @@
 				
 				<option value="file48">github.com/kijimaD/ruins/internal/balance/skilldepth.go (85.1%)</option>
 				
-				<option value="file49">github.com/kijimaD/ruins/internal/balance/stats.go (96.4%)</option>
+				<option value="file49">github.com/kijimaD/ruins/internal/balance/stats.go (98.2%)</option>
 				
 				<option value="file50">github.com/kijimaD/ruins/internal/balance/survival.go (100.0%)</option>
 				
@@ -491,15 +491,15 @@
 				
 				<option value="file217">github.com/kijimaD/ruins/internal/overworld/settlement.go (88.9%)</option>
 				
-				<option value="file218">github.com/kijimaD/ruins/internal/overworld/urban.go (93.2%)</option>
+				<option value="file218">github.com/kijimaD/ruins/internal/overworld/urban.go (93.5%)</option>
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
 				<option value="file220">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file221">github.com/kijimaD/ruins/internal/raw/raw.go (93.8%)</option>
+				<option value="file221">github.com/kijimaD/ruins/internal/raw/raw.go (92.9%)</option>
 				
-				<option value="file222">github.com/kijimaD/ruins/internal/raw/validate.go (94.3%)</option>
+				<option value="file222">github.com/kijimaD/ruins/internal/raw/validate.go (93.5%)</option>
 				
 				<option value="file223">github.com/kijimaD/ruins/internal/raw/weighted.go (94.4%)</option>
 				
@@ -5538,7 +5538,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -8198,7 +8198,7 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
                 <span class="cov8" title="1">for depth := 1; depth &lt;= maxDepth; depth++ </span>{
                         <span class="cov8" title="1">hps := stats.HPAtDepth(depth)
                         if len(hps) == 0 </span>{
-                                <span class="cov0" title="0">break</span>
+                                <span class="cov8" title="1">break</span>
                         }
                         <span class="cov8" title="1">run.Depths = append(run.Depths, oapi.BalanceDepthStat{
                                 Depth:              depth,
@@ -8584,7 +8584,7 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 </span>
         <span class="cov8" title="1">itemTable, err := raw.GetItemTable(master, tableName)
         if err != nil </span>{
-                <span class="cov0" title="0">return result
+                <span class="cov8" title="1">return result
 </span>        }
 
         // mapplanner のアイテム配置ロジック: floorItemBase + rand(0..floorItemRandom-1)
@@ -9194,7 +9194,7 @@ func (s RunStats) hpPercentile(depth int, selector func(RunResult) map[int]int, 
 </span>                }
         }
         <span class="cov8" title="1">if len(hps) == 0 </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">slices.Sort(hps)
         return Percentile(hps, p)</span>
@@ -9345,7 +9345,7 @@ func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int {
                 damages = append(damages, dmg)</span>
         }
         <span class="cov8" title="1">if len(damages) == 0 </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">slices.Sort(damages)
         return Percentile(damages, p)</span>
@@ -30738,6 +30738,7 @@ import (
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/mapplanner/interior"
+        "github.com/kijimaD/ruins/internal/oapi"
         "github.com/kijimaD/ruins/internal/raw"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -30756,7 +30757,8 @@ const (
         urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
         urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
-        // urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。危険度で種別をフィルタする
+        // urbanEnemyTable は未知施設のフォールバック敵テーブル。既知施設は facilityEnemyTables で専用テーブルを
+        // 持つので、実運用でここへ落ちるのは未知施設だけ。危険度で種別をフィルタする
         urbanEnemyTable = "ruins_area"
 )
 
@@ -30812,6 +30814,20 @@ const (
         facilityClinic  facilityType = "clinic"  // 診療所
         facilityLab     facilityType = "lab"     // 研究施設
 )
+
+// urbanEnemyTableFor は施設に割り当てられた敵テーブルを返す。割り当ては raw.toml の facilityEnemyTables。
+// 未割り当ての施設は既定 urbanEnemyTable へ落とす。割り当てがあるのに実在しなければ設定ミスなので error。
+func urbanEnemyTableFor(raws oapi.Raws, fac facilityType) (oapi.EnemyTable, error) {
+        <span class="cov8" title="1">name := urbanEnemyTable
+        if assigned, ok := raw.FacilityEnemyTableName(raws, string(fac)); ok </span>{
+                <span class="cov8" title="1">name = assigned
+</span>        }
+        <span class="cov8" title="1">et, err := raw.GetEnemyTable(raws, name)
+        if err != nil </span>{
+                <span class="cov8" title="1">return oapi.EnemyTable{}, fmt.Errorf("urban enemy table for facility %q: %w", fac, err)
+</span>        }
+        <span class="cov8" title="1">return et, nil</span>
+}
 
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
 // 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
@@ -30961,7 +30977,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov8" title="1">return spawnUrbanEnemies(world, g, rng, size, danger, isWall, occupied)</span>
+        <span class="cov8" title="1">return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)</span>
 }
 
 // planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
@@ -31005,8 +31021,8 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
-        <span class="cov8" title="1">enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac facilityType, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+        <span class="cov8" title="1">enemyTable, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to get urban enemy table: %w", err)
 </span>        }
@@ -31877,6 +31893,15 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
         <span class="cov8" title="1">return et, nil</span>
 }
 
+// FacilityEnemyTableName は施設種別に割り当てられた敵テーブル id を返す。割り当てが無ければ false を返す。
+func FacilityEnemyTableName(raws oapi.Raws, facility string) (string, bool) {
+        <span class="cov0" title="0">fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string </span>{ <span class="cov0" title="0">return t.Facility }</span>, facility)
+        <span class="cov0" title="0">if !ok </span>{
+                <span class="cov0" title="0">return "", false
+</span>        }
+        <span class="cov0" title="0">return fe.EnemyTable, true</span>
+}
+
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
 func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) {
@@ -32144,6 +32169,7 @@ var (
         errItemTableRefUndefinedGroup     = errors.New("item table references undefined item group")
         errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
         errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
+        errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
         errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
         errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
         errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -32212,6 +32238,9 @@ func ValidateReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">if err := validateEnemyTableReferences(raws); err != nil </span>{
                 <span class="cov8" title="1">return err
 </span>        }
+        <span class="cov8" title="1">if err := validateFacilityEnemyTableReferences(raws); err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
         <span class="cov8" title="1">return validateCommandTableWeaponReferences(raws)</span>
 }
 
@@ -32278,6 +32307,26 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
                                 <span class="cov8" title="1">return fmt.Errorf("enemy table %q references enemy %q: %w", enemyTables[i].Name, entry.Id, errEnemyTableRefUndefinedEnemy)
 </span>                        }
                 }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateFacilityEnemyTableReferences は施設ごとの敵テーブル割り当てが指す敵テーブル id が enemyTables に
+// 存在することを検証する。市街地生成はこの id で GetEnemyTable するので、typo をロード時に前倒しで弾く。
+func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
+        <span class="cov8" title="1">enemyTables := PtrSlice(raws.EnemyTables)
+        tableIDs := make(map[string]struct{}, len(enemyTables))
+        for i := range enemyTables </span>{
+                <span class="cov8" title="1">tableIDs[enemyTables[i].Id] = struct{}{}
+</span>        }
+
+        <span class="cov8" title="1">for _, fe := range PtrSlice(raws.FacilityEnemyTables) </span>{
+                <span class="cov8" title="1">if fe.EnemyTable == "" </span>{
+                        <span class="cov0" title="0">continue</span>
+                }
+                <span class="cov8" title="1">if _, ok := tableIDs[fe.EnemyTable]; !ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("facility %q references enemy table %q: %w", fe.Facility, fe.EnemyTable, errFacilityEnemyTableRefUndefined)
+</span>                }
         }
         <span class="cov8" title="1">return nil</span>
 }
