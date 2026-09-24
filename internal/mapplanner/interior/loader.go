@@ -8,123 +8,82 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// ContentSet はロードした内装レシピ一式。id から Content を、施設種別から主室変種と奥室カタログを引く。
-// content_catalog.go と facility.go が Go 定数で持っていたレシピと写像を raw.toml のデータへ移す受け皿。
-type ContentSet struct {
-	byID          map[string]Content
-	facilityMain  map[FacilityKind][]string
-	facilityRooms map[FacilityKind]roomSet
-}
-
-// roomSet は1施設の奥室カタログ。役割名から content id を引き、カタログに無い役割は fallback へ落とす。
-type roomSet struct {
-	rooms    map[roleName]string
-	fallback string
-}
-
 // genericContentID と flavorContentID はデータの参照でなくコードが直接引く content id。generic は未知施設や
 // 未割り当ての主室・奥室のフォールバック、flavor は flavor machine が引く。データ間参照を見る
-// ValidateReferences では守れないので、LoadContents が存在を検証し raw.toml からの誤削除を弾く。
+// ValidateReferences では守れないので、欠けていれば contentByID がロードでなく生成時に panic で露見させる。
 const (
 	genericContentID = "generic"
 	flavorContentID  = "flavor"
 )
 
-// LoadContents は oapi.Raws の内装レシピ定義から ContentSet を組む。ダイス表記のパース失敗だけを error に
-// し、参照の実在は raw の ValidateReferences 側に委ねる。
-func LoadContents(raws oapi.Raws) (*ContentSet, error) {
-	cs := &ContentSet{
-		byID:          make(map[string]Content),
-		facilityMain:  make(map[FacilityKind][]string),
-		facilityRooms: make(map[FacilityKind]roomSet),
-	}
+// contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。索引を持たず毎回新規に
+// 組むので、返り値を applyDensity が in-place で書き換えても共有元が無く clone が要らない。他ドメインの
+// NewItemSpec と同じ「その場で引いて変換」の形。参照は raw の ValidateReferences で検証済みなので、ここでの
+// 未定義とダイス解析失敗は不変条件違反として panic で露見させる。生成はテスト golden で走るので CI で捕まる。
+func contentByID(raws oapi.Raws, id string) Content {
 	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
-		c, err := toContent(ic)
-		if err != nil {
-			return nil, err
-		}
-		cs.byID[ic.Id] = c
-	}
-	for _, fc := range raw.PtrSlice(raws.FacilityContents) {
-		cs.facilityMain[FacilityKind(fc.Facility)] = append([]string(nil), fc.Variants...)
-	}
-	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
-		rooms := raw.PtrSlice(fr.Rooms)
-		rc := roomSet{rooms: make(map[roleName]string, len(rooms)), fallback: fr.Fallback}
-		for _, r := range rooms {
-			rc.rooms[roleName(r.Role)] = r.Content
-		}
-		cs.facilityRooms[FacilityKind(fr.Facility)] = rc
-	}
-	// コードが直接引く id はデータ参照でないので ValidateReferences が守れない。ここで存在を確かめ、
-	// 引き手がゼロ値の空 Content を無音で返す事故をロード時に前倒しで弾く。
-	for _, id := range []string{genericContentID, flavorContentID} {
-		if _, ok := cs.byID[id]; !ok {
-			return nil, fmt.Errorf("interior: required content %q not defined", id)
+		if ic.Id == id {
+			c, err := toContent(ic)
+			if err != nil {
+				panic(fmt.Sprintf("interior: content %q: %v", id, err))
+			}
+			return c
 		}
 	}
-	return cs, nil
+	panic(fmt.Sprintf("interior: content %q not found", id))
 }
 
 // facilityContent は施設種別の主室 content を seed で1変種引く。未割り当ての施設は generic へ落とす。
 // 同じ施設でも複数の変種を持ち、seed で引くことで同じ店が薬局にも食料品店にもなる。
-func (cs *ContentSet) facilityContent(facility FacilityKind, seed uint64) Content {
-	variants := cs.facilityMain[facility]
+func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) Content {
+	variants := facilityVariants(raws, facility)
 	if len(variants) == 0 {
 		variants = []string{genericContentID}
 	}
 	id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
-	return cs.byID[id].clone()
+	return contentByID(raws, id)
+}
+
+// facilityVariants は施設種別の主室変種 id 列を raws から引く。未割り当ての施設は nil。
+func facilityVariants(raws oapi.Raws, facility FacilityKind) []string {
+	for _, fc := range raw.PtrSlice(raws.FacilityContents) {
+		if FacilityKind(fc.Facility) == facility {
+			return fc.Variants
+		}
+	}
+	return nil
 }
 
 // roomContent は施設の役割別 content を引く。役割が奥室カタログに無ければ ok=false。
-func (cs *ContentSet) roomContent(facility FacilityKind, role roleName) (Content, bool) {
-	id, ok := cs.facilityRooms[facility].rooms[role]
-	if !ok {
+func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content, bool) {
+	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
+		if FacilityKind(fr.Facility) != facility {
+			continue
+		}
+		for _, r := range raw.PtrSlice(fr.Rooms) {
+			if roleName(r.Role) == role {
+				return contentByID(raws, r.Content), true
+			}
+		}
 		return Content{}, false
 	}
-	return cs.byID[id].clone(), true
+	return Content{}, false
 }
 
 // backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。
 // facilityRooms に無い未知施設は fallback が空になるので、facilityContent と同じく generic へ落として
 // 空部屋の silent 生成を防ぐ。
-func (cs *ContentSet) backRoomContent(facility FacilityKind) Content {
-	id := cs.facilityRooms[facility].fallback
-	if id == "" {
-		id = genericContentID
-	}
-	return cs.byID[id].clone()
-}
-
-// clone は Content をディープコピーする。cs.byID は共有レシピを1つずつ保持するので、返り値を
-// applyDensity などが in-place で書き換えても共有元を壊さないよう、Groups/Items/Satellites/Offsets まで
-// 複製する。
-func (c Content) clone() Content {
-	if c.Groups == nil {
-		return c
-	}
-	groups := make([]Group, len(c.Groups))
-	for gi, g := range c.Groups {
-		items := make([]Stuff, len(g.Items))
-		for ii, it := range g.Items {
-			if it.Satellites != nil {
-				sats := make([]Satellite, len(it.Satellites))
-				for si, s := range it.Satellites {
-					if s.Offsets != nil {
-						s.Offsets = append([]Vec(nil), s.Offsets...)
-					}
-					sats[si] = s
-				}
-				it.Satellites = sats
+func backRoomContent(raws oapi.Raws, facility FacilityKind) Content {
+	id := genericContentID
+	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
+		if FacilityKind(fr.Facility) == facility {
+			if fr.Fallback != "" {
+				id = fr.Fallback
 			}
-			items[ii] = it
+			break
 		}
-		g.Items = items
-		groups[gi] = g
 	}
-	c.Groups = groups
-	return c
+	return contentByID(raws, id)
 }
 
 // toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の

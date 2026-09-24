@@ -4,50 +4,44 @@ import (
 	"sync"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
 var (
-	testCS     *ContentSet
-	testCSOnce sync.Once
+	testRawsCache oapi.Raws
+	testRawsOnce  sync.Once
 )
 
-// testContents は raw.toml から組んだレシピ一式をテスト用に一度だけ返す。本番は呼び出し側が Raws から
-// 組んで FurnishBuilding へ渡すが、テストは資材から直接ロードして全テストで共有する。読み込み失敗は
-// テストの前提崩れなので panic。
-func testContents() *ContentSet {
-	testCSOnce.Do(func() {
-		master, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
+// testRaws は raw.toml をテスト用に一度だけロードして返す。本番は world.Resources.RawMaster を渡すが、
+// テストは資材から直接ロードして全テストで共有する。読み込み失敗はテストの前提崩れなので panic。
+func testRaws() oapi.Raws {
+	testRawsOnce.Do(func() {
+		r, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 		if err != nil {
 			panic("interior test: load raw: " + err.Error())
 		}
-		cs, err := LoadContents(master)
-		if err != nil {
-			panic("interior test: build contents: " + err.Error())
-		}
-		testCS = cs
+		testRawsCache = r
 	})
-	return testCS
+	return testRawsCache
 }
 
-// testContent は id からロード済みレシピを引くテスト補助。旧 content_catalog の関数の代わりに、raw.toml から
-// 組んだ testContents を引く。返り値は clone で、テストが in-place で書き換えても共有元を壊さない。
-// 存在しない id は空 Content で silent に通ってしまうので、引数ミスを panic で早期に露見させる。
+// testContent は id の content をテスト用に都度引く。存在しない id は contentByID が panic で弾く。
 func testContent(id string) Content {
-	c, ok := testContents().byID[id]
-	if !ok {
-		panic("interior test: unknown content id " + id)
-	}
-	return c.clone()
+	return contentByID(testRaws(), id)
 }
 
 // testRoomContents は施設の役割別 content をテスト用に map で返す。旧 houseRoomContents 等の代わり。
 func testRoomContents(fac FacilityKind) map[roleName]Content {
-	cs := testContents()
-	rs := cs.facilityRooms[fac]
-	out := make(map[roleName]Content, len(rs.rooms))
-	for role, id := range rs.rooms {
-		out[role] = cs.byID[id].clone()
+	raws := testRaws()
+	out := map[roleName]Content{}
+	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
+		if FacilityKind(fr.Facility) != fac {
+			continue
+		}
+		for _, r := range raw.PtrSlice(fr.Rooms) {
+			out[roleName(r.Role)] = contentByID(raws, r.Content)
+		}
 	}
 	return out
 }

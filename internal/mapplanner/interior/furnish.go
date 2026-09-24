@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // 建物内装のパイプラインと役割ルーティング。footprint を敷地計画して部屋へ割り、各部屋の役割から content を
@@ -22,7 +23,7 @@ type FurnishStage struct {
 // 前段に置き、建物内の各室へ plan→fill→age→flavor を掛けた累積配置を返す。どの段で見た目が壊れたかを段別
 // VRT で切り分けられるようにする。坪庭の室は家具を置かず観葉だけ置き、経年・flavor を掛けない。FurnishBuilding
 // はこの最終段を返す薄い包みで、両者は同じパイプラインを共有するので段別 VRT と実生成は乖離しない。
-func FurnishStages(cs *ContentSet, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage) {
+func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage) {
 	site := planSite(footprint, seed, door, facility)
 
 	prof := rollProfile(seed) // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
@@ -31,14 +32,14 @@ func FurnishStages(cs *ContentSet, seed uint64, footprint Rect, door Vec, facili
 		hr := site.Rooms[i]
 		roomSeed := childSeed(seed, 300+i)
 		// 密度は全室へ一様に効かせる。同じ内装でもがらんとした家と物で埋まった家を出し分ける
-		f := FillRoom(roomSeed, hr.Room, applyDensity(roleContent(cs, facility, hr.Role, seed), prof.density))
+		f := FillRoom(roomSeed, hr.Room, applyDensity(roleContent(raws, facility, hr.Role, seed), prof.density))
 		// 損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷なら素通し
 		a := Age(roomSeed, hr.Room, f, prof.damage)
 		fl := a
 		// flavor と散らかりは到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が
 		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
 		if hr.Role != roleCorridor && !isNarrowRoom(hr.Room.Rect) {
-			fl = Flavor(roomSeed, hr.Room, a, cs.facilityFlavor(facility))
+			fl = Flavor(roomSeed, hr.Room, a, facilityFlavor(raws, facility))
 			// 散らかりの小物を家具の隣へ落とし、生活感を足す。整頓の建物では何も足さない
 			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter, hr.Role)
 		}
@@ -95,8 +96,8 @@ func isNarrowRoom(r Rect) bool {
 // FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を
 // そのまま埋めず、入口側に前庭を空け、1室を坪庭にし、玄関を凹ませる。加工は FurnishStages が持ち、ここは
 // その最終段 flavor を返す。呼び出し側は Site から Walls で壁タイル、Garden で庭タイルを導き、配置を spawn する。
-func FurnishBuilding(cs *ContentSet, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed) {
-	site, stages := FurnishStages(cs, seed, footprint, door, facility)
+func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed) {
+	site, stages := FurnishStages(raws, seed, footprint, door, facility)
 	return site, stages[len(stages)-1].Placed
 }
 
@@ -149,18 +150,18 @@ func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom
 // roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ
 // 民家の共有役割(corridor 等)、それも無ければ施設別の奥室既定へ落とす。民家だけでなく店・診療所も役割名で
 // 部屋を作り分けられるよう、施設カタログを優先して引く。役割名は planRooms とテンプレが付ける。
-func roleContent(cs *ContentSet, facility FacilityKind, role roleName, seed uint64) Content {
+func roleContent(raws oapi.Raws, facility FacilityKind, role roleName, seed uint64) Content {
 	if role == roleMain {
-		return cs.facilityContent(facility, seed)
+		return facilityContent(raws, facility, seed)
 	}
-	if c, ok := cs.roomContent(facility, role); ok {
+	if c, ok := roomContent(raws, facility, role); ok {
 		return c
 	}
 	// 民家の共有役割(corridor 等)。施設カタログに無い役割は民家の表から引く
-	if c, ok := cs.roomContent(facHouse, role); ok {
+	if c, ok := roomContent(raws, facHouse, role); ok {
 		return c
 	}
-	return cs.backRoomContent(facility)
+	return backRoomContent(raws, facility)
 }
 
 // roomOrderByArea は部屋を面積降順の添字列で返す。主室に最大の部屋を選ぶための順序。

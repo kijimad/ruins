@@ -16,7 +16,6 @@ import (
 	"github.com/kijimaD/ruins/internal/crashreport"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
-	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -179,13 +178,6 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 		return w.World{}, err
 	}
 	world.Resources.RawMaster = rw
-
-	// 内装レシピを RawMaster から一度だけ組む。建物内装は施設種別から変種を引く
-	contents, err := interior.LoadContents(rw)
-	if err != nil {
-		return w.World{}, err
-	}
-	world.Resources.InteriorContents = contents
 
 	// スプライトシートを読み込む
 	spriteSheets, err := loader.LoadSpriteSheets(rw)

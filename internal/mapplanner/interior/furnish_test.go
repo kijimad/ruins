@@ -16,7 +16,7 @@ func TestFurnishBuilding_大きい建物は多部屋になる(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0} // 北壁の入口
-	site, placed := FurnishBuilding(testContents(), 1, footprint, door, "store")
+	site, placed := FurnishBuilding(testRaws(), 1, footprint, door, "store")
 	require.NotEmpty(t, site.Walls(), "割れる大きさの建物は内部間仕切りを持つ")
 	require.NotEmpty(t, placed, "家具が置かれる")
 }
@@ -27,9 +27,9 @@ func TestFurnishBuilding_同じseedで完全一致する(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	door := Vec{X: 13, Y: 0}
-	s1, p1 := FurnishBuilding(testContents(), 1, footprint, door, "store")
+	s1, p1 := FurnishBuilding(testRaws(), 1, footprint, door, "store")
 	for range 5 {
-		s2, p2 := FurnishBuilding(testContents(), 1, footprint, door, "store")
+		s2, p2 := FurnishBuilding(testRaws(), 1, footprint, door, "store")
 		require.Equal(t, s1.Walls(), s2.Walls(), "間仕切りが完全一致する")
 		require.Equal(t, p1, p2, "配置が完全一致する")
 	}
@@ -42,7 +42,7 @@ func TestFurnishBuilding_入口が部屋に繋がる(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: 26, H: 18}
 	for _, door := range []Vec{{X: 13, Y: 0}, {X: 0, Y: 9}} { // 北壁・西壁
-		site, _ := FurnishBuilding(testContents(), 1, footprint, door, "store")
+		site, _ := FurnishBuilding(testRaws(), 1, footprint, door, "store")
 		connected := false
 		for _, hr := range site.Rooms {
 			for _, d := range hr.Room.Doorways {
@@ -86,7 +86,7 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 		for fp := consts.Tile(17); fp <= 20; fp++ { // 本番でテンプレが発火する footprint 範囲
 			for seed := range uint64(20) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
-				site, _ := FurnishBuilding(testContents(), seed, footprint, Vec{X: fp / 2, Y: 0}, c.facility)
+				site, _ := FurnishBuilding(testRaws(), seed, footprint, Vec{X: fp / 2, Y: 0}, c.facility)
 				roles := map[roleName]int{}
 				for _, r := range site.Rooms {
 					roles[r.Role]++
@@ -118,7 +118,7 @@ func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 			for dside, door := range doors {
 				for seed := range uint64(30) {
 					footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
-					site, _ := FurnishBuilding(testContents(), seed, footprint, door, fac)
+					site, _ := FurnishBuilding(testRaws(), seed, footprint, door, fac)
 					for _, hr := range site.Rooms {
 						assert.NotEmptyf(t, hr.Room.Rect.interiorTiles(), "%s fp=%d 玄関=%s seed=%d の部屋 %s %+v が内側床を持つ", fac, fp, dside, seed, hr.Role, hr.Room.Rect)
 					}
@@ -137,7 +137,7 @@ func TestFurnishBuilding_民家の入口は玄関に開く(t *testing.T) {
 		doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
 		for dside, door := range doors {
 			for seed := range uint64(30) {
-				site, _ := FurnishBuilding(testContents(), seed, Rect{X: 0, Y: 0, W: fp, H: fp}, door, "house")
+				site, _ := FurnishBuilding(testRaws(), seed, Rect{X: 0, Y: 0, W: fp, H: fp}, door, "house")
 				var genkan *PlannedRoom
 				for i := range site.Rooms {
 					if site.Rooms[i].Role == "genkan" {
@@ -174,7 +174,7 @@ func TestFurnishBuilding_民家は浴室とトイレを持ち居間より小さ�
 		for dside, door := range doors {
 			for seed := range uint64(30) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
-				site, _ := FurnishBuilding(testContents(), seed, footprint, door, "house")
+				site, _ := FurnishBuilding(testRaws(), seed, footprint, door, "house")
 				rect := map[roleName]Rect{}
 				for _, hr := range site.Rooms {
 					rect[hr.Role] = hr.Room.Rect

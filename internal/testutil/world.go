@@ -9,7 +9,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
-	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -20,9 +19,7 @@ import (
 var (
 	rawMasterOnce sync.Once
 	rawMaster     oapi.Raws
-	rawContents   *interior.ContentSet
 	errRawMaster  error
-	errContents   error
 )
 
 // initConfig は InitTestWorld の初期化オプションを集約する。
@@ -87,14 +84,9 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	// 完了扱いになり、rawMaster が空のまま以後の全呼び出しへ漏れるため。
 	rawMasterOnce.Do(func() {
 		rawMaster, errRawMaster = loader.LoadRaws()
-		if errRawMaster == nil {
-			rawContents, errContents = interior.LoadContents(rawMaster)
-		}
 	})
 	require.NoError(tb, errRawMaster, "failed to load RawMaster")
-	require.NoError(tb, errContents, "failed to build interior contents")
 	world.Resources.RawMaster = rawMaster
-	world.Resources.InteriorContents = rawContents
 
 	// テスト用スプライトシートを初期化
 	spriteSheets := map[string]gc.SpriteSheet{

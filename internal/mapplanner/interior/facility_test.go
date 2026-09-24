@@ -15,9 +15,9 @@ func TestFurnish_施設種別ごとに決定的に内装を返す(t *testing.T) 
 	footprint := Rect{X: 0, Y: 0, W: 16, H: 12}
 	door := Vec{X: 8, Y: 11}
 	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", "unknown"} {
-		first := Furnish(testContents(), 3, footprint, door, fac)
+		first := Furnish(testRaws(), 3, footprint, door, fac)
 		require.NotEmptyf(t, first, "%s は何か配置する", fac)
-		require.Equalf(t, first, Furnish(testContents(), 3, footprint, door, fac), "%s は同じ引数で完全一致する", fac)
+		require.Equalf(t, first, Furnish(testRaws(), 3, footprint, door, fac), "%s は同じ引数で完全一致する", fac)
 	}
 }
 
@@ -37,7 +37,7 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 			aged = true
 		}
 		n := 0
-		for _, p := range Furnish(testContents(), seed, footprint, door, "store") {
+		for _, p := range Furnish(testRaws(), seed, footprint, door, "store") {
 			if p.Kind == KindFurniture {
 				n++
 			}
@@ -59,8 +59,8 @@ func TestFacilityContent_seedで店の変種が変わる(t *testing.T) {
 	door := Vec{X: 8, Y: 11}
 	ids := make(map[string]bool)
 	for seed := range uint64(30) {
-		ids[testContents().facilityContent("store", seed).ID] = true
-		assert.Equalf(t, "store", classifyRoom(Furnish(testContents(), seed, footprint, door, "store")), "seed=%d のどの変種も店に分類される", seed)
+		ids[facilityContent(testRaws(), "store", seed).ID] = true
+		assert.Equalf(t, "store", classifyRoom(Furnish(testRaws(), seed, footprint, door, "store")), "seed=%d のどの変種も店に分類される", seed)
 	}
 	assert.GreaterOrEqual(t, len(ids), 2, "seed を振ると店の変種が複数出る")
 }
@@ -82,7 +82,7 @@ func TestFurnish_家具は施設種別どおりに分類される(t *testing.T) 
 		{"depot", "storage"},
 	}
 	for _, c := range cases {
-		placed := Furnish(testContents(), 3, footprint, door, c.facility)
+		placed := Furnish(testRaws(), 3, footprint, door, c.facility)
 		assert.Equalf(t, c.role, classifyRoom(placed), "%s は %s に分類される", c.facility, c.role)
 	}
 }

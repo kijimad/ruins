@@ -95,7 +95,7 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	cs := world.Resources.InteriorContents
+	raws := world.Resources.RawMaster
 
 	// 単室 Furnish と多部屋 FurnishBuilding の両経路をなめる。多部屋は民家の水回りなど別の家具を出すので
 	// 両方を検査しないと写像漏れを見逃す
@@ -113,8 +113,8 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 		}
 	}
 	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
-		check(fac, interior.Furnish(cs, 1, small, door, fac))
-		_, placed := interior.FurnishBuilding(cs, 1, big, bigDoor, fac)
+		check(fac, interior.Furnish(raws, 1, small, door, fac))
+		_, placed := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
 		check(fac, placed)
 	}
 }
@@ -138,7 +138,7 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	cs := world.Resources.InteriorContents
+	raws := world.Resources.RawMaster
 
 	small := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
 	big := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
@@ -156,8 +156,8 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 		}
 	}
 	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
-		check(fac, interior.Furnish(cs, 1, small, door, fac))
-		_, placed := interior.FurnishBuilding(cs, 1, big, bigDoor, fac)
+		check(fac, interior.Furnish(raws, 1, small, door, fac))
+		_, placed := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
 		check(fac, placed)
 	}
 	assert.True(t, sawLoot, "少なくとも1施設が KindLoot を生む。床 loot のレールが有効であることを固定する")
