@@ -25,6 +25,7 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 	}
 
 	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
+	defer activityQuery.Close()
 	for activityQuery.Next() {
 		entity := activityQuery.Entity()
 		comp := world.Components.Activity.Get(entity)
@@ -464,6 +465,7 @@ func TestStepActivity(t *testing.T) {
 		stepActivity(actor, world)
 
 		assert.Nil(t, query.GetActivity(world, actor), "GetBehaviorに失敗したアクティビティは除去される")
+		assert.Nil(t, GetLastResult(actor, world), "GetBehaviorエラー時は結果も記録されない")
 	})
 
 	t.Run("DoTurnがエラーを返すとキャンセルして除去する", func(t *testing.T) {
