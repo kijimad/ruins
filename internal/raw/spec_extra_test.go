@@ -210,8 +210,8 @@ Description = "据える受動設備"
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Deployable)
-	// storage を持たない据付でも、据付は設備画面で扱うのでフィールドで拾える相互作用は付かない
-	assert.NotContains(t, spec.Interactable.Interactions, gc.InteractionItem)
+	// storage を持たない据付は設備画面で扱うので、フィールドの相互作用を一切持たない
+	assert.Empty(t, spec.Interactable.Interactions, "収納なし据付はフィールド相互作用ゼロ")
 }
 
 func TestNewItemSpec_本が設定される(t *testing.T) {

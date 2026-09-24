@@ -159,6 +159,11 @@ func (st *CubeFacilityMenuState) cellKindAt(world w.World, coord consts.Coord[co
 
 // Draw は展開空間のグリッドを組んで hud へ渡す。uicore の組み立ては hud に閉じ、画面はデータを渡すだけにする
 func (st *CubeFacilityMenuState) Draw(world w.World, screen *ebiten.Image) error {
+	// Update は展開中でなければ Pop するが、遷移フレームで Draw が先に来ても Deployed.Get で
+	// panic しないよう守る。展開空間が無ければ描くものが無い
+	if !world.Components.Deployed.Has(st.cube) {
+		return nil
+	}
 	r := world.Components.Deployed.Get(st.cube).Range
 	base := world.Components.GridElement.Get(st.cube).Coord
 	cols := 2*int(r.X) + 1

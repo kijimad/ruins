@@ -151,6 +151,9 @@ func TestCubeFacilityMenu_Updateは展開中でなければ閉じる(t *testing.
 	trans, err := st.Update(world)
 	require.NoError(t, err)
 	assert.Equal(t, es.TransPop, trans.Type, "展開中でなければ設備画面は開けず閉じる")
+
+	// 遷移フレームで Draw が先に来ても Deployed 不在で panic しない
+	require.NoError(t, st.Draw(world, nil), "展開中でなければ描かず nil を返す")
 }
 
 func TestCubeFacilitySelect_Fetchが据付候補を返す(t *testing.T) {
