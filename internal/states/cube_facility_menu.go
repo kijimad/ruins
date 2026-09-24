@@ -288,16 +288,21 @@ func (st *CubeFacilitySelectState) DoAction(world w.World, action inputmapper.Ac
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
-		props := st.screen.Props()
-		idx := st.screen.Selection().ItemIndex
-		if idx < 0 || idx >= len(props.Candidates) {
-			return es.Transition[w.World]{Type: es.TransPop}, nil
-		}
-		if _, err := lifecycle.PlaceFacility(world, st.cube, props.Candidates[idx], st.coord); err != nil {
+		if err := placeFacilityChoice(world, st.cube, st.coord, st.screen.Props().Candidates, st.screen.Selection().ItemIndex); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("cubeFacilitySelect: unsupported action: %s", action)
 	}
+}
+
+// placeFacilityChoice は候補一覧の idx を coord へ据える。範囲外の idx は据えず nil を返す。
+// 画面の選択状態から据付を切り出し、UI ループを介さずに設置ロジックを試験できるようにする。
+func placeFacilityChoice(world w.World, cube ecs.Entity, coord consts.Coord[consts.Tile], candidates []ecs.Entity, idx int) error {
+	if idx < 0 || idx >= len(candidates) {
+		return nil
+	}
+	_, err := lifecycle.PlaceFacility(world, cube, candidates[idx], coord)
+	return err
 }

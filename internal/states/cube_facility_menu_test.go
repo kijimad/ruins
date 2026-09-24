@@ -110,6 +110,34 @@ func TestCubeFacilityMenu_selectCellの空きマスは据付選択へ進む(t *t
 	assert.Equal(t, es.TransPush, trans.Type, "空きマスで決定すると据付アイテム選択へ進む")
 }
 
+func TestPlaceFacilityChoice_範囲内は据え範囲外は何もしない(t *testing.T) {
+	t.Parallel()
+	world, _, cube := deployedFacilityState(t)
+	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	coord := world.Components.GridElement.Get(cube).Add(consts.Coord[consts.Tile]{X: 1, Y: 0})
+
+	// 範囲外は据えない
+	require.NoError(t, placeFacilityChoice(world, cube, coord, []ecs.Entity{item}, 5))
+	assert.True(t, world.Components.LocationInBackpack.Has(item), "範囲外の idx では据えない")
+
+	// 範囲内は据える
+	require.NoError(t, placeFacilityChoice(world, cube, coord, []ecs.Entity{item}, 0))
+	assert.True(t, world.Components.LocationOnField.Has(item), "範囲内の idx で据える")
+}
+
+func TestCubeFacilityMenu_Updateは展開中でなければ閉じる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	st := &CubeFacilityMenuState{cube: cube}
+
+	trans, err := st.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPop, trans.Type, "展開中でなければ設備画面は開けず閉じる")
+}
+
 func TestCubeFacilitySelect_Fetchが据付候補を返す(t *testing.T) {
 	t.Parallel()
 	world, _, cube := deployedFacilityState(t)
