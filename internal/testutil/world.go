@@ -9,6 +9,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
+	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -87,6 +88,10 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	})
 	require.NoError(tb, errRawMaster, "failed to load RawMaster")
 	world.Resources.RawMaster = rawMaster
+
+	contents, errContents := interior.LoadContents(rawMaster)
+	require.NoError(tb, errContents, "failed to build interior contents")
+	world.Resources.InteriorContents = contents
 
 	// テスト用スプライトシートを初期化
 	spriteSheets := map[string]gc.SpriteSheet{

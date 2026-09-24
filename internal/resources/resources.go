@@ -5,6 +5,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -17,9 +18,10 @@ type Resources struct {
 	Sprites          *SpriteStore // スプライトから解決した画像のキャッシュ。等倍と縮小の両方を持つ
 	UIResources      UIResources
 	RawMaster        oapi.Raws
-	I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
-	Config           *config.Config // 実行設定。起動時に注入する
-	SingletonEntity  ecs.Entity     // シングルトンエンティティIDキャッシュ
+	InteriorContents *interior.ContentSet // RawMaster から一度だけ組む内装レシピ。建物内装が施設種別から変種を引く
+	I18N             i18n.Catalog         // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
+	Config           *config.Config       // 実行設定。起動時に注入する
+	SingletonEntity  ecs.Entity           // シングルトンエンティティIDキャッシュ
 
 	// InputSource は Action の入力供給源。nil なら本番どおりキーボードから変換する。
 	// 再生ドライバだけが Action 列を返す供給源を差し、キー入力を経由せず本番フローを駆動する。

@@ -22,6 +22,14 @@ type roomSet struct {
 	fallback string
 }
 
+// genericContentID と flavorContentID はデータの参照でなくコードが直接引く content id。generic は未知施設や
+// 未割り当ての主室・奥室のフォールバック、flavor は flavor machine が引く。データ間参照を見る
+// ValidateReferences では守れないので、LoadContents が存在を検証し raw.toml からの誤削除を弾く。
+const (
+	genericContentID = "generic"
+	flavorContentID  = "flavor"
+)
+
 // LoadContents は oapi.Raws の内装レシピ定義から ContentSet を組む。ダイス表記のパース失敗だけを error に
 // し、参照の実在は raw の ValidateReferences 側に委ねる。
 func LoadContents(raws oapi.Raws) (*ContentSet, error) {
@@ -48,6 +56,13 @@ func LoadContents(raws oapi.Raws) (*ContentSet, error) {
 		}
 		cs.facilityRooms[FacilityKind(fr.Facility)] = rc
 	}
+	// コードが直接引く id はデータ参照でないので ValidateReferences が守れない。ここで存在を確かめ、
+	// 引き手がゼロ値の空 Content を無音で返す事故をロード時に前倒しで弾く。
+	for _, id := range []string{genericContentID, flavorContentID} {
+		if _, ok := cs.byID[id]; !ok {
+			return nil, fmt.Errorf("interior: required content %q not defined", id)
+		}
+	}
 	return cs, nil
 }
 
@@ -56,7 +71,7 @@ func LoadContents(raws oapi.Raws) (*ContentSet, error) {
 func (cs *ContentSet) facilityContent(facility FacilityKind, seed uint64) Content {
 	variants := cs.facilityMain[facility]
 	if len(variants) == 0 {
-		variants = []string{"generic"}
+		variants = []string{genericContentID}
 	}
 	id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
 	return cs.byID[id].clone()
@@ -77,7 +92,7 @@ func (cs *ContentSet) roomContent(facility FacilityKind, role roleName) (Content
 func (cs *ContentSet) backRoomContent(facility FacilityKind) Content {
 	id := cs.facilityRooms[facility].fallback
 	if id == "" {
-		id = "generic"
+		id = genericContentID
 	}
 	return cs.byID[id].clone()
 }
