@@ -174,9 +174,8 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 			SpriteKey:       "blue_cube",
 			Depth:           gc.DepthNumTaller,
 		},
-		Prop:     &gc.Prop{},
-		Drivable: &gc.Drivable{},
-		// 扉と同じ prop 標準の耐久度。攻撃・環境ダメージは damage.go 経路で効く。自前の HP 機構は作らない
+		Prop:            &gc.Prop{},
+		Drivable:        &gc.Drivable{},
 		HP:              &gc.HP{Max: cubeHP, Current: cubeHP},
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
