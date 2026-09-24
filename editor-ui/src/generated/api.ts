@@ -497,7 +497,7 @@ export interface CubeModule {
     'rangeBonus': number;
 }
 /**
- * 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
+ * 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
  */
 export interface Deployable {
     'storage'?: StorageRaw;

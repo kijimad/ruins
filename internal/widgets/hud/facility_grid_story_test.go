@@ -15,7 +15,7 @@ import (
 func TestGolden_Story_FacilityGrid(t *testing.T) {
 	t.Parallel()
 	res := storyRes(t)
-	// キューブ本体と据えた設備のスプライトを模した無地アイコン。DrawImageRect の枝を通す
+	// キューブ本体と装着した設備のスプライトを模した無地アイコン。DrawImageRect の枝を通す
 	icon := ebiten.NewImage(16, 16)
 	icon.Fill(color.RGBA{R: 200, G: 200, B: 200, A: 255})
 	view := hud.FacilityGridView{

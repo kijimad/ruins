@@ -55,7 +55,7 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 			Choice{Label: query.T(world, "Module"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeModuleMenuState(cube)
 			})},
-			// 設備は展開空間のマスへ据えるので、圧縮中は無効表示にする
+			// 設備は展開空間のマスへ装着するので、圧縮中は無効表示にする
 			Choice{Label: query.T(world, "Facility"), Disabled: !deployed, Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeFacilityMenuState(cube)
 			})},

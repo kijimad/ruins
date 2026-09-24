@@ -164,14 +164,14 @@ RangeBonus = 2
 	assert.Equal(t, consts.Tile(2), spec.CubeModule.RangeBonus)
 }
 
-func TestNewItemSpec_据付収納設備が設定される(t *testing.T) {
+func TestNewItemSpec_装着収納設備が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Items]]
 Name = "保管木箱"
 id = "保管木箱"
-Description = "据えると収納になる"
+Description = "装着すると収納になる"
 
 [Items.Deployable]
 [Items.Deployable.Storage]
@@ -183,23 +183,23 @@ maxWeight = "50 kg"
 	spec, err := NewItemSpec(raws, "保管木箱")
 	require.NoError(t, err)
 
-	require.NotNil(t, spec.Deployable, "据付マーカーが付く")
+	require.NotNil(t, spec.Deployable, "装着マーカーが付く")
 	require.NotNil(t, spec.Item, "バックパック形態のアイテムとして生成する")
-	require.NotNil(t, spec.WeightCapacity, "据付定義の容量から収納容量を持つ")
+	require.NotNil(t, spec.WeightCapacity, "装着定義の容量から収納容量を持つ")
 	assert.Equal(t, consts.MustParseWeight("50 kg"), spec.WeightCapacity.Max)
-	// 据付は開ける相互作用にし、フィールドで拾える相互作用は与えない
+	// 装着は開ける相互作用にし、フィールドで拾える相互作用は与えない
 	assert.Contains(t, spec.Interactable.Interactions, gc.InteractionStorage)
 	assert.NotContains(t, spec.Interactable.Interactions, gc.InteractionItem)
 }
 
-func TestNewItemSpec_収納なし据付は拾える相互作用を持たない(t *testing.T) {
+func TestNewItemSpec_収納なし装着は拾える相互作用を持たない(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Items]]
 Name = "照明"
 id = "照明"
-Description = "据える受動設備"
+Description = "装着する受動設備"
 
 [Items.Deployable]
 `
@@ -210,18 +210,18 @@ Description = "据える受動設備"
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Deployable)
-	// storage を持たない据付は設備画面で扱うので、フィールドの相互作用を一切持たない
-	assert.Empty(t, spec.Interactable.Interactions, "収納なし据付はフィールド相互作用ゼロ")
+	// storage を持たない装着は設備画面で扱うので、フィールドの相互作用を一切持たない
+	assert.Empty(t, spec.Interactable.Interactions, "収納なし装着はフィールド相互作用ゼロ")
 }
 
-func TestNewItemSpec_据付照明設備が設定される(t *testing.T) {
+func TestNewItemSpec_装着照明設備が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Items]]
 Name = "野営ランタン"
 id = "野営ランタン"
-Description = "据える照明"
+Description = "装着する照明"
 
 [Items.Deployable.LightSource]
 enabled = true
@@ -239,7 +239,7 @@ r = 255
 	spec, err := NewItemSpec(raws, "野営ランタン")
 	require.NoError(t, err)
 
-	require.NotNil(t, spec.Deployable, "据付マーカーが付く")
+	require.NotNil(t, spec.Deployable, "装着マーカーが付く")
 	require.NotNil(t, spec.LightSource, "照明設備は LightSource を持つ")
 	assert.Equal(t, consts.Tile(4), spec.LightSource.Radius)
 	assert.True(t, spec.LightSource.Enabled)
@@ -247,14 +247,14 @@ r = 255
 	assert.Empty(t, spec.Interactable.Interactions, "照明設備はフィールド相互作用ゼロ")
 }
 
-func TestNewItemSpec_据付は複数の能力を同時に持てる(t *testing.T) {
+func TestNewItemSpec_装着は複数の能力を同時に持てる(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Items]]
 Name = "多機能ベッド"
 id = "多機能ベッド"
-Description = "照明と寝具を兼ねる据付"
+Description = "照明と寝具を兼ねる装着"
 
 [Items.Deployable.LightSource]
 enabled = true
@@ -277,14 +277,14 @@ quality = 120
 	assert.Equal(t, consts.Percent(120), spec.Bedding.Quality)
 }
 
-func TestNewItemSpec_携行光源と据付照明の両立はエラー(t *testing.T) {
+func TestNewItemSpec_携行光源と装着照明の両立はエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Items]]
 Name = "両刀ランタン"
 id = "両刀ランタン"
-Description = "携行と据付の両方を定義した曖昧なアイテム"
+Description = "携行と装着の両方を定義した曖昧なアイテム"
 
 [Items.LightSource]
 enabled = false
@@ -302,17 +302,17 @@ a = 255
 	require.NoError(t, err)
 
 	_, err = NewItemSpec(raws, "両刀ランタン")
-	require.Error(t, err, "携行光源と据付照明の両立は据付が携行を上書きするので曖昧。握りつぶさず error")
+	require.Error(t, err, "携行光源と装着照明の両立は装着が携行を上書きするので曖昧。握りつぶさず error")
 }
 
-func TestNewItemSpec_据付寝具設備が設定される(t *testing.T) {
+func TestNewItemSpec_装着寝具設備が設定される(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Items]]
 Name = "野営ベッド"
 id = "野営ベッド"
-Description = "据える寝具"
+Description = "装着する寝具"
 
 [Items.Deployable.Bedding]
 quality = 150
@@ -323,7 +323,7 @@ quality = 150
 	spec, err := NewItemSpec(raws, "野営ベッド")
 	require.NoError(t, err)
 
-	require.NotNil(t, spec.Deployable, "据付マーカーが付く")
+	require.NotNil(t, spec.Deployable, "装着マーカーが付く")
 	require.NotNil(t, spec.Bedding, "寝具設備は Bedding を持つ")
 	assert.Equal(t, consts.Percent(150), spec.Bedding.Quality)
 	// 寝具は受動。フィールドで拾える・開ける相互作用は持たない

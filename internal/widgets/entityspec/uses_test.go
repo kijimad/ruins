@@ -73,7 +73,7 @@ func TestUseHints(t *testing.T) {
 			want: []string{"Wearable"},
 		},
 		{
-			name: "据付アイテムは据えられる",
+			name: "装着アイテムは装着できる",
 			setup: func(world w.World, e ecs.Entity) {
 				world.Components.Deployable.Add(e, &gc.Deployable{})
 			},

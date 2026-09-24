@@ -72,7 +72,7 @@ var verbList = []itemVerb{
 		KeyHint: "d",
 		Key:     ebiten.KeyD,
 		Action:  inputmapper.ActionVerbPlace,
-		// 据付アイテムは設備画面からのみ据え置きする。素で落とすと展開空間外に設備が残るので落とさせない
+		// 装着アイテムは設備画面からのみ装着する。素で落とすと展開空間外に設備が残るので落とさせない
 		Accept: func(world w.World, entity ecs.Entity) bool { return !world.Components.Deployable.Has(entity) },
 		Exec:   execPlace,
 	},

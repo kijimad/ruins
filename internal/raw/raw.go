@@ -384,7 +384,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}
 
-	// フィールドの相互作用。既定は拾えるアイテム。据付は applyDeployable が設備に応じて上書きする
+	// フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 	if item.Deployable != nil {
 		if err := applyDeployable(&entitySpec, item.Deployable, name); err != nil {
@@ -395,9 +395,8 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	return entitySpec, nil
 }
 
-// applyDeployable は据付アイテムの設備設定を1箇所に集める。マーカーに加え、能力ごとにコンポーネントと
-// フィールドの相互作用を対で決める。収納設備は容量から WeightCapacity と開ける相互作用を持つ。据付は設備画面で
-// 扱うので、拾える相互作用は与えず既定の InteractionItem を空へ上書きする。新設備はここに能力の枝を1つ足す。
+// applyDeployable は装着アイテムの設備設定を1箇所に集める。マーカーと能力ごとのコンポーネントを付ける。
+// 装着は設備画面で扱うので拾える相互作用は与えない。新設備は能力の枝を1つ足す。
 func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
@@ -409,17 +408,13 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
 	}
-	// 照明設備は受動。据えると LightSource を持ち視界システムが照らす。相互作用は持たない。
-	// entitySpec.LightSource は先に item.LightSource(携行光源)が写る。両方定義すると据付が携行を
-	// 黙って上書きするので、曖昧な設定を握りつぶさず error にする
+	// 携行光源と装着照明を両方定義すると装着が携行を黙って上書きするので、曖昧な設定は error にする
 	if dep.LightSource != nil {
 		if entitySpec.LightSource != nil {
 			return fmt.Errorf("item '%s': carried lightSource and deployable lightSource conflict", name)
 		}
 		entitySpec.LightSource = toGCLightSource(dep.LightSource)
 	}
-	// 寝具設備は受動。据えると Bedding を持ち、隣で眠ると睡眠品質が上がる。相互作用は持たない。
-	// LightSource と違い Item に携行 bedding フィールドが無いので、上書き衝突は起きずガードは要らない
 	if dep.Bedding != nil {
 		entitySpec.Bedding = toGCBedding(dep.Bedding)
 	}

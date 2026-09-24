@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSpawnDebugStageCubeGear_木箱にモジュールと据付アイテムを入れる(t *testing.T) {
+func TestSpawnDebugStageCubeGear_木箱にモジュールと装着アイテムを入れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -22,7 +22,7 @@ func TestSpawnDebugStageCubeGear_木箱にモジュールと据付アイテム�
 
 	items := query.GetStorageItems(world, crate)
 	want := debugStageModuleCount + len(debugStageFacilityItems)*debugStageFacilityCount
-	assert.Len(t, items, want, "木箱にモジュールと各据付アイテムが入る")
+	assert.Len(t, items, want, "木箱にモジュールと各装着アイテムが入る")
 }
 
 func TestSpawnDebugStageCubeGear_木箱が無ければエラー(t *testing.T) {

@@ -30,7 +30,7 @@ func TestPlaceFacility(t *testing.T) {
 
 	item, err := SpawnBackpackItem(world, "deployable_storage", 1)
 	require.NoError(t, err)
-	require.True(t, world.Components.Deployable.Has(item), "据付アイテムは Deployable を持つ")
+	require.True(t, world.Components.Deployable.Has(item), "装着アイテムは Deployable を持つ")
 	require.True(t, world.Components.WeightCapacity.Has(item), "収納設備は容量を持つ")
 	query.InvalidateSpatialIndex(world)
 
@@ -38,36 +38,36 @@ func TestPlaceFacility(t *testing.T) {
 	placed, err := PlaceFacility(world, cube, item, coord)
 	require.NoError(t, err)
 
-	assert.Equal(t, item, placed, "実体は削除せず同じものを据える")
-	assert.True(t, world.ECS.Alive(item), "据えても実体は消えない")
+	assert.Equal(t, item, placed, "実体は削除せず同じものを装着する")
+	assert.True(t, world.ECS.Alive(item), "装着しても実体は消えない")
 	assert.True(t, world.Components.LocationOnField.Has(item), "設備はフィールドに現れる")
 	assert.False(t, world.Components.LocationInBackpack.Has(item), "バックパックからは外れる")
 	assert.Equal(t, coord, world.Components.GridElement.Get(item).Coord, "選んだマスに現れる")
-	assert.True(t, world.Components.Prop.Has(item), "据えると造作(Prop)になる")
+	assert.True(t, world.Components.Prop.Has(item), "装着すると造作(Prop)になる")
 	assert.False(t, world.Components.Item.Has(item), "フィールドでは Item でない")
 	assert.False(t, query.IsPickable(item, world), "造作なので歩いて拾えない")
 }
 
-func TestPlaceFacility_据付でないアイテムは据えない(t *testing.T) {
+func TestPlaceFacility_装着でないアイテムは装着しない(t *testing.T) {
 	t.Parallel()
 	world, cube := deployedCubeWithPlayer(t)
 	item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 	require.NoError(t, err)
 	_, err = PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
-	require.Error(t, err, "Deployable でないアイテムは据えられない")
+	require.Error(t, err, "Deployable でないアイテムは装着できない")
 }
 
-func TestPlaceFacility_バックパック以外からは据えない(t *testing.T) {
+func TestPlaceFacility_バックパック以外からは装着しない(t *testing.T) {
 	t.Parallel()
 	world, cube := deployedCubeWithPlayer(t)
-	// ロケーションを持たない据付アイテム。バックパック以外からの据付は前提違反で error
+	// ロケーションを持たない装着アイテム。バックパック以外からの装着は前提違反で error
 	item, err := spawnItemBase(world, "deployable_storage")
 	require.NoError(t, err)
 	_, err = PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
-	require.Error(t, err, "バックパック以外の据付は据えられない")
+	require.Error(t, err, "バックパック以外の装着は装着できない")
 }
 
-func TestRemoveFacility_据付でない実体は戻さない(t *testing.T) {
+func TestRemoveFacility_装着でない実体は戻さない(t *testing.T) {
 	t.Parallel()
 	world, _ := deployedCubeWithPlayer(t)
 	player, err := query.GetPlayerEntity(world)
@@ -77,7 +77,7 @@ func TestRemoveFacility_据付でない実体は戻さない(t *testing.T) {
 	require.Error(t, RemoveFacility(world, prop, player), "Deployable でない prop は戻せない")
 }
 
-func TestPlaceFacility_塞がったマスには据えない(t *testing.T) {
+func TestPlaceFacility_塞がったマスには装着しない(t *testing.T) {
 	t.Parallel()
 	world, cube := deployedCubeWithPlayer(t)
 
@@ -89,8 +89,8 @@ func TestPlaceFacility_塞がったマスには据えない(t *testing.T) {
 	query.InvalidateSpatialIndex(world)
 
 	_, err = PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
-	require.Error(t, err, "塞がったマスへは据えられない")
-	assert.True(t, world.Components.LocationInBackpack.Has(item), "据えられなければバックパックに残る")
+	require.Error(t, err, "塞がったマスへは装着できない")
+	assert.True(t, world.Components.LocationInBackpack.Has(item), "装着できなければバックパックに残る")
 }
 
 func TestRemoveFacility(t *testing.T) {
@@ -147,7 +147,7 @@ func TestPlaceFacility_圧縮展開で設備を畳んで戻す(t *testing.T) {
 
 	StowCube(world, cube)
 	require.True(t, world.Components.LocationStowed.Has(placed), "設備は既存の往復で畳まれる")
-	assert.True(t, world.Components.Deployable.Has(placed), "畳んでも据付情報は残る")
+	assert.True(t, world.Components.Deployable.Has(placed), "畳んでも装着情報は残る")
 
 	require.True(t, DeployCube(world, cube))
 	assert.True(t, world.Components.LocationOnField.Has(placed), "展開で設備が戻る")

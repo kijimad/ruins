@@ -33,7 +33,7 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	if c.Wearable.Has(e) || c.Melee.Has(e) || c.Fire.Has(e) {
 		uses = append(uses, query.T(world, "Wearable"))
 	}
-	// 据付アイテムはキューブの展開空間の設備画面から据えられる
+	// 装着アイテムはキューブの展開空間の設備画面から装着できる
 	if c.Deployable.Has(e) {
 		uses = append(uses, query.T(world, "Deployable"))
 	}
