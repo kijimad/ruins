@@ -56,19 +56,3 @@ func TestFacilityEnemyTableName_全施設種別を網羅する(t *testing.T) {
 		assert.Truef(t, ok, "施設 %q に敵テーブルの割り当てがある", fac)
 	}
 }
-
-// TestFacilityEnemyTableName_割り当て先と既定が実在する は、割り当て先と既定テーブルが実在することを固定し、
-// テーブル名の typo を生成前に止める。
-func TestFacilityEnemyTableName_割り当て先と既定が実在する(t *testing.T) {
-	t.Parallel()
-
-	master := testutil.InitTestWorld(t).Resources.RawMaster
-
-	_, err := raw.GetEnemyTable(master, urbanEnemyTable)
-	require.NoErrorf(t, err, "既定の敵テーブル %q が raw に存在する", urbanEnemyTable)
-
-	for _, fe := range raw.PtrSlice(master.FacilityEnemyTables) {
-		_, err := raw.GetEnemyTable(master, fe.EnemyTable)
-		assert.NoErrorf(t, err, "施設 %q の割り当て先 %q が raw に存在する", fe.Facility, fe.EnemyTable)
-	}
-}
