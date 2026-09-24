@@ -150,16 +150,18 @@ func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom
 // 民家の共有役割(corridor 等)、それも無ければ施設別の奥室既定へ落とす。民家だけでなく店・診療所も役割名で
 // 部屋を作り分けられるよう、施設カタログを優先して引く。役割名は planRooms とテンプレが付ける。
 func roleContent(facility FacilityKind, role roleName, seed uint64) Content {
+	cs := activeContents()
 	if role == roleMain {
-		return facilityContent(facility, seed)
+		return cs.facilityContent(facility, seed)
 	}
-	if c, ok := roomCatalog(facility)[role]; ok {
+	if c, ok := cs.roomContent(facility, role); ok {
 		return c
 	}
-	if c, ok := houseRoomContents()[role]; ok {
+	// 民家の共有役割(corridor 等)。施設カタログに無い役割は民家の表から引く
+	if c, ok := cs.roomContent(facHouse, role); ok {
 		return c
 	}
-	return backRoomContent(facility)
+	return cs.backRoomContent(facility)
 }
 
 // roomCatalog は施設種別ごとの「役割名→content」表を返す。houseRoomContents を民家以外へ横展開したもので、

@@ -26,7 +26,7 @@ const (
 func Furnish(seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
 	prof := rollProfile(seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
-	placed := FillRoom(seed, room, applyDensity(facilityContent(facility, seed), prof.density))
+	placed := FillRoom(seed, room, applyDensity(activeContents().facilityContent(facility, seed), prof.density))
 	// 時間の層。損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷の建物は新品のまま
 	placed = Age(seed, room, placed, prof.damage)
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える

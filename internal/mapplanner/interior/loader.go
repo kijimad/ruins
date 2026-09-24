@@ -2,11 +2,38 @@ package interior
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
+
+// rawsPath は内装レシピを含む raw データの資材パス。activeContents が一度だけ読む。
+const rawsPath = "metadata/entities/raw/raw.toml"
+
+var (
+	pkgContents     *ContentSet
+	pkgContentsOnce sync.Once
+)
+
+// activeContents は現在の内装レシピ一式を返す。raw.toml から一度だけ組んで package に保持する。
+// レシピは施設生成の共有データなので、呼び出しごとに渡さず package で一元管理して呼び出しを簡潔に保つ。
+// raw は起動時に検証済みなので、ここでの読込失敗は不変条件違反として panic で露見させる。
+func activeContents() *ContentSet {
+	pkgContentsOnce.Do(func() {
+		master, err := raw.LoadFromFile(rawsPath)
+		if err != nil {
+			panic(fmt.Sprintf("interior: load raw for contents: %v", err))
+		}
+		cs, err := LoadContents(master)
+		if err != nil {
+			panic(fmt.Sprintf("interior: build contents: %v", err))
+		}
+		pkgContents = cs
+	})
+	return pkgContents
+}
 
 // ContentSet はロードした内装レシピ一式。id から Content を、施設種別から主室変種と奥室カタログを引く。
 // content_catalog.go と facility.go が Go 定数で持っていたレシピと写像を raw.toml のデータへ移す受け皿。
@@ -51,8 +78,63 @@ func LoadContents(raws oapi.Raws) (*ContentSet, error) {
 	return cs, nil
 }
 
-// toContent は oapi の内装レシピを interior.Content へ変換する。相対配置 Satellites は archetype 側が補うので
-// ここでは空のまま。抽選順に効く Groups と Items の並びは配列の記述順をそのまま保つ。
+// facilityContent は施設種別の主室 content を seed で1変種引く。未割り当ての施設は generic へ落とす。
+// 同じ施設でも複数の変種を持ち、seed で引くことで同じ店が薬局にも食料品店にもなる。
+func (cs *ContentSet) facilityContent(facility FacilityKind, seed uint64) Content {
+	variants := cs.facilityMain[facility]
+	if len(variants) == 0 {
+		variants = []string{"generic"}
+	}
+	id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
+	return cs.byID[id].clone()
+}
+
+// roomContent は施設の役割別 content を引く。役割が奥室カタログに無ければ ok=false。
+func (cs *ContentSet) roomContent(facility FacilityKind, role roleName) (Content, bool) {
+	id, ok := cs.facilityRooms[facility].rooms[role]
+	if !ok {
+		return Content{}, false
+	}
+	return cs.byID[id].clone(), true
+}
+
+// backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。
+func (cs *ContentSet) backRoomContent(facility FacilityKind) Content {
+	return cs.byID[cs.facilityRooms[facility].fallback].clone()
+}
+
+// clone は Content をディープコピーする。cs.byID は共有レシピを1つずつ保持するので、返り値を
+// applyDensity などが in-place で書き換えても共有元を壊さないよう、Groups/Items/Satellites/Offsets まで
+// 複製する。旧 content_catalog は呼び出しごとに新規構築していたので、その挙動をコピーで再現する。
+func (c Content) clone() Content {
+	if c.Groups == nil {
+		return c
+	}
+	groups := make([]Group, len(c.Groups))
+	for gi, g := range c.Groups {
+		items := make([]Stuff, len(g.Items))
+		for ii, it := range g.Items {
+			if it.Satellites != nil {
+				sats := make([]Satellite, len(it.Satellites))
+				for si, s := range it.Satellites {
+					if s.Offsets != nil {
+						s.Offsets = append([]Vec(nil), s.Offsets...)
+					}
+					sats[si] = s
+				}
+				it.Satellites = sats
+			}
+			items[ii] = it
+		}
+		g.Items = items
+		groups[gi] = g
+	}
+	c.Groups = groups
+	return c
+}
+
+// toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の
+// 記述順をそのまま保つ。
 func toContent(ic oapi.InteriorContent) (Content, error) {
 	c := Content{ID: ic.Id}
 	for _, g := range raw.PtrSlice(ic.Groups) {

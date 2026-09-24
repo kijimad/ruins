@@ -16240,6 +16240,62 @@ kind = "decor"
 ref = "plant"
 amount = "2d1"
 [[interiorContents]]
+id = "house_bedroom"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bed"
+amount = "1d1"
+placement = "far_from_door"
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "closet"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 1
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "lantern"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "dresser"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bedside"
+amount = "1d1"
+[[interiorContents]]
+id = "house_storage"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "barrel"
+amount = "2d1"
+[[interiorContents]]
 id = "kitchen"
 [[interiorContents.groups]]
 style = "pick_each"
@@ -16444,6 +16500,42 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "furniture"
 ref = "desk"
+amount = "4d1"
+placement = "row"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "chair"
+amount = "4d1"
+placement = "row"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "2d1"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "documents"
+amount = "2d3"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "whiteboard"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "printer"
+amount = "1d1"
+placement = "wall"
+[[interiorContents]]
+id = "office_room"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "desk"
 amount = "2d1"
 placement = "row"
 [[interiorContents.groups.items]]
@@ -16464,6 +16556,35 @@ ref = "documents"
 amount = "2d2"
 [[interiorContents]]
 id = "pharmacy"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "medcabinet"
+amount = "6d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "register"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "gondola"
+amount = "4d1"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 2
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "meds"
+weight = 3
+amount = "3d4"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "bandage"
+weight = 1
+amount = "2d3"
+[[interiorContents]]
+id = "pharmacy_room"
 [[interiorContents.groups]]
 style = "pick_each"
 [[interiorContents.groups.items]]
@@ -16590,7 +16711,7 @@ role = "bath"
 content = "bath"
 [[facilityRooms.rooms]]
 role = "bedroom"
-content = "bedroom"
+content = "house_bedroom"
 [[facilityRooms.rooms]]
 role = "corridor"
 content = "corridor"
@@ -16608,7 +16729,7 @@ role = "living"
 content = "living"
 [[facilityRooms.rooms]]
 role = "storage"
-content = "storage"
+content = "house_storage"
 [[facilityRooms.rooms]]
 role = "toilet"
 content = "toilet"
@@ -16620,7 +16741,7 @@ role = "coldroom"
 content = "coldroom"
 [[facilityRooms.rooms]]
 role = "office"
-content = "office"
+content = "office_room"
 [[facilityRooms.rooms]]
 role = "restroom"
 content = "restroom"
@@ -16635,7 +16756,7 @@ role = "coldroom"
 content = "coldroom"
 [[facilityRooms.rooms]]
 role = "office"
-content = "office"
+content = "office_room"
 [[facilityRooms.rooms]]
 role = "restroom"
 content = "restroom"
@@ -16650,10 +16771,10 @@ role = "exam"
 content = "exam"
 [[facilityRooms.rooms]]
 role = "office"
-content = "office"
+content = "office_room"
 [[facilityRooms.rooms]]
 role = "pharmacy"
-content = "pharmacy"
+content = "pharmacy_room"
 [[facilityRooms.rooms]]
 role = "restroom"
 content = "restroom"
@@ -16668,10 +16789,10 @@ role = "exam"
 content = "exam"
 [[facilityRooms.rooms]]
 role = "office"
-content = "office"
+content = "office_room"
 [[facilityRooms.rooms]]
 role = "pharmacy"
-content = "pharmacy"
+content = "pharmacy_room"
 [[facilityRooms.rooms]]
 role = "restroom"
 content = "restroom"

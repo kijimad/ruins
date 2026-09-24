@@ -214,7 +214,7 @@ func facilityFlavor(facility FacilityKind) Content {
 // 対応させる。廊下はほぼ空けて通路とし、玄関は下足入れと観葉、水回りは各機能の什器を置く。狭い部屋が
 // 多いので個数は控えめにする。VRT と in-game が同じ表を共有し、見た目と生成の乖離を防ぐ。
 func houseRoomContents() map[roleName]Content {
-	bedroom := Content{ID: "bedroom", Groups: []Group{
+	bedroom := Content{ID: "house_bedroom", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
 			bedSet(), // 寝床は常設。寝室の署名
 		}},
@@ -294,7 +294,7 @@ func houseRoomContents() map[roleName]Content {
 				{Kind: KindFurniture, Ref: "toilet", Amount: consts.Dice{Base: 1, Sides: 1}},
 			}},
 		}},
-		"storage": {ID: "storage", Groups: []Group{
+		"storage": {ID: "house_storage", Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "barrel", Amount: consts.Dice{Base: 2, Sides: 1}},
 			}},
@@ -364,7 +364,7 @@ func examRoomContent() Content {
 // officeRoomContent は奥室1つぶんの小さな事務所。机と椅子を列に並べ、壁際に書類棚。事務所まるごとの
 // officeContent より個数を控えめにして、店の奥や診療所の医師室に収める。
 func officeRoomContent() Content {
-	return Content{ID: "office", Groups: []Group{
+	return Content{ID: "office_room", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
 			{Kind: KindFurniture, Ref: "desk", Placement: PlaceRow, Amount: consts.Dice{Base: 2, Sides: 1}},
 			{Kind: KindFurniture, Ref: "chair", Placement: PlaceRow, Amount: consts.Dice{Base: 2, Sides: 1}},
@@ -398,7 +398,7 @@ func coldroomContent() Content {
 // pharmacyRoomContent は奥室1つぶんの薬局・薬品庫。薬棚を壁一面に並べ、奥に薬を置く。店として売る
 // pharmacyContent と違い register/gondola を持たない。待合の主室に薬棚を積んでいた scope 過大を解く。
 func pharmacyRoomContent() Content {
-	return Content{ID: "pharmacy", Groups: []Group{
+	return Content{ID: "pharmacy_room", Groups: []Group{
 		{Style: PickEach, Items: []Stuff{
 			{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: consts.Dice{Base: 4, Sides: 1}},
 		}},
