@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -25,7 +26,8 @@ const (
 	urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
 	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
-	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。危険度で種別をフィルタする
+	// urbanEnemyTable は未知施設のフォールバック敵テーブル。既知施設は facilityEnemyTables で専用テーブルを
+	// 持つので、実運用でここへ落ちるのは未知施設だけ。危険度で種別をフィルタする
 	urbanEnemyTable = "ruins_area"
 )
 
@@ -81,6 +83,20 @@ const (
 	facilityClinic  facilityType = "clinic"  // 診療所
 	facilityLab     facilityType = "lab"     // 研究施設
 )
+
+// urbanEnemyTableFor は施設に割り当てられた敵テーブルを返す。割り当ては raw.toml の facilityEnemyTables。
+// 未割り当ての施設は既定 urbanEnemyTable へ落とす。割り当てがあるのに実在しなければ設定ミスなので error。
+func urbanEnemyTableFor(raws oapi.Raws, fac facilityType) (oapi.EnemyTable, error) {
+	name := urbanEnemyTable
+	if assigned, ok := raw.FacilityEnemyTableName(raws, string(fac)); ok {
+		name = assigned
+	}
+	et, err := raw.GetEnemyTable(raws, name)
+	if err != nil {
+		return oapi.EnemyTable{}, fmt.Errorf("urban enemy table for facility %q: %w", fac, err)
+	}
+	return et, nil
+}
 
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
 // 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
@@ -230,7 +246,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	if err != nil {
 		return err
 	}
-	return spawnUrbanEnemies(world, g, rng, size, danger, isWall, occupied)
+	return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)
 }
 
 // planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
@@ -274,8 +290,8 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
-	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac facilityType, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+	enemyTable, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}

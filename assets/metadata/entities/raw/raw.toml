@@ -15671,6 +15671,259 @@ minDanger = 3
 maxDanger = 7
 weight = 0.8
 pack = "1d1"
+[[enemyTables]]
+name = "診療所"
+id = "clinic_enemies"
+[[enemyTables.entries]]
+id = "decayed_soldier"
+minDanger = 1
+maxDanger = 10
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "floating_eye"
+minDanger = 2
+maxDanger = 8
+weight = 1
+pack = "1d2"
+[[enemyTables.entries]]
+id = "poison_spider"
+minDanger = 2
+maxDanger = 20
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "curse_wraith"
+minDanger = 6
+maxDanger = 9
+weight = 0.8
+pack = "1d1"
+[[enemyTables.entries]]
+id = "dark_doctor"
+minDanger = 7
+maxDanger = 25
+weight = 0.9
+pack = "1d1"
+[[enemyTables]]
+name = "研究施設"
+id = "lab_enemies"
+[[enemyTables.entries]]
+id = "static_mite"
+minDanger = 1
+maxDanger = 4
+weight = 1.1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "spark_wisp"
+minDanger = 2
+maxDanger = 8
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "prism_eye"
+minDanger = 7
+maxDanger = 12
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "shock_orb"
+minDanger = 10
+maxDanger = 22
+weight = 0.7
+pack = "1d1"
+[[enemyTables.entries]]
+id = "crystal_wraith"
+minDanger = 10
+maxDanger = 25
+weight = 0.7
+pack = "1d1"
+[[enemyTables.entries]]
+id = "shadow_priest"
+minDanger = 14
+maxDanger = 25
+weight = 0.6
+pack = "1d1"
+[[enemyTables]]
+name = "倉庫"
+id = "depot_enemies"
+[[enemyTables.entries]]
+id = "shadow_rat"
+minDanger = 1
+maxDanger = 5
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "rusted_doll"
+minDanger = 1
+maxDanger = 10
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "venom_crawler"
+minDanger = 3
+maxDanger = 7
+weight = 0.9
+pack = "1d2"
+[[enemyTables.entries]]
+id = "rust_golem"
+minDanger = 10
+maxDanger = 25
+weight = 0.7
+pack = "1d1"
+[[enemyTables.entries]]
+id = "gray_tank"
+minDanger = 12
+maxDanger = 30
+weight = 0.5
+pack = "1d1"
+[[enemyTables]]
+name = "事務所"
+id = "office_enemies"
+[[enemyTables.entries]]
+id = "ash_bug"
+minDanger = 1
+maxDanger = 5
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "decayed_soldier"
+minDanger = 1
+maxDanger = 10
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "skeleton_soldier"
+minDanger = 3
+maxDanger = 25
+weight = 0.9
+pack = "1d2"
+[[enemyTables.entries]]
+id = "guard_soldier"
+minDanger = 16
+maxDanger = 25
+weight = 0.6
+pack = "1d1"
+[[enemyTables]]
+name = "住宅"
+id = "house_enemies"
+[[enemyTables.entries]]
+id = "rat"
+minDanger = 1
+maxDanger = 5
+weight = 1.2
+pack = "1d3"
+[[enemyTables.entries]]
+id = "shadow_rat"
+minDanger = 1
+maxDanger = 5
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "bat"
+minDanger = 1
+maxDanger = 5
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "decayed_soldier"
+minDanger = 1
+maxDanger = 10
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "stray_dog"
+minDanger = 3
+maxDanger = 22
+weight = 0.8
+pack = "1d2"
+[[enemyTables]]
+name = "商店"
+id = "store_enemies"
+[[enemyTables.entries]]
+id = "rat"
+minDanger = 1
+maxDanger = 5
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "ash_bug"
+minDanger = 1
+maxDanger = 5
+weight = 1
+pack = "1d3"
+[[enemyTables.entries]]
+id = "stray_dog"
+minDanger = 3
+maxDanger = 22
+weight = 1
+pack = "1d2"
+[[enemyTables.entries]]
+id = "bleeding_hound"
+minDanger = 5
+maxDanger = 9
+weight = 0.8
+pack = "1d2"
+[[enemyTables.entries]]
+id = "razor_hound"
+minDanger = 6
+maxDanger = 18
+weight = 0.8
+pack = "1d2"
+[[enemyTables]]
+name = "骨董品店"
+id = "antique_enemies"
+[[enemyTables.entries]]
+id = "floating_eye"
+minDanger = 1
+maxDanger = 8
+weight = 1
+pack = "1d2"
+[[enemyTables.entries]]
+id = "curse_wraith"
+minDanger = 6
+maxDanger = 9
+weight = 0.9
+pack = "1d2"
+[[enemyTables.entries]]
+id = "crystal_wraith"
+minDanger = 10
+maxDanger = 25
+weight = 0.7
+pack = "1d1"
+[[enemyTables.entries]]
+id = "shadow_priest"
+minDanger = 14
+maxDanger = 25
+weight = 0.6
+pack = "1d1"
+[[enemyTables.entries]]
+id = "armor_ghost"
+minDanger = 18
+maxDanger = 25
+weight = 0.5
+pack = "1d1"
+
+[[facilityEnemyTables]]
+facility = "clinic"
+enemyTable = "clinic_enemies"
+[[facilityEnemyTables]]
+facility = "lab"
+enemyTable = "lab_enemies"
+[[facilityEnemyTables]]
+facility = "depot"
+enemyTable = "depot_enemies"
+[[facilityEnemyTables]]
+facility = "office"
+enemyTable = "office_enemies"
+[[facilityEnemyTables]]
+facility = "house"
+enemyTable = "house_enemies"
+[[facilityEnemyTables]]
+facility = "store"
+enemyTable = "store_enemies"
+[[facilityEnemyTables]]
+facility = "antique"
+enemyTable = "antique_enemies"
 
 [[spriteSheets]]
 name = "bg"

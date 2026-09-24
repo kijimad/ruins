@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +26,7 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 	require.NotNil(t, report.Weapon)
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
-	require.Len(t, report.EnemyTables, 3, "raw.tomlのenemyTables数と一致する")
+	require.Len(t, report.EnemyTables, len(raw.PtrSlice(master.EnemyTables)), "raw.tomlのenemyTables数と一致する")
 	for _, run := range report.EnemyTables {
 		assert.Equal(t, 3, run.MaxDepth)
 		assert.Equal(t, 5, run.Trials)

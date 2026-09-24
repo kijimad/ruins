@@ -2275,6 +2275,23 @@ components:
           type: string
           description: エラーメッセージ
       description: エラーレスポンス
+    FacilityEnemyTable:
+      type: object
+      required:
+        - facility
+        - enemyTable
+      properties:
+        facility:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 施設種別。overworld の facilityType の文字列と揃える
+        enemyTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 割り当てる敵テーブルの id。enemyTables のいずれかを指す
+      description: |-
+        施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
+        enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
     FactionMemberType:
       type: string
       enum:
@@ -3037,6 +3054,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EnemyTable'
+        facilityEnemyTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/FacilityEnemyTable'
         spriteSheets:
           type: array
           items:
