@@ -110,6 +110,26 @@ func TestCubeFacilityMenu_selectCellの空きマスは据付選択へ進む(t *t
 	assert.Equal(t, es.TransPush, trans.Type, "空きマスで決定すると据付アイテム選択へ進む")
 }
 
+func TestCubeFacilitySelect_Fetchが据付候補を返す(t *testing.T) {
+	t.Parallel()
+	world, _, cube := deployedFacilityState(t)
+	_, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+
+	st := &CubeFacilitySelectState{cube: cube, coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}
+	props, err := st.Fetch(world)
+	require.NoError(t, err)
+	assert.Len(t, props.Candidates, 1, "バックパックの据付アイテムを候補に出す")
+}
+
+func TestCubeFacilitySelect_Fetchはプレイヤー不在でエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	st := &CubeFacilitySelectState{cube: world.ECS.NewEntity()}
+	_, err := st.Fetch(world)
+	require.Error(t, err, "プレイヤー不在は握りつぶさず error")
+}
+
 func TestCubeFacilityMenu_selectCellの設備マスは撤去する(t *testing.T) {
 	t.Parallel()
 	world, st, cube := deployedFacilityState(t)
