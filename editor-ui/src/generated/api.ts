@@ -497,6 +497,15 @@ export interface CubeModule {
     'rangeBonus': number;
 }
 /**
+ * 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
+ */
+export interface Deployable {
+    /**
+     * 収納設備の容量。据えると収納として開ける
+     */
+    'storage'?: StorageRaw;
+}
+/**
  * 会話データ
  */
 export interface Dialog {
@@ -876,6 +885,7 @@ export interface Item {
     'equipBonus'?: EquipBonus;
     'ammo'?: Ammo;
     'cubeModule'?: CubeModule;
+    'deployable'?: Deployable;
     'melee'?: Melee;
     'fire'?: Fire;
     'book'?: Book;

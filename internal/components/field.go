@@ -96,6 +96,11 @@ type CubeModule struct {
 	RangeBonus consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
 }
 
+// Deployable はキューブの展開空間へ据えられるアイテムであることを表すマーカー。設備の効果は据えた実体が
+// 持つコンポーネントに内在する。装備品の実効 stat が装備品自身に内在するのと同じで、設置は実体を削除せず
+// ロケーションを移すだけ。設置・撤去は設備画面からのみ行い、フィールドで歩いて拾えないよう拾得から除外する。
+type Deployable struct{}
+
 // LocationInstalled はキューブに装着したモジュールであることを示すロケーション。Backpack・Storage・
 // Equipped・Field・Stowed と排他。Owner は装着先のキューブ。装着関係を保存し、実効 stat は導出する。
 // Slot は装着スロット番号。装備と同様に固定し、外しても他のスロットは繰り上がらない。

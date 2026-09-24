@@ -8,9 +8,11 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDriveFuelCost(t *testing.T) {
@@ -184,6 +186,51 @@ func TestBackpackCubeModules_バックパックのモジュールだけ返す(t 
 	world.Components.LocationInBackpack.Add(nonmod, &gc.LocationInBackpack{Owner: player})
 
 	assert.Equal(t, []ecs.Entity{m}, query.BackpackCubeModules(world, player), "このプレイヤーのモジュール1件だけ")
+}
+
+func TestBackpackDeployables_バックパックの据付アイテムだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	d := world.ECS.NewEntity()
+	world.Components.Deployable.Add(d, &gc.Deployable{})
+	world.Components.LocationInBackpack.Add(d, &gc.LocationInBackpack{Owner: player})
+	// 別プレイヤーの据付と、据付でないバックパック品は除く
+	d2 := world.ECS.NewEntity()
+	world.Components.Deployable.Add(d2, &gc.Deployable{})
+	world.Components.LocationInBackpack.Add(d2, &gc.LocationInBackpack{Owner: other})
+	nondep := world.ECS.NewEntity()
+	world.Components.LocationInBackpack.Add(nondep, &gc.LocationInBackpack{Owner: player})
+
+	assert.Equal(t, []ecs.Entity{d}, query.BackpackDeployables(world, player), "このプレイヤーの据付アイテム1件だけ")
+}
+
+func TestFacilityAt_フィールドの据付設備だけを引く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	require.True(t, lifecycle.DeployCube(world, cube))
+
+	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	coord := consts.Coord[consts.Tile]{X: 11, Y: 10}
+	_, err = lifecycle.PlaceFacility(world, cube, item, coord)
+	require.NoError(t, err)
+
+	got, ok := query.FacilityAt(world, coord)
+	require.True(t, ok, "据えたマスの設備を引く")
+	assert.Equal(t, item, got)
+
+	// バックパックの据付は座標を持たないので引かれない。空きマスも引かれない
+	_, err = lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	_, ok = query.FacilityAt(world, consts.Coord[consts.Tile]{X: 12, Y: 10})
+	assert.False(t, ok, "設備が無いマスは引かない")
 }
 
 func TestCubeWeight_装着モジュールも合算する(t *testing.T) {

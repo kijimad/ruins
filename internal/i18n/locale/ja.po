@@ -1878,6 +1878,39 @@ msgstr "工事看板"
 msgid "Crate"
 msgstr "木箱"
 
+msgid "Storage Crate"
+msgstr "保管木箱"
+
+msgid "A folded storage crate. Deploy it into your cube's space to hold cargo, then fold it back up to move on."
+msgstr "折り畳んだ保管用の木箱。キューブの展開空間に据えて貨物を入れ、畳んで持ち運べる。"
+
+msgid "Facility"
+msgstr "設備"
+
+msgid "Empty"
+msgstr "空き"
+
+msgid "Occupied"
+msgstr "ふさがっている"
+
+msgid "Enter: place"
+msgstr "Enter: 据える"
+
+msgid "Enter: remove"
+msgstr "Enter: 撤去"
+
+msgid "Choose facility"
+msgstr "据える設備を選ぶ"
+
+msgid "No items to deploy"
+msgstr "据える物がない"
+
+msgid "You have nothing to deploy."
+msgstr "据えられる物を持っていない。"
+
+msgid "Cannot remove: empty its contents first."
+msgstr "撤去できない。先に中身を空にする。"
+
 msgid "Desk"
 msgstr "机"
 

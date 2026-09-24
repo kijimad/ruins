@@ -164,6 +164,56 @@ RangeBonus = 2
 	assert.Equal(t, consts.Tile(2), spec.CubeModule.RangeBonus)
 }
 
+func TestNewItemSpec_据付収納設備が設定される(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "保管木箱"
+id = "保管木箱"
+Description = "据えると収納になる"
+
+[Items.Deployable]
+[Items.Deployable.Storage]
+maxWeight = "50 kg"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "保管木箱")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Deployable, "据付マーカーが付く")
+	require.NotNil(t, spec.Item, "バックパック形態のアイテムとして生成する")
+	require.NotNil(t, spec.WeightCapacity, "据付定義の容量から収納容量を持つ")
+	assert.Equal(t, consts.MustParseWeight("50 kg"), spec.WeightCapacity.Max)
+	// 据付は開ける相互作用にし、フィールドで拾える相互作用は与えない
+	assert.Contains(t, spec.Interactable.Interactions, gc.InteractionStorage)
+	assert.NotContains(t, spec.Interactable.Interactions, gc.InteractionItem)
+}
+
+func TestNewItemSpec_収納なし据付は拾える相互作用を持たない(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "照明"
+id = "照明"
+Description = "据える受動設備"
+
+[Items.Deployable]
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "照明")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Deployable)
+	// storage を持たない据付は設備画面で扱うので、フィールドの相互作用を一切持たない
+	assert.Empty(t, spec.Interactable.Interactions, "収納なし据付はフィールド相互作用ゼロ")
+}
+
 func TestNewItemSpec_本が設定される(t *testing.T) {
 	t.Parallel()
 

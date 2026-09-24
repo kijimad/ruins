@@ -7514,6 +7514,18 @@ weight = "3 kg"
 [items.cubeModule]
 rangeBonus = 1
 [[items]]
+description = "A folded storage crate. Deploy it into your cube's space to hold cargo, then fold it back up to move on."
+name = "Storage Crate"
+id = "deployable_storage"
+material = "WOOD"
+spriteKey = "wooden_crate"
+spriteSheetName = "field"
+value = 60
+weight = "5 kg"
+
+[items.deployable.storage]
+maxWeight = "50 kg"
+[[items]]
 description = "A finely decorated ceramic pot, prized as an antique."
 name = "Ancient Pot"
 id = "ancient_pot"
