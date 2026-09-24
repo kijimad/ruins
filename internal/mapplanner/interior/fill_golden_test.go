@@ -57,7 +57,7 @@ func houseRoom() Room {
 func TestFillRoom_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
-	room, content := storeRoom(), storeContent()
+	room, content := storeRoom(), testContent("conv_store")
 	first := FillRoom(42, room, content)
 	for range 5 {
 		require.Equal(t, first, FillRoom(42, room, content), "同じ seed なら配置も完全一致する")
@@ -70,7 +70,7 @@ func TestFillRoom_衛星の椅子は机の隣に置かれる(t *testing.T) {
 	t.Parallel()
 
 	room := Room{Rect: Rect{X: 0, Y: 0, W: 9, H: 9}, Doorways: []Doorway{{X: 4, Y: 8}}}
-	content := Content{ID: "dining", Groups: []Group{{Style: PickEach, Items: []Stuff{diningTable(PlaceCenter)}}}}
+	content := Content{ID: "dining", Groups: []Group{{Style: PickEach, Items: []Stuff{diningTableStuff(PlaceCenter)}}}}
 	placed := FillRoom(1, room, content)
 
 	var table Vec

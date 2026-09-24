@@ -59,7 +59,7 @@ func TestFacilityContent_seedで店の変種が変わる(t *testing.T) {
 	door := Vec{X: 8, Y: 11}
 	ids := make(map[string]bool)
 	for seed := range uint64(30) {
-		ids[facilityContent("store", seed).ID] = true
+		ids[activeContents().facilityContent("store", seed).ID] = true
 		assert.Equalf(t, "store", classifyRoom(Furnish(seed, footprint, door, "store")), "seed=%d のどの変種も店に分類される", seed)
 	}
 	assert.GreaterOrEqual(t, len(ids), 2, "seed を振ると店の変種が複数出る")

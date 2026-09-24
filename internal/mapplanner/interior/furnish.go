@@ -164,38 +164,6 @@ func roleContent(facility FacilityKind, role roleName, seed uint64) Content {
 	return cs.backRoomContent(facility)
 }
 
-// roomCatalog は施設種別ごとの「役割名→content」表を返す。houseRoomContents を民家以外へ横展開したもので、
-// テンプレが付けた役割名で各室の内装を引く。骨董品店は店、研究施設は診療所の表を共有する。
-func roomCatalog(facility FacilityKind) map[roleName]Content {
-	switch facility {
-	case facHouse:
-		return houseRoomContents()
-	case facStore, facAntique:
-		return storeRoomContents()
-	case facClinic, facLab:
-		return clinicRoomContents()
-	case facOffice, facDepot:
-		return nil // 専用カタログを持たず、共有役割か奥室既定へ落とす
-	}
-	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で nil を返す
-	return nil
-}
-
-// backRoomContent は奥室の内装。施設ごとに、店は物置、民家は寝室、診療所は診察室にする。既存の家具を
-// 使い回すので新しい content 語彙は要らない。役割カタログに無い役割のフォールバック。
-func backRoomContent(facility FacilityKind) Content {
-	switch facility {
-	case facHouse:
-		return bedroomContent()
-	case facClinic, facLab:
-		return examRoomContent()
-	case facStore, facAntique, facOffice, facDepot:
-		return storageRoomContent()
-	}
-	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で物置へ落とす
-	return storageRoomContent()
-}
-
 // roomOrderByArea は部屋を面積降順の添字列で返す。主室に最大の部屋を選ぶための順序。
 func roomOrderByArea(rooms []Room) []int {
 	idx := make([]int, len(rooms))

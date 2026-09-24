@@ -11,20 +11,20 @@ import (
 func TestClassifyRoom_施設が役割どおりに分類される(t *testing.T) {
 	t.Parallel()
 
-	byRole := houseRoomContents()
+	byRole := testRoomContents(facHouse)
 	cases := []struct {
 		name string
 		role string
 		got  []Placed
 	}{
-		{"店", "store", FillRoom(42, storeRoom(), storeContent())},
-		{"診療所", "clinic", FillRoom(7, clinicRoom(), clinicContent())},
+		{"店", "store", FillRoom(42, storeRoom(), testContent("conv_store"))},
+		{"診療所", "clinic", FillRoom(7, clinicRoom(), testContent("clinic"))},
 		{"寝室", "bedroom", FillRoom(1, houseSmallRoom(), byRole["bedroom"])},
 		{"浴室", "bath", FillRoom(1, houseSmallRoom(), byRole["bath"])},
 		{"台所", "kitchen", FillRoom(1, houseSmallRoom(), byRole["kitchen"])},
-		{"トイレ", "restroom", FillRoom(1, houseSmallRoom(), restroomContent())},
-		{"事務所", "office", FillRoom(1, houseSmallRoom(), officeRoomContent())},
-		{"薬局", "pharmacy", FillRoom(1, houseSmallRoom(), pharmacyRoomContent())},
+		{"トイレ", "restroom", FillRoom(1, houseSmallRoom(), testContent("restroom"))},
+		{"事務所", "office", FillRoom(1, houseSmallRoom(), testContent("office_room"))},
+		{"薬局", "pharmacy", FillRoom(1, houseSmallRoom(), testContent("pharmacy_room"))},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -41,10 +41,10 @@ func TestClassifyRoom_多seedで店と診療所は役割どおりに見える(t 
 	t.Parallel()
 
 	for seed := range uint64(50) {
-		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), storeContent()), dmgMinor)
+		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), testContent("conv_store")), dmgMinor)
 		assert.Equalf(t, "store", classifyRoom(store), "seed=%d の店は店に見える", seed)
 
-		clinic := FillRoom(seed, clinicRoom(), clinicContent())
+		clinic := FillRoom(seed, clinicRoom(), testContent("clinic"))
 		assert.Equalf(t, "clinic", classifyRoom(clinic), "seed=%d の診療所は診療所に見える", seed)
 	}
 }
