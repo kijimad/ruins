@@ -214,6 +214,39 @@ Description = "据える受動設備"
 	assert.Empty(t, spec.Interactable.Interactions, "収納なし据付はフィールド相互作用ゼロ")
 }
 
+func TestNewItemSpec_据付照明設備が設定される(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "野営ランタン"
+id = "野営ランタン"
+Description = "据える照明"
+
+[Items.Deployable.LightSource]
+enabled = true
+radius = 4
+
+[Items.Deployable.LightSource.color]
+a = 255
+b = 150
+g = 200
+r = 255
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "野営ランタン")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Deployable, "据付マーカーが付く")
+	require.NotNil(t, spec.LightSource, "照明設備は LightSource を持つ")
+	assert.Equal(t, consts.Tile(4), spec.LightSource.Radius)
+	assert.True(t, spec.LightSource.Enabled)
+	// 照明は受動。フィールドで拾える・開ける相互作用は持たない
+	assert.Empty(t, spec.Interactable.Interactions, "照明設備はフィールド相互作用ゼロ")
+}
+
 func TestNewItemSpec_本が設定される(t *testing.T) {
 	t.Parallel()
 

@@ -1884,6 +1884,12 @@ msgstr "保管木箱"
 msgid "A folded storage crate. Deploy it into your cube's space to hold cargo, then fold it back up to move on."
 msgstr "折り畳んだ保管用の木箱。キューブの展開空間に据えて貨物を入れ、畳んで持ち運べる。"
 
+msgid "Camp Lantern"
+msgstr "野営ランタン"
+
+msgid "A folded camp lantern. Deploy it into your cube's space to light the area, then fold it back up to move on."
+msgstr "折り畳んだ野営ランタン。キューブの展開空間に据えて周囲を照らし、畳んで持ち運べる。"
+
 msgid "Facility"
 msgstr "設備"
 

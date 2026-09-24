@@ -21,7 +21,8 @@ func TestSpawnDebugStageCubeGear_木箱にモジュールと据付アイテム�
 	require.NoError(t, spawnDebugStageCubeGear(world))
 
 	items := query.GetStorageItems(world, crate)
-	assert.Len(t, items, debugStageModuleCount+debugStageFacilityCount, "木箱にモジュールと据付アイテムが入る")
+	// モジュール + 据付ストレージ + 据付ランプ
+	assert.Len(t, items, debugStageModuleCount+debugStageFacilityCount*2, "木箱にモジュールと据付アイテムが入る")
 }
 
 func TestSpawnDebugStageCubeGear_木箱が無ければエラー(t *testing.T) {

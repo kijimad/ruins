@@ -948,7 +948,10 @@ type Defense = int
 
 // Deployable 据付設定。キューブの展開空間へ据えるとフィールドで設備として働くアイテムであることを表す
 type Deployable struct {
-	// Storage 収納設備の容量。据えると収納として開ける
+	// LightSource 光源設定
+	LightSource *LightSource `json:"lightSource,omitempty"`
+
+	// Storage 収納ローデータ
 	Storage *StorageRaw `json:"storage,omitempty"`
 }
 

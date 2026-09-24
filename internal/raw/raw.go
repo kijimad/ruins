@@ -409,6 +409,10 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
 	}
+	// 照明設備は受動。据えると LightSource を持ち視界システムが照らす。相互作用は持たない
+	if dep.LightSource != nil {
+		entitySpec.LightSource = toGCLightSource(dep.LightSource)
+	}
 	return nil
 }
 

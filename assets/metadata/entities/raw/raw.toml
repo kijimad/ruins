@@ -7526,6 +7526,25 @@ weight = "5 kg"
 [items.deployable.storage]
 maxWeight = "50 kg"
 [[items]]
+description = "A folded camp lantern. Deploy it into your cube's space to light the area, then fold it back up to move on."
+name = "Camp Lantern"
+id = "deployable_lamp"
+material = "METAL"
+spriteKey = "prop_lantern"
+spriteSheetName = "field"
+value = 80
+weight = "3 kg"
+
+[items.deployable.lightSource]
+enabled = true
+radius = 4
+
+[items.deployable.lightSource.color]
+a = 255
+b = 150
+g = 200
+r = 255
+[[items]]
 description = "A finely decorated ceramic pot, prized as an antique."
 name = "Ancient Pot"
 id = "ancient_pot"

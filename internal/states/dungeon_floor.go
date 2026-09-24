@@ -184,6 +184,9 @@ func spawnDebugStageCubeGear(world w.World) error {
 	if _, err := lifecycle.SpawnStorageItem(world, "deployable_storage", debugStageFacilityCount, crate); err != nil {
 		return fmt.Errorf("failed to spawn debug stage facilities: %w", err)
 	}
+	if _, err := lifecycle.SpawnStorageItem(world, "deployable_lamp", debugStageFacilityCount, crate); err != nil {
+		return fmt.Errorf("failed to spawn debug stage lamps: %w", err)
+	}
 	return nil
 }
 
