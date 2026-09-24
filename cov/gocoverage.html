@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (92.1%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.5%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
@@ -639,7 +639,7 @@
 				
 				<option value="file291">github.com/kijimaD/ruins/internal/systems/stats_changed.go (94.1%)</option>
 				
-				<option value="file292">github.com/kijimaD/ruins/internal/systems/temperature.go (80.0%)</option>
+				<option value="file292">github.com/kijimaD/ruins/internal/systems/temperature.go (96.2%)</option>
 				
 				<option value="file293">github.com/kijimaD/ruins/internal/systems/turn_system.go (92.5%)</option>
 				
@@ -647,7 +647,7 @@
 				
 				<option value="file295">github.com/kijimaD/ruins/internal/systems/visual_effect.go (14.8%)</option>
 				
-				<option value="file296">github.com/kijimaD/ruins/internal/systems/weather.go (93.5%)</option>
+				<option value="file296">github.com/kijimaD/ruins/internal/systems/weather.go (96.8%)</option>
 				
 				<option value="file297">github.com/kijimaD/ruins/internal/systems/weight_dirty.go (88.9%)</option>
 				
@@ -1706,7 +1706,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1857,8 +1857,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -5530,7 +5530,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -44578,7 +44578,7 @@ func timerProgress(excess float64) float64 {
 const BodyTempColdBand = bodyTempColdBand
 
 // CalcBodyTempRate は実効温度から1ターンの体温変化量を返す純関数。バランス導出用の公開窓。
-func CalcBodyTempRate(effectiveTemp int) float64 { <span class="cov0" title="0">return calcBodyTempRate(effectiveTemp) }</span>
+func CalcBodyTempRate(effectiveTemp int) float64 { <span class="cov8" title="1">return calcBodyTempRate(effectiveTemp) }</span>
 
 // calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない
 func calcBodyTempRate(effectiveTemp int) float64 {
@@ -44596,15 +44596,15 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 
 // logTemperatureChange は状態変化をログ出力する
 func logTemperatureChange(world w.World, condType gc.ConditionType, current, prev gc.Severity) {
-        <span class="cov0" title="0">var msg string
+        <span class="cov8" title="1">var msg string
         if current &gt; prev </span>{
-                <span class="cov0" title="0">msg = getWorseningMessage(condType, current)
+                <span class="cov8" title="1">msg = getWorseningMessage(condType, current)
 </span>        } else {
-                <span class="cov0" title="0">msg = getRecoveryMessage(condType, current)
+                <span class="cov8" title="1">msg = getRecoveryMessage(condType, current)
 </span>        }
 
-        <span class="cov0" title="0">if msg != "" </span>{
-                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+        <span class="cov8" title="1">if msg != "" </span>{
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                         Markup(gamelog.Tag("warning", query.T(world, msg))).
                         Log()
 </span>        }
@@ -44612,36 +44612,36 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 
 // getWorseningMessage は悪化時のメッセージを返す
 func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {
-        <span class="cov0" title="0">if condType == gc.ConditionHypothermia </span>{
-                <span class="cov0" title="0">switch severity </span>{
+        <span class="cov8" title="1">if condType == gc.ConditionHypothermia </span>{
+                <span class="cov8" title="1">switch severity </span>{
                 case gc.SeverityNone:
-                        <span class="cov0" title="0">return ""</span>
+                        <span class="cov8" title="1">return ""</span>
                 case gc.SeverityMinor:
-                        <span class="cov0" title="0">return "The cold is setting in"</span>
+                        <span class="cov8" title="1">return "The cold is setting in"</span>
                 case gc.SeverityMedium:
-                        <span class="cov0" title="0">return "You are quite cold"</span>
+                        <span class="cov8" title="1">return "You are quite cold"</span>
                 case gc.SeveritySevere:
-                        <span class="cov0" title="0">return "The cold is dangerous"</span>
+                        <span class="cov8" title="1">return "The cold is dangerous"</span>
                 }
         }
-        <span class="cov0" title="0">return ""</span>
+        <span class="cov8" title="1">return ""</span>
 }
 
 // getRecoveryMessage は回復時のメッセージを返す
 func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {
-        <span class="cov0" title="0">if condType == gc.ConditionHypothermia </span>{
-                <span class="cov0" title="0">switch severity </span>{
+        <span class="cov8" title="1">if condType == gc.ConditionHypothermia </span>{
+                <span class="cov8" title="1">switch severity </span>{
                 case gc.SeverityNone:
-                        <span class="cov0" title="0">return "You have warmed up"</span>
+                        <span class="cov8" title="1">return "You have warmed up"</span>
                 case gc.SeverityMinor:
-                        <span class="cov0" title="0">return "You are warming up a little"</span>
+                        <span class="cov8" title="1">return "You are warming up a little"</span>
                 case gc.SeverityMedium:
-                        <span class="cov0" title="0">return "Still cold, but a little better"</span>
+                        <span class="cov8" title="1">return "Still cold, but a little better"</span>
                 case gc.SeveritySevere:
-                        <span class="cov0" title="0">return ""</span>
+                        <span class="cov8" title="1">return ""</span>
                 }
         }
-        <span class="cov0" title="0">return ""</span>
+        <span class="cov8" title="1">return ""</span>
 }
 </pre>
 		
@@ -45813,10 +45813,10 @@ func (sys *WeatherSystem) Update(world w.World) error {
 func playerNorthDepth(world w.World) int {
         <span class="cov8" title="1">player, err := query.GetPlayerEntity(world)
         if err != nil </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">if !world.Components.GridElement.Has(player) </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return query.NorthDepthChunks(world, world.Components.GridElement.Get(player).Y)</span>
 }

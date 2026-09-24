@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.5&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.2&nbsp;%</td>
             <td class="headerCovTableEntry">41</td>
-            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">37</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-23 16:27:17</td>
+            <td class="headerValue">2026-09-24 01:32:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -126,12 +126,12 @@
 <span id="L64"><span class="lineNum">      64</span>              : func playerNorthDepth(world w.World) int {</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(player) {</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         return query.NorthDepthChunks(world, world.Components.GridElement.Get(player).Y)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(player) {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         return query.NorthDepthChunks(world, world.Components.GridElement.Get(player).Y)</span></span>
 <span id="L73"><span class="lineNum">      73</span>              : }</span>
         </pre>
               </td>
