@@ -73,6 +73,13 @@ func TestUseHints(t *testing.T) {
 			want: []string{"Wearable"},
 		},
 		{
+			name: "据付アイテムは据えられる",
+			setup: func(world w.World, e ecs.Entity) {
+				world.Components.Deployable.Add(e, &gc.Deployable{})
+			},
+			want: []string{"Deployable"},
+		},
+		{
 			name: "分解工具は物を分解できる",
 			setup: func(world w.World, e ecs.Entity) {
 				// monkey_wrench は raw に分解工具定義を持つ。判定は RawID から raw を引く

@@ -6038,6 +6038,9 @@ msgstr "使える"
 msgid "Wearable"
 msgstr "装備できる"
 
+msgid "Deployable"
+msgstr "据えられる"
+
 msgid "Can disassemble items"
 msgstr "物を分解できる"
 

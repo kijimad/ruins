@@ -33,6 +33,10 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	if c.Wearable.Has(e) || c.Melee.Has(e) || c.Fire.Has(e) {
 		uses = append(uses, query.T(world, "Wearable"))
 	}
+	// 据付アイテムはキューブの展開空間の設備画面から据えられる
+	if c.Deployable.Has(e) {
+		uses = append(uses, query.T(world, "Deployable"))
+	}
 	// 分解工具は専用コンポーネントを持たず raw 定義の有無で判定する
 	if _, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(e, world)); ok {
 		uses = append(uses, query.T(world, "Can disassemble items"))
