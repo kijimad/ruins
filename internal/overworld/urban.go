@@ -82,15 +82,22 @@ const (
 	facilityLab     facilityType = "lab"     // 研究施設
 )
 
+// 施設クラスごとの敵テーブル名。似た施設が同じテーブルを共有することを1定数で表し、片方だけ書き換える
+// 編集ミスを防ぐ。値は raw.toml の enemyTables.id と一致させる。
+const (
+	enemyTableDowntown   = "downtown_enemies"   // 警備・医療実験系。診療所・研究施設
+	enemyTableIndustrial = "industrial_enemies" // 機械・自律系。倉庫・事務所
+)
+
 // facilityEnemyTable は施設種別ごとの敵テーブル名。似た施設は同じテーブルを共有する。施設は
 // zoneCatalog で地区ごとに固まって湧くので、施設別に引いても近隣は同種へ寄り、地区スケールの
 // まとまりが地区概念を新設せずに現れる。テーブル名はエリアでなく施設クラスを表す。未設定の施設は
 // urbanEnemyTable へ落ちる。中身の敵選定はバランス調整対象。
 var facilityEnemyTable = map[facilityType]string{
-	facilityClinic: "downtown_enemies",   // 診療所。警備・医療実験系の顔ぶれ
-	facilityLab:    "downtown_enemies",   // 研究施設。診療所と同じ
-	facilityDepot:  "industrial_enemies", // 倉庫。機械・自律系の顔ぶれ
-	facilityOffice: "industrial_enemies", // 事務所。倉庫と同じ
+	facilityClinic: enemyTableDowntown,
+	facilityLab:    enemyTableDowntown,
+	facilityDepot:  enemyTableIndustrial,
+	facilityOffice: enemyTableIndustrial,
 	// house/store/antique は当面 urbanEnemyTable(ruins_area)を流用する
 }
 

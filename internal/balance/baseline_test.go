@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -63,5 +64,5 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	// 3列目が整数の経済や % を持つリスクの進行表と構造で区別できる。特定の戦力比の値に依存させないため、
 	// 両小数+内外で数える。表は列幅で桁揃えされるので空白数に依らず正規表現で数える。
 	day1Curve := regexp.MustCompile(`\|\s+1 \|\s+1 \|\s+\d+\.\d+ \|\s+\d+\.\d+ \|\s+[内外]`)
-	assert.Len(t, day1Curve.FindAllString(md, -1), 5, "全5テーブルの day1 難易度カーブ行")
+	assert.Len(t, day1Curve.FindAllString(md, -1), len(raw.PtrSlice(master.EnemyTables)), "全テーブルの day1 難易度カーブ行が1本ずつ出る")
 }
