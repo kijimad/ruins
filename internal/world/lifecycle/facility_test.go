@@ -43,7 +43,9 @@ func TestPlaceFacility(t *testing.T) {
 	assert.True(t, world.Components.LocationOnField.Has(item), "設備はフィールドに現れる")
 	assert.False(t, world.Components.LocationInBackpack.Has(item), "バックパックからは外れる")
 	assert.Equal(t, coord, world.Components.GridElement.Get(item).Coord, "選んだマスに現れる")
-	assert.False(t, query.IsPickable(item, world), "据えた設備は歩いて拾えない")
+	assert.True(t, world.Components.Prop.Has(item), "据えると造作(Prop)になる")
+	assert.False(t, world.Components.Item.Has(item), "フィールドでは Item でない")
+	assert.False(t, query.IsPickable(item, world), "造作なので歩いて拾えない")
 }
 
 func TestPlaceFacility_塞がったマスには据えない(t *testing.T) {
@@ -78,6 +80,8 @@ func TestRemoveFacility(t *testing.T) {
 	assert.True(t, world.ECS.Alive(item), "撤去しても実体は消えない")
 	assert.True(t, world.Components.LocationInBackpack.Has(item), "撤去でバックパックへ戻る")
 	assert.False(t, world.Components.LocationOnField.Has(item), "フィールドからは外れる")
+	assert.True(t, world.Components.Item.Has(item), "戻すと携行アイテムに戻る")
+	assert.False(t, world.Components.Prop.Has(item), "造作ではなくなる")
 }
 
 func TestRemoveFacility_中身が残ると撤去しない(t *testing.T) {

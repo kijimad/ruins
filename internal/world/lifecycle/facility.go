@@ -48,9 +48,10 @@ func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.
 	return true
 }
 
-// PlaceFacility は据付アイテムをキューブの展開空間の coord へ据える。実体は削除せず、ロケーションを
-// バックパックからフィールドへ移すだけ。設備の効果は実体のコンポーネントに内在するので、フィールドに現れれば
-// そのまま設備として働く。装備がアイテムをスロットへ移すのと同じで、2 次元スロットがフィールドのマスにあたる。
+// PlaceFacility は据付アイテムをキューブの展開空間の coord へ据える。実体は削除せず、携行アイテムから
+// フィールドの造作へマーカーを入れ替えてロケーションを移す。バックパックでは Item、据わっている間は Prop に
+// なり、破壊・掃除・静物描画といった造作のパイプラインに乗る。効果 WeightCapacity 等は据付定義から実体に
+// 内在するのでそのまま働く。装備がアイテムをスロットへ移すのと同じで、2 次元スロットがフィールドのマスにあたる。
 // マスが空いていなければ据えずに error を返し、UI とロジックの食い違いを早期に検知する。
 func PlaceFacility(world w.World, cube ecs.Entity, item ecs.Entity, coord consts.Coord[consts.Tile]) (ecs.Entity, error) {
 	if !world.Components.Deployable.Has(item) {
@@ -64,12 +65,16 @@ func PlaceFacility(world w.World, cube ecs.Entity, item ecs.Entity, coord consts
 	if world.Components.LocationInBackpack.Has(item) {
 		previousOwner = world.Components.LocationInBackpack.Get(item).Owner
 	}
+	// 携行アイテムからフィールドの造作へ。Prop になれば拾得対象から外れ、造作として振る舞う
+	ensureRemoved(world.Components.Item, item)
+	ensureMarker(world, world.Components.Prop, item, &gc.Prop{})
 	MoveMembersToField(world, []ecs.Entity{item}, coord, previousOwner)
 	return item, nil
 }
 
-// RemoveFacility は据えた設備をプレイヤーのバックパックへ戻す。実体は削除せずロケーションを移すだけ。
-// 収納設備に中身が残っているときは孤児化を避けるため戻さず error を返す。空にしてから撤去する。
+// RemoveFacility は据えた設備をプレイヤーのバックパックへ戻す。実体は削除せず、造作から携行アイテムへ
+// マーカーを入れ替えてロケーションを移す。収納設備に中身が残っているときは孤児化を避けるため戻さず
+// error を返す。空にしてから撤去する。
 func RemoveFacility(world w.World, facility ecs.Entity, player ecs.Entity) error {
 	if !world.Components.Deployable.Has(facility) {
 		return fmt.Errorf("remove facility: entity is not deployable")
@@ -77,5 +82,8 @@ func RemoveFacility(world w.World, facility ecs.Entity, player ecs.Entity) error
 	if len(query.GetStorageItems(world, facility)) > 0 {
 		return fmt.Errorf("remove facility: storage is not empty")
 	}
+	// フィールドの造作から携行アイテムへ戻す
+	ensureRemoved(world.Components.Prop, facility)
+	ensureMarker(world, world.Components.Item, facility, &gc.Item{})
 	return MoveToBackpack(world, facility, player)
 }

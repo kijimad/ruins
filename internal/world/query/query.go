@@ -52,11 +52,8 @@ func AliveHas[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity) bool {
 
 // IsPickable はフィールド上のアイテムだけを拾える物とみなす。prop や投影タイルは Item を持たず除外される
 func IsPickable(entity ecs.Entity, world w.World) bool {
-	// 据付設備は展開空間でアイテムとしてフィールドに現れるが、撤去は設備画面からのみ行う。
-	// 歩いて拾えると UI 以外の撤去経路になるので拾得から除外する。
 	return world.Components.LocationOnField.Has(entity) &&
-		world.Components.Item.Has(entity) &&
-		!world.Components.Deployable.Has(entity)
+		world.Components.Item.Has(entity)
 }
 
 // PickablesAt は指定タイル上の拾得可能なエンティティを返す。拾得アクションの構築側が
