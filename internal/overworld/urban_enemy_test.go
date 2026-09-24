@@ -27,8 +27,27 @@ func TestUrbanEnemyTableFor_施設で敵テーブルを引き未割り当ては�
 	assert.Equal(t, "lab_enemies", tableID(facilityLab), "研究施設は研究施設テーブル")
 	assert.Equal(t, "depot_enemies", tableID(facilityDepot), "倉庫は倉庫テーブル")
 	assert.Equal(t, "office_enemies", tableID(facilityOffice), "事務所は事務所テーブル")
-	assert.Equal(t, urbanEnemyTable, tableID(facilityHouse), "未割り当ての住宅は既定の廃墟テーブル")
-	assert.Equal(t, urbanEnemyTable, tableID(facilityType("unknown")), "未知の施設も既定へ落ちる")
+	assert.Equal(t, "house_enemies", tableID(facilityHouse), "住宅は住宅テーブル")
+	assert.Equal(t, "store_enemies", tableID(facilityStore), "商店は商店テーブル")
+	assert.Equal(t, "antique_enemies", tableID(facilityAntique), "骨董品店は骨董品店テーブル")
+	assert.Equal(t, urbanEnemyTable, tableID(facilityType("unknown")), "未知の施設は既定へ落ちる")
+}
+
+// TestFacilityEnemyTables_全施設種別を網羅する は、全 facilityType に敵テーブルの割り当てがあることを
+// 固定する。施設を足して割り当てを忘れると、その施設が既定の汎用テーブルへ落ちて顔ぶれがのっぺりする
+// ので、ここで漏れを止める。all は facilityType の全定数と揃える。
+func TestFacilityEnemyTables_全施設種別を網羅する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	all := []facilityType{
+		facilityHouse, facilityStore, facilityOffice, facilityDepot,
+		facilityAntique, facilityClinic, facilityLab,
+	}
+	for _, fac := range all {
+		_, ok := raw.FacilityEnemyTableName(world.Resources.RawMaster, string(fac))
+		assert.Truef(t, ok, "施設 %q に敵テーブルの割り当てがある", fac)
+	}
 }
 
 // TestUrbanEnemyTableFor_割り当て先が実在しなければerror は、施設に割り当てた敵テーブルが raw に
