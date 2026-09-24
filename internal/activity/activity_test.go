@@ -242,3 +242,81 @@ func TestIsCompleted_StateBased(t *testing.T) {
 	completed := &gc.Activity{State: gc.ActivityStateCompleted}
 	assert.True(t, IsCompleted(completed), "Completed は完了")
 }
+
+func TestGetEntityMaxAP(t *testing.T) {
+	t.Parallel()
+
+	t.Run("TurnBasedを持つエンティティは最大APを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.TurnBased.Add(actor, &gc.TurnBased{AP: gc.IntPool{Max: 42}})
+
+		ap, err := getEntityMaxAP(actor, world)
+		require.NoError(t, err)
+		assert.Equal(t, 42, ap)
+	})
+
+	t.Run("TurnBasedを持たないエンティティはエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+
+		_, err := getEntityMaxAP(actor, world)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "TurnBased component not found")
+	})
+}
+
+func TestPerTurnAP(t *testing.T) {
+	t.Parallel()
+
+	t.Run("TurnBasedの最大APをそのまま返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.TurnBased.Add(actor, &gc.TurnBased{AP: gc.IntPool{Max: 7}})
+
+		assert.Equal(t, 7, perTurnAP(actor, world))
+	})
+
+	t.Run("TurnBasedを持たない場合は最低1を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+
+		assert.Equal(t, 1, perTurnAP(actor, world), "取得失敗時も進行が止まらないよう最低1を返す")
+	})
+
+	t.Run("最大APが0以下の場合は最低1を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.TurnBased.Add(actor, &gc.TurnBased{AP: gc.IntPool{Max: 0}})
+
+		assert.Equal(t, 1, perTurnAP(actor, world))
+	})
+}
+
+func TestRequireDestination(t *testing.T) {
+	t.Parallel()
+
+	t.Run("PlaceParamsがあれば座標を返す", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{Params: &gc.PlaceParams{
+			Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 7}},
+		}}
+
+		coord, err := requireDestination(comp)
+		require.NoError(t, err)
+		assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 7}, coord)
+	})
+
+	t.Run("PlaceParamsが無ければエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{}
+
+		_, err := requireDestination(comp)
+		assert.ErrorIs(t, err, ErrParamsTypeMismatch)
+	})
+}
