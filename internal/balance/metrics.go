@@ -84,7 +84,7 @@ func DifficultyCurveWithSkill(master oapi.Raws, player CombatantStats, playerWea
 
 	out := make([]DayMetric, 0, days)
 	for day := 1; day <= days; day++ {
-		danger := query.DangerLevelForDay(day)
+		danger := int(query.DangerLevelForDay(day))
 
 		var wSum, playerTTKSum, enemyTTKSum float64
 		for _, entry := range table.Entries {

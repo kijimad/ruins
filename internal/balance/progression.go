@@ -52,7 +52,7 @@ type ProgressionDay struct {
 func ProgressionCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days, attacksPerDay int) ([]ProgressionDay, error) {
 	out := make([]ProgressionDay, 0, days)
 	for day := 1; day <= days; day++ {
-		danger := query.DangerLevelForDay(day)
+		danger := int(query.DangerLevelForDay(day))
 		level := ExpectedSkillLevelAtDay(0, attacksPerDay, day)
 		mult := SkillDamagePercent(level)
 		gearDef := ExpectedGearDefenseAtDay(day)

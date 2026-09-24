@@ -262,7 +262,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	danger := metaPlan.Danger
 
 	for range lootCount {
-		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, danger)
+		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
 		if err != nil {
 			return fmt.Errorf("failed to draw item: %w", err)
 		}

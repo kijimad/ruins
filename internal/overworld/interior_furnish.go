@@ -191,7 +191,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 	}
 	n := lootDice.Roll(rng)
 	for range n {
-		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)
+		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))
 		if err != nil {
 			return err
 		}

@@ -50,7 +50,7 @@ func NewItemPlanner(world w.World, plannerType PlannerType) *ItemPlanner {
 
 // PlanMeta はアイテム配置情報をMetaPlanに追加する
 func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
-	sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, i.plannerType.Danger)
+	sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, int(i.plannerType.Danger))
 	if err != nil {
 		return err
 	}

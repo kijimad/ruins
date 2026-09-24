@@ -21,7 +21,7 @@ type ElementValue struct {
 // WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器(近接・遠距離)それぞれの死亡確率と素手へ
 // 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 BaselineWeapon がフォールバック。
 func WeaponRestrictionValues(master oapi.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {
-	danger := query.DangerLevelForDay(day)
+	danger := int(query.DangerLevelForDay(day))
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
 		return nil, 0, err
