@@ -353,14 +353,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	// 据付アイテム。据えると展開空間で設備として働く。効果は実体のコンポーネントに内在させ、設置は
-	// ロケーションを移すだけにする。
-	if item.Deployable != nil {
-		if err := applyDeployable(&entitySpec, item.Deployable, name); err != nil {
-			return gc.EntitySpec{}, err
-		}
-	}
-
 	entitySpec.Value = &gc.Value{Value: item.Value}
 
 	if item.Weight != nil {
@@ -392,35 +384,32 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}
 
-	entitySpec.Interactable = &gc.Interactable{Interactions: fieldInteractions(item)}
+	// フィールドの相互作用。既定は拾えるアイテム。据付は applyDeployable が設備に応じて上書きする
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
+	if item.Deployable != nil {
+		if err := applyDeployable(&entitySpec, item.Deployable, name); err != nil {
+			return gc.EntitySpec{}, err
+		}
+	}
 
 	return entitySpec, nil
 }
 
-// applyDeployable は据付アイテムに設備コンポーネントを付ける。収納設備は据付定義の容量から
-// WeightCapacity を持たせる。
+// applyDeployable は据付アイテムの設備設定を1箇所に集める。マーカーに加え、能力ごとにコンポーネントと
+// フィールドの相互作用を対で決める。収納設備は容量から WeightCapacity と開ける相互作用を持つ。据付は設備画面で
+// 扱うので、拾える相互作用は与えず既定の InteractionItem を空へ上書きする。新設備はここに能力の枝を1つ足す。
 func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
 	if dep.Storage != nil {
 		mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
 		if err != nil {
 			return fmt.Errorf("item '%s' deployable storage: %w", name, err)
 		}
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
+		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
 	}
 	return nil
-}
-
-// fieldInteractions はフィールドでの相互作用を返す。通常アイテムは拾える、収納設備は開ける。据付に一律で
-// InteractionItem を付けると storage を持たない将来の据付設備が拾えてしまうので、据付には拾う相互作用を与えない。
-func fieldInteractions(item oapi.Item) []gc.InteractionKind {
-	if item.Deployable != nil {
-		if item.Deployable.Storage != nil {
-			return []gc.InteractionKind{gc.InteractionStorage}
-		}
-		return []gc.InteractionKind{}
-	}
-	return []gc.InteractionKind{gc.InteractionItem}
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
