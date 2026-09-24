@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:32:29</td>
+            <td class="headerValue">2026-09-24 01:36:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span>              :         }</span>
 <span id="L48"><span class="lineNum">      48</span>              :         // 消える所有者の収納在庫も道連れにする。商人の在庫は GridElement を持たず座標カリングでは</span>
 <span id="L49"><span class="lineNum">      49</span>              :         // 拾われないため、所有者を消すときに一緒に消さないと死んだ所有者を指す孤児になり、serde で保存され蓄積する</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         lifecycle.RemoveOwnedStorage(world, toRemove)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         lifecycle.RemoveOwnedEntities(world, toRemove)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         for _, entity := range toRemove {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 if world.ECS.Alive(entity) {</span></span>

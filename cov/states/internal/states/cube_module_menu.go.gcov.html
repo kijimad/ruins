@@ -1,0 +1,374 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - states/internal/states/cube_module_menu.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">states/internal/states</a> - cube_module_menu.go<span style="font-size: 80%;"> (source / <a href="cube_module_menu.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">24.1&nbsp;%</td>
+            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntry">33</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-24 01:36:34</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package states</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/keybind&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/menuloop&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : )</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // CubeModuleMenuState はキューブのモジュールスロット一覧。装備画面のスロット一覧と同型で、</span>
+<span id="L25"><span class="lineNum">      25</span>              : // 装着中のモジュールと空きスロットを consts.CubeModuleSlots 個並べる。スロットを選ぶと候補選択へ進む。</span>
+<span id="L26"><span class="lineNum">      26</span>              : type CubeModuleMenuState struct {</span>
+<span id="L27"><span class="lineNum">      27</span>              :         es.BaseState[w.World]</span>
+<span id="L28"><span class="lineNum">      28</span>              :         cube   ecs.Entity</span>
+<span id="L29"><span class="lineNum">      29</span>              :         screen *menuloop.Screen[CubeModuleMenuProps]</span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : var _ es.State[w.World] = &amp;CubeModuleMenuState{}</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // CubeModuleMenuProps はスロット一覧の表示 props</span>
+<span id="L35"><span class="lineNum">      35</span>              : type CubeModuleMenuProps struct {</span>
+<span id="L36"><span class="lineNum">      36</span>              :         Slots []ecs.Entity // 長さ consts.CubeModuleSlots。各スロットの装着モジュール。空きは gc.InvalidEntity</span>
+<span id="L37"><span class="lineNum">      37</span>              : }</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : // NewCubeModuleMenuState はキューブのモジュールスロット一覧を開くファクトリを返す</span>
+<span id="L40"><span class="lineNum">      40</span>              : func NewCubeModuleMenuState(cube ecs.Entity) (es.State[w.World], error) {</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;CubeModuleMenuState{cube: cube}, nil</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // OnStart はステートが開始される際に呼ばれる</span>
+<span id="L45"><span class="lineNum">      45</span>              : func (st *CubeModuleMenuState) OnStart(_ w.World) error {</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         st.screen = menuloop.NewScreen[CubeModuleMenuProps](st)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              : // Update はゲームステートの更新処理を行う</span>
+<span id="L51"><span class="lineNum">      51</span>              : func (st *CubeModuleMenuState) Update(world w.World) (es.Transition[w.World], error) {</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         return st.screen.Update(world)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : // Draw はゲームステートの描画処理を行う</span>
+<span id="L56"><span class="lineNum">      56</span>              : func (st *CubeModuleMenuState) Draw(_ w.World, screen *ebiten.Image) error {</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         st.screen.Draw(screen)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : </span>
+<span id="L61"><span class="lineNum">      61</span>              : // Fetch は世界から表示 props を構築する。装着モジュールを保存スロット番号どおりに並べる</span>
+<span id="L62"><span class="lineNum">      62</span>              : func (st *CubeModuleMenuState) Fetch(world w.World) (CubeModuleMenuProps, error) {</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC tlaBgGNC">           1 :         slots := make([]ecs.Entity, consts.CubeModuleSlots)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         for i := range slots {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 slots[i] = gc.InvalidEntity</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         for _, m := range query.GetCubeModules(world, st.cube) {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 s := world.Components.LocationInstalled.Get(m).Slot</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 // 範囲外・スロット重複は握りつぶさず error で返して早期に検知する。片方を黙って捨てると不整合を隠す</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 if s &lt; 0 || s &gt;= consts.CubeModuleSlots {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         return CubeModuleMenuProps{}, fmt.Errorf(&quot;cube module: slot %d out of range [0,%d)&quot;, s, consts.CubeModuleSlots)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 if slots[s] != gc.InvalidEntity {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         return CubeModuleMenuProps{}, fmt.Errorf(&quot;cube module: duplicate slot %d&quot;, s)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 slots[s] = m</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :         }</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC tlaBgUNC">           0 :         return CubeModuleMenuProps{Slots: slots}, nil</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : }</span>
+<span id="L80"><span class="lineNum">      80</span>              : </span>
+<span id="L81"><span class="lineNum">      81</span>              : // Menu はスロット数ぶんの単一リストを返す。装着中と空きを合わせて常に上限ぶん並べる</span>
+<span id="L82"><span class="lineNum">      82</span>              : func (st *CubeModuleMenuState) Menu(_ CubeModuleMenuProps) menuloop.MenuConfig {</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         return menuloop.MenuConfig{Key: &quot;cube_module&quot;, TabCount: 1, ItemCounts: []int{consts.CubeModuleSlots}, ItemsPerPage: menuloop.ItemsPerPageAuto}</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : // ViewUI はスロット一覧を中央パネルへ組む</span>
+<span id="L87"><span class="lineNum">      87</span>              : func (st *CubeModuleMenuState) ViewUI(world w.World, props CubeModuleMenuProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
+<span id="L88"><span class="lineNum">      88</span>              :         // スロット名を左、アイコンとアイテム名を右へ寄せる。間の伸縮スペーサで両者を離す</span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         cols := styled.Cols(styled.Fit(), styled.Name(), styled.Icon(), styled.Fit())</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         rows := make([]menuframe.Row, consts.CubeModuleSlots)</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         for i := range rows {</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 label := query.T(world, &quot;Slot %d&quot;, i+1)</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 var icon *ebiten.Image</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 name := query.T(world, &quot;(empty)&quot;)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 if props.Slots[i] != gc.InvalidEntity {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                         icon = menuIcon(world, props.Slots[i])</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                         name = query.GetEntityName(props.Slots[i], world)</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(label), styled.TextCell(&quot;&quot;), styled.IconCell(icon), styled.TextCell(name)}}</span></span>
+<span id="L100"><span class="lineNum">     100</span>              :         }</span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         list, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{}, res)</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :         return menuframe.PanelScreen(world, res, query.T(world, &quot;Module&quot;), list, keybind.HelpHint(world), pager)</span></span>
+<span id="L103"><span class="lineNum">     103</span>              : }</span>
+<span id="L104"><span class="lineNum">     104</span>              : </span>
+<span id="L105"><span class="lineNum">     105</span>              : // DoAction はActionを実行する。スロットを選ぶと候補選択へ進む</span>
+<span id="L106"><span class="lineNum">     106</span>              : func (st *CubeModuleMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :         switch action {</span></span>
+<span id="L108"><span class="lineNum">     108</span>              :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :         case inputmapper.ActionMenuSelect:</span>
+<span id="L111"><span class="lineNum">     111</span>              :                 // menuloop が ItemCounts=CubeModuleSlots でカーソルを範囲内に保つので slots[idx] は安全</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 slots := st.screen.Props().Slots</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 idx := st.screen.Selection().ItemIndex</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 var current *ecs.Entity</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 if slots[idx] != gc.InvalidEntity {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                         m := slots[idx]</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                         current = &amp;m</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                         Type:          es.TransPush,</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                         NewStateFuncs: []es.StateFactory[w.World]{newCubeModuleSelectState(st.cube, idx, current)},</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 }, nil</span></span>
+<span id="L123"><span class="lineNum">     123</span>              :         default:</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;cubeModuleMenu: unsupported action: %s&quot;, action)</span></span>
+<span id="L125"><span class="lineNum">     125</span>              :         }</span>
+<span id="L126"><span class="lineNum">     126</span>              : }</span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span>              : // CubeModuleSelectState はスロット1つのモジュールを選ぶメニュー。装備の EquipSelectState と同型で、</span>
+<span id="L129"><span class="lineNum">     129</span>              : // 装着済みなら先頭に「外す」が並ぶ。x で装着中と候補の詳細を見比べる。</span>
+<span id="L130"><span class="lineNum">     130</span>              : type CubeModuleSelectState struct {</span>
+<span id="L131"><span class="lineNum">     131</span>              :         es.BaseState[w.World]</span>
+<span id="L132"><span class="lineNum">     132</span>              :         cube      ecs.Entity</span>
+<span id="L133"><span class="lineNum">     133</span>              :         slot      int         // 編集対象のスロット番号</span>
+<span id="L134"><span class="lineNum">     134</span>              :         installed *ecs.Entity // このスロットの装着中モジュール。空きなら nil</span>
+<span id="L135"><span class="lineNum">     135</span>              :         detail    overlay.Detail</span>
+<span id="L136"><span class="lineNum">     136</span>              :         screen    *menuloop.Screen[CubeModuleSelectProps]</span>
+<span id="L137"><span class="lineNum">     137</span>              : }</span>
+<span id="L138"><span class="lineNum">     138</span>              : </span>
+<span id="L139"><span class="lineNum">     139</span>              : var _ es.State[w.World] = &amp;CubeModuleSelectState{}</span>
+<span id="L140"><span class="lineNum">     140</span>              : var _ menuloop.KeyBindings = &amp;CubeModuleSelectState{}</span>
+<span id="L141"><span class="lineNum">     141</span>              : </span>
+<span id="L142"><span class="lineNum">     142</span>              : // CubeModuleSelectProps はモジュール選択の表示 props</span>
+<span id="L143"><span class="lineNum">     143</span>              : type CubeModuleSelectProps struct {</span>
+<span id="L144"><span class="lineNum">     144</span>              :         Candidates []ecs.Entity // 装着できるモジュール。キューブ収納とバックパックから集める</span>
+<span id="L145"><span class="lineNum">     145</span>              :         Installed  *ecs.Entity</span>
+<span id="L146"><span class="lineNum">     146</span>              : }</span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span>              : // newCubeModuleSelectState はスロットに対するモジュール選択を開くファクトリを返す</span>
+<span id="L149"><span class="lineNum">     149</span>              : func newCubeModuleSelectState(cube ecs.Entity, slot int, installed *ecs.Entity) es.StateFactory[w.World] {</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         return func() (es.State[w.World], error) {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return &amp;CubeModuleSelectState{cube: cube, slot: slot, installed: installed}, nil</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : }</span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span>              : // OnStart はステートが開始される際に呼ばれる</span>
+<span id="L156"><span class="lineNum">     156</span>              : func (st *CubeModuleSelectState) OnStart(_ w.World) error {</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         st.detail = overlay.NewComparison(st.compareContents)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         st.screen = menuloop.NewScreen[CubeModuleSelectProps](st, &amp;st.detail)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span>              : // Update はゲームステートの更新処理を行う</span>
+<span id="L163"><span class="lineNum">     163</span>              : func (st *CubeModuleSelectState) Update(world w.World) (es.Transition[w.World], error) {</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         return st.screen.Update(world)</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : </span>
+<span id="L167"><span class="lineNum">     167</span>              : // Draw はゲームステートの描画処理を行う</span>
+<span id="L168"><span class="lineNum">     168</span>              : func (st *CubeModuleSelectState) Draw(_ w.World, screen *ebiten.Image) error {</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         st.screen.Draw(screen)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L172"><span class="lineNum">     172</span>              : </span>
+<span id="L173"><span class="lineNum">     173</span>              : // KeyBindings は x の詳細表示を共通入力に足す</span>
+<span id="L174"><span class="lineNum">     174</span>              : func (st *CubeModuleSelectState) KeyBindings() []keybind.Binding {</span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         return detailOpenBindings</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L177"><span class="lineNum">     177</span>              : </span>
+<span id="L178"><span class="lineNum">     178</span>              : // Fetch は世界から表示 props を構築する。候補はプレイヤーのバックパックから集める。</span>
+<span id="L179"><span class="lineNum">     179</span>              : // プレイヤー不在は握りつぶさず error で返して早期に検知する。</span>
+<span id="L180"><span class="lineNum">     180</span>              : func (st *CubeModuleSelectState) Fetch(world w.World) (CubeModuleSelectProps, error) {</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 return CubeModuleSelectProps{}, fmt.Errorf(&quot;cube module select: %w&quot;, err)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         return CubeModuleSelectProps{Candidates: query.BackpackCubeModules(world, player), Installed: st.installed}, nil</span></span>
+<span id="L186"><span class="lineNum">     186</span>              : }</span>
+<span id="L187"><span class="lineNum">     187</span>              : </span>
+<span id="L188"><span class="lineNum">     188</span>              : // Menu は単一リストの構成を返す。装着済みなら先頭の「外す」ぶんを1つ足す</span>
+<span id="L189"><span class="lineNum">     189</span>              : func (st *CubeModuleSelectState) Menu(props CubeModuleSelectProps) menuloop.MenuConfig {</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         return menuloop.MenuConfig{Key: &quot;cube_module_select&quot;, TabCount: 1, ItemCounts: []int{cubeModuleChoiceCount(props)}, ItemsPerPage: menuloop.ItemsPerPageAuto}</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span>              : // ViewUI は候補一覧を中央パネルへ組む。装着済みなら先頭に「外す」が並ぶ</span>
+<span id="L194"><span class="lineNum">     194</span>              : func (st *CubeModuleSelectState) ViewUI(world w.World, props CubeModuleSelectProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         var rows []menuframe.Row</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         if props.Installed != nil {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(nil), styled.TextCell(query.T(world, &quot;Remove&quot;))}})</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         for _, entity := range props.Candidates {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(menuIcon(world, entity)), styled.TextCell(query.GetEntityName(entity, world))}})</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         list, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Icon(), styled.Name()),</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 menuframe.ListOpts{EmptyText: query.T(world, &quot;No modules to install&quot;)}, res)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         return menuframe.PanelScreen(world, res, query.T(world, &quot;Choose module&quot;), list, keybind.HelpHint(world), pager)</span></span>
+<span id="L205"><span class="lineNum">     205</span>              : }</span>
+<span id="L206"><span class="lineNum">     206</span>              : </span>
+<span id="L207"><span class="lineNum">     207</span>              : // DoAction はActionを実行する。選択で装着または外して閉じる</span>
+<span id="L208"><span class="lineNum">     208</span>              : func (st *CubeModuleSelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :         switch action {</span></span>
+<span id="L210"><span class="lineNum">     210</span>              :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L212"><span class="lineNum">     212</span>              :         case inputmapper.ActionOpenItemDetail:</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L215"><span class="lineNum">     215</span>              :         case inputmapper.ActionMenuSelect:</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 if choice, ok := st.selection(); ok {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                         if err := applyCubeModuleChoice(world, st.cube, st.slot, choice, st.installed); err != nil {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L220"><span class="lineNum">     220</span>              :                 }</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L222"><span class="lineNum">     222</span>              :         default:</span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;cubeModuleSelect: unsupported action: %s&quot;, action)</span></span>
+<span id="L224"><span class="lineNum">     224</span>              :         }</span>
+<span id="L225"><span class="lineNum">     225</span>              : }</span>
+<span id="L226"><span class="lineNum">     226</span>              : </span>
+<span id="L227"><span class="lineNum">     227</span>              : // selection は現在カーソルが指す選択を返す</span>
+<span id="L228"><span class="lineNum">     228</span>              : func (st *CubeModuleSelectState) selection() (cubeModuleChoice, bool) {</span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         return cubeModuleChoiceAt(st.screen.Props(), st.screen.Selection().ItemIndex)</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L231"><span class="lineNum">     231</span>              : </span>
+<span id="L232"><span class="lineNum">     232</span>              : // compareContents は詳細に出す内容を返す。装着中と候補を2枚、空きスロットの候補なら候補1枚、</span>
+<span id="L233"><span class="lineNum">     233</span>              : // 「外す」なら外す対象1枚を返す。並びは左が装着中、右が候補</span>
+<span id="L234"><span class="lineNum">     234</span>              : func (st *CubeModuleSelectState) compareContents(world w.World) ([]overlay.DetailContent, bool) {</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         choice, ok := st.selection()</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 return nil, false</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         if choice.remove {</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 return []overlay.DetailContent{overlay.EntityDetailContent(world, *st.installed)}, true</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         candidate := overlay.EntityDetailContent(world, choice.entity)</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         if st.installed == nil {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 return []overlay.DetailContent{candidate}, true</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         return []overlay.DetailContent{overlay.EntityDetailContent(world, *st.installed), candidate}, true</span></span>
+<span id="L247"><span class="lineNum">     247</span>              : }</span>
+<span id="L248"><span class="lineNum">     248</span>              : </span>
+<span id="L249"><span class="lineNum">     249</span>              : // cubeModuleChoice はカーソルが指すモジュール選択。remove なら「外す」、そうでなければ entity が候補</span>
+<span id="L250"><span class="lineNum">     250</span>              : type cubeModuleChoice struct {</span>
+<span id="L251"><span class="lineNum">     251</span>              :         remove bool</span>
+<span id="L252"><span class="lineNum">     252</span>              :         entity ecs.Entity</span>
+<span id="L253"><span class="lineNum">     253</span>              : }</span>
+<span id="L254"><span class="lineNum">     254</span>              : </span>
+<span id="L255"><span class="lineNum">     255</span>              : // cubeModuleChoiceAt は候補一覧の index を選択へ写す。装着済みなら先頭が「外す」で、候補は1つ後ろへ詰まる</span>
+<span id="L256"><span class="lineNum">     256</span>              : func cubeModuleChoiceAt(props CubeModuleSelectProps, index int) (cubeModuleChoice, bool) {</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC tlaBgGNC">           1 :         if props.Installed != nil {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 if index == 0 {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                         return cubeModuleChoice{remove: true}, true</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 index--</span></span>
+<span id="L262"><span class="lineNum">     262</span>              :         }</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         if index &lt; 0 || index &gt;= len(props.Candidates) {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 return cubeModuleChoice{}, false</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         return cubeModuleChoice{entity: props.Candidates[index]}, true</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : }</span>
+<span id="L268"><span class="lineNum">     268</span>              : </span>
+<span id="L269"><span class="lineNum">     269</span>              : // cubeModuleChoiceCount は選択できる項目数を返す。装着済みなら先頭の「外す」を1つ足す</span>
+<span id="L270"><span class="lineNum">     270</span>              : func cubeModuleChoiceCount(props CubeModuleSelectProps) int {</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC tlaBgUNC">           0 :         if props.Installed != nil {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                 return len(props.Candidates) + 1</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         return len(props.Candidates)</span></span>
+<span id="L275"><span class="lineNum">     275</span>              : }</span>
+<span id="L276"><span class="lineNum">     276</span>              : </span>
+<span id="L277"><span class="lineNum">     277</span>              : // applyCubeModuleChoice は選択を指定スロットへ実行する。「外す」なら装着中をプレイヤーのバックパックへ戻し、</span>
+<span id="L278"><span class="lineNum">     278</span>              : // 候補なら装着する。スロットに装着中があれば先にバックパックへ戻してから付け替える。キューブは browse できる</span>
+<span id="L279"><span class="lineNum">     279</span>              : // 収納を持たないので、外したモジュールは取り出せるバックパックへ返す。</span>
+<span id="L280"><span class="lineNum">     280</span>              : func applyCubeModuleChoice(world w.World, cube ecs.Entity, slot int, choice cubeModuleChoice, installed *ecs.Entity) error {</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;cube module: %w&quot;, err)</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         if choice.remove {</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 if installed == nil {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC tlaBgGNC">           1 :                 return lifecycle.MoveToBackpack(world, *installed, player)</span></span>
+<span id="L290"><span class="lineNum">     290</span>              :         }</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         if installed != nil {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                 if err := lifecycle.MoveToBackpack(world, *installed, player); err != nil {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :         }</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC tlaBgGNC">           1 :         lifecycle.MoveToInstalled(world, choice.entity, cube, slot)</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L298"><span class="lineNum">     298</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

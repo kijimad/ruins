@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 01:32:29</td>
+            <td class="headerValue">2026-09-24 01:36:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -118,7 +118,7 @@
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         bound := BoundEntities(world, key)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         // 消える所有者の収納在庫も道連れにする。在庫は GridElement も StageBound も持たず</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :         // この走査に載らないため、所有者だけ消すと死んだ所有者を指す孤児になり serde で蓄積する</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         lifecycle.RemoveOwnedStorage(world, bound)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         lifecycle.RemoveOwnedEntities(world, bound)</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         for _, e := range bound {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 if world.ECS.Alive(e) {</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         world.ECS.RemoveEntity(e)</span></span>
