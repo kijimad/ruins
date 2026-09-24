@@ -418,7 +418,8 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 		}
 		entitySpec.LightSource = toGCLightSource(dep.LightSource)
 	}
-	// 寝具設備は受動。据えると Bedding を持ち、隣で眠ると睡眠品質が上がる。相互作用は持たない
+	// 寝具設備は受動。据えると Bedding を持ち、隣で眠ると睡眠品質が上がる。相互作用は持たない。
+	// LightSource と違い Item に携行 bedding フィールドが無いので、上書き衝突は起きずガードは要らない
 	if dep.Bedding != nil {
 		entitySpec.Bedding = toGCBedding(dep.Bedding)
 	}

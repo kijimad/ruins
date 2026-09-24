@@ -247,6 +247,36 @@ r = 255
 	assert.Empty(t, spec.Interactable.Interactions, "照明設備はフィールド相互作用ゼロ")
 }
 
+func TestNewItemSpec_据付は複数の能力を同時に持てる(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "多機能ベッド"
+id = "多機能ベッド"
+Description = "照明と寝具を兼ねる据付"
+
+[Items.Deployable.LightSource]
+enabled = true
+radius = 4
+[Items.Deployable.LightSource.color]
+a = 255
+
+[Items.Deployable.Bedding]
+quality = 120
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "多機能ベッド")
+	require.NoError(t, err)
+
+	// 能力は独立した枝なので両立する
+	require.NotNil(t, spec.LightSource, "照明を持つ")
+	require.NotNil(t, spec.Bedding, "寝具を持つ")
+	assert.Equal(t, consts.Percent(120), spec.Bedding.Quality)
+}
+
 func TestNewItemSpec_携行光源と据付照明の両立はエラー(t *testing.T) {
 	t.Parallel()
 
