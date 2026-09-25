@@ -43,7 +43,7 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 		// flavor と散らかりは到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が
 		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
 		if hr.Role != roleCorridor && !isNarrowRoom(hr.Room.Rect) {
-			flavor, err := facilityFlavor(raws, facility)
+			flavor, err := contentByID(raws, "flavor")
 			if err != nil {
 				return Site{}, nil, err
 			}
