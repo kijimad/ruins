@@ -159,18 +159,14 @@ func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom
 	return nil, 0, 0, false
 }
 
-// roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ
-// 民家の共有役割(corridor 等)、それも無ければ施設別の奥室既定へ落とす。民家だけでなく店・診療所も役割名で
-// 部屋を作り分けられるよう、施設カタログを優先して引く。役割名は planRooms とテンプレが付ける。
+// roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ施設別の
+// 奥室既定へ落とす。各施設は自分が使う役割を自前のカタログで持ち、他施設のカタログには依存しない。役割名は
+// planRooms とテンプレが付ける。
 func roleContent(raws oapi.Raws, facility FacilityKind, role roleName, seed uint64) (Content, error) {
 	if role == roleMain {
 		return facilityContent(raws, facility, seed)
 	}
 	if c, ok, err := roomContent(raws, facility, role); ok || err != nil {
-		return c, err
-	}
-	// 民家の共有役割(corridor 等)。施設カタログに無い役割は民家の表から引く
-	if c, ok, err := roomContent(raws, facHouse, role); ok || err != nil {
 		return c, err
 	}
 	return backRoomContent(raws, facility)

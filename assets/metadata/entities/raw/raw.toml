@@ -16815,6 +16815,9 @@ content = "restroom"
 [[facilityRooms.rooms]]
 role = "waiting"
 content = "waiting"
+[[facilityRooms.rooms]]
+role = "corridor"
+content = "corridor"
 [[facilityRooms]]
 facility = "lab"
 fallback = "examination_room"
@@ -16833,6 +16836,9 @@ content = "restroom"
 [[facilityRooms.rooms]]
 role = "waiting"
 content = "waiting"
+[[facilityRooms.rooms]]
+role = "corridor"
+content = "corridor"
 [[facilityRooms]]
 facility = "office"
 fallback = "storage"

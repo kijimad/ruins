@@ -10,23 +10,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestRoleContent_施設に無い役割は民家カタログへ落ちる は roleContent の中間分岐を直接固定する。店が持たない
-// 役割を引くと、民家の共有役割カタログから content を引く。end-to-end の FurnishBuilding では覆えない中間経路で、
-// ここが壊れると特定役割の部屋が静かに空になる。
-func TestRoleContent_施設に無い役割は民家カタログへ落ちる(t *testing.T) {
+// TestRoleContent_施設に無い役割は自施設の奥室既定へ落ちる は roleContent のフォールバックを直接固定する。
+// カタログに無い役割は、他施設が同名役割を持っていても自施設の fallback content へ落ち、施設間の依存を持たない。
+// end-to-end の FurnishBuilding では覆えない中間経路で、ここが壊れると特定役割の部屋が静かに変わる。
+func TestRoleContent_施設に無い役割は自施設の奥室既定へ落ちる(t *testing.T) {
 	t.Parallel()
 
 	raws := oapi.Raws{
-		InteriorContents: &[]oapi.InteriorContent{{Id: "house_corridor"}},
+		InteriorContents: &[]oapi.InteriorContent{{Id: "store_fallback"}, {Id: "house_corridor"}},
 		FacilityRooms: &[]oapi.FacilityRooms{
-			{Facility: "store", Rooms: &[]oapi.RoomContent{}, Fallback: "house_corridor"},
+			{Facility: "store", Rooms: &[]oapi.RoomContent{}, Fallback: "store_fallback"},
 			{Facility: "house", Rooms: &[]oapi.RoomContent{{Role: "corridor", Content: "house_corridor"}}, Fallback: "house_corridor"},
 		},
 	}
 
+	// store は corridor を持たない。民家が corridor を持っていても store 自身の fallback へ落ちる
 	c, err := roleContent(raws, FacilityKind("store"), roleCorridor, 0)
 	require.NoError(t, err)
-	require.Equal(t, "house_corridor", c.ID)
+	require.Equal(t, "store_fallback", c.ID)
 }
 
 // TestFurnishBuilding_大きい建物は多部屋になる は分割配線の要点を固定する。割れる大きさの footprint は
