@@ -25,6 +25,7 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 	}
 
 	activityQuery := ecs.NewFilter1[gc.Activity](world.ECS).Query()
+	defer activityQuery.Close()
 	for activityQuery.Next() {
 		entity := activityQuery.Entity()
 		comp := world.Components.Activity.Get(entity)
@@ -425,5 +426,64 @@ func TestLastActivity(t *testing.T) {
 		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
 		assert.False(t, result.Success)
+	})
+
+	t.Run("一度もアクティビティを実行していないエンティティはnil", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+
+		assert.Nil(t, GetLastResult(actor, world))
+	})
+}
+
+func TestStepActivity(t *testing.T) {
+	t.Parallel()
+
+	t.Run("アクティビティを持たないエンティティは何もしない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+
+		stepActivity(actor, world)
+
+		assert.Nil(t, query.GetActivity(world, actor))
+		assert.Nil(t, GetLastResult(actor, world), "結果も記録されないはず")
+	})
+
+	t.Run("未登録のBehaviorNameはアクティビティを除去して終える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.TurnBased.Add(actor, &gc.TurnBased{})
+
+		// StartActivity/Validate を経由せず、直接未登録のBehaviorNameを持つActivityを登録する
+		comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
+		require.NoError(t, query.SetActivity(world, actor, comp))
+		require.NotNil(t, query.GetActivity(world, actor))
+
+		stepActivity(actor, world)
+
+		assert.Nil(t, query.GetActivity(world, actor), "GetBehaviorに失敗したアクティビティは除去される")
+		assert.Nil(t, GetLastResult(actor, world), "GetBehaviorエラー時は結果も記録されない")
+	})
+
+	t.Run("DoTurnがエラーを返すとキャンセルして除去する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		actor := world.ECS.NewEntity()
+		world.Components.TurnBased.Add(actor, &gc.TurnBased{})
+
+		// Validate を経由せず、PlaceParams を持たない不正な Drop アクティビティを直接登録する。
+		// DropBehavior.DoTurn は Params の型アサーションに失敗しエラーを返す
+		comp := &gc.Activity{BehaviorName: gc.BehaviorDrop, State: gc.ActivityStateRunning}
+		require.NoError(t, query.SetActivity(world, actor, comp))
+
+		stepActivity(actor, world)
+
+		assert.Nil(t, query.GetActivity(world, actor), "DoTurnが失敗したアクティビティは除去される")
+		result := GetLastResult(actor, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
 	})
 }
