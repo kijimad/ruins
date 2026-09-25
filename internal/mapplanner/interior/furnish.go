@@ -95,6 +95,10 @@ const roleMain roleName = "main"
 // roleCorridor は廊下の役割名。通路として空け、フレーバーや hero の目玉を置かない。
 const roleCorridor roleName = "corridor"
 
+// roleBack は BSP フォールバックが主室以外に付ける役割名。施設カタログに無いので backRoomContent の
+// 奥室既定へ落ちる。main と同じく raw.toml の役割データでなく、どの raw フィールドを引くかのルーティング役割。
+const roleBack roleName = "back"
+
 // isNarrowRoom は部屋の内側が幅1以下の通路状かを返す。1マス幅の廊下や薄い水回りにフレーバーを置くと
 // 唯一の歩行帯を塞ぐので、その判定に使う。
 func isNarrowRoom(r Rect) bool {
@@ -132,7 +136,7 @@ func planRooms(footprint Rect, seed uint64, facility FacilityKind) ([]Room, []ro
 		if rank == 0 {
 			roles[ri] = roleMain
 		} else {
-			roles[ri] = "back"
+			roles[ri] = roleBack
 		}
 	}
 	return rooms, roles
