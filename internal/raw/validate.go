@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -21,8 +20,9 @@ var (
 	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
 	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
-	errInvalidPackNotation            = errors.New("invalid pack notation")
-	errInvalidLootCountNotation       = errors.New("invalid lootCount notation")
+	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
+	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
+	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 )
 
 // ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する
@@ -68,9 +68,6 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateDropTableReferences(raws); err != nil {
 		return err
 	}
-	if err := validateSpawnDice(raws); err != nil {
-		return err
-	}
 	if err := validateCommandTableReferences(raws); err != nil {
 		return err
 	}
@@ -84,6 +81,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateFacilityEnemyTableReferences(raws); err != nil {
+		return err
+	}
+	if err := validateInteriorContentReferences(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -176,6 +176,57 @@ func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
+// validateInteriorContentReferences は内装レシピの content 参照が interiorContents に存在することを検証する。
+// facilityContents の変種、facilityRooms の役割別 content と fallback が指す id を、typo による空部屋の silent
+// 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複と、interior を積む raw での
+// flavorContent 未設定を検出する。id は生成側の一意キーで重複すると取り違わる。
+func validateInteriorContentReferences(raws oapi.Raws) error {
+	contents := PtrSlice(raws.InteriorContents)
+	contentIDs := make(map[string]struct{}, len(contents))
+	for i := range contents {
+		if _, dup := contentIDs[contents[i].Id]; dup {
+			return fmt.Errorf("interior content %q: %w", contents[i].Id, errInteriorContentDuplicateID)
+		}
+		contentIDs[contents[i].Id] = struct{}{}
+	}
+
+	for _, fc := range PtrSlice(raws.FacilityContents) {
+		for _, id := range fc.Variants {
+			if id == "" {
+				continue
+			}
+			if _, ok := contentIDs[id]; !ok {
+				return fmt.Errorf("facility %q variant %q: %w", fc.Facility, id, errInteriorContentRefUndefined)
+			}
+		}
+	}
+
+	for _, fr := range PtrSlice(raws.FacilityRooms) {
+		for _, r := range PtrSlice(fr.Rooms) {
+			if r.Content == "" {
+				continue
+			}
+			if _, ok := contentIDs[r.Content]; !ok {
+				return fmt.Errorf("facility %q room %q content %q: %w", fr.Facility, r.Role, r.Content, errInteriorContentRefUndefined)
+			}
+		}
+		if fr.Fallback == "" {
+			continue
+		}
+		if _, ok := contentIDs[fr.Fallback]; !ok {
+			return fmt.Errorf("facility %q fallback %q: %w", fr.Facility, fr.Fallback, errInteriorContentRefUndefined)
+		}
+	}
+
+	// flavor は Go が全室へ引く必須レイヤ。interior を積む raw で未設定なら生成時に落ちるのでロード時に弾く。
+	// flavorContent は id 参照でなくインラインの値を直接持つので、interiorContents との id 照合は要らず存在だけ見る。
+	// interior を使わない部分的な Raws は素通しする
+	if len(contents) > 0 && raws.FlavorContent == nil {
+		return fmt.Errorf("flavorContent: %w", errInteriorFlavorContentMissing)
+	}
+	return nil
+}
+
 // validateCommandTableWeaponReferences はコマンドテーブルの参照武器名がアイテム定義に存在することを検証する。
 // タイプミスは attack.go の getAttackParams が素手攻撃へ握り潰し無音で劣化するため、ロード時に前倒しで弾く。
 func validateCommandTableWeaponReferences(raws oapi.Raws) error {
@@ -199,38 +250,6 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateSpawnDice はスポーン系のダイス表記をロード時に検証する。スキーマの pattern は
-// "0d6" のような個数0を通すが ParseDice は弾くため、生成時でなくロード時にまとめて弾いて
-// 分解産出の count 検証と一貫させる。
-func validateSpawnDice(raws oapi.Raws) error {
-	enemyTables := PtrSlice(raws.EnemyTables)
-	for i := range enemyTables {
-		for _, e := range enemyTables[i].Entries {
-			if _, err := consts.ParseDice(e.Pack); err != nil {
-				return fmt.Errorf("enemy table %q entry %q has %w: %w", enemyTables[i].Name, e.Id, errInvalidPackNotation, err)
-			}
-		}
-	}
-	itemGroups := PtrSlice(raws.ItemGroups)
-	for i := range itemGroups {
-		for _, e := range itemGroups[i].Entries {
-			if _, err := consts.ParseDice(e.Pack); err != nil {
-				return fmt.Errorf("item group %q entry %q has %w: %w", itemGroups[i].Name, e.Id, errInvalidPackNotation, err)
-			}
-		}
-	}
-	props := PtrSlice(raws.Props)
-	for i := range props {
-		if props[i].Storage == nil || props[i].Storage.LootCount == nil {
-			continue
-		}
-		if _, err := consts.ParseDice(*props[i].Storage.LootCount); err != nil {
-			return fmt.Errorf("container %q has %w: %w", props[i].Name, errInvalidLootCountNotation, err)
-		}
-	}
-	return nil
-}
-
 // validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する
 func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
@@ -247,9 +266,6 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 			if _, ok := itemNames[y.Id]; !ok {
 				return fmt.Errorf("%s %q disassembly yield %q: %w", ownerKind, ownerName, y.Id, errDisassemblyYieldUndefined)
 			}
-			if _, err := consts.ParseDice(y.Count); err != nil {
-				return fmt.Errorf("%s '%s' disassembly yield '%s' has invalid count notation: %w", ownerKind, ownerName, y.Id, err)
-			}
 		}
 		if def.Bonus == nil {
 			return nil
@@ -257,9 +273,6 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		for _, b := range *def.Bonus {
 			if _, ok := itemNames[b.Id]; !ok {
 				return fmt.Errorf("%s %q disassembly bonus %q: %w", ownerKind, ownerName, b.Id, errDisassemblyBonusUndefined)
-			}
-			if _, err := consts.ParseDice(b.Count); err != nil {
-				return fmt.Errorf("%s '%s' disassembly bonus '%s' has invalid count notation: %w", ownerKind, ownerName, b.Id, err)
 			}
 		}
 		return nil

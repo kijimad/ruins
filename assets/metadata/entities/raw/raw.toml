@@ -15967,6 +15967,896 @@ enemyTable = "store_enemies"
 facility = "antique"
 enemyTable = "antique_enemies"
 
+[[interiorContents]]
+id = "bath"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bathtub"
+amount = "1d1"
+[[interiorContents]]
+id = "bedroom"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bed"
+amount = "1d1"
+placement = "far_from_door"
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "closet"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 1
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "lantern"
+amount = "1d1"
+[[interiorContents]]
+id = "clinic"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "reception"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "waitchair"
+amount = "5d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "exam_bed"
+amount = "3d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "medcabinet"
+amount = "3d1"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 2
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "meds"
+weight = 2
+amount = "2d3"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "bandage"
+weight = 1
+amount = "2d2"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "2d1"
+[[interiorContents]]
+id = "coldroom"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "walkin_cooler"
+amount = "4d1"
+placement = "wall"
+[[interiorContents]]
+id = "convenience_store"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "walkin_cooler"
+amount = "7d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "register"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "gondola"
+amount = "10d1"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 2
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "snacks"
+weight = 3
+amount = "3d4"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "drinks"
+weight = 2
+amount = "2d4"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "bento"
+weight = 1
+amount = "2d3"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "litter"
+amount = "1d3+1"
+[[interiorContents]]
+id = "corridor"
+[[interiorContents]]
+id = "depot"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "barrel"
+amount = "8d1"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "supplies"
+amount = "3d3"
+[[interiorContents]]
+id = "dressing"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "washer"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "sink"
+amount = "1d1"
+[[interiorContents]]
+id = "examination_room"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "exam_bed"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "medcabinet"
+amount = "1d1"
+[[interiorContents]]
+id = "genkan"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "getabako"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "1d1"
+[[interiorContents]]
+id = "grocery"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "gondola"
+amount = "14d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "walkin_cooler"
+amount = "4d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "register"
+amount = "2d1"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 2
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "snacks"
+weight = 2
+amount = "3d4"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "drinks"
+weight = 2
+amount = "3d4"
+[[interiorContents]]
+id = "house"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bed"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "table"
+amount = "1d1"
+placement = "center"
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = -1
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 1
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 1
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 1
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 1
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "2d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "lantern"
+amount = "2d1"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 1
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "snacks"
+weight = 2
+amount = "2d3"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "drinks"
+weight = 1
+amount = "2d2"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "2d1"
+[[interiorContents]]
+id = "house_bedroom"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bed"
+amount = "1d1"
+placement = "far_from_door"
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "closet"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 1
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "lantern"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "dresser"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bedside"
+amount = "1d1"
+[[interiorContents]]
+id = "house_storage"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "barrel"
+amount = "2d1"
+[[interiorContents]]
+id = "kitchen"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "sink"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "pantry"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -1
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "pantry"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 2
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -2
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 2
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -2
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "lantern"
+amount = "1d1"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "table"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "pantry"
+amount = "2d1"
+placement = "row"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "microwave"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "coffeemaker"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 1
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "snacks"
+weight = 2
+amount = "2d2"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "bento"
+weight = 1
+amount = "2d2"
+[[interiorContents]]
+id = "living"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "lantern"
+amount = "2d1"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "table"
+amount = "1d1"
+placement = "center"
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = -1
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 1
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 1
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 1
+[[interiorContents.groups.items.satellites]]
+kind = "furniture"
+ref = "chair"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 1
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "sofa"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items.satellites]]
+kind = "decor"
+ref = "plant"
+[[interiorContents.groups.items.satellites.offsets]]
+x = 1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = -1
+y = 0
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = -1
+[[interiorContents.groups.items.satellites.offsets]]
+x = 0
+y = 1
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "butsudan"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "kamidana"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bookshelf"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "fireplace"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "clock"
+amount = "1d1"
+placement = "wall"
+[[interiorContents]]
+id = "office"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "desk"
+amount = "4d1"
+placement = "row"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "chair"
+amount = "4d1"
+placement = "row"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "2d1"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "documents"
+amount = "2d3"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "whiteboard"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "printer"
+amount = "1d1"
+placement = "wall"
+[[interiorContents]]
+id = "office_room"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "desk"
+amount = "2d1"
+placement = "row"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "chair"
+amount = "2d1"
+placement = "row"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "1d1"
+placement = "wall"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "documents"
+amount = "2d2"
+[[interiorContents]]
+id = "pharmacy"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "medcabinet"
+amount = "6d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "register"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "gondola"
+amount = "4d1"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 2
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "meds"
+weight = 3
+amount = "3d4"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "bandage"
+weight = 1
+amount = "2d3"
+[[interiorContents]]
+id = "pharmacy_room"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "medcabinet"
+amount = "4d1"
+placement = "wall"
+[[interiorContents.groups]]
+style = "pick_n"
+pick = 1
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "meds"
+amount = "2d3"
+placement = "far_from_door"
+[[interiorContents]]
+id = "restroom"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "toilet"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "sink"
+amount = "1d1"
+[[interiorContents]]
+id = "storage"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "barrel"
+amount = "3d1"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "loot"
+ref = "snacks"
+amount = "2d2"
+[[interiorContents]]
+id = "studio"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "bed"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "closet"
+amount = "3d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "table"
+amount = "1d1"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "lantern"
+amount = "1d1"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "1d1"
+[[interiorContents]]
+id = "toilet"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "toilet"
+amount = "1d1"
+[[interiorContents]]
+id = "waiting"
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "reception"
+amount = "1d1"
+placement = "near_door"
+[[interiorContents.groups.items]]
+kind = "furniture"
+ref = "waitchair"
+amount = "5d1"
+placement = "row"
+[[interiorContents.groups]]
+style = "pick_one"
+[[interiorContents.groups.items]]
+kind = "decor"
+ref = "plant"
+amount = "2d1"
+
+[flavorContent]
+id = "flavor"
+[[flavorContent.groups]]
+style = "pick_one"
+[[flavorContent.groups.items]]
+kind = "decor"
+ref = "carpet"
+weight = 1
+amount = "1d1"
+placement = "far_from_door"
+[[flavorContent.groups.items]]
+kind = "decor"
+ref = "candle"
+weight = 1
+amount = "1d1"
+placement = "wall"
+
+[[facilityContents]]
+facility = "house"
+variants = ["house", "studio"]
+[[facilityContents]]
+facility = "store"
+variants = ["convenience_store", "pharmacy", "grocery"]
+[[facilityContents]]
+facility = "antique"
+variants = ["convenience_store"]
+[[facilityContents]]
+facility = "clinic"
+variants = ["clinic"]
+[[facilityContents]]
+facility = "lab"
+variants = ["clinic"]
+[[facilityContents]]
+facility = "office"
+variants = ["office"]
+[[facilityContents]]
+facility = "depot"
+variants = ["depot"]
+
+[[facilityRooms]]
+facility = "house"
+fallback = "bedroom"
+[[facilityRooms.rooms]]
+role = "bath"
+content = "bath"
+[[facilityRooms.rooms]]
+role = "bedroom"
+content = "house_bedroom"
+[[facilityRooms.rooms]]
+role = "corridor"
+content = "corridor"
+[[facilityRooms.rooms]]
+role = "dressing"
+content = "dressing"
+[[facilityRooms.rooms]]
+role = "genkan"
+content = "genkan"
+[[facilityRooms.rooms]]
+role = "kitchen"
+content = "kitchen"
+[[facilityRooms.rooms]]
+role = "living"
+content = "living"
+[[facilityRooms.rooms]]
+role = "storage"
+content = "house_storage"
+[[facilityRooms.rooms]]
+role = "toilet"
+content = "toilet"
+[[facilityRooms]]
+facility = "store"
+fallback = "storage"
+[[facilityRooms.rooms]]
+role = "coldroom"
+content = "coldroom"
+[[facilityRooms.rooms]]
+role = "office"
+content = "office_room"
+[[facilityRooms.rooms]]
+role = "restroom"
+content = "restroom"
+[[facilityRooms.rooms]]
+role = "storeroom"
+content = "storage"
+[[facilityRooms]]
+facility = "antique"
+fallback = "storage"
+[[facilityRooms.rooms]]
+role = "coldroom"
+content = "coldroom"
+[[facilityRooms.rooms]]
+role = "office"
+content = "office_room"
+[[facilityRooms.rooms]]
+role = "restroom"
+content = "restroom"
+[[facilityRooms.rooms]]
+role = "storeroom"
+content = "storage"
+[[facilityRooms]]
+facility = "clinic"
+fallback = "examination_room"
+[[facilityRooms.rooms]]
+role = "examination_room"
+content = "examination_room"
+[[facilityRooms.rooms]]
+role = "office"
+content = "office_room"
+[[facilityRooms.rooms]]
+role = "pharmacy"
+content = "pharmacy_room"
+[[facilityRooms.rooms]]
+role = "restroom"
+content = "restroom"
+[[facilityRooms.rooms]]
+role = "waiting"
+content = "waiting"
+[[facilityRooms.rooms]]
+role = "corridor"
+content = "corridor"
+[[facilityRooms]]
+facility = "lab"
+fallback = "examination_room"
+[[facilityRooms.rooms]]
+role = "examination_room"
+content = "examination_room"
+[[facilityRooms.rooms]]
+role = "office"
+content = "office_room"
+[[facilityRooms.rooms]]
+role = "pharmacy"
+content = "pharmacy_room"
+[[facilityRooms.rooms]]
+role = "restroom"
+content = "restroom"
+[[facilityRooms.rooms]]
+role = "waiting"
+content = "waiting"
+[[facilityRooms.rooms]]
+role = "corridor"
+content = "corridor"
+[[facilityRooms]]
+facility = "office"
+fallback = "storage"
+[[facilityRooms]]
+facility = "depot"
+fallback = "storage"
+
 [[spriteSheets]]
 name = "bg"
 path = "file/textures/dist/bg.json"

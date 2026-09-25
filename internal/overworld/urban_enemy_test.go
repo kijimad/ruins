@@ -34,7 +34,7 @@ func TestUrbanEnemyTableFor_割り当て先が実在しなければerror(t *test
 
 	master := testutil.InitTestWorld(t).Resources.RawMaster
 	master.FacilityEnemyTables = &[]oapi.FacilityEnemyTable{
-		{Facility: string(facilityClinic), EnemyTable: "no_such_table"},
+		{Facility: oapi.FacilityKind(facilityClinic), EnemyTable: "no_such_table"},
 	}
 
 	_, err := urbanEnemyTableFor(master, facilityClinic)

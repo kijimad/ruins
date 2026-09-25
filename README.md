@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [内装レシピを raw.toml へ移す。施設の中身をデータ駆動にする](docs/design/260924113529.md) | 0/8 | worldgen, item, gamedesign |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

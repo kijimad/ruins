@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // 建物内装のパイプラインと役割ルーティング。footprint を敷地計画して部屋へ割り、各部屋の役割から content を
@@ -22,23 +23,31 @@ type FurnishStage struct {
 // 前段に置き、建物内の各室へ plan→fill→age→flavor を掛けた累積配置を返す。どの段で見た目が壊れたかを段別
 // VRT で切り分けられるようにする。坪庭の室は家具を置かず観葉だけ置き、経年・flavor を掛けない。FurnishBuilding
 // はこの最終段を返す薄い包みで、両者は同じパイプラインを共有するので段別 VRT と実生成は乖離しない。
-func FurnishStages(seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage) {
+func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage, error) {
 	site := planSite(footprint, seed, door, facility)
 
-	prof := rollProfile(seed) // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
+	prof := rollProfile(seed)          // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
+	flavor, err := flavorContent(raws) // 全室共通なのでループ外で1度だけ引く
+	if err != nil {
+		return Site{}, nil, err
+	}
 	var fill, decayed, flavored []Placed
 	for i := range site.Rooms {
 		hr := site.Rooms[i]
 		roomSeed := childSeed(seed, 300+i)
 		// 密度は全室へ一様に効かせる。同じ内装でもがらんとした家と物で埋まった家を出し分ける
-		f := FillRoom(roomSeed, hr.Room, applyDensity(roleContent(facility, hr.Role, seed), prof.density))
+		content, err := roleContent(raws, facility, hr.Role, seed)
+		if err != nil {
+			return Site{}, nil, err
+		}
+		f := FillRoom(roomSeed, hr.Room, applyDensity(content, prof.density))
 		// 損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷なら素通し
 		a := Age(roomSeed, hr.Room, f, prof.damage)
 		fl := a
 		// flavor と散らかりは到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が
 		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
 		if hr.Role != roleCorridor && !isNarrowRoom(hr.Room.Rect) {
-			fl = Flavor(roomSeed, hr.Room, a, facilityFlavor(facility))
+			fl = Flavor(roomSeed, hr.Room, a, flavor)
 			// 散らかりの小物を家具の隣へ落とし、生活感を足す。整頓の建物では何も足さない
 			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter, hr.Role)
 		}
@@ -73,7 +82,7 @@ func FurnishStages(seed uint64, footprint Rect, door Vec, facility FacilityKind)
 		{Label: "2 fill", Placed: fill},
 		{Label: "3 age", Placed: decayed},
 		{Label: "4 flavor", Placed: flavored},
-	}
+	}, nil
 }
 
 // roleName は部屋の役割ラベル。主室・廊下・寝室・薬局といった部屋の意味を表す。facility と隣り合って
@@ -86,6 +95,10 @@ const roleMain roleName = "main"
 // roleCorridor は廊下の役割名。通路として空け、フレーバーや hero の目玉を置かない。
 const roleCorridor roleName = "corridor"
 
+// roleBack は BSP フォールバックが主室以外に付ける役割名。施設カタログに無いので backRoomContent の
+// 奥室既定へ落ちる。main と同じく raw.toml の役割データでなく、どの raw フィールドを引くかのルーティング役割。
+const roleBack roleName = "back"
+
 // isNarrowRoom は部屋の内側が幅1以下の通路状かを返す。1マス幅の廊下や薄い水回りにフレーバーを置くと
 // 唯一の歩行帯を塞ぐので、その判定に使う。
 func isNarrowRoom(r Rect) bool {
@@ -95,9 +108,12 @@ func isNarrowRoom(r Rect) bool {
 // FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を
 // そのまま埋めず、入口側に前庭を空け、1室を坪庭にし、玄関を凹ませる。加工は FurnishStages が持ち、ここは
 // その最終段 flavor を返す。呼び出し側は Site から Walls で壁タイル、Garden で庭タイルを導き、配置を spawn する。
-func FurnishBuilding(seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed) {
-	site, stages := FurnishStages(seed, footprint, door, facility)
-	return site, stages[len(stages)-1].Placed
+func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed, error) {
+	site, stages, err := FurnishStages(raws, seed, footprint, door, facility)
+	if err != nil {
+		return Site{}, nil, err
+	}
+	return site, stages[len(stages)-1].Placed, nil
 }
 
 // planRooms は施設に応じて部屋群と各部屋の役割を返す。施設ごとに固有の間取りテンプレを持ち、民家は廊下型・
@@ -120,7 +136,7 @@ func planRooms(footprint Rect, seed uint64, facility FacilityKind) ([]Room, []ro
 		if rank == 0 {
 			roles[ri] = roleMain
 		} else {
-			roles[ri] = "back"
+			roles[ri] = roleBack
 		}
 	}
 	return rooms, roles
@@ -142,56 +158,22 @@ func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom
 	case facOffice, facDepot:
 		return nil, 0, 0, false // 専用テンプレを持たず BSP へ委ねる
 	}
-	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で BSP へ落とす
+	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で BSP へ落とす。
+	// facilityContent と違い未登録を error にしないのは、専用テンプレが無くても BSP の汎用分割で間取りは出せるから
 	return nil, 0, 0, false
 }
 
-// roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ
-// 民家の共有役割(corridor 等)、それも無ければ施設別の奥室既定へ落とす。民家だけでなく店・診療所も役割名で
-// 部屋を作り分けられるよう、施設カタログを優先して引く。役割名は planRooms とテンプレが付ける。
-func roleContent(facility FacilityKind, role roleName, seed uint64) Content {
+// roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ施設別の
+// 奥室既定へ落とす。各施設は自分が使う役割を自前のカタログで持ち、他施設のカタログには依存しない。役割名は
+// planRooms とテンプレが付ける。
+func roleContent(raws oapi.Raws, facility FacilityKind, role roleName, seed uint64) (Content, error) {
 	if role == roleMain {
-		return facilityContent(facility, seed)
+		return facilityContent(raws, facility, seed)
 	}
-	if c, ok := roomCatalog(facility)[role]; ok {
-		return c
+	if c, ok, err := roomContent(raws, facility, role); ok || err != nil {
+		return c, err
 	}
-	if c, ok := houseRoomContents()[role]; ok {
-		return c
-	}
-	return backRoomContent(facility)
-}
-
-// roomCatalog は施設種別ごとの「役割名→content」表を返す。houseRoomContents を民家以外へ横展開したもので、
-// テンプレが付けた役割名で各室の内装を引く。骨董品店は店、研究施設は診療所の表を共有する。
-func roomCatalog(facility FacilityKind) map[roleName]Content {
-	switch facility {
-	case facHouse:
-		return houseRoomContents()
-	case facStore, facAntique:
-		return storeRoomContents()
-	case facClinic, facLab:
-		return clinicRoomContents()
-	case facOffice, facDepot:
-		return nil // 専用カタログを持たず、共有役割か奥室既定へ落とす
-	}
-	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で nil を返す
-	return nil
-}
-
-// backRoomContent は奥室の内装。施設ごとに、店は物置、民家は寝室、診療所は診察室にする。既存の家具を
-// 使い回すので新しい content 語彙は要らない。役割カタログに無い役割のフォールバック。
-func backRoomContent(facility FacilityKind) Content {
-	switch facility {
-	case facHouse:
-		return bedroomContent()
-	case facClinic, facLab:
-		return examRoomContent()
-	case facStore, facAntique, facOffice, facDepot:
-		return storageRoomContent()
-	}
-	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で物置へ落とす
-	return storageRoomContent()
+	return backRoomContent(raws, facility)
 }
 
 // roomOrderByArea は部屋を面積降順の添字列で返す。主室に最大の部屋を選ぶための順序。

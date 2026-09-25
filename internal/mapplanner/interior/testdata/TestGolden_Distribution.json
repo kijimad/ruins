@@ -55,7 +55,7 @@
     },
     "Roles": {
       "corridor": 100,
-      "exam": 100,
+      "examination_room": 100,
       "office": 50,
       "pharmacy": 100,
       "restroom": 50,
@@ -187,7 +187,7 @@
     },
     "Roles": {
       "corridor": 100,
-      "exam": 100,
+      "examination_room": 100,
       "office": 50,
       "pharmacy": 100,
       "restroom": 50,

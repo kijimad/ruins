@@ -57,14 +57,15 @@ func roomEnterable(room Room, reached map[Vec]bool) bool {
 func TestFurnishBuilding_全室が入口から家具越しに歩いて到達できる(t *testing.T) {
 	t.Parallel()
 
-	// テンプレ施設(house/store/clinic)だけでなく BSP フォールバック施設(office/depot/lab/骨董/汎用)も
-	// なめる。以前は前者しか回しておらず、玄関ポーチが BSP の狭い部屋の戸口を壁で塞ぐ softlock を見逃していた
-	for _, fac := range []FacilityKind{facHouse, facStore, facClinic, facOffice, facDepot, facAntique, facLab, ""} {
+	// テンプレ施設(house/store/clinic)と BSP フォールバック施設(office/depot/lab/骨董)の両方をなめる。玄関ポーチが
+	// BSP の狭い部屋の戸口を壁で塞ぐ softlock を捕まえる。
+	for _, fac := range []FacilityKind{facHouse, facStore, facClinic, facOffice, facDepot, facAntique, facLab} {
 		for fp := consts.Tile(17); fp <= 20; fp++ { // 本番の建物サイズ
 			for seed := range uint64(50) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				door := Vec{X: fp / 2, Y: 0}
-				site, placed := FurnishBuilding(seed, footprint, door, fac)
+				site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, fac)
+				require.NoError(t, err)
 				reached := walkFrom(site, placed)
 				for _, hr := range site.Rooms {
 					require.Truef(t, roomEnterable(hr.Room, reached),
@@ -86,7 +87,8 @@ func TestFurnishBuilding_配置は全てfootprint内に収まる(t *testing.T) {
 			for seed := range uint64(30) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				door := Vec{X: fp / 2, Y: 0}
-				_, placed := FurnishBuilding(seed, footprint, door, fac)
+				_, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, fac)
+				require.NoError(t, err)
 				for _, p := range placed {
 					in := p.Pos.X >= footprint.X && p.Pos.X < footprint.X+footprint.W &&
 						p.Pos.Y >= footprint.Y && p.Pos.Y < footprint.Y+footprint.H

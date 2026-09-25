@@ -120,7 +120,11 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 	report.BattleMetrics = metrics
 
 	// 施設種別ごとの loot 分布を生成する
-	report.RoomLoot = GenerateRoomLoot(master, roomLootTrials, seed)
+	roomLoot, err := GenerateRoomLoot(master, roomLootTrials, seed)
+	if err != nil {
+		return nil, err
+	}
+	report.RoomLoot = roomLoot
 
 	return report, nil
 }

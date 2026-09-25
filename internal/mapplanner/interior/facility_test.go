@@ -14,10 +14,13 @@ func TestFurnish_施設種別ごとに決定的に内装を返す(t *testing.T) 
 
 	footprint := Rect{X: 0, Y: 0, W: 16, H: 12}
 	door := Vec{X: 8, Y: 11}
-	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", "unknown"} {
-		first := Furnish(3, footprint, door, fac)
+	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+		first, err := Furnish(testRaws(), 3, footprint, door, fac)
+		require.NoError(t, err)
 		require.NotEmptyf(t, first, "%s は何か配置する", fac)
-		require.Equalf(t, first, Furnish(3, footprint, door, fac), "%s は同じ引数で完全一致する", fac)
+		second, err := Furnish(testRaws(), 3, footprint, door, fac)
+		require.NoError(t, err)
+		require.Equalf(t, first, second, "%s は同じ引数で完全一致する", fac)
 	}
 }
 
@@ -37,7 +40,9 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 			aged = true
 		}
 		n := 0
-		for _, p := range Furnish(seed, footprint, door, "store") {
+		placed, err := Furnish(testRaws(), seed, footprint, door, "store")
+		require.NoError(t, err)
+		for _, p := range placed {
 			if p.Kind == KindFurniture {
 				n++
 			}
@@ -59,10 +64,14 @@ func TestFacilityContent_seedで店の変種が変わる(t *testing.T) {
 	door := Vec{X: 8, Y: 11}
 	ids := make(map[string]bool)
 	for seed := range uint64(30) {
-		ids[facilityContent("store", seed).ID] = true
-		assert.Equalf(t, "store", classifyRoom(Furnish(seed, footprint, door, "store")), "seed=%d のどの変種も店に分類される", seed)
+		c, err := facilityContent(testRaws(), "store", seed)
+		require.NoError(t, err)
+		ids[c.ID] = true
+		placed, err := Furnish(testRaws(), seed, footprint, door, "store")
+		require.NoError(t, err)
+		assert.Equalf(t, "store", classifyRoom(placed), "seed=%d のどの変種も店に分類される", seed)
 	}
-	assert.GreaterOrEqual(t, len(ids), 2, "seed を振ると店の変種が複数出る")
+	assert.GreaterOrEqual(t, len(ids), 3, "seed を振るとコンビニ・薬局・食料品店の3変種が出る")
 }
 
 // TestFurnish_家具は施設種別どおりに分類される は Furnish と classifyRoom を突き合わせる。生成した内装を
@@ -82,7 +91,8 @@ func TestFurnish_家具は施設種別どおりに分類される(t *testing.T) 
 		{"depot", "storage"},
 	}
 	for _, c := range cases {
-		placed := Furnish(3, footprint, door, c.facility)
+		placed, err := Furnish(testRaws(), 3, footprint, door, c.facility)
+		require.NoError(t, err)
 		assert.Equalf(t, c.role, classifyRoom(placed), "%s は %s に分類される", c.facility, c.role)
 	}
 }

@@ -186,6 +186,39 @@ func (e EquipmentCategory) Valid() bool {
 	}
 }
 
+// Defines values for FacilityKind.
+const (
+	FacilityKindAntique FacilityKind = "antique"
+	FacilityKindClinic  FacilityKind = "clinic"
+	FacilityKindDepot   FacilityKind = "depot"
+	FacilityKindHouse   FacilityKind = "house"
+	FacilityKindLab     FacilityKind = "lab"
+	FacilityKindOffice  FacilityKind = "office"
+	FacilityKindStore   FacilityKind = "store"
+)
+
+// Valid indicates whether the value is a known member of the FacilityKind enum.
+func (e FacilityKind) Valid() bool {
+	switch e {
+	case FacilityKindAntique:
+		return true
+	case FacilityKindClinic:
+		return true
+	case FacilityKindDepot:
+		return true
+	case FacilityKindHouse:
+		return true
+	case FacilityKindLab:
+		return true
+	case FacilityKindOffice:
+		return true
+	case FacilityKindStore:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for FactionMemberType.
 const (
 	FactionNeutral FactionMemberType = "FactionNeutral"
@@ -216,6 +249,27 @@ func (e FoliageType) Valid() bool {
 	case FoliageTypeMinus3:
 		return true
 	case FoliageTypeN0:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GroupStyle.
+const (
+	PickEach GroupStyle = "pick_each"
+	PickN    GroupStyle = "pick_n"
+	PickOne  GroupStyle = "pick_one"
+)
+
+// Valid indicates whether the value is a known member of the GroupStyle enum.
+func (e GroupStyle) Valid() bool {
+	switch e {
+	case PickEach:
+		return true
+	case PickN:
+		return true
+	case PickOne:
 		return true
 	default:
 		return false
@@ -354,6 +408,96 @@ func (e MovementPatternType) Valid() bool {
 	}
 }
 
+// Defines values for Placement.
+const (
+	Center      Placement = "center"
+	FarFromDoor Placement = "far_from_door"
+	FullArea    Placement = "full_area"
+	NearDoor    Placement = "near_door"
+	Row         Placement = "row"
+	Wall        Placement = "wall"
+)
+
+// Valid indicates whether the value is a known member of the Placement enum.
+func (e Placement) Valid() bool {
+	switch e {
+	case Center:
+		return true
+	case FarFromDoor:
+		return true
+	case FullArea:
+		return true
+	case NearDoor:
+		return true
+	case Row:
+		return true
+	case Wall:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RoomRole.
+const (
+	RoomRoleBath            RoomRole = "bath"
+	RoomRoleBedroom         RoomRole = "bedroom"
+	RoomRoleColdroom        RoomRole = "coldroom"
+	RoomRoleCorridor        RoomRole = "corridor"
+	RoomRoleDressing        RoomRole = "dressing"
+	RoomRoleExaminationRoom RoomRole = "examination_room"
+	RoomRoleGenkan          RoomRole = "genkan"
+	RoomRoleKitchen         RoomRole = "kitchen"
+	RoomRoleLiving          RoomRole = "living"
+	RoomRoleOffice          RoomRole = "office"
+	RoomRolePharmacy        RoomRole = "pharmacy"
+	RoomRoleRestroom        RoomRole = "restroom"
+	RoomRoleStorage         RoomRole = "storage"
+	RoomRoleStoreroom       RoomRole = "storeroom"
+	RoomRoleToilet          RoomRole = "toilet"
+	RoomRoleWaiting         RoomRole = "waiting"
+)
+
+// Valid indicates whether the value is a known member of the RoomRole enum.
+func (e RoomRole) Valid() bool {
+	switch e {
+	case RoomRoleBath:
+		return true
+	case RoomRoleBedroom:
+		return true
+	case RoomRoleColdroom:
+		return true
+	case RoomRoleCorridor:
+		return true
+	case RoomRoleDressing:
+		return true
+	case RoomRoleExaminationRoom:
+		return true
+	case RoomRoleGenkan:
+		return true
+	case RoomRoleKitchen:
+		return true
+	case RoomRoleLiving:
+		return true
+	case RoomRoleOffice:
+		return true
+	case RoomRolePharmacy:
+		return true
+	case RoomRoleRestroom:
+		return true
+	case RoomRoleStorage:
+		return true
+	case RoomRoleStoreroom:
+		return true
+	case RoomRoleToilet:
+		return true
+	case RoomRoleWaiting:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ShelterType.
 const (
 	ShelterTypeN0  ShelterType = 0
@@ -393,6 +537,33 @@ func (e SpriteDepth) Valid() bool {
 	case SpriteDepthN2:
 		return true
 	case SpriteDepthN3:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for StuffKind.
+const (
+	Being     StuffKind = "being"
+	Decor     StuffKind = "decor"
+	Furniture StuffKind = "furniture"
+	Loot      StuffKind = "loot"
+	Trap      StuffKind = "trap"
+)
+
+// Valid indicates whether the value is a known member of the StuffKind enum.
+func (e StuffKind) Valid() bool {
+	switch e {
+	case Being:
+		return true
+	case Decor:
+		return true
+	case Furniture:
+		return true
+	case Loot:
+		return true
+	case Trap:
 		return true
 	default:
 		return false
@@ -893,9 +1064,7 @@ type CombatPolicyType string
 // CommandTable コマンドテーブル
 type CommandTable struct {
 	Entries []CommandTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID            `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -903,7 +1072,6 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	// Weapon エンティティの英語 id
 	Weapon EntityID `json:"weapon"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
@@ -929,6 +1097,48 @@ type Consumable struct {
 
 	// UsableScene 使用可能シーン
 	UsableScene UsableScene `json:"usableScene"`
+}
+
+// ContentGroup 抽選単位の束
+type ContentGroup struct {
+	Items []ContentStuff `json:"items"`
+
+	// Pick pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
+	Pick *int32 `json:"pick,omitempty"`
+
+	// Style グループの抽選方式。保証セットとランダム充填を分ける
+	Style GroupStyle `json:"style"`
+}
+
+// ContentSatellite anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
+type ContentSatellite struct {
+	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+	Kind    StuffKind    `json:"kind"`
+	Offsets []ContentVec `json:"offsets"`
+	Ref     EntityID     `json:"ref"`
+}
+
+// ContentStuff 内装レシピの1配置指示
+type ContentStuff struct {
+	// Amount 置く個数のダイス表記
+	Amount Dice `json:"amount"`
+
+	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+	Kind StuffKind `json:"kind"`
+
+	// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
+	Placement  *Placement          `json:"placement,omitempty"`
+	Ref        EntityID            `json:"ref"`
+	Satellites *[]ContentSatellite `json:"satellites,omitempty"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight *EntryWeight `json:"weight,omitempty"`
+}
+
+// ContentVec 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
+type ContentVec struct {
+	X int32 `json:"x"`
+	Y int32 `json:"y"`
 }
 
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
@@ -987,10 +1197,8 @@ type DisassemblyBaseAP = int
 // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
 	// Count 産出個数のダイス表記
-	Count Dice `json:"count"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Count Dice     `json:"count"`
+	Id    EntityID `json:"id"`
 
 	// MinGrade 工具グレードがこの値以上で産出に加わる
 	MinGrade *ToolGrade `json:"minGrade,omitempty"`
@@ -1016,10 +1224,8 @@ type DisassemblyYield struct {
 	Chance *DisassemblyChance `json:"chance,omitempty"`
 
 	// Count 産出個数のダイス表記
-	Count Dice `json:"count"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Count Dice     `json:"count"`
+	Id    EntityID `json:"id"`
 }
 
 // DoorRaw 扉ローデータ
@@ -1028,9 +1234,7 @@ type DoorRaw = map[string]interface{}
 // DropTable ドロップテーブル
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID         `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1057,9 +1261,7 @@ type Element string
 // EnemyTable 敵テーブル
 type EnemyTable struct {
 	Entries []EnemyTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID          `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1067,7 +1269,6 @@ type EnemyTable struct {
 
 // EnemyTableEntry 敵テーブルエントリ
 type EnemyTableEntry struct {
-	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// MaxDanger 危険度。経過日数から決まる
@@ -1092,7 +1293,7 @@ type EnemyTableList struct {
 // EntityDescription 説明文
 type EntityDescription = string
 
-// EntityID エンティティの英語 id
+// EntityID defines model for EntityID.
 type EntityID = string
 
 // EntityName エンティティ名
@@ -1131,14 +1332,37 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
+type FacilityContent struct {
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
+	Facility FacilityKind `json:"facility"`
+	Variants []EntityID   `json:"variants"`
+}
+
 // FacilityEnemyTable 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
 // enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
 type FacilityEnemyTable struct {
 	// EnemyTable 割り当てる敵テーブルの id。enemyTables のいずれかを指す
 	EnemyTable EntityID `json:"enemyTable"`
 
-	// Facility 施設種別。overworld の facilityType の文字列と揃える
-	Facility EntityID `json:"facility"`
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
+	Facility FacilityKind `json:"facility"`
+}
+
+// FacilityKind 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+//
+//	runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
+type FacilityKind string
+
+// FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
+type FacilityRooms struct {
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
+	Facility FacilityKind   `json:"facility"`
+	Fallback EntityID       `json:"fallback"`
+	Rooms    *[]RoomContent `json:"rooms,omitempty"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -1186,6 +1410,9 @@ type FireStarter = map[string]interface{}
 // FoliageType 植生タイプ
 type FoliageType float32
 
+// GroupStyle グループの抽選方式。保証セットとランダム充填を分ける
+type GroupStyle string
+
 // HealAmount 回復固定量
 type HealAmount = int
 
@@ -1221,6 +1448,12 @@ type InsulationCold = int
 
 // InsulationHeat 耐暑性能
 type InsulationHeat = int
+
+// InteriorContent 内装レシピ。施設まるごと、または奥室1つに対応する
+type InteriorContent struct {
+	Groups *[]ContentGroup `json:"groups,omitempty"`
+	Id     EntityID        `json:"id"`
+}
 
 // IsPlayer プレイヤーキャラクターかどうか
 type IsPlayer = bool
@@ -1260,9 +1493,7 @@ type Item struct {
 
 	// FireStarter 火種。所持していると隣接の燃焼物に着火できる
 	FireStarter *FireStarter `json:"fireStarter,omitempty"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id          EntityID     `json:"id"`
 
 	// InflictsDamage 基本ダメージ
 	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
@@ -1313,9 +1544,7 @@ type ItemCount = int
 // ItemGroup アイテムグループ。アイテムの出現セットを定義する
 type ItemGroup struct {
 	Entries []ItemGroupEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID         `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1326,7 +1555,6 @@ type ItemGroup struct {
 
 // ItemGroupEntry アイテムグループエントリ
 type ItemGroupEntry struct {
-	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Pack 1山あたりの個数のダイス表記
@@ -1354,9 +1582,7 @@ type ItemList struct {
 // ItemTable アイテムテーブル
 type ItemTable struct {
 	Entries []ItemTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID         `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1461,9 +1687,7 @@ type Member struct {
 
 	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id          EntityID           `json:"id"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
@@ -1534,6 +1758,9 @@ type PaletteList struct {
 
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 type PassCost = int
+
+// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
+type Placement string
 
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 type Potency = int
@@ -1619,9 +1846,7 @@ type Prop struct {
 
 	// Hp 耐久値。削り切られると壊れる
 	Hp HitPoints `json:"hp"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id EntityID  `json:"id"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
@@ -1686,16 +1911,23 @@ type Raws struct {
 	CommandTables       *[]CommandTable       `json:"commandTables,omitempty"`
 	DropTables          *[]DropTable          `json:"dropTables,omitempty"`
 	EnemyTables         *[]EnemyTable         `json:"enemyTables,omitempty"`
+	FacilityContents    *[]FacilityContent    `json:"facilityContents,omitempty"`
 	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
-	ItemGroups          *[]ItemGroup          `json:"itemGroups,omitempty"`
-	ItemTables          *[]ItemTable          `json:"itemTables,omitempty"`
-	Items               *[]Item               `json:"items,omitempty"`
-	Members             *[]Member             `json:"members,omitempty"`
-	Professions         *[]Profession         `json:"professions,omitempty"`
-	Props               *[]Prop               `json:"props,omitempty"`
-	Recipes             *[]Recipe             `json:"recipes,omitempty"`
-	SpriteSheets        *[]SpriteSheet        `json:"spriteSheets,omitempty"`
-	Tiles               *[]Tile               `json:"tiles,omitempty"`
+	FacilityRooms       *[]FacilityRooms      `json:"facilityRooms,omitempty"`
+
+	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
+	//       interiorContents プールには入れず、この専用フィールドだけに置く
+	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
+	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
+	ItemGroups       *[]ItemGroup       `json:"itemGroups,omitempty"`
+	ItemTables       *[]ItemTable       `json:"itemTables,omitempty"`
+	Items            *[]Item            `json:"items,omitempty"`
+	Members          *[]Member          `json:"members,omitempty"`
+	Professions      *[]Profession      `json:"professions,omitempty"`
+	Props            *[]Prop            `json:"props,omitempty"`
+	Recipes          *[]Recipe          `json:"recipes,omitempty"`
+	SpriteSheets     *[]SpriteSheet     `json:"spriteSheets,omitempty"`
+	Tiles            *[]Tile            `json:"tiles,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -1703,7 +1935,6 @@ type ReadingEffort = int
 
 // Recipe レシピ
 type Recipe struct {
-	// Id エンティティの英語 id
 	Id     EntityID      `json:"id"`
 	Inputs []RecipeInput `json:"inputs"`
 
@@ -1715,9 +1946,7 @@ type Recipe struct {
 type RecipeInput struct {
 	// Amount 素材必要数
 	Amount MaterialAmount `json:"amount"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id     EntityID       `json:"id"`
 }
 
 // RecipeList レシピ一覧レスポンス
@@ -1735,6 +1964,17 @@ type Remedy struct {
 	Potency Potency             `json:"potency"`
 	Treats  []ConditionTypeName `json:"treats"`
 }
+
+// RoomContent 奥室の役割名と内装レシピの対
+type RoomContent struct {
+	Content EntityID `json:"content"`
+
+	// Role 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
+	Role RoomRole `json:"role"`
+}
+
+// RoomRole 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
+type RoomRole string
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
@@ -1814,6 +2054,9 @@ type StorageRaw struct {
 // Strength 筋力。物理ダメージに影響する
 type Strength = int
 
+// StuffKind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+type StuffKind string
+
 // TargetGroup ターゲットグループ
 type TargetGroup string
 
@@ -1833,9 +2076,7 @@ type Tile struct {
 
 	// Foliage 植生タイプ
 	Foliage FoliageType `json:"foliage"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID    `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
