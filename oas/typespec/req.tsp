@@ -304,23 +304,11 @@ model EnemyTable {
   entries: EnemyTableEntry[];
 }
 
-/** 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
-enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。 */
-model FacilityEnemyTable {
-  facility: FacilityKind;
-  /** 割り当てる敵テーブルの id。enemyTables のいずれかを指す */
-  enemyTable: EntityID;
-}
-
-/** 地物の施設1種の宣言。id で facilityContents/facilityRooms と紐づく。
-    glyph は概略地図の記号、order は凡例の表示順、isShop は看板やシャッターを出す店系か、
-    planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
-    汎用が欲しければ "ruins_area" を明示する。glyph/order/isShop/planner/enemyTable/zones を
-    1行に集約し施設の単一出典にする */
+/** 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを
+    出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
+    汎用が欲しければ "ruins_area" を明示する。地図の記号・色・凡例順など表示の宣言は別フェーズでここへ足す */
 model Facility {
   id: EntityID;
-  glyph: string;
-  order: int32;
   isShop: boolean;
   planner: PlannerKey;
   enemyTable: EntityID;
@@ -406,7 +394,7 @@ model InteriorContent {
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
 model FacilityContent {
-  facility: FacilityKind;
+  facility: EntityID;
   variants: EntityID[];
 }
 
@@ -418,7 +406,7 @@ model RoomContent {
 
 /** 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック */
 model FacilityRooms {
-  facility: FacilityKind;
+  facility: EntityID;
   rooms?: RoomContent[];
   fallback: EntityID;
 }
@@ -572,7 +560,6 @@ model Raws {
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
   facilities?: Facility[];
-  facilityEnemyTables?: FacilityEnemyTable[];
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
   facilityRooms?: FacilityRooms[];

@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,16 +30,16 @@ func TestUrbanSizeOf_各辺は2からurbanMaxSpanの範囲(t *testing.T) {
 func TestZoneOf_都心は奇数辺市街地の中心にだけ出る(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, zoneDowntown, zoneOf(1, 1, 3, 3, 0), "3×3 の中心 (1,1) は都心")
+	assert.Equal(t, oapi.Downtown, zoneOf(1, 1, 3, 3, 0), "3×3 の中心 (1,1) は都心")
 
 	for _, c := range []consts.Coord[consts.Chunk]{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 1}, {X: 2, Y: 2}} {
-		assert.NotEqualf(t, zoneDowntown, zoneOf(c.X, c.Y, 3, 3, 0), "3×3 の非中心 %v は都心でない", c)
+		assert.NotEqualf(t, oapi.Downtown, zoneOf(c.X, c.Y, 3, 3, 0), "3×3 の非中心 %v は都心でない", c)
 	}
 
 	// 偶数辺 2×2 には中心マスが存在せず、どのマスも都心にならない
 	for lx := range consts.Chunk(2) {
 		for ly := range consts.Chunk(2) {
-			assert.NotEqualf(t, zoneDowntown, zoneOf(lx, ly, 2, 2, 0), "2×2 の (%d,%d) は都心でない", lx, ly)
+			assert.NotEqualf(t, oapi.Downtown, zoneOf(lx, ly, 2, 2, 0), "2×2 の (%d,%d) は都心でない", lx, ly)
 		}
 	}
 }
@@ -47,8 +49,8 @@ func TestZoneOf_都心は奇数辺市街地の中心にだけ出る(t *testing.T
 func TestZoneOf_都心以外はビットで産業区と住宅地に分かれる(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, zoneIndustrial, zoneOf(0, 0, 3, 3, industrialUrbanBit), "ビット立ちは産業区")
-	assert.Equal(t, zoneResidential, zoneOf(0, 0, 3, 3, 0), "ビット無しは住宅地")
+	assert.Equal(t, oapi.Industrial, zoneOf(0, 0, 3, 3, industrialUrbanBit), "ビット立ちは産業区")
+	assert.Equal(t, oapi.Residential, zoneOf(0, 0, 3, 3, 0), "ビット無しは住宅地")
 }
 
 // TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出る は、規模 gate が効いて小さな市街地に
@@ -57,16 +59,18 @@ func TestZoneOf_都心以外はビットで産業区と住宅地に分かれる(
 func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出る(t *testing.T) {
 	t.Parallel()
 
-	small := map[facilityType]bool{}
-	big := map[facilityType]bool{}
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := zoneCatalogFrom(raws)
+	small := map[string]bool{}
+	big := map[string]bool{}
 	for s := range uint64(300) {
-		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 2)] = true
-		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 3)] = true
+		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, oapi.Downtown, 2)] = true
+		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, oapi.Downtown, 3)] = true
 	}
-	for _, f := range []facilityType{facilityAntique, facilityClinic, facilityLab} {
+	for _, f := range []string{"antique", "clinic", "lab"} {
 		assert.Falsef(t, small[f], "span=2 の都心に minSpan=3 の %s は出ない", f)
 	}
-	assert.True(t, big[facilityAntique] || big[facilityClinic] || big[facilityLab],
+	assert.True(t, big["antique"] || big["clinic"] || big["lab"],
 		"span=3 の都心では専門施設が混ざる")
 }
 
@@ -74,10 +78,12 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 func TestRollFacilityInZone_決定的(t *testing.T) {
 	t.Parallel()
 
-	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), zoneResidential, 3)
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := zoneCatalogFrom(raws)
+	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, oapi.Residential, 3)
 	assert.NotEmpty(t, first, "有効な施設種別を返す")
 	for range 5 {
-		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), zoneResidential, 3)
+		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, oapi.Residential, 3)
 		assert.Equal(t, first, got, "同じ rng シードなら同じ施設")
 	}
 }
@@ -88,17 +94,18 @@ func TestRollFacilityInZone_決定的(t *testing.T) {
 func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 	t.Parallel()
 
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	const rows consts.Chunk = 9
-	kindCount := map[facilityType]int{}
+	kindCount := map[string]int{}
 	total := 0
 	sameAdj, totalAdj := 0, 0
 
 	for s := uint64(1); s <= 120; s++ {
-		grid := map[consts.Coord[consts.Chunk]]facilityType{}
+		grid := map[consts.Coord[consts.Chunk]]string{}
 		for y := range rows {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if k, _, ok := urbanChunkInfo(s, c, rows); ok {
+				if k, ok := urbanFacilityAt(raws, s, c, rows); ok {
 					grid[c] = k
 					kindCount[k]++
 					total++

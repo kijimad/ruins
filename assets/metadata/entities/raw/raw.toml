@@ -15947,8 +15947,6 @@ pack = "1d1"
 
 [[facilities]]
 id = "house"
-glyph = "h"
-order = 0
 isShop = false
 planner = "house"
 enemyTable = "house_enemies"
@@ -15962,8 +15960,6 @@ weight = 10
 minSpan = 2
 [[facilities]]
 id = "store"
-glyph = "S"
-order = 1
 isShop = true
 planner = "store"
 enemyTable = "store_enemies"
@@ -15977,8 +15973,6 @@ weight = 25
 minSpan = 2
 [[facilities]]
 id = "office"
-glyph = "O"
-order = 2
 isShop = false
 planner = "bsp"
 enemyTable = "office_enemies"
@@ -15992,8 +15986,6 @@ weight = 25
 minSpan = 2
 [[facilities]]
 id = "depot"
-glyph = "D"
-order = 3
 isShop = false
 planner = "bsp"
 enemyTable = "depot_enemies"
@@ -16003,8 +15995,6 @@ weight = 65
 minSpan = 2
 [[facilities]]
 id = "antique"
-glyph = "A"
-order = 4
 isShop = true
 planner = "store"
 enemyTable = "antique_enemies"
@@ -16014,8 +16004,6 @@ weight = 20
 minSpan = 3
 [[facilities]]
 id = "clinic"
-glyph = "C"
-order = 5
 isShop = false
 planner = "clinic"
 enemyTable = "clinic_enemies"
@@ -16029,8 +16017,6 @@ weight = 10
 minSpan = 3
 [[facilities]]
 id = "lab"
-glyph = "L"
-order = 6
 isShop = false
 planner = "clinic"
 enemyTable = "lab_enemies"
@@ -16038,28 +16024,6 @@ enemyTable = "lab_enemies"
 zone = "downtown"
 weight = 15
 minSpan = 3
-
-[[facilityEnemyTables]]
-facility = "clinic"
-enemyTable = "clinic_enemies"
-[[facilityEnemyTables]]
-facility = "lab"
-enemyTable = "lab_enemies"
-[[facilityEnemyTables]]
-facility = "depot"
-enemyTable = "depot_enemies"
-[[facilityEnemyTables]]
-facility = "office"
-enemyTable = "office_enemies"
-[[facilityEnemyTables]]
-facility = "house"
-enemyTable = "house_enemies"
-[[facilityEnemyTables]]
-facility = "store"
-enemyTable = "store_enemies"
-[[facilityEnemyTables]]
-facility = "antique"
-enemyTable = "antique_enemies"
 
 [[interiorContents]]
 id = "bath"

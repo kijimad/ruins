@@ -24,3 +24,13 @@ func testRaws() oapi.Raws {
 	})
 	return testRawsCache
 }
+
+// facSpec は施設 id から FacilitySpec を testRaws 経由で解決するテストヘルパ。本番の overworld と同じく
+// facilities 行から planner と isShop を引く。未登録 id は前提崩れなので panic。
+func facSpec(id string) FacilitySpec {
+	f, ok := raw.GetFacility(testRaws(), id)
+	if !ok {
+		panic("interior test: facility not found: " + id)
+	}
+	return FacilitySpec{ID: f.Id, Planner: f.Planner, IsShop: f.IsShop}
+}

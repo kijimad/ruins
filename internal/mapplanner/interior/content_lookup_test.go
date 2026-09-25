@@ -38,7 +38,7 @@ func TestContentByID_未定義idはerror(t *testing.T) {
 func TestFacilityContent_未登録施設はerror(t *testing.T) {
 	t.Parallel()
 
-	_, err := facilityContent(oapi.Raws{}, FacilityKind("no_such_facility"), 0)
+	_, err := facilityContent(oapi.Raws{}, "no_such_facility", 0)
 	require.ErrorIs(t, err, errFacilityNotRegistered)
 }
 
@@ -47,7 +47,7 @@ func TestFacilityContent_未登録施設はerror(t *testing.T) {
 func TestBackRoomContent_未登録施設はerror(t *testing.T) {
 	t.Parallel()
 
-	_, err := backRoomContent(oapi.Raws{}, FacilityKind("no_such_facility"))
+	_, err := backRoomContent(oapi.Raws{}, "no_such_facility")
 	require.ErrorIs(t, err, errFacilityNotRegistered)
 }
 

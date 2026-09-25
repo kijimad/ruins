@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,7 +28,7 @@ func findUrbanChunk(t *testing.T, rows consts.Chunk) (uint64, consts.Coord[const
 		for y := range rows {
 			for x := range consts.Chunk(12) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if _, _, ok := urbanChunkInfo(s, c, rows); ok {
+				if _, ok := urbanChunkAt(s, c, rows); ok {
 					return s, c
 				}
 			}
@@ -40,29 +41,32 @@ func findUrbanChunk(t *testing.T, rows consts.Chunk) (uint64, consts.Coord[const
 func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返す(t *testing.T) {
 	t.Parallel()
 
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	const rows consts.Chunk = 9
 	seed, c := findUrbanChunk(t, rows)
-	kind, _, ok := urbanChunkInfo(seed, c, rows)
+	kind, ok := urbanFacilityAt(raws, seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
 
 	want := facilityGlyphs[kind].Label
-	assert.Equal(t, want, ChunkPlace(seed, c, rows), "建物チャンクは施設種別の文字を返す")
+	assert.Equal(t, want, ChunkPlace(raws, seed, c, rows), "建物チャンクは施設種別の文字を返す")
 }
 
 func TestChunkPlace_純関数で決定的(t *testing.T) {
 	t.Parallel()
 
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	const rows consts.Chunk = 9
 	seed, c := findUrbanChunk(t, rows)
-	first := ChunkPlace(seed, c, rows)
+	first := ChunkPlace(raws, seed, c, rows)
 	for range 5 {
-		assert.Equal(t, first, ChunkPlace(seed, c, rows), "同じ引数なら毎回同じ文字")
+		assert.Equal(t, first, ChunkPlace(raws, seed, c, rows), "同じ引数なら毎回同じ文字")
 	}
 }
 
 func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.T) {
 	t.Parallel()
 
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	const rows consts.Chunk = 9
 
 	foundDungeonEntrance, foundVillage, foundHamlet := false, false, false
@@ -71,10 +75,10 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 			for x := range consts.Chunk(8) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				// 市街地に上書きされないチャンクだけ見る
-				if _, _, ok := urbanChunkInfo(s, c, rows); ok {
+				if _, ok := urbanChunkAt(s, c, rows); ok {
 					continue
 				}
-				switch ChunkPlace(s, c, rows) {
+				switch ChunkPlace(raws, s, c, rows) {
 				case placeGlyphs[placeDungeonEntrance].Label:
 					foundDungeonEntrance = true
 				case placeGlyphs[placeVillage].Label:

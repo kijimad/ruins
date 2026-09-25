@@ -25,10 +25,6 @@ const (
 
 	urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
 	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
-
-	// urbanEnemyTable は未知施設のフォールバック敵テーブル。既知施設は facilityEnemyTables で専用テーブルを
-	// 持つので、実運用でここへ落ちるのは未知施設だけ。危険度で種別をフィルタする
-	urbanEnemyTable = "ruins_area"
 )
 
 // urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 2..urbanMaxSpan。
@@ -67,31 +63,17 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chu
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// facilityType は建物尺度の施設種別。市街地チャンクの中の1建物を表す。規模で gate した重み付き抽選で
-// 決まり、内装の prop の差になる。チャンク尺度で表示専用の placeType と違い、こちらは表示に加えて
-// 市街地生成にも使うドメイン型。schematic.go の記号2層の説明も参照。
-// 現状は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
-// 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
-type facilityType string
+// 施設は文字列 id で扱う。同一性は raw.toml の facilities 行が単一出典で、Go 側は enum を持たない。
+// 建物へは id と、id から解決した interior.FacilitySpec を渡す。
 
-const (
-	facilityHouse   facilityType = "house"   // 住宅
-	facilityStore   facilityType = "store"   // 商店
-	facilityOffice  facilityType = "office"  // 事務所
-	facilityDepot   facilityType = "depot"   // 倉庫
-	facilityAntique facilityType = "antique" // 骨董品店
-	facilityClinic  facilityType = "clinic"  // 診療所
-	facilityLab     facilityType = "lab"     // 研究施設
-)
-
-// urbanEnemyTableFor は施設に割り当てられた敵テーブルを返す。割り当ては raw.toml の facilityEnemyTables。
-// 未割り当ての施設は既定 urbanEnemyTable へ落とす。割り当てがあるのに実在しなければ設定ミスなので error。
-func urbanEnemyTableFor(raws oapi.Raws, fac facilityType) (oapi.EnemyTable, error) {
-	name := urbanEnemyTable
-	if assigned, ok := raw.FacilityEnemyTableName(raws, string(fac)); ok {
-		name = assigned
+// urbanEnemyTableFor は施設行の enemyTable が指す敵テーブルを返す。enemyTable は施設行の必須フィールドで、
+// 汎用が欲しい施設は "ruins_area" を明示する。施設未登録や敵テーブル不在は設定ミスなので error。
+func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
+	f, ok := raw.GetFacility(raws, fac)
+	if !ok {
+		return oapi.EnemyTable{}, fmt.Errorf("urban enemy table: facility %q not found", fac)
 	}
-	et, err := raw.GetEnemyTable(raws, name)
+	et, err := raw.GetEnemyTable(raws, f.EnemyTable)
 	if err != nil {
 		return oapi.EnemyTable{}, fmt.Errorf("urban enemy table for facility %q: %w", fac, err)
 	}
@@ -99,46 +81,25 @@ func urbanEnemyTableFor(raws oapi.Raws, fac facilityType) (oapi.EnemyTable, erro
 }
 
 // facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
-// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
+// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。kind は施設 id。
 type facilityWeight struct {
-	kind    facilityType
+	kind    string
 	weight  int
 	minSpan consts.Chunk
 }
 
-// zone は市街地内の地区。中心からの位置で決まり、地区ごとに施設抽選の重みを変える。
-// per-chunk 独立の抽選では隣接同種率がランダムと変わらずごま塩になるため、地区で重みを
-// 揃えて空間相関を作り「地区」を生む。現代日本の市街地をイメージした語彙にする。
-// 実体は文字列。%v やログで数値でなく地区名が出て、デバッグで読みやすい。
-type zone string
-
-const (
-	zoneDowntown    zone = "downtown"    // 都心。商業と専門施設。最大規模の市街地の中心にだけ現れる
-	zoneResidential zone = "residential" // 住宅地。住宅が中心
-	zoneIndustrial  zone = "industrial"  // 産業区。倉庫が中心
-)
-
-// zoneCatalog は地区ごとの施設抽選重み。地区で重みが揃うので同じ地区の隣接チャンクは同種へ
-// 寄り、地区が生まれる。都心は必ず span=3 で現れるので専門施設の骨董品店・診療所・研究施設を
-// 含められる。各地区とも span=2 の入口を持つので、規模 gate で候補が空になり抽選が壊れることはない。
-var zoneCatalog = map[zone][]facilityWeight{
-	zoneDowntown: {
-		{facilityStore, 25, 2},
-		{facilityOffice, 20, 2},
-		{facilityAntique, 20, 3},
-		{facilityClinic, 20, 3},
-		{facilityLab, 15, 3},
-	},
-	zoneResidential: {
-		{facilityHouse, 65, 2},
-		{facilityStore, 25, 2},
-		{facilityClinic, 10, 3},
-	},
-	zoneIndustrial: {
-		{facilityDepot, 65, 2},
-		{facilityOffice, 25, 2},
-		{facilityHouse, 10, 2},
-	},
+// zoneCatalogFrom は raw.toml の facilities 行から地区ごとの施設抽選重みを導出する。各施設行が自分の
+// 出現地区と重み・規模 gate を zones で宣言するので、それを地区で畳んで zoneCatalog を組み立てる。地区で
+// 重みが揃うので同じ地区の隣接チャンクは同種へ寄り、地区が生まれる。各地区に minSpan<=2 の基本施設が
+// あることは validate が保証するので、規模 gate で候補が空になり抽選が壊れることはない。
+func zoneCatalogFrom(raws oapi.Raws) map[oapi.Zone][]facilityWeight {
+	cat := make(map[oapi.Zone][]facilityWeight)
+	for _, f := range raw.PtrSlice(raws.Facilities) {
+		for _, z := range f.Zones {
+			cat[z.Zone] = append(cat[z.Zone], facilityWeight{kind: f.Id, weight: int(z.Weight), minSpan: consts.Chunk(z.MinSpan)})
+		}
+	}
+	return cat
 }
 
 // industrialUrbanBit は市街地の性格を住宅地寄りか産業区寄りかに振る urbanSeed のビット。
@@ -148,7 +109,7 @@ const industrialUrbanBit = uint64(1) << 32
 // zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。厳密な中心を都心、それ以外を
 // 市街地の性格で住宅地か産業区にする。中心は 2 倍座標のチェビシェフ距離が 0 のマスで、
 // 奇数×奇数すなわち 3×3 の市街地にだけ存在する。都心が必ず最大規模に出るので専門施設を集められる。
-func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) zone {
+func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) oapi.Zone {
 	dx := int(lx)*2 - int(cw-1)
 	dy := int(ly)*2 - int(ch-1)
 	if dx < 0 {
@@ -158,26 +119,26 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) zone {
 		dy = -dy
 	}
 	if max(dx, dy) == 0 {
-		return zoneDowntown
+		return oapi.Downtown
 	}
 	if urbanSeed&industrialUrbanBit != 0 {
-		return zoneIndustrial
+		return oapi.Industrial
 	}
-	return zoneResidential
+	return oapi.Residential
 }
 
-// rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選する。
-func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType {
-	cat := zoneCatalog[z]
+// rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選し施設 id を返す。
+func rollFacilityInZone(rng *rand.Rand, cat map[oapi.Zone][]facilityWeight, z oapi.Zone, span consts.Chunk) string {
+	zc := cat[z]
 	total := 0
-	for _, f := range cat {
+	for _, f := range zc {
 		if span >= f.minSpan {
 			total += f.weight
 		}
 	}
-	// 各地区は minSpan<=2 の基本施設を持ち span は常に2以上なので total>0。rng.IntN は安全。
+	// 各地区は minSpan<=2 の基本施設を持ち span は常に2以上なので total>0。validate が保証する。rng.IntN は安全。
 	roll := rng.IntN(total)
-	for _, f := range cat {
+	for _, f := range zc {
 		if span < f.minSpan {
 			continue
 		}
@@ -189,22 +150,30 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 	panic("unreachable: selection weight total and subtraction are inconsistent")
 }
 
-// urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
-// 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
-// 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
+// urbanChunkAt は c が市街地の建物チャンクなら市街地の規模を返す純関数。施設種は見ないので raws を要さず、
+// チャンク種別の分類やランドマーク判定のように「市街地か」だけを知りたい経路が使う。
+func urbanChunkAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (size consts.Chunk, ok bool) {
+	_, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
+	if !ok {
+		return 0, false
+	}
+	return max(cw, ch), true
+}
+
+// urbanFacilityAt は c の建物チャンクの施設 id を返す。施設抽選は zoneCatalog を要すので raws を取る。
+// 地図の記号と実体の施設を一致させるため、地図表示と生成の両方がこれを呼ぶ。市街地でなければ ok=false。
+func urbanFacilityAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind string, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
 	if !ok {
-		return "", 0, false
+		return "", false
 	}
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-	size = max(cw, ch)
 	z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, urbanSeed)
 	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
-	return rollFacilityInZone(frng, z, size), size, true
+	return rollFacilityInZone(frng, zoneCatalogFrom(raws), z, max(cw, ch)), true
 }
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
@@ -216,7 +185,8 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	}
 
 	// 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
-	fac, size, _ := urbanChunkInfo(runSeed, c, cols)
+	size, _ := urbanChunkAt(runSeed, c, cols)
+	fac, _ := urbanFacilityAt(world.Resources.RawMaster, runSeed, c, cols)
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
 	return renderUrbanChunk(world, g, chunkSeed, size, fac, urbanDangerAt(world, c))
@@ -235,7 +205,7 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 }
 
 // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger consts.Danger) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	footprint, door, err := planUrbanLot(world, g, rng)
@@ -290,7 +260,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac facilityType, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac string, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
 	enemyTable, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)

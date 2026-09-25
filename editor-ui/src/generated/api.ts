@@ -762,12 +762,10 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
- * 地物の施設1種の宣言。id で facilityContents/facilityRooms と紐づく。     glyph は概略地図の記号、order は凡例の表示順、isShop は看板やシャッターを出す店系か、     planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で     汎用が欲しければ \"ruins_area\" を明示する。glyph/order/isShop/planner/enemyTable/zones を     1行に集約し施設の単一出典にする
+ * 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを     出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で     汎用が欲しければ \"ruins_area\" を明示する。地図の記号・色・凡例順など表示の宣言は別フェーズでここへ足す
  */
 export interface Facility {
     'id': string;
-    'glyph': string;
-    'order': number;
     'isShop': boolean;
     'planner': PlannerKey;
     'enemyTable': string;
@@ -779,50 +777,17 @@ export interface Facility {
  * 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
  */
 export interface FacilityContent {
-    'facility': FacilityKind;
+    'facility': string;
     'variants': Array<string>;
 }
-
-
-/**
- * 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
- */
-export interface FacilityEnemyTable {
-    'facility': FacilityKind;
-    /**
-     * 割り当てる敵テーブルの id。enemyTables のいずれかを指す
-     */
-    'enemyTable': string;
-}
-
-
-/**
- * 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
- */
-
-export const FacilityKind = {
-    House: 'house',
-    Store: 'store',
-    Antique: 'antique',
-    Clinic: 'clinic',
-    Lab: 'lab',
-    Office: 'office',
-    Depot: 'depot',
-} as const;
-
-export type FacilityKind = typeof FacilityKind[keyof typeof FacilityKind];
-
-
 /**
  * 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
  */
 export interface FacilityRooms {
-    'facility': FacilityKind;
+    'facility': string;
     'rooms'?: Array<RoomContent>;
     'fallback': string;
 }
-
-
 /**
  * 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ     抽選対象になる規模 gate
  */
@@ -1483,7 +1448,6 @@ export interface Raws {
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
     'facilities'?: Array<Facility>;
-    'facilityEnemyTables'?: Array<FacilityEnemyTable>;
     'interiorContents'?: Array<InteriorContent>;
     'facilityContents'?: Array<FacilityContent>;
     'facilityRooms'?: Array<FacilityRooms>;

@@ -1,6 +1,9 @@
 package overworld
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+)
 
 // マクロ地図の描画モデル。1チャンク=1セルの地形俯瞰を、描画基盤に依らない形で表す。
 // 全画面の俯瞰図も HUD の右上地図も、この同じモデルを各自の基盤で描く。ピクセルの描き方は
@@ -61,6 +64,7 @@ type MacroView struct {
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
+	raws oapi.Raws,
 	runSeed uint64,
 	northIndex consts.Chunk,
 	chunkW, chunkH consts.Tile,
@@ -83,7 +87,7 @@ func BuildMacroView(
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
 			cells[cy][i] = MacroCell{
-				Glyph:      ChunkPlace(runSeed, c, cols),
+				Glyph:      ChunkPlace(raws, runSeed, c, cols),
 				Discovered: discovered[c],
 				Road:       roads[c],
 			}

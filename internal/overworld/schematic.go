@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // チャンクマップ表記は、1チャンク=1建物という縮尺に合わせ、各チャンクを「そこが何の種別の
@@ -31,20 +32,21 @@ type GlyphInfo struct {
 
 // facilityGlyphs は施設種別の1文字表記。1マスに1文字で建物の種別を示す。
 // 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。
-var facilityGlyphs = map[facilityType]GlyphInfo{
-	facilityHouse:   {'h', "House", color.RGBA{R: 154, G: 160, B: 166, A: 255}},             // 灰
-	facilityStore:   {'S', "Shop", color.RGBA{R: 74, G: 144, B: 226, A: 255}},               // 青
-	facilityOffice:  {'O', "Office", color.RGBA{R: 80, G: 200, B: 208, A: 255}},             // シアン
-	facilityDepot:   {'D', "Warehouse", color.RGBA{R: 176, G: 122, B: 58, A: 255}},          // 茶
-	facilityAntique: {'A', "Antique Shop", color.RGBA{R: 212, G: 160, B: 23, A: 255}},       // 金
-	facilityClinic:  {'C', "Clinic", color.RGBA{R: 232, G: 106, B: 154, A: 255}},            // 桃
-	facilityLab:     {'L', "Research Facility", color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫
+var facilityGlyphs = map[string]GlyphInfo{
+	"house":   {'h', "House", color.RGBA{R: 154, G: 160, B: 166, A: 255}},             // 灰
+	"store":   {'S', "Shop", color.RGBA{R: 74, G: 144, B: 226, A: 255}},               // 青
+	"office":  {'O', "Office", color.RGBA{R: 80, G: 200, B: 208, A: 255}},             // シアン
+	"depot":   {'D', "Warehouse", color.RGBA{R: 176, G: 122, B: 58, A: 255}},          // 茶
+	"antique": {'A', "Antique Shop", color.RGBA{R: 212, G: 160, B: 23, A: 255}},       // 金
+	"clinic":  {'C', "Clinic", color.RGBA{R: 232, G: 106, B: 154, A: 255}},            // 桃
+	"lab":     {'L', "Research Facility", color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫
 }
 
-// facilityOrder は凡例に出す施設種別を表示順で並べる。placeOrder と同じく、map は順序を持たない
-// ので順序だけ別に定義する。string 化で facilityType は辞書順に落ちるため、表示順はここで固定する。
-var facilityOrder = []facilityType{
-	facilityHouse, facilityStore, facilityOffice, facilityDepot, facilityAntique, facilityClinic, facilityLab,
+// facilityOrder は凡例に出す施設 id を表示順で並べる。placeOrder と同じく、map は順序を持たない
+// ので順序だけ別に定義する。施設の記号・色・名前は表示専用なので、生成の facilities 行から分離して
+// ここに置く。データ化は表示フェーズで facilities 行へ移す。
+var facilityOrder = []string{
+	"house", "store", "office", "depot", "antique", "clinic", "lab",
 }
 
 // placeType はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と
@@ -144,7 +146,7 @@ const (
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
 // 分類を唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
-	if _, _, ok := urbanChunkInfo(runSeed, c, cols); ok {
+	if _, ok := urbanChunkAt(runSeed, c, cols); ok {
 		return chunkUrban
 	}
 	if dungeonEntrancePlacement.At(runSeed, c, cols) {
@@ -161,12 +163,12 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 
 // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
 // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
-func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+func ChunkPlace(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkUrban:
-		// 施設種は urbanChunkInfo が別途返す動的な値で、facilityGlyphs に無い種が来うるので
+		// 施設種は urbanFacilityAt が raws から抽選する動的な値で、facilityGlyphs に無い種が来うるので
 		// ok チェックする。他の種別は placeType が局所で保証されるので直接引く
-		kind, _, _ := urbanChunkInfo(runSeed, c, cols)
+		kind, _ := urbanFacilityAt(raws, runSeed, c, cols)
 		if g, ok := facilityGlyphs[kind]; ok {
 			return g.Label
 		}

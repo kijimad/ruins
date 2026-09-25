@@ -93,7 +93,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	}
 	area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
-		sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
+		world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 

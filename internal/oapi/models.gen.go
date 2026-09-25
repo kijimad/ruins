@@ -186,39 +186,6 @@ func (e EquipmentCategory) Valid() bool {
 	}
 }
 
-// Defines values for FacilityKind.
-const (
-	FacilityKindAntique FacilityKind = "antique"
-	FacilityKindClinic  FacilityKind = "clinic"
-	FacilityKindDepot   FacilityKind = "depot"
-	FacilityKindHouse   FacilityKind = "house"
-	FacilityKindLab     FacilityKind = "lab"
-	FacilityKindOffice  FacilityKind = "office"
-	FacilityKindStore   FacilityKind = "store"
-)
-
-// Valid indicates whether the value is a known member of the FacilityKind enum.
-func (e FacilityKind) Valid() bool {
-	switch e {
-	case FacilityKindAntique:
-		return true
-	case FacilityKindClinic:
-		return true
-	case FacilityKindDepot:
-		return true
-	case FacilityKindHouse:
-		return true
-	case FacilityKindLab:
-		return true
-	case FacilityKindOffice:
-		return true
-	case FacilityKindStore:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for FactionMemberType.
 const (
 	FactionNeutral FactionMemberType = "FactionNeutral"
@@ -440,22 +407,22 @@ func (e Placement) Valid() bool {
 
 // Defines values for PlannerKey.
 const (
-	PlannerKeyBsp    PlannerKey = "bsp"
-	PlannerKeyClinic PlannerKey = "clinic"
-	PlannerKeyHouse  PlannerKey = "house"
-	PlannerKeyStore  PlannerKey = "store"
+	Bsp    PlannerKey = "bsp"
+	Clinic PlannerKey = "clinic"
+	House  PlannerKey = "house"
+	Store  PlannerKey = "store"
 )
 
 // Valid indicates whether the value is a known member of the PlannerKey enum.
 func (e PlannerKey) Valid() bool {
 	switch e {
-	case PlannerKeyBsp:
+	case Bsp:
 		return true
-	case PlannerKeyClinic:
+	case Clinic:
 		return true
-	case PlannerKeyHouse:
+	case House:
 		return true
-	case PlannerKeyStore:
+	case Store:
 		return true
 	default:
 		return false
@@ -1377,18 +1344,14 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// Facility 地物の施設1種の宣言。id で facilityContents/facilityRooms と紐づく。
+// Facility 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを
 //
-//	glyph は概略地図の記号、order は凡例の表示順、isShop は看板やシャッターを出す店系か、
-//	planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
-//	汎用が欲しければ "ruins_area" を明示する。glyph/order/isShop/planner/enemyTable/zones を
-//	1行に集約し施設の単一出典にする
+//	出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
+//	汎用が欲しければ "ruins_area" を明示する。地図の記号・色・凡例順など表示の宣言は別フェーズでここへ足す
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
-	Glyph      string   `json:"glyph"`
 	Id         EntityID `json:"id"`
 	IsShop     bool     `json:"isShop"`
-	Order      int32    `json:"order"`
 
 	// Planner 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
 	//     新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
@@ -1398,33 +1361,13 @@ type Facility struct {
 
 // FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
 type FacilityContent struct {
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-	Facility FacilityKind `json:"facility"`
-	Variants []EntityID   `json:"variants"`
+	Facility EntityID   `json:"facility"`
+	Variants []EntityID `json:"variants"`
 }
-
-// FacilityEnemyTable 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
-// enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
-type FacilityEnemyTable struct {
-	// EnemyTable 割り当てる敵テーブルの id。enemyTables のいずれかを指す
-	EnemyTable EntityID `json:"enemyTable"`
-
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-	Facility FacilityKind `json:"facility"`
-}
-
-// FacilityKind 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-//
-//	runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-type FacilityKind string
 
 // FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
 type FacilityRooms struct {
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-	Facility FacilityKind   `json:"facility"`
+	Facility EntityID       `json:"facility"`
 	Fallback EntityID       `json:"fallback"`
 	Rooms    *[]RoomContent `json:"rooms,omitempty"`
 }
@@ -1988,13 +1931,12 @@ type RangeBonus = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
-	CommandTables       *[]CommandTable       `json:"commandTables,omitempty"`
-	DropTables          *[]DropTable          `json:"dropTables,omitempty"`
-	EnemyTables         *[]EnemyTable         `json:"enemyTables,omitempty"`
-	Facilities          *[]Facility           `json:"facilities,omitempty"`
-	FacilityContents    *[]FacilityContent    `json:"facilityContents,omitempty"`
-	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
-	FacilityRooms       *[]FacilityRooms      `json:"facilityRooms,omitempty"`
+	CommandTables    *[]CommandTable    `json:"commandTables,omitempty"`
+	DropTables       *[]DropTable       `json:"dropTables,omitempty"`
+	EnemyTables      *[]EnemyTable      `json:"enemyTables,omitempty"`
+	Facilities       *[]Facility        `json:"facilities,omitempty"`
+	FacilityContents *[]FacilityContent `json:"facilityContents,omitempty"`
+	FacilityRooms    *[]FacilityRooms   `json:"facilityRooms,omitempty"`
 
 	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
