@@ -7514,7 +7514,7 @@ weight = "3 kg"
 [items.cubeModule]
 rangeBonus = 1
 [[items]]
-description = "A storage crate. Deploy it into your cube's space to hold cargo. It is stowed away when the cube folds up."
+description = "A storage crate. Deploy it into your cube's space to hold cargo."
 name = "Storage Crate"
 id = "deployable_storage"
 material = "WOOD"
@@ -7526,7 +7526,7 @@ weight = "5 kg"
 [items.deployable.storage]
 maxWeight = "50 kg"
 [[items]]
-description = "A camp lantern. Deploy it into your cube's space to light the area. It is stowed away when the cube folds up."
+description = "A camp lantern. Deploy it into your cube's space to light the area."
 name = "Camp Lantern"
 id = "deployable_lamp"
 material = "METAL"
@@ -7545,7 +7545,7 @@ b = 150
 g = 200
 r = 255
 [[items]]
-description = "A camp bed. Deploy it into your cube's space to sleep well. It is stowed away when the cube folds up."
+description = "A camp bed. Deploy it into your cube's space to sleep well."
 name = "Camp Bed"
 id = "deployable_bed"
 material = "CLOTH"
@@ -7557,7 +7557,7 @@ weight = "6 kg"
 [items.deployable.bedding]
 quality = 150
 [[items]]
-description = "A workbench. Deploy it into your cube's space as a crafting station. It is stowed away when the cube folds up."
+description = "A workbench. Deploy it into your cube's space as a crafting station."
 name = "Workbench"
 id = "deployable_workbench"
 material = "METAL"
