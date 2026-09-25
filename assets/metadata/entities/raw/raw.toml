@@ -15945,6 +15945,100 @@ maxDanger = 25
 weight = 0.5
 pack = "1d1"
 
+[[facilities]]
+id = "house"
+glyph = "h"
+order = 0
+isShop = false
+planner = "house"
+enemyTable = "house_enemies"
+[[facilities.zones]]
+zone = "residential"
+weight = 65
+minSpan = 2
+[[facilities.zones]]
+zone = "industrial"
+weight = 10
+minSpan = 2
+[[facilities]]
+id = "store"
+glyph = "S"
+order = 1
+isShop = true
+planner = "store"
+enemyTable = "store_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 25
+minSpan = 2
+[[facilities.zones]]
+zone = "residential"
+weight = 25
+minSpan = 2
+[[facilities]]
+id = "office"
+glyph = "O"
+order = 2
+isShop = false
+planner = "bsp"
+enemyTable = "office_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 20
+minSpan = 2
+[[facilities.zones]]
+zone = "industrial"
+weight = 25
+minSpan = 2
+[[facilities]]
+id = "depot"
+glyph = "D"
+order = 3
+isShop = false
+planner = "bsp"
+enemyTable = "depot_enemies"
+[[facilities.zones]]
+zone = "industrial"
+weight = 65
+minSpan = 2
+[[facilities]]
+id = "antique"
+glyph = "A"
+order = 4
+isShop = true
+planner = "store"
+enemyTable = "antique_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 20
+minSpan = 3
+[[facilities]]
+id = "clinic"
+glyph = "C"
+order = 5
+isShop = false
+planner = "clinic"
+enemyTable = "clinic_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 20
+minSpan = 3
+[[facilities.zones]]
+zone = "residential"
+weight = 10
+minSpan = 3
+[[facilities]]
+id = "lab"
+glyph = "L"
+order = 6
+isShop = false
+planner = "clinic"
+enemyTable = "lab_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 15
+minSpan = 3
+
 [[facilityEnemyTables]]
 facility = "clinic"
 enemyTable = "clinic_enemies"

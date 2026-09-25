@@ -438,60 +438,84 @@ func (e Placement) Valid() bool {
 	}
 }
 
+// Defines values for PlannerKey.
+const (
+	PlannerKeyBsp    PlannerKey = "bsp"
+	PlannerKeyClinic PlannerKey = "clinic"
+	PlannerKeyHouse  PlannerKey = "house"
+	PlannerKeyStore  PlannerKey = "store"
+)
+
+// Valid indicates whether the value is a known member of the PlannerKey enum.
+func (e PlannerKey) Valid() bool {
+	switch e {
+	case PlannerKeyBsp:
+		return true
+	case PlannerKeyClinic:
+		return true
+	case PlannerKeyHouse:
+		return true
+	case PlannerKeyStore:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for RoomRole.
 const (
-	RoomRoleBath            RoomRole = "bath"
-	RoomRoleBedroom         RoomRole = "bedroom"
-	RoomRoleColdroom        RoomRole = "coldroom"
-	RoomRoleCorridor        RoomRole = "corridor"
-	RoomRoleDressing        RoomRole = "dressing"
-	RoomRoleExaminationRoom RoomRole = "examination_room"
-	RoomRoleGenkan          RoomRole = "genkan"
-	RoomRoleKitchen         RoomRole = "kitchen"
-	RoomRoleLiving          RoomRole = "living"
-	RoomRoleOffice          RoomRole = "office"
-	RoomRolePharmacy        RoomRole = "pharmacy"
-	RoomRoleRestroom        RoomRole = "restroom"
-	RoomRoleStorage         RoomRole = "storage"
-	RoomRoleStoreroom       RoomRole = "storeroom"
-	RoomRoleToilet          RoomRole = "toilet"
-	RoomRoleWaiting         RoomRole = "waiting"
+	Bath            RoomRole = "bath"
+	Bedroom         RoomRole = "bedroom"
+	Coldroom        RoomRole = "coldroom"
+	Corridor        RoomRole = "corridor"
+	Dressing        RoomRole = "dressing"
+	ExaminationRoom RoomRole = "examination_room"
+	Genkan          RoomRole = "genkan"
+	Kitchen         RoomRole = "kitchen"
+	Living          RoomRole = "living"
+	Office          RoomRole = "office"
+	Pharmacy        RoomRole = "pharmacy"
+	Restroom        RoomRole = "restroom"
+	Storage         RoomRole = "storage"
+	Storeroom       RoomRole = "storeroom"
+	Toilet          RoomRole = "toilet"
+	Waiting         RoomRole = "waiting"
 )
 
 // Valid indicates whether the value is a known member of the RoomRole enum.
 func (e RoomRole) Valid() bool {
 	switch e {
-	case RoomRoleBath:
+	case Bath:
 		return true
-	case RoomRoleBedroom:
+	case Bedroom:
 		return true
-	case RoomRoleColdroom:
+	case Coldroom:
 		return true
-	case RoomRoleCorridor:
+	case Corridor:
 		return true
-	case RoomRoleDressing:
+	case Dressing:
 		return true
-	case RoomRoleExaminationRoom:
+	case ExaminationRoom:
 		return true
-	case RoomRoleGenkan:
+	case Genkan:
 		return true
-	case RoomRoleKitchen:
+	case Kitchen:
 		return true
-	case RoomRoleLiving:
+	case Living:
 		return true
-	case RoomRoleOffice:
+	case Office:
 		return true
-	case RoomRolePharmacy:
+	case Pharmacy:
 		return true
-	case RoomRoleRestroom:
+	case Restroom:
 		return true
-	case RoomRoleStorage:
+	case Storage:
 		return true
-	case RoomRoleStoreroom:
+	case Storeroom:
 		return true
-	case RoomRoleToilet:
+	case Toilet:
 		return true
-	case RoomRoleWaiting:
+	case Waiting:
 		return true
 	default:
 		return false
@@ -669,6 +693,27 @@ func (e WaterType) Valid() bool {
 	case WaterTypeMinus5:
 		return true
 	case WaterTypeN0:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Zone.
+const (
+	Downtown    Zone = "downtown"
+	Industrial  Zone = "industrial"
+	Residential Zone = "residential"
+)
+
+// Valid indicates whether the value is a known member of the Zone enum.
+func (e Zone) Valid() bool {
+	switch e {
+	case Downtown:
+		return true
+	case Industrial:
+		return true
+	case Residential:
 		return true
 	default:
 		return false
@@ -1332,6 +1377,25 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Facility 地物の施設1種の宣言。id で facilityContents/facilityRooms と紐づく。
+//
+//	glyph は概略地図の記号、order は凡例の表示順、isShop は看板やシャッターを出す店系か、
+//	planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
+//	汎用が欲しければ "ruins_area" を明示する。glyph/order/isShop/planner/enemyTable/zones を
+//	1行に集約し施設の単一出典にする
+type Facility struct {
+	EnemyTable EntityID `json:"enemyTable"`
+	Glyph      string   `json:"glyph"`
+	Id         EntityID `json:"id"`
+	IsShop     bool     `json:"isShop"`
+	Order      int32    `json:"order"`
+
+	// Planner 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
+	//     新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
+	Planner PlannerKey     `json:"planner"`
+	Zones   []FacilityZone `json:"zones"`
+}
+
 // FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
 type FacilityContent struct {
 	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
@@ -1363,6 +1427,17 @@ type FacilityRooms struct {
 	Facility FacilityKind   `json:"facility"`
 	Fallback EntityID       `json:"fallback"`
 	Rooms    *[]RoomContent `json:"rooms,omitempty"`
+}
+
+// FacilityZone 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
+//
+//	抽選対象になる規模 gate
+type FacilityZone struct {
+	MinSpan int32 `json:"minSpan"`
+	Weight  int32 `json:"weight"`
+
+	// Zone 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む
+	Zone Zone `json:"zone"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -1762,6 +1837,11 @@ type PassCost = int
 // Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
 type Placement string
 
+// PlannerKey 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
+//
+//	新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
+type PlannerKey string
+
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 type Potency = int
 
@@ -1911,6 +1991,7 @@ type Raws struct {
 	CommandTables       *[]CommandTable       `json:"commandTables,omitempty"`
 	DropTables          *[]DropTable          `json:"dropTables,omitempty"`
 	EnemyTables         *[]EnemyTable         `json:"enemyTables,omitempty"`
+	Facilities          *[]Facility           `json:"facilities,omitempty"`
 	FacilityContents    *[]FacilityContent    `json:"facilityContents,omitempty"`
 	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
 	FacilityRooms       *[]FacilityRooms      `json:"facilityRooms,omitempty"`
@@ -2138,6 +2219,9 @@ type Wearable struct {
 
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
+
+// Zone 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む
+type Zone string
 
 // CommandTablesCreateJSONRequestBody defines body for CommandTablesCreate for application/json ContentType.
 type CommandTablesCreateJSONRequestBody = CommandTable

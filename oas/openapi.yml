@@ -2346,6 +2346,40 @@ components:
           type: string
           description: エラーメッセージ
       description: エラーレスポンス
+    Facility:
+      type: object
+      required:
+        - id
+        - glyph
+        - order
+        - isShop
+        - planner
+        - enemyTable
+        - zones
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        glyph:
+          type: string
+        order:
+          type: integer
+          format: int32
+        isShop:
+          type: boolean
+        planner:
+          $ref: '#/components/schemas/PlannerKey'
+        enemyTable:
+          $ref: '#/components/schemas/EntityID'
+        zones:
+          type: array
+          items:
+            $ref: '#/components/schemas/FacilityZone'
+      description: |-
+        地物の施設1種の宣言。id で facilityContents/facilityRooms と紐づく。
+            glyph は概略地図の記号、order は凡例の表示順、isShop は看板やシャッターを出す店系か、
+            planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
+            汎用が欲しければ "ruins_area" を明示する。glyph/order/isShop/planner/enemyTable/zones を
+            1行に集約し施設の単一出典にする
     FacilityContent:
       type: object
       required:
@@ -2402,6 +2436,24 @@ components:
         fallback:
           $ref: '#/components/schemas/EntityID'
       description: 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
+    FacilityZone:
+      type: object
+      required:
+        - zone
+        - weight
+        - minSpan
+      properties:
+        zone:
+          $ref: '#/components/schemas/Zone'
+        weight:
+          type: integer
+          format: int32
+        minSpan:
+          type: integer
+          format: int32
+      description: |-
+        施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
+            抽選対象になる規模 gate
     FactionMemberType:
       type: string
       enum:
@@ -2973,6 +3025,16 @@ components:
         - far_from_door
         - row
       description: 配置の置き方。空なら家具型の archetype 既定へ落ちる
+    PlannerKey:
+      type: string
+      enum:
+        - house
+        - store
+        - clinic
+        - bsp
+      description: |-
+        間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
+            新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
     Potency:
       type: integer
       minimum: 0
@@ -3193,6 +3255,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EnemyTable'
+        facilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facility'
         facilityEnemyTables:
           type: array
           items:
@@ -3580,6 +3646,13 @@ components:
       type: string
       pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$
       description: '重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"'
+    Zone:
+      type: string
+      enum:
+        - downtown
+        - residential
+        - industrial
+      description: 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む
 servers:
   - url: http://localhost:8080
     description: Development server

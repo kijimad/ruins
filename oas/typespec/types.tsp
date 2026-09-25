@@ -116,6 +116,22 @@ enum RoomRole {
   waiting,
 }
 
+/** 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
+    新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する */
+enum PlannerKey {
+  house,
+  store,
+  clinic,
+  bsp,
+}
+
+/** 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む */
+enum Zone {
+  downtown,
+  residential,
+  industrial,
+}
+
 /** 耐久値。削り切られると壊れる */
 @minValue(1)
 @maxValue(9999)

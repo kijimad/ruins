@@ -762,6 +762,20 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
+ * 地物の施設1種の宣言。id で facilityContents/facilityRooms と紐づく。     glyph は概略地図の記号、order は凡例の表示順、isShop は看板やシャッターを出す店系か、     planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で     汎用が欲しければ \"ruins_area\" を明示する。glyph/order/isShop/planner/enemyTable/zones を     1行に集約し施設の単一出典にする
+ */
+export interface Facility {
+    'id': string;
+    'glyph': string;
+    'order': number;
+    'isShop': boolean;
+    'planner': PlannerKey;
+    'enemyTable': string;
+    'zones': Array<FacilityZone>;
+}
+
+
+/**
  * 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
  */
 export interface FacilityContent {
@@ -806,6 +820,16 @@ export interface FacilityRooms {
     'facility': FacilityKind;
     'rooms'?: Array<RoomContent>;
     'fallback': string;
+}
+
+
+/**
+ * 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ     抽選対象になる規模 gate
+ */
+export interface FacilityZone {
+    'zone': Zone;
+    'weight': number;
+    'minSpan': number;
 }
 
 
@@ -1274,6 +1298,20 @@ export type Placement = typeof Placement[keyof typeof Placement];
 
 
 /**
+ * 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。     新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
+ */
+
+export const PlannerKey = {
+    House: 'house',
+    Store: 'store',
+    Clinic: 'clinic',
+    Bsp: 'bsp',
+} as const;
+
+export type PlannerKey = typeof PlannerKey[keyof typeof PlannerKey];
+
+
+/**
  * 職業
  */
 export interface Profession {
@@ -1444,6 +1482,7 @@ export interface Raws {
     'itemGroups'?: Array<ItemGroup>;
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
+    'facilities'?: Array<Facility>;
     'facilityEnemyTables'?: Array<FacilityEnemyTable>;
     'interiorContents'?: Array<InteriorContent>;
     'facilityContents'?: Array<FacilityContent>;
@@ -1760,6 +1799,19 @@ export interface Wearable {
      */
     'insulationHeat': number;
 }
+
+
+/**
+ * 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む
+ */
+
+export const Zone = {
+    Downtown: 'downtown',
+    Residential: 'residential',
+    Industrial: 'industrial',
+} as const;
+
+export type Zone = typeof Zone[keyof typeof Zone];
 
 
 

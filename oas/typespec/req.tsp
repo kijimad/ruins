@@ -312,6 +312,29 @@ model FacilityEnemyTable {
   enemyTable: EntityID;
 }
 
+/** 地物の施設1種の宣言。id で facilityContents/facilityRooms と紐づく。
+    glyph は概略地図の記号、order は凡例の表示順、isShop は看板やシャッターを出す店系か、
+    planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
+    汎用が欲しければ "ruins_area" を明示する。glyph/order/isShop/planner/enemyTable/zones を
+    1行に集約し施設の単一出典にする */
+model Facility {
+  id: EntityID;
+  glyph: string;
+  order: int32;
+  isShop: boolean;
+  planner: PlannerKey;
+  enemyTable: EntityID;
+  zones: FacilityZone[];
+}
+
+/** 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
+    抽選対象になる規模 gate */
+model FacilityZone {
+  zone: Zone;
+  weight: int32;
+  minSpan: int32;
+}
+
 // ================== 内装レシピ ==================
 
 /** 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う */
@@ -548,6 +571,7 @@ model Raws {
   itemGroups?: ItemGroup[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
+  facilities?: Facility[];
   facilityEnemyTables?: FacilityEnemyTable[];
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
