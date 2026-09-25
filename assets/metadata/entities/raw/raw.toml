@@ -16025,6 +16025,71 @@ zone = "downtown"
 weight = 15
 minSpan = 3
 
+[[landmarks]]
+id = "abandoned_hut"
+weight = 30
+drawer = "hut"
+hutW = 6
+hutH = 5
+[[landmarks.props]]
+name = "bed"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "closet"
+dx = 0
+dy = 0
+[[landmarks]]
+id = "farmstead"
+weight = 25
+drawer = "hut"
+hutW = 7
+hutH = 5
+[[landmarks.props]]
+name = "barrel"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "crate"
+dx = 0
+dy = 0
+[[landmarks]]
+id = "shrine"
+weight = 20
+drawer = "open"
+hutW = 0
+hutH = 0
+[[landmarks.props]]
+name = "stone_pillar"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "candle"
+dx = -1
+dy = 1
+[[landmarks.props]]
+name = "candle"
+dx = 1
+dy = 1
+[[landmarks]]
+id = "campsite"
+weight = 25
+drawer = "open"
+hutW = 0
+hutH = 0
+[[landmarks.props]]
+name = "hearth"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "crate"
+dx = 1
+dy = 1
+[[landmarks.props]]
+name = "bench"
+dx = -1
+dy = 0
+
 [[interiorContents]]
 id = "bath"
 [[interiorContents.groups]]

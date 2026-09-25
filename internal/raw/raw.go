@@ -670,6 +670,11 @@ func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
 	return findByKey(raws.Facilities, func(f oapi.Facility) string { return f.Id }, id)
 }
 
+// GetLandmark は id のランドマーク宣言を返す。ランドマークは raw.toml の landmarks 行が単一出典。未登録は false。
+func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
+	return findByKey(raws.Landmarks, func(l oapi.Landmark) string { return l.Id }, id)
+}
+
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
 func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) {

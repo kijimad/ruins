@@ -181,7 +181,7 @@ func ChunkPlace(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], co
 		}
 		return placeGlyphs[placeHamlet].Label
 	case chunkLandmark:
-		return placeGlyphs[landmarkPlaceType(landmarkKindAt(runSeed, c))].Label
+		return placeGlyphs[landmarkPlaceType(landmarkKindAt(raws, runSeed, c))].Label
 	case chunkWasteland:
 		return placeGlyphs[placeField].Label
 	}

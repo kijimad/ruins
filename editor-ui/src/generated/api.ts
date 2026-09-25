@@ -613,6 +613,18 @@ export interface DisassemblyYield {
     'chance'?: number;
 }
 /**
+ * ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、     open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える
+ */
+
+export const DrawerKey = {
+    Hut: 'hut',
+    Open: 'open',
+} as const;
+
+export type DrawerKey = typeof DrawerKey[keyof typeof DrawerKey];
+
+
+/**
  * ドロップテーブル
  */
 export interface DropTable {
@@ -1068,6 +1080,19 @@ export interface ItemTableList {
     'totalCount': number;
 }
 /**
+ * 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の     drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標。     地図の記号など表示の宣言は別フェーズでここへ足す
+ */
+export interface Landmark {
+    'id': string;
+    'weight': number;
+    'drawer': DrawerKey;
+    'hutW': number;
+    'hutH': number;
+    'props': Array<PropSpot>;
+}
+
+
+/**
  * 光源設定
  */
 export interface LightSource {
@@ -1399,6 +1424,14 @@ export interface PropList {
     'totalCount': number;
 }
 /**
+ * ランドマークの prop 1個の相対配置。name は prop id、dx/dy は基準座標からのオフセット
+ */
+export interface PropSpot {
+    'name': string;
+    'dx': number;
+    'dy': number;
+}
+/**
  * 回復効果
  */
 export interface ProvidesHealing {
@@ -1448,6 +1481,7 @@ export interface Raws {
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
     'facilities'?: Array<Facility>;
+    'landmarks'?: Array<Landmark>;
     'interiorContents'?: Array<InteriorContent>;
     'facilityContents'?: Array<FacilityContent>;
     'facilityRooms'?: Array<FacilityRooms>;

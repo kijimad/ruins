@@ -81,6 +81,24 @@ func (e CombatPolicyType) Valid() bool {
 	}
 }
 
+// Defines values for DrawerKey.
+const (
+	Hut  DrawerKey = "hut"
+	Open DrawerKey = "open"
+)
+
+// Valid indicates whether the value is a known member of the DrawerKey enum.
+func (e DrawerKey) Valid() bool {
+	switch e {
+	case Hut:
+		return true
+	case Open:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Element.
 const (
 	ElementCHILL   Element = "CHILL"
@@ -1243,6 +1261,11 @@ type DisassemblyYield struct {
 // DoorRaw 扉ローデータ
 type DoorRaw = map[string]interface{}
 
+// DrawerKey ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
+//
+//	open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える
+type DrawerKey string
+
 // DropTable ドロップテーブル
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
@@ -1630,6 +1653,21 @@ type ItemTableList struct {
 // ItemValue 売買価格
 type ItemValue = int
 
+// Landmark 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の
+//
+//	drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標。
+//	地図の記号など表示の宣言は別フェーズでここへ足す
+type Landmark struct {
+	// Drawer ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
+	//     open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える
+	Drawer DrawerKey  `json:"drawer"`
+	HutH   int32      `json:"hutH"`
+	HutW   int32      `json:"hutW"`
+	Id     EntityID   `json:"id"`
+	Props  []PropSpot `json:"props"`
+	Weight int32      `json:"weight"`
+}
+
 // LightEnabled 光源が有効かどうか
 type LightEnabled = bool
 
@@ -1899,6 +1937,13 @@ type PropList struct {
 	TotalCount int    `json:"totalCount"`
 }
 
+// PropSpot ランドマークの prop 1個の相対配置。name は prop id、dx/dy は基準座標からのオフセット
+type PropSpot struct {
+	Dx   int32    `json:"dx"`
+	Dy   int32    `json:"dy"`
+	Name EntityID `json:"name"`
+}
+
 // ProvidesHealing 回復効果
 type ProvidesHealing struct {
 	// Amount 回復固定量
@@ -1945,6 +1990,7 @@ type Raws struct {
 	ItemGroups       *[]ItemGroup       `json:"itemGroups,omitempty"`
 	ItemTables       *[]ItemTable       `json:"itemTables,omitempty"`
 	Items            *[]Item            `json:"items,omitempty"`
+	Landmarks        *[]Landmark        `json:"landmarks,omitempty"`
 	Members          *[]Member          `json:"members,omitempty"`
 	Professions      *[]Profession      `json:"professions,omitempty"`
 	Props            *[]Prop            `json:"props,omitempty"`

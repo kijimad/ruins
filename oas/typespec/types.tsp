@@ -120,6 +120,13 @@ enum Zone {
   industrial,
 }
 
+/** ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
+    open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える */
+enum DrawerKey {
+  hut,
+  open,
+}
+
 /** 耐久値。削り切られると壊れる */
 @minValue(1)
 @maxValue(9999)

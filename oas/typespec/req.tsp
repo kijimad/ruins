@@ -323,6 +323,25 @@ model FacilityZone {
   minSpan: int32;
 }
 
+/** 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の
+    drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標。
+    地図の記号など表示の宣言は別フェーズでここへ足す */
+model Landmark {
+  id: EntityID;
+  weight: int32;
+  drawer: DrawerKey;
+  hutW: int32;
+  hutH: int32;
+  props: PropSpot[];
+}
+
+/** ランドマークの prop 1個の相対配置。name は prop id、dx/dy は基準座標からのオフセット */
+model PropSpot {
+  name: EntityID;
+  dx: int32;
+  dy: int32;
+}
+
 // ================== 内装レシピ ==================
 
 /** 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う */
@@ -560,6 +579,7 @@ model Raws {
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
   facilities?: Facility[];
+  landmarks?: Landmark[];
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
   facilityRooms?: FacilityRooms[];

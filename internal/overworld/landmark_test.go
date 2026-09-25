@@ -5,12 +5,25 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestDrawers_全DrawerKeyに実装がある は drawer キーの閉集合 DrawerKey enum と Go の drawers 実装が
+// 一致することを固定する。tsp に drawer を足して drawers への登録を忘れると、ランドマークがその drawer を
+// 指したときに解決できず落ちる。schema が値の閉集合を守り、この被覆テストが実装欠けを守る。
+func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
+	t.Parallel()
+
+	for _, key := range []oapi.DrawerKey{oapi.Hut, oapi.Open} {
+		_, ok := drawers[key]
+		assert.Truef(t, ok, "drawer key %q に Go 実装がある", key)
+	}
+}
 
 // findLandmarkChunk は点在ランドマークが当選し、他の地物に譲らないチャンクと seed を探す。
 func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
@@ -68,7 +81,7 @@ func TestLandmarkPlaceType_各種別が異なる地図分類へ写る(t *testing
 	// panic で示す。exhaustive linter は case の網羅は強制するが、別々の placeType へ写ることは
 	// 保証しないので、コピペによる重複写像はここで弾く。
 	seen := map[placeType]bool{}
-	for _, k := range []landmarkKind{landmarkAbandonedHut, landmarkFarmstead, landmarkShrine, landmarkCampsite} {
+	for _, k := range []string{"abandoned_hut", "farmstead", "shrine", "campsite"} {
 		p := landmarkPlaceType(k)
 		assert.NotEmptyf(t, p, "種別 %q に地図分類の写像がある", k)
 		assert.Falsef(t, seen[p], "種別 %q の写像 %q が他と重複している", k, p)

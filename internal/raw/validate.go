@@ -16,6 +16,8 @@ var (
 	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
 	errFacilityKeyUndefined           = errors.New("references undefined facility")
 	errZoneNoBaseFacility             = errors.New("zone has no base facility")
+	errLandmarkNoWeight               = errors.New("landmarks have no positive total weight")
+	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
 	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
 	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
 	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -86,6 +88,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateInteriorContentReferences(raws); err != nil {
+		return err
+	}
+	if err := validateLandmarkReferences(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -213,6 +218,37 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		if _, ok := facilityIDs[fr.Facility]; !ok {
 			return fmt.Errorf("facilityRooms references unknown facility %q: %w", fr.Facility, errFacilityKeyUndefined)
 		}
+	}
+	return nil
+}
+
+// validateLandmarkReferences はランドマークの整合をロード時 fail-closed で守る。出現重みの総和が正で
+// あること、prop の参照先が props に実在することを検証する。総和が0だと landmarkKindAt の IntN が壊れ、
+// prop の typo は spawn 時まで silent に潜る。drawer キーの実装照合は raw から overworld への循環を避け、
+// drawer は tsp enum なので値の閉集合は schema が弾き、enum と drawers の一致は overworld の被覆テストで守る。
+func validateLandmarkReferences(raws oapi.Raws) error {
+	landmarks := PtrSlice(raws.Landmarks)
+	if len(landmarks) == 0 {
+		return nil // ランドマーク未定義は許容。定義したときだけ整合を課す
+	}
+
+	props := PtrSlice(raws.Props)
+	propNames := make(map[string]struct{}, len(props))
+	for i := range props {
+		propNames[props[i].Id] = struct{}{}
+	}
+
+	total := 0
+	for _, l := range landmarks {
+		total += int(l.Weight)
+		for _, p := range l.Props {
+			if _, ok := propNames[p.Name]; !ok {
+				return fmt.Errorf("landmark %q references prop %q: %w", l.Id, p.Name, errLandmarkPropUndefined)
+			}
+		}
+	}
+	if total <= 0 {
+		return fmt.Errorf("%w", errLandmarkNoWeight)
 	}
 	return nil
 }
