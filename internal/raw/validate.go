@@ -219,6 +219,7 @@ func validateInteriorContentReferences(raws oapi.Raws) error {
 	}
 
 	// flavor は Go が全室へ引く必須レイヤ。interior を積む raw で未設定なら生成時に落ちるのでロード時に弾く。
+	// flavorContent は id 参照でなくインラインの値を直接持つので、interiorContents との id 照合は要らず存在だけ見る。
 	// interior を使わない部分的な Raws は素通しする
 	if len(contents) > 0 && raws.FlavorContent == nil {
 		return fmt.Errorf("flavorContent: %w", errInteriorFlavorContentMissing)

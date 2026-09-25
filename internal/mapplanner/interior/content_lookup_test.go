@@ -53,7 +53,7 @@ func TestBackRoomContent_未登録施設はerror(t *testing.T) {
 
 // TestToContent_不正なダイスはerrorを返す は、amount のダイス表記が壊れたレシピを変換したとき toContent が
 // 握りつぶさず error を返すことを固定する。golden は正常データしか通らないので、この失敗経路はここでしか
-// 検証できない。生成時は contentByID がこの error を panic へ昇格させる。
+// 検証できない。生成時は contentByID がこの error を呼び出し側へ伝播し、FurnishBuilding が生成を止める。
 func TestToContent_不正なダイスはerrorを返す(t *testing.T) {
 	t.Parallel()
 
