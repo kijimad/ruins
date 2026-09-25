@@ -37,7 +37,7 @@ type Stuff struct {
 	Ref        string      // 家具型や戦利品テーブルの参照名
 	Weight     int         // PickOne / PickN の抽選重み。0 は 1 とみなす
 	Amount     consts.Dice // 置く個数
-	Placement  Placement   // どこへ置くか。空なら PlaceFullArea 相当
+	Placement  Placement   // どこへ置くか。PlaceDefault なら家具型の archetype 既定へ落ちる
 	Satellites []Satellite // anchor 相対に一緒に置く衛星。机に対する椅子など
 }
 

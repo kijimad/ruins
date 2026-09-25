@@ -1915,7 +1915,8 @@ type Raws struct {
 	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
 	FacilityRooms       *[]FacilityRooms      `json:"facilityRooms,omitempty"`
 
-	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる
+	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
+	//       interiorContents プールには入れず、この専用フィールドだけに置く
 	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
 	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
 	ItemGroups       *[]ItemGroup       `json:"itemGroups,omitempty"`
