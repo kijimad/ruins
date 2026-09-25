@@ -10,9 +10,9 @@ import (
 
 // contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。内装 content は数十件規模
 // なので線形走査で足り、索引を持たず毎回新規に組む。返り値を applyDensity が in-place で書き換えても共有元が
-// 無く clone が要らない。他ドメインの NewItemSpec と同じ「その場で引いて変換」の形。参照は raw の
-// ValidateReferences で検証済みなので、ここでの未定義とダイス解析失敗は不変条件違反として panic で露見させる。
-// 生成はテスト golden で走るので CI で捕まる。
+// 無く clone が要らない。他ドメインの NewItemSpec と同じ「その場で引いて変換」の形。参照もダイス表記も raw の
+// ValidateReferences がロード時に検証済みなので、ここでの未定義・解析失敗は起きえない。不変条件違反として
+// panic で露見させる backstop に留める。flavor はコード直引きで validate 対象外なので、欠ければここで panic する。
 func contentByID(raws oapi.Raws, id string) Content {
 	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
 		if ic.Id == id {

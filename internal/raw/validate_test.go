@@ -464,6 +464,34 @@ func TestValidateInteriorContentReferences(t *testing.T) {
 		}
 		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentDuplicateID)
 	})
+
+	t.Run("正しいダイスは通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: &[]oapi.InteriorContent{{
+				Id: "house",
+				Groups: &[]oapi.ContentGroup{{
+					Style: "pick_each",
+					Items: []oapi.ContentStuff{{Kind: "furniture", Ref: "table", Amount: "1d3+1"}},
+				}},
+			}},
+		}
+		require.NoError(t, validateInteriorContentReferences(raws))
+	})
+
+	t.Run("壊れたダイスはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: &[]oapi.InteriorContent{{
+				Id: "house",
+				Groups: &[]oapi.ContentGroup{{
+					Style: "pick_each",
+					Items: []oapi.ContentStuff{{Kind: "furniture", Ref: "table", Amount: "notdice"}},
+				}},
+			}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentInvalidDice)
+	})
 }
 
 func TestValidateCommandTableWeaponReferences(t *testing.T) {

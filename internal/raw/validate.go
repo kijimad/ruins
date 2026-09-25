@@ -23,6 +23,7 @@ var (
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
 	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
+	errInteriorContentInvalidDice     = errors.New("interior content has invalid dice notation")
 	errInvalidPackNotation            = errors.New("invalid pack notation")
 	errInvalidLootCountNotation       = errors.New("invalid lootCount notation")
 )
@@ -183,8 +184,9 @@ func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
 
 // validateInteriorContentReferences は内装レシピの content 参照が interiorContents に存在することを検証する。
 // facilityContents の変種、facilityRooms の役割別 content と fallback が指す id を、typo による空部屋の silent
-// 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複を検出する。id は生成側 byID の一意
-// キーで、重複すると後勝ちで上書きされレシピが取り違わる。
+// 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複と、各 item の amount ダイス表記の
+// 破損を検出する。id は生成側の一意キーで重複すると取り違わる。ダイスは生成側が都度パースするので、破損を
+// ロード時に前倒しして生成時の panic を防ぐ。
 func validateInteriorContentReferences(raws oapi.Raws) error {
 	contents := PtrSlice(raws.InteriorContents)
 	contentIDs := make(map[string]struct{}, len(contents))
@@ -193,6 +195,13 @@ func validateInteriorContentReferences(raws oapi.Raws) error {
 			return fmt.Errorf("interior content %q: %w", contents[i].Id, errInteriorContentDuplicateID)
 		}
 		contentIDs[contents[i].Id] = struct{}{}
+		for _, g := range PtrSlice(contents[i].Groups) {
+			for _, item := range g.Items {
+				if _, err := consts.ParseDice(item.Amount); err != nil {
+					return fmt.Errorf("interior content %q ref %q amount %q: %w", contents[i].Id, item.Ref, item.Amount, errInteriorContentInvalidDice)
+				}
+			}
+		}
 	}
 
 	for _, fc := range PtrSlice(raws.FacilityContents) {
