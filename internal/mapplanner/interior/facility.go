@@ -3,7 +3,7 @@ package interior
 import "github.com/kijimaD/ruins/internal/oapi"
 
 // 施設種別の入口とノブ。単室の建物を施設種別で内装する Furnish と、密度・経年を決める関数を持つ。content
-// レシピそのものは raw.toml のデータで、loader.go が施設種別から変種を都度引いて変換する。多部屋の加工パイプは
+// レシピそのものは raw.toml のデータで、content_lookup.go が施設種別から変種を都度引いて変換する。多部屋の加工パイプは
 // furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
 
 // FacilityKind は建物の施設種別。overworld の facilityType の文字列と揃える。公開 API は overworld から
