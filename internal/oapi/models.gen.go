@@ -186,6 +186,39 @@ func (e EquipmentCategory) Valid() bool {
 	}
 }
 
+// Defines values for FacilityKind.
+const (
+	FacilityKindAntique FacilityKind = "antique"
+	FacilityKindClinic  FacilityKind = "clinic"
+	FacilityKindDepot   FacilityKind = "depot"
+	FacilityKindHouse   FacilityKind = "house"
+	FacilityKindLab     FacilityKind = "lab"
+	FacilityKindOffice  FacilityKind = "office"
+	FacilityKindStore   FacilityKind = "store"
+)
+
+// Valid indicates whether the value is a known member of the FacilityKind enum.
+func (e FacilityKind) Valid() bool {
+	switch e {
+	case FacilityKindAntique:
+		return true
+	case FacilityKindClinic:
+		return true
+	case FacilityKindDepot:
+		return true
+	case FacilityKindHouse:
+		return true
+	case FacilityKindLab:
+		return true
+	case FacilityKindOffice:
+		return true
+	case FacilityKindStore:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for FactionMemberType.
 const (
 	FactionNeutral FactionMemberType = "FactionNeutral"
@@ -399,6 +432,66 @@ func (e Placement) Valid() bool {
 	case Row:
 		return true
 	case Wall:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RoomRole.
+const (
+	RoomRoleBath            RoomRole = "bath"
+	RoomRoleBedroom         RoomRole = "bedroom"
+	RoomRoleColdroom        RoomRole = "coldroom"
+	RoomRoleCorridor        RoomRole = "corridor"
+	RoomRoleDressing        RoomRole = "dressing"
+	RoomRoleExaminationRoom RoomRole = "examination_room"
+	RoomRoleGenkan          RoomRole = "genkan"
+	RoomRoleKitchen         RoomRole = "kitchen"
+	RoomRoleLiving          RoomRole = "living"
+	RoomRoleOffice          RoomRole = "office"
+	RoomRolePharmacy        RoomRole = "pharmacy"
+	RoomRoleRestroom        RoomRole = "restroom"
+	RoomRoleStorage         RoomRole = "storage"
+	RoomRoleStoreroom       RoomRole = "storeroom"
+	RoomRoleToilet          RoomRole = "toilet"
+	RoomRoleWaiting         RoomRole = "waiting"
+)
+
+// Valid indicates whether the value is a known member of the RoomRole enum.
+func (e RoomRole) Valid() bool {
+	switch e {
+	case RoomRoleBath:
+		return true
+	case RoomRoleBedroom:
+		return true
+	case RoomRoleColdroom:
+		return true
+	case RoomRoleCorridor:
+		return true
+	case RoomRoleDressing:
+		return true
+	case RoomRoleExaminationRoom:
+		return true
+	case RoomRoleGenkan:
+		return true
+	case RoomRoleKitchen:
+		return true
+	case RoomRoleLiving:
+		return true
+	case RoomRoleOffice:
+		return true
+	case RoomRolePharmacy:
+		return true
+	case RoomRoleRestroom:
+		return true
+	case RoomRoleStorage:
+		return true
+	case RoomRoleStoreroom:
+		return true
+	case RoomRoleToilet:
+		return true
+	case RoomRoleWaiting:
 		return true
 	default:
 		return false
@@ -1241,7 +1334,8 @@ type Error struct {
 
 // FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
 type FacilityContent struct {
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
 	Facility FacilityKind `json:"facility"`
 	Variants []EntityID   `json:"variants"`
 }
@@ -1252,16 +1346,20 @@ type FacilityEnemyTable struct {
 	// EnemyTable 割り当てる敵テーブルの id。enemyTables のいずれかを指す
 	EnemyTable EntityID `json:"enemyTable"`
 
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
 	Facility FacilityKind `json:"facility"`
 }
 
-// FacilityKind 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
-type FacilityKind = string
+// FacilityKind 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+//
+//	runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
+type FacilityKind string
 
 // FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
 type FacilityRooms struct {
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
 	Facility FacilityKind   `json:"facility"`
 	Fallback EntityID       `json:"fallback"`
 	Rooms    *[]RoomContent `json:"rooms,omitempty"`
@@ -1870,12 +1968,12 @@ type Remedy struct {
 type RoomContent struct {
 	Content EntityID `json:"content"`
 
-	// Role 部屋の役割名。interior の roleName に相当する
+	// Role 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
 	Role RoomRole `json:"role"`
 }
 
-// RoomRole 部屋の役割名。interior の roleName に相当する
-type RoomRole = string
+// RoomRole 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
+type RoomRole string
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int

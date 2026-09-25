@@ -2376,7 +2376,17 @@ components:
         enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
     FacilityKind:
       type: string
-      description: 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
+      enum:
+        - house
+        - store
+        - antique
+        - clinic
+        - lab
+        - office
+        - depot
+      description: |-
+        施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+            runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
     FacilityRooms:
       type: object
       required:
@@ -3296,7 +3306,24 @@ components:
       description: 奥室の役割名と内装レシピの対
     RoomRole:
       type: string
-      description: 部屋の役割名。interior の roleName に相当する
+      enum:
+        - bath
+        - bedroom
+        - coldroom
+        - corridor
+        - dressing
+        - examination_room
+        - genkan
+        - kitchen
+        - living
+        - office
+        - pharmacy
+        - restroom
+        - storage
+        - storeroom
+        - toilet
+        - waiting
+      description: 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
     Sensation:
       type: integer
       minimum: -100

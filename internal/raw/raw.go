@@ -666,7 +666,7 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 
 // FacilityEnemyTableName は施設種別に割り当てられた敵テーブル id を返す。割り当てが無ければ false を返す。
 func FacilityEnemyTableName(raws oapi.Raws, facility string) (string, bool) {
-	fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string { return t.Facility }, facility)
+	fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string { return string(t.Facility) }, facility)
 	if !ok {
 		return "", false
 	}

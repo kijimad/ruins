@@ -84,11 +84,37 @@ scalar EntityID extends string;
 @minValue(0)
 scalar EntryWeight extends float64;
 
-/** 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる */
-scalar FacilityKind extends string;
+/** 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
+    runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路 */
+enum FacilityKind {
+  house,
+  store,
+  antique,
+  clinic,
+  lab,
+  office,
+  depot,
+}
 
-/** 部屋の役割名。interior の roleName に相当する */
-scalar RoomRole extends string;
+/** 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない */
+enum RoomRole {
+  bath,
+  bedroom,
+  coldroom,
+  corridor,
+  dressing,
+  examination_room,
+  genkan,
+  kitchen,
+  living,
+  office,
+  pharmacy,
+  restroom,
+  storage,
+  storeroom,
+  toilet,
+  waiting,
+}
 
 /** 耐久値。削り切られると壊れる */
 @minValue(1)

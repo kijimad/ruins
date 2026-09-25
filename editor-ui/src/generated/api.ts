@@ -765,36 +765,50 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
  * 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
  */
 export interface FacilityContent {
-    /**
-     * 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
-     */
-    'facility': string;
+    'facility': FacilityKind;
     'variants': Array<string>;
 }
+
+
 /**
  * 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
  */
 export interface FacilityEnemyTable {
-    /**
-     * 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
-     */
-    'facility': string;
+    'facility': FacilityKind;
     /**
      * 割り当てる敵テーブルの id。enemyTables のいずれかを指す
      */
     'enemyTable': string;
 }
+
+
+/**
+ * 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
+ */
+
+export const FacilityKind = {
+    House: 'house',
+    Store: 'store',
+    Antique: 'antique',
+    Clinic: 'clinic',
+    Lab: 'lab',
+    Office: 'office',
+    Depot: 'depot',
+} as const;
+
+export type FacilityKind = typeof FacilityKind[keyof typeof FacilityKind];
+
+
 /**
  * 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
  */
 export interface FacilityRooms {
-    /**
-     * 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
-     */
-    'facility': string;
+    'facility': FacilityKind;
     'rooms'?: Array<RoomContent>;
     'fallback': string;
 }
+
+
 /**
  * 派閥タイプ
  */
@@ -1485,12 +1499,37 @@ export interface Remedy {
  * 奥室の役割名と内装レシピの対
  */
 export interface RoomContent {
-    /**
-     * 部屋の役割名。interior の roleName に相当する
-     */
-    'role': string;
+    'role': RoomRole;
     'content': string;
 }
+
+
+/**
+ * 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
+ */
+
+export const RoomRole = {
+    Bath: 'bath',
+    Bedroom: 'bedroom',
+    Coldroom: 'coldroom',
+    Corridor: 'corridor',
+    Dressing: 'dressing',
+    ExaminationRoom: 'examination_room',
+    Genkan: 'genkan',
+    Kitchen: 'kitchen',
+    Living: 'living',
+    Office: 'office',
+    Pharmacy: 'pharmacy',
+    Restroom: 'restroom',
+    Storage: 'storage',
+    Storeroom: 'storeroom',
+    Toilet: 'toilet',
+    Waiting: 'waiting',
+} as const;
+
+export type RoomRole = typeof RoomRole[keyof typeof RoomRole];
+
+
 /**
  * 遮蔽タイプ
  */
