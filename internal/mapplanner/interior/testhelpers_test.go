@@ -57,7 +57,7 @@ func mustFurnishStages(t *testing.T, seed uint64, footprint Rect, door Vec, faci
 	return site, stages
 }
 
-// testRoomContents は施設の役割別 content をテスト用に map で返す。旧 houseRoomContents 等の代わり。
+// testRoomContents は施設の役割別 content をテスト用に map で返す。
 func testRoomContents(t *testing.T, fac FacilityKind) map[roleName]Content {
 	t.Helper()
 	raws := testRaws()
@@ -74,7 +74,7 @@ func testRoomContents(t *testing.T, fac FacilityKind) map[roleName]Content {
 }
 
 // diningTableStuff は椅子を四辺へ束ねた食卓の Stuff。衛星配置のテスト専用フィクスチャで、本番レシピは
-// raw.toml が持つ。旧 fixtures.go の diningTable をテストへ移したもの。
+// raw.toml が持つ。
 func diningTableStuff(placement Placement) Stuff {
 	chair := func(offs ...Vec) Satellite {
 		return Satellite{Kind: KindFurniture, Ref: "chair", Offsets: offs}

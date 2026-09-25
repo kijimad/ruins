@@ -118,8 +118,8 @@ func deref[T any](p *T) T {
 	return *p
 }
 
-// toSatellites は oapi の衛星束を interior.Satellite へ変換する。束が無ければ nil を返し、束のない Stuff の
-// Go レシピと等価になるようにする。offsets の consts.Tile は負値も取り、anchor から上/左方向を表す。
+// toSatellites は oapi の衛星束を interior.Satellite へ変換する。束が無ければ nil を返す。offsets の consts.Tile
+// は負値も取り、anchor から上/左方向を表す。
 func toSatellites(in *[]oapi.ContentSatellite) []Satellite {
 	items := raw.PtrSlice(in)
 	if len(items) == 0 {
