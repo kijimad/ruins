@@ -367,7 +367,7 @@ func TestValidateFacilityEnemyTableReferences(t *testing.T) {
 func TestValidateInteriorContentReferences(t *testing.T) {
 	t.Parallel()
 
-	contents := &[]oapi.InteriorContent{{Id: "house"}, {Id: "bedroom"}}
+	contents := &[]oapi.InteriorContent{{Id: "house"}, {Id: "bedroom"}, {Id: "flavor"}}
 
 	t.Run("実在する content 参照は通る", func(t *testing.T) {
 		t.Parallel()
@@ -422,6 +422,13 @@ func TestValidateInteriorContentReferences(t *testing.T) {
 		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentDuplicateID)
 	})
 
+	t.Run("コード必須 id が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: &[]oapi.InteriorContent{{Id: "house"}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentMissingRequired)
+	})
 }
 
 func TestValidateCommandTableWeaponReferences(t *testing.T) {

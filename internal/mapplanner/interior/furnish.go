@@ -26,7 +26,11 @@ type FurnishStage struct {
 func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage, error) {
 	site := planSite(footprint, seed, door, facility)
 
-	prof := rollProfile(seed) // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
+	prof := rollProfile(seed)                  // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
+	flavor, err := contentByID(raws, "flavor") // 全室共通なのでループ外で1度だけ引く
+	if err != nil {
+		return Site{}, nil, err
+	}
 	var fill, decayed, flavored []Placed
 	for i := range site.Rooms {
 		hr := site.Rooms[i]
@@ -43,10 +47,6 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 		// flavor と散らかりは到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が
 		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
 		if hr.Role != roleCorridor && !isNarrowRoom(hr.Room.Rect) {
-			flavor, err := contentByID(raws, "flavor")
-			if err != nil {
-				return Site{}, nil, err
-			}
 			fl = Flavor(roomSeed, hr.Room, a, flavor)
 			// 散らかりの小物を家具の隣へ落とし、生活感を足す。整頓の建物では何も足さない
 			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter, hr.Role)
