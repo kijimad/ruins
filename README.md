@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| accepted | [施設の横展開基盤。施設同一性を一本化し half-wired を fail-closed で弾く](docs/design/260925210126.md) | 0/9 | refactor, worldgen |
 
 
 ## Reference
