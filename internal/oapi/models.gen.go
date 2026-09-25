@@ -1816,16 +1816,19 @@ type Raws struct {
 	FacilityContents    *[]FacilityContent    `json:"facilityContents,omitempty"`
 	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
 	FacilityRooms       *[]FacilityRooms      `json:"facilityRooms,omitempty"`
-	InteriorContents    *[]InteriorContent    `json:"interiorContents,omitempty"`
-	ItemGroups          *[]ItemGroup          `json:"itemGroups,omitempty"`
-	ItemTables          *[]ItemTable          `json:"itemTables,omitempty"`
-	Items               *[]Item               `json:"items,omitempty"`
-	Members             *[]Member             `json:"members,omitempty"`
-	Professions         *[]Profession         `json:"professions,omitempty"`
-	Props               *[]Prop               `json:"props,omitempty"`
-	Recipes             *[]Recipe             `json:"recipes,omitempty"`
-	SpriteSheets        *[]SpriteSheet        `json:"spriteSheets,omitempty"`
-	Tiles               *[]Tile               `json:"tiles,omitempty"`
+
+	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる
+	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
+	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
+	ItemGroups       *[]ItemGroup       `json:"itemGroups,omitempty"`
+	ItemTables       *[]ItemTable       `json:"itemTables,omitempty"`
+	Items            *[]Item            `json:"items,omitempty"`
+	Members          *[]Member          `json:"members,omitempty"`
+	Professions      *[]Profession      `json:"professions,omitempty"`
+	Props            *[]Prop            `json:"props,omitempty"`
+	Recipes          *[]Recipe          `json:"recipes,omitempty"`
+	SpriteSheets     *[]SpriteSheet     `json:"spriteSheets,omitempty"`
+	Tiles            *[]Tile            `json:"tiles,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量

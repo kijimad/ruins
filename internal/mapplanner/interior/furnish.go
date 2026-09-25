@@ -26,8 +26,8 @@ type FurnishStage struct {
 func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage, error) {
 	site := planSite(footprint, seed, door, facility)
 
-	prof := rollProfile(seed)                  // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
-	flavor, err := contentByID(raws, "flavor") // 全室共通なのでループ外で1度だけ引く
+	prof := rollProfile(seed)          // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
+	flavor, err := flavorContent(raws) // 全室共通なのでループ外で1度だけ引く
 	if err != nil {
 		return Site{}, nil, err
 	}

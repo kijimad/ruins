@@ -16697,17 +16697,18 @@ style = "pick_one"
 kind = "decor"
 ref = "plant"
 amount = "2d1"
-[[interiorContents]]
+
+[flavorContent]
 id = "flavor"
-[[interiorContents.groups]]
+[[flavorContent.groups]]
 style = "pick_one"
-[[interiorContents.groups.items]]
+[[flavorContent.groups.items]]
 kind = "decor"
 ref = "carpet"
 weight = 1
 amount = "1d1"
 placement = "far_from_door"
-[[interiorContents.groups.items]]
+[[flavorContent.groups.items]]
 kind = "decor"
 ref = "candle"
 weight = 1

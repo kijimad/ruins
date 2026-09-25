@@ -1434,6 +1434,10 @@ export interface Raws {
     'interiorContents'?: Array<InteriorContent>;
     'facilityContents'?: Array<FacilityContent>;
     'facilityRooms'?: Array<FacilityRooms>;
+    /**
+     * 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる
+     */
+    'flavorContent'?: InteriorContent;
     'spriteSheets'?: Array<SpriteSheet>;
     'tiles'?: Array<Tile>;
     'props'?: Array<Prop>;

@@ -552,6 +552,9 @@ model Raws {
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
   facilityRooms?: FacilityRooms[];
+
+  /** 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる */
+  flavorContent?: InteriorContent;
   spriteSheets?: SpriteSheet[];
   tiles?: Tile[];
   props?: Prop[];

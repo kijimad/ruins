@@ -13,7 +13,17 @@ import (
 var (
 	errContentNotFound       = errors.New("interior content not found")
 	errFacilityNotRegistered = errors.New("interior facility not registered")
+	errFlavorContentMissing  = errors.New("interior flavor content missing")
 )
+
+// flavorContent は全施設共通のフレーバー装飾レシピを返す。施設レシピと直交する専用フィールドから引くので、
+// 施設種別を取らない。raw に未設定なら生成側が既定へ倒せるよう error で返す。
+func flavorContent(raws oapi.Raws) (Content, error) {
+	if raws.FlavorContent == nil {
+		return Content{}, errFlavorContentMissing
+	}
+	return toContent(*raws.FlavorContent)
+}
 
 // contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。内装 content は数十件規模
 // なので線形走査で足り、索引を持たず毎回新規に組む。返り値を applyDensity が in-place で書き換えても共有元が

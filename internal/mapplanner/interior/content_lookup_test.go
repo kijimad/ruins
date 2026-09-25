@@ -7,15 +7,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestContentByID_コード必須のidが引ける は、データでなくコードが直接引く content id が raw.toml にあることを
-// 固定する。flavor は flavor machine が全施設で引く。validate はデータ間の参照しか見ないので、このコード必須
-// id は誤削除に気づけるようテストで守る。欠ければ contentByID が panic する。
-func TestContentByID_コード必須のidが引ける(t *testing.T) {
+// TestFlavorContent_専用フィールドから引ける は、全施設共通のフレーバー装飾が専用フィールド flavorContent から
+// 引けることを固定する。施設レシピと直交する大域レイヤなので、id プールでなく専用フィールドで持つ。
+func TestFlavorContent_専用フィールドから引ける(t *testing.T) {
 	t.Parallel()
 
-	c, err := contentByID(testRaws(), "flavor")
+	c, err := flavorContent(testRaws())
 	require.NoError(t, err)
 	require.Equal(t, "flavor", c.ID)
+}
+
+// TestFlavorContent_未設定はerror は、flavorContent が無い raw を引くと生成を落とさず error を返すことを固定する。
+func TestFlavorContent_未設定はerror(t *testing.T) {
+	t.Parallel()
+
+	_, err := flavorContent(oapi.Raws{})
+	require.ErrorIs(t, err, errFlavorContentMissing)
 }
 
 // TestContentByID_未定義idはerror は、存在しない content id を引くと生成を落とさず error を返すことを固定する。
