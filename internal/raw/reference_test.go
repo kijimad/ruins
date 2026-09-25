@@ -430,3 +430,18 @@ func TestSpriteSheetFiles(t *testing.T) {
 		}
 	})
 }
+
+// TestNewItemSpec_工作台は装着設備として読める は実 raw の deployable_workbench が能力枝を持たない
+// [items.deployable] 空テーブルから Deployable マーカーを得ることを検証する。空テーブルが nil に
+// 落ちるとマーカーが付かず設備画面に出ないので、実 id で fail-closed に守る。
+func TestNewItemSpec_工作台は装着設備として読める(t *testing.T) {
+	t.Parallel()
+	raws := loadTestRaws(t)
+
+	spec, err := NewItemSpec(raws, "deployable_workbench")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Deployable, "空の [items.deployable] でも Deployable マーカーが付く")
+	require.NotNil(t, spec.Item, "バックパック形態のアイテムとして生成する")
+	assert.Empty(t, spec.Interactable.Interactions, "能力なし装着はフィールド相互作用ゼロ")
+}
