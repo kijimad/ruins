@@ -16090,6 +16090,61 @@ name = "bench"
 dx = -1
 dy = 0
 
+[[scatterZones]]
+id = "roadside"
+grassDensity = 0.18
+propDensity = 0.015
+lootGroup = "scrap_of_paper"
+[[scatterZones.entries]]
+ref = ""
+weight = 55
+big = false
+[[scatterZones.entries]]
+ref = "tree_a"
+weight = 16
+big = false
+[[scatterZones.entries]]
+ref = "tree_b"
+weight = 13
+big = false
+[[scatterZones.entries]]
+ref = "rock"
+weight = 10
+big = false
+[[scatterZones]]
+id = "wild"
+grassDensity = 0.38
+propDensity = 0.035
+lootGroup = "junk"
+[[scatterZones.entries]]
+ref = ""
+weight = 38
+big = false
+[[scatterZones.entries]]
+ref = "tree_a"
+weight = 24
+big = false
+[[scatterZones.entries]]
+ref = "tree_b"
+weight = 24
+big = false
+[[scatterZones.entries]]
+ref = "rock"
+weight = 14
+big = false
+[[scatterZones.entries]]
+ref = "big_tree"
+weight = 6
+big = true
+[[scatterZones.entries.satellites]]
+name = "tree_a"
+dx = 1
+dy = 0
+[[scatterZones.entries.satellites]]
+name = "tree_b"
+dx = -1
+dy = 1
+
 [[interiorContents]]
 id = "bath"
 [[interiorContents.groups]]

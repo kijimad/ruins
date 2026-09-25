@@ -1995,6 +1995,7 @@ type Raws struct {
 	Professions      *[]Profession      `json:"professions,omitempty"`
 	Props            *[]Prop            `json:"props,omitempty"`
 	Recipes          *[]Recipe          `json:"recipes,omitempty"`
+	ScatterZones     *[]ScatterZone     `json:"scatterZones,omitempty"`
 	SpriteSheets     *[]SpriteSheet     `json:"spriteSheets,omitempty"`
 	Tiles            *[]Tile            `json:"tiles,omitempty"`
 }
@@ -2044,6 +2045,27 @@ type RoomContent struct {
 
 // RoomRole 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
 type RoomRole string
+
+// ScatterEntry 散布 prop 1種。ref は prop id で空文字は「置かない」、weight は抽選重み、big は位相格子で希釈する
+//
+//	大物か、satellites は大物の周りに寄り添う小クラスタの相対配置
+type ScatterEntry struct {
+	Big        bool        `json:"big"`
+	Ref        string      `json:"ref"`
+	Satellites *[]PropSpot `json:"satellites,omitempty"`
+	Weight     int32       `json:"weight"`
+}
+
+// ScatterZone 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
+//
+//	lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す
+type ScatterZone struct {
+	Entries      []ScatterEntry `json:"entries"`
+	GrassDensity float64        `json:"grassDensity"`
+	Id           EntityID       `json:"id"`
+	LootGroup    EntityID       `json:"lootGroup"`
+	PropDensity  float64        `json:"propDensity"`
+}
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int

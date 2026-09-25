@@ -3281,6 +3281,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Landmark'
+        scatterZones:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScatterZone'
         interiorContents:
           type: array
           items:
@@ -3410,6 +3414,53 @@ components:
         - toilet
         - waiting
       description: 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
+    ScatterEntry:
+      type: object
+      required:
+        - ref
+        - weight
+        - big
+      properties:
+        ref:
+          type: string
+        weight:
+          type: integer
+          format: int32
+        big:
+          type: boolean
+        satellites:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropSpot'
+      description: |-
+        散布 prop 1種。ref は prop id で空文字は「置かない」、weight は抽選重み、big は位相格子で希釈する
+            大物か、satellites は大物の周りに寄り添う小クラスタの相対配置
+    ScatterZone:
+      type: object
+      required:
+        - id
+        - grassDensity
+        - propDensity
+        - lootGroup
+        - entries
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        grassDensity:
+          type: number
+          format: double
+        propDensity:
+          type: number
+          format: double
+        lootGroup:
+          $ref: '#/components/schemas/EntityID'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScatterEntry'
+      description: |-
+        開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
+            lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す
     Sensation:
       type: integer
       minimum: -100

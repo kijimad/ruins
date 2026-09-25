@@ -675,6 +675,11 @@ func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
 	return findByKey(raws.Landmarks, func(l oapi.Landmark) string { return l.Id }, id)
 }
 
+// GetScatterZone は id の散布ゾーン宣言を返す。散布は raw.toml の scatterZones 行が単一出典。未登録は false。
+func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
+	return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string { return z.Id }, id)
+}
+
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
 func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) {

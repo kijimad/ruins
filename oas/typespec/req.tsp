@@ -342,6 +342,25 @@ model PropSpot {
   dy: int32;
 }
 
+/** 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
+    lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す */
+model ScatterZone {
+  id: EntityID;
+  grassDensity: float64;
+  propDensity: float64;
+  lootGroup: EntityID;
+  entries: ScatterEntry[];
+}
+
+/** 散布 prop 1種。ref は prop id で空文字は「置かない」、weight は抽選重み、big は位相格子で希釈する
+    大物か、satellites は大物の周りに寄り添う小クラスタの相対配置 */
+model ScatterEntry {
+  ref: string;
+  weight: int32;
+  big: boolean;
+  satellites?: PropSpot[];
+}
+
 // ================== 内装レシピ ==================
 
 /** 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う */
@@ -580,6 +599,7 @@ model Raws {
   enemyTables?: EnemyTable[];
   facilities?: Facility[];
   landmarks?: Landmark[];
+  scatterZones?: ScatterZone[];
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
   facilityRooms?: FacilityRooms[];

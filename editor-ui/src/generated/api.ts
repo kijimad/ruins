@@ -1482,6 +1482,7 @@ export interface Raws {
     'enemyTables'?: Array<EnemyTable>;
     'facilities'?: Array<Facility>;
     'landmarks'?: Array<Landmark>;
+    'scatterZones'?: Array<ScatterZone>;
     'interiorContents'?: Array<InteriorContent>;
     'facilityContents'?: Array<FacilityContent>;
     'facilityRooms'?: Array<FacilityRooms>;
@@ -1567,6 +1568,25 @@ export const RoomRole = {
 export type RoomRole = typeof RoomRole[keyof typeof RoomRole];
 
 
+/**
+ * 散布 prop 1種。ref は prop id で空文字は「置かない」、weight は抽選重み、big は位相格子で希釈する     大物か、satellites は大物の周りに寄り添う小クラスタの相対配置
+ */
+export interface ScatterEntry {
+    'ref': string;
+    'weight': number;
+    'big': boolean;
+    'satellites'?: Array<PropSpot>;
+}
+/**
+ * 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、     lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す
+ */
+export interface ScatterZone {
+    'id': string;
+    'grassDensity': number;
+    'propDensity': number;
+    'lootGroup': string;
+    'entries': Array<ScatterEntry>;
+}
 /**
  * 遮蔽タイプ
  */

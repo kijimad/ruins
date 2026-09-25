@@ -8,6 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -38,6 +40,7 @@ type scatterCatalog struct {
 	Zone         outdoorZone
 	GrassDensity float64
 	PropDensity  float64
+	LootGroup    string // 屋外 loot の item group id。zone 行が持つ
 	Entries      []scatterEntry
 }
 
@@ -86,48 +89,32 @@ var scatterEarthTiles = map[string]bool{
 	consts.TileNameDirt: true, "sand_orange": true, "sand_red": true, "sand_pink": true,
 }
 
-// roadsideCatalog は道沿いゾーンの散布定義。踏み分けられた原なので草も低木もまばらにする。
-var roadsideCatalog = scatterCatalog{
-	Zone:         zoneRoadside,
-	GrassDensity: 0.18,
-	PropDensity:  0.015,
-	Entries: []scatterEntry{
-		{Ref: "", Weight: 55}, // 置かない
-		{Ref: "tree_a", Weight: 16},
-		{Ref: "tree_b", Weight: 13},
-		{Ref: "rock", Weight: 10},
-	},
-}
-
-// wildCatalog は奥地ゾーンの散布定義。草が濃く、低木が茂り、時折木立が立つ。
-var wildCatalog = scatterCatalog{
-	Zone:         zoneWild,
-	GrassDensity: 0.38,
-	PropDensity:  0.035,
-	Entries: []scatterEntry{
-		{Ref: "", Weight: 38}, // 置かない
-		{Ref: "tree_a", Weight: 24},
-		{Ref: "tree_b", Weight: 24},
-		{Ref: "rock", Weight: 14},
-		// 木立。大木の周りに低木が寄り添う小クラスタ
-		{Ref: "big_tree", Weight: 6, Big: true, Satellites: []relSpot{{"tree_a", 1, 0}, {"tree_b", -1, 1}}},
-	},
-}
-
-// scatterCatalogFor は zone の散布定義を返す。exhaustive linter は iota 整数だけでなく、同一 package に
-// 型付き定数を持つ named 型を enum とみなすので、string の outdoorZone も網羅検査の対象になる。default を
-// 置かなければ zone を1つ足したとき case 漏れを lint が止める。.golangci.yml の
-// default-signifies-exhaustive=true が前提で、chunkType など既存の string enum も同じ方式に依る。実際に
-// case を1つ消すと「missing cases in switch of type outdoorZone」で lint が落ちることを確認済み。末尾
-// panic は網羅漏れ防止に加え、未知 zone のランタイム保護も兼ねる。
-func scatterCatalogFor(zone outdoorZone) scatterCatalog {
-	switch zone {
-	case zoneRoadside:
-		return roadsideCatalog
-	case zoneWild:
-		return wildCatalog
+// scatterCatalogFrom は zone の散布定義を raw.toml の scatterZones 行から組み立てる。散布 prop・重み・
+// 密度・satellites・屋外 loot group をデータへ移し、Go に残るのは位相格子や経路マスクの幾何だけにする。
+// 未登録 zone は ok=false。呼び出し側はフォールバックせず散布しない。
+func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, bool) {
+	sz, ok := raw.GetScatterZone(raws, string(zone))
+	if !ok {
+		return scatterCatalog{}, false
 	}
-	panic("unknown outdoorZone: " + string(zone))
+	entries := make([]scatterEntry, len(sz.Entries))
+	for i, e := range sz.Entries {
+		var sats []relSpot
+		if e.Satellites != nil {
+			sats = make([]relSpot, len(*e.Satellites))
+			for j, s := range *e.Satellites {
+				sats[j] = relSpot{name: s.Name, dx: consts.Tile(s.Dx), dy: consts.Tile(s.Dy)}
+			}
+		}
+		entries[i] = scatterEntry{Ref: e.Ref, Weight: int(e.Weight), Big: e.Big, Satellites: sats}
+	}
+	return scatterCatalog{
+		Zone:         zone,
+		GrassDensity: sz.GrassDensity,
+		PropDensity:  sz.PropDensity,
+		LootGroup:    sz.LootGroup,
+		Entries:      entries,
+	}, true
 }
 
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
@@ -135,10 +122,10 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
-func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool) {
+func scatterCatalogForChunk(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool) {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkWasteland:
-		return scatterCatalogFor(outdoorZoneAt(runSeed, c, cols)), true
+		return scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))
 	default:
 		return scatterCatalog{}, false
 	}
@@ -153,7 +140,7 @@ type openTerrainFeature struct{}
 // 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
 // エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	cat, ok := scatterCatalogForChunk(runSeed, c, cols)
+	cat, ok := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)
 	if !ok {
 		return nil
 	}
