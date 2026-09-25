@@ -16125,20 +16125,6 @@ kind = "furniture"
 ref = "medcabinet"
 amount = "1d1"
 [[interiorContents]]
-id = "generic"
-[[interiorContents.groups]]
-style = "pick_each"
-[[interiorContents.groups.items]]
-kind = "furniture"
-ref = "barrel"
-amount = "3d1"
-[[interiorContents.groups]]
-style = "pick_one"
-[[interiorContents.groups.items]]
-kind = "decor"
-ref = "plant"
-amount = "1d1"
-[[interiorContents]]
 id = "genkan"
 [[interiorContents.groups]]
 style = "pick_each"

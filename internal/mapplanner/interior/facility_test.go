@@ -14,7 +14,7 @@ func TestFurnish_施設種別ごとに決定的に内装を返す(t *testing.T) 
 
 	footprint := Rect{X: 0, Y: 0, W: 16, H: 12}
 	door := Vec{X: 8, Y: 11}
-	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", "unknown"} {
+	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
 		first := Furnish(testRaws(), 3, footprint, door, fac)
 		require.NotEmptyf(t, first, "%s は何か配置する", fac)
 		require.Equalf(t, first, Furnish(testRaws(), 3, footprint, door, fac), "%s は同じ引数で完全一致する", fac)

@@ -112,7 +112,7 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 			assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
 		}
 	}
-	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
+	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
 		check(fac, interior.Furnish(raws, 1, small, door, fac))
 		_, placed := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
 		check(fac, placed)
@@ -155,7 +155,7 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 			assert.Truef(t, ok, "施設 %q の loot %q は写像を持つ", fac, p.Ref)
 		}
 	}
-	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab", ""} {
+	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
 		check(fac, interior.Furnish(raws, 1, small, door, fac))
 		_, placed := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
 		check(fac, placed)

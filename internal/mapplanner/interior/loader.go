@@ -8,13 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// genericContentID と flavorContentID はデータの参照でなくコードが直接引く content id。generic は未知施設や
-// 未割り当ての主室・奥室のフォールバック、flavor は flavor machine が引く。データ間参照を見る
-// ValidateReferences では守れないので、欠けていれば contentByID がロードでなく生成時に panic で露見させる。
-const (
-	genericContentID = "generic"
-	flavorContentID  = "flavor"
-)
+// flavorContentID はデータの参照でなくコードが直接引く content id。flavor machine が全施設で引く。
+// データ間参照を見る ValidateReferences では守れないので、欠けていれば contentByID が生成時に panic で露見させる。
+const flavorContentID = "flavor"
 
 // contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。内装 content は数十件規模
 // なので線形走査で足り、索引を持たず毎回新規に組む。返り値を applyDensity が in-place で書き換えても共有元が
@@ -34,12 +30,13 @@ func contentByID(raws oapi.Raws, id string) Content {
 	panic(fmt.Sprintf("interior: content %q not found", id))
 }
 
-// facilityContent は施設種別の主室 content を seed で1変種引く。未割り当ての施設は generic へ落とす。
-// 同じ施設でも複数の変種を持ち、seed で引くことで同じ店が薬局にも食料品店にもなる。
+// facilityContent は施設種別の主室 content を seed で1変種引く。同じ施設でも複数の変種を持ち、seed で引く
+// ことで同じ店が薬局にも食料品店にもなる。facility は overworld の閉じた enum で全種別が facilityContents に
+// 登録済みなので、未登録は不変条件違反として panic で露見させる。
 func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) Content {
 	variants := facilityVariants(raws, facility)
 	if len(variants) == 0 {
-		variants = []string{genericContentID}
+		panic(fmt.Sprintf("interior: facility %q not registered in facilityContents", facility))
 	}
 	id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
 	return contentByID(raws, id)
@@ -71,20 +68,15 @@ func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content,
 	return Content{}, false
 }
 
-// backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。
-// facilityRooms に無い未知施設は fallback が空になるので、facilityContent と同じく generic へ落として
-// 空部屋の silent 生成を防ぐ。
+// backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。facility は
+// 全種別が facilityRooms に登録済みなので、未登録は不変条件違反として panic で露見させる。
 func backRoomContent(raws oapi.Raws, facility FacilityKind) Content {
-	id := genericContentID
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
 		if FacilityKind(fr.Facility) == facility {
-			if fr.Fallback != "" {
-				id = fr.Fallback
-			}
-			break
+			return contentByID(raws, fr.Fallback)
 		}
 	}
-	return contentByID(raws, id)
+	panic(fmt.Sprintf("interior: facility %q not registered in facilityRooms", facility))
 }
 
 // toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の

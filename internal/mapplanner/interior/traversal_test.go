@@ -57,9 +57,9 @@ func roomEnterable(room Room, reached map[Vec]bool) bool {
 func TestFurnishBuilding_全室が入口から家具越しに歩いて到達できる(t *testing.T) {
 	t.Parallel()
 
-	// テンプレ施設(house/store/clinic)だけでなく BSP フォールバック施設(office/depot/lab/骨董/汎用)も
+	// テンプレ施設(house/store/clinic)だけでなく BSP フォールバック施設(office/depot/lab/骨董)も
 	// なめる。以前は前者しか回しておらず、玄関ポーチが BSP の狭い部屋の戸口を壁で塞ぐ softlock を見逃していた
-	for _, fac := range []FacilityKind{facHouse, facStore, facClinic, facOffice, facDepot, facAntique, facLab, ""} {
+	for _, fac := range []FacilityKind{facHouse, facStore, facClinic, facOffice, facDepot, facAntique, facLab} {
 		for fp := consts.Tile(17); fp <= 20; fp++ { // 本番の建物サイズ
 			for seed := range uint64(50) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
