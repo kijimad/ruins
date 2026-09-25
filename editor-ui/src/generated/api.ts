@@ -527,10 +527,6 @@ export interface ContentStuff {
      */
     'weight'?: number;
     /**
-     * 0..100。pick_each でこの Stuff を置く確率。省略時は常置
-     */
-    'chance'?: number;
-    /**
      * 置く個数のダイス表記
      */
     'amount': string;

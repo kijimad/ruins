@@ -24,7 +24,7 @@ const (
 type GroupStyle string
 
 const (
-	// PickEach は Items を全部置く。店を店たらしめる保証枠。各 Stuff は Chance で個別に gate する
+	// PickEach は Items を全部置く。店を店たらしめる保証枠
 	PickEach GroupStyle = "pick_each"
 	// PickOne は Items から重みで1つ選ぶ。変種の抽選
 	PickOne GroupStyle = "pick_one"
@@ -37,7 +37,6 @@ type Stuff struct {
 	Kind       StuffKind
 	Ref        string      // 家具型や戦利品テーブルの参照名
 	Weight     int         // PickOne / PickN の抽選重み。0 は 1 とみなす
-	Chance     int         // 0..100。PickEach でこの Stuff を置く確率。0 以下は常置
 	Amount     consts.Dice // 置く個数
 	Placement  Placement   // どこへ置くか。空なら PlaceFullArea 相当
 	Satellites []Satellite // anchor 相対に一緒に置く衛星。机に対する椅子など

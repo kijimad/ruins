@@ -2014,10 +2014,6 @@ components:
           $ref: '#/components/schemas/EntityID'
         weight:
           $ref: '#/components/schemas/EntryWeight'
-        chance:
-          type: integer
-          format: int32
-          description: 0..100。pick_each でこの Stuff を置く確率。省略時は常置
         amount:
           allOf:
             - $ref: '#/components/schemas/Dice'

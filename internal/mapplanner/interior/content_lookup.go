@@ -96,7 +96,6 @@ func toContent(ic oapi.InteriorContent) (Content, error) {
 				Kind:       StuffKind(s.Kind),
 				Ref:        s.Ref,
 				Weight:     int(deref(s.Weight)),
-				Chance:     int(deref(s.Chance)),
 				Amount:     amount,
 				Placement:  Placement(deref(s.Placement)),
 				Satellites: toSatellites(s.Satellites),

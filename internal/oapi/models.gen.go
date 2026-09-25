@@ -1035,9 +1035,6 @@ type ContentStuff struct {
 	// Amount 置く個数のダイス表記
 	Amount Dice `json:"amount"`
 
-	// Chance 0..100。pick_each でこの Stuff を置く確率。省略時は常置
-	Chance *int32 `json:"chance,omitempty"`
-
 	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
 	Kind StuffKind `json:"kind"`
 

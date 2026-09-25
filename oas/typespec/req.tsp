@@ -361,8 +361,6 @@ model ContentStuff {
   kind: StuffKind;
   ref: EntityID;
   weight?: EntryWeight;
-  /** 0..100。pick_each でこの Stuff を置く確率。省略時は常置 */
-  chance?: int32;
   /** 置く個数のダイス表記 */
   amount: Dice;
   placement?: Placement;
