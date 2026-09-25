@@ -26,11 +26,6 @@ func testRaws() oapi.Raws {
 	return testRawsCache
 }
 
-// testContent は id の content をテスト用に都度引く。存在しない id は contentByID が panic で弾く。
-func testContent(id string) Content {
-	return contentByID(testRaws(), id)
-}
-
 // testRoomContents は施設の役割別 content をテスト用に map で返す。旧 houseRoomContents 等の代わり。
 func testRoomContents(fac FacilityKind) map[roleName]Content {
 	raws := testRaws()

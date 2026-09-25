@@ -234,7 +234,7 @@ func TestGolden_RoomConvStore(t *testing.T) {
 
 	room := storeRoom()
 	assertRoomGolden(t, room, "store", func(seed uint64) []Placed {
-		return FillRoom(seed, room, testContent("convenience_store"))
+		return FillRoom(seed, room, contentByID(testRaws(), "convenience_store"))
 	})
 }
 
@@ -245,7 +245,7 @@ func TestGolden_RoomClinic(t *testing.T) {
 
 	room := clinicRoom()
 	assertRoomGolden(t, room, "clinic", func(seed uint64) []Placed {
-		return FillRoom(seed, room, testContent("clinic"))
+		return FillRoom(seed, room, contentByID(testRaws(), "clinic"))
 	})
 }
 
@@ -256,7 +256,7 @@ func TestGolden_RoomHouse(t *testing.T) {
 
 	room := houseRoom()
 	assertRoomGolden(t, room, "house", func(seed uint64) []Placed {
-		return FillRoom(seed, room, testContent("house"))
+		return FillRoom(seed, room, contentByID(testRaws(), "house"))
 	})
 }
 

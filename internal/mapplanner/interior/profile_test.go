@@ -59,7 +59,7 @@ func TestApplyClutter_整頓は何も足さず戸口を塞がない(t *testing.T
 	t.Parallel()
 
 	room := storeRoom()
-	base := FillRoom(1, room, testContent("convenience_store"))
+	base := FillRoom(1, room, contentByID(testRaws(), "convenience_store"))
 
 	assert.Len(t, applyClutter(1, room, base, clutterTidy, "main"), len(base), "整頓では小物を足さない")
 
