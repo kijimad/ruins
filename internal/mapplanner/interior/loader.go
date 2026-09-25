@@ -80,7 +80,7 @@ func backRoomContent(raws oapi.Raws, facility FacilityKind) Content {
 func toContent(ic oapi.InteriorContent) (Content, error) {
 	c := Content{ID: ic.Id}
 	for _, g := range raw.PtrSlice(ic.Groups) {
-		grp := Group{Style: GroupStyle(g.Style), Pick: derefInt32(g.Pick)}
+		grp := Group{Style: GroupStyle(g.Style), Pick: int(deref(g.Pick))}
 		for _, s := range g.Items {
 			amount, err := consts.ParseDice(s.Amount)
 			if err != nil {
@@ -89,10 +89,10 @@ func toContent(ic oapi.InteriorContent) (Content, error) {
 			grp.Items = append(grp.Items, Stuff{
 				Kind:       StuffKind(s.Kind),
 				Ref:        s.Ref,
-				Weight:     derefWeight(s.Weight),
-				Chance:     derefInt32(s.Chance),
+				Weight:     int(deref(s.Weight)),
+				Chance:     int(deref(s.Chance)),
 				Amount:     amount,
-				Placement:  derefPlacement(s.Placement),
+				Placement:  Placement(deref(s.Placement)),
 				Satellites: toSatellites(s.Satellites),
 			})
 		}
@@ -101,28 +101,14 @@ func toContent(ic oapi.InteriorContent) (Content, error) {
 	return c, nil
 }
 
-// derefInt32 は optional な int32 を int へ。未設定は 0 で、消費側が 0 を既定へ倒す規約に従う。
-func derefInt32(p *int32) int {
+// deref は optional なポインタを値へ落とす。未設定は型のゼロ値で、消費側が既定へ倒す規約に従う。呼び出し側が
+// interior の型へ変換する。optional array の PtrSlice と対になるスカラー版。
+func deref[T any](p *T) T {
 	if p == nil {
-		return 0
+		var zero T
+		return zero
 	}
-	return int(*p)
-}
-
-// derefWeight は optional な重みを int へ。未設定は 0 で、消費側が 0 を 1 とみなす規約に従う。
-func derefWeight(p *oapi.EntryWeight) int {
-	if p == nil {
-		return 0
-	}
-	return int(*p)
-}
-
-// derefPlacement は optional な配置を Placement へ。未設定は空文字で、archetype の既定へ落ちる。
-func derefPlacement(p *oapi.Placement) Placement {
-	if p == nil {
-		return ""
-	}
-	return Placement(*p)
+	return *p
 }
 
 // toSatellites は oapi の衛星束を interior.Satellite へ変換する。束が無ければ nil を返し、束のない Stuff の
