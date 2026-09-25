@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.4&nbsp;%</td>
+            <td class="headerCovTableEntryMed">82.3&nbsp;%</td>
             <td class="headerCovTableEntry">62</td>
-            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">51</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-24 16:40:47</td>
+            <td class="headerValue">2026-09-25 06:00:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -153,13 +153,13 @@
 <span id="L91"><span class="lineNum">      91</span>              : </span>
 <span id="L92"><span class="lineNum">      92</span>              : // Canceled はアイテムドロップキャンセル時の処理を実行する</span>
 <span id="L93"><span class="lineNum">      93</span>              : func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         log.Debug(&quot;item drop canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC tlaBgGNC">           1 :         log.Debug(&quot;item drop canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L97"><span class="lineNum">      97</span>              : </span>
 <span id="L98"><span class="lineNum">      98</span>              : // performDrop は実際のアイテムドロップ処理を実行する</span>
 <span id="L99"><span class="lineNum">      99</span>              : func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC tlaBgGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         }</span></span>
