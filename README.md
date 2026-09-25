@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [施設を raw.toml のデータ行へ。キーで引き、幾何コードだけ Go に残す](docs/design/260925210126.md) | 0/10 | refactor, worldgen |
+| accepted | [地物のデータ化の総合設計。宣言を raw.toml へ、幾何コードだけ Go に残す](docs/design/260925210126.md) | 0/18 | refactor, worldgen |
 
 
 ## Reference
