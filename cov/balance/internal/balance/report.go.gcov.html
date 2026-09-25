@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">96.5&nbsp;%</td>
-            <td class="headerCovTableEntry">142</td>
-            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntryHi">95.2&nbsp;%</td>
+            <td class="headerCovTableEntry">146</td>
+            <td class="headerCovTableEntry">139</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-25 06:40:52</td>
+            <td class="headerValue">2026-09-25 11:00:38</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -182,77 +182,81 @@
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC tlaBgGNC">           1 :         report.BattleMetrics = metrics</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L122"><span class="lineNum">     122</span>              :         // 施設種別ごとの loot 分布を生成する</span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         report.RoomLoot = GenerateRoomLoot(master, roomLootTrials, seed)</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         return report, nil</span></span>
-<span id="L126"><span class="lineNum">     126</span>              : }</span>
-<span id="L127"><span class="lineNum">     127</span>              : </span>
-<span id="L128"><span class="lineNum">     128</span>              : // roomLootTrials は施設 loot 集計の試行数。多いほど確率が安定する。</span>
-<span id="L129"><span class="lineNum">     129</span>              : const roomLootTrials = 2000</span>
-<span id="L130"><span class="lineNum">     130</span>              : </span>
-<span id="L131"><span class="lineNum">     131</span>              : const battleMetricTrials = 500</span>
-<span id="L132"><span class="lineNum">     132</span>              : </span>
-<span id="L133"><span class="lineNum">     133</span>              : // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する</span>
-<span id="L134"><span class="lineNum">     134</span>              : func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) ([]oapi.BalanceBattleMetric, error) {</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to load player for battle metrics: %w&quot;, err)</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L139"><span class="lineNum">     139</span>              : </span>
-<span id="L140"><span class="lineNum">     140</span>              :         // 武器一覧を収集する</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         type weaponEntry struct {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 name  string</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 stats WeaponStats</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         var weapons []weaponEntry</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 item := &amp;items[i]</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 w, err := LoadWeaponFromItem(master, item.Id)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L152"><span class="lineNum">     152</span>              :                 }</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 weapons = append(weapons, weaponEntry{name: item.Name, stats: w})</span></span>
-<span id="L154"><span class="lineNum">     154</span>              :         }</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              :         // 敵一覧を収集する（全敵テーブルからユニークな敵名を取得する）</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         enemySet := make(map[string]struct{})</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         for _, table := range raw.PtrSlice(master.EnemyTables) {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 for _, entry := range table.Entries {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                         enemySet[entry.Id] = struct{}{}</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L162"><span class="lineNum">     162</span>              :         }</span>
-<span id="L163"><span class="lineNum">     163</span>              : </span>
-<span id="L164"><span class="lineNum">     164</span>              :         // 空でも report.BattleMetrics を null でなく [] にするため空スライスで初期化する</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         metrics := []oapi.BalanceBattleMetric{}</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         for _, w := range weapons {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 for enemyName := range enemySet {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         enemyStats, err := LoadCombatantFromMember(master, enemyName)</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
-<span id="L173"><span class="lineNum">     173</span>              :                         }</span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC tlaBgGNC">           1 :                         enemyWeapon, err := LoadEnemyWeapon(master, enemyName)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         roomLoot, err := GenerateRoomLoot(master, roomLootTrials, seed)</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           1 :         report.RoomLoot = roomLoot</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         return report, nil</span></span>
+<span id="L130"><span class="lineNum">     130</span>              : }</span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              : // roomLootTrials は施設 loot 集計の試行数。多いほど確率が安定する。</span>
+<span id="L133"><span class="lineNum">     133</span>              : const roomLootTrials = 2000</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span>              : const battleMetricTrials = 500</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span>              : // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する</span>
+<span id="L138"><span class="lineNum">     138</span>              : func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) ([]oapi.BalanceBattleMetric, error) {</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to load player for battle metrics: %w&quot;, err)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L143"><span class="lineNum">     143</span>              : </span>
+<span id="L144"><span class="lineNum">     144</span>              :         // 武器一覧を収集する</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         type weaponEntry struct {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 name  string</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 stats WeaponStats</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         var weapons []weaponEntry</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 item := &amp;items[i]</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 w, err := LoadWeaponFromItem(master, item.Id)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :                 }</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 weapons = append(weapons, weaponEntry{name: item.Name, stats: w})</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :         }</span>
+<span id="L159"><span class="lineNum">     159</span>              : </span>
+<span id="L160"><span class="lineNum">     160</span>              :         // 敵一覧を収集する（全敵テーブルからユニークな敵名を取得する）</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         enemySet := make(map[string]struct{})</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         for _, table := range raw.PtrSlice(master.EnemyTables) {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 for _, entry := range table.Entries {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         enemySet[entry.Id] = struct{}{}</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L166"><span class="lineNum">     166</span>              :         }</span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              :         // 空でも report.BattleMetrics を null でなく [] にするため空スライスで初期化する</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         metrics := []oapi.BalanceBattleMetric{}</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         for _, w := range weapons {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 for enemyName := range enemySet {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                         enemyStats, err := LoadCombatantFromMember(master, enemyName)</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC tlaBgUNC">           0 :                                 enemyWeapon = WeaponStats{}</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L178"><span class="lineNum">     178</span>              : </span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC tlaBgGNC">           1 :                         results := RunBattles(player, enemyStats, w.stats, enemyWeapon, battleMetricTrials, rng)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                         bs := BattleStats{Results: results}</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         metrics = append(metrics, oapi.BalanceBattleMetric{</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                                 Player:   playerName,</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                                 Weapon:   w.name,</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                                 Enemy:    enemyName,</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                                 Dps:      bs.DPS(),</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                                 IsRanged: w.stats.IsRanged,</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L189"><span class="lineNum">     189</span>              :                 }</span>
-<span id="L190"><span class="lineNum">     190</span>              :         }</span>
-<span id="L191"><span class="lineNum">     191</span>              : </span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return metrics, nil</span></span>
-<span id="L193"><span class="lineNum">     193</span>              : }</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L177"><span class="lineNum">     177</span>              :                         }</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC tlaBgGNC">           1 :                         enemyWeapon, err := LoadEnemyWeapon(master, enemyName)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC tlaBgUNC">           0 :                                 enemyWeapon = WeaponStats{}</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : </span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC tlaBgGNC">           1 :                         results := RunBattles(player, enemyStats, w.stats, enemyWeapon, battleMetricTrials, rng)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                         bs := BattleStats{Results: results}</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                         metrics = append(metrics, oapi.BalanceBattleMetric{</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                                 Player:   playerName,</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                                 Weapon:   w.name,</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                                 Enemy:    enemyName,</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                                 Dps:      bs.DPS(),</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                                 IsRanged: w.stats.IsRanged,</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L193"><span class="lineNum">     193</span>              :                 }</span>
+<span id="L194"><span class="lineNum">     194</span>              :         }</span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         return metrics, nil</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : }</span>
         </pre>
               </td>
             </tr>

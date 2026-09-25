@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.0&nbsp;%</td>
-            <td class="headerCovTableEntry">210</td>
-            <td class="headerCovTableEntry">191</td>
+            <td class="headerCovTableEntryHi">90.7&nbsp;%</td>
+            <td class="headerCovTableEntry">214</td>
+            <td class="headerCovTableEntry">194</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-25 06:40:52</td>
+            <td class="headerValue">2026-09-25 11:00:38</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,24 +67,24 @@
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;errors&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;fmt&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              : )</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // 参照整合の検証エラー。呼び出し側とテストが errors.Is で種類を同定できるよう sentinel にする。</span>
-<span id="L13"><span class="lineNum">      13</span>              : var (</span>
-<span id="L14"><span class="lineNum">      14</span>              :         errItemTableRefUndefinedGroup     = errors.New(&quot;item table references undefined item group&quot;)</span>
-<span id="L15"><span class="lineNum">      15</span>              :         errItemGroupRefUndefinedItem      = errors.New(&quot;item group references undefined item&quot;)</span>
-<span id="L16"><span class="lineNum">      16</span>              :         errEnemyTableRefUndefinedEnemy    = errors.New(&quot;enemy table references undefined enemy&quot;)</span>
-<span id="L17"><span class="lineNum">      17</span>              :         errFacilityEnemyTableRefUndefined = errors.New(&quot;facility enemy table references undefined enemy table&quot;)</span>
-<span id="L18"><span class="lineNum">      18</span>              :         errCommandTableRefUndefinedWeapon = errors.New(&quot;command table references undefined weapon&quot;)</span>
-<span id="L19"><span class="lineNum">      19</span>              :         errDropTableMaterialUndefined     = errors.New(&quot;drop table references undefined material&quot;)</span>
-<span id="L20"><span class="lineNum">      20</span>              :         errMemberDropTableUndefined       = errors.New(&quot;member references undefined drop table&quot;)</span>
-<span id="L21"><span class="lineNum">      21</span>              :         errMemberCommandTableUndefined    = errors.New(&quot;member references undefined command table&quot;)</span>
-<span id="L22"><span class="lineNum">      22</span>              :         errDisassemblyYieldUndefined      = errors.New(&quot;disassembly yield references undefined item&quot;)</span>
-<span id="L23"><span class="lineNum">      23</span>              :         errDisassemblyBonusUndefined      = errors.New(&quot;disassembly bonus references undefined item&quot;)</span>
-<span id="L24"><span class="lineNum">      24</span>              :         errInvalidPackNotation            = errors.New(&quot;invalid pack notation&quot;)</span>
-<span id="L25"><span class="lineNum">      25</span>              :         errInvalidLootCountNotation       = errors.New(&quot;invalid lootCount notation&quot;)</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // 参照整合の検証エラー。呼び出し側とテストが errors.Is で種類を同定できるよう sentinel にする。</span>
+<span id="L12"><span class="lineNum">      12</span>              : var (</span>
+<span id="L13"><span class="lineNum">      13</span>              :         errItemTableRefUndefinedGroup     = errors.New(&quot;item table references undefined item group&quot;)</span>
+<span id="L14"><span class="lineNum">      14</span>              :         errItemGroupRefUndefinedItem      = errors.New(&quot;item group references undefined item&quot;)</span>
+<span id="L15"><span class="lineNum">      15</span>              :         errEnemyTableRefUndefinedEnemy    = errors.New(&quot;enemy table references undefined enemy&quot;)</span>
+<span id="L16"><span class="lineNum">      16</span>              :         errFacilityEnemyTableRefUndefined = errors.New(&quot;facility enemy table references undefined enemy table&quot;)</span>
+<span id="L17"><span class="lineNum">      17</span>              :         errCommandTableRefUndefinedWeapon = errors.New(&quot;command table references undefined weapon&quot;)</span>
+<span id="L18"><span class="lineNum">      18</span>              :         errDropTableMaterialUndefined     = errors.New(&quot;drop table references undefined material&quot;)</span>
+<span id="L19"><span class="lineNum">      19</span>              :         errMemberDropTableUndefined       = errors.New(&quot;member references undefined drop table&quot;)</span>
+<span id="L20"><span class="lineNum">      20</span>              :         errMemberCommandTableUndefined    = errors.New(&quot;member references undefined command table&quot;)</span>
+<span id="L21"><span class="lineNum">      21</span>              :         errDisassemblyYieldUndefined      = errors.New(&quot;disassembly yield references undefined item&quot;)</span>
+<span id="L22"><span class="lineNum">      22</span>              :         errDisassemblyBonusUndefined      = errors.New(&quot;disassembly bonus references undefined item&quot;)</span>
+<span id="L23"><span class="lineNum">      23</span>              :         errInteriorContentRefUndefined    = errors.New(&quot;interior recipe references undefined content&quot;)</span>
+<span id="L24"><span class="lineNum">      24</span>              :         errInteriorContentDuplicateID     = errors.New(&quot;interior content has duplicate id&quot;)</span>
+<span id="L25"><span class="lineNum">      25</span>              :         errInteriorFlavorContentMissing   = errors.New(&quot;interior flavor content is missing&quot;)</span>
 <span id="L26"><span class="lineNum">      26</span>              : )</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する</span>
@@ -130,22 +130,22 @@
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         if err := validateDropTableReferences(raws); err != nil {</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         if err := validateSpawnDice(raws); err != nil {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         if err := validateCommandTableReferences(raws); err != nil {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         if err := validateCommandTableReferences(raws); err != nil {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         if err := validateItemTableReferences(raws); err != nil {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         if err := validateItemTableReferences(raws); err != nil {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         if err := validateItemGroupReferences(raws); err != nil {</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if err := validateItemGroupReferences(raws); err != nil {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if err := validateEnemyTableReferences(raws); err != nil {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         if err := validateEnemyTableReferences(raws); err != nil {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 return err</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         if err := validateFacilityEnemyTableReferences(raws); err != nil {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         if err := validateFacilityEnemyTableReferences(raws); err != nil {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := validateInteriorContentReferences(raws); err != nil {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC tlaBgGNC">           1 :         return validateCommandTableWeaponReferences(raws)</span></span>
@@ -238,166 +238,179 @@
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L177"><span class="lineNum">     177</span>              : }</span>
 <span id="L178"><span class="lineNum">     178</span>              : </span>
-<span id="L179"><span class="lineNum">     179</span>              : // validateCommandTableWeaponReferences はコマンドテーブルの参照武器名がアイテム定義に存在することを検証する。</span>
-<span id="L180"><span class="lineNum">     180</span>              : // タイプミスは attack.go の getAttackParams が素手攻撃へ握り潰し無音で劣化するため、ロード時に前倒しで弾く。</span>
-<span id="L181"><span class="lineNum">     181</span>              : func validateCommandTableWeaponReferences(raws oapi.Raws) error {</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         items := PtrSlice(raws.Items)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         itemNames := make(map[string]struct{}, len(items))</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 itemNames[items[i].Id] = struct{}{}</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L187"><span class="lineNum">     187</span>              : </span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         commandTables := PtrSlice(raws.CommandTables)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         for i := range commandTables {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 for _, entry := range commandTables[i].Entries {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                         if entry.Weapon == &quot;&quot; {</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L193"><span class="lineNum">     193</span>              :                         }</span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[entry.Weapon]; !ok {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;command table %q references weapon %q: %w&quot;, commandTables[i].Name, entry.Weapon, errCommandTableRefUndefinedWeapon)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L197"><span class="lineNum">     197</span>              :                 }</span>
-<span id="L198"><span class="lineNum">     198</span>              :         }</span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L200"><span class="lineNum">     200</span>              : }</span>
-<span id="L201"><span class="lineNum">     201</span>              : </span>
-<span id="L202"><span class="lineNum">     202</span>              : // validateSpawnDice はスポーン系のダイス表記をロード時に検証する。スキーマの pattern は</span>
-<span id="L203"><span class="lineNum">     203</span>              : // &quot;0d6&quot; のような個数0を通すが ParseDice は弾くため、生成時でなくロード時にまとめて弾いて</span>
-<span id="L204"><span class="lineNum">     204</span>              : // 分解産出の count 検証と一貫させる。</span>
-<span id="L205"><span class="lineNum">     205</span>              : func validateSpawnDice(raws oapi.Raws) error {</span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         enemyTables := PtrSlice(raws.EnemyTables)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         for i := range enemyTables {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 for _, e := range enemyTables[i].Entries {</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                         if _, err := consts.ParseDice(e.Pack); err != nil {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;enemy table %q entry %q has %w: %w&quot;, enemyTables[i].Name, e.Id, errInvalidPackNotation, err)</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : // validateInteriorContentReferences は内装レシピの content 参照が interiorContents に存在することを検証する。</span>
+<span id="L180"><span class="lineNum">     180</span>              : // facilityContents の変種、facilityRooms の役割別 content と fallback が指す id を、typo による空部屋の silent</span>
+<span id="L181"><span class="lineNum">     181</span>              : // 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複と、interior を積む raw での</span>
+<span id="L182"><span class="lineNum">     182</span>              : // flavorContent 未設定を検出する。id は生成側の一意キーで重複すると取り違わる。</span>
+<span id="L183"><span class="lineNum">     183</span>              : func validateInteriorContentReferences(raws oapi.Raws) error {</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         contents := PtrSlice(raws.InteriorContents)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         contentIDs := make(map[string]struct{}, len(contents))</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         for i := range contents {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 if _, dup := contentIDs[contents[i].Id]; dup {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;interior content %q: %w&quot;, contents[i].Id, errInteriorContentDuplicateID)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 contentIDs[contents[i].Id] = struct{}{}</span></span>
+<span id="L191"><span class="lineNum">     191</span>              :         }</span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         for _, fc := range PtrSlice(raws.FacilityContents) {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 for _, id := range fc.Variants {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                         if id == &quot;&quot; {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L197"><span class="lineNum">     197</span>              :                         }</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC tlaBgGNC">           1 :                         if _, ok := contentIDs[id]; !ok {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;facility %q variant %q: %w&quot;, fc.Facility, id, errInteriorContentRefUndefined)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L201"><span class="lineNum">     201</span>              :                 }</span>
+<span id="L202"><span class="lineNum">     202</span>              :         }</span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         for _, fr := range PtrSlice(raws.FacilityRooms) {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 for _, r := range PtrSlice(fr.Rooms) {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                         if r.Content == &quot;&quot; {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L208"><span class="lineNum">     208</span>              :                         }</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 :                         if _, ok := contentIDs[r.Content]; !ok {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;facility %q room %q content %q: %w&quot;, fr.Facility, r.Role, r.Content, errInteriorContentRefUndefined)</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L212"><span class="lineNum">     212</span>              :                 }</span>
-<span id="L213"><span class="lineNum">     213</span>              :         }</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         itemGroups := PtrSlice(raws.ItemGroups)</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         for i := range itemGroups {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 for _, e := range itemGroups[i].Entries {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         if _, err := consts.ParseDice(e.Pack); err != nil {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;item group %q entry %q has %w: %w&quot;, itemGroups[i].Name, e.Id, errInvalidPackNotation, err)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L220"><span class="lineNum">     220</span>              :                 }</span>
-<span id="L221"><span class="lineNum">     221</span>              :         }</span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         props := PtrSlice(raws.Props)</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         for i := range props {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 if props[i].Storage == nil || props[i].Storage.LootCount == nil {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L226"><span class="lineNum">     226</span>              :                 }</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 if _, err := consts.ParseDice(*props[i].Storage.LootCount); err != nil {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;container %q has %w: %w&quot;, props[i].Name, errInvalidLootCountNotation, err)</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L230"><span class="lineNum">     230</span>              :         }</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L232"><span class="lineNum">     232</span>              : }</span>
-<span id="L233"><span class="lineNum">     233</span>              : </span>
-<span id="L234"><span class="lineNum">     234</span>              : // validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する</span>
-<span id="L235"><span class="lineNum">     235</span>              : func validateDisassemblyReferences(raws oapi.Raws) error {</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         items := PtrSlice(raws.Items)</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         itemNames := make(map[string]struct{}, len(items))</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 itemNames[items[i].Id] = struct{}{}</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L241"><span class="lineNum">     241</span>              : </span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         check := func(ownerKind string, ownerName string, def *oapi.Disassembly) error {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 if def == nil {</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                         return nil</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 for _, y := range def.Yields {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[y.Id]; !ok {</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;%s %q disassembly yield %q: %w&quot;, ownerKind, ownerName, y.Id, errDisassemblyYieldUndefined)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         if _, err := consts.ParseDice(y.Count); err != nil {</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;%s '%s' disassembly yield '%s' has invalid count notation: %w&quot;, ownerKind, ownerName, y.Id, err)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L253"><span class="lineNum">     253</span>              :                 }</span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC tlaBgGNC">           1 :                 if def.Bonus == nil {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         return nil</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 for _, b := range *def.Bonus {</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[b.Id]; !ok {</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;%s %q disassembly bonus %q: %w&quot;, ownerKind, ownerName, b.Id, errDisassemblyBonusUndefined)</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                         if _, err := consts.ParseDice(b.Count); err != nil {</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;%s '%s' disassembly bonus '%s' has invalid count notation: %w&quot;, ownerKind, ownerName, b.Id, err)</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L264"><span class="lineNum">     264</span>              :                 }</span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC tlaBgGNC">           1 :                 return nil</span></span>
-<span id="L266"><span class="lineNum">     266</span>              :         }</span>
-<span id="L267"><span class="lineNum">     267</span>              : </span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         props := PtrSlice(raws.Props)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         for i := range props {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 if err := check(&quot;prop&quot;, props[i].Name, props[i].Disassembly); err != nil {</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 if fr.Fallback == &quot;&quot; {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L215"><span class="lineNum">     215</span>              :                 }</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, ok := contentIDs[fr.Fallback]; !ok {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;facility %q fallback %q: %w&quot;, fr.Facility, fr.Fallback, errInteriorContentRefUndefined)</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :         }</span>
+<span id="L220"><span class="lineNum">     220</span>              : </span>
+<span id="L221"><span class="lineNum">     221</span>              :         // flavor は Go が全室へ引く必須レイヤ。interior を積む raw で未設定なら生成時に落ちるのでロード時に弾く。</span>
+<span id="L222"><span class="lineNum">     222</span>              :         // flavorContent は id 参照でなくインラインの値を直接持つので、interiorContents との id 照合は要らず存在だけ見る。</span>
+<span id="L223"><span class="lineNum">     223</span>              :         // interior を使わない部分的な Raws は素通しする</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         if len(contents) &gt; 0 &amp;&amp; raws.FlavorContent == nil {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;flavorContent: %w&quot;, errInteriorFlavorContentMissing)</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L228"><span class="lineNum">     228</span>              : }</span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span>              : // validateCommandTableWeaponReferences はコマンドテーブルの参照武器名がアイテム定義に存在することを検証する。</span>
+<span id="L231"><span class="lineNum">     231</span>              : // タイプミスは attack.go の getAttackParams が素手攻撃へ握り潰し無音で劣化するため、ロード時に前倒しで弾く。</span>
+<span id="L232"><span class="lineNum">     232</span>              : func validateCommandTableWeaponReferences(raws oapi.Raws) error {</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         items := PtrSlice(raws.Items)</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         itemNames := make(map[string]struct{}, len(items))</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 itemNames[items[i].Id] = struct{}{}</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : </span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         commandTables := PtrSlice(raws.CommandTables)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         for i := range commandTables {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 for _, entry := range commandTables[i].Entries {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                         if entry.Weapon == &quot;&quot; {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L244"><span class="lineNum">     244</span>              :                         }</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[entry.Weapon]; !ok {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;command table %q references weapon %q: %w&quot;, commandTables[i].Name, entry.Weapon, errCommandTableRefUndefinedWeapon)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L248"><span class="lineNum">     248</span>              :                 }</span>
+<span id="L249"><span class="lineNum">     249</span>              :         }</span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L251"><span class="lineNum">     251</span>              : }</span>
+<span id="L252"><span class="lineNum">     252</span>              : </span>
+<span id="L253"><span class="lineNum">     253</span>              : // validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する</span>
+<span id="L254"><span class="lineNum">     254</span>              : func validateDisassemblyReferences(raws oapi.Raws) error {</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         items := PtrSlice(raws.Items)</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         itemNames := make(map[string]struct{}, len(items))</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 itemNames[items[i].Id] = struct{}{}</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         check := func(ownerKind string, ownerName string, def *oapi.Disassembly) error {</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                 if def == nil {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                         return nil</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 for _, y := range def.Yields {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[y.Id]; !ok {</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;%s %q disassembly yield %q: %w&quot;, ownerKind, ownerName, y.Id, errDisassemblyYieldUndefined)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L269"><span class="lineNum">     269</span>              :                 }</span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 if def.Bonus == nil {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                         return nil</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L273"><span class="lineNum">     273</span>              :         }</span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 if err := check(&quot;item&quot;, items[i].Name, items[i].Disassembly); err != nil {</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         return err</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L278"><span class="lineNum">     278</span>              :         }</span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L280"><span class="lineNum">     280</span>              : }</span>
-<span id="L281"><span class="lineNum">     281</span>              : </span>
-<span id="L282"><span class="lineNum">     282</span>              : // validateDropTableReferences はドロップテーブルの素材 id がアイテム定義に存在すること、</span>
-<span id="L283"><span class="lineNum">     283</span>              : // メンバーの dropTableId がテーブル定義に存在することを検証する</span>
-<span id="L284"><span class="lineNum">     284</span>              : func validateDropTableReferences(raws oapi.Raws) error {</span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         items := PtrSlice(raws.Items)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         itemNames := make(map[string]struct{}, len(items))</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 for _, b := range *def.Bonus {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[b.Id]; !ok {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;%s %q disassembly bonus %q: %w&quot;, ownerKind, ownerName, b.Id, errDisassemblyBonusUndefined)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L277"><span class="lineNum">     277</span>              :                 }</span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L279"><span class="lineNum">     279</span>              :         }</span>
+<span id="L280"><span class="lineNum">     280</span>              : </span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         props := PtrSlice(raws.Props)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         for i := range props {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 if err := check(&quot;prop&quot;, props[i].Name, props[i].Disassembly); err != nil {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L286"><span class="lineNum">     286</span>              :         }</span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 itemNames[items[i].Id] = struct{}{}</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L290"><span class="lineNum">     290</span>              : </span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         dropTables := PtrSlice(raws.DropTables)</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         tableNames := make(map[string]struct{}, len(dropTables))</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         for i := range dropTables {</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 tableNames[dropTables[i].Id] = struct{}{}</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 for _, entry := range dropTables[i].Entries {</span></span>
-<span id="L296"><span class="lineNum">     296</span>              :                         // 空文字はドロップなしを意味する正規の値</span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         if entry.Material == &quot;&quot; {</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L299"><span class="lineNum">     299</span>              :                         }</span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[entry.Material]; !ok {</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;drop table %q material %q: %w&quot;, dropTables[i].Name, entry.Material, errDropTableMaterialUndefined)</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L303"><span class="lineNum">     303</span>              :                 }</span>
-<span id="L304"><span class="lineNum">     304</span>              :         }</span>
-<span id="L305"><span class="lineNum">     305</span>              : </span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         members := PtrSlice(raws.Members)</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         for i := range members {</span></span>
-<span id="L308"><span class="lineNum">     308</span>              :                 // 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く</span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 if members[i].DropTableId == nil {</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L311"><span class="lineNum">     311</span>              :                 }</span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 if _, ok := tableNames[*members[i].DropTableId]; !ok {</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;member %q drop table %q: %w&quot;, members[i].Name, *members[i].DropTableId, errMemberDropTableUndefined)</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L315"><span class="lineNum">     315</span>              :         }</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L317"><span class="lineNum">     317</span>              : }</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 if err := check(&quot;item&quot;, items[i].Name, items[i].Disassembly); err != nil {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L291"><span class="lineNum">     291</span>              :         }</span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L293"><span class="lineNum">     293</span>              : }</span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span>              : // validateDropTableReferences はドロップテーブルの素材 id がアイテム定義に存在すること、</span>
+<span id="L296"><span class="lineNum">     296</span>              : // メンバーの dropTableId がテーブル定義に存在することを検証する</span>
+<span id="L297"><span class="lineNum">     297</span>              : func validateDropTableReferences(raws oapi.Raws) error {</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         items := PtrSlice(raws.Items)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :         itemNames := make(map[string]struct{}, len(items))</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                 itemNames[items[i].Id] = struct{}{}</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L303"><span class="lineNum">     303</span>              : </span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         dropTables := PtrSlice(raws.DropTables)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         tableNames := make(map[string]struct{}, len(dropTables))</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         for i := range dropTables {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 tableNames[dropTables[i].Id] = struct{}{}</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 for _, entry := range dropTables[i].Entries {</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :                         // 空文字はドロップなしを意味する正規の値</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                         if entry.Material == &quot;&quot; {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :                         }</span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                         if _, ok := itemNames[entry.Material]; !ok {</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;drop table %q material %q: %w&quot;, dropTables[i].Name, entry.Material, errDropTableMaterialUndefined)</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L316"><span class="lineNum">     316</span>              :                 }</span>
+<span id="L317"><span class="lineNum">     317</span>              :         }</span>
 <span id="L318"><span class="lineNum">     318</span>              : </span>
-<span id="L319"><span class="lineNum">     319</span>              : // validateCommandTableReferences はメンバーの commandTableId がテーブル定義に存在することを検証する</span>
-<span id="L320"><span class="lineNum">     320</span>              : func validateCommandTableReferences(raws oapi.Raws) error {</span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :         commandTables := PtrSlice(raws.CommandTables)</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         tableNames := make(map[string]struct{}, len(commandTables))</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         for i := range commandTables {</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 tableNames[commandTables[i].Id] = struct{}{}</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L326"><span class="lineNum">     326</span>              : </span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         members := PtrSlice(raws.Members)</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         for i := range members {</span></span>
-<span id="L329"><span class="lineNum">     329</span>              :                 // 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く</span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 if members[i].CommandTableId == nil {</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L332"><span class="lineNum">     332</span>              :                 }</span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                 if _, ok := tableNames[*members[i].CommandTableId]; !ok {</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;member %q command table %q: %w&quot;, members[i].Name, *members[i].CommandTableId, errMemberCommandTableUndefined)</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L336"><span class="lineNum">     336</span>              :         }</span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L338"><span class="lineNum">     338</span>              : }</span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         members := PtrSlice(raws.Members)</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         for i := range members {</span></span>
+<span id="L321"><span class="lineNum">     321</span>              :                 // 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 if members[i].DropTableId == nil {</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L324"><span class="lineNum">     324</span>              :                 }</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                 if _, ok := tableNames[*members[i].DropTableId]; !ok {</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;member %q drop table %q: %w&quot;, members[i].Name, *members[i].DropTableId, errMemberDropTableUndefined)</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L328"><span class="lineNum">     328</span>              :         }</span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L330"><span class="lineNum">     330</span>              : }</span>
+<span id="L331"><span class="lineNum">     331</span>              : </span>
+<span id="L332"><span class="lineNum">     332</span>              : // validateCommandTableReferences はメンバーの commandTableId がテーブル定義に存在することを検証する</span>
+<span id="L333"><span class="lineNum">     333</span>              : func validateCommandTableReferences(raws oapi.Raws) error {</span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         commandTables := PtrSlice(raws.CommandTables)</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         tableNames := make(map[string]struct{}, len(commandTables))</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         for i := range commandTables {</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                 tableNames[commandTables[i].Id] = struct{}{}</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         members := PtrSlice(raws.Members)</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :         for i := range members {</span></span>
+<span id="L342"><span class="lineNum">     342</span>              :                 // 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                 if members[i].CommandTableId == nil {</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L345"><span class="lineNum">     345</span>              :                 }</span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                 if _, ok := tableNames[*members[i].CommandTableId]; !ok {</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;member %q command table %q: %w&quot;, members[i].Name, *members[i].CommandTableId, errMemberCommandTableUndefined)</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L349"><span class="lineNum">     349</span>              :         }</span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L351"><span class="lineNum">     351</span>              : }</span>
         </pre>
               </td>
             </tr>
