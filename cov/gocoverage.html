@@ -31636,6 +31636,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // applyDeployable は装着アイテムの設備設定を1箇所に集める。マーカーと能力ごとのコンポーネントを付ける。
 // 装着は設備画面で扱うので拾える相互作用は与えない。新設備は能力の枝を1つ足す。
+// 能力枝を持たない装着、raw の空 [items.deployable] は Deployable マーカーだけを付ける。工作台が例。
 func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
         <span class="cov8" title="1">entitySpec.Deployable = &amp;gc.Deployable{}
         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{}}
@@ -38191,7 +38192,7 @@ const debugStageModuleCount = consts.CubeModuleSlots
 const debugStageFacilityCount = 2
 
 // debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
-var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed"}
+var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed", "deployable_workbench"}
 
 // spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムを入れておく。
 // 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
