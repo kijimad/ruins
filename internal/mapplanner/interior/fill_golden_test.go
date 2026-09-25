@@ -31,7 +31,7 @@ func clinicRoom() Room {
 
 // abandonedFlavor は廃墟に生活の痕を足す flavor machine の Content。絨毯・箒・散らばった蝋燭のうち2つを
 // 隅や壁際へ置く。戦利品を増やさず character を与え、空き箱部屋を無くす。Flavor パスで既存配置の隙間へ
-// 流し込む。production の flavor content と同じく儀式の輪は置かない。
+// 流し込む。
 func abandonedFlavor() Content {
 	return Content{
 		ID: "abandoned",
