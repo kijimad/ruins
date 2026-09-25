@@ -20,11 +20,10 @@ const (
 )
 
 // GroupStyle は Group の抽選方式。保証セットとランダム充填を分ける散布殺しの芯。
-// 実体は文字列。
 type GroupStyle string
 
 const (
-	// PickEach は Items を全部置く。店を店たらしめる保証枠。各 Stuff は Chance で個別に gate する
+	// PickEach は Items を全部置く。店を店たらしめる保証枠
 	PickEach GroupStyle = "pick_each"
 	// PickOne は Items から重みで1つ選ぶ。変種の抽選
 	PickOne GroupStyle = "pick_one"
@@ -37,15 +36,13 @@ type Stuff struct {
 	Kind       StuffKind
 	Ref        string      // 家具型や戦利品テーブルの参照名
 	Weight     int         // PickOne / PickN の抽選重み。0 は 1 とみなす
-	Chance     int         // 0..100。PickEach でこの Stuff を置く確率。0 以下は常置
 	Amount     consts.Dice // 置く個数
-	Placement  Placement   // どこへ置くか。空なら PlaceFullArea 相当
+	Placement  Placement   // どこへ置くか。PlaceDefault なら家具型の archetype 既定へ落ちる
 	Satellites []Satellite // anchor 相対に一緒に置く衛星。机に対する椅子など
 }
 
-// Satellite は anchor 相対に一緒に置く衛星。Offsets を前から試し、部屋内の空きに置ければ確定し、尽きたら
-// その衛星を諦める。抽選の単位を単品でなく束にすることで、机だけあって椅子が無いといった抽選事故を構造で
-// 防ぐ。1つの Satellite が椅子1脚に対応し、複数並べれば机を囲む複数脚になる。
+// Satellite は anchor 相対に一緒に置く衛星。抽選の単位を単品でなく束にすることで、机だけあって椅子が無い
+// といった抽選事故を構造で防ぐ。
 type Satellite struct {
 	Kind    StuffKind
 	Ref     string
@@ -59,8 +56,7 @@ type Group struct {
 	Items []Stuff
 }
 
-// Content は「どういう部屋に・何を置くか」の宣言。Stage 1 では Groups の解決だけを担う。
-// ThemeTags による施設種の抽選や RoomReq 照合は後続 Stage で足す。
+// Content は「どういう部屋に・何を置くか」の宣言。Groups を記述順に解決する。
 type Content struct {
 	ID     string
 	Groups []Group

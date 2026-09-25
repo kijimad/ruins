@@ -229,49 +229,6 @@ func TestValidateDropTableReferences(t *testing.T) {
 	})
 }
 
-func TestValidateSpawnDice(t *testing.T) {
-	t.Parallel()
-
-	t.Run("正しいダイス表記は通る", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "1d3"}}}},
-			ItemGroups:  &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{Id: "回復薬", Pack: "2d1"}}}},
-			Props:       &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("1d2"))}}},
-		}
-		require.NoError(t, validateSpawnDice(raws))
-	})
-
-	t.Run("敵テーブルの不正なパック表記はエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "0d6"}}}},
-		}
-		err := validateSpawnDice(raws)
-		require.ErrorIs(t, err, errInvalidPackNotation)
-		require.ErrorContains(t, err, "count must be at least 1")
-	})
-
-	t.Run("アイテムグループの不正なパック表記はエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			ItemGroups: &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{Id: "回復薬", Pack: "0d6"}}}},
-		}
-		err := validateSpawnDice(raws)
-		require.ErrorIs(t, err, errInvalidPackNotation)
-		require.ErrorContains(t, err, "count must be at least 1")
-	})
-
-	t.Run("収納の不正なlootCountはエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			Props: &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("abc"))}}},
-		}
-		err := validateSpawnDice(raws)
-		require.ErrorIs(t, err, errInvalidLootCountNotation)
-	})
-}
-
 func TestValidateCommandTableReferences(t *testing.T) {
 	t.Parallel()
 
@@ -404,6 +361,74 @@ func TestValidateFacilityEnemyTableReferences(t *testing.T) {
 		}
 		err := validateFacilityEnemyTableReferences(raws)
 		require.ErrorIs(t, err, errFacilityEnemyTableRefUndefined)
+	})
+}
+
+func TestValidateInteriorContentReferences(t *testing.T) {
+	t.Parallel()
+
+	contents := &[]oapi.InteriorContent{{Id: "house"}, {Id: "bedroom"}}
+
+	t.Run("実在する content 参照は通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityContents: &[]oapi.FacilityContent{{Facility: "house", Variants: []oapi.EntityID{"house"}}},
+			FacilityRooms: &[]oapi.FacilityRooms{{
+				Facility: "house",
+				Rooms:    &[]oapi.RoomContent{{Role: "bedroom", Content: "bedroom"}},
+				Fallback: "bedroom",
+			}},
+			FlavorContent: &oapi.InteriorContent{Id: "flavor"},
+		}
+		require.NoError(t, validateInteriorContentReferences(raws))
+	})
+
+	t.Run("存在しない変種はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityContents: &[]oapi.FacilityContent{{Facility: "house", Variants: []oapi.EntityID{"no_such"}}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentRefUndefined)
+	})
+
+	t.Run("存在しない奥室 content はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityRooms: &[]oapi.FacilityRooms{{
+				Facility: "house",
+				Rooms:    &[]oapi.RoomContent{{Role: "bedroom", Content: "no_such"}},
+				Fallback: "bedroom",
+			}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentRefUndefined)
+	})
+
+	t.Run("存在しない fallback はエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: contents,
+			FacilityRooms:    &[]oapi.FacilityRooms{{Facility: "house", Fallback: "no_such"}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentRefUndefined)
+	})
+
+	t.Run("id が重複するとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: &[]oapi.InteriorContent{{Id: "house"}, {Id: "house"}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentDuplicateID)
+	})
+
+	t.Run("interior を積むのに flavorContent が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: &[]oapi.InteriorContent{{Id: "house"}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorFlavorContentMissing)
 	})
 }
 

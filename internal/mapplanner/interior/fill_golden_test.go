@@ -31,7 +31,7 @@ func clinicRoom() Room {
 
 // abandonedFlavor は廃墟に生活の痕を足す flavor machine の Content。絨毯・箒・散らばった蝋燭のうち2つを
 // 隅や壁際へ置く。戦利品を増やさず character を与え、空き箱部屋を無くす。Flavor パスで既存配置の隙間へ
-// 流し込む。production の facilityFlavor と同じく儀式の輪は置かない。
+// 流し込む。
 func abandonedFlavor() Content {
 	return Content{
 		ID: "abandoned",
@@ -57,10 +57,29 @@ func houseRoom() Room {
 func TestFillRoom_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
-	room, content := storeRoom(), storeContent()
+	room := storeRoom()
+	content, err := contentByID(testRaws(), "convenience_store")
+	require.NoError(t, err)
 	first := FillRoom(42, room, content)
 	for range 5 {
 		require.Equal(t, first, FillRoom(42, room, content), "同じ seed なら配置も完全一致する")
+	}
+}
+
+// diningTableStuff は椅子を四辺へ束ねた食卓の Stuff。衛星配置のテスト専用フィクスチャで、本番レシピは
+// raw.toml が持つ。
+func diningTableStuff(placement Placement) Stuff {
+	chair := func(offs ...Vec) Satellite {
+		return Satellite{Kind: KindFurniture, Ref: "chair", Offsets: offs}
+	}
+	return Stuff{
+		Kind: KindFurniture, Ref: "table", Placement: placement, Amount: consts.Dice{Base: 1, Sides: 1},
+		Satellites: []Satellite{
+			chair(Vec{X: 0, Y: -1}, Vec{X: -1, Y: -1}, Vec{X: 1, Y: -1}),
+			chair(Vec{X: 0, Y: 1}, Vec{X: -1, Y: 1}, Vec{X: 1, Y: 1}),
+			chair(Vec{X: -1, Y: 0}, Vec{X: -1, Y: -1}, Vec{X: -1, Y: 1}),
+			chair(Vec{X: 1, Y: 0}, Vec{X: 1, Y: -1}, Vec{X: 1, Y: 1}),
+		},
 	}
 }
 
@@ -70,7 +89,7 @@ func TestFillRoom_衛星の椅子は机の隣に置かれる(t *testing.T) {
 	t.Parallel()
 
 	room := Room{Rect: Rect{X: 0, Y: 0, W: 9, H: 9}, Doorways: []Doorway{{X: 4, Y: 8}}}
-	content := Content{ID: "dining", Groups: []Group{{Style: PickEach, Items: []Stuff{diningTable(PlaceCenter)}}}}
+	content := Content{ID: "dining", Groups: []Group{{Style: PickEach, Items: []Stuff{diningTableStuff(PlaceCenter)}}}}
 	placed := FillRoom(1, room, content)
 
 	var table Vec

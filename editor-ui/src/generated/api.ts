@@ -447,9 +447,6 @@ export type CombatPolicyType = typeof CombatPolicyType[keyof typeof CombatPolicy
  * コマンドテーブル
  */
 export interface CommandTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -461,9 +458,6 @@ export interface CommandTable {
  * コマンドテーブルエントリ
  */
 export interface CommandTableEntry {
-    /**
-     * エンティティの英語 id
-     */
     'weapon': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
@@ -487,6 +481,55 @@ export interface Consumable {
 }
 
 
+/**
+ * 抽選単位の束
+ */
+export interface ContentGroup {
+    'style': GroupStyle;
+    /**
+     * pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
+     */
+    'pick'?: number;
+    'items': Array<ContentStuff>;
+}
+
+
+/**
+ * anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
+ */
+export interface ContentSatellite {
+    'kind': StuffKind;
+    'ref': string;
+    'offsets': Array<ContentVec>;
+}
+
+
+/**
+ * 内装レシピの1配置指示
+ */
+export interface ContentStuff {
+    'kind': StuffKind;
+    'ref': string;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight'?: number;
+    /**
+     * 置く個数のダイス表記
+     */
+    'amount': string;
+    'placement'?: Placement;
+    'satellites'?: Array<ContentSatellite>;
+}
+
+
+/**
+ * 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
+ */
+export interface ContentVec {
+    'x': number;
+    'y': number;
+}
 /**
  * キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
  */
@@ -531,9 +574,6 @@ export interface Disassembly {
  * 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
  */
 export interface DisassemblyBonus {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * 産出個数のダイス表記
@@ -562,9 +602,6 @@ export interface DisassemblyTool {
  * 分解の産出エントリ。chance 省略は確定枠
  */
 export interface DisassemblyYield {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * 産出個数のダイス表記
@@ -579,9 +616,6 @@ export interface DisassemblyYield {
  * ドロップテーブル
  */
 export interface DropTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -628,9 +662,6 @@ export type Element = typeof Element[keyof typeof Element];
  * 敵テーブル
  */
 export interface EnemyTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -642,9 +673,6 @@ export interface EnemyTable {
  * 敵テーブルエントリ
  */
 export interface EnemyTableEntry {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
@@ -734,18 +762,53 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
+ * 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
+ */
+export interface FacilityContent {
+    'facility': FacilityKind;
+    'variants': Array<string>;
+}
+
+
+/**
  * 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
  */
 export interface FacilityEnemyTable {
-    /**
-     * 施設種別。overworld の facilityType の文字列と揃える
-     */
-    'facility': string;
+    'facility': FacilityKind;
     /**
      * 割り当てる敵テーブルの id。enemyTables のいずれかを指す
      */
     'enemyTable': string;
 }
+
+
+/**
+ * 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
+ */
+
+export const FacilityKind = {
+    House: 'house',
+    Store: 'store',
+    Antique: 'antique',
+    Clinic: 'clinic',
+    Lab: 'lab',
+    Office: 'office',
+    Depot: 'depot',
+} as const;
+
+export type FacilityKind = typeof FacilityKind[keyof typeof FacilityKind];
+
+
+/**
+ * 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
+ */
+export interface FacilityRooms {
+    'facility': FacilityKind;
+    'rooms'?: Array<RoomContent>;
+    'fallback': string;
+}
+
+
 /**
  * 派閥タイプ
  */
@@ -807,6 +870,19 @@ export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
 
 
 /**
+ * グループの抽選方式。保証セットとランダム充填を分ける
+ */
+
+export const GroupStyle = {
+    PickEach: 'pick_each',
+    PickOne: 'pick_one',
+    PickN: 'pick_n',
+} as const;
+
+export type GroupStyle = typeof GroupStyle[keyof typeof GroupStyle];
+
+
+/**
  * 回復量の計算方式
  */
 
@@ -833,12 +909,16 @@ export interface HeatSource {
     'warmth': number;
 }
 /**
+ * 内装レシピ。施設まるごと、または奥室1つに対応する
+ */
+export interface InteriorContent {
+    'id': string;
+    'groups'?: Array<ContentGroup>;
+}
+/**
  * アイテム
  */
 export interface Item {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -909,9 +989,6 @@ export interface Item {
  * アイテムグループ。アイテムの出現セットを定義する
  */
 export interface ItemGroup {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -926,9 +1003,6 @@ export interface ItemGroup {
  * アイテムグループエントリ
  */
 export interface ItemGroupEntry {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * distribution: 相対重み。collection: 確率（0-100）
@@ -969,9 +1043,6 @@ export interface ItemList {
  * アイテムテーブル
  */
 export interface ItemTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1078,9 +1149,6 @@ export interface Melee {
  * メンバー
  */
 export interface Member {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1190,6 +1258,22 @@ export interface PaletteList {
     'totalCount': number;
 }
 /**
+ * 配置の置き方。空なら家具型の archetype 既定へ落ちる
+ */
+
+export const Placement = {
+    Center: 'center',
+    Wall: 'wall',
+    FullArea: 'full_area',
+    NearDoor: 'near_door',
+    FarFromDoor: 'far_from_door',
+    Row: 'row',
+} as const;
+
+export type Placement = typeof Placement[keyof typeof Placement];
+
+
+/**
  * 職業
  */
 export interface Profession {
@@ -1259,9 +1343,6 @@ export interface ProfessionSkill {
  * 置物
  */
 export interface Prop {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1364,6 +1445,13 @@ export interface Raws {
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
     'facilityEnemyTables'?: Array<FacilityEnemyTable>;
+    'interiorContents'?: Array<InteriorContent>;
+    'facilityContents'?: Array<FacilityContent>;
+    'facilityRooms'?: Array<FacilityRooms>;
+    /**
+     * 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので       interiorContents プールには入れず、この専用フィールドだけに置く
+     */
+    'flavorContent'?: InteriorContent;
     'spriteSheets'?: Array<SpriteSheet>;
     'tiles'?: Array<Tile>;
     'props'?: Array<Prop>;
@@ -1373,9 +1461,6 @@ export interface Raws {
  * レシピ
  */
 export interface Recipe {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1387,9 +1472,6 @@ export interface Recipe {
  * レシピ素材
  */
 export interface RecipeInput {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * 素材必要数
@@ -1413,6 +1495,41 @@ export interface Remedy {
      */
     'potency': number;
 }
+/**
+ * 奥室の役割名と内装レシピの対
+ */
+export interface RoomContent {
+    'role': RoomRole;
+    'content': string;
+}
+
+
+/**
+ * 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
+ */
+
+export const RoomRole = {
+    Bath: 'bath',
+    Bedroom: 'bedroom',
+    Coldroom: 'coldroom',
+    Corridor: 'corridor',
+    Dressing: 'dressing',
+    ExaminationRoom: 'examination_room',
+    Genkan: 'genkan',
+    Kitchen: 'kitchen',
+    Living: 'living',
+    Office: 'office',
+    Pharmacy: 'pharmacy',
+    Restroom: 'restroom',
+    Storage: 'storage',
+    Storeroom: 'storeroom',
+    Toilet: 'toilet',
+    Waiting: 'waiting',
+} as const;
+
+export type RoomRole = typeof RoomRole[keyof typeof RoomRole];
+
+
 /**
  * 遮蔽タイプ
  */
@@ -1511,6 +1628,21 @@ export interface StorageRaw {
     'lootCount'?: string;
 }
 /**
+ * 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
+ */
+
+export const StuffKind = {
+    Furniture: 'furniture',
+    Loot: 'loot',
+    Being: 'being',
+    Decor: 'decor',
+    Trap: 'trap',
+} as const;
+
+export type StuffKind = typeof StuffKind[keyof typeof StuffKind];
+
+
+/**
  * ターゲットグループ
  */
 
@@ -1540,9 +1672,6 @@ export type TargetNum = typeof TargetNum[keyof typeof TargetNum];
  * タイル
  */
 export interface Tile {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名

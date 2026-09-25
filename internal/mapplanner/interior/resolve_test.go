@@ -13,7 +13,7 @@ import (
 // sampleContent はコンビニを模した Content。保証枠・N抽選・1抽選の3 Group を持つ。
 func sampleContent() Content {
 	return Content{
-		ID: "conv_store",
+		ID: "convenience_store",
 		Groups: []Group{
 			{Style: PickEach, Items: []Stuff{
 				{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},
@@ -26,7 +26,7 @@ func sampleContent() Content {
 			}},
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindDecor, Ref: "litter", Amount: consts.Dice{Base: 1, Sides: 3, Bonus: 1}},
-				{Kind: KindBeing, Ref: "looter", Chance: 30, Amount: consts.Dice{Base: 1, Sides: 1}},
+				{Kind: KindBeing, Ref: "looter", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 1}},
 			}},
 		},
 	}
@@ -70,7 +70,7 @@ func TestContent_Resolve_PickEachは保証枠を全部置く(t *testing.T) {
 		{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
 	}}}}
 	got := c.Resolve(7)
-	require.Len(t, got, 2, "Chance の無い PickEach は全 Item を置く")
+	require.Len(t, got, 2, "PickEach は全 Item を置く")
 	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "register", Count: 1, Placement: PlaceNearDoor}, got[0])
 	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "gondola", Count: 3, Placement: PlaceRow}, got[1])
 }
@@ -101,18 +101,5 @@ func TestContent_Resolve_PickOneは1つだけ置く(t *testing.T) {
 	}}}}
 	for s := range uint64(30) {
 		require.Lenf(t, c.Resolve(s), 1, "PickOne は1つだけ置く (seed=%d)", s)
-	}
-}
-
-// TestContent_Resolve_Chance0は常に置かれる は、Chance を書かない保証 Stuff が全 seed で出ることを固定する。
-func TestContent_Resolve_Chance0は常に置かれる(t *testing.T) {
-	t.Parallel()
-
-	c := Content{Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "must", Amount: consts.Dice{Base: 1, Sides: 1}},
-	}}}}
-	for s := range uint64(50) {
-		got := c.Resolve(s)
-		require.Lenf(t, got, 1, "Chance 0 は常置 (seed=%d)", s)
 	}
 }
