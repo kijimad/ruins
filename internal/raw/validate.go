@@ -22,6 +22,7 @@ var (
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
 	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
+	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 )
 
 // ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する
@@ -177,8 +178,8 @@ func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
 
 // validateInteriorContentReferences は内装レシピの content 参照が interiorContents に存在することを検証する。
 // facilityContents の変種、facilityRooms の役割別 content と fallback が指す id を、typo による空部屋の silent
-// 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複を検出する。id は生成側の一意キーで
-// 重複すると取り違わる。
+// 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複と、interior を積む raw での
+// flavorContent 未設定を検出する。id は生成側の一意キーで重複すると取り違わる。
 func validateInteriorContentReferences(raws oapi.Raws) error {
 	contents := PtrSlice(raws.InteriorContents)
 	contentIDs := make(map[string]struct{}, len(contents))
@@ -215,6 +216,12 @@ func validateInteriorContentReferences(raws oapi.Raws) error {
 		if _, ok := contentIDs[fr.Fallback]; !ok {
 			return fmt.Errorf("facility %q fallback %q: %w", fr.Facility, fr.Fallback, errInteriorContentRefUndefined)
 		}
+	}
+
+	// flavor は Go が全室へ引く必須レイヤ。interior を積む raw で未設定なら生成時に落ちるのでロード時に弾く。
+	// interior を使わない部分的な Raws は素通しする
+	if len(contents) > 0 && raws.FlavorContent == nil {
+		return fmt.Errorf("flavorContent: %w", errInteriorFlavorContentMissing)
 	}
 	return nil
 }

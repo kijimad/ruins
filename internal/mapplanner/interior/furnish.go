@@ -154,7 +154,8 @@ func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom
 	case facOffice, facDepot:
 		return nil, 0, 0, false // 専用テンプレを持たず BSP へ委ねる
 	}
-	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で BSP へ落とす
+	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で BSP へ落とす。
+	// facilityContent と違い未登録を error にしないのは、専用テンプレが無くても BSP の汎用分割で間取りは出せるから
 	return nil, 0, 0, false
 }
 

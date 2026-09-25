@@ -379,6 +379,7 @@ func TestValidateInteriorContentReferences(t *testing.T) {
 				Rooms:    &[]oapi.RoomContent{{Role: "bedroom", Content: "bedroom"}},
 				Fallback: "bedroom",
 			}},
+			FlavorContent: &oapi.InteriorContent{Id: "flavor"},
 		}
 		require.NoError(t, validateInteriorContentReferences(raws))
 	})
@@ -420,6 +421,14 @@ func TestValidateInteriorContentReferences(t *testing.T) {
 			InteriorContents: &[]oapi.InteriorContent{{Id: "house"}, {Id: "house"}},
 		}
 		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentDuplicateID)
+	})
+
+	t.Run("interior を積むのに flavorContent が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			InteriorContents: &[]oapi.InteriorContent{{Id: "house"}},
+		}
+		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorFlavorContentMissing)
 	})
 }
 
