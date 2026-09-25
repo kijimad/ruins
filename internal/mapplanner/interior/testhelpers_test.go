@@ -2,10 +2,12 @@ package interior
 
 import (
 	"sync"
+	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -26,8 +28,42 @@ func testRaws() oapi.Raws {
 	return testRawsCache
 }
 
+// mustContent は id の content をテスト用に引き、error を require で潰す。生成系が error を返すようになったので、
+// テストは happy path だけ見たい箇所でこの包みを使う。
+func mustContent(t *testing.T, id string) Content {
+	t.Helper()
+	c, err := contentByID(testRaws(), id)
+	require.NoError(t, err)
+	return c
+}
+
+// mustFurnish は Furnish を呼び error を require で潰す。
+func mustFurnish(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
+	t.Helper()
+	placed, err := Furnish(testRaws(), seed, footprint, door, facility)
+	require.NoError(t, err)
+	return placed
+}
+
+// mustFurnishBuilding は FurnishBuilding を呼び error を require で潰す。
+func mustFurnishBuilding(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed) {
+	t.Helper()
+	site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, facility)
+	require.NoError(t, err)
+	return site, placed
+}
+
+// mustFurnishStages は FurnishStages を呼び error を require で潰す。
+func mustFurnishStages(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage) {
+	t.Helper()
+	site, stages, err := FurnishStages(testRaws(), seed, footprint, door, facility)
+	require.NoError(t, err)
+	return site, stages
+}
+
 // testRoomContents は施設の役割別 content をテスト用に map で返す。旧 houseRoomContents 等の代わり。
-func testRoomContents(fac FacilityKind) map[roleName]Content {
+func testRoomContents(t *testing.T, fac FacilityKind) map[roleName]Content {
+	t.Helper()
 	raws := testRaws()
 	out := map[roleName]Content{}
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
@@ -35,7 +71,7 @@ func testRoomContents(fac FacilityKind) map[roleName]Content {
 			continue
 		}
 		for _, r := range raw.PtrSlice(fr.Rooms) {
-			out[roleName(r.Role)] = contentByID(raws, r.Content)
+			out[roleName(r.Role)] = mustContent(t, r.Content)
 		}
 	}
 	return out

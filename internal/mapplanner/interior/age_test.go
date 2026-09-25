@@ -11,7 +11,7 @@ func TestAge_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
 	room := storeRoom()
-	base := FillRoom(9, room, contentByID(testRaws(), "convenience_store"))
+	base := FillRoom(9, room, mustContent(t, "convenience_store"))
 	first := Age(9, room, base, dmgMajor)
 	for range 5 {
 		require.Equal(t, first, Age(9, room, base, dmgMajor), "Age は同じ引数で完全一致する")
@@ -25,7 +25,7 @@ func TestAge_到達性を壊さない(t *testing.T) {
 
 	room := storeRoom()
 	for s := range uint64(30) {
-		aged := Age(s, room, FillRoom(s, room, contentByID(testRaws(), "convenience_store")), dmgMajor)
+		aged := Age(s, room, FillRoom(s, room, mustContent(t, "convenience_store")), dmgMajor)
 		blocked := blockingTiles(aged)
 		reached := reachableFloor(room, blocked)
 		for _, tile := range room.Rect.interiorTiles() {

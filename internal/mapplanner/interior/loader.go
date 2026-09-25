@@ -1,6 +1,7 @@
 package interior
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -8,31 +9,36 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
+// 内装レシピ引きの sentinel エラー。呼び出し側とテストが errors.Is で同定できるようにする。
+var (
+	errContentNotFound       = errors.New("interior content not found")
+	errFacilityNotRegistered = errors.New("interior facility not registered")
+)
+
 // contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。内装 content は数十件規模
 // なので線形走査で足り、索引を持たず毎回新規に組む。返り値を applyDensity が in-place で書き換えても共有元が
 // 無く clone が要らない。他ドメインの NewItemSpec と同じ「その場で引いて変換」の形。参照もダイス表記も raw の
-// ValidateReferences がロード時に検証済みなので、ここでの未定義・解析失敗は起きえない。不変条件違反として
-// panic で露見させる backstop に留める。flavor はコード直引きで validate 対象外なので、欠ければここで panic する。
-func contentByID(raws oapi.Raws, id string) Content {
+// ValidateReferences がロード時に検証済みなので通常は成功する。壊れた raw で生成を落とさないよう error を返す。
+func contentByID(raws oapi.Raws, id string) (Content, error) {
 	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
 		if ic.Id == id {
 			c, err := toContent(ic)
 			if err != nil {
-				panic(fmt.Sprintf("interior: content %q: %v", id, err))
+				return Content{}, fmt.Errorf("interior content %q: %w", id, err)
 			}
-			return c
+			return c, nil
 		}
 	}
-	panic(fmt.Sprintf("interior: content %q not found", id))
+	return Content{}, fmt.Errorf("%q: %w", id, errContentNotFound)
 }
 
 // facilityContent は施設種別の主室 content を seed で1変種引く。同じ施設でも複数の変種を持ち、seed で引く
 // ことで同じ店が薬局にも食料品店にもなる。facility は overworld の閉じた enum で全種別が facilityContents に
-// 登録済みなので、未登録は不変条件違反として panic で露見させる。
-func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) Content {
+// 登録済みなので通常は成功する。未登録は error で返す。
+func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) (Content, error) {
 	variants := facilityVariants(raws, facility)
 	if len(variants) == 0 {
-		panic(fmt.Sprintf("interior: facility %q not registered in facilityContents", facility))
+		return Content{}, fmt.Errorf("%q in facilityContents: %w", facility, errFacilityNotRegistered)
 	}
 	id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
 	return contentByID(raws, id)
@@ -48,31 +54,32 @@ func facilityVariants(raws oapi.Raws, facility FacilityKind) []string {
 	return nil
 }
 
-// roomContent は施設の役割別 content を引く。役割が奥室カタログに無ければ ok=false。
-func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content, bool) {
+// roomContent は施設の役割別 content を引く。役割が奥室カタログに無ければ ok=false。id 参照が壊れていれば error。
+func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content, bool, error) {
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
 		if FacilityKind(fr.Facility) != facility {
 			continue
 		}
 		for _, r := range raw.PtrSlice(fr.Rooms) {
 			if roleName(r.Role) == role {
-				return contentByID(raws, r.Content), true
+				c, err := contentByID(raws, r.Content)
+				return c, true, err
 			}
 		}
-		return Content{}, false
+		return Content{}, false, nil
 	}
-	return Content{}, false
+	return Content{}, false, nil
 }
 
 // backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。facility は
-// 全種別が facilityRooms に登録済みなので、未登録は不変条件違反として panic で露見させる。
-func backRoomContent(raws oapi.Raws, facility FacilityKind) Content {
+// 全種別が facilityRooms に登録済みなので通常は成功する。未登録は error で返す。
+func backRoomContent(raws oapi.Raws, facility FacilityKind) (Content, error) {
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
 		if FacilityKind(fr.Facility) == facility {
 			return contentByID(raws, fr.Fallback)
 		}
 	}
-	panic(fmt.Sprintf("interior: facility %q not registered in facilityRooms", facility))
+	return Content{}, fmt.Errorf("%q in facilityRooms: %w", facility, errFacilityNotRegistered)
 }
 
 // toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の

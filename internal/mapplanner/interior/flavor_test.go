@@ -11,7 +11,7 @@ func TestFlavor_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
 	room := houseSmallRoom()
-	base := FillRoom(3, room, contentByID(testRaws(), "house"))
+	base := FillRoom(3, room, mustContent(t, "house"))
 	first := Flavor(3, room, base, abandonedFlavor())
 	for range 5 {
 		require.Equal(t, first, Flavor(3, room, base, abandonedFlavor()), "同じ引数なら flavor も完全一致する")
@@ -25,7 +25,7 @@ func TestFlavor_到達性を壊さない(t *testing.T) {
 
 	room := storeRoom()
 	for seed := range uint64(30) {
-		base := FillRoom(seed, room, contentByID(testRaws(), "convenience_store"))
+		base := FillRoom(seed, room, mustContent(t, "convenience_store"))
 		flavored := Flavor(seed, room, base, abandonedFlavor())
 
 		blocked := blockingTiles(flavored)

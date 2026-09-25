@@ -64,7 +64,7 @@ func TestFurnishBuilding_全室が入口から家具越しに歩いて到達で�
 			for seed := range uint64(50) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				door := Vec{X: fp / 2, Y: 0}
-				site, placed := FurnishBuilding(testRaws(), seed, footprint, door, fac)
+				site, placed := mustFurnishBuilding(t, seed, footprint, door, fac)
 				reached := walkFrom(site, placed)
 				for _, hr := range site.Rooms {
 					require.Truef(t, roomEnterable(hr.Room, reached),
@@ -86,7 +86,7 @@ func TestFurnishBuilding_配置は全てfootprint内に収まる(t *testing.T) {
 			for seed := range uint64(30) {
 				footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
 				door := Vec{X: fp / 2, Y: 0}
-				_, placed := FurnishBuilding(testRaws(), seed, footprint, door, fac)
+				_, placed := mustFurnishBuilding(t, seed, footprint, door, fac)
 				for _, p := range placed {
 					in := p.Pos.X >= footprint.X && p.Pos.X < footprint.X+footprint.W &&
 						p.Pos.Y >= footprint.Y && p.Pos.Y < footprint.Y+footprint.H

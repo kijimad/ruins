@@ -11,20 +11,20 @@ import (
 func TestClassifyRoom_施設が役割どおりに分類される(t *testing.T) {
 	t.Parallel()
 
-	byRole := testRoomContents(facHouse)
+	byRole := testRoomContents(t, facHouse)
 	cases := []struct {
 		name string
 		role string
 		got  []Placed
 	}{
-		{"店", "store", FillRoom(42, storeRoom(), contentByID(testRaws(), "convenience_store"))},
-		{"診療所", "clinic", FillRoom(7, clinicRoom(), contentByID(testRaws(), "clinic"))},
+		{"店", "store", FillRoom(42, storeRoom(), mustContent(t, "convenience_store"))},
+		{"診療所", "clinic", FillRoom(7, clinicRoom(), mustContent(t, "clinic"))},
 		{"寝室", "bedroom", FillRoom(1, houseSmallRoom(), byRole["bedroom"])},
 		{"浴室", "bath", FillRoom(1, houseSmallRoom(), byRole["bath"])},
 		{"台所", "kitchen", FillRoom(1, houseSmallRoom(), byRole["kitchen"])},
-		{"トイレ", "restroom", FillRoom(1, houseSmallRoom(), contentByID(testRaws(), "restroom"))},
-		{"事務所", "office", FillRoom(1, houseSmallRoom(), contentByID(testRaws(), "office_room"))},
-		{"薬局", "pharmacy", FillRoom(1, houseSmallRoom(), contentByID(testRaws(), "pharmacy_room"))},
+		{"トイレ", "restroom", FillRoom(1, houseSmallRoom(), mustContent(t, "restroom"))},
+		{"事務所", "office", FillRoom(1, houseSmallRoom(), mustContent(t, "office_room"))},
+		{"薬局", "pharmacy", FillRoom(1, houseSmallRoom(), mustContent(t, "pharmacy_room"))},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -41,10 +41,10 @@ func TestClassifyRoom_多seedで店と診療所は役割どおりに見える(t 
 	t.Parallel()
 
 	for seed := range uint64(50) {
-		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), contentByID(testRaws(), "convenience_store")), dmgMinor)
+		store := Age(seed, storeRoom(), FillRoom(seed, storeRoom(), mustContent(t, "convenience_store")), dmgMinor)
 		assert.Equalf(t, "store", classifyRoom(store), "seed=%d の店は店に見える", seed)
 
-		clinic := FillRoom(seed, clinicRoom(), contentByID(testRaws(), "clinic"))
+		clinic := FillRoom(seed, clinicRoom(), mustContent(t, "clinic"))
 		assert.Equalf(t, "clinic", classifyRoom(clinic), "seed=%d の診療所は診療所に見える", seed)
 	}
 }

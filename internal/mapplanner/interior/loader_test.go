@@ -13,7 +13,17 @@ import (
 func TestContentByID_コード必須のidが引ける(t *testing.T) {
 	t.Parallel()
 
-	require.Equal(t, "flavor", contentByID(testRaws(), "flavor").ID)
+	c, err := contentByID(testRaws(), "flavor")
+	require.NoError(t, err)
+	require.Equal(t, "flavor", c.ID)
+}
+
+// TestContentByID_未定義idはerror は、存在しない content id を引くと生成を落とさず error を返すことを固定する。
+func TestContentByID_未定義idはerror(t *testing.T) {
+	t.Parallel()
+
+	_, err := contentByID(testRaws(), "no_such_content")
+	require.ErrorIs(t, err, errContentNotFound)
 }
 
 // TestToContent_不正なダイスはerrorを返す は、amount のダイス表記が壊れたレシピを変換したとき toContent が

@@ -113,8 +113,11 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 		}
 	}
 	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
-		check(fac, interior.Furnish(raws, 1, small, door, fac))
-		_, placed := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
+		single, err := interior.Furnish(raws, 1, small, door, fac)
+		require.NoError(t, err)
+		check(fac, single)
+		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
+		require.NoError(t, err)
 		check(fac, placed)
 	}
 }
@@ -156,8 +159,11 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 		}
 	}
 	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
-		check(fac, interior.Furnish(raws, 1, small, door, fac))
-		_, placed := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
+		single, err := interior.Furnish(raws, 1, small, door, fac)
+		require.NoError(t, err)
+		check(fac, single)
+		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
+		require.NoError(t, err)
 		check(fac, placed)
 	}
 	assert.True(t, sawLoot, "少なくとも1施設が KindLoot を生む。床 loot のレールが有効であることを固定する")
