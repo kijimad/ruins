@@ -28,35 +28,6 @@ func testRaws() oapi.Raws {
 	return testRawsCache
 }
 
-// must* は生成系の error を require で潰し、happy path だけ見たいテストの記述を短く保つ包み。
-func mustContent(t *testing.T, id string) Content {
-	t.Helper()
-	c, err := contentByID(testRaws(), id)
-	require.NoError(t, err)
-	return c
-}
-
-func mustFurnish(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
-	t.Helper()
-	placed, err := Furnish(testRaws(), seed, footprint, door, facility)
-	require.NoError(t, err)
-	return placed
-}
-
-func mustFurnishBuilding(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed) {
-	t.Helper()
-	site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, facility)
-	require.NoError(t, err)
-	return site, placed
-}
-
-func mustFurnishStages(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage) {
-	t.Helper()
-	site, stages, err := FurnishStages(testRaws(), seed, footprint, door, facility)
-	require.NoError(t, err)
-	return site, stages
-}
-
 // testRoomContents は施設の役割別 content をテスト用に map で返す。
 func testRoomContents(t *testing.T, fac FacilityKind) map[roleName]Content {
 	t.Helper()
@@ -67,7 +38,9 @@ func testRoomContents(t *testing.T, fac FacilityKind) map[roleName]Content {
 			continue
 		}
 		for _, r := range raw.PtrSlice(fr.Rooms) {
-			out[roleName(r.Role)] = mustContent(t, r.Content)
+			c, err := contentByID(raws, r.Content)
+			require.NoError(t, err)
+			out[roleName(r.Role)] = c
 		}
 	}
 	return out

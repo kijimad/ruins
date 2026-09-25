@@ -45,7 +45,8 @@ func TestGolden_Distribution(t *testing.T) {
 			Loot:      map[string]int{},
 		}
 		for seed := range uint64(runs) {
-			site, placed := mustFurnishBuilding(t, seed, footprint, door, fac)
+			site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, fac)
+			require.NoError(t, err)
 			d.RoomCount[strconv.Itoa(len(site.Rooms))]++
 			for _, r := range site.Rooms {
 				d.Roles[string(r.Role)]++
