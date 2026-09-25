@@ -49,6 +49,7 @@ func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) (Conten
 	if len(variants) == 0 {
 		return Content{}, fmt.Errorf("%q in facilityContents: %w", facility, errFacilityNotRegistered)
 	}
+	// 9_000_000 は変種抽選専用の child index。同じ親 seed から引く他ストリームと無相関にする帯オフセット
 	id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
 	return contentByID(raws, id)
 }
