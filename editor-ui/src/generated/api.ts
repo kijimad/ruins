@@ -447,9 +447,6 @@ export type CombatPolicyType = typeof CombatPolicyType[keyof typeof CombatPolicy
  * コマンドテーブル
  */
 export interface CommandTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -461,9 +458,6 @@ export interface CommandTable {
  * コマンドテーブルエントリ
  */
 export interface CommandTableEntry {
-    /**
-     * エンティティの英語 id
-     */
     'weapon': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
@@ -505,9 +499,6 @@ export interface ContentGroup {
  */
 export interface ContentSatellite {
     'kind': StuffKind;
-    /**
-     * エンティティの英語 id
-     */
     'ref': string;
     'offsets': Array<ContentVec>;
 }
@@ -518,9 +509,6 @@ export interface ContentSatellite {
  */
 export interface ContentStuff {
     'kind': StuffKind;
-    /**
-     * エンティティの英語 id
-     */
     'ref': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
@@ -586,9 +574,6 @@ export interface Disassembly {
  * 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
  */
 export interface DisassemblyBonus {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * 産出個数のダイス表記
@@ -617,9 +602,6 @@ export interface DisassemblyTool {
  * 分解の産出エントリ。chance 省略は確定枠
  */
 export interface DisassemblyYield {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * 産出個数のダイス表記
@@ -634,9 +616,6 @@ export interface DisassemblyYield {
  * ドロップテーブル
  */
 export interface DropTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -683,9 +662,6 @@ export type Element = typeof Element[keyof typeof Element];
  * 敵テーブル
  */
 export interface EnemyTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -697,9 +673,6 @@ export interface EnemyTable {
  * 敵テーブルエントリ
  */
 export interface EnemyTableEntry {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
@@ -820,9 +793,6 @@ export interface FacilityRooms {
      */
     'facility': string;
     'rooms'?: Array<RoomContent>;
-    /**
-     * エンティティの英語 id
-     */
     'fallback': string;
 }
 /**
@@ -928,9 +898,6 @@ export interface HeatSource {
  * 内装レシピ。施設まるごと、または奥室1つに対応する
  */
 export interface InteriorContent {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     'groups'?: Array<ContentGroup>;
 }
@@ -938,9 +905,6 @@ export interface InteriorContent {
  * アイテム
  */
 export interface Item {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1011,9 +975,6 @@ export interface Item {
  * アイテムグループ。アイテムの出現セットを定義する
  */
 export interface ItemGroup {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1028,9 +989,6 @@ export interface ItemGroup {
  * アイテムグループエントリ
  */
 export interface ItemGroupEntry {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * distribution: 相対重み。collection: 確率（0-100）
@@ -1071,9 +1029,6 @@ export interface ItemList {
  * アイテムテーブル
  */
 export interface ItemTable {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1180,9 +1135,6 @@ export interface Melee {
  * メンバー
  */
 export interface Member {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1377,9 +1329,6 @@ export interface ProfessionSkill {
  * 置物
  */
 export interface Prop {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1494,9 +1443,6 @@ export interface Raws {
  * レシピ
  */
 export interface Recipe {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名
@@ -1508,9 +1454,6 @@ export interface Recipe {
  * レシピ素材
  */
 export interface RecipeInput {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * 素材必要数
@@ -1542,9 +1485,6 @@ export interface RoomContent {
      * 部屋の役割名。interior の roleName に相当する
      */
     'role': string;
-    /**
-     * エンティティの英語 id
-     */
     'content': string;
 }
 /**
@@ -1689,9 +1629,6 @@ export type TargetNum = typeof TargetNum[keyof typeof TargetNum];
  * タイル
  */
 export interface Tile {
-    /**
-     * エンティティの英語 id
-     */
     'id': string;
     /**
      * エンティティ名

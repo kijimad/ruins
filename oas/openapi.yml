@@ -2281,7 +2281,6 @@ components:
       type: string
       minLength: 1
       maxLength: 50
-      description: エンティティの英語 id
     EntityName:
       type: string
       minLength: 1

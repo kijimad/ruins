@@ -76,7 +76,6 @@ scalar EntityDescription extends string;
 @maxLength(50)
 scalar EntityName extends string;
 
-/** エンティティの英語 id */
 @minLength(1)
 @maxLength(50)
 scalar EntityID extends string;

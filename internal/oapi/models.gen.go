@@ -971,9 +971,7 @@ type CombatPolicyType string
 // CommandTable コマンドテーブル
 type CommandTable struct {
 	Entries []CommandTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID            `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -981,7 +979,6 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	// Weapon エンティティの英語 id
 	Weapon EntityID `json:"weapon"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
@@ -1025,9 +1022,7 @@ type ContentSatellite struct {
 	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
 	Kind    StuffKind    `json:"kind"`
 	Offsets []ContentVec `json:"offsets"`
-
-	// Ref エンティティの英語 id
-	Ref EntityID `json:"ref"`
+	Ref     EntityID     `json:"ref"`
 }
 
 // ContentStuff 内装レシピの1配置指示
@@ -1039,9 +1034,7 @@ type ContentStuff struct {
 	Kind StuffKind `json:"kind"`
 
 	// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
-	Placement *Placement `json:"placement,omitempty"`
-
-	// Ref エンティティの英語 id
+	Placement  *Placement          `json:"placement,omitempty"`
 	Ref        EntityID            `json:"ref"`
 	Satellites *[]ContentSatellite `json:"satellites,omitempty"`
 
@@ -1111,10 +1104,8 @@ type DisassemblyBaseAP = int
 // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
 	// Count 産出個数のダイス表記
-	Count Dice `json:"count"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Count Dice     `json:"count"`
+	Id    EntityID `json:"id"`
 
 	// MinGrade 工具グレードがこの値以上で産出に加わる
 	MinGrade *ToolGrade `json:"minGrade,omitempty"`
@@ -1140,10 +1131,8 @@ type DisassemblyYield struct {
 	Chance *DisassemblyChance `json:"chance,omitempty"`
 
 	// Count 産出個数のダイス表記
-	Count Dice `json:"count"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Count Dice     `json:"count"`
+	Id    EntityID `json:"id"`
 }
 
 // DoorRaw 扉ローデータ
@@ -1152,9 +1141,7 @@ type DoorRaw = map[string]interface{}
 // DropTable ドロップテーブル
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID         `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1181,9 +1168,7 @@ type Element string
 // EnemyTable 敵テーブル
 type EnemyTable struct {
 	Entries []EnemyTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID          `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1191,7 +1176,6 @@ type EnemyTable struct {
 
 // EnemyTableEntry 敵テーブルエントリ
 type EnemyTableEntry struct {
-	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// MaxDanger 危険度。経過日数から決まる
@@ -1216,7 +1200,7 @@ type EnemyTableList struct {
 // EntityDescription 説明文
 type EntityDescription = string
 
-// EntityID エンティティの英語 id
+// EntityID defines model for EntityID.
 type EntityID = string
 
 // EntityName エンティティ名
@@ -1278,9 +1262,7 @@ type FacilityKind = string
 // FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
 type FacilityRooms struct {
 	// Facility 施設種別。overworld の facilityType の文字列と揃える。未知値は生成側で汎用へ落ちる
-	Facility FacilityKind `json:"facility"`
-
-	// Fallback エンティティの英語 id
+	Facility FacilityKind   `json:"facility"`
 	Fallback EntityID       `json:"fallback"`
 	Rooms    *[]RoomContent `json:"rooms,omitempty"`
 }
@@ -1372,9 +1354,7 @@ type InsulationHeat = int
 // InteriorContent 内装レシピ。施設まるごと、または奥室1つに対応する
 type InteriorContent struct {
 	Groups *[]ContentGroup `json:"groups,omitempty"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id     EntityID        `json:"id"`
 }
 
 // IsPlayer プレイヤーキャラクターかどうか
@@ -1415,9 +1395,7 @@ type Item struct {
 
 	// FireStarter 火種。所持していると隣接の燃焼物に着火できる
 	FireStarter *FireStarter `json:"fireStarter,omitempty"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id          EntityID     `json:"id"`
 
 	// InflictsDamage 基本ダメージ
 	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
@@ -1468,9 +1446,7 @@ type ItemCount = int
 // ItemGroup アイテムグループ。アイテムの出現セットを定義する
 type ItemGroup struct {
 	Entries []ItemGroupEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID         `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1481,7 +1457,6 @@ type ItemGroup struct {
 
 // ItemGroupEntry アイテムグループエントリ
 type ItemGroupEntry struct {
-	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Pack 1山あたりの個数のダイス表記
@@ -1509,9 +1484,7 @@ type ItemList struct {
 // ItemTable アイテムテーブル
 type ItemTable struct {
 	Entries []ItemTableEntry `json:"entries"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID         `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1616,9 +1589,7 @@ type Member struct {
 
 	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id          EntityID           `json:"id"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
@@ -1777,9 +1748,7 @@ type Prop struct {
 
 	// Hp 耐久値。削り切られると壊れる
 	Hp HitPoints `json:"hp"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id EntityID  `json:"id"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
@@ -1864,7 +1833,6 @@ type ReadingEffort = int
 
 // Recipe レシピ
 type Recipe struct {
-	// Id エンティティの英語 id
 	Id     EntityID      `json:"id"`
 	Inputs []RecipeInput `json:"inputs"`
 
@@ -1876,9 +1844,7 @@ type Recipe struct {
 type RecipeInput struct {
 	// Amount 素材必要数
 	Amount MaterialAmount `json:"amount"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id     EntityID       `json:"id"`
 }
 
 // RecipeList レシピ一覧レスポンス
@@ -1899,7 +1865,6 @@ type Remedy struct {
 
 // RoomContent 奥室の役割名と内装レシピの対
 type RoomContent struct {
-	// Content エンティティの英語 id
 	Content EntityID `json:"content"`
 
 	// Role 部屋の役割名。interior の roleName に相当する
@@ -2009,9 +1974,7 @@ type Tile struct {
 
 	// Foliage 植生タイプ
 	Foliage FoliageType `json:"foliage"`
-
-	// Id エンティティの英語 id
-	Id EntityID `json:"id"`
+	Id      EntityID    `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
