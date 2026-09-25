@@ -397,6 +397,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // applyDeployable は装着アイテムの設備設定を1箇所に集める。マーカーと能力ごとのコンポーネントを付ける。
 // 装着は設備画面で扱うので拾える相互作用は与えない。新設備は能力の枝を1つ足す。
+// 能力枝を持たない装着、raw の空 [items.deployable] は Deployable マーカーだけを付ける。工作台が例。
 func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
