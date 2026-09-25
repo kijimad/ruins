@@ -5,9 +5,29 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestRoleContent_施設に無い役割は民家カタログへ落ちる は roleContent の中間分岐を直接固定する。店が持たない
+// 役割を引くと、民家の共有役割カタログから content を引く。end-to-end の FurnishBuilding では覆えない中間経路で、
+// ここが壊れると特定役割の部屋が静かに空になる。
+func TestRoleContent_施設に無い役割は民家カタログへ落ちる(t *testing.T) {
+	t.Parallel()
+
+	raws := oapi.Raws{
+		InteriorContents: &[]oapi.InteriorContent{{Id: "house_corridor"}},
+		FacilityRooms: &[]oapi.FacilityRooms{
+			{Facility: "store", Rooms: &[]oapi.RoomContent{}, Fallback: "house_corridor"},
+			{Facility: "house", Rooms: &[]oapi.RoomContent{{Role: "corridor", Content: "house_corridor"}}, Fallback: "house_corridor"},
+		},
+	}
+
+	c, err := roleContent(raws, FacilityKind("store"), roleCorridor, 0)
+	require.NoError(t, err)
+	require.Equal(t, "house_corridor", c.ID)
+}
 
 // TestFurnishBuilding_大きい建物は多部屋になる は分割配線の要点を固定する。割れる大きさの footprint は
 // 内部間仕切りを持ち、家具が置かれる。単室では倉庫のように間延びする大きな建物へ構造を与える。

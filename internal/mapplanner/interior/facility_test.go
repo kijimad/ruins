@@ -71,7 +71,7 @@ func TestFacilityContent_seedで店の変種が変わる(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equalf(t, "store", classifyRoom(placed), "seed=%d のどの変種も店に分類される", seed)
 	}
-	assert.GreaterOrEqual(t, len(ids), 2, "seed を振ると店の変種が複数出る")
+	assert.GreaterOrEqual(t, len(ids), 3, "seed を振るとコンビニ・薬局・食料品店の3変種が出る")
 }
 
 // TestFurnish_家具は施設種別どおりに分類される は Furnish と classifyRoom を突き合わせる。生成した内装を

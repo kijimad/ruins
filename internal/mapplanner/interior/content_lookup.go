@@ -63,7 +63,9 @@ func facilityVariants(raws oapi.Raws, facility FacilityKind) []string {
 	return nil
 }
 
-// roomContent は施設の役割別 content を引く。役割が奥室カタログに無ければ ok=false。id 参照が壊れていれば error。
+// roomContent は施設の役割別 content を引く。ok は役割がカタログに在ったかを表し err と直交する。役割が無ければ
+// ok=false・err=nil、役割は在るが content 参照が壊れていれば ok=true・err!=nil。呼び出し側は ok||err で「引けたか
+// 壊れているか」をまとめて次段へ委ね、どちらでもないときだけフォールバックへ進む。
 func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content, bool, error) {
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
 		if FacilityKind(fr.Facility) != facility {
