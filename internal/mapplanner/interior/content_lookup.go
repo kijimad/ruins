@@ -32,9 +32,8 @@ func contentByID(raws oapi.Raws, id string) (Content, error) {
 	return Content{}, fmt.Errorf("%q: %w", id, errContentNotFound)
 }
 
-// facilityContent は施設種別の主室 content を seed で1変種引く。同じ施設でも複数の変種を持ち、seed で引く
-// ことで同じ店が薬局にも食料品店にもなる。facility は overworld の閉じた enum で全種別が facilityContents に
-// 登録済みなので通常は成功する。未登録は error で返す。
+// facilityContent は施設種別の主室 content を seed で1変種引く。同じ施設でも複数の変種を持つ。facility は
+// overworld の閉じた enum で全種別が登録済みなので通常は成功し、未登録は error で返す。
 func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) (Content, error) {
 	variants := facilityVariants(raws, facility)
 	if len(variants) == 0 {

@@ -66,6 +66,23 @@ func TestFillRoom_同じseedで完全一致する(t *testing.T) {
 	}
 }
 
+// diningTableStuff は椅子を四辺へ束ねた食卓の Stuff。衛星配置のテスト専用フィクスチャで、本番レシピは
+// raw.toml が持つ。
+func diningTableStuff(placement Placement) Stuff {
+	chair := func(offs ...Vec) Satellite {
+		return Satellite{Kind: KindFurniture, Ref: "chair", Offsets: offs}
+	}
+	return Stuff{
+		Kind: KindFurniture, Ref: "table", Placement: placement, Amount: consts.Dice{Base: 1, Sides: 1},
+		Satellites: []Satellite{
+			chair(Vec{X: 0, Y: -1}, Vec{X: -1, Y: -1}, Vec{X: 1, Y: -1}),
+			chair(Vec{X: 0, Y: 1}, Vec{X: -1, Y: 1}, Vec{X: 1, Y: 1}),
+			chair(Vec{X: -1, Y: 0}, Vec{X: -1, Y: -1}, Vec{X: -1, Y: 1}),
+			chair(Vec{X: 1, Y: 0}, Vec{X: 1, Y: -1}, Vec{X: 1, Y: 1}),
+		},
+	}
+}
+
 // TestFillRoom_衛星の椅子は机の隣に置かれる は anchor 付き束の不変条件を固定する。机を anchor に束ねた
 // 椅子は必ず机の隣接8マスに来る。中央にバラ置きして椅子が縦並びする散布事故を、束が構造で防ぐことを守る。
 func TestFillRoom_衛星の椅子は机の隣に置かれる(t *testing.T) {

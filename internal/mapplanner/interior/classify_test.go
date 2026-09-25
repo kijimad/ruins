@@ -12,7 +12,12 @@ import (
 func TestClassifyRoom_施設が役割どおりに分類される(t *testing.T) {
 	t.Parallel()
 
-	byRole := testRoomContents(t, facHouse)
+	bedroom, _, err := roomContent(testRaws(), facHouse, "bedroom")
+	require.NoError(t, err)
+	bath, _, err := roomContent(testRaws(), facHouse, "bath")
+	require.NoError(t, err)
+	kitchen, _, err := roomContent(testRaws(), facHouse, "kitchen")
+	require.NoError(t, err)
 	store, err := contentByID(testRaws(), "convenience_store")
 	require.NoError(t, err)
 	clinic, err := contentByID(testRaws(), "clinic")
@@ -30,9 +35,9 @@ func TestClassifyRoom_施設が役割どおりに分類される(t *testing.T) {
 	}{
 		{"店", "store", FillRoom(42, storeRoom(), store)},
 		{"診療所", "clinic", FillRoom(7, clinicRoom(), clinic)},
-		{"寝室", "bedroom", FillRoom(1, houseSmallRoom(), byRole["bedroom"])},
-		{"浴室", "bath", FillRoom(1, houseSmallRoom(), byRole["bath"])},
-		{"台所", "kitchen", FillRoom(1, houseSmallRoom(), byRole["kitchen"])},
+		{"寝室", "bedroom", FillRoom(1, houseSmallRoom(), bedroom)},
+		{"浴室", "bath", FillRoom(1, houseSmallRoom(), bath)},
+		{"台所", "kitchen", FillRoom(1, houseSmallRoom(), kitchen)},
 		{"トイレ", "restroom", FillRoom(1, houseSmallRoom(), restroom)},
 		{"事務所", "office", FillRoom(1, houseSmallRoom(), office)},
 		{"薬局", "pharmacy", FillRoom(1, houseSmallRoom(), pharmacy)},
