@@ -45,11 +45,11 @@ func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility Fac
 	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter, roleMain), nil
 }
 
-// facilityFlavor は施設種別ごとの flavor machine の content を返す。flavor は FillRoom の furnishing とは別軸で、
-// 家具の隙間へ廃墟の痕を1つ足す。今は全施設共通で、施設別の差し込みは archetype が増えてから。"flavor" は data
-// 参照でなくコードが直接引く id なので ValidateReferences で守れず、欠ければ contentByID が error を返す。
+// facilityFlavor は flavor machine の content を返す。flavor は FillRoom の furnishing とは別軸で、家具の隙間へ
+// 廃墟の痕を1つ足す。全施設共通なので facility は使わない。"flavor" はコード直引きの id で ValidateReferences
+// では守れず、欠ければ contentByID が error を返す。
 func facilityFlavor(raws oapi.Raws, facility FacilityKind) (Content, error) {
-	_ = facility // 施設別カタログは今後。まずは全施設に共通の痕を置く
+	_ = facility
 	return contentByID(raws, "flavor")
 }
 

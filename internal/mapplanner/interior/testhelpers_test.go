@@ -28,8 +28,7 @@ func testRaws() oapi.Raws {
 	return testRawsCache
 }
 
-// mustContent は id の content をテスト用に引き、error を require で潰す。生成系が error を返すようになったので、
-// テストは happy path だけ見たい箇所でこの包みを使う。
+// must* は生成系の error を require で潰し、happy path だけ見たいテストの記述を短く保つ包み。
 func mustContent(t *testing.T, id string) Content {
 	t.Helper()
 	c, err := contentByID(testRaws(), id)
@@ -37,7 +36,6 @@ func mustContent(t *testing.T, id string) Content {
 	return c
 }
 
-// mustFurnish は Furnish を呼び error を require で潰す。
 func mustFurnish(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
 	t.Helper()
 	placed, err := Furnish(testRaws(), seed, footprint, door, facility)
@@ -45,7 +43,6 @@ func mustFurnish(t *testing.T, seed uint64, footprint Rect, door Vec, facility F
 	return placed
 }
 
-// mustFurnishBuilding は FurnishBuilding を呼び error を require で潰す。
 func mustFurnishBuilding(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed) {
 	t.Helper()
 	site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, facility)
@@ -53,7 +50,6 @@ func mustFurnishBuilding(t *testing.T, seed uint64, footprint Rect, door Vec, fa
 	return site, placed
 }
 
-// mustFurnishStages は FurnishStages を呼び error を require で潰す。
 func mustFurnishStages(t *testing.T, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage) {
 	t.Helper()
 	site, stages, err := FurnishStages(testRaws(), seed, footprint, door, facility)
