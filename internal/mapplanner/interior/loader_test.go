@@ -13,7 +13,7 @@ import (
 func TestContentByID_コード必須のidが引ける(t *testing.T) {
 	t.Parallel()
 
-	require.Equal(t, flavorContentID, contentByID(testRaws(), flavorContentID).ID)
+	require.Equal(t, "flavor", contentByID(testRaws(), "flavor").ID)
 }
 
 // TestToContent_不正なダイスはerrorを返す は、amount のダイス表記が壊れたレシピを変換したとき toContent が

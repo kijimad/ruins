@@ -8,10 +8,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// flavorContentID はデータの参照でなくコードが直接引く content id。flavor machine が全施設で引く。
-// データ間参照を見る ValidateReferences では守れないので、欠けていれば contentByID が生成時に panic で露見させる。
-const flavorContentID = "flavor"
-
 // contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。内装 content は数十件規模
 // なので線形走査で足り、索引を持たず毎回新規に組む。返り値を applyDensity が in-place で書き換えても共有元が
 // 無く clone が要らない。他ドメインの NewItemSpec と同じ「その場で引いて変換」の形。参照は raw の

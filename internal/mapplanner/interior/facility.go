@@ -38,10 +38,11 @@ func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility Fac
 }
 
 // facilityFlavor は施設種別ごとの flavor machine の content を返す。flavor は FillRoom の furnishing とは別軸で、
-// 家具の隙間へ廃墟の痕を1つ足す。今は全施設共通で、施設別の差し込みは archetype が増えてから。
+// 家具の隙間へ廃墟の痕を1つ足す。今は全施設共通で、施設別の差し込みは archetype が増えてから。"flavor" は data
+// 参照でなくコードが直接引く id なので ValidateReferences で守れず、欠ければ contentByID が生成時に panic する。
 func facilityFlavor(raws oapi.Raws, facility FacilityKind) Content {
 	_ = facility // 施設別カタログは今後。まずは全施設に共通の痕を置く
-	return contentByID(raws, flavorContentID)
+	return contentByID(raws, "flavor")
 }
 
 // applyDensity は content の家具量を密度係数 factor(×/10)で増減する。個数1の必須什器は1を保ち、詰め物の
