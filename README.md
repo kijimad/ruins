@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [施設の横展開基盤。施設同一性を一本化し half-wired を fail-closed で弾く](docs/design/260925210126.md) | 0/9 | refactor, worldgen |
+| accepted | [施設を raw.toml のデータ行へ。キーで引き、幾何コードだけ Go に残す](docs/design/260925210126.md) | 0/9 | refactor, worldgen |
 
 
 ## Reference
