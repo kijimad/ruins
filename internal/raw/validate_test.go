@@ -229,49 +229,6 @@ func TestValidateDropTableReferences(t *testing.T) {
 	})
 }
 
-func TestValidateSpawnDice(t *testing.T) {
-	t.Parallel()
-
-	t.Run("正しいダイス表記は通る", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "1d3"}}}},
-			ItemGroups:  &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{Id: "回復薬", Pack: "2d1"}}}},
-			Props:       &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("1d2"))}}},
-		}
-		require.NoError(t, validateSpawnDice(raws))
-	})
-
-	t.Run("敵テーブルの不正なパック表記はエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "0d6"}}}},
-		}
-		err := validateSpawnDice(raws)
-		require.ErrorIs(t, err, errInvalidPackNotation)
-		require.ErrorContains(t, err, "count must be at least 1")
-	})
-
-	t.Run("アイテムグループの不正なパック表記はエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			ItemGroups: &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{Id: "回復薬", Pack: "0d6"}}}},
-		}
-		err := validateSpawnDice(raws)
-		require.ErrorIs(t, err, errInvalidPackNotation)
-		require.ErrorContains(t, err, "count must be at least 1")
-	})
-
-	t.Run("収納の不正なlootCountはエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			Props: &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("abc"))}}},
-		}
-		err := validateSpawnDice(raws)
-		require.ErrorIs(t, err, errInvalidLootCountNotation)
-	})
-}
-
 func TestValidateCommandTableReferences(t *testing.T) {
 	t.Parallel()
 
@@ -465,33 +422,6 @@ func TestValidateInteriorContentReferences(t *testing.T) {
 		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentDuplicateID)
 	})
 
-	t.Run("正しいダイスは通る", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			InteriorContents: &[]oapi.InteriorContent{{
-				Id: "house",
-				Groups: &[]oapi.ContentGroup{{
-					Style: "pick_each",
-					Items: []oapi.ContentStuff{{Kind: "furniture", Ref: "table", Amount: "1d3+1"}},
-				}},
-			}},
-		}
-		require.NoError(t, validateInteriorContentReferences(raws))
-	})
-
-	t.Run("壊れたダイスはエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			InteriorContents: &[]oapi.InteriorContent{{
-				Id: "house",
-				Groups: &[]oapi.ContentGroup{{
-					Style: "pick_each",
-					Items: []oapi.ContentStuff{{Kind: "furniture", Ref: "table", Amount: "notdice"}},
-				}},
-			}},
-		}
-		require.ErrorIs(t, validateInteriorContentReferences(raws), errInteriorContentInvalidDice)
-	})
 }
 
 func TestValidateCommandTableWeaponReferences(t *testing.T) {

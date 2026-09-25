@@ -206,11 +206,11 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("ダイス表記エラーが検出される", func(t *testing.T) {
 		t.Parallel()
+		// 個数0の 0d6 は Dice スカラーの @pattern が弾く。ValidateRaws のスキーマ検証で捕まる。
 		raws := oapi.Raws{
 			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "0d6"}}}},
 		}
-		err := ValidateReferences(raws)
-		require.ErrorIs(t, err, errInvalidPackNotation)
+		require.Error(t, ValidateRaws(raws))
 	})
 
 	t.Run("コマンドテーブル参照エラーが検出される", func(t *testing.T) {
