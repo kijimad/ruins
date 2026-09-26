@@ -342,6 +342,17 @@ model PropSpot {
   dy: int32;
 }
 
+/** 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
+    color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は
+    凡例外なので Go に残す */
+model MapGlyph {
+  id: EntityID;
+  glyph: string;
+  name: string;
+  color: RGBAColor;
+  order: int32;
+}
+
 /** 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
     lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す */
 model ScatterZone {
@@ -600,6 +611,7 @@ model Raws {
   facilities?: Facility[];
   landmarks?: Landmark[];
   scatterZones?: ScatterZone[];
+  mapGlyphs?: MapGlyph[];
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
   facilityRooms?: FacilityRooms[];

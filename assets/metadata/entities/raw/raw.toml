@@ -16145,6 +16145,172 @@ name = "tree_b"
 dx = -1
 dy = 1
 
+[[mapGlyphs]]
+id = "field"
+glyph = "."
+name = "Wasteland"
+order = 0
+
+[mapGlyphs.color]
+r = 46
+g = 59
+b = 46
+a = 255
+[[mapGlyphs]]
+id = "village"
+glyph = "T"
+name = "Village"
+order = 1
+
+[mapGlyphs.color]
+r = 255
+g = 210
+b = 74
+a = 255
+[[mapGlyphs]]
+id = "hamlet"
+glyph = "t"
+name = "Lone House"
+order = 2
+
+[mapGlyphs.color]
+r = 208
+g = 168
+b = 58
+a = 255
+[[mapGlyphs]]
+id = "dungeon_entrance"
+glyph = ">"
+name = "Ruins Entrance"
+order = 3
+
+[mapGlyphs.color]
+r = 224
+g = 69
+b = 58
+a = 255
+[[mapGlyphs]]
+id = "abandoned_hut"
+glyph = "x"
+name = "Abandoned Hut"
+order = 4
+
+[mapGlyphs.color]
+r = 150
+g = 140
+b = 120
+a = 255
+[[mapGlyphs]]
+id = "farmstead"
+glyph = "f"
+name = "Old Farmstead"
+order = 5
+
+[mapGlyphs.color]
+r = 150
+g = 160
+b = 80
+a = 255
+[[mapGlyphs]]
+id = "shrine"
+glyph = "s"
+name = "Shrine"
+order = 6
+
+[mapGlyphs.color]
+r = 130
+g = 190
+b = 175
+a = 255
+[[mapGlyphs]]
+id = "campsite"
+glyph = "^"
+name = "Campsite"
+order = 7
+
+[mapGlyphs.color]
+r = 215
+g = 150
+b = 90
+a = 255
+[[mapGlyphs]]
+id = "house"
+glyph = "h"
+name = "House"
+order = 8
+
+[mapGlyphs.color]
+r = 154
+g = 160
+b = 166
+a = 255
+[[mapGlyphs]]
+id = "store"
+glyph = "S"
+name = "Shop"
+order = 9
+
+[mapGlyphs.color]
+r = 74
+g = 144
+b = 226
+a = 255
+[[mapGlyphs]]
+id = "office"
+glyph = "O"
+name = "Office"
+order = 10
+
+[mapGlyphs.color]
+r = 80
+g = 200
+b = 208
+a = 255
+[[mapGlyphs]]
+id = "depot"
+glyph = "D"
+name = "Warehouse"
+order = 11
+
+[mapGlyphs.color]
+r = 176
+g = 122
+b = 58
+a = 255
+[[mapGlyphs]]
+id = "antique"
+glyph = "A"
+name = "Antique Shop"
+order = 12
+
+[mapGlyphs.color]
+r = 212
+g = 160
+b = 23
+a = 255
+[[mapGlyphs]]
+id = "clinic"
+glyph = "C"
+name = "Clinic"
+order = 13
+
+[mapGlyphs.color]
+r = 232
+g = 106
+b = 154
+a = 255
+[[mapGlyphs]]
+id = "lab"
+glyph = "L"
+name = "Research Facility"
+order = 14
+
+[mapGlyphs.color]
+r = 160
+g = 106
+b = 208
+a = 255
+
 [[interiorContents]]
 id = "bath"
 [[interiorContents.groups]]

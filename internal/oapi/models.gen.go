@@ -1689,6 +1689,19 @@ type LightSource struct {
 // MagazineSize マガジン容量
 type MagazineSize = int
 
+// MapGlyph 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
+//
+//	color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は
+//	凡例外なので Go に残す
+type MapGlyph struct {
+	// Color RGBA色
+	Color RGBAColor `json:"color"`
+	Glyph string    `json:"glyph"`
+	Id    EntityID  `json:"id"`
+	Name  string    `json:"name"`
+	Order int32     `json:"order"`
+}
+
 // Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
 // 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
 type Material string
@@ -1991,6 +2004,7 @@ type Raws struct {
 	ItemTables       *[]ItemTable       `json:"itemTables,omitempty"`
 	Items            *[]Item            `json:"items,omitempty"`
 	Landmarks        *[]Landmark        `json:"landmarks,omitempty"`
+	MapGlyphs        *[]MapGlyph        `json:"mapGlyphs,omitempty"`
 	Members          *[]Member          `json:"members,omitempty"`
 	Professions      *[]Profession      `json:"professions,omitempty"`
 	Props            *[]Prop            `json:"props,omitempty"`

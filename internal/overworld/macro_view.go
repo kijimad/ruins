@@ -1,6 +1,8 @@
 package overworld
 
 import (
+	"image/color"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
@@ -46,8 +48,10 @@ func PlayerCenteredRange(centerRow, cols consts.Chunk, radius int) MacroRange {
 // MacroCell は表示範囲内1チャンクの表示情報。種別文字と、探索で開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
 	Glyph      rune
-	Discovered bool    // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
-	Road       RoadDir // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
+	Color      color.RGBA // 記号の色。BuildMacroView が mapGlyphs から焼き、描画は raws を要さない
+	HasColor   bool       // 記号に対応する色が mapGlyphs にあったか。無ければ UI が既定色を使う
+	Discovered bool       // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
+	Road       RoadDir    // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
 }
 
 // MacroView はマクロ地図の描画モデル。表示範囲内のチャンク格子と、マーカーの表示範囲ローカル座標を持つ。
@@ -86,8 +90,12 @@ func BuildMacroView(
 		cells[cy] = make([]MacroCell, cols)
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
+			glyph := ChunkPlace(raws, runSeed, c, cols)
+			col, hasCol := GlyphColor(raws, glyph)
 			cells[cy][i] = MacroCell{
-				Glyph:      ChunkPlace(raws, runSeed, c, cols),
+				Glyph:      glyph,
+				Color:      col,
+				HasColor:   hasCol,
 				Discovered: discovered[c],
 				Road:       roads[c],
 			}

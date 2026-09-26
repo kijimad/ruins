@@ -680,6 +680,11 @@ func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
 	return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string { return z.Id }, id)
 }
 
+// GetMapGlyph は id の地図記号宣言を返す。地図記号は raw.toml の mapGlyphs 行が単一出典。未登録は false。
+func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
+	return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string { return m.Id }, id)
+}
+
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
 func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) {

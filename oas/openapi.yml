@@ -2819,6 +2819,30 @@ components:
       minimum: 1
       maximum: 100
       description: マガジン容量
+    MapGlyph:
+      type: object
+      required:
+        - id
+        - glyph
+        - name
+        - color
+        - order
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        glyph:
+          type: string
+        name:
+          type: string
+        color:
+          $ref: '#/components/schemas/RGBAColor'
+        order:
+          type: integer
+          format: int32
+      description: |-
+        俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
+            color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は
+            凡例外なので Go に残す
     Material:
       type: string
       enum:
@@ -3285,6 +3309,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScatterZone'
+        mapGlyphs:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapGlyph'
         interiorContents:
           type: array
           items:

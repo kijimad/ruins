@@ -196,5 +196,5 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		PlayerFacing: st.facing,
 	})
 
-	hud.DrawMapLegend(cv, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
+	hud.DrawMapLegend(cv, world.Resources.RawMaster, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
 }

@@ -1107,6 +1107,16 @@ export interface LightSource {
     'enabled': boolean;
 }
 /**
+ * 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、     color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は     凡例外なので Go に残す
+ */
+export interface MapGlyph {
+    'id': string;
+    'glyph': string;
+    'name': string;
+    'color': RGBAColor;
+    'order': number;
+}
+/**
  * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
  */
 
@@ -1483,6 +1493,7 @@ export interface Raws {
     'facilities'?: Array<Facility>;
     'landmarks'?: Array<Landmark>;
     'scatterZones'?: Array<ScatterZone>;
+    'mapGlyphs'?: Array<MapGlyph>;
     'interiorContents'?: Array<InteriorContent>;
     'facilityContents'?: Array<FacilityContent>;
     'facilityRooms'?: Array<FacilityRooms>;

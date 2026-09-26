@@ -1,12 +1,15 @@
 package overworld
 
 import (
+	"cmp"
 	"fmt"
 	"image/color"
+	"slices"
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 )
 
 // チャンクマップ表記は、1チャンク=1建物という縮尺に合わせ、各チャンクを「そこが何の種別の
@@ -30,30 +33,11 @@ type GlyphInfo struct {
 // 地図は市街地チャンクを facilityType の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
 // チャンク尺度に続けて建物尺度を並べ、2層を1つの表にする。
 
-// facilityGlyphs は施設種別の1文字表記。1マスに1文字で建物の種別を示す。
-// 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。
-var facilityGlyphs = map[string]GlyphInfo{
-	"house":   {'h', "House", color.RGBA{R: 154, G: 160, B: 166, A: 255}},             // 灰
-	"store":   {'S', "Shop", color.RGBA{R: 74, G: 144, B: 226, A: 255}},               // 青
-	"office":  {'O', "Office", color.RGBA{R: 80, G: 200, B: 208, A: 255}},             // シアン
-	"depot":   {'D', "Warehouse", color.RGBA{R: 176, G: 122, B: 58, A: 255}},          // 茶
-	"antique": {'A', "Antique Shop", color.RGBA{R: 212, G: 160, B: 23, A: 255}},       // 金
-	"clinic":  {'C', "Clinic", color.RGBA{R: 232, G: 106, B: 154, A: 255}},            // 桃
-	"lab":     {'L', "Research Facility", color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫
-}
-
-// facilityOrder は凡例に出す施設 id を表示順で並べる。placeOrder と同じく、map は順序を持たない
-// ので順序だけ別に定義する。施設の記号・色・名前は表示専用なので、生成の facilities 行から分離して
-// ここに置く。データ化は表示フェーズで facilities 行へ移す。
-var facilityOrder = []string{
-	"house", "store", "office", "depot", "antique", "clinic", "lab",
-}
-
 // placeType はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と
-// 凡例名を placeGlyphs から引くために使う。生成には関与しない。chunkType とは1対1ではない。
+// 凡例名を mapGlyphs 行から引くために使う。生成には関与しない。chunkType とは1対1ではない。
 // chunkSettlement は村ロールで placeVillage と placeHamlet に、chunkLandmark は種別ロールで
-// 廃屋・農家跡・祠・キャンプ跡に分かれる。chunkUrban は建物尺度の facilityType を使うのでここには
-// 無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。
+// 廃屋・農家跡・祠・キャンプ跡に分かれる。chunkUrban は建物尺度の施設 id を使うのでここには
+// 無い。値は mapGlyphs の id と一致する。
 type placeType string
 
 const (
@@ -65,68 +49,52 @@ const (
 	placeFarmstead       placeType = "farmstead"        // 点在ランドマーク: 農家跡
 	placeShrine          placeType = "shrine"           // 点在ランドマーク: 祠
 	placeCampsite        placeType = "campsite"         // 点在ランドマーク: キャンプ跡
-	placeUnknown         placeType = "unknown"          // 分類漏れの保険。凡例には出さない
 )
 
-// placeGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に
-// 集約する。UI の着色や凡例はこれ1つを源にし、記号や名前を別の箇所へ直書きしない。
-var placeGlyphs = map[placeType]GlyphInfo{
-	placeField:           {'.', "Wasteland", color.RGBA{R: 46, G: 59, B: 46, A: 255}},        // 暗緑
-	placeVillage:         {'T', "Village", color.RGBA{R: 255, G: 210, B: 74, A: 255}},        // 黄
-	placeHamlet:          {'t', "Lone House", color.RGBA{R: 208, G: 168, B: 58, A: 255}},     // 濃黄
-	placeDungeonEntrance: {'>', "Ruins Entrance", color.RGBA{R: 224, G: 69, B: 58, A: 255}},  // 赤
-	placeAbandonedHut:    {'x', "Abandoned Hut", color.RGBA{R: 150, G: 140, B: 120, A: 255}}, // 灰褐
-	placeFarmstead:       {'f', "Old Farmstead", color.RGBA{R: 150, G: 160, B: 80, A: 255}},  // オリーブ
-	placeShrine:          {'s', "Shrine", color.RGBA{R: 130, G: 190, B: 175, A: 255}},        // 淡青緑
-	placeCampsite:        {'^', "Campsite", color.RGBA{R: 215, G: 150, B: 90, A: 255}},       // 橙
-	placeUnknown:         {'?', "Unclassified", color.RGBA{R: 90, G: 90, B: 90, A: 255}},     // 灰。凡例外なので実際は既定へ落ちる
-}
+// placeUnknownGlyph は分類漏れの保険の記号。mapGlyphs には入れず凡例外なので Go に持つ。
+const placeUnknownGlyph rune = '?'
 
-// placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
-// placeUnknown は分類漏れの保険なので凡例には含めない。
-var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placeAbandonedHut, placeFarmstead, placeShrine, placeCampsite}
-
-// LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
-// SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。
-func LegendGlyphs() []GlyphInfo {
-	return append(PlaceGlyphs(), FacilityGlyphs()...)
-}
-
-// glyphColorTable は種別文字から色への対応。色は GlyphInfo が記号と同居して持つので記号定義から
-// 一度だけ引き写す。UI 側が記号ごとの色表を別に持って二重定義でずれるのを防ぐ。
-var glyphColorTable = func() map[rune]color.RGBA {
-	table := map[rune]color.RGBA{}
-	for _, g := range LegendGlyphs() {
-		table[g.Label] = g.Color
+// toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。glyph は1文字の string なので先頭 rune を Label にする。
+func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {
+	label := placeUnknownGlyph
+	if r := []rune(mg.Glyph); len(r) > 0 {
+		label = r[0]
 	}
-	return table
-}()
+	return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}
+}
+
+// glyphByID は地物・施設の種別 id から地図記号を引く。mapGlyphs 行が単一出典。未登録は ok=false。
+func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
+	mg, ok := raw.GetMapGlyph(raws, id)
+	if !ok {
+		return GlyphInfo{}, false
+	}
+	return toGlyphInfo(mg), true
+}
+
+// LegendGlyphs は俯瞰図の全記号と凡例名を order 順に返す。mapGlyphs 行が単一出典で、UI の凡例も
+// SchematicLegend もこれを源にし、記号や名前を別の箇所へ直書きしない。
+func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
+	mgs := raw.PtrSlice(raws.MapGlyphs)
+	sorted := make([]oapi.MapGlyph, len(mgs))
+	copy(sorted, mgs)
+	slices.SortStableFunc(sorted, func(a, b oapi.MapGlyph) int { return cmp.Compare(a.Order, b.Order) })
+	out := make([]GlyphInfo, 0, len(sorted))
+	for _, mg := range sorted {
+		out = append(out, toGlyphInfo(mg))
+	}
+	return out
+}
 
 // GlyphColor は種別文字に対応する色と、対応があるかを返す。凡例に出ない記号は ok=false になり、
 // 未知記号の既定色は UI 側が決める。overworld は theme に依存しないので既定色を持たない。
-func GlyphColor(r rune) (color.RGBA, bool) {
-	c, ok := glyphColorTable[r]
-	return c, ok
-}
-
-// PlaceGlyphs は地物種別の記号と名前を表示順で返す。UI の凡例や着色で使う。FacilityGlyphs と対で、
-// 施設側と同じ形で地物種別を扱えるようにする。分類漏れの保険 placeUnknown は含めない。
-func PlaceGlyphs() []GlyphInfo {
-	out := make([]GlyphInfo, 0, len(placeOrder))
-	for _, k := range placeOrder {
-		out = append(out, placeGlyphs[k])
+func GlyphColor(raws oapi.Raws, r rune) (color.RGBA, bool) {
+	for _, g := range LegendGlyphs(raws) {
+		if g.Label == r {
+			return g.Color, true
+		}
 	}
-	return out
-}
-
-// FacilityGlyphs は施設種別の文字と名前を表示順で返す。UI の凡例や着色で建物を種別ごとに
-// 扱うために使う。地物レベルの記号は PlaceGlyphs が対で返す。
-func FacilityGlyphs() []GlyphInfo {
-	out := make([]GlyphInfo, 0, len(facilityOrder))
-	for _, k := range facilityOrder {
-		out = append(out, facilityGlyphs[k])
-	}
-	return out
+	return color.RGBA{}, false
 }
 
 // chunkType は1チャンクの場所の種別。全チャンクがいずれか1つに分類され、暗黙の既定を持たない。
@@ -166,31 +134,39 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 func ChunkPlace(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkUrban:
-		// 施設種は urbanFacilityAt が raws から抽選する動的な値で、facilityGlyphs に無い種が来うるので
+		// 施設種は urbanFacilityAt が raws から抽選する動的な値で、mapGlyphs に無い種が来うるので
 		// ok チェックする。他の種別は placeType が局所で保証されるので直接引く
 		kind, _ := urbanFacilityAt(raws, runSeed, c, cols)
-		if g, ok := facilityGlyphs[kind]; ok {
+		if g, ok := glyphByID(raws, kind); ok {
 			return g.Label
 		}
-		return placeGlyphs[placeUnknown].Label
+		return placeUnknownGlyph
 	case chunkDungeonEntrance:
-		return placeGlyphs[placeDungeonEntrance].Label
+		return placeGlyph(raws, placeDungeonEntrance)
 	case chunkSettlement:
 		if settlementVillageRoll(runSeed, c) {
-			return placeGlyphs[placeVillage].Label
+			return placeGlyph(raws, placeVillage)
 		}
-		return placeGlyphs[placeHamlet].Label
+		return placeGlyph(raws, placeHamlet)
 	case chunkLandmark:
-		return placeGlyphs[landmarkPlaceType(landmarkKindAt(raws, runSeed, c))].Label
+		return placeGlyph(raws, landmarkPlaceType(landmarkKindAt(raws, runSeed, c)))
 	case chunkWasteland:
-		return placeGlyphs[placeField].Label
+		return placeGlyph(raws, placeField)
 	}
-	return placeGlyphs[placeUnknown].Label
+	return placeUnknownGlyph
+}
+
+// placeGlyph は placeType の記号を mapGlyphs から引く。未登録は保険の記号へ落とす。
+func placeGlyph(raws oapi.Raws, pt placeType) rune {
+	if g, ok := glyphByID(raws, string(pt)); ok {
+		return g.Label
+	}
+	return placeUnknownGlyph
 }
 
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。
-func SchematicLegend() string {
-	glyphs := LegendGlyphs()
+func SchematicLegend(raws oapi.Raws) string {
+	glyphs := LegendGlyphs(raws)
 	parts := make([]string, 0, len(glyphs))
 	for _, g := range glyphs {
 		parts = append(parts, fmt.Sprintf("%c %s", g.Label, g.Name))

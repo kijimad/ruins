@@ -16,7 +16,10 @@ import (
 func TestGlyphInfo_凡例の全記号に色が設定されている(t *testing.T) {
 	t.Parallel()
 
-	for _, g := range append(PlaceGlyphs(), FacilityGlyphs()...) {
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	glyphs := LegendGlyphs(raws)
+	require.NotEmpty(t, glyphs, "凡例記号が定義されている")
+	for _, g := range glyphs {
 		assert.NotEqualf(t, color.RGBA{}, g.Color, "%s(%c) に色が設定されている", g.Name, g.Label)
 	}
 }
@@ -47,8 +50,9 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 	kind, ok := urbanFacilityAt(raws, seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
 
-	want := facilityGlyphs[kind].Label
-	assert.Equal(t, want, ChunkPlace(raws, seed, c, rows), "建物チャンクは施設種別の文字を返す")
+	g, ok := glyphByID(raws, kind)
+	require.True(t, ok, "施設 %q の記号が mapGlyphs にある", kind)
+	assert.Equal(t, g.Label, ChunkPlace(raws, seed, c, rows), "建物チャンクは施設種別の文字を返す")
 }
 
 func TestChunkPlace_純関数で決定的(t *testing.T) {
@@ -69,6 +73,9 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	const rows consts.Chunk = 9
 
+	dungeonGlyph := placeGlyph(raws, placeDungeonEntrance)
+	villageGlyph := placeGlyph(raws, placeVillage)
+	hamletGlyph := placeGlyph(raws, placeHamlet)
 	foundDungeonEntrance, foundVillage, foundHamlet := false, false, false
 	for s := uint64(1); s < 400 && (!foundDungeonEntrance || !foundVillage || !foundHamlet); s++ {
 		for y := range rows {
@@ -79,11 +86,11 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 					continue
 				}
 				switch ChunkPlace(raws, s, c, rows) {
-				case placeGlyphs[placeDungeonEntrance].Label:
+				case dungeonGlyph:
 					foundDungeonEntrance = true
-				case placeGlyphs[placeVillage].Label:
+				case villageGlyph:
 					foundVillage = true
-				case placeGlyphs[placeHamlet].Label:
+				case hamletGlyph:
 					foundHamlet = true
 				}
 			}
@@ -94,11 +101,12 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 	assert.True(t, foundHamlet, "一軒家の集落が一軒家の文字で出る。開始特例で常に村になる退行の検知")
 }
 
-func TestSchematicLegend_全ての施設種別を含む(t *testing.T) {
+func TestSchematicLegend_全ての記号を含む(t *testing.T) {
 	t.Parallel()
 
-	legend := SchematicLegend()
-	for _, g := range FacilityGlyphs() {
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	legend := SchematicLegend(raws)
+	for _, g := range LegendGlyphs(raws) {
 		assert.Truef(t, strings.ContainsRune(legend, g.Label), "凡例に %s(%c) がある", g.Name, g.Label)
 	}
 }
