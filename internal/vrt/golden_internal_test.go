@@ -8,6 +8,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -202,4 +203,60 @@ func TestPngPixelEqualFn(t *testing.T) {
 		eq := pngPixelEqualFn(t, 0.5, new(int), new(int))
 		assert.False(t, eq(actualBuf.Bytes(), expectedBuf.Bytes()))
 	})
+}
+
+// TestReadScreen はebiten.Imageの塗り潰し色をNRGBAとして読み取れることと、
+// 返す画像の境界がscreenと一致することを固定する
+func TestReadScreen_塗り潰した色をNRGBAとして読み取る(t *testing.T) {
+	t.Parallel()
+
+	const width, height = 3, 2
+	want := color.NRGBA{R: 10, G: 20, B: 30, A: 255}
+	screen := ebiten.NewImage(width, height)
+	screen.Fill(want)
+
+	got := readScreen(screen)
+
+	assert.Equal(t, image.Rect(0, 0, width, height), got.Bounds())
+	for y := range height {
+		for x := range width {
+			assert.Equal(t, want, got.NRGBAAt(x, y))
+		}
+	}
+}
+
+// TestCaptureScreen は captureScreen が readScreen と同じピクセルを返すことを固定する。
+func TestCaptureScreen_塗り潰した色をNRGBAとして読み取る(t *testing.T) {
+	t.Parallel()
+
+	want := color.NRGBA{R: 100, G: 150, B: 200, A: 255}
+	screen := ebiten.NewImage(2, 2)
+	screen.Fill(want)
+
+	got := captureScreen(screen)
+
+	// captureScreen は読み取り後に screen を Deallocate する。got.Pix は CPU スライスなので解放後も読める
+	assert.Equal(t, want, got.NRGBAAt(0, 0))
+	assert.Equal(t, want, got.NRGBAAt(1, 1))
+}
+
+// TestEncodePNG はimage.NRGBAをPNGへエンコードし、デコードし直すとピクセルが一致することを固定する
+func TestEncodePNG_デコードし直すと元のピクセルに一致する(t *testing.T) {
+	t.Parallel()
+
+	src := image.NewNRGBA(image.Rect(0, 0, 2, 2))
+	src.SetNRGBA(0, 0, color.NRGBA{R: 1, G: 2, B: 3, A: 255})
+	src.SetNRGBA(1, 0, color.NRGBA{R: 4, G: 5, B: 6, A: 255})
+	src.SetNRGBA(0, 1, color.NRGBA{R: 7, G: 8, B: 9, A: 0}) // A:0 でも NRGBA は非事前乗算で RGB を保つ。往復で消えないことを確かめる
+	src.SetNRGBA(1, 1, color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+
+	data := encodePNG(t, src)
+
+	decoded, err := png.Decode(bytes.NewReader(data))
+	require.NoError(t, err)
+	assert.Equal(t, src.Bounds(), decoded.Bounds())
+
+	decodedNRGBA, ok := decoded.(*image.NRGBA)
+	require.True(t, ok, "PNGエンコード・デコードを経てもNRGBAのまま")
+	assert.Equal(t, src.Pix, decodedNRGBA.Pix)
 }
