@@ -16,9 +16,6 @@ import (
 // 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。種別・出現重み・小屋寸法・prop は raw.toml の
 // landmarks 行が単一出典で、Go に残るのはデータ化できない描画関数 drawers だけ。
 
-// landmarkPlacement は点在ランドマークのリージョン配置。地物の中では最も密に置く。
-var landmarkPlacement = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
-
 // landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する純関数。地図の記号と生成の
 // 構造が同じ id を引くので、俯瞰図の見た目と実体が食い違わない。重みは raw.toml の landmarks 行から引く。
 func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {

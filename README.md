@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| accepted | [地物のデータ化の総合設計。宣言を raw.toml へ、幾何コードだけ Go に残す](docs/design/260925210126.md) | 14/18 | refactor, worldgen |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

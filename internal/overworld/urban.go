@@ -36,10 +36,6 @@ func urbanSizeOf(urbanSeed uint64) (w, h consts.Chunk) {
 	return w, h
 }
 
-// urbanPlacement は市街地アンカーのリージョン配置。小集落より疎に置く。
-// 最大辺 urbanMaxSpan より広い間隔にして、隣り合う市街地が重ならないようにする。
-var urbanPlacement = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
-
 // urbanFeature は市街地の feature 実装。
 type urbanFeature struct{}
 

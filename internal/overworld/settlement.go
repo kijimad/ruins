@@ -41,10 +41,6 @@ var (
 	}
 )
 
-// settlementPlacement は小集落のリージョン配置。おおよそ Spacing チャンクに1つ当選する。
-// チャンクは20タイルなので、Spacing 5 で100タイルに1つの体感密度になる。
-var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
-
 // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。
 type settlementFeature struct{}
 
