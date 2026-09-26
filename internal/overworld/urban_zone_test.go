@@ -60,7 +60,7 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	cat := zoneCatalogFrom(raws)
+	cat := ZoneCatalogFrom(raws)
 	small := map[string]bool{}
 	big := map[string]bool{}
 	for s := range uint64(300) {
@@ -79,7 +79,7 @@ func TestRollFacilityInZone_決定的(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	cat := zoneCatalogFrom(raws)
+	cat := ZoneCatalogFrom(raws)
 	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, oapi.Residential, 3)
 	assert.NotEmpty(t, first, "有効な施設種別を返す")
 	for range 5 {
@@ -95,6 +95,7 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := ZoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 	kindCount := map[string]int{}
 	total := 0
@@ -105,7 +106,7 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 		for y := range rows {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if k, ok := urbanFacilityAt(raws, s, c, rows); ok {
+				if k, ok := urbanFacilityAt(cat, s, c, rows); ok {
 					grid[c] = k
 					kindCount[k]++
 					total++

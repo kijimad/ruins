@@ -76,23 +76,28 @@ func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
 	return et, nil
 }
 
-// facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
-// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。kind は施設 id。
-type facilityWeight struct {
-	kind    string
-	weight  int
-	minSpan consts.Chunk
+// FacilityWeight は施設の抽選重みと規模 gate。MinSpan は市街地の一辺がこの値以上のときだけ
+// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。Kind は施設 id。
+type FacilityWeight struct {
+	Kind    string
+	Weight  int
+	MinSpan consts.Chunk
 }
 
-// zoneCatalogFrom は raw.toml の facilities 行から地区ごとの施設抽選重みを導出する。各施設行が自分の
-// 出現地区と重み・規模 gate を zones で宣言するので、それを地区で畳んで zoneCatalog を組み立てる。地区で
-// 重みが揃うので同じ地区の隣接チャンクは同種へ寄り、地区が生まれる。各地区に minSpan<=2 の基本施設が
-// あることは validate が保証するので、規模 gate で候補が空になり抽選が壊れることはない。
-func zoneCatalogFrom(raws oapi.Raws) map[oapi.Zone][]facilityWeight {
-	cat := make(map[oapi.Zone][]facilityWeight)
+// ZoneCatalog は地区ごとの施設抽選重み。ZoneCatalogFrom で raws から組む。多数のチャンクを引くときは
+// 1度組んで使い回し、セルごとの再構築を避ける。
+type ZoneCatalog = map[oapi.Zone][]FacilityWeight
+
+// ZoneCatalogFrom は raw.toml の facilities 行から地区ごとの施設抽選重みを導出する。各施設行が自分の
+// 出現地区と重み・規模 gate を zones で宣言するので、それを地区で畳んで組み立てる。地区で重みが揃うので
+// 同じ地区の隣接チャンクは同種へ寄り、地区が生まれる。各地区に MinSpan<=2 の基本施設があることは
+// validate が保証するので、規模 gate で候補が空になり抽選が壊れることはない。raws を毎回走査するので、
+// BuildMacroView のように多数のチャンクを引く経路は1度組んで使い回す。
+func ZoneCatalogFrom(raws oapi.Raws) ZoneCatalog {
+	cat := make(ZoneCatalog)
 	for _, f := range raw.PtrSlice(raws.Facilities) {
 		for _, z := range f.Zones {
-			cat[z.Zone] = append(cat[z.Zone], facilityWeight{kind: f.Id, weight: int(z.Weight), minSpan: consts.Chunk(z.MinSpan)})
+			cat[z.Zone] = append(cat[z.Zone], FacilityWeight{Kind: f.Id, Weight: int(z.Weight), MinSpan: consts.Chunk(z.MinSpan)})
 		}
 	}
 	return cat
@@ -124,23 +129,23 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) oapi.Zone {
 }
 
 // rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選し施設 id を返す。
-func rollFacilityInZone(rng *rand.Rand, cat map[oapi.Zone][]facilityWeight, z oapi.Zone, span consts.Chunk) string {
+func rollFacilityInZone(rng *rand.Rand, cat ZoneCatalog, z oapi.Zone, span consts.Chunk) string {
 	zc := cat[z]
 	total := 0
 	for _, f := range zc {
-		if span >= f.minSpan {
-			total += f.weight
+		if span >= f.MinSpan {
+			total += f.Weight
 		}
 	}
-	// 各地区は minSpan<=2 の基本施設を持ち span は常に2以上なので total>0。validate が保証する。rng.IntN は安全。
+	// 各地区は MinSpan<=2 の基本施設を持ち span は常に2以上なので total>0。validate が保証する。rng.IntN は安全。
 	roll := rng.IntN(total)
 	for _, f := range zc {
-		if span < f.minSpan {
+		if span < f.MinSpan {
 			continue
 		}
-		roll -= f.weight
+		roll -= f.Weight
 		if roll < 0 {
-			return f.kind
+			return f.Kind
 		}
 	}
 	panic("unreachable: selection weight total and subtraction are inconsistent")
@@ -156,9 +161,10 @@ func urbanChunkAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chun
 	return max(cw, ch), true
 }
 
-// urbanFacilityAt は c の建物チャンクの施設 id を返す。施設抽選は zoneCatalog を要すので raws を取る。
-// 地図の記号と実体の施設を一致させるため、地図表示と生成の両方がこれを呼ぶ。市街地でなければ ok=false。
-func urbanFacilityAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind string, ok bool) {
+// urbanFacilityAt は c の建物チャンクの施設 id を返す。cat は ZoneCatalogFrom で組んだ地区カタログで、
+// 多数のチャンクを引くときは呼び出し側が1度組んで渡し、セルごとの再構築を避ける。地図の記号と実体の施設を
+// 一致させるため、地図表示と生成の両方がこれを呼ぶ。市街地でなければ ok=false。
+func urbanFacilityAt(cat ZoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind string, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
 	if !ok {
 		return "", false
@@ -169,7 +175,7 @@ func urbanFacilityAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk
 	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
-	return rollFacilityInZone(frng, zoneCatalogFrom(raws), z, max(cw, ch)), true
+	return rollFacilityInZone(frng, cat, z, max(cw, ch)), true
 }
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
@@ -182,7 +188,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 
 	// 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
 	size, _ := urbanChunkAt(runSeed, c, cols)
-	fac, _ := urbanFacilityAt(world.Resources.RawMaster, runSeed, c, cols)
+	fac, _ := urbanFacilityAt(ZoneCatalogFrom(world.Resources.RawMaster), runSeed, c, cols)
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
 	return renderUrbanChunk(world, g, chunkSeed, size, fac, urbanDangerAt(world, c))

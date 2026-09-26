@@ -136,13 +136,14 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 }
 
 // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
-// 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
-func ChunkPlace(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+// 施設種別の記号、荒れ地は '.' を返す。cat は施設抽選の地区カタログで、多数のチャンクを引く BuildMacroView は
+// 1度組んで渡し、セルごとの再構築を避ける。種別を1つ足すと switch の網羅を linter が強制する。
+func ChunkPlace(raws oapi.Raws, cat ZoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkUrban:
-		// 施設種は urbanFacilityAt が raws から抽選する動的な値で、mapGlyphs に無い種が来うるので
+		// 施設種は urbanFacilityAt が cat から抽選する動的な値で、mapGlyphs に無い種が来うるので
 		// ok チェックする。他の種別は placeType が局所で保証されるので直接引く
-		kind, _ := urbanFacilityAt(raws, runSeed, c, cols)
+		kind, _ := urbanFacilityAt(cat, runSeed, c, cols)
 		if g, ok := glyphByID(raws, kind); ok {
 			return g.Label
 		}

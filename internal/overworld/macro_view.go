@@ -85,15 +85,16 @@ func BuildMacroView(
 	// ChunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
 	roads := buildRoadOverlay(runSeed, area, cols)
 
-	// 記号→色の表を1度だけ組み、セルごとの線形探索を避ける
+	// 記号→色の表と施設抽選の地区カタログを1度だけ組み、セルごとの再構築を避ける
 	colorOf := GlyphColorMap(raws)
+	cat := ZoneCatalogFrom(raws)
 
 	cells := make([][]MacroCell, rows)
 	for cy := range rows {
 		cells[cy] = make([]MacroCell, cols)
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
-			glyph := ChunkPlace(raws, runSeed, c, cols)
+			glyph := ChunkPlace(raws, cat, runSeed, c, cols)
 			col, hasCol := colorOf[glyph]
 			cells[cy][i] = MacroCell{
 				Glyph:      glyph,

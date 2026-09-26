@@ -45,25 +45,27 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := ZoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 	seed, c := findUrbanChunk(t, rows)
-	kind, ok := urbanFacilityAt(raws, seed, c, rows)
+	kind, ok := urbanFacilityAt(cat, seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
 
 	g, ok := glyphByID(raws, kind)
 	require.True(t, ok, "施設 %q の記号が mapGlyphs にある", kind)
-	assert.Equal(t, g.Label, ChunkPlace(raws, seed, c, rows), "建物チャンクは施設種別の文字を返す")
+	assert.Equal(t, g.Label, ChunkPlace(raws, cat, seed, c, rows), "建物チャンクは施設種別の文字を返す")
 }
 
 func TestChunkPlace_純関数で決定的(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := ZoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 	seed, c := findUrbanChunk(t, rows)
-	first := ChunkPlace(raws, seed, c, rows)
+	first := ChunkPlace(raws, cat, seed, c, rows)
 	for range 5 {
-		assert.Equal(t, first, ChunkPlace(raws, seed, c, rows), "同じ引数なら毎回同じ文字")
+		assert.Equal(t, first, ChunkPlace(raws, cat, seed, c, rows), "同じ引数なら毎回同じ文字")
 	}
 }
 
@@ -71,6 +73,7 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := ZoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 
 	dungeonGlyph := placeGlyph(raws, placeDungeonEntrance)
@@ -85,7 +88,7 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 				if _, ok := urbanChunkAt(s, c, rows); ok {
 					continue
 				}
-				switch ChunkPlace(raws, s, c, rows) {
+				switch ChunkPlace(raws, cat, s, c, rows) {
 				case dungeonGlyph:
 					foundDungeonEntrance = true
 				case villageGlyph:
