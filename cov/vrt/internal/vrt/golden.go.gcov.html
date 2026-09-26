@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">45.0&nbsp;%</td>
+            <td class="headerCovTableEntryLo">59.0&nbsp;%</td>
             <td class="headerCovTableEntry">100</td>
-            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">59</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-25 13:21:33</td>
+            <td class="headerValue">2026-09-26 03:01:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,25 +79,25 @@
 <span id="L17"><span class="lineNum">      17</span>              : // readScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。解放はしない。</span>
 <span id="L18"><span class="lineNum">      18</span>              : // 呼び出し側が所有する画像を渡されるときはこちらを使う</span>
 <span id="L19"><span class="lineNum">      19</span>              : func readScreen(screen *ebiten.Image) *image.NRGBA {</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 :         bounds := screen.Bounds()</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         img := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         screen.ReadPixels(img.Pix)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         return img</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 :         bounds := screen.Bounds()</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         img := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         screen.ReadPixels(img.Pix)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         return img</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // captureScreen は readScreen したうえで ebiten.Image を解放する。</span>
 <span id="L27"><span class="lineNum">      27</span>              : // このパッケージ内で作った使い捨ての描画先に使う</span>
 <span id="L28"><span class="lineNum">      28</span>              : func captureScreen(screen *ebiten.Image) *image.NRGBA {</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         img := readScreen(screen)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         screen.Deallocate()</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         return img</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         img := readScreen(screen)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         screen.Deallocate()</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return img</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。</span>
 <span id="L35"><span class="lineNum">      35</span>              : // レイアウト・描画は呼び出し側が制御する。messagelog・HUD など明示座標で Draw するコンポーネントに使う。</span>
 <span id="L36"><span class="lineNum">      36</span>              : // world ごとに独立したフェイスで描くのでロックは要らない。</span>
 <span id="L37"><span class="lineNum">      37</span>              : func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image), width, height int) {</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :         t.Helper()</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         drawFn := setupFn()</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         screen := ebiten.NewImage(width, height)</span></span>
@@ -120,11 +120,11 @@
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              : // encodePNG はimage.Imageをpngバイト列にエンコードする</span>
 <span id="L60"><span class="lineNum">      60</span>              : func encodePNG(t *testing.T, img image.Image) []byte {</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         var buf bytes.Buffer</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         require.NoError(t, png.Encode(&amp;buf, img))</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         return buf.Bytes()</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 :         t.Helper()</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         var buf bytes.Buffer</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         require.NoError(t, png.Encode(&amp;buf, img))</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         return buf.Bytes()</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              : // noiseScale はトレランス算出の係数。</span>
 <span id="L68"><span class="lineNum">      68</span>              : // ノイズはUI要素のエッジで発生し、エッジ量は画像面積の平方根に比例する。</span>
@@ -151,7 +151,7 @@
 <span id="L89"><span class="lineNum">      89</span>              : // ノイズ量はUIエッジに比例するため √面積 でスケーリングし、</span>
 <span id="L90"><span class="lineNum">      90</span>              : // 小さい画像ほど高い比率、大きい画像ほど低い比率を返す</span>
 <span id="L91"><span class="lineNum">      91</span>              : func toleranceForSize(width, height int) float64 {</span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC tlaBgGNC">           1 :         total := width * height</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         total := width * height</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         if total &lt;= 0 {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         }</span></span>

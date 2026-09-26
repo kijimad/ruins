@@ -655,13 +655,13 @@
 				
 				<option value="file299">github.com/kijimaD/ruins/internal/testutil/world.go (100.0%)</option>
 				
-				<option value="file300">github.com/kijimaD/ruins/internal/vrt/golden.go (36.1%)</option>
+				<option value="file300">github.com/kijimaD/ruins/internal/vrt/golden.go (47.4%)</option>
 				
 				<option value="file301">github.com/kijimaD/ruins/internal/vrt/replay/replay.go (95.5%)</option>
 				
 				<option value="file302">github.com/kijimaD/ruins/internal/vrt/state.go (0.0%)</option>
 				
-				<option value="file303">github.com/kijimaD/ruins/internal/vrt/testmain.go (0.0%)</option>
+				<option value="file303">github.com/kijimaD/ruins/internal/vrt/testmain.go (68.8%)</option>
 				
 				<option value="file304">github.com/kijimaD/ruins/internal/widgets/entityspec/spec.go (85.0%)</option>
 				
@@ -775,7 +775,7 @@
 				
 				<option value="file359">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (96.4%)</option>
 				
-				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (87.1%)</option>
+				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (86.6%)</option>
 				
 				<option value="file361">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.5%)</option>
 				
@@ -46484,7 +46484,7 @@ import (
 // readScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。解放はしない。
 // 呼び出し側が所有する画像を渡されるときはこちらを使う
 func readScreen(screen *ebiten.Image) *image.NRGBA {
-        <span class="cov0" title="0">bounds := screen.Bounds()
+        <span class="cov8" title="1">bounds := screen.Bounds()
         img := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
         screen.ReadPixels(img.Pix)
         return img
@@ -46493,7 +46493,7 @@ func readScreen(screen *ebiten.Image) *image.NRGBA {
 // captureScreen は readScreen したうえで ebiten.Image を解放する。
 // このパッケージ内で作った使い捨ての描画先に使う
 func captureScreen(screen *ebiten.Image) *image.NRGBA {
-        <span class="cov0" title="0">img := readScreen(screen)
+        <span class="cov8" title="1">img := readScreen(screen)
         screen.Deallocate()
         return img
 </span>}
@@ -46525,7 +46525,7 @@ func AssertFrameGolden(t *testing.T, name string, screen *ebiten.Image) {
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする
 func encodePNG(t *testing.T, img image.Image) []byte {
-        <span class="cov0" title="0">t.Helper()
+        <span class="cov8" title="1">t.Helper()
         var buf bytes.Buffer
         require.NoError(t, png.Encode(&amp;buf, img))
         return buf.Bytes()
@@ -46905,32 +46905,32 @@ type testHostGame struct {
 }
 
 func (g *testHostGame) Update() error {
-        <span class="cov0" title="0">if !g.started </span>{
-                <span class="cov0" title="0">g.started = true
+        <span class="cov8" title="1">if !g.started </span>{
+                <span class="cov8" title="1">g.started = true
                 go func() </span>{
                         // ゲームループが回っている状態で、テストは別goroutineとして実行する
-                        <span class="cov0" title="0">code := g.testFunc()
+                        <span class="cov8" title="1">code := g.testFunc()
 </span>                        // テスト完了後、ebitenのシャットダウン処理でEGL/X11ドライバがsegfaultすることがあるため、
                         // テスト結果が確定した時点で即座にプロセスを終了する
                         <span class="cov0" title="0">os.Exit(code)
 </span>                }()
         }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
-func (g *testHostGame) Draw(_ *ebiten.Image) {<span class="cov0" title="0"></span>}
+func (g *testHostGame) Draw(_ *ebiten.Image) {<span class="cov8" title="1"></span>}
 
 func (g *testHostGame) Layout(_, _ int) (int, int) {
-        <span class="cov0" title="0">return 1, 1
+        <span class="cov8" title="1">return 1, 1
 </span>}
 
 // RunTestMain はTestMainから呼び出し、ebitenゲームループ内で全テストを実行する。
 // これにより各テスト関数で ebiten.NewImage + ReadPixels が使える。
 // gamepad初期化のEINTR回避のため、bwrapで/dev/inputを隠した環境で実行すること
 func RunTestMain(m *testing.M) int {
-        <span class="cov0" title="0">g := &amp;testHostGame{testFunc: m.Run}
+        <span class="cov8" title="1">g := &amp;testHostGame{testFunc: m.Run}
 </span>        // ebiten.RunGame()はメインスレッドをブロックする。
-        <span class="cov0" title="0">if err := ebiten.RunGame(g); err != nil </span>{
+        <span class="cov8" title="1">if err := ebiten.RunGame(g); err != nil </span>{
                 <span class="cov0" title="0">fmt.Fprintf(os.Stderr, "RunGame failed: %v\n", err)
                 return 1
 </span>        }
@@ -53411,7 +53411,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
