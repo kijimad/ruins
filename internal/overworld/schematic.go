@@ -40,15 +40,13 @@ type GlyphInfo struct {
 // 無い。値は mapGlyphs の id と一致する。
 type placeType string
 
+// ランドマークの記号は landmark id を直接 mapGlyphs で引くので、ここに placeType 定数を持たない。
+// field/village/hamlet/dungeon_entrance だけが施設・ランドマークと別レイヤーの表示分類。
 const (
 	placeField           placeType = "field"            // 荒れ地
 	placeVillage         placeType = "village"          // 村
 	placeHamlet          placeType = "hamlet"           // 一軒家
 	placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
-	placeAbandonedHut    placeType = "abandoned_hut"    // 点在ランドマーク: 廃屋
-	placeFarmstead       placeType = "farmstead"        // 点在ランドマーク: 農家跡
-	placeShrine          placeType = "shrine"           // 点在ランドマーク: 祠
-	placeCampsite        placeType = "campsite"         // 点在ランドマーク: キャンプ跡
 )
 
 // placeUnknownGlyph は分類漏れの保険の記号。mapGlyphs には入れず凡例外なので Go に持つ。
@@ -86,15 +84,23 @@ func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
 	return out
 }
 
+// GlyphColorMap は記号 rune から色への表を1度だけ組んで返す。BuildMacroView のように多数のセルの色を
+// 引くときは、セルごとに LegendGlyphs を組み直す線形探索でなくこの表を使う。凡例に出ない記号は表に無い。
+func GlyphColorMap(raws oapi.Raws) map[rune]color.RGBA {
+	glyphs := LegendGlyphs(raws)
+	table := make(map[rune]color.RGBA, len(glyphs))
+	for _, g := range glyphs {
+		table[g.Label] = g.Color
+	}
+	return table
+}
+
 // GlyphColor は種別文字に対応する色と、対応があるかを返す。凡例に出ない記号は ok=false になり、
 // 未知記号の既定色は UI 側が決める。overworld は theme に依存しないので既定色を持たない。
+// 1回引くだけの用途向け。多数を引くなら GlyphColorMap を1度組んで使う。
 func GlyphColor(raws oapi.Raws, r rune) (color.RGBA, bool) {
-	for _, g := range LegendGlyphs(raws) {
-		if g.Label == r {
-			return g.Color, true
-		}
-	}
-	return color.RGBA{}, false
+	c, ok := GlyphColorMap(raws)[r]
+	return c, ok
 }
 
 // chunkType は1チャンクの場所の種別。全チャンクがいずれか1つに分類され、暗黙の既定を持たない。
@@ -149,7 +155,11 @@ func ChunkPlace(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], co
 		}
 		return placeGlyph(raws, placeHamlet)
 	case chunkLandmark:
-		return placeGlyph(raws, landmarkPlaceType(landmarkKindAt(raws, runSeed, c)))
+		// ランドマーク id は mapGlyphs の id と一致するので、写像を介さず直接記号を引く
+		if g, ok := glyphByID(raws, landmarkKindAt(raws, runSeed, c)); ok {
+			return g.Label
+		}
+		return placeUnknownGlyph
 	case chunkWasteland:
 		return placeGlyph(raws, placeField)
 	}

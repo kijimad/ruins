@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -74,17 +75,17 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 	assert.Equal(t, a, b, "ランドマークの配置は決定的で再生成しても一致する")
 }
 
-func TestLandmarkPlaceType_各種別が異なる地図分類へ写る(t *testing.T) {
+func TestLandmark_各種別が異なる地図記号を持つ(t *testing.T) {
 	t.Parallel()
 
-	// 全種別が地図分類の写像を持ち、かつ互いに異なることを確認する。写像漏れは landmarkPlaceType が
-	// panic で示す。exhaustive linter は case の網羅は強制するが、別々の placeType へ写ることは
-	// 保証しないので、コピペによる重複写像はここで弾く。
-	seen := map[placeType]bool{}
-	for _, k := range []string{"abandoned_hut", "farmstead", "shrine", "campsite"} {
-		p := landmarkPlaceType(k)
-		assert.NotEmptyf(t, p, "種別 %q に地図分類の写像がある", k)
-		assert.Falsef(t, seen[p], "種別 %q の写像 %q が他と重複している", k, p)
-		seen[p] = true
+	// 全 landmark id が mapGlyphs に記号を持ち、かつ互いに異なることを確認する。landmark id は
+	// mapGlyphs の id と一致するので写像関数を介さず直接引く。記号の重複や欠落をここで弾く。
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	seen := map[rune]bool{}
+	for _, l := range raw.PtrSlice(raws.Landmarks) {
+		g, ok := glyphByID(raws, l.Id)
+		require.Truef(t, ok, "landmark %q に地図記号がある", l.Id)
+		assert.Falsef(t, seen[g.Label], "landmark %q の記号 %c が他と重複している", l.Id, g.Label)
+		seen[g.Label] = true
 	}
 }

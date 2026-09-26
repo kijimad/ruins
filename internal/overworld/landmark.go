@@ -35,22 +35,6 @@ func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]
 	return lms[len(lms)-1].Id
 }
 
-// landmarkPlaceType は id を地図の表示分類へ写す。記号と凡例名は placeGlyphs が一元管理する。
-// 表示のデータ化は別フェーズで landmarks 行へ移す。未知 id は前提崩れなので panic。
-func landmarkPlaceType(id string) placeType {
-	switch id {
-	case "abandoned_hut":
-		return placeAbandonedHut
-	case "farmstead":
-		return placeFarmstead
-	case "shrine":
-		return placeShrine
-	case "campsite":
-		return placeCampsite
-	}
-	panic("unknown landmark id: " + id)
-}
-
 // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。
 type wildernessLandmarkFeature struct{}
 
