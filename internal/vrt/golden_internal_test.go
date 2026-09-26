@@ -225,7 +225,8 @@ func TestReadScreen_塗り潰した色をNRGBAとして読み取る(t *testing.T
 	}
 }
 
-// TestCaptureScreen はreadScreenと同じピクセルを読み取ることを固定する
+// TestCaptureScreen は readScreen と同じピクセルを読み取り、かつ screen を Deallocate した後も返り値が
+// 壊れないことを固定する。readScreen との差分は Deallocate なので、そこを検証する。
 func TestCaptureScreen_塗り潰した色をNRGBAとして読み取る(t *testing.T) {
 	t.Parallel()
 
@@ -235,6 +236,7 @@ func TestCaptureScreen_塗り潰した色をNRGBAとして読み取る(t *testin
 
 	got := captureScreen(screen)
 
+	// screen は captureScreen 内で Deallocate 済み。got.Pix は CPU スライスなので GPU 解放後も読める
 	assert.Equal(t, want, got.NRGBAAt(0, 0))
 	assert.Equal(t, want, got.NRGBAAt(1, 1))
 }
