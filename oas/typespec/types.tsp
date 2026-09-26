@@ -84,18 +84,6 @@ scalar EntityID extends string;
 @minValue(0)
 scalar EntryWeight extends float64;
 
-/** 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-    runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路 */
-enum FacilityKind {
-  house,
-  store,
-  antique,
-  clinic,
-  lab,
-  office,
-  depot,
-}
-
 /** 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない */
 enum RoomRole {
   bath,
@@ -114,6 +102,29 @@ enum RoomRole {
   storeroom,
   toilet,
   waiting,
+}
+
+/** 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
+    新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する */
+enum PlannerKey {
+  house,
+  store,
+  clinic,
+  bsp,
+}
+
+/** 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む */
+enum Zone {
+  downtown,
+  residential,
+  industrial,
+}
+
+/** ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
+    open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える */
+enum DrawerKey {
+  hut,
+  open,
 }
 
 /** 耐久値。削り切られると壊れる */

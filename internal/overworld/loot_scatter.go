@@ -27,27 +27,13 @@ const outdoorLootDensity = 0.002
 // seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。
 const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 
-// outdoorLootGroupFor は屋外ゾーンに応じた無価値な item group を返す。屋外には屑物だけを置き、武器・防具・
-// 回復薬や錬金素材のような価値ある品は建物内の loot に限る。道沿いは人の営みの残りの紙屑 scrap_of_paper、
-// 奥地は打ち捨てられた廃材やくず鉄 junk。銀片・結晶粉などを含む materials は中深度のダンジョン報酬で、地上へ
-// 撒くと価値が釣り合わないため屋外には使わない。exhaustive linter が outdoorZone の網羅を強制するので default
-// を置かず、末尾 panic で未知ゾーンのランタイム保護も兼ねる。
-func outdoorLootGroupFor(zone outdoorZone) string {
-	switch zone {
-	case zoneRoadside:
-		return "scrap_of_paper"
-	case zoneWild:
-		return "junk"
-	}
-	panic("unknown outdoorZone: " + string(zone))
-}
-
 // scatterOutdoorLoot は開けたチャンクの地表へ屑物をごく疎に撒く。候補は土系の地面かつ非占有で、accept と
-// occupied は草・樹木の散布と共有して重なりを避ける。抽選は建物 loot と同じ raw.SelectFromItemGroup で低価値
-// group から引き、深度は扱わない。乱数は散布とは別の salt から引き、地物や建物 loot の消費順と干渉させない。
-// 同一 seed で同一結果、再訪で一致する。
+// occupied は草・樹木の散布と共有して重なりを避ける。屋外の loot group は散布ゾーン行の lootGroup が持つ。
+// 道沿いは人の営みの残りの紙屑 scrap_of_paper、奥地は打ち捨てられた廃材やくず鉄 junk。価値ある品は建物内の
+// loot に限る。抽選は建物 loot と同じ raw.SelectFromItemGroup で低価値 group から引き、深度は扱わない。乱数は
+// 散布とは別の salt から引き、地物や建物 loot の消費順と干渉させない。同一 seed で同一結果、再訪で一致する。
 func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], g chunkGeom, cat scatterCatalog, accept func(interior.Vec) bool, occupied map[gc.GridElement]bool) error {
-	groupID := outdoorLootGroupFor(cat.Zone)
+	groupID := cat.LootGroup
 
 	area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
 	// タイル選択の seed とアイテム抽選の rng を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が

@@ -14,6 +14,10 @@ var (
 	errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
 	errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
 	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
+	errFacilityKeyUndefined           = errors.New("references undefined facility")
+	errZoneNoBaseFacility             = errors.New("zone has no base facility")
+	errLandmarkNoWeight               = errors.New("landmarks have no positive total weight")
+	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
 	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
 	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
 	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -80,10 +84,13 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateEnemyTableReferences(raws); err != nil {
 		return err
 	}
-	if err := validateFacilityEnemyTableReferences(raws); err != nil {
+	if err := validateFacilityReferences(raws); err != nil {
 		return err
 	}
 	if err := validateInteriorContentReferences(raws); err != nil {
+		return err
+	}
+	if err := validateLandmarkReferences(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -156,22 +163,92 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateFacilityEnemyTableReferences は施設ごとの敵テーブル割り当てが指す敵テーブル id が enemyTables に
-// 存在することを検証する。市街地生成はこの id で GetEnemyTable するので、typo をロード時に前倒しで弾く。
-func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
+// validateFacilityReferences は施設行の整合をロード時 fail-closed で守る。施設は raw.toml の facilities が
+// 単一出典で、市街地生成と内装がこの行を id で引く。次の3つを検証する。
+//   - enemyTable が enemyTables に存在する。市街地生成が GetEnemyTable するので typo を前倒しで弾く。
+//   - facilityContents/facilityRooms の facility キーが facilities の id に存在する。片側の綴り違いを弾く。
+//   - 各地区に minSpan<=2 の施設が最低1つある。無いと zoneCatalog 導出後に候補が空になり IntN(0) で panic する。
+//
+// planner キーの実装照合は raw から interior への循環を避けるため interior の被覆テストで担保する。planner
+// は tsp enum なので値の閉集合違反は schema が弾き、enum と planners の一致はテストで固定する。
+// urbanBaseSpan は市街地の一辺の最小チャンク数。各地区はこの span で必ず出現するので、minSpan がこれ以下の
+// 基本施設が地区に1つ無いと候補が空になり抽選が壊れる。overworld の最小 span と揃える。
+const urbanBaseSpan int32 = 2
+
+func validateFacilityReferences(raws oapi.Raws) error {
+	facilities := PtrSlice(raws.Facilities)
+	facilityIDs := make(map[string]struct{}, len(facilities))
+	for i := range facilities {
+		facilityIDs[facilities[i].Id] = struct{}{}
+	}
+
 	enemyTables := PtrSlice(raws.EnemyTables)
 	tableIDs := make(map[string]struct{}, len(enemyTables))
 	for i := range enemyTables {
 		tableIDs[enemyTables[i].Id] = struct{}{}
 	}
 
-	for _, fe := range PtrSlice(raws.FacilityEnemyTables) {
-		if fe.EnemyTable == "" {
-			continue
+	// 各地区の基本施設の有無を集める。minSpan<=2 の施設をその地区が1つでも持てば true
+	zoneHasBase := make(map[oapi.Zone]bool)
+	for i := range facilities {
+		if _, ok := tableIDs[facilities[i].EnemyTable]; !ok {
+			return fmt.Errorf("facility %q references enemy table %q: %w", facilities[i].Id, facilities[i].EnemyTable, errFacilityEnemyTableRefUndefined)
 		}
-		if _, ok := tableIDs[fe.EnemyTable]; !ok {
-			return fmt.Errorf("facility %q references enemy table %q: %w", fe.Facility, fe.EnemyTable, errFacilityEnemyTableRefUndefined)
+		for _, z := range facilities[i].Zones {
+			if z.MinSpan <= urbanBaseSpan {
+				zoneHasBase[z.Zone] = true
+			} else if _, seen := zoneHasBase[z.Zone]; !seen {
+				zoneHasBase[z.Zone] = false
+			}
 		}
+	}
+
+	for zone, hasBase := range zoneHasBase {
+		if !hasBase {
+			return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, urbanBaseSpan, errZoneNoBaseFacility)
+		}
+	}
+
+	for _, fc := range PtrSlice(raws.FacilityContents) {
+		if _, ok := facilityIDs[fc.Facility]; !ok {
+			return fmt.Errorf("facilityContents references unknown facility %q: %w", fc.Facility, errFacilityKeyUndefined)
+		}
+	}
+	for _, fr := range PtrSlice(raws.FacilityRooms) {
+		if _, ok := facilityIDs[fr.Facility]; !ok {
+			return fmt.Errorf("facilityRooms references unknown facility %q: %w", fr.Facility, errFacilityKeyUndefined)
+		}
+	}
+	return nil
+}
+
+// validateLandmarkReferences はランドマークの整合をロード時 fail-closed で守る。出現重みの総和が正で
+// あること、prop の参照先が props に実在することを検証する。総和が0だと landmarkKindAt の IntN が壊れ、
+// prop の typo は spawn 時まで silent に潜る。drawer キーの実装照合は raw から overworld への循環を避け、
+// drawer は tsp enum なので値の閉集合は schema が弾き、enum と drawers の一致は overworld の被覆テストで守る。
+func validateLandmarkReferences(raws oapi.Raws) error {
+	landmarks := PtrSlice(raws.Landmarks)
+	if len(landmarks) == 0 {
+		return nil // ランドマーク未定義は許容。定義したときだけ整合を課す
+	}
+
+	props := PtrSlice(raws.Props)
+	propNames := make(map[string]struct{}, len(props))
+	for i := range props {
+		propNames[props[i].Id] = struct{}{}
+	}
+
+	total := 0
+	for _, l := range landmarks {
+		total += int(l.Weight)
+		for _, p := range l.Props {
+			if _, ok := propNames[p.Name]; !ok {
+				return fmt.Errorf("landmark %q references prop %q: %w", l.Id, p.Name, errLandmarkPropUndefined)
+			}
+		}
+	}
+	if total <= 0 {
+		return fmt.Errorf("%w", errLandmarkNoWeight)
 	}
 	return nil
 }

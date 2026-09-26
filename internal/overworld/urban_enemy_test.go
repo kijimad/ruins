@@ -10,49 +10,46 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestUrbanEnemyTableFor_割り当ては専用未割り当ては既定へ落ちる は挙動を固定する。割り当てのある施設は
-// 既定でなく専用テーブルを引き、未知施設は既定へ落ちる。特定のテーブル id は綴りを追うだけの死んだ検査に
-// なるので固定しない。id と割り当ての実在は別テストが担保する。
-func TestUrbanEnemyTableFor_割り当ては専用未割り当ては既定へ落ちる(t *testing.T) {
+// TestUrbanEnemyTableFor_施設行の敵テーブルを引く は挙動を固定する。施設行の enemyTable が指すテーブルを
+// 引き、未登録の施設は silent フォールバックせず error にする。特定のテーブル id は綴りを追うだけの死んだ
+// 検査になるので固定しない。id の実在は別テストが担保する。
+func TestUrbanEnemyTableFor_施設行の敵テーブルを引く(t *testing.T) {
 	t.Parallel()
 
 	master := testutil.InitTestWorld(t).Resources.RawMaster
 
-	assigned, err := urbanEnemyTableFor(master, facilityClinic)
+	et, err := urbanEnemyTableFor(master, "clinic")
 	require.NoError(t, err)
-	assert.NotEqual(t, urbanEnemyTable, assigned.Id, "割り当てのある施設は既定でなく専用テーブルを引く")
+	assert.NotEmpty(t, et.Id, "施設行の enemyTable が指すテーブルを引く")
 
-	fallback, err := urbanEnemyTableFor(master, facilityType("unknown"))
-	require.NoError(t, err)
-	assert.Equal(t, urbanEnemyTable, fallback.Id, "未知の施設は既定へ落ちる")
+	_, err = urbanEnemyTableFor(master, "unknown_facility")
+	require.Error(t, err, "未登録の施設は silent フォールバックせず error")
 }
 
-// TestUrbanEnemyTableFor_割り当て先が実在しなければerror は、割り当て先が raw に無いとき silent に既定へ
+// TestUrbanEnemyTableFor_敵テーブルが実在しなければerror は、施設行の enemyTable が raw に無いとき silent に
 // すり替えず error を返すことを固定する。
-func TestUrbanEnemyTableFor_割り当て先が実在しなければerror(t *testing.T) {
+func TestUrbanEnemyTableFor_敵テーブルが実在しなければerror(t *testing.T) {
 	t.Parallel()
 
 	master := testutil.InitTestWorld(t).Resources.RawMaster
-	master.FacilityEnemyTables = &[]oapi.FacilityEnemyTable{
-		{Facility: oapi.FacilityKind(facilityClinic), EnemyTable: "no_such_table"},
+	master.Facilities = &[]oapi.Facility{
+		{Id: "clinic", EnemyTable: "no_such_table", Planner: oapi.Clinic},
 	}
 
-	_, err := urbanEnemyTableFor(master, facilityClinic)
-	require.Error(t, err, "割り当て先が実在しなければ設定ミスとして error")
+	_, err := urbanEnemyTableFor(master, "clinic")
+	require.Error(t, err, "enemyTable が実在しなければ設定ミスとして error")
 }
 
-// TestFacilityEnemyTableName_全施設種別を網羅する は、全 facilityType に割り当てがあることを固定し、施設を
-// 足して割り当てを忘れる漏れを止める。all は facilityType の全定数と揃える。
-func TestFacilityEnemyTableName_全施設種別を網羅する(t *testing.T) {
+// TestFacilities_全施設が敵テーブルを引ける は、全 facilities 行の enemyTable が実在テーブルを引けることを
+// 固定し、施設を足して割り当てを忘れる漏れを止める。分母は raw の facilities 行そのもの。
+func TestFacilities_全施設が敵テーブルを引ける(t *testing.T) {
 	t.Parallel()
 
 	master := testutil.InitTestWorld(t).Resources.RawMaster
-	all := []facilityType{
-		facilityHouse, facilityStore, facilityOffice, facilityDepot,
-		facilityAntique, facilityClinic, facilityLab,
-	}
-	for _, fac := range all {
-		_, ok := raw.FacilityEnemyTableName(master, string(fac))
-		assert.Truef(t, ok, "施設 %q に敵テーブルの割り当てがある", fac)
+	facilities := raw.PtrSlice(master.Facilities)
+	require.NotEmpty(t, facilities, "施設が定義されている")
+	for _, f := range facilities {
+		_, err := urbanEnemyTableFor(master, f.Id)
+		assert.NoErrorf(t, err, "施設 %q の enemyTable が引ける", f.Id)
 	}
 }

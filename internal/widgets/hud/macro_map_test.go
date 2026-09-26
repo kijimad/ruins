@@ -1,11 +1,13 @@
 package hud
 
 import (
+	"image/color"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,22 +19,23 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	return NewMacroMap(nil, Chrome{})
 }
 
-func TestMacroGlyphColor_全ての種別記号に色が割り当てられている(t *testing.T) {
+func TestGlyphColor_全ての凡例記号に色が割り当てられている(t *testing.T) {
 	t.Parallel()
 
-	fallback := macroGlyphColor('\x00') // 未知の文字の色
-	for _, g := range overworld.PlaceGlyphs() {
-		assert.NotEqualf(t, fallback, macroGlyphColor(g.Label), "地物 %s(%c) に固有色がある", g.Name, g.Label)
-	}
-	for _, g := range overworld.FacilityGlyphs() {
-		assert.NotEqualf(t, fallback, macroGlyphColor(g.Label), "施設 %s(%c) に固有色がある", g.Name, g.Label)
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	for _, g := range overworld.LegendGlyphs(raws) {
+		c, ok := overworld.GlyphColor(raws, g.Label)
+		assert.Truef(t, ok, "凡例記号 %s(%c) に色がある", g.Name, g.Label)
+		assert.NotEqualf(t, color.RGBA{}, c, "凡例記号 %s(%c) の色が透明黒でない", g.Name, g.Label)
 	}
 }
 
-func TestMacroGlyphColor_未知の文字は灰色のフォールバック(t *testing.T) {
+func TestGlyphColor_未知の文字は対応なし(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, macroGlyphColor('\x00'), macroGlyphColor('Z'), "未知の文字は同じフォールバック色になる")
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	_, ok := overworld.GlyphColor(raws, 'Z')
+	assert.False(t, ok, "未知の文字は対応なしを返す")
 }
 
 func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {
@@ -193,11 +196,12 @@ func TestDrawMapGrid_道を持つセルは接続方角ごとに線分を描く(t
 func TestDrawMapLegend_種別ごとに色見本と名前を描く(t *testing.T) {
 	t.Parallel()
 	cv := &fakeCanvas{}
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 
 	// フェイスは nil でよい。fakeCanvas は描画命令を記録するだけで実描画しない
-	DrawMapLegend(cv, nil, nil, 100)
+	DrawMapLegend(cv, raws, nil, nil, 100)
 
-	glyphs := overworld.LegendGlyphs()
+	glyphs := overworld.LegendGlyphs(raws)
 	require.NotEmpty(t, glyphs)
 	assert.Len(t, cv.fillRects, len(glyphs), "種別ごとに色見本を1つ塗る")
 	// 種別ごとに記号1つと名前1つ、末尾に閉じ方の案内を描く

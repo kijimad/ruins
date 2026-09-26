@@ -304,12 +304,72 @@ model EnemyTable {
   entries: EnemyTableEntry[];
 }
 
-/** 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
-enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。 */
-model FacilityEnemyTable {
-  facility: FacilityKind;
-  /** 割り当てる敵テーブルの id。enemyTables のいずれかを指す */
+/** 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを
+    出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
+    汎用が欲しければ "ruins_area" を明示する。地図の記号・色・凡例順など表示の宣言は別フェーズでここへ足す */
+model Facility {
+  id: EntityID;
+  isShop: boolean;
+  planner: PlannerKey;
   enemyTable: EntityID;
+  zones: FacilityZone[];
+}
+
+/** 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
+    抽選対象になる規模 gate */
+model FacilityZone {
+  zone: Zone;
+  weight: int32;
+  minSpan: int32;
+}
+
+/** 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の
+    drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標。
+    地図の記号など表示の宣言は別フェーズでここへ足す */
+model Landmark {
+  id: EntityID;
+  weight: int32;
+  drawer: DrawerKey;
+  hutW: int32;
+  hutH: int32;
+  props: PropSpot[];
+}
+
+/** ランドマークの prop 1個の相対配置。name は prop id、dx/dy は基準座標からのオフセット */
+model PropSpot {
+  name: EntityID;
+  dx: int32;
+  dy: int32;
+}
+
+/** 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
+    color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は
+    凡例外なので Go に残す */
+model MapGlyph {
+  id: EntityID;
+  glyph: string;
+  name: string;
+  color: RGBAColor;
+  order: int32;
+}
+
+/** 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
+    lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す */
+model ScatterZone {
+  id: EntityID;
+  grassDensity: float64;
+  propDensity: float64;
+  lootGroup: EntityID;
+  entries: ScatterEntry[];
+}
+
+/** 散布 prop 1種。ref は prop id で空文字は「置かない」、weight は抽選重み、big は位相格子で希釈する
+    大物か、satellites は大物の周りに寄り添う小クラスタの相対配置 */
+model ScatterEntry {
+  ref: string;
+  weight: int32;
+  big: boolean;
+  satellites?: PropSpot[];
 }
 
 // ================== 内装レシピ ==================
@@ -383,7 +443,7 @@ model InteriorContent {
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
 model FacilityContent {
-  facility: FacilityKind;
+  facility: EntityID;
   variants: EntityID[];
 }
 
@@ -395,7 +455,7 @@ model RoomContent {
 
 /** 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック */
 model FacilityRooms {
-  facility: FacilityKind;
+  facility: EntityID;
   rooms?: RoomContent[];
   fallback: EntityID;
 }
@@ -548,7 +608,10 @@ model Raws {
   itemGroups?: ItemGroup[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
-  facilityEnemyTables?: FacilityEnemyTable[];
+  facilities?: Facility[];
+  landmarks?: Landmark[];
+  scatterZones?: ScatterZone[];
+  mapGlyphs?: MapGlyph[];
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
   facilityRooms?: FacilityRooms[];

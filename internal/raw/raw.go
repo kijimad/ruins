@@ -665,13 +665,24 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 	return et, nil
 }
 
-// FacilityEnemyTableName は施設種別に割り当てられた敵テーブル id を返す。割り当てが無ければ false を返す。
-func FacilityEnemyTableName(raws oapi.Raws, facility string) (string, bool) {
-	fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string { return string(t.Facility) }, facility)
-	if !ok {
-		return "", false
-	}
-	return fe.EnemyTable, true
+// GetFacility は id の施設宣言を返す。施設は raw.toml の facilities 行が単一出典。未登録は false。
+func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
+	return findByKey(raws.Facilities, func(f oapi.Facility) string { return f.Id }, id)
+}
+
+// GetLandmark は id のランドマーク宣言を返す。ランドマークは raw.toml の landmarks 行が単一出典。未登録は false。
+func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
+	return findByKey(raws.Landmarks, func(l oapi.Landmark) string { return l.Id }, id)
+}
+
+// GetScatterZone は id の散布ゾーン宣言を返す。散布は raw.toml の scatterZones 行が単一出典。未登録は false。
+func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
+	return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string { return z.Id }, id)
+}
+
+// GetMapGlyph は id の地図記号宣言を返す。地図記号は raw.toml の mapGlyphs 行が単一出典。未登録は false。
+func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
+	return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string { return m.Id }, id)
 }
 
 // GetTile は指定された名前のタイルを取得する

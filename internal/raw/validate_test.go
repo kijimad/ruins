@@ -339,28 +339,74 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 	})
 }
 
-func TestValidateFacilityEnemyTableReferences(t *testing.T) {
+func TestValidateFacilityReferences(t *testing.T) {
 	t.Parallel()
 
 	enemyTables := &[]oapi.EnemyTable{{Id: "clinic_enemies", Name: "診療所"}}
+	baseZones := []oapi.FacilityZone{{Zone: oapi.Residential, Weight: 10, MinSpan: 2}}
 
-	t.Run("実在する敵テーブルは通る", func(t *testing.T) {
+	t.Run("実在する敵テーブルと基本施設は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			EnemyTables:         enemyTables,
-			FacilityEnemyTables: &[]oapi.FacilityEnemyTable{{Facility: "clinic", EnemyTable: "clinic_enemies"}},
+			EnemyTables: enemyTables,
+			Facilities:  &[]oapi.Facility{{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: baseZones}},
 		}
-		require.NoError(t, validateFacilityEnemyTableReferences(raws))
+		require.NoError(t, validateFacilityReferences(raws))
 	})
 
 	t.Run("敵テーブルが存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			EnemyTables:         enemyTables,
-			FacilityEnemyTables: &[]oapi.FacilityEnemyTable{{Facility: "clinic", EnemyTable: "no_such_table"}},
+			EnemyTables: enemyTables,
+			Facilities:  &[]oapi.Facility{{Id: "clinic", EnemyTable: "no_such_table", Planner: oapi.Clinic, Zones: baseZones}},
 		}
-		err := validateFacilityEnemyTableReferences(raws)
-		require.ErrorIs(t, err, errFacilityEnemyTableRefUndefined)
+		require.ErrorIs(t, validateFacilityReferences(raws), errFacilityEnemyTableRefUndefined)
+	})
+
+	t.Run("地区に基本施設が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: enemyTables,
+			Facilities:  &[]oapi.Facility{{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: []oapi.FacilityZone{{Zone: oapi.Downtown, Weight: 10, MinSpan: 3}}}},
+		}
+		require.ErrorIs(t, validateFacilityReferences(raws), errZoneNoBaseFacility)
+	})
+
+	t.Run("未登録施設を参照するfacilityContentsはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables:      enemyTables,
+			Facilities:       &[]oapi.Facility{{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: baseZones}},
+			FacilityContents: &[]oapi.FacilityContent{{Facility: "no_such", Variants: []string{"x"}}},
+		}
+		require.ErrorIs(t, validateFacilityReferences(raws), errFacilityKeyUndefined)
+	})
+
+	t.Run("一部の地区にだけ基本施設が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		// residential は minSpan=2 の基本施設を持つが、downtown は minSpan=3 の専門施設だけ。
+		// zoneHasBase は登場した地区ごとに判定するので、downtown 単独の基本施設欠落を弾く
+		raws := oapi.Raws{
+			EnemyTables: enemyTables,
+			Facilities: &[]oapi.Facility{
+				{Id: "house", EnemyTable: "clinic_enemies", Planner: oapi.House, Zones: []oapi.FacilityZone{{Zone: oapi.Residential, Weight: 10, MinSpan: 2}}},
+				{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: []oapi.FacilityZone{{Zone: oapi.Downtown, Weight: 10, MinSpan: 3}}},
+			},
+		}
+		require.ErrorIs(t, validateFacilityReferences(raws), errZoneNoBaseFacility)
+	})
+
+	t.Run("全地区に基本施設があれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: enemyTables,
+			Facilities: &[]oapi.Facility{{Id: "house", EnemyTable: "clinic_enemies", Planner: oapi.House, Zones: []oapi.FacilityZone{
+				{Zone: oapi.Residential, Weight: 10, MinSpan: 2},
+				{Zone: oapi.Downtown, Weight: 10, MinSpan: 2},
+				{Zone: oapi.Industrial, Weight: 10, MinSpan: 2},
+			}}},
+		}
+		require.NoError(t, validateFacilityReferences(raws))
 	})
 }
 

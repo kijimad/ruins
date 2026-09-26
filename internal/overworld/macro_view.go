@@ -1,6 +1,11 @@
 package overworld
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"image/color"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+)
 
 // マクロ地図の描画モデル。1チャンク=1セルの地形俯瞰を、描画基盤に依らない形で表す。
 // 全画面の俯瞰図も HUD の右上地図も、この同じモデルを各自の基盤で描く。ピクセルの描き方は
@@ -43,8 +48,10 @@ func PlayerCenteredRange(centerRow, cols consts.Chunk, radius int) MacroRange {
 // MacroCell は表示範囲内1チャンクの表示情報。種別文字と、探索で開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
 	Glyph      rune
-	Discovered bool    // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
-	Road       RoadDir // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
+	Color      color.RGBA // 記号の色。BuildMacroView が mapGlyphs から焼き、描画は raws を要さない
+	HasColor   bool       // 記号に対応する色が mapGlyphs にあったか。無ければ UI が既定色を使う
+	Discovered bool       // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
+	Road       RoadDir    // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
 }
 
 // MacroView はマクロ地図の描画モデル。表示範囲内のチャンク格子と、マーカーの表示範囲ローカル座標を持つ。
@@ -61,6 +68,7 @@ type MacroView struct {
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
+	raws oapi.Raws,
 	runSeed uint64,
 	northIndex consts.Chunk,
 	chunkW, chunkH consts.Tile,
@@ -77,13 +85,21 @@ func BuildMacroView(
 	// ChunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
 	roads := buildRoadOverlay(runSeed, area, cols)
 
+	// 記号→色の表と施設抽選の地区カタログを1度だけ組み、セルごとの再構築を避ける
+	colorOf := GlyphColorMap(raws)
+	cat := ZoneCatalogFrom(raws)
+
 	cells := make([][]MacroCell, rows)
 	for cy := range rows {
 		cells[cy] = make([]MacroCell, cols)
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
+			glyph := ChunkPlace(raws, cat, runSeed, c, cols)
+			col, hasCol := colorOf[glyph]
 			cells[cy][i] = MacroCell{
-				Glyph:      ChunkPlace(runSeed, c, cols),
+				Glyph:      glyph,
+				Color:      col,
+				HasColor:   hasCol,
 				Discovered: discovered[c],
 				Road:       roads[c],
 			}
