@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestMain はebitenループ内で全テストを走らせ、readScreen等のebiten.NewImage操作をテストで使えるようにする
+// TestMain はこのパッケージのテストのエントリ。実処理は RunTestMain が持つ
 func TestMain(m *testing.M) {
 	os.Exit(RunTestMain(m))
 }

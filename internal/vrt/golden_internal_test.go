@@ -225,8 +225,7 @@ func TestReadScreen_塗り潰した色をNRGBAとして読み取る(t *testing.T
 	}
 }
 
-// TestCaptureScreen は readScreen と同じピクセルを読み取り、かつ screen を Deallocate した後も返り値が
-// 壊れないことを固定する。readScreen との差分は Deallocate なので、そこを検証する。
+// TestCaptureScreen は captureScreen が readScreen と同じピクセルを返すことを固定する。
 func TestCaptureScreen_塗り潰した色をNRGBAとして読み取る(t *testing.T) {
 	t.Parallel()
 
@@ -236,7 +235,7 @@ func TestCaptureScreen_塗り潰した色をNRGBAとして読み取る(t *testin
 
 	got := captureScreen(screen)
 
-	// screen は captureScreen 内で Deallocate 済み。got.Pix は CPU スライスなので GPU 解放後も読める
+	// captureScreen は読み取り後に screen を Deallocate する。got.Pix は CPU スライスなので解放後も読める
 	assert.Equal(t, want, got.NRGBAAt(0, 0))
 	assert.Equal(t, want, got.NRGBAAt(1, 1))
 }
@@ -248,7 +247,7 @@ func TestEncodePNG_デコードし直すと元のピクセルに一致する(t *
 	src := image.NewNRGBA(image.Rect(0, 0, 2, 2))
 	src.SetNRGBA(0, 0, color.NRGBA{R: 1, G: 2, B: 3, A: 255})
 	src.SetNRGBA(1, 0, color.NRGBA{R: 4, G: 5, B: 6, A: 255})
-	src.SetNRGBA(0, 1, color.NRGBA{R: 7, G: 8, B: 9, A: 0})
+	src.SetNRGBA(0, 1, color.NRGBA{R: 7, G: 8, B: 9, A: 0}) // A:0 でも NRGBA は非事前乗算で RGB を保つ。往復で消えないことを確かめる
 	src.SetNRGBA(1, 1, color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 
 	data := encodePNG(t, src)
