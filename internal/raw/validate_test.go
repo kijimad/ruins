@@ -381,6 +381,33 @@ func TestValidateFacilityReferences(t *testing.T) {
 		}
 		require.ErrorIs(t, validateFacilityReferences(raws), errFacilityKeyUndefined)
 	})
+
+	t.Run("一部の地区にだけ基本施設が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		// residential は minSpan=2 の基本施設を持つが、downtown は minSpan=3 の専門施設だけ。
+		// zoneHasBase は登場した地区ごとに判定するので、downtown 単独の基本施設欠落を弾く
+		raws := oapi.Raws{
+			EnemyTables: enemyTables,
+			Facilities: &[]oapi.Facility{
+				{Id: "house", EnemyTable: "clinic_enemies", Planner: oapi.House, Zones: []oapi.FacilityZone{{Zone: oapi.Residential, Weight: 10, MinSpan: 2}}},
+				{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: []oapi.FacilityZone{{Zone: oapi.Downtown, Weight: 10, MinSpan: 3}}},
+			},
+		}
+		require.ErrorIs(t, validateFacilityReferences(raws), errZoneNoBaseFacility)
+	})
+
+	t.Run("全地区に基本施設があれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: enemyTables,
+			Facilities: &[]oapi.Facility{{Id: "house", EnemyTable: "clinic_enemies", Planner: oapi.House, Zones: []oapi.FacilityZone{
+				{Zone: oapi.Residential, Weight: 10, MinSpan: 2},
+				{Zone: oapi.Downtown, Weight: 10, MinSpan: 2},
+				{Zone: oapi.Industrial, Weight: 10, MinSpan: 2},
+			}}},
+		}
+		require.NoError(t, validateFacilityReferences(raws))
+	})
 }
 
 func TestValidateInteriorContentReferences(t *testing.T) {

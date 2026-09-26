@@ -24,7 +24,7 @@ func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]
 	for _, l := range lms {
 		total += int(l.Weight)
 	}
-	// landmarks が空だと total==0 で IntN が壊れる。validate が非空を保証する
+	// landmarks が空だと total==0 で IntN が壊れる。validate が非空と重み総和>0 を保証する
 	roll := int(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % uint64(total))
 	for _, l := range lms {
 		roll -= int(l.Weight)
@@ -32,7 +32,7 @@ func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]
 			return l.Id
 		}
 	}
-	return lms[len(lms)-1].Id
+	panic("unreachable: landmark weight total and subtraction are inconsistent")
 }
 
 // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。
