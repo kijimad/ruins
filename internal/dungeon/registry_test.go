@@ -50,6 +50,25 @@ func TestGetDungeonByName(t *testing.T) {
 	})
 }
 
+func TestBaseTemperatureFor(t *testing.T) {
+	t.Parallel()
+
+	t.Run("allDungeons登録のダンジョンの気温を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 5, BaseTemperatureFor("Ash cave"))
+	})
+
+	t.Run("internalDefinitions登録のダンジョンの気温を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 10, BaseTemperatureFor("Debug"))
+	})
+
+	t.Run("未登録の名前は0を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 0, BaseTemperatureFor("存在しないダンジョン"))
+	})
+}
+
 func TestDefinitions(t *testing.T) {
 	t.Parallel()
 
