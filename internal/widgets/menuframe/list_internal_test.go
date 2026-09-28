@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// resolveColWidths は非公開関数なので、この internal test だけがモード別の分岐を直接検証できる。
+// resolveColWidths は非公開関数のため internal test で直接呼び出す。
 
 func TestResolveColWidths_Icon列は正方の固定幅(t *testing.T) {
 	t.Parallel()
