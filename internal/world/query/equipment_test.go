@@ -57,6 +57,23 @@ func TestGetWeapons_Empty(t *testing.T) {
 	}
 }
 
+func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	// SpawnPlayer は初期装備の松明をスロット1に武器として装備する
+	weapons := query.GetWeapons(world, player)
+	require.Len(t, weapons, 5)
+	require.NotNil(t, weapons[0], "スロット1に初期装備の松明が入っている")
+	assert.True(t, query.IsWeapon(world, *weapons[0]), "松明は近接コンポーネントを持つので武器と判定される")
+	for i := 1; i < 5; i++ {
+		assert.Nil(t, weapons[i], "スロット%dは空", i+1)
+	}
+}
+
 func TestGetArmorEquipments(t *testing.T) {
 	t.Parallel()
 
@@ -80,6 +97,22 @@ func TestGetArmorEquipments(t *testing.T) {
 	armors = query.GetArmorEquipments(world, player)
 	assert.NotNil(t, armors[1], "SlotTorsoに装備が入っている")
 	assert.Nil(t, armors[0], "SlotHeadは空")
+}
+
+// TestGetArmorEquipments_不正なスロットはpanic は防具スロットの範囲外(武器スロット)を
+// Wearable に割り当てた不整合データを switch の default 分岐に落とし、panic することを固定する。
+func TestGetArmorEquipments_不正なスロットはpanic(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	item := world.ECS.NewEntity()
+	world.Components.Wearable.Add(item, &gc.Wearable{EquipmentCategory: gc.EquipmentTorso})
+	lifecycle.MoveToEquip(world, item, player, gc.SlotWeapon1)
+
+	assert.Panics(t, func() { query.GetArmorEquipments(world, player) })
 }
 
 func TestEquipDisarm(t *testing.T) {

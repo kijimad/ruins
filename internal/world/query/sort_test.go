@@ -195,6 +195,26 @@ func TestSortEntitiesWithMixedComponents(t *testing.T) {
 	assert.Equal(t, "Charlie", name3.Name)
 }
 
+// TestSortEntities_同名でRawIDが無ければ副キーは空文字扱いで安定ソートに落ちる は、
+// sortRawID が RawID を持たないエンティティに空文字を返し、
+// 同名の並びが安定ソートで作成順のまま保たれることを固定する。
+func TestSortEntities_同名でRawIDが無ければ副キーは空文字扱いで安定ソートに落ちる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	first := world.ECS.NewEntity()
+	world.Components.Name.Add(first, &gc.Name{Name: "拾い物"})
+
+	second := world.ECS.NewEntity()
+	world.Components.Name.Add(second, &gc.Name{Name: "拾い物"})
+
+	sorted := SortEntities(world, []ecs.Entity{first, second})
+
+	require.Len(t, sorted, 2)
+	assert.Equal(t, first, sorted[0], "RawIDが無ければ副キーは空文字で並び、安定ソートで作成順を保つ")
+	assert.Equal(t, second, sorted[1])
+}
+
 func TestSortEntitiesEmptyAndNilCases(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
