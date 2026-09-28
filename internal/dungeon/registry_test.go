@@ -55,12 +55,12 @@ func TestBaseTemperatureFor(t *testing.T) {
 
 	t.Run("allDungeons登録のダンジョンの気温を返す", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 5, BaseTemperatureFor("Ash cave"))
+		assert.Equal(t, 5, BaseTemperatureFor(DungeonCave.Name()))
 	})
 
 	t.Run("internalDefinitions登録のダンジョンの気温を返す", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 10, BaseTemperatureFor("Debug"))
+		assert.Equal(t, 10, BaseTemperatureFor(DungeonDebug.Name()))
 	})
 
 	t.Run("未登録の名前は0を返す", func(t *testing.T) {
