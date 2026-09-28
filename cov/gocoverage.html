@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (87.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -285,7 +285,7 @@
 				
 				<option value="file114">github.com/kijimaD/ruins/internal/dungeon/definition.go (95.2%)</option>
 				
-				<option value="file115">github.com/kijimaD/ruins/internal/dungeon/registry.go (72.7%)</option>
+				<option value="file115">github.com/kijimaD/ruins/internal/dungeon/registry.go (100.0%)</option>
 				
 				<option value="file116">github.com/kijimaD/ruins/internal/engine/components/lib.go (100.0%)</option>
 				
@@ -1712,7 +1712,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -17286,10 +17286,10 @@ var internalDefinitions = []StageDefinition{
 // BaseTemperatureFor は名前のステージ定義の基本気温を返す。未登録は0。
 // ステージ生成時に StageField.BaseTemp へ写し、気温計算が dungeon 登録表を引かずに済むようにする
 func BaseTemperatureFor(name string) int {
-        <span class="cov0" title="0">if def, ok := GetStageDefinition(name); ok </span>{
-                <span class="cov0" title="0">return def.BaseTemperature()
+        <span class="cov8" title="1">if def, ok := GetStageDefinition(name); ok </span>{
+                <span class="cov8" title="1">return def.BaseTemperature()
 </span>        }
-        <span class="cov0" title="0">return 0</span>
+        <span class="cov8" title="1">return 0</span>
 }
 
 // GetStageDefinition は名前からステージ定義のマスタを取得する。
