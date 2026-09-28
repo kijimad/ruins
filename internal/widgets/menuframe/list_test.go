@@ -79,3 +79,54 @@ func TestRenderMenuListUI_多数行はページ送りし空行で高さを保つ
 	}, labels)
 	assert.Contains(t, pager, "/", "複数ページはページ表示をフッタ向けに返す")
 }
+
+func TestRenderMenuListUI_最終ページの余りは空行で埋めて高さを保つ(t *testing.T) {
+	t.Parallel()
+	rows := make([]menuframe.Row, 25)
+	for i := range rows {
+		rows[i] = menuframe.Row{Cells: styled.TextCells(fmt.Sprintf("Item %d", i+1))}
+	}
+	// itemIndex=22 は3ページ目に属し、3ページ目は Item21〜25 の5件しかない
+	items, pager := menuframe.RenderList(22, rows, styled.Cols(styled.Name()), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
+	labels := labelsOf(items)
+
+	assert.Equal(t, []string{
+		"Item 21", "Item 22", "Item 23", "Item 24", "Item 25",
+		"", "", "", "", "",
+	}, labels, "余った5件は空行で埋め、ページを繰っても高さが変わらないようにする")
+	assert.Equal(t, "3/3", pager, "最終ページの番号もページ表示に出る")
+}
+
+func TestRenderMenuListUI_列見出し行は各行のHeader行とは別に先頭へ1回出す(t *testing.T) {
+	t.Parallel()
+	rows := []menuframe.Row{{Cells: styled.TextCells("項目A")}}
+	opts := menuframe.ListOpts{HeaderRow: []string{"名前"}, ItemsPerPage: 10}
+	items, _ := menuframe.RenderList(-1, rows, styled.Cols(styled.Name()), opts, resources.UIResources{Text: &resources.TextResources{}})
+
+	assert.Equal(t, []string{"名前", "項目A"}, labelsOf(items), "opts.HeaderRowは表の先頭に一度だけ出る列見出し")
+}
+
+func TestRenderMenuListUI_行が無いときはEmptyTextを表示する(t *testing.T) {
+	t.Parallel()
+	opts := menuframe.ListOpts{EmptyText: "アイテムがありません", ItemsPerPage: 10}
+	items, _ := menuframe.RenderList(-1, nil, styled.Cols(styled.Name()), opts, resources.UIResources{Text: &resources.TextResources{}})
+
+	assert.Equal(t, []string{"アイテムがありません"}, labelsOf(items))
+}
+
+func TestRenderMenuListUI_行が無くEmptyText未指定なら何も出さない(t *testing.T) {
+	t.Parallel()
+	items, pager := menuframe.RenderList(-1, nil, styled.Cols(styled.Name()), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
+
+	assert.Empty(t, items)
+	assert.Empty(t, pager)
+}
+
+func TestSelectionRow_中身を持たず意匠だけの行を返す(t *testing.T) {
+	t.Parallel()
+	res := resources.UIResources{Text: &resources.TextResources{}}
+
+	row := menuframe.SelectionRow(res, false)
+
+	assert.Empty(t, row.Children(), "中身は呼び出し側が別に重ねるので子を持たない")
+}
