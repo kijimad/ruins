@@ -273,7 +273,30 @@ func TestUnequipAll(t *testing.T) {
 	})
 }
 
-func TestRemoveOwnedStorage(t *testing.T) {
+func TestMoveToInstalled(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+	player := world.ECS.NewEntity()
+
+	item, err := spawnItemBase(world, "wooden_sword")
+	require.NoError(t, err)
+	world.Components.CubeModule.Add(item, &gc.CubeModule{RangeBonus: 1})
+	// 排他と GridElement 除去を確かめるため、バックパックと座標を持たせてから装着する
+	require.NoError(t, MoveToBackpack(world, item, player))
+	world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
+
+	MoveToInstalled(world, item, cube, 2)
+
+	require.True(t, world.Components.LocationInstalled.Has(item), "装着ロケーションが付く")
+	assert.Equal(t, cube, world.Components.LocationInstalled.Get(item).Owner, "所有はこのキューブ")
+	assert.Equal(t, 2, world.Components.LocationInstalled.Get(item).Slot, "指定スロットが入る")
+	assert.False(t, world.Components.LocationInBackpack.Has(item), "他ロケーションと排他")
+	assert.False(t, world.Components.GridElement.Has(item), "GridElement は外れる")
+	assert.True(t, world.Components.WeightDirty.Has(cube), "キューブに WeightDirty が付く")
+}
+
+func TestRemoveOwnedEntities(t *testing.T) {
 	t.Parallel()
 
 	t.Run("owner指定なしでは何も削除しない", func(t *testing.T) {
@@ -284,7 +307,7 @@ func TestRemoveOwnedStorage(t *testing.T) {
 		item, err := SpawnStorageItem(world, "wooden_sword", 1, storage)
 		require.NoError(t, err)
 
-		RemoveOwnedStorage(world, nil)
+		RemoveOwnedEntities(world, nil)
 
 		assert.True(t, world.ECS.Alive(item), "owner未指定では在庫は残る")
 	})
@@ -297,7 +320,7 @@ func TestRemoveOwnedStorage(t *testing.T) {
 		item, err := SpawnStorageItem(world, "wooden_sword", 1, storage)
 		require.NoError(t, err)
 
-		RemoveOwnedStorage(world, []ecs.Entity{storage})
+		RemoveOwnedEntities(world, []ecs.Entity{storage})
 
 		assert.False(t, world.ECS.Alive(item), "指定した所有者の在庫は削除される")
 	})
@@ -313,9 +336,31 @@ func TestRemoveOwnedStorage(t *testing.T) {
 		itemB, err := SpawnStorageItem(world, "wooden_sword", 1, storageB)
 		require.NoError(t, err)
 
-		RemoveOwnedStorage(world, []ecs.Entity{storageA})
+		RemoveOwnedEntities(world, []ecs.Entity{storageA})
 
 		assert.False(t, world.ECS.Alive(itemA), "指定した所有者Aの在庫は削除される")
 		assert.True(t, world.ECS.Alive(itemB), "指定していない所有者Bの在庫は残る")
+	})
+
+	t.Run("畳んだ貨物と装着モジュールも道連れにする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		cube := world.ECS.NewEntity()
+		// 座標を持たない3ロケーションをキューブへぶら下げる
+		fuel, err := SpawnStorageItem(world, "wooden_sword", 1, cube)
+		require.NoError(t, err)
+		cargo, err := spawnItemBase(world, "wooden_sword")
+		require.NoError(t, err)
+		MoveToStowed(world, cargo, cube, consts.Coord[consts.Tile]{X: -1, Y: -1})
+		module, err := spawnItemBase(world, "wooden_sword")
+		require.NoError(t, err)
+		MoveToInstalled(world, module, cube, 0)
+
+		RemoveOwnedEntities(world, []ecs.Entity{cube})
+
+		assert.False(t, world.ECS.Alive(fuel), "収納在庫は道連れ")
+		assert.False(t, world.ECS.Alive(cargo), "畳んだ貨物も道連れ")
+		assert.False(t, world.ECS.Alive(module), "装着モジュールも道連れ")
 	})
 }

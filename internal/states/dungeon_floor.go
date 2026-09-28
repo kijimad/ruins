@@ -113,6 +113,9 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		if err := spawnDebugStageFire(world); err != nil {
 			return zero, noEntity, err
 		}
+		if err := spawnDebugStageCubeGear(world); err != nil {
+			return zero, noEntity, err
+		}
 	}
 
 	// 生成物(上り階段を含む)をこのステージへ束縛して識別できるようにする
@@ -148,6 +151,44 @@ func spawnDebugStageFire(world w.World) error {
 		return fmt.Errorf("failed to spawn debug stage fire: %w", err)
 	}
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugStageFireBurnTurns})
+	return nil
+}
+
+// debugStageModuleCount はデバッグ街の木箱へ入れておく範囲モジュールの数。全スロットを試せるよう上限に合わせる
+const debugStageModuleCount = consts.CubeModuleSlots
+
+// debugStageFacilityCount はデバッグ街の木箱へ入れておく装着アイテムの種類ごとの数。展開空間へ装着して往復を試せるようにする
+const debugStageFacilityCount = 2
+
+// debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
+var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed", "deployable_workbench"}
+
+// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムを入れておく。
+// 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
+func spawnDebugStageCubeGear(world w.World) error {
+	var crate ecs.Entity
+	found := false
+	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID == "wooden_crate" {
+			crate = e
+			found = true
+			q.Close()
+			break
+		}
+	}
+	if !found {
+		return fmt.Errorf("debug stage: wooden_crate not found for cube gear")
+	}
+	if _, err := lifecycle.SpawnStorageItem(world, "cube_range_module", debugStageModuleCount, crate); err != nil {
+		return fmt.Errorf("failed to spawn debug stage modules: %w", err)
+	}
+	for _, id := range debugStageFacilityItems {
+		if _, err := lifecycle.SpawnStorageItem(world, id, debugStageFacilityCount, crate); err != nil {
+			return fmt.Errorf("failed to spawn debug stage facility %s: %w", id, err)
+		}
+	}
 	return nil
 }
 

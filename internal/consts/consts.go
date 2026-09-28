@@ -54,6 +54,10 @@ func CubeDeployBaseRange() Coord[Tile] {
 	return Coord[Tile]{X: 2, Y: 2}
 }
 
+// CubeModuleSlots はキューブに装着できるモジュールの上限。装備のスロットと同様に、装着中と空きを
+// この数だけメニューに並べる。強化の頭打ちを可視化し、際限ない範囲拡張を防ぐ
+const CubeModuleSlots = 4
+
 // ========== ゲーム定数 ==========
 
 const (

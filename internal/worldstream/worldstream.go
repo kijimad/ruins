@@ -47,7 +47,7 @@ func RemoveEntitiesInYRange(world w.World, loY, hiY consts.Tile, keep func(ecs.E
 	}
 	// 消える所有者の収納在庫も道連れにする。商人の在庫は GridElement を持たず座標カリングでは
 	// 拾われないため、所有者を消すときに一緒に消さないと死んだ所有者を指す孤児になり、serde で保存され蓄積する
-	lifecycle.RemoveOwnedStorage(world, toRemove)
+	lifecycle.RemoveOwnedEntities(world, toRemove)
 
 	for _, entity := range toRemove {
 		if world.ECS.Alive(entity) {

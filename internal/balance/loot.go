@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"sort"
 
@@ -26,7 +27,7 @@ var reportFacilities = []interior.FacilityKind{"house", "store", "antique", "cli
 
 // GenerateRoomLoot は各施設種別を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに
 // アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。
-func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceFacilityLoot {
+func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.BalanceFacilityLoot, error) {
 	footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 14, Y: 0}
 
@@ -48,7 +49,10 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceF
 		for i := range trials {
 			trialSeed := seed + uint64(i)
 			rng := rand.New(rand.NewPCG(trialSeed, roomLootStream))
-			site, placed := interior.FurnishBuilding(trialSeed, footprint, door, fac)
+			site, placed, err := interior.FurnishBuilding(master, trialSeed, footprint, door, fac)
+			if err != nil {
+				return nil, fmt.Errorf("furnish %q: %w", fac, err)
+			}
 
 			// この試行の role -> item -> 個数。試行内で集めてから present を1回だけ加算する
 			perRole := map[string]map[string]int{}
@@ -79,7 +83,7 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceF
 			Rooms:    buildRoomLoot(master, total, present, trials),
 		})
 	}
-	return result
+	return result, nil
 }
 
 // drawnLoot は materialize した1種のアイテムと個数。

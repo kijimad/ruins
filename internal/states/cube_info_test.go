@@ -29,17 +29,21 @@ func TestCubeInfoState_基本タブを1つ持つ(t *testing.T) {
 	assert.Equal(t, "Basic", props.Tabs[0].Label, "基本タブ")
 }
 
-// TestCubeInfoItems_総重量と燃料を出す はキューブ情報の基本タブが総重量と燃料の2行を出すことを検証する。
-func TestCubeInfoItems_総重量と燃料を出す(t *testing.T) {
+// TestCubeInfoItems_展開サイズと総重量と燃料を出す はキューブ情報の基本タブが展開サイズ・総重量・燃料の
+// 3行を出すことを検証する。展開サイズはモジュール未装着の基準 5x5。
+func TestCubeInfoItems_展開サイズと総重量と燃料を出す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
 
 	items := cubeInfoItems(world, cube)
+	got := make(map[string]string, len(items))
 	labels := make([]string, len(items))
 	for i, it := range items {
 		labels[i] = it.Label
+		got[it.Label] = it.Value
 	}
-	assert.Equal(t, []string{"Total weight", "Fuel"}, labels, "総重量と燃料の2行")
+	assert.Equal(t, []string{"Deploy size", "Total weight", "Fuel"}, labels, "展開サイズ・総重量・燃料の3行")
+	assert.Equal(t, "5x5", got["Deploy size"], "未装着は基準 5x5")
 }

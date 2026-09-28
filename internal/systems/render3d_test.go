@@ -133,20 +133,20 @@ func TestSortQuadsByDepth_奥行き同値はdepthの大きい方を手前にす�
 }
 
 // TestDeployFieldArea は展開野営のタイル集合を投影・描画から切り離して固定する。
-// 基準 2x2 の縦横別半径なので中心の周り 5x5=25 タイルの矩形になる。
+// 壁は展開時に凍結した Deployed.Range で描くので、半径 2x2 なら中心の周り 5x5=25 タイルになる。
 func TestDeployFieldArea(t *testing.T) {
 	t.Parallel()
 
-	t.Run("展開中キューブは中心周りの矩形を返す", func(t *testing.T) {
+	t.Run("展開中キューブは凍結範囲の矩形を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		cube := world.ECS.NewEntity()
 		world.Components.GridElement.Add(cube, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Deployed.Add(cube, &gc.Deployed{})
+		world.Components.Deployed.Add(cube, &gc.Deployed{Range: consts.Coord[consts.Tile]{X: 2, Y: 2}})
 
 		area := deployFieldArea(world)
 
-		assert.Len(t, area, 25, "基準 2x2 なので 5x5 タイル")
+		assert.Len(t, area, 25, "半径 2x2 なので 5x5 タイル")
 		assert.True(t, area[consts.Coord[consts.Tile]{X: 10, Y: 10}], "中心を含む")
 		assert.True(t, area[consts.Coord[consts.Tile]{X: 12, Y: 12}], "角(+2,+2)を含む")
 		assert.True(t, area[consts.Coord[consts.Tile]{X: 8, Y: 8}], "角(-2,-2)を含む")

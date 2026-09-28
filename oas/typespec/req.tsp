@@ -46,6 +46,18 @@ model Ammo {
   accuracyBonus: AccuracyBonus;
 }
 
+/** キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる */
+model CubeModule {
+  rangeBonus: RangeBonus;
+}
+
+/** 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す */
+model Deployable {
+  storage?: StorageRaw;
+  lightSource?: LightSource;
+  bedding?: Bedding;
+}
+
 /** 近接攻撃設定 */
 model Melee {
   accuracy: Accuracy;
@@ -106,6 +118,8 @@ model Item {
   wearable?: Wearable;
   equipBonus?: EquipBonus;
   ammo?: Ammo;
+  cubeModule?: CubeModule;
+  deployable?: Deployable;
   melee?: Melee;
   fire?: Fire;
   book?: Book;
@@ -290,6 +304,102 @@ model EnemyTable {
   entries: EnemyTableEntry[];
 }
 
+/** 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
+enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。 */
+model FacilityEnemyTable {
+  facility: FacilityKind;
+  /** 割り当てる敵テーブルの id。enemyTables のいずれかを指す */
+  enemyTable: EntityID;
+}
+
+// ================== 内装レシピ ==================
+
+/** 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う */
+enum StuffKind {
+  furniture,
+  loot,
+  being,
+  decor,
+  trap,
+}
+
+/** グループの抽選方式。保証セットとランダム充填を分ける */
+enum GroupStyle {
+  /** Items を全部置く。各 Stuff は chance で個別に gate する */
+  pick_each,
+  /** Items から重みで1つ選ぶ */
+  pick_one,
+  /** Items から重複なく pick 個選ぶ */
+  pick_n,
+}
+
+/** 配置の置き方。空なら家具型の archetype 既定へ落ちる */
+enum Placement {
+  center,
+  wall,
+  full_area,
+  near_door,
+  far_from_door,
+  row,
+}
+
+/** 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向 */
+model ContentVec {
+  x: int32;
+  y: int32;
+}
+
+/** anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ */
+model ContentSatellite {
+  kind: StuffKind;
+  ref: EntityID;
+  offsets: ContentVec[];
+}
+
+/** 内装レシピの1配置指示 */
+model ContentStuff {
+  kind: StuffKind;
+  ref: EntityID;
+  weight?: EntryWeight;
+  /** 置く個数のダイス表記 */
+  amount: Dice;
+  placement?: Placement;
+  satellites?: ContentSatellite[];
+}
+
+/** 抽選単位の束 */
+model ContentGroup {
+  style: GroupStyle;
+  /** pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可 */
+  pick?: int32;
+  items: ContentStuff[];
+}
+
+/** 内装レシピ。施設まるごと、または奥室1つに対応する */
+model InteriorContent {
+  id: EntityID;
+  groups?: ContentGroup[];
+}
+
+/** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
+model FacilityContent {
+  facility: FacilityKind;
+  variants: EntityID[];
+}
+
+/** 奥室の役割名と内装レシピの対 */
+model RoomContent {
+  role: RoomRole;
+  content: EntityID;
+}
+
+/** 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック */
+model FacilityRooms {
+  facility: FacilityKind;
+  rooms?: RoomContent[];
+  fallback: EntityID;
+}
+
 // ================== タイル ==================
 
 /** スプライトレンダー設定 */
@@ -438,6 +548,14 @@ model Raws {
   itemGroups?: ItemGroup[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
+  facilityEnemyTables?: FacilityEnemyTable[];
+  interiorContents?: InteriorContent[];
+  facilityContents?: FacilityContent[];
+  facilityRooms?: FacilityRooms[];
+
+  /** 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
+      interiorContents プールには入れず、この専用フィールドだけに置く */
+  flavorContent?: InteriorContent;
   spriteSheets?: SpriteSheet[];
   tiles?: Tile[];
   props?: Prop[];

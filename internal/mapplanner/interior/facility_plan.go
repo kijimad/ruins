@@ -31,7 +31,7 @@ func clinicBackRole(i, total int) roleName {
 	case i == total-2 && total >= 4:
 		return "office"
 	default:
-		return "exam"
+		return "examination_room"
 	}
 }
 

@@ -8,9 +8,11 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDriveFuelCost(t *testing.T) {
@@ -115,6 +117,132 @@ func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(3*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, cube))
+}
+
+// attachCubeModule はテスト用に RangeBonus を持つモジュールをキューブへ装着する。
+func attachCubeModule(world w.World, cube ecs.Entity, bonus consts.Tile) ecs.Entity {
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: bonus})
+	world.Components.LocationInstalled.Add(m, &gc.LocationInstalled{Owner: cube})
+	return m
+}
+
+func TestCubeDeployRange_モジュールで縦横一律に伸びる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, query.CubeDeployRange(world, cube),
+		"未装着は基準 2x2")
+
+	attachCubeModule(world, cube, 1)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 3}, query.CubeDeployRange(world, cube),
+		"共通モジュール1つで縦横とも +1")
+
+	attachCubeModule(world, cube, 2)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, query.CubeDeployRange(world, cube),
+		"さらに +2 で縦横とも累積して伸びる")
+}
+
+func TestCubeDeployRange_別キューブのモジュールは数えない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	attachCubeModule(world, other, 5)
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 2, Y: 2}, query.CubeDeployRange(world, cube),
+		"別キューブのモジュールは効かない")
+}
+
+func TestGetCubeModules_装着したモジュールだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	m := attachCubeModule(world, cube, 1)
+	attachCubeModule(world, other, 1)
+
+	got := query.GetCubeModules(world, cube)
+	assert.Equal(t, []ecs.Entity{m}, got, "このキューブに装着した1件だけ")
+}
+
+func TestBackpackCubeModules_バックパックのモジュールだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	m := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m, &gc.CubeModule{RangeBonus: 1})
+	world.Components.LocationInBackpack.Add(m, &gc.LocationInBackpack{Owner: player})
+	// 別プレイヤーのモジュールと、モジュールでないバックパック品は除く
+	m2 := world.ECS.NewEntity()
+	world.Components.CubeModule.Add(m2, &gc.CubeModule{RangeBonus: 1})
+	world.Components.LocationInBackpack.Add(m2, &gc.LocationInBackpack{Owner: other})
+	nonmod := world.ECS.NewEntity()
+	world.Components.LocationInBackpack.Add(nonmod, &gc.LocationInBackpack{Owner: player})
+
+	assert.Equal(t, []ecs.Entity{m}, query.BackpackCubeModules(world, player), "このプレイヤーのモジュール1件だけ")
+}
+
+func TestBackpackDeployables_バックパックの装着アイテムだけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	d := world.ECS.NewEntity()
+	world.Components.Deployable.Add(d, &gc.Deployable{})
+	world.Components.LocationInBackpack.Add(d, &gc.LocationInBackpack{Owner: player})
+	// 別プレイヤーの装着と、装着でないバックパック品は除く
+	d2 := world.ECS.NewEntity()
+	world.Components.Deployable.Add(d2, &gc.Deployable{})
+	world.Components.LocationInBackpack.Add(d2, &gc.LocationInBackpack{Owner: other})
+	nondep := world.ECS.NewEntity()
+	world.Components.LocationInBackpack.Add(nondep, &gc.LocationInBackpack{Owner: player})
+
+	assert.Equal(t, []ecs.Entity{d}, query.BackpackDeployables(world, player), "このプレイヤーの装着アイテム1件だけ")
+}
+
+func TestFacilityAt_フィールドの装着設備だけを引く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	require.True(t, lifecycle.DeployCube(world, cube))
+
+	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	coord := consts.Coord[consts.Tile]{X: 11, Y: 10}
+	_, err = lifecycle.PlaceFacility(world, cube, item, coord)
+	require.NoError(t, err)
+
+	got, ok := query.FacilityAt(world, coord)
+	require.True(t, ok, "装着したマスの設備を引く")
+	assert.Equal(t, item, got)
+
+	// バックパックの装着は座標を持たないので引かれない。空きマスも引かれない
+	_, err = lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	_, ok = query.FacilityAt(world, consts.Coord[consts.Tile]{X: 12, Y: 10})
+	assert.False(t, ok, "設備が無いマスは引かない")
+}
+
+func TestCubeWeight_装着モジュールも合算する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	m := attachCubeModule(world, cube, 1)
+	world.Components.Weight.Add(m, &gc.Weight{Milligram: consts.Milligram(4 * consts.MilligramPerKg)})
+
+	assert.Equal(t, consts.Milligram(4*consts.MilligramPerKg), query.CubeWeight(world, cube),
+		"装着モジュールの重量が燃費に効く")
 }
 
 // TestDiscoveredChunks_北進ぶん絶対チャンク行をずらす は、探索済みタイルをチャンク粒度へ畳むとき

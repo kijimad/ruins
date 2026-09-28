@@ -40,6 +40,16 @@ func TestRenderMenuListUI_Indentは行全体を字下げする(t *testing.T) {
 	assert.Equal(t, labelsOf(plain), labelsOf(indented), "字下げしてもラベルは変わらない")
 }
 
+func TestRenderMenuListUI_無効行も描画されラベルは残る(t *testing.T) {
+	t.Parallel()
+	rows := []menuframe.Row{
+		{Cells: styled.TextCells("有効")},
+		{Cells: styled.TextCells("無効"), Disabled: true},
+	}
+	items, _ := menuframe.RenderList(-1, rows, styled.Cols(styled.Name()), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
+	assert.Equal(t, []string{"有効", "無効"}, labelsOf(items), "無効行も消えず淡色で描く")
+}
+
 func TestRenderMenuListUI_単一ページは見出しと行を並べる(t *testing.T) {
 	t.Parallel()
 	rows := []menuframe.Row{

@@ -215,7 +215,7 @@ func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon Weapon
 func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {
 	out := make([]DayRisk, 0, days)
 	for day := 1; day <= days; day++ {
-		danger := query.DangerLevelForDay(day)
+		danger := int(query.DangerLevelForDay(day))
 		death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger, consts.PercentBase)
 		if err != nil {
 			return nil, err

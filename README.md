@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [移動拠点キューブを展開式の携行基地へ拡張する](docs/design/260923140706.md) | 0/10 | gamedesign, item, ecs, movement |
+| accepted | [地物のデータ化の総合設計。宣言を raw.toml へ、幾何コードだけ Go に残す](docs/design/260925210126.md) | 0/18 | refactor, worldgen |
 | draft | [コード監査: worldgen・戦闘AI・継続アクティビティ・UI資源 2026-09-28](docs/design/260928001632.md) | 0/5 | worldgen, combat, ui |
 
 

@@ -49,3 +49,33 @@ func TestWeatherSystem_スペルが続く間は遷移しない(t *testing.T) {
 	assert.Equal(t, gc.WeatherSnow, query.GetWeather(world).Current, "スペルが続く間は天候を保つ")
 	assert.Equal(t, consts.Turn(10000), query.GetWeather(world).UntilTurn, "残り終端も変えない")
 }
+
+func TestPlayerNorthDepth(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーが存在しなければ0", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		assert.Equal(t, 0, playerNorthDepth(world))
+	})
+
+	t.Run("プレイヤーにGridElementが無ければ0", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		entity := world.ECS.NewEntity()
+		world.Components.Player.Add(entity, &gc.Player{})
+
+		assert.Equal(t, 0, playerNorthDepth(world))
+	})
+
+	t.Run("プレイヤーの座標からNorthDepthChunksへ委譲する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		sb := query.EnsureSeamlessBand(world)
+		sb.ChunkH, sb.Rows = 30, 3
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 15}, "ash")
+		require.NoError(t, err)
+
+		assert.Equal(t, query.NorthDepthChunks(world, 15), playerNorthDepth(world))
+	})
+}

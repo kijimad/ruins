@@ -98,15 +98,17 @@ func (st *CubeInfoState) ViewUI(world w.World, props CubeInfoProps, cursor menul
 	return menuframe.TabScreen(world, res, query.T(world, "Cube info"), labels, tabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// cubeInfoItems はキューブの基本情報を表の行に組む。収納の総重量と燃料残量。
+// cubeInfoItems はキューブの基本情報を表の行に組む。展開サイズ、収納の総重量、燃料残量。
 // 値は表示時に都度算出する。死んだキューブには空を返す
 func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
 	if !world.ECS.Alive(cube) {
 		return nil
 	}
+	r := query.CubeDeployRange(world, cube)
 	weight := query.CubeWeight(world, cube)
 	fuel := query.CubeFuelTotal(world, cube)
 	return []statusItemData{
+		{Label: query.T(world, "Deploy size"), Value: fmt.Sprintf("%dx%d", 2*r.X+1, 2*r.Y+1)},
 		{Label: query.T(world, "Total weight"), Value: weight.KgString()},
 		{Label: query.T(world, "Fuel"), Value: fuel.String()},
 	}

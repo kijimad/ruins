@@ -113,10 +113,10 @@ func TestSeamlessBand_DepthOfChunkRow(t *testing.T) {
 	// Rows=9 なので起点(湧き位置)の絶対チャンク行は 4。北は行が小さくなる向き
 	sb := SeamlessBand{Rows: 9}
 
-	assert.Equal(t, 0, sb.DepthOfChunkRow(4), "起点チャンク行は深度0")
-	assert.Equal(t, 0, sb.DepthOfChunkRow(6), "起点より手前(南)は深度0に丸める")
-	assert.Equal(t, 1, sb.DepthOfChunkRow(3), "北へ1チャンクで深度1")
-	assert.Equal(t, 5, sb.DepthOfChunkRow(-1), "絶対チャンク行 -1 は起点から北へ5")
+	assert.Equal(t, consts.Chunk(0), sb.DepthOfChunkRow(4), "起点チャンク行は深度0")
+	assert.Equal(t, consts.Chunk(0), sb.DepthOfChunkRow(6), "起点より手前(南)は深度0に丸める")
+	assert.Equal(t, consts.Chunk(1), sb.DepthOfChunkRow(3), "北へ1チャンクで深度1")
+	assert.Equal(t, consts.Chunk(5), sb.DepthOfChunkRow(-1), "絶対チャンク行 -1 は起点から北へ5")
 }
 
 func TestSeamlessBand_SpawnChunkY(t *testing.T) {

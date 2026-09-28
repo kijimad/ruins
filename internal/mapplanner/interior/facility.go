@@ -1,7 +1,9 @@
 package interior
 
-// 施設種別の入口とノブ。単室の建物を施設種別で内装する Furnish と、施設ごとの content 変種・密度・経年を
-// 決める関数を持つ。content レシピそのものは content_catalog.go、束什器は fixtures.go、多部屋の加工パイプは
+import "github.com/kijimaD/ruins/internal/oapi"
+
+// 施設種別で単室の建物を内装する公開 API Furnish と、密度・経年を決める調整関数を持つ。content
+// レシピそのものは raw.toml のデータで、content_lookup.go が施設種別から変種を都度引いて変換する。多部屋の加工パイプは
 // furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
 
 // FacilityKind は建物の施設種別。overworld の facilityType の文字列と揃える。公開 API は overworld から
@@ -22,47 +24,25 @@ const (
 
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
-// facilityContent の変種・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
-func Furnish(seed uint64, footprint Rect, door Vec, facility FacilityKind) []Placed {
+// 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
+func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) ([]Placed, error) {
 	prof := rollProfile(seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
-	placed := FillRoom(seed, room, applyDensity(facilityContent(facility, seed), prof.density))
+	main, err := facilityContent(raws, facility, seed)
+	if err != nil {
+		return nil, err
+	}
+	placed := FillRoom(seed, room, applyDensity(main, prof.density))
 	// 時間の層。損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷の建物は新品のまま
 	placed = Age(seed, room, placed, prof.damage)
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
-	placed = Flavor(seed, room, placed, facilityFlavor(facility))
-	// 散らかりの小物を家具の隣へ落とし、生活感を足す
-	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter, roleMain)
-}
-
-// facilityContent は施設種別名から内装 content を1つ引く。同じ施設種別でも複数の変種を持ち、seed で
-// 引くことで同じ店が薬局にも食料品店にもなる。最優先の「部屋アーキタイプ数」を、既存家具の
-// 組み替えだけでデータを足さずに増やす。変種の seed は本体生成と別枠にして相関を避ける。
-func facilityContent(facility FacilityKind, seed uint64) Content {
-	variants := facilityVariants(facility)
-	return variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
-}
-
-// facilityVariants は施設種別ごとの内装変種の一覧。骨董品店は商店、研究施設は診療所へ寄せ、未知は汎用に
-// する。変種を足すときはここへ Content を加えるだけでよい。レシピの実体は content_catalog.go にある。
-func facilityVariants(facility FacilityKind) []Content {
-	switch facility {
-	case facHouse:
-		return []Content{houseContent(), studioContent()}
-	case facStore:
-		return []Content{storeContent(), pharmacyContent(), groceryContent()}
-	case facAntique:
-		return []Content{storeContent()}
-	case facClinic, facLab:
-		return []Content{clinicContent()}
-	case facOffice:
-		return []Content{officeContent()}
-	case facDepot:
-		return []Content{depotContent()}
+	flavor, err := flavorContent(raws)
+	if err != nil {
+		return nil, err
 	}
-	// FacilityKind は raw 由来の文字列なので未知値が来うる。既知の全種別を case で網羅しつつ、未知は末尾で
-	// 汎用へ落とす。default を置かないことで、種別を増やして case を足し忘れると exhaustive linter が止める。
-	return []Content{genericContent()}
+	placed = Flavor(seed, room, placed, flavor)
+	// 散らかりの小物を家具の隣へ落とし、生活感を足す
+	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter, roleMain), nil
 }
 
 // applyDensity は content の家具量を密度係数 factor(×/10)で増減する。個数1の必須什器は1を保ち、詰め物の

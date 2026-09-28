@@ -28,13 +28,10 @@ func resolveGroup(rng *rand.Rand, g Group) []Selection {
 	panic("unknown GroupStyle: " + string(g.Style))
 }
 
-// pickEach は Items を全部置く保証枠。各 Stuff は Chance で個別に gate する。
+// pickEach は Items を全部置く保証枠。
 func pickEach(rng *rand.Rand, items []Stuff) []Selection {
 	out := make([]Selection, 0, len(items))
 	for _, it := range items {
-		if !chancePass(rng, it.Chance) {
-			continue
-		}
 		if n := it.Amount.Roll(rng); n > 0 {
 			out = append(out, selectionOf(it, n))
 		}
@@ -94,14 +91,6 @@ func weightOf(it Stuff) int {
 		return 1
 	}
 	return it.Weight
-}
-
-// chancePass は Chance% で真を返す。0 以下は常に真。
-func chancePass(rng *rand.Rand, chance int) bool {
-	if chance <= 0 {
-		return true
-	}
-	return rng.IntN(100) < chance
 }
 
 // childSeed は親 seed と添字から子 seed を導く。splitmix64 の finalizer で撹拌し、添字の1違いでも

@@ -56,7 +56,8 @@ func TestFurnishBuilding_hero建物は主室に目玉を置く(t *testing.T) {
 	ref, ok := heroCenterpiece(0)
 	require.True(t, ok, "seed 0 は hero")
 
-	site, placed := FurnishBuilding(0, Rect{X: 0, Y: 0, W: 20, H: 20}, Vec{X: 10, Y: 0}, "house")
+	site, placed, err := FurnishBuilding(testRaws(), 0, Rect{X: 0, Y: 0, W: 20, H: 20}, Vec{X: 10, Y: 0}, "house")
+	require.NoError(t, err)
 	found := false
 	for _, p := range placed {
 		if p.Ref == ref {

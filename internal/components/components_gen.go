@@ -24,11 +24,14 @@ type EntitySpec struct {
 	Wearable           *Wearable
 	Abilities          *Abilities
 	Ammo               *Ammo
+	CubeModule         *CubeModule
+	Deployable         *Deployable
 	LocationInBackpack *LocationInBackpack
 	LocationEquipped   *LocationEquipped
 	LocationOnField    *LocationOnField
 	LocationInStorage  *LocationInStorage
 	LocationStowed     *LocationStowed
+	LocationInstalled  *LocationInstalled
 	Tile               *Tile
 	SoloAI             *SoloAI
 	Camera             *Camera
@@ -116,11 +119,14 @@ type Components struct {
 	Wearable           *ecs.Map[Wearable]
 	Abilities          *ecs.Map[Abilities]
 	Ammo               *ecs.Map[Ammo]
+	CubeModule         *ecs.Map[CubeModule]
+	Deployable         *ecs.Map[Deployable]
 	LocationInBackpack *ecs.Map[LocationInBackpack]
 	LocationEquipped   *ecs.Map[LocationEquipped]
 	LocationOnField    *ecs.Map[LocationOnField]
 	LocationInStorage  *ecs.Map[LocationInStorage]
 	LocationStowed     *ecs.Map[LocationStowed]
+	LocationInstalled  *ecs.Map[LocationInstalled]
 	Tile               *ecs.Map[Tile]
 	SoloAI             *ecs.Map[SoloAI]
 	Camera             *ecs.Map[Camera]
@@ -208,11 +214,14 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Wearable = ecs.NewMap[Wearable](world)
 	c.Abilities = ecs.NewMap[Abilities](world)
 	c.Ammo = ecs.NewMap[Ammo](world)
+	c.CubeModule = ecs.NewMap[CubeModule](world)
+	c.Deployable = ecs.NewMap[Deployable](world)
 	c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)
 	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
 	c.LocationOnField = ecs.NewMap[LocationOnField](world)
 	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
 	c.LocationStowed = ecs.NewMap[LocationStowed](world)
+	c.LocationInstalled = ecs.NewMap[LocationInstalled](world)
 	c.Tile = ecs.NewMap[Tile](world)
 	c.SoloAI = ecs.NewMap[SoloAI](world)
 	c.Camera = ecs.NewMap[Camera](world)
@@ -302,11 +311,14 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Wearable, entity, spec.Wearable)
 	addComp(c.Abilities, entity, spec.Abilities)
 	addComp(c.Ammo, entity, spec.Ammo)
+	addComp(c.CubeModule, entity, spec.CubeModule)
+	addComp(c.Deployable, entity, spec.Deployable)
 	addComp(c.LocationInBackpack, entity, spec.LocationInBackpack)
 	addComp(c.LocationEquipped, entity, spec.LocationEquipped)
 	addComp(c.LocationOnField, entity, spec.LocationOnField)
 	addComp(c.LocationInStorage, entity, spec.LocationInStorage)
 	addComp(c.LocationStowed, entity, spec.LocationStowed)
+	addComp(c.LocationInstalled, entity, spec.LocationInstalled)
 	addComp(c.Tile, entity, spec.Tile)
 	addComp(c.SoloAI, entity, spec.SoloAI)
 	addComp(c.Camera, entity, spec.Camera)

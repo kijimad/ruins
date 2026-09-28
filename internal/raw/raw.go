@@ -347,6 +347,12 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
+	if item.CubeModule != nil {
+		entitySpec.CubeModule = &gc.CubeModule{
+			RangeBonus: consts.Tile(item.CubeModule.RangeBonus),
+		}
+	}
+
 	entitySpec.Value = &gc.Value{Value: item.Value}
 
 	if item.Weight != nil {
@@ -378,10 +384,43 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}
 
-	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
+	// フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
+	if item.Deployable != nil {
+		if err := applyDeployable(&entitySpec, item.Deployable, name); err != nil {
+			return gc.EntitySpec{}, err
+		}
+	}
 
 	return entitySpec, nil
+}
+
+// applyDeployable は装着アイテムの設備設定を1箇所に集める。マーカーと能力ごとのコンポーネントを付ける。
+// 装着は設備画面で扱うので拾える相互作用は与えない。新設備は能力の枝を1つ足す。
+// 能力枝を持たない装着、raw の空 [items.deployable] は Deployable マーカーだけを付ける。工作台が例。
+func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
+	entitySpec.Deployable = &gc.Deployable{}
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
+	if dep.Storage != nil {
+		mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
+		if err != nil {
+			return fmt.Errorf("item '%s' deployable storage: %w", name, err)
+		}
+		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
+		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
+	}
+	// 携行光源と装着照明はどちらも実体の LightSource を使うが共存できず後勝ちになる。
+	// 片方が痕跡なく消える矛盾記述なので、後勝ちを許さず error で弾く
+	if dep.LightSource != nil {
+		if entitySpec.LightSource != nil {
+			return fmt.Errorf("item '%s': carried lightSource and deployable lightSource conflict", name)
+		}
+		entitySpec.LightSource = toGCLightSource(dep.LightSource)
+	}
+	if dep.Bedding != nil {
+		entitySpec.Bedding = toGCBedding(dep.Bedding)
+	}
+	return nil
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
@@ -624,6 +663,15 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 		return oapi.EnemyTable{}, fmt.Errorf("key does not exist: %s", name)
 	}
 	return et, nil
+}
+
+// FacilityEnemyTableName は施設種別に割り当てられた敵テーブル id を返す。割り当てが無ければ false を返す。
+func FacilityEnemyTableName(raws oapi.Raws, facility string) (string, bool) {
+	fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string { return string(t.Facility) }, facility)
+	if !ok {
+		return "", false
+	}
+	return fe.EnemyTable, true
 }
 
 // GetTile は指定された名前のタイルを取得する

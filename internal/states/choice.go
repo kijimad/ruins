@@ -26,6 +26,8 @@ type Choice struct {
 	Header bool
 	// Indent は menuframe.Row.Indent へ渡す字下げの段数
 	Indent int
+	// Disabled が真の項目は淡色で出し、カーソルは止まらず選べない。状態で使えない項目を消さずに見せる
+	Disabled bool
 }
 
 // ChoiceProps は選択メニューの表示スナップショット
@@ -75,7 +77,7 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuSelect:
 		choices := st.screen.Props().Choices
 		i := st.screen.Selection().ItemIndex
-		if i < 0 || i >= len(choices) || choices[i].Header || choices[i].Run == nil {
+		if i < 0 || i >= len(choices) || choices[i].Header || choices[i].Disabled || choices[i].Run == nil {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		return choices[i].Run(world)
@@ -94,7 +96,7 @@ func (st *ChoiceMenuState) Fetch(world w.World) (ChoiceProps, error) {
 func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 	skips := make([]bool, len(props.Choices))
 	for i, c := range props.Choices {
-		skips[i] = c.Header
+		skips[i] = c.Header || c.Disabled
 	}
 	return menuloop.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuloop.ItemsPerPageAuto, Skips: [][]bool{skips}}
 }
@@ -120,7 +122,7 @@ func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menul
 		if hasValue {
 			cells = styled.TextCells(c.Label, c.Value)
 		}
-		rows[i] = menuframe.Row{Cells: cells, Header: c.Header, Indent: c.Indent}
+		rows[i] = menuframe.Row{Cells: cells, Header: c.Header, Indent: c.Indent, Disabled: c.Disabled}
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	// ページ表示はフッタ行の右端に出す。1ページのメニューは内容を上端から並べる。

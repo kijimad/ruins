@@ -47,10 +47,10 @@ var defaultArchetypes = map[string]Archetype{
 // placementOf は配置指示の置き方を決める。明示 Placement を最優先し、空なら archetype の既定、それも
 // 無ければ全域とする。レシピが Ref だけ書けば家具型の自然な置き方に落ち、例外だけ明示上書きできる。
 func placementOf(ref string, explicit Placement) Placement {
-	if explicit != "" {
+	if explicit != PlaceDefault {
 		return explicit
 	}
-	if a, ok := defaultArchetypes[ref]; ok && a.Default != "" {
+	if a, ok := defaultArchetypes[ref]; ok && a.Default != PlaceDefault {
 		return a.Default
 	}
 	return PlaceFullArea

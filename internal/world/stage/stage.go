@@ -56,7 +56,7 @@ func Purge(world w.World, key gc.StageKey) {
 	bound := BoundEntities(world, key)
 	// 消える所有者の収納在庫も道連れにする。在庫は GridElement も StageBound も持たず
 	// この走査に載らないため、所有者だけ消すと死んだ所有者を指す孤児になり serde で蓄積する
-	lifecycle.RemoveOwnedStorage(world, bound)
+	lifecycle.RemoveOwnedEntities(world, bound)
 	for _, e := range bound {
 		if world.ECS.Alive(e) {
 			world.ECS.RemoveEntity(e)
