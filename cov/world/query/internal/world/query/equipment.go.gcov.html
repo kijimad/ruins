@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">51.5&nbsp;%</td>
+            <td class="headerCovTableEntryMed">78.8&nbsp;%</td>
             <td class="headerCovTableEntry">33</td>
-            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">26</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-26 03:01:05</td>
+            <td class="headerValue">2026-09-28 15:08:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,20 +82,20 @@
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         for weaponsQuery.Next() {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :                 entity := weaponsQuery.Entity()</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 if !IsWeapon(world, entity) {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 entity := weaponsQuery.Entity()</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 if !IsWeapon(world, entity) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L26"><span class="lineNum">      26</span>              :                 }</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 equipped := world.Components.LocationEquipped.Get(entity)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                 if owner == equipped.Owner {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                         if equipped.EquipmentSlot &gt;= gc.SlotWeapon1 &amp;&amp; equipped.EquipmentSlot &lt;= gc.SlotWeapon5 {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                                 index := int(equipped.EquipmentSlot) - int(gc.SlotWeapon1)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                                 weapons[index] = &amp;entity</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :                 equipped := world.Components.LocationEquipped.Get(entity)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 if owner == equipped.Owner {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         if equipped.EquipmentSlot &gt;= gc.SlotWeapon1 &amp;&amp; equipped.EquipmentSlot &lt;= gc.SlotWeapon5 {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                                 index := int(equipped.EquipmentSlot) - int(gc.SlotWeapon1)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                                 weapons[index] = &amp;entity</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              :                 }</span>
 <span id="L34"><span class="lineNum">      34</span>              :         }</span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 :         return weapons</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return weapons</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : }</span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // GetArmorEquipments は防具一覧を取得する（HEAD, TORSO, ARMS, HANDS, LEGS, FEET, JEWELRY）</span>
@@ -124,12 +124,12 @@
 <span id="L62"><span class="lineNum">      62</span>              :                         case gc.SlotJewelry:</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                                 entities[6] = &amp;entity</span></span>
 <span id="L64"><span class="lineNum">      64</span>              :                         default:</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                                 panic(fmt.Sprintf(&quot;invalid equipment slot: %v&quot;, equipped.EquipmentSlot))</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :                                 panic(fmt.Sprintf(&quot;invalid equipment slot: %v&quot;, equipped.EquipmentSlot))</span></span>
 <span id="L66"><span class="lineNum">      66</span>              :                         }</span>
 <span id="L67"><span class="lineNum">      67</span>              :                 }</span>
 <span id="L68"><span class="lineNum">      68</span>              :         }</span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">           1 :         return entities</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         return entities</span></span>
 <span id="L71"><span class="lineNum">      71</span>              : }</span>
         </pre>
               </td>

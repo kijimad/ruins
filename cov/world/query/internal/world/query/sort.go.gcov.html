@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.7&nbsp;%</td>
+            <td class="headerCovTableEntryHi">93.1&nbsp;%</td>
             <td class="headerCovTableEntry">29</td>
-            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">27</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-26 03:01:05</td>
+            <td class="headerValue">2026-09-28 15:08:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,13 +109,13 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if world.Components.RawID.Has(entity) {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return world.Components.RawID.Get(entity).ID</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         return &quot;&quot;</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : }</span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // freshnessRank は鮮度段階を並び順の数値にする。非腐敗品は先頭の0、腐敗品は段階の Rank に従う。</span>
 <span id="L54"><span class="lineNum">      54</span>              : // 同一品種でも鮮度が違えば別スタックになるため、その並びを決定的にする副キー。</span>
 <span id="L55"><span class="lineNum">      55</span>              : func freshnessRank(world w.World, entity ecs.Entity) int {</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 :         stage, ok := FreshnessStageOf(world, entity)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         stage, ok := FreshnessStageOf(world, entity)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
