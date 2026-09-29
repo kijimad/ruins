@@ -13,8 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// newTestGameInfoWithFill は塗りテクスチャ付きの GameInfo を作る。fill が nil だと gaugeWidget.Draw が
-// DrawImageTintedRect を呼ばないため、塗り幅を検証するテストでは newTestGameInfo でなくこちらを使う。
+// newTestGameInfoWithFill は塗り幅を検証するテストで使う、塗りテクスチャ付きの GameInfo を作る。
 func newTestGameInfoWithFill(t *testing.T) *GameInfo {
 	t.Helper()
 	res, err := loader.LoadUIResources()
