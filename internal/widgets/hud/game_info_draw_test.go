@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// newTestGameInfo は塗りテクスチャ無しの GameInfo を作る。塗り幅を検証しないテストで使う。
+// 塗り幅を見るテストは newTestGameInfoWithFill を使う。
 func newTestGameInfo(t *testing.T) *GameInfo {
 	t.Helper()
 	res, err := loader.LoadUIResources()
