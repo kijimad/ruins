@@ -116,3 +116,69 @@ func TestCraft_クラフト倍率で実消費量が減る(t *testing.T) {
 	require.True(t, found, "素材が残る")
 	assert.Equal(t, 1, query.GetEntityCount(world, stick), "実消費量1で木の棒が1本残る")
 }
+
+// TestCraft_射撃武器をクラフトするとMeleeとFireの両方に乱数調整が入る は randomize が
+// Melee・Fire の両成分を持つ完成品でそれぞれ基準値から式どおりの範囲内に補正することを検証する。
+// レイガンは近接成分と射撃成分を両方持つ数少ないレシピで、Fire 分岐を実クラフト経路で踏める。
+func TestCraft_射撃武器をクラフトするとMeleeとFireの両方に乱数調整が入る(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	required := requiredMaterials(world, "ray_gun")
+	require.NotEmpty(t, required)
+	for _, in := range required {
+		_, err = lifecycle.SpawnBackpackItem(world, in.ID, in.Amount)
+		require.NoError(t, err)
+	}
+
+	result, err := Craft(world, "ray_gun")
+	require.NoError(t, err)
+	require.True(t, world.ECS.Alive(result))
+
+	// 基準はレイガンの Melee: accuracy=90, damage=4。乱数調整は
+	// accuracy: -10〜+9、damage: -5〜+9、品質ボーナスは基準プレイヤーで0
+	require.True(t, world.Components.Melee.Has(result), "レイガンは近接成分も持つ")
+	melee := world.Components.Melee.Get(result)
+	assert.GreaterOrEqual(t, melee.Accuracy, 90-10)
+	assert.LessOrEqual(t, melee.Accuracy, 90+9)
+	assert.GreaterOrEqual(t, melee.Damage, 4-5)
+	assert.LessOrEqual(t, melee.Damage, 4+9)
+
+	// 基準はレイガンの Fire: accuracy=90, damage=20。調整幅はMeleeと同じ式
+	require.True(t, world.Components.Fire.Has(result), "レイガンは射撃武器")
+	fire := world.Components.Fire.Get(result)
+	assert.GreaterOrEqual(t, fire.Accuracy, 90-10)
+	assert.LessOrEqual(t, fire.Accuracy, 90+9)
+	assert.GreaterOrEqual(t, fire.Damage, 20-5)
+	assert.LessOrEqual(t, fire.Damage, 20+9)
+}
+
+// TestCraft_防具をクラフトするとWearableに乱数調整が入る は randomize が Wearable 成分の
+// Defense を基準値から式どおりの範囲内に補正することを検証する。
+func TestCraft_防具をクラフトするとWearableに乱数調整が入る(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	required := requiredMaterials(world, "western_armor")
+	require.NotEmpty(t, required)
+	for _, in := range required {
+		_, err = lifecycle.SpawnBackpackItem(world, in.ID, in.Amount)
+		require.NoError(t, err)
+	}
+
+	result, err := Craft(world, "western_armor")
+	require.NoError(t, err)
+	require.True(t, world.ECS.Alive(result))
+
+	// 基準は西洋鎧の Wearable: defense=8。乱数調整は -4〜+15、品質ボーナスは基準プレイヤーで0
+	require.True(t, world.Components.Wearable.Has(result), "西洋鎧は防具")
+	wearable := world.Components.Wearable.Get(result)
+	assert.GreaterOrEqual(t, wearable.Defense, 8-4)
+	assert.LessOrEqual(t, wearable.Defense, 8+15)
+}

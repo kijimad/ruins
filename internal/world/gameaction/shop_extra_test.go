@@ -123,3 +123,53 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	require.True(t, world.Components.LocationInStorage.Has(item))
 	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 }
+
+// TestBuyStock_通貨消費に失敗すると購入できない は ConsumeCurrency 自体が失敗したとき
+// BuyStock がエラーを返し、在庫が動かないことを確認する。HasCurrency は 0 円要求なら
+// Wallet が無くても通るため、ConsumeCurrency だけが失敗する経路を無価値な品で再現する。
+func TestBuyStock_通貨消費に失敗すると購入できない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// Wallet を持たないプレイヤー
+	player := world.ECS.NewEntity()
+
+	merchant := world.ECS.NewEntity()
+	item := world.ECS.NewEntity()
+	world.Components.Value.Add(item, &gc.Value{Value: 0})
+	world.Components.Name.Add(item, &gc.Name{Name: "Scrap"})
+	world.Components.RawID.Add(item, &gc.RawID{ID: "scrap"})
+	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: merchant})
+
+	err := BuyStock(world, player, item)
+	require.ErrorContains(t, err, "failed to consume currency")
+
+	// 消費に失敗したので在庫に残ったまま
+	assert.True(t, world.Components.LocationInStorage.Has(item))
+}
+
+// TestSellStock_通貨付与に失敗すると実体をバックパックへ戻す は AddCurrency が失敗したとき
+// SellStock が実体を商人の在庫からプレイヤーのバックパックへロールバックすることを確認する。
+func TestSellStock_通貨付与に失敗すると実体をバックパックへ戻す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
+	require.NoError(t, err)
+
+	merchant := world.ECS.NewEntity()
+
+	// Wallet が無いと AddCurrency が失敗し、ロールバック経路に入る
+	world.Components.Wallet.Remove(player)
+
+	err = SellStock(world, player, merchant, item)
+	require.ErrorContains(t, err, "failed to add currency")
+
+	// ロールバックで実体が手元へ戻り、商人の在庫には並ばない
+	assert.True(t, world.Components.LocationInBackpack.Has(item))
+	assert.Equal(t, player, world.Components.LocationInBackpack.Get(item).Owner)
+	assert.False(t, world.Components.LocationInStorage.Has(item))
+}
