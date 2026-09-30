@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">110</td>
-            <td class="headerCovTableEntry">99</td>
+            <td class="headerCovTableEntry">110</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-29 13:42:23</td>
+            <td class="headerValue">2026-09-30 16:49:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,21 +78,21 @@
 <span id="L16"><span class="lineNum">      16</span>              : // 中身の寸法・配置は必ずこれを通す。ImagePanel の画像配置も、呼び出し側の画像サイズ決定も</span>
 <span id="L17"><span class="lineNum">      17</span>              : // 同じ式にして、余白の値が変わっても両者がずれないようにする。</span>
 <span id="L18"><span class="lineNum">      18</span>              : func PanelInner(rect image.Rectangle) image.Rectangle {</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC tlaBgUNC">           0 :         return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま</span>
 <span id="L23"><span class="lineNum">      23</span>              : // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。</span>
 <span id="L24"><span class="lineNum">      24</span>              : func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         inner := PanelInner(rect)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         bg.Layout(rect)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         gfx := uicore.NewGraphic(img)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         gfx.Layout(inner)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         group := uicore.NewGroup(bg, gfx)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         group.Layout(rect)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         return group</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         inner := PanelInner(rect)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         bg.Layout(rect)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         gfx := uicore.NewGraphic(img)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         gfx.Layout(inner)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         group := uicore.NewGroup(bg, gfx)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         group.Layout(rect)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         return group</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // noteRowH は補助フェイスを載せる1行の高さ。操作ヒント・説明・版の注記・入力欄のエラーに使う。</span>
 <span id="L36"><span class="lineNum">      36</span>              : // 役割が同じ行はどの画面でも同じ高さにして、画面をまたいだ見た目のずれを防ぐ</span>
@@ -100,7 +100,7 @@
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // panelBackground はパネルの背景を敷く。</span>
 <span id="L40"><span class="lineNum">      40</span>              : func panelBackground(c *uicore.Container, _ resources.UIResources) *uicore.Container {</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         return c.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         return c.SetStyle(uicore.BoxStyle{Fill: theme.PanelBackground, Border: theme.PanelHighlight, BorderWidth: 1, Radius: theme.CornerRadius})</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。</span>

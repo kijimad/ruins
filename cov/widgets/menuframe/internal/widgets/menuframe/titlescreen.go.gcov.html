@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">21</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">21</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-29 13:42:23</td>
+            <td class="headerValue">2026-09-30 16:49:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,29 +84,29 @@
 <span id="L22"><span class="lineNum">      22</span>              : // 版などの注記を右下へ右寄せで積む。パネル背景は付けない。</span>
 <span id="L23"><span class="lineNum">      23</span>              : // 寸法と余白は部品が持ち、画面は項目と注記の文言だけを渡す。</span>
 <span id="L24"><span class="lineNum">      24</span>              : func TitleScreen(world w.World, res resources.UIResources, itemIndex int, rows []Row, notes []string) uicore.Widget {</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC tlaBgUNC">           0 :         sd := world.Resources.ScreenDimensions</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         sd := world.Resources.ScreenDimensions</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L27"><span class="lineNum">      27</span>              :         // タイトル画面は単一ページ。ページ表示は使わないので捨てる</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         menu := uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         menuH := len(listRows) * theme.MenuPanelRowH</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         menuTop := sd.Height - titleMenuBottom - menuH</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         menu.Layout(image.Rect(titleMenuLeft, menuTop, titleMenuLeft+theme.MenuRowWidth, menuTop+menuH))</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         children := make([]uicore.Widget, 0, 1+len(notes))</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         children = append(children, menu)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         // 注記は下端から上へ積む。行数が変わっても最終行の位置は動かない</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         for i, line := range notes {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 t := uicore.NewText(line, res.Text.SmallFace, theme.TextAccent)</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 t.Align = uicore.AlignRight</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 y := sd.Height - noteRowH*(len(notes)-i) - titleNoteMargin</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 t.Layout(image.Rect(sd.Width-titleNoteW-titleNoteMargin, y, sd.Width-titleNoteMargin, y+noteRowH))</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 children = append(children, t)</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         menu := uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         menuH := len(listRows) * theme.MenuPanelRowH</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         menuTop := sd.Height - titleMenuBottom - menuH</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         menu.Layout(image.Rect(titleMenuLeft, menuTop, titleMenuLeft+theme.MenuRowWidth, menuTop+menuH))</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         children := make([]uicore.Widget, 0, 1+len(notes))</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         children = append(children, menu)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         // 注記は下端から上へ積む。行数が変わっても最終行の位置は動かない</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         for i, line := range notes {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 t := uicore.NewText(line, res.Text.SmallFace, theme.TextAccent)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 t.Align = uicore.AlignRight</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 y := sd.Height - noteRowH*(len(notes)-i) - titleNoteMargin</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 t.Layout(image.Rect(sd.Width-titleNoteW-titleNoteMargin, y, sd.Width-titleNoteMargin, y+noteRowH))</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 children = append(children, t)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         root := uicore.NewGroup(children...)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         return root</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         root := uicore.NewGroup(children...)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return root</span></span>
 <span id="L48"><span class="lineNum">      48</span>              : }</span>
         </pre>
               </td>

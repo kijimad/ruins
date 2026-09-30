@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (87.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -695,19 +695,19 @@
 				
 				<option value="file319">github.com/kijimaD/ruins/internal/widgets/menuframe/capacity.go (100.0%)</option>
 				
-				<option value="file320">github.com/kijimaD/ruins/internal/widgets/menuframe/form.go (0.0%)</option>
+				<option value="file320">github.com/kijimaD/ruins/internal/widgets/menuframe/form.go (100.0%)</option>
 				
-				<option value="file321">github.com/kijimaD/ruins/internal/widgets/menuframe/input.go (75.0%)</option>
+				<option value="file321">github.com/kijimaD/ruins/internal/widgets/menuframe/input.go (100.0%)</option>
 				
 				<option value="file322">github.com/kijimaD/ruins/internal/widgets/menuframe/layout.go (100.0%)</option>
 				
-				<option value="file323">github.com/kijimaD/ruins/internal/widgets/menuframe/list.go (86.7%)</option>
+				<option value="file323">github.com/kijimaD/ruins/internal/widgets/menuframe/list.go (100.0%)</option>
 				
-				<option value="file324">github.com/kijimaD/ruins/internal/widgets/menuframe/screen.go (91.3%)</option>
+				<option value="file324">github.com/kijimaD/ruins/internal/widgets/menuframe/screen.go (100.0%)</option>
 				
-				<option value="file325">github.com/kijimaD/ruins/internal/widgets/menuframe/split.go (0.0%)</option>
+				<option value="file325">github.com/kijimaD/ruins/internal/widgets/menuframe/split.go (100.0%)</option>
 				
-				<option value="file326">github.com/kijimaD/ruins/internal/widgets/menuframe/titlescreen.go (0.0%)</option>
+				<option value="file326">github.com/kijimaD/ruins/internal/widgets/menuframe/titlescreen.go (100.0%)</option>
 				
 				<option value="file327">github.com/kijimaD/ruins/internal/widgets/messagelog/widget.go (93.3%)</option>
 				
@@ -1799,7 +1799,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1869,8 +1869,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -48817,28 +48817,28 @@ const (
 // 縦並びに置く。errText が空ならエラー行は高さを取らない。
 // 幅・行高・間隔は部品が持ち、画面は文言と入力欄の中身だけを渡す。
 func FormScreen(world w.World, res resources.UIResources, title string, body uicore.Widget, errText, hint string) uicore.Widget {
-        <span class="cov0" title="0">sd := world.Resources.ScreenDimensions
+        <span class="cov8" title="1">sd := world.Resources.ScreenDimensions
 </span>
-        <span class="cov0" title="0">items := []uicore.FlexItem{
+        <span class="cov8" title="1">items := []uicore.FlexItem{
                 {W: newCenteredText(title, res.Text.TitleFontFace, theme.TextPrimary), Height: formTitleH},
                 {Height: formRowGap},
                 {W: InputBox(res, body), Height: formInputH},
                 {Height: formRowGap},
 </span>        }
-        <span class="cov0" title="0">if errText != "" </span>{
-                <span class="cov0" title="0">items = append(items,
+        <span class="cov8" title="1">if errText != "" </span>{
+                <span class="cov8" title="1">items = append(items,
                         uicore.FlexItem{W: newCenteredText(errText, res.Text.SmallFace, theme.StatusDanger), Height: noteRowH},
                         uicore.FlexItem{Height: formRowGap},
                 )
 </span>        }
-        <span class="cov0" title="0">items = append(items, uicore.FlexItem{W: newCenteredText(hint, res.Text.SmallFace, theme.TextAccent), Height: noteRowH})
+        <span class="cov8" title="1">items = append(items, uicore.FlexItem{W: newCenteredText(hint, res.Text.SmallFace, theme.TextAccent), Height: noteRowH})
 </span>
         // 縦並びの総高を出し、画面の中央へ置く
-        <span class="cov0" title="0">total := 0
+        <span class="cov8" title="1">total := 0
         for _, it := range items </span>{
-                <span class="cov0" title="0">total += it.Height
+                <span class="cov8" title="1">total += it.Height
 </span>        }
-        <span class="cov0" title="0">rect := image.Rect(
+        <span class="cov8" title="1">rect := image.Rect(
                 (sd.Width-formWidth)/2,
                 (sd.Height-total)/2,
                 (sd.Width-formWidth)/2+formWidth,
@@ -48846,20 +48846,20 @@ func FormScreen(world w.World, res resources.UIResources, title string, body uic
         )
         uicore.FlexColumn(rect, items)
 </span>
-        <span class="cov0" title="0">widgets := make([]uicore.Widget, 0, len(items))
+        <span class="cov8" title="1">widgets := make([]uicore.Widget, 0, len(items))
         for _, it := range items </span>{
-                <span class="cov0" title="0">if it.W != nil </span>{
-                        <span class="cov0" title="0">widgets = append(widgets, it.W)
+                <span class="cov8" title="1">if it.W != nil </span>{
+                        <span class="cov8" title="1">widgets = append(widgets, it.W)
 </span>                }
         }
-        <span class="cov0" title="0">root := uicore.NewGroup(widgets...)
+        <span class="cov8" title="1">root := uicore.NewGroup(widgets...)
         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
         return root</span>
 }
 
 // newCenteredText は中央寄せの1行を作る。入力画面の各行はすべて中央へそろえる
 func newCenteredText(s string, face text.Face, c color.Color) *uicore.Text {
-        <span class="cov0" title="0">t := uicore.NewText(s, face, c)
+        <span class="cov8" title="1">t := uicore.NewText(s, face, c)
         t.Align = uicore.AlignCenter
         return t
 </span>}
@@ -48906,10 +48906,10 @@ func (b *inputBox) Draw(cv uicore.Canvas) {
 </span>}
 
 // Children は Widget を実装する。
-func (b *inputBox) Children() []uicore.Widget { <span class="cov0" title="0">return []uicore.Widget{b.frame, b.body} }</span>
+func (b *inputBox) Children() []uicore.Widget { <span class="cov8" title="1">return []uicore.Widget{b.frame, b.body} }</span>
 
 // Bounds は Widget を実装する。
-func (b *inputBox) Bounds() image.Rectangle { <span class="cov0" title="0">return b.rect }</span>
+func (b *inputBox) Bounds() image.Rectangle { <span class="cov8" title="1">return b.rect }</span>
 </pre>
 		
 		<pre class="file" id="file322" style="display: none">package menuframe
@@ -49005,7 +49005,7 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
         <span class="cov8" title="1">var items []uicore.Drawable
         if opts.HeaderRow != nil </span>{
                 // 列見出しは表の先頭に置く見出しで、字下げはしない
-                <span class="cov0" title="0">items = append(items, headerRow(opts.HeaderRow, colWidths, face, 0))
+                <span class="cov8" title="1">items = append(items, headerRow(opts.HeaderRow, colWidths, face, 0))
 </span>        }
         <span class="cov8" title="1">visible := pagination.VisibleEntries(rows, pg)
         for _, entry := range visible </span>{
@@ -49018,12 +49018,12 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
         // 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
         <span class="cov8" title="1">if len(rows) &gt; perPage </span>{
                 <span class="cov8" title="1">for i := len(visible); i &lt; perPage; i++ </span>{
-                        <span class="cov0" title="0">items = append(items, blankRow(colWidths, face))
+                        <span class="cov8" title="1">items = append(items, blankRow(colWidths, face))
 </span>                }
         }
         // 行が無いときの空表示を一覧側で持つ。各メニューが同じ後処理を書かずに済む
         <span class="cov8" title="1">if len(rows) == 0 &amp;&amp; opts.EmptyText != "" </span>{
-                <span class="cov0" title="0">items = append(items, uicore.NewText(opts.EmptyText, face, theme.TextSecondary))
+                <span class="cov8" title="1">items = append(items, uicore.NewText(opts.EmptyText, face, theme.TextSecondary))
 </span>        }
         <span class="cov8" title="1">return items, pg.GetPageText()</span>
 }
@@ -49041,16 +49041,16 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
                         // 見出しと全行のこの列の中身を並べ、いちばん広いものに列間の間隔を足す
                         <span class="cov8" title="1">contents := make([]int, 0, len(rows)+1)
                         if i &lt; len(headerRow) </span>{
-                                <span class="cov0" title="0">contents = append(contents, uicore.MeasureTextWidth(headerRow[i], face))
+                                <span class="cov8" title="1">contents = append(contents, uicore.MeasureTextWidth(headerRow[i], face))
 </span>                        }
                         <span class="cov8" title="1">for _, r := range rows </span>{
                                 <span class="cov8" title="1">if i &gt;= len(r.Cells) </span>{
-                                        <span class="cov0" title="0">continue</span>
+                                        <span class="cov8" title="1">continue</span>
                                 }
                                 <span class="cov8" title="1">if cell := r.Cells[i]; cell.Icon != nil </span>{
                                         // アイコンセルは画像の実幅で測る。正方の一覧アイコンも
                                         // 横長のキーキャップも同じ規則で測れる
-                                        <span class="cov0" title="0">contents = append(contents, cell.Icon.Bounds().Dx())
+                                        <span class="cov8" title="1">contents = append(contents, cell.Icon.Bounds().Dx())
 </span>                                } else {
                                         <span class="cov8" title="1">contents = append(contents, uicore.MeasureTextWidth(cell.Text, face))
 </span>                                }
@@ -49132,7 +49132,7 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 // SelectionRow は中身を持たない1行ぶんの意匠を返す。選択中の強調と下端の区切り線だけを持ち、
 // 中身は呼び出し側が別に重ねる。行の内容を列で表せない一覧が、意匠だけを共有するのに使う。
 func SelectionRow(res resources.UIResources, selected bool) uicore.Widget {
-        <span class="cov0" title="0">return rowChrome(uicore.Row(nil), res, selected)
+        <span class="cov8" title="1">return rowChrome(uicore.Row(nil), res, selected)
 </span>}
 
 // rowChrome は一覧の1行に共通の意匠を着せる。選択中は金色のバーを敷き、下端に区切り線を引く。
@@ -49151,11 +49151,11 @@ func rowChrome(row *uicore.Container, res resources.UIResources, selected bool) 
 // blankRow は高さを揃えるための空行を組む。高さは行高が確保するので文字は持たせず、
 // フォント測定と描画を省く。
 func blankRow(colWidths []int, face text.Face) *uicore.Container {
-        <span class="cov0" title="0">cells := make([]uicore.Widget, len(colWidths))
+        <span class="cov8" title="1">cells := make([]uicore.Widget, len(colWidths))
         for i := range cells </span>{
-                <span class="cov0" title="0">cells[i] = uicore.NewText("", face, theme.TextPrimary)
+                <span class="cov8" title="1">cells[i] = uicore.NewText("", face, theme.TextPrimary)
 </span>        }
-        <span class="cov0" title="0">return uicore.Row(colWidths, cells...)</span>
+        <span class="cov8" title="1">return uicore.Row(colWidths, cells...)</span>
 }
 </pre>
 		
@@ -49177,13 +49177,13 @@ import (
 // 中身の寸法・配置は必ずこれを通す。ImagePanel の画像配置も、呼び出し側の画像サイズ決定も
 // 同じ式にして、余白の値が変わっても両者がずれないようにする。
 func PanelInner(rect image.Rectangle) image.Rectangle {
-        <span class="cov0" title="0">return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+        <span class="cov8" title="1">return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
 </span>}
 
 // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
 // ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
 func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
-        <span class="cov0" title="0">inner := PanelInner(rect)
+        <span class="cov8" title="1">inner := PanelInner(rect)
         bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
         bg.Layout(rect)
         gfx := uicore.NewGraphic(img)
@@ -49382,32 +49382,32 @@ const (
 // 左右の枠は上端をそろえ、下は説明の手前で止まる。寸法と余白は部品が持ち、
 // 画面は中身の widget と文言だけを渡す。
 func SplitScreen(world w.World, res resources.UIResources, title string, left, right uicore.Widget, description, hint string) uicore.Widget {
-        <span class="cov0" title="0">sd := world.Resources.ScreenDimensions
+        <span class="cov8" title="1">sd := world.Resources.ScreenDimensions
 </span>
-        <span class="cov0" title="0">titleText := newCenteredText(title, res.Text.TitleFontFace, theme.TextPrimary)
+        <span class="cov8" title="1">titleText := newCenteredText(title, res.Text.TitleFontFace, theme.TextPrimary)
         titleText.Layout(image.Rect(0, splitTitleTop, sd.Width, splitTitleTop+splitTitleH))
 </span>
-        <span class="cov0" title="0">bodyBottom := sd.Height - splitFooterH
+        <span class="cov8" title="1">bodyBottom := sd.Height - splitFooterH
         leftX := splitSideMargin
         left.Layout(image.Rect(leftX, splitBodyTop, leftX+splitLeftW, bodyBottom))
         right.Layout(image.Rect(leftX+splitLeftW+splitGutter, splitBodyTop, sd.Width-splitSideMargin, bodyBottom))
 </span>
         // 説明とヒントは下端から積み上げる
-        <span class="cov0" title="0">descTop := sd.Height - noteRowH*2 - splitLineGap - splitBottomMargin
+        <span class="cov8" title="1">descTop := sd.Height - noteRowH*2 - splitLineGap - splitBottomMargin
         descText := newCenteredText(description, res.Text.SmallFace, theme.TextAccent)
         descText.Layout(image.Rect(0, descTop, sd.Width, descTop+noteRowH))
         hintTop := descTop + noteRowH + splitLineGap
         hintText := newCenteredText(hint, res.Text.SmallFace, theme.TextAccent)
         hintText.Layout(image.Rect(0, hintTop, sd.Width, hintTop+noteRowH))
 </span>
-        <span class="cov0" title="0">root := uicore.NewGroup(titleText, left, right, descText, hintText)
+        <span class="cov8" title="1">root := uicore.NewGroup(titleText, left, right, descText, hintText)
         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
         return root
 </span>}
 
 // SplitList は SplitScreen の左枠に載せる一覧を組む。単一ページの一覧で、ページ表示は持たない。
 func SplitList(itemIndex int, rows []Row, res resources.UIResources) uicore.Widget {
-        <span class="cov0" title="0">listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)
+        <span class="cov8" title="1">listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)
         return uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)
 </span>}
 </pre>
@@ -49436,27 +49436,27 @@ const (
 // 版などの注記を右下へ右寄せで積む。パネル背景は付けない。
 // 寸法と余白は部品が持ち、画面は項目と注記の文言だけを渡す。
 func TitleScreen(world w.World, res resources.UIResources, itemIndex int, rows []Row, notes []string) uicore.Widget {
-        <span class="cov0" title="0">sd := world.Resources.ScreenDimensions
+        <span class="cov8" title="1">sd := world.Resources.ScreenDimensions
 </span>
         // タイトル画面は単一ページ。ページ表示は使わないので捨てる
-        <span class="cov0" title="0">listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)
+        <span class="cov8" title="1">listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)
         menu := uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)
         menuH := len(listRows) * theme.MenuPanelRowH
         menuTop := sd.Height - titleMenuBottom - menuH
         menu.Layout(image.Rect(titleMenuLeft, menuTop, titleMenuLeft+theme.MenuRowWidth, menuTop+menuH))
 </span>
-        <span class="cov0" title="0">children := make([]uicore.Widget, 0, 1+len(notes))
+        <span class="cov8" title="1">children := make([]uicore.Widget, 0, 1+len(notes))
         children = append(children, menu)
 </span>        // 注記は下端から上へ積む。行数が変わっても最終行の位置は動かない
-        <span class="cov0" title="0">for i, line := range notes </span>{
-                <span class="cov0" title="0">t := uicore.NewText(line, res.Text.SmallFace, theme.TextAccent)
+        <span class="cov8" title="1">for i, line := range notes </span>{
+                <span class="cov8" title="1">t := uicore.NewText(line, res.Text.SmallFace, theme.TextAccent)
                 t.Align = uicore.AlignRight
                 y := sd.Height - noteRowH*(len(notes)-i) - titleNoteMargin
                 t.Layout(image.Rect(sd.Width-titleNoteW-titleNoteMargin, y, sd.Width-titleNoteMargin, y+noteRowH))
                 children = append(children, t)
 </span>        }
 
-        <span class="cov0" title="0">root := uicore.NewGroup(children...)
+        <span class="cov8" title="1">root := uicore.NewGroup(children...)
         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
         return root</span>
 }
