@@ -86,37 +86,31 @@ func TestGameInfo_fuelGauge(t *testing.T) {
 	info := newTestGameInfoWithFill(t)
 	rect := image.Rect(0, 0, 100, gaugeHeight)
 
-	t.Run("充填率ぶんの幅で塗る", func(t *testing.T) {
-		t.Parallel()
-		cv := &fakeCanvas{}
-		wgt := info.fuelGauge(GameInfoData{FuelRatio: 0.25})
-		wgt.Layout(rect)
-		wgt.Draw(cv)
-		require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")
-		require.Len(t, cv.tintedRects, 1)
-		assert.Equal(t, 25, cv.tintedRects[0].Dx())
-	})
-
-	t.Run("満タンなら全幅で塗る", func(t *testing.T) {
-		t.Parallel()
-		cv := &fakeCanvas{}
-		wgt := info.fuelGauge(GameInfoData{FuelRatio: 1.0})
-		wgt.Layout(rect)
-		wgt.Draw(cv)
-		require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")
-		require.Len(t, cv.tintedRects, 1)
-		assert.Equal(t, 100, cv.tintedRects[0].Dx())
-	})
-
-	t.Run("空なら塗りは描かない", func(t *testing.T) {
-		t.Parallel()
-		cv := &fakeCanvas{}
-		wgt := info.fuelGauge(GameInfoData{FuelRatio: 0})
-		wgt.Layout(rect)
-		wgt.Draw(cv)
-		require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")
-		assert.Empty(t, cv.tintedRects)
-	})
+	tests := []struct {
+		name      string
+		ratio     float64
+		wantWidth int
+	}{
+		{"充填率ぶんの幅で塗る", 0.25, 25},
+		{"満タンなら全幅で塗る", 1.0, 100},
+		{"空なら塗りは描かない", 0, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cv := &fakeCanvas{}
+			wgt := info.fuelGauge(GameInfoData{FuelRatio: tt.ratio})
+			wgt.Layout(rect)
+			wgt.Draw(cv)
+			require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")
+			if tt.wantWidth == 0 {
+				assert.Empty(t, cv.tintedRects, "比率0なら塗りは描かない")
+			} else {
+				require.Len(t, cv.tintedRects, 1)
+				assert.Equal(t, tt.wantWidth, cv.tintedRects[0].Dx())
+			}
+		})
+	}
 }
 
 func TestWeightColor(t *testing.T) {
