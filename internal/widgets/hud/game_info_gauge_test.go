@@ -14,6 +14,7 @@ import (
 )
 
 // newTestGameInfoWithFill は塗り幅を検証するテストで使う、塗りテクスチャ付きの GameInfo を作る。
+// 塗り幅を検証しないテストは newTestGameInfo（fill=nil）を使う。
 func newTestGameInfoWithFill(t *testing.T) *GameInfo {
 	t.Helper()
 	res, err := loader.LoadUIResources()
@@ -94,6 +95,17 @@ func TestGameInfo_fuelGauge(t *testing.T) {
 		require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")
 		require.Len(t, cv.tintedRects, 1)
 		assert.Equal(t, 25, cv.tintedRects[0].Dx())
+	})
+
+	t.Run("満タンなら全幅で塗る", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		wgt := info.fuelGauge(GameInfoData{FuelRatio: 1.0})
+		wgt.Layout(rect)
+		wgt.Draw(cv)
+		require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")
+		require.Len(t, cv.tintedRects, 1)
+		assert.Equal(t, 100, cv.tintedRects[0].Dx())
 	})
 
 	t.Run("空なら塗りは描かない", func(t *testing.T) {
