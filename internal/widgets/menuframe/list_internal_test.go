@@ -50,7 +50,6 @@ func TestResolveColWidths_列数より少ないセルの行は読み飛ばす(t 
 	icon := ebiten.NewImage(25, 25)
 	cols := []styled.Col{styled.Name(), styled.Fit()}
 	rows := []Row{
-		// 1列目のセルしか持たない行は2列目の実測から外れる
 		{Cells: styled.TextCells("項目のみ")},
 		{Cells: []styled.Cell{styled.TextCell("項目"), styled.IconCell(icon)}},
 	}
