@@ -1,4 +1,4 @@
-package menuframe_test
+package menuframe
 
 import (
 	"image"
@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
@@ -20,7 +19,7 @@ func TestInputBox_ChildrenとBoundsでWidgetの契約を満たす(t *testing.T) 
 	res := resources.UIResources{InputBG: &resources.NineSliceTex{Image: ebiten.NewImage(4, 4)}}
 	body := uicore.NewText("Ash", nil, theme.TextPrimary)
 
-	box := menuframe.InputBox(res, body)
+	box := InputBox(res, body)
 
 	children := box.Children()
 	require.Len(t, children, 2, "枠と中身の2つを子に持つ")
