@@ -21,19 +21,17 @@ func TestCanCraft(t *testing.T) {
 	// 必要な素材を作成（木刀レシピは木の棒2個が必要）
 	material, _ := lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
 
-	// クラフト可能かテスト
 	canCraft, err := CanCraft(world, "wooden_sword")
 	assert.True(t, canCraft, "十分な素材があるときはクラフト可能であるべき")
 	require.NoError(t, err, "十分な素材があるときはエラーが発生してはいけない")
 
-	// 素材が無い場合のテスト。実消費量はスキルと能力で変動するので、無しの状態で判定する
+	// 実消費量はスキルと能力で変動するので、素材無しの状態で判定する
 	require.NoError(t, lifecycle.ChangeItemCount(world, material, -5))
 
 	canCraft, err = CanCraft(world, "wooden_sword")
 	assert.False(t, canCraft, "素材が無いときはクラフト不可能であるべき")
 	require.NoError(t, err, "素材が無くてもエラーは発生しないべき")
 
-	// 存在しないレシピのテスト
 	canCraft, err = CanCraft(world, "存在しない武器")
 	assert.False(t, canCraft, "存在しないレシピはクラフト不可能であるべき")
 	require.Error(t, err, "存在しないレシピでエラーが発生するべき")
@@ -46,17 +44,14 @@ func TestCraft(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 
-	// 存在しないレシピでのクラフト試行
 	_, err = Craft(world, "存在しない武器")
 	require.Error(t, err, "存在しないレシピでエラーが返されるべき")
 	require.ErrorIs(t, err, errRecipeNotFound, "レシピ不存在のエラーを返すべき")
 
-	// 素材不足でのクラフト試行（木刀は木の棒2個が必要）
 	_, err = Craft(world, "wooden_sword")
 	require.Error(t, err, "素材不足でエラーが返されるべき")
 	require.ErrorIs(t, err, errInsufficientMaterials, "素材不足のエラーを返すべき")
 
-	// 素材を用意してクラフト成功
 	_, _ = lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
 	result, err := Craft(world, "wooden_sword")
 	assert.NotEqual(t, gc.InvalidEntity, result, "素材が十分ならば有効なエンティティが返されるべき")
@@ -156,8 +151,6 @@ func TestCraft_射撃武器をクラフトするとMeleeとFireの両方に乱�
 	assert.LessOrEqual(t, fire.Damage, 20+9)
 }
 
-// TestCraft_防具をクラフトするとWearableに乱数調整が入る は randomize が Wearable 成分の
-// Defense を基準値から式どおりの範囲内に補正することを検証する。
 func TestCraft_防具をクラフトするとWearableに乱数調整が入る(t *testing.T) {
 	t.Parallel()
 

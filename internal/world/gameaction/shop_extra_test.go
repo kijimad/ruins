@@ -13,8 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestBuyStock_スタッカブルはバックパックのスタックに統合される は商人在庫のスタッカブルを買うと
-// バックパック内の同名アイテムと同一エンティティに統合されることを確認する。
 func TestBuyStock_スタッカブルはバックパックのスタックに統合される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -44,7 +42,6 @@ func TestBuyStock_スタッカブルはバックパックのスタックに統�
 	assert.Equal(t, 2, count, "買った分が個別エンティティとして増える")
 }
 
-// TestBuyStock_交渉スキルで買値が変わる は買値倍率が購入価格に反映されることを確認する。
 func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -67,7 +64,6 @@ func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	assert.Equal(t, 1000-expected, query.GetCurrency(world, player), "表示価格と同額が引かれる")
 }
 
-// TestSellStock_価値0のアイテムは対価0で売れる は無価値な品でも売却は成功し、対価が0になることを確認する。
 // 価値0の品は実スポーンで自然に作れないため、売却対象は手組みの fixture のまま残す。
 func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	t.Parallel()
@@ -88,12 +84,10 @@ func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	currency := query.GetCurrency(world, player)
 	assert.Equal(t, consts.Currency(0), currency, "無価値な品の対価は0で通貨は増えない")
 
-	// 売った品は商人の在庫へ並ぶ
 	require.True(t, world.Components.LocationInStorage.Has(item), "実体は商人の収納へ移る")
 	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 }
 
-// TestSellStock_交渉スキルで売値が変わる は売値倍率が売却価格に反映されることを確認する。
 // 期待値を明示するため、売却対象は価値100の手組み fixture のまま残す。
 func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	t.Parallel()
@@ -119,7 +113,6 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 
 	assert.Equal(t, expected, query.GetCurrency(world, player), "表示価格と同額を得る")
 
-	// 売った品は商人の在庫へ並ぶ
 	require.True(t, world.Components.LocationInStorage.Has(item))
 	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 }
