@@ -138,6 +138,7 @@ func TestBuyStock_通貨消費に失敗すると購入できない(t *testing.T)
 
 	merchant := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
+	// 価格0なら HasCurrency は Wallet 無しでも通る。ConsumeCurrency だけを失敗させる経路を作る
 	world.Components.Value.Add(item, &gc.Value{Value: 0})
 	world.Components.Name.Add(item, &gc.Name{Name: "Scrap"})
 	world.Components.RawID.Add(item, &gc.RawID{ID: "scrap"})
@@ -146,7 +147,7 @@ func TestBuyStock_通貨消費に失敗すると購入できない(t *testing.T)
 	err = BuyStock(world, player, item)
 	require.ErrorContains(t, err, "failed to consume currency")
 
-	// 消費に失敗したので在庫に残ったまま
+	// Wallet を剥がしたので通貨の増減は引けない。在庫に残ったままで購入が巻き戻ったことを確かめる
 	assert.True(t, world.Components.LocationInStorage.Has(item))
 }
 
