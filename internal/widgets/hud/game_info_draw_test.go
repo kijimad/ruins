@@ -108,7 +108,7 @@ func TestDrawFlexItems_W無しの行はスキップする(t *testing.T) {
 	t.Parallel()
 	cv := &fakeCanvas{}
 	items := []uicore.FlexItem{
-		{Grow: true}, // W が nil のスペーサ行
+		{Grow: true},
 		{W: &uicore.Text{Value: "hello"}, Height: 10},
 	}
 	drawFlexItems(cv, items)
