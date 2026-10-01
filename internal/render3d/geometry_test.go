@@ -14,10 +14,8 @@ func assertVecInDelta(t *testing.T, want, got Vec, delta float64) {
 	assert.InDelta(t, want.Z, got.Z, delta)
 }
 
-// identity は 4x4 単位行列。
 var identity = mat{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}
 
-// TestVecOps はベクトルの加減・スケール・内積を固定する。
 func TestVecOps(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, Vec{-2, 0, 2}, sub(Vec{1, 2, 3}, Vec{3, 2, 1}))
@@ -26,7 +24,6 @@ func TestVecOps(t *testing.T) {
 	assert.InDelta(t, 10.0, dot(Vec{1, 2, 3}, Vec{3, 2, 1}), 1e-9) // 3+4+3
 }
 
-// TestAt は成分からVecを組み立てることを固定する。
 func TestAt(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, Vec{X: 1, Y: 2, Z: 3}, At(1, 2, 3))
@@ -59,7 +56,6 @@ func TestApply_単位行列は点を保つ(t *testing.T) {
 	assert.Equal(t, [4]float64{2, 3, 4, 1}, [4]float64{x, y, z, wc})
 }
 
-// TestMul_対角行列の積 は行列積が対角成分を掛け合わせることを固定する。
 func TestMul_対角行列の積(t *testing.T) {
 	t.Parallel()
 	a := mat{2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1}
@@ -95,7 +91,6 @@ func TestPerspective(t *testing.T) {
 	assert.InDelta(t, 1, cx/cw, 1e-9)       // NDC x = 1(右端)
 }
 
-// TestProjector_Point は投影の要、画面中央への写像とカメラ後方の除外を固定する。
 func TestProjector_Point(t *testing.T) {
 	t.Parallel()
 	// 原点を真上から見下ろさず、+Z 側から見る素朴な視点を直接組む
