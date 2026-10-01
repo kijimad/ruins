@@ -37,7 +37,7 @@ func TestCanCraft(t *testing.T) {
 	canCraft, err = CanCraft(world, "存在しない武器")
 	assert.False(t, canCraft, "存在しないレシピはクラフト不可能であるべき")
 	require.Error(t, err, "存在しないレシピでエラーが発生するべき")
-	assert.Contains(t, err.Error(), "recipe not found", "エラーメッセージにレシピ不存在の内容が含まれるべき")
+	require.ErrorIs(t, err, errRecipeNotFound, "レシピ不存在のエラーを返すべき")
 }
 
 func TestCraft(t *testing.T) {
@@ -49,12 +49,12 @@ func TestCraft(t *testing.T) {
 	// 存在しないレシピでのクラフト試行
 	_, err = Craft(world, "存在しない武器")
 	require.Error(t, err, "存在しないレシピでエラーが返されるべき")
-	assert.Contains(t, err.Error(), "recipe not found", "エラーメッセージにレシピ不存在の内容が含まれるべき")
+	require.ErrorIs(t, err, errRecipeNotFound, "レシピ不存在のエラーを返すべき")
 
 	// 素材不足でのクラフト試行（木刀は木の棒2個が必要）
 	_, err = Craft(world, "wooden_sword")
 	require.Error(t, err, "素材不足でエラーが返されるべき")
-	assert.Contains(t, err.Error(), "insufficient materials", "エラーメッセージに素材不足の内容が含まれるべき")
+	require.ErrorIs(t, err, errInsufficientMaterials, "素材不足のエラーを返すべき")
 
 	// 素材を用意してクラフト成功
 	_, _ = lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
