@@ -18,6 +18,17 @@ func TestValidateRaws_RealData(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+// TestRealData_HasLandmarks は実 raw.toml が landmarks を宣言していることを固定する。overworld 生成は
+// landmarkPlacement が landmark チャンクを無条件に作り landmarkKindAt が解決するため、landmarks が空だと
+// 生成時に剰余0で panic する。validate は landmarks を optional に扱うので、実データの非空はここで守る。
+func TestRealData_HasLandmarks(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	require.NotEmpty(t, PtrSlice(master.Landmarks), "overworld 生成が要求するので実 raw.toml は landmarks を持つべき")
+}
+
 func TestValidateRaws_ValidItem(t *testing.T) {
 	t.Parallel()
 
@@ -343,7 +354,12 @@ func TestValidateFacilityReferences(t *testing.T) {
 	t.Parallel()
 
 	enemyTables := &[]oapi.EnemyTable{{Id: "clinic_enemies", Name: "診療所"}}
-	baseZones := []oapi.FacilityZone{{Zone: oapi.Residential, Weight: 10, MinSpan: 2}}
+	// 全既知地区に基本施設(minSpan<=2)を置く。validateFacilityReferences が全地区の base を要求するため
+	baseZones := []oapi.FacilityZone{
+		{Zone: oapi.Residential, Weight: 10, MinSpan: 2},
+		{Zone: oapi.Downtown, Weight: 10, MinSpan: 2},
+		{Zone: oapi.Industrial, Weight: 10, MinSpan: 2},
+	}
 
 	t.Run("実在する敵テーブルと基本施設は通る", func(t *testing.T) {
 		t.Parallel()

@@ -24,7 +24,8 @@ func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]
 	for _, l := range lms {
 		total += int(l.Weight)
 	}
-	// landmarks が空だと total==0 で IntN が壊れる。validate が非空と重み総和>0 を保証する
+	// landmarks が空だと total==0 で剰余が壊れる。landmarks 宣言時の重み総和>0 は validate が保証し、
+	// 実 raw.toml が非空であることは raw のテストで固定する。landmark チャンクは必ずこの関数を通る
 	roll := int(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % uint64(total))
 	for _, l := range lms {
 		roll -= int(l.Weight)

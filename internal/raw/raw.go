@@ -666,6 +666,10 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 }
 
 // GetFacility は id の施設宣言を返す。施設は raw.toml の facilities 行が単一出典。未登録は false。
+// GetFacility は id の施設宣言を返す。施設は raw.toml の facilities 行が単一出典。未登録は false。
+// 地物の引き手 GetFacility/GetLandmark/GetScatterZone/GetMapGlyph は、不在が呼び出し側の正常分岐
+// になる用途なので (T, error) でなく comma-ok の (T, bool) を返す。不在をエラー扱いする
+// GetCommandTable/GetEnemyTable 等とは用途が違うため戻り値型を揃えない。
 func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
 	return findByKey(raws.Facilities, func(f oapi.Facility) string { return f.Id }, id)
 }

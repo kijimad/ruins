@@ -175,6 +175,10 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 // 基本施設が地区に1つ無いと候補が空になり抽選が壊れる。overworld の最小 span と揃える。
 const urbanBaseSpan int32 = 2
 
+// urbanZones は zoneOf がチャンクへ割り当てうる全地区。全地区が必ず生成されるので、全地区に基本施設が要る。
+// 施設定義に現れない地区も fail-closed に弾けるよう、現れた地区でなくこの閉集合を検査の基準にする。
+var urbanZones = []oapi.Zone{oapi.Downtown, oapi.Industrial, oapi.Residential}
+
 func validateFacilityReferences(raws oapi.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
 	facilityIDs := make(map[string]struct{}, len(facilities))
@@ -197,15 +201,18 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		for _, z := range facilities[i].Zones {
 			if z.MinSpan <= urbanBaseSpan {
 				zoneHasBase[z.Zone] = true
-			} else if _, seen := zoneHasBase[z.Zone]; !seen {
-				zoneHasBase[z.Zone] = false
 			}
 		}
 	}
 
-	for zone, hasBase := range zoneHasBase {
-		if !hasBase {
-			return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, urbanBaseSpan, errZoneNoBaseFacility)
+	// 施設を宣言する raw は urban 生成を駆動し、全地区のチャンクを作る。地区に基本施設が無いと候補が空で
+	// 抽選が壊れるので、全既知地区に基本施設を課す。地区が施設定義から欠落していても map のゼロ値 false で
+	// 弾ける。施設0件の部分的な Raws は生成を駆動しないので素通しし、空 Raws 成功の契約を守る。
+	if len(facilities) > 0 {
+		for _, zone := range urbanZones {
+			if !zoneHasBase[zone] {
+				return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, urbanBaseSpan, errZoneNoBaseFacility)
+			}
 		}
 	}
 
@@ -229,7 +236,7 @@ func validateFacilityReferences(raws oapi.Raws) error {
 func validateLandmarkReferences(raws oapi.Raws) error {
 	landmarks := PtrSlice(raws.Landmarks)
 	if len(landmarks) == 0 {
-		return nil // ランドマーク未定義は許容。定義したときだけ整合を課す
+		return nil // 未定義の部分的な Raws は素通し。landmarks を宣言したときだけ整合を課す
 	}
 
 	props := PtrSlice(raws.Props)

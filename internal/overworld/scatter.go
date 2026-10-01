@@ -100,11 +100,8 @@ func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, bool)
 	entries := make([]scatterEntry, len(sz.Entries))
 	for i, e := range sz.Entries {
 		var sats []relSpot
-		if e.Satellites != nil {
-			sats = make([]relSpot, len(*e.Satellites))
-			for j, s := range *e.Satellites {
-				sats[j] = relSpot{name: s.Name, dx: consts.Tile(s.Dx), dy: consts.Tile(s.Dy)}
-			}
+		for _, s := range raw.PtrSlice(e.Satellites) {
+			sats = append(sats, relSpot{name: s.Name, dx: consts.Tile(s.Dx), dy: consts.Tile(s.Dy)})
 		}
 		entries[i] = scatterEntry{Ref: e.Ref, Weight: int(e.Weight), Big: e.Big, Satellites: sats}
 	}
