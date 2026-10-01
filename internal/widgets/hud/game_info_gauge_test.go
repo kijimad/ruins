@@ -7,24 +7,14 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// newTestGameInfoWithFill は塗り幅を検証するテストで使う、塗りテクスチャ付きの GameInfo を作る。
-// 塗り幅を検証しないテストは newTestGameInfo（fill=nil）を使う。
-func newTestGameInfoWithFill(t *testing.T) *GameInfo {
-	t.Helper()
-	res, err := loader.LoadUIResources()
-	require.NoError(t, err)
-	return NewGameInfo(res.Text.BodyFace, res.Text.TitleFontFace, ebiten.NewImage(1, 1))
-}
-
 func TestGameInfo_bodyTempGauge(t *testing.T) {
 	t.Parallel()
-	info := newTestGameInfoWithFill(t)
+	info := newTestGameInfo(t, ebiten.NewImage(1, 1))
 	rect := image.Rect(0, 0, 100, gaugeHeight)
 
 	t.Run("非表示なら枠も塗りも描かない", func(t *testing.T) {
@@ -51,7 +41,7 @@ func TestGameInfo_bodyTempGauge(t *testing.T) {
 
 func TestGameInfo_healthGauge(t *testing.T) {
 	t.Parallel()
-	info := newTestGameInfoWithFill(t)
+	info := newTestGameInfo(t, ebiten.NewImage(1, 1))
 	rect := image.Rect(0, 0, 100, gaugeHeight)
 
 	tests := []struct {
@@ -83,7 +73,7 @@ func TestGameInfo_healthGauge(t *testing.T) {
 
 func TestGameInfo_fuelGauge(t *testing.T) {
 	t.Parallel()
-	info := newTestGameInfoWithFill(t)
+	info := newTestGameInfo(t, ebiten.NewImage(1, 1))
 	rect := image.Rect(0, 0, 100, gaugeHeight)
 
 	tests := []struct {
