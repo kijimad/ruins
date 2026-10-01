@@ -51,6 +51,45 @@ func TestWorldProjector_カメラを回すと投影が追随する(t *testing.T)
 	assert.Greater(t, float64(rotated.X), float64(north.X)+100)
 }
 
+func TestWorldProjector_カメラがいないとエラー(t *testing.T) {
+	t.Parallel()
+
+	// プレイヤーを spawn していないのでカメラも存在しない
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetScreenDimensions(screenW, screenH)
+
+	_, err := render3d.WorldProjector(world)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "player camera not found")
+}
+
+func TestWorldProjector_プレイヤーが複数いるとエラー(t *testing.T) {
+	t.Parallel()
+
+	// カメラの有無を先に見るため、カメラ自体は2人分存在して見つかるが
+	// 投影の注視点を決める PlayerTile 側でプレイヤーの一意性が崩れてエラーになる
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetScreenDimensions(screenW, screenH)
+	_, err := lifecycle.SpawnPlayer(world, playerTile, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 26, Y: 25}, "ash")
+	require.NoError(t, err)
+
+	_, err = render3d.WorldProjector(world)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "multiple player entities exist")
+}
+
+func TestPlayerTile_プレイヤーがいないとエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	_, err := render3d.PlayerTile(world)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "no player entity exists")
+}
+
 func TestTileTopHeight_壁は天面床は地面の高さになる(t *testing.T) {
 	t.Parallel()
 

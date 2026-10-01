@@ -26,6 +26,12 @@ func TestVecOps(t *testing.T) {
 	assert.InDelta(t, 10.0, dot(Vec{1, 2, 3}, Vec{3, 2, 1}), 1e-9) // 3+4+3
 }
 
+// TestAt は成分からVecを組み立てることを固定する。
+func TestAt(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, Vec{X: 1, Y: 2, Z: 3}, At(1, 2, 3))
+}
+
 // TestCross は外積が右手系で軸を巡回することを固定する。
 func TestCross(t *testing.T) {
 	t.Parallel()
