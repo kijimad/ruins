@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBuyStock_スタッカブルはバックパックのスタックに統合される(t *testing.T) {
+func TestBuyStock_スタッカブルな品でも個別エンティティとして追加される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
