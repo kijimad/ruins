@@ -103,7 +103,7 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 	big := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 10, Y: 13}
 	bigDoor := interior.Vec{X: 14, Y: 0}
-	check := func(fac interior.FacilityKind, placed []interior.Placed) {
+	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
 			if p.Kind != interior.KindFurniture {
 				continue
@@ -112,11 +112,13 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 			assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
 		}
 	}
-	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
-		single, err := interior.Furnish(raws, 1, small, door, fac)
+	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+		f, _ := raw.GetFacility(raws, fac)
+		spec := interior.FacilitySpec{ID: f.Id, Planner: f.Planner, IsShop: f.IsShop}
+		single, err := interior.Furnish(raws, 1, small, door, spec)
 		require.NoError(t, err)
 		check(fac, single)
-		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
+		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, spec)
 		require.NoError(t, err)
 		check(fac, placed)
 	}
@@ -148,7 +150,7 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 	door := interior.Vec{X: 10, Y: 13}
 	bigDoor := interior.Vec{X: 14, Y: 0}
 	sawLoot := false
-	check := func(fac interior.FacilityKind, placed []interior.Placed) {
+	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
 			if p.Kind != interior.KindLoot {
 				continue
@@ -158,11 +160,13 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 			assert.Truef(t, ok, "施設 %q の loot %q は写像を持つ", fac, p.Ref)
 		}
 	}
-	for _, fac := range []interior.FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
-		single, err := interior.Furnish(raws, 1, small, door, fac)
+	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+		f, _ := raw.GetFacility(raws, fac)
+		spec := interior.FacilitySpec{ID: f.Id, Planner: f.Planner, IsShop: f.IsShop}
+		single, err := interior.Furnish(raws, 1, small, door, spec)
 		require.NoError(t, err)
 		check(fac, single)
-		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
+		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, spec)
 		require.NoError(t, err)
 		check(fac, placed)
 	}
@@ -190,7 +194,7 @@ func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
 	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
 	door := interior.Vec{X: 10, Y: 13}
-	_, _, err := furnishBuilding(world, g, footprint, door, facilityHouse, 1)
+	_, _, err := furnishBuilding(world, g, footprint, door, "house", 1)
 	require.NoError(t, err)
 
 	floorTotal, floorFull, nonFloorFull := 0, 0, 0

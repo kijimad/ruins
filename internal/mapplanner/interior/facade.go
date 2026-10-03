@@ -14,12 +14,12 @@ import (
 // facadeElements は街路側の前壁に付ける外皮 prop を返す。前庭ぶん内寄せした建物の街路側の壁へ、入口と角を
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
-func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
+func facadeElements(s Site, fac FacilitySpec, dmg damageLevel) []Placed {
 	fside := frontSide(s)
 	lo, hi, wall := frontWallSpan(s.Building, fside)
 	doorAxis := wall.along(s.Door)
 	winRef := "window"
-	if isShop(facility) && dmg == dmgMajor {
+	if fac.IsShop && dmg == dmgMajor {
 		winRef = "shutter" // 廃業した店はシャッターを下ろす
 	}
 
@@ -36,7 +36,7 @@ func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
 	}
 	// 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力。看板は独立物なので壁に埋めると不自然。
 	// 前壁の1マス外の前庭タイルへ立て、店の正面に置く。前庭が無い建物では立てない
-	if isShop(facility) {
+	if fac.IsShop {
 		in := porchStep(fside)
 		outward := Vec{X: -in.X, Y: -in.Y} // 建物の外向き
 		for _, a := range [2]consts.Tile{doorAxis + 2, doorAxis - 2} {
@@ -53,9 +53,6 @@ func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
 	}
 	return out
 }
-
-// isShop は看板とシャッターを付ける店かを返す。骨董品店も店に含める。
-func isShop(facility FacilityKind) bool { return facility == facStore || facility == facAntique }
 
 // tileLine は1本の軸に沿ったタイル列。cross は列の固定座標、horiz は列が横方向すなわち X に沿うか。壁や敷地縁の
 // ように、固定座標と向きが常にセットで決まるものを1つの値にまとめる。along を渡すと列上の1タイルを返すので、

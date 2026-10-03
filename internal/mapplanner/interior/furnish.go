@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"slices"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -23,8 +22,8 @@ type FurnishStage struct {
 // 前段に置き、建物内の各室へ plan→fill→age→flavor を掛けた累積配置を返す。どの段で見た目が壊れたかを段別
 // VRT で切り分けられるようにする。坪庭の室は家具を置かず観葉だけ置き、経年・flavor を掛けない。FurnishBuilding
 // はこの最終段を返す薄い包みで、両者は同じパイプラインを共有するので段別 VRT と実生成は乖離しない。
-func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage, error) {
-	site := planSite(footprint, seed, door, facility)
+func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, fac FacilitySpec) (Site, []FurnishStage, error) {
+	site := planSite(footprint, seed, door, fac)
 
 	prof := rollProfile(seed)          // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
 	flavor, err := flavorContent(raws) // 全室共通なのでループ外で1度だけ引く
@@ -36,7 +35,7 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 		hr := site.Rooms[i]
 		roomSeed := childSeed(seed, 300+i)
 		// 密度は全室へ一様に効かせる。同じ内装でもがらんとした家と物で埋まった家を出し分ける
-		content, err := roleContent(raws, facility, hr.Role, seed)
+		content, err := roleContent(raws, fac, hr.Role, seed)
 		if err != nil {
 			return Site{}, nil, err
 		}
@@ -57,10 +56,10 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 	}
 	// 外皮 FacadePass。街路側の前壁へ窓・シャッター・看板を付け、閉じた箱を正面のある建物にする。損傷レベルで
 	// 廃業した店のシャッターを決める。壁の上に載る prop なので室内の充填とは別に足す
-	facade := facadeElements(site, facility, prof.damage)
+	facade := facadeElements(site, fac, prof.damage)
 	flavored = append(flavored, facade...)
 	// lot pass。敷地を塀で囲い門で開け、前庭に外構を置く。建物を裸で地面に置かない
-	flavored = append(flavored, lotElements(site, facility)...)
+	flavored = append(flavored, lotElements(site, fac)...)
 	// hero 部屋。稀な1棟の主室中央へ landmark を1つ据え、記憶に残る見せ場にする。主室中央には食卓など
 	// 中央配置の什器が既にあることが多いので、目玉は showpiece としてそのタイルの既存 prop を退けて1つだけ
 	// 置き、スプライトの重なりを防ぐ。占有は1タイルのままなので歩行性は変わらない
@@ -108,8 +107,8 @@ func isNarrowRoom(r Rect) bool {
 // FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を
 // そのまま埋めず、入口側に前庭を空け、1室を坪庭にし、玄関を凹ませる。加工は FurnishStages が持ち、ここは
 // その最終段 flavor を返す。呼び出し側は Site から Walls で壁タイル、Garden で庭タイルを導き、配置を spawn する。
-func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed, error) {
-	site, stages, err := FurnishStages(raws, seed, footprint, door, facility)
+func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, fac FacilitySpec) (Site, []Placed, error) {
+	site, stages, err := FurnishStages(raws, seed, footprint, door, fac)
 	if err != nil {
 		return Site{}, nil, err
 	}
@@ -119,61 +118,37 @@ func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, faci
 // planRooms は施設に応じて部屋群と各部屋の役割を返す。施設ごとに固有の間取りテンプレを持ち、民家は廊下型・
 // 店は売場＋バックヤード・診療所は待合＋診察室の列にして、「何の施設か分かる」平面にする。テンプレに足りない
 // 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。
-func planRooms(footprint Rect, seed uint64, facility FacilityKind) ([]Room, []roleName) {
-	if planner, minW, minH, ok := facilityPlanner(facility); ok && footprint.W >= minW && footprint.H >= minH {
-		plan := planner(footprint, seed)
-		rooms := make([]Room, len(plan))
-		roles := make([]roleName, len(plan))
-		for i, hr := range plan {
-			rooms[i] = hr.Room
-			roles[i] = hr.Role
-		}
-		return rooms, roles
+func planRooms(footprint Rect, seed uint64, fac FacilitySpec) ([]Room, []roleName) {
+	// planner キーは validate がロード時に planners のキーへ照合済み。防御的に未解決は BSP へ落とす。
+	// footprint がテンプレ最小寸法を下回るときは、暗黙 nil でなく明示の bsp planner へ落とす。本番の市街地
+	// チャンク 24x24 が生む建物は街路と前庭ぶん内寄せして概ね 17〜20 タイル角なので、下限を 12x9 まで下げ、
+	// その狭さでも施設テンプレを発火させる。民家は幅14・高さ13 のどちらかを欠くと PlanHouseAny が田の字の
+	// コンパクト民家へ切り替える。
+	def, ok := plannerByKey(fac.Planner)
+	if !ok || footprint.W < def.minW || footprint.H < def.minH {
+		def = planners[oapi.Bsp]
 	}
-	rooms := SubdivideBuilding(footprint, seed)
-	roles := make([]roleName, len(rooms))
-	for rank, ri := range roomOrderByArea(rooms) {
-		if rank == 0 {
-			roles[ri] = roleMain
-		} else {
-			roles[ri] = roleBack
-		}
+	plan := def.fn(footprint, seed)
+	rooms := make([]Room, len(plan))
+	roles := make([]roleName, len(plan))
+	for i, hr := range plan {
+		rooms[i] = hr.Room
+		roles[i] = hr.Role
 	}
 	return rooms, roles
-}
-
-// facilityPlanner は施設種別に対応する間取りテンプレと、テンプレが破綻しない最小寸法を返す。本番の市街地
-// チャンク 24x24 が生む建物は街路と前庭ぶん内寄せして概ね 17〜20 タイル角なので、下限を 12x9 まで下げ、
-// その狭さでも施設テンプレを発火させる。民家は幅14・高さ13 のどちらかを欠くと PlanHouseAny が田の字の
-// コンパクト民家へ切り替える。店・診療所は部屋数が少ないので狭くても成立する。下限を下回る建物とテンプレの
-// 無い施設は BSP へ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
-func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom, minW, minH consts.Tile, ok bool) {
-	switch facility {
-	case facHouse:
-		return PlanHouseAny, 12, 9, true
-	case facStore, facAntique:
-		return PlanStore, 12, 9, true
-	case facClinic, facLab:
-		return PlanClinic, 12, 9, true
-	case facOffice, facDepot:
-		return nil, 0, 0, false // 専用テンプレを持たず BSP へ委ねる
-	}
-	// FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で BSP へ落とす。
-	// facilityContent と違い未登録を error にしないのは、専用テンプレが無くても BSP の汎用分割で間取りは出せるから
-	return nil, 0, 0, false
 }
 
 // roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ施設別の
 // 奥室既定へ落とす。各施設は自分が使う役割を自前のカタログで持ち、他施設のカタログには依存しない。役割名は
 // planRooms とテンプレが付ける。
-func roleContent(raws oapi.Raws, facility FacilityKind, role roleName, seed uint64) (Content, error) {
+func roleContent(raws oapi.Raws, fac FacilitySpec, role roleName, seed uint64) (Content, error) {
 	if role == roleMain {
-		return facilityContent(raws, facility, seed)
+		return facilityContent(raws, fac.ID, seed)
 	}
-	if c, ok, err := roomContent(raws, facility, role); ok || err != nil {
+	if c, ok, err := roomContent(raws, fac.ID, role); ok || err != nil {
 		return c, err
 	}
-	return backRoomContent(raws, facility)
+	return backRoomContent(raws, fac.ID)
 }
 
 // roomOrderByArea は部屋を面積降順の添字列で返す。主室に最大の部屋を選ぶための順序。

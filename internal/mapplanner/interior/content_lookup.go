@@ -42,22 +42,22 @@ func contentByID(raws oapi.Raws, id string) (Content, error) {
 	return Content{}, fmt.Errorf("%q: %w", id, errContentNotFound)
 }
 
-// facilityContent は施設種別の主室 content を seed で1変種引く。同じ施設でも複数の変種を持つ。facility は
-// overworld の閉じた enum で全種別が登録済みなので通常は成功し、未登録は error で返す。
-func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) (Content, error) {
-	variants := facilityVariants(raws, facility)
+// facilityContent は施設の主室 content を seed で1変種引く。同じ施設でも複数の変種を持つ。id は
+// facilities 行の閉じた集合で全施設が登録済みなので通常は成功し、未登録は error で返す。
+func facilityContent(raws oapi.Raws, id string, seed uint64) (Content, error) {
+	variants := facilityVariants(raws, id)
 	if len(variants) == 0 {
-		return Content{}, fmt.Errorf("%q in facilityContents: %w", facility, errFacilityNotRegistered)
+		return Content{}, fmt.Errorf("%q in facilityContents: %w", id, errFacilityNotRegistered)
 	}
 	// 9_000_000 は変種抽選専用の child index。同じ親 seed から引く他ストリームと無相関にする帯オフセット
-	id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
-	return contentByID(raws, id)
+	vid := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
+	return contentByID(raws, vid)
 }
 
-// facilityVariants は施設種別の主室変種 id 列を raws から引く。未割り当ての施設は nil。
-func facilityVariants(raws oapi.Raws, facility FacilityKind) []string {
+// facilityVariants は施設の主室変種 id 列を raws から引く。未割り当ての施設は nil。
+func facilityVariants(raws oapi.Raws, id string) []string {
 	for _, fc := range raw.PtrSlice(raws.FacilityContents) {
-		if FacilityKind(fc.Facility) == facility {
+		if fc.Facility == id {
 			return fc.Variants
 		}
 	}
@@ -67,9 +67,9 @@ func facilityVariants(raws oapi.Raws, facility FacilityKind) []string {
 // roomContent は施設の役割別 content を引く。ok は役割がカタログに在ったかを表し err と直交する。役割が無ければ
 // ok=false・err=nil、役割は在るが content 参照が壊れていれば ok=true・err!=nil。呼び出し側は ok||err で「引けたか
 // 壊れているか」をまとめて次段へ委ね、どちらでもないときだけフォールバックへ進む。
-func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content, bool, error) {
+func roomContent(raws oapi.Raws, id string, role roleName) (Content, bool, error) {
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
-		if FacilityKind(fr.Facility) != facility {
+		if fr.Facility != id {
 			continue
 		}
 		for _, r := range raw.PtrSlice(fr.Rooms) {
@@ -85,13 +85,13 @@ func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content,
 
 // backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。facility は
 // 全種別が facilityRooms に登録済みなので通常は成功する。未登録は error で返す。
-func backRoomContent(raws oapi.Raws, facility FacilityKind) (Content, error) {
+func backRoomContent(raws oapi.Raws, id string) (Content, error) {
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
-		if FacilityKind(fr.Facility) == facility {
+		if fr.Facility == id {
 			return contentByID(raws, fr.Fallback)
 		}
 	}
-	return Content{}, fmt.Errorf("%q in facilityRooms: %w", facility, errFacilityNotRegistered)
+	return Content{}, fmt.Errorf("%q in facilityRooms: %w", id, errFacilityNotRegistered)
 }
 
 // toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の

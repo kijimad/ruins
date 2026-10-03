@@ -81,6 +81,24 @@ func (e CombatPolicyType) Valid() bool {
 	}
 }
 
+// Defines values for DrawerKey.
+const (
+	Hut  DrawerKey = "hut"
+	Open DrawerKey = "open"
+)
+
+// Valid indicates whether the value is a known member of the DrawerKey enum.
+func (e DrawerKey) Valid() bool {
+	switch e {
+	case Hut:
+		return true
+	case Open:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Element.
 const (
 	ElementCHILL   Element = "CHILL"
@@ -180,39 +198,6 @@ func (e EquipmentCategory) Valid() bool {
 	case EquipmentCategoryLEGS:
 		return true
 	case EquipmentCategoryTORSO:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for FacilityKind.
-const (
-	FacilityKindAntique FacilityKind = "antique"
-	FacilityKindClinic  FacilityKind = "clinic"
-	FacilityKindDepot   FacilityKind = "depot"
-	FacilityKindHouse   FacilityKind = "house"
-	FacilityKindLab     FacilityKind = "lab"
-	FacilityKindOffice  FacilityKind = "office"
-	FacilityKindStore   FacilityKind = "store"
-)
-
-// Valid indicates whether the value is a known member of the FacilityKind enum.
-func (e FacilityKind) Valid() bool {
-	switch e {
-	case FacilityKindAntique:
-		return true
-	case FacilityKindClinic:
-		return true
-	case FacilityKindDepot:
-		return true
-	case FacilityKindHouse:
-		return true
-	case FacilityKindLab:
-		return true
-	case FacilityKindOffice:
-		return true
-	case FacilityKindStore:
 		return true
 	default:
 		return false
@@ -438,60 +423,84 @@ func (e Placement) Valid() bool {
 	}
 }
 
+// Defines values for PlannerKey.
+const (
+	Bsp    PlannerKey = "bsp"
+	Clinic PlannerKey = "clinic"
+	House  PlannerKey = "house"
+	Store  PlannerKey = "store"
+)
+
+// Valid indicates whether the value is a known member of the PlannerKey enum.
+func (e PlannerKey) Valid() bool {
+	switch e {
+	case Bsp:
+		return true
+	case Clinic:
+		return true
+	case House:
+		return true
+	case Store:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for RoomRole.
 const (
-	RoomRoleBath            RoomRole = "bath"
-	RoomRoleBedroom         RoomRole = "bedroom"
-	RoomRoleColdroom        RoomRole = "coldroom"
-	RoomRoleCorridor        RoomRole = "corridor"
-	RoomRoleDressing        RoomRole = "dressing"
-	RoomRoleExaminationRoom RoomRole = "examination_room"
-	RoomRoleGenkan          RoomRole = "genkan"
-	RoomRoleKitchen         RoomRole = "kitchen"
-	RoomRoleLiving          RoomRole = "living"
-	RoomRoleOffice          RoomRole = "office"
-	RoomRolePharmacy        RoomRole = "pharmacy"
-	RoomRoleRestroom        RoomRole = "restroom"
-	RoomRoleStorage         RoomRole = "storage"
-	RoomRoleStoreroom       RoomRole = "storeroom"
-	RoomRoleToilet          RoomRole = "toilet"
-	RoomRoleWaiting         RoomRole = "waiting"
+	Bath            RoomRole = "bath"
+	Bedroom         RoomRole = "bedroom"
+	Coldroom        RoomRole = "coldroom"
+	Corridor        RoomRole = "corridor"
+	Dressing        RoomRole = "dressing"
+	ExaminationRoom RoomRole = "examination_room"
+	Genkan          RoomRole = "genkan"
+	Kitchen         RoomRole = "kitchen"
+	Living          RoomRole = "living"
+	Office          RoomRole = "office"
+	Pharmacy        RoomRole = "pharmacy"
+	Restroom        RoomRole = "restroom"
+	Storage         RoomRole = "storage"
+	Storeroom       RoomRole = "storeroom"
+	Toilet          RoomRole = "toilet"
+	Waiting         RoomRole = "waiting"
 )
 
 // Valid indicates whether the value is a known member of the RoomRole enum.
 func (e RoomRole) Valid() bool {
 	switch e {
-	case RoomRoleBath:
+	case Bath:
 		return true
-	case RoomRoleBedroom:
+	case Bedroom:
 		return true
-	case RoomRoleColdroom:
+	case Coldroom:
 		return true
-	case RoomRoleCorridor:
+	case Corridor:
 		return true
-	case RoomRoleDressing:
+	case Dressing:
 		return true
-	case RoomRoleExaminationRoom:
+	case ExaminationRoom:
 		return true
-	case RoomRoleGenkan:
+	case Genkan:
 		return true
-	case RoomRoleKitchen:
+	case Kitchen:
 		return true
-	case RoomRoleLiving:
+	case Living:
 		return true
-	case RoomRoleOffice:
+	case Office:
 		return true
-	case RoomRolePharmacy:
+	case Pharmacy:
 		return true
-	case RoomRoleRestroom:
+	case Restroom:
 		return true
-	case RoomRoleStorage:
+	case Storage:
 		return true
-	case RoomRoleStoreroom:
+	case Storeroom:
 		return true
-	case RoomRoleToilet:
+	case Toilet:
 		return true
-	case RoomRoleWaiting:
+	case Waiting:
 		return true
 	default:
 		return false
@@ -669,6 +678,27 @@ func (e WaterType) Valid() bool {
 	case WaterTypeMinus5:
 		return true
 	case WaterTypeN0:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for Zone.
+const (
+	Downtown    Zone = "downtown"
+	Industrial  Zone = "industrial"
+	Residential Zone = "residential"
+)
+
+// Valid indicates whether the value is a known member of the Zone enum.
+func (e Zone) Valid() bool {
+	switch e {
+	case Downtown:
+		return true
+	case Industrial:
+		return true
+	case Residential:
 		return true
 	default:
 		return false
@@ -1231,6 +1261,11 @@ type DisassemblyYield struct {
 // DoorRaw 扉ローデータ
 type DoorRaw = map[string]interface{}
 
+// DrawerKey ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
+//
+//	open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える
+type DrawerKey string
+
 // DropTable ドロップテーブル
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
@@ -1332,37 +1367,43 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Facility 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを
+//
+//	出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
+//	汎用が欲しければ "ruins_area" を明示する。地図の記号・色・凡例順など表示の宣言は別フェーズでここへ足す
+type Facility struct {
+	EnemyTable EntityID `json:"enemyTable"`
+	Id         EntityID `json:"id"`
+	IsShop     bool     `json:"isShop"`
+
+	// Planner 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
+	//     新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
+	Planner PlannerKey     `json:"planner"`
+	Zones   []FacilityZone `json:"zones"`
+}
+
 // FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
 type FacilityContent struct {
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-	Facility FacilityKind `json:"facility"`
-	Variants []EntityID   `json:"variants"`
+	Facility EntityID   `json:"facility"`
+	Variants []EntityID `json:"variants"`
 }
-
-// FacilityEnemyTable 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
-// enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
-type FacilityEnemyTable struct {
-	// EnemyTable 割り当てる敵テーブルの id。enemyTables のいずれかを指す
-	EnemyTable EntityID `json:"enemyTable"`
-
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-	Facility FacilityKind `json:"facility"`
-}
-
-// FacilityKind 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-//
-//	runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-type FacilityKind string
 
 // FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
 type FacilityRooms struct {
-	// Facility 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-	//     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
-	Facility FacilityKind   `json:"facility"`
+	Facility EntityID       `json:"facility"`
 	Fallback EntityID       `json:"fallback"`
 	Rooms    *[]RoomContent `json:"rooms,omitempty"`
+}
+
+// FacilityZone 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
+//
+//	抽選対象になる規模 gate
+type FacilityZone struct {
+	MinSpan int32 `json:"minSpan"`
+	Weight  int32 `json:"weight"`
+
+	// Zone 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む
+	Zone Zone `json:"zone"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -1612,6 +1653,21 @@ type ItemTableList struct {
 // ItemValue 売買価格
 type ItemValue = int
 
+// Landmark 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の
+//
+//	drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標。
+//	地図の記号など表示の宣言は別フェーズでここへ足す
+type Landmark struct {
+	// Drawer ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
+	//     open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える
+	Drawer DrawerKey  `json:"drawer"`
+	HutH   int32      `json:"hutH"`
+	HutW   int32      `json:"hutW"`
+	Id     EntityID   `json:"id"`
+	Props  []PropSpot `json:"props"`
+	Weight int32      `json:"weight"`
+}
+
 // LightEnabled 光源が有効かどうか
 type LightEnabled = bool
 
@@ -1632,6 +1688,19 @@ type LightSource struct {
 
 // MagazineSize マガジン容量
 type MagazineSize = int
+
+// MapGlyph 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
+//
+//	color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は
+//	凡例外なので Go に残す
+type MapGlyph struct {
+	// Color RGBA色
+	Color RGBAColor `json:"color"`
+	Glyph string    `json:"glyph"`
+	Id    EntityID  `json:"id"`
+	Name  string    `json:"name"`
+	Order int32     `json:"order"`
+}
 
 // Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
 // 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
@@ -1762,6 +1831,11 @@ type PassCost = int
 // Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
 type Placement string
 
+// PlannerKey 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
+//
+//	新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
+type PlannerKey string
+
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 type Potency = int
 
@@ -1876,6 +1950,13 @@ type PropList struct {
 	TotalCount int    `json:"totalCount"`
 }
 
+// PropSpot ランドマークの prop 1個の相対配置。name は prop id、dx/dy は基準座標からのオフセット
+type PropSpot struct {
+	Dx   int32    `json:"dx"`
+	Dy   int32    `json:"dy"`
+	Name EntityID `json:"name"`
+}
+
 // ProvidesHealing 回復効果
 type ProvidesHealing struct {
 	// Amount 回復固定量
@@ -1908,12 +1989,12 @@ type RangeBonus = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
-	CommandTables       *[]CommandTable       `json:"commandTables,omitempty"`
-	DropTables          *[]DropTable          `json:"dropTables,omitempty"`
-	EnemyTables         *[]EnemyTable         `json:"enemyTables,omitempty"`
-	FacilityContents    *[]FacilityContent    `json:"facilityContents,omitempty"`
-	FacilityEnemyTables *[]FacilityEnemyTable `json:"facilityEnemyTables,omitempty"`
-	FacilityRooms       *[]FacilityRooms      `json:"facilityRooms,omitempty"`
+	CommandTables    *[]CommandTable    `json:"commandTables,omitempty"`
+	DropTables       *[]DropTable       `json:"dropTables,omitempty"`
+	EnemyTables      *[]EnemyTable      `json:"enemyTables,omitempty"`
+	Facilities       *[]Facility        `json:"facilities,omitempty"`
+	FacilityContents *[]FacilityContent `json:"facilityContents,omitempty"`
+	FacilityRooms    *[]FacilityRooms   `json:"facilityRooms,omitempty"`
 
 	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
@@ -1922,10 +2003,13 @@ type Raws struct {
 	ItemGroups       *[]ItemGroup       `json:"itemGroups,omitempty"`
 	ItemTables       *[]ItemTable       `json:"itemTables,omitempty"`
 	Items            *[]Item            `json:"items,omitempty"`
+	Landmarks        *[]Landmark        `json:"landmarks,omitempty"`
+	MapGlyphs        *[]MapGlyph        `json:"mapGlyphs,omitempty"`
 	Members          *[]Member          `json:"members,omitempty"`
 	Professions      *[]Profession      `json:"professions,omitempty"`
 	Props            *[]Prop            `json:"props,omitempty"`
 	Recipes          *[]Recipe          `json:"recipes,omitempty"`
+	ScatterZones     *[]ScatterZone     `json:"scatterZones,omitempty"`
 	SpriteSheets     *[]SpriteSheet     `json:"spriteSheets,omitempty"`
 	Tiles            *[]Tile            `json:"tiles,omitempty"`
 }
@@ -1975,6 +2059,27 @@ type RoomContent struct {
 
 // RoomRole 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
 type RoomRole string
+
+// ScatterEntry 散布 prop 1種。ref は prop id で空文字は「置かない」、weight は抽選重み、big は位相格子で希釈する
+//
+//	大物か、satellites は大物の周りに寄り添う小クラスタの相対配置
+type ScatterEntry struct {
+	Big        bool        `json:"big"`
+	Ref        string      `json:"ref"`
+	Satellites *[]PropSpot `json:"satellites,omitempty"`
+	Weight     int32       `json:"weight"`
+}
+
+// ScatterZone 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
+//
+//	lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す
+type ScatterZone struct {
+	Entries      []ScatterEntry `json:"entries"`
+	GrassDensity float64        `json:"grassDensity"`
+	Id           EntityID       `json:"id"`
+	LootGroup    EntityID       `json:"lootGroup"`
+	PropDensity  float64        `json:"propDensity"`
+}
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
@@ -2138,6 +2243,9 @@ type Wearable struct {
 
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
+
+// Zone 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む
+type Zone string
 
 // CommandTablesCreateJSONRequestBody defines body for CommandTablesCreate for application/json ContentType.
 type CommandTablesCreateJSONRequestBody = CommandTable

@@ -13,7 +13,7 @@ import (
 
 // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には
 // 店なら自販機、民家なら観葉を1つ置く。
-func lotElements(s Site, facility FacilityKind) []Placed {
+func lotElements(s Site, fac FacilitySpec) []Placed {
 	fside := frontSide(s)
 	lo, hi, edge := lotEdgeSpan(s.Footprint, fside)
 	doorAxis := edge.along(s.Door)
@@ -31,7 +31,7 @@ func lotElements(s Site, facility FacilityKind) []Placed {
 	// 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く
 	if spot, ok := yardSpot(s, fside, doorAxis); ok {
 		ref := "plant"
-		if isShop(facility) {
+		if fac.IsShop {
 			ref = "vending"
 		}
 		out = append(out, Placed{Kind: KindDecor, Ref: ref, Pos: spot})

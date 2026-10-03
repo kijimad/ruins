@@ -5,7 +5,6 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/overworld"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -95,14 +94,6 @@ func (m *macroPanelWidget) Draw(cv uicore.Canvas) {
 
 // Children は uicore.Widget を満たす。子は持たない。
 func (m *macroPanelWidget) Children() []uicore.Widget { return nil }
-
-// macroGlyphColor は種別文字の色を返す。既知の記号は overworld の色定義を引き、未知は灰色にする。
-func macroGlyphColor(r rune) color.RGBA {
-	if c, ok := overworld.GlyphColor(r); ok {
-		return c
-	}
-	return theme.OverworldMapUnknownGlyph
-}
 
 // drawCenteredGlyph はセルの中央に1文字を描く。字形の外接矩形を測って四辺の余白を揃えるので、
 // フォントの行メトリクスでなく実際の字形がセル中央へ来る。小さいセルでも記号が上下へ偏らない。

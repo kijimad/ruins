@@ -15,9 +15,9 @@ func TestFurnishBuilding_同じタイルに複数のpropを置かない(t *testi
 
 	footprint := Rect{X: 0, Y: 0, W: 20, H: 18}
 	door := Vec{X: 10, Y: 0}
-	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
 		for seed := range uint64(300) {
-			_, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, fac)
+			_, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, facSpec(fac))
 			require.NoError(t, err)
 			seen := map[Vec]string{}
 			for _, p := range placed {
@@ -64,11 +64,11 @@ func TestFrontSide_内寄せが無い建物は入口の辺を前面にする(t *
 func TestFurnishBuilding_内寄せ破綻の小footprintでも完走する(t *testing.T) {
 	t.Parallel()
 
-	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
 		for fp := consts.Tile(5); fp <= 9; fp++ {
 			for seed := range uint64(100) {
 				require.NotPanicsf(t, func() {
-					_, _, err := FurnishBuilding(testRaws(), seed, Rect{X: 0, Y: 0, W: fp, H: fp}, Vec{X: fp / 2, Y: 0}, fac)
+					_, _, err := FurnishBuilding(testRaws(), seed, Rect{X: 0, Y: 0, W: fp, H: fp}, Vec{X: fp / 2, Y: 0}, facSpec(fac))
 					require.NoError(t, err)
 				}, "施設 %q fp=%d seed=%d の生成が panic した", fac, fp, seed)
 			}
