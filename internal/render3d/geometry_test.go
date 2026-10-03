@@ -18,15 +18,11 @@ var identity = mat{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}
 
 func TestVecOps(t *testing.T) {
 	t.Parallel()
+	assert.Equal(t, Vec{X: 1, Y: 2, Z: 3}, At(1, 2, 3))
 	assert.Equal(t, Vec{-2, 0, 2}, sub(Vec{1, 2, 3}, Vec{3, 2, 1}))
 	assert.Equal(t, Vec{4, 4, 4}, Add(Vec{1, 2, 3}, Vec{3, 2, 1}))
 	assert.Equal(t, Vec{2, 4, 6}, Scale(Vec{1, 2, 3}, 2))
 	assert.InDelta(t, 10.0, dot(Vec{1, 2, 3}, Vec{3, 2, 1}), 1e-9) // 3+4+3
-}
-
-func TestAt(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, Vec{X: 1, Y: 2, Z: 3}, At(1, 2, 3))
 }
 
 // TestCross は外積が右手系で軸を巡回することを固定する。
