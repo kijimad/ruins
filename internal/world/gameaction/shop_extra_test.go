@@ -21,7 +21,6 @@ func TestBuyStock_スタッカブルな品でも個別エンティティとし�
 	require.NoError(t, err)
 	world.Components.Wallet.Get(player).Currency = 1000
 
-	// 先にプレイヤーが1個持っている
 	_, err = lifecycle.SpawnBackpackItem(world, "wooden_stick", 1)
 	require.NoError(t, err)
 
@@ -126,12 +125,10 @@ func TestBuyStock_通貨消費に失敗すると購入できない(t *testing.T)
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
-	// Wallet を剥がしてConsumeCurrencyだけが失敗する状態を作る
 	world.Components.Wallet.Remove(player)
 
 	merchant := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
-	// 価格0なら HasCurrency は Wallet 無しでも通る。ConsumeCurrency だけを失敗させる経路を作る
 	world.Components.Value.Add(item, &gc.Value{Value: 0})
 	world.Components.Name.Add(item, &gc.Name{Name: "Scrap"})
 	world.Components.RawID.Add(item, &gc.RawID{ID: "scrap"})

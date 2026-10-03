@@ -18,7 +18,6 @@ func TestCanCraft(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 
-	// 必要な素材を作成（木刀レシピは木の棒2個が必要）
 	material, _ := lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
 
 	canCraft, err := CanCraft(world, "wooden_sword")
