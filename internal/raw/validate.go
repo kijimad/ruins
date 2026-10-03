@@ -205,9 +205,8 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		}
 	}
 
-	// 施設を宣言する raw は urban 生成を駆動し、全地区のチャンクを作る。地区に基本施設が無いと候補が空で
-	// 抽選が壊れるので、全既知地区に基本施設を課す。地区が施設定義から欠落していても map のゼロ値 false で
-	// 弾ける。施設0件の部分的な Raws は生成を駆動しないので素通しし、空 Raws 成功の契約を守る。
+	// 施設0件の部分的な Raws は urban 生成を駆動しないので素通しし、空 Raws 成功の契約を守る。
+	// 施設があれば全既知地区に基本施設があることを課す。
 	if len(facilities) > 0 {
 		for _, zone := range urbanZones {
 			if !zoneHasBase[zone] {

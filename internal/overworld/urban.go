@@ -84,8 +84,7 @@ type FacilityWeight struct {
 	MinSpan consts.Chunk
 }
 
-// ZoneCatalog は地区ごとの施設抽選重み。ZoneCatalogFrom で raws から組む。多数のチャンクを引くときは
-// 1度組んで使い回し、セルごとの再構築を避ける。
+// ZoneCatalog は地区ごとの施設抽選重み。ZoneCatalogFrom で raws から組む。
 type ZoneCatalog = map[oapi.Zone][]FacilityWeight
 
 // ZoneCatalogFrom は raw.toml の facilities 行から地区ごとの施設抽選重みを導出する。各施設行が自分の
@@ -161,9 +160,8 @@ func urbanChunkAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chun
 	return max(cw, ch), true
 }
 
-// urbanFacilityAt は c の建物チャンクの施設 id を返す。cat は ZoneCatalogFrom で組んだ地区カタログで、
-// 多数のチャンクを引くときは呼び出し側が1度組んで渡し、セルごとの再構築を避ける。地図の記号と実体の施設を
-// 一致させるため、地図表示と生成の両方がこれを呼ぶ。市街地でなければ ok=false。
+// urbanFacilityAt は c の建物チャンクの施設 id を返す。cat は ZoneCatalogFrom で組んだ地区カタログ。
+// 地図の記号と実体の施設を一致させるため、地図表示と生成の両方がこれを呼ぶ。市街地でなければ ok=false。
 func urbanFacilityAt(cat ZoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind string, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
 	if !ok {
