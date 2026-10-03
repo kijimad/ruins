@@ -655,6 +655,7 @@ func Test_initChoiceMenu(t *testing.T) {
 		assert.Equal(t, 0, items[0].UserData)
 		assert.Equal(t, 1, items[1].UserData)
 		require.NotNil(t, win.choiceStore, "選択肢のナビゲーション状態を持つストアを作る")
+		assert.Equal(t, 0, win.choiceState.ItemIndex, "初期カーソルは先頭")
 	})
 
 	t.Run("選択肢が無い場合は何もしない", func(t *testing.T) {
@@ -780,10 +781,11 @@ func TestWindow_Draw(t *testing.T) {
 		require.NoError(t, win.Update())
 		win.isOpen = false
 
-		screen := ebiten.NewImage(960, 720)
+		sd := world.Resources.ScreenDimensions
+		screen := ebiten.NewImage(sd.Width, sd.Height)
 		win.Draw(screen)
 
-		_, _, _, a := screen.At(480, 360).RGBA()
+		_, _, _, a := screen.At(sd.Width/2, sd.Height/2).RGBA()
 		assert.Equal(t, uint32(0), a, "閉じているので何も描かれない")
 	})
 
@@ -793,10 +795,11 @@ func TestWindow_Draw(t *testing.T) {
 		world := testutil.InitTestWorld(t, testutil.WithUI())
 		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
 
-		screen := ebiten.NewImage(960, 720)
+		sd := world.Resources.ScreenDimensions
+		screen := ebiten.NewImage(sd.Width, sd.Height)
 		win.Draw(screen)
 
-		_, _, _, a := screen.At(480, 360).RGBA()
+		_, _, _, a := screen.At(sd.Width/2, sd.Height/2).RGBA()
 		assert.Equal(t, uint32(0), a, "bodyが無いので何も描かれない")
 	})
 
@@ -808,7 +811,8 @@ func TestWindow_Draw(t *testing.T) {
 		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
 		require.NoError(t, win.Update())
 
-		screen := ebiten.NewImage(960, 720)
+		sd := world.Resources.ScreenDimensions
+		screen := ebiten.NewImage(sd.Width, sd.Height)
 		win.Draw(screen)
 
 		size := win.calculateWindowSize()

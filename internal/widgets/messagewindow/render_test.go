@@ -56,6 +56,7 @@ func Test_buildTree(t *testing.T) {
 
 		tree := win.buildTree()
 
+		require.Len(t, tree.Children(), 4, "枠・本文・選択バー・Enter文字の4つ")
 		assert.Equal(t, []string{"本文", "Enter"}, uicore.CollectLabels(tree))
 	})
 
@@ -88,6 +89,8 @@ func Test_buildTree(t *testing.T) {
 func Test_segmentedLineWidgets(t *testing.T) {
 	t.Parallel()
 
+	// world は face の取得だけに使う。segmentedLineWidgets は win.world を読まないので、
+	// 各サブテストの Window には world を渡していない
 	world := testutil.InitTestWorld(t, testutil.WithUI())
 	face := world.Resources.UIResources.Text.BodyFace
 
