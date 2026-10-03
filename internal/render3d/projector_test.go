@@ -85,6 +85,44 @@ func TestProjector_カメラ後方のタイルは投影できない(t *testing.T
 	assert.False(t, ok)
 }
 
+func TestProjector_Rightはカメラから見た画面右方向の単位ベクトル(t *testing.T) {
+	t.Parallel()
+
+	// 北を向く既定視点では、画面の上が北に合うので右手はそのまま東、つまり+X
+	right := render3d.NewProjector(defaultView, playerTile, screenW, screenH).Right()
+	assert.InDelta(t, 1.0, right.X, 1e-9)
+	assert.InDelta(t, 0.0, right.Y, 1e-9)
+	assert.InDelta(t, 0.0, right.Z, 1e-9)
+}
+
+func TestProjector_Rightはカメラを回すと向きが変わる(t *testing.T) {
+	t.Parallel()
+
+	north := render3d.NewProjector(defaultView, playerTile, screenW, screenH).Right()
+	turned := defaultView
+	turned.Orient = 1
+	rotated := render3d.NewProjector(turned, playerTile, screenW, screenH).Right()
+
+	assert.NotEqual(t, north, rotated)
+}
+
+func TestProjector_TileCornersはカメラ後方なら投影できない(t *testing.T) {
+	t.Parallel()
+
+	// 足元より南、視線の裏側に回るタイルは4隅のうち最初の1つで投影が破綻する
+	_, ok := render3d.NewProjector(defaultView, playerTile, screenW, screenH).
+		TileCorners(consts.Coord[consts.Tile]{X: 25, Y: 60}, 0)
+	assert.False(t, ok)
+}
+
+func TestProjector_BillboardScaleはカメラ後方なら投影できない(t *testing.T) {
+	t.Parallel()
+
+	_, ok := render3d.NewProjector(defaultView, playerTile, screenW, screenH).
+		BillboardScale(consts.Coord[consts.Tile]{X: 25, Y: 60})
+	assert.False(t, ok)
+}
+
 func TestProjector_TileOnScreenは画面に掛かる升だけ通す(t *testing.T) {
 	t.Parallel()
 
