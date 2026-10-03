@@ -1,6 +1,7 @@
 package gameaction
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
 
@@ -13,6 +14,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// クラフトのエラー。呼び出し側とテストが errors.Is で同定できるよう sentinel にする。
+var (
+	errRecipeNotFound        = errors.New("recipe not found")
+	errInsufficientMaterials = errors.New("insufficient materials")
+)
+
 // Craft はアイテムをクラフトする
 func Craft(world w.World, name string) (ecs.Entity, error) {
 	canCraft, err := CanCraft(world, name)
@@ -20,7 +27,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 		return gc.InvalidEntity, err
 	}
 	if !canCraft {
-		return gc.InvalidEntity, fmt.Errorf("insufficient materials")
+		return gc.InvalidEntity, errInsufficientMaterials
 	}
 
 	craftCostPct, smithQualityPct := playerCraftMods(world)
@@ -45,7 +52,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 func CanCraft(world w.World, name string) (bool, error) {
 	required := requiredMaterials(world, name)
 	if len(required) == 0 {
-		return false, fmt.Errorf("recipe not found: %s", name)
+		return false, fmt.Errorf("%w: %s", errRecipeNotFound, name)
 	}
 
 	craftCostPct, _ := playerCraftMods(world)
