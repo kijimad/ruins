@@ -6,6 +6,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -14,11 +15,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newTestGameInfo(t *testing.T) *GameInfo {
+// newTestGameInfo は GameInfo を作る。fill は塗りテクスチャで、塗り幅を検証するテストは非 nil を、
+// 検証しないテストは nil を渡す。gaugeWidget.Draw は fill==nil だと塗りを描かないので、塗りを見るテストに
+// nil を渡すと tintedRects が黙って空になる。fill を呼び出し側で明示させてこの誤用を防ぐ。
+func newTestGameInfo(t *testing.T, fill *ebiten.Image) *GameInfo {
 	t.Helper()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	return NewGameInfo(res.Text.BodyFace, res.Text.TitleFontFace, nil)
+	return NewGameInfo(res.Text.BodyFace, res.Text.TitleFontFace, fill)
 }
 
 // findText は文字列が一致する最後の描画呼び出しを返す。OutlinedText は縁取りと本体をまとめて描くため、
@@ -36,7 +40,7 @@ func findText(t *testing.T, texts []textCall, s string) textCall {
 
 func TestGameInfo_arrowWidget(t *testing.T) {
 	t.Parallel()
-	info := newTestGameInfo(t)
+	info := newTestGameInfo(t, nil)
 	rect := image.Rect(0, 0, tempArrowSlotW, gaugeHeight)
 
 	t.Run("非表示なら何も描かない", func(t *testing.T) {
@@ -76,7 +80,7 @@ func TestGameInfo_arrowWidget(t *testing.T) {
 
 func TestGameInfo_drawFloorNumber(t *testing.T) {
 	t.Parallel()
-	info := newTestGameInfo(t)
+	info := newTestGameInfo(t, nil)
 
 	t.Run("非表示なら描かない", func(t *testing.T) {
 		t.Parallel()
@@ -104,7 +108,7 @@ func TestDrawFlexItems_W無しの行はスキップする(t *testing.T) {
 	t.Parallel()
 	cv := &fakeCanvas{}
 	items := []uicore.FlexItem{
-		{Grow: true}, // W が nil のスペーサ行
+		{Grow: true},
 		{W: &uicore.Text{Value: "hello"}, Height: 10},
 	}
 	drawFlexItems(cv, items)
@@ -115,7 +119,7 @@ func TestDrawFlexItems_W無しの行はスキップする(t *testing.T) {
 
 func TestGameInfo_drawBottomRightStack_気温(t *testing.T) {
 	t.Parallel()
-	info := newTestGameInfo(t)
+	info := newTestGameInfo(t, nil)
 
 	t.Run("気温が非表示ならラベルを描かない", func(t *testing.T) {
 		t.Parallel()
