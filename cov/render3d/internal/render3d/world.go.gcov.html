@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.7&nbsp;%</td>
+            <td class="headerCovTableEntryMed">78.9&nbsp;%</td>
             <td class="headerCovTableEntry">38</td>
-            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">30</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-03 13:54:57</td>
+            <td class="headerValue">2026-10-03 13:58:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,13 +80,13 @@
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 :         sw, sh := world.Resources.GetScreenDimensions()</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         camera := query.GetPlayerCamera(world)</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         if camera == nil {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return Projector{}, fmt.Errorf(&quot;player camera not found&quot;)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         tile, err := PlayerTile(world)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC tlaBgUNC">           0 :                 return Projector{}, fmt.Errorf(&quot;player camera not found&quot;)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 :         tile, err := PlayerTile(world)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return Projector{}, err</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return NewProjector(*camera, tile, sw, sh), nil</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC tlaBgUNC">           0 :                 return Projector{}, err</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         return NewProjector(*camera, tile, sw, sh), nil</span></span>
 <span id="L28"><span class="lineNum">      28</span>              : }</span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // PlayerTile はプレイヤーの立つタイルを返す。投影の注視点と、描画範囲を絞るカリングの中心が</span>
@@ -94,9 +94,9 @@
 <span id="L32"><span class="lineNum">      32</span>              : func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         pe, err := query.GetPlayerEntity(world)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{}, err</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(pe) {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.Coord[consts.Tile]{}, err</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(pe) {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.Coord[consts.Tile]{}, fmt.Errorf(&quot;player has no GridElement&quot;)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.GridElement.Get(pe).Coord, nil</span></span>
