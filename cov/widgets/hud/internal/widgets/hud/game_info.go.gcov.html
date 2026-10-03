@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.5&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.2&nbsp;%</td>
             <td class="headerCovTableEntry">133</td>
-            <td class="headerCovTableEntry">111</td>
+            <td class="headerCovTableEntry">120</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-30 16:49:34</td>
+            <td class="headerValue">2026-10-03 09:16:07</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -217,9 +217,9 @@
 <span id="L155"><span class="lineNum">     155</span>              : // bodyTempGauge は体温ゲージを返す。満タンが平熱、減って青くなるほど冷える片方向。非表示なら空を返す。</span>
 <span id="L156"><span class="lineNum">     156</span>              : func (info *GameInfo) bodyTempGauge(data GameInfoData) uicore.Widget {</span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         if !data.BodyTempVisible {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :                 return uicore.NewGroup()</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.BodyTempRatio, fillColor: bodyTempFillColor(data.BodyTempRatio), border: theme.HUDGaugeBorder}</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 return uicore.NewGroup()</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.BodyTempRatio, fillColor: bodyTempFillColor(data.BodyTempRatio), border: theme.HUDGaugeBorder}</span></span>
 <span id="L161"><span class="lineNum">     161</span>              : }</span>
 <span id="L162"><span class="lineNum">     162</span>              : </span>
 <span id="L163"><span class="lineNum">     163</span>              : // healthGauge は HP ゲージを返す。半分を境に緑から黄、黄から赤へ寄る。</span>
@@ -232,21 +232,21 @@
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         if ratio &gt; 0.5 {</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 fill = theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-ratio)*2)</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         } else {</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC tlaBgUNC">           0 :                 fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}</span></span>
 <span id="L176"><span class="lineNum">     176</span>              : }</span>
 <span id="L177"><span class="lineNum">     177</span>              : </span>
 <span id="L178"><span class="lineNum">     178</span>              : // fuelGauge は運転中の燃料ゲージを返す。満で琥珀、空へ近づくと赤へ寄る。</span>
 <span id="L179"><span class="lineNum">     179</span>              : func (info *GameInfo) fuelGauge(data GameInfoData) uicore.Widget {</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC tlaBgUNC">           0 :         fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, data.FuelRatio)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.FuelRatio, fillColor: fill, border: theme.HUDGaugeBorder}</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, data.FuelRatio)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.FuelRatio, fillColor: fill, border: theme.HUDGaugeBorder}</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L183"><span class="lineNum">     183</span>              : </span>
 <span id="L184"><span class="lineNum">     184</span>              : // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向</span>
 <span id="L185"><span class="lineNum">     185</span>              : func bodyTempFillColor(ratio float64) color.RGBA {</span>
 <span id="L186"><span class="lineNum">     186</span>              :         // 体温は片方向。0が平熱かつ上限で寒さ方向へ負に動くので、ratio=1 が平熱、下がるほど冷えの色へ寄る</span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">           1 :         return theme.LerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         return theme.LerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L189"><span class="lineNum">     189</span>              : </span>
 <span id="L190"><span class="lineNum">     190</span>              : // gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。</span>
@@ -330,11 +330,11 @@
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         switch ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight); {</span></span>
 <span id="L270"><span class="lineNum">     270</span>              :         case ratio &gt; 1.0:</span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC tlaBgUNC">           0 :                 return theme.HUDWeightDanger</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 return theme.HUDWeightDanger</span></span>
 <span id="L272"><span class="lineNum">     272</span>              :         case ratio &gt; 0.8:</span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 return theme.HUDWeightWarning</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 return theme.HUDWeightWarning</span></span>
 <span id="L274"><span class="lineNum">     274</span>              :         default:</span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC tlaBgGNC">           1 :                 return theme.TextPrimary</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 return theme.TextPrimary</span></span>
 <span id="L276"><span class="lineNum">     276</span>              :         }</span>
 <span id="L277"><span class="lineNum">     277</span>              : }</span>
 <span id="L278"><span class="lineNum">     278</span>              : </span>

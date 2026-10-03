@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (87.3%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (88.2%)</option>
 				
@@ -675,7 +675,7 @@
 				
 				<option value="file309">github.com/kijimaD/ruins/internal/widgets/hud/facility_grid.go (100.0%)</option>
 				
-				<option value="file310">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (92.9%)</option>
+				<option value="file310">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (97.1%)</option>
 				
 				<option value="file311">github.com/kijimaD/ruins/internal/widgets/hud/infopanel.go (100.0%)</option>
 				
@@ -1799,7 +1799,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
@@ -1869,8 +1869,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -47911,7 +47911,7 @@ func (info *GameInfo) arrowWidget(arrow TemperatureArrow) uicore.Widget {
 // bodyTempGauge は体温ゲージを返す。満タンが平熱、減って青くなるほど冷える片方向。非表示なら空を返す。
 func (info *GameInfo) bodyTempGauge(data GameInfoData) uicore.Widget {
         <span class="cov8" title="1">if !data.BodyTempVisible </span>{
-                <span class="cov0" title="0">return uicore.NewGroup()
+                <span class="cov8" title="1">return uicore.NewGroup()
 </span>        }
         <span class="cov8" title="1">return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.BodyTempRatio, fillColor: bodyTempFillColor(data.BodyTempRatio), border: theme.HUDGaugeBorder}</span>
 }
@@ -47926,14 +47926,14 @@ func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
         if ratio &gt; 0.5 </span>{
                 <span class="cov8" title="1">fill = theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-ratio)*2)
 </span>        } else {
-                <span class="cov0" title="0">fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)
+                <span class="cov8" title="1">fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)
 </span>        }
         <span class="cov8" title="1">return &amp;gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}</span>
 }
 
 // fuelGauge は運転中の燃料ゲージを返す。満で琥珀、空へ近づくと赤へ寄る。
 func (info *GameInfo) fuelGauge(data GameInfoData) uicore.Widget {
-        <span class="cov0" title="0">fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, data.FuelRatio)
+        <span class="cov8" title="1">fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, data.FuelRatio)
         return &amp;gaugeWidget{fill: info.gaugeFill, ratio: data.FuelRatio, fillColor: fill, border: theme.HUDGaugeBorder}
 </span>}
 
@@ -48024,9 +48024,9 @@ func weightColor(data GameInfoData) color.RGBA {
 </span>        }
         <span class="cov8" title="1">switch ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight); </span>{
         case ratio &gt; 1.0:
-                <span class="cov0" title="0">return theme.HUDWeightDanger</span>
+                <span class="cov8" title="1">return theme.HUDWeightDanger</span>
         case ratio &gt; 0.8:
-                <span class="cov0" title="0">return theme.HUDWeightWarning</span>
+                <span class="cov8" title="1">return theme.HUDWeightWarning</span>
         default:
                 <span class="cov8" title="1">return theme.TextPrimary</span>
         }
