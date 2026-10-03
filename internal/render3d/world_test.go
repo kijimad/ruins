@@ -54,7 +54,6 @@ func TestWorldProjector_カメラを回すと投影が追随する(t *testing.T)
 func TestWorldProjector_カメラがいないとエラー(t *testing.T) {
 	t.Parallel()
 
-	// プレイヤーを spawn していないのでカメラも存在しない
 	world := testutil.InitTestWorld(t)
 	world.Resources.SetScreenDimensions(screenW, screenH)
 

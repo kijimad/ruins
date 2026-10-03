@@ -45,7 +45,6 @@ func TestNorm(t *testing.T) {
 	})
 }
 
-// TestApply_単位行列は点を保つ は行優先の変換が単位行列で恒等になることを固定する。
 func TestApply_単位行列は点を保つ(t *testing.T) {
 	t.Parallel()
 	x, y, z, wc := apply(identity, Vec{2, 3, 4})
