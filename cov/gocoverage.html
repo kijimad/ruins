@@ -501,11 +501,11 @@
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/raw/weighted.go (94.4%)</option>
 				
-				<option value="file223">github.com/kijimaD/ruins/internal/render3d/geometry.go (96.6%)</option>
+				<option value="file223">github.com/kijimaD/ruins/internal/render3d/geometry.go (100.0%)</option>
 				
-				<option value="file224">github.com/kijimaD/ruins/internal/render3d/projector.go (95.9%)</option>
+				<option value="file224">github.com/kijimaD/ruins/internal/render3d/projector.go (100.0%)</option>
 				
-				<option value="file225">github.com/kijimaD/ruins/internal/render3d/world.go (86.2%)</option>
+				<option value="file225">github.com/kijimaD/ruins/internal/render3d/world.go (96.6%)</option>
 				
 				<option value="file226">github.com/kijimaD/ruins/internal/resources/font.go (100.0%)</option>
 				
@@ -747,7 +747,7 @@
 				
 				<option value="file345">github.com/kijimaD/ruins/internal/widgets/uicore/widget.go (97.4%)</option>
 				
-				<option value="file346">github.com/kijimaD/ruins/internal/world/gameaction/craft.go (84.8%)</option>
+				<option value="file346">github.com/kijimaD/ruins/internal/world/gameaction/craft.go (92.4%)</option>
 				
 				<option value="file347">github.com/kijimaD/ruins/internal/world/gameaction/damage.go (100.0%)</option>
 				
@@ -755,7 +755,7 @@
 				
 				<option value="file349">github.com/kijimaD/ruins/internal/world/gameaction/profession.go (97.4%)</option>
 				
-				<option value="file350">github.com/kijimaD/ruins/internal/world/gameaction/shop.go (63.6%)</option>
+				<option value="file350">github.com/kijimaD/ruins/internal/world/gameaction/shop.go (77.3%)</option>
 				
 				<option value="file351">github.com/kijimaD/ruins/internal/world/lifecycle/cube.go (100.0%)</option>
 				
@@ -32262,7 +32262,7 @@ func lookAt(eye, center, up Vec) mat {
 }
 
 // At は座標から点を作る。3成分を並べる式が読みやすくなる
-func At(x, y, z float64) Vec { <span class="cov0" title="0">return Vec{X: x, Y: y, Z: z} }</span>
+func At(x, y, z float64) Vec { <span class="cov8" title="1">return Vec{X: x, Y: y, Z: z} }</span>
 </pre>
 		
 		<pre class="file" id="file224" style="display: none">package render3d
@@ -32324,7 +32324,7 @@ func NewProjector(orbit gc.Camera, center consts.Coord[consts.Tile], sw, sh int)
 
 // Right はカメラから見た画面右方向の単位ベクトル。立て板をカメラへ正対させるのに使う
 func (p Projector) Right() Vec {
-        <span class="cov0" title="0">return norm(cross(norm(sub(p.target, p.eye)), Vec{0, 1, 0}))
+        <span class="cov8" title="1">return norm(cross(norm(sub(p.target, p.eye)), Vec{0, 1, 0}))
 </span>}
 
 // Depth は点のカメラ空間での奥行きを返す。奥ほど小さい。画家アルゴリズムの並べ替えに使う
@@ -32366,7 +32366,7 @@ func (p Projector) TileCorners(c consts.Coord[consts.Tile], height float64) ([4]
         for i, v := range src </span>{
                 <span class="cov8" title="1">sp, ok := p.Point(v)
                 if !ok </span>{
-                        <span class="cov0" title="0">return out, false
+                        <span class="cov8" title="1">return out, false
 </span>                }
                 <span class="cov8" title="1">out[i] = sp</span>
         }
@@ -32426,7 +32426,7 @@ func (p Projector) BillboardScale(c consts.Coord[consts.Tile]) (float64, bool) {
         <span class="cov8" title="1">top, okTop := p.BillboardTop(c)
         base, okBase := p.TileCenter(c, 0)
         if !okTop || !okBase </span>{
-                <span class="cov0" title="0">return 0, false
+                <span class="cov8" title="1">return 0, false
 </span>        }
         <span class="cov8" title="1">return math.Abs(float64(base.Y - top.Y)), true</span>
 }
@@ -32452,11 +32452,11 @@ func WorldProjector(world w.World) (Projector, error) {
         <span class="cov8" title="1">sw, sh := world.Resources.GetScreenDimensions()
         camera := query.GetPlayerCamera(world)
         if camera == nil </span>{
-                <span class="cov0" title="0">return Projector{}, fmt.Errorf("player camera not found")
+                <span class="cov8" title="1">return Projector{}, fmt.Errorf("player camera not found")
 </span>        }
         <span class="cov8" title="1">tile, err := PlayerTile(world)
         if err != nil </span>{
-                <span class="cov0" title="0">return Projector{}, err
+                <span class="cov8" title="1">return Projector{}, err
 </span>        }
         <span class="cov8" title="1">return NewProjector(*camera, tile, sw, sh), nil</span>
 }
@@ -32466,7 +32466,7 @@ func WorldProjector(world w.World) (Projector, error) {
 func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
         <span class="cov8" title="1">pe, err := query.GetPlayerEntity(world)
         if err != nil </span>{
-                <span class="cov0" title="0">return consts.Coord[consts.Tile]{}, err
+                <span class="cov8" title="1">return consts.Coord[consts.Tile]{}, err
 </span>        }
         <span class="cov8" title="1">if !world.Components.GridElement.Has(pe) </span>{
                 <span class="cov0" title="0">return consts.Coord[consts.Tile]{}, fmt.Errorf("player has no GridElement")
@@ -52007,6 +52007,7 @@ func CollectLabels(w Widget) []string {
 		<pre class="file" id="file346" style="display: none">package gameaction
 
 import (
+        "errors"
         "fmt"
         "math/rand/v2"
 
@@ -52019,6 +52020,12 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
+// クラフトのエラー。呼び出し側とテストが errors.Is で同定できるよう sentinel にする。
+var (
+        errRecipeNotFound        = errors.New("recipe not found")
+        errInsufficientMaterials = errors.New("insufficient materials")
+)
+
 // Craft はアイテムをクラフトする
 func Craft(world w.World, name string) (ecs.Entity, error) {
         <span class="cov8" title="1">canCraft, err := CanCraft(world, name)
@@ -52026,7 +52033,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
                 <span class="cov8" title="1">return gc.InvalidEntity, err
 </span>        }
         <span class="cov8" title="1">if !canCraft </span>{
-                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("insufficient materials")
+                <span class="cov8" title="1">return gc.InvalidEntity, errInsufficientMaterials
 </span>        }
 
         <span class="cov8" title="1">craftCostPct, smithQualityPct := playerCraftMods(world)
@@ -52051,7 +52058,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 func CanCraft(world w.World, name string) (bool, error) {
         <span class="cov8" title="1">required := requiredMaterials(world, name)
         if len(required) == 0 </span>{
-                <span class="cov8" title="1">return false, fmt.Errorf("recipe not found: %s", name)
+                <span class="cov8" title="1">return false, fmt.Errorf("%w: %s", errRecipeNotFound, name)
 </span>        }
 
         <span class="cov8" title="1">craftCostPct, _ := playerCraftMods(world)
@@ -52126,12 +52133,12 @@ func randomize(world w.World, entity ecs.Entity, smithQualityPct consts.Percent)
                 melee.Damage += (-5 + rand.IntN(15)) + qualityBonus
 </span>        }
         <span class="cov8" title="1">if world.Components.Fire.Has(entity) </span>{
-                <span class="cov0" title="0">fire := world.Components.Fire.Get(entity)
+                <span class="cov8" title="1">fire := world.Components.Fire.Get(entity)
                 fire.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
                 fire.Damage += (-5 + rand.IntN(15)) + qualityBonus
 </span>        }
         <span class="cov8" title="1">if world.Components.Wearable.Has(entity) </span>{
-                <span class="cov0" title="0">wearable := world.Components.Wearable.Get(entity)
+                <span class="cov8" title="1">wearable := world.Components.Wearable.Get(entity)
                 wearable.Defense += (-4 + rand.IntN(20)) + qualityBonus
 </span>        }
 }
@@ -52386,7 +52393,7 @@ func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {
                 <span class="cov8" title="1">return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
 </span>        }
         <span class="cov8" title="1">if !query.ConsumeCurrency(world, player, price) </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to consume currency")
+                <span class="cov8" title="1">return fmt.Errorf("failed to consume currency")
 </span>        }
 
         // 実体をバックパックへ移す。移送に失敗したら通貨を返して整合を保つ
@@ -52412,10 +52419,10 @@ func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.E
 </span>        }
         // 代金の付与に失敗したら実体を手元へ戻し、品も金も失わないようにする。BuyStock の返金と対称
         <span class="cov8" title="1">if err := query.AddCurrency(world, player, price); err != nil </span>{
-                <span class="cov0" title="0">if _, rbErr := lifecycle.MoveStackToBackpack(world, item, player); rbErr != nil </span>{
+                <span class="cov8" title="1">if _, rbErr := lifecycle.MoveStackToBackpack(world, item, player); rbErr != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("payment failed and item rollback also failed: %w (rollback error: %w)", err, rbErr)
 </span>                }
-                <span class="cov0" title="0">return fmt.Errorf("failed to add currency: %w", err)</span>
+                <span class="cov8" title="1">return fmt.Errorf("failed to add currency: %w", err)</span>
         }
 
         <span class="cov8" title="1">return nil</span>
