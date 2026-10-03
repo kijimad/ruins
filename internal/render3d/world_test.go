@@ -66,8 +66,7 @@ func TestWorldProjector_カメラがいないとエラー(t *testing.T) {
 func TestWorldProjector_プレイヤーが複数いるとエラー(t *testing.T) {
 	t.Parallel()
 
-	// カメラの有無を先に見るため、カメラ自体は2人分存在して見つかるが
-	// 投影の注視点を決める PlayerTile 側でプレイヤーの一意性が崩れてエラーになる
+	// プレイヤーが2人いると投影の注視点を一意に決められずエラーになる
 	world := testutil.InitTestWorld(t)
 	world.Resources.SetScreenDimensions(screenW, screenH)
 	_, err := lifecycle.SpawnPlayer(world, playerTile, "ash")
