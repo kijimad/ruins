@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/getkin/kin-openapi v0.149.0
 	github.com/go-text/typesetting v0.3.5
-	github.com/hajimehoshi/ebiten/v2 v2.10.2
+	github.com/hajimehoshi/ebiten/v2 v2.10.4
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/mlange-42/ark v0.8.3
@@ -17,7 +17,7 @@ require (
 	github.com/pkg/profile v1.7.0
 	github.com/sebdah/goldie/v2 v2.8.0
 	github.com/stretchr/testify v1.12.1
-	github.com/urfave/cli/v3 v3.12.0
+	github.com/urfave/cli/v3 v3.13.0
 	github.com/yohamta/furex/v2 v2.5.0
 	golang.org/x/image v0.46.0
 	golang.org/x/perf v0.0.0-20260709024250-82a0b07e230d

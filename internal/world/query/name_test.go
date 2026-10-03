@@ -38,6 +38,37 @@ func TestGetEntityID(t *testing.T) {
 	})
 }
 
+func TestGetEntityName(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Nameを持てば訳を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: "Sword"})
+
+		assert.Equal(t, "Sword", GetEntityName(e, world))
+	})
+
+	t.Run("Nameを持たなければUnknown", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+
+		assert.Equal(t, "Unknown", GetEntityName(e, world))
+	})
+
+	t.Run("死亡エンティティはNameを持っていてもUnknown", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: "Sword"})
+		world.ECS.RemoveEntity(e)
+
+		assert.Equal(t, "Unknown", GetEntityName(e, world))
+	})
+}
+
 func TestNameMarkup(t *testing.T) {
 	t.Parallel()
 

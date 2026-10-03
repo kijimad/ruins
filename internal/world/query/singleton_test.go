@@ -2,6 +2,7 @@ package query
 
 import (
 	"testing"
+	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -109,6 +110,18 @@ func TestEnsureStageField_同じキーなら既存のエンティティを再利
 
 	second := EnsureStageField(world, key)
 	assert.Equal(t, consts.Tile(99), second.Level.TileWidth, "2回目は既存のエンティティを返す")
+}
+
+// TestGetPlayTime_InitWorldで生成されたシングルトンを取得できる は、InitWorld が
+// シングルトンエンティティに PlayTime を確保済みで、GetPlayTime がそれを取得することを固定する。
+func TestGetPlayTime_InitWorldで生成されたシングルトンを取得できる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	pt := GetPlayTime(world)
+
+	require.NotNil(t, pt)
+	assert.Equal(t, time.Duration(0), pt.Elapsed(), "開始直後は経過時間0")
 }
 
 func TestGetCurrentStageField_未生成のステージはnilを返す(t *testing.T) {

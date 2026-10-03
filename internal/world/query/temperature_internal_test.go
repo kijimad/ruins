@@ -3,6 +3,7 @@ package query
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,6 +38,19 @@ func TestComfortableRange(t *testing.T) {
 		assert.Equal(t, -4, lower)
 		assert.Equal(t, 35, upper)
 	})
+}
+
+// TestSleepableTemperatureRange_装備なしは快適帯をmarginぶん広げる は、断熱が無いエンティティの
+// 入眠可能な温度帯が、快適温度の下限・上限それぞれから sleepTemperatureMargin ぶん広がることを固定する。
+func TestSleepableTemperatureRange_装備なしは快適帯をmarginぶん広げる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	e := world.ECS.NewEntity()
+
+	lower, upper := SleepableTemperatureRange(world, e)
+
+	assert.Equal(t, ComfortableTempLower-sleepTemperatureMargin, lower)
+	assert.Equal(t, ComfortableTempUpper+sleepTemperatureMargin, upper)
 }
 
 // latitudeColdForDepth は非公開の純粋計算なので内部テストで直接検証する。

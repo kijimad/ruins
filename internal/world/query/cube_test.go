@@ -278,3 +278,62 @@ func TestCubeWeight_別の収納の物は数えない(t *testing.T) {
 
 	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, cube), "別の収納の物は除外する")
 }
+
+// TestDriveCubeTiles_運転可能なタイル座標だけ集める は、Drivable を持つタイルの座標だけが
+// マクロ地図マーカー用に集まり、持たないタイルは混ざらないことを固定する。
+func TestDriveCubeTiles_運転可能なタイル座標だけ集める(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	cube := world.ECS.NewEntity()
+	world.Components.GridElement.Add(cube, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
+	world.Components.Drivable.Add(cube, &gc.Drivable{})
+
+	// Drivable を持たないタイルは含まない
+	other := world.ECS.NewEntity()
+	world.Components.GridElement.Add(other, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
+
+	got := query.DriveCubeTiles(world)
+	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 3, Y: 4}}, got)
+}
+
+func TestPlayerBandTile(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーがいなければfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, ok := query.PlayerBandTile(world)
+		assert.False(t, ok)
+	})
+
+	t.Run("プレイヤーの帯ローカル座標を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 7, Y: 9}, "ash")
+		require.NoError(t, err)
+
+		coord, ok := query.PlayerBandTile(world)
+		require.True(t, ok)
+		assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 9}, coord)
+	})
+}
+
+// TestStowedCargo_このキューブの貨物だけ返す は、LocationStowed の Owner が一致する
+// アイテムだけを集め、別キューブの貨物は混ざらないことを固定する。
+func TestStowedCargo_このキューブの貨物だけ返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+
+	item := world.ECS.NewEntity()
+	world.Components.LocationStowed.Add(item, &gc.LocationStowed{Owner: cube})
+
+	otherItem := world.ECS.NewEntity()
+	world.Components.LocationStowed.Add(otherItem, &gc.LocationStowed{Owner: other})
+
+	got := query.StowedCargo(world, cube)
+	assert.Equal(t, []ecs.Entity{item}, got, "別キューブの貨物は除外する")
+}

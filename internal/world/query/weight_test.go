@@ -36,6 +36,13 @@ func TestGetEntityWeight(t *testing.T) {
 	})
 }
 
+// TestCalculateMaxCarryingWeight_Abilitiesがnilなら基本所持重量を返す は、
+// calculateMaxCarryingWeight の nil セーフな防御分岐を固定する
+func TestCalculateMaxCarryingWeight_Abilitiesがnilなら基本所持重量を返す(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, consts.MustParseWeight("10 kg"), calculateMaxCarryingWeight(nil))
+}
+
 func TestCalculateOwnedWeight(t *testing.T) {
 	t.Parallel()
 	t.Run("バックパック内の単一アイテム", func(t *testing.T) {
