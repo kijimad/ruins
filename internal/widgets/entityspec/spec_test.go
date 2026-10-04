@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -372,5 +373,82 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 		"Nutrition", "25",
 		"Value", consts.Currency(1200).String(),
 		"Weight", "0㎎",
+	}, labels)
+}
+
+func TestUpdateSpec_材質があり重量がなければ燃料行を表示しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+
+	// 燃焼熱量は Material と Weight の両方がないと導けないので、重量がなければ Fuel 行は出ない
+	assert.Equal(t, []string{"Basic", "Material", query.T(world, "Wood")}, labels)
+}
+
+func TestUpdateSpec_可燃性の材質と重量があれば燃料行を表示する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+	world.Components.Weight.Add(e, &gc.Weight{Milligram: 1_000_000}) // 1kg
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+
+	// wood は1kgあたり200の燃焼熱量を持つ
+	assert.Equal(t, []string{
+		"Basic", "Material", query.T(world, "Wood"), "Fuel", consts.Heat(200).String(),
+		"Weight", consts.Milligram(1_000_000).String(),
+	}, labels)
+}
+
+func TestUpdateSpec_不燃の材質は重量があっても燃料行を表示しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	e := world.ECS.NewEntity()
+	// GLASS は materialHeatPerKg に載らない不燃材質なので熱量は0になる
+	world.Components.Material.Add(e, &gc.Material{Kind: oapi.GLASS})
+	world.Components.Weight.Add(e, &gc.Weight{Milligram: 1_000_000})
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+
+	assert.Equal(t, []string{
+		"Basic", "Material", query.T(world, "Glass"),
+		"Weight", consts.Milligram(1_000_000).String(),
+	}, labels)
+}
+
+func TestUpdateSpecFromSpec_材質はあるが重量がなければ燃料行を表示しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	spec := gc.EntitySpec{Material: &gc.Material{Kind: oapi.COAL}}
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
+
+	// raw spec 表示では s.Weight が nil だと燃焼熱量を導けないので Fuel 行は出ない
+	assert.Equal(t, []string{"Basic", "Material", query.T(world, "Coal")}, labels)
+}
+
+func TestUpdateSpecFromSpec_可燃性の材質と重量があれば燃料行を表示する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	spec := gc.EntitySpec{
+		Material: &gc.Material{Kind: oapi.COAL},
+		Weight:   &gc.Weight{Milligram: 1_000_000},
+	}
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
+
+	// coal は1kgあたり800の燃焼熱量を持つ
+	assert.Equal(t, []string{
+		"Basic", "Material", query.T(world, "Coal"), "Fuel", consts.Heat(800).String(),
+		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }
