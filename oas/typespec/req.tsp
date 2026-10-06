@@ -306,7 +306,7 @@ model EnemyTable {
 
 /** 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを
     出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
-    汎用が欲しければ "ruins_area" を明示する。地図の記号・色・凡例順など表示の宣言は別フェーズでここへ足す */
+    汎用が欲しければ "ruins_area" を明示する */
 model Facility {
   id: EntityID;
   isShop: boolean;
@@ -316,7 +316,7 @@ model Facility {
 }
 
 /** 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
-    抽選対象になる規模 gate */
+    抽選対象になる */
 model FacilityZone {
   zone: Zone;
   weight: int32;
@@ -324,8 +324,7 @@ model FacilityZone {
 }
 
 /** 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の
-    drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標。
-    地図の記号など表示の宣言は別フェーズでここへ足す */
+    drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標 */
 model Landmark {
   id: EntityID;
   weight: int32;
@@ -343,8 +342,7 @@ model PropSpot {
 }
 
 /** 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
-    color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は
-    凡例外なので Go に残す */
+    color は記号の色、order は凡例の表示順 */
 model MapGlyph {
   id: EntityID;
   glyph: string;
@@ -354,7 +352,7 @@ model MapGlyph {
 }
 
 /** 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
-    lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す */
+    lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop */
 model ScatterZone {
   id: EntityID;
   grassDensity: float64;

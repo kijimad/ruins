@@ -11,7 +11,7 @@ import (
 
 // TestScatterZoneLootGroup_ゾーンごとに低価値groupを持つ は屋外散布 loot のゾーン別 group を固定する。
 // 屋外には屑物だけを置く方針で、道沿いは紙屑、奥地は廃材・鉱片を引く。武器・防具・回復薬を含むテーブルは
-// 使わない。lootGroup は raw.toml の scatterZones 行が単一出典。
+// 使わない。
 func TestScatterZoneLootGroup_ゾーンごとに低価値groupを持つ(t *testing.T) {
 	t.Parallel()
 

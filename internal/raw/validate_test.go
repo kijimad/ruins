@@ -18,9 +18,8 @@ func TestValidateRaws_RealData(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TestRealData_HasLandmarks は実 raw.toml が landmarks を宣言していることを固定する。overworld 生成は
-// landmarkPlacement が landmark チャンクを無条件に作り landmarkKindAt が解決するため、landmarks が空だと
-// 生成時に剰余0で panic する。validate は landmarks を optional に扱うので、実データの非空はここで守る。
+// TestRealData_HasLandmarks は実 raw.toml が landmarks を宣言していることを固定する。validate は空の
+// landmarks を素通しするが、空だと landmarkKindAt が剰余0で panic する。
 func TestRealData_HasLandmarks(t *testing.T) {
 	t.Parallel()
 
@@ -354,7 +353,7 @@ func TestValidateFacilityReferences(t *testing.T) {
 	t.Parallel()
 
 	enemyTables := &[]oapi.EnemyTable{{Id: "clinic_enemies", Name: "診療所"}}
-	// 全既知地区に基本施設(minSpan<=2)を置く。validateFacilityReferences が全地区の base を要求するため
+	// validateFacilityReferences が全地区に基本施設を要求するので全地区に置く
 	baseZones := []oapi.FacilityZone{
 		{Zone: oapi.Residential, Weight: 10, MinSpan: 2},
 		{Zone: oapi.Downtown, Weight: 10, MinSpan: 2},
@@ -400,8 +399,7 @@ func TestValidateFacilityReferences(t *testing.T) {
 
 	t.Run("一部の地区にだけ基本施設が無いとエラー", func(t *testing.T) {
 		t.Parallel()
-		// residential は minSpan=2 の基本施設を持つが、downtown は minSpan=3 の専門施設だけ。
-		// zoneHasBase は登場した地区ごとに判定するので、downtown 単独の基本施設欠落を弾く
+		// downtown は minSpan=3 の専門施設だけで基本施設を欠く
 		raws := oapi.Raws{
 			EnemyTables: enemyTables,
 			Facilities: &[]oapi.Facility{

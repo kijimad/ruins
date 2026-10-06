@@ -59,9 +59,6 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chu
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// 施設は文字列 id で扱う。同一性は raw.toml の facilities 行が単一出典で、Go 側は enum を持たない。
-// 建物へは id と、id から解決した interior.FacilitySpec を渡す。
-
 // urbanEnemyTableFor は施設行の enemyTable が指す敵テーブルを返す。enemyTable は施設行の必須フィールドで、
 // 汎用が欲しい施設は "ruins_area" を明示する。施設未登録や敵テーブル不在は設定ミスなので error。
 func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
@@ -77,7 +74,7 @@ func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
 }
 
 // FacilityWeight は施設の抽選重みと規模 gate。MinSpan は市街地の一辺がこの値以上のときだけ
-// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。Kind は施設 id。
+// 抽選対象になり、大きな市街地でだけ専門施設が混ざる。Kind は施設 id。
 type FacilityWeight struct {
 	Kind    string
 	Weight  int
@@ -89,9 +86,8 @@ type ZoneCatalog = map[oapi.Zone][]FacilityWeight
 
 // ZoneCatalogFrom は raw.toml の facilities 行から地区ごとの施設抽選重みを導出する。各施設行が自分の
 // 出現地区と重み・規模 gate を zones で宣言するので、それを地区で畳んで組み立てる。地区で重みが揃うので
-// 同じ地区の隣接チャンクは同種へ寄り、地区が生まれる。各地区に MinSpan<=2 の基本施設があることは
-// validate が保証するので、規模 gate で候補が空になり抽選が壊れることはない。raws を毎回走査するので、
-// BuildMacroView のように多数のチャンクを引く経路は1度組んで使い回す。
+// 同じ地区の隣接チャンクは同種へ寄り、地区が生まれる。raws を毎回走査するので、多数のチャンクを引く
+// 経路は1度組んで使い回す。
 func ZoneCatalogFrom(raws oapi.Raws) ZoneCatalog {
 	cat := make(ZoneCatalog)
 	for _, f := range raw.PtrSlice(raws.Facilities) {
@@ -136,7 +132,7 @@ func rollFacilityInZone(rng *rand.Rand, cat ZoneCatalog, z oapi.Zone, span const
 			total += f.Weight
 		}
 	}
-	// 各地区は MinSpan<=2 の基本施設を持ち span は常に2以上なので total>0。validate が保証する。rng.IntN は安全。
+	// 各地区が MinSpan<=2 の基本施設を持つことを validate が保証し、span は常に2以上なので total>0
 	roll := rng.IntN(total)
 	for _, f := range zc {
 		if span < f.MinSpan {

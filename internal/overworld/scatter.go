@@ -40,7 +40,7 @@ type scatterCatalog struct {
 	Zone         outdoorZone
 	GrassDensity float64
 	PropDensity  float64
-	LootGroup    string // 屋外 loot の item group id。zone 行が持つ
+	LootGroup    string // 屋外 loot の item group id
 	Entries      []scatterEntry
 }
 
@@ -89,9 +89,8 @@ var scatterEarthTiles = map[string]bool{
 	consts.TileNameDirt: true, "sand_orange": true, "sand_red": true, "sand_pink": true,
 }
 
-// scatterCatalogFrom は zone の散布定義を raw.toml の scatterZones 行から組み立てる。散布 prop・重み・
-// 密度・satellites・屋外 loot group をデータへ移し、Go に残るのは位相格子や経路マスクの幾何だけにする。
-// 未登録 zone は ok=false。呼び出し側はフォールバックせず散布しない。
+// scatterCatalogFrom は zone の散布定義を raw.toml の scatterZones 行から組み立てる。未登録 zone は ok=false で、
+// 呼び出し側は散布しない。
 func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, bool) {
 	sz, ok := raw.GetScatterZone(raws, string(zone))
 	if !ok {

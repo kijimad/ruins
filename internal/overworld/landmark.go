@@ -14,18 +14,17 @@ import (
 
 // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
 // 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。種別・出現重み・小屋寸法・prop は raw.toml の
-// landmarks 行が単一出典で、Go に残るのはデータ化できない描画関数 drawers だけ。
+// landmarks 行で宣言し、Go は描画関数 drawers だけを持つ。
 
 // landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する純関数。地図の記号と生成の
-// 構造が同じ id を引くので、俯瞰図の見た目と実体が食い違わない。重みは raw.toml の landmarks 行から引く。
+// 構造が同じ id を引くので、俯瞰図の見た目と実体が食い違わない。
 func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
 	lms := raw.PtrSlice(raws.Landmarks)
 	total := 0
 	for _, l := range lms {
 		total += int(l.Weight)
 	}
-	// landmarks が空だと total==0 で剰余が壊れる。landmarks 宣言時の重み総和>0 は validate が保証し、
-	// 実 raw.toml が非空であることは raw のテストで固定する。landmark チャンクは必ずこの関数を通る
+	// total>0 は validate と TestRealData_HasLandmarks が保証する
 	roll := int(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % uint64(total))
 	for _, l := range lms {
 		roll -= int(l.Weight)
@@ -42,8 +41,7 @@ type wildernessLandmarkFeature struct{}
 // landmarkDrawer はランドマーク1種を描く関数。データ化できない幾何なので Go に残す。
 type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error
 
-// drawers は drawer キーから描画関数を引く単一出典。新しい描画を足すときだけここへ1行足し、tsp の
-// DrawerKey enum にも同じキーを加える。両者の一致は被覆テストで固定する。
+// drawers は drawer キーから描画関数を引く。キーは tsp の DrawerKey enum と1対1で対応する。
 var drawers = map[oapi.DrawerKey]landmarkDrawer{
 	oapi.Hut:  drawHutLandmark,
 	oapi.Open: drawOpenLandmark,

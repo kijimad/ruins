@@ -163,22 +163,19 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateFacilityReferences は施設行の整合をロード時 fail-closed で守る。施設は raw.toml の facilities が
-// 単一出典で、市街地生成と内装がこの行を id で引く。次の3つを検証する。
-//   - enemyTable が enemyTables に存在する。市街地生成が GetEnemyTable するので typo を前倒しで弾く。
-//   - facilityContents/facilityRooms の facility キーが facilities の id に存在する。片側の綴り違いを弾く。
-//   - 各地区に minSpan<=2 の施設が最低1つある。無いと zoneCatalog 導出後に候補が空になり IntN(0) で panic する。
-//
-// planner キーの実装照合は raw から interior への循環を避けるため interior の被覆テストで担保する。planner
-// は tsp enum なので値の閉集合違反は schema が弾き、enum と planners の一致はテストで固定する。
-// urbanBaseSpan は市街地の一辺の最小チャンク数。各地区はこの span で必ず出現するので、minSpan がこれ以下の
-// 基本施設が地区に1つ無いと候補が空になり抽選が壊れる。overworld の最小 span と揃える。
+// urbanBaseSpan は市街地の一辺の最小チャンク数。overworld の最小 span と揃える。
 const urbanBaseSpan int32 = 2
 
-// urbanZones は zoneOf がチャンクへ割り当てうる全地区。全地区が必ず生成されるので、全地区に基本施設が要る。
-// 施設定義に現れない地区も fail-closed に弾けるよう、現れた地区でなくこの閉集合を検査の基準にする。
+// urbanZones は zoneOf がチャンクへ割り当てうる全地区。施設定義に現れない地区も弾けるよう、この閉集合を
+// 検査の基準にする。
 var urbanZones = []oapi.Zone{oapi.Downtown, oapi.Industrial, oapi.Residential}
 
+// validateFacilityReferences は施設行の整合をロード時に検証する。
+//   - enemyTable が enemyTables に存在する。
+//   - facilityContents/facilityRooms の facility キーが facilities の id に存在する。
+//   - 各地区に minSpan<=urbanBaseSpan の施設が最低1つある。無いと規模 gate で候補が空になり抽選が panic する。
+//
+// planner キーと実装の一致は raw から interior への循環を避け、interior の TestPlanners で固定する。
 func validateFacilityReferences(raws oapi.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
 	facilityIDs := make(map[string]struct{}, len(facilities))
@@ -192,7 +189,6 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		tableIDs[enemyTables[i].Id] = struct{}{}
 	}
 
-	// 各地区の基本施設の有無を集める。minSpan<=2 の施設をその地区が1つでも持てば true
 	zoneHasBase := make(map[oapi.Zone]bool)
 	for i := range facilities {
 		if _, ok := tableIDs[facilities[i].EnemyTable]; !ok {
@@ -205,8 +201,7 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		}
 	}
 
-	// 施設0件の部分的な Raws は urban 生成を駆動しないので素通しし、空 Raws 成功の契約を守る。
-	// 施設があれば全既知地区に基本施設があることを課す。
+	// 施設0件の部分的な Raws は市街地生成を駆動しないので素通しする
 	if len(facilities) > 0 {
 		for _, zone := range urbanZones {
 			if !zoneHasBase[zone] {
@@ -228,14 +223,12 @@ func validateFacilityReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateLandmarkReferences はランドマークの整合をロード時 fail-closed で守る。出現重みの総和が正で
-// あること、prop の参照先が props に実在することを検証する。総和が0だと landmarkKindAt の IntN が壊れ、
-// prop の typo は spawn 時まで silent に潜る。drawer キーの実装照合は raw から overworld への循環を避け、
-// drawer は tsp enum なので値の閉集合は schema が弾き、enum と drawers の一致は overworld の被覆テストで守る。
+// validateLandmarkReferences はランドマークの整合をロード時に検証する。出現重みの総和が正であること、
+// prop の参照先が props に実在することを見る。drawer キーと実装の一致は overworld の TestDrawers で固定する。
 func validateLandmarkReferences(raws oapi.Raws) error {
 	landmarks := PtrSlice(raws.Landmarks)
 	if len(landmarks) == 0 {
-		return nil // 未定義の部分的な Raws は素通し。landmarks を宣言したときだけ整合を課す
+		return nil
 	}
 
 	props := PtrSlice(raws.Props)

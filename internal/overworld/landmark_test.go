@@ -14,9 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestDrawers_全DrawerKeyに実装がある は drawer キーの閉集合 DrawerKey enum と Go の drawers 実装が
-// 一致することを固定する。tsp に drawer を足して drawers への登録を忘れると、ランドマークがその drawer を
-// 指したときに解決できず落ちる。schema が値の閉集合を守り、この被覆テストが実装欠けを守る。
+// TestDrawers_全DrawerKeyに実装がある は tsp の DrawerKey enum と drawers の実装が一致することを固定する。
+// enum に足して drawers への登録を忘れると、その drawer を指すランドマークが解決できない。
 func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 
@@ -78,8 +77,7 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 func TestLandmark_各種別が異なる地図記号を持つ(t *testing.T) {
 	t.Parallel()
 
-	// 全 landmark id が mapGlyphs に記号を持ち、かつ互いに異なることを確認する。landmark id は
-	// mapGlyphs の id と一致するので写像関数を介さず直接引く。記号の重複や欠落をここで弾く。
+	// 全 landmark id が mapGlyphs に記号を持ち、かつ互いに異なることを確認する
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	seen := map[rune]bool{}
 	for _, l := range raw.PtrSlice(raws.Landmarks) {

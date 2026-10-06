@@ -28,9 +28,8 @@ const outdoorLootDensity = 0.002
 const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 
 // scatterOutdoorLoot は開けたチャンクの地表へ屑物をごく疎に撒く。候補は土系の地面かつ非占有で、accept と
-// occupied は草・樹木の散布と共有して重なりを避ける。屋外の loot group は散布ゾーン行の lootGroup が持つ。
-// 道沿いは人の営みの残りの紙屑 scrap_of_paper、奥地は打ち捨てられた廃材やくず鉄 junk。価値ある品は建物内の
-// loot に限る。抽選は建物 loot と同じ raw.SelectFromItemGroup で低価値 group から引き、深度は扱わない。乱数は
+// occupied は草・樹木の散布と共有して重なりを避ける。group は散布ゾーン行の lootGroup から引き、
+// 抽選は建物 loot と同じ raw.SelectFromItemGroup で行い、深度は扱わない。乱数は
 // 散布とは別の salt から引き、地物や建物 loot の消費順と干渉させない。同一 seed で同一結果、再訪で一致する。
 func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], g chunkGeom, cat scatterCatalog, accept func(interior.Vec) bool, occupied map[gc.GridElement]bool) error {
 	groupID := cat.LootGroup

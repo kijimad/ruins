@@ -1263,7 +1263,7 @@ type DoorRaw = map[string]interface{}
 
 // DrawerKey ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
 //
-//	open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える
+//	open は露天の prop 配置
 type DrawerKey string
 
 // DropTable ドロップテーブル
@@ -1370,14 +1370,13 @@ type Error struct {
 // Facility 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを
 //
 //	出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
-//	汎用が欲しければ "ruins_area" を明示する。地図の記号・色・凡例順など表示の宣言は別フェーズでここへ足す
+//	汎用が欲しければ "ruins_area" を明示する
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
 	Id         EntityID `json:"id"`
 	IsShop     bool     `json:"isShop"`
 
-	// Planner 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
-	//     新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
+	// Planner 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割
 	Planner PlannerKey     `json:"planner"`
 	Zones   []FacilityZone `json:"zones"`
 }
@@ -1397,7 +1396,7 @@ type FacilityRooms struct {
 
 // FacilityZone 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
 //
-//	抽選対象になる規模 gate
+//	抽選対象になる
 type FacilityZone struct {
 	MinSpan int32 `json:"minSpan"`
 	Weight  int32 `json:"weight"`
@@ -1655,11 +1654,10 @@ type ItemValue = int
 
 // Landmark 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の
 //
-//	drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標。
-//	地図の記号など表示の宣言は別フェーズでここへ足す
+//	drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標
 type Landmark struct {
 	// Drawer ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
-	//     open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える
+	//     open は露天の prop 配置
 	Drawer DrawerKey  `json:"drawer"`
 	HutH   int32      `json:"hutH"`
 	HutW   int32      `json:"hutW"`
@@ -1691,8 +1689,7 @@ type MagazineSize = int
 
 // MapGlyph 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
 //
-//	color は記号の色、order は凡例の表示順。地図表示の記号・色・名前・順序の単一出典。分類漏れの保険 unknown は
-//	凡例外なので Go に残す
+//	color は記号の色、order は凡例の表示順
 type MapGlyph struct {
 	// Color RGBA色
 	Color RGBAColor `json:"color"`
@@ -1831,9 +1828,7 @@ type PassCost = int
 // Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
 type Placement string
 
-// PlannerKey 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
-//
-//	新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する
+// PlannerKey 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割
 type PlannerKey string
 
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
@@ -2072,7 +2067,7 @@ type ScatterEntry struct {
 
 // ScatterZone 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
 //
-//	lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop。表示や位相の定数は Go に残す
+//	lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop
 type ScatterZone struct {
 	Entries      []ScatterEntry `json:"entries"`
 	GrassDensity float64        `json:"grassDensity"`

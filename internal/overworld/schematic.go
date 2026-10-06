@@ -28,20 +28,16 @@ type GlyphInfo struct {
 // 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。
 //   - placeType: チャンク尺度。市街地以外のチャンクを1記号で表す。荒れ地・村・一軒家・遺跡入口・
 //     点在ランドマークの各種別。地図の表示専用で、生成には関与しない。
-//   - facilityType: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
-//     市街地生成の重み抽選にも使う実体のあるドメイン型で、urban.go が持つ。
-// 地図は市街地チャンクを facilityType の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
+//   - 施設 id: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
+//     市街地生成の重み抽選にも使う。
+// 地図は市街地チャンクを施設 id の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
 // チャンク尺度に続けて建物尺度を並べ、2層を1つの表にする。
 
-// placeType はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と
-// 凡例名を mapGlyphs 行から引くために使う。生成には関与しない。chunkType とは1対1ではない。
-// chunkSettlement は村ロールで placeVillage と placeHamlet に、chunkLandmark は種別ロールで
-// 廃屋・農家跡・祠・キャンプ跡に分かれる。chunkUrban は建物尺度の施設 id を使うのでここには
-// 無い。値は mapGlyphs の id と一致する。
+// placeType はチャンク尺度の記号キーで、値は mapGlyphs の id と一致する。chunkType とは1対1ではなく、
+// chunkSettlement は村ロールで placeVillage と placeHamlet に分かれる。施設とランドマークは自分の id で
+// mapGlyphs を直接引くので placeType を持たない。
 type placeType string
 
-// ランドマークの記号は landmark id を直接 mapGlyphs で引くので、ここに placeType 定数を持たない。
-// field/village/hamlet/dungeon_entrance だけが施設・ランドマークと別レイヤーの表示分類。
 const (
 	placeField           placeType = "field"            // 荒れ地
 	placeVillage         placeType = "village"          // 村
@@ -61,7 +57,7 @@ func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {
 	return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}
 }
 
-// glyphByID は地物・施設の種別 id から地図記号を引く。mapGlyphs 行が単一出典。未登録は ok=false。
+// glyphByID は地物・施設の種別 id から地図記号を引く。未登録は ok=false。
 func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
 	mg, ok := raw.GetMapGlyph(raws, id)
 	if !ok {
@@ -70,8 +66,7 @@ func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
 	return toGlyphInfo(mg), true
 }
 
-// LegendGlyphs は俯瞰図の全記号と凡例名を order 順に返す。mapGlyphs 行が単一出典で、UI の凡例も
-// SchematicLegend もこれを源にし、記号や名前を別の箇所へ直書きしない。
+// LegendGlyphs は俯瞰図の全記号と凡例名を order 順に返す。UI の凡例も SchematicLegend もこれを源にする。
 func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
 	mgs := raw.PtrSlice(raws.MapGlyphs)
 	sorted := make([]oapi.MapGlyph, len(mgs))
@@ -84,8 +79,7 @@ func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
 	return out
 }
 
-// GlyphColorMap は記号 rune から色への表を1度だけ組んで返す。BuildMacroView のように多数のセルの色を
-// 引くときは、セルごとに LegendGlyphs を組み直す線形探索でなくこの表を使う。凡例に出ない記号は表に無い。
+// GlyphColorMap は記号 rune から色への表を返す。多数のセルの色を引く経路はこれを1度組んで使う。
 func GlyphColorMap(raws oapi.Raws) map[rune]color.RGBA {
 	glyphs := LegendGlyphs(raws)
 	table := make(map[rune]color.RGBA, len(glyphs))
@@ -97,7 +91,6 @@ func GlyphColorMap(raws oapi.Raws) map[rune]color.RGBA {
 
 // GlyphColor は種別文字に対応する色と、対応があるかを返す。凡例に出ない記号は ok=false になり、
 // 未知記号の既定色は UI 側が決める。overworld は theme に依存しないので既定色を持たない。
-// 1回引くだけの用途向け。多数を引くなら GlyphColorMap を1度組んで使う。
 func GlyphColor(raws oapi.Raws, r rune) (color.RGBA, bool) {
 	c, ok := GlyphColorMap(raws)[r]
 	return c, ok
@@ -141,8 +134,6 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 func ChunkPlace(raws oapi.Raws, cat ZoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkUrban:
-		// 施設種は urbanFacilityAt が cat から抽選する動的な値で、mapGlyphs に無い種が来うるので
-		// ok チェックする。他の種別は placeType が局所で保証されるので直接引く
 		kind, _ := urbanFacilityAt(cat, runSeed, c, cols)
 		if g, ok := glyphByID(raws, kind); ok {
 			return g.Label
@@ -156,7 +147,6 @@ func ChunkPlace(raws oapi.Raws, cat ZoneCatalog, runSeed uint64, c consts.Coord[
 		}
 		return placeGlyph(raws, placeHamlet)
 	case chunkLandmark:
-		// ランドマーク id は mapGlyphs の id と一致するので、写像を介さず直接記号を引く
 		if g, ok := glyphByID(raws, landmarkKindAt(raws, runSeed, c)); ok {
 			return g.Label
 		}

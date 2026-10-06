@@ -104,8 +104,7 @@ enum RoomRole {
   waiting,
 }
 
-/** 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割。
-    新しい間取りを足すときだけこの enum と Go の planners の両方へ加える。被覆テストで一致を固定する */
+/** 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割 */
 enum PlannerKey {
   house,
   store,
@@ -121,7 +120,7 @@ enum Zone {
 }
 
 /** ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
-    open は露天の prop 配置。新しい描画を足すときだけこの enum と Go の drawers の両方へ加える */
+    open は露天の prop 配置 */
 enum DrawerKey {
   hut,
   open,

@@ -48,7 +48,7 @@ func PlayerCenteredRange(centerRow, cols consts.Chunk, radius int) MacroRange {
 // MacroCell は表示範囲内1チャンクの表示情報。種別文字と、探索で開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
 	Glyph      rune
-	Color      color.RGBA // 記号の色。BuildMacroView が mapGlyphs から焼き、描画は raws を要さない
+	Color      color.RGBA // 記号の色。BuildMacroView が書き込むので描画は raws を要さない
 	HasColor   bool       // 記号に対応する色が mapGlyphs にあったか。無ければ UI が既定色を使う
 	Discovered bool       // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
 	Road       RoadDir    // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
