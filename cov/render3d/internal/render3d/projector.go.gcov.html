@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">92.6&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">81</td>
-            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntry">81</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-03 13:58:37</td>
+            <td class="headerValue">2026-10-06 12:31:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -119,12 +119,12 @@
 <span id="L57"><span class="lineNum">      57</span>              : </span>
 <span id="L58"><span class="lineNum">      58</span>              : // Right はカメラから見た画面右方向の単位ベクトル。立て板をカメラへ正対させるのに使う</span>
 <span id="L59"><span class="lineNum">      59</span>              : func (p Projector) Right() Vec {</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 :         return norm(cross(norm(sub(p.target, p.eye)), Vec{0, 1, 0}))</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return norm(cross(norm(sub(p.target, p.eye)), Vec{0, 1, 0}))</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : </span>
 <span id="L63"><span class="lineNum">      63</span>              : // Depth は点のカメラ空間での奥行きを返す。奥ほど小さい。画家アルゴリズムの並べ替えに使う</span>
 <span id="L64"><span class="lineNum">      64</span>              : func (p Projector) Depth(v Vec) float64 {</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         _, _, z, _ := apply(p.view, v)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         _, _, z, _ := apply(p.view, v)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         return z</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
@@ -161,9 +161,9 @@
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         for i, v := range src {</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 sp, ok := p.Point(v)</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC tlaBgUNC">           0 :                         return out, false</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC tlaBgGNC">           1 :                 out[i] = sp</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                         return out, false</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 out[i] = sp</span></span>
 <span id="L105"><span class="lineNum">     105</span>              :         }</span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         return out, true</span></span>
 <span id="L107"><span class="lineNum">     107</span>              : }</span>
@@ -221,9 +221,9 @@
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         top, okTop := p.BillboardTop(c)</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         base, okBase := p.TileCenter(c, 0)</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if !okTop || !okBase {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, false</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 :         return math.Abs(float64(base.Y - top.Y)), true</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         return math.Abs(float64(base.Y - top.Y)), true</span></span>
 <span id="L165"><span class="lineNum">     165</span>              : }</span>
         </pre>
               </td>
