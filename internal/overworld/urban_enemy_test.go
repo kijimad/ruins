@@ -25,8 +25,8 @@ func TestUrbanEnemyTableFor_施設行の敵テーブルを引く(t *testing.T) {
 	require.Error(t, err, "未登録の施設は silent フォールバックせず error")
 }
 
-// TestUrbanEnemyTableFor_敵テーブルが実在しなければerror は、施設行の enemyTable が raw に無いとき silent に
-// すり替えず error を返すことを固定する。
+// TestUrbanEnemyTableFor_敵テーブルが実在しなければerror は、施設行の enemyTable が raw に無いとき error を
+// 返すことを固定する。
 func TestUrbanEnemyTableFor_敵テーブルが実在しなければerror(t *testing.T) {
 	t.Parallel()
 

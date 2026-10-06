@@ -89,12 +89,11 @@ var scatterEarthTiles = map[string]bool{
 	consts.TileNameDirt: true, "sand_orange": true, "sand_red": true, "sand_pink": true,
 }
 
-// scatterCatalogFrom は zone の散布定義を raw.toml の scatterZones 行から組み立てる。未登録 zone は ok=false で、
-// 呼び出し側は散布しない。
-func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, bool) {
+// scatterCatalogFrom は zone の散布定義を raw.toml の scatterZones 行から組み立てる。未登録 zone は error。
+func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, error) {
 	sz, ok := raw.GetScatterZone(raws, string(zone))
 	if !ok {
-		return scatterCatalog{}, false
+		return scatterCatalog{}, fmt.Errorf("scatter zone %q not found", zone)
 	}
 	entries := make([]scatterEntry, len(sz.Entries))
 	for i, e := range sz.Entries {
@@ -110,7 +109,7 @@ func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, bool)
 		PropDensity:  sz.PropDensity,
 		LootGroup:    sz.LootGroup,
 		Entries:      entries,
-	}, true
+	}, nil
 }
 
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
@@ -118,12 +117,13 @@ func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, bool)
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
-func scatterCatalogForChunk(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool) {
+func scatterCatalogForChunk(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkWasteland:
-		return scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))
+		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))
+		return cat, err == nil, err
 	default:
-		return scatterCatalog{}, false
+		return scatterCatalog{}, false, nil
 	}
 }
 
@@ -136,9 +136,9 @@ type openTerrainFeature struct{}
 // 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
 // エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	cat, ok := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)
-	if !ok {
-		return nil
+	cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)
+	if err != nil || !ok {
+		return err
 	}
 
 	tiles := g.tiles.get()

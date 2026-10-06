@@ -48,7 +48,7 @@ const (
 // placeUnknownGlyph は分類漏れの保険の記号。mapGlyphs には入れず凡例外なので Go に持つ。
 const placeUnknownGlyph rune = '?'
 
-// toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。glyph は1文字の string なので先頭 rune を Label にする。
+// toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。
 func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {
 	label := placeUnknownGlyph
 	if r := []rune(mg.Glyph); len(r) > 0 {
@@ -79,21 +79,14 @@ func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
 	return out
 }
 
-// GlyphColorMap は記号 rune から色への表を返す。多数のセルの色を引く経路はこれを1度組んで使う。
-func GlyphColorMap(raws oapi.Raws) map[rune]color.RGBA {
+// glyphColorMap は記号 rune から色への表を返す。
+func glyphColorMap(raws oapi.Raws) map[rune]color.RGBA {
 	glyphs := LegendGlyphs(raws)
 	table := make(map[rune]color.RGBA, len(glyphs))
 	for _, g := range glyphs {
 		table[g.Label] = g.Color
 	}
 	return table
-}
-
-// GlyphColor は種別文字に対応する色と、対応があるかを返す。凡例に出ない記号は ok=false になり、
-// 未知記号の既定色は UI 側が決める。overworld は theme に依存しないので既定色を持たない。
-func GlyphColor(raws oapi.Raws, r rune) (color.RGBA, bool) {
-	c, ok := GlyphColorMap(raws)[r]
-	return c, ok
 }
 
 // chunkType は1チャンクの場所の種別。全チャンクがいずれか1つに分類され、暗黙の既定を持たない。
@@ -128,10 +121,9 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 	return chunkWasteland
 }
 
-// ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
-// 施設種別の記号、荒れ地は '.' を返す。cat は施設抽選の地区カタログで、多数のチャンクを引く BuildMacroView は
-// 1度組んで渡し、セルごとの再構築を避ける。種別を1つ足すと switch の網羅を linter が強制する。
-func ChunkPlace(raws oapi.Raws, cat ZoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+// chunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
+// 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
+func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkUrban:
 		kind, _ := urbanFacilityAt(cat, runSeed, c, cols)

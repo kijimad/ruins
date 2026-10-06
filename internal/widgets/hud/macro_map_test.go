@@ -1,7 +1,6 @@
 package hud
 
 import (
-	"image/color"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -17,25 +16,6 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	// フェイスは nil でよい。fakeCanvas は DrawText を記録するだけで実描画しないため、フェイスに
 	// 触れない。本番の EbitenCanvas には loader 由来の非 nil フェイスが渡る
 	return NewMacroMap(nil, Chrome{})
-}
-
-func TestGlyphColor_全ての凡例記号に色が割り当てられている(t *testing.T) {
-	t.Parallel()
-
-	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	for _, g := range overworld.LegendGlyphs(raws) {
-		c, ok := overworld.GlyphColor(raws, g.Label)
-		assert.Truef(t, ok, "凡例記号 %s(%c) に色がある", g.Name, g.Label)
-		assert.NotEqualf(t, color.RGBA{}, c, "凡例記号 %s(%c) の色が透明黒でない", g.Name, g.Label)
-	}
-}
-
-func TestGlyphColor_未知の文字は対応なし(t *testing.T) {
-	t.Parallel()
-
-	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	_, ok := overworld.GlyphColor(raws, 'Z')
-	assert.False(t, ok, "未知の文字は対応なしを返す")
 }
 
 func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {

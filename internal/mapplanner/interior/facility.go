@@ -10,7 +10,7 @@ import (
 // raw.toml のデータで、content_lookup.go が施設 id から変種を都度引いて変換する。多部屋の加工パイプは
 // furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
 
-// plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。データ化できない幾何なので Go に置く。
+// plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。
 type plannerDef struct {
 	fn         func(Rect, uint64) []PlannedRoom
 	minW, minH consts.Tile

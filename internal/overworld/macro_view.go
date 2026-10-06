@@ -62,7 +62,7 @@ type MacroView struct {
 }
 
 // BuildMacroView は帯のプリミティブとプレイヤー・キューブのタイル座標から、指定表示範囲の描画モデルを組む。
-// ChunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク寸法で割って表示範囲ローカルへ移す。
+// chunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク寸法で割って表示範囲ローカルへ移す。
 // northIndex は帯ローカルなタイル座標を絶対チャンク行へ移すのに使う。X は有界なので列は割るだけ。
 // discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。含まれるチャンクだけを開放し、
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
@@ -82,19 +82,18 @@ func BuildMacroView(
 	rows := max(area.Rows, 1)
 
 	// 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
-	// ChunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
+	// chunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
 	roads := buildRoadOverlay(runSeed, area, cols)
 
-	// 記号→色の表と施設抽選の地区カタログを1度だけ組み、セルごとの再構築を避ける
-	colorOf := GlyphColorMap(raws)
-	cat := ZoneCatalogFrom(raws)
+	colorOf := glyphColorMap(raws)
+	cat := zoneCatalogFrom(raws)
 
 	cells := make([][]MacroCell, rows)
 	for cy := range rows {
 		cells[cy] = make([]MacroCell, cols)
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
-			glyph := ChunkPlace(raws, cat, runSeed, c, cols)
+			glyph := chunkPlace(raws, cat, runSeed, c, cols)
 			col, hasCol := colorOf[glyph]
 			cells[cy][i] = MacroCell{
 				Glyph:      glyph,

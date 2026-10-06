@@ -38,7 +38,7 @@ func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]
 // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。
 type wildernessLandmarkFeature struct{}
 
-// landmarkDrawer はランドマーク1種を描く関数。データ化できない幾何なので Go に残す。
+// landmarkDrawer はランドマーク1種を描く関数。
 type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error
 
 // drawers は drawer キーから描画関数を引く。キーは tsp の DrawerKey enum と1対1で対応する。
