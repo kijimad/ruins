@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/internal/oapi"
 )
@@ -18,6 +19,11 @@ var (
 	errZoneNoBaseFacility             = errors.New("zone has no base facility")
 	errLandmarkNoWeight               = errors.New("landmarks have no positive total weight")
 	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
+	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
+	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
+	errMapGlyphNotSingleRune          = errors.New("map glyph is not a single rune")
+	errMapGlyphDuplicate              = errors.New("map glyph is duplicated")
+	errMapGlyphMissing                = errors.New("map glyph is missing")
 	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
 	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
 	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -91,6 +97,12 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateLandmarkReferences(raws); err != nil {
+		return err
+	}
+	if err := validateScatterZoneReferences(raws); err != nil {
+		return err
+	}
+	if err := validateMapGlyphReferences(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -421,6 +433,72 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 		}
 		if _, ok := tableNames[*members[i].CommandTableId]; !ok {
 			return fmt.Errorf("member %q command table %q: %w", members[i].Name, *members[i].CommandTableId, errMemberCommandTableUndefined)
+		}
+	}
+	return nil
+}
+
+// validateScatterZoneReferences は散布ゾーンの prop と屋外 loot group の参照先が実在することを検証する。
+// ref の空文字は「置かない」なので検証しない。
+func validateScatterZoneReferences(raws oapi.Raws) error {
+	props := PtrSlice(raws.Props)
+	propNames := make(map[string]struct{}, len(props))
+	for i := range props {
+		propNames[props[i].Id] = struct{}{}
+	}
+	groups := PtrSlice(raws.ItemGroups)
+	groupIDs := make(map[string]struct{}, len(groups))
+	for i := range groups {
+		groupIDs[groups[i].Id] = struct{}{}
+	}
+
+	for _, z := range PtrSlice(raws.ScatterZones) {
+		if _, ok := groupIDs[z.LootGroup]; !ok {
+			return fmt.Errorf("scatter zone %q references item group %q: %w", z.Id, z.LootGroup, errScatterLootGroupUndefined)
+		}
+		for _, e := range z.Entries {
+			if _, ok := propNames[e.Ref]; e.Ref != "" && !ok {
+				return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, e.Ref, errScatterPropUndefined)
+			}
+			for _, s := range PtrSlice(e.Satellites) {
+				if _, ok := propNames[s.Name]; !ok {
+					return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, s.Name, errScatterPropUndefined)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// validateMapGlyphReferences は地図記号が1文字で互いに重複しないこと、施設とランドマークの全 id が記号を
+// 持つことを検証する。Go 側の placeType の記号の網羅は overworld のテストで固定する。
+func validateMapGlyphReferences(raws oapi.Raws) error {
+	glyphs := PtrSlice(raws.MapGlyphs)
+	if len(glyphs) == 0 {
+		return nil
+	}
+
+	ids := make(map[string]struct{}, len(glyphs))
+	seen := make(map[string]string, len(glyphs))
+	for _, g := range glyphs {
+		if utf8.RuneCountInString(g.Glyph) != 1 {
+			return fmt.Errorf("map glyph %q has glyph %q: %w", g.Id, g.Glyph, errMapGlyphNotSingleRune)
+		}
+		if other, ok := seen[g.Glyph]; ok {
+			return fmt.Errorf("map glyph %q shares glyph %q with %q: %w", g.Id, g.Glyph, other, errMapGlyphDuplicate)
+		}
+		seen[g.Glyph] = g.Id
+		ids[g.Id] = struct{}{}
+	}
+
+	for _, f := range PtrSlice(raws.Facilities) {
+		if _, ok := ids[f.Id]; !ok {
+			return fmt.Errorf("facility %q: %w", f.Id, errMapGlyphMissing)
+		}
+	}
+	for _, l := range PtrSlice(raws.Landmarks) {
+		if _, ok := ids[l.Id]; !ok {
+			return fmt.Errorf("landmark %q: %w", l.Id, errMapGlyphMissing)
 		}
 	}
 	return nil

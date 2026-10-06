@@ -516,3 +516,138 @@ func TestValidateCommandTableWeaponReferences(t *testing.T) {
 		require.ErrorIs(t, err, errCommandTableRefUndefinedWeapon)
 	})
 }
+
+func TestValidateLandmarkReferences(t *testing.T) {
+	t.Parallel()
+
+	props := &[]oapi.Prop{{Id: "candle"}}
+
+	t.Run("重みが正で prop が実在すれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:     props,
+			Landmarks: &[]oapi.Landmark{{Id: "shrine", Weight: 10, Drawer: oapi.Open, Props: []oapi.PropSpot{{Name: "candle"}}}},
+		}
+		require.NoError(t, validateLandmarkReferences(raws))
+	})
+
+	t.Run("重みの総和が0だとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:     props,
+			Landmarks: &[]oapi.Landmark{{Id: "shrine", Weight: 0, Drawer: oapi.Open}},
+		}
+		require.ErrorIs(t, validateLandmarkReferences(raws), errLandmarkNoWeight)
+	})
+
+	t.Run("prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:     props,
+			Landmarks: &[]oapi.Landmark{{Id: "shrine", Weight: 10, Drawer: oapi.Open, Props: []oapi.PropSpot{{Name: "no_such_prop"}}}},
+		}
+		require.ErrorIs(t, validateLandmarkReferences(raws), errLandmarkPropUndefined)
+	})
+}
+
+func TestValidateScatterZoneReferences(t *testing.T) {
+	t.Parallel()
+
+	props := &[]oapi.Prop{{Id: "tree_a"}}
+	groups := &[]oapi.ItemGroup{{Id: "junk"}}
+
+	t.Run("prop と item group が実在すれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:      props,
+			ItemGroups: groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{
+				{Ref: "", Weight: 10},
+				{Ref: "tree_a", Weight: 10, Satellites: &[]oapi.PropSpot{{Name: "tree_a"}}},
+			}}},
+		}
+		require.NoError(t, validateScatterZoneReferences(raws))
+	})
+
+	t.Run("item group が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:        props,
+			ItemGroups:   groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "no_such_group"}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterLootGroupUndefined)
+	})
+
+	t.Run("散布 prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:        props,
+			ItemGroups:   groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{{Ref: "no_such_prop", Weight: 10}}}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterPropUndefined)
+	})
+
+	t.Run("satellite の prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:      props,
+			ItemGroups: groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{
+				{Ref: "tree_a", Weight: 10, Satellites: &[]oapi.PropSpot{{Name: "no_such_prop"}}},
+			}}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterPropUndefined)
+	})
+}
+
+func TestValidateMapGlyphReferences(t *testing.T) {
+	t.Parallel()
+
+	t.Run("1文字で重複せず全施設とランドマークに記号があれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Facilities: &[]oapi.Facility{{Id: "house"}},
+			Landmarks:  &[]oapi.Landmark{{Id: "shrine"}},
+			MapGlyphs:  &[]oapi.MapGlyph{{Id: "house", Glyph: "h"}, {Id: "shrine", Glyph: "s"}},
+		}
+		require.NoError(t, validateMapGlyphReferences(raws))
+	})
+
+	t.Run("記号が2文字だとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house", Glyph: "hh"}}}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphNotSingleRune)
+	})
+
+	t.Run("記号が空だとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house", Glyph: ""}}}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphNotSingleRune)
+	})
+
+	t.Run("記号が重複するとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house", Glyph: "h"}, {Id: "hamlet", Glyph: "h"}}}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphDuplicate)
+	})
+
+	t.Run("施設に記号が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Facilities: &[]oapi.Facility{{Id: "house"}},
+			MapGlyphs:  &[]oapi.MapGlyph{{Id: "field", Glyph: "."}},
+		}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
+	})
+
+	t.Run("ランドマークに記号が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Landmarks: &[]oapi.Landmark{{Id: "shrine"}},
+			MapGlyphs: &[]oapi.MapGlyph{{Id: "field", Glyph: "."}},
+		}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
+	})
+}
