@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/overworld"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -34,7 +35,11 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 			}
 			x := style.OriginX + col*style.CellPx
 			y := style.OriginY + row*style.CellPx
-			cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), macroGlyphColor(cell.Glyph), uicore.RectOptions{})
+			cellColor := theme.OverworldMapUnknownGlyph
+			if cell.HasColor {
+				cellColor = cell.Color
+			}
+			cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), cellColor, uicore.RectOptions{})
 			if cell.Road.Any() {
 				drawMapRoad(cv, x, y, style.CellPx, cell.Road)
 			}
@@ -83,11 +88,11 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
 // 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。
-func DrawMapLegend(cv uicore.Canvas, face, glyphFace text.Face, top int) {
+func DrawMapLegend(cv uicore.Canvas, raws oapi.Raws, face, glyphFace text.Face, top int) {
 	const swatch = 14
 	x, y := 8, top
-	for _, g := range overworld.LegendGlyphs() {
-		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label), uicore.RectOptions{})
+	for _, g := range overworld.LegendGlyphs(raws) {
+		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), g.Color, uicore.RectOptions{})
 		drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
 		cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
 		// 1項目120px幅で並べ、モーダル幅に収まる右端720pxを超えたら次の行へ折り返す

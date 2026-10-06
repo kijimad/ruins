@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
+	"unicode/utf8"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -14,6 +17,15 @@ var (
 	errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
 	errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
 	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
+	errFacilityKeyUndefined           = errors.New("references undefined facility")
+	errZoneNoBaseFacility             = errors.New("zone has no base facility")
+	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
+	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
+	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
+	errMapGlyphNotSingleRune          = errors.New("map glyph is not a single rune")
+	errMapGlyphDuplicate              = errors.New("map glyph is duplicated")
+	errMapGlyphMissing                = errors.New("map glyph is missing")
+	errDuplicateID                    = errors.New("duplicate id")
 	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
 	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
 	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -25,9 +37,12 @@ var (
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 )
 
+// loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
+var loadSpec = sync.OnceValues(oapi.GetSpec)
+
 // ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する
 func ValidateRaws(raws oapi.Raws) error {
-	spec, err := oapi.GetSpec()
+	spec, err := loadSpec()
 	if err != nil {
 		return fmt.Errorf("failed to load OpenAPI schema: %w", err)
 	}
@@ -80,10 +95,22 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateEnemyTableReferences(raws); err != nil {
 		return err
 	}
-	if err := validateFacilityEnemyTableReferences(raws); err != nil {
+	if err := validateFeatureUniqueIDs(raws); err != nil {
+		return err
+	}
+	if err := validateFacilityReferences(raws); err != nil {
 		return err
 	}
 	if err := validateInteriorContentReferences(raws); err != nil {
+		return err
+	}
+	if err := validateLandmarkReferences(raws); err != nil {
+		return err
+	}
+	if err := validateScatterZoneReferences(raws); err != nil {
+		return err
+	}
+	if err := validateMapGlyphReferences(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -156,21 +183,103 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateFacilityEnemyTableReferences は施設ごとの敵テーブル割り当てが指す敵テーブル id が enemyTables に
-// 存在することを検証する。市街地生成はこの id で GetEnemyTable するので、typo をロード時に前倒しで弾く。
-func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
+// validateFeatureUniqueIDs は地物の各表で id が重複しないことを検証する。
+func validateFeatureUniqueIDs(raws oapi.Raws) error {
+	if err := validateUniqueIDs("facility", PtrSlice(raws.Facilities), func(f oapi.Facility) string { return f.Id }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("landmark", PtrSlice(raws.Landmarks), func(l oapi.Landmark) string { return l.Id }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("scatter zone", PtrSlice(raws.ScatterZones), func(z oapi.ScatterZone) string { return z.Id }); err != nil {
+		return err
+	}
+	return validateUniqueIDs("map glyph", PtrSlice(raws.MapGlyphs), func(g oapi.MapGlyph) string { return g.Id })
+}
+
+// validateUniqueIDs は rows の id が重複しないことを検証する。
+func validateUniqueIDs[T any](kind string, rows []T, id func(T) string) error {
+	seen := make(map[string]struct{}, len(rows))
+	for _, r := range rows {
+		k := id(r)
+		if _, ok := seen[k]; ok {
+			return fmt.Errorf("%s %q: %w", kind, k, errDuplicateID)
+		}
+		seen[k] = struct{}{}
+	}
+	return nil
+}
+
+// validateFacilityReferences は施設行の参照先の実在と、全地区に基本施設があることを検証する。
+func validateFacilityReferences(raws oapi.Raws) error {
+	facilities := PtrSlice(raws.Facilities)
+	facilityIDs := make(map[string]struct{}, len(facilities))
+	for i := range facilities {
+		facilityIDs[facilities[i].Id] = struct{}{}
+	}
+
 	enemyTables := PtrSlice(raws.EnemyTables)
 	tableIDs := make(map[string]struct{}, len(enemyTables))
 	for i := range enemyTables {
 		tableIDs[enemyTables[i].Id] = struct{}{}
 	}
 
-	for _, fe := range PtrSlice(raws.FacilityEnemyTables) {
-		if fe.EnemyTable == "" {
-			continue
+	zones, err := SchemaEnum("Zone")
+	if err != nil {
+		return err
+	}
+	baseSpan := int32(consts.UrbanMinSpan)
+	zoneHasBase := make(map[string]bool)
+	for i := range facilities {
+		if _, ok := tableIDs[facilities[i].EnemyTable]; !ok {
+			return fmt.Errorf("facility %q references enemy table %q: %w", facilities[i].Id, facilities[i].EnemyTable, errFacilityEnemyTableRefUndefined)
 		}
-		if _, ok := tableIDs[fe.EnemyTable]; !ok {
-			return fmt.Errorf("facility %q references enemy table %q: %w", fe.Facility, fe.EnemyTable, errFacilityEnemyTableRefUndefined)
+		for _, z := range facilities[i].Zones {
+			if z.MinSpan <= baseSpan {
+				zoneHasBase[string(z.Zone)] = true
+			}
+		}
+	}
+
+	if len(facilities) > 0 {
+		for _, zone := range zones {
+			if !zoneHasBase[zone] {
+				return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, baseSpan, errZoneNoBaseFacility)
+			}
+		}
+	}
+
+	for _, fc := range PtrSlice(raws.FacilityContents) {
+		if _, ok := facilityIDs[fc.Facility]; !ok {
+			return fmt.Errorf("facilityContents references unknown facility %q: %w", fc.Facility, errFacilityKeyUndefined)
+		}
+	}
+	for _, fr := range PtrSlice(raws.FacilityRooms) {
+		if _, ok := facilityIDs[fr.Facility]; !ok {
+			return fmt.Errorf("facilityRooms references unknown facility %q: %w", fr.Facility, errFacilityKeyUndefined)
+		}
+	}
+	return nil
+}
+
+// validateLandmarkReferences はランドマークの prop の実在を検証する。
+func validateLandmarkReferences(raws oapi.Raws) error {
+	landmarks := PtrSlice(raws.Landmarks)
+	if len(landmarks) == 0 {
+		return nil
+	}
+
+	props := PtrSlice(raws.Props)
+	propNames := make(map[string]struct{}, len(props))
+	for i := range props {
+		propNames[props[i].Id] = struct{}{}
+	}
+
+	for _, l := range landmarks {
+		for _, p := range l.Props {
+			if _, ok := propNames[p.Name]; !ok {
+				return fmt.Errorf("landmark %q references prop %q: %w", l.Id, p.Name, errLandmarkPropUndefined)
+			}
 		}
 	}
 	return nil
@@ -345,6 +454,70 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 		}
 		if _, ok := tableNames[*members[i].CommandTableId]; !ok {
 			return fmt.Errorf("member %q command table %q: %w", members[i].Name, *members[i].CommandTableId, errMemberCommandTableUndefined)
+		}
+	}
+	return nil
+}
+
+// validateScatterZoneReferences は散布ゾーンの prop と loot group の実在を検証する。
+func validateScatterZoneReferences(raws oapi.Raws) error {
+	props := PtrSlice(raws.Props)
+	propNames := make(map[string]struct{}, len(props))
+	for i := range props {
+		propNames[props[i].Id] = struct{}{}
+	}
+	groups := PtrSlice(raws.ItemGroups)
+	groupIDs := make(map[string]struct{}, len(groups))
+	for i := range groups {
+		groupIDs[groups[i].Id] = struct{}{}
+	}
+
+	for _, z := range PtrSlice(raws.ScatterZones) {
+		if _, ok := groupIDs[z.LootGroup]; !ok {
+			return fmt.Errorf("scatter zone %q references item group %q: %w", z.Id, z.LootGroup, errScatterLootGroupUndefined)
+		}
+		for _, e := range z.Entries {
+			if _, ok := propNames[e.Ref]; e.Ref != "" && !ok {
+				return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, e.Ref, errScatterPropUndefined)
+			}
+			for _, s := range PtrSlice(e.Satellites) {
+				if _, ok := propNames[s.Name]; !ok {
+					return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, s.Name, errScatterPropUndefined)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// validateMapGlyphReferences は地図記号が1文字で重複せず、全施設とランドマークが記号を持つことを検証する。
+func validateMapGlyphReferences(raws oapi.Raws) error {
+	glyphs := PtrSlice(raws.MapGlyphs)
+	if len(glyphs) == 0 {
+		return nil
+	}
+
+	ids := make(map[string]struct{}, len(glyphs))
+	seen := make(map[string]string, len(glyphs))
+	for _, g := range glyphs {
+		if utf8.RuneCountInString(g.Glyph) != 1 {
+			return fmt.Errorf("map glyph %q has glyph %q: %w", g.Id, g.Glyph, errMapGlyphNotSingleRune)
+		}
+		if other, ok := seen[g.Glyph]; ok {
+			return fmt.Errorf("map glyph %q shares glyph %q with %q: %w", g.Id, g.Glyph, other, errMapGlyphDuplicate)
+		}
+		seen[g.Glyph] = g.Id
+		ids[g.Id] = struct{}{}
+	}
+
+	for _, f := range PtrSlice(raws.Facilities) {
+		if _, ok := ids[f.Id]; !ok {
+			return fmt.Errorf("facility %q: %w", f.Id, errMapGlyphMissing)
+		}
+	}
+	for _, l := range PtrSlice(raws.Landmarks) {
+		if _, ok := ids[l.Id]; !ok {
+			return fmt.Errorf("landmark %q: %w", l.Id, errMapGlyphMissing)
 		}
 	}
 	return nil

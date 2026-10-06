@@ -14,11 +14,6 @@ import (
 // 地上へ戻る。往復の結線は進入時にポータル機構が戻り先を焼き込むため、配置側は入口 prop と
 // 遺跡定義名を決定的に置くだけでよい。
 
-// dungeonEntrancePlacement は遺跡入口のリージョン配置。小集落と市街地の中間の疎らさで置く。
-// チャンクは20タイルなので、Spacing 4 で80タイルに1つの体感密度になる。
-// 開始付近にも歩いて到達できる入口が必ず出る
-var dungeonEntrancePlacement = Placement{Spacing: 4, Separation: 1, Salt: dungeonEntranceSalt}
-
 // dungeonEntranceFeature は遺跡入口の feature 実装。
 type dungeonEntranceFeature struct{}
 

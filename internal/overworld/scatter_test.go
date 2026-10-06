@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -325,4 +326,21 @@ func TestChebToSeg_線分までのチェビシェフ距離(t *testing.T) {
 	// 垂直線分 x=0, y in [0,10]
 	assert.Equal(t, consts.Tile(0), chebToVSeg(consts.Coord[consts.Tile]{X: 0, Y: 5}, 0, 0, 10), "線分上は0")
 	assert.Equal(t, consts.Tile(3), chebToVSeg(consts.Coord[consts.Tile]{X: 3, Y: 5}, 0, 0, 10), "内側は直交距離")
+}
+
+func TestScatterCatalogFrom_全outdoorZoneに散布行がある(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	for _, z := range []outdoorZone{zoneRoadside, zoneWild} {
+		_, err := scatterCatalogFrom(raws, z)
+		assert.NoErrorf(t, err, "zone %q", z)
+	}
+}
+
+func TestScatterCatalogFrom_未登録zoneはerror(t *testing.T) {
+	t.Parallel()
+
+	_, err := scatterCatalogFrom(oapi.Raws{}, zoneWild)
+	assert.Error(t, err)
 }

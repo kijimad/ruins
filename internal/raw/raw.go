@@ -665,13 +665,45 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 	return et, nil
 }
 
-// FacilityEnemyTableName は施設種別に割り当てられた敵テーブル id を返す。割り当てが無ければ false を返す。
-func FacilityEnemyTableName(raws oapi.Raws, facility string) (string, bool) {
-	fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string { return string(t.Facility) }, facility)
-	if !ok {
-		return "", false
+// SchemaEnum は OpenAPI スキーマの enum 型 name の値を返す。
+func SchemaEnum(name string) ([]string, error) {
+	spec, err := loadSpec()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load OpenAPI schema: %w", err)
 	}
-	return fe.EnemyTable, true
+	ref, ok := spec.Components.Schemas[name]
+	if !ok || ref.Value == nil || len(ref.Value.Enum) == 0 {
+		return nil, fmt.Errorf("schema %q is not an enum", name)
+	}
+	out := make([]string, len(ref.Value.Enum))
+	for i, v := range ref.Value.Enum {
+		s, ok := v.(string)
+		if !ok {
+			return nil, fmt.Errorf("schema %q enum value %v is not a string", name, v)
+		}
+		out[i] = s
+	}
+	return out, nil
+}
+
+// GetFacility は id の施設宣言を返す。未登録は false。
+func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
+	return findByKey(raws.Facilities, func(f oapi.Facility) string { return f.Id }, id)
+}
+
+// GetLandmark は id のランドマーク宣言を返す。未登録は false。
+func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
+	return findByKey(raws.Landmarks, func(l oapi.Landmark) string { return l.Id }, id)
+}
+
+// GetScatterZone は id の散布ゾーン宣言を返す。未登録は false。
+func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
+	return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string { return z.Id }, id)
+}
+
+// GetMapGlyph は id の地図記号宣言を返す。未登録は false。
+func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
+	return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string { return m.Id }, id)
 }
 
 // GetTile は指定された名前のタイルを取得する

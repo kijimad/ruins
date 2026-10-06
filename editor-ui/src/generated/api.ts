@@ -613,6 +613,18 @@ export interface DisassemblyYield {
     'chance'?: number;
 }
 /**
+ * ランドマークの描画関数の選択キー
+ */
+
+export const DrawerKey = {
+    Hut: 'hut',
+    Open: 'open',
+} as const;
+
+export type DrawerKey = typeof DrawerKey[keyof typeof DrawerKey];
+
+
+/**
  * ドロップテーブル
  */
 export interface DropTable {
@@ -762,50 +774,39 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
+ * 市街地の施設1種。isShop は看板やシャッターを出す店か
+ */
+export interface Facility {
+    'id': string;
+    'isShop': boolean;
+    'planner': PlannerKey;
+    'enemyTable': string;
+    'zones': Array<FacilityZone>;
+}
+
+
+/**
  * 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
  */
 export interface FacilityContent {
-    'facility': FacilityKind;
+    'facility': string;
     'variants': Array<string>;
 }
-
-
-/**
- * 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
- */
-export interface FacilityEnemyTable {
-    'facility': FacilityKind;
-    /**
-     * 割り当てる敵テーブルの id。enemyTables のいずれかを指す
-     */
-    'enemyTable': string;
-}
-
-
-/**
- * 施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。     runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
- */
-
-export const FacilityKind = {
-    House: 'house',
-    Store: 'store',
-    Antique: 'antique',
-    Clinic: 'clinic',
-    Lab: 'lab',
-    Office: 'office',
-    Depot: 'depot',
-} as const;
-
-export type FacilityKind = typeof FacilityKind[keyof typeof FacilityKind];
-
-
 /**
  * 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
  */
 export interface FacilityRooms {
-    'facility': FacilityKind;
+    'facility': string;
     'rooms'?: Array<RoomContent>;
     'fallback': string;
+}
+/**
+ * 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
+ */
+export interface FacilityZone {
+    'zone': Zone;
+    'weight': number;
+    'minSpan': number;
 }
 
 
@@ -1079,6 +1080,19 @@ export interface ItemTableList {
     'totalCount': number;
 }
 /**
+ * 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
+ */
+export interface Landmark {
+    'id': string;
+    'weight': number;
+    'drawer': DrawerKey;
+    'hutW': number;
+    'hutH': number;
+    'props': Array<PropSpot>;
+}
+
+
+/**
  * 光源設定
  */
 export interface LightSource {
@@ -1091,6 +1105,16 @@ export interface LightSource {
      * 光源が有効かどうか
      */
     'enabled': boolean;
+}
+/**
+ * 俯瞰地図の記号1種。id は地物・施設の種別 id
+ */
+export interface MapGlyph {
+    'id': string;
+    'glyph': string;
+    'name': string;
+    'color': RGBAColor;
+    'order': number;
 }
 /**
  * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
@@ -1274,6 +1298,20 @@ export type Placement = typeof Placement[keyof typeof Placement];
 
 
 /**
+ * 間取りテンプレの選択キー
+ */
+
+export const PlannerKey = {
+    House: 'house',
+    Store: 'store',
+    Clinic: 'clinic',
+    Bsp: 'bsp',
+} as const;
+
+export type PlannerKey = typeof PlannerKey[keyof typeof PlannerKey];
+
+
+/**
  * 職業
  */
 export interface Profession {
@@ -1396,6 +1434,14 @@ export interface PropList {
     'totalCount': number;
 }
 /**
+ * prop 1個の相対配置
+ */
+export interface PropSpot {
+    'name': string;
+    'dx': number;
+    'dy': number;
+}
+/**
  * 回復効果
  */
 export interface ProvidesHealing {
@@ -1444,7 +1490,10 @@ export interface Raws {
     'itemGroups'?: Array<ItemGroup>;
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
-    'facilityEnemyTables'?: Array<FacilityEnemyTable>;
+    'facilities'?: Array<Facility>;
+    'landmarks'?: Array<Landmark>;
+    'scatterZones'?: Array<ScatterZone>;
+    'mapGlyphs'?: Array<MapGlyph>;
     'interiorContents'?: Array<InteriorContent>;
     'facilityContents'?: Array<FacilityContent>;
     'facilityRooms'?: Array<FacilityRooms>;
@@ -1530,6 +1579,25 @@ export const RoomRole = {
 export type RoomRole = typeof RoomRole[keyof typeof RoomRole];
 
 
+/**
+ * 散布 prop 1種。ref の空文字は置かないことを表す
+ */
+export interface ScatterEntry {
+    'ref': string;
+    'weight': number;
+    'big': boolean;
+    'satellites'?: Array<PropSpot>;
+}
+/**
+ * 開けた地形の散布ゾーン1種
+ */
+export interface ScatterZone {
+    'id': string;
+    'grassDensity': number;
+    'propDensity': number;
+    'lootGroup': string;
+    'entries': Array<ScatterEntry>;
+}
 /**
  * 遮蔽タイプ
  */
@@ -1760,6 +1828,19 @@ export interface Wearable {
      */
     'insulationHeat': number;
 }
+
+
+/**
+ * 市街地の地区
+ */
+
+export const Zone = {
+    Downtown: 'downtown',
+    Residential: 'residential',
+    Industrial: 'industrial',
+} as const;
+
+export type Zone = typeof Zone[keyof typeof Zone];
 
 
 

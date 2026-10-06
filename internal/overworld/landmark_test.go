@@ -5,12 +5,25 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
+	t.Parallel()
+
+	keys, err := raw.SchemaEnum("DrawerKey")
+	require.NoError(t, err)
+	for _, key := range keys {
+		_, ok := drawers[oapi.DrawerKey(key)]
+		assert.Truef(t, ok, "drawer key %q に Go 実装がある", key)
+	}
+}
 
 // findLandmarkChunk は点在ランドマークが当選し、他の地物に譲らないチャンクと seed を探す。
 func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
@@ -59,19 +72,4 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 	b := build()
 	assert.NotEmpty(t, a, "ランドマークの prop が置かれる")
 	assert.Equal(t, a, b, "ランドマークの配置は決定的で再生成しても一致する")
-}
-
-func TestLandmarkPlaceType_各種別が異なる地図分類へ写る(t *testing.T) {
-	t.Parallel()
-
-	// 全種別が地図分類の写像を持ち、かつ互いに異なることを確認する。写像漏れは landmarkPlaceType が
-	// panic で示す。exhaustive linter は case の網羅は強制するが、別々の placeType へ写ることは
-	// 保証しないので、コピペによる重複写像はここで弾く。
-	seen := map[placeType]bool{}
-	for _, k := range []landmarkKind{landmarkAbandonedHut, landmarkFarmstead, landmarkShrine, landmarkCampsite} {
-		p := landmarkPlaceType(k)
-		assert.NotEmptyf(t, p, "種別 %q に地図分類の写像がある", k)
-		assert.Falsef(t, seen[p], "種別 %q の写像 %q が他と重複している", k, p)
-		seen[p] = true
-	}
 }

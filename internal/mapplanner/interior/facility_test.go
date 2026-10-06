@@ -3,9 +3,22 @@ package interior
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestPlanners_全PlannerKeyに実装がある(t *testing.T) {
+	t.Parallel()
+
+	keys, err := raw.SchemaEnum("PlannerKey")
+	require.NoError(t, err)
+	for _, key := range keys {
+		_, ok := planners[oapi.PlannerKey(key)]
+		assert.Truef(t, ok, "planner key %q に Go 実装がある", key)
+	}
+}
 
 // TestFurnish_施設種別ごとに決定的に内装を返す は公開入口の決定性を固定する。どの施設種別でも何かを置き、
 // 同じ引数なら完全一致する。overworld の建物furnishが再訪で一致する前提。
@@ -14,7 +27,7 @@ func TestFurnish_施設種別ごとに決定的に内装を返す(t *testing.T) 
 
 	footprint := Rect{X: 0, Y: 0, W: 16, H: 12}
 	door := Vec{X: 8, Y: 11}
-	for _, fac := range []FacilityKind{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+	for _, fac := range facilityIDs() {
 		first, err := Furnish(testRaws(), 3, footprint, door, fac)
 		require.NoError(t, err)
 		require.NotEmptyf(t, first, "%s は何か配置する", fac)
@@ -82,7 +95,7 @@ func TestFurnish_家具は施設種別どおりに分類される(t *testing.T) 
 	footprint := Rect{X: 0, Y: 0, W: 16, H: 12}
 	door := Vec{X: 8, Y: 11}
 	cases := []struct {
-		facility FacilityKind
+		facility string
 		role     string
 	}{
 		{"store", "store"},

@@ -2171,6 +2171,12 @@ components:
     DoorRaw:
       type: object
       description: 扉ローデータ
+    DrawerKey:
+      type: string
+      enum:
+        - hut
+        - open
+      description: ランドマークの描画関数の選択キー
     DropTable:
       type: object
       required:
@@ -2346,6 +2352,28 @@ components:
           type: string
           description: エラーメッセージ
       description: エラーレスポンス
+    Facility:
+      type: object
+      required:
+        - id
+        - isShop
+        - planner
+        - enemyTable
+        - zones
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        isShop:
+          type: boolean
+        planner:
+          $ref: '#/components/schemas/PlannerKey'
+        enemyTable:
+          $ref: '#/components/schemas/EntityID'
+        zones:
+          type: array
+          items:
+            $ref: '#/components/schemas/FacilityZone'
+      description: 市街地の施設1種。isShop は看板やシャッターを出す店か
     FacilityContent:
       type: object
       required:
@@ -2353,40 +2381,12 @@ components:
         - variants
       properties:
         facility:
-          $ref: '#/components/schemas/FacilityKind'
+          $ref: '#/components/schemas/EntityID'
         variants:
           type: array
           items:
             $ref: '#/components/schemas/EntityID'
       description: 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
-    FacilityEnemyTable:
-      type: object
-      required:
-        - facility
-        - enemyTable
-      properties:
-        facility:
-          $ref: '#/components/schemas/FacilityKind'
-        enemyTable:
-          allOf:
-            - $ref: '#/components/schemas/EntityID'
-          description: 割り当てる敵テーブルの id。enemyTables のいずれかを指す
-      description: |-
-        施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
-        enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。
-    FacilityKind:
-      type: string
-      enum:
-        - house
-        - store
-        - antique
-        - clinic
-        - lab
-        - office
-        - depot
-      description: |-
-        施設種別。overworld の facilityType の文字列と揃える。raw.toml の値を閉じた集合に縛り typo を弾く。
-            runtime の未知施設は生成側で汎用へ落ちるが、それはこの enum の外の別経路
     FacilityRooms:
       type: object
       required:
@@ -2394,7 +2394,7 @@ components:
         - fallback
       properties:
         facility:
-          $ref: '#/components/schemas/FacilityKind'
+          $ref: '#/components/schemas/EntityID'
         rooms:
           type: array
           items:
@@ -2402,6 +2402,23 @@ components:
         fallback:
           $ref: '#/components/schemas/EntityID'
       description: 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
+    FacilityZone:
+      type: object
+      required:
+        - zone
+        - weight
+        - minSpan
+      properties:
+        zone:
+          $ref: '#/components/schemas/Zone'
+        weight:
+          type: integer
+          format: int32
+          minimum: 1
+        minSpan:
+          type: integer
+          format: int32
+      description: 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
     FactionMemberType:
       type: string
       enum:
@@ -2738,6 +2755,35 @@ components:
       minimum: 0
       maximum: 99999
       description: 売買価格
+    Landmark:
+      type: object
+      required:
+        - id
+        - weight
+        - drawer
+        - hutW
+        - hutH
+        - props
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        weight:
+          type: integer
+          format: int32
+          minimum: 1
+        drawer:
+          $ref: '#/components/schemas/DrawerKey'
+        hutW:
+          type: integer
+          format: int32
+        hutH:
+          type: integer
+          format: int32
+        props:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropSpot'
+      description: 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
     LightEnabled:
       type: boolean
       description: 光源が有効かどうか
@@ -2765,6 +2811,27 @@ components:
       minimum: 1
       maximum: 100
       description: マガジン容量
+    MapGlyph:
+      type: object
+      required:
+        - id
+        - glyph
+        - name
+        - color
+        - order
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        glyph:
+          type: string
+        name:
+          type: string
+        color:
+          $ref: '#/components/schemas/RGBAColor'
+        order:
+          type: integer
+          format: int32
+      description: 俯瞰地図の記号1種。id は地物・施設の種別 id
     Material:
       type: string
       enum:
@@ -2973,6 +3040,14 @@ components:
         - far_from_door
         - row
       description: 配置の置き方。空なら家具型の archetype 既定へ落ちる
+    PlannerKey:
+      type: string
+      enum:
+        - house
+        - store
+        - clinic
+        - bsp
+      description: 間取りテンプレの選択キー
     Potency:
       type: integer
       minimum: 0
@@ -3122,6 +3197,22 @@ components:
         totalCount:
           type: integer
       description: 置物一覧
+    PropSpot:
+      type: object
+      required:
+        - name
+        - dx
+        - dy
+      properties:
+        name:
+          $ref: '#/components/schemas/EntityID'
+        dx:
+          type: integer
+          format: int32
+        dy:
+          type: integer
+          format: int32
+      description: prop 1個の相対配置
     ProvidesHealing:
       type: object
       required:
@@ -3193,10 +3284,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EnemyTable'
-        facilityEnemyTables:
+        facilities:
           type: array
           items:
-            $ref: '#/components/schemas/FacilityEnemyTable'
+            $ref: '#/components/schemas/Facility'
+        landmarks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Landmark'
+        scatterZones:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScatterZone'
+        mapGlyphs:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapGlyph'
         interiorContents:
           type: array
           items:
@@ -3326,6 +3429,50 @@ components:
         - toilet
         - waiting
       description: 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
+    ScatterEntry:
+      type: object
+      required:
+        - ref
+        - weight
+        - big
+      properties:
+        ref:
+          type: string
+        weight:
+          type: integer
+          format: int32
+          minimum: 1
+        big:
+          type: boolean
+        satellites:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropSpot'
+      description: 散布 prop 1種。ref の空文字は置かないことを表す
+    ScatterZone:
+      type: object
+      required:
+        - id
+        - grassDensity
+        - propDensity
+        - lootGroup
+        - entries
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        grassDensity:
+          type: number
+          format: double
+        propDensity:
+          type: number
+          format: double
+        lootGroup:
+          $ref: '#/components/schemas/EntityID'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScatterEntry'
+      description: 開けた地形の散布ゾーン1種
     Sensation:
       type: integer
       minimum: -100
@@ -3580,6 +3727,13 @@ components:
       type: string
       pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$
       description: '重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"'
+    Zone:
+      type: string
+      enum:
+        - downtown
+        - residential
+        - industrial
+      description: 市街地の地区
 servers:
   - url: http://localhost:8080
     description: Development server

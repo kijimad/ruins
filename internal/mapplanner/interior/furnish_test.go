@@ -25,7 +25,7 @@ func TestRoleContent_施設に無い役割は自施設の奥室既定へ落ち�
 	}
 
 	// store は corridor を持たない。民家が corridor を持っていても store 自身の fallback へ落ちる
-	c, err := roleContent(raws, FacilityKind("store"), roleCorridor, 0)
+	c, err := roleContent(raws, oapi.Facility{Id: "store"}, roleCorridor, 0)
 	require.NoError(t, err)
 	require.Equal(t, "store_fallback", c.ID)
 }
@@ -100,7 +100,7 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 	t.Parallel()
 
 	cases := []struct {
-		facility FacilityKind
+		facility string
 		roles    []roleName // このどれかが必ず出る施設固有の役割
 	}{
 		{"store", []roleName{"storeroom", "office", "restroom", "coldroom"}},
@@ -138,7 +138,7 @@ func TestFurnishBuilding_施設テンプレが本番サイズで奥室を役割�
 func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	t.Parallel()
 
-	for _, fac := range []FacilityKind{"house", "store", "clinic"} {
+	for _, fac := range []string{"house", "store", "clinic"} {
 		for fp := consts.Tile(17); fp <= 20; fp++ {
 			doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
 			for dside, door := range doors {
