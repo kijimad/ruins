@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // lot pass。建物を裸で地面に置かず、敷地を塀で囲い門で出入りさせ、前庭に外構を置く。自然な街並みに
@@ -13,7 +14,7 @@ import (
 
 // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には
 // 店なら自販機、民家なら観葉を1つ置く。
-func lotElements(s Site, fac FacilitySpec) []Placed {
+func lotElements(s Site, fac oapi.Facility) []Placed {
 	fside := frontSide(s)
 	lo, hi, edge := lotEdgeSpan(s.Footprint, fside)
 	doorAxis := edge.along(s.Door)

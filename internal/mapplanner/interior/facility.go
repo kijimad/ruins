@@ -6,18 +6,9 @@ import (
 )
 
 // 施設で単室の建物を内装する公開 API Furnish と、密度・経年を決める調整関数を持つ。施設の同一性は
-// raw.toml の facilities 行が単一出典で、呼び出し側が解決した FacilitySpec を渡す。content レシピは
+// raw.toml の facilities 行で宣言し、公開 API は施設 id を受けて自分で引く。content レシピは
 // raw.toml のデータで、content_lookup.go が施設 id から変種を都度引いて変換する。多部屋の加工パイプは
 // furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
-
-// FacilitySpec は内装が施設から必要とする属性。overworld が raw.toml の facilities 行から解決して渡す。
-// ID で content を引き、Planner で間取りを選び、IsShop で外皮の看板やシャッターを決める。interior は
-// 施設の集合を列挙せず、解決済みのこの値だけを消費する。
-type FacilitySpec struct {
-	ID      string          // facilityContents/facilityRooms を引くキー。facilities 行の id
-	Planner oapi.PlannerKey // 間取りテンプレの選択キー
-	IsShop  bool            // 看板・シャッターを出す店系か
-}
 
 // plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。データ化できない幾何なので Go に置く。
 type plannerDef struct {
@@ -25,9 +16,7 @@ type plannerDef struct {
 	minW, minH consts.Tile
 }
 
-// planners は planner キーから間取り実装を引く単一出典。BSP 汎用分割も暗黙既定でなく明示キー "bsp"。
-// 新しい間取りを足すときだけここへ1行足し、tsp の PlannerKey enum にも同じキーを加える。両者の一致は
-// 被覆テストで固定する。未知キーはフォールバックせず、呼び出し側で fail-closed に扱う。
+// planners は planner キーから間取り実装を引く。キーは tsp の PlannerKey enum と1対1で対応する。
 var planners = map[oapi.PlannerKey]plannerDef{
 	oapi.House:  {PlanHouseAny, 12, 9},
 	oapi.Store:  {PlanStore, 12, 9},
@@ -35,14 +24,13 @@ var planners = map[oapi.PlannerKey]plannerDef{
 	oapi.Bsp:    {planBSP, 0, 0},
 }
 
-// plannerByKey は planner キーから定義を返す。未登録キーは ok=false。呼び出し側は既定へ落とさず扱う。
+// plannerByKey は planner キーから定義を返す。未登録キーは ok=false。
 func plannerByKey(key oapi.PlannerKey) (def plannerDef, ok bool) {
 	def, ok = planners[key]
 	return def, ok
 }
 
 // planBSP は汎用の BSP 分割を planner と同じ形へ包む。面積最大を主室、残りを奥室に割り当てる。
-// テンプレを持たない施設と、テンプレ最小寸法を下回る建物がこの明示キーへ落ちる。
 func planBSP(footprint Rect, seed uint64) []PlannedRoom {
 	rooms := SubdivideBuilding(footprint, seed)
 	out := make([]PlannedRoom, len(rooms))
@@ -58,11 +46,11 @@ func planBSP(footprint Rect, seed uint64) []PlannedRoom {
 
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
-// 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
-func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, fac FacilitySpec) ([]Placed, error) {
+// 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未登録の施設は error。
+func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {
 	prof := rollProfile(seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
-	main, err := facilityContent(raws, fac.ID, seed)
+	main, err := facilityContent(raws, facility, seed)
 	if err != nil {
 		return nil, err
 	}

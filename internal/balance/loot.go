@@ -33,7 +33,6 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.Balance
 	result := make([]oapi.BalanceFacilityLoot, 0, len(facilities))
 	for _, f := range facilities {
 		fac := f.Id
-		spec := interior.FacilitySpec{ID: f.Id, Planner: f.Planner, IsShop: f.IsShop}
 		// role -> item -> 合計個数 / 出た試行数
 		total := map[string]map[string]int{}
 		present := map[string]map[string]int{}
@@ -50,7 +49,7 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.Balance
 		for i := range trials {
 			trialSeed := seed + uint64(i)
 			rng := rand.New(rand.NewPCG(trialSeed, roomLootStream))
-			site, placed, err := interior.FurnishBuilding(master, trialSeed, footprint, door, spec)
+			site, placed, err := interior.FurnishBuilding(master, trialSeed, footprint, door, fac)
 			if err != nil {
 				return nil, fmt.Errorf("furnish %q: %w", fac, err)
 			}

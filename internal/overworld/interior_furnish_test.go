@@ -113,12 +113,10 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 		}
 	}
 	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
-		f, _ := raw.GetFacility(raws, fac)
-		spec := interior.FacilitySpec{ID: f.Id, Planner: f.Planner, IsShop: f.IsShop}
-		single, err := interior.Furnish(raws, 1, small, door, spec)
+		single, err := interior.Furnish(raws, 1, small, door, fac)
 		require.NoError(t, err)
 		check(fac, single)
-		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, spec)
+		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
 		require.NoError(t, err)
 		check(fac, placed)
 	}
@@ -161,12 +159,10 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 		}
 	}
 	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
-		f, _ := raw.GetFacility(raws, fac)
-		spec := interior.FacilitySpec{ID: f.Id, Planner: f.Planner, IsShop: f.IsShop}
-		single, err := interior.Furnish(raws, 1, small, door, spec)
+		single, err := interior.Furnish(raws, 1, small, door, fac)
 		require.NoError(t, err)
 		check(fac, single)
-		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, spec)
+		_, placed, err := interior.FurnishBuilding(raws, 1, big, bigDoor, fac)
 		require.NoError(t, err)
 		check(fac, placed)
 	}

@@ -21,14 +21,8 @@ import (
 // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。
 func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac string, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
-	// 施設行から内装が要る属性を解決して渡す。planner とisShop は施設行が単一出典。
-	f, ok := raw.GetFacility(world.Resources.RawMaster, fac)
-	if !ok {
-		return nil, nil, fmt.Errorf("furnish building: facility %q not found", fac)
-	}
-	spec := interior.FacilitySpec{ID: f.Id, Planner: f.Planner, IsShop: f.IsShop}
 	// 内装レシピは RawMaster から都度、必要な content だけを引いて変換する。索引を持ち回らない。
-	site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, spec)
+	site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, fac)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to furnish building: %w", err)
 	}

@@ -42,6 +42,15 @@ func TestFacilityContent_未登録施設はerror(t *testing.T) {
 	require.ErrorIs(t, err, errFacilityNotRegistered)
 }
 
+// TestFurnishBuilding_未登録施設はerror は、facilities に無い施設 id を渡すと生成を落とさず error を返すことを
+// 固定する。
+func TestFurnishBuilding_未登録施設はerror(t *testing.T) {
+	t.Parallel()
+
+	_, _, err := FurnishBuilding(testRaws(), 0, Rect{X: 0, Y: 0, W: 20, H: 20}, Vec{X: 10, Y: 0}, "no_such_facility")
+	require.ErrorIs(t, err, errFacilityNotRegistered)
+}
+
 // TestBackRoomContent_未登録施設はerror は、facilityRooms に無い施設種別の奥室既定を引くと error を返すことを
 // 固定する。
 func TestBackRoomContent_未登録施設はerror(t *testing.T) {

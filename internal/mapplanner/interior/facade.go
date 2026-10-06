@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // 外皮 FacadePass。分割文法の後、街路側の前壁へ窓・シャッター・看板を付ける。外から見た自然さの多くは「窓が
@@ -14,7 +15,7 @@ import (
 // facadeElements は街路側の前壁に付ける外皮 prop を返す。前庭ぶん内寄せした建物の街路側の壁へ、入口と角を
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
-func facadeElements(s Site, fac FacilitySpec, dmg damageLevel) []Placed {
+func facadeElements(s Site, fac oapi.Facility, dmg damageLevel) []Placed {
 	fside := frontSide(s)
 	lo, hi, wall := frontWallSpan(s.Building, fside)
 	doorAxis := wall.along(s.Door)

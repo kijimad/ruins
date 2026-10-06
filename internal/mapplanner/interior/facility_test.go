@@ -8,9 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestPlanners_全PlannerKeyに実装がある は planner キーの閉集合 PlannerKey enum と Go の planners 実装が
-// 一致することを固定する。tsp に planner を足して planners への登録を忘れると、施設がその planner を指した
-// ときに解決できず落ちる。schema が値の閉集合を守り、この被覆テストが実装欠けを守る二段構えにする。
+// TestPlanners_全PlannerKeyに実装がある は tsp の PlannerKey enum と planners の実装が一致することを固定する。
+// enum に足して planners への登録を忘れると、その planner を指す施設が解決できない。
 func TestPlanners_全PlannerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 
@@ -28,10 +27,10 @@ func TestFurnish_施設種別ごとに決定的に内装を返す(t *testing.T) 
 	footprint := Rect{X: 0, Y: 0, W: 16, H: 12}
 	door := Vec{X: 8, Y: 11}
 	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
-		first, err := Furnish(testRaws(), 3, footprint, door, facSpec(fac))
+		first, err := Furnish(testRaws(), 3, footprint, door, fac)
 		require.NoError(t, err)
 		require.NotEmptyf(t, first, "%s は何か配置する", fac)
-		second, err := Furnish(testRaws(), 3, footprint, door, facSpec(fac))
+		second, err := Furnish(testRaws(), 3, footprint, door, fac)
 		require.NoError(t, err)
 		require.Equalf(t, first, second, "%s は同じ引数で完全一致する", fac)
 	}
@@ -53,7 +52,7 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 			aged = true
 		}
 		n := 0
-		placed, err := Furnish(testRaws(), seed, footprint, door, facSpec("store"))
+		placed, err := Furnish(testRaws(), seed, footprint, door, "store")
 		require.NoError(t, err)
 		for _, p := range placed {
 			if p.Kind == KindFurniture {
@@ -80,7 +79,7 @@ func TestFacilityContent_seedで店の変種が変わる(t *testing.T) {
 		c, err := facilityContent(testRaws(), "store", seed)
 		require.NoError(t, err)
 		ids[c.ID] = true
-		placed, err := Furnish(testRaws(), seed, footprint, door, facSpec("store"))
+		placed, err := Furnish(testRaws(), seed, footprint, door, "store")
 		require.NoError(t, err)
 		assert.Equalf(t, "store", classifyRoom(placed), "seed=%d のどの変種も店に分類される", seed)
 	}
@@ -104,7 +103,7 @@ func TestFurnish_家具は施設種別どおりに分類される(t *testing.T) 
 		{"depot", "storage"},
 	}
 	for _, c := range cases {
-		placed, err := Furnish(testRaws(), 3, footprint, door, facSpec(c.facility))
+		placed, err := Furnish(testRaws(), 3, footprint, door, c.facility)
 		require.NoError(t, err)
 		assert.Equalf(t, c.role, classifyRoom(placed), "%s は %s に分類される", c.facility, c.role)
 	}

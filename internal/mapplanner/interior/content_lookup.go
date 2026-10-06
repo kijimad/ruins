@@ -42,8 +42,16 @@ func contentByID(raws oapi.Raws, id string) (Content, error) {
 	return Content{}, fmt.Errorf("%q: %w", id, errContentNotFound)
 }
 
-// facilityContent は施設の主室 content を seed で1変種引く。同じ施設でも複数の変種を持つ。id は
-// facilities 行の閉じた集合で全施設が登録済みなので通常は成功し、未登録は error で返す。
+// facilityByID は id の施設行を引く。未登録は error。
+func facilityByID(raws oapi.Raws, id string) (oapi.Facility, error) {
+	f, ok := raw.GetFacility(raws, id)
+	if !ok {
+		return oapi.Facility{}, fmt.Errorf("%q in facilities: %w", id, errFacilityNotRegistered)
+	}
+	return f, nil
+}
+
+// facilityContent は施設の主室 content を seed で1変種引く。同じ施設でも複数の変種を持つ。未登録は error。
 func facilityContent(raws oapi.Raws, id string, seed uint64) (Content, error) {
 	variants := facilityVariants(raws, id)
 	if len(variants) == 0 {
