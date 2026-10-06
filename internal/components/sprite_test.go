@@ -2,6 +2,7 @@ package components
 
 import (
 	"image"
+	"io/fs"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -40,7 +41,7 @@ func TestTexture_UnmarshalText(t *testing.T) {
 		var tex Texture
 		err := tex.UnmarshalText([]byte("file/textures/dist/nonexistent.png"))
 
-		require.Error(t, err)
+		require.ErrorIs(t, err, fs.ErrNotExist)
 		assert.Nil(t, tex.Image)
 		assert.Nil(t, tex.Source)
 	})

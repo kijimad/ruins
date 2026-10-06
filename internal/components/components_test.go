@@ -35,7 +35,6 @@ func TestInitializeComponents(t *testing.T) {
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
 
-			// Ark ではコンポーネントハンドルは全て *ecs.Map[T] ポインタになる
 			require.Equal(t, reflect.Pointer, field.Kind(),
 				"フィールド %s はポインタ型である必要がある", fieldName)
 			assert.False(t, field.IsNil(),
@@ -78,7 +77,6 @@ func TestInitializeComponents(t *testing.T) {
 
 	t.Run("大量フィールドでのパフォーマンステスト", func(t *testing.T) {
 		t.Parallel()
-		// パフォーマンステストとして、現在のComponentsで十分な数のフィールドがある
 		// Arrange
 		world := ecs.NewWorld()
 		components := &Components{}
@@ -110,7 +108,6 @@ func TestComponentsStructure(t *testing.T) {
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
 
-			// Ark のコンポーネントハンドルは全て ecs.Map[T] へのポインタになる
 			assert.Equal(t, reflect.Pointer, field.Kind(),
 				"フィールド %s はポインタ型である必要がある", fieldName)
 			assert.True(t, strings.HasPrefix(field.Type().Elem().Name(), "Map["),
