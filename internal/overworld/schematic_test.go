@@ -114,8 +114,6 @@ func TestSchematicLegend_全ての記号を含む(t *testing.T) {
 	}
 }
 
-// TestChunkPlace_全チャンクが登録済みの記号を引く は、地物・施設・ランドマークのどれかが mapGlyphs に
-// 記号を持たず地図に保険の記号が出る漏れを、実データの多数のチャンクで弾く。
 func TestChunkPlace_全チャンクが登録済みの記号を引く(t *testing.T) {
 	t.Parallel()
 

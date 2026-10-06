@@ -10,8 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestUrbanEnemyTableFor_施設行の敵テーブルを引く は、施設行の enemyTable が指すテーブルを引き、未登録の
-// 施設は error にすることを固定する。特定のテーブル id は綴りを追うだけになるので固定しない。
+// 特定のテーブル id は綴りを追うだけになるので固定しない。
 func TestUrbanEnemyTableFor_施設行の敵テーブルを引く(t *testing.T) {
 	t.Parallel()
 
@@ -25,8 +24,6 @@ func TestUrbanEnemyTableFor_施設行の敵テーブルを引く(t *testing.T) {
 	require.Error(t, err, "未登録の施設は silent フォールバックせず error")
 }
 
-// TestUrbanEnemyTableFor_敵テーブルが実在しなければerror は、施設行の enemyTable が raw に無いとき error を
-// 返すことを固定する。
 func TestUrbanEnemyTableFor_敵テーブルが実在しなければerror(t *testing.T) {
 	t.Parallel()
 
@@ -39,8 +36,6 @@ func TestUrbanEnemyTableFor_敵テーブルが実在しなければerror(t *test
 	require.Error(t, err, "enemyTable が実在しなければ設定ミスとして error")
 }
 
-// TestFacilities_全施設が敵テーブルを引ける は、全 facilities 行の enemyTable が実在テーブルを引けることを
-// 固定する。
 func TestFacilities_全施設が敵テーブルを引ける(t *testing.T) {
 	t.Parallel()
 

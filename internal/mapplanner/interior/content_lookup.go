@@ -51,7 +51,7 @@ func facilityByID(raws oapi.Raws, id string) (oapi.Facility, error) {
 	return f, nil
 }
 
-// facilityContent は施設の主室 content を seed で1変種引く。同じ施設でも複数の変種を持つ。未登録は error。
+// facilityContent は施設の主室 content を seed で1変種引く。未登録は error。
 func facilityContent(raws oapi.Raws, id string, seed uint64) (Content, error) {
 	variants := facilityVariants(raws, id)
 	if len(variants) == 0 {

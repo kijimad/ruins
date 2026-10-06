@@ -13,18 +13,16 @@ import (
 )
 
 // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
-// 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。種別・出現重み・小屋寸法・prop は raw.toml の
-// landmarks 行で宣言し、Go は描画関数 drawers だけを持つ。
+// 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。
 
-// landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する純関数。地図の記号と生成の
-// 構造が同じ id を引くので、俯瞰図の見た目と実体が食い違わない。
+// landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する。
 func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
 	lms := raw.PtrSlice(raws.Landmarks)
 	total := 0
 	for _, l := range lms {
 		total += int(l.Weight)
 	}
-	// スキーマが weight>=1 を課し、TestRealData_HasLandmarks が非空を固定するので total>0
+	// total>0 はスキーマの weight>=1 と TestRealData_HasLandmarks が保証する
 	roll := int(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % uint64(total))
 	for _, l := range lms {
 		roll -= int(l.Weight)
@@ -41,13 +39,13 @@ type wildernessLandmarkFeature struct{}
 // landmarkDrawer はランドマーク1種を描く関数。
 type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error
 
-// drawers は drawer キーから描画関数を引く。キーは tsp の DrawerKey enum と1対1で対応する。
+// drawers は drawer キーから描画関数を引く。
 var drawers = map[oapi.DrawerKey]landmarkDrawer{
 	oapi.Hut:  drawHutLandmark,
 	oapi.Open: drawOpenLandmark,
 }
 
-// drawHutLandmark は landmarks 行の小屋寸法と prop 名から外周壁の小屋を描く。prop は北壁沿いに順に並べる。
+// drawHutLandmark は外周壁の小屋を描き、prop を北壁沿いに並べる。
 func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error {
 	names := make([]string, len(lm.Props))
 	for i, p := range lm.Props {
@@ -56,7 +54,7 @@ func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.C
 	return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), names)
 }
 
-// drawOpenLandmark は landmarks 行の prop を相対座標で露天に置く。
+// drawOpenLandmark は prop を相対座標で露天に置く。
 func drawOpenLandmark(world w.World, _ chunkGeom, _ *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error {
 	spots := make([]relSpot, len(lm.Props))
 	for i, p := range lm.Props {

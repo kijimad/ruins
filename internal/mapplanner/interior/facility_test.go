@@ -9,8 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestPlanners_全PlannerKeyに実装がある は tsp の PlannerKey enum と planners の実装が一致することを固定する。
-// enum に足して planners への登録を忘れると、その planner を指す施設が解決できない。
 func TestPlanners_全PlannerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 

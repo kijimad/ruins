@@ -123,8 +123,6 @@ func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, faci
 // 店は売場＋バックヤード・診療所は待合＋診察室の列にして、「何の施設か分かる」平面にする。テンプレに足りない
 // 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。
 func planRooms(footprint Rect, seed uint64, fac oapi.Facility) ([]Room, []roleName) {
-	// 本番の市街地チャンク 24x24 が生む建物は街路と前庭ぶん内寄せして概ね 17〜20 タイル角になる。テンプレの
-	// 最小寸法 12x9 はこの狭さでも施設テンプレが発火する値にしてある。
 	def, ok := planners[fac.Planner]
 	if !ok || footprint.W < def.minW || footprint.H < def.minH {
 		def = planners[oapi.Bsp]

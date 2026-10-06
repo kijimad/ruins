@@ -59,7 +59,7 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chu
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// urbanEnemyTableFor は施設行の enemyTable が指す敵テーブルを返す。施設未登録や敵テーブル不在は error。
+// urbanEnemyTableFor は施設行の enemyTable が指す敵テーブルを返す。
 func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
 	f, ok := raw.GetFacility(raws, fac)
 	if !ok {
@@ -72,21 +72,17 @@ func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
 	return et, nil
 }
 
-// facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
-// 抽選対象になり、大きな市街地でだけ専門施設が混ざる。kind は施設 id。
+// facilityWeight は施設の抽選重みと規模 gate。市街地の一辺が minSpan 以上のときだけ抽選対象になる。
 type facilityWeight struct {
 	kind    string
 	weight  int
 	minSpan consts.Chunk
 }
 
-// zoneCatalog は地区ごとの施設抽選重み。zoneCatalogFrom で raws から組む。
+// zoneCatalog は地区ごとの施設抽選重み。
 type zoneCatalog = map[oapi.Zone][]facilityWeight
 
-// zoneCatalogFrom は raw.toml の facilities 行から地区ごとの施設抽選重みを導出する。各施設行が自分の
-// 出現地区と重み・規模 gate を zones で宣言するので、それを地区で畳んで組み立てる。地区で重みが揃うので
-// 同じ地区の隣接チャンクは同種へ寄り、地区が生まれる。raws を毎回走査するので、多数のチャンクを引く
-// 経路は1度組んで使い回す。
+// zoneCatalogFrom は facilities 行から地区ごとの施設抽選重みを導出する。
 func zoneCatalogFrom(raws oapi.Raws) zoneCatalog {
 	cat := make(zoneCatalog)
 	for _, f := range raw.PtrSlice(raws.Facilities) {
@@ -122,7 +118,7 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) oapi.Zone {
 	return oapi.Residential
 }
 
-// rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選し施設 id を返す。
+// rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。
 func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z oapi.Zone, span consts.Chunk) string {
 	zc := cat[z]
 	total := 0
@@ -145,7 +141,7 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z oapi.Zone, span const
 	panic("unreachable: selection weight total and subtraction are inconsistent")
 }
 
-// urbanChunkAt は c が市街地の建物チャンクなら市街地の規模を返す純関数。施設種は見ないので raws を要さない。
+// urbanChunkAt は c が市街地の建物チャンクなら市街地の規模を返す。
 func urbanChunkAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (size consts.Chunk, ok bool) {
 	_, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
 	if !ok {
@@ -154,8 +150,7 @@ func urbanChunkAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chun
 	return max(cw, ch), true
 }
 
-// urbanFacilityAt は c の建物チャンクの施設 id を返す。cat は zoneCatalogFrom で組んだ地区カタログ。
-// 地図の記号と実体の施設を一致させるため、地図表示と生成の両方がこれを呼ぶ。市街地でなければ ok=false。
+// urbanFacilityAt は c の建物チャンクの施設 id を返す。地図表示と生成の両方が使う。
 func urbanFacilityAt(cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind string, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
 	if !ok {

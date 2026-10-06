@@ -33,9 +33,7 @@ type GlyphInfo struct {
 // 地図は市街地チャンクを施設 id の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
 // チャンク尺度に続けて建物尺度を並べ、2層を1つの表にする。
 
-// placeType はチャンク尺度の記号キーで、値は mapGlyphs の id と一致する。chunkType とは1対1ではなく、
-// chunkSettlement は村ロールで placeVillage と placeHamlet に分かれる。施設とランドマークは自分の id で
-// mapGlyphs を直接引くので placeType を持たない。
+// placeType は施設とランドマーク以外のチャンクの記号キー。値は mapGlyphs の id。
 type placeType string
 
 const (
@@ -45,7 +43,7 @@ const (
 	placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
 )
 
-// placeUnknownGlyph は分類漏れの保険の記号。mapGlyphs には入れず凡例外なので Go に持つ。
+// placeUnknownGlyph は mapGlyphs に記号が無いときの保険の記号。
 const placeUnknownGlyph rune = '?'
 
 // toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。
@@ -57,7 +55,7 @@ func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {
 	return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}
 }
 
-// glyphByID は地物・施設の種別 id から地図記号を引く。未登録は ok=false。
+// glyphByID は種別 id から地図記号を引く。
 func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
 	mg, ok := raw.GetMapGlyph(raws, id)
 	if !ok {
@@ -66,7 +64,7 @@ func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
 	return toGlyphInfo(mg), true
 }
 
-// LegendGlyphs は俯瞰図の全記号と凡例名を order 順に返す。UI の凡例も SchematicLegend もこれを源にする。
+// LegendGlyphs は俯瞰図の全記号を凡例順に返す。
 func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
 	mgs := raw.PtrSlice(raws.MapGlyphs)
 	sorted := make([]oapi.MapGlyph, len(mgs))
@@ -121,8 +119,7 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 	return chunkWasteland
 }
 
-// chunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
-// 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
+// chunkPlace は1チャンクの種別を地図記号で返す純関数。
 func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkUrban:
@@ -149,7 +146,7 @@ func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[
 	return placeUnknownGlyph
 }
 
-// placeGlyph は placeType の記号を mapGlyphs から引く。未登録は保険の記号へ落とす。
+// placeGlyph は placeType の記号を引く。未登録は保険の記号。
 func placeGlyph(raws oapi.Raws, pt placeType) rune {
 	if g, ok := glyphByID(raws, string(pt)); ok {
 		return g.Label

@@ -18,8 +18,6 @@ func TestValidateRaws_RealData(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TestRealData_HasLandmarks は実 raw.toml が landmarks を宣言していることを固定する。validate は空の
-// landmarks を素通しするが、空だと landmarkKindAt が剰余0で panic する。
 func TestRealData_HasLandmarks(t *testing.T) {
 	t.Parallel()
 
@@ -353,7 +351,6 @@ func TestValidateFacilityReferences(t *testing.T) {
 	t.Parallel()
 
 	enemyTables := &[]oapi.EnemyTable{{Id: "clinic_enemies", Name: "診療所"}}
-	// validateFacilityReferences が全地区に基本施設を要求するので全地区に置く
 	baseZones := []oapi.FacilityZone{
 		{Zone: oapi.Residential, Weight: 10, MinSpan: 2},
 		{Zone: oapi.Downtown, Weight: 10, MinSpan: 2},

@@ -5,18 +5,13 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-// 施設で単室の建物を内装する公開 API Furnish と、密度・経年を決める調整関数を持つ。施設の同一性は
-// raw.toml の facilities 行で宣言し、公開 API は施設 id を受けて自分で引く。content レシピは
-// raw.toml のデータで、content_lookup.go が施設 id から変種を都度引いて変換する。多部屋の加工パイプは
-// furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
-
 // plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。
 type plannerDef struct {
 	fn         func(Rect, uint64) []PlannedRoom
 	minW, minH consts.Tile
 }
 
-// planners は planner キーから間取り実装を引く。キーは tsp の PlannerKey enum と1対1で対応する。
+// planners は planner キーから間取り実装を引く。
 var planners = map[oapi.PlannerKey]plannerDef{
 	oapi.House:  {PlanHouseAny, 12, 9},
 	oapi.Store:  {PlanStore, 12, 9},
@@ -24,7 +19,7 @@ var planners = map[oapi.PlannerKey]plannerDef{
 	oapi.Bsp:    {planBSP, 0, 0},
 }
 
-// planBSP は汎用の BSP 分割を planner と同じ形へ包む。面積最大を主室、残りを奥室に割り当てる。
+// planBSP は汎用の BSP 分割で面積最大を主室、残りを奥室にする。
 func planBSP(footprint Rect, seed uint64) []PlannedRoom {
 	rooms := SubdivideBuilding(footprint, seed)
 	out := make([]PlannedRoom, len(rooms))

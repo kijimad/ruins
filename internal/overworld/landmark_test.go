@@ -14,8 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestDrawers_全DrawerKeyに実装がある は tsp の DrawerKey enum と drawers の実装が一致することを固定する。
-// enum に足して drawers への登録を忘れると、その drawer を指すランドマークが解決できない。
 func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 

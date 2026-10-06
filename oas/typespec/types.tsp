@@ -104,7 +104,7 @@ enum RoomRole {
   waiting,
 }
 
-/** 間取りテンプレの選択キー。Go の planners のキーと1対1で対応する。bsp は汎用分割 */
+/** 間取りテンプレの選択キー */
 enum PlannerKey {
   house,
   store,
@@ -112,15 +112,14 @@ enum PlannerKey {
   bsp,
 }
 
-/** 市街地の地区。施設抽選の重みを地区で変え、同じ地区の隣接チャンクを同種へ寄せて地区を生む */
+/** 市街地の地区 */
 enum Zone {
   downtown,
   residential,
   industrial,
 }
 
-/** ランドマークの描画関数の選択キー。Go の drawers のキーと1対1で対応する。hut は外周壁の小屋、
-    open は露天の prop 配置 */
+/** ランドマークの描画関数の選択キー */
 enum DrawerKey {
   hut,
   open,

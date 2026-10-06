@@ -89,7 +89,7 @@ var scatterEarthTiles = map[string]bool{
 	consts.TileNameDirt: true, "sand_orange": true, "sand_red": true, "sand_pink": true,
 }
 
-// scatterCatalogFrom は zone の散布定義を raw.toml の scatterZones 行から組み立てる。未登録 zone は error。
+// scatterCatalogFrom は zone の散布定義を scatterZones 行から組み立てる。未登録 zone は error。
 func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, error) {
 	sz, ok := raw.GetScatterZone(raws, string(zone))
 	if !ok {

@@ -179,8 +179,7 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateFeatureUniqueIDs は地物の各表で id が重複しないことを検証する。重複すると id で引く行と全行を
-// 走査する導出とで別の行を見て食い違う。
+// validateFeatureUniqueIDs は地物の各表で id が重複しないことを検証する。
 func validateFeatureUniqueIDs(raws oapi.Raws) error {
 	if err := validateUniqueIDs("facility", PtrSlice(raws.Facilities), func(f oapi.Facility) string { return f.Id }); err != nil {
 		return err
@@ -194,7 +193,7 @@ func validateFeatureUniqueIDs(raws oapi.Raws) error {
 	return validateUniqueIDs("map glyph", PtrSlice(raws.MapGlyphs), func(g oapi.MapGlyph) string { return g.Id })
 }
 
-// validateUniqueIDs は rows の id が重複しないことを検証する。kind はエラーに出す表の名前。
+// validateUniqueIDs は rows の id が重複しないことを検証する。
 func validateUniqueIDs[T any](kind string, rows []T, id func(T) string) error {
 	seen := make(map[string]struct{}, len(rows))
 	for _, r := range rows {
@@ -207,13 +206,7 @@ func validateUniqueIDs[T any](kind string, rows []T, id func(T) string) error {
 	return nil
 }
 
-// validateFacilityReferences は施設行の整合をロード時に検証する。
-//   - enemyTable が enemyTables に存在する。
-//   - facilityContents/facilityRooms の facility キーが facilities の id に存在する。
-//   - Zone enum の全地区に minSpan<=UrbanMinSpan の施設が最低1つある。重みの正はスキーマが課すので、無いと
-//     規模 gate で候補が空になり抽選が panic する条件をこれで塞ぐ。
-//
-// planner キーと実装の一致は raw から interior への循環を避け、interior の TestPlanners で固定する。
+// validateFacilityReferences は施設行の参照先の実在と、全地区に基本施設があることを検証する。
 func validateFacilityReferences(raws oapi.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
 	facilityIDs := make(map[string]struct{}, len(facilities))
@@ -244,7 +237,6 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		}
 	}
 
-	// 施設0件の部分的な Raws は市街地生成を駆動しないので素通しする
 	if len(facilities) > 0 {
 		for _, zone := range zones {
 			if !zoneHasBase[zone] {
@@ -266,8 +258,7 @@ func validateFacilityReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateLandmarkReferences はランドマークの prop の参照先が props に実在することを検証する。drawer キーと
-// 実装の一致は overworld の TestDrawers で固定する。
+// validateLandmarkReferences はランドマークの prop の実在を検証する。
 func validateLandmarkReferences(raws oapi.Raws) error {
 	landmarks := PtrSlice(raws.Landmarks)
 	if len(landmarks) == 0 {
@@ -464,8 +455,7 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateScatterZoneReferences は散布ゾーンの prop と屋外 loot group の参照先が実在することを検証する。
-// ref の空文字は「置かない」なので検証しない。
+// validateScatterZoneReferences は散布ゾーンの prop と loot group の実在を検証する。
 func validateScatterZoneReferences(raws oapi.Raws) error {
 	props := PtrSlice(raws.Props)
 	propNames := make(map[string]struct{}, len(props))
@@ -496,8 +486,7 @@ func validateScatterZoneReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateMapGlyphReferences は地図記号が1文字で互いに重複しないこと、施設とランドマークの全 id が記号を
-// 持つことを検証する。Go 側の placeType の記号の網羅は overworld のテストで固定する。
+// validateMapGlyphReferences は地図記号が1文字で重複せず、全施設とランドマークが記号を持つことを検証する。
 func validateMapGlyphReferences(raws oapi.Raws) error {
 	glyphs := PtrSlice(raws.MapGlyphs)
 	if len(glyphs) == 0 {

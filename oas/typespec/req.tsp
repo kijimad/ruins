@@ -304,9 +304,7 @@ model EnemyTable {
   entries: EnemyTableEntry[];
 }
 
-/** 地物の施設1種の生成宣言。id で facilityContents/facilityRooms と紐づく。isShop は看板やシャッターを
-    出す店系か、planner は間取りテンプレの選択キーで Go の planners と一致、enemyTable は敵テーブル id で
-    汎用が欲しければ "ruins_area" を明示する */
+/** 市街地の施設1種。isShop は看板やシャッターを出す店か */
 model Facility {
   id: EntityID;
   isShop: boolean;
@@ -315,16 +313,14 @@ model Facility {
   zones: FacilityZone[];
 }
 
-/** 施設が出現する地区と抽選重み・規模 gate。minSpan は市街地の一辺がこのチャンク数以上のときだけ
-    抽選対象になる */
+/** 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる */
 model FacilityZone {
   zone: Zone;
   @minValue(1) weight: int32;
   minSpan: int32;
 }
 
-/** 原野の点在ランドマーク1種の生成宣言。weight は出現重み、drawer は描画関数の選択キーで Go の
-    drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標 */
+/** 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う */
 model Landmark {
   id: EntityID;
   @minValue(1) weight: int32;
@@ -334,15 +330,14 @@ model Landmark {
   props: PropSpot[];
 }
 
-/** ランドマークの prop 1個の相対配置。name は prop id、dx/dy は基準座標からのオフセット */
+/** prop 1個の相対配置 */
 model PropSpot {
   name: EntityID;
   dx: int32;
   dy: int32;
 }
 
-/** 俯瞰地図の記号1種。id は地物・施設の種別キーと一致する。glyph は1文字の記号、name は凡例名、
-    color は記号の色、order は凡例の表示順 */
+/** 俯瞰地図の記号1種。id は地物・施設の種別 id */
 model MapGlyph {
   id: EntityID;
   glyph: string;
@@ -351,8 +346,7 @@ model MapGlyph {
   order: int32;
 }
 
-/** 開けた地形の散布ゾーン1種。id は roadside/wild。grassDensity/propDensity は面積あたりの密度、
-    lootGroup は屋外 loot の item group id、entries は重み付きの散布 prop */
+/** 開けた地形の散布ゾーン1種 */
 model ScatterZone {
   id: EntityID;
   grassDensity: float64;
@@ -361,8 +355,7 @@ model ScatterZone {
   entries: ScatterEntry[];
 }
 
-/** 散布 prop 1種。ref は prop id で空文字は「置かない」、weight は抽選重み、big は位相格子で希釈する
-    大物か、satellites は大物の周りに寄り添う小クラスタの相対配置 */
+/** 散布 prop 1種。ref の空文字は置かないことを表す */
 model ScatterEntry {
   ref: string;
   @minValue(1) weight: int32;

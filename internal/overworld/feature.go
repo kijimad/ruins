@@ -80,8 +80,7 @@ const (
 	outdoorLootSalt
 )
 
-// 地物ごとのリージョン配置。Spacing はリージョンの間隔、Separation は当選チャンクどうしの最小距離。
-// salt と対で地物の疎密を決めるので、salt の隣に置く。
+// 地物ごとのリージョン配置。salt と対で地物の疎密を決める。
 var (
 	settlementPlacement      = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
 	urbanPlacement           = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}

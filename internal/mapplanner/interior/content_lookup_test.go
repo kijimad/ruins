@@ -42,8 +42,6 @@ func TestFacilityContent_未登録施設はerror(t *testing.T) {
 	require.ErrorIs(t, err, errFacilityNotRegistered)
 }
 
-// TestFurnishBuilding_未登録施設はerror は、facilities に無い施設 id を渡すと生成を落とさず error を返すことを
-// 固定する。
 func TestFurnishBuilding_未登録施設はerror(t *testing.T) {
 	t.Parallel()
 
