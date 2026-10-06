@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-06 12:34:02</td>
+            <td class="headerValue">2026-10-06 15:44:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -199,7 +199,7 @@
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L138"><span class="lineNum">     138</span>              :         // 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する</span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         view := overworld.BuildMacroView(</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         )</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         // カメラ不在時は北を既定にする</span></span>

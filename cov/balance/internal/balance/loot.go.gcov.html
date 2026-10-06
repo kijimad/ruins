@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.9&nbsp;%</td>
-            <td class="headerCovTableEntry">135</td>
-            <td class="headerCovTableEntry">120</td>
+            <td class="headerCovTableEntryMed">89.1&nbsp;%</td>
+            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntry">123</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-06 12:34:02</td>
+            <td class="headerValue">2026-10-06 15:44:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,18 +84,18 @@
 <span id="L22"><span class="lineNum">      22</span>              :         roomLootOtherRole = &quot;other&quot;</span>
 <span id="L23"><span class="lineNum">      23</span>              : )</span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // reportFacilities は集計対象の施設種別。interior の FacilityKind 定数と同じ文字列。</span>
-<span id="L26"><span class="lineNum">      26</span>              : var reportFacilities = []interior.FacilityKind{&quot;house&quot;, &quot;store&quot;, &quot;antique&quot;, &quot;clinic&quot;, &quot;lab&quot;, &quot;office&quot;, &quot;depot&quot;}</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // GenerateRoomLoot は各施設種別を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに</span>
-<span id="L29"><span class="lineNum">      29</span>              : // アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。</span>
-<span id="L30"><span class="lineNum">      30</span>              : func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.BalanceFacilityLoot, error) {</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 :         footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         door := interior.Vec{X: 14, Y: 0}</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         result := make([]oapi.BalanceFacilityLoot, 0, len(reportFacilities))</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         for _, fac := range reportFacilities {</span></span>
-<span id="L36"><span class="lineNum">      36</span>              :                 // role -&gt; item -&gt; 合計個数 / 出た試行数</span>
+<span id="L25"><span class="lineNum">      25</span>              : // GenerateRoomLoot は各施設を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに</span>
+<span id="L26"><span class="lineNum">      26</span>              : // アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。</span>
+<span id="L27"><span class="lineNum">      27</span>              : // 集計対象の施設は raw.toml の facilities 行から導出する。</span>
+<span id="L28"><span class="lineNum">      28</span>              : func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.BalanceFacilityLoot, error) {</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         door := interior.Vec{X: 14, Y: 0}</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         facilities := raw.PtrSlice(master.Facilities)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         result := make([]oapi.BalanceFacilityLoot, 0, len(facilities))</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         for _, f := range facilities {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 fac := f.Id</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 // role -&gt; item -&gt; 合計個数 / 出た試行数</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 total := map[string]map[string]int{}</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 present := map[string]map[string]int{}</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 // add は合計個数だけを積む。present は「その item が出た試行数」で試行ごとに1回だけ数えるため、</span></span>
@@ -140,7 +140,7 @@
 <span id="L78"><span class="lineNum">      78</span>              :                 }</span>
 <span id="L79"><span class="lineNum">      79</span>              : </span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 result = append(result, oapi.BalanceFacilityLoot{</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                         Facility: string(fac),</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                         Facility: fac,</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                         Trials:   trials,</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                         Rooms:    buildRoomLoot(master, total, present, trials),</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 })</span></span>

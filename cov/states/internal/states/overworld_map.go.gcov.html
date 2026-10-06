@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-06 12:34:02</td>
+            <td class="headerValue">2026-10-06 15:44:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -155,7 +155,7 @@
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         st.view = overworld.BuildMacroView(</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         )</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : </span></span>
@@ -258,7 +258,7 @@
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 PlayerFacing: st.facing,</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         hud.DrawMapLegend(cv, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         hud.DrawMapLegend(cv, world.Resources.RawMaster, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)</span></span>
 <span id="L200"><span class="lineNum">     200</span>              : }</span>
         </pre>
               </td>

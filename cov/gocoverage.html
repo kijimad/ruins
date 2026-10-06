@@ -129,7 +129,7 @@
 				
 				<option value="file36">github.com/kijimaD/ruins/internal/balance/logistics.go (88.9%)</option>
 				
-				<option value="file37">github.com/kijimaD/ruins/internal/balance/loot.go (92.8%)</option>
+				<option value="file37">github.com/kijimaD/ruins/internal/balance/loot.go (93.3%)</option>
 				
 				<option value="file38">github.com/kijimaD/ruins/internal/balance/markov.go (93.3%)</option>
 				
@@ -373,17 +373,17 @@
 				
 				<option value="file158">github.com/kijimaD/ruins/internal/mapplanner/interior/classify.go (100.0%)</option>
 				
-				<option value="file159">github.com/kijimaD/ruins/internal/mapplanner/interior/content_lookup.go (96.4%)</option>
+				<option value="file159">github.com/kijimaD/ruins/internal/mapplanner/interior/content_lookup.go (96.7%)</option>
 				
-				<option value="file160">github.com/kijimaD/ruins/internal/mapplanner/interior/facade.go (88.9%)</option>
+				<option value="file160">github.com/kijimaD/ruins/internal/mapplanner/interior/facade.go (88.6%)</option>
 				
-				<option value="file161">github.com/kijimaD/ruins/internal/mapplanner/interior/facility.go (94.6%)</option>
+				<option value="file161">github.com/kijimaD/ruins/internal/mapplanner/interior/facility.go (95.6%)</option>
 				
 				<option value="file162">github.com/kijimaD/ruins/internal/mapplanner/interior/facility_plan.go (100.0%)</option>
 				
 				<option value="file163">github.com/kijimaD/ruins/internal/mapplanner/interior/fill.go (100.0%)</option>
 				
-				<option value="file164">github.com/kijimaD/ruins/internal/mapplanner/interior/furnish.go (95.9%)</option>
+				<option value="file164">github.com/kijimaD/ruins/internal/mapplanner/interior/furnish.go (97.8%)</option>
 				
 				<option value="file165">github.com/kijimaD/ruins/internal/mapplanner/interior/hero.go (90.0%)</option>
 				
@@ -469,9 +469,9 @@
 				
 				<option value="file206">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.0%)</option>
 				
-				<option value="file207">github.com/kijimaD/ruins/internal/overworld/landmark.go (91.0%)</option>
+				<option value="file207">github.com/kijimaD/ruins/internal/overworld/landmark.go (90.9%)</option>
 				
-				<option value="file208">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (92.7%)</option>
+				<option value="file208">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (91.9%)</option>
 				
 				<option value="file209">github.com/kijimaD/ruins/internal/overworld/macro_view.go (100.0%)</option>
 				
@@ -481,7 +481,7 @@
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/overworld/road_overlay.go (100.0%)</option>
 				
-				<option value="file213">github.com/kijimaD/ruins/internal/overworld/scatter.go (91.7%)</option>
+				<option value="file213">github.com/kijimaD/ruins/internal/overworld/scatter.go (92.8%)</option>
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/overworld/schematic.go (90.2%)</option>
 				
@@ -489,15 +489,15 @@
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/overworld/settlement.go (88.9%)</option>
 				
-				<option value="file217">github.com/kijimaD/ruins/internal/overworld/urban.go (93.5%)</option>
+				<option value="file217">github.com/kijimaD/ruins/internal/overworld/urban.go (93.9%)</option>
 				
 				<option value="file218">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file220">github.com/kijimaD/ruins/internal/raw/raw.go (93.2%)</option>
+				<option value="file220">github.com/kijimaD/ruins/internal/raw/raw.go (92.5%)</option>
 				
-				<option value="file221">github.com/kijimaD/ruins/internal/raw/validate.go (92.5%)</option>
+				<option value="file221">github.com/kijimaD/ruins/internal/raw/validate.go (93.3%)</option>
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/raw/weighted.go (94.4%)</option>
 				
@@ -679,9 +679,9 @@
 				
 				<option value="file311">github.com/kijimaD/ruins/internal/widgets/hud/infopanel.go (100.0%)</option>
 				
-				<option value="file312">github.com/kijimaD/ruins/internal/widgets/hud/macro_map.go (92.2%)</option>
+				<option value="file312">github.com/kijimaD/ruins/internal/widgets/hud/macro_map.go (91.7%)</option>
 				
-				<option value="file313">github.com/kijimaD/ruins/internal/widgets/hud/map_grid.go (98.8%)</option>
+				<option value="file313">github.com/kijimaD/ruins/internal/widgets/hud/map_grid.go (97.6%)</option>
 				
 				<option value="file314">github.com/kijimaD/ruins/internal/widgets/hud/message_area.go (2.6%)</option>
 				
@@ -7402,18 +7402,18 @@ const (
         roomLootOtherRole = "other"
 )
 
-// reportFacilities は集計対象の施設種別。interior の FacilityKind 定数と同じ文字列。
-var reportFacilities = []interior.FacilityKind{"house", "store", "antique", "clinic", "lab", "office", "depot"}
-
-// GenerateRoomLoot は各施設種別を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに
+// GenerateRoomLoot は各施設を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに
 // アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。
+// 集計対象の施設は raw.toml の facilities 行から導出する。
 func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.BalanceFacilityLoot, error) {
         <span class="cov8" title="1">footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
         door := interior.Vec{X: 14, Y: 0}
 </span>
-        <span class="cov8" title="1">result := make([]oapi.BalanceFacilityLoot, 0, len(reportFacilities))
-        for _, fac := range reportFacilities </span>{
-                // role -&gt; item -&gt; 合計個数 / 出た試行数
+        <span class="cov8" title="1">facilities := raw.PtrSlice(master.Facilities)
+        result := make([]oapi.BalanceFacilityLoot, 0, len(facilities))
+        for _, f := range facilities </span>{
+                <span class="cov8" title="1">fac := f.Id
+</span>                // role -&gt; item -&gt; 合計個数 / 出た試行数
                 <span class="cov8" title="1">total := map[string]map[string]int{}
                 present := map[string]map[string]int{}
 </span>                // add は合計個数だけを積む。present は「その item が出た試行数」で試行ごとに1回だけ数えるため、
@@ -7458,7 +7458,7 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.Balance
                 }
 
                 <span class="cov8" title="1">result = append(result, oapi.BalanceFacilityLoot{
-                        Facility: string(fac),
+                        Facility: fac,
                         Trials:   trials,
                         Rooms:    buildRoomLoot(master, total, present, trials),
                 })</span>
@@ -15920,6 +15920,9 @@ func settingsExistAt(path string) (bool, error) {
 // 枚数にも使い、X を焼き込まない。タイルへは Tiles() で明示的に変換する。
 type Chunk int
 
+// UrbanMinSpan は市街地の一辺の最小チャンク数。
+const UrbanMinSpan Chunk = 2
+
 // Tiles はチャンク量をタイル数へ変換する。c チャンク ＝ c × chunkSize タイル。
 // chunkSize はその軸のチャンクの辺のタイル数。東西なら chunkW。
 func (c Chunk) Tiles(chunkSize Tile) Tile {
@@ -21813,22 +21816,30 @@ func contentByID(raws oapi.Raws, id string) (Content, error) {
         <span class="cov8" title="1">return Content{}, fmt.Errorf("%q: %w", id, errContentNotFound)</span>
 }
 
-// facilityContent は施設種別の主室 content を seed で1変種引く。同じ施設でも複数の変種を持つ。facility は
-// overworld の閉じた enum で全種別が登録済みなので通常は成功し、未登録は error で返す。
-func facilityContent(raws oapi.Raws, facility FacilityKind, seed uint64) (Content, error) {
-        <span class="cov8" title="1">variants := facilityVariants(raws, facility)
-        if len(variants) == 0 </span>{
-                <span class="cov8" title="1">return Content{}, fmt.Errorf("%q in facilityContents: %w", facility, errFacilityNotRegistered)
+// facilityByID は id の施設行を引く。未登録は error。
+func facilityByID(raws oapi.Raws, id string) (oapi.Facility, error) {
+        <span class="cov8" title="1">f, ok := raw.GetFacility(raws, id)
+        if !ok </span>{
+                <span class="cov8" title="1">return oapi.Facility{}, fmt.Errorf("%q in facilities: %w", id, errFacilityNotRegistered)
 </span>        }
-        // 9_000_000 は変種抽選専用の child index。同じ親 seed から引く他ストリームと無相関にする帯オフセット
-        <span class="cov8" title="1">id := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
-        return contentByID(raws, id)</span>
+        <span class="cov8" title="1">return f, nil</span>
 }
 
-// facilityVariants は施設種別の主室変種 id 列を raws から引く。未割り当ての施設は nil。
-func facilityVariants(raws oapi.Raws, facility FacilityKind) []string {
+// facilityContent は施設の主室 content を seed で1変種引く。未登録は error。
+func facilityContent(raws oapi.Raws, id string, seed uint64) (Content, error) {
+        <span class="cov8" title="1">variants := facilityVariants(raws, id)
+        if len(variants) == 0 </span>{
+                <span class="cov8" title="1">return Content{}, fmt.Errorf("%q in facilityContents: %w", id, errFacilityNotRegistered)
+</span>        }
+        // 9_000_000 は変種抽選専用の child index。同じ親 seed から引く他ストリームと無相関にする帯オフセット
+        <span class="cov8" title="1">vid := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]
+        return contentByID(raws, vid)</span>
+}
+
+// facilityVariants は施設の主室変種 id 列を raws から引く。未割り当ての施設は nil。
+func facilityVariants(raws oapi.Raws, id string) []string {
         <span class="cov8" title="1">for _, fc := range raw.PtrSlice(raws.FacilityContents) </span>{
-                <span class="cov8" title="1">if FacilityKind(fc.Facility) == facility </span>{
+                <span class="cov8" title="1">if fc.Facility == id </span>{
                         <span class="cov8" title="1">return fc.Variants
 </span>                }
         }
@@ -21838,9 +21849,9 @@ func facilityVariants(raws oapi.Raws, facility FacilityKind) []string {
 // roomContent は施設の役割別 content を引く。ok は役割がカタログに在ったかを表し err と直交する。役割が無ければ
 // ok=false・err=nil、役割は在るが content 参照が壊れていれば ok=true・err!=nil。呼び出し側は ok||err で「引けたか
 // 壊れているか」をまとめて次段へ委ね、どちらでもないときだけフォールバックへ進む。
-func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content, bool, error) {
+func roomContent(raws oapi.Raws, id string, role roleName) (Content, bool, error) {
         <span class="cov8" title="1">for _, fr := range raw.PtrSlice(raws.FacilityRooms) </span>{
-                <span class="cov8" title="1">if FacilityKind(fr.Facility) != facility </span>{
+                <span class="cov8" title="1">if fr.Facility != id </span>{
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">for _, r := range raw.PtrSlice(fr.Rooms) </span>{
@@ -21856,13 +21867,13 @@ func roomContent(raws oapi.Raws, facility FacilityKind, role roleName) (Content,
 
 // backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。facility は
 // 全種別が facilityRooms に登録済みなので通常は成功する。未登録は error で返す。
-func backRoomContent(raws oapi.Raws, facility FacilityKind) (Content, error) {
+func backRoomContent(raws oapi.Raws, id string) (Content, error) {
         <span class="cov8" title="1">for _, fr := range raw.PtrSlice(raws.FacilityRooms) </span>{
-                <span class="cov8" title="1">if FacilityKind(fr.Facility) == facility </span>{
+                <span class="cov8" title="1">if fr.Facility == id </span>{
                         <span class="cov8" title="1">return contentByID(raws, fr.Fallback)
 </span>                }
         }
-        <span class="cov8" title="1">return Content{}, fmt.Errorf("%q in facilityRooms: %w", facility, errFacilityNotRegistered)</span>
+        <span class="cov8" title="1">return Content{}, fmt.Errorf("%q in facilityRooms: %w", id, errFacilityNotRegistered)</span>
 }
 
 // toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の
@@ -21925,6 +21936,7 @@ import (
         "strconv"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
 )
 
 // 外皮 FacadePass。分割文法の後、街路側の前壁へ窓・シャッター・看板を付ける。外から見た自然さの多くは「窓が
@@ -21935,12 +21947,12 @@ import (
 // facadeElements は街路側の前壁に付ける外皮 prop を返す。前庭ぶん内寄せした建物の街路側の壁へ、入口と角を
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
-func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
+func facadeElements(s Site, fac oapi.Facility, dmg damageLevel) []Placed {
         <span class="cov8" title="1">fside := frontSide(s)
         lo, hi, wall := frontWallSpan(s.Building, fside)
         doorAxis := wall.along(s.Door)
         winRef := "window"
-        if isShop(facility) &amp;&amp; dmg == dmgMajor </span>{
+        if fac.IsShop &amp;&amp; dmg == dmgMajor </span>{
                 <span class="cov8" title="1">winRef = "shutter" // 廃業した店はシャッターを下ろす
 </span>        }
 
@@ -21957,7 +21969,7 @@ func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
         }
         // 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力。看板は独立物なので壁に埋めると不自然。
         // 前壁の1マス外の前庭タイルへ立て、店の正面に置く。前庭が無い建物では立てない
-        <span class="cov8" title="1">if isShop(facility) </span>{
+        <span class="cov8" title="1">if fac.IsShop </span>{
                 <span class="cov8" title="1">in := porchStep(fside)
                 outward := Vec{X: -in.X, Y: -in.Y} // 建物の外向き
                 for _, a := range [2]consts.Tile{doorAxis + 2, doorAxis - 2} </span>{
@@ -21974,9 +21986,6 @@ func facadeElements(s Site, facility FacilityKind, dmg damageLevel) []Placed {
         }
         <span class="cov8" title="1">return out</span>
 }
-
-// isShop は看板とシャッターを付ける店かを返す。骨董品店も店に含める。
-func isShop(facility FacilityKind) bool { <span class="cov8" title="1">return facility == facStore || facility == facAntique }</span>
 
 // tileLine は1本の軸に沿ったタイル列。cross は列の固定座標、horiz は列が横方向すなわち X に沿うか。壁や敷地縁の
 // ように、固定座標と向きが常にセットで決まるものを1つの値にまとめる。along を渡すと列上の1タイルを返すので、
@@ -22040,32 +22049,43 @@ func frontWallSpan(b Rect, fside side) (lo, hi consts.Tile, wall tileLine) {
 		
 		<pre class="file" id="file161" style="display: none">package interior
 
-import "github.com/kijimaD/ruins/internal/oapi"
-
-// 施設種別で単室の建物を内装する公開 API Furnish と、密度・経年を決める調整関数を持つ。content
-// レシピそのものは raw.toml のデータで、content_lookup.go が施設種別から変種を都度引いて変換する。多部屋の加工パイプは
-// furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
-
-// FacilityKind は建物の施設種別。overworld の facilityType の文字列と揃える。公開 API は overworld から
-// 素の string を受けて境界で FacilityKind へ変換し、内部はこの型で扱う。role など他の文字列と取り違えると
-// コンパイルが通らないよう型で区別する。
-type FacilityKind string
-
-// 施設種別名。switch の case で繰り返すので定数にする。overworld の facilityType の値と1対1で揃える。
-const (
-        facHouse   FacilityKind = "house"
-        facStore   FacilityKind = "store"
-        facAntique FacilityKind = "antique"
-        facClinic  FacilityKind = "clinic"
-        facLab     FacilityKind = "lab"
-        facOffice  FacilityKind = "office"
-        facDepot   FacilityKind = "depot"
+import (
+        "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
 )
+
+// plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。
+type plannerDef struct {
+        fn         func(Rect, uint64) []PlannedRoom
+        minW, minH consts.Tile
+}
+
+// planners は planner キーから間取り実装を引く。
+var planners = map[oapi.PlannerKey]plannerDef{
+        oapi.House:  {PlanHouseAny, 12, 9},
+        oapi.Store:  {PlanStore, 12, 9},
+        oapi.Clinic: {PlanClinic, 12, 9},
+        oapi.Bsp:    {planBSP, 0, 0},
+}
+
+// planBSP は汎用の BSP 分割で面積最大を主室、残りを奥室にする。
+func planBSP(footprint Rect, seed uint64) []PlannedRoom {
+        <span class="cov8" title="1">rooms := SubdivideBuilding(footprint, seed)
+        out := make([]PlannedRoom, len(rooms))
+        for rank, ri := range roomOrderByArea(rooms) </span>{
+                <span class="cov8" title="1">role := roleBack
+                if rank == 0 </span>{
+                        <span class="cov8" title="1">role = roleMain
+</span>                }
+                <span class="cov8" title="1">out[ri] = PlannedRoom{Room: rooms[ri], Role: role}</span>
+        }
+        <span class="cov8" title="1">return out</span>
+}
 
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
-// 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
-func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) ([]Placed, error) {
+// 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未登録の施設は error。
+func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {
         <span class="cov8" title="1">prof := rollProfile(seed)
         room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
         main, err := facilityContent(raws, facility, seed)
@@ -22336,7 +22356,6 @@ import (
         "cmp"
         "slices"
 
-        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -22355,8 +22374,12 @@ type FurnishStage struct {
 // 前段に置き、建物内の各室へ plan→fill→age→flavor を掛けた累積配置を返す。どの段で見た目が壊れたかを段別
 // VRT で切り分けられるようにする。坪庭の室は家具を置かず観葉だけ置き、経年・flavor を掛けない。FurnishBuilding
 // はこの最終段を返す薄い包みで、両者は同じパイプラインを共有するので段別 VRT と実生成は乖離しない。
-func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []FurnishStage, error) {
-        <span class="cov8" title="1">site := planSite(footprint, seed, door, facility)
+func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) (Site, []FurnishStage, error) {
+        <span class="cov8" title="1">fac, err := facilityByID(raws, facility)
+        if err != nil </span>{
+                <span class="cov8" title="1">return Site{}, nil, err
+</span>        }
+        <span class="cov8" title="1">site := planSite(footprint, seed, door, fac)
 </span>
         <span class="cov8" title="1">prof := rollProfile(seed)          // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
         flavor, err := flavorContent(raws) // 全室共通なのでループ外で1度だけ引く
@@ -22368,7 +22391,7 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
                 <span class="cov8" title="1">hr := site.Rooms[i]
                 roomSeed := childSeed(seed, 300+i)
 </span>                // 密度は全室へ一様に効かせる。同じ内装でもがらんとした家と物で埋まった家を出し分ける
-                <span class="cov8" title="1">content, err := roleContent(raws, facility, hr.Role, seed)
+                <span class="cov8" title="1">content, err := roleContent(raws, fac, hr.Role, seed)
                 if err != nil </span>{
                         <span class="cov0" title="0">return Site{}, nil, err
 </span>                }
@@ -22389,10 +22412,10 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
         }
         // 外皮 FacadePass。街路側の前壁へ窓・シャッター・看板を付け、閉じた箱を正面のある建物にする。損傷レベルで
         // 廃業した店のシャッターを決める。壁の上に載る prop なので室内の充填とは別に足す
-        <span class="cov8" title="1">facade := facadeElements(site, facility, prof.damage)
+        <span class="cov8" title="1">facade := facadeElements(site, fac, prof.damage)
         flavored = append(flavored, facade...)
 </span>        // lot pass。敷地を塀で囲い門で開け、前庭に外構を置く。建物を裸で地面に置かない
-        <span class="cov8" title="1">flavored = append(flavored, lotElements(site, facility)...)
+        <span class="cov8" title="1">flavored = append(flavored, lotElements(site, fac)...)
 </span>        // hero 部屋。稀な1棟の主室中央へ landmark を1つ据え、記憶に残る見せ場にする。主室中央には食卓など
         // 中央配置の什器が既にあることが多いので、目玉は showpiece としてそのタイルの既存 prop を退けて1つだけ
         // 置き、スプライトの重なりを防ぐ。占有は1タイルのままなので歩行性は変わらない
@@ -22440,10 +22463,10 @@ func isNarrowRoom(r Rect) bool {
 // FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を
 // そのまま埋めず、入口側に前庭を空け、1室を坪庭にし、玄関を凹ませる。加工は FurnishStages が持ち、ここは
 // その最終段 flavor を返す。呼び出し側は Site から Walls で壁タイル、Garden で庭タイルを導き、配置を spawn する。
-func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) (Site, []Placed, error) {
+func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) (Site, []Placed, error) {
         <span class="cov8" title="1">site, stages, err := FurnishStages(raws, seed, footprint, door, facility)
         if err != nil </span>{
-                <span class="cov0" title="0">return Site{}, nil, err
+                <span class="cov8" title="1">return Site{}, nil, err
 </span>        }
         <span class="cov8" title="1">return site, stages[len(stages)-1].Placed, nil</span>
 }
@@ -22451,61 +22474,32 @@ func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, faci
 // planRooms は施設に応じて部屋群と各部屋の役割を返す。施設ごとに固有の間取りテンプレを持ち、民家は廊下型・
 // 店は売場＋バックヤード・診療所は待合＋診察室の列にして、「何の施設か分かる」平面にする。テンプレに足りない
 // 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。
-func planRooms(footprint Rect, seed uint64, facility FacilityKind) ([]Room, []roleName) {
-        <span class="cov8" title="1">if planner, minW, minH, ok := facilityPlanner(facility); ok &amp;&amp; footprint.W &gt;= minW &amp;&amp; footprint.H &gt;= minH </span>{
-                <span class="cov8" title="1">plan := planner(footprint, seed)
-                rooms := make([]Room, len(plan))
-                roles := make([]roleName, len(plan))
-                for i, hr := range plan </span>{
-                        <span class="cov8" title="1">rooms[i] = hr.Room
-                        roles[i] = hr.Role
-</span>                }
-                <span class="cov8" title="1">return rooms, roles</span>
-        }
-        <span class="cov8" title="1">rooms := SubdivideBuilding(footprint, seed)
-        roles := make([]roleName, len(rooms))
-        for rank, ri := range roomOrderByArea(rooms) </span>{
-                <span class="cov8" title="1">if rank == 0 </span>{
-                        <span class="cov8" title="1">roles[ri] = roleMain
-</span>                } else {
-                        <span class="cov8" title="1">roles[ri] = roleBack
-</span>                }
-        }
+func planRooms(footprint Rect, seed uint64, fac oapi.Facility) ([]Room, []roleName) {
+        <span class="cov8" title="1">def, ok := planners[fac.Planner]
+        if !ok || footprint.W &lt; def.minW || footprint.H &lt; def.minH </span>{
+                <span class="cov8" title="1">def = planners[oapi.Bsp]
+</span>        }
+        <span class="cov8" title="1">plan := def.fn(footprint, seed)
+        rooms := make([]Room, len(plan))
+        roles := make([]roleName, len(plan))
+        for i, hr := range plan </span>{
+                <span class="cov8" title="1">rooms[i] = hr.Room
+                roles[i] = hr.Role
+</span>        }
         <span class="cov8" title="1">return rooms, roles</span>
-}
-
-// facilityPlanner は施設種別に対応する間取りテンプレと、テンプレが破綻しない最小寸法を返す。本番の市街地
-// チャンク 24x24 が生む建物は街路と前庭ぶん内寄せして概ね 17〜20 タイル角なので、下限を 12x9 まで下げ、
-// その狭さでも施設テンプレを発火させる。民家は幅14・高さ13 のどちらかを欠くと PlanHouseAny が田の字の
-// コンパクト民家へ切り替える。店・診療所は部屋数が少ないので狭くても成立する。下限を下回る建物とテンプレの
-// 無い施設は BSP へ委ねる。骨董品店は店、研究施設は診療所のテンプレを共有する。
-func facilityPlanner(facility FacilityKind) (fn func(Rect, uint64) []PlannedRoom, minW, minH consts.Tile, ok bool) {
-        <span class="cov8" title="1">switch facility </span>{
-        case facHouse:
-                <span class="cov8" title="1">return PlanHouseAny, 12, 9, true</span>
-        case facStore, facAntique:
-                <span class="cov8" title="1">return PlanStore, 12, 9, true</span>
-        case facClinic, facLab:
-                <span class="cov8" title="1">return PlanClinic, 12, 9, true</span>
-        case facOffice, facDepot:
-                <span class="cov8" title="1">return nil, 0, 0, false</span> // 専用テンプレを持たず BSP へ委ねる
-        }
-        // FacilityKind は raw 由来なので未知値が来うる。既知の全種別を case で網羅し、未知は末尾で BSP へ落とす。
-        // facilityContent と違い未登録を error にしないのは、専用テンプレが無くても BSP の汎用分割で間取りは出せるから
-        <span class="cov0" title="0">return nil, 0, 0, false</span>
 }
 
 // roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ施設別の
 // 奥室既定へ落とす。各施設は自分が使う役割を自前のカタログで持ち、他施設のカタログには依存しない。役割名は
 // planRooms とテンプレが付ける。
-func roleContent(raws oapi.Raws, facility FacilityKind, role roleName, seed uint64) (Content, error) {
+func roleContent(raws oapi.Raws, fac oapi.Facility, role roleName, seed uint64) (Content, error) {
         <span class="cov8" title="1">if role == roleMain </span>{
-                <span class="cov8" title="1">return facilityContent(raws, facility, seed)
+                <span class="cov8" title="1">return facilityContent(raws, fac.Id, seed)
 </span>        }
-        <span class="cov8" title="1">if c, ok, err := roomContent(raws, facility, role); ok || err != nil </span>{
+        <span class="cov8" title="1">if c, ok, err := roomContent(raws, fac.Id, role); ok || err != nil </span>{
                 <span class="cov8" title="1">return c, err
 </span>        }
-        <span class="cov8" title="1">return backRoomContent(raws, facility)</span>
+        <span class="cov8" title="1">return backRoomContent(raws, fac.Id)</span>
 }
 
 // roomOrderByArea は部屋を面積降順の添字列で返す。主室に最大の部屋を選ぶための順序。
@@ -22761,6 +22755,7 @@ import (
         "strconv"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
 )
 
 // lot pass。建物を裸で地面に置かず、敷地を塀で囲い門で出入りさせ、前庭に外構を置く。自然な街並みに
@@ -22770,7 +22765,7 @@ import (
 
 // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には
 // 店なら自販機、民家なら観葉を1つ置く。
-func lotElements(s Site, facility FacilityKind) []Placed {
+func lotElements(s Site, fac oapi.Facility) []Placed {
         <span class="cov8" title="1">fside := frontSide(s)
         lo, hi, edge := lotEdgeSpan(s.Footprint, fside)
         doorAxis := edge.along(s.Door)
@@ -22788,7 +22783,7 @@ func lotElements(s Site, facility FacilityKind) []Placed {
         // 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く
         <span class="cov8" title="1">if spot, ok := yardSpot(s, fside, doorAxis); ok </span>{
                 <span class="cov8" title="1">ref := "plant"
-                if isShop(facility) </span>{
+                if fac.IsShop </span>{
                         <span class="cov8" title="1">ref = "vending"
 </span>                }
                 <span class="cov8" title="1">out = append(out, Placed{Kind: KindDecor, Ref: ref, Pos: spot})</span>
@@ -23602,6 +23597,7 @@ import (
         "strconv"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
 )
 
 // 敷地計画。footprint を矩形のまま全部屋で埋めず、建物を内側へ取り、差分を庭にする。外形が clean な矩形
@@ -23631,15 +23627,15 @@ type Site struct {
 
 // planSite は footprint を建物と庭に分ける。敷地類型で前庭の深さを変え、入口側に前庭を空けて建物を内寄せし、
 // 入口を建物辺へ寄せ、玄関を凹ませる。建物が施設テンプレに満たない狭さなら内寄せを諦め、最低限の建物は必ず作る。
-func planSite(footprint Rect, seed uint64, door Vec, facility FacilityKind) Site {
-        <span class="cov8" title="1">st := rollSiteType(facility, seed)
+func planSite(footprint Rect, seed uint64, door Vec, fac oapi.Facility) Site {
+        <span class="cov8" title="1">st := rollSiteType(fac, seed)
         building := insetBuilding(footprint, door, frontYardOf(st))
         side := doorSide(footprint, door)
 </span>
         <span class="cov8" title="1">garden := footprintMinusBuilding(footprint, building)
         extra := make(map[Vec]bool)
 </span>
-        <span class="cov8" title="1">rooms, roles := planRooms(building, seed, facility)
+        <span class="cov8" title="1">rooms, roles := planRooms(building, seed, fac)
         labeled := make([]PlannedRoom, len(rooms))
         for i := range rooms </span>{
                 <span class="cov8" title="1">labeled[i] = PlannedRoom{Room: rooms[i], Role: roles[i]}
@@ -23960,6 +23956,7 @@ import (
         "strconv"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
 )
 
 // 敷地の類型。1チャンク=1建物なので、街区の短冊分割でなく建物ごとに敷地の性格を1つ引く。区画分割はせず
@@ -23977,8 +23974,8 @@ const (
 
 // rollSiteType は施設種別と seed から敷地類型を1つ引く。民家は戸建。店は商店街かロードサイドを seed で選び、
 // 街路に面した店と郊外の駐車場付き店を出し分ける。
-func rollSiteType(facility FacilityKind, seed uint64) siteType {
-        <span class="cov8" title="1">if !isShop(facility) </span>{
+func rollSiteType(fac oapi.Facility, seed uint64) siteType {
+        <span class="cov8" title="1">if !fac.IsShop </span>{
                 <span class="cov8" title="1">return siteDetached
 </span>        }
         <span class="cov8" title="1">if childSeed(seed, 12_000_000)%2 == 0 </span>{
@@ -28606,11 +28603,6 @@ import (
 // 地上へ戻る。往復の結線は進入時にポータル機構が戻り先を焼き込むため、配置側は入口 prop と
 // 遺跡定義名を決定的に置くだけでよい。
 
-// dungeonEntrancePlacement は遺跡入口のリージョン配置。小集落と市街地の中間の疎らさで置く。
-// チャンクは20タイルなので、Spacing 4 で80タイルに1つの体感密度になる。
-// 開始付近にも歩いて到達できる入口が必ず出る
-var dungeonEntrancePlacement = Placement{Spacing: 4, Separation: 1, Salt: dungeonEntranceSalt}
-
 // dungeonEntranceFeature は遺跡入口の feature 実装。
 type dungeonEntranceFeature struct{}
 
@@ -28717,6 +28709,14 @@ const (
         outdoorLootSalt
 )
 
+// 地物ごとのリージョン配置。salt と対で地物の疎密を決める。
+var (
+        settlementPlacement      = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
+        urbanPlacement           = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
+        dungeonEntrancePlacement = Placement{Spacing: 4, Separation: 1, Salt: dungeonEntranceSalt}
+        landmarkPlacement        = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
+)
+
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
 // 判定はすべて runSeed・座標・cols の純関数で、開始チャンクの特例は持たない。
 func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
@@ -28754,10 +28754,10 @@ import (
 // そのまま埋めず、interior.FurnishBuilding が前庭を空け坪庭を作り玄関を凹ませる。庭は土、壁は壁、残りの
 // 部屋の床と戸口は床として描き、入口の扉と家具を spawn する。内装の乱数は建物幾何と別ストリーム 0x3 に
 // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。
-func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac facilityType, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
+func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac string, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
         <span class="cov8" title="1">iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
 </span>        // 内装レシピは RawMaster から都度、必要な content だけを引いて変換する。索引を持ち回らない。
-        <span class="cov8" title="1">site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, interior.FacilityKind(fac))
+        <span class="cov8" title="1">site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, fac)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, nil, fmt.Errorf("failed to furnish building: %w", err)
 </span>        }
@@ -28953,60 +28953,62 @@ import (
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
+        "github.com/kijimaD/ruins/internal/raw"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
 // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
-// 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。今は構造と prop だけを持ち、
-// 戦利品やイベントはアイテム・イベント設計が固まってから足す。
+// 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。
 
-// landmarkPlacement は点在ランドマークのリージョン配置。地物の中では最も密に置く。
-var landmarkPlacement = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
-
-// landmarkKind は点在ランドマークの種別。地図の記号と実際に置く構造の両方をこの種別で決める。
-type landmarkKind string
-
-const (
-        landmarkAbandonedHut landmarkKind = "abandoned_hut" // 廃屋。生活の跡が残る小屋
-        landmarkFarmstead    landmarkKind = "farmstead"     // 農家跡。納屋に物資の跡
-        landmarkShrine       landmarkKind = "shrine"        // 祠。石柱と蝋燭だけの露天の構造物
-        landmarkCampsite     landmarkKind = "campsite"      // キャンプ跡。誰かが夜を越した跡
-)
-
-// landmarkKindAt は当選チャンクに置くランドマークの種別を返す純関数。地図の記号と生成の構造が
-// 同じ種別を引くので、俯瞰図の見た目と実体が食い違わない。settlementVillageRoll と同じく
-// (runSeed, 座標) だけで決まる。出現率は廃屋30・農家跡25・祠20・キャンプ跡25。
-func landmarkKindAt(runSeed uint64, c consts.Coord[consts.Chunk]) landmarkKind {
-        <span class="cov8" title="1">switch roll := ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % 100; </span>{
-        case roll &lt; 30:
-                <span class="cov8" title="1">return landmarkAbandonedHut</span>
-        case roll &lt; 55:
-                <span class="cov8" title="1">return landmarkFarmstead</span>
-        case roll &lt; 75:
-                <span class="cov8" title="1">return landmarkShrine</span>
-        default:
-                <span class="cov8" title="1">return landmarkCampsite</span>
+// landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する。
+func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
+        <span class="cov8" title="1">lms := raw.PtrSlice(raws.Landmarks)
+        total := 0
+        for _, l := range lms </span>{
+                <span class="cov8" title="1">total += int(l.Weight)
+</span>        }
+        // total&gt;0 はスキーマの weight&gt;=1 と TestRealData_HasLandmarks が保証する
+        <span class="cov8" title="1">roll := int(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % uint64(total))
+        for _, l := range lms </span>{
+                <span class="cov8" title="1">roll -= int(l.Weight)
+                if roll &lt; 0 </span>{
+                        <span class="cov8" title="1">return l.Id
+</span>                }
         }
-}
-
-// landmarkPlaceType は種別を地図の表示分類へ写す。記号と凡例名は placeGlyphs が一元管理する。
-func landmarkPlaceType(k landmarkKind) placeType {
-        <span class="cov8" title="1">switch k </span>{
-        case landmarkAbandonedHut:
-                <span class="cov8" title="1">return placeAbandonedHut</span>
-        case landmarkFarmstead:
-                <span class="cov8" title="1">return placeFarmstead</span>
-        case landmarkShrine:
-                <span class="cov8" title="1">return placeShrine</span>
-        case landmarkCampsite:
-                <span class="cov8" title="1">return placeCampsite</span>
-        }
-        <span class="cov0" title="0">panic("unknown landmarkKind: " + string(k))</span>
+        <span class="cov0" title="0">panic("unreachable: landmark weight total and subtraction are inconsistent")</span>
 }
 
 // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。
 type wildernessLandmarkFeature struct{}
+
+// landmarkDrawer はランドマーク1種を描く関数。
+type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error
+
+// drawers は drawer キーから描画関数を引く。
+var drawers = map[oapi.DrawerKey]landmarkDrawer{
+        oapi.Hut:  drawHutLandmark,
+        oapi.Open: drawOpenLandmark,
+}
+
+// drawHutLandmark は外周壁の小屋を描き、prop を北壁沿いに並べる。
+func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error {
+        <span class="cov8" title="1">names := make([]string, len(lm.Props))
+        for i, p := range lm.Props </span>{
+                <span class="cov8" title="1">names[i] = p.Name
+</span>        }
+        <span class="cov8" title="1">return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), names)</span>
+}
+
+// drawOpenLandmark は prop を相対座標で露天に置く。
+func drawOpenLandmark(world w.World, _ chunkGeom, _ *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error {
+        <span class="cov8" title="1">spots := make([]relSpot, len(lm.Props))
+        for i, p := range lm.Props </span>{
+                <span class="cov8" title="1">spots[i] = relSpot{name: p.Name, dx: consts.Tile(p.Dx), dy: consts.Tile(p.Dy)}
+</span>        }
+        <span class="cov8" title="1">return spawnLandmarkProps(world, origin, spots)</span>
+}
 
 // place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
@@ -29026,26 +29028,16 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
         oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
         origin := consts.Coord[consts.Tile]{X: ox, Y: oy}
 </span>
-        <span class="cov8" title="1">kind := landmarkKindAt(runSeed, c)
-        switch kind </span>{
-        case landmarkAbandonedHut:
-                <span class="cov8" title="1">return drawHut(world, g, rng, origin, 6, 5, []string{"bed", "closet"})</span>
-        case landmarkFarmstead:
-                <span class="cov8" title="1">return drawHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate"})</span>
-        case landmarkShrine:
-                <span class="cov8" title="1">return spawnLandmarkProps(world, origin, []relSpot{
-                        {"stone_pillar", 0, 0},
-                        {"candle", -1, 1},
-                        {"candle", 1, 1},
-                })</span>
-        case landmarkCampsite:
-                <span class="cov8" title="1">return spawnLandmarkProps(world, origin, []relSpot{
-                        {"hearth", 0, 0}, // 火は据えない。暖を取るにはプレイヤーが燃料と火種で着火する
-                        {"crate", 1, 1},
-                        {"bench", -1, 0},
-                })</span>
-        }
-        <span class="cov0" title="0">panic("unknown landmarkKind: " + string(kind))</span>
+        <span class="cov8" title="1">id := landmarkKindAt(world.Resources.RawMaster, runSeed, c)
+        lm, ok := raw.GetLandmark(world.Resources.RawMaster, id)
+        if !ok </span>{
+                <span class="cov0" title="0">return fmt.Errorf("landmark %q not found", id)
+</span>        }
+        <span class="cov8" title="1">draw, ok := drawers[lm.Drawer]
+        if !ok </span>{
+                <span class="cov0" title="0">return fmt.Errorf("landmark %q drawer %q not registered", id, lm.Drawer)
+</span>        }
+        <span class="cov8" title="1">return draw(world, g, rng, origin, lm)</span>
 }
 
 // drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
@@ -29121,27 +29113,12 @@ const outdoorLootDensity = 0.002
 // seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。
 const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 
-// outdoorLootGroupFor は屋外ゾーンに応じた無価値な item group を返す。屋外には屑物だけを置き、武器・防具・
-// 回復薬や錬金素材のような価値ある品は建物内の loot に限る。道沿いは人の営みの残りの紙屑 scrap_of_paper、
-// 奥地は打ち捨てられた廃材やくず鉄 junk。銀片・結晶粉などを含む materials は中深度のダンジョン報酬で、地上へ
-// 撒くと価値が釣り合わないため屋外には使わない。exhaustive linter が outdoorZone の網羅を強制するので default
-// を置かず、末尾 panic で未知ゾーンのランタイム保護も兼ねる。
-func outdoorLootGroupFor(zone outdoorZone) string {
-        <span class="cov8" title="1">switch zone </span>{
-        case zoneRoadside:
-                <span class="cov8" title="1">return "scrap_of_paper"</span>
-        case zoneWild:
-                <span class="cov8" title="1">return "junk"</span>
-        }
-        <span class="cov8" title="1">panic("unknown outdoorZone: " + string(zone))</span>
-}
-
 // scatterOutdoorLoot は開けたチャンクの地表へ屑物をごく疎に撒く。候補は土系の地面かつ非占有で、accept と
-// occupied は草・樹木の散布と共有して重なりを避ける。抽選は建物 loot と同じ raw.SelectFromItemGroup で低価値
-// group から引き、深度は扱わない。乱数は散布とは別の salt から引き、地物や建物 loot の消費順と干渉させない。
-// 同一 seed で同一結果、再訪で一致する。
+// occupied は草・樹木の散布と共有して重なりを避ける。group は散布ゾーン行の lootGroup から引き、
+// 抽選は建物 loot と同じ raw.SelectFromItemGroup で行い、深度は扱わない。乱数は
+// 散布とは別の salt から引き、地物や建物 loot の消費順と干渉させない。同一 seed で同一結果、再訪で一致する。
 func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], g chunkGeom, cat scatterCatalog, accept func(interior.Vec) bool, occupied map[gc.GridElement]bool) error {
-        <span class="cov8" title="1">groupID := outdoorLootGroupFor(cat.Zone)
+        <span class="cov8" title="1">groupID := cat.LootGroup
 </span>
         <span class="cov8" title="1">area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
 </span>        // タイル選択の seed とアイテム抽選の rng を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が
@@ -29175,7 +29152,12 @@ func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chu
 		
 		<pre class="file" id="file209" style="display: none">package overworld
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+        "image/color"
+
+        "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
+)
 
 // マクロ地図の描画モデル。1チャンク=1セルの地形俯瞰を、描画基盤に依らない形で表す。
 // 全画面の俯瞰図も HUD の右上地図も、この同じモデルを各自の基盤で描く。ピクセルの描き方は
@@ -29218,8 +29200,10 @@ func PlayerCenteredRange(centerRow, cols consts.Chunk, radius int) MacroRange {
 // MacroCell は表示範囲内1チャンクの表示情報。種別文字と、探索で開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
         Glyph      rune
-        Discovered bool    // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
-        Road       RoadDir // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
+        Color      color.RGBA // 記号の色
+        HasColor   bool       // 記号の色が mapGlyphs にあったか
+        Discovered bool       // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
+        Road       RoadDir    // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
 }
 
 // MacroView はマクロ地図の描画モデル。表示範囲内のチャンク格子と、マーカーの表示範囲ローカル座標を持つ。
@@ -29230,12 +29214,13 @@ type MacroView struct {
 }
 
 // BuildMacroView は帯のプリミティブとプレイヤー・キューブのタイル座標から、指定表示範囲の描画モデルを組む。
-// ChunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク寸法で割って表示範囲ローカルへ移す。
+// chunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク寸法で割って表示範囲ローカルへ移す。
 // northIndex は帯ローカルなタイル座標を絶対チャンク行へ移すのに使う。X は有界なので列は割るだけ。
 // discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。含まれるチャンクだけを開放し、
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
+        raws oapi.Raws,
         runSeed uint64,
         northIndex consts.Chunk,
         chunkW, chunkH consts.Tile,
@@ -29249,16 +29234,23 @@ func BuildMacroView(
         rows := max(area.Rows, 1)
 </span>
         // 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
-        // ChunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
+        // chunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
         <span class="cov8" title="1">roads := buildRoadOverlay(runSeed, area, cols)
+</span>
+        <span class="cov8" title="1">colorOf := glyphColorMap(raws)
+        cat := zoneCatalogFrom(raws)
 </span>
         <span class="cov8" title="1">cells := make([][]MacroCell, rows)
         for cy := range rows </span>{
                 <span class="cov8" title="1">cells[cy] = make([]MacroCell, cols)
                 for i := range cols </span>{
                         <span class="cov8" title="1">c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
+                        glyph := chunkPlace(raws, cat, runSeed, c, cols)
+                        col, hasCol := colorOf[glyph]
                         cells[cy][i] = MacroCell{
-                                Glyph:      ChunkPlace(runSeed, c, cols),
+                                Glyph:      glyph,
+                                Color:      col,
+                                HasColor:   hasCol,
                                 Discovered: discovered[c],
                                 Road:       roads[c],
 </span>                        }
@@ -29537,6 +29529,8 @@ import (
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/geometry"
         "github.com/kijimaD/ruins/internal/mapplanner/interior"
+        "github.com/kijimaD/ruins/internal/oapi"
+        "github.com/kijimaD/ruins/internal/raw"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
@@ -29567,6 +29561,7 @@ type scatterCatalog struct {
         Zone         outdoorZone
         GrassDensity float64
         PropDensity  float64
+        LootGroup    string // 屋外 loot の item group id
         Entries      []scatterEntry
 }
 
@@ -29615,48 +29610,27 @@ var scatterEarthTiles = map[string]bool{
         consts.TileNameDirt: true, "sand_orange": true, "sand_red": true, "sand_pink": true,
 }
 
-// roadsideCatalog は道沿いゾーンの散布定義。踏み分けられた原なので草も低木もまばらにする。
-var roadsideCatalog = scatterCatalog{
-        Zone:         zoneRoadside,
-        GrassDensity: 0.18,
-        PropDensity:  0.015,
-        Entries: []scatterEntry{
-                {Ref: "", Weight: 55}, // 置かない
-                {Ref: "tree_a", Weight: 16},
-                {Ref: "tree_b", Weight: 13},
-                {Ref: "rock", Weight: 10},
-        },
-}
-
-// wildCatalog は奥地ゾーンの散布定義。草が濃く、低木が茂り、時折木立が立つ。
-var wildCatalog = scatterCatalog{
-        Zone:         zoneWild,
-        GrassDensity: 0.38,
-        PropDensity:  0.035,
-        Entries: []scatterEntry{
-                {Ref: "", Weight: 38}, // 置かない
-                {Ref: "tree_a", Weight: 24},
-                {Ref: "tree_b", Weight: 24},
-                {Ref: "rock", Weight: 14},
-                // 木立。大木の周りに低木が寄り添う小クラスタ
-                {Ref: "big_tree", Weight: 6, Big: true, Satellites: []relSpot{{"tree_a", 1, 0}, {"tree_b", -1, 1}}},
-        },
-}
-
-// scatterCatalogFor は zone の散布定義を返す。exhaustive linter は iota 整数だけでなく、同一 package に
-// 型付き定数を持つ named 型を enum とみなすので、string の outdoorZone も網羅検査の対象になる。default を
-// 置かなければ zone を1つ足したとき case 漏れを lint が止める。.golangci.yml の
-// default-signifies-exhaustive=true が前提で、chunkType など既存の string enum も同じ方式に依る。実際に
-// case を1つ消すと「missing cases in switch of type outdoorZone」で lint が落ちることを確認済み。末尾
-// panic は網羅漏れ防止に加え、未知 zone のランタイム保護も兼ねる。
-func scatterCatalogFor(zone outdoorZone) scatterCatalog {
-        <span class="cov8" title="1">switch zone </span>{
-        case zoneRoadside:
-                <span class="cov8" title="1">return roadsideCatalog</span>
-        case zoneWild:
-                <span class="cov8" title="1">return wildCatalog</span>
+// scatterCatalogFrom は zone の散布定義を scatterZones 行から組み立てる。未登録 zone は error。
+func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, error) {
+        <span class="cov8" title="1">sz, ok := raw.GetScatterZone(raws, string(zone))
+        if !ok </span>{
+                <span class="cov8" title="1">return scatterCatalog{}, fmt.Errorf("scatter zone %q not found", zone)
+</span>        }
+        <span class="cov8" title="1">entries := make([]scatterEntry, len(sz.Entries))
+        for i, e := range sz.Entries </span>{
+                <span class="cov8" title="1">var sats []relSpot
+                for _, s := range raw.PtrSlice(e.Satellites) </span>{
+                        <span class="cov8" title="1">sats = append(sats, relSpot{name: s.Name, dx: consts.Tile(s.Dx), dy: consts.Tile(s.Dy)})
+</span>                }
+                <span class="cov8" title="1">entries[i] = scatterEntry{Ref: e.Ref, Weight: int(e.Weight), Big: e.Big, Satellites: sats}</span>
         }
-        <span class="cov0" title="0">panic("unknown outdoorZone: " + string(zone))</span>
+        <span class="cov8" title="1">return scatterCatalog{
+                Zone:         zone,
+                GrassDensity: sz.GrassDensity,
+                PropDensity:  sz.PropDensity,
+                LootGroup:    sz.LootGroup,
+                Entries:      entries,
+        }, nil</span>
 }
 
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
@@ -29664,12 +29638,13 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
-func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool) {
+func scatterCatalogForChunk(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {
         <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, cols) </span>{
         case chunkWasteland:
-                <span class="cov8" title="1">return scatterCatalogFor(outdoorZoneAt(runSeed, c, cols)), true</span>
+                <span class="cov8" title="1">cat, err := scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))
+                return cat, err == nil, err</span>
         default:
-                <span class="cov8" title="1">return scatterCatalog{}, false</span>
+                <span class="cov8" title="1">return scatterCatalog{}, false, nil</span>
         }
 }
 
@@ -29682,9 +29657,9 @@ type openTerrainFeature struct{}
 // 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
 // エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-        <span class="cov8" title="1">cat, ok := scatterCatalogForChunk(runSeed, c, cols)
-        if !ok </span>{
-                <span class="cov8" title="1">return nil
+        <span class="cov8" title="1">cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)
+        if err != nil || !ok </span>{
+                <span class="cov8" title="1">return err
 </span>        }
 
         <span class="cov8" title="1">tiles := g.tiles.get()
@@ -29921,11 +29896,16 @@ func chebToVSeg(p consts.Coord[consts.Tile], segX, y0, y1 consts.Tile) consts.Ti
 		<pre class="file" id="file214" style="display: none">package overworld
 
 import (
+        "cmp"
         "fmt"
         "image/color"
+        "slices"
         "strings"
+        "unicode/utf8"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
+        "github.com/kijimaD/ruins/internal/raw"
 )
 
 // チャンクマップ表記は、1チャンク=1建物という縮尺に合わせ、各チャンクを「そこが何の種別の
@@ -29944,34 +29924,12 @@ type GlyphInfo struct {
 // 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。
 //   - placeType: チャンク尺度。市街地以外のチャンクを1記号で表す。荒れ地・村・一軒家・遺跡入口・
 //     点在ランドマークの各種別。地図の表示専用で、生成には関与しない。
-//   - facilityType: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
-//     市街地生成の重み抽選にも使う実体のあるドメイン型で、urban.go が持つ。
-// 地図は市街地チャンクを facilityType の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
+//   - 施設 id: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
+//     市街地生成の重み抽選にも使う。
+// 地図は市街地チャンクを施設 id の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
 // チャンク尺度に続けて建物尺度を並べ、2層を1つの表にする。
 
-// facilityGlyphs は施設種別の1文字表記。1マスに1文字で建物の種別を示す。
-// 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。
-var facilityGlyphs = map[facilityType]GlyphInfo{
-        facilityHouse:   {'h', "House", color.RGBA{R: 154, G: 160, B: 166, A: 255}},             // 灰
-        facilityStore:   {'S', "Shop", color.RGBA{R: 74, G: 144, B: 226, A: 255}},               // 青
-        facilityOffice:  {'O', "Office", color.RGBA{R: 80, G: 200, B: 208, A: 255}},             // シアン
-        facilityDepot:   {'D', "Warehouse", color.RGBA{R: 176, G: 122, B: 58, A: 255}},          // 茶
-        facilityAntique: {'A', "Antique Shop", color.RGBA{R: 212, G: 160, B: 23, A: 255}},       // 金
-        facilityClinic:  {'C', "Clinic", color.RGBA{R: 232, G: 106, B: 154, A: 255}},            // 桃
-        facilityLab:     {'L', "Research Facility", color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫
-}
-
-// facilityOrder は凡例に出す施設種別を表示順で並べる。placeOrder と同じく、map は順序を持たない
-// ので順序だけ別に定義する。string 化で facilityType は辞書順に落ちるため、表示順はここで固定する。
-var facilityOrder = []facilityType{
-        facilityHouse, facilityStore, facilityOffice, facilityDepot, facilityAntique, facilityClinic, facilityLab,
-}
-
-// placeType はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と
-// 凡例名を placeGlyphs から引くために使う。生成には関与しない。chunkType とは1対1ではない。
-// chunkSettlement は村ロールで placeVillage と placeHamlet に、chunkLandmark は種別ロールで
-// 廃屋・農家跡・祠・キャンプ跡に分かれる。chunkUrban は建物尺度の facilityType を使うのでここには
-// 無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。
+// placeType は施設とランドマーク以外のチャンクの記号キー。値は mapGlyphs の id。
 type placeType string
 
 const (
@@ -29979,72 +29937,47 @@ const (
         placeVillage         placeType = "village"          // 村
         placeHamlet          placeType = "hamlet"           // 一軒家
         placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
-        placeAbandonedHut    placeType = "abandoned_hut"    // 点在ランドマーク: 廃屋
-        placeFarmstead       placeType = "farmstead"        // 点在ランドマーク: 農家跡
-        placeShrine          placeType = "shrine"           // 点在ランドマーク: 祠
-        placeCampsite        placeType = "campsite"         // 点在ランドマーク: キャンプ跡
-        placeUnknown         placeType = "unknown"          // 分類漏れの保険。凡例には出さない
 )
 
-// placeGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に
-// 集約する。UI の着色や凡例はこれ1つを源にし、記号や名前を別の箇所へ直書きしない。
-var placeGlyphs = map[placeType]GlyphInfo{
-        placeField:           {'.', "Wasteland", color.RGBA{R: 46, G: 59, B: 46, A: 255}},        // 暗緑
-        placeVillage:         {'T', "Village", color.RGBA{R: 255, G: 210, B: 74, A: 255}},        // 黄
-        placeHamlet:          {'t', "Lone House", color.RGBA{R: 208, G: 168, B: 58, A: 255}},     // 濃黄
-        placeDungeonEntrance: {'&gt;', "Ruins Entrance", color.RGBA{R: 224, G: 69, B: 58, A: 255}},  // 赤
-        placeAbandonedHut:    {'x', "Abandoned Hut", color.RGBA{R: 150, G: 140, B: 120, A: 255}}, // 灰褐
-        placeFarmstead:       {'f', "Old Farmstead", color.RGBA{R: 150, G: 160, B: 80, A: 255}},  // オリーブ
-        placeShrine:          {'s', "Shrine", color.RGBA{R: 130, G: 190, B: 175, A: 255}},        // 淡青緑
-        placeCampsite:        {'^', "Campsite", color.RGBA{R: 215, G: 150, B: 90, A: 255}},       // 橙
-        placeUnknown:         {'?', "Unclassified", color.RGBA{R: 90, G: 90, B: 90, A: 255}},     // 灰。凡例外なので実際は既定へ落ちる
-}
+// placeUnknownGlyph は mapGlyphs に記号が無いときの保険の記号。
+const placeUnknownGlyph rune = '?'
 
-// placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
-// placeUnknown は分類漏れの保険なので凡例には含めない。
-var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placeAbandonedHut, placeFarmstead, placeShrine, placeCampsite}
-
-// LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
-// SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。
-func LegendGlyphs() []GlyphInfo {
-        <span class="cov8" title="1">return append(PlaceGlyphs(), FacilityGlyphs()...)
+// toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。
+func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {
+        <span class="cov8" title="1">label, _ := utf8.DecodeRuneInString(mg.Glyph)
+        return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}
 </span>}
 
-// glyphColorTable は種別文字から色への対応。色は GlyphInfo が記号と同居して持つので記号定義から
-// 一度だけ引き写す。UI 側が記号ごとの色表を別に持って二重定義でずれるのを防ぐ。
-var glyphColorTable = func() map[rune]color.RGBA {
-        <span class="cov8" title="1">table := map[rune]color.RGBA{}
-        for _, g := range LegendGlyphs() </span>{
+// glyphByID は種別 id から地図記号を引く。
+func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
+        <span class="cov8" title="1">mg, ok := raw.GetMapGlyph(raws, id)
+        if !ok </span>{
+                <span class="cov0" title="0">return GlyphInfo{}, false
+</span>        }
+        <span class="cov8" title="1">return toGlyphInfo(mg), true</span>
+}
+
+// LegendGlyphs は俯瞰図の全記号を凡例順に返す。
+func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
+        <span class="cov8" title="1">mgs := raw.PtrSlice(raws.MapGlyphs)
+        sorted := make([]oapi.MapGlyph, len(mgs))
+        copy(sorted, mgs)
+        slices.SortStableFunc(sorted, func(a, b oapi.MapGlyph) int </span>{ <span class="cov8" title="1">return cmp.Compare(a.Order, b.Order) }</span>)
+        <span class="cov8" title="1">out := make([]GlyphInfo, 0, len(sorted))
+        for _, mg := range sorted </span>{
+                <span class="cov8" title="1">out = append(out, toGlyphInfo(mg))
+</span>        }
+        <span class="cov8" title="1">return out</span>
+}
+
+// glyphColorMap は記号 rune から色への表を返す。
+func glyphColorMap(raws oapi.Raws) map[rune]color.RGBA {
+        <span class="cov8" title="1">glyphs := LegendGlyphs(raws)
+        table := make(map[rune]color.RGBA, len(glyphs))
+        for _, g := range glyphs </span>{
                 <span class="cov8" title="1">table[g.Label] = g.Color
 </span>        }
         <span class="cov8" title="1">return table</span>
-}()
-
-// GlyphColor は種別文字に対応する色と、対応があるかを返す。凡例に出ない記号は ok=false になり、
-// 未知記号の既定色は UI 側が決める。overworld は theme に依存しないので既定色を持たない。
-func GlyphColor(r rune) (color.RGBA, bool) {
-        <span class="cov0" title="0">c, ok := glyphColorTable[r]
-        return c, ok
-</span>}
-
-// PlaceGlyphs は地物種別の記号と名前を表示順で返す。UI の凡例や着色で使う。FacilityGlyphs と対で、
-// 施設側と同じ形で地物種別を扱えるようにする。分類漏れの保険 placeUnknown は含めない。
-func PlaceGlyphs() []GlyphInfo {
-        <span class="cov8" title="1">out := make([]GlyphInfo, 0, len(placeOrder))
-        for _, k := range placeOrder </span>{
-                <span class="cov8" title="1">out = append(out, placeGlyphs[k])
-</span>        }
-        <span class="cov8" title="1">return out</span>
-}
-
-// FacilityGlyphs は施設種別の文字と名前を表示順で返す。UI の凡例や着色で建物を種別ごとに
-// 扱うために使う。地物レベルの記号は PlaceGlyphs が対で返す。
-func FacilityGlyphs() []GlyphInfo {
-        <span class="cov8" title="1">out := make([]GlyphInfo, 0, len(facilityOrder))
-        for _, k := range facilityOrder </span>{
-                <span class="cov8" title="1">out = append(out, facilityGlyphs[k])
-</span>        }
-        <span class="cov8" title="1">return out</span>
 }
 
 // chunkType は1チャンクの場所の種別。全チャンクがいずれか1つに分類され、暗黙の既定を持たない。
@@ -30064,7 +29997,7 @@ const (
 // 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在ランドマーク &gt; 荒れ地。地図も生成もこの
 // 分類を唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
-        <span class="cov8" title="1">if _, _, ok := urbanChunkInfo(runSeed, c, cols); ok </span>{
+        <span class="cov8" title="1">if _, ok := urbanChunkAt(runSeed, c, cols); ok </span>{
                 <span class="cov8" title="1">return chunkUrban
 </span>        }
         <span class="cov8" title="1">if dungeonEntrancePlacement.At(runSeed, c, cols) </span>{
@@ -30079,36 +30012,44 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
         <span class="cov8" title="1">return chunkWasteland</span>
 }
 
-// ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
-// 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
-func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+// chunkPlace は1チャンクの種別を地図記号で返す純関数。
+func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
         <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, cols) </span>{
         case chunkUrban:
-                // 施設種は urbanChunkInfo が別途返す動的な値で、facilityGlyphs に無い種が来うるので
-                // ok チェックする。他の種別は placeType が局所で保証されるので直接引く
-                <span class="cov8" title="1">kind, _, _ := urbanChunkInfo(runSeed, c, cols)
-                if g, ok := facilityGlyphs[kind]; ok </span>{
+                <span class="cov8" title="1">kind, _ := urbanFacilityAt(cat, runSeed, c, cols)
+                if g, ok := glyphByID(raws, kind); ok </span>{
                         <span class="cov8" title="1">return g.Label
 </span>                }
-                <span class="cov0" title="0">return placeGlyphs[placeUnknown].Label</span>
+                <span class="cov0" title="0">return placeUnknownGlyph</span>
         case chunkDungeonEntrance:
-                <span class="cov8" title="1">return placeGlyphs[placeDungeonEntrance].Label</span>
+                <span class="cov8" title="1">return placeGlyph(raws, placeDungeonEntrance)</span>
         case chunkSettlement:
                 <span class="cov8" title="1">if settlementVillageRoll(runSeed, c) </span>{
-                        <span class="cov8" title="1">return placeGlyphs[placeVillage].Label
+                        <span class="cov8" title="1">return placeGlyph(raws, placeVillage)
 </span>                }
-                <span class="cov8" title="1">return placeGlyphs[placeHamlet].Label</span>
+                <span class="cov8" title="1">return placeGlyph(raws, placeHamlet)</span>
         case chunkLandmark:
-                <span class="cov8" title="1">return placeGlyphs[landmarkPlaceType(landmarkKindAt(runSeed, c))].Label</span>
+                <span class="cov8" title="1">if g, ok := glyphByID(raws, landmarkKindAt(raws, runSeed, c)); ok </span>{
+                        <span class="cov8" title="1">return g.Label
+</span>                }
+                <span class="cov0" title="0">return placeUnknownGlyph</span>
         case chunkWasteland:
-                <span class="cov8" title="1">return placeGlyphs[placeField].Label</span>
+                <span class="cov8" title="1">return placeGlyph(raws, placeField)</span>
         }
-        <span class="cov0" title="0">return placeGlyphs[placeUnknown].Label</span>
+        <span class="cov0" title="0">return placeUnknownGlyph</span>
+}
+
+// placeGlyph は placeType の記号を引く。未登録は保険の記号。
+func placeGlyph(raws oapi.Raws, pt placeType) rune {
+        <span class="cov8" title="1">if g, ok := glyphByID(raws, string(pt)); ok </span>{
+                <span class="cov8" title="1">return g.Label
+</span>        }
+        <span class="cov0" title="0">return placeUnknownGlyph</span>
 }
 
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。
-func SchematicLegend() string {
-        <span class="cov8" title="1">glyphs := LegendGlyphs()
+func SchematicLegend(raws oapi.Raws) string {
+        <span class="cov8" title="1">glyphs := LegendGlyphs(raws)
         parts := make([]string, 0, len(glyphs))
         for _, g := range glyphs </span>{
                 <span class="cov8" title="1">parts = append(parts, fmt.Sprintf("%c %s", g.Label, g.Name))
@@ -30311,10 +30252,6 @@ var (
         }
 )
 
-// settlementPlacement は小集落のリージョン配置。おおよそ Spacing チャンクに1つ当選する。
-// チャンクは20タイルなので、Spacing 5 で100タイルに1つの体感密度になる。
-var settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
-
 // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。
 type settlementFeature struct{}
 
@@ -30387,24 +30324,16 @@ const (
 
         urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
         urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
-
-        // urbanEnemyTable は未知施設のフォールバック敵テーブル。既知施設は facilityEnemyTables で専用テーブルを
-        // 持つので、実運用でここへ落ちるのは未知施設だけ。危険度で種別をフィルタする
-        urbanEnemyTable = "ruins_area"
 )
 
-// urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 2..urbanMaxSpan。
+// urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 UrbanMinSpan..urbanMaxSpan。
 // 規模が大きいほど敵も戦利品も多く、レアな施設が混ざる。リスクとリターンが規模に比例する。
 func urbanSizeOf(urbanSeed uint64) (w, h consts.Chunk) {
-        <span class="cov8" title="1">span := uint64(urbanMaxSpan - 1)
-        w = 2 + consts.Chunk((urbanSeed&gt;&gt;8)%span)
-        h = 2 + consts.Chunk((urbanSeed&gt;&gt;16)%span)
+        <span class="cov8" title="1">span := uint64(urbanMaxSpan - consts.UrbanMinSpan + 1)
+        w = consts.UrbanMinSpan + consts.Chunk((urbanSeed&gt;&gt;8)%span)
+        h = consts.UrbanMinSpan + consts.Chunk((urbanSeed&gt;&gt;16)%span)
         return w, h
 </span>}
-
-// urbanPlacement は市街地アンカーのリージョン配置。小集落より疎に置く。
-// 最大辺 urbanMaxSpan より広い間隔にして、隣り合う市街地が重ならないようにする。
-var urbanPlacement = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
 
 // urbanFeature は市街地の feature 実装。
 type urbanFeature struct{}
@@ -30429,78 +30358,38 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chu
         <span class="cov8" title="1">return consts.Coord[consts.Chunk]{}, 0, 0, false</span>
 }
 
-// facilityType は建物尺度の施設種別。市街地チャンクの中の1建物を表す。規模で gate した重み付き抽選で
-// 決まり、内装の prop の差になる。チャンク尺度で表示専用の placeType と違い、こちらは表示に加えて
-// 市街地生成にも使うドメイン型。schematic.go の記号2層の説明も参照。
-// 現状は語彙と内装だけで、施設固有の戦利品はアイテム設計が固まってから続ける。
-// 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
-type facilityType string
-
-const (
-        facilityHouse   facilityType = "house"   // 住宅
-        facilityStore   facilityType = "store"   // 商店
-        facilityOffice  facilityType = "office"  // 事務所
-        facilityDepot   facilityType = "depot"   // 倉庫
-        facilityAntique facilityType = "antique" // 骨董品店
-        facilityClinic  facilityType = "clinic"  // 診療所
-        facilityLab     facilityType = "lab"     // 研究施設
-)
-
-// urbanEnemyTableFor は施設に割り当てられた敵テーブルを返す。割り当ては raw.toml の facilityEnemyTables。
-// 未割り当ての施設は既定 urbanEnemyTable へ落とす。割り当てがあるのに実在しなければ設定ミスなので error。
-func urbanEnemyTableFor(raws oapi.Raws, fac facilityType) (oapi.EnemyTable, error) {
-        <span class="cov8" title="1">name := urbanEnemyTable
-        if assigned, ok := raw.FacilityEnemyTableName(raws, string(fac)); ok </span>{
-                <span class="cov8" title="1">name = assigned
+// urbanEnemyTableFor は施設行の enemyTable が指す敵テーブルを返す。
+func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
+        <span class="cov8" title="1">f, ok := raw.GetFacility(raws, fac)
+        if !ok </span>{
+                <span class="cov8" title="1">return oapi.EnemyTable{}, fmt.Errorf("urban enemy table: facility %q not found", fac)
 </span>        }
-        <span class="cov8" title="1">et, err := raw.GetEnemyTable(raws, name)
+        <span class="cov8" title="1">et, err := raw.GetEnemyTable(raws, f.EnemyTable)
         if err != nil </span>{
                 <span class="cov8" title="1">return oapi.EnemyTable{}, fmt.Errorf("urban enemy table for facility %q: %w", fac, err)
 </span>        }
         <span class="cov8" title="1">return et, nil</span>
 }
 
-// facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
-// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
+// facilityWeight は施設の抽選重みと規模 gate。市街地の一辺が minSpan 以上のときだけ抽選対象になる。
 type facilityWeight struct {
-        kind    facilityType
+        kind    string
         weight  int
         minSpan consts.Chunk
 }
 
-// zone は市街地内の地区。中心からの位置で決まり、地区ごとに施設抽選の重みを変える。
-// per-chunk 独立の抽選では隣接同種率がランダムと変わらずごま塩になるため、地区で重みを
-// 揃えて空間相関を作り「地区」を生む。現代日本の市街地をイメージした語彙にする。
-// 実体は文字列。%v やログで数値でなく地区名が出て、デバッグで読みやすい。
-type zone string
+// zoneCatalog は地区ごとの施設抽選重み。
+type zoneCatalog map[oapi.Zone][]facilityWeight
 
-const (
-        zoneDowntown    zone = "downtown"    // 都心。商業と専門施設。最大規模の市街地の中心にだけ現れる
-        zoneResidential zone = "residential" // 住宅地。住宅が中心
-        zoneIndustrial  zone = "industrial"  // 産業区。倉庫が中心
-)
-
-// zoneCatalog は地区ごとの施設抽選重み。地区で重みが揃うので同じ地区の隣接チャンクは同種へ
-// 寄り、地区が生まれる。都心は必ず span=3 で現れるので専門施設の骨董品店・診療所・研究施設を
-// 含められる。各地区とも span=2 の入口を持つので、規模 gate で候補が空になり抽選が壊れることはない。
-var zoneCatalog = map[zone][]facilityWeight{
-        zoneDowntown: {
-                {facilityStore, 25, 2},
-                {facilityOffice, 20, 2},
-                {facilityAntique, 20, 3},
-                {facilityClinic, 20, 3},
-                {facilityLab, 15, 3},
-        },
-        zoneResidential: {
-                {facilityHouse, 65, 2},
-                {facilityStore, 25, 2},
-                {facilityClinic, 10, 3},
-        },
-        zoneIndustrial: {
-                {facilityDepot, 65, 2},
-                {facilityOffice, 25, 2},
-                {facilityHouse, 10, 2},
-        },
+// zoneCatalogFrom は facilities 行から地区ごとの施設抽選重みを導出する。
+func zoneCatalogFrom(raws oapi.Raws) zoneCatalog {
+        <span class="cov8" title="1">cat := make(zoneCatalog)
+        for _, f := range raw.PtrSlice(raws.Facilities) </span>{
+                <span class="cov8" title="1">for _, z := range f.Zones </span>{
+                        <span class="cov8" title="1">cat[z.Zone] = append(cat[z.Zone], facilityWeight{kind: f.Id, weight: int(z.Weight), minSpan: consts.Chunk(z.MinSpan)})
+</span>                }
+        }
+        <span class="cov8" title="1">return cat</span>
 }
 
 // industrialUrbanBit は市街地の性格を住宅地寄りか産業区寄りかに振る urbanSeed のビット。
@@ -30510,7 +30399,7 @@ const industrialUrbanBit = uint64(1) &lt;&lt; 32
 // zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。厳密な中心を都心、それ以外を
 // 市街地の性格で住宅地か産業区にする。中心は 2 倍座標のチェビシェフ距離が 0 のマスで、
 // 奇数×奇数すなわち 3×3 の市街地にだけ存在する。都心が必ず最大規模に出るので専門施設を集められる。
-func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) zone {
+func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) oapi.Zone {
         <span class="cov8" title="1">dx := int(lx)*2 - int(cw-1)
         dy := int(ly)*2 - int(ch-1)
         if dx &lt; 0 </span>{
@@ -30520,26 +30409,26 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) zone {
                 <span class="cov8" title="1">dy = -dy
 </span>        }
         <span class="cov8" title="1">if max(dx, dy) == 0 </span>{
-                <span class="cov8" title="1">return zoneDowntown
+                <span class="cov8" title="1">return oapi.Downtown
 </span>        }
         <span class="cov8" title="1">if urbanSeed&amp;industrialUrbanBit != 0 </span>{
-                <span class="cov8" title="1">return zoneIndustrial
+                <span class="cov8" title="1">return oapi.Industrial
 </span>        }
-        <span class="cov8" title="1">return zoneResidential</span>
+        <span class="cov8" title="1">return oapi.Residential</span>
 }
 
-// rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選する。
-func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType {
-        <span class="cov8" title="1">cat := zoneCatalog[z]
+// rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。
+func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z oapi.Zone, span consts.Chunk) string {
+        <span class="cov8" title="1">zc := cat[z]
         total := 0
-        for _, f := range cat </span>{
+        for _, f := range zc </span>{
                 <span class="cov8" title="1">if span &gt;= f.minSpan </span>{
                         <span class="cov8" title="1">total += f.weight
 </span>                }
         }
-        // 各地区は minSpan&lt;=2 の基本施設を持ち span は常に2以上なので total&gt;0。rng.IntN は安全。
+        // 各地区が重み正で minSpan&lt;=UrbanMinSpan の基本施設を持つことを raw の検証が保証するので total&gt;0
         <span class="cov8" title="1">roll := rng.IntN(total)
-        for _, f := range cat </span>{
+        for _, f := range zc </span>{
                 <span class="cov8" title="1">if span &lt; f.minSpan </span>{
                         <span class="cov0" title="0">continue</span>
                 }
@@ -30551,22 +30440,28 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
         <span class="cov0" title="0">panic("unreachable: selection weight total and subtraction are inconsistent")</span>
 }
 
-// urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
-// 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
-// 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
+// urbanChunkAt は c が市街地の建物チャンクなら市街地の規模を返す。
+func urbanChunkAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (size consts.Chunk, ok bool) {
+        <span class="cov8" title="1">_, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
+        if !ok </span>{
+                <span class="cov8" title="1">return 0, false
+</span>        }
+        <span class="cov8" title="1">return max(cw, ch), true</span>
+}
+
+// urbanFacilityAt は c の建物チャンクの施設 id を返す。地図表示と生成の両方が使う。
+func urbanFacilityAt(cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind string, ok bool) {
         <span class="cov8" title="1">anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
         if !ok </span>{
-                <span class="cov8" title="1">return "", 0, false
+                <span class="cov8" title="1">return "", false
 </span>        }
         <span class="cov8" title="1">urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-        size = max(cw, ch)
         z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, urbanSeed)
 </span>        // 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
         // ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
         <span class="cov8" title="1">frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
-        return rollFacilityInZone(frng, z, size), size, true</span>
+        return rollFacilityInZone(frng, cat, z, max(cw, ch)), true</span>
 }
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
@@ -30577,8 +30472,9 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
                 <span class="cov8" title="1">return nil
 </span>        }
 
-        // 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
-        <span class="cov8" title="1">fac, size, _ := urbanChunkInfo(runSeed, c, cols)
+        // 施設種別は地図(chunkPlace)の表示に加え、建物内装の prop 差にも使う
+        <span class="cov8" title="1">size, _ := urbanChunkAt(runSeed, c, cols)
+        fac, _ := urbanFacilityAt(zoneCatalogFrom(world.Resources.RawMaster), runSeed, c, cols)
         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
         return renderUrbanChunk(world, g, chunkSeed, size, fac, urbanDangerAt(world, c))</span>
@@ -30597,7 +30493,7 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 }
 
 // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType, danger consts.Danger) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger) error {
         // ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
         <span class="cov8" title="1">rng := rand.New(rand.NewPCG(seed, 0x2))
         footprint, door, err := planUrbanLot(world, g, rng)
@@ -30652,7 +30548,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
 // 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac facilityType, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac string, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
         <span class="cov8" title="1">enemyTable, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to get urban enemy table: %w", err)
@@ -31535,13 +31431,45 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
         <span class="cov8" title="1">return et, nil</span>
 }
 
-// FacilityEnemyTableName は施設種別に割り当てられた敵テーブル id を返す。割り当てが無ければ false を返す。
-func FacilityEnemyTableName(raws oapi.Raws, facility string) (string, bool) {
-        <span class="cov0" title="0">fe, ok := findByKey(raws.FacilityEnemyTables, func(t oapi.FacilityEnemyTable) string </span>{ <span class="cov0" title="0">return string(t.Facility) }</span>, facility)
-        <span class="cov0" title="0">if !ok </span>{
-                <span class="cov0" title="0">return "", false
+// SchemaEnum は OpenAPI スキーマの enum 型 name の値を返す。
+func SchemaEnum(name string) ([]string, error) {
+        <span class="cov8" title="1">spec, err := loadSpec()
+        if err != nil </span>{
+                <span class="cov0" title="0">return nil, fmt.Errorf("failed to load OpenAPI schema: %w", err)
 </span>        }
-        <span class="cov0" title="0">return fe.EnemyTable, true</span>
+        <span class="cov8" title="1">ref, ok := spec.Components.Schemas[name]
+        if !ok || ref.Value == nil || len(ref.Value.Enum) == 0 </span>{
+                <span class="cov8" title="1">return nil, fmt.Errorf("schema %q is not an enum", name)
+</span>        }
+        <span class="cov8" title="1">out := make([]string, len(ref.Value.Enum))
+        for i, v := range ref.Value.Enum </span>{
+                <span class="cov8" title="1">s, ok := v.(string)
+                if !ok </span>{
+                        <span class="cov0" title="0">return nil, fmt.Errorf("schema %q enum value %v is not a string", name, v)
+</span>                }
+                <span class="cov8" title="1">out[i] = s</span>
+        }
+        <span class="cov8" title="1">return out, nil</span>
+}
+
+// GetFacility は id の施設宣言を返す。未登録は false。
+func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
+        <span class="cov0" title="0">return findByKey(raws.Facilities, func(f oapi.Facility) string </span>{ <span class="cov0" title="0">return f.Id }</span>, id)
+}
+
+// GetLandmark は id のランドマーク宣言を返す。未登録は false。
+func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
+        <span class="cov0" title="0">return findByKey(raws.Landmarks, func(l oapi.Landmark) string </span>{ <span class="cov0" title="0">return l.Id }</span>, id)
+}
+
+// GetScatterZone は id の散布ゾーン宣言を返す。未登録は false。
+func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
+        <span class="cov0" title="0">return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string </span>{ <span class="cov0" title="0">return z.Id }</span>, id)
+}
+
+// GetMapGlyph は id の地図記号宣言を返す。未登録は false。
+func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
+        <span class="cov0" title="0">return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string </span>{ <span class="cov0" title="0">return m.Id }</span>, id)
 }
 
 // GetTile は指定された名前のタイルを取得する
@@ -31801,7 +31729,10 @@ import (
         "encoding/json"
         "errors"
         "fmt"
+        "sync"
+        "unicode/utf8"
 
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -31811,6 +31742,15 @@ var (
         errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
         errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
         errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
+        errFacilityKeyUndefined           = errors.New("references undefined facility")
+        errZoneNoBaseFacility             = errors.New("zone has no base facility")
+        errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
+        errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
+        errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
+        errMapGlyphNotSingleRune          = errors.New("map glyph is not a single rune")
+        errMapGlyphDuplicate              = errors.New("map glyph is duplicated")
+        errMapGlyphMissing                = errors.New("map glyph is missing")
+        errDuplicateID                    = errors.New("duplicate id")
         errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
         errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
         errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -31822,9 +31762,12 @@ var (
         errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 )
 
+// loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
+var loadSpec = sync.OnceValues(oapi.GetSpec)
+
 // ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する
 func ValidateRaws(raws oapi.Raws) error {
-        <span class="cov8" title="1">spec, err := oapi.GetSpec()
+        <span class="cov8" title="1">spec, err := loadSpec()
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to load OpenAPI schema: %w", err)
 </span>        }
@@ -31877,10 +31820,22 @@ func ValidateReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">if err := validateEnemyTableReferences(raws); err != nil </span>{
                 <span class="cov8" title="1">return err
 </span>        }
-        <span class="cov8" title="1">if err := validateFacilityEnemyTableReferences(raws); err != nil </span>{
+        <span class="cov8" title="1">if err := validateFeatureUniqueIDs(raws); err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">if err := validateFacilityReferences(raws); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if err := validateInteriorContentReferences(raws); err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">if err := validateLandmarkReferences(raws); err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">if err := validateScatterZoneReferences(raws); err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">if err := validateMapGlyphReferences(raws); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">return validateCommandTableWeaponReferences(raws)</span>
@@ -31953,22 +31908,104 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// validateFacilityEnemyTableReferences は施設ごとの敵テーブル割り当てが指す敵テーブル id が enemyTables に
-// 存在することを検証する。市街地生成はこの id で GetEnemyTable するので、typo をロード時に前倒しで弾く。
-func validateFacilityEnemyTableReferences(raws oapi.Raws) error {
+// validateFeatureUniqueIDs は地物の各表で id が重複しないことを検証する。
+func validateFeatureUniqueIDs(raws oapi.Raws) error {
+        <span class="cov8" title="1">if err := validateUniqueIDs("facility", PtrSlice(raws.Facilities), func(f oapi.Facility) string </span>{ <span class="cov8" title="1">return f.Id }</span>); err != nil {
+                <span class="cov8" title="1">return err
+</span>        }
+        <span class="cov8" title="1">if err := validateUniqueIDs("landmark", PtrSlice(raws.Landmarks), func(l oapi.Landmark) string </span>{ <span class="cov8" title="1">return l.Id }</span>); err != nil {
+                <span class="cov8" title="1">return err
+</span>        }
+        <span class="cov8" title="1">if err := validateUniqueIDs("scatter zone", PtrSlice(raws.ScatterZones), func(z oapi.ScatterZone) string </span>{ <span class="cov8" title="1">return z.Id }</span>); err != nil {
+                <span class="cov8" title="1">return err
+</span>        }
+        <span class="cov8" title="1">return validateUniqueIDs("map glyph", PtrSlice(raws.MapGlyphs), func(g oapi.MapGlyph) string </span>{ <span class="cov8" title="1">return g.Id }</span>)
+}
+
+// validateUniqueIDs は rows の id が重複しないことを検証する。
+func validateUniqueIDs[T any](kind string, rows []T, id func(T) string) error {
+        <span class="cov8" title="1">seen := make(map[string]struct{}, len(rows))
+        for _, r := range rows </span>{
+                <span class="cov8" title="1">k := id(r)
+                if _, ok := seen[k]; ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("%s %q: %w", kind, k, errDuplicateID)
+</span>                }
+                <span class="cov8" title="1">seen[k] = struct{}{}</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateFacilityReferences は施設行の参照先の実在と、全地区に基本施設があることを検証する。
+func validateFacilityReferences(raws oapi.Raws) error {
+        <span class="cov8" title="1">facilities := PtrSlice(raws.Facilities)
+        facilityIDs := make(map[string]struct{}, len(facilities))
+        for i := range facilities </span>{
+                <span class="cov8" title="1">facilityIDs[facilities[i].Id] = struct{}{}
+</span>        }
+
         <span class="cov8" title="1">enemyTables := PtrSlice(raws.EnemyTables)
         tableIDs := make(map[string]struct{}, len(enemyTables))
         for i := range enemyTables </span>{
                 <span class="cov8" title="1">tableIDs[enemyTables[i].Id] = struct{}{}
 </span>        }
 
-        <span class="cov8" title="1">for _, fe := range PtrSlice(raws.FacilityEnemyTables) </span>{
-                <span class="cov8" title="1">if fe.EnemyTable == "" </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
-                <span class="cov8" title="1">if _, ok := tableIDs[fe.EnemyTable]; !ok </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("facility %q references enemy table %q: %w", fe.Facility, fe.EnemyTable, errFacilityEnemyTableRefUndefined)
+        <span class="cov8" title="1">zones, err := SchemaEnum("Zone")
+        if err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">baseSpan := int32(consts.UrbanMinSpan)
+        zoneHasBase := make(map[string]bool)
+        for i := range facilities </span>{
+                <span class="cov8" title="1">if _, ok := tableIDs[facilities[i].EnemyTable]; !ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("facility %q references enemy table %q: %w", facilities[i].Id, facilities[i].EnemyTable, errFacilityEnemyTableRefUndefined)
 </span>                }
+                <span class="cov8" title="1">for _, z := range facilities[i].Zones </span>{
+                        <span class="cov8" title="1">if z.MinSpan &lt;= baseSpan </span>{
+                                <span class="cov8" title="1">zoneHasBase[string(z.Zone)] = true
+</span>                        }
+                }
+        }
+
+        <span class="cov8" title="1">if len(facilities) &gt; 0 </span>{
+                <span class="cov8" title="1">for _, zone := range zones </span>{
+                        <span class="cov8" title="1">if !zoneHasBase[zone] </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("zone %q has no facility with minSpan&lt;=%d: %w", zone, baseSpan, errZoneNoBaseFacility)
+</span>                        }
+                }
+        }
+
+        <span class="cov8" title="1">for _, fc := range PtrSlice(raws.FacilityContents) </span>{
+                <span class="cov8" title="1">if _, ok := facilityIDs[fc.Facility]; !ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("facilityContents references unknown facility %q: %w", fc.Facility, errFacilityKeyUndefined)
+</span>                }
+        }
+        <span class="cov8" title="1">for _, fr := range PtrSlice(raws.FacilityRooms) </span>{
+                <span class="cov8" title="1">if _, ok := facilityIDs[fr.Facility]; !ok </span>{
+                        <span class="cov0" title="0">return fmt.Errorf("facilityRooms references unknown facility %q: %w", fr.Facility, errFacilityKeyUndefined)
+</span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateLandmarkReferences はランドマークの prop の実在を検証する。
+func validateLandmarkReferences(raws oapi.Raws) error {
+        <span class="cov8" title="1">landmarks := PtrSlice(raws.Landmarks)
+        if len(landmarks) == 0 </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+
+        <span class="cov8" title="1">props := PtrSlice(raws.Props)
+        propNames := make(map[string]struct{}, len(props))
+        for i := range props </span>{
+                <span class="cov8" title="1">propNames[props[i].Id] = struct{}{}
+</span>        }
+
+        <span class="cov8" title="1">for _, l := range landmarks </span>{
+                <span class="cov8" title="1">for _, p := range l.Props </span>{
+                        <span class="cov8" title="1">if _, ok := propNames[p.Name]; !ok </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("landmark %q references prop %q: %w", l.Id, p.Name, errLandmarkPropUndefined)
+</span>                        }
+                }
         }
         <span class="cov8" title="1">return nil</span>
 }
@@ -32142,6 +32179,70 @@ func validateCommandTableReferences(raws oapi.Raws) error {
                 }
                 <span class="cov8" title="1">if _, ok := tableNames[*members[i].CommandTableId]; !ok </span>{
                         <span class="cov8" title="1">return fmt.Errorf("member %q command table %q: %w", members[i].Name, *members[i].CommandTableId, errMemberCommandTableUndefined)
+</span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateScatterZoneReferences は散布ゾーンの prop と loot group の実在を検証する。
+func validateScatterZoneReferences(raws oapi.Raws) error {
+        <span class="cov8" title="1">props := PtrSlice(raws.Props)
+        propNames := make(map[string]struct{}, len(props))
+        for i := range props </span>{
+                <span class="cov8" title="1">propNames[props[i].Id] = struct{}{}
+</span>        }
+        <span class="cov8" title="1">groups := PtrSlice(raws.ItemGroups)
+        groupIDs := make(map[string]struct{}, len(groups))
+        for i := range groups </span>{
+                <span class="cov8" title="1">groupIDs[groups[i].Id] = struct{}{}
+</span>        }
+
+        <span class="cov8" title="1">for _, z := range PtrSlice(raws.ScatterZones) </span>{
+                <span class="cov8" title="1">if _, ok := groupIDs[z.LootGroup]; !ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("scatter zone %q references item group %q: %w", z.Id, z.LootGroup, errScatterLootGroupUndefined)
+</span>                }
+                <span class="cov8" title="1">for _, e := range z.Entries </span>{
+                        <span class="cov8" title="1">if _, ok := propNames[e.Ref]; e.Ref != "" &amp;&amp; !ok </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, e.Ref, errScatterPropUndefined)
+</span>                        }
+                        <span class="cov8" title="1">for _, s := range PtrSlice(e.Satellites) </span>{
+                                <span class="cov8" title="1">if _, ok := propNames[s.Name]; !ok </span>{
+                                        <span class="cov8" title="1">return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, s.Name, errScatterPropUndefined)
+</span>                                }
+                        }
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateMapGlyphReferences は地図記号が1文字で重複せず、全施設とランドマークが記号を持つことを検証する。
+func validateMapGlyphReferences(raws oapi.Raws) error {
+        <span class="cov8" title="1">glyphs := PtrSlice(raws.MapGlyphs)
+        if len(glyphs) == 0 </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+
+        <span class="cov8" title="1">ids := make(map[string]struct{}, len(glyphs))
+        seen := make(map[string]string, len(glyphs))
+        for _, g := range glyphs </span>{
+                <span class="cov8" title="1">if utf8.RuneCountInString(g.Glyph) != 1 </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("map glyph %q has glyph %q: %w", g.Id, g.Glyph, errMapGlyphNotSingleRune)
+</span>                }
+                <span class="cov8" title="1">if other, ok := seen[g.Glyph]; ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("map glyph %q shares glyph %q with %q: %w", g.Id, g.Glyph, other, errMapGlyphDuplicate)
+</span>                }
+                <span class="cov8" title="1">seen[g.Glyph] = g.Id
+                ids[g.Id] = struct{}{}</span>
+        }
+
+        <span class="cov8" title="1">for _, f := range PtrSlice(raws.Facilities) </span>{
+                <span class="cov8" title="1">if _, ok := ids[f.Id]; !ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("facility %q: %w", f.Id, errMapGlyphMissing)
+</span>                }
+        }
+        <span class="cov8" title="1">for _, l := range PtrSlice(raws.Landmarks) </span>{
+                <span class="cov8" title="1">if _, ok := ids[l.Id]; !ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("landmark %q: %w", l.Id, errMapGlyphMissing)
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -40654,7 +40755,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 </span>        }
         <span class="cov8" title="1">area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
         st.view = overworld.BuildMacroView(
-                sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
+                world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
                 area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
         )
 </span>
@@ -40757,7 +40858,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
                 PlayerFacing: st.facing,
         })
 </span>
-        <span class="cov8" title="1">hud.DrawMapLegend(cv, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)</span>
+        <span class="cov8" title="1">hud.DrawMapLegend(cv, world.Resources.RawMaster, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)</span>
 }
 </pre>
 		
@@ -43259,7 +43360,7 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 </span>        }
         // 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する
         <span class="cov8" title="1">view := overworld.BuildMacroView(
-                sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
+                world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
                 area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
         )
 </span>        // カメラ不在時は北を既定にする
@@ -48106,7 +48207,6 @@ import (
         "image/color"
 
         "github.com/hajimehoshi/ebiten/v2/text/v2"
-        "github.com/kijimaD/ruins/internal/overworld"
         theme "github.com/kijimaD/ruins/internal/widgets/theme"
         "github.com/kijimaD/ruins/internal/widgets/uicore"
         w "github.com/kijimaD/ruins/internal/world"
@@ -48197,14 +48297,6 @@ func (m *macroPanelWidget) Draw(cv uicore.Canvas) {
 // Children は uicore.Widget を満たす。子は持たない。
 func (m *macroPanelWidget) Children() []uicore.Widget { <span class="cov0" title="0">return nil }</span>
 
-// macroGlyphColor は種別文字の色を返す。既知の記号は overworld の色定義を引き、未知は灰色にする。
-func macroGlyphColor(r rune) color.RGBA {
-        <span class="cov8" title="1">if c, ok := overworld.GlyphColor(r); ok </span>{
-                <span class="cov8" title="1">return c
-</span>        }
-        <span class="cov8" title="1">return theme.OverworldMapUnknownGlyph</span>
-}
-
 // drawCenteredGlyph はセルの中央に1文字を描く。字形の外接矩形を測って四辺の余白を揃えるので、
 // フォントの行メトリクスでなく実際の字形がセル中央へ来る。小さいセルでも記号が上下へ偏らない。
 func drawCenteredGlyph(cv uicore.Canvas, s string, face text.Face, x, y, cell int, col color.Color) {
@@ -48222,6 +48314,7 @@ import (
         "github.com/hajimehoshi/ebiten/v2/text/v2"
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/oapi"
         "github.com/kijimaD/ruins/internal/overworld"
         theme "github.com/kijimaD/ruins/internal/widgets/theme"
         "github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -48249,7 +48342,11 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
                         }
                         <span class="cov8" title="1">x := style.OriginX + col*style.CellPx
                         y := style.OriginY + row*style.CellPx
-                        cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), macroGlyphColor(cell.Glyph), uicore.RectOptions{})
+                        cellColor := theme.OverworldMapUnknownGlyph
+                        if cell.HasColor </span>{
+                                <span class="cov0" title="0">cellColor = cell.Color
+</span>                        }
+                        <span class="cov8" title="1">cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), cellColor, uicore.RectOptions{})
                         if cell.Road.Any() </span>{
                                 <span class="cov8" title="1">drawMapRoad(cv, x, y, style.CellPx, cell.Road)
 </span>                        }
@@ -48298,11 +48395,11 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
 // 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。
-func DrawMapLegend(cv uicore.Canvas, face, glyphFace text.Face, top int) {
+func DrawMapLegend(cv uicore.Canvas, raws oapi.Raws, face, glyphFace text.Face, top int) {
         <span class="cov8" title="1">const swatch = 14
         x, y := 8, top
-        for _, g := range overworld.LegendGlyphs() </span>{
-                <span class="cov8" title="1">cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), macroGlyphColor(g.Label), uicore.RectOptions{})
+        for _, g := range overworld.LegendGlyphs(raws) </span>{
+                <span class="cov8" title="1">cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), g.Color, uicore.RectOptions{})
                 drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
                 cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
 </span>                // 1項目120px幅で並べ、モーダル幅に収まる右端720pxを超えたら次の行へ折り返す

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-06 12:34:02</td>
+            <td class="headerValue">2026-10-06 15:44:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,11 +68,14 @@
 <span id="L6"><span class="lineNum">       6</span>              : // 枚数にも使い、X を焼き込まない。タイルへは Tiles() で明示的に変換する。</span>
 <span id="L7"><span class="lineNum">       7</span>              : type Chunk int</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // Tiles はチャンク量をタイル数へ変換する。c チャンク ＝ c × chunkSize タイル。</span>
-<span id="L10"><span class="lineNum">      10</span>              : // chunkSize はその軸のチャンクの辺のタイル数。東西なら chunkW。</span>
-<span id="L11"><span class="lineNum">      11</span>              : func (c Chunk) Tiles(chunkSize Tile) Tile {</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         return Tile(int(c)) * chunkSize</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L9"><span class="lineNum">       9</span>              : // UrbanMinSpan は市街地の一辺の最小チャンク数。</span>
+<span id="L10"><span class="lineNum">      10</span>              : const UrbanMinSpan Chunk = 2</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // Tiles はチャンク量をタイル数へ変換する。c チャンク ＝ c × chunkSize タイル。</span>
+<span id="L13"><span class="lineNum">      13</span>              : // chunkSize はその軸のチャンクの辺のタイル数。東西なら chunkW。</span>
+<span id="L14"><span class="lineNum">      14</span>              : func (c Chunk) Tiles(chunkSize Tile) Tile {</span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         return Tile(int(c)) * chunkSize</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

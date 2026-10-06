@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-06 12:34:02</td>
+            <td class="headerValue">2026-10-06 15:44:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,10 +81,10 @@
 <span id="L19"><span class="lineNum">      19</span>              : // そのまま埋めず、interior.FurnishBuilding が前庭を空け坪庭を作り玄関を凹ませる。庭は土、壁は壁、残りの</span>
 <span id="L20"><span class="lineNum">      20</span>              : // 部屋の床と戸口は床として描き、入口の扉と家具を spawn する。内装の乱数は建物幾何と別ストリーム 0x3 に</span>
 <span id="L21"><span class="lineNum">      21</span>              : // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。</span>
-<span id="L22"><span class="lineNum">      22</span>              : func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac facilityType, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {</span>
+<span id="L22"><span class="lineNum">      22</span>              : func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac string, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {</span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 :         iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         // 内装レシピは RawMaster から都度、必要な content だけを引いて変換する。索引を持ち回らない。</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, interior.FacilityKind(fac))</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, fac)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, nil, fmt.Errorf(&quot;failed to furnish building: %w&quot;, err)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
