@@ -112,7 +112,8 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 			assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
 		}
 	}
-	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+	for _, f := range raw.PtrSlice(raws.Facilities) {
+		fac := f.Id
 		single, err := interior.Furnish(raws, 1, small, door, fac)
 		require.NoError(t, err)
 		check(fac, single)
@@ -158,7 +159,8 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 			assert.Truef(t, ok, "施設 %q の loot %q は写像を持つ", fac, p.Ref)
 		}
 	}
-	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+	for _, f := range raw.PtrSlice(raws.Facilities) {
+		fac := f.Id
 		single, err := interior.Furnish(raws, 1, small, door, fac)
 		require.NoError(t, err)
 		check(fac, single)

@@ -15,7 +15,7 @@ func TestFurnishBuilding_同じタイルに複数のpropを置かない(t *testi
 
 	footprint := Rect{X: 0, Y: 0, W: 20, H: 18}
 	door := Vec{X: 10, Y: 0}
-	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+	for _, fac := range facilityIDs() {
 		for seed := range uint64(300) {
 			_, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, fac)
 			require.NoError(t, err)
@@ -64,7 +64,7 @@ func TestFrontSide_内寄せが無い建物は入口の辺を前面にする(t *
 func TestFurnishBuilding_内寄せ破綻の小footprintでも完走する(t *testing.T) {
 	t.Parallel()
 
-	for _, fac := range []string{"house", "store", "clinic", "office", "depot", "antique", "lab"} {
+	for _, fac := range facilityIDs() {
 		for fp := consts.Tile(5); fp <= 9; fp++ {
 			for seed := range uint64(100) {
 				require.NotPanicsf(t, func() {
