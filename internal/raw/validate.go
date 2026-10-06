@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -36,9 +37,12 @@ var (
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 )
 
+// loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
+var loadSpec = sync.OnceValues(oapi.GetSpec)
+
 // ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する
 func ValidateRaws(raws oapi.Raws) error {
-	spec, err := oapi.GetSpec()
+	spec, err := loadSpec()
 	if err != nil {
 		return fmt.Errorf("failed to load OpenAPI schema: %w", err)
 	}

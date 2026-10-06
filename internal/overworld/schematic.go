@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -48,10 +49,7 @@ const placeUnknownGlyph rune = '?'
 
 // toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。
 func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {
-	label := placeUnknownGlyph
-	if r := []rune(mg.Glyph); len(r) > 0 {
-		label = r[0]
-	}
+	label, _ := utf8.DecodeRuneInString(mg.Glyph)
 	return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}
 }
 

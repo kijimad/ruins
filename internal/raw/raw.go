@@ -667,7 +667,7 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 
 // SchemaEnum は OpenAPI スキーマの enum 型 name の値を返す。
 func SchemaEnum(name string) ([]string, error) {
-	spec, err := oapi.GetSpec()
+	spec, err := loadSpec()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load OpenAPI schema: %w", err)
 	}
