@@ -319,7 +319,7 @@ model Facility {
     抽選対象になる */
 model FacilityZone {
   zone: Zone;
-  weight: int32;
+  @minValue(1) weight: int32;
   minSpan: int32;
 }
 
@@ -327,7 +327,7 @@ model FacilityZone {
     drawers と一致、hutW/hutH は drawer=hut のときの小屋寸法で他は0、props は配置する prop の相対座標 */
 model Landmark {
   id: EntityID;
-  weight: int32;
+  @minValue(1) weight: int32;
   drawer: DrawerKey;
   hutW: int32;
   hutH: int32;
@@ -365,7 +365,7 @@ model ScatterZone {
     大物か、satellites は大物の周りに寄り添う小クラスタの相対配置 */
 model ScatterEntry {
   ref: string;
-  weight: int32;
+  @minValue(1) weight: int32;
   big: boolean;
   satellites?: PropSpot[];
 }

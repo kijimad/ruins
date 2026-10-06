@@ -665,6 +665,28 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 	return et, nil
 }
 
+// SchemaEnum は OpenAPI スキーマの enum 型 name が取りうる値を返す。tsp の enum を閉集合の正本として
+// 実行時に引くのに使う。name が enum 型でなければ error。
+func SchemaEnum(name string) ([]string, error) {
+	spec, err := oapi.GetSpec()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load OpenAPI schema: %w", err)
+	}
+	ref, ok := spec.Components.Schemas[name]
+	if !ok || ref.Value == nil || len(ref.Value.Enum) == 0 {
+		return nil, fmt.Errorf("schema %q is not an enum", name)
+	}
+	out := make([]string, len(ref.Value.Enum))
+	for i, v := range ref.Value.Enum {
+		s, ok := v.(string)
+		if !ok {
+			return nil, fmt.Errorf("schema %q enum value %v is not a string", name, v)
+		}
+		out[i] = s
+	}
+	return out, nil
+}
+
 // GetFacility は id の施設宣言を返す。未登録は false。地物の引き手 GetFacility/GetLandmark/
 // GetScatterZone/GetMapGlyph は、不在が呼び出し側の正常分岐になるので comma-ok で返す。
 func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {

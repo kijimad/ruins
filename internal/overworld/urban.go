@@ -27,12 +27,12 @@ const (
 	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 )
 
-// urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 2..urbanMaxSpan。
+// urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 UrbanMinSpan..urbanMaxSpan。
 // 規模が大きいほど敵も戦利品も多く、レアな施設が混ざる。リスクとリターンが規模に比例する。
 func urbanSizeOf(urbanSeed uint64) (w, h consts.Chunk) {
-	span := uint64(urbanMaxSpan - 1)
-	w = 2 + consts.Chunk((urbanSeed>>8)%span)
-	h = 2 + consts.Chunk((urbanSeed>>16)%span)
+	span := uint64(urbanMaxSpan - consts.UrbanMinSpan + 1)
+	w = consts.UrbanMinSpan + consts.Chunk((urbanSeed>>8)%span)
+	h = consts.UrbanMinSpan + consts.Chunk((urbanSeed>>16)%span)
 	return w, h
 }
 
@@ -131,7 +131,7 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z oapi.Zone, span const
 			total += f.weight
 		}
 	}
-	// 各地区が minSpan<=2 の基本施設を持つことを validate が保証し、span は常に2以上なので total>0
+	// 各地区が重み正で minSpan<=UrbanMinSpan の基本施設を持つことを raw の検証が保証するので total>0
 	roll := rng.IntN(total)
 	for _, f := range zc {
 		if span < f.minSpan {

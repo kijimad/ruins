@@ -24,7 +24,7 @@ func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]
 	for _, l := range lms {
 		total += int(l.Weight)
 	}
-	// total>0 は validate と TestRealData_HasLandmarks が保証する
+	// スキーマが weight>=1 を課し、TestRealData_HasLandmarks が非空を固定するので total>0
 	roll := int(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % uint64(total))
 	for _, l := range lms {
 		roll -= int(l.Weight)

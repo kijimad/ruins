@@ -522,22 +522,13 @@ func TestValidateLandmarkReferences(t *testing.T) {
 
 	props := &[]oapi.Prop{{Id: "candle"}}
 
-	t.Run("重みが正で prop が実在すれば通る", func(t *testing.T) {
+	t.Run("prop が実在すれば通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Props:     props,
 			Landmarks: &[]oapi.Landmark{{Id: "shrine", Weight: 10, Drawer: oapi.Open, Props: []oapi.PropSpot{{Name: "candle"}}}},
 		}
 		require.NoError(t, validateLandmarkReferences(raws))
-	})
-
-	t.Run("重みの総和が0だとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := oapi.Raws{
-			Props:     props,
-			Landmarks: &[]oapi.Landmark{{Id: "shrine", Weight: 0, Drawer: oapi.Open}},
-		}
-		require.ErrorIs(t, validateLandmarkReferences(raws), errLandmarkNoWeight)
 	})
 
 	t.Run("prop が存在しないとエラー", func(t *testing.T) {
@@ -649,5 +640,75 @@ func TestValidateMapGlyphReferences(t *testing.T) {
 			MapGlyphs: &[]oapi.MapGlyph{{Id: "field", Glyph: "."}},
 		}
 		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
+	})
+}
+
+func TestValidateFeatureUniqueIDs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("id が一意なら通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Facilities:   &[]oapi.Facility{{Id: "house"}, {Id: "store"}},
+			Landmarks:    &[]oapi.Landmark{{Id: "shrine"}},
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild"}},
+			MapGlyphs:    &[]oapi.MapGlyph{{Id: "house"}},
+		}
+		require.NoError(t, validateFeatureUniqueIDs(raws))
+	})
+
+	cases := []struct {
+		name string
+		raws oapi.Raws
+	}{
+		{"施設の id が重複するとエラー", oapi.Raws{Facilities: &[]oapi.Facility{{Id: "house"}, {Id: "house"}}}},
+		{"ランドマークの id が重複するとエラー", oapi.Raws{Landmarks: &[]oapi.Landmark{{Id: "shrine"}, {Id: "shrine"}}}},
+		{"散布ゾーンの id が重複するとエラー", oapi.Raws{ScatterZones: &[]oapi.ScatterZone{{Id: "wild"}, {Id: "wild"}}}},
+		{"地図記号の id が重複するとエラー", oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house"}, {Id: "house"}}}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			require.ErrorIs(t, validateFeatureUniqueIDs(c.raws), errDuplicateID)
+		})
+	}
+}
+
+func TestValidateRaws_抽選重みは1以上(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		mutate func(*oapi.Raws)
+	}{
+		{"施設の地区重みが0", func(r *oapi.Raws) { (*r.Facilities)[0].Zones[0].Weight = 0 }},
+		{"ランドマークの重みが0", func(r *oapi.Raws) { (*r.Landmarks)[0].Weight = 0 }},
+		{"散布 prop の重みが0", func(r *oapi.Raws) { (*r.ScatterZones)[0].Entries[0].Weight = 0 }},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+			require.NoError(t, err)
+			c.mutate(&raws)
+			assert.Error(t, ValidateRaws(raws))
+		})
+	}
+}
+
+func TestSchemaEnum(t *testing.T) {
+	t.Parallel()
+
+	t.Run("enum 型は全値を返す", func(t *testing.T) {
+		t.Parallel()
+		got, err := SchemaEnum("Zone")
+		require.NoError(t, err)
+		assert.ElementsMatch(t, []string{string(oapi.Downtown), string(oapi.Residential), string(oapi.Industrial)}, got)
+	})
+
+	t.Run("enum でない型は error", func(t *testing.T) {
+		t.Parallel()
+		_, err := SchemaEnum("Raws")
+		assert.Error(t, err)
 	})
 }

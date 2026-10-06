@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"unicode/utf8"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -17,13 +18,13 @@ var (
 	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
 	errFacilityKeyUndefined           = errors.New("references undefined facility")
 	errZoneNoBaseFacility             = errors.New("zone has no base facility")
-	errLandmarkNoWeight               = errors.New("landmarks have no positive total weight")
 	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
 	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
 	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
 	errMapGlyphNotSingleRune          = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate              = errors.New("map glyph is duplicated")
 	errMapGlyphMissing                = errors.New("map glyph is missing")
+	errDuplicateID                    = errors.New("duplicate id")
 	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
 	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
 	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
@@ -88,6 +89,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateEnemyTableReferences(raws); err != nil {
+		return err
+	}
+	if err := validateFeatureUniqueIDs(raws); err != nil {
 		return err
 	}
 	if err := validateFacilityReferences(raws); err != nil {
@@ -175,17 +179,39 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// urbanBaseSpan は市街地の一辺の最小チャンク数。overworld の最小 span と揃える。
-const urbanBaseSpan int32 = 2
+// validateFeatureUniqueIDs は地物の各表で id が重複しないことを検証する。重複すると id で引く行と全行を
+// 走査する導出とで別の行を見て食い違う。
+func validateFeatureUniqueIDs(raws oapi.Raws) error {
+	if err := validateUniqueIDs("facility", PtrSlice(raws.Facilities), func(f oapi.Facility) string { return f.Id }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("landmark", PtrSlice(raws.Landmarks), func(l oapi.Landmark) string { return l.Id }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("scatter zone", PtrSlice(raws.ScatterZones), func(z oapi.ScatterZone) string { return z.Id }); err != nil {
+		return err
+	}
+	return validateUniqueIDs("map glyph", PtrSlice(raws.MapGlyphs), func(g oapi.MapGlyph) string { return g.Id })
+}
 
-// urbanZones は zoneOf がチャンクへ割り当てうる全地区。施設定義に現れない地区も弾けるよう、この閉集合を
-// 検査の基準にする。
-var urbanZones = []oapi.Zone{oapi.Downtown, oapi.Industrial, oapi.Residential}
+// validateUniqueIDs は rows の id が重複しないことを検証する。kind はエラーに出す表の名前。
+func validateUniqueIDs[T any](kind string, rows []T, id func(T) string) error {
+	seen := make(map[string]struct{}, len(rows))
+	for _, r := range rows {
+		k := id(r)
+		if _, ok := seen[k]; ok {
+			return fmt.Errorf("%s %q: %w", kind, k, errDuplicateID)
+		}
+		seen[k] = struct{}{}
+	}
+	return nil
+}
 
 // validateFacilityReferences は施設行の整合をロード時に検証する。
 //   - enemyTable が enemyTables に存在する。
 //   - facilityContents/facilityRooms の facility キーが facilities の id に存在する。
-//   - 各地区に minSpan<=urbanBaseSpan の施設が最低1つある。無いと規模 gate で候補が空になり抽選が panic する。
+//   - Zone enum の全地区に minSpan<=UrbanMinSpan の施設が最低1つある。重みの正はスキーマが課すので、無いと
+//     規模 gate で候補が空になり抽選が panic する条件をこれで塞ぐ。
 //
 // planner キーと実装の一致は raw から interior への循環を避け、interior の TestPlanners で固定する。
 func validateFacilityReferences(raws oapi.Raws) error {
@@ -201,23 +227,28 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		tableIDs[enemyTables[i].Id] = struct{}{}
 	}
 
-	zoneHasBase := make(map[oapi.Zone]bool)
+	zones, err := SchemaEnum("Zone")
+	if err != nil {
+		return err
+	}
+	baseSpan := int32(consts.UrbanMinSpan)
+	zoneHasBase := make(map[string]bool)
 	for i := range facilities {
 		if _, ok := tableIDs[facilities[i].EnemyTable]; !ok {
 			return fmt.Errorf("facility %q references enemy table %q: %w", facilities[i].Id, facilities[i].EnemyTable, errFacilityEnemyTableRefUndefined)
 		}
 		for _, z := range facilities[i].Zones {
-			if z.MinSpan <= urbanBaseSpan {
-				zoneHasBase[z.Zone] = true
+			if z.MinSpan <= baseSpan {
+				zoneHasBase[string(z.Zone)] = true
 			}
 		}
 	}
 
 	// 施設0件の部分的な Raws は市街地生成を駆動しないので素通しする
 	if len(facilities) > 0 {
-		for _, zone := range urbanZones {
+		for _, zone := range zones {
 			if !zoneHasBase[zone] {
-				return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, urbanBaseSpan, errZoneNoBaseFacility)
+				return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, baseSpan, errZoneNoBaseFacility)
 			}
 		}
 	}
@@ -235,8 +266,8 @@ func validateFacilityReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateLandmarkReferences はランドマークの整合をロード時に検証する。出現重みの総和が正であること、
-// prop の参照先が props に実在することを見る。drawer キーと実装の一致は overworld の TestDrawers で固定する。
+// validateLandmarkReferences はランドマークの prop の参照先が props に実在することを検証する。drawer キーと
+// 実装の一致は overworld の TestDrawers で固定する。
 func validateLandmarkReferences(raws oapi.Raws) error {
 	landmarks := PtrSlice(raws.Landmarks)
 	if len(landmarks) == 0 {
@@ -249,17 +280,12 @@ func validateLandmarkReferences(raws oapi.Raws) error {
 		propNames[props[i].Id] = struct{}{}
 	}
 
-	total := 0
 	for _, l := range landmarks {
-		total += int(l.Weight)
 		for _, p := range l.Props {
 			if _, ok := propNames[p.Name]; !ok {
 				return fmt.Errorf("landmark %q references prop %q: %w", l.Id, p.Name, errLandmarkPropUndefined)
 			}
 		}
-	}
-	if total <= 0 {
-		return fmt.Errorf("%w", errLandmarkNoWeight)
 	}
 	return nil
 }

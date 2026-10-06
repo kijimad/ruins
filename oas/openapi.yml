@@ -2419,6 +2419,7 @@ components:
         weight:
           type: integer
           format: int32
+          minimum: 1
         minSpan:
           type: integer
           format: int32
@@ -2776,6 +2777,7 @@ components:
         weight:
           type: integer
           format: int32
+          minimum: 1
         drawer:
           $ref: '#/components/schemas/DrawerKey'
         hutW:
@@ -3450,6 +3452,7 @@ components:
         weight:
           type: integer
           format: int32
+          minimum: 1
         big:
           type: boolean
         satellites:
