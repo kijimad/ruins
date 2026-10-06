@@ -24,12 +24,6 @@ var planners = map[oapi.PlannerKey]plannerDef{
 	oapi.Bsp:    {planBSP, 0, 0},
 }
 
-// plannerByKey は planner キーから定義を返す。未登録キーは ok=false。
-func plannerByKey(key oapi.PlannerKey) (def plannerDef, ok bool) {
-	def, ok = planners[key]
-	return def, ok
-}
-
 // planBSP は汎用の BSP 分割を planner と同じ形へ包む。面積最大を主室、残りを奥室に割り当てる。
 func planBSP(footprint Rect, seed uint64) []PlannedRoom {
 	rooms := SubdivideBuilding(footprint, seed)

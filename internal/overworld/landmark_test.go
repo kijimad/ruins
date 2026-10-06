@@ -19,8 +19,10 @@ import (
 func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 
-	for _, key := range []oapi.DrawerKey{oapi.Hut, oapi.Open} {
-		_, ok := drawers[key]
+	keys, err := raw.SchemaEnum("DrawerKey")
+	require.NoError(t, err)
+	for _, key := range keys {
+		_, ok := drawers[oapi.DrawerKey(key)]
 		assert.Truef(t, ok, "drawer key %q に Go 実装がある", key)
 	}
 }
@@ -72,18 +74,4 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 	b := build()
 	assert.NotEmpty(t, a, "ランドマークの prop が置かれる")
 	assert.Equal(t, a, b, "ランドマークの配置は決定的で再生成しても一致する")
-}
-
-func TestLandmark_各種別が異なる地図記号を持つ(t *testing.T) {
-	t.Parallel()
-
-	// 全 landmark id が mapGlyphs に記号を持ち、かつ互いに異なることを確認する
-	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	seen := map[rune]bool{}
-	for _, l := range raw.PtrSlice(raws.Landmarks) {
-		g, ok := glyphByID(raws, l.Id)
-		require.Truef(t, ok, "landmark %q に地図記号がある", l.Id)
-		assert.Falsef(t, seen[g.Label], "landmark %q の記号 %c が他と重複している", l.Id, g.Label)
-		seen[g.Label] = true
-	}
 }

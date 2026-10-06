@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -13,8 +14,10 @@ import (
 func TestPlanners_全PlannerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 
-	for _, key := range []oapi.PlannerKey{oapi.House, oapi.Store, oapi.Clinic, oapi.Bsp} {
-		_, ok := plannerByKey(key)
+	keys, err := raw.SchemaEnum("PlannerKey")
+	require.NoError(t, err)
+	for _, key := range keys {
+		_, ok := planners[oapi.PlannerKey(key)]
 		assert.Truef(t, ok, "planner key %q に Go 実装がある", key)
 	}
 }
