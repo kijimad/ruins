@@ -80,7 +80,7 @@ type facilityWeight struct {
 }
 
 // zoneCatalog は地区ごとの施設抽選重み。
-type zoneCatalog = map[oapi.Zone][]facilityWeight
+type zoneCatalog map[oapi.Zone][]facilityWeight
 
 // zoneCatalogFrom は facilities 行から地区ごとの施設抽選重みを導出する。
 func zoneCatalogFrom(raws oapi.Raws) zoneCatalog {
