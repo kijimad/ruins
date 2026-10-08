@@ -75,7 +75,7 @@ func TestInitializeComponents(t *testing.T) {
 		}, "nil worldの場合パニックが発生する")
 	})
 
-	t.Run("大量フィールドでのパフォーマンステスト", func(t *testing.T) {
+	t.Run("20を超えるフィールドをすべて初期化できる", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		world := ecs.NewWorld()
