@@ -739,8 +739,8 @@ func TestWindow_Update(t *testing.T) {
 		msg := messagedata.NewDialogMessage("どうする？", "NPC").
 			WithChoice("はい", func(_ w.World) error { called0 = true; return nil }).
 			WithChoice("いいえ", func(_ w.World) error { called1 = true; return nil })
-		win := NewWindow(world, msg)
 		world.Resources.InputSource = sequenceInputSource(inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect)
+		win := NewWindow(world, msg)
 
 		require.NoError(t, win.Update())
 		assert.Equal(t, 1, win.choiceState.ItemIndex, "下移動でカーソルが2件目に進む")

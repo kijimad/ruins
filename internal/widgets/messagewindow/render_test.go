@@ -89,8 +89,6 @@ func Test_buildTree(t *testing.T) {
 func Test_segmentedLineWidgets(t *testing.T) {
 	t.Parallel()
 
-	// world は face の取得だけに使う。segmentedLineWidgets は win.world を読まないので、
-	// 各サブテストの Window には world を渡していない
 	world := testutil.InitTestWorld(t, testutil.WithUI())
 	face := world.Resources.UIResources.Text.BodyFace
 
