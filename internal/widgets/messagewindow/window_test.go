@@ -679,7 +679,7 @@ func TestWindow_Update(t *testing.T) {
 
 		world := testutil.InitTestWorld(t, testutil.WithUI())
 		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
-		win.isOpen = false
+		win.Close()
 
 		err := win.Update()
 
@@ -779,7 +779,7 @@ func TestWindow_Draw(t *testing.T) {
 		world := testutil.InitTestWorld(t, testutil.WithUI())
 		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
 		require.NoError(t, win.Update())
-		win.isOpen = false
+		win.Close()
 
 		sd := world.Resources.ScreenDimensions
 		screen := ebiten.NewImage(sd.Width, sd.Height)
