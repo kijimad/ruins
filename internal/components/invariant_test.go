@@ -79,6 +79,17 @@ func TestPred_Not(t *testing.T) {
 	assert.False(t, notFail.Eval(entity))
 }
 
+func TestComponents_has_未登録のコンポーネントはpanicする(t *testing.T) {
+	t.Parallel()
+	_, c1 := setupComponents(t)
+	_, c2 := setupComponents(t)
+
+	// c2.Melee は c1 のどのフィールドともポインタが一致しないので検出できない
+	assert.PanicsWithValue(t, "component not found in Components", func() {
+		c1.has(c2.Melee)
+	})
+}
+
 func TestCategory(t *testing.T) {
 	t.Parallel()
 

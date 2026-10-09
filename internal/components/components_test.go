@@ -1,6 +1,7 @@
 package components
 
 import (
+	"math"
 	"reflect"
 	"strings"
 	"testing"
@@ -34,7 +35,6 @@ func TestInitializeComponents(t *testing.T) {
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
 
-			// Ark ではコンポーネントハンドルは全て *ecs.Map[T] ポインタになる
 			require.Equal(t, reflect.Pointer, field.Kind(),
 				"フィールド %s はポインタ型である必要がある", fieldName)
 			assert.False(t, field.IsNil(),
@@ -75,9 +75,8 @@ func TestInitializeComponents(t *testing.T) {
 		}, "nil worldの場合パニックが発生する")
 	})
 
-	t.Run("大量フィールドでのパフォーマンステスト", func(t *testing.T) {
+	t.Run("20を超えるフィールドをすべて初期化できる", func(t *testing.T) {
 		t.Parallel()
-		// パフォーマンステストとして、現在のComponentsで十分な数のフィールドがある
 		// Arrange
 		world := ecs.NewWorld()
 		components := &Components{}
@@ -109,7 +108,6 @@ func TestComponentsStructure(t *testing.T) {
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
 
-			// Ark のコンポーネントハンドルは全て ecs.Map[T] へのポインタになる
 			assert.Equal(t, reflect.Pointer, field.Kind(),
 				"フィールド %s はポインタ型である必要がある", fieldName)
 			assert.True(t, strings.HasPrefix(field.Type().Elem().Name(), "Map["),
@@ -153,6 +151,59 @@ func TestAllAttackTypesCovered(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestOrient_Yaw(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		orient Orient
+		want   float64
+	}{
+		{"0は北", 0, 0},
+		{"1は45度", 1, math.Pi / 4},
+		{"4は180度", 4, math.Pi},
+		{"7は315度", 7, 7 * math.Pi / 4},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.InDelta(t, tt.want, tt.orient.Yaw(), 1e-9)
+		})
+	}
+}
+
+func TestOrient_Rotated(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		start Orient
+		delta int
+		want  Orient
+	}{
+		{"delta 0は変化なし", 0, 0, 0},
+		{"正のdeltaは進む", 0, 3, 3},
+		{"範囲を超えると巡回する", 6, 3, 1},
+		{"負のdeltaは戻る", 2, -1, 1},
+		{"負のdeltaで0をまたぐと末尾へ巡回する", 0, -1, 7},
+		{"大きな負のdeltaでも巡回する", 0, -9, 7},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.start.Rotated(tt.delta))
+		})
+	}
+}
+
+func TestCamera_Yaw(t *testing.T) {
+	t.Parallel()
+
+	// Camera.Yaw は Orient.Yaw への委譲であることを確認する
+	c := Camera{Orient: 2}
+	assert.InDelta(t, Orient(2).Yaw(), c.Yaw(), 1e-9)
 }
 
 func TestUpsert(t *testing.T) {
