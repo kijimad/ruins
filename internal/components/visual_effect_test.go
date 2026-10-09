@@ -58,7 +58,8 @@ func TestFadeAnimation_Update(t *testing.T) {
 			FadeInMs: 100, HoldMs: 100, FadeOutMs: 0,
 			TotalMs: 200, RemainingMs: 200, Alpha: 0,
 		}
-		a.Update(200)
+		active := a.Update(200)
+		assert.False(t, active)
 		assert.InDelta(t, 0.0, a.Alpha, 0.01)
 	})
 }
