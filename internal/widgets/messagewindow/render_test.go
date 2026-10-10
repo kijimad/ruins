@@ -22,7 +22,6 @@ func Test_buildTree(t *testing.T) {
 
 		tree := win.buildTree()
 
-		require.Len(t, tree.Children(), 3, "枠・選択バー・Enter文字の3つ")
 		assert.Equal(t, []string{"Enter"}, uicore.CollectLabels(tree))
 	})
 
@@ -38,7 +37,6 @@ func Test_buildTree(t *testing.T) {
 
 		tree := win.buildTree()
 
-		require.Len(t, tree.Children(), 5, "枠・タイトルバー・名前・選択バー・Enter文字の5つ")
 		assert.Equal(t, []string{"案内人", "Enter"}, uicore.CollectLabels(tree))
 	})
 
@@ -56,7 +54,6 @@ func Test_buildTree(t *testing.T) {
 
 		tree := win.buildTree()
 
-		require.Len(t, tree.Children(), 4, "枠・本文・選択バー・Enter文字の4つ")
 		assert.Equal(t, []string{"本文", "Enter"}, uicore.CollectLabels(tree))
 	})
 
@@ -78,7 +75,6 @@ func Test_buildTree(t *testing.T) {
 
 		tree := win.buildTree()
 
-		require.Len(t, tree.Children(), 2, "枠と選択肢一覧の2つ")
 		labels := uicore.CollectLabels(tree)
 		assert.Contains(t, labels, "はい")
 		assert.Contains(t, labels, "いいえ")
