@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -612,4 +613,211 @@ func TestWindow_HandleInput_未入力なら空を返す(t *testing.T) {
 
 	assert.False(t, ok, "キーが押されていなければfalseを返す")
 	assert.Equal(t, inputmapper.ActionID(""), action)
+}
+
+// fixedInputSource は常に同じ Action を返す入力供給源を作る
+func fixedInputSource(action inputmapper.ActionID, ok bool) inputmapper.Source {
+	return func() (inputmapper.ActionID, bool) { return action, ok }
+}
+
+// sequenceInputSource は呼び出しごとに actions を1つずつ消費し、尽きたら入力無しを返す
+func sequenceInputSource(actions ...inputmapper.ActionID) inputmapper.Source {
+	i := 0
+	return func() (inputmapper.ActionID, bool) {
+		if i >= len(actions) {
+			return "", false
+		}
+		a := actions[i]
+		i++
+		return a, true
+	}
+}
+
+func Test_initChoiceMenu(t *testing.T) {
+	t.Parallel()
+
+	t.Run("選択肢がある場合はタブ項目とストアを構築する", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t)
+		msg := messagedata.NewDialogMessage("どうする？", "NPC").
+			WithChoice("はい", func(_ w.World) error { return nil }).
+			WithChoice("いいえ", nil)
+		win := NewWindow(world, msg)
+
+		win.initChoiceMenu()
+
+		require.Len(t, win.choiceConfig.Tabs, 1)
+		items := win.choiceConfig.Tabs[0].Items
+		require.Len(t, items, 2)
+		assert.Equal(t, "はい", items[0].Label)
+		assert.Equal(t, "いいえ", items[1].Label)
+		assert.Equal(t, 0, items[0].UserData)
+		assert.Equal(t, 1, items[1].UserData)
+		require.NotNil(t, win.choiceStore, "選択肢のナビゲーション状態を持つストアを作る")
+		assert.Equal(t, 0, win.choiceState.ItemIndex, "初期カーソルは先頭")
+	})
+
+	t.Run("選択肢が無い場合は何もしない", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t)
+		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+
+		win.initChoiceMenu()
+
+		assert.Nil(t, win.choiceStore, "選択肢が無いのでストアを作らない")
+		assert.Nil(t, win.choiceConfig.Tabs, "選択肢が無いのでタブ項目を組まない")
+	})
+}
+
+func TestWindow_Update(t *testing.T) {
+	t.Parallel()
+
+	t.Run("閉じている場合は初期化も描画ツリー構築もしない", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+		win.Close()
+
+		err := win.Update()
+
+		require.NoError(t, err)
+		assert.Nil(t, win.body)
+		assert.False(t, win.initialized)
+	})
+
+	t.Run("選択肢が無く入力が無ければ開いたままEnterプロンプトを組む", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		world.Resources.InputSource = fixedInputSource("", false)
+		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+
+		err := win.Update()
+
+		require.NoError(t, err)
+		assert.True(t, win.IsOpen())
+		require.NotNil(t, win.body)
+		assert.Contains(t, uicore.CollectLabels(win.body), "Enter")
+	})
+
+	t.Run("選択肢が無くConfirmが来ると閉じる", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		world.Resources.InputSource = fixedInputSource(inputmapper.ActionConfirm, true)
+		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+
+		err := win.Update()
+
+		require.NoError(t, err)
+		assert.True(t, win.IsClosed())
+	})
+
+	t.Run("選択肢があり入力が無ければ状態を変えない", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		world.Resources.InputSource = fixedInputSource("", false)
+		msg := messagedata.NewDialogMessage("どうする？", "NPC").WithChoice("はい", nil)
+		win := NewWindow(world, msg)
+
+		err := win.Update()
+
+		require.NoError(t, err)
+		assert.True(t, win.IsOpen())
+		assert.Equal(t, 0, win.choiceState.ItemIndex)
+	})
+
+	t.Run("選択肢がありカーソル移動後に選択すると対象のActionを実行して閉じる", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		var called0, called1 bool
+		msg := messagedata.NewDialogMessage("どうする？", "NPC").
+			WithChoice("はい", func(_ w.World) error { called0 = true; return nil }).
+			WithChoice("いいえ", func(_ w.World) error { called1 = true; return nil })
+		world.Resources.InputSource = sequenceInputSource(inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect)
+		win := NewWindow(world, msg)
+
+		require.NoError(t, win.Update())
+		assert.Equal(t, 1, win.choiceState.ItemIndex, "下移動でカーソルが2件目に進む")
+		assert.True(t, win.IsOpen())
+
+		require.NoError(t, win.Update())
+
+		assert.True(t, win.IsClosed())
+		assert.False(t, called0, "1件目のActionは実行されない")
+		assert.True(t, called1, "選択した2件目のActionが実行される")
+	})
+
+	t.Run("選択肢がありEscapeが来ると選択を実行せず閉じる", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		var called bool
+		msg := messagedata.NewDialogMessage("どうする？", "NPC").
+			WithChoice("はい", func(_ w.World) error { called = true; return nil })
+		win := NewWindow(world, msg)
+		world.Resources.InputSource = fixedInputSource(inputmapper.ActionMenuCancel, true)
+
+		require.NoError(t, win.Update())
+
+		assert.True(t, win.IsClosed())
+		assert.False(t, called, "キャンセルでは選択肢のActionを実行しない")
+	})
+}
+
+func TestWindow_Draw(t *testing.T) {
+	t.Parallel()
+
+	t.Run("閉じている場合は描画しない", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+		require.NoError(t, win.Update())
+		win.Close()
+
+		sd := world.Resources.ScreenDimensions
+		screen := ebiten.NewImage(sd.Width, sd.Height)
+		win.Draw(screen)
+
+		_, _, _, a := screen.At(sd.Width/2, sd.Height/2).RGBA()
+		assert.Equal(t, uint32(0), a, "閉じているので何も描かれない")
+	})
+
+	t.Run("bodyが未構築の場合は描画しない", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+
+		sd := world.Resources.ScreenDimensions
+		screen := ebiten.NewImage(sd.Width, sd.Height)
+		win.Draw(screen)
+
+		_, _, _, a := screen.At(sd.Width/2, sd.Height/2).RGBA()
+		assert.Equal(t, uint32(0), a, "bodyが無いので何も描かれない")
+	})
+
+	t.Run("開いていてbodyがあれば窓の背景を描く", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t, testutil.WithUI())
+		world.Resources.InputSource = fixedInputSource("", false)
+		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
+		require.NoError(t, win.Update())
+
+		sd := world.Resources.ScreenDimensions
+		screen := ebiten.NewImage(sd.Width, sd.Height)
+		win.Draw(screen)
+
+		size := win.calculateWindowSize()
+		x, y := win.calculateWindowPosition(size)
+		_, _, _, a := screen.At(x+size.Width/2, y+size.Height/2).RGBA()
+		assert.NotEqual(t, uint32(0), a, "窓の中心には背景が描かれている")
+	})
 }
