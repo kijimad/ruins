@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [コード監査: 地物重複とセーブ書き込み 2026-10-12](docs/design/261012001631.md) | 0/3 | worldgen, save |
 
 
 ## Reference
