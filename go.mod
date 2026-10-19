@@ -9,7 +9,7 @@ require (
 	github.com/go-text/typesetting v0.3.5
 	github.com/hajimehoshi/ebiten/v2 v2.10.4
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
-	github.com/leonelquinteros/gotext v1.7.2
+	github.com/leonelquinteros/gotext v1.8.0
 	github.com/mlange-42/ark v0.8.3
 	github.com/mlange-42/ark-serde v0.3.2
 	github.com/olekukonko/tablewriter v1.1.5
