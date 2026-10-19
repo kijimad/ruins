@@ -5,7 +5,7 @@ go 1.27.0
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/caarlos0/env/v11 v11.4.1
-	github.com/getkin/kin-openapi v0.149.0
+	github.com/getkin/kin-openapi v0.151.0
 	github.com/go-text/typesetting v0.3.5
 	github.com/hajimehoshi/ebiten/v2 v2.10.4
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
