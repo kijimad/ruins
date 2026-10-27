@@ -152,7 +152,7 @@ func TestGolden_BuildingHouse(t *testing.T) {
 	door := Vec{X: prodFootprint / 2, Y: 0} // 北壁の入口
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
-		site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, facHouse)
+		site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, "house")
 		require.NoError(t, err)
 		return site, placed
 	}))
@@ -183,7 +183,7 @@ func TestGolden_BuildingClinic(t *testing.T) {
 	door := Vec{X: prodFootprint / 2, Y: 0}
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
-		site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, facClinic)
+		site, placed, err := FurnishBuilding(testRaws(), seed, footprint, door, "clinic")
 		require.NoError(t, err)
 		return site, placed
 	}))
@@ -201,7 +201,7 @@ func TestGolden_StagesHouse(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
-	site, stages, err := FurnishStages(testRaws(), 1, footprint, door, facHouse)
+	site, stages, err := FurnishStages(testRaws(), 1, footprint, door, "house")
 	require.NoError(t, err)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
@@ -226,7 +226,7 @@ func TestGolden_StagesClinic(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
-	site, stages, err := FurnishStages(testRaws(), 1, footprint, door, facClinic)
+	site, stages, err := FurnishStages(testRaws(), 1, footprint, door, "clinic")
 	require.NoError(t, err)
 	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))

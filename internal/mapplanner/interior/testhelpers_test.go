@@ -24,3 +24,13 @@ func testRaws() oapi.Raws {
 	})
 	return testRawsCache
 }
+
+// facilityIDs は raw.toml の全施設 id を返す。
+func facilityIDs() []string {
+	fs := raw.PtrSlice(testRaws().Facilities)
+	ids := make([]string, len(fs))
+	for i, f := range fs {
+		ids[i] = f.Id
+	}
+	return ids
+}

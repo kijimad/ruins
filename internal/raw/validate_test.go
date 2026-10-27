@@ -18,6 +18,14 @@ func TestValidateRaws_RealData(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestRealData_HasLandmarks(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	require.NotEmpty(t, PtrSlice(master.Landmarks), "overworld 生成が要求するので実 raw.toml は landmarks を持つべき")
+}
+
 func TestValidateRaws_ValidItem(t *testing.T) {
 	t.Parallel()
 
@@ -339,28 +347,84 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 	})
 }
 
-func TestValidateFacilityEnemyTableReferences(t *testing.T) {
+func TestValidateFacilityReferences(t *testing.T) {
 	t.Parallel()
 
 	enemyTables := &[]oapi.EnemyTable{{Id: "clinic_enemies", Name: "診療所"}}
+	baseZones := []oapi.FacilityZone{
+		{Zone: oapi.Residential, Weight: 10, MinSpan: 2},
+		{Zone: oapi.Downtown, Weight: 10, MinSpan: 2},
+		{Zone: oapi.Industrial, Weight: 10, MinSpan: 2},
+	}
 
-	t.Run("実在する敵テーブルは通る", func(t *testing.T) {
+	t.Run("実在する敵テーブルと基本施設は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			EnemyTables:         enemyTables,
-			FacilityEnemyTables: &[]oapi.FacilityEnemyTable{{Facility: "clinic", EnemyTable: "clinic_enemies"}},
+			EnemyTables: enemyTables,
+			Facilities:  &[]oapi.Facility{{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: baseZones}},
 		}
-		require.NoError(t, validateFacilityEnemyTableReferences(raws))
+		require.NoError(t, validateFacilityReferences(raws))
 	})
 
 	t.Run("敵テーブルが存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			EnemyTables:         enemyTables,
-			FacilityEnemyTables: &[]oapi.FacilityEnemyTable{{Facility: "clinic", EnemyTable: "no_such_table"}},
+			EnemyTables: enemyTables,
+			Facilities:  &[]oapi.Facility{{Id: "clinic", EnemyTable: "no_such_table", Planner: oapi.Clinic, Zones: baseZones}},
 		}
-		err := validateFacilityEnemyTableReferences(raws)
-		require.ErrorIs(t, err, errFacilityEnemyTableRefUndefined)
+		require.ErrorIs(t, validateFacilityReferences(raws), errFacilityEnemyTableRefUndefined)
+	})
+
+	t.Run("地区に基本施設が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: enemyTables,
+			Facilities:  &[]oapi.Facility{{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: []oapi.FacilityZone{{Zone: oapi.Downtown, Weight: 10, MinSpan: 3}}}},
+		}
+		require.ErrorIs(t, validateFacilityReferences(raws), errZoneNoBaseFacility)
+	})
+
+	t.Run("未登録施設を参照するfacilityContentsはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables:      enemyTables,
+			Facilities:       &[]oapi.Facility{{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: baseZones}},
+			FacilityContents: &[]oapi.FacilityContent{{Facility: "no_such", Variants: []string{"x"}}},
+		}
+		require.ErrorIs(t, validateFacilityReferences(raws), errFacilityKeyUndefined)
+	})
+
+	for _, missing := range []oapi.Zone{oapi.Downtown, oapi.Residential, oapi.Industrial} {
+		t.Run("地区 "+string(missing)+" だけ基本施設が無いとエラー", func(t *testing.T) {
+			t.Parallel()
+			zones := make([]oapi.FacilityZone, 0, len(baseZones))
+			for _, z := range baseZones {
+				if z.Zone == missing {
+					z.MinSpan = 3
+				}
+				zones = append(zones, z)
+			}
+			raws := oapi.Raws{
+				EnemyTables: enemyTables,
+				Facilities:  &[]oapi.Facility{{Id: "clinic", EnemyTable: "clinic_enemies", Planner: oapi.Clinic, Zones: zones}},
+			}
+			err := validateFacilityReferences(raws)
+			require.ErrorIs(t, err, errZoneNoBaseFacility)
+			assert.ErrorContains(t, err, string(missing))
+		})
+	}
+
+	t.Run("全地区に基本施設があれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			EnemyTables: enemyTables,
+			Facilities: &[]oapi.Facility{{Id: "house", EnemyTable: "clinic_enemies", Planner: oapi.House, Zones: []oapi.FacilityZone{
+				{Zone: oapi.Residential, Weight: 10, MinSpan: 2},
+				{Zone: oapi.Downtown, Weight: 10, MinSpan: 2},
+				{Zone: oapi.Industrial, Weight: 10, MinSpan: 2},
+			}}},
+		}
+		require.NoError(t, validateFacilityReferences(raws))
 	})
 }
 
@@ -454,5 +518,201 @@ func TestValidateCommandTableWeaponReferences(t *testing.T) {
 		}
 		err := validateCommandTableWeaponReferences(raws)
 		require.ErrorIs(t, err, errCommandTableRefUndefinedWeapon)
+	})
+}
+
+func TestValidateLandmarkReferences(t *testing.T) {
+	t.Parallel()
+
+	props := &[]oapi.Prop{{Id: "candle"}}
+
+	t.Run("prop が実在すれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:     props,
+			Landmarks: &[]oapi.Landmark{{Id: "shrine", Weight: 10, Drawer: oapi.Open, Props: []oapi.PropSpot{{Name: "candle"}}}},
+		}
+		require.NoError(t, validateLandmarkReferences(raws))
+	})
+
+	t.Run("prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:     props,
+			Landmarks: &[]oapi.Landmark{{Id: "shrine", Weight: 10, Drawer: oapi.Open, Props: []oapi.PropSpot{{Name: "no_such_prop"}}}},
+		}
+		require.ErrorIs(t, validateLandmarkReferences(raws), errLandmarkPropUndefined)
+	})
+}
+
+func TestValidateScatterZoneReferences(t *testing.T) {
+	t.Parallel()
+
+	props := &[]oapi.Prop{{Id: "tree_a"}}
+	groups := &[]oapi.ItemGroup{{Id: "junk"}}
+
+	t.Run("prop と item group が実在すれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:      props,
+			ItemGroups: groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{
+				{Ref: "", Weight: 10},
+				{Ref: "tree_a", Weight: 10, Satellites: &[]oapi.PropSpot{{Name: "tree_a"}}},
+			}}},
+		}
+		require.NoError(t, validateScatterZoneReferences(raws))
+	})
+
+	t.Run("item group が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:        props,
+			ItemGroups:   groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "no_such_group"}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterLootGroupUndefined)
+	})
+
+	t.Run("散布 prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:        props,
+			ItemGroups:   groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{{Ref: "no_such_prop", Weight: 10}}}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterPropUndefined)
+	})
+
+	t.Run("satellite の prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:      props,
+			ItemGroups: groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{
+				{Ref: "tree_a", Weight: 10, Satellites: &[]oapi.PropSpot{{Name: "no_such_prop"}}},
+			}}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterPropUndefined)
+	})
+}
+
+func TestValidateMapGlyphReferences(t *testing.T) {
+	t.Parallel()
+
+	t.Run("1文字で重複せず全施設とランドマークに記号があれば通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Facilities: &[]oapi.Facility{{Id: "house"}},
+			Landmarks:  &[]oapi.Landmark{{Id: "shrine"}},
+			MapGlyphs:  &[]oapi.MapGlyph{{Id: "house", Glyph: "h"}, {Id: "shrine", Glyph: "s"}},
+		}
+		require.NoError(t, validateMapGlyphReferences(raws))
+	})
+
+	t.Run("記号が2文字だとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house", Glyph: "hh"}}}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphNotSingleRune)
+	})
+
+	t.Run("記号が空だとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house", Glyph: ""}}}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphNotSingleRune)
+	})
+
+	t.Run("記号が重複するとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house", Glyph: "h"}, {Id: "hamlet", Glyph: "h"}}}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphDuplicate)
+	})
+
+	t.Run("施設に記号が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Facilities: &[]oapi.Facility{{Id: "house"}},
+			MapGlyphs:  &[]oapi.MapGlyph{{Id: "field", Glyph: "."}},
+		}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
+	})
+
+	t.Run("ランドマークに記号が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Landmarks: &[]oapi.Landmark{{Id: "shrine"}},
+			MapGlyphs: &[]oapi.MapGlyph{{Id: "field", Glyph: "."}},
+		}
+		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
+	})
+}
+
+func TestValidateFeatureUniqueIDs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("id が一意なら通る", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Facilities:   &[]oapi.Facility{{Id: "house"}, {Id: "store"}},
+			Landmarks:    &[]oapi.Landmark{{Id: "shrine"}},
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild"}},
+			MapGlyphs:    &[]oapi.MapGlyph{{Id: "house"}},
+		}
+		require.NoError(t, validateFeatureUniqueIDs(raws))
+	})
+
+	cases := []struct {
+		name string
+		raws oapi.Raws
+	}{
+		{"施設の id が重複するとエラー", oapi.Raws{Facilities: &[]oapi.Facility{{Id: "house"}, {Id: "house"}}}},
+		{"ランドマークの id が重複するとエラー", oapi.Raws{Landmarks: &[]oapi.Landmark{{Id: "shrine"}, {Id: "shrine"}}}},
+		{"散布ゾーンの id が重複するとエラー", oapi.Raws{ScatterZones: &[]oapi.ScatterZone{{Id: "wild"}, {Id: "wild"}}}},
+		{"地図記号の id が重複するとエラー", oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "house"}, {Id: "house"}}}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			require.ErrorIs(t, validateFeatureUniqueIDs(c.raws), errDuplicateID)
+		})
+	}
+}
+
+func TestValidateRaws_抽選重みは1以上(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		mutate func(*oapi.Raws)
+	}{
+		{"施設の地区重みが0", func(r *oapi.Raws) { (*r.Facilities)[0].Zones[0].Weight = 0 }},
+		{"ランドマークの重みが0", func(r *oapi.Raws) { (*r.Landmarks)[0].Weight = 0 }},
+		{"散布 prop の重みが0", func(r *oapi.Raws) { (*r.ScatterZones)[0].Entries[0].Weight = 0 }},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+			require.NoError(t, err)
+			c.mutate(&raws)
+			assert.ErrorContains(t, ValidateRaws(raws), "number must be at least 1")
+		})
+	}
+}
+
+func TestSchemaEnum(t *testing.T) {
+	t.Parallel()
+
+	t.Run("enum 型は全値を返す", func(t *testing.T) {
+		t.Parallel()
+		got, err := SchemaEnum("Zone")
+		require.NoError(t, err)
+		assert.ElementsMatch(t, []string{string(oapi.Downtown), string(oapi.Residential), string(oapi.Industrial)}, got)
+	})
+
+	t.Run("enum でない型は error", func(t *testing.T) {
+		t.Parallel()
+		_, err := SchemaEnum("Raws")
+		assert.Error(t, err)
 	})
 }

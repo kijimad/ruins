@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // 敷地の類型。1チャンク=1建物なので、街区の短冊分割でなく建物ごとに敷地の性格を1つ引く。区画分割はせず
@@ -21,8 +22,8 @@ const (
 
 // rollSiteType は施設種別と seed から敷地類型を1つ引く。民家は戸建。店は商店街かロードサイドを seed で選び、
 // 街路に面した店と郊外の駐車場付き店を出し分ける。
-func rollSiteType(facility FacilityKind, seed uint64) siteType {
-	if !isShop(facility) {
+func rollSiteType(fac oapi.Facility, seed uint64) siteType {
+	if !fac.IsShop {
 		return siteDetached
 	}
 	if childSeed(seed, 12_000_000)%2 == 0 {

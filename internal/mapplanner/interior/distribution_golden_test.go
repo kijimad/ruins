@@ -33,8 +33,8 @@ func TestGolden_Distribution(t *testing.T) {
 	door := Vec{X: prodFootprint / 2, Y: 0}
 
 	// map のキー順は json.Marshal が整列するので golden は決定的。施設は overworld が生む全種を並べる
-	facilities := []FacilityKind{facHouse, facStore, facClinic, facOffice, facDepot, facAntique, facLab}
-	out := map[FacilityKind]*facilityDist{}
+	facilities := []string{"house", "store", "clinic", "office", "depot", "antique", "lab"}
+	out := map[string]*facilityDist{}
 	for _, fac := range facilities {
 		d := &facilityDist{
 			Runs:      runs,

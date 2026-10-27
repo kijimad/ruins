@@ -80,6 +80,14 @@ const (
 	outdoorLootSalt
 )
 
+// 地物ごとのリージョン配置。salt と対で地物の疎密を決める。
+var (
+	settlementPlacement      = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
+	urbanPlacement           = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
+	dungeonEntrancePlacement = Placement{Spacing: 4, Separation: 1, Salt: dungeonEntranceSalt}
+	landmarkPlacement        = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
+)
+
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
 // 判定はすべて runSeed・座標・cols の純関数で、開始チャンクの特例は持たない。
 func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {

@@ -13,9 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestBuyStock_スタッカブルはバックパックのスタックに統合される は商人在庫のスタッカブルを買うと
-// バックパック内の同名アイテムと同一エンティティに統合されることを確認する。
-func TestBuyStock_スタッカブルはバックパックのスタックに統合される(t *testing.T) {
+func TestBuyStock_スタッカブルな品でも個別エンティティとして追加される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -23,7 +21,6 @@ func TestBuyStock_スタッカブルはバックパックのスタックに統�
 	require.NoError(t, err)
 	world.Components.Wallet.Get(player).Currency = 1000
 
-	// 先にプレイヤーが1個持っている
 	_, err = lifecycle.SpawnBackpackItem(world, "wooden_stick", 1)
 	require.NoError(t, err)
 
@@ -44,7 +41,6 @@ func TestBuyStock_スタッカブルはバックパックのスタックに統�
 	assert.Equal(t, 2, count, "買った分が個別エンティティとして増える")
 }
 
-// TestBuyStock_交渉スキルで買値が変わる は買値倍率が購入価格に反映されることを確認する。
 func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -67,7 +63,6 @@ func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	assert.Equal(t, 1000-expected, query.GetCurrency(world, player), "表示価格と同額が引かれる")
 }
 
-// TestSellStock_価値0のアイテムは対価0で売れる は無価値な品でも売却は成功し、対価が0になることを確認する。
 // 価値0の品は実スポーンで自然に作れないため、売却対象は手組みの fixture のまま残す。
 func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	t.Parallel()
@@ -88,12 +83,10 @@ func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	currency := query.GetCurrency(world, player)
 	assert.Equal(t, consts.Currency(0), currency, "無価値な品の対価は0で通貨は増えない")
 
-	// 売った品は商人の在庫へ並ぶ
 	require.True(t, world.Components.LocationInStorage.Has(item), "実体は商人の収納へ移る")
 	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 }
 
-// TestSellStock_交渉スキルで売値が変わる は売値倍率が売却価格に反映されることを確認する。
 // 期待値を明示するため、売却対象は価値100の手組み fixture のまま残す。
 func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	t.Parallel()
@@ -119,7 +112,57 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 
 	assert.Equal(t, expected, query.GetCurrency(world, player), "表示価格と同額を得る")
 
-	// 売った品は商人の在庫へ並ぶ
 	require.True(t, world.Components.LocationInStorage.Has(item))
 	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
+}
+
+// TestBuyStock_通貨消費に失敗すると購入できない は ConsumeCurrency 自体が失敗したとき
+// BuyStock がエラーを返し、在庫が動かないことを確認する。HasCurrency は 0 円要求なら
+// Wallet が無くても通るため、ConsumeCurrency だけが失敗する経路を無価値な品で再現する。
+func TestBuyStock_通貨消費に失敗すると購入できない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Wallet.Remove(player)
+
+	merchant := world.ECS.NewEntity()
+	item := world.ECS.NewEntity()
+	world.Components.Value.Add(item, &gc.Value{Value: 0})
+	world.Components.Name.Add(item, &gc.Name{Name: "Scrap"})
+	world.Components.RawID.Add(item, &gc.RawID{ID: "scrap"})
+	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: merchant})
+
+	err = BuyStock(world, player, item)
+	require.ErrorContains(t, err, "failed to consume currency")
+
+	// Wallet を剥がしたので通貨の増減は引けない。在庫に残ったままで購入が巻き戻ったことを確かめる
+	assert.True(t, world.Components.LocationInStorage.Has(item))
+}
+
+// TestSellStock_通貨付与に失敗すると実体をバックパックへ戻す は AddCurrency が失敗したとき
+// SellStock が実体を商人の在庫からプレイヤーのバックパックへロールバックすることを確認する。
+func TestSellStock_通貨付与に失敗すると実体をバックパックへ戻す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
+	require.NoError(t, err)
+
+	merchant := world.ECS.NewEntity()
+
+	// Wallet が無いと AddCurrency が失敗し、ロールバック経路に入る
+	world.Components.Wallet.Remove(player)
+
+	err = SellStock(world, player, merchant, item)
+	require.ErrorContains(t, err, "failed to add currency")
+
+	// ロールバックで実体が手元へ戻り、商人の在庫には並ばない
+	assert.True(t, world.Components.LocationInBackpack.Has(item))
+	assert.Equal(t, player, world.Components.LocationInBackpack.Get(item).Owner)
+	assert.False(t, world.Components.LocationInStorage.Has(item))
 }
