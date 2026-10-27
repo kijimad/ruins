@@ -98,7 +98,7 @@ aseprite: ## asepriteでパッキングする。画像の変更を反映した�
 .PHONY: toolsinstall
 toolsinstall: ## 開発ツールをインストールする
 	# golangci-lint は依存が巨大でアプリの依存グラフを汚すため tool 化せず版固定でインストールする。
-	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.1
+	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
 	# apt の shellcheck は環境ごとに版が違い、検出されるルールがローカルと CI でずれる
 	@./scripts/install-shellcheck.sh
 	@sudo apt-get install -y bubblewrap
