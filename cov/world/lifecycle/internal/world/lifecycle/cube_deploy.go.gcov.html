@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-27 14:17:12</td>
+            <td class="headerValue">2026-10-27 14:48:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -131,7 +131,7 @@
 <span id="L69"><span class="lineNum">      69</span>              :                 }</span>
 <span id="L70"><span class="lineNum">      70</span>              :         }</span>
 <span id="L71"><span class="lineNum">      71</span>              :         // 空間索引は BlockPass と character しか持たないのでアイテム・prop は LocationOnField を走査する</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         q := query.ActiveFilter1[gc.LocationOnField](world).Query()</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         defer q.Close()</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
@@ -162,7 +162,7 @@
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         r := world.Components.Deployed.Get(cube).Range</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         var targets []ecs.Entity</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter1[gc.LocationOnField](world).Query()</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         defer q.Close()</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>

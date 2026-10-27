@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-27 14:17:12</td>
+            <td class="headerValue">2026-10-27 14:48:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -195,7 +195,7 @@
 <span id="L133"><span class="lineNum">     133</span>              : // 所有者を持たず位置で束ねるため、同座標かつ同キーのものを数える。</span>
 <span id="L134"><span class="lineNum">     134</span>              : func sameStackOnField(world w.World, grid *gc.GridElement, key StackKey) []ecs.Entity {</span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         var out []ecs.Entity</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.ECS).Query()</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         q := ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Query()</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 ge := world.Components.GridElement.Get(e)</span></span>

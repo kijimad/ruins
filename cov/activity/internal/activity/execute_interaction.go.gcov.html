@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-27 14:17:12</td>
+            <td class="headerValue">2026-10-27 14:48:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,7 +221,7 @@
 <span id="L159"><span class="lineNum">     159</span>              : func fieldFuelOnTile(world w.World, coord consts.Coord[consts.Tile]) []ecs.Entity {</span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         var fuels []ecs.Entity</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         // 地面の燃焼物は座標で絞るので GridElement も条件に入れる。フィルタで保証されるので Get は安全</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world.ECS).Query()</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world).Query()</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 if !query.IsCombustible(world, e) {</span></span>

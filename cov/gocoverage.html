@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (86.8%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.2%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (93.7%)</option>
 				
@@ -2840,7 +2840,7 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 func fieldFuelOnTile(world w.World, coord consts.Coord[consts.Tile]) []ecs.Entity {
         <span class="cov8" title="1">var fuels []ecs.Entity
 </span>        // 地面の燃焼物は座標で絞るので GridElement も条件に入れる。フィルタで保証されるので Get は安全
-        <span class="cov8" title="1">q := ecs.NewFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world.ECS).Query()
+        <span class="cov8" title="1">q := query.ActiveFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world).Query()
         for q.Next() </span>{
                 <span class="cov8" title="1">e := q.Entity()
                 if !query.IsCombustible(world, e) </span>{
@@ -5536,7 +5536,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -52633,7 +52633,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity, r consts.Coord[consts.Tile]
                 }
         }
         // 空間索引は BlockPass と character しか持たないのでアイテム・prop は LocationOnField を走査する
-        <span class="cov8" title="1">q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+        <span class="cov8" title="1">q := query.ActiveFilter1[gc.LocationOnField](world).Query()
         defer q.Close()
         for q.Next() </span>{
                 <span class="cov8" title="1">e := q.Entity()
@@ -52664,7 +52664,7 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
         r := world.Components.Deployed.Get(cube).Range
 </span>
         <span class="cov8" title="1">var targets []ecs.Entity
-        q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+        q := query.ActiveFilter1[gc.LocationOnField](world).Query()
         defer q.Close()
         for q.Next() </span>{
                 <span class="cov8" title="1">e := q.Entity()
@@ -52832,7 +52832,7 @@ func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.
                 <span class="cov0" title="0">return false
 </span>        }
         // 空間索引は prop・アイテムを持たないので LocationOnField を走査する
-        <span class="cov8" title="1">q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+        <span class="cov8" title="1">q := query.ActiveFilter1[gc.LocationOnField](world).Query()
         defer q.Close()
         for q.Next() </span>{
                 <span class="cov8" title="1">e := q.Entity()
@@ -55948,7 +55948,7 @@ func StackMembers(world w.World, entity ecs.Entity) []ecs.Entity {
 // 所有者を持たず位置で束ねるため、同座標かつ同キーのものを数える。
 func sameStackOnField(world w.World, grid *gc.GridElement, key StackKey) []ecs.Entity {
         <span class="cov8" title="1">var out []ecs.Entity
-        q := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.ECS).Query()
+        q := ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Query()
         for q.Next() </span>{
                 <span class="cov8" title="1">e := q.Entity()
                 ge := world.Components.GridElement.Get(e)
