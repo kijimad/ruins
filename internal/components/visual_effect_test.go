@@ -51,6 +51,17 @@ func TestFadeAnimation_Update(t *testing.T) {
 		active := a.Update(301)
 		assert.False(t, active)
 	})
+
+	t.Run("フェードアウト時間0ならホールド終了直後にAlphaは0.0になる", func(t *testing.T) {
+		t.Parallel()
+		a := FadeAnimation{
+			FadeInMs: 100, HoldMs: 100, FadeOutMs: 0,
+			TotalMs: 200, RemainingMs: 200, Alpha: 0,
+		}
+		active := a.Update(200)
+		assert.False(t, active)
+		assert.InDelta(t, 0.0, a.Alpha, 0.01)
+	})
 }
 
 func TestNewDamageEffect(t *testing.T) {
