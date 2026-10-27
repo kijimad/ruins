@@ -68,6 +68,19 @@ func TestDeployCube(t *testing.T) {
 		assert.False(t, world.Components.Deployed.Has(cube), "展開しないのでマーカーは付かない")
 	})
 
+	t.Run("退避中ステージのアイテムは展開を妨げない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+		require.NoError(t, err)
+		item, err := SpawnFieldItem(world, "wooden_sword", 9, 9, 1)
+		require.NoError(t, err)
+		world.Components.Suspended.Add(item, &gc.Suspended{})
+		query.InvalidateSpatialIndex(world)
+
+		assert.True(t, DeployCube(world, cube))
+	})
+
 	t.Run("既に展開中なら何もせず真を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -115,6 +128,22 @@ func TestStowCube_足元のアイテムを畳み込み展開で戻す(t *testing
 	require.True(t, DeployCube(world, cube))
 	assert.False(t, world.Components.LocationStowed.Has(item), "展開で LocationStowed が外れる")
 	assert.True(t, world.Components.LocationOnField.Has(item), "フィールドへ戻る")
+}
+
+func TestStowCube_退避中ステージの物は畳み込まない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	require.True(t, DeployCube(world, cube))
+
+	item, err := SpawnFieldItem(world, "wooden_sword", 10, 9, 1)
+	require.NoError(t, err)
+	world.Components.Suspended.Add(item, &gc.Suspended{})
+
+	StowCube(world, cube)
+	assert.True(t, world.Components.LocationOnField.Has(item), "退避中ステージの物はフィールドに残る")
+	assert.False(t, world.Components.LocationStowed.Has(item), "キューブに畳み込まれない")
 }
 
 func TestStowCube_置いた相対位置を保持して戻す(t *testing.T) {

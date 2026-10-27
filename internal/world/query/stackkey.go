@@ -133,7 +133,7 @@ func StackMembers(world w.World, entity ecs.Entity) []ecs.Entity {
 // 所有者を持たず位置で束ねるため、同座標かつ同キーのものを数える。
 func sameStackOnField(world w.World, grid *gc.GridElement, key StackKey) []ecs.Entity {
 	var out []ecs.Entity
-	q := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.ECS).Query()
+	q := ActiveFilter2[gc.LocationOnField, gc.GridElement](world).Query()
 	for q.Next() {
 		e := q.Entity()
 		ge := world.Components.GridElement.Get(e)

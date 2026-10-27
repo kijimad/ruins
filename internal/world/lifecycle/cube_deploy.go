@@ -69,7 +69,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity, r consts.Coord[consts.Tile]
 		}
 	}
 	// 空間索引は BlockPass と character しか持たないのでアイテム・prop は LocationOnField を走査する
-	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	q := query.ActiveFilter1[gc.LocationOnField](world).Query()
 	defer q.Close()
 	for q.Next() {
 		e := q.Entity()
@@ -100,7 +100,7 @@ func stowNearbyItems(world w.World, cube ecs.Entity) {
 	r := world.Components.Deployed.Get(cube).Range
 
 	var targets []ecs.Entity
-	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	q := query.ActiveFilter1[gc.LocationOnField](world).Query()
 	defer q.Close()
 	for q.Next() {
 		e := q.Entity()

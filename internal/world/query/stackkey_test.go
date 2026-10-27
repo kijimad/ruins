@@ -151,6 +151,8 @@ func TestStackMembers_床は同じタイルの同種だけ束ねる(t *testing.T
 	// 別タイルの同種、同タイルの別品種は束ねない
 	onField("apple", 4, 3)
 	onField("bolt", 2, 3)
+	// 退避中ステージは同じローカル座標を使うので、同タイルでも束ねない
+	world.Components.Suspended.Add(onField("apple", 2, 3), &gc.Suspended{})
 
 	assert.Len(t, StackMembers(world, apple), 3, "同タイルの apple だけ束ねる")
 	assert.Equal(t, 3, GetEntityCount(world, apple), "床でも同種の個数を導出する")
