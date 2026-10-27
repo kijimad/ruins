@@ -124,6 +124,41 @@ func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	assert.Empty(t, result, "重みが全て0の場合は空文字列を返すべき")
 }
 
+func TestItemTable_SelectByWeight_危険度範囲外のエントリは除外される(t *testing.T) {
+	t.Parallel()
+
+	table := oapi.ItemTable{
+		Name: "範囲あり",
+		Entries: []oapi.ItemTableEntry{
+			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 3},
+			{Id: "武器", Weight: 1.0, MinDanger: 10, MaxDanger: 20},
+		},
+	}
+	raws := newTestRawsForItemTable(testGroups, table)
+
+	rng := rand.New(rand.NewPCG(12345, 67890))
+	for range 100 {
+		result, err := SelectItemByWeight(raws, table, rng, 5)
+		require.NoError(t, err)
+		assert.NotEqual(t, "毒消し", result, "危険度5は武器グループの範囲10-20外なので選ばれない")
+		assert.NotEqual(t, "手榴弾", result, "危険度5は武器グループの範囲10-20外なので選ばれない")
+	}
+}
+
+func TestSelectItemByWeight_グループ未存在はエラー(t *testing.T) {
+	t.Parallel()
+
+	table := oapi.ItemTable{
+		Name:    "未存在グループ参照",
+		Entries: []oapi.ItemTableEntry{{Id: "存在しないグループ", Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
+	}
+	raws := newTestRawsForItemTable(testGroups, table)
+
+	rng := rand.New(rand.NewPCG(1, 2))
+	_, err := SelectItemByWeight(raws, table, rng, 5)
+	require.ErrorIs(t, err, errItemGroupNotExist)
+}
+
 func TestItemTable_SelectByWeight_EmptyEntries(t *testing.T) {
 	t.Parallel()
 

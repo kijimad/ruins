@@ -1150,3 +1150,17 @@ weight = "1 kg"
 	require.NoError(t, err)
 	assert.Nil(t, none.Material, "材質未指定は Material を持たない")
 }
+
+func TestDecodeRaws_TOML構文エラーはエラーを返す(t *testing.T) {
+	t.Parallel()
+
+	// 配列テーブルの閉じ括弧が1つ欠けており、TOMLの構文として壊れている
+	brokenToml := `
+[[Items]
+Name = "壊れたアイテム"
+id = "壊れたアイテム"
+`
+	_, err := DecodeRaws(brokenToml)
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "TOML decode error")
+}
