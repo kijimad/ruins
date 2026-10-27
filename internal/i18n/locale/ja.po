@@ -4731,6 +4731,12 @@ msgstr "干し草"
 msgid "Dried grass, usable as fuel or livestock feed."
 msgstr "乾燥した草。燃料や家畜の餌に使える"
 
+msgid "Firewood"
+msgstr "薪"
+
+msgid "Split wood for burning."
+msgstr "燃やすために割った木"
+
 msgid "Heart"
 msgstr "心臓"
 

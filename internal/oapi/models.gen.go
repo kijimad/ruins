@@ -623,6 +623,7 @@ func (e TargetNum) Valid() bool {
 
 // Defines values for ToolCategory.
 const (
+	Chopping  ToolCategory = "chopping"
 	Cutting   ToolCategory = "cutting"
 	Precision ToolCategory = "precision"
 	Prying    ToolCategory = "prying"
@@ -631,6 +632,8 @@ const (
 // Valid indicates whether the value is a known member of the ToolCategory enum.
 func (e ToolCategory) Valid() bool {
 	switch e {
+	case Chopping:
+		return true
 	case Cutting:
 		return true
 	case Precision:
@@ -1215,6 +1218,9 @@ type Disassembly struct {
 	// BaseAP 分解の基礎工数。100が標準1ターンに相当する
 	BaseAP DisassemblyBaseAP   `json:"baseAP"`
 	Bonus  *[]DisassemblyBonus `json:"bonus,omitempty"`
+
+	// DestroySalvageChance 殴り壊したときに確定枠が出る確率。省略すると既定値を使う
+	DestroySalvageChance *DisassemblyChance `json:"destroySalvageChance,omitempty"`
 
 	// ToolCategory 分解工具の分類
 	ToolCategory ToolCategory       `json:"toolCategory"`

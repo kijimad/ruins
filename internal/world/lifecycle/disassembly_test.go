@@ -205,6 +205,23 @@ func TestRollDisassemblyYields(t *testing.T) {
 		assert.InDelta(t, 600, hit, 150, "確定枠はDestroySalvageChance前後で当選するべき")
 	})
 
+	t.Run("破壊回収の確率を定義で指定すると既定値より優先する", func(t *testing.T) {
+		t.Parallel()
+		rng := rand.New(rand.NewPCG(8, 0))
+		def := &oapi.Disassembly{
+			ToolCategory:         oapi.Chopping,
+			BaseAP:               100,
+			Yields:               []oapi.DisassemblyYield{{Id: "薪", Count: "1d1"}},
+			DestroySalvageChance: new(oapi.DisassemblyChance(100)),
+		}
+
+		for range 200 {
+			stacks, err := lifecycle.RollDisassemblyYields(rng, def, 0, 0, false)
+			require.NoError(t, err)
+			assert.Equal(t, []lifecycle.YieldStack{{Name: "薪", Count: 1}}, stacks)
+		}
+	})
+
 	t.Run("個数表記が不正だとエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(10, 0))

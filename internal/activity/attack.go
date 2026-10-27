@@ -290,7 +290,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
 
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
-	growWeaponSkill(actor, world, attack)
+	growWeaponSkill(actor, target, world, attack)
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
 	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
@@ -379,8 +379,20 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	return finalDamage
 }
 
+// propSkillEfficiency は prop を殴ったときの武器スキル経験値の倍率。反撃しない prop で
+// 安全にスキルを稼げないよう下げる
+const propSkillEfficiency consts.Percent = 10
+
+// gainWeaponExp は武器スキルに経験値を加算する。prop が相手なら propSkillEfficiency を掛ける
+func gainWeaponExp(s *gc.Skill, abilityValue int, isProp bool) bool {
+	if isProp {
+		return skill.GainExpScaled(s, abilityValue, propSkillEfficiency)
+	}
+	return skill.GainExp(s, abilityValue)
+}
+
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
-func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
+func growWeaponSkill(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	// スキル成長は味方側の進行要素。敵も Skills を持つが戦闘中に強くならないよう除外する
 	if query.IsEnemy(world, actor) {
 		return
@@ -402,7 +414,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	abils := world.Components.Abilities.Get(actor)
 	ablID := gc.SkillAbilityID(skillID)
 
-	if skill.GainExp(s, abils.ValueOf(ablID)) {
+	if gainWeaponExp(s, abils.ValueOf(ablID), world.Components.Prop.Has(target)) {
 		actorName := query.GetEntityName(actor, world)
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, string(skillID), s.Value)).

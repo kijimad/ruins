@@ -540,6 +540,8 @@ model Disassembly {
   baseAP: DisassemblyBaseAP;
   yields: DisassemblyYield[];
   bonus?: DisassemblyBonus[];
+  /** 殴り壊したときに確定枠が出る確率。省略すると既定値を使う */
+  destroySalvageChance?: DisassemblyChance;
 }
 
 /** 分解工具。分類の対応とグレードを持つ */

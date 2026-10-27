@@ -2108,6 +2108,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DisassemblyBonus'
+        destroySalvageChance:
+          allOf:
+            - $ref: '#/components/schemas/DisassemblyChance'
+          description: 殴り壊したときに確定枠が出る確率。省略すると既定値を使う
       description: 分解定義。これを持つ prop・item は対応工具で分解できる
     DisassemblyBaseAP:
       type: integer
@@ -3670,6 +3674,7 @@ components:
         - prying
         - precision
         - cutting
+        - chopping
       description: 分解工具の分類
     ToolGrade:
       type: integer
