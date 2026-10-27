@@ -12,11 +12,11 @@ import (
 func TestClassifyRoom_施設が役割どおりに分類される(t *testing.T) {
 	t.Parallel()
 
-	bedroom, _, err := roomContent(testRaws(), facHouse, "bedroom")
+	bedroom, _, err := roomContent(testRaws(), "house", "bedroom")
 	require.NoError(t, err)
-	bath, _, err := roomContent(testRaws(), facHouse, "bath")
+	bath, _, err := roomContent(testRaws(), "house", "bath")
 	require.NoError(t, err)
-	kitchen, _, err := roomContent(testRaws(), facHouse, "kitchen")
+	kitchen, _, err := roomContent(testRaws(), "house", "kitchen")
 	require.NoError(t, err)
 	store, err := contentByID(testRaws(), "convenience_store")
 	require.NoError(t, err)

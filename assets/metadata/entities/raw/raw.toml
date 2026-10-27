@@ -15945,27 +15945,371 @@ maxDanger = 25
 weight = 0.5
 pack = "1d1"
 
-[[facilityEnemyTables]]
-facility = "clinic"
-enemyTable = "clinic_enemies"
-[[facilityEnemyTables]]
-facility = "lab"
-enemyTable = "lab_enemies"
-[[facilityEnemyTables]]
-facility = "depot"
-enemyTable = "depot_enemies"
-[[facilityEnemyTables]]
-facility = "office"
-enemyTable = "office_enemies"
-[[facilityEnemyTables]]
-facility = "house"
+[[facilities]]
+id = "house"
+isShop = false
+planner = "house"
 enemyTable = "house_enemies"
-[[facilityEnemyTables]]
-facility = "store"
+[[facilities.zones]]
+zone = "residential"
+weight = 65
+minSpan = 2
+[[facilities.zones]]
+zone = "industrial"
+weight = 10
+minSpan = 2
+[[facilities]]
+id = "store"
+isShop = true
+planner = "store"
 enemyTable = "store_enemies"
-[[facilityEnemyTables]]
-facility = "antique"
+[[facilities.zones]]
+zone = "downtown"
+weight = 25
+minSpan = 2
+[[facilities.zones]]
+zone = "residential"
+weight = 25
+minSpan = 2
+[[facilities]]
+id = "office"
+isShop = false
+planner = "bsp"
+enemyTable = "office_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 20
+minSpan = 2
+[[facilities.zones]]
+zone = "industrial"
+weight = 25
+minSpan = 2
+[[facilities]]
+id = "depot"
+isShop = false
+planner = "bsp"
+enemyTable = "depot_enemies"
+[[facilities.zones]]
+zone = "industrial"
+weight = 65
+minSpan = 2
+[[facilities]]
+id = "antique"
+isShop = true
+planner = "store"
 enemyTable = "antique_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 20
+minSpan = 3
+[[facilities]]
+id = "clinic"
+isShop = false
+planner = "clinic"
+enemyTable = "clinic_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 20
+minSpan = 3
+[[facilities.zones]]
+zone = "residential"
+weight = 10
+minSpan = 3
+[[facilities]]
+id = "lab"
+isShop = false
+planner = "clinic"
+enemyTable = "lab_enemies"
+[[facilities.zones]]
+zone = "downtown"
+weight = 15
+minSpan = 3
+
+[[landmarks]]
+id = "abandoned_hut"
+weight = 30
+drawer = "hut"
+hutW = 6
+hutH = 5
+[[landmarks.props]]
+name = "bed"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "closet"
+dx = 0
+dy = 0
+[[landmarks]]
+id = "farmstead"
+weight = 25
+drawer = "hut"
+hutW = 7
+hutH = 5
+[[landmarks.props]]
+name = "barrel"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "crate"
+dx = 0
+dy = 0
+[[landmarks]]
+id = "shrine"
+weight = 20
+drawer = "open"
+hutW = 0
+hutH = 0
+[[landmarks.props]]
+name = "stone_pillar"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "candle"
+dx = -1
+dy = 1
+[[landmarks.props]]
+name = "candle"
+dx = 1
+dy = 1
+[[landmarks]]
+id = "campsite"
+weight = 25
+drawer = "open"
+hutW = 0
+hutH = 0
+[[landmarks.props]]
+name = "hearth"
+dx = 0
+dy = 0
+[[landmarks.props]]
+name = "crate"
+dx = 1
+dy = 1
+[[landmarks.props]]
+name = "bench"
+dx = -1
+dy = 0
+
+[[scatterZones]]
+id = "roadside"
+grassDensity = 0.18
+propDensity = 0.015
+lootGroup = "scrap_of_paper"
+[[scatterZones.entries]]
+ref = ""
+weight = 55
+big = false
+[[scatterZones.entries]]
+ref = "tree_a"
+weight = 16
+big = false
+[[scatterZones.entries]]
+ref = "tree_b"
+weight = 13
+big = false
+[[scatterZones.entries]]
+ref = "rock"
+weight = 10
+big = false
+[[scatterZones]]
+id = "wild"
+grassDensity = 0.38
+propDensity = 0.035
+lootGroup = "junk"
+[[scatterZones.entries]]
+ref = ""
+weight = 38
+big = false
+[[scatterZones.entries]]
+ref = "tree_a"
+weight = 24
+big = false
+[[scatterZones.entries]]
+ref = "tree_b"
+weight = 24
+big = false
+[[scatterZones.entries]]
+ref = "rock"
+weight = 14
+big = false
+[[scatterZones.entries]]
+ref = "big_tree"
+weight = 6
+big = true
+[[scatterZones.entries.satellites]]
+name = "tree_a"
+dx = 1
+dy = 0
+[[scatterZones.entries.satellites]]
+name = "tree_b"
+dx = -1
+dy = 1
+
+[[mapGlyphs]]
+id = "field"
+glyph = "."
+name = "Wasteland"
+order = 0
+
+[mapGlyphs.color]
+r = 46
+g = 59
+b = 46
+a = 255
+[[mapGlyphs]]
+id = "village"
+glyph = "T"
+name = "Village"
+order = 1
+
+[mapGlyphs.color]
+r = 255
+g = 210
+b = 74
+a = 255
+[[mapGlyphs]]
+id = "hamlet"
+glyph = "t"
+name = "Lone House"
+order = 2
+
+[mapGlyphs.color]
+r = 208
+g = 168
+b = 58
+a = 255
+[[mapGlyphs]]
+id = "dungeon_entrance"
+glyph = ">"
+name = "Ruins Entrance"
+order = 3
+
+[mapGlyphs.color]
+r = 224
+g = 69
+b = 58
+a = 255
+[[mapGlyphs]]
+id = "abandoned_hut"
+glyph = "x"
+name = "Abandoned Hut"
+order = 4
+
+[mapGlyphs.color]
+r = 150
+g = 140
+b = 120
+a = 255
+[[mapGlyphs]]
+id = "farmstead"
+glyph = "f"
+name = "Old Farmstead"
+order = 5
+
+[mapGlyphs.color]
+r = 150
+g = 160
+b = 80
+a = 255
+[[mapGlyphs]]
+id = "shrine"
+glyph = "s"
+name = "Shrine"
+order = 6
+
+[mapGlyphs.color]
+r = 130
+g = 190
+b = 175
+a = 255
+[[mapGlyphs]]
+id = "campsite"
+glyph = "^"
+name = "Campsite"
+order = 7
+
+[mapGlyphs.color]
+r = 215
+g = 150
+b = 90
+a = 255
+[[mapGlyphs]]
+id = "house"
+glyph = "h"
+name = "House"
+order = 8
+
+[mapGlyphs.color]
+r = 154
+g = 160
+b = 166
+a = 255
+[[mapGlyphs]]
+id = "store"
+glyph = "S"
+name = "Shop"
+order = 9
+
+[mapGlyphs.color]
+r = 74
+g = 144
+b = 226
+a = 255
+[[mapGlyphs]]
+id = "office"
+glyph = "O"
+name = "Office"
+order = 10
+
+[mapGlyphs.color]
+r = 80
+g = 200
+b = 208
+a = 255
+[[mapGlyphs]]
+id = "depot"
+glyph = "D"
+name = "Warehouse"
+order = 11
+
+[mapGlyphs.color]
+r = 176
+g = 122
+b = 58
+a = 255
+[[mapGlyphs]]
+id = "antique"
+glyph = "A"
+name = "Antique Shop"
+order = 12
+
+[mapGlyphs.color]
+r = 212
+g = 160
+b = 23
+a = 255
+[[mapGlyphs]]
+id = "clinic"
+glyph = "C"
+name = "Clinic"
+order = 13
+
+[mapGlyphs.color]
+r = 232
+g = 106
+b = 154
+a = 255
+[[mapGlyphs]]
+id = "lab"
+glyph = "L"
+name = "Research Facility"
+order = 14
+
+[mapGlyphs.color]
+r = 160
+g = 106
+b = 208
+a = 255
 
 [[interiorContents]]
 id = "bath"

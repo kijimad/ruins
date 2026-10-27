@@ -1,31 +1,42 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/oapi"
-
-// 施設種別で単室の建物を内装する公開 API Furnish と、密度・経年を決める調整関数を持つ。content
-// レシピそのものは raw.toml のデータで、content_lookup.go が施設種別から変種を都度引いて変換する。多部屋の加工パイプは
-// furnish.go にある。ここは「どの施設をどの配合・密度・経年で furnish するか」の施設レベルの判断に絞る。
-
-// FacilityKind は建物の施設種別。overworld の facilityType の文字列と揃える。公開 API は overworld から
-// 素の string を受けて境界で FacilityKind へ変換し、内部はこの型で扱う。role など他の文字列と取り違えると
-// コンパイルが通らないよう型で区別する。
-type FacilityKind string
-
-// 施設種別名。switch の case で繰り返すので定数にする。overworld の facilityType の値と1対1で揃える。
-const (
-	facHouse   FacilityKind = "house"
-	facStore   FacilityKind = "store"
-	facAntique FacilityKind = "antique"
-	facClinic  FacilityKind = "clinic"
-	facLab     FacilityKind = "lab"
-	facOffice  FacilityKind = "office"
-	facDepot   FacilityKind = "depot"
+import (
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
+
+// plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。
+type plannerDef struct {
+	fn         func(Rect, uint64) []PlannedRoom
+	minW, minH consts.Tile
+}
+
+// planners は planner キーから間取り実装を引く。
+var planners = map[oapi.PlannerKey]plannerDef{
+	oapi.House:  {PlanHouseAny, 12, 9},
+	oapi.Store:  {PlanStore, 12, 9},
+	oapi.Clinic: {PlanClinic, 12, 9},
+	oapi.Bsp:    {planBSP, 0, 0},
+}
+
+// planBSP は汎用の BSP 分割で面積最大を主室、残りを奥室にする。
+func planBSP(footprint Rect, seed uint64) []PlannedRoom {
+	rooms := SubdivideBuilding(footprint, seed)
+	out := make([]PlannedRoom, len(rooms))
+	for rank, ri := range roomOrderByArea(rooms) {
+		role := roleBack
+		if rank == 0 {
+			role = roleMain
+		}
+		out[ri] = PlannedRoom{Room: rooms[ri], Role: role}
+	}
+	return out
+}
 
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
-// 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未知の施設種別は汎用の内装。
-func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility FacilityKind) ([]Placed, error) {
+// 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未登録の施設は error。
+func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {
 	prof := rollProfile(seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
 	main, err := facilityContent(raws, facility, seed)

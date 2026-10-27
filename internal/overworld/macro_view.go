@@ -1,6 +1,11 @@
 package overworld
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"image/color"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+)
 
 // マクロ地図の描画モデル。1チャンク=1セルの地形俯瞰を、描画基盤に依らない形で表す。
 // 全画面の俯瞰図も HUD の右上地図も、この同じモデルを各自の基盤で描く。ピクセルの描き方は
@@ -43,8 +48,10 @@ func PlayerCenteredRange(centerRow, cols consts.Chunk, radius int) MacroRange {
 // MacroCell は表示範囲内1チャンクの表示情報。種別文字と、探索で開放済みかを持つ。色は文字から引く。
 type MacroCell struct {
 	Glyph      rune
-	Discovered bool    // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
-	Road       RoadDir // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
+	Color      color.RGBA // 記号の色
+	HasColor   bool       // 記号の色が mapGlyphs にあったか
+	Discovered bool       // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
+	Road       RoadDir    // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
 }
 
 // MacroView はマクロ地図の描画モデル。表示範囲内のチャンク格子と、マーカーの表示範囲ローカル座標を持つ。
@@ -55,12 +62,13 @@ type MacroView struct {
 }
 
 // BuildMacroView は帯のプリミティブとプレイヤー・キューブのタイル座標から、指定表示範囲の描画モデルを組む。
-// ChunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク寸法で割って表示範囲ローカルへ移す。
+// chunkPlace を表示範囲の全チャンクへ適用し、マーカーはタイル座標をチャンク寸法で割って表示範囲ローカルへ移す。
 // northIndex は帯ローカルなタイル座標を絶対チャンク行へ移すのに使う。X は有界なので列は割るだけ。
 // discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。含まれるチャンクだけを開放し、
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
+	raws oapi.Raws,
 	runSeed uint64,
 	northIndex consts.Chunk,
 	chunkW, chunkH consts.Tile,
@@ -74,16 +82,23 @@ func BuildMacroView(
 	rows := max(area.Rows, 1)
 
 	// 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
-	// ChunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
+	// chunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
 	roads := buildRoadOverlay(runSeed, area, cols)
+
+	colorOf := glyphColorMap(raws)
+	cat := zoneCatalogFrom(raws)
 
 	cells := make([][]MacroCell, rows)
 	for cy := range rows {
 		cells[cy] = make([]MacroCell, cols)
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
+			glyph := chunkPlace(raws, cat, runSeed, c, cols)
+			col, hasCol := colorOf[glyph]
 			cells[cy][i] = MacroCell{
-				Glyph:      ChunkPlace(runSeed, c, cols),
+				Glyph:      glyph,
+				Color:      col,
+				HasColor:   hasCol,
 				Discovered: discovered[c],
 				Road:       roads[c],
 			}

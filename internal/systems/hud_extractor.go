@@ -137,7 +137,7 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 	}
 	// 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する
 	view := overworld.BuildMacroView(
-		sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
+		world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
 		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 	// カメラ不在時は北を既定にする

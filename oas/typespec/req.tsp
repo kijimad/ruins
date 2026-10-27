@@ -304,12 +304,63 @@ model EnemyTable {
   entries: EnemyTableEntry[];
 }
 
-/** 施設種別ごとの敵テーブル割り当て。市街地生成が施設で敵テーブルを切り替える。似た施設は同じ
-enemyTable を指してよい。未割り当ての施設は生成側の既定テーブルへ落ちる。 */
-model FacilityEnemyTable {
-  facility: FacilityKind;
-  /** 割り当てる敵テーブルの id。enemyTables のいずれかを指す */
+/** 市街地の施設1種。isShop は看板やシャッターを出す店か */
+model Facility {
+  id: EntityID;
+  isShop: boolean;
+  planner: PlannerKey;
   enemyTable: EntityID;
+  zones: FacilityZone[];
+}
+
+/** 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる */
+model FacilityZone {
+  zone: Zone;
+  @minValue(1) weight: int32;
+  minSpan: int32;
+}
+
+/** 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う */
+model Landmark {
+  id: EntityID;
+  @minValue(1) weight: int32;
+  drawer: DrawerKey;
+  hutW: int32;
+  hutH: int32;
+  props: PropSpot[];
+}
+
+/** prop 1個の相対配置 */
+model PropSpot {
+  name: EntityID;
+  dx: int32;
+  dy: int32;
+}
+
+/** 俯瞰地図の記号1種。id は地物・施設の種別 id */
+model MapGlyph {
+  id: EntityID;
+  glyph: string;
+  name: string;
+  color: RGBAColor;
+  order: int32;
+}
+
+/** 開けた地形の散布ゾーン1種 */
+model ScatterZone {
+  id: EntityID;
+  grassDensity: float64;
+  propDensity: float64;
+  lootGroup: EntityID;
+  entries: ScatterEntry[];
+}
+
+/** 散布 prop 1種。ref の空文字は置かないことを表す */
+model ScatterEntry {
+  ref: string;
+  @minValue(1) weight: int32;
+  big: boolean;
+  satellites?: PropSpot[];
 }
 
 // ================== 内装レシピ ==================
@@ -383,7 +434,7 @@ model InteriorContent {
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
 model FacilityContent {
-  facility: FacilityKind;
+  facility: EntityID;
   variants: EntityID[];
 }
 
@@ -395,7 +446,7 @@ model RoomContent {
 
 /** 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック */
 model FacilityRooms {
-  facility: FacilityKind;
+  facility: EntityID;
   rooms?: RoomContent[];
   fallback: EntityID;
 }
@@ -548,7 +599,10 @@ model Raws {
   itemGroups?: ItemGroup[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
-  facilityEnemyTables?: FacilityEnemyTable[];
+  facilities?: Facility[];
+  landmarks?: Landmark[];
+  scatterZones?: ScatterZone[];
+  mapGlyphs?: MapGlyph[];
   interiorContents?: InteriorContent[];
   facilityContents?: FacilityContent[];
   facilityRooms?: FacilityRooms[];
