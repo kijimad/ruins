@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">81.1&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">37</td>
-            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">37</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-10-06 15:46:30</td>
+            <td class="headerValue">2026-10-27 14:17:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -124,14 +124,14 @@
 <span id="L62"><span class="lineNum">      62</span>              : </span>
 <span id="L63"><span class="lineNum">      63</span>              : // Yaw は水平角をラジアンで返す</span>
 <span id="L64"><span class="lineNum">      64</span>              : func (o Orient) Yaw() float64 {</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :         return float64(o) * (2 * math.Pi / CameraOrientCount)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         return float64(o) * (2 * math.Pi / CameraOrientCount)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // Rotated は delta 段だけ回した向きを返す。負や範囲外でも巡回に収める</span>
 <span id="L69"><span class="lineNum">      69</span>              : func (o Orient) Rotated(delta int) Orient {</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         n := (int(o)+delta)%CameraOrientCount + CameraOrientCount</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         return Orient(n % CameraOrientCount)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         n := (int(o)+delta)%CameraOrientCount + CameraOrientCount</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return Orient(n % CameraOrientCount)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span>              : // Camera は視点を表すコンポーネント。真上から見下ろす2D描画と、ダンジョンのローポリ3D描画とで</span>
 <span id="L75"><span class="lineNum">      75</span>              : // 別々の座標系を1つに持つ。2Dはマップ生成ビジュアライザ、3Dはダンジョン本編が使う。</span>
@@ -150,8 +150,8 @@
 <span id="L88"><span class="lineNum">      88</span>              : </span>
 <span id="L89"><span class="lineNum">      89</span>              : // Yaw は水平角をラジアンで返す</span>
 <span id="L90"><span class="lineNum">      90</span>              : func (c Camera) Yaw() float64 {</span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         return c.Orient.Yaw()</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         return c.Orient.Yaw()</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L93"><span class="lineNum">      93</span>              : </span>
 <span id="L94"><span class="lineNum">      94</span>              : // Consumable は消耗品。一度使うとなくなる</span>
 <span id="L95"><span class="lineNum">      95</span>              : type Consumable struct {</span>
@@ -225,7 +225,7 @@
 <span id="L163"><span class="lineNum">     163</span>              : </span>
 <span id="L164"><span class="lineNum">     164</span>              : // Calc は基準値(最大HP)から実際の回復量を計算する。絶対量指定の場合baseは無視される</span>
 <span id="L165"><span class="lineNum">     165</span>              : func (ph ProvidesHealing) Calc(base int) int {</span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC tlaBgGNC">           1 :         if ph.Kind == HealRatio {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         if ph.Kind == HealRatio {</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 return int(float64(base) * ph.Amount)</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return int(ph.Amount)</span></span>
