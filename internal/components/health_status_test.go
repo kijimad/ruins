@@ -349,6 +349,26 @@ func TestBodyPartMetas_全部位が登録されている(t *testing.T) {
 	}
 }
 
+func TestConditionIsDerived(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		ct   ConditionType
+		want bool
+	}{
+		{"過労は量から導出される", ConditionExhaustion, true},
+		{"栄養失調は量から導出される", ConditionMalnutrition, true},
+		{"食中毒は導出されず保存される", ConditionFoodPoisoning, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, ConditionIsDerived(tt.ct))
+		})
+	}
+}
+
 func TestConditionBloodDrop(t *testing.T) {
 	t.Parallel()
 

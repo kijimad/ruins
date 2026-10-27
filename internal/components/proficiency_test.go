@@ -241,6 +241,18 @@ func TestCalcProficiencyValue_AccuracyFoldsBodyFunc(t *testing.T) {
 	assert.True(t, hasBodyFunc(bowSrc, BodyFuncSight), "遠隔は視覚機能を畳む")
 }
 
+func TestWeaponAccuracyBodyFunc_武器スキルでないIDは操作機能を既定にする(t *testing.T) {
+	t.Parallel()
+
+	bodyFuncs := BodyFuncs{Manipulation: 70, Sight: 40}
+
+	// SkillFireResist はどの AttackType にも対応しない武器スキルでないID
+	kind, val := weaponAccuracyBodyFunc(bodyFuncs, SkillFireResist)
+
+	assert.Equal(t, BodyFuncManipulation, kind)
+	assert.Equal(t, bodyFuncs.Manipulation, val)
+}
+
 func TestCalcProficiency_値は基準と内訳の和に一致する(t *testing.T) {
 	t.Parallel()
 

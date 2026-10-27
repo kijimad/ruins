@@ -127,6 +127,7 @@ func TestHungerSeverity_段階ごとに不調の重症度を返す(t *testing.T)
 		{"普通は不調なし", HungerNormal, SeverityNone, false},
 		{"空腹は軽度の栄養失調", HungerHungry, SeverityMinor, true},
 		{"飢餓は中度の栄養失調", HungerStarving, SeverityMedium, true},
+		{"未知の段階は不調なし", HungerLevel(99), SeverityNone, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
