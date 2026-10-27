@@ -3,6 +3,7 @@ package lifecycle
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -91,6 +92,17 @@ func TestPlaceFacility_塞がったマスには装着しない(t *testing.T) {
 	_, err = PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
 	require.Error(t, err, "塞がったマスへは装着できない")
 	assert.True(t, world.Components.LocationInBackpack.Has(item), "装着できなければバックパックに残る")
+}
+
+func TestFacilityCellFree_退避中ステージのpropは障害物にしない(t *testing.T) {
+	t.Parallel()
+	world, cube := deployedCubeWithPlayer(t)
+	prop, err := SpawnProp(world, "grass", 11, 10)
+	require.NoError(t, err)
+	world.Components.Suspended.Add(prop, &gc.Suspended{})
+	query.InvalidateSpatialIndex(world)
+
+	assert.True(t, FacilityCellFree(world, cube, consts.Coord[consts.Tile]{X: 11, Y: 10}))
 }
 
 func TestRemoveFacility(t *testing.T) {

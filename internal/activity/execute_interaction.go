@@ -159,7 +159,7 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 func fieldFuelOnTile(world w.World, coord consts.Coord[consts.Tile]) []ecs.Entity {
 	var fuels []ecs.Entity
 	// 地面の燃焼物は座標で絞るので GridElement も条件に入れる。フィルタで保証されるので Get は安全
-	q := ecs.NewFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world.ECS).Query()
+	q := query.ActiveFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world).Query()
 	for q.Next() {
 		e := q.Entity()
 		if !query.IsCombustible(world, e) {

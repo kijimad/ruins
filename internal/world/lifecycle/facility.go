@@ -32,7 +32,7 @@ func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.
 		return false
 	}
 	// 空間索引は prop・アイテムを持たないので LocationOnField を走査する
-	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
+	q := query.ActiveFilter1[gc.LocationOnField](world).Query()
 	defer q.Close()
 	for q.Next() {
 		e := q.Entity()

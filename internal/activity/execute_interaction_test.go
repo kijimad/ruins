@@ -83,6 +83,33 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数
 	assert.False(t, world.ECS.Alive(second), "くべた燃料は消費される")
 }
 
+// TestExecuteInteraction_Ignite_退避中ステージの燃焼物は消費しない は、同じローカル座標を使う
+// 退避中ステージの燃焼物が着火に巻き込まれて消えないことを確認する。
+func TestExecuteInteraction_Ignite_退避中ステージの燃焼物は消費しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
+	addFieldFuel := func() ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.Milligram(50000)})
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
+		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
+		return e
+	}
+	active := addFieldFuel()
+	suspended := addFieldFuel()
+	world.Components.Suspended.Add(suspended, &gc.Suspended{})
+
+	res, err := ExecuteInteraction(world.ECS.NewEntity(), active, gc.InteractionIgnite, world)
+	require.NoError(t, err)
+	require.True(t, res.Success)
+
+	assert.False(t, world.ECS.Alive(active), "現ステージの燃料は消費される")
+	assert.True(t, world.ECS.Alive(suspended), "退避中ステージの燃料は残る")
+}
+
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。
 // 平坦化により未知の種類はゼロ値（無効）のConfigを返すため、発動前の検証で拒否される
 func TestExecuteInteraction_UnknownKind(t *testing.T) {
