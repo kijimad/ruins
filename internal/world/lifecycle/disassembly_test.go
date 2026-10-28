@@ -205,6 +205,23 @@ func TestRollDisassemblyYields(t *testing.T) {
 		assert.InDelta(t, 600, hit, 150, "確定枠はDestroySalvageChance前後で当選するべき")
 	})
 
+	t.Run("破壊回収の確率を定義で指定すると既定値より優先する", func(t *testing.T) {
+		t.Parallel()
+		rng := rand.New(rand.NewPCG(8, 0))
+		def := &oapi.Disassembly{
+			ToolCategory:         oapi.Chopping,
+			BaseAP:               100,
+			Yields:               []oapi.DisassemblyYield{{Id: "薪", Count: "1d1"}},
+			DestroySalvageChance: new(oapi.DisassemblyChance(100)),
+		}
+
+		for range 200 {
+			stacks, err := lifecycle.RollDisassemblyYields(rng, def, 0, 0, false)
+			require.NoError(t, err)
+			assert.Equal(t, []lifecycle.YieldStack{{Name: "薪", Count: 1}}, stacks)
+		}
+	})
+
 	t.Run("個数表記が不正だとエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(10, 0))
@@ -217,6 +234,51 @@ func TestRollDisassemblyYields(t *testing.T) {
 		_, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
 
 		require.Error(t, err)
+		assert.ErrorContains(t, err, "invalid disassembly yield count notation")
+	})
+}
+
+func TestExpectedDisassemblyYields(t *testing.T) {
+	t.Parallel()
+
+	def := &oapi.Disassembly{
+		ToolCategory: oapi.Prying,
+		BaseAP:       100,
+		Yields: []oapi.DisassemblyYield{
+			{Id: "鉄くず", Count: "1d1"},
+			{Id: "鉄くず", Count: "1d3", Chance: new(oapi.DisassemblyChance(50))},
+		},
+		Bonus: &[]oapi.DisassemblyBonus{
+			{Id: "鉄", Count: "2d1", MinGrade: new(oapi.ToolGrade(2))},
+			{Id: "ネジ", Count: "1d1", MinSkill: new(oapi.SkillLevel(50))},
+		},
+	}
+
+	t.Run("破壊回収は確定枠だけを既定の確率で数える", func(t *testing.T) {
+		t.Parallel()
+		got, err := lifecycle.ExpectedDisassemblyYields(def, 10, 2, false)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]float64{"鉄くず": 0.3}, got)
+	})
+
+	t.Run("工具分解は確率枠を補正込みで数え、条件を満たすボーナス枠を足す", func(t *testing.T) {
+		t.Parallel()
+		got, err := lifecycle.ExpectedDisassemblyYields(def, 10, 2, true)
+		require.NoError(t, err)
+		// 確率枠は 50+スキル10+グレード補正10 で70%、1d3 の期待値は2
+		assert.InDelta(t, 1+0.7*2, got["鉄くず"], 1e-9)
+		assert.InDelta(t, 2, got["鉄"], 1e-9)
+		assert.NotContains(t, got, "ネジ")
+	})
+
+	t.Run("個数表記が不正だとエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		bad := &oapi.Disassembly{
+			ToolCategory: oapi.Prying,
+			BaseAP:       100,
+			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "invalid"}},
+		}
+		_, err := lifecycle.ExpectedDisassemblyYields(bad, 0, 1, true)
 		assert.ErrorContains(t, err, "invalid disassembly yield count notation")
 	})
 }

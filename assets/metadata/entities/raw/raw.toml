@@ -199,6 +199,10 @@ damage = 20
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 1
 [[items]]
 description = "A heavy iron hammer. Its blows are devastating, but slow to swing."
 name = "Hammer"
@@ -237,6 +241,10 @@ damage = 24
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A dining fork. As a stabbing weapon, it has the bare minimum of function."
 name = "Fork"
@@ -519,6 +527,10 @@ damage = 10
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A brightly shining mace that crushes foes with the power of light."
 name = "Bright Mace"
@@ -9443,6 +9455,15 @@ weight = "200 g"
 targetGroup = "ALLY"
 targetNum = "SINGLE"
 usableScene = "ANY"
+[[items]]
+description = "Split wood for burning."
+name = "Firewood"
+id = "firewood"
+material = "WOOD"
+spriteKey = "heavy_wood"
+spriteSheetName = "field"
+value = 3
+weight = "1 kg"
 
 [[recipes]]
 name = "レイガン"
@@ -19349,7 +19370,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = true
 description = "こんもりと葉を茂らせた大きな緑の木"
-hp = 30
+hp = 550
 name = "Big Tree"
 id = "big_tree"
 
@@ -19357,11 +19378,23 @@ id = "big_tree"
 depth = 0
 spriteKey = "big_tree"
 spriteSheetName = "field"
+
+[props.disassembly]
+toolCategory = "chopping"
+baseAP = 2500
+destroySalvageChance = 100
+[[props.disassembly.yields]]
+id = "firewood"
+count = "2d2"
+[[props.disassembly.yields]]
+id = "firewood"
+count = "1d3"
+chance = 60
 [[props]]
 blockPass = true
 blockView = false
 description = "葉を落とし枝を広げた木"
-hp = 20
+hp = 330
 name = "Tree"
 id = "tree_a"
 
@@ -19369,11 +19402,23 @@ id = "tree_a"
 depth = 0
 spriteKey = "tree_a"
 spriteSheetName = "field"
+
+[props.disassembly]
+toolCategory = "chopping"
+baseAP = 1500
+destroySalvageChance = 100
+[[props.disassembly.yields]]
+id = "firewood"
+count = "1d2"
+[[props.disassembly.yields]]
+id = "firewood"
+count = "1d2"
+chance = 60
 [[props]]
 blockPass = true
 blockView = true
 description = "緑の葉を茂らせた木"
-hp = 20
+hp = 330
 name = "Tree"
 id = "tree_b"
 
@@ -19381,6 +19426,18 @@ id = "tree_b"
 depth = 0
 spriteKey = "tree_b"
 spriteSheetName = "field"
+
+[props.disassembly]
+toolCategory = "chopping"
+baseAP = 1500
+destroySalvageChance = 100
+[[props.disassembly.yields]]
+id = "firewood"
+count = "1d2"
+[[props.disassembly.yields]]
+id = "firewood"
+count = "1d2"
+chance = 60
 [[props]]
 blockPass = true
 blockView = false

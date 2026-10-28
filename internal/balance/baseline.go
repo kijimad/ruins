@@ -245,6 +245,9 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(oapi.OIL, 10))},
 		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(oapi.WOOD, 10))},
 	})
+	if err := renderTreeFuel(&b, master, playerName); err != nil {
+		return "", err
+	}
 
 	// 感度行列。つまみ×メトリクスの横断ヤコビアン
 	renderSensitivityMatrix(&b, master)
@@ -571,5 +574,42 @@ func renderSkillDepth(b *strings.Builder, master oapi.Raws) error {
 	}
 	writeMDTable(b, []string{"武器", "総レベル", "実効ティア", "死んだティア", "実効の最小改善(ターン)"}, []tw.Align{alignL, alignR, alignR, alignR, alignR}, rows)
 	fmt.Fprintf(b, "熟練度が base 全体へ効くので進行の大半は手応えがある。死んだティアは撃破ターンが既に短い高レベル帯に偏る。弱い武器ほど base が小さく、切り捨てでわずかに死にやすい。\n\n")
+	return nil
+}
+
+// renderTreeFuel は伐採の分解定義を持つ prop 1本から薪を得る収支を、素手と斧で並べて書き出す
+func renderTreeFuel(b *strings.Builder, master oapi.Raws, playerName string) error {
+	const toolName = "axe"
+	player, err := LoadCombatantFromMember(master, playerName)
+	if err != nil {
+		return err
+	}
+	bareHands, err := LoadWeaponFromItem(master, "bare_hands")
+	if err != nil {
+		return err
+	}
+	tool, ok := raw.FindDisassemblyTool(master, toolName)
+	if !ok {
+		return fmt.Errorf("item %q is not a disassembly tool", toolName)
+	}
+
+	fmt.Fprintf(b, "木1本から薪を得る収支。素手は木のHPを殴り切る打数、%sは伐採の作業ターンで、スキル0とする。比は燃焼ターン÷作業で、1を超えれば燃料が増える。\n\n", toolName)
+	var rows [][]string
+	props := raw.PtrSlice(master.Props)
+	for i := range props {
+		if props[i].Disassembly == nil || props[i].Disassembly.ToolCategory != oapi.Chopping {
+			continue
+		}
+		id := props[i].Id
+		f, err := TreeFuelBalance(master, player, bareHands, id, tool.Grade)
+		if err != nil {
+			return err
+		}
+		rows = append(rows,
+			[]string{id, "素手", fmt.Sprintf("%.1f", f.HandTurns), fmt.Sprintf("%.0f", f.HandBurnTurns), fmt.Sprintf("%.1f", f.HandBurnTurns/f.HandTurns)},
+			[]string{id, toolName, fmt.Sprintf("%.1f", f.ToolTurns), fmt.Sprintf("%.0f", f.ToolBurnTurns), fmt.Sprintf("%.1f", f.ToolBurnTurns/f.ToolTurns)},
+		)
+	}
+	writeMDTable(b, []string{"木", "手段", "作業", "燃焼ターン", "比"}, []tw.Align{alignL, alignL, alignR, alignR, alignR}, rows)
 	return nil
 }

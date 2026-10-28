@@ -567,6 +567,10 @@ export interface Disassembly {
     'baseAP': number;
     'yields': Array<DisassemblyYield>;
     'bonus'?: Array<DisassemblyBonus>;
+    /**
+     * 殴り壊したときに確定枠が出る確率。省略すると既定値を使う
+     */
+    'destroySalvageChance'?: number;
 }
 
 
@@ -1779,6 +1783,7 @@ export const ToolCategory = {
     Prying: 'prying',
     Precision: 'precision',
     Cutting: 'cutting',
+    Chopping: 'chopping',
 } as const;
 
 export type ToolCategory = typeof ToolCategory[keyof typeof ToolCategory];
