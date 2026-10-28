@@ -1,6 +1,7 @@
 package designdoc
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -39,6 +40,17 @@ func TestLoadDir_Error(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestLoadDir_ファイルの読み込みに失敗したらエラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	// シンボリックリンクは IsDir で弾かれず一覧に残るが、リンク先が無いので読み込みに失敗する。
+	require.NoError(t, os.Symlink(filepath.Join(dir, "存在しない"), filepath.Join(dir, "260101090000.md")))
+
+	_, err := LoadDir(dir)
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
 func TestBackfillDir(t *testing.T) {
 	t.Parallel()
 
@@ -63,6 +75,16 @@ func TestBackfillDir(t *testing.T) {
 	changed2, err := BackfillDir(dir)
 	require.NoError(t, err)
 	assert.Empty(t, changed2)
+}
+
+func TestBackfillDir_ファイルの読み込みに失敗したらエラーを伝播する(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	require.NoError(t, os.Symlink(filepath.Join(dir, "存在しない"), filepath.Join(dir, "260101090000.md")))
+
+	_, err := BackfillDir(dir)
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func TestBackfillDir_Error(t *testing.T) {
