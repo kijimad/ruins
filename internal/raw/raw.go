@@ -489,7 +489,7 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)
 	if !ok {
-		return gc.EntitySpec{}, fmt.Errorf("key does not exist: %s", name)
+		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Members")
 	}
 
 	entitySpec := gc.EntitySpec{}
@@ -621,7 +621,7 @@ func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
 	ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string { return c.Id }, name)
 	if !ok {
-		return oapi.CommandTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.CommandTable{}, NewKeyNotFoundError(name, "CommandTables")
 	}
 	return ct, nil
 }
@@ -630,7 +630,7 @@ func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
 func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
 	dt, ok := findByKey(raws.DropTables, func(d oapi.DropTable) string { return d.Id }, name)
 	if !ok {
-		return oapi.DropTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.DropTable{}, NewKeyNotFoundError(name, "DropTables")
 	}
 	return dt, nil
 }
@@ -651,7 +651,7 @@ func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
 func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
 	it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Id }, name)
 	if !ok {
-		return oapi.ItemTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.ItemTable{}, NewKeyNotFoundError(name, "ItemTables")
 	}
 	return it, nil
 }
@@ -660,7 +660,7 @@ func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
 func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 	et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Id }, name)
 	if !ok {
-		return oapi.EnemyTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.EnemyTable{}, NewKeyNotFoundError(name, "EnemyTables")
 	}
 	return et, nil
 }
@@ -897,11 +897,14 @@ func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
 // 危険度の指定漏れとしてエラーにする。
 const MinDanger = 1
 
+// errDangerBelowMinimum は MinDanger 未満の危険度で抽選したときに返す
+var errDangerBelowMinimum = errors.New("danger is below the minimum")
+
 // SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する
 // テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
 func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
 	if danger < MinDanger {
-		return "", fmt.Errorf("danger %d is below the minimum %d; the caller must specify a valid danger", danger, MinDanger)
+		return "", fmt.Errorf("%w: danger %d, minimum %d; the caller must specify a valid danger", errDangerBelowMinimum, danger, MinDanger)
 	}
 	filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
 	for _, entry := range it.Entries {
@@ -938,7 +941,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, dange
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する
 func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {
 	if danger < MinDanger {
-		return "", fmt.Errorf("danger %d is below the minimum %d; the caller must specify a valid danger", danger, MinDanger)
+		return "", fmt.Errorf("%w: danger %d, minimum %d; the caller must specify a valid danger", errDangerBelowMinimum, danger, MinDanger)
 	}
 	filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
 	for _, entry := range et.Entries {
