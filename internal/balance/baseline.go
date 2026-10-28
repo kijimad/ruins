@@ -577,7 +577,7 @@ func renderSkillDepth(b *strings.Builder, master oapi.Raws) error {
 	return nil
 }
 
-// renderTreeFuel は木1本から薪を得る収支を、素手と斧で並べて書き出す
+// renderTreeFuel は伐採の分解定義を持つ prop 1本から薪を得る収支を、素手と斧で並べて書き出す
 func renderTreeFuel(b *strings.Builder, master oapi.Raws, playerName string) error {
 	const toolName = "axe"
 	player, err := LoadCombatantFromMember(master, playerName)
@@ -595,7 +595,12 @@ func renderTreeFuel(b *strings.Builder, master oapi.Raws, playerName string) err
 
 	fmt.Fprintf(b, "木1本から薪を得る収支。素手は木のHPを殴り切る打数、%sは伐採の作業ターンで、スキル0とする。比は燃焼ターン÷作業で、1を超えれば燃料が増える。\n\n", toolName)
 	var rows [][]string
-	for _, id := range []string{"tree_a", "big_tree"} {
+	props := raw.PtrSlice(master.Props)
+	for i := range props {
+		if props[i].Disassembly == nil || props[i].Disassembly.ToolCategory != oapi.Chopping {
+			continue
+		}
+		id := props[i].Id
 		f, err := TreeFuelBalance(master, player, bareHands, id, tool.Grade)
 		if err != nil {
 			return err

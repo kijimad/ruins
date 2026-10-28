@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/activity"
@@ -36,6 +37,9 @@ func FuelBurnTurns(material oapi.Material, weightKg int) int {
 	return int(query.HeatOf(material, weight).BurnTurns(query.GroundBurnEfficiency))
 }
 
+// ErrNoDisassembly は分解定義を持たない prop の収支を求めたときに返す
+var ErrNoDisassembly = errors.New("prop has no disassembly definition")
+
 // TreeFuel は木1本から燃料を得る収支。素手で殴り倒す経路と工具で伐る経路を並べる
 type TreeFuel struct {
 	HandTurns     float64 // 素手で殴り倒す期待打数
@@ -52,7 +56,7 @@ func TreeFuelBalance(master oapi.Raws, player CombatantStats, bareHands WeaponSt
 		return TreeFuel{}, err
 	}
 	if prop.Disassembly == nil {
-		return TreeFuel{}, fmt.Errorf("prop %q has no disassembly definition", treeID)
+		return TreeFuel{}, fmt.Errorf("%w: %q", ErrNoDisassembly, treeID)
 	}
 	def := prop.Disassembly
 
