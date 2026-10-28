@@ -629,8 +629,7 @@ AttackCategory = "SWORD"
 	require.NoError(t, err)
 
 	_, err = NewWeaponSpec(raws, "不正な重量の武器")
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to generate weapon spec")
+	assert.ErrorContains(t, err, `invalid weight format: "abc"`)
 }
 
 func TestNewMemberSpec_未存在はエラー(t *testing.T) {
@@ -640,8 +639,9 @@ func TestNewMemberSpec_未存在はエラー(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = NewMemberSpec(raws, "存在しないメンバー")
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "key does not exist")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないメンバー", Collection: "Members"}, keyErr)
 }
 
 func TestNewMemberSpec_コマンドテーブル参照エラー(t *testing.T) {
@@ -664,8 +664,9 @@ Defense = 2
 	require.NoError(t, err)
 
 	_, err = NewMemberSpec(raws, "テーブル未存在メンバー")
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to get command table for member")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないテーブル", Collection: "CommandTables"}, keyErr)
 }
 
 func TestNewMemberSpec_ドロップテーブル参照エラー(t *testing.T) {
@@ -688,8 +689,9 @@ Defense = 2
 	require.NoError(t, err)
 
 	_, err = NewMemberSpec(raws, "テーブル未存在メンバー")
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to get drop table for member")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないテーブル", Collection: "DropTables"}, keyErr)
 }
 
 func TestNewPlayerSpec_未存在はエラー(t *testing.T) {
@@ -699,7 +701,9 @@ func TestNewPlayerSpec_未存在はエラー(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = NewPlayerSpec(raws, "存在しないプレイヤー")
-	require.Error(t, err)
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないプレイヤー", Collection: "Members"}, keyErr)
 }
 
 func TestNewEnemySpec_未存在はエラー(t *testing.T) {
@@ -709,7 +713,9 @@ func TestNewEnemySpec_未存在はエラー(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = NewEnemySpec(raws, "存在しない敵")
-	require.Error(t, err)
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しない敵", Collection: "Members"}, keyErr)
 }
 
 func TestNewMemberSpec_不正な派閥はエラー(t *testing.T) {
@@ -739,22 +745,15 @@ Defense = 2
 func TestNewMemberSpec_派閥種別ごとにコンポーネントが設定される(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		factionType string
-	}{
-		{factionType: gc.FactionAllyName},
-		{factionType: gc.FactionEnemyName},
-		{factionType: gc.FactionNeutralName},
-	}
-	for _, tt := range tests {
-		t.Run(tt.factionType, func(t *testing.T) {
+	for _, factionType := range []string{gc.FactionAllyName, gc.FactionEnemyName, gc.FactionNeutralName} {
+		t.Run(factionType, func(t *testing.T) {
 			t.Parallel()
 
 			str := `
 [[Members]]
 Name = "派閥メンバー"
 id = "派閥メンバー"
-FactionType = "` + tt.factionType + `"
+FactionType = "` + factionType + `"
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -773,9 +772,9 @@ Defense = 2
 			gotEnemy := spec.FactionEnemy != nil
 			gotNeutral := spec.FactionNeutral != nil
 
-			assert.Equal(t, tt.factionType == gc.FactionAllyName, gotAlly, "FactionAllyの有無")
-			assert.Equal(t, tt.factionType == gc.FactionEnemyName, gotEnemy, "FactionEnemyの有無")
-			assert.Equal(t, tt.factionType == gc.FactionNeutralName, gotNeutral, "FactionNeutralの有無")
+			assert.Equal(t, factionType == gc.FactionAllyName, gotAlly, "FactionAllyの有無")
+			assert.Equal(t, factionType == gc.FactionEnemyName, gotEnemy, "FactionEnemyの有無")
+			assert.Equal(t, factionType == gc.FactionNeutralName, gotNeutral, "FactionNeutralの有無")
 		})
 	}
 }
