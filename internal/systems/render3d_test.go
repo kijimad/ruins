@@ -9,7 +9,9 @@ import (
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestSampleOf はタイル描画情報から明るさと色のサンプルを起こす分岐を固定する。
@@ -160,5 +162,57 @@ func TestDeployFieldArea(t *testing.T) {
 		world.Components.GridElement.Add(cube, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		assert.Empty(t, deployFieldArea(world), "Deployed が無ければ野営は無い")
+	})
+}
+
+// TestCollectDeployField は野営エリアの外周だけにレーザー壁クアッドを積むことを固定する。
+// deployFieldArea 自体は TestDeployFieldArea が固定済みなので、ここでは projector の画面内判定を
+// 通した上でクアッドが実際に積まれること、積まれた色と透明度が固定値であることを見る。
+func TestCollectDeployField(t *testing.T) {
+	t.Parallel()
+
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	// 注視点を野営の中心に合わせ、範囲内のタイルが必ず画面に掛かるようにする
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+
+	t.Run("展開中キューブが無ければquadsは変化しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		sys := &Render3DSystem{}
+
+		quads := sys.collectDeployField(world, nil, projector)
+
+		assert.Empty(t, quads, "野営エリアが無いので何も積まない")
+	})
+
+	t.Run("展開中キューブの周囲にレーザー壁を積む", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube, err := lifecycle.SpawnCube(world, center)
+		require.NoError(t, err)
+		require.True(t, lifecycle.DeployCube(world, cube), "野営の展開に成功する")
+		sys := &Render3DSystem{}
+
+		quads := sys.collectDeployField(world, nil, projector)
+
+		require.NotEmpty(t, quads, "外周タイルにレーザー壁が積まれる")
+		for _, q := range quads {
+			assert.Equal(t, deployFieldColor, q.col, "レーザー壁は固定の青で光る")
+			assert.InDelta(t, deployFieldAlpha, q.alpha, 1e-9, "エネルギー幕なので半透明")
+		}
+	})
+
+	t.Run("画面外の野営エリアは積まない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		far := consts.Coord[consts.Tile]{X: center.X + 500, Y: center.Y + 500}
+		cube, err := lifecycle.SpawnCube(world, far)
+		require.NoError(t, err)
+		require.True(t, lifecycle.DeployCube(world, cube), "野営の展開に成功する")
+		sys := &Render3DSystem{}
+
+		quads := sys.collectDeployField(world, nil, projector)
+
+		assert.Empty(t, quads, "画面に掛からないタイルはTileOnScreenで落ちる")
 	})
 }
