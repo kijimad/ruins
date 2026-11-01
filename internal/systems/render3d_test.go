@@ -205,6 +205,7 @@ func TestCollectDeployField(t *testing.T) {
 	t.Run("画面外の野営エリアは積まない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		// 500タイルはprojectorの可視距離far=200を大きく超えるので、画面内判定で確実に落ちる
 		far := consts.Coord[consts.Tile]{X: center.X + 500, Y: center.Y + 500}
 		cube, err := lifecycle.SpawnCube(world, far)
 		require.NoError(t, err)
