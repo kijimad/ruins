@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [OSS 調査 2026-11](docs/design/261101001238.md) | 0/5 | meta |
 
 
 ## Reference
