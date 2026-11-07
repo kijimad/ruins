@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.9&nbsp;%</td>
-            <td class="headerCovTableEntry">223</td>
+            <td class="headerCovTableEntryMed">86.6&nbsp;%</td>
+            <td class="headerCovTableEntry">216</td>
             <td class="headerCovTableEntry">187</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 12:48:16</td>
+            <td class="headerValue">2026-11-07 13:08:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -335,15 +335,15 @@
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                                 })</span></span>
 <span id="L274"><span class="lineNum">     274</span>              :                         }</span>
 <span id="L275"><span class="lineNum">     275</span>              :                 case gc.InteractionTalk:</span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC tlaBgUNC">           0 :                         if world.Components.Name.Has(interactableEntity) {</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                                 result = append(result, InteractionAction{</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                                         Label:       query.T(world, &quot;Talk (%s)&quot;, query.GetEntityName(interactableEntity, world)),</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                                         Target:      interactableEntity,</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                                         Interaction: interaction,</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                                 })</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         if world.Components.Name.Has(interactableEntity) {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                                 result = append(result, InteractionAction{</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Talk (%s)&quot;, query.GetEntityName(interactableEntity, world)),</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                                         Target:      interactableEntity,</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                                         Interaction: interaction,</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                                 })</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L283"><span class="lineNum">     283</span>              :                 case gc.InteractionPortalNext:</span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC tlaBgGNC">           1 :                         result = append(result, InteractionAction{</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Warp (next floor)&quot;),</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
@@ -360,35 +360,27 @@
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                                 Target:      interactableEntity,</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                                 Interaction: interaction,</span></span>
 <span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L301"><span class="lineNum">     301</span>              :                 case gc.InteractionDisassemble:</span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC tlaBgGNC">           1 :                         if world.Components.Name.Has(interactableEntity) {</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                                 result = append(result, InteractionAction{</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Disassemble (%s)&quot;, query.GetEntityName(interactableEntity, world)),</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                                         Target:      interactableEntity,</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                                         Interaction: interaction,</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                                 })</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L309"><span class="lineNum">     309</span>              :                 case gc.InteractionOpenCubeMenu:</span>
-<span id="L310"><span class="lineNum">     310</span>              :                         // SameTile 発動なので方向は常に直上。他の直上相互作用と同じく方向ラベルを付けない</span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Open cube menu&quot;),</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 case gc.InteractionItem, gc.InteractionMelee, gc.InteractionStorage:</span></span>
-<span id="L317"><span class="lineNum">     317</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
-<span id="L318"><span class="lineNum">     318</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.InteractionIgnite:</span></span>
-<span id="L320"><span class="lineNum">     320</span>              :                         // 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で</span>
-<span id="L321"><span class="lineNum">     321</span>              :                         // タイル単位に組む。ここには来ないが exhaustive のため case を明示する</span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 case gc.InteractionFeedFuel:</span></span>
-<span id="L323"><span class="lineNum">     323</span>              :                         // 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。</span>
-<span id="L324"><span class="lineNum">     324</span>              :                         // ここには来ないが exhaustive のため case を明示する</span>
-<span id="L325"><span class="lineNum">     325</span>              :                 }</span>
-<span id="L326"><span class="lineNum">     326</span>              :         }</span>
-<span id="L327"><span class="lineNum">     327</span>              : </span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
-<span id="L329"><span class="lineNum">     329</span>              : }</span>
+<span id="L301"><span class="lineNum">     301</span>              :                 case gc.InteractionOpenCubeMenu:</span>
+<span id="L302"><span class="lineNum">     302</span>              :                         // SameTile 発動なので方向は常に直上。他の直上相互作用と同じく方向ラベルを付けない</span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC tlaBgGNC">           1 :                         result = append(result, InteractionAction{</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Open cube menu&quot;),</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 case gc.InteractionItem, gc.InteractionMelee, gc.InteractionStorage:</span></span>
+<span id="L309"><span class="lineNum">     309</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
+<span id="L310"><span class="lineNum">     310</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.InteractionIgnite:</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :                         // 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で</span>
+<span id="L313"><span class="lineNum">     313</span>              :                         // タイル単位に組む。ここには来ないが exhaustive のため case を明示する</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 case gc.InteractionFeedFuel:</span></span>
+<span id="L315"><span class="lineNum">     315</span>              :                         // 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。</span>
+<span id="L316"><span class="lineNum">     316</span>              :                         // ここには来ないが exhaustive のため case を明示する</span>
+<span id="L317"><span class="lineNum">     317</span>              :                 }</span>
+<span id="L318"><span class="lineNum">     318</span>              :         }</span>
+<span id="L319"><span class="lineNum">     319</span>              : </span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
+<span id="L321"><span class="lineNum">     321</span>              : }</span>
         </pre>
               </td>
             </tr>
