@@ -281,14 +281,14 @@ func TestDeadEnemyInteraction(t *testing.T) {
 func TestGetInteractionActions_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("隣接の扉と木箱にはそれぞれ固有の操作を出す", func(t *testing.T) {
+	t.Run("隣接の扉にだけ操作を出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
-		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 11)
+		_, err = lifecycle.SpawnProp(world, "wooden_crate", 10, 11)
 		require.NoError(t, err)
 		_, err = lifecycle.SpawnProp(world, "grass", 11, 10)
 		require.NoError(t, err)
@@ -297,9 +297,8 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		_, err = lifecycle.SpawnFieldItem(world, "bread", 10, 10, 1)
 		require.NoError(t, err)
 
-		assert.ElementsMatch(t, []InteractionAction{
+		assert.Equal(t, []InteractionAction{
 			{Label: "Open (up)", Target: door, Interaction: gc.InteractionDoor},
-			{Label: "Disassemble (Wooden Crate)", Target: crate, Interaction: gc.InteractionDisassemble},
 		}, GetInteractionActions(world))
 	})
 
@@ -323,7 +322,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		assert.Equal(t, "Warp (previous floor)", actions[0].Label)
 	})
 
-	t.Run("隣接では直上発動の拾得を出さず隣接発動の分解だけ出す", func(t *testing.T) {
+	t.Run("隣接では直上発動の拾得を出さず隣接発動の会話だけ出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -331,20 +330,21 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-		// 拾得(SameTile)と分解(Adjacent)を併せ持つ実体を隣接タイルへ。発動範囲は相互作用ごとに
-		// 判定するので、隣接では隣接発動の分解だけが出て、直上でしか発動しない拾得は出ない
+		// 拾得(SameTile)と会話(Adjacent)を併せ持つ実体を隣接タイルへ。発動範囲は相互作用ごとに
+		// 判定するので、隣接では隣接発動の会話だけが出て、直上でしか発動しない拾得は出ない
 		hybrid := world.ECS.NewEntity()
 		world.Components.GridElement.Add(hybrid, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 11}})
 		world.Components.LocationOnField.Add(hybrid, &gc.LocationOnField{})
 		world.Components.Interactable.Add(hybrid, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem, gc.InteractionDisassemble},
+			Interactions: []gc.InteractionKind{gc.InteractionItem, gc.InteractionTalk},
 		})
 		world.Components.RawID.Add(hybrid, &gc.RawID{ID: "mystery_box"})
 		world.Components.Name.Add(hybrid, &gc.Name{Name: "ふしぎな箱"})
 
 		actions := GetInteractionActions(world)
-		require.Len(t, actions, 1, "隣接では隣接発動の分解だけ。直上発動の拾得は出さない")
-		assert.Equal(t, gc.InteractionDisassemble, actions[0].Interaction, "分解行が出る")
+		assert.Equal(t, []InteractionAction{
+			{Label: "Talk (ふしぎな箱)", Target: hybrid, Interaction: gc.InteractionTalk},
+		}, actions)
 	})
 
 	t.Run("方向キーでPropを自動攻撃しない", func(t *testing.T) {

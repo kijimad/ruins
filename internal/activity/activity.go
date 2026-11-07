@@ -50,8 +50,6 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &ShootBehavior{}, nil
 	case gc.BehaviorReload:
 		return &ReloadBehavior{}, nil
-	case gc.BehaviorDisassemble:
-		return &DisassembleBehavior{}, nil
 	case gc.BehaviorSleep:
 		return &SleepBehavior{}, nil
 	case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:

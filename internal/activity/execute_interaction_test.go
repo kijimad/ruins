@@ -394,27 +394,6 @@ func TestExecuteInteraction_Storage(t *testing.T) {
 	assert.Equal(t, storageEntity, payload.StorageEntity, "対象の収納エンティティが要求に載る")
 }
 
-// TestExecuteInteraction_Disassemble_工具がなければ何もしない は分解相互作用の起動をラップする
-// executeDisassemble が実際にDisassembleBehaviorへ委譲することを確認する。工具がないので
-// Validate がUserErrorを返し、Executeがそれをgamelogへ出してSuccess=falseで閉じる
-func TestExecuteInteraction_Disassemble_工具がなければ何もしない(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-
-	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
-	require.NoError(t, err)
-
-	result, err := ExecuteInteraction(player, crate, gc.InteractionDisassemble, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.False(t, result.Success, "工具がないので分解は開始できないべき")
-	assert.Equal(t, gc.BehaviorDisassemble, result.ActivityName)
-}
-
 // TestExecuteInteraction_Prop は設置物へのMeleeInteractionの動作を確認する
 func TestExecuteInteraction_Prop(t *testing.T) {
 	t.Parallel()

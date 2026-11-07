@@ -557,14 +557,14 @@ export interface Dialog {
     'messageKey': string;
 }
 /**
- * 分解定義。これを持つ prop・item は対応工具で分解できる
+ * 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
  */
 export interface Disassembly {
-    'toolCategory': ToolCategory;
+    'toolCategory'?: ToolCategory;
     /**
-     * 分解の基礎工数。100が標準1ターンに相当する
+     * 分解定義の道具が無いと殴っても削れないか
      */
-    'baseAP': number;
+    'toolRequired'?: boolean;
     'yields': Array<DisassemblyYield>;
     'bonus'?: Array<DisassemblyBonus>;
 }
@@ -587,16 +587,6 @@ export interface DisassemblyBonus {
      * 工具グレードがこの値以上で産出に加わる
      */
     'minGrade'?: number;
-}
-/**
- * 分解工具。分類の対応とグレードを持つ
- */
-export interface DisassemblyTool {
-    'categories': Array<ToolCategory>;
-    /**
-     * 分解工具のグレード。高いほど速く多く得る
-     */
-    'grade': number;
 }
 /**
  * 分解の産出エントリ。chance 省略は確定枠
@@ -822,15 +812,6 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
 
 
 /**
- * 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
- */
-export interface Felling {
-    'toolCategory'?: ToolCategory;
-    'yields': Array<DisassemblyYield>;
-}
-
-
-/**
  * 遠距離攻撃設定
  */
 export interface Fire {
@@ -978,8 +959,10 @@ export interface Item {
     'melee'?: Melee;
     'fire'?: Fire;
     'book'?: Book;
-    'disassembly'?: Disassembly;
-    'disassemblyTool'?: DisassemblyTool;
+    /**
+     * 道具の性質。合う物を殴って壊すと速く多く得る
+     */
+    'tool'?: Tool;
     /**
      * 携行光源。装備すると owner を照らす
      */
@@ -1434,7 +1417,6 @@ export interface Prop {
     'warpPrevTrigger'?: object;
     'storage'?: StorageRaw;
     'disassembly'?: Disassembly;
-    'felling'?: Felling;
 }
 /**
  * 置物一覧
@@ -1783,7 +1765,17 @@ export interface TileList {
     'totalCount': number;
 }
 /**
- * 分解工具の分類
+ * 道具の性質。道具の分類とグレードを持つ
+ */
+export interface Tool {
+    'categories': Array<ToolCategory>;
+    /**
+     * 道具のグレード。高いほど速く壊し多く得る
+     */
+    'grade': number;
+}
+/**
+ * 道具の分類
  */
 
 export const ToolCategory = {

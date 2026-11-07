@@ -82,10 +82,6 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		logger.Debug("spawn drop item", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
 	}
 
-	if err := dropPropYields(world, toDelete); err != nil {
-		return err
-	}
-
 	// 撃破統計: 除去する敵を run 統計へ加算する
 	if stats := query.GetRunStats(world); stats != nil {
 		for _, entity := range toDelete {
@@ -140,39 +136,5 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		logger.Debug("Dead cleanup completed", "deleted_count", len(toDelete))
 	}
 
-	return nil
-}
-
-// dropPropYields は壊れた prop の分解定義と伐採定義の産出を足元へ落とす
-func dropPropYields(world w.World, entities []ecs.Entity) error {
-	rawMaster := world.Resources.RawMaster
-	rng := world.Resources.Config.RNG
-	for _, entity := range entities {
-		if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) {
-			continue
-		}
-		id := query.GetEntityID(entity, world)
-		var stacks []lifecycle.YieldStack
-		// 産出名・個数表記はロード時に検証済みで、ここで失敗するのは整合性バグ。
-		// 握りつぶすと産出が静かに消えるため loud に返す
-		if def, ok := raw.FindDisassembly(rawMaster, id); ok {
-			salvage, err := lifecycle.RollDisassemblyYields(rng, def, 0, 0, false)
-			if err != nil {
-				return fmt.Errorf("failed to draw salvage item: %w", err)
-			}
-			stacks = append(stacks, salvage...)
-		}
-		if def, ok := raw.FindFelling(rawMaster, id); ok {
-			felled, err := lifecycle.RollFellingYields(rng, def)
-			if err != nil {
-				return fmt.Errorf("failed to draw felling yield: %w", err)
-			}
-			stacks = append(stacks, felled...)
-		}
-		grid := world.Components.GridElement.Get(entity)
-		if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil {
-			return fmt.Errorf("failed to spawn prop yield: %w", err)
-		}
-	}
 	return nil
 }

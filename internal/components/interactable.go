@@ -47,8 +47,6 @@ const (
 	InteractionStorage InteractionKind = "STORAGE"
 	// InteractionMelee は近接攻撃の相互作用
 	InteractionMelee InteractionKind = "MELEE"
-	// InteractionDisassemble は工具による分解の相互作用
-	InteractionDisassemble InteractionKind = "DISASSEMBLE"
 	// InteractionIgnite は隣接タイルの燃焼物に火をつける相互作用。火種の所持を条件にメニューへ出す
 	InteractionIgnite InteractionKind = "IGNITE"
 	// InteractionFeedFuel は隣接の火へ燃料をくべる相互作用。給油メニューを開く。燃料の所持を条件に出す
@@ -67,7 +65,7 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
-	case InteractionStorage, InteractionDisassemble, InteractionIgnite, InteractionFeedFuel:
+	case InteractionStorage, InteractionIgnite, InteractionFeedFuel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	}
 	return InteractionConfig{}

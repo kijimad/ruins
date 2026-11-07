@@ -2,7 +2,6 @@ package activity
 
 import (
 	"fmt"
-	"slices"
 	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -10,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -88,28 +86,6 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	}
 
 	return nil
-}
-
-// fellingBlocked は伐採定義に道具の分類がある prop を、その道具を構えずに殴るかを返す。真なら削れない
-func fellingBlocked(world w.World, actor, target ecs.Entity) bool {
-	if !world.Components.Prop.Has(target) {
-		return false
-	}
-	def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(target, world))
-	return ok && def.ToolCategory != nil && !holdsTool(world, actor, *def.ToolCategory)
-}
-
-// holdsTool はプレイヤーが選択中の武器が道具分類 category を持つかを返す
-func holdsTool(world w.World, actor ecs.Entity, category oapi.ToolCategory) bool {
-	if !world.Components.Player.Has(actor) {
-		return false
-	}
-	weapon, ok, err := selectedWeapon(world, actor)
-	if err != nil || !ok {
-		return false
-	}
-	tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
-	return ok && slices.Contains(tool.Categories, category)
 }
 
 // selectedWeapon はプレイヤーが選択中の武器スロットの武器を返す。空きスロットなら ok は偽
@@ -326,6 +302,11 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	}
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
+	if world.Components.Prop.Has(target) && world.Components.Dead.Has(target) {
+		if err := dropSalvage(world, actor, target); err != nil {
+			return err
+		}
+	}
 	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
 	applyInjury(actor, target, world, attack)
 
@@ -379,7 +360,7 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 
 // calculateDamage は ECS から攻撃側と対象の値を集め、formula.Damage で1回の命中のダメージを求める
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	if !world.Components.Abilities.Has(attacker) || fellingBlocked(world, attacker, target) {
+	if !world.Components.Abilities.Has(attacker) {
 		return 0
 	}
 	attackerAbils := world.Components.Abilities.Get(attacker)
@@ -394,6 +375,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		defense = world.Components.Abilities.Get(target).Defense.Total
 	}
 
+	// 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
 	return formula.Damage(formula.DamageInput{
 		Ability:      ability,
 		Die:          world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1,
@@ -403,7 +385,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		Critical:     critical,
 		ElementMult:  int(elementMult(target, attack.GetElement(), world)),
 		Defense:      defense,
-	})
+	}) * toolDamageMultiplier(world, attacker, target)
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する

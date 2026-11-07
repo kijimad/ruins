@@ -443,9 +443,6 @@ msgstr "転移する(前階)"
 msgid "Enter ruins"
 msgstr "遺跡へ入る"
 
-msgid "Disassemble (%s)"
-msgstr "分解する(%s)"
-
 msgid "Enter (%s)"
 msgstr "入る(%s)"
 
@@ -1067,8 +1064,8 @@ msgstr "武器4"
 msgid "Weapon 5"
 msgstr "武器5"
 
-msgid "Raised by disassembling or reading mechanic books"
-msgstr "分解を行うか機械関連の本を読むと上がる"
+msgid "Raised by breaking objects with a suitable tool or reading mechanic books"
+msgstr "合う道具で物を壊すか機械関連の本を読むと上がる"
 
 msgid "Raised by using healing items"
 msgstr "回復アイテムを使用すると上がる"
@@ -1124,8 +1121,8 @@ msgstr "アイテムをクラフトすると上がる"
 msgid "Reduces material consumption when crafting"
 msgstr "クラフト時の素材消費が減少する"
 
-msgid "Speeds up disassembly and increases yield"
-msgstr "分解が速くなり産出が増える"
+msgid "Increases yield when breaking objects with a tool"
+msgstr "道具で物を壊したときの産出が増える"
 
 msgid "Reduces fire element damage"
 msgstr "火属性ダメージが軽減される"
@@ -1385,35 +1382,11 @@ msgstr "灰の洞窟"
 msgid "Forgotten ruins"
 msgstr "忘却の廃都"
 
-msgid "%s began disassembling %s"
-msgstr "%sで%sの分解を始めた"
-
-msgid "Interrupted disassembling %s"
-msgstr "%sの分解を中断した"
-
-msgid "Interrupted disassembly"
-msgstr "分解を中断した"
-
 msgid "%s skill rose to %d"
 msgstr "%sスキルが %d に上がった"
 
 msgid ", "
 msgstr "、"
-
-msgid "disassembly target is not set"
-msgstr "分解対象が指定されていません"
-
-msgid "interrupted because the disassembly target disappeared"
-msgstr "分解対象が消えたため中断"
-
-msgid "disassembly interrupted because enemies are nearby"
-msgstr "周囲に敵がいるため分解を中断"
-
-msgid "interrupted because the disassembly definition was not found"
-msgstr "分解定義が見つからないため中断"
-
-msgid "disassembly interrupted because the tool was lost"
-msgstr "工具を失ったため分解を中断"
 
 msgid "door entity is not set"
 msgstr "扉エンティティが指定されていません"
@@ -1462,9 +1435,6 @@ msgstr "%s は %s を攻撃し、%s のダメージを与えた。"
 
 msgid "starting a new activity"
 msgstr "新しいアクティビティを開始"
-
-msgid "Do not have a tool to disassemble %s"
-msgstr "%sを分解できる工具を持っていない"
 
 msgid "move destination is not set"
 msgstr "移動先が設定されていません"
@@ -1784,12 +1754,6 @@ msgstr "%s は %s を使った。 %d のダメージを受けた。"
 
 msgid "%s is now full."
 msgstr "%s は満腹になった。"
-
-msgid "Disassembled %s and obtained %s."
-msgstr "%sを分解し、%sを得た。"
-
-msgid "Disassembled %s but obtained nothing."
-msgstr "%sを分解したが何も得られなかった。"
 
 msgid "\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""
 msgstr "「あんた、<keyword>遺跡</keyword>の<keyword>潜り</keyword>だろ?\n\n外からこの街に来る異様に若い連中はみんなそうさ。\n向こう見ずで破滅的で、...\n\nどうしようもない事情を持ってる。」"
@@ -5765,9 +5729,6 @@ msgstr "敵が近くにいるので休息できない"
 msgid "nothing to pick up"
 msgstr "拾えるものがない"
 
-msgid "cannot disassemble because enemies are nearby"
-msgstr "敵が近くにいるので分解できない"
-
 msgid "cannot push in that direction"
 msgstr "その方向には押せない"
 
@@ -6029,8 +5990,8 @@ msgstr "装備できる"
 msgid "Deployable"
 msgstr "装着できる"
 
-msgid "Can disassemble items"
-msgstr "物を分解できる"
+msgid "Breaks objects efficiently"
+msgstr "物を効率よく壊せる"
 
 msgid "Cleaver"
 msgstr "クリーバー"
@@ -6442,3 +6403,6 @@ msgstr "枝"
 
 msgid "A dry branch snapped off a shrub. It catches fire easily."
 msgstr "灌木から折り取った乾いた枝。火が付きやすい"
+
+msgid "From %s, obtained %s."
+msgstr "%sから%sを得た。"

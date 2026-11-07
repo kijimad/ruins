@@ -148,7 +148,7 @@ var skillDescription = map[SkillID]SkillInfo{
 	SkillCrafting:      {Summary: "Technique for making items from materials", GainedBy: "Raised by crafting items", Effect: "Reduces material consumption when crafting"},
 	SkillSmithing:      {Summary: "Technique for refining and blending materials", GainedBy: "Raised by smithing materials", Effect: "Increases quality when smithing"},
 	SkillNegotiation:   {Summary: "Persuasion for favorable deals", GainedBy: "Raised by trading", Effect: "Improves buying and selling prices"},
-	SkillMechanic:      {Summary: "Technique for understanding and repairing machines", GainedBy: "Raised by disassembling or reading mechanic books", Effect: "Speeds up disassembly and increases yield"},
+	SkillMechanic:      {Summary: "Technique for understanding and repairing machines", GainedBy: "Raised by breaking objects with a suitable tool or reading mechanic books", Effect: "Increases yield when breaking objects with a tool"},
 	SkillSprinting:     {Summary: "Ability to move quickly over long distances", GainedBy: gainedByEquipmentOrBook, Effect: "Reduces AP cost when moving"},
 	SkillStealth:       {Summary: "Technique for acting unnoticed by enemies", GainedBy: gainedByEquipmentOrBook, Effect: "Shortens the distance at which enemies detect you"},
 	SkillNightVision:   {Summary: "Ability to see in the dark", GainedBy: gainedByEquipmentOrBook, Effect: "Widens vision in the dark"},

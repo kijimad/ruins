@@ -142,33 +142,6 @@ MaxWeight = "abc"
 	assert.ErrorContains(t, err, "壊れた収納' max weight")
 }
 
-func TestNewPropSpec_分解定義があるとInteractionDisassembleが設定される(t *testing.T) {
-	t.Parallel()
-	raws := oapi.Raws{
-		Props: &[]oapi.Prop{
-			{
-				Id:   "解体台",
-				Name: "解体台",
-				SpriteRender: oapi.SpriteRender{
-					SpriteSheetName: "field",
-					SpriteKey:       "workbench",
-				},
-				Disassembly: &oapi.Disassembly{
-					ToolCategory: oapi.Prying,
-					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
-				},
-			},
-		},
-	}
-
-	entitySpec, err := NewPropSpec(raws, "解体台")
-	require.NoError(t, err)
-
-	require.NotNil(t, entitySpec.Interactable)
-	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionDisassemble)
-}
-
 func TestNewPropSpec_耐久の有無で殴れるかが決まる(t *testing.T) {
 	t.Parallel()
 	hp := oapi.HitPoints(20)

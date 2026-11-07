@@ -32,6 +32,8 @@ var (
 	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
 	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
+	errDisassemblyToolRequiredNoTool  = errors.New("disassembly requires a tool but has no tool category")
+	errDisassemblyWithoutHP           = errors.New("prop with disassembly has no hp and cannot be broken")
 	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
@@ -359,7 +361,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateDisassemblyReferences は分解定義と伐採定義の産出名がアイテム定義に存在することを検証する
+// validateDisassemblyReferences は prop の分解定義の産出名、道具が必須なときの分類、prop の HP を検証する
 func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -367,43 +369,27 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		itemNames[items[i].Id] = struct{}{}
 	}
 
-	check := func(ownerKind string, ownerName string, def *oapi.Disassembly) error {
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		def := props[i].Disassembly
 		if def == nil {
-			return nil
+			continue
+		}
+		if def.ToolRequired != nil && *def.ToolRequired && def.ToolCategory == nil {
+			return fmt.Errorf("prop %q: %w", props[i].Name, errDisassemblyToolRequiredNoTool)
+		}
+		if props[i].Hp == nil {
+			return fmt.Errorf("prop %q: %w", props[i].Name, errDisassemblyWithoutHP)
 		}
 		for _, y := range def.Yields {
 			if _, ok := itemNames[y.Id]; !ok {
-				return fmt.Errorf("%s %q disassembly yield %q: %w", ownerKind, ownerName, y.Id, errDisassemblyYieldUndefined)
+				return fmt.Errorf("prop %q disassembly yield %q: %w", props[i].Name, y.Id, errDisassemblyYieldUndefined)
 			}
 		}
-		if def.Bonus == nil {
-			return nil
-		}
-		for _, b := range *def.Bonus {
+		for _, b := range PtrSlice(def.Bonus) {
 			if _, ok := itemNames[b.Id]; !ok {
-				return fmt.Errorf("%s %q disassembly bonus %q: %w", ownerKind, ownerName, b.Id, errDisassemblyBonusUndefined)
+				return fmt.Errorf("prop %q disassembly bonus %q: %w", props[i].Name, b.Id, errDisassemblyBonusUndefined)
 			}
-		}
-		return nil
-	}
-
-	props := PtrSlice(raws.Props)
-	for i := range props {
-		if err := check("prop", props[i].Name, props[i].Disassembly); err != nil {
-			return err
-		}
-		if props[i].Felling == nil {
-			continue
-		}
-		for _, y := range props[i].Felling.Yields {
-			if _, ok := itemNames[y.Id]; !ok {
-				return fmt.Errorf("prop %q felling yield %q: %w", props[i].Name, y.Id, errDisassemblyYieldUndefined)
-			}
-		}
-	}
-	for i := range items {
-		if err := check("item", items[i].Name, items[i].Disassembly); err != nil {
-			return err
 		}
 	}
 	return nil

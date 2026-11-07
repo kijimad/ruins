@@ -2092,14 +2092,12 @@ components:
     Disassembly:
       type: object
       required:
-        - toolCategory
-        - baseAP
         - yields
       properties:
         toolCategory:
           $ref: '#/components/schemas/ToolCategory'
-        baseAP:
-          $ref: '#/components/schemas/DisassemblyBaseAP'
+        toolRequired:
+          $ref: '#/components/schemas/DisassemblyToolRequired'
         yields:
           type: array
           items:
@@ -2108,12 +2106,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DisassemblyBonus'
-      description: 分解定義。これを持つ prop・item は対応工具で分解できる
-    DisassemblyBaseAP:
-      type: integer
-      minimum: 1
-      maximum: 9999
-      description: 分解の基礎工数。100が標準1ターンに相当する
+      description: 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
     DisassemblyBonus:
       type: object
       required:
@@ -2140,19 +2133,9 @@ components:
       minimum: 1
       maximum: 100
       description: 分解産出の確率。百分率
-    DisassemblyTool:
-      type: object
-      required:
-        - categories
-        - grade
-      properties:
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/ToolCategory'
-        grade:
-          $ref: '#/components/schemas/ToolGrade'
-      description: 分解工具。分類の対応とグレードを持つ
+    DisassemblyToolRequired:
+      type: boolean
+      description: 分解定義の道具が無いと殴っても削れないか
     DisassemblyYield:
       type: object
       required:
@@ -2424,18 +2407,6 @@ components:
       enum:
         - FactionNeutral
       description: 派閥タイプ
-    Felling:
-      type: object
-      required:
-        - yields
-      properties:
-        toolCategory:
-          $ref: '#/components/schemas/ToolCategory'
-        yields:
-          type: array
-          items:
-            $ref: '#/components/schemas/DisassemblyYield'
-      description: 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
     Fire:
       type: object
       required:
@@ -2623,10 +2594,10 @@ components:
           $ref: '#/components/schemas/Fire'
         book:
           $ref: '#/components/schemas/Book'
-        disassembly:
-          $ref: '#/components/schemas/Disassembly'
-        disassemblyTool:
-          $ref: '#/components/schemas/DisassemblyTool'
+        tool:
+          allOf:
+            - $ref: '#/components/schemas/Tool'
+          description: 道具の性質。合う物を殴って壊すと速く多く得る
         lightSource:
           allOf:
             - $ref: '#/components/schemas/LightSource'
@@ -3196,8 +3167,6 @@ components:
           $ref: '#/components/schemas/StorageRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
-        felling:
-          $ref: '#/components/schemas/Felling'
       description: 置物
     PropList:
       type: object
@@ -3680,6 +3649,19 @@ components:
         totalCount:
           type: integer
       description: タイル一覧
+    Tool:
+      type: object
+      required:
+        - categories
+        - grade
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCategory'
+        grade:
+          $ref: '#/components/schemas/ToolGrade'
+      description: 道具の性質。道具の分類とグレードを持つ
     ToolCategory:
       type: string
       enum:
@@ -3687,12 +3669,12 @@ components:
         - precision
         - cutting
         - chopping
-      description: 分解工具の分類
+      description: 道具の分類
     ToolGrade:
       type: integer
       minimum: 1
       maximum: 3
-      description: 分解工具のグレード。高いほど速く多く得る
+      description: 道具のグレード。高いほど速く壊し多く得る
     UsableScene:
       type: string
       enum:

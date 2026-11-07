@@ -54,8 +54,6 @@ const (
 	BehaviorRead      BehaviorName = "Read"
 	BehaviorShoot     BehaviorName = "Shoot"
 	BehaviorReload    BehaviorName = "Reload"
-	// BehaviorDisassemble は工具でpropやアイテムを分解して素材を得る
-	BehaviorDisassemble BehaviorName = "Disassemble"
 	// BehaviorIgnite は火種で隣接の燃焼物に火をつけて焚き火を熾す。ExecuteInteraction が直接処理する
 	BehaviorIgnite BehaviorName = "Ignite"
 	// BehaviorFeedFuel は隣接の火へ燃料をくべる給油メニューを開く。ExecuteInteraction が直接処理する
@@ -80,7 +78,7 @@ type Activity struct {
 // 実行ロジックを持つ Behavior は w.World に依存するため activity 層に置く。
 //
 // 型の分け方: 対象が1エンティティでも意味が behavior ごとに違うものは共有せず専用型に分ける。
-// 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので MeleeParams などに分ける。
+// 攻撃対象と会話相手は同じ ecs.Entity だが意味が違うので MeleeParams などに分ける。
 // 一方 PlaceParams のように共有ヘルパを介して同じ形を使い回すものは共有型のままにする。
 type ActivityParams interface {
 	isActivityParams()
@@ -141,13 +139,6 @@ type ReadParams struct {
 }
 
 func (*ReadParams) isActivityParams() {}
-
-// DisassembleParams は分解のパラメータ。
-type DisassembleParams struct {
-	Target ecs.Entity // 分解するアイテムのエンティティ
-}
-
-func (*DisassembleParams) isActivityParams() {}
 
 // PlaceParams は対象と操作先を取るアクションのパラメータ。ドロップ・押し引きが使う。
 type PlaceParams struct {
