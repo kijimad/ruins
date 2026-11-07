@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [キューブを運転する乗り物から、追従と待機を切り替える随伴者にする](docs/design/261108013524.md) | 0/10 | gamedesign, ecs, movement |
+| draft | [キューブを運転する乗り物から、追従と待機を切り替える随伴者にする](docs/design/261108013524.md) | 0/11 | gamedesign, ecs, movement |
 
 
 ## Reference
