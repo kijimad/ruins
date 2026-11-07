@@ -140,19 +140,14 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	res := world.Resources.UIResources
 	rect := menuframe.ModalRect(world)
-	// 画像は ImagePanel が画像を置く矩形と同じ寸法にする。ImagePanelArea を両者で通し余白の値が
-	// 変わってもずれないようにする
 	area := menuframe.ImagePanelArea(rect)
-
-	// 内容は画像へ原点ローカルで描く。透明地なので描かない部分は背後のパネルテクスチャが透ける
 	img := ebiten.NewImage(max(area.Dx(), 1), max(area.Dy(), 1))
 	st.renderMap(world, img)
 
 	return menuframe.ImagePanel(res, rect, img, keybind.HelpHint(world))
 }
 
-// renderMap は俯瞰図の格子・マーカー・凡例を dst へ原点ローカルで描く。格子と凡例の描画は
-// hud に集約し、ここは配置の算出だけを持つ。
+// renderMap は俯瞰図の格子・マーカー・凡例を dst へ原点ローカルで描く。
 func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	face := world.Resources.UIResources.Text.BodyFace
 	// セルの記号は小さいセルへ収めるため小フォントにする。凡例は BodyFace のまま

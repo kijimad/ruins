@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// PseudoLang は全ての msgid を疑似訳へ写す言語のコード。対応言語には含めず、設定からは選べない。
+// PseudoLang は疑似訳の言語コード。対応言語に含めないので設定からは選べない。
 const PseudoLang = "qps"
 
 // pseudoTranslate は msgid を疑似訳にする。書式の動詞とマークアップのタグは整形と解釈が壊れないよう残す。

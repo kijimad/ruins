@@ -174,7 +174,7 @@ func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c col
 // textObserver は DrawText が描く文字列を受け取る。textMu で守る
 var textObserver func(face text.Face, s string)
 
-// ObserveText は以後 DrawText が描く文字列を f へ渡す。nil で外す。翻訳漏れの検査が使う。
+// ObserveText は以後 DrawText が描く文字列を f へ渡す。nil で外す。
 // 並列に走る他の描画の文字列も届くので、f はフェイスで自分の描画を選り分ける。
 func ObserveText(f func(face text.Face, s string)) {
 	textMu.Lock()

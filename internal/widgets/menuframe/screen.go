@@ -27,8 +27,7 @@ func ImagePanelArea(rect image.Rectangle) image.Rectangle {
 }
 
 // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
-// ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像は ImagePanelArea へ、
-// footer は TabScreen と同じ下端の行へ置く。
+// ない内容を他メニューと同じパネル意匠で見せる画面が使う。footer は TabScreen と同じ下端の行に置く。
 func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image, footer string) uicore.Widget {
 	bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)

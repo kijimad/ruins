@@ -65,7 +65,7 @@ type goldenCase struct {
 	steps []replayStep
 }
 
-// goldenCases は TestGolden が撮る場面の一覧。翻訳漏れの検査も同じ場面を描く。
+// goldenCases は TestGolden が撮る場面の一覧。
 func goldenCases() []goldenCase {
 	return []goldenCase{
 		// ================ 組んだ直後の画を待ち1手で撮るケース ================

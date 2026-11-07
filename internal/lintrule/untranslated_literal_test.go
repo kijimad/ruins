@@ -36,7 +36,6 @@ var neutralWords = []string{"HP", "Esc", "Enter"}
 var untranslatedExemptFiles = []string{"internal/states/debug_menu.go"}
 
 // TestNoUntranslatedLiteral は画面へ描く文字列に英字の直書きを渡すことを禁止する。
-// golden で描かない画面も覆い、states の TestUntranslatedText を補う。
 func TestNoUntranslatedLiteral(t *testing.T) {
 	t.Parallel()
 	root := moduleRoot(t)
@@ -109,7 +108,7 @@ func calleeName(e ast.Expr) string {
 	return ""
 }
 
-// untranslatedLiteral は e が英字の直書きか、それを書式にした fmt.Sprintf か、それらで初期化したローカル変数なら直書きを返す。
+// untranslatedLiteral は e を英字の直書きまで辿れればその直書きを返す。
 func untranslatedLiteral(e ast.Expr) (string, bool) {
 	switch e := e.(type) {
 	case *ast.BasicLit:
@@ -152,7 +151,6 @@ func untranslatedLiteral(e ast.Expr) (string, bool) {
 	return "", false
 }
 
-// formatVerb は書式の動詞。
 var formatVerb = regexp.MustCompile(`%[-+# 0-9.\[\]*]*[a-zA-Z%]`)
 
 // hasWord は s に neutralWords 以外の2文字以上の英字の語があるかを返す。
