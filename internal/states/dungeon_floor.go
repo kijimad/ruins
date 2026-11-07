@@ -113,7 +113,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		if err := spawnDebugStageFire(world); err != nil {
 			return zero, noEntity, err
 		}
-		if err := spawnDebugStageCubeGear(world); err != nil {
+		if err := spawnDebugStageCrateItems(world); err != nil {
 			return zero, noEntity, err
 		}
 	}
@@ -163,9 +163,12 @@ const debugStageFacilityCount = 2
 // debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
 var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed", "deployable_workbench"}
 
-// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムを入れておく。
-// 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
-func spawnDebugStageCubeGear(world w.World) error {
+// debugStageTools はデバッグ街の木箱へ1つずつ入れておく道具の id
+var debugStageTools = []string{"pickaxe"}
+
+// spawnDebugStageCrateItems はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムと道具を入れておく。
+// 装着 UI や道具を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
+func spawnDebugStageCrateItems(world w.World) error {
 	var crate ecs.Entity
 	found := false
 	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
@@ -179,7 +182,7 @@ func spawnDebugStageCubeGear(world w.World) error {
 		}
 	}
 	if !found {
-		return fmt.Errorf("debug stage: wooden_crate not found for cube gear")
+		return fmt.Errorf("debug stage: wooden_crate not found")
 	}
 	if _, err := lifecycle.SpawnStorageItem(world, "cube_range_module", debugStageModuleCount, crate); err != nil {
 		return fmt.Errorf("failed to spawn debug stage modules: %w", err)
@@ -187,6 +190,11 @@ func spawnDebugStageCubeGear(world w.World) error {
 	for _, id := range debugStageFacilityItems {
 		if _, err := lifecycle.SpawnStorageItem(world, id, debugStageFacilityCount, crate); err != nil {
 			return fmt.Errorf("failed to spawn debug stage facility %s: %w", id, err)
+		}
+	}
+	for _, id := range debugStageTools {
+		if _, err := lifecycle.SpawnStorageItem(world, id, 1, crate); err != nil {
+			return fmt.Errorf("failed to spawn debug stage tool %s: %w", id, err)
 		}
 	}
 	return nil
