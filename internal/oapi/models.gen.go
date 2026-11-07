@@ -1217,7 +1217,7 @@ type Dice = string
 type Disassembly struct {
 	Bonus *[]DisassemblyBonus `json:"bonus,omitempty"`
 
-	// ToolCategory 分解工具の分類
+	// ToolCategory 道具の分類
 	ToolCategory *ToolCategory `json:"toolCategory,omitempty"`
 
 	// ToolRequired 分解定義の道具が無いと殴っても削れないか
@@ -1240,14 +1240,6 @@ type DisassemblyBonus struct {
 
 // DisassemblyChance 分解産出の確率。百分率
 type DisassemblyChance = int
-
-// DisassemblyTool 分解工具。分類の対応とグレードを持つ
-type DisassemblyTool struct {
-	Categories []ToolCategory `json:"categories"`
-
-	// Grade 分解工具のグレード。高いほど速く多く得る
-	Grade ToolGrade `json:"grade"`
-}
 
 // DisassemblyToolRequired 分解定義の道具が無いと殴っても削れないか
 type DisassemblyToolRequired = bool
@@ -1516,9 +1508,6 @@ type Item struct {
 	// Description 説明文
 	Description EntityDescription `json:"description"`
 
-	// DisassemblyTool 分解工具。分類の対応とグレードを持つ
-	DisassemblyTool *DisassemblyTool `json:"disassemblyTool,omitempty"`
-
 	// EquipBonus 装備ボーナス
 	EquipBonus *EquipBonus `json:"equipBonus,omitempty"`
 
@@ -1561,6 +1550,9 @@ type Item struct {
 
 	// StageLength 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
 	StageLength *StageLengthTurns `json:"stageLength,omitempty"`
+
+	// Tool 道具の性質。合う物を殴って壊すと速く多く得る
+	Tool *Tool `json:"tool,omitempty"`
 
 	// Value 売買価格
 	Value ItemValue `json:"value"`
@@ -2188,10 +2180,18 @@ type TileList struct {
 	TotalCount int    `json:"totalCount"`
 }
 
-// ToolCategory 分解工具の分類
+// Tool 道具の性質。道具の分類とグレードを持つ
+type Tool struct {
+	Categories []ToolCategory `json:"categories"`
+
+	// Grade 道具のグレード。高いほど速く壊し多く得る
+	Grade ToolGrade `json:"grade"`
+}
+
+// ToolCategory 道具の分類
 type ToolCategory string
 
-// ToolGrade 分解工具のグレード。高いほど速く多く得る
+// ToolGrade 道具のグレード。高いほど速く壊し多く得る
 type ToolGrade = int
 
 // UsableScene 使用可能シーン

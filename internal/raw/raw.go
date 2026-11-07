@@ -852,13 +852,13 @@ func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
 	return prop.Disassembly, true
 }
 
-// FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す
-func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {
+// FindTool は指定された名前のアイテムの道具の性質を返す
+func FindTool(raws oapi.Raws, name string) (*oapi.Tool, bool) {
 	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)
-	if !ok || item.DisassemblyTool == nil {
+	if !ok || item.Tool == nil {
 		return nil, false
 	}
-	return item.DisassemblyTool, true
+	return item.Tool, true
 }
 
 // GetProfession は指定されたIDの職業データを返す

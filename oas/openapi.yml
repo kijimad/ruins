@@ -2133,19 +2133,6 @@ components:
       minimum: 1
       maximum: 100
       description: 分解産出の確率。百分率
-    DisassemblyTool:
-      type: object
-      required:
-        - categories
-        - grade
-      properties:
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/ToolCategory'
-        grade:
-          $ref: '#/components/schemas/ToolGrade'
-      description: 分解工具。分類の対応とグレードを持つ
     DisassemblyToolRequired:
       type: boolean
       description: 分解定義の道具が無いと殴っても削れないか
@@ -2607,8 +2594,10 @@ components:
           $ref: '#/components/schemas/Fire'
         book:
           $ref: '#/components/schemas/Book'
-        disassemblyTool:
-          $ref: '#/components/schemas/DisassemblyTool'
+        tool:
+          allOf:
+            - $ref: '#/components/schemas/Tool'
+          description: 道具の性質。合う物を殴って壊すと速く多く得る
         lightSource:
           allOf:
             - $ref: '#/components/schemas/LightSource'
@@ -3664,6 +3653,19 @@ components:
         totalCount:
           type: integer
       description: タイル一覧
+    Tool:
+      type: object
+      required:
+        - categories
+        - grade
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCategory'
+        grade:
+          $ref: '#/components/schemas/ToolGrade'
+      description: 道具の性質。道具の分類とグレードを持つ
     ToolCategory:
       type: string
       enum:
@@ -3671,12 +3673,12 @@ components:
         - precision
         - cutting
         - chopping
-      description: 分解工具の分類
+      description: 道具の分類
     ToolGrade:
       type: integer
       minimum: 1
       maximum: 3
-      description: 分解工具のグレード。高いほど速く多く得る
+      description: 道具のグレード。高いほど速く壊し多く得る
     UsableScene:
       type: string
       enum:

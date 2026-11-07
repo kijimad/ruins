@@ -44,37 +44,37 @@ func TestFindDisassembly(t *testing.T) {
 	})
 }
 
-func TestFindDisassemblyTool(t *testing.T) {
+func TestFindTool(t *testing.T) {
 	t.Parallel()
 
-	tool := &oapi.DisassemblyTool{
+	tool := &oapi.Tool{
 		Categories: []oapi.ToolCategory{oapi.Prying, oapi.Cutting},
 		Grade:      2,
 	}
 	raws := oapi.Raws{
 		Items: &[]oapi.Item{
-			{Id: "バール", Name: "バール", DisassemblyTool: tool},
+			{Id: "バール", Name: "バール", Tool: tool},
 			{Id: "回復薬", Name: "回復薬"},
 		},
 	}
 
-	t.Run("アイテムの分解工具定義を返す", func(t *testing.T) {
+	t.Run("アイテムの道具の性質を返す", func(t *testing.T) {
 		t.Parallel()
-		got, ok := FindDisassemblyTool(raws, "バール")
+		got, ok := FindTool(raws, "バール")
 		require.True(t, ok)
 		assert.Equal(t, tool, got)
 	})
 
-	t.Run("分解工具定義を持たないアイテムはfalseを返す", func(t *testing.T) {
+	t.Run("道具の性質を持たないアイテムはfalseを返す", func(t *testing.T) {
 		t.Parallel()
-		got, ok := FindDisassemblyTool(raws, "回復薬")
+		got, ok := FindTool(raws, "回復薬")
 		assert.False(t, ok)
 		assert.Nil(t, got)
 	})
 
 	t.Run("存在しないアイテム名はfalseを返す", func(t *testing.T) {
 		t.Parallel()
-		got, ok := FindDisassemblyTool(raws, "存在しないアイテム")
+		got, ok := FindTool(raws, "存在しないアイテム")
 		assert.False(t, ok)
 		assert.Nil(t, got)
 	})

@@ -16,8 +16,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// disassemblyTool は actor が構えている武器が分解定義 def の道具ならそのグレードを返す
-func disassemblyTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (int, bool) {
+// wieldedTool は actor が構えている武器が分解定義 def に合う道具ならそのグレードを返す
+func wieldedTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (int, bool) {
 	if def.ToolCategory == nil || !world.Components.Player.Has(actor) {
 		return 0, false
 	}
@@ -25,7 +25,7 @@ func disassemblyTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (in
 	if err != nil || !ok {
 		return 0, false
 	}
-	tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
+	tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
 	if !ok {
 		return 0, false
 	}
@@ -45,7 +45,7 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 	if !ok {
 		return 1
 	}
-	grade, ok := disassemblyTool(world, actor, def)
+	grade, ok := wieldedTool(world, actor, def)
 	switch {
 	case ok:
 		return 1 + grade
@@ -58,7 +58,7 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 // salvageRoll は分解定義 def の prop を actor が壊したときの抽選を決める。合う道具を構えていれば
 // 確率枠とボーナス枠まで出し、道具の分類が無い定義も同じにする。それ以外は確定枠を低確率で回収するだけ
 func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade int, full, withTool bool) {
-	grade, withTool = disassemblyTool(world, actor, def)
+	grade, withTool = wieldedTool(world, actor, def)
 	return grade, withTool || def.ToolCategory == nil, withTool
 }
 

@@ -563,12 +563,12 @@ scalar DisassemblyToolRequired extends boolean;
 @maxValue(100)
 scalar DisassemblyChance extends integer;
 
-/** 分解工具のグレード。高いほど速く多く得る */
+/** 道具のグレード。高いほど速く壊し多く得る */
 @minValue(1)
 @maxValue(3)
 scalar ToolGrade extends integer;
 
-/** 分解工具の分類 */
+/** 道具の分類 */
 enum ToolCategory {
   /** こじ開け。木製家具・棚など */
   prying,
