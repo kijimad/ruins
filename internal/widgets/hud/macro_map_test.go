@@ -184,16 +184,8 @@ func TestDrawMapLegend_種別ごとに色見本と名前を描く(t *testing.T) 
 	glyphs := overworld.LegendGlyphs(raws)
 	require.NotEmpty(t, glyphs)
 	assert.Len(t, cv.fillRects, len(glyphs), "種別ごとに色見本を1つ塗る")
-	// 種別ごとに記号1つと名前1つ、末尾に閉じ方の案内を描く
-	assert.Len(t, cv.texts, len(glyphs)*2+1)
-
-	var hasClose bool
-	for _, tc := range cv.texts {
-		if tc.str == "N / Esc to close" {
-			hasClose = true
-		}
-	}
-	assert.True(t, hasClose, "閉じ方の案内を描く")
+	// 種別ごとに記号1つと名前1つを描く
+	assert.Len(t, cv.texts, len(glyphs)*2)
 }
 
 func TestDrawMapGrid_極小セルでも道が消えない(t *testing.T) {

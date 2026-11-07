@@ -102,7 +102,6 @@ func DrawMapLegend(cv uicore.Canvas, raws oapi.Raws, translate func(msgid string
 			x, y = 8, y+22
 		}
 	}
-	cv.DrawText(image.Pt(8, y+26), translate("N / Esc to close"), face, theme.TextPrimary)
 }
 
 // drawMapRoad はチャンクセルを通る道を接続方角ごとに、セル中央から辺の中点へ細い矩形で引く。

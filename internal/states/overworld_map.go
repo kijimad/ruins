@@ -10,6 +10,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -50,9 +51,9 @@ const (
 	overworldMapMarginCols = 3 // セル幅算出で cols に足す左右の余白の列相当ぶん
 )
 
-// modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
+// modalInner はモーダルパネルの画像を置く矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
 func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
-	return menuframe.PanelInner(menuframe.ModalRect(world))
+	return menuframe.ImagePanelArea(menuframe.ModalRect(world))
 }
 
 // overworldMapCell は有界の cols 列がモーダル幅に収まるセル寸法を決める。左右の余白ぶんを足した
@@ -105,14 +106,20 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 
 // overworldMapBindings は種別俯瞰図の束縛表。開いたキーと同じ N でも閉じられる
 var overworldMapBindings = []keybind.Binding{
-	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
-	{Key: ebiten.KeyN, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyEscape, Press: keybind.PressJust, Action: inputmapper.ActionCloseMenu, Label: "Close"},
+	{Key: ebiten.KeyN, Press: keybind.PressJust, Action: inputmapper.ActionCloseMenu, Label: "Close"},
+	{Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Press: keybind.PressJust, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
 }
 
-// Update はキー入力で閉じるだけ。マップ表示中は時間を進めない。
+// Update は閉じるかキー一覧ヘルプを開くだけ。マップ表示中は時間を進めない。
 func (st *OverworldMapState) Update(world w.World) (es.Transition[w.World], error) {
-	if action, ok := keybind.ReadInput(world, overworldMapBindings); ok && action == inputmapper.ActionCloseMenu {
+	action, ok := keybind.ReadInput(world, overworldMapBindings)
+	if ok && action == inputmapper.ActionCloseMenu {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}
+	if ok && action == inputmapper.ActionOpenKeyHelp {
+		return es.Transition[w.World]{Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{menuloop.NewKeyHelpState(overworldMapBindings)}}, nil
 	}
 	return st.ConsumeTransition(), nil
 }
@@ -133,16 +140,15 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	res := world.Resources.UIResources
 	rect := menuframe.ModalRect(world)
-	// 画像は ImagePanel が画像を置く矩形と同じ寸法にする。PanelInner を両者で通し余白の値が
+	// 画像は ImagePanel が画像を置く矩形と同じ寸法にする。ImagePanelArea を両者で通し余白の値が
 	// 変わってもずれないようにする
-	inner := menuframe.PanelInner(rect)
+	area := menuframe.ImagePanelArea(rect)
 
-	// 内容はパネル内側いっぱいの画像へ原点ローカルで描く。透明地なので描かない部分は
-	// 背後のパネルテクスチャが透ける
-	img := ebiten.NewImage(max(inner.Dx(), 1), max(inner.Dy(), 1))
+	// 内容は画像へ原点ローカルで描く。透明地なので描かない部分は背後のパネルテクスチャが透ける
+	img := ebiten.NewImage(max(area.Dx(), 1), max(area.Dy(), 1))
 	st.renderMap(world, img)
 
-	return menuframe.ImagePanel(res, rect, img)
+	return menuframe.ImagePanel(res, rect, img, keybind.HelpHint(world))
 }
 
 // renderMap は俯瞰図の格子・マーカー・凡例を dst へ原点ローカルで描く。格子と凡例の描画は
