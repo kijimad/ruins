@@ -37,8 +37,7 @@ func (c *textCollector) observe(face text.Face, s string) {
 func (c *textCollector) register(world w.World) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	tr := world.Resources.UIResources.Text
-	for _, f := range []text.Face{tr.SmallFace, tr.BodyFace, tr.KeycapFace, tr.TitleFontFace, tr.SplashFontFace} {
+	for _, f := range worldFaces(world) {
 		c.faces[f] = nil
 	}
 }
@@ -46,12 +45,17 @@ func (c *textCollector) register(world w.World) {
 func (c *textCollector) drawn(world w.World) []string {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	tr := world.Resources.UIResources.Text
 	var out []string
-	for _, f := range []text.Face{tr.SmallFace, tr.BodyFace, tr.KeycapFace, tr.TitleFontFace, tr.SplashFontFace} {
+	for _, f := range worldFaces(world) {
 		out = append(out, c.faces[f]...)
 	}
 	return out
+}
+
+// worldFaces は world が持つフェイスの一覧。
+func worldFaces(world w.World) []text.Face {
+	tr := world.Resources.UIResources.Text
+	return []text.Face{tr.SmallFace, tr.BodyFace, tr.KeycapFace, tr.TitleFontFace, tr.SplashFontFace}
 }
 
 // untranslatedExemptCases は開発者向けで訳さない場面。
