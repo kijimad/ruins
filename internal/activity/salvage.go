@@ -18,7 +18,7 @@ import (
 
 // 分解定義を持つ prop は殴って壊すと産出を落とす。分解定義の道具を構えて壊すと、確率枠とボーナス枠まで
 // 出て、与えるダメージも道具のグレードに応じて増える。道具なしでも壊せるが、確定枠を低確率で回収するだけ。
-// 道具の分類が無い定義は、何で壊しても道具ありと同じ産出にする
+// 道具が必須の prop は道具なしで殴っても削れない。道具の分類が無い定義は、何で壊しても道具ありと同じ産出にする
 
 // disassemblyTool は actor が構えている武器が分解定義 def の道具ならそのグレードを返す
 func disassemblyTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (int, bool) {
@@ -39,8 +39,8 @@ func disassemblyTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (in
 	return 0, false
 }
 
-// toolDamageMultiplier は分解定義を持つ prop を、その道具を構えて殴るときのダメージ倍率を返す。
-// グレード1で2倍、以降1ごとに1倍ずつ増え、壊すまでの手数が減る
+// toolDamageMultiplier は分解定義を持つ prop を殴るときのダメージ倍率を返す。道具を構えていれば
+// グレード1で2倍、以降1ごとに1倍ずつ増え、壊すまでの手数が減る。道具が必須の prop は道具なしでは0倍
 func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 	if !world.Components.Prop.Has(target) {
 		return 1
@@ -50,10 +50,13 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 		return 1
 	}
 	grade, ok := disassemblyTool(world, actor, def)
-	if !ok {
-		return 1
+	switch {
+	case ok:
+		return 1 + grade
+	case def.ToolRequired != nil && *def.ToolRequired:
+		return 0
 	}
-	return 1 + grade
+	return 1
 }
 
 // dropSalvage は actor が壊した prop の産出を足元へ落とす。分解定義が無ければ何もしない

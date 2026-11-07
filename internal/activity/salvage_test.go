@@ -23,7 +23,8 @@ func TestToolDamageMultiplier(t *testing.T) {
 		{"斧で木を殴るとグレード2で3倍", "axe", "tree_a", 3},
 		{"ペンチで木箱を殴るとグレード1で2倍", "monkey_wrench", "wooden_crate", 2},
 		{"斧で木箱を殴っても分類が違うので1倍", "axe", "wooden_crate", 1},
-		{"松明で木を殴っても道具でないので1倍", "torch", "tree_a", 1},
+		{"道具が必須の木を松明で殴ると0倍", "torch", "tree_a", 0},
+		{"道具が必須でない木箱を松明で殴ると1倍", "torch", "wooden_crate", 1},
 		{"分解定義の無いpropは1倍", "axe", "grass", 1},
 	}
 	for _, tt := range tests {

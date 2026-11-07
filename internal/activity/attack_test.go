@@ -661,63 +661,47 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 	}
 }
 
-func TestMeleeBehavior_Validate_分解定義の道具(t *testing.T) {
+func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("斧を構えていれば木を殴れる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		require.NoError(t, lifecycle.UnequipAll(world, player))
-		axe, err := lifecycle.SpawnBackpackItem(world, "axe", 1)
-		require.NoError(t, err)
-		lifecycle.MoveToEquip(world, axe, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Slot = 1
-		tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
-		require.NoError(t, err)
+	tests := []struct {
+		name       string
+		weapon     string
+		wantDamage bool
+	}{
+		{"斧で殴ると削れる", "axe", true},
+		{"松明で殴っても削れずスキルも伸びない", "torch", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.UnequipAll(world, player))
+			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
+			require.NoError(t, err)
+			lifecycle.MoveToEquip(world, weapon, player, gc.SlotWeapon1)
+			query.GetWeaponSelection(world).Slot = 1
+			tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
+			require.NoError(t, err)
+			attack, name, err := getAttackParams(player, world)
+			require.NoError(t, err)
+			skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
+			require.True(t, ok)
+			expBefore := world.Components.Skills.Get(player).Get(skillID).Exp.Current
 
-		ab := &MeleeBehavior{}
-		require.NoError(t, ab.Validate(NewMeleeActivity(tree), player, world))
-	})
+			// 命中率の補正を大きく取り、必ず命中させる
+			require.NoError(t, applyAttackDamage(player, tree, world, attack, name, 1000, 0))
 
-	t.Run("道具が必須のpropは合う道具でない武器では殴れない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		query.GetWeaponSelection(world).Slot = 1
-		tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
-		require.NoError(t, err)
-
-		ab := &MeleeBehavior{}
-		var userErr *UserError
-		require.ErrorAs(t, ab.Validate(NewMeleeActivity(tree), player, world), &userErr)
-	})
-
-	t.Run("道具の分類が無い分解定義のpropはどの武器でも殴れる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		query.GetWeaponSelection(world).Slot = 1
-		bush, err := lifecycle.SpawnProp(world, "bush", 10, 9)
-		require.NoError(t, err)
-
-		ab := &MeleeBehavior{}
-		require.NoError(t, ab.Validate(NewMeleeActivity(bush), player, world))
-	})
-
-	t.Run("道具が必須でない分解定義のpropは合う道具でなくても殴れる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		query.GetWeaponSelection(world).Slot = 1
-		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
-		require.NoError(t, err)
-
-		ab := &MeleeBehavior{}
-		require.NoError(t, ab.Validate(NewMeleeActivity(crate), player, world))
-	})
+			hp := world.Components.HP.Get(tree)
+			expAfter := world.Components.Skills.Get(player).Get(skillID).Exp.Current
+			if tt.wantDamage {
+				assert.Less(t, hp.Current, hp.Max)
+			} else {
+				assert.Equal(t, hp.Max, hp.Current)
+				assert.Equal(t, expBefore, expAfter)
+			}
+		})
+	}
 }

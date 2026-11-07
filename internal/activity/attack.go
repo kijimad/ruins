@@ -85,12 +85,6 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 		return fmt.Errorf("attacker has no attack means")
 	}
 
-	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world)); ok && def.ToolRequired != nil && *def.ToolRequired {
-		if _, held := disassemblyTool(world, actor, def); !held {
-			return &UserError{Msg: query.T(world, "You need a suitable tool to break %s.", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
-		}
-	}
-
 	return nil
 }
 
@@ -304,7 +298,13 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
 
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
-	growWeaponSkill(actor, world, attack)
+	if damage > 0 {
+		growWeaponSkill(actor, world, attack)
+	} else if toolDamageMultiplier(world, actor, target) == 0 {
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "You need a suitable tool to break %s.", gamelog.Tag("item", query.GetEntityName(target, world)))).
+			Log()
+	}
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
 	if world.Components.Prop.Has(target) && world.Components.Dead.Has(target) {
