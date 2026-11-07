@@ -104,6 +104,7 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 		{"斧で木を壊すと薪を落とすが機械スキルは伸びない", "axe", "tree_a", "firewood", false},
 		{"モンキーレンチで木箱を壊すと機械スキルが伸びる", "monkey_wrench", "wooden_crate", "", true},
 		{"松明で灌木を壊すと枝を落とし機械スキルは伸びない", "torch", "bush", "branch", false},
+		{"つるはしで岩を壊すと機械スキルは伸びない", "pickaxe", "rock", "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
