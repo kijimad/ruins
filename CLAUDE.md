@@ -9,7 +9,7 @@
 - 実装変更後は `make check` で壊していないか検証する（テストは `make test`。Ebiten のウィンドウ抑止のため）
 - git push・PR 作成は指示したときのみ行う
 - GitHub へのコメントは禁止する
-- タスクごとにブランチを切り、`.claude/worktrees/<topic>` に worktree を作って作業する。リポジトリ外の `../ruins-*` には作らない
+- タスクごとにブランチを切り、`.claude/worktrees/<topic>` に worktree を作って作業する
 
 ## PR 作成時
 
