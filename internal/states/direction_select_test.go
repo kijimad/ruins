@@ -136,3 +136,42 @@ func TestDirectionSelectState_doAction(t *testing.T) {
 		assert.Nil(t, activity.GetLastResult(player, world))
 	})
 }
+
+func TestInteractableAt(t *testing.T) {
+	t.Parallel()
+
+	t.Run("指定の相互作用を受け付ける生存中の実体を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		enemy, err := lifecycle.SpawnEnemy(world, northOfPlayer, "fireball")
+		require.NoError(t, err)
+
+		got, ok := interactableAt(world, northOfPlayer, gc.InteractionMelee)
+
+		require.True(t, ok)
+		assert.Equal(t, enemy, got)
+	})
+
+	t.Run("死んだ実体は返さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		enemy, err := lifecycle.SpawnEnemy(world, northOfPlayer, "fireball")
+		require.NoError(t, err)
+		world.Components.Dead.Add(enemy, &gc.Dead{})
+
+		_, ok := interactableAt(world, northOfPlayer, gc.InteractionMelee)
+
+		assert.False(t, ok)
+	})
+
+	t.Run("相互作用の種類が違えば返さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnEnemy(world, northOfPlayer, "fireball")
+		require.NoError(t, err)
+
+		_, ok := interactableAt(world, northOfPlayer, gc.InteractionStorage)
+
+		assert.False(t, ok)
+	})
+}

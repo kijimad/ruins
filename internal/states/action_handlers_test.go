@@ -1,6 +1,7 @@
 package states
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"testing"
 
@@ -784,21 +785,6 @@ func TestStartPickup(t *testing.T) {
 		assert.True(t, world.Components.LocationInBackpack.Has(item))
 	})
 
-	t.Run("斜めのアイテム1つもそのまま拾う", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 11, 11, 1)
-		require.NoError(t, err)
-
-		trans, err := startPickup(world)
-		require.NoError(t, err)
-
-		assert.Equal(t, es.TransNone, trans.Type)
-		assert.True(t, world.Components.LocationInBackpack.Has(item))
-	})
-
 	t.Run("収納は1つでも拾うメニューで選ばせる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -902,4 +888,44 @@ func TestPickupChoices(t *testing.T) {
 		require.NoError(t, err)
 		assert.IsType(t, &StorageMenuState{}, state)
 	})
+}
+
+func TestStartPickup_周囲8タイルのアイテム1つはそのまま拾う(t *testing.T) {
+	t.Parallel()
+	for _, d := range []consts.Coord[consts.Tile]{
+		{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
+		{X: -1, Y: 0}, {X: 1, Y: 0},
+		{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
+	} {
+		t.Run(fmt.Sprintf("dx=%d,dy=%d", d.X, d.Y), func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10+d.X, 10+d.Y, 1)
+			require.NoError(t, err)
+
+			trans, err := startPickup(world)
+			require.NoError(t, err)
+
+			assert.Equal(t, es.TransNone, trans.Type)
+			assert.True(t, world.Components.LocationInBackpack.Has(item))
+		})
+	}
+}
+
+func TestStartPickup_2タイル離れたアイテムは数えない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 12, 10, 1)
+	require.NoError(t, err)
+
+	trans, err := startPickup(world)
+	require.NoError(t, err)
+
+	assert.Equal(t, es.TransNone, trans.Type)
+	assert.False(t, world.Components.LocationInBackpack.Has(item))
+	assert.Nil(t, activity.GetLastResult(player, world))
 }
