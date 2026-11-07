@@ -35,8 +35,7 @@ func wieldedTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (int, b
 	return 0, false
 }
 
-// toolDamageMultiplier は分解定義を持つ prop を殴るときのダメージ倍率を返す。道具を構えていれば
-// グレード1で2倍、以降1ごとに1倍ずつ増え、壊すまでの手数が減る。道具が必須の prop は道具なしでは0倍
+// toolDamageMultiplier は prop を殴るときの道具のダメージ倍率を返す。合う道具で 1+グレード、道具が必須で無ければ0、他は1
 func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 	if !world.Components.Prop.Has(target) {
 		return 1
@@ -55,8 +54,7 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 	return 1
 }
 
-// salvageRoll は分解定義 def の prop を actor が壊したときの抽選を決める。合う道具を構えていれば
-// 確率枠とボーナス枠まで出し、道具の分類が無い定義も同じにする。それ以外は確定枠を低確率で回収するだけ
+// salvageRoll は壊したときの抽選を決める。合う道具を構えているか、道具の分類が無い定義なら全枠を出す
 func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade int, full, withTool bool) {
 	grade, withTool = wieldedTool(world, actor, def)
 	return grade, withTool || def.ToolCategory == nil, withTool
@@ -73,8 +71,7 @@ func toolSkill(category oapi.ToolCategory) (gc.SkillID, bool) {
 	return "", false
 }
 
-// dropSalvage は actor が壊した prop の産出を足元へ落とす。合う道具で壊したときだけ、道具の分類のスキルが
-// 産出を増やし、経験値を得る
+// dropSalvage は actor が壊した prop の産出を足元へ落とす
 func dropSalvage(world w.World, actor, target ecs.Entity) error {
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok || !world.Components.GridElement.Has(target) {
@@ -140,8 +137,7 @@ func skillValueOf(actor ecs.Entity, world w.World, skillID gc.SkillID) int {
 	return world.Components.Skills.Get(actor).Get(skillID).Value
 }
 
-// yieldsMarkup は産出一覧を色付きマークアップ文字列にして返す。各アイテムを読点で連結する。
-// 語尾や句読点は呼び出し側のテンプレートに委ね、ここは中身の並びだけを組む
+// yieldsMarkup は産出一覧を読点で連結した色付きマークアップ文字列にして返す
 func yieldsMarkup(stacks []lifecycle.YieldStack, world w.World) string {
 	parts := make([]string, len(stacks))
 	for i, s := range stacks {

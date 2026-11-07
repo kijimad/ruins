@@ -361,8 +361,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateDisassemblyReferences は prop の分解定義を検証する。産出名がアイテム定義に存在し、道具が必須なら
-// 道具の分類を持ち、壊せるよう prop が HP を持つことを確かめる
+// validateDisassemblyReferences は prop の分解定義の産出名、道具が必須なときの分類、prop の HP を検証する
 func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))

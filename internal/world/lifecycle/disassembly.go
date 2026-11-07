@@ -9,8 +9,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// DestroySalvageChance は合う道具なしで壊したときに確定枠の各産出を回収できる百分率。
-// 道具が無くても素材が少しは手に入るが、道具で壊すより明確に不利にする
+// DestroySalvageChance は合う道具なしで壊したときに確定枠の各産出を回収できる百分率
 const DestroySalvageChance = 30
 
 // YieldStack は分解産出のアイテム名と個数の組
