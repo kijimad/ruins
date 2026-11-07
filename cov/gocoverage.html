@@ -635,7 +635,7 @@
 				
 				<option value="file289">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file290">github.com/kijimaD/ruins/internal/systems/render3d.go (35.2%)</option>
+				<option value="file290">github.com/kijimaD/ruins/internal/systems/render3d.go (45.1%)</option>
 				
 				<option value="file291">github.com/kijimaD/ruins/internal/systems/render_sprite.go (7.4%)</option>
 				
@@ -643,7 +643,7 @@
 				
 				<option value="file293">github.com/kijimaD/ruins/internal/systems/temperature.go (93.4%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.8%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/systems/turn_system.go (89.8%)</option>
 				
 				<option value="file295">github.com/kijimaD/ruins/internal/systems/vision.go (68.8%)</option>
 				
@@ -43998,11 +43998,11 @@ var (
 // whitePixel はフラット塗り用の白1pxを返す。頂点色をそのまま出すために使う。
 // アトラス配置に画素が左右されないよう unmanaged で作る。機構は components.Texture を参照
 func whitePixel() *ebiten.Image {
-        <span class="cov0" title="0">r3whiteOnce.Do(func() </span>{
-                <span class="cov0" title="0">r3whiteImg = ebiten.NewImageWithOptions(image.Rect(0, 0, 1, 1), &amp;ebiten.NewImageOptions{Unmanaged: true})
+        <span class="cov8" title="1">r3whiteOnce.Do(func() </span>{
+                <span class="cov8" title="1">r3whiteImg = ebiten.NewImageWithOptions(image.Rect(0, 0, 1, 1), &amp;ebiten.NewImageOptions{Unmanaged: true})
                 r3whiteImg.Fill(color.White)
 </span>        })
-        <span class="cov0" title="0">return r3whiteImg</span>
+        <span class="cov8" title="1">return r3whiteImg</span>
 }
 
 // avgSpriteColor はアトラス上の矩形の平均色を 0..1 で返す。透明画素は除く。結果はキャッシュする。
@@ -44082,26 +44082,26 @@ func (sys *Render3DSystem) collectDeployField(world w.World, quads []r3quad, pro
         if len(area) == 0 </span>{
                 <span class="cov8" title="1">return quads
 </span>        }
-        <span class="cov0" title="0">h := deployFieldHeight
+        <span class="cov8" title="1">h := deployFieldHeight
         for tile := range area </span>{
-                <span class="cov0" title="0">if !projector.TileOnScreen(tile, h) </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">if !projector.TileOnScreen(tile, h) </span>{
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">fx, fz := float64(tile.X), float64(tile.Y)
+                <span class="cov8" title="1">fx, fz := float64(tile.X), float64(tile.Y)
                 if !area[tile.Add(consts.Coord[consts.Tile]{X: 0, Y: -1})] </span>{
-                        <span class="cov0" title="0">sys.addFieldWall(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, h, fz), render3d.At(fx, h, fz))
+                        <span class="cov8" title="1">sys.addFieldWall(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, h, fz), render3d.At(fx, h, fz))
 </span>                }
-                <span class="cov0" title="0">if !area[tile.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})] </span>{
-                        <span class="cov0" title="0">sys.addFieldWall(&amp;quads, render3d.At(fx, 0, fz+1), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, h, fz+1), render3d.At(fx, h, fz+1))
+                <span class="cov8" title="1">if !area[tile.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})] </span>{
+                        <span class="cov8" title="1">sys.addFieldWall(&amp;quads, render3d.At(fx, 0, fz+1), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, h, fz+1), render3d.At(fx, h, fz+1))
 </span>                }
-                <span class="cov0" title="0">if !area[tile.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})] </span>{
-                        <span class="cov0" title="0">sys.addFieldWall(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx, 0, fz+1), render3d.At(fx, h, fz+1), render3d.At(fx, h, fz))
+                <span class="cov8" title="1">if !area[tile.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})] </span>{
+                        <span class="cov8" title="1">sys.addFieldWall(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx, 0, fz+1), render3d.At(fx, h, fz+1), render3d.At(fx, h, fz))
 </span>                }
-                <span class="cov0" title="0">if !area[tile.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})] </span>{
-                        <span class="cov0" title="0">sys.addFieldWall(&amp;quads, render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, h, fz+1), render3d.At(fx+1, h, fz))
+                <span class="cov8" title="1">if !area[tile.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})] </span>{
+                        <span class="cov8" title="1">sys.addFieldWall(&amp;quads, render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, h, fz+1), render3d.At(fx+1, h, fz))
 </span>                }
         }
-        <span class="cov0" title="0">return quads</span>
+        <span class="cov8" title="1">return quads</span>
 }
 
 // deployFieldArea は展開中の各キューブの野営矩形を合わせたタイル集合を返す。矩形はキューブ中心の
@@ -44126,7 +44126,7 @@ func deployFieldArea(world w.World) map[consts.Coord[consts.Tile]]bool {
 
 // addFieldWall はレーザー壁の縦面を1枚積む。白1pxを青の頂点色と半透明で塗り、エネルギー幕にする。
 func (sys *Render3DSystem) addFieldWall(out *[]r3quad, p0, p1, p2, p3 render3d.Vec) {
-        <span class="cov0" title="0">*out = append(*out, r3quad{
+        <span class="cov8" title="1">*out = append(*out, r3quad{
                 p:     [4]render3d.Vec{p0, p1, p2, p3},
                 uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
                 atlas: whitePixel(),
@@ -45379,7 +45379,7 @@ func notifyEnvironmentChange(world w.World) {
 func playerHasActivity(world w.World) bool {
         <span class="cov8" title="1">playerEntity, err := query.GetPlayerEntity(world)
         if err != nil </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">return query.HasActivity(world, playerEntity)</span>
 }
