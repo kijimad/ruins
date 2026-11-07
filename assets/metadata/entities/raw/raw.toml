@@ -142,6 +142,10 @@ damage = 6
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.tool]
+categories = ["mining"]
+grade = 2
 [[items]]
 description = "A screwdriver. Delivers precise thrusts."
 name = "Screwdriver"
@@ -222,6 +226,10 @@ damage = 14
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.tool]
+categories = ["mining"]
+grade = 1
 [[items]]
 description = "A massive battle axe. It boasts tremendous destructive power, but is hard to wield."
 name = "Battle Axe"
@@ -283,6 +291,10 @@ damage = 16
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.tool]
+categories = ["mining"]
+grade = 1
 [[items]]
 description = "A kind of pliers. An all-purpose tool that grips, bends, and cuts."
 name = "Pliers"
@@ -18519,6 +18531,17 @@ hp = 20
 depth = 0
 spriteKey = "rock"
 spriteSheetName = "field"
+
+[props.disassembly]
+toolCategory = "mining"
+toolRequired = true
+[[props.disassembly.yields]]
+id = "stone"
+count = "1d2"
+[[props.disassembly.yields]]
+id = "sharp_stone"
+count = "1d1"
+chance = 30
 [[props]]
 blockPass = false
 blockView = false

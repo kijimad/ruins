@@ -3669,6 +3669,7 @@ components:
         - precision
         - cutting
         - chopping
+        - mining
       description: 道具の分類
     ToolGrade:
       type: integer

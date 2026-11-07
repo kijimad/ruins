@@ -577,4 +577,6 @@ enum ToolCategory {
   cutting,
   /** 伐採。木など */
   chopping,
+  /** 採掘。岩など */
+  mining,
 }
