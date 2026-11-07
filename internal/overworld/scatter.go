@@ -55,7 +55,7 @@ const (
 	zoneWild outdoorZone = "wild"
 )
 
-// 草と土の飾りの prop と混ぜ方。どれも透明 prop なので地面へ重なり、オートタイルの縁や暗いフィルが出ない。
+// 草・灌木と土の飾りの prop と混ぜ方。どれも透明 prop なので地面へ重なり、オートタイルの縁や暗いフィルが出ない。
 // 色や大きさの違う種類を重みで混ぜ、単調さを崩す。土の飾りは草の生えていない土へまばらに撒く。
 var (
 	scatterGrassVariants = []scatterEntry{
@@ -66,6 +66,8 @@ var (
 		{Ref: "grass_dry", Weight: 10},
 		{Ref: "grass_dark", Weight: 10},
 		{Ref: "grass_dry_sprig", Weight: 10},
+		{Ref: "bush", Weight: 4},
+		{Ref: "bush_dry", Weight: 3},
 	}
 	scatterSoilVariants = []scatterEntry{
 		{Ref: "soil_pebbles", Weight: 3},

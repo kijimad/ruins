@@ -19722,6 +19722,28 @@ id = "soil_crack"
 depth = 0
 spriteKey = "soil_crack"
 spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A low, leafy shrub."
+name = "Shrub"
+id = "bush"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "bush"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A low shrub with withered leaves."
+name = "Withered Shrub"
+id = "bush_dry"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "bush_dry"
+spriteSheetName = "field"
 
 [[professions]]
 description = "An ordinary person who fled the collapse."

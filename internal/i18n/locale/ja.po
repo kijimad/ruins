@@ -6439,3 +6439,9 @@ msgstr "乾いた土"
 
 msgid "Cracked Ground"
 msgstr "地割れ"
+
+msgid "Shrub"
+msgstr "灌木"
+
+msgid "Withered Shrub"
+msgstr "枯れた灌木"
