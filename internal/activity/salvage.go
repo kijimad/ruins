@@ -141,7 +141,7 @@ func skillValueOf(actor ecs.Entity, world w.World, skillID gc.SkillID) int {
 func yieldsMarkup(stacks []lifecycle.YieldStack, world w.World) string {
 	parts := make([]string, len(stacks))
 	for i, s := range stacks {
-		parts[i] = gamelog.Tag("item", s.Name) + fmt.Sprintf(" x%d", s.Count)
+		parts[i] = gamelog.Tag("item", query.T(world, raw.ItemName(world.Resources.RawMaster, s.Name))) + fmt.Sprintf(" x%d", s.Count)
 	}
 	return strings.Join(parts, query.T(world, ", "))
 }

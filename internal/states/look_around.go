@@ -224,7 +224,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, coun
 	// HPを持つエンティティはHP表示
 	if world.Components.HP.Has(entity) {
 		hp := world.Components.HP.Get(entity)
-		label := "HP"
+		label := query.T(world, "HP")
 		if world.Components.Prop.Has(entity) {
 			label = query.T(world, "Durability")
 		}

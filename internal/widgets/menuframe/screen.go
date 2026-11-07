@@ -19,15 +19,24 @@ func PanelInner(rect image.Rectangle) image.Rectangle {
 	return image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
 }
 
+// ImagePanelArea は ImagePanel が画像を置く矩形を返す。パネルの内側から下端のフッタ行を除いた範囲。
+func ImagePanelArea(rect image.Rectangle) image.Rectangle {
+	area := PanelInner(rect)
+	area.Max.Y -= theme.MenuTabRowH
+	return area
+}
+
 // ImagePanel は1枚の画像を PanelBG のパネルへ収めて返す。格子や図のように、リストの行に馴染ま
-// ない内容を他メニューと同じパネル意匠で見せる画面が使う。パネルは rect へ、画像はその内側へ置く。
-func ImagePanel(_ resources.UIResources, rect image.Rectangle, img *ebiten.Image) uicore.Widget {
-	inner := PanelInner(rect)
+// ない内容を他メニューと同じパネル意匠で見せる画面が使う。footer は TabScreen と同じ下端の行に置く。
+func ImagePanel(res resources.UIResources, rect image.Rectangle, img *ebiten.Image, footer string) uicore.Widget {
 	bg := uicore.NewBox(theme.PanelBackground, theme.PanelHighlight, theme.CornerRadius)
 	bg.Layout(rect)
+	area := ImagePanelArea(rect)
 	gfx := uicore.NewGraphic(img)
-	gfx.Layout(inner)
-	group := uicore.NewGroup(bg, gfx)
+	gfx.Layout(area)
+	foot := footerRow(footer, "", res)
+	foot.Layout(image.Rect(area.Min.X, area.Max.Y, area.Max.X, area.Max.Y+theme.MenuTabRowH))
+	group := uicore.NewGroup(bg, gfx, foot)
 	group.Layout(rect)
 	return group
 }

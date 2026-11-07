@@ -4,7 +4,10 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/dungeon"
+	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -28,4 +31,19 @@ func TestOverworldMapState_キューブのチャンク位置を出す(t *testing
 	st := &OverworldMapState{}
 	require.NoError(t, st.OnStart(world))
 	assert.NotEmpty(t, st.view.CubeCells, "現在地と別チャンクのキューブは大域地図に載る")
+}
+
+func TestOverworldMapState_Update_ヘルプキーでキー一覧を開く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionOpenKeyHelp, true }
+
+	st := &OverworldMapState{}
+	trans, err := st.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPush, trans.Type)
+	require.Len(t, trans.NewStateFuncs, 1)
+	pushed, err := trans.NewStateFuncs[0]()
+	require.NoError(t, err)
+	assert.IsType(t, &menuloop.KeyHelpState{}, pushed)
 }
