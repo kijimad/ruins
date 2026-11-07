@@ -58,7 +58,7 @@ func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World]
 }
 
 // goldenCase は TestGolden の1ケース。build は fixture の error をそのまま返し、サブテストで require する。
-// *testing.T を取らないことで thelper の誤検知を避ける
+// *testing.T を取らないことで golangci-lint の thelper の誤検知を避ける
 type goldenCase struct {
 	name  string
 	build func(world w.World) ([]es.State[w.World], error)
