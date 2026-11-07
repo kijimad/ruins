@@ -298,12 +298,9 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
 
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
+	// 削れない相手を殴り続けて安全に稼げないよう、ダメージ0では武器スキルを伸ばさない
 	if damage > 0 {
 		growWeaponSkill(actor, world, attack)
-	} else if toolDamageMultiplier(world, actor, target) == 0 {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "You need a suitable tool to break %s.", gamelog.Tag("item", query.GetEntityName(target, world)))).
-			Log()
 	}
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)

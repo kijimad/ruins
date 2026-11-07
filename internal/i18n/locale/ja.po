@@ -6404,8 +6404,5 @@ msgstr "枝"
 msgid "A dry branch snapped off a shrub. It catches fire easily."
 msgstr "灌木から折り取った乾いた枝。火が付きやすい"
 
-msgid "You need a suitable tool to break %s."
-msgstr "%sを壊すには合う道具が要る。"
-
 msgid "From %s, obtained %s."
 msgstr "%sから%sを得た。"
