@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (83.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.6%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (85.9%)</option>
 				
@@ -495,9 +495,9 @@
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file220">github.com/kijimaD/ruins/internal/raw/raw.go (98.2%)</option>
+				<option value="file220">github.com/kijimaD/ruins/internal/raw/raw.go (90.3%)</option>
 				
-				<option value="file221">github.com/kijimaD/ruins/internal/raw/validate.go (95.5%)</option>
+				<option value="file221">github.com/kijimaD/ruins/internal/raw/validate.go (93.3%)</option>
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/raw/weighted.go (93.3%)</option>
 				
@@ -1712,7 +1712,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -30824,7 +30824,7 @@ func DecodeRaws(content string) (oapi.Raws, error) {
         <span class="cov8" title="1">var raws oapi.Raws
         metaData, err := toml.Decode(content, &amp;raws)
         if err != nil </span>{
-                <span class="cov8" title="1">return oapi.Raws{}, fmt.Errorf("TOML decode error: %w", err)
+                <span class="cov0" title="0">return oapi.Raws{}, fmt.Errorf("TOML decode error: %w", err)
 </span>        }
         <span class="cov8" title="1">if undecoded := metaData.Undecoded(); len(undecoded) &gt; 0 </span>{
                 <span class="cov8" title="1">return oapi.Raws{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
@@ -31049,17 +31049,17 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 </span>        }
         // stageLength を持つ食料は腐敗する。RotUpdatedTurn は spawn 時に刻印するためここでは 0 のまま
         <span class="cov8" title="1">if item.StageLength != nil </span>{
-                <span class="cov8" title="1">entitySpec.Perishable = &amp;gc.Perishable{StageLength: consts.Turn(*item.StageLength)}
+                <span class="cov0" title="0">entitySpec.Perishable = &amp;gc.Perishable{StageLength: consts.Turn(*item.StageLength)}
 </span>        }
         <span class="cov8" title="1">if item.InflictsDamage != nil </span>{
                 <span class="cov8" title="1">entitySpec.InflictsDamage = &amp;gc.InflictsDamage{Amount: *item.InflictsDamage}
 </span>        }
         <span class="cov8" title="1">if item.Remedy != nil </span>{
-                <span class="cov8" title="1">treats := make([]gc.ConditionType, 0, len(item.Remedy.Treats))
+                <span class="cov0" title="0">treats := make([]gc.ConditionType, 0, len(item.Remedy.Treats))
                 for _, t := range item.Remedy.Treats </span>{
-                        <span class="cov8" title="1">treats = append(treats, gc.ConditionType(t))
+                        <span class="cov0" title="0">treats = append(treats, gc.ConditionType(t))
 </span>                }
-                <span class="cov8" title="1">entitySpec.Remedy = &amp;gc.Remedy{
+                <span class="cov0" title="0">entitySpec.Remedy = &amp;gc.Remedy{
                         Treats:  treats,
                         Potency: consts.Percent(item.Remedy.Potency),
 </span>                }
@@ -31085,11 +31085,11 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
                 <span class="cov8" title="1">entitySpec.Melee = melee</span>
         }
         <span class="cov8" title="1">if item.Fire != nil </span>{
-                <span class="cov8" title="1">fire, err := parseFire(item.Fire)
+                <span class="cov0" title="0">fire, err := parseFire(item.Fire)
                 if err != nil </span>{
                         <span class="cov0" title="0">return gc.EntitySpec{}, err
 </span>                }
-                <span class="cov8" title="1">entitySpec.Fire = fire</span>
+                <span class="cov0" title="0">entitySpec.Fire = fire</span>
         }
 
         <span class="cov8" title="1">var bonus gc.EquipBonus
@@ -31147,7 +31147,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
         // 火種。所持していると隣接の燃焼物に着火できる道具
         <span class="cov8" title="1">if item.FireStarter != nil </span>{
-                <span class="cov8" title="1">entitySpec.FireStarter = &amp;gc.FireStarter{}
+                <span class="cov0" title="0">entitySpec.FireStarter = &amp;gc.FireStarter{}
 </span>        }
 
         // フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
@@ -31170,7 +31170,7 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
         if dep.Storage != nil </span>{
                 <span class="cov8" title="1">mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
                 if err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("item '%s' deployable storage: %w", name, err)
+                        <span class="cov0" title="0">return fmt.Errorf("item '%s' deployable storage: %w", name, err)
 </span>                }
                 <span class="cov8" title="1">entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}
                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}</span>
@@ -31213,19 +31213,19 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
                 <span class="cov8" title="1">entitySpec.Melee = itemSpec.Melee
 </span>        }
         <span class="cov8" title="1">if itemSpec.Fire != nil </span>{
-                <span class="cov8" title="1">entitySpec.Fire = itemSpec.Fire
+                <span class="cov0" title="0">entitySpec.Fire = itemSpec.Fire
 </span>        }
         <span class="cov8" title="1">if itemSpec.Wearable != nil </span>{
-                <span class="cov8" title="1">entitySpec.Wearable = itemSpec.Wearable
+                <span class="cov0" title="0">entitySpec.Wearable = itemSpec.Wearable
 </span>        }
         <span class="cov8" title="1">if itemSpec.Consumable != nil </span>{
-                <span class="cov8" title="1">entitySpec.Consumable = itemSpec.Consumable
+                <span class="cov0" title="0">entitySpec.Consumable = itemSpec.Consumable
 </span>        }
         <span class="cov8" title="1">if itemSpec.Value != nil </span>{
                 <span class="cov8" title="1">entitySpec.Value = itemSpec.Value
 </span>        }
         <span class="cov8" title="1">if itemSpec.Weight != nil </span>{
-                <span class="cov8" title="1">entitySpec.Weight = itemSpec.Weight
+                <span class="cov0" title="0">entitySpec.Weight = itemSpec.Weight
 </span>        }
 
         <span class="cov8" title="1">return entitySpec, nil</span>
@@ -31240,7 +31240,7 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
         <span class="cov8" title="1">itemSpec, err := NewItemSpec(raws, name)
         if err != nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("failed to generate weapon spec: %w", err)
+                <span class="cov0" title="0">return gc.EntitySpec{}, fmt.Errorf("failed to generate weapon spec: %w", err)
 </span>        }
 
         // Melee/Fire のいずれも持たない場合は武器ではない
@@ -31255,7 +31255,7 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">member, ok := findByKey(raws.Members, func(m oapi.Member) string </span>{ <span class="cov8" title="1">return m.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, NewKeyNotFoundError(name, "Members")
+                <span class="cov0" title="0">return gc.EntitySpec{}, fmt.Errorf("key does not exist: %s", name)
 </span>        }
 
         <span class="cov8" title="1">entitySpec := gc.EntitySpec{}
@@ -31292,7 +31292,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">if member.CommandTableId != nil </span>{
                 <span class="cov8" title="1">ct, err := GetCommandTable(raws, *member.CommandTableId)
                 if err != nil </span>{
-                        <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("failed to get command table for member '%s': %w", name, err)
+                        <span class="cov0" title="0">return gc.EntitySpec{}, fmt.Errorf("failed to get command table for member '%s': %w", name, err)
 </span>                }
                 <span class="cov8" title="1">entitySpec.CommandTable = &amp;gc.CommandTable{Name: ct.Id}</span>
         }
@@ -31300,7 +31300,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">if member.DropTableId != nil </span>{
                 <span class="cov8" title="1">dt, err := GetDropTable(raws, *member.DropTableId)
                 if err != nil </span>{
-                        <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("failed to get drop table for member '%s': %w", name, err)
+                        <span class="cov0" title="0">return gc.EntitySpec{}, fmt.Errorf("failed to get drop table for member '%s': %w", name, err)
 </span>                }
                 <span class="cov8" title="1">entitySpec.DropTable = &amp;gc.DropTable{Name: dt.Id}</span>
         }
@@ -31311,11 +31311,11 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">if member.FactionType != nil &amp;&amp; string(*member.FactionType) != "" </span>{
                 <span class="cov8" title="1">switch string(*member.FactionType) </span>{
                 case gc.FactionAllyName:
-                        <span class="cov8" title="1">entitySpec.FactionAlly = &amp;gc.FactionAlly{}</span>
+                        <span class="cov0" title="0">entitySpec.FactionAlly = &amp;gc.FactionAlly{}</span>
                 case gc.FactionEnemyName:
-                        <span class="cov8" title="1">entitySpec.FactionEnemy = &amp;gc.FactionEnemy{}</span>
+                        <span class="cov0" title="0">entitySpec.FactionEnemy = &amp;gc.FactionEnemy{}</span>
                 case gc.FactionNeutralName:
-                        <span class="cov8" title="1">entitySpec.FactionNeutral = &amp;gc.FactionNeutral{}</span>
+                        <span class="cov0" title="0">entitySpec.FactionNeutral = &amp;gc.FactionNeutral{}</span>
                 default:
                         <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("invalid faction type '%s': %s", *member.FactionType, name)</span>
                 }
@@ -31362,7 +31362,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">entitySpec, err := NewMemberSpec(raws, name)
         if err != nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, err
+                <span class="cov0" title="0">return gc.EntitySpec{}, err
 </span>        }
         <span class="cov8" title="1">entitySpec.FactionAlly = &amp;gc.FactionAlly{}
         entitySpec.Player = &amp;gc.Player{}
@@ -31376,7 +31376,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">entitySpec, err := NewMemberSpec(raws, name)
         if err != nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, err
+                <span class="cov0" title="0">return gc.EntitySpec{}, err
 </span>        }
         <span class="cov8" title="1">entitySpec.FactionEnemy = &amp;gc.FactionEnemy{}
 </span>
@@ -31387,7 +31387,7 @@ func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
         <span class="cov8" title="1">ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string </span>{ <span class="cov8" title="1">return c.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return oapi.CommandTable{}, NewKeyNotFoundError(name, "CommandTables")
+                <span class="cov8" title="1">return oapi.CommandTable{}, fmt.Errorf("key does not exist: %s", name)
 </span>        }
         <span class="cov8" title="1">return ct, nil</span>
 }
@@ -31396,7 +31396,7 @@ func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
 func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
         <span class="cov8" title="1">dt, ok := findByKey(raws.DropTables, func(d oapi.DropTable) string </span>{ <span class="cov8" title="1">return d.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return oapi.DropTable{}, NewKeyNotFoundError(name, "DropTables")
+                <span class="cov8" title="1">return oapi.DropTable{}, fmt.Errorf("key does not exist: %s", name)
 </span>        }
         <span class="cov8" title="1">return dt, nil</span>
 }
@@ -31417,7 +31417,7 @@ func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
 func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
         <span class="cov8" title="1">it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string </span>{ <span class="cov8" title="1">return t.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return oapi.ItemTable{}, NewKeyNotFoundError(name, "ItemTables")
+                <span class="cov8" title="1">return oapi.ItemTable{}, fmt.Errorf("key does not exist: %s", name)
 </span>        }
         <span class="cov8" title="1">return it, nil</span>
 }
@@ -31426,7 +31426,7 @@ func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
 func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
         <span class="cov8" title="1">et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string </span>{ <span class="cov8" title="1">return t.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return oapi.EnemyTable{}, NewKeyNotFoundError(name, "EnemyTables")
+                <span class="cov8" title="1">return oapi.EnemyTable{}, fmt.Errorf("key does not exist: %s", name)
 </span>        }
         <span class="cov8" title="1">return et, nil</span>
 }
@@ -31454,22 +31454,22 @@ func SchemaEnum(name string) ([]string, error) {
 
 // GetFacility は id の施設宣言を返す。未登録は false。
 func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
-        <span class="cov8" title="1">return findByKey(raws.Facilities, func(f oapi.Facility) string </span>{ <span class="cov8" title="1">return f.Id }</span>, id)
+        <span class="cov0" title="0">return findByKey(raws.Facilities, func(f oapi.Facility) string </span>{ <span class="cov0" title="0">return f.Id }</span>, id)
 }
 
 // GetLandmark は id のランドマーク宣言を返す。未登録は false。
 func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
-        <span class="cov8" title="1">return findByKey(raws.Landmarks, func(l oapi.Landmark) string </span>{ <span class="cov8" title="1">return l.Id }</span>, id)
+        <span class="cov0" title="0">return findByKey(raws.Landmarks, func(l oapi.Landmark) string </span>{ <span class="cov0" title="0">return l.Id }</span>, id)
 }
 
 // GetScatterZone は id の散布ゾーン宣言を返す。未登録は false。
 func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
-        <span class="cov8" title="1">return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string </span>{ <span class="cov8" title="1">return z.Id }</span>, id)
+        <span class="cov0" title="0">return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string </span>{ <span class="cov0" title="0">return z.Id }</span>, id)
 }
 
 // GetMapGlyph は id の地図記号宣言を返す。未登録は false。
 func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
-        <span class="cov8" title="1">return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string </span>{ <span class="cov8" title="1">return m.Id }</span>, id)
+        <span class="cov0" title="0">return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string </span>{ <span class="cov0" title="0">return m.Id }</span>, id)
 }
 
 // GetTile は指定された名前のタイルを取得する
@@ -31663,19 +31663,16 @@ func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
 // 危険度の指定漏れとしてエラーにする。
 const MinDanger = 1
 
-// errDangerBelowMinimum は MinDanger 未満の危険度で抽選したときに返す
-var errDangerBelowMinimum = errors.New("danger is below the minimum")
-
 // SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する
 // テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
 func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
         <span class="cov8" title="1">if danger &lt; MinDanger </span>{
-                <span class="cov8" title="1">return "", fmt.Errorf("%w: danger %d, minimum %d; the caller must specify a valid danger", errDangerBelowMinimum, danger, MinDanger)
+                <span class="cov8" title="1">return "", fmt.Errorf("danger %d is below the minimum %d; the caller must specify a valid danger", danger, MinDanger)
 </span>        }
         <span class="cov8" title="1">filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
         for _, entry := range it.Entries </span>{
                 <span class="cov8" title="1">if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger </span>{
-                        <span class="cov8" title="1">continue</span>
+                        <span class="cov0" title="0">continue</span>
                 }
                 <span class="cov8" title="1">filtered = append(filtered, entry)</span>
         }
@@ -31694,7 +31691,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, dange
         // グループからアイテムを選択する
         <span class="cov8" title="1">group, err := GetItemGroup(raws, groupName)
         if err != nil </span>{
-                <span class="cov8" title="1">return "", err
+                <span class="cov0" title="0">return "", err
 </span>        }
         <span class="cov8" title="1">return SelectByWeightFunc(
                 group.Entries,
@@ -31707,7 +31704,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, dange
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する
 func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {
         <span class="cov8" title="1">if danger &lt; MinDanger </span>{
-                <span class="cov8" title="1">return "", fmt.Errorf("%w: danger %d, minimum %d; the caller must specify a valid danger", errDangerBelowMinimum, danger, MinDanger)
+                <span class="cov8" title="1">return "", fmt.Errorf("danger %d is below the minimum %d; the caller must specify a valid danger", danger, MinDanger)
 </span>        }
         <span class="cov8" title="1">filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
         for _, entry := range et.Entries </span>{
@@ -31824,22 +31821,22 @@ func ValidateReferences(raws oapi.Raws) error {
                 <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if err := validateFeatureUniqueIDs(raws); err != nil </span>{
-                <span class="cov8" title="1">return err
+                <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if err := validateFacilityReferences(raws); err != nil </span>{
-                <span class="cov8" title="1">return err
+                <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if err := validateInteriorContentReferences(raws); err != nil </span>{
-                <span class="cov8" title="1">return err
+                <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if err := validateLandmarkReferences(raws); err != nil </span>{
-                <span class="cov8" title="1">return err
+                <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if err := validateScatterZoneReferences(raws); err != nil </span>{
-                <span class="cov8" title="1">return err
+                <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if err := validateMapGlyphReferences(raws); err != nil </span>{
-                <span class="cov8" title="1">return err
+                <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">return validateCommandTableWeaponReferences(raws)</span>
 }
