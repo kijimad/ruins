@@ -95,8 +95,8 @@ const (
 	scatterRoadsideRange consts.Chunk = 1
 	// scatterGrassChannel は草の選定を prop 選定と無相関にするハッシュチャネル。
 	scatterGrassChannel uint64 = 0x67726173735f7072 // "grass_pr"
-	// scatterWeedChannel は草の種類の抽選を草の選定と無相関にするハッシュチャネル。
-	scatterWeedChannel uint64 = 0x776565645f5f7072 // "weed__pr"
+	// scatterVariantChannel は草と土の飾りの種類の抽選を、置くかの選定と無相関にするハッシュチャネル。
+	scatterVariantChannel uint64 = 0x776565645f5f7072 // "weed__pr"
 	// scatterSoilChannel は土の飾りの選定と種類の抽選を草と無相関にするハッシュチャネル。
 	scatterSoilChannel uint64 = 0x736f696c5f5f7072 // "soil__pr"
 )
@@ -149,10 +149,10 @@ func scatterCatalogForChunk(raws oapi.Raws, runSeed uint64, c consts.Coord[const
 // scatterCatalogForChunk が決める。今は wasteland だけが対象で、砂漠など他の開けた地形はそこへ足す。
 type openTerrainFeature struct{}
 
-// place は散布対象の開けたチャンクで密度場を走らせ、まず草を密に撒き、続けて樹木と岩を疎に撒く。
-// どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。選定はチャンク相対座標と
-// 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
-// エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
+// place は散布対象の開けたチャンクへ、まず草と土の飾りを撒き、続けて樹木と岩を疎に撒く。
+// どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。草と土の飾りは絶対タイル
+// 座標の、樹木と岩はチャンク相対座標と絶対チャンク seed の純関数で選び、帯の整列がずれても再訪一致する。
+// 地面判定と占有は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)
 	if err != nil || !ok {
@@ -190,9 +190,9 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			var name string
 			switch {
 			case placesGrass(grassSeed, cat.GrassDensity, abs):
-				name = pickScatterEntry(scatterGrassVariants, true, hashTileCoord(grassSeed^scatterWeedChannel, abs)).Ref
+				name = pickScatterEntry(scatterGrassVariants, true, hashTileCoord(grassSeed^scatterVariantChannel, abs)).Ref
 			case unitFloat(hashTileCoord(grassSeed^scatterSoilChannel, abs)) < scatterSoilDensity:
-				name = pickScatterEntry(scatterSoilVariants, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterWeedChannel, abs)).Ref
+				name = pickScatterEntry(scatterSoilVariants, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterVariantChannel, abs)).Ref
 			default:
 				continue
 			}

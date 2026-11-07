@@ -379,15 +379,19 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if !ok {
 			continue
 		}
-		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
 		tint, vok, vis := visTint(g)
-		if !vok || !vis {
+		if !vok {
 			continue
 		}
 		if sr.Flat {
 			// 床タイルと同じ水平な面に寝かせる。奥行きは床と同値になるので、副キーを床より大きくして床の直後に描く
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
 			quads[len(quads)-1].depth = int(max(sr.Depth, gc.DepthNumRug))
+			continue
+		}
+		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
+		// 地面に寝かせるものは床と同じく記憶エリアにも描く
+		if !vis {
 			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
