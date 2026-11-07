@@ -4,7 +4,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
-// 草の茂みの濃淡を決める定数。濃淡は絶対タイル座標の値ノイズで決め、チャンクの継ぎ目でも途切れない。
+// 草の茂みの濃淡を決める定数
 const (
 	// grassPatchCell は茂みの大きさを決める格子の間隔。ノイズの値をこの間隔の格子点に置き、間を補間する
 	grassPatchCell consts.Tile = 8
@@ -12,8 +12,7 @@ const (
 	grassNoiseChannel uint64 = 0x67726173735f6e7a // "grass_nz"
 )
 
-// grassPatchFactor は絶対タイル座標 p の草の密度倍率を返す。格子点の 0〜1 の乱数をなめらかに補間した n を
-// 3n² にして、茂った所と疎らな所の差をはっきりさせる。補間で n の散らばりが縮むので、平均はおよそ0.9になる
+// grassPatchFactor は絶対タイル座標 p の草の密度倍率を返す。値ノイズ n の 3n² で、平均はおよそ0.9
 func grassPatchFactor(seed uint64, p consts.Coord[consts.Tile]) float64 {
 	cx, cy := consts.FloorDiv(p.X, grassPatchCell), consts.FloorDiv(p.Y, grassPatchCell)
 	fx := smoothstep(float64(p.X-cx*grassPatchCell) / float64(grassPatchCell))

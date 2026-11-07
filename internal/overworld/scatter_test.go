@@ -156,8 +156,6 @@ func TestScatterFeature_土系の空きにだけ置く(t *testing.T) {
 	}
 }
 
-// TestScatterFeature_草と土の飾りを種類を混ぜて撒く は、散布が地面へ草と土の飾りの prop を、一覧の
-// 複数の種類から混ぜて撒くことを固定する。どれも透明背景の prop で、オートタイルを経由しない。
 func TestScatterFeature_草と土の飾りを種類を混ぜて撒く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

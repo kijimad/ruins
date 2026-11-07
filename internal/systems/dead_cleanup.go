@@ -143,8 +143,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	return nil
 }
 
-// dropPropYields は壊れた prop の産出を足元へ落とす。分解定義を持つ prop は確定枠を低確率で回収でき、
-// 工具がない序盤でも素材が少しは手に入る。伐採定義を持つ prop は倒れると産出を落とす
+// dropPropYields は壊れた prop の分解定義と伐採定義の産出を足元へ落とす
 func dropPropYields(world w.World, entities []ecs.Entity) error {
 	rawMaster := world.Resources.RawMaster
 	rng := world.Resources.Config.RNG

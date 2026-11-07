@@ -14,9 +14,8 @@ func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponSta
 	return ExpectedDamagePerAttackWithSkill(attacker, defender, weapon, consts.PercentBase)
 }
 
-// ExpectedDamagePerAttackWithSkill は熟練度倍率 skillMult を織り込んだ1回の期待ダメージを返す。1回の命中のダメージは
-// formula.Damage で求め、属性耐性は無いものとする。ダイスと防御の max が非線形なので
-// ダイス6面を列挙して厳密化する。skillMult が PercentBase なら静的下限に一致する。
+// ExpectedDamagePerAttackWithSkill は熟練度倍率 skillMult を織り込んだ1回の期待ダメージを返す。属性耐性は無いものとする。
+// ダイスと防御の max が非線形なのでダイス6面を列挙して厳密化する。skillMult が PercentBase なら静的下限に一致する。
 func ExpectedDamagePerAttackWithSkill(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) float64 {
 	// CalcHitRate は MinHitRate 以上へクランプするので hitRate は 0 にならない。よって命中確率と
 	// max(...,1) の下限から期待ダメージは常に正になり、ExpectedTTK もゼロ除算や 0 に落ちない。

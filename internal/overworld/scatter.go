@@ -55,8 +55,7 @@ const (
 	zoneWild outdoorZone = "wild"
 )
 
-// 草・灌木と土の飾りの prop と混ぜ方。どれも透明 prop なので地面へ重なり、オートタイルの縁や暗いフィルが出ない。
-// 色や大きさの違う種類を重みで混ぜ、単調さを崩す。土の飾りは草の生えていない土へまばらに撒く。
+// 草・灌木と土の飾りの種類と重み。土の飾りは草の生えていない土へまばらに撒く
 var (
 	scatterGrassVariants = []scatterEntry{
 		{Ref: "grass", Weight: 30},
@@ -178,7 +177,6 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 
 	// まず草と土の飾りを撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
 	// 通行を塞がず、位相や経路の制約は要らない。続く樹木が草と重ならないよう占有を記録しながら先に撒く。
-	// 置くかはタイルごとに絶対座標の茂みの濃淡で決め、チャンクの継ぎ目でも茂みが途切れない
 	grassSeed := runSeed ^ scatterSalt ^ scatterGrassChannel
 	for y := range g.chunkH {
 		for x := range g.chunkW {
