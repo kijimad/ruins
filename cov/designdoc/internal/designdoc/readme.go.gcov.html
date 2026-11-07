@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.9&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">39</td>
-            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">39</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 06:48:56</td>
+            <td class="headerValue">2026-11-07 06:51:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,10 +88,10 @@
 <span id="L26"><span class="lineNum">      26</span>              : func renderLabel(name string, data any) string {</span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         var b strings.Builder</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         if err := statusSectionTmpl.ExecuteTemplate(&amp;b, name, data); err != nil {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(err)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 panic(err)</span></span>
 <span id="L30"><span class="lineNum">      30</span>              :         }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 :         return b.String()</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         return b.String()</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : }</span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // RenderStatusSection は README に埋め込む未完了ドキュメントの一覧を Markdown で返す。</span>
@@ -136,12 +136,12 @@
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;[%s](%s)&quot;, label, d.Path)</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC tlaBgUNC">           0 :         return label</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         return label</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : }</span>
 <span id="L79"><span class="lineNum">      79</span>              : </span>
 <span id="L80"><span class="lineNum">      80</span>              : // progressCell は進捗のセルを返す。分母は done+open で、見送りは分母から外して別に添える。</span>
 <span id="L81"><span class="lineNum">      81</span>              : func progressCell(d *Document) string {</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC tlaBgGNC">           1 :         if !d.HasProgress {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         if !d.HasProgress {</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 return &quot;-&quot;</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
