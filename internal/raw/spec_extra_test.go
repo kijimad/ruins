@@ -423,6 +423,59 @@ Weight = "abc"
 	assert.Contains(t, err.Error(), "'不正な重量アイテム' weight")
 }
 
+func TestNewItemSpec_腐敗と治療と火種が設定される(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "乾燥肉"
+id = "乾燥肉"
+Description = "腐る食料で火種にもなる"
+StageLength = 50
+
+[Items.Remedy]
+Potency = 150
+Treats = ["Fracture"]
+
+[Items.FireStarter]
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "乾燥肉")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Perishable, "StageLengthを指定すると腐敗するPerishableを持つ")
+	assert.Equal(t, consts.Turn(50), spec.Perishable.StageLength)
+
+	require.NotNil(t, spec.Remedy, "Remedyを指定すると治療コンポーネントを持つ")
+	assert.Equal(t, consts.Percent(150), spec.Remedy.Potency)
+	assert.Equal(t, []gc.ConditionType{gc.ConditionFracture}, spec.Remedy.Treats)
+
+	require.NotNil(t, spec.FireStarter, "FireStarterを指定すると火種マーカーを持つ")
+}
+
+func TestNewItemSpec_装着収納の不正な重量はエラー(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "不正な収納箱"
+id = "不正な収納箱"
+Description = "収納容量の重量表記がおかしい"
+
+[Items.Deployable]
+[Items.Deployable.Storage]
+maxWeight = "abc"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewItemSpec(raws, "不正な収納箱")
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "'不正な収納箱' deployable storage")
+}
+
 func TestNewRecipeSpec_レシピが設定される(t *testing.T) {
 	t.Parallel()
 
@@ -468,6 +521,64 @@ Amount = 2
 	assert.Equal(t, 20, spec.Melee.Damage)
 }
 
+func TestNewRecipeSpec_対応アイテムのFireWearableConsumableWeightを引き継ぐ(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "改造拳銃"
+id = "改造拳銃"
+Description = "軽量化改造を施した拳銃"
+Weight = "500 g"
+
+[Items.Fire]
+Damage = 15
+Accuracy = 70
+AttackCount = 1
+Cost = 10
+Element = "none"
+AttackCategory = "HANDGUN"
+MagazineSize = 6
+ReloadEffort = 5
+
+[Items.Wearable]
+Defense = 1
+EquipmentCategory = "FEET"
+InsulationCold = 0
+InsulationHeat = 0
+
+[Items.Consumable]
+TargetGroup = "ALLY"
+TargetNum = "SINGLE"
+UsableScene = "ANY"
+
+[[Recipes]]
+Name = "改造拳銃"
+id = "改造拳銃"
+
+[[Recipes.Inputs]]
+Id = "鉄"
+Amount = 3
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewRecipeSpec(raws, "改造拳銃")
+	require.NoError(t, err)
+
+	require.NotNil(t, spec.Fire, "元アイテムのFireを引き継ぐ")
+	assert.Equal(t, 15, spec.Fire.Damage)
+
+	require.NotNil(t, spec.Wearable, "元アイテムのWearableを引き継ぐ")
+	assert.Equal(t, 1, spec.Wearable.Defense)
+
+	require.NotNil(t, spec.Consumable, "元アイテムのConsumableを引き継ぐ")
+	assert.Equal(t, gc.TargetGroupType("ALLY"), spec.Consumable.TargetType.TargetGroup)
+
+	require.NotNil(t, spec.Weight, "元アイテムのWeightを引き継ぐ")
+	assert.Equal(t, consts.MustParseWeight("500 g"), spec.Weight.Milligram)
+}
+
 func TestNewRecipeSpec_レシピ未存在はエラー(t *testing.T) {
 	t.Parallel()
 
@@ -498,6 +609,115 @@ Amount = 1
 	assert.Contains(t, err.Error(), "failed to generate item for recipe")
 }
 
+func TestNewWeaponSpec_アイテム生成に失敗するとエラー(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "不正な重量の武器"
+id = "不正な重量の武器"
+Weight = "abc"
+
+[Items.Melee]
+Damage = 10
+Accuracy = 80
+AttackCount = 1
+Element = "none"
+AttackCategory = "SWORD"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewWeaponSpec(raws, "不正な重量の武器")
+	assert.ErrorContains(t, err, `invalid weight format: "abc"`)
+}
+
+func TestNewMemberSpec_未存在はエラー(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws("")
+	require.NoError(t, err)
+
+	_, err = NewMemberSpec(raws, "存在しないメンバー")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないメンバー", Collection: "Members"}, keyErr)
+}
+
+func TestNewMemberSpec_コマンドテーブル参照エラー(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "テーブル未存在メンバー"
+id = "テーブル未存在メンバー"
+CommandTableId = "存在しないテーブル"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewMemberSpec(raws, "テーブル未存在メンバー")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないテーブル", Collection: "CommandTables"}, keyErr)
+}
+
+func TestNewMemberSpec_ドロップテーブル参照エラー(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "テーブル未存在メンバー"
+id = "テーブル未存在メンバー"
+DropTableId = "存在しないテーブル"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewMemberSpec(raws, "テーブル未存在メンバー")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないテーブル", Collection: "DropTables"}, keyErr)
+}
+
+func TestNewPlayerSpec_未存在はエラー(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws("")
+	require.NoError(t, err)
+
+	_, err = NewPlayerSpec(raws, "存在しないプレイヤー")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しないプレイヤー", Collection: "Members"}, keyErr)
+}
+
+func TestNewEnemySpec_未存在はエラー(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws("")
+	require.NoError(t, err)
+
+	_, err = NewEnemySpec(raws, "存在しない敵")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "存在しない敵", Collection: "Members"}, keyErr)
+}
+
 func TestNewMemberSpec_不正な派閥はエラー(t *testing.T) {
 	t.Parallel()
 
@@ -520,6 +740,43 @@ Defense = 2
 	_, err = NewMemberSpec(raws, "不正派閥")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid faction type")
+}
+
+func TestNewMemberSpec_派閥種別ごとにコンポーネントが設定される(t *testing.T) {
+	t.Parallel()
+
+	for _, factionType := range []string{gc.FactionAllyName, gc.FactionEnemyName, gc.FactionNeutralName} {
+		t.Run(factionType, func(t *testing.T) {
+			t.Parallel()
+
+			str := `
+[[Members]]
+Name = "派閥メンバー"
+id = "派閥メンバー"
+FactionType = "` + factionType + `"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+			raws, err := DecodeRaws(str)
+			require.NoError(t, err)
+
+			spec, err := NewMemberSpec(raws, "派閥メンバー")
+			require.NoError(t, err)
+
+			gotAlly := spec.FactionAlly != nil
+			gotEnemy := spec.FactionEnemy != nil
+			gotNeutral := spec.FactionNeutral != nil
+
+			assert.Equal(t, factionType == gc.FactionAllyName, gotAlly, "FactionAllyの有無")
+			assert.Equal(t, factionType == gc.FactionEnemyName, gotEnemy, "FactionEnemyの有無")
+			assert.Equal(t, factionType == gc.FactionNeutralName, gotNeutral, "FactionNeutralの有無")
+		})
+	}
 }
 
 func TestNewMemberSpec_不正な戦闘方針はエラー(t *testing.T) {

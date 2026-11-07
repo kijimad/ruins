@@ -716,3 +716,61 @@ func TestSchemaEnum(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func TestValidateReferences_各検証の失敗を伝播する(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name    string
+		raws    oapi.Raws
+		wantErr error
+	}{
+		{
+			name:    "id重複はerrDuplicateID",
+			raws:    oapi.Raws{Facilities: &[]oapi.Facility{{Id: "a"}, {Id: "a"}}},
+			wantErr: errDuplicateID,
+		},
+		{
+			name: "施設の敵テーブル未存在はerrFacilityEnemyTableRefUndefined",
+			raws: oapi.Raws{
+				Facilities: &[]oapi.Facility{{Id: "f1", EnemyTable: "存在しないテーブル"}},
+			},
+			wantErr: errFacilityEnemyTableRefUndefined,
+		},
+		{
+			name: "内装コンテンツID重複はerrInteriorContentDuplicateID",
+			raws: oapi.Raws{
+				InteriorContents: &[]oapi.InteriorContent{{Id: "c"}, {Id: "c"}},
+			},
+			wantErr: errInteriorContentDuplicateID,
+		},
+		{
+			name: "ランドマークのprop未存在はerrLandmarkPropUndefined",
+			raws: oapi.Raws{
+				Landmarks: &[]oapi.Landmark{{Id: "lm1", Props: []oapi.PropSpot{{Name: "存在しないprop"}}}},
+			},
+			wantErr: errLandmarkPropUndefined,
+		},
+		{
+			name: "散布ゾーンのlootGroup未存在はerrScatterLootGroupUndefined",
+			raws: oapi.Raws{
+				ScatterZones: &[]oapi.ScatterZone{{Id: "z1", LootGroup: "存在しないグループ"}},
+			},
+			wantErr: errScatterLootGroupUndefined,
+		},
+		{
+			name: "地図記号が1文字でないとerrMapGlyphNotSingleRune",
+			raws: oapi.Raws{
+				MapGlyphs: &[]oapi.MapGlyph{{Id: "g1", Glyph: "ab"}},
+			},
+			wantErr: errMapGlyphNotSingleRune,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			err := ValidateReferences(c.raws)
+			require.ErrorIs(t, err, c.wantErr)
+		})
+	}
+}
