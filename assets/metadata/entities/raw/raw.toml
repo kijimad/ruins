@@ -9138,6 +9138,10 @@ damage = 16
 element = "THUNDER"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.tool]
+categories = ["mining"]
+grade = 1
 [[items]]
 id = "glacier_axe"
 name = "Glacier Axe"
