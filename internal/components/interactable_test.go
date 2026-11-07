@@ -15,16 +15,14 @@ func TestInteractionKind_Config(t *testing.T) {
 		kind      InteractionKind
 		wantRange ActivationRange
 		wantWay   ActivationWay
-		wantUnit  MenuUnit
 	}{
-		{InteractionDoor, ActivationRangeAdjacent, ActivationWayOnCollision, MenuUnitEntity},
-		{InteractionTalk, ActivationRangeAdjacent, ActivationWayOnCollision, MenuUnitEntity},
-		{InteractionMelee, ActivationRangeAdjacent, ActivationWayOnCollision, MenuUnitEntity},
-		{InteractionItem, ActivationRangeSameTile, ActivationWayManual, MenuUnitStack},
-		{InteractionItemAll, ActivationRangeSameTile, ActivationWayManual, MenuUnitEntity},
-		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual, MenuUnitEntity},
-		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual, MenuUnitEntity},
-		{InteractionOpenCubeMenu, ActivationRangeSameTile, ActivationWayManual, MenuUnitEntity},
+		{InteractionDoor, ActivationRangeAdjacent, ActivationWayOnCollision},
+		{InteractionTalk, ActivationRangeAdjacent, ActivationWayOnCollision},
+		{InteractionMelee, ActivationRangeAdjacent, ActivationWayOnCollision},
+		{InteractionItem, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
+		{InteractionOpenCubeMenu, ActivationRangeSameTile, ActivationWayManual},
 	}
 
 	for _, tt := range tests {
@@ -33,7 +31,6 @@ func TestInteractionKind_Config(t *testing.T) {
 			config := tt.kind.Config()
 			assert.Equal(t, tt.wantRange, config.ActivationRange)
 			assert.Equal(t, tt.wantWay, config.ActivationWay)
-			assert.Equal(t, tt.wantUnit, config.MenuUnit)
 		})
 	}
 }
@@ -45,7 +42,6 @@ func TestInteractionKind_Config_Unknown(t *testing.T) {
 	config := InteractionKind("UNKNOWN").Config()
 	require.Error(t, config.ActivationRange.Valid(), "未知の種類は無効なConfigを返す")
 	require.Error(t, config.ActivationWay.Valid(), "未知の種類は無効なConfigを返す")
-	require.Error(t, config.MenuUnit.Valid(), "未知の種類は無効なConfigを返す")
 }
 
 // TestActivationRange_Valid は有効なActivationRangeの検証
@@ -149,7 +145,7 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 	// InteractionKind を足したらここにも足す。抜けると Config() の regression を見逃す
 	kinds := []InteractionKind{
 		InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter,
-		InteractionDoor, InteractionTalk, InteractionItem, InteractionItemAll,
+		InteractionDoor, InteractionTalk, InteractionItem,
 		InteractionStorage, InteractionMelee, InteractionDisassemble,
 		InteractionIgnite, InteractionFeedFuel,
 		InteractionOpenCubeMenu,
@@ -161,7 +157,6 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 			config := kind.Config()
 			require.NoError(t, config.ActivationRange.Valid(), "%s のActivationRangeは有効でなければならない", kind)
 			require.NoError(t, config.ActivationWay.Valid(), "%s のActivationWayは有効でなければならない", kind)
-			require.NoError(t, config.MenuUnit.Valid(), "%s のMenuUnitは有効でなければならない", kind)
 		})
 	}
 }

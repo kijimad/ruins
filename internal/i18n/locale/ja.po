@@ -425,9 +425,6 @@ msgstr "所持品"
 msgid "directly above"
 msgstr "直上"
 
-msgid "Pick up all"
-msgstr "すべて拾う"
-
 msgid "Close (%s)"
 msgstr "閉じる(%s)"
 
@@ -437,9 +434,6 @@ msgstr "開く(%s)"
 msgid "Talk (%s)"
 msgstr "話しかける(%s)"
 
-msgid "Pick up (%s)"
-msgstr "拾う(%s)"
-
 msgid "Warp (next floor)"
 msgstr "転移する(次階)"
 
@@ -448,12 +442,6 @@ msgstr "転移する(前階)"
 
 msgid "Enter ruins"
 msgstr "遺跡へ入る"
-
-msgid "Inspect (%s)"
-msgstr "調べる(%s)"
-
-msgid "Attack (%s)"
-msgstr "攻撃する(%s)"
 
 msgid "Disassemble (%s)"
 msgstr "分解する(%s)"
@@ -6397,3 +6385,21 @@ msgstr "モジュールを選ぶ"
 
 msgid "No modules to install"
 msgstr "装着できるモジュールがない"
+
+msgid "There is nothing to attack nearby."
+msgstr "近くに攻撃できるものがない。"
+
+msgid "Attack which direction?"
+msgstr "どの方向を攻撃する？"
+
+msgid "Arrows: Select  Esc: Cancel"
+msgstr "矢印: 選ぶ  Esc: やめる"
+
+msgid "Pick up %s (%s)"
+msgstr "%sを拾う(%s)"
+
+msgid "Open %s (%s)"
+msgstr "%sを開く(%s)"
+
+msgid "There is nothing to pick up nearby."
+msgstr "近くに拾えるものがない。"

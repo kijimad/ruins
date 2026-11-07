@@ -366,45 +366,6 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	assert.Contains(t, err.Error(), "no Dialog component")
 }
 
-// TestExecuteInteraction_ItemAll_座標がないとエラー はactorにGridElementがない場合、
-// 全アイテム拾得が座標未設定のエラーになることを確認する
-func TestExecuteInteraction_ItemAll_座標がないとエラー(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// GridElementを持たないactor
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	triggerEntity := world.ECS.NewEntity()
-
-	_, err := ExecuteInteraction(player, triggerEntity, gc.InteractionItemAll, world)
-
-	require.ErrorIs(t, err, ErrPositionNotFound)
-}
-
-// TestExecuteInteraction_ItemAll_同じタイルのアイテムを拾う は同一タイル上のアイテムが
-// まとめて拾得されることを確認する
-func TestExecuteInteraction_ItemAll_同じタイルのアイテムを拾う(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-
-	item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
-	require.NoError(t, err)
-
-	triggerEntity := world.ECS.NewEntity()
-	result, err := ExecuteInteraction(player, triggerEntity, gc.InteractionItemAll, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "足元のアイテム拾得が成功するべき")
-	assert.True(t, world.Components.LocationInBackpack.Has(item), "アイテムがバックパックへ移るべき")
-}
-
 // TestExecuteInteraction_Storage は収納相互作用がストレージメニューの状態変更要求を積むことを確認する
 func TestExecuteInteraction_Storage(t *testing.T) {
 	t.Parallel()

@@ -1,12 +1,14 @@
 package states
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -279,26 +281,26 @@ func TestDeadEnemyInteraction(t *testing.T) {
 func TestGetInteractionActions_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("攻撃可能なPropはメニューに表示される", func(t *testing.T) {
+	t.Run("隣接の扉と木箱にはそれぞれ固有の操作を出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 11)
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnProp(world, "grass", 11, 10)
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 9, Y: 10}, "fireball")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnFieldItem(world, "bread", 10, 10, 1)
+		require.NoError(t, err)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		prop := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, &gc.Prop{})
-		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
-		world.Components.Interactable.Add(prop, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionMelee},
-		})
-
-		actions := GetInteractionActions(world)
-		require.Len(t, actions, 1)
-		assert.Equal(t, "Attack (木箱)", actions[0].Label)
+		assert.ElementsMatch(t, []InteractionAction{
+			{Label: "Open (up)", Target: door, Interaction: gc.InteractionDoor},
+			{Label: "Disassemble (Wooden Crate)", Target: crate, Interaction: gc.InteractionDisassemble},
+		}, GetInteractionActions(world))
 	})
 
 	t.Run("上り階段は前階へ転移するアクションを出す", func(t *testing.T) {
@@ -321,7 +323,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		assert.Equal(t, "Warp (previous floor)", actions[0].Label)
 	})
 
-	t.Run("敵対NPCもメニューに表示される", func(t *testing.T) {
+	t.Run("隣接では直上発動の拾得を出さず隣接発動の分解だけ出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -329,71 +331,20 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-		enemy := world.ECS.NewEntity()
-		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Name.Add(enemy, &gc.Name{Name: "ゴブリン"})
-		world.Components.SoloAI.Add(enemy, &gc.SoloAI{
-			CombatDefault: gc.CombatAttack,
-			CombatCurrent: gc.CombatAttack,
-			Movement:      gc.SoloRandom,
-		})
-		world.Components.Interactable.Add(enemy, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionMelee},
-		})
-
-		actions := GetInteractionActions(world)
-		require.Len(t, actions, 1)
-		assert.Equal(t, "Attack (ゴブリン)", actions[0].Label)
-	})
-
-	t.Run("同一スタックのアイテムは1行に束ねる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// 同一品種3個を同じタイルへ。1個1エンティティだが拾得行は1つに束ねる
-		for range 3 {
-			item := world.ECS.NewEntity()
-			world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-			world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
-			world.Components.Interactable.Add(item, &gc.Interactable{
-				Interactions: []gc.InteractionKind{gc.InteractionItem},
-			})
-			world.Components.RawID.Add(item, &gc.RawID{ID: "bread"})
-			world.Components.Name.Add(item, &gc.Name{Name: "パン"})
-		}
-
-		actions := GetInteractionActions(world)
-		require.Len(t, actions, 1, "同一スタックは1行。すべて拾うは1スタックなので出ない")
-		assert.Contains(t, actions[0].Label, "3", "個数3がラベルに出る")
-		assert.Equal(t, gc.InteractionItem, actions[0].Interaction)
-	})
-
-	t.Run("隣接では直上発動の拾得を出さず隣接発動の収納だけ出す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// 拾得(SameTile)と収納(Adjacent)を併せ持つ実体を隣接タイルへ。発動範囲は相互作用ごとに
-		// 判定するので、隣接では隣接発動の収納だけが出て、直上でしか発動しない拾得は出ない
+		// 拾得(SameTile)と分解(Adjacent)を併せ持つ実体を隣接タイルへ。発動範囲は相互作用ごとに
+		// 判定するので、隣接では隣接発動の分解だけが出て、直上でしか発動しない拾得は出ない
 		hybrid := world.ECS.NewEntity()
 		world.Components.GridElement.Add(hybrid, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 11}})
 		world.Components.LocationOnField.Add(hybrid, &gc.LocationOnField{})
 		world.Components.Interactable.Add(hybrid, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem, gc.InteractionStorage},
+			Interactions: []gc.InteractionKind{gc.InteractionItem, gc.InteractionDisassemble},
 		})
 		world.Components.RawID.Add(hybrid, &gc.RawID{ID: "mystery_box"})
 		world.Components.Name.Add(hybrid, &gc.Name{Name: "ふしぎな箱"})
 
 		actions := GetInteractionActions(world)
-		require.Len(t, actions, 1, "隣接では隣接発動の収納だけ。直上発動の拾得は出さない")
-		assert.Equal(t, gc.InteractionStorage, actions[0].Interaction, "収納行が出る")
+		require.Len(t, actions, 1, "隣接では隣接発動の分解だけ。直上発動の拾得は出さない")
+		assert.Equal(t, gc.InteractionDisassemble, actions[0].Interaction, "分解行が出る")
 	})
 
 	t.Run("方向キーでPropを自動攻撃しない", func(t *testing.T) {
@@ -431,52 +382,22 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 func TestGetSameTileManualActions(t *testing.T) {
 	t.Parallel()
 
-	t.Run("同タイルのManualインタラクションを取得する", func(t *testing.T) {
+	t.Run("足元の手動の相互作用を出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// SameTile+Manualのアイテムを配置
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.Name.Add(item, &gc.Name{Name: "テストアイテム"})
-
-		actions := GetSameTileManualActions(world)
-		assert.Len(t, actions, 1)
-		assert.Contains(t, actions[0].Label, "テストアイテム")
-	})
-
-	t.Run("複数のManualインタラクションを全て取得する", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// アイテム
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
-
-		// ポータル
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
+		require.NoError(t, err)
 		portal := world.ECS.NewEntity()
 		world.Components.GridElement.Add(portal, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(portal, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
 		})
 
-		actions := GetSameTileManualActions(world)
-		assert.Len(t, actions, 2, "アイテムとポータルの2つが取得される")
+		assert.Equal(t, []InteractionAction{
+			{Label: "Warp (next floor)", Target: portal, Interaction: gc.InteractionPortalNext},
+		}, GetSameTileManualActions(world))
 	})
 
 	t.Run("別タイルのインタラクションは含まない", func(t *testing.T) {
@@ -487,13 +408,11 @@ func TestGetSameTileManualActions(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-		// 隣接タイルのアイテム
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
+		portal := world.ECS.NewEntity()
+		world.Components.GridElement.Add(portal, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
+		world.Components.Interactable.Add(portal, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
 		})
-		world.Components.Name.Add(item, &gc.Name{Name: "遠いアイテム"})
 
 		actions := GetSameTileManualActions(world)
 		assert.Empty(t, actions)
@@ -517,84 +436,6 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		actions := GetSameTileManualActions(world)
 		assert.Empty(t, actions, "OnCollisionのインタラクションは含まれない")
-	})
-
-	t.Run("アイテムが2個以上あるとすべて拾うが先頭に追加される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// 別品種は別スタックなので個別行が2つ出る。RawID が同定キーになる
-		item1 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item1, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.RawID.Add(item1, &gc.RawID{ID: "wooden_sword"})
-		world.Components.Name.Add(item1, &gc.Name{Name: "木刀"})
-
-		item2 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item2, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.RawID.Add(item2, &gc.RawID{ID: "healing_potion"})
-		world.Components.Name.Add(item2, &gc.Name{Name: "回復薬"})
-
-		actions := GetSameTileManualActions(world)
-		require.Len(t, actions, 3, "すべて拾う + 個別2つ")
-		assert.Equal(t, "Pick up all", actions[0].Label)
-		ok := actions[0].Interaction == gc.InteractionItemAll
-		assert.True(t, ok)
-	})
-
-	t.Run("同一スタックのアイテムは1行に束ねる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// 同一品種を2個、同じタイルへ。1個1エンティティだが1スタックに束ねる
-		for range 2 {
-			item := world.ECS.NewEntity()
-			world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-			world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
-			world.Components.Interactable.Add(item, &gc.Interactable{
-				Interactions: []gc.InteractionKind{gc.InteractionItem},
-			})
-			world.Components.RawID.Add(item, &gc.RawID{ID: "biscuit"})
-			world.Components.Name.Add(item, &gc.Name{Name: "ビスケット"})
-		}
-
-		actions := GetSameTileManualActions(world)
-		require.Len(t, actions, 1, "同一スタックは1行だけ。すべて拾うは1スタックなので出ない")
-		assert.Contains(t, actions[0].Label, "2", "個数2がラベルに出る")
-		assert.Equal(t, gc.InteractionItem, actions[0].Interaction)
-	})
-
-	t.Run("アイテムが1個の場合はすべて拾うが追加されない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.Name.Add(item, &gc.Name{Name: "木刀"})
-
-		actions := GetSameTileManualActions(world)
-		require.Len(t, actions, 1)
-		assert.Contains(t, actions[0].Label, "木刀")
 	})
 
 	t.Run("プレイヤーが存在しない場合はnil", func(t *testing.T) {
@@ -790,4 +631,181 @@ func TestGetSameTileManualActions_直上でキューブメニューを出す(t *
 	require.NoError(t, err)
 
 	assert.Contains(t, actionKinds(GetSameTileManualActions(world)), gc.InteractionOpenCubeMenu, "直上でキューブメニューを出す")
+}
+
+func TestStartPickup(t *testing.T) {
+	t.Parallel()
+
+	t.Run("拾えるものが無ければ何もしない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		trans, err := startPickup(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, es.TransNone, trans.Type)
+		assert.Nil(t, activity.GetLastResult(player, world))
+	})
+
+	t.Run("足元のアイテム1つはそのまま拾う", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
+		require.NoError(t, err)
+
+		trans, err := startPickup(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, es.TransNone, trans.Type)
+		assert.True(t, world.Components.LocationInBackpack.Has(item))
+	})
+
+	t.Run("収納は1つでも拾うメニューで選ばせる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 9, 9)
+		require.NoError(t, err)
+
+		trans, err := startPickup(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, es.TransPush, trans.Type)
+		assert.Equal(t, []InteractionAction{
+			{Label: "Open Wooden Crate (upper left)", Target: crate, Interaction: gc.InteractionStorage},
+		}, nearbyPickupActions(world))
+	})
+
+	t.Run("複数あれば拾うメニューを開く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+		require.NoError(t, err)
+
+		trans, err := startPickup(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, es.TransPush, trans.Type)
+		assert.Nil(t, activity.GetLastResult(player, world))
+	})
+}
+
+func TestPickupChoices(t *testing.T) {
+	t.Parallel()
+
+	t.Run("アイテムを拾っても残りがあれば閉じず、最後の1つで閉じる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		first, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
+		require.NoError(t, err)
+		second, err := lifecycle.SpawnFieldItem(world, "bread", 10, 9, 1)
+		require.NoError(t, err)
+
+		_, choices := pickupChoices(world)
+		require.Len(t, choices, 2)
+		trans, err := choices[0].Run(world)
+		require.NoError(t, err)
+		assert.Equal(t, es.TransNone, trans.Type)
+
+		_, choices = pickupChoices(world)
+		require.Len(t, choices, 1)
+		trans, err = choices[0].Run(world)
+		require.NoError(t, err)
+		assert.Equal(t, es.TransPop, trans.Type)
+
+		assert.True(t, world.Components.LocationInBackpack.Has(first))
+		assert.True(t, world.Components.LocationInBackpack.Has(second))
+	})
+
+	t.Run("収納は収納画面をメニューの上に開く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+		require.NoError(t, err)
+
+		_, choices := pickupChoices(world)
+		require.Len(t, choices, 1)
+		trans, err := choices[0].Run(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, es.TransPush, trans.Type)
+		require.Len(t, trans.NewStateFuncs, 1)
+		state, err := trans.NewStateFuncs[0]()
+		require.NoError(t, err)
+		assert.IsType(t, &StorageMenuState{}, state)
+	})
+}
+
+func TestStartPickup_周囲8タイルのアイテム1つはそのまま拾う(t *testing.T) {
+	t.Parallel()
+	for _, d := range []consts.Coord[consts.Tile]{
+		{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
+		{X: -1, Y: 0}, {X: 1, Y: 0},
+		{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
+	} {
+		t.Run(fmt.Sprintf("dx=%d,dy=%d", d.X, d.Y), func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10+d.X, 10+d.Y, 1)
+			require.NoError(t, err)
+
+			trans, err := startPickup(world)
+			require.NoError(t, err)
+
+			assert.Equal(t, es.TransNone, trans.Type)
+			assert.True(t, world.Components.LocationInBackpack.Has(item))
+		})
+	}
+}
+
+func TestNearbyPickupActions(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnFieldItem(world, "bread", 10, 10, 3)
+	require.NoError(t, err)
+	east, err := lifecycle.SpawnFieldItem(world, "healing_potion", 11, 10, 1)
+	require.NoError(t, err)
+	southEast, err := lifecycle.SpawnFieldItem(world, "healing_potion", 11, 11, 1)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 12, 10, 1)
+	require.NoError(t, err)
+
+	type row struct {
+		Label       string
+		Interaction gc.InteractionKind
+	}
+	actions := nearbyPickupActions(world)
+	rows := make([]row, len(actions))
+	for i, a := range actions {
+		rows[i] = row{Label: a.Label, Interaction: a.Interaction}
+	}
+
+	assert.Equal(t, []row{
+		{Label: "Open Wooden Crate (up)", Interaction: gc.InteractionStorage},
+		{Label: "Pick up 3 Bread (here)", Interaction: gc.InteractionItem},
+		{Label: "Pick up Healing Potion (right)", Interaction: gc.InteractionItem},
+		{Label: "Pick up Healing Potion (lower right)", Interaction: gc.InteractionItem},
+	}, rows)
+	assert.Equal(t, crate, actions[0].Target)
+	assert.Equal(t, east, actions[2].Target)
+	assert.Equal(t, southEast, actions[3].Target)
 }

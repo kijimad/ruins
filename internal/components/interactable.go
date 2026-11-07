@@ -21,28 +21,6 @@ type Interactable struct {
 type InteractionConfig struct {
 	ActivationRange ActivationRange // 発動範囲
 	ActivationWay   ActivationWay   // 発動方式
-	MenuUnit        MenuUnit        // メニューの行の単位
-}
-
-// MenuUnit は相互作用メニューの行の単位を表す
-type MenuUnit string
-
-const (
-	// MenuUnitEntity は1実体を1行にする。扉やNPCのような個体
-	MenuUnitEntity MenuUnit = "ENTITY"
-	// MenuUnitStack は同一 StackKey の実体を1行に束ね、実行はスタック丸ごとを対象にする。
-	// 1個1エンティティのアイテムが個数ぶん同じ行に並ぶのを防ぐ
-	MenuUnitStack MenuUnit = "STACK"
-)
-
-// Valid はMenuUnitの値が有効かを検証する
-func (enum MenuUnit) Valid() error {
-	switch enum {
-	case MenuUnitEntity, MenuUnitStack:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
-	}
 }
 
 // InteractionKind は相互作用の種類を表す。
@@ -65,8 +43,6 @@ const (
 	InteractionTalk InteractionKind = "TALK"
 	// InteractionItem はアイテム拾得の相互作用
 	InteractionItem InteractionKind = "ITEM"
-	// InteractionItemAll は同一タイル上の全アイテム拾得の相互作用
-	InteractionItemAll InteractionKind = "ITEM_ALL"
 	// InteractionStorage は収納の相互作用
 	InteractionStorage InteractionKind = "STORAGE"
 	// InteractionMelee は近接攻撃の相互作用
@@ -87,14 +63,12 @@ const (
 // 未知入力は raw/save 由来でありうるので panic せず末尾のゼロ値へ graceful に落とす
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
-	case InteractionItem:
-		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}
-	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll, InteractionOpenCubeMenu:
-		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
+	case InteractionItem, InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionOpenCubeMenu:
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee:
-		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}
+		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
 	case InteractionStorage, InteractionDisassemble, InteractionIgnite, InteractionFeedFuel:
-		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
+		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	}
 	return InteractionConfig{}
 }

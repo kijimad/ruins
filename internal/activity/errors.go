@@ -38,7 +38,6 @@ var (
 	ErrGridElementNotFound = errors.New("GridElement component not found")
 
 	// アイテム関連エラー
-	ErrPositionNotFound = errors.New("position not found")
 	ErrNoItemsToPickup  = errors.New("no items to pick up")
 	ErrItemPickupFailed = errors.New("failed to pick up item")
 
