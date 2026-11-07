@@ -13,7 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -25,11 +24,10 @@ import (
 type OverworldMapState struct {
 	es.BaseState[w.World]
 
-	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
-	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
-	facing    gc.Orient                  // カメラの水平向き。現在地ポインタが指す方角
-	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
-	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
+	view   overworld.MacroView // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
+	facing gc.Orient           // カメラの水平向き。現在地ポインタが指す方角
+	cellPx consts.ScreenPixel  // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
+	body   uicore.Drawable     // モーダルのパネル。初回 Draw で1度組み以後描く
 }
 
 var _ es.State[w.World] = &OverworldMapState{}
@@ -67,10 +65,10 @@ func overworldMapCell(inner image.Rectangle, cols consts.Chunk) consts.ScreenPix
 }
 
 // overworldMapRadius はモーダル高さに収まるプレイヤー南北のチャンク数を返す。最低限は確保する。
-// 地図の下に見出しと凡例を置くので、そのぶんの高さを差し引いてから収まる行数を出す。
+// 地図の下に凡例を置くので、そのぶんの高さを差し引いてから収まる行数を出す。
 func overworldMapRadius(inner image.Rectangle, cell consts.ScreenPixel) int {
-	const headerLegendReserve = 160
-	rows := (inner.Dy() - headerLegendReserve) / int(cell)
+	const legendReserve = 128
+	rows := (inner.Dy() - legendReserve) / int(cell)
 	return max((rows-1)/2, overworldMapMinRadius)
 }
 
@@ -102,15 +100,6 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	if cam := query.GetPlayerCamera(world); cam != nil {
 		st.facing = cam.Orient
 	}
-
-	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
-	st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
-	if hasPlayer {
-		st.playerAbs = consts.Coord[consts.Chunk]{
-			X: consts.Chunk(int(playerTile.X) / int(sb.ChunkW)),
-			Y: sb.AbsChunkRow(playerTile.Y),
-		}
-	}
 	return nil
 }
 
@@ -139,7 +128,7 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// buildBody は俯瞰図を他メニューと同じモーダルのパネルとして組む。格子・凡例・見出し・マーカーを
+// buildBody は俯瞰図を他メニューと同じモーダルのパネルとして組む。格子・凡例・マーカーを
 // 1枚の画像へ描き、menuframe の PanelBG パネルへ収めて意匠を他モーダルへ揃える。
 func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	res := world.Resources.UIResources
@@ -156,23 +145,16 @@ func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	return menuframe.ImagePanel(res, rect, img)
 }
 
-// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。格子と凡例の描画は
-// hud に集約し、ここは見出しと配置の算出だけを持つ。
+// renderMap は俯瞰図の格子・マーカー・凡例を dst へ原点ローカルで描く。格子と凡例の描画は
+// hud に集約し、ここは配置の算出だけを持つ。
 func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	face := world.Resources.UIResources.Text.BodyFace
-	// セルの記号は小さいセルへ収めるため小フォントにする。見出し・凡例は BodyFace のまま
+	// セルの記号は小さいセルへ収めるため小フォントにする。凡例は BodyFace のまま
 	glyphFace := world.Resources.UIResources.Text.SmallFace
 
 	// 文字も塗りも EbitenCanvas に集約する。text/v2 のグリフキャッシュは並行安全でなく、
 	// 生の text.Draw はロックを迂回するため
 	cv := uicore.NewEbitenCanvas(dst)
-
-	// プレイヤー不在は playerAbs.X が負。座標を出さず見出しだけにして -1 を漏らさない
-	header := query.T(world, "Overworld Map")
-	if st.playerAbs.X >= 0 {
-		header = query.T(world, "Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y)
-	}
-	cv.DrawText(image.Pt(8, 6), header, face, theme.TextPrimary)
 
 	cell := st.cellPx
 	// 格子は横をモーダル内側の中央へ寄せる
@@ -185,7 +167,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	if originX < 8 {
 		originX = 8
 	}
-	const originY consts.ScreenPixel = 40
+	const originY consts.ScreenPixel = 8
 	// 格子・道・キューブ・現在地を hud.DrawMapGrid で描く。全画面図は常に記号を出す
 	hud.DrawMapGrid(cv, st.view, hud.MapGridStyle{
 		OriginX:      int(originX),

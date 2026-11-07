@@ -6407,11 +6407,5 @@ msgstr "灌木から折り取った乾いた枝。火が付きやすい"
 msgid "From %s, obtained %s."
 msgstr "%sから%sを得た。"
 
-msgid "Overworld Map"
-msgstr "俯瞰図"
-
-msgid "Overworld Map  Current Chunk %d, %d"
-msgstr "俯瞰図  現在のチャンク %d, %d"
-
 msgid "N / Esc to close"
 msgstr "N / Esc で閉じる"
