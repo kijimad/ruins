@@ -88,20 +88,21 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
 // 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。
-func DrawMapLegend(cv uicore.Canvas, raws oapi.Raws, face, glyphFace text.Face, top int) {
+// 文言は translate で現在言語へ訳す。
+func DrawMapLegend(cv uicore.Canvas, raws oapi.Raws, translate func(msgid string) string, face, glyphFace text.Face, top int) {
 	const swatch = 14
 	x, y := 8, top
 	for _, g := range overworld.LegendGlyphs(raws) {
 		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), g.Color, uicore.RectOptions{})
 		drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
-		cv.DrawText(image.Pt(x+20, y-2), g.Name, face, theme.TextPrimary)
+		cv.DrawText(image.Pt(x+20, y-2), translate(g.Name), face, theme.TextPrimary)
 		// 1項目120px幅で並べ、モーダル幅に収まる右端720pxを超えたら次の行へ折り返す
 		x += 120
 		if x > 720 {
 			x, y = 8, y+22
 		}
 	}
-	cv.DrawText(image.Pt(8, y+26), "N / Esc to close", face, theme.TextPrimary)
+	cv.DrawText(image.Pt(8, y+26), translate("N / Esc to close"), face, theme.TextPrimary)
 }
 
 // drawMapRoad はチャンクセルを通る道を接続方角ごとに、セル中央から辺の中点へ細い矩形で引く。

@@ -137,3 +137,12 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 		})
 	}
 }
+
+func TestYieldsMarkup_アイテムを現在言語の表示名で並べる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetUserSettings(world).Language = "ja"
+
+	got := yieldsMarkup([]lifecycle.YieldStack{{Name: "firewood", Count: 2}, {Name: "branch", Count: 1}}, world)
+	assert.Equal(t, "<item>薪</item> x2、<item>枝</item> x1", got)
+}

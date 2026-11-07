@@ -164,7 +164,21 @@ func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c col
 	op.ColorScale.ScaleWithColor(c)
 	// ebiten text/v2 の共有グリフキャッシュを壊さないよう描画を直列化する。詳細は textMu を参照
 	textMu.Lock()
+	if textObserver != nil {
+		textObserver(face, s)
+	}
 	text.Draw(e.screen, s, face, op)
+	textMu.Unlock()
+}
+
+// textObserver は DrawText が描く文字列を受け取る。textMu で守る
+var textObserver func(face text.Face, s string)
+
+// ObserveText は以後 DrawText が描く文字列を f へ渡す。nil で外す。翻訳漏れの検査が使う。
+// 並列に走る他の描画の文字列も届くので、f はフェイスで自分の描画を選り分ける。
+func ObserveText(f func(face text.Face, s string)) {
+	textMu.Lock()
+	textObserver = f
 	textMu.Unlock()
 }
 

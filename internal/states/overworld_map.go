@@ -168,9 +168,9 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	cv := uicore.NewEbitenCanvas(dst)
 
 	// プレイヤー不在は playerAbs.X が負。座標を出さず見出しだけにして -1 を漏らさない
-	header := "Overworld Map"
+	header := query.T(world, "Overworld Map")
 	if st.playerAbs.X >= 0 {
-		header = fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y)
+		header = query.T(world, "Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y)
 	}
 	cv.DrawText(image.Pt(8, 6), header, face, theme.TextPrimary)
 
@@ -196,5 +196,5 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		PlayerFacing: st.facing,
 	})
 
-	hud.DrawMapLegend(cv, world.Resources.RawMaster, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
+	hud.DrawMapLegend(cv, world.Resources.RawMaster, func(msgid string) string { return query.T(world, msgid) }, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
 }
