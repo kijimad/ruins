@@ -534,6 +534,7 @@ const (
 	SpriteDepthN1 SpriteDepth = 1
 	SpriteDepthN2 SpriteDepth = 2
 	SpriteDepthN3 SpriteDepth = 3
+	SpriteDepthN4 SpriteDepth = 4
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
@@ -546,6 +547,8 @@ func (e SpriteDepth) Valid() bool {
 	case SpriteDepthN2:
 		return true
 	case SpriteDepthN3:
+		return true
+	case SpriteDepthN4:
 		return true
 	default:
 		return false
@@ -2100,9 +2103,6 @@ type SkillLevel = int
 // SpriteDepth スプライト描画深度
 type SpriteDepth float32
 
-// SpriteFlat 地面に寝かせて描くか。床の模様やワープホールのように高さの無いものに使う
-type SpriteFlat = bool
-
 // SpriteKey スプライトキー
 type SpriteKey = string
 
@@ -2110,9 +2110,6 @@ type SpriteKey = string
 type SpriteRender struct {
 	// Depth スプライト描画深度
 	Depth SpriteDepth `json:"depth"`
-
-	// Flat 地面に寝かせて描くか。床の模様やワープホールのように高さの無いものに使う
-	Flat *SpriteFlat `json:"flat,omitempty"`
 
 	// SpriteKey スプライトキー
 	SpriteKey SpriteKey `json:"spriteKey"`

@@ -17277,7 +17277,7 @@ shelter = 0
 water = 0
 
 [tiles.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dwall"
 spriteSheetName = "tile"
 [[tiles]]
@@ -17319,7 +17319,7 @@ shelter = 0
 water = 0
 
 [tiles.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wall"
 spriteSheetName = "tile"
 [[tiles]]
@@ -17818,7 +17818,7 @@ name = "Barrel"
 id = "barrel"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_barrel"
 spriteSheetName = "field"
 
@@ -17862,7 +17862,7 @@ name = "Bed"
 id = "bed"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "bed"
 spriteSheetName = "field"
 
@@ -17924,7 +17924,7 @@ animKeys = ["fire_0", "fire_1"]
 hp = 9999
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "fire_0"
 spriteSheetName = "field"
 
@@ -17950,7 +17950,7 @@ name = "Bookshelf"
 id = "book_shelf_2"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "book_shelf_2"
 spriteSheetName = "field"
 [[props]]
@@ -17962,7 +17962,7 @@ name = "Book Showcase"
 id = "book_showcase"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "book_showcase"
 spriteSheetName = "field"
 [[props]]
@@ -17974,7 +17974,7 @@ name = "Bookshelf"
 id = "bookshelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wooden_bookshelf"
 spriteSheetName = "field"
 
@@ -18064,7 +18064,7 @@ name = "Chair"
 id = "chair"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "chair"
 spriteSheetName = "field"
 [[props]]
@@ -18088,7 +18088,7 @@ name = "Closet"
 id = "closet"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "closet"
 spriteSheetName = "field"
 
@@ -18130,7 +18130,7 @@ name = "Crate"
 id = "crate"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
@@ -18157,7 +18157,7 @@ name = "Desk"
 id = "desk"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_desk"
 spriteSheetName = "field"
 
@@ -18186,7 +18186,7 @@ name = "Desktop PC"
 id = "desktop_pc"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "desktop_pc"
 spriteSheetName = "field"
 [[props]]
@@ -18198,7 +18198,7 @@ name = "Dish Shelf"
 id = "dish_shelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dish_shelf"
 spriteSheetName = "field"
 
@@ -18215,7 +18215,7 @@ id = "door"
 hp = 50
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "door_horizontal_closed"
 spriteSheetName = "field"
 
@@ -18229,7 +18229,7 @@ name = "Chest of Drawers"
 id = "drawer_chest"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "drawer_chest"
 spriteSheetName = "field"
 
@@ -18246,7 +18246,7 @@ name = "Electric Locker"
 id = "electric_locker"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "electric_locker"
 spriteSheetName = "field"
 [[props]]
@@ -18270,7 +18270,7 @@ name = "Forklift"
 id = "forklift"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "forklift"
 spriteSheetName = "field"
 [[props]]
@@ -18282,7 +18282,7 @@ name = "Furnace"
 id = "furnace"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "furnace"
 spriteSheetName = "field"
 [[props]]
@@ -18294,7 +18294,7 @@ name = "Gauge Machine"
 id = "gauge_machine"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "gauge_machine"
 spriteSheetName = "field"
 [[props]]
@@ -18306,7 +18306,7 @@ name = "Generator"
 id = "generator_green"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "generator_green"
 spriteSheetName = "field"
 [[props]]
@@ -18318,7 +18318,7 @@ name = "Generator"
 id = "generator_yellow"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "generator_yellow"
 spriteSheetName = "field"
 [[props]]
@@ -18330,7 +18330,7 @@ name = "Goods Shelf"
 id = "goods_shelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "goods_shelf"
 spriteSheetName = "field"
 
@@ -18347,7 +18347,7 @@ name = "Iron Shelf"
 id = "iron_shelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "iron_shelf"
 spriteSheetName = "field"
 
@@ -18378,7 +18378,7 @@ name = "Lantern"
 id = "lantern"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "prop_lantern"
 spriteSheetName = "field"
 
@@ -18400,7 +18400,7 @@ name = "Laundry"
 id = "laundry"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "laundry"
 spriteSheetName = "field"
 [[props]]
@@ -18412,7 +18412,7 @@ name = "Window"
 id = "window"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "window"
 spriteSheetName = "field"
 [[props]]
@@ -18424,7 +18424,7 @@ name = "Shutter"
 id = "shutter"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "shutter"
 spriteSheetName = "field"
 [[props]]
@@ -18436,7 +18436,7 @@ name = "Fence"
 id = "fence"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "fence"
 spriteSheetName = "field"
 [[props]]
@@ -18448,7 +18448,7 @@ name = "Buddhist Altar"
 id = "buddhist_altar"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "butsudan"
 spriteSheetName = "field"
 [[props]]
@@ -18460,7 +18460,7 @@ name = "Household Shrine"
 id = "household_shrine"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "kamidana"
 spriteSheetName = "field"
 [[props]]
@@ -18472,7 +18472,7 @@ name = "Shoe Cabinet"
 id = "shoe_cabinet"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "getabako"
 spriteSheetName = "field"
 [[props]]
@@ -18484,7 +18484,7 @@ name = "Microwave"
 id = "microwave"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "microwave"
 spriteSheetName = "field"
 [[props]]
@@ -18580,7 +18580,7 @@ name = "Bookshelf"
 id = "prop_bookshelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "prop_bookshelf"
 spriteSheetName = "field"
 [[props]]
@@ -18604,7 +18604,7 @@ name = "Table"
 id = "prop_table"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "prop_table"
 spriteSheetName = "field"
 [[props]]
@@ -18616,7 +18616,7 @@ name = "Refrigerator"
 id = "refrigerator"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "refrigerator"
 spriteSheetName = "field"
 
@@ -18667,7 +18667,7 @@ count = "1d1"
 minSkill = 10
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "register"
 spriteSheetName = "field"
 
@@ -18684,7 +18684,7 @@ name = "Sink"
 id = "sink"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "sink"
 spriteSheetName = "field"
 [[props]]
@@ -18708,7 +18708,7 @@ name = "Stone Pillar"
 id = "stone_pillar"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "stone_pillar"
 spriteSheetName = "field"
 [[props]]
@@ -18720,7 +18720,7 @@ name = "Table"
 id = "table"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dining_table"
 spriteSheetName = "field"
 [[props]]
@@ -18760,7 +18760,6 @@ hp = 9999
 depth = 1
 spriteKey = "warp_next_0"
 spriteSheetName = "field"
-flat = true
 
 [props.lightSource]
 enabled = true
@@ -18786,7 +18785,6 @@ hp = 9999
 depth = 1
 spriteKey = "warp_next_0"
 spriteSheetName = "field"
-flat = true
 
 [props.lightSource]
 enabled = true
@@ -18808,7 +18806,7 @@ name = "Wooden Bookshelf"
 id = "wood_bookshelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_bookshelf"
 spriteSheetName = "field"
 [[props]]
@@ -18820,7 +18818,7 @@ name = "Wooden Chest"
 id = "wood_chest"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_chest"
 spriteSheetName = "field"
 [[props]]
@@ -18856,7 +18854,7 @@ name = "Kitchen Sink"
 id = "kitchen_sink"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "kitchen_sink"
 spriteSheetName = "field"
 [[props]]
@@ -18868,7 +18866,7 @@ name = "Dresser"
 id = "dresser"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dresser"
 spriteSheetName = "field"
 
@@ -18897,7 +18895,7 @@ name = "Two-Seat Sofa"
 id = "two_seat_sofa"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "two_seat_sofa"
 spriteSheetName = "field"
 [[props]]
@@ -18909,7 +18907,7 @@ name = "Work Desk"
 id = "work_desk"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "work_desk"
 spriteSheetName = "field"
 [[props]]
@@ -18921,7 +18919,7 @@ name = "Fireplace"
 id = "fireplace"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "fireplace"
 spriteSheetName = "field"
 [[props]]
@@ -18933,7 +18931,7 @@ name = "Poison Barrel"
 id = "poison_barrel"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "barrel_poison"
 spriteSheetName = "field"
 [[props]]
@@ -18945,7 +18943,7 @@ name = "Fur-Upholstered Chair"
 id = "fur_upholstered_chair"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "fur_chair"
 spriteSheetName = "field"
 [[props]]
@@ -18957,7 +18955,7 @@ name = "Washing Machine"
 id = "washing_machine"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wash_machine_empty"
 spriteSheetName = "field"
 [[props]]
@@ -18969,7 +18967,7 @@ name = "Full Washing Machine"
 id = "washing_machine_full"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "washing_machine_fill"
 spriteSheetName = "field"
 [[props]]
@@ -18981,7 +18979,7 @@ name = "White Barrel"
 id = "white_barrel"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "barrel_white"
 spriteSheetName = "field"
 [[props]]
@@ -18993,7 +18991,7 @@ name = "Green Drum"
 id = "green_drum"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "drum_green"
 spriteSheetName = "field"
 [[props]]
@@ -19005,7 +19003,7 @@ name = "Red Drum"
 id = "red_drum"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "drum_red"
 spriteSheetName = "field"
 [[props]]
@@ -19017,7 +19015,7 @@ name = "Black Chair"
 id = "black_chair"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "black_chair"
 spriteSheetName = "field"
 [[props]]
@@ -19029,7 +19027,7 @@ name = "Black Vase"
 id = "black_vase"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "vase_black"
 spriteSheetName = "field"
 [[props]]
@@ -19041,7 +19039,7 @@ name = "Wooden Crate"
 id = "wooden_crate"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
@@ -19073,7 +19071,7 @@ name = "Locker"
 id = "locker"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "electric_locker"
 spriteSheetName = "field"
 
@@ -19477,7 +19475,6 @@ hp = 9999
 depth = 1
 spriteKey = "warp_escape_0"
 spriteSheetName = "field"
-flat = true
 
 [props.lightSource]
 enabled = true
@@ -19497,7 +19494,7 @@ blockView = true
 hp = 30
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_supply_locker"
 spriteSheetName = "field"
 
@@ -19521,7 +19518,7 @@ blockView = false
 hp = 20
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_ration_crate"
 spriteSheetName = "field"
 
@@ -19545,7 +19542,7 @@ blockView = false
 hp = 20
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_med_cabinet"
 spriteSheetName = "field"
 
@@ -19562,7 +19559,7 @@ blockView = false
 hp = 80
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_boulder"
 spriteSheetName = "field"
 [[props]]
@@ -19575,7 +19572,7 @@ passCost = 60
 hp = 3
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "dummy_thicket"
 spriteSheetName = "field"
 [[props]]
@@ -19587,7 +19584,7 @@ blockView = false
 hp = 10
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_brazier"
 spriteSheetName = "field"
 
@@ -19613,7 +19610,7 @@ blockView = false
 hp = 5
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_floor_lamp"
 spriteSheetName = "field"
 
@@ -19636,7 +19633,7 @@ passCost = 40
 hp = 10
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "dummy_scrap_heap"
 spriteSheetName = "field"
 
@@ -19709,10 +19706,9 @@ name = "Pebbles"
 id = "soil_pebbles"
 
 [props.spriteRender]
-depth = 0
+depth = 1
 spriteKey = "soil_pebbles"
 spriteSheetName = "field"
-flat = true
 [[props]]
 blockPass = false
 blockView = false
@@ -19721,10 +19717,9 @@ name = "Dark Soil"
 id = "soil_dark"
 
 [props.spriteRender]
-depth = 0
+depth = 1
 spriteKey = "soil_dark"
 spriteSheetName = "field"
-flat = true
 [[props]]
 blockPass = false
 blockView = false
@@ -19733,10 +19728,9 @@ name = "Dry Soil"
 id = "soil_dry"
 
 [props.spriteRender]
-depth = 0
+depth = 1
 spriteKey = "soil_dry"
 spriteSheetName = "field"
-flat = true
 [[props]]
 blockPass = false
 blockView = false
@@ -19745,10 +19739,9 @@ name = "Cracked Ground"
 id = "soil_crack"
 
 [props.spriteRender]
-depth = 0
+depth = 1
 spriteKey = "soil_crack"
 spriteSheetName = "field"
-flat = true
 [[props]]
 blockPass = false
 blockView = false

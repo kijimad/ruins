@@ -78,8 +78,6 @@ type SpriteRender struct {
 	AnimKeys []string
 	// 描画順。小さい順に先に(下に)描画する
 	Depth DepthNum
-	// Flat は3D描画で立て板にせず地面に寝かせて描くか
-	Flat bool
 	// Draw options（実行時の描画オプション。serde対象外）
 	Options ebiten.DrawImageOptions `json:"-"`
 }
@@ -90,7 +88,9 @@ type DepthNum int
 const (
 	// DepthNumFloor は床。最背面に表示する
 	DepthNumFloor DepthNum = iota
-	// DepthNumRug は床に置くもの。例: ワープホール、アイテム
+	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール。3D では立て板にせず地面に寝かせて描く
+	DepthNumDecal
+	// DepthNumRug は床に置くもの。例: アイテム、焚き火
 	DepthNumRug
 	// DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁
 	DepthNumTaller

@@ -1647,6 +1647,7 @@ export const SpriteDepth = {
     NUMBER_1: 1,
     NUMBER_2: 2,
     NUMBER_3: 3,
+    NUMBER_4: 4,
 } as const;
 
 export type SpriteDepth = typeof SpriteDepth[keyof typeof SpriteDepth];
@@ -1665,10 +1666,6 @@ export interface SpriteRender {
      */
     'spriteKey': string;
     'depth': SpriteDepth;
-    /**
-     * 地面に寝かせて描くか。床の模様やワープホールのように高さの無いものに使う
-     */
-    'flat'?: boolean;
 }
 
 
