@@ -33,9 +33,9 @@ type scatterEntry struct {
 	Satellites []relSpot
 }
 
-// scatterCatalog は zone ごとの散布定義。GrassDensity は草・雑草 prop を撒く面積あたり係数、PropDensity
-// は樹木・岩を撒く係数で、どちらも count = round(area * Density) で個数を密度確率から導く。個数を反復
-// 乱数でなく密度確率で決めるので純関数のまま。
+// scatterCatalog は zone ごとの散布定義。GrassDensity は草・雑草 prop をタイルへ置く平均の確率で、茂みの
+// 濃淡を掛けて場所ごとに増減する。PropDensity は樹木・岩を撒く係数で、count = round(area * Density) で
+// 個数を導く。どちらも座標と seed の純関数のまま。
 type scatterCatalog struct {
 	Zone         outdoorZone
 	GrassDensity float64
@@ -158,20 +158,27 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 		return isEarthTile(world, tiles, bl) && !occupied[gc.GridElement{Coord: bl}]
 	}
 
-	// まず草・雑草を密に撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
+	// まず草・雑草を撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
 	// 通行を塞がず、位相や経路の制約は要らない。続く樹木が草と重ならないよう占有を記録しながら先に撒く。
-	grassSeed := ChunkSeed2D(runSeed^scatterSalt^scatterGrassChannel, c.X, c.Y)
-	grassCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.GrassDensity))
-	for _, rel := range interior.ScatterArea(area, accept, grassSeed, grassCount) {
-		bl := bandLocal(rel)
-		name := scatterGrassProp
-		if hashTileCoord(grassSeed^scatterWeedChannel, rel)%scatterWeedMod == 0 {
-			name = scatterWeedProp
+	// 置くかはタイルごとに絶対座標の茂みの濃淡で決め、チャンクの継ぎ目でも茂みが途切れない
+	grassSeed := runSeed ^ scatterSalt ^ scatterGrassChannel
+	for y := range g.chunkH {
+		for x := range g.chunkW {
+			rel := consts.Coord[consts.Tile]{X: x, Y: y}
+			abs := absTile(rel)
+			if !accept(rel) || !placesGrass(grassSeed, cat.GrassDensity, abs) {
+				continue
+			}
+			bl := bandLocal(rel)
+			name := scatterGrassProp
+			if hashTileCoord(grassSeed^scatterWeedChannel, abs)%scatterWeedMod == 0 {
+				name = scatterWeedProp
+			}
+			if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
+				return fmt.Errorf("failed to place grass (%s): %w", name, err)
+			}
+			occupied[gc.GridElement{Coord: bl}] = true
 		}
-		if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
-			return fmt.Errorf("failed to place grass (%s): %w", name, err)
-		}
-		occupied[gc.GridElement{Coord: bl}] = true
 	}
 
 	// 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。
