@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 09:02:29</td>
+            <td class="headerValue">2026-11-07 12:48:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,7 +71,7 @@
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              : // materialHeatPerKg は材質のkgあたり燃焼熱量。ここに載らない材質は不燃で0とみなし燃料にならない。</span>
 <span id="L11"><span class="lineNum">      11</span>              : // 燃料熱量は重量kgへ掛けて導く。石炭・油が高く、食料・骨が低い。金属・石・ガラス・結晶・陶磁器・液体は不燃。</span>
-<span id="L12"><span class="lineNum">      12</span>              : // 係数は balance 値なので schema でなくここで持つ。地面効率50%で hardwood 3kg が約300ターン、</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 係数は balance 値なので schema でなくここで持つ。地面効率50%で firewood 1kg が約100ターン、</span>
 <span id="L13"><span class="lineNum">      13</span>              : // coal 1kg が約400ターン燃えるよう釣り合わせる。火を絶やさぬ手触りに合わせて全体をここで振る</span>
 <span id="L14"><span class="lineNum">      14</span>              : var materialHeatPerKg = map[oapi.Material]int{</span>
 <span id="L15"><span class="lineNum">      15</span>              :         oapi.OIL:     1000,</span>
