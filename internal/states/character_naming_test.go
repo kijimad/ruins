@@ -101,6 +101,20 @@ func TestCharacterNamingState_OnStart_WithExistingPlayer(t *testing.T) {
 	assert.Equal(t, "Ash", props.CurrentName, "既存プレイヤー名が初期値に設定される")
 }
 
+func TestCharacterNamingState_OnStart_既存プレイヤー名を現在言語で初期値にする(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	query.GetUserSettings(world).Language = "ja"
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	state := &CharacterNamingState{}
+	require.NoError(t, state.OnStart(world))
+
+	assert.Equal(t, "アッシュ", state.mount.GetProps().CurrentName)
+}
+
 func TestConfirmName_ChangesPlayerName(t *testing.T) {
 	t.Parallel()
 

@@ -61,10 +61,6 @@ func worldFaces(world w.World) []text.Face {
 // untranslatedExemptCases は開発者向けで訳さない場面。
 var untranslatedExemptCases = []string{"DebugMenu", "ComponentDebug"}
 
-// languageNeutralWords は訳さずに描いてよい英字の語。1文字の語はキーや記号や単位なので常に許す。
-// Ash はプレイヤーの名前。
-var languageNeutralWords = []string{"HP", "Esc", "Enter", "Ash"}
-
 // TestUntranslatedText は golden の全場面を疑似訳で描き、訳を通らずに描かれた文字列を探す。
 func TestUntranslatedText(t *testing.T) {
 	t.Parallel()
@@ -109,12 +105,10 @@ func TestUntranslatedText(t *testing.T) {
 	}
 }
 
-// hasUntranslatedWord は s に languageNeutralWords 以外の2文字以上の英字の語があるかを返す。
+// hasUntranslatedWord は s に2文字以上の英字の語があるかを返す。1文字の語はキーや記号や単位として許す。
 func hasUntranslatedWord(s string) bool {
 	words := strings.FieldsFunc(s, func(r rune) bool { return !isASCIILetter(r) })
-	return slices.ContainsFunc(words, func(word string) bool {
-		return len(word) > 1 && !slices.Contains(languageNeutralWords, word)
-	})
+	return slices.ContainsFunc(words, func(word string) bool { return len(word) > 1 })
 }
 
 func isASCIILetter(r rune) bool {

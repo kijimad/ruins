@@ -63,7 +63,7 @@ func (st *CharacterNamingState) OnStart(world w.World) error {
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err == nil {
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
-			initialName = nameComp.Name
+			initialName = query.T(world, nameComp.Name)
 		}
 	}
 

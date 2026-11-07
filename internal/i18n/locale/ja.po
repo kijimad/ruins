@@ -6409,3 +6409,9 @@ msgstr "%sから%sを得た。"
 
 msgid "Rotate"
 msgstr "回転"
+
+msgid "HP"
+msgstr "HP"
+
+msgid "Enter"
+msgstr "Enter"

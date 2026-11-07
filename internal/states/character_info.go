@@ -86,7 +86,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	}
 	if query.AliveHas(world, world.Components.HP, playerEntity) {
 		hp := world.Components.HP.Get(playerEntity)
-		items = append(items, statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: query.T(world, "HP. You die at 0")})
+		items = append(items, statusItemData{Label: query.T(world, "HP"), Value: fmt.Sprintf("%d", hp.Max), Description: query.T(world, "HP. You die at 0")})
 	}
 	if query.AliveHas(world, world.Components.WeightCapacity, playerEntity) {
 		cw := world.Components.WeightCapacity.Get(playerEntity)

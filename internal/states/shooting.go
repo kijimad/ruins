@@ -304,7 +304,7 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
 	// HP
 	if world.Components.HP.Has(target) {
 		hp := world.Components.HP.Get(target)
-		drawText(fmt.Sprintf("HP: %d/%d", hp.Current, hp.Max))
+		drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "HP"), hp.Current, hp.Max))
 	}
 
 	drawText(fmt.Sprintf("%s: %d%%", query.T(world, "Hit rate"), st.cachedHitRate))

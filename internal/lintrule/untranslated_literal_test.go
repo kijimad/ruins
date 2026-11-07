@@ -30,9 +30,6 @@ var textFields = map[string]string{
 	"Choice": "Label",
 }
 
-// neutralWords は訳さずに描いてよい英字の語。1文字の語はキーや記号や単位なので常に許す。
-var neutralWords = []string{"HP", "Esc", "Enter"}
-
 // untranslatedExemptFiles は開発者向けで訳さない画面のファイル。
 var untranslatedExemptFiles = []string{"internal/states/debug_menu.go"}
 
@@ -127,7 +124,8 @@ func TestUntranslatedLiterals(t *testing.T) {
 		{"Choice の Label への直書き", `_ = Choice{Label: "Back"}`, []string{`"Back"`}},
 		{"uicore.Text の Value への直書き", `_ = uicore.Text{Value: "Back"}`, []string{`"Back"`}},
 		{"訳を通した文字列", `cv.DrawText(p, query.T(world, "Close"), f, c)`, nil},
-		{"1文字の語と許可した語", `cv.DrawText(p, "HP x Esc", f, c)`, nil},
+		{"1文字の語", `cv.DrawText(p, "x F", f, c)`, nil},
+		{"略語も訳す", `cv.DrawText(p, "HP", f, c)`, []string{`"HP"`}},
 		{"書式の動詞に続く単位", `cv.DrawText(p, fmt.Sprintf("%3dF", n), f, c)`, nil},
 		{"画面へ描かない直書き", `log.Print("Overworld Map")`, nil},
 	}
@@ -201,12 +199,12 @@ func untranslatedLiteral(e ast.Expr) (string, bool) {
 
 var formatVerb = regexp.MustCompile(`%[-+# 0-9.\[\]*]*[a-zA-Z%]`)
 
-// hasWord は s に neutralWords 以外の2文字以上の英字の語があるかを返す。
+// hasWord は s に2文字以上の英字の語があるかを返す。1文字の語はキーや記号や単位として許す。
 func hasWord(s string) bool {
 	words := strings.FieldsFunc(formatVerb.ReplaceAllString(s, " "), func(r rune) bool {
 		return (r < 'a' || 'z' < r) && (r < 'A' || 'Z' < r)
 	})
 	return slices.ContainsFunc(words, func(word string) bool {
-		return len(word) > 1 && !slices.Contains(neutralWords, word)
+		return len(word) > 1
 	})
 }
