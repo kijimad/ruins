@@ -175,3 +175,33 @@ func TestInteractableAt(t *testing.T) {
 		assert.False(t, ok)
 	})
 }
+
+func TestMeleeTargetAt(t *testing.T) {
+	t.Parallel()
+
+	t.Run("草の上の敵は敵を対象にする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnProp(world, "grass", northOfPlayer.X, northOfPlayer.Y)
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, northOfPlayer, "fireball")
+		require.NoError(t, err)
+
+		got, ok := meleeTargetAt(world, northOfPlayer)
+
+		require.True(t, ok)
+		assert.Equal(t, enemy, got)
+	})
+
+	t.Run("prop だけなら prop を対象にする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		grass, err := lifecycle.SpawnProp(world, "grass", northOfPlayer.X, northOfPlayer.Y)
+		require.NoError(t, err)
+
+		got, ok := meleeTargetAt(world, northOfPlayer)
+
+		require.True(t, ok)
+		assert.Equal(t, grass, got)
+	})
+}

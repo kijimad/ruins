@@ -152,7 +152,7 @@ func attackAction(world w.World) directionAction {
 		prompt:   query.T(world, "Attack which direction?"),
 		emptyMsg: query.T(world, "There is nothing to attack nearby."),
 		accepts: func(world w.World, c consts.Coord[consts.Tile]) bool {
-			_, ok := interactableAt(world, c, gc.InteractionMelee)
+			_, ok := meleeTargetAt(world, c)
 			return ok
 		},
 		run: func(world w.World, c consts.Coord[consts.Tile]) error {
@@ -160,7 +160,7 @@ func attackAction(world w.World) directionAction {
 			if err != nil {
 				return err
 			}
-			target, ok := interactableAt(world, c, gc.InteractionMelee)
+			target, ok := meleeTargetAt(world, c)
 			if !ok {
 				return fmt.Errorf("melee target disappeared at %v", c)
 			}
@@ -168,6 +168,25 @@ func attackAction(world w.World) directionAction {
 			return err
 		},
 	}
+}
+
+// meleeTargetAt はタイル上の近接攻撃の対象を返す。歩ける草などの prop と敵が重なるので、prop でない相手を優先する
+func meleeTargetAt(world w.World, c consts.Coord[consts.Tile]) (ecs.Entity, bool) {
+	var prop ecs.Entity
+	found := false
+	for _, e := range query.GetEntitiesAt(world, c.X, c.Y) {
+		if world.Components.Dead.Has(e) || !world.Components.Interactable.Has(e) ||
+			!slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionMelee) {
+			continue
+		}
+		if !world.Components.Prop.Has(e) {
+			return e, true
+		}
+		if !found {
+			prop, found = e, true
+		}
+	}
+	return prop, found
 }
 
 // interactableAt はタイル上で相互作用 kind を受け付ける生存中のエンティティを返す
