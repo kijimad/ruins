@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">71.2&nbsp;%</td>
+            <td class="headerCovTableEntryLo">74.6&nbsp;%</td>
             <td class="headerCovTableEntry">59</td>
-            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">44</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 06:56:02</td>
+            <td class="headerValue">2026-11-07 09:02:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -195,13 +195,13 @@
 <span id="L133"><span class="lineNum">     133</span>              : // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品</span>
 <span id="L134"><span class="lineNum">     134</span>              : func pushChoice(factory es.StateFactory[w.World]) func(w.World) (es.Transition[w.World], error) {</span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         return func(_ w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{factory}}, nil</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{factory}}, nil</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L138"><span class="lineNum">     138</span>              : }</span>
 <span id="L139"><span class="lineNum">     139</span>              : </span>
 <span id="L140"><span class="lineNum">     140</span>              : // popAfter は fn を実行して閉じる Choice.Run を返す</span>
 <span id="L141"><span class="lineNum">     141</span>              : func popAfter(fn func(w.World) error) func(w.World) (es.Transition[w.World], error) {</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC tlaBgGNC">           1 :         return func(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         return func(world w.World) (es.Transition[w.World], error) {</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC tlaBgUNC">           0 :                 if err := fn(world); err != nil {</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 }</span></span>
