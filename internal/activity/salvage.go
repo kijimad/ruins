@@ -3,7 +3,6 @@ package activity
 import (
 	"fmt"
 	"slices"
-	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -95,11 +94,6 @@ func dropSalvage(world w.World, actor, target ecs.Entity) error {
 	if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil {
 		return fmt.Errorf("failed to spawn salvage: %w", err)
 	}
-	if len(stacks) > 0 && world.Components.Player.Has(actor) {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "From %s, obtained %s.", gamelog.Tag("item", query.GetEntityName(target, world)), yieldsMarkup(stacks, world))).
-			Log()
-	}
 	if hasSkill {
 		gainSkillExp(actor, world, skillID)
 	}
@@ -135,13 +129,4 @@ func skillValueOf(actor ecs.Entity, world w.World, skillID gc.SkillID) int {
 		return 0
 	}
 	return world.Components.Skills.Get(actor).Get(skillID).Value
-}
-
-// yieldsMarkup は産出一覧を読点で連結した色付きマークアップ文字列にして返す
-func yieldsMarkup(stacks []lifecycle.YieldStack, world w.World) string {
-	parts := make([]string, len(stacks))
-	for i, s := range stacks {
-		parts[i] = gamelog.Tag("item", query.T(world, raw.ItemName(world.Resources.RawMaster, s.Name))) + fmt.Sprintf(" x%d", s.Count)
-	}
-	return strings.Join(parts, query.T(world, ", "))
 }
