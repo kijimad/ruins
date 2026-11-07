@@ -22,9 +22,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// directionAction は方向を選んで隣接タイルへ行う行動。動詞を先に決め、対象のタイルを後から選ぶ。
-// 候補は矢印4方向がカメラの水平角で指す隣接タイルのうち accepts を満たすものに限る。
-// 斜めのタイルは視点を回して矢印の指す先にしてから選ぶ
+// directionAction は矢印で選んだ隣接タイルへ行う行動
 type directionAction struct {
 	prompt   string
 	emptyMsg string
@@ -32,8 +30,7 @@ type directionAction struct {
 	run      func(world w.World, c consts.Coord[consts.Tile]) error
 }
 
-// startDirectionAction は候補タイルを数えて分岐する。候補が無ければ emptyMsg をログに出し、
-// 1つならそのまま実行し、複数なら DirectionSelectState を開いて選ばせる
+// startDirectionAction は候補が無ければログを出し、1つならそのまま実行し、複数なら DirectionSelectState を開く
 func startDirectionAction(world w.World, a directionAction) (es.Transition[w.World], error) {
 	options, err := directionOptions(world, a)
 	if err != nil {
@@ -77,8 +74,7 @@ func directionOptions(world w.World, a directionAction) (map[inputmapper.ActionI
 	return options, nil
 }
 
-// DirectionSelectState は directionAction の対象タイルを選ぶステート。候補タイルを枠で示し、
-// 矢印で選ぶ。候補でない向きの入力は無視し、Esc でやめる
+// DirectionSelectState は directionAction の対象タイルを矢印で選ぶステート
 type DirectionSelectState struct {
 	es.BaseState[w.World]
 	action  directionAction
@@ -150,8 +146,7 @@ func (st *DirectionSelectState) Draw(world w.World, screen *ebiten.Image) error 
 	return nil
 }
 
-// attackAction は隣接タイルの攻撃対象を近接攻撃する方向行動。攻撃は相互作用メニューに並べず、
-// この行動からだけ行う。敵への歩き込みは別経路で攻撃になる
+// attackAction は隣接タイルの攻撃対象を近接攻撃する方向行動
 func attackAction(world w.World) directionAction {
 	return directionAction{
 		prompt:   query.T(world, "Attack which direction?"),
