@@ -628,6 +628,7 @@ func (e TargetNum) Valid() bool {
 const (
 	Chopping  ToolCategory = "chopping"
 	Cutting   ToolCategory = "cutting"
+	Mining    ToolCategory = "mining"
 	Precision ToolCategory = "precision"
 	Prying    ToolCategory = "prying"
 )
@@ -638,6 +639,8 @@ func (e ToolCategory) Valid() bool {
 	case Chopping:
 		return true
 	case Cutting:
+		return true
+	case Mining:
 		return true
 	case Precision:
 		return true
