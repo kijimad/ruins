@@ -18529,7 +18529,7 @@ description = "[dummy] ごろりと転がる岩。屋外散布の石。乗り越
 passCost = 50
 name = "Rock"
 id = "rock"
-hp = 20
+hp = 60
 
 [props.spriteRender]
 depth = 0
