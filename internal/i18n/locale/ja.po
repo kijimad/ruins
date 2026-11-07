@@ -452,9 +452,6 @@ msgstr "遺跡へ入る"
 msgid "Inspect (%s)"
 msgstr "調べる(%s)"
 
-msgid "Attack (%s)"
-msgstr "攻撃する(%s)"
-
 msgid "Disassemble (%s)"
 msgstr "分解する(%s)"
 
@@ -6397,3 +6394,12 @@ msgstr "モジュールを選ぶ"
 
 msgid "No modules to install"
 msgstr "装着できるモジュールがない"
+
+msgid "There is nothing to attack nearby."
+msgstr "近くに攻撃できるものがない。"
+
+msgid "Attack which direction?"
+msgstr "どの方向を攻撃する？"
+
+msgid "Arrows: Select  Esc: Cancel"
+msgstr "矢印: 選ぶ  Esc: やめる"

@@ -32,6 +32,7 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeyL, Action: inputmapper.ActionOpenFieldInfo, Label: "Field info"},
 	{Key: ebiten.KeyN, Action: inputmapper.ActionOpenOverworldMap, Label: "Map"},
 	{Key: ebiten.KeyF, Action: inputmapper.ActionShoot, Label: "Shoot"},
+	{Key: ebiten.KeyS, Action: inputmapper.ActionAttack, Label: "Attack"},
 	{Key: ebiten.KeyG, Action: inputmapper.ActionPickup, Label: "Pick up"},
 	// 動詞タブ画面への直達。調べる X は Shift+x で区別する
 	{Key: ebiten.KeyX, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
@@ -160,6 +161,8 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return &ShootingState{}, nil },
 		}}, nil
+	case inputmapper.ActionAttack:
+		return startDirectionAction(world, attackAction(world))
 	case inputmapper.ActionPickup:
 		// 足元のタイルにある拾得可能物をまとめて拾う。拾う位置は指定しない
 		playerEntity, err := query.GetPlayerEntity(world)

@@ -279,14 +279,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 					Interaction: interaction,
 				})
 			}
-		case gc.InteractionMelee:
-			if world.Components.Name.Has(interactableEntity) {
-				result = append(result, InteractionAction{
-					Label:       query.T(world, "Attack (%s)", query.GetEntityName(interactableEntity, world)),
-					Target:      interactableEntity,
-					Interaction: interaction,
-				})
-			}
 		case gc.InteractionDisassemble:
 			if world.Components.Name.Has(interactableEntity) {
 				result = append(result, InteractionAction{
@@ -302,9 +294,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionItemAll:
-			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
-			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
+		case gc.InteractionItemAll, gc.InteractionMelee:
+			// アクションメニューに出さない種類。攻撃は attackAction で方向を選んで行う。
+			// default を置かず exhaustive に全種別を明示させ、新しい InteractionKind の対応漏れを lint で検知する
 		case gc.InteractionIgnite:
 			// 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で
 			// タイル単位に組む。ここには来ないが exhaustive のため case を明示する

@@ -279,26 +279,15 @@ func TestDeadEnemyInteraction(t *testing.T) {
 func TestGetInteractionActions_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("攻撃可能なPropはメニューに表示される", func(t *testing.T) {
+	t.Run("攻撃できるPropでも攻撃はメニューに出さない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnProp(world, "grass", 11, 10)
+		require.NoError(t, err)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		prop := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Prop.Add(prop, &gc.Prop{})
-		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
-		world.Components.Interactable.Add(prop, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionMelee},
-		})
-
-		actions := GetInteractionActions(world)
-		require.Len(t, actions, 1)
-		assert.Equal(t, "Attack (木箱)", actions[0].Label)
+		assert.Empty(t, GetInteractionActions(world))
 	})
 
 	t.Run("上り階段は前階へ転移するアクションを出す", func(t *testing.T) {
@@ -321,29 +310,15 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		assert.Equal(t, "Warp (previous floor)", actions[0].Label)
 	})
 
-	t.Run("敵対NPCもメニューに表示される", func(t *testing.T) {
+	t.Run("敵対NPCへの攻撃もメニューに出さない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+		require.NoError(t, err)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		enemy := world.ECS.NewEntity()
-		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Name.Add(enemy, &gc.Name{Name: "ゴブリン"})
-		world.Components.SoloAI.Add(enemy, &gc.SoloAI{
-			CombatDefault: gc.CombatAttack,
-			CombatCurrent: gc.CombatAttack,
-			Movement:      gc.SoloRandom,
-		})
-		world.Components.Interactable.Add(enemy, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionMelee},
-		})
-
-		actions := GetInteractionActions(world)
-		require.Len(t, actions, 1)
-		assert.Equal(t, "Attack (ゴブリン)", actions[0].Label)
+		assert.Empty(t, GetInteractionActions(world))
 	})
 
 	t.Run("同一スタックのアイテムは1行に束ねる", func(t *testing.T) {
