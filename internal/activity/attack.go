@@ -375,6 +375,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		defense = world.Components.Abilities.Get(target).Defense.Total
 	}
 
+	// 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
 	return formula.Damage(formula.DamageInput{
 		Ability:      ability,
 		Die:          world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1,
