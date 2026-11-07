@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"maps"
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,6 +29,12 @@ type directionAction struct {
 	run      func(world w.World, c consts.Coord[consts.Tile]) error
 }
 
+// directionOption は選択キーと、そのキーが指す候補タイルの組
+type directionOption struct {
+	action inputmapper.ActionID
+	tile   consts.Coord[consts.Tile]
+}
+
 // startDirectionAction は候補が無ければログを出し、1つならそのまま実行し、複数なら DirectionSelectState を開く
 func startDirectionAction(world w.World, a directionAction) (es.Transition[w.World], error) {
 	options, err := directionOptions(world, a)
@@ -41,15 +46,15 @@ func startDirectionAction(world w.World, a directionAction) (es.Transition[w.Wor
 		gamelog.New(query.GetGameLog(world)).Markup(a.emptyMsg).Log()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case 1:
-		return es.Transition[w.World]{Type: es.TransNone}, a.run(world, slices.Collect(maps.Values(options))[0])
+		return es.Transition[w.World]{Type: es.TransNone}, a.run(world, options[0].tile)
 	}
 	return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 		func() (es.State[w.World], error) { return &DirectionSelectState{action: a, options: options}, nil },
 	}}, nil
 }
 
-// directionOptions は選択キーごとの候補タイルを返す
-func directionOptions(world w.World, a directionAction) (map[inputmapper.ActionID]consts.Coord[consts.Tile], error) {
+// directionOptions は選択キーごとの候補タイルを北・南・西・東の順に返す
+func directionOptions(world w.World, a directionAction) ([]directionOption, error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return nil, err
@@ -59,16 +64,15 @@ func directionOptions(world w.World, a directionAction) (map[inputmapper.ActionI
 		yaw = camera.Yaw()
 	}
 	origin := world.Components.GridElement.Get(player).Coord
-	tiles := map[inputmapper.ActionID]consts.Coord[consts.Tile]{
-		inputmapper.ActionMoveNorth: origin.Add(gc.RotateScreenDir(gc.DirectionUp, yaw).GetDelta()),
-		inputmapper.ActionMoveSouth: origin.Add(gc.RotateScreenDir(gc.DirectionDown, yaw).GetDelta()),
-		inputmapper.ActionMoveWest:  origin.Add(gc.RotateScreenDir(gc.DirectionLeft, yaw).GetDelta()),
-		inputmapper.ActionMoveEast:  origin.Add(gc.RotateScreenDir(gc.DirectionRight, yaw).GetDelta()),
-	}
-	options := map[inputmapper.ActionID]consts.Coord[consts.Tile]{}
-	for id, c := range tiles {
-		if a.accepts(world, c) {
-			options[id] = c
+	var options []directionOption
+	for _, o := range []directionOption{
+		{action: inputmapper.ActionMoveNorth, tile: origin.Add(gc.RotateScreenDir(gc.DirectionUp, yaw).GetDelta())},
+		{action: inputmapper.ActionMoveSouth, tile: origin.Add(gc.RotateScreenDir(gc.DirectionDown, yaw).GetDelta())},
+		{action: inputmapper.ActionMoveWest, tile: origin.Add(gc.RotateScreenDir(gc.DirectionLeft, yaw).GetDelta())},
+		{action: inputmapper.ActionMoveEast, tile: origin.Add(gc.RotateScreenDir(gc.DirectionRight, yaw).GetDelta())},
+	} {
+		if a.accepts(world, o.tile) {
+			options = append(options, o)
 		}
 	}
 	return options, nil
@@ -78,7 +82,7 @@ func directionOptions(world w.World, a directionAction) (map[inputmapper.ActionI
 type DirectionSelectState struct {
 	es.BaseState[w.World]
 	action  directionAction
-	options map[inputmapper.ActionID]consts.Coord[consts.Tile]
+	options []directionOption
 }
 
 var _ es.State[w.World] = &DirectionSelectState{}
@@ -117,11 +121,11 @@ func (st *DirectionSelectState) doAction(world w.World, action inputmapper.Actio
 	if action == inputmapper.ActionCloseMenu {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
-	c, ok := st.options[action]
-	if !ok {
+	i := slices.IndexFunc(st.options, func(o directionOption) bool { return o.action == action })
+	if i < 0 {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-	if err := st.action.run(world, c); err != nil {
+	if err := st.action.run(world, st.options[i].tile); err != nil {
 		return es.Transition[w.World]{Type: es.TransNone}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -133,8 +137,8 @@ func (st *DirectionSelectState) Draw(world w.World, screen *ebiten.Image) error 
 	if err != nil {
 		return err
 	}
-	for _, c := range st.options {
-		if corners, ok := projector.TileCorners(c, render3d.TileTopHeight(world, c)); ok {
+	for _, o := range st.options {
+		if corners, ok := projector.TileCorners(o.tile, render3d.TileTopHeight(world, o.tile)); ok {
 			hud.TileFrame(screen, corners, cursorFrameWidth, theme.CursorLook)
 		}
 	}
