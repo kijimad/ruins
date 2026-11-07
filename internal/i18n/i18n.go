@@ -81,6 +81,9 @@ func mustParse(path string) *gotext.Po {
 // gotext の Get は書式引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
 // メソッド値を介して呼び回避する。
 func (c Catalog) Translate(lang, msgid string, args ...any) string {
+	if lang == PseudoLang {
+		return pseudoTranslate(msgid, args...)
+	}
 	po, ok := c.langs[lang]
 	if !ok {
 		po = c.langs[defaultLang]

@@ -25,11 +25,11 @@ func TestPanelInner_内側余白ぶん矩形を縮める(t *testing.T) {
 func TestImagePanel_画像をパネル内側へ配置する(t *testing.T) {
 	t.Parallel()
 
-	res := resources.UIResources{}
+	res := resources.UIResources{Text: &resources.TextResources{}}
 	img := ebiten.NewImage(10, 10)
 	rect := image.Rect(0, 0, 100, 60)
 
-	panel := ImagePanel(res, rect, img)
+	panel := ImagePanel(res, rect, img, "")
 
-	assert.Len(t, panel.Children(), 2, "背景とアイコンの2つを子に持つ")
+	assert.Len(t, panel.Children(), 3, "背景と画像とフッタの3つを子に持つ")
 }

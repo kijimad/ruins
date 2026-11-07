@@ -86,7 +86,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	}
 	if query.AliveHas(world, world.Components.HP, playerEntity) {
 		hp := world.Components.HP.Get(playerEntity)
-		items = append(items, statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: query.T(world, "HP. You die at 0")})
+		items = append(items, statusItemData{Label: query.T(world, "HP"), Value: fmt.Sprintf("%d", hp.Max), Description: query.T(world, "HP. You die at 0")})
 	}
 	if query.AliveHas(world, world.Components.WeightCapacity, playerEntity) {
 		cw := world.Components.WeightCapacity.Get(playerEntity)
@@ -148,7 +148,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 	}
 	skills := world.Components.Skills.Get(playerEntity)
 	for _, cat := range gc.SkillCategories {
-		items = append(items, statusItemData{Label: cat.Name, IsHeader: true, Description: query.T(world, "%s category skills", cat.Name)})
+		items = append(items, statusItemData{Label: query.T(world, cat.Name), IsHeader: true, Description: query.T(world, "%s category skills", query.T(world, cat.Name))})
 		for _, id := range cat.IDs {
 			s := skills.Get(id)
 			expFrac := 0
@@ -194,7 +194,8 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(gc.WeaponAccuracyKey(id)), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(gc.WeaponAccuracyKey(id))})
 	}
 	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
-		items = append(items, statusItemData{Label: query.T(world, "%s resistance", elem.String()), Value: val(gc.ElementResistKey(elem)), Description: query.T(world, "%s element damage multiplier. Lower reduces more", elem.String()), Details: details(gc.ElementResistKey(elem))})
+		name := query.T(world, elem.String())
+		items = append(items, statusItemData{Label: query.T(world, "%s resistance", name), Value: val(gc.ElementResistKey(elem)), Description: query.T(world, "%s element damage multiplier. Lower reduces more", name), Details: details(gc.ElementResistKey(elem))})
 	}
 
 	// 血液量が危険域まで落ちると失血で HP が減る。一覧は % だけにし、減少量は詳細モーダルの内訳に出す

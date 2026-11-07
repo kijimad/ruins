@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 const (
@@ -104,7 +105,8 @@ func (win *Window) buildTree() uicore.Widget {
 		choiceRect := image.Rect(cx-cw/2, blockTop, cx-cw/2+cw, rect.Max.Y-theme.Space5)
 		children = append(children, renderChoiceList(win.choiceConfig, win.choiceState, win.world, choiceRect))
 	} else {
-		lw, th := uicore.MeasureText("Enter", res.Text.BodyFace)
+		enter := query.T(win.world, "Enter")
+		lw, th := uicore.MeasureText(enter, res.Text.BodyFace)
 		// 選択肢の塊と同じ規則で幅を決め、文字幅ぴったりでボタンが痩せないようにする
 		cw := uicore.FitWidth([]int{lw}, choicePadL*2, choiceMinWidth)
 		bx := cx - cw/2
@@ -112,7 +114,7 @@ func (win *Window) buildTree() uicore.Widget {
 		hl := uicore.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
 		hl.Layout(image.Rect(bx, py, bx+cw, py+choiceRowH))
 		children = append(children, hl)
-		prompt := uicore.NewText("Enter", res.Text.BodyFace, theme.TextPrimary)
+		prompt := uicore.NewText(enter, res.Text.BodyFace, theme.TextPrimary)
 		prompt.Align = uicore.AlignCenter
 		prompt.Layout(image.Rect(bx, py+(choiceRowH-th)/2, bx+cw, py+choiceRowH))
 		children = append(children, prompt)

@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestMsgidCoverage は query.T に文字列リテラルで渡す msgid が ja.po に定義済みかを検証する。
+// TestMsgidCoverage は query.T に文字列リテラルで渡す msgid と、キー束縛の Label が ja.po に定義済みかを検証する。
 // 定義が無いと実行時に黙って英語へフォールバックするため、静的に検知する。
 // query は別名 import されないので query.T の構文一致で拾える。
 // 非リテラル引数は静的に追えないのでスキップし、件数だけ報告する。
@@ -42,6 +42,9 @@ func TestMsgidCoverage(t *testing.T) {
 		// ビルドが通れば必ずパースできる。失敗は検査漏れになるのでハードエラーにする
 		require.NoError(t, perr, "パースできない: %s", path)
 		ast.Inspect(f, func(n ast.Node) bool {
+			for _, label := range bindingLabels(n) {
+				used[label] = true
+			}
 			call, ok := n.(*ast.CallExpr)
 			if !ok {
 				return true
@@ -91,6 +94,60 @@ func isMsgidCall(fun ast.Expr) bool {
 		return fn.Sel.Name == "Cancel"
 	case *ast.Ident:
 		return fn.Name == "Cancel"
+	}
+	return false
+}
+
+// bindingLabels は n が keybind.Binding の表か値なら、直書きの Label を返す。Label は keybind.HintEntries が query.T で訳す。
+func bindingLabels(n ast.Node) []string {
+	lit, ok := n.(*ast.CompositeLit)
+	if !ok {
+		return nil
+	}
+	var elems []ast.Expr
+	switch typ := lit.Type.(type) {
+	case *ast.ArrayType:
+		if !isBindingType(typ.Elt) {
+			return nil
+		}
+		elems = lit.Elts
+	default:
+		if !isBindingType(typ) {
+			return nil
+		}
+		elems = []ast.Expr{lit}
+	}
+	var labels []string
+	for _, e := range elems {
+		b, ok := e.(*ast.CompositeLit)
+		if !ok {
+			continue
+		}
+		for _, elt := range b.Elts {
+			kv, ok := elt.(*ast.KeyValueExpr)
+			if !ok {
+				continue
+			}
+			key, ok := kv.Key.(*ast.Ident)
+			if !ok || key.Name != "Label" {
+				continue
+			}
+			if v, ok := kv.Value.(*ast.BasicLit); ok && v.Kind == token.STRING {
+				if s, err := strconv.Unquote(v.Value); err == nil && s != "" {
+					labels = append(labels, s)
+				}
+			}
+		}
+	}
+	return labels
+}
+
+func isBindingType(e ast.Expr) bool {
+	switch e := e.(type) {
+	case *ast.SelectorExpr:
+		return e.Sel.Name == "Binding"
+	case *ast.Ident:
+		return e.Name == "Binding"
 	}
 	return false
 }

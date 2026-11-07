@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 
@@ -99,6 +100,20 @@ func TestCharacterNamingState_OnStart_WithExistingPlayer(t *testing.T) {
 
 	props := state.mount.GetProps()
 	assert.Equal(t, "Ash", props.CurrentName, "既存プレイヤー名が初期値に設定される")
+}
+
+func TestCharacterNamingState_OnStart_既存プレイヤー名を訳して初期値にする(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	query.GetUserSettings(world).Language = i18n.PseudoLang
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	state := &CharacterNamingState{}
+	require.NoError(t, state.OnStart(world))
+
+	assert.Equal(t, "Ａｓｈ", state.mount.GetProps().CurrentName)
 }
 
 func TestConfirmName_ChangesPlayerName(t *testing.T) {
