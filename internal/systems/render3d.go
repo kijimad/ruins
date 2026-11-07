@@ -384,7 +384,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if sr.Depth == gc.DepthNumDecal {
-			// 床タイルと同じ水平な面に寝かせる。奥行きは床と同値になり、副キーの描画順で床の直後に描く
+			// 奥行きが床と同値になるので、副キーの描画順で床の直後に描く
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
 			quads[len(quads)-1].depth = int(sr.Depth)
 			continue

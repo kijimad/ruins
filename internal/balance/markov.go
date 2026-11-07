@@ -27,8 +27,7 @@ type damageProb struct {
 	p   float64
 }
 
-// attackDamagePMF は1回の攻撃のダメージ分布を昇順スライスで返す。dmg=0 は miss。1回の命中のダメージは
-// formula.Damage で求め、属性耐性は無いものとしてダイスの全ての目を列挙する。
+// attackDamagePMF は1回の攻撃のダメージ分布を昇順スライスで返す。dmg=0 は miss。属性耐性は無いものとする
 func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) []damageProb {
 	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
 	baseAbil := attacker.Strength
