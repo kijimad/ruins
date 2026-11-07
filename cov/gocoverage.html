@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (83.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (88.9%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.9%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (77.3%)</option>
 				
@@ -85,7 +85,7 @@
 				
 				<option value="file14">github.com/kijimaD/ruins/internal/activity/rest.go (92.0%)</option>
 				
-				<option value="file15">github.com/kijimaD/ruins/internal/activity/salvage.go (84.8%)</option>
+				<option value="file15">github.com/kijimaD/ruins/internal/activity/salvage.go (83.3%)</option>
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (88.8%)</option>
 				
@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (86.8%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.2%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (93.7%)</option>
 				
@@ -1882,8 +1882,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -3948,7 +3948,6 @@ func (rb *RestBehavior) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 import (
         "fmt"
         "slices"
-        "strings"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/gamelog"
@@ -4040,11 +4039,6 @@ func dropSalvage(world w.World, actor, target ecs.Entity) error {
         if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to spawn salvage: %w", err)
 </span>        }
-        <span class="cov8" title="1">if len(stacks) &gt; 0 &amp;&amp; world.Components.Player.Has(actor) </span>{
-                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "From %s, obtained %s.", gamelog.Tag("item", query.GetEntityName(target, world)), yieldsMarkup(stacks, world))).
-                        Log()
-</span>        }
         <span class="cov8" title="1">if hasSkill </span>{
                 <span class="cov8" title="1">gainSkillExp(actor, world, skillID)
 </span>        }
@@ -4080,15 +4074,6 @@ func skillValueOf(actor ecs.Entity, world w.World, skillID gc.SkillID) int {
                 <span class="cov0" title="0">return 0
 </span>        }
         <span class="cov8" title="1">return world.Components.Skills.Get(actor).Get(skillID).Value</span>
-}
-
-// yieldsMarkup は産出一覧を読点で連結した色付きマークアップ文字列にして返す
-func yieldsMarkup(stacks []lifecycle.YieldStack, world w.World) string {
-        <span class="cov8" title="1">parts := make([]string, len(stacks))
-        for i, s := range stacks </span>{
-                <span class="cov8" title="1">parts[i] = gamelog.Tag("item", query.T(world, raw.ItemName(world.Resources.RawMaster, s.Name))) + fmt.Sprintf(" x%d", s.Count)
-</span>        }
-        <span class="cov8" title="1">return strings.Join(parts, query.T(world, ", "))</span>
 }
 </pre>
 		
@@ -5333,7 +5318,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
