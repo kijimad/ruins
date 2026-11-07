@@ -9,8 +9,8 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// DestroySalvageChance は攻撃破壊時に確定枠の各産出を回収できる百分率。
-// 工具なしでも素材が少しは手に入る立ち上がり用の値で、工具分解より明確に不利にする
+// DestroySalvageChance は合う道具なしで壊したときに確定枠の各産出を回収できる百分率。
+// 道具が無くても素材が少しは手に入るが、道具で壊すより明確に不利にする
 const DestroySalvageChance = 30
 
 // YieldStack は分解産出のアイテム名と個数の組
@@ -20,9 +20,8 @@ type YieldStack struct {
 }
 
 // RollDisassemblyYields は分解定義から産出を抽選する。
-// full が真なら工具による通常分解として扱い、確率枠にスキルと工具グレードの補正を
-// 加算し、ボーナス枠の条件判定も行う。偽なら攻撃破壊の回収として扱い、確定枠のみを
-// DestroySalvageChance で抽選して確率枠とボーナス枠は出さない
+// full が真なら確定枠をすべて出し、確率枠にスキルと工具グレードの補正を加算し、ボーナス枠の
+// 条件判定も行う。偽なら確定枠のみを DestroySalvageChance で抽選して確率枠とボーナス枠は出さない
 func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int, toolGrade int, full bool) ([]YieldStack, error) {
 	var stacks []YieldStack
 

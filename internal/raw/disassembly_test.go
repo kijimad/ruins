@@ -97,6 +97,7 @@ func TestValidateReferences(t *testing.T) {
 			},
 			Props: &[]oapi.Prop{{
 				Name: "棚",
+				Hp:   new(oapi.HitPoints(10)),
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
@@ -143,6 +144,7 @@ func TestValidateReferences(t *testing.T) {
 			Items: &[]oapi.Item{{Name: "鉄くず"}},
 			Props: &[]oapi.Prop{{
 				Name: "棚",
+				Hp:   new(oapi.HitPoints(10)),
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},

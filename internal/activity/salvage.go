@@ -16,10 +16,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 分解定義を持つ prop は殴って壊すと産出を落とす。分解定義の道具を構えて壊すと、確率枠とボーナス枠まで
-// 出て、与えるダメージも道具のグレードに応じて増える。道具なしでも壊せるが、確定枠を低確率で回収するだけ。
-// 道具が必須の prop は道具なしで殴っても削れない。道具の分類が無い定義は、何で壊しても道具ありと同じ産出にする
-
 // disassemblyTool は actor が構えている武器が分解定義 def の道具ならそのグレードを返す
 func disassemblyTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (int, bool) {
 	if def.ToolCategory == nil || !world.Components.Player.Has(actor) {
@@ -59,19 +55,25 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 	return 1
 }
 
-// dropSalvage は actor が壊した prop の産出を足元へ落とす。分解定義が無ければ何もしない
+// salvageRoll は分解定義 def の prop を actor が壊したときの抽選を決める。合う道具を構えていれば
+// 確率枠とボーナス枠まで出し、道具の分類が無い定義も同じにする。それ以外は確定枠を低確率で回収するだけ
+func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade int, full, withTool bool) {
+	grade, withTool = disassemblyTool(world, actor, def)
+	return grade, withTool || def.ToolCategory == nil, withTool
+}
+
+// dropSalvage は actor が壊した prop の産出を足元へ落とす。合う道具で壊したときだけ機械スキルが伸びる
 func dropSalvage(world w.World, actor, target ecs.Entity) error {
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok || !world.Components.GridElement.Has(target) {
 		return nil
 	}
-	grade, withTool := disassemblyTool(world, actor, def)
-	full := withTool || def.ToolCategory == nil
+	grade, full, withTool := salvageRoll(world, actor, def)
 	skillValue := 0
 	if full {
 		skillValue = mechanicSkillValue(actor, world)
 	}
-	stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, skillValue, max(grade, 1), full)
+	stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, skillValue, grade, full)
 	if err != nil {
 		return fmt.Errorf("failed to roll salvage: %w", err)
 	}

@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -21,7 +22,7 @@ func TestToolDamageMultiplier(t *testing.T) {
 		want   int
 	}{
 		{"斧で木を殴るとグレード2で3倍", "axe", "tree_a", 3},
-		{"ペンチで木箱を殴るとグレード1で2倍", "monkey_wrench", "wooden_crate", 2},
+		{"モンキーレンチで木箱を殴るとグレード1で2倍", "monkey_wrench", "wooden_crate", 2},
 		{"斧で木箱を殴っても分類が違うので1倍", "axe", "wooden_crate", 1},
 		{"道具が必須の木を松明で殴ると0倍", "torch", "tree_a", 0},
 		{"道具が必須でない木箱を松明で殴ると1倍", "torch", "wooden_crate", 1},
@@ -46,55 +47,90 @@ func TestToolDamageMultiplier(t *testing.T) {
 	}
 }
 
-func TestDropSalvage(t *testing.T) {
+func TestSalvageRoll(t *testing.T) {
 	t.Parallel()
-
-	// dropsAt は prop を壊したタイルに落ちたアイテムの id を返す
-	dropsAt := func(t *testing.T, weapon, prop string) []string {
-		t.Helper()
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		require.NoError(t, lifecycle.UnequipAll(world, player))
-		w, err := lifecycle.SpawnBackpackItem(world, weapon, 1)
-		require.NoError(t, err)
-		lifecycle.MoveToEquip(world, w, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Slot = 1
-		target, err := lifecycle.SpawnProp(world, prop, 10, 9)
-		require.NoError(t, err)
-
-		require.NoError(t, dropSalvage(world, player, target))
-
-		pickables := query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9})
-		ids := make([]string, 0, len(pickables))
-		for _, e := range pickables {
-			ids = append(ids, query.GetEntityID(e, world))
-		}
-		return ids
+	tests := []struct {
+		name         string
+		weapon       string
+		prop         string
+		wantGrade    int
+		wantFull     bool
+		wantWithTool bool
+	}{
+		{"斧で木を壊すと全枠を出し道具を使う", "axe", "tree_a", 2, true, true},
+		{"モンキーレンチで木箱を壊すと全枠を出し道具を使う", "monkey_wrench", "wooden_crate", 1, true, true},
+		{"斧で木箱を壊すと分類が違うので回収だけ", "axe", "wooden_crate", 0, false, false},
+		{"松明で木箱を壊すと回収だけ", "torch", "wooden_crate", 0, false, false},
+		{"道具の分類が無い灌木は松明でも全枠を出す", "torch", "bush", 0, true, false},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.UnequipAll(world, player))
+			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
+			require.NoError(t, err)
+			lifecycle.MoveToEquip(world, weapon, player, gc.SlotWeapon1)
+			query.GetWeaponSelection(world).Slot = 1
+			def, ok := raw.FindDisassembly(world.Resources.RawMaster, tt.prop)
+			require.True(t, ok)
 
-	t.Run("斧で倒した木は薪を落とす", func(t *testing.T) {
-		t.Parallel()
-		ids := dropsAt(t, "axe", "tree_a")
-		require.NotEmpty(t, ids)
-		for _, id := range ids {
-			assert.Equal(t, "firewood", id)
-		}
-	})
+			grade, full, withTool := salvageRoll(world, player, def)
 
-	t.Run("道具の分類が無い灌木は何で倒しても枝を落とす", func(t *testing.T) {
-		t.Parallel()
-		ids := dropsAt(t, "torch", "bush")
-		require.NotEmpty(t, ids)
-		for _, id := range ids {
-			assert.Equal(t, "branch", id)
-		}
-	})
+			assert.Equal(t, tt.wantGrade, grade)
+			assert.Equal(t, tt.wantFull, full)
+			assert.Equal(t, tt.wantWithTool, withTool)
+		})
+	}
+}
 
-	t.Run("道具なしで壊した木箱は確率枠を出さず確定枠だけを回収しうる", func(t *testing.T) {
-		t.Parallel()
-		for _, id := range dropsAt(t, "torch", "wooden_crate") {
-			assert.Equal(t, "hardwood", id)
-		}
-	})
+func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name          string
+		weapon        string
+		prop          string
+		wantDrop      string
+		wantMechanics bool
+	}{
+		{"斧で木を壊すと薪を落とし機械スキルが伸びる", "axe", "tree_a", "firewood", true},
+		{"松明で灌木を壊すと枝を落とし機械スキルは伸びない", "torch", "bush", "branch", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.UnequipAll(world, player))
+			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
+			require.NoError(t, err)
+			lifecycle.MoveToEquip(world, weapon, player, gc.SlotWeapon1)
+			query.GetWeaponSelection(world).Slot = 1
+			target, err := lifecycle.SpawnProp(world, tt.prop, 10, 9)
+			require.NoError(t, err)
+			attack, name, err := getAttackParams(player, world)
+			require.NoError(t, err)
+			expBefore := world.Components.Skills.Get(player).Get(gc.SkillMechanic).Exp.Current
+
+			// 命中率の補正を大きく取り、壊れるまで必ず命中させる
+			for range 20 {
+				require.NoError(t, applyAttackDamage(player, target, world, attack, name, 1000, 0))
+				if world.Components.Dead.Has(target) {
+					break
+				}
+			}
+			require.True(t, world.Components.Dead.Has(target))
+
+			drops := query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9})
+			require.NotEmpty(t, drops, "確定枠があるので必ず落とす")
+			for _, d := range drops {
+				assert.Equal(t, tt.wantDrop, query.GetEntityID(d, world))
+			}
+			expAfter := world.Components.Skills.Get(player).Get(gc.SkillMechanic).Exp.Current
+			assert.Equal(t, tt.wantMechanics, expAfter > expBefore)
+		})
+	}
 }

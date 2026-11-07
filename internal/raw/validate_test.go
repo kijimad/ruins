@@ -140,7 +140,6 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 
 	validItems := &[]oapi.Item{
 		{Id: "鉄くず", Name: "鉄くず"},
-		{Id: "分解対象", Name: "分解対象"},
 	}
 
 	t.Run("実在する産出名なら通る", func(t *testing.T) {
@@ -149,6 +148,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			Items: validItems,
 			Props: &[]oapi.Prop{{
 				Name: "棚",
+				Hp:   new(oapi.HitPoints(10)),
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
@@ -158,12 +158,43 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 		require.NoError(t, validateDisassemblyReferences(raws))
 	})
 
+	t.Run("道具が必須なのに道具の分類が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: validItems,
+			Props: &[]oapi.Prop{{
+				Name: "木",
+				Hp:   new(oapi.HitPoints(10)),
+				Disassembly: &oapi.Disassembly{
+					ToolRequired: new(true),
+					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+				},
+			}},
+		}
+		require.ErrorIs(t, validateDisassemblyReferences(raws), errDisassemblyToolRequiredNoTool)
+	})
+
+	t.Run("HPの無いpropに分解定義があるとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: validItems,
+			Props: &[]oapi.Prop{{
+				Name: "草",
+				Disassembly: &oapi.Disassembly{
+					Yields: []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+				},
+			}},
+		}
+		require.ErrorIs(t, validateDisassemblyReferences(raws), errDisassemblyWithoutHP)
+	})
+
 	t.Run("propの産出名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: validItems,
 			Props: &[]oapi.Prop{{
 				Name: "棚",
+				Hp:   new(oapi.HitPoints(10)),
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
@@ -178,7 +209,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: &[]oapi.Item{{Id: "鉄くず", Name: "鉄くず"}},
-			Props: &[]oapi.Prop{{Id: "分解対象", Name: "分解対象", Disassembly: &oapi.Disassembly{
+			Props: &[]oapi.Prop{{Id: "分解対象", Name: "分解対象", Hp: new(oapi.HitPoints(10)), Disassembly: &oapi.Disassembly{
 				ToolCategory: new(oapi.Precision),
 				Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				Bonus:        &[]oapi.DisassemblyBonus{{Id: "存在しないボーナス", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},

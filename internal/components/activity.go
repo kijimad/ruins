@@ -78,7 +78,7 @@ type Activity struct {
 // 実行ロジックを持つ Behavior は w.World に依存するため activity 層に置く。
 //
 // 型の分け方: 対象が1エンティティでも意味が behavior ごとに違うものは共有せず専用型に分ける。
-// 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので MeleeParams などに分ける。
+// 攻撃対象と会話相手は同じ ecs.Entity だが意味が違うので MeleeParams などに分ける。
 // 一方 PlaceParams のように共有ヘルパを介して同じ形を使い回すものは共有型のままにする。
 type ActivityParams interface {
 	isActivityParams()

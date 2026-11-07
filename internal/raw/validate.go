@@ -32,6 +32,8 @@ var (
 	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
 	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
+	errDisassemblyToolRequiredNoTool  = errors.New("disassembly requires a tool but has no tool category")
+	errDisassemblyWithoutHP           = errors.New("prop with disassembly has no hp and cannot be broken")
 	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
@@ -359,7 +361,8 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateDisassemblyReferences は prop の分解定義の産出名がアイテム定義に存在することを検証する
+// validateDisassemblyReferences は prop の分解定義を検証する。産出名がアイテム定義に存在し、道具が必須なら
+// 道具の分類を持ち、壊せるよう prop が HP を持つことを確かめる
 func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -372,6 +375,12 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		def := props[i].Disassembly
 		if def == nil {
 			continue
+		}
+		if def.ToolRequired != nil && *def.ToolRequired && def.ToolCategory == nil {
+			return fmt.Errorf("prop %q: %w", props[i].Name, errDisassemblyToolRequiredNoTool)
+		}
+		if props[i].Hp == nil {
+			return fmt.Errorf("prop %q: %w", props[i].Name, errDisassemblyWithoutHP)
 		}
 		for _, y := range def.Yields {
 			if _, ok := itemNames[y.Id]; !ok {
