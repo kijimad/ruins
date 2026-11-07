@@ -48,6 +48,21 @@ func TestTitleCell(t *testing.T) {
 	assert.Equal(t, "[docs/design/x.md](docs/design/x.md)", titleCell(&Document{Title: "", Path: "docs/design/x.md"}))
 	// パスも無ければ代替文字列。
 	assert.Equal(t, "(タイトルなし)", titleCell(&Document{Title: "", Path: ""}))
+	// パスが無くタイトルがあれば、リンクにせずタイトルをそのまま返す。
+	assert.Equal(t, "タイトルのみ", titleCell(&Document{Title: "タイトルのみ", Path: ""}))
+}
+
+func TestRenderLabel_未知のテンプレート名はパニックする(t *testing.T) {
+	t.Parallel()
+
+	defer func() {
+		r := recover()
+		require.NotNil(t, r)
+		err, ok := r.(error)
+		require.True(t, ok, "panic値はerrorであるべき")
+		assert.ErrorContains(t, err, `no template "存在しないラベル"`)
+	}()
+	renderLabel("存在しないラベル", nil)
 }
 
 func TestProgressCell(t *testing.T) {
