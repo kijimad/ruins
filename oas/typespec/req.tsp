@@ -513,6 +513,7 @@ model Prop {
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
+  felling?: Felling;
 }
 
 /** 分解の産出エントリ。chance 省略は確定枠 */
@@ -540,6 +541,12 @@ model Disassembly {
   baseAP: DisassemblyBaseAP;
   yields: DisassemblyYield[];
   bonus?: DisassemblyBonus[];
+}
+
+/** 伐採定義。これを持つ prop は toolCategory の道具を構えて殴ったときだけ削れ、倒れると産出を落とす */
+model Felling {
+  toolCategory: ToolCategory;
+  yields: DisassemblyYield[];
 }
 
 /** 分解工具。分類の対応とグレードを持つ */

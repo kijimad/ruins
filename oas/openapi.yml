@@ -2424,6 +2424,19 @@ components:
       enum:
         - FactionNeutral
       description: 派閥タイプ
+    Felling:
+      type: object
+      required:
+        - toolCategory
+        - yields
+      properties:
+        toolCategory:
+          $ref: '#/components/schemas/ToolCategory'
+        yields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisassemblyYield'
+      description: 伐採定義。これを持つ prop は toolCategory の道具を構えて殴ったときだけ削れ、倒れると産出を落とす
     Fire:
       type: object
       required:
@@ -3183,6 +3196,8 @@ components:
           $ref: '#/components/schemas/StorageRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
+        felling:
+          $ref: '#/components/schemas/Felling'
       description: 置物
     PropList:
       type: object
@@ -3670,6 +3685,7 @@ components:
         - prying
         - precision
         - cutting
+        - chopping
       description: 分解工具の分類
     ToolGrade:
       type: integer

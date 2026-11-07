@@ -575,4 +575,6 @@ enum ToolCategory {
   precision,
   /** 切断。金属大物など */
   cutting,
+  /** 伐採。木など */
+  chopping,
 }

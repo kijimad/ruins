@@ -2,6 +2,7 @@ package activity
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -9,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -85,7 +87,38 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 		return fmt.Errorf("attacker has no attack means")
 	}
 
+	if def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(p.Target, world)); ok && !holdsTool(world, actor, def.ToolCategory) {
+		return &UserError{Msg: query.T(world, "You need a felling tool to cut down %s.", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
+	}
+
 	return nil
+}
+
+// holdsTool はプレイヤーが選択中の武器が道具分類 category を持つかを返す
+func holdsTool(world w.World, actor ecs.Entity, category oapi.ToolCategory) bool {
+	if !world.Components.Player.Has(actor) {
+		return false
+	}
+	weapon, ok, err := selectedWeapon(world, actor)
+	if err != nil || !ok {
+		return false
+	}
+	tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
+	return ok && slices.Contains(tool.Categories, category)
+}
+
+// selectedWeapon はプレイヤーが選択中の武器スロットの武器を返す。空きスロットなら ok は偽
+func selectedWeapon(world w.World, actor ecs.Entity) (ecs.Entity, bool, error) {
+	selectedSlot := query.GetWeaponSelection(world).Slot
+	weaponIndex := selectedSlot - 1
+	if weaponIndex < 0 || weaponIndex >= 5 {
+		return ecs.Entity{}, false, fmt.Errorf("%w: %d", ErrInvalidWeaponSlot, selectedSlot)
+	}
+	weapon := query.GetWeapons(world, actor)[weaponIndex]
+	if weapon == nil {
+		return ecs.Entity{}, false, nil
+	}
+	return *weapon, true, nil
 }
 
 // Start はBehaviorの実装
@@ -210,18 +243,12 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if world.Components.Player.Has(attacker) {
-		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
-		selectedSlot := query.GetWeaponSelection(world).Slot
-		weaponIndex := selectedSlot - 1 // 1-based to 0-based
-		if weaponIndex < 0 || weaponIndex >= 5 {
-			return nil, "", fmt.Errorf("%w: %d", ErrInvalidWeaponSlot, selectedSlot)
+		weapon, ok, err := selectedWeapon(world, attacker)
+		if err != nil {
+			return nil, "", err
 		}
-
-		weapons := query.GetWeapons(world, attacker)
-		weapon := weapons[weaponIndex]
-		if weapon != nil {
-			// 装備している武器から攻撃パラメータを取得
-			attack, weaponName, err := query.GetMeleeFromWeapon(world, *weapon)
+		if ok {
+			attack, weaponName, err := query.GetMeleeFromWeapon(world, weapon)
 			if err == nil && attack != nil {
 				return attack, weaponName, nil
 			}

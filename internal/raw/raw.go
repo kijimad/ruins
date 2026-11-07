@@ -855,6 +855,15 @@ func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
 	return nil, false
 }
 
+// FindFelling は指定された名前の prop の伐採定義を返す
+func FindFelling(raws oapi.Raws, name string) (*oapi.Felling, bool) {
+	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name)
+	if !ok || prop.Felling == nil {
+		return nil, false
+	}
+	return prop.Felling, true
+}
+
 // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す
 func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {
 	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)

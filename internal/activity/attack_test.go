@@ -660,3 +660,51 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 		assert.Equal(t, 0, skills.Get(id).Exp.Current, "スキル %s の経験値が変わらない", id)
 	}
 }
+
+func TestMeleeBehavior_Validate_伐採(t *testing.T) {
+	t.Parallel()
+
+	t.Run("斧を構えていれば木を殴れる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		require.NoError(t, lifecycle.UnequipAll(world, player))
+		axe, err := lifecycle.SpawnBackpackItem(world, "axe", 1)
+		require.NoError(t, err)
+		lifecycle.MoveToEquip(world, axe, player, gc.SlotWeapon1)
+		query.GetWeaponSelection(world).Slot = 1
+		tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
+		require.NoError(t, err)
+
+		ab := &MeleeBehavior{}
+		require.NoError(t, ab.Validate(NewMeleeActivity(tree), player, world))
+	})
+
+	t.Run("伐採できない武器では木を殴れない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		query.GetWeaponSelection(world).Slot = 1
+		tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
+		require.NoError(t, err)
+
+		ab := &MeleeBehavior{}
+		var userErr *UserError
+		require.ErrorAs(t, ab.Validate(NewMeleeActivity(tree), player, world), &userErr)
+	})
+
+	t.Run("伐採定義の無いpropはどの武器でも殴れる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		query.GetWeaponSelection(world).Slot = 1
+		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+		require.NoError(t, err)
+
+		ab := &MeleeBehavior{}
+		require.NoError(t, ab.Validate(NewMeleeActivity(crate), player, world))
+	})
+}

@@ -359,7 +359,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateDisassemblyReferences は分解定義の産出名がアイテム定義に存在することを検証する
+// validateDisassemblyReferences は分解定義と伐採定義の産出名がアイテム定義に存在することを検証する
 func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -391,6 +391,14 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 	for i := range props {
 		if err := check("prop", props[i].Name, props[i].Disassembly); err != nil {
 			return err
+		}
+		if props[i].Felling == nil {
+			continue
+		}
+		for _, y := range props[i].Felling.Yields {
+			if _, ok := itemNames[y.Id]; !ok {
+				return fmt.Errorf("prop %q felling yield %q: %w", props[i].Name, y.Id, errDisassemblyYieldUndefined)
+			}
 		}
 	}
 	for i := range items {

@@ -199,6 +199,10 @@ damage = 20
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 1
 [[items]]
 description = "A heavy iron hammer. Its blows are devastating, but slow to swing."
 name = "Hammer"
@@ -237,6 +241,10 @@ damage = 24
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A dining fork. As a stabbing weapon, it has the bare minimum of function."
 name = "Fork"
@@ -519,6 +527,10 @@ damage = 10
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A brightly shining mace that crushes foes with the power of light."
 name = "Bright Mace"
@@ -9443,6 +9455,15 @@ weight = "200 g"
 targetGroup = "ALLY"
 targetNum = "SINGLE"
 usableScene = "ANY"
+[[items]]
+description = "Split wood for burning."
+name = "Firewood"
+id = "firewood"
+material = "WOOD"
+spriteKey = "heavy_wood"
+spriteSheetName = "field"
+value = 3
+weight = "1 kg"
 
 [[recipes]]
 name = "レイガン"
@@ -16097,15 +16118,15 @@ propDensity = 0.015
 lootGroup = "scrap_of_paper"
 [[scatterZones.entries]]
 ref = ""
-weight = 55
+weight = 70
 big = false
 [[scatterZones.entries]]
 ref = "tree_a"
-weight = 16
+weight = 8
 big = false
 [[scatterZones.entries]]
 ref = "tree_b"
-weight = 13
+weight = 6
 big = false
 [[scatterZones.entries]]
 ref = "rock"
@@ -16118,15 +16139,15 @@ propDensity = 0.035
 lootGroup = "junk"
 [[scatterZones.entries]]
 ref = ""
-weight = 38
+weight = 65
 big = false
 [[scatterZones.entries]]
 ref = "tree_a"
-weight = 24
+weight = 12
 big = false
 [[scatterZones.entries]]
 ref = "tree_b"
-weight = 24
+weight = 12
 big = false
 [[scatterZones.entries]]
 ref = "rock"
@@ -16134,7 +16155,7 @@ weight = 14
 big = false
 [[scatterZones.entries]]
 ref = "big_tree"
-weight = 6
+weight = 3
 big = true
 [[scatterZones.entries.satellites]]
 name = "tree_a"
@@ -19357,6 +19378,16 @@ id = "big_tree"
 depth = 0
 spriteKey = "big_tree"
 spriteSheetName = "field"
+
+[props.felling]
+toolCategory = "chopping"
+[[props.felling.yields]]
+id = "firewood"
+count = "2d2"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d3"
+chance = 60
 [[props]]
 blockPass = true
 blockView = false
@@ -19369,6 +19400,16 @@ id = "tree_a"
 depth = 0
 spriteKey = "tree_a"
 spriteSheetName = "field"
+
+[props.felling]
+toolCategory = "chopping"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+chance = 60
 [[props]]
 blockPass = true
 blockView = true
@@ -19381,6 +19422,16 @@ id = "tree_b"
 depth = 0
 spriteKey = "tree_b"
 spriteSheetName = "field"
+
+[props.felling]
+toolCategory = "chopping"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+chance = 60
 [[props]]
 blockPass = true
 blockView = false

@@ -6403,3 +6403,12 @@ msgstr "%sを開く(%s)"
 
 msgid "There is nothing to pick up nearby."
 msgstr "近くに拾えるものがない。"
+
+msgid "Firewood"
+msgstr "薪"
+
+msgid "Split wood for burning."
+msgstr "燃やすために割った木"
+
+msgid "You need a felling tool to cut down %s."
+msgstr "%sを切り倒すには伐採できる道具が要る。"

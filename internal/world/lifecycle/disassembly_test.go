@@ -257,3 +257,20 @@ func TestSpawnDisassemblyYields(t *testing.T) {
 		require.ErrorIs(t, err, lifecycle.ErrItemGeneration)
 	})
 }
+
+func TestRollFellingYields_確定枠と確率100の枠を出す(t *testing.T) {
+	t.Parallel()
+	hundred := oapi.DisassemblyChance(100)
+	def := &oapi.Felling{
+		ToolCategory: oapi.Chopping,
+		Yields: []oapi.DisassemblyYield{
+			{Id: "firewood", Count: "2d1"},
+			{Id: "firewood", Count: "1d1", Chance: &hundred},
+		},
+	}
+
+	stacks, err := lifecycle.RollFellingYields(rand.New(rand.NewPCG(1, 0)), def)
+
+	require.NoError(t, err)
+	assert.Equal(t, []lifecycle.YieldStack{{Name: "firewood", Count: 2}, {Name: "firewood", Count: 1}}, stacks)
+}

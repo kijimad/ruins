@@ -82,26 +82,8 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		logger.Debug("spawn drop item", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
 	}
 
-	// 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、
-	// 確定枠のみを低確率で落とす。工具分解より明確に不利な入手経路にする
-	for _, entity := range toDelete {
-		if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) {
-			continue
-		}
-		def, ok := raw.FindDisassembly(rawMaster, query.GetEntityID(entity, world))
-		if !ok {
-			continue
-		}
-		grid := world.Components.GridElement.Get(entity)
-		// 産出名・個数表記はロード時に検証済みで、ここで失敗するのは整合性バグ。
-		// 握りつぶすと産出が静かに消えるため loud に返す
-		stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, 0, 0, false)
-		if err != nil {
-			return fmt.Errorf("failed to draw salvage item: %w", err)
-		}
-		if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil {
-			return fmt.Errorf("failed to spawn salvage item: %w", err)
-		}
+	if err := dropPropYields(world, toDelete); err != nil {
+		return err
 	}
 
 	// 撃破統計: 除去する敵を run 統計へ加算する
@@ -158,5 +140,40 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		logger.Debug("Dead cleanup completed", "deleted_count", len(toDelete))
 	}
 
+	return nil
+}
+
+// dropPropYields は壊れた prop の産出を足元へ落とす。分解定義を持つ prop は確定枠を低確率で回収でき、
+// 工具がない序盤でも素材が少しは手に入る。伐採定義を持つ prop は倒れると産出を落とす
+func dropPropYields(world w.World, entities []ecs.Entity) error {
+	rawMaster := world.Resources.RawMaster
+	rng := world.Resources.Config.RNG
+	for _, entity := range entities {
+		if !world.Components.Prop.Has(entity) || !world.Components.GridElement.Has(entity) {
+			continue
+		}
+		id := query.GetEntityID(entity, world)
+		var stacks []lifecycle.YieldStack
+		// 産出名・個数表記はロード時に検証済みで、ここで失敗するのは整合性バグ。
+		// 握りつぶすと産出が静かに消えるため loud に返す
+		if def, ok := raw.FindDisassembly(rawMaster, id); ok {
+			salvage, err := lifecycle.RollDisassemblyYields(rng, def, 0, 0, false)
+			if err != nil {
+				return fmt.Errorf("failed to draw salvage item: %w", err)
+			}
+			stacks = append(stacks, salvage...)
+		}
+		if def, ok := raw.FindFelling(rawMaster, id); ok {
+			felled, err := lifecycle.RollFellingYields(rng, def)
+			if err != nil {
+				return fmt.Errorf("failed to draw felling yield: %w", err)
+			}
+			stacks = append(stacks, felled...)
+		}
+		grid := world.Components.GridElement.Get(entity)
+		if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil {
+			return fmt.Errorf("failed to spawn prop yield: %w", err)
+		}
+	}
 	return nil
 }

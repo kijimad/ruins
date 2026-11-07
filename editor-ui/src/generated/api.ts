@@ -822,6 +822,15 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
 
 
 /**
+ * 伐採定義。これを持つ prop は toolCategory の道具を構えて殴ったときだけ削れ、倒れると産出を落とす
+ */
+export interface Felling {
+    'toolCategory': ToolCategory;
+    'yields': Array<DisassemblyYield>;
+}
+
+
+/**
  * 遠距離攻撃設定
  */
 export interface Fire {
@@ -1425,6 +1434,7 @@ export interface Prop {
     'warpPrevTrigger'?: object;
     'storage'?: StorageRaw;
     'disassembly'?: Disassembly;
+    'felling'?: Felling;
 }
 /**
  * 置物一覧
@@ -1779,6 +1789,7 @@ export const ToolCategory = {
     Prying: 'prying',
     Precision: 'precision',
     Cutting: 'cutting',
+    Chopping: 'chopping',
 } as const;
 
 export type ToolCategory = typeof ToolCategory[keyof typeof ToolCategory];
