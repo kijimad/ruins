@@ -573,7 +573,7 @@
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
-				<option value="file259">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (74.3%)</option>
+				<option value="file259">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (74.1%)</option>
 				
 				<option value="file260">github.com/kijimaD/ruins/internal/states/dungeon_input.go (25.0%)</option>
 				
@@ -4005,12 +4005,12 @@ func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade 
         return grade, withTool || def.ToolCategory == nil, withTool
 </span>}
 
-// toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採はスキルを伸ばさない
+// toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採と採掘はスキルを伸ばさない
 func toolSkill(category oapi.ToolCategory) (gc.SkillID, bool) {
         <span class="cov8" title="1">switch category </span>{
         case oapi.Prying, oapi.Precision, oapi.Cutting:
                 <span class="cov8" title="1">return gc.SkillMechanic, true</span>
-        case oapi.Chopping:
+        case oapi.Chopping, oapi.Mining:
                 <span class="cov8" title="1">return "", false</span>
         }
         <span class="cov0" title="0">return "", false</span>
@@ -38037,7 +38037,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
                 <span class="cov0" title="0">if err := spawnDebugStageFire(world); err != nil </span>{
                         <span class="cov0" title="0">return zero, noEntity, err
 </span>                }
-                <span class="cov0" title="0">if err := spawnDebugStageCubeGear(world); err != nil </span>{
+                <span class="cov0" title="0">if err := spawnDebugStageCrateItems(world); err != nil </span>{
                         <span class="cov0" title="0">return zero, noEntity, err
 </span>                }
         }
@@ -38087,9 +38087,12 @@ const debugStageFacilityCount = 2
 // debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
 var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed", "deployable_workbench"}
 
-// spawnDebugStageCubeGear はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムを入れておく。
-// 装着 UI を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
-func spawnDebugStageCubeGear(world w.World) error {
+// debugStageTools はデバッグ街の木箱へ1つずつ入れておく道具の id
+var debugStageTools = []string{"pickaxe"}
+
+// spawnDebugStageCrateItems はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムと道具を入れておく。
+// 装着 UI や道具を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
+func spawnDebugStageCrateItems(world w.World) error {
         <span class="cov8" title="1">var crate ecs.Entity
         found := false
         q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
@@ -38103,7 +38106,7 @@ func spawnDebugStageCubeGear(world w.World) error {
                 }
         }
         <span class="cov8" title="1">if !found </span>{
-                <span class="cov8" title="1">return fmt.Errorf("debug stage: wooden_crate not found for cube gear")
+                <span class="cov8" title="1">return fmt.Errorf("debug stage: wooden_crate not found")
 </span>        }
         <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, "cube_range_module", debugStageModuleCount, crate); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug stage modules: %w", err)
@@ -38111,6 +38114,11 @@ func spawnDebugStageCubeGear(world w.World) error {
         <span class="cov8" title="1">for _, id := range debugStageFacilityItems </span>{
                 <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, id, debugStageFacilityCount, crate); err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug stage facility %s: %w", id, err)
+</span>                }
+        }
+        <span class="cov8" title="1">for _, id := range debugStageTools </span>{
+                <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, id, 1, crate); err != nil </span>{
+                        <span class="cov0" title="0">return fmt.Errorf("failed to spawn debug stage tool %s: %w", id, err)
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>

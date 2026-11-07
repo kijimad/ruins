@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 15:31:28</td>
+            <td class="headerValue">2026-11-07 16:02:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -122,12 +122,12 @@
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return grade, withTool || def.ToolCategory == nil, withTool</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : </span>
-<span id="L63"><span class="lineNum">      63</span>              : // toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採はスキルを伸ばさない</span>
+<span id="L63"><span class="lineNum">      63</span>              : // toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採と採掘はスキルを伸ばさない</span>
 <span id="L64"><span class="lineNum">      64</span>              : func toolSkill(category oapi.ToolCategory) (gc.SkillID, bool) {</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         switch category {</span></span>
 <span id="L66"><span class="lineNum">      66</span>              :         case oapi.Prying, oapi.Precision, oapi.Cutting:</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 return gc.SkillMechanic, true</span></span>
-<span id="L68"><span class="lineNum">      68</span>              :         case oapi.Chopping:</span>
+<span id="L68"><span class="lineNum">      68</span>              :         case oapi.Chopping, oapi.Mining:</span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false</span></span>
 <span id="L70"><span class="lineNum">      70</span>              :         }</span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;, false</span></span>
