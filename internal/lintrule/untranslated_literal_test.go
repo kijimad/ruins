@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -54,47 +55,94 @@ func TestNoUntranslatedLiteral(t *testing.T) {
 		}
 		f, perr := parser.ParseFile(fset, path, nil, 0)
 		require.NoError(t, perr, "パースできない: %s", path)
-		report := func(e ast.Expr) {
-			lit, ok := untranslatedLiteral(e)
-			if !ok {
-				return
-			}
-			pos := fset.Position(e.Pos())
+		for _, u := range untranslatedLiterals(f) {
+			pos := fset.Position(u.pos)
 			rel, relErr := filepath.Rel(root, pos.Filename)
 			if relErr != nil {
 				rel = pos.Filename
 			}
-			found = append(found, rel+":"+strconv.Itoa(pos.Line)+" "+lit)
+			found = append(found, rel+":"+strconv.Itoa(pos.Line)+" "+u.lit)
 		}
-		ast.Inspect(f, func(n ast.Node) bool {
-			switch n := n.(type) {
-			case *ast.CallExpr:
-				if i, ok := textArgs[calleeName(n.Fun)]; ok && i < len(n.Args) {
-					report(n.Args[i])
-				}
-			case *ast.CompositeLit:
-				field, ok := textFields[calleeName(n.Type)]
-				if !ok {
-					return true
-				}
-				for _, elt := range n.Elts {
-					kv, ok := elt.(*ast.KeyValueExpr)
-					if !ok {
-						continue
-					}
-					if key, ok := kv.Key.(*ast.Ident); ok && key.Name == field {
-						report(kv.Value)
-					}
-				}
-			}
-			return true
-		})
 		return nil
 	})
 	require.NoError(t, err)
 
 	sort.Strings(found)
 	require.Empty(t, found, "画面へ描く文字列は query.T で訳す:\n%s", strings.Join(found, "\n"))
+}
+
+// untranslatedUse は画面へ描く文字列に渡された英字の直書き。pos は渡した箇所。
+type untranslatedUse struct {
+	pos token.Pos
+	lit string
+}
+
+// untranslatedLiterals は f の中で画面へ描く文字列に渡された英字の直書きを返す。
+func untranslatedLiterals(f *ast.File) []untranslatedUse {
+	var found []untranslatedUse
+	report := func(e ast.Expr) {
+		if lit, ok := untranslatedLiteral(e); ok {
+			found = append(found, untranslatedUse{pos: e.Pos(), lit: lit})
+		}
+	}
+	ast.Inspect(f, func(n ast.Node) bool {
+		switch n := n.(type) {
+		case *ast.CallExpr:
+			if i, ok := textArgs[calleeName(n.Fun)]; ok && i < len(n.Args) {
+				report(n.Args[i])
+			}
+		case *ast.CompositeLit:
+			field, ok := textFields[calleeName(n.Type)]
+			if !ok {
+				return true
+			}
+			for _, elt := range n.Elts {
+				kv, ok := elt.(*ast.KeyValueExpr)
+				if !ok {
+					continue
+				}
+				if key, ok := kv.Key.(*ast.Ident); ok && key.Name == field {
+					report(kv.Value)
+				}
+			}
+		}
+		return true
+	})
+	return found
+}
+
+func TestUntranslatedLiterals(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		body string
+		want []string
+	}{
+		{"DrawText への直書き", `cv.DrawText(p, "Overworld Map", f, c)`, []string{`"Overworld Map"`}},
+		{"直書きを書式にした Sprintf", `cv.DrawText(p, fmt.Sprintf("Chunk %d", n), f, c)`, []string{`"Chunk %d"`}},
+		{"直書きで初期化した変数", `header := "Overworld Map"
+			cv.DrawText(p, header, f, c)`, []string{`"Overworld Map"`}},
+		{"NewText への直書き", `uicore.NewText("Close", f, c)`, []string{`"Close"`}},
+		{"OutlinedText への直書き", `hud.OutlinedText(cv, "Hello", f, p, c, c)`, []string{`"Hello"`}},
+		{"Choice の Label への直書き", `_ = Choice{Label: "Back"}`, []string{`"Back"`}},
+		{"uicore.Text の Value への直書き", `_ = uicore.Text{Value: "Back"}`, []string{`"Back"`}},
+		{"訳を通した文字列", `cv.DrawText(p, query.T(world, "Close"), f, c)`, nil},
+		{"1文字の語と許可した語", `cv.DrawText(p, "HP x Esc", f, c)`, nil},
+		{"書式の動詞に続く単位", `cv.DrawText(p, fmt.Sprintf("%3dF", n), f, c)`, nil},
+		{"画面へ描かない直書き", `log.Print("Overworld Map")`, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			f, err := parser.ParseFile(token.NewFileSet(), "p.go", "package p\nfunc f() {\n"+tt.body+"\n}\n", 0)
+			require.NoError(t, err)
+			var got []string
+			for _, u := range untranslatedLiterals(f) {
+				got = append(got, u.lit)
+			}
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
 
 // calleeName は f(...) や pkg.f(...) の関数名、T{} や pkg.T{} の型名を返す。
