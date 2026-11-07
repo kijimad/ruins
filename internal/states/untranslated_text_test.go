@@ -69,7 +69,7 @@ func TestUntranslatedText(t *testing.T) {
 	uicore.ObserveText(collector.observe)
 	t.Cleanup(func() { uicore.ObserveText(nil) })
 
-	for _, tc := range goldenCases() {
+	for _, tc := range goldenCases {
 		if slices.Contains(untranslatedExemptCases, tc.name) {
 			continue
 		}

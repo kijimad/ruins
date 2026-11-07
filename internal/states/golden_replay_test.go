@@ -57,473 +57,468 @@ func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World]
 	}
 }
 
-// goldenCase は TestGolden の1ケース。build は fixture の error をそのまま返し、サブテストで require する。
+// goldenCases は TestGolden が撮る場面の一覧。build は fixture の error をそのまま返し、サブテストで require する。
 // *testing.T を取らないことで golangci-lint の thelper の誤検知を避ける
-type goldenCase struct {
+var goldenCases = []struct {
 	name  string
 	build func(world w.World) ([]es.State[w.World], error)
 	steps []replayStep
-}
-
-// goldenCases は TestGolden が撮る場面の一覧。
-func goldenCases() []goldenCase {
-	return []goldenCase{
-		// ================ 組んだ直後の画を待ち1手で撮るケース ================
-		{
-			name: "MainMenu",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.MainMenuState{}}, nil
-			},
-			steps: []replayStep{{shot: true}},
+}{
+	// ================ 組んだ直後の画を待ち1手で撮るケース ================
+	{
+		name: "MainMenu",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.MainMenuState{}}, nil
 		},
-		{
-			name: "SettingsMenu",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "SettingsMenu",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
 		},
-		{
-			name: "CharacterNaming",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.CharacterNamingState{}}, nil
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "CharacterNaming",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.CharacterNamingState{}}, nil
 		},
-		{
-			name: "CharacterJob",
-			build: func(w.World) ([]es.State[w.World], error) {
-				s, err := gs.NewCharacterJobState("Ash")()
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "CharacterJob",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewCharacterJobState("Ash")()
+			return []es.State[w.World]{s}, err
 		},
-		// OverworldMap は N キーで開く種別俯瞰図の描画を固定する。記号の色表・凡例・現在地マーカー・
-		// 荒れ地の文字非重畳を含む描画経路を覆う。実際のプレイどおり下段の世界の上に地図UIを重ねて撮る。
-		{
-			name: "OverworldMap",
-			build: func(w.World) ([]es.State[w.World], error) {
-				// 背景は開始チャンクのオーバーワールド。決定的な RunSeed で golden を安定させる
-				backdrop, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField,
-					dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
-				if err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{backdrop, &gs.OverworldMapState{}}, nil
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	// OverworldMap は N キーで開く種別俯瞰図の描画を固定する。記号の色表・凡例・現在地マーカー・
+	// 荒れ地の文字非重畳を含む描画経路を覆う。実際のプレイどおり下段の世界の上に地図UIを重ねて撮る。
+	{
+		name: "OverworldMap",
+		build: func(w.World) ([]es.State[w.World], error) {
+			// 背景は開始チャンクのオーバーワールド。決定的な RunSeed で golden を安定させる
+			backdrop, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField,
+				dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
+			if err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{backdrop, &gs.OverworldMapState{}}, nil
 		},
-		// ItemAction は動詞タブ画面の全タブを撮る。動詞ごとにバックパックのアイテムが
-		// 適用可否で絞られる。回復薬は調べる・置く・食べる・使うに出て、読むには出ない
-		{
-			name: "ItemAction",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.ItemActionState{}}, nil
-			},
-			steps: []replayStep{
-				{shot: true, suffix: "Inspect"}, // 初期タブ
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Drop"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Eat"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Read"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Use"},
-			},
+		steps: []replayStep{{shot: true}},
+	},
+	// ItemAction は動詞タブ画面の全タブを撮る。動詞ごとにバックパックのアイテムが
+	// 適用可否で絞られる。回復薬は調べる・置く・食べる・使うに出て、読むには出ない
+	{
+		name: "ItemAction",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.ItemActionState{}}, nil
 		},
-		// ItemAction_VerbJump は動詞キーでのタブジャンプが画面へ反映されることを固定する。
-		// 動詞は SetTab で store を直接変えるので、再描画漏れがあると画面が古いままになる経路を撮る。
-		{
-			name: "ItemAction_VerbJump",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.ItemActionState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionVerbConsume, shot: true}, // 食べるタブへ跳んだ画
-			},
+		steps: []replayStep{
+			{shot: true, suffix: "Inspect"}, // 初期タブ
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Drop"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Eat"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Read"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Use"},
 		},
-		// Character は人物画面の全タブを撮る。装備は編集タブ、以降は読み取り専用の情報タブ。
-		// スキルはページ送りとカテゴリ見出しを含む
-		{
-			name: "Character",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.CharacterState{}}, nil
-			},
-			steps: []replayStep{
-				{shot: true, suffix: "Equipment"}, // 初期タブ
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Abilities"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Skills"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Effects"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Health"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Basic"},
-			},
+	},
+	// ItemAction_VerbJump は動詞キーでのタブジャンプが画面へ反映されることを固定する。
+	// 動詞は SetTab で store を直接変えるので、再描画漏れがあると画面が古いままになる経路を撮る。
+	{
+		name: "ItemAction_VerbJump",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.ItemActionState{}}, nil
 		},
-		// RunStats は統計テーブル画面を撮る。character と同じテーブル枠に統計が並ぶ。
-		// 死の結果画面 NewRunResultState は見出しが違うだけの同じテーブルなので撮り分けない
-		{
-			name: "RunStats",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				// 見栄えのする統計値を仕込む。経過1740ターンで2日目の夜明けに乗る
-				if s := query.GetRunStats(world); s != nil {
-					s.EnemiesKilled = 12
-					s.ItemsScavenged = 8
-					s.SalesTotal = 3400
-				}
-				if gt := query.GetGameTime(world); gt != nil {
-					gt.TotalTurns = 1740
-				}
-				st, err := gs.NewRunStatsState()
-				if err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{st}, nil
-			},
-			steps: []replayStep{
-				{shot: true, suffix: "Table"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Environment"}, // 環境タブ。気温・時間帯・季節
-			},
+		steps: []replayStep{
+			{action: inputmapper.ActionVerbConsume, shot: true}, // 食べるタブへ跳んだ画
 		},
-		{
-			name: "CraftMenu",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				// 回復薬の材料を持たせ、クラフト可能な行にチェックが付く様子を確認する
-				if _, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1); err != nil {
-					return nil, err
-				}
-				if _, err := lifecycle.SpawnBackpackItem(world, "yellow_herb", 1); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.CraftMenuState{}}, nil
-			},
-			steps: []replayStep{
-				{shot: true, suffix: "Consumables"}, // 初期タブ
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Weapons"},
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Armor"},
-			},
+	},
+	// Character は人物画面の全タブを撮る。装備は編集タブ、以降は読み取り専用の情報タブ。
+	// スキルはページ送りとカテゴリ見出しを含む
+	{
+		name: "Character",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.CharacterState{}}, nil
 		},
-		{
-			name: "ShopMenu",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.ShopMenuState{}}, nil
-			},
-			steps: []replayStep{
-				{shot: true, suffix: "Buy"}, // 初期タブ
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Sell"},
-			},
+		steps: []replayStep{
+			{shot: true, suffix: "Equipment"}, // 初期タブ
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Abilities"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Skills"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Effects"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Health"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Basic"},
 		},
-		{
-			name: "SaveMenu",
-			build: func(w.World) ([]es.State[w.World], error) {
-				s, err := gs.NewSaveMenuState()
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+	},
+	// RunStats は統計テーブル画面を撮る。character と同じテーブル枠に統計が並ぶ。
+	// 死の結果画面 NewRunResultState は見出しが違うだけの同じテーブルなので撮り分けない
+	{
+		name: "RunStats",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			// 見栄えのする統計値を仕込む。経過1740ターンで2日目の夜明けに乗る
+			if s := query.GetRunStats(world); s != nil {
+				s.EnemiesKilled = 12
+				s.ItemsScavenged = 8
+				s.SalesTotal = 3400
+			}
+			if gt := query.GetGameTime(world); gt != nil {
+				gt.TotalTurns = 1740
+			}
+			st, err := gs.NewRunStatsState()
+			if err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{st}, nil
 		},
-		{
-			name: "LoadMenu",
-			build: func(w.World) ([]es.State[w.World], error) {
-				s, err := gs.NewLoadMenuState()
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{
+			{shot: true, suffix: "Table"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Environment"}, // 環境タブ。気温・時間帯・季節
 		},
-		{
-			name: "DebugMenu",
-			build: func(w.World) ([]es.State[w.World], error) {
-				s, err := gs.NewDebugMenuState()
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "CraftMenu",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			// 回復薬の材料を持たせ、クラフト可能な行にチェックが付く様子を確認する
+			if _, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1); err != nil {
+				return nil, err
+			}
+			if _, err := lifecycle.SpawnBackpackItem(world, "yellow_herb", 1); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.CraftMenuState{}}, nil
 		},
-		{
-			name: "ComponentDebug",
-			build: func(w.World) ([]es.State[w.World], error) {
-				s, err := gs.NewComponentDebugState()
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{
+			{shot: true, suffix: "Consumables"}, // 初期タブ
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Weapons"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Armor"},
 		},
-		// LookAround は実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る。
-		// カーソルを足元から離した画も撮る。プレイヤーの真下では投影のずれが最小になり、
-		// 離した位置でこそカーソル枠が実際のタイルに乗っているかが分かる
-		{
-			name: "LookAround",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.DungeonState{
-					Depth:          1,
-					DefinitionName: dungeon.DungeonDebug.Name(),
-					BuilderType:    mapplanner.PlannerTypeSmallRoom,
-				}, &gs.LookAroundState{}}, nil
-			},
-			steps: []replayStep{
-				{shot: true},
-				{action: inputmapper.ActionMoveNorth},
-				{action: inputmapper.ActionMoveNorth},
-				{action: inputmapper.ActionMoveEast},
-				{action: inputmapper.ActionMoveEast, shot: true, suffix: "Away"},
-			},
+	},
+	{
+		name: "ShopMenu",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.ShopMenuState{}}, nil
 		},
-		{
-			name: "GameOver",
-			build: func(w.World) ([]es.State[w.World], error) {
-				s, err := gs.NewGameOverMessageState()
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{
+			{shot: true, suffix: "Buy"}, // 初期タブ
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Sell"},
 		},
-		{
-			name: "Message",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				messageData := messagedata.NewDialogMessage(
-					query.T(world, "This is a VRT test of the message window.\n\nA message to check the display state."),
-					query.T(world, "VRT Test"),
-				).WithChoice(
-					query.T(world, "Choice 1"), func(_ w.World) error { return nil },
-				).WithChoice(
-					query.T(world, "Choice 2"), func(_ w.World) error { return nil },
-				)
-				s, err := gs.NewMessageState(messageData)
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "SaveMenu",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewSaveMenuState()
+			return []es.State[w.World]{s}, err
 		},
-		// Shooting は実際のプレイどおり、3D世界とHUDの上に照準と射撃パネルを重ねて撮る。
-		{
-			name: "Shooting",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.DungeonState{
-					Depth:          1,
-					DefinitionName: dungeon.DungeonDebug.Name(),
-					BuilderType:    mapplanner.PlannerTypeSmallRoom,
-				}, &gs.ShootingState{}}, nil
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "LoadMenu",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewLoadMenuState()
+			return []es.State[w.World]{s}, err
 		},
-		{
-			name: "PersistentMessage",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				messageData := messagedata.NewDialogMessage(query.T(world, "This is a VRT test of the persistent message."), query.T(world, "Test"))
-				return []es.State[w.World]{gs.NewPersistentMessageState(messageData)}, nil
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "DebugMenu",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewDebugMenuState()
+			return []es.State[w.World]{s}, err
 		},
-		{
-			name: "StorageMenu",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
-				if err != nil {
-					return nil, err
-				}
-				if _, err := lifecycle.SpawnStorageItem(world, "healing_potion", 1, storageEntity); err != nil {
-					return nil, err
-				}
-				s, err := gs.NewStorageMenuState(storageEntity)
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{
-				{shot: true, suffix: "Retrieve"}, // 初期タブ
-				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Store"},
-			},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "ComponentDebug",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewComponentDebugState()
+			return []es.State[w.World]{s}, err
 		},
-		// FeedFuelMenu は火への給油メニューを固定する。収納やインベントリと同じ item-row 形式で、
-		// アイコン・名前の先頭に右寄せの追加ターン数列が並ぶ。プレイヤーの初期バックパックの食料が燃料になる。
-		{
-			name: "FeedFuelMenu",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				fire := world.ECS.NewEntity()
-				world.Components.Burning.Add(fire, &gc.Burning{Remaining: 300})
-				s, err := gs.NewFeedFuelMenuState(fire)
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	// LookAround は実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る。
+	// カーソルを足元から離した画も撮る。プレイヤーの真下では投影のずれが最小になり、
+	// 離した位置でこそカーソル枠が実際のタイルに乗っているかが分かる
+	{
+		name: "LookAround",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}, &gs.LookAroundState{}}, nil
 		},
-		// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
-		{
-			name: "ChoiceMenuMany",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				choices := make([]gs.Choice, 0, 30)
-				for i := range 30 {
-					choices = append(choices, gs.Choice{Label: query.T(world, "Item %d", i+1)})
-				}
-				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return query.T(world, "Select"), choices })
-				return []es.State[w.World]{menu}, nil
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{
+			{shot: true},
+			{action: inputmapper.ActionMoveNorth},
+			{action: inputmapper.ActionMoveNorth},
+			{action: inputmapper.ActionMoveEast},
+			{action: inputmapper.ActionMoveEast, shot: true, suffix: "Away"},
 		},
-		// ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う。
-		{
-			name: "ChoiceMenuHeaders",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				choices := []gs.Choice{
-					{Label: query.T(world, "Weapon"), Header: true},
-					{Label: query.T(world, "Wooden Sword")},
-					{Label: query.T(world, "Ray Gun")},
-					{Label: query.T(world, "Armor"), Header: true},
-					{Label: query.T(world, "Leather Armor")},
-					{Label: query.T(world, "Back")},
-				}
-				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return query.T(world, "Equipment"), choices })
-				return []es.State[w.World]{menu}, nil
-			},
-			steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "GameOver",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewGameOverMessageState()
+			return []es.State[w.World]{s}, err
 		},
-		// Overworld は新規ゲーム開始直後のオーバーワールド実画面を固定する。
-		{
-			name: "Overworld",
-			build: func(w.World) ([]es.State[w.World], error) {
-				s, err := gs.NewOverworldState(
-					mapplanner.PlannerTypeOverworldField,
-					dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
-					&overworld.NewGameParams{},
-				)()
-				return []es.State[w.World]{s}, err
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "Message",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			messageData := messagedata.NewDialogMessage(
+				query.T(world, "This is a VRT test of the message window.\n\nA message to check the display state."),
+				query.T(world, "VRT Test"),
+			).WithChoice(
+				query.T(world, "Choice 1"), func(_ w.World) error { return nil },
+			).WithChoice(
+				query.T(world, "Choice 2"), func(_ w.World) error { return nil },
+			)
+			s, err := gs.NewMessageState(messageData)
+			return []es.State[w.World]{s}, err
 		},
-		// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。各時間帯の中心を1枚ずつ撮り、
-		// 連続補間が段差にならないことを回帰検知する。区間内の傾斜は単体テストで担保する。
-		// 番号は朝を起点にした1日の並び順で、ファイル名とギャラリーが時刻順に並ぶ。
-		{name: "Overworld_1_Morning", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},   // 朝の中心
-		{name: "Overworld_2_Day", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},       // 昼の中心。最も明るく無彩色
-		{name: "Overworld_3_Evening", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}},   // 夕の中心。暖色
-		{name: "Overworld_4_Night", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
-		{name: "Overworld_5_Midnight", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
-		{name: "Overworld_6_Dawn", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 夜明けの中心。次の朝へ続く
-		// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
-		// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
-		{
-			name: "Dungeon",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.DungeonState{
-					Depth:          1,
-					DefinitionName: dungeon.DungeonDebug.Name(),
-					BuilderType:    mapplanner.PlannerTypeSmallRoom,
-				}}, nil
-			},
-			steps: []replayStep{{shot: true}},
+		steps: []replayStep{{shot: true}},
+	},
+	// Shooting は実際のプレイどおり、3D世界とHUDの上に照準と射撃パネルを重ねて撮る。
+	{
+		name: "Shooting",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}, &gs.ShootingState{}}, nil
 		},
-		// ================ 操作した結果の画を撮るケース ================
-		// 設定メニューのカーソルが Back へ移った画を撮る。開いた直後と閉じたあとの画は
-		// SettingsMenu・MainMenu と完全に同一なので撮らない。
-		// 閉じたあと1段になることは replay の遷移テストが押さえている
-		{
-			name: "SettingsMenuClose",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown, shot: true}, // カーソルが Language から Back へ移った画を撮る
-				{action: inputmapper.ActionMenuSelect},           // Back を決定して設定メニューを閉じる
-			},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "PersistentMessage",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			messageData := messagedata.NewDialogMessage(query.T(world, "This is a VRT test of the persistent message."), query.T(world, "Test"))
+			return []es.State[w.World]{gs.NewPersistentMessageState(messageData)}, nil
 		},
-		// メインメニューでカーソルが Settings に載った画を撮る。組んだ直後の画は先頭行に
-		// カーソルがある状態しか撮れないので、移動後の見た目はここでしか固定できない。
-		// push した先の画は SettingsMenu と同一なので撮らない
-		{
-			name: "MainMenuOpenSettings",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.MainMenuState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown},             // Start から Load へ
-				{action: inputmapper.ActionMenuDown, shot: true}, // Load から Settings へ。移った画を撮る
-				{action: inputmapper.ActionMenuSelect},           // Settings を開いて push する
-			},
+		steps: []replayStep{{shot: true}},
+	},
+	{
+		name: "StorageMenu",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := lifecycle.SpawnStorageItem(world, "healing_potion", 1, storageEntity); err != nil {
+				return nil, err
+			}
+			s, err := gs.NewStorageMenuState(storageEntity)
+			return []es.State[w.World]{s}, err
 		},
-		// ? で開くキー一覧ヘルプの描画を固定する。ヘルプの golden はこの1枚に絞る。
-		// 文脈は最もキーが多いダンジョンにし、数字連結や記号の表記崩れまで一覧で検出する
-		{
-			name: "KeyHelp",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.DungeonState{
-					Depth:          1,
-					DefinitionName: dungeon.DungeonDebug.Name(),
-					BuilderType:    mapplanner.PlannerTypeSmallRoom,
-				}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionOpenKeyHelp}, // ヘルプを push する。反映は次フレーム
-				{shot: true},                            // 押し込まれたヘルプを撮る
-			},
+		steps: []replayStep{
+			{shot: true, suffix: "Retrieve"}, // 初期タブ
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Store"},
 		},
-		// DungeonMenu は M で開く選択メニューの項目を固定する。クラフトを含む項目の並びを覆う
-		{
-			name: "DungeonMenu",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.DungeonState{
-					Depth:          1,
-					DefinitionName: dungeon.DungeonDebug.Name(),
-					BuilderType:    mapplanner.PlannerTypeSmallRoom,
-				}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionOpenDungeonMenu}, // M でメニューを push する。反映は次フレーム
-				{shot: true}, // 押し込まれたメニューを撮る
-			},
+	},
+	// FeedFuelMenu は火への給油メニューを固定する。収納やインベントリと同じ item-row 形式で、
+	// アイコン・名前の先頭に右寄せの追加ターン数列が並ぶ。プレイヤーの初期バックパックの食料が燃料になる。
+	{
+		name: "FeedFuelMenu",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			fire := world.ECS.NewEntity()
+			world.Components.Burning.Add(fire, &gc.Burning{Remaining: 300})
+			s, err := gs.NewFeedFuelMenuState(fire)
+			return []es.State[w.World]{s}, err
 		},
-		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
-		// 並ぶことを覆う。入力ゲートと overlay 重ねを含む本番経路で撮る
-		{
-			name: "ItemActionDetail",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.ItemActionState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionOpenItemDetail, shot: true}, // 調べるタブ先頭アイテムの詳細モーダルを開いた画を撮る
-			},
+		steps: []replayStep{{shot: true}},
+	},
+	// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
+	{
+		name: "ChoiceMenuMany",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			choices := make([]gs.Choice, 0, 30)
+			for i := range 30 {
+				choices = append(choices, gs.Choice{Label: query.T(world, "Item %d", i+1)})
+			}
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return query.T(world, "Select"), choices })
+			return []es.State[w.World]{menu}, nil
 		},
-		// 装備選択ポップアップが実プレイ経路で開く state 遷移を固定する。装備タブで空の武器
-		// スロットを選ぶと開く。武器スロット1は初期装備の松明で埋まるので1つ下げて空のスロット2で開く。
-		// ポップアップの視覚の詳細は widget golden TestGolden_EquipSelect が厳密に固定する
-		{
-			name: "EquipSelectFlow",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1); err != nil {
-					return nil, err
-				}
-				if _, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.CharacterState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown},   // 武器スロット1から空のスロット2へ
-				{action: inputmapper.ActionMenuSelect}, // 空スロットで装備選択を push する
-				{shot: true},                           // push は次フレーム反映なので待ち手で撮る
-			},
+		steps: []replayStep{{shot: true}},
+	},
+	// ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う。
+	{
+		name: "ChoiceMenuHeaders",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			choices := []gs.Choice{
+				{Label: query.T(world, "Weapon"), Header: true},
+				{Label: query.T(world, "Wooden Sword")},
+				{Label: query.T(world, "Ray Gun")},
+				{Label: query.T(world, "Armor"), Header: true},
+				{Label: query.T(world, "Leather Armor")},
+				{Label: query.T(world, "Back")},
+			}
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return query.T(world, "Equipment"), choices })
+			return []es.State[w.World]{menu}, nil
 		},
-		// EquipCompare は装備済みスロットの装備選択から詳細を開き、現装備と候補を2枚並べて
-		// 比較する画を撮る。武器スロット1は初期装備で埋まるので、そこで装備選択を開き、
-		// 先頭の「外す」を1つ飛ばした候補へカーソルを移してから詳細を開く
-		{
-			name: "EquipCompare",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "claymore", 1); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.CharacterState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionMenuSelect}, // 武器スロット1の初期装備で装備選択を push する
-				{},                                     // push した装備選択メニューをシードさせる待ち手
-				{shot: true, suffix: "List"},           // 「外す」を先頭に置く候補一覧を撮る
-				{action: inputmapper.ActionMenuDown},   // 先頭「外す」から候補クレイモアへ
-				{action: inputmapper.ActionOpenItemDetail, shot: true, suffix: "Detail"}, // x で詳細を開き現装備との比較を撮る
-			},
+		steps: []replayStep{{shot: true}},
+	},
+	// Overworld は新規ゲーム開始直後のオーバーワールド実画面を固定する。
+	{
+		name: "Overworld",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewOverworldState(
+				mapplanner.PlannerTypeOverworldField,
+				dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
+				&overworld.NewGameParams{},
+			)()
+			return []es.State[w.World]{s}, err
 		},
-	}
+		steps: []replayStep{{shot: true}},
+	},
+	// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。各時間帯の中心を1枚ずつ撮り、
+	// 連続補間が段差にならないことを回帰検知する。区間内の傾斜は単体テストで担保する。
+	// 番号は朝を起点にした1日の並び順で、ファイル名とギャラリーが時刻順に並ぶ。
+	{name: "Overworld_1_Morning", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},   // 朝の中心
+	{name: "Overworld_2_Day", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},       // 昼の中心。最も明るく無彩色
+	{name: "Overworld_3_Evening", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}},   // 夕の中心。暖色
+	{name: "Overworld_4_Night", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
+	{name: "Overworld_5_Midnight", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
+	{name: "Overworld_6_Dawn", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 夜明けの中心。次の朝へ続く
+	// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
+	// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
+	{
+		name: "Dungeon",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}}, nil
+		},
+		steps: []replayStep{{shot: true}},
+	},
+	// ================ 操作した結果の画を撮るケース ================
+	// 設定メニューのカーソルが Back へ移った画を撮る。開いた直後と閉じたあとの画は
+	// SettingsMenu・MainMenu と完全に同一なので撮らない。
+	// 閉じたあと1段になることは replay の遷移テストが押さえている
+	{
+		name: "SettingsMenuClose",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
+		},
+		steps: []replayStep{
+			{action: inputmapper.ActionMenuDown, shot: true}, // カーソルが Language から Back へ移った画を撮る
+			{action: inputmapper.ActionMenuSelect},           // Back を決定して設定メニューを閉じる
+		},
+	},
+	// メインメニューでカーソルが Settings に載った画を撮る。組んだ直後の画は先頭行に
+	// カーソルがある状態しか撮れないので、移動後の見た目はここでしか固定できない。
+	// push した先の画は SettingsMenu と同一なので撮らない
+	{
+		name: "MainMenuOpenSettings",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.MainMenuState{}}, nil
+		},
+		steps: []replayStep{
+			{action: inputmapper.ActionMenuDown},             // Start から Load へ
+			{action: inputmapper.ActionMenuDown, shot: true}, // Load から Settings へ。移った画を撮る
+			{action: inputmapper.ActionMenuSelect},           // Settings を開いて push する
+		},
+	},
+	// ? で開くキー一覧ヘルプの描画を固定する。ヘルプの golden はこの1枚に絞る。
+	// 文脈は最もキーが多いダンジョンにし、数字連結や記号の表記崩れまで一覧で検出する
+	{
+		name: "KeyHelp",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}}, nil
+		},
+		steps: []replayStep{
+			{action: inputmapper.ActionOpenKeyHelp}, // ヘルプを push する。反映は次フレーム
+			{shot: true},                            // 押し込まれたヘルプを撮る
+		},
+	},
+	// DungeonMenu は M で開く選択メニューの項目を固定する。クラフトを含む項目の並びを覆う
+	{
+		name: "DungeonMenu",
+		build: func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}}, nil
+		},
+		steps: []replayStep{
+			{action: inputmapper.ActionOpenDungeonMenu}, // M でメニューを push する。反映は次フレーム
+			{shot: true}, // 押し込まれたメニューを撮る
+		},
+	},
+	// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
+	// 並ぶことを覆う。入力ゲートと overlay 重ねを含む本番経路で撮る
+	{
+		name: "ItemActionDetail",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.ItemActionState{}}, nil
+		},
+		steps: []replayStep{
+			{action: inputmapper.ActionOpenItemDetail, shot: true}, // 調べるタブ先頭アイテムの詳細モーダルを開いた画を撮る
+		},
+	},
+	// 装備選択ポップアップが実プレイ経路で開く state 遷移を固定する。装備タブで空の武器
+	// スロットを選ぶと開く。武器スロット1は初期装備の松明で埋まるので1つ下げて空のスロット2で開く。
+	// ポップアップの視覚の詳細は widget golden TestGolden_EquipSelect が厳密に固定する
+	{
+		name: "EquipSelectFlow",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			if _, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1); err != nil {
+				return nil, err
+			}
+			if _, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.CharacterState{}}, nil
+		},
+		steps: []replayStep{
+			{action: inputmapper.ActionMenuDown},   // 武器スロット1から空のスロット2へ
+			{action: inputmapper.ActionMenuSelect}, // 空スロットで装備選択を push する
+			{shot: true},                           // push は次フレーム反映なので待ち手で撮る
+		},
+	},
+	// EquipCompare は装備済みスロットの装備選択から詳細を開き、現装備と候補を2枚並べて
+	// 比較する画を撮る。武器スロット1は初期装備で埋まるので、そこで装備選択を開き、
+	// 先頭の「外す」を1つ飛ばした候補へカーソルを移してから詳細を開く
+	{
+		name: "EquipCompare",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			if _, err := lifecycle.SpawnBackpackItem(world, "claymore", 1); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.CharacterState{}}, nil
+		},
+		steps: []replayStep{
+			{action: inputmapper.ActionMenuSelect}, // 武器スロット1の初期装備で装備選択を push する
+			{},                                     // push した装備選択メニューをシードさせる待ち手
+			{shot: true, suffix: "List"},           // 「外す」を先頭に置く候補一覧を撮る
+			{action: inputmapper.ActionMenuDown},   // 先頭「外す」から候補クレイモアへ
+			{action: inputmapper.ActionOpenItemDetail, shot: true, suffix: "Detail"}, // x で詳細を開き現装備との比較を撮る
+		},
+	},
 }
 
 func TestGolden(t *testing.T) {
 	t.Parallel()
 
-	for _, tc := range goldenCases() {
+	for _, tc := range goldenCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
