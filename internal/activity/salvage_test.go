@@ -25,6 +25,11 @@ func TestToolDamageMultiplier(t *testing.T) {
 		{"モンキーレンチで木箱を殴るとグレード1で2倍", "monkey_wrench", "wooden_crate", 2},
 		{"斧で木箱を殴っても分類が違うので1倍", "axe", "wooden_crate", 1},
 		{"道具が必須の木を松明で殴ると0倍", "torch", "tree_a", 0},
+		{"つるはしで岩を殴るとグレード2で3倍", "pickaxe", "rock", 3},
+		{"金槌で岩を殴るとグレード1で2倍", "hammer", "rock", 2},
+		{"ブロックハンマーで岩を殴るとグレード1で2倍", "block_hammer", "rock", 2},
+		{"ストームハンマーで岩を殴るとグレード1で2倍", "storm_hammer", "rock", 2},
+		{"道具が必須の岩を松明で殴ると0倍", "torch", "rock", 0},
 		{"道具が必須でない木箱を松明で殴ると1倍", "torch", "wooden_crate", 1},
 		{"分解定義の無いpropは1倍", "axe", "grass", 1},
 	}
@@ -58,6 +63,7 @@ func TestSalvageRoll(t *testing.T) {
 		wantWithTool bool
 	}{
 		{"斧で木を壊すと全枠を出し道具を使う", "axe", "tree_a", 2, true, true},
+		{"つるはしで岩を壊すと全枠を出し道具を使う", "pickaxe", "rock", 2, true, true},
 		{"モンキーレンチで木箱を壊すと全枠を出し道具を使う", "monkey_wrench", "wooden_crate", 1, true, true},
 		{"斧で木箱を壊すと分類が違うので回収だけ", "axe", "wooden_crate", 0, false, false},
 		{"松明で木箱を壊すと回収だけ", "torch", "wooden_crate", 0, false, false},
@@ -98,6 +104,7 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 		{"斧で木を壊すと薪を落とすが機械スキルは伸びない", "axe", "tree_a", "firewood", false},
 		{"モンキーレンチで木箱を壊すと機械スキルが伸びる", "monkey_wrench", "wooden_crate", "", true},
 		{"松明で灌木を壊すと枝を落とし機械スキルは伸びない", "torch", "bush", "branch", false},
+		{"つるはしで岩を壊すと機械スキルは伸びない", "pickaxe", "rock", "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -135,6 +142,41 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 			expAfter := world.Components.Skills.Get(player).Get(gc.SkillMechanic).Exp.Current
 			assert.Equal(t, tt.wantMechanics, expAfter > expBefore)
 		})
+	}
+}
+
+func TestApplyAttackDamage_つるはしで岩を壊すと石を落とす(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	pickaxe, err := lifecycle.SpawnBackpackItem(world, "pickaxe", 1)
+	require.NoError(t, err)
+	lifecycle.MoveToEquip(world, pickaxe, player, gc.SlotWeapon1)
+	query.GetWeaponSelection(world).Slot = 1
+	rock, err := lifecycle.SpawnProp(world, "rock", 10, 9)
+	require.NoError(t, err)
+	attack, name, err := getAttackParams(player, world)
+	require.NoError(t, err)
+
+	// 命中率の補正を大きく取り、壊れるまで必ず命中させる
+	for range 20 {
+		require.NoError(t, applyAttackDamage(player, rock, world, attack, name, 1000, 0))
+		if world.Components.Dead.Has(rock) {
+			break
+		}
+	}
+	require.True(t, world.Components.Dead.Has(rock))
+
+	pickables := query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9})
+	ids := make([]string, 0, len(pickables))
+	for _, e := range pickables {
+		ids = append(ids, query.GetEntityID(e, world))
+	}
+	assert.Contains(t, ids, "stone", "確定枠の石を必ず落とす")
+	for _, id := range ids {
+		assert.Contains(t, []string{"stone", "sharp_stone"}, id)
 	}
 }
 

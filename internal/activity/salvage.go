@@ -60,12 +60,12 @@ func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade 
 	return grade, withTool || def.ToolCategory == nil, withTool
 }
 
-// toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採はスキルを伸ばさない
+// toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採と採掘はスキルを伸ばさない
 func toolSkill(category oapi.ToolCategory) (gc.SkillID, bool) {
 	switch category {
 	case oapi.Prying, oapi.Precision, oapi.Cutting:
 		return gc.SkillMechanic, true
-	case oapi.Chopping:
+	case oapi.Chopping, oapi.Mining:
 		return "", false
 	}
 	return "", false

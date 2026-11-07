@@ -1783,6 +1783,7 @@ export const ToolCategory = {
     Precision: 'precision',
     Cutting: 'cutting',
     Chopping: 'chopping',
+    Mining: 'mining',
 } as const;
 
 export type ToolCategory = typeof ToolCategory[keyof typeof ToolCategory];
