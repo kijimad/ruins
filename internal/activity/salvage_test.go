@@ -95,7 +95,8 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 		wantDrop      string
 		wantMechanics bool
 	}{
-		{"斧で木を壊すと薪を落とし機械スキルが伸びる", "axe", "tree_a", "firewood", true},
+		{"斧で木を壊すと薪を落とすが機械スキルは伸びない", "axe", "tree_a", "firewood", false},
+		{"モンキーレンチで木箱を壊すと機械スキルが伸びる", "monkey_wrench", "wooden_crate", "", true},
 		{"松明で灌木を壊すと枝を落とし機械スキルは伸びない", "torch", "bush", "branch", false},
 	}
 	for _, tt := range tests {
@@ -124,10 +125,12 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 			}
 			require.True(t, world.Components.Dead.Has(target))
 
-			drops := query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9})
-			require.NotEmpty(t, drops, "確定枠があるので必ず落とす")
-			for _, d := range drops {
-				assert.Equal(t, tt.wantDrop, query.GetEntityID(d, world))
+			if tt.wantDrop != "" {
+				drops := query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9})
+				require.NotEmpty(t, drops, "確定枠があるので必ず落とす")
+				for _, d := range drops {
+					assert.Equal(t, tt.wantDrop, query.GetEntityID(d, world))
+				}
 			}
 			expAfter := world.Components.Skills.Get(player).Get(gc.SkillMechanic).Exp.Current
 			assert.Equal(t, tt.wantMechanics, expAfter > expBefore)
