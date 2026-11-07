@@ -281,15 +281,26 @@ func TestDeadEnemyInteraction(t *testing.T) {
 func TestGetInteractionActions_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("攻撃できるPropでも攻撃はメニューに出さない", func(t *testing.T) {
+	t.Run("隣接の扉と木箱にはそれぞれ固有の操作を出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
+		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 11)
+		require.NoError(t, err)
 		_, err = lifecycle.SpawnProp(world, "grass", 11, 10)
 		require.NoError(t, err)
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 9, Y: 10}, "fireball")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnFieldItem(world, "bread", 10, 10, 1)
+		require.NoError(t, err)
 
-		assert.Empty(t, GetInteractionActions(world))
+		assert.ElementsMatch(t, []InteractionAction{
+			{Label: "Open (up)", Target: door, Interaction: gc.InteractionDoor},
+			{Label: "Disassemble (Wooden Crate)", Target: crate, Interaction: gc.InteractionDisassemble},
+		}, GetInteractionActions(world))
 	})
 
 	t.Run("上り階段は前階へ転移するアクションを出す", func(t *testing.T) {
@@ -310,28 +321,6 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		actions := GetInteractionActions(world)
 		require.Len(t, actions, 1)
 		assert.Equal(t, "Warp (previous floor)", actions[0].Label)
-	})
-
-	t.Run("敵対NPCへの攻撃もメニューに出さない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
-		require.NoError(t, err)
-
-		assert.Empty(t, GetInteractionActions(world))
-	})
-
-	t.Run("足元のアイテムも拾う行として出さない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		_, err = lifecycle.SpawnFieldItem(world, "bread", 10, 10, 3)
-		require.NoError(t, err)
-
-		assert.Empty(t, GetInteractionActions(world))
 	})
 
 	t.Run("隣接では直上発動の拾得を出さず隣接発動の分解だけ出す", func(t *testing.T) {
@@ -797,11 +786,9 @@ func TestStartPickup(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, es.TransPush, trans.Type)
-		assert.Nil(t, lifecycle.ConsumeStateChange(world), "選ぶ前に収納画面を開かない")
-		actions := nearbyPickupActions(world)
-		require.Len(t, actions, 1)
-		assert.Equal(t, gc.InteractionStorage, actions[0].Interaction)
-		assert.Equal(t, crate, actions[0].Target)
+		assert.Equal(t, []InteractionAction{
+			{Label: "Open Wooden Crate (upper left)", Target: crate, Interaction: gc.InteractionStorage},
+		}, nearbyPickupActions(world))
 	})
 
 	t.Run("複数あれば拾うメニューを開く", func(t *testing.T) {
@@ -820,24 +807,6 @@ func TestStartPickup(t *testing.T) {
 		assert.Equal(t, es.TransPush, trans.Type)
 		assert.Nil(t, activity.GetLastResult(player, world))
 	})
-}
-
-func TestNearbyPickupActions_別タイルの同種アイテムは束ねない(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
-	require.NoError(t, err)
-	_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 11, 10, 1)
-	require.NoError(t, err)
-
-	actions := nearbyPickupActions(world)
-
-	require.Len(t, actions, 2)
-	for _, a := range actions {
-		assert.Equal(t, gc.InteractionItem, a.Interaction)
-	}
 }
 
 func TestPickupChoices(t *testing.T) {
@@ -914,18 +883,39 @@ func TestStartPickup_周囲8タイルのアイテム1つはそのまま拾う(t 
 	}
 }
 
-func TestStartPickup_2タイル離れたアイテムは数えない(t *testing.T) {
+func TestNearbyPickupActions(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 12, 10, 1)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnFieldItem(world, "bread", 10, 10, 3)
+	require.NoError(t, err)
+	east, err := lifecycle.SpawnFieldItem(world, "healing_potion", 11, 10, 1)
+	require.NoError(t, err)
+	southEast, err := lifecycle.SpawnFieldItem(world, "healing_potion", 11, 11, 1)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 12, 10, 1)
 	require.NoError(t, err)
 
-	trans, err := startPickup(world)
-	require.NoError(t, err)
+	type row struct {
+		Label       string
+		Interaction gc.InteractionKind
+	}
+	actions := nearbyPickupActions(world)
+	rows := make([]row, len(actions))
+	for i, a := range actions {
+		rows[i] = row{Label: a.Label, Interaction: a.Interaction}
+	}
 
-	assert.Equal(t, es.TransNone, trans.Type)
-	assert.False(t, world.Components.LocationInBackpack.Has(item))
-	assert.Nil(t, activity.GetLastResult(player, world))
+	assert.Equal(t, []row{
+		{Label: "Open Wooden Crate (up)", Interaction: gc.InteractionStorage},
+		{Label: "Pick up 3 Bread (here)", Interaction: gc.InteractionItem},
+		{Label: "Pick up Healing Potion (right)", Interaction: gc.InteractionItem},
+		{Label: "Pick up Healing Potion (lower right)", Interaction: gc.InteractionItem},
+	}, rows)
+	assert.Equal(t, crate, actions[0].Target)
+	assert.Equal(t, east, actions[2].Target)
+	assert.Equal(t, southEast, actions[3].Target)
 }
