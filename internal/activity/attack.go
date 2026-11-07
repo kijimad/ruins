@@ -90,16 +90,13 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	return nil
 }
 
-// fellingMultiplier は伐採定義に道具の分類がある prop を、その道具を構えずに殴るときは0を返し、それ以外は1を返す
-func fellingMultiplier(world w.World, actor, target ecs.Entity) int {
+// fellingBlocked は伐採定義に道具の分類がある prop を、その道具を構えずに殴るかを返す。真なら削れない
+func fellingBlocked(world w.World, actor, target ecs.Entity) bool {
 	if !world.Components.Prop.Has(target) {
-		return 1
+		return false
 	}
 	def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(target, world))
-	if !ok || def.ToolCategory == nil || holdsTool(world, actor, *def.ToolCategory) {
-		return 1
-	}
-	return 0
+	return ok && def.ToolCategory != nil && !holdsTool(world, actor, *def.ToolCategory)
 }
 
 // holdsTool はプレイヤーが選択中の武器が道具分類 category を持つかを返す
@@ -384,7 +381,7 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 
 // calculateDamage はダメージ計算を行う
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	if !world.Components.Abilities.Has(attacker) {
+	if !world.Components.Abilities.Has(attacker) || fellingBlocked(world, attacker, target) {
 		return 0
 	}
 	attackerAbils := world.Components.Abilities.Get(attacker)
@@ -414,7 +411,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
 
-	return finalDamage * fellingMultiplier(world, attacker, target)
+	return finalDamage
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
