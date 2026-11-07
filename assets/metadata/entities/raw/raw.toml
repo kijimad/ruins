@@ -1121,6 +1121,10 @@ damage = 22
 element = "CHILL"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A battle axe made of black metal. It radiates an ominous aura."
 name = "Black Battle Axe"
@@ -1140,6 +1144,10 @@ damage = 26
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A katana dyed jet black. It carries an eerie presence."
 name = "Black Katana"
@@ -7949,15 +7957,6 @@ spriteSheetName = "field"
 value = 20
 weight = "300 g"
 [[items]]
-description = "Heavy, sturdy lumber, excellent as a building material."
-name = "Hardwood"
-id = "hardwood"
-material = "WOOD"
-spriteKey = "heavy_wood"
-spriteSheetName = "field"
-value = 30
-weight = "3 kg"
-[[items]]
 description = "An energy core of plant origin."
 name = "Seed Core"
 id = "seed_core"
@@ -8561,6 +8560,10 @@ damage = 10
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 1
 [[items]]
 description = "A baked treat in a brown cup, topped with a swirl of dark brown cream."
 name = "Cupcake"
@@ -9141,6 +9144,10 @@ damage = 13
 element = "CHILL"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 id = "ember_whip"
 name = "Ember Whip"
@@ -9288,6 +9295,10 @@ damage = 16
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 1
 [[items]]
 description = "A fuel-soaked lash that ignites as it whips out."
 name = "Ember Lash"
@@ -12719,7 +12730,7 @@ id = "hard_disk"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
-id = "hardwood"
+id = "firewood"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
@@ -17804,14 +17815,14 @@ lootCount = "2d3"
 [props.disassembly]
 toolCategory = "prying"
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d3"
 [[props.disassembly.yields]]
 id = "rusted_chain"
 count = "1d1"
 chance = 40
 [[props.disassembly.bonus]]
-id = "hardwood"
+id = "firewood"
 count = "1d1"
 minSkill = 10
 [[props]]
@@ -18110,14 +18121,14 @@ spriteSheetName = "field"
 [props.disassembly]
 toolCategory = "prying"
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d2"
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d1"
 chance = 50
 [[props.disassembly.bonus]]
-id = "hardwood"
+id = "firewood"
 count = "1d1"
 minSkill = 10
 [[props]]
@@ -19022,14 +19033,14 @@ lootCount = "2d3"
 [props.disassembly]
 toolCategory = "prying"
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d2"
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d1"
 chance = 50
 [[props.disassembly.bonus]]
-id = "hardwood"
+id = "firewood"
 count = "1d1"
 minSkill = 10
 [[props]]
@@ -19503,7 +19514,7 @@ lootCount = "1d3"
 [props.disassembly]
 toolCategory = "prying"
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d2"
 [[props]]
 id = "dummy_med_cabinet"
