@@ -801,8 +801,10 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 1つのPropが複数のインタラクションを持てる
 	var interactions []gc.InteractionKind
 
-	entitySpec.HP = &gc.HP{Max: propRaw.Hp, Current: propRaw.Hp}
-	interactions = append(interactions, gc.InteractionMelee)
+	if propRaw.Hp != nil {
+		entitySpec.HP = &gc.HP{Max: *propRaw.Hp, Current: *propRaw.Hp}
+		interactions = append(interactions, gc.InteractionMelee)
+	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
@@ -853,6 +855,15 @@ func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
 		return item.Disassembly, true
 	}
 	return nil, false
+}
+
+// FindFelling は指定された名前の prop の伐採定義を返す
+func FindFelling(raws oapi.Raws, name string) (*oapi.Felling, bool) {
+	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name)
+	if !ok || prop.Felling == nil {
+		return nil, false
+	}
+	return prop.Felling, true
 }
 
 // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す

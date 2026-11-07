@@ -534,6 +534,7 @@ const (
 	SpriteDepthN1 SpriteDepth = 1
 	SpriteDepthN2 SpriteDepth = 2
 	SpriteDepthN3 SpriteDepth = 3
+	SpriteDepthN4 SpriteDepth = 4
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
@@ -546,6 +547,8 @@ func (e SpriteDepth) Valid() bool {
 	case SpriteDepthN2:
 		return true
 	case SpriteDepthN3:
+		return true
+	case SpriteDepthN4:
 		return true
 	default:
 		return false
@@ -623,6 +626,7 @@ func (e TargetNum) Valid() bool {
 
 // Defines values for ToolCategory.
 const (
+	Chopping  ToolCategory = "chopping"
 	Cutting   ToolCategory = "cutting"
 	Precision ToolCategory = "precision"
 	Prying    ToolCategory = "prying"
@@ -631,6 +635,8 @@ const (
 // Valid indicates whether the value is a known member of the ToolCategory enum.
 func (e ToolCategory) Valid() bool {
 	switch e {
+	case Chopping:
+		return true
 	case Cutting:
 		return true
 	case Precision:
@@ -1401,6 +1407,13 @@ type FacilityZone struct {
 // FactionMemberType 派閥タイプ
 type FactionMemberType string
 
+// Felling 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
+type Felling struct {
+	// ToolCategory 分解工具の分類
+	ToolCategory *ToolCategory      `json:"toolCategory,omitempty"`
+	Yields       []DisassemblyYield `json:"yields"`
+}
+
 // Fire 遠距離攻撃設定
 type Fire struct {
 	// Accuracy 命中率。0で必中なし、100で必中
@@ -1898,12 +1911,15 @@ type Prop struct {
 	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
 
+	// Felling 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
+	Felling *Felling `json:"felling,omitempty"`
+
 	// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する
 	HeatSource *HeatSource `json:"heatSource,omitempty"`
 
-	// Hp 耐久値。削り切られると壊れる
-	Hp HitPoints `json:"hp"`
-	Id EntityID  `json:"id"`
+	// Hp 耐久。省略した prop は殴れない
+	Hp *HitPoints `json:"hp,omitempty"`
+	Id EntityID   `json:"id"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`

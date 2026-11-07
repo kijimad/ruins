@@ -199,6 +199,10 @@ damage = 20
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 1
 [[items]]
 description = "A heavy iron hammer. Its blows are devastating, but slow to swing."
 name = "Hammer"
@@ -237,6 +241,10 @@ damage = 24
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A dining fork. As a stabbing weapon, it has the bare minimum of function."
 name = "Fork"
@@ -519,6 +527,10 @@ damage = 10
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A brightly shining mace that crushes foes with the power of light."
 name = "Bright Mace"
@@ -1109,6 +1121,10 @@ damage = 22
 element = "CHILL"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A battle axe made of black metal. It radiates an ominous aura."
 name = "Black Battle Axe"
@@ -1128,6 +1144,10 @@ damage = 26
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 description = "A katana dyed jet black. It carries an eerie presence."
 name = "Black Katana"
@@ -7937,15 +7957,6 @@ spriteSheetName = "field"
 value = 20
 weight = "300 g"
 [[items]]
-description = "Heavy, sturdy lumber, excellent as a building material."
-name = "Hardwood"
-id = "hardwood"
-material = "WOOD"
-spriteKey = "heavy_wood"
-spriteSheetName = "field"
-value = 30
-weight = "3 kg"
-[[items]]
 description = "An energy core of plant origin."
 name = "Seed Core"
 id = "seed_core"
@@ -8549,6 +8560,10 @@ damage = 10
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 1
 [[items]]
 description = "A baked treat in a brown cup, topped with a swirl of dark brown cream."
 name = "Cupcake"
@@ -9144,6 +9159,10 @@ damage = 13
 element = "CHILL"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 2
 [[items]]
 id = "ember_whip"
 name = "Ember Whip"
@@ -9291,6 +9310,10 @@ damage = 16
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+
+[items.disassemblyTool]
+categories = ["chopping"]
+grade = 1
 [[items]]
 description = "A fuel-soaked lash that ignites as it whips out."
 name = "Ember Lash"
@@ -9443,6 +9466,24 @@ weight = "200 g"
 targetGroup = "ALLY"
 targetNum = "SINGLE"
 usableScene = "ANY"
+[[items]]
+description = "Split wood for burning."
+name = "Firewood"
+id = "firewood"
+material = "WOOD"
+spriteKey = "heavy_wood"
+spriteSheetName = "field"
+value = 3
+weight = "1 kg"
+[[items]]
+description = "A dry branch snapped off a shrub. It catches fire easily."
+name = "Branch"
+id = "branch"
+material = "WOOD"
+spriteKey = "branch"
+spriteSheetName = "field"
+value = 1
+weight = "300 g"
 
 [[recipes]]
 name = "レイガン"
@@ -12704,7 +12745,7 @@ id = "hard_disk"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
-id = "hardwood"
+id = "firewood"
 weight = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
@@ -16092,20 +16133,20 @@ dy = 0
 
 [[scatterZones]]
 id = "roadside"
-grassDensity = 0.18
+grassDensity = 0.09
 propDensity = 0.015
 lootGroup = "scrap_of_paper"
 [[scatterZones.entries]]
 ref = ""
-weight = 55
+weight = 70
 big = false
 [[scatterZones.entries]]
 ref = "tree_a"
-weight = 16
+weight = 8
 big = false
 [[scatterZones.entries]]
 ref = "tree_b"
-weight = 13
+weight = 6
 big = false
 [[scatterZones.entries]]
 ref = "rock"
@@ -16113,20 +16154,20 @@ weight = 10
 big = false
 [[scatterZones]]
 id = "wild"
-grassDensity = 0.38
+grassDensity = 0.19
 propDensity = 0.035
 lootGroup = "junk"
 [[scatterZones.entries]]
 ref = ""
-weight = 38
+weight = 65
 big = false
 [[scatterZones.entries]]
 ref = "tree_a"
-weight = 24
+weight = 12
 big = false
 [[scatterZones.entries]]
 ref = "tree_b"
-weight = 24
+weight = 12
 big = false
 [[scatterZones.entries]]
 ref = "rock"
@@ -16134,7 +16175,7 @@ weight = 14
 big = false
 [[scatterZones.entries]]
 ref = "big_tree"
-weight = 6
+weight = 3
 big = true
 [[scatterZones.entries.satellites]]
 name = "tree_a"
@@ -17236,7 +17277,7 @@ shelter = 0
 water = 0
 
 [tiles.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dwall"
 spriteSheetName = "tile"
 [[tiles]]
@@ -17278,7 +17319,7 @@ shelter = 0
 water = 0
 
 [tiles.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wall"
 spriteSheetName = "tile"
 [[tiles]]
@@ -17777,7 +17818,7 @@ name = "Barrel"
 id = "barrel"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_barrel"
 spriteSheetName = "field"
 
@@ -17790,14 +17831,14 @@ lootCount = "2d3"
 toolCategory = "prying"
 baseAP = 2500
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d3"
 [[props.disassembly.yields]]
 id = "rusted_chain"
 count = "1d1"
 chance = 40
 [[props.disassembly.bonus]]
-id = "hardwood"
+id = "firewood"
 count = "1d1"
 minSkill = 10
 [[props]]
@@ -17821,7 +17862,7 @@ name = "Bed"
 id = "bed"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "bed"
 spriteSheetName = "field"
 
@@ -17883,7 +17924,7 @@ animKeys = ["fire_0", "fire_1"]
 hp = 9999
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "fire_0"
 spriteSheetName = "field"
 
@@ -17909,7 +17950,7 @@ name = "Bookshelf"
 id = "book_shelf_2"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "book_shelf_2"
 spriteSheetName = "field"
 [[props]]
@@ -17921,7 +17962,7 @@ name = "Book Showcase"
 id = "book_showcase"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "book_showcase"
 spriteSheetName = "field"
 [[props]]
@@ -17933,7 +17974,7 @@ name = "Bookshelf"
 id = "bookshelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wooden_bookshelf"
 spriteSheetName = "field"
 
@@ -18023,7 +18064,7 @@ name = "Chair"
 id = "chair"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "chair"
 spriteSheetName = "field"
 [[props]]
@@ -18047,7 +18088,7 @@ name = "Closet"
 id = "closet"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "closet"
 spriteSheetName = "field"
 
@@ -18089,7 +18130,7 @@ name = "Crate"
 id = "crate"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
@@ -18097,14 +18138,14 @@ spriteSheetName = "field"
 toolCategory = "prying"
 baseAP = 2000
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d2"
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d1"
 chance = 50
 [[props.disassembly.bonus]]
-id = "hardwood"
+id = "firewood"
 count = "1d1"
 minSkill = 10
 [[props]]
@@ -18116,7 +18157,7 @@ name = "Desk"
 id = "desk"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_desk"
 spriteSheetName = "field"
 
@@ -18145,7 +18186,7 @@ name = "Desktop PC"
 id = "desktop_pc"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "desktop_pc"
 spriteSheetName = "field"
 [[props]]
@@ -18157,7 +18198,7 @@ name = "Dish Shelf"
 id = "dish_shelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dish_shelf"
 spriteSheetName = "field"
 
@@ -18174,7 +18215,7 @@ id = "door"
 hp = 50
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "door_horizontal_closed"
 spriteSheetName = "field"
 
@@ -18188,7 +18229,7 @@ name = "Chest of Drawers"
 id = "drawer_chest"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "drawer_chest"
 spriteSheetName = "field"
 
@@ -18205,7 +18246,7 @@ name = "Electric Locker"
 id = "electric_locker"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "electric_locker"
 spriteSheetName = "field"
 [[props]]
@@ -18229,7 +18270,7 @@ name = "Forklift"
 id = "forklift"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "forklift"
 spriteSheetName = "field"
 [[props]]
@@ -18241,7 +18282,7 @@ name = "Furnace"
 id = "furnace"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "furnace"
 spriteSheetName = "field"
 [[props]]
@@ -18253,7 +18294,7 @@ name = "Gauge Machine"
 id = "gauge_machine"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "gauge_machine"
 spriteSheetName = "field"
 [[props]]
@@ -18265,7 +18306,7 @@ name = "Generator"
 id = "generator_green"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "generator_green"
 spriteSheetName = "field"
 [[props]]
@@ -18277,7 +18318,7 @@ name = "Generator"
 id = "generator_yellow"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "generator_yellow"
 spriteSheetName = "field"
 [[props]]
@@ -18289,7 +18330,7 @@ name = "Goods Shelf"
 id = "goods_shelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "goods_shelf"
 spriteSheetName = "field"
 
@@ -18306,7 +18347,7 @@ name = "Iron Shelf"
 id = "iron_shelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "iron_shelf"
 spriteSheetName = "field"
 
@@ -18337,7 +18378,7 @@ name = "Lantern"
 id = "lantern"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "prop_lantern"
 spriteSheetName = "field"
 
@@ -18359,7 +18400,7 @@ name = "Laundry"
 id = "laundry"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "laundry"
 spriteSheetName = "field"
 [[props]]
@@ -18371,7 +18412,7 @@ name = "Window"
 id = "window"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "window"
 spriteSheetName = "field"
 [[props]]
@@ -18383,7 +18424,7 @@ name = "Shutter"
 id = "shutter"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "shutter"
 spriteSheetName = "field"
 [[props]]
@@ -18395,7 +18436,7 @@ name = "Fence"
 id = "fence"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "fence"
 spriteSheetName = "field"
 [[props]]
@@ -18407,7 +18448,7 @@ name = "Buddhist Altar"
 id = "buddhist_altar"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "butsudan"
 spriteSheetName = "field"
 [[props]]
@@ -18419,7 +18460,7 @@ name = "Household Shrine"
 id = "household_shrine"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "kamidana"
 spriteSheetName = "field"
 [[props]]
@@ -18431,7 +18472,7 @@ name = "Shoe Cabinet"
 id = "shoe_cabinet"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "getabako"
 spriteSheetName = "field"
 [[props]]
@@ -18443,7 +18484,7 @@ name = "Microwave"
 id = "microwave"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "microwave"
 spriteSheetName = "field"
 [[props]]
@@ -18502,7 +18543,6 @@ blockView = false
 description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
 name = "Grass"
 id = "grass"
-hp = 1
 
 [props.spriteRender]
 depth = 0
@@ -18514,7 +18554,6 @@ blockView = false
 description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
 name = "Weeds"
 id = "weeds"
-hp = 1
 
 [props.spriteRender]
 depth = 0
@@ -18541,7 +18580,7 @@ name = "Bookshelf"
 id = "prop_bookshelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "prop_bookshelf"
 spriteSheetName = "field"
 [[props]]
@@ -18565,7 +18604,7 @@ name = "Table"
 id = "prop_table"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "prop_table"
 spriteSheetName = "field"
 [[props]]
@@ -18577,7 +18616,7 @@ name = "Refrigerator"
 id = "refrigerator"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "refrigerator"
 spriteSheetName = "field"
 
@@ -18628,7 +18667,7 @@ count = "1d1"
 minSkill = 10
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "register"
 spriteSheetName = "field"
 
@@ -18645,7 +18684,7 @@ name = "Sink"
 id = "sink"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "sink"
 spriteSheetName = "field"
 [[props]]
@@ -18669,7 +18708,7 @@ name = "Stone Pillar"
 id = "stone_pillar"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "stone_pillar"
 spriteSheetName = "field"
 [[props]]
@@ -18681,7 +18720,7 @@ name = "Table"
 id = "table"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dining_table"
 spriteSheetName = "field"
 [[props]]
@@ -18767,7 +18806,7 @@ name = "Wooden Bookshelf"
 id = "wood_bookshelf"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_bookshelf"
 spriteSheetName = "field"
 [[props]]
@@ -18779,7 +18818,7 @@ name = "Wooden Chest"
 id = "wood_chest"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wood_chest"
 spriteSheetName = "field"
 [[props]]
@@ -18815,7 +18854,7 @@ name = "Kitchen Sink"
 id = "kitchen_sink"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "kitchen_sink"
 spriteSheetName = "field"
 [[props]]
@@ -18827,7 +18866,7 @@ name = "Dresser"
 id = "dresser"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dresser"
 spriteSheetName = "field"
 
@@ -18856,7 +18895,7 @@ name = "Two-Seat Sofa"
 id = "two_seat_sofa"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "two_seat_sofa"
 spriteSheetName = "field"
 [[props]]
@@ -18868,7 +18907,7 @@ name = "Work Desk"
 id = "work_desk"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "work_desk"
 spriteSheetName = "field"
 [[props]]
@@ -18880,7 +18919,7 @@ name = "Fireplace"
 id = "fireplace"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "fireplace"
 spriteSheetName = "field"
 [[props]]
@@ -18892,7 +18931,7 @@ name = "Poison Barrel"
 id = "poison_barrel"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "barrel_poison"
 spriteSheetName = "field"
 [[props]]
@@ -18904,7 +18943,7 @@ name = "Fur-Upholstered Chair"
 id = "fur_upholstered_chair"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "fur_chair"
 spriteSheetName = "field"
 [[props]]
@@ -18916,7 +18955,7 @@ name = "Washing Machine"
 id = "washing_machine"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wash_machine_empty"
 spriteSheetName = "field"
 [[props]]
@@ -18928,7 +18967,7 @@ name = "Full Washing Machine"
 id = "washing_machine_full"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "washing_machine_fill"
 spriteSheetName = "field"
 [[props]]
@@ -18940,7 +18979,7 @@ name = "White Barrel"
 id = "white_barrel"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "barrel_white"
 spriteSheetName = "field"
 [[props]]
@@ -18952,7 +18991,7 @@ name = "Green Drum"
 id = "green_drum"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "drum_green"
 spriteSheetName = "field"
 [[props]]
@@ -18964,7 +19003,7 @@ name = "Red Drum"
 id = "red_drum"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "drum_red"
 spriteSheetName = "field"
 [[props]]
@@ -18976,7 +19015,7 @@ name = "Black Chair"
 id = "black_chair"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "black_chair"
 spriteSheetName = "field"
 [[props]]
@@ -18988,7 +19027,7 @@ name = "Black Vase"
 id = "black_vase"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "vase_black"
 spriteSheetName = "field"
 [[props]]
@@ -19000,7 +19039,7 @@ name = "Wooden Crate"
 id = "wooden_crate"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
@@ -19013,14 +19052,14 @@ lootCount = "2d3"
 toolCategory = "prying"
 baseAP = 2000
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d2"
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d1"
 chance = 50
 [[props.disassembly.bonus]]
-id = "hardwood"
+id = "firewood"
 count = "1d1"
 minSkill = 10
 [[props]]
@@ -19032,7 +19071,7 @@ name = "Locker"
 id = "locker"
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "electric_locker"
 spriteSheetName = "field"
 
@@ -19357,6 +19396,16 @@ id = "big_tree"
 depth = 0
 spriteKey = "big_tree"
 spriteSheetName = "field"
+
+[props.felling]
+toolCategory = "chopping"
+[[props.felling.yields]]
+id = "firewood"
+count = "2d2"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d3"
+chance = 60
 [[props]]
 blockPass = true
 blockView = false
@@ -19369,6 +19418,16 @@ id = "tree_a"
 depth = 0
 spriteKey = "tree_a"
 spriteSheetName = "field"
+
+[props.felling]
+toolCategory = "chopping"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+chance = 60
 [[props]]
 blockPass = true
 blockView = true
@@ -19381,6 +19440,16 @@ id = "tree_b"
 depth = 0
 spriteKey = "tree_b"
 spriteSheetName = "field"
+
+[props.felling]
+toolCategory = "chopping"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+[[props.felling.yields]]
+id = "firewood"
+count = "1d2"
+chance = 60
 [[props]]
 blockPass = true
 blockView = false
@@ -19425,7 +19494,7 @@ blockView = true
 hp = 30
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_supply_locker"
 spriteSheetName = "field"
 
@@ -19449,7 +19518,7 @@ blockView = false
 hp = 20
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_ration_crate"
 spriteSheetName = "field"
 
@@ -19462,7 +19531,7 @@ lootCount = "1d3"
 toolCategory = "prying"
 baseAP = 1500
 [[props.disassembly.yields]]
-id = "hardwood"
+id = "firewood"
 count = "1d2"
 [[props]]
 id = "dummy_med_cabinet"
@@ -19473,7 +19542,7 @@ blockView = false
 hp = 20
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_med_cabinet"
 spriteSheetName = "field"
 
@@ -19490,7 +19559,7 @@ blockView = false
 hp = 80
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_boulder"
 spriteSheetName = "field"
 [[props]]
@@ -19503,7 +19572,7 @@ passCost = 60
 hp = 3
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "dummy_thicket"
 spriteSheetName = "field"
 [[props]]
@@ -19515,7 +19584,7 @@ blockView = false
 hp = 10
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_brazier"
 spriteSheetName = "field"
 
@@ -19541,7 +19610,7 @@ blockView = false
 hp = 5
 
 [props.spriteRender]
-depth = 2
+depth = 3
 spriteKey = "dummy_floor_lamp"
 spriteSheetName = "field"
 
@@ -19564,7 +19633,7 @@ passCost = 40
 hp = 10
 
 [props.spriteRender]
-depth = 1
+depth = 2
 spriteKey = "dummy_scrap_heap"
 spriteSheetName = "field"
 
@@ -19573,6 +19642,137 @@ toolCategory = "prying"
 baseAP = 1000
 [[props.disassembly.yields]]
 id = "scrap_iron"
+count = "1d3"
+[[props]]
+blockPass = false
+blockView = false
+description = "A tuft of fresh green grass."
+name = "Lush Grass"
+id = "grass_lush"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_lush"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A tuft of withered, straw-colored grass."
+name = "Dry Grass"
+id = "grass_dry"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_dry"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A tuft of dark green grass."
+name = "Dark Grass"
+id = "grass_dark"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_dark"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A few blades of grass."
+name = "Grass Sprig"
+id = "grass_sprig"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_sprig"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A few withered blades of grass."
+name = "Dry Grass Sprig"
+id = "grass_dry_sprig"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_dry_sprig"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "Small stones scattered on the ground."
+name = "Pebbles"
+id = "soil_pebbles"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "soil_pebbles"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A patch of damp, dark soil."
+name = "Dark Soil"
+id = "soil_dark"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "soil_dark"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A patch of pale, dried-out soil."
+name = "Dry Soil"
+id = "soil_dry"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "soil_dry"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A crack running through dry earth."
+name = "Cracked Ground"
+id = "soil_crack"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "soil_crack"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A low, leafy shrub."
+name = "Shrub"
+id = "bush"
+hp = 6
+
+[props.spriteRender]
+depth = 0
+spriteKey = "bush"
+spriteSheetName = "field"
+
+[[props.felling.yields]]
+id = "branch"
+count = "1d2"
+[[props]]
+blockPass = false
+blockView = false
+description = "A low shrub with withered leaves."
+name = "Withered Shrub"
+id = "bush_dry"
+hp = 6
+
+[props.spriteRender]
+depth = 0
+spriteKey = "bush_dry"
+spriteSheetName = "field"
+
+[[props.felling.yields]]
+id = "branch"
 count = "1d3"
 
 [[professions]]

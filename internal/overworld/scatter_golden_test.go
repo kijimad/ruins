@@ -81,6 +81,9 @@ func renderOverworldRegion(t *testing.T, world w.World, x0, y0, wTiles, hTiles i
 		if ents[i].sr.Depth != ents[j].sr.Depth {
 			return ents[i].sr.Depth < ents[j].sr.Depth
 		}
+		if isTile := ents[i].sr.SpriteSheetName == "tile"; isTile != (ents[j].sr.SpriteSheetName == "tile") {
+			return isTile
+		}
 		if ents[i].g.Y != ents[j].g.Y {
 			return ents[i].g.Y < ents[j].g.Y
 		}

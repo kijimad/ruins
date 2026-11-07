@@ -147,13 +147,13 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 
 	assert.False(t, world.ECS.Alive(crate), "分解したpropは消えるべき")
 
-	// 確定枠の硬木がフィールドに落ちる
+	// 確定枠の薪がフィールドに落ちる
 	var fieldNames []string
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
 	for q.Next() {
 		fieldNames = append(fieldNames, query.GetEntityName(q.Entity(), world))
 	}
-	assert.Contains(t, fieldNames, "Hardwood")
+	assert.Contains(t, fieldNames, "Firewood")
 
 	// 分解完了で機械スキルの経験値が入る
 	mechanic := world.Components.Skills.Get(player).Get(gc.SkillMechanic)

@@ -2424,6 +2424,18 @@ components:
       enum:
         - FactionNeutral
       description: 派閥タイプ
+    Felling:
+      type: object
+      required:
+        - yields
+      properties:
+        toolCategory:
+          $ref: '#/components/schemas/ToolCategory'
+        yields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisassemblyYield'
+      description: 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
     Fire:
       type: object
       required:
@@ -3145,7 +3157,6 @@ components:
         - spriteRender
         - blockPass
         - blockView
-        - hp
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
@@ -3166,7 +3177,9 @@ components:
         passCost:
           $ref: '#/components/schemas/PassCost'
         hp:
-          $ref: '#/components/schemas/HitPoints'
+          allOf:
+            - $ref: '#/components/schemas/HitPoints'
+          description: 耐久。省略した prop は殴れない
         lightSource:
           $ref: '#/components/schemas/LightSource'
         heatSource:
@@ -3183,6 +3196,8 @@ components:
           $ref: '#/components/schemas/StorageRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
+        felling:
+          $ref: '#/components/schemas/Felling'
       description: 置物
     PropList:
       type: object
@@ -3517,6 +3532,7 @@ components:
         - 1
         - 2
         - 3
+        - 4
       description: スプライト描画深度
     SpriteKey:
       type: string
@@ -3670,6 +3686,7 @@ components:
         - prying
         - precision
         - cutting
+        - chopping
       description: 分解工具の分類
     ToolGrade:
       type: integer

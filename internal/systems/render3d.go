@@ -361,7 +361,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 	}
 }
 
-// collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。
+// collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。床の模様は地面に寝かせる。
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
 	right := projector.Right()
 	// 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま
@@ -379,9 +379,19 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if !ok {
 			continue
 		}
-		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
 		tint, vok, vis := visTint(g)
-		if !vok || !vis {
+		if !vok {
+			continue
+		}
+		if sr.Depth == gc.DepthNumDecal {
+			// 奥行きが床と同値になるので、副キーの描画順で床の直後に描く
+			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
+			quads[len(quads)-1].depth = int(sr.Depth)
+			continue
+		}
+		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
+		// 地面に寝かせるものは床と同じく記憶エリアにも描く
+		if !vis {
 			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)

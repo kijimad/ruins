@@ -14,9 +14,8 @@ func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponSta
 	return ExpectedDamagePerAttackWithSkill(attacker, defender, weapon, consts.PercentBase)
 }
 
-// ExpectedDamagePerAttackWithSkill は熟練度倍率 skillMult を織り込んだ1回の期待ダメージを返す。calculateDamage と
-// 同じく base 全体へ倍率を切り捨てで掛け、クリティカル、防御下限の順で計算する。ダイスと防御の max が非線形なので
-// ダイス6面を列挙して厳密化する。skillMult が PercentBase なら静的下限に一致する。
+// ExpectedDamagePerAttackWithSkill は熟練度倍率 skillMult を織り込んだ1回の期待ダメージを返す。属性耐性は無いものとする。
+// ダイスと防御の max が非線形なのでダイス6面を列挙して厳密化する。skillMult が PercentBase なら静的下限に一致する。
 func ExpectedDamagePerAttackWithSkill(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) float64 {
 	// CalcHitRate は MinHitRate 以上へクランプするので hitRate は 0 にならない。よって命中確率と
 	// max(...,1) の下限から期待ダメージは常に正になり、ExpectedTTK もゼロ除算や 0 に落ちない。
@@ -34,9 +33,17 @@ func ExpectedDamagePerAttackWithSkill(attacker, defender CombatantStats, weapon 
 
 	sum := 0.0
 	for die := 1; die <= formula.DamageRandomRange; die++ {
-		base := skillMult.ApplyInt(baseAbil + die + weapon.Damage)
-		normal := max(base-defender.Defense, formula.MinDamage)
-		crit := max(formula.ApplyCritical(base)-defender.Defense, formula.MinDamage)
+		in := formula.DamageInput{
+			Ability:      baseAbil,
+			Die:          die,
+			WeaponDamage: weapon.Damage,
+			SkillMult:    int(skillMult),
+			ElementMult:  int(consts.PercentBase),
+			Defense:      defender.Defense,
+		}
+		normal := formula.Damage(in)
+		in.Critical = true
+		crit := formula.Damage(in)
 		sum += pCrit*float64(crit) + pNormalHit*float64(normal)
 	}
 	return sum / float64(formula.DamageRandomRange)

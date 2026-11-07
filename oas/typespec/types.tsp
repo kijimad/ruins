@@ -504,12 +504,14 @@ enum MovementPatternType {
 enum SpriteDepth {
   /** 床レイヤー */
   Floor: 0,
+  /** 床の模様レイヤー。3D では地面に寝かせて描く */
+  Decal: 1,
   /** 敷物レイヤー */
-  Rug: 1,
+  Rug: 2,
   /** 背の高いオブジェクトレイヤー */
-  Taller: 2,
+  Taller: 3,
   /** プレイヤーレイヤー */
-  Player: 3,
+  Player: 4,
 }
 
 /** 遮蔽タイプ */
@@ -575,4 +577,6 @@ enum ToolCategory {
   precision,
   /** 切断。金属大物など */
   cutting,
+  /** 伐採。木など */
+  chopping,
 }

@@ -4905,12 +4905,6 @@ msgstr "砂の瓶"
 msgid "A jar packed with fine sand, a material for clocks."
 msgstr "細かい砂が詰められた瓶。時計の素材になる"
 
-msgid "Hardwood"
-msgstr "硬木"
-
-msgid "Heavy, sturdy lumber, excellent as a building material."
-msgstr "重くて頑丈な木材。建築資材として優秀"
-
 msgid "Seed Core"
 msgstr "種コア"
 
@@ -6403,3 +6397,48 @@ msgstr "%sを開く(%s)"
 
 msgid "There is nothing to pick up nearby."
 msgstr "近くに拾えるものがない。"
+
+msgid "Firewood"
+msgstr "薪"
+
+msgid "Split wood for burning."
+msgstr "燃やすために割った木"
+
+msgid "Lush Grass"
+msgstr "青草"
+
+msgid "Dry Grass"
+msgstr "枯れ草"
+
+msgid "Dark Grass"
+msgstr "深緑の草"
+
+msgid "Grass Sprig"
+msgstr "草の芽"
+
+msgid "Dry Grass Sprig"
+msgstr "枯れた草の芽"
+
+msgid "Pebbles"
+msgstr "小石"
+
+msgid "Dark Soil"
+msgstr "湿った土"
+
+msgid "Dry Soil"
+msgstr "乾いた土"
+
+msgid "Cracked Ground"
+msgstr "地割れ"
+
+msgid "Shrub"
+msgstr "灌木"
+
+msgid "Withered Shrub"
+msgstr "枯れた灌木"
+
+msgid "Branch"
+msgstr "枝"
+
+msgid "A dry branch snapped off a shrub. It catches fire easily."
+msgstr "灌木から折り取った乾いた枝。火が付きやすい"

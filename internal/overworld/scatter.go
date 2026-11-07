@@ -33,9 +33,9 @@ type scatterEntry struct {
 	Satellites []relSpot
 }
 
-// scatterCatalog は zone ごとの散布定義。GrassDensity は草・雑草 prop を撒く面積あたり係数、PropDensity
-// は樹木・岩を撒く係数で、どちらも count = round(area * Density) で個数を密度確率から導く。個数を反復
-// 乱数でなく密度確率で決めるので純関数のまま。
+// scatterCatalog は zone ごとの散布定義。GrassDensity は草・雑草 prop をタイルへ置く平均の確率で、茂みの
+// 濃淡を掛けて場所ごとに増減する。PropDensity は樹木・岩を撒く係数で、count = round(area * Density) で
+// 個数を導く。どちらも座標と seed の純関数のまま。
 type scatterCatalog struct {
 	Zone         outdoorZone
 	GrassDensity float64
@@ -55,14 +55,29 @@ const (
 	zoneWild outdoorZone = "wild"
 )
 
-// 草の prop の名前と混ぜ方を決める。透明 prop なので地面へ重なり、オートタイルの縁や暗いフィルが出ない。
-// 大半をみずみずしい草にし、乾いた雑草をまばらに混ぜて単調さを崩す。
-const (
-	scatterGrassProp = "grass"
-	scatterWeedProp  = "weeds"
-	// scatterWeedMod は雑草の割合。hash がこの法で 0 になるタイルだけ雑草にする。約 1/4。
-	scatterWeedMod = 4
+// 草・灌木と土の飾りの種類と重み。土の飾りは草の生えていない土へまばらに撒く
+var (
+	scatterGrassVariants = []scatterEntry{
+		{Ref: "grass", Weight: 30},
+		{Ref: "grass_lush", Weight: 15},
+		{Ref: "grass_sprig", Weight: 15},
+		{Ref: "weeds", Weight: 10},
+		{Ref: "grass_dry", Weight: 10},
+		{Ref: "grass_dark", Weight: 10},
+		{Ref: "grass_dry_sprig", Weight: 10},
+		{Ref: "bush", Weight: 4},
+		{Ref: "bush_dry", Weight: 3},
+	}
+	scatterSoilVariants = []scatterEntry{
+		{Ref: "soil_pebbles", Weight: 3},
+		{Ref: "soil_dark", Weight: 3},
+		{Ref: "soil_dry", Weight: 3},
+		{Ref: "soil_crack", Weight: 2},
+	}
 )
+
+// scatterSoilDensity は草の生えていない土のタイルへ土の飾りを置く確率
+const scatterSoilDensity = 0.03
 
 // 位相格子と経路マスクの定数。どちらも Big の大物だけに効き、通行を塞がない小物は制約しない。
 const (
@@ -79,8 +94,10 @@ const (
 	scatterRoadsideRange consts.Chunk = 1
 	// scatterGrassChannel は草の選定を prop 選定と無相関にするハッシュチャネル。
 	scatterGrassChannel uint64 = 0x67726173735f7072 // "grass_pr"
-	// scatterWeedChannel は雑草の抽選を草の選定と無相関にするハッシュチャネル。
-	scatterWeedChannel uint64 = 0x776565645f5f7072 // "weed__pr"
+	// scatterVariantChannel は草と土の飾りの種類の抽選を、置くかの選定と無相関にするハッシュチャネル。
+	scatterVariantChannel uint64 = 0x776565645f5f7072 // "weed__pr"
+	// scatterSoilChannel は土の飾りの選定と種類の抽選を草と無相関にするハッシュチャネル。
+	scatterSoilChannel uint64 = 0x736f696c5f5f7072 // "soil__pr"
 )
 
 // scatterEarthTiles は自然物を立てられる土系タイル。草の prop もこの上に撒く。dirt が基調で、砂土は
@@ -131,10 +148,10 @@ func scatterCatalogForChunk(raws oapi.Raws, runSeed uint64, c consts.Coord[const
 // scatterCatalogForChunk が決める。今は wasteland だけが対象で、砂漠など他の開けた地形はそこへ足す。
 type openTerrainFeature struct{}
 
-// place は散布対象の開けたチャンクで密度場を走らせ、まず草を密に撒き、続けて樹木と岩を疎に撒く。
-// どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。選定はチャンク相対座標と
-// 絶対チャンク seed の純関数で、帯の整列がずれても再訪一致する。地面判定と占有は帯ローカルの実
-// エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
+// place は散布対象の開けたチャンクへ、まず草と土の飾りを撒き、続けて樹木と岩を疎に撒く。
+// どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。草と土の飾りは絶対タイル
+// 座標の、樹木と岩はチャンク相対座標と絶対チャンク seed の純関数で選び、帯の整列がずれても再訪一致する。
+// 地面判定と占有は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)
 	if err != nil || !ok {
@@ -158,20 +175,31 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 		return isEarthTile(world, tiles, bl) && !occupied[gc.GridElement{Coord: bl}]
 	}
 
-	// まず草・雑草を密に撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
+	// まず草と土の飾りを撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
 	// 通行を塞がず、位相や経路の制約は要らない。続く樹木が草と重ならないよう占有を記録しながら先に撒く。
-	grassSeed := ChunkSeed2D(runSeed^scatterSalt^scatterGrassChannel, c.X, c.Y)
-	grassCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.GrassDensity))
-	for _, rel := range interior.ScatterArea(area, accept, grassSeed, grassCount) {
-		bl := bandLocal(rel)
-		name := scatterGrassProp
-		if hashTileCoord(grassSeed^scatterWeedChannel, rel)%scatterWeedMod == 0 {
-			name = scatterWeedProp
+	grassSeed := runSeed ^ scatterSalt ^ scatterGrassChannel
+	for y := range g.chunkH {
+		for x := range g.chunkW {
+			rel := consts.Coord[consts.Tile]{X: x, Y: y}
+			abs := absTile(rel)
+			if !accept(rel) {
+				continue
+			}
+			var name string
+			switch {
+			case placesGrass(grassSeed, cat.GrassDensity, abs):
+				name = pickScatterEntry(scatterGrassVariants, true, hashTileCoord(grassSeed^scatterVariantChannel, abs)).Ref
+			case unitFloat(hashTileCoord(grassSeed^scatterSoilChannel, abs)) < scatterSoilDensity:
+				name = pickScatterEntry(scatterSoilVariants, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterVariantChannel, abs)).Ref
+			default:
+				continue
+			}
+			bl := bandLocal(rel)
+			if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
+				return fmt.Errorf("failed to place ground cover (%s): %w", name, err)
+			}
+			occupied[gc.GridElement{Coord: bl}] = true
 		}
-		if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
-			return fmt.Errorf("failed to place grass (%s): %w", name, err)
-		}
-		occupied[gc.GridElement{Coord: bl}] = true
 	}
 
 	// 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。

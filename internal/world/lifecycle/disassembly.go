@@ -77,6 +77,22 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 	return stacks, nil
 }
 
+// RollFellingYields は伐採定義から倒れたときの産出を抽選する。chance 省略は確定で出る
+func RollFellingYields(rng *rand.Rand, def *oapi.Felling) ([]YieldStack, error) {
+	var stacks []YieldStack
+	for _, y := range def.Yields {
+		if y.Chance != nil && rng.IntN(100) >= *y.Chance {
+			continue
+		}
+		count, err := rollCount(rng, y.Count)
+		if err != nil {
+			return nil, err
+		}
+		stacks = append(stacks, YieldStack{Name: y.Id, Count: count})
+	}
+	return stacks, nil
+}
+
 // rollCount は産出個数をダイス表記から抽選する。表記は raw ロード時の検証で担保済みだが、
 // 万一パースに失敗したら 0 個を黙って返さず error を返し、呼び出し側で気づけるようにする。
 func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {

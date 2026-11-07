@@ -176,6 +176,21 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 		require.ErrorIs(t, err, errDisassemblyYieldUndefined)
 	})
 
+	t.Run("propの伐採産出名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items: validItems,
+			Props: &[]oapi.Prop{{
+				Name: "木",
+				Felling: &oapi.Felling{
+					Yields: []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
+				},
+			}},
+		}
+		err := validateDisassemblyReferences(raws)
+		require.ErrorIs(t, err, errDisassemblyYieldUndefined)
+	})
+
 	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		items := []oapi.Item{

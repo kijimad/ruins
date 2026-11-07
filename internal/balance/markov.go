@@ -27,8 +27,7 @@ type damageProb struct {
 	p   float64
 }
 
-// attackDamagePMF は1回の攻撃のダメージ分布を昇順スライスで返す。dmg=0 は miss。calculateDamage と同じく
-// skillMult を base 全体へ切り捨てで掛け、クリティカル、防御下限の順で乱数なしに再現する。
+// attackDamagePMF は1回の攻撃のダメージ分布を昇順スライスで返す。dmg=0 は miss。属性耐性は無いものとする
 func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) []damageProb {
 	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
 	baseAbil := attacker.Strength
@@ -45,9 +44,17 @@ func attackDamagePMF(attacker, defender CombatantStats, weapon WeaponStats, skil
 	// TestAttackDamagePMF_命中は0ダメージにならない で担保する。
 	acc[0] += pMiss
 	for die := 1; die <= formula.DamageRandomRange; die++ {
-		base := skillMult.ApplyInt(baseAbil + die + weapon.Damage)
-		normal := max(base-defender.Defense, formula.MinDamage)
-		crit := max(formula.ApplyCritical(base)-defender.Defense, formula.MinDamage)
+		in := formula.DamageInput{
+			Ability:      baseAbil,
+			Die:          die,
+			WeaponDamage: weapon.Damage,
+			SkillMult:    int(skillMult),
+			ElementMult:  int(consts.PercentBase),
+			Defense:      defender.Defense,
+		}
+		normal := formula.Damage(in)
+		in.Critical = true
+		crit := formula.Damage(in)
 		acc[normal] += pNormal / float64(formula.DamageRandomRange)
 		acc[crit] += pCrit / float64(formula.DamageRandomRange)
 	}

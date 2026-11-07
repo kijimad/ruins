@@ -174,7 +174,7 @@ func attackAction(world w.World) directionAction {
 	}
 }
 
-// meleeTargetAt はタイル上の近接攻撃の対象を返す。歩ける草などの prop と敵が重なるので、prop でない相手を優先する
+// meleeTargetAt はタイル上の近接攻撃の対象を返す。歩ける岩などの prop と敵が重なるので、prop でない相手を優先する
 func meleeTargetAt(world w.World, c consts.Coord[consts.Tile]) (ecs.Entity, bool) {
 	var prop ecs.Entity
 	found := false

@@ -504,7 +504,8 @@ model Prop {
   blockPass: BlocksPassage;
   blockView: BlocksView;
   passCost?: PassCost;
-  hp: HitPoints;
+  /** 耐久。省略した prop は殴れない */
+  hp?: HitPoints;
   lightSource?: LightSource;
   heatSource?: HeatSource;
   bedding?: Bedding;
@@ -513,6 +514,7 @@ model Prop {
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
+  felling?: Felling;
 }
 
 /** 分解の産出エントリ。chance 省略は確定枠 */
@@ -540,6 +542,12 @@ model Disassembly {
   baseAP: DisassemblyBaseAP;
   yields: DisassemblyYield[];
   bonus?: DisassemblyBonus[];
+}
+
+/** 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる */
+model Felling {
+  toolCategory?: ToolCategory;
+  yields: DisassemblyYield[];
 }
 
 /** 分解工具。分類の対応とグレードを持つ */

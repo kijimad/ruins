@@ -9,7 +9,7 @@ import (
 
 // materialHeatPerKg は材質のkgあたり燃焼熱量。ここに載らない材質は不燃で0とみなし燃料にならない。
 // 燃料熱量は重量kgへ掛けて導く。石炭・油が高く、食料・骨が低い。金属・石・ガラス・結晶・陶磁器・液体は不燃。
-// 係数は balance 値なので schema でなくここで持つ。地面効率50%で hardwood 3kg が約300ターン、
+// 係数は balance 値なので schema でなくここで持つ。地面効率50%で firewood 1kg が約100ターン、
 // coal 1kg が約400ターン燃えるよう釣り合わせる。火を絶やさぬ手触りに合わせて全体をここで振る
 var materialHeatPerKg = map[oapi.Material]int{
 	oapi.OIL:     1000,

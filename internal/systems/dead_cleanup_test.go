@@ -330,3 +330,39 @@ func TestDeadCleanupSystem_壊れた収納propは中身を足元へ出す(t *tes
 	assert.True(t, world.Components.LocationOnField.Has(item), "中身は足元のフィールドへ出る")
 	assert.False(t, world.Components.LocationInStorage.Has(item), "収納内位置は解除される")
 }
+
+func TestDeadCleanupSystem_伐採定義のpropは倒れると産出を落とす(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	tree, err := lifecycle.SpawnProp(world, "tree_a", 4, 4)
+	require.NoError(t, err)
+
+	world.Components.Dead.Add(tree, &gc.Dead{})
+	sys := &DeadCleanupSystem{}
+	require.NoError(t, sys.Update(world))
+
+	drops := query.PickablesAt(world, consts.Coord[consts.Tile]{X: 4, Y: 4})
+	require.NotEmpty(t, drops)
+	for _, d := range drops {
+		assert.Equal(t, "firewood", query.GetEntityID(d, world))
+	}
+}
+
+func TestDeadCleanupSystem_倒れた灌木は枝を落とす(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	bush, err := lifecycle.SpawnProp(world, "bush", 4, 4)
+	require.NoError(t, err)
+
+	world.Components.Dead.Add(bush, &gc.Dead{})
+	sys := &DeadCleanupSystem{}
+	require.NoError(t, sys.Update(world))
+
+	drops := query.PickablesAt(world, consts.Coord[consts.Tile]{X: 4, Y: 4})
+	require.NotEmpty(t, drops)
+	for _, d := range drops {
+		assert.Equal(t, "branch", query.GetEntityID(d, world))
+	}
+}

@@ -6,7 +6,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -63,59 +62,36 @@ func TestGetSkillMult_UnmappedWeapon(t *testing.T) {
 	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, true)))
 }
 
-func TestApplyElementResist_NoSkills(t *testing.T) {
+func TestElementMult(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	target := world.ECS.NewEntity()
+	tests := []struct {
+		name        string
+		fireResist  int
+		hasSkills   bool
+		element     gc.ElementType
+		wantPercent consts.Percent
+	}{
+		{"スキルを持たない対象は等倍", 0, false, gc.ElementTypeFire, 100},
+		{"無属性は耐性があっても等倍", 40, true, gc.ElementTypeNone, 100},
+		{"空の属性は等倍", 40, true, gc.ElementType(""), 100},
+		{"耐火Lv5は100+5*(-3)で85", 5, true, gc.ElementTypeFire, 85},
+		{"耐火Lv40は100+40*(-3)で-20", 40, true, gc.ElementTypeFire, -20},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			target := world.ECS.NewEntity()
+			if tt.hasSkills {
+				skills := gc.NewSkills()
+				skills.Get(gc.SkillFireResist).Value = tt.fireResist
+				world.Components.Skills.Add(target, skills)
+			}
 
-	// Skillsなし → 等倍でダメージそのまま
-	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeFire, world))
-}
-
-func TestApplyElementResist_NonElement(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	target := world.ECS.NewEntity()
-
-	skills := gc.NewSkills()
-	skills.Get(gc.SkillFireResist).Value = 40 // 高い耐性でも無属性には効かない
-	world.Components.Skills.Add(target, skills)
-
-	// 無属性は耐性キーに無いのでダメージを素通しする。None も空文字も同じ
-	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementTypeNone, world))
-	assert.Equal(t, 50, applyElementResist(50, target, gc.ElementType(""), world))
-}
-
-func TestApplyElementResist_WithResist(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	target := world.ECS.NewEntity()
-
-	skills := gc.NewSkills()
-	skills.Get(gc.SkillFireResist).Value = 5
-	world.Components.Skills.Add(target, skills)
-
-	// 耐火Lv5: 耐性 = 100 + 5*(-3) = 85
-	// 50 * 85 / 100 = 42
-	assert.Equal(t, 42, applyElementResist(50, target, gc.ElementTypeFire, world))
-}
-
-func TestApplyElementResist_MinimumDamage(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	target := world.ECS.NewEntity()
-
-	skills := gc.NewSkills()
-	skills.Get(gc.SkillFireResist).Value = 40 // 高い耐性値
-	world.Components.Skills.Add(target, skills)
-
-	// 耐火Lv40: 耐性 = 100 + 40*(-3) = -20
-	// ダメージ = 5 * -20 / 100 = -1 → 最低保証1
-	assert.Equal(t, formula.MinDamage, applyElementResist(5, target, gc.ElementTypeFire, world))
+			assert.Equal(t, tt.wantPercent, elementMult(target, tt.element, world))
+		})
+	}
 }
 
 func TestGrowWeaponSkill_NoSkillsComponent(t *testing.T) {
@@ -658,5 +634,52 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 	// 全スキルの経験値が0のまま
 	for _, id := range gc.AllSkillIDs {
 		assert.Equal(t, 0, skills.Get(id).Exp.Current, "スキル %s の経験値が変わらない", id)
+	}
+}
+
+func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		weapon     string
+		wantDamage bool
+	}{
+		{"斧で殴ると削れる", "axe", true},
+		{"松明で殴っても削れずスキルも伸びない", "torch", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.UnequipAll(world, player))
+			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
+			require.NoError(t, err)
+			lifecycle.MoveToEquip(world, weapon, player, gc.SlotWeapon1)
+			query.GetWeaponSelection(world).Slot = 1
+			tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
+			require.NoError(t, err)
+			attack, name, err := getAttackParams(player, world)
+			require.NoError(t, err)
+			skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
+			require.True(t, ok)
+			expBefore := world.Components.Skills.Get(player).Get(skillID).Exp.Current
+
+			// 命中率は上限があり外れうるので、補正を大きく取って何度も殴り、少なくとも1回は当てる
+			for range 20 {
+				require.NoError(t, applyAttackDamage(player, tree, world, attack, name, 1000, 0))
+			}
+
+			hp := world.Components.HP.Get(tree)
+			expAfter := world.Components.Skills.Get(player).Get(skillID).Exp.Current
+			if tt.wantDamage {
+				assert.Less(t, hp.Current, hp.Max)
+			} else {
+				assert.Equal(t, hp.Max, hp.Current)
+				assert.Equal(t, expBefore, expAfter)
+			}
+		})
 	}
 }

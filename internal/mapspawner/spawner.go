@@ -55,12 +55,13 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 
 // spawnTiles はタイルからエンティティを生成する
 func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
-	for _i, tile := range metaPlan.Tiles {
+	for _i := range metaPlan.Tiles {
+		tile := &metaPlan.Tiles[_i]
 		i := gc.TileIdx(_i)
 		pos := metaPlan.Level.IndexToCoord(i)
 		tileX, tileY := pos.X+offsetX, pos.Y+offsetY
 
-		tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)
+		tileEntity, err := spawnTile(world, metaPlan, *tile, i, tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("failed to spawn tile entity (%d, %d): %w", int(pos.X), int(pos.Y), err)
 		}

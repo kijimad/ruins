@@ -88,7 +88,9 @@ type DepthNum int
 const (
 	// DepthNumFloor は床。最背面に表示する
 	DepthNumFloor DepthNum = iota
-	// DepthNumRug は床に置くもの。例: ワープホール、アイテム
+	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール。3D では立て板にせず地面に寝かせて描く
+	DepthNumDecal
+	// DepthNumRug は床に置くもの。例: アイテム、焚き火
 	DepthNumRug
 	// DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁
 	DepthNumTaller

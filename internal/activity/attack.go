@@ -2,6 +2,7 @@ package activity
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -9,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -86,6 +88,42 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	}
 
 	return nil
+}
+
+// fellingBlocked は伐採定義に道具の分類がある prop を、その道具を構えずに殴るかを返す。真なら削れない
+func fellingBlocked(world w.World, actor, target ecs.Entity) bool {
+	if !world.Components.Prop.Has(target) {
+		return false
+	}
+	def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(target, world))
+	return ok && def.ToolCategory != nil && !holdsTool(world, actor, *def.ToolCategory)
+}
+
+// holdsTool はプレイヤーが選択中の武器が道具分類 category を持つかを返す
+func holdsTool(world w.World, actor ecs.Entity, category oapi.ToolCategory) bool {
+	if !world.Components.Player.Has(actor) {
+		return false
+	}
+	weapon, ok, err := selectedWeapon(world, actor)
+	if err != nil || !ok {
+		return false
+	}
+	tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
+	return ok && slices.Contains(tool.Categories, category)
+}
+
+// selectedWeapon はプレイヤーが選択中の武器スロットの武器を返す。空きスロットなら ok は偽
+func selectedWeapon(world w.World, actor ecs.Entity) (ecs.Entity, bool, error) {
+	selectedSlot := query.GetWeaponSelection(world).Slot
+	weaponIndex := selectedSlot - 1
+	if weaponIndex < 0 || weaponIndex >= 5 {
+		return ecs.Entity{}, false, fmt.Errorf("%w: %d", ErrInvalidWeaponSlot, selectedSlot)
+	}
+	weapon := query.GetWeapons(world, actor)[weaponIndex]
+	if weapon == nil {
+		return ecs.Entity{}, false, nil
+	}
+	return *weapon, true, nil
 }
 
 // Start はBehaviorの実装
@@ -210,18 +248,12 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if world.Components.Player.Has(attacker) {
-		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
-		selectedSlot := query.GetWeaponSelection(world).Slot
-		weaponIndex := selectedSlot - 1 // 1-based to 0-based
-		if weaponIndex < 0 || weaponIndex >= 5 {
-			return nil, "", fmt.Errorf("%w: %d", ErrInvalidWeaponSlot, selectedSlot)
+		weapon, ok, err := selectedWeapon(world, attacker)
+		if err != nil {
+			return nil, "", err
 		}
-
-		weapons := query.GetWeapons(world, attacker)
-		weapon := weapons[weaponIndex]
-		if weapon != nil {
-			// 装備している武器から攻撃パラメータを取得
-			attack, weaponName, err := query.GetMeleeFromWeapon(world, *weapon)
+		if ok {
+			attack, weaponName, err := query.GetMeleeFromWeapon(world, weapon)
 			if err == nil && attack != nil {
 				return attack, weaponName, nil
 			}
@@ -262,15 +294,13 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	return query.ProficiencyValue(world, entity, key)
 }
 
-// applyElementResist は元素耐性倍率でダメージを軽減する。無属性攻撃は対象外
-func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, world w.World) int {
+// elementMult は対象の属性 element への耐性の倍率を返す。耐性を持たない属性なら等倍
+func elementMult(target ecs.Entity, element gc.ElementType, world w.World) consts.Percent {
 	key, ok := gc.LookupElementResistKey(element)
 	if !ok {
-		return damage
+		return consts.PercentBase
 	}
-	mult := query.ProficiencyValue(world, target, key)
-	reduced := max(mult.ApplyInt(damage), formula.MinDamage)
-	return reduced
+	return query.ProficiencyValue(world, target, key)
 }
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
@@ -290,7 +320,10 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
 
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
-	growWeaponSkill(actor, world, attack)
+	// 削れない相手を殴り続けて安全に稼げないよう、ダメージ0では武器スキルを伸ばさない
+	if damage > 0 {
+		growWeaponSkill(actor, world, attack)
+	}
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
 	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
@@ -344,39 +377,33 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 	return attack.GetAccuracy() - formula.BaseHitRate
 }
 
-// calculateDamage はダメージ計算を行う
+// calculateDamage は ECS から攻撃側と対象の値を集め、formula.Damage で1回の命中のダメージを求める
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
-	if !world.Components.Abilities.Has(attacker) {
+	if !world.Components.Abilities.Has(attacker) || fellingBlocked(world, attacker, target) {
 		return 0
 	}
 	attackerAbils := world.Components.Abilities.Get(attacker)
 
-	baseAbil := attackerAbils.Strength.Total
+	ability := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
-		baseAbil = attackerAbils.Sensation.Total
+		ability = attackerAbils.Sensation.Total
 	}
 
-	targetDefense := 0
+	defense := 0
 	if world.Components.Abilities.Has(target) {
-		targetAbilsComp := world.Components.Abilities.Get(target)
-		targetDefense = targetAbilsComp.Defense.Total
+		defense = world.Components.Abilities.Get(target).Defense.Total
 	}
 
-	baseDamage := baseAbil + world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1
-	baseDamage += attack.GetDamage()
-	baseDamage += damageModifier
-
-	baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
-
-	if critical {
-		baseDamage = formula.ApplyCritical(baseDamage)
-	}
-
-	baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
-
-	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
-
-	return finalDamage
+	return formula.Damage(formula.DamageInput{
+		Ability:      ability,
+		Die:          world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1,
+		WeaponDamage: attack.GetDamage(),
+		Modifier:     damageModifier,
+		SkillMult:    int(getSkillMult(attacker, attack, world, true)),
+		Critical:     critical,
+		ElementMult:  int(elementMult(target, attack.GetElement(), world)),
+		Defense:      defense,
+	})
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
