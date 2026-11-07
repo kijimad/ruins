@@ -5410,7 +5410,7 @@ msgid "An introductory book covering the fundamentals of gardening."
 msgstr "園芸の基礎知識をまとめた入門書"
 
 msgid "Ash"
-msgstr "アッシュ"
+msgstr "Ash"
 
 msgid "Bat"
 msgstr "コウモリ"
