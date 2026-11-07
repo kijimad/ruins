@@ -262,7 +262,6 @@ func TestRollFellingYields_確定枠と確率100の枠を出す(t *testing.T) {
 	t.Parallel()
 	hundred := oapi.DisassemblyChance(100)
 	def := &oapi.Felling{
-		ToolCategory: oapi.Chopping,
 		Yields: []oapi.DisassemblyYield{
 			{Id: "firewood", Count: "2d1"},
 			{Id: "firewood", Count: "1d1", Chance: &hundred},

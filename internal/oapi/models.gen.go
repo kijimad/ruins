@@ -1404,10 +1404,10 @@ type FacilityZone struct {
 // FactionMemberType 派閥タイプ
 type FactionMemberType string
 
-// Felling 伐採定義。これを持つ prop は toolCategory の道具を構えて殴ったときだけ削れ、倒れると産出を落とす
+// Felling 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
 type Felling struct {
 	// ToolCategory 分解工具の分類
-	ToolCategory ToolCategory       `json:"toolCategory"`
+	ToolCategory *ToolCategory      `json:"toolCategory,omitempty"`
 	Yields       []DisassemblyYield `json:"yields"`
 }
 
@@ -1908,7 +1908,7 @@ type Prop struct {
 	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
 
-	// Felling 伐採定義。これを持つ prop は toolCategory の道具を構えて殴ったときだけ削れ、倒れると産出を落とす
+	// Felling 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
 	Felling *Felling `json:"felling,omitempty"`
 
 	// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する

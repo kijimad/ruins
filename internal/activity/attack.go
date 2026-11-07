@@ -87,7 +87,7 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 		return fmt.Errorf("attacker has no attack means")
 	}
 
-	if def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(p.Target, world)); ok && !holdsTool(world, actor, def.ToolCategory) {
+	if def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(p.Target, world)); ok && def.ToolCategory != nil && !holdsTool(world, actor, *def.ToolCategory) {
 		return &UserError{Msg: query.T(world, "You need a felling tool to cut down %s.", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
 	}
 

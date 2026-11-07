@@ -183,8 +183,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			Props: &[]oapi.Prop{{
 				Name: "木",
 				Felling: &oapi.Felling{
-					ToolCategory: oapi.Chopping,
-					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
+					Yields: []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
 		}

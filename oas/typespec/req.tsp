@@ -545,9 +545,9 @@ model Disassembly {
   bonus?: DisassemblyBonus[];
 }
 
-/** 伐採定義。これを持つ prop は toolCategory の道具を構えて殴ったときだけ削れ、倒れると産出を落とす */
+/** 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる */
 model Felling {
-  toolCategory: ToolCategory;
+  toolCategory?: ToolCategory;
   yields: DisassemblyYield[];
 }
 

@@ -2427,7 +2427,6 @@ components:
     Felling:
       type: object
       required:
-        - toolCategory
         - yields
       properties:
         toolCategory:
@@ -2436,7 +2435,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DisassemblyYield'
-      description: 伐採定義。これを持つ prop は toolCategory の道具を構えて殴ったときだけ削れ、倒れると産出を落とす
+      description: 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
     Fire:
       type: object
       required:

@@ -695,6 +695,19 @@ func TestMeleeBehavior_Validate_伐採(t *testing.T) {
 		require.ErrorAs(t, ab.Validate(NewMeleeActivity(tree), player, world), &userErr)
 	})
 
+	t.Run("道具の分類が無い伐採定義のpropはどの武器でも殴れる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		query.GetWeaponSelection(world).Slot = 1
+		bush, err := lifecycle.SpawnProp(world, "bush", 10, 9)
+		require.NoError(t, err)
+
+		ab := &MeleeBehavior{}
+		require.NoError(t, ab.Validate(NewMeleeActivity(bush), player, world))
+	})
+
 	t.Run("伐採定義の無いpropはどの武器でも殴れる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

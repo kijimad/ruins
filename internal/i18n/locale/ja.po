@@ -6445,3 +6445,9 @@ msgstr "灌木"
 
 msgid "Withered Shrub"
 msgstr "枯れた灌木"
+
+msgid "Branch"
+msgstr "枝"
+
+msgid "A dry branch snapped off a shrub. It catches fire easily."
+msgstr "灌木から折り取った乾いた枝。火が付きやすい"

@@ -9464,6 +9464,15 @@ spriteKey = "heavy_wood"
 spriteSheetName = "field"
 value = 3
 weight = "1 kg"
+[[items]]
+description = "A dry branch snapped off a shrub. It catches fire easily."
+name = "Branch"
+id = "branch"
+material = "WOOD"
+spriteKey = "branch"
+spriteSheetName = "field"
+value = 1
+weight = "300 g"
 
 [[recipes]]
 name = "レイガン"
@@ -19735,22 +19744,32 @@ blockView = false
 description = "A low, leafy shrub."
 name = "Shrub"
 id = "bush"
+hp = 6
 
 [props.spriteRender]
 depth = 0
 spriteKey = "bush"
 spriteSheetName = "field"
+
+[[props.felling.yields]]
+id = "branch"
+count = "1d2"
 [[props]]
 blockPass = false
 blockView = false
 description = "A low shrub with withered leaves."
 name = "Withered Shrub"
 id = "bush_dry"
+hp = 6
 
 [props.spriteRender]
 depth = 0
 spriteKey = "bush_dry"
 spriteSheetName = "field"
+
+[[props.felling.yields]]
+id = "branch"
+count = "1d3"
 
 [[professions]]
 description = "An ordinary person who fled the collapse."
