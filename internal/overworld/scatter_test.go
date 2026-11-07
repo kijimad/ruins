@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -155,22 +156,35 @@ func TestScatterFeature_土系の空きにだけ置く(t *testing.T) {
 	}
 }
 
-// TestScatterFeature_草を撒く は、散布が地面へ草・雑草の prop を撒いて野原の質感を出すことを固定する。
-// 草は透明背景の prop でタイルのオートタイルを経由しないため、縁や暗いフィルが出ない。歩行可能。
-func TestScatterFeature_草を撒く(t *testing.T) {
+// TestScatterFeature_草と土の飾りを種類を混ぜて撒く は、散布が地面へ草と土の飾りの prop を、一覧の
+// 複数の種類から混ぜて撒くことを固定する。どれも透明背景の prop で、オートタイルを経由しない。
+func TestScatterFeature_草と土の飾りを種類を混ぜて撒く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	c := firstWastelandChunk(t)
 	g := newDirtChunk(t, world)
 	require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
-	grass := 0
+	variants := map[string]bool{}
+	for _, v := range append(append([]scatterEntry{}, scatterGrassVariants...), scatterSoilVariants...) {
+		variants[v.Ref] = true
+	}
+	kinds := map[string]bool{}
 	for _, p := range collectProps(world) {
-		if p.id == scatterGrassProp || p.id == scatterWeedProp {
-			grass++
+		if variants[p.id] {
+			kinds[p.id] = true
 		}
 	}
-	assert.Positive(t, grass, "地面へ草の prop が撒かれる")
+	assert.GreaterOrEqual(t, len(kinds), 3, "複数の種類が混ざる: %v", kinds)
+}
+
+func TestScatterVariants_参照するpropが定義されている(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	for _, v := range append(append([]scatterEntry{}, scatterGrassVariants...), scatterSoilVariants...) {
+		_, err := raw.GetProp(world.Resources.RawMaster, v.Ref)
+		assert.NoError(t, err, v.Ref)
+	}
 }
 
 // TestScatterFeature_wasteland以外は置かない は、散布のスコープが wasteland 限定であることを固定する。

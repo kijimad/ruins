@@ -6412,3 +6412,30 @@ msgstr "燃やすために割った木"
 
 msgid "You need a felling tool to cut down %s."
 msgstr "%sを切り倒すには伐採できる道具が要る。"
+
+msgid "Lush Grass"
+msgstr "青草"
+
+msgid "Dry Grass"
+msgstr "枯れ草"
+
+msgid "Dark Grass"
+msgstr "深緑の草"
+
+msgid "Grass Sprig"
+msgstr "草の芽"
+
+msgid "Dry Grass Sprig"
+msgstr "枯れた草の芽"
+
+msgid "Pebbles"
+msgstr "小石"
+
+msgid "Dark Soil"
+msgstr "湿った土"
+
+msgid "Dry Soil"
+msgstr "乾いた土"
+
+msgid "Cracked Ground"
+msgstr "地割れ"

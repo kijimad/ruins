@@ -19623,6 +19623,105 @@ baseAP = 1000
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d3"
+[[props]]
+blockPass = false
+blockView = false
+description = "A tuft of fresh green grass."
+name = "Lush Grass"
+id = "grass_lush"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_lush"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A tuft of withered, straw-colored grass."
+name = "Dry Grass"
+id = "grass_dry"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_dry"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A tuft of dark green grass."
+name = "Dark Grass"
+id = "grass_dark"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_dark"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A few blades of grass."
+name = "Grass Sprig"
+id = "grass_sprig"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_sprig"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A few withered blades of grass."
+name = "Dry Grass Sprig"
+id = "grass_dry_sprig"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "grass_dry_sprig"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "Small stones scattered on the ground."
+name = "Pebbles"
+id = "soil_pebbles"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "soil_pebbles"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A patch of damp, dark soil."
+name = "Dark Soil"
+id = "soil_dark"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "soil_dark"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A patch of pale, dried-out soil."
+name = "Dry Soil"
+id = "soil_dry"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "soil_dry"
+spriteSheetName = "field"
+[[props]]
+blockPass = false
+blockView = false
+description = "A crack running through dry earth."
+name = "Cracked Ground"
+id = "soil_crack"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "soil_crack"
+spriteSheetName = "field"
 
 [[professions]]
 description = "An ordinary person who fled the collapse."
