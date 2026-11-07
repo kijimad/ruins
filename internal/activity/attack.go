@@ -270,15 +270,13 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	return query.ProficiencyValue(world, entity, key)
 }
 
-// applyElementResist は元素耐性倍率でダメージを軽減する。無属性攻撃は対象外
-func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, world w.World) int {
+// elementMult は対象の属性 element への耐性の倍率を返す。耐性を持たない属性なら等倍
+func elementMult(target ecs.Entity, element gc.ElementType, world w.World) consts.Percent {
 	key, ok := gc.LookupElementResistKey(element)
 	if !ok {
-		return damage
+		return consts.PercentBase
 	}
-	mult := query.ProficiencyValue(world, target, key)
-	reduced := max(mult.ApplyInt(damage), formula.MinDamage)
-	return reduced
+	return query.ProficiencyValue(world, target, key)
 }
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
@@ -360,39 +358,33 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 	return attack.GetAccuracy() - formula.BaseHitRate
 }
 
-// calculateDamage はダメージ計算を行う
+// calculateDamage は ECS から攻撃側と対象の値を集め、formula.Damage で1回の命中のダメージを求める
 func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
 	if !world.Components.Abilities.Has(attacker) {
 		return 0
 	}
 	attackerAbils := world.Components.Abilities.Get(attacker)
 
-	baseAbil := attackerAbils.Strength.Total
+	ability := attackerAbils.Strength.Total
 	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
-		baseAbil = attackerAbils.Sensation.Total
+		ability = attackerAbils.Sensation.Total
 	}
 
-	targetDefense := 0
+	defense := 0
 	if world.Components.Abilities.Has(target) {
-		targetAbilsComp := world.Components.Abilities.Get(target)
-		targetDefense = targetAbilsComp.Defense.Total
+		defense = world.Components.Abilities.Get(target).Defense.Total
 	}
 
-	baseDamage := baseAbil + world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1
-	baseDamage += attack.GetDamage()
-	baseDamage += damageModifier
-
-	baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
-
-	if critical {
-		baseDamage = formula.ApplyCritical(baseDamage)
-	}
-
-	baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
-
-	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
-
-	return finalDamage * toolDamageMultiplier(world, attacker, target)
+	return formula.Damage(formula.DamageInput{
+		Ability:      ability,
+		Die:          world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1,
+		WeaponDamage: attack.GetDamage(),
+		Modifier:     damageModifier,
+		SkillMult:    int(getSkillMult(attacker, attack, world, true)),
+		Critical:     critical,
+		ElementMult:  int(elementMult(target, attack.GetElement(), world)),
+		Defense:      defense,
+	}) * toolDamageMultiplier(world, attacker, target)
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
