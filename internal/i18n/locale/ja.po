@@ -425,9 +425,6 @@ msgstr "所持品"
 msgid "directly above"
 msgstr "直上"
 
-msgid "Pick up all"
-msgstr "すべて拾う"
-
 msgid "Close (%s)"
 msgstr "閉じる(%s)"
 
@@ -436,9 +433,6 @@ msgstr "開く(%s)"
 
 msgid "Talk (%s)"
 msgstr "話しかける(%s)"
-
-msgid "Pick up (%s)"
-msgstr "拾う(%s)"
 
 msgid "Warp (next floor)"
 msgstr "転移する(次階)"

@@ -58,10 +58,9 @@ func GetInteractionActions(world w.World) []InteractionAction {
 				inRange = append(inRange, interaction)
 			}
 		}
-		_, individual := splitByMenuUnit(inRange)
-		if len(individual) > 0 {
+		if len(inRange) > 0 {
 			dirLabel := query.T(world, activity.GetDirectionLabel(gridElement, interactableGrid))
-			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: individual}, interactableEntity, dirLabel)...)
+			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: inRange}, interactableEntity, dirLabel)...)
 		}
 	}
 
@@ -141,7 +140,6 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	var actions []InteractionAction
-	var itemEntities []ecs.Entity
 	sameTileQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()
 	for sameTileQuery.Next() {
 		entity := sameTileQuery.Entity()
@@ -161,19 +159,12 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 				filtered = append(filtered, interaction)
 			}
 		}
-		if len(filtered) == 0 {
-			continue
-		}
-		bundled, individual := splitByMenuUnit(filtered)
-		if len(bundled) > 0 {
-			itemEntities = append(itemEntities, entity)
-		}
-		if len(individual) > 0 {
-			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: individual}, entity, query.T(world, "directly above"))...)
+		if len(filtered) > 0 {
+			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: filtered}, entity, query.T(world, "directly above"))...)
 		}
 	}
 
-	return appendItemPickupActions(world, actions, itemEntities)
+	return actions
 }
 
 // startPickup は足元と周囲8タイルから拾う。アイテム1つだけならそのまま拾い、それ以外は拾うメニューを開く
@@ -260,46 +251,6 @@ func nearbyPickupActions(world w.World) []InteractionAction {
 	return actions
 }
 
-// splitByMenuUnit は種別を、行の単位の宣言 Config().MenuUnit に従ってスタック単位と
-// エンティティ単位へ分ける。一覧を組む関数はこの振り分けに従う。
-// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ。
-// switch に default を置かず、単位の追加漏れを exhaustive linter に検知させる。
-// 未知の種別の単位はゼロ値で raw/save 由来でありうるので、行を組まず黙って落とす
-func splitByMenuUnit(kinds []gc.InteractionKind) (stack, entity []gc.InteractionKind) {
-	for _, kind := range kinds {
-		switch kind.Config().MenuUnit {
-		case gc.MenuUnitStack:
-			stack = append(stack, kind)
-		case gc.MenuUnitEntity:
-			entity = append(entity, kind)
-		}
-	}
-	return stack, entity
-}
-
-// appendItemPickupActions は itemEntities をスタックごとに1行へ束ねて拾得アクションを足す。
-// 代表を target にし、拾得はスタック丸ごとを対象にする。スタックが2種類以上なら「すべて拾う」を先頭に付ける。
-// 床の同種が1個1エンティティで個数ぶん並ぶのを防ぐため、アイテムを一覧へ出す関数は必ずこれを通す。
-func appendItemPickupActions(world w.World, actions []InteractionAction, itemEntities []ecs.Entity) []InteractionAction {
-	stacks := query.GroupStacks(world, itemEntities)
-	for _, stack := range stacks {
-		label := query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count)
-		actions = append(actions, InteractionAction{
-			Label:       query.T(world, "Pick up (%s)", label),
-			Target:      stack.Rep,
-			Interaction: gc.InteractionItem,
-		})
-	}
-	if len(stacks) >= 2 {
-		pickupAll := InteractionAction{
-			Label:       query.T(world, "Pick up all"),
-			Interaction: gc.InteractionItemAll,
-		}
-		actions = append([]InteractionAction{pickupAll}, actions...)
-	}
-	return actions
-}
-
 // getInteractionActions はInteractableに対応するアクションを取得する
 func getInteractionActions(world w.World, interactable *gc.Interactable, interactableEntity ecs.Entity, dirLabel string) []InteractionAction {
 	var result []InteractionAction
@@ -329,9 +280,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 					Interaction: interaction,
 				})
 			}
-		case gc.InteractionItem:
-			// スタック単位の種別は splitByMenuUnit で束ね経路へ振られ、ここには来ない。
-			// 拾得行は appendItemPickupActions がスタック単位で組む
 		case gc.InteractionPortalNext:
 			result = append(result, InteractionAction{
 				Label:       query.T(world, "Warp (next floor)"),
@@ -365,7 +313,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionItemAll, gc.InteractionMelee, gc.InteractionStorage:
+		case gc.InteractionItem, gc.InteractionMelee, gc.InteractionStorage:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 		case gc.InteractionIgnite:

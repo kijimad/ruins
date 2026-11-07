@@ -37,8 +37,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeTalk(actor, target, world)
 	case gc.InteractionItem:
 		return executeItem(actor, target, world)
-	case gc.InteractionItemAll:
-		return executeItemAll(actor, world)
 	case gc.InteractionStorage:
 		return executeStorage(target, world)
 	case gc.InteractionMelee:
@@ -108,14 +106,6 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 
 func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
 	return Execute(NewPickupStackActivity(world, target), actor, world)
-}
-
-func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
-	if !world.Components.GridElement.Has(actor) {
-		return nil, ErrPositionNotFound
-	}
-	gridElement := world.Components.GridElement.Get(actor)
-	return Execute(NewPickupTileActivity(world, gridElement.Coord), actor, world)
 }
 
 // executeIgnite は隣接タイルの燃焼物に火をつける。target はそのタイルにある燃料の代表。

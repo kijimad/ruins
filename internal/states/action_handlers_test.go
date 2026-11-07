@@ -382,52 +382,22 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 func TestGetSameTileManualActions(t *testing.T) {
 	t.Parallel()
 
-	t.Run("同タイルのManualインタラクションを取得する", func(t *testing.T) {
+	t.Run("足元の手動の相互作用を出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// SameTile+Manualのアイテムを配置
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.Name.Add(item, &gc.Name{Name: "テストアイテム"})
-
-		actions := GetSameTileManualActions(world)
-		assert.Len(t, actions, 1)
-		assert.Contains(t, actions[0].Label, "テストアイテム")
-	})
-
-	t.Run("複数のManualインタラクションを全て取得する", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// アイテム
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
-
-		// ポータル
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
+		require.NoError(t, err)
 		portal := world.ECS.NewEntity()
 		world.Components.GridElement.Add(portal, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(portal, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
 		})
 
-		actions := GetSameTileManualActions(world)
-		assert.Len(t, actions, 2, "アイテムとポータルの2つが取得される")
+		assert.Equal(t, []InteractionAction{
+			{Label: "Warp (next floor)", Target: portal, Interaction: gc.InteractionPortalNext},
+		}, GetSameTileManualActions(world))
 	})
 
 	t.Run("別タイルのインタラクションは含まない", func(t *testing.T) {
@@ -438,13 +408,11 @@ func TestGetSameTileManualActions(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-		// 隣接タイルのアイテム
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
+		portal := world.ECS.NewEntity()
+		world.Components.GridElement.Add(portal, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
+		world.Components.Interactable.Add(portal, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
 		})
-		world.Components.Name.Add(item, &gc.Name{Name: "遠いアイテム"})
 
 		actions := GetSameTileManualActions(world)
 		assert.Empty(t, actions)
@@ -468,84 +436,6 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		actions := GetSameTileManualActions(world)
 		assert.Empty(t, actions, "OnCollisionのインタラクションは含まれない")
-	})
-
-	t.Run("アイテムが2個以上あるとすべて拾うが先頭に追加される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// 別品種は別スタックなので個別行が2つ出る。RawID が同定キーになる
-		item1 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item1, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.RawID.Add(item1, &gc.RawID{ID: "wooden_sword"})
-		world.Components.Name.Add(item1, &gc.Name{Name: "木刀"})
-
-		item2 := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item2, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.RawID.Add(item2, &gc.RawID{ID: "healing_potion"})
-		world.Components.Name.Add(item2, &gc.Name{Name: "回復薬"})
-
-		actions := GetSameTileManualActions(world)
-		require.Len(t, actions, 3, "すべて拾う + 個別2つ")
-		assert.Equal(t, "Pick up all", actions[0].Label)
-		ok := actions[0].Interaction == gc.InteractionItemAll
-		assert.True(t, ok)
-	})
-
-	t.Run("同一スタックのアイテムは1行に束ねる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		// 同一品種を2個、同じタイルへ。1個1エンティティだが1スタックに束ねる
-		for range 2 {
-			item := world.ECS.NewEntity()
-			world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-			world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
-			world.Components.Interactable.Add(item, &gc.Interactable{
-				Interactions: []gc.InteractionKind{gc.InteractionItem},
-			})
-			world.Components.RawID.Add(item, &gc.RawID{ID: "biscuit"})
-			world.Components.Name.Add(item, &gc.Name{Name: "ビスケット"})
-		}
-
-		actions := GetSameTileManualActions(world)
-		require.Len(t, actions, 1, "同一スタックは1行だけ。すべて拾うは1スタックなので出ない")
-		assert.Contains(t, actions[0].Label, "2", "個数2がラベルに出る")
-		assert.Equal(t, gc.InteractionItem, actions[0].Interaction)
-	})
-
-	t.Run("アイテムが1個の場合はすべて拾うが追加されない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		item := world.ECS.NewEntity()
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.Interactable.Add(item, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionItem},
-		})
-		world.Components.Name.Add(item, &gc.Name{Name: "木刀"})
-
-		actions := GetSameTileManualActions(world)
-		require.Len(t, actions, 1)
-		assert.Contains(t, actions[0].Label, "木刀")
 	})
 
 	t.Run("プレイヤーが存在しない場合はnil", func(t *testing.T) {
