@@ -4,6 +4,8 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -18,7 +20,8 @@ type InteractionAction struct {
 	Interaction gc.InteractionKind // 実行するインタラクション
 }
 
-// GetInteractionActions はプレイヤー周辺の実行可能なアクションを取得する
+// GetInteractionActions はプレイヤー周辺の実行可能なアクションを取得する。床のアイテムを拾う行は出さず、
+// 拾うのは startPickup が担う
 func GetInteractionActions(world w.World) []InteractionAction {
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -32,7 +35,6 @@ func GetInteractionActions(world w.World) []InteractionAction {
 	gridElement := world.Components.GridElement.Get(playerEntity)
 
 	var actions []InteractionAction
-	var itemEntities []ecs.Entity
 
 	// インタラクティブな相互作用を全て取得してアクションを生成
 	interactableEntities := activity.GetAllInteractiveInteractablesInRange(world, gridElement)
@@ -57,19 +59,13 @@ func GetInteractionActions(world w.World) []InteractionAction {
 				inRange = append(inRange, interaction)
 			}
 		}
-		// スタック単位の種別を持つ実体は束ね経路へ集める。拾得は同タイルに限られるので
-		// 位置を無視して束ねても別タイルの同種が混ざることはない
-		bundled, individual := splitByMenuUnit(inRange)
-		if len(bundled) > 0 {
-			itemEntities = append(itemEntities, interactableEntity)
-		}
+		_, individual := splitByMenuUnit(inRange)
 		if len(individual) > 0 {
 			dirLabel := query.T(world, activity.GetDirectionLabel(gridElement, interactableGrid))
 			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: individual}, interactableEntity, dirLabel)...)
 		}
 	}
 
-	actions = appendItemPickupActions(world, actions, itemEntities)
 	actions = appendIgniteActions(world, playerEntity, gridElement, actions)
 	return appendFeedFuelActions(world, gridElement, actions)
 }
@@ -181,6 +177,94 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	return appendItemPickupActions(world, actions, itemEntities)
 }
 
+// startPickup は足元と周囲8タイルの収納と床のアイテムを数える。無ければログに出し、アイテム1つだけなら
+// そのまま拾い、それ以外は拾うメニューを開く。収納は1つでもメニューで選ばせ、開く先を確かめてから収納画面へ進む。
+// メニューは拾っても閉じず、拾うものが無くなったら閉じる。収納画面はメニューの上に開き、閉じるとメニューへ戻る
+func startPickup(world w.World) (es.Transition[w.World], error) {
+	actions := nearbyPickupActions(world)
+	switch {
+	case len(actions) == 0:
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "There is nothing to pick up nearby.")).
+			Log()
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case len(actions) == 1 && actions[0].Interaction == gc.InteractionItem:
+		player, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
+		_, err = activity.ExecuteInteraction(player, actions[0].Target, actions[0].Interaction, world)
+		return es.Transition[w.World]{Type: es.TransNone}, err
+	}
+	return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+		func() (es.State[w.World], error) {
+			return NewChoiceMenu(pickupChoices), nil
+		},
+	}}, nil
+}
+
+// pickupChoices は拾うメニューの選択肢を返す。アイテムは拾っても閉じず、収納は収納画面を重ねて開く
+func pickupChoices(world w.World) (string, []Choice) {
+	actions := nearbyPickupActions(world)
+	choices := make([]Choice, 0, len(actions))
+	for _, a := range actions {
+		if a.Interaction == gc.InteractionStorage {
+			choices = append(choices, Choice{Label: a.Label, Run: pushChoice(func() (es.State[w.World], error) {
+				return NewStorageMenuState(a.Target)
+			})})
+			continue
+		}
+		choices = append(choices, Choice{Label: a.Label, Run: func(world w.World) (es.Transition[w.World], error) {
+			player, err := query.GetPlayerEntity(world)
+			if err != nil {
+				return es.Transition[w.World]{}, err
+			}
+			if _, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
+			if len(nearbyPickupActions(world)) == 0 {
+				return es.Transition[w.World]{Type: es.TransPop}, nil
+			}
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}})
+	}
+	return "", choices
+}
+
+// nearbyPickupActions は足元と周囲8タイルの収納と床のアイテムを拾う行にする。アイテムはタイルごとに
+// スタックで1行へ束ね、別タイルの同種は混ぜない。収納を持つのは prop なので、アイテムと同じ実体が
+// 収納を兼ねることはない
+func nearbyPickupActions(world w.World) []InteractionAction {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil || !world.Components.GridElement.Has(player) {
+		return nil
+	}
+	playerGrid := world.Components.GridElement.Get(player)
+
+	var actions []InteractionAction
+	for dy := consts.Tile(-1); dy <= 1; dy++ {
+		for dx := consts.Tile(-1); dx <= 1; dx++ {
+			c := consts.Coord[consts.Tile]{X: playerGrid.X + dx, Y: playerGrid.Y + dy}
+			dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, &gc.GridElement{Coord: c}))
+			if storage, ok := interactableAt(world, c, gc.InteractionStorage); ok {
+				actions = append(actions, InteractionAction{
+					Label:       query.T(world, "Open %s (%s)", query.GetEntityName(storage, world), dirLabel),
+					Target:      storage,
+					Interaction: gc.InteractionStorage,
+				})
+			}
+			for _, stack := range query.GroupStacks(world, query.PickablesAt(world, c)) {
+				actions = append(actions, InteractionAction{
+					Label:       query.T(world, "Pick up %s (%s)", query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count), dirLabel),
+					Target:      stack.Rep,
+					Interaction: gc.InteractionItem,
+				})
+			}
+		}
+	}
+	return actions
+}
+
 // splitByMenuUnit は種別を、行の単位の宣言 Config().MenuUnit に従ってスタック単位と
 // エンティティ単位へ分ける。一覧を組む関数はこの振り分けに従う。
 // 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ。
@@ -271,14 +355,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionStorage:
-			if world.Components.Name.Has(interactableEntity) {
-				result = append(result, InteractionAction{
-					Label:       query.T(world, "Inspect (%s)", query.GetEntityName(interactableEntity, world)),
-					Target:      interactableEntity,
-					Interaction: interaction,
-				})
-			}
 		case gc.InteractionDisassemble:
 			if world.Components.Name.Has(interactableEntity) {
 				result = append(result, InteractionAction{
@@ -294,8 +370,8 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionItemAll, gc.InteractionMelee:
-			// アクションメニューに出さない種類。攻撃は attackAction で方向を選んで行う。
+		case gc.InteractionItemAll, gc.InteractionMelee, gc.InteractionStorage:
+			// アクションメニューに出さない種類。攻撃は attackAction で方向を選び、収納は startPickup で開く。
 			// default を置かず exhaustive に全種別を明示させ、新しい InteractionKind の対応漏れを lint で検知する
 		case gc.InteractionIgnite:
 			// 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で
