@@ -219,7 +219,7 @@ func TestCollectDeployField(t *testing.T) {
 	})
 }
 
-func TestCollectBillboards_Flatのpropは地面に寝かせる(t *testing.T) {
+func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
 	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
@@ -242,5 +242,5 @@ func TestCollectBillboards_Flatのpropは地面に寝かせる(t *testing.T) {
 	assert.Equal(t, [4]render3d.Vec{
 		render3d.At(25, 0, 25), render3d.At(26, 0, 25), render3d.At(26, 0, 26), render3d.At(25, 0, 26),
 	}, quads[0].p)
-	assert.Equal(t, int(gc.DepthNumRug), quads[0].depth)
+	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
 }

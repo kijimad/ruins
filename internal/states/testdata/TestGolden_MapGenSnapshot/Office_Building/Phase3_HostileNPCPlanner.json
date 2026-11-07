@@ -1135,7 +1135,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -1150,7 +1150,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -1165,7 +1165,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -1180,7 +1180,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -1195,7 +1195,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -1210,232 +1210,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "灰色の石壁のオートタイル。通行不可",
-      "foliage": 0,
-      "id": "wall",
-      "name": "Wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "灰色の石壁のオートタイル。通行不可",
-      "foliage": 0,
-      "id": "wall",
-      "name": "Wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "灰色の石壁のオートタイル。通行不可",
-      "foliage": 0,
-      "id": "wall",
-      "name": "Wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "灰色の石壁のオートタイル。通行不可",
-      "foliage": 0,
-      "id": "wall",
-      "name": "Wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "灰色の石壁のオートタイル。通行不可",
-      "foliage": 0,
-      "id": "wall",
-      "name": "Wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "灰色の石壁のオートタイル。通行不可",
-      "foliage": 0,
-      "id": "wall",
-      "name": "Wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "灰色の石壁のオートタイル。通行不可",
-      "foliage": 0,
-      "id": "wall",
-      "name": "Wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -1495,308 +1270,83 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
       "water": 0
     },
     {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "blockPass": true,
+      "blockView": true,
+      "description": "灰色の石壁のオートタイル。通行不可",
       "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
+      "id": "wall",
+      "name": "Wall",
+      "shelter": 10,
       "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
+        "depth": 3,
+        "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
       "water": 0
     },
     {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "blockPass": true,
+      "blockView": true,
+      "description": "灰色の石壁のオートタイル。通行不可",
       "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
+      "id": "wall",
+      "name": "Wall",
+      "shelter": 10,
       "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
+        "depth": 3,
+        "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
       "water": 0
     },
     {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "blockPass": true,
+      "blockView": true,
+      "description": "灰色の石壁のオートタイル。通行不可",
       "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
+      "id": "wall",
+      "name": "Wall",
+      "shelter": 10,
       "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
+        "depth": 3,
+        "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
       "water": 0
     },
     {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "blockPass": true,
+      "blockView": true,
+      "description": "灰色の石壁のオートタイル。通行不可",
       "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
+      "id": "wall",
+      "name": "Wall",
+      "shelter": 10,
       "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
+        "depth": 3,
+        "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
       "water": 0
     },
     {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "blockPass": true,
+      "blockView": true,
+      "description": "灰色の石壁のオートタイル。通行不可",
       "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
+      "id": "wall",
+      "name": "Wall",
+      "shelter": 10,
       "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
-      "foliage": 0,
-      "id": "floor",
-      "name": "Floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
+        "depth": 3,
+        "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -1885,7 +1435,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -1945,8 +1495,233 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -2110,7 +1885,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -2170,7 +1945,232 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "灰色の石壁のオートタイル。通行不可",
+      "foliage": 0,
+      "id": "wall",
+      "name": "Wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 3,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
+      "foliage": 0,
+      "id": "floor",
+      "name": "Floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "灰色の石壁のオートタイル。通行不可",
+      "foliage": 0,
+      "id": "wall",
+      "name": "Wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },

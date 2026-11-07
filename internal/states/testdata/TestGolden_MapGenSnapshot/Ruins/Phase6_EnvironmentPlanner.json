@@ -3280,7 +3280,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -3535,7 +3535,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -3550,7 +3550,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -4105,7 +4105,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -5470,7 +5470,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -5530,7 +5530,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -6130,7 +6130,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -7000,7 +7000,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -7120,7 +7120,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -7750,7 +7750,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -8845,7 +8845,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -9280,7 +9280,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -9910,7 +9910,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -10060,7 +10060,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -10120,7 +10120,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -11725,7 +11725,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12085,7 +12085,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12100,7 +12100,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12340,7 +12340,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12895,7 +12895,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12910,7 +12910,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12925,7 +12925,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12940,7 +12940,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -12985,7 +12985,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13015,7 +13015,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13030,7 +13030,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13045,7 +13045,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13060,7 +13060,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13090,7 +13090,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13105,7 +13105,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13120,7 +13120,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13570,7 +13570,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13645,7 +13645,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13660,7 +13660,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13735,7 +13735,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13765,7 +13765,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -13870,7 +13870,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14365,7 +14365,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14380,7 +14380,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14395,7 +14395,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14485,7 +14485,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14515,7 +14515,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14560,7 +14560,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14605,7 +14605,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -14620,7 +14620,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15145,7 +15145,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15175,7 +15175,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15205,7 +15205,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15235,7 +15235,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15295,7 +15295,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15310,7 +15310,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15325,7 +15325,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15370,7 +15370,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15565,7 +15565,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -15910,7 +15910,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16015,7 +16015,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16030,7 +16030,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16060,7 +16060,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16555,7 +16555,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16645,7 +16645,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16675,7 +16675,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16690,7 +16690,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16705,7 +16705,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16720,7 +16720,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16735,7 +16735,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16750,7 +16750,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16765,7 +16765,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16810,7 +16810,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16825,7 +16825,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -16975,7 +16975,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17110,7 +17110,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17170,7 +17170,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17485,7 +17485,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17500,7 +17500,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17530,7 +17530,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17560,7 +17560,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17620,7 +17620,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -17815,7 +17815,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18100,7 +18100,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18115,7 +18115,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18220,7 +18220,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18235,7 +18235,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18310,7 +18310,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18355,7 +18355,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18370,7 +18370,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18895,7 +18895,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -18985,7 +18985,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19060,7 +19060,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19075,7 +19075,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19090,7 +19090,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19120,7 +19120,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19150,7 +19150,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19270,7 +19270,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19300,7 +19300,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19315,7 +19315,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19345,7 +19345,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19360,7 +19360,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19375,7 +19375,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19405,7 +19405,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19420,7 +19420,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19435,7 +19435,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19450,7 +19450,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19735,7 +19735,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19870,7 +19870,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19915,7 +19915,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -19930,7 +19930,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20020,7 +20020,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20185,7 +20185,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20200,7 +20200,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20230,7 +20230,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20380,7 +20380,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20485,7 +20485,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20515,7 +20515,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20560,7 +20560,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20620,7 +20620,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20770,7 +20770,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20845,7 +20845,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20860,7 +20860,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -20950,7 +20950,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21055,7 +21055,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21370,7 +21370,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21490,7 +21490,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21520,7 +21520,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21550,7 +21550,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21655,7 +21655,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21685,7 +21685,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -21985,7 +21985,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22000,7 +22000,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22030,7 +22030,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22045,7 +22045,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22060,7 +22060,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22075,7 +22075,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22090,7 +22090,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22105,7 +22105,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22120,7 +22120,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22165,7 +22165,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22270,7 +22270,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22315,7 +22315,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22375,7 +22375,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22435,7 +22435,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22450,7 +22450,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22810,7 +22810,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -22900,7 +22900,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23020,7 +23020,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23050,7 +23050,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23110,7 +23110,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23125,7 +23125,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23155,7 +23155,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23170,7 +23170,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23185,7 +23185,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23200,7 +23200,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23320,7 +23320,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23770,7 +23770,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23845,7 +23845,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -23875,7 +23875,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -24520,7 +24520,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -24610,7 +24610,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -24655,7 +24655,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -24670,7 +24670,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -25270,7 +25270,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -25285,7 +25285,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -25450,7 +25450,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -25525,7 +25525,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -25930,7 +25930,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26020,7 +26020,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26095,7 +26095,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26125,7 +26125,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26200,7 +26200,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26770,7 +26770,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26785,7 +26785,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26800,7 +26800,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26815,7 +26815,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26830,7 +26830,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26860,7 +26860,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26890,7 +26890,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26905,7 +26905,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26920,7 +26920,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -26935,7 +26935,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -27055,7 +27055,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -27415,7 +27415,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -27520,7 +27520,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -27955,7 +27955,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -28240,7 +28240,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -28255,7 +28255,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -28780,7 +28780,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -29080,7 +29080,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -29395,7 +29395,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -29845,7 +29845,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -29890,7 +29890,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -31375,7 +31375,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -31735,7 +31735,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -31810,7 +31810,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -32410,7 +32410,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -33475,7 +33475,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -33730,7 +33730,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -35095,7 +35095,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -35125,7 +35125,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -35140,7 +35140,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -35440,7 +35440,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -36235,7 +36235,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -36640,7 +36640,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },
@@ -36685,7 +36685,7 @@
       "name": "Wall",
       "shelter": 10,
       "spriteRender": {
-        "depth": 2,
+        "depth": 3,
         "spriteKey": "wall",
         "spriteSheetName": "tile"
       },

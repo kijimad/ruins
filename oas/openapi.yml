@@ -3501,10 +3501,8 @@ components:
         - 1
         - 2
         - 3
+        - 4
       description: スプライト描画深度
-    SpriteFlat:
-      type: boolean
-      description: 地面に寝かせて描くか。床の模様やワープホールのように高さの無いものに使う
     SpriteKey:
       type: string
       minLength: 1
@@ -3524,8 +3522,6 @@ components:
           $ref: '#/components/schemas/SpriteKey'
         depth:
           $ref: '#/components/schemas/SpriteDepth'
-        flat:
-          $ref: '#/components/schemas/SpriteFlat'
       description: スプライトレンダー設定
     SpriteSheet:
       type: object
