@@ -42,8 +42,7 @@ func IsSupportedLang(code string) bool {
 // Resources が値で保持し、query.T が現在言語とともに引く。RawMaster と同じ、起動時に構築する読み取り専用データ。
 // 内部は map なので値コピーしても実体を共有する。読み取り専用なので共有して問題ない。
 type Catalog struct {
-	langs  map[string]*gotext.Po
-	pseudo bool
+	langs map[string]*gotext.Po
 }
 
 // NewCatalog は対応言語ごとに埋め込み PO を読んでカタログを構築する。言語集合は supportedLangs に従う。
@@ -82,7 +81,7 @@ func mustParse(path string) *gotext.Po {
 // gotext の Get は書式引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
 // メソッド値を介して呼び回避する。
 func (c Catalog) Translate(lang, msgid string, args ...any) string {
-	if c.pseudo {
+	if lang == PseudoLang {
 		return pseudoTranslate(msgid, args...)
 	}
 	po, ok := c.langs[lang]

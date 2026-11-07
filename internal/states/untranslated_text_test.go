@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/vrt/replay"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -83,7 +84,7 @@ func TestUntranslatedText(t *testing.T) {
 			replay.PlayScenario(t,
 				func(wd w.World) []es.State[w.World] {
 					world = wd
-					world.Resources.I18N = i18n.NewPseudoCatalog()
+					query.GetUserSettings(world).Language = i18n.PseudoLang
 					collector.register(world)
 					built, err := tc.build(world)
 					require.NoError(t, err)

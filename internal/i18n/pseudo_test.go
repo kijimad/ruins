@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPseudoCatalog_Translate(t *testing.T) {
+func TestCatalog_Translate_疑似訳(t *testing.T) {
 	t.Parallel()
-	c := NewPseudoCatalog()
+	c := NewCatalog()
 
 	cases := []struct {
 		name  string
@@ -24,7 +24,7 @@ func TestPseudoCatalog_Translate(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, c.Translate("ja", tc.msgid, tc.args...))
+			assert.Equal(t, tc.want, c.Translate(PseudoLang, tc.msgid, tc.args...))
 		})
 	}
 }
