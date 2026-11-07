@@ -4905,12 +4905,6 @@ msgstr "砂の瓶"
 msgid "A jar packed with fine sand, a material for clocks."
 msgstr "細かい砂が詰められた瓶。時計の素材になる"
 
-msgid "Hardwood"
-msgstr "硬木"
-
-msgid "Heavy, sturdy lumber, excellent as a building material."
-msgstr "重くて頑丈な木材。建築資材として優秀"
-
 msgid "Seed Core"
 msgstr "種コア"
 
