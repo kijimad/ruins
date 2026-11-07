@@ -28,7 +28,7 @@ func pseudoTranslate(msgid string, args ...any) string {
 			b.WriteString(msgid[i : i+end+1])
 			i += end
 		case 'a' <= c && c <= 'z', 'A' <= c && c <= 'Z':
-			b.WriteRune(rune(c) - 'A' + 'Ａ')
+			b.WriteRune(rune(c) + fullwidthOffset)
 		default:
 			b.WriteByte(c)
 		}
@@ -39,13 +39,19 @@ func pseudoTranslate(msgid string, args ...any) string {
 	return fmt.Sprintf(b.String(), args...)
 }
 
-// formatVerbEnd は start の % から始まる書式の動詞の直後の位置を返す。
+// fullwidthOffset は ASCII の英字から全角の英字への距離。大文字も小文字も同じ距離にある。
+const fullwidthOffset = 'Ａ' - 'A'
+
+// formatVerbEnd は start の % から始まる書式の動詞の直後の位置を返す。動詞にならない % は % だけを返す。
 func formatVerbEnd(s string, start int) int {
 	for i := start + 1; i < len(s); i++ {
 		c := s[i]
-		if 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z' || c == '%' {
+		switch {
+		case 'a' <= c && c <= 'z', 'A' <= c && c <= 'Z', c == '%':
 			return i + 1
+		case !strings.ContainsRune("+-# 0123456789.[]*", rune(c)):
+			return start + 1
 		}
 	}
-	return len(s)
+	return start + 1
 }
