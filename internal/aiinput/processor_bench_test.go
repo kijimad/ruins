@@ -81,7 +81,7 @@ func BenchmarkProcessAll(b *testing.B) {
 			for range b.N {
 				// AP 回復（毎ターン末に走る本来の前処理）は計測対象外
 				b.StopTimer()
-				require.NoError(b, query.RestoreAllActionPoints(world))
+				query.RestoreAllActionPoints(world)
 				b.StartTimer()
 
 				require.NoError(b, proc.ProcessAll(world))

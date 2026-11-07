@@ -7,11 +7,11 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// DriveCubeTiles は運転できるキューブのタイル座標を集めて返す。マクロ地図のマーカー用。
+// CubeTiles はキューブのタイル座標を集めて返す。マクロ地図のマーカー用。
 // 位置は GridElement から常に導けるので保持せず、読み取り時に集める。
-func DriveCubeTiles(world w.World) []consts.Coord[consts.Tile] {
+func CubeTiles(world w.World) []consts.Coord[consts.Tile] {
 	var out []consts.Coord[consts.Tile]
-	q := ActiveFilter2[gc.GridElement, gc.Drivable](world).Query()
+	q := ActiveFilter2[gc.GridElement, gc.MobileBase](world).Query()
 	for q.Next() {
 		out = append(out, world.Components.GridElement.Get(q.Entity()).Coord)
 	}
@@ -144,22 +144,19 @@ func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {
 	return total
 }
 
-// DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、
+// FollowFuelCost は総重量から1歩随伴するのに要する燃料ポイントを返す。空でも基準量がかかり、
 // 総重量に比例して増える。重いほど燃費が悪化する。
-func DriveFuelCost(total consts.Milligram) consts.Heat {
+func FollowFuelCost(total consts.Milligram) consts.Heat {
 	kg := int(total / consts.MilligramPerKg)
-	return consts.Heat(consts.DriveFuelBase + consts.DriveFuelPerKg*kg)
+	return consts.Heat(consts.FollowFuelBase + consts.FollowFuelPerKg*kg)
 }
 
-// CubeFuelTotal はキューブ収納にある物の燃焼熱量の総和を返す。運転の燃料源。
-// 火への給油と同じ HeatContent を使い燃料値の定義を二重化しない。
+// CubeFuelTotal はキューブに貯めた燃料ポイントを返す。FuelTank を持たなければ0。
 func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
-	var total consts.Heat
-	// 燃料タンクは LocationInStorage。畳み込んだ貨物は LocationStowed で別管理なので混ざらない
-	for _, item := range GetStorageItems(world, cube) {
-		total += HeatContent(world, item)
+	if !world.Components.FuelTank.Has(cube) {
+		return 0
 	}
-	return total
+	return world.Components.FuelTank.Get(cube).Heat
 }
 
 // FuelGaugeRatio は燃料ゲージ充填率を返す。表示基準 FuelGaugeFullHeat に対する比を 0..1 に丸める。
@@ -168,11 +165,15 @@ func FuelGaugeRatio(fuel consts.Heat) float64 {
 	return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))
 }
 
-// PlayerDriving はプレイヤーが運転中なら Driving を返す。Vehicle の生存確認は呼び出し側の責務。
-func PlayerDriving(world w.World) (*gc.Driving, bool) {
-	player, err := GetPlayerEntity(world)
-	if err != nil || !world.Components.Driving.Has(player) {
-		return nil, false
+// FollowingCube は随伴中のキューブを返す。随伴中のキューブが無ければ false。
+func FollowingCube(world w.World) (ecs.Entity, bool) {
+	q := ActiveFilter2[gc.MobileBase, gc.SoloAI](world).Query()
+	for q.Next() {
+		if world.Components.SoloAI.Get(q.Entity()).Movement == gc.SoloFollow {
+			cube := q.Entity()
+			q.Close()
+			return cube, true
+		}
 	}
-	return world.Components.Driving.Get(player), true
+	return gc.InvalidEntity, false
 }

@@ -35,14 +35,15 @@ const (
 	MinorActionCost = 50
 	// DefaultPlayerMoves はプレイヤーの初期移動ポイント
 	DefaultPlayerMoves = 100
-	// DriveFuelBase は空のキューブを1タイル運転するのに要する基準燃料量。何も積んでいなくても
-	// 運転は燃料を食う決断になるようにする。燃料値の単位は火への給油 FeedFuel と共通
-	DriveFuelBase = 5
-	// DriveFuelPerKg はキューブ収納の総重量1kgあたりに加算する運転燃料。総重量に比例して燃費が悪化する
-	DriveFuelPerKg = 1
+	// FollowFuelBase は空のキューブが1歩随伴するのに要する基準燃料ポイント。何も積んでいなくても
+	// 随伴は燃料を食う決断になるようにする。燃料値の単位は火への給油 FeedFuel と共通
+	FollowFuelBase = 5
+	// FollowFuelPerKg はキューブ収納の総重量1kgあたりに加算する随伴燃料。総重量に比例して燃費が悪化する
+	FollowFuelPerKg = 1
 	// CubeWeightCapacityKg はキューブ収納の重量容量。kg 単位。spawn とバランス導出で共有する
 	CubeWeightCapacityKg = 500
-	// FuelGaugeFullHeat は燃料ゲージが満タン表示になる熱量。実在の上限でなく表示上のタンク容量。値は暫定
+	// FuelGaugeFullHeat は燃料ゲージが満タン表示になる熱量。燃料ポイントに上限は無く、表示上の基準になる。
+	// 新規開始時のキューブはこの量の燃料ポイントを持つ。値は暫定
 	FuelGaugeFullHeat Heat = 3000
 )
 

@@ -22,7 +22,8 @@ func TestInteractionKind_Config(t *testing.T) {
 		{InteractionItem, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
-		{InteractionOpenCubeMenu, ActivationRangeSameTile, ActivationWayManual},
+		{InteractionOpenCubeMenu, ActivationRangeAdjacent, ActivationWayManual},
+		{InteractionSwap, ActivationRangeAdjacent, ActivationWayOnCollision},
 	}
 
 	for _, tt := range tests {

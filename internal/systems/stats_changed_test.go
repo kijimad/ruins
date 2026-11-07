@@ -36,8 +36,7 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 
 		// システム実行
 		sys := &StatsChangedSystem{}
-		err = sys.Update(world)
-		require.NoError(t, err)
+		require.NoError(t, sys.Update(world))
 
 		// APが正しく切り詰められていることを確認
 		turnBased = world.Components.TurnBased.Get(player)
@@ -168,8 +167,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// 初期APを計算
 		// AP = 100 + (素早さ * 3) + (器用さ * 1) = 100 + (5*3) + 5 = 120
-		initialAP, err := query.CalculateMaxActionPoints(world, player)
-		require.NoError(t, err)
+		initialAP := query.CalculateMaxActionPoints(world, player)
 
 		world.Components.HP.Add(player, &gc.HP{Current: 100, Max: 100})
 		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
@@ -192,8 +190,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// StatsChangedSystemを実行
 		sys := &StatsChangedSystem{}
-		err = sys.Update(world)
-		require.NoError(t, err)
+		require.NoError(t, sys.Update(world))
 
 		// APが再計算されていることを確認
 		turnBased := world.Components.TurnBased.Get(player)
@@ -206,8 +203,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		require.True(t, world.Components.StatsChanged.Has(player), "装備を外した後、StatsChangedフラグが立っているべき")
 
 		// StatsChangedSystemを実行
-		err = sys.Update(world)
-		require.NoError(t, err)
+		require.NoError(t, sys.Update(world))
 
 		// StatsChangedフラグが削除されたか確認
 		assert.False(t, world.Components.StatsChanged.Has(player), "StatsChangedSystemの実行後、フラグが削除されるべき")

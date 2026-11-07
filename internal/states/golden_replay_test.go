@@ -331,7 +331,7 @@ var goldenCases = []struct {
 		build: func(world w.World) ([]es.State[w.World], error) {
 			fire := world.ECS.NewEntity()
 			world.Components.Burning.Add(fire, &gc.Burning{Remaining: 300})
-			s, err := gs.NewFeedFuelMenuState(fire)
+			s, err := gs.NewFeedFuelMenuState(gs.FireFuelSink(fire))
 			return []es.State[w.World]{s}, err
 		},
 		steps: []replayStep{{shot: true}},

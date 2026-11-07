@@ -225,20 +225,18 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 
 	// 物流
 	fmt.Fprintf(&b, "## 物流（燃料・重量・航続）\n\n")
-	fmt.Fprintf(&b, "**概要**: キューブがどれだけ走れるか。1タイルの燃費は基準%d+積載1kgごとに%dで、積むほど悪化する。\n", consts.DriveFuelBase, consts.DriveFuelPerKg)
-	fmt.Fprintf(&b, "燃料自身も重量になるので積むほど頭打ちになる。容量は%dkg。\n\n", consts.CubeWeightCapacityKg)
+	fmt.Fprintf(&b, "**概要**: キューブがどれだけ随伴できるか。1歩の燃費は基準%d+積載1kgごとに%dで、積むほど悪化する。\n", consts.FollowFuelBase, consts.FollowFuelPerKg)
+	fmt.Fprintf(&b, "燃料はくべた時点で燃料ポイントになり重量を持たない。新規開始時の燃料ポイントは%dで、容量は%dkg。\n\n", consts.FuelGaugeFullHeat, consts.CubeWeightCapacityKg)
 	var fuelCostRows [][]string
 	for _, kg := range []int{0, 100, 250, 500} {
-		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.DriveFuelCost(consts.Milligram(kg)*consts.MilligramPerKg))})
+		load := consts.Milligram(kg) * consts.MilligramPerKg
+		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeFullTank(load))})
 	}
-	writeMDTable(&b, []string{"積載(kg)", "燃費(/タイル)"}, []tw.Align{alignR, alignR}, fuelCostRows)
-	writeMDTable(&b, []string{"満載時の燃料", "航続(タイル)"}, []tw.Align{alignL, alignR}, [][]string{
-		{"OIL 500kg", fmt.Sprintf("%.0f", DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg))},
-		{"WOOD 500kg", fmt.Sprintf("%.0f", DriveRangeAllFuel(oapi.WOOD, consts.CubeWeightCapacityKg))},
+	writeMDTable(&b, []string{"積荷(kg)", "燃費(/歩)", "満タン航続(歩)"}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)
+	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
+		{"OIL 10kg", fmt.Sprintf("%d", query.HeatOf(oapi.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(query.HeatOf(oapi.OIL, 10*consts.MilligramPerKg), 0))},
+		{"WOOD 10kg", fmt.Sprintf("%d", query.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(query.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg), 0))},
 	})
-	fmt.Fprintf(&b, "積荷とのトレード。OIL燃料250kgのとき、積荷0なら航続%.0f、積荷250kg追加で航続%.0fへ縮む。\n\n",
-		DriveRangeTiles(query.HeatOf(oapi.OIL, 250*consts.MilligramPerKg), 250*consts.MilligramPerKg),
-		DriveRangeTiles(query.HeatOf(oapi.OIL, 250*consts.MilligramPerKg), 500*consts.MilligramPerKg))
 
 	fmt.Fprintf(&b, "同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n")
 	writeMDTable(&b, []string{"燃料", "燃焼ターン"}, []tw.Align{alignL, alignR}, [][]string{

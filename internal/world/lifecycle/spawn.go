@@ -178,10 +178,7 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.
 
 	if world.Components.TurnBased.Has(npcEntity) {
 		actionPoints := world.Components.TurnBased.Get(npcEntity)
-		maxAP, err := query.CalculateMaxActionPoints(world, npcEntity)
-		if err != nil {
-			return gc.InvalidEntity, fmt.Errorf("AP calculation failed: %w", err)
-		}
+		maxAP := query.CalculateMaxActionPoints(world, npcEntity)
 		actionPoints.AP.Current = maxAP
 		actionPoints.AP.Max = maxAP
 	}
@@ -248,10 +245,7 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 	hp.Current = hp.Max
 
 	if world.Components.TurnBased.Has(entity) {
-		maxAP, err := query.CalculateMaxActionPoints(world, entity)
-		if err != nil {
-			return fmt.Errorf("AP calculation failed: %w", err)
-		}
+		maxAP := query.CalculateMaxActionPoints(world, entity)
 		turnBased := world.Components.TurnBased.Get(entity)
 		turnBased.AP.Current = maxAP
 		turnBased.AP.Max = maxAP

@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -311,13 +310,9 @@ func NewShopMenuState(merchant ecs.Entity) (es.State[w.World], error) {
 	return &ShopMenuState{merchant: merchant}, nil
 }
 
-// NewStorageMenuState は収納メニューStateを作成する。opts で投入品目の制限などを指定できる
-func NewStorageMenuState(storageEntity ecs.Entity, opts ...StorageOption) (es.State[w.World], error) {
-	st := &StorageMenuState{storageEntity: storageEntity}
-	for _, opt := range opts {
-		opt(st)
-	}
-	return st, nil
+// NewStorageMenuState は収納メニューStateを作成する
+func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
+	return &StorageMenuState{storageEntity: storageEntity}, nil
 }
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する
@@ -361,20 +356,10 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 	return "", interactionActionChoices(GetSameTileManualActions(world))
 }
 
-// NewFeedFuelMenuState は火への給油メニューを作る。収納やインベントリと同じ item-row 形式で、
-// くべる先の火を閉じ込める。表示と操作は FeedFuelMenuState が担う
-func NewFeedFuelMenuState(fire ecs.Entity) (es.State[w.World], error) {
-	return &FeedFuelMenuState{fire: fire}, nil
-}
-
-// feedOneFuel は rep を火へ1つくべる。走査時の rep は消費されるので、
-// 次フレームの Fetch が新しい代表で一覧を組み直す。
-// メニュー表示中に火が燃え尽きても AddFuel が何もしないので、火の状態はここで確かめない
-func feedOneFuel(world w.World, fire ecs.Entity, rep ecs.Entity) {
-	if !world.ECS.Alive(rep) || !query.IsCombustible(world, rep) {
-		return
-	}
-	lifecycle.AddFuel(world, fire, rep)
+// NewFeedFuelMenuState は給油メニューを作る。くべ先は呼ぶ側が FireFuelSink・CubeFuelSink で決める。
+// 表示と操作は FeedFuelMenuState が担う
+func NewFeedFuelMenuState(sink FuelSink) (es.State[w.World], error) {
+	return &FeedFuelMenuState{sink: sink}, nil
 }
 
 // NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す

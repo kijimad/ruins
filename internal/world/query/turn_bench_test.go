@@ -31,7 +31,7 @@ func BenchmarkRestoreAllActionPoints(b *testing.B) {
 
 			b.ResetTimer()
 			for range b.N {
-				require.NoError(b, query.RestoreAllActionPoints(world))
+				query.RestoreAllActionPoints(world)
 			}
 		})
 	}

@@ -23,7 +23,6 @@ func (sys StatsChangedSystem) String() string {
 // Update はステータス再計算フラグをチェックし、必要に応じてステータスを再計算する
 // w.Updater interfaceを実装
 func (sys *StatsChangedSystem) Update(world w.World) error {
-	var updateErr error
 
 	var targets []ecs.Entity
 	statsQuery := query.ActiveFilter2[gc.StatsChanged, gc.Abilities](world).Query()
@@ -123,11 +122,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 
 		// APを再計算
 		if world.Components.TurnBased.Has(entity) {
-			maxAP, err := query.CalculateMaxActionPoints(world, entity)
-			if err != nil {
-				updateErr = err
-				continue
-			}
+			maxAP := query.CalculateMaxActionPoints(world, entity)
 			// WeightDirty の Add より後に取得するので、構造変更後の新しい領域を指す。
 			// 構造変更前に取得したポインタを使い回さない限り安全
 			turnBased := world.Components.TurnBased.Get(entity)
@@ -142,7 +137,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 	}
 
-	return updateErr
+	return nil
 }
 
 // 30+(体力*8+力+感覚)

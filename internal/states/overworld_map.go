@@ -93,7 +93,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
 	st.view = overworld.BuildMacroView(
 		world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
-		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		area, playerTile, hasPlayer, query.CubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 
 	// カメラ不在時は北を既定にする

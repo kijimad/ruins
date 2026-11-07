@@ -51,9 +51,11 @@ const (
 	InteractionIgnite InteractionKind = "IGNITE"
 	// InteractionFeedFuel は隣接の火へ燃料をくべる相互作用。給油メニューを開く。燃料の所持を条件に出す
 	InteractionFeedFuel InteractionKind = "FEED_FUEL"
-	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。直上で発動し、運転・展開・
-	// 燃料・情報の入口になる。キューブのタイルに立って Enter でメニューを開く
+	// InteractionOpenCubeMenu は移動拠点キューブのメニューを開く相互作用。隣接で発動し、随伴の命令・展開・
+	// 燃料・情報の入口になる
 	InteractionOpenCubeMenu InteractionKind = "OPEN_CUBE_MENU"
+	// InteractionSwap は歩き込むと相手と位置を入れ替える相互作用。道を塞ぐ随伴者をすり抜けられるようにする
+	InteractionSwap InteractionKind = "SWAP"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -61,11 +63,11 @@ const (
 // 未知入力は raw/save 由来でありうるので panic せず末尾のゼロ値へ graceful に落とす
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
-	case InteractionItem, InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionOpenCubeMenu:
+	case InteractionItem, InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
-	case InteractionDoor, InteractionTalk, InteractionMelee:
+	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionSwap:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
-	case InteractionStorage, InteractionIgnite, InteractionFeedFuel:
+	case InteractionStorage, InteractionIgnite, InteractionFeedFuel, InteractionOpenCubeMenu:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	}
 	return InteractionConfig{}

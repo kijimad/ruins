@@ -6,10 +6,12 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -236,6 +238,8 @@ func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, sol
 		return rp.planPatrolAction(world, aiEntity, solo, grid)
 	case gc.SoloTerritorial:
 		return rp.planTerritorialAction(world, aiEntity, solo, grid)
+	case gc.SoloFollow:
+		return rp.planFollowAction(world, aiEntity, solo, grid)
 	default:
 		return rp.planRandomMoveAction(world, aiEntity, grid)
 	}
@@ -356,4 +360,37 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 	}
 
 	return waitAction()
+}
+
+// planFollowAction はプレイヤーに隣接していなければ経路探索で1歩近づき、1歩分の燃料ポイントを払う。
+// 燃料ポイントが足りなければ待機へ切り替えてログを出し、その場で待つ。
+func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return waitAction()
+	}
+	playerGrid := world.Components.GridElement.Get(player)
+	if isAdjacent(grid, playerGrid) {
+		return waitAction()
+	}
+
+	next, ok := activity.FindNextStep(world, aiEntity, grid.Coord, playerGrid.Coord)
+	if !ok {
+		return waitAction()
+	}
+
+	// 燃料は計画の時点で払う。AP 不足で runAPLoop が移動を捨てると燃料だけ減るので、払う前に
+	// 1歩分の AP を確かめ、足りなければ nil でこのターンの行動を終える
+	if tb := world.Components.TurnBased.Get(aiEntity); tb == nil || tb.AP.Current < consts.StandardActionCost {
+		return nil
+	}
+	// 経路探索は通れるマスだけを返すので、払った歩みが通行判定で失敗することはない
+	if !lifecycle.ConsumeCubeFuel(world, aiEntity, query.FollowFuelCost(query.CubeWeight(world, aiEntity))) {
+		solo.Movement = gc.SoloStationary
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "The cube is out of fuel and stops.")).
+			Log()
+		return waitAction()
+	}
+	return moveAction(next)
 }

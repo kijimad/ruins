@@ -64,7 +64,8 @@ func (p *Processor) ProcessAll(world w.World) error {
 }
 
 // cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する。
-// 交戦中は視界外でも対象を追い続ける設計のため、距離に関わらず残す。
+// 交戦中は視界外でも対象を追い続ける設計のため、距離に関わらず残す。随伴中のキューブも、遅れて
+// 圏外へ出ても追い続けるので残す。
 func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -78,7 +79,7 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 	kept := make([]ecs.Entity, 0, len(targets))
 	for _, entity := range targets {
 		solo := world.Components.SoloAI.Get(entity)
-		if solo != nil && !isActiveCombatState(solo.SubState) {
+		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != gc.SoloFollow {
 			grid := world.Components.GridElement.Get(entity)
 			if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) > activationRadius {
 				// 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい

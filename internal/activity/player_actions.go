@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -21,11 +20,6 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	if !world.Components.GridElement.Has(entity) {
 		return fmt.Errorf("player has no GridElement component")
-	}
-
-	// 運転中はキューブを動かす。プレイヤーは同乗して追随する
-	if world.Components.Driving.Has(entity) {
-		return executeDriveMove(world, entity, direction)
 	}
 
 	gridElement := world.Components.GridElement.Get(entity)
@@ -57,8 +51,8 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-			case gc.InteractionTalk:
-				// 会話は歩き込むだけで発動する
+			case gc.InteractionTalk, gc.InteractionSwap:
+				// 会話と入れ替えは歩き込むだけで発動する
 				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
 			default:
@@ -76,48 +70,6 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		return err
 	}
 
-	return nil
-}
-
-// executeDriveMove は運転中の移動を処理する。キューブを1タイル進め、燃料と行動ターンを消費し、
-// プレイヤーを同乗させて追随させる。壁・敵で不可なら停止し、燃料不足なら立往生する。
-func executeDriveMove(world w.World, player ecs.Entity, direction gc.Direction) error {
-	// 運転中のキューブは Prop で HP も分解定義も持たず、帯シフトの削除範囲にも入らないので
-	// 消えない。降車すると Driving が外れて executeDriveMove を通らなくなる。よって生存確認は不要
-	cube := world.Components.Driving.Get(player).Vehicle
-	current := world.Components.GridElement.Get(cube).Coord
-	next := current.Add(direction.GetDelta())
-
-	// 通行判定。壁・敵など不可なら停止する。ターンも燃料も消費しない
-	if !CanMoveTo(world, next, current, cube) {
-		return nil
-	}
-
-	// 燃料判定。足りなければ立往生する
-	cost := query.DriveFuelCost(query.CubeWeight(world, cube))
-	if query.CubeFuelTotal(world, cube) < cost {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Out of fuel. The cube won't move.")).
-			Log()
-		return nil
-	}
-
-	// プレイヤーを既存の移動経路で先に動かす。行動ターン消費と敵ターン進行はここが担う。
-	// 移動が成立しなければキューブも動かさず燃料も使わない。同乗の座標ずれを防ぐ
-	result, err := Execute(NewMoveActivity(gc.GridElement{Coord: next}), player, world)
-	if err != nil {
-		return err
-	}
-	if result == nil || !result.Success {
-		return nil
-	}
-
-	// プレイヤーが進んだので、キューブを追随させ燃料を消費する。事前の燃料判定で足りることは
-	// 保証済みなので消費は必ず成功する。よって戻り値は捨てる。ConsumeCubeFuel は燃料 entity を
-	// 削除する構造変更なので、GridElement の Get ポインタを跨いで持たず、消費後に取り直して書く
-	_ = lifecycle.ConsumeCubeFuel(world, cube, cost)
-	world.Components.GridElement.Get(cube).Coord = next
-	query.InvalidateSpatialIndex(world)
 	return nil
 }
 
@@ -245,11 +197,8 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
-			case gc.InteractionOpenCubeMenu:
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "You are on the cube. Press Enter to open the menu.")).
-					Log()
-			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionIgnite, gc.InteractionFeedFuel:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionIgnite, gc.InteractionFeedFuel,
+				gc.InteractionOpenCubeMenu, gc.InteractionSwap:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

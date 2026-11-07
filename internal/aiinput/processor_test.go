@@ -267,7 +267,7 @@ func TestProcessAll_大規模でpanicしない(t *testing.T) {
 	// 数ターン回して panic・エラーがないこと
 	for range 3 {
 		require.NoError(t, proc.ProcessAll(world))
-		require.NoError(t, query.RestoreAllActionPoints(world))
+		query.RestoreAllActionPoints(world)
 	}
 }
 
@@ -297,7 +297,7 @@ func TestProcessAll_AIフェーズで空間インデックスを再構築しな�
 	const turns = 3
 	for range turns {
 		require.NoError(t, proc.ProcessAll(world))
-		require.NoError(t, query.RestoreAllActionPoints(world))
+		query.RestoreAllActionPoints(world)
 	}
 
 	// AIフェーズでは40体×数ターン分の敵移動が起きるが、増分更新されるため再構築は起きない。

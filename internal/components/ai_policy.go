@@ -44,6 +44,8 @@ const (
 	SoloTerritorial SoloMovement = "territorial"
 	// SoloSwarm は近くの同種と群れで行動する
 	SoloSwarm SoloMovement = "swarm"
+	// SoloFollow はプレイヤーに隣接するまで1歩ずつ近づく。キューブが燃料ポイントを払って随伴するのに使う
+	SoloFollow SoloMovement = "follow"
 )
 
 // String は日本語表示名を返す
@@ -63,6 +65,8 @@ func (p SoloMovement) String() string {
 		return "Territory"
 	case SoloSwarm:
 		return "Flock"
+	case SoloFollow:
+		return "Follow"
 	default:
 		return string(p)
 	}

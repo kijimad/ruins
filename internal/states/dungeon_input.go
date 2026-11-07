@@ -95,21 +95,6 @@ func (st *DungeonState) moveDir(world w.World, base gc.Direction) gc.Direction {
 //
 //nolint:gocyclo // 多くのアクションを処理するためswitch文が大きくなる
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	// 運転中は移動と降車だけを受け付ける。他のアクションは握り潰す
-	if player, perr := query.GetPlayerEntity(world); perr == nil && world.Components.Driving.Has(player) {
-		switch action {
-		case inputmapper.ActionMoveNorth, inputmapper.ActionMoveSouth, inputmapper.ActionMoveEast, inputmapper.ActionMoveWest,
-			inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:
-			// 移動と視点操作は下の通常処理へ通す。移動は ExecuteMoveAction が運転移動へ分岐する
-		case inputmapper.ActionInteract:
-			// 乗車と同じキーで降車する
-			st.dismount(world)
-			return es.Transition[w.World]{Type: es.TransNone}, nil
-		default:
-			return es.Transition[w.World]{Type: es.TransNone}, nil
-		}
-	}
-
 	// UI系アクションは常に実行可能
 	switch action {
 	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot,
@@ -326,7 +311,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	case gc.OpenFeedFuel:
 		// 火への給油メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return NewFeedFuelMenuState(p.FireEntity) },
+			func() (es.State[w.World], error) { return NewFeedFuelMenuState(FireFuelSink(p.FireEntity)) },
 		}}, nil
 	case gc.OpenCubeMenu:
 		// 移動拠点キューブのメニューを開く
@@ -337,19 +322,6 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		// この switch で扱わない種別。未実装の scaffold もここに落ちる
 		return es.Transition[w.World]{}, fmt.Errorf("unhandled StateChangeRequest: %T", req.Payload)
 	}
-}
-
-// dismount は運転中のプレイヤーを降車させる。運転中はキューブと同座標に同乗しているので、
-// Driving を外してその直上のタイルに残すだけでよい。
-func (st *DungeonState) dismount(world w.World) {
-	player, err := query.GetPlayerEntity(world)
-	if err != nil || !world.Components.Driving.Has(player) {
-		return
-	}
-	world.Components.Driving.Remove(player)
-	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "You get off the cube.")).
-		Log()
 }
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える

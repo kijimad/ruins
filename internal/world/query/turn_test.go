@@ -123,8 +123,7 @@ func TestRestoreAllActionPoints(t *testing.T) {
 	initialMax := tb.AP.Max
 	tb.AP.Current = 0
 
-	err = query.RestoreAllActionPoints(world)
-	require.NoError(t, err)
+	query.RestoreAllActionPoints(world)
 
 	tb = world.Components.TurnBased.Get(player)
 	assert.Positive(t, tb.AP.Current, "APが回復している")

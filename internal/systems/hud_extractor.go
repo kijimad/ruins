@@ -75,12 +75,12 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		}
 	}
 
-	// 運転中だけ燃料ゲージを出す。Vehicle の生存を確かめてから燃料量を読む
-	var driving bool
+	// 随伴中だけ燃料ゲージを出す
+	var cubeFollowing bool
 	var fuelRatio float64
-	if d, ok := query.PlayerDriving(world); ok && world.ECS.Alive(d.Vehicle) {
-		driving = true
-		fuelRatio = query.FuelGaugeRatio(query.CubeFuelTotal(world, d.Vehicle))
+	if cube, ok := query.FollowingCube(world); ok {
+		cubeFollowing = true
+		fuelRatio = query.FuelGaugeRatio(query.CubeFuelTotal(world, cube))
 	}
 
 	// 画面サイズを取得
@@ -101,7 +101,7 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		AmbientTempColor:    ambientTempColor,
 		AmbientShelterLabel: ambientShelterLabel,
 		WeatherName:         query.T(world, query.GetWeather(world).Current.String()),
-		Driving:             driving,
+		CubeFollowing:       cubeFollowing,
 		FuelRatio:           fuelRatio,
 		MessageAreaHeight:   messageAreaHeight,
 		Currency:            currency,
@@ -138,7 +138,7 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 	// 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する
 	view := overworld.BuildMacroView(
 		world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
-		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		area, playerTile, hasPlayer, query.CubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 	// カメラ不在時は北を既定にする
 	var facing gc.Orient

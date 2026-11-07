@@ -33,9 +33,9 @@ func TestExchangeRates_単独つまみのメトリクスは表を作らない(t 
 	t.Parallel()
 	master := loadTestMaster(t)
 	rows := ExchangeRates(master)
-	// OIL航続と loot手取りと Lv30攻撃数は動かすつまみが1つ以下なので交換の余地がなく表に出ない。
+	// 満タン航続と loot手取りと Lv30攻撃数は動かすつまみが1つ以下なので交換の余地がなく表に出ない。
 	for _, mx := range rows {
-		assert.NotEqual(t, "OIL航続", mx.Metric, "単独つまみのメトリクスは表を作らない")
+		assert.NotEqual(t, "満タン航続", mx.Metric, "単独つまみのメトリクスは表を作らない")
 		assert.NotEqual(t, "loot手取り", mx.Metric)
 		assert.NotEqual(t, "Lv30攻撃数", mx.Metric)
 		assert.GreaterOrEqual(t, len(mx.Knobs), 2, "表に出るのは2つ以上動かすメトリクスだけ")

@@ -606,9 +606,9 @@ func actionKinds(actions []InteractionAction) []gc.InteractionKind {
 	return kinds
 }
 
-// TestGetInteractionActions_隣接ではキューブメニューを出さない は、隣接の space メニューにキューブ
-// メニューが出ず、メニューが直上でしか発動しないことを固定する。
-func TestGetInteractionActions_隣接ではキューブメニューを出さない(t *testing.T) {
+// TestGetInteractionActions_隣接のキューブはメニューだけを出す は、隣接の space メニューにキューブ
+// メニューが出て、歩き込みで発動する入れ替えは出ないことを固定する。
+func TestGetInteractionActions_隣接のキューブはメニューだけを出す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -616,21 +616,7 @@ func TestGetInteractionActions_隣接ではキューブメニューを出さな�
 	_, err = lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 6, Y: 5})
 	require.NoError(t, err)
 
-	kinds := actionKinds(GetInteractionActions(world))
-	assert.NotContains(t, kinds, gc.InteractionOpenCubeMenu, "隣接ではキューブメニューを出さない。メニューは直上のみ")
-}
-
-// TestGetSameTileManualActions_直上でキューブメニューを出す は、キューブの直上でメニューが発動候補に
-// 出ることを固定する。運転はこのメニュー経由で始めるので、直上の入口はメニュー1つに集約している。
-func TestGetSameTileManualActions_直上でキューブメニューを出す(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	_, err = lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	require.NoError(t, err)
-
-	assert.Contains(t, actionKinds(GetSameTileManualActions(world)), gc.InteractionOpenCubeMenu, "直上でキューブメニューを出す")
+	assert.Equal(t, []gc.InteractionKind{gc.InteractionOpenCubeMenu}, actionKinds(GetInteractionActions(world)))
 }
 
 func TestStartPickup(t *testing.T) {

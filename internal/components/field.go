@@ -69,10 +69,15 @@ type PassCost struct {
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
 
-// Drivable は運転可能であることを示すマーカー。SpawnCube が付与する。
-type Drivable struct{}
+// MobileBase は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
+type MobileBase struct{}
 
-// Deployed はキューブが展開中であることを示す。運転は Deployed が無いときのみ許す。
+// FuelTank はキューブに貯めた燃料ポイント。くべたアイテムの燃焼熱量がここへ足され、随伴の1歩ごとに減る。
+type FuelTank struct {
+	Heat consts.Heat
+}
+
+// Deployed はキューブが展開中であることを示す。展開中のキューブは随伴せず、その場に留まる。
 // Range は展開した時点の野営フットプリントの縦横別半径を凍結して持つ。圧縮の畳み込みとレーザー壁描画は
 // この凍結値を参照する。展開中にモジュールで範囲が伸びても野営は展開時のまま変わらず、拡張は次の再展開で
 // 反映する。凍結しないと展開時に空だと検証していない外周まで圧縮で畳み込み、既存の prop を巻き込む。
@@ -107,12 +112,6 @@ type Deployable struct{}
 type LocationInstalled struct {
 	Owner ecs.Entity
 	Slot  int
-}
-
-// Driving はプレイヤーが運転中であることと運転対象の乗り物を表す。一時状態なので保存しない。
-// Vehicle の生存確認は参照側の責務。構造変更で無効化されうるので、使う前に world.ECS.Alive で弾く。
-type Driving struct {
-	Vehicle ecs.Entity // 運転中の乗り物。Drivable を持つ
 }
 
 // Direction はタイルベース移動の方向

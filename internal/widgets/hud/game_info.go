@@ -116,8 +116,8 @@ func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
 		{Height: gaugeSpacing},
 		{W: hpRow, Height: gaugeHeight},
 	}
-	// 運転中だけ燃料ゲージを HP の下へ足す
-	if data.Driving {
+	// 随伴中だけ燃料ゲージを HP の下へ足す
+	if data.CubeFollowing {
 		fuelRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},
 			uicore.NewGroup(),
 			info.fuelGauge(data),

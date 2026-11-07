@@ -49,6 +49,14 @@ func TestBand_ShouldShiftNorth(t *testing.T) {
 
 // TestBand_ShouldShiftNorth_1行帯は発火しない は退化した rows=1 帯でシフトが発火しないことを固定する。
 // centerSlot=rows/2=0 で閾値0となり、非負の帯ローカル Y は下回らない。Rows ゼロ値フォールバックでも安全。
+func TestBand_InSouthRow(t *testing.T) {
+	t.Parallel()
+	b := worldstream.NewBand(60, 100, 1, 3) // 南端の行は帯ローカル [200,300)
+	assert.False(t, b.InSouthRow(199), "南端の1つ北の行の下端は含まない")
+	assert.True(t, b.InSouthRow(200), "南端の行の上端から含む")
+	assert.True(t, b.InSouthRow(299), "南端の行の下端まで含む")
+}
+
 func TestBand_ShouldShiftNorth_1行帯は発火しない(t *testing.T) {
 	t.Parallel()
 

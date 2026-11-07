@@ -44,8 +44,8 @@ type EntitySpec struct {
 	Door               *Door
 	Item               *Item
 	Prop               *Prop
-	Drivable           *Drivable
-	Driving            *Driving
+	MobileBase         *MobileBase
+	FuelTank           *FuelTank
 	Deployed           *Deployed
 	LightSource        *LightSource
 	Interactable       *Interactable
@@ -139,8 +139,8 @@ type Components struct {
 	Door               *ecs.Map[Door]
 	Item               *ecs.Map[Item]
 	Prop               *ecs.Map[Prop]
-	Drivable           *ecs.Map[Drivable]
-	Driving            *ecs.Map[Driving]
+	MobileBase         *ecs.Map[MobileBase]
+	FuelTank           *ecs.Map[FuelTank]
 	Deployed           *ecs.Map[Deployed]
 	LightSource        *ecs.Map[LightSource]
 	Interactable       *ecs.Map[Interactable]
@@ -234,8 +234,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Door = ecs.NewMap[Door](world)
 	c.Item = ecs.NewMap[Item](world)
 	c.Prop = ecs.NewMap[Prop](world)
-	c.Drivable = ecs.NewMap[Drivable](world)
-	c.Driving = ecs.NewMap[Driving](world)
+	c.MobileBase = ecs.NewMap[MobileBase](world)
+	c.FuelTank = ecs.NewMap[FuelTank](world)
 	c.Deployed = ecs.NewMap[Deployed](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
@@ -331,8 +331,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Door, entity, spec.Door)
 	addComp(c.Item, entity, spec.Item)
 	addComp(c.Prop, entity, spec.Prop)
-	addComp(c.Drivable, entity, spec.Drivable)
-	addComp(c.Driving, entity, spec.Driving)
+	addComp(c.MobileBase, entity, spec.MobileBase)
+	addComp(c.FuelTank, entity, spec.FuelTank)
 	addComp(c.Deployed, entity, spec.Deployed)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)
