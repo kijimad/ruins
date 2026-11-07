@@ -2100,6 +2100,9 @@ type SkillLevel = int
 // SpriteDepth スプライト描画深度
 type SpriteDepth float32
 
+// SpriteFlat 地面に寝かせて描くか。床の模様やワープホールのように高さの無いものに使う
+type SpriteFlat = bool
+
 // SpriteKey スプライトキー
 type SpriteKey = string
 
@@ -2107,6 +2110,9 @@ type SpriteKey = string
 type SpriteRender struct {
 	// Depth スプライト描画深度
 	Depth SpriteDepth `json:"depth"`
+
+	// Flat 地面に寝かせて描くか。床の模様やワープホールのように高さの無いものに使う
+	Flat *SpriteFlat `json:"flat,omitempty"`
 
 	// SpriteKey スプライトキー
 	SpriteKey SpriteKey `json:"spriteKey"`

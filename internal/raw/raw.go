@@ -108,6 +108,7 @@ func toGCSpriteRender(s oapi.SpriteRender) gc.SpriteRender {
 		SpriteSheetName: s.SpriteSheetName,
 		SpriteKey:       s.SpriteKey,
 		Depth:           gc.DepthNum(int(s.Depth)),
+		Flat:            s.Flat != nil && *s.Flat,
 	}
 }
 

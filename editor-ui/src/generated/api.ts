@@ -1665,6 +1665,10 @@ export interface SpriteRender {
      */
     'spriteKey': string;
     'depth': SpriteDepth;
+    /**
+     * 地面に寝かせて描くか。床の模様やワープホールのように高さの無いものに使う
+     */
+    'flat'?: boolean;
 }
 
 

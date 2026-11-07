@@ -18740,6 +18740,7 @@ hp = 9999
 depth = 1
 spriteKey = "warp_next_0"
 spriteSheetName = "field"
+flat = true
 
 [props.lightSource]
 enabled = true
@@ -18765,6 +18766,7 @@ hp = 9999
 depth = 1
 spriteKey = "warp_next_0"
 spriteSheetName = "field"
+flat = true
 
 [props.lightSource]
 enabled = true
@@ -19455,6 +19457,7 @@ hp = 9999
 depth = 1
 spriteKey = "warp_escape_0"
 spriteSheetName = "field"
+flat = true
 
 [props.lightSource]
 enabled = true
@@ -19689,6 +19692,7 @@ id = "soil_pebbles"
 depth = 0
 spriteKey = "soil_pebbles"
 spriteSheetName = "field"
+flat = true
 [[props]]
 blockPass = false
 blockView = false
@@ -19700,6 +19704,7 @@ id = "soil_dark"
 depth = 0
 spriteKey = "soil_dark"
 spriteSheetName = "field"
+flat = true
 [[props]]
 blockPass = false
 blockView = false
@@ -19711,6 +19716,7 @@ id = "soil_dry"
 depth = 0
 spriteKey = "soil_dry"
 spriteSheetName = "field"
+flat = true
 [[props]]
 blockPass = false
 blockView = false
@@ -19722,6 +19728,7 @@ id = "soil_crack"
 depth = 0
 spriteKey = "soil_crack"
 spriteSheetName = "field"
+flat = true
 [[props]]
 blockPass = false
 blockView = false

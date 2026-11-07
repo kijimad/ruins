@@ -458,6 +458,7 @@ model SpriteRender {
   spriteSheetName: SpriteSheetName;
   spriteKey: SpriteKey;
   depth: SpriteDepth;
+  flat?: SpriteFlat;
 }
 
 /** タイル */
