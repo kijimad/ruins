@@ -41,8 +41,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeStorage(target, world)
 	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
-	case gc.InteractionDisassemble:
-		return executeDisassemble(actor, target, world)
 	case gc.InteractionOpenCubeMenu:
 		return executePortal(world, gc.OpenCubeMenuEvent(target), "cube menu state change request error", "opened cube menu")
 	case gc.InteractionIgnite:
@@ -180,10 +178,4 @@ func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, err
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
 	return Execute(NewMeleeActivity(target), actor, world)
-}
-
-// executeDisassemble は分解アクティビティを組んで実行する。工具不足や定義なしなどの
-// 可否判定は Validate が担い、理由を gamelog へ出して no-op にする。
-func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(NewDisassembleActivity(target, actor, world), actor, world)
 }

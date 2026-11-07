@@ -359,7 +359,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateDisassemblyReferences は分解定義と伐採定義の産出名がアイテム定義に存在することを検証する
+// validateDisassemblyReferences は prop の分解定義の産出名がアイテム定義に存在することを検証する
 func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -367,43 +367,21 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		itemNames[items[i].Id] = struct{}{}
 	}
 
-	check := func(ownerKind string, ownerName string, def *oapi.Disassembly) error {
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		def := props[i].Disassembly
 		if def == nil {
-			return nil
+			continue
 		}
 		for _, y := range def.Yields {
 			if _, ok := itemNames[y.Id]; !ok {
-				return fmt.Errorf("%s %q disassembly yield %q: %w", ownerKind, ownerName, y.Id, errDisassemblyYieldUndefined)
+				return fmt.Errorf("prop %q disassembly yield %q: %w", props[i].Name, y.Id, errDisassemblyYieldUndefined)
 			}
 		}
-		if def.Bonus == nil {
-			return nil
-		}
-		for _, b := range *def.Bonus {
+		for _, b := range PtrSlice(def.Bonus) {
 			if _, ok := itemNames[b.Id]; !ok {
-				return fmt.Errorf("%s %q disassembly bonus %q: %w", ownerKind, ownerName, b.Id, errDisassemblyBonusUndefined)
+				return fmt.Errorf("prop %q disassembly bonus %q: %w", props[i].Name, b.Id, errDisassemblyBonusUndefined)
 			}
-		}
-		return nil
-	}
-
-	props := PtrSlice(raws.Props)
-	for i := range props {
-		if err := check("prop", props[i].Name, props[i].Disassembly); err != nil {
-			return err
-		}
-		if props[i].Felling == nil {
-			continue
-		}
-		for _, y := range props[i].Felling.Yields {
-			if _, ok := itemNames[y.Id]; !ok {
-				return fmt.Errorf("prop %q felling yield %q: %w", props[i].Name, y.Id, errDisassemblyYieldUndefined)
-			}
-		}
-	}
-	for i := range items {
-		if err := check("item", items[i].Name, items[i].Disassembly); err != nil {
-			return err
 		}
 	}
 	return nil

@@ -1213,19 +1213,17 @@ type Dialog struct {
 // Dice ダイス表記の個数指定。固定値も 1d1 のように書く。consts.ParseDice でパースする
 type Dice = string
 
-// Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
+// Disassembly 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
 type Disassembly struct {
-	// BaseAP 分解の基礎工数。100が標準1ターンに相当する
-	BaseAP DisassemblyBaseAP   `json:"baseAP"`
-	Bonus  *[]DisassemblyBonus `json:"bonus,omitempty"`
+	Bonus *[]DisassemblyBonus `json:"bonus,omitempty"`
 
 	// ToolCategory 分解工具の分類
-	ToolCategory ToolCategory       `json:"toolCategory"`
-	Yields       []DisassemblyYield `json:"yields"`
-}
+	ToolCategory *ToolCategory `json:"toolCategory,omitempty"`
 
-// DisassemblyBaseAP 分解の基礎工数。100が標準1ターンに相当する
-type DisassemblyBaseAP = int
+	// ToolRequired 分解定義の道具が無いと殴っても削れないか
+	ToolRequired *DisassemblyToolRequired `json:"toolRequired,omitempty"`
+	Yields       []DisassemblyYield       `json:"yields"`
+}
 
 // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
@@ -1250,6 +1248,9 @@ type DisassemblyTool struct {
 	// Grade 分解工具のグレード。高いほど速く多く得る
 	Grade ToolGrade `json:"grade"`
 }
+
+// DisassemblyToolRequired 分解定義の道具が無いと殴っても削れないか
+type DisassemblyToolRequired = bool
 
 // DisassemblyYield 分解の産出エントリ。chance 省略は確定枠
 type DisassemblyYield struct {
@@ -1404,13 +1405,6 @@ type FacilityZone struct {
 // FactionMemberType 派閥タイプ
 type FactionMemberType string
 
-// Felling 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
-type Felling struct {
-	// ToolCategory 分解工具の分類
-	ToolCategory *ToolCategory      `json:"toolCategory,omitempty"`
-	Yields       []DisassemblyYield `json:"yields"`
-}
-
 // Fire 遠距離攻撃設定
 type Fire struct {
 	// Accuracy 命中率。0で必中なし、100で必中
@@ -1521,9 +1515,6 @@ type Item struct {
 
 	// Description 説明文
 	Description EntityDescription `json:"description"`
-
-	// Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
-	Disassembly *Disassembly `json:"disassembly,omitempty"`
 
 	// DisassemblyTool 分解工具。分類の対応とグレードを持つ
 	DisassemblyTool *DisassemblyTool `json:"disassemblyTool,omitempty"`
@@ -1902,14 +1893,11 @@ type Prop struct {
 	// Description 説明文
 	Description EntityDescription `json:"description"`
 
-	// Disassembly 分解定義。これを持つ prop・item は対応工具で分解できる
+	// Disassembly 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
 	Disassembly *Disassembly `json:"disassembly,omitempty"`
 
 	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
-
-	// Felling 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
-	Felling *Felling `json:"felling,omitempty"`
 
 	// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する
 	HeatSource *HeatSource `json:"heatSource,omitempty"`

@@ -150,8 +150,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			Props: &[]oapi.Prop{{
 				Name: "棚",
 				Disassembly: &oapi.Disassembly{
-					ToolCategory: oapi.Prying,
-					BaseAP:       100,
+					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				},
 			}},
@@ -166,8 +165,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			Props: &[]oapi.Prop{{
 				Name: "棚",
 				Disassembly: &oapi.Disassembly{
-					ToolCategory: oapi.Prying,
-					BaseAP:       100,
+					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
@@ -176,33 +174,16 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 		require.ErrorIs(t, err, errDisassemblyYieldUndefined)
 	})
 
-	t.Run("propの伐採産出名が存在しないとエラー", func(t *testing.T) {
+	t.Run("propのボーナス名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			Items: validItems,
-			Props: &[]oapi.Prop{{
-				Name: "木",
-				Felling: &oapi.Felling{
-					Yields: []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
-				},
-			}},
-		}
-		err := validateDisassemblyReferences(raws)
-		require.ErrorIs(t, err, errDisassemblyYieldUndefined)
-	})
-
-	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
-		t.Parallel()
-		items := []oapi.Item{
-			{Id: "鉄くず", Name: "鉄くず"},
-			{Id: "分解対象", Name: "分解対象", Disassembly: &oapi.Disassembly{
-				ToolCategory: oapi.Precision,
-				BaseAP:       100,
+			Items: &[]oapi.Item{{Id: "鉄くず", Name: "鉄くず"}},
+			Props: &[]oapi.Prop{{Id: "分解対象", Name: "分解対象", Disassembly: &oapi.Disassembly{
+				ToolCategory: new(oapi.Precision),
 				Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				Bonus:        &[]oapi.DisassemblyBonus{{Id: "存在しないボーナス", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
-			}},
+			}}},
 		}
-		raws := oapi.Raws{Items: &items}
 		err := validateDisassemblyReferences(raws)
 		require.ErrorIs(t, err, errDisassemblyBonusUndefined)
 	})

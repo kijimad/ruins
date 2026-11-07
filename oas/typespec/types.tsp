@@ -555,10 +555,8 @@ enum HealingValueType {
   NUMERAL,
 }
 
-/** 分解の基礎工数。100が標準1ターンに相当する */
-@minValue(1)
-@maxValue(9999)
-scalar DisassemblyBaseAP extends integer;
+/** 分解定義の道具が無いと殴っても削れないか */
+scalar DisassemblyToolRequired extends boolean;
 
 /** 分解産出の確率。百分率 */
 @minValue(1)

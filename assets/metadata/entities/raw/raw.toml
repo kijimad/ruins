@@ -8778,21 +8778,6 @@ spriteKey = "hdd"
 spriteSheetName = "field"
 value = 50
 weight = "300 g"
-
-[items.disassembly]
-toolCategory = "precision"
-baseAP = 1000
-[[items.disassembly.yields]]
-id = "scrap_iron"
-count = "1d1"
-[[items.disassembly.yields]]
-id = "electric_wire"
-count = "1d1"
-chance = 50
-[[items.disassembly.bonus]]
-id = "ferrite_core"
-count = "1d1"
-minSkill = 10
 [[items]]
 description = "A purple handheld device with a small screen and buttons on the front."
 name = "Mobile Device"
@@ -17818,7 +17803,6 @@ lootCount = "2d3"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 2500
 [[props.disassembly.yields]]
 id = "hardwood"
 count = "1d3"
@@ -18125,7 +18109,6 @@ spriteSheetName = "field"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 2000
 [[props.disassembly.yields]]
 id = "hardwood"
 count = "1d2"
@@ -18342,7 +18325,6 @@ spriteSheetName = "field"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 4000
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d2+1"
@@ -18616,7 +18598,6 @@ lootCount = "2d3"
 
 [props.disassembly]
 toolCategory = "cutting"
-baseAP = 6000
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d3+1"
@@ -18642,7 +18623,6 @@ id = "register"
 
 [props.disassembly]
 toolCategory = "precision"
-baseAP = 3000
 [[props.disassembly.yields]]
 id = "electric_wire"
 count = "1d2"
@@ -19041,7 +19021,6 @@ lootCount = "2d3"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 2000
 [[props.disassembly.yields]]
 id = "hardwood"
 count = "1d2"
@@ -19388,12 +19367,13 @@ depth = 0
 spriteKey = "big_tree"
 spriteSheetName = "field"
 
-[props.felling]
+[props.disassembly]
 toolCategory = "chopping"
-[[props.felling.yields]]
+toolRequired = true
+[[props.disassembly.yields]]
 id = "firewood"
 count = "2d2"
-[[props.felling.yields]]
+[[props.disassembly.yields]]
 id = "firewood"
 count = "1d3"
 chance = 60
@@ -19410,12 +19390,13 @@ depth = 0
 spriteKey = "tree_a"
 spriteSheetName = "field"
 
-[props.felling]
+[props.disassembly]
 toolCategory = "chopping"
-[[props.felling.yields]]
+toolRequired = true
+[[props.disassembly.yields]]
 id = "firewood"
 count = "1d2"
-[[props.felling.yields]]
+[[props.disassembly.yields]]
 id = "firewood"
 count = "1d2"
 chance = 60
@@ -19432,12 +19413,13 @@ depth = 0
 spriteKey = "tree_b"
 spriteSheetName = "field"
 
-[props.felling]
+[props.disassembly]
 toolCategory = "chopping"
-[[props.felling.yields]]
+toolRequired = true
+[[props.disassembly.yields]]
 id = "firewood"
 count = "1d2"
-[[props.felling.yields]]
+[[props.disassembly.yields]]
 id = "firewood"
 count = "1d2"
 chance = 60
@@ -19497,7 +19479,6 @@ lootCount = "2d3"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 2000
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d2"
@@ -19521,7 +19502,6 @@ lootCount = "1d3"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 1500
 [[props.disassembly.yields]]
 id = "hardwood"
 count = "1d2"
@@ -19631,7 +19611,6 @@ spriteSheetName = "field"
 
 [props.disassembly]
 toolCategory = "prying"
-baseAP = 1000
 [[props.disassembly.yields]]
 id = "scrap_iron"
 count = "1d3"
@@ -19751,7 +19730,7 @@ depth = 0
 spriteKey = "bush"
 spriteSheetName = "field"
 
-[[props.felling.yields]]
+[[props.disassembly.yields]]
 id = "branch"
 count = "1d2"
 [[props]]
@@ -19767,7 +19746,7 @@ depth = 0
 spriteKey = "bush_dry"
 spriteSheetName = "field"
 
-[[props.felling.yields]]
+[[props.disassembly.yields]]
 id = "branch"
 count = "1d3"
 

@@ -54,8 +54,6 @@ const (
 	BehaviorRead      BehaviorName = "Read"
 	BehaviorShoot     BehaviorName = "Shoot"
 	BehaviorReload    BehaviorName = "Reload"
-	// BehaviorDisassemble は工具でpropやアイテムを分解して素材を得る
-	BehaviorDisassemble BehaviorName = "Disassemble"
 	// BehaviorIgnite は火種で隣接の燃焼物に火をつけて焚き火を熾す。ExecuteInteraction が直接処理する
 	BehaviorIgnite BehaviorName = "Ignite"
 	// BehaviorFeedFuel は隣接の火へ燃料をくべる給油メニューを開く。ExecuteInteraction が直接処理する
@@ -141,13 +139,6 @@ type ReadParams struct {
 }
 
 func (*ReadParams) isActivityParams() {}
-
-// DisassembleParams は分解のパラメータ。
-type DisassembleParams struct {
-	Target ecs.Entity // 分解するアイテムのエンティティ
-}
-
-func (*DisassembleParams) isActivityParams() {}
 
 // PlaceParams は対象と操作先を取るアクションのパラメータ。ドロップ・押し引きが使う。
 type PlaceParams struct {

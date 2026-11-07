@@ -661,7 +661,7 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 	}
 }
 
-func TestMeleeBehavior_Validate_伐採(t *testing.T) {
+func TestMeleeBehavior_Validate_分解定義の道具(t *testing.T) {
 	t.Parallel()
 
 	t.Run("斧を構えていれば木を殴れる", func(t *testing.T) {
@@ -681,7 +681,7 @@ func TestMeleeBehavior_Validate_伐採(t *testing.T) {
 		require.NoError(t, ab.Validate(NewMeleeActivity(tree), player, world))
 	})
 
-	t.Run("伐採できない武器では木を殴れない", func(t *testing.T) {
+	t.Run("道具が必須のpropは合う道具でない武器では殴れない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
@@ -695,7 +695,7 @@ func TestMeleeBehavior_Validate_伐採(t *testing.T) {
 		require.ErrorAs(t, ab.Validate(NewMeleeActivity(tree), player, world), &userErr)
 	})
 
-	t.Run("道具の分類が無い伐採定義のpropはどの武器でも殴れる", func(t *testing.T) {
+	t.Run("道具の分類が無い分解定義のpropはどの武器でも殴れる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
@@ -708,7 +708,7 @@ func TestMeleeBehavior_Validate_伐採(t *testing.T) {
 		require.NoError(t, ab.Validate(NewMeleeActivity(bush), player, world))
 	})
 
-	t.Run("伐採定義の無いpropはどの武器でも殴れる", func(t *testing.T) {
+	t.Run("道具が必須でない分解定義のpropは合う道具でなくても殴れる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")

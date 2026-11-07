@@ -2,7 +2,6 @@ package activity
 
 import (
 	"fmt"
-	"slices"
 	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -10,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -87,24 +85,13 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 		return fmt.Errorf("attacker has no attack means")
 	}
 
-	if def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(p.Target, world)); ok && def.ToolCategory != nil && !holdsTool(world, actor, *def.ToolCategory) {
-		return &UserError{Msg: query.T(world, "You need a felling tool to cut down %s.", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
+	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world)); ok && def.ToolRequired != nil && *def.ToolRequired {
+		if _, held := disassemblyTool(world, actor, def); !held {
+			return &UserError{Msg: query.T(world, "You need a suitable tool to break %s.", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
+		}
 	}
 
 	return nil
-}
-
-// holdsTool はプレイヤーが選択中の武器が道具分類 category を持つかを返す
-func holdsTool(world w.World, actor ecs.Entity, category oapi.ToolCategory) bool {
-	if !world.Components.Player.Has(actor) {
-		return false
-	}
-	weapon, ok, err := selectedWeapon(world, actor)
-	if err != nil || !ok {
-		return false
-	}
-	tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
-	return ok && slices.Contains(tool.Categories, category)
 }
 
 // selectedWeapon はプレイヤーが選択中の武器スロットの武器を返す。空きスロットなら ok は偽
@@ -320,6 +307,11 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	growWeaponSkill(actor, world, attack)
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
+	if world.Components.Prop.Has(target) && world.Components.Dead.Has(target) {
+		if err := dropSalvage(world, actor, target); err != nil {
+			return err
+		}
+	}
 	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
 	applyInjury(actor, target, world, attack)
 
@@ -403,7 +395,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
 
-	return finalDamage
+	return finalDamage * toolDamageMultiplier(world, attacker, target)
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する

@@ -123,7 +123,6 @@ model Item {
   melee?: Melee;
   fire?: Fire;
   book?: Book;
-  disassembly?: Disassembly;
   disassemblyTool?: DisassemblyTool;
   /** 携行光源。装備すると owner を照らす */
   lightSource?: LightSource;
@@ -515,7 +514,6 @@ model Prop {
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
-  felling?: Felling;
 }
 
 /** 分解の産出エントリ。chance 省略は確定枠 */
@@ -537,18 +535,12 @@ model DisassemblyBonus {
   minGrade?: ToolGrade;
 }
 
-/** 分解定義。これを持つ prop・item は対応工具で分解できる */
+/** 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る */
 model Disassembly {
-  toolCategory: ToolCategory;
-  baseAP: DisassemblyBaseAP;
+  toolCategory?: ToolCategory;
+  toolRequired?: DisassemblyToolRequired;
   yields: DisassemblyYield[];
   bonus?: DisassemblyBonus[];
-}
-
-/** 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる */
-model Felling {
-  toolCategory?: ToolCategory;
-  yields: DisassemblyYield[];
 }
 
 /** 分解工具。分類の対応とグレードを持つ */

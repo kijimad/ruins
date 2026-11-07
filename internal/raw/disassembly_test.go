@@ -12,23 +12,13 @@ func TestFindDisassembly(t *testing.T) {
 	t.Parallel()
 
 	propDisassembly := &oapi.Disassembly{
-		ToolCategory: oapi.Prying,
-		BaseAP:       100,
+		ToolCategory: new(oapi.Prying),
 		Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
-	}
-	itemDisassembly := &oapi.Disassembly{
-		ToolCategory: oapi.Precision,
-		BaseAP:       200,
-		Yields:       []oapi.DisassemblyYield{{Id: "ネジ", Count: "1d2"}},
 	}
 	raws := oapi.Raws{
 		Props: &[]oapi.Prop{
 			{Id: "棚", Name: "棚", Disassembly: propDisassembly},
 			{Id: "机", Name: "机"},
-		},
-		Items: &[]oapi.Item{
-			{Id: "廃品", Name: "廃品", Disassembly: itemDisassembly},
-			{Id: "回復薬", Name: "回復薬"},
 		},
 	}
 
@@ -39,23 +29,9 @@ func TestFindDisassembly(t *testing.T) {
 		assert.Equal(t, propDisassembly, got)
 	})
 
-	t.Run("itemの分解定義を返す", func(t *testing.T) {
-		t.Parallel()
-		got, ok := FindDisassembly(raws, "廃品")
-		require.True(t, ok)
-		assert.Equal(t, itemDisassembly, got)
-	})
-
 	t.Run("分解定義を持たないpropはfalseを返す", func(t *testing.T) {
 		t.Parallel()
 		got, ok := FindDisassembly(raws, "机")
-		assert.False(t, ok)
-		assert.Nil(t, got)
-	})
-
-	t.Run("分解定義を持たないitemはfalseを返す", func(t *testing.T) {
-		t.Parallel()
-		got, ok := FindDisassembly(raws, "回復薬")
 		assert.False(t, ok)
 		assert.Nil(t, got)
 	})
@@ -122,8 +98,7 @@ func TestValidateReferences(t *testing.T) {
 			Props: &[]oapi.Prop{{
 				Name: "棚",
 				Disassembly: &oapi.Disassembly{
-					ToolCategory: oapi.Prying,
-					BaseAP:       100,
+					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				},
 			}},
@@ -169,8 +144,7 @@ func TestValidateReferences(t *testing.T) {
 			Props: &[]oapi.Prop{{
 				Name: "棚",
 				Disassembly: &oapi.Disassembly{
-					ToolCategory: oapi.Prying,
-					BaseAP:       100,
+					ToolCategory: new(oapi.Prying),
 					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},

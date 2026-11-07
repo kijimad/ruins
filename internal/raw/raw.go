@@ -836,10 +836,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionStorage)
 	}
 
-	if propRaw.Disassembly != nil {
-		interactions = append(interactions, gc.InteractionDisassemble)
-	}
-
 	if len(interactions) > 0 {
 		entitySpec.Interactable = &gc.Interactable{Interactions: interactions}
 	}
@@ -847,24 +843,13 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	return entitySpec, nil
 }
 
-// FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す
+// FindDisassembly は指定された名前の prop の分解定義を返す
 func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
-	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name); ok && prop.Disassembly != nil {
-		return prop.Disassembly, true
-	}
-	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name); ok && item.Disassembly != nil {
-		return item.Disassembly, true
-	}
-	return nil, false
-}
-
-// FindFelling は指定された名前の prop の伐採定義を返す
-func FindFelling(raws oapi.Raws, name string) (*oapi.Felling, bool) {
 	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name)
-	if !ok || prop.Felling == nil {
+	if !ok || prop.Disassembly == nil {
 		return nil, false
 	}
-	return prop.Felling, true
+	return prop.Disassembly, true
 }
 
 // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す

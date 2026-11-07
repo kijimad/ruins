@@ -21,8 +21,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(1, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "2d1"}},
 		}
 
@@ -38,8 +37,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(2, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields:       []oapi.DisassemblyYield{{Id: "硬木", Count: "1d3"}},
 		}
 
@@ -59,8 +57,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(3, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Precision,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Precision),
 			Yields:       []oapi.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(60))}},
 		}
 
@@ -76,8 +73,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(4, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Precision,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Precision),
 			Yields:       []oapi.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(50))}},
 		}
 
@@ -96,8 +92,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(5, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus:        &[]oapi.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
 		}
@@ -117,8 +112,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(6, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus:        &[]oapi.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinGrade: new(oapi.ToolGrade(2))}},
 		}
@@ -138,8 +132,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(8, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus: &[]oapi.DisassemblyBonus{
 				{Id: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10)), MinGrade: new(oapi.ToolGrade(2))},
@@ -166,8 +159,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(9, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus:        &[]oapi.DisassemblyBonus{{Id: "鉄", Count: "1d1"}},
 		}
@@ -182,8 +174,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(7, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields: []oapi.DisassemblyYield{
 				{Id: "鉄くず", Count: "1d1"},
 				{Id: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(100))},
@@ -209,8 +200,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(10, 0))
 		def := &oapi.Disassembly{
-			ToolCategory: oapi.Prying,
-			BaseAP:       100,
+			ToolCategory: new(oapi.Prying),
 			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "invalid"}},
 		}
 
@@ -256,20 +246,4 @@ func TestSpawnDisassemblyYields(t *testing.T) {
 
 		require.ErrorIs(t, err, lifecycle.ErrItemGeneration)
 	})
-}
-
-func TestRollFellingYields_確定枠と確率100の枠を出す(t *testing.T) {
-	t.Parallel()
-	hundred := oapi.DisassemblyChance(100)
-	def := &oapi.Felling{
-		Yields: []oapi.DisassemblyYield{
-			{Id: "firewood", Count: "2d1"},
-			{Id: "firewood", Count: "1d1", Chance: &hundred},
-		},
-	}
-
-	stacks, err := lifecycle.RollFellingYields(rand.New(rand.NewPCG(1, 0)), def)
-
-	require.NoError(t, err)
-	assert.Equal(t, []lifecycle.YieldStack{{Name: "firewood", Count: 2}, {Name: "firewood", Count: 1}}, stacks)
 }

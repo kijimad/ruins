@@ -557,14 +557,14 @@ export interface Dialog {
     'messageKey': string;
 }
 /**
- * 分解定義。これを持つ prop・item は対応工具で分解できる
+ * 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
  */
 export interface Disassembly {
-    'toolCategory': ToolCategory;
+    'toolCategory'?: ToolCategory;
     /**
-     * 分解の基礎工数。100が標準1ターンに相当する
+     * 分解定義の道具が無いと殴っても削れないか
      */
-    'baseAP': number;
+    'toolRequired'?: boolean;
     'yields': Array<DisassemblyYield>;
     'bonus'?: Array<DisassemblyBonus>;
 }
@@ -822,15 +822,6 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
 
 
 /**
- * 伐採定義。これを持つ prop は倒れると産出を落とす。toolCategory があればその道具を構えて殴ったときだけ削れる
- */
-export interface Felling {
-    'toolCategory'?: ToolCategory;
-    'yields': Array<DisassemblyYield>;
-}
-
-
-/**
  * 遠距離攻撃設定
  */
 export interface Fire {
@@ -978,7 +969,6 @@ export interface Item {
     'melee'?: Melee;
     'fire'?: Fire;
     'book'?: Book;
-    'disassembly'?: Disassembly;
     'disassemblyTool'?: DisassemblyTool;
     /**
      * 携行光源。装備すると owner を照らす
@@ -1434,7 +1424,6 @@ export interface Prop {
     'warpPrevTrigger'?: object;
     'storage'?: StorageRaw;
     'disassembly'?: Disassembly;
-    'felling'?: Felling;
 }
 /**
  * 置物一覧
