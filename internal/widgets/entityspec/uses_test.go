@@ -80,12 +80,12 @@ func TestUseHints(t *testing.T) {
 			want: []string{"Deployable"},
 		},
 		{
-			name: "分解工具は物を分解できる",
+			name: "分解工具は物を効率よく壊せる",
 			setup: func(world w.World, e ecs.Entity) {
 				// monkey_wrench は raw に分解工具定義を持つ。判定は RawID から raw を引く
 				world.Components.RawID.Add(e, &gc.RawID{ID: "monkey_wrench"})
 			},
-			want: []string{"Can disassemble items"},
+			want: []string{"Breaks objects efficiently"},
 		},
 		{
 			name: "複数の性質は表示順に並ぶ",

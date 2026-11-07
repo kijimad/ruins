@@ -5996,8 +5996,8 @@ msgstr "装備できる"
 msgid "Deployable"
 msgstr "装着できる"
 
-msgid "Can disassemble items"
-msgstr "物を分解できる"
+msgid "Breaks objects efficiently"
+msgstr "物を効率よく壊せる"
 
 msgid "Cleaver"
 msgstr "クリーバー"

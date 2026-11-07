@@ -39,7 +39,7 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	}
 	// 分解工具は専用コンポーネントを持たず raw 定義の有無で判定する
 	if _, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(e, world)); ok {
-		uses = append(uses, query.T(world, "Can disassemble items"))
+		uses = append(uses, query.T(world, "Breaks objects efficiently"))
 	}
 	if len(uses) == 0 {
 		return nil
