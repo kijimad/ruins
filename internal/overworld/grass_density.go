@@ -13,7 +13,7 @@ const (
 )
 
 // grassPatchFactor は絶対タイル座標 p の草の密度倍率を返す。格子点の 0〜1 の乱数をなめらかに補間した n を
-// 3n² にして、茂った所と疎らな所の差をはっきりさせる。n が一様なら平均はおよそ1で、全体の量を保つ
+// 3n² にして、茂った所と疎らな所の差をはっきりさせる。補間で n の散らばりが縮むので、平均はおよそ0.9になる
 func grassPatchFactor(seed uint64, p consts.Coord[consts.Tile]) float64 {
 	cx, cy := consts.FloorDiv(p.X, grassPatchCell), consts.FloorDiv(p.Y, grassPatchCell)
 	fx := smoothstep(float64(p.X-cx*grassPatchCell) / float64(grassPatchCell))

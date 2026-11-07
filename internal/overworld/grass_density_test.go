@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGrassPatchFactor_平均はおよそ1で茂った所と疎らな所に分かれる(t *testing.T) {
+func TestGrassPatchFactor_平均はおよそ0点9で茂った所と疎らな所に分かれる(t *testing.T) {
 	t.Parallel()
 	const size consts.Tile = 256
 	sum := 0.0
@@ -26,12 +26,12 @@ func TestGrassPatchFactor_平均はおよそ1で茂った所と疎らな所に�
 	}
 	total := float64(size * size)
 
-	assert.InDelta(t, 1.0, sum/total, 0.2)
+	assert.InDelta(t, 0.9, sum/total, 0.1)
 	assert.Greater(t, float64(sparse)/total, 0.1)
 	assert.Greater(t, float64(dense)/total, 0.05)
 }
 
-func TestGrassPatchFactor_チャンクの継ぎ目でも連続する(t *testing.T) {
+func TestGrassPatchFactor_隣り合うタイルで値が大きく跳ばない(t *testing.T) {
 	t.Parallel()
 	for x := consts.Tile(-50); x < 50; x++ {
 		a := grassPatchFactor(1, consts.Coord[consts.Tile]{X: x, Y: 3})
