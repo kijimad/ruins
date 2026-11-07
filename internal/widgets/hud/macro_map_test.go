@@ -184,7 +184,6 @@ func TestDrawMapLegend_種別ごとに色見本と名前を描く(t *testing.T) 
 	glyphs := overworld.LegendGlyphs(raws)
 	require.NotEmpty(t, glyphs)
 	assert.Len(t, cv.fillRects, len(glyphs), "種別ごとに色見本を1つ塗る")
-	// 種別ごとに記号1つと名前1つを描く
 	assert.Len(t, cv.texts, len(glyphs)*2)
 }
 

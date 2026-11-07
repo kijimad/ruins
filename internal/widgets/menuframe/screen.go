@@ -20,7 +20,6 @@ func PanelInner(rect image.Rectangle) image.Rectangle {
 }
 
 // ImagePanelArea は ImagePanel が画像を置く矩形を返す。パネルの内側から下端のフッタ行を除いた範囲。
-// 呼び出し側は画像をこの寸法で作る。
 func ImagePanelArea(rect image.Rectangle) image.Rectangle {
 	area := PanelInner(rect)
 	area.Max.Y -= theme.MenuTabRowH

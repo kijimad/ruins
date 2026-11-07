@@ -61,7 +61,6 @@ var untranslatedExemptCases = []string{"DebugMenu", "ComponentDebug"}
 var languageNeutralWords = []string{"HP", "Esc", "Enter", "Ash"}
 
 // TestUntranslatedText は golden の全場面を疑似訳で描き、訳を通らずに描かれた文字列を探す。
-// 疑似訳は英字を全角にするので、画面に ASCII の英字が残った文字列は訳を通っていない。
 func TestUntranslatedText(t *testing.T) {
 	t.Parallel()
 

@@ -88,7 +88,6 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 
 // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
 // 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。
-// 文言は translate で現在言語へ訳す。
 func DrawMapLegend(cv uicore.Canvas, raws oapi.Raws, translate func(msgid string) string, face, glyphFace text.Face, top int) {
 	const swatch = 14
 	x, y := 8, top

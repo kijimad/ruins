@@ -5,9 +5,7 @@ import (
 	"strings"
 )
 
-// NewPseudoCatalog は全ての msgid を疑似訳へ写すカタログを返す。翻訳漏れの検査に使う。
-// 疑似訳は英字を全角に置き換えたもので、訳を通った文字列には ASCII の英字が残らない。
-// 画面に ASCII の英字が出たら、その文字列は訳を通っていない。
+// NewPseudoCatalog は全ての msgid を疑似訳へ写すカタログを返す。
 func NewPseudoCatalog() Catalog {
 	return Catalog{pseudo: true}
 }
