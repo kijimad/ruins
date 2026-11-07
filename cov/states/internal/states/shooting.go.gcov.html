@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 13:08:33</td>
+            <td class="headerValue">2026-11-07 15:31:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -366,7 +366,7 @@
 <span id="L304"><span class="lineNum">     304</span>              :         // HP</span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         if world.Components.HP.Has(target) {</span></span>
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                 hp := world.Components.HP.Get(target)</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 drawText(fmt.Sprintf(&quot;HP: %d/%d&quot;, hp.Current, hp.Max))</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 drawText(fmt.Sprintf(&quot;%s: %d/%d&quot;, query.T(world, &quot;HP&quot;), hp.Current, hp.Max))</span></span>
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L309"><span class="lineNum">     309</span>              : </span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         drawText(fmt.Sprintf(&quot;%s: %d%%&quot;, query.T(world, &quot;Hit rate&quot;), st.cachedHitRate))</span></span>

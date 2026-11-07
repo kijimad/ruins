@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.6&nbsp;%</td>
-            <td class="headerCovTableEntry">159</td>
+            <td class="headerCovTableEntryMed">80.6&nbsp;%</td>
+            <td class="headerCovTableEntry">165</td>
             <td class="headerCovTableEntry">133</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 13:08:33</td>
+            <td class="headerValue">2026-11-07 15:31:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -226,111 +226,125 @@
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         op.ColorScale.ScaleWithColor(c)</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         // ebiten text/v2 の共有グリフキャッシュを壊さないよう描画を直列化する。詳細は textMu を参照</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         textMu.Lock()</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         text.Draw(e.screen, s, face, op)</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         textMu.Unlock()</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L170"><span class="lineNum">     170</span>              : </span>
-<span id="L171"><span class="lineNum">     171</span>              : // DrawImage は EbitenCanvas を実装する。pos を左上として画像を描く。</span>
-<span id="L172"><span class="lineNum">     172</span>              : func (e *EbitenCanvas) DrawImage(pos image.Point, img *ebiten.Image) {</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(float64(pos.X), float64(pos.Y))</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         e.screen.DrawImage(img, op)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L177"><span class="lineNum">     177</span>              : </span>
-<span id="L178"><span class="lineNum">     178</span>              : // DrawImageRect は EbitenCanvas を実装する。dst に収まるよう縦横比を保って縮小し、左寄せ・縦中央で描く。</span>
-<span id="L179"><span class="lineNum">     179</span>              : func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         if img == nil {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         b := img.Bounds()</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         iw, ih := b.Dx(), b.Dy()</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         if iw &lt;= 0 || ih &lt;= 0 || dst.Dx() &lt;= 0 || dst.Dy() &lt;= 0 {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         scale := math.Min(math.Min(float64(dst.Dx())/float64(iw), float64(dst.Dy())/float64(ih)), 1)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         dh := float64(ih) * scale</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         // 左寄せ・縦中央。アイコンとキーキャップを列の左に揃え、行の高さの中央へ置く</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         ox := float64(dst.Min.X)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         oy := float64(dst.Min.Y) + (float64(dst.Dy())-dh)/2</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         op.GeoM.Scale(scale, scale)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(ox, oy)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         // 収まりきらない画像だけがここで縮む。端数倍率の nearest はテクセル境界の画素が</span></span>
-<span id="L197"><span class="lineNum">     197</span>              :         // 揺れるので linear にする。一覧のアイコンは表示サイズで渡ってくるため等倍で通り、</span>
-<span id="L198"><span class="lineNum">     198</span>              :         // この分岐には入らない</span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         if scale != 1 {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 op.Filter = ebiten.FilterLinear</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         if textObserver != nil {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC tlaBgUNC">           0 :                 textObserver(face, s)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           1 :         text.Draw(e.screen, s, face, op)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         textMu.Unlock()</span></span>
+<span id="L172"><span class="lineNum">     172</span>              : }</span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span>              : // textObserver は DrawText が描く文字列を受け取る。textMu で守る</span>
+<span id="L175"><span class="lineNum">     175</span>              : var textObserver func(face text.Face, s string)</span>
+<span id="L176"><span class="lineNum">     176</span>              : </span>
+<span id="L177"><span class="lineNum">     177</span>              : // ObserveText は以後 DrawText が描く文字列を f へ渡す。nil で外す。</span>
+<span id="L178"><span class="lineNum">     178</span>              : // 並列に走る他の描画の文字列も届くので、f はフェイスで自分の描画を選り分ける。</span>
+<span id="L179"><span class="lineNum">     179</span>              : func ObserveText(f func(face text.Face, s string)) {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC tlaBgUNC">           0 :         textMu.Lock()</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         textObserver = f</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         textMu.Unlock()</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span>              : // DrawImage は EbitenCanvas を実装する。pos を左上として画像を描く。</span>
+<span id="L186"><span class="lineNum">     186</span>              : func (e *EbitenCanvas) DrawImage(pos image.Point, img *ebiten.Image) {</span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(float64(pos.X), float64(pos.Y))</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         e.screen.DrawImage(img, op)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span>              : // DrawImageRect は EbitenCanvas を実装する。dst に収まるよう縦横比を保って縮小し、左寄せ・縦中央で描く。</span>
+<span id="L193"><span class="lineNum">     193</span>              : func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         if img == nil {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         b := img.Bounds()</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         iw, ih := b.Dx(), b.Dy()</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         if iw &lt;= 0 || ih &lt;= 0 || dst.Dx() &lt;= 0 || dst.Dy() &lt;= 0 {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         e.screen.DrawImage(img, op)</span></span>
-<span id="L203"><span class="lineNum">     203</span>              : }</span>
-<span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span>              : // DrawImageTintedRect は EbitenCanvas を実装する。img を dst いっぱいに引き伸ばし tint を掛けて描く。</span>
-<span id="L206"><span class="lineNum">     206</span>              : func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Image, tint color.Color) {</span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         if img == nil {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         b := img.Bounds()</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         if b.Dx() &lt;= 0 || b.Dy() &lt;= 0 || dst.Dx() &lt;= 0 || dst.Dy() &lt;= 0 {</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         sx, sy := float64(dst.Dx())/float64(b.Dx()), float64(dst.Dy())/float64(b.Dy())</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         op.GeoM.Scale(sx, sy)</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(float64(dst.Min.X), float64(dst.Min.Y))</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         op.ColorScale.ScaleWithColor(tint)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         // 伸ばす軸がどれも2テクセル以上あるときだけ linear にする。判定の理由は stretchNeedsBlend を参照</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         if stretchNeedsBlend(sx, b.Dx()) &amp;&amp; stretchNeedsBlend(sy, b.Dy()) {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 op.Filter = ebiten.FilterLinear</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         e.screen.DrawImage(img, op)</span></span>
-<span id="L224"><span class="lineNum">     224</span>              : }</span>
-<span id="L225"><span class="lineNum">     225</span>              : </span>
-<span id="L226"><span class="lineNum">     226</span>              : // stretchNeedsBlend はその軸を混ぜるべきかを返す。端数倍率の nearest はテクセル境界の</span>
-<span id="L227"><span class="lineNum">     227</span>              : // 画素が揺れるので、混ぜられる軸は linear で混ぜたい。等倍なら境界をまたがず混ぜる必要が無い。</span>
-<span id="L228"><span class="lineNum">     228</span>              : // 1テクセルしか無い軸は混ぜる相手が画像の外側の透明しかなく、端がぼやけるだけなので混ぜない。</span>
-<span id="L229"><span class="lineNum">     229</span>              : func stretchNeedsBlend(scale float64, srcLen int) bool {</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         return scale != 1 &amp;&amp; srcLen &gt; 1</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L232"><span class="lineNum">     232</span>              : </span>
-<span id="L233"><span class="lineNum">     233</span>              : // DrawNineSlice は EbitenCanvas を実装する。ソースを縦横3分割し、四隅は原寸、辺は片方向、</span>
-<span id="L234"><span class="lineNum">     234</span>              : // 中央は両方向へ伸ばして9セルを dst へ描く。</span>
-<span id="L235"><span class="lineNum">     235</span>              : func (e *EbitenCanvas) DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx, by [3]int) {</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         if img == nil {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L239"><span class="lineNum">     239</span>              :         // ソースの分割境界</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         sx := [4]int{0, bx[0], bx[0] + bx[1], bx[0] + bx[1] + bx[2]}</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         sy := [4]int{0, by[0], by[0] + by[1], by[0] + by[1] + by[2]}</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         // dst の分割境界。四隅は原寸、中央は残りを埋める</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         midW := max(dst.Dx()-bx[0]-bx[2], 0)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         midH := max(dst.Dy()-by[0]-by[2], 0)</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         dx := [4]int{dst.Min.X, dst.Min.X + bx[0], dst.Min.X + bx[0] + midW, dst.Max.X}</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         dy := [4]int{dst.Min.Y, dst.Min.Y + by[0], dst.Min.Y + by[0] + midH, dst.Max.Y}</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         for r := range 3 {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 for c := range 3 {</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         sw, sh := sx[c+1]-sx[c], sy[r+1]-sy[r]</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                         dw, dh := dx[c+1]-dx[c], dy[r+1]-dy[r]</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         if sw &lt;= 0 || sh &lt;= 0 || dw &lt;= 0 || dh &lt;= 0 {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L254"><span class="lineNum">     254</span>              :                         }</span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         sub, ok := img.SubImage(image.Rect(sx[c], sy[r], sx[c+1], sy[r+1])).(*ebiten.Image)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                         if !ok {</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
-<span id="L258"><span class="lineNum">     258</span>              :                         }</span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC tlaBgGNC">           1 :                         ssx, ssy := float64(dw)/float64(sw), float64(dh)/float64(sh)</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                         op.GeoM.Scale(ssx, ssy)</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                         op.GeoM.Translate(float64(dx[c]), float64(dy[r]))</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                         // 四隅は原寸で通り、伸びるのは辺と中央だけ。端数倍率の nearest は</span></span>
-<span id="L264"><span class="lineNum">     264</span>              :                         // テクセル境界の画素が揺れるので linear にする</span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                         if ssx != 1 || ssy != 1 {</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                                 op.Filter = ebiten.FilterLinear</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                         e.screen.DrawImage(sub, op)</span></span>
-<span id="L269"><span class="lineNum">     269</span>              :                 }</span>
-<span id="L270"><span class="lineNum">     270</span>              :         }</span>
-<span id="L271"><span class="lineNum">     271</span>              : }</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         scale := math.Min(math.Min(float64(dst.Dx())/float64(iw), float64(dst.Dy())/float64(ih)), 1)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         dh := float64(ih) * scale</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         // 左寄せ・縦中央。アイコンとキーキャップを列の左に揃え、行の高さの中央へ置く</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         ox := float64(dst.Min.X)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         oy := float64(dst.Min.Y) + (float64(dst.Dy())-dh)/2</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         op.GeoM.Scale(scale, scale)</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(ox, oy)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         // 収まりきらない画像だけがここで縮む。端数倍率の nearest はテクセル境界の画素が</span></span>
+<span id="L211"><span class="lineNum">     211</span>              :         // 揺れるので linear にする。一覧のアイコンは表示サイズで渡ってくるため等倍で通り、</span>
+<span id="L212"><span class="lineNum">     212</span>              :         // この分岐には入らない</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         if scale != 1 {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 op.Filter = ebiten.FilterLinear</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         e.screen.DrawImage(img, op)</span></span>
+<span id="L217"><span class="lineNum">     217</span>              : }</span>
+<span id="L218"><span class="lineNum">     218</span>              : </span>
+<span id="L219"><span class="lineNum">     219</span>              : // DrawImageTintedRect は EbitenCanvas を実装する。img を dst いっぱいに引き伸ばし tint を掛けて描く。</span>
+<span id="L220"><span class="lineNum">     220</span>              : func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Image, tint color.Color) {</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         if img == nil {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         b := img.Bounds()</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         if b.Dx() &lt;= 0 || b.Dy() &lt;= 0 || dst.Dx() &lt;= 0 || dst.Dy() &lt;= 0 {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         sx, sy := float64(dst.Dx())/float64(b.Dx()), float64(dst.Dy())/float64(b.Dy())</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         op.GeoM.Scale(sx, sy)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         op.GeoM.Translate(float64(dst.Min.X), float64(dst.Min.Y))</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         op.ColorScale.ScaleWithColor(tint)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         // 伸ばす軸がどれも2テクセル以上あるときだけ linear にする。判定の理由は stretchNeedsBlend を参照</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         if stretchNeedsBlend(sx, b.Dx()) &amp;&amp; stretchNeedsBlend(sy, b.Dy()) {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 op.Filter = ebiten.FilterLinear</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         e.screen.DrawImage(img, op)</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : }</span>
+<span id="L239"><span class="lineNum">     239</span>              : </span>
+<span id="L240"><span class="lineNum">     240</span>              : // stretchNeedsBlend はその軸を混ぜるべきかを返す。端数倍率の nearest はテクセル境界の</span>
+<span id="L241"><span class="lineNum">     241</span>              : // 画素が揺れるので、混ぜられる軸は linear で混ぜたい。等倍なら境界をまたがず混ぜる必要が無い。</span>
+<span id="L242"><span class="lineNum">     242</span>              : // 1テクセルしか無い軸は混ぜる相手が画像の外側の透明しかなく、端がぼやけるだけなので混ぜない。</span>
+<span id="L243"><span class="lineNum">     243</span>              : func stretchNeedsBlend(scale float64, srcLen int) bool {</span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         return scale != 1 &amp;&amp; srcLen &gt; 1</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span>              : // DrawNineSlice は EbitenCanvas を実装する。ソースを縦横3分割し、四隅は原寸、辺は片方向、</span>
+<span id="L248"><span class="lineNum">     248</span>              : // 中央は両方向へ伸ばして9セルを dst へ描く。</span>
+<span id="L249"><span class="lineNum">     249</span>              : func (e *EbitenCanvas) DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx, by [3]int) {</span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         if img == nil {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L253"><span class="lineNum">     253</span>              :         // ソースの分割境界</span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         sx := [4]int{0, bx[0], bx[0] + bx[1], bx[0] + bx[1] + bx[2]}</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         sy := [4]int{0, by[0], by[0] + by[1], by[0] + by[1] + by[2]}</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         // dst の分割境界。四隅は原寸、中央は残りを埋める</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         midW := max(dst.Dx()-bx[0]-bx[2], 0)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         midH := max(dst.Dy()-by[0]-by[2], 0)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         dx := [4]int{dst.Min.X, dst.Min.X + bx[0], dst.Min.X + bx[0] + midW, dst.Max.X}</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         dy := [4]int{dst.Min.Y, dst.Min.Y + by[0], dst.Min.Y + by[0] + midH, dst.Max.Y}</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         for r := range 3 {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 for c := range 3 {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                         sw, sh := sx[c+1]-sx[c], sy[r+1]-sy[r]</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                         dw, dh := dx[c+1]-dx[c], dy[r+1]-dy[r]</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                         if sw &lt;= 0 || sh &lt;= 0 || dw &lt;= 0 || dh &lt;= 0 {</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L268"><span class="lineNum">     268</span>              :                         }</span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                         sub, ok := img.SubImage(image.Rect(sx[c], sy[r], sx[c+1], sy[r+1])).(*ebiten.Image)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                         if !ok {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L272"><span class="lineNum">     272</span>              :                         }</span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC tlaBgGNC">           1 :                         ssx, ssy := float64(dw)/float64(sw), float64(dh)/float64(sh)</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                         op.GeoM.Scale(ssx, ssy)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         op.GeoM.Translate(float64(dx[c]), float64(dy[r]))</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                         // 四隅は原寸で通り、伸びるのは辺と中央だけ。端数倍率の nearest は</span></span>
+<span id="L278"><span class="lineNum">     278</span>              :                         // テクセル境界の画素が揺れるので linear にする</span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                         if ssx != 1 || ssy != 1 {</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                                 op.Filter = ebiten.FilterLinear</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         e.screen.DrawImage(sub, op)</span></span>
+<span id="L283"><span class="lineNum">     283</span>              :                 }</span>
+<span id="L284"><span class="lineNum">     284</span>              :         }</span>
+<span id="L285"><span class="lineNum">     285</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-07 13:08:33</td>
+            <td class="headerValue">2026-11-07 15:31:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -203,7 +203,7 @@
 <span id="L141"><span class="lineNum">     141</span>              : func yieldsMarkup(stacks []lifecycle.YieldStack, world w.World) string {</span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         parts := make([]string, len(stacks))</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         for i, s := range stacks {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 parts[i] = gamelog.Tag(&quot;item&quot;, s.Name) + fmt.Sprintf(&quot; x%d&quot;, s.Count)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 parts[i] = gamelog.Tag(&quot;item&quot;, query.T(world, raw.ItemName(world.Resources.RawMaster, s.Name))) + fmt.Sprintf(&quot; x%d&quot;, s.Count)</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         return strings.Join(parts, query.T(world, &quot;, &quot;))</span></span>
 <span id="L147"><span class="lineNum">     147</span>              : }</span>
