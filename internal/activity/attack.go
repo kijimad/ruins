@@ -87,11 +87,19 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 		return fmt.Errorf("attacker has no attack means")
 	}
 
-	if def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(p.Target, world)); ok && def.ToolCategory != nil && !holdsTool(world, actor, *def.ToolCategory) {
-		return &UserError{Msg: query.T(world, "You need a felling tool to cut down %s.", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
-	}
-
 	return nil
+}
+
+// fellingMultiplier は伐採定義に道具の分類がある prop を、その道具を構えずに殴るときは0を返し、それ以外は1を返す
+func fellingMultiplier(world w.World, actor, target ecs.Entity) int {
+	if !world.Components.Prop.Has(target) {
+		return 1
+	}
+	def, ok := raw.FindFelling(world.Resources.RawMaster, query.GetEntityID(target, world))
+	if !ok || def.ToolCategory == nil || holdsTool(world, actor, *def.ToolCategory) {
+		return 1
+	}
+	return 0
 }
 
 // holdsTool はプレイヤーが選択中の武器が道具分類 category を持つかを返す
@@ -317,7 +325,13 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
 
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
-	growWeaponSkill(actor, world, attack)
+	if damage > 0 {
+		growWeaponSkill(actor, world, attack)
+	} else if fellingMultiplier(world, actor, target) == 0 {
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "You need a suitable tool to break %s.", gamelog.Tag("item", query.GetEntityName(target, world)))).
+			Log()
+	}
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
 	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
@@ -403,7 +417,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
 
-	return finalDamage
+	return finalDamage * fellingMultiplier(world, attacker, target)
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する

@@ -6404,8 +6404,8 @@ msgstr "薪"
 msgid "Split wood for burning."
 msgstr "燃やすために割った木"
 
-msgid "You need a felling tool to cut down %s."
-msgstr "%sを切り倒すには伐採できる道具が要る。"
+msgid "You need a suitable tool to break %s."
+msgstr "%sを壊すには合う道具が要る。"
 
 msgid "Lush Grass"
 msgstr "青草"
