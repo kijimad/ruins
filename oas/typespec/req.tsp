@@ -504,7 +504,8 @@ model Prop {
   blockPass: BlocksPassage;
   blockView: BlocksView;
   passCost?: PassCost;
-  hp: HitPoints;
+  /** 耐久。省略した prop は殴れない */
+  hp?: HitPoints;
   lightSource?: LightSource;
   heatSource?: HeatSource;
   bedding?: Bedding;

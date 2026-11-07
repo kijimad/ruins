@@ -1914,9 +1914,9 @@ type Prop struct {
 	// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する
 	HeatSource *HeatSource `json:"heatSource,omitempty"`
 
-	// Hp 耐久値。削り切られると壊れる
-	Hp HitPoints `json:"hp"`
-	Id EntityID  `json:"id"`
+	// Hp 耐久。省略した prop は殴れない
+	Hp *HitPoints `json:"hp,omitempty"`
+	Id EntityID   `json:"id"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`

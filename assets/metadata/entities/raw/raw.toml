@@ -16113,7 +16113,7 @@ dy = 0
 
 [[scatterZones]]
 id = "roadside"
-grassDensity = 0.18
+grassDensity = 0.09
 propDensity = 0.015
 lootGroup = "scrap_of_paper"
 [[scatterZones.entries]]
@@ -16134,7 +16134,7 @@ weight = 10
 big = false
 [[scatterZones]]
 id = "wild"
-grassDensity = 0.38
+grassDensity = 0.19
 propDensity = 0.035
 lootGroup = "junk"
 [[scatterZones.entries]]
@@ -18523,7 +18523,6 @@ blockView = false
 description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
 name = "Grass"
 id = "grass"
-hp = 1
 
 [props.spriteRender]
 depth = 0
@@ -18535,7 +18534,6 @@ blockView = false
 description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
 name = "Weeds"
 id = "weeds"
-hp = 1
 
 [props.spriteRender]
 depth = 0

@@ -169,6 +169,27 @@ func TestNewPropSpec_分解定義があるとInteractionDisassembleが設定さ�
 	assert.Contains(t, entitySpec.Interactable.Interactions, gc.InteractionDisassemble)
 }
 
+func TestNewPropSpec_耐久の有無で殴れるかが決まる(t *testing.T) {
+	t.Parallel()
+	hp := oapi.HitPoints(20)
+	raws := oapi.Raws{
+		Props: &[]oapi.Prop{
+			{Id: "岩", Name: "岩", SpriteRender: oapi.SpriteRender{SpriteSheetName: "field", SpriteKey: "rock"}, Hp: &hp},
+			{Id: "草", Name: "草", SpriteRender: oapi.SpriteRender{SpriteSheetName: "field", SpriteKey: "grass"}},
+		},
+	}
+
+	rock, err := NewPropSpec(raws, "岩")
+	require.NoError(t, err)
+	assert.Equal(t, &gc.HP{Max: 20, Current: 20}, rock.HP)
+	assert.Equal(t, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}}, rock.Interactable)
+
+	grass, err := NewPropSpec(raws, "草")
+	require.NoError(t, err)
+	assert.Nil(t, grass.HP)
+	assert.Nil(t, grass.Interactable)
+}
+
 func TestNewPropSpec_未存在のPropはKeyNotFoundErrorになる(t *testing.T) {
 	t.Parallel()
 	raws, err := DecodeRaws("")
