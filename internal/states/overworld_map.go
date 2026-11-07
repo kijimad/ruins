@@ -10,10 +10,10 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -25,11 +25,10 @@ import (
 type OverworldMapState struct {
 	es.BaseState[w.World]
 
-	view      overworld.MacroView        // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
-	playerAbs consts.Coord[consts.Chunk] // 現在地の絶対チャンク座標。ヘッダ表示に使う
-	facing    gc.Orient                  // カメラの水平向き。現在地ポインタが指す方角
-	cellPx    consts.ScreenPixel         // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
-	body      uicore.Drawable            // モーダルのパネル。初回 Draw で1度組み以後描く
+	view   overworld.MacroView // プレイヤー中心のチャンク俯瞰。glyph 格子とマーカー
+	facing gc.Orient           // カメラの水平向き。現在地ポインタが指す方角
+	cellPx consts.ScreenPixel  // 1チャンクのセル寸法。表示範囲の半径の算出と描画で共有する
+	body   uicore.Drawable     // モーダルのパネル。初回 Draw で1度組み以後描く
 }
 
 var _ es.State[w.World] = &OverworldMapState{}
@@ -52,9 +51,9 @@ const (
 	overworldMapMarginCols = 3 // セル幅算出で cols に足す左右の余白の列相当ぶん
 )
 
-// modalInner はモーダルパネルの内側矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
+// modalInner はモーダルパネルの画像を置く矩形を返す。表示範囲の半径・セル寸法の算出とパネル画像の寸法で共有する。
 func (st *OverworldMapState) modalInner(world w.World) image.Rectangle {
-	return menuframe.PanelInner(menuframe.ModalRect(world))
+	return menuframe.ImagePanelArea(menuframe.ModalRect(world))
 }
 
 // overworldMapCell は有界の cols 列がモーダル幅に収まるセル寸法を決める。左右の余白ぶんを足した
@@ -67,10 +66,10 @@ func overworldMapCell(inner image.Rectangle, cols consts.Chunk) consts.ScreenPix
 }
 
 // overworldMapRadius はモーダル高さに収まるプレイヤー南北のチャンク数を返す。最低限は確保する。
-// 地図の下に見出しと凡例を置くので、そのぶんの高さを差し引いてから収まる行数を出す。
+// 地図の下に凡例を置くので、そのぶんの高さを差し引いてから収まる行数を出す。
 func overworldMapRadius(inner image.Rectangle, cell consts.ScreenPixel) int {
-	const headerLegendReserve = 160
-	rows := (inner.Dy() - headerLegendReserve) / int(cell)
+	const legendReserve = 128
+	rows := (inner.Dy() - legendReserve) / int(cell)
 	return max((rows-1)/2, overworldMapMinRadius)
 }
 
@@ -102,28 +101,25 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	if cam := query.GetPlayerCamera(world); cam != nil {
 		st.facing = cam.Orient
 	}
-
-	// ヘッダ表示用の現在地の絶対チャンク座標。プレイヤーが居なければ -1 にして表示を空扱いにする
-	st.playerAbs = consts.Coord[consts.Chunk]{X: -1}
-	if hasPlayer {
-		st.playerAbs = consts.Coord[consts.Chunk]{
-			X: consts.Chunk(int(playerTile.X) / int(sb.ChunkW)),
-			Y: sb.AbsChunkRow(playerTile.Y),
-		}
-	}
 	return nil
 }
 
 // overworldMapBindings は種別俯瞰図の束縛表。開いたキーと同じ N でも閉じられる
 var overworldMapBindings = []keybind.Binding{
-	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
-	{Key: ebiten.KeyN, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyEscape, Press: keybind.PressJust, Action: inputmapper.ActionCloseMenu, Label: "Close"},
+	{Key: ebiten.KeyN, Press: keybind.PressJust, Action: inputmapper.ActionCloseMenu, Label: "Close"},
+	{Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Press: keybind.PressJust, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
 }
 
-// Update はキー入力で閉じるだけ。マップ表示中は時間を進めない。
+// Update は閉じるかキー一覧ヘルプを開くだけ。マップ表示中は時間を進めない。
 func (st *OverworldMapState) Update(world w.World) (es.Transition[w.World], error) {
-	if action, ok := keybind.ReadInput(world, overworldMapBindings); ok && action == inputmapper.ActionCloseMenu {
+	action, ok := keybind.ReadInput(world, overworldMapBindings)
+	if ok && action == inputmapper.ActionCloseMenu {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}
+	if ok && action == inputmapper.ActionOpenKeyHelp {
+		return es.Transition[w.World]{Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{menuloop.NewKeyHelpState(overworldMapBindings)}}, nil
 	}
 	return st.ConsumeTransition(), nil
 }
@@ -139,40 +135,27 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// buildBody は俯瞰図を他メニューと同じモーダルのパネルとして組む。格子・凡例・見出し・マーカーを
+// buildBody は俯瞰図を他メニューと同じモーダルのパネルとして組む。格子・凡例・マーカーを
 // 1枚の画像へ描き、menuframe の PanelBG パネルへ収めて意匠を他モーダルへ揃える。
 func (st *OverworldMapState) buildBody(world w.World) uicore.Drawable {
 	res := world.Resources.UIResources
 	rect := menuframe.ModalRect(world)
-	// 画像は ImagePanel が画像を置く矩形と同じ寸法にする。PanelInner を両者で通し余白の値が
-	// 変わってもずれないようにする
-	inner := menuframe.PanelInner(rect)
-
-	// 内容はパネル内側いっぱいの画像へ原点ローカルで描く。透明地なので描かない部分は
-	// 背後のパネルテクスチャが透ける
-	img := ebiten.NewImage(max(inner.Dx(), 1), max(inner.Dy(), 1))
+	area := menuframe.ImagePanelArea(rect)
+	img := ebiten.NewImage(max(area.Dx(), 1), max(area.Dy(), 1))
 	st.renderMap(world, img)
 
-	return menuframe.ImagePanel(res, rect, img)
+	return menuframe.ImagePanel(res, rect, img, keybind.HelpHint(world))
 }
 
-// renderMap は俯瞰図の見出し・格子・マーカー・凡例を dst へ原点ローカルで描く。格子と凡例の描画は
-// hud に集約し、ここは見出しと配置の算出だけを持つ。
+// renderMap は俯瞰図の格子・マーカー・凡例を dst へ原点ローカルで描く。
 func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	face := world.Resources.UIResources.Text.BodyFace
-	// セルの記号は小さいセルへ収めるため小フォントにする。見出し・凡例は BodyFace のまま
+	// セルの記号は小さいセルへ収めるため小フォントにする。凡例は BodyFace のまま
 	glyphFace := world.Resources.UIResources.Text.SmallFace
 
 	// 文字も塗りも EbitenCanvas に集約する。text/v2 のグリフキャッシュは並行安全でなく、
 	// 生の text.Draw はロックを迂回するため
 	cv := uicore.NewEbitenCanvas(dst)
-
-	// プレイヤー不在は playerAbs.X が負。座標を出さず見出しだけにして -1 を漏らさない
-	header := "Overworld Map"
-	if st.playerAbs.X >= 0 {
-		header = fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y)
-	}
-	cv.DrawText(image.Pt(8, 6), header, face, theme.TextPrimary)
 
 	cell := st.cellPx
 	// 格子は横をモーダル内側の中央へ寄せる
@@ -185,7 +168,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 	if originX < 8 {
 		originX = 8
 	}
-	const originY consts.ScreenPixel = 40
+	const originY consts.ScreenPixel = 8
 	// 格子・道・キューブ・現在地を hud.DrawMapGrid で描く。全画面図は常に記号を出す
 	hud.DrawMapGrid(cv, st.view, hud.MapGridStyle{
 		OriginX:      int(originX),
@@ -196,5 +179,5 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		PlayerFacing: st.facing,
 	})
 
-	hud.DrawMapLegend(cv, world.Resources.RawMaster, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
+	hud.DrawMapLegend(cv, world.Resources.RawMaster, func(msgid string) string { return query.T(world, msgid) }, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
 }

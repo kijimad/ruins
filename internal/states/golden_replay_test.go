@@ -1,7 +1,6 @@
 package states_test
 
 import (
-	"fmt"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -58,16 +57,17 @@ func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World]
 	}
 }
 
-func TestGolden(t *testing.T) {
-	t.Parallel()
+// goldenCase は TestGolden の1ケース。build は fixture の error をそのまま返し、サブテストで require する。
+// *testing.T を取らないことで thelper の誤検知を避ける
+type goldenCase struct {
+	name  string
+	build func(world w.World) ([]es.State[w.World], error)
+	steps []replayStep
+}
 
-	// build は fixture の error をそのまま返し、サブテストで require する。
-	// *testing.T を取らないことで thelper の誤検知を避ける
-	cases := []struct {
-		name  string
-		build func(world w.World) ([]es.State[w.World], error)
-		steps []replayStep
-	}{
+// goldenCases は TestGolden が撮る場面の一覧。
+func goldenCases() []goldenCase {
+	return []goldenCase{
 		// ================ 組んだ直後の画を待ち1手で撮るケース ================
 		{
 			name: "MainMenu",
@@ -276,14 +276,14 @@ func TestGolden(t *testing.T) {
 		},
 		{
 			name: "Message",
-			build: func(w.World) ([]es.State[w.World], error) {
+			build: func(world w.World) ([]es.State[w.World], error) {
 				messageData := messagedata.NewDialogMessage(
-					"This is a VRT test of the message window.\n\nA message to check the display state.",
-					"VRT Test",
+					query.T(world, "This is a VRT test of the message window.\n\nA message to check the display state."),
+					query.T(world, "VRT Test"),
 				).WithChoice(
-					"Choice 1", func(_ w.World) error { return nil },
+					query.T(world, "Choice 1"), func(_ w.World) error { return nil },
 				).WithChoice(
-					"Choice 2", func(_ w.World) error { return nil },
+					query.T(world, "Choice 2"), func(_ w.World) error { return nil },
 				)
 				s, err := gs.NewMessageState(messageData)
 				return []es.State[w.World]{s}, err
@@ -304,8 +304,8 @@ func TestGolden(t *testing.T) {
 		},
 		{
 			name: "PersistentMessage",
-			build: func(w.World) ([]es.State[w.World], error) {
-				messageData := messagedata.NewDialogMessage("This is a VRT test of the persistent message.", "Test")
+			build: func(world w.World) ([]es.State[w.World], error) {
+				messageData := messagedata.NewDialogMessage(query.T(world, "This is a VRT test of the persistent message."), query.T(world, "Test"))
 				return []es.State[w.World]{gs.NewPersistentMessageState(messageData)}, nil
 			},
 			steps: []replayStep{{shot: true}},
@@ -343,12 +343,12 @@ func TestGolden(t *testing.T) {
 		// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
 		{
 			name: "ChoiceMenuMany",
-			build: func(w.World) ([]es.State[w.World], error) {
+			build: func(world w.World) ([]es.State[w.World], error) {
 				choices := make([]gs.Choice, 0, 30)
 				for i := range 30 {
-					choices = append(choices, gs.Choice{Label: fmt.Sprintf("Item %d", i+1)})
+					choices = append(choices, gs.Choice{Label: query.T(world, "Item %d", i+1)})
 				}
-				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "Select", choices })
+				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return query.T(world, "Select"), choices })
 				return []es.State[w.World]{menu}, nil
 			},
 			steps: []replayStep{{shot: true}},
@@ -356,16 +356,16 @@ func TestGolden(t *testing.T) {
 		// ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う。
 		{
 			name: "ChoiceMenuHeaders",
-			build: func(w.World) ([]es.State[w.World], error) {
+			build: func(world w.World) ([]es.State[w.World], error) {
 				choices := []gs.Choice{
-					{Label: "Weapon", Header: true},
-					{Label: "Wooden Sword"},
-					{Label: "Ray Gun"},
-					{Label: "Armor", Header: true},
-					{Label: "Leather Armor"},
-					{Label: "Back"},
+					{Label: query.T(world, "Weapon"), Header: true},
+					{Label: query.T(world, "Wooden Sword")},
+					{Label: query.T(world, "Ray Gun")},
+					{Label: query.T(world, "Armor"), Header: true},
+					{Label: query.T(world, "Leather Armor")},
+					{Label: query.T(world, "Back")},
 				}
-				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "Equipment", choices })
+				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return query.T(world, "Equipment"), choices })
 				return []es.State[w.World]{menu}, nil
 			},
 			steps: []replayStep{{shot: true}},
@@ -518,8 +518,12 @@ func TestGolden(t *testing.T) {
 			},
 		},
 	}
+}
 
-	for _, tc := range cases {
+func TestGolden(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range goldenCases() {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
