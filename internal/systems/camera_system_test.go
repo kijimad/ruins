@@ -64,6 +64,19 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 	assert.Equal(t, initialY, float64(camera.Pos.Y), "プレイヤーがいない場合、カメラ位置は変わらない")
 }
 
+// TestCameraSystem_NoCamera はカメラエンティティが1つも無くてもUpdateがエラーなく早期returnすることを固定する。
+// ズーム処理の手前でnil判定しているので、カメラが見つからない間はプレイヤーがいても何も壊れない。
+func TestCameraSystem_NoCamera(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	sys := &CameraSystem{}
+	assert.NoError(t, sys.Update(world), "カメラが無くてもエラーにならない")
+}
+
 func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 	t.Parallel()
 

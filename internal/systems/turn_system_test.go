@@ -316,6 +316,46 @@ func TestShouldAutoEndTurn(t *testing.T) {
 	})
 }
 
+func TestPlayerHasActivity(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーがいない場合はfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		assert.False(t, playerHasActivity(world), "プレイヤーがいなければアクティビティも無い")
+	})
+
+	t.Run("プレイヤーはいるがアクティビティ中でない場合はfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		assert.False(t, playerHasActivity(world))
+	})
+
+	t.Run("プレイヤーがアクティビティ実行中ならtrue", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		require.NoError(t, query.SetActivity(world, player, &gc.Activity{BehaviorName: gc.BehaviorSleep, State: gc.ActivityStateRunning}))
+
+		assert.True(t, playerHasActivity(world))
+	})
+
+	t.Run("プレイヤーのアクティビティが完了済みならfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		require.NoError(t, query.SetActivity(world, player, &gc.Activity{BehaviorName: gc.BehaviorSleep, State: gc.ActivityStateCompleted}))
+
+		assert.False(t, playerHasActivity(world), "実行中でない状態は実行中とみなさない")
+	})
+}
+
 func TestProcessPlayerContinuousActivity(t *testing.T) {
 	t.Parallel()
 
