@@ -163,10 +163,10 @@ func TestPopulateStorageLoot_施設の差し替えた表から引く(t *testing.
 	}
 }
 
-// TestInteriorPropRaw_全施設の家具refが写像を持つ は、施設 content が生む家具が in-game で無言に欠落
-// しないことを守る。各施設種別を Furnish し、KindFurniture の Ref がすべて 写像 PropRawName にあることを
-// 確かめる。content へ家具を足して写像を忘れると、ここで落ちて気付ける。
-func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
+// TestInteriorPropRaw_全施設の家具と敵のrefが写像を持つ は、施設 content が生む家具と敵が in-game で無言に欠落
+// しないことを守る。各施設種別を Furnish し、家具の Ref が PropRawName に、敵の Ref が IsBeingRef にあることを
+// 確かめる。content へ足して写像を忘れると、ここで落ちて気付ける。
+func TestInteriorPropRaw_全施設の家具と敵のrefが写像を持つ(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -180,11 +180,14 @@ func TestInteriorPropRaw_全施設の家具refが写像を持つ(t *testing.T) {
 	bigDoor := interior.Vec{X: 14, Y: 0}
 	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
-			if p.Kind != interior.KindFurniture {
-				continue
+			switch p.Kind {
+			case interior.KindFurniture:
+				_, ok := interior.PropRawName(p.Ref)
+				assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
+			case interior.KindBeing:
+				assert.Truef(t, interior.IsBeingRef(p.Ref), "施設 %q の敵 %q は spawn される Ref", fac, p.Ref)
+			case interior.KindLoot, interior.KindDecor, interior.KindTrap:
 			}
-			_, ok := interior.PropRawName(p.Ref)
-			assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
 		}
 	}
 	for _, f := range raw.PtrSlice(raws.Facilities) {
@@ -258,6 +261,33 @@ func TestInteriorLootRaw_写像先のitem_groupが実在する(t *testing.T) {
 	}
 }
 
+func TestFurnishBuilding_部屋の定義に従い建物の中に敵を置く(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
+	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
+	door := interior.Vec{X: 10, Y: 13}
+	_, _, err := furnishBuilding(world, g, footprint, door, "store", 1, 1)
+	require.NoError(t, err)
+
+	table, err := urbanEnemyTableFor(world.Resources.RawMaster, "store")
+	require.NoError(t, err)
+	members := map[string]bool{}
+	for _, e := range table.Entries {
+		members[e.Id] = true
+	}
+	inside := 0
+	q := ecs.NewFilter2[gc.FactionEnemy, gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		_, ge := q.Get()
+		assert.True(t, ge.X < footprint.W && ge.Y < footprint.H, "敵は建物の区画の中にいる")
+		assert.True(t, members[query.GetEntityID(q.Entity(), world)], "敵は店の敵の表から引く")
+		inside++
+	}
+	assert.Positive(t, inside)
+}
+
 // TestFurnishBuilding_屋内床にShelterが設定される は、建物内部の床タイルに屋内 Shelter が書き込まれ、庭や壁には
 // 書き込まれないことを固定する。オーバーワールド建物を屋内と判定し、温度式が per-tile の屋内緩和を効かせる配線を守る。
 func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
@@ -267,7 +297,7 @@ func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
 	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
 	door := interior.Vec{X: 10, Y: 13}
-	_, _, err := furnishBuilding(world, g, footprint, door, "house", 1)
+	_, _, err := furnishBuilding(world, g, footprint, door, "house", 1, 1)
 	require.NoError(t, err)
 
 	floorTotal, floorFull, nonFloorFull := 0, 0, 0

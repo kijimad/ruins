@@ -427,15 +427,13 @@ func drawLabel(img *image.RGBA, px, py int, s string) {
 	d.DrawString(s)
 }
 
-// drawLootMarker は床 loot の位置に item の文字を描き、拾える物があることを示す。中身は executor の抽選で
-// 決まり計画層からは実アイテムを描けないので、位置だけを文字で示し in-game の field item と対応させる。
-// golden は CPU 画像へ ASCII 専用の basicfont で描くため、日本語でなく item と表示する。可読性のため
-// 暗い下地の上へ琥珀色で描く。
-func drawLootMarker(img *image.RGBA, origin, pos Vec) {
+// drawMarker は床 loot や敵の位置に label の文字を描く。中身は executor の抽選で決まり計画層からは実体を
+// 描けないので、位置だけを文字で示し in-game と対応させる。golden は CPU 画像へ ASCII 専用の basicfont で
+// 描くため英字で表示する。可読性のため暗い下地の上へ c の色で描く。
+func drawMarker(img *image.RGBA, origin, pos Vec, label string, c color.RGBA) {
 	dx, dy := int(pos.X-origin.X)*cellPx, int(pos.Y-origin.Y)*cellPx
-	const label = "item"
 	const gh = 13 // basicfont.Face7x13 の行高
-	d := &font.Drawer{Dst: img, Src: image.NewUniform(color.RGBA{R: 214, G: 164, B: 54, A: 255}), Face: basicfont.Face7x13}
+	d := &font.Drawer{Dst: img, Src: image.NewUniform(c), Face: basicfont.Face7x13}
 	gw := d.MeasureString(label).Ceil()
 	x0 := dx + (cellPx-gw)/2
 	y0 := dy + (cellPx-gh)/2
@@ -463,7 +461,14 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 			// 描き、in-game でそこに拾える物が出ることと対応させる。写像を持たない Ref は描かない。
 			// lootRaw を overworld の spawn 判定と共有し、描く物と置く物の乖離を防ぐ
 			if _, ok := LootGroupName(p.Ref); ok {
-				drawLootMarker(img, origin, p.Pos)
+				drawMarker(img, origin, p.Pos, "item", color.RGBA{R: 214, G: 164, B: 54, A: 255})
+			}
+			continue
+		}
+		if p.Kind == KindBeing {
+			// 敵も種類は executor が施設の敵の表から引くので、位置に enemy の文字を描く
+			if IsBeingRef(p.Ref) {
+				drawMarker(img, origin, p.Pos, "enemy", color.RGBA{R: 220, G: 80, B: 80, A: 255})
 			}
 			continue
 		}

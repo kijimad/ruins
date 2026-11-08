@@ -201,7 +201,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	if err != nil {
 		return err
 	}
-	isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, seed)
+	isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, danger, seed)
 	if err != nil {
 		return err
 	}

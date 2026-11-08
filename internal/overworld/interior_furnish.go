@@ -19,7 +19,7 @@ import (
 // そのまま埋めず、interior.FurnishBuilding が前庭を空け坪庭を作り玄関を凹ませる。庭は土、壁は壁、残りの
 // 部屋の床と戸口は床として描き、入口の扉と家具を spawn する。内装の乱数は建物幾何と別ストリーム 0x3 に
 // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。
-func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac string, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
+func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
 	// 内装レシピは RawMaster から都度、必要な content だけを引いて変換する。索引を持ち回らない。
 	site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, fac)
@@ -91,9 +91,17 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 	// 建物ローカルで決定的にし、再訪で一致させる。KindLoot は床 loot として実アイテムに実体化し、それ以外の
 	// 家具と装飾は prop として置く。写像は interior が持つ単一のソースで、VRT の描画も同じ判定を共有する
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
+	beingRNG := rand.New(rand.NewPCG(seed, 0x5))
 	for _, p := range placed {
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.Pos.X, Y: g.offsetY + p.Pos.Y}
 		switch p.Kind {
+		case interior.KindBeing:
+			if !interior.IsBeingRef(p.Ref) {
+				continue
+			}
+			if err := spawnInteriorBeing(world, fac, danger, pos, beingRNG); err != nil {
+				return nil, nil, fmt.Errorf("failed to place interior being (%s at %d,%d): %w", p.Ref, pos.X, pos.Y, err)
+			}
 		case interior.KindLoot:
 			// 抽象 loot Ref を item group へ写し、1山を抽選して床へ置く。写像を持たない Ref は置かない
 			groupID, ok := interior.LootGroupName(p.Ref)
@@ -158,6 +166,23 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 		}
 	}
 	return nil
+}
+
+// spawnInteriorBeing は施設 fac の敵の表から危険度で1体を引き、建物の中の pos へ置く。危険度帯に該当が無ければ置かない。
+func spawnInteriorBeing(world w.World, fac string, danger consts.Danger, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
+	table, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
+	if err != nil {
+		return err
+	}
+	name, err := raw.SelectEnemyByWeight(table, rng, int(danger))
+	if err != nil {
+		return err
+	}
+	if name == "" {
+		return nil
+	}
+	_, err = lifecycle.SpawnEnemy(world, pos, name)
+	return err
 }
 
 // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item
