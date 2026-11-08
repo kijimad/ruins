@@ -110,6 +110,7 @@ func TestPopulateStorageLoot_施設の荒らされ率で空のまま残す(t *te
 		{"店は8割が空", "store", 80},
 		{"骨董品店は5割が空", "antique", 50},
 		{"倉庫は4割が空", "depot", 40},
+		{"オフィスは4割が空", "office", 40},
 		{"家は3割が空", "house", 30},
 	}
 	for _, tt := range tests {
