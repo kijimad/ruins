@@ -72,7 +72,7 @@ type Renderable struct{}
 // Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
 type Cube struct{}
 
-// FuelTank はキューブの燃料ポイントの上限と現在値。上限は装着中のモジュールから StatsChangedSystem が計算する。
+// FuelTank はキューブの燃料ポイントの上限と現在値。
 type FuelTank Pool[consts.Heat]
 
 // Deployed はキューブが展開中であることを示す。展開中のキューブは随伴せず、その場に留まる。

@@ -7,8 +7,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// AddCubeFuel は fuel の燃焼熱量をキューブの燃料ポイントへ足して上限で切り詰め、fuel を消す。焚き火の AddFuel と対になる。
-// 満タンならくべずに false を返し、fuel は残す。
+// AddCubeFuel は fuel の燃焼熱量を上限までキューブの燃料ポイントへ足して fuel を消す。満タンなら何もせず false を返す。
 func AddCubeFuel(world w.World, cube ecs.Entity, fuel ecs.Entity) bool {
 	if !world.Components.FuelTank.Has(cube) {
 		return false

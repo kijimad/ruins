@@ -128,8 +128,7 @@ func CubeDeployRange(world w.World, cube ecs.Entity) consts.Coord[consts.Tile] {
 	return r
 }
 
-// CubeFuelCapacity はキューブの燃料タンクの容量を返す。基準 consts.CubeFuelCapacityBase に、装着した各モジュールの
-// FuelCapacityBonus を加算する。StatsChangedSystem がこれで FuelTank.Max を書き直す。
+// CubeFuelCapacity は基準容量に装着中モジュールの FuelCapacityBonus を足した燃料タンクの容量を返す。
 func CubeFuelCapacity(world w.World, cube ecs.Entity) consts.Heat {
 	c := consts.CubeFuelCapacityBase
 	for _, m := range GetCubeModules(world, cube) {

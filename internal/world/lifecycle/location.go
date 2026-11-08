@@ -198,8 +198,7 @@ func ensureRemoved[T any](comp *ecs.Map[T], entity ecs.Entity) {
 
 // clearLocation はエンティティの既存の位置コンポーネントをすべて取り除く。
 // 排他制御のため、新しい位置を設定する前に呼ぶ（内部用）。
-// 移動元にOwnerがある場合はそのOwnerに WeightDirty マーカーを付与する。装備とモジュールを外したときは
-// 移動先に依らず StatsChanged も付け、上限を計算し直させる
+// 移動元にOwnerがある場合はそのOwnerに WeightDirty マーカーを付与する。装備とモジュールなら StatsChanged も付ける
 func clearLocation(world w.World, entity ecs.Entity) {
 	if world.Components.LocationInBackpack.Has(entity) {
 		owner := world.Components.LocationInBackpack.Get(entity).Owner
@@ -232,9 +231,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	ensureRemoved(world.Components.LocationInstalled, entity)
 }
 
-// MoveToInstalled はモジュールアイテムをキューブの指定スロットへ装着する。他ロケーションと排他になるよう
-// clearLocation してから LocationInstalled を付ける。装備と同じく StatsChanged を付け、燃料タンクの上限を
-// 計算し直させる。重量は装着でキューブに乗るので WeightDirty を付ける。
+// MoveToInstalled はモジュールアイテムをキューブの指定スロットへ装着する。
 func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity, slot int) {
 	clearLocation(world, entity)
 	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube, Slot: slot})

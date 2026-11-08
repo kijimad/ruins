@@ -42,7 +42,7 @@ const (
 	FollowFuelPerKg = 1
 	// CubeWeightCapacityKg はキューブ収納の重量容量。kg 単位。spawn とバランス導出で共有する
 	CubeWeightCapacityKg = 500
-	// CubeFuelCapacityBase はモジュールを装着していないキューブの燃料タンクの容量。値は暫定
+	// CubeFuelCapacityBase はモジュールを装着していないキューブの燃料タンクの容量
 	CubeFuelCapacityBase Heat = 3000
 )
 

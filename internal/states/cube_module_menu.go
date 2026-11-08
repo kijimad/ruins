@@ -50,7 +50,7 @@ func (st *CubeModuleMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *CubeModuleMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// 装備画面と同じく、モジュールの着脱で燃料タンクの上限と重量が変わるので再計算を回す
+	// モジュールの着脱で燃料タンクの上限と重量が変わるので再計算を回す
 	if err := runUpdaters(world, &gs.StatsChangedSystem{}, &gs.WeightDirtySystem{}); err != nil {
 		return es.Transition[w.World]{}, err
 	}

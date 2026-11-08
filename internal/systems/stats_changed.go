@@ -141,8 +141,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 	return nil
 }
 
-// updateCubeFuelCapacity は StatsChanged が付いたキューブの燃料タンクの上限を、装着中のモジュールから
-// 計算し直す。上限が下がって現在値を超えたら切り詰める。
+// updateCubeFuelCapacity は StatsChanged が付いたキューブの燃料タンクの上限を計算し直し、現在値を切り詰める。
 func updateCubeFuelCapacity(world w.World) {
 	var cubes []ecs.Entity
 	q := query.ActiveFilter2[gc.StatsChanged, gc.FuelTank](world).Query()
