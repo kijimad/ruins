@@ -16920,7 +16920,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d2"
+amount = "3d2-3"
 [[interiorContents]]
 id = "coldroom"
 [[interiorContents.groups]]
@@ -16987,7 +16987,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d2"
+amount = "3d2-3"
 [[interiorContents]]
 id = "corridor"
 [[interiorContents]]
@@ -17012,7 +17012,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d2"
+amount = "3d2-3"
 [[interiorContents]]
 id = "dressing"
 [[interiorContents.groups]]
@@ -17045,7 +17045,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d1"
+amount = "2d3-3"
 [[interiorContents]]
 id = "genkan"
 [[interiorContents.groups]]
@@ -17103,7 +17103,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d2"
+amount = "3d2-3"
 [[interiorContents]]
 id = "house"
 [[interiorContents.groups]]
@@ -17488,7 +17488,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d1"
+amount = "2d3-3"
 [[interiorContents]]
 id = "office"
 [[interiorContents.groups]]
@@ -17538,7 +17538,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d2"
+amount = "3d2-3"
 [[interiorContents]]
 id = "office_room"
 [[interiorContents.groups]]
@@ -17612,7 +17612,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d2"
+amount = "3d2-3"
 [[interiorContents]]
 id = "pharmacy_room"
 [[interiorContents.groups]]
@@ -17667,7 +17667,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d1"
+amount = "2d3-3"
 [[interiorContents]]
 id = "studio"
 [[interiorContents.groups]]
@@ -17760,7 +17760,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d2"
+amount = "3d2-3"
 [[interiorContents]]
 id = "depot_backroom"
 [[interiorContents.groups]]
@@ -17783,7 +17783,7 @@ style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "being"
 ref = "occupant"
-amount = "1d1"
+amount = "2d3-3"
 
 [flavorContent]
 id = "flavor"
