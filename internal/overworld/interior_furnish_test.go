@@ -289,6 +289,39 @@ func TestInteriorLootRaw_写像先のitem_groupが実在する(t *testing.T) {
 	}
 }
 
+func TestSpawnInteriorBeing(t *testing.T) {
+	t.Parallel()
+
+	t.Run("施設の敵の表から1体を指定の位置へ置く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		table, err := urbanEnemyTableFor(world.Resources.RawMaster, "store")
+		require.NoError(t, err)
+		members := map[string]bool{}
+		for _, e := range table.Entries {
+			members[e.Id] = true
+		}
+		pos := consts.Coord[consts.Tile]{X: 3, Y: 4}
+		require.NoError(t, spawnInteriorBeing(world, "store", 1, pos, rand.New(rand.NewPCG(1, 0x5))))
+
+		var got []string
+		q := ecs.NewFilter2[gc.FactionEnemy, gc.GridElement](world.ECS).Query()
+		for q.Next() {
+			_, ge := q.Get()
+			assert.Equal(t, pos, ge.Coord)
+			got = append(got, query.GetEntityID(q.Entity(), world))
+		}
+		require.Len(t, got, 1)
+		assert.True(t, members[got[0]], "店の敵の表から引く")
+	})
+
+	t.Run("未登録の施設はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		require.Error(t, spawnInteriorBeing(world, "no_such", 1, consts.Coord[consts.Tile]{X: 3, Y: 4}, rand.New(rand.NewPCG(1, 0x5))))
+	})
+}
+
 func TestFurnishBuilding_部屋の定義に従い建物の中に敵を置く(t *testing.T) {
 	t.Parallel()
 
