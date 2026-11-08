@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">95.7&nbsp;%</td>
-            <td class="headerCovTableEntry">93</td>
-            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntryHi">94.0&nbsp;%</td>
+            <td class="headerCovTableEntry">100</td>
+            <td class="headerCovTableEntry">94</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-08 02:10:29</td>
+            <td class="headerValue">2026-11-08 08:01:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,11 +69,11 @@
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // DriveCubeTiles は運転できるキューブのタイル座標を集めて返す。マクロ地図のマーカー用。</span>
+<span id="L10"><span class="lineNum">      10</span>              : // CubeTiles はキューブのタイル座標を集めて返す。マクロ地図のマーカー用。</span>
 <span id="L11"><span class="lineNum">      11</span>              : // 位置は GridElement から常に導けるので保持せず、読み取り時に集める。</span>
-<span id="L12"><span class="lineNum">      12</span>              : func DriveCubeTiles(world w.World) []consts.Coord[consts.Tile] {</span>
+<span id="L12"><span class="lineNum">      12</span>              : func CubeTiles(world w.World) []consts.Coord[consts.Tile] {</span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         var out []consts.Coord[consts.Tile]</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         q := ActiveFilter2[gc.GridElement, gc.Drivable](world).Query()</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         q := ActiveFilter2[gc.GridElement, gc.Cube](world).Query()</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 out = append(out, world.Components.GridElement.Get(q.Entity()).Coord)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -190,54 +190,64 @@
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         return r</span></span>
 <span id="L129"><span class="lineNum">     129</span>              : }</span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
-<span id="L131"><span class="lineNum">     131</span>              : // CubeWeight はキューブが積む物の総重量を返す。運転1タイルの燃料コスト算出に使う。</span>
-<span id="L132"><span class="lineNum">     132</span>              : // 燃料タンクの中身・畳み込んだ貨物・装着モジュールが機動に効くので合算する。値は保持せず読み取り時に導く。</span>
-<span id="L133"><span class="lineNum">     133</span>              : func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         var total consts.Milligram</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         for _, item := range GetStorageItems(world, cube) {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         for _, item := range StowedCargo(world, cube) {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC tlaBgUNC">           0 :                 total += GetEntityWeight(world, item)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, item := range GetCubeModules(world, cube) {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L145"><span class="lineNum">     145</span>              : }</span>
-<span id="L146"><span class="lineNum">     146</span>              : </span>
-<span id="L147"><span class="lineNum">     147</span>              : // DriveFuelCost は総重量から1タイル運転するのに要する燃料量を返す。空でも基準量がかかり、</span>
-<span id="L148"><span class="lineNum">     148</span>              : // 総重量に比例して増える。重いほど燃費が悪化する。</span>
-<span id="L149"><span class="lineNum">     149</span>              : func DriveFuelCost(total consts.Milligram) consts.Heat {</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         kg := int(total / consts.MilligramPerKg)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         return consts.Heat(consts.DriveFuelBase + consts.DriveFuelPerKg*kg)</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : // CubeFuelTotal はキューブ収納にある物の燃焼熱量の総和を返す。運転の燃料源。</span>
-<span id="L155"><span class="lineNum">     155</span>              : // 火への給油と同じ HeatContent を使い燃料値の定義を二重化しない。</span>
-<span id="L156"><span class="lineNum">     156</span>              : func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         var total consts.Heat</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         // 燃料タンクは LocationInStorage。畳み込んだ貨物は LocationStowed で別管理なので混ざらない</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         for _, item := range GetStorageItems(world, cube) {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 total += HeatContent(world, item)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L163"><span class="lineNum">     163</span>              : }</span>
-<span id="L164"><span class="lineNum">     164</span>              : </span>
-<span id="L165"><span class="lineNum">     165</span>              : // FuelGaugeRatio は燃料ゲージ充填率を返す。表示基準 FuelGaugeFullHeat に対する比を 0..1 に丸める。</span>
-<span id="L166"><span class="lineNum">     166</span>              : func FuelGaugeRatio(fuel consts.Heat) float64 {</span>
-<span id="L167"><span class="lineNum">     167</span>              :         // 満量基準は正の定数なのでゼロ除算は起きない</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : // CubeFuelCapacity は基準容量に装着中モジュールの FuelCapacityBonus を足した燃料タンクの容量を返す。</span>
+<span id="L132"><span class="lineNum">     132</span>              : func CubeFuelCapacity(world w.World, cube ecs.Entity) consts.Heat {</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         c := consts.CubeFuelCapacityBase</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         for _, m := range GetCubeModules(world, cube) {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 c += world.Components.CubeModule.Get(m).FuelCapacityBonus</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         return c</span></span>
+<span id="L138"><span class="lineNum">     138</span>              : }</span>
+<span id="L139"><span class="lineNum">     139</span>              : </span>
+<span id="L140"><span class="lineNum">     140</span>              : // CubeWeight はキューブが積む物の総重量を返す。運転1タイルの燃料コスト算出に使う。</span>
+<span id="L141"><span class="lineNum">     141</span>              : // 燃料タンクの中身・畳み込んだ貨物・装着モジュールが機動に効くので合算する。値は保持せず読み取り時に導く。</span>
+<span id="L142"><span class="lineNum">     142</span>              : func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         var total consts.Milligram</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         for _, item := range GetStorageItems(world, cube) {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         for _, item := range StowedCargo(world, cube) {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :                 total += GetEntityWeight(world, item)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, item := range GetCubeModules(world, cube) {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : }</span>
+<span id="L155"><span class="lineNum">     155</span>              : </span>
+<span id="L156"><span class="lineNum">     156</span>              : // FollowFuelCost は総重量から1歩随伴するのに要する燃料ポイントを返す。空でも基準量がかかり、</span>
+<span id="L157"><span class="lineNum">     157</span>              : // 総重量に比例して増える。重いほど燃費が悪化する。</span>
+<span id="L158"><span class="lineNum">     158</span>              : func FollowFuelCost(total consts.Milligram) consts.Heat {</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         kg := int(total / consts.MilligramPerKg)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         return consts.Heat(consts.FollowFuelBase + consts.FollowFuelPerKg*kg)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              : // CubeFuelTotal はキューブに貯めた燃料ポイントを返す。FuelTank を持たなければ0。</span>
+<span id="L164"><span class="lineNum">     164</span>              : func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         if !world.Components.FuelTank.Has(cube) {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.FuelTank.Get(cube).Current</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : }</span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
-<span id="L171"><span class="lineNum">     171</span>              : // PlayerDriving はプレイヤーが運転中なら Driving を返す。Vehicle の生存確認は呼び出し側の責務。</span>
-<span id="L172"><span class="lineNum">     172</span>              : func PlayerDriving(world w.World) (*gc.Driving, bool) {</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         player, err := GetPlayerEntity(world)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         if err != nil || !world.Components.Driving.Has(player) {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         return world.Components.Driving.Get(player), true</span></span>
-<span id="L178"><span class="lineNum">     178</span>              : }</span>
+<span id="L171"><span class="lineNum">     171</span>              : // FuelGaugeRatio は燃料ゲージの充填率を現在値と上限の比で返す。上限が0以下なら0。</span>
+<span id="L172"><span class="lineNum">     172</span>              : func FuelGaugeRatio(tank gc.FuelTank) float64 {</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         if tank.Max &lt;= 0 {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         return float64(tank.Current) / float64(tank.Max)</span></span>
+<span id="L177"><span class="lineNum">     177</span>              : }</span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span>              : // ActiveCube は現ステージにいるキューブを返す。ダンジョンなどキューブのいないステージでは false。</span>
+<span id="L180"><span class="lineNum">     180</span>              : func ActiveCube(world w.World) (ecs.Entity, bool) {</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         q := ActiveFilter1[gc.Cube](world).Query()</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         if !q.Next() {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, false</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         cube := q.Entity()</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         q.Close()</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         return cube, true</span></span>
+<span id="L188"><span class="lineNum">     188</span>              : }</span>
         </pre>
               </td>
             </tr>

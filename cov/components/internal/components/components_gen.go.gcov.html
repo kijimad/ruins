@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-08 02:10:29</td>
+            <td class="headerValue">2026-11-08 08:01:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -106,8 +106,8 @@
 <span id="L44"><span class="lineNum">      44</span>              :         Door               *Door</span>
 <span id="L45"><span class="lineNum">      45</span>              :         Item               *Item</span>
 <span id="L46"><span class="lineNum">      46</span>              :         Prop               *Prop</span>
-<span id="L47"><span class="lineNum">      47</span>              :         Drivable           *Drivable</span>
-<span id="L48"><span class="lineNum">      48</span>              :         Driving            *Driving</span>
+<span id="L47"><span class="lineNum">      47</span>              :         Cube               *Cube</span>
+<span id="L48"><span class="lineNum">      48</span>              :         FuelTank           *FuelTank</span>
 <span id="L49"><span class="lineNum">      49</span>              :         Deployed           *Deployed</span>
 <span id="L50"><span class="lineNum">      50</span>              :         LightSource        *LightSource</span>
 <span id="L51"><span class="lineNum">      51</span>              :         Interactable       *Interactable</span>
@@ -201,8 +201,8 @@
 <span id="L139"><span class="lineNum">     139</span>              :         Door               *ecs.Map[Door]</span>
 <span id="L140"><span class="lineNum">     140</span>              :         Item               *ecs.Map[Item]</span>
 <span id="L141"><span class="lineNum">     141</span>              :         Prop               *ecs.Map[Prop]</span>
-<span id="L142"><span class="lineNum">     142</span>              :         Drivable           *ecs.Map[Drivable]</span>
-<span id="L143"><span class="lineNum">     143</span>              :         Driving            *ecs.Map[Driving]</span>
+<span id="L142"><span class="lineNum">     142</span>              :         Cube               *ecs.Map[Cube]</span>
+<span id="L143"><span class="lineNum">     143</span>              :         FuelTank           *ecs.Map[FuelTank]</span>
 <span id="L144"><span class="lineNum">     144</span>              :         Deployed           *ecs.Map[Deployed]</span>
 <span id="L145"><span class="lineNum">     145</span>              :         LightSource        *ecs.Map[LightSource]</span>
 <span id="L146"><span class="lineNum">     146</span>              :         Interactable       *ecs.Map[Interactable]</span>
@@ -296,8 +296,8 @@
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         c.Door = ecs.NewMap[Door](world)</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         c.Item = ecs.NewMap[Item](world)</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         c.Prop = ecs.NewMap[Prop](world)</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         c.Drivable = ecs.NewMap[Drivable](world)</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         c.Driving = ecs.NewMap[Driving](world)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         c.Cube = ecs.NewMap[Cube](world)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         c.FuelTank = ecs.NewMap[FuelTank](world)</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         c.Deployed = ecs.NewMap[Deployed](world)</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         c.LightSource = ecs.NewMap[LightSource](world)</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         c.Interactable = ecs.NewMap[Interactable](world)</span></span>
@@ -393,8 +393,8 @@
 <span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :         addComp(c.Door, entity, spec.Door)</span></span>
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :         addComp(c.Item, entity, spec.Item)</span></span>
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         addComp(c.Prop, entity, spec.Prop)</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         addComp(c.Drivable, entity, spec.Drivable)</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         addComp(c.Driving, entity, spec.Driving)</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         addComp(c.Cube, entity, spec.Cube)</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         addComp(c.FuelTank, entity, spec.FuelTank)</span></span>
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         addComp(c.Deployed, entity, spec.Deployed)</span></span>
 <span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         addComp(c.LightSource, entity, spec.LightSource)</span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         addComp(c.Interactable, entity, spec.Interactable)</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.3&nbsp;%</td>
-            <td class="headerCovTableEntry">12</td>
-            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryMed">75.0&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">6</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-08 02:10:29</td>
+            <td class="headerValue">2026-11-08 08:01:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,30 +68,22 @@
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // DriveRangeTiles は所持燃料 fuel と積載重量 load でキューブが運転できるタイル数を返す。query.DriveFuelCost を</span>
-<span id="L10"><span class="lineNum">      10</span>              : // そのまま使い燃費式に自動追従する。積荷が重いほど1タイルのコストが上がり航続が縮む重量↔移動のトレード。</span>
-<span id="L11"><span class="lineNum">      11</span>              : func DriveRangeTiles(fuel consts.Heat, load consts.Milligram) float64 {</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         cost := query.DriveFuelCost(load)</span></span>
+<span id="L9"><span class="lineNum">       9</span>              : // FollowRangeTiles は燃料ポイント fuel と積載重量 load でキューブが随伴できる歩数を返す。query.FollowFuelCost を</span>
+<span id="L10"><span class="lineNum">      10</span>              : // そのまま使い燃費式に自動追従する。積荷が重いほど1歩のコストが上がり航続が縮む重量↔移動のトレード。</span>
+<span id="L11"><span class="lineNum">      11</span>              : func FollowRangeTiles(fuel consts.Heat, load consts.Milligram) float64 {</span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         cost := query.FollowFuelCost(load)</span></span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         if cost &lt;= 0 {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 :         return float64(fuel) / float64(cost)</span></span>
 <span id="L17"><span class="lineNum">      17</span>              : }</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // DriveRangeAllFuel は容量いっぱいを material の燃料で満たしたときの航続タイルを返す。</span>
-<span id="L20"><span class="lineNum">      20</span>              : // 燃料自身が積載重量になるので、積むほど燃費が悪化する自己ブレーキを含む。</span>
-<span id="L21"><span class="lineNum">      21</span>              : func DriveRangeAllFuel(material oapi.Material, capacityKg int) float64 {</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         weight := consts.Milligram(capacityKg) * consts.MilligramPerKg</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         fuel := query.HeatOf(material, weight)</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return DriveRangeTiles(fuel, weight)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span>              : // FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。熱量を地面の燃焼効率で</span>
-<span id="L28"><span class="lineNum">      28</span>              : // 割り引く。query.HeatOf と consts.Heat.BurnTurns に自動追従する。移動燃料と同じ熱量が火では燃焼時間へ変わる。</span>
-<span id="L29"><span class="lineNum">      29</span>              : func FuelBurnTurns(material oapi.Material, weightKg int) int {</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         weight := consts.Milligram(weightKg) * consts.MilligramPerKg</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return int(query.HeatOf(material, weight).BurnTurns(query.GroundBurnEfficiency))</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L19"><span class="lineNum">      19</span>              : // FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。熱量を地面の燃焼効率で</span>
+<span id="L20"><span class="lineNum">      20</span>              : // 割り引く。query.HeatOf と consts.Heat.BurnTurns に自動追従する。移動燃料と同じ熱量が火では燃焼時間へ変わる。</span>
+<span id="L21"><span class="lineNum">      21</span>              : func FuelBurnTurns(material oapi.Material, weightKg int) int {</span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         weight := consts.Milligram(weightKg) * consts.MilligramPerKg</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         return int(query.HeatOf(material, weight).BurnTurns(query.GroundBurnEfficiency))</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
