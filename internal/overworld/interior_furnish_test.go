@@ -72,21 +72,52 @@ func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 
 	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, closet, "closet", "house", rng))
+	require.NoError(t, populateStorageLoot(world, closet, "closet", "", rng))
 	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が1つ以上入る")
 
 	// 家具別テーブルの分化。冷蔵庫は食料庫テーブルから引く。テーブル解決と loot 産出を確かめる
 	beforeFridge := countStoredItems(world)
 	fridge, err := lifecycle.SpawnProp(world, "refrigerator", 2, 2)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, fridge, "refrigerator", "house", rng))
+	require.NoError(t, populateStorageLoot(world, fridge, "refrigerator", "", rng))
 	assert.Greater(t, countStoredItems(world), beforeFridge, "冷蔵庫に食料庫テーブルの戦利品が入る")
 
 	before := countStoredItems(world)
 	candle, err := lifecycle.SpawnProp(world, "candle", 1, 1)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, candle, "candle", "house", rng))
+	require.NoError(t, populateStorageLoot(world, candle, "candle", "", rng))
 	assert.Equal(t, before, countStoredItems(world), "収納でない蝋燭は戦利品を入れない")
+}
+
+func TestPopulateStorageLoot_施設の荒らされ率で空のまま残す(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		fac       string
+		wantEmpty int
+	}{
+		{"店は8割が空", "store", 80},
+		{"家は3割が空", "house", 30},
+		{"施設の外は空にしない", "", 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			rng := rand.New(rand.NewPCG(1, 0x4))
+			const n = 400
+			empty := 0
+			for i := range n {
+				ent, err := lifecycle.SpawnProp(world, "goods_shelf", consts.Tile(i), 0)
+				require.NoError(t, err)
+				require.NoError(t, populateStorageLoot(world, ent, "goods_shelf", tt.fac, rng))
+				if len(query.GetStorageItems(world, ent)) == 0 {
+					empty++
+				}
+			}
+			assert.InDelta(t, tt.wantEmpty, empty*100/n, 6, "空の割合が施設の荒らされ率に近い")
+		})
+	}
 }
 
 func TestPopulateStorageLoot_施設の差し替えた表から引く(t *testing.T) {

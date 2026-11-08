@@ -2364,6 +2364,12 @@ components:
           items:
             $ref: '#/components/schemas/LootOverride'
           description: 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
+        lootedChance:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+          description: 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
       description: 市街地の施設1種。isShop は看板やシャッターを出す店か
     FacilityContent:
       type: object

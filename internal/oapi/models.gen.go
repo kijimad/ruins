@@ -1379,6 +1379,9 @@ type Facility struct {
 	// LootOverrides 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
 	LootOverrides *[]LootOverride `json:"lootOverrides,omitempty"`
 
+	// LootedChance 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
+	LootedChance *int32 `json:"lootedChance,omitempty"`
+
 	// Planner 間取りテンプレの選択キー
 	Planner PlannerKey     `json:"planner"`
 	Zones   []FacilityZone `json:"zones"`

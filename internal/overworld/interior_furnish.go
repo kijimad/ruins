@@ -163,7 +163,7 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item
 // テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の
 // DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
-// overworld は建物ローカルの決定的 RNG を使う。表は施設 fac の差し替えに従う。
+// overworld は建物ローカルの決定的 RNG を使う。表は施設 fac の差し替えに従い、施設の荒らされ率で空のまま残す。
 func populateStorageLoot(world w.World, entity ecs.Entity, propName, fac string, rng *rand.Rand) error {
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
 	if err != nil {
@@ -171,6 +171,9 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, fac string,
 	}
 	if propRaw.Storage == nil || propRaw.Storage.LootTableId == nil || *propRaw.Storage.LootTableId == "" {
 		return nil // 収納でない家具は何も入れない
+	}
+	if rng.IntN(100) < raw.FacilityLootedChance(world.Resources.RawMaster, fac) {
+		return nil
 	}
 	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, raw.FacilityLootTable(world.Resources.RawMaster, fac, *propRaw.Storage.LootTableId))
 	if err != nil {

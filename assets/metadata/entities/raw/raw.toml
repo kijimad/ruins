@@ -16455,6 +16455,7 @@ id = "house"
 isShop = false
 planner = "house"
 enemyTable = "house_enemies"
+lootedChance = 30
 [[facilities.zones]]
 zone = "residential"
 weight = 65
@@ -16474,6 +16475,7 @@ id = "store"
 isShop = true
 planner = "store"
 enemyTable = "store_enemies"
+lootedChance = 80
 [[facilities.zones]]
 zone = "downtown"
 weight = 25
@@ -16493,6 +16495,7 @@ id = "office"
 isShop = false
 planner = "bsp"
 enemyTable = "office_enemies"
+lootedChance = 40
 [[facilities.zones]]
 zone = "downtown"
 weight = 20
@@ -16509,6 +16512,7 @@ id = "depot"
 isShop = false
 planner = "bsp"
 enemyTable = "depot_enemies"
+lootedChance = 40
 [[facilities.zones]]
 zone = "industrial"
 weight = 65
@@ -16521,6 +16525,7 @@ id = "antique"
 isShop = true
 planner = "store"
 enemyTable = "antique_enemies"
+lootedChance = 50
 [[facilities.zones]]
 zone = "downtown"
 weight = 20
@@ -16536,6 +16541,7 @@ id = "clinic"
 isShop = false
 planner = "clinic"
 enemyTable = "clinic_enemies"
+lootedChance = 30
 [[facilities.zones]]
 zone = "downtown"
 weight = 20
@@ -16552,6 +16558,7 @@ id = "lab"
 isShop = false
 planner = "clinic"
 enemyTable = "lab_enemies"
+lootedChance = 30
 [[facilities.zones]]
 zone = "downtown"
 weight = 15
@@ -18829,7 +18836,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "store_shelf"
-lootCount = "2d4+1"
+lootCount = "1d3"
 [[props]]
 blockPass = true
 blockView = false

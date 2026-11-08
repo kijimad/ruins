@@ -51,6 +51,16 @@ func TestFacilityLootTable(t *testing.T) {
 	}
 }
 
+func TestFacilityLootedChance(t *testing.T) {
+	t.Parallel()
+	looted := int32(80)
+	raws := oapi.Raws{Facilities: &[]oapi.Facility{{Id: "store", LootedChance: &looted}, {Id: "house"}}}
+
+	assert.Equal(t, 80, FacilityLootedChance(raws, "store"))
+	assert.Equal(t, 0, FacilityLootedChance(raws, "house"), "省略は0")
+	assert.Equal(t, 0, FacilityLootedChance(raws, "no_such"), "未登録は0")
+}
+
 func TestGetLandmark(t *testing.T) {
 	t.Parallel()
 	raws := oapi.Raws{Landmarks: &[]oapi.Landmark{{Id: "遺跡"}}}
