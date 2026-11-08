@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
@@ -53,12 +54,18 @@ func FireFuelSink(fire ecs.Entity) FuelSink {
 func CubeFuelSink(cube ecs.Entity) FuelSink {
 	return FuelSink{
 		title: func(world w.World) string {
-			return query.T(world, "Fuel %s", query.CubeFuelTotal(world, cube).String())
+			return query.T(world, "Fuel %s", fuelTankText(*world.Components.FuelTank.Get(cube)))
 		},
 		gain: func(world w.World, fuel ecs.Entity) string {
 			return query.HeatContent(world, fuel).String()
 		},
-		feed: func(world w.World, fuel ecs.Entity) { lifecycle.AddCubeFuel(world, cube, fuel) },
+		feed: func(world w.World, fuel ecs.Entity) {
+			if !lifecycle.AddCubeFuel(world, cube, fuel) {
+				gamelog.New(query.GetGameLog(world)).
+					Markup(query.T(world, "The fuel tank is full.")).
+					Log()
+			}
+		},
 	}
 }
 

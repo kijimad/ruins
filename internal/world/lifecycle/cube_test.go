@@ -11,22 +11,38 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddCubeFuel_熱量を燃料ポイントへ足してアイテムを消す(t *testing.T) {
+func TestAddCubeFuel(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
-	require.NoError(t, err)
-	world.Components.FuelTank.Get(cube).Heat = 100
-	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
-	require.NoError(t, err)
 	// 石炭は1kgで熱量800
-	coal, err := lifecycle.SpawnBackpackItem(world, "coal", 1)
-	require.NoError(t, err)
+	full := consts.CubeFuelCapacityBase
+	tests := []struct {
+		name      string
+		current   consts.Heat
+		wantOK    bool
+		wantLeft  consts.Heat
+		wantAlive bool
+	}{
+		{"熱量を足してアイテムを消す", 100, true, 900, false},
+		{"あふれた分は捨てて上限で止める", full - 100, true, full, false},
+		{"満タンならくべずアイテムを残す", full, false, full, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+			require.NoError(t, err)
+			world.Components.FuelTank.Get(cube).Current = tt.current
+			_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+			require.NoError(t, err)
+			coal, err := lifecycle.SpawnBackpackItem(world, "coal", 1)
+			require.NoError(t, err)
 
-	lifecycle.AddCubeFuel(world, cube, coal)
-
-	assert.Equal(t, consts.Heat(900), query.CubeFuelTotal(world, cube))
-	assert.False(t, world.ECS.Alive(coal), "くべたアイテムは消える")
+			assert.Equal(t, tt.wantOK, lifecycle.AddCubeFuel(world, cube, coal))
+			assert.Equal(t, tt.wantLeft, query.CubeFuelTotal(world, cube))
+			assert.Equal(t, tt.wantAlive, world.ECS.Alive(coal))
+		})
+	}
 }
 
 func TestConsumeCubeFuel(t *testing.T) {
@@ -48,7 +64,7 @@ func TestConsumeCubeFuel(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 			cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 			require.NoError(t, err)
-			world.Components.FuelTank.Get(cube).Heat = 1000
+			world.Components.FuelTank.Get(cube).Current = 1000
 
 			assert.Equal(t, tt.wantOK, lifecycle.ConsumeCubeFuel(world, cube, tt.amount))
 			assert.Equal(t, tt.wantLeft, query.CubeFuelTotal(world, cube))

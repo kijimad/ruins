@@ -44,7 +44,7 @@ func TestPlanFollowAction(t *testing.T) {
 			require.NoError(t, err)
 			solo := world.Components.SoloAI.Get(cube)
 			solo.SubState = tt.subState
-			world.Components.FuelTank.Get(cube).Heat = tt.fuel
+			world.Components.FuelTank.Get(cube).Current = tt.fuel
 
 			rp := newSoloPlanner(newTestRNG())
 			act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
@@ -78,7 +78,7 @@ func TestPlanFollowAction_AP不足なら燃料を払わず行動を終える(t *
 	act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
 
 	assert.Nil(t, act)
-	assert.Equal(t, consts.FuelGaugeFullHeat, query.CubeFuelTotal(world, cube))
+	assert.Equal(t, consts.CubeFuelCapacityBase, query.CubeFuelTotal(world, cube))
 }
 
 func TestCullDistantSolo_追従中のキューブは圏外でも残す(t *testing.T) {
@@ -116,5 +116,5 @@ func TestPlanFollowAction_展開中は方針を保ったまま休む(t *testing.
 	assert.Equal(t, gc.BehaviorWait, act.BehaviorName)
 	assert.Equal(t, gc.SoloFollow, solo.Movement)
 	assert.Equal(t, gc.AIStateWaiting, solo.SubState)
-	assert.Equal(t, consts.FuelGaugeFullHeat, query.CubeFuelTotal(world, cube))
+	assert.Equal(t, consts.CubeFuelCapacityBase, query.CubeFuelTotal(world, cube))
 }

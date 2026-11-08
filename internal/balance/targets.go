@@ -26,7 +26,7 @@ func DomainTargets() []TargetCheck {
 		{"生存・飢え", "DaysUntilHungerEmpty(日)", DaysUntilHungerEmpty(p), 0.8, 1.3},
 		{"生存・疲労", "SleepTimeFraction", SleepTimeFraction(p), 0.20, 0.33},
 		{"生存・寒さ", "TurnsToHypothermia(0℃)", TurnsToHypothermia(0), 8, 20},
-		{"物流", "FollowRangeTiles(満タン,積荷0,歩)", FollowRangeTiles(consts.FuelGaugeFullHeat, 0), 400, 800},
+		{"物流", "FollowRangeTiles(満タン,積荷0,歩)", FollowRangeTiles(consts.CubeFuelCapacityBase, 0), 400, 800},
 		{"進行・成長", "AttacksToSkillLevel(能力0,Lv30)", float64(AttacksToSkillLevel(0, 30)), 1000, 2500},
 	}
 }

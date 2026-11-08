@@ -2042,10 +2042,13 @@ components:
       type: object
       required:
         - rangeBonus
+        - fuelCapacityBonus
       properties:
         rangeBonus:
           $ref: '#/components/schemas/RangeBonus'
-      description: キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
+        fuelCapacityBonus:
+          $ref: '#/components/schemas/FuelCapacityBonus'
+      description: キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
     DamageBonus:
       type: integer
       minimum: -100
@@ -2454,6 +2457,10 @@ components:
         - -1
         - -3
       description: 植生タイプ
+    FuelCapacityBonus:
+      type: integer
+      minimum: 0
+      description: キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
     GroupStyle:
       type: string
       enum:

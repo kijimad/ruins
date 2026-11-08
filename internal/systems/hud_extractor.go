@@ -147,7 +147,7 @@ func extractCubeStatus(world w.World) hud.CubeStatusData {
 	return hud.CubeStatusData{
 		Visible:   true,
 		Name:      query.GetEntityName(cube, world),
-		FuelRatio: query.FuelGaugeRatio(query.CubeFuelTotal(world, cube)),
+		FuelRatio: query.FuelGaugeRatio(*world.Components.FuelTank.Get(cube)),
 	}
 }
 
