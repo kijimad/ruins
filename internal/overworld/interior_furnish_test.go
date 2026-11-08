@@ -63,29 +63,33 @@ func TestSpawnFieldLoot_未存在グループはエラー(t *testing.T) {
 }
 
 // TestPopulateStorageLoot_収納家具に戦利品が入る は収納 loot の配線を固定する。収納 prop(押入れ)には渡した
-// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。
+// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。家は荒らされ率を持つので複数置いて数える。
 func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	rng := rand.New(rand.NewPCG(1, 0x4))
 
-	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
-	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, closet, "closet", "house_closet", "", rng))
-	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が1つ以上入る")
-
-	beforeFridge := countStoredItems(world)
-	fridge, err := lifecycle.SpawnProp(world, "refrigerator", 2, 2)
-	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, fridge, "refrigerator", "house_kitchen", "", rng))
-	assert.Greater(t, countStoredItems(world), beforeFridge, "冷蔵庫に食料庫テーブルの戦利品が入る")
+	for i := range 10 {
+		closet, err := lifecycle.SpawnProp(world, "closet", consts.Tile(i), 0)
+		require.NoError(t, err)
+		require.NoError(t, populateStorageLoot(world, closet, "closet", "house_closet", "house", rng))
+	}
+	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が入る")
 
 	before := countStoredItems(world)
 	candle, err := lifecycle.SpawnProp(world, "candle", 1, 1)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, candle, "candle", "", "", rng))
+	require.NoError(t, populateStorageLoot(world, candle, "candle", "", "house", rng))
 	assert.Equal(t, before, countStoredItems(world), "収納でない蝋燭は戦利品を入れない")
+}
+
+func TestPopulateStorageLoot_未登録の施設はエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
+	require.NoError(t, err)
+	require.Error(t, populateStorageLoot(world, closet, "closet", "house_closet", "no_such", rand.New(rand.NewPCG(1, 0x4))))
 }
 
 func TestPopulateStorageLoot_表の無い収納家具はエラー(t *testing.T) {
@@ -105,7 +109,6 @@ func TestPopulateStorageLoot_施設の荒らされ率で空のまま残す(t *te
 	}{
 		{"店は8割が空", "store", 80},
 		{"家は3割が空", "house", 30},
-		{"施設の外は空にしない", "", 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

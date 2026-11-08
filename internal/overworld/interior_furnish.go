@@ -199,7 +199,11 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 	if tableID == "" {
 		return fmt.Errorf("storage furniture %q has no loot table in the room definition", propName)
 	}
-	if rng.IntN(100) < raw.FacilityLootedChance(world.Resources.RawMaster, fac) {
+	looted, err := raw.FacilityLootedChance(world.Resources.RawMaster, fac)
+	if err != nil {
+		return err
+	}
+	if rng.IntN(100) < looted {
 		return nil
 	}
 	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, tableID)
