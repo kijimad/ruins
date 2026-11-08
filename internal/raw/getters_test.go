@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetFacility(t *testing.T) {
@@ -30,9 +31,17 @@ func TestFacilityLootedChance(t *testing.T) {
 	looted := int32(80)
 	raws := oapi.Raws{Facilities: &[]oapi.Facility{{Id: "store", LootedChance: &looted}, {Id: "house"}}}
 
-	assert.Equal(t, 80, FacilityLootedChance(raws, "store"))
-	assert.Equal(t, 0, FacilityLootedChance(raws, "house"), "省略は0")
-	assert.Equal(t, 0, FacilityLootedChance(raws, "no_such"), "未登録は0")
+	got, err := FacilityLootedChance(raws, "store")
+	require.NoError(t, err)
+	assert.Equal(t, 80, got)
+
+	got, err = FacilityLootedChance(raws, "house")
+	require.NoError(t, err)
+	assert.Equal(t, 0, got, "省略は0")
+
+	_, err = FacilityLootedChance(raws, "no_such")
+	var notFound KeyNotFoundError
+	require.ErrorAs(t, err, &notFound, "未登録の施設はエラー")
 }
 
 func TestGetLandmark(t *testing.T) {
