@@ -692,21 +692,6 @@ func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
 	return findByKey(raws.Facilities, func(f oapi.Facility) string { return f.Id }, id)
 }
 
-// FacilityLootTable は施設 fac に置かれた家具の戦利品表 tableID を、施設の差し替えに従って返す。
-// 施設が未登録か差し替えが無ければ tableID をそのまま返す。
-func FacilityLootTable(raws oapi.Raws, fac, tableID string) string {
-	f, ok := GetFacility(raws, fac)
-	if !ok {
-		return tableID
-	}
-	for _, o := range PtrSlice(f.LootOverrides) {
-		if o.From == tableID {
-			return o.To
-		}
-	}
-	return tableID
-}
-
 // FacilityLootedChance は施設 fac の収納家具が荒らされて空になっている確率を百分率で返す。未登録や省略は0。
 func FacilityLootedChance(raws oapi.Raws, fac string) int {
 	f, ok := GetFacility(raws, fac)

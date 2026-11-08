@@ -501,6 +501,10 @@ export interface ContentSatellite {
     'kind': StuffKind;
     'ref': string;
     'offsets': Array<ContentVec>;
+    /**
+     * 収納家具の中身を引く itemTables の id。収納家具では必須
+     */
+    'lootTable'?: string;
 }
 
 
@@ -520,6 +524,10 @@ export interface ContentStuff {
     'amount': string;
     'placement'?: Placement;
     'satellites'?: Array<ContentSatellite>;
+    /**
+     * 収納家具の中身を引く itemTables の id。収納家具では必須
+     */
+    'lootTable'?: string;
 }
 
 
@@ -776,10 +784,6 @@ export interface Facility {
     'planner': PlannerKey;
     'enemyTable': string;
     'zones': Array<FacilityZone>;
-    /**
-     * 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
-     */
-    'lootOverrides'?: Array<LootOverride>;
     /**
      * 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
      */
@@ -1109,13 +1113,6 @@ export interface LightSource {
      * 光源が有効かどうか
      */
     'enabled': boolean;
-}
-/**
- * 家具の戦利品表 from を、この施設では to に差し替える。どちらも itemTables の id
- */
-export interface LootOverride {
-    'from': string;
-    'to': string;
 }
 /**
  * 俯瞰地図の記号1種。id は地物・施設の種別 id

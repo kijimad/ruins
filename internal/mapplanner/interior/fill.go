@@ -2,9 +2,10 @@ package interior
 
 // Placed は座標の付いた1配置。FillRoom の出力で、レンダラや ECS への spawn の入力になる。
 type Placed struct {
-	Kind StuffKind
-	Ref  string
-	Pos  Vec
+	Kind      StuffKind
+	Ref       string
+	Pos       Vec
+	LootTable string // 収納家具の中身を引く itemTables の id。収納でなければ空
 }
 
 // FillRoom は content を解決し、各 Selection を placement 意味論に従って部屋のタイルへ置く。
@@ -36,12 +37,12 @@ func placeSelections(seed uint64, room Room, selections []Selection, occupied ma
 		s := childSeed(seed, 1_000_000+i)
 		for _, t := range selectTiles(room, sel.Placement, occupied, s, sel.Count) {
 			occupied[t] = true
-			placed = append(placed, Placed{Kind: sel.Kind, Ref: sel.Ref, Pos: t})
+			placed = append(placed, Placed{Kind: sel.Kind, Ref: sel.Ref, Pos: t, LootTable: sel.LootTable})
 			// anchor と一緒に衛星を束で置く。机に対する椅子や蝋燭の輪など
 			for _, sat := range sel.Satellites {
 				if pos, ok := placeSatellite(room, occupied, t, sat); ok {
 					occupied[pos] = true
-					placed = append(placed, Placed{Kind: sat.Kind, Ref: sat.Ref, Pos: pos})
+					placed = append(placed, Placed{Kind: sat.Kind, Ref: sat.Ref, Pos: pos, LootTable: sat.LootTable})
 				}
 			}
 		}
