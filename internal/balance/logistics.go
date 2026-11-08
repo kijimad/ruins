@@ -16,12 +16,6 @@ func FollowRangeTiles(fuel consts.Heat, load consts.Milligram) float64 {
 	return float64(fuel) / float64(cost)
 }
 
-// FollowRangeFullTank は満タン表示の燃料ポイントで、積載 load のキューブが随伴できる歩数を返す。
-// 燃料はくべた時点でポイントになり重量を持たないので、積載は積荷だけで決まる。
-func FollowRangeFullTank(load consts.Milligram) float64 {
-	return FollowRangeTiles(consts.FuelGaugeFullHeat, load)
-}
-
 // FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。熱量を地面の燃焼効率で
 // 割り引く。query.HeatOf と consts.Heat.BurnTurns に自動追従する。移動燃料と同じ熱量が火では燃焼時間へ変わる。
 func FuelBurnTurns(material oapi.Material, weightKg int) int {

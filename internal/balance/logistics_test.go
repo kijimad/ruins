@@ -16,14 +16,6 @@ func TestFollowRangeTiles_手計算と一致(t *testing.T) {
 	assert.InDelta(t, 10, FollowRangeTiles(1000, 95*consts.MilligramPerKg), 1e-9)
 }
 
-func TestFollowRangeFullTank_満タンの燃料ポイントで決まる(t *testing.T) {
-	t.Parallel()
-	// 満タン3000、積荷0kgの燃費5で 600 歩
-	assert.InDelta(t, 600, FollowRangeFullTank(0), 1e-9)
-	// 積荷95kgなら燃費100で 30 歩
-	assert.InDelta(t, 30, FollowRangeFullTank(95*consts.MilligramPerKg), 1e-9)
-}
-
 func TestFuelBurnTurns_熱量と効率で決まる(t *testing.T) {
 	t.Parallel()
 	// WOOD 1kg: 熱量200、地面効率50%で 200*50/100 = 100 ターン。重量に比例する。

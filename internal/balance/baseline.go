@@ -230,7 +230,7 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	var fuelCostRows [][]string
 	for _, kg := range []int{0, 100, 250, 500} {
 		load := consts.Milligram(kg) * consts.MilligramPerKg
-		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeFullTank(load))})
+		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeTiles(consts.FuelGaugeFullHeat, load))})
 	}
 	writeMDTable(&b, []string{"積荷(kg)", "燃費(/歩)", "満タン航続(歩)"}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)
 	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
