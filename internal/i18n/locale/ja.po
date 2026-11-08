@@ -1731,6 +1731,9 @@ msgstr "収納"
 msgid "Cube info"
 msgstr "キューブ情報"
 
+msgid "Info"
+msgstr "情報"
+
 msgid "Open cube menu"
 msgstr "キューブメニューを開く"
 
@@ -6321,7 +6324,7 @@ msgid "A deployment module. Installed on a cube, it widens the deployed space al
 msgstr "展開モジュール。キューブに装着すると展開空間を縦横一律に広げる。新しい広さは次の展開で反映される"
 
 msgid "Module"
-msgstr "モジュール"
+msgstr "拡張"
 
 msgid "Deploy size"
 msgstr "展開サイズ"

@@ -48,7 +48,7 @@ func TestNewCubeMenuState_圧縮中は追従が有効で設備が無効(t *testi
 		query.T(world, "Fuel"),
 		query.T(world, "Module"),
 		query.T(world, "Facility"),
-		query.T(world, "Cube info"),
+		query.T(world, "Info"),
 		query.T(world, "Close"),
 	}
 	assert.Equal(t, want, labels)

@@ -29,7 +29,7 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 			Choice{Label: query.T(world, "Facility"), Disabled: !deployed, Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeFacilityMenuState(cube)
 			})},
-			Choice{Label: query.T(world, "Cube info"), Run: pushChoice(func() (es.State[w.World], error) {
+			Choice{Label: query.T(world, "Info"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewCubeInfoState(cube)
 			})},
 			Choice{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
