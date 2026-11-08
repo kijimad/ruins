@@ -41,18 +41,19 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 }
 
 // followChoice は随伴の命令を切り替える項目を返す。待機中なら追従を、追従中なら待機を命じる。
-// 展開中も切り替えられ、圧縮するとその方針で動き出す。
+// 展開中も切り替えられ、圧縮するとその方針で動き出す。設定の切り替えなのでメニューは閉じず、
+// 毎フレーム組み直す項目の表示がその場で入れ替わる。
 func followChoice(world w.World, cube ecs.Entity) Choice {
 	solo := world.Components.SoloAI.Get(cube)
 	if solo.Movement == gc.SoloFollow {
 		return Choice{Label: query.T(world, "Stay here"), Run: func(world w.World) (es.Transition[w.World], error) {
 			world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
-			return es.Transition[w.World]{Type: es.TransPop}, nil
+			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}}
 	}
 	return Choice{Label: query.T(world, "Follow me"), Run: func(world w.World) (es.Transition[w.World], error) {
 		world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
-		return es.Transition[w.World]{Type: es.TransPop}, nil
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}}
 }
 

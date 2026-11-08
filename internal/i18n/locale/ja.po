@@ -1735,10 +1735,10 @@ msgid "Open cube menu"
 msgstr "キューブメニューを開く"
 
 msgid "Follow me"
-msgstr "ついてこい"
+msgstr "追従"
 
 msgid "Stay here"
-msgstr "ここで待て"
+msgstr "待機"
 
 msgid "The cube is out of fuel and stops."
 msgstr "キューブは燃料が切れて止まった。"

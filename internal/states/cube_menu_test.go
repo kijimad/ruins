@@ -95,7 +95,7 @@ func TestFollowChoice_追従と待機を切り替える(t *testing.T) {
 	trans, err := follow.Run(world)
 	require.NoError(t, err)
 	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement)
-	assert.Equal(t, es.TransPop, trans.Type, "命じたらメニューを閉じる")
+	assert.Equal(t, es.TransNone, trans.Type, "設定の切り替えなのでメニューは閉じない")
 
 	stay := followChoice(world, cube)
 	assert.Equal(t, query.T(world, "Stay here"), stay.Label, "追従中は待機を命じる")
