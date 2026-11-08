@@ -198,7 +198,8 @@ func ensureRemoved[T any](comp *ecs.Map[T], entity ecs.Entity) {
 
 // clearLocation はエンティティの既存の位置コンポーネントをすべて取り除く。
 // 排他制御のため、新しい位置を設定する前に呼ぶ（内部用）。
-// 移動元にOwnerがある場合はそのOwnerに WeightDirty マーカーを付与する
+// 移動元にOwnerがある場合はそのOwnerに WeightDirty マーカーを付与する。装備とモジュールを外したときは
+// 移動先に依らず StatsChanged も付け、上限を計算し直させる
 func clearLocation(world w.World, entity ecs.Entity) {
 	if world.Components.LocationInBackpack.Has(entity) {
 		owner := world.Components.LocationInBackpack.Get(entity).Owner
@@ -206,6 +207,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	}
 	if world.Components.LocationEquipped.Has(entity) {
 		owner := world.Components.LocationEquipped.Get(entity).Owner
+		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationInStorage.Has(entity) {
