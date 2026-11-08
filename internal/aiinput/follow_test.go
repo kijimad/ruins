@@ -97,3 +97,24 @@ func TestCullDistantSolo_追従中のキューブは圏外でも残す(t *testin
 	require.NoError(t, err)
 	assert.Equal(t, []ecs.Entity{following}, kept)
 }
+
+func TestPlanFollowAction_展開中は方針を保ったまま休む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 15, Y: 5})
+	require.NoError(t, err)
+	require.True(t, lifecycle.DeployCube(world, cube))
+	solo := world.Components.SoloAI.Get(cube)
+	solo.SubState = gc.AIStateDriving
+
+	rp := newSoloPlanner(newTestRNG())
+	act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
+
+	require.NotNil(t, act)
+	assert.Equal(t, gc.BehaviorWait, act.BehaviorName)
+	assert.Equal(t, gc.SoloFollow, solo.Movement)
+	assert.Equal(t, gc.AIStateWaiting, solo.SubState)
+	assert.Equal(t, consts.FuelGaugeFullHeat, query.CubeFuelTotal(world, cube))
+}

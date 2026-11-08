@@ -59,7 +59,7 @@ func TestNewCubeMenuState_圧縮中は追従が有効で設備が無効(t *testi
 	assert.True(t, facility.Disabled, "圧縮中は展開空間が無いので設備は無効")
 }
 
-func TestNewCubeMenuState_展開中は設備が有効で追従が無効(t *testing.T) {
+func TestNewCubeMenuState_展開中も追従を命じられ設備が有効(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
@@ -75,8 +75,9 @@ func TestNewCubeMenuState_展開中は設備が有効で追従が無効(t *testi
 	_, choices := menu.provide(world)
 	assert.Equal(t, query.T(world, "Compress"), choices[0].Label, "展開中は先頭が圧縮")
 
-	follow, _ := choiceByLabel(choices, query.T(world, "Follow me"))
-	assert.True(t, follow.Disabled, "展開中は追従できないので無効")
+	follow, ok := choiceByLabel(choices, query.T(world, "Follow me"))
+	require.True(t, ok)
+	assert.False(t, follow.Disabled, "展開中も方針を切り替えられる")
 	facility, ok := choiceByLabel(choices, query.T(world, "Facility"))
 	require.True(t, ok, "展開中も設備は並ぶ")
 	assert.False(t, facility.Disabled, "展開中は設備を装着できる")
@@ -89,21 +90,21 @@ func TestFollowChoice_追従と待機を切り替える(t *testing.T) {
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
 
-	follow := followChoice(world, cube, false)
+	follow := followChoice(world, cube)
 	assert.Equal(t, query.T(world, "Follow me"), follow.Label, "待機中は追従を命じる")
 	trans, err := follow.Run(world)
 	require.NoError(t, err)
 	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement)
 	assert.Equal(t, es.TransPop, trans.Type, "命じたらメニューを閉じる")
 
-	stay := followChoice(world, cube, false)
+	stay := followChoice(world, cube)
 	assert.Equal(t, query.T(world, "Stay here"), stay.Label, "追従中は待機を命じる")
 	_, err = stay.Run(world)
 	require.NoError(t, err)
 	assert.Equal(t, gc.SoloStationary, world.Components.SoloAI.Get(cube).Movement)
 }
 
-func TestDeployChoice_展開すると待機に切り替わる(t *testing.T) {
+func TestDeployChoice_展開しても追従の方針を保つ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
@@ -113,7 +114,7 @@ func TestDeployChoice_展開すると待機に切り替わる(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.Deployed.Has(cube))
-	assert.Equal(t, gc.SoloStationary, world.Components.SoloAI.Get(cube).Movement)
+	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement)
 }
 
 func TestDeployChoice_展開できないときログを出しメニューを閉じる(t *testing.T) {

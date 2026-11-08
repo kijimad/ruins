@@ -370,7 +370,12 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 // followStartDistance に開くまで待ち、開いたら追いつく状態へ移る。追いつく間は経路探索で1歩ずつ
 // 近づいて1歩分の燃料ポイントを払い、隣接したら休む状態へ戻る。状態は SubState の待機と移動で持つ。
 // 燃料ポイントが足りなければ待機の方針へ切り替えてログを出し、その場で待つ。
+// 展開中は野営の中心に据え付けてあるので、方針を保ったまま休む。
 func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
+	if world.Components.Deployed.Has(aiEntity) {
+		solo.SubState = gc.AIStateWaiting
+		return waitAction()
+	}
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return waitAction()

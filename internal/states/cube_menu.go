@@ -12,13 +12,13 @@ import (
 
 // NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接で開き、随伴の命令・展開と圧縮の
 // 切替・給油・キューブ情報の下位項目へ分岐する。給油は持ち物の可燃物を燃料ポイントへくべる。
-// 状態で使えない項目は消さずに無効表示で残す。追従は展開中、設備は圧縮中に無効になる。
+// 状態で使えない項目は消さずに無効表示で残す。設備は圧縮中に無効になる。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
 		deployed := world.Components.Deployed.Has(cube)
 		choices := []Choice{
 			deployChoice(world, cube),
-			followChoice(world, cube, deployed),
+			followChoice(world, cube),
 			Choice{Label: query.T(world, "Fuel"), Run: pushChoice(func() (es.State[w.World], error) {
 				return NewFeedFuelMenuState(CubeFuelSink(cube))
 			})},
@@ -41,8 +41,8 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 }
 
 // followChoice は随伴の命令を切り替える項目を返す。待機中なら追従を、追従中なら待機を命じる。
-// 追従は1マスの圧縮形態でだけできるので、展開中は無効表示にして消さない。
-func followChoice(world w.World, cube ecs.Entity, deployed bool) Choice {
+// 展開中も切り替えられ、圧縮するとその方針で動き出す。
+func followChoice(world w.World, cube ecs.Entity) Choice {
 	solo := world.Components.SoloAI.Get(cube)
 	if solo.Movement == gc.SoloFollow {
 		return Choice{Label: query.T(world, "Stay here"), Run: func(world w.World) (es.Transition[w.World], error) {
@@ -50,7 +50,7 @@ func followChoice(world w.World, cube ecs.Entity, deployed bool) Choice {
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}}
 	}
-	return Choice{Label: query.T(world, "Follow me"), Disabled: deployed, Run: func(world w.World) (es.Transition[w.World], error) {
+	return Choice{Label: query.T(world, "Follow me"), Run: func(world w.World) (es.Transition[w.World], error) {
 		world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}}
@@ -65,10 +65,7 @@ func deployChoice(world w.World, cube ecs.Entity) Choice {
 		}}
 	}
 	return Choice{Label: query.T(world, "Deploy"), Run: func(world w.World) (es.Transition[w.World], error) {
-		// 展開中は随伴しないので、展開に成功したら待機させる
-		if lifecycle.DeployCube(world, cube) {
-			world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
-		} else {
+		if !lifecycle.DeployCube(world, cube) {
 			gamelog.New(query.GetGameLog(world)).
 				Markup(query.T(world, "Not enough open space to deploy.")).
 				Log()
