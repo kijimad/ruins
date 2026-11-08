@@ -63,6 +63,7 @@ func TestDebugOverlay_Draw_有効ならAI状態と視界円とHPを描く(t *tes
 		},
 	})
 
-	_, _, _, a := screen.At(50, 50).RGBA()
-	assert.NotZero(t, a, "視界円の中心を塗る")
+	// 中心の頂点自体はラスタライズの境界に依存しうるので、円周の内側で確実に塗られる点を見る
+	_, _, _, a := screen.At(55, 50).RGBA()
+	assert.NotZero(t, a, "視界円の内側を塗る")
 }
