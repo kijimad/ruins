@@ -317,3 +317,19 @@ func TestStatsChangedSystem_モジュールの着脱でキューブの燃料タ�
 	require.NoError(t, sys.Update(world))
 	assert.Equal(t, gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}, *world.Components.FuelTank.Get(cube))
 }
+
+func TestStatsChangedSystem_能力値と燃料タンクを両方持つ実体はどちらも計算し直す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	world.Components.Abilities.Add(cube, &gc.Abilities{Agility: gc.Ability{Base: 5}})
+	*world.Components.FuelTank.Get(cube) = gc.FuelTank{Max: 1, Current: 1}
+	world.Components.StatsChanged.Add(cube, &gc.StatsChanged{})
+
+	require.NoError(t, (&StatsChangedSystem{}).Update(world))
+
+	assert.Equal(t, 5, world.Components.Abilities.Get(cube).Agility.Total)
+	assert.Equal(t, consts.CubeFuelCapacityBase, world.Components.FuelTank.Get(cube).Max)
+	assert.False(t, world.Components.StatsChanged.Has(cube))
+}
