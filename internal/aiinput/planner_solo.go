@@ -19,8 +19,7 @@ import (
 // territorialRadius はTerritorial移動パターンでスポーン地点から離れられる最大距離を定義する
 const territorialRadius consts.Tile = 5
 
-// followStartDistance は休んでいる随伴者が追いかけ始めるプレイヤーとのチェビシェフ距離。
-// 追いつくと隣で止まるので、隣接から少し離れたくらいでは動かず、間合いを持ってついてくる
+// followStartDistance は休んでいる随伴者が追いかけ始めるプレイヤーとのチェビシェフ距離
 const followStartDistance = 4
 
 // soloPlanner は敵・中立NPC用の行動計画を実装する。
@@ -366,11 +365,8 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 	return waitAction()
 }
 
-// planFollowAction は休む・追いつくの2状態で随伴する。休んでいる間はプレイヤーとの距離が
-// followStartDistance に開くまで待ち、開いたら追いつく状態へ移る。追いつく間は経路探索で1歩ずつ
-// 近づいて1歩分の燃料ポイントを払い、隣接したら休む状態へ戻る。状態は SubState の待機と移動で持つ。
-// 燃料ポイントが足りなければ待機の方針へ切り替えてログを出し、その場で待つ。
-// 展開中は野営の中心に据え付けてあるので、方針を保ったまま休む。
+// planFollowAction は休む・追いつくの2状態で随伴し、状態を SubState の待機と移動で持つ。
+// 燃料ポイントが足りなければ待機の方針へ切り替える。展開中は方針を保ったまま休む。
 func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
 	if world.Components.Deployed.Has(aiEntity) {
 		solo.SubState = gc.AIStateWaiting
@@ -397,12 +393,10 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 		return waitAction()
 	}
 
-	// 燃料は計画の時点で払う。AP 不足で runAPLoop が移動を捨てると燃料だけ減るので、払う前に
-	// 1歩分の AP を確かめ、足りなければ nil でこのターンの行動を終える
+	// AP 不足で runAPLoop が計画を捨てると燃料だけ減るので、払う前に1歩分の AP を確かめる
 	if tb := world.Components.TurnBased.Get(aiEntity); tb == nil || tb.AP.Current < consts.StandardActionCost {
 		return nil
 	}
-	// 経路探索は通れるマスだけを返すので、払った歩みが通行判定で失敗することはない
 	if !lifecycle.ConsumeCubeFuel(world, aiEntity, query.FollowFuelCost(query.CubeWeight(world, aiEntity))) {
 		solo.Movement = gc.SoloStationary
 		solo.SubState = gc.AIStateWaiting

@@ -162,10 +162,8 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 // cubeHP はキューブの耐久値。扉と同じ prop 標準の HP 機構に乗せる。移動拠点なので扉より頑丈にする
 const cubeHP = 200
 
-// SpawnCube はプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成する。
-// 宙に浮いて上下に揺れる無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。
-// 既存の NPC と同じ SoloAI で動き、陣営を持たないので戦闘の状態遷移に入らず、移動方針だけで動く。
-// 生成直後から追従し、燃料ポイントは満タン表示の基準量を持つ。
+// SpawnCube はプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成し、帯へ明示束縛する。
+// 陣営を持たないので、SoloAI の戦闘の状態遷移に入らず移動方針だけで動く。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
 	cube := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:        &gc.Name{Name: query.T(world, "Cube")},
@@ -192,8 +190,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
 		// 収納を持ち、隣接時にキューブメニューから開ける
 		WeightCapacity: &gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},
-		// 隣接でキューブメニューを開き、歩き込むと位置を入れ替える
-		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}},
+		Interactable:   &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}},
 	})
 	maxAP := query.CalculateMaxActionPoints(world, cube)
 	world.Components.TurnBased.Get(cube).AP = gc.IntPool{Current: maxAP, Max: maxAP}

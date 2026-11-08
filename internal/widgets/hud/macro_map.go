@@ -55,8 +55,7 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	drawFlexItems(cv, items)
 }
 
-// cubeStatusItems は地図の下へ積むキューブの欄を返す。名前の下に地図と同じ幅の燃料ゲージを置き、
-// 先頭0幅列で地図と右端をそろえる。
+// cubeStatusItems は地図の下へ積む、キューブの名前と地図と同じ幅の燃料ゲージを返す。
 func (m *MacroMap) cubeStatusItems(cube CubeStatusData, width int) []uicore.FlexItem {
 	_, labelH := uicore.MeasureText(cube.Name, m.labelFace)
 	label := uicore.Row([]int{0, width},

@@ -10,9 +10,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// NewCubeMenuState は移動拠点キューブの入口メニューを作る。隣接で開き、随伴の命令・展開と圧縮の
-// 切替・給油・キューブ情報の下位項目へ分岐する。給油は持ち物の可燃物を燃料ポイントへくべる。
-// 状態で使えない項目は消さずに無効表示で残す。設備は圧縮中に無効になる。
+// NewCubeMenuState は移動拠点キューブの入口メニューを作る。状態で使えない項目は消さずに無効表示で残す。
 func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	return NewChoiceMenu(func(world w.World) (string, []Choice) {
 		deployed := world.Components.Deployed.Has(cube)
@@ -40,9 +38,7 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 	}), nil
 }
 
-// followChoice は随伴の命令を切り替える項目を返す。待機中なら追従を、追従中なら待機を命じる。
-// 展開中も切り替えられ、圧縮するとその方針で動き出す。設定の切り替えなのでメニューは閉じず、
-// 毎フレーム組み直す項目の表示がその場で入れ替わる。
+// followChoice は随伴の方針を追従と待機で切り替える項目を返す。設定の切り替えなのでメニューは閉じない。
 func followChoice(world w.World, cube ecs.Entity) Choice {
 	solo := world.Components.SoloAI.Get(cube)
 	if solo.Movement == gc.SoloFollow {

@@ -239,8 +239,7 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 	return shifted, nil
 }
 
-// warnStrandedCube は南端の行に入ったキューブがあればログで警告する。南端の行は次の北シフトで
-// 中身ごと破棄されるので、キューブを置き去りにする前に知らせる。
+// warnStrandedCube は次の北シフトで破棄される南端の行にキューブがあればログで警告する。
 func (dr *Driver) warnStrandedCube(world w.World) {
 	for _, tile := range query.CubeTiles(world) {
 		if dr.band.InSouthRow(tile.Y) {

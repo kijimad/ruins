@@ -357,7 +357,6 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 }
 
 // NewFeedFuelMenuState は給油メニューを作る。くべ先は呼ぶ側が FireFuelSink・CubeFuelSink で決める。
-// 表示と操作は FeedFuelMenuState が担う
 func NewFeedFuelMenuState(sink FuelSink) (es.State[w.World], error) {
 	return &FeedFuelMenuState{sink: sink}, nil
 }

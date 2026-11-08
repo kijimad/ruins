@@ -20,8 +20,7 @@ import (
 )
 
 // FeedFuelMenuState は給油メニュー。持ち物の燃料をくべ先 FuelSink へくべる。
-// 収納やインベントリと同じ item-row 形式で、アイコン・名前・右寄せの増える量を出す。
-// くべても閉じず、続けて足せる。見出しと増える量の表し方はくべ先が決める。
+// くべても閉じず、続けて足せる。
 type FeedFuelMenuState struct {
 	es.BaseState[w.World]
 	sink   FuelSink
