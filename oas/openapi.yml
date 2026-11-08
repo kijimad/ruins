@@ -2000,6 +2000,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContentVec'
+        lootTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 収納家具の中身を引く itemTables の id。収納家具では必須
       description: anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
     ContentStuff:
       type: object
@@ -2024,6 +2028,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContentSatellite'
+        lootTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 収納家具の中身を引く itemTables の id。収納家具では必須
       description: 内装レシピの1配置指示
     ContentVec:
       type: object
@@ -2359,11 +2367,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FacilityZone'
-        lootOverrides:
-          type: array
-          items:
-            $ref: '#/components/schemas/LootOverride'
-          description: 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
         lootedChance:
           type: integer
           format: int32
@@ -2807,17 +2810,6 @@ components:
         enabled:
           $ref: '#/components/schemas/LightEnabled'
       description: 光源設定
-    LootOverride:
-      type: object
-      required:
-        - from
-        - to
-      properties:
-        from:
-          $ref: '#/components/schemas/EntityID'
-        to:
-          $ref: '#/components/schemas/EntityID'
-      description: 家具の戦利品表 from を、この施設では to に差し替える。どちらも itemTables の id
     MagazineSize:
       type: integer
       minimum: 1

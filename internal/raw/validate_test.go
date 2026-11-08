@@ -374,32 +374,36 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 	})
 }
 
-func TestValidateFacilityLootOverrides(t *testing.T) {
+func TestValidateContentLootTables(t *testing.T) {
 	t.Parallel()
 
-	itemTables := &[]oapi.ItemTable{{Id: "storage_box"}, {Id: "house_storage"}, {Id: "unused_table"}}
-	closetTable := "storage_box"
-	props := &[]oapi.Prop{{Id: "closet", Storage: &oapi.StorageRaw{LootTableId: &closetTable}}}
+	itemTables := &[]oapi.ItemTable{{Id: "house_closet"}}
+	known, unknown := "house_closet", "no_such"
 	tests := []struct {
 		name    string
-		from    string
-		to      string
+		item    *oapi.EntityID
+		sat     *oapi.EntityID
 		wantErr error
 	}{
-		{"家具の表を実在する表へ差し替えると通る", "storage_box", "house_storage", nil},
-		{"差し替え元が無いとエラー", "no_such", "house_storage", errFacilityLootTableUndefined},
-		{"差し替え先が無いとエラー", "storage_box", "no_such", errFacilityLootTableUndefined},
-		{"どの家具も引かない表の差し替えはエラー", "unused_table", "house_storage", errFacilityLootOverrideUnused},
+		{"実在する表は通る", &known, &known, nil},
+		{"表を書かない家具は通る", nil, nil, nil},
+		{"家具の表が無いとエラー", &unknown, nil, errContentLootTableUndefined},
+		{"衛星の表が無いとエラー", nil, &unknown, errContentLootTableUndefined},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			raws := oapi.Raws{
 				ItemTables: itemTables,
-				Props:      props,
-				Facilities: &[]oapi.Facility{{Id: "house", LootOverrides: &[]oapi.LootOverride{{From: tt.from, To: tt.to}}}},
+				InteriorContents: &[]oapi.InteriorContent{{Id: "bedroom", Groups: &[]oapi.ContentGroup{{
+					Style: oapi.PickEach,
+					Items: []oapi.ContentStuff{{
+						Kind: oapi.Furniture, Ref: "closet", Amount: "1d1", LootTable: tt.item,
+						Satellites: &[]oapi.ContentSatellite{{Kind: oapi.Furniture, Ref: "closet", LootTable: tt.sat}},
+					}},
+				}}}},
 			}
-			require.ErrorIs(t, validateFacilityLootOverrides(raws), tt.wantErr)
+			require.ErrorIs(t, validateContentLootTables(raws), tt.wantErr)
 		})
 	}
 }

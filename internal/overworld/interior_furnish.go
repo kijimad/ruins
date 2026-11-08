@@ -129,7 +129,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to place interior prop (%s at %d,%d): %w", name, pos.X, pos.Y, err)
 			}
-			if err := populateStorageLoot(world, ent, name, fac, lootRNG); err != nil {
+			if err := populateStorageLoot(world, ent, name, p.LootTable, fac, lootRNG); err != nil {
 				return nil, nil, fmt.Errorf("failed to populate storage loot (%s): %w", name, err)
 			}
 			occupied[pos] = true
@@ -185,22 +185,23 @@ func spawnInteriorBeing(world w.World, fac string, danger consts.Danger, pos con
 	return err
 }
 
-// populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item
-// テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の
-// DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
-// overworld は建物ローカルの決定的 RNG を使う。表は施設 fac の差し替えに従い、施設の荒らされ率で空のまま残す。
-func populateStorageLoot(world w.World, entity ecs.Entity, propName, fac string, rng *rand.Rand) error {
+// populateStorageLoot は収納家具に、部屋の定義が書いた戦利品表 tableID から件数ぶん重み抽選して入れる。
+// ダンジョン生成の populateStorageLoot と同型で、overworld は建物ローカルの決定的 RNG を使う。施設 fac の
+// 荒らされ率で空のまま残す。収納家具なのに表が無ければ部屋の定義の書き漏れとして error を返す。
+func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, rng *rand.Rand) error {
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
 	if err != nil {
 		return err
 	}
-	if propRaw.Storage == nil || propRaw.Storage.LootTableId == nil || *propRaw.Storage.LootTableId == "" {
+	if propRaw.Storage == nil {
 		return nil // 収納でない家具は何も入れない
+	}
+	if tableID == "" {
+		return fmt.Errorf("storage furniture %q has no loot table in the room definition", propName)
 	}
 	if rng.IntN(100) < raw.FacilityLootedChance(world.Resources.RawMaster, fac) {
 		return nil
 	}
-	tableID := raw.FacilityLootTable(world.Resources.RawMaster, fac, *propRaw.Storage.LootTableId)
 	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, tableID)
 	if err != nil {
 		return err

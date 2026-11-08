@@ -19,8 +19,7 @@ var (
 	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
 	errFacilityKeyUndefined           = errors.New("references undefined facility")
 	errZoneNoBaseFacility             = errors.New("zone has no base facility")
-	errFacilityLootTableUndefined     = errors.New("facility loot override references undefined item table")
-	errFacilityLootOverrideUnused     = errors.New("facility loot override replaces an item table no storage prop uses")
+	errContentLootTableUndefined      = errors.New("interior content references undefined loot table")
 	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
 	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
 	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
@@ -105,7 +104,7 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateFacilityReferences(raws); err != nil {
 		return err
 	}
-	if err := validateFacilityLootOverrides(raws); err != nil {
+	if err := validateContentLootTables(raws); err != nil {
 		return err
 	}
 	if err := validateInteriorContentReferences(raws); err != nil {
@@ -269,30 +268,33 @@ func validateFacilityReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateFacilityLootOverrides は施設の戦利品表の差し替えが実在する itemTables を指し、
-// 差し替え元がいずれかの収納家具の表であることを検証する。どの家具も引かない表を差し替えても効かないため。
-func validateFacilityLootOverrides(raws oapi.Raws) error {
+// validateContentLootTables は内装レシピの家具と衛星が書く戦利品表が実在する itemTables であることを検証する。
+func validateContentLootTables(raws oapi.Raws) error {
 	tables := PtrSlice(raws.ItemTables)
 	tableIDs := make(map[string]struct{}, len(tables))
 	for i := range tables {
 		tableIDs[tables[i].Id] = struct{}{}
 	}
-	storageTables := make(map[string]struct{})
-	props := PtrSlice(raws.Props)
-	for i := range props {
-		if st := props[i].Storage; st != nil && st.LootTableId != nil {
-			storageTables[*st.LootTableId] = struct{}{}
+	check := func(content, ref string, table *oapi.EntityID) error {
+		if table == nil {
+			return nil
 		}
+		if _, ok := tableIDs[*table]; !ok {
+			return fmt.Errorf("interior content %q ref %q references loot table %q: %w", content, ref, *table, errContentLootTableUndefined)
+		}
+		return nil
 	}
-	for _, f := range PtrSlice(raws.Facilities) {
-		for _, o := range PtrSlice(f.LootOverrides) {
-			for _, id := range []string{o.From, o.To} {
-				if _, ok := tableIDs[id]; !ok {
-					return fmt.Errorf("facility %q references item table %q: %w", f.Id, id, errFacilityLootTableUndefined)
+	for _, ic := range PtrSlice(raws.InteriorContents) {
+		for _, g := range PtrSlice(ic.Groups) {
+			for _, it := range g.Items {
+				if err := check(ic.Id, it.Ref, it.LootTable); err != nil {
+					return err
 				}
-			}
-			if _, ok := storageTables[o.From]; !ok {
-				return fmt.Errorf("facility %q replaces item table %q: %w", f.Id, o.From, errFacilityLootOverrideUnused)
+				for _, sat := range PtrSlice(it.Satellites) {
+					if err := check(ic.Id, sat.Ref, sat.LootTable); err != nil {
+						return err
+					}
+				}
 			}
 		}
 	}

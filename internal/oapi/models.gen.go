@@ -1152,9 +1152,12 @@ type ContentGroup struct {
 // ContentSatellite anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
 type ContentSatellite struct {
 	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
-	Kind    StuffKind    `json:"kind"`
-	Offsets []ContentVec `json:"offsets"`
-	Ref     EntityID     `json:"ref"`
+	Kind StuffKind `json:"kind"`
+
+	// LootTable 収納家具の中身を引く itemTables の id。収納家具では必須
+	LootTable *EntityID    `json:"lootTable,omitempty"`
+	Offsets   []ContentVec `json:"offsets"`
+	Ref       EntityID     `json:"ref"`
 }
 
 // ContentStuff 内装レシピの1配置指示
@@ -1164,6 +1167,9 @@ type ContentStuff struct {
 
 	// Kind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
 	Kind StuffKind `json:"kind"`
+
+	// LootTable 収納家具の中身を引く itemTables の id。収納家具では必須
+	LootTable *EntityID `json:"lootTable,omitempty"`
 
 	// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
 	Placement  *Placement          `json:"placement,omitempty"`
@@ -1375,9 +1381,6 @@ type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
 	Id         EntityID `json:"id"`
 	IsShop     bool     `json:"isShop"`
-
-	// LootOverrides 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
-	LootOverrides *[]LootOverride `json:"lootOverrides,omitempty"`
 
 	// LootedChance 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	LootedChance *int32 `json:"lootedChance,omitempty"`
@@ -1683,12 +1686,6 @@ type LightSource struct {
 
 	// Radius 光の到達半径（タイル単位）
 	Radius LightRadius `json:"radius"`
-}
-
-// LootOverride 家具の戦利品表 from を、この施設では to に差し替える。どちらも itemTables の id
-type LootOverride struct {
-	From EntityID `json:"from"`
-	To   EntityID `json:"to"`
 }
 
 // MagazineSize マガジン容量

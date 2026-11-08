@@ -25,32 +25,6 @@ func TestGetFacility(t *testing.T) {
 	})
 }
 
-func TestFacilityLootTable(t *testing.T) {
-	t.Parallel()
-	raws := oapi.Raws{Facilities: &[]oapi.Facility{
-		{Id: "house", LootOverrides: &[]oapi.LootOverride{{From: "storage_box", To: "house_storage"}}},
-		{Id: "office"},
-	}}
-
-	tests := []struct {
-		name  string
-		fac   string
-		table string
-		want  string
-	}{
-		{"差し替えのある表は施設用の表になる", "house", "storage_box", "house_storage"},
-		{"差し替えの無い表はそのまま", "house", "pantry", "pantry"},
-		{"差し替えを持たない施設はそのまま", "office", "storage_box", "storage_box"},
-		{"未登録の施設はそのまま", "no_such", "storage_box", "storage_box"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, FacilityLootTable(raws, tt.fac, tt.table))
-		})
-	}
-}
-
 func TestFacilityLootedChance(t *testing.T) {
 	t.Parallel()
 	looted := int32(80)
