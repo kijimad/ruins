@@ -280,6 +280,31 @@ func TestExtractStatusBadgesData_不調バッジ(t *testing.T) {
 	assert.Contains(t, texts, "Hypothermia Medium", "低体温は体温バッジで出る")
 }
 
+func TestExtractStatusBadgesData_同じ種類の不調を1つにまとめて現在言語で出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	query.GetUserSettings(world).Language = "ja"
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Hunger.Add(player, &gc.Hunger{Current: 100, Max: 500})
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartLegs].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 90, Severity: gc.TimerToSeverity(90)})
+	hs.Parts[gc.BodyPartFeet].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartHead].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 30, Severity: gc.TimerToSeverity(30)})
+	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	world.Components.HealthStatus.Add(player, hs)
+
+	data := extractStatusBadgesData(world, hud.DefaultMessageAreaConfig.Height())
+
+	texts := make([]string, 0, len(data.Badges))
+	for _, b := range data.Badges {
+		texts = append(texts, b.Text)
+	}
+	assert.Equal(t, []string{"飢餓", "低体温 中", "切り傷 軽", "骨折 重 ×3"}, texts)
+}
+
 func TestExtractMessageData_メッセージ履歴と画面情報を反映する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

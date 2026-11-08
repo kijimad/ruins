@@ -30,7 +30,7 @@ func injuryTypeFor(attackType gc.AttackType) gc.ConditionType {
 }
 
 // applyInjury は命中時に確率で命中部位へ怪我を1つ付ける。
-// 怪我の種類は武器種から導き、命中部位は部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
+// 怪我の種類は武器種から導き、命中部位はその怪我が起こりうる部位から部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
 // 同じ部位に同種の怪我が既にあれば付けない。種類や部位が違う傷は独立で、身体機能と失血は全傷が合算される
 func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	if !world.Components.HealthStatus.Has(target) {
@@ -40,8 +40,8 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 		return
 	}
 
-	part := randomHitPart(world)
 	injuryType := injuryTypeFor(attack.GetAttackCategory())
+	part := randomHitPart(world, injuryType)
 
 	hs := world.Components.HealthStatus.Get(target)
 	if hs.Parts[part].CountConditions(injuryType) >= maxInjuriesPerPartType {
@@ -56,25 +56,33 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	logInjury(actor, target, world, part, injuryType)
 }
 
-// randomHitPart は命中部位を重みで抽選する
-func randomHitPart(world w.World) gc.BodyPart {
-	return hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight()))
+// randomHitPart は怪我 ct が起こりうる部位から命中部位を重みで抽選する
+func randomHitPart(world w.World, ct gc.ConditionType) gc.BodyPart {
+	return hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight(ct)), ct)
 }
 
-// totalHitWeight は全部位の命中重みの合計を返す
-func totalHitWeight() int {
+// hitWeight は怪我 ct の命中抽選での部位 part の重みを返す。起こりえない部位は0
+func hitWeight(part gc.BodyPart, ct gc.ConditionType) int {
+	if !gc.ConditionCanAffect(ct, part) {
+		return 0
+	}
+	return gc.BodyPartHitWeight(part)
+}
+
+// totalHitWeight は怪我 ct が起こりうる部位の命中重みの合計を返す
+func totalHitWeight(ct gc.ConditionType) int {
 	total := 0
 	for p := range gc.BodyPartCount {
-		total += gc.BodyPartHitWeight(p)
+		total += hitWeight(p, ct)
 	}
 	return total
 }
 
 // hitPartForRoll は重み合計内の roll を命中部位へ写す。roll は [0, totalHitWeight) を想定する。
 // 部位順に走査し、重み 0 の部位は飛ばすので、命中先は必ず重みのある部位になる
-func hitPartForRoll(roll int) gc.BodyPart {
+func hitPartForRoll(roll int, ct gc.ConditionType) gc.BodyPart {
 	for p := range gc.BodyPartCount {
-		weight := gc.BodyPartHitWeight(p)
+		weight := hitWeight(p, ct)
 		if weight == 0 {
 			continue
 		}

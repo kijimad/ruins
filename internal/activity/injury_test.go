@@ -21,15 +21,28 @@ func TestInjuryTypeFor(t *testing.T) {
 	assert.Equal(t, gc.ConditionLaceration, injuryTypeFor(gc.AttackRifle), "射撃は切り傷")
 }
 
-func TestHitPartForRoll_全rollが重みのある部位へ写る(t *testing.T) {
+func TestHitPartForRoll_全rollが起こりうる部位へ写る(t *testing.T) {
 	t.Parallel()
 
-	// 取りうる roll をすべて走査し、どの値でも命中先が重みのある部位になることを保証する。
-	// ランダム標本でなく全数なので不変条件を証明できる
-	for roll := range totalHitWeight() {
-		part := hitPartForRoll(roll)
-		assert.NotEqual(t, gc.BodyPartWholeBody, part, "全身は命中先にしない")
-		assert.Positive(t, gc.BodyPartHitWeight(part), "重みのある部位だけ選ぶ")
+	// 取りうる roll をすべて走査し、命中先の部位の集合を固定する。ランダム標本でなく全数なので不変条件を証明できる
+	tests := []struct {
+		ct   gc.ConditionType
+		want []gc.BodyPart
+	}{
+		{gc.ConditionFracture, []gc.BodyPart{gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
+		{gc.ConditionLaceration, []gc.BodyPart{gc.BodyPartHead, gc.BodyPartTorso, gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
+	}
+	for _, tt := range tests {
+		seen := map[gc.BodyPart]bool{}
+		var got []gc.BodyPart
+		for roll := range totalHitWeight(tt.ct) {
+			part := hitPartForRoll(roll, tt.ct)
+			if !seen[part] {
+				seen[part] = true
+				got = append(got, part)
+			}
+		}
+		assert.Equal(t, tt.want, got, "%s の命中先", tt.ct)
 	}
 }
 

@@ -141,20 +141,21 @@ func TestHealthCondition_IsActive(t *testing.T) {
 	}
 }
 
-func TestHealthCondition_DisplayName(t *testing.T) {
+func TestConditionCanAffect(t *testing.T) {
 	t.Parallel()
 
-	t.Run("SeverityNoneは重症度表示なし", func(t *testing.T) {
-		t.Parallel()
-		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityNone}
-		assert.Equal(t, "Hypothermia", hc.DisplayName())
-	})
-
-	t.Run("低体温で軽度", func(t *testing.T) {
-		t.Parallel()
-		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityMinor}
-		assert.Equal(t, "Hypothermia Minor", hc.DisplayName())
-	})
+	var fracture []BodyPart
+	var laceration []BodyPart
+	for p := range BodyPartCount {
+		if ConditionCanAffect(ConditionFracture, p) {
+			fracture = append(fracture, p)
+		}
+		if ConditionCanAffect(ConditionLaceration, p) {
+			laceration = append(laceration, p)
+		}
+	}
+	assert.Equal(t, []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, fracture, "骨折は手足だけ")
+	assert.Len(t, laceration, int(BodyPartCount), "切り傷は全部位")
 }
 
 func TestConditionTypeDisplayName(t *testing.T) {
