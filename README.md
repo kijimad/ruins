@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| accepted | [施設の多様化](docs/design/261108165219.md) | 0/14 | worldgen, item, gamedesign |
 
 
 ## Reference
