@@ -175,7 +175,8 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, fac string,
 	if rng.IntN(100) < raw.FacilityLootedChance(world.Resources.RawMaster, fac) {
 		return nil
 	}
-	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, raw.FacilityLootTable(world.Resources.RawMaster, fac, *propRaw.Storage.LootTableId))
+	tableID := raw.FacilityLootTable(world.Resources.RawMaster, fac, *propRaw.Storage.LootTableId)
+	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, tableID)
 	if err != nil {
 		return err
 	}
