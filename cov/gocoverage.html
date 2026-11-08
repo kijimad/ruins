@@ -105,7 +105,7 @@
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (86.8%)</option>
+				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.2%)</option>
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -473,7 +473,7 @@
 				
 				<option value="file208">github.com/kijimaD/ruins/internal/overworld/grass_density.go (100.0%)</option>
 				
-				<option value="file209">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (84.2%)</option>
+				<option value="file209">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.2%)</option>
 				
 				<option value="file210">github.com/kijimaD/ruins/internal/overworld/landmark.go (87.7%)</option>
 				
@@ -501,9 +501,9 @@
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file223">github.com/kijimaD/ruins/internal/raw/raw.go (98.1%)</option>
+				<option value="file223">github.com/kijimaD/ruins/internal/raw/raw.go (98.2%)</option>
 				
-				<option value="file224">github.com/kijimaD/ruins/internal/raw/validate.go (95.5%)</option>
+				<option value="file224">github.com/kijimaD/ruins/internal/raw/validate.go (95.4%)</option>
 				
 				<option value="file225">github.com/kijimaD/ruins/internal/raw/weighted.go (93.3%)</option>
 				
@@ -5371,7 +5371,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -21847,6 +21847,7 @@ func toContent(ic oapi.InteriorContent) (Content, error) {
                                 Amount:     amount,
                                 Placement:  Placement(deref(s.Placement)),
                                 Satellites: toSatellites(s.Satellites),
+                                LootTable:  deref(s.LootTable),
                         })</span>
                 }
                 <span class="cov8" title="1">c.Groups = append(c.Groups, grp)</span>
@@ -21873,7 +21874,7 @@ func toSatellites(in *[]oapi.ContentSatellite) []Satellite {
 </span>        }
         <span class="cov8" title="1">out := make([]Satellite, 0, len(items))
         for _, s := range items </span>{
-                <span class="cov8" title="1">sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref}
+                <span class="cov8" title="1">sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref, LootTable: deref(s.LootTable)}
                 for _, o := range s.Offsets </span>{
                         <span class="cov8" title="1">sat.Offsets = append(sat.Offsets, Vec{X: consts.Tile(o.X), Y: consts.Tile(o.Y)})
 </span>                }
@@ -22241,9 +22242,10 @@ func PlanClinic(footprint Rect, seed uint64) []PlannedRoom {
 
 // Placed は座標の付いた1配置。FillRoom の出力で、レンダラや ECS への spawn の入力になる。
 type Placed struct {
-        Kind StuffKind
-        Ref  string
-        Pos  Vec
+        Kind      StuffKind
+        Ref       string
+        Pos       Vec
+        LootTable string // 収納家具の中身を引く itemTables の id。収納でなければ空
 }
 
 // FillRoom は content を解決し、各 Selection を placement 意味論に従って部屋のタイルへ置く。
@@ -22275,12 +22277,12 @@ func placeSelections(seed uint64, room Room, selections []Selection, occupied ma
                 <span class="cov8" title="1">s := childSeed(seed, 1_000_000+i)
                 for _, t := range selectTiles(room, sel.Placement, occupied, s, sel.Count) </span>{
                         <span class="cov8" title="1">occupied[t] = true
-                        placed = append(placed, Placed{Kind: sel.Kind, Ref: sel.Ref, Pos: t})
+                        placed = append(placed, Placed{Kind: sel.Kind, Ref: sel.Ref, Pos: t, LootTable: sel.LootTable})
 </span>                        // anchor と一緒に衛星を束で置く。机に対する椅子や蝋燭の輪など
                         <span class="cov8" title="1">for _, sat := range sel.Satellites </span>{
                                 <span class="cov8" title="1">if pos, ok := placeSatellite(room, occupied, t, sat); ok </span>{
                                         <span class="cov8" title="1">occupied[pos] = true
-                                        placed = append(placed, Placed{Kind: sat.Kind, Ref: sat.Ref, Pos: pos})
+                                        placed = append(placed, Placed{Kind: sat.Kind, Ref: sat.Ref, Pos: pos, LootTable: sat.LootTable})
 </span>                                }
                         }
                 }
@@ -23466,6 +23468,7 @@ func selectionOf(it Stuff, count int) Selection {
                 Count:      count,
                 Placement:  placementOf(it.Ref, it.Placement),
                 Satellites: it.Satellites,
+                LootTable:  it.LootTable,
 </span>        }
 }
 
@@ -28871,7 +28874,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
                         if err != nil </span>{
                                 <span class="cov0" title="0">return nil, nil, fmt.Errorf("failed to place interior prop (%s at %d,%d): %w", name, pos.X, pos.Y, err)
 </span>                        }
-                        <span class="cov8" title="1">if err := populateStorageLoot(world, ent, name, lootRNG); err != nil </span>{
+                        <span class="cov8" title="1">if err := populateStorageLoot(world, ent, name, p.LootTable, fac, lootRNG); err != nil </span>{
                                 <span class="cov0" title="0">return nil, nil, fmt.Errorf("failed to populate storage loot (%s): %w", name, err)
 </span>                        }
                         <span class="cov8" title="1">occupied[pos] = true</span>
@@ -28910,19 +28913,28 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
         <span class="cov8" title="1">return nil</span>
 }
 
-// populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item
-// テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の
-// DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
-// overworld は建物ローカルの決定的 RNG を使う。
-func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng *rand.Rand) error {
+// populateStorageLoot は収納家具に、部屋の定義が書いた戦利品表 tableID から件数ぶん重み抽選して入れる。
+// ダンジョン生成の populateStorageLoot と同型で、overworld は建物ローカルの決定的 RNG を使う。施設 fac の
+// 荒らされ率で空のまま残す。収納家具なのに表が無ければ部屋の定義の書き漏れとして error を返す。
+func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, rng *rand.Rand) error {
         <span class="cov8" title="1">propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov8" title="1">if propRaw.Storage == nil || propRaw.Storage.LootTableId == nil || *propRaw.Storage.LootTableId == "" </span>{
+        <span class="cov8" title="1">if propRaw.Storage == nil </span>{
                 <span class="cov8" title="1">return nil // 収納でない家具は何も入れない
 </span>        }
-        <span class="cov8" title="1">itemTable, err := raw.GetItemTable(world.Resources.RawMaster, *propRaw.Storage.LootTableId)
+        <span class="cov8" title="1">if tableID == "" </span>{
+                <span class="cov8" title="1">return fmt.Errorf("storage furniture %q has no loot table in the room definition", propName)
+</span>        }
+        <span class="cov8" title="1">looted, err := raw.FacilityLootedChance(world.Resources.RawMaster, fac)
+        if err != nil </span>{
+                <span class="cov8" title="1">return err
+</span>        }
+        <span class="cov8" title="1">if rng.IntN(100) &lt; looted </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov8" title="1">itemTable, err := raw.GetItemTable(world.Resources.RawMaster, tableID)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -31501,6 +31513,18 @@ func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
         <span class="cov8" title="1">return findByKey(raws.Facilities, func(f oapi.Facility) string </span>{ <span class="cov8" title="1">return f.Id }</span>, id)
 }
 
+// FacilityLootedChance は施設 fac の収納家具が荒らされて空になっている確率を百分率で返す。省略は0。
+func FacilityLootedChance(raws oapi.Raws, fac string) (int, error) {
+        <span class="cov8" title="1">f, ok := GetFacility(raws, fac)
+        if !ok </span>{
+                <span class="cov8" title="1">return 0, NewKeyNotFoundError(fac, "Facilities")
+</span>        }
+        <span class="cov8" title="1">if f.LootedChance == nil </span>{
+                <span class="cov8" title="1">return 0, nil
+</span>        }
+        <span class="cov8" title="1">return int(*f.LootedChance), nil</span>
+}
+
 // GetLandmark は id のランドマーク宣言を返す。未登録は false。
 func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
         <span class="cov8" title="1">return findByKey(raws.Landmarks, func(l oapi.Landmark) string </span>{ <span class="cov8" title="1">return l.Id }</span>, id)
@@ -31787,6 +31811,7 @@ var (
         errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
         errFacilityKeyUndefined           = errors.New("references undefined facility")
         errZoneNoBaseFacility             = errors.New("zone has no base facility")
+        errContentLootTableUndefined      = errors.New("interior content references undefined loot table")
         errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
         errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
         errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
@@ -31870,6 +31895,9 @@ func ValidateReferences(raws oapi.Raws) error {
 </span>        }
         <span class="cov8" title="1">if err := validateFacilityReferences(raws); err != nil </span>{
                 <span class="cov8" title="1">return err
+</span>        }
+        <span class="cov8" title="1">if err := validateContentLootTables(raws); err != nil </span>{
+                <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if err := validateInteriorContentReferences(raws); err != nil </span>{
                 <span class="cov8" title="1">return err
@@ -32028,6 +32056,39 @@ func validateFacilityReferences(raws oapi.Raws) error {
                 <span class="cov8" title="1">if _, ok := facilityIDs[fr.Facility]; !ok </span>{
                         <span class="cov0" title="0">return fmt.Errorf("facilityRooms references unknown facility %q: %w", fr.Facility, errFacilityKeyUndefined)
 </span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateContentLootTables は内装レシピの家具と衛星が書く戦利品表が実在する itemTables であることを検証する。
+func validateContentLootTables(raws oapi.Raws) error {
+        <span class="cov8" title="1">tables := PtrSlice(raws.ItemTables)
+        tableIDs := make(map[string]struct{}, len(tables))
+        for i := range tables </span>{
+                <span class="cov8" title="1">tableIDs[tables[i].Id] = struct{}{}
+</span>        }
+        <span class="cov8" title="1">check := func(content, ref string, table *oapi.EntityID) error </span>{
+                <span class="cov8" title="1">if table == nil </span>{
+                        <span class="cov8" title="1">return nil
+</span>                }
+                <span class="cov8" title="1">if _, ok := tableIDs[*table]; !ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("interior content %q ref %q references loot table %q: %w", content, ref, *table, errContentLootTableUndefined)
+</span>                }
+                <span class="cov8" title="1">return nil</span>
+        }
+        <span class="cov8" title="1">for _, ic := range PtrSlice(raws.InteriorContents) </span>{
+                <span class="cov8" title="1">for _, g := range PtrSlice(ic.Groups) </span>{
+                        <span class="cov8" title="1">for _, it := range g.Items </span>{
+                                <span class="cov8" title="1">if err := check(ic.Id, it.Ref, it.LootTable); err != nil </span>{
+                                        <span class="cov8" title="1">return err
+</span>                                }
+                                <span class="cov8" title="1">for _, sat := range PtrSlice(it.Satellites) </span>{
+                                        <span class="cov8" title="1">if err := check(ic.Id, sat.Ref, sat.LootTable); err != nil </span>{
+                                                <span class="cov8" title="1">return err
+</span>                                        }
+                                }
+                        }
+                }
         }
         <span class="cov8" title="1">return nil</span>
 }

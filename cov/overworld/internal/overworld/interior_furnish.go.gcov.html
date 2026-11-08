@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.0&nbsp;%</td>
-            <td class="headerCovTableEntry">121</td>
-            <td class="headerCovTableEntry">92</td>
+            <td class="headerCovTableEntryMed">77.9&nbsp;%</td>
+            <td class="headerCovTableEntry">131</td>
+            <td class="headerCovTableEntry">102</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-08 08:01:42</td>
+            <td class="headerValue">2026-11-08 15:42:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -183,7 +183,7 @@
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return nil, nil, fmt.Errorf(&quot;failed to place interior prop (%s at %d,%d): %w&quot;, name, pos.X, pos.Y, err)</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC tlaBgGNC">           1 :                         if err := populateStorageLoot(world, ent, name, lootRNG); err != nil {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC tlaBgGNC">           1 :                         if err := populateStorageLoot(world, ent, name, p.LootTable, fac, lootRNG); err != nil {</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return nil, nil, fmt.Errorf(&quot;failed to populate storage loot (%s): %w&quot;, name, err)</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           1 :                         occupied[pos] = true</span></span>
@@ -222,54 +222,63 @@
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L161"><span class="lineNum">     161</span>              : }</span>
 <span id="L162"><span class="lineNum">     162</span>              : </span>
-<span id="L163"><span class="lineNum">     163</span>              : // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item</span>
-<span id="L164"><span class="lineNum">     164</span>              : // テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の</span>
-<span id="L165"><span class="lineNum">     165</span>              : // DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、</span>
-<span id="L166"><span class="lineNum">     166</span>              : // overworld は建物ローカルの決定的 RNG を使う。</span>
-<span id="L167"><span class="lineNum">     167</span>              : func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng *rand.Rand) error {</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC tlaBgGNC">           1 :         if propRaw.Storage == nil || propRaw.Storage.LootTableId == nil || *propRaw.Storage.LootTableId == &quot;&quot; {</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 return nil // 収納でない家具は何も入れない</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         itemTable, err := raw.GetItemTable(world.Resources.RawMaster, *propRaw.Storage.LootTableId)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L179"><span class="lineNum">     179</span>              :         // ルート数はダイス表記で決める。省略時は1個</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :         lootDice := consts.Dice{Base: 1, Sides: 1}</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if propRaw.Storage.LootCount != nil {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 d, err := consts.ParseDice(*propRaw.Storage.LootCount)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;invalid lootCount notation for storage '%s': %w&quot;, propName, err)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC tlaBgGNC">           1 :                 lootDice = d</span></span>
-<span id="L187"><span class="lineNum">     187</span>              :         }</span>
-<span id="L188"><span class="lineNum">     188</span>              :         // 危険度は北進度と経過日数の高い方。収納物のタイル位置を AbsChunkRow でチャンク行へ移して深度を引く</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         danger := query.DangerLevelAt(world)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         if sb := query.GetSeamlessBand(world); sb != nil {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 if d := query.DangerLevelForDepth(depth); d &gt; danger {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                         danger = d</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L195"><span class="lineNum">     195</span>              :         }</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         n := lootDice.Roll(rng)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         for range n {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L204"><span class="lineNum">     204</span>              :                 }</span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L208"><span class="lineNum">     208</span>              :         }</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L210"><span class="lineNum">     210</span>              : }</span>
+<span id="L163"><span class="lineNum">     163</span>              : // populateStorageLoot は収納家具に、部屋の定義が書いた戦利品表 tableID から件数ぶん重み抽選して入れる。</span>
+<span id="L164"><span class="lineNum">     164</span>              : // ダンジョン生成の populateStorageLoot と同型で、overworld は建物ローカルの決定的 RNG を使う。施設 fac の</span>
+<span id="L165"><span class="lineNum">     165</span>              : // 荒らされ率で空のまま残す。収納家具なのに表が無ければ部屋の定義の書き漏れとして error を返す。</span>
+<span id="L166"><span class="lineNum">     166</span>              : func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, rng *rand.Rand) error {</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC tlaBgGNC">           1 :         if propRaw.Storage == nil {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 return nil // 収納でない家具は何も入れない</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         if tableID == &quot;&quot; {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;storage furniture %q has no loot table in the room definition&quot;, propName)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         looted, err := raw.FacilityLootedChance(world.Resources.RawMaster, fac)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 return err</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if rng.IntN(100) &lt; looted {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         itemTable, err := raw.GetItemTable(world.Resources.RawMaster, tableID)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :         // ルート数はダイス表記で決める。省略時は1個</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC tlaBgGNC">           1 :         lootDice := consts.Dice{Base: 1, Sides: 1}</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         if propRaw.Storage.LootCount != nil {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 d, err := consts.ParseDice(*propRaw.Storage.LootCount)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;invalid lootCount notation for storage '%s': %w&quot;, propName, err)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC tlaBgGNC">           1 :                 lootDice = d</span></span>
+<span id="L196"><span class="lineNum">     196</span>              :         }</span>
+<span id="L197"><span class="lineNum">     197</span>              :         // 危険度は北進度と経過日数の高い方。収納物のタイル位置を AbsChunkRow でチャンク行へ移して深度を引く</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         danger := query.DangerLevelAt(world)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         if sb := query.GetSeamlessBand(world); sb != nil {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 if d := query.DangerLevelForDepth(depth); d &gt; danger {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                         danger = d</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L204"><span class="lineNum">     204</span>              :         }</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         n := lootDice.Roll(rng)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         for range n {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L213"><span class="lineNum">     213</span>              :                 }</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L217"><span class="lineNum">     217</span>              :         }</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L219"><span class="lineNum">     219</span>              : }</span>
         </pre>
               </td>
             </tr>

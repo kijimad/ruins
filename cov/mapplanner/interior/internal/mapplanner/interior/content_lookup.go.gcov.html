@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">96.2&nbsp;%</td>
-            <td class="headerCovTableEntry">78</td>
-            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">76</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-08 08:01:42</td>
+            <td class="headerValue">2026-11-08 15:42:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -182,40 +182,41 @@
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                                 Amount:     amount,</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                                 Placement:  Placement(deref(s.Placement)),</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                                 Satellites: toSatellites(s.Satellites),</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L124"><span class="lineNum">     124</span>              :                 }</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 c.Groups = append(c.Groups, grp)</span></span>
-<span id="L126"><span class="lineNum">     126</span>              :         }</span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         return c, nil</span></span>
-<span id="L128"><span class="lineNum">     128</span>              : }</span>
-<span id="L129"><span class="lineNum">     129</span>              : </span>
-<span id="L130"><span class="lineNum">     130</span>              : // deref は optional なポインタを値へ落とす。未設定は型のゼロ値で、消費側が既定へ倒す規約に従う。呼び出し側が</span>
-<span id="L131"><span class="lineNum">     131</span>              : // interior の型へ変換する。optional array の PtrSlice と対になるスカラー版。</span>
-<span id="L132"><span class="lineNum">     132</span>              : func deref[T any](p *T) T {</span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         if p == nil {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 var zero T</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 return zero</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         return *p</span></span>
-<span id="L138"><span class="lineNum">     138</span>              : }</span>
-<span id="L139"><span class="lineNum">     139</span>              : </span>
-<span id="L140"><span class="lineNum">     140</span>              : // toSatellites は oapi の衛星束を interior.Satellite へ変換する。束が無ければ nil を返す。offsets の consts.Tile</span>
-<span id="L141"><span class="lineNum">     141</span>              : // は負値も取り、anchor から上/左方向を表す。</span>
-<span id="L142"><span class="lineNum">     142</span>              : func toSatellites(in *[]oapi.ContentSatellite) []Satellite {</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(in)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         if len(items) == 0 {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         out := make([]Satellite, 0, len(items))</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         for _, s := range items {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref}</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 for _, o := range s.Offsets {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                         sat.Offsets = append(sat.Offsets, Vec{X: consts.Tile(o.X), Y: consts.Tile(o.Y)})</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 out = append(out, sat)</span></span>
-<span id="L154"><span class="lineNum">     154</span>              :         }</span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         return out</span></span>
-<span id="L156"><span class="lineNum">     156</span>              : }</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                                 LootTable:  deref(s.LootTable),</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L125"><span class="lineNum">     125</span>              :                 }</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 c.Groups = append(c.Groups, grp)</span></span>
+<span id="L127"><span class="lineNum">     127</span>              :         }</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         return c, nil</span></span>
+<span id="L129"><span class="lineNum">     129</span>              : }</span>
+<span id="L130"><span class="lineNum">     130</span>              : </span>
+<span id="L131"><span class="lineNum">     131</span>              : // deref は optional なポインタを値へ落とす。未設定は型のゼロ値で、消費側が既定へ倒す規約に従う。呼び出し側が</span>
+<span id="L132"><span class="lineNum">     132</span>              : // interior の型へ変換する。optional array の PtrSlice と対になるスカラー版。</span>
+<span id="L133"><span class="lineNum">     133</span>              : func deref[T any](p *T) T {</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         if p == nil {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 var zero T</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 return zero</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         return *p</span></span>
+<span id="L139"><span class="lineNum">     139</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : // toSatellites は oapi の衛星束を interior.Satellite へ変換する。束が無ければ nil を返す。offsets の consts.Tile</span>
+<span id="L142"><span class="lineNum">     142</span>              : // は負値も取り、anchor から上/左方向を表す。</span>
+<span id="L143"><span class="lineNum">     143</span>              : func toSatellites(in *[]oapi.ContentSatellite) []Satellite {</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(in)</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         if len(items) == 0 {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         out := make([]Satellite, 0, len(items))</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         for _, s := range items {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref, LootTable: deref(s.LootTable)}</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 for _, o := range s.Offsets {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         sat.Offsets = append(sat.Offsets, Vec{X: consts.Tile(o.X), Y: consts.Tile(o.Y)})</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 out = append(out, sat)</span></span>
+<span id="L155"><span class="lineNum">     155</span>              :         }</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : }</span>
         </pre>
               </td>
             </tr>
