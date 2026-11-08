@@ -19,6 +19,10 @@ import (
 // territorialRadius はTerritorial移動パターンでスポーン地点から離れられる最大距離を定義する
 const territorialRadius consts.Tile = 5
 
+// followStartDistance は休んでいる随伴者が追いかけ始めるプレイヤーとのチェビシェフ距離。
+// 追いつくと隣で止まるので、隣接から少し離れたくらいでは動かず、間合いを持ってついてくる
+const followStartDistance = 4
+
 // soloPlanner は敵・中立NPC用の行動計画を実装する。
 // AIStateの状態遷移とSoloMovementによる移動を統合して行動を決定する
 type soloPlanner struct {
@@ -362,8 +366,10 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 	return waitAction()
 }
 
-// planFollowAction はプレイヤーに隣接していなければ経路探索で1歩近づき、1歩分の燃料ポイントを払う。
-// 燃料ポイントが足りなければ待機へ切り替えてログを出し、その場で待つ。
+// planFollowAction は休む・追いつくの2状態で随伴する。休んでいる間はプレイヤーとの距離が
+// followStartDistance に開くまで待ち、開いたら追いつく状態へ移る。追いつく間は経路探索で1歩ずつ
+// 近づいて1歩分の燃料ポイントを払い、隣接したら休む状態へ戻る。状態は SubState の待機と移動で持つ。
+// 燃料ポイントが足りなければ待機の方針へ切り替えてログを出し、その場で待つ。
 func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -371,7 +377,14 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	}
 	playerGrid := world.Components.GridElement.Get(player)
 	if isAdjacent(grid, playerGrid) {
+		solo.SubState = gc.AIStateWaiting
 		return waitAction()
+	}
+	if solo.SubState != gc.AIStateDriving {
+		if geometry.ChebyshevDistance(grid.Coord, playerGrid.Coord) < followStartDistance {
+			return waitAction()
+		}
+		solo.SubState = gc.AIStateDriving
 	}
 
 	next, ok := activity.FindNextStep(world, aiEntity, grid.Coord, playerGrid.Coord)

@@ -165,7 +165,7 @@ const cubeHP = 200
 // SpawnCube はプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成する。
 // blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。
 // 既存の NPC と同じ SoloAI で動き、陣営を持たないので戦闘の状態遷移に入らず、移動方針だけで動く。
-// 生成直後は待機で、燃料ポイントは満タン表示の基準量を持つ。
+// 生成直後から追従し、燃料ポイントは満タン表示の基準量を持つ。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
 	cube := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:        &gc.Name{Name: query.T(world, "Cube")},
@@ -183,7 +183,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		SoloAI: &gc.SoloAI{
 			CombatDefault: gc.CombatIgnore,
 			CombatCurrent: gc.CombatIgnore,
-			Movement:      gc.SoloStationary,
+			Movement:      gc.SoloFollow,
 			SubState:      gc.AIStateWaiting,
 		},
 		TurnBased:       &gc.TurnBased{},

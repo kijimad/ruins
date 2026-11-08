@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSpawnCube_待機中で燃料満タンの随伴者として生成される(t *testing.T) {
+func TestSpawnCube_追従中で燃料満タンの随伴者として生成される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -24,7 +24,7 @@ func TestSpawnCube_待機中で燃料満タンの随伴者として生成され�
 	require.True(t, world.Components.FuelTank.Has(cube))
 	assert.Equal(t, consts.FuelGaugeFullHeat, world.Components.FuelTank.Get(cube).Heat, "燃料ポイントは満タン表示の基準量")
 	require.True(t, world.Components.SoloAI.Has(cube), "NPC AI で動く")
-	assert.Equal(t, gc.SoloStationary, world.Components.SoloAI.Get(cube).Movement, "生成直後は待機")
+	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement, "生成直後から追従する")
 	require.True(t, world.Components.TurnBased.Has(cube), "AP ループで行動する")
 	assert.Equal(t, gc.IntPool{Current: 100, Max: 100}, world.Components.TurnBased.Get(cube).AP, "能力値を持たないので基準 AP")
 	require.True(t, world.Components.HP.Has(cube), "prop 標準の耐久度を持つ")

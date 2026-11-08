@@ -62,6 +62,7 @@ func TestFollowingCube(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
 
 	_, ok := query.FollowingCube(world)
 	assert.False(t, ok, "待機中のキューブは随伴中に数えない")

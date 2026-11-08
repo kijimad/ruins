@@ -29,6 +29,7 @@ func TestNewCubeMenuState_圧縮中は追従が有効で設備が無効(t *testi
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
 
 	st, err := NewCubeMenuState(cube)
 	require.NoError(t, err)
@@ -63,6 +64,7 @@ func TestNewCubeMenuState_展開中は設備が有効で追従が無効(t *testi
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 
 	st, err := NewCubeMenuState(cube)
@@ -85,6 +87,7 @@ func TestFollowChoice_追従と待機を切り替える(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
 
 	follow := followChoice(world, cube, false)
 	assert.Equal(t, query.T(world, "Follow me"), follow.Label, "待機中は追従を命じる")
@@ -105,7 +108,6 @@ func TestDeployChoice_展開すると待機に切り替わる(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
 
 	_, err = deployChoice(world, cube).Run(world)
 	require.NoError(t, err)
