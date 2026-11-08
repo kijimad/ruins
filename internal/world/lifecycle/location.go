@@ -198,7 +198,7 @@ func ensureRemoved[T any](comp *ecs.Map[T], entity ecs.Entity) {
 
 // clearLocation はエンティティの既存の位置コンポーネントをすべて取り除く。
 // 排他制御のため、新しい位置を設定する前に呼ぶ（内部用）。
-// 移動元にOwnerがある場合はそのOwnerに WeightDirty マーカーを付与する
+// 移動元にOwnerがある場合はそのOwnerに WeightDirty マーカーを付与する。装備とモジュールなら StatsChanged も付ける
 func clearLocation(world w.World, entity ecs.Entity) {
 	if world.Components.LocationInBackpack.Has(entity) {
 		owner := world.Components.LocationInBackpack.Get(entity).Owner
@@ -206,6 +206,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	}
 	if world.Components.LocationEquipped.Has(entity) {
 		owner := world.Components.LocationEquipped.Get(entity).Owner
+		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationInStorage.Has(entity) {
@@ -218,6 +219,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	}
 	if world.Components.LocationInstalled.Has(entity) {
 		owner := world.Components.LocationInstalled.Get(entity).Owner
+		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 
@@ -229,13 +231,12 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	ensureRemoved(world.Components.LocationInstalled, entity)
 }
 
-// MoveToInstalled はモジュールアイテムをキューブの指定スロットへ装着する。他ロケーションと排他になるよう
-// clearLocation してから LocationInstalled を付ける。実効 stat は装着関係から読み取り時に導くので
-// ここでは stat を書かない。重量は装着でキューブに乗るので WeightDirty を付ける。
+// MoveToInstalled はモジュールアイテムをキューブの指定スロットへ装着する。
 func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity, slot int) {
 	clearLocation(world, entity)
 	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube, Slot: slot})
 	ensureRemoved(world.Components.GridElement, entity)
+	ensureMarker(world, world.Components.StatsChanged, cube, &gc.StatsChanged{})
 	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
 

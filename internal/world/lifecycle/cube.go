@@ -7,13 +7,18 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// AddCubeFuel は fuel の燃焼熱量をキューブの燃料ポイントへ足し、fuel を消す。焚き火の AddFuel と対になる。
-func AddCubeFuel(world w.World, cube ecs.Entity, fuel ecs.Entity) {
+// AddCubeFuel は fuel の燃焼熱量を上限までキューブの燃料ポイントへ足して fuel を消す。満タンなら何もせず false を返す。
+func AddCubeFuel(world w.World, cube ecs.Entity, fuel ecs.Entity) bool {
 	if !world.Components.FuelTank.Has(cube) {
-		return
+		return false
 	}
-	world.Components.FuelTank.Get(cube).Heat += query.HeatContent(world, fuel)
+	tank := world.Components.FuelTank.Get(cube)
+	if tank.Current >= tank.Max {
+		return false
+	}
+	tank.Current = min(tank.Max, tank.Current+query.HeatContent(world, fuel))
 	world.ECS.RemoveEntity(fuel)
+	return true
 }
 
 // ConsumeCubeFuel はキューブの燃料ポイントを amount 減らす。足りていれば減らして true、
@@ -25,6 +30,6 @@ func ConsumeCubeFuel(world w.World, cube ecs.Entity, amount consts.Heat) bool {
 	if query.CubeFuelTotal(world, cube) < amount {
 		return false
 	}
-	world.Components.FuelTank.Get(cube).Heat -= amount
+	world.Components.FuelTank.Get(cube).Current -= amount
 	return true
 }

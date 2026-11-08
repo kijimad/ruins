@@ -177,7 +177,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		},
 		Prop:     &gc.Prop{},
 		Cube:     &gc.Cube{},
-		FuelTank: &gc.FuelTank{Heat: consts.FuelGaugeFullHeat},
+		FuelTank: &gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase},
 		HP:       &gc.HP{Max: cubeHP, Current: cubeHP},
 		SoloAI: &gc.SoloAI{
 			CombatDefault: gc.CombatIgnore,

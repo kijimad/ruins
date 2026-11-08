@@ -46,9 +46,10 @@ model Ammo {
   accuracyBonus: AccuracyBonus;
 }
 
-/** キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる */
+/** キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる */
 model CubeModule {
   rangeBonus: RangeBonus;
+  fuelCapacityBonus: FuelCapacityBonus;
 }
 
 /** 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す */

@@ -293,7 +293,41 @@ func TestMoveToInstalled(t *testing.T) {
 	assert.Equal(t, 2, world.Components.LocationInstalled.Get(item).Slot, "指定スロットが入る")
 	assert.False(t, world.Components.LocationInBackpack.Has(item), "他ロケーションと排他")
 	assert.False(t, world.Components.GridElement.Has(item), "GridElement は外れる")
+	assert.True(t, world.Components.StatsChanged.Has(cube), "キューブに StatsChanged が付く")
 	assert.True(t, world.Components.WeightDirty.Has(cube), "キューブに WeightDirty が付く")
+}
+
+func TestClearLocation_装備とモジュールを外すと移動先に依らず元の持ち主にStatsChangedを付ける(t *testing.T) {
+	t.Parallel()
+
+	t.Run("装備品を収納へ移す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		owner := world.ECS.NewEntity()
+		storage := world.ECS.NewEntity()
+		item, err := spawnItemBase(world, "wooden_sword")
+		require.NoError(t, err)
+		MoveToEquip(world, item, owner, gc.SlotWeapon1)
+		world.Components.StatsChanged.Remove(owner)
+
+		require.NoError(t, MoveToStorage(world, item, storage))
+
+		assert.True(t, world.Components.StatsChanged.Has(owner))
+	})
+
+	t.Run("モジュールを地面へ移す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube := world.ECS.NewEntity()
+		item, err := spawnItemBase(world, "cube_fuel_module")
+		require.NoError(t, err)
+		MoveToInstalled(world, item, cube, 0)
+		world.Components.StatsChanged.Remove(cube)
+
+		MoveToField(world, item, nil)
+
+		assert.True(t, world.Components.StatsChanged.Has(cube))
+	})
 }
 
 func TestRemoveOwnedEntities(t *testing.T) {

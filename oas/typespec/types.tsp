@@ -170,6 +170,10 @@ scalar InsulationHeat extends integer;
 @maxValue(20)
 scalar RangeBonus extends integer;
 
+/** キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える */
+@minValue(0)
+scalar FuelCapacityBonus extends integer;
+
 /** プレイヤーキャラクターかどうか */
 scalar IsPlayer extends boolean;
 

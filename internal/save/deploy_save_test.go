@@ -80,7 +80,7 @@ func TestSaveWorld_キューブの移動方針と燃料ポイントをロード�
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
-	world.Components.FuelTank.Get(cube).Heat = 1234
+	*world.Components.FuelTank.Get(cube) = gc.FuelTank{Max: 4500, Current: 1234}
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
 	fresh := testutil.InitTestWorld(t)
@@ -94,6 +94,6 @@ func TestSaveWorld_キューブの移動方針と燃料ポイントをロード�
 		got = append(got, *tank)
 		movements = append(movements, solo.Movement)
 	}
-	assert.Equal(t, []gc.FuelTank{{Heat: 1234}}, got)
+	assert.Equal(t, []gc.FuelTank{{Max: 4500, Current: 1234}}, got)
 	assert.Equal(t, []gc.SoloMovement{gc.SoloFollow}, movements)
 }
