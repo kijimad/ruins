@@ -1391,6 +1391,9 @@ msgstr "扉エンティティが指定されていません"
 msgid "swap target is not set"
 msgstr "入れ替える相手が指定されていません"
 
+msgid "The deployed cube cannot be moved."
+msgstr "展開中のキューブは動かせない。"
+
 msgid "cannot get door component"
 msgstr "扉コンポーネントが取得できません"
 

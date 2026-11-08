@@ -51,6 +51,10 @@ func (sb *SwapBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(p.Target) {
 		return ErrGridElementNotFound
 	}
+	// 展開中のキューブは野営の中心に据え付けてあるので動かさない
+	if world.Components.Deployed.Has(p.Target) {
+		return &UserError{Msg: query.T(world, "The deployed cube cannot be moved.")}
+	}
 	return nil
 }
 
