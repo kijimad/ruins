@@ -51,7 +51,7 @@ func TestLocationStowed_貨物のOwnerがロードで同じキューブを指す
 
 	var loadedCube ecs.Entity
 	cubeCount := 0
-	cq := ecs.NewFilter1[gc.MobileBase](fresh.ECS).Query()
+	cq := ecs.NewFilter1[gc.Cube](fresh.ECS).Query()
 	for cq.Next() {
 		loadedCube = cq.Entity()
 		cubeCount++
@@ -88,7 +88,7 @@ func TestSaveWorld_キューブの移動方針と燃料ポイントをロード�
 
 	var got []gc.FuelTank
 	var movements []gc.SoloMovement
-	q := ecs.NewFilter3[gc.MobileBase, gc.FuelTank, gc.SoloAI](fresh.ECS).Query()
+	q := ecs.NewFilter3[gc.Cube, gc.FuelTank, gc.SoloAI](fresh.ECS).Query()
 	for q.Next() {
 		_, tank, solo := q.Get()
 		got = append(got, *tank)

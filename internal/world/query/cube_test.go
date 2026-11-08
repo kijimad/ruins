@@ -273,7 +273,7 @@ func TestCubeWeight_別の収納の物は数えない(t *testing.T) {
 	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, cube), "別の収納の物は除外する")
 }
 
-// TestCubeTiles_キューブのタイル座標だけ集める は、MobileBase を持つ実体の座標だけが
+// TestCubeTiles_キューブのタイル座標だけ集める は、Cube を持つ実体の座標だけが
 // マクロ地図マーカー用に集まり、持たない実体は混ざらないことを固定する。
 func TestCubeTiles_キューブのタイル座標だけ集める(t *testing.T) {
 	t.Parallel()

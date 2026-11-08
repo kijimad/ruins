@@ -50,7 +50,7 @@ var Registry = []Def{
 	{Field: "Door"},            // 開閉可能な扉であることを表す
 	{Field: "Item"},            // 可搬アイテムであることを示す
 	{Field: "Prop"},            // 設置物であることを示す
-	{Field: "MobileBase"},      // 移動拠点キューブであることを示す
+	{Field: "Cube"},            // 移動拠点キューブであることを示す
 	{Field: "FuelTank"},        // キューブに貯めた燃料ポイントを保持する。保存する
 	{Field: "Deployed"},        // キューブが展開中であることを示す。展開中は随伴しない。保存する
 	{Field: "LightSource"},     // 光源であることを表す

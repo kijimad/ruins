@@ -19,7 +19,7 @@ func TestSpawnCube_追従中で燃料満タンの随伴者として生成され�
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 8})
 	require.NoError(t, err)
 
-	assert.True(t, world.Components.MobileBase.Has(cube), "移動拠点の印を持つ")
+	assert.True(t, world.Components.Cube.Has(cube), "移動拠点の印を持つ")
 	assert.True(t, world.Components.Prop.Has(cube), "設置物である")
 	require.True(t, world.Components.FuelTank.Has(cube))
 	assert.Equal(t, consts.FuelGaugeFullHeat, world.Components.FuelTank.Get(cube).Heat, "燃料ポイントは満タン表示の基準量")

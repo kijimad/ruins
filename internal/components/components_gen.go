@@ -44,7 +44,7 @@ type EntitySpec struct {
 	Door               *Door
 	Item               *Item
 	Prop               *Prop
-	MobileBase         *MobileBase
+	Cube               *Cube
 	FuelTank           *FuelTank
 	Deployed           *Deployed
 	LightSource        *LightSource
@@ -139,7 +139,7 @@ type Components struct {
 	Door               *ecs.Map[Door]
 	Item               *ecs.Map[Item]
 	Prop               *ecs.Map[Prop]
-	MobileBase         *ecs.Map[MobileBase]
+	Cube               *ecs.Map[Cube]
 	FuelTank           *ecs.Map[FuelTank]
 	Deployed           *ecs.Map[Deployed]
 	LightSource        *ecs.Map[LightSource]
@@ -234,7 +234,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Door = ecs.NewMap[Door](world)
 	c.Item = ecs.NewMap[Item](world)
 	c.Prop = ecs.NewMap[Prop](world)
-	c.MobileBase = ecs.NewMap[MobileBase](world)
+	c.Cube = ecs.NewMap[Cube](world)
 	c.FuelTank = ecs.NewMap[FuelTank](world)
 	c.Deployed = ecs.NewMap[Deployed](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
@@ -331,7 +331,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Door, entity, spec.Door)
 	addComp(c.Item, entity, spec.Item)
 	addComp(c.Prop, entity, spec.Prop)
-	addComp(c.MobileBase, entity, spec.MobileBase)
+	addComp(c.Cube, entity, spec.Cube)
 	addComp(c.FuelTank, entity, spec.FuelTank)
 	addComp(c.Deployed, entity, spec.Deployed)
 	addComp(c.LightSource, entity, spec.LightSource)

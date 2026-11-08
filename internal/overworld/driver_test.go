@@ -20,7 +20,7 @@ import (
 // countCubes は移動拠点キューブの数を返す。クエリは最後まで回す
 func countCubes(world w.World) int {
 	count := 0
-	q := query.ActiveFilter1[gc.MobileBase](world).Query()
+	q := query.ActiveFilter1[gc.Cube](world).Query()
 	for q.Next() {
 		count++
 	}

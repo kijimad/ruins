@@ -69,8 +69,8 @@ type PassCost struct {
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
 
-// MobileBase は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
-type MobileBase struct{}
+// Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
+type Cube struct{}
 
 // FuelTank はキューブに貯めた燃料ポイント。くべたアイテムの燃焼熱量がここへ足され、随伴の1歩ごとに減る。
 type FuelTank struct {

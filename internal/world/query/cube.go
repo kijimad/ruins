@@ -11,7 +11,7 @@ import (
 // 位置は GridElement から常に導けるので保持せず、読み取り時に集める。
 func CubeTiles(world w.World) []consts.Coord[consts.Tile] {
 	var out []consts.Coord[consts.Tile]
-	q := ActiveFilter2[gc.GridElement, gc.MobileBase](world).Query()
+	q := ActiveFilter2[gc.GridElement, gc.Cube](world).Query()
 	for q.Next() {
 		out = append(out, world.Components.GridElement.Get(q.Entity()).Coord)
 	}
@@ -167,7 +167,7 @@ func FuelGaugeRatio(fuel consts.Heat) float64 {
 
 // ActiveCube は現ステージにいるキューブを返す。ダンジョンなどキューブのいないステージでは false。
 func ActiveCube(world w.World) (ecs.Entity, bool) {
-	q := ActiveFilter1[gc.MobileBase](world).Query()
+	q := ActiveFilter1[gc.Cube](world).Query()
 	if !q.Next() {
 		return gc.InvalidEntity, false
 	}
