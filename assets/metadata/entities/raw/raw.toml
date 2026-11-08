@@ -17684,12 +17684,6 @@ id = "antique_store"
 style = "pick_each"
 [[interiorContents.groups.items]]
 kind = "furniture"
-ref = "walkin_cooler"
-amount = "7d1"
-lootTable = "pantry"
-satellites = []
-[[interiorContents.groups.items]]
-kind = "furniture"
 ref = "register"
 amount = "1d1"
 satellites = []
@@ -17700,27 +17694,6 @@ ref = "gondola"
 amount = "10d1"
 satellites = []
 lootTable = "antique_shelf"
-[[interiorContents.groups]]
-style = "pick_n"
-pick = 2
-[[interiorContents.groups.items]]
-kind = "loot"
-ref = "snacks"
-weight = 3
-amount = "3d4"
-satellites = []
-[[interiorContents.groups.items]]
-kind = "loot"
-ref = "drinks"
-weight = 2
-amount = "2d4"
-satellites = []
-[[interiorContents.groups.items]]
-kind = "loot"
-ref = "bento"
-weight = 1
-amount = "2d3"
-satellites = []
 [[interiorContents.groups]]
 style = "pick_one"
 [[interiorContents.groups.items]]
@@ -17835,7 +17808,7 @@ facility = "antique"
 fallback = "storage"
 [[facilityRooms.rooms]]
 role = "coldroom"
-content = "coldroom"
+content = "storage"
 [[facilityRooms.rooms]]
 role = "office"
 content = "office_room"
