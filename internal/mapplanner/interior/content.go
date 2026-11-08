@@ -47,8 +47,8 @@ type Stuff struct {
 type Satellite struct {
 	Kind      StuffKind
 	Ref       string
-	Offsets   []Vec  // anchor 相対の候補座標。前から試し、置ければ確定、尽きたら諦める
-	LootTable string // 収納家具の中身を引く itemTables の id。収納でなければ空
+	Offsets   []Vec // anchor 相対の候補座標。前から試し、置ければ確定、尽きたら諦める
+	LootTable string
 }
 
 // Group は抽選単位の束。Style で保証セットとランダム充填を分ける。
