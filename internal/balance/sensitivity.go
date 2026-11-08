@@ -66,7 +66,7 @@ func metricValue(master oapi.Raws, p Params, idx int) float64 {
 	case 2: // 疲労
 		return SleepTimeFraction(p)
 	case 3: // 物流。燃料熱量の倍率を掛けて、満タンの燃料ポイントで積荷0のキューブが随伴できる歩数を測る
-		fuel := float64(consts.FuelGaugeFullHeat) * p.FuelHeatScale
+		fuel := float64(consts.CubeFuelCapacityBase) * p.FuelHeatScale
 		return FollowRangeTiles(consts.Heat(fuel), 0)
 	case 4: // 経済。loot 価値の倍率を掛けて1個あたり店売り手取りを測る。売却は価値の一定割合なので弾力性は1
 		lv := ExpectedLootValue(master, "ruins_area", 8) * p.LootValueScale

@@ -26,7 +26,10 @@ func TestSpawnDebugStageCrateItems_木箱にモジュールと装着アイテム
 	for _, e := range items {
 		got = append(got, query.GetEntityID(e, world))
 	}
-	want := slices.Repeat([]string{"cube_range_module"}, debugStageModuleCount)
+	want := make([]string, 0, len(debugStageModules)*debugStageModuleCount)
+	for _, id := range debugStageModules {
+		want = append(want, slices.Repeat([]string{id}, debugStageModuleCount)...)
+	}
 	for _, id := range debugStageFacilityItems {
 		want = append(want, slices.Repeat([]string{id}, debugStageFacilityCount)...)
 	}

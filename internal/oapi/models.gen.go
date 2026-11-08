@@ -1180,8 +1180,11 @@ type ContentVec struct {
 	Y int32 `json:"y"`
 }
 
-// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
+// CubeModule キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 type CubeModule struct {
+	// FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
+	FuelCapacityBonus FuelCapacityBonus `json:"fuelCapacityBonus"`
+
 	// RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
 	RangeBonus RangeBonus `json:"rangeBonus"`
 }
@@ -1445,6 +1448,9 @@ type FireStarter = map[string]interface{}
 // FoliageType 植生タイプ
 type FoliageType float32
 
+// FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
+type FuelCapacityBonus = int
+
 // GroupStyle グループの抽選方式。保証セットとランダム充填を分ける
 type GroupStyle string
 
@@ -1505,7 +1511,7 @@ type Item struct {
 	// Consumable 消費可能アイテムの設定
 	Consumable *Consumable `json:"consumable,omitempty"`
 
-	// CubeModule キューブモジュール設定。装着すると展開野営の範囲を縦横一律に広げる
+	// CubeModule キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 	CubeModule *CubeModule `json:"cubeModule,omitempty"`
 
 	// Deployable 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す

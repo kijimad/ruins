@@ -137,7 +137,24 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 	}
 
+	updateCubeFuelCapacity(world)
 	return nil
+}
+
+// updateCubeFuelCapacity は StatsChanged が付いたキューブの燃料タンクの上限を、装着中のモジュールから
+// 計算し直す。上限が下がって現在値を超えたら切り詰める。
+func updateCubeFuelCapacity(world w.World) {
+	var cubes []ecs.Entity
+	q := query.ActiveFilter2[gc.StatsChanged, gc.FuelTank](world).Query()
+	for q.Next() {
+		cubes = append(cubes, q.Entity())
+	}
+	for _, cube := range cubes {
+		world.Components.StatsChanged.Remove(cube)
+		tank := world.Components.FuelTank.Get(cube)
+		tank.Max = query.CubeFuelCapacity(world, cube)
+		tank.Current = min(tank.Current, tank.Max)
+	}
 }
 
 // 30+(体力*8+力+感覚)

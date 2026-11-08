@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -49,6 +50,10 @@ func (st *CubeModuleMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *CubeModuleMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// 装備画面と同じく、モジュールの着脱で燃料タンクの上限と重量が変わるので再計算を回す
+	if err := runUpdaters(world, &gs.StatsChangedSystem{}, &gs.WeightDirtySystem{}); err != nil {
+		return es.Transition[w.World]{}, err
+	}
 	return st.screen.Update(world)
 }
 

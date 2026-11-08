@@ -7545,6 +7545,20 @@ weight = "3 kg"
 
 [items.cubeModule]
 rangeBonus = 1
+fuelCapacityBonus = 0
+[[items]]
+description = "A fuel module. Installed on a cube, it enlarges the fuel tank."
+name = "Fuel Module"
+id = "cube_fuel_module"
+material = "METAL"
+spriteKey = "gear_iron"
+spriteSheetName = "field"
+value = 200
+weight = "3 kg"
+
+[items.cubeModule]
+rangeBonus = 0
+fuelCapacityBonus = 1500
 [[items]]
 description = "A storage crate. Deploy it into your cube's space to hold cargo."
 name = "Storage Crate"

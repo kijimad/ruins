@@ -42,9 +42,8 @@ const (
 	FollowFuelPerKg = 1
 	// CubeWeightCapacityKg はキューブ収納の重量容量。kg 単位。spawn とバランス導出で共有する
 	CubeWeightCapacityKg = 500
-	// FuelGaugeFullHeat は燃料ゲージが満タン表示になる熱量。燃料ポイントに上限は無く、表示上の基準になる。
-	// 新規開始時のキューブはこの量の燃料ポイントを持つ。値は暫定
-	FuelGaugeFullHeat Heat = 3000
+	// CubeFuelCapacityBase はモジュールを装着していないキューブの燃料タンクの容量。値は暫定
+	CubeFuelCapacityBase Heat = 3000
 )
 
 // ========== キューブ展開 ==========

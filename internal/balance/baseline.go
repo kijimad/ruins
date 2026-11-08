@@ -226,11 +226,11 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	// 物流
 	fmt.Fprintf(&b, "## 物流（燃料・重量・航続）\n\n")
 	fmt.Fprintf(&b, "**概要**: キューブがどれだけ随伴できるか。1歩の燃費は基準%d+積載1kgごとに%dで、積むほど悪化する。\n", consts.FollowFuelBase, consts.FollowFuelPerKg)
-	fmt.Fprintf(&b, "燃料はくべた時点で燃料ポイントになり重量を持たない。新規開始時の燃料ポイントは%dで、容量は%dkg。\n\n", consts.FuelGaugeFullHeat, consts.CubeWeightCapacityKg)
+	fmt.Fprintf(&b, "燃料はくべた時点で燃料ポイントになり重量を持たない。燃料タンクの基準容量は%dで、新規開始時は満タン。積載容量は%dkg。\n\n", consts.CubeFuelCapacityBase, consts.CubeWeightCapacityKg)
 	var fuelCostRows [][]string
 	for _, kg := range []int{0, 100, 250, 500} {
 		load := consts.Milligram(kg) * consts.MilligramPerKg
-		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeTiles(consts.FuelGaugeFullHeat, load))})
+		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeTiles(consts.CubeFuelCapacityBase, load))})
 	}
 	writeMDTable(&b, []string{"積荷(kg)", "燃費(/歩)", "満タン航続(歩)"}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)
 	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{

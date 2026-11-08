@@ -6320,6 +6320,15 @@ msgstr "圧縮"
 msgid "Not enough open space to deploy."
 msgstr "展開する空きが足りない"
 
+msgid "Fuel Module"
+msgstr "燃料モジュール"
+
+msgid "A fuel module. Installed on a cube, it enlarges the fuel tank."
+msgstr "燃料モジュール。キューブに装着すると燃料タンクを広げる"
+
+msgid "The fuel tank is full."
+msgstr "燃料タンクは満タンだ。"
+
 msgid "Range Module"
 msgstr "範囲モジュール"
 

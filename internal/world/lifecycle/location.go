@@ -218,6 +218,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	}
 	if world.Components.LocationInstalled.Has(entity) {
 		owner := world.Components.LocationInstalled.Get(entity).Owner
+		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 
@@ -230,12 +231,13 @@ func clearLocation(world w.World, entity ecs.Entity) {
 }
 
 // MoveToInstalled はモジュールアイテムをキューブの指定スロットへ装着する。他ロケーションと排他になるよう
-// clearLocation してから LocationInstalled を付ける。実効 stat は装着関係から読み取り時に導くので
-// ここでは stat を書かない。重量は装着でキューブに乗るので WeightDirty を付ける。
+// clearLocation してから LocationInstalled を付ける。装備と同じく StatsChanged を付け、燃料タンクの上限を
+// 計算し直させる。重量は装着でキューブに乗るので WeightDirty を付ける。
 func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity, slot int) {
 	clearLocation(world, entity)
 	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube, Slot: slot})
 	ensureRemoved(world.Components.GridElement, entity)
+	ensureMarker(world, world.Components.StatsChanged, cube, &gc.StatsChanged{})
 	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
 

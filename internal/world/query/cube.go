@@ -128,6 +128,16 @@ func CubeDeployRange(world w.World, cube ecs.Entity) consts.Coord[consts.Tile] {
 	return r
 }
 
+// CubeFuelCapacity はキューブの燃料タンクの容量を返す。基準 consts.CubeFuelCapacityBase に、装着した各モジュールの
+// FuelCapacityBonus を加算する。StatsChangedSystem がこれで FuelTank.Max を書き直す。
+func CubeFuelCapacity(world w.World, cube ecs.Entity) consts.Heat {
+	c := consts.CubeFuelCapacityBase
+	for _, m := range GetCubeModules(world, cube) {
+		c += world.Components.CubeModule.Get(m).FuelCapacityBonus
+	}
+	return c
+}
+
 // CubeWeight はキューブが積む物の総重量を返す。運転1タイルの燃料コスト算出に使う。
 // 燃料タンクの中身・畳み込んだ貨物・装着モジュールが機動に効くので合算する。値は保持せず読み取り時に導く。
 func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {
@@ -156,13 +166,15 @@ func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
 	if !world.Components.FuelTank.Has(cube) {
 		return 0
 	}
-	return world.Components.FuelTank.Get(cube).Heat
+	return world.Components.FuelTank.Get(cube).Current
 }
 
-// FuelGaugeRatio は燃料ゲージ充填率を返す。表示基準 FuelGaugeFullHeat に対する比を 0..1 に丸める。
-func FuelGaugeRatio(fuel consts.Heat) float64 {
-	// 満量基準は正の定数なのでゼロ除算は起きない
-	return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))
+// FuelGaugeRatio は燃料ゲージの充填率を現在値と上限の比で返す。上限が0以下なら0。
+func FuelGaugeRatio(tank gc.FuelTank) float64 {
+	if tank.Max <= 0 {
+		return 0
+	}
+	return min(1, max(0, float64(tank.Current)/float64(tank.Max)))
 }
 
 // ActiveCube は現ステージにいるキューブを返す。ダンジョンなどキューブのいないステージでは false。

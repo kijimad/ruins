@@ -72,10 +72,8 @@ type Renderable struct{}
 // Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
 type Cube struct{}
 
-// FuelTank はキューブに貯めた燃料ポイント。くべたアイテムの燃焼熱量がここへ足され、随伴の1歩ごとに減る。
-type FuelTank struct {
-	Heat consts.Heat
-}
+// FuelTank はキューブの燃料ポイントの上限と現在値。上限は装着中のモジュールから StatsChangedSystem が計算する。
+type FuelTank Pool[consts.Heat]
 
 // Deployed はキューブが展開中であることを示す。展開中のキューブは随伴せず、その場に留まる。
 // Range は展開した時点の野営フットプリントの縦横別半径を凍結して持つ。圧縮の畳み込みとレーザー壁描画は
@@ -98,7 +96,8 @@ type LocationStowed struct {
 // CubeModule はキューブに装着するモジュールの性能。値は導出でなくアイテム固有なので spawn 時に raw から
 // 設定して保持し、実効範囲は装着関係から読み取り時に導く。
 type CubeModule struct {
-	RangeBonus consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
+	RangeBonus        consts.Tile // 展開範囲の縦横の伸び幅。装着でこのタイル数だけ両軸が伸びる
+	FuelCapacityBonus consts.Heat // 燃料タンクの容量の伸び幅
 }
 
 // Deployable はキューブの展開空間へ装着できるアイテムであることを表すマーカー。設備の効果は装着した実体が
