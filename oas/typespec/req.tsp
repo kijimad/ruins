@@ -312,6 +312,8 @@ model Facility {
   planner: PlannerKey;
   enemyTable: EntityID;
   zones: FacilityZone[];
+  /** 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0 */
+  @minValue(0) @maxValue(100) lootedChance?: int32;
 }
 
 /** 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる */
@@ -406,6 +408,8 @@ model ContentSatellite {
   kind: StuffKind;
   ref: EntityID;
   offsets: ContentVec[];
+  /** 収納家具の中身を引く itemTables の id。収納家具では必須 */
+  lootTable?: EntityID;
 }
 
 /** 内装レシピの1配置指示 */
@@ -417,6 +421,8 @@ model ContentStuff {
   amount: Dice;
   placement?: Placement;
   satellites?: ContentSatellite[];
+  /** 収納家具の中身を引く itemTables の id。収納家具では必須 */
+  lootTable?: EntityID;
 }
 
 /** 抽選単位の束 */

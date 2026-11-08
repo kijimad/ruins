@@ -67,6 +67,7 @@ func selectionOf(it Stuff, count int) Selection {
 		Count:      count,
 		Placement:  placementOf(it.Ref, it.Placement),
 		Satellites: it.Satellites,
+		LootTable:  it.LootTable,
 	}
 }
 

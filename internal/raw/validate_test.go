@@ -374,6 +374,40 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 	})
 }
 
+func TestValidateContentLootTables(t *testing.T) {
+	t.Parallel()
+
+	itemTables := &[]oapi.ItemTable{{Id: "house_closet"}}
+	known, unknown := "house_closet", "no_such"
+	tests := []struct {
+		name    string
+		item    *oapi.EntityID
+		sat     *oapi.EntityID
+		wantErr error
+	}{
+		{"実在する表は通る", &known, &known, nil},
+		{"表を書かない家具は通る", nil, nil, nil},
+		{"家具の表が無いとエラー", &unknown, nil, errContentLootTableUndefined},
+		{"衛星の表が無いとエラー", nil, &unknown, errContentLootTableUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{
+				ItemTables: itemTables,
+				InteriorContents: &[]oapi.InteriorContent{{Id: "bedroom", Groups: &[]oapi.ContentGroup{{
+					Style: oapi.PickEach,
+					Items: []oapi.ContentStuff{{
+						Kind: oapi.Furniture, Ref: "closet", Amount: "1d1", LootTable: tt.item,
+						Satellites: &[]oapi.ContentSatellite{{Kind: oapi.Furniture, Ref: "closet", LootTable: tt.sat}},
+					}},
+				}}}},
+			}
+			require.ErrorIs(t, validateContentLootTables(raws), tt.wantErr)
+		})
+	}
+}
+
 func TestValidateFacilityReferences(t *testing.T) {
 	t.Parallel()
 

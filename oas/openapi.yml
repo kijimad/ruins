@@ -2000,6 +2000,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContentVec'
+        lootTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 収納家具の中身を引く itemTables の id。収納家具では必須
       description: anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
     ContentStuff:
       type: object
@@ -2024,6 +2028,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContentSatellite'
+        lootTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 収納家具の中身を引く itemTables の id。収納家具では必須
       description: 内装レシピの1配置指示
     ContentVec:
       type: object
@@ -2359,6 +2367,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FacilityZone'
+        lootedChance:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+          description: 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
       description: 市街地の施設1種。isShop は看板やシャッターを出す店か
     FacilityContent:
       type: object

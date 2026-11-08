@@ -501,6 +501,10 @@ export interface ContentSatellite {
     'kind': StuffKind;
     'ref': string;
     'offsets': Array<ContentVec>;
+    /**
+     * 収納家具の中身を引く itemTables の id。収納家具では必須
+     */
+    'lootTable'?: string;
 }
 
 
@@ -520,6 +524,10 @@ export interface ContentStuff {
     'amount': string;
     'placement'?: Placement;
     'satellites'?: Array<ContentSatellite>;
+    /**
+     * 収納家具の中身を引く itemTables の id。収納家具では必須
+     */
+    'lootTable'?: string;
 }
 
 
@@ -776,6 +784,10 @@ export interface Facility {
     'planner': PlannerKey;
     'enemyTable': string;
     'zones': Array<FacilityZone>;
+    /**
+     * 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
+     */
+    'lootedChance'?: number;
 }
 
 

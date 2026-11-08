@@ -120,6 +120,7 @@ func toContent(ic oapi.InteriorContent) (Content, error) {
 				Amount:     amount,
 				Placement:  Placement(deref(s.Placement)),
 				Satellites: toSatellites(s.Satellites),
+				LootTable:  deref(s.LootTable),
 			})
 		}
 		c.Groups = append(c.Groups, grp)
@@ -146,7 +147,7 @@ func toSatellites(in *[]oapi.ContentSatellite) []Satellite {
 	}
 	out := make([]Satellite, 0, len(items))
 	for _, s := range items {
-		sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref}
+		sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref, LootTable: deref(s.LootTable)}
 		for _, o := range s.Offsets {
 			sat.Offsets = append(sat.Offsets, Vec{X: consts.Tile(o.X), Y: consts.Tile(o.Y)})
 		}

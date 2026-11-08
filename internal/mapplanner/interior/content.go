@@ -39,14 +39,16 @@ type Stuff struct {
 	Amount     consts.Dice // 置く個数
 	Placement  Placement   // どこへ置くか。PlaceDefault なら家具型の archetype 既定へ落ちる
 	Satellites []Satellite // anchor 相対に一緒に置く衛星。机に対する椅子など
+	LootTable  string      // 収納家具の中身を引く itemTables の id。収納でなければ空
 }
 
 // Satellite は anchor 相対に一緒に置く衛星。抽選の単位を単品でなく束にすることで、机だけあって椅子が無い
 // といった抽選事故を構造で防ぐ。
 type Satellite struct {
-	Kind    StuffKind
-	Ref     string
-	Offsets []Vec // anchor 相対の候補座標。前から試し、置ければ確定、尽きたら諦める
+	Kind      StuffKind
+	Ref       string
+	Offsets   []Vec // anchor 相対の候補座標。前から試し、置ければ確定、尽きたら諦める
+	LootTable string
 }
 
 // Group は抽選単位の束。Style で保証セットとランダム充填を分ける。
@@ -69,4 +71,5 @@ type Selection struct {
 	Count      int
 	Placement  Placement
 	Satellites []Satellite // anchor ごとに一緒に置く衛星。placement 段が anchor 相対に置く
+	LootTable  string
 }

@@ -7,10 +7,12 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -60,32 +62,138 @@ func TestSpawnFieldLoot_未存在グループはエラー(t *testing.T) {
 	require.Error(t, spawnFieldLoot(world, "no_such_group", pos, rng))
 }
 
-// TestPopulateStorageLoot_収納家具に戦利品が入る は収納 loot の配線を固定する。収納 prop(押入れ)には ruins の
-// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。家具別の loot を ruins 既存の
-// DropTable/ItemTable 機構で実現していることを守る。
+// TestPopulateStorageLoot_収納家具に戦利品が入る は収納 loot の配線を固定する。収納 prop(押入れ)には渡した
+// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。家は荒らされ率を持つので複数置いて数える。
 func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	rng := rand.New(rand.NewPCG(1, 0x4))
 
-	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
-	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, closet, "closet", rng))
-	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が1つ以上入る")
-
-	// 家具別テーブルの分化。冷蔵庫は食料庫テーブルから引く。テーブル解決と loot 産出を確かめる
-	beforeFridge := countStoredItems(world)
-	fridge, err := lifecycle.SpawnProp(world, "refrigerator", 2, 2)
-	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, fridge, "refrigerator", rng))
-	assert.Greater(t, countStoredItems(world), beforeFridge, "冷蔵庫に食料庫テーブルの戦利品が入る")
+	for i := range 10 {
+		closet, err := lifecycle.SpawnProp(world, "closet", consts.Tile(i), 0)
+		require.NoError(t, err)
+		require.NoError(t, populateStorageLoot(world, closet, "closet", "house_closet", "house", rng))
+	}
+	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が入る")
 
 	before := countStoredItems(world)
 	candle, err := lifecycle.SpawnProp(world, "candle", 1, 1)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, candle, "candle", rng))
+	require.NoError(t, populateStorageLoot(world, candle, "candle", "", "house", rng))
 	assert.Equal(t, before, countStoredItems(world), "収納でない蝋燭は戦利品を入れない")
+}
+
+func TestPopulateStorageLoot_未登録の施設はエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
+	require.NoError(t, err)
+	require.Error(t, populateStorageLoot(world, closet, "closet", "house_closet", "no_such", rand.New(rand.NewPCG(1, 0x4))))
+}
+
+func TestPopulateStorageLoot_表の無い収納家具はエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
+	require.NoError(t, err)
+	require.Error(t, populateStorageLoot(world, closet, "closet", "", "house", rand.New(rand.NewPCG(1, 0x4))))
+}
+
+func TestPopulateStorageLoot_施設の荒らされ率で空のまま残す(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		fac       string
+		wantEmpty int
+	}{
+		{"店は8割が空", "store", 80},
+		{"骨董品店は5割が空", "antique", 50},
+		{"倉庫は4割が空", "depot", 40},
+		{"オフィスは4割が空", "office", 40},
+		{"家は3割が空", "house", 30},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			rng := rand.New(rand.NewPCG(1, 0x4))
+			const n = 400
+			empty := 0
+			for i := range n {
+				ent, err := lifecycle.SpawnProp(world, "goods_shelf", consts.Tile(i), 0)
+				require.NoError(t, err)
+				require.NoError(t, populateStorageLoot(world, ent, "goods_shelf", "store_goods", tt.fac, rng))
+				if len(query.GetStorageItems(world, ent)) == 0 {
+					empty++
+				}
+			}
+			assert.InDelta(t, tt.wantEmpty, empty*100/n, 6, "空の割合が施設の荒らされ率に近い")
+		})
+	}
+}
+
+func TestFurnishBuilding_施設の部屋の定義が書いた表だけを引く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	raws := world.Resources.RawMaster
+	tests := []struct {
+		fac  string
+		want []string
+	}{
+		{"house", []string{"house_closet", "house_kitchen"}},
+		{"store", []string{"store_goods", "pantry", "medicine_shelf", "office_storage"}},
+		{"antique", []string{"antique_shelf", "office_storage"}},
+		{"depot", []string{"depot_storage"}},
+		{"clinic", []string{"office_storage", "medicine_shelf"}},
+		{"lab", []string{"office_storage", "medicine_shelf"}},
+	}
+	for _, tt := range tests {
+		used := map[string]bool{}
+		for seed := range uint64(30) {
+			_, placed, err := interior.FurnishBuilding(raws, seed, interior.Rect{X: 0, Y: 0, W: 28, H: 20}, interior.Vec{X: 14, Y: 0}, tt.fac)
+			require.NoError(t, err)
+			for _, p := range placed {
+				if p.LootTable != "" {
+					used[p.LootTable] = true
+				}
+			}
+		}
+		got := make([]string, 0, len(used))
+		for id := range used {
+			got = append(got, id)
+		}
+		assert.ElementsMatch(t, tt.want, got, "施設 %s", tt.fac)
+	}
+}
+
+// TestInteriorContents_収納家具は戦利品表を書く は、部屋の定義の全ての家具と衛星について、収納家具なら
+// lootTable を書いていることを確かめる。抽選に依らず定義を全て舐めるので、出にくい変種の書き漏れも落ちる。
+func TestInteriorContents_収納家具は戦利品表を書く(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	isStorage := func(ref string) bool {
+		name, ok := interior.PropRawName(ref)
+		if !ok {
+			return false
+		}
+		pr, err := raw.GetProp(raws, name)
+		return err == nil && pr.Storage != nil
+	}
+	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
+		for _, g := range raw.PtrSlice(ic.Groups) {
+			for _, it := range g.Items {
+				if it.Kind == oapi.Furniture && isStorage(it.Ref) {
+					assert.NotNilf(t, it.LootTable, "部屋の定義 %q の収納家具 %q は戦利品表を書く", ic.Id, it.Ref)
+				}
+				for _, sat := range raw.PtrSlice(it.Satellites) {
+					if sat.Kind == oapi.Furniture && isStorage(sat.Ref) {
+						assert.NotNilf(t, sat.LootTable, "部屋の定義 %q の収納家具 %q の衛星は戦利品表を書く", ic.Id, sat.Ref)
+					}
+				}
+			}
+		}
+	}
 }
 
 // TestInteriorPropRaw_全施設の家具refが写像を持つ は、施設 content が生む家具が in-game で無言に欠落

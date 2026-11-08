@@ -692,6 +692,18 @@ func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
 	return findByKey(raws.Facilities, func(f oapi.Facility) string { return f.Id }, id)
 }
 
+// FacilityLootedChance は施設 fac の収納家具が荒らされて空になっている確率を百分率で返す。省略は0。
+func FacilityLootedChance(raws oapi.Raws, fac string) (int, error) {
+	f, ok := GetFacility(raws, fac)
+	if !ok {
+		return 0, NewKeyNotFoundError(fac, "Facilities")
+	}
+	if f.LootedChance == nil {
+		return 0, nil
+	}
+	return int(*f.LootedChance), nil
+}
+
 // GetLandmark は id のランドマーク宣言を返す。未登録は false。
 func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
 	return findByKey(raws.Landmarks, func(l oapi.Landmark) string { return l.Id }, id)

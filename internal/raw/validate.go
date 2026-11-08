@@ -19,6 +19,7 @@ var (
 	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
 	errFacilityKeyUndefined           = errors.New("references undefined facility")
 	errZoneNoBaseFacility             = errors.New("zone has no base facility")
+	errContentLootTableUndefined      = errors.New("interior content references undefined loot table")
 	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
 	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
 	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
@@ -101,6 +102,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateFacilityReferences(raws); err != nil {
+		return err
+	}
+	if err := validateContentLootTables(raws); err != nil {
 		return err
 	}
 	if err := validateInteriorContentReferences(raws); err != nil {
@@ -259,6 +263,39 @@ func validateFacilityReferences(raws oapi.Raws) error {
 	for _, fr := range PtrSlice(raws.FacilityRooms) {
 		if _, ok := facilityIDs[fr.Facility]; !ok {
 			return fmt.Errorf("facilityRooms references unknown facility %q: %w", fr.Facility, errFacilityKeyUndefined)
+		}
+	}
+	return nil
+}
+
+// validateContentLootTables は内装レシピの家具と衛星が書く戦利品表が実在する itemTables であることを検証する。
+func validateContentLootTables(raws oapi.Raws) error {
+	tables := PtrSlice(raws.ItemTables)
+	tableIDs := make(map[string]struct{}, len(tables))
+	for i := range tables {
+		tableIDs[tables[i].Id] = struct{}{}
+	}
+	check := func(content, ref string, table *oapi.EntityID) error {
+		if table == nil {
+			return nil
+		}
+		if _, ok := tableIDs[*table]; !ok {
+			return fmt.Errorf("interior content %q ref %q references loot table %q: %w", content, ref, *table, errContentLootTableUndefined)
+		}
+		return nil
+	}
+	for _, ic := range PtrSlice(raws.InteriorContents) {
+		for _, g := range PtrSlice(ic.Groups) {
+			for _, it := range g.Items {
+				if err := check(ic.Id, it.Ref, it.LootTable); err != nil {
+					return err
+				}
+				for _, sat := range PtrSlice(it.Satellites) {
+					if err := check(ic.Id, sat.Ref, sat.LootTable); err != nil {
+						return err
+					}
+				}
+			}
 		}
 	}
 	return nil
