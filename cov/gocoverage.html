@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (83.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.9%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (88.9%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (77.3%)</option>
 				
@@ -103,7 +103,7 @@
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.2%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/planner.go (86.8%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (93.7%)</option>
 				
@@ -531,9 +531,9 @@
 				
 				<option value="file237">github.com/kijimaD/ruins/internal/save/serde.go (96.6%)</option>
 				
-				<option value="file238">github.com/kijimaD/ruins/internal/screeneffect/filter.go (96.9%)</option>
+				<option value="file238">github.com/kijimaD/ruins/internal/screeneffect/filter.go (100.0%)</option>
 				
-				<option value="file239">github.com/kijimaD/ruins/internal/screeneffect/retro.go (75.0%)</option>
+				<option value="file239">github.com/kijimaD/ruins/internal/screeneffect/retro.go (87.5%)</option>
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/skill/growth.go (93.3%)</option>
 				
@@ -1882,8 +1882,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -5318,7 +5318,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -33740,7 +33740,7 @@ func (p *Pipeline) activeFilters() []Filter {
 // ensureScratch は中間バッファを dst と同じサイズで用意する。サイズが変わったら作り直す。
 func (p *Pipeline) ensureScratch(width, height int) {
         <span class="cov8" title="1">if p.scratch[0] != nil &amp;&amp; p.lastW == width &amp;&amp; p.lastH == height </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
         <span class="cov8" title="1">p.scratch[0] = ebiten.NewImage(width, height)
         p.scratch[1] = ebiten.NewImage(width, height)
@@ -33775,7 +33775,7 @@ func NewRetroFilter() (*RetroFilter, error) {
 // initShader はシェーダーを初期化する
 func (f *RetroFilter) initShader() error {
         <span class="cov8" title="1">if f.shader != nil </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
 
         <span class="cov8" title="1">shaderSrc, err := assets.FS.ReadFile("file/shaders/retro.kage")
@@ -33796,7 +33796,7 @@ func (f *RetroFilter) initShader() error {
 // ソース画像にエフェクトを適用して描画先に出力する
 func (f *RetroFilter) Apply(dst, src *ebiten.Image) {
         <span class="cov8" title="1">if f.shader == nil </span>{
-                <span class="cov0" title="0">dst.DrawImage(src, nil)
+                <span class="cov8" title="1">dst.DrawImage(src, nil)
                 return
 </span>        }
 
