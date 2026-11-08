@@ -90,3 +90,69 @@ func TestPipeline_Apply_nilレシーバは無処理(t *testing.T) {
 		pipeline.Apply(screen, src)
 	}, "nil パイプラインの Apply はパニックしない")
 }
+
+func TestRetroFilter_initShader_既に設定済みなら読み込み直さない(t *testing.T) {
+	t.Parallel()
+
+	filter, err := NewRetroFilter()
+	require.NoError(t, err)
+	shader := filter.shader
+
+	err = filter.initShader()
+
+	require.NoError(t, err)
+	assert.Same(t, shader, filter.shader, "既存のシェーダーを上書きしないこと")
+}
+
+func TestRetroFilter_Apply_シェーダー未設定ならそのまま描画する(t *testing.T) {
+	t.Parallel()
+
+	filter := &RetroFilter{}
+	src := ebiten.NewImage(2, 2)
+	dst := ebiten.NewImage(2, 2)
+
+	assert.NotPanics(t, func() {
+		filter.Apply(dst, src)
+	}, "シェーダーが無いときは DrawImage による素通し描画になり、パニックしないこと")
+}
+
+func TestPipeline_ensureScratch_サイズが同じなら作り直さない(t *testing.T) {
+	t.Parallel()
+
+	f1, err := NewRetroFilter()
+	require.NoError(t, err)
+	f2, err := NewRetroFilter()
+	require.NoError(t, err)
+
+	pipeline := NewPipeline(f1, f2)
+	src := ebiten.NewImage(64, 48)
+	screen := ebiten.NewImage(64, 48)
+
+	pipeline.Apply(screen, src)
+	scratch0 := pipeline.scratch[0]
+	scratch1 := pipeline.scratch[1]
+	require.NotNil(t, scratch0)
+	require.NotNil(t, scratch1)
+
+	pipeline.Apply(screen, src)
+
+	assert.Same(t, scratch0, pipeline.scratch[0], "同じサイズでの再適用はバッファを作り直さないこと")
+	assert.Same(t, scratch1, pipeline.scratch[1], "同じサイズでの再適用はバッファを作り直さないこと")
+}
+
+func TestPipeline_ensureScratch_サイズが変わったら作り直す(t *testing.T) {
+	t.Parallel()
+
+	f1, err := NewRetroFilter()
+	require.NoError(t, err)
+	f2, err := NewRetroFilter()
+	require.NoError(t, err)
+
+	pipeline := NewPipeline(f1, f2)
+	pipeline.Apply(ebiten.NewImage(64, 48), ebiten.NewImage(64, 48))
+	scratch0 := pipeline.scratch[0]
+
+	pipeline.Apply(ebiten.NewImage(32, 32), ebiten.NewImage(32, 32))
+
+	assert.NotSame(t, scratch0, pipeline.scratch[0], "サイズが変わったらバッファを作り直すこと")
+}
