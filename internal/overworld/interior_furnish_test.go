@@ -137,7 +137,7 @@ func TestFurnishBuilding_施設の部屋の定義が書いた表だけを引く(
 	}{
 		{"house", []string{"house_closet", "house_kitchen"}},
 		{"store", []string{"store_goods", "pantry", "medicine_shelf", "office_storage"}},
-		{"antique", []string{"antique_shelf", "pantry", "office_storage"}},
+		{"antique", []string{"antique_shelf", "office_storage"}},
 		{"depot", []string{"depot_storage"}},
 	}
 	for _, tt := range tests {
