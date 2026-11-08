@@ -13,7 +13,8 @@ import (
 
 func TestAddCubeFuel(t *testing.T) {
 	t.Parallel()
-	// 石炭は1kgで熱量800。上限は3000
+	// 石炭は1kgで熱量800
+	full := consts.CubeFuelCapacityBase
 	tests := []struct {
 		name      string
 		current   consts.Heat
@@ -22,8 +23,8 @@ func TestAddCubeFuel(t *testing.T) {
 		wantAlive bool
 	}{
 		{"熱量を足してアイテムを消す", 100, true, 900, false},
-		{"あふれた分は捨てて上限で止める", 2900, true, 3000, false},
-		{"満タンならくべずアイテムを残す", 3000, false, 3000, true},
+		{"あふれた分は捨てて上限で止める", full - 100, true, full, false},
+		{"満タンならくべずアイテムを残す", full, false, full, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -173,7 +173,7 @@ func FuelGaugeRatio(tank gc.FuelTank) float64 {
 	if tank.Max <= 0 {
 		return 0
 	}
-	return min(1, max(0, float64(tank.Current)/float64(tank.Max)))
+	return float64(tank.Current) / float64(tank.Max)
 }
 
 // ActiveCube は現ステージにいるキューブを返す。ダンジョンなどキューブのいないステージでは false。
