@@ -1388,6 +1388,9 @@ msgstr "%sスキルが %d に上がった"
 msgid "door entity is not set"
 msgstr "扉エンティティが指定されていません"
 
+msgid "Fuel %s"
+msgstr "燃料 %s"
+
 msgid "swap target is not set"
 msgstr "入れ替える相手が指定されていません"
 

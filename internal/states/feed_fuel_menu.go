@@ -52,7 +52,9 @@ func FireFuelSink(fire ecs.Entity) FuelSink {
 // CubeFuelSink はキューブをくべ先にする。増える量は燃料ポイントで表す。
 func CubeFuelSink(cube ecs.Entity) FuelSink {
 	return FuelSink{
-		title: func(world w.World) string { return query.CubeFuelTotal(world, cube).String() },
+		title: func(world w.World) string {
+			return query.T(world, "Fuel %s", query.CubeFuelTotal(world, cube).String())
+		},
 		gain: func(world w.World, fuel ecs.Entity) string {
 			return query.HeatContent(world, fuel).String()
 		},

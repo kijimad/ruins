@@ -14,7 +14,7 @@ import (
 )
 
 // Planner はエンティティの行動計画を担うインターフェースを表す。
-// 各ターンのAPループ内で呼ばれ、次のアクションを返す
+// 各ターンのAPループ内で呼ばれ、次のアクションを返す。nil を返すとそのターンの行動を終える
 type Planner interface {
 	Plan(world w.World, entity ecs.Entity) *gc.Activity
 }

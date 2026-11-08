@@ -413,3 +413,43 @@ func TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイル�
 	assert.Falsef(t, blockedCoords[got], "返り値 %v は壁でない", got)
 	assert.NotEqual(t, center, got, "壁の中心そのものは返さず外へ逃げる")
 }
+
+func TestDriver_MaybeShift_キューブが南端の行に入ると警告する(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		cubeY   consts.Tile
+		wantLog bool
+	}{
+		// 中央行のキューブはシフトで南端の行へ移る
+		{"中央行のキューブは南端に入るので警告する", testChunkH + 5, true},
+		// 北端行のキューブはシフトで中央行へ移るだけ
+		{"北端行のキューブは南端に入らないので警告しない", 5, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+			require.NoError(t, s.Start(world))
+			cube, ok := query.ActiveCube(world)
+			require.True(t, ok)
+			world.Components.GridElement.Get(cube).Y = tt.cubeY
+			player, err := query.GetPlayerEntity(world)
+			require.NoError(t, err)
+			world.Components.GridElement.Get(player).Y = 0
+
+			shifted, err := s.MaybeShift(world)
+			require.NoError(t, err)
+			require.True(t, shifted)
+
+			warned := false
+			for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
+				if e.Text() == query.T(world, "The cube is too far behind. Go further north and it will be left behind.") {
+					warned = true
+				}
+			}
+			assert.Equal(t, tt.wantLog, warned)
+		})
+	}
+}
