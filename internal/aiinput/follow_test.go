@@ -32,7 +32,7 @@ func TestPlanFollowAction(t *testing.T) {
 		{"休んでいて距離が開いたら追いかけ始める", consts.Coord[consts.Tile]{X: 9, Y: 5}, gc.AIStateWaiting, 100, gc.BehaviorMove, consts.Coord[consts.Tile]{X: 8, Y: 5}, 100 - step, gc.AIStateDriving, gc.SoloFollow},
 		{"追いかけている間は近くても隣まで寄る", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateDriving, 100, gc.BehaviorMove, consts.Coord[consts.Tile]{X: 7, Y: 5}, 100 - step, gc.AIStateDriving, gc.SoloFollow},
 		{"隣に追いついたら休む", consts.Coord[consts.Tile]{X: 6, Y: 5}, gc.AIStateDriving, 100, gc.BehaviorWait, consts.Coord[consts.Tile]{}, 100, gc.AIStateWaiting, gc.SoloFollow},
-		{"燃料が足りなければ待機の方針へ切り替える", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateDriving, step - 1, gc.BehaviorWait, consts.Coord[consts.Tile]{}, step - 1, gc.AIStateDriving, gc.SoloStationary},
+		{"燃料が足りなければ待機の方針へ切り替えて休む", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateDriving, step - 1, gc.BehaviorWait, consts.Coord[consts.Tile]{}, step - 1, gc.AIStateWaiting, gc.SoloStationary},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

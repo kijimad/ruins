@@ -405,6 +405,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	// 経路探索は通れるマスだけを返すので、払った歩みが通行判定で失敗することはない
 	if !lifecycle.ConsumeCubeFuel(world, aiEntity, query.FollowFuelCost(query.CubeWeight(world, aiEntity))) {
 		solo.Movement = gc.SoloStationary
+		solo.SubState = gc.AIStateWaiting
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "The cube is out of fuel and stops.")).
 			Log()
