@@ -57,19 +57,18 @@ func TestFuelGaugeRatio(t *testing.T) {
 	}
 }
 
-func TestFollowingCube(t *testing.T) {
+func TestActiveCube(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+
+	_, ok := query.ActiveCube(world)
+	assert.False(t, ok, "キューブがいなければ false")
+
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
-
-	_, ok := query.FollowingCube(world)
-	assert.False(t, ok, "待機中のキューブは随伴中に数えない")
-
-	world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
-	got, ok := query.FollowingCube(world)
-	require.True(t, ok)
+	got, ok := query.ActiveCube(world)
+	require.True(t, ok, "待機中でも同じステージにいれば返す")
 	assert.Equal(t, cube, got)
 }
 

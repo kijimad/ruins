@@ -34,8 +34,6 @@ type GameInfoData struct {
 	AmbientTempColor    color.RGBA       // 周囲気温の文字色。快適帯の内外を示す
 	AmbientShelterLabel string           // プレイヤー位置の囲われの訳済み表示名。屋外・屋内・半屋外
 	WeatherName         string           // 現在の世界天候の訳済み表示名
-	CubeFollowing       bool             // キューブが随伴中か。true のときだけ燃料ゲージを描く
-	FuelRatio           float64          // 燃料ゲージの充填率。0..1
 	MessageAreaHeight   int              // メッセージエリアの高さ（ステータス表示位置計算用）
 	Currency            consts.Currency  // プレイヤーの所持通貨。右下スタックに表示する
 	ScreenDimensions    ScreenDimensions // 画面サイズ。階層表示位置計算用
@@ -49,6 +47,14 @@ type MacroMapData struct {
 	PlayerFacing gc.Orient           // カメラの水平向き。現在地ポインタが指す方角
 	Config       MacroMapConfig      // パネル寸法と glyph 表示の閾値
 	Screen       ScreenDimensions    // 右上配置に使う画面サイズ
+	Cube         CubeStatusData      // 地図の下に出すキューブの欄
+}
+
+// CubeStatusData は地図の下に出すキューブの欄の描画データ。名前と燃料ゲージを並べる。
+type CubeStatusData struct {
+	Visible   bool    // キューブが同じステージにいるか。偽なら欄ごと出さない
+	Name      string  // 訳済みの名前
+	FuelRatio float64 // 燃料ゲージの充填率。0..1
 }
 
 // MacroMapConfig はマクロ地図ウィジェットの寸法。

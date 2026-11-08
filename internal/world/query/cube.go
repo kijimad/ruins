@@ -165,15 +165,13 @@ func FuelGaugeRatio(fuel consts.Heat) float64 {
 	return min(1, max(0, float64(fuel)/float64(consts.FuelGaugeFullHeat)))
 }
 
-// FollowingCube は随伴中のキューブを返す。随伴中のキューブが無ければ false。
-func FollowingCube(world w.World) (ecs.Entity, bool) {
-	q := ActiveFilter2[gc.MobileBase, gc.SoloAI](world).Query()
-	for q.Next() {
-		if world.Components.SoloAI.Get(q.Entity()).Movement == gc.SoloFollow {
-			cube := q.Entity()
-			q.Close()
-			return cube, true
-		}
+// ActiveCube は現ステージにいるキューブを返す。ダンジョンなどキューブのいないステージでは false。
+func ActiveCube(world w.World) (ecs.Entity, bool) {
+	q := ActiveFilter1[gc.MobileBase](world).Query()
+	if !q.Next() {
+		return gc.InvalidEntity, false
 	}
-	return gc.InvalidEntity, false
+	cube := q.Entity()
+	q.Close()
+	return cube, true
 }

@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -11,15 +12,18 @@ import (
 )
 
 // MacroMap は HUD 右上のマクロ地図エリア。N キーで開く地形俯瞰と同じ内容を縮小して常時表示する。
+// キューブが同じステージにいる間は、地図の下へ名前と燃料ゲージを並べる。
 type MacroMap struct {
-	face    text.Face // 地形セルの記号とキューブに使うフォント
-	chrome  Chrome
-	enabled bool
+	face      text.Face     // 地形セルの記号とキューブに使うフォント
+	labelFace text.Face     // 地図の下のキューブ名に使うフォント
+	gaugeFill *ebiten.Image // 燃料ゲージの塗りテクスチャ
+	chrome    Chrome
+	enabled   bool
 }
 
 // NewMacroMap は新しい HUD マクロ地図を作成する。
-func NewMacroMap(face text.Face, chrome Chrome) *MacroMap {
-	return &MacroMap{face: face, chrome: chrome, enabled: true}
+func NewMacroMap(face, labelFace text.Face, gaugeFill *ebiten.Image, chrome Chrome) *MacroMap {
+	return &MacroMap{face: face, labelFace: labelFace, gaugeFill: gaugeFill, chrome: chrome, enabled: true}
 }
 
 // Update はマクロ地図を更新する。描画データは毎フレーム抽出されるので保持状態は持たない。
@@ -41,13 +45,31 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	// 右上へ固定サイズのパネルを置く。先頭0幅列で右寄せ、末尾 Grow で上寄せする
 	panel := &macroPanelWidget{chrome: m.chrome, face: m.face, data: data}
 	row := uicore.Row([]int{0, width}, uicore.NewGroup(), panel)
-	items := []uicore.FlexItem{
-		{W: row, Height: height},
-		{Grow: true},
+	items := []uicore.FlexItem{{W: row, Height: height}}
+	if data.Cube.Visible {
+		items = append(items, m.cubeStatusItems(data.Cube, width)...)
 	}
+	items = append(items, uicore.FlexItem{Grow: true})
 	inner := image.Rect(0, theme.Space4, data.Screen.Width-theme.Space4, data.Screen.Height)
 	uicore.FlexColumn(inner, items)
 	drawFlexItems(cv, items)
+}
+
+// cubeStatusItems は地図の下へ積むキューブの欄を返す。名前の下に地図と同じ幅の燃料ゲージを置き、
+// 先頭0幅列で地図と右端をそろえる。
+func (m *MacroMap) cubeStatusItems(cube CubeStatusData, width int) []uicore.FlexItem {
+	_, labelH := uicore.MeasureText(cube.Name, m.labelFace)
+	label := uicore.Row([]int{0, width},
+		uicore.NewGroup(),
+		&uicore.Text{Value: cube.Name, Face: m.labelFace, Color: theme.TextPrimary, OutlineColor: theme.HUDTextOutline},
+	)
+	gauge := uicore.Row([]int{0, width}, uicore.NewGroup(), fuelGauge(m.gaugeFill, cube.FuelRatio))
+	return []uicore.FlexItem{
+		{Height: theme.Space2},
+		{W: label, Height: labelH},
+		{Height: gaugeSpacing},
+		{W: gauge, Height: gaugeHeight},
+	}
 }
 
 // macroPanelWidget は右上のマクロ地図パネル。与えられた矩形に背景枠を敷き、帯全体を中央寄せで描く。

@@ -75,14 +75,6 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		}
 	}
 
-	// 随伴中だけ燃料ゲージを出す
-	var cubeFollowing bool
-	var fuelRatio float64
-	if cube, ok := query.FollowingCube(world); ok {
-		cubeFollowing = true
-		fuelRatio = query.FuelGaugeRatio(query.CubeFuelTotal(world, cube))
-	}
-
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -101,8 +93,6 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		AmbientTempColor:    ambientTempColor,
 		AmbientShelterLabel: ambientShelterLabel,
 		WeatherName:         query.T(world, query.GetWeather(world).Current.String()),
-		CubeFollowing:       cubeFollowing,
-		FuelRatio:           fuelRatio,
 		MessageAreaHeight:   messageAreaHeight,
 		Currency:            currency,
 		ScreenDimensions: hud.ScreenDimensions{
@@ -145,7 +135,20 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 	if cam := query.GetPlayerCamera(world); cam != nil {
 		facing = cam.Orient
 	}
-	return hud.MacroMapData{HasBand: true, View: view, PlayerFacing: facing, Config: config, Screen: screen}
+	return hud.MacroMapData{HasBand: true, View: view, PlayerFacing: facing, Config: config, Screen: screen, Cube: extractCubeStatus(world)}
+}
+
+// extractCubeStatus は地図の下に出すキューブの欄を抽出する。キューブが現ステージにいなければ出さない。
+func extractCubeStatus(world w.World) hud.CubeStatusData {
+	cube, ok := query.ActiveCube(world)
+	if !ok {
+		return hud.CubeStatusData{}
+	}
+	return hud.CubeStatusData{
+		Visible:   true,
+		Name:      query.GetEntityName(cube, world),
+		FuelRatio: query.FuelGaugeRatio(query.CubeFuelTotal(world, cube)),
+	}
 }
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する
