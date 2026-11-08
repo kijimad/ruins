@@ -102,6 +102,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			if err := spawnInteriorBeing(world, fac, danger, pos, beingRNG); err != nil {
 				return nil, nil, fmt.Errorf("failed to place interior being (%s at %d,%d): %w", p.Ref, pos.X, pos.Y, err)
 			}
+			occupied[pos] = true
 		case interior.KindLoot:
 			// 抽象 loot Ref を item group へ写し、1山を抽選して床へ置く。写像を持たない Ref は置かない
 			groupID, ok := interior.LootGroupName(p.Ref)

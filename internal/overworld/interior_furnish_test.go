@@ -331,7 +331,7 @@ func TestFurnishBuilding_部屋の定義に従い建物の中に敵を置く(t *
 	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
 	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
 	door := interior.Vec{X: 10, Y: 13}
-	_, _, err := furnishBuilding(world, g, footprint, door, "store", 1, 1)
+	isWall, _, err := furnishBuilding(world, g, footprint, door, "store", 1, 1)
 	require.NoError(t, err)
 
 	table, err := urbanEnemyTableFor(world.Resources.RawMaster, "store")
@@ -345,6 +345,7 @@ func TestFurnishBuilding_部屋の定義に従い建物の中に敵を置く(t *
 	for q.Next() {
 		_, ge := q.Get()
 		assert.True(t, ge.X < footprint.W && ge.Y < footprint.H, "敵は建物の区画の中にいる")
+		assert.False(t, isWall(ge.X, ge.Y), "敵は壁の上にいない")
 		assert.True(t, members[query.GetEntityID(q.Entity(), world)], "敵は店の敵の表から引く")
 		inside++
 	}
