@@ -20,6 +20,7 @@ var (
 	errFacilityKeyUndefined           = errors.New("references undefined facility")
 	errZoneNoBaseFacility             = errors.New("zone has no base facility")
 	errFacilityLootTableUndefined     = errors.New("facility loot override references undefined item table")
+	errFacilityLootOverrideUnused     = errors.New("facility loot override replaces an item table no storage prop uses")
 	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
 	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
 	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
@@ -268,12 +269,20 @@ func validateFacilityReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateFacilityLootOverrides は施設の戦利品表の差し替えが実在する itemTables を指すことを検証する。
+// validateFacilityLootOverrides は施設の戦利品表の差し替えが実在する itemTables を指し、
+// 差し替え元がいずれかの収納家具の表であることを検証する。どの家具も引かない表を差し替えても効かないため。
 func validateFacilityLootOverrides(raws oapi.Raws) error {
 	tables := PtrSlice(raws.ItemTables)
 	tableIDs := make(map[string]struct{}, len(tables))
 	for i := range tables {
 		tableIDs[tables[i].Id] = struct{}{}
+	}
+	storageTables := make(map[string]struct{})
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		if st := props[i].Storage; st != nil && st.LootTableId != nil {
+			storageTables[*st.LootTableId] = struct{}{}
+		}
 	}
 	for _, f := range PtrSlice(raws.Facilities) {
 		for _, o := range PtrSlice(f.LootOverrides) {
@@ -281,6 +290,9 @@ func validateFacilityLootOverrides(raws oapi.Raws) error {
 				if _, ok := tableIDs[id]; !ok {
 					return fmt.Errorf("facility %q references item table %q: %w", f.Id, id, errFacilityLootTableUndefined)
 				}
+			}
+			if _, ok := storageTables[o.From]; !ok {
+				return fmt.Errorf("facility %q replaces item table %q: %w", f.Id, o.From, errFacilityLootOverrideUnused)
 			}
 		}
 	}
