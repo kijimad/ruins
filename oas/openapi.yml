@@ -2356,6 +2356,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FacilityZone'
+        lootOverrides:
+          type: array
+          items:
+            $ref: '#/components/schemas/LootOverride'
+          description: 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
       description: 市街地の施設1種。isShop は看板やシャッターを出す店か
     FacilityContent:
       type: object
@@ -2789,6 +2794,17 @@ components:
         enabled:
           $ref: '#/components/schemas/LightEnabled'
       description: 光源設定
+    LootOverride:
+      type: object
+      required:
+        - from
+        - to
+      properties:
+        from:
+          $ref: '#/components/schemas/EntityID'
+        to:
+          $ref: '#/components/schemas/EntityID'
+      description: 家具の戦利品表 from を、この施設では to に差し替える。どちらも itemTables の id
     MagazineSize:
       type: integer
       minimum: 1

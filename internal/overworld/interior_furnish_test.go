@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -71,21 +72,64 @@ func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 
 	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, closet, "closet", rng))
+	require.NoError(t, populateStorageLoot(world, closet, "closet", "house", rng))
 	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が1つ以上入る")
 
 	// 家具別テーブルの分化。冷蔵庫は食料庫テーブルから引く。テーブル解決と loot 産出を確かめる
 	beforeFridge := countStoredItems(world)
 	fridge, err := lifecycle.SpawnProp(world, "refrigerator", 2, 2)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, fridge, "refrigerator", rng))
+	require.NoError(t, populateStorageLoot(world, fridge, "refrigerator", "house", rng))
 	assert.Greater(t, countStoredItems(world), beforeFridge, "冷蔵庫に食料庫テーブルの戦利品が入る")
 
 	before := countStoredItems(world)
 	candle, err := lifecycle.SpawnProp(world, "candle", 1, 1)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, candle, "candle", rng))
+	require.NoError(t, populateStorageLoot(world, candle, "candle", "house", rng))
 	assert.Equal(t, before, countStoredItems(world), "収納でない蝋燭は戦利品を入れない")
+}
+
+func TestPopulateStorageLoot_施設の差し替えた表から引く(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		prop   string
+		fac    string
+		groups []string
+	}{
+		{"家の押入れは衣類と日用品と紙片", "closet", "house", []string{"clothing", "household_goods", "scrap_of_paper"}},
+		{"家の冷蔵庫は食料と日用品と紙片", "refrigerator", "house", []string{"food", "household_goods", "scrap_of_paper"}},
+		{"店の商品棚は食料と回復薬と日用品", "goods_shelf", "store", []string{"food", "healing_item", "household_goods"}},
+		{"骨董品店の商品棚は骨董品と日用品", "goods_shelf", "antique", []string{"antique_goods", "household_goods"}},
+		{"倉庫の樽は資材とがらくた", "barrel", "depot", []string{"industrial_materials", "junk"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			allowed := map[string]bool{}
+			for _, gid := range tt.groups {
+				g, err := raw.GetItemGroup(world.Resources.RawMaster, gid)
+				require.NoError(t, err)
+				for _, e := range g.Entries {
+					allowed[e.Id] = true
+				}
+			}
+			rng := rand.New(rand.NewPCG(1, 0x4))
+			got := 0
+			for i := range 30 {
+				ent, err := lifecycle.SpawnProp(world, tt.prop, consts.Tile(i), 0)
+				require.NoError(t, err)
+				require.NoError(t, populateStorageLoot(world, ent, tt.prop, tt.fac, rng))
+				for _, item := range query.GetStorageItems(world, ent) {
+					id := query.GetEntityID(item, world)
+					assert.True(t, allowed[id], "%s の %s から想定外の %s が出た", tt.fac, tt.prop, id)
+					got++
+				}
+			}
+			assert.Positive(t, got)
+		})
+	}
 }
 
 // TestInteriorPropRaw_全施設の家具refが写像を持つ は、施設 content が生む家具が in-game で無言に欠落

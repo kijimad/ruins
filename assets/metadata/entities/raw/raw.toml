@@ -14733,6 +14733,362 @@ pack = "2d2"
 id = "tesla_coil_orb"
 weight = 6
 pack = "1d2"
+[[itemGroups]]
+name = "衣類"
+id = "clothing"
+subtype = "distribution"
+[[itemGroups.entries]]
+id = "cloth_shirt"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_pants"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_shoes"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_hat"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "check_shirt"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "denim_clothes"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_jacket"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "green_clothes"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sandals"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "winter_gloves"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cloth_gloves"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "stitched_shirt"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_belt"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "leather_shoes"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "travel_bag"
+weight = 1
+pack = "1d1"
+[[itemGroups]]
+name = "日用品"
+id = "household_goods"
+subtype = "distribution"
+[[itemGroups.entries]]
+id = "towel"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pillow"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "toilet_paper"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pile_of_plates"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "photo"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "origami"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "kettle"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "teapot"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "toaster"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "teddy_bear"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "houseplant"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "record"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "parasol"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "folding_fan"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "sewing_machine"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mobile_device"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "charger"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "diary_book"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "pie_cookbook"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "gardening_guide"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "coffee_book"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "thin_book"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "history_guide"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "bandage"
+weight = 1
+pack = "1d1"
+[[itemGroups]]
+name = "骨董品"
+id = "antique_goods"
+subtype = "distribution"
+[[itemGroups.entries]]
+id = "ancient_pot"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "ancient_gold_coin"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "angel_statue"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "old_globe"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "orrery"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "scale"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "stone_tablet"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "scripture_black"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "scripture_brown"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "fine_amber"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "black_pearl"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "heart_charm"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "tank_model"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "emerald"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "topaz"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "record"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "folding_fan"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "teapot"
+weight = 1
+pack = "1d1"
+[[itemGroups]]
+name = "事務用品"
+id = "office_goods"
+subtype = "distribution"
+[[itemGroups.entries]]
+id = "thin_book"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hefty_book"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "history_guide"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "electronics_book"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "automation_engineering_book"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "mobile_device"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "charger"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "hard_disk"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cable_bundle"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cord_bundle"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "replaceable_cell"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "compass"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "diary_book"
+weight = 1
+pack = "1d1"
+[[itemGroups]]
+name = "資材"
+id = "industrial_materials"
+subtype = "distribution"
+[[itemGroups.entries]]
+id = "scrap_iron"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "aluminum"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "alloy_plate"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "lumber_pile"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "rusted_chain"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "iron_ore"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "coal"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "electric_wire"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "yellow_wire"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "old_gear"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "brown_gear"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "firewood"
+weight = 1
+pack = "1d1"
+[[itemGroups.entries]]
+id = "cable_bundle"
+weight = 1
+pack = "1d1"
 
 [[itemTables]]
 name = "廃墟"
@@ -15024,6 +15380,99 @@ maxDanger = 30
 id = "ranged_weapon"
 weight = 1
 minDanger = 6
+maxDanger = 30
+[[itemTables]]
+name = "家の物入れ"
+id = "house_closet"
+[[itemTables.entries]]
+id = "clothing"
+weight = 3
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "household_goods"
+weight = 3
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "scrap_of_paper"
+weight = 1
+minDanger = 1
+maxDanger = 30
+[[itemTables]]
+name = "家の台所"
+id = "house_kitchen"
+[[itemTables.entries]]
+id = "food"
+weight = 6
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "household_goods"
+weight = 1
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "scrap_of_paper"
+weight = 1
+minDanger = 1
+maxDanger = 30
+[[itemTables]]
+name = "店の商品棚"
+id = "store_goods"
+[[itemTables.entries]]
+id = "food"
+weight = 4
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "healing_item"
+weight = 3
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "household_goods"
+weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables]]
+name = "骨董品の陳列棚"
+id = "antique_shelf"
+[[itemTables.entries]]
+id = "antique_goods"
+weight = 5
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "household_goods"
+weight = 1
+minDanger = 1
+maxDanger = 30
+[[itemTables]]
+name = "事務所の物入れ"
+id = "office_storage"
+[[itemTables.entries]]
+id = "office_goods"
+weight = 4
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "scrap_of_paper"
+weight = 2
+minDanger = 1
+maxDanger = 30
+[[itemTables]]
+name = "倉庫の物入れ"
+id = "depot_storage"
+[[itemTables.entries]]
+id = "industrial_materials"
+weight = 4
+minDanger = 1
+maxDanger = 30
+[[itemTables.entries]]
+id = "junk"
+weight = 2
+minDanger = 1
 maxDanger = 30
 
 [[enemyTables]]
@@ -16000,6 +16449,12 @@ minSpan = 2
 zone = "industrial"
 weight = 10
 minSpan = 2
+[[facilities.lootOverrides]]
+from = "storage_box"
+to = "house_closet"
+[[facilities.lootOverrides]]
+from = "pantry"
+to = "house_kitchen"
 [[facilities]]
 id = "store"
 isShop = true
@@ -16013,6 +16468,12 @@ minSpan = 2
 zone = "residential"
 weight = 25
 minSpan = 2
+[[facilities.lootOverrides]]
+from = "store_shelf"
+to = "store_goods"
+[[facilities.lootOverrides]]
+from = "storage_box"
+to = "office_storage"
 [[facilities]]
 id = "office"
 isShop = false
@@ -16026,6 +16487,9 @@ minSpan = 2
 zone = "industrial"
 weight = 25
 minSpan = 2
+[[facilities.lootOverrides]]
+from = "storage_box"
+to = "office_storage"
 [[facilities]]
 id = "depot"
 isShop = false
@@ -16035,6 +16499,9 @@ enemyTable = "depot_enemies"
 zone = "industrial"
 weight = 65
 minSpan = 2
+[[facilities.lootOverrides]]
+from = "storage_box"
+to = "depot_storage"
 [[facilities]]
 id = "antique"
 isShop = true
@@ -16044,6 +16511,12 @@ enemyTable = "antique_enemies"
 zone = "downtown"
 weight = 20
 minSpan = 3
+[[facilities.lootOverrides]]
+from = "store_shelf"
+to = "antique_shelf"
+[[facilities.lootOverrides]]
+from = "storage_box"
+to = "office_storage"
 [[facilities]]
 id = "clinic"
 isShop = false
@@ -16057,6 +16530,9 @@ minSpan = 3
 zone = "residential"
 weight = 10
 minSpan = 3
+[[facilities.lootOverrides]]
+from = "storage_box"
+to = "office_storage"
 [[facilities]]
 id = "lab"
 isShop = false
@@ -16066,6 +16542,9 @@ enemyTable = "lab_enemies"
 zone = "downtown"
 weight = 15
 minSpan = 3
+[[facilities.lootOverrides]]
+from = "storage_box"
+to = "office_storage"
 
 [[landmarks]]
 id = "abandoned_hut"

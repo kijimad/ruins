@@ -19,6 +19,7 @@ var (
 	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
 	errFacilityKeyUndefined           = errors.New("references undefined facility")
 	errZoneNoBaseFacility             = errors.New("zone has no base facility")
+	errFacilityLootTableUndefined     = errors.New("facility loot override references undefined item table")
 	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
 	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
 	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
@@ -101,6 +102,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateFacilityReferences(raws); err != nil {
+		return err
+	}
+	if err := validateFacilityLootOverrides(raws); err != nil {
 		return err
 	}
 	if err := validateInteriorContentReferences(raws); err != nil {
@@ -259,6 +263,25 @@ func validateFacilityReferences(raws oapi.Raws) error {
 	for _, fr := range PtrSlice(raws.FacilityRooms) {
 		if _, ok := facilityIDs[fr.Facility]; !ok {
 			return fmt.Errorf("facilityRooms references unknown facility %q: %w", fr.Facility, errFacilityKeyUndefined)
+		}
+	}
+	return nil
+}
+
+// validateFacilityLootOverrides は施設の戦利品表の差し替えが実在する itemTables を指すことを検証する。
+func validateFacilityLootOverrides(raws oapi.Raws) error {
+	tables := PtrSlice(raws.ItemTables)
+	tableIDs := make(map[string]struct{}, len(tables))
+	for i := range tables {
+		tableIDs[tables[i].Id] = struct{}{}
+	}
+	for _, f := range PtrSlice(raws.Facilities) {
+		for _, o := range PtrSlice(f.LootOverrides) {
+			for _, id := range []string{o.From, o.To} {
+				if _, ok := tableIDs[id]; !ok {
+					return fmt.Errorf("facility %q references item table %q: %w", f.Id, id, errFacilityLootTableUndefined)
+				}
+			}
 		}
 	}
 	return nil

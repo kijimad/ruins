@@ -311,6 +311,14 @@ model Facility {
   planner: PlannerKey;
   enemyTable: EntityID;
   zones: FacilityZone[];
+  /** 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う */
+  lootOverrides?: LootOverride[];
+}
+
+/** 家具の戦利品表 from を、この施設では to に差し替える。どちらも itemTables の id */
+model LootOverride {
+  from: EntityID;
+  to: EntityID;
 }
 
 /** 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる */

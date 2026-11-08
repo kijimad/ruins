@@ -772,6 +772,10 @@ export interface Facility {
     'planner': PlannerKey;
     'enemyTable': string;
     'zones': Array<FacilityZone>;
+    /**
+     * 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
+     */
+    'lootOverrides'?: Array<LootOverride>;
 }
 
 
@@ -1097,6 +1101,13 @@ export interface LightSource {
      * 光源が有効かどうか
      */
     'enabled': boolean;
+}
+/**
+ * 家具の戦利品表 from を、この施設では to に差し替える。どちらも itemTables の id
+ */
+export interface LootOverride {
+    'from': string;
+    'to': string;
 }
 /**
  * 俯瞰地図の記号1種。id は地物・施設の種別 id

@@ -374,6 +374,32 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 	})
 }
 
+func TestValidateFacilityLootOverrides(t *testing.T) {
+	t.Parallel()
+
+	itemTables := &[]oapi.ItemTable{{Id: "storage_box"}, {Id: "house_storage"}}
+	tests := []struct {
+		name    string
+		from    string
+		to      string
+		wantErr error
+	}{
+		{"実在する表どうしの差し替えは通る", "storage_box", "house_storage", nil},
+		{"差し替え元が無いとエラー", "no_such", "house_storage", errFacilityLootTableUndefined},
+		{"差し替え先が無いとエラー", "storage_box", "no_such", errFacilityLootTableUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{
+				ItemTables: itemTables,
+				Facilities: &[]oapi.Facility{{Id: "house", LootOverrides: &[]oapi.LootOverride{{From: tt.from, To: tt.to}}}},
+			}
+			require.ErrorIs(t, validateFacilityLootOverrides(raws), tt.wantErr)
+		})
+	}
+}
+
 func TestValidateFacilityReferences(t *testing.T) {
 	t.Parallel()
 

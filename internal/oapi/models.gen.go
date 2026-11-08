@@ -1373,6 +1373,9 @@ type Facility struct {
 	Id         EntityID `json:"id"`
 	IsShop     bool     `json:"isShop"`
 
+	// LootOverrides 家具の戦利品表をこの施設用の表へ差し替える。対応の無い表はそのまま使う
+	LootOverrides *[]LootOverride `json:"lootOverrides,omitempty"`
+
 	// Planner 間取りテンプレの選択キー
 	Planner PlannerKey     `json:"planner"`
 	Zones   []FacilityZone `json:"zones"`
@@ -1671,6 +1674,12 @@ type LightSource struct {
 
 	// Radius 光の到達半径（タイル単位）
 	Radius LightRadius `json:"radius"`
+}
+
+// LootOverride 家具の戦利品表 from を、この施設では to に差し替える。どちらも itemTables の id
+type LootOverride struct {
+	From EntityID `json:"from"`
+	To   EntityID `json:"to"`
 }
 
 // MagazineSize マガジン容量
