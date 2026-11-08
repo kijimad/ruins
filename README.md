@@ -106,7 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [キューブを運転する乗り物から、追従と待機を切り替える随伴者にする](docs/design/261108013524.md) | 15/16 | gamedesign, ecs, movement |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference
