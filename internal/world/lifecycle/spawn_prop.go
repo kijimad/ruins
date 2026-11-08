@@ -163,7 +163,7 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 const cubeHP = 200
 
 // SpawnCube はプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成する。
-// blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。
+// 宙に浮いて上下に揺れる無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。
 // 既存の NPC と同じ SoloAI で動き、陣営を持たないので戦闘の状態遷移に入らず、移動方針だけで動く。
 // 生成直後から追従し、燃料ポイントは満タン表示の基準量を持つ。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
@@ -173,7 +173,8 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
-			SpriteKey:       "blue_cube",
+			SpriteKey:       "cube_float_0",
+			AnimKeys:        []string{"cube_float_0", "cube_float_1", "cube_float_2", "cube_float_3"},
 			Depth:           gc.DepthNumTaller,
 		},
 		Prop:       &gc.Prop{},
