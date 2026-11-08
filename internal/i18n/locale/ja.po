@@ -6306,10 +6306,10 @@ msgid "A visored helmet built to take hits."
 msgstr "打撃に耐えるバイザー付きヘルメット"
 
 msgid "Deploy"
-msgstr "展開する"
+msgstr "展開"
 
 msgid "Compress"
-msgstr "圧縮する"
+msgstr "圧縮"
 
 msgid "Not enough open space to deploy."
 msgstr "展開する空きが足りない"
