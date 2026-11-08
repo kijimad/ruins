@@ -50,9 +50,9 @@ var Registry = []Def{
 	{Field: "Door"},            // 開閉可能な扉であることを表す
 	{Field: "Item"},            // 可搬アイテムであることを示す
 	{Field: "Prop"},            // 設置物であることを示す
-	{Field: "Drivable"},        // 運転可能であることを示す。移動拠点キューブが持つ
-	{Field: "Driving"},         // 運転中であることと運転対象の乗り物を保持する。プレイヤーへ付く一時状態
-	{Field: "Deployed"},        // キューブが展開中であることを示す。運転は非展開時のみ。保存する
+	{Field: "Cube"},            // 移動拠点キューブであることを示す
+	{Field: "FuelTank"},        // キューブに貯めた燃料ポイントを保持する。保存する
+	{Field: "Deployed"},        // キューブが展開中であることを示す。展開中は随伴しない。保存する
 	{Field: "LightSource"},     // 光源であることを表す
 	{Field: "Interactable"},    // 相互作用可能であることを示す
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する

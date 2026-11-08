@@ -162,27 +162,37 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 // cubeHP はキューブの耐久値。扉と同じ prop 標準の HP 機構に乗せる。移動拠点なので扉より頑丈にする
 const cubeHP = 200
 
-// SpawnCube は運転できる移動拠点キューブをオーバーワールドに生成する。
-// blue_cube のスプライトを流用した無地のキューブ。オーバーワールドの地物として帯へ明示束縛する。
+// SpawnCube はプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成し、帯へ明示束縛する。
+// 陣営を持たないので、SoloAI の戦闘の状態遷移に入らず移動方針だけで動く。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
-	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
+	cube := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:        &gc.Name{Name: query.T(world, "Cube")},
-		Description: &gc.Description{Description: query.T(world, "A mobile base you can drive")},
+		Description: &gc.Description{Description: query.T(world, "A mobile base that follows you")},
 		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
-			SpriteKey:       "blue_cube",
+			SpriteKey:       "cube_float_0",
+			AnimKeys:        []string{"cube_float_0", "cube_float_1", "cube_float_2", "cube_float_3"},
 			Depth:           gc.DepthNumTaller,
 		},
-		Prop:            &gc.Prop{},
-		Drivable:        &gc.Drivable{},
-		HP:              &gc.HP{Max: cubeHP, Current: cubeHP},
+		Prop:     &gc.Prop{},
+		Cube:     &gc.Cube{},
+		FuelTank: &gc.FuelTank{Heat: consts.FuelGaugeFullHeat},
+		HP:       &gc.HP{Max: cubeHP, Current: cubeHP},
+		SoloAI: &gc.SoloAI{
+			CombatDefault: gc.CombatIgnore,
+			CombatCurrent: gc.CombatIgnore,
+			Movement:      gc.SoloFollow,
+			SubState:      gc.AIStateWaiting,
+		},
+		TurnBased:       &gc.TurnBased{},
 		LocationOnField: &gc.LocationOnField{},
 		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
 		// 収納を持ち、隣接時にキューブメニューから開ける
 		WeightCapacity: &gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},
-		// 直上で Enter するとキューブメニューが開き、運転もそこから始める。BlockPass は持たず、
-		// 直上に立てる通行可能な地物にする
-		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu}},
-	}), nil
+		Interactable:   &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}},
+	})
+	maxAP := query.CalculateMaxActionPoints(world, cube)
+	world.Components.TurnBased.Get(cube).AP = gc.IntPool{Current: maxAP, Max: maxAP}
+	return cube, nil
 }

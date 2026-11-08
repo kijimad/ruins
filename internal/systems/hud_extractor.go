@@ -75,14 +75,6 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		}
 	}
 
-	// 運転中だけ燃料ゲージを出す。Vehicle の生存を確かめてから燃料量を読む
-	var driving bool
-	var fuelRatio float64
-	if d, ok := query.PlayerDriving(world); ok && world.ECS.Alive(d.Vehicle) {
-		driving = true
-		fuelRatio = query.FuelGaugeRatio(query.CubeFuelTotal(world, d.Vehicle))
-	}
-
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -101,8 +93,6 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		AmbientTempColor:    ambientTempColor,
 		AmbientShelterLabel: ambientShelterLabel,
 		WeatherName:         query.T(world, query.GetWeather(world).Current.String()),
-		Driving:             driving,
-		FuelRatio:           fuelRatio,
 		MessageAreaHeight:   messageAreaHeight,
 		Currency:            currency,
 		ScreenDimensions: hud.ScreenDimensions{
@@ -138,14 +128,27 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 	// 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する
 	view := overworld.BuildMacroView(
 		world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
-		area, playerTile, hasPlayer, query.DriveCubeTiles(world), query.DiscoveredChunks(world, sb),
+		area, playerTile, hasPlayer, query.CubeTiles(world), query.DiscoveredChunks(world, sb),
 	)
 	// カメラ不在時は北を既定にする
 	var facing gc.Orient
 	if cam := query.GetPlayerCamera(world); cam != nil {
 		facing = cam.Orient
 	}
-	return hud.MacroMapData{HasBand: true, View: view, PlayerFacing: facing, Config: config, Screen: screen}
+	return hud.MacroMapData{HasBand: true, View: view, PlayerFacing: facing, Config: config, Screen: screen, Cube: extractCubeStatus(world)}
+}
+
+// extractCubeStatus は地図の下に出すキューブの欄を抽出する。キューブが現ステージにいなければ出さない。
+func extractCubeStatus(world w.World) hud.CubeStatusData {
+	cube, ok := query.ActiveCube(world)
+	if !ok {
+		return hud.CubeStatusData{}
+	}
+	return hud.CubeStatusData{
+		Visible:   true,
+		Name:      query.GetEntityName(cube, world),
+		FuelRatio: query.FuelGaugeRatio(query.CubeFuelTotal(world, cube)),
+	}
 }
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する

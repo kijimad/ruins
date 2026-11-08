@@ -15,21 +15,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDriveFuelCost(t *testing.T) {
+func TestFollowFuelCost(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name  string
 		total consts.Milligram
 		want  consts.Heat
 	}{
-		{"空のキューブは基準燃料だけかかる", 0, consts.DriveFuelBase},
-		{"総重量3kgで基準に3kgぶん加算される", consts.Milligram(3 * consts.MilligramPerKg), consts.DriveFuelBase + 3*consts.DriveFuelPerKg},
-		{"総重量10kgで基準に10kgぶん加算される", consts.Milligram(10 * consts.MilligramPerKg), consts.DriveFuelBase + 10*consts.DriveFuelPerKg},
+		{"空のキューブは基準燃料だけかかる", 0, consts.FollowFuelBase},
+		{"総重量3kgで基準に3kgぶん加算される", consts.Milligram(3 * consts.MilligramPerKg), consts.FollowFuelBase + 3*consts.FollowFuelPerKg},
+		{"総重量10kgで基準に10kgぶん加算される", consts.Milligram(10 * consts.MilligramPerKg), consts.FollowFuelBase + 10*consts.FollowFuelPerKg},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, query.DriveFuelCost(tt.total))
+			assert.Equal(t, tt.want, query.FollowFuelCost(tt.total))
 		})
 	}
 }
@@ -57,28 +57,24 @@ func TestFuelGaugeRatio(t *testing.T) {
 	}
 }
 
-func TestPlayerDriving(t *testing.T) {
+func TestActiveCube(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
 
-	_, ok := query.PlayerDriving(world)
-	assert.False(t, ok, "Driving を持たなければ false")
+	_, ok := query.ActiveCube(world)
+	assert.False(t, ok, "キューブがいなければ false")
 
-	cube := world.ECS.NewEntity()
-	world.Components.Driving.Add(player, &gc.Driving{Vehicle: cube})
-	got, ok := query.PlayerDriving(world)
-	assert.True(t, ok, "Driving を持てば返す")
-	if ok {
-		assert.Equal(t, cube, got.Vehicle, "運転対象を返す")
-	}
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
+	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
+	got, ok := query.ActiveCube(world)
+	require.True(t, ok, "待機中でも同じステージにいれば返す")
+	assert.Equal(t, cube, got)
 }
 
-// addCubeFuel はキューブ収納に材質と重量を持つ燃料アイテムを1つ足す。
-// 生エンティティで足りる query 層のユニットテスト用。SpawnCube を使う統合テストは
-// activity パッケージ側の同名ヘルパを使い、こちらとは抽象レベルが異なる。
-func addCubeFuel(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Material, mg consts.Milligram) {
+// addCubeStorageItem はキューブ収納に材質と重量を持つアイテムを1つ足す。
+// 生エンティティで足りる query 層のユニットテスト用。
+func addCubeStorageItem(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Material, mg consts.Milligram) {
 	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.Material.Add(e, &gc.Material{Kind: kind})
@@ -86,17 +82,15 @@ func addCubeFuel(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Materia
 	world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: cube})
 }
 
-func TestCubeFuelTotal(t *testing.T) {
+func TestCubeFuelTotal_燃料ポイントを返し収納の可燃物は数えない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := world.ECS.NewEntity()
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
+	require.NoError(t, err)
+	world.Components.FuelTank.Get(cube).Heat = 1200
+	addCubeStorageItem(t, world, cube, oapi.COAL, consts.Milligram(2*consts.MilligramPerKg))
 
-	// COAL は 800/kg。2kg と 1kg で 1600 + 800 = 2400。石は不燃で寄与しない
-	addCubeFuel(t, world, cube, oapi.COAL, consts.Milligram(2*consts.MilligramPerKg))
-	addCubeFuel(t, world, cube, oapi.COAL, consts.Milligram(1*consts.MilligramPerKg))
-	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(5*consts.MilligramPerKg))
-
-	assert.Equal(t, consts.Heat(2400), query.CubeFuelTotal(world, cube))
+	assert.Equal(t, consts.Heat(1200), query.CubeFuelTotal(world, cube))
 }
 
 func TestCubeWeight_空の収納は0(t *testing.T) {
@@ -112,9 +106,9 @@ func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cube := world.ECS.NewEntity()
 
-	// 材質は重量に無関係。addCubeFuel は Weight と収納所属を付ける
-	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
-	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(3*consts.MilligramPerKg))
+	// 材質は重量に無関係。addCubeStorageItem は Weight と収納所属を付ける
+	addCubeStorageItem(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, oapi.STONE, consts.Milligram(3*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, cube))
 }
@@ -273,28 +267,24 @@ func TestCubeWeight_別の収納の物は数えない(t *testing.T) {
 	cube := world.ECS.NewEntity()
 	other := world.ECS.NewEntity()
 
-	addCubeFuel(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
-	addCubeFuel(t, world, other, oapi.STONE, consts.Milligram(9*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, other, oapi.STONE, consts.Milligram(9*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, cube), "別の収納の物は除外する")
 }
 
-// TestDriveCubeTiles_運転可能なタイル座標だけ集める は、Drivable を持つタイルの座標だけが
-// マクロ地図マーカー用に集まり、持たないタイルは混ざらないことを固定する。
-func TestDriveCubeTiles_運転可能なタイル座標だけ集める(t *testing.T) {
+// TestCubeTiles_キューブのタイル座標だけ集める は、Cube を持つ実体の座標だけが
+// マクロ地図マーカー用に集まり、持たない実体は混ざらないことを固定する。
+func TestCubeTiles_キューブのタイル座標だけ集める(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	cube := world.ECS.NewEntity()
-	world.Components.GridElement.Add(cube, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
-	world.Components.Drivable.Add(cube, &gc.Drivable{})
-
-	// Drivable を持たないタイルは含まない
+	_, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 4})
+	require.NoError(t, err)
 	other := world.ECS.NewEntity()
 	world.Components.GridElement.Add(other, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 
-	got := query.DriveCubeTiles(world)
-	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 3, Y: 4}}, got)
+	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 3, Y: 4}}, query.CubeTiles(world))
 }
 
 func TestPlayerBandTile(t *testing.T) {

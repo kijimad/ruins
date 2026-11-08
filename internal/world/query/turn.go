@@ -1,8 +1,6 @@
 package query
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -59,9 +57,8 @@ func ConsumeActionPoints(world w.World, entity ecs.Entity, cost int) bool {
 }
 
 // RestoreAllActionPoints は全エンティティのAPを回復する
-func RestoreAllActionPoints(world w.World) error {
+func RestoreAllActionPoints(world w.World) {
 	log := logger.New(logger.CategoryTurn)
-	var err error
 
 	// 退避中ステージの敵はAP回復しない。現ステージのみ対象にする
 	turnBasedQuery := ActiveFilter1[gc.TurnBased](world).Query()
@@ -70,11 +67,7 @@ func RestoreAllActionPoints(world w.World) error {
 		tb := world.Components.TurnBased.Get(entity)
 
 		// MaxAPとSpeedを計算
-		maxAP, calcErr := CalculateMaxActionPoints(world, entity)
-		if calcErr != nil {
-			err = calcErr
-			continue
-		}
+		maxAP := CalculateMaxActionPoints(world, entity)
 
 		speed := CalculateSpeed(world, entity)
 		tb.Speed = speed
@@ -90,25 +83,24 @@ func RestoreAllActionPoints(world w.World) error {
 			"current", tb.AP.Current,
 			"max", maxAP)
 	}
-
-	return err
 }
 
 // CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
 // 敏捷性を重視したAP計算式
-func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
-	abils := world.Components.Abilities.Get(entity)
-	if abils == nil {
-		return 0, fmt.Errorf("abilities are not set")
-	}
-
+func CalculateMaxActionPoints(world w.World, entity ecs.Entity) int {
 	baseAP := 100
 	agilityMultiplier := 3
 	dexterityMultiplier := 1
 
+	// 能力値を持たない行動主体は基準値で動く。CalculateSpeed と同じ扱い
+	abils := world.Components.Abilities.Get(entity)
+	if abils == nil {
+		return baseAP
+	}
+
 	calculatedAP := max(baseAP+abils.Agility.Total*agilityMultiplier+abils.Dexterity.Total*dexterityMultiplier, 20)
 
-	return calculatedAP, nil
+	return calculatedAP
 }
 
 // CalculateSpeed はエンティティのSpeedを計算する。

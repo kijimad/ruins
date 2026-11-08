@@ -60,6 +60,8 @@ const (
 	BehaviorFeedFuel BehaviorName = "FeedFuel"
 	// BehaviorSleep は疲労が抜けるまで眠り続ける。外因で中断される
 	BehaviorSleep BehaviorName = "Sleep"
+	// BehaviorSwap は隣接の相手と位置を入れ替える
+	BehaviorSwap BehaviorName = "Swap"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント
@@ -118,6 +120,13 @@ type CloseDoorParams struct {
 }
 
 func (*CloseDoorParams) isActivityParams() {}
+
+// SwapParams は位置を入れ替えるアクションのパラメータ。
+type SwapParams struct {
+	Target ecs.Entity // 入れ替える相手のエンティティ
+}
+
+func (*SwapParams) isActivityParams() {}
 
 // ShootParams は射撃のパラメータ。
 type ShootParams struct {

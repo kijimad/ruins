@@ -47,6 +47,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeIgnite(target, world)
 	case gc.InteractionFeedFuel:
 		return executeFeedFuel(target, world)
+	case gc.InteractionSwap:
+		return Execute(NewSwapActivity(target), actor, world)
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす

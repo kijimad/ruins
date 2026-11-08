@@ -12,22 +12,27 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSpawnCube_運転できる移動拠点として生成される(t *testing.T) {
+func TestSpawnCube_追従中で燃料満タンの随伴者として生成される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 8})
 	require.NoError(t, err)
 
-	assert.True(t, world.Components.Drivable.Has(cube), "運転できる印を持つ")
-	assert.False(t, world.Components.BlockPass.Has(cube), "直上に立てるよう通行可能にする")
+	assert.True(t, world.Components.Cube.Has(cube), "移動拠点の印を持つ")
 	assert.True(t, world.Components.Prop.Has(cube), "設置物である")
+	require.True(t, world.Components.FuelTank.Has(cube))
+	assert.Equal(t, consts.FuelGaugeFullHeat, world.Components.FuelTank.Get(cube).Heat, "燃料ポイントは満タン表示の基準量")
+	require.True(t, world.Components.SoloAI.Has(cube), "NPC AI で動く")
+	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement, "生成直後から追従する")
+	require.True(t, world.Components.TurnBased.Has(cube), "AP ループで行動する")
+	assert.Equal(t, gc.IntPool{Current: 100, Max: 100}, world.Components.TurnBased.Get(cube).AP, "能力値を持たないので基準 AP")
 	require.True(t, world.Components.HP.Has(cube), "prop 標準の耐久度を持つ")
 	assert.Positive(t, world.Components.HP.Get(cube).Max, "HP 上限は正")
 	assert.Equal(t, world.Components.HP.Get(cube).Max, world.Components.HP.Get(cube).Current, "生成直後は満タン")
 	assert.True(t, world.Components.WeightCapacity.Has(cube), "収納容量を持つ")
 	require.True(t, world.Components.Interactable.Has(cube), "相互作用を持つ")
-	assert.Contains(t, world.Components.Interactable.Get(cube).Interactions, gc.InteractionOpenCubeMenu, "直上でキューブメニューを開ける")
+	assert.Equal(t, []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}, world.Components.Interactable.Get(cube).Interactions, "隣接でメニューを開き、歩き込むと入れ替わる")
 	require.True(t, world.Components.GridElement.Has(cube))
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 7, Y: 8}, world.Components.GridElement.Get(cube).Coord)
 	require.True(t, world.Components.StageBound.Has(cube), "帯へ束縛される")

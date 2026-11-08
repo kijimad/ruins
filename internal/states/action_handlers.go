@@ -48,7 +48,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		interactable := world.Components.Interactable.Get(interactableEntity)
 		interactableGrid := world.Components.GridElement.Get(interactableEntity)
 		// 実体単位でなく相互作用単位で発動範囲を絞る。隣接に来た実体でも、直上でしか発動しない
-		// 相互作用、例えばキューブメニュー InteractionOpenCubeMenu は隣接メニューへ出さない。範囲判定は
+		// 相互作用、例えばポータルは隣接メニューへ出さない。範囲判定は
 		// GetAllInteractiveInteractablesInRange と同じ IsInActivationRange を使う
 		var inRange []gc.InteractionKind
 		for _, interaction := range interactable.Interactions {
@@ -299,13 +299,12 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Interaction: interaction,
 			})
 		case gc.InteractionOpenCubeMenu:
-			// SameTile 発動なので方向は常に直上。他の直上相互作用と同じく方向ラベルを付けない
 			result = append(result, InteractionAction{
 				Label:       query.T(world, "Open cube menu"),
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionItem, gc.InteractionMelee, gc.InteractionStorage:
+		case gc.InteractionItem, gc.InteractionMelee, gc.InteractionStorage, gc.InteractionSwap:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 		case gc.InteractionIgnite:

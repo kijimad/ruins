@@ -187,6 +187,8 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 var externallyReferencedSprites = []string{
 	// 扉は状態変化で render/lifecycle が open や縦向きスプライトへ切り替える
 	"door_horizontal_open", "door_vertical_closed", "door_vertical_open",
+	// キューブは SpawnCube がコードで組み、浮いて揺れる4コマを名前で並べる
+	"cube_float_0", "cube_float_1", "cube_float_2", "cube_float_3",
 }
 
 // knownOrphanSprites は raw からも Go からも参照されない既存スプライトの逃げ道。

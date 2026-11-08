@@ -33,7 +33,7 @@ func TestBoundaryMargins_崖まで動かすと帯端に届く(t *testing.T) {
 	continuous := map[int]bool{
 		nameToIdx["飢餓まで日数"]: true,
 		nameToIdx["睡眠時間割合"]: true,
-		nameToIdx["OIL航続"]:  true,
+		nameToIdx["満タン航続"]:  true,
 	}
 	checked := 0
 	for _, m := range margins {

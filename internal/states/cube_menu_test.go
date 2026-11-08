@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -25,11 +24,12 @@ func choiceByLabel(choices []Choice, label string) (Choice, bool) {
 	return Choice{}, false
 }
 
-func TestNewCubeMenuState_圧縮中は運転が有効で設備が無効(t *testing.T) {
+func TestNewCubeMenuState_圧縮中は追従が有効で設備が無効(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
 
 	st, err := NewCubeMenuState(cube)
 	require.NoError(t, err)
@@ -44,26 +44,27 @@ func TestNewCubeMenuState_圧縮中は運転が有効で設備が無効(t *testi
 	// 状態で使えない項目も消さず無効表示で残すので、圧縮中も設備は並ぶ
 	want := []string{
 		query.T(world, "Deploy"),
-		query.T(world, "Drive"),
+		query.T(world, "Follow me"),
 		query.T(world, "Fuel"),
 		query.T(world, "Module"),
 		query.T(world, "Facility"),
-		query.T(world, "Cube info"),
+		query.T(world, "Info"),
 		query.T(world, "Close"),
 	}
 	assert.Equal(t, want, labels)
 
-	drive, _ := choiceByLabel(choices, query.T(world, "Drive"))
-	assert.False(t, drive.Disabled, "圧縮中は運転できる")
+	follow, _ := choiceByLabel(choices, query.T(world, "Follow me"))
+	assert.False(t, follow.Disabled, "圧縮中は追従させられる")
 	facility, _ := choiceByLabel(choices, query.T(world, "Facility"))
 	assert.True(t, facility.Disabled, "圧縮中は展開空間が無いので設備は無効")
 }
 
-func TestNewCubeMenuState_展開中は設備が有効で運転が無効(t *testing.T) {
+func TestNewCubeMenuState_展開中も追従を命じられ設備が有効(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 
 	st, err := NewCubeMenuState(cube)
@@ -74,37 +75,46 @@ func TestNewCubeMenuState_展開中は設備が有効で運転が無効(t *testi
 	_, choices := menu.provide(world)
 	assert.Equal(t, query.T(world, "Compress"), choices[0].Label, "展開中は先頭が圧縮")
 
-	drive, _ := choiceByLabel(choices, query.T(world, "Drive"))
-	assert.True(t, drive.Disabled, "展開中は運転できないので無効")
+	follow, ok := choiceByLabel(choices, query.T(world, "Follow me"))
+	require.True(t, ok)
+	assert.False(t, follow.Disabled, "展開中も方針を切り替えられる")
 	facility, ok := choiceByLabel(choices, query.T(world, "Facility"))
 	require.True(t, ok, "展開中も設備は並ぶ")
 	assert.False(t, facility.Disabled, "展開中は設備を装着できる")
 }
 
-// TestDriveChoice_運転を選ぶとDrivingが付く は、キューブメニューの運転項目で乗車が始まることを固定する。
-// 運転の開始経路はこのメニュー1本に集約したので、Driving 付与とログをここで担保する。
-func TestDriveChoice_運転を選ぶとDrivingが付く(t *testing.T) {
+func TestFollowChoice_追従と待機を切り替える(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
+
+	follow := followChoice(world, cube)
+	assert.Equal(t, query.T(world, "Follow me"), follow.Label, "待機中は追従を命じる")
+	trans, err := follow.Run(world)
+	require.NoError(t, err)
+	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement)
+	assert.Equal(t, es.TransNone, trans.Type, "設定の切り替えなのでメニューは閉じない")
+
+	stay := followChoice(world, cube)
+	assert.Equal(t, query.T(world, "Stay here"), stay.Label, "追従中は待機を命じる")
+	_, err = stay.Run(world)
+	require.NoError(t, err)
+	assert.Equal(t, gc.SoloStationary, world.Components.SoloAI.Get(cube).Movement)
+}
+
+func TestDeployChoice_展開しても追従の方針を保つ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
 
-	trans, err := driveChoice(world, cube).Run(world)
+	_, err = deployChoice(world, cube).Run(world)
 	require.NoError(t, err)
 
-	require.True(t, world.Components.Driving.Has(player), "運転で Driving が付く")
-	assert.Equal(t, cube, world.Components.Driving.Get(player).Vehicle, "運転対象はそのキューブ")
-	assert.Equal(t, es.TransPop, trans.Type, "運転を始めたらメニューを閉じる")
-
-	var logged bool
-	for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
-		if strings.Contains(e.Text(), "board the cube") {
-			logged = true
-		}
-	}
-	assert.True(t, logged, "乗車をゲームログに出す")
+	assert.True(t, world.Components.Deployed.Has(cube))
+	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement)
 }
 
 func TestDeployChoice_展開できないときログを出しメニューを閉じる(t *testing.T) {
@@ -130,16 +140,4 @@ func TestDeployChoice_展開できないときログを出しメニューを閉�
 		}
 	}
 	assert.True(t, logged, "空き不足をゲームログに出す")
-}
-
-func TestFuelHeatCell(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	// COAL は 800/kg。1kg を2個で束の総熱量は 800 × 2 = 1600
-	fuel := world.ECS.NewEntity()
-	world.Components.Material.Add(fuel, &gc.Material{Kind: oapi.COAL})
-	world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.MilligramPerKg})
-
-	assert.Equal(t, consts.Heat(1600).String(), fuelHeatCell(world, fuel, 2), "束の総熱量を炎アイコン付きで出す")
 }

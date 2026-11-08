@@ -6,16 +6,21 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
 // territorialRadius はTerritorial移動パターンでスポーン地点から離れられる最大距離を定義する
 const territorialRadius consts.Tile = 5
+
+// followStartDistance は休んでいる随伴者が追いかけ始めるプレイヤーとのチェビシェフ距離
+const followStartDistance = 4
 
 // soloPlanner は敵・中立NPC用の行動計画を実装する。
 // AIStateの状態遷移とSoloMovementによる移動を統合して行動を決定する
@@ -236,6 +241,8 @@ func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, sol
 		return rp.planPatrolAction(world, aiEntity, solo, grid)
 	case gc.SoloTerritorial:
 		return rp.planTerritorialAction(world, aiEntity, solo, grid)
+	case gc.SoloFollow:
+		return rp.planFollowAction(world, aiEntity, solo, grid)
 	default:
 		return rp.planRandomMoveAction(world, aiEntity, grid)
 	}
@@ -356,4 +363,47 @@ func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity,
 	}
 
 	return waitAction()
+}
+
+// planFollowAction は休む・追いつくの2状態で随伴し、状態を SubState の待機と移動で持つ。
+// 燃料ポイントが足りなければ待機の方針へ切り替える。展開中は方針を保ったまま休む。
+func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
+	if world.Components.Deployed.Has(aiEntity) {
+		solo.SubState = gc.AIStateWaiting
+		return waitAction()
+	}
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return waitAction()
+	}
+	playerGrid := world.Components.GridElement.Get(player)
+	if isAdjacent(grid, playerGrid) {
+		solo.SubState = gc.AIStateWaiting
+		return waitAction()
+	}
+	if solo.SubState != gc.AIStateDriving {
+		if geometry.ChebyshevDistance(grid.Coord, playerGrid.Coord) < followStartDistance {
+			return waitAction()
+		}
+		solo.SubState = gc.AIStateDriving
+	}
+
+	next, ok := activity.FindNextStep(world, aiEntity, grid.Coord, playerGrid.Coord)
+	if !ok {
+		return waitAction()
+	}
+
+	// AP 不足で runAPLoop が計画を捨てると燃料だけ減るので、払う前に1歩分の AP を確かめる
+	if tb := world.Components.TurnBased.Get(aiEntity); tb == nil || tb.AP.Current < consts.StandardActionCost {
+		return nil
+	}
+	if !lifecycle.ConsumeCubeFuel(world, aiEntity, query.FollowFuelCost(query.CubeWeight(world, aiEntity))) {
+		solo.Movement = gc.SoloStationary
+		solo.SubState = gc.AIStateWaiting
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "The cube is out of fuel and stops.")).
+			Log()
+		return waitAction()
+	}
+	return moveAction(next)
 }

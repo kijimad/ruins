@@ -51,7 +51,7 @@ func TestLocationStowed_貨物のOwnerがロードで同じキューブを指す
 
 	var loadedCube ecs.Entity
 	cubeCount := 0
-	cq := ecs.NewFilter1[gc.Drivable](fresh.ECS).Query()
+	cq := ecs.NewFilter1[gc.Cube](fresh.ECS).Query()
 	for cq.Next() {
 		loadedCube = cq.Entity()
 		cubeCount++
@@ -69,4 +69,31 @@ func TestLocationStowed_貨物のOwnerがロードで同じキューブを指す
 	owner := fresh.Components.LocationStowed.Get(cargo).Owner
 	require.True(t, fresh.ECS.Alive(owner), "Owner が生存エンティティを指す")
 	assert.Equal(t, loadedCube, owner, "Owner はロード後のキューブを指す")
+}
+
+func TestSaveWorld_キューブの移動方針と燃料ポイントをロードで復元する(t *testing.T) {
+	t.Parallel()
+	sm, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
+	world.Components.FuelTank.Get(cube).Heat = 1234
+	require.NoError(t, sm.SaveWorld(world, "slot1"))
+
+	fresh := testutil.InitTestWorld(t)
+	require.NoError(t, sm.LoadWorld(fresh, "slot1"))
+
+	var got []gc.FuelTank
+	var movements []gc.SoloMovement
+	q := ecs.NewFilter3[gc.Cube, gc.FuelTank, gc.SoloAI](fresh.ECS).Query()
+	for q.Next() {
+		_, tank, solo := q.Get()
+		got = append(got, *tank)
+		movements = append(movements, solo.Movement)
+	}
+	assert.Equal(t, []gc.FuelTank{{Heat: 1234}}, got)
+	assert.Equal(t, []gc.SoloMovement{gc.SoloFollow}, movements)
 }

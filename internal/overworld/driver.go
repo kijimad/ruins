@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -233,6 +234,19 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 		// Band の最終 northIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
 		// シフトのたびでなくループを抜けてから一度だけ同期する
 		query.GetSeamlessBand(world).NorthIndex = dr.band.NorthIndex()
+		dr.warnStrandedCube(world)
 	}
 	return shifted, nil
+}
+
+// warnStrandedCube は次の北シフトで破棄される南端の行にキューブがあればログで警告する。
+func (dr *Driver) warnStrandedCube(world w.World) {
+	for _, tile := range query.CubeTiles(world) {
+		if dr.band.InSouthRow(tile.Y) {
+			gamelog.New(query.GetGameLog(world)).
+				Markup(query.T(world, "The cube is too far behind. Go further north and it will be left behind.")).
+				Log()
+			return
+		}
+	}
 }

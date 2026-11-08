@@ -222,9 +222,7 @@ func processTurnEnd(world w.World) error {
 	log.Debug("turn end processing", "turn", turnState.TurnNumber)
 
 	// 全エンティティのアクションポイントを回復
-	if err := query.RestoreAllActionPoints(world); err != nil {
-		return err
-	}
+	query.RestoreAllActionPoints(world)
 
 	// 空腹を1ターンにつき1回進める。行動種別に依らず全員が等しく空腹になる
 	progressTurnHunger(world)

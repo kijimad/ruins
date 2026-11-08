@@ -1388,6 +1388,15 @@ msgstr "%sスキルが %d に上がった"
 msgid "door entity is not set"
 msgstr "扉エンティティが指定されていません"
 
+msgid "Fuel %s"
+msgstr "燃料 %s"
+
+msgid "swap target is not set"
+msgstr "入れ替える相手が指定されていません"
+
+msgid "The deployed cube cannot be moved."
+msgstr "展開中のキューブは動かせない。"
+
 msgid "cannot get door component"
 msgstr "扉コンポーネントが取得できません"
 
@@ -1716,8 +1725,8 @@ msgstr "開閉できる扉"
 msgid "Cube"
 msgstr "キューブ"
 
-msgid "A mobile base you can drive"
-msgstr "運転できる移動拠点"
+msgid "A mobile base that follows you"
+msgstr "後をついてくる移動拠点"
 
 msgid "Storage"
 msgstr "収納"
@@ -1725,23 +1734,23 @@ msgstr "収納"
 msgid "Cube info"
 msgstr "キューブ情報"
 
+msgid "Info"
+msgstr "情報"
+
 msgid "Open cube menu"
 msgstr "キューブメニューを開く"
 
-msgid "Drive"
-msgstr "運転する"
+msgid "Follow me"
+msgstr "追従"
 
-msgid "You are on the cube. Press Enter to open the menu."
-msgstr "キューブの上にいる。Enter でメニューを開く。"
+msgid "Stay here"
+msgstr "待機"
 
-msgid "You board the cube and start driving."
-msgstr "キューブに乗り込んで運転を始めた。"
+msgid "The cube is out of fuel and stops."
+msgstr "キューブは燃料が切れて止まった。"
 
-msgid "You get off the cube."
-msgstr "キューブから降りた。"
-
-msgid "Out of fuel. The cube won't move."
-msgstr "燃料切れ。キューブは動かない。"
+msgid "The cube is too far behind. Go further north and it will be left behind."
+msgstr "キューブが遠すぎる。これ以上北へ進むと置き去りになる。"
 
 msgid "%s used %s and recovered %d HP."
 msgstr "%s は %s を使った。 HPが %d 回復した。"
@@ -6303,10 +6312,10 @@ msgid "A visored helmet built to take hits."
 msgstr "打撃に耐えるバイザー付きヘルメット"
 
 msgid "Deploy"
-msgstr "展開する"
+msgstr "展開"
 
 msgid "Compress"
-msgstr "圧縮する"
+msgstr "圧縮"
 
 msgid "Not enough open space to deploy."
 msgstr "展開する空きが足りない"
@@ -6318,7 +6327,7 @@ msgid "A deployment module. Installed on a cube, it widens the deployed space al
 msgstr "展開モジュール。キューブに装着すると展開空間を縦横一律に広げる。新しい広さは次の展開で反映される"
 
 msgid "Module"
-msgstr "モジュール"
+msgstr "拡張"
 
 msgid "Deploy size"
 msgstr "展開サイズ"

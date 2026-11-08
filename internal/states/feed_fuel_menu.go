@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
@@ -15,18 +14,52 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FeedFuelMenuState は火への給油メニュー。隣接の火に持ち物の燃料をくべる。
-// 収納やインベントリと同じ item-row 形式で、アイコン・名前・右寄せの追加ターン数を出す。
-// くべても閉じず、続けて足せる。タイトルに予想残ターン数を出す。
+// FeedFuelMenuState は給油メニュー。持ち物の燃料をくべ先 FuelSink へくべる。
+// くべても閉じず、続けて足せる。
 type FeedFuelMenuState struct {
 	es.BaseState[w.World]
-	fire   ecs.Entity
+	sink   FuelSink
 	detail overlay.Detail
 	screen *menuloop.Screen[FeedFuelProps]
+}
+
+// FuelSink は給油メニューのくべ先。見出し、1つくべると増える量の表示、くべる処理を持つ。
+type FuelSink struct {
+	title func(world w.World) string
+	gain  func(world w.World, fuel ecs.Entity) string
+	feed  func(world w.World, fuel ecs.Entity)
+}
+
+// FireFuelSink は火をくべ先にする。増える量は燃焼ターン数で表す。
+// メニュー表示中に火が燃え尽きても AddFuel が何もしないので、火の状態はここで確かめない
+func FireFuelSink(fire ecs.Entity) FuelSink {
+	return FuelSink{
+		title: func(world w.World) string {
+			return query.T(world, "Burning, %s left", query.EstimateBurnTurns(world, fire).String())
+		},
+		gain: func(world w.World, fuel ecs.Entity) string {
+			return query.FuelBurnTurns(world, fire, fuel).String()
+		},
+		feed: func(world w.World, fuel ecs.Entity) { lifecycle.AddFuel(world, fire, fuel) },
+	}
+}
+
+// CubeFuelSink はキューブをくべ先にする。増える量は燃料ポイントで表す。
+func CubeFuelSink(cube ecs.Entity) FuelSink {
+	return FuelSink{
+		title: func(world w.World) string {
+			return query.T(world, "Fuel %s", query.CubeFuelTotal(world, cube).String())
+		},
+		gain: func(world w.World, fuel ecs.Entity) string {
+			return query.HeatContent(world, fuel).String()
+		},
+		feed: func(world w.World, fuel ecs.Entity) { lifecycle.AddCubeFuel(world, cube, fuel) },
+	}
 }
 
 var _ es.State[w.World] = &FeedFuelMenuState{}
@@ -38,11 +71,11 @@ type FeedFuelProps struct {
 	Rows  []feedFuelRow
 }
 
-// feedFuelRow は給油一覧の1行。燃料スタックの代表と個数、くべると増える燃焼ターン数を持つ
+// feedFuelRow は給油一覧の1行。燃料スタックの代表と個数、1つくべると増える量の表示を持つ
 type feedFuelRow struct {
 	Entity ecs.Entity
 	Count  int
-	Turns  consts.Turn
+	Gain   string
 }
 
 // OnStart はステートが開始される際に呼ばれる
@@ -76,8 +109,9 @@ func (st *FeedFuelMenuState) DoAction(world w.World, action inputmapper.ActionID
 	case inputmapper.ActionOpenItemDetail:
 		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
-		if entity, ok := st.selectedEntity(); ok {
-			feedOneFuel(world, st.fire, entity)
+		// 走査時の代表は消費されるので、次フレームの Fetch が新しい代表で一覧を組み直す
+		if entity, ok := st.selectedEntity(); ok && world.ECS.Alive(entity) && query.IsCombustible(world, entity) {
+			st.sink.feed(world, entity)
 		}
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("feedFuelMenu: unsupported action: %s", action)
@@ -87,7 +121,7 @@ func (st *FeedFuelMenuState) DoAction(world w.World, action inputmapper.ActionID
 
 // Fetch は世界から表示 props を構築する
 func (st *FeedFuelMenuState) Fetch(world w.World) (FeedFuelProps, error) {
-	title := query.T(world, "Burning, %s left", query.EstimateBurnTurns(world, st.fire).String())
+	title := st.sink.title(world)
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return FeedFuelProps{Title: title}, err
@@ -100,7 +134,7 @@ func (st *FeedFuelMenuState) Fetch(world w.World) (FeedFuelProps, error) {
 		rows = append(rows, feedFuelRow{
 			Entity: stack.Rep,
 			Count:  stack.Count,
-			Turns:  query.FuelBurnTurns(world, st.fire, stack.Rep),
+			Gain:   st.sink.gain(world, stack.Rep),
 		})
 	}
 	return FeedFuelProps{Title: title, Rows: rows}, nil
@@ -112,12 +146,12 @@ func (st *FeedFuelMenuState) Menu(props FeedFuelProps) menuloop.MenuConfig {
 }
 
 // ViewUI は燃料一覧を収納やインベントリと同じ item-row 形式で組む。
-// アイコン・名前の共通先頭に、右寄せの追加ターン数列を足す
+// アイコン・名前の共通先頭に、右寄せの増える量の列を足す
 func (st *FeedFuelMenuState) ViewUI(world w.World, props FeedFuelProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(props.Rows))
 	for i, r := range props.Rows {
-		rows[i] = itemMenuRow(world, r.Entity, r.Count, r.Turns.String())
+		rows[i] = itemMenuRow(world, r.Entity, r.Count, r.Gain)
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No fuel to add"), ItemsPerPage: perPage}, res)

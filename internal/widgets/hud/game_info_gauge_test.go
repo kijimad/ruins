@@ -71,9 +71,9 @@ func TestGameInfo_healthGauge(t *testing.T) {
 	}
 }
 
-func TestGameInfo_fuelGauge(t *testing.T) {
+func TestFuelGauge(t *testing.T) {
 	t.Parallel()
-	info := newTestGameInfo(t, ebiten.NewImage(1, 1))
+	fill := ebiten.NewImage(1, 1)
 	rect := image.Rect(0, 0, 100, gaugeHeight)
 
 	tests := []struct {
@@ -89,7 +89,7 @@ func TestGameInfo_fuelGauge(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			cv := &fakeCanvas{}
-			wgt := info.fuelGauge(GameInfoData{FuelRatio: tt.ratio})
+			wgt := fuelGauge(fill, tt.ratio)
 			wgt.Layout(rect)
 			wgt.Draw(cv)
 			require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")

@@ -64,8 +64,8 @@ func TestBaselineSnapshot_生存圧(t *testing.T) {
 
 func TestBaselineSnapshot_物流(t *testing.T) {
 	t.Parallel()
-	assert.InDelta(t, 990, DriveRangeAllFuel(oapi.OIL, consts.CubeWeightCapacityKg), 1, "OIL満載の航続")
-	assert.InDelta(t, 198, DriveRangeAllFuel(oapi.WOOD, consts.CubeWeightCapacityKg), 1, "WOOD満載の航続")
+	assert.InDelta(t, 600, FollowRangeTiles(consts.FuelGaugeFullHeat, 0), 1, "満タンで積荷0の航続")
+	assert.InDelta(t, 120, FollowRangeTiles(consts.FuelGaugeFullHeat, 20*consts.MilligramPerKg), 1, "満タンで積荷20kgの航続")
 	assert.Equal(t, 5000, FuelBurnTurns(oapi.OIL, 10), "OIL 10kg の燃焼ターン")
 	assert.Equal(t, 1000, FuelBurnTurns(oapi.WOOD, 10), "WOOD 10kg の燃焼ターン")
 }

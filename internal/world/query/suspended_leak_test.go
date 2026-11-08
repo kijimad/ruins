@@ -77,7 +77,7 @@ func TestSuspended_APは退避中に回復しない(t *testing.T) {
 	world.Components.Abilities.Add(active, &gc.Abilities{})
 	world.Components.Abilities.Add(suspended, &gc.Abilities{})
 
-	require.NoError(t, query.RestoreAllActionPoints(world))
+	query.RestoreAllActionPoints(world)
 
 	assert.Positive(t, world.Components.TurnBased.Get(active).AP.Max, "現ステージの敵はAPが計算される")
 	assert.Zero(t, world.Components.TurnBased.Get(suspended).AP.Max, "退避中の敵はAP回復から凍結される")

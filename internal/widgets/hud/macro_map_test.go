@@ -3,8 +3,10 @@ package hud
 import (
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +17,7 @@ func newTestMacroMap(t *testing.T) *MacroMap {
 	t.Helper()
 	// フェイスは nil でよい。fakeCanvas は DrawText を記録するだけで実描画しないため、フェイスに
 	// 触れない。本番の EbitenCanvas には loader 由来の非 nil フェイスが渡る
-	return NewMacroMap(nil, Chrome{})
+	return NewMacroMap(nil, nil, nil, Chrome{})
 }
 
 func TestMacroMap_Draw_無効なら何も描かない(t *testing.T) {
@@ -221,4 +223,45 @@ func TestDrawMapGrid_キューブは縁取り付きの記号で描く(t *testing
 		}
 	}
 	assert.Equal(t, 5, cubes, "キューブは縁取り4つと本体1つで計5回描く")
+}
+
+func TestMacroMap_Draw_キューブがいれば地図の下に名前と燃料ゲージを描く(t *testing.T) {
+	t.Parallel()
+	res, err := loader.LoadUIResources()
+	require.NoError(t, err)
+	m := NewMacroMap(res.Text.BodyFace, res.Text.SmallFace, ebiten.NewImage(1, 1), Chrome{})
+	cv := &fakeCanvas{}
+
+	m.Draw(cv, MacroMapData{
+		HasBand: true,
+		View:    overworld.MacroView{Cells: [][]overworld.MacroCell{{{Glyph: '.', Discovered: false}}}},
+		Config:  MacroMapConfig{Width: 150, Height: 150, MinGlyphPx: 999},
+		Screen:  ScreenDimensions{Width: 1024, Height: 768},
+		Cube:    CubeStatusData{Visible: true, Name: "Cube", FuelRatio: 0.5},
+	})
+
+	names := make([]string, 0, len(cv.texts))
+	for _, c := range cv.texts {
+		names = append(names, c.str)
+	}
+	assert.Contains(t, names, "Cube", "名前を描く")
+	require.Len(t, cv.tintedRects, 1, "燃料ゲージの塗りを描く")
+	assert.Equal(t, 75, cv.tintedRects[0].Dx(), "地図と同じ幅のゲージを充填率ぶん塗る")
+	assert.Greater(t, cv.tintedRects[0].Min.Y, 150, "地図の下に置く")
+}
+
+func TestMacroMap_Draw_キューブがいなければ欄を出さない(t *testing.T) {
+	t.Parallel()
+	m := NewMacroMap(nil, nil, ebiten.NewImage(1, 1), Chrome{})
+	cv := &fakeCanvas{}
+
+	m.Draw(cv, MacroMapData{
+		HasBand: true,
+		View:    overworld.MacroView{Cells: [][]overworld.MacroCell{{{Glyph: '.', Discovered: false}}}},
+		Config:  MacroMapConfig{Width: 150, Height: 150, MinGlyphPx: 999},
+		Screen:  ScreenDimensions{Width: 1024, Height: 768},
+	})
+
+	assert.Empty(t, cv.tintedRects)
+	assert.Empty(t, cv.texts)
 }

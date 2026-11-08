@@ -27,7 +27,7 @@ func metricBands() []metricBand {
 	b[0] = metricBand{lo: 0.5, hi: 1.4, has: true}   // 戦力比d20。敵を進行で強化した床のハードモード帯
 	b[1] = metricBand{lo: 0.5, hi: 1.0, has: true}   // 飢餓まで日数
 	b[2] = metricBand{lo: 0.20, hi: 0.33, has: true} // 睡眠時間割合。DomainTargets と同じ
-	b[3] = metricBand{lo: 800, hi: 1200, has: true}  // OIL航続。DomainTargets と同じ
+	b[3] = metricBand{lo: 400, hi: 800, has: true}   // 満タン航続。DomainTargets と同じ
 	b[4] = metricBand{}                              // loot手取り。金額で自然な帯がない
 	b[5] = metricBand{lo: 1000, hi: 2500, has: true} // Lv30攻撃数。DomainTargets と同じ
 	return b

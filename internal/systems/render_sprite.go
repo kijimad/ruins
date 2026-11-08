@@ -199,8 +199,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 
 	// タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む。
-	// 運転中プレイヤーは Driving を持つので描画クエリから外す。entity は残り被弾対象のまま
-	objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile](), ecs.C[gc.Driving]()).Query()
+	objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objectQuery.Next() {
 		entity := objectQuery.Entity()
 		// 画面外は描画しない

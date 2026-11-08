@@ -601,14 +601,12 @@ func TestColdPlayerCanAct(t *testing.T) {
 		speed := query.CalculateSpeed(world, playerEntity)
 		t.Logf("Speed (低体温ペナルティ込み): %d", speed)
 
-		err = query.RestoreAllActionPoints(world)
-		require.NoError(t, err)
+		query.RestoreAllActionPoints(world)
 		t.Logf("ターン終了後AP: %d", turnBased.AP.Current)
 
 		// 6. 十分なターン経過でAPが0以上に回復
 		for turnBased.AP.Current < 0 {
-			err = query.RestoreAllActionPoints(world)
-			require.NoError(t, err)
+			query.RestoreAllActionPoints(world)
 			t.Logf("追加ターン終了後AP: %d", turnBased.AP.Current)
 		}
 
