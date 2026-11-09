@@ -44,6 +44,15 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "item-collections",
+        element: (
+          <ResourcePage
+            resource="item-collections"
+            label="アイテムコレクション"
+          />
+        ),
+      },
+      {
         path: "item-tables",
         element: (
           <ResourcePage resource="item-tables" label="アイテムテーブル" />

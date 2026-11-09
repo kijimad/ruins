@@ -9,36 +9,34 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// テスト用のoapi.Rawsを作成する。アイテムグループとアイテムテーブルを含む
+// テスト用のoapi.Rawsを作成する。アイテムグループとアイテムコレクションとアイテムテーブルを含む
 func newTestRawsForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) oapi.Raws {
 	return oapi.Raws{
-		ItemGroups: &groups,
-		ItemTables: &[]oapi.ItemTable{table},
+		ItemGroups:      &groups,
+		ItemCollections: &testCollections,
+		ItemTables:      &[]oapi.ItemTable{table},
 	}
 }
 
 var testGroups = []oapi.ItemGroup{
 	{
-		Id:      "回復",
-		Name:    "回復",
-		Subtype: oapi.Distribution,
+		Id:   "回復",
+		Name: "回復",
 		Entries: []oapi.ItemGroupEntry{
 			{Id: "回復薬", Weight: 1.0, Pack: "1d1"},
 		},
 	},
 	{
-		Id:      "武器",
-		Name:    "武器",
-		Subtype: oapi.Distribution,
+		Id:   "武器",
+		Name: "武器",
 		Entries: []oapi.ItemGroupEntry{
 			{Id: "毒消し", Weight: 0.8, Pack: "1d1"},
 			{Id: "手榴弾", Weight: 0.5, Pack: "1d1"},
 		},
 	},
 	{
-		Id:      "素材",
-		Name:    "素材",
-		Subtype: oapi.Distribution,
+		Id:   "素材",
+		Name: "素材",
 		Entries: []oapi.ItemGroupEntry{
 			{Id: "アイテム1", Weight: 1.0, Pack: "1d1"},
 			{Id: "アイテム2", Weight: 1.0, Pack: "1d1"},
@@ -46,38 +44,57 @@ var testGroups = []oapi.ItemGroup{
 	},
 }
 
-func TestItemTable_SelectByWeight_SingleEntry(t *testing.T) {
-	t.Parallel()
-
-	table := oapi.ItemTable{
-		Name: "テスト",
-		Entries: []oapi.ItemTableEntry{
-			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
+var testCollections = []oapi.ItemCollection{
+	{
+		Id:   "がらくた",
+		Name: "がらくた",
+		Entries: []oapi.ItemCollectionEntry{
+			{Id: "鉄くず", Chance: 100, Pack: "3d1"},
+			{Id: "歯車", Chance: 100, Pack: "1d1"},
+			{Id: "骨", Chance: 0.001, Pack: "1d1"},
 		},
-	}
-	raws := newTestRawsForItemTable(testGroups, table)
-
-	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := SelectItemByWeight(raws, table, rng, 5)
-	require.NoError(t, err)
-
-	assert.Equal(t, "回復薬", result, "グループに1アイテムのみの場合はそれが選択されるべき")
+	},
 }
 
-func TestSelectItemByWeight_危険度が最小未満はエラー(t *testing.T) {
+func singleTable(groupID string) oapi.ItemTable {
+	return oapi.ItemTable{
+		Name:    "テスト",
+		Entries: []oapi.ItemTableEntry{{Id: groupID, Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
+	}
+}
+
+func TestDrawFromItemTable_グループは1つ引く(t *testing.T) {
 	t.Parallel()
 
-	table := oapi.ItemTable{
-		Name:    "テスト",
-		Entries: []oapi.ItemTableEntry{{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
-	}
+	table := singleTable("回復")
 	raws := newTestRawsForItemTable(testGroups, table)
-	rng := rand.New(rand.NewPCG(1, 2))
-	_, err := SelectItemByWeight(raws, table, rng, MinDanger-1)
+
+	got, err := DrawFromItemTable(raws, table, rand.New(rand.NewPCG(12345, 67890)), 5)
+	require.NoError(t, err)
+	assert.Equal(t, []DrawnItem{{Name: "回復薬", Count: 1}}, got)
+}
+
+func TestDrawFromItemTable_コレクションは各行を確率で独立に引きpackの個数を出す(t *testing.T) {
+	t.Parallel()
+
+	table := singleTable("がらくた")
+	raws := newTestRawsForItemTable(testGroups, table)
+
+	got, err := DrawFromItemTable(raws, table, rand.New(rand.NewPCG(1, 2)), 5)
+	require.NoError(t, err)
+	assert.Equal(t, []DrawnItem{{Name: "鉄くず", Count: 3}, {Name: "歯車", Count: 1}}, got)
+}
+
+func TestDrawFromItemTable_危険度が最小未満はエラー(t *testing.T) {
+	t.Parallel()
+
+	table := singleTable("回復")
+	raws := newTestRawsForItemTable(testGroups, table)
+	_, err := DrawFromItemTable(raws, table, rand.New(rand.NewPCG(1, 2)), MinDanger-1)
 	require.ErrorIs(t, err, errDangerBelowMinimum)
 }
 
-func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
+func TestDrawFromItemTable_複数のグループから引く(t *testing.T) {
 	t.Parallel()
 
 	table := oapi.ItemTable{
@@ -89,93 +106,54 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	}
 	raws := newTestRawsForItemTable(testGroups, table)
 
-	results := make(map[string]int)
-	iterations := 10000
-
+	seen := map[string]bool{}
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	for range iterations {
-		result, err := SelectItemByWeight(raws, table, rng, 5)
+	for range 1000 {
+		got, err := DrawFromItemTable(raws, table, rng, 5)
 		require.NoError(t, err)
-		results[result]++
+		for _, d := range got {
+			seen[d.Name] = true
+		}
 	}
-
-	// グループ内の全アイテムが選択されることを確認
-	assert.Positive(t, results["回復薬"], "回復薬が選択されるべき")
-	assert.Positive(t, results["毒消し"], "毒消しが選択されるべき")
-	assert.Positive(t, results["手榴弾"], "手榴弾が選択されるべき")
+	assert.Equal(t, map[string]bool{"回復薬": true, "毒消し": true, "手榴弾": true}, seen)
 }
 
-func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
+func TestDrawFromItemTable_選べるグループが無ければ何も出ない(t *testing.T) {
 	t.Parallel()
 
-	table := oapi.ItemTable{
-		Name: "テスト",
-		Entries: []oapi.ItemTableEntry{
+	tests := []struct {
+		name    string
+		entries []oapi.ItemTableEntry
+	}{
+		{"重みが全て0", []oapi.ItemTableEntry{
 			{Id: "回復", Weight: 0, MinDanger: 1, MaxDanger: 10},
 			{Id: "武器", Weight: 0, MinDanger: 1, MaxDanger: 10},
-		},
+		}},
+		{"エントリが空", []oapi.ItemTableEntry{}},
+		{"危険度の範囲外", []oapi.ItemTableEntry{{Id: "武器", Weight: 1.0, MinDanger: 10, MaxDanger: 20}}},
 	}
-	raws := newTestRawsForItemTable(testGroups, table)
-
-	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := SelectItemByWeight(raws, table, rng, 5)
-	require.NoError(t, err)
-
-	assert.Empty(t, result, "重みが全て0の場合は空文字列を返すべき")
-}
-
-func TestItemTable_SelectByWeight_危険度範囲外のエントリは除外される(t *testing.T) {
-	t.Parallel()
-
-	table := oapi.ItemTable{
-		Name: "範囲あり",
-		Entries: []oapi.ItemTableEntry{
-			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 3},
-			{Id: "武器", Weight: 1.0, MinDanger: 10, MaxDanger: 20},
-		},
-	}
-	raws := newTestRawsForItemTable(testGroups, table)
-
-	rng := rand.New(rand.NewPCG(12345, 67890))
-	for range 100 {
-		result, err := SelectItemByWeight(raws, table, rng, 5)
-		require.NoError(t, err)
-		assert.NotEqual(t, "毒消し", result, "危険度5は武器グループの範囲10-20外なので選ばれない")
-		assert.NotEqual(t, "手榴弾", result, "危険度5は武器グループの範囲10-20外なので選ばれない")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			table := oapi.ItemTable{Name: "テスト", Entries: tt.entries}
+			raws := newTestRawsForItemTable(testGroups, table)
+			got, err := DrawFromItemTable(raws, table, rand.New(rand.NewPCG(1, 2)), 5)
+			require.NoError(t, err)
+			assert.Empty(t, got)
+		})
 	}
 }
 
-func TestSelectItemByWeight_グループ未存在はエラー(t *testing.T) {
+func TestDrawFromItemTable_グループ未存在はエラー(t *testing.T) {
 	t.Parallel()
 
-	table := oapi.ItemTable{
-		Name:    "未存在グループ参照",
-		Entries: []oapi.ItemTableEntry{{Id: "存在しないグループ", Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
-	}
+	table := singleTable("存在しないグループ")
 	raws := newTestRawsForItemTable(testGroups, table)
-
-	rng := rand.New(rand.NewPCG(1, 2))
-	_, err := SelectItemByWeight(raws, table, rng, 5)
+	_, err := DrawFromItemTable(raws, table, rand.New(rand.NewPCG(1, 2)), 5)
 	require.ErrorIs(t, err, errItemGroupNotExist)
 }
 
-func TestItemTable_SelectByWeight_EmptyEntries(t *testing.T) {
-	t.Parallel()
-
-	table := oapi.ItemTable{
-		Name:    "空",
-		Entries: []oapi.ItemTableEntry{},
-	}
-	raws := newTestRawsForItemTable(testGroups, table)
-
-	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := SelectItemByWeight(raws, table, rng, 1)
-	require.NoError(t, err)
-
-	assert.Empty(t, result, "エントリが空の場合は空文字列を返すべき")
-}
-
-func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {
+func TestDrawFromItemTable_同じシードで同じ結果(t *testing.T) {
 	t.Parallel()
 
 	table := oapi.ItemTable{
@@ -188,15 +166,13 @@ func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {
 	}
 	raws := newTestRawsForItemTable(testGroups, table)
 
-	seed := uint64(99999)
-	rng1 := rand.New(rand.NewPCG(seed, seed+1))
-	rng2 := rand.New(rand.NewPCG(seed, seed+1))
-
+	rng1 := rand.New(rand.NewPCG(99999, 100000))
+	rng2 := rand.New(rand.NewPCG(99999, 100000))
 	for range 100 {
-		result1, err1 := SelectItemByWeight(raws, table, rng1, 5)
-		result2, err2 := SelectItemByWeight(raws, table, rng2, 5)
+		got1, err1 := DrawFromItemTable(raws, table, rng1, 5)
+		got2, err2 := DrawFromItemTable(raws, table, rng2, 5)
 		require.NoError(t, err1)
 		require.NoError(t, err2)
-		assert.Equal(t, result1, result2, "同じシードで同じ結果が得られるべき")
+		assert.Equal(t, got1, got2)
 	}
 }

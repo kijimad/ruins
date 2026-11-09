@@ -9,13 +9,8 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-// item group 抽選のエラー。呼び出し側とテストが errors.Is で種類を同定できるようにする。
-var (
-	// errUnknownItemGroupSubtype は group.Subtype が既知の distribution/collection いずれでもないときに返す。
-	errUnknownItemGroupSubtype = errors.New("unknown item group subtype")
-	// errInvalidPackDice は pack のダイス表記が解釈できないときに返す。
-	errInvalidPackDice = errors.New("invalid pack dice")
-)
+// errInvalidPackDice は pack のダイス表記が解釈できないときに返す。
+var errInvalidPackDice = errors.New("invalid pack dice")
 
 // DrawnItem は item group から抽選した1件。名前と個数を持つ。
 type DrawnItem struct {
@@ -23,28 +18,22 @@ type DrawnItem struct {
 	Count int
 }
 
-// SelectFromItemGroup は item group から1回ぶんの loot を抽選する。distribution は重み比で1エントリを選び、
-// collection は各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。stackable は個数を1エントリ
-// にまとめ、非 stackable は1個ずつのエントリに展開する。危険度を扱わず group を直接引くので、地上の床 loot と
-// 家具の収納 loot が同じ抽選を共有できる。
-func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]DrawnItem, error) {
-	group, err := GetItemGroup(raws, groupID)
+// SelectFromItemGroup は id が指すアイテムグループかアイテムコレクションから1回ぶんの loot を抽選する。グループは
+// 重み比で1エントリを選び、コレクションは各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。
+// 危険度を扱わず直接引くので、地上の床 loot と家具の収納 loot が同じ抽選を共有できる。
+func SelectFromItemGroup(raws oapi.Raws, id string, rng *rand.Rand) ([]DrawnItem, error) {
+	if g, err := GetItemGroup(raws, id); err == nil {
+		return drawGroup(g.Entries, rng)
+	}
+	c, err := GetItemCollection(raws, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %s", errItemGroupNotExist, id)
 	}
-	switch group.Subtype {
-	case oapi.Distribution:
-		return drawDistribution(group.Entries, rng)
-	case oapi.Collection:
-		return drawCollection(group.Entries, rng)
-	default:
-		// group.Subtype は raw 由来で未知値が来うる。データ不整合として呼び出し側へ返す
-		return nil, fmt.Errorf("%w for %q: %s", errUnknownItemGroupSubtype, groupID, group.Subtype)
-	}
+	return drawCollection(c.Entries, rng)
 }
 
-// drawDistribution は重み比で1エントリを選び、その pack ぶんを返す。
-func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
+// drawGroup は重み比で1エントリを選び、その pack ぶんを返す。
+func drawGroup(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
 	i, ok := consts.Pick(rng, entries, func(e oapi.ItemGroupEntry) float64 { return e.Weight })
 	if !ok {
 		return nil, nil
@@ -57,15 +46,12 @@ func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnIte
 	return expandDraw(entry.Id, count), nil
 }
 
-// drawCollection は各エントリを 0-100 の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない
+// drawCollection は各エントリを chance の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない
 // こともある。
-func drawCollection(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
+func drawCollection(entries []oapi.ItemCollectionEntry, rng *rand.Rand) ([]DrawnItem, error) {
 	var out []DrawnItem
 	for _, e := range entries {
-		if e.Weight <= 0 {
-			continue
-		}
-		if rng.Float64()*100 < e.Weight {
+		if rng.Float64()*100 < e.Chance {
 			count, err := rollPack(e.Pack, rng)
 			if err != nil {
 				return nil, err

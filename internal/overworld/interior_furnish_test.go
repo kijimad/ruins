@@ -46,7 +46,7 @@ func TestSpawnFieldLoot_床に戦利品が出る(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	rng := rand.New(rand.NewPCG(1, 0x4))
 
-	// healing_item は distribution なので必ず1件を返す。床に LocationOnField のアイテムが増える
+	// healing_item はグループなので必ず1件を返す。床に LocationOnField のアイテムが増える
 	pos := consts.Coord[consts.Tile]{X: 0, Y: 0}
 	require.NoError(t, spawnFieldLoot(world, "healing_item", pos, rng))
 	assert.Positive(t, countFieldItems(world), "loot group から床にアイテムが1つ以上出る")
@@ -285,8 +285,9 @@ func TestInteriorLootRaw_写像先のitem_groupが実在する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
+	rng := rand.New(rand.NewPCG(1, 2))
 	for ref, group := range interior.LootGroups() {
-		_, err := raw.GetItemGroup(world.Resources.RawMaster, group)
+		_, err := raw.SelectFromItemGroup(world.Resources.RawMaster, group, rng)
 		require.NoErrorf(t, err, "loot Ref %q の写像先 item group %q が実在する", ref, group)
 	}
 }

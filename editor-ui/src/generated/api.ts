@@ -458,7 +458,10 @@ export interface CommandTable {
  * コマンドテーブルエントリ
  */
 export interface CommandTableEntry {
-    'weapon': string;
+    /**
+     * 使う武器の id
+     */
+    'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
@@ -635,6 +638,10 @@ export interface DropTable {
      * エンティティ名
      */
     'name': string;
+    /**
+     * 何も落とさない重み。省略すると0で、必ずどれかを落とす
+     */
+    'nothing'?: number;
     'entries': Array<DropTableEntry>;
 }
 /**
@@ -642,9 +649,9 @@ export interface DropTable {
  */
 export interface DropTableEntry {
     /**
-     * ドロップする素材名。空文字はドロップなしを意味する
+     * ドロップする素材の id
      */
-    'material': string;
+    'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
@@ -995,7 +1002,39 @@ export interface Item {
 
 
 /**
- * アイテムグループ。アイテムの出現セットを定義する
+ * アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる
+ */
+export interface ItemCollection {
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    'entries': Array<ItemCollectionEntry>;
+}
+/**
+ * アイテムコレクションエントリ
+ */
+export interface ItemCollectionEntry {
+    'id': string;
+    /**
+     * アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
+     */
+    'chance': number;
+    /**
+     * 1山あたりの個数のダイス表記
+     */
+    'pack': string;
+}
+/**
+ * アイテムコレクション一覧
+ */
+export interface ItemCollectionList {
+    'data': Array<ItemCollection>;
+    'totalCount': number;
+}
+/**
+ * アイテムグループ。エントリ群から weight の比で1つだけ選ぶ
  */
 export interface ItemGroup {
     'id': string;
@@ -1003,18 +1042,15 @@ export interface ItemGroup {
      * エンティティ名
      */
     'name': string;
-    'subtype': ItemGroupSubtype;
     'entries': Array<ItemGroupEntry>;
 }
-
-
 /**
  * アイテムグループエントリ
  */
 export interface ItemGroupEntry {
     'id': string;
     /**
-     * distribution: 相対重み。collection: 確率（0-100）
+     * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight': number;
     /**
@@ -1029,18 +1065,6 @@ export interface ItemGroupList {
     'data': Array<ItemGroup>;
     'totalCount': number;
 }
-/**
- * アイテムグループのサブタイプ
- */
-
-export const ItemGroupSubtype = {
-    Distribution: 'distribution',
-    Collection: 'collection',
-} as const;
-
-export type ItemGroupSubtype = typeof ItemGroupSubtype[keyof typeof ItemGroupSubtype];
-
-
 /**
  * アイテム一覧レスポンス
  */
@@ -1060,11 +1084,11 @@ export interface ItemTable {
     'entries': Array<ItemTableEntry>;
 }
 /**
- * アイテムテーブルエントリ。アイテムグループを参照する
+ * アイテムテーブルエントリ。アイテムグループかアイテムコレクションを参照する
  */
 export interface ItemTableEntry {
     /**
-     * 参照するアイテムグループの id
+     * 参照するアイテムグループかアイテムコレクションの id
      */
     'id': string;
     /**
@@ -1496,6 +1520,7 @@ export interface Raws {
     'commandTables'?: Array<CommandTable>;
     'dropTables'?: Array<DropTable>;
     'itemGroups'?: Array<ItemGroup>;
+    'itemCollections'?: Array<ItemCollection>;
     'itemTables'?: Array<ItemTable>;
     'enemyTables'?: Array<EnemyTable>;
     'facilities'?: Array<Facility>;
@@ -2733,6 +2758,297 @@ export class EnemyTablesApi extends BaseAPI {
      */
     public enemyTablesUpdate(index: number, enemyTable: EnemyTable, options?: RawAxiosRequestConfig) {
         return EnemyTablesApiFp(this.configuration).enemyTablesUpdate(index, enemyTable, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ItemCollectionsApi - axios parameter creator
+ */
+export const ItemCollectionsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * アイテムコレクション作成
+         * @param {ItemCollection} itemCollection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsCreate: async (itemCollection: ItemCollection, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemCollection' is not null or undefined
+            assertParamExists('itemCollectionsCreate', 'itemCollection', itemCollection)
+            const localVarPath = `/api/v1/item-collections`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(itemCollection, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * アイテムコレクション削除
+         * @param {number} index 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsDelete: async (index: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'index' is not null or undefined
+            assertParamExists('itemCollectionsDelete', 'index', index)
+            const localVarPath = `/api/v1/item-collections/{index}`
+                .replace('{index}', encodeURIComponent(String(index)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * アイテムコレクション一覧取得
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsList: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/item-collections`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * アイテムコレクション更新
+         * @param {number} index 
+         * @param {ItemCollection} itemCollection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsUpdate: async (index: number, itemCollection: ItemCollection, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'index' is not null or undefined
+            assertParamExists('itemCollectionsUpdate', 'index', index)
+            // verify required parameter 'itemCollection' is not null or undefined
+            assertParamExists('itemCollectionsUpdate', 'itemCollection', itemCollection)
+            const localVarPath = `/api/v1/item-collections/{index}`
+                .replace('{index}', encodeURIComponent(String(index)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(itemCollection, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ItemCollectionsApi - functional programming interface
+ */
+export const ItemCollectionsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ItemCollectionsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * アイテムコレクション作成
+         * @param {ItemCollection} itemCollection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemCollectionsCreate(itemCollection: ItemCollection, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemCollection>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemCollectionsCreate(itemCollection, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemCollectionsApi.itemCollectionsCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * アイテムコレクション削除
+         * @param {number} index 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemCollectionsDelete(index: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemCollectionsDelete(index, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemCollectionsApi.itemCollectionsDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * アイテムコレクション一覧取得
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemCollectionsList(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemCollectionList>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemCollectionsList(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemCollectionsApi.itemCollectionsList']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * アイテムコレクション更新
+         * @param {number} index 
+         * @param {ItemCollection} itemCollection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemCollectionsUpdate(index: number, itemCollection: ItemCollection, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemCollection>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemCollectionsUpdate(index, itemCollection, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemCollectionsApi.itemCollectionsUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ItemCollectionsApi - factory interface
+ */
+export const ItemCollectionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ItemCollectionsApiFp(configuration)
+    return {
+        /**
+         * アイテムコレクション作成
+         * @param {ItemCollection} itemCollection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsCreate(itemCollection: ItemCollection, options?: RawAxiosRequestConfig): AxiosPromise<ItemCollection> {
+            return localVarFp.itemCollectionsCreate(itemCollection, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * アイテムコレクション削除
+         * @param {number} index 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsDelete(index: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.itemCollectionsDelete(index, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * アイテムコレクション一覧取得
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsList(options?: RawAxiosRequestConfig): AxiosPromise<ItemCollectionList> {
+            return localVarFp.itemCollectionsList(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * アイテムコレクション更新
+         * @param {number} index 
+         * @param {ItemCollection} itemCollection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemCollectionsUpdate(index: number, itemCollection: ItemCollection, options?: RawAxiosRequestConfig): AxiosPromise<ItemCollection> {
+            return localVarFp.itemCollectionsUpdate(index, itemCollection, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ItemCollectionsApi - object-oriented interface
+ */
+export class ItemCollectionsApi extends BaseAPI {
+    /**
+     * アイテムコレクション作成
+     * @param {ItemCollection} itemCollection 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemCollectionsCreate(itemCollection: ItemCollection, options?: RawAxiosRequestConfig) {
+        return ItemCollectionsApiFp(this.configuration).itemCollectionsCreate(itemCollection, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * アイテムコレクション削除
+     * @param {number} index 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemCollectionsDelete(index: number, options?: RawAxiosRequestConfig) {
+        return ItemCollectionsApiFp(this.configuration).itemCollectionsDelete(index, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * アイテムコレクション一覧取得
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemCollectionsList(options?: RawAxiosRequestConfig) {
+        return ItemCollectionsApiFp(this.configuration).itemCollectionsList(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * アイテムコレクション更新
+     * @param {number} index 
+     * @param {ItemCollection} itemCollection 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemCollectionsUpdate(index: number, itemCollection: ItemCollection, options?: RawAxiosRequestConfig) {
+        return ItemCollectionsApiFp(this.configuration).itemCollectionsUpdate(index, itemCollection, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

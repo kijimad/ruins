@@ -179,39 +179,40 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 	itemCount := floorItemBase + rng.IntN(floorItemRandom)
 
 	for range itemCount {
-		itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)
-
-		if err != nil || itemName == "" {
-			continue
-		}
-
-		spec, err := raw.NewItemSpec(master, itemName)
+		draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)
 		if err != nil {
 			continue
 		}
-
-		if spec.ProvidesHealing != nil {
-			result.healing += spec.ProvidesHealing.Calc(playerMaxHP)
-		}
-		if spec.ProvidesNutrition != nil {
-			result.nutrition += spec.ProvidesNutrition.Amount
-		}
-
-		w, err := LoadWeaponFromItem(master, itemName)
-		if err == nil && (result.weapon == nil || w.Damage > result.weapon.Damage) {
-			result.weapon = &w
-			result.weaponName = itemName
-		}
-
-		// 拾った loot をすべて売った仮定の粗収入。装備・消費する品も一律に計上する上限指標
-		if it, e := raw.FindItem(master, itemName); e == nil {
-			if net := query.CalculateSellPrice(it.Value); net > 0 {
-				result.income += int(net)
-			}
+		for _, d := range draws {
+			addFloorLoot(&result, master, d, playerMaxHP)
 		}
 	}
 
 	return result
+}
+
+// addFloorLoot は拾った1山を回復量・栄養・最強の武器・売却額へ積む。
+func addFloorLoot(result *floorLoot, master oapi.Raws, d raw.DrawnItem, playerMaxHP int) {
+	spec, err := raw.NewItemSpec(master, d.Name)
+	if err != nil {
+		return
+	}
+	if spec.ProvidesHealing != nil {
+		result.healing += spec.ProvidesHealing.Calc(playerMaxHP) * d.Count
+	}
+	if spec.ProvidesNutrition != nil {
+		result.nutrition += spec.ProvidesNutrition.Amount * d.Count
+	}
+	if w, err := LoadWeaponFromItem(master, d.Name); err == nil && (result.weapon == nil || w.Damage > result.weapon.Damage) {
+		result.weapon = &w
+		result.weaponName = d.Name
+	}
+	// 拾った loot をすべて売った仮定の粗収入。装備・消費する品も一律に計上する上限指標
+	if it, e := raw.FindItem(master, d.Name); e == nil {
+		if net := query.CalculateSellPrice(it.Value); net > 0 {
+			result.income += int(net) * d.Count
+		}
+	}
 }
 
 // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す

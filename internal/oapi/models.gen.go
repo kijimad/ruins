@@ -282,24 +282,6 @@ func (e HealingValueType) Valid() bool {
 	}
 }
 
-// Defines values for ItemGroupSubtype.
-const (
-	Collection   ItemGroupSubtype = "collection"
-	Distribution ItemGroupSubtype = "distribution"
-)
-
-// Valid indicates whether the value is a known member of the ItemGroupSubtype enum.
-func (e ItemGroupSubtype) Valid() bool {
-	switch e {
-	case Collection:
-		return true
-	case Distribution:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for Material.
 const (
 	BONE    Material = "BONE"
@@ -1111,7 +1093,8 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	Weapon EntityID `json:"weapon"`
+	// Id 使う武器の id
+	Id EntityID `json:"id"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -1282,12 +1265,15 @@ type DropTable struct {
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
+
+	// Nothing 何も落とさない重み。省略すると0で、必ずどれかを落とす
+	Nothing *EntryWeight `json:"nothing,omitempty"`
 }
 
 // DropTableEntry ドロップテーブルエントリ
 type DropTableEntry struct {
-	// Material ドロップする素材名。空文字はドロップなしを意味する
-	Material string `json:"material"`
+	// Id ドロップする素材の id
+	Id EntityID `json:"id"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -1585,19 +1571,44 @@ type Item struct {
 	Weight *Weight `json:"weight,omitempty"`
 }
 
+// ItemCollection アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる
+type ItemCollection struct {
+	Entries []ItemCollectionEntry `json:"entries"`
+	Id      EntityID              `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+}
+
+// ItemCollectionChance アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
+type ItemCollectionChance = float64
+
+// ItemCollectionEntry アイテムコレクションエントリ
+type ItemCollectionEntry struct {
+	// Chance アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
+	Chance ItemCollectionChance `json:"chance"`
+	Id     EntityID             `json:"id"`
+
+	// Pack 1山あたりの個数のダイス表記
+	Pack Dice `json:"pack"`
+}
+
+// ItemCollectionList アイテムコレクション一覧
+type ItemCollectionList struct {
+	Data       []ItemCollection `json:"data"`
+	TotalCount int              `json:"totalCount"`
+}
+
 // ItemCount アイテム所持数
 type ItemCount = int
 
-// ItemGroup アイテムグループ。アイテムの出現セットを定義する
+// ItemGroup アイテムグループ。エントリ群から weight の比で1つだけ選ぶ
 type ItemGroup struct {
 	Entries []ItemGroupEntry `json:"entries"`
 	Id      EntityID         `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
-
-	// Subtype アイテムグループのサブタイプ
-	Subtype ItemGroupSubtype `json:"subtype"`
 }
 
 // ItemGroupEntry アイテムグループエントリ
@@ -1607,7 +1618,7 @@ type ItemGroupEntry struct {
 	// Pack 1山あたりの個数のダイス表記
 	Pack Dice `json:"pack"`
 
-	// Weight distribution: 相対重み。collection: 確率（0-100）
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
 }
 
@@ -1616,9 +1627,6 @@ type ItemGroupList struct {
 	Data       []ItemGroup `json:"data"`
 	TotalCount int         `json:"totalCount"`
 }
-
-// ItemGroupSubtype アイテムグループのサブタイプ
-type ItemGroupSubtype string
 
 // ItemList アイテム一覧レスポンス
 type ItemList struct {
@@ -1635,9 +1643,9 @@ type ItemTable struct {
 	Name EntityName `json:"name"`
 }
 
-// ItemTableEntry アイテムテーブルエントリ。アイテムグループを参照する
+// ItemTableEntry アイテムテーブルエントリ。アイテムグループかアイテムコレクションを参照する
 type ItemTableEntry struct {
-	// Id 参照するアイテムグループの id
+	// Id 参照するアイテムグループかアイテムコレクションの id
 	Id EntityID `json:"id"`
 
 	// MaxDanger 危険度。経過日数から決まる
@@ -1997,6 +2005,7 @@ type Raws struct {
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
 	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
 	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
+	ItemCollections  *[]ItemCollection  `json:"itemCollections,omitempty"`
 	ItemGroups       *[]ItemGroup       `json:"itemGroups,omitempty"`
 	ItemTables       *[]ItemTable       `json:"itemTables,omitempty"`
 	Items            *[]Item            `json:"items,omitempty"`
@@ -2265,6 +2274,12 @@ type EnemyTablesCreateJSONRequestBody = EnemyTable
 
 // EnemyTablesUpdateJSONRequestBody defines body for EnemyTablesUpdate for application/json ContentType.
 type EnemyTablesUpdateJSONRequestBody = EnemyTable
+
+// ItemCollectionsCreateJSONRequestBody defines body for ItemCollectionsCreate for application/json ContentType.
+type ItemCollectionsCreateJSONRequestBody = ItemCollection
+
+// ItemCollectionsUpdateJSONRequestBody defines body for ItemCollectionsUpdate for application/json ContentType.
+type ItemCollectionsUpdateJSONRequestBody = ItemCollection
 
 // ItemGroupsCreateJSONRequestBody defines body for ItemGroupsCreate for application/json ContentType.
 type ItemGroupsCreateJSONRequestBody = ItemGroup

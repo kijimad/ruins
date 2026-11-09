@@ -166,5 +166,5 @@ func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
 		}
 	}
 
-	return LoadWeaponFromItem(master, bestEntry.Weapon)
+	return LoadWeaponFromItem(master, bestEntry.Id)
 }

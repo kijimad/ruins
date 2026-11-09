@@ -10,6 +10,9 @@ import {
 } from "@chakra-ui/react";
 import { useResourceList } from "../hooks/useResource";
 import { WeightBar } from "../components/WeightBar";
+import type { DropTable, EnemyTable, ItemTable } from "../generated";
+
+const NOTHING_LABEL = "(なし)";
 
 type TableType = "enemy-tables" | "item-tables" | "drop-tables";
 
@@ -24,52 +27,15 @@ interface DangerEntry {
   weight: number;
 }
 
-interface EnemyTableEntry {
-  enemyName: string;
-  minDanger: number;
-  maxDanger: number;
-  weight: number;
-}
-
-interface ItemTableEntry {
-  itemName: string;
-  minDanger: number;
-  maxDanger: number;
-  weight: number;
-}
-
-interface DropTableEntry {
-  material: string;
-  weight: number;
-}
-
-interface TableData {
-  name: string;
-  entries?: (EnemyTableEntry | ItemTableEntry | DropTableEntry)[];
-  [key: string]: unknown;
-}
-
-function getEntryName(
-  entry: EnemyTableEntry | ItemTableEntry | DropTableEntry,
-): string {
-  if ("enemyName" in entry) return entry.enemyName;
-  if ("itemName" in entry) return entry.itemName;
-  if ("material" in entry) return entry.material;
-  return "";
-}
-
-function hasDangerRange(
-  entry: EnemyTableEntry | ItemTableEntry | DropTableEntry,
-): entry is EnemyTableEntry | ItemTableEntry {
-  return "minDanger" in entry && "maxDanger" in entry;
-}
+type DangerTable = EnemyTable | ItemTable;
+type AnyTable = DangerTable | DropTable;
 
 export function TableViewerPage() {
   const [tableType, setTableType] = useState<TableType>("enemy-tables");
 
-  const enemyQuery = useResourceList<TableData>("enemy-tables");
-  const itemQuery = useResourceList<TableData>("item-tables");
-  const dropQuery = useResourceList<TableData>("drop-tables");
+  const enemyQuery = useResourceList<AnyTable>("enemy-tables");
+  const itemQuery = useResourceList<AnyTable>("item-tables");
+  const dropQuery = useResourceList<AnyTable>("drop-tables");
 
   const queryMap: Record<TableType, typeof enemyQuery> = {
     "enemy-tables": enemyQuery,
@@ -84,33 +50,35 @@ export function TableViewerPage() {
   const [selectedTable, setSelectedTable] = useState<string>("");
   const activeTableName = selectedTable || tableNames[0] || "";
   const activeTable = tables.find((t) => t.name === activeTableName);
-  const entries = useMemo(() => activeTable?.entries ?? [], [activeTable]);
 
-  // 危険度ごとのエントリを構築する
+  // 危険度ごとのエントリを構築する。ドロップの表は危険度を持たないので全エントリを危険度0に入れる
   const { dangerMap, maxDanger } = useMemo(() => {
-    const isDropTable = tableType === "drop-tables";
-    if (isDropTable) {
-      // ドロップテーブルは危険度なし。全エントリを危険度0に入れる
-      const map = new Map<number, DangerEntry[]>();
-      const items: DangerEntry[] = entries.map((e) => ({
-        name: getEntryName(e),
+    const map = new Map<number, DangerEntry[]>();
+    if (!activeTable) return { dangerMap: map, maxDanger: 0 };
+    if (tableType === "drop-tables") {
+      const drop = activeTable as DropTable;
+      const items: DangerEntry[] = drop.entries.map((e) => ({
+        name: e.id,
         weight: e.weight,
       }));
+      if (drop.nothing) {
+        items.push({ name: NOTHING_LABEL, weight: drop.nothing });
+      }
       if (items.length > 0) map.set(0, items);
       return { dangerMap: map, maxDanger: 0 };
     }
 
+    const entries = (activeTable as DangerTable).entries;
     let max = 0;
     for (const e of entries) {
-      if (hasDangerRange(e) && e.maxDanger > max) max = e.maxDanger;
+      if (e.maxDanger > max) max = e.maxDanger;
     }
 
-    const map = new Map<number, DangerEntry[]>();
     for (let d = 1; d <= max; d++) {
       const active: DangerEntry[] = [];
       for (const e of entries) {
-        if (hasDangerRange(e) && d >= e.minDanger && d <= e.maxDanger) {
-          active.push({ name: getEntryName(e), weight: e.weight });
+        if (d >= e.minDanger && d <= e.maxDanger) {
+          active.push({ name: e.id, weight: e.weight });
         }
       }
       if (active.length > 0) {
@@ -119,7 +87,7 @@ export function TableViewerPage() {
       }
     }
     return { dangerMap: map, maxDanger: max };
-  }, [entries, tableType]);
+  }, [activeTable, tableType]);
 
   const isLoading =
     enemyQuery.isLoading || itemQuery.isLoading || dropQuery.isLoading;
@@ -177,7 +145,7 @@ export function TableViewerPage() {
         )}
       </Flex>
 
-      {entries.length === 0 ? (
+      {dangerMap.size === 0 ? (
         <Text color="fg.muted">エントリがありません</Text>
       ) : tableType === "drop-tables" ? (
         <DropTableView entries={dangerMap.get(0) ?? []} />
