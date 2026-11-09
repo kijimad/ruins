@@ -15,6 +15,8 @@ type Rect struct{ X, Y, W, H consts.Tile }
 type Room struct {
 	Rect     Rect
 	Doorways []Doorway
+	// Walls は内側にある壁のタイル。玄関ポーチの側壁が部屋へ食い込むときに入る。家具を置かず、歩けない
+	Walls []Vec
 }
 
 // Doorway は部屋の戸口タイル。placement はここを塞がない。座標としては Vec と同じ。

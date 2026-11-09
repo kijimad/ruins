@@ -68,6 +68,13 @@ func planSite(footprint Rect, seed uint64, door Vec, fac oapi.Facility) Site {
 		bdoor = carvePorch(building, bdoor, side, garden, extra, protected)
 	}
 	attachDoor(labeled, bdoor, side)
+	for i := range labeled {
+		for _, t := range labeled[i].Room.Rect.interiorTiles() {
+			if extra[t] {
+				labeled[i].Room.Walls = append(labeled[i].Room.Walls, t)
+			}
+		}
+	}
 
 	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled, Type: st}
 }
