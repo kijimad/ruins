@@ -106,8 +106,8 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [施設の多様化](docs/design/261108165219.md) | 6/15 | worldgen, item, gamedesign |
-| draft | [不調の値を raw の行へ、怪我の関係を Zanzibar 型のタプルへ移す](docs/design/261109215116.md) | 0/8 | refactor, gamedesign, ecs |
+| in-progress | [施設の多様化](docs/design/261108165219.md) | 7/16 | worldgen, item, gamedesign |
+| draft | [ゲームの識別子と調整値を raw へ移す](docs/design/261109215116.md) | 0/10 | refactor, gamedesign, ecs |
 
 
 ## Reference

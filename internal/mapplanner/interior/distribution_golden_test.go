@@ -59,7 +59,7 @@ func TestGolden_Distribution(t *testing.T) {
 					d.Decor[p.Ref]++
 				case KindLoot:
 					d.Loot[p.Ref]++
-				default: // KindBeing/KindTrap は現状 placed に出ないので集計しない
+				default: // KindBeing/KindTrap は家具の分布の対象外なので集計しない
 				}
 			}
 			// 実配置は heroCenterpiece の抽選と heroSpot の据え場所の両方が要る。抽選だけで数えると

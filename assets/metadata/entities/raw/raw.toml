@@ -16915,6 +16915,12 @@ kind = "decor"
 ref = "plant"
 amount = "2d1"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "3d2-3"
 [[interiorContents]]
 id = "coldroom"
 [[interiorContents.groups]]
@@ -16976,6 +16982,12 @@ kind = "decor"
 ref = "litter"
 amount = "1d3+1"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "3d2-3"
 [[interiorContents]]
 id = "corridor"
 [[interiorContents]]
@@ -16995,6 +17007,12 @@ kind = "loot"
 ref = "supplies"
 amount = "3d3"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "3d2-3"
 [[interiorContents]]
 id = "dressing"
 [[interiorContents.groups]]
@@ -17022,6 +17040,12 @@ ref = "medcabinet"
 amount = "1d1"
 lootTable = "medicine_shelf"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "2d3-3"
 [[interiorContents]]
 id = "genkan"
 [[interiorContents.groups]]
@@ -17074,6 +17098,12 @@ ref = "drinks"
 weight = 2
 amount = "3d4"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "3d2-3"
 [[interiorContents]]
 id = "house"
 [[interiorContents.groups]]
@@ -17453,6 +17483,12 @@ ref = "clock"
 amount = "1d1"
 placement = "wall"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "2d3-3"
 [[interiorContents]]
 id = "office"
 [[interiorContents.groups]]
@@ -17497,6 +17533,12 @@ ref = "printer"
 amount = "1d1"
 placement = "wall"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "3d2-3"
 [[interiorContents]]
 id = "office_room"
 [[interiorContents.groups]]
@@ -17565,6 +17607,12 @@ ref = "bandage"
 weight = 1
 amount = "2d3"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "3d2-3"
 [[interiorContents]]
 id = "pharmacy_room"
 [[interiorContents.groups]]
@@ -17614,6 +17662,12 @@ kind = "loot"
 ref = "snacks"
 amount = "2d2"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "2d3-3"
 [[interiorContents]]
 id = "studio"
 [[interiorContents.groups]]
@@ -17701,6 +17755,12 @@ kind = "decor"
 ref = "litter"
 amount = "1d3+1"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "3d2-3"
 [[interiorContents]]
 id = "depot_backroom"
 [[interiorContents.groups]]
@@ -17718,6 +17778,12 @@ kind = "loot"
 ref = "snacks"
 amount = "2d2"
 satellites = []
+[[interiorContents.groups]]
+style = "pick_each"
+[[interiorContents.groups.items]]
+kind = "being"
+ref = "occupant"
+amount = "2d3-3"
 
 [flavorContent]
 id = "flavor"
