@@ -110,17 +110,6 @@ func TestDrawDistribution_エントリが空なら何も返さない(t *testing.
 	assert.Nil(t, draws)
 }
 
-func TestDrawDistribution_選ばれたエントリのIdが空なら何も返さない(t *testing.T) {
-	t.Parallel()
-
-	rng := rand.New(rand.NewPCG(1, 2))
-
-	// Id 空は通常あり得ないが、drawDistribution の防御ガードが何も返さず nil で抜けることを確認する
-	draws, err := drawDistribution([]oapi.ItemGroupEntry{{Id: "", Weight: 1.0, Pack: "1d1"}}, rng)
-	require.NoError(t, err)
-	assert.Nil(t, draws)
-}
-
 func TestRollPack(t *testing.T) {
 	t.Parallel()
 

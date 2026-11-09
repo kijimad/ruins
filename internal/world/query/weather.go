@@ -61,32 +61,11 @@ func NextWeather(current gc.WeatherKind, season gc.Season, northDepth int, rng *
 			seasonAffinity[season][next] *
 			placeFactor(northDepth, kind)
 	}
-	return gc.WeatherKind(drawWeighted(weights[:], rng))
-}
-
-// drawWeighted は重み配列から1つの添字を確率抽選する。総和0以下は0へ、丸め誤差で末尾まで抜けたら
-// 最大重みの添字へ縮退する。末尾へ落とすと微小重みの天候が過剰に選ばれ分布の意図とずれるため。
-func drawWeighted(weights []float64, rng *rand.Rand) int {
-	var total float64
-	// maxIdx は最大重みの添字。丸め誤差での縮退先に使う
-	maxIdx := 0
-	for i, w := range weights {
-		total += w
-		if w > weights[maxIdx] {
-			maxIdx = i
-		}
+	i, ok := consts.Pick(rng, weights[:], func(w float64) float64 { return w })
+	if !ok {
+		return current
 	}
-	if total <= 0 {
-		return 0
-	}
-	r := rng.Float64() * total
-	for i, w := range weights {
-		r -= w
-		if r < 0 {
-			return i
-		}
-	}
-	return maxIdx
+	return gc.WeatherKind(i)
 }
 
 // spellTurnRange は天候種ごとのスペル基準長の下限と上限を返す。晴れは長く吹雪は短い。値は暫定。

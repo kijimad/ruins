@@ -18,19 +18,12 @@ import (
 // landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する。
 func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
 	lms := raw.PtrSlice(raws.Landmarks)
-	total := 0
-	for _, l := range lms {
-		total += int(l.Weight)
+	i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)), lms, func(l oapi.Landmark) float64 { return float64(l.Weight) })
+	if !ok {
+		// スキーマの weight>=1 と TestRealData_HasLandmarks が候補の存在を保証する
+		panic("landmarkKindAt: no landmark to pick")
 	}
-	// total>0 はスキーマの weight>=1 と TestRealData_HasLandmarks が保証する
-	roll := int(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % uint64(total))
-	for _, l := range lms {
-		roll -= int(l.Weight)
-		if roll < 0 {
-			return l.Id
-		}
-	}
-	panic("unreachable: landmark weight total and subtraction are inconsistent")
+	return lms[i].Id
 }
 
 // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。

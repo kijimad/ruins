@@ -38601,34 +38601,34 @@
   ],
   "NPCs": [
     {
-      "X": 24,
-      "Y": 11,
+      "X": 19,
+      "Y": 2,
       "Name": "pink_slime"
     },
     {
-      "X": 44,
-      "Y": 27,
+      "X": 9,
+      "Y": 48,
       "Name": "poison_frog"
     },
     {
-      "X": 45,
-      "Y": 30,
-      "Name": "poison_frog"
-    },
-    {
-      "X": 42,
-      "Y": 29,
-      "Name": "poison_frog"
-    },
-    {
-      "X": 43,
-      "Y": 30,
-      "Name": "poison_frog"
-    },
-    {
-      "X": 16,
+      "X": 18,
       "Y": 7,
-      "Name": "bat"
+      "Name": "pink_slime"
+    },
+    {
+      "X": 20,
+      "Y": 6,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 15,
+      "Y": 6,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 20,
+      "Y": 1,
+      "Name": "pink_slime"
     }
   ],
   "Items": [],

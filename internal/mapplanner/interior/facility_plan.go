@@ -15,8 +15,7 @@ func storeBackRole(seed uint64, i int) roleName {
 	if i == 0 {
 		return "storeroom"
 	}
-	pool := []roleName{"office", "restroom", "coldroom", "storeroom"}
-	return pool[childSeed(seed, 6_100_000+i)%uint64(len(pool))]
+	return pickOne(childSeed(seed, 6_100_000+i), []roleName{"office", "restroom", "coldroom", "storeroom"})
 }
 
 // clinicBackRole は診療所の奥室 i 番目(0-indexed, total は奥室総数)の役割を返す。0番は必ず薬局、

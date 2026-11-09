@@ -6,23 +6,35 @@ import "github.com/kijimaD/ruins/internal/consts"
 // 異質なものは孤立しているほど記憶に残るので、landmark 級は狭い確率で1棟に1つに絞る。
 // 中身は 報酬46/雰囲気25/リスクリワード15/危険14 の予算配分で引き、主室の中央へ1つだけ据える。
 
+// heroKind は hero 部屋の目玉の種類。
+type heroKind string
+
+const (
+	heroReward     heroKind = "reward"
+	heroAtmosphere heroKind = "atmosphere"
+	heroRiskReward heroKind = "risk_reward"
+	heroDanger     heroKind = "danger"
+)
+
 // heroCenterpiece は建物が hero なら主室に据える目玉 prop の Ref を返す。大半の建物は hero でない。予算配分で
 // 4種を引く。報酬は宝箱、雰囲気は鳥居や蓄音機の landmark、リスクリワードは檻の中の獲物、危険は毒樽。
 func heroCenterpiece(seed uint64) (string, bool) {
 	if childSeed(seed, 13_000_000)%12 != 0 {
 		return "", false // 12棟に1棟だけ見せ場を持つ。rare を孤立させる
 	}
-	switch r := childSeed(seed, 13_100_000) % 100; {
-	case r < 46: // 報酬
+	switch pickChoice(childSeed(seed, 13_100_000), []choice[heroKind]{
+		{heroReward, 46}, {heroAtmosphere, 25}, {heroRiskReward, 15}, {heroDanger, 14},
+	}) {
+	case heroReward:
 		return "chest", true
-	case r < 71: // 雰囲気。landmark を seed で1つ
-		atmos := []string{"torii", "phonograph", "komainu", "pillar"}
-		return atmos[int(childSeed(seed, 13_200_000)%uint64(len(atmos)))], true
-	case r < 86: // リスクリワード。檻に入った獲物
+	case heroAtmosphere:
+		return pickOne(childSeed(seed, 13_200_000), []string{"torii", "phonograph", "komainu", "pillar"}), true
+	case heroRiskReward:
 		return "cage", true
-	default: // 危険
+	case heroDanger:
 		return "poison", true
 	}
+	panic("unknown heroKind")
 }
 
 // heroSpot は目玉を据えるタイルを返す。廊下を除く最大の部屋の中央。中央が内側床でなければ置かない。

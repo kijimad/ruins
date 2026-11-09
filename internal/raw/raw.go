@@ -884,22 +884,20 @@ func GetProfession(raws oapi.Raws, id string) (oapi.Profession, error) {
 
 // SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する
 func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error) {
-	return SelectByWeightFunc(
-		ct.Entries,
-		func(e oapi.CommandTableEntry) float64 { return e.Weight },
-		func(e oapi.CommandTableEntry) string { return e.Weapon },
-		rng,
-	)
+	i, ok := consts.Pick(rng, ct.Entries, func(e oapi.CommandTableEntry) float64 { return e.Weight })
+	if !ok {
+		return "", nil
+	}
+	return ct.Entries[i].Weapon, nil
 }
 
 // SelectDropByWeight はドロップテーブルから重み付きランダム選択する
 func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
-	return SelectByWeightFunc(
-		dt.Entries,
-		func(e oapi.DropTableEntry) float64 { return e.Weight },
-		func(e oapi.DropTableEntry) string { return e.Material },
-		rng,
-	)
+	i, ok := consts.Pick(rng, dt.Entries, func(e oapi.DropTableEntry) float64 { return e.Weight })
+	if !ok {
+		return "", nil
+	}
+	return dt.Entries[i].Material, nil
 }
 
 // MinDanger は spawn テーブルが引ける最小の危険度。テーブルは1始まり設計で、これ未満は
@@ -909,61 +907,64 @@ const MinDanger = 1
 // errDangerBelowMinimum は MinDanger 未満の危険度で抽選したときに返す
 var errDangerBelowMinimum = errors.New("danger is below the minimum")
 
+// EnemyEntriesAt は敵テーブルのうち、危険度 danger で出る行を返す。
+func EnemyEntriesAt(et oapi.EnemyTable, danger int) []oapi.EnemyTableEntry {
+	return inDanger(et.Entries, danger, func(e oapi.EnemyTableEntry) (int, int) { return e.MinDanger, e.MaxDanger })
+}
+
+// ItemEntriesAt はアイテムテーブルのうち、危険度 danger で出る行を返す。
+func ItemEntriesAt(it oapi.ItemTable, danger int) []oapi.ItemTableEntry {
+	return inDanger(it.Entries, danger, func(e oapi.ItemTableEntry) (int, int) { return e.MinDanger, e.MaxDanger })
+}
+
+func inDanger[T any](entries []T, danger int, rangeOf func(T) (lo, hi int)) []T {
+	out := make([]T, 0, len(entries))
+	for _, e := range entries {
+		if lo, hi := rangeOf(e); lo <= danger && danger <= hi {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
+func checkDanger(danger int) error {
+	if danger < MinDanger {
+		return fmt.Errorf("%w: danger %d, minimum %d; the caller must specify a valid danger", errDangerBelowMinimum, danger, MinDanger)
+	}
+	return nil
+}
+
 // SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する
 // テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
 func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
-	if danger < MinDanger {
-		return "", fmt.Errorf("%w: danger %d, minimum %d; the caller must specify a valid danger", errDangerBelowMinimum, danger, MinDanger)
-	}
-	filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
-	for _, entry := range it.Entries {
-		if danger < entry.MinDanger || danger > entry.MaxDanger {
-			continue
-		}
-		filtered = append(filtered, entry)
-	}
-
-	// テーブルエントリからグループ名を重み付き選択する
-	groupName, err := SelectByWeightFunc(
-		filtered,
-		func(e oapi.ItemTableEntry) float64 { return e.Weight },
-		func(e oapi.ItemTableEntry) string { return e.Id },
-		rng,
-	)
-	if err != nil || groupName == "" {
+	if err := checkDanger(danger); err != nil {
 		return "", err
 	}
-
-	// グループからアイテムを選択する
-	group, err := GetItemGroup(raws, groupName)
+	entries := ItemEntriesAt(it, danger)
+	i, ok := consts.Pick(rng, entries, func(e oapi.ItemTableEntry) float64 { return e.Weight })
+	if !ok {
+		return "", nil
+	}
+	group, err := GetItemGroup(raws, entries[i].Id)
 	if err != nil {
 		return "", err
 	}
-	return SelectByWeightFunc(
-		group.Entries,
-		func(e oapi.ItemGroupEntry) float64 { return e.Weight },
-		func(e oapi.ItemGroupEntry) string { return e.Id },
-		rng,
-	)
+	j, ok := consts.Pick(rng, group.Entries, func(e oapi.ItemGroupEntry) float64 { return e.Weight })
+	if !ok {
+		return "", nil
+	}
+	return group.Entries[j].Id, nil
 }
 
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する
 func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {
-	if danger < MinDanger {
-		return "", fmt.Errorf("%w: danger %d, minimum %d; the caller must specify a valid danger", errDangerBelowMinimum, danger, MinDanger)
+	if err := checkDanger(danger); err != nil {
+		return "", err
 	}
-	filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
-	for _, entry := range et.Entries {
-		if danger < entry.MinDanger || danger > entry.MaxDanger {
-			continue
-		}
-		filtered = append(filtered, entry)
+	entries := EnemyEntriesAt(et, danger)
+	i, ok := consts.Pick(rng, entries, func(e oapi.EnemyTableEntry) float64 { return e.Weight })
+	if !ok {
+		return "", nil
 	}
-
-	return SelectByWeightFunc(
-		filtered,
-		func(e oapi.EnemyTableEntry) float64 { return e.Weight },
-		func(e oapi.EnemyTableEntry) string { return e.Id },
-		rng,
-	)
+	return entries[i].Id, nil
 }

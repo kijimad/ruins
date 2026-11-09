@@ -37537,42 +37537,42 @@
   "Corridors": [],
   "NPCs": [
     {
-      "X": 38,
-      "Y": 33,
-      "Name": "bat"
-    },
-    {
-      "X": 37,
-      "Y": 33,
-      "Name": "bat"
-    },
-    {
-      "X": 37,
+      "X": 18,
       "Y": 26,
       "Name": "bat"
     },
     {
-      "X": 39,
-      "Y": 30,
+      "X": 17,
+      "Y": 26,
       "Name": "bat"
     },
     {
-      "X": 36,
-      "Y": 26,
-      "Name": "bat"
+      "X": 35,
+      "Y": 32,
+      "Name": "slime"
+    },
+    {
+      "X": 42,
+      "Y": 28,
+      "Name": "slime"
+    },
+    {
+      "X": 42,
+      "Y": 31,
+      "Name": "slime"
     }
   ],
   "Items": [
     {
-      "X": 37,
-      "Y": 27,
-      "Name": "belly_meat",
+      "X": 23,
+      "Y": 28,
+      "Name": "healing_potion",
       "Count": 1
     },
     {
-      "X": 38,
-      "Y": 27,
-      "Name": "healing_potion",
+      "X": 18,
+      "Y": 20,
+      "Name": "trauma_kit",
       "Count": 1
     },
     {
@@ -37588,8 +37588,8 @@
       "Count": 1
     },
     {
-      "X": 21,
-      "Y": 23,
+      "X": 42,
+      "Y": 30,
       "Name": "healing_potion",
       "Count": 1
     },
@@ -37606,28 +37606,10 @@
       "Count": 1
     },
     {
-      "X": 19,
-      "Y": 23,
+      "X": 12,
+      "Y": 21,
       "Name": "dummy_ration",
       "Count": 2
-    },
-    {
-      "X": 19,
-      "Y": 26,
-      "Name": "trauma_kit",
-      "Count": 1
-    },
-    {
-      "X": 46,
-      "Y": 31,
-      "Name": "screwdriver",
-      "Count": 1
-    },
-    {
-      "X": 42,
-      "Y": 25,
-      "Name": "croissant",
-      "Count": 1
     }
   ],
   "Props": [],

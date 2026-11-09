@@ -193,10 +193,7 @@ func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon Weapon
 		return 0, 0, false, err
 	}
 	var wSum, deathSum, turnSum float64
-	for _, entry := range table.Entries {
-		if danger < entry.MinDanger || danger > entry.MaxDanger {
-			continue
-		}
+	for _, entry := range raw.EnemyEntriesAt(table, danger) {
 		enemy, err := LoadCombatantFromMember(master, entry.Id)
 		if err != nil {
 			return 0, 0, false, err

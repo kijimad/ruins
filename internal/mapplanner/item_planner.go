@@ -71,15 +71,11 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	failCount := 0
 	for placed < total && failCount <= maxItemPlacementAttempts {
 		// 参照先グループをテーブル重みで選ぶ
-		source, err := raw.SelectByWeightFunc(
-			sources,
-			func(s itemGroupRef) float64 { return s.Weight },
-			func(s itemGroupRef) itemGroupRef { return s },
-			planData.RNG,
-		)
-		if err != nil {
-			return err
+		si, ok := consts.Pick(planData.RNG, sources, func(s itemGroupRef) float64 { return s.Weight })
+		if !ok {
+			return nil
 		}
+		source := sources[si]
 
 		// グループから1山を抽選する。distribution/collection と pack の解釈は raw が担う
 		items, err := raw.SelectFromItemGroup(*planData.RawMaster, source.GroupID, planData.RNG)

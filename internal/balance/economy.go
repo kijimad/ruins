@@ -16,10 +16,7 @@ func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float
 		return 0
 	}
 	var wSum, vSum float64
-	for _, e := range table.Entries {
-		if danger < e.MinDanger || danger > e.MaxDanger {
-			continue
-		}
+	for _, e := range raw.ItemEntriesAt(table, danger) {
 		wSum += e.Weight
 		vSum += e.Weight * expectedGroupValue(master, e.Id)
 	}

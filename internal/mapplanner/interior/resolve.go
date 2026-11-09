@@ -1,6 +1,10 @@
 package interior
 
-import "math/rand/v2"
+import (
+	"math/rand/v2"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // Resolve は Content の各 Group を解決し、置くべき Selection の列を決定的に返す。
 // Group ごとに childSeed で独立した乱数ストリームを引くので、Group を1つ足しても他 Group の
@@ -46,7 +50,7 @@ func pickDistinct(rng *rand.Rand, items []Stuff, n int) []Selection {
 	copy(pool, items)
 	out := make([]Selection, 0, n)
 	for len(out) < n && len(pool) > 0 {
-		i := weightedIndex(rng, pool)
+		i, _ := consts.Pick(rng, pool, weightOf)
 		it := pool[i]
 		pool = append(pool[:i], pool[i+1:]...)
 		count := it.Amount.Roll(rng)
@@ -71,27 +75,36 @@ func selectionOf(it Stuff, count int) Selection {
 	}
 }
 
-// weightedIndex は重みに比例して1つの添字を選ぶ。重み0は1とみなす。
-func weightedIndex(rng *rand.Rand, items []Stuff) int {
-	total := 0
-	for _, it := range items {
-		total += weightOf(it)
-	}
-	r := rng.IntN(total)
-	for i, it := range items {
-		r -= weightOf(it)
-		if r < 0 {
-			return i
-		}
-	}
-	return len(items) - 1 // 重み合計と減算が整合すれば到達しない。安全側で末尾を返す
-}
-
-func weightOf(it Stuff) int {
+// weightOf は Stuff の抽選の重みを返す。重み0以下は1とみなす。
+func weightOf(it Stuff) float64 {
 	if it.Weight <= 0 {
 		return 1
 	}
-	return it.Weight
+	return float64(it.Weight)
+}
+
+// choice は値と抽選の重みの組。
+type choice[T any] struct {
+	value  T
+	weight float64
+}
+
+// pickChoice は h から重みに比例して choices の値を1つ引く。
+func pickChoice[T any](h uint64, choices []choice[T]) T {
+	i, ok := consts.Pick(consts.HashRoll(h), choices, func(c choice[T]) float64 { return c.weight })
+	if !ok {
+		panic("pickChoice: no choice has positive weight")
+	}
+	return choices[i].value
+}
+
+// pickOne は h から pool の値を一様に1つ引く。
+func pickOne[T any](h uint64, pool []T) T {
+	i, ok := consts.PickUniform(consts.HashRoll(h), pool)
+	if !ok {
+		panic("pickOne: pool is empty")
+	}
+	return pool[i]
 }
 
 // childSeed は親 seed と添字から子 seed を導く。splitmix64 の finalizer で撹拌し、添字の1違いでも
