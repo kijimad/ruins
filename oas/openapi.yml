@@ -1986,6 +1986,28 @@ components:
     BlocksView:
       type: boolean
       description: 視線を遮るかどうか
+    BodyPart:
+      type: object
+      required:
+        - id
+        - name
+        - hitWeight
+      properties:
+        id:
+          $ref: '#/components/schemas/BodyPartId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        hitWeight:
+          allOf:
+            - $ref: '#/components/schemas/EntryWeight'
+          description: 戦闘の命中抽選の重み。0 は命中先にならない
+      description: 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
+    BodyPartId:
+      type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
+      description: 部位の id
     Book:
       type: object
       required:
@@ -2049,10 +2071,70 @@ components:
         totalCount:
           type: integer
       description: コマンドテーブル一覧
+    Condition:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - painPerSeverity
+        - bodyFuncDropPerSeverity
+      properties:
+        id:
+          $ref: '#/components/schemas/ConditionTypeName'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        description:
+          $ref: '#/components/schemas/EntityDescription'
+        painPerSeverity:
+          $ref: '#/components/schemas/ConditionAmountPerSeverity'
+        bodyFuncDropPerSeverity:
+          $ref: '#/components/schemas/ConditionAmountPerSeverity'
+        recovery:
+          allOf:
+            - $ref: '#/components/schemas/RecoveryMode'
+          description: 省くと ConditionSystem の管轄外になる
+        worsenPer:
+          allOf:
+            - $ref: '#/components/schemas/ConditionTimerRate'
+          description: progress_until_tend で未治療のとき1ターンに進行度を増やす量
+        recoverPer:
+          allOf:
+            - $ref: '#/components/schemas/ConditionTimerRate'
+          description: 治療済みで1ターンに進行度を減らす基準量
+        bloodDropPerSeverity:
+          $ref: '#/components/schemas/ConditionAmountPerSeverity'
+        cause:
+          $ref: '#/components/schemas/ConditionDeathCause'
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BodyPartId'
+          description: 起こりうる部位。省くと全部位
+      description: 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
+    ConditionAmountPerSeverity:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+    ConditionDeathCause:
+      type: string
+      enum:
+        - frozen
+        - illness
+        - blood_loss
+      description: 不調が血液量を尽きさせて倒したときの死因
+    ConditionTimerRate:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: 不調の1ターンあたりの進行度の増減量
     ConditionTypeName:
       type: string
       minLength: 1
-      description: 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
+      description: 不調の id。Go の ConditionType 定数の値と同じ
     Consumable:
       type: object
       required:
@@ -3488,6 +3570,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Profession'
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Condition'
+        bodyParts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BodyPart'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -3534,6 +3624,13 @@ components:
         totalCount:
           type: integer
       description: レシピ一覧レスポンス
+    RecoveryMode:
+      type: string
+      enum:
+        - recover_after_tend
+        - progress_until_tend
+        - recover_over_time
+      description: 不調が未治療のときの振る舞いと治し方
     ReloadEffort:
       type: integer
       minimum: 1

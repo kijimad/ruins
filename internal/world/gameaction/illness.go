@@ -31,7 +31,7 @@ func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool
 		world.Components.StatsChanged.Add(entity, &gc.StatsChanged{})
 	}
 	if world.Components.Player.Has(entity) {
-		name := query.T(world, gc.ConditionTypeDisplayName(ct))
+		name := query.ConditionName(world, ct)
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "You contracted %s.", name)).
 			Log()

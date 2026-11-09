@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/require"
@@ -19,6 +20,7 @@ import (
 var (
 	rawMasterOnce sync.Once
 	rawMaster     oapi.Raws
+	conditionDefs gc.ConditionDefs
 	errRawMaster  error
 )
 
@@ -84,9 +86,13 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	// 完了扱いになり、rawMaster が空のまま以後の全呼び出しへ漏れるため。
 	rawMasterOnce.Do(func() {
 		rawMaster, errRawMaster = loader.LoadRaws()
+		if errRawMaster == nil {
+			conditionDefs, errRawMaster = raw.NewConditionDefs(rawMaster)
+		}
 	})
 	require.NoError(tb, errRawMaster, "failed to load RawMaster")
 	world.Resources.RawMaster = rawMaster
+	world.Resources.ConditionDefs = conditionDefs
 
 	// テスト用スプライトシートを初期化
 	spriteSheets := map[string]gc.SpriteSheet{

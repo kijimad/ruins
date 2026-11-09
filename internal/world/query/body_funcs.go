@@ -11,10 +11,10 @@ import (
 func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {
 	needConds := DerivedConditions(world, entity)
 	if world.Components.HealthStatus.Has(entity) {
-		return world.Components.HealthStatus.Get(entity).BodyFuncs(needConds...)
+		return world.Components.HealthStatus.Get(entity).BodyFuncs(world.Resources.ConditionDefs, needConds...)
 	}
 	// HealthStatus 非所持は怪我を持たない
-	return (&gc.HealthStatus{}).BodyFuncs(needConds...)
+	return (&gc.HealthStatus{}).BodyFuncs(world.Resources.ConditionDefs, needConds...)
 }
 
 // DerivedConditions は疲労・空腹の量から過労・栄養失調の不調を読み取り時に組み立てる。
@@ -32,4 +32,22 @@ func DerivedConditions(world w.World, entity ecs.Entity) []gc.HealthCondition {
 		}
 	}
 	return conds
+}
+
+// ConditionName は不調の訳した表示名を返す。定義が無ければ id をそのまま返す
+func ConditionName(world w.World, ct gc.ConditionType) string {
+	def, ok := world.Resources.ConditionDefs.Def(ct)
+	if !ok {
+		return string(ct)
+	}
+	return T(world, def.Name)
+}
+
+// ConditionDescription は不調の訳した概要説明を返す。定義が無ければ空文字を返す
+func ConditionDescription(world w.World, ct gc.ConditionType) string {
+	def, ok := world.Resources.ConditionDefs.Def(ct)
+	if !ok {
+		return ""
+	}
+	return T(world, def.Description)
 }

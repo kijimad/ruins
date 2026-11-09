@@ -141,54 +141,6 @@ func TestHealthCondition_IsActive(t *testing.T) {
 	}
 }
 
-func TestConditionCanAffect(t *testing.T) {
-	t.Parallel()
-
-	var fracture []BodyPart
-	var laceration []BodyPart
-	for p := range BodyPartCount {
-		if ConditionCanAffect(ConditionFracture, p) {
-			fracture = append(fracture, p)
-		}
-		if ConditionCanAffect(ConditionLaceration, p) {
-			laceration = append(laceration, p)
-		}
-	}
-	assert.Equal(t, []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, fracture, "骨折は手足だけ")
-	assert.Len(t, laceration, int(BodyPartCount), "切り傷は全部位")
-}
-
-func TestConditionTypeDisplayName(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, "Hypothermia", ConditionTypeDisplayName(ConditionHypothermia))
-	assert.Equal(t, "Unknown", ConditionTypeDisplayName(ConditionType("Unknown")))
-}
-
-func TestConditionTypeDescription(t *testing.T) {
-	t.Parallel()
-
-	assert.Contains(t, ConditionTypeDescription(ConditionFracture), "broken bone")
-	assert.Empty(t, ConditionTypeDescription(ConditionType("Unknown")), "未登録は空文字")
-}
-
-func TestConditionDefFor(t *testing.T) {
-	t.Parallel()
-
-	// 怪我・病気は Recovery を持つ。低体温は表に載るが Recovery を持たず TemperatureSystem 管轄
-	def, ok := ConditionDefFor(ConditionLaceration)
-	require.True(t, ok)
-	assert.Equal(t, RecoverAfterTend, def.Recovery)
-	assert.Equal(t, CauseBloodLoss, def.Cause, "切り傷は失血で死なせる")
-
-	cold, ok := ConditionDefFor(ConditionHypothermia)
-	require.True(t, ok, "低体温も表示のため表には載る")
-	assert.Empty(t, cold.Recovery, "低体温は Recovery を持たない")
-
-	_, ok = ConditionDefFor(ConditionType("Unknown"))
-	assert.False(t, ok, "未登録は ok=false")
-}
-
 func TestBodyPartHealth_SetCondition(t *testing.T) {
 	t.Parallel()
 
@@ -316,7 +268,7 @@ func TestHealthStatus_Capacities(t *testing.T) {
 
 	t.Run("不調なしは全機能100で痛み0", func(t *testing.T) {
 		t.Parallel()
-		bodyFuncs := (&HealthStatus{}).BodyFuncs()
+		bodyFuncs := (&HealthStatus{}).BodyFuncs(testDefs)
 		assert.Equal(t, BodyFuncs{Pain: 0, Blood: 100, Consciousness: 100, Manipulation: 100, Moving: 100, Sight: 100, Metabolism: 100}, bodyFuncs)
 	})
 
@@ -324,7 +276,7 @@ func TestHealthStatus_Capacities(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
-		bodyFuncs := hs.BodyFuncs()
+		bodyFuncs := hs.BodyFuncs(testDefs)
 		// 骨折 18/20 の中度。痛み=18*2=36、意識=100-36/2=82、操作=(100-20*2)*82/100=49。
 		// 意識は master 乗数。歩行と視覚は局所低下なしだが意識が掛かって82。代謝は過労・栄養失調なしで100
 		assert.Equal(t, BodyFuncs{Pain: 36, Blood: 100, Consciousness: 82, Manipulation: 49, Moving: 82, Sight: 82, Metabolism: 100}, bodyFuncs)
@@ -334,7 +286,7 @@ func TestHealthStatus_Capacities(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartLegs].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMinor})
-		bodyFuncs := hs.BodyFuncs()
+		bodyFuncs := hs.BodyFuncs(testDefs)
 		assert.Less(t, int(bodyFuncs.Moving), int(bodyFuncs.Sight), "脚の怪我は歩行を下げ視覚は下げない")
 	})
 }
@@ -343,8 +295,9 @@ func TestBodyPartMetas_全部位が登録されている(t *testing.T) {
 	t.Parallel()
 
 	// 配列テーブルは行を忘れてもゼロ値で埋まり switch の網羅チェックが効かないので、
-	// 全部位に表示名と機能が入っていることをテストで担保する
+	// 全部位に id と表示名と機能が入っていることをテストで担保する
 	for bp := range BodyPartCount {
+		assert.NotEmpty(t, bodyPartMetas[bp].id, "部位 %d に id がある", bp)
 		assert.NotEmpty(t, bodyPartMetas[bp].displayName, "部位 %d に表示名がある", bp)
 		assert.NotEmpty(t, bodyPartMetas[bp].bodyFunc, "部位 %d に身体機能がある", bp)
 	}
@@ -370,10 +323,10 @@ func TestConditionIsDerived(t *testing.T) {
 	}
 }
 
-func TestConditionBloodDrop(t *testing.T) {
+func TestConditionDefs_BloodDrop(t *testing.T) {
 	t.Parallel()
 
-	drop := func(c HealthCondition) int { return ConditionBloodDrop(&c) }
+	drop := func(c HealthCondition) int { return testDefs.BloodDrop(&c) }
 
 	// 外傷は発症中ずっと出血する。重症度ぶん大きく失う
 	assert.Equal(t, 50, drop(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)}), "中度の切り傷は 25*2")
@@ -395,8 +348,8 @@ func TestHealthStatus_BloodLoss(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80)})
-		assert.Equal(t, 25, int(hs.BodyFuncs().Blood), "失血75で血液量25")
-		drain, cause := hs.BloodLossHPDrain()
+		assert.Equal(t, 25, int(hs.BodyFuncs(testDefs).Blood), "失血75で血液量25")
+		drain, cause := hs.BloodLossHPDrain(testDefs)
 		assert.Equal(t, 2, drain, "不足15を10で割り上げて2")
 		assert.Equal(t, CauseBloodLoss, cause)
 	})
@@ -405,8 +358,8 @@ func TestHealthStatus_BloodLoss(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
-		assert.Equal(t, 50, int(hs.BodyFuncs().Blood))
-		drain, _ := hs.BloodLossHPDrain()
+		assert.Equal(t, 50, int(hs.BodyFuncs(testDefs).Blood))
+		drain, _ := hs.BloodLossHPDrain(testDefs)
 		assert.Equal(t, 0, drain, "危険域より上なので失血しない")
 	})
 
@@ -414,8 +367,8 @@ func TestHealthStatus_BloodLoss(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80), TendQuality: 100})
-		assert.Equal(t, 100, int(hs.BodyFuncs().Blood))
-		drain, _ := hs.BloodLossHPDrain()
+		assert.Equal(t, 100, int(hs.BodyFuncs(testDefs).Blood))
+		drain, _ := hs.BloodLossHPDrain(testDefs)
 		assert.Equal(t, 0, drain)
 	})
 
@@ -423,7 +376,7 @@ func TestHealthStatus_BloodLoss(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{Type: ConditionHypothermia, Timer: 90, Severity: SeveritySevere})
-		drain, cause := hs.BloodLossHPDrain()
+		drain, cause := hs.BloodLossHPDrain(testDefs)
 		assert.Positive(t, drain)
 		assert.Equal(t, CauseFrozen, cause)
 	})
@@ -453,21 +406,21 @@ func TestHealthStatus_IsHPDraining(t *testing.T) {
 	t.Run("不調なしは削っていない", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
-		assert.False(t, hs.IsHPDraining())
+		assert.False(t, hs.IsHPDraining(testDefs))
 	})
 
 	t.Run("重度の切り傷で危険域を下回ると削っている", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80)})
-		assert.True(t, hs.IsHPDraining())
+		assert.True(t, hs.IsHPDraining(testDefs))
 	})
 
 	t.Run("治療済みは削らない", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 80, Severity: TimerToSeverity(80), TendQuality: 100})
-		assert.False(t, hs.IsHPDraining())
+		assert.False(t, hs.IsHPDraining(testDefs))
 	})
 }
 
@@ -477,7 +430,7 @@ func TestHealthStatus_ConsciousnessDrops(t *testing.T) {
 	t.Run("不調なしはゼロ", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
-		systemic, pain := hs.ConsciousnessDrops()
+		systemic, pain := hs.ConsciousnessDrops(testDefs)
 		assert.Equal(t, 0, systemic)
 		assert.Equal(t, 0, pain)
 	})
@@ -486,7 +439,7 @@ func TestHealthStatus_ConsciousnessDrops(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartTorso].SetCondition(HealthCondition{Type: ConditionLaceration, Severity: SeverityMedium})
-		systemic, pain := hs.ConsciousnessDrops()
+		systemic, pain := hs.ConsciousnessDrops(testDefs)
 		// 切り傷 中度: 機能低下 8*2=16、痛み 8*2=16 を痛み係数2で割って8
 		assert.Equal(t, 16, systemic)
 		assert.Equal(t, 8, pain)
@@ -496,7 +449,7 @@ func TestHealthStatus_ConsciousnessDrops(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
-		systemic, pain := hs.ConsciousnessDrops()
+		systemic, pain := hs.ConsciousnessDrops(testDefs)
 		assert.Equal(t, 0, systemic, "腕はConsciousnessでなくManipulationを下げる")
 		assert.Equal(t, 18, pain, "痛みは部位によらず計上する")
 	})
@@ -508,15 +461,15 @@ func TestHealthStatus_LocalDrop(t *testing.T) {
 	t.Run("不調なしはゼロ", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
-		assert.Equal(t, 0, hs.LocalDrop(BodyFuncManipulation))
+		assert.Equal(t, 0, hs.LocalDrop(testDefs, BodyFuncManipulation))
 	})
 
 	t.Run("腕の骨折はManipulationの低下として計上する", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
-		assert.Equal(t, 40, hs.LocalDrop(BodyFuncManipulation), "中度の骨折は20*2")
-		assert.Equal(t, 0, hs.LocalDrop(BodyFuncMoving), "脚を下げないのでMovingは0")
+		assert.Equal(t, 40, hs.LocalDrop(testDefs, BodyFuncManipulation), "中度の骨折は20*2")
+		assert.Equal(t, 0, hs.LocalDrop(testDefs, BodyFuncMoving), "脚を下げないのでMovingは0")
 	})
 
 	t.Run("手の骨折もManipulationへ合算する", func(t *testing.T) {
@@ -525,17 +478,17 @@ func TestHealthStatus_LocalDrop(t *testing.T) {
 		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMinor})
 		hs.Parts[BodyPartHands].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMinor})
 		// 軽度の骨折はそれぞれ20*1=20。腕と手はどちらもManipulationなので合算する
-		assert.Equal(t, 40, hs.LocalDrop(BodyFuncManipulation))
+		assert.Equal(t, 40, hs.LocalDrop(testDefs, BodyFuncManipulation))
 	})
 }
 
-func TestConditionBodyFuncImpact(t *testing.T) {
+func TestConditionDefs_BodyFuncImpact(t *testing.T) {
 	t.Parallel()
 
 	t.Run("腕の骨折は操作を下げ痛みを与える", func(t *testing.T) {
 		t.Parallel()
 		// 骨折 18/20 の中度: 痛み 18*2=36、操作 20*2=40
-		pain, bodyFunc, drop := ConditionBodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium}, BodyPartArms)
+		pain, bodyFunc, drop := testDefs.BodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium}, BodyPartArms)
 		assert.Equal(t, 36, pain)
 		assert.Equal(t, BodyFuncManipulation, bodyFunc)
 		assert.Equal(t, 40, drop)
@@ -544,7 +497,7 @@ func TestConditionBodyFuncImpact(t *testing.T) {
 	t.Run("応急処置で痛みと機能低下が半減する", func(t *testing.T) {
 		t.Parallel()
 		// 未治療は痛み36・操作40。応急処置(TendQuality>0)で半分の18・20へ軽減する
-		treatedPain, _, treatedDrop := ConditionBodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium, TendQuality: 100}, BodyPartArms)
+		treatedPain, _, treatedDrop := testDefs.BodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium, TendQuality: 100}, BodyPartArms)
 		assert.Equal(t, 18, treatedPain, "痛みが半減する")
 		assert.Equal(t, 20, treatedDrop, "機能低下が半減する")
 	})
@@ -552,22 +505,22 @@ func TestConditionBodyFuncImpact(t *testing.T) {
 	t.Run("症状ごとに反応率が違う", func(t *testing.T) {
 		t.Parallel()
 		// 同じ部位・重症度でも切り傷は骨折より痛みも機能低下も小さい
-		fracPain, _, fracDrop := ConditionBodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium}, BodyPartArms)
-		lacPain, _, lacDrop := ConditionBodyFuncImpact(&HealthCondition{Type: ConditionLaceration, Severity: SeverityMedium}, BodyPartArms)
+		fracPain, _, fracDrop := testDefs.BodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMedium}, BodyPartArms)
+		lacPain, _, lacDrop := testDefs.BodyFuncImpact(&HealthCondition{Type: ConditionLaceration, Severity: SeverityMedium}, BodyPartArms)
 		assert.Less(t, lacPain, fracPain, "切り傷は骨折より痛みが小さい")
 		assert.Less(t, lacDrop, fracDrop, "切り傷は骨折より機能低下が小さい")
 	})
 
 	t.Run("脚の不調は歩行を下げる", func(t *testing.T) {
 		t.Parallel()
-		_, bodyFunc, _ := ConditionBodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMinor}, BodyPartFeet)
+		_, bodyFunc, _ := testDefs.BodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityMinor}, BodyPartFeet)
 		assert.Equal(t, BodyFuncMoving, bodyFunc)
 	})
 
 	t.Run("重症度なしは影響なし", func(t *testing.T) {
 		t.Parallel()
 		// bodyFunc は部位で定まり重症度に依らない。影響なしは drop と pain が0であることで表す
-		pain, bodyFunc, drop := ConditionBodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityNone}, BodyPartArms)
+		pain, bodyFunc, drop := testDefs.BodyFuncImpact(&HealthCondition{Type: ConditionFracture, Severity: SeverityNone}, BodyPartArms)
 		assert.Equal(t, 0, pain)
 		assert.Equal(t, BodyFuncManipulation, bodyFunc)
 		assert.Equal(t, 0, drop)

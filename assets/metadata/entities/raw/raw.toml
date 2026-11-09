@@ -5625,7 +5625,7 @@ targetNum = "SINGLE"
 usableScene = "ANY"
 
 [items.remedy]
-treats = ["Fracture"]
+treats = ["fracture"]
 potency = 100
 [[items]]
 description = "A bandage. Close an open wound so it stops bleeding."
@@ -5643,7 +5643,7 @@ targetNum = "SINGLE"
 usableScene = "ANY"
 
 [items.remedy]
-treats = ["Laceration"]
+treats = ["laceration"]
 potency = 100
 [[items]]
 description = "Restores about half of your HP."
@@ -20670,3 +20670,91 @@ pack = "2d2"
 id = "tesla_coil_orb"
 chance = 6
 pack = "1d2"
+
+[[conditions]]
+id = "hypothermia"
+name = "Hypothermia"
+description = "The body is dangerously cold. Warm up to recover."
+painPerSeverity = 6
+bodyFuncDropPerSeverity = 10
+bloodDropPerSeverity = 22
+cause = "frozen"
+[[conditions]]
+id = "fracture"
+name = "Fracture"
+description = "A broken bone. It will not heal until treated."
+painPerSeverity = 18
+bodyFuncDropPerSeverity = 20
+recovery = "recover_after_tend"
+recoverPer = 1
+parts = ["arm", "hand", "leg", "foot"]
+[[conditions]]
+id = "laceration"
+name = "Laceration"
+description = "An open wound. It will not heal until treated."
+painPerSeverity = 8
+bodyFuncDropPerSeverity = 8
+recovery = "recover_after_tend"
+recoverPer = 2
+bloodDropPerSeverity = 25
+cause = "blood_loss"
+[[conditions]]
+id = "liver_illness"
+name = "Liver illness"
+description = "It worsens while untreated and drains HP when severe."
+painPerSeverity = 4
+bodyFuncDropPerSeverity = 10
+recovery = "progress_until_tend"
+worsenPer = 2
+recoverPer = 1
+bloodDropPerSeverity = 25
+cause = "illness"
+[[conditions]]
+id = "food_poisoning"
+name = "Food poisoning"
+description = "Nausea from bad food. It clears on its own over time."
+painPerSeverity = 5
+bodyFuncDropPerSeverity = 12
+recovery = "recover_over_time"
+recoverPer = 2
+[[conditions]]
+id = "exhaustion"
+name = "Exhaustion"
+description = "Worn out from lack of rest. Sleep to recover."
+painPerSeverity = 0
+bodyFuncDropPerSeverity = 10
+[[conditions]]
+id = "malnutrition"
+name = "Malnutrition"
+description = "Weakened by hunger. Eat to recover."
+painPerSeverity = 0
+bodyFuncDropPerSeverity = 10
+
+[[bodyParts]]
+id = "head"
+name = "Head"
+hitWeight = 2.0
+[[bodyParts]]
+id = "torso"
+name = "Torso"
+hitWeight = 4.0
+[[bodyParts]]
+id = "arm"
+name = "Arm"
+hitWeight = 3.0
+[[bodyParts]]
+id = "hand"
+name = "Hand"
+hitWeight = 1.0
+[[bodyParts]]
+id = "leg"
+name = "Leg"
+hitWeight = 3.0
+[[bodyParts]]
+id = "foot"
+name = "Foot"
+hitWeight = 1.0
+[[bodyParts]]
+id = "whole_body"
+name = "Whole body"
+hitWeight = 0.0

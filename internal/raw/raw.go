@@ -49,6 +49,9 @@ func LoadFromFile(path string) (oapi.Raws, error) {
 	if err := ValidateReferences(raws); err != nil {
 		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
 	}
+	if err := validateCodeRows(raws); err != nil {
+		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
+	}
 	return raws, nil
 }
 
@@ -977,4 +980,52 @@ func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string
 		return "", nil
 	}
 	return entries[i].Id, nil
+}
+
+// NewConditionDefs は raw の conditions と bodyParts から不調の定義の表を組み立てる。
+// 参照の実在は ValidateReferences が確かめる前提で、見つからない部位はエラーにする
+func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
+	var hitWeights [gc.BodyPartCount]float64
+	for _, row := range PtrSlice(raws.BodyParts) {
+		bp, ok := gc.BodyPartByID(row.Id)
+		if !ok {
+			return gc.ConditionDefs{}, NewKeyNotFoundError(row.Id, "BodyParts")
+		}
+		hitWeights[bp] = row.HitWeight
+	}
+
+	conditions := PtrSlice(raws.Conditions)
+	conds := make(map[gc.ConditionType]gc.ConditionDef, len(conditions))
+	for _, row := range conditions {
+		def := gc.ConditionDef{
+			Name:                    row.Name,
+			Description:             row.Description,
+			PainPerSeverity:         row.PainPerSeverity,
+			BodyFuncDropPerSeverity: row.BodyFuncDropPerSeverity,
+		}
+		if row.Recovery != nil {
+			def.Recovery = gc.RecoveryMode(*row.Recovery)
+		}
+		if row.WorsenPer != nil {
+			def.WorsenPer = *row.WorsenPer
+		}
+		if row.RecoverPer != nil {
+			def.RecoverPer = *row.RecoverPer
+		}
+		if row.BloodDropPerSeverity != nil {
+			def.BloodDropPerSeverity = *row.BloodDropPerSeverity
+		}
+		if row.Cause != nil {
+			def.Cause = gc.DeathCause(*row.Cause)
+		}
+		for _, id := range PtrSlice(row.Parts) {
+			bp, ok := gc.BodyPartByID(id)
+			if !ok {
+				return gc.ConditionDefs{}, NewKeyNotFoundError(id, "BodyParts")
+			}
+			def.Parts = append(def.Parts, bp)
+		}
+		conds[gc.ConditionType(row.Id)] = def
+	}
+	return gc.NewConditionDefs(conds, hitWeights), nil
 }

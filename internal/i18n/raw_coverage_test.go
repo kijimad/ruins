@@ -23,7 +23,8 @@ func TestRawTranslationCoverage(t *testing.T) {
 	// コンポーネントへ入るが読み出す表示経路が無いので対象外。テーブル名も内部キーで非表示。
 	items, members, props := raw.PtrSlice(raws.Items), raw.PtrSlice(raws.Members), raw.PtrSlice(raws.Props)
 	tiles, profs, glyphs := raw.PtrSlice(raws.Tiles), raw.PtrSlice(raws.Professions), raw.PtrSlice(raws.MapGlyphs)
-	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2+len(glyphs))
+	conds, parts := raw.PtrSlice(raws.Conditions), raw.PtrSlice(raws.BodyParts)
+	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2+len(glyphs)+len(conds)*2+len(parts))
 	for _, it := range items {
 		texts = append(texts, it.Name, it.Description)
 	}
@@ -41,6 +42,12 @@ func TestRawTranslationCoverage(t *testing.T) {
 	}
 	for _, g := range glyphs {
 		texts = append(texts, g.Name)
+	}
+	for _, c := range conds {
+		texts = append(texts, c.Name, c.Description)
+	}
+	for _, bp := range parts {
+		texts = append(texts, bp.Name)
 	}
 
 	// 表示される文字列は全て英語原文の msgid で ja.po に訳を持たねばならない。日本語のままの name は

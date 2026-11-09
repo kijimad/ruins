@@ -36,12 +36,13 @@ func TestHitPart_起こりうる部位だけへ当たる(t *testing.T) {
 		{gc.ConditionFracture, []gc.BodyPart{gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
 		{gc.ConditionLaceration, []gc.BodyPart{gc.BodyPartHead, gc.BodyPartTorso, gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
 	}
+	defs := testutil.InitTestWorld(t).Resources.ConditionDefs
 	for _, tt := range tests {
 		seen := map[gc.BodyPart]bool{}
 		var got []gc.BodyPart
 		const steps = 1000
 		for k := range steps {
-			part := hitPart(fixedRoll(float64(k)/steps), tt.ct)
+			part := hitPart(fixedRoll(float64(k)/steps), defs, tt.ct)
 			if !seen[part] {
 				seen[part] = true
 				got = append(got, part)
@@ -100,7 +101,7 @@ func TestApplyInjury_同種の怪我は1部位に1つで頭打ち(t *testing.T) 
 	hs := &gc.HealthStatus{}
 	// 命中しうる全部位を切り傷で上限まで埋める。どの部位が抽選されても上限で弾かれる
 	for p := range gc.BodyPartCount {
-		if gc.BodyPartHitWeight(p) == 0 {
+		if world.Resources.ConditionDefs.HitWeight(p) == 0 {
 			continue
 		}
 		for range maxInjuriesPerPartType {

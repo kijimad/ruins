@@ -150,9 +150,44 @@ scalar HealRatio extends float64;
 @maxValue(9999)
 scalar Potency extends integer;
 
-/** 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値 */
+/** 不調の id。Go の ConditionType 定数の値と同じ */
 @minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
 scalar ConditionTypeName extends string;
+
+/** 部位の id */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
+scalar BodyPartId extends string;
+
+/** 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う */
+@minValue(0)
+@maxValue(100)
+scalar ConditionAmountPerSeverity extends integer;
+
+/** 不調の1ターンあたりの進行度の増減量 */
+@minValue(1)
+@maxValue(100)
+scalar ConditionTimerRate extends integer;
+
+/** 不調が未治療のときの振る舞いと治し方 */
+enum RecoveryMode {
+  /** 治療して初めて回復する。未治療は保持し悪化しない */
+  recover_after_tend,
+  /** 未治療なら悪化し続け、治療して初めて回復する */
+  progress_until_tend,
+  /** 未治療でも時間で自然に治る。治療すれば速まる */
+  recover_over_time,
+}
+
+/** 不調が血液量を尽きさせて倒したときの死因 */
+enum ConditionDeathCause {
+  frozen,
+  illness,
+  blood_loss,
+}
 
 /** 画像ファイルパス */
 @minLength(1)

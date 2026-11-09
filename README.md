@@ -107,7 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 7/16 | worldgen, item, gamedesign |
-| draft | [ゲームの識別子と調整値を raw へ移す](docs/design/261109215116.md) | 0/10 | refactor, gamedesign, ecs |
+| in-progress | [ゲームの識別子と調整値を raw へ移す](docs/design/261109215116.md) | 7/10 | refactor, gamedesign, ecs |
 
 
 ## Reference

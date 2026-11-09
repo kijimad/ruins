@@ -7,6 +7,7 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
@@ -39,6 +40,13 @@ var (
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 	errItemGroupIDDuplicated          = errors.New("item group and item collection share an id")
+	errConditionRowMissing            = errors.New("condition type has no raw row")
+	errBodyPartRowMissing             = errors.New("body part has no raw row")
+	errBodyPartUnknown                = errors.New("body part is not defined in code")
+	errConditionPartUndefined         = errors.New("condition references undefined body part")
+	errConditionPartWholeBody         = errors.New("condition parts include whole body")
+	errConditionNoHitPart             = errors.New("condition has no body part that can be hit")
+	errRemedyConditionUndefined       = errors.New("remedy treats undefined condition")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -118,6 +126,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateMapGlyphReferences(raws); err != nil {
+		return err
+	}
+	if err := validateConditions(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -551,6 +562,96 @@ func validateMapGlyphReferences(raws oapi.Raws) error {
 	for _, l := range PtrSlice(raws.Landmarks) {
 		if _, ok := ids[l.Id]; !ok {
 			return fmt.Errorf("landmark %q: %w", l.Id, errMapGlyphMissing)
+		}
+	}
+	return nil
+}
+
+// validateConditions は不調と部位の行と、それらへの参照を検証する。怪我の抽選の対象が空にならないことも確かめる
+func validateConditions(raws oapi.Raws) error {
+	bodyParts := PtrSlice(raws.BodyParts)
+	conditions := PtrSlice(raws.Conditions)
+	if err := validateUniqueIDs("body part", bodyParts, func(b oapi.BodyPart) string { return b.Id }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("condition", conditions, func(c oapi.Condition) string { return c.Id }); err != nil {
+		return err
+	}
+
+	hitWeights := make(map[string]float64, len(bodyParts))
+	for _, b := range bodyParts {
+		if _, ok := gc.BodyPartByID(b.Id); !ok {
+			return fmt.Errorf("body part %q: %w", b.Id, errBodyPartUnknown)
+		}
+		hitWeights[b.Id] = b.HitWeight
+	}
+	conditionIDs := make(map[string]struct{}, len(conditions))
+	for _, c := range conditions {
+		conditionIDs[c.Id] = struct{}{}
+		if err := validateConditionParts(c, hitWeights); err != nil {
+			return err
+		}
+	}
+
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		if items[i].Remedy == nil {
+			continue
+		}
+		for _, t := range items[i].Remedy.Treats {
+			if _, ok := conditionIDs[t]; !ok {
+				return fmt.Errorf("item %q treats %q: %w", items[i].Id, t, errRemedyConditionUndefined)
+			}
+		}
+	}
+	return nil
+}
+
+// validateConditionParts は不調の起こりうる部位が実在し、全身を含まず、命中の重みが正の部位を1つ以上持つことを検証する。
+// parts を省いた不調は全部位が対象になる
+func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) error {
+	parts := PtrSlice(c.Parts)
+	if len(parts) == 0 {
+		for id := range hitWeights {
+			parts = append(parts, id)
+		}
+	} else {
+		for _, id := range parts {
+			if _, ok := hitWeights[id]; !ok {
+				return fmt.Errorf("condition %q part %q: %w", c.Id, id, errConditionPartUndefined)
+			}
+			if id == gc.BodyPartWholeBody.ID() {
+				return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
+			}
+		}
+	}
+	for _, id := range parts {
+		if hitWeights[id] > 0 {
+			return nil
+		}
+	}
+	return fmt.Errorf("condition %q: %w", c.Id, errConditionNoHitPart)
+}
+
+// validateCodeRows は Go が名前で参照する不調と部位すべてに raw の行があることを検証する
+func validateCodeRows(raws oapi.Raws) error {
+	bodyPartIDs := make(map[string]struct{})
+	for _, b := range PtrSlice(raws.BodyParts) {
+		bodyPartIDs[b.Id] = struct{}{}
+	}
+	for bp := range gc.BodyPartCount {
+		if _, ok := bodyPartIDs[bp.ID()]; !ok {
+			return fmt.Errorf("body part %q: %w", bp.ID(), errBodyPartRowMissing)
+		}
+	}
+
+	conditionIDs := make(map[string]struct{})
+	for _, c := range PtrSlice(raws.Conditions) {
+		conditionIDs[c.Id] = struct{}{}
+	}
+	for _, ct := range gc.ConditionTypes() {
+		if _, ok := conditionIDs[string(ct)]; !ok {
+			return fmt.Errorf("condition %q: %w", ct, errConditionRowMissing)
 		}
 	}
 	return nil

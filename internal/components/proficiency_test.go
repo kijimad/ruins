@@ -118,10 +118,10 @@ func TestCalcProficiencyValue_HealthPenalty(t *testing.T) {
 	})
 
 	// 不調は MoveCost へ直接足さず身体機能 BodyFuncs に一本化する
-	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, hs.BodyFuncs(), ProfMoveCost)), "低体温は MoveCost へ足さない")
+	assert.Equal(t, 100, int(CalcProficiencyValue(skills, nil, hs.BodyFuncs(testDefs), ProfMoveCost)), "低体温は MoveCost へ足さない")
 	// 中度の全身性低体温 6/10: 痛み6*2=12、意識=100-20-12/2=74。
 	// 意識は master 乗数。局所低下は無いので操作・歩行・視覚はいずれも意識だけを受けて74。代謝は過労・栄養失調なしで100
-	assert.Equal(t, BodyFuncs{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 74, Moving: 74, Sight: 74, Metabolism: 100}, hs.BodyFuncs())
+	assert.Equal(t, BodyFuncs{Pain: 12, Blood: 100, Consciousness: 74, Manipulation: 74, Moving: 74, Sight: 74, Metabolism: 100}, hs.BodyFuncs(testDefs))
 }
 
 func TestCalcProficiencyValue_UnknownKey(t *testing.T) {
@@ -188,13 +188,13 @@ func TestCalcProficiencyValue_AllFactors(t *testing.T) {
 	})
 
 	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82。低体温は MoveCost へ足さない
-	assert.Equal(t, 82, int(CalcProficiencyValue(skills, abils, hs.BodyFuncs(), ProfMoveCost)))
+	assert.Equal(t, 82, int(CalcProficiencyValue(skills, abils, hs.BodyFuncs(testDefs), ProfMoveCost)))
 	// 重度の全身性低体温 6/10 は意識を下げる。意識=100-30-18/2=61、歩行=100*61/100=61
-	assert.Equal(t, 61, int(hs.BodyFuncs().Consciousness))
-	assert.Equal(t, 61, int(hs.BodyFuncs().Moving))
+	assert.Equal(t, 61, int(hs.BodyFuncs(testDefs).Consciousness))
+	assert.Equal(t, 61, int(hs.BodyFuncs(testDefs).Moving))
 
 	// Sourcesはスキルと能力値の2要因。健康は BodyFuncs 側なので MoveCost には載らない
-	sources := CalcProficiencySources(skills, abils, hs.BodyFuncs(), ProfMoveCost)
+	sources := CalcProficiencySources(skills, abils, hs.BodyFuncs(testDefs), ProfMoveCost)
 	assert.Len(t, sources, 2, "スキルと能力値の2つのソース")
 }
 
@@ -231,13 +231,13 @@ func TestCalcProficiencyValue_AccuracyFoldsBodyFunc(t *testing.T) {
 	// 腕の骨折は操作機能を下げる。近接命中は操作機能を畳むので操作の内訳が載る
 	hsArm := &HealthStatus{}
 	hsArm.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
-	swordSrc := CalcProficiencySources(skills, nil, hsArm.BodyFuncs(), ProfSwordAccuracy)
+	swordSrc := CalcProficiencySources(skills, nil, hsArm.BodyFuncs(testDefs), ProfSwordAccuracy)
 	assert.True(t, hasBodyFunc(swordSrc, BodyFuncManipulation), "近接は操作機能を畳む")
 
 	// 頭の切り傷は視覚機能を下げる。遠隔命中は視覚機能を畳むので視覚の内訳が載る
 	hsHead := &HealthStatus{}
 	hsHead.Parts[BodyPartHead].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
-	bowSrc := CalcProficiencySources(skills, nil, hsHead.BodyFuncs(), ProfBowAccuracy)
+	bowSrc := CalcProficiencySources(skills, nil, hsHead.BodyFuncs(testDefs), ProfBowAccuracy)
 	assert.True(t, hasBodyFunc(bowSrc, BodyFuncSight), "遠隔は視覚機能を畳む")
 }
 
@@ -283,7 +283,7 @@ func TestCalcProficiency_値は基準と内訳の和に一致する(t *testing.T
 	}{
 		{"素の状態", NewSkills(), nil, HealthyBodyFuncs()},
 		{"スキルと能力値", richSkills, abils, HealthyBodyFuncs()},
-		{"不調あり", richSkills, abils, sickHS.BodyFuncs()},
+		{"不調あり", richSkills, abils, sickHS.BodyFuncs(testDefs)},
 	}
 
 	for _, tc := range cases {

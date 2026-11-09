@@ -593,6 +593,41 @@ model Profession {
   equips: ProfessionEquip[];
 }
 
+// ================== 不調と部位 ==================
+
+/** 不調。痛みと身体機能の低下、回復の仕方、出血を持つ */
+model Condition {
+  id: ConditionTypeName;
+  name: EntityName;
+  description: EntityDescription;
+  painPerSeverity: ConditionAmountPerSeverity;
+  bodyFuncDropPerSeverity: ConditionAmountPerSeverity;
+
+  /** 省くと ConditionSystem の管轄外になる */
+  recovery?: RecoveryMode;
+
+  /** progress_until_tend で未治療のとき1ターンに進行度を増やす量 */
+  worsenPer?: ConditionTimerRate;
+
+  /** 治療済みで1ターンに進行度を減らす基準量 */
+  recoverPer?: ConditionTimerRate;
+
+  bloodDropPerSeverity?: ConditionAmountPerSeverity;
+  cause?: ConditionDeathCause;
+
+  /** 起こりうる部位。省くと全部位 */
+  parts?: BodyPartId[];
+}
+
+/** 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ */
+model BodyPart {
+  id: BodyPartId;
+  name: EntityName;
+
+  /** 戦闘の命中抽選の重み。0 は命中先にならない */
+  hitWeight: EntryWeight;
+}
+
 // ================== スプライトシート ==================
 
 /** スプライトシート */
@@ -629,6 +664,8 @@ model Raws {
   tiles?: Tile[];
   props?: Prop[];
   professions?: Profession[];
+  conditions?: Condition[];
+  bodyParts?: BodyPart[];
 }
 
 // ================== パレット ==================

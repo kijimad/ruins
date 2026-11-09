@@ -30,6 +30,21 @@ func (bp BodyPart) String() string {
 	return bodyPartMetas[bp].displayName
 }
 
+// ID は raw の bodyParts の id を返す
+func (bp BodyPart) ID() string {
+	return bodyPartMetas[bp].id
+}
+
+// BodyPartByID は raw の bodyParts の id から部位を返す。該当が無ければ ok=false
+func BodyPartByID(id string) (BodyPart, bool) {
+	for bp := range BodyPartCount {
+		if bodyPartMetas[bp].id == id {
+			return bp, true
+		}
+	}
+	return 0, false
+}
+
 // ================
 
 // TargetNumType はターゲット数を表す

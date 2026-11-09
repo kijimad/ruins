@@ -14,10 +14,10 @@ import (
 // conditionMinorNaturalRecoveryPerTurn は RecoverAfterTend の不調が発症前のとき代謝によらず固定で癒える1ターンの量
 const conditionMinorNaturalRecoveryPerTurn = 1
 
-// managedConditionDef は ConditionSystem が扱う不調の定義を返す。定義は components の conditionDefs に集約し、
+// managedConditionDef は ConditionSystem が扱う不調の定義を返す。
 // Recovery を持つ症状だけを管轄する。低体温は Recovery を持たず TemperatureSystem 管轄なので ok=false
-func managedConditionDef(ct gc.ConditionType) (gc.ConditionDef, bool) {
-	def, ok := gc.ConditionDefFor(ct)
+func managedConditionDef(defs gc.ConditionDefs, ct gc.ConditionType) (gc.ConditionDef, bool) {
+	def, ok := defs.Def(ct)
 	if !ok || def.Recovery == "" {
 		return gc.ConditionDef{}, false
 	}
@@ -43,6 +43,7 @@ type conditionDamage struct {
 // Update は怪我と病気の回復軌道を進め、重症の不調で HP を削る
 func (sys *ConditionSystem) Update(world w.World) error {
 	var toDamage []conditionDamage
+	defs := world.Resources.ConditionDefs
 
 	healthQuery := query.ActiveFilter1[gc.HealthStatus](world).Query()
 	for healthQuery.Next() {
@@ -55,7 +56,7 @@ func (sys *ConditionSystem) Update(world w.World) error {
 			part := &hs.Parts[p]
 			for i := range part.Conditions {
 				cond := &part.Conditions[i]
-				def, ok := managedConditionDef(cond.Type)
+				def, ok := managedConditionDef(defs, cond.Type)
 				if !ok {
 					continue
 				}
@@ -68,14 +69,14 @@ func (sys *ConditionSystem) Update(world w.World) error {
 
 			// Timer が 0 になった管理下の不調を除去する
 			part.Conditions = slices.DeleteFunc(part.Conditions, func(c gc.HealthCondition) bool {
-				_, managed := managedConditionDef(c.Type)
+				_, managed := managedConditionDef(defs, c.Type)
 				return managed && c.Timer == 0
 			})
 		}
 
 		// 血液量が危険域まで落ちたら、じわじわ HP を削る。失血・凍死・衰弱はすべて血液量経由で死なせる
 		if hasHP {
-			if drain, cause := hs.BloodLossHPDrain(); drain > 0 {
+			if drain, cause := hs.BloodLossHPDrain(defs); drain > 0 {
 				toDamage = append(toDamage, conditionDamage{entity: entity, amount: drain, cause: cause})
 			}
 		}

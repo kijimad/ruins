@@ -363,7 +363,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		return derivedConditionDetail(world, cond)
 	}
 
-	pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)
+	pain, bodyFunc, drop := world.Resources.ConditionDefs.BodyFuncImpact(cond, item.BodyPart)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
@@ -376,7 +376,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf("-%d", drop)})
 	}
 	// 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
-	if bd := gc.ConditionBloodDrop(cond); bd > 0 {
+	if bd := world.Resources.ConditionDefs.BloodDrop(cond); bd > 0 {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Blood loss"), Value: fmt.Sprintf("-%d", bd)})
 	}
 	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
@@ -385,7 +385,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),
-		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
+		Desc: query.ConditionDescription(world, cond.Type),
 		Rows: rows,
 	}
 }
@@ -397,7 +397,7 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 		{Label: query.T(world, "Severity"), Value: query.T(world, cond.Severity.String())},
 	}
 	// 全身性なので意識と代謝を drop ぶん下げる
-	if _, _, drop := gc.ConditionBodyFuncImpact(cond, gc.BodyPartWholeBody); drop > 0 {
+	if _, _, drop := world.Resources.ConditionDefs.BodyFuncImpact(cond, gc.BodyPartWholeBody); drop > 0 {
 		rows = append(rows,
 			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncConsciousness)), Value: fmt.Sprintf("-%d", drop)},
 			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncMetabolism)), Value: fmt.Sprintf("-%d", drop)},
@@ -405,7 +405,7 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),
-		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
+		Desc: query.ConditionDescription(world, cond.Type),
 		Rows: rows,
 	}
 }

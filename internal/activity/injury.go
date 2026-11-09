@@ -44,7 +44,7 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 
 	injuryType := injuryTypeFor(attack.GetAttackCategory())
-	part := hitPart(world.Resources.Config.RNG, injuryType)
+	part := hitPart(world.Resources.Config.RNG, world.Resources.ConditionDefs, injuryType)
 
 	hs := world.Components.HealthStatus.Get(target)
 	if hs.Parts[part].CountConditions(injuryType) >= maxInjuriesPerPartType {
@@ -59,21 +59,18 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	logInjury(actor, target, world, part, injuryType)
 }
 
-// hitWeight は怪我 ct の命中抽選での部位 part の重みを返す。起こりえない部位は0
-func hitWeight(part gc.BodyPart, ct gc.ConditionType) int {
-	if !gc.ConditionCanAffect(ct, part) {
-		return 0
-	}
-	return gc.BodyPartHitWeight(part)
-}
-
 // hitPart は怪我 ct が起こりうる部位から、命中の重みで部位を1つ引く。
-func hitPart(r consts.Roller, ct gc.ConditionType) gc.BodyPart {
+func hitPart(r consts.Roller, defs gc.ConditionDefs, ct gc.ConditionType) gc.BodyPart {
 	parts := make([]gc.BodyPart, gc.BodyPartCount)
 	for p := range gc.BodyPartCount {
 		parts[p] = p
 	}
-	i, ok := consts.Pick(r, parts, func(p gc.BodyPart) float64 { return float64(hitWeight(p, ct)) })
+	i, ok := consts.Pick(r, parts, func(p gc.BodyPart) float64 {
+		if !defs.CanAffect(ct, p) {
+			return 0
+		}
+		return defs.HitWeight(p)
+	})
 	if !ok {
 		panic(fmt.Sprintf("no body part can take %s", ct))
 	}
@@ -88,7 +85,7 @@ func logInjury(actor, target ecs.Entity, world w.World, part gc.BodyPart, injury
 	targetName := query.GetEntityName(target, world)
 	targetMarkup := query.NameMarkup(target, targetName, world)
 	partName := query.T(world, part.String())
-	injuryName := query.T(world, gc.ConditionTypeDisplayName(injuryType))
+	injuryName := query.ConditionName(world, injuryType)
 	gamelog.New(query.GetGameLog(world)).
 		Markup(query.T(world, "%s suffered %s on the %s.", targetMarkup, injuryName, partName)).
 		Log()

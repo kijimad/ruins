@@ -81,6 +81,27 @@ func (e CombatPolicyType) Valid() bool {
 	}
 }
 
+// Defines values for ConditionDeathCause.
+const (
+	BloodLoss ConditionDeathCause = "blood_loss"
+	Frozen    ConditionDeathCause = "frozen"
+	Illness   ConditionDeathCause = "illness"
+)
+
+// Valid indicates whether the value is a known member of the ConditionDeathCause enum.
+func (e ConditionDeathCause) Valid() bool {
+	switch e {
+	case BloodLoss:
+		return true
+	case Frozen:
+		return true
+	case Illness:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DrawerKey.
 const (
 	Hut  DrawerKey = "hut"
@@ -423,6 +444,27 @@ func (e PlannerKey) Valid() bool {
 	case House:
 		return true
 	case Store:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RecoveryMode.
+const (
+	ProgressUntilTend RecoveryMode = "progress_until_tend"
+	RecoverAfterTend  RecoveryMode = "recover_after_tend"
+	RecoverOverTime   RecoveryMode = "recover_over_time"
+)
+
+// Valid indicates whether the value is a known member of the RecoveryMode enum.
+func (e RecoveryMode) Valid() bool {
+	switch e {
+	case ProgressUntilTend:
+		return true
+	case RecoverAfterTend:
+		return true
+	case RecoverOverTime:
 		return true
 	default:
 		return false
@@ -1067,6 +1109,21 @@ type BlocksPassage = bool
 // BlocksView 視線を遮るかどうか
 type BlocksView = bool
 
+// BodyPart 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
+type BodyPart struct {
+	// HitWeight 戦闘の命中抽選の重み。0 は命中先にならない
+	HitWeight EntryWeight `json:"hitWeight"`
+
+	// Id 部位の id
+	Id BodyPartId `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+}
+
+// BodyPartId 部位の id
+type BodyPartId = string
+
 // Book 本の設定
 type Book struct {
 	// Skill スキル本設定
@@ -1106,7 +1163,52 @@ type CommandTableList struct {
 	TotalCount int            `json:"totalCount"`
 }
 
-// ConditionTypeName 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値
+// Condition 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
+type Condition struct {
+	// BloodDropPerSeverity 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+	BloodDropPerSeverity *ConditionAmountPerSeverity `json:"bloodDropPerSeverity,omitempty"`
+
+	// BodyFuncDropPerSeverity 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+	BodyFuncDropPerSeverity ConditionAmountPerSeverity `json:"bodyFuncDropPerSeverity"`
+
+	// Cause 不調が血液量を尽きさせて倒したときの死因
+	Cause *ConditionDeathCause `json:"cause,omitempty"`
+
+	// Description 説明文
+	Description EntityDescription `json:"description"`
+
+	// Id 不調の id。Go の ConditionType 定数の値と同じ
+	Id ConditionTypeName `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// PainPerSeverity 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+	PainPerSeverity ConditionAmountPerSeverity `json:"painPerSeverity"`
+
+	// Parts 起こりうる部位。省くと全部位
+	Parts *[]BodyPartId `json:"parts,omitempty"`
+
+	// RecoverPer 治療済みで1ターンに進行度を減らす基準量
+	RecoverPer *ConditionTimerRate `json:"recoverPer,omitempty"`
+
+	// Recovery 省くと ConditionSystem の管轄外になる
+	Recovery *RecoveryMode `json:"recovery,omitempty"`
+
+	// WorsenPer progress_until_tend で未治療のとき1ターンに進行度を増やす量
+	WorsenPer *ConditionTimerRate `json:"worsenPer,omitempty"`
+}
+
+// ConditionAmountPerSeverity 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+type ConditionAmountPerSeverity = int
+
+// ConditionDeathCause 不調が血液量を尽きさせて倒したときの死因
+type ConditionDeathCause string
+
+// ConditionTimerRate 不調の1ターンあたりの進行度の増減量
+type ConditionTimerRate = int
+
+// ConditionTypeName 不調の id。Go の ConditionType 定数の値と同じ
 type ConditionTypeName = string
 
 // Consumable 消費可能アイテムの設定
@@ -1994,7 +2096,9 @@ type RangeBonus = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
+	BodyParts        *[]BodyPart        `json:"bodyParts,omitempty"`
 	CommandTables    *[]CommandTable    `json:"commandTables,omitempty"`
+	Conditions       *[]Condition       `json:"conditions,omitempty"`
 	DropTables       *[]DropTable       `json:"dropTables,omitempty"`
 	EnemyTables      *[]EnemyTable      `json:"enemyTables,omitempty"`
 	Facilities       *[]Facility        `json:"facilities,omitempty"`
@@ -2044,6 +2148,9 @@ type RecipeList struct {
 	Data       []Recipe `json:"data"`
 	TotalCount int      `json:"totalCount"`
 }
+
+// RecoveryMode 不調が未治療のときの振る舞いと治し方
+type RecoveryMode string
 
 // ReloadEffort リロードに必要な行動力
 type ReloadEffort = int

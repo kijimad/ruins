@@ -429,7 +429,7 @@ func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
 
 // conditionLabel は状態の種類と重症度を現在言語で並べた表示名を返す。重症度が無ければ種類だけ
 func conditionLabel(world w.World, ct gc.ConditionType, severity gc.Severity) string {
-	name := query.T(world, gc.ConditionTypeDisplayName(ct))
+	name := query.ConditionName(world, ct)
 	if severity == gc.SeverityNone {
 		return name
 	}

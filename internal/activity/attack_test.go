@@ -297,7 +297,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=100*87/100=87。
 	// 意識は master 乗数として歩行へ掛かる
-	bodyFuncs := world.Components.HealthStatus.Get(actor).BodyFuncs()
+	bodyFuncs := world.Components.HealthStatus.Get(actor).BodyFuncs(world.Resources.ConditionDefs)
 	assert.Equal(t, 87, int(bodyFuncs.Consciousness), "HealthStatusが意識へ反映される")
 	assert.Equal(t, 87, int(bodyFuncs.Moving), "意識が歩行へ乗算される")
 }

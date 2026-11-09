@@ -421,6 +421,23 @@ export interface Bedding {
     'quality': number;
 }
 /**
+ * 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
+ */
+export interface BodyPart {
+    /**
+     * 部位の id
+     */
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 戦闘の命中抽選の重み。0 は命中先にならない
+     */
+    'hitWeight': number;
+}
+/**
  * 本の設定
  */
 export interface Book {
@@ -474,6 +491,67 @@ export interface CommandTableList {
     'data': Array<CommandTable>;
     'totalCount': number;
 }
+/**
+ * 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
+ */
+export interface Condition {
+    /**
+     * 不調の id。Go の ConditionType 定数の値と同じ
+     */
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 説明文
+     */
+    'description': string;
+    /**
+     * 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+     */
+    'painPerSeverity': number;
+    /**
+     * 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+     */
+    'bodyFuncDropPerSeverity': number;
+    /**
+     * 省くと ConditionSystem の管轄外になる
+     */
+    'recovery'?: RecoveryMode;
+    /**
+     * progress_until_tend で未治療のとき1ターンに進行度を増やす量
+     */
+    'worsenPer'?: number;
+    /**
+     * 治療済みで1ターンに進行度を減らす基準量
+     */
+    'recoverPer'?: number;
+    /**
+     * 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+     */
+    'bloodDropPerSeverity'?: number;
+    'cause'?: ConditionDeathCause;
+    /**
+     * 起こりうる部位。省くと全部位
+     */
+    'parts'?: Array<string>;
+}
+
+
+/**
+ * 不調が血液量を尽きさせて倒したときの死因
+ */
+
+export const ConditionDeathCause = {
+    Frozen: 'frozen',
+    Illness: 'illness',
+    BloodLoss: 'blood_loss',
+} as const;
+
+export type ConditionDeathCause = typeof ConditionDeathCause[keyof typeof ConditionDeathCause];
+
+
 /**
  * 消費可能アイテムの設定
  */
@@ -1538,6 +1616,8 @@ export interface Raws {
     'tiles'?: Array<Tile>;
     'props'?: Array<Prop>;
     'professions'?: Array<Profession>;
+    'conditions'?: Array<Condition>;
+    'bodyParts'?: Array<BodyPart>;
 }
 /**
  * レシピ
@@ -1567,6 +1647,19 @@ export interface RecipeList {
     'data': Array<Recipe>;
     'totalCount': number;
 }
+/**
+ * 不調が未治療のときの振る舞いと治し方
+ */
+
+export const RecoveryMode = {
+    RecoverAfterTend: 'recover_after_tend',
+    ProgressUntilTend: 'progress_until_tend',
+    RecoverOverTime: 'recover_over_time',
+} as const;
+
+export type RecoveryMode = typeof RecoveryMode[keyof typeof RecoveryMode];
+
+
 /**
  * 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
  */

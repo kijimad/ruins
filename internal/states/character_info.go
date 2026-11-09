@@ -202,7 +202,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	bloodDesc := query.T(world, "Blood volume. Bleeding and severe conditions lower it")
 	var bloodDetails []statusDetailRow
 	if world.Components.HealthStatus.Has(playerEntity) {
-		if drain, _ := world.Components.HealthStatus.Get(playerEntity).BloodLossHPDrain(); drain > 0 {
+		if drain, _ := world.Components.HealthStatus.Get(playerEntity).BloodLossHPDrain(world.Resources.ConditionDefs); drain > 0 {
 			bloodDesc = query.T(world, "Critically low. Bleeding out and losing HP")
 			bloodDetails = []statusDetailRow{{Label: query.T(world, "HP loss"), Value: fmt.Sprintf("-%d", drain)}}
 		}
@@ -249,7 +249,7 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 // translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない
 func translatedConditionName(world w.World, ct gc.ConditionType) string {
-	return query.T(world, gc.ConditionTypeDisplayName(ct))
+	return query.ConditionName(world, ct)
 }
 
 // treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す
@@ -328,8 +328,8 @@ func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailR
 func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
 	var rows []statusDetailRow
 	for _, c := range query.DerivedConditions(world, playerEntity) {
-		if _, _, drop := gc.ConditionBodyFuncImpact(&c, gc.BodyPartWholeBody); drop != 0 {
-			rows = append(rows, statusDetailRow{Label: query.T(world, gc.ConditionTypeDisplayName(c.Type)), Value: fmt.Sprintf("-%d%%", drop)})
+		if _, _, drop := world.Resources.ConditionDefs.BodyFuncImpact(&c, gc.BodyPartWholeBody); drop != 0 {
+			rows = append(rows, statusDetailRow{Label: query.ConditionName(world, c.Type), Value: fmt.Sprintf("-%d%%", drop)})
 		}
 	}
 	return rows
@@ -340,7 +340,7 @@ func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRo
 func consciousnessDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
 	var rows []statusDetailRow
 	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
-		systemic, pain := world.Components.HealthStatus.Get(playerEntity).ConsciousnessDrops()
+		systemic, pain := world.Components.HealthStatus.Get(playerEntity).ConsciousnessDrops(world.Resources.ConditionDefs)
 		if systemic != 0 {
 			rows = append(rows, statusDetailRow{Label: query.T(world, "Injury and illness"), Value: fmt.Sprintf("-%d%%", systemic)})
 		}
@@ -356,7 +356,7 @@ func consciousnessDrops(world w.World, playerEntity ecs.Entity) []statusDetailRo
 func limbDrops(world w.World, playerEntity ecs.Entity, bodyFuncs gc.BodyFuncs, bf gc.BodyFuncKind) []statusDetailRow {
 	local := 0
 	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
-		local = world.Components.HealthStatus.Get(playerEntity).LocalDrop(bf)
+		local = world.Components.HealthStatus.Get(playerEntity).LocalDrop(world.Resources.ConditionDefs, bf)
 	}
 	var rows []statusDetailRow
 	if local != 0 {

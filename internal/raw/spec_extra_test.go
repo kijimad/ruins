@@ -435,7 +435,7 @@ StageLength = 50
 
 [Items.Remedy]
 Potency = 150
-Treats = ["Fracture"]
+Treats = ["fracture"]
 
 [Items.FireStarter]
 `

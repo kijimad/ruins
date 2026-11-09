@@ -206,13 +206,14 @@ func TestConditionSystem_Update(t *testing.T) {
 func TestManagedConditionDef_扱う不調を網羅しHypothermiaを含まない(t *testing.T) {
 	t.Parallel()
 
+	defs := testutil.InitTestWorld(t).Resources.ConditionDefs
 	// ConditionSystem が扱う怪我と病気は Recovery を持ち managed になる。登録漏れは動作不全になる
 	for _, ct := range []gc.ConditionType{gc.ConditionFracture, gc.ConditionLaceration, gc.ConditionLiverIllness, gc.ConditionFoodPoisoning} {
-		_, ok := managedConditionDef(ct)
-		assert.True(t, ok, "%s は ConditionSystem 管轄であるべき", gc.ConditionTypeDisplayName(ct))
+		_, ok := managedConditionDef(defs, ct)
+		assert.True(t, ok, "%s は ConditionSystem 管轄であるべき", ct)
 	}
 
 	// 低体温は Recovery を持たず TemperatureSystem 管轄なので ConditionSystem は扱わない
-	_, ok := managedConditionDef(gc.ConditionHypothermia)
+	_, ok := managedConditionDef(defs, gc.ConditionHypothermia)
 	assert.False(t, ok, "低体温は ConditionSystem 管轄でない")
 }

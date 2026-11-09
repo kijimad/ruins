@@ -203,7 +203,7 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 	}
 	actorMarkup := query.NameMarkup(actor, query.GetEntityName(actor, world), world)
 	itemMarkup := gamelog.Tag("item", u.getItemName(item, world))
-	condName := query.T(world, gc.ConditionTypeDisplayName(treated))
+	condName := query.ConditionName(world, treated)
 	gamelog.New(query.GetGameLog(world)).
 		Markup(query.T(world, "%s used %s and treated %s.", actorMarkup, itemMarkup, condName)).
 		Log()
