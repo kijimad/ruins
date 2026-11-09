@@ -262,6 +262,11 @@ func floodCrosses(blocked map[consts.Coord[consts.Tile]]bool, cw, ch consts.Tile
 
 // TestPickScatterEntry_決定的に重みで引く は、同じハッシュ値なら同じ entry を返し、重みに比例して
 // 選ばれることを固定する。Go の map を抽選に使わず slice を順に走るので決定的。
+// rollHash は [0, 1) の f を、HashRoll が f と読むハッシュ値へ写す。
+func rollHash(f float64) uint64 {
+	return uint64(f*(1<<53)) << 11
+}
+
 func TestPickScatterEntry_決定的に重みで引く(t *testing.T) {
 	t.Parallel()
 	entries := []scatterEntry{
@@ -269,12 +274,11 @@ func TestPickScatterEntry_決定的に重みで引く(t *testing.T) {
 		{Ref: "a", Weight: 2},
 		{Ref: "b", Weight: 1},
 	}
-	// total=4。h%4 が 0→null, 1..2→a, 3→b
-	assert.Empty(t, pickScatterEntry(entries, true, 0).Ref)
-	assert.Equal(t, "a", pickScatterEntry(entries, true, 1).Ref)
-	assert.Equal(t, "a", pickScatterEntry(entries, true, 2).Ref)
-	assert.Equal(t, "b", pickScatterEntry(entries, true, 3).Ref)
-	assert.Equal(t, "a", pickScatterEntry(entries, true, 5).Ref, "h は total で剰余を取る")
+	// total=4。[0, 0.25) は null、[0.25, 0.75) は a、[0.75, 1) は b
+	assert.Empty(t, pickScatterEntry(entries, true, rollHash(0)).Ref)
+	assert.Equal(t, "a", pickScatterEntry(entries, true, rollHash(0.25)).Ref)
+	assert.Equal(t, "a", pickScatterEntry(entries, true, rollHash(0.5)).Ref)
+	assert.Equal(t, "b", pickScatterEntry(entries, true, rollHash(0.75)).Ref)
 }
 
 // TestPickScatterEntry_bigAllowed偽はBigを外す は、位相や経路で大物が許されないタイルでは Big を
@@ -285,12 +289,10 @@ func TestPickScatterEntry_bigAllowed偽はBigを外す(t *testing.T) {
 		{Ref: "small", Weight: 1},
 		{Ref: "huge", Weight: 100, Big: true},
 	}
-	// bigAllowed 偽なら huge は候補から外れ、残る small だけが総重量になる
-	for h := range uint64(10) {
-		assert.Equal(t, "small", pickScatterEntry(entries, false, h).Ref, "Big を外すと small だけ引く")
+	for _, f := range []float64{0, 0.5, 0.99} {
+		assert.Equal(t, "small", pickScatterEntry(entries, false, rollHash(f)).Ref, "Big を外すと small だけ引く")
 	}
-	// total=101 で先頭 small が h%101==0 を占めるので、Big を引くには h>=1
-	assert.Equal(t, "huge", pickScatterEntry(entries, true, 1).Ref, "bigAllowed 真なら Big も引ける")
+	assert.Equal(t, "huge", pickScatterEntry(entries, true, rollHash(0.5)).Ref, "bigAllowed 真なら Big も引ける")
 }
 
 // TestOnBigPhase_位相0のタイルだけ真 は、大物を乗せる位相が P で1つに絞られ実効密度が 1/P に

@@ -20,10 +20,7 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, danger int) ([]
 		return nil, fmt.Errorf("enemy table not found: %s: %w", tableName, err)
 	}
 	result := make([]SpawnEntry, 0, len(enemyTable.Entries))
-	for _, entry := range enemyTable.Entries {
-		if danger < entry.MinDanger || danger > entry.MaxDanger {
-			continue
-		}
+	for _, entry := range raw.EnemyEntriesAt(enemyTable, danger) {
 		pack, err := consts.ParseDice(entry.Pack)
 		if err != nil {
 			return nil, fmt.Errorf("enemy table '%s' entry '%s' has invalid pack notation: %w", tableName, entry.Id, err)
@@ -51,10 +48,7 @@ func resolveItemSources(rawMaster *oapi.Raws, tableName string, danger int) ([]i
 		return nil, fmt.Errorf("item table not found: %s: %w", tableName, err)
 	}
 	result := make([]itemGroupRef, 0, len(itemTable.Entries))
-	for _, entry := range itemTable.Entries {
-		if danger < entry.MinDanger || danger > entry.MaxDanger {
-			continue
-		}
+	for _, entry := range raw.ItemEntriesAt(itemTable, danger) {
 		result = append(result, itemGroupRef{GroupID: entry.Id, Weight: entry.Weight})
 	}
 	return result, nil

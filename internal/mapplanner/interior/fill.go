@@ -13,6 +13,9 @@ type Placed struct {
 // 占有 map は抽選でなく membership 判定にのみ使うので決定性を損なわない。
 func FillRoom(seed uint64, room Room, content Content) []Placed {
 	occupied := make(map[Vec]bool)
+	for _, w := range room.Walls {
+		occupied[w] = true
+	}
 	placed := placeSelections(seed, room, content.Resolve(seed), occupied)
 	// 塞がり防止。通路を塞ぐ家具を撤回し、戸口から全床へ到達できるようにする
 	return repairReachability(room, placed)
@@ -23,6 +26,9 @@ func FillRoom(seed uint64, room Room, content Content) []Placed {
 // 束も置ける。既存 placed を占有として避け、残った床へ置く。
 func Flavor(seed uint64, room Room, placed []Placed, flavor Content) []Placed {
 	occupied := occupiedSet(placed)
+	for _, w := range room.Walls {
+		occupied[w] = true
+	}
 	fseed := childSeed(seed, 7_000_000)
 	extra := placeSelections(fseed, room, flavor.Resolve(fseed), occupied)
 	return append(placed, extra...)

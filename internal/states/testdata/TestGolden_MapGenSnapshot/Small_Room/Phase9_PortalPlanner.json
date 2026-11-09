@@ -38601,77 +38601,107 @@
   ],
   "NPCs": [
     {
-      "X": 24,
-      "Y": 11,
-      "Name": "pink_slime"
-    },
-    {
-      "X": 44,
-      "Y": 27,
-      "Name": "poison_frog"
-    },
-    {
-      "X": 45,
-      "Y": 30,
-      "Name": "poison_frog"
-    },
-    {
-      "X": 42,
-      "Y": 29,
-      "Name": "poison_frog"
-    },
-    {
-      "X": 43,
-      "Y": 30,
-      "Name": "poison_frog"
-    },
-    {
-      "X": 16,
-      "Y": 7,
-      "Name": "bat"
-    }
-  ],
-  "Items": [
-    {
       "X": 19,
-      "Y": 4,
-      "Name": "broom",
-      "Count": 1
-    },
-    {
-      "X": 15,
-      "Y": 8,
-      "Name": "biscuit",
-      "Count": 2
-    },
-    {
-      "X": 16,
       "Y": 2,
-      "Name": "garlic_bread",
-      "Count": 1
+      "Name": "pink_slime"
     },
     {
       "X": 9,
       "Y": 48,
-      "Name": "healing_potion",
-      "Count": 2
+      "Name": "poison_frog"
     },
     {
-      "X": 34,
-      "Y": 49,
-      "Name": "green_herb",
+      "X": 18,
+      "Y": 7,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 20,
+      "Y": 6,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 15,
+      "Y": 6,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 20,
+      "Y": 1,
+      "Name": "pink_slime"
+    }
+  ],
+  "Items": [
+    {
+      "X": 25,
+      "Y": 11,
+      "Name": "pickaxe",
       "Count": 1
     },
     {
-      "X": 19,
-      "Y": 12,
-      "Name": "wooden_stick",
+      "X": 22,
+      "Y": 10,
+      "Name": "healing_potion",
+      "Count": 1
+    },
+    {
+      "X": 16,
+      "Y": 2,
+      "Name": "healing_potion",
       "Count": 1
     },
     {
       "X": 45,
-      "Y": 31,
-      "Name": "prosciutto",
+      "Y": 26,
+      "Name": "smoothie",
+      "Count": 1
+    },
+    {
+      "X": 20,
+      "Y": 12,
+      "Name": "field_dressing",
+      "Count": 1
+    },
+    {
+      "X": 20,
+      "Y": 11,
+      "Name": "pickaxe",
+      "Count": 1
+    },
+    {
+      "X": 18,
+      "Y": 3,
+      "Name": "field_dressing",
+      "Count": 1
+    },
+    {
+      "X": 16,
+      "Y": 1,
+      "Name": "shovel",
+      "Count": 1
+    },
+    {
+      "X": 42,
+      "Y": 27,
+      "Name": "cured_sausage",
+      "Count": 1
+    },
+    {
+      "X": 23,
+      "Y": 16,
+      "Name": "green_herb",
+      "Count": 1
+    },
+    {
+      "X": 24,
+      "Y": 15,
+      "Name": "antidote",
+      "Count": 1
+    },
+    {
+      "X": 17,
+      "Y": 7,
+      "Name": "leather_bandana",
       "Count": 1
     }
   ],
@@ -38720,8 +38750,8 @@
   ],
   "NextPortals": [
     {
-      "X": 9,
-      "Y": 47
+      "X": 8,
+      "Y": 49
     }
   ],
   "SpawnPoints": null

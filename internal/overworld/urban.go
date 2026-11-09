@@ -121,24 +121,17 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) oapi.Zone {
 // rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。
 func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z oapi.Zone, span consts.Chunk) string {
 	zc := cat[z]
-	total := 0
-	for _, f := range zc {
-		if span >= f.minSpan {
-			total += f.weight
-		}
-	}
-	// 各地区が重み正で minSpan<=UrbanMinSpan の基本施設を持つことを raw の検証が保証するので total>0
-	roll := rng.IntN(total)
-	for _, f := range zc {
+	i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 {
 		if span < f.minSpan {
-			continue
+			return 0
 		}
-		roll -= f.weight
-		if roll < 0 {
-			return f.kind
-		}
+		return float64(f.weight)
+	})
+	if !ok {
+		// 各地区が重み正で minSpan<=UrbanMinSpan の基本施設を持つことを raw の検証が保証する
+		panic("rollFacilityInZone: zone has no facility within span")
 	}
-	panic("unreachable: selection weight total and subtraction are inconsistent")
+	return zc[i].kind
 }
 
 // urbanChunkAt は c が市街地の建物チャンクなら市街地の規模を返す。

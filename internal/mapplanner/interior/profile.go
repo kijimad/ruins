@@ -77,51 +77,30 @@ func rollProfile(seed uint64) buildingProfile {
 	return p
 }
 
-// rollDamage は損傷軸を引く。無傷2:小破3:大破1。3分の2の建物が何らかの損傷を持つ。
+// rollDamage は損傷軸を引く。3分の2の建物が何らかの損傷を持つ。
 func rollDamage(seed uint64) damageLevel {
-	switch r := childSeed(seed, 1) % 6; {
-	case r < 2:
-		return dmgIntact
-	case r < 5:
-		return dmgMinor
-	default:
-		return dmgMajor
-	}
+	return pickChoice(childSeed(seed, 1), []choice[damageLevel]{
+		{dmgIntact, 2}, {dmgMinor, 3}, {dmgMajor, 1},
+	})
 }
 
-// rollClutter は散らかり軸を引く。整頓6:乱雑3:汚部屋1。
+// rollClutter は散らかり軸を引く。
 func rollClutter(seed uint64) clutterLevel {
-	switch r := childSeed(seed, 1) % 10; {
-	case r < 6:
-		return clutterTidy
-	case r < 9:
-		return clutterMessy
-	default:
-		return clutterFilthy
-	}
+	return pickChoice(childSeed(seed, 1), []choice[clutterLevel]{
+		{clutterTidy, 6}, {clutterMessy, 3}, {clutterFilthy, 1},
+	})
 }
 
-// rollVariant は変種軸を引く。per-mille で 標準970・放棄6・建築中10・サバイバリスト9・ためこみ5。
-// 数十軒に1軒だけ事情のある家が出る。
+// rollVariant は変種軸を引く。数十軒に1軒だけ事情のある家が出る。
 func rollVariant(seed uint64) variantKind {
-	switch r := childSeed(seed, 1) % 1000; {
-	case r < 970:
-		return varStandard
-	case r < 976:
-		return varAbandoned
-	case r < 986:
-		return varUnderConstruction
-	case r < 995:
-		return varSurvivalist
-	default:
-		return varHoarder
-	}
+	return pickChoice(childSeed(seed, 1), []choice[variantKind]{
+		{varStandard, 970}, {varAbandoned, 6}, {varUnderConstruction, 10}, {varSurvivalist, 9}, {varHoarder, 5},
+	})
 }
 
 // densityFactor は密度軸を引く。疎6・普通10・密14 の ×/10。既存 scaleDensity の係数と同じ。
 func densityFactor(seed uint64) int {
-	factors := []int{6, 10, 14}
-	return factors[int(childSeed(seed, 1)%uint64(len(factors)))]
+	return pickOne(childSeed(seed, 1), []int{6, 10, 14})
 }
 
 // clutterFurniturePct は散らかりレベルごとに、家具1つの隣へ小物を落とす割合を返す。机の上・たんすの脇に物が
@@ -169,7 +148,7 @@ func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, r
 		}
 		for _, n := range neighbors4(p.Pos) {
 			if room.Rect.containsInterior(n) && !occupied[n] && !isDoorwayAdjacent(room, n) {
-				ref := pool[int(childSeed(seed, 2_000+i)%uint64(len(pool)))]
+				ref := pickOne(childSeed(seed, 2_000+i), pool)
 				occupied[n] = true
 				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: n})
 				break
@@ -183,7 +162,7 @@ func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, r
 				continue
 			}
 			if dropChance(seed, 7_000+i, 7) {
-				ref := pool[int(childSeed(seed, 8_000+i)%uint64(len(pool)))]
+				ref := pickOne(childSeed(seed, 8_000+i), pool)
 				occupied[t] = true
 				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: t})
 			}

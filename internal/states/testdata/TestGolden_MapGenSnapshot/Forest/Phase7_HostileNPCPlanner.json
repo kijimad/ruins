@@ -37557,34 +37557,34 @@
   "Corridors": [],
   "NPCs": [
     {
-      "X": 17,
-      "Y": 22,
-      "Name": "poison_frog"
-    },
-    {
       "X": 21,
-      "Y": 24,
+      "Y": 37,
       "Name": "poison_frog"
-    },
-    {
-      "X": 22,
-      "Y": 36,
-      "Name": "pink_slime"
     },
     {
       "X": 24,
-      "Y": 37,
-      "Name": "pink_slime"
-    },
-    {
-      "X": 21,
-      "Y": 37,
-      "Name": "pink_slime"
-    },
-    {
-      "X": 38,
-      "Y": 32,
+      "Y": 41,
       "Name": "poison_frog"
+    },
+    {
+      "X": 27,
+      "Y": 36,
+      "Name": "poison_frog"
+    },
+    {
+      "X": 25,
+      "Y": 38,
+      "Name": "poison_frog"
+    },
+    {
+      "X": 25,
+      "Y": 37,
+      "Name": "poison_frog"
+    },
+    {
+      "X": 43,
+      "Y": 28,
+      "Name": "butterfly"
     }
   ],
   "Items": [],

@@ -18,7 +18,7 @@ func grassPatchFactor(seed uint64, p consts.Coord[consts.Tile]) float64 {
 	fx := smoothstep(float64(p.X-cx*grassPatchCell) / float64(grassPatchCell))
 	fy := smoothstep(float64(p.Y-cy*grassPatchCell) / float64(grassPatchCell))
 	corner := func(dx, dy consts.Tile) float64 {
-		return unitFloat(hashTileCoord(seed, consts.Coord[consts.Tile]{X: cx + dx, Y: cy + dy}))
+		return consts.HashRoll(hashTileCoord(seed, consts.Coord[consts.Tile]{X: cx + dx, Y: cy + dy})).Float64()
 	}
 	top := lerp(corner(0, 0), corner(1, 0), fx)
 	bottom := lerp(corner(0, 1), corner(1, 1), fx)
@@ -28,12 +28,7 @@ func grassPatchFactor(seed uint64, p consts.Coord[consts.Tile]) float64 {
 
 // placesGrass は絶対タイル座標 p に草を置くかを、密度 density と茂みの倍率から決める
 func placesGrass(seed uint64, density float64, p consts.Coord[consts.Tile]) bool {
-	return unitFloat(hashTileCoord(seed, p)) < density*grassPatchFactor(seed^grassNoiseChannel, p)
-}
-
-// unitFloat はハッシュ値を [0, 1) の小数へ写す
-func unitFloat(v uint64) float64 {
-	return float64(v>>11) / float64(1<<53)
+	return consts.HashRoll(hashTileCoord(seed, p)).Float64() < density*grassPatchFactor(seed^grassNoiseChannel, p)
 }
 
 func lerp(a, b, t float64) float64 {
