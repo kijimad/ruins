@@ -107,5 +107,7 @@ func TestMessagePanelWidget_Draw_内側余白ぶん縮めてログ本体を描�
 
 	panel.Draw(cv)
 
-	assert.Equal(t, 1, cv.roundedFills, "背景枠を1枚敷く")
+	assert.Equal(t, 1, cv.roundedFills, "背景を1枚敷く")
+	assert.Equal(t, 1, cv.roundedStrokes, "枠を1つ描く")
+	assert.Equal(t, []image.Point{{X: 4, Y: 4}}, cv.images, "ログ本体を内側余白ぶん縮めた位置へ貼る")
 }

@@ -32,7 +32,7 @@ func TestDebugOverlay_Draw_無効なら画面に触れない(t *testing.T) {
 	t.Parallel()
 	overlay := &DebugOverlay{enabled: false}
 
-	// screen が nil でも早期に戻るのでパニックしない
+	// データが有効でも部品が無効なら screen に触れずに戻る。nil を渡して触れないことを確かめる
 	overlay.Draw(nil, DebugOverlayData{Enabled: true})
 }
 

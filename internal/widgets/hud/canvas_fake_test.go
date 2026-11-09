@@ -21,6 +21,7 @@ type fakeCanvas struct {
 	tintedRects    []image.Rectangle
 	roundedFills   int
 	roundedStrokes int
+	images         []image.Point
 }
 
 // textCall は DrawText 呼び出し1回ぶんの記録
@@ -54,7 +55,9 @@ func (c *fakeCanvas) DrawText(pos image.Point, s string, _ text.Face, col color.
 	c.texts = append(c.texts, textCall{pos: pos, str: s, color: col})
 }
 
-func (c *fakeCanvas) DrawImage(_ image.Point, _ *ebiten.Image) {}
+func (c *fakeCanvas) DrawImage(pos image.Point, _ *ebiten.Image) {
+	c.images = append(c.images, pos)
+}
 
 func (c *fakeCanvas) DrawImageRect(_ image.Rectangle, _ *ebiten.Image) {}
 
