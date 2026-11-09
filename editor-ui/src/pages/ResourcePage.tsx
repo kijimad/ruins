@@ -30,7 +30,6 @@ import {
   ShelterType,
   WaterType,
   FoliageType,
-  ItemGroupSubtype,
 } from "../generated";
 import {
   useResourceList,
@@ -181,7 +180,10 @@ const createTemplates: Record<string, Record<string, JsonValue>> = {
   },
   "item-groups": {
     name: "新規",
-    subtype: "distribution",
+    entries: [],
+  },
+  "item-collections": {
+    name: "新規",
     entries: [],
   },
   tiles: {
@@ -245,6 +247,7 @@ const entriesTemplates: Record<string, JsonValue> = {
     pack: "1d1",
   },
   "item-groups": { id: "", weight: 1, pack: "1d1" },
+  "item-collections": { id: "", chance: 50, pack: "1d1" },
 };
 
 // OAPIから生成されたenumの値を文字列配列として取得するヘルパー
@@ -271,7 +274,6 @@ const selectFieldOptions: Record<
   valueType: { options: enumValues(HealingValueType) },
   slot: { options: enumValues(EquipSlot) },
   ammoTag: { options: enumValues(AmmoTag), allowEmpty: true },
-  subtype: { options: enumValues(ItemGroupSubtype) },
 };
 
 // 数値enum型のフィールド。OAPIから生成されたenum値を使用する
@@ -346,6 +348,9 @@ const searchableFields: Record<string, SearchableFieldDef[]> = {
     { parentField: "entries", field: "id", optionsSource: "members" },
   ],
   "item-groups": [
+    { parentField: "entries", field: "id", optionsSource: "items" },
+  ],
+  "item-collections": [
     { parentField: "entries", field: "id", optionsSource: "items" },
   ],
 };
@@ -484,6 +489,9 @@ export function ResourcePage({
   const itemGroupsQuery = useResourceList<Record<string, JsonValue>>(
     neededSources.has("item-groups") ? "item-groups" : "",
   );
+  const itemCollectionsQuery = useResourceList<Record<string, JsonValue>>(
+    neededSources.has("item-groups") ? "item-collections" : "",
+  );
 
   // 参照先の id リストを構築
   const referenceOptions = useMemo(() => {
@@ -514,10 +522,12 @@ export function ResourcePage({
     if (propsQuery.data?.data) {
       opts["props"] = propsQuery.data.data.map((p) => String(p["id"] ?? ""));
     }
-    if (itemGroupsQuery.data?.data) {
-      opts["item-groups"] = itemGroupsQuery.data.data.map((g) =>
-        String(g["id"] ?? ""),
-      );
+    if (itemGroupsQuery.data?.data || itemCollectionsQuery.data?.data) {
+      // アイテムテーブルはグループとコレクションを同じ id 空間で参照する
+      opts["item-groups"] = [
+        ...(itemGroupsQuery.data?.data ?? []),
+        ...(itemCollectionsQuery.data?.data ?? []),
+      ].map((g) => String(g["id"] ?? ""));
     }
     opts["skills"] = allSkillIDs;
     return opts;
@@ -529,6 +539,7 @@ export function ResourcePage({
     tilesQuery.data,
     propsQuery.data,
     itemGroupsQuery.data,
+    itemCollectionsQuery.data,
   ]);
 
   const items = useMemo(() => data?.data ?? [], [data]);

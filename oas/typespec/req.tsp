@@ -248,38 +248,39 @@ model DropTable {
   entries: DropTableEntry[];
 }
 
-/**
- * アイテムグループのサブタイプ
- */
-enum ItemGroupSubtype {
-  /** エントリ群から weight の比で1つだけ選ぶ */
-  distribution,
-  /** 各エントリを chance の確率で独立に判定する。複数当選することもありうる */
-  collection,
-}
-
 /** アイテムグループエントリ */
 model ItemGroupEntry {
   id: EntityID;
-  /** distribution の重み。collection では持たない */
-  weight?: EntryWeight;
-  /** collection の出現確率。distribution では持たない */
-  chance?: ItemGroupChance;
+  weight: EntryWeight;
   /** 1山あたりの個数のダイス表記 */
   pack: Dice;
 }
 
-/** アイテムグループ。アイテムの出現セットを定義する */
+/** アイテムグループ。エントリ群から weight の比で1つだけ選ぶ */
 model ItemGroup {
   id: EntityID;
   name: EntityName;
-  subtype: ItemGroupSubtype;
   entries: ItemGroupEntry[];
 }
 
-/** アイテムテーブルエントリ。アイテムグループを参照する */
+/** アイテムコレクションエントリ */
+model ItemCollectionEntry {
+  id: EntityID;
+  chance: ItemCollectionChance;
+  /** 1山あたりの個数のダイス表記 */
+  pack: Dice;
+}
+
+/** アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる */
+model ItemCollection {
+  id: EntityID;
+  name: EntityName;
+  entries: ItemCollectionEntry[];
+}
+
+/** アイテムテーブルエントリ。アイテムグループかアイテムコレクションを参照する */
 model ItemTableEntry {
-  /** 参照するアイテムグループの id */
+  /** 参照するアイテムグループかアイテムコレクションの id */
   id: EntityID;
   weight: EntryWeight;
   minDanger: DangerLevel;
@@ -610,6 +611,7 @@ model Raws {
   commandTables?: CommandTable[];
   dropTables?: DropTable[];
   itemGroups?: ItemGroup[];
+  itemCollections?: ItemCollection[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
   facilities?: Facility[];

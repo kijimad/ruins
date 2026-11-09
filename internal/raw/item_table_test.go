@@ -9,49 +9,49 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// テスト用のoapi.Rawsを作成する。アイテムグループとアイテムテーブルを含む
+// テスト用のoapi.Rawsを作成する。アイテムグループとアイテムコレクションとアイテムテーブルを含む
 func newTestRawsForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) oapi.Raws {
 	return oapi.Raws{
-		ItemGroups: &groups,
-		ItemTables: &[]oapi.ItemTable{table},
+		ItemGroups:      &groups,
+		ItemCollections: &testCollections,
+		ItemTables:      &[]oapi.ItemTable{table},
 	}
 }
 
 var testGroups = []oapi.ItemGroup{
 	{
-		Id:      "回復",
-		Name:    "回復",
-		Subtype: oapi.Distribution,
+		Id:   "回復",
+		Name: "回復",
 		Entries: []oapi.ItemGroupEntry{
-			{Id: "回復薬", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
+			{Id: "回復薬", Weight: 1.0, Pack: "1d1"},
 		},
 	},
 	{
-		Id:      "武器",
-		Name:    "武器",
-		Subtype: oapi.Distribution,
+		Id:   "武器",
+		Name: "武器",
 		Entries: []oapi.ItemGroupEntry{
-			{Id: "毒消し", Weight: new(oapi.EntryWeight(0.8)), Pack: "1d1"},
-			{Id: "手榴弾", Weight: new(oapi.EntryWeight(0.5)), Pack: "1d1"},
+			{Id: "毒消し", Weight: 0.8, Pack: "1d1"},
+			{Id: "手榴弾", Weight: 0.5, Pack: "1d1"},
 		},
 	},
 	{
-		Id:      "素材",
-		Name:    "素材",
-		Subtype: oapi.Distribution,
+		Id:   "素材",
+		Name: "素材",
 		Entries: []oapi.ItemGroupEntry{
-			{Id: "アイテム1", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
-			{Id: "アイテム2", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
+			{Id: "アイテム1", Weight: 1.0, Pack: "1d1"},
+			{Id: "アイテム2", Weight: 1.0, Pack: "1d1"},
 		},
 	},
+}
+
+var testCollections = []oapi.ItemCollection{
 	{
-		Id:      "がらくた",
-		Name:    "がらくた",
-		Subtype: oapi.Collection,
-		Entries: []oapi.ItemGroupEntry{
-			{Id: "鉄くず", Chance: new(oapi.ItemGroupChance(100)), Pack: "3d1"},
-			{Id: "歯車", Chance: new(oapi.ItemGroupChance(100)), Pack: "1d1"},
-			{Id: "骨", Chance: new(oapi.ItemGroupChance(0)), Pack: "1d1"},
+		Id:   "がらくた",
+		Name: "がらくた",
+		Entries: []oapi.ItemCollectionEntry{
+			{Id: "鉄くず", Chance: 100, Pack: "3d1"},
+			{Id: "歯車", Chance: 100, Pack: "1d1"},
+			{Id: "骨", Chance: 0, Pack: "1d1"},
 		},
 	},
 }
@@ -63,7 +63,7 @@ func singleTable(groupID string) oapi.ItemTable {
 	}
 }
 
-func TestDrawFromItemTable_distributionは1つ引く(t *testing.T) {
+func TestDrawFromItemTable_グループは1つ引く(t *testing.T) {
 	t.Parallel()
 
 	table := singleTable("回復")
@@ -74,7 +74,7 @@ func TestDrawFromItemTable_distributionは1つ引く(t *testing.T) {
 	assert.Equal(t, []DrawnItem{{Name: "回復薬", Count: 1}}, got)
 }
 
-func TestDrawFromItemTable_collectionは各行を確率で独立に引きpackの個数を出す(t *testing.T) {
+func TestDrawFromItemTable_コレクションは各行を確率で独立に引きpackの個数を出す(t *testing.T) {
 	t.Parallel()
 
 	table := singleTable("がらくた")

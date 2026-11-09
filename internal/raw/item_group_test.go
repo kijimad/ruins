@@ -9,11 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// newTestRawsForItemGroup はアイテムとアイテムグループだけを持つテスト用 Raws を作る。
-func newTestRawsForItemGroup(items []oapi.Item, groups []oapi.ItemGroup) oapi.Raws {
+// newTestRawsForItemGroup はアイテムとアイテムグループとアイテムコレクションだけを持つテスト用 Raws を作る。
+func newTestRawsForItemGroup(items []oapi.Item, groups []oapi.ItemGroup, collections []oapi.ItemCollection) oapi.Raws {
 	return oapi.Raws{
-		Items:      &items,
-		ItemGroups: &groups,
+		Items:           &items,
+		ItemGroups:      &groups,
+		ItemCollections: &collections,
 	}
 }
 
@@ -25,31 +26,31 @@ func testGroupItems() []oapi.Item {
 	}
 }
 
-func TestSelectFromItemGroup_distributionは1エントリを個数ぶん返す(t *testing.T) {
+func TestSelectFromItemGroup_グループは1エントリを個数ぶん返す(t *testing.T) {
 	t.Parallel()
 
 	groups := []oapi.ItemGroup{
-		{Id: "g", Name: "g", Subtype: oapi.Distribution, Entries: []oapi.ItemGroupEntry{
-			{Id: "sword", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
+		{Id: "g", Name: "g", Entries: []oapi.ItemGroupEntry{
+			{Id: "sword", Weight: 1.0, Pack: "1d1"},
 		}},
 	}
-	raws := newTestRawsForItemGroup(testGroupItems(), groups)
+	raws := newTestRawsForItemGroup(testGroupItems(), groups, nil)
 	rng := rand.New(rand.NewPCG(1, 2))
 
 	draws, err := SelectFromItemGroup(raws, "g", rng)
 	require.NoError(t, err)
-	assert.Equal(t, []DrawnItem{{Name: "sword", Count: 1}}, draws, "単一エントリの distribution はそのアイテムを1個返す")
+	assert.Equal(t, []DrawnItem{{Name: "sword", Count: 1}}, draws, "単一エントリのグループはそのアイテムを1個返す")
 }
 
 func TestSelectFromItemGroup_個数を1エントリにまとめる(t *testing.T) {
 	t.Parallel()
 
 	groups := []oapi.ItemGroup{
-		{Id: "g", Name: "g", Subtype: oapi.Distribution, Entries: []oapi.ItemGroupEntry{
-			{Id: "potion", Weight: new(oapi.EntryWeight(1.0)), Pack: "3d1"},
+		{Id: "g", Name: "g", Entries: []oapi.ItemGroupEntry{
+			{Id: "potion", Weight: 1.0, Pack: "3d1"},
 		}},
 	}
-	raws := newTestRawsForItemGroup(testGroupItems(), groups)
+	raws := newTestRawsForItemGroup(testGroupItems(), groups, nil)
 	rng := rand.New(rand.NewPCG(1, 2))
 
 	draws, err := SelectFromItemGroup(raws, "g", rng)
@@ -57,20 +58,20 @@ func TestSelectFromItemGroup_個数を1エントリにまとめる(t *testing.T)
 	assert.Equal(t, []DrawnItem{{Name: "potion", Count: 3}}, draws, "stackable は個数を1エントリにまとめる")
 }
 
-func TestSelectFromItemGroup_collectionは確率で独立判定する(t *testing.T) {
+func TestSelectFromItemGroup_コレクションは確率で独立判定する(t *testing.T) {
 	t.Parallel()
 
-	// weight=100 は常に当選、weight=0 は常に落選。当選ぶんだけが返る
-	groups := []oapi.ItemGroup{
-		{Id: "g", Name: "g", Subtype: oapi.Collection, Entries: []oapi.ItemGroupEntry{
-			{Id: "sword", Chance: new(oapi.ItemGroupChance(100.0)), Pack: "1d1"},
-			{Id: "potion", Chance: new(oapi.ItemGroupChance(0.0)), Pack: "1d1"},
+	// 確率100は常に当選、確率0は常に落選。当選ぶんだけが返る
+	collections := []oapi.ItemCollection{
+		{Id: "c", Name: "c", Entries: []oapi.ItemCollectionEntry{
+			{Id: "sword", Chance: 100, Pack: "1d1"},
+			{Id: "potion", Chance: 0, Pack: "1d1"},
 		}},
 	}
-	raws := newTestRawsForItemGroup(testGroupItems(), groups)
+	raws := newTestRawsForItemGroup(testGroupItems(), nil, collections)
 	rng := rand.New(rand.NewPCG(1, 2))
 
-	draws, err := SelectFromItemGroup(raws, "g", rng)
+	draws, err := SelectFromItemGroup(raws, "c", rng)
 	require.NoError(t, err)
 	assert.Equal(t, []DrawnItem{{Name: "sword", Count: 1}}, draws, "確率100のみ当選し確率0は落選する")
 }
@@ -78,34 +79,19 @@ func TestSelectFromItemGroup_collectionは確率で独立判定する(t *testing
 func TestSelectFromItemGroup_未存在グループはエラー(t *testing.T) {
 	t.Parallel()
 
-	raws := newTestRawsForItemGroup(testGroupItems(), []oapi.ItemGroup{})
+	raws := newTestRawsForItemGroup(testGroupItems(), nil, nil)
 	rng := rand.New(rand.NewPCG(1, 2))
 
 	_, err := SelectFromItemGroup(raws, "missing", rng)
 	require.ErrorIs(t, err, errItemGroupNotExist)
 }
 
-func TestSelectFromItemGroup_未知のSubtypeはエラー(t *testing.T) {
-	t.Parallel()
-
-	groups := []oapi.ItemGroup{
-		{Id: "g", Name: "g", Subtype: oapi.ItemGroupSubtype("mystery"), Entries: []oapi.ItemGroupEntry{
-			{Id: "sword", Chance: new(oapi.ItemGroupChance(1.0)), Pack: "1d1"},
-		}},
-	}
-	raws := newTestRawsForItemGroup(testGroupItems(), groups)
-	rng := rand.New(rand.NewPCG(1, 2))
-
-	_, err := SelectFromItemGroup(raws, "g", rng)
-	require.ErrorIs(t, err, errUnknownItemGroupSubtype)
-}
-
-func TestDrawDistribution_エントリが空なら何も返さない(t *testing.T) {
+func TestDrawGroup_エントリが空なら何も返さない(t *testing.T) {
 	t.Parallel()
 
 	rng := rand.New(rand.NewPCG(1, 2))
 
-	draws, err := drawDistribution(nil, rng)
+	draws, err := drawGroup(nil, rng)
 	require.NoError(t, err)
 	assert.Nil(t, draws)
 }

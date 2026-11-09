@@ -302,11 +302,12 @@ func TestValidateItemTableReferences(t *testing.T) {
 
 	groups := &[]oapi.ItemGroup{{Id: "雑貨", Name: "雑貨"}}
 
-	t.Run("実在するグループと空文字は通る", func(t *testing.T) {
+	t.Run("実在するグループとコレクションと空文字は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			ItemGroups: groups,
-			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "雑貨"}, {Id: ""}}}},
+			ItemGroups:      groups,
+			ItemCollections: &[]oapi.ItemCollection{{Id: "がらくた", Name: "がらくた"}},
+			ItemTables:      &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "雑貨"}, {Id: "がらくた"}, {Id: ""}}}},
 		}
 		require.NoError(t, validateItemTableReferences(raws))
 	})
@@ -346,36 +347,26 @@ func TestValidateItemGroupReferences(t *testing.T) {
 		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
 	})
 
-	weight := new(oapi.EntryWeight(1))
-	chance := new(oapi.ItemGroupChance(50))
-	tests := []struct {
-		name    string
-		subtype oapi.ItemGroupSubtype
-		entry   oapi.ItemGroupEntry
-		want    error
-	}{
-		{"distribution は weight だけで通る", oapi.Distribution, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight}, nil},
-		{"collection は chance だけで通る", oapi.Collection, oapi.ItemGroupEntry{Id: "鉄くず", Chance: chance}, nil},
-		{"distribution に chance はエラー", oapi.Distribution, oapi.ItemGroupEntry{Id: "鉄くず", Chance: chance}, errItemGroupDistributionNeedsWeight},
-		{"distribution に両方はエラー", oapi.Distribution, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight, Chance: chance}, errItemGroupDistributionNeedsWeight},
-		{"collection に weight はエラー", oapi.Collection, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight}, errItemGroupCollectionNeedsChance},
-		{"collection に両方はエラー", oapi.Collection, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight, Chance: chance}, errItemGroupCollectionNeedsChance},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			raws := oapi.Raws{
-				Items:      items,
-				ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Subtype: tt.subtype, Entries: []oapi.ItemGroupEntry{tt.entry}}},
-			}
-			err := validateItemGroupReferences(raws)
-			if tt.want == nil {
-				require.NoError(t, err)
-				return
-			}
-			require.ErrorIs(t, err, tt.want)
-		})
-	}
+	t.Run("コレクションのアイテム名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:           items,
+			ItemCollections: &[]oapi.ItemCollection{{Name: "素材", Entries: []oapi.ItemCollectionEntry{{Id: "未定義アイテム"}}}},
+		}
+		err := validateItemGroupReferences(raws)
+		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
+	})
+
+	t.Run("グループとコレクションで id が重なるとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:           items,
+			ItemGroups:      &[]oapi.ItemGroup{{Id: "素材", Entries: []oapi.ItemGroupEntry{{Id: "鉄くず"}}}},
+			ItemCollections: &[]oapi.ItemCollection{{Id: "素材", Entries: []oapi.ItemCollectionEntry{{Id: "鉄くず"}}}},
+		}
+		err := validateItemGroupReferences(raws)
+		require.ErrorIs(t, err, errItemGroupIDDuplicated)
+	})
 }
 
 func TestValidateEnemyTableReferences(t *testing.T) {

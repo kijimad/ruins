@@ -112,22 +112,29 @@ func TestRawTableReference(t *testing.T) {
 
 	t.Run("ItemTableのグループ参照が存在する", func(t *testing.T) {
 		t.Parallel()
+		ids := itemGroupIDs(raws)
 		for _, itemTable := range PtrSlice(raws.ItemTables) {
 			for _, entry := range itemTable.Entries {
-				_, err := GetItemGroup(raws, entry.Id)
-				assert.NoError(t, err, "ItemTable '%s' が参照するグループ '%s' が存在しません",
+				assert.Contains(t, ids, entry.Id, "ItemTable '%s' が参照するグループ '%s' が存在しません",
 					itemTable.Name, entry.Id)
 			}
 		}
 	})
 
-	t.Run("ItemGroupのアイテム参照が存在する", func(t *testing.T) {
+	t.Run("ItemGroupとItemCollectionのアイテム参照が存在する", func(t *testing.T) {
 		t.Parallel()
 		for _, group := range PtrSlice(raws.ItemGroups) {
 			for _, entry := range group.Entries {
 				_, err := FindItem(raws, entry.Id)
-				assert.NoError(t, err, "ItemGroup '%s' が参照するアイテム '%s' が存在しません",
+				require.NoError(t, err, "ItemGroup '%s' が参照するアイテム '%s' が存在しません",
 					group.Name, entry.Id)
+			}
+		}
+		for _, c := range PtrSlice(raws.ItemCollections) {
+			for _, entry := range c.Entries {
+				_, err := FindItem(raws, entry.Id)
+				require.NoError(t, err, "ItemCollection '%s' が参照するアイテム '%s' が存在しません",
+					c.Name, entry.Id)
 			}
 		}
 	})

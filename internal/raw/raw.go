@@ -13,13 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-func valueOr[T any](p *T, def T) T {
-	if p == nil {
-		return def
-	}
-	return *p
-}
-
 // PtrSlice はoapi.Rawsの*[]Tフィールドを安全にデリファレンスする
 // nilポインタの場合はnilスライスを返す
 func PtrSlice[T any](p *[]T) []T {
@@ -643,7 +636,7 @@ func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
 	return dt, nil
 }
 
-// errItemGroupNotExist は指定した ID の item group が存在しないときに返す。テストと呼び出し側が errors.Is で同定できる。
+// errItemGroupNotExist は指定した ID のアイテムグループもアイテムコレクションも存在しないときに返す。
 var errItemGroupNotExist = errors.New("item group does not exist")
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
@@ -653,6 +646,15 @@ func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
 		return oapi.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
 	}
 	return ig, nil
+}
+
+// GetItemCollection は指定された id のアイテムコレクションを取得する
+func GetItemCollection(raws oapi.Raws, id string) (oapi.ItemCollection, error) {
+	c, ok := findByKey(raws.ItemCollections, func(c oapi.ItemCollection) string { return c.Id }, id)
+	if !ok {
+		return oapi.ItemCollection{}, NewKeyNotFoundError(id, "ItemCollections")
+	}
+	return c, nil
 }
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
@@ -901,7 +903,11 @@ func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error)
 // SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。
 func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
 	weights := make([]float64, 0, len(dt.Entries)+1)
-	weights = append(weights, valueOr(dt.Nothing, 0))
+	var nothing float64
+	if dt.Nothing != nil {
+		nothing = *dt.Nothing
+	}
+	weights = append(weights, nothing)
 	for _, e := range dt.Entries {
 		weights = append(weights, e.Weight)
 	}

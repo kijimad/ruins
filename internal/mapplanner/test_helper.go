@@ -97,21 +97,21 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用のアイテムグループを定義
 	testItemGroups := []oapi.ItemGroup{
 		{
-			Id:      "healing_items",
-			Name:    "healing_items",
-			Subtype: oapi.Distribution,
+			Id:   "healing_items",
+			Name: "healing_items",
 			Entries: []oapi.ItemGroupEntry{
-				{Id: "healing_potion", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d3"},
-				{Id: "antidote", Weight: new(oapi.EntryWeight(0.5)), Pack: "1d1"},
+				{Id: "healing_potion", Weight: 1.0, Pack: "1d3"},
+				{Id: "antidote", Weight: 0.5, Pack: "1d1"},
 			},
 		},
+	}
+	testItemCollections := []oapi.ItemCollection{
 		{
-			Id:      "ores",
-			Name:    "ores",
-			Subtype: oapi.Collection,
-			Entries: []oapi.ItemGroupEntry{
-				{Id: "obsidian", Chance: new(oapi.ItemGroupChance(50)), Pack: "1d2"},
-				{Id: "silver_shard", Chance: new(oapi.ItemGroupChance(30)), Pack: "1d1"},
+			Id:   "ores",
+			Name: "ores",
+			Entries: []oapi.ItemCollectionEntry{
+				{Id: "obsidian", Chance: 50, Pack: "1d2"},
+				{Id: "silver_shard", Chance: 30, Pack: "1d1"},
 			},
 		},
 	}
@@ -128,8 +128,9 @@ func CreateTestRawMaster() *oapi.Raws {
 			{Id: "herb", Name: "herb", Description: "herb"},
 			{Id: "wooden_sword", Name: "wooden_sword", Description: "a wooden sword"},
 		},
-		ItemGroups:  &testItemGroups,
-		ItemTables:  &testItemTables,
-		EnemyTables: &testEnemyTables,
+		ItemGroups:      &testItemGroups,
+		ItemCollections: &testItemCollections,
+		ItemTables:      &testItemTables,
+		EnemyTables:     &testEnemyTables,
 	}
 }

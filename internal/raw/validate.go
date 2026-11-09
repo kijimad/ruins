@@ -13,33 +13,32 @@ import (
 
 // 参照整合の検証エラー。呼び出し側とテストが errors.Is で種類を同定できるよう sentinel にする。
 var (
-	errItemTableRefUndefinedGroup       = errors.New("item table references undefined item group")
-	errItemGroupRefUndefinedItem        = errors.New("item group references undefined item")
-	errEnemyTableRefUndefinedEnemy      = errors.New("enemy table references undefined enemy")
-	errFacilityEnemyTableRefUndefined   = errors.New("facility enemy table references undefined enemy table")
-	errFacilityKeyUndefined             = errors.New("references undefined facility")
-	errZoneNoBaseFacility               = errors.New("zone has no base facility")
-	errContentLootTableUndefined        = errors.New("interior content references undefined loot table")
-	errLandmarkPropUndefined            = errors.New("landmark references undefined prop")
-	errScatterPropUndefined             = errors.New("scatter zone references undefined prop")
-	errScatterLootGroupUndefined        = errors.New("scatter zone references undefined item group")
-	errMapGlyphNotSingleRune            = errors.New("map glyph is not a single rune")
-	errMapGlyphDuplicate                = errors.New("map glyph is duplicated")
-	errMapGlyphMissing                  = errors.New("map glyph is missing")
-	errDuplicateID                      = errors.New("duplicate id")
-	errCommandTableRefUndefinedWeapon   = errors.New("command table references undefined weapon")
-	errDropTableMaterialUndefined       = errors.New("drop table references undefined material")
-	errMemberDropTableUndefined         = errors.New("member references undefined drop table")
-	errMemberCommandTableUndefined      = errors.New("member references undefined command table")
-	errDisassemblyYieldUndefined        = errors.New("disassembly yield references undefined item")
-	errDisassemblyBonusUndefined        = errors.New("disassembly bonus references undefined item")
-	errDisassemblyToolRequiredNoTool    = errors.New("disassembly requires a tool but has no tool category")
-	errDisassemblyWithoutHP             = errors.New("prop with disassembly has no hp and cannot be broken")
-	errInteriorContentRefUndefined      = errors.New("interior recipe references undefined content")
-	errInteriorContentDuplicateID       = errors.New("interior content has duplicate id")
-	errInteriorFlavorContentMissing     = errors.New("interior flavor content is missing")
-	errItemGroupDistributionNeedsWeight = errors.New("distribution item group entry must have weight and no chance")
-	errItemGroupCollectionNeedsChance   = errors.New("collection item group entry must have chance and no weight")
+	errItemTableRefUndefinedGroup     = errors.New("item table references undefined item group")
+	errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
+	errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
+	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
+	errFacilityKeyUndefined           = errors.New("references undefined facility")
+	errZoneNoBaseFacility             = errors.New("zone has no base facility")
+	errContentLootTableUndefined      = errors.New("interior content references undefined loot table")
+	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
+	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
+	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
+	errMapGlyphNotSingleRune          = errors.New("map glyph is not a single rune")
+	errMapGlyphDuplicate              = errors.New("map glyph is duplicated")
+	errMapGlyphMissing                = errors.New("map glyph is missing")
+	errDuplicateID                    = errors.New("duplicate id")
+	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
+	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
+	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
+	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
+	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
+	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
+	errDisassemblyToolRequiredNoTool  = errors.New("disassembly requires a tool but has no tool category")
+	errDisassemblyWithoutHP           = errors.New("prop with disassembly has no hp and cannot be broken")
+	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
+	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
+	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
+	errItemGroupIDDuplicated          = errors.New("item group and item collection share an id")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -124,14 +123,22 @@ func ValidateReferences(raws oapi.Raws) error {
 	return validateCommandTableWeaponReferences(raws)
 }
 
-// validateItemTableReferences はアイテムテーブルの参照グループ id がアイテムグループ定義に存在することを検証する。
+// itemGroupIDs はアイテムグループとアイテムコレクションの id の集合を返す。どちらも同じ id 空間で参照される。
+func itemGroupIDs(raws oapi.Raws) map[string]struct{} {
+	ids := make(map[string]struct{})
+	for _, g := range PtrSlice(raws.ItemGroups) {
+		ids[g.Id] = struct{}{}
+	}
+	for _, c := range PtrSlice(raws.ItemCollections) {
+		ids[c.Id] = struct{}{}
+	}
+	return ids
+}
+
+// validateItemTableReferences はアイテムテーブルの参照 id がアイテムグループかアイテムコレクションに存在することを検証する。
 // 空文字は参照なしとして扱い、非空の参照だけを検証する
 func validateItemTableReferences(raws oapi.Raws) error {
-	groups := PtrSlice(raws.ItemGroups)
-	groupNames := make(map[string]struct{}, len(groups))
-	for i := range groups {
-		groupNames[groups[i].Id] = struct{}{}
-	}
+	groupNames := itemGroupIDs(raws)
 
 	itemTables := PtrSlice(raws.ItemTables)
 	for i := range itemTables {
@@ -147,7 +154,8 @@ func validateItemTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateItemGroupReferences はアイテムグループの参照アイテム id がアイテム定義に存在することを検証する
+// validateItemGroupReferences はアイテムグループとアイテムコレクションの参照アイテム id がアイテム定義に存在すること、
+// 両者の id が重ならないことを検証する
 func validateItemGroupReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -156,32 +164,25 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 	}
 
 	groups := PtrSlice(raws.ItemGroups)
+	groupIDs := make(map[string]struct{}, len(groups))
 	for i := range groups {
+		groupIDs[groups[i].Id] = struct{}{}
 		for _, entry := range groups[i].Entries {
 			if _, ok := itemNames[entry.Id]; !ok {
 				return fmt.Errorf("item group %q references item %q: %w", groups[i].Name, entry.Id, errItemGroupRefUndefinedItem)
 			}
-			if err := checkItemGroupEntryField(groups[i].Subtype, entry); err != nil {
-				return fmt.Errorf("item group %q entry %q: %w", groups[i].Name, entry.Id, err)
-			}
 		}
 	}
-	return nil
-}
-
-// checkItemGroupEntryField は、distribution の行が weight だけを、collection の行が chance だけを持つことを確かめる。
-func checkItemGroupEntryField(subtype oapi.ItemGroupSubtype, e oapi.ItemGroupEntry) error {
-	switch subtype {
-	case oapi.Distribution:
-		if e.Weight == nil || e.Chance != nil {
-			return errItemGroupDistributionNeedsWeight
+	collections := PtrSlice(raws.ItemCollections)
+	for i := range collections {
+		if _, ok := groupIDs[collections[i].Id]; ok {
+			return fmt.Errorf("%q: %w", collections[i].Id, errItemGroupIDDuplicated)
 		}
-		return nil
-	case oapi.Collection:
-		if e.Chance == nil || e.Weight != nil {
-			return errItemGroupCollectionNeedsChance
+		for _, entry := range collections[i].Entries {
+			if _, ok := itemNames[entry.Id]; !ok {
+				return fmt.Errorf("item collection %q references item %q: %w", collections[i].Name, entry.Id, errItemGroupRefUndefinedItem)
+			}
 		}
-		return nil
 	}
 	return nil
 }
@@ -509,11 +510,7 @@ func validateScatterZoneReferences(raws oapi.Raws) error {
 	for i := range props {
 		propNames[props[i].Id] = struct{}{}
 	}
-	groups := PtrSlice(raws.ItemGroups)
-	groupIDs := make(map[string]struct{}, len(groups))
-	for i := range groups {
-		groupIDs[groups[i].Id] = struct{}{}
-	}
+	groupIDs := itemGroupIDs(raws)
 
 	for _, z := range PtrSlice(raws.ScatterZones) {
 		if _, ok := groupIDs[z.LootGroup]; !ok {
