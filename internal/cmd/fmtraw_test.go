@@ -34,7 +34,13 @@ id = "scrap_iron"
 func TestFormatRaw_整形済みはそのまま(t *testing.T) {
 	t.Parallel()
 
-	once, err := formatRaw([]byte("[[items]]\nname = \"a\"\nid = \"a\"\n[items.melee]\ndamage = 1\n"))
+	src := `[[items]]
+name = "a"
+id = "a"
+[items.melee]
+damage = 1
+`
+	once, err := formatRaw([]byte(src))
 	require.NoError(t, err)
 	twice, err := formatRaw(once)
 	require.NoError(t, err)
