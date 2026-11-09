@@ -9,8 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestTileFrame_四辺を線で結ぶ は、投影済みの四隅をそのまま結んだ輪郭が描かれ、
-// 内側は塗らないことを確認する。中心が空くことで、正方形画像の貼り付けとの違いが出る。
+// TestTileFrame_四辺を線で結ぶ は、投影済みの四隅をそのまま結んだ輪郭が描かれ、内側は塗らないことを確認する。
 func TestTileFrame_四辺を線で結ぶ(t *testing.T) {
 	t.Parallel()
 

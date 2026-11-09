@@ -25,7 +25,6 @@ func TestMessageArea_Update_無効なら更新しない(t *testing.T) {
 	t.Parallel()
 	area := &MessageArea{enabled: false, widget: nil}
 
-	// widget が nil でも無効なら触れずに戻る
 	area.Update()
 }
 
@@ -33,7 +32,6 @@ func TestMessageArea_Update_widgetが無ければ更新しない(t *testing.T) {
 	t.Parallel()
 	area := &MessageArea{enabled: true, widget: nil}
 
-	// widget 未設定でも早期に戻ることを確認する
 	area.Update()
 }
 
