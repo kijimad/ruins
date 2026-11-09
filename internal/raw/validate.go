@@ -38,6 +38,7 @@ var (
 	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
+	errItemGroupIDDuplicated          = errors.New("item group and item collection share an id")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -122,21 +123,25 @@ func ValidateReferences(raws oapi.Raws) error {
 	return validateCommandTableWeaponReferences(raws)
 }
 
-// validateItemTableReferences はアイテムテーブルの参照グループ id がアイテムグループ定義に存在することを検証する。
-// 空文字は参照なしとして扱い、非空の参照だけを検証する
-func validateItemTableReferences(raws oapi.Raws) error {
-	groups := PtrSlice(raws.ItemGroups)
-	groupNames := make(map[string]struct{}, len(groups))
-	for i := range groups {
-		groupNames[groups[i].Id] = struct{}{}
+// itemGroupIDs はアイテムグループとアイテムコレクションの id の集合を返す。どちらも同じ id 空間で参照される。
+func itemGroupIDs(raws oapi.Raws) map[string]struct{} {
+	ids := make(map[string]struct{})
+	for _, g := range PtrSlice(raws.ItemGroups) {
+		ids[g.Id] = struct{}{}
 	}
+	for _, c := range PtrSlice(raws.ItemCollections) {
+		ids[c.Id] = struct{}{}
+	}
+	return ids
+}
+
+// validateItemTableReferences はアイテムテーブルの参照 id がアイテムグループかアイテムコレクションに存在することを検証する。
+func validateItemTableReferences(raws oapi.Raws) error {
+	groupNames := itemGroupIDs(raws)
 
 	itemTables := PtrSlice(raws.ItemTables)
 	for i := range itemTables {
 		for _, entry := range itemTables[i].Entries {
-			if entry.Id == "" {
-				continue
-			}
 			if _, ok := groupNames[entry.Id]; !ok {
 				return fmt.Errorf("item table %q references group %q: %w", itemTables[i].Name, entry.Id, errItemTableRefUndefinedGroup)
 			}
@@ -145,7 +150,8 @@ func validateItemTableReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateItemGroupReferences はアイテムグループの参照アイテム id がアイテム定義に存在することを検証する
+// validateItemGroupReferences はアイテムグループとアイテムコレクションの参照アイテム id がアイテム定義に存在すること、
+// 両者の id が重ならないことを検証する
 func validateItemGroupReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -154,13 +160,23 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 	}
 
 	groups := PtrSlice(raws.ItemGroups)
+	groupIDs := make(map[string]struct{}, len(groups))
 	for i := range groups {
+		groupIDs[groups[i].Id] = struct{}{}
 		for _, entry := range groups[i].Entries {
-			if entry.Id == "" {
-				continue
-			}
 			if _, ok := itemNames[entry.Id]; !ok {
 				return fmt.Errorf("item group %q references item %q: %w", groups[i].Name, entry.Id, errItemGroupRefUndefinedItem)
+			}
+		}
+	}
+	collections := PtrSlice(raws.ItemCollections)
+	for i := range collections {
+		if _, ok := groupIDs[collections[i].Id]; ok {
+			return fmt.Errorf("%q: %w", collections[i].Id, errItemGroupIDDuplicated)
+		}
+		for _, entry := range collections[i].Entries {
+			if _, ok := itemNames[entry.Id]; !ok {
+				return fmt.Errorf("item collection %q references item %q: %w", collections[i].Name, entry.Id, errItemGroupRefUndefinedItem)
 			}
 		}
 	}
@@ -178,9 +194,6 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	enemyTables := PtrSlice(raws.EnemyTables)
 	for i := range enemyTables {
 		for _, entry := range enemyTables[i].Entries {
-			if entry.Id == "" {
-				continue
-			}
 			if _, ok := memberNames[entry.Id]; !ok {
 				return fmt.Errorf("enemy table %q references enemy %q: %w", enemyTables[i].Name, entry.Id, errEnemyTableRefUndefinedEnemy)
 			}
@@ -387,11 +400,8 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	commandTables := PtrSlice(raws.CommandTables)
 	for i := range commandTables {
 		for _, entry := range commandTables[i].Entries {
-			if entry.Weapon == "" {
-				continue
-			}
-			if _, ok := itemNames[entry.Weapon]; !ok {
-				return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Weapon, errCommandTableRefUndefinedWeapon)
+			if _, ok := itemNames[entry.Id]; !ok {
+				return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Id, errCommandTableRefUndefinedWeapon)
 			}
 		}
 	}
@@ -446,12 +456,8 @@ func validateDropTableReferences(raws oapi.Raws) error {
 	for i := range dropTables {
 		tableNames[dropTables[i].Id] = struct{}{}
 		for _, entry := range dropTables[i].Entries {
-			// 空文字はドロップなしを意味する正規の値
-			if entry.Material == "" {
-				continue
-			}
-			if _, ok := itemNames[entry.Material]; !ok {
-				return fmt.Errorf("drop table %q material %q: %w", dropTables[i].Name, entry.Material, errDropTableMaterialUndefined)
+			if _, ok := itemNames[entry.Id]; !ok {
+				return fmt.Errorf("drop table %q material %q: %w", dropTables[i].Name, entry.Id, errDropTableMaterialUndefined)
 			}
 		}
 	}
@@ -497,11 +503,7 @@ func validateScatterZoneReferences(raws oapi.Raws) error {
 	for i := range props {
 		propNames[props[i].Id] = struct{}{}
 	}
-	groups := PtrSlice(raws.ItemGroups)
-	groupIDs := make(map[string]struct{}, len(groups))
-	for i := range groups {
-		groupIDs[groups[i].Id] = struct{}{}
-	}
+	groupIDs := itemGroupIDs(raws)
 
 	for _, z := range PtrSlice(raws.ScatterZones) {
 		if _, ok := groupIDs[z.LootGroup]; !ok {

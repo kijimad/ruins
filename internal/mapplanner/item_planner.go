@@ -77,7 +77,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		}
 		source := sources[si]
 
-		// グループから1山を抽選する。distribution/collection と pack の解釈は raw が担う
+		// グループから1山を抽選する。グループとコレクションの引き分けと pack の解釈は raw が担う
 		items, err := raw.SelectFromItemGroup(*planData.RawMaster, source.GroupID, planData.RNG)
 		if err != nil {
 			return err

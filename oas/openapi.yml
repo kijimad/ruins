@@ -9,6 +9,7 @@ tags:
   - name: CommandTables
   - name: DropTables
   - name: ItemGroups
+  - name: ItemCollections
   - name: ItemTables
   - name: EnemyTables
   - name: Tiles
@@ -305,6 +306,102 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - EnemyTables
+  /api/v1/item-collections:
+    get:
+      operationId: ItemCollections_list
+      description: アイテムコレクション一覧取得
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemCollectionList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemCollections
+    post:
+      operationId: ItemCollections_create
+      description: アイテムコレクション作成
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemCollection'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemCollections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCollection'
+  /api/v1/item-collections/{index}:
+    put:
+      operationId: ItemCollections_update
+      description: アイテムコレクション更新
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemCollection'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemCollections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCollection'
+    delete:
+      operationId: ItemCollections_delete
+      description: アイテムコレクション削除
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemCollections
   /api/v1/item-groups:
     get:
       operationId: ItemGroups_list
@@ -1929,11 +2026,13 @@ components:
     CommandTableEntry:
       type: object
       required:
-        - weapon
+        - id
         - weight
       properties:
-        weapon:
-          $ref: '#/components/schemas/EntityID'
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 使う武器の id
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: コマンドテーブルエントリ
@@ -2182,6 +2281,10 @@ components:
           $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
+        nothing:
+          allOf:
+            - $ref: '#/components/schemas/EntryWeight'
+          description: 何も落とさない重み。省略すると0で、必ずどれかを落とす
         entries:
           type: array
           items:
@@ -2190,12 +2293,13 @@ components:
     DropTableEntry:
       type: object
       required:
-        - material
+        - id
         - weight
       properties:
-        material:
-          type: string
-          description: ドロップする素材名。空文字はドロップなしを意味する
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: ドロップする素材の id
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: ドロップテーブルエントリ
@@ -2632,6 +2736,58 @@ components:
             - $ref: '#/components/schemas/FireStarter'
           description: 火種。所持していると隣接の燃焼物に着火できる
       description: アイテム
+    ItemCollection:
+      type: object
+      required:
+        - id
+        - name
+        - entries
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemCollectionEntry'
+      description: アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる
+    ItemCollectionChance:
+      type: number
+      format: double
+      maximum: 100
+      minimum: 0
+      exclusiveMinimum: true
+      description: アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
+    ItemCollectionEntry:
+      type: object
+      required:
+        - id
+        - chance
+        - pack
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        chance:
+          $ref: '#/components/schemas/ItemCollectionChance'
+        pack:
+          allOf:
+            - $ref: '#/components/schemas/Dice'
+          description: 1山あたりの個数のダイス表記
+      description: アイテムコレクションエントリ
+    ItemCollectionList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemCollection'
+        totalCount:
+          type: integer
+      description: アイテムコレクション一覧
     ItemCount:
       type: integer
       minimum: 1
@@ -2642,20 +2798,17 @@ components:
       required:
         - id
         - name
-        - subtype
         - entries
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
-        subtype:
-          $ref: '#/components/schemas/ItemGroupSubtype'
         entries:
           type: array
           items:
             $ref: '#/components/schemas/ItemGroupEntry'
-      description: アイテムグループ。アイテムの出現セットを定義する
+      description: アイテムグループ。エントリ群から weight の比で1つだけ選ぶ
     ItemGroupEntry:
       type: object
       required:
@@ -2666,9 +2819,7 @@ components:
         id:
           $ref: '#/components/schemas/EntityID'
         weight:
-          allOf:
-            - $ref: '#/components/schemas/EntryWeight'
-          description: 'distribution: 相対重み。collection: 確率（0-100）'
+          $ref: '#/components/schemas/EntryWeight'
         pack:
           allOf:
             - $ref: '#/components/schemas/Dice'
@@ -2687,12 +2838,6 @@ components:
         totalCount:
           type: integer
       description: アイテムグループ一覧
-    ItemGroupSubtype:
-      type: string
-      enum:
-        - distribution
-        - collection
-      description: アイテムグループのサブタイプ
     ItemList:
       type: object
       required:
@@ -2733,14 +2878,14 @@ components:
         id:
           allOf:
             - $ref: '#/components/schemas/EntityID'
-          description: 参照するアイテムグループの id
+          description: 参照するアイテムグループかアイテムコレクションの id
         weight:
           $ref: '#/components/schemas/EntryWeight'
         minDanger:
           $ref: '#/components/schemas/DangerLevel'
         maxDanger:
           $ref: '#/components/schemas/DangerLevel'
-      description: アイテムテーブルエントリ。アイテムグループを参照する
+      description: アイテムテーブルエントリ。アイテムグループかアイテムコレクションを参照する
     ItemTableList:
       type: object
       required:
@@ -3281,6 +3426,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ItemGroup'
+        itemCollections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemCollection'
         itemTables:
           type: array
           items:

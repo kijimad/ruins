@@ -636,7 +636,7 @@ func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
 	return dt, nil
 }
 
-// errItemGroupNotExist は指定した ID の item group が存在しないときに返す。テストと呼び出し側が errors.Is で同定できる。
+// errItemGroupNotExist は指定した ID のアイテムグループもアイテムコレクションも存在しないときに返す。
 var errItemGroupNotExist = errors.New("item group does not exist")
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
@@ -646,6 +646,15 @@ func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
 		return oapi.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
 	}
 	return ig, nil
+}
+
+// GetItemCollection は指定された id のアイテムコレクションを取得する
+func GetItemCollection(raws oapi.Raws, id string) (oapi.ItemCollection, error) {
+	c, ok := findByKey(raws.ItemCollections, func(c oapi.ItemCollection) string { return c.Id }, id)
+	if !ok {
+		return oapi.ItemCollection{}, NewKeyNotFoundError(id, "ItemCollections")
+	}
+	return c, nil
 }
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
@@ -888,16 +897,25 @@ func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error)
 	if !ok {
 		return "", nil
 	}
-	return ct.Entries[i].Weapon, nil
+	return ct.Entries[i].Id, nil
 }
 
-// SelectDropByWeight はドロップテーブルから重み付きランダム選択する
+// SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。
 func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
-	i, ok := consts.Pick(rng, dt.Entries, func(e oapi.DropTableEntry) float64 { return e.Weight })
-	if !ok {
+	weights := make([]float64, 0, len(dt.Entries)+1)
+	var nothing float64
+	if dt.Nothing != nil {
+		nothing = *dt.Nothing
+	}
+	weights = append(weights, nothing)
+	for _, e := range dt.Entries {
+		weights = append(weights, e.Weight)
+	}
+	i, ok := consts.Pick(rng, weights, func(w float64) float64 { return w })
+	if !ok || i == 0 {
 		return "", nil
 	}
-	return dt.Entries[i].Material, nil
+	return dt.Entries[i-1].Id, nil
 }
 
 // MinDanger は spawn テーブルが引ける最小の危険度。テーブルは1始まり設計で、これ未満は
@@ -934,26 +952,18 @@ func checkDanger(danger int) error {
 	return nil
 }
 
-// SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する
-// テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
-func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
+// DrawFromItemTable はアイテムテーブルから危険度に合うグループを重みで1つ選び、そのグループから1回ぶんを引く。
+// グループの引き方は SelectFromItemGroup に従う。
+func DrawFromItemTable(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) ([]DrawnItem, error) {
 	if err := checkDanger(danger); err != nil {
-		return "", err
+		return nil, err
 	}
 	entries := ItemEntriesAt(it, danger)
 	i, ok := consts.Pick(rng, entries, func(e oapi.ItemTableEntry) float64 { return e.Weight })
 	if !ok {
-		return "", nil
+		return nil, nil
 	}
-	group, err := GetItemGroup(raws, entries[i].Id)
-	if err != nil {
-		return "", err
-	}
-	j, ok := consts.Pick(rng, group.Entries, func(e oapi.ItemGroupEntry) float64 { return e.Weight })
-	if !ok {
-		return "", nil
-	}
-	return group.Entries[j].Id, nil
+	return SelectFromItemGroup(raws, entries[i].Id, rng)
 }
 
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する

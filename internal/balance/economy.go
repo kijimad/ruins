@@ -3,6 +3,7 @@ package balance
 import (
 	"math"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -26,29 +27,70 @@ func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float
 	return vSum / wSum
 }
 
-// expectedGroupValue はアイテムグループの中身の重み付き期待売買価値を返す。グループでなく
-// アイテムを直接指す場合はその価値を返す。
+// expectedGroupValue はアイテムグループかアイテムコレクションから拾う1個あたりの期待売買価値を返す。各行の価値を、
+// 1回の抽選で出る個数の期待値で重み付けする。どちらでもなくアイテムを直接指す場合はその価値を返す。
 func expectedGroupValue(master oapi.Raws, id string) float64 {
-	g, err := raw.GetItemGroup(master, id)
-	if err != nil {
+	draws, ok := expectedDraws(master, id)
+	if !ok {
 		if it, e := raw.FindItem(master, id); e == nil {
 			return float64(it.Value)
 		}
 		return 0
 	}
-	var wSum, vSum float64
-	for _, e := range g.Entries {
-		it, err := raw.FindItem(master, e.Id)
+	var nSum, vSum float64
+	for _, d := range draws {
+		it, err := raw.FindItem(master, d.id)
 		if err != nil {
 			continue
 		}
-		wSum += e.Weight
-		vSum += e.Weight * float64(it.Value)
+		nSum += d.count
+		vSum += d.count * float64(it.Value)
 	}
-	if wSum == 0 {
+	if nSum == 0 {
 		return 0
 	}
-	return vSum / wSum
+	return vSum / nSum
+}
+
+// expectedDraw はアイテム1種と、1回の抽選で出る個数の期待値の組。
+type expectedDraw struct {
+	id    string
+	count float64
+}
+
+// expectedDraws は id が指すグループかコレクションを1回引いたときに、各行が出る個数の期待値を返す。グループは重みの比で
+// 1行だけ、コレクションは各行を出現確率で独立に出し、出た行は pack のダイスの期待値の個数になる。
+func expectedDraws(master oapi.Raws, id string) ([]expectedDraw, bool) {
+	if g, err := raw.GetItemGroup(master, id); err == nil {
+		var wSum float64
+		for _, e := range g.Entries {
+			wSum += e.Weight
+		}
+		out := make([]expectedDraw, 0, len(g.Entries))
+		for _, e := range g.Entries {
+			if wSum > 0 {
+				out = append(out, expectedDraw{id: e.Id, count: e.Weight / wSum * expectedPack(e.Pack)})
+			}
+		}
+		return out, true
+	}
+	if c, err := raw.GetItemCollection(master, id); err == nil {
+		out := make([]expectedDraw, 0, len(c.Entries))
+		for _, e := range c.Entries {
+			out = append(out, expectedDraw{id: e.Id, count: e.Chance / 100 * expectedPack(e.Pack)})
+		}
+		return out, true
+	}
+	return nil, false
+}
+
+// expectedPack は pack のダイスの期待値を返す。解釈できない表記は0。
+func expectedPack(pack oapi.Dice) float64 {
+	d, err := consts.ParseDice(pack)
+	if err != nil {
+		return 0
+	}
+	return float64(d.Min()+d.Max()) / 2
 }
 
 // ExpectedNetLootValue は危険度 danger で拾える1個あたりの店売りの期待手取り額を返す。額面の

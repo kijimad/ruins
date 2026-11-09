@@ -121,6 +121,19 @@ interface ItemGroups {
   @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
+@tag("ItemCollections")
+@route("/api/v1/item-collections")
+interface ItemCollections {
+  /** アイテムコレクション一覧取得 */
+  @get list(): ItemCollectionList | Error;
+  /** アイテムコレクション作成 */
+  @post create(@body collection: ItemCollection): { @statusCode statusCode: 201; @body body: ItemCollection; } | Error;
+  /** アイテムコレクション更新 */
+  @put @route("/{index}") update(@path index: integer, @body collection: ItemCollection): ItemCollection | Error;
+  /** アイテムコレクション削除 */
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
+}
+
 @tag("ItemTables")
 @route("/api/v1/item-tables")
 interface ItemTables {

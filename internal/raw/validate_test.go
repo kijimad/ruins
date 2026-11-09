@@ -98,6 +98,11 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 			}),
 			wantErr: "number must be at least 1",
 		},
+		{
+			name:    "コレクションの出現確率が0",
+			raws:    makeCollectionRaws(0),
+			wantErr: "number must be more than 0",
+		},
 	}
 
 	for _, tt := range tests {
@@ -109,6 +114,18 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 			assert.Contains(t, err.Error(), tt.wantErr)
 		})
 	}
+}
+
+// makeCollectionRaws は出現確率 chance の行を1つ持つアイテムコレクションだけの Raws を生成する
+func makeCollectionRaws(chance oapi.ItemCollectionChance) oapi.Raws {
+	return oapi.Raws{ItemCollections: &[]oapi.ItemCollection{{
+		Id: "c", Name: "c", Entries: []oapi.ItemCollectionEntry{{Id: "鉄くず", Chance: chance, Pack: "1d1"}},
+	}}}
+}
+
+func TestValidateRaws_コレクションの出現確率が正なら通る(t *testing.T) {
+	t.Parallel()
+	require.NoError(t, ValidateRaws(makeCollectionRaws(0.5)))
 }
 
 // makeItemRaws は正常なアイテムを1つ持つRawsを生成し、modifyで値を改変する
@@ -225,16 +242,14 @@ func TestValidateDropTableReferences(t *testing.T) {
 
 	items := &[]oapi.Item{{Id: "鉄くず", Name: "鉄くず"}}
 
-	t.Run("実在する素材と空文字は通る", func(t *testing.T) {
+	t.Run("実在する素材は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: items,
 			DropTables: &[]oapi.DropTable{{
-				Name: "廃墟",
-				Entries: []oapi.DropTableEntry{
-					{Material: "鉄くず", Weight: 1},
-					{Material: "", Weight: 3},
-				},
+				Name:    "廃墟",
+				Nothing: new(oapi.EntryWeight(3)),
+				Entries: []oapi.DropTableEntry{{Id: "鉄くず", Weight: 1}},
 			}},
 		}
 		require.NoError(t, validateDropTableReferences(raws))
@@ -246,7 +261,7 @@ func TestValidateDropTableReferences(t *testing.T) {
 			Items: items,
 			DropTables: &[]oapi.DropTable{{
 				Name:    "廃墟",
-				Entries: []oapi.DropTableEntry{{Material: "存在しない素材", Weight: 1}},
+				Entries: []oapi.DropTableEntry{{Id: "存在しない素材", Weight: 1}},
 			}},
 		}
 		err := validateDropTableReferences(raws)
@@ -304,11 +319,12 @@ func TestValidateItemTableReferences(t *testing.T) {
 
 	groups := &[]oapi.ItemGroup{{Id: "雑貨", Name: "雑貨"}}
 
-	t.Run("実在するグループと空文字は通る", func(t *testing.T) {
+	t.Run("実在するグループとコレクションは通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			ItemGroups: groups,
-			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "雑貨"}, {Id: ""}}}},
+			ItemGroups:      groups,
+			ItemCollections: &[]oapi.ItemCollection{{Id: "がらくた", Name: "がらくた"}},
+			ItemTables:      &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "雑貨"}, {Id: "がらくた"}}}},
 		}
 		require.NoError(t, validateItemTableReferences(raws))
 	})
@@ -346,6 +362,27 @@ func TestValidateItemGroupReferences(t *testing.T) {
 		}
 		err := validateItemGroupReferences(raws)
 		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
+	})
+
+	t.Run("コレクションのアイテム名が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:           items,
+			ItemCollections: &[]oapi.ItemCollection{{Name: "素材", Entries: []oapi.ItemCollectionEntry{{Id: "未定義アイテム"}}}},
+		}
+		err := validateItemGroupReferences(raws)
+		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
+	})
+
+	t.Run("グループとコレクションで id が重なるとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Items:           items,
+			ItemGroups:      &[]oapi.ItemGroup{{Id: "素材", Entries: []oapi.ItemGroupEntry{{Id: "鉄くず"}}}},
+			ItemCollections: &[]oapi.ItemCollection{{Id: "素材", Entries: []oapi.ItemCollectionEntry{{Id: "鉄くず"}}}},
+		}
+		err := validateItemGroupReferences(raws)
+		require.ErrorIs(t, err, errItemGroupIDDuplicated)
 	})
 }
 
@@ -562,11 +599,11 @@ func TestValidateCommandTableWeaponReferences(t *testing.T) {
 
 	items := &[]oapi.Item{{Id: "刀", Name: "刀"}}
 
-	t.Run("実在する武器と空文字は通る", func(t *testing.T) {
+	t.Run("実在する武器は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items:         items,
-			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Weapon: "刀"}, {Weapon: ""}}}},
+			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Id: "刀"}}}},
 		}
 		require.NoError(t, validateCommandTableWeaponReferences(raws))
 	})
@@ -575,7 +612,7 @@ func TestValidateCommandTableWeaponReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items:         items,
-			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Weapon: "未定義武器"}}}},
+			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Id: "未定義武器"}}}},
 		}
 		err := validateCommandTableWeaponReferences(raws)
 		require.ErrorIs(t, err, errCommandTableRefUndefinedWeapon)

@@ -23,6 +23,7 @@ const sections: NavSection[] = [
       { path: "/command-tables", label: "コマンドテーブル" },
       { path: "/drop-tables", label: "ドロップテーブル" },
       { path: "/item-groups", label: "アイテムグループ" },
+      { path: "/item-collections", label: "アイテムコレクション" },
       { path: "/item-tables", label: "アイテムテーブル" },
       { path: "/enemy-tables", label: "敵テーブル" },
     ],

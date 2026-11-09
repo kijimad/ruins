@@ -220,7 +220,8 @@ model Recipe {
 
 /** コマンドテーブルエントリ */
 model CommandTableEntry {
-  weapon: EntityID;
+  /** 使う武器の id */
+  id: EntityID;
   weight: EntryWeight;
 }
 
@@ -233,8 +234,8 @@ model CommandTable {
 
 /** ドロップテーブルエントリ */
 model DropTableEntry {
-  /** ドロップする素材名。空文字はドロップなしを意味する */
-  material: string;
+  /** ドロップする素材の id */
+  id: EntityID;
   weight: EntryWeight;
 }
 
@@ -242,39 +243,44 @@ model DropTableEntry {
 model DropTable {
   id: EntityID;
   name: EntityName;
+  /** 何も落とさない重み。省略すると0で、必ずどれかを落とす */
+  nothing?: EntryWeight;
   entries: DropTableEntry[];
-}
-
-/**
- * アイテムグループのサブタイプ
- */
-enum ItemGroupSubtype {
-  /** エントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う */
-  distribution,
-  /** 各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。複数当選することもありうる */
-  collection,
 }
 
 /** アイテムグループエントリ */
 model ItemGroupEntry {
   id: EntityID;
-  /** distribution: 相対重み。collection: 確率（0-100） */
   weight: EntryWeight;
   /** 1山あたりの個数のダイス表記 */
   pack: Dice;
 }
 
-/** アイテムグループ。アイテムの出現セットを定義する */
+/** アイテムグループ。エントリ群から weight の比で1つだけ選ぶ */
 model ItemGroup {
   id: EntityID;
   name: EntityName;
-  subtype: ItemGroupSubtype;
   entries: ItemGroupEntry[];
 }
 
-/** アイテムテーブルエントリ。アイテムグループを参照する */
+/** アイテムコレクションエントリ */
+model ItemCollectionEntry {
+  id: EntityID;
+  chance: ItemCollectionChance;
+  /** 1山あたりの個数のダイス表記 */
+  pack: Dice;
+}
+
+/** アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる */
+model ItemCollection {
+  id: EntityID;
+  name: EntityName;
+  entries: ItemCollectionEntry[];
+}
+
+/** アイテムテーブルエントリ。アイテムグループかアイテムコレクションを参照する */
 model ItemTableEntry {
-  /** 参照するアイテムグループの id */
+  /** 参照するアイテムグループかアイテムコレクションの id */
   id: EntityID;
   weight: EntryWeight;
   minDanger: DangerLevel;
@@ -605,6 +611,7 @@ model Raws {
   commandTables?: CommandTable[];
   dropTables?: DropTable[];
   itemGroups?: ItemGroup[];
+  itemCollections?: ItemCollection[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
   facilities?: Facility[];

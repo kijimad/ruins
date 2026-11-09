@@ -263,16 +263,14 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	danger := metaPlan.Danger
 
 	for range lootCount {
-		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
+		draws, err := raw.DrawFromItemTable(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
 		if err != nil {
 			return fmt.Errorf("failed to draw item: %w", err)
 		}
-		if itemName == "" {
-			continue
-		}
-
-		if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil {
-			return fmt.Errorf("failed to spawn item '%s': %w", itemName, err)
+		for _, d := range draws {
+			if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, storageEntity); err != nil {
+				return fmt.Errorf("failed to spawn item '%s': %w", d.Name, err)
+			}
 		}
 	}
 

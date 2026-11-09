@@ -148,7 +148,7 @@ func doorOrientation(wallSet map[interior.Vec]bool, pos interior.Vec) gc.DoorOri
 }
 
 // spawnFieldLoot は loot の item group から1山を抽選し、床へアイテムを spawn する。抽選は
-// raw.SelectFromItemGroup が distribution/collection と pack を解釈する。地上フロアなので深度は扱わず
+// raw.SelectFromItemGroup がグループとコレクションを引き分け、pack を解釈する。地上フロアなので深度は扱わず
 // group を直接引く。収納 loot の populateStorageLoot と同型で、建物ローカルの決定的 RNG を使い再訪で一致させる。
 func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
 	draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
@@ -227,15 +227,14 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 	}
 	n := lootDice.Roll(rng)
 	for range n {
-		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))
+		draws, err := raw.DrawFromItemTable(world.Resources.RawMaster, itemTable, rng, int(danger))
 		if err != nil {
 			return err
 		}
-		if itemName == "" {
-			continue
-		}
-		if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {
-			return err
+		for _, d := range draws {
+			if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, entity); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

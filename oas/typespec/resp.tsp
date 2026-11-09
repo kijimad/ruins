@@ -38,6 +38,12 @@ model ItemGroupList {
   totalCount: integer;
 }
 
+/** アイテムコレクション一覧 */
+model ItemCollectionList {
+  data: ItemCollection[];
+  totalCount: integer;
+}
+
 /** アイテムテーブル一覧 */
 model ItemTableList {
   data: ItemTable[];

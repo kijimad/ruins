@@ -15,15 +15,15 @@ func TestSelectByWeight(t *testing.T) {
 		Name: "TEST",
 		Entries: []oapi.CommandTableEntry{
 			{
-				Weapon: "A",
+				Id:     "A",
 				Weight: 0.5,
 			},
 			{
-				Weapon: "B",
+				Id:     "B",
 				Weight: 0.2,
 			},
 			{
-				Weapon: "C",
+				Id:     "C",
 				Weight: 0.3,
 			},
 		},
