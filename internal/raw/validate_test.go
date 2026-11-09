@@ -319,12 +319,12 @@ func TestValidateItemTableReferences(t *testing.T) {
 
 	groups := &[]oapi.ItemGroup{{Id: "雑貨", Name: "雑貨"}}
 
-	t.Run("実在するグループとコレクションと空文字は通る", func(t *testing.T) {
+	t.Run("実在するグループとコレクションは通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			ItemGroups:      groups,
 			ItemCollections: &[]oapi.ItemCollection{{Id: "がらくた", Name: "がらくた"}},
-			ItemTables:      &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "雑貨"}, {Id: "がらくた"}, {Id: ""}}}},
+			ItemTables:      &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "雑貨"}, {Id: "がらくた"}}}},
 		}
 		require.NoError(t, validateItemTableReferences(raws))
 	})

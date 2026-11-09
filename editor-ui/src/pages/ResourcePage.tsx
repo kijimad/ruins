@@ -489,6 +489,7 @@ export function ResourcePage({
   const itemGroupsQuery = useResourceList<Record<string, JsonValue>>(
     neededSources.has("item-groups") ? "item-groups" : "",
   );
+  // 参照先 item-groups はアイテムグループとアイテムコレクションの両方の id を指すので、コレクションも同じ条件で読む
   const itemCollectionsQuery = useResourceList<Record<string, JsonValue>>(
     neededSources.has("item-groups") ? "item-collections" : "",
   );
@@ -523,7 +524,6 @@ export function ResourcePage({
       opts["props"] = propsQuery.data.data.map((p) => String(p["id"] ?? ""));
     }
     if (itemGroupsQuery.data?.data || itemCollectionsQuery.data?.data) {
-      // アイテムテーブルはグループとコレクションを同じ id 空間で参照する
       opts["item-groups"] = [
         ...(itemGroupsQuery.data?.data ?? []),
         ...(itemCollectionsQuery.data?.data ?? []),

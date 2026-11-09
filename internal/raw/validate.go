@@ -136,16 +136,12 @@ func itemGroupIDs(raws oapi.Raws) map[string]struct{} {
 }
 
 // validateItemTableReferences はアイテムテーブルの参照 id がアイテムグループかアイテムコレクションに存在することを検証する。
-// 空文字は参照なしとして扱い、非空の参照だけを検証する
 func validateItemTableReferences(raws oapi.Raws) error {
 	groupNames := itemGroupIDs(raws)
 
 	itemTables := PtrSlice(raws.ItemTables)
 	for i := range itemTables {
 		for _, entry := range itemTables[i].Entries {
-			if entry.Id == "" {
-				continue
-			}
 			if _, ok := groupNames[entry.Id]; !ok {
 				return fmt.Errorf("item table %q references group %q: %w", itemTables[i].Name, entry.Id, errItemTableRefUndefinedGroup)
 			}
@@ -198,9 +194,6 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	enemyTables := PtrSlice(raws.EnemyTables)
 	for i := range enemyTables {
 		for _, entry := range enemyTables[i].Entries {
-			if entry.Id == "" {
-				continue
-			}
 			if _, ok := memberNames[entry.Id]; !ok {
 				return fmt.Errorf("enemy table %q references enemy %q: %w", enemyTables[i].Name, entry.Id, errEnemyTableRefUndefinedEnemy)
 			}
