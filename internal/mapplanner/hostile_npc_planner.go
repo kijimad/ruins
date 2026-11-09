@@ -79,14 +79,10 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, entries []Sp
 
 		entry, decided := roomSpecies[roomIdx]
 		if !decided {
-			var err error
-			entry, err = selectSpawnEntry(entries, planData.RNG)
-			if err != nil {
-				return err
-			}
-			if entry.Name == "" {
-				failCount++
-				continue
+			var ok bool
+			entry, ok = selectSpawnEntry(entries, planData.RNG)
+			if !ok {
+				break
 			}
 			roomSpecies[roomIdx] = entry
 		}
@@ -139,12 +135,9 @@ func (n *HostileNPCPlanner) planWithRandomPosition(planData *MetaPlan, entries [
 	placed := 0
 
 	for placed < total {
-		entry, err := selectSpawnEntry(entries, planData.RNG)
-		if err != nil {
-			return err
-		}
-		if entry.Name == "" {
-			continue
+		entry, ok := selectSpawnEntry(entries, planData.RNG)
+		if !ok {
+			break
 		}
 
 		tx, ty, posErr := findPosition(planData, n.world, selector)

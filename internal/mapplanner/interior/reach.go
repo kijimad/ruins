@@ -57,6 +57,9 @@ func reachableFloor(room Room, blocked map[Vec]bool) map[Vec]bool {
 func repairReachability(room Room, placed []Placed) []Placed {
 	for {
 		blocked := blockingTiles(placed)
+		for _, w := range room.Walls {
+			blocked[w] = true
+		}
 		reached := reachableFloor(room, blocked)
 		gate := gateIndex(room, placed, blocked, reached)
 		if gate < 0 {

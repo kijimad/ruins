@@ -189,7 +189,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			switch {
 			case placesGrass(grassSeed, cat.GrassDensity, abs):
 				name = pickScatterEntry(scatterGrassVariants, true, hashTileCoord(grassSeed^scatterVariantChannel, abs)).Ref
-			case unitFloat(hashTileCoord(grassSeed^scatterSoilChannel, abs)) < scatterSoilDensity:
+			case consts.HashRoll(hashTileCoord(grassSeed^scatterSoilChannel, abs)).Float64() < scatterSoilDensity:
 				name = pickScatterEntry(scatterSoilVariants, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterVariantChannel, abs)).Ref
 			default:
 				continue
@@ -252,31 +252,18 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occup
 }
 
 // pickScatterEntry は重み付きで散布物を1つ選ぶ。bigAllowed が偽なら Big の大物を候補から外し、
-// 実効的に大物を1位相かつ経路外へ寄せる。Go の map を抽選に使わず slice を順に走って決定的に引く。
+// 実効的に大物を1位相かつ経路外へ寄せる。候補が無ければゼロ値を返す。
 func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatterEntry {
-	total := 0
-	for _, e := range entries {
+	i, ok := consts.Pick(consts.HashRoll(h), entries, func(e scatterEntry) float64 {
 		if e.Big && !bigAllowed {
-			continue
+			return 0
 		}
-		total += e.Weight
-	}
-	if total <= 0 {
+		return float64(e.Weight)
+	})
+	if !ok {
 		return scatterEntry{}
 	}
-	r := int(h % uint64(total))
-	for _, e := range entries {
-		if e.Big && !bigAllowed {
-			continue
-		}
-		r -= e.Weight
-		if r < 0 {
-			return e
-		}
-	}
-	// total は候補の重み合計で r は [0, total) なので、候補の重みを引き切る前に必ず r < 0 になる。
-	// ここへ来るのは重み合計の計算と減算がずれたときだけで、内部データの不変条件違反にあたる
-	panic("pickScatterEntry: weighted selection drew no candidate")
+	return entries[i]
 }
 
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、

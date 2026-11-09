@@ -45,21 +45,11 @@ func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]Draw
 
 // drawDistribution は重み比で1エントリを選び、その pack ぶんを返す。
 func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
-	if len(entries) == 0 {
+	i, ok := consts.Pick(rng, entries, func(e oapi.ItemGroupEntry) float64 { return e.Weight })
+	if !ok {
 		return nil, nil
 	}
-	entry, err := SelectByWeightFunc(
-		entries,
-		func(e oapi.ItemGroupEntry) float64 { return e.Weight },
-		func(e oapi.ItemGroupEntry) oapi.ItemGroupEntry { return e },
-		rng,
-	)
-	if err != nil {
-		return nil, err
-	}
-	if entry.Id == "" {
-		return nil, nil
-	}
+	entry := entries[i]
 	count, err := rollPack(entry.Pack, rng)
 	if err != nil {
 		return nil, err

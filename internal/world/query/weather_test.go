@@ -82,17 +82,3 @@ func TestRollSpellTurns_基準範囲に収まり厳しい天候は冬奥地で�
 	}
 	assert.Greater(t, avg(gc.SeasonWinter, 30), avg(gc.SeasonSummer, 0), "厳しい天候は冬奥地で長引く")
 }
-
-func TestDrawWeighted_総和0は先頭へ縮退する(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, 0, drawWeighted([]float64{0, 0, 0}, newTestRNG(1)), "全ゼロは先頭で安全側に倒す")
-}
-
-func TestDrawWeighted_重みに比例して引く(t *testing.T) {
-	t.Parallel()
-	rng := newTestRNG(2)
-	// 添字1だけに重みを与えると必ず1が出る
-	for range 50 {
-		assert.Equal(t, 1, drawWeighted([]float64{0, 5, 0}, rng))
-	}
-}

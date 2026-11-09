@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -43,7 +44,7 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 
 	injuryType := injuryTypeFor(attack.GetAttackCategory())
-	part := hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight(injuryType)), injuryType)
+	part := hitPart(world.Resources.Config.RNG, injuryType)
 
 	hs := world.Components.HealthStatus.Get(target)
 	if hs.Parts[part].CountConditions(injuryType) >= maxInjuriesPerPartType {
@@ -66,30 +67,17 @@ func hitWeight(part gc.BodyPart, ct gc.ConditionType) int {
 	return gc.BodyPartHitWeight(part)
 }
 
-// totalHitWeight は怪我 ct が起こりうる部位の命中重みの合計を返す
-func totalHitWeight(ct gc.ConditionType) int {
-	total := 0
+// hitPart は怪我 ct が起こりうる部位から、命中の重みで部位を1つ引く。
+func hitPart(r consts.Roller, ct gc.ConditionType) gc.BodyPart {
+	parts := make([]gc.BodyPart, gc.BodyPartCount)
 	for p := range gc.BodyPartCount {
-		total += hitWeight(p, ct)
+		parts[p] = p
 	}
-	return total
-}
-
-// hitPartForRoll は重み合計内の roll を命中部位へ写す。roll は [0, totalHitWeight) を想定する。
-// 部位順に走査し、重み 0 の部位は飛ばすので、命中先は必ず重みのある部位になる
-func hitPartForRoll(roll int, ct gc.ConditionType) gc.BodyPart {
-	rest := roll
-	for p := range gc.BodyPartCount {
-		weight := hitWeight(p, ct)
-		if weight == 0 {
-			continue
-		}
-		if rest < weight {
-			return p
-		}
-		rest -= weight
+	i, ok := consts.Pick(r, parts, func(p gc.BodyPart) float64 { return float64(hitWeight(p, ct)) })
+	if !ok {
+		panic(fmt.Sprintf("no body part can take %s", ct))
 	}
-	panic(fmt.Sprintf("roll %d is outside the total hit weight of %s", roll, ct))
+	return parts[i]
 }
 
 // logInjury は怪我を負ったことをログに出す。攻撃者か対象が味方に関わるときだけ出す

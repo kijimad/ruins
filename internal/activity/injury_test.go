@@ -21,10 +21,14 @@ func TestInjuryTypeFor(t *testing.T) {
 	assert.Equal(t, gc.ConditionLaceration, injuryTypeFor(gc.AttackRifle), "射撃は切り傷")
 }
 
-func TestHitPartForRoll_全rollが起こりうる部位へ写る(t *testing.T) {
+type fixedRoll float64
+
+func (f fixedRoll) Float64() float64 { return float64(f) }
+
+func TestHitPart_起こりうる部位だけへ当たる(t *testing.T) {
 	t.Parallel()
 
-	// 取りうる roll をすべて走査し、命中先の部位の集合を固定する。ランダム標本でなく全数なので不変条件を証明できる
+	// [0, 1) を細かく刻んで走査し、命中先の部位を出る順に固定する
 	tests := []struct {
 		ct   gc.ConditionType
 		want []gc.BodyPart
@@ -35,8 +39,9 @@ func TestHitPartForRoll_全rollが起こりうる部位へ写る(t *testing.T) {
 	for _, tt := range tests {
 		seen := map[gc.BodyPart]bool{}
 		var got []gc.BodyPart
-		for roll := range totalHitWeight(tt.ct) {
-			part := hitPartForRoll(roll, tt.ct)
+		const steps = 1000
+		for k := range steps {
+			part := hitPart(fixedRoll(float64(k)/steps), tt.ct)
 			if !seen[part] {
 				seen[part] = true
 				got = append(got, part)
@@ -151,9 +156,4 @@ func TestApplyInjury_HealthStatusなしは何もしない(t *testing.T) {
 	attack := &gc.Melee{AttackCategory: gc.AttackSword}
 
 	applyInjury(entity, entity, world, attack) // panic せず何も起きない
-}
-
-func TestHitPartForRoll_重み合計の外のrollはpanicする(t *testing.T) {
-	t.Parallel()
-	assert.Panics(t, func() { hitPartForRoll(totalHitWeight(gc.ConditionFracture), gc.ConditionFracture) })
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/raw"
 )
 
 // StageDefinition はステージ種別の静的マスタ。セーブに含めず StageKey.Name で引く。
@@ -70,21 +69,11 @@ func (d *DungeonDefinition) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerTyp
 		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPool is empty: %s", d.name)
 	}
 
-	result, err := raw.SelectByWeightFunc(
-		d.plannerPool,
-		func(pw PlannerWeight) float64 { return pw.Weight },
-		func(pw PlannerWeight) mapplanner.PlannerType { return pw.PlannerType },
-		rng,
-	)
-	if err != nil {
-		return mapplanner.PlannerType{}, err
-	}
-
-	if result.Name == "" {
+	i, ok := consts.Pick(rng, d.plannerPool, func(pw PlannerWeight) float64 { return pw.Weight })
+	if !ok {
 		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPool total weight is 0: %s", d.name)
 	}
-
-	return result, nil
+	return d.plannerPool[i].PlannerType, nil
 }
 
 // OverworldDefinition は帯をスライドし続けるオーバーワールドのマスタ。

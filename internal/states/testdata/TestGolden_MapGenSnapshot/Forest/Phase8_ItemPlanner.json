@@ -37557,89 +37557,89 @@
   "Corridors": [],
   "NPCs": [
     {
-      "X": 17,
-      "Y": 22,
-      "Name": "poison_frog"
-    },
-    {
       "X": 21,
-      "Y": 24,
+      "Y": 37,
       "Name": "poison_frog"
-    },
-    {
-      "X": 22,
-      "Y": 36,
-      "Name": "pink_slime"
     },
     {
       "X": 24,
-      "Y": 37,
-      "Name": "pink_slime"
-    },
-    {
-      "X": 21,
-      "Y": 37,
-      "Name": "pink_slime"
-    },
-    {
-      "X": 38,
-      "Y": 32,
+      "Y": 41,
       "Name": "poison_frog"
+    },
+    {
+      "X": 27,
+      "Y": 36,
+      "Name": "poison_frog"
+    },
+    {
+      "X": 25,
+      "Y": 38,
+      "Name": "poison_frog"
+    },
+    {
+      "X": 25,
+      "Y": 37,
+      "Name": "poison_frog"
+    },
+    {
+      "X": 43,
+      "Y": 28,
+      "Name": "butterfly"
     }
   ],
   "Items": [
     {
-      "X": 41,
-      "Y": 34,
-      "Name": "field_dressing",
+      "X": 23,
+      "Y": 38,
+      "Name": "dummy_ration",
       "Count": 1
     },
     {
-      "X": 38,
-      "Y": 34,
-      "Name": "flat_meat",
+      "X": 23,
+      "Y": 36,
+      "Name": "round_meat",
       "Count": 1
     },
     {
-      "X": 38,
-      "Y": 30,
-      "Name": "monkey_wrench",
+      "X": 43,
+      "Y": 31,
+      "Name": "wooden_sword",
       "Count": 1
     },
     {
       "X": 18,
       "Y": 25,
+      "Name": "fork",
+      "Count": 1
+    },
+    {
+      "X": 27,
+      "Y": 37,
+      "Name": "leather_gloves",
+      "Count": 1
+    },
+    {
+      "X": 19,
+      "Y": 23,
+      "Name": "leather_bandana",
+      "Count": 1
+    },
+    {
+      "X": 20,
+      "Y": 23,
+      "Name": "field_dressing",
+      "Count": 1
+    },
+    {
+      "X": 20,
+      "Y": 24,
       "Name": "healing_potion",
       "Count": 1
     },
     {
-      "X": 38,
-      "Y": 28,
-      "Name": "yellow_herb",
-      "Count": 1
-    },
-    {
-      "X": 42,
-      "Y": 34,
-      "Name": "trauma_kit",
-      "Count": 1
-    },
-    {
-      "X": 44,
-      "Y": 28,
-      "Name": "fire_extinguisher",
-      "Count": 1
-    },
-    {
-      "X": 41,
-      "Y": 30,
-      "Name": "pig_head",
-      "Count": 1
-    },
-    {
-      "X": 24,
-      "Y": 36,
-      "Name": "beef_jerky",
+      "X": 12,
+      "Y": 35,
+      "Name": "cloth_hat",
       "Count": 1
     }
   ],

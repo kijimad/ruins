@@ -10,6 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/assets"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -444,29 +445,11 @@ func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette {
 
 // selectChunkByWeightFromList はChunkTemplateのリストから重み付きランダム選択する
 func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate, rng *rand.Rand) (*ChunkTemplate, error) {
-	if len(candidates) == 0 {
-		return nil, fmt.Errorf("chunk candidates are empty")
+	i, ok := consts.Pick(rng, candidates, func(c *ChunkTemplate) float64 { return float64(c.Weight) })
+	if !ok {
+		return nil, fmt.Errorf("chunk candidates are empty or total weight is 0")
 	}
-
-	totalWeight := 0
-	for _, candidate := range candidates {
-		totalWeight += candidate.Weight
-	}
-
-	if totalWeight == 0 {
-		return nil, fmt.Errorf("total weight is 0")
-	}
-
-	r := rng.IntN(totalWeight)
-	cumulative := 0
-	for _, candidate := range candidates {
-		cumulative += candidate.Weight
-		if r < cumulative {
-			return candidate, nil
-		}
-	}
-
-	return candidates[len(candidates)-1], nil
+	return candidates[i], nil
 }
 
 // ExpandWithPlacements はplacements方式でチャンクを展開し、解決済みセル配列を返す。

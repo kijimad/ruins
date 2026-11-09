@@ -485,47 +485,28 @@ func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 }
 
 // selectSpawnEntry はSpawnEntryリストから重み付き抽選で1つ選択する
-func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) {
-	return raw.SelectByWeightFunc(
-		entries,
-		func(e SpawnEntry) float64 { return e.Weight },
-		func(e SpawnEntry) SpawnEntry { return e },
-		rng,
-	)
+func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, bool) {
+	i, ok := consts.Pick(rng, entries, func(e SpawnEntry) float64 { return e.Weight })
+	if !ok {
+		return SpawnEntry{}, false
+	}
+	return entries[i], true
 }
 
 // selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す
 // 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる
 func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
-	if len(bm.Rooms) == 0 {
+	i, ok := consts.Pick(bm.RNG, bm.Rooms, func(r gc.Rect) float64 {
+		w, h := int(r.Width()), int(r.Height())
+		if w <= 0 || h <= 0 {
+			return 0
+		}
+		return float64(w * h)
+	})
+	if !ok {
 		return gc.Rect{}, 0, false
 	}
-	totalArea := 0
-	for _, r := range bm.Rooms {
-		w, h := int(r.Width()), int(r.Height())
-		if w > 0 && h > 0 {
-			totalArea += w * h
-		}
-	}
-	// 全部屋が退化して面積0のときの保険。Width/Height は正常な部屋なら必ず1以上を返すので
-	// 通常は到達しない。均等抽選で1つ返し、呼び出し側の spawn 試行に委ねる
-	if totalArea == 0 {
-		idx := bm.RNG.IntN(len(bm.Rooms))
-		return bm.Rooms[idx], idx, true
-	}
-	roll := bm.RNG.IntN(totalArea)
-	cumulative := 0
-	for i, r := range bm.Rooms {
-		w, h := int(r.Width()), int(r.Height())
-		if w > 0 && h > 0 {
-			cumulative += w * h
-		}
-		if roll < cumulative {
-			return bm.Rooms[i], i, true
-		}
-	}
-	idx := len(bm.Rooms) - 1
-	return bm.Rooms[idx], idx, true
+	return bm.Rooms[i], i, true
 }
 
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
