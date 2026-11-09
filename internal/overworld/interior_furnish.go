@@ -97,7 +97,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		switch p.Kind {
 		case interior.KindBeing:
 			if err := spawnInteriorBeing(world, fac, danger, pos, beingRNG); err != nil {
-				return nil, nil, fmt.Errorf("failed to place interior being (%s at %d,%d): %w", p.Ref, pos.X, pos.Y, err)
+				return nil, nil, fmt.Errorf("failed to place interior being of facility %q at %d,%d: %w", fac, pos.X, pos.Y, err)
 			}
 			occupied[pos] = true
 		case interior.KindLoot:
