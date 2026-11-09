@@ -50,7 +50,10 @@ func pickDistinct(rng *rand.Rand, items []Stuff, n int) []Selection {
 	copy(pool, items)
 	out := make([]Selection, 0, n)
 	for len(out) < n && len(pool) > 0 {
-		i, _ := consts.Pick(rng, pool, weightOf)
+		i, ok := consts.Pick(rng, pool, weightOf)
+		if !ok {
+			break
+		}
 		it := pool[i]
 		pool = append(pool[:i], pool[i+1:]...)
 		count := it.Amount.Roll(rng)
