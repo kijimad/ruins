@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">87.5&nbsp;%</td>
-            <td class="headerCovTableEntry">24</td>
-            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryMed">84.6&nbsp;%</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">22</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-09 14:13:30</td>
+            <td class="headerValue">2026-11-09 15:09:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,45 +68,57 @@
 <span id="L6"><span class="lineNum">       6</span>              : // 異質なものは孤立しているほど記憶に残るので、landmark 級は狭い確率で1棟に1つに絞る。</span>
 <span id="L7"><span class="lineNum">       7</span>              : // 中身は 報酬46/雰囲気25/リスクリワード15/危険14 の予算配分で引き、主室の中央へ1つだけ据える。</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // heroCenterpiece は建物が hero なら主室に据える目玉 prop の Ref を返す。大半の建物は hero でない。予算配分で</span>
-<span id="L10"><span class="lineNum">      10</span>              : // 4種を引く。報酬は宝箱、雰囲気は鳥居や蓄音機の landmark、リスクリワードは檻の中の獲物、危険は毒樽。</span>
-<span id="L11"><span class="lineNum">      11</span>              : func heroCenterpiece(seed uint64) (string, bool) {</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         if childSeed(seed, 13_000_000)%12 != 0 {</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false // 12棟に1棟だけ見せ場を持つ。rare を孤立させる</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         switch r := childSeed(seed, 13_100_000) % 100; {</span></span>
-<span id="L16"><span class="lineNum">      16</span>              :         case r &lt; 46: // 報酬</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return &quot;chest&quot;, true</span></span>
-<span id="L18"><span class="lineNum">      18</span>              :         case r &lt; 71: // 雰囲気。landmark を seed で1つ</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 atmos := []string{&quot;torii&quot;, &quot;phonograph&quot;, &quot;komainu&quot;, &quot;pillar&quot;}</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return atmos[int(childSeed(seed, 13_200_000)%uint64(len(atmos)))], true</span></span>
-<span id="L21"><span class="lineNum">      21</span>              :         case r &lt; 86: // リスクリワード。檻に入った獲物</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return &quot;cage&quot;, true</span></span>
-<span id="L23"><span class="lineNum">      23</span>              :         default: // 危険</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return &quot;poison&quot;, true</span></span>
-<span id="L25"><span class="lineNum">      25</span>              :         }</span>
-<span id="L26"><span class="lineNum">      26</span>              : }</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // heroSpot は目玉を据えるタイルを返す。廊下を除く最大の部屋の中央。中央が内側床でなければ置かない。</span>
-<span id="L29"><span class="lineNum">      29</span>              : func heroSpot(s Site) (Vec, bool) {</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         best, bestArea := -1, consts.Tile(0)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         for i, hr := range s.Rooms {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 if hr.Role == roleCorridor {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L34"><span class="lineNum">      34</span>              :                 }</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 if a := hr.Room.Rect.W * hr.Room.Rect.H; a &gt; bestArea {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         best, bestArea = i, a</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L38"><span class="lineNum">      38</span>              :         }</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         if best &lt; 0 {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 :                 return Vec{}, false</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         c := s.Rooms[best].Room.Rect.center()</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if s.Rooms[best].Room.Rect.containsInterior(c) {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 return c, true</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :         return Vec{}, false</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : }</span>
+<span id="L9"><span class="lineNum">       9</span>              : // heroKind は hero 部屋の目玉の種類。</span>
+<span id="L10"><span class="lineNum">      10</span>              : type heroKind string</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : const (</span>
+<span id="L13"><span class="lineNum">      13</span>              :         heroReward     heroKind = &quot;reward&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         heroAtmosphere heroKind = &quot;atmosphere&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         heroRiskReward heroKind = &quot;risk_reward&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         heroDanger     heroKind = &quot;danger&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              : )</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : // heroCenterpiece は建物が hero なら主室に据える目玉 prop の Ref を返す。大半の建物は hero でない。予算配分で</span>
+<span id="L20"><span class="lineNum">      20</span>              : // 4種を引く。報酬は宝箱、雰囲気は鳥居や蓄音機の landmark、リスクリワードは檻の中の獲物、危険は毒樽。</span>
+<span id="L21"><span class="lineNum">      21</span>              : func heroCenterpiece(seed uint64) (string, bool) {</span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 :         if childSeed(seed, 13_000_000)%12 != 0 {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false // 12棟に1棟だけ見せ場を持つ。rare を孤立させる</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         switch pickChoice(childSeed(seed, 13_100_000), []choice[heroKind]{</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 {heroReward, 46}, {heroAtmosphere, 25}, {heroRiskReward, 15}, {heroDanger, 14},</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }) {</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         case heroReward:</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return &quot;chest&quot;, true</span></span>
+<span id="L30"><span class="lineNum">      30</span>              :         case heroAtmosphere:</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 return pickOne(childSeed(seed, 13_200_000), []string{&quot;torii&quot;, &quot;phonograph&quot;, &quot;komainu&quot;, &quot;pillar&quot;}), true</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :         case heroRiskReward:</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 return &quot;cage&quot;, true</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :         case heroDanger:</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 return &quot;poison&quot;, true</span></span>
+<span id="L36"><span class="lineNum">      36</span>              :         }</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unknown heroKind&quot;)</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : }</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : // heroSpot は目玉を据えるタイルを返す。廊下を除く最大の部屋の中央。中央が内側床でなければ置かない。</span>
+<span id="L41"><span class="lineNum">      41</span>              : func heroSpot(s Site) (Vec, bool) {</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         best, bestArea := -1, consts.Tile(0)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         for i, hr := range s.Rooms {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 if hr.Role == roleCorridor {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L46"><span class="lineNum">      46</span>              :                 }</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 if a := hr.Room.Rect.W * hr.Room.Rect.H; a &gt; bestArea {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                         best, bestArea = i, a</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :         }</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if best &lt; 0 {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC tlaBgUNC">           0 :                 return Vec{}, false</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">           1 :         c := s.Rooms[best].Room.Rect.center()</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         if s.Rooms[best].Room.Rect.containsInterior(c) {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 return c, true</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :         return Vec{}, false</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : }</span>
         </pre>
               </td>
             </tr>

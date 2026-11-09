@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-09 14:13:30</td>
+            <td class="headerValue">2026-11-09 15:09:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -120,7 +120,7 @@
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return Content{}, fmt.Errorf(&quot;%q in facilityContents: %w&quot;, id, errFacilityNotRegistered)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span>              :         // 9_000_000 は変種抽選専用の child index。同じ親 seed から引く他ストリームと無相関にする帯オフセット</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         vid := variants[int(childSeed(seed, 9_000_000)%uint64(len(variants)))]</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         vid := pickOne(childSeed(seed, 9_000_000), variants)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         return contentByID(raws, vid)</span></span>
 <span id="L63"><span class="lineNum">      63</span>              : }</span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>

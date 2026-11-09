@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">18</td>
-            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">16</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-09 14:13:30</td>
+            <td class="headerValue">2026-11-09 15:09:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,7 +80,7 @@
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         fx := smoothstep(float64(p.X-cx*grassPatchCell) / float64(grassPatchCell))</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         fy := smoothstep(float64(p.Y-cy*grassPatchCell) / float64(grassPatchCell))</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         corner := func(dx, dy consts.Tile) float64 {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return unitFloat(hashTileCoord(seed, consts.Coord[consts.Tile]{X: cx + dx, Y: cy + dy}))</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return consts.HashRoll(hashTileCoord(seed, consts.Coord[consts.Tile]{X: cx + dx, Y: cy + dy})).Float64()</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         top := lerp(corner(0, 0), corner(1, 0), fx)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         bottom := lerp(corner(0, 1), corner(1, 1), fx)</span></span>
@@ -90,21 +90,16 @@
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // placesGrass は絶対タイル座標 p に草を置くかを、密度 density と茂みの倍率から決める</span>
 <span id="L30"><span class="lineNum">      30</span>              : func placesGrass(seed uint64, density float64, p consts.Coord[consts.Tile]) bool {</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return unitFloat(hashTileCoord(seed, p)) &lt; density*grassPatchFactor(seed^grassNoiseChannel, p)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return consts.HashRoll(hashTileCoord(seed, p)).Float64() &lt; density*grassPatchFactor(seed^grassNoiseChannel, p)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span>              : // unitFloat はハッシュ値を [0, 1) の小数へ写す</span>
-<span id="L35"><span class="lineNum">      35</span>              : func unitFloat(v uint64) float64 {</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return float64(v&gt;&gt;11) / float64(1&lt;&lt;53)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              : func lerp(a, b, t float64) float64 {</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return a + (b-a)*t</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span>              : func smoothstep(t float64) float64 {</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         return t * t * (3 - 2*t)</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : func lerp(a, b, t float64) float64 {</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return a + (b-a)*t</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : func smoothstep(t float64) float64 {</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return t * t * (3 - 2*t)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.5&nbsp;%</td>
-            <td class="headerCovTableEntry">148</td>
-            <td class="headerCovTableEntry">134</td>
+            <td class="headerCovTableEntryHi">90.4&nbsp;%</td>
+            <td class="headerCovTableEntry">146</td>
+            <td class="headerCovTableEntry">132</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-09 14:13:30</td>
+            <td class="headerValue">2026-11-09 15:09:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -255,48 +255,45 @@
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return 0, 0, false, err</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         var wSum, deathSum, turnSum float64</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         for _, entry := range table.Entries {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L199"><span class="lineNum">     199</span>              :                 }</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 enemy, err := LoadCombatantFromMember(master, entry.Id)</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0, 0, false, err</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC tlaBgGNC">           1 :                 enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0, 0, false, err</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC tlaBgGNC">           1 :                 o := CombatDistributionWithSkill(player, enemy, playerWeapon, enemyWeapon, playerSkillMult)</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 w := entry.Weight</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 wSum += w</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 deathSum += w * o.PlayerDeathProb</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 turnSum += w * o.ExpectedTurns</span></span>
-<span id="L213"><span class="lineNum">     213</span>              :         }</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, 0, false, nil</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           1 :         return deathSum / wSum, turnSum / wSum, true, nil</span></span>
-<span id="L218"><span class="lineNum">     218</span>              : }</span>
-<span id="L219"><span class="lineNum">     219</span>              : </span>
-<span id="L220"><span class="lineNum">     220</span>              : // CombatRiskCurve は経過日 1..days の戦闘リスクを敵プールの重みで期待して返す。プレイヤーは熟練度なしの</span>
-<span id="L221"><span class="lineNum">     221</span>              : // 静的下限で見る。各敵との1対1をマルコフ連鎖で解き、出現重みで平均する。乱数を使わない。</span>
-<span id="L222"><span class="lineNum">     222</span>              : func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         out := make([]DayRisk, 0, days)</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 danger := int(query.DangerLevelForDay(day))</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger, consts.PercentBase)</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, err</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC tlaBgGNC">           1 :                 if !ok {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                         out = append(out, DayRisk{Day: day, Danger: danger})</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L233"><span class="lineNum">     233</span>              :                 }</span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">           1 :                 out = append(out, DayRisk{Day: day, Danger: danger, DeathProb: death, ExpTurns: turns})</span></span>
-<span id="L235"><span class="lineNum">     235</span>              :         }</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         return out, nil</span></span>
-<span id="L237"><span class="lineNum">     237</span>              : }</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         for _, entry := range raw.EnemyEntriesAt(table, danger) {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 enemy, err := LoadCombatantFromMember(master, entry.Id)</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0, 0, false, err</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC tlaBgGNC">           1 :                 enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0, 0, false, err</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :                 o := CombatDistributionWithSkill(player, enemy, playerWeapon, enemyWeapon, playerSkillMult)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 w := entry.Weight</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 wSum += w</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 deathSum += w * o.PlayerDeathProb</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 turnSum += w * o.ExpectedTurns</span></span>
+<span id="L210"><span class="lineNum">     210</span>              :         }</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         if wSum == 0 {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, 0, false, nil</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC tlaBgGNC">           1 :         return deathSum / wSum, turnSum / wSum, true, nil</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : }</span>
+<span id="L216"><span class="lineNum">     216</span>              : </span>
+<span id="L217"><span class="lineNum">     217</span>              : // CombatRiskCurve は経過日 1..days の戦闘リスクを敵プールの重みで期待して返す。プレイヤーは熟練度なしの</span>
+<span id="L218"><span class="lineNum">     218</span>              : // 静的下限で見る。各敵との1対1をマルコフ連鎖で解き、出現重みで平均する。乱数を使わない。</span>
+<span id="L219"><span class="lineNum">     219</span>              : func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         out := make([]DayRisk, 0, days)</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 danger := int(query.DangerLevelForDay(day))</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger, consts.PercentBase)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, err</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC tlaBgGNC">           1 :                 if !ok {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC tlaBgUNC">           0 :                         out = append(out, DayRisk{Day: day, Danger: danger})</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L230"><span class="lineNum">     230</span>              :                 }</span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC tlaBgGNC">           1 :                 out = append(out, DayRisk{Day: day, Danger: danger, DeathProb: death, ExpTurns: turns})</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :         }</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         return out, nil</span></span>
+<span id="L234"><span class="lineNum">     234</span>              : }</span>
         </pre>
               </td>
             </tr>
