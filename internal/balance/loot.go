@@ -97,7 +97,7 @@ type drawnLoot struct {
 func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {
 	switch p.Kind {
 	case interior.KindLoot:
-		groupID, ok := interior.LootGroupName(p.Ref)
+		groupID, ok := interior.LootGroupName(master, p.Ref)
 		if !ok {
 			return nil
 		}
@@ -113,7 +113,7 @@ func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []dr
 		}
 		return out
 	case interior.KindFurniture:
-		name, ok := interior.PropRawName(p.Ref)
+		name, ok := interior.PropRawName(master, p.Ref)
 		if !ok {
 			return nil
 		}

@@ -393,7 +393,7 @@ enum GroupStyle {
   pick_n,
 }
 
-/** 配置の置き方。空なら家具型の archetype 既定へ落ちる */
+/** 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる */
 enum Placement {
   center,
   wall,
@@ -443,6 +443,60 @@ model ContentGroup {
 model InteriorContent {
   id: EntityID;
   groups?: ContentGroup[];
+}
+
+/** 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ */
+model InteriorRef {
+  id: EntityID;
+
+  /** 家具と装飾として置く raw の prop。省くと prop として置かない */
+  prop?: EntityID;
+
+  /** 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない */
+  itemGroup?: EntityID;
+
+  /** レシピが placement を省いたときの置き方 */
+  placement?: Placement;
+}
+
+/** 建物の損傷段階の重み */
+model DamageChoice {
+  id: BuildingDamage;
+  weight: EntryWeight;
+}
+
+/** 建物の散らかり段階の重み */
+model ClutterChoice {
+  id: BuildingClutter;
+  weight: EntryWeight;
+}
+
+/** 建物の変種の重み */
+model VariantChoice {
+  id: BuildingVariant;
+  weight: EntryWeight;
+}
+
+/** 建物の家具量の倍率の重み */
+model DensityChoice {
+  factor: DensityFactor;
+  weight: EntryWeight;
+}
+
+/** hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く */
+model HeroChoice {
+  id: EntityID;
+  weight: EntryWeight;
+  @minItems(1) refs: EntityID[];
+}
+
+/** 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる */
+model InteriorProfile {
+  damages: DamageChoice[];
+  clutters: ClutterChoice[];
+  variants: VariantChoice[];
+  densities: DensityChoice[];
+  heroes: HeroChoice[];
 }
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
@@ -701,6 +755,8 @@ model Raws {
   skills?: Skill[];
   skillCategories?: SkillCategory[];
   attackTypes?: AttackType[];
+  interiorRefs?: InteriorRef[];
+  interiorProfile?: InteriorProfile;
 }
 
 // ================== パレット ==================

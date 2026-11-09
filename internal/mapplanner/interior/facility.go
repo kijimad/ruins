@@ -37,7 +37,11 @@ func planBSP(footprint Rect, seed uint64) []PlannedRoom {
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
 // 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未登録の施設は error。
 func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {
-	prof := rollProfile(seed)
+	table, err := newProfileTable(raws)
+	if err != nil {
+		return nil, err
+	}
+	prof := rollProfile(table, seed)
 	room := Room{Rect: footprint, Doorways: []Doorway{{X: door.X, Y: door.Y}}}
 	main, err := facilityContent(raws, facility, seed)
 	if err != nil {

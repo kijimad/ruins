@@ -14,7 +14,7 @@ import (
 type Placement string
 
 const (
-	// PlaceDefault は未指定。レシピが Placement を書かないと空になり、placementOf が家具型の archetype 既定へ倒す
+	// PlaceDefault は未指定。レシピと interiorRefs のどちらも置き方を持たないと空になり、placementOf が全域へ倒す
 	PlaceDefault Placement = ""
 	// PlaceCenter は部屋中心寄り。中央の島什器など
 	PlaceCenter Placement = "center"
@@ -145,7 +145,7 @@ func placementDensity(room Room, p Placement, t, center Vec, maxDist float64) fl
 		}
 		return 1
 	case PlaceDefault:
-		// placementOf が空を archetype 既定へ倒すのでここには来ない。exhaustive のために置く
+		// placementOf が空を全域へ倒すのでここには来ない。exhaustive のために置く
 		panic("PlaceDefault does not go through placementDensity")
 	case PlaceFullArea:
 		// 全域散布は selectTiles が ScatterArea へ委ねるのでここには来ない。exhaustive のために置く

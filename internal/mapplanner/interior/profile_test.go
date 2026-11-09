@@ -3,6 +3,7 @@ package interior
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,9 +13,9 @@ func TestRollProfile_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
 	for seed := range uint64(20) {
-		first := rollProfile(seed)
+		first := rollProfile(testProfileTable(), seed)
 		for range 5 {
-			require.Equalf(t, first, rollProfile(seed), "seed=%d は同じプロファイルを引く", seed)
+			require.Equalf(t, first, rollProfile(testProfileTable(), seed), "seed=%d は同じプロファイルを引く", seed)
 		}
 	}
 }
@@ -30,7 +31,7 @@ func TestRollProfile_直交軸がseedで散らばる(t *testing.T) {
 	var clutterSeen [3]int
 	variantSeen := map[variantKind]int{}
 	for seed := range uint64(n) {
-		p := rollProfile(seed)
+		p := rollProfile(testProfileTable(), seed)
 		damageSeen[p.damage]++
 		clutterSeen[p.clutter]++
 		variantSeen[p.variant]++
@@ -70,4 +71,25 @@ func TestApplyClutter_整頓は何も足さず戸口を塞がない(t *testing.T
 	for _, p := range filthy {
 		assert.Falsef(t, isDoorwayAdjacent(room, p.Pos), "小物 %v は戸口前に置かない", p.Pos)
 	}
+}
+
+// TestNewProfileTable_rawの抽選表を軸ごとに組む は raw の interiorProfile が各軸の値と重みへ写ることを固定する
+func TestNewProfileTable_rawの抽選表を軸ごとに組む(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, profileTable{
+		damages:   []choice[damageLevel]{{dmgIntact, 2}, {dmgMinor, 3}, {dmgMajor, 1}},
+		clutters:  []choice[clutterLevel]{{clutterTidy, 6}, {clutterMessy, 3}, {clutterFilthy, 1}},
+		variants:  []choice[variantKind]{{varStandard, 970}, {varAbandoned, 6}, {varUnderConstruction, 10}, {varSurvivalist, 9}, {varHoarder, 5}},
+		densities: []choice[int]{{6, 1}, {10, 1}, {14, 1}},
+		heroes: []choice[[]string]{
+			{[]string{"chest"}, 46},
+			{[]string{"torii", "phonograph", "komainu", "pillar"}, 25},
+			{[]string{"cage"}, 15},
+			{[]string{"poison"}, 14},
+		},
+	}, testProfileTable())
+
+	_, err := newProfileTable(oapi.Raws{})
+	require.ErrorIs(t, err, errInteriorProfileMissing)
 }

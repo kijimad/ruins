@@ -21085,3 +21085,269 @@ injury = "fracture"
 [[attackTypes]]
 id = "bow"
 injury = "laceration"
+
+[[interiorRefs]]
+id = "register"
+prop = "register"
+placement = "near_door"
+[[interiorRefs]]
+id = "gondola"
+prop = "goods_shelf"
+placement = "row"
+[[interiorRefs]]
+id = "walkin_cooler"
+prop = "refrigerator"
+placement = "far_from_door"
+[[interiorRefs]]
+id = "reception"
+prop = "desk"
+placement = "near_door"
+[[interiorRefs]]
+id = "waitchair"
+prop = "chair"
+placement = "near_door"
+[[interiorRefs]]
+id = "exam_bed"
+prop = "exam_bed"
+placement = "far_from_door"
+[[interiorRefs]]
+id = "medcabinet"
+prop = "medicine_cabinet"
+placement = "wall"
+[[interiorRefs]]
+id = "bed"
+prop = "bed"
+placement = "far_from_door"
+[[interiorRefs]]
+id = "table"
+prop = "table"
+placement = "center"
+[[interiorRefs]]
+id = "chair"
+prop = "chair"
+placement = "center"
+[[interiorRefs]]
+id = "sofa"
+prop = "sofa"
+placement = "wall"
+[[interiorRefs]]
+id = "closet"
+prop = "closet"
+placement = "wall"
+[[interiorRefs]]
+id = "lantern"
+prop = "lantern"
+placement = "wall"
+[[interiorRefs]]
+id = "plant"
+prop = "plant"
+placement = "full_area"
+[[interiorRefs]]
+id = "washer"
+prop = "washer"
+placement = "wall"
+[[interiorRefs]]
+id = "pantry"
+prop = "dish_shelf"
+placement = "row"
+[[interiorRefs]]
+id = "barrel"
+prop = "barrel"
+placement = "row"
+[[interiorRefs]]
+id = "bathtub"
+prop = "bathtub"
+placement = "far_from_door"
+[[interiorRefs]]
+id = "toilet"
+prop = "toilet"
+placement = "wall"
+[[interiorRefs]]
+id = "sink"
+prop = "sink"
+placement = "wall"
+[[interiorRefs]]
+id = "desk"
+prop = "desk"
+[[interiorRefs]]
+id = "candle"
+prop = "candle"
+[[interiorRefs]]
+id = "carpet"
+prop = "carpet"
+[[interiorRefs]]
+id = "rubble"
+prop = "rubble"
+[[interiorRefs]]
+id = "debris"
+prop = "debris"
+[[interiorRefs]]
+id = "laundry"
+prop = "laundry"
+[[interiorRefs]]
+id = "crate"
+prop = "crate"
+[[interiorRefs]]
+id = "window"
+prop = "window"
+[[interiorRefs]]
+id = "shutter"
+prop = "shutter"
+[[interiorRefs]]
+id = "sign"
+prop = "wooden_sign"
+[[interiorRefs]]
+id = "fence"
+prop = "fence"
+[[interiorRefs]]
+id = "vending"
+prop = "vending_machine"
+[[interiorRefs]]
+id = "chest"
+prop = "wood_chest"
+[[interiorRefs]]
+id = "torii"
+prop = "torii_small"
+[[interiorRefs]]
+id = "phonograph"
+prop = "phonograph"
+[[interiorRefs]]
+id = "komainu"
+prop = "komainu"
+[[interiorRefs]]
+id = "pillar"
+prop = "stone_pillar"
+[[interiorRefs]]
+id = "cage"
+prop = "cage"
+[[interiorRefs]]
+id = "poison"
+prop = "poison_barrel"
+[[interiorRefs]]
+id = "butsudan"
+prop = "buddhist_altar"
+[[interiorRefs]]
+id = "kamidana"
+prop = "household_shrine"
+[[interiorRefs]]
+id = "getabako"
+prop = "shoe_cabinet"
+[[interiorRefs]]
+id = "dresser"
+prop = "dresser"
+[[interiorRefs]]
+id = "bedside"
+prop = "bedside_table"
+[[interiorRefs]]
+id = "bookshelf"
+prop = "bookshelf"
+[[interiorRefs]]
+id = "fireplace"
+prop = "fireplace"
+[[interiorRefs]]
+id = "clock"
+prop = "clock"
+[[interiorRefs]]
+id = "microwave"
+prop = "microwave"
+[[interiorRefs]]
+id = "coffeemaker"
+prop = "coffee_maker"
+[[interiorRefs]]
+id = "whiteboard"
+prop = "whiteboard"
+[[interiorRefs]]
+id = "printer"
+prop = "printer"
+[[interiorRefs]]
+id = "snacks"
+itemGroup = "food"
+placement = "center"
+[[interiorRefs]]
+id = "drinks"
+itemGroup = "food"
+placement = "far_from_door"
+[[interiorRefs]]
+id = "bento"
+itemGroup = "food"
+placement = "wall"
+[[interiorRefs]]
+id = "meds"
+itemGroup = "healing_item"
+placement = "far_from_door"
+[[interiorRefs]]
+id = "bandage"
+itemGroup = "healing_item"
+placement = "wall"
+[[interiorRefs]]
+id = "documents"
+itemGroup = "scrap_of_paper"
+[[interiorRefs]]
+id = "supplies"
+itemGroup = "materials"
+[[interiorRefs]]
+id = "litter"
+placement = "full_area"
+
+[[interiorProfile.damages]]
+id = "intact"
+weight = 2.0
+[[interiorProfile.damages]]
+id = "minor"
+weight = 3.0
+[[interiorProfile.damages]]
+id = "major"
+weight = 1.0
+
+[[interiorProfile.clutters]]
+id = "tidy"
+weight = 6.0
+[[interiorProfile.clutters]]
+id = "messy"
+weight = 3.0
+[[interiorProfile.clutters]]
+id = "filthy"
+weight = 1.0
+
+[[interiorProfile.variants]]
+id = "standard"
+weight = 970.0
+[[interiorProfile.variants]]
+id = "abandoned"
+weight = 6.0
+[[interiorProfile.variants]]
+id = "under_construction"
+weight = 10.0
+[[interiorProfile.variants]]
+id = "survivalist"
+weight = 9.0
+[[interiorProfile.variants]]
+id = "hoarder"
+weight = 5.0
+
+[[interiorProfile.densities]]
+factor = 6
+weight = 1.0
+[[interiorProfile.densities]]
+factor = 10
+weight = 1.0
+[[interiorProfile.densities]]
+factor = 14
+weight = 1.0
+
+[[interiorProfile.heroes]]
+id = "reward"
+weight = 46.0
+refs = ["chest"]
+[[interiorProfile.heroes]]
+id = "atmosphere"
+weight = 25.0
+refs = ["torii", "phonograph", "komainu", "pillar"]
+[[interiorProfile.heroes]]
+id = "risk_reward"
+weight = 15.0
+refs = ["cage"]
+[[interiorProfile.heroes]]
+id = "danger"
+weight = 14.0
+refs = ["poison"]

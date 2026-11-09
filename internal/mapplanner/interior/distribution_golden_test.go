@@ -64,7 +64,7 @@ func TestGolden_Distribution(t *testing.T) {
 			}
 			// 実配置は heroCenterpiece の抽選と heroSpot の据え場所の両方が要る。抽選だけで数えると
 			// 据え場所が無い建物を過大に数えるので、実際に置かれた数だけを集計する
-			if _, ok := heroCenterpiece(seed); ok {
+			if _, ok := heroCenterpiece(testProfileTable(), seed); ok {
 				if _, ok := heroSpot(site); ok {
 					d.Heroes++
 				}

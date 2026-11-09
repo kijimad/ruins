@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -72,7 +73,34 @@ func TestToContent_不正なダイスはerrorを返す(t *testing.T) {
 		}},
 	}
 
-	_, err := toContent(ic)
+	_, err := toContent(oapi.Raws{}, ic)
 	require.Error(t, err)
 	require.ErrorContains(t, err, "amount")
+}
+
+// TestToContent_置き方を省くとinteriorRefsの既定で埋める は、レシピが placement を省いた Stuff を interiorRefs の
+// 既定の置き方で具体化し、明示した placement はそのまま保つことを固定する。既定を持たない Ref は空のまま残る。
+func TestToContent_置き方を省くとinteriorRefsの既定で埋める(t *testing.T) {
+	t.Parallel()
+
+	ic := oapi.InteriorContent{
+		Id: "sample",
+		Groups: &[]oapi.ContentGroup{{
+			Style: "pick_each",
+			Items: []oapi.ContentStuff{
+				{Kind: "furniture", Ref: "register", Amount: "1d1"},
+				{Kind: "furniture", Ref: "gondola", Amount: "1d1"},
+				{Kind: "furniture", Ref: "bed", Amount: "1d1", Placement: new(oapi.Center)},
+				{Kind: "decor", Ref: "crate", Amount: "1d1"},
+			},
+		}},
+	}
+
+	c, err := toContent(testRaws(), ic)
+	require.NoError(t, err)
+	got := make([]Placement, 0, len(c.Groups[0].Items))
+	for _, it := range c.Groups[0].Items {
+		got = append(got, it.Placement)
+	}
+	assert.Equal(t, []Placement{PlaceNearDoor, PlaceRow, PlaceCenter, PlaceDefault}, got)
 }

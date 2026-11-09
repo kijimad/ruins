@@ -65,14 +65,13 @@ func pickDistinct(rng *rand.Rand, items []Stuff, n int) []Selection {
 	return out
 }
 
-// selectionOf は Stuff と個数から Selection を組む。置き方は archetype 既定で補い、Placement を空にした
-// レシピもここで具体化する。衛星束も引き継ぐ。
+// selectionOf は Stuff と個数から Selection を組む。置き方の無い Stuff は全域へ倒す。衛星束も引き継ぐ。
 func selectionOf(it Stuff, count int) Selection {
 	return Selection{
 		Kind:       it.Kind,
 		Ref:        it.Ref,
 		Count:      count,
-		Placement:  placementOf(it.Ref, it.Placement),
+		Placement:  placementOf(it.Placement),
 		Satellites: it.Satellites,
 		LootTable:  it.LootTable,
 	}
@@ -84,6 +83,14 @@ func weightOf(it Stuff) float64 {
 		return 1
 	}
 	return float64(it.Weight)
+}
+
+// placementOf は配置指示の置き方を決める。Stuff の置き方はレシピの明示か interiorRefs の既定で、それも無ければ全域とする。
+func placementOf(p Placement) Placement {
+	if p == PlaceDefault {
+		return PlaceFullArea
+	}
+	return p
 }
 
 // choice は値と抽選の重みの組。

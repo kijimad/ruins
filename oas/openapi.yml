@@ -2039,6 +2039,40 @@ components:
         skill:
           $ref: '#/components/schemas/SkillBook'
       description: 本の設定
+    BuildingClutter:
+      type: string
+      enum:
+        - tidy
+        - messy
+        - filthy
+      description: 建物の散らかり段階
+    BuildingDamage:
+      type: string
+      enum:
+        - intact
+        - minor
+        - major
+      description: 建物の損傷段階
+    BuildingVariant:
+      type: string
+      enum:
+        - standard
+        - abandoned
+        - under_construction
+        - survivalist
+        - hoarder
+      description: 建物の事情。稀な1軒へ物語を与える
+    ClutterChoice:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/BuildingClutter'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の散らかり段階の重み
     ColorChannel:
       type: integer
       format: uint8
@@ -2264,6 +2298,17 @@ components:
       minimum: -100
       maximum: 100
       description: ダメージ補正値
+    DamageChoice:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/BuildingDamage'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の損傷段階の重み
     DangerLevel:
       type: integer
       minimum: 0
@@ -2274,6 +2319,22 @@ components:
       minimum: -100
       maximum: 100
       description: 防御力。被ダメージを軽減する
+    DensityChoice:
+      type: object
+      required:
+        - factor
+        - weight
+      properties:
+        factor:
+          $ref: '#/components/schemas/DensityFactor'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の家具量の倍率の重み
+    DensityFactor:
+      type: integer
+      minimum: 1
+      maximum: 30
+      description: 建物の家具量の倍率。10 が等倍の ×/10
     Deployable:
       type: object
       properties:
@@ -2728,6 +2789,23 @@ components:
       format: double
       minimum: 0
       description: 熱源が毎ターン下げる低体温タイマーの量
+    HeroChoice:
+      type: object
+      required:
+        - id
+        - weight
+        - refs
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+        refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityID'
+          minItems: 1
+      description: hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く
     HitPoints:
       type: integer
       minimum: 1
@@ -2761,6 +2839,56 @@ components:
           items:
             $ref: '#/components/schemas/ContentGroup'
       description: 内装レシピ。施設まるごと、または奥室1つに対応する
+    InteriorProfile:
+      type: object
+      required:
+        - damages
+        - clutters
+        - variants
+        - densities
+        - heroes
+      properties:
+        damages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DamageChoice'
+        clutters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClutterChoice'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariantChoice'
+        densities:
+          type: array
+          items:
+            $ref: '#/components/schemas/DensityChoice'
+        heroes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeroChoice'
+      description: 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
+    InteriorRef:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        prop:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 家具と装飾として置く raw の prop。省くと prop として置かない
+        itemGroup:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
+        placement:
+          allOf:
+            - $ref: '#/components/schemas/Placement'
+          description: レシピが placement を省いたときの置き方
+      description: 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
     IsPlayer:
       type: boolean
       description: プレイヤーキャラクターかどうか
@@ -3291,7 +3419,7 @@ components:
         - near_door
         - far_from_door
         - row
-      description: 配置の置き方。空なら家具型の archetype 既定へ落ちる
+      description: 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
     PlannerKey:
       type: string
       enum:
@@ -3622,6 +3750,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AttackType'
+        interiorRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/InteriorRef'
+        interiorProfile:
+          $ref: '#/components/schemas/InteriorProfile'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -4052,6 +4186,17 @@ components:
         - FIELD
         - ANY
       description: 使用可能シーン
+    VariantChoice:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/BuildingVariant'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の変種の重み
     ViewDistance:
       type: integer
       minimum: 1

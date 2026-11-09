@@ -476,6 +476,59 @@ export interface Book {
     'skill'?: SkillBook;
 }
 /**
+ * 建物の散らかり段階
+ */
+
+export const BuildingClutter = {
+    Tidy: 'tidy',
+    Messy: 'messy',
+    Filthy: 'filthy',
+} as const;
+
+export type BuildingClutter = typeof BuildingClutter[keyof typeof BuildingClutter];
+
+
+/**
+ * 建物の損傷段階
+ */
+
+export const BuildingDamage = {
+    Intact: 'intact',
+    Minor: 'minor',
+    Major: 'major',
+} as const;
+
+export type BuildingDamage = typeof BuildingDamage[keyof typeof BuildingDamage];
+
+
+/**
+ * 建物の事情。稀な1軒へ物語を与える
+ */
+
+export const BuildingVariant = {
+    Standard: 'standard',
+    Abandoned: 'abandoned',
+    UnderConstruction: 'under_construction',
+    Survivalist: 'survivalist',
+    Hoarder: 'hoarder',
+} as const;
+
+export type BuildingVariant = typeof BuildingVariant[keyof typeof BuildingVariant];
+
+
+/**
+ * 建物の散らかり段階の重み
+ */
+export interface ClutterChoice {
+    'id': BuildingClutter;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
+
+
+/**
  * 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
  */
 
@@ -659,6 +712,31 @@ export interface CubeModule {
      * キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
      */
     'fuelCapacityBonus': number;
+}
+/**
+ * 建物の損傷段階の重み
+ */
+export interface DamageChoice {
+    'id': BuildingDamage;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
+
+
+/**
+ * 建物の家具量の倍率の重み
+ */
+export interface DensityChoice {
+    /**
+     * 建物の家具量の倍率。10 が等倍の ×/10
+     */
+    'factor': number;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
 }
 /**
  * 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
@@ -1029,12 +1107,53 @@ export interface HeatSource {
     'warmth': number;
 }
 /**
+ * hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く
+ */
+export interface HeroChoice {
+    'id': string;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+    'refs': Array<string>;
+}
+/**
  * 内装レシピ。施設まるごと、または奥室1つに対応する
  */
 export interface InteriorContent {
     'id': string;
     'groups'?: Array<ContentGroup>;
 }
+/**
+ * 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
+ */
+export interface InteriorProfile {
+    'damages': Array<DamageChoice>;
+    'clutters': Array<ClutterChoice>;
+    'variants': Array<VariantChoice>;
+    'densities': Array<DensityChoice>;
+    'heroes': Array<HeroChoice>;
+}
+/**
+ * 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
+ */
+export interface InteriorRef {
+    'id': string;
+    /**
+     * 家具と装飾として置く raw の prop。省くと prop として置かない
+     */
+    'prop'?: string;
+    /**
+     * 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
+     */
+    'itemGroup'?: string;
+    /**
+     * レシピが placement を省いたときの置き方
+     */
+    'placement'?: Placement;
+}
+
+
 /**
  * アイテム
  */
@@ -1420,7 +1539,7 @@ export interface PaletteList {
     'totalCount': number;
 }
 /**
- * 配置の置き方。空なら家具型の archetype 既定へ落ちる
+ * 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
  */
 
 export const Placement = {
@@ -1649,6 +1768,8 @@ export interface Raws {
     'skills'?: Array<Skill>;
     'skillCategories'?: Array<SkillCategory>;
     'attackTypes'?: Array<AttackType>;
+    'interiorRefs'?: Array<InteriorRef>;
+    'interiorProfile'?: InteriorProfile;
 }
 /**
  * レシピ
@@ -2024,6 +2145,18 @@ export const UsableScene = {
 } as const;
 
 export type UsableScene = typeof UsableScene[keyof typeof UsableScene];
+
+
+/**
+ * 建物の変種の重み
+ */
+export interface VariantChoice {
+    'id': BuildingVariant;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
 
 
 /**

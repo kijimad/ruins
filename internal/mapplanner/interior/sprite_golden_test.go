@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
@@ -126,12 +127,15 @@ func spriteFileOf(p Placed) string {
 // 描く、または in-game の prop が VRT に映らない乖離になる。両集合を突き合わせて乖離を機械的に止める。
 func TestSpriteFiles_描画対象とingameのspawnが一致する(t *testing.T) {
 	t.Parallel()
-	for ref := range PropRaws() {
-		_, ok := spriteFiles[ref]
-		assert.Truef(t, ok, "in-game で spawn される %q は VRT スプライトを持つ", ref)
+	for _, r := range raw.PtrSlice(testRaws().InteriorRefs) {
+		if r.Prop == nil {
+			continue
+		}
+		_, ok := spriteFiles[r.Id]
+		assert.Truef(t, ok, "in-game で spawn される %q は VRT スプライトを持つ", r.Id)
 	}
 	for ref := range spriteFiles {
-		_, ok := PropRawName(ref)
+		_, ok := PropRawName(testRaws(), ref)
 		assert.Truef(t, ok, "VRT スプライトを持つ %q は in-game で spawn される", ref)
 	}
 }
@@ -283,8 +287,8 @@ func TestGolden_RoomFlavor(t *testing.T) {
 
 	room := Room{Rect: Rect{X: 0, Y: 0, W: 13, H: 10}, Doorways: []Doorway{{X: 6, Y: 9}}}
 	base := Content{ID: "sparse", Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "bed", Amount: consts.Dice{Base: 1, Sides: 1}},
-		{Kind: KindFurniture, Ref: "closet", Amount: consts.Dice{Base: 2, Sides: 1}},
+		{Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: consts.Dice{Base: 2, Sides: 1}},
 	}}}}
 	assertRoomGolden(t, room, "flavor", func(seed uint64) []Placed {
 		return Flavor(seed, room, FillRoom(seed, room, base), abandonedFlavor())
@@ -459,8 +463,8 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 		if p.Kind == KindLoot {
 			// 床 loot は中身が executor の抽選で決まり、計画層からは実アイテムを描けない。位置に item の文字を
 			// 描き、in-game でそこに拾える物が出ることと対応させる。写像を持たない Ref は描かない。
-			// lootRaw を overworld の spawn 判定と共有し、描く物と置く物の乖離を防ぐ
-			if _, ok := LootGroupName(p.Ref); ok {
+			// interiorRefs を overworld の spawn 判定と共有し、描く物と置く物の乖離を防ぐ
+			if _, ok := LootGroupName(testRaws(), p.Ref); ok {
 				drawMarker(img, origin, p.Pos, "item", color.RGBA{R: 214, G: 164, B: 54, A: 255})
 			}
 			continue
@@ -470,7 +474,7 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 			drawMarker(img, origin, p.Pos, "enemy", color.RGBA{R: 220, G: 80, B: 80, A: 255})
 			continue
 		}
-		if _, ok := PropRawName(p.Ref); !ok {
+		if _, ok := PropRawName(testRaws(), p.Ref); !ok {
 			continue // in-game で spawn されない Ref は VRT でも描かない。overworld の spawn 判定と共有する
 		}
 		name := spriteFileOf(p)

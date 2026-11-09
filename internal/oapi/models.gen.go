@@ -90,6 +90,75 @@ func (e AttackCategory) Valid() bool {
 	}
 }
 
+// Defines values for BuildingClutter.
+const (
+	Filthy BuildingClutter = "filthy"
+	Messy  BuildingClutter = "messy"
+	Tidy   BuildingClutter = "tidy"
+)
+
+// Valid indicates whether the value is a known member of the BuildingClutter enum.
+func (e BuildingClutter) Valid() bool {
+	switch e {
+	case Filthy:
+		return true
+	case Messy:
+		return true
+	case Tidy:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BuildingDamage.
+const (
+	Intact BuildingDamage = "intact"
+	Major  BuildingDamage = "major"
+	Minor  BuildingDamage = "minor"
+)
+
+// Valid indicates whether the value is a known member of the BuildingDamage enum.
+func (e BuildingDamage) Valid() bool {
+	switch e {
+	case Intact:
+		return true
+	case Major:
+		return true
+	case Minor:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BuildingVariant.
+const (
+	Abandoned         BuildingVariant = "abandoned"
+	Hoarder           BuildingVariant = "hoarder"
+	Standard          BuildingVariant = "standard"
+	Survivalist       BuildingVariant = "survivalist"
+	UnderConstruction BuildingVariant = "under_construction"
+)
+
+// Valid indicates whether the value is a known member of the BuildingVariant enum.
+func (e BuildingVariant) Valid() bool {
+	switch e {
+	case Abandoned:
+		return true
+	case Hoarder:
+		return true
+	case Standard:
+		return true
+	case Survivalist:
+		return true
+	case UnderConstruction:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CombatPolicyType.
 const (
 	Attack CombatPolicyType = "attack"
@@ -1175,6 +1244,24 @@ type Book struct {
 	TotalEffort ReadingEffort `json:"totalEffort"`
 }
 
+// BuildingClutter 建物の散らかり段階
+type BuildingClutter string
+
+// BuildingDamage 建物の損傷段階
+type BuildingDamage string
+
+// BuildingVariant 建物の事情。稀な1軒へ物語を与える
+type BuildingVariant string
+
+// ClutterChoice 建物の散らかり段階の重み
+type ClutterChoice struct {
+	// Id 建物の散らかり段階
+	Id BuildingClutter `json:"id"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
+}
+
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
 
@@ -1298,7 +1385,7 @@ type ContentStuff struct {
 	// LootTable 収納家具の中身を引く itemTables の id。収納家具では必須
 	LootTable *EntityID `json:"lootTable,omitempty"`
 
-	// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
+	// Placement 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
 	Placement  *Placement          `json:"placement,omitempty"`
 	Ref        EntityID            `json:"ref"`
 	Satellites *[]ContentSatellite `json:"satellites,omitempty"`
@@ -1325,11 +1412,32 @@ type CubeModule struct {
 // DamageBonus ダメージ補正値
 type DamageBonus = int
 
+// DamageChoice 建物の損傷段階の重み
+type DamageChoice struct {
+	// Id 建物の損傷段階
+	Id BuildingDamage `json:"id"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
+}
+
 // DangerLevel 危険度。経過日数から決まる
 type DangerLevel = int
 
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
+
+// DensityChoice 建物の家具量の倍率の重み
+type DensityChoice struct {
+	// Factor 建物の家具量の倍率。10 が等倍の ×/10
+	Factor DensityFactor `json:"factor"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
+}
+
+// DensityFactor 建物の家具量の倍率。10 が等倍の ×/10
+type DensityFactor = int
 
 // Deployable 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 type Deployable struct {
@@ -1617,6 +1725,15 @@ type HeatSource struct {
 // HeatWarmth 熱源が毎ターン下げる低体温タイマーの量
 type HeatWarmth = float64
 
+// HeroChoice hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く
+type HeroChoice struct {
+	Id   EntityID   `json:"id"`
+	Refs []EntityID `json:"refs"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
+}
+
 // HitPoints 耐久値。削り切られると壊れる
 type HitPoints = int
 
@@ -1633,6 +1750,29 @@ type InsulationHeat = int
 type InteriorContent struct {
 	Groups *[]ContentGroup `json:"groups,omitempty"`
 	Id     EntityID        `json:"id"`
+}
+
+// InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
+type InteriorProfile struct {
+	Clutters  []ClutterChoice `json:"clutters"`
+	Damages   []DamageChoice  `json:"damages"`
+	Densities []DensityChoice `json:"densities"`
+	Heroes    []HeroChoice    `json:"heroes"`
+	Variants  []VariantChoice `json:"variants"`
+}
+
+// InteriorRef 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
+type InteriorRef struct {
+	Id EntityID `json:"id"`
+
+	// ItemGroup 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
+	ItemGroup *EntityID `json:"itemGroup,omitempty"`
+
+	// Placement レシピが placement を省いたときの置き方
+	Placement *Placement `json:"placement,omitempty"`
+
+	// Prop 家具と装飾として置く raw の prop。省くと prop として置かない
+	Prop *EntityID `json:"prop,omitempty"`
 }
 
 // IsPlayer プレイヤーキャラクターかどうか
@@ -1979,7 +2119,7 @@ type PaletteList struct {
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 type PassCost = int
 
-// Placement 配置の置き方。空なら家具型の archetype 既定へ落ちる
+// Placement 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
 type Placement string
 
 // PlannerKey 間取りテンプレの選択キー
@@ -2158,21 +2298,25 @@ type Raws struct {
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
 	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
 	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
-	ItemCollections  *[]ItemCollection  `json:"itemCollections,omitempty"`
-	ItemGroups       *[]ItemGroup       `json:"itemGroups,omitempty"`
-	ItemTables       *[]ItemTable       `json:"itemTables,omitempty"`
-	Items            *[]Item            `json:"items,omitempty"`
-	Landmarks        *[]Landmark        `json:"landmarks,omitempty"`
-	MapGlyphs        *[]MapGlyph        `json:"mapGlyphs,omitempty"`
-	Members          *[]Member          `json:"members,omitempty"`
-	Professions      *[]Profession      `json:"professions,omitempty"`
-	Props            *[]Prop            `json:"props,omitempty"`
-	Recipes          *[]Recipe          `json:"recipes,omitempty"`
-	ScatterZones     *[]ScatterZone     `json:"scatterZones,omitempty"`
-	SkillCategories  *[]SkillCategory   `json:"skillCategories,omitempty"`
-	Skills           *[]Skill           `json:"skills,omitempty"`
-	SpriteSheets     *[]SpriteSheet     `json:"spriteSheets,omitempty"`
-	Tiles            *[]Tile            `json:"tiles,omitempty"`
+
+	// InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
+	InteriorProfile *InteriorProfile  `json:"interiorProfile,omitempty"`
+	InteriorRefs    *[]InteriorRef    `json:"interiorRefs,omitempty"`
+	ItemCollections *[]ItemCollection `json:"itemCollections,omitempty"`
+	ItemGroups      *[]ItemGroup      `json:"itemGroups,omitempty"`
+	ItemTables      *[]ItemTable      `json:"itemTables,omitempty"`
+	Items           *[]Item           `json:"items,omitempty"`
+	Landmarks       *[]Landmark       `json:"landmarks,omitempty"`
+	MapGlyphs       *[]MapGlyph       `json:"mapGlyphs,omitempty"`
+	Members         *[]Member         `json:"members,omitempty"`
+	Professions     *[]Profession     `json:"professions,omitempty"`
+	Props           *[]Prop           `json:"props,omitempty"`
+	Recipes         *[]Recipe         `json:"recipes,omitempty"`
+	ScatterZones    *[]ScatterZone    `json:"scatterZones,omitempty"`
+	SkillCategories *[]SkillCategory  `json:"skillCategories,omitempty"`
+	Skills          *[]Skill          `json:"skills,omitempty"`
+	SpriteSheets    *[]SpriteSheet    `json:"spriteSheets,omitempty"`
+	Tiles           *[]Tile           `json:"tiles,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -2424,6 +2568,15 @@ type ToolGrade = int
 
 // UsableScene 使用可能シーン
 type UsableScene string
+
+// VariantChoice 建物の変種の重み
+type VariantChoice struct {
+	// Id 建物の事情。稀な1軒へ物語を与える
+	Id BuildingVariant `json:"id"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
+}
 
 // ViewDistance AI視界距離（タイル単位）
 type ViewDistance = int

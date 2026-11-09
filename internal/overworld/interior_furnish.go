@@ -102,7 +102,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			occupied[pos] = true
 		case interior.KindLoot:
 			// 抽象 loot Ref を item group へ写し、1山を抽選して床へ置く。写像を持たない Ref は置かない
-			groupID, ok := interior.LootGroupName(p.Ref)
+			groupID, ok := interior.LootGroupName(world.Resources.RawMaster, p.Ref)
 			if !ok {
 				continue
 			}
@@ -113,7 +113,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		default:
 			// 家具と装飾。写像できる Ref だけを建物の内側へ置く。坪庭の観葉もここで庭の土の上へ乗る。
 			// 収納家具には戦利品を格納する。raw の無い装飾や、敵・罠など prop でない指示は置かない
-			name, ok := interior.PropRawName(p.Ref)
+			name, ok := interior.PropRawName(world.Resources.RawMaster, p.Ref)
 			if !ok {
 				continue
 			}

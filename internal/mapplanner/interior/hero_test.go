@@ -12,9 +12,9 @@ func TestHeroCenterpiece_同じseedで完全一致する(t *testing.T) {
 	t.Parallel()
 
 	for seed := range uint64(20) {
-		ref, ok := heroCenterpiece(seed)
+		ref, ok := heroCenterpiece(testProfileTable(), seed)
 		for range 5 {
-			ref2, ok2 := heroCenterpiece(seed)
+			ref2, ok2 := heroCenterpiece(testProfileTable(), seed)
 			require.Equalf(t, ok, ok2, "seed=%d の hero 有無が一致する", seed)
 			require.Equalf(t, ref, ref2, "seed=%d の hero 種別が一致する", seed)
 		}
@@ -31,7 +31,7 @@ func TestHeroCenterpiece_稀に出て報酬が最多(t *testing.T) {
 	kinds := map[string]int{}
 	heroes := 0
 	for seed := range uint64(n) {
-		if ref, ok := heroCenterpiece(seed); ok {
+		if ref, ok := heroCenterpiece(testProfileTable(), seed); ok {
 			heroes++
 			kinds[ref]++
 		}
@@ -53,7 +53,7 @@ func TestHeroCenterpiece_稀に出て報酬が最多(t *testing.T) {
 func TestFurnishBuilding_hero建物は主室に目玉を置く(t *testing.T) {
 	t.Parallel()
 
-	ref, ok := heroCenterpiece(0)
+	ref, ok := heroCenterpiece(testProfileTable(), 0)
 	require.True(t, ok, "seed 0 は hero")
 
 	site, placed, err := FurnishBuilding(testRaws(), 0, Rect{X: 0, Y: 0, W: 20, H: 20}, Vec{X: 10, Y: 0}, "house")

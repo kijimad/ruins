@@ -58,6 +58,10 @@ var (
 	errProficiencyRowMissing          = errors.New("proficiency has no raw row")
 	errProficiencyUnknown             = errors.New("proficiency is not defined in code")
 	errWeaponProficiencyOwner         = errors.New("weapon proficiency is owned by another skill")
+	errInteriorRefPropUndefined       = errors.New("interior ref references undefined prop")
+	errInteriorRefGroupUndefined      = errors.New("interior ref references undefined item group")
+	errHeroRefUndefined               = errors.New("hero ref is not an interior ref with a prop")
+	errProfileChoiceMissing           = errors.New("interior profile has no choice for enum value")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -143,6 +147,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateSkills(raws); err != nil {
+		return err
+	}
+	if err := validateInteriorRefs(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -779,6 +786,92 @@ func validateSkills(raws oapi.Raws) error {
 			if _, ok := skillIDs[ps.Id]; !ok {
 				return fmt.Errorf("profession %q skill %q: %w", professions[i].Id, ps.Id, errProfessionSkillUndefined)
 			}
+		}
+	}
+	return nil
+}
+
+// validateInteriorRefs は内装の Ref の id が一意で、prop と item group が実在し、
+// 生活感の抽選表が enum の全値を1回ずつ持ち、hero の Ref が prop を持つ Ref であることを検証する
+func validateInteriorRefs(raws oapi.Raws) error {
+	refs := PtrSlice(raws.InteriorRefs)
+	if err := validateUniqueIDs("interior ref", refs, func(r oapi.InteriorRef) string { return r.Id }); err != nil {
+		return err
+	}
+	props := PtrSlice(raws.Props)
+	propIDs := make(map[string]struct{}, len(props))
+	for i := range props {
+		propIDs[props[i].Id] = struct{}{}
+	}
+	groupIDs := itemGroupIDs(raws)
+	propRefs := make(map[string]struct{}, len(refs))
+	for _, r := range refs {
+		if r.Prop != nil {
+			if _, ok := propIDs[*r.Prop]; !ok {
+				return fmt.Errorf("interior ref %q prop %q: %w", r.Id, *r.Prop, errInteriorRefPropUndefined)
+			}
+			propRefs[r.Id] = struct{}{}
+		}
+		if r.ItemGroup != nil {
+			if _, ok := groupIDs[*r.ItemGroup]; !ok {
+				return fmt.Errorf("interior ref %q item group %q: %w", r.Id, *r.ItemGroup, errInteriorRefGroupUndefined)
+			}
+		}
+	}
+
+	p := raws.InteriorProfile
+	if p == nil {
+		return nil
+	}
+	ids := func(n int, id func(int) string) []string {
+		out := make([]string, n)
+		for i := range n {
+			out[i] = id(i)
+		}
+		return out
+	}
+	enumRows := []struct {
+		schema string
+		ids    []string
+	}{
+		{"BuildingDamage", ids(len(p.Damages), func(i int) string { return string(p.Damages[i].Id) })},
+		{"BuildingClutter", ids(len(p.Clutters), func(i int) string { return string(p.Clutters[i].Id) })},
+		{"BuildingVariant", ids(len(p.Variants), func(i int) string { return string(p.Variants[i].Id) })},
+	}
+	for _, e := range enumRows {
+		if err := validateEnumRows(e.schema, e.ids); err != nil {
+			return err
+		}
+	}
+	if err := validateUniqueIDs("hero", p.Heroes, func(h oapi.HeroChoice) string { return h.Id }); err != nil {
+		return err
+	}
+	for _, h := range p.Heroes {
+		for _, ref := range h.Refs {
+			if _, ok := propRefs[ref]; !ok {
+				return fmt.Errorf("hero %q ref %q: %w", h.Id, ref, errHeroRefUndefined)
+			}
+		}
+	}
+	return nil
+}
+
+// validateEnumRows は OpenAPI スキーマの enum の値それぞれを ids がちょうど1回ずつ持つことを検証する
+func validateEnumRows(schemaName string, ids []string) error {
+	if err := validateUniqueIDs(schemaName, ids, func(id string) string { return id }); err != nil {
+		return err
+	}
+	spec, err := loadSpec()
+	if err != nil {
+		return fmt.Errorf("failed to load OpenAPI schema: %w", err)
+	}
+	ref, ok := spec.Components.Schemas[schemaName]
+	if !ok || ref.Value == nil {
+		return fmt.Errorf("cannot find %s component in OpenAPI schema", schemaName)
+	}
+	for _, v := range ref.Value.Enum {
+		if !slices.Contains(ids, fmt.Sprint(v)) {
+			return fmt.Errorf("%s %q: %w", schemaName, v, errProfileChoiceMissing)
 		}
 	}
 	return nil

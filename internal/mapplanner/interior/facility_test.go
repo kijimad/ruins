@@ -47,7 +47,7 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 	counts := make(map[int]bool)
 	aged, pristine := false, false
 	for seed := range uint64(30) {
-		if rollProfile(seed).damage == dmgIntact {
+		if rollProfile(testProfileTable(), seed).damage == dmgIntact {
 			pristine = true
 		} else {
 			aged = true

@@ -109,6 +109,34 @@ enum RoomRole {
   waiting,
 }
 
+/** 建物の損傷段階 */
+enum BuildingDamage {
+  intact,
+  minor,
+  major,
+}
+
+/** 建物の散らかり段階 */
+enum BuildingClutter {
+  tidy,
+  messy,
+  filthy,
+}
+
+/** 建物の事情。稀な1軒へ物語を与える */
+enum BuildingVariant {
+  standard,
+  abandoned,
+  under_construction,
+  survivalist,
+  hoarder,
+}
+
+/** 建物の家具量の倍率。10 が等倍の ×/10 */
+@minValue(1)
+@maxValue(30)
+scalar DensityFactor extends integer;
+
 /** 間取りテンプレの選択キー */
 enum PlannerKey {
   house,
