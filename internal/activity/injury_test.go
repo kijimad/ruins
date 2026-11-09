@@ -152,3 +152,8 @@ func TestApplyInjury_HealthStatusなしは何もしない(t *testing.T) {
 
 	applyInjury(entity, entity, world, attack) // panic せず何も起きない
 }
+
+func TestHitPartForRoll_重み合計の外のrollはpanicする(t *testing.T) {
+	t.Parallel()
+	assert.Panics(t, func() { hitPartForRoll(totalHitWeight(gc.ConditionFracture), gc.ConditionFracture) })
+}

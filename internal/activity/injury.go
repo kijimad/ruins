@@ -1,6 +1,8 @@
 package activity
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -41,7 +43,7 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 
 	injuryType := injuryTypeFor(attack.GetAttackCategory())
-	part := randomHitPart(world, injuryType)
+	part := hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight(injuryType)), injuryType)
 
 	hs := world.Components.HealthStatus.Get(target)
 	if hs.Parts[part].CountConditions(injuryType) >= maxInjuriesPerPartType {
@@ -54,11 +56,6 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	})
 
 	logInjury(actor, target, world, part, injuryType)
-}
-
-// randomHitPart は怪我 ct が起こりうる部位から命中部位を重みで抽選する
-func randomHitPart(world w.World, ct gc.ConditionType) gc.BodyPart {
-	return hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight(ct)), ct)
 }
 
 // hitWeight は怪我 ct の命中抽選での部位 part の重みを返す。起こりえない部位は0
@@ -81,17 +78,18 @@ func totalHitWeight(ct gc.ConditionType) int {
 // hitPartForRoll は重み合計内の roll を命中部位へ写す。roll は [0, totalHitWeight) を想定する。
 // 部位順に走査し、重み 0 の部位は飛ばすので、命中先は必ず重みのある部位になる
 func hitPartForRoll(roll int, ct gc.ConditionType) gc.BodyPart {
+	rest := roll
 	for p := range gc.BodyPartCount {
 		weight := hitWeight(p, ct)
 		if weight == 0 {
 			continue
 		}
-		if roll < weight {
+		if rest < weight {
 			return p
 		}
-		roll -= weight
+		rest -= weight
 	}
-	return gc.BodyPartTorso // 合計重みの内で必ず返るのでここには来ない
+	panic(fmt.Sprintf("roll %d is outside the total hit weight of %s", roll, ct))
 }
 
 // logInjury は怪我を負ったことをログに出す。攻撃者か対象が味方に関わるときだけ出す

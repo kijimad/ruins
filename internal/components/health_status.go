@@ -197,7 +197,7 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 	return string(ct)
 }
 
-// ConditionCanAffect は状態種類 ct が部位 part に起こりうるかを返す。骨折は手足だけに起こる
+// ConditionCanAffect は状態種類 ct が部位 part に起こりうるかを返す
 func ConditionCanAffect(ct ConditionType, part BodyPart) bool {
 	parts := conditionDefs[ct].parts
 	return len(parts) == 0 || slices.Contains(parts, part)
