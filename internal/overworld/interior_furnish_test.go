@@ -304,7 +304,7 @@ func TestSpawnInteriorBeing(t *testing.T) {
 			members[e.Id] = true
 		}
 		pos := consts.Coord[consts.Tile]{X: 3, Y: 4}
-		require.NoError(t, spawnInteriorBeing(world, "store", 1, pos, rand.New(rand.NewPCG(1, 0x5))))
+		require.NoError(t, spawnInteriorBeing(world, "store", raw.MinDanger, pos, rand.New(rand.NewPCG(1, 0x5))))
 
 		var got []string
 		q := ecs.NewFilter2[gc.FactionEnemy, gc.GridElement](world.ECS).Query()
@@ -320,7 +320,7 @@ func TestSpawnInteriorBeing(t *testing.T) {
 	t.Run("未登録の施設はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		require.Error(t, spawnInteriorBeing(world, "no_such", 1, consts.Coord[consts.Tile]{X: 3, Y: 4}, rand.New(rand.NewPCG(1, 0x5))))
+		require.Error(t, spawnInteriorBeing(world, "no_such", raw.MinDanger, consts.Coord[consts.Tile]{X: 3, Y: 4}, rand.New(rand.NewPCG(1, 0x5))))
 	})
 }
 
@@ -331,7 +331,7 @@ func TestFurnishBuilding_部屋の定義に従い建物の中に敵を置く(t *
 	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
 	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
 	door := interior.Vec{X: 10, Y: 13}
-	isWall, _, err := furnishBuilding(world, g, footprint, door, "store", 1, 1)
+	isWall, _, err := furnishBuilding(world, g, footprint, door, "store", raw.MinDanger, 1)
 	require.NoError(t, err)
 
 	table, err := urbanEnemyTableFor(world.Resources.RawMaster, "store")
@@ -361,7 +361,7 @@ func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
 	footprint := interior.Rect{X: 0, Y: 0, W: 20, H: 14}
 	door := interior.Vec{X: 10, Y: 13}
-	_, _, err := furnishBuilding(world, g, footprint, door, "house", 1, 1)
+	_, _, err := furnishBuilding(world, g, footprint, door, "house", raw.MinDanger, 1)
 	require.NoError(t, err)
 
 	floorTotal, floorFull, nonFloorFull := 0, 0, 0

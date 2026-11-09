@@ -87,7 +87,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		}
 	}
 
-	// 配置指示を spawn する。建物ごとに別ストリーム 0x4 の決定的 RNG で loot を引く。グローバル乱数でなく
+	// 配置指示を spawn する。建物ごとに loot は 0x4、敵は 0x5 の別ストリームの決定的 RNG で引く。グローバル乱数でなく
 	// 建物ローカルで決定的にし、再訪で一致させる。KindLoot は床 loot として実アイテムに実体化し、それ以外の
 	// 家具と装飾は prop として置く。写像は interior が持つ単一のソースで、VRT の描画も同じ判定を共有する
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
