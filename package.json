@@ -16,9 +16,6 @@
     "url": "https://github.com/kijimaD/ruins/issues"
   },
   "homepage": "https://github.com/kijimaD/ruins",
-  "devDependencies": {
-    "@taplo/cli": "^0.7.0"
-  },
   "release": {
     "plugins": [
       "@semantic-release/commit-analyzer",
