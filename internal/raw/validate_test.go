@@ -225,16 +225,14 @@ func TestValidateDropTableReferences(t *testing.T) {
 
 	items := &[]oapi.Item{{Id: "鉄くず", Name: "鉄くず"}}
 
-	t.Run("実在する素材と空文字は通る", func(t *testing.T) {
+	t.Run("実在する素材は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: items,
 			DropTables: &[]oapi.DropTable{{
-				Name: "廃墟",
-				Entries: []oapi.DropTableEntry{
-					{Material: "鉄くず", Weight: 1},
-					{Material: "", Weight: 3},
-				},
+				Name:    "廃墟",
+				Nothing: new(oapi.EntryWeight(3)),
+				Entries: []oapi.DropTableEntry{{Id: "鉄くず", Weight: 1}},
 			}},
 		}
 		require.NoError(t, validateDropTableReferences(raws))
@@ -246,7 +244,7 @@ func TestValidateDropTableReferences(t *testing.T) {
 			Items: items,
 			DropTables: &[]oapi.DropTable{{
 				Name:    "廃墟",
-				Entries: []oapi.DropTableEntry{{Material: "存在しない素材", Weight: 1}},
+				Entries: []oapi.DropTableEntry{{Id: "存在しない素材", Weight: 1}},
 			}},
 		}
 		err := validateDropTableReferences(raws)
@@ -347,6 +345,37 @@ func TestValidateItemGroupReferences(t *testing.T) {
 		err := validateItemGroupReferences(raws)
 		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
 	})
+
+	weight := new(oapi.EntryWeight(1))
+	chance := new(oapi.ItemGroupChance(50))
+	tests := []struct {
+		name    string
+		subtype oapi.ItemGroupSubtype
+		entry   oapi.ItemGroupEntry
+		want    error
+	}{
+		{"distribution は weight だけで通る", oapi.Distribution, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight}, nil},
+		{"collection は chance だけで通る", oapi.Collection, oapi.ItemGroupEntry{Id: "鉄くず", Chance: chance}, nil},
+		{"distribution に chance はエラー", oapi.Distribution, oapi.ItemGroupEntry{Id: "鉄くず", Chance: chance}, errItemGroupDistributionNeedsWeight},
+		{"distribution に両方はエラー", oapi.Distribution, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight, Chance: chance}, errItemGroupDistributionNeedsWeight},
+		{"collection に weight はエラー", oapi.Collection, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight}, errItemGroupCollectionNeedsChance},
+		{"collection に両方はエラー", oapi.Collection, oapi.ItemGroupEntry{Id: "鉄くず", Weight: weight, Chance: chance}, errItemGroupCollectionNeedsChance},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{
+				Items:      items,
+				ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Subtype: tt.subtype, Entries: []oapi.ItemGroupEntry{tt.entry}}},
+			}
+			err := validateItemGroupReferences(raws)
+			if tt.want == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.want)
+		})
+	}
 }
 
 func TestValidateEnemyTableReferences(t *testing.T) {
@@ -562,11 +591,11 @@ func TestValidateCommandTableWeaponReferences(t *testing.T) {
 
 	items := &[]oapi.Item{{Id: "刀", Name: "刀"}}
 
-	t.Run("実在する武器と空文字は通る", func(t *testing.T) {
+	t.Run("実在する武器は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items:         items,
-			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Weapon: "刀"}, {Weapon: ""}}}},
+			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Id: "刀"}}}},
 		}
 		require.NoError(t, validateCommandTableWeaponReferences(raws))
 	})
@@ -575,7 +604,7 @@ func TestValidateCommandTableWeaponReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items:         items,
-			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Weapon: "未定義武器"}}}},
+			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Id: "未定義武器"}}}},
 		}
 		err := validateCommandTableWeaponReferences(raws)
 		require.ErrorIs(t, err, errCommandTableRefUndefinedWeapon)

@@ -106,7 +106,7 @@ func TestValidateReferences(t *testing.T) {
 			DropTables: &[]oapi.DropTable{{
 				Id:      "廃墟",
 				Name:    "廃墟",
-				Entries: []oapi.DropTableEntry{{Material: "鉄くず", Weight: 1}},
+				Entries: []oapi.DropTableEntry{{Id: "鉄くず", Weight: 1}},
 			}},
 			EnemyTables: &[]oapi.EnemyTable{{
 				Id:      "通常",
@@ -116,7 +116,7 @@ func TestValidateReferences(t *testing.T) {
 			CommandTables: &[]oapi.CommandTable{{
 				Id:      "剣術",
 				Name:    "剣術",
-				Entries: []oapi.CommandTableEntry{{Weapon: "刀"}},
+				Entries: []oapi.CommandTableEntry{{Id: "刀"}},
 			}},
 			ItemGroups: &[]oapi.ItemGroup{{
 				Id:      "素材",
@@ -161,7 +161,7 @@ func TestValidateReferences(t *testing.T) {
 			Items: &[]oapi.Item{{Name: "鉄くず"}},
 			CommandTables: &[]oapi.CommandTable{{
 				Name:    "剣術",
-				Entries: []oapi.CommandTableEntry{{Weapon: "未定義武器"}},
+				Entries: []oapi.CommandTableEntry{{Id: "未定義武器"}},
 			}},
 		}
 		err := ValidateReferences(raws)
@@ -173,7 +173,7 @@ func TestValidateReferences(t *testing.T) {
 		raws := oapi.Raws{
 			DropTables: &[]oapi.DropTable{{
 				Name:    "廃墟",
-				Entries: []oapi.DropTableEntry{{Material: "存在しない素材", Weight: 1}},
+				Entries: []oapi.DropTableEntry{{Id: "存在しない素材", Weight: 1}},
 			}},
 		}
 		err := ValidateReferences(raws)

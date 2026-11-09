@@ -236,11 +236,17 @@ const arrayElementTemplates: Record<string, JsonValue> = {
 
 // entriesの各リソース用テンプレート
 const entriesTemplates: Record<string, JsonValue> = {
-  "command-tables": { weapon: "", weight: 1 },
-  "drop-tables": { material: "", weight: 1 },
-  "item-tables": { groupName: "", minDepth: 1, maxDepth: 10, weight: 1 },
-  "enemy-tables": { enemyName: "", minDepth: 1, maxDepth: 10, weight: 1 },
-  "item-groups": { itemName: "", weight: 1, packMin: 1, packMax: 1 },
+  "command-tables": { id: "", weight: 1 },
+  "drop-tables": { id: "", weight: 1 },
+  "item-tables": { id: "", minDanger: 1, maxDanger: 10, weight: 1 },
+  "enemy-tables": {
+    id: "",
+    minDanger: 1,
+    maxDanger: 10,
+    weight: 1,
+    pack: "1d1",
+  },
+  "item-groups": { id: "", weight: 1, pack: "1d1" },
 };
 
 // OAPIから生成されたenumの値を文字列配列として取得するヘルパー

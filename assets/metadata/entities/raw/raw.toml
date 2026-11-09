@@ -11143,1256 +11143,1186 @@ vitality = 2
 name = "コウモリ"
 id = "bat"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "ゴリラ"
 id = "gorilla"
 [[commandTables.entries]]
-weapon = "smash"
+id = "smash"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables]]
 name = "ジープ"
 id = "jeep"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "スライム"
 id = "slime"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 3
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables]]
 name = "ネズミ"
 id = "rat"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "ピンクスライム"
 id = "pink_slime"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables]]
 name = "ペンギン"
 id = "penguin"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "三頭竜"
 id = "three_headed_dragon"
 [[commandTables.entries]]
-weapon = "breathe_fire"
+id = "breathe_fire"
 weight = 2
 [[commandTables.entries]]
-weapon = "smash"
+id = "smash"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables]]
 name = "光虫"
 id = "glow_bug"
 [[commandTables.entries]]
-weapon = "shock"
+id = "shock"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "凍晶化した猟師"
 id = "frozen_hunter"
 [[commandTables.entries]]
-weapon = "cold_attack"
+id = "cold_attack"
 weight = 2
 [[commandTables.entries]]
-weapon = "smash"
+id = "smash"
 weight = 2
 [[commandTables.entries]]
-weapon = "roar"
+id = "roar"
 weight = 1
 [[commandTables]]
 name = "化学戦車"
 id = "chemical_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 1
 [[commandTables]]
 name = "夢蛾"
 id = "dream_moth"
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "夢鯨"
 id = "dream_whale"
 [[commandTables.entries]]
-weapon = "smash"
+id = "smash"
 weight = 1
 [[commandTables.entries]]
-weapon = "roar"
+id = "roar"
 weight = 2
 [[commandTables]]
 name = "大蜂"
 id = "giant_bee"
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "影司祭"
 id = "shadow_priest"
 [[commandTables.entries]]
-weapon = "light_shot"
+id = "light_shot"
 weight = 2
 [[commandTables.entries]]
-weapon = "shock"
+id = "shock"
 weight = 2
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 1
 [[commandTables]]
 name = "影鼠"
 id = "shadow_rat"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "旧式戦車"
 id = "old_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "暗黒医師"
 id = "dark_doctor"
 [[commandTables.entries]]
-weapon = "light_shot"
+id = "light_shot"
 weight = 2
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 1
 [[commandTables.entries]]
-weapon = "shock"
+id = "shock"
 weight = 1
 [[commandTables]]
 name = "朽ちた兵士"
 id = "decayed_soldier"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 1
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "樹霊"
 id = "tree_spirit"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 1
 [[commandTables]]
 name = "毒キノコ"
 id = "poison_mushroom"
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "毒蛙"
 id = "poison_frog"
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "毒蜘蛛"
 id = "poison_spider"
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 3
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "水晶の亡霊"
 id = "crystal_wraith"
 [[commandTables.entries]]
-weapon = "light_shot"
+id = "light_shot"
 weight = 2
 [[commandTables.entries]]
-weapon = "cold_attack"
+id = "cold_attack"
 weight = 1
 [[commandTables]]
 name = "氷犬"
 id = "ice_dog"
 [[commandTables.entries]]
-weapon = "cold_attack"
+id = "cold_attack"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables]]
 name = "氷結戦車"
 id = "frozen_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "cold_attack"
+id = "cold_attack"
 weight = 1
 [[commandTables]]
 name = "浮遊眼"
 id = "floating_eye"
 [[commandTables.entries]]
-weapon = "light_shot"
+id = "light_shot"
 weight = 1
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "火の玉"
 id = "fireball"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "flame_attack"
+id = "flame_attack"
 weight = 2
 [[commandTables]]
 name = "火猫"
 id = "fire_cat"
 [[commandTables.entries]]
-weapon = "flame_attack"
+id = "flame_attack"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables]]
 name = "灰の偶像"
 id = "ash_idol"
 [[commandTables.entries]]
-weapon = "smash"
+id = "smash"
 weight = 2
 [[commandTables.entries]]
-weapon = "roar"
+id = "roar"
 weight = 1
 [[commandTables]]
 name = "灰色戦車"
 id = "gray_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "strafe"
+id = "strafe"
 weight = 2
 [[commandTables]]
 name = "灰蟲"
 id = "ash_bug"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 3
 [[commandTables]]
 name = "砂漠戦車"
 id = "desert_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "strafe"
+id = "strafe"
 weight = 1
 [[commandTables]]
 name = "竜頭"
 id = "dragon_head"
 [[commandTables.entries]]
-weapon = "breathe_fire"
+id = "breathe_fire"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 1
 [[commandTables]]
 name = "紫の浮遊体"
 id = "purple_floater"
 [[commandTables.entries]]
-weapon = "light_shot"
+id = "light_shot"
 weight = 2
 [[commandTables.entries]]
-weapon = "shock"
+id = "shock"
 weight = 2
 [[commandTables]]
 name = "緑喰い"
 id = "green_devourer"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables.entries]]
-weapon = "venom_fang"
+id = "venom_fang"
 weight = 1
 [[commandTables]]
 name = "緑竜"
 id = "green_dragon"
 [[commandTables.entries]]
-weapon = "breathe_fire"
+id = "breathe_fire"
 weight = 1
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables]]
 name = "苔亀"
 id = "moss_turtle"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 3
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables]]
 name = "虹竜"
 id = "rainbow_dragon"
 [[commandTables.entries]]
-weapon = "breathe_fire"
+id = "breathe_fire"
 weight = 1
 [[commandTables.entries]]
-weapon = "light_shot"
+id = "light_shot"
 weight = 2
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 1
 [[commandTables]]
 name = "蝶"
 id = "butterfly"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 3
 [[commandTables]]
 name = "赤戦車"
 id = "red_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "flame_attack"
+id = "flame_attack"
 weight = 1
 [[commandTables]]
 name = "赤線の男"
 id = "red_line_man"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "shock"
+id = "shock"
 weight = 1
 [[commandTables]]
 name = "軽戦車"
 id = "light_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "重砲戦車"
 id = "heavy_artillery_tank"
 [[commandTables.entries]]
-weapon = "bombard"
+id = "bombard"
 weight = 2
 [[commandTables.entries]]
-weapon = "strafe"
+id = "strafe"
 weight = 1
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "野犬"
 id = "stray_dog"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 3
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "金スライム"
 id = "gold_slime"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "鉄の番兵"
 id = "iron_sentinel"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "錆びた人形"
 id = "rusted_doll"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 1
 [[commandTables]]
 name = "鎧ゴースト"
 id = "armor_ghost"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "light_shot"
+id = "light_shot"
 weight = 1
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "闇蟹"
 id = "dark_crab"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables]]
 name = "防衛兵"
 id = "guard_soldier"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 2
 [[commandTables]]
 name = "電撃球"
 id = "shock_orb"
 [[commandTables.entries]]
-weapon = "shock"
+id = "shock"
 weight = 3
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "青い人影"
 id = "blue_figure"
 [[commandTables.entries]]
-weapon = "cold_attack"
+id = "cold_attack"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "青獣"
 id = "blue_beast"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables]]
 name = "骸骨兵"
 id = "skeleton_soldier"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables]]
 name = "黒屍"
 id = "black_corpse"
 [[commandTables.entries]]
-weapon = "rend"
+id = "rend"
 weight = 2
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 2
 [[commandTables]]
 name = "素手"
 id = "bare_hands"
 [[commandTables.entries]]
-weapon = "bare_hands"
+id = "bare_hands"
 weight = 1
 [[commandTables]]
 name = "廃兵長"
 id = "veteran_husk"
 [[commandTables.entries]]
-weapon = "cleaver"
+id = "cleaver"
 weight = 1
 [[commandTables]]
 name = "灰狼"
 id = "ash_wolf"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables]]
 id = "ct_spark_wisp"
 name = "火花"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "shock_bite"
+id = "shock_bite"
 weight = 2
 [[commandTables]]
 id = "ct_frost_lurker"
 name = "氷潜み"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "frost_maw"
+id = "frost_maw"
 weight = 2
 [[commandTables]]
 id = "ct_prism_eye"
 name = "光の目"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "photon_flash"
+id = "photon_flash"
 weight = 2
 [[commandTables]]
 id = "ct_venom_crawler"
 name = "毒這い"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables.entries]]
-weapon = "toxin_barb"
+id = "toxin_barb"
 weight = 2
 [[commandTables]]
 id = "ct_bleeding_hound"
 name = "出血犬"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables.entries]]
-weapon = "bleed_claw"
+id = "bleed_claw"
 weight = 2
 [[commandTables]]
 id = "ct_static_mite"
 name = "帯電"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "shock_bite"
+id = "shock_bite"
 weight = 2
 [[commandTables]]
 id = "ct_chill_slime"
 name = "冷たい粘体"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "frost_maw"
+id = "frost_maw"
 weight = 2
 [[commandTables]]
 id = "ct_sunbug"
 name = "閃光の虫"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "photon_flash"
+id = "photon_flash"
 weight = 2
 [[commandTables]]
 id = "ct_paralyzer"
 name = "麻痺"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "paralyze_rod"
+id = "paralyze_rod"
 weight = 2
 [[commandTables]]
 id = "ct_curse_wraith"
 name = "呪縛"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "curse_dagger"
+id = "curse_dagger"
 weight = 2
 [[commandTables]]
 id = "ct_storm_drake"
 name = "嵐竜"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "shock_bite"
+id = "shock_bite"
 weight = 2
 [[commandTables]]
 id = "ct_glacier_golem"
 name = "氷像"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "frost_maw"
+id = "frost_maw"
 weight = 2
 [[commandTables]]
 id = "ct_ember_imp"
 name = "燠の小鬼"
 [[commandTables.entries]]
-weapon = "tackle"
+id = "tackle"
 weight = 1
 [[commandTables.entries]]
-weapon = "flame_attack"
+id = "flame_attack"
 weight = 2
 [[commandTables]]
 id = "ct_dozer"
 name = "眠りの獣"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables.entries]]
-weapon = "drowsy_pipe"
+id = "drowsy_pipe"
 weight = 2
 [[commandTables]]
 id = "ct_blinder"
 name = "盲目化"
 [[commandTables.entries]]
-weapon = "bite"
+id = "bite"
 weight = 1
 [[commandTables.entries]]
-weapon = "blind_powder"
+id = "blind_powder"
 weight = 2
 
 [[dropTables]]
 name = "コウモリ"
 id = "bat"
+nothing = 0.9
 [[dropTables.entries]]
-material = ""
-weight = 0.9
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.1
 [[dropTables]]
 name = "ゴリラ"
 id = "gorilla"
+nothing = 0.5
 [[dropTables.entries]]
-material = ""
-weight = 0.5
-[[dropTables.entries]]
-material = "beast_fur"
+id = "beast_fur"
 weight = 0.5
 [[dropTables]]
 name = "ジープ"
 id = "jeep"
+nothing = 0.5
 [[dropTables.entries]]
-material = ""
-weight = 0.5
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.2
 [[dropTables]]
 name = "スライム"
 id = "slime"
+nothing = 0.8
 [[dropTables.entries]]
-material = ""
-weight = 0.8
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.2
 [[dropTables]]
 name = "ネズミ"
 id = "rat"
+nothing = 0.9
 [[dropTables.entries]]
-material = ""
-weight = 0.9
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.1
 [[dropTables]]
 name = "ピンクスライム"
 id = "pink_slime"
+nothing = 0.8
 [[dropTables.entries]]
-material = ""
-weight = 0.8
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.2
 [[dropTables]]
 name = "ペンギン"
 id = "penguin"
+nothing = 0.7
 [[dropTables.entries]]
-material = ""
-weight = 0.7
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.3
 [[dropTables]]
 name = "三頭竜"
 id = "three_headed_dragon"
 [[dropTables.entries]]
-material = "star_iron"
+id = "star_iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.3
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.4
 [[dropTables]]
 name = "光虫"
 id = "glow_bug"
+nothing = 0.9
 [[dropTables.entries]]
-material = ""
-weight = 0.9
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.1
 [[dropTables]]
 name = "化学戦車"
 id = "chemical_tank"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.3
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.2
 [[dropTables.entries]]
-material = "crystal_powder"
+id = "crystal_powder"
 weight = 0.2
 [[dropTables]]
 name = "夢蛾"
 id = "dream_moth"
+nothing = 0.7
 [[dropTables.entries]]
-material = ""
-weight = 0.7
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.3
 [[dropTables]]
 name = "夢鯨"
 id = "dream_whale"
 [[dropTables.entries]]
-material = "mist_crystal"
+id = "mist_crystal"
 weight = 0.4
 [[dropTables.entries]]
-material = "star_fragment"
+id = "star_fragment"
 weight = 0.3
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables]]
 name = "大蜂"
 id = "giant_bee"
+nothing = 0.9
 [[dropTables.entries]]
-material = ""
-weight = 0.9
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.1
 [[dropTables]]
 name = "影司祭"
 id = "shadow_priest"
+nothing = 0.4
 [[dropTables.entries]]
-material = ""
+id = "crystal_powder"
 weight = 0.4
 [[dropTables.entries]]
-material = "crystal_powder"
-weight = 0.4
-[[dropTables.entries]]
-material = "star_fragment"
+id = "star_fragment"
 weight = 0.2
 [[dropTables]]
 name = "影鼠"
 id = "shadow_rat"
+nothing = 0.9
 [[dropTables.entries]]
-material = ""
-weight = 0.9
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.1
 [[dropTables]]
 name = "旧式戦車"
 id = "old_tank"
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.5
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "old_gear"
+id = "old_gear"
 weight = 0.2
 [[dropTables]]
 name = "暗黒医師"
 id = "dark_doctor"
+nothing = 0.3
 [[dropTables.entries]]
-material = "crystal_powder"
+id = "crystal_powder"
 weight = 0.4
 [[dropTables.entries]]
-material = "iron"
-weight = 0.3
-[[dropTables.entries]]
-material = ""
+id = "iron"
 weight = 0.3
 [[dropTables]]
 name = "朽ちた兵士"
 id = "decayed_soldier"
+nothing = 0.7
 [[dropTables.entries]]
-material = ""
-weight = 0.7
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.3
 [[dropTables]]
 name = "樹霊"
 id = "tree_spirit"
+nothing = 0.2
 [[dropTables.entries]]
-material = "wooden_stick"
+id = "wooden_stick"
 weight = 0.5
 [[dropTables.entries]]
-material = "green_herb"
+id = "green_herb"
 weight = 0.3
-[[dropTables.entries]]
-material = ""
-weight = 0.2
 [[dropTables]]
 name = "毒キノコ"
 id = "poison_mushroom"
+nothing = 0.8
 [[dropTables.entries]]
-material = ""
-weight = 0.8
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.2
 [[dropTables]]
 name = "毒蛙"
 id = "poison_frog"
+nothing = 0.8
 [[dropTables.entries]]
-material = ""
-weight = 0.8
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.2
 [[dropTables]]
 name = "毒蜘蛛"
 id = "poison_spider"
+nothing = 0.8
 [[dropTables.entries]]
-material = ""
-weight = 0.8
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.2
 [[dropTables]]
 name = "水晶の亡霊"
 id = "crystal_wraith"
 [[dropTables.entries]]
-material = "crystal_powder"
+id = "crystal_powder"
 weight = 0.6
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.4
 [[dropTables]]
 name = "氷犬"
 id = "ice_dog"
+nothing = 0.6
 [[dropTables.entries]]
-material = ""
-weight = 0.6
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.4
 [[dropTables]]
 name = "氷結戦車"
 id = "frozen_tank"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.3
 [[dropTables.entries]]
-material = "ice_stone"
+id = "ice_stone"
 weight = 0.2
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.2
 [[dropTables]]
 name = "浮遊眼"
 id = "floating_eye"
+nothing = 0.8
 [[dropTables.entries]]
-material = ""
-weight = 0.8
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.2
 [[dropTables]]
 name = "火の玉"
 id = "fireball"
 [[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.5
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.5
 [[dropTables]]
 name = "火猫"
 id = "fire_cat"
+nothing = 0.7
 [[dropTables.entries]]
-material = ""
-weight = 0.7
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.3
 [[dropTables]]
 name = "灰の偶像"
 id = "ash_idol"
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 1
 [[dropTables]]
 name = "灰色戦車"
 id = "gray_tank"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.5
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.2
 [[dropTables]]
 name = "灰蟲"
 id = "ash_bug"
+nothing = 0.9
 [[dropTables.entries]]
-material = ""
-weight = 0.9
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.1
 [[dropTables]]
 name = "砂漠戦車"
 id = "desert_tank"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.4
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.4
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.2
 [[dropTables]]
 name = "竜頭"
 id = "dragon_head"
+nothing = 0.3
 [[dropTables.entries]]
-material = ""
-weight = 0.3
-[[dropTables.entries]]
-material = "star_iron"
+id = "star_iron"
 weight = 0.4
 [[dropTables.entries]]
-material = "ancient_gold_coin"
+id = "ancient_gold_coin"
 weight = 0.3
 [[dropTables]]
 name = "紫の浮遊体"
 id = "purple_floater"
+nothing = 0.6
 [[dropTables.entries]]
-material = ""
-weight = 0.6
-[[dropTables.entries]]
-material = "crystal_powder"
+id = "crystal_powder"
 weight = 0.4
 [[dropTables]]
 name = "緑喰い"
 id = "green_devourer"
+nothing = 0.3
 [[dropTables.entries]]
-material = "green_herb"
+id = "green_herb"
 weight = 0.4
 [[dropTables.entries]]
-material = "beast_fur"
-weight = 0.3
-[[dropTables.entries]]
-material = ""
+id = "beast_fur"
 weight = 0.3
 [[dropTables]]
 name = "緑竜"
 id = "green_dragon"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.4
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.3
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.3
 [[dropTables]]
 name = "苔亀"
 id = "moss_turtle"
+nothing = 0.7
 [[dropTables.entries]]
-material = ""
-weight = 0.7
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.3
 [[dropTables]]
 name = "虹竜"
 id = "rainbow_dragon"
 [[dropTables.entries]]
-material = "star_fragment"
+id = "star_fragment"
 weight = 0.3
 [[dropTables.entries]]
-material = "angel_feather"
+id = "angel_feather"
 weight = 0.2
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.5
 [[dropTables]]
 name = "蝶"
 id = "butterfly"
+nothing = 0.9
 [[dropTables.entries]]
-material = ""
-weight = 0.9
-[[dropTables.entries]]
-material = "ashes"
+id = "ashes"
 weight = 0.1
 [[dropTables]]
 name = "赤戦車"
 id = "red_tank"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.3
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.4
 [[dropTables]]
 name = "赤線の男"
 id = "red_line_man"
+nothing = 0.4
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "old_gear"
+id = "old_gear"
 weight = 0.3
-[[dropTables.entries]]
-material = ""
-weight = 0.4
 [[dropTables]]
 name = "軽戦車"
 id = "light_tank"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.4
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.4
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.2
 [[dropTables]]
 name = "重砲戦車"
 id = "heavy_artillery_tank"
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.3
 [[dropTables.entries]]
-material = "star_iron"
+id = "star_iron"
 weight = 0.2
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.2
 [[dropTables]]
 name = "野犬"
 id = "stray_dog"
+nothing = 0.7
 [[dropTables.entries]]
-material = ""
-weight = 0.7
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.3
 [[dropTables]]
 name = "金スライム"
 id = "gold_slime"
+nothing = 0.3
 [[dropTables.entries]]
-material = "ancient_gold_coin"
+id = "ancient_gold_coin"
 weight = 0.4
 [[dropTables.entries]]
-material = "raw_ruby"
-weight = 0.3
-[[dropTables.entries]]
-material = ""
+id = "raw_ruby"
 weight = 0.3
 [[dropTables]]
 name = "鉄の番兵"
 id = "iron_sentinel"
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.5
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.2
 [[dropTables]]
 name = "錆びた人形"
 id = "rusted_doll"
+nothing = 0.6
 [[dropTables.entries]]
-material = ""
-weight = 0.6
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.4
 [[dropTables]]
 name = "鎧ゴースト"
 id = "armor_ghost"
+nothing = 0.5
 [[dropTables.entries]]
-material = ""
-weight = 0.5
-[[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "mist_crystal"
+id = "mist_crystal"
 weight = 0.2
 [[dropTables]]
 name = "闇蟹"
 id = "dark_crab"
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.5
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.5
 [[dropTables]]
 name = "防衛兵"
 id = "guard_soldier"
+nothing = 0.5
 [[dropTables.entries]]
-material = ""
-weight = 0.5
-[[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.2
 [[dropTables]]
 name = "電撃球"
 id = "shock_orb"
+nothing = 0.5
 [[dropTables.entries]]
-material = ""
-weight = 0.5
-[[dropTables.entries]]
-material = "ferrite_core"
+id = "ferrite_core"
 weight = 0.3
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.2
 [[dropTables]]
 name = "青い人影"
 id = "blue_figure"
+nothing = 0.3
 [[dropTables.entries]]
-material = "mist_crystal"
+id = "mist_crystal"
 weight = 0.4
 [[dropTables.entries]]
-material = "crystal_powder"
-weight = 0.3
-[[dropTables.entries]]
-material = ""
+id = "crystal_powder"
 weight = 0.3
 [[dropTables]]
 name = "青獣"
 id = "blue_beast"
 [[dropTables.entries]]
-material = "beast_fur"
+id = "beast_fur"
 weight = 0.5
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.5
 [[dropTables]]
 name = "骸骨兵"
 id = "skeleton_soldier"
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.6
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.4
 [[dropTables]]
 name = "黒屍"
 id = "black_corpse"
 [[dropTables.entries]]
-material = "scrap_iron"
+id = "scrap_iron"
 weight = 0.4
 [[dropTables.entries]]
-material = "iron"
+id = "iron"
 weight = 0.3
 [[dropTables.entries]]
-material = "rusted_chain"
+id = "rusted_chain"
 weight = 0.3
 
 [[itemGroups]]
@@ -12461,747 +12391,747 @@ id = "materials"
 subtype = "collection"
 [[itemGroups.entries]]
 id = "silver_shard"
-weight = 15
+chance = 15
 pack = "1d1"
 [[itemGroups.entries]]
 id = "old_gear"
-weight = 12
+chance = 12
 pack = "1d1"
 [[itemGroups.entries]]
 id = "crystal_powder"
-weight = 10
+chance = 10
 pack = "1d1"
 [[itemGroups.entries]]
 id = "scrap_iron"
-weight = 15
+chance = 15
 pack = "1d1"
 [[itemGroups.entries]]
 id = "obsidian"
-weight = 10
+chance = 10
 pack = "1d1"
 [[itemGroups.entries]]
 id = "lightning_stone"
-weight = 8
+chance = 8
 pack = "1d1"
 [[itemGroups.entries]]
 id = "abyss_entertainment_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "airplane_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "aluminum"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ancient_gold_coin"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ancient_pot"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "angel_feather"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "angel_statue"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "animal_feelings"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "arcade_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "army_shooting_manual"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "art_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "art_book_2"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ash_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ash_moon_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "atomic_core"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "automation_engineering_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "azure_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "bandage"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "bean_extract"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "black_core_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "black_pearl"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "black_powder"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "bloodstained_ruby"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "blue_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "blue_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "blue_crystal_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "bright_green_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "brilliant_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "brown_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "brown_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "brown_gear"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "brown_medicine_bottle"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "cable_bundle"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "car_life"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "cell_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "charger"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "chemical_container"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "coffee_beans"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "coffee_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "compass"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "cord_bundle"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "cosmic_cornerstone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "cyborg_days"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "diary_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "distilled_water"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "dragon_skull"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "dye"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "electronics_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "emerald"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "equipment_core"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "experiment_container"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ferrite_core"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "fine_amber"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "fire_arrow"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "floating_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "folding_fan"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "frost_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "gamers_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "gardening_guide"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "gold_gear"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "grape_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "great_rainbow_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "green_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "green_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "green_crystal_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "green_lattice"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "green_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "hamburger_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "hard_disk"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "firewood"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "heart"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "heart_charm"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "hefty_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "history_guide"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "holy_arrow"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "honey"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "houseplant"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ice_arrow"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ice_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ice_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "iron_ore"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "its_ruins"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "jar_of_sand"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "jar_of_snake_venom"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "jar_of_spores"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "kettle"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "lumber_pile"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "machinegun_magazine_vol43"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "magnelite"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "meteoric_iron"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "mineral_life"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "mobile_device"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "moon_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "moonlit_night_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "mossy_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "mushroom_extract"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "octahedron_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "offroad_car_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "old_globe"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "omega"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "orange_ore"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "orrery"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "parasol"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "peak_survival_life"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "pie_cookbook"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "plant_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "pure_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "purple_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "purple_core"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "purple_gem"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "purple_star"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "purple_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "pyramid_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "rainbow_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "rainbow_orb"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "rainbow_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "raw_ruby"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "record"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "red_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "red_stone_gear"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "replaceable_cell"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "resin_craft"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "resin_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ring_cell"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "robotics_49"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "rough_brown_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "scale"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "scripture_black"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "scripture_brown"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "sea_cube"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "seaweed_fossil"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "seed_core"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "serpentine_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "sewing_machine"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "shield_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ship_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "skeleton_gear"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "slanted_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "sorcery_life"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "spirit_level"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "splint"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "star_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "star_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "star_fragment"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "star_iron"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "stone_pedestal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "stone_tablet"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "sun_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "swirl_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "sword_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "tank_model"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "teapot"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "teddy_bear"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "test_tube"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "the_science"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "thin_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "toaster"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "topaz"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "tricolor_staff"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ufo_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "universe_news"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "unknown_face"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "vehicle_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "vial_of_blood"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "void_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "volcano_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "white_mania_book"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "wire_cutter"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "yellow_orb"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "zaeko"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "iron"
-weight = 12
+chance = 12
 pack = "1d1"
 [[itemGroups.entries]]
 id = "beast_fur"
-weight = 10
+chance = 10
 pack = "1d1"
 [[itemGroups.entries]]
 id = "rusted_chain"
-weight = 8
+chance = 8
 pack = "1d1"
 [[itemGroups.entries]]
 id = "amber"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "amethyst"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "blood_red_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "mist_crystal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "alloy_plate"
-weight = 4
+chance = 4
 pack = "1d1"
 [[itemGroups.entries]]
 id = "optic_lens"
-weight = 3
+chance = 3
 pack = "1d1"
 [[itemGroups.entries]]
 id = "coolant_vial"
-weight = 3
+chance = 3
 pack = "1d1"
 [[itemGroups]]
 name = "がらくた"
@@ -13209,99 +13139,99 @@ id = "junk"
 subtype = "collection"
 [[itemGroups.entries]]
 id = "scrap_iron"
-weight = 20
+chance = 20
 pack = "1d1"
 [[itemGroups.entries]]
 id = "old_gear"
-weight = 10
+chance = 10
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ancient_bone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "ashes"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "blood"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "clay"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "coal"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "electric_wire"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "feather"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "hay"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "iron_arrow"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "origami"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "photo"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "pile_of_plates"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "pillow"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "sharp_stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "stone"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "toilet_paper"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "towel"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "water_arrow"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "wooden_arrow"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "yellow_wire"
-weight = 1.0
+chance = 1.0
 pack = "1d1"
 [[itemGroups.entries]]
 id = "scrap_battery"
-weight = 3
+chance = 3
 pack = "1d2"
 [[itemGroups.entries]]
 id = "rusted_gear"
-weight = 3
+chance = 3
 pack = "1d2"
 [[itemGroups]]
 name = "食料"
@@ -14673,35 +14603,35 @@ id = "scrap_of_paper"
 subtype = "collection"
 [[itemGroups.entries]]
 id = "shelter_poster"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "scribbled_note"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "handwritten_receipt"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "diary_scrap"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "message_to_family"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "job_posting"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "roadblock_notice"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups.entries]]
 id = "someones_scrawl"
-weight = 1
+chance = 1
 pack = "1d1"
 [[itemGroups]]
 id = "ammo"
@@ -14709,43 +14639,43 @@ name = "弾薬"
 subtype = "collection"
 [[itemGroups.entries]]
 id = "9mm_fmj"
-weight = 12
+chance = 12
 pack = "2d3"
 [[itemGroups.entries]]
 id = "9mm_ap"
-weight = 6
+chance = 6
 pack = "1d3"
 [[itemGroups.entries]]
 id = "9mm_hp"
-weight = 6
+chance = 6
 pack = "1d3"
 [[itemGroups.entries]]
 id = "rifle_round"
-weight = 8
+chance = 8
 pack = "2d2"
 [[itemGroups.entries]]
 id = "energy_cell"
-weight = 6
+chance = 6
 pack = "1d2"
 [[itemGroups.entries]]
 id = "cannon_shell"
-weight = 3
+chance = 3
 pack = "1d2"
 [[itemGroups.entries]]
 id = "small_caliber_round_gray"
-weight = 8
+chance = 8
 pack = "2d3"
 [[itemGroups.entries]]
 id = "small_caliber_round_yellow"
-weight = 8
+chance = 8
 pack = "2d3"
 [[itemGroups.entries]]
 id = "heavy_round"
-weight = 8
+chance = 8
 pack = "2d2"
 [[itemGroups.entries]]
 id = "tesla_coil_orb"
-weight = 6
+chance = 6
 pack = "1d2"
 [[itemGroups]]
 name = "衣類"

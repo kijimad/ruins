@@ -30,7 +30,7 @@ func TestSelectFromItemGroup_distributionは1エントリを個数ぶん返す(t
 
 	groups := []oapi.ItemGroup{
 		{Id: "g", Name: "g", Subtype: oapi.Distribution, Entries: []oapi.ItemGroupEntry{
-			{Id: "sword", Weight: 1.0, Pack: "1d1"},
+			{Id: "sword", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
 		}},
 	}
 	raws := newTestRawsForItemGroup(testGroupItems(), groups)
@@ -46,7 +46,7 @@ func TestSelectFromItemGroup_個数を1エントリにまとめる(t *testing.T)
 
 	groups := []oapi.ItemGroup{
 		{Id: "g", Name: "g", Subtype: oapi.Distribution, Entries: []oapi.ItemGroupEntry{
-			{Id: "potion", Weight: 1.0, Pack: "3d1"},
+			{Id: "potion", Weight: new(oapi.EntryWeight(1.0)), Pack: "3d1"},
 		}},
 	}
 	raws := newTestRawsForItemGroup(testGroupItems(), groups)
@@ -63,8 +63,8 @@ func TestSelectFromItemGroup_collectionは確率で独立判定する(t *testing
 	// weight=100 は常に当選、weight=0 は常に落選。当選ぶんだけが返る
 	groups := []oapi.ItemGroup{
 		{Id: "g", Name: "g", Subtype: oapi.Collection, Entries: []oapi.ItemGroupEntry{
-			{Id: "sword", Weight: 100.0, Pack: "1d1"},
-			{Id: "potion", Weight: 0.0, Pack: "1d1"},
+			{Id: "sword", Chance: new(oapi.ItemGroupChance(100.0)), Pack: "1d1"},
+			{Id: "potion", Chance: new(oapi.ItemGroupChance(0.0)), Pack: "1d1"},
 		}},
 	}
 	raws := newTestRawsForItemGroup(testGroupItems(), groups)
@@ -90,7 +90,7 @@ func TestSelectFromItemGroup_未知のSubtypeはエラー(t *testing.T) {
 
 	groups := []oapi.ItemGroup{
 		{Id: "g", Name: "g", Subtype: oapi.ItemGroupSubtype("mystery"), Entries: []oapi.ItemGroupEntry{
-			{Id: "sword", Weight: 1.0, Pack: "1d1"},
+			{Id: "sword", Chance: new(oapi.ItemGroupChance(1.0)), Pack: "1d1"},
 		}},
 	}
 	raws := newTestRawsForItemGroup(testGroupItems(), groups)

@@ -42,8 +42,9 @@ func expectedGroupValue(master oapi.Raws, id string) float64 {
 		if err != nil {
 			continue
 		}
-		wSum += e.Weight
-		vSum += e.Weight * float64(it.Value)
+		w := raw.PickOneWeight(e)
+		wSum += w
+		vSum += w * float64(it.Value)
 	}
 	if wSum == 0 {
 		return 0

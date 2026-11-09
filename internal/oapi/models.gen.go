@@ -1111,7 +1111,8 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	Weapon EntityID `json:"weapon"`
+	// Id 使う武器の id
+	Id EntityID `json:"id"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -1282,12 +1283,15 @@ type DropTable struct {
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
+
+	// Nothing 何も落とさない重み。省略すると0で、必ずどれかを落とす
+	Nothing *EntryWeight `json:"nothing,omitempty"`
 }
 
 // DropTableEntry ドロップテーブルエントリ
 type DropTableEntry struct {
-	// Material ドロップする素材名。空文字はドロップなしを意味する
-	Material string `json:"material"`
+	// Id ドロップする素材の id
+	Id EntityID `json:"id"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -1600,15 +1604,20 @@ type ItemGroup struct {
 	Subtype ItemGroupSubtype `json:"subtype"`
 }
 
+// ItemGroupChance アイテムグループの collection のエントリの出現確率。百分率
+type ItemGroupChance = float64
+
 // ItemGroupEntry アイテムグループエントリ
 type ItemGroupEntry struct {
-	Id EntityID `json:"id"`
+	// Chance collection の出現確率。distribution では持たない
+	Chance *ItemGroupChance `json:"chance,omitempty"`
+	Id     EntityID         `json:"id"`
 
 	// Pack 1山あたりの個数のダイス表記
 	Pack Dice `json:"pack"`
 
-	// Weight distribution: 相対重み。collection: 確率（0-100）
-	Weight EntryWeight `json:"weight"`
+	// Weight distribution の重み。collection では持たない
+	Weight *EntryWeight `json:"weight,omitempty"`
 }
 
 // ItemGroupList アイテムグループ一覧

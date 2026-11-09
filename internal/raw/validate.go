@@ -13,31 +13,33 @@ import (
 
 // 参照整合の検証エラー。呼び出し側とテストが errors.Is で種類を同定できるよう sentinel にする。
 var (
-	errItemTableRefUndefinedGroup     = errors.New("item table references undefined item group")
-	errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
-	errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
-	errFacilityEnemyTableRefUndefined = errors.New("facility enemy table references undefined enemy table")
-	errFacilityKeyUndefined           = errors.New("references undefined facility")
-	errZoneNoBaseFacility             = errors.New("zone has no base facility")
-	errContentLootTableUndefined      = errors.New("interior content references undefined loot table")
-	errLandmarkPropUndefined          = errors.New("landmark references undefined prop")
-	errScatterPropUndefined           = errors.New("scatter zone references undefined prop")
-	errScatterLootGroupUndefined      = errors.New("scatter zone references undefined item group")
-	errMapGlyphNotSingleRune          = errors.New("map glyph is not a single rune")
-	errMapGlyphDuplicate              = errors.New("map glyph is duplicated")
-	errMapGlyphMissing                = errors.New("map glyph is missing")
-	errDuplicateID                    = errors.New("duplicate id")
-	errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
-	errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
-	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
-	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
-	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
-	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
-	errDisassemblyToolRequiredNoTool  = errors.New("disassembly requires a tool but has no tool category")
-	errDisassemblyWithoutHP           = errors.New("prop with disassembly has no hp and cannot be broken")
-	errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
-	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
-	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
+	errItemTableRefUndefinedGroup       = errors.New("item table references undefined item group")
+	errItemGroupRefUndefinedItem        = errors.New("item group references undefined item")
+	errEnemyTableRefUndefinedEnemy      = errors.New("enemy table references undefined enemy")
+	errFacilityEnemyTableRefUndefined   = errors.New("facility enemy table references undefined enemy table")
+	errFacilityKeyUndefined             = errors.New("references undefined facility")
+	errZoneNoBaseFacility               = errors.New("zone has no base facility")
+	errContentLootTableUndefined        = errors.New("interior content references undefined loot table")
+	errLandmarkPropUndefined            = errors.New("landmark references undefined prop")
+	errScatterPropUndefined             = errors.New("scatter zone references undefined prop")
+	errScatterLootGroupUndefined        = errors.New("scatter zone references undefined item group")
+	errMapGlyphNotSingleRune            = errors.New("map glyph is not a single rune")
+	errMapGlyphDuplicate                = errors.New("map glyph is duplicated")
+	errMapGlyphMissing                  = errors.New("map glyph is missing")
+	errDuplicateID                      = errors.New("duplicate id")
+	errCommandTableRefUndefinedWeapon   = errors.New("command table references undefined weapon")
+	errDropTableMaterialUndefined       = errors.New("drop table references undefined material")
+	errMemberDropTableUndefined         = errors.New("member references undefined drop table")
+	errMemberCommandTableUndefined      = errors.New("member references undefined command table")
+	errDisassemblyYieldUndefined        = errors.New("disassembly yield references undefined item")
+	errDisassemblyBonusUndefined        = errors.New("disassembly bonus references undefined item")
+	errDisassemblyToolRequiredNoTool    = errors.New("disassembly requires a tool but has no tool category")
+	errDisassemblyWithoutHP             = errors.New("prop with disassembly has no hp and cannot be broken")
+	errInteriorContentRefUndefined      = errors.New("interior recipe references undefined content")
+	errInteriorContentDuplicateID       = errors.New("interior content has duplicate id")
+	errInteriorFlavorContentMissing     = errors.New("interior flavor content is missing")
+	errItemGroupDistributionNeedsWeight = errors.New("distribution item group entry must have weight and no chance")
+	errItemGroupCollectionNeedsChance   = errors.New("collection item group entry must have chance and no weight")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -156,13 +158,30 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 	groups := PtrSlice(raws.ItemGroups)
 	for i := range groups {
 		for _, entry := range groups[i].Entries {
-			if entry.Id == "" {
-				continue
-			}
 			if _, ok := itemNames[entry.Id]; !ok {
 				return fmt.Errorf("item group %q references item %q: %w", groups[i].Name, entry.Id, errItemGroupRefUndefinedItem)
 			}
+			if err := checkItemGroupEntryField(groups[i].Subtype, entry); err != nil {
+				return fmt.Errorf("item group %q entry %q: %w", groups[i].Name, entry.Id, err)
+			}
 		}
+	}
+	return nil
+}
+
+// checkItemGroupEntryField は、distribution の行が weight だけを、collection の行が chance だけを持つことを確かめる。
+func checkItemGroupEntryField(subtype oapi.ItemGroupSubtype, e oapi.ItemGroupEntry) error {
+	switch subtype {
+	case oapi.Distribution:
+		if e.Weight == nil || e.Chance != nil {
+			return errItemGroupDistributionNeedsWeight
+		}
+		return nil
+	case oapi.Collection:
+		if e.Chance == nil || e.Weight != nil {
+			return errItemGroupCollectionNeedsChance
+		}
+		return nil
 	}
 	return nil
 }
@@ -387,11 +406,8 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	commandTables := PtrSlice(raws.CommandTables)
 	for i := range commandTables {
 		for _, entry := range commandTables[i].Entries {
-			if entry.Weapon == "" {
-				continue
-			}
-			if _, ok := itemNames[entry.Weapon]; !ok {
-				return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Weapon, errCommandTableRefUndefinedWeapon)
+			if _, ok := itemNames[entry.Id]; !ok {
+				return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Id, errCommandTableRefUndefinedWeapon)
 			}
 		}
 	}
@@ -446,12 +462,8 @@ func validateDropTableReferences(raws oapi.Raws) error {
 	for i := range dropTables {
 		tableNames[dropTables[i].Id] = struct{}{}
 		for _, entry := range dropTables[i].Entries {
-			// 空文字はドロップなしを意味する正規の値
-			if entry.Material == "" {
-				continue
-			}
-			if _, ok := itemNames[entry.Material]; !ok {
-				return fmt.Errorf("drop table %q material %q: %w", dropTables[i].Name, entry.Material, errDropTableMaterialUndefined)
+			if _, ok := itemNames[entry.Id]; !ok {
+				return fmt.Errorf("drop table %q material %q: %w", dropTables[i].Name, entry.Id, errDropTableMaterialUndefined)
 			}
 		}
 	}

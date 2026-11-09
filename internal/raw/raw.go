@@ -13,6 +13,18 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
+// PickOneWeight はアイテムグループから1つだけ引くときの行の重みを返す。collection の行は出現確率を重みの比として読む。
+func PickOneWeight(e oapi.ItemGroupEntry) float64 {
+	return valueOr(e.Weight, valueOr(e.Chance, 0))
+}
+
+func valueOr[T any](p *T, def T) T {
+	if p == nil {
+		return def
+	}
+	return *p
+}
+
 // PtrSlice はoapi.Rawsの*[]Tフィールドを安全にデリファレンスする
 // nilポインタの場合はnilスライスを返す
 func PtrSlice[T any](p *[]T) []T {
@@ -888,16 +900,21 @@ func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error)
 	if !ok {
 		return "", nil
 	}
-	return ct.Entries[i].Weapon, nil
+	return ct.Entries[i].Id, nil
 }
 
-// SelectDropByWeight はドロップテーブルから重み付きランダム選択する
+// SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。
 func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
-	i, ok := consts.Pick(rng, dt.Entries, func(e oapi.DropTableEntry) float64 { return e.Weight })
-	if !ok {
+	weights := make([]float64, 0, len(dt.Entries)+1)
+	weights = append(weights, valueOr(dt.Nothing, 0))
+	for _, e := range dt.Entries {
+		weights = append(weights, e.Weight)
+	}
+	i, ok := consts.Pick(rng, weights, func(w float64) float64 { return w })
+	if !ok || i == 0 {
 		return "", nil
 	}
-	return dt.Entries[i].Material, nil
+	return dt.Entries[i-1].Id, nil
 }
 
 // MinDanger は spawn テーブルが引ける最小の危険度。テーブルは1始まり設計で、これ未満は
@@ -949,7 +966,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, dange
 	if err != nil {
 		return "", err
 	}
-	j, ok := consts.Pick(rng, group.Entries, func(e oapi.ItemGroupEntry) float64 { return e.Weight })
+	j, ok := consts.Pick(rng, group.Entries, PickOneWeight)
 	if !ok {
 		return "", nil
 	}

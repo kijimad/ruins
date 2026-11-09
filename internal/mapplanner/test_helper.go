@@ -101,8 +101,8 @@ func CreateTestRawMaster() *oapi.Raws {
 			Name:    "healing_items",
 			Subtype: oapi.Distribution,
 			Entries: []oapi.ItemGroupEntry{
-				{Id: "healing_potion", Weight: 1.0, Pack: "1d3"},
-				{Id: "antidote", Weight: 0.5, Pack: "1d1"},
+				{Id: "healing_potion", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d3"},
+				{Id: "antidote", Weight: new(oapi.EntryWeight(0.5)), Pack: "1d1"},
 			},
 		},
 		{
@@ -110,8 +110,8 @@ func CreateTestRawMaster() *oapi.Raws {
 			Name:    "ores",
 			Subtype: oapi.Collection,
 			Entries: []oapi.ItemGroupEntry{
-				{Id: "obsidian", Weight: 50, Pack: "1d2"},
-				{Id: "silver_shard", Weight: 30, Pack: "1d1"},
+				{Id: "obsidian", Chance: new(oapi.ItemGroupChance(50)), Pack: "1d2"},
+				{Id: "silver_shard", Chance: new(oapi.ItemGroupChance(30)), Pack: "1d1"},
 			},
 		},
 	}

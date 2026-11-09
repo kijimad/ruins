@@ -220,7 +220,8 @@ model Recipe {
 
 /** コマンドテーブルエントリ */
 model CommandTableEntry {
-  weapon: EntityID;
+  /** 使う武器の id */
+  id: EntityID;
   weight: EntryWeight;
 }
 
@@ -233,8 +234,8 @@ model CommandTable {
 
 /** ドロップテーブルエントリ */
 model DropTableEntry {
-  /** ドロップする素材名。空文字はドロップなしを意味する */
-  material: string;
+  /** ドロップする素材の id */
+  id: EntityID;
   weight: EntryWeight;
 }
 
@@ -242,6 +243,8 @@ model DropTableEntry {
 model DropTable {
   id: EntityID;
   name: EntityName;
+  /** 何も落とさない重み。省略すると0で、必ずどれかを落とす */
+  nothing?: EntryWeight;
   entries: DropTableEntry[];
 }
 
@@ -249,17 +252,19 @@ model DropTable {
  * アイテムグループのサブタイプ
  */
 enum ItemGroupSubtype {
-  /** エントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う */
+  /** エントリ群から weight の比で1つだけ選ぶ */
   distribution,
-  /** 各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。複数当選することもありうる */
+  /** 各エントリを chance の確率で独立に判定する。複数当選することもありうる */
   collection,
 }
 
 /** アイテムグループエントリ */
 model ItemGroupEntry {
   id: EntityID;
-  /** distribution: 相対重み。collection: 確率（0-100） */
-  weight: EntryWeight;
+  /** distribution の重み。collection では持たない */
+  weight?: EntryWeight;
+  /** collection の出現確率。distribution では持たない */
+  chance?: ItemGroupChance;
   /** 1山あたりの個数のダイス表記 */
   pack: Dice;
 }

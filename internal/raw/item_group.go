@@ -45,7 +45,7 @@ func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]Draw
 
 // drawDistribution は重み比で1エントリを選び、その pack ぶんを返す。
 func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
-	i, ok := consts.Pick(rng, entries, func(e oapi.ItemGroupEntry) float64 { return e.Weight })
+	i, ok := consts.Pick(rng, entries, func(e oapi.ItemGroupEntry) float64 { return valueOr(e.Weight, 0) })
 	if !ok {
 		return nil, nil
 	}
@@ -57,15 +57,16 @@ func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnIte
 	return expandDraw(entry.Id, count), nil
 }
 
-// drawCollection は各エントリを 0-100 の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない
+// drawCollection は各エントリを chance の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない
 // こともある。
 func drawCollection(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
 	var out []DrawnItem
 	for _, e := range entries {
-		if e.Weight <= 0 {
+		chance := valueOr(e.Chance, 0)
+		if chance <= 0 {
 			continue
 		}
-		if rng.Float64()*100 < e.Weight {
+		if rng.Float64()*100 < chance {
 			count, err := rollPack(e.Pack, rng)
 			if err != nil {
 				return nil, err

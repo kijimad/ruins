@@ -458,7 +458,10 @@ export interface CommandTable {
  * コマンドテーブルエントリ
  */
 export interface CommandTableEntry {
-    'weapon': string;
+    /**
+     * 使う武器の id
+     */
+    'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
@@ -635,6 +638,10 @@ export interface DropTable {
      * エンティティ名
      */
     'name': string;
+    /**
+     * 何も落とさない重み。省略すると0で、必ずどれかを落とす
+     */
+    'nothing'?: number;
     'entries': Array<DropTableEntry>;
 }
 /**
@@ -642,9 +649,9 @@ export interface DropTable {
  */
 export interface DropTableEntry {
     /**
-     * ドロップする素材名。空文字はドロップなしを意味する
+     * ドロップする素材の id
      */
-    'material': string;
+    'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
@@ -1014,9 +1021,13 @@ export interface ItemGroup {
 export interface ItemGroupEntry {
     'id': string;
     /**
-     * distribution: 相対重み。collection: 確率（0-100）
+     * distribution の重み。collection では持たない
      */
-    'weight': number;
+    'weight'?: number;
+    /**
+     * collection の出現確率。distribution では持たない
+     */
+    'chance'?: number;
     /**
      * 1山あたりの個数のダイス表記
      */

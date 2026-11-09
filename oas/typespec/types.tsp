@@ -84,6 +84,11 @@ scalar EntityID extends string;
 @minValue(0)
 scalar EntryWeight extends float64;
 
+/** アイテムグループの collection のエントリの出現確率。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar ItemGroupChance extends float64;
+
 /** 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない */
 enum RoomRole {
   bath,

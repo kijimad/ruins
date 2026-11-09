@@ -103,12 +103,9 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, dropTable := range PtrSlice(raws.DropTables) {
 			for _, entry := range dropTable.Entries {
-				if entry.Material == "" {
-					continue
-				}
-				_, err := FindItem(raws, entry.Material)
+				_, err := FindItem(raws, entry.Id)
 				assert.NoError(t, err, "DropTable '%s' が参照するマテリアル '%s' が存在しません",
-					dropTable.Name, entry.Material)
+					dropTable.Name, entry.Id)
 			}
 		}
 	})
@@ -139,12 +136,9 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, commandTable := range PtrSlice(raws.CommandTables) {
 			for _, entry := range commandTable.Entries {
-				if entry.Weapon == "" {
-					continue
-				}
-				_, err := FindItem(raws, entry.Weapon)
+				_, err := FindItem(raws, entry.Id)
 				assert.NoError(t, err, "CommandTable '%s' が参照する武器 '%s' が存在しません",
-					commandTable.Name, entry.Weapon)
+					commandTable.Name, entry.Id)
 			}
 		}
 	})

@@ -23,7 +23,7 @@ var testGroups = []oapi.ItemGroup{
 		Name:    "回復",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
-			{Id: "回復薬", Weight: 1.0, Pack: "1d1"},
+			{Id: "回復薬", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
 		},
 	},
 	{
@@ -31,8 +31,8 @@ var testGroups = []oapi.ItemGroup{
 		Name:    "武器",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
-			{Id: "毒消し", Weight: 0.8, Pack: "1d1"},
-			{Id: "手榴弾", Weight: 0.5, Pack: "1d1"},
+			{Id: "毒消し", Weight: new(oapi.EntryWeight(0.8)), Pack: "1d1"},
+			{Id: "手榴弾", Weight: new(oapi.EntryWeight(0.5)), Pack: "1d1"},
 		},
 	},
 	{
@@ -40,8 +40,8 @@ var testGroups = []oapi.ItemGroup{
 		Name:    "素材",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
-			{Id: "アイテム1", Weight: 1.0, Pack: "1d1"},
-			{Id: "アイテム2", Weight: 1.0, Pack: "1d1"},
+			{Id: "アイテム1", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
+			{Id: "アイテム2", Weight: new(oapi.EntryWeight(1.0)), Pack: "1d1"},
 		},
 	},
 }

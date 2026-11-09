@@ -14,10 +14,10 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 
 	// 空文字列エントリを含むドロップテーブル
 	dropTable := oapi.DropTable{
-		Name: "テスト敵",
+		Name:    "テスト敵",
+		Nothing: new(oapi.EntryWeight(0.5)),
 		Entries: []oapi.DropTableEntry{
-			{Material: "", Weight: 0.5},     // 50%でドロップなし
-			{Material: "アイテム", Weight: 0.5}, // 50%でアイテムドロップ
+			{Id: "アイテム", Weight: 0.5},
 		},
 	}
 
@@ -55,8 +55,8 @@ func TestDropTable_SelectByWeight_AllEmptyWeight(t *testing.T) {
 	dropTable := oapi.DropTable{
 		Name: "テスト敵",
 		Entries: []oapi.DropTableEntry{
-			{Material: "アイテム1", Weight: 0},
-			{Material: "アイテム2", Weight: 0},
+			{Id: "アイテム1", Weight: 0},
+			{Id: "アイテム2", Weight: 0},
 		},
 	}
 
@@ -75,7 +75,7 @@ func TestDropTable_SelectByWeight_SingleEntry(t *testing.T) {
 	dropTable := oapi.DropTable{
 		Name: "テスト敵",
 		Entries: []oapi.DropTableEntry{
-			{Material: "確定アイテム", Weight: 1.0},
+			{Id: "確定アイテム", Weight: 1.0},
 		},
 	}
 
@@ -86,22 +86,20 @@ func TestDropTable_SelectByWeight_SingleEntry(t *testing.T) {
 	assert.Equal(t, "確定アイテム", result, "エントリが1つの場合はそれが選択されるべき")
 }
 
-func TestDropTable_SelectByWeight_OnlyEmpty(t *testing.T) {
+func TestDropTable_SelectByWeight_Nothingだけなら何も落とさない(t *testing.T) {
 	t.Parallel()
 
-	// 空文字列エントリのみのドロップテーブル
 	dropTable := oapi.DropTable{
-		Name: "テスト敵",
-		Entries: []oapi.DropTableEntry{
-			{Material: "", Weight: 1.0},
-		},
+		Name:    "テスト敵",
+		Nothing: new(oapi.EntryWeight(1.0)),
+		Entries: []oapi.DropTableEntry{},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	result, err := SelectDropByWeight(dropTable, rng)
 	require.NoError(t, err)
 
-	assert.Empty(t, result, "空文字列エントリのみの場合は空文字列を返すべき")
+	assert.Empty(t, result)
 }
 
 func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
@@ -109,11 +107,11 @@ func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
 
 	// 複数エントリのドロップテーブル
 	dropTable := oapi.DropTable{
-		Name: "テスト敵",
+		Name:    "テスト敵",
+		Nothing: new(oapi.EntryWeight(0.5)),
 		Entries: []oapi.DropTableEntry{
-			{Material: "レアアイテム", Weight: 0.1},  // 10%
-			{Material: "コモンアイテム", Weight: 0.4}, // 40%
-			{Material: "", Weight: 0.5},        // 50%でドロップなし
+			{Id: "レアアイテム", Weight: 0.1},
+			{Id: "コモンアイテム", Weight: 0.4},
 		},
 	}
 

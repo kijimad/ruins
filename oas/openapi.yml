@@ -1929,11 +1929,13 @@ components:
     CommandTableEntry:
       type: object
       required:
-        - weapon
+        - id
         - weight
       properties:
-        weapon:
-          $ref: '#/components/schemas/EntityID'
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 使う武器の id
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: コマンドテーブルエントリ
@@ -2182,6 +2184,10 @@ components:
           $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
+        nothing:
+          allOf:
+            - $ref: '#/components/schemas/EntryWeight'
+          description: 何も落とさない重み。省略すると0で、必ずどれかを落とす
         entries:
           type: array
           items:
@@ -2190,12 +2196,13 @@ components:
     DropTableEntry:
       type: object
       required:
-        - material
+        - id
         - weight
       properties:
-        material:
-          type: string
-          description: ドロップする素材名。空文字はドロップなしを意味する
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: ドロップする素材の id
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: ドロップテーブルエントリ
@@ -2656,11 +2663,16 @@ components:
           items:
             $ref: '#/components/schemas/ItemGroupEntry'
       description: アイテムグループ。アイテムの出現セットを定義する
+    ItemGroupChance:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100
+      description: アイテムグループの collection のエントリの出現確率。百分率
     ItemGroupEntry:
       type: object
       required:
         - id
-        - weight
         - pack
       properties:
         id:
@@ -2668,7 +2680,11 @@ components:
         weight:
           allOf:
             - $ref: '#/components/schemas/EntryWeight'
-          description: 'distribution: 相対重み。collection: 確率（0-100）'
+          description: distribution の重み。collection では持たない
+        chance:
+          allOf:
+            - $ref: '#/components/schemas/ItemGroupChance'
+          description: collection の出現確率。distribution では持たない
         pack:
           allOf:
             - $ref: '#/components/schemas/Dice'
