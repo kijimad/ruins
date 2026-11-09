@@ -42,10 +42,8 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 	assert.Positive(t, emptyCount, "空文字列が選択されるべき")
 	assert.Positive(t, itemCount, "アイテムが選択されるべき")
 
-	// 大体50%ずつになっているはず（誤差を考慮して30-70%の範囲で確認）
 	emptyRatio := float64(emptyCount) / float64(iterations)
-	assert.Greater(t, emptyRatio, 0.3, "空文字列の確率が低すぎる")
-	assert.Less(t, emptyRatio, 0.7, "空文字列の確率が高すぎる")
+	assert.InDelta(t, 0.5, emptyRatio, 0.05, "何も落とさない確率が期待値から外れている")
 }
 
 func TestDropTable_SelectByWeight_AllEmptyWeight(t *testing.T) {

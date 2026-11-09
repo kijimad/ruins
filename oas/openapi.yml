@@ -2755,9 +2755,10 @@ components:
     ItemCollectionChance:
       type: number
       format: double
-      minimum: 0
       maximum: 100
-      description: アイテムコレクションのエントリの出現確率。百分率
+      minimum: 0
+      exclusiveMinimum: true
+      description: アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
     ItemCollectionEntry:
       type: object
       required:

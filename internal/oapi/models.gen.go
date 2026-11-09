@@ -1580,12 +1580,12 @@ type ItemCollection struct {
 	Name EntityName `json:"name"`
 }
 
-// ItemCollectionChance アイテムコレクションのエントリの出現確率。百分率
+// ItemCollectionChance アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
 type ItemCollectionChance = float64
 
 // ItemCollectionEntry アイテムコレクションエントリ
 type ItemCollectionEntry struct {
-	// Chance アイテムコレクションのエントリの出現確率。百分率
+	// Chance アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
 	Chance ItemCollectionChance `json:"chance"`
 	Id     EntityID             `json:"id"`
 

@@ -98,6 +98,11 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 			}),
 			wantErr: "number must be at least 1",
 		},
+		{
+			name:    "コレクションの出現確率が0",
+			raws:    makeCollectionRaws(0),
+			wantErr: "number must be more than 0",
+		},
 	}
 
 	for _, tt := range tests {
@@ -109,6 +114,18 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 			assert.Contains(t, err.Error(), tt.wantErr)
 		})
 	}
+}
+
+// makeCollectionRaws は出現確率 chance の行を1つ持つアイテムコレクションだけの Raws を生成する
+func makeCollectionRaws(chance oapi.ItemCollectionChance) oapi.Raws {
+	return oapi.Raws{ItemCollections: &[]oapi.ItemCollection{{
+		Id: "c", Name: "c", Entries: []oapi.ItemCollectionEntry{{Id: "鉄くず", Chance: chance, Pack: "1d1"}},
+	}}}
+}
+
+func TestValidateRaws_コレクションの出現確率が正なら通る(t *testing.T) {
+	t.Parallel()
+	require.NoError(t, ValidateRaws(makeCollectionRaws(0.5)))
 }
 
 // makeItemRaws は正常なアイテムを1つ持つRawsを生成し、modifyで値を改変する

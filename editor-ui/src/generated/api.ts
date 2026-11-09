@@ -1018,7 +1018,7 @@ export interface ItemCollection {
 export interface ItemCollectionEntry {
     'id': string;
     /**
-     * アイテムコレクションのエントリの出現確率。百分率
+     * アイテムコレクションのエントリの出現確率。百分率。書き忘れて0になった行を弾くため0は許さない
      */
     'chance': number;
     /**

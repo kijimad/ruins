@@ -51,7 +51,7 @@ var testCollections = []oapi.ItemCollection{
 		Entries: []oapi.ItemCollectionEntry{
 			{Id: "鉄くず", Chance: 100, Pack: "3d1"},
 			{Id: "歯車", Chance: 100, Pack: "1d1"},
-			{Id: "骨", Chance: 0, Pack: "1d1"},
+			{Id: "骨", Chance: 0.001, Pack: "1d1"},
 		},
 	},
 }

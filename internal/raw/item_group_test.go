@@ -61,11 +61,11 @@ func TestSelectFromItemGroup_個数を1エントリにまとめる(t *testing.T)
 func TestSelectFromItemGroup_コレクションは確率で独立判定する(t *testing.T) {
 	t.Parallel()
 
-	// 確率100は常に当選、確率0は常に落選。当選ぶんだけが返る
+	// 確率100は常に当選、ごく小さい確率はこのシードで落選する。当選ぶんだけが返る
 	collections := []oapi.ItemCollection{
 		{Id: "c", Name: "c", Entries: []oapi.ItemCollectionEntry{
 			{Id: "sword", Chance: 100, Pack: "1d1"},
-			{Id: "potion", Chance: 0, Pack: "1d1"},
+			{Id: "potion", Chance: 0.001, Pack: "1d1"},
 		}},
 	}
 	raws := newTestRawsForItemGroup(testGroupItems(), nil, collections)
@@ -73,7 +73,7 @@ func TestSelectFromItemGroup_コレクションは確率で独立判定する(t 
 
 	draws, err := SelectFromItemGroup(raws, "c", rng)
 	require.NoError(t, err)
-	assert.Equal(t, []DrawnItem{{Name: "sword", Count: 1}}, draws, "確率100のみ当選し確率0は落選する")
+	assert.Equal(t, []DrawnItem{{Name: "sword", Count: 1}}, draws, "確率100だけが当選する")
 }
 
 func TestSelectFromItemGroup_未存在グループはエラー(t *testing.T) {

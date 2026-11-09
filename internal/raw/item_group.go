@@ -51,9 +51,6 @@ func drawGroup(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, erro
 func drawCollection(entries []oapi.ItemCollectionEntry, rng *rand.Rand) ([]DrawnItem, error) {
 	var out []DrawnItem
 	for _, e := range entries {
-		if e.Chance <= 0 {
-			continue
-		}
 		if rng.Float64()*100 < e.Chance {
 			count, err := rollPack(e.Pack, rng)
 			if err != nil {
