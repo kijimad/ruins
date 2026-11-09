@@ -24,7 +24,8 @@ func TestRawTranslationCoverage(t *testing.T) {
 	items, members, props := raw.PtrSlice(raws.Items), raw.PtrSlice(raws.Members), raw.PtrSlice(raws.Props)
 	tiles, profs, glyphs := raw.PtrSlice(raws.Tiles), raw.PtrSlice(raws.Professions), raw.PtrSlice(raws.MapGlyphs)
 	conds, parts := raw.PtrSlice(raws.Conditions), raw.PtrSlice(raws.BodyParts)
-	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2+len(glyphs)+len(conds)*2+len(parts))
+	skills, skillCats := raw.PtrSlice(raws.Skills), raw.PtrSlice(raws.SkillCategories)
+	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2+len(glyphs)+len(conds)*2+len(parts)+len(skills)*4+len(skillCats))
 	for _, it := range items {
 		texts = append(texts, it.Name, it.Description)
 	}
@@ -48,6 +49,12 @@ func TestRawTranslationCoverage(t *testing.T) {
 	}
 	for _, bp := range parts {
 		texts = append(texts, bp.Name)
+	}
+	for i := range skills {
+		texts = append(texts, skills[i].Name, skills[i].Summary, skills[i].GainedBy, skills[i].Effect)
+	}
+	for _, c := range skillCats {
+		texts = append(texts, c.Name)
 	}
 
 	// 表示される文字列は全て英語原文の msgid で ja.po に訳を持たねばならない。日本語のままの name は

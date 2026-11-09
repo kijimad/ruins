@@ -184,6 +184,11 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 		return w.World{}, err
 	}
 	world.Resources.ConditionDefs = defs
+	skillDefs, err := raw.NewSkillDefs(rw)
+	if err != nil {
+		return w.World{}, err
+	}
+	world.Resources.SkillDefs = skillDefs
 
 	// スプライトシートを読み込む
 	spriteSheets, err := loader.LoadSpriteSheets(rw)

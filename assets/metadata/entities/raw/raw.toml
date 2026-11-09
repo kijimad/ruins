@@ -11,7 +11,7 @@ weight = "500 g"
 [items.fireStarter]
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 5
@@ -40,7 +40,7 @@ weight = "500 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 1
 damage = 6
@@ -59,7 +59,7 @@ weight = "3.5 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 13
@@ -78,7 +78,7 @@ weight = "100 g"
 
 [items.melee]
 accuracy = 95
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 5
@@ -97,7 +97,7 @@ weight = "5 kg"
 
 [items.melee]
 accuracy = 75
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 3
 damage = 18
@@ -116,7 +116,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 8
@@ -135,7 +135,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 6
@@ -158,7 +158,7 @@ weight = "100 g"
 
 [items.melee]
 accuracy = 95
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 4
@@ -177,7 +177,7 @@ weight = "800 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 2
 cost = 2
 damage = 5
@@ -196,7 +196,7 @@ weight = "4.5 kg"
 
 [items.melee]
 accuracy = 70
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 3
 damage = 20
@@ -219,7 +219,7 @@ weight = "4 kg"
 
 [items.melee]
 accuracy = 70
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 14
@@ -242,7 +242,7 @@ weight = "6 kg"
 
 [items.melee]
 accuracy = 65
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 4
 damage = 24
@@ -265,7 +265,7 @@ weight = "50 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 2
 cost = 1
 damage = 4
@@ -284,7 +284,7 @@ weight = "5 kg"
 
 [items.melee]
 accuracy = 65
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 16
@@ -307,7 +307,7 @@ weight = "300 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 4
@@ -326,7 +326,7 @@ weight = "1.5 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 8
@@ -349,7 +349,7 @@ weight = "3 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 3
 damage = 17
@@ -367,7 +367,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 100
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 0
 damage = 5
@@ -385,7 +385,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 10
@@ -403,7 +403,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 16
@@ -421,7 +421,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 75
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 18
@@ -439,7 +439,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 12
@@ -457,7 +457,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 11
@@ -476,7 +476,7 @@ weight = "3 kg"
 
 [items.melee]
 accuracy = 75
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 2
 damage = 12
@@ -495,7 +495,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 3
 damage = 22
@@ -513,7 +513,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 2
 cost = 2
 damage = 6
@@ -532,7 +532,7 @@ weight = "3 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 10
@@ -555,7 +555,7 @@ weight = "3 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 14
@@ -574,7 +574,7 @@ weight = "300 g"
 
 [items.melee]
 accuracy = 100
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 5
@@ -593,7 +593,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 100
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 8
@@ -611,7 +611,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 75
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 3
 cost = 3
 damage = 8
@@ -630,7 +630,7 @@ weight = "1.8 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 15
@@ -648,7 +648,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 9
@@ -667,7 +667,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 13
@@ -686,7 +686,7 @@ weight = "1.8 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 2
 cost = 4
 damage = 15
@@ -705,7 +705,7 @@ weight = "5 kg"
 
 [items.melee]
 accuracy = 75
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 9
@@ -723,7 +723,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 4
 damage = 22
@@ -741,7 +741,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 16
@@ -759,7 +759,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 16
@@ -777,7 +777,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 100
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 3
@@ -796,7 +796,7 @@ weight = "1.8 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 3
 damage = 16
@@ -815,7 +815,7 @@ weight = "3 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 12
@@ -834,7 +834,7 @@ weight = "1 kg"
 
 [items.melee]
 accuracy = 95
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 11
@@ -853,7 +853,7 @@ weight = "300 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 5
@@ -872,7 +872,7 @@ weight = "1.5 kg"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 14
@@ -891,7 +891,7 @@ weight = "100 g"
 
 [items.melee]
 accuracy = 95
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 2
 cost = 1
 damage = 4
@@ -910,7 +910,7 @@ weight = "5 kg"
 
 [items.melee]
 accuracy = 70
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 3
 damage = 20
@@ -929,7 +929,7 @@ weight = "1.5 kg"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 7
@@ -948,7 +948,7 @@ weight = "50 g"
 
 [items.melee]
 accuracy = 95
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 2
 cost = 1
 damage = 3
@@ -967,7 +967,7 @@ weight = "1 kg"
 
 [items.melee]
 accuracy = 100
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 9
@@ -986,7 +986,7 @@ weight = "2.5 kg"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 15
@@ -1005,7 +1005,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 14
@@ -1024,7 +1024,7 @@ weight = "2.5 kg"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 12
@@ -1043,7 +1043,7 @@ weight = "800 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 7
@@ -1066,7 +1066,7 @@ weight = "3 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 11
@@ -1085,7 +1085,7 @@ weight = "500 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 7
@@ -1107,7 +1107,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 7
@@ -1126,7 +1126,7 @@ weight = "5.5 kg"
 
 [items.melee]
 accuracy = 65
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 4
 damage = 22
@@ -1149,7 +1149,7 @@ weight = "6 kg"
 
 [items.melee]
 accuracy = 65
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 4
 damage = 26
@@ -1172,7 +1172,7 @@ weight = "1.5 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 3
 damage = 17
@@ -1191,7 +1191,7 @@ weight = "120 kg"
 
 [items.melee]
 accuracy = 75
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 4
 damage = 10
@@ -1202,7 +1202,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 90
 ammoTag = "shell"
-attackCategory = "CANON"
+attackCategory = "cannon"
 attackCount = 1
 cost = 6
 damage = 34
@@ -1223,7 +1223,7 @@ weight = "140 kg"
 
 [items.melee]
 accuracy = 75
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 4
 damage = 10
@@ -1234,7 +1234,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 90
 ammoTag = "shell"
-attackCategory = "CANON"
+attackCategory = "cannon"
 attackCount = 4
 cost = 5
 damage = 8
@@ -1255,7 +1255,7 @@ weight = "20 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 3
 damage = 8
@@ -1266,7 +1266,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 85
 ammoTag = "shell"
-attackCategory = "CANON"
+attackCategory = "cannon"
 attackCount = 1
 cost = 6
 damage = 34
@@ -1287,7 +1287,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 4
@@ -1298,7 +1298,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 95
 ammoTag = "9mm"
-attackCategory = "HANDGUN"
+attackCategory = "handgun"
 attackCount = 1
 cost = 2
 damage = 14
@@ -1319,7 +1319,7 @@ weight = "2 kg"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 4
@@ -1330,7 +1330,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 90
 ammoTag = "energy_cell"
-attackCategory = "HANDGUN"
+attackCategory = "handgun"
 attackCount = 1
 cost = 3
 damage = 20
@@ -1351,7 +1351,7 @@ weight = "10 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 6
@@ -1362,7 +1362,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 80
 ammoTag = "rifle"
-attackCategory = "RIFLE"
+attackCategory = "rifle"
 attackCount = 1
 cost = 3
 damage = 25
@@ -1383,7 +1383,7 @@ weight = "1 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 3
@@ -1394,7 +1394,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 80
 ammoTag = "shell"
-attackCategory = "CANON"
+attackCategory = "cannon"
 attackCount = 1
 cost = 4
 damage = 14
@@ -1415,7 +1415,7 @@ weight = "4 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 5
@@ -1426,7 +1426,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 75
 ammoTag = "shell"
-attackCategory = "CANON"
+attackCategory = "cannon"
 attackCount = 3
 cost = 5
 damage = 12
@@ -1447,7 +1447,7 @@ weight = "10 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 6
@@ -1458,7 +1458,7 @@ targetNum = "SINGLE"
 [items.fire]
 accuracy = 80
 ammoTag = "rifle"
-attackCategory = "RIFLE"
+attackCategory = "rifle"
 attackCount = 1
 cost = 3
 damage = 26
@@ -1479,7 +1479,7 @@ weight = "500 g"
 
 [items.fire]
 accuracy = 80
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 2
 cost = 2
 damage = 7
@@ -1500,7 +1500,7 @@ weight = "100 g"
 
 [items.fire]
 accuracy = 90
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 3
 cost = 2
 damage = 4
@@ -1521,7 +1521,7 @@ weight = "1.5 kg"
 
 [items.fire]
 accuracy = 90
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 1
 cost = 3
 damage = 16
@@ -1542,7 +1542,7 @@ weight = "1.5 kg"
 
 [items.fire]
 accuracy = 85
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 1
 cost = 2
 damage = 12
@@ -1563,7 +1563,7 @@ weight = "3 kg"
 
 [items.fire]
 accuracy = 80
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 1
 cost = 3
 damage = 16
@@ -1584,7 +1584,7 @@ weight = "500 g"
 
 [items.fire]
 accuracy = 85
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 2
 cost = 2
 damage = 6
@@ -8579,7 +8579,7 @@ weight = "1.8 kg"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 2
 damage = 10
@@ -8854,7 +8854,7 @@ weight = "1200 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 10
@@ -8872,7 +8872,7 @@ weight = "1300 g"
 
 [items.melee]
 accuracy = 88
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 11
@@ -8890,7 +8890,7 @@ weight = "900 g"
 
 [items.melee]
 accuracy = 92
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 9
@@ -8908,7 +8908,7 @@ weight = "600 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 1
 damage = 8
@@ -8926,7 +8926,7 @@ weight = "800 g"
 
 [items.melee]
 accuracy = 88
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 10
@@ -8953,7 +8953,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 12
@@ -8971,7 +8971,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 13
@@ -8989,7 +8989,7 @@ weight = "0 g"
 
 [items.melee]
 accuracy = 88
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 2
 damage = 15
@@ -9007,7 +9007,7 @@ weight = "1500 g"
 
 [items.melee]
 accuracy = 88
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 1
 damage = 11
@@ -9025,7 +9025,7 @@ weight = "1400 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 12
@@ -9043,7 +9043,7 @@ weight = "2000 g"
 
 [items.fire]
 accuracy = 85
-attackCategory = "HANDGUN"
+attackCategory = "handgun"
 attackCount = 1
 cost = 2
 damage = 14
@@ -9063,7 +9063,7 @@ weight = "1600 g"
 
 [items.fire]
 accuracy = 85
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 1
 cost = 2
 damage = 13
@@ -9083,7 +9083,7 @@ weight = "900 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 9
@@ -9101,7 +9101,7 @@ weight = "500 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 10
@@ -9145,7 +9145,7 @@ weight = "3000 g"
 
 [items.melee]
 accuracy = 80
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 2
 damage = 16
@@ -9167,7 +9167,7 @@ weight = "2200 g"
 
 [items.melee]
 accuracy = 85
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 13
@@ -9189,7 +9189,7 @@ weight = "1100 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 11
@@ -9207,7 +9207,7 @@ weight = "1500 g"
 
 [items.fire]
 accuracy = 88
-attackCategory = "BOW"
+attackCategory = "bow"
 attackCount = 1
 cost = 2
 damage = 14
@@ -9227,7 +9227,7 @@ weight = "700 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 7
@@ -9245,7 +9245,7 @@ weight = "300 g"
 
 [items.melee]
 accuracy = 92
-attackCategory = "FIST"
+attackCategory = "fist"
 attackCount = 1
 cost = 1
 damage = 6
@@ -9263,7 +9263,7 @@ weight = "1000 g"
 
 [items.melee]
 accuracy = 88
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 1
 damage = 8
@@ -9299,7 +9299,7 @@ weight = "1.2 kg"
 
 [items.melee]
 accuracy = 88
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 12
@@ -9318,7 +9318,7 @@ weight = "2.4 kg"
 
 [items.melee]
 accuracy = 80
-attackCategory = "SWORD"
+attackCategory = "sword"
 attackCount = 1
 cost = 1
 damage = 16
@@ -9341,7 +9341,7 @@ weight = "900 g"
 
 [items.melee]
 accuracy = 90
-attackCategory = "SPEAR"
+attackCategory = "spear"
 attackCount = 1
 cost = 1
 damage = 11
@@ -20758,3 +20758,330 @@ hitWeight = 1.0
 id = "whole_body"
 name = "Whole body"
 hitWeight = 0.0
+
+[[skills]]
+id = "sword"
+name = "Swordsmanship"
+summary = "Technique for handling swords"
+gainedBy = "Raised by attacking with swords"
+effect = "Increases sword damage and accuracy"
+ability = "str"
+category = "melee"
+[[skills.proficiencies]]
+id = "sword_damage"
+perLevel = 5
+[[skills.proficiencies]]
+id = "sword_accuracy"
+perLevel = 3
+[[skills]]
+id = "spear"
+name = "Polearm"
+summary = "Technique for handling polearms like spears and staves"
+gainedBy = "Raised by attacking with polearms"
+effect = "Increases polearm damage and accuracy"
+ability = "str"
+category = "melee"
+[[skills.proficiencies]]
+id = "spear_damage"
+perLevel = 5
+[[skills.proficiencies]]
+id = "spear_accuracy"
+perLevel = 3
+[[skills]]
+id = "fist"
+name = "Unarmed"
+summary = "Technique for fighting with fists"
+gainedBy = "Raised by attacking unarmed"
+effect = "Increases unarmed damage and accuracy"
+ability = "str"
+category = "melee"
+[[skills.proficiencies]]
+id = "fist_damage"
+perLevel = 5
+[[skills.proficiencies]]
+id = "fist_accuracy"
+perLevel = 3
+[[skills]]
+id = "bow"
+name = "Archery"
+summary = "Technique for handling bows"
+gainedBy = "Raised by attacking with bows"
+effect = "Increases bow damage and accuracy"
+ability = "sen"
+category = "ranged"
+[[skills.proficiencies]]
+id = "bow_damage"
+perLevel = 5
+[[skills.proficiencies]]
+id = "bow_accuracy"
+perLevel = 3
+[[skills]]
+id = "handgun"
+name = "Pistol skill"
+summary = "Pistol shooting technique"
+gainedBy = "Raised by attacking with pistols"
+effect = "Increases pistol damage and accuracy"
+ability = "sen"
+category = "ranged"
+[[skills.proficiencies]]
+id = "handgun_damage"
+perLevel = 5
+[[skills.proficiencies]]
+id = "handgun_accuracy"
+perLevel = 3
+[[skills]]
+id = "rifle"
+name = "Rifle skill"
+summary = "Rifle shooting technique"
+gainedBy = "Raised by attacking with rifles"
+effect = "Increases rifle damage and accuracy"
+ability = "sen"
+category = "ranged"
+[[skills.proficiencies]]
+id = "rifle_damage"
+perLevel = 5
+[[skills.proficiencies]]
+id = "rifle_accuracy"
+perLevel = 3
+[[skills]]
+id = "cannon"
+name = "Artillery"
+summary = "Technique for operating large firearms"
+gainedBy = "Raised by attacking with artillery"
+effect = "Increases artillery damage and accuracy"
+ability = "sen"
+category = "ranged"
+[[skills.proficiencies]]
+id = "cannon_damage"
+perLevel = 5
+[[skills.proficiencies]]
+id = "cannon_accuracy"
+perLevel = 3
+[[skills]]
+id = "crafting"
+name = "Crafting"
+summary = "Technique for making items from materials"
+gainedBy = "Raised by crafting items"
+effect = "Reduces material consumption when crafting"
+ability = "dex"
+category = "craft"
+[[skills.proficiencies]]
+id = "craft_cost"
+perLevel = -3
+[[skills]]
+id = "smithing"
+name = "Smithing"
+summary = "Technique for refining and blending materials"
+gainedBy = "Raised by smithing materials"
+effect = "Increases quality when smithing"
+ability = "dex"
+category = "craft"
+[[skills.proficiencies]]
+id = "smith_quality"
+perLevel = 3
+[[skills]]
+id = "negotiation"
+name = "Negotiation"
+summary = "Persuasion for favorable deals"
+gainedBy = "Raised by trading"
+effect = "Improves buying and selling prices"
+ability = "dex"
+category = "craft"
+[[skills.proficiencies]]
+id = "buy_price"
+perLevel = -2
+[[skills.proficiencies]]
+id = "sell_price"
+perLevel = 2
+[[skills]]
+id = "mechanic"
+name = "Mechanic"
+summary = "Technique for understanding and repairing machines"
+gainedBy = "Raised by breaking objects with a suitable tool or reading mechanic books"
+effect = "Increases yield when breaking objects with a tool"
+ability = "dex"
+category = "craft"
+[[skills]]
+id = "sprinting"
+name = "Sprinting"
+summary = "Ability to move quickly over long distances"
+gainedBy = "Raised by equipment or books"
+effect = "Reduces AP cost when moving"
+ability = "agi"
+category = "mobility"
+[[skills.proficiencies]]
+id = "move_cost"
+perLevel = -2
+[[skills]]
+id = "stealth"
+name = "Stealth"
+summary = "Technique for acting unnoticed by enemies"
+gainedBy = "Raised by equipment or books"
+effect = "Shortens the distance at which enemies detect you"
+ability = "agi"
+category = "mobility"
+[[skills.proficiencies]]
+id = "enemy_vision"
+perLevel = -3
+[[skills]]
+id = "night_vision"
+name = "Night vision"
+summary = "Ability to see in the dark"
+gainedBy = "Raised by equipment or books"
+effect = "Widens vision in the dark"
+ability = "agi"
+category = "mobility"
+[[skills.proficiencies]]
+id = "night_vision"
+perLevel = 5
+[[skills]]
+id = "weight_bearing"
+name = "Load bearing"
+summary = "Ability to carry heavy loads"
+gainedBy = "Raised by acting with heavy equipment"
+effect = "Increases maximum load"
+ability = "str"
+category = "mobility"
+[[skills.proficiencies]]
+id = "max_weight"
+perLevel = 4
+[[skills]]
+id = "cold_resist"
+name = "Cold resistance"
+summary = "Resistance to cold"
+gainedBy = "Raised by equipment or books"
+effect = "Slows hypothermia progress"
+ability = "vit"
+category = "survival"
+[[skills.proficiencies]]
+id = "cold_progress"
+perLevel = -3
+[[skills]]
+id = "hunger_resist"
+name = "Hunger resistance"
+summary = "Resistance to hunger"
+gainedBy = "Raised by equipment or books"
+effect = "Slows hunger progress"
+ability = "vit"
+category = "survival"
+[[skills.proficiencies]]
+id = "hunger_progress"
+perLevel = -2
+[[skills]]
+id = "healing"
+name = "Healing"
+summary = "Medical technique for healing wounds"
+gainedBy = "Raised by using healing items"
+effect = "Increases healing item effect"
+ability = "vit"
+category = "survival"
+[[skills.proficiencies]]
+id = "healing_effect"
+perLevel = 5
+[[skills]]
+id = "exploration"
+name = "Exploration"
+summary = "Technique for surveying unknown places"
+gainedBy = "Raised by equipment or books"
+effect = "Increases item discovery rate"
+ability = "sen"
+category = "survival"
+[[skills.proficiencies]]
+id = "exploration"
+perLevel = 4
+[[skills]]
+id = "heavy_armor"
+name = "Heavy armor"
+summary = "Technique for wearing heavy armor"
+gainedBy = "Raised by taking hits in heavy armor"
+effect = "Increases maximum load"
+ability = "def"
+category = "defense"
+[[skills.proficiencies]]
+id = "heavy_armor"
+perLevel = -5
+[[skills]]
+id = "fire_resist"
+name = "Fire resistance"
+summary = "Resistance to fire"
+gainedBy = "Raised by equipment or books"
+effect = "Reduces fire element damage"
+ability = "def"
+category = "defense"
+[[skills.proficiencies]]
+id = "fire_resist"
+perLevel = -3
+[[skills]]
+id = "thunder_resist"
+name = "Thunder resistance"
+summary = "Resistance to thunder"
+gainedBy = "Raised by equipment or books"
+effect = "Reduces thunder element damage"
+ability = "def"
+category = "defense"
+[[skills.proficiencies]]
+id = "thunder_resist"
+perLevel = -3
+[[skills]]
+id = "chill_resist"
+name = "Chill resistance"
+summary = "Resistance to ice"
+gainedBy = "Raised by equipment or books"
+effect = "Reduces ice element damage"
+ability = "def"
+category = "defense"
+[[skills.proficiencies]]
+id = "chill_resist"
+perLevel = -3
+[[skills]]
+id = "photon_resist"
+name = "Photon resistance"
+summary = "Resistance to light"
+gainedBy = "Raised by equipment or books"
+effect = "Reduces light element damage"
+ability = "def"
+category = "defense"
+[[skills.proficiencies]]
+id = "photon_resist"
+perLevel = -3
+
+[[skillCategories]]
+id = "melee"
+name = "Melee"
+[[skillCategories]]
+id = "ranged"
+name = "Ranged"
+[[skillCategories]]
+id = "craft"
+name = "Craft"
+[[skillCategories]]
+id = "mobility"
+name = "Mobility"
+[[skillCategories]]
+id = "survival"
+name = "Survival"
+[[skillCategories]]
+id = "defense"
+name = "Defense"
+
+[[attackTypes]]
+id = "fist"
+injury = "fracture"
+[[attackTypes]]
+id = "sword"
+injury = "laceration"
+[[attackTypes]]
+id = "spear"
+injury = "laceration"
+[[attackTypes]]
+id = "handgun"
+injury = "laceration"
+[[attackTypes]]
+id = "rifle"
+injury = "laceration"
+[[attackTypes]]
+id = "cannon"
+injury = "fracture"
+[[attackTypes]]
+id = "bow"
+injury = "laceration"

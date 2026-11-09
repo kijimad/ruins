@@ -147,7 +147,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 		return items
 	}
 	skills := world.Components.Skills.Get(playerEntity)
-	for _, cat := range gc.SkillCategories {
+	for _, cat := range world.Resources.SkillDefs.Categories() {
 		items = append(items, statusItemData{Label: query.T(world, cat.Name), IsHeader: true, Description: query.T(world, "%s category skills", query.T(world, cat.Name))})
 		for _, id := range cat.IDs {
 			s := skills.Get(id)
@@ -155,9 +155,9 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 			if s.Exp.Max > 0 {
 				expFrac = s.Exp.Current * 1000 / s.Exp.Max
 			}
-			info := gc.SkillDescription(id)
+			info, _ := world.Resources.SkillDefs.Def(id)
 			items = append(items, statusItemData{
-				Label:       query.T(world, gc.SkillName(id)),
+				Label:       query.T(world, info.Name),
 				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
 				Description: query.T(world, info.Summary),
 				Details: []statusDetailRow{
@@ -186,11 +186,11 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
 	for _, id := range gc.WeaponSkillIDs {
-		name := query.T(world, gc.SkillName(id))
+		name := query.SkillName(world, id)
 		items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: val(gc.WeaponDamageKey(id)), Description: query.T(world, "%s weapon damage multiplier", name), Details: details(gc.WeaponDamageKey(id))})
 	}
 	for _, id := range gc.WeaponSkillIDs {
-		name := query.T(world, gc.SkillName(id))
+		name := query.SkillName(world, id)
 		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(gc.WeaponAccuracyKey(id)), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(gc.WeaponAccuracyKey(id))})
 	}
 	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
@@ -374,7 +374,7 @@ func limbDrops(world w.World, playerEntity ecs.Entity, bodyFuncs gc.BodyFuncs, b
 func sourceLabel(world w.World, s gc.ProficiencySource) string {
 	switch s.Kind {
 	case gc.SourceSkill:
-		return fmt.Sprintf("%s Lv%d", query.T(world, gc.SkillName(s.Skill)), s.Amount)
+		return fmt.Sprintf("%s Lv%d", query.SkillName(world, s.Skill), s.Amount)
 	case gc.SourceAbility:
 		return fmt.Sprintf("%s %d", query.T(world, gc.AbilityName(s.Ability)), s.Amount)
 	case gc.SourceBodyFunc:

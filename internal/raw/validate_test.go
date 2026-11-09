@@ -142,7 +142,7 @@ func makeItemRaws(modify func(*oapi.Item)) oapi.Raws {
 			Damage:         10,
 			AttackCount:    1,
 			Element:        "NONE",
-			AttackCategory: "SWORD",
+			AttackCategory: "sword",
 			Cost:           5,
 			TargetGroup:    "ENEMY",
 			TargetNum:      "SINGLE",

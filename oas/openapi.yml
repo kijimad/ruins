@@ -1531,6 +1531,16 @@ components:
         defense:
           $ref: '#/components/schemas/Defense'
       description: 能力値
+    AbilityId:
+      type: string
+      enum:
+        - str
+        - sen
+        - dex
+        - agi
+        - vit
+        - def
+      description: 能力値。スキルの成長の速さと熟練の効果倍率に効く
     Accuracy:
       type: integer
       minimum: 0
@@ -1580,19 +1590,30 @@ components:
     AttackCategory:
       type: string
       enum:
-        - FIST
-        - SWORD
-        - SPEAR
-        - HANDGUN
-        - RIFLE
-        - CANON
-        - BOW
-      description: 攻撃種別
+        - fist
+        - sword
+        - spear
+        - handgun
+        - rifle
+        - cannon
+        - bow
+      description: 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
     AttackCount:
       type: integer
       minimum: 1
       maximum: 10
       description: 1ターンあたりの攻撃回数
+    AttackType:
+      type: object
+      required:
+        - id
+        - injury
+      properties:
+        id:
+          $ref: '#/components/schemas/AttackCategory'
+        injury:
+          $ref: '#/components/schemas/ConditionTypeName'
+      description: 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
     Balance.AbilityScore:
       type: integer
       description: 能力値。プレイヤーのステータス
@@ -3367,6 +3388,17 @@ components:
         value:
           $ref: '#/components/schemas/SkillLevel'
       description: 職業スキル初期値
+    ProficiencyId:
+      type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
+      description: 熟練の効果倍率の id
+    ProficiencyPerLevel:
+      type: integer
+      minimum: -100
+      maximum: 100
+      description: 熟練の効果倍率のスキルLv1あたりの変化量。百分率
     Prop:
       type: object
       required:
@@ -3578,6 +3610,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BodyPart'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        skillCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillCategory'
+        attackTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttackType'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -3736,6 +3780,36 @@ components:
         - 5
         - 10
       description: 遮蔽タイプ
+    Skill:
+      type: object
+      required:
+        - id
+        - name
+        - summary
+        - gainedBy
+        - effect
+        - ability
+        - category
+      properties:
+        id:
+          $ref: '#/components/schemas/SkillId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        summary:
+          $ref: '#/components/schemas/EntityDescription'
+        gainedBy:
+          $ref: '#/components/schemas/EntityDescription'
+        effect:
+          $ref: '#/components/schemas/EntityDescription'
+        ability:
+          $ref: '#/components/schemas/AbilityId'
+        category:
+          $ref: '#/components/schemas/SkillCategoryId'
+        proficiencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillProficiency'
+      description: スキル。同じカテゴリのスキルは行の順に表示する
     SkillBook:
       type: object
       required:
@@ -3750,6 +3824,23 @@ components:
         maxLevel:
           $ref: '#/components/schemas/SkillLevel'
       description: スキル本設定
+    SkillCategory:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/SkillCategoryId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+      description: スキルのカテゴリ。行の順に表示する
+    SkillCategoryId:
+      type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
+      description: スキルのカテゴリの id
     SkillId:
       type: string
       minLength: 1
@@ -3761,6 +3852,17 @@ components:
       minimum: 0
       maximum: 100
       description: スキルレベル
+    SkillProficiency:
+      type: object
+      required:
+        - id
+        - perLevel
+      properties:
+        id:
+          $ref: '#/components/schemas/ProficiencyId'
+        perLevel:
+          $ref: '#/components/schemas/ProficiencyPerLevel'
+      description: スキルが左右する熟練の効果倍率
     SpriteDepth:
       type: number
       enum:

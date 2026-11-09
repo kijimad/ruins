@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -50,11 +51,15 @@ type ProgressionDay struct {
 // ProgressionCurve は経過日 1..days の静的下限と想定プレイヤーの戦闘リスクを並べて返す。難易度は日→危険度、プレイヤーは
 // attacksPerDay からその日の想定スキルで進む。下限と想定の帯で体験曲線を見る。乱数を使わない。
 func ProgressionCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days, attacksPerDay int) ([]ProgressionDay, error) {
+	defs, err := raw.NewSkillDefs(master)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]ProgressionDay, 0, days)
 	for day := 1; day <= days; day++ {
 		danger := int(query.DangerLevelForDay(day))
 		level := ExpectedSkillLevelAtDay(0, attacksPerDay, day)
-		mult := SkillDamagePercent(level)
+		mult := SkillDamagePercent(defs, level)
 		gearDef := ExpectedGearDefenseAtDay(day)
 
 		floorDeath, floorTurns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger, consts.PercentBase)

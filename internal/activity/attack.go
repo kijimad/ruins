@@ -409,7 +409,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 		return
 	}
 	abils := world.Components.Abilities.Get(actor)
-	ablID := gc.SkillAbilityID(skillID)
+	ablID := world.Resources.SkillDefs.Ability(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
 		actorName := query.GetEntityName(actor, world)

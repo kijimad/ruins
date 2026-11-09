@@ -1,0 +1,65 @@
+package components
+
+import "fmt"
+
+// SkillDef はスキルごとの定義。raw の skills の1行から組み立てる
+type SkillDef struct {
+	Name     string    // 表示名 msgid
+	Summary  string    // 概要文 msgid
+	GainedBy string    // 獲得条件 msgid
+	Effect   string    // 効果 msgid
+	Ability  AbilityID // 成長の速さと熟練の効果倍率に効く能力値
+}
+
+// SkillCategory はスキルのカテゴリを表す
+type SkillCategory struct {
+	Name string    // カテゴリの表示名
+	IDs  []SkillID // カテゴリに属するスキルID。表示順
+}
+
+// ProficiencyDef は熟練の効果倍率1つの定義
+type ProficiencyDef struct {
+	Skill    SkillID // 倍率を左右するスキル
+	PerLevel int     // スキルLv1あたりの倍率の変化量。百分率。負ならスキルが高いほど効果が減る
+}
+
+// SkillDefs はスキルの定義、カテゴリの表示順、熟練の効果倍率の表。
+// 読み込み時に raw から1度だけ組み立て、以後は変えない
+type SkillDefs struct {
+	skills        map[SkillID]SkillDef
+	categories    []SkillCategory
+	proficiencies map[ProficiencyKey]ProficiencyDef
+}
+
+// NewSkillDefs はスキルの定義、表示順のカテゴリ、熟練の効果倍率から表を作る。渡した値は表が所有する
+func NewSkillDefs(skills map[SkillID]SkillDef, categories []SkillCategory, proficiencies map[ProficiencyKey]ProficiencyDef) SkillDefs {
+	return SkillDefs{skills: skills, categories: categories, proficiencies: proficiencies}
+}
+
+// Def はスキルの定義を返す。未登録なら ok=false
+func (d SkillDefs) Def(id SkillID) (SkillDef, bool) {
+	def, ok := d.skills[id]
+	return def, ok
+}
+
+// Name はスキルの表示名 msgid を返す。未登録なら id をそのまま返す
+func (d SkillDefs) Name(id SkillID) string {
+	if def, ok := d.skills[id]; ok {
+		return def.Name
+	}
+	return string(id)
+}
+
+// Ability はスキルに対応する能力値を返す。未登録なら panic する
+func (d SkillDefs) Ability(id SkillID) AbilityID {
+	def, ok := d.skills[id]
+	if !ok {
+		panic(fmt.Sprintf("no ability defined for skill %q", id))
+	}
+	return def.Ability
+}
+
+// Categories は表示順のカテゴリを返す
+func (d SkillDefs) Categories() []SkillCategory {
+	return d.categories
+}

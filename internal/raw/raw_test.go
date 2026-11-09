@@ -859,7 +859,7 @@ Damage = 10
 Accuracy = 90
 AttackCount = 1
 Element = "none"
-AttackCategory = "SWORD"
+AttackCategory = "sword"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)

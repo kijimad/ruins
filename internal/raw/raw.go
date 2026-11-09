@@ -224,7 +224,7 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 	}
 
 	skillID := gc.SkillID(b.Skill.TargetSkill)
-	if !gc.HasSkillName(skillID) {
+	if !gc.IsSkillID(skillID) {
 		return nil, fmt.Errorf("undefined skill ID: %q", b.Skill.TargetSkill)
 	}
 
@@ -982,7 +982,7 @@ func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string
 	return entries[i].Id, nil
 }
 
-// NewConditionDefs は raw の conditions と bodyParts から不調の定義の表を組み立てる。
+// NewConditionDefs は raw の conditions、bodyParts、attackTypes から不調の定義の表を組み立てる。
 // 参照の実在は ValidateReferences が確かめる前提で、見つからない部位はエラーにする
 func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 	var hitWeights [gc.BodyPartCount]float64
@@ -1027,5 +1027,56 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 		}
 		conds[gc.ConditionType(row.Id)] = def
 	}
-	return gc.NewConditionDefs(conds, hitWeights), nil
+
+	attackTypes := PtrSlice(raws.AttackTypes)
+	injuries := make(map[string]gc.ConditionType, len(attackTypes))
+	for _, row := range attackTypes {
+		injuries[string(row.Id)] = gc.ConditionType(row.Injury)
+	}
+	return gc.NewConditionDefs(conds, hitWeights, injuries), nil
+}
+
+// abilityIDs は raw の能力値から Go の能力値への対応
+var abilityIDs = map[oapi.AbilityId]gc.AbilityID{
+	oapi.Str: gc.AblSTR,
+	oapi.Sen: gc.AblSEN,
+	oapi.Dex: gc.AblDEX,
+	oapi.Agi: gc.AblAGI,
+	oapi.Vit: gc.AblVIT,
+	oapi.Def: gc.AblDEF,
+}
+
+// NewSkillDefs は raw の skills と skillCategories からスキルの定義の表を組み立てる。
+// カテゴリは skillCategories の行の順に、カテゴリ内のスキルは skills の行の順に並べる
+func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
+	rows := PtrSlice(raws.Skills)
+	skills := make(map[gc.SkillID]gc.SkillDef, len(rows))
+	proficiencies := make(map[gc.ProficiencyKey]gc.ProficiencyDef)
+	idsByCategory := make(map[string][]gc.SkillID)
+	for i := range rows {
+		row := &rows[i]
+		id := gc.SkillID(row.Id)
+		ability, ok := abilityIDs[row.Ability]
+		if !ok {
+			return gc.SkillDefs{}, fmt.Errorf("skill %q has unknown ability %q", row.Id, row.Ability)
+		}
+		skills[id] = gc.SkillDef{
+			Name:     row.Name,
+			Summary:  row.Summary,
+			GainedBy: row.GainedBy,
+			Effect:   row.Effect,
+			Ability:  ability,
+		}
+		for _, p := range PtrSlice(row.Proficiencies) {
+			proficiencies[gc.ProficiencyKey(p.Id)] = gc.ProficiencyDef{Skill: id, PerLevel: p.PerLevel}
+		}
+		idsByCategory[row.Category] = append(idsByCategory[row.Category], id)
+	}
+
+	catRows := PtrSlice(raws.SkillCategories)
+	categories := make([]gc.SkillCategory, 0, len(catRows))
+	for _, c := range catRows {
+		categories = append(categories, gc.SkillCategory{Name: c.Name, IDs: idsByCategory[c.Id]})
+	}
+	return gc.NewSkillDefs(skills, categories, proficiencies), nil
 }

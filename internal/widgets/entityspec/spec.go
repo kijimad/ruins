@@ -455,7 +455,7 @@ func bookRows(world w.World, book *gc.Book) []SpecRow {
 	rows := []SpecRow{{Label: query.T(world, "Book"), Header: true}}
 	if book.Skill != nil {
 		rows = append(rows,
-			SpecRow{Label: query.T(world, "Skill"), Value: query.T(world, gc.SkillName(book.Skill.TargetSkill))},
+			SpecRow{Label: query.T(world, "Skill"), Value: query.SkillName(world, book.Skill.TargetSkill)},
 			SpecRow{Label: "Lv", Value: fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)},
 		)
 	}

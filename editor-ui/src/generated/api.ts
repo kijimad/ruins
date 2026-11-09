@@ -53,6 +53,22 @@ export interface Abilities {
     'defense': number;
 }
 /**
+ * 能力値。スキルの成長の速さと熟練の効果倍率に効く
+ */
+
+export const AbilityId = {
+    Str: 'str',
+    Sen: 'sen',
+    Dex: 'dex',
+    Agi: 'agi',
+    Vit: 'vit',
+    Def: 'def',
+} as const;
+
+export type AbilityId = typeof AbilityId[keyof typeof AbilityId];
+
+
+/**
  * 弾薬設定
  */
 export interface Ammo {
@@ -83,20 +99,32 @@ export type AmmoTag = typeof AmmoTag[keyof typeof AmmoTag];
 
 
 /**
- * 攻撃種別
+ * 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
  */
 
 export const AttackCategory = {
-    Fist: 'FIST',
-    Sword: 'SWORD',
-    Spear: 'SPEAR',
-    Handgun: 'HANDGUN',
-    Rifle: 'RIFLE',
-    Canon: 'CANON',
-    Bow: 'BOW',
+    Fist: 'fist',
+    Sword: 'sword',
+    Spear: 'spear',
+    Handgun: 'handgun',
+    Rifle: 'rifle',
+    Cannon: 'cannon',
+    Bow: 'bow',
 } as const;
 
 export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
+
+
+/**
+ * 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
+ */
+export interface AttackType {
+    'id': AttackCategory;
+    /**
+     * 不調の id。Go の ConditionType 定数の値と同じ
+     */
+    'injury': string;
+}
 
 
 /**
@@ -1618,6 +1646,9 @@ export interface Raws {
     'professions'?: Array<Profession>;
     'conditions'?: Array<Condition>;
     'bodyParts'?: Array<BodyPart>;
+    'skills'?: Array<Skill>;
+    'skillCategories'?: Array<SkillCategory>;
+    'attackTypes'?: Array<AttackType>;
 }
 /**
  * レシピ
@@ -1738,6 +1769,39 @@ export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
 
 
 /**
+ * スキル。同じカテゴリのスキルは行の順に表示する
+ */
+export interface Skill {
+    /**
+     * スキルID
+     */
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 説明文
+     */
+    'summary': string;
+    /**
+     * 説明文
+     */
+    'gainedBy': string;
+    /**
+     * 説明文
+     */
+    'effect': string;
+    'ability': AbilityId;
+    /**
+     * スキルのカテゴリの id
+     */
+    'category': string;
+    'proficiencies'?: Array<SkillProficiency>;
+}
+
+
+/**
  * スキル本設定
  */
 export interface SkillBook {
@@ -1753,6 +1817,32 @@ export interface SkillBook {
      * スキルレベル
      */
     'maxLevel': number;
+}
+/**
+ * スキルのカテゴリ。行の順に表示する
+ */
+export interface SkillCategory {
+    /**
+     * スキルのカテゴリの id
+     */
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+}
+/**
+ * スキルが左右する熟練の効果倍率
+ */
+export interface SkillProficiency {
+    /**
+     * 熟練の効果倍率の id
+     */
+    'id': string;
+    /**
+     * 熟練の効果倍率のスキルLv1あたりの変化量。百分率
+     */
+    'perLevel': number;
 }
 /**
  * スプライト描画深度

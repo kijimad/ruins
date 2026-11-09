@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValueOf(t *testing.T) {
@@ -74,7 +75,7 @@ func TestWeaponSkillID(t *testing.T) {
 		{"Unarmed", AttackFist, SkillFist, true},
 		{"Pistol skill", AttackHandgun, SkillHandgun, true},
 		{"Rifle skill", AttackRifle, SkillRifle, true},
-		{"Artillery", AttackCanon, SkillCannon, true},
+		{"Artillery", AttackCannon, SkillCannon, true},
 		{"未定義の武器種", AttackType{Type: "unknown"}, "", false},
 	}
 
@@ -90,77 +91,44 @@ func TestWeaponSkillID(t *testing.T) {
 	}
 }
 
-func TestHasSkillName(t *testing.T) {
+func TestIsSkillID(t *testing.T) {
 	t.Parallel()
 
 	for _, id := range AllSkillIDs {
-		assert.True(t, HasSkillName(id), "スキル %s の表示名が定義されている", id)
+		assert.True(t, IsSkillID(id), "スキル %s は定義済み", id)
 	}
-
-	assert.False(t, HasSkillName("undefined_skill"))
+	assert.False(t, IsSkillID("undefined_skill"))
 }
 
-func TestAllSkillIDs(t *testing.T) {
+func TestAllSkillIDs_重複しない(t *testing.T) {
 	t.Parallel()
 
-	// AllSkillIDsはSkillCategoriesのすべてのスキルを含む
-	total := 0
-	for _, cat := range SkillCategories {
-		total += len(cat.IDs)
-	}
-	assert.Len(t, AllSkillIDs, total, "AllSkillIDsはカテゴリの合計と一致する")
-}
-
-func TestSkillAbilityMapping(t *testing.T) {
-	t.Parallel()
-
-	// 全スキルにSkillAbilityIDマッピングがある
+	seen := map[SkillID]bool{}
 	for _, id := range AllSkillIDs {
-		assert.NotPanics(t, func() {
-			SkillAbilityID(id)
-		}, "スキル %s に対応する能力値がマッピングされている", id)
+		assert.False(t, seen[id], "スキル %s が重複している", id)
+		seen[id] = true
 	}
-
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		SkillAbilityID("undefined_skill")
-	})
+	assert.Len(t, AllSkillIDs, 24)
 }
 
-func TestSkillNameMapping(t *testing.T) {
+func TestWeaponSkillID_全攻撃種別が同じ名前の武器スキルを持つ(t *testing.T) {
 	t.Parallel()
 
-	// 全スキルにSkillNameがある
-	for _, id := range AllSkillIDs {
-		assert.NotPanics(t, func() {
-			name := SkillName(id)
-			assert.NotEmpty(t, name, "スキル %s の表示名が空でない", id)
-		})
+	got := map[AttackType]SkillID{}
+	for _, at := range AllAttackTypes {
+		id, ok := WeaponSkillID(at)
+		require.True(t, ok, at.Type)
+		got[at] = id
 	}
-
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		SkillName("undefined_skill")
-	})
-}
-
-func TestSkillDescriptionMapping(t *testing.T) {
-	t.Parallel()
-
-	// 全スキルにSkillDescriptionがある
-	for _, id := range AllSkillIDs {
-		assert.NotPanics(t, func() {
-			info := SkillDescription(id)
-			assert.NotEmpty(t, info.Summary, "スキル %s の概要が空でない", id)
-			assert.NotEmpty(t, info.GainedBy, "スキル %s の獲得条件が空でない", id)
-			assert.NotEmpty(t, info.Effect, "スキル %s の効果が空でない", id)
-		})
-	}
-
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		SkillDescription("undefined_skill")
-	})
+	assert.Equal(t, map[AttackType]SkillID{
+		AttackSword:   SkillSword,
+		AttackSpear:   SkillSpear,
+		AttackHandgun: SkillHandgun,
+		AttackRifle:   SkillRifle,
+		AttackFist:    SkillFist,
+		AttackCannon:  SkillCannon,
+		AttackBow:     SkillBow,
+	}, got)
 }
 
 func TestAbilityNameMapping(t *testing.T) {

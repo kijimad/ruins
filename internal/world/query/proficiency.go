@@ -29,7 +29,7 @@ func ProficiencyValue(world w.World, entity ecs.Entity, key gc.ProficiencyKey) c
 	if skills == nil {
 		return consts.PercentBase
 	}
-	return gc.CalcProficiencyValue(skills, abils, bodyFuncs, key)
+	return world.Resources.SkillDefs.ProficiencyValue(skills, abils, bodyFuncs, key)
 }
 
 // ProficiencySources は key の効果倍率の内訳を都度計算して返す。詳細モーダルの表示用。
@@ -39,5 +39,10 @@ func ProficiencySources(world w.World, entity ecs.Entity, key gc.ProficiencyKey)
 	if skills == nil {
 		return nil
 	}
-	return gc.CalcProficiencySources(skills, abils, bodyFuncs, key)
+	return world.Resources.SkillDefs.ProficiencySources(skills, abils, bodyFuncs, key)
+}
+
+// SkillName はスキルの訳した表示名を返す
+func SkillName(world w.World, id gc.SkillID) string {
+	return T(world, world.Resources.SkillDefs.Name(id))
 }

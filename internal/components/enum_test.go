@@ -61,7 +61,7 @@ func TestGetRangeParams(t *testing.T) {
 
 	t.Run("遠距離武器には射程パラメータがある", func(t *testing.T) {
 		t.Parallel()
-		for _, at := range []AttackType{AttackBow, AttackHandgun, AttackRifle, AttackCanon} {
+		for _, at := range []AttackType{AttackBow, AttackHandgun, AttackRifle, AttackCannon} {
 			params, ok := GetRangeParams(at)
 			assert.True(t, ok, at.Label)
 			assert.Positive(t, params.MaxRange, at.Label)

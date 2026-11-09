@@ -109,7 +109,7 @@ func gainSkillExp(actor ecs.Entity, world w.World, skillID gc.SkillID) {
 
 	abilityValue := 0
 	if world.Components.Abilities.Has(actor) {
-		abilityValue = world.Components.Abilities.Get(actor).ValueOf(gc.SkillAbilityID(skillID))
+		abilityValue = world.Components.Abilities.Get(actor).ValueOf(world.Resources.SkillDefs.Ability(skillID))
 	}
 
 	if skill.GainExp(s, abilityValue) {
@@ -118,7 +118,7 @@ func gainSkillExp(actor ecs.Entity, world w.World, skillID gc.SkillID) {
 			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
 		}
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "%s skill rose to %d", gc.SkillName(skillID), s.Value)).
+			Markup(query.T(world, "%s skill rose to %d", world.Resources.SkillDefs.Name(skillID), s.Value)).
 			Log()
 	}
 }

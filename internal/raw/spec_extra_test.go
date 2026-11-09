@@ -105,7 +105,7 @@ DamageBonus = -2
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Ammo)
-	assert.Equal(t, oapi.N9mm, spec.Ammo.AmmoTag)
+	assert.Equal(t, oapi.AmmoTagN9mm, spec.Ammo.AmmoTag)
 	assert.Equal(t, -2, spec.Ammo.DamageBonus)
 	assert.Equal(t, 5, spec.Ammo.AccuracyBonus)
 }
@@ -491,7 +491,7 @@ Damage = 20
 Accuracy = 80
 AttackCount = 1
 Element = "none"
-AttackCategory = "SWORD"
+AttackCategory = "sword"
 
 [[Recipes]]
 Name = "レイガン"
@@ -537,7 +537,7 @@ Accuracy = 70
 AttackCount = 1
 Cost = 10
 Element = "none"
-AttackCategory = "HANDGUN"
+AttackCategory = "handgun"
 MagazineSize = 6
 ReloadEffort = 5
 
@@ -623,7 +623,7 @@ Damage = 10
 Accuracy = 80
 AttackCount = 1
 Element = "none"
-AttackCategory = "SWORD"
+AttackCategory = "sword"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)

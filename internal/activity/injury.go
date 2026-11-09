@@ -21,19 +21,8 @@ const (
 	maxInjuriesPerPartType = 1
 )
 
-// injuryTypeFor は武器種から怪我の種類を導く。鈍器は骨折、刃と弾は切り傷。
-// 大砲は射撃だが重い衝撃で骨を砕くので骨折側に置く
-func injuryTypeFor(attackType gc.AttackType) gc.ConditionType {
-	switch attackType {
-	case gc.AttackFist, gc.AttackCanon:
-		return gc.ConditionFracture
-	default:
-		return gc.ConditionLaceration
-	}
-}
-
 // applyInjury は命中時に確率で命中部位へ怪我を1つ付ける。
-// 怪我の種類は武器種から導き、命中部位はその怪我が起こりうる部位から部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
+// 怪我の種類は攻撃種別の行が持ち、命中部位はその怪我が起こりうる部位から部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
 // 同じ部位に同種の怪我が既にあれば付けない。種類や部位が違う傷は独立で、身体機能と失血は全傷が合算される
 func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 	if !world.Components.HealthStatus.Has(target) {
@@ -43,8 +32,12 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
 		return
 	}
 
-	injuryType := injuryTypeFor(attack.GetAttackCategory())
-	part := hitPart(world.Resources.Config.RNG, world.Resources.ConditionDefs, injuryType)
+	defs := world.Resources.ConditionDefs
+	injuryType, ok := defs.Injury(attack.GetAttackCategory())
+	if !ok {
+		return
+	}
+	part := hitPart(world.Resources.Config.RNG, defs, injuryType)
 
 	hs := world.Components.HealthStatus.Get(target)
 	if hs.Parts[part].CountConditions(injuryType) >= maxInjuriesPerPartType {

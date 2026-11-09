@@ -39,7 +39,7 @@ func TestProficiencyValue_疲労は命中以外に効かない(t *testing.T) {
 	setExhaustedFatigue(world, entity)
 
 	// ProfMaxWeight は身体機能を畳まないので、全身性の低下では変わらない
-	assert.Equal(t, int(gc.CalcProficiencyValue(gc.NewSkills(), nil, gc.HealthyBodyFuncs(), gc.ProfMaxWeight)),
+	assert.Equal(t, int(world.Resources.SkillDefs.ProficiencyValue(gc.NewSkills(), nil, gc.HealthyBodyFuncs(), gc.ProfMaxWeight)),
 		int(ProficiencyValue(world, entity, gc.ProfMaxWeight)), "身体機能を畳まない倍率キーは全身性で変わらない")
 }
 

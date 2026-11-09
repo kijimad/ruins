@@ -321,6 +321,33 @@ scalar Sensation extends integer;
 @pattern("^[a-z][a-z0-9_]*$")
 scalar SkillId extends string;
 
+/** スキルのカテゴリの id */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
+scalar SkillCategoryId extends string;
+
+/** 熟練の効果倍率の id */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
+scalar ProficiencyId extends string;
+
+/** 熟練の効果倍率のスキルLv1あたりの変化量。百分率 */
+@minValue(-100)
+@maxValue(100)
+scalar ProficiencyPerLevel extends integer;
+
+/** 能力値。スキルの成長の速さと熟練の効果倍率に効く */
+enum AbilityId {
+  str,
+  sen,
+  dex,
+  agi,
+  vit,
+  def,
+}
+
 /** スキルレベル */
 @minValue(0)
 @maxValue(100)
@@ -436,22 +463,22 @@ enum Material {
   LIQUID,
 }
 
-/** 攻撃種別 */
+/** 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する */
 enum AttackCategory {
   /** 素手 */
-  FIST,
+  fist,
   /** 剣 */
-  SWORD,
+  sword,
   /** 槍 */
-  SPEAR,
+  spear,
   /** 拳銃 */
-  HANDGUN,
+  handgun,
   /** ライフル */
-  RIFLE,
+  rifle,
   /** 砲 */
-  CANON,
+  cannon,
   /** 弓 */
-  BOW,
+  bow,
 }
 
 /** 装備部位 */

@@ -108,19 +108,19 @@ type AttackType struct {
 
 var (
 	// AttackSword は刀剣
-	AttackSword = AttackType{Type: "SWORD", Range: AttackRangeMelee, Label: "Sword"}
+	AttackSword = AttackType{Type: "sword", Range: AttackRangeMelee, Label: "Sword"}
 	// AttackSpear は長物
-	AttackSpear = AttackType{Type: "SPEAR", Range: AttackRangeMelee, Label: "Spear"}
+	AttackSpear = AttackType{Type: "spear", Range: AttackRangeMelee, Label: "Spear"}
 	// AttackHandgun は拳銃
-	AttackHandgun = AttackType{Type: "HANDGUN", Range: AttackRangeRanged, Label: "Handgun"}
+	AttackHandgun = AttackType{Type: "handgun", Range: AttackRangeRanged, Label: "Handgun"}
 	// AttackRifle は小銃
-	AttackRifle = AttackType{Type: "RIFLE", Range: AttackRangeRanged, Label: "Rifle"}
+	AttackRifle = AttackType{Type: "rifle", Range: AttackRangeRanged, Label: "Rifle"}
 	// AttackFist は格闘
-	AttackFist = AttackType{Type: "FIST", Range: AttackRangeMelee, Label: "Martial arts"}
-	// AttackCanon は大砲
-	AttackCanon = AttackType{Type: "CANON", Range: AttackRangeRanged, Label: "Cannon"}
+	AttackFist = AttackType{Type: "fist", Range: AttackRangeMelee, Label: "Martial arts"}
+	// AttackCannon は大砲
+	AttackCannon = AttackType{Type: "cannon", Range: AttackRangeRanged, Label: "Cannon"}
 	// AttackBow は弓
-	AttackBow = AttackType{Type: "BOW", Range: AttackRangeRanged, Label: "Bow"}
+	AttackBow = AttackType{Type: "bow", Range: AttackRangeRanged, Label: "Bow"}
 )
 
 // AllAttackTypes は定義済みの全AttackTypeのリスト
@@ -131,7 +131,7 @@ var AllAttackTypes = []AttackType{
 	AttackHandgun,
 	AttackRifle,
 	AttackFist,
-	AttackCanon,
+	AttackCannon,
 	AttackBow,
 }
 
@@ -157,7 +157,7 @@ var rangeParamsMap = map[string]RangeParams{
 	AttackBow.Type:     {OptimalRange: 4, MaxRange: 10, PenaltyPerTile: 5},
 	AttackHandgun.Type: {OptimalRange: 3, MaxRange: 8, PenaltyPerTile: 8},
 	AttackRifle.Type:   {OptimalRange: 8, MaxRange: 16, PenaltyPerTile: 3},
-	AttackCanon.Type:   {OptimalRange: 6, MaxRange: 12, PenaltyPerTile: 5},
+	AttackCannon.Type:  {OptimalRange: 6, MaxRange: 12, PenaltyPerTile: 5},
 }
 
 // GetRangeParams は武器種別の射程パラメータを返す。未定義ならfalseを返す

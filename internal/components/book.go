@@ -32,7 +32,7 @@ func (b *Book) CanRead(skills *Skills) error {
 	}
 	if playerLevel < b.Skill.RequiredLevel {
 		return fmt.Errorf("reading this book requires %s at level %d or higher; current %d",
-			SkillName(b.Skill.TargetSkill), b.Skill.RequiredLevel, playerLevel)
+			b.Skill.TargetSkill, b.Skill.RequiredLevel, playerLevel)
 	}
 	return nil
 }

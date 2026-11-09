@@ -21,6 +21,7 @@ var (
 	rawMasterOnce sync.Once
 	rawMaster     oapi.Raws
 	conditionDefs gc.ConditionDefs
+	skillDefs     gc.SkillDefs
 	errRawMaster  error
 )
 
@@ -89,10 +90,14 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 		if errRawMaster == nil {
 			conditionDefs, errRawMaster = raw.NewConditionDefs(rawMaster)
 		}
+		if errRawMaster == nil {
+			skillDefs, errRawMaster = raw.NewSkillDefs(rawMaster)
+		}
 	})
 	require.NoError(tb, errRawMaster, "failed to load RawMaster")
 	world.Resources.RawMaster = rawMaster
 	world.Resources.ConditionDefs = conditionDefs
+	world.Resources.SkillDefs = skillDefs
 
 	// テスト用スプライトシートを初期化
 	spriteSheets := map[string]gc.SpriteSheet{

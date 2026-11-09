@@ -628,6 +628,38 @@ model BodyPart {
   hitWeight: EntryWeight;
 }
 
+// ================== スキルと攻撃種別 ==================
+
+/** スキルが左右する熟練の効果倍率 */
+model SkillProficiency {
+  id: ProficiencyId;
+  perLevel: ProficiencyPerLevel;
+}
+
+/** スキル。同じカテゴリのスキルは行の順に表示する */
+model Skill {
+  id: SkillId;
+  name: EntityName;
+  summary: EntityDescription;
+  gainedBy: EntityDescription;
+  effect: EntityDescription;
+  ability: AbilityId;
+  category: SkillCategoryId;
+  proficiencies?: SkillProficiency[];
+}
+
+/** スキルのカテゴリ。行の順に表示する */
+model SkillCategory {
+  id: SkillCategoryId;
+  name: EntityName;
+}
+
+/** 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ */
+model AttackType {
+  id: AttackCategory;
+  injury: ConditionTypeName;
+}
+
 // ================== スプライトシート ==================
 
 /** スプライトシート */
@@ -666,6 +698,9 @@ model Raws {
   professions?: Profession[];
   conditions?: Condition[];
   bodyParts?: BodyPart[];
+  skills?: Skill[];
+  skillCategories?: SkillCategory[];
+  attackTypes?: AttackType[];
 }
 
 // ================== パレット ==================

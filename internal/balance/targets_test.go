@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -121,8 +122,10 @@ func TestBaselineSnapshot_進行成長(t *testing.T) {
 func TestBaselineSnapshot_ビルドブレ(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
+	defs, err := raw.NewSkillDefs(master)
+	require.NoError(t, err)
 	// 熟練度はレベル1あたり+5%。Lv20で2.0倍。
-	assert.InDelta(t, 2.0, SkillDamageMultiplier(20), 1e-9, "スキルLv20のダメージ倍率")
+	assert.InDelta(t, 2.0, SkillDamageMultiplier(defs, 20), 1e-9, "スキルLv20のダメージ倍率")
 	builds, err := RepresentativeBuilds(master)
 	require.NoError(t, err)
 	stages, err := StageSpreads(master, builds, "ruins_area")

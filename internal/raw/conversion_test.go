@@ -44,7 +44,7 @@ func TestParseMelee(t *testing.T) {
 			Damage:         25,
 			AttackCount:    2,
 			Element:        "FIRE",
-			AttackCategory: "SWORD",
+			AttackCategory: "sword",
 			Cost:           100,
 			TargetGroup:    "ENEMY",
 			TargetNum:      "SINGLE",
@@ -80,7 +80,7 @@ func TestParseFire(t *testing.T) {
 			Damage:         30,
 			AttackCount:    1,
 			Element:        "THUNDER",
-			AttackCategory: "RIFLE",
+			AttackCategory: "rifle",
 			Cost:           150,
 			TargetGroup:    "ENEMY",
 			TargetNum:      "SINGLE",
@@ -96,13 +96,13 @@ func TestParseFire(t *testing.T) {
 		assert.Equal(t, gc.AttackRifle, result.AttackCategory)
 		assert.Equal(t, 10, result.MagazineSize)
 		assert.Equal(t, 50, result.ReloadEffort)
-		assert.Equal(t, oapi.N9mm, result.AmmoTag)
+		assert.Equal(t, oapi.AmmoTagN9mm, result.AmmoTag)
 	})
 
 	t.Run("AmmoTagがnilでも変換できる", func(t *testing.T) {
 		t.Parallel()
 		f := &oapi.Fire{
-			AttackCategory: "HANDGUN",
+			AttackCategory: "handgun",
 			MagazineSize:   6,
 			ReloadEffort:   30,
 		}

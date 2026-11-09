@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"sync"
 	"unicode/utf8"
 
@@ -47,6 +48,16 @@ var (
 	errConditionPartWholeBody         = errors.New("condition parts include whole body")
 	errConditionNoHitPart             = errors.New("condition has no body part that can be hit")
 	errRemedyConditionUndefined       = errors.New("remedy treats undefined condition")
+	errAttackTypeInjuryUndefined      = errors.New("attack type references undefined condition")
+	errAttackTypeRowMissing           = errors.New("attack type has no raw row")
+	errSkillCategoryUndefined         = errors.New("skill references undefined category")
+	errBookSkillUndefined             = errors.New("book references undefined skill")
+	errProfessionSkillUndefined       = errors.New("profession references undefined skill")
+	errSkillRowMissing                = errors.New("skill has no raw row")
+	errSkillUnknown                   = errors.New("skill is not defined in code")
+	errProficiencyRowMissing          = errors.New("proficiency has no raw row")
+	errProficiencyUnknown             = errors.New("proficiency is not defined in code")
+	errWeaponProficiencyOwner         = errors.New("weapon proficiency is owned by another skill")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -129,6 +140,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateConditions(raws); err != nil {
+		return err
+	}
+	if err := validateSkills(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -593,6 +607,16 @@ func validateConditions(raws oapi.Raws) error {
 		}
 	}
 
+	attackTypes := PtrSlice(raws.AttackTypes)
+	if err := validateUniqueIDs("attack type", attackTypes, func(a oapi.AttackType) string { return string(a.Id) }); err != nil {
+		return err
+	}
+	for _, a := range attackTypes {
+		if _, ok := conditionIDs[a.Injury]; !ok {
+			return fmt.Errorf("attack type %q injury %q: %w", a.Id, a.Injury, errAttackTypeInjuryUndefined)
+		}
+	}
+
 	items := PtrSlice(raws.Items)
 	for i := range items {
 		if items[i].Remedy == nil {
@@ -633,7 +657,7 @@ func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) err
 	return fmt.Errorf("condition %q: %w", c.Id, errConditionNoHitPart)
 }
 
-// validateCodeRows は Go が名前で参照する不調と部位すべてに raw の行があることを検証する
+// validateCodeRows は Go が名前で参照する不調、部位、攻撃種別、スキル、熟練の効果倍率すべてに raw の行があることを検証する
 func validateCodeRows(raws oapi.Raws) error {
 	bodyPartIDs := make(map[string]struct{})
 	for _, b := range PtrSlice(raws.BodyParts) {
@@ -652,6 +676,109 @@ func validateCodeRows(raws oapi.Raws) error {
 	for _, ct := range gc.ConditionTypes() {
 		if _, ok := conditionIDs[string(ct)]; !ok {
 			return fmt.Errorf("condition %q: %w", ct, errConditionRowMissing)
+		}
+	}
+
+	attackTypeIDs := make(map[string]struct{})
+	for _, a := range PtrSlice(raws.AttackTypes) {
+		attackTypeIDs[string(a.Id)] = struct{}{}
+	}
+	for _, at := range gc.AllAttackTypes {
+		if _, ok := attackTypeIDs[at.Type]; !ok {
+			return fmt.Errorf("attack type %q: %w", at.Type, errAttackTypeRowMissing)
+		}
+	}
+	return validateSkillCodeRows(raws)
+}
+
+// validateSkillCodeRows は raw のスキルと熟練の効果倍率が Go の定数と同じ集合で、武器の効果倍率を同じ名前の武器スキルが持つことを検証する
+func validateSkillCodeRows(raws oapi.Raws) error {
+	skills := PtrSlice(raws.Skills)
+	skillIDs := make(map[gc.SkillID]struct{}, len(skills))
+	owners := make(map[gc.ProficiencyKey]gc.SkillID)
+	for i := range skills {
+		id := gc.SkillID(skills[i].Id)
+		if !gc.IsSkillID(id) {
+			return fmt.Errorf("skill %q: %w", id, errSkillUnknown)
+		}
+		skillIDs[id] = struct{}{}
+		for _, p := range PtrSlice(skills[i].Proficiencies) {
+			owners[gc.ProficiencyKey(p.Id)] = id
+		}
+	}
+	for _, id := range gc.AllSkillIDs {
+		if _, ok := skillIDs[id]; !ok {
+			return fmt.Errorf("skill %q: %w", id, errSkillRowMissing)
+		}
+	}
+
+	keys := gc.ProficiencyKeys()
+	for _, key := range keys {
+		if _, ok := owners[key]; !ok {
+			return fmt.Errorf("proficiency %q: %w", key, errProficiencyRowMissing)
+		}
+	}
+	for key := range owners {
+		if !slices.Contains(keys, key) {
+			return fmt.Errorf("proficiency %q: %w", key, errProficiencyUnknown)
+		}
+	}
+	for _, id := range gc.WeaponSkillIDs {
+		for _, key := range []gc.ProficiencyKey{gc.WeaponDamageKey(id), gc.WeaponAccuracyKey(id)} {
+			if owners[key] != id {
+				return fmt.Errorf("proficiency %q owned by %q: %w", key, owners[key], errWeaponProficiencyOwner)
+			}
+		}
+	}
+	return nil
+}
+
+// validateSkills はスキルとカテゴリの id が一意で、スキルのカテゴリ、本と職業のスキルが実在することを検証する。
+// 熟練の効果倍率の id もスキルをまたいで一意にする
+func validateSkills(raws oapi.Raws) error {
+	skills := PtrSlice(raws.Skills)
+	categories := PtrSlice(raws.SkillCategories)
+	if err := validateUniqueIDs("skill", skills, func(s oapi.Skill) string { return s.Id }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("skill category", categories, func(c oapi.SkillCategory) string { return c.Id }); err != nil {
+		return err
+	}
+	var proficiencies []oapi.SkillProficiency
+	for i := range skills {
+		proficiencies = append(proficiencies, PtrSlice(skills[i].Proficiencies)...)
+	}
+	if err := validateUniqueIDs("proficiency", proficiencies, func(p oapi.SkillProficiency) string { return p.Id }); err != nil {
+		return err
+	}
+
+	categoryIDs := make(map[string]struct{}, len(categories))
+	for _, c := range categories {
+		categoryIDs[c.Id] = struct{}{}
+	}
+	skillIDs := make(map[string]struct{}, len(skills))
+	for i := range skills {
+		skillIDs[skills[i].Id] = struct{}{}
+		if _, ok := categoryIDs[skills[i].Category]; !ok {
+			return fmt.Errorf("skill %q category %q: %w", skills[i].Id, skills[i].Category, errSkillCategoryUndefined)
+		}
+	}
+
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		if items[i].Book == nil || items[i].Book.Skill == nil {
+			continue
+		}
+		if _, ok := skillIDs[items[i].Book.Skill.TargetSkill]; !ok {
+			return fmt.Errorf("item %q skill %q: %w", items[i].Id, items[i].Book.Skill.TargetSkill, errBookSkillUndefined)
+		}
+	}
+	professions := PtrSlice(raws.Professions)
+	for i := range professions {
+		for _, ps := range PtrSlice(professions[i].Skills) {
+			if _, ok := skillIDs[ps.Id]; !ok {
+				return fmt.Errorf("profession %q skill %q: %w", professions[i].Id, ps.Id, errProfessionSkillUndefined)
+			}
 		}
 	}
 	return nil

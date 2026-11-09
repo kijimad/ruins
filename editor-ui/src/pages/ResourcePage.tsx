@@ -52,7 +52,7 @@ const optionalSections: Record<string, Record<string, JsonValue>> = {
     weapon: {},
     melee: {
       accuracy: 100,
-      attackCategory: "FIST",
+      attackCategory: "fist",
       attackCount: 1,
       cost: 2,
       damage: 5,
@@ -63,7 +63,7 @@ const optionalSections: Record<string, Record<string, JsonValue>> = {
     fire: {
       accuracy: 90,
       ammoTag: "9mm",
-      attackCategory: "CANON",
+      attackCategory: "cannon",
       attackCount: 1,
       cost: 4,
       damage: 10,

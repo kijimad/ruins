@@ -550,7 +550,7 @@ describe("ResourcePage", () => {
       {
         name: "剣",
         melee: {
-          attackCategory: "SWORD",
+          attackCategory: "sword",
           element: "NONE",
           targetGroup: "ENEMY",
           targetNum: "SINGLE",
@@ -564,7 +564,7 @@ describe("ResourcePage", () => {
     // attackCategory がセレクトボックスになっている
     const selects = screen.getAllByRole("combobox");
     const values = selects.map((s) => (s as HTMLSelectElement).value);
-    expect(values).toContain("SWORD");
+    expect(values).toContain("sword");
     expect(values).toContain("NONE");
     expect(values).toContain("ENEMY");
     expect(values).toContain("SINGLE");
@@ -575,7 +575,7 @@ describe("ResourcePage", () => {
       {
         name: "剣",
         melee: {
-          attackCategory: "SWORD",
+          attackCategory: "sword",
           element: "NONE",
           targetGroup: "ENEMY",
           targetNum: "SINGLE",

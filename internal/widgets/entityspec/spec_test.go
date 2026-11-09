@@ -245,7 +245,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Book", "Skill", query.T(world, gc.SkillName(gc.SkillSword)),
+		"Book", "Skill", query.SkillName(world, gc.SkillSword),
 		"Lv", "2 " + consts.IconArrowRight + " 5", "Progress", "30%",
 	}, labels)
 }

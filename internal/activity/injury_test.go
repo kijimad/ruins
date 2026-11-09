@@ -12,13 +12,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestInjuryTypeFor(t *testing.T) {
+func TestConditionDefsInjury_攻撃種別ごとの怪我(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, gc.ConditionFracture, injuryTypeFor(gc.AttackFist), "打撃は骨折")
-	assert.Equal(t, gc.ConditionFracture, injuryTypeFor(gc.AttackCanon), "砲撃は骨折")
-	assert.Equal(t, gc.ConditionLaceration, injuryTypeFor(gc.AttackSword), "斬撃は切り傷")
-	assert.Equal(t, gc.ConditionLaceration, injuryTypeFor(gc.AttackRifle), "射撃は切り傷")
+	defs := testutil.InitTestWorld(t).Resources.ConditionDefs
+	got := map[gc.AttackType]gc.ConditionType{}
+	for _, at := range gc.AllAttackTypes {
+		ct, ok := defs.Injury(at)
+		require.True(t, ok, at.Type)
+		got[at] = ct
+	}
+	// 打撃と砲撃は骨折、刃と弾は切り傷
+	assert.Equal(t, map[gc.AttackType]gc.ConditionType{
+		gc.AttackSword:   gc.ConditionLaceration,
+		gc.AttackSpear:   gc.ConditionLaceration,
+		gc.AttackHandgun: gc.ConditionLaceration,
+		gc.AttackRifle:   gc.ConditionLaceration,
+		gc.AttackFist:    gc.ConditionFracture,
+		gc.AttackCannon:  gc.ConditionFracture,
+		gc.AttackBow:     gc.ConditionLaceration,
+	}, got)
 }
 
 type fixedRoll float64

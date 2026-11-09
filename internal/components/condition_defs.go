@@ -17,16 +17,18 @@ type ConditionDef struct {
 	Parts                   []BodyPart   // 起こりうる部位。空なら全部位
 }
 
-// ConditionDefs は状態種類ごとの定義と、部位ごとの命中の重みの表。
+// ConditionDefs は状態種類ごとの定義、部位ごとの命中の重み、攻撃種別ごとの怪我の表。
 // 読み込み時に raw から1度だけ組み立て、以後は変えない。ゼロ値は定義を持たない表として振る舞う
 type ConditionDefs struct {
 	conds      map[ConditionType]ConditionDef
 	hitWeights [BodyPartCount]float64
+	injuries   map[string]ConditionType
 }
 
-// NewConditionDefs は状態種類ごとの定義と部位ごとの命中の重みから表を作る。渡した map は表が所有する
-func NewConditionDefs(conds map[ConditionType]ConditionDef, hitWeights [BodyPartCount]float64) ConditionDefs {
-	return ConditionDefs{conds: conds, hitWeights: hitWeights}
+// NewConditionDefs は状態種類ごとの定義、部位ごとの命中の重み、攻撃種別の Type ごとの怪我から表を作る。
+// 渡した map は表が所有する
+func NewConditionDefs(conds map[ConditionType]ConditionDef, hitWeights [BodyPartCount]float64, injuries map[string]ConditionType) ConditionDefs {
+	return ConditionDefs{conds: conds, hitWeights: hitWeights, injuries: injuries}
 }
 
 // Def は状態種類の定義を返す。未登録なら ok=false
@@ -44,4 +46,10 @@ func (d ConditionDefs) CanAffect(ct ConditionType, part BodyPart) bool {
 // HitWeight は戦闘の命中抽選での部位の重みを返す。0 なら命中先にならない
 func (d ConditionDefs) HitWeight(part BodyPart) float64 {
 	return d.hitWeights[part]
+}
+
+// Injury は攻撃種別が命中で負わせる怪我を返す。未登録なら ok=false
+func (d ConditionDefs) Injury(at AttackType) (ConditionType, bool) {
+	ct, ok := d.injuries[at.Type]
+	return ct, ok
 }

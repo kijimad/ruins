@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 )
 
 // BuildProfile は評価するプレイヤーのビルド。能力と武器に加え、スキル成長ぶんの熟練度倍率を持つ。
@@ -38,9 +39,13 @@ func RepresentativeBuilds(master oapi.Raws) ([]BuildProfile, error) {
 	if err != nil {
 		return nil, err
 	}
+	defs, err := raw.NewSkillDefs(master)
+	if err != nil {
+		return nil, err
+	}
 	builds := make([]BuildProfile, 0, len(buildStages))
 	for _, st := range buildStages {
-		mult := SkillDamagePercent(SkillLevelAfterAttacks(0, st.attacks))
+		mult := SkillDamagePercent(defs, SkillLevelAfterAttacks(0, st.attacks))
 		builds = append(builds, BuildProfile{Name: st.name, Player: player, Weapon: weapon, SkillMult: mult})
 	}
 	return builds, nil

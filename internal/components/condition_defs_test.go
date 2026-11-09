@@ -50,6 +50,9 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 	BodyPartHands: 1,
 	BodyPartLegs:  3,
 	BodyPartFeet:  1,
+}, map[string]ConditionType{
+	AttackFist.Type:  ConditionFracture,
+	AttackSword.Type: ConditionLaceration,
 })
 
 func TestConditionDefs_CanAffect(t *testing.T) {
@@ -101,4 +104,15 @@ func TestBodyPartByID(t *testing.T) {
 	}
 	_, ok := BodyPartByID("tail")
 	assert.False(t, ok)
+}
+
+func TestConditionDefs_Injury(t *testing.T) {
+	t.Parallel()
+
+	ct, ok := testDefs.Injury(AttackFist)
+	require.True(t, ok)
+	assert.Equal(t, ConditionFracture, ct)
+
+	_, ok = testDefs.Injury(AttackBow)
+	assert.False(t, ok, "未登録は ok=false")
 }
