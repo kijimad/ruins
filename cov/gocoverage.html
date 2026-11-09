@@ -123,7 +123,7 @@
 				
 				<option value="file33">github.com/kijimaD/ruins/internal/balance/combat.go (93.3%)</option>
 				
-				<option value="file34">github.com/kijimaD/ruins/internal/balance/economy.go (89.1%)</option>
+				<option value="file34">github.com/kijimaD/ruins/internal/balance/economy.go (89.2%)</option>
 				
 				<option value="file35">github.com/kijimaD/ruins/internal/balance/exchange.go (96.7%)</option>
 				
@@ -131,7 +131,7 @@
 				
 				<option value="file37">github.com/kijimaD/ruins/internal/balance/logistics.go (83.3%)</option>
 				
-				<option value="file38">github.com/kijimaD/ruins/internal/balance/loot.go (92.5%)</option>
+				<option value="file38">github.com/kijimaD/ruins/internal/balance/loot.go (92.2%)</option>
 				
 				<option value="file39">github.com/kijimaD/ruins/internal/balance/markov.go (92.2%)</option>
 				
@@ -147,7 +147,7 @@
 				
 				<option value="file45">github.com/kijimaD/ruins/internal/balance/restriction.go (80.6%)</option>
 				
-				<option value="file46">github.com/kijimaD/ruins/internal/balance/run.go (93.6%)</option>
+				<option value="file46">github.com/kijimaD/ruins/internal/balance/run.go (93.7%)</option>
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/balance/search.go (92.0%)</option>
 				
@@ -449,7 +449,7 @@
 				
 				<option value="file196">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (100.0%)</option>
 				
-				<option value="file197">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (92.6%)</option>
+				<option value="file197">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (92.5%)</option>
 				
 				<option value="file198">github.com/kijimaD/ruins/internal/maptemplate/palette.go (98.5%)</option>
 				
@@ -475,7 +475,7 @@
 				
 				<option value="file209">github.com/kijimaD/ruins/internal/overworld/grass_density.go (100.0%)</option>
 				
-				<option value="file210">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (84.4%)</option>
+				<option value="file210">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.1%)</option>
 				
 				<option value="file211">github.com/kijimaD/ruins/internal/overworld/landmark.go (86.8%)</option>
 				
@@ -501,11 +501,11 @@
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
-				<option value="file223">github.com/kijimaD/ruins/internal/raw/item_group.go (93.9%)</option>
+				<option value="file223">github.com/kijimaD/ruins/internal/raw/item_group.go (93.3%)</option>
 				
-				<option value="file224">github.com/kijimaD/ruins/internal/raw/raw.go (97.8%)</option>
+				<option value="file224">github.com/kijimaD/ruins/internal/raw/raw.go (98.0%)</option>
 				
-				<option value="file225">github.com/kijimaD/ruins/internal/raw/validate.go (95.4%)</option>
+				<option value="file225">github.com/kijimaD/ruins/internal/raw/validate.go (96.1%)</option>
 				
 				<option value="file226">github.com/kijimaD/ruins/internal/render3d/geometry.go (100.0%)</option>
 				
@@ -6949,7 +6949,7 @@ func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
 </span>                }
         }
 
-        <span class="cov8" title="1">return LoadWeaponFromItem(master, bestEntry.Weapon)</span>
+        <span class="cov8" title="1">return LoadWeaponFromItem(master, bestEntry.Id)</span>
 }
 </pre>
 		
@@ -6958,6 +6958,7 @@ func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
 import (
         "math"
 
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/oapi"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/world/query"
@@ -6981,29 +6982,70 @@ func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float
         <span class="cov8" title="1">return vSum / wSum</span>
 }
 
-// expectedGroupValue はアイテムグループの中身の重み付き期待売買価値を返す。グループでなく
-// アイテムを直接指す場合はその価値を返す。
+// expectedGroupValue はアイテムグループかアイテムコレクションから拾う1個あたりの期待売買価値を返す。各行の価値を、
+// 1回の抽選で出る個数の期待値で重み付けする。どちらでもなくアイテムを直接指す場合はその価値を返す。
 func expectedGroupValue(master oapi.Raws, id string) float64 {
-        <span class="cov8" title="1">g, err := raw.GetItemGroup(master, id)
-        if err != nil </span>{
+        <span class="cov8" title="1">draws, ok := expectedDraws(master, id)
+        if !ok </span>{
                 <span class="cov0" title="0">if it, e := raw.FindItem(master, id); e == nil </span>{
                         <span class="cov0" title="0">return float64(it.Value)
 </span>                }
                 <span class="cov0" title="0">return 0</span>
         }
-        <span class="cov8" title="1">var wSum, vSum float64
-        for _, e := range g.Entries </span>{
-                <span class="cov8" title="1">it, err := raw.FindItem(master, e.Id)
+        <span class="cov8" title="1">var nSum, vSum float64
+        for _, d := range draws </span>{
+                <span class="cov8" title="1">it, err := raw.FindItem(master, d.id)
                 if err != nil </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov8" title="1">wSum += e.Weight
-                vSum += e.Weight * float64(it.Value)</span>
+                <span class="cov8" title="1">nSum += d.count
+                vSum += d.count * float64(it.Value)</span>
         }
-        <span class="cov8" title="1">if wSum == 0 </span>{
+        <span class="cov8" title="1">if nSum == 0 </span>{
                 <span class="cov0" title="0">return 0
 </span>        }
-        <span class="cov8" title="1">return vSum / wSum</span>
+        <span class="cov8" title="1">return vSum / nSum</span>
+}
+
+// expectedDraw はアイテム1種と、1回の抽選で出る個数の期待値の組。
+type expectedDraw struct {
+        id    string
+        count float64
+}
+
+// expectedDraws は id が指すグループかコレクションを1回引いたときに、各行が出る個数の期待値を返す。グループは重みの比で
+// 1行だけ、コレクションは各行を出現確率で独立に出し、出た行は pack のダイスの期待値の個数になる。
+func expectedDraws(master oapi.Raws, id string) ([]expectedDraw, bool) {
+        <span class="cov8" title="1">if g, err := raw.GetItemGroup(master, id); err == nil </span>{
+                <span class="cov8" title="1">var wSum float64
+                for _, e := range g.Entries </span>{
+                        <span class="cov8" title="1">wSum += e.Weight
+</span>                }
+                <span class="cov8" title="1">out := make([]expectedDraw, 0, len(g.Entries))
+                for _, e := range g.Entries </span>{
+                        <span class="cov8" title="1">if wSum &gt; 0 </span>{
+                                <span class="cov8" title="1">out = append(out, expectedDraw{id: e.Id, count: e.Weight / wSum * expectedPack(e.Pack)})
+</span>                        }
+                }
+                <span class="cov8" title="1">return out, true</span>
+        }
+        <span class="cov8" title="1">if c, err := raw.GetItemCollection(master, id); err == nil </span>{
+                <span class="cov8" title="1">out := make([]expectedDraw, 0, len(c.Entries))
+                for _, e := range c.Entries </span>{
+                        <span class="cov8" title="1">out = append(out, expectedDraw{id: e.Id, count: e.Chance / 100 * expectedPack(e.Pack)})
+</span>                }
+                <span class="cov8" title="1">return out, true</span>
+        }
+        <span class="cov0" title="0">return nil, false</span>
+}
+
+// expectedPack は pack のダイスの期待値を返す。解釈できない表記は0。
+func expectedPack(pack oapi.Dice) float64 {
+        <span class="cov8" title="1">d, err := consts.ParseDice(pack)
+        if err != nil </span>{
+                <span class="cov0" title="0">return 0
+</span>        }
+        <span class="cov8" title="1">return float64(d.Min()+d.Max()) / 2</span>
 }
 
 // ExpectedNetLootValue は危険度 danger で拾える1個あたりの店売りの期待手取り額を返す。額面の
@@ -7364,12 +7406,7 @@ func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []dr
                 if !ok </span>{
                         <span class="cov0" title="0">return nil
 </span>                }
-                <span class="cov8" title="1">items := rollStorageLoot(master, name, rng)
-                out := make([]drawnLoot, 0, len(items))
-                for _, item := range items </span>{
-                        <span class="cov8" title="1">out = append(out, drawnLoot{name: item, count: 1})
-</span>                }
-                <span class="cov8" title="1">return out</span>
+                <span class="cov8" title="1">return rollStorageLoot(master, name, rng)</span>
         default:
                 // 装飾・敵・罠などは loot でない
                 <span class="cov8" title="1">return nil</span>
@@ -7435,9 +7472,9 @@ func roomTotalExpected(r oapi.BalanceRoomLoot) float64 {
         <span class="cov8" title="1">return sum</span>
 }
 
-// rollStorageLoot は収納家具1個の中身を抽選し、アイテム名を並べて返す。ゲームの populateStorageLoot と同型で、
-// LootTableId のテーブルから LootCount 個を深度考慮で引く。収納でない家具は空を返す。
-func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []string {
+// rollStorageLoot は収納家具1個の中身を抽選する。ゲームの populateStorageLoot と同型で、LootTableId のテーブルから
+// LootCount 回を深度考慮で引く。収納でない家具は空を返す。
+func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []drawnLoot {
         <span class="cov8" title="1">prop, err := raw.GetProp(master, propName)
         if err != nil || prop.Storage == nil || prop.Storage.LootTableId == nil || *prop.Storage.LootTableId == "" </span>{
                 <span class="cov8" title="1">return nil
@@ -7452,13 +7489,15 @@ func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []string
                         <span class="cov8" title="1">n = d.Roll(rng)
 </span>                }
         }
-        <span class="cov8" title="1">out := make([]string, 0, n)
+        <span class="cov8" title="1">var out []drawnLoot
         for range n </span>{
-                <span class="cov8" title="1">itemName, serr := raw.SelectItemByWeight(master, table, rng, roomLootDepth)
-                if serr != nil || itemName == "" </span>{
+                <span class="cov8" title="1">draws, derr := raw.DrawFromItemTable(master, table, rng, roomLootDepth)
+                if derr != nil </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov8" title="1">out = append(out, itemName)</span>
+                <span class="cov8" title="1">for _, d := range draws </span>{
+                        <span class="cov8" title="1">out = append(out, drawnLoot{name: d.Name, count: d.Count})
+</span>                }
         }
         <span class="cov8" title="1">return out</span>
 }
@@ -8472,39 +8511,40 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
         <span class="cov8" title="1">itemCount := floorItemBase + rng.IntN(floorItemRandom)
 </span>
         <span class="cov8" title="1">for range itemCount </span>{
-                <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)
-</span>
-                <span class="cov8" title="1">if err != nil || itemName == "" </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
-
-                <span class="cov8" title="1">spec, err := raw.NewItemSpec(master, itemName)
+                <span class="cov8" title="1">draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)
                 if err != nil </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-
-                <span class="cov8" title="1">if spec.ProvidesHealing != nil </span>{
-                        <span class="cov8" title="1">result.healing += spec.ProvidesHealing.Calc(playerMaxHP)
+                <span class="cov8" title="1">for _, d := range draws </span>{
+                        <span class="cov8" title="1">addFloorLoot(&amp;result, master, d, playerMaxHP)
 </span>                }
-                <span class="cov8" title="1">if spec.ProvidesNutrition != nil </span>{
-                        <span class="cov8" title="1">result.nutrition += spec.ProvidesNutrition.Amount
-</span>                }
-
-                <span class="cov8" title="1">w, err := LoadWeaponFromItem(master, itemName)
-                if err == nil &amp;&amp; (result.weapon == nil || w.Damage &gt; result.weapon.Damage) </span>{
-                        <span class="cov8" title="1">result.weapon = &amp;w
-                        result.weaponName = itemName
-</span>                }
-
-                // 拾った loot をすべて売った仮定の粗収入。装備・消費する品も一律に計上する上限指標
-                <span class="cov8" title="1">if it, e := raw.FindItem(master, itemName); e == nil </span>{
-                        <span class="cov8" title="1">if net := query.CalculateSellPrice(it.Value); net &gt; 0 </span>{
-                                <span class="cov8" title="1">result.income += int(net)
-</span>                        }
-                }
         }
 
         <span class="cov8" title="1">return result</span>
+}
+
+// addFloorLoot は拾った1山を回復量・栄養・最強の武器・売却額へ積む。
+func addFloorLoot(result *floorLoot, master oapi.Raws, d raw.DrawnItem, playerMaxHP int) {
+        <span class="cov8" title="1">spec, err := raw.NewItemSpec(master, d.Name)
+        if err != nil </span>{
+                <span class="cov0" title="0">return
+</span>        }
+        <span class="cov8" title="1">if spec.ProvidesHealing != nil </span>{
+                <span class="cov8" title="1">result.healing += spec.ProvidesHealing.Calc(playerMaxHP) * d.Count
+</span>        }
+        <span class="cov8" title="1">if spec.ProvidesNutrition != nil </span>{
+                <span class="cov8" title="1">result.nutrition += spec.ProvidesNutrition.Amount * d.Count
+</span>        }
+        <span class="cov8" title="1">if w, err := LoadWeaponFromItem(master, d.Name); err == nil &amp;&amp; (result.weapon == nil || w.Damage &gt; result.weapon.Damage) </span>{
+                <span class="cov8" title="1">result.weapon = &amp;w
+                result.weaponName = d.Name
+</span>        }
+        // 拾った loot をすべて売った仮定の粗収入。装備・消費する品も一律に計上する上限指標
+        <span class="cov8" title="1">if it, e := raw.FindItem(master, d.Name); e == nil </span>{
+                <span class="cov8" title="1">if net := query.CalculateSellPrice(it.Value); net &gt; 0 </span>{
+                        <span class="cov8" title="1">result.income += int(net) * d.Count
+</span>                }
+        }
 }
 
 // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す
@@ -24208,7 +24248,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 </span>                }
                 <span class="cov8" title="1">source := sources[si]
 </span>
-                // グループから1山を抽選する。distribution/collection と pack の解釈は raw が担う
+                // グループから1山を抽選する。グループとコレクションの引き分けと pack の解釈は raw が担う
                 <span class="cov8" title="1">items, err := raw.SelectFromItemGroup(*planData.RawMaster, source.GroupID, planData.RNG)
                 if err != nil </span>{
                         <span class="cov0" title="0">return err
@@ -26200,21 +26240,21 @@ func CreateTestRawMaster() *oapi.Raws {
         // テスト用のアイテムグループを定義
         <span class="cov8" title="1">testItemGroups := []oapi.ItemGroup{
                 {
-                        Id:      "healing_items",
-                        Name:    "healing_items",
-                        Subtype: oapi.Distribution,
+                        Id:   "healing_items",
+                        Name: "healing_items",
                         Entries: []oapi.ItemGroupEntry{
                                 {Id: "healing_potion", Weight: 1.0, Pack: "1d3"},
                                 {Id: "antidote", Weight: 0.5, Pack: "1d1"},
                         },
                 },
+</span>        }
+        <span class="cov8" title="1">testItemCollections := []oapi.ItemCollection{
                 {
-                        Id:      "ores",
-                        Name:    "ores",
-                        Subtype: oapi.Collection,
-                        Entries: []oapi.ItemGroupEntry{
-                                {Id: "obsidian", Weight: 50, Pack: "1d2"},
-                                {Id: "silver_shard", Weight: 30, Pack: "1d1"},
+                        Id:   "ores",
+                        Name: "ores",
+                        Entries: []oapi.ItemCollectionEntry{
+                                {Id: "obsidian", Chance: 50, Pack: "1d2"},
+                                {Id: "silver_shard", Chance: 30, Pack: "1d1"},
                         },
                 },
 </span>        }
@@ -26231,9 +26271,10 @@ func CreateTestRawMaster() *oapi.Raws {
                         {Id: "herb", Name: "herb", Description: "herb"},
                         {Id: "wooden_sword", Name: "wooden_sword", Description: "a wooden sword"},
                 },
-                ItemGroups:  &amp;testItemGroups,
-                ItemTables:  &amp;testItemTables,
-                EnemyTables: &amp;testEnemyTables,
+                ItemGroups:      &amp;testItemGroups,
+                ItemCollections: &amp;testItemCollections,
+                ItemTables:      &amp;testItemTables,
+                EnemyTables:     &amp;testEnemyTables,
 </span>        }
 }
 </pre>
@@ -26563,17 +26604,15 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
         <span class="cov8" title="1">danger := metaPlan.Danger
 </span>
         <span class="cov8" title="1">for range lootCount </span>{
-                <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
+                <span class="cov8" title="1">draws, err := raw.DrawFromItemTable(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
                 if err != nil </span>{
                         <span class="cov8" title="1">return fmt.Errorf("failed to draw item: %w", err)
 </span>                }
-                <span class="cov8" title="1">if itemName == "" </span>{
-                        <span class="cov8" title="1">continue</span>
+                <span class="cov8" title="1">for _, d := range draws </span>{
+                        <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, storageEntity); err != nil </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("failed to spawn item '%s': %w", d.Name, err)
+</span>                        }
                 }
-
-                <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("failed to spawn item '%s': %w", itemName, err)
-</span>                }
         }
 
         <span class="cov8" title="1">return nil</span>
@@ -28889,7 +28928,7 @@ func doorOrientation(wallSet map[interior.Vec]bool, pos interior.Vec) gc.DoorOri
 }
 
 // spawnFieldLoot は loot の item group から1山を抽選し、床へアイテムを spawn する。抽選は
-// raw.SelectFromItemGroup が distribution/collection と pack を解釈する。地上フロアなので深度は扱わず
+// raw.SelectFromItemGroup がグループとコレクションを引き分け、pack を解釈する。地上フロアなので深度は扱わず
 // group を直接引く。収納 loot の populateStorageLoot と同型で、建物ローカルの決定的 RNG を使い再訪で一致させる。
 func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
         <span class="cov8" title="1">draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
@@ -28968,16 +29007,15 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
         }
         <span class="cov8" title="1">n := lootDice.Roll(rng)
         for range n </span>{
-                <span class="cov8" title="1">itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))
+                <span class="cov8" title="1">draws, err := raw.DrawFromItemTable(world.Resources.RawMaster, itemTable, rng, int(danger))
                 if err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
-                <span class="cov8" title="1">if itemName == "" </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">for _, d := range draws </span>{
+                        <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, entity); err != nil </span>{
+                                <span class="cov0" title="0">return err
+</span>                        }
                 }
-                <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil </span>{
-                        <span class="cov0" title="0">return err
-</span>                }
         }
         <span class="cov8" title="1">return nil</span>
 }
@@ -30706,13 +30744,8 @@ import (
         "github.com/kijimaD/ruins/internal/oapi"
 )
 
-// item group 抽選のエラー。呼び出し側とテストが errors.Is で種類を同定できるようにする。
-var (
-        // errUnknownItemGroupSubtype は group.Subtype が既知の distribution/collection いずれでもないときに返す。
-        errUnknownItemGroupSubtype = errors.New("unknown item group subtype")
-        // errInvalidPackDice は pack のダイス表記が解釈できないときに返す。
-        errInvalidPackDice = errors.New("invalid pack dice")
-)
+// errInvalidPackDice は pack のダイス表記が解釈できないときに返す。
+var errInvalidPackDice = errors.New("invalid pack dice")
 
 // DrawnItem は item group から抽選した1件。名前と個数を持つ。
 type DrawnItem struct {
@@ -30720,28 +30753,22 @@ type DrawnItem struct {
         Count int
 }
 
-// SelectFromItemGroup は item group から1回ぶんの loot を抽選する。distribution は重み比で1エントリを選び、
-// collection は各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。stackable は個数を1エントリ
-// にまとめ、非 stackable は1個ずつのエントリに展開する。危険度を扱わず group を直接引くので、地上の床 loot と
-// 家具の収納 loot が同じ抽選を共有できる。
-func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]DrawnItem, error) {
-        <span class="cov8" title="1">group, err := GetItemGroup(raws, groupID)
-        if err != nil </span>{
-                <span class="cov8" title="1">return nil, err
+// SelectFromItemGroup は id が指すアイテムグループかアイテムコレクションから1回ぶんの loot を抽選する。グループは
+// 重み比で1エントリを選び、コレクションは各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。
+// 危険度を扱わず直接引くので、地上の床 loot と家具の収納 loot が同じ抽選を共有できる。
+func SelectFromItemGroup(raws oapi.Raws, id string, rng *rand.Rand) ([]DrawnItem, error) {
+        <span class="cov8" title="1">if g, err := GetItemGroup(raws, id); err == nil </span>{
+                <span class="cov8" title="1">return drawGroup(g.Entries, rng)
 </span>        }
-        <span class="cov8" title="1">switch group.Subtype </span>{
-        case oapi.Distribution:
-                <span class="cov8" title="1">return drawDistribution(group.Entries, rng)</span>
-        case oapi.Collection:
-                <span class="cov8" title="1">return drawCollection(group.Entries, rng)</span>
-        default:
-                // group.Subtype は raw 由来で未知値が来うる。データ不整合として呼び出し側へ返す
-                <span class="cov8" title="1">return nil, fmt.Errorf("%w for %q: %s", errUnknownItemGroupSubtype, groupID, group.Subtype)</span>
-        }
+        <span class="cov8" title="1">c, err := GetItemCollection(raws, id)
+        if err != nil </span>{
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: %s", errItemGroupNotExist, id)
+</span>        }
+        <span class="cov8" title="1">return drawCollection(c.Entries, rng)</span>
 }
 
-// drawDistribution は重み比で1エントリを選び、その pack ぶんを返す。
-func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
+// drawGroup は重み比で1エントリを選び、その pack ぶんを返す。
+func drawGroup(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
         <span class="cov8" title="1">i, ok := consts.Pick(rng, entries, func(e oapi.ItemGroupEntry) float64 </span>{ <span class="cov8" title="1">return e.Weight }</span>)
         <span class="cov8" title="1">if !ok </span>{
                 <span class="cov8" title="1">return nil, nil
@@ -30754,15 +30781,12 @@ func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnIte
         <span class="cov8" title="1">return expandDraw(entry.Id, count), nil</span>
 }
 
-// drawCollection は各エントリを 0-100 の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない
+// drawCollection は各エントリを chance の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない
 // こともある。
-func drawCollection(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
+func drawCollection(entries []oapi.ItemCollectionEntry, rng *rand.Rand) ([]DrawnItem, error) {
         <span class="cov8" title="1">var out []DrawnItem
         for _, e := range entries </span>{
-                <span class="cov8" title="1">if e.Weight &lt;= 0 </span>{
-                        <span class="cov8" title="1">continue</span>
-                }
-                <span class="cov8" title="1">if rng.Float64()*100 &lt; e.Weight </span>{
+                <span class="cov8" title="1">if rng.Float64()*100 &lt; e.Chance </span>{
                         <span class="cov8" title="1">count, err := rollPack(e.Pack, rng)
                         if err != nil </span>{
                                 <span class="cov0" title="0">return nil, err
@@ -31431,7 +31455,7 @@ func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
         <span class="cov8" title="1">return dt, nil</span>
 }
 
-// errItemGroupNotExist は指定した ID の item group が存在しないときに返す。テストと呼び出し側が errors.Is で同定できる。
+// errItemGroupNotExist は指定した ID のアイテムグループもアイテムコレクションも存在しないときに返す。
 var errItemGroupNotExist = errors.New("item group does not exist")
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
@@ -31441,6 +31465,15 @@ func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
                 <span class="cov8" title="1">return oapi.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
 </span>        }
         <span class="cov8" title="1">return ig, nil</span>
+}
+
+// GetItemCollection は指定された id のアイテムコレクションを取得する
+func GetItemCollection(raws oapi.Raws, id string) (oapi.ItemCollection, error) {
+        <span class="cov8" title="1">c, ok := findByKey(raws.ItemCollections, func(c oapi.ItemCollection) string </span>{ <span class="cov8" title="1">return c.Id }</span>, id)
+        <span class="cov8" title="1">if !ok </span>{
+                <span class="cov8" title="1">return oapi.ItemCollection{}, NewKeyNotFoundError(id, "ItemCollections")
+</span>        }
+        <span class="cov8" title="1">return c, nil</span>
 }
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
@@ -31683,16 +31716,25 @@ func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error)
         <span class="cov8" title="1">if !ok </span>{
                 <span class="cov0" title="0">return "", nil
 </span>        }
-        <span class="cov8" title="1">return ct.Entries[i].Weapon, nil</span>
+        <span class="cov8" title="1">return ct.Entries[i].Id, nil</span>
 }
 
-// SelectDropByWeight はドロップテーブルから重み付きランダム選択する
+// SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。
 func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
-        <span class="cov8" title="1">i, ok := consts.Pick(rng, dt.Entries, func(e oapi.DropTableEntry) float64 </span>{ <span class="cov8" title="1">return e.Weight }</span>)
-        <span class="cov8" title="1">if !ok </span>{
+        <span class="cov8" title="1">weights := make([]float64, 0, len(dt.Entries)+1)
+        var nothing float64
+        if dt.Nothing != nil </span>{
+                <span class="cov8" title="1">nothing = *dt.Nothing
+</span>        }
+        <span class="cov8" title="1">weights = append(weights, nothing)
+        for _, e := range dt.Entries </span>{
+                <span class="cov8" title="1">weights = append(weights, e.Weight)
+</span>        }
+        <span class="cov8" title="1">i, ok := consts.Pick(rng, weights, func(w float64) float64 </span>{ <span class="cov8" title="1">return w }</span>)
+        <span class="cov8" title="1">if !ok || i == 0 </span>{
                 <span class="cov8" title="1">return "", nil
 </span>        }
-        <span class="cov8" title="1">return dt.Entries[i].Material, nil</span>
+        <span class="cov8" title="1">return dt.Entries[i-1].Id, nil</span>
 }
 
 // MinDanger は spawn テーブルが引ける最小の危険度。テーブルは1始まり設計で、これ未満は
@@ -31729,26 +31771,18 @@ func checkDanger(danger int) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する
-// テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
-func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
+// DrawFromItemTable はアイテムテーブルから危険度に合うグループを重みで1つ選び、そのグループから1回ぶんを引く。
+// グループの引き方は SelectFromItemGroup に従う。
+func DrawFromItemTable(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) ([]DrawnItem, error) {
         <span class="cov8" title="1">if err := checkDanger(danger); err != nil </span>{
-                <span class="cov8" title="1">return "", err
+                <span class="cov8" title="1">return nil, err
 </span>        }
         <span class="cov8" title="1">entries := ItemEntriesAt(it, danger)
         i, ok := consts.Pick(rng, entries, func(e oapi.ItemTableEntry) float64 </span>{ <span class="cov8" title="1">return e.Weight }</span>)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return "", nil
+                <span class="cov8" title="1">return nil, nil
 </span>        }
-        <span class="cov8" title="1">group, err := GetItemGroup(raws, entries[i].Id)
-        if err != nil </span>{
-                <span class="cov8" title="1">return "", err
-</span>        }
-        <span class="cov8" title="1">j, ok := consts.Pick(rng, group.Entries, func(e oapi.ItemGroupEntry) float64 </span>{ <span class="cov8" title="1">return e.Weight }</span>)
-        <span class="cov8" title="1">if !ok </span>{
-                <span class="cov0" title="0">return "", nil
-</span>        }
-        <span class="cov8" title="1">return group.Entries[j].Id, nil</span>
+        <span class="cov8" title="1">return SelectFromItemGroup(raws, entries[i].Id, rng)</span>
 }
 
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する
@@ -31805,6 +31839,7 @@ var (
         errInteriorContentRefUndefined    = errors.New("interior recipe references undefined content")
         errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
         errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
+        errItemGroupIDDuplicated          = errors.New("item group and item collection share an id")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -31889,21 +31924,25 @@ func ValidateReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">return validateCommandTableWeaponReferences(raws)</span>
 }
 
-// validateItemTableReferences はアイテムテーブルの参照グループ id がアイテムグループ定義に存在することを検証する。
-// 空文字は参照なしとして扱い、非空の参照だけを検証する
-func validateItemTableReferences(raws oapi.Raws) error {
-        <span class="cov8" title="1">groups := PtrSlice(raws.ItemGroups)
-        groupNames := make(map[string]struct{}, len(groups))
-        for i := range groups </span>{
-                <span class="cov8" title="1">groupNames[groups[i].Id] = struct{}{}
+// itemGroupIDs はアイテムグループとアイテムコレクションの id の集合を返す。どちらも同じ id 空間で参照される。
+func itemGroupIDs(raws oapi.Raws) map[string]struct{} {
+        <span class="cov8" title="1">ids := make(map[string]struct{})
+        for _, g := range PtrSlice(raws.ItemGroups) </span>{
+                <span class="cov8" title="1">ids[g.Id] = struct{}{}
 </span>        }
+        <span class="cov8" title="1">for _, c := range PtrSlice(raws.ItemCollections) </span>{
+                <span class="cov8" title="1">ids[c.Id] = struct{}{}
+</span>        }
+        <span class="cov8" title="1">return ids</span>
+}
 
+// validateItemTableReferences はアイテムテーブルの参照 id がアイテムグループかアイテムコレクションに存在することを検証する。
+func validateItemTableReferences(raws oapi.Raws) error {
+        <span class="cov8" title="1">groupNames := itemGroupIDs(raws)
+</span>
         <span class="cov8" title="1">itemTables := PtrSlice(raws.ItemTables)
         for i := range itemTables </span>{
                 <span class="cov8" title="1">for _, entry := range itemTables[i].Entries </span>{
-                        <span class="cov8" title="1">if entry.Id == "" </span>{
-                                <span class="cov8" title="1">continue</span>
-                        }
                         <span class="cov8" title="1">if _, ok := groupNames[entry.Id]; !ok </span>{
                                 <span class="cov8" title="1">return fmt.Errorf("item table %q references group %q: %w", itemTables[i].Name, entry.Id, errItemTableRefUndefinedGroup)
 </span>                        }
@@ -31912,7 +31951,8 @@ func validateItemTableReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// validateItemGroupReferences はアイテムグループの参照アイテム id がアイテム定義に存在することを検証する
+// validateItemGroupReferences はアイテムグループとアイテムコレクションの参照アイテム id がアイテム定義に存在すること、
+// 両者の id が重ならないことを検証する
 func validateItemGroupReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">items := PtrSlice(raws.Items)
         itemNames := make(map[string]struct{}, len(items))
@@ -31921,13 +31961,23 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 </span>        }
 
         <span class="cov8" title="1">groups := PtrSlice(raws.ItemGroups)
+        groupIDs := make(map[string]struct{}, len(groups))
         for i := range groups </span>{
-                <span class="cov8" title="1">for _, entry := range groups[i].Entries </span>{
-                        <span class="cov8" title="1">if entry.Id == "" </span>{
-                                <span class="cov0" title="0">continue</span>
-                        }
+                <span class="cov8" title="1">groupIDs[groups[i].Id] = struct{}{}
+                for _, entry := range groups[i].Entries </span>{
                         <span class="cov8" title="1">if _, ok := itemNames[entry.Id]; !ok </span>{
                                 <span class="cov8" title="1">return fmt.Errorf("item group %q references item %q: %w", groups[i].Name, entry.Id, errItemGroupRefUndefinedItem)
+</span>                        }
+                }
+        }
+        <span class="cov8" title="1">collections := PtrSlice(raws.ItemCollections)
+        for i := range collections </span>{
+                <span class="cov8" title="1">if _, ok := groupIDs[collections[i].Id]; ok </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("%q: %w", collections[i].Id, errItemGroupIDDuplicated)
+</span>                }
+                <span class="cov8" title="1">for _, entry := range collections[i].Entries </span>{
+                        <span class="cov8" title="1">if _, ok := itemNames[entry.Id]; !ok </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("item collection %q references item %q: %w", collections[i].Name, entry.Id, errItemGroupRefUndefinedItem)
 </span>                        }
                 }
         }
@@ -31945,9 +31995,6 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">enemyTables := PtrSlice(raws.EnemyTables)
         for i := range enemyTables </span>{
                 <span class="cov8" title="1">for _, entry := range enemyTables[i].Entries </span>{
-                        <span class="cov8" title="1">if entry.Id == "" </span>{
-                                <span class="cov0" title="0">continue</span>
-                        }
                         <span class="cov8" title="1">if _, ok := memberNames[entry.Id]; !ok </span>{
                                 <span class="cov8" title="1">return fmt.Errorf("enemy table %q references enemy %q: %w", enemyTables[i].Name, entry.Id, errEnemyTableRefUndefinedEnemy)
 </span>                        }
@@ -32154,11 +32201,8 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
         <span class="cov8" title="1">commandTables := PtrSlice(raws.CommandTables)
         for i := range commandTables </span>{
                 <span class="cov8" title="1">for _, entry := range commandTables[i].Entries </span>{
-                        <span class="cov8" title="1">if entry.Weapon == "" </span>{
-                                <span class="cov8" title="1">continue</span>
-                        }
-                        <span class="cov8" title="1">if _, ok := itemNames[entry.Weapon]; !ok </span>{
-                                <span class="cov8" title="1">return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Weapon, errCommandTableRefUndefinedWeapon)
+                        <span class="cov8" title="1">if _, ok := itemNames[entry.Id]; !ok </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Id, errCommandTableRefUndefinedWeapon)
 </span>                        }
                 }
         }
@@ -32213,12 +32257,8 @@ func validateDropTableReferences(raws oapi.Raws) error {
         for i := range dropTables </span>{
                 <span class="cov8" title="1">tableNames[dropTables[i].Id] = struct{}{}
                 for _, entry := range dropTables[i].Entries </span>{
-                        // 空文字はドロップなしを意味する正規の値
-                        <span class="cov8" title="1">if entry.Material == "" </span>{
-                                <span class="cov8" title="1">continue</span>
-                        }
-                        <span class="cov8" title="1">if _, ok := itemNames[entry.Material]; !ok </span>{
-                                <span class="cov8" title="1">return fmt.Errorf("drop table %q material %q: %w", dropTables[i].Name, entry.Material, errDropTableMaterialUndefined)
+                        <span class="cov8" title="1">if _, ok := itemNames[entry.Id]; !ok </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("drop table %q material %q: %w", dropTables[i].Name, entry.Id, errDropTableMaterialUndefined)
 </span>                        }
                 }
         }
@@ -32264,12 +32304,8 @@ func validateScatterZoneReferences(raws oapi.Raws) error {
         for i := range props </span>{
                 <span class="cov8" title="1">propNames[props[i].Id] = struct{}{}
 </span>        }
-        <span class="cov8" title="1">groups := PtrSlice(raws.ItemGroups)
-        groupIDs := make(map[string]struct{}, len(groups))
-        for i := range groups </span>{
-                <span class="cov8" title="1">groupIDs[groups[i].Id] = struct{}{}
-</span>        }
-
+        <span class="cov8" title="1">groupIDs := itemGroupIDs(raws)
+</span>
         <span class="cov8" title="1">for _, z := range PtrSlice(raws.ScatterZones) </span>{
                 <span class="cov8" title="1">if _, ok := groupIDs[z.LootGroup]; !ok </span>{
                         <span class="cov8" title="1">return fmt.Errorf("scatter zone %q references item group %q: %w", z.Id, z.LootGroup, errScatterLootGroupUndefined)

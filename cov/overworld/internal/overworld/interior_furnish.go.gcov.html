@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.5&nbsp;%</td>
-            <td class="headerCovTableEntry">149</td>
+            <td class="headerCovTableEntryMed">77.0&nbsp;%</td>
+            <td class="headerCovTableEntry">148</td>
             <td class="headerCovTableEntry">114</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-09 15:09:50</td>
+            <td class="headerValue">2026-11-09 16:11:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -210,7 +210,7 @@
 <span id="L148"><span class="lineNum">     148</span>              : }</span>
 <span id="L149"><span class="lineNum">     149</span>              : </span>
 <span id="L150"><span class="lineNum">     150</span>              : // spawnFieldLoot は loot の item group から1山を抽選し、床へアイテムを spawn する。抽選は</span>
-<span id="L151"><span class="lineNum">     151</span>              : // raw.SelectFromItemGroup が distribution/collection と pack を解釈する。地上フロアなので深度は扱わず</span>
+<span id="L151"><span class="lineNum">     151</span>              : // raw.SelectFromItemGroup がグループとコレクションを引き分け、pack を解釈する。地上フロアなので深度は扱わず</span>
 <span id="L152"><span class="lineNum">     152</span>              : // group を直接引く。収納 loot の populateStorageLoot と同型で、建物ローカルの決定的 RNG を使い再訪で一致させる。</span>
 <span id="L153"><span class="lineNum">     153</span>              : func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng *rand.Rand) error {</span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)</span></span>
@@ -289,19 +289,18 @@
 <span id="L227"><span class="lineNum">     227</span>              :         }</span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         n := lootDice.Roll(rng)</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         for range n {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 draws, err := raw.DrawFromItemTable(world.Resources.RawMaster, itemTable, rng, int(danger))</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">           1 :                 if itemName == &quot;&quot; {</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L236"><span class="lineNum">     236</span>              :                 }</span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L240"><span class="lineNum">     240</span>              :         }</span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L242"><span class="lineNum">     242</span>              : }</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">           1 :                 for _, d := range draws {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, entity); err != nil {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return err</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L238"><span class="lineNum">     238</span>              :                 }</span>
+<span id="L239"><span class="lineNum">     239</span>              :         }</span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L241"><span class="lineNum">     241</span>              : }</span>
         </pre>
               </td>
             </tr>

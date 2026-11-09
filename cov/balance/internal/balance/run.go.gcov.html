@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">93.8&nbsp;%</td>
-            <td class="headerCovTableEntry">145</td>
-            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntryHi">93.2&nbsp;%</td>
+            <td class="headerCovTableEntry">147</td>
+            <td class="headerCovTableEntry">137</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-09 15:09:50</td>
+            <td class="headerValue">2026-11-09 16:11:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -241,80 +241,81 @@
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         itemCount := floorItemBase + rng.IntN(floorItemRandom)</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         for range itemCount {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 if err != nil || itemName == &quot;&quot; {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L186"><span class="lineNum">     186</span>              :                 }</span>
-<span id="L187"><span class="lineNum">     187</span>              : </span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 :                 spec, err := raw.NewItemSpec(master, itemName)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L191"><span class="lineNum">     191</span>              :                 }</span>
-<span id="L192"><span class="lineNum">     192</span>              : </span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC tlaBgGNC">           1 :                 if spec.ProvidesHealing != nil {</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                         result.healing += spec.ProvidesHealing.Calc(playerMaxHP)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 if spec.ProvidesNutrition != nil {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                         result.nutrition += spec.ProvidesNutrition.Amount</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L199"><span class="lineNum">     199</span>              : </span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 w, err := LoadWeaponFromItem(master, itemName)</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 if err == nil &amp;&amp; (result.weapon == nil || w.Damage &gt; result.weapon.Damage) {</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                         result.weapon = &amp;w</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                         result.weaponName = itemName</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L205"><span class="lineNum">     205</span>              : </span>
-<span id="L206"><span class="lineNum">     206</span>              :                 // 拾った loot をすべて売った仮定の粗収入。装備・消費する品も一律に計上する上限指標</span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 if it, e := raw.FindItem(master, itemName); e == nil {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                         if net := query.CalculateSellPrice(it.Value); net &gt; 0 {</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                                 result.income += int(net)</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L211"><span class="lineNum">     211</span>              :                 }</span>
-<span id="L212"><span class="lineNum">     212</span>              :         }</span>
-<span id="L213"><span class="lineNum">     213</span>              : </span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         return result</span></span>
-<span id="L215"><span class="lineNum">     215</span>              : }</span>
-<span id="L216"><span class="lineNum">     216</span>              : </span>
-<span id="L217"><span class="lineNum">     217</span>              : // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す</span>
-<span id="L218"><span class="lineNum">     218</span>              : func RunBattles(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, n int, rng *rand.Rand) []BattleResult {</span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         results := make([]BattleResult, n)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         for i := range n {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 results[i] = SimulateBattle(player, enemy, playerWeapon, enemyWeapon, rng)</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         return results</span></span>
-<span id="L224"><span class="lineNum">     224</span>              : }</span>
-<span id="L225"><span class="lineNum">     225</span>              : </span>
-<span id="L226"><span class="lineNum">     226</span>              : // BattleStats はN回の戦闘結果の統計を提供する</span>
-<span id="L227"><span class="lineNum">     227</span>              : type BattleStats struct {</span>
-<span id="L228"><span class="lineNum">     228</span>              :         Results []BattleResult</span>
-<span id="L229"><span class="lineNum">     229</span>              : }</span>
-<span id="L230"><span class="lineNum">     230</span>              : </span>
-<span id="L231"><span class="lineNum">     231</span>              : // DPS は1ターンあたりのプレイヤーの平均与ダメージを返す</span>
-<span id="L232"><span class="lineNum">     232</span>              : func (bs BattleStats) DPS() float64 {</span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         if len(bs.Results) == 0 {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         var totalDamage, totalTurns int</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         for _, r := range bs.Results {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 totalDamage += r.DamageDealt</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 totalTurns += r.Turns</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         if totalTurns == 0 {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         return float64(totalDamage) / float64(totalTurns)</span></span>
-<span id="L245"><span class="lineNum">     245</span>              : }</span>
-<span id="L246"><span class="lineNum">     246</span>              : </span>
-<span id="L247"><span class="lineNum">     247</span>              : // RunSimulations はN回のランシミュレーションを実行する</span>
-<span id="L248"><span class="lineNum">     248</span>              : func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {</span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         results := make([]RunResult, n)</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         for i := range n {</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 rng := rand.New(rand.NewPCG(seed+uint64(i), 0))</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 results[i] = SimulateRun(master, enemyTableName, player, playerWeapon, maxDepth, rng)</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         return RunStats{Results: results}</span></span>
-<span id="L255"><span class="lineNum">     255</span>              : }</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L185"><span class="lineNum">     185</span>              :                 }</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC tlaBgGNC">           1 :                 for _, d := range draws {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                         addFloorLoot(&amp;result, master, d, playerMaxHP)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L189"><span class="lineNum">     189</span>              :         }</span>
+<span id="L190"><span class="lineNum">     190</span>              : </span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : }</span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span>              : // addFloorLoot は拾った1山を回復量・栄養・最強の武器・売却額へ積む。</span>
+<span id="L195"><span class="lineNum">     195</span>              : func addFloorLoot(result *floorLoot, master oapi.Raws, d raw.DrawnItem, playerMaxHP int) {</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         spec, err := raw.NewItemSpec(master, d.Name)</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC tlaBgGNC">           1 :         if spec.ProvidesHealing != nil {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 result.healing += spec.ProvidesHealing.Calc(playerMaxHP) * d.Count</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         if spec.ProvidesNutrition != nil {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 result.nutrition += spec.ProvidesNutrition.Amount * d.Count</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         if w, err := LoadWeaponFromItem(master, d.Name); err == nil &amp;&amp; (result.weapon == nil || w.Damage &gt; result.weapon.Damage) {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 result.weapon = &amp;w</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 result.weaponName = d.Name</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L210"><span class="lineNum">     210</span>              :         // 拾った loot をすべて売った仮定の粗収入。装備・消費する品も一律に計上する上限指標</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         if it, e := raw.FindItem(master, d.Name); e == nil {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 if net := query.CalculateSellPrice(it.Value); net &gt; 0 {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                         result.income += int(net) * d.Count</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L215"><span class="lineNum">     215</span>              :         }</span>
+<span id="L216"><span class="lineNum">     216</span>              : }</span>
+<span id="L217"><span class="lineNum">     217</span>              : </span>
+<span id="L218"><span class="lineNum">     218</span>              : // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す</span>
+<span id="L219"><span class="lineNum">     219</span>              : func RunBattles(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, n int, rng *rand.Rand) []BattleResult {</span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         results := make([]BattleResult, n)</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         for i := range n {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 results[i] = SimulateBattle(player, enemy, playerWeapon, enemyWeapon, rng)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         return results</span></span>
+<span id="L225"><span class="lineNum">     225</span>              : }</span>
+<span id="L226"><span class="lineNum">     226</span>              : </span>
+<span id="L227"><span class="lineNum">     227</span>              : // BattleStats はN回の戦闘結果の統計を提供する</span>
+<span id="L228"><span class="lineNum">     228</span>              : type BattleStats struct {</span>
+<span id="L229"><span class="lineNum">     229</span>              :         Results []BattleResult</span>
+<span id="L230"><span class="lineNum">     230</span>              : }</span>
+<span id="L231"><span class="lineNum">     231</span>              : </span>
+<span id="L232"><span class="lineNum">     232</span>              : // DPS は1ターンあたりのプレイヤーの平均与ダメージを返す</span>
+<span id="L233"><span class="lineNum">     233</span>              : func (bs BattleStats) DPS() float64 {</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         if len(bs.Results) == 0 {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         var totalDamage, totalTurns int</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         for _, r := range bs.Results {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 totalDamage += r.DamageDealt</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 totalTurns += r.Turns</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         if totalTurns == 0 {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         return float64(totalDamage) / float64(totalTurns)</span></span>
+<span id="L246"><span class="lineNum">     246</span>              : }</span>
+<span id="L247"><span class="lineNum">     247</span>              : </span>
+<span id="L248"><span class="lineNum">     248</span>              : // RunSimulations はN回のランシミュレーションを実行する</span>
+<span id="L249"><span class="lineNum">     249</span>              : func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {</span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         results := make([]RunResult, n)</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         for i := range n {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 rng := rand.New(rand.NewPCG(seed+uint64(i), 0))</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 results[i] = SimulateRun(master, enemyTableName, player, playerWeapon, maxDepth, rng)</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         return RunStats{Results: results}</span></span>
+<span id="L256"><span class="lineNum">     256</span>              : }</span>
         </pre>
               </td>
             </tr>
