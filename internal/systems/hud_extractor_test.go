@@ -236,6 +236,7 @@ func TestExtractStatusBadgesData(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
+			query.GetUserSettings(world).Language = "en"
 			world.Resources.SetScreenDimensions(640, 480)
 
 			player := world.ECS.NewEntity()
