@@ -47,7 +47,11 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 			{Id: "splint", Remedy: &oapi.Remedy{Treats: []oapi.ConditionTypeName{string(gc.ConditionFracture)}}},
 			{Id: "manual", Book: &oapi.Book{Skill: &oapi.SkillBook{TargetSkill: string(gc.SkillSword)}}},
 		},
-		Professions: &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: string(gc.SkillRifle)}}}},
+		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: string(gc.SkillRifle)}}}},
+		InteriorProfile: &oapi.InteriorProfile{},
+		Weathers:        &[]oapi.Weather{{Id: oapi.Clear}},
+		HungerStages:    &[]oapi.HungerStage{{Id: oapi.HungerStageIdStarving}},
+		FatigueStages:   &[]oapi.FatigueStage{{Id: oapi.FatigueStageIdRested}},
 	}
 	mutate(&raws)
 	return raws
@@ -227,6 +231,27 @@ func TestValidateCodeRows(t *testing.T) {
 				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
+		},
+		{
+			name: "生活感の表が無い",
+			mutate: func(r *oapi.Raws) {
+				r.InteriorProfile = nil
+			},
+			wantErr: errTableMissing,
+		},
+		{
+			name: "天候の表が空",
+			mutate: func(r *oapi.Raws) {
+				r.Weathers = &[]oapi.Weather{}
+			},
+			wantErr: errTableMissing,
+		},
+		{
+			name: "疲労の段階が無い",
+			mutate: func(r *oapi.Raws) {
+				r.FatigueStages = nil
+			},
+			wantErr: errTableMissing,
 		},
 	}
 	for _, tt := range tests {

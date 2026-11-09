@@ -98,6 +98,8 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Resources.RawMaster = rawMaster
 	world.Resources.ConditionDefs = conditionDefs
 	world.Resources.SkillDefs = skillDefs
+	world.Resources.WeatherDefs = raw.NewWeatherDefs(rawMaster)
+	world.Resources.NeedDefs = raw.NewNeedDefs(rawMaster)
 
 	// テスト用スプライトシートを初期化
 	spriteSheets := map[string]gc.SpriteSheet{

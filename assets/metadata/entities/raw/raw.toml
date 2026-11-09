@@ -21351,3 +21351,148 @@ refs = ["cage"]
 id = "danger"
 weight = 14.0
 refs = ["poison"]
+
+[[weathers]]
+id = "clear"
+tempModifier = 2
+visionDelta = 0
+severity = 0
+spellTurnsMin = 2250
+spellTurnsMax = 4500
+[[weathers.seasons]]
+id = "spring"
+weight = 1.4
+[[weathers.seasons]]
+id = "summer"
+weight = 1.8
+[[weathers.seasons]]
+id = "autumn"
+weight = 1.1
+[[weathers.seasons]]
+id = "winter"
+weight = 0.6
+[[weathers]]
+id = "cloudy"
+tempModifier = 0
+visionDelta = 0
+severity = 0
+spellTurnsMin = 1500
+spellTurnsMax = 3000
+[[weathers.seasons]]
+id = "spring"
+weight = 1.2
+[[weathers.seasons]]
+id = "summer"
+weight = 1.0
+[[weathers.seasons]]
+id = "autumn"
+weight = 1.2
+[[weathers.seasons]]
+id = "winter"
+weight = 0.9
+[[weathers]]
+id = "rain"
+tempModifier = -2
+visionDelta = -6
+severity = 0
+spellTurnsMin = 750
+spellTurnsMax = 2250
+[[weathers.seasons]]
+id = "spring"
+weight = 0.9
+[[weathers.seasons]]
+id = "summer"
+weight = 1.1
+[[weathers.seasons]]
+id = "autumn"
+weight = 0.8
+[[weathers.seasons]]
+id = "winter"
+weight = 0.2
+[[weathers]]
+id = "snow"
+tempModifier = -3
+visionDelta = -10
+severity = 1
+spellTurnsMin = 1200
+spellTurnsMax = 2250
+[[weathers.seasons]]
+id = "spring"
+weight = 0.8
+[[weathers.seasons]]
+id = "summer"
+weight = 0.3
+[[weathers.seasons]]
+id = "autumn"
+weight = 1.0
+[[weathers.seasons]]
+id = "winter"
+weight = 1.3
+[[weathers]]
+id = "blizzard"
+tempModifier = -8
+visionDelta = -28
+severity = 2
+spellTurnsMin = 450
+spellTurnsMax = 900
+[[weathers.seasons]]
+id = "spring"
+weight = 0.3
+[[weathers.seasons]]
+id = "summer"
+weight = 0.1
+[[weathers.seasons]]
+id = "autumn"
+weight = 0.5
+[[weathers.seasons]]
+id = "winter"
+weight = 1.2
+[[weathers]]
+id = "cold_snap"
+tempModifier = -15
+visionDelta = 0
+severity = 2
+spellTurnsMin = 1500
+spellTurnsMax = 3000
+[[weathers.seasons]]
+id = "spring"
+weight = 0.1
+[[weathers.seasons]]
+id = "summer"
+weight = 0.0
+[[weathers.seasons]]
+id = "autumn"
+weight = 0.2
+[[weathers.seasons]]
+id = "winter"
+weight = 0.8
+
+[[hungerStages]]
+id = "satiated"
+from = 0.95
+[[hungerStages]]
+id = "normal"
+from = 0.66
+[[hungerStages]]
+id = "hungry"
+from = 0.33
+severity = "minor"
+[[hungerStages]]
+id = "starving"
+from = 0.0
+severity = "medium"
+
+[[fatigueStages]]
+id = "rested"
+from = 0.0
+[[fatigueStages]]
+id = "normal"
+from = 0.3
+[[fatigueStages]]
+id = "tired"
+from = 0.5
+severity = "minor"
+[[fatigueStages]]
+id = "exhausted"
+from = 0.8
+severity = "medium"

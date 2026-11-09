@@ -137,6 +137,72 @@ enum BuildingVariant {
 @maxValue(30)
 scalar DensityFactor extends integer;
 
+/** 天候の種類 */
+enum WeatherId {
+  clear,
+  cloudy,
+  rain,
+  snow,
+  blizzard,
+  cold_snap,
+}
+
+/** 季節 */
+enum SeasonId {
+  spring,
+  summer,
+  autumn,
+  winter,
+}
+
+/** 天候による世界温度への加算。℃ */
+@minValue(-50)
+@maxValue(50)
+scalar WeatherTempModifier extends integer;
+
+/** 天候による視程レンジへの加算。タイル。負で狭くなる */
+@minValue(-100)
+@maxValue(100)
+scalar WeatherVisionDelta extends integer;
+
+/** 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う */
+@minValue(0)
+@maxValue(10)
+scalar WeatherSeverity extends integer;
+
+/** 天候のスペルの基準長。ターン */
+@minValue(1)
+@maxValue(100000)
+scalar SpellTurns extends integer;
+
+/** 不調の重症度 */
+enum ConditionSeverity {
+  minor,
+  medium,
+  severe,
+}
+
+/** 最大値に対する割合 */
+@minValue(0)
+@maxValue(1)
+scalar NeedRatio extends float64;
+
+/** 空腹の段階 */
+enum HungerStageId {
+  satiated,
+  normal,
+  hungry,
+  starving,
+}
+
+/** 疲労の段階 */
+enum FatigueStageId {
+  rested,
+  normal,
+  tired,
+  exhausted,
+}
+
 /** 間取りテンプレの選択キー */
 enum PlannerKey {
   house,

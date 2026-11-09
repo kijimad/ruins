@@ -59,7 +59,7 @@ type profileTable struct {
 }
 
 var (
-	damageLevels  = map[oapi.BuildingDamage]damageLevel{oapi.Intact: dmgIntact, oapi.Minor: dmgMinor, oapi.Major: dmgMajor}
+	damageLevels  = map[oapi.BuildingDamage]damageLevel{oapi.BuildingDamageIntact: dmgIntact, oapi.BuildingDamageMinor: dmgMinor, oapi.BuildingDamageMajor: dmgMajor}
 	clutterLevels = map[oapi.BuildingClutter]clutterLevel{oapi.Tidy: clutterTidy, oapi.Messy: clutterMessy, oapi.Filthy: clutterFilthy}
 	variantKinds  = map[oapi.BuildingVariant]variantKind{
 		oapi.Standard:          varStandard,

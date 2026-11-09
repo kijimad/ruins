@@ -19,6 +19,8 @@ type Resources struct {
 	RawMaster        oapi.Raws
 	ConditionDefs    components.ConditionDefs
 	SkillDefs        components.SkillDefs
+	WeatherDefs      components.WeatherDefs
+	NeedDefs         components.NeedDefs
 	I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
 	Config           *config.Config // 実行設定。起動時に注入する
 	SingletonEntity  ecs.Entity     // シングルトンエンティティIDキャッシュ

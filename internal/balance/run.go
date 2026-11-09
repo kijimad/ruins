@@ -55,6 +55,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 	currentWeapon := playerWeapon
 	currentWeaponName := "bare_hands"
 	hunger := gc.NewHunger()
+	needs := raw.NewNeedDefs(master)
 	foodStock := 0 // 未消費の食料ストック（栄養値の合計）
 
 	enemyTable, err := raw.GetEnemyTable(master, enemyTableName)
@@ -138,7 +139,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 		result.LootIncome += loot.income
 
 		// 空腹（33%未満）になったら食料ストックを消費する
-		if hunger.GetLevel() >= gc.HungerHungry && foodStock > 0 {
+		if hunger.GetLevel(needs) >= gc.HungerHungry && foodStock > 0 {
 			hunger.Increase(foodStock)
 			foodStock = 0
 		}

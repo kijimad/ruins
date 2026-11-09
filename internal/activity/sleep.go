@@ -132,7 +132,7 @@ func hasActiveHypothermia(actor ecs.Entity, world w.World) bool {
 // isStarving は飢餓段階かを返す
 func isStarving(actor ecs.Entity, world w.World) bool {
 	return world.Components.Hunger.Has(actor) &&
-		world.Components.Hunger.Get(actor).GetLevel() == gc.HungerStarving
+		world.Components.Hunger.Get(actor).GetLevel(world.Resources.NeedDefs) == gc.HungerStarving
 }
 
 // beddingQualityAt は足元か隣接の寝具から最大の Quality を返す。無ければ地べたの基準

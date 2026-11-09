@@ -42,7 +42,7 @@ type MetricExchange struct {
 // 別のつまみをどれだけ動かすかを二分探索で解く。丸めで非線形なメトリクスでは感度の比より解いた方が正確。
 func ExchangeRates(master oapi.Raws) []MetricExchange {
 	knobs := knobRegistry()
-	base := metricsAt(master, DefaultParams())
+	base := metricsAt(master, DefaultParams(master))
 	out := make([]MetricExchange, 0, len(SensitivityMetricNames))
 	for i, metric := range SensitivityMetricNames {
 		movers := metricMovers(master, knobs, base[i], i)
@@ -73,7 +73,7 @@ func ExchangeRates(master oapi.Raws) []MetricExchange {
 // 倍率を二分探索で解き、その変化率を返す。範囲内で解けなければ ok=false を返す。
 func solveExchange(master oapi.Raws, idx int, a, b Knob, target float64) (float64, bool) {
 	eval := func(fB float64) float64 {
-		p := DefaultParams()
+		p := DefaultParams(master)
 		*a.Ptr(&p) *= exchangePerturb
 		*b.Ptr(&p) *= fB
 		return metricValue(master, p, idx)

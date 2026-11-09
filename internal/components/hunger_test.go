@@ -39,7 +39,7 @@ func TestHunger_GetLevel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			h := &Hunger{Max: tt.max, Current: tt.current}
-			assert.Equal(t, tt.want, h.GetLevel())
+			assert.Equal(t, tt.want, h.GetLevel(testNeedDefs))
 		})
 	}
 }
@@ -114,7 +114,7 @@ func TestHungerLevel_String_InvalidValue(t *testing.T) {
 	})
 }
 
-func TestHungerSeverity_段階ごとに不調の重症度を返す(t *testing.T) {
+func TestNeedDefsHungerSeverity_段階ごとに不調の重症度を返す(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -132,9 +132,26 @@ func TestHungerSeverity_段階ごとに不調の重症度を返す(t *testing.T)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			sev, ok := HungerSeverity(tt.level)
+			sev, ok := testNeedDefs.HungerSeverity(tt.level)
 			assert.Equal(t, tt.wantOK, ok)
 			assert.Equal(t, tt.wantSev, sev)
 		})
 	}
+}
+
+func TestNeedDefs_段階の始まりの割合(t *testing.T) {
+	t.Parallel()
+
+	assert.InDelta(t, 0.33, testNeedDefs.HungerFrom(HungerHungry), 1e-9)
+	assert.InDelta(t, 0.5, testNeedDefs.FatigueFrom(FatigueTired), 1e-9)
+	assert.InDelta(t, 0.8, testNeedDefs.FatigueFrom(FatigueExhausted), 1e-9)
+}
+
+func TestNeedDefs_表が空なら満腹と快調(t *testing.T) {
+	t.Parallel()
+
+	h := &Hunger{Max: 100, Current: 0}
+	f := &Fatigue{Max: 100, Current: 100}
+	assert.Equal(t, HungerSatiated, h.GetLevel(NeedDefs{}))
+	assert.Equal(t, FatigueRested, f.GetLevel(NeedDefs{}))
 }

@@ -714,6 +714,43 @@ model AttackType {
   injury: ConditionTypeName;
 }
 
+// ================== 天候と空腹・疲労 ==================
+
+/** 季節ごとの天候の出やすさ */
+model WeatherSeasonWeight {
+  id: SeasonId;
+  weight: EntryWeight;
+}
+
+/** 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る */
+model Weather {
+  id: WeatherId;
+  tempModifier: WeatherTempModifier;
+  visionDelta: WeatherVisionDelta;
+  severity: WeatherSeverity;
+  spellTurnsMin: SpellTurns;
+  spellTurnsMax: SpellTurns;
+  seasons: WeatherSeasonWeight[];
+}
+
+/** 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる */
+model HungerStage {
+  id: HungerStageId;
+  from: NeedRatio;
+
+  /** この段階で立つ栄養失調の重症度。省くと立たない */
+  severity?: ConditionSeverity;
+}
+
+/** 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる */
+model FatigueStage {
+  id: FatigueStageId;
+  from: NeedRatio;
+
+  /** この段階で立つ過労の重症度。省くと立たない */
+  severity?: ConditionSeverity;
+}
+
 // ================== スプライトシート ==================
 
 /** スプライトシート */
@@ -757,6 +794,9 @@ model Raws {
   attackTypes?: AttackType[];
   interiorRefs?: InteriorRef[];
   interiorProfile?: InteriorProfile;
+  weathers?: Weather[];
+  hungerStages?: HungerStage[];
+  fatigueStages?: FatigueStage[];
 }
 
 // ================== パレット ==================

@@ -57,7 +57,7 @@ func TestCostOfLivingPerDay_最安食料で満腹度減耗を賄う(t *testing.T
 	perNut := CheapestFoodCostPerNutrition(master)
 	assert.Positive(t, perNut, "栄養価を持つ食料があるので費用は正")
 	// 1日の生活費 = 1日の満腹度減耗(turnsPerDay/HungerDrainTurns) × 満腹度1点あたりの最安食料費。
-	p := DefaultParams()
+	p := DefaultParams(master)
 	want := p.TurnsPerDay / p.HungerDrainTurns * perNut
 	assert.InDelta(t, want, CostOfLivingPerDay(master, p), 1e-9, "生活費は減耗×最安食料費")
 }
@@ -65,7 +65,7 @@ func TestCostOfLivingPerDay_最安食料で満腹度減耗を賄う(t *testing.T
 func TestEconomyProgression_進行で1日分の食費が軽くなる(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	curve := EconomyProgression(master, "ruins_area", BaselineDays, DefaultParams())
+	curve := EconomyProgression(master, "ruins_area", BaselineDays, DefaultParams(master))
 	require.Len(t, curve, BaselineDays)
 	// 危険度が上がると loot 手取りが増えるので、1日分の食費を賄う loot 個数は序盤より終盤で減る。
 	assert.Greater(t, curve[0].LootPerDayFood, curve[BaselineDays-1].LootPerDayFood, "終盤ほど食費が軽い")

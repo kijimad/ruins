@@ -2,6 +2,8 @@ package balance
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/systems"
 )
 
@@ -31,21 +33,22 @@ type Params struct {
 	LootValueScale      float64 // loot期待価値の倍率
 }
 
-// DefaultParams は現行のゲーム定数から初期化した基準ベクトルを返す。
+// DefaultParams は現行のゲーム定数と raw の段階の境目から初期化した基準ベクトルを返す。
 // ゲーム定数との接点はこの関数だけに限り、定数が変われば導出も自動追従する。
-func DefaultParams() Params {
+func DefaultParams(master oapi.Raws) Params {
+	needs := raw.NewNeedDefs(master)
 	return Params{
 		TurnsPerDay: float64(gc.TurnsPerDay),
 
 		MaxHunger:           float64(gc.DefaultMaxHunger),
 		HungerDrainTurns:    float64(gc.HungerDrainTurns),
-		HungerStarvingRatio: gc.HungerStarvingRatio,
+		HungerStarvingRatio: needs.HungerFrom(gc.HungerHungry),
 
 		MaxFatigue:            float64(gc.DefaultMaxFatigue),
 		FatigueGainPerTurn:    float64(gc.FatigueGainPerTurn),
 		FatigueRecoverPerTurn: float64(systems.FatigueRecoverPerTurn),
-		FatigueTiredRatio:     gc.FatigueTiredRatio,
-		FatigueExhaustedRatio: gc.FatigueExhaustedRatio,
+		FatigueTiredRatio:     needs.FatigueFrom(gc.FatigueTired),
+		FatigueExhaustedRatio: needs.FatigueFrom(gc.FatigueExhausted),
 
 		EnemyWeaponScale:    1,
 		PlayerStrengthScale: 1,

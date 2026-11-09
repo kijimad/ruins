@@ -61,7 +61,10 @@ var (
 	errInteriorRefPropUndefined       = errors.New("interior ref references undefined prop")
 	errInteriorRefGroupUndefined      = errors.New("interior ref references undefined item group")
 	errHeroRefUndefined               = errors.New("hero ref is not an interior ref with a prop")
-	errProfileChoiceMissing           = errors.New("interior profile has no choice for enum value")
+	errSpellTurnsReversed             = errors.New("weather spell turns min exceeds max")
+	errNeedStageNoZero                = errors.New("need stages have no stage from zero")
+	errEnumRowMissing                 = errors.New("enum value has no raw row")
+	errTableMissing                   = errors.New("table required by code is missing")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -150,6 +153,12 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateInteriorRefs(raws); err != nil {
+		return err
+	}
+	if err := validateWeathers(raws); err != nil {
+		return err
+	}
+	if err := validateNeedStages(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -664,7 +673,8 @@ func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) err
 	return fmt.Errorf("condition %q: %w", c.Id, errConditionNoHitPart)
 }
 
-// validateCodeRows は Go が名前で参照する不調、部位、攻撃種別、スキル、熟練の効果倍率すべてに raw の行があることを検証する
+// validateCodeRows は Go が名前で参照する不調、部位、攻撃種別、スキル、熟練の効果倍率すべてに raw の行があり、
+// 生活感、天候、空腹と疲労の表があることを検証する。表の中の enum の網羅は ValidateReferences が見る
 func validateCodeRows(raws oapi.Raws) error {
 	bodyPartIDs := make(map[string]struct{})
 	for _, b := range PtrSlice(raws.BodyParts) {
@@ -695,7 +705,25 @@ func validateCodeRows(raws oapi.Raws) error {
 			return fmt.Errorf("attack type %q: %w", at.Type, errAttackTypeRowMissing)
 		}
 	}
-	return validateSkillCodeRows(raws)
+	if err := validateSkillCodeRows(raws); err != nil {
+		return err
+	}
+
+	required := []struct {
+		name    string
+		present bool
+	}{
+		{"interiorProfile", raws.InteriorProfile != nil},
+		{"weathers", len(PtrSlice(raws.Weathers)) > 0},
+		{"hungerStages", len(PtrSlice(raws.HungerStages)) > 0},
+		{"fatigueStages", len(PtrSlice(raws.FatigueStages)) > 0},
+	}
+	for _, r := range required {
+		if !r.present {
+			return fmt.Errorf("%s: %w", r.name, errTableMissing)
+		}
+	}
+	return nil
 }
 
 // validateSkillCodeRows は raw のスキルと熟練の効果倍率が Go の定数と同じ集合で、武器の効果倍率を同じ名前の武器スキルが持つことを検証する
@@ -871,7 +899,66 @@ func validateEnumRows(schemaName string, ids []string) error {
 	}
 	for _, v := range ref.Value.Enum {
 		if !slices.Contains(ids, fmt.Sprint(v)) {
-			return fmt.Errorf("%s %q: %w", schemaName, v, errProfileChoiceMissing)
+			return fmt.Errorf("%s %q: %w", schemaName, v, errEnumRowMissing)
+		}
+	}
+	return nil
+}
+
+// validateWeathers は天候の行が enum の全値を1回ずつ持ち、各行が季節の全値の重みを持ち、スペルの下限が上限以下であることを検証する
+func validateWeathers(raws oapi.Raws) error {
+	weathers := PtrSlice(raws.Weathers)
+	if len(weathers) == 0 {
+		return nil
+	}
+	ids := make([]string, 0, len(weathers))
+	for _, w := range weathers {
+		ids = append(ids, string(w.Id))
+		seasonIDs := make([]string, 0, len(w.Seasons))
+		for _, sw := range w.Seasons {
+			seasonIDs = append(seasonIDs, string(sw.Id))
+		}
+		if err := validateEnumRows("SeasonId", seasonIDs); err != nil {
+			return fmt.Errorf("weather %q: %w", w.Id, err)
+		}
+		if w.SpellTurnsMin > w.SpellTurnsMax {
+			return fmt.Errorf("weather %q: %w", w.Id, errSpellTurnsReversed)
+		}
+	}
+	return validateEnumRows("WeatherId", ids)
+}
+
+// validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、割合0から始まる段階を持つことを検証する。
+// 割合0の段階が無いと、どの段階にも当たらない割合が生まれる
+func validateNeedStages(raws oapi.Raws) error {
+	hunger := PtrSlice(raws.HungerStages)
+	if len(hunger) > 0 {
+		ids := make([]string, 0, len(hunger))
+		froms := make([]float64, 0, len(hunger))
+		for _, h := range hunger {
+			ids = append(ids, string(h.Id))
+			froms = append(froms, h.From)
+		}
+		if err := validateEnumRows("HungerStageId", ids); err != nil {
+			return err
+		}
+		if !slices.Contains(froms, 0) {
+			return fmt.Errorf("hunger: %w", errNeedStageNoZero)
+		}
+	}
+	fatigue := PtrSlice(raws.FatigueStages)
+	if len(fatigue) > 0 {
+		ids := make([]string, 0, len(fatigue))
+		froms := make([]float64, 0, len(fatigue))
+		for _, f := range fatigue {
+			ids = append(ids, string(f.Id))
+			froms = append(froms, f.From)
+		}
+		if err := validateEnumRows("FatigueStageId", ids); err != nil {
+			return err
+		}
+		if !slices.Contains(froms, 0) {
+			return fmt.Errorf("fatigue: %w", errNeedStageNoZero)
 		}
 	}
 	return nil

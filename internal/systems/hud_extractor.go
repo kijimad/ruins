@@ -341,7 +341,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 	for hungerQuery.Next() {
 		entity := hungerQuery.Entity()
 		if hunger := world.Components.Hunger.Get(entity); hunger != nil {
-			level := hunger.GetLevel()
+			level := hunger.GetLevel(world.Resources.NeedDefs)
 			if level != gc.HungerNormal {
 				badges = append(badges, hud.StatusBadge{
 					Text:  query.T(world, level.String()),
@@ -355,7 +355,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 	fatigueQuery := ecs.NewFilter2[gc.Player, gc.Fatigue](world.ECS).Query()
 	for fatigueQuery.Next() {
 		entity := fatigueQuery.Entity()
-		level := world.Components.Fatigue.Get(entity).GetLevel()
+		level := world.Components.Fatigue.Get(entity).GetLevel(world.Resources.NeedDefs)
 		if level == gc.FatigueTired || level == gc.FatigueExhausted {
 			badges = append(badges, hud.StatusBadge{
 				Text:  query.T(world, string(level)),

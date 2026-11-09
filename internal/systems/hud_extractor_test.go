@@ -248,8 +248,8 @@ func TestExtractStatusBadgesData(t *testing.T) {
 
 			require.Len(t, data.Badges, tt.wantBadges)
 			if tt.wantBadges > 0 {
-				assert.Equal(t, hunger.GetLevel().String(), data.Badges[0].Text)
-				assert.Equal(t, getHungerBadgeColor(hunger.GetLevel()), data.Badges[0].Color)
+				assert.Equal(t, hunger.GetLevel(world.Resources.NeedDefs).String(), data.Badges[0].Text)
+				assert.Equal(t, getHungerBadgeColor(hunger.GetLevel(world.Resources.NeedDefs)), data.Badges[0].Color)
 			}
 			assert.Equal(t, 640, data.ScreenDimensions.Width)
 			assert.Equal(t, 480, data.ScreenDimensions.Height)

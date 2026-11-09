@@ -113,19 +113,19 @@ func (e BuildingClutter) Valid() bool {
 
 // Defines values for BuildingDamage.
 const (
-	Intact BuildingDamage = "intact"
-	Major  BuildingDamage = "major"
-	Minor  BuildingDamage = "minor"
+	BuildingDamageIntact BuildingDamage = "intact"
+	BuildingDamageMajor  BuildingDamage = "major"
+	BuildingDamageMinor  BuildingDamage = "minor"
 )
 
 // Valid indicates whether the value is a known member of the BuildingDamage enum.
 func (e BuildingDamage) Valid() bool {
 	switch e {
-	case Intact:
+	case BuildingDamageIntact:
 		return true
-	case Major:
+	case BuildingDamageMajor:
 		return true
-	case Minor:
+	case BuildingDamageMinor:
 		return true
 	default:
 		return false
@@ -195,6 +195,27 @@ func (e ConditionDeathCause) Valid() bool {
 	case Frozen:
 		return true
 	case Illness:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ConditionSeverity.
+const (
+	ConditionSeverityMedium ConditionSeverity = "medium"
+	ConditionSeverityMinor  ConditionSeverity = "minor"
+	ConditionSeveritySevere ConditionSeverity = "severe"
+)
+
+// Valid indicates whether the value is a known member of the ConditionSeverity enum.
+func (e ConditionSeverity) Valid() bool {
+	switch e {
+	case ConditionSeverityMedium:
+		return true
+	case ConditionSeverityMinor:
+		return true
+	case ConditionSeveritySevere:
 		return true
 	default:
 		return false
@@ -339,6 +360,30 @@ func (e FactionMemberType) Valid() bool {
 	}
 }
 
+// Defines values for FatigueStageId.
+const (
+	FatigueStageIdExhausted FatigueStageId = "exhausted"
+	FatigueStageIdNormal    FatigueStageId = "normal"
+	FatigueStageIdRested    FatigueStageId = "rested"
+	FatigueStageIdTired     FatigueStageId = "tired"
+)
+
+// Valid indicates whether the value is a known member of the FatigueStageId enum.
+func (e FatigueStageId) Valid() bool {
+	switch e {
+	case FatigueStageIdExhausted:
+		return true
+	case FatigueStageIdNormal:
+		return true
+	case FatigueStageIdRested:
+		return true
+	case FatigueStageIdTired:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for FoliageType.
 const (
 	FoliageTypeMinus1 FoliageType = -1
@@ -396,6 +441,30 @@ func (e HealingValueType) Valid() bool {
 	case NUMERAL:
 		return true
 	case PERCENTAGE:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for HungerStageId.
+const (
+	HungerStageIdHungry   HungerStageId = "hungry"
+	HungerStageIdNormal   HungerStageId = "normal"
+	HungerStageIdSatiated HungerStageId = "satiated"
+	HungerStageIdStarving HungerStageId = "starving"
+)
+
+// Valid indicates whether the value is a known member of the HungerStageId enum.
+func (e HungerStageId) Valid() bool {
+	switch e {
+	case HungerStageIdHungry:
+		return true
+	case HungerStageIdNormal:
+		return true
+	case HungerStageIdSatiated:
+		return true
+	case HungerStageIdStarving:
 		return true
 	default:
 		return false
@@ -630,6 +699,30 @@ func (e RoomRole) Valid() bool {
 	}
 }
 
+// Defines values for SeasonId.
+const (
+	Autumn SeasonId = "autumn"
+	Spring SeasonId = "spring"
+	Summer SeasonId = "summer"
+	Winter SeasonId = "winter"
+)
+
+// Valid indicates whether the value is a known member of the SeasonId enum.
+func (e SeasonId) Valid() bool {
+	switch e {
+	case Autumn:
+		return true
+	case Spring:
+		return true
+	case Summer:
+		return true
+	case Winter:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ShelterType.
 const (
 	ShelterTypeN0  ShelterType = 0
@@ -810,6 +903,36 @@ func (e WaterType) Valid() bool {
 	case WaterTypeMinus5:
 		return true
 	case WaterTypeN0:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for WeatherId.
+const (
+	Blizzard WeatherId = "blizzard"
+	Clear    WeatherId = "clear"
+	Cloudy   WeatherId = "cloudy"
+	ColdSnap WeatherId = "cold_snap"
+	Rain     WeatherId = "rain"
+	Snow     WeatherId = "snow"
+)
+
+// Valid indicates whether the value is a known member of the WeatherId enum.
+func (e WeatherId) Valid() bool {
+	switch e {
+	case Blizzard:
+		return true
+	case Clear:
+		return true
+	case Cloudy:
+		return true
+	case ColdSnap:
+		return true
+	case Rain:
+		return true
+	case Snow:
 		return true
 	default:
 		return false
@@ -1334,6 +1457,9 @@ type ConditionAmountPerSeverity = int
 // ConditionDeathCause 不調が血液量を尽きさせて倒したときの死因
 type ConditionDeathCause string
 
+// ConditionSeverity 不調の重症度
+type ConditionSeverity string
+
 // ConditionTimerRate 不調の1ターンあたりの進行度の増減量
 type ConditionTimerRate = int
 
@@ -1653,6 +1779,21 @@ type FacilityZone struct {
 // FactionMemberType 派閥タイプ
 type FactionMemberType string
 
+// FatigueStage 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる
+type FatigueStage struct {
+	// From 最大値に対する割合
+	From NeedRatio `json:"from"`
+
+	// Id 疲労の段階
+	Id FatigueStageId `json:"id"`
+
+	// Severity この段階で立つ過労の重症度。省くと立たない
+	Severity *ConditionSeverity `json:"severity,omitempty"`
+}
+
+// FatigueStageId 疲労の段階
+type FatigueStageId string
+
 // Fire 遠距離攻撃設定
 type Fire struct {
 	// Accuracy 命中率。0で必中なし、100で必中
@@ -1736,6 +1877,21 @@ type HeroChoice struct {
 
 // HitPoints 耐久値。削り切られると壊れる
 type HitPoints = int
+
+// HungerStage 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる
+type HungerStage struct {
+	// From 最大値に対する割合
+	From NeedRatio `json:"from"`
+
+	// Id 空腹の段階
+	Id HungerStageId `json:"id"`
+
+	// Severity この段階で立つ栄養失調の重症度。省くと立たない
+	Severity *ConditionSeverity `json:"severity,omitempty"`
+}
+
+// HungerStageId 空腹の段階
+type HungerStageId string
 
 // ImagePath 画像ファイルパス
 type ImagePath = string
@@ -2083,6 +2239,9 @@ type MessageKey = string
 // MovementPatternType 非戦闘時の移動パターン
 type MovementPatternType string
 
+// NeedRatio 最大値に対する割合
+type NeedRatio = float64
+
 // NutritionAmount 栄養価
 type NutritionAmount = int
 
@@ -2293,10 +2452,12 @@ type Raws struct {
 	Facilities       *[]Facility        `json:"facilities,omitempty"`
 	FacilityContents *[]FacilityContent `json:"facilityContents,omitempty"`
 	FacilityRooms    *[]FacilityRooms   `json:"facilityRooms,omitempty"`
+	FatigueStages    *[]FatigueStage    `json:"fatigueStages,omitempty"`
 
 	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
 	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
+	HungerStages     *[]HungerStage     `json:"hungerStages,omitempty"`
 	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
 
 	// InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
@@ -2317,6 +2478,7 @@ type Raws struct {
 	Skills          *[]Skill          `json:"skills,omitempty"`
 	SpriteSheets    *[]SpriteSheet    `json:"spriteSheets,omitempty"`
 	Tiles           *[]Tile           `json:"tiles,omitempty"`
+	Weathers        *[]Weather        `json:"weathers,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -2384,6 +2546,9 @@ type ScatterZone struct {
 	LootGroup    EntityID       `json:"lootGroup"`
 	PropDensity  float64        `json:"propDensity"`
 }
+
+// SeasonId 季節
+type SeasonId string
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
@@ -2454,6 +2619,9 @@ type SkillProficiency struct {
 	// PerLevel 熟練の効果倍率のスキルLv1あたりの変化量。百分率
 	PerLevel ProficiencyPerLevel `json:"perLevel"`
 }
+
+// SpellTurns 天候のスペルの基準長。ターン
+type SpellTurns = int
 
 // SpriteDepth スプライト描画深度
 type SpriteDepth float32
@@ -2607,6 +2775,49 @@ type Wearable struct {
 	// InsulationHeat 耐暑性能
 	InsulationHeat InsulationHeat `json:"insulationHeat"`
 }
+
+// Weather 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る
+type Weather struct {
+	// Id 天候の種類
+	Id      WeatherId             `json:"id"`
+	Seasons []WeatherSeasonWeight `json:"seasons"`
+
+	// Severity 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う
+	Severity WeatherSeverity `json:"severity"`
+
+	// SpellTurnsMax 天候のスペルの基準長。ターン
+	SpellTurnsMax SpellTurns `json:"spellTurnsMax"`
+
+	// SpellTurnsMin 天候のスペルの基準長。ターン
+	SpellTurnsMin SpellTurns `json:"spellTurnsMin"`
+
+	// TempModifier 天候による世界温度への加算。℃
+	TempModifier WeatherTempModifier `json:"tempModifier"`
+
+	// VisionDelta 天候による視程レンジへの加算。タイル。負で狭くなる
+	VisionDelta WeatherVisionDelta `json:"visionDelta"`
+}
+
+// WeatherId 天候の種類
+type WeatherId string
+
+// WeatherSeasonWeight 季節ごとの天候の出やすさ
+type WeatherSeasonWeight struct {
+	// Id 季節
+	Id SeasonId `json:"id"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
+}
+
+// WeatherSeverity 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う
+type WeatherSeverity = int
+
+// WeatherTempModifier 天候による世界温度への加算。℃
+type WeatherTempModifier = int
+
+// WeatherVisionDelta 天候による視程レンジへの加算。タイル。負で狭くなる
+type WeatherVisionDelta = int
 
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string

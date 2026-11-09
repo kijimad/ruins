@@ -54,7 +54,7 @@ func TestSleepBehavior_普通の疲労でも眠れる(t *testing.T) {
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	// Normal 段階。30〜50% の比率。Rested だけが弾かれるので Normal は眠れる
 	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 800, Max: 2000})
-	require.Equal(t, gc.FatigueNormal, world.Components.Fatigue.Get(actor).GetLevel(), "前提: Normal 段階")
+	require.Equal(t, gc.FatigueNormal, world.Components.Fatigue.Get(actor).GetLevel(world.Resources.NeedDefs), "前提: Normal 段階")
 	makeSleepableWarm(world)
 
 	result, err := Execute(NewSleepActivity(), actor, world)

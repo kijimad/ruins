@@ -18,7 +18,7 @@ func makeInteriorRaws(mutate func(*oapi.Raws)) oapi.Raws {
 			{Id: "litter", Placement: new(oapi.FullArea)},
 		},
 		InteriorProfile: &oapi.InteriorProfile{
-			Damages:   []oapi.DamageChoice{{Id: oapi.Intact, Weight: 1}, {Id: oapi.Minor, Weight: 1}, {Id: oapi.Major, Weight: 1}},
+			Damages:   []oapi.DamageChoice{{Id: oapi.BuildingDamageIntact, Weight: 1}, {Id: oapi.BuildingDamageMinor, Weight: 1}, {Id: oapi.BuildingDamageMajor, Weight: 1}},
 			Clutters:  []oapi.ClutterChoice{{Id: oapi.Tidy, Weight: 1}, {Id: oapi.Messy, Weight: 1}, {Id: oapi.Filthy, Weight: 1}},
 			Variants:  []oapi.VariantChoice{{Id: oapi.Standard, Weight: 1}, {Id: oapi.Abandoned, Weight: 1}, {Id: oapi.UnderConstruction, Weight: 1}, {Id: oapi.Survivalist, Weight: 1}, {Id: oapi.Hoarder, Weight: 1}},
 			Densities: []oapi.DensityChoice{{Factor: 10, Weight: 1}},
@@ -67,7 +67,7 @@ func TestValidateInteriorRefs(t *testing.T) {
 			mutate: func(r *oapi.Raws) {
 				r.InteriorProfile.Damages = r.InteriorProfile.Damages[1:]
 			},
-			wantErr: errProfileChoiceMissing,
+			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "変種の行が重複する",

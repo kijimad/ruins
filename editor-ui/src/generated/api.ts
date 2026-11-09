@@ -634,6 +634,19 @@ export type ConditionDeathCause = typeof ConditionDeathCause[keyof typeof Condit
 
 
 /**
+ * 不調の重症度
+ */
+
+export const ConditionSeverity = {
+    Minor: 'minor',
+    Medium: 'medium',
+    Severe: 'severe',
+} as const;
+
+export type ConditionSeverity = typeof ConditionSeverity[keyof typeof ConditionSeverity];
+
+
+/**
  * 消費可能アイテムの設定
  */
 export interface Consumable {
@@ -1019,6 +1032,36 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
 
 
 /**
+ * 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる
+ */
+export interface FatigueStage {
+    'id': FatigueStageId;
+    /**
+     * 最大値に対する割合
+     */
+    'from': number;
+    /**
+     * この段階で立つ過労の重症度。省くと立たない
+     */
+    'severity'?: ConditionSeverity;
+}
+
+
+/**
+ * 疲労の段階
+ */
+
+export const FatigueStageId = {
+    Rested: 'rested',
+    Normal: 'normal',
+    Tired: 'tired',
+    Exhausted: 'exhausted',
+} as const;
+
+export type FatigueStageId = typeof FatigueStageId[keyof typeof FatigueStageId];
+
+
+/**
  * 遠距離攻撃設定
  */
 export interface Fire {
@@ -1117,6 +1160,36 @@ export interface HeroChoice {
     'weight': number;
     'refs': Array<string>;
 }
+/**
+ * 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる
+ */
+export interface HungerStage {
+    'id': HungerStageId;
+    /**
+     * 最大値に対する割合
+     */
+    'from': number;
+    /**
+     * この段階で立つ栄養失調の重症度。省くと立たない
+     */
+    'severity'?: ConditionSeverity;
+}
+
+
+/**
+ * 空腹の段階
+ */
+
+export const HungerStageId = {
+    Satiated: 'satiated',
+    Normal: 'normal',
+    Hungry: 'hungry',
+    Starving: 'starving',
+} as const;
+
+export type HungerStageId = typeof HungerStageId[keyof typeof HungerStageId];
+
+
 /**
  * 内装レシピ。施設まるごと、または奥室1つに対応する
  */
@@ -1770,6 +1843,9 @@ export interface Raws {
     'attackTypes'?: Array<AttackType>;
     'interiorRefs'?: Array<InteriorRef>;
     'interiorProfile'?: InteriorProfile;
+    'weathers'?: Array<Weather>;
+    'hungerStages'?: Array<HungerStage>;
+    'fatigueStages'?: Array<FatigueStage>;
 }
 /**
  * レシピ
@@ -1876,6 +1952,20 @@ export interface ScatterZone {
     'lootGroup': string;
     'entries': Array<ScatterEntry>;
 }
+/**
+ * 季節
+ */
+
+export const SeasonId = {
+    Spring: 'spring',
+    Summer: 'summer',
+    Autumn: 'autumn',
+    Winter: 'winter',
+} as const;
+
+export type SeasonId = typeof SeasonId[keyof typeof SeasonId];
+
+
 /**
  * 遮蔽タイプ
  */
@@ -2189,6 +2279,63 @@ export interface Wearable {
      * 耐暑性能
      */
     'insulationHeat': number;
+}
+
+
+/**
+ * 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る
+ */
+export interface Weather {
+    'id': WeatherId;
+    /**
+     * 天候による世界温度への加算。℃
+     */
+    'tempModifier': number;
+    /**
+     * 天候による視程レンジへの加算。タイル。負で狭くなる
+     */
+    'visionDelta': number;
+    /**
+     * 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う
+     */
+    'severity': number;
+    /**
+     * 天候のスペルの基準長。ターン
+     */
+    'spellTurnsMin': number;
+    /**
+     * 天候のスペルの基準長。ターン
+     */
+    'spellTurnsMax': number;
+    'seasons': Array<WeatherSeasonWeight>;
+}
+
+
+/**
+ * 天候の種類
+ */
+
+export const WeatherId = {
+    Clear: 'clear',
+    Cloudy: 'cloudy',
+    Rain: 'rain',
+    Snow: 'snow',
+    Blizzard: 'blizzard',
+    ColdSnap: 'cold_snap',
+} as const;
+
+export type WeatherId = typeof WeatherId[keyof typeof WeatherId];
+
+
+/**
+ * 季節ごとの天候の出やすさ
+ */
+export interface WeatherSeasonWeight {
+    'id': SeasonId;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
 }
 
 

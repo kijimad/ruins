@@ -98,7 +98,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		// Effects タブの意識と各出力に出る
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Hunger"),
-			Value:       query.T(world, hunger.GetLevel().String()),
+			Value:       query.T(world, hunger.GetLevel(world.Resources.NeedDefs).String()),
 			Description: query.T(world, "Hunger. High hunger hinders actions and recovery"),
 		})
 	}
@@ -107,7 +107,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		fatigue := world.Components.Fatigue.Get(playerEntity)
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Fatigue"),
-			Value:       query.T(world, string(fatigue.GetLevel())),
+			Value:       query.T(world, string(fatigue.GetLevel(world.Resources.NeedDefs))),
 			Description: query.T(world, "Fatigue. High fatigue hinders actions and recovery"),
 		})
 	}

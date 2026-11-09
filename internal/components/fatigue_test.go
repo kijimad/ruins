@@ -29,7 +29,7 @@ func TestFatigue_GetLevel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			f := &Fatigue{Max: tt.max, Current: tt.current}
-			assert.Equal(t, tt.want, f.GetLevel())
+			assert.Equal(t, tt.want, f.GetLevel(testNeedDefs))
 		})
 	}
 }
@@ -51,7 +51,7 @@ func TestFatigue_FatigueSeverity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			f := &Fatigue{Max: 1000, Current: tt.current}
-			sev, ok := f.FatigueSeverity()
+			sev, ok := f.FatigueSeverity(testNeedDefs)
 			assert.Equal(t, tt.wantOK, ok)
 			assert.Equal(t, tt.wantSev, sev)
 		})
@@ -63,5 +63,5 @@ func TestNewFatigue_初期は疲れていない(t *testing.T) {
 	f := NewFatigue()
 	assert.Equal(t, DefaultMaxFatigue, f.Max)
 	assert.Equal(t, 0, f.Current)
-	assert.Equal(t, FatigueRested, f.GetLevel())
+	assert.Equal(t, FatigueRested, f.GetLevel(testNeedDefs))
 }

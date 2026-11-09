@@ -249,7 +249,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		gameaction.ContractIllness(world, actor, gc.ConditionFoodPoisoning)
 	}
 
-	isSatiated := hunger.GetLevel() == gc.HungerSatiated
+	isSatiated := hunger.GetLevel(world.Resources.NeedDefs) == gc.HungerSatiated
 	u.logNutritionUse(actor, world, item, isSatiated)
 
 	return nil

@@ -1080,3 +1080,74 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	}
 	return gc.NewSkillDefs(skills, categories, proficiencies), nil
 }
+
+var (
+	weatherKinds = map[oapi.WeatherId]gc.WeatherKind{
+		oapi.Clear:    gc.WeatherClear,
+		oapi.Cloudy:   gc.WeatherCloudy,
+		oapi.Rain:     gc.WeatherRain,
+		oapi.Snow:     gc.WeatherSnow,
+		oapi.Blizzard: gc.WeatherBlizzard,
+		oapi.ColdSnap: gc.WeatherColdSnap,
+	}
+	seasons = map[oapi.SeasonId]gc.Season{
+		oapi.Spring: gc.SeasonSpring,
+		oapi.Summer: gc.SeasonSummer,
+		oapi.Autumn: gc.SeasonAutumn,
+		oapi.Winter: gc.SeasonWinter,
+	}
+	severities = map[oapi.ConditionSeverity]gc.Severity{
+		oapi.ConditionSeverityMinor:  gc.SeverityMinor,
+		oapi.ConditionSeverityMedium: gc.SeverityMedium,
+		oapi.ConditionSeveritySevere: gc.SeveritySevere,
+	}
+	hungerLevels = map[oapi.HungerStageId]gc.HungerLevel{
+		oapi.HungerStageIdSatiated: gc.HungerSatiated,
+		oapi.HungerStageIdNormal:   gc.HungerNormal,
+		oapi.HungerStageIdHungry:   gc.HungerHungry,
+		oapi.HungerStageIdStarving: gc.HungerStarving,
+	}
+	fatigueLevels = map[oapi.FatigueStageId]gc.FatigueLevel{
+		oapi.FatigueStageIdRested:    gc.FatigueRested,
+		oapi.FatigueStageIdNormal:    gc.FatigueNormal,
+		oapi.FatigueStageIdTired:     gc.FatigueTired,
+		oapi.FatigueStageIdExhausted: gc.FatigueExhausted,
+	}
+)
+
+// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節は enum なのでスキーマ検証で尽くされる
+func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
+	var kinds [gc.NumWeatherKind]gc.WeatherDef
+	for _, row := range PtrSlice(raws.Weathers) {
+		def := gc.WeatherDef{
+			Effect:        gc.WeatherEffect{TempModifier: row.TempModifier, VisionDelta: row.VisionDelta},
+			Severity:      row.Severity,
+			SpellTurnsMin: row.SpellTurnsMin,
+			SpellTurnsMax: row.SpellTurnsMax,
+		}
+		for _, sw := range row.Seasons {
+			def.SeasonWeights[seasons[sw.Id]] = sw.Weight
+		}
+		kinds[weatherKinds[row.Id]] = def
+	}
+	return gc.NewWeatherDefs(kinds)
+}
+
+// NewNeedDefs は raw の hungerStages と fatigueStages から空腹と疲労の段階の表を組み立てる
+func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
+	conditionOf := func(s *oapi.ConditionSeverity) gc.Severity {
+		if s == nil {
+			return gc.SeverityNone
+		}
+		return severities[*s]
+	}
+	hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))
+	for _, row := range PtrSlice(raws.HungerStages) {
+		hunger = append(hunger, gc.HungerStage{Level: hungerLevels[row.Id], From: row.From, Condition: conditionOf(row.Severity)})
+	}
+	fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))
+	for _, row := range PtrSlice(raws.FatigueStages) {
+		fatigue = append(fatigue, gc.FatigueStage{Level: fatigueLevels[row.Id], From: row.From, Condition: conditionOf(row.Severity)})
+	}
+	return gc.NewNeedDefs(hunger, fatigue)
+}

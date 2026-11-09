@@ -96,7 +96,7 @@ func metricsAt(master oapi.Raws, p Params) []float64 {
 func metricMovers(master oapi.Raws, knobs []Knob, base float64, idx int) []Knob {
 	movers := make([]Knob, 0, len(knobs))
 	for _, k := range knobs {
-		p := DefaultParams()
+		p := DefaultParams(master)
 		*k.Ptr(&p) *= exchangePerturb
 		// 戦力比など非整数メトリクスの FP 誤差で誤判定しないよう、相対許容で動いたか見る。
 		if math.Abs(metricValue(master, p, idx)-base) > 1e-9*math.Max(1, math.Abs(base)) {
@@ -122,11 +122,11 @@ type KnobSensitivity struct {
 // CrossDomainSensitivity はドメイン横断の感度行列を返す。各つまみを+10%し全ドメインの代表メトリクスの変化を測る。
 // 多くはブロック対角で、横断するのは1日ターン数のような共通の分母だけ。
 func CrossDomainSensitivity(master oapi.Raws) []KnobSensitivity {
-	base := metricsAt(master, DefaultParams())
+	base := metricsAt(master, DefaultParams(master))
 	knobs := knobRegistry()
 	rows := make([]KnobSensitivity, 0, len(knobs))
 	for _, k := range knobs {
-		p := DefaultParams()
+		p := DefaultParams(master)
 		*k.Ptr(&p) *= 1.1
 		pert := metricsAt(master, p)
 		cells := make([]SensitivityCell, len(SensitivityMetricNames))

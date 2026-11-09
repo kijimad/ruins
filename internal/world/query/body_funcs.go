@@ -22,12 +22,12 @@ func EffectiveBodyFuncs(world w.World, entity ecs.Entity) gc.BodyFuncs {
 func DerivedConditions(world w.World, entity ecs.Entity) []gc.HealthCondition {
 	var conds []gc.HealthCondition
 	if world.Components.Fatigue.Has(entity) {
-		if sev, ok := world.Components.Fatigue.Get(entity).FatigueSeverity(); ok {
+		if sev, ok := world.Components.Fatigue.Get(entity).FatigueSeverity(world.Resources.NeedDefs); ok {
 			conds = append(conds, gc.HealthCondition{Type: gc.ConditionExhaustion, Severity: sev})
 		}
 	}
 	if world.Components.Hunger.Has(entity) {
-		if sev, ok := gc.HungerSeverity(world.Components.Hunger.Get(entity).GetLevel()); ok {
+		if sev, ok := world.Resources.NeedDefs.HungerSeverity(world.Components.Hunger.Get(entity).GetLevel(world.Resources.NeedDefs)); ok {
 			conds = append(conds, gc.HealthCondition{Type: gc.ConditionMalnutrition, Severity: sev})
 		}
 	}

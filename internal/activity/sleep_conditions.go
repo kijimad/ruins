@@ -27,7 +27,7 @@ func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 
 	if world.Components.Fatigue.Has(actor) {
 		sc.HasFatigue = true
-		sc.Fatigue = world.Components.Fatigue.Get(actor).GetLevel()
+		sc.Fatigue = world.Components.Fatigue.Get(actor).GetLevel(world.Resources.NeedDefs)
 	}
 
 	if world.Components.GridElement.Has(actor) {

@@ -44,46 +44,12 @@ func (h HungerLevel) String() string {
 // 0が飢餓状態、値が大きいほど満腹
 type Hunger Pool[int]
 
-// 空腹度レベルを分ける満腹度の割合。バランス導出が単一出典で参照できるよう公開する。
-const (
-	// HungerSatiatedRatio 以上は満腹
-	HungerSatiatedRatio = 0.95
-	// HungerNormalRatio 以上は普通
-	HungerNormalRatio = 0.66
-	// HungerStarvingRatio を下回ると飢餓
-	HungerStarvingRatio = 0.33
-)
-
-// GetLevel は現在の空腹度レベルを取得する
-func (h *Hunger) GetLevel() HungerLevel {
+// GetLevel は現在の空腹度レベルを取得する。段階の境目は defs が持つ
+func (h *Hunger) GetLevel(defs NeedDefs) HungerLevel {
 	if h.Max <= 0 {
 		return HungerSatiated
 	}
-
-	ratio := float64(h.Current) / float64(h.Max)
-	switch {
-	case ratio >= HungerSatiatedRatio:
-		return HungerSatiated
-	case ratio >= HungerNormalRatio:
-		return HungerNormal
-	case ratio >= HungerStarvingRatio:
-		return HungerHungry
-	default:
-		return HungerStarving
-	}
-}
-
-// HungerSeverity は空腹段階を栄養失調の不調の重症度へ写す。ok=false なら不調は立たない
-func HungerSeverity(level HungerLevel) (Severity, bool) {
-	switch level {
-	case HungerSatiated, HungerNormal:
-		return SeverityNone, false
-	case HungerHungry:
-		return SeverityMinor, true
-	case HungerStarving:
-		return SeverityMedium, true
-	}
-	return SeverityNone, false
+	return defs.hungerStage(float64(h.Current) / float64(h.Max)).Level
 }
 
 // Increase は満腹度を増加させる（食事によって満腹になる）
