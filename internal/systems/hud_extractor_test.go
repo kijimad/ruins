@@ -260,6 +260,7 @@ func TestExtractStatusBadgesData_不調バッジ(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
+	query.GetUserSettings(world).Language = "en"
 	world.Resources.SetScreenDimensions(640, 480)
 	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
