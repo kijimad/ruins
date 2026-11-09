@@ -71,8 +71,8 @@ fmt: ## フォーマットする
 	go fix -embedlit=false ./...
 	# taplo は非 assets の TOML を整形する
 	npx @taplo/cli format
-	# yq は raw.toml を整形する。
-	go generate -run yq .
+	# raw.toml は yq で正規化し、taplo でインデントを足す
+	go generate -run 'raw\.toml' .
 	./scripts/format-shell.sh
 
 .PHONY: lint

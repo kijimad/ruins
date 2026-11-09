@@ -12,6 +12,7 @@ import (
 )
 
 //go:generate go run github.com/mikefarah/yq/v4@v4.53.6 -p toml -o toml -i assets/metadata/entities/raw/raw.toml
+//go:generate npx --yes @taplo/cli@0.7.0 format --config .taplo-raw.toml assets/metadata/entities/raw/raw.toml
 //go:generate go run . gencomponents
 //go:generate go run . designdoc gen
 //go:generate go run . genreadme

@@ -4,7 +4,7 @@
 # 全てのTOMLファイルを対象にする
 include=["*.toml", "**/*.toml"]
 # 埋め込みアセットのTOMLはフォーマットしない。taplo がmap文字列を複数行に変換すると \r が混入して壊れるため。
-# raw.toml の整形は yq が担う。
+# raw.toml は .taplo-raw.toml の設定で別に整形する。
 exclude=["assets/**/*.toml"]
 
 # フォーマットオプション

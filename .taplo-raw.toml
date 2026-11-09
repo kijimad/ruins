@@ -1,0 +1,16 @@
+# raw.toml のインデント整形の設定。yq で正規化した後にかける
+# https://taplo.tamasfe.dev/configuration/formatter-options.html
+
+include = ["assets/metadata/entities/raw/raw.toml"]
+
+# 値を書き換える展開・並べ替えはすべて止め、インデントだけを足す。展開系を有効にすると文字列に \r が混ざる
+[formatting]
+  array_auto_collapse = false
+  array_auto_expand   = false
+  column_width        = 1000
+  indent_entries      = true
+  indent_string       = "  "
+  indent_tables       = true
+  inline_table_expand = false
+  reorder_arrays      = false
+  reorder_keys        = false
