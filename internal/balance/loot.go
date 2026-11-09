@@ -117,12 +117,7 @@ func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []dr
 		if !ok {
 			return nil
 		}
-		items := rollStorageLoot(master, name, rng)
-		out := make([]drawnLoot, 0, len(items))
-		for _, item := range items {
-			out = append(out, drawnLoot{name: item, count: 1})
-		}
-		return out
+		return rollStorageLoot(master, name, rng)
 	default:
 		// 装飾・敵・罠などは loot でない
 		return nil
@@ -188,9 +183,9 @@ func roomTotalExpected(r oapi.BalanceRoomLoot) float64 {
 	return sum
 }
 
-// rollStorageLoot は収納家具1個の中身を抽選し、アイテム名を並べて返す。ゲームの populateStorageLoot と同型で、
-// LootTableId のテーブルから LootCount 個を深度考慮で引く。収納でない家具は空を返す。
-func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []string {
+// rollStorageLoot は収納家具1個の中身を抽選する。ゲームの populateStorageLoot と同型で、LootTableId のテーブルから
+// LootCount 回を深度考慮で引く。収納でない家具は空を返す。
+func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []drawnLoot {
 	prop, err := raw.GetProp(master, propName)
 	if err != nil || prop.Storage == nil || prop.Storage.LootTableId == nil || *prop.Storage.LootTableId == "" {
 		return nil
@@ -205,13 +200,15 @@ func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []string
 			n = d.Roll(rng)
 		}
 	}
-	out := make([]string, 0, n)
+	var out []drawnLoot
 	for range n {
-		itemName, serr := raw.SelectItemByWeight(master, table, rng, roomLootDepth)
-		if serr != nil || itemName == "" {
+		draws, derr := raw.DrawFromItemTable(master, table, rng, roomLootDepth)
+		if derr != nil {
 			continue
 		}
-		out = append(out, itemName)
+		for _, d := range draws {
+			out = append(out, drawnLoot{name: d.Name, count: d.Count})
+		}
 	}
 	return out
 }

@@ -506,6 +506,45 @@ describe("ResourcePage", () => {
     expect(addButton).toBeDefined();
   });
 
+  test("表の行の参照先は id から選ぶ", async () => {
+    const lists: Record<string, Record<string, unknown>[]> = {
+      "drop-tables": [
+        {
+          id: "bat",
+          name: "コウモリ",
+          entries: [{ id: "scrap_iron", weight: 1 }],
+        },
+      ],
+      items: [
+        { id: "scrap_iron", name: "鉄くず" },
+        { id: "beast_fur", name: "獣の毛皮" },
+      ],
+    };
+    mockedUseResourceList.mockImplementation(
+      (resource: string) =>
+        ({
+          data: {
+            data: lists[resource] ?? [],
+            totalCount: (lists[resource] ?? []).length,
+          },
+          isLoading: false,
+          error: null,
+        }) as any,
+    );
+
+    render(<ResourcePage resource="drop-tables" label="ドロップ" />, {
+      wrapper,
+    });
+    await userEvent.click(screen.getByText("コウモリ"));
+
+    const input = screen.getByDisplayValue("scrap_iron");
+    await userEvent.clear(input);
+    await userEvent.type(input, "beast");
+    await waitFor(() => {
+      expect(screen.getByText("beast_fur")).toBeInTheDocument();
+    });
+  });
+
   test("選択式フィールドがセレクトボックスで表示される", async () => {
     setupList([
       {

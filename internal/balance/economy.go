@@ -3,6 +3,7 @@ package balance
 import (
 	"math"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -26,8 +27,8 @@ func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float
 	return vSum / wSum
 }
 
-// expectedGroupValue はアイテムグループの中身の重み付き期待売買価値を返す。グループでなく
-// アイテムを直接指す場合はその価値を返す。
+// expectedGroupValue はアイテムグループから拾う1個あたりの期待売買価値を返す。各行の価値を、1回の抽選で出る
+// 個数の期待値で重み付けする。グループでなくアイテムを直接指す場合はその価値を返す。
 func expectedGroupValue(master oapi.Raws, id string) float64 {
 	g, err := raw.GetItemGroup(master, id)
 	if err != nil {
@@ -36,20 +37,50 @@ func expectedGroupValue(master oapi.Raws, id string) float64 {
 		}
 		return 0
 	}
-	var wSum, vSum float64
-	for _, e := range g.Entries {
+	counts := expectedCounts(g)
+	var nSum, vSum float64
+	for i, e := range g.Entries {
 		it, err := raw.FindItem(master, e.Id)
 		if err != nil {
 			continue
 		}
-		w := raw.PickOneWeight(e)
-		wSum += w
-		vSum += w * float64(it.Value)
+		nSum += counts[i]
+		vSum += counts[i] * float64(it.Value)
 	}
-	if wSum == 0 {
+	if nSum == 0 {
 		return 0
 	}
-	return vSum / wSum
+	return vSum / nSum
+}
+
+// expectedCounts はグループを1回引いたときに各行が出る個数の期待値を返す。distribution は重みの比で1行だけ、
+// collection は各行を出現確率で独立に出し、出た行は pack のダイスの期待値の個数になる。
+func expectedCounts(g oapi.ItemGroup) []float64 {
+	var wSum float64
+	for _, e := range g.Entries {
+		if e.Weight != nil {
+			wSum += *e.Weight
+		}
+	}
+	out := make([]float64, len(g.Entries))
+	for i, e := range g.Entries {
+		d, err := consts.ParseDice(e.Pack)
+		if err != nil {
+			continue
+		}
+		pack := float64(d.Min()+d.Max()) / 2
+		switch g.Subtype {
+		case oapi.Distribution:
+			if e.Weight != nil && wSum > 0 {
+				out[i] = *e.Weight / wSum * pack
+			}
+		case oapi.Collection:
+			if e.Chance != nil {
+				out[i] = *e.Chance / 100 * pack
+			}
+		}
+	}
+	return out
 }
 
 // ExpectedNetLootValue は危険度 danger で拾える1個あたりの店売りの期待手取り額を返す。額面の

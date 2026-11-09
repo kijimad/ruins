@@ -13,11 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-// PickOneWeight はアイテムグループから1つだけ引くときの行の重みを返す。collection の行は出現確率を重みの比として読む。
-func PickOneWeight(e oapi.ItemGroupEntry) float64 {
-	return valueOr(e.Weight, valueOr(e.Chance, 0))
-}
-
 func valueOr[T any](p *T, def T) T {
 	if p == nil {
 		return def
@@ -951,26 +946,18 @@ func checkDanger(danger int) error {
 	return nil
 }
 
-// SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する
-// テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
-func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
+// DrawFromItemTable はアイテムテーブルから危険度に合うグループを重みで1つ選び、そのグループから1回ぶんを引く。
+// グループの引き方は SelectFromItemGroup に従う。
+func DrawFromItemTable(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) ([]DrawnItem, error) {
 	if err := checkDanger(danger); err != nil {
-		return "", err
+		return nil, err
 	}
 	entries := ItemEntriesAt(it, danger)
 	i, ok := consts.Pick(rng, entries, func(e oapi.ItemTableEntry) float64 { return e.Weight })
 	if !ok {
-		return "", nil
+		return nil, nil
 	}
-	group, err := GetItemGroup(raws, entries[i].Id)
-	if err != nil {
-		return "", err
-	}
-	j, ok := consts.Pick(rng, group.Entries, PickOneWeight)
-	if !ok {
-		return "", nil
-	}
-	return group.Entries[j].Id, nil
+	return SelectFromItemGroup(raws, entries[i].Id, rng)
 }
 
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する

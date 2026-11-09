@@ -156,8 +156,6 @@ const createTemplates: Record<string, Record<string, JsonValue>> = {
     spriteKey: "slime_0",
     spriteSheetName: "field",
     animKeys: ["slime_0", "slime_1"],
-    commandTableName: "",
-    dropTableName: "",
     factionType: "",
     player: false,
   },
@@ -317,7 +315,7 @@ const numericSelectOptions: Record<string, { value: number; label: string }[]> =
 
 // 配列要素内のフィールドで、インクリメンタル検索セレクトにするもの
 // parentField は配列フィールド名、field はオブジェクト内のフィールド名
-// optionsSource はどのリソースの name 一覧を使うか
+// optionsSource はどのリソースの id 一覧を使うか
 type SearchableFieldDef = {
   parentField: string;
   field: string;
@@ -330,25 +328,25 @@ const searchableFields: Record<string, SearchableFieldDef[]> = {
     { parentField: "equips", field: "name", optionsSource: "items" },
     { parentField: "skills", field: "id", optionsSource: "skills" },
   ],
-  recipes: [{ parentField: "inputs", field: "name", optionsSource: "items" }],
+  recipes: [{ parentField: "inputs", field: "id", optionsSource: "items" }],
   "command-tables": [
-    { parentField: "entries", field: "weapon", optionsSource: "items" },
+    { parentField: "entries", field: "id", optionsSource: "items" },
   ],
   "drop-tables": [
-    { parentField: "entries", field: "material", optionsSource: "items" },
+    { parentField: "entries", field: "id", optionsSource: "items" },
   ],
   "item-tables": [
     {
       parentField: "entries",
-      field: "groupName",
+      field: "id",
       optionsSource: "item-groups",
     },
   ],
   "enemy-tables": [
-    { parentField: "entries", field: "enemyName", optionsSource: "members" },
+    { parentField: "entries", field: "id", optionsSource: "members" },
   ],
   "item-groups": [
-    { parentField: "entries", field: "itemName", optionsSource: "items" },
+    { parentField: "entries", field: "id", optionsSource: "items" },
   ],
 };
 
@@ -356,11 +354,11 @@ const searchableFields: Record<string, SearchableFieldDef[]> = {
 // フィールド名 → 参照先リソース
 const searchableTopLevelFields: Record<string, Record<string, string>> = {
   members: {
-    commandTableName: "command-tables",
-    dropTableName: "drop-tables",
+    commandTableId: "command-tables",
+    dropTableId: "drop-tables",
   },
   recipes: {
-    name: "items",
+    id: "items",
   },
 };
 
@@ -487,38 +485,38 @@ export function ResourcePage({
     neededSources.has("item-groups") ? "item-groups" : "",
   );
 
-  // 参照先の名前リストを構築
+  // 参照先の id リストを構築
   const referenceOptions = useMemo(() => {
     const opts: Record<string, string[]> = {};
     if (itemsQuery.data?.data) {
       opts["items"] = itemsQuery.data.data.map((item) =>
-        String(item["name"] ?? ""),
+        String(item["id"] ?? ""),
       );
     }
     if (membersQuery.data?.data) {
       opts["members"] = membersQuery.data.data.map((m) =>
-        String(m["name"] ?? ""),
+        String(m["id"] ?? ""),
       );
     }
     if (commandTablesQuery.data?.data) {
       opts["command-tables"] = commandTablesQuery.data.data.map((t) =>
-        String(t["name"] ?? ""),
+        String(t["id"] ?? ""),
       );
     }
     if (dropTablesQuery.data?.data) {
       opts["drop-tables"] = dropTablesQuery.data.data.map((t) =>
-        String(t["name"] ?? ""),
+        String(t["id"] ?? ""),
       );
     }
     if (tilesQuery.data?.data) {
-      opts["tiles"] = tilesQuery.data.data.map((t) => String(t["name"] ?? ""));
+      opts["tiles"] = tilesQuery.data.data.map((t) => String(t["id"] ?? ""));
     }
     if (propsQuery.data?.data) {
-      opts["props"] = propsQuery.data.data.map((p) => String(p["name"] ?? ""));
+      opts["props"] = propsQuery.data.data.map((p) => String(p["id"] ?? ""));
     }
     if (itemGroupsQuery.data?.data) {
       opts["item-groups"] = itemGroupsQuery.data.data.map((g) =>
-        String(g["name"] ?? ""),
+        String(g["id"] ?? ""),
       );
     }
     opts["skills"] = allSkillIDs;

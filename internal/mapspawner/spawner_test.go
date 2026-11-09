@@ -186,7 +186,8 @@ func newTestLootRaws() oapi.Raws {
 		},
 		ItemGroups: &[]oapi.ItemGroup{
 			{
-				Id: "test_item_group",
+				Id:      "test_item_group",
+				Subtype: oapi.Distribution,
 				Entries: []oapi.ItemGroupEntry{
 					{Id: "nonexistent_item", Weight: new(oapi.EntryWeight(1)), Pack: "1d1"},
 				},

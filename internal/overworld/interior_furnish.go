@@ -227,15 +227,14 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 	}
 	n := lootDice.Roll(rng)
 	for range n {
-		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, int(danger))
+		draws, err := raw.DrawFromItemTable(world.Resources.RawMaster, itemTable, rng, int(danger))
 		if err != nil {
 			return err
 		}
-		if itemName == "" {
-			continue
-		}
-		if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, entity); err != nil {
-			return err
+		for _, d := range draws {
+			if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, entity); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
