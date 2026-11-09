@@ -98,10 +98,7 @@ func (overlay *DebugOverlay) drawVisionCircle(screen *ebiten.Image, centerX, cen
 			ColorA: 0.3,
 		})
 
-		// 三角形のインデックス
-		if i < circlePoints {
-			indices = append(indices, 0, uint16(i+1), uint16((i+1)%circlePoints+1))
-		}
+		indices = append(indices, 0, uint16(i+1), uint16((i+1)%circlePoints+1))
 	}
 
 	// 円を描画
