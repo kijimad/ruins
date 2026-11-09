@@ -1,6 +1,10 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"slices"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // Severity は状態の重症度
 type Severity int
@@ -108,6 +112,7 @@ type ConditionDef struct {
 	RecoverPer              int          // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
 	bloodDropPerSeverity    int          // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
 	Cause                   DeathCause   // 血液量が尽きて倒したときの死因
+	parts                   []BodyPart   // 起こりうる部位。空なら全部位
 }
 
 // conditionDefs は状態種類ごとの定義。状態を足すときはここへ1行足す
@@ -131,6 +136,7 @@ var conditionDefs = map[ConditionType]ConditionDef{
 		// 骨は肉より治りが遅い。切り傷の半分の速さにし、治療しても完治まで長く付き合わせる
 		Recovery:   RecoverAfterTend,
 		RecoverPer: 1,
+		parts:      []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet},
 	},
 	ConditionLaceration: {
 		displayName:             "Laceration",
@@ -189,6 +195,12 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 		return def.displayName
 	}
 	return string(ct)
+}
+
+// ConditionCanAffect は状態種類 ct が部位 part に起こりうるかを返す
+func ConditionCanAffect(ct ConditionType, part BodyPart) bool {
+	parts := conditionDefs[ct].parts
+	return len(parts) == 0 || slices.Contains(parts, part)
 }
 
 // ConditionTypeDescription は状態種類の概要説明を返す。未登録なら空文字を返す
@@ -315,16 +327,6 @@ type HealthCondition struct {
 	// TendQuality は治療の質。0 なら未治療、正なら治療済みで 100 が標準、150 なら回復1.5倍。
 	// 適した薬の Potency が入り、回復速度を左右する
 	TendQuality consts.Percent
-}
-
-// DisplayName は状態の表示名を返す
-func (hc *HealthCondition) DisplayName() string {
-	name := ConditionTypeDisplayName(hc.Type)
-	if hc.Severity != SeverityNone {
-		// 丸括弧を避け、重症度は空白で続ける
-		name += " " + hc.Severity.String()
-	}
-	return name
 }
 
 // UpdateTimer はタイマーを更新し、Severityを再計算する

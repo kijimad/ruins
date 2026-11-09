@@ -401,6 +401,27 @@ var goldenCases = []struct {
 		},
 		steps: []replayStep{{shot: true}},
 	},
+	// StatusBadges は左下の状態バッジを固定する。空腹と、同じ種類の不調を1つにまとめたバッジを撮る
+	{
+		name: "StatusBadges",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			player, err := query.GetPlayerEntity(world)
+			if err != nil {
+				return nil, err
+			}
+			world.Components.Hunger.Get(player).Current = 10
+			hs := world.Components.HealthStatus.Get(player)
+			for _, part := range []gc.BodyPart{gc.BodyPartArms, gc.BodyPartLegs} {
+				hs.Parts[part].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
+			}
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}}, nil
+		},
+		steps: []replayStep{{shot: true}},
+	},
 	// ================ 操作した結果の画を撮るケース ================
 	// 設定メニューのカーソルが Back へ移った画を撮る。開いた直後と閉じたあとの画は
 	// SettingsMenu・MainMenu と完全に同一なので撮らない。

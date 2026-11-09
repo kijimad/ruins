@@ -141,20 +141,21 @@ func TestHealthCondition_IsActive(t *testing.T) {
 	}
 }
 
-func TestHealthCondition_DisplayName(t *testing.T) {
+func TestConditionCanAffect(t *testing.T) {
 	t.Parallel()
 
-	t.Run("SeverityNoneは重症度表示なし", func(t *testing.T) {
-		t.Parallel()
-		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityNone}
-		assert.Equal(t, "Hypothermia", hc.DisplayName())
-	})
-
-	t.Run("低体温で軽度", func(t *testing.T) {
-		t.Parallel()
-		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityMinor}
-		assert.Equal(t, "Hypothermia Minor", hc.DisplayName())
-	})
+	var fracture []BodyPart
+	var laceration []BodyPart
+	for p := range BodyPartCount {
+		if ConditionCanAffect(ConditionFracture, p) {
+			fracture = append(fracture, p)
+		}
+		if ConditionCanAffect(ConditionLaceration, p) {
+			laceration = append(laceration, p)
+		}
+	}
+	assert.Equal(t, []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, fracture, "骨折は手足だけ")
+	assert.Len(t, laceration, int(BodyPartCount), "切り傷は全部位")
 }
 
 func TestConditionTypeDisplayName(t *testing.T) {
@@ -481,14 +482,14 @@ func TestHealthStatus_ConsciousnessDrops(t *testing.T) {
 		assert.Equal(t, 0, pain)
 	})
 
-	t.Run("胴体の骨折は全身性の低下として計上する", func(t *testing.T) {
+	t.Run("胴体の不調は全身性の低下として計上する", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
-		hs.Parts[BodyPartTorso].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
+		hs.Parts[BodyPartTorso].SetCondition(HealthCondition{Type: ConditionLaceration, Severity: SeverityMedium})
 		systemic, pain := hs.ConsciousnessDrops()
-		// 骨折 中度: 機能低下 20*2=40、痛み 18*2=36 を痛み係数2で割って18
-		assert.Equal(t, 40, systemic)
-		assert.Equal(t, 18, pain)
+		// 切り傷 中度: 機能低下 8*2=16、痛み 8*2=16 を痛み係数2で割って8
+		assert.Equal(t, 16, systemic)
+		assert.Equal(t, 8, pain)
 	})
 
 	t.Run("腕の骨折は全身性に含めないが痛みは計上する", func(t *testing.T) {

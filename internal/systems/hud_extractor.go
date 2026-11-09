@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 
@@ -343,7 +344,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 			level := hunger.GetLevel()
 			if level != gc.HungerNormal {
 				badges = append(badges, hud.StatusBadge{
-					Text:  level.String(),
+					Text:  query.T(world, level.String()),
 					Color: getHungerBadgeColor(level),
 				})
 			}
@@ -357,7 +358,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 		level := world.Components.Fatigue.Get(entity).GetLevel()
 		if level == gc.FatigueTired || level == gc.FatigueExhausted {
 			badges = append(badges, hud.StatusBadge{
-				Text:  string(level),
+				Text:  query.T(world, string(level)),
 				Color: getFatigueBadgeColor(level),
 			})
 		}
@@ -371,19 +372,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 		if badge, ok := temperatureStateBadge(world, entity); ok {
 			badges = append(badges, badge)
 		}
-		hs := world.Components.HealthStatus.Get(entity)
-		for i := range hs.Parts {
-			for j := range hs.Parts[i].Conditions {
-				c := &hs.Parts[i].Conditions[j]
-				if !c.IsActive() || c.Type == gc.ConditionHypothermia {
-					continue
-				}
-				badges = append(badges, hud.StatusBadge{
-					Text:  c.DisplayName(),
-					Color: color.RGBA{200, 80, 70, 255},
-				})
-			}
-		}
+		badges = append(badges, conditionBadges(world, world.Components.HealthStatus.Get(entity))...)
 	}
 
 	// 画面サイズを取得
@@ -397,6 +386,54 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 			Height: screenHeight,
 		},
 	}
+}
+
+// conditionBadges は低体温を除く不調を種類ごとに1つのバッジへまとめる。最も重い重症度を示し、
+// 複数の部位にあれば部位の数を添える。並びは部位を順に見て最初に現れた順
+func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
+	type summary struct {
+		worst gc.Severity
+		count int
+	}
+	var order []gc.ConditionType
+	byType := map[gc.ConditionType]*summary{}
+	for i := range hs.Parts {
+		for j := range hs.Parts[i].Conditions {
+			c := &hs.Parts[i].Conditions[j]
+			if !c.IsActive() || c.Type == gc.ConditionHypothermia {
+				continue
+			}
+			s, ok := byType[c.Type]
+			if !ok {
+				s = &summary{}
+				byType[c.Type] = s
+				order = append(order, c.Type)
+			}
+			s.count++
+			if c.Severity > s.worst {
+				s.worst = c.Severity
+			}
+		}
+	}
+	badges := make([]hud.StatusBadge, 0, len(order))
+	for _, ct := range order {
+		s := byType[ct]
+		text := conditionLabel(world, ct, s.worst)
+		if s.count > 1 {
+			text += fmt.Sprintf(" ×%d", s.count)
+		}
+		badges = append(badges, hud.StatusBadge{Text: text, Color: color.RGBA{200, 80, 70, 255}})
+	}
+	return badges
+}
+
+// conditionLabel は状態の種類と重症度を現在言語で並べた表示名を返す。重症度が無ければ種類だけ
+func conditionLabel(world w.World, ct gc.ConditionType, severity gc.Severity) string {
+	name := query.T(world, gc.ConditionTypeDisplayName(ct))
+	if severity == gc.SeverityNone {
+		return name
+	}
+	return name + " " + query.T(world, severity.String())
 }
 
 // shelterMsgid は囲われの度合いの表示名 msgid を返す
@@ -435,7 +472,7 @@ func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, b
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
 	if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil {
-		return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true
+		return hud.StatusBadge{Text: conditionLabel(world, cold.Type, cold.Severity), Color: color.RGBA{80, 140, 235, 255}}, true
 	}
 	return hud.StatusBadge{}, false
 }
