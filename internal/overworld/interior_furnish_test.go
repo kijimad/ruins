@@ -196,10 +196,9 @@ func TestInteriorContents_収納家具は戦利品表を書く(t *testing.T) {
 	}
 }
 
-// TestInteriorPropRaw_全施設の家具と敵のrefが写像を持つ は、施設 content が生む家具と敵が in-game で無言に欠落
-// しないことを守る。各施設種別を Furnish し、家具の Ref が PropRawName に、敵の Ref が IsBeingRef にあることを
-// 確かめる。content へ足して写像を忘れると、ここで落ちて気付ける。
-func TestInteriorPropRaw_全施設の家具と敵のrefが写像を持つ(t *testing.T) {
+// TestInteriorPropRaw_全施設の家具のrefが写像を持つ は、施設 content が生む家具が in-game で無言に欠落
+// しないことを守る。各施設種別を Furnish し、家具の Ref が PropRawName にあることを確かめる。
+func TestInteriorPropRaw_全施設の家具のrefが写像を持つ(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -217,9 +216,7 @@ func TestInteriorPropRaw_全施設の家具と敵のrefが写像を持つ(t *tes
 			case interior.KindFurniture:
 				_, ok := interior.PropRawName(p.Ref)
 				assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
-			case interior.KindBeing:
-				assert.Truef(t, interior.IsBeingRef(p.Ref), "施設 %q の敵 %q は spawn される Ref", fac, p.Ref)
-			case interior.KindLoot, interior.KindDecor, interior.KindTrap:
+			case interior.KindBeing, interior.KindLoot, interior.KindDecor, interior.KindTrap:
 			}
 		}
 	}

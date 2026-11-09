@@ -466,10 +466,8 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 			continue
 		}
 		if p.Kind == KindBeing {
-			// 敵も種類は executor が施設の敵の表から引くので、位置に enemy の文字を描く
-			if IsBeingRef(p.Ref) {
-				drawMarker(img, origin, p.Pos, "enemy", color.RGBA{R: 220, G: 80, B: 80, A: 255})
-			}
+			// 敵の種類は executor が施設の敵の表から引くので、位置に enemy の文字を描く
+			drawMarker(img, origin, p.Pos, "enemy", color.RGBA{R: 220, G: 80, B: 80, A: 255})
 			continue
 		}
 		if _, ok := PropRawName(p.Ref); !ok {
