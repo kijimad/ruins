@@ -46,7 +46,7 @@
 - **置き場を固定**。A/B の導出は `internal/balance` に置く。ドメインごとにファイルを分ける。`metrics.go`（戦闘）、`survival.go`（生存・疲労・血液）、`logistics.go`（物流）、`economy.go`（経済の純部分）。1ドメイン1ファイル。基準値は共有定数、すなわち `BaselinePlayer` 等や `consts` の公開定数を使い各所へ直書きしない。
 - **モンテカルロは C 専用**。`balance/run.go`・`combat.go` の `Simulate*` は創発ドメインの測定にだけ使う。導出可能なドメインへ拡張しない。拡張したくなったら、それは A か B で書けるはずと疑う。
 - **凍結ゲート**。導出したメトリクスは `balance/targets_test.go` に現状値で pin し、`make check` で変化を検知する。目標帯そのものは assert しない。意図した調整で値が動いたら期待値を更新する。
-- **raw.toml の書き戻しは yq で行う**。導出で決めた値を書き戻すときは jq 風の式で該当フィールドだけを更新する。独自ツールは作らない。yq は書式を崩すので、編集後に `make fmt` で正規形へ戻す。正規形は taplo が `.taplo-raw.toml` の設定で整える。
+- **raw.toml の書き戻しは yq で行う**。導出で決めた値を書き戻すときは jq 風の式で該当フィールドだけを更新する。独自ツールは作らない。yq は書式を崩すので、編集後に `make fmt` で正規形へ戻す。正規形は `go run . fmtraw` がキーを並べ替えてインデントしたもの。
   ```sh
   # 武器の近接ダメージを更新する
   go run github.com/mikefarah/yq/v4@v4.53.6 -p toml -o toml -i \

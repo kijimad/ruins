@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/cmd"
 )
 
-//go:generate npx --yes @taplo/cli@0.7.0 format --config .taplo-raw.toml assets/metadata/entities/raw/raw.toml
+//go:generate go run . fmtraw
 //go:generate go run . gencomponents
 //go:generate go run . designdoc gen
 //go:generate go run . genreadme
