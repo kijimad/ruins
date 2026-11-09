@@ -99,3 +99,95 @@ func TestMetaPlan_randomPositionNear_部屋の範囲外の座標は候補から�
 	assert.Equal(t, consts.Tile(0), tx)
 	assert.Equal(t, consts.Tile(0), ty)
 }
+
+// newEdgeTileTestPlan は境界判定検証用の3x3マップを作る。全タイルを floor にする
+func newEdgeTileTestPlan() *MetaPlan {
+	width, height := consts.Tile(3), consts.Tile(3)
+	plan := &MetaPlan{
+		Level: gc.Level{
+			TileWidth:  width,
+			TileHeight: height,
+		},
+		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		RawMaster: CreateTestRawMaster(),
+	}
+	for i := range plan.Tiles {
+		plan.Tiles[i] = plan.GetTile("floor")
+	}
+	return plan
+}
+
+func TestMetaPlan_UpTile_上端は境界外のvoidタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	topIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 0})
+
+	tile := plan.UpTile(topIdx)
+
+	assert.Equal(t, consts.TileNameVoid, tile.Name)
+}
+
+func TestMetaPlan_UpTile_境界外でなければ上のタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	centerIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
+
+	tile := plan.UpTile(centerIdx)
+
+	assert.Equal(t, "floor", tile.Name)
+}
+
+func TestMetaPlan_DownTile_下端は境界外のvoidタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	bottomIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 2})
+
+	tile := plan.DownTile(bottomIdx)
+
+	assert.Equal(t, consts.TileNameVoid, tile.Name)
+}
+
+func TestMetaPlan_LeftTile_左端は境界外のvoidタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	leftIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 0, Y: 1})
+
+	tile := plan.LeftTile(leftIdx)
+
+	assert.Equal(t, consts.TileNameVoid, tile.Name)
+}
+
+func TestMetaPlan_RightTile_右端は境界外のvoidタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	rightIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 2, Y: 1})
+
+	tile := plan.RightTile(rightIdx)
+
+	assert.Equal(t, consts.TileNameVoid, tile.Name)
+}
+
+func TestMetaPlan_GetTile_RawMaster未設定ならpanicする(t *testing.T) {
+	t.Parallel()
+
+	plan := &MetaPlan{}
+
+	assert.PanicsWithValue(t, "RawMaster is not set; tile generation from TOML is required", func() {
+		plan.GetTile("floor")
+	})
+}
+
+func TestMetaPlan_GetTile_存在しないタイル名ならpanicする(t *testing.T) {
+	t.Parallel()
+
+	plan := &MetaPlan{RawMaster: CreateTestRawMaster()}
+
+	assert.PanicsWithValue(t, "tile generation error: key not found: no_such_tile in Tiles", func() {
+		plan.GetTile("no_such_tile")
+	})
+}
