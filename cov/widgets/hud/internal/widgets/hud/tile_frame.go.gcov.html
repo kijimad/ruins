@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">30.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-08 15:42:46</td>
+            <td class="headerValue">2026-11-09 12:36:51</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,18 +78,18 @@
 <span id="L16"><span class="lineNum">      16</span>              : // アンチエイリアスは使わない。ebiten の vector は AA のマスクを managed な画像へ描き、</span>
 <span id="L17"><span class="lineNum">      17</span>              : // 枠の縁の合成がアトラス配置に左右されるため。ドット絵の画面では見た目の差も出ない</span>
 <span id="L18"><span class="lineNum">      18</span>              : func TileFrame(screen *ebiten.Image, corners [4]consts.Coord[consts.ScreenPixel], width float32, clr color.Color) {</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC tlaBgUNC">           0 :         for i := range corners {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 from, to := corners[i], corners[(i+1)%len(corners)]</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                 vector.StrokeLine(screen,</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                         float32(from.X), float32(from.Y),</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                         float32(to.X), float32(to.Y),</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                         width, clr, false)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         for i := range corners {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 from, to := corners[i], corners[(i+1)%len(corners)]</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 vector.StrokeLine(screen,</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         float32(from.X), float32(from.Y),</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                         float32(to.X), float32(to.Y),</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                         width, clr, false)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // ScaleAlpha は色のアルファに係数を掛ける。カーソルの点滅など、色はそのままで濃さだけ変える用途に使う。</span>
 <span id="L29"><span class="lineNum">      29</span>              : func ScaleAlpha(clr color.RGBA, alpha float64) color.RGBA {</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         clr.A = uint8(float64(clr.A) * min(max(alpha, 0), 1))</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         clr.A = uint8(float64(clr.A) * min(max(alpha, 0), 1))</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return clr</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>

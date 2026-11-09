@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">4.4&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">45</td>
-            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">45</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-08 15:42:46</td>
+            <td class="headerValue">2026-11-09 12:36:51</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -103,56 +103,56 @@
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // NewMessageArea はデフォルト設定でHUDMessageAreaを作成する</span>
 <span id="L43"><span class="lineNum">      43</span>              : func NewMessageArea(world w.World) *MessageArea {</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :         config := DefaultMessageAreaConfig</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         widgetConfig := messagelog.WidgetConfig{</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 MaxLines:   config.MaxLogLines,</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :                 LineHeight: config.LineHeight,</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 Spacing:    3,</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 Padding: messagelog.Insets{</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                         Top:    theme.Space2,</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                         Bottom: theme.Space2,</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                         Left:   theme.Space3,</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                         Right:  theme.Space3,</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         config := DefaultMessageAreaConfig</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         widgetConfig := messagelog.WidgetConfig{</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 MaxLines:   config.MaxLogLines,</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 LineHeight: config.LineHeight,</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 Spacing:    3,</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 Padding: messagelog.Insets{</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                         Top:    theme.Space2,</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         Bottom: theme.Space2,</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         Left:   theme.Space3,</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         Right:  theme.Space3,</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : </span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         widget := messagelog.NewWidget(widgetConfig, world)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         return &amp;MessageArea{</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 widget:  widget,</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 config:  config,</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                 chrome:  Chrome{},</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :                 enabled: true,</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         widget := messagelog.NewWidget(widgetConfig, world)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return &amp;MessageArea{</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 widget:  widget,</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 config:  config,</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 chrome:  Chrome{},</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 enabled: true,</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : }</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // Update はメッセージエリアを更新する</span>
 <span id="L69"><span class="lineNum">      69</span>              : func (area *MessageArea) Update() {</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         if !area.enabled || area.widget == nil {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         if !area.enabled || area.widget == nil {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         area.widget.Update()</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         area.widget.Update()</span></span>
 <span id="L75"><span class="lineNum">      75</span>              : }</span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // Draw はメッセージエリアを画面下部へ左右マージン付きで描画する。下端固定は FlexColumn の先頭 Grow</span>
 <span id="L78"><span class="lineNum">      78</span>              : // スペーサに委ね、画面高からの逆算をしない。</span>
 <span id="L79"><span class="lineNum">      79</span>              : func (area *MessageArea) Draw(cv uicore.Canvas, data MessageData) {</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         if !area.enabled || area.widget == nil {</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if !area.enabled || area.widget == nil {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L83"><span class="lineNum">      83</span>              : </span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         boxMargin := theme.Space3</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         panel := &amp;messagePanelWidget{chrome: area.chrome, widget: area.widget, margin: area.config.LogAreaMargin}</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         items := []uicore.FlexItem{</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :                 {Grow: true},</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 {W: panel, Height: area.config.Height()},</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 {Height: boxMargin},</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         inner := image.Rect(boxMargin, 0, data.ScreenDimensions.Width-boxMargin, data.ScreenDimensions.Height)</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         uicore.FlexColumn(inner, items)</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         drawFlexItems(cv, items)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         boxMargin := theme.Space3</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         panel := &amp;messagePanelWidget{chrome: area.chrome, widget: area.widget, margin: area.config.LogAreaMargin}</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         items := []uicore.FlexItem{</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 {Grow: true},</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 {W: panel, Height: area.config.Height()},</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 {Height: boxMargin},</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         inner := image.Rect(boxMargin, 0, data.ScreenDimensions.Width-boxMargin, data.ScreenDimensions.Height)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         uicore.FlexColumn(inner, items)</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         drawFlexItems(cv, items)</span></span>
 <span id="L94"><span class="lineNum">      94</span>              : }</span>
 <span id="L95"><span class="lineNum">      95</span>              : </span>
 <span id="L96"><span class="lineNum">      96</span>              : // messagePanelWidget はメッセージログのパネル。与えられた矩形へ背景枠を敷き、内側余白ぶん縮めた領域へ</span>
@@ -165,16 +165,16 @@
 <span id="L103"><span class="lineNum">     103</span>              : }</span>
 <span id="L104"><span class="lineNum">     104</span>              : </span>
 <span id="L105"><span class="lineNum">     105</span>              : // Layout は uicore.Widget を満たす。</span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 : func (m *messagePanelWidget) Layout(r image.Rectangle) { m.rect = r }</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : func (m *messagePanelWidget) Layout(r image.Rectangle) { m.rect = r }</span></span>
 <span id="L107"><span class="lineNum">     107</span>              : </span>
 <span id="L108"><span class="lineNum">     108</span>              : // Draw は uicore.Widget を満たす。背景枠と、内側へ寄せたログ本体を描く。</span>
 <span id="L109"><span class="lineNum">     109</span>              : func (m *messagePanelWidget) Draw(cv uicore.Canvas) {</span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         m.chrome.Panel(cv, m.rect)</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         m.widget.Draw(cv, m.rect.Min.X+m.margin, m.rect.Min.Y+m.margin, m.rect.Dx()-m.margin*2, m.rect.Dy()-m.margin*2)</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         m.chrome.Panel(cv, m.rect)</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         m.widget.Draw(cv, m.rect.Min.X+m.margin, m.rect.Min.Y+m.margin, m.rect.Dx()-m.margin*2, m.rect.Dy()-m.margin*2)</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L113"><span class="lineNum">     113</span>              : </span>
 <span id="L114"><span class="lineNum">     114</span>              : // Children は uicore.Widget を満たす。子は持たない。</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 : func (m *messagePanelWidget) Children() []uicore.Widget { return nil }</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 : func (m *messagePanelWidget) Children() []uicore.Widget { return nil }</span></span>
         </pre>
               </td>
             </tr>

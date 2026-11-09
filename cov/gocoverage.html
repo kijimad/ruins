@@ -679,7 +679,7 @@
 				
 				<option value="file311">github.com/kijimaD/ruins/internal/widgets/hud/chrome.go (100.0%)</option>
 				
-				<option value="file312">github.com/kijimaD/ruins/internal/widgets/hud/debug_overlay.go (0.0%)</option>
+				<option value="file312">github.com/kijimaD/ruins/internal/widgets/hud/debug_overlay.go (100.0%)</option>
 				
 				<option value="file313">github.com/kijimaD/ruins/internal/widgets/hud/facility_grid.go (100.0%)</option>
 				
@@ -691,13 +691,13 @@
 				
 				<option value="file317">github.com/kijimaD/ruins/internal/widgets/hud/map_grid.go (96.6%)</option>
 				
-				<option value="file318">github.com/kijimaD/ruins/internal/widgets/hud/message_area.go (5.0%)</option>
+				<option value="file318">github.com/kijimaD/ruins/internal/widgets/hud/message_area.go (100.0%)</option>
 				
 				<option value="file319">github.com/kijimaD/ruins/internal/widgets/hud/status_badges.go (96.8%)</option>
 				
 				<option value="file320">github.com/kijimaD/ruins/internal/widgets/hud/text_helper.go (100.0%)</option>
 				
-				<option value="file321">github.com/kijimaD/ruins/internal/widgets/hud/tile_frame.go (40.0%)</option>
+				<option value="file321">github.com/kijimaD/ruins/internal/widgets/hud/tile_frame.go (100.0%)</option>
 				
 				<option value="file322">github.com/kijimaD/ruins/internal/widgets/hud/weapon_slots.go (87.9%)</option>
 				
@@ -47844,14 +47844,14 @@ type DebugOverlay struct {
 
 // NewDebugOverlay は新しいHUDDebugOverlayを作成する
 func NewDebugOverlay(face text.Face) *DebugOverlay {
-        <span class="cov0" title="0">return &amp;DebugOverlay{
+        <span class="cov8" title="1">return &amp;DebugOverlay{
                 face:    face,
                 enabled: true,
 </span>        }
 }
 
 // Update はデバッグオーバーレイを更新する
-func (overlay *DebugOverlay) Update(_ w.World) {<span class="cov0" title="0"></span>
+func (overlay *DebugOverlay) Update(_ w.World) {<span class="cov8" title="1"></span>
         // 現在は更新処理なし
 }
 
@@ -47861,25 +47861,25 @@ func (overlay *DebugOverlay) Update(_ w.World) {<span class="cov0" title="0"></s
 // どちらも世界の座標に従う。円は多角形の帯で塗るので Canvas の語彙では表せず、
 // 描画先を直に受け取る。文字は Canvas 越しに描き、縁取りを HUD の他と揃える
 func (overlay *DebugOverlay) Draw(screen *ebiten.Image, data DebugOverlayData) {
-        <span class="cov0" title="0">if !overlay.enabled || !data.Enabled </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if !overlay.enabled || !data.Enabled </span>{
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">cv := uicore.NewEbitenCanvas(screen)
+        <span class="cov8" title="1">cv := uicore.NewEbitenCanvas(screen)
 </span>
         // AI状態を描画
-        <span class="cov0" title="0">for _, aiState := range data.AIStates </span>{
-                <span class="cov0" title="0">const textOffsetY = 30
+        <span class="cov8" title="1">for _, aiState := range data.AIStates </span>{
+                <span class="cov8" title="1">const textOffsetY = 30
                 drawOutlinedText(cv, aiState.StateText, overlay.face, image.Pt(int(aiState.Screen.X)-20, int(aiState.Screen.Y)-textOffsetY), theme.TextPrimary)
 </span>        }
 
         // 視界範囲を描画
-        <span class="cov0" title="0">for _, visionRange := range data.VisionRanges </span>{
-                <span class="cov0" title="0">overlay.drawVisionCircle(screen, float32(visionRange.Screen.X), float32(visionRange.Screen.Y), visionRange.ScaledRadius)
+        <span class="cov8" title="1">for _, visionRange := range data.VisionRanges </span>{
+                <span class="cov8" title="1">overlay.drawVisionCircle(screen, float32(visionRange.Screen.X), float32(visionRange.Screen.Y), visionRange.ScaledRadius)
 </span>        }
 
         // HP情報を描画
-        <span class="cov0" title="0">for _, hpDisplay := range data.HPDisplays </span>{
-                <span class="cov0" title="0">hpText := fmt.Sprintf("%d/%d", hpDisplay.CurrentHP, hpDisplay.MaxHP)
+        <span class="cov8" title="1">for _, hpDisplay := range data.HPDisplays </span>{
+                <span class="cov8" title="1">hpText := fmt.Sprintf("%d/%d", hpDisplay.CurrentHP, hpDisplay.MaxHP)
                 const textOffsetY = 15 // AI状態の文字より上に置いて重ならないようにする
                 drawOutlinedText(cv, hpText, overlay.face, image.Pt(int(hpDisplay.Screen.X)-15, int(hpDisplay.Screen.Y)-textOffsetY), theme.TextPrimary)
 </span>        }
@@ -47888,12 +47888,12 @@ func (overlay *DebugOverlay) Draw(screen *ebiten.Image, data DebugOverlayData) {
 // drawVisionCircle は指定した位置と半径で視界円を描画する
 func (overlay *DebugOverlay) drawVisionCircle(screen *ebiten.Image, centerX, centerY, radius float32) {
         // 円周上の点数
-        <span class="cov0" title="0">circlePoints := 32
+        <span class="cov8" title="1">circlePoints := 32
         vertices := make([]ebiten.Vertex, 0, 1+circlePoints)
         indices := make([]uint16, 0, circlePoints*3)
 </span>
         // 中心点
-        <span class="cov0" title="0">vertices = append(vertices, ebiten.Vertex{
+        <span class="cov8" title="1">vertices = append(vertices, ebiten.Vertex{
                 DstX:   centerX,
                 DstY:   centerY,
                 SrcX:   0,
@@ -47905,12 +47905,12 @@ func (overlay *DebugOverlay) drawVisionCircle(screen *ebiten.Image, centerX, cen
         })
 </span>
         // 円周上の点
-        <span class="cov0" title="0">for i := range circlePoints </span>{
-                <span class="cov0" title="0">angle := 2 * math.Pi * float64(i) / float64(circlePoints)
+        <span class="cov8" title="1">for i := range circlePoints </span>{
+                <span class="cov8" title="1">angle := 2 * math.Pi * float64(i) / float64(circlePoints)
                 x := centerX + radius*float32(math.Cos(angle))
                 y := centerY + radius*float32(math.Sin(angle))
 </span>
-                <span class="cov0" title="0">vertices = append(vertices, ebiten.Vertex{
+                <span class="cov8" title="1">vertices = append(vertices, ebiten.Vertex{
                         DstX:   x,
                         DstY:   y,
                         SrcX:   0,
@@ -47921,16 +47921,13 @@ func (overlay *DebugOverlay) drawVisionCircle(screen *ebiten.Image, centerX, cen
                         ColorA: 0.3,
                 })
 </span>
-                // 三角形のインデックス
-                <span class="cov0" title="0">if i &lt; circlePoints </span>{
-                        <span class="cov0" title="0">indices = append(indices, 0, uint16(i+1), uint16((i+1)%circlePoints+1))
-</span>                }
-        }
+                <span class="cov8" title="1">indices = append(indices, 0, uint16(i+1), uint16((i+1)%circlePoints+1))
+</span>        }
 
         // 円を描画
-        <span class="cov0" title="0">opt := &amp;ebiten.DrawTrianglesOptions{}
+        <span class="cov8" title="1">opt := &amp;ebiten.DrawTrianglesOptions{}
 </span>        // 1x1ピクセルの白い画像を作成
-        <span class="cov0" title="0">whiteImg := ebiten.NewImage(1, 1)
+        <span class="cov8" title="1">whiteImg := ebiten.NewImage(1, 1)
         whiteImg.Fill(color.White)
         screen.DrawTriangles(vertices, indices, whiteImg, opt)</span>
 }
@@ -48675,9 +48672,9 @@ type MessageArea struct {
 
 // NewMessageArea はデフォルト設定でHUDMessageAreaを作成する
 func NewMessageArea(world w.World) *MessageArea {
-        <span class="cov0" title="0">config := DefaultMessageAreaConfig
+        <span class="cov8" title="1">config := DefaultMessageAreaConfig
 </span>
-        <span class="cov0" title="0">widgetConfig := messagelog.WidgetConfig{
+        <span class="cov8" title="1">widgetConfig := messagelog.WidgetConfig{
                 MaxLines:   config.MaxLogLines,
                 LineHeight: config.LineHeight,
                 Spacing:    3,
@@ -48689,9 +48686,9 @@ func NewMessageArea(world w.World) *MessageArea {
                 },
 </span>        }
 
-        <span class="cov0" title="0">widget := messagelog.NewWidget(widgetConfig, world)
+        <span class="cov8" title="1">widget := messagelog.NewWidget(widgetConfig, world)
 </span>
-        <span class="cov0" title="0">return &amp;MessageArea{
+        <span class="cov8" title="1">return &amp;MessageArea{
                 widget:  widget,
                 config:  config,
                 chrome:  Chrome{},
@@ -48701,28 +48698,28 @@ func NewMessageArea(world w.World) *MessageArea {
 
 // Update はメッセージエリアを更新する
 func (area *MessageArea) Update() {
-        <span class="cov0" title="0">if !area.enabled || area.widget == nil </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if !area.enabled || area.widget == nil </span>{
+                <span class="cov8" title="1">return
 </span>        }
 
-        <span class="cov0" title="0">area.widget.Update()</span>
+        <span class="cov8" title="1">area.widget.Update()</span>
 }
 
 // Draw はメッセージエリアを画面下部へ左右マージン付きで描画する。下端固定は FlexColumn の先頭 Grow
 // スペーサに委ね、画面高からの逆算をしない。
 func (area *MessageArea) Draw(cv uicore.Canvas, data MessageData) {
-        <span class="cov0" title="0">if !area.enabled || area.widget == nil </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if !area.enabled || area.widget == nil </span>{
+                <span class="cov8" title="1">return
 </span>        }
 
-        <span class="cov0" title="0">boxMargin := theme.Space3
+        <span class="cov8" title="1">boxMargin := theme.Space3
         panel := &amp;messagePanelWidget{chrome: area.chrome, widget: area.widget, margin: area.config.LogAreaMargin}
         items := []uicore.FlexItem{
                 {Grow: true},
                 {W: panel, Height: area.config.Height()},
                 {Height: boxMargin},
 </span>        }
-        <span class="cov0" title="0">inner := image.Rect(boxMargin, 0, data.ScreenDimensions.Width-boxMargin, data.ScreenDimensions.Height)
+        <span class="cov8" title="1">inner := image.Rect(boxMargin, 0, data.ScreenDimensions.Width-boxMargin, data.ScreenDimensions.Height)
         uicore.FlexColumn(inner, items)
         drawFlexItems(cv, items)</span>
 }
@@ -48737,16 +48734,16 @@ type messagePanelWidget struct {
 }
 
 // Layout は uicore.Widget を満たす。
-func (m *messagePanelWidget) Layout(r image.Rectangle) { <span class="cov0" title="0">m.rect = r }</span>
+func (m *messagePanelWidget) Layout(r image.Rectangle) { <span class="cov8" title="1">m.rect = r }</span>
 
 // Draw は uicore.Widget を満たす。背景枠と、内側へ寄せたログ本体を描く。
 func (m *messagePanelWidget) Draw(cv uicore.Canvas) {
-        <span class="cov0" title="0">m.chrome.Panel(cv, m.rect)
+        <span class="cov8" title="1">m.chrome.Panel(cv, m.rect)
         m.widget.Draw(cv, m.rect.Min.X+m.margin, m.rect.Min.Y+m.margin, m.rect.Dx()-m.margin*2, m.rect.Dy()-m.margin*2)
 </span>}
 
 // Children は uicore.Widget を満たす。子は持たない。
-func (m *messagePanelWidget) Children() []uicore.Widget { <span class="cov0" title="0">return nil }</span>
+func (m *messagePanelWidget) Children() []uicore.Widget { <span class="cov8" title="1">return nil }</span>
 </pre>
 		
 		<pre class="file" id="file319" style="display: none">package hud
@@ -48919,8 +48916,8 @@ import (
 // アンチエイリアスは使わない。ebiten の vector は AA のマスクを managed な画像へ描き、
 // 枠の縁の合成がアトラス配置に左右されるため。ドット絵の画面では見た目の差も出ない
 func TileFrame(screen *ebiten.Image, corners [4]consts.Coord[consts.ScreenPixel], width float32, clr color.Color) {
-        <span class="cov0" title="0">for i := range corners </span>{
-                <span class="cov0" title="0">from, to := corners[i], corners[(i+1)%len(corners)]
+        <span class="cov8" title="1">for i := range corners </span>{
+                <span class="cov8" title="1">from, to := corners[i], corners[(i+1)%len(corners)]
                 vector.StrokeLine(screen,
                         float32(from.X), float32(from.Y),
                         float32(to.X), float32(to.Y),
