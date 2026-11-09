@@ -69,7 +69,7 @@
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (78.4%)</option>
 				
-				<option value="file7">github.com/kijimaD/ruins/internal/activity/injury.go (94.1%)</option>
+				<option value="file7">github.com/kijimaD/ruins/internal/activity/injury.go (100.0%)</option>
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/move.go (82.7%)</option>
 				
@@ -637,7 +637,7 @@
 				
 				<option value="file290">github.com/kijimaD/ruins/internal/systems/helper.go (0.0%)</option>
 				
-				<option value="file291">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (91.6%)</option>
+				<option value="file291">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (92.0%)</option>
 				
 				<option value="file292">github.com/kijimaD/ruins/internal/systems/hud_rendering.go (0.0%)</option>
 				
@@ -2537,6 +2537,8 @@ func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRe
 		<pre class="file" id="file7" style="display: none">package activity
 
 import (
+        "fmt"
+
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/gamelog"
         w "github.com/kijimaD/ruins/internal/world"
@@ -2566,7 +2568,7 @@ func injuryTypeFor(attackType gc.AttackType) gc.ConditionType {
 }
 
 // applyInjury は命中時に確率で命中部位へ怪我を1つ付ける。
-// 怪我の種類は武器種から導き、命中部位は部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
+// 怪我の種類は武器種から導き、命中部位はその怪我が起こりうる部位から部位サイズの重みで抽選する。HealthStatus を持つ対象だけが対象。
 // 同じ部位に同種の怪我が既にあれば付けない。種類や部位が違う傷は独立で、身体機能と失血は全傷が合算される
 func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
         <span class="cov8" title="1">if !world.Components.HealthStatus.Has(target) </span>{
@@ -2576,8 +2578,8 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
                 <span class="cov8" title="1">return
 </span>        }
 
-        <span class="cov8" title="1">part := randomHitPart(world)
-        injuryType := injuryTypeFor(attack.GetAttackCategory())
+        <span class="cov8" title="1">injuryType := injuryTypeFor(attack.GetAttackCategory())
+        part := hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight(injuryType)), injuryType)
 </span>
         <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(target)
         if hs.Parts[part].CountConditions(injuryType) &gt;= maxInjuriesPerPartType </span>{
@@ -2592,34 +2594,38 @@ func applyInjury(actor, target ecs.Entity, world w.World, attack gc.Attacker) {
         <span class="cov8" title="1">logInjury(actor, target, world, part, injuryType)</span>
 }
 
-// randomHitPart は命中部位を重みで抽選する
-func randomHitPart(world w.World) gc.BodyPart {
-        <span class="cov8" title="1">return hitPartForRoll(world.Resources.Config.RNG.IntN(totalHitWeight()))
-</span>}
+// hitWeight は怪我 ct の命中抽選での部位 part の重みを返す。起こりえない部位は0
+func hitWeight(part gc.BodyPart, ct gc.ConditionType) int {
+        <span class="cov8" title="1">if !gc.ConditionCanAffect(ct, part) </span>{
+                <span class="cov8" title="1">return 0
+</span>        }
+        <span class="cov8" title="1">return gc.BodyPartHitWeight(part)</span>
+}
 
-// totalHitWeight は全部位の命中重みの合計を返す
-func totalHitWeight() int {
+// totalHitWeight は怪我 ct が起こりうる部位の命中重みの合計を返す
+func totalHitWeight(ct gc.ConditionType) int {
         <span class="cov8" title="1">total := 0
         for p := range gc.BodyPartCount </span>{
-                <span class="cov8" title="1">total += gc.BodyPartHitWeight(p)
+                <span class="cov8" title="1">total += hitWeight(p, ct)
 </span>        }
         <span class="cov8" title="1">return total</span>
 }
 
 // hitPartForRoll は重み合計内の roll を命中部位へ写す。roll は [0, totalHitWeight) を想定する。
 // 部位順に走査し、重み 0 の部位は飛ばすので、命中先は必ず重みのある部位になる
-func hitPartForRoll(roll int) gc.BodyPart {
-        <span class="cov8" title="1">for p := range gc.BodyPartCount </span>{
-                <span class="cov8" title="1">weight := gc.BodyPartHitWeight(p)
+func hitPartForRoll(roll int, ct gc.ConditionType) gc.BodyPart {
+        <span class="cov8" title="1">rest := roll
+        for p := range gc.BodyPartCount </span>{
+                <span class="cov8" title="1">weight := hitWeight(p, ct)
                 if weight == 0 </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov8" title="1">if roll &lt; weight </span>{
+                <span class="cov8" title="1">if rest &lt; weight </span>{
                         <span class="cov8" title="1">return p
 </span>                }
-                <span class="cov8" title="1">roll -= weight</span>
+                <span class="cov8" title="1">rest -= weight</span>
         }
-        <span class="cov0" title="0">return gc.BodyPartTorso</span> // 合計重みの内で必ず返るのでここには来ない
+        <span class="cov8" title="1">panic(fmt.Sprintf("roll %d is outside the total hit weight of %s", roll, ct))</span>
 }
 
 // logInjury は怪我を負ったことをログに出す。攻撃者か対象が味方に関わるときだけ出す
@@ -12588,7 +12594,11 @@ func (gt *GameTime) AdvanceToNextSeason() {
 		
 		<pre class="file" id="file75" style="display: none">package components
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+        "slices"
+
+        "github.com/kijimaD/ruins/internal/consts"
+)
 
 // Severity は状態の重症度
 type Severity int
@@ -12696,6 +12706,7 @@ type ConditionDef struct {
         RecoverPer              int          // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
         bloodDropPerSeverity    int          // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
         Cause                   DeathCause   // 血液量が尽きて倒したときの死因
+        parts                   []BodyPart   // 起こりうる部位。空なら全部位
 }
 
 // conditionDefs は状態種類ごとの定義。状態を足すときはここへ1行足す
@@ -12719,6 +12730,7 @@ var conditionDefs = map[ConditionType]ConditionDef{
                 // 骨は肉より治りが遅い。切り傷の半分の速さにし、治療しても完治まで長く付き合わせる
                 Recovery:   RecoverAfterTend,
                 RecoverPer: 1,
+                parts:      []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet},
         },
         ConditionLaceration: {
                 displayName:             "Laceration",
@@ -12778,6 +12790,12 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 </span>        }
         <span class="cov8" title="1">return string(ct)</span>
 }
+
+// ConditionCanAffect は状態種類 ct が部位 part に起こりうるかを返す
+func ConditionCanAffect(ct ConditionType, part BodyPart) bool {
+        <span class="cov8" title="1">parts := conditionDefs[ct].parts
+        return len(parts) == 0 || slices.Contains(parts, part)
+</span>}
 
 // ConditionTypeDescription は状態種類の概要説明を返す。未登録なら空文字を返す
 func ConditionTypeDescription(ct ConditionType) string {
@@ -12903,16 +12921,6 @@ type HealthCondition struct {
         // TendQuality は治療の質。0 なら未治療、正なら治療済みで 100 が標準、150 なら回復1.5倍。
         // 適した薬の Potency が入り、回復速度を左右する
         TendQuality consts.Percent
-}
-
-// DisplayName は状態の表示名を返す
-func (hc *HealthCondition) DisplayName() string {
-        <span class="cov8" title="1">name := ConditionTypeDisplayName(hc.Type)
-        if hc.Severity != SeverityNone </span>{
-                // 丸括弧を避け、重症度は空白で続ける
-                <span class="cov8" title="1">name += " " + hc.Severity.String()
-</span>        }
-        <span class="cov8" title="1">return name</span>
 }
 
 // UpdateTimer はタイマーを更新し、Severityを再計算する
@@ -43382,6 +43390,7 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 		<pre class="file" id="file291" style="display: none">package systems
 
 import (
+        "fmt"
         "image/color"
         "math"
 
@@ -43724,7 +43733,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
                         <span class="cov8" title="1">level := hunger.GetLevel()
                         if level != gc.HungerNormal </span>{
                                 <span class="cov8" title="1">badges = append(badges, hud.StatusBadge{
-                                        Text:  level.String(),
+                                        Text:  query.T(world, level.String()),
                                         Color: getHungerBadgeColor(level),
                                 })
 </span>                        }
@@ -43738,7 +43747,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
                 level := world.Components.Fatigue.Get(entity).GetLevel()
                 if level == gc.FatigueTired || level == gc.FatigueExhausted </span>{
                         <span class="cov0" title="0">badges = append(badges, hud.StatusBadge{
-                                Text:  string(level),
+                                Text:  query.T(world, string(level)),
                                 Color: getFatigueBadgeColor(level),
                         })
 </span>                }
@@ -43752,19 +43761,7 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
                 if badge, ok := temperatureStateBadge(world, entity); ok </span>{
                         <span class="cov8" title="1">badges = append(badges, badge)
 </span>                }
-                <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(entity)
-                for i := range hs.Parts </span>{
-                        <span class="cov8" title="1">for j := range hs.Parts[i].Conditions </span>{
-                                <span class="cov8" title="1">c := &amp;hs.Parts[i].Conditions[j]
-                                if !c.IsActive() || c.Type == gc.ConditionHypothermia </span>{
-                                        <span class="cov8" title="1">continue</span>
-                                }
-                                <span class="cov8" title="1">badges = append(badges, hud.StatusBadge{
-                                        Text:  c.DisplayName(),
-                                        Color: color.RGBA{200, 80, 70, 255},
-                                })</span>
-                        }
-                }
+                <span class="cov8" title="1">badges = append(badges, conditionBadges(world, world.Components.HealthStatus.Get(entity))...)</span>
         }
 
         // 画面サイズを取得
@@ -43778,6 +43775,54 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
                         Height: screenHeight,
                 },
 </span>        }
+}
+
+// conditionBadges は低体温を除く不調を種類ごとに1つのバッジへまとめる。最も重い重症度を示し、
+// 複数の部位にあれば部位の数を添える。並びは部位を順に見て最初に現れた順
+func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
+        <span class="cov8" title="1">type summary struct {
+                worst gc.Severity
+                count int
+</span>        }
+        <span class="cov8" title="1">var order []gc.ConditionType
+        byType := map[gc.ConditionType]*summary{}
+        for i := range hs.Parts </span>{
+                <span class="cov8" title="1">for j := range hs.Parts[i].Conditions </span>{
+                        <span class="cov8" title="1">c := &amp;hs.Parts[i].Conditions[j]
+                        if !c.IsActive() || c.Type == gc.ConditionHypothermia </span>{
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        <span class="cov8" title="1">s, ok := byType[c.Type]
+                        if !ok </span>{
+                                <span class="cov8" title="1">s = &amp;summary{}
+                                byType[c.Type] = s
+                                order = append(order, c.Type)
+</span>                        }
+                        <span class="cov8" title="1">s.count++
+                        if c.Severity &gt; s.worst </span>{
+                                <span class="cov8" title="1">s.worst = c.Severity
+</span>                        }
+                }
+        }
+        <span class="cov8" title="1">badges := make([]hud.StatusBadge, 0, len(order))
+        for _, ct := range order </span>{
+                <span class="cov8" title="1">s := byType[ct]
+                text := conditionLabel(world, ct, s.worst)
+                if s.count &gt; 1 </span>{
+                        <span class="cov8" title="1">text += fmt.Sprintf(" ×%d", s.count)
+</span>                }
+                <span class="cov8" title="1">badges = append(badges, hud.StatusBadge{Text: text, Color: color.RGBA{200, 80, 70, 255}})</span>
+        }
+        <span class="cov8" title="1">return badges</span>
+}
+
+// conditionLabel は状態の種類と重症度を現在言語で並べた表示名を返す。重症度が無ければ種類だけ
+func conditionLabel(world w.World, ct gc.ConditionType, severity gc.Severity) string {
+        <span class="cov8" title="1">name := query.T(world, gc.ConditionTypeDisplayName(ct))
+        if severity == gc.SeverityNone </span>{
+                <span class="cov0" title="0">return name
+</span>        }
+        <span class="cov8" title="1">return name + " " + query.T(world, severity.String())</span>
 }
 
 // shelterMsgid は囲われの度合いの表示名 msgid を返す
@@ -43816,7 +43861,7 @@ func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, b
         <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(entity)
         part := &amp;hs.Parts[gc.BodyPartWholeBody]
         if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil </span>{
-                <span class="cov8" title="1">return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true
+                <span class="cov8" title="1">return hud.StatusBadge{Text: conditionLabel(world, cold.Type, cold.Severity), Color: color.RGBA{80, 140, 235, 255}}, true
 </span>        }
         <span class="cov8" title="1">return hud.StatusBadge{}, false</span>
 }
