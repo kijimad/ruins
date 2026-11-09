@@ -105,7 +105,7 @@
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.2%)</option>
+				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (86.8%)</option>
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -473,7 +473,7 @@
 				
 				<option value="file208">github.com/kijimaD/ruins/internal/overworld/grass_density.go (100.0%)</option>
 				
-				<option value="file209">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (85.2%)</option>
+				<option value="file209">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (84.4%)</option>
 				
 				<option value="file210">github.com/kijimaD/ruins/internal/overworld/landmark.go (87.7%)</option>
 				
@@ -5377,7 +5377,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -28780,7 +28780,7 @@ import (
 // そのまま埋めず、interior.FurnishBuilding が前庭を空け坪庭を作り玄関を凹ませる。庭は土、壁は壁、残りの
 // 部屋の床と戸口は床として描き、入口の扉と家具を spawn する。内装の乱数は建物幾何と別ストリーム 0x3 に
 // する。壁判定の関数と占有タイルを返し、後段の敵配置が壁や家具の上に湧かないよう避けさせる。
-func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac string, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
+func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door interior.Vec, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
         <span class="cov8" title="1">iseed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
 </span>        // 内装レシピは RawMaster から都度、必要な content だけを引いて変換する。索引を持ち回らない。
         <span class="cov8" title="1">site, placed, err := interior.FurnishBuilding(world.Resources.RawMaster, iseed, footprint, door, fac)
@@ -28848,13 +28848,19 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
                 }
         }
 
-        // 配置指示を spawn する。建物ごとに別ストリーム 0x4 の決定的 RNG で loot を引く。グローバル乱数でなく
+        // 配置指示を spawn する。建物ごとに loot は 0x4、敵は 0x5 の別ストリームの決定的 RNG で引く。グローバル乱数でなく
         // 建物ローカルで決定的にし、再訪で一致させる。KindLoot は床 loot として実アイテムに実体化し、それ以外の
         // 家具と装飾は prop として置く。写像は interior が持つ単一のソースで、VRT の描画も同じ判定を共有する
         <span class="cov8" title="1">lootRNG := rand.New(rand.NewPCG(seed, 0x4))
+        beingRNG := rand.New(rand.NewPCG(seed, 0x5))
         for _, p := range placed </span>{
                 <span class="cov8" title="1">pos := consts.Coord[consts.Tile]{X: g.offsetX + p.Pos.X, Y: g.offsetY + p.Pos.Y}
                 switch p.Kind </span>{
+                case interior.KindBeing:
+                        <span class="cov8" title="1">if err := spawnInteriorBeing(world, fac, danger, pos, beingRNG); err != nil </span>{
+                                <span class="cov0" title="0">return nil, nil, fmt.Errorf("failed to place interior being of facility %q at %d,%d: %w", fac, pos.X, pos.Y, err)
+</span>                        }
+                        <span class="cov8" title="1">occupied[pos] = true</span>
                 case interior.KindLoot:
                         // 抽象 loot Ref を item group へ写し、1山を抽選して床へ置く。写像を持たない Ref は置かない
                         <span class="cov8" title="1">groupID, ok := interior.LootGroupName(p.Ref)
@@ -28919,6 +28925,23 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
+}
+
+// spawnInteriorBeing は施設 fac の敵の表から危険度で1体を引き、建物の中の pos へ置く。危険度帯に該当が無ければ置かない。
+func spawnInteriorBeing(world w.World, fac string, danger consts.Danger, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
+        <span class="cov8" title="1">table, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
+        if err != nil </span>{
+                <span class="cov8" title="1">return err
+</span>        }
+        <span class="cov8" title="1">name, err := raw.SelectEnemyByWeight(table, rng, int(danger))
+        if err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">if name == "" </span>{
+                <span class="cov0" title="0">return nil
+</span>        }
+        <span class="cov8" title="1">_, err = lifecycle.SpawnEnemy(world, pos, name)
+        return err</span>
 }
 
 // populateStorageLoot は収納家具に、部屋の定義が書いた戦利品表 tableID から件数ぶん重み抽選して入れる。
@@ -30563,7 +30586,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov8" title="1">isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, seed)
+        <span class="cov8" title="1">isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, danger, seed)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
