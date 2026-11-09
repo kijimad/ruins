@@ -150,6 +150,17 @@ func TestMetaPlan_DownTile_下端は境界外のvoidタイルを返す(t *testin
 	assert.Equal(t, consts.TileNameVoid, tile.Name)
 }
 
+func TestMetaPlan_DownTile_境界外でなければ下のタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	centerIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
+
+	tile := plan.DownTile(centerIdx)
+
+	assert.Equal(t, "floor", tile.Name)
+}
+
 func TestMetaPlan_LeftTile_左端は境界外のvoidタイルを返す(t *testing.T) {
 	t.Parallel()
 
@@ -161,6 +172,17 @@ func TestMetaPlan_LeftTile_左端は境界外のvoidタイルを返す(t *testin
 	assert.Equal(t, consts.TileNameVoid, tile.Name)
 }
 
+func TestMetaPlan_LeftTile_境界外でなければ左のタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	centerIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
+
+	tile := plan.LeftTile(centerIdx)
+
+	assert.Equal(t, "floor", tile.Name)
+}
+
 func TestMetaPlan_RightTile_右端は境界外のvoidタイルを返す(t *testing.T) {
 	t.Parallel()
 
@@ -170,6 +192,17 @@ func TestMetaPlan_RightTile_右端は境界外のvoidタイルを返す(t *testi
 	tile := plan.RightTile(rightIdx)
 
 	assert.Equal(t, consts.TileNameVoid, tile.Name)
+}
+
+func TestMetaPlan_RightTile_境界外でなければ右のタイルを返す(t *testing.T) {
+	t.Parallel()
+
+	plan := newEdgeTileTestPlan()
+	centerIdx := plan.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 1, Y: 1})
+
+	tile := plan.RightTile(centerIdx)
+
+	assert.Equal(t, "floor", tile.Name)
 }
 
 func TestMetaPlan_GetTile_RawMaster未設定ならpanicする(t *testing.T) {
