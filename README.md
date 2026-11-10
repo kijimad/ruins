@@ -108,6 +108,7 @@ $ make help
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 7/16 | worldgen, item, gamedesign |
 | draft | [コードに残るゲームデータを raw へ移す](docs/design/261110202024.md) | 0/13 | refactor, gamedesign, worldgen |
+| draft | [訳す前の文字列 msgid に型を付ける](docs/design/261110205344.md) | 0/5 | refactor, ui |
 
 
 ## Reference
