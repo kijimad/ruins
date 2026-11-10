@@ -122,12 +122,12 @@ func TestNewWeatherDefs_実データ(t *testing.T) {
 		got[gc.WeatherKind(k)] = defs.Kinds[gc.WeatherKind(k)]
 	}
 	assert.Equal(t, map[gc.WeatherKind]gc.WeatherDef{
-		gc.WeatherClear:    {Effect: gc.WeatherEffect{TempModifier: 2, VisionDelta: 0}, Severity: 0, SpellTurnsMin: 2250, SpellTurnsMax: 4500, SeasonWeights: [gc.NumSeason]float64{1.4, 1.8, 1.1, 0.6}},
-		gc.WeatherCloudy:   {Effect: gc.WeatherEffect{TempModifier: 0, VisionDelta: 0}, Severity: 0, SpellTurnsMin: 1500, SpellTurnsMax: 3000, SeasonWeights: [gc.NumSeason]float64{1.2, 1.0, 1.2, 0.9}},
-		gc.WeatherRain:     {Effect: gc.WeatherEffect{TempModifier: -2, VisionDelta: -6}, Severity: 0, SpellTurnsMin: 750, SpellTurnsMax: 2250, SeasonWeights: [gc.NumSeason]float64{0.9, 1.1, 0.8, 0.2}},
-		gc.WeatherSnow:     {Effect: gc.WeatherEffect{TempModifier: -3, VisionDelta: -10}, Severity: 1, SpellTurnsMin: 1200, SpellTurnsMax: 2250, SeasonWeights: [gc.NumSeason]float64{0.8, 0.3, 1.0, 1.3}},
-		gc.WeatherBlizzard: {Effect: gc.WeatherEffect{TempModifier: -8, VisionDelta: -28}, Severity: 2, SpellTurnsMin: 450, SpellTurnsMax: 900, SeasonWeights: [gc.NumSeason]float64{0.3, 0.1, 0.5, 1.2}},
-		gc.WeatherColdSnap: {Effect: gc.WeatherEffect{TempModifier: -15, VisionDelta: 0}, Severity: 2, SpellTurnsMin: 1500, SpellTurnsMax: 3000, SeasonWeights: [gc.NumSeason]float64{0.1, 0.0, 0.2, 0.8}},
+		gc.WeatherClear:    {Name: "Clear", Effect: gc.WeatherEffect{TempModifier: 2, VisionDelta: 0}, Severity: 0, SpellTurnsMin: 2250, SpellTurnsMax: 4500, SeasonWeights: [gc.NumSeason]float64{1.4, 1.8, 1.1, 0.6}},
+		gc.WeatherCloudy:   {Name: "Cloudy", Effect: gc.WeatherEffect{TempModifier: 0, VisionDelta: 0}, Severity: 0, SpellTurnsMin: 1500, SpellTurnsMax: 3000, SeasonWeights: [gc.NumSeason]float64{1.2, 1.0, 1.2, 0.9}},
+		gc.WeatherRain:     {Name: "Rain", Effect: gc.WeatherEffect{TempModifier: -2, VisionDelta: -6}, Severity: 0, SpellTurnsMin: 750, SpellTurnsMax: 2250, SeasonWeights: [gc.NumSeason]float64{0.9, 1.1, 0.8, 0.2}},
+		gc.WeatherSnow:     {Name: "Snow", Effect: gc.WeatherEffect{TempModifier: -3, VisionDelta: -10}, Severity: 1, SpellTurnsMin: 1200, SpellTurnsMax: 2250, SeasonWeights: [gc.NumSeason]float64{0.8, 0.3, 1.0, 1.3}},
+		gc.WeatherBlizzard: {Name: "Blizzard", Effect: gc.WeatherEffect{TempModifier: -8, VisionDelta: -28}, Severity: 2, SpellTurnsMin: 450, SpellTurnsMax: 900, SeasonWeights: [gc.NumSeason]float64{0.3, 0.1, 0.5, 1.2}},
+		gc.WeatherColdSnap: {Name: "Cold snap", Effect: gc.WeatherEffect{TempModifier: -15, VisionDelta: 0}, Severity: 2, SpellTurnsMin: 1500, SpellTurnsMax: 3000, SeasonWeights: [gc.NumSeason]float64{0.1, 0.0, 0.2, 0.8}},
 	}, got)
 }
 

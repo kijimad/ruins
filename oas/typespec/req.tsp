@@ -774,6 +774,7 @@ model WeatherSeasonWeight {
 /** 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る */
 model Weather {
   id: WeatherId;
+  name: EntityName;
   tempModifier: WeatherTempModifier;
   visionDelta: WeatherVisionDelta;
   severity: WeatherSeverity;

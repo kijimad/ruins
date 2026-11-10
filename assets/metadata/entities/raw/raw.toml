@@ -23104,6 +23104,7 @@
 
 [[weathers]]
   id = "clear"
+  name = "Clear"
   severity = 0
   spellTurnsMax = 4500
   spellTurnsMin = 2250
@@ -23128,6 +23129,7 @@
 
 [[weathers]]
   id = "cloudy"
+  name = "Cloudy"
   severity = 0
   spellTurnsMax = 3000
   spellTurnsMin = 1500
@@ -23152,6 +23154,7 @@
 
 [[weathers]]
   id = "rain"
+  name = "Rain"
   severity = 0
   spellTurnsMax = 2250
   spellTurnsMin = 750
@@ -23176,6 +23179,7 @@
 
 [[weathers]]
   id = "snow"
+  name = "Snow"
   severity = 1
   spellTurnsMax = 2250
   spellTurnsMin = 1200
@@ -23200,6 +23204,7 @@
 
 [[weathers]]
   id = "blizzard"
+  name = "Blizzard"
   severity = 2
   spellTurnsMax = 900
   spellTurnsMin = 450
@@ -23224,6 +23229,7 @@
 
 [[weathers]]
   id = "cold_snap"
+  name = "Cold snap"
   severity = 2
   spellTurnsMax = 3000
   spellTurnsMin = 1500

@@ -3052,7 +3052,10 @@ type Wearable struct {
 // Weather 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る
 type Weather struct {
 	// Id 天候の種類
-	Id      WeatherId             `json:"id"`
+	Id WeatherId `json:"id"`
+
+	// Name エンティティ名
+	Name    EntityName            `json:"name"`
 	Seasons []WeatherSeasonWeight `json:"seasons"`
 
 	// Severity 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う

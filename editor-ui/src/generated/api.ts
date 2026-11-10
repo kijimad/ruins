@@ -2450,6 +2450,10 @@ export interface Wearable {
 export interface Weather {
     'id': WeatherId;
     /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
      * 天候による世界温度への加算。℃
      */
     'tempModifier': number;

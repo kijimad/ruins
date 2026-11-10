@@ -4471,6 +4471,7 @@ components:
       type: object
       required:
         - id
+        - name
         - tempModifier
         - visionDelta
         - severity
@@ -4480,6 +4481,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/WeatherId'
+        name:
+          $ref: '#/components/schemas/EntityName'
         tempModifier:
           $ref: '#/components/schemas/WeatherTempModifier'
         visionDelta:

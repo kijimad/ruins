@@ -1112,6 +1112,7 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 	var kinds [gc.NumWeatherKind]gc.WeatherDef
 	for _, row := range PtrSlice(raws.Weathers) {
 		def := gc.WeatherDef{
+			Name:          row.Name,
 			Effect:        gc.WeatherEffect{TempModifier: row.TempModifier, VisionDelta: row.VisionDelta},
 			Severity:      row.Severity,
 			SpellTurnsMin: row.SpellTurnsMin,

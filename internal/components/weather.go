@@ -1,8 +1,6 @@
 package components
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
@@ -45,23 +43,4 @@ const (
 type WeatherEffect struct {
 	TempModifier int // ℃。世界温度への加算
 	VisionDelta  int // 視程レンジへの加算。負で狭くなる。加算側で下限の床を打つ
-}
-
-// String は天候名を返す。表示側が i18n の訳を引く msgid になる。Season.String に倣う。
-func (k WeatherKind) String() string {
-	switch k {
-	case WeatherClear:
-		return "Clear"
-	case WeatherCloudy:
-		return "Cloudy"
-	case WeatherRain:
-		return "Rain"
-	case WeatherSnow:
-		return "Snow"
-	case WeatherBlizzard:
-		return "Blizzard"
-	case WeatherColdSnap:
-		return "Cold snap"
-	}
-	panic(fmt.Sprintf("unknown WeatherKind: %d", k))
 }

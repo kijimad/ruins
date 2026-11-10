@@ -54,6 +54,11 @@ func FatigueName(world w.World, level oapi.FatigueStageId) string {
 	return T(world, world.Resources.NeedDefs.FatigueName(level))
 }
 
+// WeatherName は天候の訳した表示名を返す
+func WeatherName(world w.World, k gc.WeatherKind) string {
+	return T(world, world.Resources.WeatherDefs.Kinds[k].Name)
+}
+
 // ShelterName は囲われの度合いの訳した表示名を返す
 func ShelterName(world w.World, shelter oapi.Shelter) string {
 	return T(world, world.Resources.TileEnvDefs.ShelterName(shelter))
