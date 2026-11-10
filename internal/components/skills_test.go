@@ -58,6 +58,13 @@ func TestSkills_Get(t *testing.T) {
 		assert.Equal(t, 7, skills.Get(oapi.SkillIdBow).Value)
 	})
 
+	t.Run("Level は無いスキルを0として読み、Data へ足さない", func(t *testing.T) {
+		t.Parallel()
+		skills := NewSkills()
+		assert.Equal(t, 0, skills.Level(oapi.SkillIdSword))
+		assert.Equal(t, map[oapi.SkillId]*Skill{}, skills.Data)
+	})
+
 	t.Run("ゼロ値の Skills でも使える", func(t *testing.T) {
 		t.Parallel()
 		var skills Skills

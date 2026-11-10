@@ -456,12 +456,8 @@ func TestSpawnNeutralNPC_商人を生成すると在庫と会話データを持�
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 4}, solo.Origin, "生成位置がパトロール原点になる")
 	assert.Equal(t, consts.AIVisionDistance, solo.ViewDistance)
 
-	stock := query.GetStorageItems(world, npc)
-	stockTotal := 0
-	for _, item := range merchantStockItems {
-		stockTotal += item.Count
-	}
-	assert.Len(t, stock, stockTotal, "商人は定義の総個数の在庫を積む")
+	stockTotal, _ := merchantStockTotal(t, world)
+	assert.Len(t, query.GetStorageItems(world, npc), stockTotal, "商人は行の総個数の在庫を積む")
 }
 
 func TestSpawnNeutralNPC_商人以外は在庫を積まない(t *testing.T) {

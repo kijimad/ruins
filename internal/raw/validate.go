@@ -36,6 +36,9 @@ var (
 	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
 	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
 	errBurnoutItemUndefined           = errors.New("burnout item references undefined item")
+	errPlayerMemberMissing            = errors.New("no member is marked as the player")
+	errPlayerMemberDuplicate          = errors.New("more than one member is marked as the player")
+	errMemberItemUndefined            = errors.New("member starting item or stock references undefined item")
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
 	errDisassemblyToolRequiredNoTool  = errors.New("disassembly requires a tool but has no tool category")
 	errDisassemblyWithoutHP           = errors.New("prop with disassembly has no hp and cannot be broken")
@@ -109,6 +112,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateBurnoutItems(raws); err != nil {
+		return err
+	}
+	if err := validateMemberItems(raws); err != nil {
 		return err
 	}
 	if err := validateDropTableReferences(raws); err != nil {
@@ -453,6 +459,34 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	return nil
 }
 
+// validateMemberItems は member の初期装備、初期アイテム、在庫が実在するアイテムを指すことを検証する
+func validateMemberItems(raws oapi.Raws) error {
+	items := PtrSlice(raws.Items)
+	itemIDs := make(map[string]struct{}, len(items))
+	for i := range items {
+		itemIDs[items[i].Id] = struct{}{}
+	}
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		var names []string
+		for _, e := range PtrSlice(members[i].StartingEquips) {
+			names = append(names, e.Name)
+		}
+		for _, it := range PtrSlice(members[i].StartingItems) {
+			names = append(names, it.Name)
+		}
+		for _, it := range PtrSlice(members[i].Stock) {
+			names = append(names, it.Name)
+		}
+		for _, n := range names {
+			if _, ok := itemIDs[n]; !ok {
+				return fmt.Errorf("member %q item %q: %w", members[i].Id, n, errMemberItemUndefined)
+			}
+		}
+	}
+	return nil
+}
+
 // validateBurnoutItems は prop が燃え尽きたときに残すアイテムが実在することを検証する
 func validateBurnoutItems(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
@@ -698,6 +732,20 @@ func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) err
 // validateCodeRows は Go が名前で参照する行と、読み込みに要る表が raw にあることを検証する。
 // 一部だけの raws を組むテストを妨げないよう、LoadFromFile だけが呼ぶ
 func validateCodeRows(raws oapi.Raws) error {
+	players := 0
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		if members[i].Player != nil && *members[i].Player {
+			players++
+		}
+	}
+	switch {
+	case players == 0:
+		return errPlayerMemberMissing
+	case players > 1:
+		return errPlayerMemberDuplicate
+	}
+
 	bodyPartIDs := make(map[string]struct{})
 	for _, b := range PtrSlice(raws.BodyParts) {
 		bodyPartIDs[b.Id] = struct{}{}

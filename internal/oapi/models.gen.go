@@ -2475,6 +2475,15 @@ type Member struct {
 	// SpriteSheetName スプライトシート名
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 
+	// StartingEquips 生成時に装備して持たせるアイテム。startingItems より先に持たせる
+	StartingEquips *[]ProfessionEquip `json:"startingEquips,omitempty"`
+
+	// StartingItems 生成時にバックパックへ持たせるアイテム
+	StartingItems *[]ProfessionItem `json:"startingItems,omitempty"`
+
+	// Stock 店の在庫。持つ member は店を開く
+	Stock *[]ProfessionItem `json:"stock,omitempty"`
+
 	// ViewDistance AI視界距離（タイル単位）
 	ViewDistance *ViewDistance `json:"viewDistance,omitempty"`
 }

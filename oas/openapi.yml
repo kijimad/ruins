@@ -3423,6 +3423,21 @@ components:
           allOf:
             - $ref: '#/components/schemas/EntityID'
           description: プレイヤーキャラクターでは省略可能
+        startingEquips:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionEquip'
+          description: 生成時に装備して持たせるアイテム。startingItems より先に持たせる
+        startingItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionItem'
+          description: 生成時にバックパックへ持たせるアイテム
+        stock:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionItem'
+          description: 店の在庫。持つ member は店を開く
       description: メンバー
     MemberList:
       type: object

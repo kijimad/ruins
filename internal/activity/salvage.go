@@ -128,5 +128,5 @@ func skillValueOf(actor ecs.Entity, world w.World, skillID oapi.SkillId) int {
 	if !world.Components.Skills.Has(actor) {
 		return 0
 	}
-	return world.Components.Skills.Get(actor).Get(skillID).Value
+	return world.Components.Skills.Get(actor).Level(skillID)
 }

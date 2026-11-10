@@ -903,3 +903,30 @@ func TestValidateBurnoutItems(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateMemberItems(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		member  oapi.Member
+		wantErr error
+	}{
+		{name: "実在するアイテムを指せば通る", member: oapi.Member{Id: "ash", StartingEquips: &[]oapi.ProfessionEquip{{Name: "torch", Slot: oapi.EquipSlotWEAPON1}}, StartingItems: &[]oapi.ProfessionItem{{Name: "torch", Count: 1}}, Stock: &[]oapi.ProfessionItem{{Name: "torch", Count: 1}}}},
+		{name: "初期装備が実在しないアイテムを指す", member: oapi.Member{Id: "ash", StartingEquips: &[]oapi.ProfessionEquip{{Name: "missing", Slot: oapi.EquipSlotWEAPON1}}}, wantErr: errMemberItemUndefined},
+		{name: "初期アイテムが実在しないアイテムを指す", member: oapi.Member{Id: "ash", StartingItems: &[]oapi.ProfessionItem{{Name: "missing", Count: 1}}}, wantErr: errMemberItemUndefined},
+		{name: "在庫が実在しないアイテムを指す", member: oapi.Member{Id: "merchant", Stock: &[]oapi.ProfessionItem{{Name: "missing", Count: 1}}}, wantErr: errMemberItemUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{Items: &[]oapi.Item{{Id: "torch"}}, Members: &[]oapi.Member{tt.member}}
+			err := validateMemberItems(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}

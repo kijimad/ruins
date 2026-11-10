@@ -18258,6 +18258,18 @@
       g = 255
       r = 255
 
+  [[members.startingEquips]]
+    name = "torch"
+    slot = "WEAPON1"
+
+  [[members.startingItems]]
+    count = 2
+    name = "bandage"
+
+  [[members.startingItems]]
+    count = 1
+    name = "splint"
+
 [[members]]
   animKeys = ["dream_fly"]
   combatPolicy = "attack"
@@ -18497,6 +18509,38 @@
       b = 100
       g = 175
       r = 255
+
+  [[members.stock]]
+    count = 1
+    name = "wooden_sword"
+
+  [[members.stock]]
+    count = 1
+    name = "handgun"
+
+  [[members.stock]]
+    count = 1
+    name = "western_armor"
+
+  [[members.stock]]
+    count = 1
+    name = "work_helmet"
+
+  [[members.stock]]
+    count = 1
+    name = "leather_boots"
+
+  [[members.stock]]
+    count = 5
+    name = "healing_potion"
+
+  [[members.stock]]
+    count = 3
+    name = "bread"
+
+  [[members.stock]]
+    count = 1
+    name = "army_shooting_manual"
 
 [[members]]
   animKeys = ["dream_fly"]

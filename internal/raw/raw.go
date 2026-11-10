@@ -486,6 +486,17 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	return itemSpec, nil
 }
 
+// PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる
+func PlayerMemberID(raws oapi.Raws) (string, error) {
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		if members[i].Player != nil && *members[i].Player {
+			return members[i].Id, nil
+		}
+	}
+	return "", errPlayerMemberMissing
+}
+
 // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する
 func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)

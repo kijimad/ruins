@@ -70,7 +70,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		if book.Skill != nil && book.Skill.RequiredLevel > 0 {
 			current := 0
 			if skills != nil {
-				current = skills.Get(book.Skill.TargetSkill).Value
+				current = skills.Level(book.Skill.TargetSkill)
 			}
 			return &UserError{Msg: query.T(world, "You need %s Lv%d or higher to read this. Current Lv%d",
 				query.SkillName(world, book.Skill.TargetSkill), book.Skill.RequiredLevel, current)}

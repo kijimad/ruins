@@ -88,6 +88,7 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: oapi.SkillIdRifle}}}},
 		InteriorProfile: &oapi.InteriorProfile{},
 		Weathers:        &[]oapi.Weather{{Id: oapi.Clear}},
+		Members:         &[]oapi.Member{{Id: "ash", Player: new(true)}},
 		ShelterEffects:  &[]oapi.ShelterEffect{{Id: oapi.Outdoor}, {Id: oapi.Partial}, {Id: oapi.Indoor}},
 		WaterEffects:    &[]oapi.WaterEffect{{Id: oapi.Nearby}, {Id: oapi.Submerged}},
 		FoliageEffects:  &[]oapi.FoliageEffect{{Id: oapi.Grass}, {Id: oapi.Forest}},
@@ -214,6 +215,20 @@ func TestValidateCodeRows(t *testing.T) {
 		{
 			name:   "Go の不調と部位すべてに行があれば通る",
 			mutate: func(*oapi.Raws) {},
+		},
+		{
+			name: "プレイヤーの member が無い",
+			mutate: func(r *oapi.Raws) {
+				(*r.Members)[0].Player = nil
+			},
+			wantErr: errPlayerMemberMissing,
+		},
+		{
+			name: "プレイヤーの member が2つある",
+			mutate: func(r *oapi.Raws) {
+				*r.Members = append(*r.Members, oapi.Member{Id: "ash2", Player: new(true)})
+			},
+			wantErr: errPlayerMemberDuplicate,
 		},
 		{
 			name: "部位の行が欠ける",

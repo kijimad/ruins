@@ -199,6 +199,15 @@ model Member {
   commandTableId?: EntityID;
   /** プレイヤーキャラクターでは省略可能 */
   dropTableId?: EntityID;
+
+  /** 生成時に装備して持たせるアイテム。startingItems より先に持たせる */
+  startingEquips?: ProfessionEquip[];
+
+  /** 生成時にバックパックへ持たせるアイテム */
+  startingItems?: ProfessionItem[];
+
+  /** 店の在庫。持つ member は店を開く */
+  stock?: ProfessionItem[];
 }
 
 // ================== レシピ ==================

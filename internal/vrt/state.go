@@ -97,7 +97,9 @@ func InitReplayWorld(tb testing.TB) w.World {
 	loadMu.Unlock()
 	require.NoError(tb, err)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	name, err := raw.PlayerMemberID(world.Resources.RawMaster)
+	require.NoError(tb, err)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, name)
 	require.NoError(tb, err)
 
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)

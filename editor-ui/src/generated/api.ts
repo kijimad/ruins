@@ -1609,6 +1609,18 @@ export interface Member {
      * プレイヤーキャラクターでは省略可能
      */
     'dropTableId'?: string;
+    /**
+     * 生成時に装備して持たせるアイテム。startingItems より先に持たせる
+     */
+    'startingEquips'?: Array<ProfessionEquip>;
+    /**
+     * 生成時にバックパックへ持たせるアイテム
+     */
+    'startingItems'?: Array<ProfessionItem>;
+    /**
+     * 店の在庫。持つ member は店を開く
+     */
+    'stock'?: Array<ProfessionItem>;
 }
 
 
