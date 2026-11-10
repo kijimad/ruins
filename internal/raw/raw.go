@@ -542,43 +542,23 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
 
-	// 派閥タイプの処理
-	if member.FactionType != nil && string(*member.FactionType) != "" {
-		switch string(*member.FactionType) {
-		case gc.FactionAllyName:
-			entitySpec.FactionAlly = &gc.FactionAlly{}
-		case gc.FactionEnemyName:
-			entitySpec.FactionEnemy = &gc.FactionEnemy{}
-		case gc.FactionNeutralName:
-			entitySpec.FactionNeutral = &gc.FactionNeutral{}
-		default:
-			return gc.EntitySpec{}, fmt.Errorf("invalid faction type '%s': %s", *member.FactionType, name)
-		}
+	// 味方と敵の派閥は NewPlayerSpec と NewEnemySpec が付ける。raw が指せるのは中立だけ
+	if member.FactionType != nil && *member.FactionType == oapi.FactionNeutral {
+		entitySpec.FactionNeutral = &gc.FactionNeutral{}
 	}
 
 	// AI の組み立て。SoloAIとして構築し、スポーン関数がそのまま使う
 	{
 		solo := gc.SoloAI{
-			CombatDefault: gc.CombatAttack,
-			CombatCurrent: gc.CombatAttack,
+			CombatDefault: oapi.Attack,
+			CombatCurrent: oapi.Attack,
 		}
-		if member.CombatPolicy != nil && string(*member.CombatPolicy) != "" {
-			switch gc.CombatPolicy(*member.CombatPolicy) {
-			case gc.CombatAttack:
-				solo.CombatDefault = gc.CombatAttack
-				solo.CombatCurrent = gc.CombatAttack
-			case gc.CombatIgnore:
-				solo.CombatDefault = gc.CombatIgnore
-				solo.CombatCurrent = gc.CombatIgnore
-			case gc.CombatEvade:
-				solo.CombatDefault = gc.CombatEvade
-				solo.CombatCurrent = gc.CombatEvade
-			default:
-				return gc.EntitySpec{}, fmt.Errorf("invalid combat policy '%s': %s", string(*member.CombatPolicy), name)
-			}
+		if member.CombatPolicy != nil && *member.CombatPolicy != "" {
+			solo.CombatDefault = *member.CombatPolicy
+			solo.CombatCurrent = *member.CombatPolicy
 		}
-		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
-			solo.Movement = gc.SoloMovement(*member.MovementPattern)
+		if member.MovementPattern != nil && *member.MovementPattern != "" {
+			solo.Movement = *member.MovementPattern
 		}
 		entitySpec.SoloAI = &solo
 	}

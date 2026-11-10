@@ -80,7 +80,7 @@ func TestActiveCube(t *testing.T) {
 
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
+	world.Components.SoloAI.Get(cube).Movement = oapi.Stationary
 	got, ok := query.ActiveCube(world)
 	require.True(t, ok, "待機中でも同じステージにいれば返す")
 	assert.Equal(t, cube, got)

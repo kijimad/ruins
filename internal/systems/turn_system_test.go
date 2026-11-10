@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -694,9 +695,9 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)}})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
-		Movement:              gc.SoloRandom,
+		CombatDefault:         oapi.Attack,
+		CombatCurrent:         oapi.Attack,
+		Movement:              oapi.Random,
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
@@ -867,9 +868,9 @@ func TestPatrolMovement(t *testing.T) {
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)}})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
-		Movement:              gc.SoloPatrol,
+		CombatDefault:         oapi.Attack,
+		CombatCurrent:         oapi.Attack,
+		Movement:              oapi.Patrol,
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
@@ -924,9 +925,9 @@ func TestTerritorialMovement(t *testing.T) {
 	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)}})
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
-		Movement:              gc.SoloTerritorial,
+		CombatDefault:         oapi.Attack,
+		CombatCurrent:         oapi.Attack,
+		Movement:              oapi.Territorial,
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,

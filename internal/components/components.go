@@ -325,13 +325,6 @@ type SheetImage struct {
 // archetypeクエリ（「全敵」「全味方」）が効くため archetype ECS に適している。
 // 派閥は排他（1エンティティは高々1つ）で、生成時に EntitySpec で1つだけ指定する。
 
-// 派閥のenum文字列（oapiのFactionType enumと一致させる）
-const (
-	FactionAllyName    = "FactionAlly"
-	FactionEnemyName   = "FactionEnemy"
-	FactionNeutralName = "FactionNeutral"
-)
-
 // FactionAlly は味方派閥(プレイヤー側)のマーカー
 type FactionAlly struct{}
 

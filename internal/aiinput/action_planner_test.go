@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -52,9 +53,9 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateWaiting
@@ -78,9 +79,9 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateChasing
@@ -104,9 +105,9 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateChasing
@@ -130,9 +131,9 @@ func TestPlanAction_FleeingState(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateFleeing
@@ -156,9 +157,9 @@ func TestPlanAction_DrivingState(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -182,9 +183,9 @@ func TestPlanAction_UnknownState(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateSubState("UNKNOWN")
@@ -203,9 +204,9 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloStationary,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Stationary,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -225,9 +226,9 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloWander,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Wander,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -248,9 +249,9 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloWallHug,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.WallHug,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -271,9 +272,9 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloSwarm,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Swarm,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -294,9 +295,9 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloTerritorial,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Territorial,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -318,9 +319,9 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -341,9 +342,9 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloPatrol,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Patrol,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -374,9 +375,9 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloPatrol,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Patrol,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -409,9 +410,9 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	}
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloPatrol,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Patrol,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -435,9 +436,9 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloTerritorial,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Territorial,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -477,9 +478,9 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloTerritorial,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Territorial,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -517,9 +518,9 @@ func TestPlanWanderAction(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloWander,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Wander,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -557,9 +558,9 @@ func TestPlanWallHugAction(t *testing.T) {
 	}
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloWallHug,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.WallHug,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -586,9 +587,9 @@ func TestPlanSwarmAction_NoAllies(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloSwarm,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Swarm,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -610,9 +611,9 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloSwarm,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Swarm,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -621,9 +622,9 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, solo)
 
 	allyAI := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloSwarm,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Swarm,
 		ViewDistance:  5,
 	}
 	ally := world.ECS.NewEntity()
@@ -707,9 +708,9 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateDriving
@@ -746,9 +747,9 @@ func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	entity := setupTestAI(t, world, 6, 5, solo)
@@ -767,9 +768,9 @@ func TestFindNearestHostile_プレイヤーが最寄り(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	entity := setupTestAI(t, world, 5, 5, solo)
@@ -785,9 +786,9 @@ func TestFindNearestHostile_敵対対象がいない(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	entity := setupTestAI(t, world, 5, 5, solo)
@@ -805,9 +806,9 @@ func TestPlanAction_ChasingState_プレイヤーに隣接で攻撃(t *testing.T)
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateChasing
@@ -830,9 +831,9 @@ func TestPlanAction_ChasingState_プレイヤーに接近(t *testing.T) {
 	require.NoError(t, err)
 
 	solo := &gc.SoloAI{
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.SoloRandom,
+		CombatDefault: oapi.Attack,
+		CombatCurrent: oapi.Attack,
+		Movement:      oapi.Random,
 		ViewDistance:  5,
 	}
 	solo.SubState = gc.AIStateChasing

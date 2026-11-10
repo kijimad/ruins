@@ -1619,6 +1619,7 @@ export const MovementPatternType = {
     Wander: 'wander',
     Territorial: 'territorial',
     Swarm: 'swarm',
+    Follow: 'follow',
 } as const;
 
 export type MovementPatternType = typeof MovementPatternType[keyof typeof MovementPatternType];

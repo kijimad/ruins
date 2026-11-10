@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -165,9 +166,9 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		FuelTank: &gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase},
 		HP:       &gc.HP{Max: cubeHP, Current: cubeHP},
 		SoloAI: &gc.SoloAI{
-			CombatDefault: gc.CombatIgnore,
-			CombatCurrent: gc.CombatIgnore,
-			Movement:      gc.SoloFollow,
+			CombatDefault: oapi.Ignore,
+			CombatCurrent: oapi.Ignore,
+			Movement:      oapi.Follow,
 			SubState:      gc.AIStateWaiting,
 		},
 		TurnBased:       &gc.TurnBased{},

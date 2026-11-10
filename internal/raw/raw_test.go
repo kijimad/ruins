@@ -732,12 +732,12 @@ func TestMemberCombatPolicy(t *testing.T) {
 	tests := []struct {
 		name            string
 		combatPolicy    string
-		expectedDefault gc.CombatPolicy
-		expectedCurrent gc.CombatPolicy
+		expectedDefault oapi.CombatPolicyType
+		expectedCurrent oapi.CombatPolicyType
 	}{
-		{"attack", string(gc.CombatAttack), gc.CombatAttack, gc.CombatAttack},
-		{"ignore", string(gc.CombatIgnore), gc.CombatIgnore, gc.CombatIgnore},
-		{"evade", string(gc.CombatEvade), gc.CombatEvade, gc.CombatEvade},
+		{"attack", string(oapi.Attack), oapi.Attack, oapi.Attack},
+		{"ignore", string(oapi.Ignore), oapi.Ignore, oapi.Ignore},
+		{"evade", string(oapi.Evade), oapi.Evade, oapi.Evade},
 	}
 
 	for _, tt := range tests {
@@ -796,7 +796,7 @@ Defense = 2
 	entitySpec, err := NewMemberSpec(raws, "態度なし")
 	require.NoError(t, err)
 	require.NotNil(t, entitySpec.SoloAI)
-	assert.Equal(t, gc.CombatAttack, entitySpec.SoloAI.CombatDefault)
+	assert.Equal(t, oapi.Attack, entitySpec.SoloAI.CombatDefault)
 }
 
 func TestMemberMovementPattern(t *testing.T) {
@@ -805,12 +805,12 @@ func TestMemberMovementPattern(t *testing.T) {
 	tests := []struct {
 		name     string
 		strategy string
-		expected gc.SoloMovement
+		expected oapi.MovementPatternType
 	}{
-		{"random", "random", gc.SoloRandom},
-		{"stationary", "stationary", gc.SoloStationary},
-		{"wander", "wander", gc.SoloWander},
-		{"patrol", "patrol", gc.SoloPatrol},
+		{"random", "random", oapi.Random},
+		{"stationary", "stationary", oapi.Stationary},
+		{"wander", "wander", oapi.Wander},
+		{"patrol", "patrol", oapi.Patrol},
 	}
 
 	for _, tt := range tests {

@@ -129,7 +129,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 		}
 
 		x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
-		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutralName {
+		if member.FactionType != nil && *member.FactionType == oapi.FactionNeutral {
 			_, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
 				return fmt.Errorf("failed to spawn neutral NPC (%d, %d): %w", x, y, err)

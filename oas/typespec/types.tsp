@@ -726,6 +726,8 @@ enum MovementPatternType {
   territorial,
   /** 群れ。同種族の仲間に寄る */
   swarm,
+  /** 随伴。プレイヤーに隣接するまで1歩ずつ近づく */
+  follow,
 }
 
 /** スプライト描画深度 */

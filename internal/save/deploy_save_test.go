@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
@@ -79,7 +80,7 @@ func TestSaveWorld_キューブの移動方針と燃料ポイントをロード�
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
+	world.Components.SoloAI.Get(cube).Movement = oapi.Follow
 	*world.Components.FuelTank.Get(cube) = gc.FuelTank{Max: 4500, Current: 1234}
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
@@ -87,7 +88,7 @@ func TestSaveWorld_キューブの移動方針と燃料ポイントをロード�
 	require.NoError(t, sm.LoadWorld(fresh, "slot1"))
 
 	var got []gc.FuelTank
-	var movements []gc.SoloMovement
+	var movements []oapi.MovementPatternType
 	q := ecs.NewFilter3[gc.Cube, gc.FuelTank, gc.SoloAI](fresh.ECS).Query()
 	for q.Next() {
 		_, tank, solo := q.Get()
@@ -95,5 +96,5 @@ func TestSaveWorld_キューブの移動方針と燃料ポイントをロード�
 		movements = append(movements, solo.Movement)
 	}
 	assert.Equal(t, []gc.FuelTank{{Max: 4500, Current: 1234}}, got)
-	assert.Equal(t, []gc.SoloMovement{gc.SoloFollow}, movements)
+	assert.Equal(t, []oapi.MovementPatternType{oapi.Follow}, movements)
 }

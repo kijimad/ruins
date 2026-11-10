@@ -1,9 +1,9 @@
 package states
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -41,14 +41,14 @@ func NewCubeMenuState(cube ecs.Entity) (es.State[w.World], error) {
 // followChoice は随伴の方針を追従と待機で切り替える項目を返す。設定の切り替えなのでメニューは閉じない。
 func followChoice(world w.World, cube ecs.Entity) Choice {
 	solo := world.Components.SoloAI.Get(cube)
-	if solo.Movement == gc.SoloFollow {
+	if solo.Movement == oapi.Follow {
 		return Choice{Label: query.T(world, "Stay here"), Run: func(world w.World) (es.Transition[w.World], error) {
-			world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
+			world.Components.SoloAI.Get(cube).Movement = oapi.Stationary
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}}
 	}
 	return Choice{Label: query.T(world, "Follow me"), Run: func(world w.World) (es.Transition[w.World], error) {
-		world.Components.SoloAI.Get(cube).Movement = gc.SoloFollow
+		world.Components.SoloAI.Get(cube).Movement = oapi.Follow
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}}
 }

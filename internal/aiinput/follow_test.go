@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -26,13 +27,13 @@ func TestPlanFollowAction(t *testing.T) {
 		wantDest     consts.Coord[consts.Tile]
 		wantFuel     consts.Heat
 		wantSub      gc.AIStateSubState
-		wantMovement gc.SoloMovement
+		wantMovement oapi.MovementPatternType
 	}{
-		{"休んでいて距離が開く前は動かない", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateWaiting, 100, gc.BehaviorWait, consts.Coord[consts.Tile]{}, 100, gc.AIStateWaiting, gc.SoloFollow},
-		{"休んでいて距離が開いたら追いかけ始める", consts.Coord[consts.Tile]{X: 9, Y: 5}, gc.AIStateWaiting, 100, gc.BehaviorMove, consts.Coord[consts.Tile]{X: 8, Y: 5}, 100 - step, gc.AIStateDriving, gc.SoloFollow},
-		{"追いかけている間は近くても隣まで寄る", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateDriving, 100, gc.BehaviorMove, consts.Coord[consts.Tile]{X: 7, Y: 5}, 100 - step, gc.AIStateDriving, gc.SoloFollow},
-		{"隣に追いついたら休む", consts.Coord[consts.Tile]{X: 6, Y: 5}, gc.AIStateDriving, 100, gc.BehaviorWait, consts.Coord[consts.Tile]{}, 100, gc.AIStateWaiting, gc.SoloFollow},
-		{"燃料が足りなければ待機の方針へ切り替えて休む", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateDriving, step - 1, gc.BehaviorWait, consts.Coord[consts.Tile]{}, step - 1, gc.AIStateWaiting, gc.SoloStationary},
+		{"休んでいて距離が開く前は動かない", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateWaiting, 100, gc.BehaviorWait, consts.Coord[consts.Tile]{}, 100, gc.AIStateWaiting, oapi.Follow},
+		{"休んでいて距離が開いたら追いかけ始める", consts.Coord[consts.Tile]{X: 9, Y: 5}, gc.AIStateWaiting, 100, gc.BehaviorMove, consts.Coord[consts.Tile]{X: 8, Y: 5}, 100 - step, gc.AIStateDriving, oapi.Follow},
+		{"追いかけている間は近くても隣まで寄る", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateDriving, 100, gc.BehaviorMove, consts.Coord[consts.Tile]{X: 7, Y: 5}, 100 - step, gc.AIStateDriving, oapi.Follow},
+		{"隣に追いついたら休む", consts.Coord[consts.Tile]{X: 6, Y: 5}, gc.AIStateDriving, 100, gc.BehaviorWait, consts.Coord[consts.Tile]{}, 100, gc.AIStateWaiting, oapi.Follow},
+		{"燃料が足りなければ待機の方針へ切り替えて休む", consts.Coord[consts.Tile]{X: 8, Y: 5}, gc.AIStateDriving, step - 1, gc.BehaviorWait, consts.Coord[consts.Tile]{}, step - 1, gc.AIStateWaiting, oapi.Stationary},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -91,7 +92,7 @@ func TestCullDistantSolo_追従中のキューブは圏外でも残す(t *testin
 	require.NoError(t, err)
 	staying, err := lifecycle.SpawnCube(world, far.Add(consts.Coord[consts.Tile]{Y: 1}))
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(staying).Movement = gc.SoloStationary
+	world.Components.SoloAI.Get(staying).Movement = oapi.Stationary
 
 	kept, err := cullDistantSolo(world, []ecs.Entity{following, staying})
 	require.NoError(t, err)
@@ -114,7 +115,7 @@ func TestPlanFollowAction_展開中は方針を保ったまま休む(t *testing.
 
 	require.NotNil(t, act)
 	assert.Equal(t, gc.BehaviorWait, act.BehaviorName)
-	assert.Equal(t, gc.SoloFollow, solo.Movement)
+	assert.Equal(t, oapi.Follow, solo.Movement)
 	assert.Equal(t, gc.AIStateWaiting, solo.SubState)
 	assert.Equal(t, consts.CubeFuelCapacityBase, query.CubeFuelTotal(world, cube))
 }

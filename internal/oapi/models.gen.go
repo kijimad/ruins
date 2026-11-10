@@ -554,6 +554,7 @@ func (e Material) Valid() bool {
 
 // Defines values for MovementPatternType.
 const (
+	Follow      MovementPatternType = "follow"
 	Patrol      MovementPatternType = "patrol"
 	Random      MovementPatternType = "random"
 	Stationary  MovementPatternType = "stationary"
@@ -566,6 +567,8 @@ const (
 // Valid indicates whether the value is a known member of the MovementPatternType enum.
 func (e MovementPatternType) Valid() bool {
 	switch e {
+	case Follow:
+		return true
 	case Patrol:
 		return true
 	case Random:
