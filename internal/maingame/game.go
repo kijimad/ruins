@@ -193,6 +193,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	world.Resources.TileEnvDefs = raw.NewTileEnvDefs(rw)
 	world.Resources.NeedDefs = raw.NewNeedDefs(rw)
 	world.Resources.MaterialDefs = raw.NewMaterialDefs(rw)
+	world.Resources.CalendarDefs = raw.NewCalendarDefs(rw)
 
 	// スプライトシートを読み込む
 	spriteSheets, err := loader.LoadSpriteSheets(rw)

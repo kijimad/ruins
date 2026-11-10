@@ -1092,6 +1092,36 @@ func (e TargetNum) Valid() bool {
 	}
 }
 
+// Defines values for TimeOfDayId.
+const (
+	Dawn     TimeOfDayId = "dawn"
+	Evening  TimeOfDayId = "evening"
+	Midnight TimeOfDayId = "midnight"
+	Morning  TimeOfDayId = "morning"
+	Night    TimeOfDayId = "night"
+	Noon     TimeOfDayId = "noon"
+)
+
+// Valid indicates whether the value is a known member of the TimeOfDayId enum.
+func (e TimeOfDayId) Valid() bool {
+	switch e {
+	case Dawn:
+		return true
+	case Evening:
+		return true
+	case Midnight:
+		return true
+	case Morning:
+		return true
+	case Night:
+		return true
+	case Noon:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ToolCategory.
 const (
 	Chopping  ToolCategory = "chopping"
@@ -1244,6 +1274,18 @@ type ActionCost = int
 
 // Agility 敏捷性。行動順に影響する
 type Agility = int
+
+// AmbientColor 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
+type AmbientColor struct {
+	// B 光の強さ。0 が真っ暗、1 が最大
+	B LightLevel `json:"b"`
+
+	// G 光の強さ。0 が真っ暗、1 が最大
+	G LightLevel `json:"g"`
+
+	// R 光の強さ。0 が真っ暗、1 が最大
+	R LightLevel `json:"r"`
+}
 
 // Ammo 弾薬設定
 type Ammo struct {
@@ -2444,6 +2486,9 @@ type Landmark struct {
 // LightEnabled 光源が有効かどうか
 type LightEnabled = bool
 
+// LightLevel 光の強さ。0 が真っ暗、1 が最大
+type LightLevel = float64
+
 // LightRadius 光の到達半径（タイル単位）
 type LightRadius = int
 
@@ -2473,7 +2518,7 @@ type MapGlyph struct {
 }
 
 // Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-// 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
 type Material string
 
 // MaterialAmount 素材必要数
@@ -2485,7 +2530,7 @@ type MaterialDef struct {
 	HeatPerKg HeatPerKg `json:"heatPerKg"`
 
 	// Id 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-	// 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+	// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
 	Id Material `json:"id"`
 
 	// Name エンティティ名
@@ -2832,11 +2877,13 @@ type Raws struct {
 	Props           *[]Prop            `json:"props,omitempty"`
 	Recipes         *[]Recipe          `json:"recipes,omitempty"`
 	ScatterZones    *[]ScatterZone     `json:"scatterZones,omitempty"`
+	Seasons         *[]Season          `json:"seasons,omitempty"`
 	ShelterEffects  *[]ShelterEffect   `json:"shelterEffects,omitempty"`
 	SkillCategories *[]SkillCategory   `json:"skillCategories,omitempty"`
 	Skills          *[]Skill           `json:"skills,omitempty"`
 	SpriteSheets    *[]SpriteSheet     `json:"spriteSheets,omitempty"`
 	Tiles           *[]Tile            `json:"tiles,omitempty"`
+	TimesOfDay      *[]TimeOfDay       `json:"timesOfDay,omitempty"`
 	ToolCategories  *[]ToolCategoryDef `json:"toolCategories,omitempty"`
 	WaterEffects    *[]WaterEffect     `json:"waterEffects,omitempty"`
 	Weathers        *[]Weather         `json:"weathers,omitempty"`
@@ -2908,8 +2955,23 @@ type ScatterZone struct {
 	PropDensity  float64        `json:"propDensity"`
 }
 
+// Season 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
+type Season struct {
+	// Id 季節
+	Id SeasonId `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// Temp 季節の世界温度。℃
+	Temp SeasonTemp `json:"temp"`
+}
+
 // SeasonId 季節
 type SeasonId string
+
+// SeasonTemp 季節の世界温度。℃
+type SeasonTemp = int
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
@@ -3101,6 +3163,32 @@ type TileList struct {
 
 // TileTempModifier 水や植生がタイルの気温に足す補正。℃
 type TileTempModifier = int
+
+// TimeOfDay 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。
+//
+//	明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する
+type TimeOfDay struct {
+	// AmbientColor 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
+	AmbientColor AmbientColor `json:"ambientColor"`
+
+	// Daylight 光の強さ。0 が真っ暗、1 が最大
+	Daylight LightLevel `json:"daylight"`
+
+	// Id 時間帯。1日は夜明けで始まり、この順に巡る
+	Id TimeOfDayId `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// TempModifier 時間帯による世界温度への加算。℃
+	TempModifier TimeOfDayTempModifier `json:"tempModifier"`
+}
+
+// TimeOfDayId 時間帯。1日は夜明けで始まり、この順に巡る
+type TimeOfDayId string
+
+// TimeOfDayTempModifier 時間帯による世界温度への加算。℃
+type TimeOfDayTempModifier = int
 
 // Tool 道具の性質。道具の分類とグレードを持つ
 type Tool struct {

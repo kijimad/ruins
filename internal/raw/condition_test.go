@@ -91,7 +91,11 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	freshness := enumRowsOf("FreshnessStageId", func(id string) oapi.FreshnessStage { return oapi.FreshnessStage{Id: oapi.FreshnessStageId(id)} })
 	materials := enumRowsOf("Material", func(id string) oapi.MaterialDef { return oapi.MaterialDef{Id: oapi.Material(id)} })
 	tools := enumRowsOf("ToolCategory", func(id string) oapi.ToolCategoryDef { return oapi.ToolCategoryDef{Id: oapi.ToolCategory(id)} })
+	timesOfDay := enumRowsOf("TimeOfDayId", func(id string) oapi.TimeOfDay { return oapi.TimeOfDay{Id: oapi.TimeOfDayId(id)} })
+	seasons := enumRowsOf("SeasonId", func(id string) oapi.Season { return oapi.Season{Id: oapi.SeasonId(id)} })
 	raws := oapi.Raws{
+		TimesOfDay:      &timesOfDay,
+		Seasons:         &seasons,
 		FreshnessStages: &freshness,
 		Materials:       &materials,
 		ToolCategories:  &tools,
@@ -363,6 +367,20 @@ func TestValidateCodeRows(t *testing.T) {
 				r.ToolCategories = nil
 			},
 			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "時間帯の行が欠ける",
+			mutate: func(r *oapi.Raws) {
+				*r.TimesOfDay = (*r.TimesOfDay)[:len(*r.TimesOfDay)-1]
+			},
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "季節の行が重複する",
+			mutate: func(r *oapi.Raws) {
+				*r.Seasons = append(*r.Seasons, oapi.Season{Id: oapi.Winter})
+			},
+			wantErr: errDuplicateID,
 		},
 		{
 			name: "生活感の表が無い",

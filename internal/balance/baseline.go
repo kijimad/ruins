@@ -146,9 +146,10 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "## 気候（世界温度の季節変動）\n\n")
 	fmt.Fprintf(&b, "**概要**: 屋外の世界温度は1年周期で春から夏ピーク、秋、冬底へ巡る。緯度勾配・時間帯・遮蔽を含まない季節そのもの。\n")
 	fmt.Fprintf(&b, "冬は準備なしでは生存できない寒さになり、生存圧の寒さ側の上流入力になる。\n\n")
+	calendar := raw.NewCalendarDefs(master)
 	var climateRows [][]string
 	for _, day := range []int{1, 4, 8, 12, 16, 20, 24, 28} {
-		climateRows = append(climateRows, []string{fmt.Sprintf("%d", day), fmt.Sprintf("%d", WorldTemperatureAtDay(day))})
+		climateRows = append(climateRows, []string{fmt.Sprintf("%d", day), fmt.Sprintf("%d", WorldTemperatureAtDay(calendar, day))})
 	}
 	writeMDTable(&b, []string{"経過日", "世界温度(℃)"}, []tw.Align{alignR, alignR}, climateRows)
 

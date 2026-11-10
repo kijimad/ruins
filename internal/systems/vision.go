@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"image/color"
 	"math"
 
@@ -101,8 +100,8 @@ func (sys *VisionSystem) Update(world w.World) error {
 	ambientColor := [3]float64{1, 1, 1}
 	if query.IsOnOverworld(world) {
 		gt := query.GetGameTime(world)
-		ambient = overworldDaylight(gt)
-		ambientColor = overworldAmbientColor(gt)
+		ambient = overworldDaylight(world.Resources.CalendarDefs, gt)
+		ambientColor = overworldAmbientColor(world.Resources.CalendarDefs, gt)
 	}
 	visibleTiles := make(map[gc.GridElement]bool)
 	for _, tileData := range visibilityData {
@@ -330,62 +329,22 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 	}
 }
 
-// overworldDaylightAnchor は各時間帯の中心での地上日照の明るさ。昼が最も明るく深夜が最も暗い。
-// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func overworldDaylightAnchor(t gc.TimeOfDay) float64 {
-	switch t {
-	case gc.TimeDawn:
-		return 0.65
-	case gc.TimeMorning:
-		return 0.72
-	case gc.TimeDay:
-		return 0.95
-	case gc.TimeEvening:
-		return 0.55
-	case gc.TimeNight:
-		return 0.14
-	case gc.TimeMidnight:
-		return 0.06
-	}
-	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
-}
-
 // overworldDaylight は地上の日照の明るさを、隣接する時間帯の中心値の間を線形補間して連続に返す。
 // 段差だと夕へ入った瞬間に暗くなり夜のように見えるので、代表値をなだらかにつないで徐々に変える。
-func overworldDaylight(gt *gc.GameTime) float64 {
+func overworldDaylight(defs gc.CalendarDefs, gt *gc.GameTime) float64 {
 	from, to, t := gt.GetDaylightLerp()
-	a := overworldDaylightAnchor(from)
-	b := overworldDaylightAnchor(to)
+	a := defs.TimesOfDay[from].Daylight
+	b := defs.TimesOfDay[to].Daylight
 	return a + (b-a)*t
-}
-
-// overworldAmbientColorAnchor は各時間帯の中心での地上の環境光の色。昼は無彩色、朝夕は暖色、夜は寒色。
-// 明るさは overworldDaylight が持つので、ここは色味だけを表す。
-// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func overworldAmbientColorAnchor(t gc.TimeOfDay) [3]float64 {
-	switch t {
-	case gc.TimeDawn:
-		return [3]float64{1.0, 0.80, 0.72}
-	case gc.TimeMorning:
-		return [3]float64{1.0, 0.96, 0.90}
-	case gc.TimeDay:
-		return [3]float64{1.0, 1.0, 1.0}
-	case gc.TimeEvening:
-		return [3]float64{1.0, 0.72, 0.52}
-	case gc.TimeNight:
-		return [3]float64{0.55, 0.60, 0.85}
-	case gc.TimeMidnight:
-		return [3]float64{0.42, 0.48, 0.78}
-	}
-	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
 }
 
 // overworldAmbientColor は地上の環境光の色を、隣接する時間帯の中心色の間を線形補間して連続に返す。
 // 段差だと夕焼け色が一瞬で寒色の夜へ切り替わるので、代表色をなだらかにつないで徐々に変える。
-func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
+// 明るさは overworldDaylight が持つので、ここは色味だけを表す。
+func overworldAmbientColor(defs gc.CalendarDefs, gt *gc.GameTime) [3]float64 {
 	from, to, t := gt.GetDaylightLerp()
-	a := overworldAmbientColorAnchor(from)
-	b := overworldAmbientColorAnchor(to)
+	a := defs.TimesOfDay[from].AmbientColor
+	b := defs.TimesOfDay[to].AmbientColor
 	return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
 }
 

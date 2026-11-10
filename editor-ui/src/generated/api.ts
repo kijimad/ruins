@@ -69,6 +69,23 @@ export type AbilityId = typeof AbilityId[keyof typeof AbilityId];
 
 
 /**
+ * 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
+ */
+export interface AmbientColor {
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'r': number;
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'g': number;
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'b': number;
+}
+/**
  * 弾薬設定
  */
 export interface Ammo {
@@ -1572,7 +1589,7 @@ export interface MapGlyph {
     'order': number;
 }
 /**
- * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+ * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
  */
 
 export const Material = {
@@ -2047,6 +2064,8 @@ export interface Raws {
     'freshnessStages'?: Array<FreshnessStage>;
     'materials'?: Array<MaterialDef>;
     'toolCategories'?: Array<ToolCategoryDef>;
+    'timesOfDay'?: Array<TimeOfDay>;
+    'seasons'?: Array<Season>;
 }
 /**
  * レシピ
@@ -2153,6 +2172,22 @@ export interface ScatterZone {
     'lootGroup': string;
     'entries': Array<ScatterEntry>;
 }
+/**
+ * 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
+ */
+export interface Season {
+    'id': SeasonId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 季節の世界温度。℃
+     */
+    'temp': number;
+}
+
+
 /**
  * 季節
  */
@@ -2458,6 +2493,43 @@ export interface TileList {
     'data': Array<Tile>;
     'totalCount': number;
 }
+/**
+ * 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。     明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する
+ */
+export interface TimeOfDay {
+    'id': TimeOfDayId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 時間帯による世界温度への加算。℃
+     */
+    'tempModifier': number;
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'daylight': number;
+    'ambientColor': AmbientColor;
+}
+
+
+/**
+ * 時間帯。1日は夜明けで始まり、この順に巡る
+ */
+
+export const TimeOfDayId = {
+    Dawn: 'dawn',
+    Morning: 'morning',
+    Noon: 'noon',
+    Evening: 'evening',
+    Night: 'night',
+    Midnight: 'midnight',
+} as const;
+
+export type TimeOfDayId = typeof TimeOfDayId[keyof typeof TimeOfDayId];
+
+
 /**
  * 道具の性質。道具の分類とグレードを持つ
  */

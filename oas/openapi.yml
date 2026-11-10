@@ -1561,6 +1561,20 @@ components:
       minimum: -100
       maximum: 100
       description: 敏捷性。行動順に影響する
+    AmbientColor:
+      type: object
+      required:
+        - r
+        - g
+        - b
+      properties:
+        r:
+          $ref: '#/components/schemas/LightLevel'
+        g:
+          $ref: '#/components/schemas/LightLevel'
+        b:
+          $ref: '#/components/schemas/LightLevel'
+      description: 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
     Ammo:
       type: object
       required:
@@ -3326,6 +3340,12 @@ components:
     LightEnabled:
       type: boolean
       description: 光源が有効かどうか
+    LightLevel:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: 光の強さ。0 が真っ暗、1 が最大
     LightRadius:
       type: integer
       minimum: 1
@@ -3392,7 +3412,7 @@ components:
         - LIQUID
       description: |-
         材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-        不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+        不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
     MaterialAmount:
       type: integer
       minimum: 1
@@ -4035,6 +4055,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ToolCategoryDef'
+        timesOfDay:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeOfDay'
+        seasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Season'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -4181,6 +4209,20 @@ components:
           items:
             $ref: '#/components/schemas/ScatterEntry'
       description: 開けた地形の散布ゾーン1種
+    Season:
+      type: object
+      required:
+        - id
+        - name
+        - temp
+      properties:
+        id:
+          $ref: '#/components/schemas/SeasonId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        temp:
+          $ref: '#/components/schemas/SeasonTemp'
+      description: 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
     SeasonId:
       type: string
       enum:
@@ -4189,6 +4231,11 @@ components:
         - autumn
         - winter
       description: 季節
+    SeasonTemp:
+      type: integer
+      minimum: -100
+      maximum: 100
+      description: 季節の世界温度。℃
     Sensation:
       type: integer
       minimum: -100
@@ -4495,6 +4542,43 @@ components:
       minimum: -50
       maximum: 50
       description: 水や植生がタイルの気温に足す補正。℃
+    TimeOfDay:
+      type: object
+      required:
+        - id
+        - name
+        - tempModifier
+        - daylight
+        - ambientColor
+      properties:
+        id:
+          $ref: '#/components/schemas/TimeOfDayId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        tempModifier:
+          $ref: '#/components/schemas/TimeOfDayTempModifier'
+        daylight:
+          $ref: '#/components/schemas/LightLevel'
+        ambientColor:
+          $ref: '#/components/schemas/AmbientColor'
+      description: |-
+        時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。
+            明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する
+    TimeOfDayId:
+      type: string
+      enum:
+        - dawn
+        - morning
+        - noon
+        - evening
+        - night
+        - midnight
+      description: 時間帯。1日は夜明けで始まり、この順に巡る
+    TimeOfDayTempModifier:
+      type: integer
+      minimum: -50
+      maximum: 50
+      description: 時間帯による世界温度への加算。℃
     Tool:
       type: object
       required:

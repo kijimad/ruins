@@ -73,10 +73,11 @@ func TestBaselineSnapshot_物流(t *testing.T) {
 
 func TestBaselineSnapshot_気候(t *testing.T) {
 	t.Parallel()
+	calendar := raw.NewCalendarDefs(loadTestMaster(t))
 	// 世界温度の季節変動。1年32日で春5→夏ピーク22→冬底付近へ巡る。
-	assert.Equal(t, 5, WorldTemperatureAtDay(1), "春の中点")
-	assert.Equal(t, 22, WorldTemperatureAtDay(8), "夏ピーク")
-	assert.Equal(t, -29, WorldTemperatureAtDay(24), "冬底付近")
+	assert.Equal(t, 5, WorldTemperatureAtDay(calendar, 1), "春の中点")
+	assert.Equal(t, 22, WorldTemperatureAtDay(calendar, 8), "夏ピーク")
+	assert.Equal(t, -29, WorldTemperatureAtDay(calendar, 24), "冬底付近")
 }
 
 func TestBaselineSnapshot_身体と経済(t *testing.T) {

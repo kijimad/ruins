@@ -155,6 +155,31 @@ enum SeasonId {
   winter,
 }
 
+/** 時間帯。1日は夜明けで始まり、この順に巡る */
+enum TimeOfDayId {
+  dawn,
+  morning,
+  noon,
+  evening,
+  night,
+  midnight,
+}
+
+/** 時間帯による世界温度への加算。℃ */
+@minValue(-50)
+@maxValue(50)
+scalar TimeOfDayTempModifier extends integer;
+
+/** 光の強さ。0 が真っ暗、1 が最大 */
+@minValue(0)
+@maxValue(1)
+scalar LightLevel extends float64;
+
+/** 季節の世界温度。℃ */
+@minValue(-100)
+@maxValue(100)
+scalar SeasonTemp extends integer;
+
 /** 天候による世界温度への加算。℃ */
 @minValue(-50)
 @maxValue(50)

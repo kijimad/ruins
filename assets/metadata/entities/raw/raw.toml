@@ -22474,6 +22474,26 @@
       dy = 1
       name = "tree_b"
 
+[[seasons]]
+  id = "spring"
+  name = "Spring"
+  temp = 5
+
+[[seasons]]
+  id = "summer"
+  name = "Summer"
+  temp = 22
+
+[[seasons]]
+  id = "autumn"
+  name = "Autumn"
+  temp = 0
+
+[[seasons]]
+  id = "winter"
+  name = "Winter"
+  temp = -30
+
 [[shelterEffects]]
   anchorTemp = 10
   id = "outdoor"
@@ -23289,6 +23309,66 @@
     depth = 0
     spriteKey = "plank_blue"
     spriteSheetName = "tile"
+
+[[timesOfDay]]
+  daylight = 0.65
+  id = "dawn"
+  name = "Dawn"
+  tempModifier = 0
+  [timesOfDay.ambientColor]
+    b = 0.72
+    g = 0.8
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.72
+  id = "morning"
+  name = "Morning"
+  tempModifier = 5
+  [timesOfDay.ambientColor]
+    b = 0.9
+    g = 0.96
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.95
+  id = "noon"
+  name = "Noon"
+  tempModifier = 10
+  [timesOfDay.ambientColor]
+    b = 1.0
+    g = 1.0
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.55
+  id = "evening"
+  name = "Evening"
+  tempModifier = 5
+  [timesOfDay.ambientColor]
+    b = 0.52
+    g = 0.72
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.14
+  id = "night"
+  name = "Night"
+  tempModifier = -5
+  [timesOfDay.ambientColor]
+    b = 0.85
+    g = 0.6
+    r = 0.55
+
+[[timesOfDay]]
+  daylight = 0.06
+  id = "midnight"
+  name = "Midnight"
+  tempModifier = -10
+  [timesOfDay.ambientColor]
+    b = 0.78
+    g = 0.48
+    r = 0.42
 
 [[toolCategories]]
   id = "prying"

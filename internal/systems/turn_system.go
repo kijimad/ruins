@@ -150,7 +150,7 @@ func notifyEnvironmentChange(world w.World) {
 	}
 
 	if gt.SeasonJustChanged() {
-		name := query.T(world, gt.GetSeason().String())
+		name := query.SeasonName(world, gt.GetSeason())
 		gamelog.New(query.GetGameLog(world)).
 			Markup(gamelog.Tag("system", query.T(world, "The season changed to %s.", name))).
 			Log()

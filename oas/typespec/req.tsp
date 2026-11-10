@@ -563,6 +563,30 @@ model Tile {
   foliage?: Foliage;
 }
 
+/** 環境光の色。明るさは daylight が持ち、ここは色味だけを表す */
+model AmbientColor {
+  r: LightLevel;
+  g: LightLevel;
+  b: LightLevel;
+}
+
+/** 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。
+    明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する */
+model TimeOfDay {
+  id: TimeOfDayId;
+  name: EntityName;
+  tempModifier: TimeOfDayTempModifier;
+  daylight: LightLevel;
+  ambientColor: AmbientColor;
+}
+
+/** 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ */
+model Season {
+  id: SeasonId;
+  name: EntityName;
+  temp: SeasonTemp;
+}
+
 /** 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ */
 model FreshnessStage {
   id: FreshnessStageId;
@@ -904,6 +928,8 @@ model Raws {
   freshnessStages?: FreshnessStage[];
   materials?: MaterialDef[];
   toolCategories?: ToolCategoryDef[];
+  timesOfDay?: TimeOfDay[];
+  seasons?: Season[];
 }
 
 // ================== パレット ==================

@@ -159,6 +159,29 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 	}, defs)
 }
 
+func TestNewCalendarDefs_実データ(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	assert.Equal(t, gc.CalendarDefs{
+		TimesOfDay: [gc.NumTimeOfDay]gc.TimeOfDayDef{
+			gc.TimeDawn:     {Name: "Dawn", TempModifier: 0, Daylight: 0.65, AmbientColor: [3]float64{1.0, 0.80, 0.72}},
+			gc.TimeMorning:  {Name: "Morning", TempModifier: 5, Daylight: 0.72, AmbientColor: [3]float64{1.0, 0.96, 0.90}},
+			gc.TimeDay:      {Name: "Noon", TempModifier: 10, Daylight: 0.95, AmbientColor: [3]float64{1.0, 1.0, 1.0}},
+			gc.TimeEvening:  {Name: "Evening", TempModifier: 5, Daylight: 0.55, AmbientColor: [3]float64{1.0, 0.72, 0.52}},
+			gc.TimeNight:    {Name: "Night", TempModifier: -5, Daylight: 0.14, AmbientColor: [3]float64{0.55, 0.60, 0.85}},
+			gc.TimeMidnight: {Name: "Midnight", TempModifier: -10, Daylight: 0.06, AmbientColor: [3]float64{0.42, 0.48, 0.78}},
+		},
+		Seasons: [gc.NumSeason]gc.SeasonDef{
+			gc.SeasonSpring: {Name: "Spring", Temp: 5},
+			gc.SeasonSummer: {Name: "Summer", Temp: 22},
+			gc.SeasonAutumn: {Name: "Autumn", Temp: 0},
+			gc.SeasonWinter: {Name: "Winter", Temp: -30},
+		},
+	}, NewCalendarDefs(raws))
+}
+
 func TestNewMaterialDefs_実データ(t *testing.T) {
 	t.Parallel()
 

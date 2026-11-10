@@ -1100,6 +1100,14 @@ var (
 		oapi.Autumn: gc.SeasonAutumn,
 		oapi.Winter: gc.SeasonWinter,
 	}
+	timesOfDay = map[oapi.TimeOfDayId]gc.TimeOfDay{
+		oapi.Dawn:     gc.TimeDawn,
+		oapi.Morning:  gc.TimeMorning,
+		oapi.Noon:     gc.TimeDay,
+		oapi.Evening:  gc.TimeEvening,
+		oapi.Night:    gc.TimeNight,
+		oapi.Midnight: gc.TimeMidnight,
+	}
 	severities = map[oapi.ConditionSeverity]gc.Severity{
 		oapi.ConditionSeverityMinor:  gc.SeverityMinor,
 		oapi.ConditionSeverityMedium: gc.SeverityMedium,
@@ -1139,6 +1147,23 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 		kinds[weatherKinds[row.Id]] = def
 	}
 	return gc.WeatherDefs{Kinds: kinds}
+}
+
+// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id は enum なので検証で尽くされる
+func NewCalendarDefs(raws oapi.Raws) gc.CalendarDefs {
+	var defs gc.CalendarDefs
+	for _, row := range PtrSlice(raws.TimesOfDay) {
+		defs.TimesOfDay[timesOfDay[row.Id]] = gc.TimeOfDayDef{
+			Name:         row.Name,
+			TempModifier: row.TempModifier,
+			Daylight:     row.Daylight,
+			AmbientColor: [3]float64{row.AmbientColor.R, row.AmbientColor.G, row.AmbientColor.B},
+		}
+	}
+	for _, row := range PtrSlice(raws.Seasons) {
+		defs.Seasons[seasons[row.Id]] = gc.SeasonDef{Name: row.Name, Temp: row.Temp}
+	}
+	return defs
 }
 
 // NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量の表を組み立てる

@@ -790,6 +790,8 @@ func validateCodeRows(raws oapi.Raws) error {
 		{"FreshnessStageId", rowIDs(PtrSlice(raws.FreshnessStages), func(r oapi.FreshnessStage) oapi.FreshnessStageId { return r.Id })},
 		{"Material", rowIDs(PtrSlice(raws.Materials), func(r oapi.MaterialDef) oapi.Material { return r.Id })},
 		{"ToolCategory", rowIDs(PtrSlice(raws.ToolCategories), func(r oapi.ToolCategoryDef) oapi.ToolCategory { return r.Id })},
+		{"TimeOfDayId", rowIDs(PtrSlice(raws.TimesOfDay), func(r oapi.TimeOfDay) oapi.TimeOfDayId { return r.Id })},
+		{"SeasonId", rowIDs(PtrSlice(raws.Seasons), func(r oapi.Season) oapi.SeasonId { return r.Id })},
 	}
 	for _, e := range enumRows {
 		if err := validateEnumRows(e.schema, e.ids); err != nil {
