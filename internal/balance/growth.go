@@ -37,7 +37,7 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 func SkillDamagePercent(defs gc.SkillDefs, skillLevel int) consts.Percent {
 	skills := gc.NewSkills()
 	skills.Get(oapi.SkillIdFist).Value = skillLevel
-	return defs.ProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), gc.WeaponDamageKey(oapi.SkillIdFist))
+	return defs.ProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), oapi.ProficiencyIdFistDamage)
 }
 
 // SkillDamageMultiplier は SkillDamagePercent を等倍1.0基準の float で見た値。表示や概算に使う。

@@ -1608,11 +1608,26 @@ components:
       required:
         - id
         - injury
+        - skill
+        - damage
+        - accuracy
       properties:
         id:
           $ref: '#/components/schemas/AttackCategory'
         injury:
           $ref: '#/components/schemas/ConditionTypeName'
+        skill:
+          allOf:
+            - $ref: '#/components/schemas/SkillId'
+          description: 攻撃で上達するスキル
+        damage:
+          allOf:
+            - $ref: '#/components/schemas/ProficiencyId'
+          description: ダメージを決める熟練の効果倍率。skill の行が持つ
+        accuracy:
+          allOf:
+            - $ref: '#/components/schemas/ProficiencyId'
+          description: 命中を決める熟練の効果倍率。skill の行が持つ
       description: 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
     Balance.AbilityScore:
       type: integer

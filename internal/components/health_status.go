@@ -111,6 +111,23 @@ type BodyFuncs struct {
 	Metabolism    consts.Percent // 100 が正常。空腹・疲労で下がる。回復の身体機能側。VIT・睡眠は熟練側で別に積む
 }
 
+// of は身体機能の種別 k の値を返す
+func (b BodyFuncs) of(k BodyFuncKind) consts.Percent {
+	switch k {
+	case BodyFuncConsciousness:
+		return b.Consciousness
+	case BodyFuncManipulation:
+		return b.Manipulation
+	case BodyFuncMoving:
+		return b.Moving
+	case BodyFuncSight:
+		return b.Sight
+	case BodyFuncMetabolism:
+		return b.Metabolism
+	}
+	panic("unknown body function: " + string(k))
+}
+
 // painConsciousnessDivisor は痛みが意識を下げる割合。痛みをこれで割ったぶん意識が下がる。
 // 症状に依らない集約側の係数。値は実プレイで調整する
 const painConsciousnessDivisor = 2

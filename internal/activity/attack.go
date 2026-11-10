@@ -259,13 +259,13 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	if attack == nil {
 		return consts.PercentBase
 	}
-	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
+	weapon, ok := world.Resources.SkillDefs.Weapon(attack.GetAttackCategory())
 	if !ok {
 		return consts.PercentBase
 	}
-	key := gc.WeaponDamageKey(skillID)
+	key := weapon.Damage
 	if !isDamage {
-		key = gc.WeaponAccuracyKey(skillID)
+		key = weapon.Accuracy
 	}
 	return query.ProficiencyValue(world, entity, key)
 }
@@ -399,10 +399,11 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 	skills := world.Components.Skills.Get(actor)
 
-	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
+	weapon, ok := world.Resources.SkillDefs.Weapon(attack.GetAttackCategory())
 	if !ok {
 		return
 	}
+	skillID := weapon.Skill
 	s := skills.Get(skillID)
 
 	if !world.Components.Abilities.Has(actor) {

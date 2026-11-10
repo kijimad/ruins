@@ -25,6 +25,7 @@ type SkillCategory struct {
 type ProficiencyDef struct {
 	Skill    oapi.SkillId // 倍率を左右するスキル
 	PerLevel int          // スキルLv1あたりの倍率の変化量。百分率。負ならスキルが高いほど効果が減る
+	BodyFunc BodyFuncKind // この機能の低下で目減りする倍率なら、その機能。命中は近接なら操作、遠隔なら視覚。空なら目減りしない
 }
 
 // SkillDefs はスキルの定義、カテゴリの表示順、熟練の効果倍率の表。
@@ -33,6 +34,25 @@ type SkillDefs struct {
 	Skills        map[oapi.SkillId]SkillDef
 	Categories    []SkillCategory // 表示順
 	Proficiencies map[oapi.ProficiencyId]ProficiencyDef
+	Weapons       []WeaponDef // 表示順
+}
+
+// WeaponDef は攻撃の種類が上達に使うスキルと、ダメージと命中を決める熟練の効果倍率。raw の attackTypes の1行から組み立てる
+type WeaponDef struct {
+	AttackType AttackType
+	Skill      oapi.SkillId
+	Damage     oapi.ProficiencyId
+	Accuracy   oapi.ProficiencyId
+}
+
+// Weapon は攻撃の種類の WeaponDef を返す。無ければ ok=false
+func (d SkillDefs) Weapon(at AttackType) (WeaponDef, bool) {
+	for _, w := range d.Weapons {
+		if w.AttackType.Type == at.Type {
+			return w, true
+		}
+	}
+	return WeaponDef{}, false
 }
 
 // Name はスキルの表示名 msgid を返す。未登録なら id をそのまま返す

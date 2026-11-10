@@ -7,46 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-// weaponDamageKeys は武器スキルIDからダメージ効果キーへのマッピング
-var weaponDamageKeys = map[oapi.SkillId]oapi.ProficiencyId{
-	oapi.SkillIdSword:   oapi.ProficiencyIdSwordDamage,
-	oapi.SkillIdSpear:   oapi.ProficiencyIdSpearDamage,
-	oapi.SkillIdFist:    oapi.ProficiencyIdFistDamage,
-	oapi.SkillIdBow:     oapi.ProficiencyIdBowDamage,
-	oapi.SkillIdHandgun: oapi.ProficiencyIdHandgunDamage,
-	oapi.SkillIdRifle:   oapi.ProficiencyIdRifleDamage,
-	oapi.SkillIdCannon:  oapi.ProficiencyIdCannonDamage,
-}
-
-// WeaponDamageKey は武器スキルIDに対応するダメージ効果キーを返す。未定義ならpanicする
-func WeaponDamageKey(id oapi.SkillId) oapi.ProficiencyId {
-	key, ok := weaponDamageKeys[id]
-	if !ok {
-		panic(fmt.Sprintf("undefined weapon skill ID for damage: %q", id))
-	}
-	return key
-}
-
-// weaponAccuracyKeys は武器スキルIDから命中効果キーへのマッピング
-var weaponAccuracyKeys = map[oapi.SkillId]oapi.ProficiencyId{
-	oapi.SkillIdSword:   oapi.ProficiencyIdSwordAccuracy,
-	oapi.SkillIdSpear:   oapi.ProficiencyIdSpearAccuracy,
-	oapi.SkillIdFist:    oapi.ProficiencyIdFistAccuracy,
-	oapi.SkillIdBow:     oapi.ProficiencyIdBowAccuracy,
-	oapi.SkillIdHandgun: oapi.ProficiencyIdHandgunAccuracy,
-	oapi.SkillIdRifle:   oapi.ProficiencyIdRifleAccuracy,
-	oapi.SkillIdCannon:  oapi.ProficiencyIdCannonAccuracy,
-}
-
-// WeaponAccuracyKey は武器スキルIDに対応する命中効果キーを返す。未定義ならpanicする
-func WeaponAccuracyKey(id oapi.SkillId) oapi.ProficiencyId {
-	key, ok := weaponAccuracyKeys[id]
-	if !ok {
-		panic(fmt.Sprintf("undefined weapon skill ID for accuracy: %q", id))
-	}
-	return key
-}
-
 // elementResistKeys は元素タイプから耐性効果キーへのマッピング
 var elementResistKeys = map[ElementType]oapi.ProficiencyId{
 	ElementTypeFire:    oapi.ProficiencyIdFireResist,
@@ -96,31 +56,6 @@ type ProficiencySource struct {
 	Value    int          // この要因による変化量。例: +10, -15
 }
 
-// weaponAccuracyBodyFunc は武器スキルの命中に効く身体機能の種別と乗数を返す。
-// 近接は操作機能、遠隔は視覚機能。対応する攻撃種が無ければ操作機能を既定にする
-func weaponAccuracyBodyFunc(bodyFuncs BodyFuncs, id oapi.SkillId) (BodyFuncKind, consts.Percent) {
-	for _, at := range AllAttackTypes {
-		skillID, ok := WeaponSkillID(at)
-		if !ok || skillID != id {
-			continue
-		}
-		if at.Range == AttackRangeRanged {
-			return BodyFuncSight, bodyFuncs.Sight
-		}
-		return BodyFuncManipulation, bodyFuncs.Manipulation
-	}
-	return BodyFuncManipulation, bodyFuncs.Manipulation
-}
-
-// accuracySkillByKey は命中キーから武器スキルIDを引く索引。命中だけ身体機能を畳むため
-var accuracySkillByKey = func() map[oapi.ProficiencyId]oapi.SkillId {
-	m := make(map[oapi.ProficiencyId]oapi.SkillId, len(weaponAccuracyKeys))
-	for id, key := range weaponAccuracyKeys {
-		m[key] = id
-	}
-	return m
-}()
-
 // forEachProficiencySource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。
 // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない。
 // skills / abils は不在なら nil でよく、その由来のソースは飛ばす。bodyFuncs は実効身体機能で、
@@ -152,12 +87,12 @@ func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bo
 
 	// 命中へ効く身体機能を乗算で畳み、内訳には加法差分で載せる。bodyFuncs は実効身体機能なので、
 	// 部位の怪我に加え全身性の不調・疲労・空腹が既に畳まれている。ここは該当機能を掛けるだけ
-	if id, isAccuracy := accuracySkillByKey[key]; isAccuracy {
-		limbKind, limbVal := weaponAccuracyBodyFunc(bodyFuncs, id)
+	if spec.BodyFunc != "" {
+		limbVal := bodyFuncs.of(spec.BodyFunc)
 		acc := int(consts.PercentBase) + bonus
 		withCap := limbVal.ApplyInt(acc)
 		if withCap != acc {
-			fn(ProficiencySource{Kind: SourceBodyFunc, BodyFunc: limbKind, Amount: int(limbVal), Value: withCap - acc})
+			fn(ProficiencySource{Kind: SourceBodyFunc, BodyFunc: spec.BodyFunc, Amount: int(limbVal), Value: withCap - acc})
 		}
 	}
 }

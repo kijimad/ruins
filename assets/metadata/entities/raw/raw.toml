@@ -1,30 +1,51 @@
 [[attackTypes]]
-  id = "fist"
-  injury = "fracture"
-
-[[attackTypes]]
+  accuracy = "sword_accuracy"
+  damage = "sword_damage"
   id = "sword"
   injury = "laceration"
+  skill = "sword"
 
 [[attackTypes]]
+  accuracy = "spear_accuracy"
+  damage = "spear_damage"
   id = "spear"
   injury = "laceration"
+  skill = "spear"
 
 [[attackTypes]]
-  id = "handgun"
-  injury = "laceration"
-
-[[attackTypes]]
-  id = "rifle"
-  injury = "laceration"
-
-[[attackTypes]]
-  id = "cannon"
+  accuracy = "fist_accuracy"
+  damage = "fist_damage"
+  id = "fist"
   injury = "fracture"
+  skill = "fist"
 
 [[attackTypes]]
+  accuracy = "bow_accuracy"
+  damage = "bow_damage"
   id = "bow"
   injury = "laceration"
+  skill = "bow"
+
+[[attackTypes]]
+  accuracy = "handgun_accuracy"
+  damage = "handgun_damage"
+  id = "handgun"
+  injury = "laceration"
+  skill = "handgun"
+
+[[attackTypes]]
+  accuracy = "rifle_accuracy"
+  damage = "rifle_damage"
+  id = "rifle"
+  injury = "laceration"
+  skill = "rifle"
+
+[[attackTypes]]
+  accuracy = "cannon_accuracy"
+  damage = "cannon_damage"
+  id = "cannon"
+  injury = "fracture"
+  skill = "cannon"
 
 [[bodyParts]]
   hitWeight = 2.0

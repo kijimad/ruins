@@ -1,16 +1,8 @@
 package components
 
 import (
-	"slices"
-
 	"github.com/kijimaD/ruins/internal/oapi"
 )
-
-// WeaponSkillIDs は武器に対応するスキルIDのリスト
-var WeaponSkillIDs = []oapi.SkillId{
-	oapi.SkillIdSword, oapi.SkillIdSpear, oapi.SkillIdFist,
-	oapi.SkillIdBow, oapi.SkillIdHandgun, oapi.SkillIdRifle, oapi.SkillIdCannon,
-}
 
 // Skill は個別のスキル
 type Skill struct {
@@ -42,10 +34,4 @@ const LevelUpExp = 100
 // NewSkills はスキルを持たない Skills を返す。スキルは Get で初めて読んだときに値0で作る
 func NewSkills() *Skills {
 	return &Skills{Data: make(map[oapi.SkillId]*Skill)}
-}
-
-// WeaponSkillID は武器種別に対応するスキルIDを返す。武器種別はそれと同じ名前の武器スキルで上達する
-func WeaponSkillID(at AttackType) (oapi.SkillId, bool) {
-	id := oapi.SkillId(at.Type)
-	return id, slices.Contains(WeaponSkillIDs, id)
 }

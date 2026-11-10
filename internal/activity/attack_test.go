@@ -661,8 +661,9 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 			require.NoError(t, err)
 			attack, name, err := getAttackParams(player, world)
 			require.NoError(t, err)
-			skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
+			w, ok := world.Resources.SkillDefs.Weapon(attack.GetAttackCategory())
 			require.True(t, ok)
+			skillID := w.Skill
 			expBefore := world.Components.Skills.Get(player).Get(skillID).Exp.Current
 
 			// 命中率は上限があり外れうるので、補正を大きく取って何度も殴り、少なくとも1回は当てる

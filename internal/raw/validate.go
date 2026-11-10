@@ -723,7 +723,7 @@ func validateCodeRows(raws oapi.Raws) error {
 }
 
 // validateSkillCodeRows はスキーマの enum のスキルと熟練の効果倍率それぞれに raw の行がちょうど1つあり、
-// 武器の効果倍率を同じ名前の武器スキルが持つことを検証する
+// 攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
 func validateSkillCodeRows(raws oapi.Raws) error {
 	skills := PtrSlice(raws.Skills)
 	skillIDs := make([]string, 0, len(skills))
@@ -743,10 +743,10 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 	if err := validateEnumRows("ProficiencyId", proficiencyIDs); err != nil {
 		return err
 	}
-	for _, id := range gc.WeaponSkillIDs {
-		for _, key := range []oapi.ProficiencyId{gc.WeaponDamageKey(id), gc.WeaponAccuracyKey(id)} {
-			if owners[key] != id {
-				return fmt.Errorf("proficiency %q owned by %q: %w", key, owners[key], errWeaponProficiencyOwner)
+	for _, at := range PtrSlice(raws.AttackTypes) {
+		for _, key := range []oapi.ProficiencyId{at.Damage, at.Accuracy} {
+			if owners[key] != at.Skill {
+				return fmt.Errorf("attack type %q proficiency %q owned by %q: %w", at.Id, key, owners[key], errWeaponProficiencyOwner)
 			}
 		}
 	}

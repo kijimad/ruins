@@ -1235,11 +1235,20 @@ type AttackCount = int
 
 // AttackType 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
 type AttackType struct {
+	// Accuracy 命中を決める熟練の効果倍率。skill の行が持つ
+	Accuracy ProficiencyId `json:"accuracy"`
+
+	// Damage ダメージを決める熟練の効果倍率。skill の行が持つ
+	Damage ProficiencyId `json:"damage"`
+
 	// Id 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
 	Id AttackCategory `json:"id"`
 
 	// Injury 不調の id。Go の ConditionType 定数の値と同じ
 	Injury ConditionTypeName `json:"injury"`
+
+	// Skill 攻撃で上達するスキル
+	Skill SkillId `json:"skill"`
 }
 
 // BalanceAbilityScore 能力値。プレイヤーのステータス

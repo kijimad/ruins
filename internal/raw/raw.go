@@ -1058,7 +1058,8 @@ var abilityIDs = map[oapi.AbilityId]gc.AbilityID{
 	oapi.Def: gc.AblDEF,
 }
 
-// NewSkillDefs は raw の skills と skillCategories からスキルの定義の表を組み立てる。
+// NewSkillDefs は raw の skills、skillCategories、attackTypes からスキルの定義の表を組み立てる。
+// 命中の効果倍率は攻撃の種類の射程から、目減りさせる身体機能を決める。
 // カテゴリは skillCategories の行の順に、カテゴリ内のスキルは skills の行の順に並べる
 func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	rows := PtrSlice(raws.Skills)
@@ -1090,7 +1091,25 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	for _, c := range catRows {
 		categories = append(categories, gc.SkillCategory{Name: c.Name, IDs: idsByCategory[c.Id]})
 	}
-	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies}, nil
+	attackTypes := PtrSlice(raws.AttackTypes)
+	weapons := make([]gc.WeaponDef, 0, len(attackTypes))
+	for _, row := range attackTypes {
+		at, err := gc.ParseAttackType(string(row.Id))
+		if err != nil {
+			return gc.SkillDefs{}, err
+		}
+		weapons = append(weapons, gc.WeaponDef{AttackType: at, Skill: row.Skill, Damage: row.Damage, Accuracy: row.Accuracy})
+		accuracy, ok := proficiencies[row.Accuracy]
+		if !ok {
+			return gc.SkillDefs{}, NewKeyNotFoundError(string(row.Accuracy), "Proficiencies")
+		}
+		accuracy.BodyFunc = gc.BodyFuncManipulation
+		if at.Range == gc.AttackRangeRanged {
+			accuracy.BodyFunc = gc.BodyFuncSight
+		}
+		proficiencies[row.Accuracy] = accuracy
+	}
+	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons}, nil
 }
 
 var (

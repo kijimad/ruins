@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestValueOf(t *testing.T) {
@@ -66,56 +65,6 @@ func TestSkills_Get(t *testing.T) {
 	})
 }
 
-func TestWeaponSkillID(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name       string
-		attackType AttackType
-		expected   oapi.SkillId
-		ok         bool
-	}{
-		{"Swordsmanship", AttackSword, oapi.SkillIdSword, true},
-		{"Polearm", AttackSpear, oapi.SkillIdSpear, true},
-		{"Unarmed", AttackFist, oapi.SkillIdFist, true},
-		{"Pistol skill", AttackHandgun, oapi.SkillIdHandgun, true},
-		{"Rifle skill", AttackRifle, oapi.SkillIdRifle, true},
-		{"Artillery", AttackCannon, oapi.SkillIdCannon, true},
-		{"未定義の武器種", AttackType{Type: "unknown"}, "", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			id, ok := WeaponSkillID(tt.attackType)
-			assert.Equal(t, tt.ok, ok)
-			if ok {
-				assert.Equal(t, tt.expected, id)
-			}
-		})
-	}
-}
-
-func TestWeaponSkillID_全攻撃種別が同じ名前の武器スキルを持つ(t *testing.T) {
-	t.Parallel()
-
-	got := map[AttackType]oapi.SkillId{}
-	for _, at := range AllAttackTypes {
-		id, ok := WeaponSkillID(at)
-		require.True(t, ok, at.Type)
-		got[at] = id
-	}
-	assert.Equal(t, map[AttackType]oapi.SkillId{
-		AttackSword:   oapi.SkillIdSword,
-		AttackSpear:   oapi.SkillIdSpear,
-		AttackHandgun: oapi.SkillIdHandgun,
-		AttackRifle:   oapi.SkillIdRifle,
-		AttackFist:    oapi.SkillIdFist,
-		AttackCannon:  oapi.SkillIdCannon,
-		AttackBow:     oapi.SkillIdBow,
-	}, got)
-}
-
 func TestAbilityNameMapping(t *testing.T) {
 	t.Parallel()
 
@@ -129,38 +78,6 @@ func TestAbilityNameMapping(t *testing.T) {
 	// 未定義の能力値IDはpanicする
 	assert.Panics(t, func() {
 		AbilityName(AbilityID(99))
-	})
-}
-
-func TestWeaponDamageKeyMapping(t *testing.T) {
-	t.Parallel()
-
-	for _, id := range WeaponSkillIDs {
-		assert.NotPanics(t, func() {
-			key := WeaponDamageKey(id)
-			assert.NotEmpty(t, key)
-		})
-	}
-
-	// 未定義の武器スキルIDはpanicする
-	assert.Panics(t, func() {
-		WeaponDamageKey("undefined_skill")
-	})
-}
-
-func TestWeaponAccuracyKeyMapping(t *testing.T) {
-	t.Parallel()
-
-	for _, id := range WeaponSkillIDs {
-		assert.NotPanics(t, func() {
-			key := WeaponAccuracyKey(id)
-			assert.NotEmpty(t, key)
-		})
-	}
-
-	// 未定義の武器スキルIDはpanicする
-	assert.Panics(t, func() {
-		WeaponAccuracyKey("undefined_skill")
 	})
 }
 

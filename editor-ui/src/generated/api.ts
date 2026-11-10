@@ -124,6 +124,18 @@ export interface AttackType {
      * 不調の id。Go の ConditionType 定数の値と同じ
      */
     'injury': string;
+    /**
+     * 攻撃で上達するスキル
+     */
+    'skill': SkillId;
+    /**
+     * ダメージを決める熟練の効果倍率。skill の行が持つ
+     */
+    'damage': ProficiencyId;
+    /**
+     * 命中を決める熟練の効果倍率。skill の行が持つ
+     */
+    'accuracy': ProficiencyId;
 }
 
 

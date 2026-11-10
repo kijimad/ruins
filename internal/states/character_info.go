@@ -186,13 +186,14 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	bodyFuncs := query.EffectiveBodyFuncs(world, playerEntity)
 
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
-	for _, id := range gc.WeaponSkillIDs {
-		name := query.SkillName(world, id)
-		items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: val(gc.WeaponDamageKey(id)), Description: query.T(world, "%s weapon damage multiplier", name), Details: details(gc.WeaponDamageKey(id))})
+	weapons := world.Resources.SkillDefs.Weapons
+	for _, w := range weapons {
+		name := query.SkillName(world, w.Skill)
+		items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: val(w.Damage), Description: query.T(world, "%s weapon damage multiplier", name), Details: details(w.Damage)})
 	}
-	for _, id := range gc.WeaponSkillIDs {
-		name := query.SkillName(world, id)
-		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(gc.WeaponAccuracyKey(id)), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(gc.WeaponAccuracyKey(id))})
+	for _, w := range weapons {
+		name := query.SkillName(world, w.Skill)
+		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(w.Accuracy), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(w.Accuracy)})
 	}
 	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
 		name := query.T(world, elem.String())

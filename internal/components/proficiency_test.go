@@ -17,9 +17,9 @@ func TestSkillDefsProficiencyValue_AllSkillsZero(t *testing.T) {
 	}
 
 	// スキル値0のとき全倍率は100（等倍）
-	for _, id := range WeaponSkillIDs {
-		assert.Equal(t, 100, value(WeaponDamageKey(id)), "武器ダメージ %s は100", id)
-		assert.Equal(t, 100, value(WeaponAccuracyKey(id)), "武器命中 %s は100", id)
+	for _, w := range testSkillDefs.Weapons {
+		assert.Equal(t, 100, value(w.Damage), "武器ダメージ %s は100", w.Damage)
+		assert.Equal(t, 100, value(w.Accuracy), "武器命中 %s は100", w.Accuracy)
 	}
 	assert.Equal(t, 100, value(oapi.ProficiencyIdColdProgress))
 	assert.Equal(t, 100, value(oapi.ProficiencyIdHungerProgress))
@@ -242,16 +242,18 @@ func TestSkillDefsProficiencyValue_AccuracyFoldsBodyFunc(t *testing.T) {
 	assert.True(t, hasBodyFunc(bowSrc, BodyFuncSight), "遠隔は視覚機能を畳む")
 }
 
-func TestWeaponAccuracyBodyFunc_武器スキルでないIDは操作機能を既定にする(t *testing.T) {
+func TestSkillDefsProficiencySources_目減りする機能を持たない倍率は身体機能を畳まない(t *testing.T) {
 	t.Parallel()
 
-	bodyFuncs := BodyFuncs{Manipulation: 70, Sight: 40}
+	hs := &HealthStatus{}
+	hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionType("fracture"), Severity: SeverityMedium})
+	sources := testSkillDefs.ProficiencySources(NewSkills(), nil, hs.BodyFuncs(testDefs), oapi.ProficiencyIdSwordDamage)
 
-	// oapi.SkillIdFireResist はどの AttackType にも対応しない武器スキルでないID
-	kind, val := weaponAccuracyBodyFunc(bodyFuncs, oapi.SkillIdFireResist)
-
-	assert.Equal(t, BodyFuncManipulation, kind)
-	assert.Equal(t, bodyFuncs.Manipulation, val)
+	kinds := make([]ProficiencySourceKind, 0, len(sources))
+	for _, src := range sources {
+		kinds = append(kinds, src.Kind)
+	}
+	assert.Equal(t, []ProficiencySourceKind{SourceSkill}, kinds, "ダメージは腕の骨折でも操作機能を畳まない")
 }
 
 func TestSkillDefsProficiency_値は基準と内訳の和に一致する(t *testing.T) {

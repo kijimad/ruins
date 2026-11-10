@@ -715,6 +715,15 @@ model SkillCategory {
 model AttackType {
   id: AttackCategory;
   injury: ConditionTypeName;
+
+  /** 攻撃で上達するスキル */
+  skill: SkillId;
+
+  /** ダメージを決める熟練の効果倍率。skill の行が持つ */
+  damage: ProficiencyId;
+
+  /** 命中を決める熟練の効果倍率。skill の行が持つ */
+  accuracy: ProficiencyId;
 }
 
 // ================== 天候と空腹・疲労 ==================

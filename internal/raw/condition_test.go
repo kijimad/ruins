@@ -45,7 +45,13 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	}
 	attackTypes := make([]oapi.AttackType, 0, len(gc.AllAttackTypes))
 	for _, at := range gc.AllAttackTypes {
-		attackTypes = append(attackTypes, oapi.AttackType{Id: oapi.AttackCategory(at.Type), Injury: string(gc.ConditionType("fracture"))})
+		attackTypes = append(attackTypes, oapi.AttackType{
+			Id:       oapi.AttackCategory(at.Type),
+			Injury:   string(gc.ConditionType("fracture")),
+			Skill:    oapi.SkillId(at.Type),
+			Damage:   oapi.ProficiencyId(at.Type + "_damage"),
+			Accuracy: oapi.ProficiencyId(at.Type + "_accuracy"),
+		})
 	}
 	skillIDs := schemaEnum("SkillId")
 	skills := make([]oapi.Skill, 0, len(skillIDs))
@@ -54,9 +60,9 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	}
 	for _, key := range schemaEnum("ProficiencyId") {
 		owner := 0
-		for _, id := range gc.WeaponSkillIDs {
-			if oapi.ProficiencyId(key) == gc.WeaponDamageKey(id) || oapi.ProficiencyId(key) == gc.WeaponAccuracyKey(id) {
-				owner = slices.Index(skillIDs, string(id))
+		for _, at := range attackTypes {
+			if oapi.ProficiencyId(key) == at.Damage || oapi.ProficiencyId(key) == at.Accuracy {
+				owner = slices.Index(skillIDs, string(at.Skill))
 			}
 		}
 		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, oapi.SkillProficiency{Id: oapi.ProficiencyId(key), PerLevel: 1})
@@ -378,6 +384,27 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 		{Name: "Survival", IDs: []oapi.SkillId{oapi.SkillIdColdResist, oapi.SkillIdHungerResist, oapi.SkillIdHealing, oapi.SkillIdExploration}},
 		{Name: "Defense", IDs: []oapi.SkillId{oapi.SkillIdHeavyArmor, oapi.SkillIdFireResist, oapi.SkillIdThunderResist, oapi.SkillIdChillResist, oapi.SkillIdPhotonResist}},
 	}, defs.Categories)
+
+	weapons := map[string][3]string{}
+	accuracyLimbs := map[string]gc.BodyFuncKind{}
+	for _, w := range defs.Weapons {
+		weapons[w.AttackType.Type] = [3]string{string(w.Skill), string(w.Damage), string(w.Accuracy)}
+		accuracyLimbs[w.AttackType.Type] = defs.Proficiencies[w.Accuracy].BodyFunc
+	}
+	assert.Equal(t, map[string][3]string{
+		"sword":   {"sword", "sword_damage", "sword_accuracy"},
+		"spear":   {"spear", "spear_damage", "spear_accuracy"},
+		"fist":    {"fist", "fist_damage", "fist_accuracy"},
+		"bow":     {"bow", "bow_damage", "bow_accuracy"},
+		"handgun": {"handgun", "handgun_damage", "handgun_accuracy"},
+		"rifle":   {"rifle", "rifle_damage", "rifle_accuracy"},
+		"cannon":  {"cannon", "cannon_damage", "cannon_accuracy"},
+	}, weapons)
+	assert.Equal(t, map[string]gc.BodyFuncKind{
+		"sword": gc.BodyFuncManipulation, "spear": gc.BodyFuncManipulation, "fist": gc.BodyFuncManipulation,
+		"bow": gc.BodyFuncSight, "handgun": gc.BodyFuncSight, "rifle": gc.BodyFuncSight, "cannon": gc.BodyFuncSight,
+	}, accuracyLimbs, "命中は近接なら操作、遠隔なら視覚で目減りする")
+	assert.Equal(t, gc.BodyFuncKind(""), defs.Proficiencies[oapi.ProficiencyIdSwordDamage].BodyFunc, "ダメージは身体機能で目減りしない")
 
 	skills := gc.NewSkills()
 	for _, id := range schemaEnum("SkillId") {
