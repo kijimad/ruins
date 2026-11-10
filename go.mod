@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/getkin/kin-openapi v0.152.0
 	github.com/go-text/typesetting v0.3.5
-	github.com/hajimehoshi/ebiten/v2 v2.10.5
+	github.com/hajimehoshi/ebiten/v2 v2.10.6
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
 	github.com/leonelquinteros/gotext v1.8.0
 	github.com/mlange-42/ark v0.8.3
@@ -36,7 +36,7 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.6.0 // indirect
 	github.com/ebitengine/gomobile v0.0.0-20260820040257-d11f821a26a6 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
-	github.com/ebitengine/purego v0.11.0 // indirect
+	github.com/ebitengine/purego v0.11.3 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
