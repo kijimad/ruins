@@ -1018,6 +1018,13 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 		if row.Cause != nil {
 			def.Cause = gc.DeathCause(*row.Cause)
 		}
+		if row.Onset != nil {
+			onset, ok := conditionOnsets[*row.Onset]
+			if !ok {
+				return gc.ConditionDefs{}, NewKeyNotFoundError(string(*row.Onset), "ConditionOnset")
+			}
+			def.Onset = onset
+		}
 		for _, id := range PtrSlice(row.Parts) {
 			bp, ok := gc.BodyPartByID(id)
 			if !ok {
@@ -1034,6 +1041,14 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 		injuries[string(row.Id)] = gc.ConditionType(row.Injury)
 	}
 	return gc.NewConditionDefs(conds, hitWeights, injuries), nil
+}
+
+// conditionOnsets は raw の不調を起こす仕組みから Go の仕組みへの対応
+var conditionOnsets = map[oapi.ConditionOnset]gc.ConditionOnset{
+	oapi.Cold:       gc.OnsetCold,
+	oapi.RottenFood: gc.OnsetRottenFood,
+	oapi.Fatigue:    gc.OnsetFatigue,
+	oapi.Hunger:     gc.OnsetHunger,
 }
 
 // abilityIDs は raw の能力値から Go の能力値への対応

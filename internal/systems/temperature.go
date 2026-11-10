@@ -119,19 +119,20 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 	var changes []gc.SeverityChange
 
 	// 低体温の処理
+	cold := world.Resources.ConditionDefs.ByOnset(gc.OnsetCold)
 	switch {
 	case offset < -bodyTempColdBand:
 		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))
-	case partHealth.GetCondition(gc.ConditionHypothermia) != nil:
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))
+		changes = append(changes, partHealth.UpdateConditionTimer(cold, delta))
+	case partHealth.GetCondition(cold) != nil:
+		changes = append(changes, partHealth.UpdateConditionTimer(cold, -naturalRecoveryPerTurn))
 	}
 
 	for _, change := range changes {
 		if change.Prev != change.Current {
 			hasChange = true
 			if isPlayer {
-				logTemperatureChange(world, change.CondType, change.Current, change.Prev)
+				logTemperatureChange(world, change.Current, change.Prev)
 			}
 		}
 	}
@@ -167,12 +168,12 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 }
 
 // logTemperatureChange は状態変化をログ出力する
-func logTemperatureChange(world w.World, condType gc.ConditionType, current, prev gc.Severity) {
+func logTemperatureChange(world w.World, current, prev gc.Severity) {
 	var msg string
 	if current > prev {
-		msg = getWorseningMessage(condType, current)
+		msg = getWorseningMessage(current)
 	} else {
-		msg = getRecoveryMessage(condType, current)
+		msg = getRecoveryMessage(current)
 	}
 
 	if msg != "" {
@@ -182,36 +183,32 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 	}
 }
 
-// getWorseningMessage は悪化時のメッセージを返す
-func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {
-	if condType == gc.ConditionHypothermia {
-		switch severity {
-		case gc.SeverityNone:
-			return ""
-		case gc.SeverityMinor:
-			return "The cold is setting in"
-		case gc.SeverityMedium:
-			return "You are quite cold"
-		case gc.SeveritySevere:
-			return "The cold is dangerous"
-		}
+// getWorseningMessage は寒さによる不調が悪化したときのメッセージを返す
+func getWorseningMessage(severity gc.Severity) string {
+	switch severity {
+	case gc.SeverityNone:
+		return ""
+	case gc.SeverityMinor:
+		return "The cold is setting in"
+	case gc.SeverityMedium:
+		return "You are quite cold"
+	case gc.SeveritySevere:
+		return "The cold is dangerous"
 	}
 	return ""
 }
 
-// getRecoveryMessage は回復時のメッセージを返す
-func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {
-	if condType == gc.ConditionHypothermia {
-		switch severity {
-		case gc.SeverityNone:
-			return "You have warmed up"
-		case gc.SeverityMinor:
-			return "You are warming up a little"
-		case gc.SeverityMedium:
-			return "Still cold, but a little better"
-		case gc.SeveritySevere:
-			return ""
-		}
+// getRecoveryMessage は寒さによる不調が回復したときのメッセージを返す
+func getRecoveryMessage(severity gc.Severity) string {
+	switch severity {
+	case gc.SeverityNone:
+		return "You have warmed up"
+	case gc.SeverityMinor:
+		return "You are warming up a little"
+	case gc.SeverityMedium:
+		return "Still cold, but a little better"
+	case gc.SeveritySevere:
+		return ""
 	}
 	return ""
 }

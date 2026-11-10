@@ -289,7 +289,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 			// 各行が自分の不調を指すよう反復ごとにコピーを確保する
 			c := cond
 			// 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
-			if gc.ConditionIsDerived(cond.Type) {
+			if world.Resources.ConditionDefs.IsDerived(cond.Type) {
 				items = append(items, statusItemData{
 					Label:     translatedConditionName(world, cond.Type),
 					Value:     query.T(world, cond.Severity.String()),

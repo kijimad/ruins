@@ -10,19 +10,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// makeDefRaws は Go の不調、部位、攻撃種別、スキル、熟練の効果倍率すべてに行を持つ検証を通る raws を作り、mutate で崩す
+// makeDefRaws は不調を起こす仕組みすべてと、Go の部位、攻撃種別、スキル、熟練の効果倍率すべてに行を持つ検証を通る raws を作り、mutate で崩す
 func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	bodyParts := make([]oapi.BodyPart, 0, gc.BodyPartCount)
 	for bp := range gc.BodyPartCount {
 		bodyParts = append(bodyParts, oapi.BodyPart{Id: bp.ID(), Name: bp.String(), HitWeight: 1})
 	}
-	conditions := make([]oapi.Condition, 0, len(gc.ConditionTypes()))
-	for _, ct := range gc.ConditionTypes() {
-		conditions = append(conditions, oapi.Condition{Id: string(ct), Name: string(ct), Description: string(ct)})
+	onset := func(o oapi.ConditionOnset) *oapi.ConditionOnset { return &o }
+	conditions := []oapi.Condition{
+		{Id: "hypothermia", Name: "Hypothermia", Description: "Hypothermia", Onset: onset(oapi.Cold)},
+		{Id: "fracture", Name: "Fracture", Description: "Fracture"},
+		{Id: "food_poisoning", Name: "Food poisoning", Description: "Food poisoning", Onset: onset(oapi.RottenFood)},
+		{Id: "exhaustion", Name: "Exhaustion", Description: "Exhaustion", Onset: onset(oapi.Fatigue)},
+		{Id: "malnutrition", Name: "Malnutrition", Description: "Malnutrition", Onset: onset(oapi.Hunger)},
 	}
 	attackTypes := make([]oapi.AttackType, 0, len(gc.AllAttackTypes))
 	for _, at := range gc.AllAttackTypes {
-		attackTypes = append(attackTypes, oapi.AttackType{Id: oapi.AttackCategory(at.Type), Injury: string(gc.ConditionFracture)})
+		attackTypes = append(attackTypes, oapi.AttackType{Id: oapi.AttackCategory(at.Type), Injury: string(gc.ConditionType("fracture"))})
 	}
 	skills := make([]oapi.Skill, 0, len(gc.AllSkillIDs))
 	for _, id := range gc.AllSkillIDs {
@@ -44,7 +48,7 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		Skills:          &skills,
 		SkillCategories: &[]oapi.SkillCategory{{Id: "general", Name: "General"}},
 		Items: &[]oapi.Item{
-			{Id: "splint", Remedy: &oapi.Remedy{Treats: []oapi.ConditionTypeName{string(gc.ConditionFracture)}}},
+			{Id: "splint", Remedy: &oapi.Remedy{Treats: []oapi.ConditionTypeName{string(gc.ConditionType("fracture"))}}},
 			{Id: "manual", Book: &oapi.Book{Skill: &oapi.SkillBook{TargetSkill: string(gc.SkillSword)}}},
 		},
 		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: string(gc.SkillRifle)}}}},
@@ -182,11 +186,18 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errBodyPartRowMissing,
 		},
 		{
-			name: "不調の行が欠ける",
+			name: "仕組みを持つ不調が欠ける",
 			mutate: func(r *oapi.Raws) {
 				*r.Conditions = (*r.Conditions)[1:]
 			},
-			wantErr: errConditionRowMissing,
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "同じ仕組みを2つの不調が持つ",
+			mutate: func(r *oapi.Raws) {
+				(*r.Conditions)[1].Onset = (*r.Conditions)[0].Onset
+			},
+			wantErr: errDuplicateID,
 		},
 		{
 			name: "攻撃種別の行が欠ける",
@@ -394,36 +405,36 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 		ct   gc.ConditionType
 		want gc.ConditionDef
 	}{
-		{gc.ConditionHypothermia, gc.ConditionDef{
+		{gc.ConditionType("hypothermia"), gc.ConditionDef{
 			Name: "Hypothermia", Description: "The body is dangerously cold. Warm up to recover.",
-			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseFrozen,
+			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseFrozen, Onset: gc.OnsetCold,
 		}},
-		{gc.ConditionFracture, gc.ConditionDef{
+		{gc.ConditionType("fracture"), gc.ConditionDef{
 			Name: "Fracture", Description: "A broken bone. It will not heal until treated.",
 			PainPerSeverity: 18, BodyFuncDropPerSeverity: 20, Recovery: gc.RecoverAfterTend, RecoverPer: 1,
 			Parts: []gc.BodyPart{gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet},
 		}},
-		{gc.ConditionLaceration, gc.ConditionDef{
+		{gc.ConditionType("laceration"), gc.ConditionDef{
 			Name: "Laceration", Description: "An open wound. It will not heal until treated.",
 			PainPerSeverity: 8, BodyFuncDropPerSeverity: 8, Recovery: gc.RecoverAfterTend, RecoverPer: 2,
 			BloodDropPerSeverity: 25, Cause: gc.CauseBloodLoss,
 		}},
-		{gc.ConditionLiverIllness, gc.ConditionDef{
+		{gc.ConditionType("liver_illness"), gc.ConditionDef{
 			Name: "Liver illness", Description: "It worsens while untreated and drains HP when severe.",
 			PainPerSeverity: 4, BodyFuncDropPerSeverity: 10, Recovery: gc.ProgressUntilTend, WorsenPer: 2, RecoverPer: 1,
 			BloodDropPerSeverity: 25, Cause: gc.CauseIllness,
 		}},
-		{gc.ConditionFoodPoisoning, gc.ConditionDef{
+		{gc.ConditionType("food_poisoning"), gc.ConditionDef{
 			Name: "Food poisoning", Description: "Nausea from bad food. It clears on its own over time.",
-			PainPerSeverity: 5, BodyFuncDropPerSeverity: 12, Recovery: gc.RecoverOverTime, RecoverPer: 2,
+			PainPerSeverity: 5, BodyFuncDropPerSeverity: 12, Recovery: gc.RecoverOverTime, RecoverPer: 2, Onset: gc.OnsetRottenFood,
 		}},
-		{gc.ConditionExhaustion, gc.ConditionDef{
+		{gc.ConditionType("exhaustion"), gc.ConditionDef{
 			Name: "Exhaustion", Description: "Worn out from lack of rest. Sleep to recover.",
-			BodyFuncDropPerSeverity: 10,
+			BodyFuncDropPerSeverity: 10, Onset: gc.OnsetFatigue,
 		}},
-		{gc.ConditionMalnutrition, gc.ConditionDef{
+		{gc.ConditionType("malnutrition"), gc.ConditionDef{
 			Name: "Malnutrition", Description: "Weakened by hunger. Eat to recover.",
-			BodyFuncDropPerSeverity: 10,
+			BodyFuncDropPerSeverity: 10, Onset: gc.OnsetHunger,
 		}},
 	}
 	for _, tt := range tests {

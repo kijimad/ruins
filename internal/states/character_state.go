@@ -359,7 +359,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	}
 	cond := item.Condition
 	// 導出不調は Timer も治療状態も持たない。進行度でなく重症度と、下げる身体機能だけを出す
-	if gc.ConditionIsDerived(cond.Type) {
+	if world.Resources.ConditionDefs.IsDerived(cond.Type) {
 		return derivedConditionDetail(world, cond)
 	}
 

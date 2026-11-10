@@ -9,14 +9,15 @@ import (
 
 // testDefs は components のテストが使う不調の定義の表。値は raw の行と同じにする
 var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
-	ConditionHypothermia: {
+	ConditionType("hypothermia"): {
 		Name:                    "Hypothermia",
 		PainPerSeverity:         6,
 		BodyFuncDropPerSeverity: 10,
 		BloodDropPerSeverity:    22,
 		Cause:                   CauseFrozen,
+		Onset:                   OnsetCold,
 	},
-	ConditionFracture: {
+	ConditionType("fracture"): {
 		Name:                    "Fracture",
 		PainPerSeverity:         18,
 		BodyFuncDropPerSeverity: 20,
@@ -24,7 +25,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		RecoverPer:              1,
 		Parts:                   []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet},
 	},
-	ConditionLaceration: {
+	ConditionType("laceration"): {
 		Name:                    "Laceration",
 		PainPerSeverity:         8,
 		BodyFuncDropPerSeverity: 8,
@@ -33,7 +34,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		BloodDropPerSeverity:    25,
 		Cause:                   CauseBloodLoss,
 	},
-	ConditionLiverIllness: {
+	ConditionType("liver_illness"): {
 		Name:                    "Liver illness",
 		PainPerSeverity:         4,
 		BodyFuncDropPerSeverity: 10,
@@ -43,6 +44,24 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		BloodDropPerSeverity:    25,
 		Cause:                   CauseIllness,
 	},
+	ConditionType("food_poisoning"): {
+		Name:                    "Food poisoning",
+		PainPerSeverity:         5,
+		BodyFuncDropPerSeverity: 12,
+		Recovery:                RecoverOverTime,
+		RecoverPer:              2,
+		Onset:                   OnsetRottenFood,
+	},
+	ConditionType("exhaustion"): {
+		Name:                    "Exhaustion",
+		BodyFuncDropPerSeverity: 10,
+		Onset:                   OnsetFatigue,
+	},
+	ConditionType("malnutrition"): {
+		Name:                    "Malnutrition",
+		BodyFuncDropPerSeverity: 10,
+		Onset:                   OnsetHunger,
+	},
 }, [BodyPartCount]float64{
 	BodyPartHead:  2,
 	BodyPartTorso: 4,
@@ -51,8 +70,8 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 	BodyPartLegs:  3,
 	BodyPartFeet:  1,
 }, map[string]ConditionType{
-	AttackFist.Type:  ConditionFracture,
-	AttackSword.Type: ConditionLaceration,
+	AttackFist.Type:  ConditionType("fracture"),
+	AttackSword.Type: ConditionType("laceration"),
 })
 
 func TestConditionDefs_CanAffect(t *testing.T) {
@@ -62,10 +81,10 @@ func TestConditionDefs_CanAffect(t *testing.T) {
 	var laceration []BodyPart
 	var unknown []BodyPart
 	for p := range BodyPartCount {
-		if testDefs.CanAffect(ConditionFracture, p) {
+		if testDefs.CanAffect(ConditionType("fracture"), p) {
 			fracture = append(fracture, p)
 		}
-		if testDefs.CanAffect(ConditionLaceration, p) {
+		if testDefs.CanAffect(ConditionType("laceration"), p) {
 			laceration = append(laceration, p)
 		}
 		if testDefs.CanAffect(ConditionType("unknown"), p) {
@@ -80,7 +99,7 @@ func TestConditionDefs_CanAffect(t *testing.T) {
 func TestConditionDefs_Def(t *testing.T) {
 	t.Parallel()
 
-	def, ok := testDefs.Def(ConditionLaceration)
+	def, ok := testDefs.Def(ConditionType("laceration"))
 	require.True(t, ok)
 	assert.Equal(t, RecoverAfterTend, def.Recovery)
 	assert.Equal(t, CauseBloodLoss, def.Cause)
@@ -124,8 +143,32 @@ func TestConditionDefs_Injury(t *testing.T) {
 
 	ct, ok := testDefs.Injury(AttackFist)
 	require.True(t, ok)
-	assert.Equal(t, ConditionFracture, ct)
+	assert.Equal(t, ConditionType("fracture"), ct)
 
 	_, ok = testDefs.Injury(AttackBow)
 	assert.False(t, ok, "未登録は ok=false")
+}
+
+func TestConditionDefs_ByOnset(t *testing.T) {
+	t.Parallel()
+
+	got := map[ConditionOnset]ConditionType{}
+	for _, o := range []ConditionOnset{OnsetCold, OnsetRottenFood, OnsetFatigue, OnsetHunger} {
+		got[o] = testDefs.ByOnset(o)
+	}
+	assert.Equal(t, map[ConditionOnset]ConditionType{
+		OnsetCold:       "hypothermia",
+		OnsetRottenFood: "food_poisoning",
+		OnsetFatigue:    "exhaustion",
+		OnsetHunger:     "malnutrition",
+	}, got)
+	assert.Panics(t, func() { ConditionDefs{}.ByOnset(OnsetCold) })
+}
+
+func TestConditionDefs_Types(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, []ConditionType{
+		"exhaustion", "food_poisoning", "fracture", "hypothermia", "laceration", "liver_illness", "malnutrition",
+	}, testDefs.Types())
 }

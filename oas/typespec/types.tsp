@@ -276,6 +276,18 @@ enum RecoveryMode {
   recover_over_time,
 }
 
+/** 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ */
+enum ConditionOnset {
+  /** 体温が下がると TemperatureSystem が進める */
+  cold,
+  /** 腐敗食を食べると確率で発症する */
+  rotten_food,
+  /** 疲労の量から読み取り時に導出する */
+  fatigue,
+  /** 空腹の量から読み取り時に導出する */
+  hunger,
+}
+
 /** 不調が血液量を尽きさせて倒したときの死因 */
 enum ConditionDeathCause {
   frozen,

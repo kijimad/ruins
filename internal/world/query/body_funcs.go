@@ -23,12 +23,12 @@ func DerivedConditions(world w.World, entity ecs.Entity) []gc.HealthCondition {
 	var conds []gc.HealthCondition
 	if world.Components.Fatigue.Has(entity) {
 		if sev, ok := world.Components.Fatigue.Get(entity).FatigueSeverity(world.Resources.NeedDefs); ok {
-			conds = append(conds, gc.HealthCondition{Type: gc.ConditionExhaustion, Severity: sev})
+			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(gc.OnsetFatigue), Severity: sev})
 		}
 	}
 	if world.Components.Hunger.Has(entity) {
 		if sev, ok := world.Resources.NeedDefs.HungerSeverity(world.Components.Hunger.Get(entity).GetLevel(world.Resources.NeedDefs)); ok {
-			conds = append(conds, gc.HealthCondition{Type: gc.ConditionMalnutrition, Severity: sev})
+			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(gc.OnsetHunger), Severity: sev})
 		}
 	}
 	return conds

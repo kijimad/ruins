@@ -221,7 +221,7 @@ func TestHasActiveHypothermia(t *testing.T) {
 		actor := world.ECS.NewEntity()
 		hs := &gc.HealthStatus{}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:  gc.ConditionHypothermia,
+			Type:  gc.ConditionType("hypothermia"),
 			Timer: 24,
 		})
 		world.Components.HealthStatus.Add(actor, hs)
@@ -235,7 +235,7 @@ func TestHasActiveHypothermia(t *testing.T) {
 		actor := world.ECS.NewEntity()
 		hs := &gc.HealthStatus{}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:  gc.ConditionHypothermia,
+			Type:  gc.ConditionType("hypothermia"),
 			Timer: 25,
 		})
 		world.Components.HealthStatus.Add(actor, hs)
@@ -253,7 +253,7 @@ func TestSleepBehavior_DoTurn_低体温が発症すると起床して中断理�
 	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 1000, Max: 2000})
 	hs := &gc.HealthStatus{}
 	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-		Type:  gc.ConditionHypothermia,
+		Type:  gc.ConditionType("hypothermia"),
 		Timer: 30,
 	})
 	world.Components.HealthStatus.Add(actor, hs)

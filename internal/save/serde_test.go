@@ -321,7 +321,7 @@ func TestSerde_不調と治療アイテムが往復する(t *testing.T) {
 	require.NoError(t, err)
 	// 治療の質を持つ切り傷を付ける。TendQuality が保存経路を通るか確かめる
 	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(
-		gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 60, Severity: gc.SeverityMedium, TendQuality: 120},
+		gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.SeverityMedium, TendQuality: 120},
 	)
 	// 治療アイテムを持たせる。Remedy コンポーネントが保存経路を通るか確かめる
 	splint, err := lifecycle.SpawnFieldItem(world, "splint", 5, 5, 1)
@@ -342,7 +342,7 @@ func TestSerde_不調と治療アイテムが往復する(t *testing.T) {
 	}
 	require.NotNil(t, restoredHS, "プレイヤーの HealthStatus が復元される")
 	assert.Equal(t, original, *restoredHS, "不調が丸ごと復元される")
-	lac := restoredHS.Parts[gc.BodyPartArms].GetCondition(gc.ConditionLaceration)
+	lac := restoredHS.Parts[gc.BodyPartArms].GetCondition(gc.ConditionType("laceration"))
 	require.NotNil(t, lac)
 	assert.Equal(t, consts.Percent(120), lac.TendQuality, "治療の質が復元される")
 
@@ -355,6 +355,6 @@ func TestSerde_不調と治療アイテムが往復する(t *testing.T) {
 		}
 	}
 	require.NotNil(t, restoredRemedy, "治療アイテムの Remedy が復元される")
-	assert.Contains(t, restoredRemedy.Treats, gc.ConditionFracture, "治療対象が復元される")
+	assert.Contains(t, restoredRemedy.Treats, gc.ConditionType("fracture"), "治療対象が復元される")
 	assert.Equal(t, consts.Percent(100), restoredRemedy.Potency, "治療の質が復元される")
 }

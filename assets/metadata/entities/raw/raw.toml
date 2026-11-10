@@ -968,6 +968,7 @@
   description = "The body is dangerously cold. Warm up to recover."
   id = "hypothermia"
   name = "Hypothermia"
+  onset = "cold"
   painPerSeverity = 6
 
 [[conditions]]
@@ -1008,6 +1009,7 @@
   description = "Nausea from bad food. It clears on its own over time."
   id = "food_poisoning"
   name = "Food poisoning"
+  onset = "rotten_food"
   painPerSeverity = 5
   recoverPer = 2
   recovery = "recover_over_time"
@@ -1017,6 +1019,7 @@
   description = "Worn out from lack of rest. Sleep to recover."
   id = "exhaustion"
   name = "Exhaustion"
+  onset = "fatigue"
   painPerSeverity = 0
 
 [[conditions]]
@@ -1024,6 +1027,7 @@
   description = "Weakened by hunger. Eat to recover."
   id = "malnutrition"
   name = "Malnutrition"
+  onset = "hunger"
   painPerSeverity = 0
 
 [[dropTables]]

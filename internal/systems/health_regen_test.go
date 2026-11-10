@@ -116,7 +116,7 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		world.Components.HP.Add(entity, &gc.HP{Current: 10, Max: 30})
 		hs := &gc.HealthStatus{}
 		// 重い切り傷は血液量を危険域まで下げる。失血を回復で打ち消さない
-		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 80, Severity: gc.TimerToSeverity(80)})
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80)})
 		world.Components.HealthStatus.Add(entity, hs)
 
 		require.NoError(t, (&HealthRegenSystem{}).Update(world))
@@ -132,7 +132,7 @@ func TestHealthRegenSystem_Update(t *testing.T) {
 		world.Components.HP.Add(entity, &gc.HP{Current: 10, Max: 30})
 		hs := &gc.HealthStatus{}
 		// 重症の低体温も HP を削る不調なので回復を止める
-		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 90, Severity: gc.SeveritySevere})
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionType("hypothermia"), Timer: 90, Severity: gc.SeveritySevere})
 		world.Components.HealthStatus.Add(entity, hs)
 
 		require.NoError(t, (&HealthRegenSystem{}).Update(world))

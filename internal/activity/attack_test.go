@@ -284,7 +284,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	hs := &gc.HealthStatus{}
 	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-		Type:     gc.ConditionHypothermia,
+		Type:     gc.ConditionType("hypothermia"),
 		Severity: gc.SeverityMinor,
 	})
 	world.Components.HealthStatus.Add(actor, hs)

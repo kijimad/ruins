@@ -617,6 +617,10 @@ export interface Condition {
      * 起こりうる部位。省くと全部位
      */
     'parts'?: Array<string>;
+    /**
+     * 不調を起こす仕組み。攻撃で負う怪我と、きっかけの無い不調は省く
+     */
+    'onset'?: ConditionOnset;
 }
 
 
@@ -631,6 +635,20 @@ export const ConditionDeathCause = {
 } as const;
 
 export type ConditionDeathCause = typeof ConditionDeathCause[keyof typeof ConditionDeathCause];
+
+
+/**
+ * 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
+ */
+
+export const ConditionOnset = {
+    Cold: 'cold',
+    RottenFood: 'rotten_food',
+    Fatigue: 'fatigue',
+    Hunger: 'hunger',
+} as const;
+
+export type ConditionOnset = typeof ConditionOnset[keyof typeof ConditionOnset];
 
 
 /**

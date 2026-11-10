@@ -2166,6 +2166,10 @@ components:
           items:
             $ref: '#/components/schemas/BodyPartId'
           description: 起こりうる部位。省くと全部位
+        onset:
+          allOf:
+            - $ref: '#/components/schemas/ConditionOnset'
+          description: 不調を起こす仕組み。攻撃で負う怪我と、きっかけの無い不調は省く
       description: 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
     ConditionAmountPerSeverity:
       type: integer
@@ -2179,6 +2183,14 @@ components:
         - illness
         - blood_loss
       description: 不調が血液量を尽きさせて倒したときの死因
+    ConditionOnset:
+      type: string
+      enum:
+        - cold
+        - rotten_food
+        - fatigue
+        - hunger
+      description: 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
     ConditionSeverity:
       type: string
       enum:

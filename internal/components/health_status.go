@@ -73,29 +73,17 @@ type StatEffect struct {
 // ConditionType は状態の種類を識別する
 type ConditionType string
 
-// 状態種類定数。値は raw の conditions の id と同じ
-const (
-	ConditionHypothermia   ConditionType = "hypothermia"    // 低体温
-	ConditionFracture      ConditionType = "fracture"       // 骨折
-	ConditionLaceration    ConditionType = "laceration"     // 切り傷
-	ConditionLiverIllness  ConditionType = "liver_illness"  // 肝疾患
-	ConditionFoodPoisoning ConditionType = "food_poisoning" // 食中毒
-	ConditionExhaustion    ConditionType = "exhaustion"     // 過労。疲労の量から読み取り時に導出する
-	ConditionMalnutrition  ConditionType = "malnutrition"   // 栄養失調。空腹の量から読み取り時に導出する
-)
+// ConditionOnset は不調を起こす仕組み。コードは不調の名前でなく仕組みで不調を引く。
+// 仕組みごとにちょうど1つの不調が raw で持つ
+type ConditionOnset string
 
-// ConditionTypes はコードが名前で参照する状態種類の一覧を返す。raw に行があることの検証に使う
-func ConditionTypes() []ConditionType {
-	return []ConditionType{
-		ConditionHypothermia,
-		ConditionFracture,
-		ConditionLaceration,
-		ConditionLiverIllness,
-		ConditionFoodPoisoning,
-		ConditionExhaustion,
-		ConditionMalnutrition,
-	}
-}
+// 不調を起こす仕組みの定数。値は raw の conditions の onset と同じ
+const (
+	OnsetCold       ConditionOnset = "cold"        // 体温が下がると TemperatureSystem が進める
+	OnsetRottenFood ConditionOnset = "rotten_food" // 腐敗食を食べると確率で発症する
+	OnsetFatigue    ConditionOnset = "fatigue"     // 疲労の量から読み取り時に導出する
+	OnsetHunger     ConditionOnset = "hunger"      // 空腹の量から読み取り時に導出する
+)
 
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
 // 低体温は TemperatureSystem が体温から進めるのでこの区分を持たない
@@ -109,12 +97,6 @@ const (
 	// RecoverOverTime は未治療でも時間で自然に治る。治療すれば回復が速まる。食中毒のような自己限定の不調
 	RecoverOverTime RecoveryMode = "recover_over_time"
 )
-
-// ConditionIsDerived は不調が疲労・空腹の量から読み取り時に導出されるものかを返す。
-// 導出される不調は保存されず、Timer も治療状態も持たない。過労・栄養失調が該当する
-func ConditionIsDerived(ct ConditionType) bool {
-	return ct == ConditionExhaustion || ct == ConditionMalnutrition
-}
 
 // BodyFuncs は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
 // 低いほど機能が落ちる。痛み Pain だけは 0 が無痛で、大きいほど痛い。

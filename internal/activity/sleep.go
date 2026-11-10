@@ -125,7 +125,7 @@ func hasActiveHypothermia(actor ecs.Entity, world w.World) bool {
 		return false
 	}
 	hs := world.Components.HealthStatus.Get(actor)
-	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(world.Resources.ConditionDefs.ByOnset(gc.OnsetCold))
 	return cond != nil && cond.IsActive()
 }
 

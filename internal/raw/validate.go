@@ -41,7 +41,6 @@ var (
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 	errItemGroupIDDuplicated          = errors.New("item group and item collection share an id")
-	errConditionRowMissing            = errors.New("condition type has no raw row")
 	errBodyPartRowMissing             = errors.New("body part has no raw row")
 	errBodyPartUnknown                = errors.New("body part is not defined in code")
 	errConditionPartUndefined         = errors.New("condition references undefined body part")
@@ -673,7 +672,8 @@ func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) err
 	return fmt.Errorf("condition %q: %w", c.Id, errConditionNoHitPart)
 }
 
-// validateCodeRows は Go が名前で参照する不調、部位、攻撃種別、スキル、熟練の効果倍率すべてに raw の行があり、
+// validateCodeRows は Go が名前で参照する部位、攻撃種別、スキル、熟練の効果倍率すべてに raw の行があり、
+// 不調を起こす仕組みそれぞれをちょうど1つの不調が持ち、
 // 生活感、天候、空腹と疲労の表があることを検証する。表の中の enum の網羅は ValidateReferences が見る
 func validateCodeRows(raws oapi.Raws) error {
 	bodyPartIDs := make(map[string]struct{})
@@ -686,14 +686,14 @@ func validateCodeRows(raws oapi.Raws) error {
 		}
 	}
 
-	conditionIDs := make(map[string]struct{})
+	var onsets []string
 	for _, c := range PtrSlice(raws.Conditions) {
-		conditionIDs[c.Id] = struct{}{}
-	}
-	for _, ct := range gc.ConditionTypes() {
-		if _, ok := conditionIDs[string(ct)]; !ok {
-			return fmt.Errorf("condition %q: %w", ct, errConditionRowMissing)
+		if c.Onset != nil {
+			onsets = append(onsets, string(*c.Onset))
 		}
+	}
+	if err := validateEnumRows("ConditionOnset", onsets); err != nil {
+		return err
 	}
 
 	attackTypeIDs := make(map[string]struct{})

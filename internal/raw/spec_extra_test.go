@@ -450,7 +450,7 @@ Treats = ["fracture"]
 
 	require.NotNil(t, spec.Remedy, "Remedyを指定すると治療コンポーネントを持つ")
 	assert.Equal(t, consts.Percent(150), spec.Remedy.Potency)
-	assert.Equal(t, []gc.ConditionType{gc.ConditionFracture}, spec.Remedy.Treats)
+	assert.Equal(t, []gc.ConditionType{gc.ConditionType("fracture")}, spec.Remedy.Treats)
 
 	require.NotNil(t, spec.FireStarter, "FireStarterを指定すると火種マーカーを持つ")
 }

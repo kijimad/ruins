@@ -412,7 +412,7 @@ var goldenCases = []struct {
 			world.Components.Hunger.Get(player).Current = 10
 			hs := world.Components.HealthStatus.Get(player)
 			for _, part := range []gc.BodyPart{gc.BodyPartArms, gc.BodyPartLegs} {
-				hs.Parts[part].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
+				hs.Parts[part].SetCondition(gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, Severity: gc.TimerToSeverity(60)})
 			}
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,

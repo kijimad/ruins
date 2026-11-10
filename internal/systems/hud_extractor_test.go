@@ -266,8 +266,8 @@ func TestExtractStatusBadgesData_不調バッジ(t *testing.T) {
 	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 	hs := &gc.HealthStatus{}
-	hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
-	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionType("hypothermia"), Timer: 60, Severity: gc.TimerToSeverity(60)})
 	world.Components.HealthStatus.Add(player, hs)
 
 	data := extractStatusBadgesData(world, hud.DefaultMessageAreaConfig.Height())
@@ -291,11 +291,11 @@ func TestExtractStatusBadgesData_同じ種類の不調を1つにまとめて現�
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.Hunger.Add(player, &gc.Hunger{Current: 100, Max: 500})
 	hs := &gc.HealthStatus{}
-	hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
-	hs.Parts[gc.BodyPartLegs].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 90, Severity: gc.TimerToSeverity(90)})
-	hs.Parts[gc.BodyPartFeet].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
-	hs.Parts[gc.BodyPartHead].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 30, Severity: gc.TimerToSeverity(30)})
-	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartLegs].SetCondition(gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 90, Severity: gc.TimerToSeverity(90)})
+	hs.Parts[gc.BodyPartFeet].SetCondition(gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartHead].SetCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 30, Severity: gc.TimerToSeverity(30)})
+	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionType("hypothermia"), Timer: 60, Severity: gc.TimerToSeverity(60)})
 	world.Components.HealthStatus.Add(player, hs)
 
 	data := extractStatusBadgesData(world, hud.DefaultMessageAreaConfig.Height())
@@ -414,7 +414,7 @@ func newColdPlayer(t *testing.T) (w.World, ecs.Entity) {
 	require.NoError(t, err)
 	hs := world.Components.HealthStatus.Get(e)
 	hs.BodyTempOffset = -3.0
-	hs.Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionHypothermia, 40)
+	hs.Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionType("hypothermia"), 40)
 	return world, e
 }
 

@@ -113,7 +113,7 @@ func TestSkillDefsProficiencyValue_HealthPenalty(t *testing.T) {
 		Parts: [BodyPartCount]BodyPartHealth{},
 	}
 	hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{
-		Type:     ConditionHypothermia,
+		Type:     ConditionType("hypothermia"),
 		Severity: SeverityMedium,
 	})
 
@@ -183,7 +183,7 @@ func TestSkillDefsProficiencyValue_AllFactors(t *testing.T) {
 		Parts: [BodyPartCount]BodyPartHealth{},
 	}
 	hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{
-		Type:     ConditionHypothermia,
+		Type:     ConditionType("hypothermia"),
 		Severity: SeveritySevere,
 	})
 
@@ -230,13 +230,13 @@ func TestSkillDefsProficiencyValue_AccuracyFoldsBodyFunc(t *testing.T) {
 
 	// 腕の骨折は操作機能を下げる。近接命中は操作機能を畳むので操作の内訳が載る
 	hsArm := &HealthStatus{}
-	hsArm.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
+	hsArm.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionType("fracture"), Severity: SeverityMedium})
 	swordSrc := testSkillDefs.ProficiencySources(skills, nil, hsArm.BodyFuncs(testDefs), ProfSwordAccuracy)
 	assert.True(t, hasBodyFunc(swordSrc, BodyFuncManipulation), "近接は操作機能を畳む")
 
 	// 頭の切り傷は視覚機能を下げる。遠隔命中は視覚機能を畳むので視覚の内訳が載る
 	hsHead := &HealthStatus{}
-	hsHead.Parts[BodyPartHead].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
+	hsHead.Parts[BodyPartHead].SetCondition(HealthCondition{Type: ConditionType("laceration"), Timer: 60, Severity: TimerToSeverity(60)})
 	bowSrc := testSkillDefs.ProficiencySources(skills, nil, hsHead.BodyFuncs(testDefs), ProfBowAccuracy)
 	assert.True(t, hasBodyFunc(bowSrc, BodyFuncSight), "遠隔は視覚機能を畳む")
 }
@@ -272,8 +272,8 @@ func TestSkillDefsProficiency_値は基準と内訳の和に一致する(t *test
 	}
 
 	sickHS := &HealthStatus{}
-	sickHS.Parts[BodyPartWholeBody].SetCondition(HealthCondition{Type: ConditionHypothermia, Severity: SeverityMedium})
-	sickHS.Parts[BodyPartHead].SetCondition(HealthCondition{Type: ConditionLaceration, Timer: 60, Severity: TimerToSeverity(60)})
+	sickHS.Parts[BodyPartWholeBody].SetCondition(HealthCondition{Type: ConditionType("hypothermia"), Severity: SeverityMedium})
+	sickHS.Parts[BodyPartHead].SetCondition(HealthCondition{Type: ConditionType("laceration"), Timer: 60, Severity: TimerToSeverity(60)})
 
 	cases := []struct {
 		name      string

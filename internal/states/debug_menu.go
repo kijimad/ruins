@@ -138,7 +138,8 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	return "", choices
 }
 
-// debugInflictConditions はデバッグでプレイヤーへ怪我と病気と低体温をまとめて付ける
+// debugInflictConditions はデバッグでプレイヤーへ raw の不調をまとめて付ける。
+// 寒さによる不調は全身に、ほかは起こりうる最初の部位に、部位を限らない不調は胴に付ける。量から導出する不調は付けられない
 func debugInflictConditions(world w.World) error {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -148,13 +149,21 @@ func debugInflictConditions(world w.World) error {
 		return nil
 	}
 	hs := world.Components.HealthStatus.Get(player)
-	set := func(part gc.BodyPart, ct gc.ConditionType, timer float64) {
+	defs := world.Resources.ConditionDefs
+	cold := defs.ByOnset(gc.OnsetCold)
+	for _, ct := range defs.Types() {
+		if defs.IsDerived(ct) {
+			continue
+		}
+		part, timer := gc.BodyPartTorso, 60.0
+		if def, _ := defs.Def(ct); len(def.Parts) > 0 {
+			part = def.Parts[0]
+		}
+		if ct == cold {
+			part, timer = gc.BodyPartWholeBody, 90
+		}
 		hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})
 	}
-	set(gc.BodyPartArms, gc.ConditionFracture, 60)
-	set(gc.BodyPartArms, gc.ConditionLaceration, 60)
-	set(gc.BodyPartTorso, gc.ConditionLiverIllness, 60)
-	set(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90)
 	return nil
 }
 

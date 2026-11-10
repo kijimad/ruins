@@ -202,13 +202,13 @@ func TestUpdateSpec_治療アイテムは治す対象と効力を表示する(t 
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Remedy.Add(e, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionFracture}, Potency: 150})
+	world.Components.Remedy.Add(e, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
 		query.T(world, "Treatment"),
-		query.T(world, "Target"), query.ConditionName(world, gc.ConditionFracture),
+		query.T(world, "Target"), query.ConditionName(world, gc.ConditionType("fracture")),
 		query.T(world, "Potency"), "150%",
 	}, labels)
 }
@@ -218,12 +218,12 @@ func TestUpdateSpecFromSpec_治療アイテムは生成せず治す対象を表�
 	world := testutil.InitTestWorld(t)
 
 	// SpecRows と同じ specParts を回すので、raw spec 表示にも治療情報が出る
-	spec := gc.EntitySpec{Remedy: &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionLaceration}, Potency: 100}}
+	spec := gc.EntitySpec{Remedy: &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}}
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
 		query.T(world, "Treatment"),
-		query.T(world, "Target"), query.ConditionName(world, gc.ConditionLaceration),
+		query.T(world, "Target"), query.ConditionName(world, gc.ConditionType("laceration")),
 		query.T(world, "Potency"), "100%",
 	}, labels)
 }

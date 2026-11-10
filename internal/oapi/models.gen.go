@@ -201,6 +201,30 @@ func (e ConditionDeathCause) Valid() bool {
 	}
 }
 
+// Defines values for ConditionOnset.
+const (
+	Cold       ConditionOnset = "cold"
+	Fatigue    ConditionOnset = "fatigue"
+	Hunger     ConditionOnset = "hunger"
+	RottenFood ConditionOnset = "rotten_food"
+)
+
+// Valid indicates whether the value is a known member of the ConditionOnset enum.
+func (e ConditionOnset) Valid() bool {
+	switch e {
+	case Cold:
+		return true
+	case Fatigue:
+		return true
+	case Hunger:
+		return true
+	case RottenFood:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ConditionSeverity.
 const (
 	ConditionSeverityMedium ConditionSeverity = "medium"
@@ -1435,6 +1459,9 @@ type Condition struct {
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 
+	// Onset 不調を起こす仕組み。攻撃で負う怪我と、きっかけの無い不調は省く
+	Onset *ConditionOnset `json:"onset,omitempty"`
+
 	// PainPerSeverity 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
 	PainPerSeverity ConditionAmountPerSeverity `json:"painPerSeverity"`
 
@@ -1456,6 +1483,9 @@ type ConditionAmountPerSeverity = int
 
 // ConditionDeathCause 不調が血液量を尽きさせて倒したときの死因
 type ConditionDeathCause string
+
+// ConditionOnset 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
+type ConditionOnset string
 
 // ConditionSeverity 不調の重症度
 type ConditionSeverity string

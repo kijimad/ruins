@@ -31,11 +31,11 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("未治療の骨折は保持する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60})
+		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionFracture)
+		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionType("fracture"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 60, cond.Timer, 1e-9, "未治療の骨折は悪化も回復もしない")
 	})
@@ -44,11 +44,11 @@ func TestConditionSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// RecoverPer=1、TendQuality=200%なので 1*2=2 減る
-		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, TendQuality: 200})
+		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, TendQuality: 200})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionFracture)
+		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionType("fracture"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 58, cond.Timer, 1e-9)
 	})
@@ -56,11 +56,11 @@ func TestConditionSystem_Update(t *testing.T) {
 	t.Run("発症前の掠り傷は自然に癒える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 10})
+		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 10})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionFracture)
+		cond := hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionType("fracture"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 9, cond.Timer, 1e-9, "発症前は未治療でも僅かに減る")
 	})
@@ -69,11 +69,11 @@ func TestConditionSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// WorsenPer=2 増える
-		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionLiverIllness, Timer: 40})
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionType("liver_illness"), Timer: 40})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionLiverIllness)
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("liver_illness"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 42, cond.Timer, 1e-9)
 	})
@@ -82,11 +82,11 @@ func TestConditionSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// 代謝は空腹・疲労だけで下がり、病気自身は代謝を下げない。空腹・疲労がなければ基準速度で治る
-		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionLiverIllness, Timer: 60, TendQuality: 100})
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionType("liver_illness"), Timer: 60, TendQuality: 100})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionLiverIllness)
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("liver_illness"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 59.0, cond.Timer, 0.05, "空腹・疲労なしなら基準速度で回復する")
 	})
@@ -95,11 +95,11 @@ func TestConditionSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// RecoverPer=2 で未治療でも自然に減る。空腹・疲労がなければ代謝100で基準どおり減る
-		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60})
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionType("food_poisoning"), Timer: 60})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("food_poisoning"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 58.0, cond.Timer, 0.05, "未治療でも時間で治る")
 	})
@@ -108,11 +108,11 @@ func TestConditionSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// RecoverPer=2、TendQuality=150%で治療は速い。空腹・疲労なしなら代謝100で 3 ぶん減る
-		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionFoodPoisoning, Timer: 60, TendQuality: 150})
+		hs := spawnWithCondition(world, gc.BodyPartTorso, gc.HealthCondition{Type: gc.ConditionType("food_poisoning"), Timer: 60, TendQuality: 150})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionFoodPoisoning)
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("food_poisoning"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 57.0, cond.Timer, 0.05, "治療すると回復が速まる")
 	})
@@ -124,7 +124,7 @@ func TestConditionSystem_Update(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{Type: gc.ConditionLiverIllness, Timer: 80, Severity: gc.TimerToSeverity(80)})
+		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{Type: gc.ConditionType("liver_illness"), Timer: 80, Severity: gc.TimerToSeverity(80)})
 		world.Components.HP.Get(player).Current = 30
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
@@ -140,7 +140,7 @@ func TestConditionSystem_Update(t *testing.T) {
 		require.NoError(t, err)
 		hs := world.Components.HealthStatus.Get(player)
 		// 重症でも治療済みなら HP 減少は止まる。機能低下は軽減して残るが命は削られない
-		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{Type: gc.ConditionLiverIllness, Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 100})
+		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{Type: gc.ConditionType("liver_illness"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 100})
 		world.Components.HP.Get(player).Current = 30
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
@@ -154,7 +154,7 @@ func TestConditionSystem_Update(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 80, Severity: gc.TimerToSeverity(80)})
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80)})
 		world.Components.HP.Get(player).Current = 30
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
@@ -169,7 +169,7 @@ func TestConditionSystem_Update(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 60, Severity: gc.TimerToSeverity(60), TendQuality: 100})
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.TimerToSeverity(60), TendQuality: 100})
 		world.Components.HP.Get(player).Current = 30
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
@@ -183,7 +183,7 @@ func TestConditionSystem_Update(t *testing.T) {
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: 10, Severity: gc.TimerToSeverity(10)})
+		hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 10, Severity: gc.TimerToSeverity(10)})
 		world.Components.HP.Get(player).Current = 30
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
@@ -195,11 +195,11 @@ func TestConditionSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// Timer=1 に RecoverPer=1 の回復が来るので0でクランプされ除去される
-		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionFracture, Timer: 1, TendQuality: 100})
+		hs := spawnWithCondition(world, gc.BodyPartArms, gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 1, TendQuality: 100})
 
 		require.NoError(t, (&ConditionSystem{}).Update(world))
 
-		assert.Nil(t, hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionFracture), "回復しきった不調は消える")
+		assert.Nil(t, hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionType("fracture")), "回復しきった不調は消える")
 	})
 }
 
@@ -208,12 +208,12 @@ func TestManagedConditionDef_扱う不調を網羅しHypothermiaを含まない(
 
 	defs := testutil.InitTestWorld(t).Resources.ConditionDefs
 	// ConditionSystem が扱う怪我と病気は Recovery を持ち managed になる。登録漏れは動作不全になる
-	for _, ct := range []gc.ConditionType{gc.ConditionFracture, gc.ConditionLaceration, gc.ConditionLiverIllness, gc.ConditionFoodPoisoning} {
+	for _, ct := range []gc.ConditionType{gc.ConditionType("fracture"), gc.ConditionType("laceration"), gc.ConditionType("liver_illness"), gc.ConditionType("food_poisoning")} {
 		_, ok := managedConditionDef(defs, ct)
 		assert.True(t, ok, "%s は ConditionSystem 管轄であるべき", ct)
 	}
 
 	// 低体温は Recovery を持たず TemperatureSystem 管轄なので ConditionSystem は扱わない
-	_, ok := managedConditionDef(defs, gc.ConditionHypothermia)
+	_, ok := managedConditionDef(defs, gc.ConditionType("hypothermia"))
 	assert.False(t, ok, "低体温は ConditionSystem 管轄でない")
 }

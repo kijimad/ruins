@@ -454,7 +454,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		// 重度の低体温を設定
 		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeveritySevere,
 			Timer:    90,
 		})
@@ -543,7 +543,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		// 重度の低体温を設定
 		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeveritySevere,
 			Timer:    90,
 		})
@@ -567,7 +567,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		// 重度の低体温を設定
 		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeveritySevere,
 			Timer:    90,
 		})
@@ -627,7 +627,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		// 重度の低体温 + 飢餓
 		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeveritySevere,
 			Timer:    90,
 		})
@@ -654,7 +654,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		// 重度の低体温を設定
 		hs := world.Components.HealthStatus.Get(playerEntity)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeveritySevere,
 			Timer:    90,
 		})

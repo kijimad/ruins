@@ -395,12 +395,13 @@ func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
 		worst gc.Severity
 		count int
 	}
+	cold := world.Resources.ConditionDefs.ByOnset(gc.OnsetCold)
 	var order []gc.ConditionType
 	byType := map[gc.ConditionType]*summary{}
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
 			c := &hs.Parts[i].Conditions[j]
-			if !c.IsActive() || c.Type == gc.ConditionHypothermia {
+			if !c.IsActive() || c.Type == cold {
 				continue
 			}
 			s, ok := byType[c.Type]
@@ -471,7 +472,7 @@ const temperatureIntensityMax = 0.5
 func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
-	if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil {
+	if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(gc.OnsetCold)); cold != nil {
 		return hud.StatusBadge{Text: conditionLabel(world, cold.Type, cold.Severity), Color: color.RGBA{80, 140, 235, 255}}, true
 	}
 	return hud.StatusBadge{}, false
