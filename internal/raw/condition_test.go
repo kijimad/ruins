@@ -412,7 +412,7 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 		Summary:  "Technique for handling swords",
 		GainedBy: "Raised by attacking with swords",
 		Effect:   "Increases sword damage and accuracy",
-		Ability:  gc.AblSTR,
+		Ability:  oapi.Str,
 	}, sword)
 
 	assert.Equal(t, []gc.SkillCategory{

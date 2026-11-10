@@ -8,11 +8,11 @@ import (
 
 // SkillDef はスキルごとの定義。raw の skills の1行から組み立てる
 type SkillDef struct {
-	Name     string    // 表示名 msgid
-	Summary  string    // 概要文 msgid
-	GainedBy string    // 獲得条件 msgid
-	Effect   string    // 効果 msgid
-	Ability  AbilityID // 成長の速さと熟練の効果倍率に効く能力値
+	Name     string         // 表示名 msgid
+	Summary  string         // 概要文 msgid
+	GainedBy string         // 獲得条件 msgid
+	Effect   string         // 効果 msgid
+	Ability  oapi.AbilityId // 成長の速さと熟練の効果倍率に効く能力値
 }
 
 // SkillCategory はスキルのカテゴリを表す
@@ -81,7 +81,7 @@ func (d SkillDefs) Name(id oapi.SkillId) string {
 }
 
 // Ability はスキルに対応する能力値を返す。未登録なら panic する
-func (d SkillDefs) Ability(id oapi.SkillId) AbilityID {
+func (d SkillDefs) Ability(id oapi.SkillId) oapi.AbilityId {
 	def, ok := d.Skills[id]
 	if !ok {
 		panic(fmt.Sprintf("no ability defined for skill %q", id))

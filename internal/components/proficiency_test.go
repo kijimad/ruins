@@ -103,7 +103,7 @@ func TestSkillDefsProficiencySources(t *testing.T) {
 	sources := testSkillDefs.ProficiencySources(skills, abils, HealthyBodyFuncs(), oapi.ProficiencyIdSwordDamage)
 	assert.Len(t, sources, 2, "スキルと能力値の2つのソースがある")
 	assert.Equal(t, ProficiencySource{Kind: SourceSkill, Skill: oapi.SkillIdSword, Amount: 3, Value: 15}, sources[0]) // 3*5
-	assert.Equal(t, ProficiencySource{Kind: SourceAbility, Ability: AblSTR, Amount: 8, Value: 8}, sources[1])         // 8*1
+	assert.Equal(t, ProficiencySource{Kind: SourceAbility, Ability: oapi.Str, Amount: 8, Value: 8}, sources[1])       // 8*1
 }
 
 func TestSkillDefsProficiencyValue_HealthPenalty(t *testing.T) {

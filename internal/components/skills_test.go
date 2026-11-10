@@ -21,16 +21,16 @@ func TestValueOf(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		id       AbilityID
+		id       oapi.AbilityId
 		expected int
 	}{
-		{"STR", AblSTR, 10},
-		{"SEN", AblSEN, 8},
-		{"DEX", AblDEX, 6},
-		{"AGI", AblAGI, 12},
-		{"VIT", AblVIT, 15},
-		{"DEF", AblDEF, 5},
-		{"未定義のIDは0を返す", AbilityID(99), 0},
+		{"STR", oapi.Str, 10},
+		{"SEN", oapi.Sen, 8},
+		{"DEX", oapi.Dex, 6},
+		{"AGI", oapi.Agi, 12},
+		{"VIT", oapi.Vit, 15},
+		{"DEF", oapi.Def, 5},
+		{"未定義のIDは0を返す", oapi.AbilityId("unknown"), 0},
 	}
 
 	for _, tt := range tests {
@@ -68,7 +68,7 @@ func TestSkills_Get(t *testing.T) {
 func TestAbilityNameMapping(t *testing.T) {
 	t.Parallel()
 
-	for _, id := range []AbilityID{AblSTR, AblSEN, AblDEX, AblAGI, AblVIT, AblDEF} {
+	for _, id := range []oapi.AbilityId{oapi.Str, oapi.Sen, oapi.Dex, oapi.Agi, oapi.Vit, oapi.Def} {
 		assert.NotPanics(t, func() {
 			name := AbilityName(id)
 			assert.NotEmpty(t, name)
@@ -77,6 +77,6 @@ func TestAbilityNameMapping(t *testing.T) {
 
 	// 未定義の能力値IDはpanicする
 	assert.Panics(t, func() {
-		AbilityName(AbilityID(99))
+		AbilityName(oapi.AbilityId("unknown"))
 	})
 }

@@ -1016,16 +1016,6 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 	return gc.NewConditionDefs(conds, parts, injuries), nil
 }
 
-// abilityIDs は raw の能力値から Go の能力値への対応
-var abilityIDs = map[oapi.AbilityId]gc.AbilityID{
-	oapi.Str: gc.AblSTR,
-	oapi.Sen: gc.AblSEN,
-	oapi.Dex: gc.AblDEX,
-	oapi.Agi: gc.AblAGI,
-	oapi.Vit: gc.AblVIT,
-	oapi.Def: gc.AblDEF,
-}
-
 // NewSkillDefs は raw の skills、skillCategories、attackTypes からスキルの定義の表を組み立てる。
 // 命中の効果倍率は攻撃の種類の射程から、目減りさせる身体機能を決める。
 // カテゴリは skillCategories の行の順に、カテゴリ内のスキルは skills の行の順に並べる
@@ -1038,16 +1028,12 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	for i := range rows {
 		row := &rows[i]
 		id := row.Id
-		ability, ok := abilityIDs[row.Ability]
-		if !ok {
-			return gc.SkillDefs{}, fmt.Errorf("skill %q has unknown ability %q", row.Id, row.Ability)
-		}
 		skills[id] = gc.SkillDef{
 			Name:     row.Name,
 			Summary:  row.Summary,
 			GainedBy: row.GainedBy,
 			Effect:   row.Effect,
-			Ability:  ability,
+			Ability:  row.Ability,
 		}
 		for _, p := range PtrSlice(row.Proficiencies) {
 			proficiencies[p.Id] = gc.ProficiencyDef{Skill: id, PerLevel: p.PerLevel}

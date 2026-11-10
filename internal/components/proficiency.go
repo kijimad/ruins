@@ -23,7 +23,7 @@ const (
 type ProficiencySource struct {
 	Kind     ProficiencySourceKind
 	Skill    oapi.SkillId        // Kind が skill のときのスキル
-	Ability  AbilityID           // Kind が ability のときの能力値
+	Ability  oapi.AbilityId      // Kind が ability のときの能力値
 	BodyFunc BodyFuncKind        // Kind が body function のときの身体機能
 	Fatigue  oapi.FatigueStageId // Kind が fatigue のときの疲労段階
 	Hunger   oapi.HungerStageId  // Kind が hunger のときの空腹段階

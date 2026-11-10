@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // Ability は変動するパラメータ値
@@ -33,52 +34,39 @@ func (a Abilities) BodyWeight() consts.Milligram {
 	return consts.Milligram((bodyWeightBaseKg + physiqueKg) * consts.MilligramPerKg)
 }
 
-// AbilityID は能力値の識別子
-type AbilityID int
-
-// 能力値ID定数
-const (
-	AblSTR AbilityID = iota // 筋力
-	AblSEN                  // 感覚
-	AblDEX                  // 器用
-	AblAGI                  // 敏捷
-	AblVIT                  // 体力
-	AblDEF                  // 防御
-)
-
 // abilityName は能力値IDの表示名マップ
-var abilityName = map[AbilityID]string{
-	AblSTR: "STR",
-	AblSEN: "SEN",
-	AblDEX: "DEX",
-	AblAGI: "AGI",
-	AblVIT: "VIT",
-	AblDEF: "DEF",
+var abilityName = map[oapi.AbilityId]string{
+	oapi.Str: "STR",
+	oapi.Sen: "SEN",
+	oapi.Dex: "DEX",
+	oapi.Agi: "AGI",
+	oapi.Vit: "VIT",
+	oapi.Def: "DEF",
 }
 
 // AbilityName は能力値IDの表示名を返す。未定義ならpanicする
-func AbilityName(id AbilityID) string {
+func AbilityName(id oapi.AbilityId) string {
 	name, ok := abilityName[id]
 	if !ok {
-		panic(fmt.Sprintf("undefined ability ID: %d", id))
+		panic(fmt.Sprintf("undefined ability ID: %q", id))
 	}
 	return name
 }
 
 // ValueOf は指定された能力値IDに対応するTotal値を返す
-func (a *Abilities) ValueOf(id AbilityID) int {
+func (a *Abilities) ValueOf(id oapi.AbilityId) int {
 	switch id {
-	case AblSTR:
+	case oapi.Str:
 		return a.Strength.Total
-	case AblSEN:
+	case oapi.Sen:
 		return a.Sensation.Total
-	case AblDEX:
+	case oapi.Dex:
 		return a.Dexterity.Total
-	case AblAGI:
+	case oapi.Agi:
 		return a.Agility.Total
-	case AblVIT:
+	case oapi.Vit:
 		return a.Vitality.Total
-	case AblDEF:
+	case oapi.Def:
 		return a.Defense.Total
 	default:
 		return 0

@@ -9,13 +9,13 @@ import (
 
 // testSkillDefs は components のテストが使うスキルの定義の表。値は raw の行と同じにする
 var testSkillDefs = func() SkillDefs {
-	abilities := map[AbilityID][]oapi.SkillId{
-		AblSTR: {oapi.SkillIdSword, oapi.SkillIdSpear, oapi.SkillIdFist, oapi.SkillIdWeightBearing},
-		AblSEN: {oapi.SkillIdBow, oapi.SkillIdHandgun, oapi.SkillIdRifle, oapi.SkillIdCannon, oapi.SkillIdExploration},
-		AblDEX: {oapi.SkillIdCrafting, oapi.SkillIdSmithing, oapi.SkillIdNegotiation, oapi.SkillIdMechanic},
-		AblAGI: {oapi.SkillIdSprinting, oapi.SkillIdStealth, oapi.SkillIdNightVision},
-		AblVIT: {oapi.SkillIdColdResist, oapi.SkillIdHungerResist, oapi.SkillIdHealing},
-		AblDEF: {oapi.SkillIdHeavyArmor, oapi.SkillIdFireResist, oapi.SkillIdThunderResist, oapi.SkillIdChillResist, oapi.SkillIdPhotonResist},
+	abilities := map[oapi.AbilityId][]oapi.SkillId{
+		oapi.Str: {oapi.SkillIdSword, oapi.SkillIdSpear, oapi.SkillIdFist, oapi.SkillIdWeightBearing},
+		oapi.Sen: {oapi.SkillIdBow, oapi.SkillIdHandgun, oapi.SkillIdRifle, oapi.SkillIdCannon, oapi.SkillIdExploration},
+		oapi.Dex: {oapi.SkillIdCrafting, oapi.SkillIdSmithing, oapi.SkillIdNegotiation, oapi.SkillIdMechanic},
+		oapi.Agi: {oapi.SkillIdSprinting, oapi.SkillIdStealth, oapi.SkillIdNightVision},
+		oapi.Vit: {oapi.SkillIdColdResist, oapi.SkillIdHungerResist, oapi.SkillIdHealing},
+		oapi.Def: {oapi.SkillIdHeavyArmor, oapi.SkillIdFireResist, oapi.SkillIdThunderResist, oapi.SkillIdChillResist, oapi.SkillIdPhotonResist},
 	}
 	skills := map[oapi.SkillId]SkillDef{}
 	for abl, ids := range abilities {
@@ -72,8 +72,8 @@ var testSkillDefs = func() SkillDefs {
 func TestSkillDefs_Ability(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, AblSTR, testSkillDefs.Ability(oapi.SkillIdSword))
-	assert.Equal(t, AblDEF, testSkillDefs.Ability(oapi.SkillIdFireResist))
+	assert.Equal(t, oapi.Str, testSkillDefs.Ability(oapi.SkillIdSword))
+	assert.Equal(t, oapi.Def, testSkillDefs.Ability(oapi.SkillIdFireResist))
 	assert.Panics(t, func() { testSkillDefs.Ability("undefined_skill") }, "未登録は panic する")
 }
 
