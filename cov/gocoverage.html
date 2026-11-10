@@ -421,7 +421,7 @@
 				
 				<option value="file182">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (62.3%)</option>
 				
-				<option value="file183">github.com/kijimaD/ruins/internal/mapplanner/lib.go (85.9%)</option>
+				<option value="file183">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.9%)</option>
 				
 				<option value="file184">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -24471,7 +24471,7 @@ func (bm MetaPlan) UpTile(idx gc.TileIdx) oapi.Tile {
         <span class="cov8" title="1">targetIdx := gc.TileIdx(int(idx) - int(bm.Level.TileWidth))
         if targetIdx &lt; 0 </span>{
                 // 境界外（マップ外＝暗闇）として扱う
-                <span class="cov0" title="0">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
 </span>        }
 
         <span class="cov8" title="1">return bm.Tiles[targetIdx]</span>
@@ -24482,7 +24482,7 @@ func (bm MetaPlan) DownTile(idx gc.TileIdx) oapi.Tile {
         <span class="cov8" title="1">targetIdx := int(idx) + int(bm.Level.TileWidth)
         if targetIdx &gt; len(bm.Tiles)-1 </span>{
                 // 境界外（マップ外＝暗闇）として扱う
-                <span class="cov0" title="0">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
 </span>        }
 
         <span class="cov8" title="1">return bm.Tiles[targetIdx]</span>
@@ -24493,7 +24493,7 @@ func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
         <span class="cov8" title="1">pos := bm.Level.IndexToCoord(idx)
 </span>        // 左端の場合は境界外（マップ外＝暗闇）
         <span class="cov8" title="1">if pos.X == 0 </span>{
-                <span class="cov0" title="0">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
 </span>        }
 
         // 左のタイルが同じ行であることを確認
@@ -24511,7 +24511,7 @@ func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile {
         <span class="cov8" title="1">pos := bm.Level.IndexToCoord(idx)
 </span>        // 右端の場合は境界外（マップ外＝暗闇）
         <span class="cov8" title="1">if pos.X == bm.Level.TileWidth-1 </span>{
-                <span class="cov0" title="0">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
 </span>        }
 
         // 右のタイルが同じ行であることを確認
@@ -24924,11 +24924,11 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 // TODO: エラーを潰しているだけなので直す
 func (bm *MetaPlan) GetTile(name string) oapi.Tile {
         <span class="cov8" title="1">if bm.RawMaster == nil </span>{
-                <span class="cov0" title="0">panic("RawMaster is not set; tile generation from TOML is required")</span>
+                <span class="cov8" title="1">panic("RawMaster is not set; tile generation from TOML is required")</span>
         }
         <span class="cov8" title="1">tile, err := raw.GetTile(*bm.RawMaster, name)
         if err != nil </span>{
-                <span class="cov0" title="0">panic(fmt.Sprintf("tile generation error: %v", err))</span>
+                <span class="cov8" title="1">panic(fmt.Sprintf("tile generation error: %v", err))</span>
         }
         <span class="cov8" title="1">return tile</span>
 }
