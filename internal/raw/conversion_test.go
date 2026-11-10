@@ -174,17 +174,6 @@ func TestNewBookFromAPI(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("未定義スキルIDでエラー", func(t *testing.T) {
-		t.Parallel()
-		b := &oapi.Book{
-			TotalEffort: 100,
-			Skill: &oapi.SkillBook{
-				TargetSkill: "nonexistent",
-			},
-		}
-		_, err := newBookFromAPI(b)
-		assert.Error(t, err)
-	})
 }
 
 func TestToGCLightSource(t *testing.T) {

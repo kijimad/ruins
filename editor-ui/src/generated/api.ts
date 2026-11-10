@@ -1716,15 +1716,55 @@ export interface ProfessionList {
  * 職業スキル初期値
  */
 export interface ProfessionSkill {
-    /**
-     * スキルID
-     */
-    'id': string;
+    'id': SkillId;
     /**
      * スキルレベル
      */
     'value': number;
 }
+
+
+/**
+ * 熟練の効果倍率の id
+ */
+
+export const ProficiencyId = {
+    FireResist: 'fire_resist',
+    ThunderResist: 'thunder_resist',
+    ChillResist: 'chill_resist',
+    PhotonResist: 'photon_resist',
+    ColdProgress: 'cold_progress',
+    HungerProgress: 'hunger_progress',
+    HealingEffect: 'healing_effect',
+    MaxWeight: 'max_weight',
+    Exploration: 'exploration',
+    EnemyVision: 'enemy_vision',
+    NightVision: 'night_vision',
+    MoveCost: 'move_cost',
+    CraftCost: 'craft_cost',
+    SmithQuality: 'smith_quality',
+    BuyPrice: 'buy_price',
+    SellPrice: 'sell_price',
+    HeavyArmor: 'heavy_armor',
+    SwordDamage: 'sword_damage',
+    SpearDamage: 'spear_damage',
+    FistDamage: 'fist_damage',
+    BowDamage: 'bow_damage',
+    HandgunDamage: 'handgun_damage',
+    RifleDamage: 'rifle_damage',
+    CannonDamage: 'cannon_damage',
+    SwordAccuracy: 'sword_accuracy',
+    SpearAccuracy: 'spear_accuracy',
+    FistAccuracy: 'fist_accuracy',
+    BowAccuracy: 'bow_accuracy',
+    HandgunAccuracy: 'handgun_accuracy',
+    RifleAccuracy: 'rifle_accuracy',
+    CannonAccuracy: 'cannon_accuracy',
+} as const;
+
+export type ProficiencyId = typeof ProficiencyId[keyof typeof ProficiencyId];
+
+
 /**
  * 置物
  */
@@ -2001,10 +2041,7 @@ export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
  * スキル。同じカテゴリのスキルは行の順に表示する
  */
 export interface Skill {
-    /**
-     * スキルID
-     */
-    'id': string;
+    'id': SkillId;
     /**
      * エンティティ名
      */
@@ -2034,10 +2071,7 @@ export interface Skill {
  * スキル本設定
  */
 export interface SkillBook {
-    /**
-     * スキルID
-     */
-    'targetSkill': string;
+    'targetSkill': SkillId;
     /**
      * スキルレベル
      */
@@ -2047,6 +2081,8 @@ export interface SkillBook {
      */
     'maxLevel': number;
 }
+
+
 /**
  * スキルのカテゴリ。行の順に表示する
  */
@@ -2061,18 +2097,51 @@ export interface SkillCategory {
     'name': string;
 }
 /**
+ * スキルID
+ */
+
+export const SkillId = {
+    Sword: 'sword',
+    Spear: 'spear',
+    Fist: 'fist',
+    WeightBearing: 'weight_bearing',
+    Bow: 'bow',
+    Handgun: 'handgun',
+    Rifle: 'rifle',
+    Cannon: 'cannon',
+    Exploration: 'exploration',
+    Crafting: 'crafting',
+    Smithing: 'smithing',
+    Negotiation: 'negotiation',
+    Mechanic: 'mechanic',
+    Sprinting: 'sprinting',
+    Stealth: 'stealth',
+    NightVision: 'night_vision',
+    ColdResist: 'cold_resist',
+    HungerResist: 'hunger_resist',
+    Healing: 'healing',
+    HeavyArmor: 'heavy_armor',
+    FireResist: 'fire_resist',
+    ThunderResist: 'thunder_resist',
+    ChillResist: 'chill_resist',
+    PhotonResist: 'photon_resist',
+} as const;
+
+export type SkillId = typeof SkillId[keyof typeof SkillId];
+
+
+/**
  * スキルが左右する熟練の効果倍率
  */
 export interface SkillProficiency {
-    /**
-     * 熟練の効果倍率の id
-     */
-    'id': string;
+    'id': ProficiencyId;
     /**
      * 熟練の効果倍率のスキルLv1あたりの変化量。百分率
      */
     'perLevel': number;
 }
+
+
 /**
  * スプライト描画深度
  */

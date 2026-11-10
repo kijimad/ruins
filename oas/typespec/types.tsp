@@ -422,10 +422,32 @@ scalar ReloadEffort extends integer;
 scalar Sensation extends integer;
 
 /** スキルID */
-@minLength(1)
-@maxLength(50)
-@pattern("^[a-z][a-z0-9_]*$")
-scalar SkillId extends string;
+enum SkillId {
+  sword,
+  spear,
+  fist,
+  weight_bearing,
+  bow,
+  handgun,
+  rifle,
+  cannon,
+  exploration,
+  crafting,
+  smithing,
+  negotiation,
+  mechanic,
+  sprinting,
+  stealth,
+  night_vision,
+  cold_resist,
+  hunger_resist,
+  healing,
+  heavy_armor,
+  fire_resist,
+  thunder_resist,
+  chill_resist,
+  photon_resist,
+}
 
 /** スキルのカテゴリの id */
 @minLength(1)
@@ -434,10 +456,39 @@ scalar SkillId extends string;
 scalar SkillCategoryId extends string;
 
 /** 熟練の効果倍率の id */
-@minLength(1)
-@maxLength(50)
-@pattern("^[a-z][a-z0-9_]*$")
-scalar ProficiencyId extends string;
+enum ProficiencyId {
+  fire_resist,
+  thunder_resist,
+  chill_resist,
+  photon_resist,
+  cold_progress,
+  hunger_progress,
+  healing_effect,
+  max_weight,
+  exploration,
+  enemy_vision,
+  night_vision,
+  move_cost,
+  craft_cost,
+  smith_quality,
+  buy_price,
+  sell_price,
+  heavy_armor,
+  sword_damage,
+  spear_damage,
+  fist_damage,
+  bow_damage,
+  handgun_damage,
+  rifle_damage,
+  cannon_damage,
+  sword_accuracy,
+  spear_accuracy,
+  fist_accuracy,
+  bow_accuracy,
+  handgun_accuracy,
+  rifle_accuracy,
+  cannon_accuracy,
+}
 
 /** 熟練の効果倍率のスキルLv1あたりの変化量。百分率 */
 @minValue(-100)

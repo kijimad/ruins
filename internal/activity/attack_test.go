@@ -631,10 +631,7 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 
 	growWeaponSkill(actor, world, melee)
 
-	// 全スキルの経験値が0のまま
-	for _, id := range gc.AllSkillIDs {
-		assert.Equal(t, 0, skills.Get(id).Exp.Current, "スキル %s の経験値が変わらない", id)
-	}
+	assert.Equal(t, map[gc.SkillID]*gc.Skill{}, world.Components.Skills.Get(actor).Data, "どのスキルにも経験値が入らない")
 }
 
 func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {

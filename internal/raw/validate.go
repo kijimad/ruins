@@ -52,10 +52,6 @@ var (
 	errSkillCategoryUndefined         = errors.New("skill references undefined category")
 	errBookSkillUndefined             = errors.New("book references undefined skill")
 	errProfessionSkillUndefined       = errors.New("profession references undefined skill")
-	errSkillRowMissing                = errors.New("skill has no raw row")
-	errSkillUnknown                   = errors.New("skill is not defined in code")
-	errProficiencyRowMissing          = errors.New("proficiency has no raw row")
-	errProficiencyUnknown             = errors.New("proficiency is not defined in code")
 	errWeaponProficiencyOwner         = errors.New("weapon proficiency is owned by another skill")
 	errInteriorRefPropUndefined       = errors.New("interior ref references undefined prop")
 	errInteriorRefGroupUndefined      = errors.New("interior ref references undefined item group")
@@ -726,37 +722,26 @@ func validateCodeRows(raws oapi.Raws) error {
 	return nil
 }
 
-// validateSkillCodeRows は raw のスキルと熟練の効果倍率が Go の定数と同じ集合で、武器の効果倍率を同じ名前の武器スキルが持つことを検証する
+// validateSkillCodeRows はスキーマの enum のスキルと熟練の効果倍率それぞれに raw の行がちょうど1つあり、
+// 武器の効果倍率を同じ名前の武器スキルが持つことを検証する
 func validateSkillCodeRows(raws oapi.Raws) error {
 	skills := PtrSlice(raws.Skills)
-	skillIDs := make(map[gc.SkillID]struct{}, len(skills))
+	skillIDs := make([]string, 0, len(skills))
+	var proficiencyIDs []string
 	owners := make(map[gc.ProficiencyKey]gc.SkillID)
 	for i := range skills {
 		id := gc.SkillID(skills[i].Id)
-		if !gc.IsSkillID(id) {
-			return fmt.Errorf("skill %q: %w", id, errSkillUnknown)
-		}
-		skillIDs[id] = struct{}{}
+		skillIDs = append(skillIDs, string(id))
 		for _, p := range PtrSlice(skills[i].Proficiencies) {
+			proficiencyIDs = append(proficiencyIDs, string(p.Id))
 			owners[gc.ProficiencyKey(p.Id)] = id
 		}
 	}
-	for _, id := range gc.AllSkillIDs {
-		if _, ok := skillIDs[id]; !ok {
-			return fmt.Errorf("skill %q: %w", id, errSkillRowMissing)
-		}
+	if err := validateEnumRows("SkillId", skillIDs); err != nil {
+		return err
 	}
-
-	keys := gc.ProficiencyKeys()
-	for _, key := range keys {
-		if _, ok := owners[key]; !ok {
-			return fmt.Errorf("proficiency %q: %w", key, errProficiencyRowMissing)
-		}
-	}
-	for key := range owners {
-		if !slices.Contains(keys, key) {
-			return fmt.Errorf("proficiency %q: %w", key, errProficiencyUnknown)
-		}
+	if err := validateEnumRows("ProficiencyId", proficiencyIDs); err != nil {
+		return err
 	}
 	for _, id := range gc.WeaponSkillIDs {
 		for _, key := range []gc.ProficiencyKey{gc.WeaponDamageKey(id), gc.WeaponAccuracyKey(id)} {
@@ -773,7 +758,7 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 func validateSkills(raws oapi.Raws) error {
 	skills := PtrSlice(raws.Skills)
 	categories := PtrSlice(raws.SkillCategories)
-	if err := validateUniqueIDs("skill", skills, func(s oapi.Skill) string { return s.Id }); err != nil {
+	if err := validateUniqueIDs("skill", skills, func(s oapi.Skill) string { return string(s.Id) }); err != nil {
 		return err
 	}
 	if err := validateUniqueIDs("skill category", categories, func(c oapi.SkillCategory) string { return c.Id }); err != nil {
@@ -783,7 +768,7 @@ func validateSkills(raws oapi.Raws) error {
 	for i := range skills {
 		proficiencies = append(proficiencies, PtrSlice(skills[i].Proficiencies)...)
 	}
-	if err := validateUniqueIDs("proficiency", proficiencies, func(p oapi.SkillProficiency) string { return p.Id }); err != nil {
+	if err := validateUniqueIDs("proficiency", proficiencies, func(p oapi.SkillProficiency) string { return string(p.Id) }); err != nil {
 		return err
 	}
 
@@ -793,7 +778,7 @@ func validateSkills(raws oapi.Raws) error {
 	}
 	skillIDs := make(map[string]struct{}, len(skills))
 	for i := range skills {
-		skillIDs[skills[i].Id] = struct{}{}
+		skillIDs[string(skills[i].Id)] = struct{}{}
 		if _, ok := categoryIDs[skills[i].Category]; !ok {
 			return fmt.Errorf("skill %q category %q: %w", skills[i].Id, skills[i].Category, errSkillCategoryUndefined)
 		}
@@ -804,14 +789,14 @@ func validateSkills(raws oapi.Raws) error {
 		if items[i].Book == nil || items[i].Book.Skill == nil {
 			continue
 		}
-		if _, ok := skillIDs[items[i].Book.Skill.TargetSkill]; !ok {
+		if _, ok := skillIDs[string(items[i].Book.Skill.TargetSkill)]; !ok {
 			return fmt.Errorf("item %q skill %q: %w", items[i].Id, items[i].Book.Skill.TargetSkill, errBookSkillUndefined)
 		}
 	}
 	professions := PtrSlice(raws.Professions)
 	for i := range professions {
 		for _, ps := range PtrSlice(professions[i].Skills) {
-			if _, ok := skillIDs[ps.Id]; !ok {
+			if _, ok := skillIDs[string(ps.Id)]; !ok {
 				return fmt.Errorf("profession %q skill %q: %w", professions[i].Id, ps.Id, errProfessionSkillUndefined)
 			}
 		}

@@ -224,9 +224,6 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 	}
 
 	skillID := gc.SkillID(b.Skill.TargetSkill)
-	if !gc.IsSkillID(skillID) {
-		return nil, fmt.Errorf("undefined skill ID: %q", b.Skill.TargetSkill)
-	}
 
 	return &gc.Book{
 		Effort: gc.IntPool{Max: b.TotalEffort},

@@ -4,60 +4,49 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // ProficiencyKey は熟練由来の効果倍率の識別キー。技能と能力値から導く行動ごとの倍率を指す。
 // 怪我・病気・疲労・空腹による身体機能の低下は BodyFunc 側で別に扱う。熟練は上達、身体機能は劣化で軸が違う
 type ProficiencyKey string
 
-// 効果キー定数
+// 効果キー定数。値は raw のスキーマの enum から取るので、enum に無い値はコンパイルで弾かれる
 const (
-	ProfFireResist     ProficiencyKey = "fire_resist"
-	ProfThunderResist  ProficiencyKey = "thunder_resist"
-	ProfChillResist    ProficiencyKey = "chill_resist"
-	ProfPhotonResist   ProficiencyKey = "photon_resist"
-	ProfColdProgress   ProficiencyKey = "cold_progress"
-	ProfHungerProgress ProficiencyKey = "hunger_progress"
-	ProfHealingEffect  ProficiencyKey = "healing_effect"
-	ProfMaxWeight      ProficiencyKey = "max_weight"
-	ProfExploration    ProficiencyKey = "exploration"
-	ProfEnemyVision    ProficiencyKey = "enemy_vision"
-	ProfNightVision    ProficiencyKey = "night_vision"
-	ProfMoveCost       ProficiencyKey = "move_cost"
-	ProfCraftCost      ProficiencyKey = "craft_cost"
-	ProfSmithQuality   ProficiencyKey = "smith_quality"
-	ProfBuyPrice       ProficiencyKey = "buy_price"
-	ProfSellPrice      ProficiencyKey = "sell_price"
-	ProfHeavyArmor     ProficiencyKey = "heavy_armor"
+	ProfFireResist     = ProficiencyKey(oapi.ProficiencyIdFireResist)
+	ProfThunderResist  = ProficiencyKey(oapi.ProficiencyIdThunderResist)
+	ProfChillResist    = ProficiencyKey(oapi.ProficiencyIdChillResist)
+	ProfPhotonResist   = ProficiencyKey(oapi.ProficiencyIdPhotonResist)
+	ProfColdProgress   = ProficiencyKey(oapi.ProficiencyIdColdProgress)
+	ProfHungerProgress = ProficiencyKey(oapi.ProficiencyIdHungerProgress)
+	ProfHealingEffect  = ProficiencyKey(oapi.ProficiencyIdHealingEffect)
+	ProfMaxWeight      = ProficiencyKey(oapi.ProficiencyIdMaxWeight)
+	ProfExploration    = ProficiencyKey(oapi.ProficiencyIdExploration)
+	ProfEnemyVision    = ProficiencyKey(oapi.ProficiencyIdEnemyVision)
+	ProfNightVision    = ProficiencyKey(oapi.ProficiencyIdNightVision)
+	ProfMoveCost       = ProficiencyKey(oapi.ProficiencyIdMoveCost)
+	ProfCraftCost      = ProficiencyKey(oapi.ProficiencyIdCraftCost)
+	ProfSmithQuality   = ProficiencyKey(oapi.ProficiencyIdSmithQuality)
+	ProfBuyPrice       = ProficiencyKey(oapi.ProficiencyIdBuyPrice)
+	ProfSellPrice      = ProficiencyKey(oapi.ProficiencyIdSellPrice)
+	ProfHeavyArmor     = ProficiencyKey(oapi.ProficiencyIdHeavyArmor)
 
-	ProfSwordDamage   ProficiencyKey = "sword_damage"
-	ProfSpearDamage   ProficiencyKey = "spear_damage"
-	ProfFistDamage    ProficiencyKey = "fist_damage"
-	ProfBowDamage     ProficiencyKey = "bow_damage"
-	ProfHandgunDamage ProficiencyKey = "handgun_damage"
-	ProfRifleDamage   ProficiencyKey = "rifle_damage"
-	ProfCannonDamage  ProficiencyKey = "cannon_damage"
+	ProfSwordDamage   = ProficiencyKey(oapi.ProficiencyIdSwordDamage)
+	ProfSpearDamage   = ProficiencyKey(oapi.ProficiencyIdSpearDamage)
+	ProfFistDamage    = ProficiencyKey(oapi.ProficiencyIdFistDamage)
+	ProfBowDamage     = ProficiencyKey(oapi.ProficiencyIdBowDamage)
+	ProfHandgunDamage = ProficiencyKey(oapi.ProficiencyIdHandgunDamage)
+	ProfRifleDamage   = ProficiencyKey(oapi.ProficiencyIdRifleDamage)
+	ProfCannonDamage  = ProficiencyKey(oapi.ProficiencyIdCannonDamage)
 
-	ProfSwordAccuracy   ProficiencyKey = "sword_accuracy"
-	ProfSpearAccuracy   ProficiencyKey = "spear_accuracy"
-	ProfFistAccuracy    ProficiencyKey = "fist_accuracy"
-	ProfBowAccuracy     ProficiencyKey = "bow_accuracy"
-	ProfHandgunAccuracy ProficiencyKey = "handgun_accuracy"
-	ProfRifleAccuracy   ProficiencyKey = "rifle_accuracy"
-	ProfCannonAccuracy  ProficiencyKey = "cannon_accuracy"
+	ProfSwordAccuracy   = ProficiencyKey(oapi.ProficiencyIdSwordAccuracy)
+	ProfSpearAccuracy   = ProficiencyKey(oapi.ProficiencyIdSpearAccuracy)
+	ProfFistAccuracy    = ProficiencyKey(oapi.ProficiencyIdFistAccuracy)
+	ProfBowAccuracy     = ProficiencyKey(oapi.ProficiencyIdBowAccuracy)
+	ProfHandgunAccuracy = ProficiencyKey(oapi.ProficiencyIdHandgunAccuracy)
+	ProfRifleAccuracy   = ProficiencyKey(oapi.ProficiencyIdRifleAccuracy)
+	ProfCannonAccuracy  = ProficiencyKey(oapi.ProficiencyIdCannonAccuracy)
 )
-
-// ProficiencyKeys はコードが名前で参照する効果キーの一覧を返す。raw に行があることの検証に使う
-func ProficiencyKeys() []ProficiencyKey {
-	return []ProficiencyKey{
-		ProfFireResist, ProfThunderResist, ProfChillResist, ProfPhotonResist,
-		ProfColdProgress, ProfHungerProgress, ProfHealingEffect, ProfMaxWeight,
-		ProfExploration, ProfEnemyVision, ProfNightVision, ProfMoveCost,
-		ProfCraftCost, ProfSmithQuality, ProfBuyPrice, ProfSellPrice, ProfHeavyArmor,
-		ProfSwordDamage, ProfSpearDamage, ProfFistDamage, ProfBowDamage, ProfHandgunDamage, ProfRifleDamage, ProfCannonDamage,
-		ProfSwordAccuracy, ProfSpearAccuracy, ProfFistAccuracy, ProfBowAccuracy, ProfHandgunAccuracy, ProfRifleAccuracy, ProfCannonAccuracy,
-	}
-}
 
 // weaponDamageKeys は武器スキルIDからダメージ効果キーへのマッピング
 var weaponDamageKeys = map[SkillID]ProficiencyKey{

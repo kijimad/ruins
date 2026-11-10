@@ -1,60 +1,46 @@
 package components
 
 import (
-	"fmt"
 	"slices"
+
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // SkillID はスキルの識別子
 type SkillID string
 
-// スキルID定数
+// スキルID定数。値は raw のスキーマの enum から取るので、enum に無い値はコンパイルで弾かれる
 const (
-	SkillSword         SkillID = "sword"          // 刀剣
-	SkillSpear         SkillID = "spear"          // 長物
-	SkillFist          SkillID = "fist"           // 格闘
-	SkillWeightBearing SkillID = "weight_bearing" // 荷重
+	SkillSword         = SkillID(oapi.SkillIdSword)         // 刀剣
+	SkillSpear         = SkillID(oapi.SkillIdSpear)         // 長物
+	SkillFist          = SkillID(oapi.SkillIdFist)          // 格闘
+	SkillWeightBearing = SkillID(oapi.SkillIdWeightBearing) // 荷重
 
-	SkillBow         SkillID = "bow"         // 弓術
-	SkillHandgun     SkillID = "handgun"     // 拳銃
-	SkillRifle       SkillID = "rifle"       // 小銃
-	SkillCannon      SkillID = "cannon"      // 砲撃
-	SkillExploration SkillID = "exploration" // 探索
+	SkillBow         = SkillID(oapi.SkillIdBow)         // 弓術
+	SkillHandgun     = SkillID(oapi.SkillIdHandgun)     // 拳銃
+	SkillRifle       = SkillID(oapi.SkillIdRifle)       // 小銃
+	SkillCannon      = SkillID(oapi.SkillIdCannon)      // 砲撃
+	SkillExploration = SkillID(oapi.SkillIdExploration) // 探索
 
-	SkillCrafting    SkillID = "crafting"    // クラフト
-	SkillSmithing    SkillID = "smithing"    // 調合
-	SkillNegotiation SkillID = "negotiation" // 交渉
-	SkillMechanic    SkillID = "mechanic"    // 機械
+	SkillCrafting    = SkillID(oapi.SkillIdCrafting)    // クラフト
+	SkillSmithing    = SkillID(oapi.SkillIdSmithing)    // 調合
+	SkillNegotiation = SkillID(oapi.SkillIdNegotiation) // 交渉
+	SkillMechanic    = SkillID(oapi.SkillIdMechanic)    // 機械
 
-	SkillSprinting   SkillID = "sprinting"    // 走破
-	SkillStealth     SkillID = "stealth"      // 隠密
-	SkillNightVision SkillID = "night_vision" // 暗視
+	SkillSprinting   = SkillID(oapi.SkillIdSprinting)   // 走破
+	SkillStealth     = SkillID(oapi.SkillIdStealth)     // 隠密
+	SkillNightVision = SkillID(oapi.SkillIdNightVision) // 暗視
 
-	SkillColdResist   SkillID = "cold_resist"   // 耐寒
-	SkillHungerResist SkillID = "hunger_resist" // 耐餓
-	SkillHealing      SkillID = "healing"       // 治療
+	SkillColdResist   = SkillID(oapi.SkillIdColdResist)   // 耐寒
+	SkillHungerResist = SkillID(oapi.SkillIdHungerResist) // 耐餓
+	SkillHealing      = SkillID(oapi.SkillIdHealing)      // 治療
 
-	SkillHeavyArmor    SkillID = "heavy_armor"    // 重装
-	SkillFireResist    SkillID = "fire_resist"    // 耐火
-	SkillThunderResist SkillID = "thunder_resist" // 耐電
-	SkillChillResist   SkillID = "chill_resist"   // 耐冷
-	SkillPhotonResist  SkillID = "photon_resist"  // 耐光
+	SkillHeavyArmor    = SkillID(oapi.SkillIdHeavyArmor)    // 重装
+	SkillFireResist    = SkillID(oapi.SkillIdFireResist)    // 耐火
+	SkillThunderResist = SkillID(oapi.SkillIdThunderResist) // 耐電
+	SkillChillResist   = SkillID(oapi.SkillIdChillResist)   // 耐冷
+	SkillPhotonResist  = SkillID(oapi.SkillIdPhotonResist)  // 耐光
 )
-
-// AllSkillIDs は定義済みの全SkillIDのリスト。raw の skills の行と同じ集合になることを読み込み時に検証する
-var AllSkillIDs = []SkillID{
-	SkillSword, SkillSpear, SkillFist,
-	SkillBow, SkillHandgun, SkillRifle, SkillCannon,
-	SkillCrafting, SkillSmithing, SkillNegotiation, SkillMechanic,
-	SkillSprinting, SkillStealth, SkillNightVision, SkillWeightBearing,
-	SkillColdResist, SkillHungerResist, SkillHealing, SkillExploration,
-	SkillHeavyArmor, SkillFireResist, SkillThunderResist, SkillChillResist, SkillPhotonResist,
-}
-
-// IsSkillID は id が定義済みのスキルかを返す
-func IsSkillID(id SkillID) bool {
-	return slices.Contains(AllSkillIDs, id)
-}
 
 // WeaponSkillIDs は武器に対応するスキルIDのリスト
 var WeaponSkillIDs = []SkillID{
@@ -73,11 +59,15 @@ type Skills struct {
 	Data map[SkillID]*Skill
 }
 
-// Get は指定されたスキルIDのSkillを返す。未定義ならpanicする
+// Get は指定されたスキルIDのSkillを返す。まだ無ければ値0のスキルを作って返す
 func (s *Skills) Get(id SkillID) *Skill {
+	if s.Data == nil {
+		s.Data = make(map[SkillID]*Skill)
+	}
 	sk, ok := s.Data[id]
 	if !ok {
-		panic(fmt.Sprintf("undefined skill ID: %q", id))
+		sk = &Skill{Exp: IntPool{Max: LevelUpExp}}
+		s.Data[id] = sk
 	}
 	return sk
 }
@@ -85,13 +75,9 @@ func (s *Skills) Get(id SkillID) *Skill {
 // LevelUpExp はスキルアップに必要な経験値
 const LevelUpExp = 100
 
-// NewSkills は全スキルを0で初期化したSkillsを返す
+// NewSkills はスキルを持たない Skills を返す。スキルは Get で初めて読んだときに値0で作る
 func NewSkills() *Skills {
-	data := make(map[SkillID]*Skill, len(AllSkillIDs))
-	for _, id := range AllSkillIDs {
-		data[id] = &Skill{Exp: IntPool{Max: LevelUpExp}}
-	}
-	return &Skills{Data: data}
+	return &Skills{Data: make(map[SkillID]*Skill)}
 }
 
 // WeaponSkillID は武器種別に対応するスキルIDを返す。武器種別はそれと同じ名前の武器スキルで上達する

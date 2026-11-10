@@ -27,7 +27,7 @@ func newTestProfession() oapi.Profession {
 			Defense:   15,
 		},
 		Skills: &[]oapi.ProfessionSkill{
-			{Id: string(gc.SkillSword), Value: 5},
+			{Id: oapi.SkillId(gc.SkillSword), Value: 5},
 		},
 		Items: []oapi.ProfessionItem{
 			{Name: "wooden_stick", Count: 3},

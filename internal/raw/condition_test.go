@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"fmt"
 	"slices"
 	"testing"
 
@@ -9,6 +10,24 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// schemaEnum は OpenAPI スキーマの enum の値を返す
+func schemaEnum(name string) []string {
+	spec, err := loadSpec()
+	if err != nil {
+		panic(err)
+	}
+	enum := spec.Components.Schemas[name].Value.Enum
+	values := make([]string, 0, len(enum))
+	for _, v := range enum {
+		s, ok := v.(string)
+		if !ok {
+			panic(fmt.Sprintf("%s enum value %v is not string", name, v))
+		}
+		values = append(values, s)
+	}
+	return values
+}
 
 // makeDefRaws は不調を起こす仕組みすべてと、Go の部位、攻撃種別、スキル、熟練の効果倍率すべてに行を持つ検証を通る raws を作り、mutate で崩す
 func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
@@ -28,18 +47,19 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	for _, at := range gc.AllAttackTypes {
 		attackTypes = append(attackTypes, oapi.AttackType{Id: oapi.AttackCategory(at.Type), Injury: string(gc.ConditionType("fracture"))})
 	}
-	skills := make([]oapi.Skill, 0, len(gc.AllSkillIDs))
-	for _, id := range gc.AllSkillIDs {
-		skills = append(skills, oapi.Skill{Id: string(id), Name: string(id), Ability: oapi.Str, Category: "general", Proficiencies: &[]oapi.SkillProficiency{}})
+	skillIDs := schemaEnum("SkillId")
+	skills := make([]oapi.Skill, 0, len(skillIDs))
+	for _, id := range skillIDs {
+		skills = append(skills, oapi.Skill{Id: oapi.SkillId(id), Name: id, Ability: oapi.Str, Category: "general", Proficiencies: &[]oapi.SkillProficiency{}})
 	}
-	for _, key := range gc.ProficiencyKeys() {
+	for _, key := range schemaEnum("ProficiencyId") {
 		owner := 0
-		for i, id := range gc.WeaponSkillIDs {
-			if key == gc.WeaponDamageKey(id) || key == gc.WeaponAccuracyKey(id) {
-				owner = slices.Index(gc.AllSkillIDs, gc.WeaponSkillIDs[i])
+		for _, id := range gc.WeaponSkillIDs {
+			if gc.ProficiencyKey(key) == gc.WeaponDamageKey(id) || gc.ProficiencyKey(key) == gc.WeaponAccuracyKey(id) {
+				owner = slices.Index(skillIDs, string(id))
 			}
 		}
-		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, oapi.SkillProficiency{Id: string(key), PerLevel: 1})
+		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, oapi.SkillProficiency{Id: oapi.ProficiencyId(key), PerLevel: 1})
 	}
 	raws := oapi.Raws{
 		BodyParts:       &bodyParts,
@@ -49,9 +69,9 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		SkillCategories: &[]oapi.SkillCategory{{Id: "general", Name: "General"}},
 		Items: &[]oapi.Item{
 			{Id: "splint", Remedy: &oapi.Remedy{Treats: []oapi.ConditionTypeName{string(gc.ConditionType("fracture"))}}},
-			{Id: "manual", Book: &oapi.Book{Skill: &oapi.SkillBook{TargetSkill: string(gc.SkillSword)}}},
+			{Id: "manual", Book: &oapi.Book{Skill: &oapi.SkillBook{TargetSkill: oapi.SkillId(gc.SkillSword)}}},
 		},
-		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: string(gc.SkillRifle)}}}},
+		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: oapi.SkillId(gc.SkillRifle)}}}},
 		InteriorProfile: &oapi.InteriorProfile{},
 		Weathers:        &[]oapi.Weather{{Id: oapi.Clear}},
 		HungerStages:    &[]oapi.HungerStage{{Id: oapi.HungerStageIdStarving}},
@@ -211,34 +231,20 @@ func TestValidateCodeRows(t *testing.T) {
 			mutate: func(r *oapi.Raws) {
 				*r.Skills = (*r.Skills)[:len(*r.Skills)-1]
 			},
-			wantErr: errSkillRowMissing,
-		},
-		{
-			name: "Go に無いスキルの行",
-			mutate: func(r *oapi.Raws) {
-				*r.Skills = append(*r.Skills, oapi.Skill{Id: "juggling", Ability: oapi.Dex, Category: "general"})
-			},
-			wantErr: errSkillUnknown,
+			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "熟練の効果倍率の行が欠ける",
 			mutate: func(r *oapi.Raws) {
 				*(*r.Skills)[0].Proficiencies = (*(*r.Skills)[0].Proficiencies)[1:]
 			},
-			wantErr: errProficiencyRowMissing,
-		},
-		{
-			name: "Go に無い熟練の効果倍率の行",
-			mutate: func(r *oapi.Raws) {
-				*(*r.Skills)[0].Proficiencies = append(*(*r.Skills)[0].Proficiencies, oapi.SkillProficiency{Id: "luck"})
-			},
-			wantErr: errProficiencyUnknown,
+			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "武器の効果倍率を別のスキルが持つ",
 			mutate: func(r *oapi.Raws) {
-				sword := slices.Index(gc.AllSkillIDs, gc.SkillSword)
-				spear := slices.Index(gc.AllSkillIDs, gc.SkillSpear)
+				sword := slices.Index(schemaEnum("SkillId"), string(gc.SkillSword))
+				spear := slices.Index(schemaEnum("SkillId"), string(gc.SkillSpear))
 				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
@@ -374,12 +380,12 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	}, defs.Categories)
 
 	skills := gc.NewSkills()
-	for _, id := range gc.AllSkillIDs {
-		skills.Get(id).Value = 10
+	for _, id := range schemaEnum("SkillId") {
+		skills.Get(gc.SkillID(id)).Value = 10
 	}
 	got := map[gc.ProficiencyKey]int{}
-	for _, key := range gc.ProficiencyKeys() {
-		got[key] = int(defs.ProficiencyValue(skills, nil, gc.HealthyBodyFuncs(), key))
+	for _, key := range schemaEnum("ProficiencyId") {
+		got[gc.ProficiencyKey(key)] = int(defs.ProficiencyValue(skills, nil, gc.HealthyBodyFuncs(), gc.ProficiencyKey(key)))
 	}
 	assert.Equal(t, map[gc.ProficiencyKey]int{
 		gc.ProfFireResist: 70, gc.ProfThunderResist: 70, gc.ProfChillResist: 70, gc.ProfPhotonResist: 70,

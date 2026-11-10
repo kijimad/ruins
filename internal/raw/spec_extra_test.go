@@ -380,7 +380,7 @@ TotalEffort = 10
 	assert.Contains(t, err.Error(), "requires a Skill")
 }
 
-func TestNewItemSpec_本に未定義スキルはエラー(t *testing.T) {
+func TestValidateRaws_本に未定義スキルはエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -400,9 +400,9 @@ TargetSkill = "unknown_skill"
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	_, err = NewItemSpec(raws, "謎の本")
+	err = ValidateRaws(raws)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "undefined skill ID")
+	assert.ErrorContains(t, err, "unknown_skill")
 }
 
 func TestNewItemSpec_不正な重量はエラー(t *testing.T) {

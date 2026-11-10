@@ -290,7 +290,7 @@ func TestSkillDefsProficiency_値は基準と内訳の和に一致する(t *test
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// 表示は 基準 + Σ内訳、適用は CalcProficiencyValue。両者の一致が表示=適用の土台
-			for _, key := range ProficiencyKeys() {
+			for key := range testSkillDefs.Proficiencies {
 				sum := int(consts.PercentBase)
 				for _, s := range testSkillDefs.ProficiencySources(tc.skills, tc.abils, tc.bodyFuncs, key) {
 					sum += s.Value

@@ -642,6 +642,111 @@ func (e PlannerKey) Valid() bool {
 	}
 }
 
+// Defines values for ProficiencyId.
+const (
+	ProficiencyIdBowAccuracy     ProficiencyId = "bow_accuracy"
+	ProficiencyIdBowDamage       ProficiencyId = "bow_damage"
+	ProficiencyIdBuyPrice        ProficiencyId = "buy_price"
+	ProficiencyIdCannonAccuracy  ProficiencyId = "cannon_accuracy"
+	ProficiencyIdCannonDamage    ProficiencyId = "cannon_damage"
+	ProficiencyIdChillResist     ProficiencyId = "chill_resist"
+	ProficiencyIdColdProgress    ProficiencyId = "cold_progress"
+	ProficiencyIdCraftCost       ProficiencyId = "craft_cost"
+	ProficiencyIdEnemyVision     ProficiencyId = "enemy_vision"
+	ProficiencyIdExploration     ProficiencyId = "exploration"
+	ProficiencyIdFireResist      ProficiencyId = "fire_resist"
+	ProficiencyIdFistAccuracy    ProficiencyId = "fist_accuracy"
+	ProficiencyIdFistDamage      ProficiencyId = "fist_damage"
+	ProficiencyIdHandgunAccuracy ProficiencyId = "handgun_accuracy"
+	ProficiencyIdHandgunDamage   ProficiencyId = "handgun_damage"
+	ProficiencyIdHealingEffect   ProficiencyId = "healing_effect"
+	ProficiencyIdHeavyArmor      ProficiencyId = "heavy_armor"
+	ProficiencyIdHungerProgress  ProficiencyId = "hunger_progress"
+	ProficiencyIdMaxWeight       ProficiencyId = "max_weight"
+	ProficiencyIdMoveCost        ProficiencyId = "move_cost"
+	ProficiencyIdNightVision     ProficiencyId = "night_vision"
+	ProficiencyIdPhotonResist    ProficiencyId = "photon_resist"
+	ProficiencyIdRifleAccuracy   ProficiencyId = "rifle_accuracy"
+	ProficiencyIdRifleDamage     ProficiencyId = "rifle_damage"
+	ProficiencyIdSellPrice       ProficiencyId = "sell_price"
+	ProficiencyIdSmithQuality    ProficiencyId = "smith_quality"
+	ProficiencyIdSpearAccuracy   ProficiencyId = "spear_accuracy"
+	ProficiencyIdSpearDamage     ProficiencyId = "spear_damage"
+	ProficiencyIdSwordAccuracy   ProficiencyId = "sword_accuracy"
+	ProficiencyIdSwordDamage     ProficiencyId = "sword_damage"
+	ProficiencyIdThunderResist   ProficiencyId = "thunder_resist"
+)
+
+// Valid indicates whether the value is a known member of the ProficiencyId enum.
+func (e ProficiencyId) Valid() bool {
+	switch e {
+	case ProficiencyIdBowAccuracy:
+		return true
+	case ProficiencyIdBowDamage:
+		return true
+	case ProficiencyIdBuyPrice:
+		return true
+	case ProficiencyIdCannonAccuracy:
+		return true
+	case ProficiencyIdCannonDamage:
+		return true
+	case ProficiencyIdChillResist:
+		return true
+	case ProficiencyIdColdProgress:
+		return true
+	case ProficiencyIdCraftCost:
+		return true
+	case ProficiencyIdEnemyVision:
+		return true
+	case ProficiencyIdExploration:
+		return true
+	case ProficiencyIdFireResist:
+		return true
+	case ProficiencyIdFistAccuracy:
+		return true
+	case ProficiencyIdFistDamage:
+		return true
+	case ProficiencyIdHandgunAccuracy:
+		return true
+	case ProficiencyIdHandgunDamage:
+		return true
+	case ProficiencyIdHealingEffect:
+		return true
+	case ProficiencyIdHeavyArmor:
+		return true
+	case ProficiencyIdHungerProgress:
+		return true
+	case ProficiencyIdMaxWeight:
+		return true
+	case ProficiencyIdMoveCost:
+		return true
+	case ProficiencyIdNightVision:
+		return true
+	case ProficiencyIdPhotonResist:
+		return true
+	case ProficiencyIdRifleAccuracy:
+		return true
+	case ProficiencyIdRifleDamage:
+		return true
+	case ProficiencyIdSellPrice:
+		return true
+	case ProficiencyIdSmithQuality:
+		return true
+	case ProficiencyIdSpearAccuracy:
+		return true
+	case ProficiencyIdSpearDamage:
+		return true
+	case ProficiencyIdSwordAccuracy:
+		return true
+	case ProficiencyIdSwordDamage:
+		return true
+	case ProficiencyIdThunderResist:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for RecoveryMode.
 const (
 	ProgressUntilTend RecoveryMode = "progress_until_tend"
@@ -762,6 +867,90 @@ func (e ShelterType) Valid() bool {
 	case ShelterTypeN10:
 		return true
 	case ShelterTypeN5:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SkillId.
+const (
+	SkillIdBow           SkillId = "bow"
+	SkillIdCannon        SkillId = "cannon"
+	SkillIdChillResist   SkillId = "chill_resist"
+	SkillIdColdResist    SkillId = "cold_resist"
+	SkillIdCrafting      SkillId = "crafting"
+	SkillIdExploration   SkillId = "exploration"
+	SkillIdFireResist    SkillId = "fire_resist"
+	SkillIdFist          SkillId = "fist"
+	SkillIdHandgun       SkillId = "handgun"
+	SkillIdHealing       SkillId = "healing"
+	SkillIdHeavyArmor    SkillId = "heavy_armor"
+	SkillIdHungerResist  SkillId = "hunger_resist"
+	SkillIdMechanic      SkillId = "mechanic"
+	SkillIdNegotiation   SkillId = "negotiation"
+	SkillIdNightVision   SkillId = "night_vision"
+	SkillIdPhotonResist  SkillId = "photon_resist"
+	SkillIdRifle         SkillId = "rifle"
+	SkillIdSmithing      SkillId = "smithing"
+	SkillIdSpear         SkillId = "spear"
+	SkillIdSprinting     SkillId = "sprinting"
+	SkillIdStealth       SkillId = "stealth"
+	SkillIdSword         SkillId = "sword"
+	SkillIdThunderResist SkillId = "thunder_resist"
+	SkillIdWeightBearing SkillId = "weight_bearing"
+)
+
+// Valid indicates whether the value is a known member of the SkillId enum.
+func (e SkillId) Valid() bool {
+	switch e {
+	case SkillIdBow:
+		return true
+	case SkillIdCannon:
+		return true
+	case SkillIdChillResist:
+		return true
+	case SkillIdColdResist:
+		return true
+	case SkillIdCrafting:
+		return true
+	case SkillIdExploration:
+		return true
+	case SkillIdFireResist:
+		return true
+	case SkillIdFist:
+		return true
+	case SkillIdHandgun:
+		return true
+	case SkillIdHealing:
+		return true
+	case SkillIdHeavyArmor:
+		return true
+	case SkillIdHungerResist:
+		return true
+	case SkillIdMechanic:
+		return true
+	case SkillIdNegotiation:
+		return true
+	case SkillIdNightVision:
+		return true
+	case SkillIdPhotonResist:
+		return true
+	case SkillIdRifle:
+		return true
+	case SkillIdSmithing:
+		return true
+	case SkillIdSpear:
+		return true
+	case SkillIdSprinting:
+		return true
+	case SkillIdStealth:
+		return true
+	case SkillIdSword:
+		return true
+	case SkillIdThunderResist:
+		return true
+	case SkillIdWeightBearing:
 		return true
 	default:
 		return false
@@ -2372,7 +2561,7 @@ type ProfessionSkill struct {
 }
 
 // ProficiencyId 熟練の効果倍率の id
-type ProficiencyId = string
+type ProficiencyId string
 
 // ProficiencyPerLevel 熟練の効果倍率のスキルLv1あたりの変化量。百分率
 type ProficiencyPerLevel = int
@@ -2636,7 +2825,7 @@ type SkillCategory struct {
 type SkillCategoryId = string
 
 // SkillId スキルID
-type SkillId = string
+type SkillId string
 
 // SkillLevel スキルレベル
 type SkillLevel = int

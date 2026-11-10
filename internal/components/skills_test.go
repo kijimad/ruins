@@ -41,23 +41,27 @@ func TestValueOf(t *testing.T) {
 	}
 }
 
-func TestNewSkills(t *testing.T) {
+func TestSkills_Get(t *testing.T) {
 	t.Parallel()
 
-	skills := NewSkills()
+	t.Run("まだ無いスキルは値0で作る", func(t *testing.T) {
+		t.Parallel()
+		skills := NewSkills()
+		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get(SkillSword))
+		assert.Equal(t, map[SkillID]*Skill{SkillSword: {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
+	})
 
-	assert.Len(t, skills.Data, len(AllSkillIDs), "全スキルが初期化される")
-	for _, id := range AllSkillIDs {
-		s := skills.Get(id)
-		assert.NotNil(t, s, "スキル %s が存在する", id)
-		assert.Equal(t, 0, s.Value, "初期スキル値は0")
-		assert.Equal(t, 0, s.Exp.Current, "初期経験値は0")
-		assert.Equal(t, LevelUpExp, s.Exp.Max, "経験値上限はLevelUpExp")
-	}
+	t.Run("作ったスキルへの書き込みが残る", func(t *testing.T) {
+		t.Parallel()
+		skills := NewSkills()
+		skills.Get(SkillBow).Value = 7
+		assert.Equal(t, 7, skills.Get(SkillBow).Value)
+	})
 
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		skills.Get("undefined_skill")
+	t.Run("ゼロ値の Skills でも使える", func(t *testing.T) {
+		t.Parallel()
+		var skills Skills
+		assert.Equal(t, 0, skills.Get(SkillFist).Value)
 	})
 }
 
@@ -89,26 +93,6 @@ func TestWeaponSkillID(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestIsSkillID(t *testing.T) {
-	t.Parallel()
-
-	for _, id := range AllSkillIDs {
-		assert.True(t, IsSkillID(id), "スキル %s は定義済み", id)
-	}
-	assert.False(t, IsSkillID("undefined_skill"))
-}
-
-func TestAllSkillIDs_重複しない(t *testing.T) {
-	t.Parallel()
-
-	seen := map[SkillID]bool{}
-	for _, id := range AllSkillIDs {
-		assert.False(t, seen[id], "スキル %s が重複している", id)
-		seen[id] = true
-	}
-	assert.Len(t, AllSkillIDs, 24)
 }
 
 func TestWeaponSkillID_全攻撃種別が同じ名前の武器スキルを持つ(t *testing.T) {
