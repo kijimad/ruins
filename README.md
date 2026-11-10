@@ -110,7 +110,7 @@ $ make help
 | draft | [コードに残るゲームデータを raw へ移す](docs/design/261110202024.md) | 0/13 | refactor, gamedesign, worldgen |
 | draft | [訳す前の文字列 msgid に型を付ける](docs/design/261110205344.md) | 0/5 | refactor, ui |
 | draft | [raw のスキーマを CUE に移し、TypeSpec と editor-ui をなくす](docs/design/261110211157.md) | 0/6 | refactor, ci |
-| draft | [最小のゲームループを完成させる](docs/design/261111002908.md) | 0/8 | gamedesign, item, worldgen |
+| draft | [北の目的地と序盤の作る段を足し、ゲームループを閉じる](docs/design/261111002908.md) | 0/6 | gamedesign, item, worldgen |
 
 
 ## Reference
