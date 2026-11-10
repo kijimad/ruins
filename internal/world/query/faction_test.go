@@ -53,6 +53,24 @@ func TestIsAreaSafe(t *testing.T) {
 		assert.True(t, query.IsAreaSafe(world, player))
 	})
 
+	t.Run("近くに敵が複数いる場合も危険", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		enemy1 := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy1, &gc.FactionEnemy{})
+		world.Components.GridElement.Add(enemy1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
+
+		enemy2 := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy2, &gc.FactionEnemy{})
+		world.Components.GridElement.Add(enemy2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 10}})
+
+		assert.False(t, query.IsAreaSafe(world, player), "2体目以降は既に危険確定済みでも判定は変わらない")
+	})
+
 	t.Run("GridElementがない場合は危険と判定", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

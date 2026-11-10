@@ -147,3 +147,71 @@ func TestFindNearestCharacter_タイルを無視する(t *testing.T) {
 	assert.Equal(t, player, *found, "非キャラのタイルは無視し、プレイヤーを返す")
 	assert.Equal(t, 3, dist, "距離はプレイヤーまでの3（隣接タイルではない）")
 }
+
+// TestFindNearestCharacter_索引未構築時は全走査にフォールバックする は、空間インデックスが
+// 使えないとき FindNearestEntity へフォールバックし、それでも対象を見つけられることを固定する。
+func TestFindNearestCharacter_索引未構築時は全走査にフォールバックする(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	self := world.ECS.NewEntity()
+	world.Components.GridElement.Add(self, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+
+	target := world.ECS.NewEntity()
+	world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+	world.Components.Player.Add(target, &gc.Player{})
+
+	// SpatialIndex を取り除き、索引が使えない状態を作る
+	world.Components.SpatialIndex.Remove(world.Resources.SingletonEntity)
+
+	from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
+	found, grid, dist := query.FindNearestCharacter(world, self, from, func(e ecs.Entity) bool {
+		return world.Components.Player.Has(e)
+	})
+
+	require.NotNil(t, found, "索引が無くても全走査で見つかる")
+	assert.Equal(t, target, *found)
+	assert.Equal(t, consts.Tile(6), grid.X)
+	assert.Equal(t, 1, dist)
+}
+
+// TestFindNearestCharacter_索引経由で条件に合わないキャラは除外する は、索引の候補のうち
+// match に合わないキャラを読み飛ばし、合うキャラだけを対象にすることを固定する。
+func TestFindNearestCharacter_索引経由で条件に合わないキャラは除外する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	self := spawnCharacterAt(world, 5, 5)
+	// matchに合わない候補。selfに最も近くに置き、除外されなければ誤って最寄りになる
+	spawnCharacterAt(world, 6, 5)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 8, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	selfGrid := world.Components.GridElement.Get(self)
+	found, _, dist := query.FindNearestCharacter(world, self, selfGrid, func(e ecs.Entity) bool {
+		return world.Components.Player.Has(e)
+	})
+
+	require.NotNil(t, found, "matchに合うプレイヤーが見つかる")
+	assert.Equal(t, player, *found, "matchに合わない候補は読み飛ばしてプレイヤーを返す")
+	assert.Equal(t, 3, dist)
+}
+
+// TestFindNearestCharacter_索引経由で条件に合うキャラが無ければnil は、索引を使う経路でも
+// 一致するキャラが無ければ nil, nil, -1 を返すことを固定する。
+func TestFindNearestCharacter_索引経由で条件に合うキャラが無ければnil(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	self := spawnCharacterAt(world, 5, 5)
+	spawnCharacterAt(world, 6, 5)
+
+	selfGrid := world.Components.GridElement.Get(self)
+	found, grid, dist := query.FindNearestCharacter(world, self, selfGrid, func(e ecs.Entity) bool {
+		return world.Components.Player.Has(e)
+	})
+
+	assert.Nil(t, found)
+	assert.Nil(t, grid)
+	assert.Equal(t, -1, dist)
+}

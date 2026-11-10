@@ -114,3 +114,16 @@ func TestCurrencyOperationsWithoutWallet(t *testing.T) {
 	// クリーンアップ
 	world.ECS.RemoveEntity(entity)
 }
+
+// TestConsumeCurrency_Walletが無ければ0消費でもfalse は、HasCurrency が 0 以上の所持を
+// 許して通した後も、実際に減らす Wallet が無ければ false に落ちることを固定する。
+func TestConsumeCurrency_Walletが無ければ0消費でもfalse(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	entity := world.ECS.NewEntity()
+
+	assert.False(t, ConsumeCurrency(world, entity, 0), "所持金0の消費要求はHasCurrencyを通るがWalletが無いのでfalse")
+
+	world.ECS.RemoveEntity(entity)
+}

@@ -43,6 +43,21 @@ func TestGetDungeon(t *testing.T) {
 		d := GetDungeon(world)
 		assert.Nil(t, d)
 	})
+
+	t.Run("コンポーネントを持たない状態からSetDungeonすると新たに追加する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// 先にnilで設定し、Dungeonコンポーネントを取り除いた状態を作る
+		SetDungeon(world, nil)
+
+		newDungeon := &gc.Dungeon{CurrentStage: gc.NewDungeonStage("追加テスト遺跡", 2)}
+		SetDungeon(world, newDungeon)
+
+		d := GetDungeon(world)
+		require.NotNil(t, d, "コンポーネントが無い状態からでも追加できる")
+		assert.Equal(t, 2, d.CurrentStage.Depth)
+	})
 }
 
 // TestIsOnOverworld は現在地判定を検証する。
@@ -131,4 +146,46 @@ func TestGetCurrentStageField_未生成のステージはnilを返す(t *testing
 	d.CurrentStage = gc.NewDungeonStage("未生成の遺跡", 1)
 
 	assert.Nil(t, GetCurrentStageField(world), "StageFieldを生成していないステージはnil")
+}
+
+// TestGetGameLog_未初期化ならnilを返す は、GameLog シングルトンが無い状態での読みを固定する。
+func TestGetGameLog_未初期化ならnilを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Components.GameLog.Remove(world.Resources.SingletonEntity)
+
+	assert.Nil(t, GetGameLog(world))
+}
+
+// TestGetSpatialIndex_コンポーネントが無ければnil は、SpatialIndex シングルトンを
+// 持たない世界では構築を試みず直ちに nil を返すことを固定する。
+func TestGetSpatialIndex_コンポーネントが無ければnil(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Components.SpatialIndex.Remove(world.Resources.SingletonEntity)
+
+	assert.Nil(t, GetSpatialIndex(world))
+}
+
+// TestGetSpatialIndex_StageField未生成のステージでは構築できずnil は、buildSpatialIndex が
+// field==nil で早期returnしMapWidth/Heightが0のままとなり、GetSpatialIndexがnilへ落ちることを固定する。
+func TestGetSpatialIndex_StageField未生成のステージでは構築できずnil(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	GetDungeon(world).CurrentStage = gc.NewDungeonStage("未生成の遺跡", 1)
+
+	assert.Nil(t, GetSpatialIndex(world))
+}
+
+// TestUpdateCharacterPositionInIndex_コンポーネントが無ければ何もしない は、
+// 索引シングルトンが無い状態で呼んでもpanicせず何もしないことを固定する。
+func TestUpdateCharacterPositionInIndex_コンポーネントが無ければ何もしない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Components.SpatialIndex.Remove(world.Resources.SingletonEntity)
+
+	e := world.ECS.NewEntity()
+	assert.NotPanics(t, func() {
+		UpdateCharacterPositionInIndex(world, e, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 1, Y: 0})
+	})
 }

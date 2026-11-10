@@ -75,6 +75,27 @@ func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) 
 	}
 }
 
+// TestGetWeapons_武器でない装備はスロットに入らない は、LocationEquipped の武器スロットに
+// 占めていても Melee/Fire を持たないエンティティは IsWeapon が偽となり読み飛ばされることを固定する。
+func TestGetWeapons_武器でない装備はスロットに入らない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+
+	// 武器スロットを占めるが Melee/Fire を持たない不整合な実体
+	notWeapon := world.ECS.NewEntity()
+	world.Components.LocationEquipped.Add(notWeapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotWeapon1})
+
+	weapons := query.GetWeapons(world, player)
+	require.Len(t, weapons, 5)
+	for i, w := range weapons {
+		assert.Nil(t, w, "スロット%dは武器でない実体を読み飛ばして空のまま", i+1)
+	}
+}
+
 func TestGetArmorEquipments(t *testing.T) {
 	t.Parallel()
 
@@ -98,6 +119,51 @@ func TestGetArmorEquipments(t *testing.T) {
 	armors = query.GetArmorEquipments(world, player)
 	assert.NotNil(t, armors[1], "SlotTorsoに装備が入っている")
 	assert.Nil(t, armors[0], "SlotHeadは空")
+}
+
+// TestGetArmorEquipments_全スロットをインデックスへ振り分ける は、7スロットそれぞれに
+// 装備した防具が switch で正しいインデックスへ振り分けられることを固定する。Torso 以外の
+// 分岐は個別にテストされていなかった。
+func TestGetArmorEquipments_全スロットをインデックスへ振り分ける(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		slot  gc.EquipmentSlotNumber
+		index int
+	}{
+		{"Head", gc.SlotHead, 0},
+		{"Torso", gc.SlotTorso, 1},
+		{"Arms", gc.SlotArms, 2},
+		{"Hands", gc.SlotHands, 3},
+		{"Legs", gc.SlotLegs, 4},
+		{"Feet", gc.SlotFeet, 5},
+		{"Jewelry", gc.SlotJewelry, 6},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+
+			armor := world.ECS.NewEntity()
+			world.Components.Wearable.Add(armor, &gc.Wearable{EquipmentCategory: oapi.EquipmentCategoryTORSO})
+			lifecycle.MoveToEquip(world, armor, player, tt.slot)
+
+			armors := query.GetArmorEquipments(world, player)
+			require.Len(t, armors, 7)
+			for i, got := range armors {
+				if i == tt.index {
+					assert.NotNil(t, got, "Slot%sはインデックス%dに入る", tt.name, tt.index)
+				} else {
+					assert.Nil(t, got, "Slot%s以外は空", tt.name)
+				}
+			}
+		})
+	}
 }
 
 // TestGetArmorEquipments_不正なスロットはpanic は防具スロットの範囲外(武器スロット)を

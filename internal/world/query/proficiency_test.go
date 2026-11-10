@@ -64,3 +64,13 @@ func TestProficiencySources_疲労の内訳が値と一致する(t *testing.T) {
 	assert.Equal(t, value, sum, "内訳の合計は値に一致する")
 	assert.True(t, sawBodyFunc, "疲労が下げた身体機能の内訳が載る")
 }
+
+func TestProficiencySources_Skillsが無ければnilを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	entity := world.ECS.NewEntity()
+
+	sources := ProficiencySources(world, entity, oapi.ProficiencyIdSwordAccuracy)
+
+	assert.Nil(t, sources, "Skillsが無ければ内訳は空")
+}
