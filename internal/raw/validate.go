@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"sync"
 	"unicode/utf8"
@@ -650,21 +651,19 @@ func validateConditions(raws oapi.Raws) error {
 // parts を省いた不調は全部位が対象になる
 func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) error {
 	parts := PtrSlice(c.Parts)
-	if len(parts) == 0 {
-		for id := range hitWeights {
-			parts = append(parts, id)
+	for _, id := range parts {
+		if _, ok := hitWeights[id]; !ok {
+			return fmt.Errorf("condition %q part %q: %w", c.Id, id, errConditionPartUndefined)
 		}
-	} else {
-		for _, id := range parts {
-			if _, ok := hitWeights[id]; !ok {
-				return fmt.Errorf("condition %q part %q: %w", c.Id, id, errConditionPartUndefined)
-			}
-			if id == gc.BodyPartWholeBody.ID() {
-				return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
-			}
+		if id == gc.BodyPartWholeBody.ID() {
+			return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
 		}
 	}
-	for _, id := range parts {
+	candidates := parts
+	if len(parts) == 0 {
+		candidates = slices.Collect(maps.Keys(hitWeights))
+	}
+	for _, id := range candidates {
 		if hitWeights[id] > 0 {
 			return nil
 		}
