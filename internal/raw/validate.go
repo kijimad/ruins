@@ -898,7 +898,11 @@ func validateEnumRows(schemaName string, ids []string) error {
 		return fmt.Errorf("cannot find %s component in OpenAPI schema", schemaName)
 	}
 	for _, v := range ref.Value.Enum {
-		if !slices.Contains(ids, fmt.Sprint(v)) {
+		s, ok := v.(string)
+		if !ok {
+			return fmt.Errorf("%s enum value %v is %T, not string", schemaName, v, v)
+		}
+		if !slices.Contains(ids, s) {
 			return fmt.Errorf("%s %q: %w", schemaName, v, errEnumRowMissing)
 		}
 	}
