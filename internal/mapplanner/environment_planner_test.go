@@ -43,11 +43,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 中央の床タイルは屋内
 		centerIdx := 2*5 + 2 // (2, 2)
-		assert.Equal(t, gc.ShelterFull, mp.Environments[centerIdx].Shelter, "中央は屋内であるべき")
+		assert.Equal(t, oapi.Indoor, mp.Environments[centerIdx].Shelter, "中央は屋内であるべき")
 
 		// 壁タイルは屋内（壁は通過できないので屋外判定されない）
 		wallIdx := 0 // (0, 0)
-		assert.Equal(t, gc.ShelterFull, mp.Environments[wallIdx].Shelter, "壁は屋内扱い")
+		assert.Equal(t, oapi.Indoor, mp.Environments[wallIdx].Shelter, "壁は屋内扱い")
 	})
 
 	t.Run("マップ端から到達可能な領域は屋外になる", func(t *testing.T) {
@@ -69,7 +69,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 全てのタイルが屋外
 		for i := range 25 {
-			assert.Equal(t, gc.ShelterNone, mp.Environments[i].Shelter, "全て屋外であるべき")
+			assert.Equal(t, oapi.Outdoor, mp.Environments[i].Shelter, "全て屋外であるべき")
 		}
 	})
 
@@ -107,11 +107,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 囲まれた内部は屋内
 		insideIdx := 2*7 + 2 // (2, 2)
-		assert.Equal(t, gc.ShelterFull, mp.Environments[insideIdx].Shelter, "囲まれた内部は屋内")
+		assert.Equal(t, oapi.Indoor, mp.Environments[insideIdx].Shelter, "囲まれた内部は屋内")
 
 		// 外部は屋外
 		outsideIdx := 0 // (0, 0)
-		assert.Equal(t, gc.ShelterNone, mp.Environments[outsideIdx].Shelter, "外部は屋外")
+		assert.Equal(t, oapi.Outdoor, mp.Environments[outsideIdx].Shelter, "外部は屋外")
 	})
 }
 

@@ -10,6 +10,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -263,7 +264,7 @@ func (st *LookAroundState) drawTileEnvironment(world w.World, entities []ecs.Ent
 			defs := world.Resources.TileEnvDefs
 			panel.Line(fmt.Sprintf("%s: %+d", query.T(world, "Temperature modifier"), defs.TempModifier(*temp)))
 			// Shelter は加算℃でなく世界温度の緩和度なので、数値でなく屋内であることだけ示す
-			if temp.Shelter != gc.ShelterNone {
+			if temp.Shelter != oapi.Outdoor {
 				panel.Line("  " + query.T(world, "Indoor"))
 			}
 			if v := defs.Water[temp.Water]; v != 0 {

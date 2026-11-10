@@ -17,8 +17,9 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 	mp.Environments = make([]gc.TileEnvironment, len(mp.Tiles))
 	for i := range mp.Tiles {
 		env := &mp.Environments[i]
+		env.Shelter = oapi.Outdoor
 		if !outdoor[i] {
-			env.Shelter = gc.ShelterFull
+			env.Shelter = oapi.Indoor
 		}
 		env.Water = p.calcWater(mp, i)
 		if mp.Tiles[i].Foliage != nil {

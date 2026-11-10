@@ -72,7 +72,7 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 				ambientTempVisible = true
 				ambientTempColor = ambientTempDisplayColor(temp)
 				shelter, _ := query.TileEnvironmentAt(world, grid.X, grid.Y)
-				ambientShelterLabel = query.T(world, shelterMsgid(shelter))
+				ambientShelterLabel = query.ShelterName(world, shelter)
 			}
 		}
 	}
@@ -436,19 +436,6 @@ func conditionLabel(world w.World, ct gc.ConditionType, severity gc.Severity) st
 		return name
 	}
 	return name + " " + query.T(world, severity.String())
-}
-
-// shelterMsgid は囲われの度合いの表示名 msgid を返す
-func shelterMsgid(shelter gc.ShelterType) string {
-	switch shelter {
-	case gc.ShelterFull:
-		return "Indoor"
-	case gc.ShelterPartial:
-		return "Semi-outdoor"
-	case gc.ShelterNone:
-	}
-	// 未知の値は屋外へ落とす
-	return "Outdoor"
 }
 
 // ambientTempDisplayColor は周囲気温の表示色を返す。快適帯の中は白、下回ると青、上回ると赤に寄せる

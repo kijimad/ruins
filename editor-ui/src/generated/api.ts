@@ -1934,6 +1934,7 @@ export interface Raws {
     'interiorRefs'?: Array<InteriorRef>;
     'interiorProfile'?: InteriorProfile;
     'weathers'?: Array<Weather>;
+    'shelterEffects'?: Array<ShelterEffect>;
     'waterEffects'?: Array<WaterEffect>;
     'foliageEffects'?: Array<FoliageEffect>;
     'hungerStages'?: Array<HungerStage>;
@@ -2056,6 +2057,39 @@ export const SeasonId = {
 } as const;
 
 export type SeasonId = typeof SeasonId[keyof typeof SeasonId];
+
+
+/**
+ * タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
+ */
+
+export const Shelter = {
+    Outdoor: 'outdoor',
+    Partial: 'partial',
+    Indoor: 'indoor',
+} as const;
+
+export type Shelter = typeof Shelter[keyof typeof Shelter];
+
+
+/**
+ * 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
+ */
+export interface ShelterEffect {
+    'id': Shelter;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 水や植生がタイルの気温に足す補正。℃
+     */
+    'anchorTemp': number;
+    /**
+     * 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
+     */
+    'influencePercent': number;
+}
 
 
 /**

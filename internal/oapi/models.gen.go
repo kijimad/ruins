@@ -852,6 +852,27 @@ func (e SeasonId) Valid() bool {
 	}
 }
 
+// Defines values for Shelter.
+const (
+	Indoor  Shelter = "indoor"
+	Outdoor Shelter = "outdoor"
+	Partial Shelter = "partial"
+)
+
+// Valid indicates whether the value is a known member of the Shelter enum.
+func (e Shelter) Valid() bool {
+	switch e {
+	case Indoor:
+		return true
+	case Outdoor:
+		return true
+	case Partial:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SkillId.
 const (
 	SkillIdBow           SkillId = "bow"
@@ -2694,6 +2715,7 @@ type Raws struct {
 	Props           *[]Prop           `json:"props,omitempty"`
 	Recipes         *[]Recipe         `json:"recipes,omitempty"`
 	ScatterZones    *[]ScatterZone    `json:"scatterZones,omitempty"`
+	ShelterEffects  *[]ShelterEffect  `json:"shelterEffects,omitempty"`
 	SkillCategories *[]SkillCategory  `json:"skillCategories,omitempty"`
 	Skills          *[]Skill          `json:"skills,omitempty"`
 	SpriteSheets    *[]SpriteSheet    `json:"spriteSheets,omitempty"`
@@ -2773,6 +2795,27 @@ type SeasonId string
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
+
+// Shelter タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
+type Shelter string
+
+// ShelterEffect 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
+type ShelterEffect struct {
+	// AnchorTemp 水や植生がタイルの気温に足す補正。℃
+	AnchorTemp TileTempModifier `json:"anchorTemp"`
+
+	// Id タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
+	Id Shelter `json:"id"`
+
+	// InfluencePercent 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
+	InfluencePercent ShelterInfluencePercent `json:"influencePercent"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+}
+
+// ShelterInfluencePercent 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
+type ShelterInfluencePercent = int
 
 // Skill スキル。同じカテゴリのスキルは行の順に表示する
 type Skill struct {

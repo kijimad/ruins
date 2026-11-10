@@ -744,6 +744,18 @@ enum SpriteDepth {
   Player: 4,
 }
 
+/** タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く */
+enum Shelter {
+  outdoor,
+  partial,
+  indoor,
+}
+
+/** 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける */
+@minValue(0)
+@maxValue(100)
+scalar ShelterInfluencePercent extends integer;
+
 /** タイルが受ける水の影響 */
 enum WaterExposure {
   /** 水のタイルの隣 */

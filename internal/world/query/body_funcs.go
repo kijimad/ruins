@@ -54,6 +54,11 @@ func FatigueName(world w.World, level oapi.FatigueStageId) string {
 	return T(world, world.Resources.NeedDefs.FatigueName(level))
 }
 
+// ShelterName は囲われの度合いの訳した表示名を返す
+func ShelterName(world w.World, shelter oapi.Shelter) string {
+	return T(world, world.Resources.TileEnvDefs.ShelterName(shelter))
+}
+
 // BodyPartName は部位の訳した表示名を返す
 func BodyPartName(world w.World, part gc.BodyPart) string {
 	return T(world, world.Resources.ConditionDefs.PartName(part))

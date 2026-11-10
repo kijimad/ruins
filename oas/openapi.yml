@@ -3892,6 +3892,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Weather'
+        shelterEffects:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShelterEffect'
         waterEffects:
           type: array
           items:
@@ -4067,6 +4071,35 @@ components:
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
+    Shelter:
+      type: string
+      enum:
+        - outdoor
+        - partial
+        - indoor
+      description: タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
+    ShelterEffect:
+      type: object
+      required:
+        - id
+        - name
+        - anchorTemp
+        - influencePercent
+      properties:
+        id:
+          $ref: '#/components/schemas/Shelter'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        anchorTemp:
+          $ref: '#/components/schemas/TileTempModifier'
+        influencePercent:
+          $ref: '#/components/schemas/ShelterInfluencePercent'
+      description: 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
+    ShelterInfluencePercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
     Skill:
       type: object
       required:

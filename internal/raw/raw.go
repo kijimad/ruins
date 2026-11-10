@@ -753,7 +753,7 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	entitySpec.Tile = &gc.Tile{}
 
 	// タイル種別によらないので、ここでは初期化するだけ
-	entitySpec.TileEnvironment = &gc.TileEnvironment{}
+	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: oapi.Outdoor}
 
 	return entitySpec, nil
 }
@@ -1092,9 +1092,12 @@ var (
 	}
 )
 
-// NewTileEnvDefs は raw の waterEffects と foliageEffects から、水と植生がタイルの気温に足す補正の表を組み立てる
+// NewTileEnvDefs は raw の shelterEffects、waterEffects、foliageEffects から、囲われの受け方と、水と植生がタイルの気温に足す補正の表を組み立てる
 func NewTileEnvDefs(raws oapi.Raws) gc.TileEnvDefs {
-	defs := gc.TileEnvDefs{Water: map[oapi.WaterExposure]int{}, Foliage: map[oapi.Foliage]int{}}
+	defs := gc.TileEnvDefs{Shelters: map[oapi.Shelter]gc.ShelterDef{}, Water: map[oapi.WaterExposure]int{}, Foliage: map[oapi.Foliage]int{}}
+	for _, row := range PtrSlice(raws.ShelterEffects) {
+		defs.Shelters[row.Id] = gc.ShelterDef{Name: row.Name, AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent}
+	}
 	for _, row := range PtrSlice(raws.WaterEffects) {
 		defs.Water[row.Id] = row.TempModifier
 	}

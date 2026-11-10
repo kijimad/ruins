@@ -8,6 +8,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -56,7 +57,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			// 庭は屋外、壁はプレイヤーが立たないので対象にしない。
 			// TileEnvironment の有無はタイル仕様が決めるので、持たないタイルは黙って屋外のままにする
 			if name == consts.TileNameFloor && world.Components.TileEnvironment.Has(e) {
-				world.Components.TileEnvironment.Get(e).Shelter = gc.ShelterFull
+				world.Components.TileEnvironment.Get(e).Shelter = oapi.Indoor
 			}
 			occupied[coord] = true
 		}

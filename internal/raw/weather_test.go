@@ -159,6 +159,7 @@ func TestValidateTileEffects(t *testing.T) {
 
 	full := func() oapi.Raws {
 		return oapi.Raws{
+			ShelterEffects: &[]oapi.ShelterEffect{{Id: oapi.Outdoor}, {Id: oapi.Partial}, {Id: oapi.Indoor}},
 			WaterEffects:   &[]oapi.WaterEffect{{Id: oapi.Nearby, TempModifier: -5}, {Id: oapi.Submerged, TempModifier: -10}},
 			FoliageEffects: &[]oapi.FoliageEffect{{Id: oapi.Grass, TempModifier: -1}, {Id: oapi.Forest, TempModifier: -3}},
 		}
@@ -169,6 +170,11 @@ func TestValidateTileEffects(t *testing.T) {
 		wantErr error
 	}{
 		{name: "全値の行があれば通る", mutate: func(*oapi.Raws) {}},
+		{
+			name:    "囲われの行が欠ける",
+			mutate:  func(r *oapi.Raws) { *r.ShelterEffects = (*r.ShelterEffects)[:2] },
+			wantErr: errEnumRowMissing,
+		},
 		{
 			name:    "水の影響の行が欠ける",
 			mutate:  func(r *oapi.Raws) { *r.WaterEffects = (*r.WaterEffects)[:1] },
@@ -201,6 +207,11 @@ func TestNewTileEnvDefs_実データ(t *testing.T) {
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
 	assert.Equal(t, gc.TileEnvDefs{
+		Shelters: map[oapi.Shelter]gc.ShelterDef{
+			oapi.Outdoor: {Name: "Outdoor", AnchorTemp: 10, InfluencePercent: 100},
+			oapi.Partial: {Name: "Semi-outdoor", AnchorTemp: 10, InfluencePercent: 75},
+			oapi.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50},
+		},
 		Water:   map[oapi.WaterExposure]int{oapi.Nearby: -5, oapi.Submerged: -10},
 		Foliage: map[oapi.Foliage]int{oapi.Grass: -1, oapi.Forest: -3},
 	}, NewTileEnvDefs(raws))

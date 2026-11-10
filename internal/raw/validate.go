@@ -715,6 +715,7 @@ func validateCodeRows(raws oapi.Raws) error {
 	}{
 		{"interiorProfile", raws.InteriorProfile != nil},
 		{"weathers", len(PtrSlice(raws.Weathers)) > 0},
+		{"shelterEffects", len(PtrSlice(raws.ShelterEffects)) > 0},
 		{"waterEffects", len(PtrSlice(raws.WaterEffects)) > 0},
 		{"foliageEffects", len(PtrSlice(raws.FoliageEffects)) > 0},
 		{"hungerStages", len(PtrSlice(raws.HungerStages)) > 0},
@@ -944,8 +945,17 @@ func validateWeathers(raws oapi.Raws) error {
 	return validateEnumRows("WeatherId", ids)
 }
 
-// validateTileEffects は水と植生の気温の補正の行が、それぞれ enum の全値を1回ずつ持つことを検証する
+// validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
 func validateTileEffects(raws oapi.Raws) error {
+	if shelters := PtrSlice(raws.ShelterEffects); len(shelters) > 0 {
+		ids := make([]string, 0, len(shelters))
+		for _, s := range shelters {
+			ids = append(ids, string(s.Id))
+		}
+		if err := validateEnumRows("Shelter", ids); err != nil {
+			return err
+		}
+	}
 	if water := PtrSlice(raws.WaterEffects); len(water) > 0 {
 		ids := make([]string, 0, len(water))
 		for _, w := range water {

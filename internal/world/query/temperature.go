@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -41,30 +42,6 @@ func SleepableTemperatureRange(world w.World, entity ecs.Entity) (lower, upper i
 	return cl - sleepTemperatureMargin, cu + sleepTemperatureMargin
 }
 
-// 屋内の温度緩和パラメータ。屋内は世界温度をそのまま受けず、アンカー温度へ引き寄せて受ける。
-// 引き寄せ先を 0℃ でなくアンカーにするのは、寒さが浅いときにも屋内が屋外より穏やかで
-// あり続けるため。0℃ へ割るだけだと温暖時に屋内が屋外より寒くなる逆転が起きる。
-// 値は実プレイで調整する。
-const (
-	indoorAnchorTemp       = 10
-	indoorInfluenceDivisor = 2
-)
-
-// shelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す
-func shelteredWorldTemp(shelter gc.ShelterType, worldTemp int) int {
-	switch shelter {
-	case gc.ShelterFull:
-		return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)/indoorInfluenceDivisor
-	case gc.ShelterPartial:
-		// 屋内より弱くアンカーへ寄せる。係数は実プレイで調整する
-		return indoorAnchorTemp + (worldTemp-indoorAnchorTemp)*3/4
-	case gc.ShelterNone:
-		// 末尾の屋外 return へ落とす。default を置くと exhaustive linter が新値の漏れを検知できなくなる
-	}
-	// 屋外は世界温度をそのまま受ける。save 由来の未知の値も屋外へ落とす
-	return worldTemp
-}
-
 // stageBaseTemperature はステージの基本気温を返す。値はステージ生成時に StageField.BaseTemp へ
 // 確定済みで、ここは読むだけ。StageField 未確定なら基本気温0として扱う。
 // dungeon 登録表を引かないことで query から dungeon への依存を断つ
@@ -86,13 +63,13 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 
 	gt := GetGameTime(world)
 	// 屋外の世界温度。季節+時間帯+天候から緯度勾配を引く。天候の寒さも worldTemp の一項なので
-	// 屋内は shelteredWorldTemp で緩和される。末尾で引くと屋内外が同じだけ寒くなってしまう
+	// 屋内は ShelteredWorldTemp で緩和される。末尾で引くと屋内外が同じだけ寒くなってしまう
 	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier() +
 		world.Resources.WeatherDefs.Kinds[GetWeather(world).Current].Effect.TempModifier - latitudeCold(world, y)
 	shelter, tileModifier := TileEnvironmentAt(world, x, y)
 
 	return baseTemp +
-		shelteredWorldTemp(shelter, worldTemp) +
+		world.Resources.TileEnvDefs.ShelteredWorldTemp(shelter, worldTemp) +
 		tileModifier +
 		ambientHeatAt(world, x, y), nil
 }
@@ -173,8 +150,8 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 }
 
 // TileEnvironmentAt は指定座標のタイル環境を返す。囲われの緩和度と、水・植生の加算℃
-func TileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
-	shelter := gc.ShelterNone
+func TileEnvironmentAt(world w.World, x, y consts.Tile) (oapi.Shelter, int) {
+	shelter := oapi.Outdoor
 	var modifier int
 	tileTempQuery := ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()
 	for tileTempQuery.Next() {

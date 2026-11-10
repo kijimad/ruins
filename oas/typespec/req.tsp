@@ -543,6 +543,14 @@ model Tile {
   foliage?: Foliage;
 }
 
+/** 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100 */
+model ShelterEffect {
+  id: Shelter;
+  name: EntityName;
+  anchorTemp: TileTempModifier;
+  influencePercent: ShelterInfluencePercent;
+}
+
 /** 水がタイルの気温に足す補正 */
 model WaterEffect {
   id: WaterExposure;
@@ -827,6 +835,7 @@ model Raws {
   interiorRefs?: InteriorRef[];
   interiorProfile?: InteriorProfile;
   weathers?: Weather[];
+  shelterEffects?: ShelterEffect[];
   waterEffects?: WaterEffect[];
   foliageEffects?: FoliageEffect[];
   hungerStages?: HungerStage[];

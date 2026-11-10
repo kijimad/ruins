@@ -349,11 +349,11 @@ func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 		switch world.Components.RawID.Get(e).ID {
 		case consts.TileNameFloor:
 			floorTotal++
-			if shelter == gc.ShelterFull {
+			if shelter == oapi.Indoor {
 				floorFull++
 			}
 		case consts.TileNameDirt, consts.TileNameDWall:
-			if shelter == gc.ShelterFull {
+			if shelter == oapi.Indoor {
 				nonFloorFull++
 			}
 		}

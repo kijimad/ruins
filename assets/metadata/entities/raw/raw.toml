@@ -22278,6 +22278,24 @@
       dy = 1
       name = "tree_b"
 
+[[shelterEffects]]
+  anchorTemp = 10
+  id = "outdoor"
+  influencePercent = 100
+  name = "Outdoor"
+
+[[shelterEffects]]
+  anchorTemp = 10
+  id = "partial"
+  influencePercent = 75
+  name = "Semi-outdoor"
+
+[[shelterEffects]]
+  anchorTemp = 10
+  id = "indoor"
+  influencePercent = 50
+  name = "Indoor"
+
 [[skillCategories]]
   id = "melee"
   name = "Melee"
