@@ -112,7 +112,7 @@ func newEdgeTileTestPlan() *MetaPlan {
 		RawMaster: CreateTestRawMaster(),
 	}
 	for i := range plan.Tiles {
-		plan.Tiles[i] = plan.GetTile("floor")
+		plan.Tiles[i] = plan.GetTile(consts.TileNameFloor)
 	}
 	return plan
 }
@@ -125,7 +125,7 @@ func TestMetaPlan_UpTile_上端は境界外のvoidタイルを返す(t *testing.
 
 	tile := plan.UpTile(topIdx)
 
-	assert.Equal(t, consts.TileNameVoid, tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
 }
 
 func TestMetaPlan_UpTile_境界外でなければ上のタイルを返す(t *testing.T) {
@@ -136,7 +136,7 @@ func TestMetaPlan_UpTile_境界外でなければ上のタイルを返す(t *tes
 
 	tile := plan.UpTile(centerIdx)
 
-	assert.Equal(t, "floor", tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
 func TestMetaPlan_DownTile_下端は境界外のvoidタイルを返す(t *testing.T) {
@@ -147,7 +147,7 @@ func TestMetaPlan_DownTile_下端は境界外のvoidタイルを返す(t *testin
 
 	tile := plan.DownTile(bottomIdx)
 
-	assert.Equal(t, consts.TileNameVoid, tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
 }
 
 func TestMetaPlan_DownTile_境界外でなければ下のタイルを返す(t *testing.T) {
@@ -158,7 +158,7 @@ func TestMetaPlan_DownTile_境界外でなければ下のタイルを返す(t *t
 
 	tile := plan.DownTile(centerIdx)
 
-	assert.Equal(t, "floor", tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
 func TestMetaPlan_LeftTile_左端は境界外のvoidタイルを返す(t *testing.T) {
@@ -169,7 +169,7 @@ func TestMetaPlan_LeftTile_左端は境界外のvoidタイルを返す(t *testin
 
 	tile := plan.LeftTile(leftIdx)
 
-	assert.Equal(t, consts.TileNameVoid, tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
 }
 
 func TestMetaPlan_LeftTile_境界外でなければ左のタイルを返す(t *testing.T) {
@@ -180,7 +180,7 @@ func TestMetaPlan_LeftTile_境界外でなければ左のタイルを返す(t *t
 
 	tile := plan.LeftTile(centerIdx)
 
-	assert.Equal(t, "floor", tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
 func TestMetaPlan_RightTile_右端は境界外のvoidタイルを返す(t *testing.T) {
@@ -191,7 +191,7 @@ func TestMetaPlan_RightTile_右端は境界外のvoidタイルを返す(t *testi
 
 	tile := plan.RightTile(rightIdx)
 
-	assert.Equal(t, consts.TileNameVoid, tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
 }
 
 func TestMetaPlan_RightTile_境界外でなければ右のタイルを返す(t *testing.T) {
@@ -202,7 +202,7 @@ func TestMetaPlan_RightTile_境界外でなければ右のタイルを返す(t *
 
 	tile := plan.RightTile(centerIdx)
 
-	assert.Equal(t, "floor", tile.Name)
+	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
 func TestMetaPlan_GetTile_RawMaster未設定ならpanicする(t *testing.T) {
@@ -211,7 +211,7 @@ func TestMetaPlan_GetTile_RawMaster未設定ならpanicする(t *testing.T) {
 	plan := &MetaPlan{}
 
 	assert.PanicsWithValue(t, "RawMaster is not set; tile generation from TOML is required", func() {
-		plan.GetTile("floor")
+		plan.GetTile(consts.TileNameFloor)
 	})
 }
 
