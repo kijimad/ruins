@@ -27,9 +27,7 @@ import {
   FactionMemberType,
   HealingValueType,
   SpriteDepth,
-  ShelterType,
-  WaterType,
-  FoliageType,
+  Foliage,
 } from "../generated";
 import {
   useResourceList,
@@ -191,9 +189,7 @@ const createTemplates: Record<string, Record<string, JsonValue>> = {
     description: "",
     blockPass: false,
     blockView: false,
-    foliage: 0,
-    shelter: 0,
-    water: 0,
+    water: false,
     spriteRender: { depth: 0, spriteKey: "dirt", spriteSheetName: "tile" },
   },
   props: {
@@ -274,25 +270,11 @@ const selectFieldOptions: Record<
   valueType: { options: enumValues(HealingValueType) },
   slot: { options: enumValues(EquipSlot) },
   ammoTag: { options: enumValues(AmmoTag), allowEmpty: true },
+  foliage: { options: enumValues(Foliage), allowEmpty: true },
 };
 
 // 数値enum型のフィールド。OAPIから生成されたenum値を使用する
 const numericSelectLabels: Record<string, Record<number, string>> = {
-  foliage: {
-    [FoliageType.NUMBER_0]: "なし",
-    [FoliageType.NUMBER_MINUS_1]: "草原",
-    [FoliageType.NUMBER_MINUS_3]: "森",
-  },
-  shelter: {
-    [ShelterType.NUMBER_0]: "屋外",
-    [ShelterType.NUMBER_5]: "半屋外",
-    [ShelterType.NUMBER_10]: "屋内",
-  },
-  water: {
-    [WaterType.NUMBER_0]: "なし",
-    [WaterType.NUMBER_MINUS_5]: "水辺",
-    [WaterType.NUMBER_MINUS_10]: "水中",
-  },
   depth: {
     [SpriteDepth.NUMBER_0]: "Floor - 床",
     [SpriteDepth.NUMBER_1]: "Rug - 床置き",

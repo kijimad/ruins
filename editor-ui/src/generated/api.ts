@@ -1128,16 +1128,27 @@ export interface Fire {
 
 
 /**
- * 植生タイプ
+ * タイルの植生
  */
 
-export const FoliageType = {
-    NUMBER_0: 0,
-    NUMBER_MINUS_1: -1,
-    NUMBER_MINUS_3: -3,
+export const Foliage = {
+    Grass: 'grass',
+    Forest: 'forest',
 } as const;
 
-export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
+export type Foliage = typeof Foliage[keyof typeof Foliage];
+
+
+/**
+ * 植生がタイルの気温に足す補正
+ */
+export interface FoliageEffect {
+    'id': Foliage;
+    /**
+     * 水や植生がタイルの気温に足す補正。℃
+     */
+    'tempModifier': number;
+}
 
 
 /**
@@ -1914,6 +1925,8 @@ export interface Raws {
     'interiorRefs'?: Array<InteriorRef>;
     'interiorProfile'?: InteriorProfile;
     'weathers'?: Array<Weather>;
+    'waterEffects'?: Array<WaterEffect>;
+    'foliageEffects'?: Array<FoliageEffect>;
     'hungerStages'?: Array<HungerStage>;
     'fatigueStages'?: Array<FatigueStage>;
 }
@@ -2034,19 +2047,6 @@ export const SeasonId = {
 } as const;
 
 export type SeasonId = typeof SeasonId[keyof typeof SeasonId];
-
-
-/**
- * 遮蔽タイプ
- */
-
-export const ShelterType = {
-    NUMBER_0: 0,
-    NUMBER_5: 5,
-    NUMBER_10: 10,
-} as const;
-
-export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
 
 
 /**
@@ -2289,9 +2289,14 @@ export interface Tile {
      */
     'blockView': boolean;
     'spriteRender': SpriteRender;
-    'shelter': ShelterType;
-    'water': WaterType;
-    'foliage': FoliageType;
+    /**
+     * 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
+     */
+    'water'?: boolean;
+    /**
+     * 植生。省くと植生なし
+     */
+    'foliage'?: Foliage;
 }
 
 
@@ -2353,16 +2358,27 @@ export interface VariantChoice {
 
 
 /**
- * 水タイプ
+ * 水がタイルの気温に足す補正
+ */
+export interface WaterEffect {
+    'id': WaterExposure;
+    /**
+     * 水や植生がタイルの気温に足す補正。℃
+     */
+    'tempModifier': number;
+}
+
+
+/**
+ * タイルが受ける水の影響
  */
 
-export const WaterType = {
-    NUMBER_0: 0,
-    NUMBER_MINUS_5: -5,
-    NUMBER_MINUS_10: -10,
+export const WaterExposure = {
+    Nearby: 'nearby',
+    Submerged: 'submerged',
 } as const;
 
-export type WaterType = typeof WaterType[keyof typeof WaterType];
+export type WaterExposure = typeof WaterExposure[keyof typeof WaterExposure];
 
 
 /**

@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -98,8 +99,8 @@ func TestTileEnvironmentAt(t *testing.T) {
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
-			Water:   gc.WaterNearby,
-			Foliage: gc.FoliageForest,
+			Water:   oapi.Nearby,
+			Foliage: oapi.Forest,
 		})
 
 		shelter, modifier := query.TileEnvironmentAt(world, 5, 5)

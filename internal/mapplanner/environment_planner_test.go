@@ -43,11 +43,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 中央の床タイルは屋内
 		centerIdx := 2*5 + 2 // (2, 2)
-		assert.Equal(t, oapi.ShelterType(gc.ShelterFull), mp.Tiles[centerIdx].Shelter, "中央は屋内であるべき")
+		assert.Equal(t, gc.ShelterFull, mp.Environments[centerIdx].Shelter, "中央は屋内であるべき")
 
 		// 壁タイルは屋内（壁は通過できないので屋外判定されない）
 		wallIdx := 0 // (0, 0)
-		assert.Equal(t, oapi.ShelterType(gc.ShelterFull), mp.Tiles[wallIdx].Shelter, "壁は屋内扱い")
+		assert.Equal(t, gc.ShelterFull, mp.Environments[wallIdx].Shelter, "壁は屋内扱い")
 	})
 
 	t.Run("マップ端から到達可能な領域は屋外になる", func(t *testing.T) {
@@ -69,7 +69,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 全てのタイルが屋外
 		for i := range 25 {
-			assert.Equal(t, oapi.ShelterType(gc.ShelterNone), mp.Tiles[i].Shelter, "全て屋外であるべき")
+			assert.Equal(t, gc.ShelterNone, mp.Environments[i].Shelter, "全て屋外であるべき")
 		}
 	})
 
@@ -107,11 +107,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 囲まれた内部は屋内
 		insideIdx := 2*7 + 2 // (2, 2)
-		assert.Equal(t, oapi.ShelterType(gc.ShelterFull), mp.Tiles[insideIdx].Shelter, "囲まれた内部は屋内")
+		assert.Equal(t, gc.ShelterFull, mp.Environments[insideIdx].Shelter, "囲まれた内部は屋内")
 
 		// 外部は屋外
 		outsideIdx := 0 // (0, 0)
-		assert.Equal(t, oapi.ShelterType(gc.ShelterNone), mp.Tiles[outsideIdx].Shelter, "外部は屋外")
+		assert.Equal(t, gc.ShelterNone, mp.Environments[outsideIdx].Shelter, "外部は屋外")
 	})
 }
 
@@ -128,12 +128,12 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 		for i := range 9 {
 			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false, Water: oapi.WaterType(gc.WaterSubmerged)}
+		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false, Water: new(true)}
 
 		planner := EnvironmentPlanner{}
 		result := planner.calcWater(mp, 4)
 
-		assert.Equal(t, gc.WaterSubmerged, result)
+		assert.Equal(t, oapi.Submerged, result)
 	})
 
 	t.Run("水タイルに隣接すると水辺", func(t *testing.T) {
@@ -146,15 +146,15 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 		for i := range 9 {
 			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false, Water: oapi.WaterType(gc.WaterSubmerged)}
+		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false, Water: new(true)}
 
 		planner := EnvironmentPlanner{}
 
 		// 隣接タイル
-		assert.Equal(t, gc.WaterNearby, planner.calcWater(mp, 1)) // 上
-		assert.Equal(t, gc.WaterNearby, planner.calcWater(mp, 3)) // 左
-		assert.Equal(t, gc.WaterNearby, planner.calcWater(mp, 5)) // 右
-		assert.Equal(t, gc.WaterNearby, planner.calcWater(mp, 7)) // 下
+		assert.Equal(t, oapi.Nearby, planner.calcWater(mp, 1)) // 上
+		assert.Equal(t, oapi.Nearby, planner.calcWater(mp, 3)) // 左
+		assert.Equal(t, oapi.Nearby, planner.calcWater(mp, 5)) // 右
+		assert.Equal(t, oapi.Nearby, planner.calcWater(mp, 7)) // 下
 	})
 
 	t.Run("水タイルから離れているとなし", func(t *testing.T) {
@@ -171,24 +171,24 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 		planner := EnvironmentPlanner{}
 		result := planner.calcWater(mp, 4)
 
-		assert.Equal(t, gc.WaterNone, result)
+		assert.Equal(t, oapi.WaterExposure(""), result)
 	})
 }
 
-func TestEnvironmentPlanner_PlanMeta_植生はタイルの行の値を保つ(t *testing.T) {
+func TestEnvironmentPlanner_PlanMeta_植生はタイルの行の値を使う(t *testing.T) {
 	t.Parallel()
 
+	grass := oapi.Grass
 	mp := &MetaPlan{
 		Level: newTestLevel(2, 1),
 		Tiles: []oapi.Tile{
-			{Id: "grass_floor", Name: "grass_floor", Foliage: oapi.FoliageType(gc.FoliageGrass)},
+			{Id: "grass_floor", Name: "grass_floor", Foliage: &grass},
 			{Id: "floor", Name: "floor"},
 		},
 	}
 	require.NoError(t, EnvironmentPlanner{}.PlanMeta(mp))
 
-	assert.Equal(t, []oapi.FoliageType{oapi.FoliageType(gc.FoliageGrass), oapi.FoliageType(gc.FoliageNone)},
-		[]oapi.FoliageType{mp.Tiles[0].Foliage, mp.Tiles[1].Foliage})
+	assert.Equal(t, []oapi.Foliage{oapi.Grass, ""}, []oapi.Foliage{mp.Environments[0].Foliage, mp.Environments[1].Foliage})
 }
 
 func newTestLevel(width, height int) gc.Level {

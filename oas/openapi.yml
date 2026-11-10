@@ -2789,13 +2789,23 @@ components:
     FireStarter:
       type: object
       description: 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
-    FoliageType:
-      type: number
+    Foliage:
+      type: string
       enum:
-        - 0
-        - -1
-        - -3
-      description: 植生タイプ
+        - grass
+        - forest
+      description: タイルの植生
+    FoliageEffect:
+      type: object
+      required:
+        - id
+        - tempModifier
+      properties:
+        id:
+          $ref: '#/components/schemas/Foliage'
+        tempModifier:
+          $ref: '#/components/schemas/TileTempModifier'
+      description: 植生がタイルの気温に足す補正
     FuelCapacityBonus:
       type: integer
       minimum: 0
@@ -3875,6 +3885,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Weather'
+        waterEffects:
+          type: array
+          items:
+            $ref: '#/components/schemas/WaterEffect'
+        foliageEffects:
+          type: array
+          items:
+            $ref: '#/components/schemas/FoliageEffect'
         hungerStages:
           type: array
           items:
@@ -4042,13 +4060,6 @@ components:
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
-    ShelterType:
-      type: number
-      enum:
-        - 0
-        - 5
-        - 10
-      description: 遮蔽タイプ
     Skill:
       type: object
       required:
@@ -4282,9 +4293,6 @@ components:
         - blockPass
         - blockView
         - spriteRender
-        - shelter
-        - water
-        - foliage
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
@@ -4298,12 +4306,13 @@ components:
           $ref: '#/components/schemas/BlocksView'
         spriteRender:
           $ref: '#/components/schemas/SpriteRender'
-        shelter:
-          $ref: '#/components/schemas/ShelterType'
         water:
-          $ref: '#/components/schemas/WaterType'
+          type: boolean
+          description: 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
         foliage:
-          $ref: '#/components/schemas/FoliageType'
+          allOf:
+            - $ref: '#/components/schemas/Foliage'
+          description: 植生。省くと植生なし
       description: タイル
     TileList:
       type: object
@@ -4318,6 +4327,11 @@ components:
         totalCount:
           type: integer
       description: タイル一覧
+    TileTempModifier:
+      type: integer
+      minimum: -50
+      maximum: 50
+      description: 水や植生がタイルの気温に足す補正。℃
     Tool:
       type: object
       required:
@@ -4379,13 +4393,23 @@ components:
     WarpPrevTriggerRaw:
       type: object
       description: 前階層ワープトリガー
-    WaterType:
-      type: number
+    WaterEffect:
+      type: object
+      required:
+        - id
+        - tempModifier
+      properties:
+        id:
+          $ref: '#/components/schemas/WaterExposure'
+        tempModifier:
+          $ref: '#/components/schemas/TileTempModifier'
+      description: 水がタイルの気温に足す補正
+    WaterExposure:
+      type: string
       enum:
-        - 0
-        - -5
-        - -10
-      description: 水タイプ
+        - nearby
+        - submerged
+      description: タイルが受ける水の影響
     Wearable:
       type: object
       required:

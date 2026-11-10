@@ -190,6 +190,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.SkillDefs = skillDefs
 	world.Resources.WeatherDefs = raw.NewWeatherDefs(rw)
+	world.Resources.TileEnvDefs = raw.NewTileEnvDefs(rw)
 	world.Resources.NeedDefs = raw.NewNeedDefs(rw)
 
 	// スプライトシートを読み込む

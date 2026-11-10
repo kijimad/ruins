@@ -535,9 +535,24 @@ model Tile {
   blockPass: BlocksPassage;
   blockView: BlocksView;
   spriteRender: SpriteRender;
-  shelter: ShelterType;
-  water: WaterType;
-  foliage: FoliageType;
+
+  /** 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける */
+  water?: boolean;
+
+  /** 植生。省くと植生なし */
+  foliage?: Foliage;
+}
+
+/** 水がタイルの気温に足す補正 */
+model WaterEffect {
+  id: WaterExposure;
+  tempModifier: TileTempModifier;
+}
+
+/** 植生がタイルの気温に足す補正 */
+model FoliageEffect {
+  id: Foliage;
+  tempModifier: TileTempModifier;
 }
 
 // ================== 置物 ==================
@@ -810,6 +825,8 @@ model Raws {
   interiorRefs?: InteriorRef[];
   interiorProfile?: InteriorProfile;
   weathers?: Weather[];
+  waterEffects?: WaterEffect[];
+  foliageEffects?: FoliageEffect[];
   hungerStages?: HungerStage[];
   fatigueStages?: FatigueStage[];
 }

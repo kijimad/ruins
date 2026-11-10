@@ -408,21 +408,18 @@ func (e FatigueStageId) Valid() bool {
 	}
 }
 
-// Defines values for FoliageType.
+// Defines values for Foliage.
 const (
-	FoliageTypeMinus1 FoliageType = -1
-	FoliageTypeMinus3 FoliageType = -3
-	FoliageTypeN0     FoliageType = 0
+	Forest Foliage = "forest"
+	Grass  Foliage = "grass"
 )
 
-// Valid indicates whether the value is a known member of the FoliageType enum.
-func (e FoliageType) Valid() bool {
+// Valid indicates whether the value is a known member of the Foliage enum.
+func (e Foliage) Valid() bool {
 	switch e {
-	case FoliageTypeMinus1:
+	case Forest:
 		return true
-	case FoliageTypeMinus3:
-		return true
-	case FoliageTypeN0:
+	case Grass:
 		return true
 	default:
 		return false
@@ -852,27 +849,6 @@ func (e SeasonId) Valid() bool {
 	}
 }
 
-// Defines values for ShelterType.
-const (
-	ShelterTypeN0  ShelterType = 0
-	ShelterTypeN10 ShelterType = 10
-	ShelterTypeN5  ShelterType = 5
-)
-
-// Valid indicates whether the value is a known member of the ShelterType enum.
-func (e ShelterType) Valid() bool {
-	switch e {
-	case ShelterTypeN0:
-		return true
-	case ShelterTypeN10:
-		return true
-	case ShelterTypeN5:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for SkillId.
 const (
 	SkillIdBow           SkillId = "bow"
@@ -959,25 +935,25 @@ func (e SkillId) Valid() bool {
 
 // Defines values for SpriteDepth.
 const (
-	SpriteDepthN0 SpriteDepth = 0
-	SpriteDepthN1 SpriteDepth = 1
-	SpriteDepthN2 SpriteDepth = 2
-	SpriteDepthN3 SpriteDepth = 3
-	SpriteDepthN4 SpriteDepth = 4
+	N0 SpriteDepth = 0
+	N1 SpriteDepth = 1
+	N2 SpriteDepth = 2
+	N3 SpriteDepth = 3
+	N4 SpriteDepth = 4
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
 func (e SpriteDepth) Valid() bool {
 	switch e {
-	case SpriteDepthN0:
+	case N0:
 		return true
-	case SpriteDepthN1:
+	case N1:
 		return true
-	case SpriteDepthN2:
+	case N2:
 		return true
-	case SpriteDepthN3:
+	case N3:
 		return true
-	case SpriteDepthN4:
+	case N4:
 		return true
 	default:
 		return false
@@ -1101,21 +1077,18 @@ func (e UsableScene) Valid() bool {
 	}
 }
 
-// Defines values for WaterType.
+// Defines values for WaterExposure.
 const (
-	WaterTypeMinus10 WaterType = -10
-	WaterTypeMinus5  WaterType = -5
-	WaterTypeN0      WaterType = 0
+	Nearby    WaterExposure = "nearby"
+	Submerged WaterExposure = "submerged"
 )
 
-// Valid indicates whether the value is a known member of the WaterType enum.
-func (e WaterType) Valid() bool {
+// Valid indicates whether the value is a known member of the WaterExposure enum.
+func (e WaterExposure) Valid() bool {
 	switch e {
-	case WaterTypeMinus10:
+	case Nearby:
 		return true
-	case WaterTypeMinus5:
-		return true
-	case WaterTypeN0:
+	case Submerged:
 		return true
 	default:
 		return false
@@ -2061,8 +2034,17 @@ type Fire struct {
 // FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
-// FoliageType 植生タイプ
-type FoliageType float32
+// Foliage タイルの植生
+type Foliage string
+
+// FoliageEffect 植生がタイルの気温に足す補正
+type FoliageEffect struct {
+	// Id タイルの植生
+	Id Foliage `json:"id"`
+
+	// TempModifier 水や植生がタイルの気温に足す補正。℃
+	TempModifier TileTempModifier `json:"tempModifier"`
+}
 
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
@@ -2685,6 +2667,7 @@ type Raws struct {
 	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
 	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
+	FoliageEffects   *[]FoliageEffect   `json:"foliageEffects,omitempty"`
 	HungerStages     *[]HungerStage     `json:"hungerStages,omitempty"`
 	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
 
@@ -2706,6 +2689,7 @@ type Raws struct {
 	Skills          *[]Skill          `json:"skills,omitempty"`
 	SpriteSheets    *[]SpriteSheet    `json:"spriteSheets,omitempty"`
 	Tiles           *[]Tile           `json:"tiles,omitempty"`
+	WaterEffects    *[]WaterEffect    `json:"waterEffects,omitempty"`
 	Weathers        *[]Weather        `json:"weathers,omitempty"`
 }
 
@@ -2780,9 +2764,6 @@ type SeasonId string
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
-
-// ShelterType 遮蔽タイプ
-type ShelterType float32
 
 // Skill スキル。同じカテゴリのスキルは行の順に表示する
 type Skill struct {
@@ -2928,21 +2909,18 @@ type Tile struct {
 	// Description 説明文
 	Description EntityDescription `json:"description"`
 
-	// Foliage 植生タイプ
-	Foliage FoliageType `json:"foliage"`
-	Id      EntityID    `json:"id"`
+	// Foliage 植生。省くと植生なし
+	Foliage *Foliage `json:"foliage,omitempty"`
+	Id      EntityID `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 
-	// Shelter 遮蔽タイプ
-	Shelter ShelterType `json:"shelter"`
-
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
-	// Water 水タイプ
-	Water WaterType `json:"water"`
+	// Water 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
+	Water *bool `json:"water,omitempty"`
 }
 
 // TileList タイル一覧
@@ -2950,6 +2928,9 @@ type TileList struct {
 	Data       []Tile `json:"data"`
 	TotalCount int    `json:"totalCount"`
 }
+
+// TileTempModifier 水や植生がタイルの気温に足す補正。℃
+type TileTempModifier = int
 
 // Tool 道具の性質。道具の分類とグレードを持つ
 type Tool struct {
@@ -2989,8 +2970,17 @@ type WarpNextTriggerRaw = map[string]interface{}
 // WarpPrevTriggerRaw 前階層ワープトリガー
 type WarpPrevTriggerRaw = map[string]interface{}
 
-// WaterType 水タイプ
-type WaterType float32
+// WaterEffect 水がタイルの気温に足す補正
+type WaterEffect struct {
+	// Id タイルが受ける水の影響
+	Id WaterExposure `json:"id"`
+
+	// TempModifier 水や植生がタイルの気温に足す補正。℃
+	TempModifier TileTempModifier `json:"tempModifier"`
+}
+
+// WaterExposure タイルが受ける水の影響
+type WaterExposure string
 
 // Wearable 装備可能設定
 type Wearable struct {

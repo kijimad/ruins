@@ -3,69 +3,32 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTileEnvironment_Total(t *testing.T) {
+func TestTileEnvDefs_TempModifier(t *testing.T) {
 	t.Parallel()
 
-	t.Run("全要素がゼロの場合", func(t *testing.T) {
-		t.Parallel()
-		tt := &TileEnvironment{}
-		assert.Equal(t, 0, tt.Total())
-	})
-
-	t.Run("囲われは緩和度なので合計に含まない", func(t *testing.T) {
-		t.Parallel()
-		tt := &TileEnvironment{Shelter: ShelterFull}
-		assert.Equal(t, 0, tt.Total())
-	})
-
-	t.Run("水辺で森", func(t *testing.T) {
-		t.Parallel()
-		tt := &TileEnvironment{Water: WaterNearby, Foliage: FoliageForest}
-		assert.Equal(t, -8, tt.Total()) // -5 + (-3) = -8
-	})
-
-	t.Run("水中", func(t *testing.T) {
-		t.Parallel()
-		tt := &TileEnvironment{Water: WaterSubmerged}
-		assert.Equal(t, -10, tt.Total())
-	})
-
-	t.Run("全要素の組み合わせ", func(t *testing.T) {
-		t.Parallel()
-		tt := &TileEnvironment{
-			Shelter: ShelterPartial,
-			Water:   WaterNearby,
-			Foliage: FoliageGrass,
-		}
-		// 囲われを除いた -5 + (-1) = -6
-		assert.Equal(t, -6, tt.Total())
-	})
-}
-
-func TestTileEnvironmentConstants(t *testing.T) {
-	t.Parallel()
-
-	t.Run("屋内は屋外より暖かい", func(t *testing.T) {
-		t.Parallel()
-		assert.Greater(t, int(ShelterFull), int(ShelterNone))
-	})
-
-	t.Run("半屋外は屋内と屋外の中間", func(t *testing.T) {
-		t.Parallel()
-		assert.Greater(t, int(ShelterPartial), int(ShelterNone))
-		assert.Less(t, int(ShelterPartial), int(ShelterFull))
-	})
-
-	t.Run("水中は水辺より冷たい", func(t *testing.T) {
-		t.Parallel()
-		assert.Less(t, int(WaterSubmerged), int(WaterNearby))
-	})
-
-	t.Run("森は草原より涼しい", func(t *testing.T) {
-		t.Parallel()
-		assert.Less(t, int(FoliageForest), int(FoliageGrass))
-	})
+	defs := TileEnvDefs{
+		Water:   map[oapi.WaterExposure]int{oapi.Nearby: -5, oapi.Submerged: -10},
+		Foliage: map[oapi.Foliage]int{oapi.Grass: -1, oapi.Forest: -3},
+	}
+	tests := []struct {
+		name string
+		env  TileEnvironment
+		want int
+	}{
+		{"全要素がゼロ値", TileEnvironment{}, 0},
+		{"囲われは緩和度なので合計に含まない", TileEnvironment{Shelter: ShelterFull}, 0},
+		{"水辺で森", TileEnvironment{Water: oapi.Nearby, Foliage: oapi.Forest}, -8},
+		{"水中", TileEnvironment{Water: oapi.Submerged}, -10},
+		{"全要素の組み合わせ", TileEnvironment{Shelter: ShelterPartial, Water: oapi.Nearby, Foliage: oapi.Grass}, -6},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, defs.TempModifier(tt.env))
+		})
+	}
 }

@@ -88,6 +88,8 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: oapi.SkillIdRifle}}}},
 		InteriorProfile: &oapi.InteriorProfile{},
 		Weathers:        &[]oapi.Weather{{Id: oapi.Clear}},
+		WaterEffects:    &[]oapi.WaterEffect{{Id: oapi.Nearby}, {Id: oapi.Submerged}},
+		FoliageEffects:  &[]oapi.FoliageEffect{{Id: oapi.Grass}, {Id: oapi.Forest}},
 		HungerStages:    &[]oapi.HungerStage{{Id: oapi.HungerStageIdStarving}},
 		FatigueStages:   &[]oapi.FatigueStage{{Id: oapi.FatigueStageIdRested}},
 	}

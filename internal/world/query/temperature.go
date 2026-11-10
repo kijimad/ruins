@@ -183,7 +183,7 @@ func TileEnvironmentAt(world w.World, x, y consts.Tile) (gc.ShelterType, int) {
 		if grid.X == x && grid.Y == y {
 			tileTemp := world.Components.TileEnvironment.Get(entity)
 			shelter = tileTemp.Shelter
-			modifier = tileTemp.Total()
+			modifier = world.Resources.TileEnvDefs.TempModifier(*tileTemp)
 			tileTempQuery.Close()
 			break
 		}

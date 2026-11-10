@@ -99,6 +99,7 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Resources.ConditionDefs = conditionDefs
 	world.Resources.SkillDefs = skillDefs
 	world.Resources.WeatherDefs = raw.NewWeatherDefs(rawMaster)
+	world.Resources.TileEnvDefs = raw.NewTileEnvDefs(rawMaster)
 	world.Resources.NeedDefs = raw.NewNeedDefs(rawMaster)
 
 	// テスト用スプライトシートを初期化

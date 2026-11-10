@@ -9,20 +9,21 @@ import (
 // EnvironmentPlanner は環境情報を計算するプランナー
 type EnvironmentPlanner struct{}
 
-// PlanMeta は環境情報を計算して TileRaw に設定する
+// PlanMeta はタイルごとの環境を計算して MetaPlan.Environments に入れる。
+// 囲われと水の影響は周りのタイルから導き、植生はタイルの行の値をそのまま使う
 func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
-	// 屋外タイルを特定する
 	outdoor := p.floodFillOutdoor(mp)
 
-	// 各タイルの環境情報を設定する
+	mp.Environments = make([]gc.TileEnvironment, len(mp.Tiles))
 	for i := range mp.Tiles {
-		if outdoor[i] {
-			mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterNone)
-		} else {
-			mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterFull)
+		env := &mp.Environments[i]
+		if !outdoor[i] {
+			env.Shelter = gc.ShelterFull
 		}
-
-		mp.Tiles[i].Water = oapi.WaterType(p.calcWater(mp, i))
+		env.Water = p.calcWater(mp, i)
+		if mp.Tiles[i].Foliage != nil {
+			env.Foliage = *mp.Tiles[i].Foliage
+		}
 	}
 
 	return nil
@@ -50,10 +51,10 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
 	return outdoor
 }
 
-// calcWater は水の影響を計算する。raw のタイルの行が水中なら水中、隣が水中なら水辺とする
-func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
+// calcWater は水の影響を計算する。水のタイルの上なら水中、隣が水のタイルなら水辺、どちらでもなければゼロ値
+func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) oapi.WaterExposure {
 	if isWaterTile(mp.Tiles[idx]) {
-		return gc.WaterSubmerged
+		return oapi.Submerged
 	}
 
 	// 隣接タイルに水があるかチェック
@@ -77,14 +78,14 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
 
 	for _, adjIdx := range adjacentIndices {
 		if isWaterTile(mp.Tiles[adjIdx]) {
-			return gc.WaterNearby
+			return oapi.Nearby
 		}
 	}
 
-	return gc.WaterNone
+	return ""
 }
 
-// isWaterTile はタイルが水中かを raw のタイルの行から判定する
+// isWaterTile はタイルが水のタイルかを返す
 func isWaterTile(tile oapi.Tile) bool {
-	return tile.Water == oapi.WaterType(gc.WaterSubmerged)
+	return tile.Water != nil && *tile.Water
 }

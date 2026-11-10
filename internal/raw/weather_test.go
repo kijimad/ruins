@@ -153,3 +153,55 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 		},
 	}, defs)
 }
+
+func TestValidateTileEffects(t *testing.T) {
+	t.Parallel()
+
+	full := func() oapi.Raws {
+		return oapi.Raws{
+			WaterEffects:   &[]oapi.WaterEffect{{Id: oapi.Nearby, TempModifier: -5}, {Id: oapi.Submerged, TempModifier: -10}},
+			FoliageEffects: &[]oapi.FoliageEffect{{Id: oapi.Grass, TempModifier: -1}, {Id: oapi.Forest, TempModifier: -3}},
+		}
+	}
+	tests := []struct {
+		name    string
+		mutate  func(*oapi.Raws)
+		wantErr error
+	}{
+		{name: "全値の行があれば通る", mutate: func(*oapi.Raws) {}},
+		{
+			name:    "水の影響の行が欠ける",
+			mutate:  func(r *oapi.Raws) { *r.WaterEffects = (*r.WaterEffects)[:1] },
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name:    "植生の行が重複する",
+			mutate:  func(r *oapi.Raws) { *r.FoliageEffects = append(*r.FoliageEffects, oapi.FoliageEffect{Id: oapi.Grass}) },
+			wantErr: errDuplicateID,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := full()
+			tt.mutate(&raws)
+			err := validateTileEffects(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestNewTileEnvDefs_実データ(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	assert.Equal(t, gc.TileEnvDefs{
+		Water:   map[oapi.WaterExposure]int{oapi.Nearby: -5, oapi.Submerged: -10},
+		Foliage: map[oapi.Foliage]int{oapi.Grass: -1, oapi.Forest: -3},
+	}, NewTileEnvDefs(raws))
+}

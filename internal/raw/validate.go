@@ -154,6 +154,9 @@ func ValidateReferences(raws oapi.Raws) error {
 	if err := validateWeathers(raws); err != nil {
 		return err
 	}
+	if err := validateTileEffects(raws); err != nil {
+		return err
+	}
 	if err := validateNeedStages(raws); err != nil {
 		return err
 	}
@@ -712,6 +715,8 @@ func validateCodeRows(raws oapi.Raws) error {
 	}{
 		{"interiorProfile", raws.InteriorProfile != nil},
 		{"weathers", len(PtrSlice(raws.Weathers)) > 0},
+		{"waterEffects", len(PtrSlice(raws.WaterEffects)) > 0},
+		{"foliageEffects", len(PtrSlice(raws.FoliageEffects)) > 0},
 		{"hungerStages", len(PtrSlice(raws.HungerStages)) > 0},
 		{"fatigueStages", len(PtrSlice(raws.FatigueStages)) > 0},
 	}
@@ -937,6 +942,29 @@ func validateWeathers(raws oapi.Raws) error {
 		}
 	}
 	return validateEnumRows("WeatherId", ids)
+}
+
+// validateTileEffects は水と植生の気温の補正の行が、それぞれ enum の全値を1回ずつ持つことを検証する
+func validateTileEffects(raws oapi.Raws) error {
+	if water := PtrSlice(raws.WaterEffects); len(water) > 0 {
+		ids := make([]string, 0, len(water))
+		for _, w := range water {
+			ids = append(ids, string(w.Id))
+		}
+		if err := validateEnumRows("WaterExposure", ids); err != nil {
+			return err
+		}
+	}
+	if foliage := PtrSlice(raws.FoliageEffects); len(foliage) > 0 {
+		ids := make([]string, 0, len(foliage))
+		for _, f := range foliage {
+			ids = append(ids, string(f.Id))
+		}
+		if err := validateEnumRows("Foliage", ids); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、割合0から始まる段階を持つことを検証する。

@@ -1150,6 +1150,18 @@ var (
 	}
 )
 
+// NewTileEnvDefs は raw の waterEffects と foliageEffects から、水と植生がタイルの気温に足す補正の表を組み立てる
+func NewTileEnvDefs(raws oapi.Raws) gc.TileEnvDefs {
+	defs := gc.TileEnvDefs{Water: map[oapi.WaterExposure]int{}, Foliage: map[oapi.Foliage]int{}}
+	for _, row := range PtrSlice(raws.WaterEffects) {
+		defs.Water[row.Id] = row.TempModifier
+	}
+	for _, row := range PtrSlice(raws.FoliageEffects) {
+		defs.Foliage[row.Id] = row.TempModifier
+	}
+	return defs
+}
+
 // NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節は enum なのでスキーマ検証で尽くされる
 func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 	var kinds [gc.NumWeatherKind]gc.WeatherDef

@@ -742,35 +742,24 @@ enum SpriteDepth {
   Player: 4,
 }
 
-/** 遮蔽タイプ */
-enum ShelterType {
-  /** 遮蔽なし */
-  None: 0,
-  /** 部分遮蔽 */
-  Partial: 5,
-  /** 完全遮蔽 */
-  Full: 10,
+/** タイルが受ける水の影響 */
+enum WaterExposure {
+  /** 水のタイルの隣 */
+  nearby,
+  /** 水のタイルの上 */
+  submerged,
 }
 
-/** 水タイプ */
-enum WaterType {
-  /** 水なし */
-  None: 0,
-  /** 水辺。移動ペナルティ小 */
-  Nearby: -5,
-  /** 水没。移動ペナルティ大 */
-  Submerged: -10,
+/** タイルの植生 */
+enum Foliage {
+  grass,
+  forest,
 }
 
-/** 植生タイプ */
-enum FoliageType {
-  /** 植生なし */
-  None: 0,
-  /** 草原。視界ペナルティ小 */
-  Grass: -1,
-  /** 森。視界ペナルティ大 */
-  Forest: -3,
-}
+/** 水や植生がタイルの気温に足す補正。℃ */
+@minValue(-50)
+@maxValue(50)
+scalar TileTempModifier extends integer;
 
 /** 回復量の計算方式 */
 enum HealingValueType {

@@ -3157,6 +3157,14 @@
       ref = "candle"
       weight = 1
 
+[[foliageEffects]]
+  id = "grass"
+  tempModifier = -1
+
+[[foliageEffects]]
+  id = "forest"
+  tempModifier = -3
+
 [[hungerStages]]
   from = 0.95
   id = "satiated"
@@ -22646,11 +22654,8 @@
   blockPass = false
   blockView = false
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
-  foliage = 0
   id = "dirt"
   name = "Dirt"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "dirt"
@@ -22660,11 +22665,8 @@
   blockPass = true
   blockView = true
   description = "濃灰のダンジョン壁のオートタイル。通行不可"
-  foliage = 0
   id = "dwall"
   name = "Dungeon Wall"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 3
     spriteKey = "dwall"
@@ -22674,11 +22676,8 @@
   blockPass = false
   blockView = false
   description = "灰色の石床のオートタイル。屋内の歩行可能タイル"
-  foliage = 0
   id = "floor"
   name = "Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor"
@@ -22688,11 +22687,8 @@
   blockPass = true
   blockView = false
   description = "暗闇。単一絵柄の通行不可タイル"
-  foliage = 0
   id = "void"
   name = "Void"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "void"
@@ -22702,11 +22698,8 @@
   blockPass = true
   blockView = true
   description = "灰色の石壁のオートタイル。通行不可"
-  foliage = 0
   id = "wall"
   name = "Wall"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 3
     spriteKey = "wall"
@@ -22716,11 +22709,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] リノリウム床。コンビニや病院の滑らかな樹脂床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_linoleum"
   name = "Linoleum Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_linoleum"
@@ -22730,11 +22720,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] タイル床。浴室や厨房の四角いタイルの床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_tile"
   name = "Tile Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_tile"
@@ -22744,11 +22731,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] コンクリート床。倉庫や地下の無機質な床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_concrete"
   name = "Concrete Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_concrete"
@@ -22758,11 +22742,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] フローリング床。民家やオフィスの木の床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_wood"
   name = "Wooden Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_wood"
@@ -22772,11 +22753,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] 畳。和室のい草の床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_tatami"
   name = "Tatami"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_tatami"
@@ -22786,11 +22764,8 @@
   blockPass = false
   blockView = false
   description = "シアン色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_cyan"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_cyan"
@@ -22800,11 +22775,8 @@
   blockPass = false
   blockView = false
   description = "青緑の丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_teal"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_teal"
@@ -22814,11 +22786,8 @@
   blockPass = false
   blockView = false
   description = "金色の丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_gold"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_gold"
@@ -22828,11 +22797,8 @@
   blockPass = false
   blockView = false
   description = "灰色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_gray"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_gray"
@@ -22842,11 +22808,8 @@
   blockPass = false
   blockView = false
   description = "緑の草地のオートタイル床"
-  foliage = 0
   id = "grass_green"
   name = "Grass Field"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_green"
@@ -22856,11 +22819,8 @@
   blockPass = false
   blockView = false
   description = "クリーム色の丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_cream"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_cream"
@@ -22870,11 +22830,8 @@
   blockPass = false
   blockView = false
   description = "青灰色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_blue"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_blue"
@@ -22884,11 +22841,8 @@
   blockPass = false
   blockView = false
   description = "オリーブ色の草地のオートタイル床"
-  foliage = 0
   id = "grass_olive"
   name = "Grass Field"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_olive"
@@ -22898,11 +22852,8 @@
   blockPass = false
   blockView = false
   description = "赤い丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_red"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_red"
@@ -22912,11 +22863,8 @@
   blockPass = false
   blockView = false
   description = "紺色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_navy"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_navy"
@@ -22926,11 +22874,8 @@
   blockPass = false
   blockView = false
   description = "紫がかった砂利の床のオートタイル"
-  foliage = 0
   id = "cobble_purple"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_purple"
@@ -22940,11 +22885,8 @@
   blockPass = false
   blockView = false
   description = "石板色の砂利の床のオートタイル"
-  foliage = 0
   id = "cobble_slate"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_slate"
@@ -22954,11 +22896,8 @@
   blockPass = false
   blockView = false
   description = "桃色の砂の床のオートタイル"
-  foliage = 0
   id = "sand_pink"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_pink"
@@ -22968,11 +22907,8 @@
   blockPass = false
   blockView = false
   description = "琥珀色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_amber"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_amber"
@@ -22982,11 +22918,8 @@
   blockPass = false
   blockView = false
   description = "クリーム色の滑らかな床のオートタイル"
-  foliage = 0
   id = "smooth_cream"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_cream"
@@ -22996,11 +22929,8 @@
   blockPass = false
   blockView = false
   description = "橙色の砂の床のオートタイル"
-  foliage = 0
   id = "sand_orange"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_orange"
@@ -23010,11 +22940,8 @@
   blockPass = false
   blockView = false
   description = "テラコッタ色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_terracotta"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_terracotta"
@@ -23024,11 +22951,8 @@
   blockPass = false
   blockView = false
   description = "白い滑らかな床のオートタイル"
-  foliage = 0
   id = "smooth_white"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_white"
@@ -23038,11 +22962,8 @@
   blockPass = false
   blockView = false
   description = "赤茶の砂の床のオートタイル"
-  foliage = 0
   id = "sand_red"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_red"
@@ -23052,11 +22973,8 @@
   blockPass = false
   blockView = false
   description = "ベージュの煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_beige"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_beige"
@@ -23066,11 +22984,8 @@
   blockPass = false
   blockView = false
   description = "青緑の滑らかな床や水面のオートタイル"
-  foliage = 0
   id = "smooth_teal"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_teal"
@@ -23080,11 +22995,8 @@
   blockPass = false
   blockView = false
   description = "石板色の砂の床のオートタイル"
-  foliage = 0
   id = "sand_slate"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_slate"
@@ -23094,11 +23006,8 @@
   blockPass = false
   blockView = false
   description = "錆色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_rust"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_rust"
@@ -23108,11 +23017,8 @@
   blockPass = false
   blockView = false
   description = "青灰の滑らかな床のオートタイル"
-  foliage = 0
   id = "smooth_bluegray"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_bluegray"
@@ -23122,11 +23028,8 @@
   blockPass = false
   blockView = false
   description = "橙色の板を張った床のオートタイル"
-  foliage = 0
   id = "plank_orange"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_orange"
@@ -23136,11 +23039,8 @@
   blockPass = false
   blockView = false
   description = "茶色の板を張った床のオートタイル"
-  foliage = 0
   id = "plank_brown"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_brown"
@@ -23150,11 +23050,8 @@
   blockPass = false
   blockView = false
   description = "紺色の板を張った床のオートタイル"
-  foliage = 0
   id = "plank_navy"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_navy"
@@ -23164,15 +23061,20 @@
   blockPass = false
   blockView = false
   description = "青い板を張った床のオートタイル"
-  foliage = 0
   id = "plank_blue"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_blue"
     spriteSheetName = "tile"
+
+[[waterEffects]]
+  id = "nearby"
+  tempModifier = -5
+
+[[waterEffects]]
+  id = "submerged"
+  tempModifier = -10
 
 [[weathers]]
   id = "clear"
