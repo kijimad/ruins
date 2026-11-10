@@ -100,7 +100,7 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "## 目標帯（ドメイン横断）\n\n")
 	fmt.Fprintf(&b, "**概要**: 各ドメインのスカラー指標が設計上の目標帯に収まるか。戦闘は日で変わるので下の難易度カーブ側で内外を持つ。\n")
 	fmt.Fprintf(&b, "目標帯は設計仮説でプレイで見直す。静的下限がこの範囲に収まれば実プレイは少なくともこれだけ快適という下限側の目安。\n\n")
-	targets := DomainTargets()
+	targets := DomainTargets(master)
 	domainRows := make([][]string, 0, len(targets))
 	for _, c := range targets {
 		mark := "外"
@@ -156,7 +156,7 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "## 生存圧\n\n")
 	fmt.Fprintf(&b, "**概要**: 補給なしで生き延びられる時間。食料は日単位、寒さはターン単位で時間スケールが大きく違う。\n")
 	fmt.Fprintf(&b, "飢えは満腹度が尽きるまで、寒さは平熱から低体温が発生するまでを表す。実効温度は周囲温度に断熱を足した値。\n\n")
-	params := DefaultParams()
+	params := DefaultParams(master)
 	writeMDTable(&b, []string{"指標", "値"}, []tw.Align{alignL, alignR}, [][]string{
 		{"栄養失調まで（満腹度33%未満）の日数", fmt.Sprintf("%.2f", DaysUntilStarving(params))},
 		{"満腹度が尽きるまでの日数", fmt.Sprintf("%.2f", DaysUntilHungerEmpty(params))},
@@ -215,7 +215,7 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	writeMDTable(&b, []string{"探索層数", "廃墟の期待収入"}, []tw.Align{alignR, alignR}, runIncomeRows)
 
 	// 経済の進行。支出側の生活費と、日ごとに loot がそれを賄えるか
-	fmt.Fprintf(&b, "経済の進行。1日の食費は満腹度減耗を最安の食料で埋め戻す費用で %.0f。日が進むと危険度が上がり loot 手取りも上がるので、\n", CostOfLivingPerDay(master, DefaultParams()))
+	fmt.Fprintf(&b, "経済の進行。1日の食費は満腹度減耗を最安の食料で埋め戻す費用で %.0f。日が進むと危険度が上がり loot 手取りも上がるので、\n", CostOfLivingPerDay(master, DefaultParams(master)))
 	fmt.Fprintf(&b, "1日分の食費を賄うのに要る loot 個数が減る。個数が小さいほど、その日の探索は生活費に対して割が良い。\n\n")
 	var econProgRows [][]string
 	for _, d := range EconomyProgression(master, "ruins_area", days, params) {

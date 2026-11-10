@@ -26,7 +26,7 @@ func lotElements(s Site, fac oapi.Facility) []Placed {
 			if abs(a-doorAxis) <= 1 { // 門の隙間。街路から前庭へ入る
 				continue
 			}
-			out = append(out, Placed{Kind: KindDecor, Ref: "fence", Pos: edge.at(a)})
+			out = append(out, Placed{Kind: oapi.Decor, Ref: "fence", Pos: edge.at(a)})
 		}
 	}
 	// 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く
@@ -35,7 +35,7 @@ func lotElements(s Site, fac oapi.Facility) []Placed {
 		if fac.IsShop {
 			ref = "vending"
 		}
-		out = append(out, Placed{Kind: KindDecor, Ref: ref, Pos: spot})
+		out = append(out, Placed{Kind: oapi.Decor, Ref: ref, Pos: spot})
 	}
 	return out
 }

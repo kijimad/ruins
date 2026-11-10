@@ -8,7 +8,7 @@ import (
 
 func TestDefaultParams_倍率つまみは1(t *testing.T) {
 	t.Parallel()
-	p := DefaultParams()
+	p := DefaultParams(loadTestMaster(t))
 	assert.Equal(t, 1.0, p.EnemyWeaponScale)
 	assert.Equal(t, 1.0, p.PlayerStrengthScale)
 	assert.Equal(t, 1.0, p.FuelHeatScale)

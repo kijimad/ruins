@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -83,11 +84,11 @@ func TestTileEnvironmentAt(t *testing.T) {
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
-			Shelter: gc.ShelterFull,
+			Shelter: oapi.Indoor,
 		})
 
 		shelter, modifier := query.TileEnvironmentAt(world, 5, 5)
-		assert.Equal(t, gc.ShelterFull, shelter)
+		assert.Equal(t, oapi.Indoor, shelter)
 		assert.Equal(t, 0, modifier)
 	})
 
@@ -98,12 +99,13 @@ func TestTileEnvironmentAt(t *testing.T) {
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
-			Water:   gc.WaterNearby,
-			Foliage: gc.FoliageForest,
+			Shelter: oapi.Outdoor,
+			Water:   oapi.Nearby,
+			Foliage: oapi.Forest,
 		})
 
 		shelter, modifier := query.TileEnvironmentAt(world, 5, 5)
-		assert.Equal(t, gc.ShelterNone, shelter)
+		assert.Equal(t, oapi.Outdoor, shelter)
 		assert.Equal(t, -8, modifier)
 	})
 
@@ -112,7 +114,7 @@ func TestTileEnvironmentAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		shelter, modifier := query.TileEnvironmentAt(world, 5, 5)
-		assert.Equal(t, gc.ShelterNone, shelter)
+		assert.Equal(t, oapi.Outdoor, shelter)
 		assert.Equal(t, 0, modifier)
 	})
 }
@@ -151,7 +153,7 @@ func TestAmbientTemperatureAt_ダンジョンの囲われたタイルは世界�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: oapi.Indoor})
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -178,7 +180,7 @@ func TestAmbientTemperatureAt_オーバーワールドの屋内タイルは世�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: oapi.Indoor})
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -194,7 +196,7 @@ func TestAmbientTemperatureAt_温暖時も屋内は屋外より寒くならな�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: oapi.Indoor})
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -226,7 +228,7 @@ func TestAmbientTemperatureAt_半屋外タイルは世界温度を中間の強�
 
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterPartial})
+	world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: oapi.Partial})
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
@@ -252,7 +254,7 @@ func TestAmbientTemperatureAt_冬の屋内は屋外より暖かい(t *testing.T)
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 		tile := world.ECS.NewEntity()
 		world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
-		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: gc.ShelterFull})
+		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{Shelter: oapi.Indoor})
 		temp, err := query.AmbientTemperatureAt(world, 0, 0)
 		require.NoError(t, err)
 		return temp
@@ -297,7 +299,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 
 		armor := world.ECS.NewEntity()
 		world.Components.Wearable.Add(armor, &gc.Wearable{
-			EquipmentCategory: gc.EquipmentTorso,
+			EquipmentCategory: oapi.EquipmentCategoryTORSO,
 			InsulationCold:    10,
 			InsulationHeat:    5,
 		})
@@ -307,7 +309,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 
 		helmet := world.ECS.NewEntity()
 		world.Components.Wearable.Add(helmet, &gc.Wearable{
-			EquipmentCategory: gc.EquipmentHead,
+			EquipmentCategory: oapi.EquipmentCategoryHEAD,
 			InsulationCold:    3,
 			InsulationHeat:    2,
 		})

@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -139,7 +140,7 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	amount := healing.Calc(hp.Max)
 
 	// 回復効果倍率を適用する
-	amount = max(query.ProficiencyValue(world, actor, gc.ProfHealingEffect).ApplyInt(amount), 1)
+	amount = max(query.ProficiencyValue(world, actor, oapi.ProficiencyIdHealingEffect).ApplyInt(amount), 1)
 
 	actualHealing := gameaction.ApplyHealing(world, actor, amount)
 
@@ -203,7 +204,7 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 	}
 	actorMarkup := query.NameMarkup(actor, query.GetEntityName(actor, world), world)
 	itemMarkup := gamelog.Tag("item", u.getItemName(item, world))
-	condName := query.T(world, gc.ConditionTypeDisplayName(treated))
+	condName := query.ConditionName(world, treated)
 	gamelog.New(query.GetGameLog(world)).
 		Markup(query.T(world, "%s used %s and treated %s.", actorMarkup, itemMarkup, condName)).
 		Log()
@@ -246,10 +247,10 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 
 	// 腐敗食は低確率で食中毒を起こす
 	if stage == gc.FreshnessRotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
-		gameaction.ContractIllness(world, actor, gc.ConditionFoodPoisoning)
+		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(oapi.RottenFood))
 	}
 
-	isSatiated := hunger.GetLevel() == gc.HungerSatiated
+	isSatiated := hunger.GetLevel(world.Resources.NeedDefs) == oapi.HungerStageIdSatiated
 	u.logNutritionUse(actor, world, item, isSatiated)
 
 	return nil

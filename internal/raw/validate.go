@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
 	"sync"
 	"unicode/utf8"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
@@ -39,6 +42,26 @@ var (
 	errInteriorContentDuplicateID     = errors.New("interior content has duplicate id")
 	errInteriorFlavorContentMissing   = errors.New("interior flavor content is missing")
 	errItemGroupIDDuplicated          = errors.New("item group and item collection share an id")
+	errBodyPartRowMissing             = errors.New("body part has no raw row")
+	errBodyPartUnknown                = errors.New("body part is not defined in code")
+	errConditionPartUndefined         = errors.New("condition references undefined body part")
+	errConditionPartWholeBody         = errors.New("condition parts include whole body")
+	errConditionNoHitPart             = errors.New("condition has no body part that can be hit")
+	errRemedyConditionUndefined       = errors.New("remedy treats undefined condition")
+	errAttackTypeInjuryUndefined      = errors.New("attack type references undefined condition")
+	errAttackTypeRowMissing           = errors.New("attack type has no raw row")
+	errSkillCategoryUndefined         = errors.New("skill references undefined category")
+	errBookSkillUndefined             = errors.New("book references undefined skill")
+	errProfessionSkillUndefined       = errors.New("profession references undefined skill")
+	errResistNone                     = errors.New("no proficiency can resist the none element")
+	errWeaponProficiencyOwner         = errors.New("weapon proficiency is owned by another skill")
+	errInteriorRefPropUndefined       = errors.New("interior ref references undefined prop")
+	errInteriorRefGroupUndefined      = errors.New("interior ref references undefined item group")
+	errHeroRefUndefined               = errors.New("hero ref is not an interior ref with a prop")
+	errSpellTurnsReversed             = errors.New("weather spell turns min exceeds max")
+	errNeedStageNoZero                = errors.New("need stages have no stage from zero")
+	errEnumRowMissing                 = errors.New("enum value has no raw row")
+	errTableMissing                   = errors.New("table required by code is missing")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -118,6 +141,24 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateMapGlyphReferences(raws); err != nil {
+		return err
+	}
+	if err := validateConditions(raws); err != nil {
+		return err
+	}
+	if err := validateSkills(raws); err != nil {
+		return err
+	}
+	if err := validateInteriorRefs(raws); err != nil {
+		return err
+	}
+	if err := validateWeathers(raws); err != nil {
+		return err
+	}
+	if err := validateTileEffects(raws); err != nil {
+		return err
+	}
+	if err := validateNeedStages(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -551,6 +592,420 @@ func validateMapGlyphReferences(raws oapi.Raws) error {
 	for _, l := range PtrSlice(raws.Landmarks) {
 		if _, ok := ids[l.Id]; !ok {
 			return fmt.Errorf("landmark %q: %w", l.Id, errMapGlyphMissing)
+		}
+	}
+	return nil
+}
+
+// validateConditions は不調と部位の行と、それらへの参照を検証する。怪我の抽選の対象が空にならないことも確かめる
+func validateConditions(raws oapi.Raws) error {
+	bodyParts := PtrSlice(raws.BodyParts)
+	conditions := PtrSlice(raws.Conditions)
+	if err := validateUniqueIDs("body part", bodyParts, func(b oapi.BodyPart) string { return b.Id }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("condition", conditions, func(c oapi.Condition) string { return c.Id }); err != nil {
+		return err
+	}
+
+	hitWeights := make(map[string]float64, len(bodyParts))
+	for _, b := range bodyParts {
+		if _, ok := gc.BodyPartByID(b.Id); !ok {
+			return fmt.Errorf("body part %q: %w", b.Id, errBodyPartUnknown)
+		}
+		hitWeights[b.Id] = b.HitWeight
+	}
+	conditionIDs := make(map[string]struct{}, len(conditions))
+	for _, c := range conditions {
+		conditionIDs[c.Id] = struct{}{}
+		if err := validateConditionParts(c, hitWeights); err != nil {
+			return err
+		}
+	}
+
+	attackTypes := PtrSlice(raws.AttackTypes)
+	if err := validateUniqueIDs("attack type", attackTypes, func(a oapi.AttackType) string { return string(a.Id) }); err != nil {
+		return err
+	}
+	for _, a := range attackTypes {
+		if _, ok := conditionIDs[a.Injury]; !ok {
+			return fmt.Errorf("attack type %q injury %q: %w", a.Id, a.Injury, errAttackTypeInjuryUndefined)
+		}
+	}
+
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		if items[i].Remedy == nil {
+			continue
+		}
+		for _, t := range items[i].Remedy.Treats {
+			if _, ok := conditionIDs[t]; !ok {
+				return fmt.Errorf("item %q treats %q: %w", items[i].Id, t, errRemedyConditionUndefined)
+			}
+		}
+	}
+	return nil
+}
+
+// validateConditionParts は不調の起こりうる部位が実在し、全身を含まず、命中の重みが正の部位を1つ以上持つことを検証する。
+// parts を省いた不調は全部位が対象になる
+func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) error {
+	parts := PtrSlice(c.Parts)
+	for _, id := range parts {
+		if _, ok := hitWeights[id]; !ok {
+			return fmt.Errorf("condition %q part %q: %w", c.Id, id, errConditionPartUndefined)
+		}
+		if id == gc.BodyPartWholeBody.ID() {
+			return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
+		}
+	}
+	candidates := parts
+	if len(parts) == 0 {
+		candidates = slices.Collect(maps.Keys(hitWeights))
+	}
+	for _, id := range candidates {
+		if hitWeights[id] > 0 {
+			return nil
+		}
+	}
+	return fmt.Errorf("condition %q: %w", c.Id, errConditionNoHitPart)
+}
+
+// validateCodeRows は Go が名前で参照する行と、読み込みに要る表が raw にあることを検証する。
+// 一部だけの raws を組むテストを妨げないよう、LoadFromFile だけが呼ぶ
+func validateCodeRows(raws oapi.Raws) error {
+	bodyPartIDs := make(map[string]struct{})
+	for _, b := range PtrSlice(raws.BodyParts) {
+		bodyPartIDs[b.Id] = struct{}{}
+	}
+	for bp := range gc.BodyPartCount {
+		if _, ok := bodyPartIDs[bp.ID()]; !ok {
+			return fmt.Errorf("body part %q: %w", bp.ID(), errBodyPartRowMissing)
+		}
+	}
+
+	var onsets []string
+	for _, c := range PtrSlice(raws.Conditions) {
+		if c.Onset != nil {
+			onsets = append(onsets, string(*c.Onset))
+		}
+	}
+	if err := validateEnumRows("ConditionOnset", onsets); err != nil {
+		return err
+	}
+
+	attackTypeIDs := make(map[string]struct{})
+	for _, a := range PtrSlice(raws.AttackTypes) {
+		attackTypeIDs[string(a.Id)] = struct{}{}
+	}
+	for _, at := range gc.AllAttackTypes {
+		if _, ok := attackTypeIDs[at.Type]; !ok {
+			return fmt.Errorf("attack type %q: %w", at.Type, errAttackTypeRowMissing)
+		}
+	}
+	if err := validateSkillCodeRows(raws); err != nil {
+		return err
+	}
+
+	required := []struct {
+		name    string
+		present bool
+	}{
+		{"interiorProfile", raws.InteriorProfile != nil},
+		{"weathers", len(PtrSlice(raws.Weathers)) > 0},
+		{"shelterEffects", len(PtrSlice(raws.ShelterEffects)) > 0},
+		{"waterEffects", len(PtrSlice(raws.WaterEffects)) > 0},
+		{"foliageEffects", len(PtrSlice(raws.FoliageEffects)) > 0},
+		{"hungerStages", len(PtrSlice(raws.HungerStages)) > 0},
+		{"fatigueStages", len(PtrSlice(raws.FatigueStages)) > 0},
+	}
+	for _, r := range required {
+		if !r.present {
+			return fmt.Errorf("%s: %w", r.name, errTableMissing)
+		}
+	}
+	return nil
+}
+
+// validateSkillCodeRows はスキーマの enum のスキルと熟練の効果倍率それぞれに raw の行がちょうど1つあり、
+// 攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
+func validateSkillCodeRows(raws oapi.Raws) error {
+	skills := PtrSlice(raws.Skills)
+	skillIDs := make([]string, 0, len(skills))
+	var proficiencyIDs []string
+	owners := make(map[oapi.ProficiencyId]oapi.SkillId)
+	for i := range skills {
+		id := skills[i].Id
+		skillIDs = append(skillIDs, string(id))
+		for _, p := range PtrSlice(skills[i].Proficiencies) {
+			proficiencyIDs = append(proficiencyIDs, string(p.Id))
+			owners[p.Id] = id
+		}
+	}
+	if err := validateEnumRows("SkillId", skillIDs); err != nil {
+		return err
+	}
+	if err := validateEnumRows("ProficiencyId", proficiencyIDs); err != nil {
+		return err
+	}
+	if err := validateResists(skills); err != nil {
+		return err
+	}
+	for _, at := range PtrSlice(raws.AttackTypes) {
+		for _, key := range []oapi.ProficiencyId{at.Damage, at.Accuracy} {
+			if owners[key] != at.Skill {
+				return fmt.Errorf("attack type %q proficiency %q owned by %q: %w", at.Id, key, owners[key], errWeaponProficiencyOwner)
+			}
+		}
+	}
+	return nil
+}
+
+// validateResists は無属性を除く攻撃属性それぞれを、ちょうど1つの熟練の効果倍率が軽減することを検証する
+func validateResists(skills []oapi.Skill) error {
+	// 無属性は軽減の対象外なので、enum の網羅の検証では持っているものとして数える
+	elements := []string{string(oapi.ElementNONE)}
+	for i := range skills {
+		for _, p := range PtrSlice(skills[i].Proficiencies) {
+			if p.Resists == nil {
+				continue
+			}
+			if *p.Resists == oapi.ElementNONE {
+				return fmt.Errorf("proficiency %q: %w", p.Id, errResistNone)
+			}
+			elements = append(elements, string(*p.Resists))
+		}
+	}
+	return validateEnumRows("Element", elements)
+}
+
+// validateSkills はスキルとカテゴリの id が一意で、スキルのカテゴリ、本と職業のスキルが実在することを検証する。
+// 熟練の効果倍率の id もスキルをまたいで一意にする
+func validateSkills(raws oapi.Raws) error {
+	skills := PtrSlice(raws.Skills)
+	categories := PtrSlice(raws.SkillCategories)
+	if err := validateUniqueIDs("skill", skills, func(s oapi.Skill) string { return string(s.Id) }); err != nil {
+		return err
+	}
+	if err := validateUniqueIDs("skill category", categories, func(c oapi.SkillCategory) string { return c.Id }); err != nil {
+		return err
+	}
+	var proficiencies []oapi.SkillProficiency
+	for i := range skills {
+		proficiencies = append(proficiencies, PtrSlice(skills[i].Proficiencies)...)
+	}
+	if err := validateUniqueIDs("proficiency", proficiencies, func(p oapi.SkillProficiency) string { return string(p.Id) }); err != nil {
+		return err
+	}
+
+	categoryIDs := make(map[string]struct{}, len(categories))
+	for _, c := range categories {
+		categoryIDs[c.Id] = struct{}{}
+	}
+	skillIDs := make(map[string]struct{}, len(skills))
+	for i := range skills {
+		skillIDs[string(skills[i].Id)] = struct{}{}
+		if _, ok := categoryIDs[skills[i].Category]; !ok {
+			return fmt.Errorf("skill %q category %q: %w", skills[i].Id, skills[i].Category, errSkillCategoryUndefined)
+		}
+	}
+
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		if items[i].Book == nil || items[i].Book.Skill == nil {
+			continue
+		}
+		if _, ok := skillIDs[string(items[i].Book.Skill.TargetSkill)]; !ok {
+			return fmt.Errorf("item %q skill %q: %w", items[i].Id, items[i].Book.Skill.TargetSkill, errBookSkillUndefined)
+		}
+	}
+	professions := PtrSlice(raws.Professions)
+	for i := range professions {
+		for _, ps := range PtrSlice(professions[i].Skills) {
+			if _, ok := skillIDs[string(ps.Id)]; !ok {
+				return fmt.Errorf("profession %q skill %q: %w", professions[i].Id, ps.Id, errProfessionSkillUndefined)
+			}
+		}
+	}
+	return nil
+}
+
+// validateInteriorRefs は内装の Ref の id が一意で、prop と item group が実在し、
+// 生活感の抽選表が enum の全値を1回ずつ持ち、hero の Ref が prop を持つ Ref であることを検証する
+func validateInteriorRefs(raws oapi.Raws) error {
+	refs := PtrSlice(raws.InteriorRefs)
+	if err := validateUniqueIDs("interior ref", refs, func(r oapi.InteriorRef) string { return r.Id }); err != nil {
+		return err
+	}
+	props := PtrSlice(raws.Props)
+	propIDs := make(map[string]struct{}, len(props))
+	for i := range props {
+		propIDs[props[i].Id] = struct{}{}
+	}
+	groupIDs := itemGroupIDs(raws)
+	propRefs := make(map[string]struct{}, len(refs))
+	for _, r := range refs {
+		if r.Prop != nil {
+			if _, ok := propIDs[*r.Prop]; !ok {
+				return fmt.Errorf("interior ref %q prop %q: %w", r.Id, *r.Prop, errInteriorRefPropUndefined)
+			}
+			propRefs[r.Id] = struct{}{}
+		}
+		if r.ItemGroup != nil {
+			if _, ok := groupIDs[*r.ItemGroup]; !ok {
+				return fmt.Errorf("interior ref %q item group %q: %w", r.Id, *r.ItemGroup, errInteriorRefGroupUndefined)
+			}
+		}
+	}
+
+	p := raws.InteriorProfile
+	if p == nil {
+		return nil
+	}
+	ids := func(n int, id func(int) string) []string {
+		out := make([]string, n)
+		for i := range n {
+			out[i] = id(i)
+		}
+		return out
+	}
+	enumRows := []struct {
+		schema string
+		ids    []string
+	}{
+		{"BuildingDamage", ids(len(p.Damages), func(i int) string { return string(p.Damages[i].Id) })},
+		{"BuildingClutter", ids(len(p.Clutters), func(i int) string { return string(p.Clutters[i].Id) })},
+		{"BuildingVariant", ids(len(p.Variants), func(i int) string { return string(p.Variants[i].Id) })},
+	}
+	for _, e := range enumRows {
+		if err := validateEnumRows(e.schema, e.ids); err != nil {
+			return err
+		}
+	}
+	if err := validateUniqueIDs("hero", p.Heroes, func(h oapi.HeroChoice) string { return h.Id }); err != nil {
+		return err
+	}
+	for _, h := range p.Heroes {
+		for _, ref := range h.Refs {
+			if _, ok := propRefs[ref]; !ok {
+				return fmt.Errorf("hero %q ref %q: %w", h.Id, ref, errHeroRefUndefined)
+			}
+		}
+	}
+	return nil
+}
+
+// validateEnumRows は OpenAPI スキーマの enum の値それぞれを ids がちょうど1回ずつ持つことを検証する
+func validateEnumRows(schemaName string, ids []string) error {
+	if err := validateUniqueIDs(schemaName, ids, func(id string) string { return id }); err != nil {
+		return err
+	}
+	spec, err := loadSpec()
+	if err != nil {
+		return fmt.Errorf("failed to load OpenAPI schema: %w", err)
+	}
+	ref, ok := spec.Components.Schemas[schemaName]
+	if !ok || ref.Value == nil {
+		return fmt.Errorf("cannot find %s component in OpenAPI schema", schemaName)
+	}
+	for _, v := range ref.Value.Enum {
+		s, ok := v.(string)
+		if !ok {
+			return fmt.Errorf("%s enum value %v is %T, not string", schemaName, v, v)
+		}
+		if !slices.Contains(ids, s) {
+			return fmt.Errorf("%s %q: %w", schemaName, v, errEnumRowMissing)
+		}
+	}
+	return nil
+}
+
+// validateWeathers は天候の行が enum の全値を1回ずつ持ち、各行が季節の全値の重みを持ち、スペルの下限が上限以下であることを検証する
+func validateWeathers(raws oapi.Raws) error {
+	weathers := PtrSlice(raws.Weathers)
+	if len(weathers) == 0 {
+		return nil
+	}
+	ids := make([]string, 0, len(weathers))
+	for _, w := range weathers {
+		ids = append(ids, string(w.Id))
+		seasonIDs := make([]string, 0, len(w.Seasons))
+		for _, sw := range w.Seasons {
+			seasonIDs = append(seasonIDs, string(sw.Id))
+		}
+		if err := validateEnumRows("SeasonId", seasonIDs); err != nil {
+			return fmt.Errorf("weather %q: %w", w.Id, err)
+		}
+		if w.SpellTurnsMin > w.SpellTurnsMax {
+			return fmt.Errorf("weather %q: %w", w.Id, errSpellTurnsReversed)
+		}
+	}
+	return validateEnumRows("WeatherId", ids)
+}
+
+// validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
+func validateTileEffects(raws oapi.Raws) error {
+	if shelters := PtrSlice(raws.ShelterEffects); len(shelters) > 0 {
+		ids := make([]string, 0, len(shelters))
+		for _, s := range shelters {
+			ids = append(ids, string(s.Id))
+		}
+		if err := validateEnumRows("Shelter", ids); err != nil {
+			return err
+		}
+	}
+	if water := PtrSlice(raws.WaterEffects); len(water) > 0 {
+		ids := make([]string, 0, len(water))
+		for _, w := range water {
+			ids = append(ids, string(w.Id))
+		}
+		if err := validateEnumRows("WaterExposure", ids); err != nil {
+			return err
+		}
+	}
+	if foliage := PtrSlice(raws.FoliageEffects); len(foliage) > 0 {
+		ids := make([]string, 0, len(foliage))
+		for _, f := range foliage {
+			ids = append(ids, string(f.Id))
+		}
+		if err := validateEnumRows("Foliage", ids); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、割合0から始まる段階を持つことを検証する。
+// 割合0の段階が無いと、どの段階にも当たらない割合が生まれる
+func validateNeedStages(raws oapi.Raws) error {
+	hunger := PtrSlice(raws.HungerStages)
+	if len(hunger) > 0 {
+		ids := make([]string, 0, len(hunger))
+		froms := make([]float64, 0, len(hunger))
+		for _, h := range hunger {
+			ids = append(ids, string(h.Id))
+			froms = append(froms, h.From)
+		}
+		if err := validateEnumRows("HungerStageId", ids); err != nil {
+			return err
+		}
+		if !slices.Contains(froms, 0) {
+			return fmt.Errorf("hunger: %w", errNeedStageNoZero)
+		}
+	}
+	fatigue := PtrSlice(raws.FatigueStages)
+	if len(fatigue) > 0 {
+		ids := make([]string, 0, len(fatigue))
+		froms := make([]float64, 0, len(fatigue))
+		for _, f := range fatigue {
+			ids = append(ids, string(f.Id))
+			froms = append(froms, f.From)
+		}
+		if err := validateEnumRows("FatigueStageId", ids); err != nil {
+			return err
+		}
+		if !slices.Contains(froms, 0) {
+			return fmt.Errorf("fatigue: %w", errNeedStageNoZero)
 		}
 	}
 	return nil

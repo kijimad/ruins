@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -54,7 +55,7 @@ func TestSleepBehavior_普通の疲労でも眠れる(t *testing.T) {
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 	// Normal 段階。30〜50% の比率。Rested だけが弾かれるので Normal は眠れる
 	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 800, Max: 2000})
-	require.Equal(t, gc.FatigueNormal, world.Components.Fatigue.Get(actor).GetLevel(), "前提: Normal 段階")
+	require.Equal(t, oapi.FatigueStageIdNormal, world.Components.Fatigue.Get(actor).GetLevel(world.Resources.NeedDefs), "前提: Normal 段階")
 	makeSleepableWarm(world)
 
 	result, err := Execute(NewSleepActivity(), actor, world)
@@ -221,7 +222,7 @@ func TestHasActiveHypothermia(t *testing.T) {
 		actor := world.ECS.NewEntity()
 		hs := &gc.HealthStatus{}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:  gc.ConditionHypothermia,
+			Type:  gc.ConditionType("hypothermia"),
 			Timer: 24,
 		})
 		world.Components.HealthStatus.Add(actor, hs)
@@ -235,7 +236,7 @@ func TestHasActiveHypothermia(t *testing.T) {
 		actor := world.ECS.NewEntity()
 		hs := &gc.HealthStatus{}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:  gc.ConditionHypothermia,
+			Type:  gc.ConditionType("hypothermia"),
 			Timer: 25,
 		})
 		world.Components.HealthStatus.Add(actor, hs)
@@ -253,7 +254,7 @@ func TestSleepBehavior_DoTurn_低体温が発症すると起床して中断理�
 	world.Components.Fatigue.Add(actor, &gc.Fatigue{Current: 1000, Max: 2000})
 	hs := &gc.HealthStatus{}
 	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-		Type:  gc.ConditionHypothermia,
+		Type:  gc.ConditionType("hypothermia"),
 		Timer: 30,
 	})
 	world.Components.HealthStatus.Add(actor, hs)

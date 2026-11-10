@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -103,11 +104,11 @@ func (rp *soloPlanner) updateState(solo *gc.SoloAI, canSeePlayer bool, currentTu
 func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {
 	if canSeePlayer {
 		switch solo.CombatCurrent {
-		case gc.CombatEvade:
+		case oapi.Evade:
 			rp.transitionToFleeing(solo, currentTurn)
-		case gc.CombatAttack:
+		case oapi.Attack:
 			rp.transitionToChasing(solo, currentTurn)
-		case gc.CombatIgnore:
+		case oapi.Ignore:
 		}
 	} else if elapsedTurns >= solo.DurationSubStateTurns {
 		rp.transitionToDriving(solo, currentTurn)
@@ -117,11 +118,11 @@ func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, ela
 func (rp *soloPlanner) updateFromDriving(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {
 	if canSeePlayer {
 		switch solo.CombatCurrent {
-		case gc.CombatEvade:
+		case oapi.Evade:
 			rp.transitionToFleeing(solo, currentTurn)
-		case gc.CombatAttack:
+		case oapi.Attack:
 			rp.transitionToChasing(solo, currentTurn)
-		case gc.CombatIgnore:
+		case oapi.Ignore:
 		}
 	} else if elapsedTurns >= solo.DurationSubStateTurns {
 		rp.transitionToWaiting(solo, currentTurn)
@@ -229,19 +230,19 @@ func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, 
 
 func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
 	switch solo.Movement {
-	case gc.SoloStationary:
+	case oapi.Stationary:
 		return waitAction()
-	case gc.SoloWander:
+	case oapi.Wander:
 		return rp.planWanderAction(world, aiEntity, grid)
-	case gc.SoloWallHug:
+	case oapi.WallHug:
 		return rp.planWallHugAction(world, aiEntity, grid)
-	case gc.SoloSwarm:
+	case oapi.Swarm:
 		return rp.planSwarmAction(world, aiEntity, grid)
-	case gc.SoloPatrol:
+	case oapi.Patrol:
 		return rp.planPatrolAction(world, aiEntity, solo, grid)
-	case gc.SoloTerritorial:
+	case oapi.Territorial:
 		return rp.planTerritorialAction(world, aiEntity, solo, grid)
-	case gc.SoloFollow:
+	case oapi.Follow:
 		return rp.planFollowAction(world, aiEntity, solo, grid)
 	default:
 		return rp.planRandomMoveAction(world, aiEntity, grid)
@@ -398,7 +399,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 		return nil
 	}
 	if !lifecycle.ConsumeCubeFuel(world, aiEntity, query.FollowFuelCost(query.CubeWeight(world, aiEntity))) {
-		solo.Movement = gc.SoloStationary
+		solo.Movement = oapi.Stationary
 		solo.SubState = gc.AIStateWaiting
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "The cube is out of fuel and stops.")).

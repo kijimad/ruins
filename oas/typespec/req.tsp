@@ -376,10 +376,15 @@ model ScatterEntry {
 
 /** 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う */
 enum StuffKind {
+  /** 家具。占有し移動を阻む */
   furniture,
+  /** 戦利品。コンテナや床置き */
   loot,
+  /** 敵・住人 */
   being,
+  /** 装飾。通行を阻まない小物 */
   decor,
+  /** 罠 */
   trap,
 }
 
@@ -393,13 +398,19 @@ enum GroupStyle {
   pick_n,
 }
 
-/** 配置の置き方。空なら家具型の archetype 既定へ落ちる */
+/** 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる */
 enum Placement {
+  /** 部屋中心寄り。中央の島什器など */
   center,
+  /** 壁際。戸口隣接面は避ける。棚・冷蔵ケース */
   wall,
+  /** 全域に散らす。ゴミ・小物 */
   full_area,
+  /** 入口近く。レジ・カート */
   near_door,
+  /** 入口から遠い奥。冷蔵ケース・貴重品 */
   far_from_door,
+  /** 棚を1列おきの平行列に置き、間の列を通路として空ける。ゴンドラ・ラック */
   row,
 }
 
@@ -445,6 +456,60 @@ model InteriorContent {
   groups?: ContentGroup[];
 }
 
+/** 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ */
+model InteriorRef {
+  id: EntityID;
+
+  /** 家具と装飾として置く raw の prop。省くと prop として置かない */
+  prop?: EntityID;
+
+  /** 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない */
+  itemGroup?: EntityID;
+
+  /** レシピが placement を省いたときの置き方 */
+  placement?: Placement;
+}
+
+/** 建物の損傷段階の重み */
+model DamageChoice {
+  id: BuildingDamage;
+  weight: EntryWeight;
+}
+
+/** 建物の散らかり段階の重み */
+model ClutterChoice {
+  id: BuildingClutter;
+  weight: EntryWeight;
+}
+
+/** 建物の変種の重み */
+model VariantChoice {
+  id: BuildingVariant;
+  weight: EntryWeight;
+}
+
+/** 建物の家具量の倍率の重み */
+model DensityChoice {
+  factor: DensityFactor;
+  weight: EntryWeight;
+}
+
+/** hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く */
+model HeroChoice {
+  id: EntityID;
+  weight: EntryWeight;
+  @minItems(1) refs: EntityID[];
+}
+
+/** 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる */
+model InteriorProfile {
+  damages: DamageChoice[];
+  clutters: ClutterChoice[];
+  variants: VariantChoice[];
+  densities: DensityChoice[];
+  heroes: HeroChoice[];
+}
+
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
 model FacilityContent {
   facility: EntityID;
@@ -481,9 +546,32 @@ model Tile {
   blockPass: BlocksPassage;
   blockView: BlocksView;
   spriteRender: SpriteRender;
-  shelter: ShelterType;
-  water: WaterType;
-  foliage: FoliageType;
+
+  /** 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける */
+  water?: boolean;
+
+  /** 植生。省くと植生なし */
+  foliage?: Foliage;
+}
+
+/** 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100 */
+model ShelterEffect {
+  id: Shelter;
+  name: EntityName;
+  anchorTemp: TileTempModifier;
+  influencePercent: ShelterInfluencePercent;
+}
+
+/** 水がタイルの気温に足す補正 */
+model WaterEffect {
+  id: WaterExposure;
+  tempModifier: TileTempModifier;
+}
+
+/** 植生がタイルの気温に足す補正 */
+model FoliageEffect {
+  id: Foliage;
+  tempModifier: TileTempModifier;
 }
 
 // ================== 置物 ==================
@@ -593,6 +681,127 @@ model Profession {
   equips: ProfessionEquip[];
 }
 
+// ================== 不調と部位 ==================
+
+/** 不調。痛みと身体機能の低下、回復の仕方、出血を持つ */
+model Condition {
+  id: ConditionTypeName;
+  name: EntityName;
+  description: EntityDescription;
+  painPerSeverity: ConditionAmountPerSeverity;
+  bodyFuncDropPerSeverity: ConditionAmountPerSeverity;
+
+  /** 省くと ConditionSystem の管轄外になる */
+  recovery?: RecoveryMode;
+
+  /** progress_until_tend で未治療のとき1ターンに進行度を増やす量 */
+  worsenPer?: ConditionTimerRate;
+
+  /** 治療済みで1ターンに進行度を減らす基準量 */
+  recoverPer?: ConditionTimerRate;
+
+  bloodDropPerSeverity?: ConditionAmountPerSeverity;
+  cause?: ConditionDeathCause;
+
+  /** 起こりうる部位。省くと全部位 */
+  parts?: BodyPartId[];
+
+  /** 不調を起こす仕組み。攻撃で負う怪我と、きっかけの無い不調は省く */
+  onset?: ConditionOnset;
+}
+
+/** 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ */
+model BodyPart {
+  id: BodyPartId;
+  name: EntityName;
+
+  /** 戦闘の命中抽選の重み。0 は命中先にならない */
+  hitWeight: EntryWeight;
+}
+
+// ================== スキルと攻撃種別 ==================
+
+/** スキルが左右する熟練の効果倍率 */
+model SkillProficiency {
+  id: ProficiencyId;
+  perLevel: ProficiencyPerLevel;
+
+  /** この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ */
+  resists?: Element;
+}
+
+/** スキル。同じカテゴリのスキルは行の順に表示する */
+model Skill {
+  id: SkillId;
+  name: EntityName;
+  summary: EntityDescription;
+  gainedBy: EntityDescription;
+  effect: EntityDescription;
+  ability: AbilityId;
+  category: SkillCategoryId;
+  proficiencies?: SkillProficiency[];
+}
+
+/** スキルのカテゴリ。行の順に表示する */
+model SkillCategory {
+  id: SkillCategoryId;
+  name: EntityName;
+}
+
+/** 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ */
+model AttackType {
+  id: AttackCategory;
+  injury: ConditionTypeName;
+
+  /** 攻撃で上達するスキル */
+  skill: SkillId;
+
+  /** ダメージを決める熟練の効果倍率。skill の行が持つ */
+  damage: ProficiencyId;
+
+  /** 命中を決める熟練の効果倍率。skill の行が持つ */
+  accuracy: ProficiencyId;
+}
+
+// ================== 天候と空腹・疲労 ==================
+
+/** 季節ごとの天候の出やすさ */
+model WeatherSeasonWeight {
+  id: SeasonId;
+  weight: EntryWeight;
+}
+
+/** 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る */
+model Weather {
+  id: WeatherId;
+  tempModifier: WeatherTempModifier;
+  visionDelta: WeatherVisionDelta;
+  severity: WeatherSeverity;
+  spellTurnsMin: SpellTurns;
+  spellTurnsMax: SpellTurns;
+  seasons: WeatherSeasonWeight[];
+}
+
+/** 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる */
+model HungerStage {
+  id: HungerStageId;
+  name: EntityName;
+  from: NeedRatio;
+
+  /** この段階で立つ栄養失調の重症度。省くと立たない */
+  severity?: ConditionSeverity;
+}
+
+/** 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる */
+model FatigueStage {
+  id: FatigueStageId;
+  name: EntityName;
+  from: NeedRatio;
+
+  /** この段階で立つ過労の重症度。省くと立たない */
+  severity?: ConditionSeverity;
+}
+
 // ================== スプライトシート ==================
 
 /** スプライトシート */
@@ -629,6 +838,19 @@ model Raws {
   tiles?: Tile[];
   props?: Prop[];
   professions?: Profession[];
+  conditions?: Condition[];
+  bodyParts?: BodyPart[];
+  skills?: Skill[];
+  skillCategories?: SkillCategory[];
+  attackTypes?: AttackType[];
+  interiorRefs?: InteriorRef[];
+  interiorProfile?: InteriorProfile;
+  weathers?: Weather[];
+  shelterEffects?: ShelterEffect[];
+  waterEffects?: WaterEffect[];
+  foliageEffects?: FoliageEffect[];
+  hungerStages?: HungerStage[];
+  fatigueStages?: FatigueStage[];
 }
 
 // ================== パレット ==================

@@ -3,7 +3,6 @@ package gameaction
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -27,7 +26,7 @@ func newTestProfession() oapi.Profession {
 			Defense:   15,
 		},
 		Skills: &[]oapi.ProfessionSkill{
-			{Id: string(gc.SkillSword), Value: 5},
+			{Id: oapi.SkillIdSword, Value: 5},
 		},
 		Items: []oapi.ProfessionItem{
 			{Name: "wooden_stick", Count: 3},
@@ -63,7 +62,7 @@ func TestApplyProfession(t *testing.T) {
 		assert.Equal(t, 15, abils.Defense.Base, "防御力が反映されるべき")
 
 		skills := world.Components.Skills.Get(player)
-		assert.Equal(t, 5, skills.Get(gc.SkillSword).Value, "職業のスキル初期値が反映されるべき")
+		assert.Equal(t, 5, skills.Get(oapi.SkillIdSword).Value, "職業のスキル初期値が反映されるべき")
 
 		item, ok := query.FindStackInInventory(world, "wooden_stick")
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")

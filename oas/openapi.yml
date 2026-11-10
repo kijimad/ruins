@@ -1531,6 +1531,16 @@ components:
         defense:
           $ref: '#/components/schemas/Defense'
       description: 能力値
+    AbilityId:
+      type: string
+      enum:
+        - str
+        - sen
+        - dex
+        - agi
+        - vit
+        - def
+      description: 能力値。スキルの成長の速さと熟練の効果倍率に効く
     Accuracy:
       type: integer
       minimum: 0
@@ -1580,19 +1590,45 @@ components:
     AttackCategory:
       type: string
       enum:
-        - FIST
-        - SWORD
-        - SPEAR
-        - HANDGUN
-        - RIFLE
-        - CANON
-        - BOW
-      description: 攻撃種別
+        - fist
+        - sword
+        - spear
+        - handgun
+        - rifle
+        - cannon
+        - bow
+      description: 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
     AttackCount:
       type: integer
       minimum: 1
       maximum: 10
       description: 1ターンあたりの攻撃回数
+    AttackType:
+      type: object
+      required:
+        - id
+        - injury
+        - skill
+        - damage
+        - accuracy
+      properties:
+        id:
+          $ref: '#/components/schemas/AttackCategory'
+        injury:
+          $ref: '#/components/schemas/ConditionTypeName'
+        skill:
+          allOf:
+            - $ref: '#/components/schemas/SkillId'
+          description: 攻撃で上達するスキル
+        damage:
+          allOf:
+            - $ref: '#/components/schemas/ProficiencyId'
+          description: ダメージを決める熟練の効果倍率。skill の行が持つ
+        accuracy:
+          allOf:
+            - $ref: '#/components/schemas/ProficiencyId'
+          description: 命中を決める熟練の効果倍率。skill の行が持つ
+      description: 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
     Balance.AbilityScore:
       type: integer
       description: 能力値。プレイヤーのステータス
@@ -1986,6 +2022,28 @@ components:
     BlocksView:
       type: boolean
       description: 視線を遮るかどうか
+    BodyPart:
+      type: object
+      required:
+        - id
+        - name
+        - hitWeight
+      properties:
+        id:
+          $ref: '#/components/schemas/BodyPartId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        hitWeight:
+          allOf:
+            - $ref: '#/components/schemas/EntryWeight'
+          description: 戦闘の命中抽選の重み。0 は命中先にならない
+      description: 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
+    BodyPartId:
+      type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
+      description: 部位の id
     Book:
       type: object
       required:
@@ -1996,6 +2054,40 @@ components:
         skill:
           $ref: '#/components/schemas/SkillBook'
       description: 本の設定
+    BuildingClutter:
+      type: string
+      enum:
+        - tidy
+        - messy
+        - filthy
+      description: 建物の散らかり段階
+    BuildingDamage:
+      type: string
+      enum:
+        - intact
+        - minor
+        - major
+      description: 建物の損傷段階
+    BuildingVariant:
+      type: string
+      enum:
+        - standard
+        - abandoned
+        - under_construction
+        - survivalist
+        - hoarder
+      description: 建物の事情。稀な1軒へ物語を与える
+    ClutterChoice:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/BuildingClutter'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の散らかり段階の重み
     ColorChannel:
       type: integer
       format: uint8
@@ -2049,10 +2141,89 @@ components:
         totalCount:
           type: integer
       description: コマンドテーブル一覧
+    Condition:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - painPerSeverity
+        - bodyFuncDropPerSeverity
+      properties:
+        id:
+          $ref: '#/components/schemas/ConditionTypeName'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        description:
+          $ref: '#/components/schemas/EntityDescription'
+        painPerSeverity:
+          $ref: '#/components/schemas/ConditionAmountPerSeverity'
+        bodyFuncDropPerSeverity:
+          $ref: '#/components/schemas/ConditionAmountPerSeverity'
+        recovery:
+          allOf:
+            - $ref: '#/components/schemas/RecoveryMode'
+          description: 省くと ConditionSystem の管轄外になる
+        worsenPer:
+          allOf:
+            - $ref: '#/components/schemas/ConditionTimerRate'
+          description: progress_until_tend で未治療のとき1ターンに進行度を増やす量
+        recoverPer:
+          allOf:
+            - $ref: '#/components/schemas/ConditionTimerRate'
+          description: 治療済みで1ターンに進行度を減らす基準量
+        bloodDropPerSeverity:
+          $ref: '#/components/schemas/ConditionAmountPerSeverity'
+        cause:
+          $ref: '#/components/schemas/ConditionDeathCause'
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BodyPartId'
+          description: 起こりうる部位。省くと全部位
+        onset:
+          allOf:
+            - $ref: '#/components/schemas/ConditionOnset'
+          description: 不調を起こす仕組み。攻撃で負う怪我と、きっかけの無い不調は省く
+      description: 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
+    ConditionAmountPerSeverity:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+    ConditionDeathCause:
+      type: string
+      enum:
+        - frozen
+        - illness
+        - blood_loss
+      description: 不調が血液量を尽きさせて倒したときの死因
+    ConditionOnset:
+      type: string
+      enum:
+        - cold
+        - rotten_food
+        - fatigue
+        - hunger
+      description: 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
+    ConditionSeverity:
+      type: string
+      enum:
+        - minor
+        - medium
+        - severe
+      description: 不調の重症度
+    ConditionTimerRate:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: 不調の1ターンあたりの進行度の増減量
     ConditionTypeName:
       type: string
       minLength: 1
-      description: 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
+      description: 不調の id。Go の ConditionType 定数の値と同じ
     Consumable:
       type: object
       required:
@@ -2161,6 +2332,17 @@ components:
       minimum: -100
       maximum: 100
       description: ダメージ補正値
+    DamageChoice:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/BuildingDamage'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の損傷段階の重み
     DangerLevel:
       type: integer
       minimum: 0
@@ -2171,6 +2353,22 @@ components:
       minimum: -100
       maximum: 100
       description: 防御力。被ダメージを軽減する
+    DensityChoice:
+      type: object
+      required:
+        - factor
+        - weight
+      properties:
+        factor:
+          $ref: '#/components/schemas/DensityFactor'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の家具量の倍率の重み
+    DensityFactor:
+      type: integer
+      minimum: 1
+      maximum: 30
+      description: 建物の家具量の倍率。10 が等倍の ×/10
     Deployable:
       type: object
       properties:
@@ -2528,6 +2726,32 @@ components:
       enum:
         - FactionNeutral
       description: 派閥タイプ
+    FatigueStage:
+      type: object
+      required:
+        - id
+        - name
+        - from
+      properties:
+        id:
+          $ref: '#/components/schemas/FatigueStageId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        from:
+          $ref: '#/components/schemas/NeedRatio'
+        severity:
+          allOf:
+            - $ref: '#/components/schemas/ConditionSeverity'
+          description: この段階で立つ過労の重症度。省くと立たない
+      description: 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる
+    FatigueStageId:
+      type: string
+      enum:
+        - rested
+        - normal
+        - tired
+        - exhausted
+      description: 疲労の段階
     Fire:
       type: object
       required:
@@ -2568,13 +2792,23 @@ components:
     FireStarter:
       type: object
       description: 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
-    FoliageType:
-      type: number
+    Foliage:
+      type: string
       enum:
-        - 0
-        - -1
-        - -3
-      description: 植生タイプ
+        - grass
+        - forest
+      description: タイルの植生
+    FoliageEffect:
+      type: object
+      required:
+        - id
+        - tempModifier
+      properties:
+        id:
+          $ref: '#/components/schemas/Foliage'
+        tempModifier:
+          $ref: '#/components/schemas/TileTempModifier'
+      description: 植生がタイルの気温に足す補正
     FuelCapacityBonus:
       type: integer
       minimum: 0
@@ -2625,11 +2859,54 @@ components:
       format: double
       minimum: 0
       description: 熱源が毎ターン下げる低体温タイマーの量
+    HeroChoice:
+      type: object
+      required:
+        - id
+        - weight
+        - refs
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+        refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityID'
+          minItems: 1
+      description: hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く
     HitPoints:
       type: integer
       minimum: 1
       maximum: 9999
       description: 耐久値。削り切られると壊れる
+    HungerStage:
+      type: object
+      required:
+        - id
+        - name
+        - from
+      properties:
+        id:
+          $ref: '#/components/schemas/HungerStageId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        from:
+          $ref: '#/components/schemas/NeedRatio'
+        severity:
+          allOf:
+            - $ref: '#/components/schemas/ConditionSeverity'
+          description: この段階で立つ栄養失調の重症度。省くと立たない
+      description: 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる
+    HungerStageId:
+      type: string
+      enum:
+        - satiated
+        - normal
+        - hungry
+        - starving
+      description: 空腹の段階
     ImagePath:
       type: string
       minLength: 1
@@ -2658,6 +2935,56 @@ components:
           items:
             $ref: '#/components/schemas/ContentGroup'
       description: 内装レシピ。施設まるごと、または奥室1つに対応する
+    InteriorProfile:
+      type: object
+      required:
+        - damages
+        - clutters
+        - variants
+        - densities
+        - heroes
+      properties:
+        damages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DamageChoice'
+        clutters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClutterChoice'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariantChoice'
+        densities:
+          type: array
+          items:
+            $ref: '#/components/schemas/DensityChoice'
+        heroes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeroChoice'
+      description: 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
+    InteriorRef:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        prop:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 家具と装飾として置く raw の prop。省くと prop として置かない
+        itemGroup:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
+        placement:
+          allOf:
+            - $ref: '#/components/schemas/Placement'
+          description: レシピが placement を省いたときの置き方
+      description: 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
     IsPlayer:
       type: boolean
       description: プレイヤーキャラクターかどうか
@@ -3112,7 +3439,14 @@ components:
         - wander
         - territorial
         - swarm
+        - follow
       description: 非戦闘時の移動パターン
+    NeedRatio:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: 最大値に対する割合
     NutritionAmount:
       type: integer
       minimum: 0
@@ -3188,7 +3522,7 @@ components:
         - near_door
         - far_from_door
         - row
-      description: 配置の置き方。空なら家具型の archetype 既定へ落ちる
+      description: 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
     PlannerKey:
       type: string
       enum:
@@ -3285,6 +3619,46 @@ components:
         value:
           $ref: '#/components/schemas/SkillLevel'
       description: 職業スキル初期値
+    ProficiencyId:
+      type: string
+      enum:
+        - fire_resist
+        - thunder_resist
+        - chill_resist
+        - photon_resist
+        - cold_progress
+        - hunger_progress
+        - healing_effect
+        - max_weight
+        - exploration
+        - enemy_vision
+        - night_vision
+        - move_cost
+        - craft_cost
+        - smith_quality
+        - buy_price
+        - sell_price
+        - heavy_armor
+        - sword_damage
+        - spear_damage
+        - fist_damage
+        - bow_damage
+        - handgun_damage
+        - rifle_damage
+        - cannon_damage
+        - sword_accuracy
+        - spear_accuracy
+        - fist_accuracy
+        - bow_accuracy
+        - handgun_accuracy
+        - rifle_accuracy
+        - cannon_accuracy
+      description: 熟練の効果倍率の id。技能と能力値から導く行動ごとの倍率を指す。怪我・病気・疲労・空腹による身体機能の低下は別に扱う
+    ProficiencyPerLevel:
+      type: integer
+      minimum: -100
+      maximum: 100
+      description: 熟練の効果倍率のスキルLv1あたりの変化量。百分率
     Prop:
       type: object
       required:
@@ -3488,6 +3862,56 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Profession'
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Condition'
+        bodyParts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BodyPart'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        skillCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillCategory'
+        attackTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttackType'
+        interiorRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/InteriorRef'
+        interiorProfile:
+          $ref: '#/components/schemas/InteriorProfile'
+        weathers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Weather'
+        shelterEffects:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShelterEffect'
+        waterEffects:
+          type: array
+          items:
+            $ref: '#/components/schemas/WaterEffect'
+        foliageEffects:
+          type: array
+          items:
+            $ref: '#/components/schemas/FoliageEffect'
+        hungerStages:
+          type: array
+          items:
+            $ref: '#/components/schemas/HungerStage'
+        fatigueStages:
+          type: array
+          items:
+            $ref: '#/components/schemas/FatigueStage'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -3534,6 +3958,13 @@ components:
         totalCount:
           type: integer
       description: レシピ一覧レスポンス
+    RecoveryMode:
+      type: string
+      enum:
+        - recover_after_tend
+        - progress_until_tend
+        - recover_over_time
+      description: 不調が未治療のときの振る舞いと治し方
     ReloadEffort:
       type: integer
       minimum: 1
@@ -3627,18 +4058,78 @@ components:
           items:
             $ref: '#/components/schemas/ScatterEntry'
       description: 開けた地形の散布ゾーン1種
+    SeasonId:
+      type: string
+      enum:
+        - spring
+        - summer
+        - autumn
+        - winter
+      description: 季節
     Sensation:
       type: integer
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
-    ShelterType:
-      type: number
+    Shelter:
+      type: string
       enum:
-        - 0
-        - 5
-        - 10
-      description: 遮蔽タイプ
+        - outdoor
+        - partial
+        - indoor
+      description: タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
+    ShelterEffect:
+      type: object
+      required:
+        - id
+        - name
+        - anchorTemp
+        - influencePercent
+      properties:
+        id:
+          $ref: '#/components/schemas/Shelter'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        anchorTemp:
+          $ref: '#/components/schemas/TileTempModifier'
+        influencePercent:
+          $ref: '#/components/schemas/ShelterInfluencePercent'
+      description: 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
+    ShelterInfluencePercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
+    Skill:
+      type: object
+      required:
+        - id
+        - name
+        - summary
+        - gainedBy
+        - effect
+        - ability
+        - category
+      properties:
+        id:
+          $ref: '#/components/schemas/SkillId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        summary:
+          $ref: '#/components/schemas/EntityDescription'
+        gainedBy:
+          $ref: '#/components/schemas/EntityDescription'
+        effect:
+          $ref: '#/components/schemas/EntityDescription'
+        ability:
+          $ref: '#/components/schemas/AbilityId'
+        category:
+          $ref: '#/components/schemas/SkillCategoryId'
+        proficiencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillProficiency'
+      description: スキル。同じカテゴリのスキルは行の順に表示する
     SkillBook:
       type: object
       required:
@@ -3653,17 +4144,76 @@ components:
         maxLevel:
           $ref: '#/components/schemas/SkillLevel'
       description: スキル本設定
-    SkillId:
+    SkillCategory:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/SkillCategoryId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+      description: スキルのカテゴリ。行の順に表示する
+    SkillCategoryId:
       type: string
       minLength: 1
       maxLength: 50
       pattern: ^[a-z][a-z0-9_]*$
+      description: スキルのカテゴリの id
+    SkillId:
+      type: string
+      enum:
+        - sword
+        - spear
+        - fist
+        - weight_bearing
+        - bow
+        - handgun
+        - rifle
+        - cannon
+        - exploration
+        - crafting
+        - smithing
+        - negotiation
+        - mechanic
+        - sprinting
+        - stealth
+        - night_vision
+        - cold_resist
+        - hunger_resist
+        - healing
+        - heavy_armor
+        - fire_resist
+        - thunder_resist
+        - chill_resist
+        - photon_resist
       description: スキルID
     SkillLevel:
       type: integer
       minimum: 0
       maximum: 100
       description: スキルレベル
+    SkillProficiency:
+      type: object
+      required:
+        - id
+        - perLevel
+      properties:
+        id:
+          $ref: '#/components/schemas/ProficiencyId'
+        perLevel:
+          $ref: '#/components/schemas/ProficiencyPerLevel'
+        resists:
+          allOf:
+            - $ref: '#/components/schemas/Element'
+          description: この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ
+      description: スキルが左右する熟練の効果倍率
+    SpellTurns:
+      type: integer
+      minimum: 1
+      maximum: 100000
+      description: 天候のスペルの基準長。ターン
     SpriteDepth:
       type: number
       enum:
@@ -3783,9 +4333,6 @@ components:
         - blockPass
         - blockView
         - spriteRender
-        - shelter
-        - water
-        - foliage
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
@@ -3799,12 +4346,13 @@ components:
           $ref: '#/components/schemas/BlocksView'
         spriteRender:
           $ref: '#/components/schemas/SpriteRender'
-        shelter:
-          $ref: '#/components/schemas/ShelterType'
         water:
-          $ref: '#/components/schemas/WaterType'
+          type: boolean
+          description: 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
         foliage:
-          $ref: '#/components/schemas/FoliageType'
+          allOf:
+            - $ref: '#/components/schemas/Foliage'
+          description: 植生。省くと植生なし
       description: タイル
     TileList:
       type: object
@@ -3819,6 +4367,11 @@ components:
         totalCount:
           type: integer
       description: タイル一覧
+    TileTempModifier:
+      type: integer
+      minimum: -50
+      maximum: 50
+      description: 水や植生がタイルの気温に足す補正。℃
     Tool:
       type: object
       required:
@@ -3853,6 +4406,17 @@ components:
         - FIELD
         - ANY
       description: 使用可能シーン
+    VariantChoice:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/BuildingVariant'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 建物の変種の重み
     ViewDistance:
       type: integer
       minimum: 1
@@ -3869,13 +4433,23 @@ components:
     WarpPrevTriggerRaw:
       type: object
       description: 前階層ワープトリガー
-    WaterType:
-      type: number
+    WaterEffect:
+      type: object
+      required:
+        - id
+        - tempModifier
+      properties:
+        id:
+          $ref: '#/components/schemas/WaterExposure'
+        tempModifier:
+          $ref: '#/components/schemas/TileTempModifier'
+      description: 水がタイルの気温に足す補正
+    WaterExposure:
+      type: string
       enum:
-        - 0
-        - -5
-        - -10
-      description: 水タイプ
+        - nearby
+        - submerged
+      description: タイルが受ける水の影響
     Wearable:
       type: object
       required:
@@ -3893,6 +4467,70 @@ components:
         insulationHeat:
           $ref: '#/components/schemas/InsulationHeat'
       description: 装備可能設定
+    Weather:
+      type: object
+      required:
+        - id
+        - tempModifier
+        - visionDelta
+        - severity
+        - spellTurnsMin
+        - spellTurnsMax
+        - seasons
+      properties:
+        id:
+          $ref: '#/components/schemas/WeatherId'
+        tempModifier:
+          $ref: '#/components/schemas/WeatherTempModifier'
+        visionDelta:
+          $ref: '#/components/schemas/WeatherVisionDelta'
+        severity:
+          $ref: '#/components/schemas/WeatherSeverity'
+        spellTurnsMin:
+          $ref: '#/components/schemas/SpellTurns'
+        spellTurnsMax:
+          $ref: '#/components/schemas/SpellTurns'
+        seasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeatherSeasonWeight'
+      description: 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る
+    WeatherId:
+      type: string
+      enum:
+        - clear
+        - cloudy
+        - rain
+        - snow
+        - blizzard
+        - cold_snap
+      description: 天候の種類
+    WeatherSeasonWeight:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/SeasonId'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: 季節ごとの天候の出やすさ
+    WeatherSeverity:
+      type: integer
+      minimum: 0
+      maximum: 10
+      description: 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う
+    WeatherTempModifier:
+      type: integer
+      minimum: -50
+      maximum: 50
+      description: 天候による世界温度への加算。℃
+    WeatherVisionDelta:
+      type: integer
+      minimum: -100
+      maximum: 100
+      description: 天候による視程レンジへの加算。タイル。負で狭くなる
     Weight:
       type: string
       pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$

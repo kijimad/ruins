@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,16 +21,16 @@ func TestValueOf(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		id       AbilityID
+		id       oapi.AbilityId
 		expected int
 	}{
-		{"STR", AblSTR, 10},
-		{"SEN", AblSEN, 8},
-		{"DEX", AblDEX, 6},
-		{"AGI", AblAGI, 12},
-		{"VIT", AblVIT, 15},
-		{"DEF", AblDEF, 5},
-		{"未定義のIDは0を返す", AbilityID(99), 0},
+		{"STR", oapi.Str, 10},
+		{"SEN", oapi.Sen, 8},
+		{"DEX", oapi.Dex, 6},
+		{"AGI", oapi.Agi, 12},
+		{"VIT", oapi.Vit, 15},
+		{"DEF", oapi.Def, 5},
+		{"未定義のIDは0を返す", oapi.AbilityId("unknown"), 0},
 	}
 
 	for _, tt := range tests {
@@ -40,133 +41,34 @@ func TestValueOf(t *testing.T) {
 	}
 }
 
-func TestNewSkills(t *testing.T) {
+func TestSkills_Get(t *testing.T) {
 	t.Parallel()
 
-	skills := NewSkills()
-
-	assert.Len(t, skills.Data, len(AllSkillIDs), "全スキルが初期化される")
-	for _, id := range AllSkillIDs {
-		s := skills.Get(id)
-		assert.NotNil(t, s, "スキル %s が存在する", id)
-		assert.Equal(t, 0, s.Value, "初期スキル値は0")
-		assert.Equal(t, 0, s.Exp.Current, "初期経験値は0")
-		assert.Equal(t, LevelUpExp, s.Exp.Max, "経験値上限はLevelUpExp")
-	}
-
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		skills.Get("undefined_skill")
+	t.Run("まだ無いスキルは値0で作る", func(t *testing.T) {
+		t.Parallel()
+		skills := NewSkills()
+		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get(oapi.SkillIdSword))
+		assert.Equal(t, map[oapi.SkillId]*Skill{oapi.SkillIdSword: {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
 	})
-}
 
-func TestWeaponSkillID(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name       string
-		attackType AttackType
-		expected   SkillID
-		ok         bool
-	}{
-		{"Swordsmanship", AttackSword, SkillSword, true},
-		{"Polearm", AttackSpear, SkillSpear, true},
-		{"Unarmed", AttackFist, SkillFist, true},
-		{"Pistol skill", AttackHandgun, SkillHandgun, true},
-		{"Rifle skill", AttackRifle, SkillRifle, true},
-		{"Artillery", AttackCanon, SkillCannon, true},
-		{"未定義の武器種", AttackType{Type: "unknown"}, "", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			id, ok := WeaponSkillID(tt.attackType)
-			assert.Equal(t, tt.ok, ok)
-			if ok {
-				assert.Equal(t, tt.expected, id)
-			}
-		})
-	}
-}
-
-func TestHasSkillName(t *testing.T) {
-	t.Parallel()
-
-	for _, id := range AllSkillIDs {
-		assert.True(t, HasSkillName(id), "スキル %s の表示名が定義されている", id)
-	}
-
-	assert.False(t, HasSkillName("undefined_skill"))
-}
-
-func TestAllSkillIDs(t *testing.T) {
-	t.Parallel()
-
-	// AllSkillIDsはSkillCategoriesのすべてのスキルを含む
-	total := 0
-	for _, cat := range SkillCategories {
-		total += len(cat.IDs)
-	}
-	assert.Len(t, AllSkillIDs, total, "AllSkillIDsはカテゴリの合計と一致する")
-}
-
-func TestSkillAbilityMapping(t *testing.T) {
-	t.Parallel()
-
-	// 全スキルにSkillAbilityIDマッピングがある
-	for _, id := range AllSkillIDs {
-		assert.NotPanics(t, func() {
-			SkillAbilityID(id)
-		}, "スキル %s に対応する能力値がマッピングされている", id)
-	}
-
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		SkillAbilityID("undefined_skill")
+	t.Run("作ったスキルへの書き込みが残る", func(t *testing.T) {
+		t.Parallel()
+		skills := NewSkills()
+		skills.Get(oapi.SkillIdBow).Value = 7
+		assert.Equal(t, 7, skills.Get(oapi.SkillIdBow).Value)
 	})
-}
 
-func TestSkillNameMapping(t *testing.T) {
-	t.Parallel()
-
-	// 全スキルにSkillNameがある
-	for _, id := range AllSkillIDs {
-		assert.NotPanics(t, func() {
-			name := SkillName(id)
-			assert.NotEmpty(t, name, "スキル %s の表示名が空でない", id)
-		})
-	}
-
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		SkillName("undefined_skill")
-	})
-}
-
-func TestSkillDescriptionMapping(t *testing.T) {
-	t.Parallel()
-
-	// 全スキルにSkillDescriptionがある
-	for _, id := range AllSkillIDs {
-		assert.NotPanics(t, func() {
-			info := SkillDescription(id)
-			assert.NotEmpty(t, info.Summary, "スキル %s の概要が空でない", id)
-			assert.NotEmpty(t, info.GainedBy, "スキル %s の獲得条件が空でない", id)
-			assert.NotEmpty(t, info.Effect, "スキル %s の効果が空でない", id)
-		})
-	}
-
-	// 未定義のスキルIDはpanicする
-	assert.Panics(t, func() {
-		SkillDescription("undefined_skill")
+	t.Run("ゼロ値の Skills でも使える", func(t *testing.T) {
+		t.Parallel()
+		var skills Skills
+		assert.Equal(t, 0, skills.Get(oapi.SkillIdFist).Value)
 	})
 }
 
 func TestAbilityNameMapping(t *testing.T) {
 	t.Parallel()
 
-	for _, id := range []AbilityID{AblSTR, AblSEN, AblDEX, AblAGI, AblVIT, AblDEF} {
+	for _, id := range []oapi.AbilityId{oapi.Str, oapi.Sen, oapi.Dex, oapi.Agi, oapi.Vit, oapi.Def} {
 		assert.NotPanics(t, func() {
 			name := AbilityName(id)
 			assert.NotEmpty(t, name)
@@ -175,54 +77,6 @@ func TestAbilityNameMapping(t *testing.T) {
 
 	// 未定義の能力値IDはpanicする
 	assert.Panics(t, func() {
-		AbilityName(AbilityID(99))
-	})
-}
-
-func TestWeaponDamageKeyMapping(t *testing.T) {
-	t.Parallel()
-
-	for _, id := range WeaponSkillIDs {
-		assert.NotPanics(t, func() {
-			key := WeaponDamageKey(id)
-			assert.NotEmpty(t, key)
-		})
-	}
-
-	// 未定義の武器スキルIDはpanicする
-	assert.Panics(t, func() {
-		WeaponDamageKey("undefined_skill")
-	})
-}
-
-func TestWeaponAccuracyKeyMapping(t *testing.T) {
-	t.Parallel()
-
-	for _, id := range WeaponSkillIDs {
-		assert.NotPanics(t, func() {
-			key := WeaponAccuracyKey(id)
-			assert.NotEmpty(t, key)
-		})
-	}
-
-	// 未定義の武器スキルIDはpanicする
-	assert.Panics(t, func() {
-		WeaponAccuracyKey("undefined_skill")
-	})
-}
-
-func TestElementResistKeyMapping(t *testing.T) {
-	t.Parallel()
-
-	for _, elem := range []ElementType{ElementTypeFire, ElementTypeThunder, ElementTypeChill, ElementTypePhoton} {
-		assert.NotPanics(t, func() {
-			key := ElementResistKey(elem)
-			assert.NotEmpty(t, key)
-		})
-	}
-
-	// 未定義の元素タイプはpanicする
-	assert.Panics(t, func() {
-		ElementResistKey("undefined_element")
+		AbilityName(oapi.AbilityId("unknown"))
 	})
 }

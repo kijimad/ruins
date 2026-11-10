@@ -1,51 +1,25 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/consts"
-
-// StuffKind は配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う。
-// 実体は文字列。%v やログで数値でなく種別名が出て、デバッグで読みやすい。
-type StuffKind string
-
-const (
-	// KindFurniture は家具。占有し移動を阻む
-	KindFurniture StuffKind = "furniture"
-	// KindLoot は戦利品。コンテナや床置き
-	KindLoot StuffKind = "loot"
-	// KindBeing は敵・住人
-	KindBeing StuffKind = "being"
-	// KindDecor は装飾。通行を阻まない小物
-	KindDecor StuffKind = "decor"
-	// KindTrap は罠
-	KindTrap StuffKind = "trap"
-)
-
-// GroupStyle は Group の抽選方式。保証セットとランダム充填を分ける散布殺しの芯。
-type GroupStyle string
-
-const (
-	// PickEach は Items を全部置く。店を店たらしめる保証枠
-	PickEach GroupStyle = "pick_each"
-	// PickOne は Items から重みで1つ選ぶ。変種の抽選
-	PickOne GroupStyle = "pick_one"
-	// PickN は Items から重複なく N 個選ぶ。個数は Group.Pick が持つ
-	PickN GroupStyle = "pick_n"
+import (
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // Stuff は1つの配置指示。何を・いくつ・どこへ置くか。Satellites があれば anchor と衛星を1回で束ねて置く。
 type Stuff struct {
-	Kind       StuffKind
-	Ref        string      // 家具型や戦利品テーブルの参照名
-	Weight     int         // PickOne / PickN の抽選重み。0 は 1 とみなす
-	Amount     consts.Dice // 置く個数
-	Placement  Placement   // どこへ置くか。PlaceDefault なら家具型の archetype 既定へ落ちる
-	Satellites []Satellite // anchor 相対に一緒に置く衛星。机に対する椅子など
-	LootTable  string      // 収納家具の中身を引く itemTables の id。収納でなければ空
+	Kind       oapi.StuffKind
+	Ref        string         // 家具型や戦利品テーブルの参照名
+	Weight     int            // PickOne / PickN の抽選重み。0 は 1 とみなす
+	Amount     consts.Dice    // 置く個数
+	Placement  oapi.Placement // どこへ置くか。PlaceDefault なら全域へ落ちる
+	Satellites []Satellite    // anchor 相対に一緒に置く衛星。机に対する椅子など
+	LootTable  string         // 収納家具の中身を引く itemTables の id。収納でなければ空
 }
 
 // Satellite は anchor 相対に一緒に置く衛星。抽選の単位を単品でなく束にすることで、机だけあって椅子が無い
 // といった抽選事故を構造で防ぐ。
 type Satellite struct {
-	Kind      StuffKind
+	Kind      oapi.StuffKind
 	Ref       string
 	Offsets   []Vec // anchor 相対の候補座標。前から試し、置ければ確定、尽きたら諦める
 	LootTable string
@@ -53,7 +27,7 @@ type Satellite struct {
 
 // Group は抽選単位の束。Style で保証セットとランダム充填を分ける。
 type Group struct {
-	Style GroupStyle
+	Style oapi.GroupStyle
 	Pick  int // PickN のときの選ぶ個数。PickEach / PickOne では無視する
 	Items []Stuff
 }
@@ -66,10 +40,10 @@ type Content struct {
 
 // Selection は解決済みの1配置指示。Group 解決の結果で、まだ座標を持たない。placement 段が座標を与える。
 type Selection struct {
-	Kind       StuffKind
+	Kind       oapi.StuffKind
 	Ref        string
 	Count      int
-	Placement  Placement
+	Placement  oapi.Placement
 	Satellites []Satellite // anchor ごとに一緒に置く衛星。placement 段が anchor 相対に置く
 	LootTable  string
 }

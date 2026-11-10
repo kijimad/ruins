@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +48,7 @@ func TestBook_CanRead(t *testing.T) {
 		t.Parallel()
 		b := &Book{
 			Effort: IntPool{Max: 10, Current: 0},
-			Skill:  &SkillBookEffect{TargetSkill: SkillSword, RequiredLevel: 0},
+			Skill:  &SkillBookEffect{TargetSkill: oapi.SkillIdSword, RequiredLevel: 0},
 		}
 		assert.NoError(t, b.CanRead(nil))
 	})
@@ -56,7 +57,7 @@ func TestBook_CanRead(t *testing.T) {
 		t.Parallel()
 		b := &Book{
 			Effort: IntPool{Max: 10, Current: 0},
-			Skill:  &SkillBookEffect{TargetSkill: SkillSword, RequiredLevel: 3},
+			Skill:  &SkillBookEffect{TargetSkill: oapi.SkillIdSword, RequiredLevel: 3},
 		}
 		skills := NewSkills()
 		assert.Error(t, b.CanRead(skills))
@@ -66,10 +67,10 @@ func TestBook_CanRead(t *testing.T) {
 		t.Parallel()
 		b := &Book{
 			Effort: IntPool{Max: 10, Current: 0},
-			Skill:  &SkillBookEffect{TargetSkill: SkillSword, RequiredLevel: 1},
+			Skill:  &SkillBookEffect{TargetSkill: oapi.SkillIdSword, RequiredLevel: 1},
 		}
 		skills := NewSkills()
-		skills.Get(SkillSword).Value = 5
+		skills.Get(oapi.SkillIdSword).Value = 5
 		assert.NoError(t, b.CanRead(skills))
 	})
 }

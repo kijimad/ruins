@@ -22,15 +22,15 @@ func TestParseTargetType(t *testing.T) {
 	t.Run("正常な値を変換する", func(t *testing.T) {
 		t.Parallel()
 		result := parseTargetType("ENEMY", "SINGLE")
-		assert.Equal(t, gc.TargetGroupEnemy, result.TargetGroup)
-		assert.Equal(t, gc.TargetSingle, result.TargetNum)
+		assert.Equal(t, oapi.TargetGroupENEMY, result.TargetGroup)
+		assert.Equal(t, oapi.SINGLE, result.TargetNum)
 	})
 
 	t.Run("ALLYとALLの組み合わせ", func(t *testing.T) {
 		t.Parallel()
 		result := parseTargetType("ALLY", "ALL")
-		assert.Equal(t, gc.TargetGroupAlly, result.TargetGroup)
-		assert.Equal(t, gc.TargetAll, result.TargetNum)
+		assert.Equal(t, oapi.TargetGroupALLY, result.TargetGroup)
+		assert.Equal(t, oapi.ALL, result.TargetNum)
 	})
 }
 
@@ -44,7 +44,7 @@ func TestParseMelee(t *testing.T) {
 			Damage:         25,
 			AttackCount:    2,
 			Element:        "FIRE",
-			AttackCategory: "SWORD",
+			AttackCategory: "sword",
 			Cost:           100,
 			TargetGroup:    "ENEMY",
 			TargetNum:      "SINGLE",
@@ -54,10 +54,10 @@ func TestParseMelee(t *testing.T) {
 		assert.Equal(t, 80, result.Accuracy)
 		assert.Equal(t, 25, result.Damage)
 		assert.Equal(t, 2, result.AttackCount)
-		assert.Equal(t, gc.ElementTypeFire, result.Element)
+		assert.Equal(t, oapi.ElementFIRE, result.Element)
 		assert.Equal(t, gc.AttackSword, result.AttackCategory)
 		assert.Equal(t, 100, result.Cost)
-		assert.Equal(t, gc.TargetGroupEnemy, result.TargetType.TargetGroup)
+		assert.Equal(t, oapi.TargetGroupENEMY, result.TargetType.TargetGroup)
 	})
 
 	t.Run("無効な攻撃種別でエラー", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestParseFire(t *testing.T) {
 			Damage:         30,
 			AttackCount:    1,
 			Element:        "THUNDER",
-			AttackCategory: "RIFLE",
+			AttackCategory: "rifle",
 			Cost:           150,
 			TargetGroup:    "ENEMY",
 			TargetNum:      "SINGLE",
@@ -92,17 +92,17 @@ func TestParseFire(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, 70, result.Accuracy)
 		assert.Equal(t, 30, result.Damage)
-		assert.Equal(t, gc.ElementTypeThunder, result.Element)
+		assert.Equal(t, oapi.ElementTHUNDER, result.Element)
 		assert.Equal(t, gc.AttackRifle, result.AttackCategory)
 		assert.Equal(t, 10, result.MagazineSize)
 		assert.Equal(t, 50, result.ReloadEffort)
-		assert.Equal(t, oapi.N9mm, result.AmmoTag)
+		assert.Equal(t, oapi.AmmoTagN9mm, result.AmmoTag)
 	})
 
 	t.Run("AmmoTagがnilでも変換できる", func(t *testing.T) {
 		t.Parallel()
 		f := &oapi.Fire{
-			AttackCategory: "HANDGUN",
+			AttackCategory: "handgun",
 			MagazineSize:   6,
 			ReloadEffort:   30,
 		}
@@ -162,7 +162,7 @@ func TestNewBookFromAPI(t *testing.T) {
 		result, err := newBookFromAPI(b)
 		require.NoError(t, err)
 		assert.Equal(t, 100, result.Effort.Max)
-		assert.Equal(t, gc.SkillSword, result.Skill.TargetSkill)
+		assert.Equal(t, oapi.SkillIdSword, result.Skill.TargetSkill)
 		assert.Equal(t, 5, result.Skill.MaxLevel)
 		assert.Equal(t, 2, result.Skill.RequiredLevel)
 	})
@@ -174,17 +174,6 @@ func TestNewBookFromAPI(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("未定義スキルIDでエラー", func(t *testing.T) {
-		t.Parallel()
-		b := &oapi.Book{
-			TotalEffort: 100,
-			Skill: &oapi.SkillBook{
-				TargetSkill: "nonexistent",
-			},
-		}
-		_, err := newBookFromAPI(b)
-		assert.Error(t, err)
-	})
 }
 
 func TestToGCLightSource(t *testing.T) {

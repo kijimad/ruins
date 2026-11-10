@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -57,8 +58,8 @@ func TestBaselineSnapshot_戦闘リスク(t *testing.T) {
 
 func TestBaselineSnapshot_生存圧(t *testing.T) {
 	t.Parallel()
-	assert.InDelta(t, 0.67, DaysUntilStarving(DefaultParams()), 0.02, "栄養失調まで日数")
-	assert.InDelta(t, 1.00, DaysUntilHungerEmpty(DefaultParams()), 0.02, "満腹度が尽きるまで日数")
+	assert.InDelta(t, 0.67, DaysUntilStarving(DefaultParams(loadTestMaster(t))), 0.02, "栄養失調まで日数")
+	assert.InDelta(t, 1.00, DaysUntilHungerEmpty(DefaultParams(loadTestMaster(t))), 0.02, "満腹度が尽きるまで日数")
 	assert.InDelta(t, 10, TurnsToHypothermia(0), 0.5, "0度で低体温まで")
 }
 
@@ -81,17 +82,17 @@ func TestBaselineSnapshot_気候(t *testing.T) {
 func TestBaselineSnapshot_身体と経済(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, 4, HPDrainPerTurnAtBlood(0), "血液0でのHP減")
-	assert.InDelta(t, 1.07, DaysUntilExhausted(DefaultParams()), 0.02, "過労までの日数")
-	assert.InDelta(t, 0.25, SleepTimeFraction(DefaultParams()), 0.001, "釣り合いに要する睡眠時間の割合")
-	assert.InDelta(t, 666.67, SleepTurnsToFullRecover(DefaultParams()), 1, "満タンから睡眠で回復し切るターン数")
+	assert.InDelta(t, 1.07, DaysUntilExhausted(DefaultParams(loadTestMaster(t))), 0.02, "過労までの日数")
+	assert.InDelta(t, 0.25, SleepTimeFraction(DefaultParams(loadTestMaster(t))), 0.001, "釣り合いに要する睡眠時間の割合")
+	assert.InDelta(t, 666.67, SleepTurnsToFullRecover(DefaultParams(loadTestMaster(t))), 1, "満タンから睡眠で回復し切るターン数")
 }
 
 func TestBaselineSnapshot_探索収入(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 	assert.Equal(t, 47.0, ExpectedNetLootValue(master, "ruins_area", 8), "危険度8の廃墟で拾える1個あたりの店売り期待手取り。額面に売却倍率を掛けた値")
-	assert.Equal(t, 2945.0, ExpectedRunLootIncome(master, "ruins_area", 5), "廃墟5層探索の店売り期待収入")
-	assert.InDelta(t, 75.0, CostOfLivingPerDay(master, DefaultParams()), 2, "1日の食費。最安食料(ダミー携行食)で満腹度減耗を賄う")
+	assert.Equal(t, 1550.0, ExpectedRunLootIncome(master, "ruins_area", 5), "廃墟5層探索の店売り期待収入")
+	assert.InDelta(t, 75.0, CostOfLivingPerDay(master, DefaultParams(master)), 2, "1日の食費。最安食料(ダミー携行食)で満腹度減耗を賄う")
 }
 
 func TestBaselineSnapshot_進行カーブ(t *testing.T) {
@@ -121,8 +122,10 @@ func TestBaselineSnapshot_進行成長(t *testing.T) {
 func TestBaselineSnapshot_ビルドブレ(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
+	defs, err := raw.NewSkillDefs(master)
+	require.NoError(t, err)
 	// 熟練度はレベル1あたり+5%。Lv20で2.0倍。
-	assert.InDelta(t, 2.0, SkillDamageMultiplier(20), 1e-9, "スキルLv20のダメージ倍率")
+	assert.InDelta(t, 2.0, SkillDamageMultiplier(defs, 20), 1e-9, "スキルLv20のダメージ倍率")
 	builds, err := RepresentativeBuilds(master)
 	require.NoError(t, err)
 	stages, err := StageSpreads(master, builds, "ruins_area")
@@ -143,7 +146,7 @@ func TestTargetCheck_InRange_帯の内外(t *testing.T) {
 func TestDomainTargets_全ドメインが健全な帯を持つ(t *testing.T) {
 	t.Parallel()
 	// 目標帯そのものは assert しない。ドメインが揃い帯が妥当な向きかだけを検証する。
-	checks := DomainTargets()
+	checks := DomainTargets(loadTestMaster(t))
 	assert.Len(t, checks, 5, "戦闘以外のスカラー5ドメイン")
 	for _, c := range checks {
 		assert.Less(t, c.Lo, c.Hi, c.Domain+" の目標帯は下限<上限")

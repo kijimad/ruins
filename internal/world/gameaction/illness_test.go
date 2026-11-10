@@ -18,15 +18,15 @@ func TestContractIllness(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	contracted := ContractIllness(world, player, gc.ConditionLiverIllness)
+	contracted := ContractIllness(world, player, gc.ConditionType("liver_illness"))
 	assert.True(t, contracted, "発症する")
-	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionLiverIllness)
+	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("liver_illness"))
 	require.NotNil(t, cond, "胴に病気が付く")
 	assert.True(t, cond.IsActive(), "発症済みで即座に効く")
 	assert.True(t, world.Components.StatsChanged.Has(player), "StatsChanged を立てる")
 
 	// 既に罹患していれば重ねて発症させない
-	again := ContractIllness(world, player, gc.ConditionLiverIllness)
+	again := ContractIllness(world, player, gc.ConditionType("liver_illness"))
 	assert.False(t, again, "二重発症しない")
 }
 
@@ -35,6 +35,6 @@ func TestContractIllness_HealthStatusなしは何もしない(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
-	assert.False(t, ContractIllness(world, entity, gc.ConditionLiverIllness))
+	assert.False(t, ContractIllness(world, entity, gc.ConditionType("liver_illness")))
 	assert.False(t, world.Components.StatsChanged.Has(entity))
 }

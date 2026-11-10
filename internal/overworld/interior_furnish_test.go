@@ -173,7 +173,7 @@ func TestInteriorContents_収納家具は戦利品表を書く(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	isStorage := func(ref string) bool {
-		name, ok := interior.PropRawName(ref)
+		name, ok := interior.PropRawName(raws, ref)
 		if !ok {
 			return false
 		}
@@ -213,10 +213,10 @@ func TestInteriorPropRaw_全施設の家具のrefが写像を持つ(t *testing.T
 	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
 			switch p.Kind {
-			case interior.KindFurniture:
-				_, ok := interior.PropRawName(p.Ref)
+			case oapi.Furniture:
+				_, ok := interior.PropRawName(raws, p.Ref)
 				assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
-			case interior.KindBeing, interior.KindLoot, interior.KindDecor, interior.KindTrap:
+			case oapi.Being, oapi.Loot, oapi.Decor, oapi.Trap:
 			}
 		}
 	}
@@ -231,21 +231,7 @@ func TestInteriorPropRaw_全施設の家具のrefが写像を持つ(t *testing.T
 	}
 }
 
-// TestInteriorPropRaw_写像先のrawが実在する は、抽象 Ref の写像先がゲームの raw prop に存在することを
-// 守る。raw 名の typo や raw 側の削除で spawn 時にエラーになる退行を、生成を待たず表の検査で捕まえる。
-func TestInteriorPropRaw_写像先のrawが実在する(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	for ref, name := range interior.PropRaws() {
-		_, err := raw.GetProp(world.Resources.RawMaster, name)
-		require.NoErrorf(t, err, "Ref %q の写像先 raw %q が実在する", ref, name)
-	}
-}
-
-// TestInteriorLootRaw_全施設のloot_refが写像を持つ は、施設 content が生む床 loot が in-game で無言に欠落
-// しないことを守る。各施設を Furnish し、KindLoot の Ref がすべて 写像 LootGroupName にあることを確かめる。
-// content へ loot を足して lootRaw への写像を忘れると、ここで落ちて気付ける。KindFurniture の写像検査と対称。
+// content へ loot を足して interiorRefs の itemGroup を忘れると、床の loot が黙って欠けるので全施設で確かめる
 func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 	t.Parallel()
 
@@ -259,11 +245,11 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 	sawLoot := false
 	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
-			if p.Kind != interior.KindLoot {
+			if p.Kind != oapi.Loot {
 				continue
 			}
 			sawLoot = true
-			_, ok := interior.LootGroupName(p.Ref)
+			_, ok := interior.LootGroupName(raws, p.Ref)
 			assert.Truef(t, ok, "施設 %q の loot %q は写像を持つ", fac, p.Ref)
 		}
 	}
@@ -277,19 +263,6 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 		check(fac, placed)
 	}
 	assert.True(t, sawLoot, "少なくとも1施設が KindLoot を生む。床 loot のレールが有効であることを固定する")
-}
-
-// TestInteriorLootRaw_写像先のitem_groupが実在する は、loot Ref の写像先がゲームの raw item group に存在する
-// ことを守る。group 名の typo や raw 側の削除で spawn 時にエラーになる退行を、生成を待たず表の検査で捕まえる。
-func TestInteriorLootRaw_写像先のitem_groupが実在する(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	rng := rand.New(rand.NewPCG(1, 2))
-	for ref, group := range interior.LootGroups() {
-		_, err := raw.SelectFromItemGroup(world.Resources.RawMaster, group, rng)
-		require.NoErrorf(t, err, "loot Ref %q の写像先 item group %q が実在する", ref, group)
-	}
 }
 
 func TestSpawnInteriorBeing(t *testing.T) {
@@ -374,11 +347,11 @@ func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 		switch world.Components.RawID.Get(e).ID {
 		case consts.TileNameFloor:
 			floorTotal++
-			if shelter == gc.ShelterFull {
+			if shelter == oapi.Indoor {
 				floorFull++
 			}
 		case consts.TileNameDirt, consts.TileNameDWall:
-			if shelter == gc.ShelterFull {
+			if shelter == oapi.Indoor {
 				nonFloorFull++
 			}
 		}

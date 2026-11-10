@@ -12,13 +12,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestInjuryTypeFor(t *testing.T) {
+func TestConditionDefsInjury_攻撃種別ごとの怪我(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, gc.ConditionFracture, injuryTypeFor(gc.AttackFist), "打撃は骨折")
-	assert.Equal(t, gc.ConditionFracture, injuryTypeFor(gc.AttackCanon), "砲撃は骨折")
-	assert.Equal(t, gc.ConditionLaceration, injuryTypeFor(gc.AttackSword), "斬撃は切り傷")
-	assert.Equal(t, gc.ConditionLaceration, injuryTypeFor(gc.AttackRifle), "射撃は切り傷")
+	defs := testutil.InitTestWorld(t).Resources.ConditionDefs
+	got := map[gc.AttackType]gc.ConditionType{}
+	for _, at := range gc.AllAttackTypes {
+		ct, ok := defs.Injury(at)
+		require.True(t, ok, at.Type)
+		got[at] = ct
+	}
+	// 打撃と砲撃は骨折、刃と弾は切り傷
+	assert.Equal(t, map[gc.AttackType]gc.ConditionType{
+		gc.AttackSword:   gc.ConditionType("laceration"),
+		gc.AttackSpear:   gc.ConditionType("laceration"),
+		gc.AttackHandgun: gc.ConditionType("laceration"),
+		gc.AttackRifle:   gc.ConditionType("laceration"),
+		gc.AttackFist:    gc.ConditionType("fracture"),
+		gc.AttackCannon:  gc.ConditionType("fracture"),
+		gc.AttackBow:     gc.ConditionType("laceration"),
+	}, got)
 }
 
 type fixedRoll float64
@@ -33,15 +46,16 @@ func TestHitPart_起こりうる部位だけへ当たる(t *testing.T) {
 		ct   gc.ConditionType
 		want []gc.BodyPart
 	}{
-		{gc.ConditionFracture, []gc.BodyPart{gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
-		{gc.ConditionLaceration, []gc.BodyPart{gc.BodyPartHead, gc.BodyPartTorso, gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
+		{gc.ConditionType("fracture"), []gc.BodyPart{gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
+		{gc.ConditionType("laceration"), []gc.BodyPart{gc.BodyPartHead, gc.BodyPartTorso, gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet}},
 	}
+	defs := testutil.InitTestWorld(t).Resources.ConditionDefs
 	for _, tt := range tests {
 		seen := map[gc.BodyPart]bool{}
 		var got []gc.BodyPart
 		const steps = 1000
 		for k := range steps {
-			part := hitPart(fixedRoll(float64(k)/steps), tt.ct)
+			part := hitPart(fixedRoll(float64(k)/steps), defs, tt.ct)
 			if !seen[part] {
 				seen[part] = true
 				got = append(got, part)
@@ -66,7 +80,7 @@ func TestApplyInjury(t *testing.T) {
 	hs := world.Components.HealthStatus.Get(player)
 	total, hit := 0, gc.BodyPartCount
 	for p := range gc.BodyPartCount {
-		if n := hs.Parts[p].CountConditions(gc.ConditionLaceration); n > 0 {
+		if n := hs.Parts[p].CountConditions(gc.ConditionType("laceration")); n > 0 {
 			total += n
 			hit = p
 		}
@@ -100,17 +114,17 @@ func TestApplyInjury_同種の怪我は1部位に1つで頭打ち(t *testing.T) 
 	hs := &gc.HealthStatus{}
 	// 命中しうる全部位を切り傷で上限まで埋める。どの部位が抽選されても上限で弾かれる
 	for p := range gc.BodyPartCount {
-		if gc.BodyPartHitWeight(p) == 0 {
+		if world.Resources.ConditionDefs.HitWeight(p) == 0 {
 			continue
 		}
 		for range maxInjuriesPerPartType {
-			hs.Parts[p].AddCondition(gc.HealthCondition{Type: gc.ConditionLaceration, Timer: injuryInitialTimer})
+			hs.Parts[p].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: injuryInitialTimer})
 		}
 	}
 	world.Components.HealthStatus.Add(entity, hs)
 	before := 0
 	for p := range gc.BodyPartCount {
-		before += hs.Parts[p].CountConditions(gc.ConditionLaceration)
+		before += hs.Parts[p].CountConditions(gc.ConditionType("laceration"))
 	}
 
 	// 判定は通る種でも、上限に達した部位には足さない
@@ -119,8 +133,8 @@ func TestApplyInjury_同種の怪我は1部位に1つで頭打ち(t *testing.T) 
 
 	after := 0
 	for p := range gc.BodyPartCount {
-		after += hs.Parts[p].CountConditions(gc.ConditionLaceration)
-		assert.LessOrEqual(t, hs.Parts[p].CountConditions(gc.ConditionLaceration), maxInjuriesPerPartType, "上限を超えない")
+		after += hs.Parts[p].CountConditions(gc.ConditionType("laceration"))
+		assert.LessOrEqual(t, hs.Parts[p].CountConditions(gc.ConditionType("laceration")), maxInjuriesPerPartType, "上限を超えない")
 	}
 	assert.Equal(t, before, after, "上限に達した種類は増えない")
 }

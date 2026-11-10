@@ -550,7 +550,7 @@ describe("ResourcePage", () => {
       {
         name: "剣",
         melee: {
-          attackCategory: "SWORD",
+          attackCategory: "sword",
           element: "NONE",
           targetGroup: "ENEMY",
           targetNum: "SINGLE",
@@ -564,7 +564,7 @@ describe("ResourcePage", () => {
     // attackCategory がセレクトボックスになっている
     const selects = screen.getAllByRole("combobox");
     const values = selects.map((s) => (s as HTMLSelectElement).value);
-    expect(values).toContain("SWORD");
+    expect(values).toContain("sword");
     expect(values).toContain("NONE");
     expect(values).toContain("ENEMY");
     expect(values).toContain("SINGLE");
@@ -575,7 +575,7 @@ describe("ResourcePage", () => {
       {
         name: "剣",
         melee: {
-          attackCategory: "SWORD",
+          attackCategory: "sword",
           element: "NONE",
           targetGroup: "ENEMY",
           targetNum: "SINGLE",
@@ -631,31 +631,15 @@ describe("ResourcePage", () => {
   test("数値enumフィールドがラベル付きセレクトボックスで表示される", async () => {
     setupList([
       {
-        name: "草原タイル",
-        foliage: -1,
-        shelter: 0,
-        water: 0,
+        name: "土タイル",
         spriteRender: { depth: 0, spriteKey: "dirt", spriteSheetName: "tile" },
       },
     ]);
 
     render(<ResourcePage resource="tiles" label="タイル" />, { wrapper });
-    await userEvent.click(screen.getByText("草原タイル"));
+    await userEvent.click(screen.getByText("土タイル"));
 
     const selects = screen.getAllByRole("combobox");
-    // foliage=-1 のセレクトを探す
-    const foliageSelect = selects.find(
-      (s) => (s as HTMLSelectElement).value === "-1",
-    );
-    expect(foliageSelect).toBeDefined();
-    const foliageOptions = Array.from(
-      (foliageSelect as HTMLSelectElement).options,
-    ).map((o) => o.text);
-    expect(foliageOptions).toContain("なし (0)");
-    expect(foliageOptions).toContain("草原 (-1)");
-    expect(foliageOptions).toContain("森 (-3)");
-
-    // depth のセレクトも存在する
     const depthSelect = selects.find((s) => {
       const opts = Array.from((s as HTMLSelectElement).options).map(
         (o) => o.text,
@@ -663,15 +647,22 @@ describe("ResourcePage", () => {
       return opts.some((t) => t.includes("Floor"));
     });
     expect(depthSelect).toBeDefined();
+    const depthOptions = Array.from(
+      (depthSelect as HTMLSelectElement).options,
+    ).map((o) => o.text);
+    expect(depthOptions).toEqual([
+      "Floor - 床 (0)",
+      "Rug - 床置き (+1)",
+      "Taller - 高さあり (+2)",
+      "Player - 最前面 (+3)",
+    ]);
   });
 
-  test("数値enumフィールドの値を変更して保存できる", async () => {
+  test("植生は文字列enumのセレクトボックスで選んで保存できる", async () => {
     setupList([
       {
         name: "草原タイル",
-        foliage: 0,
-        shelter: 0,
-        water: 0,
+        foliage: "grass",
         spriteRender: { depth: 0, spriteKey: "dirt", spriteSheetName: "tile" },
       },
     ]);
@@ -679,22 +670,18 @@ describe("ResourcePage", () => {
     render(<ResourcePage resource="tiles" label="タイル" />, { wrapper });
     await userEvent.click(screen.getByText("草原タイル"));
 
-    // foliage を森(-3)に変更
     const selects = screen.getAllByRole("combobox");
-    const foliageSelect = selects.find((s) => {
-      const opts = Array.from((s as HTMLSelectElement).options).map(
-        (o) => o.text,
-      );
-      return opts.some((t) => t.includes("草原"));
-    });
+    const foliageSelect = selects.find(
+      (s) => (s as HTMLSelectElement).value === "grass",
+    );
     expect(foliageSelect).toBeDefined();
-    await userEvent.selectOptions(foliageSelect!, "-3");
+    await userEvent.selectOptions(foliageSelect!, "forest");
 
     await userEvent.click(screen.getByText("保存"));
     expect(mockMutate).toHaveBeenCalledWith(
       {
         index: 0,
-        data: expect.objectContaining({ foliage: -3 }),
+        data: expect.objectContaining({ foliage: "forest" }),
       },
       expect.any(Object),
     );

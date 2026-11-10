@@ -9,24 +9,22 @@ import (
 // EnvironmentPlanner は環境情報を計算するプランナー
 type EnvironmentPlanner struct{}
 
-// PlanMeta は環境情報を計算して TileRaw に設定する
+// PlanMeta はタイルごとの環境を計算して MetaPlan.Environments に入れる。
+// 囲われと水の影響は周りのタイルから導き、植生はタイルの行の値をそのまま使う
 func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
-	// 屋外タイルを特定する
 	outdoor := p.floodFillOutdoor(mp)
 
-	// 各タイルの環境情報を設定する
+	mp.Environments = make([]gc.TileEnvironment, len(mp.Tiles))
 	for i := range mp.Tiles {
-		if outdoor[i] {
-			mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterNone)
-		} else {
-			mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterFull)
+		env := &mp.Environments[i]
+		env.Shelter = oapi.Outdoor
+		if !outdoor[i] {
+			env.Shelter = oapi.Indoor
 		}
-
-		// Water: 隣接する水タイルから計算
-		mp.Tiles[i].Water = oapi.WaterType(p.calcWater(mp, i))
-
-		// Foliage: タイル名から計算
-		mp.Tiles[i].Foliage = oapi.FoliageType(p.calcFoliage(mp, i))
+		env.Water = p.calcWater(mp, i)
+		if mp.Tiles[i].Foliage != nil {
+			env.Foliage = *mp.Tiles[i].Foliage
+		}
 	}
 
 	return nil
@@ -54,11 +52,10 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
 	return outdoor
 }
 
-// calcWater は隣接タイルから水の影響を計算する
-func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
-	// 現在のタイルが水タイルかチェック
-	if isWaterTile(mp.Tiles[idx].Id) {
-		return gc.WaterSubmerged
+// calcWater は水の影響を計算する。水のタイルの上なら水中、隣が水のタイルなら水辺、どちらでもなければゼロ値
+func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) oapi.WaterExposure {
+	if isWaterTile(mp.Tiles[idx]) {
+		return oapi.Submerged
 	}
 
 	// 隣接タイルに水があるかチェック
@@ -81,36 +78,15 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
 	}
 
 	for _, adjIdx := range adjacentIndices {
-		if isWaterTile(mp.Tiles[adjIdx].Id) {
-			return gc.WaterNearby
+		if isWaterTile(mp.Tiles[adjIdx]) {
+			return oapi.Nearby
 		}
 	}
 
-	return gc.WaterNone
+	return ""
 }
 
-// calcFoliage はタイル名から植生の影響を計算する
-// TODO: 名前ではなくタイルの属性で判定する
-func (p EnvironmentPlanner) calcFoliage(mp *MetaPlan, idx int) gc.FoliageType {
-	name := mp.Tiles[idx].Id
-
-	switch name {
-	case "forest", "tree":
-		return gc.FoliageForest
-	case "grass":
-		return gc.FoliageGrass
-	default:
-		return gc.FoliageNone
-	}
-}
-
-// isWaterTile はタイル名が水タイルかを判定する
-// TODO: 名前ではなくタイルの属性で判定する
-func isWaterTile(name string) bool {
-	switch name {
-	case "water", "deep_water", "river", "pond":
-		return true
-	default:
-		return false
-	}
+// isWaterTile はタイルが水のタイルかを返す
+func isWaterTile(tile oapi.Tile) bool {
+	return tile.Water != nil && *tile.Water
 }

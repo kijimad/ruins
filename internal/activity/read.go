@@ -73,7 +73,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 				current = skills.Get(book.Skill.TargetSkill).Value
 			}
 			return &UserError{Msg: query.T(world, "You need %s Lv%d or higher to read this. Current Lv%d",
-				query.T(world, gc.SkillName(book.Skill.TargetSkill)), book.Skill.RequiredLevel, current)}
+				query.SkillName(world, book.Skill.TargetSkill), book.Skill.RequiredLevel, current)}
 		}
 		return fmt.Errorf("read validation failed: %w", err)
 	}
@@ -220,7 +220,7 @@ func (rb *ReadBehavior) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 	leveledUp := skill.GainExpScaled(s, abilityValue, efficiency)
 
 	if leveledUp {
-		name := gc.SkillName(effect.TargetSkill)
+		name := world.Resources.SkillDefs.Name(effect.TargetSkill)
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "%s skill rose to %d", name, s.Value)).
 			Log()
@@ -246,7 +246,7 @@ func (rb *ReadBehavior) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 		return 0
 	}
 	abils := world.Components.Abilities.Get(actor)
-	ablID := gc.SkillAbilityID(book.Skill.TargetSkill)
+	ablID := world.Resources.SkillDefs.Ability(book.Skill.TargetSkill)
 	return abils.ValueOf(ablID)
 }
 

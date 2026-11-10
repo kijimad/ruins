@@ -1,6 +1,10 @@
 package interior
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/kijimaD/ruins/internal/oapi"
+)
 
 // 建物単位の生活感プロファイル。変種・散らかり・損傷・密度の独立軸を建物ごとに1回引き、全室へ一様に
 // 効かせる。少量の語彙を数千通りの見えに乗算し「同じ家を二度見ない」感を機構で作る。各軸は独立の childSeed ストリームで引き相関を
@@ -44,15 +48,62 @@ type buildingProfile struct {
 	density int // 家具量の倍率 ×/10
 }
 
+// profileTable は建物の生活感の各軸と hero 部屋の目玉の抽選表。raw の interiorProfile から組み立てる。
+// 各軸の並びは raw の行の順で、抽選の結果はこの順に依る。
+type profileTable struct {
+	damages   []choice[damageLevel]
+	clutters  []choice[clutterLevel]
+	variants  []choice[variantKind]
+	densities []choice[int]
+	heroes    []choice[[]string]
+}
+
+var (
+	damageLevels  = map[oapi.BuildingDamage]damageLevel{oapi.BuildingDamageIntact: dmgIntact, oapi.BuildingDamageMinor: dmgMinor, oapi.BuildingDamageMajor: dmgMajor}
+	clutterLevels = map[oapi.BuildingClutter]clutterLevel{oapi.Tidy: clutterTidy, oapi.Messy: clutterMessy, oapi.Filthy: clutterFilthy}
+	variantKinds  = map[oapi.BuildingVariant]variantKind{
+		oapi.Standard:          varStandard,
+		oapi.Abandoned:         varAbandoned,
+		oapi.UnderConstruction: varUnderConstruction,
+		oapi.Survivalist:       varSurvivalist,
+		oapi.Hoarder:           varHoarder,
+	}
+)
+
+// newProfileTable は raw の interiorProfile から抽選表を組み立てる。raw に未設定なら error を返す
+func newProfileTable(raws oapi.Raws) (profileTable, error) {
+	p := raws.InteriorProfile
+	if p == nil {
+		return profileTable{}, errInteriorProfileMissing
+	}
+	var t profileTable
+	for _, c := range p.Damages {
+		t.damages = append(t.damages, choice[damageLevel]{damageLevels[c.Id], c.Weight})
+	}
+	for _, c := range p.Clutters {
+		t.clutters = append(t.clutters, choice[clutterLevel]{clutterLevels[c.Id], c.Weight})
+	}
+	for _, c := range p.Variants {
+		t.variants = append(t.variants, choice[variantKind]{variantKinds[c.Id], c.Weight})
+	}
+	for _, c := range p.Densities {
+		t.densities = append(t.densities, choice[int]{c.Factor, c.Weight})
+	}
+	for _, c := range p.Heroes {
+		t.heroes = append(t.heroes, choice[[]string]{c.Refs, c.Weight})
+	}
+	return t, nil
+}
+
 // rollProfile は seed から建物の生活感プロファイルを決定的に引く。各軸を独立ストリームで引いた後、variant を
 // 事情として重ねて他軸を上書きする。放棄は損傷・散らかりを底上げ、ためこみは散らかり最大、建築中は無傷で
 // 家具まばら。
-func rollProfile(seed uint64) buildingProfile {
+func rollProfile(t profileTable, seed uint64) buildingProfile {
 	p := buildingProfile{
-		variant: rollVariant(childSeed(seed, 11_100_000)),
-		clutter: rollClutter(childSeed(seed, 11_200_000)),
-		damage:  rollDamage(childSeed(seed, 11_000_000)),
-		density: densityFactor(childSeed(seed, 10_000_000)),
+		variant: pickChoice(childSeed(childSeed(seed, 11_100_000), 1), t.variants),
+		clutter: pickChoice(childSeed(childSeed(seed, 11_200_000), 1), t.clutters),
+		damage:  pickChoice(childSeed(childSeed(seed, 11_000_000), 1), t.damages),
+		density: pickChoice(childSeed(childSeed(seed, 10_000_000), 1), t.densities),
 	}
 	switch p.variant {
 	case varAbandoned:
@@ -75,32 +126,6 @@ func rollProfile(seed uint64) buildingProfile {
 	case varStandard:
 	}
 	return p
-}
-
-// rollDamage は損傷軸を引く。3分の2の建物が何らかの損傷を持つ。
-func rollDamage(seed uint64) damageLevel {
-	return pickChoice(childSeed(seed, 1), []choice[damageLevel]{
-		{dmgIntact, 2}, {dmgMinor, 3}, {dmgMajor, 1},
-	})
-}
-
-// rollClutter は散らかり軸を引く。
-func rollClutter(seed uint64) clutterLevel {
-	return pickChoice(childSeed(seed, 1), []choice[clutterLevel]{
-		{clutterTidy, 6}, {clutterMessy, 3}, {clutterFilthy, 1},
-	})
-}
-
-// rollVariant は変種軸を引く。数十軒に1軒だけ事情のある家が出る。
-func rollVariant(seed uint64) variantKind {
-	return pickChoice(childSeed(seed, 1), []choice[variantKind]{
-		{varStandard, 970}, {varAbandoned, 6}, {varUnderConstruction, 10}, {varSurvivalist, 9}, {varHoarder, 5},
-	})
-}
-
-// densityFactor は密度軸を引く。疎6・普通10・密14 の ×/10。既存 scaleDensity の係数と同じ。
-func densityFactor(seed uint64) int {
-	return pickOne(childSeed(seed, 1), []int{6, 10, 14})
 }
 
 // clutterFurniturePct は散らかりレベルごとに、家具1つの隣へ小物を落とす割合を返す。机の上・たんすの脇に物が
@@ -143,14 +168,14 @@ func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, r
 	added := make([]Placed, 0)
 	// 主。家具の隣の空きタイルへ小物を落とす。机やたんすの周りに物が集まる
 	for i, p := range placed {
-		if p.Kind != KindFurniture || !dropChance(seed, i, furnPct) {
+		if p.Kind != oapi.Furniture || !dropChance(seed, i, furnPct) {
 			continue
 		}
 		for _, n := range neighbors4(p.Pos) {
 			if room.Rect.containsInterior(n) && !occupied[n] && !isDoorwayAdjacent(room, n) {
 				ref := pickOne(childSeed(seed, 2_000+i), pool)
 				occupied[n] = true
-				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: n})
+				added = append(added, Placed{Kind: oapi.Decor, Ref: ref, Pos: n})
 				break
 			}
 		}
@@ -164,7 +189,7 @@ func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, r
 			if dropChance(seed, 7_000+i, 7) {
 				ref := pickOne(childSeed(seed, 8_000+i), pool)
 				occupied[t] = true
-				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: t})
+				added = append(added, Placed{Kind: oapi.Decor, Ref: ref, Pos: t})
 			}
 		}
 	}

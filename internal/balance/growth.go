@@ -3,6 +3,7 @@ package balance
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/skill"
 )
 
@@ -33,14 +34,14 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 
 // SkillDamagePercent は素手スキル skillLevel の近接ダメージ倍率を実システムの生 Percent で返す。能力・体調は
 // 中立にしスキル寄与だけを見る。適用は ApplyInt の切り捨てなので、丸め前の Percent を渡せるこの形を単一出典にする。
-func SkillDamagePercent(skillLevel int) consts.Percent {
+func SkillDamagePercent(defs gc.SkillDefs, skillLevel int) consts.Percent {
 	skills := gc.NewSkills()
-	skills.Get(gc.SkillFist).Value = skillLevel
-	return gc.CalcProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), gc.WeaponDamageKey(gc.SkillFist))
+	skills.Get(oapi.SkillIdFist).Value = skillLevel
+	return defs.ProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), oapi.ProficiencyIdFistDamage)
 }
 
 // SkillDamageMultiplier は SkillDamagePercent を等倍1.0基準の float で見た値。表示や概算に使う。
 // ダメージへの実適用は SkillDamagePercent と ApplyInt の切り捨てで行い、float の丸めに頼らない。
-func SkillDamageMultiplier(skillLevel int) float64 {
-	return float64(SkillDamagePercent(skillLevel)) / float64(consts.PercentBase)
+func SkillDamageMultiplier(defs gc.SkillDefs, skillLevel int) float64 {
+	return float64(SkillDamagePercent(defs, skillLevel)) / float64(consts.PercentBase)
 }

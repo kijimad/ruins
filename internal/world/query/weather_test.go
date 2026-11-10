@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,26 +14,28 @@ func newTestRNG(seed uint64) *rand.Rand {
 }
 
 // isHarsh は寒さの厳しい天候かを返す。分布の形を測るのに使う。
-func isHarsh(k gc.WeatherKind) bool {
-	return k.Severity() > 0
+func isHarsh(defs gc.WeatherDefs, k gc.WeatherKind) bool {
+	return defs.Kinds[k].Severity > 0
 }
 
 func TestNextWeather_同じシードと入力なら同じ結果(t *testing.T) {
 	t.Parallel()
-	a := NextWeather(gc.WeatherClear, gc.SeasonWinter, 5, newTestRNG(42))
-	b := NextWeather(gc.WeatherClear, gc.SeasonWinter, 5, newTestRNG(42))
+	defs := testutil.InitTestWorld(t).Resources.WeatherDefs
+	a := NextWeather(defs, gc.WeatherClear, gc.SeasonWinter, 5, newTestRNG(42))
+	b := NextWeather(defs, gc.WeatherClear, gc.SeasonWinter, 5, newTestRNG(42))
 	assert.Equal(t, a, b, "決定論的で再現できる")
 }
 
 func TestNextWeather_冬は夏より厳しい天候が出やすい(t *testing.T) {
 	t.Parallel()
+	defs := testutil.InitTestWorld(t).Resources.WeatherDefs
 	const trials = 3000
 	countHarsh := func(season gc.Season) int {
 		rng := newTestRNG(1)
 		n := 0
 		for range trials {
 			// current を固定して季節だけを比べる。粘りの影響を揃えるため曇りから引く
-			if isHarsh(NextWeather(gc.WeatherCloudy, season, 0, rng)) {
+			if isHarsh(defs, NextWeather(defs, gc.WeatherCloudy, season, 0, rng)) {
 				n++
 			}
 		}
@@ -45,12 +48,13 @@ func TestNextWeather_冬は夏より厳しい天候が出やすい(t *testing.T)
 
 func TestNextWeather_奥地ほど厳しい天候が出やすい(t *testing.T) {
 	t.Parallel()
+	defs := testutil.InitTestWorld(t).Resources.WeatherDefs
 	const trials = 3000
 	countHarsh := func(depth int) int {
 		rng := newTestRNG(7)
 		n := 0
 		for range trials {
-			if isHarsh(NextWeather(gc.WeatherCloudy, gc.SeasonAutumn, depth, rng)) {
+			if isHarsh(defs, NextWeather(defs, gc.WeatherCloudy, gc.SeasonAutumn, depth, rng)) {
 				n++
 			}
 		}
@@ -63,10 +67,11 @@ func TestNextWeather_奥地ほど厳しい天候が出やすい(t *testing.T) {
 
 func TestRollSpellTurns_基準範囲に収まり厳しい天候は冬奥地で長引く(t *testing.T) {
 	t.Parallel()
+	defs := testutil.InitTestWorld(t).Resources.WeatherDefs
 	rng := newTestRNG(3)
 	// 晴れは severity0 で伸縮しないので基準範囲 2250〜4500 に収まる
 	for range 100 {
-		turns := int(RollSpellTurns(gc.WeatherClear, gc.SeasonSpring, 20, rng))
+		turns := int(RollSpellTurns(defs, gc.WeatherClear, gc.SeasonSpring, 20, rng))
 		assert.GreaterOrEqual(t, turns, 2250)
 		assert.Less(t, turns, 4500)
 	}
@@ -76,7 +81,7 @@ func TestRollSpellTurns_基準範囲に収まり厳しい天候は冬奥地で�
 		var sum int
 		const n = 500
 		for range n {
-			sum += int(RollSpellTurns(gc.WeatherBlizzard, season, depth, rng))
+			sum += int(RollSpellTurns(defs, gc.WeatherBlizzard, season, depth, rng))
 		}
 		return float64(sum) / n
 	}

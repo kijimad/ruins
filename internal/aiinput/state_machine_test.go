@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,8 +28,8 @@ func TestUpdateState_ChasingLostPlayer(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
+		CombatDefault:         oapi.Attack,
+		CombatCurrent:         oapi.Attack,
 		SubState:              gc.AIStateChasing,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 10,
@@ -49,8 +50,8 @@ func TestUpdateState_ChasingPlayerVisible_ContinuesChase(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
+		CombatDefault:         oapi.Attack,
+		CombatCurrent:         oapi.Attack,
 		SubState:              gc.AIStateChasing,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 10,
@@ -100,8 +101,8 @@ func TestUpdateState_WaitingToChasing(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
+		CombatDefault:         oapi.Attack,
+		CombatCurrent:         oapi.Attack,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -116,8 +117,8 @@ func TestUpdateState_WaitingToFleeing(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatEvade,
-		CombatCurrent:         gc.CombatEvade,
+		CombatDefault:         oapi.Evade,
+		CombatCurrent:         oapi.Evade,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -132,8 +133,8 @@ func TestUpdateState_WaitingNeutralIgnoresPlayer(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatIgnore,
-		CombatCurrent:         gc.CombatIgnore,
+		CombatDefault:         oapi.Ignore,
+		CombatCurrent:         oapi.Ignore,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -148,8 +149,8 @@ func TestUpdateState_DrivingToChasing(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
+		CombatDefault:         oapi.Attack,
+		CombatCurrent:         oapi.Attack,
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -164,8 +165,8 @@ func TestUpdateState_DrivingToFleeing(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatEvade,
-		CombatCurrent:         gc.CombatEvade,
+		CombatDefault:         oapi.Evade,
+		CombatCurrent:         oapi.Evade,
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -180,8 +181,8 @@ func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatEvade,
-		CombatCurrent:         gc.CombatEvade,
+		CombatDefault:         oapi.Evade,
+		CombatCurrent:         oapi.Evade,
 		SubState:              gc.AIStateFleeing,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -197,8 +198,8 @@ func TestUpdateState_FleeingToDriving(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatEvade,
-		CombatCurrent:         gc.CombatEvade,
+		CombatDefault:         oapi.Evade,
+		CombatCurrent:         oapi.Evade,
 		SubState:              gc.AIStateFleeing,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -206,7 +207,7 @@ func TestUpdateState_FleeingToDriving(t *testing.T) {
 
 	rp.updateState(solo, false, 5)
 	assert.Equal(t, gc.AIStateDriving, solo.SubState)
-	assert.Equal(t, gc.CombatEvade, solo.CombatCurrent)
+	assert.Equal(t, oapi.Evade, solo.CombatCurrent)
 }
 
 // TestCombatIgnorePermanentHostile はCombatIgnore NPCが被ダメージで永続的に敵対化することを検証する。
@@ -216,8 +217,8 @@ func TestCombatIgnorePermanentHostile(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	solo := &gc.SoloAI{
-		CombatDefault:         gc.CombatIgnore,
-		CombatCurrent:         gc.CombatIgnore,
+		CombatDefault:         oapi.Ignore,
+		CombatCurrent:         oapi.Ignore,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
@@ -229,7 +230,7 @@ func TestCombatIgnorePermanentHostile(t *testing.T) {
 
 	// 2. 被ダメージ: ReactToHostileでCombatAttackに永続的に変化する
 	solo.ReactToHostile()
-	assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
+	assert.Equal(t, oapi.Attack, solo.CombatCurrent)
 
 	// 3. プレイヤーを発見して追跡を開始する
 	rp.updateState(solo, true, 2)
@@ -238,7 +239,7 @@ func TestCombatIgnorePermanentHostile(t *testing.T) {
 	// 4. プレイヤーを見失い、3ターン以上経過して追跡を終了する
 	rp.updateState(solo, false, 6)
 	assert.Equal(t, gc.AIStateDriving, solo.SubState, "見失ってDrivingに遷移する")
-	assert.Equal(t, gc.CombatAttack, solo.CombatCurrent, "敵対状態は維持される")
+	assert.Equal(t, oapi.Attack, solo.CombatCurrent, "敵対状態は維持される")
 
 	// 5. Driving終了後にWaitingへ
 	turnAfterDriving := solo.StartSubStateTurn + solo.DurationSubStateTurns

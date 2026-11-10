@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +16,7 @@ func TestSleepConditions_CanSleep(t *testing.T) {
 	// ブロック条件は疲労・気温・安全。寝具は妨げない
 	base := SleepConditions{
 		HasFatigue:    true,
-		Fatigue:       gc.FatigueExhausted,
+		Fatigue:       oapi.FatigueStageIdExhausted,
 		TemperatureOK: true,
 		AreaSafe:      true,
 	}
@@ -29,7 +30,7 @@ func TestSleepConditions_CanSleep(t *testing.T) {
 	t.Run("快調では眠れない", func(t *testing.T) {
 		t.Parallel()
 		sc := base
-		sc.Fatigue = gc.FatigueRested
+		sc.Fatigue = oapi.FatigueStageIdRested
 		assert.True(t, sc.TooTired())
 		assert.False(t, sc.CanSleep())
 	})
@@ -59,7 +60,7 @@ func TestSleepConditions_CanSleep(t *testing.T) {
 	t.Run("普通の疲労でも眠れる", func(t *testing.T) {
 		t.Parallel()
 		sc := base
-		sc.Fatigue = gc.FatigueNormal
+		sc.Fatigue = oapi.FatigueStageIdNormal
 		assert.False(t, sc.TooTired())
 		assert.True(t, sc.CanSleep())
 	})
@@ -77,7 +78,7 @@ func TestEvaluateSleepConditions_疲労と安全を反映する(t *testing.T) {
 	sc := EvaluateSleepConditions(world, actor)
 
 	assert.True(t, sc.HasFatigue, "疲労を持つ")
-	assert.Equal(t, gc.FatigueExhausted, sc.Fatigue, "過労段階を反映する")
+	assert.Equal(t, oapi.FatigueStageIdExhausted, sc.Fatigue, "過労段階を反映する")
 	assert.False(t, sc.TooTired(), "過労は眠れる")
 	assert.True(t, sc.AreaSafe, "敵が居なければ安全")
 }

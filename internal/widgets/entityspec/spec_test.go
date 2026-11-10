@@ -28,7 +28,7 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 80, Damage: 25, AttackCount: 2,
-		Element: gc.ElementTypeFire, AttackCategory: gc.AttackSword, Cost: 100,
+		Element: oapi.ElementFIRE, AttackCategory: gc.AttackSword, Cost: 100,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
@@ -36,7 +36,7 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackSword.Label),
 		"Attack power", "25", "Accuracy", "80", "Hits", "2", "Attack cost", "100",
-		"Element", query.T(world, gc.ElementTypeFire.String()),
+		"Element", query.T(world, gc.ElementName(oapi.ElementFIRE)),
 	}, labels)
 }
 
@@ -47,7 +47,7 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackFist, Cost: 50,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackFist, Cost: 50,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
@@ -67,7 +67,7 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	// AttackRifle は enum.go の rangeParams に登録済みなので、射程行が表示される前提が成り立つ
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackRifle, Cost: 150,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackRifle, Cost: 150,
 		Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 	})
 
@@ -87,7 +87,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 	e := world.ECS.NewEntity()
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackBow, Cost: 80,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackBow, Cost: 80,
 		MagazineSize: 0,
 	})
 
@@ -108,7 +108,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
 		Defense:           15,
-		EquipmentCategory: gc.EquipmentTorso,
+		EquipmentCategory: oapi.EquipmentCategoryTORSO,
 		InsulationCold:    3,
 		InsulationHeat:    2,
 		// 各項目の値をすべて別々にし、"+N" の一致がどの行由来か一意に特定できるようにする
@@ -121,7 +121,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 
 	// ゼロの装備ボーナス Sensation は行が出ない
 	assert.Equal(t, []string{
-		query.T(world, gc.EquipmentTorso.String()),
+		query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryTORSO)),
 		"Defense", "+15", "Cold resist", "+3", "Heat resist", "+2",
 		"Vitality", "+6", "Strength", "+1", "Dexterity", "+4", "Agility", "-1",
 	}, labels)
@@ -134,13 +134,13 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
 		Defense:           5,
-		EquipmentCategory: gc.EquipmentHead,
+		EquipmentCategory: oapi.EquipmentCategoryHEAD,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 耐寒・耐熱0は行が出ない
-	assert.Equal(t, []string{query.T(world, gc.EquipmentHead.String()), "Defense", "+5"}, labels)
+	assert.Equal(t, []string{query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryHEAD)), "Defense", "+5"}, labels)
 }
 
 func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testing.T) {
@@ -202,13 +202,13 @@ func TestUpdateSpec_治療アイテムは治す対象と効力を表示する(t 
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Remedy.Add(e, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionFracture}, Potency: 150})
+	world.Components.Remedy.Add(e, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
 		query.T(world, "Treatment"),
-		query.T(world, "Target"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionFracture)),
+		query.T(world, "Target"), query.ConditionName(world, gc.ConditionType("fracture")),
 		query.T(world, "Potency"), "150%",
 	}, labels)
 }
@@ -218,12 +218,12 @@ func TestUpdateSpecFromSpec_治療アイテムは生成せず治す対象を表�
 	world := testutil.InitTestWorld(t)
 
 	// SpecRows と同じ specParts を回すので、raw spec 表示にも治療情報が出る
-	spec := gc.EntitySpec{Remedy: &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionLaceration}, Potency: 100}}
+	spec := gc.EntitySpec{Remedy: &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}}
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
 		query.T(world, "Treatment"),
-		query.T(world, "Target"), query.T(world, gc.ConditionTypeDisplayName(gc.ConditionLaceration)),
+		query.T(world, "Target"), query.ConditionName(world, gc.ConditionType("laceration")),
 		query.T(world, "Potency"), "100%",
 	}, labels)
 }
@@ -236,7 +236,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	world.Components.Book.Add(e, &gc.Book{
 		Effort: gc.IntPool{Current: 30, Max: 100},
 		Skill: &gc.SkillBookEffect{
-			TargetSkill:   gc.SkillSword,
+			TargetSkill:   oapi.SkillIdSword,
 			RequiredLevel: 2,
 			MaxLevel:      5,
 		},
@@ -245,7 +245,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Book", "Skill", query.T(world, gc.SkillName(gc.SkillSword)),
+		"Book", "Skill", query.SkillName(world, oapi.SkillIdSword),
 		"Lv", "2 " + consts.IconArrowRight + " 5", "Progress", "30%",
 	}, labels)
 }
@@ -272,7 +272,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	spec := gc.EntitySpec{
 		Melee: &gc.Melee{
 			Accuracy: 90, Damage: 12, AttackCount: 1,
-			Element: gc.ElementTypeThunder, AttackCategory: gc.AttackSpear, Cost: 80,
+			Element: oapi.ElementTHUNDER, AttackCategory: gc.AttackSpear, Cost: 80,
 		},
 	}
 
@@ -281,7 +281,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackSpear.Label),
 		"Attack power", "12", "Accuracy", "90", "Hits", "1", "Attack cost", "80",
-		"Element", query.T(world, gc.ElementTypeThunder.String()),
+		"Element", query.T(world, gc.ElementName(oapi.ElementTHUNDER)),
 	}, labels)
 }
 
@@ -340,12 +340,12 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	spec := gc.EntitySpec{
 		Fire: &gc.Fire{
 			Accuracy: 70, Damage: 30, AttackCount: 1,
-			Element: gc.ElementTypeNone, AttackCategory: gc.AttackRifle, Cost: 150,
+			Element: oapi.ElementNONE, AttackCategory: gc.AttackRifle, Cost: 150,
 			Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 		},
 		Wearable: &gc.Wearable{
 			Defense:           15,
-			EquipmentCategory: gc.EquipmentTorso,
+			EquipmentCategory: oapi.EquipmentCategoryTORSO,
 			InsulationCold:    3,
 		},
 		ProvidesHealing:   &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 42},
@@ -365,7 +365,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 		query.T(world, gc.AttackRifle.Label),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
 		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
-		query.T(world, gc.EquipmentTorso.String()),
+		query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryTORSO)),
 		"Defense", "+15", "Cold resist", "+3",
 		"Book", "Progress", "30%",
 		"Basic",

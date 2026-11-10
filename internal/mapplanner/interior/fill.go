@@ -1,8 +1,10 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/oapi"
+
 // Placed は座標の付いた1配置。FillRoom の出力で、レンダラや ECS への spawn の入力になる。
 type Placed struct {
-	Kind      StuffKind
+	Kind      oapi.StuffKind
 	Ref       string
 	Pos       Vec
 	LootTable string // 収納家具の中身を引く itemTables の id。収納でなければ空
@@ -39,7 +41,7 @@ func Flavor(seed uint64, room Room, placed []Placed, flavor Content) []Placed {
 func placeSelections(seed uint64, room Room, selections []Selection, occupied map[Vec]bool) []Placed {
 	placed := make([]Placed, 0, len(selections))
 	for i, sel := range selections {
-		// 置き方は解決段で archetype 既定を含め具体化済み。配置の seed は解決の seed と別枠にする
+		// 置き方は解決段で具体化済み。配置の seed は解決の seed と別枠にする
 		s := childSeed(seed, 1_000_000+i)
 		for _, t := range selectTiles(room, sel.Placement, occupied, s, sel.Count) {
 			occupied[t] = true

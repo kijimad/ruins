@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -98,7 +99,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		// Effects タブの意識と各出力に出る
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Hunger"),
-			Value:       query.T(world, hunger.GetLevel().String()),
+			Value:       query.HungerName(world, hunger.GetLevel(world.Resources.NeedDefs)),
 			Description: query.T(world, "Hunger. High hunger hinders actions and recovery"),
 		})
 	}
@@ -107,7 +108,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		fatigue := world.Components.Fatigue.Get(playerEntity)
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Fatigue"),
-			Value:       query.T(world, string(fatigue.GetLevel())),
+			Value:       query.FatigueName(world, fatigue.GetLevel(world.Resources.NeedDefs)),
 			Description: query.T(world, "Fatigue. High fatigue hinders actions and recovery"),
 		})
 	}
@@ -147,7 +148,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 		return items
 	}
 	skills := world.Components.Skills.Get(playerEntity)
-	for _, cat := range gc.SkillCategories {
+	for _, cat := range world.Resources.SkillDefs.Categories {
 		items = append(items, statusItemData{Label: query.T(world, cat.Name), IsHeader: true, Description: query.T(world, "%s category skills", query.T(world, cat.Name))})
 		for _, id := range cat.IDs {
 			s := skills.Get(id)
@@ -155,9 +156,9 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 			if s.Exp.Max > 0 {
 				expFrac = s.Exp.Current * 1000 / s.Exp.Max
 			}
-			info := gc.SkillDescription(id)
+			info := world.Resources.SkillDefs.Skills[id]
 			items = append(items, statusItemData{
-				Label:       query.T(world, gc.SkillName(id)),
+				Label:       query.T(world, info.Name),
 				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
 				Description: query.T(world, info.Summary),
 				Details: []statusDetailRow{
@@ -175,34 +176,35 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	if !world.ECS.Alive(playerEntity) {
 		return items
 	}
-	val := func(key gc.ProficiencyKey) string {
+	val := func(key oapi.ProficiencyId) string {
 		return fmt.Sprintf("%d%%", query.ProficiencyValue(world, playerEntity, key))
 	}
-	details := func(key gc.ProficiencyKey) []statusDetailRow {
+	details := func(key oapi.ProficiencyId) []statusDetailRow {
 		return sourceToDetails(world, query.ProficiencySources(world, playerEntity, key))
 	}
 	// 実効身体機能。怪我・病気に加え疲労・空腹の意識低下を畳んだ値
 	bodyFuncs := query.EffectiveBodyFuncs(world, playerEntity)
 
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
-	for _, id := range gc.WeaponSkillIDs {
-		name := query.T(world, gc.SkillName(id))
-		items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: val(gc.WeaponDamageKey(id)), Description: query.T(world, "%s weapon damage multiplier", name), Details: details(gc.WeaponDamageKey(id))})
+	weapons := world.Resources.SkillDefs.Weapons
+	for _, w := range weapons {
+		name := query.SkillName(world, w.Skill)
+		items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: val(w.Damage), Description: query.T(world, "%s weapon damage multiplier", name), Details: details(w.Damage)})
 	}
-	for _, id := range gc.WeaponSkillIDs {
-		name := query.T(world, gc.SkillName(id))
-		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(gc.WeaponAccuracyKey(id)), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(gc.WeaponAccuracyKey(id))})
+	for _, w := range weapons {
+		name := query.SkillName(world, w.Skill)
+		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(w.Accuracy), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(w.Accuracy)})
 	}
-	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
-		name := query.T(world, elem.String())
-		items = append(items, statusItemData{Label: query.T(world, "%s resistance", name), Value: val(gc.ElementResistKey(elem)), Description: query.T(world, "%s element damage multiplier. Lower reduces more", name), Details: details(gc.ElementResistKey(elem))})
+	for _, r := range world.Resources.SkillDefs.Resists {
+		name := query.T(world, gc.ElementName(r.Element))
+		items = append(items, statusItemData{Label: query.T(world, "%s resistance", name), Value: val(r.Proficiency), Description: query.T(world, "%s element damage multiplier. Lower reduces more", name), Details: details(r.Proficiency)})
 	}
 
 	// 血液量が危険域まで落ちると失血で HP が減る。一覧は % だけにし、減少量は詳細モーダルの内訳に出す
 	bloodDesc := query.T(world, "Blood volume. Bleeding and severe conditions lower it")
 	var bloodDetails []statusDetailRow
 	if world.Components.HealthStatus.Has(playerEntity) {
-		if drain, _ := world.Components.HealthStatus.Get(playerEntity).BloodLossHPDrain(); drain > 0 {
+		if drain, _ := world.Components.HealthStatus.Get(playerEntity).BloodLossHPDrain(world.Resources.ConditionDefs); drain > 0 {
 			bloodDesc = query.T(world, "Critically low. Bleeding out and losing HP")
 			bloodDetails = []statusDetailRow{{Label: query.T(world, "HP loss"), Value: fmt.Sprintf("-%d", drain)}}
 		}
@@ -221,35 +223,35 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(gc.ProfColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(gc.ProfColdProgress)},
-		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(gc.ProfHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(gc.ProfHungerProgress)},
-		statusItemData{Label: query.T(world, "Healing effect"), Value: val(gc.ProfHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(gc.ProfHealingEffect)},
+		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(oapi.ProficiencyIdColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(oapi.ProficiencyIdColdProgress)},
+		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(oapi.ProficiencyIdHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(oapi.ProficiencyIdHungerProgress)},
+		statusItemData{Label: query.T(world, "Healing effect"), Value: val(oapi.ProficiencyIdHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(oapi.ProficiencyIdHealingEffect)},
 		statusItemData{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%d%%", query.Metabolism(world, playerEntity)), Description: query.T(world, "Natural recovery speed. VIT and sleep raise it, hunger and fatigue lower it"), Details: sourceToDetails(world, query.RecoverySources(world, playerEntity))},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Move speed"), Value: val(gc.ProfMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(gc.ProfMoveCost)},
-		statusItemData{Label: query.T(world, "Discovery"), Value: val(gc.ProfExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(gc.ProfExploration)},
-		statusItemData{Label: query.T(world, "Detection"), Value: val(gc.ProfEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(gc.ProfEnemyVision)},
-		statusItemData{Label: query.T(world, "Night vision"), Value: val(gc.ProfNightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: details(gc.ProfNightVision)},
+		statusItemData{Label: query.T(world, "Move speed"), Value: val(oapi.ProficiencyIdMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(oapi.ProficiencyIdMoveCost)},
+		statusItemData{Label: query.T(world, "Discovery"), Value: val(oapi.ProficiencyIdExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(oapi.ProficiencyIdExploration)},
+		statusItemData{Label: query.T(world, "Detection"), Value: val(oapi.ProficiencyIdEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(oapi.ProficiencyIdEnemyVision)},
+		statusItemData{Label: query.T(world, "Night vision"), Value: val(oapi.ProficiencyIdNightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: details(oapi.ProficiencyIdNightVision)},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Production"), IsHeader: true, Description: query.T(world, "Production and trade effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Material cost"), Value: val(gc.ProfCraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: details(gc.ProfCraftCost)},
-		statusItemData{Label: query.T(world, "Craft quality"), Value: val(gc.ProfSmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: details(gc.ProfSmithQuality)},
-		statusItemData{Label: query.T(world, "Buy price"), Value: val(gc.ProfBuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: details(gc.ProfBuyPrice)},
-		statusItemData{Label: query.T(world, "Sell price"), Value: val(gc.ProfSellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: details(gc.ProfSellPrice)},
-		statusItemData{Label: query.T(world, "Max weight"), Value: val(gc.ProfMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(gc.ProfMaxWeight)},
-		statusItemData{Label: query.T(world, "Max load"), Value: val(gc.ProfHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(gc.ProfHeavyArmor)},
+		statusItemData{Label: query.T(world, "Material cost"), Value: val(oapi.ProficiencyIdCraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: details(oapi.ProficiencyIdCraftCost)},
+		statusItemData{Label: query.T(world, "Craft quality"), Value: val(oapi.ProficiencyIdSmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: details(oapi.ProficiencyIdSmithQuality)},
+		statusItemData{Label: query.T(world, "Buy price"), Value: val(oapi.ProficiencyIdBuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: details(oapi.ProficiencyIdBuyPrice)},
+		statusItemData{Label: query.T(world, "Sell price"), Value: val(oapi.ProficiencyIdSellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: details(oapi.ProficiencyIdSellPrice)},
+		statusItemData{Label: query.T(world, "Max weight"), Value: val(oapi.ProficiencyIdMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(oapi.ProficiencyIdMaxWeight)},
+		statusItemData{Label: query.T(world, "Max load"), Value: val(oapi.ProficiencyIdHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(oapi.ProficiencyIdHeavyArmor)},
 	)
 	return indentUnderHeaders(items)
 }
 
 // translatedConditionName は不調の種類名を訳して返す。重症度は進行度%で表すため名前に付けない
 func translatedConditionName(world w.World, ct gc.ConditionType) string {
-	return query.T(world, gc.ConditionTypeDisplayName(ct))
+	return query.ConditionName(world, ct)
 }
 
 // treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す
@@ -269,7 +271,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 	for i := range int(gc.BodyPartCount) {
 		part := gc.BodyPart(i)
 		// 部位はカテゴリ見出し。カーソルは見出しを飛ばす
-		items = append(items, statusItemData{Label: query.T(world, part.String()), IsHeader: true, BodyPart: part})
+		items = append(items, statusItemData{Label: query.BodyPartName(world, part), IsHeader: true, BodyPart: part})
 
 		var conds []gc.HealthCondition
 		if hs != nil {
@@ -289,7 +291,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 			// 各行が自分の不調を指すよう反復ごとにコピーを確保する
 			c := cond
 			// 過労・栄養失調は Timer を持たず量から導出される。進行度でなく重症度を出し、治療状態は付けない
-			if gc.ConditionIsDerived(cond.Type) {
+			if world.Resources.ConditionDefs.IsDerived(cond.Type) {
 				items = append(items, statusItemData{
 					Label:     translatedConditionName(world, cond.Type),
 					Value:     query.T(world, cond.Severity.String()),
@@ -328,8 +330,8 @@ func sourceToDetails(world w.World, srcs []gc.ProficiencySource) []statusDetailR
 func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
 	var rows []statusDetailRow
 	for _, c := range query.DerivedConditions(world, playerEntity) {
-		if _, _, drop := gc.ConditionBodyFuncImpact(&c, gc.BodyPartWholeBody); drop != 0 {
-			rows = append(rows, statusDetailRow{Label: query.T(world, gc.ConditionTypeDisplayName(c.Type)), Value: fmt.Sprintf("-%d%%", drop)})
+		if _, _, drop := world.Resources.ConditionDefs.BodyFuncImpact(&c, gc.BodyPartWholeBody); drop != 0 {
+			rows = append(rows, statusDetailRow{Label: query.ConditionName(world, c.Type), Value: fmt.Sprintf("-%d%%", drop)})
 		}
 	}
 	return rows
@@ -340,7 +342,7 @@ func fatigueHungerDrops(world w.World, playerEntity ecs.Entity) []statusDetailRo
 func consciousnessDrops(world w.World, playerEntity ecs.Entity) []statusDetailRow {
 	var rows []statusDetailRow
 	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
-		systemic, pain := world.Components.HealthStatus.Get(playerEntity).ConsciousnessDrops()
+		systemic, pain := world.Components.HealthStatus.Get(playerEntity).ConsciousnessDrops(world.Resources.ConditionDefs)
 		if systemic != 0 {
 			rows = append(rows, statusDetailRow{Label: query.T(world, "Injury and illness"), Value: fmt.Sprintf("-%d%%", systemic)})
 		}
@@ -356,7 +358,7 @@ func consciousnessDrops(world w.World, playerEntity ecs.Entity) []statusDetailRo
 func limbDrops(world w.World, playerEntity ecs.Entity, bodyFuncs gc.BodyFuncs, bf gc.BodyFuncKind) []statusDetailRow {
 	local := 0
 	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
-		local = world.Components.HealthStatus.Get(playerEntity).LocalDrop(bf)
+		local = world.Components.HealthStatus.Get(playerEntity).LocalDrop(world.Resources.ConditionDefs, bf)
 	}
 	var rows []statusDetailRow
 	if local != 0 {
@@ -374,15 +376,15 @@ func limbDrops(world w.World, playerEntity ecs.Entity, bodyFuncs gc.BodyFuncs, b
 func sourceLabel(world w.World, s gc.ProficiencySource) string {
 	switch s.Kind {
 	case gc.SourceSkill:
-		return fmt.Sprintf("%s Lv%d", query.T(world, gc.SkillName(s.Skill)), s.Amount)
+		return fmt.Sprintf("%s Lv%d", query.SkillName(world, s.Skill), s.Amount)
 	case gc.SourceAbility:
 		return fmt.Sprintf("%s %d", query.T(world, gc.AbilityName(s.Ability)), s.Amount)
 	case gc.SourceBodyFunc:
 		return fmt.Sprintf("%s %d%%", query.T(world, string(s.BodyFunc)), s.Amount)
 	case gc.SourceFatigue:
-		return query.T(world, string(s.Fatigue))
+		return query.FatigueName(world, s.Fatigue)
 	case gc.SourceHunger:
-		return query.T(world, s.Hunger.String())
+		return query.HungerName(world, s.Hunger)
 	case gc.SourceSleeping:
 		return query.T(world, "Sleeping")
 	}

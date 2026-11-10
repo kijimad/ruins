@@ -336,8 +336,8 @@ func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 		{Label: query.T(world, "Hits"), Value: strconv.Itoa(attack.GetAttackCount())},
 		{Label: query.T(world, "Attack cost"), Value: strconv.Itoa(attack.GetCost())},
 	}
-	if attack.GetElement() != gc.ElementTypeNone {
-		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, attack.GetElement().String())})
+	if attack.GetElement() != oapi.ElementNONE {
+		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, gc.ElementName(attack.GetElement()))})
 	}
 	return markChildren(rows)
 }
@@ -375,7 +375,7 @@ func abilityRows(world w.World, a *gc.Abilities) []SpecRow {
 
 func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {
 	rows := []SpecRow{
-		{Label: query.T(world, wearable.EquipmentCategory.String()), Header: true},
+		{Label: query.T(world, gc.EquipmentCategoryName(wearable.EquipmentCategory)), Header: true},
 		{Label: query.T(world, "Defense"), Value: fmt.Sprintf("%+d", wearable.Defense)},
 	}
 	if wearable.InsulationCold != 0 {
@@ -428,7 +428,7 @@ func remedyRows(world w.World, remedy *gc.Remedy) []SpecRow {
 	rows := make([]SpecRow, 0, 2+len(remedy.Treats))
 	rows = append(rows, SpecRow{Label: query.T(world, "Treatment"), Header: true})
 	for _, ct := range remedy.Treats {
-		rows = append(rows, SpecRow{Label: query.T(world, "Target"), Value: query.T(world, gc.ConditionTypeDisplayName(ct))})
+		rows = append(rows, SpecRow{Label: query.T(world, "Target"), Value: query.ConditionName(world, ct)})
 	}
 	rows = append(rows, SpecRow{Label: query.T(world, "Potency"), Value: fmt.Sprintf("%d%%", int(remedy.Potency))})
 	return markChildren(rows)
@@ -455,7 +455,7 @@ func bookRows(world w.World, book *gc.Book) []SpecRow {
 	rows := []SpecRow{{Label: query.T(world, "Book"), Header: true}}
 	if book.Skill != nil {
 		rows = append(rows,
-			SpecRow{Label: query.T(world, "Skill"), Value: query.T(world, gc.SkillName(book.Skill.TargetSkill))},
+			SpecRow{Label: query.T(world, "Skill"), Value: query.SkillName(world, book.Skill.TargetSkill)},
 			SpecRow{Label: "Lv", Value: fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)},
 		)
 	}

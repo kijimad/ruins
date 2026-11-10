@@ -8,6 +8,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
@@ -71,7 +72,7 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 				ambientTempVisible = true
 				ambientTempColor = ambientTempDisplayColor(temp)
 				shelter, _ := query.TileEnvironmentAt(world, grid.X, grid.Y)
-				ambientShelterLabel = query.T(world, shelterMsgid(shelter))
+				ambientShelterLabel = query.ShelterName(world, shelter)
 			}
 		}
 	}
@@ -341,10 +342,10 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 	for hungerQuery.Next() {
 		entity := hungerQuery.Entity()
 		if hunger := world.Components.Hunger.Get(entity); hunger != nil {
-			level := hunger.GetLevel()
-			if level != gc.HungerNormal {
+			level := hunger.GetLevel(world.Resources.NeedDefs)
+			if level != oapi.HungerStageIdNormal {
 				badges = append(badges, hud.StatusBadge{
-					Text:  query.T(world, level.String()),
+					Text:  query.HungerName(world, level),
 					Color: getHungerBadgeColor(level),
 				})
 			}
@@ -355,10 +356,10 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 	fatigueQuery := ecs.NewFilter2[gc.Player, gc.Fatigue](world.ECS).Query()
 	for fatigueQuery.Next() {
 		entity := fatigueQuery.Entity()
-		level := world.Components.Fatigue.Get(entity).GetLevel()
-		if level == gc.FatigueTired || level == gc.FatigueExhausted {
+		level := world.Components.Fatigue.Get(entity).GetLevel(world.Resources.NeedDefs)
+		if level == oapi.FatigueStageIdTired || level == oapi.FatigueStageIdExhausted {
 			badges = append(badges, hud.StatusBadge{
-				Text:  query.T(world, string(level)),
+				Text:  query.FatigueName(world, level),
 				Color: getFatigueBadgeColor(level),
 			})
 		}
@@ -395,12 +396,13 @@ func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
 		worst gc.Severity
 		count int
 	}
+	cold := world.Resources.ConditionDefs.ByOnset(oapi.Cold)
 	var order []gc.ConditionType
 	byType := map[gc.ConditionType]*summary{}
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
 			c := &hs.Parts[i].Conditions[j]
-			if !c.IsActive() || c.Type == gc.ConditionHypothermia {
+			if !c.IsActive() || c.Type == cold {
 				continue
 			}
 			s, ok := byType[c.Type]
@@ -429,24 +431,11 @@ func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
 
 // conditionLabel は状態の種類と重症度を現在言語で並べた表示名を返す。重症度が無ければ種類だけ
 func conditionLabel(world w.World, ct gc.ConditionType, severity gc.Severity) string {
-	name := query.T(world, gc.ConditionTypeDisplayName(ct))
+	name := query.ConditionName(world, ct)
 	if severity == gc.SeverityNone {
 		return name
 	}
 	return name + " " + query.T(world, severity.String())
-}
-
-// shelterMsgid は囲われの度合いの表示名 msgid を返す
-func shelterMsgid(shelter gc.ShelterType) string {
-	switch shelter {
-	case gc.ShelterFull:
-		return "Indoor"
-	case gc.ShelterPartial:
-		return "Semi-outdoor"
-	case gc.ShelterNone:
-	}
-	// 未知の値は屋外へ落とす
-	return "Outdoor"
 }
 
 // ambientTempDisplayColor は周囲気温の表示色を返す。快適帯の中は白、下回ると青、上回ると赤に寄せる
@@ -471,7 +460,7 @@ const temperatureIntensityMax = 0.5
 func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
-	if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil {
+	if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(oapi.Cold)); cold != nil {
 		return hud.StatusBadge{Text: conditionLabel(world, cold.Type, cold.Severity), Color: color.RGBA{80, 140, 235, 255}}, true
 	}
 	return hud.StatusBadge{}, false
@@ -511,21 +500,21 @@ func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA 
 }
 
 // getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤
-func getFatigueBadgeColor(level gc.FatigueLevel) color.RGBA {
-	if level == gc.FatigueExhausted {
+func getFatigueBadgeColor(level oapi.FatigueStageId) color.RGBA {
+	if level == oapi.FatigueStageIdExhausted {
 		return color.RGBA{255, 50, 50, 255}
 	}
 	return color.RGBA{255, 200, 0, 255}
 }
 
 // getHungerBadgeColor は空腹度に応じたバッジ色を返す
-func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {
+func getHungerBadgeColor(level oapi.HungerStageId) color.RGBA {
 	switch level {
-	case gc.HungerSatiated:
+	case oapi.HungerStageIdSatiated:
 		return color.RGBA{100, 200, 100, 255} // 緑（満腹）
-	case gc.HungerHungry:
+	case oapi.HungerStageIdHungry:
 		return color.RGBA{255, 200, 0, 255} // 黄色（空腹）
-	case gc.HungerStarving:
+	case oapi.HungerStageIdStarving:
 		return color.RGBA{255, 50, 50, 255} // 赤（飢餓）
 	default:
 		return color.RGBA{255, 255, 255, 255}

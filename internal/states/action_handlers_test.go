@@ -199,7 +199,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// 重度の低体温を設定
 		hs := world.Components.HealthStatus.Get(player)
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeveritySevere,
 			Timer:    90,
 		})

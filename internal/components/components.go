@@ -93,7 +93,7 @@ func (c Camera) Yaw() float64 {
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
-	UsableScene UsableSceneType
+	UsableScene oapi.UsableScene
 	TargetType  TargetType
 }
 
@@ -121,11 +121,11 @@ type Dialog struct {
 
 // Wearable は装備品。キャラクタが装備することでパラメータを変更できる
 type Wearable struct {
-	Defense           int           // 防御力
-	EquipmentCategory EquipmentType // 装備部位
-	EquipBonus        EquipBonus    // ステータスへのボーナス
-	InsulationCold    int           // 耐寒（快適温度の下限を下げる）
-	InsulationHeat    int           // 耐暑（快適温度の上限を上げる）
+	Defense           int                    // 防御力
+	EquipmentCategory oapi.EquipmentCategory // 装備部位
+	EquipBonus        EquipBonus             // ステータスへのボーナス
+	InsulationCold    int                    // 耐寒（快適温度の下限を下げる）
+	InsulationHeat    int                    // 耐暑（快適温度の上限を上げる）
 }
 
 // Player は操作対象の主人公キャラクター
@@ -227,7 +227,7 @@ type Attacker interface {
 	GetAccuracy() int
 	GetDamage() int
 	GetAttackCount() int
-	GetElement() ElementType
+	GetElement() oapi.Element
 	GetAttackCategory() AttackType
 	GetCost() int
 	GetTargetType() TargetType
@@ -235,13 +235,13 @@ type Attacker interface {
 
 // Melee は近接攻撃の性質。近接攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する
 type Melee struct {
-	Accuracy       int         // 命中率
-	Damage         int         // 攻撃力
-	AttackCount    int         // 攻撃回数
-	Element        ElementType // 攻撃属性
-	AttackCategory AttackType  // 攻撃種別
-	Cost           int         // 行動コスト
-	TargetType     TargetType  // 対象タイプ
+	Accuracy       int          // 命中率
+	Damage         int          // 攻撃力
+	AttackCount    int          // 攻撃回数
+	Element        oapi.Element // 攻撃属性
+	AttackCategory AttackType   // 攻撃種別
+	Cost           int          // 行動コスト
+	TargetType     TargetType   // 対象タイプ
 }
 
 // GetAccuracy はAttackerの実装
@@ -254,7 +254,7 @@ func (m *Melee) GetDamage() int { return m.Damage }
 func (m *Melee) GetAttackCount() int { return m.AttackCount }
 
 // GetElement はAttackerの実装
-func (m *Melee) GetElement() ElementType { return m.Element }
+func (m *Melee) GetElement() oapi.Element { return m.Element }
 
 // GetAttackCategory はAttackerの実装
 func (m *Melee) GetAttackCategory() AttackType { return m.AttackCategory }
@@ -268,13 +268,13 @@ func (m *Melee) GetTargetType() TargetType { return m.TargetType }
 // Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む
 type Fire struct {
 	// 攻撃パラメータ
-	Accuracy       int         // 命中率
-	Damage         int         // 攻撃力
-	AttackCount    int         // 攻撃回数
-	Element        ElementType // 攻撃属性
-	AttackCategory AttackType  // 攻撃種別
-	Cost           int         // 行動コスト
-	TargetType     TargetType  // 対象タイプ
+	Accuracy       int          // 命中率
+	Damage         int          // 攻撃力
+	AttackCount    int          // 攻撃回数
+	Element        oapi.Element // 攻撃属性
+	AttackCategory AttackType   // 攻撃種別
+	Cost           int          // 行動コスト
+	TargetType     TargetType   // 対象タイプ
 	// 弾薬管理
 	Magazine            int          // 現在の装弾数
 	MagazineSize        int          // 最大装弾数
@@ -294,7 +294,7 @@ func (f *Fire) GetDamage() int { return f.Damage }
 func (f *Fire) GetAttackCount() int { return f.AttackCount }
 
 // GetElement はAttackerの実装
-func (f *Fire) GetElement() ElementType { return f.Element }
+func (f *Fire) GetElement() oapi.Element { return f.Element }
 
 // GetAttackCategory はAttackerの実装
 func (f *Fire) GetAttackCategory() AttackType { return f.AttackCategory }
@@ -324,13 +324,6 @@ type SheetImage struct {
 // 派閥は種別ごとに独立したマーカーコンポーネントとして表現する。
 // archetypeクエリ（「全敵」「全味方」）が効くため archetype ECS に適している。
 // 派閥は排他（1エンティティは高々1つ）で、生成時に EntitySpec で1つだけ指定する。
-
-// 派閥のenum文字列（oapiのFactionType enumと一致させる）
-const (
-	FactionAllyName    = "FactionAlly"
-	FactionEnemyName   = "FactionEnemy"
-	FactionNeutralName = "FactionNeutral"
-)
 
 // FactionAlly は味方派閥(プレイヤー側)のマーカー
 type FactionAlly struct{}

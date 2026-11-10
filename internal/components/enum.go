@@ -3,6 +3,8 @@ package components
 import (
 	"errors"
 	"fmt"
+
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // ErrInvalidEnumType はinvalid enum value場合のエラー
@@ -25,52 +27,25 @@ const (
 	BodyPartCount                     // 部位数
 )
 
-// String は部位名を返す。対応は bodyPartMetas で定める
+// String は raw の bodyParts の id を返す。表示名は query.BodyPartName で引く
 func (bp BodyPart) String() string {
-	return bodyPartMetas[bp].displayName
+	return bodyPartMetas[bp].id
 }
 
-// ================
+// ID は raw の bodyParts の id を返す
+func (bp BodyPart) ID() string {
+	return bodyPartMetas[bp].id
+}
 
-// TargetNumType はターゲット数を表す
-type TargetNumType string
-
-const (
-	// TargetSingle は単体ターゲット
-	TargetSingle = TargetNumType("SINGLE")
-	// TargetAll は全体ターゲット
-	TargetAll = TargetNumType("ALL")
-)
-
-// ================
-
-// TargetGroupType は使用者から見たターゲットの種別。相対的な指定なので、所有者が敵グループだと対象グループは逆転する
-type TargetGroupType string
-
-const (
-	// TargetGroupAlly は味方グループ
-	TargetGroupAlly = TargetGroupType("ALLY") // 味方
-	// TargetGroupEnemy は敵グループ
-	TargetGroupEnemy = TargetGroupType("ENEMY") // 敵
-	// TargetGroupWeapon は武器グループ
-	TargetGroupWeapon = TargetGroupType("WEAPON") // 武器
-	// TargetGroupNone はグループなし
-	TargetGroupNone = TargetGroupType("NONE") // なし
-)
-
-// ================
-
-// UsableSceneType は使えるシーンを表す
-type UsableSceneType string
-
-const (
-	// UsableSceneBattle は戦闘シーン
-	UsableSceneBattle = UsableSceneType("BATTLE") // 戦闘
-	// UsableSceneField はフィールドシーン
-	UsableSceneField = UsableSceneType("FIELD") // フィールド
-	// UsableSceneAny はいつでも使えるシーン
-	UsableSceneAny = UsableSceneType("ANY") // いつでも
-)
+// BodyPartByID は raw の bodyParts の id から部位を返す。該当が無ければ ok=false
+func BodyPartByID(id string) (BodyPart, bool) {
+	for bp := range BodyPartCount {
+		if bodyPartMetas[bp].id == id {
+			return bp, true
+		}
+	}
+	return 0, false
+}
 
 // ================
 
@@ -93,19 +68,19 @@ type AttackType struct {
 
 var (
 	// AttackSword は刀剣
-	AttackSword = AttackType{Type: "SWORD", Range: AttackRangeMelee, Label: "Sword"}
+	AttackSword = AttackType{Type: "sword", Range: AttackRangeMelee, Label: "Sword"}
 	// AttackSpear は長物
-	AttackSpear = AttackType{Type: "SPEAR", Range: AttackRangeMelee, Label: "Spear"}
+	AttackSpear = AttackType{Type: "spear", Range: AttackRangeMelee, Label: "Spear"}
 	// AttackHandgun は拳銃
-	AttackHandgun = AttackType{Type: "HANDGUN", Range: AttackRangeRanged, Label: "Handgun"}
+	AttackHandgun = AttackType{Type: "handgun", Range: AttackRangeRanged, Label: "Handgun"}
 	// AttackRifle は小銃
-	AttackRifle = AttackType{Type: "RIFLE", Range: AttackRangeRanged, Label: "Rifle"}
+	AttackRifle = AttackType{Type: "rifle", Range: AttackRangeRanged, Label: "Rifle"}
 	// AttackFist は格闘
-	AttackFist = AttackType{Type: "FIST", Range: AttackRangeMelee, Label: "Martial arts"}
-	// AttackCanon は大砲
-	AttackCanon = AttackType{Type: "CANON", Range: AttackRangeRanged, Label: "Cannon"}
+	AttackFist = AttackType{Type: "fist", Range: AttackRangeMelee, Label: "Martial arts"}
+	// AttackCannon は大砲
+	AttackCannon = AttackType{Type: "cannon", Range: AttackRangeRanged, Label: "Cannon"}
 	// AttackBow は弓
-	AttackBow = AttackType{Type: "BOW", Range: AttackRangeRanged, Label: "Bow"}
+	AttackBow = AttackType{Type: "bow", Range: AttackRangeRanged, Label: "Bow"}
 )
 
 // AllAttackTypes は定義済みの全AttackTypeのリスト
@@ -116,7 +91,7 @@ var AllAttackTypes = []AttackType{
 	AttackHandgun,
 	AttackRifle,
 	AttackFist,
-	AttackCanon,
+	AttackCannon,
 	AttackBow,
 }
 
@@ -142,7 +117,7 @@ var rangeParamsMap = map[string]RangeParams{
 	AttackBow.Type:     {OptimalRange: 4, MaxRange: 10, PenaltyPerTile: 5},
 	AttackHandgun.Type: {OptimalRange: 3, MaxRange: 8, PenaltyPerTile: 8},
 	AttackRifle.Type:   {OptimalRange: 8, MaxRange: 16, PenaltyPerTile: 3},
-	AttackCanon.Type:   {OptimalRange: 6, MaxRange: 12, PenaltyPerTile: 5},
+	AttackCannon.Type:  {OptimalRange: 6, MaxRange: 12, PenaltyPerTile: 5},
 }
 
 // GetRangeParams は武器種別の射程パラメータを返す。未定義ならfalseを返す
@@ -153,109 +128,42 @@ func GetRangeParams(attackType AttackType) (RangeParams, bool) {
 
 // ================
 
-// EquipmentType は装備品種別を表す
-// 6部位（頭・胴体・腕・手・脚・足）と装飾品スロット
-type EquipmentType string
-
-const (
-	// EquipmentHead は頭部装備
-	EquipmentHead = EquipmentType("HEAD") // 頭部
-	// EquipmentTorso は胴体装備
-	EquipmentTorso = EquipmentType("TORSO") // 胴体
-	// EquipmentArms は腕装備
-	EquipmentArms = EquipmentType("ARMS") // 腕
-	// EquipmentHands は手装備
-	EquipmentHands = EquipmentType("HANDS") // 手
-	// EquipmentLegs は脚装備
-	EquipmentLegs = EquipmentType("LEGS") // 脚
-	// EquipmentFeet は足装備
-	EquipmentFeet = EquipmentType("FEET") // 足
-	// EquipmentJewelry はアクセサリ装備
-	EquipmentJewelry = EquipmentType("JEWELRY") // アクセサリ
-)
-
-// Valid はEquipmentTypeの値が有効かを検証する
-func (enum EquipmentType) Valid() error {
-	switch enum {
-	case EquipmentHead, EquipmentTorso, EquipmentArms, EquipmentHands,
-		EquipmentLegs, EquipmentFeet, EquipmentJewelry:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
-	}
-}
-
-// SlotNumber はEquipmentTypeに対応するEquipmentSlotNumberを返す
-func (enum EquipmentType) SlotNumber() EquipmentSlotNumber {
-	switch enum {
-	case EquipmentHead:
-		return SlotHead
-	case EquipmentTorso:
-		return SlotTorso
-	case EquipmentArms:
-		return SlotArms
-	case EquipmentHands:
-		return SlotHands
-	case EquipmentLegs:
-		return SlotLegs
-	case EquipmentFeet:
-		return SlotFeet
-	case EquipmentJewelry:
-		return SlotJewelry
-	}
-	panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))
-}
-
-func (enum EquipmentType) String() string {
-	switch enum {
-	case EquipmentHead:
+// EquipmentCategoryName は防具の部位の表示名 msgid を返す
+func EquipmentCategoryName(c oapi.EquipmentCategory) string {
+	switch c {
+	case oapi.EquipmentCategoryHEAD:
 		return "Head"
-	case EquipmentTorso:
+	case oapi.EquipmentCategoryTORSO:
 		return "Torso"
-	case EquipmentArms:
+	case oapi.EquipmentCategoryARMS:
 		return "Arms"
-	case EquipmentHands:
+	case oapi.EquipmentCategoryHANDS:
 		return "Hands"
-	case EquipmentLegs:
+	case oapi.EquipmentCategoryLEGS:
 		return "Legs"
-	case EquipmentFeet:
+	case oapi.EquipmentCategoryFEET:
 		return "Feet"
-	case EquipmentJewelry:
+	case oapi.EquipmentCategoryJEWELRY:
 		return "Accessory"
 	}
-	panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))
+	panic(fmt.Sprintf("invalid EquipmentCategory value: %s", string(c)))
 }
 
 // ================
 
-// ElementType は攻撃属性を表す
-type ElementType string
-
-const (
-	// ElementTypeNone は属性なし
-	ElementTypeNone ElementType = "NONE"
-	// ElementTypeFire は火属性
-	ElementTypeFire ElementType = "FIRE"
-	// ElementTypeThunder は雷属性
-	ElementTypeThunder ElementType = "THUNDER"
-	// ElementTypeChill は氷属性
-	ElementTypeChill ElementType = "CHILL"
-	// ElementTypePhoton は光属性
-	ElementTypePhoton ElementType = "PHOTON"
-)
-
-func (enum ElementType) String() string {
-	switch enum {
-	case ElementTypeNone:
+// ElementName は攻撃属性の表示名 msgid を返す
+func ElementName(e oapi.Element) string {
+	switch e {
+	case oapi.ElementNONE:
 		return "None"
-	case ElementTypeFire:
+	case oapi.ElementFIRE:
 		return "Fire"
-	case ElementTypeThunder:
+	case oapi.ElementTHUNDER:
 		return "Thunder"
-	case ElementTypeChill:
+	case oapi.ElementCHILL:
 		return "Ice"
-	case ElementTypePhoton:
+	case oapi.ElementPHOTON:
 		return "Light"
 	}
-	panic(fmt.Sprintf("invalid ElementType value: %s", string(enum)))
+	panic(fmt.Sprintf("invalid Element value: %s", string(e)))
 }

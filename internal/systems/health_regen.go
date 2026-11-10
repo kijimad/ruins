@@ -39,7 +39,7 @@ func (sys *HealthRegenSystem) Update(world w.World) error {
 			continue
 		}
 		// HP を削る不調のあいだは回復しない。回復が相殺して減少を隠さないため
-		if world.Components.HealthStatus.Has(entity) && world.Components.HealthStatus.Get(entity).IsHPDraining() {
+		if world.Components.HealthStatus.Has(entity) && world.Components.HealthStatus.Get(entity).IsHPDraining(world.Resources.ConditionDefs) {
 			continue
 		}
 		hp := world.Components.HP.Get(entity)

@@ -109,6 +109,100 @@ enum RoomRole {
   waiting,
 }
 
+/** 建物の損傷段階 */
+enum BuildingDamage {
+  intact,
+  minor,
+  major,
+}
+
+/** 建物の散らかり段階 */
+enum BuildingClutter {
+  tidy,
+  messy,
+  filthy,
+}
+
+/** 建物の事情。稀な1軒へ物語を与える */
+enum BuildingVariant {
+  standard,
+  abandoned,
+  under_construction,
+  survivalist,
+  hoarder,
+}
+
+/** 建物の家具量の倍率。10 が等倍の ×/10 */
+@minValue(1)
+@maxValue(30)
+scalar DensityFactor extends integer;
+
+/** 天候の種類 */
+enum WeatherId {
+  clear,
+  cloudy,
+  rain,
+  snow,
+  blizzard,
+  cold_snap,
+}
+
+/** 季節 */
+enum SeasonId {
+  spring,
+  summer,
+  autumn,
+  winter,
+}
+
+/** 天候による世界温度への加算。℃ */
+@minValue(-50)
+@maxValue(50)
+scalar WeatherTempModifier extends integer;
+
+/** 天候による視程レンジへの加算。タイル。負で狭くなる */
+@minValue(-100)
+@maxValue(100)
+scalar WeatherVisionDelta extends integer;
+
+/** 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う */
+@minValue(0)
+@maxValue(10)
+scalar WeatherSeverity extends integer;
+
+/** 天候のスペルの基準長。ターン */
+@minValue(1)
+@maxValue(100000)
+scalar SpellTurns extends integer;
+
+/** 不調の重症度 */
+enum ConditionSeverity {
+  minor,
+  medium,
+  severe,
+}
+
+/** 最大値に対する割合 */
+@minValue(0)
+@maxValue(1)
+scalar NeedRatio extends float64;
+
+/** 空腹の段階 */
+enum HungerStageId {
+  satiated,
+  normal,
+  hungry,
+  starving,
+}
+
+/** 疲労の段階 */
+enum FatigueStageId {
+  rested,
+  normal,
+  tired,
+  exhausted,
+}
+
 /** 間取りテンプレの選択キー */
 enum PlannerKey {
   house,
@@ -150,9 +244,56 @@ scalar HealRatio extends float64;
 @maxValue(9999)
 scalar Potency extends integer;
 
-/** 治療できる不調の種類ID。骨折や切り傷などの ConditionType 値 */
+/** 不調の id。Go の ConditionType 定数の値と同じ */
 @minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
 scalar ConditionTypeName extends string;
+
+/** 部位の id */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
+scalar BodyPartId extends string;
+
+/** 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う */
+@minValue(0)
+@maxValue(100)
+scalar ConditionAmountPerSeverity extends integer;
+
+/** 不調の1ターンあたりの進行度の増減量 */
+@minValue(1)
+@maxValue(100)
+scalar ConditionTimerRate extends integer;
+
+/** 不調が未治療のときの振る舞いと治し方 */
+enum RecoveryMode {
+  /** 治療して初めて回復する。未治療は保持し悪化しない */
+  recover_after_tend,
+  /** 未治療なら悪化し続け、治療して初めて回復する */
+  progress_until_tend,
+  /** 未治療でも時間で自然に治る。治療すれば速まる */
+  recover_over_time,
+}
+
+/** 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ */
+enum ConditionOnset {
+  /** 体温が下がると TemperatureSystem が進める */
+  cold,
+  /** 腐敗食を食べると確率で発症する */
+  rotten_food,
+  /** 疲労の量から読み取り時に導出する */
+  fatigue,
+  /** 空腹の量から読み取り時に導出する */
+  hunger,
+}
+
+/** 不調が血液量を尽きさせて倒したときの死因 */
+enum ConditionDeathCause {
+  frozen,
+  illness,
+  blood_loss,
+}
 
 /** 画像ファイルパス */
 @minLength(1)
@@ -281,10 +422,88 @@ scalar ReloadEffort extends integer;
 scalar Sensation extends integer;
 
 /** スキルID */
+enum SkillId {
+  sword,
+  spear,
+  fist,
+  weight_bearing,
+  bow,
+  handgun,
+  rifle,
+  cannon,
+  exploration,
+  crafting,
+  smithing,
+  negotiation,
+  mechanic,
+  sprinting,
+  stealth,
+  night_vision,
+  cold_resist,
+  hunger_resist,
+  healing,
+  heavy_armor,
+  fire_resist,
+  thunder_resist,
+  chill_resist,
+  photon_resist,
+}
+
+/** スキルのカテゴリの id */
 @minLength(1)
 @maxLength(50)
 @pattern("^[a-z][a-z0-9_]*$")
-scalar SkillId extends string;
+scalar SkillCategoryId extends string;
+
+/** 熟練の効果倍率の id。技能と能力値から導く行動ごとの倍率を指す。怪我・病気・疲労・空腹による身体機能の低下は別に扱う */
+enum ProficiencyId {
+  fire_resist,
+  thunder_resist,
+  chill_resist,
+  photon_resist,
+  cold_progress,
+  hunger_progress,
+  healing_effect,
+  max_weight,
+  exploration,
+  enemy_vision,
+  night_vision,
+  move_cost,
+  craft_cost,
+  smith_quality,
+  buy_price,
+  sell_price,
+  heavy_armor,
+  sword_damage,
+  spear_damage,
+  fist_damage,
+  bow_damage,
+  handgun_damage,
+  rifle_damage,
+  cannon_damage,
+  sword_accuracy,
+  spear_accuracy,
+  fist_accuracy,
+  bow_accuracy,
+  handgun_accuracy,
+  rifle_accuracy,
+  cannon_accuracy,
+}
+
+/** 熟練の効果倍率のスキルLv1あたりの変化量。百分率 */
+@minValue(-100)
+@maxValue(100)
+scalar ProficiencyPerLevel extends integer;
+
+/** 能力値。スキルの成長の速さと熟練の効果倍率に効く */
+enum AbilityId {
+  str,
+  sen,
+  dex,
+  agi,
+  vit,
+  def,
+}
 
 /** スキルレベル */
 @minValue(0)
@@ -401,22 +620,22 @@ enum Material {
   LIQUID,
 }
 
-/** 攻撃種別 */
+/** 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する */
 enum AttackCategory {
   /** 素手 */
-  FIST,
+  fist,
   /** 剣 */
-  SWORD,
+  sword,
   /** 槍 */
-  SPEAR,
+  spear,
   /** 拳銃 */
-  HANDGUN,
+  handgun,
   /** ライフル */
-  RIFLE,
+  rifle,
   /** 砲 */
-  CANON,
+  cannon,
   /** 弓 */
-  BOW,
+  bow,
 }
 
 /** 装備部位 */
@@ -507,6 +726,8 @@ enum MovementPatternType {
   territorial,
   /** 群れ。同種族の仲間に寄る */
   swarm,
+  /** 随伴。プレイヤーに隣接するまで1歩ずつ近づく */
+  follow,
 }
 
 /** スプライト描画深度 */
@@ -523,35 +744,36 @@ enum SpriteDepth {
   Player: 4,
 }
 
-/** 遮蔽タイプ */
-enum ShelterType {
-  /** 遮蔽なし */
-  None: 0,
-  /** 部分遮蔽 */
-  Partial: 5,
-  /** 完全遮蔽 */
-  Full: 10,
+/** タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く */
+enum Shelter {
+  outdoor,
+  partial,
+  indoor,
 }
 
-/** 水タイプ */
-enum WaterType {
-  /** 水なし */
-  None: 0,
-  /** 水辺。移動ペナルティ小 */
-  Nearby: -5,
-  /** 水没。移動ペナルティ大 */
-  Submerged: -10,
+/** 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける */
+@minValue(0)
+@maxValue(100)
+scalar ShelterInfluencePercent extends integer;
+
+/** タイルが受ける水の影響 */
+enum WaterExposure {
+  /** 水のタイルの隣 */
+  nearby,
+  /** 水のタイルの上 */
+  submerged,
 }
 
-/** 植生タイプ */
-enum FoliageType {
-  /** 植生なし */
-  None: 0,
-  /** 草原。視界ペナルティ小 */
-  Grass: -1,
-  /** 森。視界ペナルティ大 */
-  Forest: -3,
+/** タイルの植生 */
+enum Foliage {
+  grass,
+  forest,
 }
+
+/** 水や植生がタイルの気温に足す補正。℃ */
+@minValue(-50)
+@maxValue(50)
+scalar TileTempModifier extends integer;
 
 /** 回復量の計算方式 */
 enum HealingValueType {

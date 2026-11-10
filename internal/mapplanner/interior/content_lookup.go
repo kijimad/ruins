@@ -11,9 +11,10 @@ import (
 
 // 内装レシピ引きの sentinel エラー。呼び出し側とテストが errors.Is で同定できるようにする。
 var (
-	errContentNotFound       = errors.New("interior content not found")
-	errFacilityNotRegistered = errors.New("interior facility not registered")
-	errFlavorContentMissing  = errors.New("interior flavor content missing")
+	errContentNotFound        = errors.New("interior content not found")
+	errFacilityNotRegistered  = errors.New("interior facility not registered")
+	errFlavorContentMissing   = errors.New("interior flavor content missing")
+	errInteriorProfileMissing = errors.New("interior profile missing")
 )
 
 // flavorContent は全施設共通のフレーバー装飾レシピを返す。施設レシピと直交する専用フィールドから引くので、
@@ -22,7 +23,7 @@ func flavorContent(raws oapi.Raws) (Content, error) {
 	if raws.FlavorContent == nil {
 		return Content{}, errFlavorContentMissing
 	}
-	return toContent(*raws.FlavorContent)
+	return toContent(raws, *raws.FlavorContent)
 }
 
 // contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。内装 content は数十件規模
@@ -32,7 +33,7 @@ func flavorContent(raws oapi.Raws) (Content, error) {
 func contentByID(raws oapi.Raws, id string) (Content, error) {
 	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
 		if ic.Id == id {
-			c, err := toContent(ic)
+			c, err := toContent(raws, ic)
 			if err != nil {
 				return Content{}, fmt.Errorf("interior content %q: %w", id, err)
 			}
@@ -103,22 +104,26 @@ func backRoomContent(raws oapi.Raws, id string) (Content, error) {
 }
 
 // toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の
-// 記述順をそのまま保つ。
-func toContent(ic oapi.InteriorContent) (Content, error) {
+// 記述順をそのまま保つ。placement を省いた Stuff は interiorRefs の既定の置き方で埋める。
+func toContent(raws oapi.Raws, ic oapi.InteriorContent) (Content, error) {
 	c := Content{ID: ic.Id}
 	for _, g := range raw.PtrSlice(ic.Groups) {
-		grp := Group{Style: GroupStyle(g.Style), Pick: int(deref(g.Pick))}
+		grp := Group{Style: g.Style, Pick: int(deref(g.Pick))}
 		for _, s := range g.Items {
 			amount, err := consts.ParseDice(s.Amount)
 			if err != nil {
 				return Content{}, fmt.Errorf("interior content %q ref %q amount: %w", ic.Id, s.Ref, err)
 			}
+			placement := deref(s.Placement)
+			if placement == PlaceDefault {
+				placement = defaultPlacement(raws, s.Ref)
+			}
 			grp.Items = append(grp.Items, Stuff{
-				Kind:       StuffKind(s.Kind),
+				Kind:       s.Kind,
 				Ref:        s.Ref,
 				Weight:     int(deref(s.Weight)),
 				Amount:     amount,
-				Placement:  Placement(deref(s.Placement)),
+				Placement:  placement,
 				Satellites: toSatellites(s.Satellites),
 				LootTable:  deref(s.LootTable),
 			})
@@ -147,7 +152,7 @@ func toSatellites(in *[]oapi.ContentSatellite) []Satellite {
 	}
 	out := make([]Satellite, 0, len(items))
 	for _, s := range items {
-		sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref, LootTable: deref(s.LootTable)}
+		sat := Satellite{Kind: s.Kind, Ref: s.Ref, LootTable: deref(s.LootTable)}
 		for _, o := range s.Offsets {
 			sat.Offsets = append(sat.Offsets, Vec{X: consts.Tile(o.X), Y: consts.Tile(o.Y)})
 		}

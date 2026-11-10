@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -29,7 +30,7 @@ func TestNewCubeMenuState_圧縮中は追従が有効で設備が無効(t *testi
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
+	world.Components.SoloAI.Get(cube).Movement = oapi.Stationary
 
 	st, err := NewCubeMenuState(cube)
 	require.NoError(t, err)
@@ -64,7 +65,7 @@ func TestNewCubeMenuState_展開中も追従を命じられ設備が有効(t *te
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
+	world.Components.SoloAI.Get(cube).Movement = oapi.Stationary
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 
 	st, err := NewCubeMenuState(cube)
@@ -88,20 +89,20 @@ func TestFollowChoice_追従と待機を切り替える(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(cube).Movement = gc.SoloStationary
+	world.Components.SoloAI.Get(cube).Movement = oapi.Stationary
 
 	follow := followChoice(world, cube)
 	assert.Equal(t, query.T(world, "Follow me"), follow.Label, "待機中は追従を命じる")
 	trans, err := follow.Run(world)
 	require.NoError(t, err)
-	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement)
+	assert.Equal(t, oapi.Follow, world.Components.SoloAI.Get(cube).Movement)
 	assert.Equal(t, es.TransNone, trans.Type, "設定の切り替えなのでメニューは閉じない")
 
 	stay := followChoice(world, cube)
 	assert.Equal(t, query.T(world, "Stay here"), stay.Label, "追従中は待機を命じる")
 	_, err = stay.Run(world)
 	require.NoError(t, err)
-	assert.Equal(t, gc.SoloStationary, world.Components.SoloAI.Get(cube).Movement)
+	assert.Equal(t, oapi.Stationary, world.Components.SoloAI.Get(cube).Movement)
 }
 
 func TestDeployChoice_展開しても追従の方針を保つ(t *testing.T) {
@@ -114,7 +115,7 @@ func TestDeployChoice_展開しても追従の方針を保つ(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.Deployed.Has(cube))
-	assert.Equal(t, gc.SoloFollow, world.Components.SoloAI.Get(cube).Movement)
+	assert.Equal(t, oapi.Follow, world.Components.SoloAI.Get(cube).Movement)
 }
 
 func TestDeployChoice_展開できないときログを出しメニューを閉じる(t *testing.T) {

@@ -42,10 +42,11 @@ func (sys *WeatherSystem) Update(world w.World) error {
 	rngNext := rand.New(rand.NewPCG(band.RunSeed, turn))
 	rngSpell := rand.New(rand.NewPCG(band.RunSeed^weatherSpellStreamKey, turn))
 
+	defs := world.Resources.WeatherDefs
 	prev := weather.Current
-	next := query.NextWeather(prev, season, northDepth, rngNext)
+	next := query.NextWeather(defs, prev, season, northDepth, rngNext)
 	weather.Current = next
-	weather.UntilTurn = gt.TotalTurns + query.RollSpellTurns(next, season, northDepth, rngSpell)
+	weather.UntilTurn = gt.TotalTurns + query.RollSpellTurns(defs, next, season, northDepth, rngSpell)
 
 	if next != prev {
 		name := query.T(world, next.String())
@@ -53,7 +54,7 @@ func (sys *WeatherSystem) Update(world w.World) error {
 			Markup(gamelog.Tag("system", query.T(world, "The weather changed to %s.", name))).
 			Log()
 		// 視程が動いたら、移動を待たずその場で視界を再計算させる
-		if next.Effect().VisionDelta != prev.Effect().VisionDelta {
+		if defs.Kinds[next].Effect.VisionDelta != defs.Kinds[prev].Effect.VisionDelta {
 			query.GetVisionState(world).RequestUpdate()
 		}
 	}

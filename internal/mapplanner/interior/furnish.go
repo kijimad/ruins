@@ -29,7 +29,11 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 	}
 	site := planSite(footprint, seed, door, fac)
 
-	prof := rollProfile(seed)          // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
+	table, err := newProfileTable(raws)
+	if err != nil {
+		return Site{}, nil, err
+	}
+	prof := rollProfile(table, seed)   // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
 	flavor, err := flavorContent(raws) // 全室共通なのでループ外で1度だけ引く
 	if err != nil {
 		return Site{}, nil, err
@@ -67,7 +71,7 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 	// hero 部屋。稀な1棟の主室中央へ landmark を1つ据え、記憶に残る見せ場にする。主室中央には食卓など
 	// 中央配置の什器が既にあることが多いので、目玉は showpiece としてそのタイルの既存 prop を退けて1つだけ
 	// 置き、スプライトの重なりを防ぐ。占有は1タイルのままなので歩行性は変わらない
-	if ref, ok := heroCenterpiece(seed); ok {
+	if ref, ok := heroCenterpiece(table, seed); ok {
 		if pos, ok := heroSpot(site); ok {
 			kept := flavored[:0]
 			for _, p := range flavored {
@@ -76,7 +80,7 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 				}
 				kept = append(kept, p)
 			}
-			kept = append(kept, Placed{Kind: KindDecor, Ref: ref, Pos: pos})
+			kept = append(kept, Placed{Kind: oapi.Decor, Ref: ref, Pos: pos})
 			flavored = kept
 		}
 	}

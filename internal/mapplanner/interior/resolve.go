@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // Resolve は Content の各 Group を解決し、置くべき Selection の列を決定的に返す。
@@ -22,11 +23,11 @@ func (c Content) Resolve(seed uint64) []Selection {
 // 網羅漏れは default を置かず exhaustive linter に強制させ、到達しない末尾は panic で落とす。
 func resolveGroup(rng *rand.Rand, g Group) []Selection {
 	switch g.Style {
-	case PickEach:
+	case oapi.PickEach:
 		return pickEach(rng, g.Items)
-	case PickOne:
+	case oapi.PickOne:
 		return pickDistinct(rng, g.Items, 1)
-	case PickN:
+	case oapi.PickN:
 		return pickDistinct(rng, g.Items, g.Pick)
 	}
 	panic("unknown GroupStyle: " + string(g.Style))
@@ -65,14 +66,13 @@ func pickDistinct(rng *rand.Rand, items []Stuff, n int) []Selection {
 	return out
 }
 
-// selectionOf は Stuff と個数から Selection を組む。置き方は archetype 既定で補い、Placement を空にした
-// レシピもここで具体化する。衛星束も引き継ぐ。
+// selectionOf は Stuff と個数から Selection を組む。置き方の無い Stuff は全域へ倒す。衛星束も引き継ぐ。
 func selectionOf(it Stuff, count int) Selection {
 	return Selection{
 		Kind:       it.Kind,
 		Ref:        it.Ref,
 		Count:      count,
-		Placement:  placementOf(it.Ref, it.Placement),
+		Placement:  placementOf(it.Placement),
 		Satellites: it.Satellites,
 		LootTable:  it.LootTable,
 	}
@@ -84,6 +84,14 @@ func weightOf(it Stuff) float64 {
 		return 1
 	}
 	return float64(it.Weight)
+}
+
+// placementOf は配置指示の置き方を決める。Stuff の置き方はレシピの明示か interiorRefs の既定で、それも無ければ全域とする。
+func placementOf(p oapi.Placement) oapi.Placement {
+	if p == PlaceDefault {
+		return oapi.FullArea
+	}
+	return p
 }
 
 // choice は値と抽選の重みの組。

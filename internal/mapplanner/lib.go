@@ -47,6 +47,8 @@ type MetaPlan struct {
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []oapi.Tile
+	// Environments は Tiles と同じ並びのタイルの環境。EnvironmentPlanner が計算する。計算前は nil
+	Environments []gc.TileEnvironment
 	// NextPortals は次の階へ進むポータルリスト
 	NextPortals []consts.Coord[consts.Tile]
 	// NPCs は配置予定のNPCリスト

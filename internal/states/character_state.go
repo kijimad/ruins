@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -303,22 +304,22 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 		return query.SortEntities(world, items)
 	}
 
-	var target gc.EquipmentType
+	var target oapi.EquipmentCategory
 	switch slotNumber {
 	case gc.SlotHead:
-		target = gc.EquipmentHead
+		target = oapi.EquipmentCategoryHEAD
 	case gc.SlotTorso:
-		target = gc.EquipmentTorso
+		target = oapi.EquipmentCategoryTORSO
 	case gc.SlotArms:
-		target = gc.EquipmentArms
+		target = oapi.EquipmentCategoryARMS
 	case gc.SlotHands:
-		target = gc.EquipmentHands
+		target = oapi.EquipmentCategoryHANDS
 	case gc.SlotLegs:
-		target = gc.EquipmentLegs
+		target = oapi.EquipmentCategoryLEGS
 	case gc.SlotFeet:
-		target = gc.EquipmentFeet
+		target = oapi.EquipmentCategoryFEET
 	case gc.SlotJewelry:
-		target = gc.EquipmentJewelry
+		target = oapi.EquipmentCategoryJEWELRY
 	default:
 		return query.SortEntities(world, items)
 	}
@@ -355,15 +356,15 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {
 	// 症状の無い部位は概要だけ出す
 	if item.Condition == nil {
-		return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, "No injury or illness")}
+		return overlay.DetailContent{Name: query.BodyPartName(world, item.BodyPart), Desc: query.T(world, "No injury or illness")}
 	}
 	cond := item.Condition
 	// 導出不調は Timer も治療状態も持たない。進行度でなく重症度と、下げる身体機能だけを出す
-	if gc.ConditionIsDerived(cond.Type) {
+	if world.Resources.ConditionDefs.IsDerived(cond.Type) {
 		return derivedConditionDetail(world, cond)
 	}
 
-	pain, bodyFunc, drop := gc.ConditionBodyFuncImpact(cond, item.BodyPart)
+	pain, bodyFunc, drop := world.Resources.ConditionDefs.BodyFuncImpact(cond, item.BodyPart)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
@@ -376,7 +377,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf("-%d", drop)})
 	}
 	// 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
-	if bd := gc.ConditionBloodDrop(cond); bd > 0 {
+	if bd := world.Resources.ConditionDefs.BloodDrop(cond); bd > 0 {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Blood loss"), Value: fmt.Sprintf("-%d", bd)})
 	}
 	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
@@ -385,7 +386,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),
-		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
+		Desc: query.ConditionDescription(world, cond.Type),
 		Rows: rows,
 	}
 }
@@ -397,7 +398,7 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 		{Label: query.T(world, "Severity"), Value: query.T(world, cond.Severity.String())},
 	}
 	// 全身性なので意識と代謝を drop ぶん下げる
-	if _, _, drop := gc.ConditionBodyFuncImpact(cond, gc.BodyPartWholeBody); drop > 0 {
+	if _, _, drop := world.Resources.ConditionDefs.BodyFuncImpact(cond, gc.BodyPartWholeBody); drop > 0 {
 		rows = append(rows,
 			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncConsciousness)), Value: fmt.Sprintf("-%d", drop)},
 			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncMetabolism)), Value: fmt.Sprintf("-%d", drop)},
@@ -405,7 +406,7 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, cond.Type),
-		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
+		Desc: query.ConditionDescription(world, cond.Type),
 		Rows: rows,
 	}
 }

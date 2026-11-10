@@ -69,13 +69,13 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		hs := &gc.HealthStatus{}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:  gc.ConditionHypothermia,
+			Type:  gc.ConditionType("hypothermia"),
 			Timer: 50,
 		})
 
 		updateTemperatureConditions(world, hs, false, 100)
 
-		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 49.75, cond.Timer, 1e-9)
 	})
@@ -87,7 +87,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 
 		updateTemperatureConditions(world, hs, false, 100)
 
-		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia"))
 		require.NotNil(t, cond)
 		assert.InDelta(t, 0.5, cond.Timer, 1e-9, "帯の縁0.25に超過1°Cぶん0.25を足す")
 	})
@@ -101,8 +101,8 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		updateTemperatureConditions(world, shallow, false, 100)
 		updateTemperatureConditions(world, deep, false, 100)
 
-		shallowTimer := shallow.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia).Timer
-		deepTimer := deep.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia).Timer
+		shallowTimer := shallow.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")).Timer
+		deepTimer := deep.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")).Timer
 		assert.Less(t, shallowTimer, deepTimer)
 		assert.InDelta(t, 1.0, deepTimer, 1e-9, "超過3°Cで上限1.0に達する")
 	})
@@ -112,7 +112,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		hs := &gc.HealthStatus{BodyTempOffset: -3.0}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeverityNone,
 			Timer:    24.75,
 		})
@@ -159,13 +159,13 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		// まず体温が下がり、正常帯の内は状態が付かない
 		hs := world.Components.HealthStatus.Get(player)
 		assert.Negative(t, hs.BodyTempOffset)
-		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia), "正常帯の内はタイマーが進まない")
+		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")), "正常帯の内はタイマーが進まない")
 
 		// 冷やし続けると正常帯を割って低体温が付く
 		for range 25 {
 			require.NoError(t, sys.Update(world))
 		}
-		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia"))
 		require.NotNil(t, cond)
 		assert.Greater(t, cond.Timer, 0.0)
 	})
@@ -187,7 +187,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 
 		hs := world.Components.HealthStatus.Get(enemy)
 		assert.Zero(t, hs.BodyTempOffset, "敵は環境で冷えず体温オフセットが動かない")
-		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia), "敵は低体温にならない")
+		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")), "敵は低体温にならない")
 	})
 
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {
@@ -288,7 +288,7 @@ func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
 	// Timer を 100 にすると1ターンの体温変動後も必ず Severe に留まるので、環境に依らず判定できる。
 	setHypothermiaTimer := func(hs *gc.HealthStatus, timer float64) {
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.TimerToSeverity(timer),
 			Timer:    timer,
 		})
@@ -340,20 +340,15 @@ func TestCalcBodyTempRate_公開ラッパーは内部計算に委譲する(t *te
 func TestGetWorseningMessage(t *testing.T) {
 	t.Parallel()
 
-	t.Run("低体温以外は空", func(t *testing.T) {
-		t.Parallel()
-		assert.Empty(t, getWorseningMessage(gc.ConditionFracture, gc.SeverityMedium))
-	})
-
 	t.Run("Noneは空", func(t *testing.T) {
 		t.Parallel()
-		assert.Empty(t, getWorseningMessage(gc.ConditionHypothermia, gc.SeverityNone))
+		assert.Empty(t, getWorseningMessage(gc.SeverityNone))
 	})
 
 	t.Run("Minor以上は非空", func(t *testing.T) {
 		t.Parallel()
 		for _, sev := range []gc.Severity{gc.SeverityMinor, gc.SeverityMedium, gc.SeveritySevere} {
-			assert.NotEmpty(t, getWorseningMessage(gc.ConditionHypothermia, sev))
+			assert.NotEmpty(t, getWorseningMessage(sev))
 		}
 	})
 }
@@ -361,26 +356,21 @@ func TestGetWorseningMessage(t *testing.T) {
 func TestGetRecoveryMessage(t *testing.T) {
 	t.Parallel()
 
-	t.Run("低体温以外は空", func(t *testing.T) {
-		t.Parallel()
-		assert.Empty(t, getRecoveryMessage(gc.ConditionFracture, gc.SeverityMinor))
-	})
-
 	t.Run("Severeは空", func(t *testing.T) {
 		t.Parallel()
-		assert.Empty(t, getRecoveryMessage(gc.ConditionHypothermia, gc.SeveritySevere))
+		assert.Empty(t, getRecoveryMessage(gc.SeveritySevere))
 	})
 
 	t.Run("Minor・Mediumは非空", func(t *testing.T) {
 		t.Parallel()
 		for _, sev := range []gc.Severity{gc.SeverityMinor, gc.SeverityMedium} {
-			assert.NotEmpty(t, getRecoveryMessage(gc.ConditionHypothermia, sev))
+			assert.NotEmpty(t, getRecoveryMessage(sev))
 		}
 	})
 
 	t.Run("Noneは低体温が消えたことを告げる非空メッセージ", func(t *testing.T) {
 		t.Parallel()
-		assert.NotEmpty(t, getRecoveryMessage(gc.ConditionHypothermia, gc.SeverityNone))
+		assert.NotEmpty(t, getRecoveryMessage(gc.SeverityNone))
 	})
 }
 
@@ -390,21 +380,14 @@ func TestLogTemperatureChange(t *testing.T) {
 	t.Run("悪化でメッセージがあればログを1件出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeverityMinor, gc.SeverityNone)
+		logTemperatureChange(world, gc.SeverityMinor, gc.SeverityNone)
 		assert.Equal(t, 1, query.GetGameLog(world).Count())
-	})
-
-	t.Run("低体温以外はログを出さない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		logTemperatureChange(world, gc.ConditionFracture, gc.SeverityMedium, gc.SeverityMinor)
-		assert.Equal(t, 0, query.GetGameLog(world).Count())
 	})
 
 	t.Run("回復方向でメッセージがあればログを出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeverityNone, gc.SeverityMinor)
+		logTemperatureChange(world, gc.SeverityNone, gc.SeverityMinor)
 		assert.Equal(t, 1, query.GetGameLog(world).Count())
 	})
 
@@ -412,7 +395,7 @@ func TestLogTemperatureChange(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// current <= prev のとき回復メッセージを見る。Severe は回復メッセージが空なのでログを出さない
-		logTemperatureChange(world, gc.ConditionHypothermia, gc.SeveritySevere, gc.SeveritySevere)
+		logTemperatureChange(world, gc.SeveritySevere, gc.SeveritySevere)
 		assert.Equal(t, 0, query.GetGameLog(world).Count())
 	})
 }

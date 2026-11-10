@@ -69,9 +69,9 @@ func TestFindAmmoInInventory_口径タグが一致するバックパック内弾
 	owner := world.ECS.NewEntity()
 	ammo := world.ECS.NewEntity()
 	world.Components.LocationInBackpack.Add(ammo, &gc.LocationInBackpack{Owner: owner})
-	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: oapi.N9mm})
+	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: oapi.AmmoTagN9mm})
 
-	got, found := query.FindAmmoInInventory(world, oapi.N9mm)
+	got, found := query.FindAmmoInInventory(world, oapi.AmmoTagN9mm)
 	assert.True(t, found)
 	assert.Equal(t, ammo, got)
 }
@@ -83,9 +83,9 @@ func TestFindAmmoInInventory_口径タグが一致しなければ見つからな
 	owner := world.ECS.NewEntity()
 	ammo := world.ECS.NewEntity()
 	world.Components.LocationInBackpack.Add(ammo, &gc.LocationInBackpack{Owner: owner})
-	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: oapi.N9mm})
+	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: oapi.AmmoTagN9mm})
 
-	_, found := query.FindAmmoInInventory(world, oapi.Rifle)
+	_, found := query.FindAmmoInInventory(world, oapi.AmmoTagRifle)
 	assert.False(t, found)
 }
 
@@ -93,7 +93,7 @@ func TestFindAmmoInInventory_該当が無ければゼロ値エンティティを
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	got, found := query.FindAmmoInInventory(world, oapi.Shell)
+	got, found := query.FindAmmoInInventory(world, oapi.AmmoTagShell)
 	assert.False(t, found)
 	assert.Zero(t, got)
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/crashreport"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -178,6 +179,19 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 		return w.World{}, err
 	}
 	world.Resources.RawMaster = rw
+	defs, err := raw.NewConditionDefs(rw)
+	if err != nil {
+		return w.World{}, err
+	}
+	world.Resources.ConditionDefs = defs
+	skillDefs, err := raw.NewSkillDefs(rw)
+	if err != nil {
+		return w.World{}, err
+	}
+	world.Resources.SkillDefs = skillDefs
+	world.Resources.WeatherDefs = raw.NewWeatherDefs(rw)
+	world.Resources.TileEnvDefs = raw.NewTileEnvDefs(rw)
+	world.Resources.NeedDefs = raw.NewNeedDefs(rw)
 
 	// スプライトシートを読み込む
 	spriteSheets, err := loader.LoadSpriteSheets(rw)

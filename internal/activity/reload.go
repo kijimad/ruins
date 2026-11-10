@@ -161,10 +161,9 @@ func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 	}
 
 	// 武器スキルレベルを加算
-	skillID, ok := gc.WeaponSkillID(fire.AttackCategory)
-	if ok {
+	if weapon, ok := world.Resources.SkillDefs.Weapon(fire.AttackCategory); ok {
 		if world.Components.Skills.Has(actor) {
-			effort += world.Components.Skills.Get(actor).Get(skillID).Value
+			effort += world.Components.Skills.Get(actor).Get(weapon.Skill).Value
 		}
 	}
 

@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -167,7 +168,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(sword, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(sword, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackSword,
 	})
 
 	// 武器2: ハンドガン
@@ -176,7 +177,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(handgun, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(handgun, &gc.Melee{
 		Accuracy: 85, Damage: 12, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackHandgun,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackHandgun,
 	})
 
 	// 防具: 西洋鎧
@@ -185,7 +186,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(armor, &gc.LocationInBackpack{Owner: player})
 	world.Components.Wearable.Add(armor, &gc.Wearable{
 		Defense:           15,
-		EquipmentCategory: gc.EquipmentTorso,
+		EquipmentCategory: oapi.EquipmentCategoryTORSO,
 		EquipBonus: gc.EquipBonus{
 			Vitality: 2, Strength: 1, Sensation: 0, Dexterity: 0, Agility: -1,
 		},
@@ -196,10 +197,10 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.Name.Add(potion, &gc.Name{Name: "回復薬"})
 	world.Components.LocationInBackpack.Add(potion, &gc.LocationInBackpack{Owner: player})
 	world.Components.Consumable.Add(potion, &gc.Consumable{
-		UsableScene: gc.UsableSceneAny,
+		UsableScene: oapi.ANY,
 		TargetType: gc.TargetType{
-			TargetGroup: gc.TargetGroupAlly,
-			TargetNum:   gc.TargetSingle,
+			TargetGroup: oapi.TargetGroupALLY,
+			TargetNum:   oapi.SINGLE,
 		},
 	})
 	world.Components.ProvidesHealing.Add(potion, &gc.ProvidesHealing{

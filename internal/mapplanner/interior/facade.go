@@ -33,7 +33,7 @@ func facadeElements(s Site, fac oapi.Facility, dmg damageLevel) []Placed {
 			continue
 		}
 		// 窓とシャッターは壁付きの設備なので前壁のタイルに載せる
-		out = append(out, Placed{Kind: KindDecor, Ref: winRef, Pos: wall.at(a)})
+		out = append(out, Placed{Kind: oapi.Decor, Ref: winRef, Pos: wall.at(a)})
 	}
 	// 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力。看板は独立物なので壁に埋めると不自然。
 	// 前壁の1マス外の前庭タイルへ立て、店の正面に置く。前庭が無い建物では立てない
@@ -47,7 +47,7 @@ func facadeElements(s Site, fac oapi.Facility, dmg damageLevel) []Placed {
 			w := wall.at(a)
 			yard := Vec{X: w.X + outward.X, Y: w.Y + outward.Y}
 			if s.Garden[yard] {
-				out = append(out, Placed{Kind: KindDecor, Ref: "sign", Pos: yard})
+				out = append(out, Placed{Kind: oapi.Decor, Ref: "sign", Pos: yard})
 				break
 			}
 		}

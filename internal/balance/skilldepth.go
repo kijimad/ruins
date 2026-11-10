@@ -41,12 +41,16 @@ func SkillDepthProfileFor(master oapi.Raws, weaponName, enemyTableName string, d
 	if err != nil {
 		return SkillDepthProfile{}, err
 	}
+	defs, err := raw.NewSkillDefs(master)
+	if err != nil {
+		return SkillDepthProfile{}, err
+	}
 	danger := int(query.DangerLevelForDay(day))
 
 	prof := SkillDepthProfile{Weapon: weaponName, MinEffectiveGap: math.Inf(1)}
 	prevTTK := math.NaN()
 	for level := 0; level <= skill.MaxLevel(); level++ {
-		mult := SkillDamagePercent(level)
+		mult := SkillDamagePercent(defs, level)
 		ttk, ok := poolPlayerTTK(master, player, weapon, enemyTableName, danger, mult)
 		if !ok {
 			continue

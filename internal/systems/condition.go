@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -14,10 +15,10 @@ import (
 // conditionMinorNaturalRecoveryPerTurn は RecoverAfterTend の不調が発症前のとき代謝によらず固定で癒える1ターンの量
 const conditionMinorNaturalRecoveryPerTurn = 1
 
-// managedConditionDef は ConditionSystem が扱う不調の定義を返す。定義は components の conditionDefs に集約し、
+// managedConditionDef は ConditionSystem が扱う不調の定義を返す。
 // Recovery を持つ症状だけを管轄する。低体温は Recovery を持たず TemperatureSystem 管轄なので ok=false
-func managedConditionDef(ct gc.ConditionType) (gc.ConditionDef, bool) {
-	def, ok := gc.ConditionDefFor(ct)
+func managedConditionDef(defs gc.ConditionDefs, ct gc.ConditionType) (gc.ConditionDef, bool) {
+	def, ok := defs.Def(ct)
 	if !ok || def.Recovery == "" {
 		return gc.ConditionDef{}, false
 	}
@@ -43,6 +44,7 @@ type conditionDamage struct {
 // Update は怪我と病気の回復軌道を進め、重症の不調で HP を削る
 func (sys *ConditionSystem) Update(world w.World) error {
 	var toDamage []conditionDamage
+	defs := world.Resources.ConditionDefs
 
 	healthQuery := query.ActiveFilter1[gc.HealthStatus](world).Query()
 	for healthQuery.Next() {
@@ -55,7 +57,7 @@ func (sys *ConditionSystem) Update(world w.World) error {
 			part := &hs.Parts[p]
 			for i := range part.Conditions {
 				cond := &part.Conditions[i]
-				def, ok := managedConditionDef(cond.Type)
+				def, ok := managedConditionDef(defs, cond.Type)
 				if !ok {
 					continue
 				}
@@ -68,14 +70,14 @@ func (sys *ConditionSystem) Update(world w.World) error {
 
 			// Timer が 0 になった管理下の不調を除去する
 			part.Conditions = slices.DeleteFunc(part.Conditions, func(c gc.HealthCondition) bool {
-				_, managed := managedConditionDef(c.Type)
+				_, managed := managedConditionDef(defs, c.Type)
 				return managed && c.Timer == 0
 			})
 		}
 
 		// 血液量が危険域まで落ちたら、じわじわ HP を削る。失血・凍死・衰弱はすべて血液量経由で死なせる
 		if hasHP {
-			if drain, cause := hs.BloodLossHPDrain(); drain > 0 {
+			if drain, cause := hs.BloodLossHPDrain(defs); drain > 0 {
 				toDamage = append(toDamage, conditionDamage{entity: entity, amount: drain, cause: cause})
 			}
 		}
@@ -98,7 +100,7 @@ func metabScale(rec int, metab consts.Percent) float64 {
 // 負なら回復、正なら悪化。int の目盛りで計算し、UpdateTimer の境界で float64 にする。
 func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab consts.Percent) float64 {
 	switch def.Recovery {
-	case gc.RecoverAfterTend:
+	case oapi.RecoverAfterTend:
 		if cond.TendQuality > 0 {
 			return -float64(cond.TendQuality.ApplyInt(def.RecoverPer))
 		}
@@ -107,7 +109,7 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 			return -float64(conditionMinorNaturalRecoveryPerTurn)
 		}
 		return 0
-	case gc.ProgressUntilTend:
+	case oapi.ProgressUntilTend:
 		if cond.TendQuality == 0 {
 			return float64(def.WorsenPer)
 		}
@@ -115,7 +117,7 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 		// 不調が意識を下げ自分の回復を鈍らせても、整数切り捨てで治癒が停止しないようにする
 		rec := cond.TendQuality.ApplyInt(def.RecoverPer)
 		return -metabScale(rec, metab)
-	case gc.RecoverOverTime:
+	case oapi.RecoverOverTime:
 		// 自己限定。未治療でも代謝で自然に治る。治療すればその質でさらに速まる
 		rec := def.RecoverPer
 		if cond.TendQuality > 0 {

@@ -1,47 +1,47 @@
 package components
 
-// ShelterType はタイルの囲われの度合いを表す。屋内外の判定に使い、温度には
-// 世界温度の受け方を決める緩和度として効く。値は識別子で、そのまま℃にはならない
-type ShelterType int
+import "github.com/kijimaD/ruins/internal/oapi"
 
-// 囲われの度合い
-const (
-	ShelterNone    ShelterType = 0  // 屋外
-	ShelterPartial ShelterType = 5  // 半屋外。世界温度を中間の強さで受ける
-	ShelterFull    ShelterType = 10 // 屋内。世界温度を緩和して受ける
-)
-
-// WaterType は水の種類を表す
-// 値は気温修正値（°C）を直接表す
-type WaterType int
-
-// 水による気温修正値
-const (
-	WaterNone      WaterType = 0   // なし
-	WaterNearby    WaterType = -5  // 水辺
-	WaterSubmerged WaterType = -10 // 水中
-)
-
-// FoliageType は植生の種類を表す
-// 値は気温修正値（°C）を直接表す
-type FoliageType int
-
-// 植生による気温修正値
-const (
-	FoliageNone   FoliageType = 0  // なし
-	FoliageGrass  FoliageType = -1 // 草原
-	FoliageForest FoliageType = -3 // 森
-)
-
-// TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水辺・植生。
+// TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水・植生。
 // 温度計算の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする
 type TileEnvironment struct {
-	Shelter ShelterType
-	Water   WaterType
-	Foliage FoliageType
+	Shelter oapi.Shelter
+	Water   oapi.WaterExposure // ゼロ値は水の影響なし
+	Foliage oapi.Foliage       // ゼロ値は植生なし
 }
 
-// Total は加算℃の気温修正の合計を返す。Shelter は加算℃でなく緩和度なので含まない
-func (tt *TileEnvironment) Total() int {
-	return int(tt.Water) + int(tt.Foliage)
+// ShelterDef は囲われの度合いごとの、世界温度の受け方と表示名。raw の shelterEffects の1行から組み立てる
+type ShelterDef struct {
+	Name             string // 表示名 msgid
+	AnchorTemp       int    // 世界温度を引き寄せる先の温度
+	InfluencePercent int    // 世界温度を受ける割合。100 なら世界温度をそのまま受ける
+}
+
+// TileEnvDefs は囲われの受け方と、水と植生がタイルの気温に足す補正の表。読み込み時に raw から1度だけ組み立て、以後は変えない
+type TileEnvDefs struct {
+	Shelters map[oapi.Shelter]ShelterDef
+	Water    map[oapi.WaterExposure]int
+	Foliage  map[oapi.Foliage]int
+}
+
+// ShelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す。表に無い囲われは世界温度をそのまま受ける
+func (d TileEnvDefs) ShelteredWorldTemp(shelter oapi.Shelter, worldTemp int) int {
+	def, ok := d.Shelters[shelter]
+	if !ok {
+		return worldTemp
+	}
+	return def.AnchorTemp + (worldTemp-def.AnchorTemp)*def.InfluencePercent/100
+}
+
+// ShelterName は囲われの度合いの表示名 msgid を返す。表に無ければ id をそのまま返す
+func (d TileEnvDefs) ShelterName(shelter oapi.Shelter) string {
+	if def, ok := d.Shelters[shelter]; ok {
+		return def.Name
+	}
+	return string(shelter)
+}
+
+// TempModifier は水と植生による加算℃の合計を返す。囲われは加算℃でなく緩和度なので含まない
+func (d TileEnvDefs) TempModifier(env TileEnvironment) int {
+	return d.Water[env.Water] + d.Foliage[env.Foliage]
 }

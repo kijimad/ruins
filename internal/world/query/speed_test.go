@@ -106,7 +106,7 @@ func TestCalculateSpeed(t *testing.T) {
 		// 低体温を付ける。Add で hs は格納先へコピーされ別物になるので、
 		// ローカルの hs でなく Get で格納先を取り直して書き換える
 		world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
-			Type:     gc.ConditionHypothermia,
+			Type:     gc.ConditionType("hypothermia"),
 			Severity: gc.SeverityMedium,
 		})
 

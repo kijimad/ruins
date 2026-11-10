@@ -83,7 +83,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	const minVisionTiles consts.Tile = 8
 	weatherVision := 0
 	if query.IsOnOverworld(world) {
-		weatherVision = query.GetWeather(world).Current.Effect().VisionDelta
+		weatherVision = world.Resources.WeatherDefs.Kinds[query.GetWeather(world).Current].Effect.VisionDelta
 	}
 	effectiveTiles := max(consts.VisionRadiusTiles+consts.Tile(weatherVision), minVisionTiles)
 	visionRadius := consts.WorldPixel(effectiveTiles) * consts.TileSize

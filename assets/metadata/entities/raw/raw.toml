@@ -1,3 +1,87 @@
+[[attackTypes]]
+  accuracy = "sword_accuracy"
+  damage = "sword_damage"
+  id = "sword"
+  injury = "laceration"
+  skill = "sword"
+
+[[attackTypes]]
+  accuracy = "spear_accuracy"
+  damage = "spear_damage"
+  id = "spear"
+  injury = "laceration"
+  skill = "spear"
+
+[[attackTypes]]
+  accuracy = "fist_accuracy"
+  damage = "fist_damage"
+  id = "fist"
+  injury = "fracture"
+  skill = "fist"
+
+[[attackTypes]]
+  accuracy = "bow_accuracy"
+  damage = "bow_damage"
+  id = "bow"
+  injury = "laceration"
+  skill = "bow"
+
+[[attackTypes]]
+  accuracy = "handgun_accuracy"
+  damage = "handgun_damage"
+  id = "handgun"
+  injury = "laceration"
+  skill = "handgun"
+
+[[attackTypes]]
+  accuracy = "rifle_accuracy"
+  damage = "rifle_damage"
+  id = "rifle"
+  injury = "laceration"
+  skill = "rifle"
+
+[[attackTypes]]
+  accuracy = "cannon_accuracy"
+  damage = "cannon_damage"
+  id = "cannon"
+  injury = "fracture"
+  skill = "cannon"
+
+[[bodyParts]]
+  hitWeight = 2.0
+  id = "head"
+  name = "Head"
+
+[[bodyParts]]
+  hitWeight = 4.0
+  id = "torso"
+  name = "Torso"
+
+[[bodyParts]]
+  hitWeight = 3.0
+  id = "arm"
+  name = "Arm"
+
+[[bodyParts]]
+  hitWeight = 1.0
+  id = "hand"
+  name = "Hand"
+
+[[bodyParts]]
+  hitWeight = 3.0
+  id = "leg"
+  name = "Leg"
+
+[[bodyParts]]
+  hitWeight = 1.0
+  id = "foot"
+  name = "Foot"
+
+[[bodyParts]]
+  hitWeight = 0.0
+  id = "whole_body"
+  name = "Whole body"
+
 [[commandTables]]
   id = "bat"
   name = "コウモリ"
@@ -897,6 +981,75 @@
   [[commandTables.entries]]
     id = "blind_powder"
     weight = 2
+
+[[conditions]]
+  bloodDropPerSeverity = 22
+  bodyFuncDropPerSeverity = 10
+  cause = "frozen"
+  description = "The body is dangerously cold. Warm up to recover."
+  id = "hypothermia"
+  name = "Hypothermia"
+  onset = "cold"
+  painPerSeverity = 6
+
+[[conditions]]
+  bodyFuncDropPerSeverity = 20
+  description = "A broken bone. It will not heal until treated."
+  id = "fracture"
+  name = "Fracture"
+  painPerSeverity = 18
+  parts = ["arm", "hand", "leg", "foot"]
+  recoverPer = 1
+  recovery = "recover_after_tend"
+
+[[conditions]]
+  bloodDropPerSeverity = 25
+  bodyFuncDropPerSeverity = 8
+  cause = "blood_loss"
+  description = "An open wound. It will not heal until treated."
+  id = "laceration"
+  name = "Laceration"
+  painPerSeverity = 8
+  recoverPer = 2
+  recovery = "recover_after_tend"
+
+[[conditions]]
+  bloodDropPerSeverity = 25
+  bodyFuncDropPerSeverity = 10
+  cause = "illness"
+  description = "It worsens while untreated and drains HP when severe."
+  id = "liver_illness"
+  name = "Liver illness"
+  painPerSeverity = 4
+  recoverPer = 1
+  recovery = "progress_until_tend"
+  worsenPer = 2
+
+[[conditions]]
+  bodyFuncDropPerSeverity = 12
+  description = "Nausea from bad food. It clears on its own over time."
+  id = "food_poisoning"
+  name = "Food poisoning"
+  onset = "rotten_food"
+  painPerSeverity = 5
+  recoverPer = 2
+  recovery = "recover_over_time"
+
+[[conditions]]
+  bodyFuncDropPerSeverity = 10
+  description = "Worn out from lack of rest. Sleep to recover."
+  id = "exhaustion"
+  name = "Exhaustion"
+  onset = "fatigue"
+  painPerSeverity = 0
+
+[[conditions]]
+  bodyFuncDropPerSeverity = 10
+  description = "Weakened by hunger. Eat to recover."
+  id = "malnutrition"
+  name = "Malnutrition"
+  onset = "hunger"
+  painPerSeverity = 0
 
 [[dropTables]]
   id = "bat"
@@ -2966,6 +3119,28 @@
   facility = "depot"
   fallback = "depot_backroom"
 
+[[fatigueStages]]
+  from = 0.0
+  id = "rested"
+  name = "Rested"
+
+[[fatigueStages]]
+  from = 0.3
+  id = "normal"
+  name = "Normal"
+
+[[fatigueStages]]
+  from = 0.5
+  id = "tired"
+  name = "Tired"
+  severity = "minor"
+
+[[fatigueStages]]
+  from = 0.8
+  id = "exhausted"
+  name = "Exhausted"
+  severity = "medium"
+
 [flavorContent]
   id = "flavor"
 
@@ -2985,6 +3160,36 @@
       placement = "wall"
       ref = "candle"
       weight = 1
+
+[[foliageEffects]]
+  id = "grass"
+  tempModifier = -1
+
+[[foliageEffects]]
+  id = "forest"
+  tempModifier = -3
+
+[[hungerStages]]
+  from = 0.95
+  id = "satiated"
+  name = "Full"
+
+[[hungerStages]]
+  from = 0.66
+  id = "normal"
+  name = "Normal"
+
+[[hungerStages]]
+  from = 0.33
+  id = "hungry"
+  name = "Hungry"
+  severity = "minor"
+
+[[hungerStages]]
+  from = 0.0
+  id = "starving"
+  name = "Starving"
+  severity = "medium"
 
 [[interiorContents]]
   id = "bath"
@@ -4202,6 +4407,345 @@
       amount = "2d3-3"
       kind = "being"
       ref = "occupant"
+
+[interiorProfile]
+
+  [[interiorProfile.clutters]]
+    id = "tidy"
+    weight = 6.0
+
+  [[interiorProfile.clutters]]
+    id = "messy"
+    weight = 3.0
+
+  [[interiorProfile.clutters]]
+    id = "filthy"
+    weight = 1.0
+
+  [[interiorProfile.damages]]
+    id = "intact"
+    weight = 2.0
+
+  [[interiorProfile.damages]]
+    id = "minor"
+    weight = 3.0
+
+  [[interiorProfile.damages]]
+    id = "major"
+    weight = 1.0
+
+  [[interiorProfile.densities]]
+    factor = 6
+    weight = 1.0
+
+  [[interiorProfile.densities]]
+    factor = 10
+    weight = 1.0
+
+  [[interiorProfile.densities]]
+    factor = 14
+    weight = 1.0
+
+  [[interiorProfile.heroes]]
+    id = "reward"
+    refs = ["chest"]
+    weight = 46.0
+
+  [[interiorProfile.heroes]]
+    id = "atmosphere"
+    refs = ["torii", "phonograph", "komainu", "pillar"]
+    weight = 25.0
+
+  [[interiorProfile.heroes]]
+    id = "risk_reward"
+    refs = ["cage"]
+    weight = 15.0
+
+  [[interiorProfile.heroes]]
+    id = "danger"
+    refs = ["poison"]
+    weight = 14.0
+
+  [[interiorProfile.variants]]
+    id = "standard"
+    weight = 970.0
+
+  [[interiorProfile.variants]]
+    id = "abandoned"
+    weight = 6.0
+
+  [[interiorProfile.variants]]
+    id = "under_construction"
+    weight = 10.0
+
+  [[interiorProfile.variants]]
+    id = "survivalist"
+    weight = 9.0
+
+  [[interiorProfile.variants]]
+    id = "hoarder"
+    weight = 5.0
+
+[[interiorRefs]]
+  id = "register"
+  placement = "near_door"
+  prop = "register"
+
+[[interiorRefs]]
+  id = "gondola"
+  placement = "row"
+  prop = "goods_shelf"
+
+[[interiorRefs]]
+  id = "walkin_cooler"
+  placement = "far_from_door"
+  prop = "refrigerator"
+
+[[interiorRefs]]
+  id = "reception"
+  placement = "near_door"
+  prop = "desk"
+
+[[interiorRefs]]
+  id = "waitchair"
+  placement = "near_door"
+  prop = "chair"
+
+[[interiorRefs]]
+  id = "exam_bed"
+  placement = "far_from_door"
+  prop = "exam_bed"
+
+[[interiorRefs]]
+  id = "medcabinet"
+  placement = "wall"
+  prop = "medicine_cabinet"
+
+[[interiorRefs]]
+  id = "bed"
+  placement = "far_from_door"
+  prop = "bed"
+
+[[interiorRefs]]
+  id = "table"
+  placement = "center"
+  prop = "table"
+
+[[interiorRefs]]
+  id = "chair"
+  placement = "center"
+  prop = "chair"
+
+[[interiorRefs]]
+  id = "sofa"
+  placement = "wall"
+  prop = "sofa"
+
+[[interiorRefs]]
+  id = "closet"
+  placement = "wall"
+  prop = "closet"
+
+[[interiorRefs]]
+  id = "lantern"
+  placement = "wall"
+  prop = "lantern"
+
+[[interiorRefs]]
+  id = "plant"
+  placement = "full_area"
+  prop = "plant"
+
+[[interiorRefs]]
+  id = "washer"
+  placement = "wall"
+  prop = "washer"
+
+[[interiorRefs]]
+  id = "pantry"
+  placement = "row"
+  prop = "dish_shelf"
+
+[[interiorRefs]]
+  id = "barrel"
+  placement = "row"
+  prop = "barrel"
+
+[[interiorRefs]]
+  id = "bathtub"
+  placement = "far_from_door"
+  prop = "bathtub"
+
+[[interiorRefs]]
+  id = "toilet"
+  placement = "wall"
+  prop = "toilet"
+
+[[interiorRefs]]
+  id = "sink"
+  placement = "wall"
+  prop = "sink"
+
+[[interiorRefs]]
+  id = "desk"
+  prop = "desk"
+
+[[interiorRefs]]
+  id = "candle"
+  prop = "candle"
+
+[[interiorRefs]]
+  id = "carpet"
+  prop = "carpet"
+
+[[interiorRefs]]
+  id = "rubble"
+  prop = "rubble"
+
+[[interiorRefs]]
+  id = "debris"
+  prop = "debris"
+
+[[interiorRefs]]
+  id = "laundry"
+  prop = "laundry"
+
+[[interiorRefs]]
+  id = "crate"
+  prop = "crate"
+
+[[interiorRefs]]
+  id = "window"
+  prop = "window"
+
+[[interiorRefs]]
+  id = "shutter"
+  prop = "shutter"
+
+[[interiorRefs]]
+  id = "sign"
+  prop = "wooden_sign"
+
+[[interiorRefs]]
+  id = "fence"
+  prop = "fence"
+
+[[interiorRefs]]
+  id = "vending"
+  prop = "vending_machine"
+
+[[interiorRefs]]
+  id = "chest"
+  prop = "wood_chest"
+
+[[interiorRefs]]
+  id = "torii"
+  prop = "torii_small"
+
+[[interiorRefs]]
+  id = "phonograph"
+  prop = "phonograph"
+
+[[interiorRefs]]
+  id = "komainu"
+  prop = "komainu"
+
+[[interiorRefs]]
+  id = "pillar"
+  prop = "stone_pillar"
+
+[[interiorRefs]]
+  id = "cage"
+  prop = "cage"
+
+[[interiorRefs]]
+  id = "poison"
+  prop = "poison_barrel"
+
+[[interiorRefs]]
+  id = "butsudan"
+  prop = "buddhist_altar"
+
+[[interiorRefs]]
+  id = "kamidana"
+  prop = "household_shrine"
+
+[[interiorRefs]]
+  id = "getabako"
+  prop = "shoe_cabinet"
+
+[[interiorRefs]]
+  id = "dresser"
+  prop = "dresser"
+
+[[interiorRefs]]
+  id = "bedside"
+  prop = "bedside_table"
+
+[[interiorRefs]]
+  id = "bookshelf"
+  prop = "bookshelf"
+
+[[interiorRefs]]
+  id = "fireplace"
+  prop = "fireplace"
+
+[[interiorRefs]]
+  id = "clock"
+  prop = "clock"
+
+[[interiorRefs]]
+  id = "microwave"
+  prop = "microwave"
+
+[[interiorRefs]]
+  id = "coffeemaker"
+  prop = "coffee_maker"
+
+[[interiorRefs]]
+  id = "whiteboard"
+  prop = "whiteboard"
+
+[[interiorRefs]]
+  id = "printer"
+  prop = "printer"
+
+[[interiorRefs]]
+  id = "snacks"
+  itemGroup = "food"
+  placement = "center"
+
+[[interiorRefs]]
+  id = "drinks"
+  itemGroup = "food"
+  placement = "far_from_door"
+
+[[interiorRefs]]
+  id = "bento"
+  itemGroup = "food"
+  placement = "wall"
+
+[[interiorRefs]]
+  id = "meds"
+  itemGroup = "healing_item"
+  placement = "far_from_door"
+
+[[interiorRefs]]
+  id = "bandage"
+  itemGroup = "healing_item"
+  placement = "wall"
+
+[[interiorRefs]]
+  id = "documents"
+  itemGroup = "scrap_of_paper"
+
+[[interiorRefs]]
+  id = "supplies"
+  itemGroup = "materials"
+
+[[interiorRefs]]
+  id = "litter"
+  placement = "full_area"
 
 [[itemCollections]]
   id = "materials"
@@ -8054,7 +8598,7 @@
       r = 255
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 5
@@ -8073,7 +8617,7 @@
   weight = "500 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 1
     damage = 6
@@ -8092,7 +8636,7 @@
   weight = "3.5 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 13
@@ -8111,7 +8655,7 @@
   weight = "100 g"
   [items.melee]
     accuracy = 95
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 5
@@ -8130,7 +8674,7 @@
   weight = "5 kg"
   [items.melee]
     accuracy = 75
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 3
     damage = 18
@@ -8149,7 +8693,7 @@
   weight = "2 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 8
@@ -8168,7 +8712,7 @@
   weight = "2 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 6
@@ -8190,7 +8734,7 @@
   weight = "100 g"
   [items.melee]
     accuracy = 95
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 4
@@ -8209,7 +8753,7 @@
   weight = "800 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 2
     cost = 2
     damage = 5
@@ -8228,7 +8772,7 @@
   weight = "4.5 kg"
   [items.melee]
     accuracy = 70
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 3
     damage = 20
@@ -8250,7 +8794,7 @@
   weight = "4 kg"
   [items.melee]
     accuracy = 70
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 14
@@ -8272,7 +8816,7 @@
   weight = "6 kg"
   [items.melee]
     accuracy = 65
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 4
     damage = 24
@@ -8294,7 +8838,7 @@
   weight = "50 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 2
     cost = 1
     damage = 4
@@ -8313,7 +8857,7 @@
   weight = "5 kg"
   [items.melee]
     accuracy = 65
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 16
@@ -8335,7 +8879,7 @@
   weight = "300 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 4
@@ -8354,7 +8898,7 @@
   weight = "1.5 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 8
@@ -8376,7 +8920,7 @@
   weight = "3 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 3
     damage = 17
@@ -8394,7 +8938,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 100
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 0
     damage = 5
@@ -8412,7 +8956,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 10
@@ -8430,7 +8974,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 16
@@ -8448,7 +8992,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 75
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 18
@@ -8466,7 +9010,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 12
@@ -8484,7 +9028,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 11
@@ -8503,7 +9047,7 @@
   weight = "3 kg"
   [items.melee]
     accuracy = 75
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 2
     damage = 12
@@ -8522,7 +9066,7 @@
   weight = "2 kg"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 3
     damage = 22
@@ -8540,7 +9084,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 2
     cost = 2
     damage = 6
@@ -8559,7 +9103,7 @@
   weight = "3 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 10
@@ -8581,7 +9125,7 @@
   weight = "3 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 14
@@ -8600,7 +9144,7 @@
   weight = "300 g"
   [items.melee]
     accuracy = 100
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 5
@@ -8619,7 +9163,7 @@
   weight = "2 kg"
   [items.melee]
     accuracy = 100
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 8
@@ -8637,7 +9181,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 75
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 3
     cost = 3
     damage = 8
@@ -8656,7 +9200,7 @@
   weight = "1.8 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 15
@@ -8674,7 +9218,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 9
@@ -8693,7 +9237,7 @@
   weight = "2 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 13
@@ -8712,7 +9256,7 @@
   weight = "1.8 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 2
     cost = 4
     damage = 15
@@ -8731,7 +9275,7 @@
   weight = "5 kg"
   [items.melee]
     accuracy = 75
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 9
@@ -8749,7 +9293,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 4
     damage = 22
@@ -8767,7 +9311,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 16
@@ -8785,7 +9329,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 16
@@ -8803,7 +9347,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 100
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 3
@@ -8822,7 +9366,7 @@
   weight = "1.8 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 3
     damage = 16
@@ -8841,7 +9385,7 @@
   weight = "3 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 12
@@ -8860,7 +9404,7 @@
   weight = "1 kg"
   [items.melee]
     accuracy = 95
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 11
@@ -8879,7 +9423,7 @@
   weight = "300 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 5
@@ -8898,7 +9442,7 @@
   weight = "1.5 kg"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 14
@@ -8917,7 +9461,7 @@
   weight = "100 g"
   [items.melee]
     accuracy = 95
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 2
     cost = 1
     damage = 4
@@ -8936,7 +9480,7 @@
   weight = "5 kg"
   [items.melee]
     accuracy = 70
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 3
     damage = 20
@@ -8955,7 +9499,7 @@
   weight = "1.5 kg"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 7
@@ -8974,7 +9518,7 @@
   weight = "50 g"
   [items.melee]
     accuracy = 95
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 2
     cost = 1
     damage = 3
@@ -8993,7 +9537,7 @@
   weight = "1 kg"
   [items.melee]
     accuracy = 100
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 9
@@ -9012,7 +9556,7 @@
   weight = "2.5 kg"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 15
@@ -9031,7 +9575,7 @@
   weight = "2 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 14
@@ -9050,7 +9594,7 @@
   weight = "2.5 kg"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 12
@@ -9069,7 +9613,7 @@
   weight = "800 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 7
@@ -9091,7 +9635,7 @@
   weight = "3 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 11
@@ -9110,7 +9654,7 @@
   weight = "500 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 7
@@ -9131,7 +9675,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 7
@@ -9150,7 +9694,7 @@
   weight = "5.5 kg"
   [items.melee]
     accuracy = 65
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 4
     damage = 22
@@ -9172,7 +9716,7 @@
   weight = "6 kg"
   [items.melee]
     accuracy = 65
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 4
     damage = 26
@@ -9194,7 +9738,7 @@
   weight = "1.5 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 3
     damage = 17
@@ -9214,7 +9758,7 @@
   [items.fire]
     accuracy = 90
     ammoTag = "shell"
-    attackCategory = "CANON"
+    attackCategory = "cannon"
     attackCount = 1
     cost = 6
     damage = 34
@@ -9225,7 +9769,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 75
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 4
     damage = 10
@@ -9245,7 +9789,7 @@
   [items.fire]
     accuracy = 90
     ammoTag = "shell"
-    attackCategory = "CANON"
+    attackCategory = "cannon"
     attackCount = 4
     cost = 5
     damage = 8
@@ -9256,7 +9800,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 75
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 4
     damage = 10
@@ -9276,7 +9820,7 @@
   [items.fire]
     accuracy = 85
     ammoTag = "shell"
-    attackCategory = "CANON"
+    attackCategory = "cannon"
     attackCount = 1
     cost = 6
     damage = 34
@@ -9287,7 +9831,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 80
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 3
     damage = 8
@@ -9307,7 +9851,7 @@
   [items.fire]
     accuracy = 95
     ammoTag = "9mm"
-    attackCategory = "HANDGUN"
+    attackCategory = "handgun"
     attackCount = 1
     cost = 2
     damage = 14
@@ -9318,7 +9862,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 4
@@ -9338,7 +9882,7 @@
   [items.fire]
     accuracy = 90
     ammoTag = "energy_cell"
-    attackCategory = "HANDGUN"
+    attackCategory = "handgun"
     attackCount = 1
     cost = 3
     damage = 20
@@ -9349,7 +9893,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 4
@@ -9369,7 +9913,7 @@
   [items.fire]
     accuracy = 80
     ammoTag = "rifle"
-    attackCategory = "RIFLE"
+    attackCategory = "rifle"
     attackCount = 1
     cost = 3
     damage = 25
@@ -9380,7 +9924,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 6
@@ -9400,7 +9944,7 @@
   [items.fire]
     accuracy = 80
     ammoTag = "shell"
-    attackCategory = "CANON"
+    attackCategory = "cannon"
     attackCount = 1
     cost = 4
     damage = 14
@@ -9411,7 +9955,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 3
@@ -9431,7 +9975,7 @@
   [items.fire]
     accuracy = 75
     ammoTag = "shell"
-    attackCategory = "CANON"
+    attackCategory = "cannon"
     attackCount = 3
     cost = 5
     damage = 12
@@ -9442,7 +9986,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 5
@@ -9462,7 +10006,7 @@
   [items.fire]
     accuracy = 80
     ammoTag = "rifle"
-    attackCategory = "RIFLE"
+    attackCategory = "rifle"
     attackCount = 1
     cost = 3
     damage = 26
@@ -9473,7 +10017,7 @@
     targetNum = "SINGLE"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 6
@@ -9492,7 +10036,7 @@
   weight = "500 g"
   [items.fire]
     accuracy = 80
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 2
     cost = 2
     damage = 7
@@ -9513,7 +10057,7 @@
   weight = "100 g"
   [items.fire]
     accuracy = 90
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 3
     cost = 2
     damage = 4
@@ -9534,7 +10078,7 @@
   weight = "1.5 kg"
   [items.fire]
     accuracy = 90
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 1
     cost = 3
     damage = 16
@@ -9555,7 +10099,7 @@
   weight = "1.5 kg"
   [items.fire]
     accuracy = 85
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 1
     cost = 2
     damage = 12
@@ -9576,7 +10120,7 @@
   weight = "3 kg"
   [items.fire]
     accuracy = 80
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 1
     cost = 3
     damage = 16
@@ -9597,7 +10141,7 @@
   weight = "500 g"
   [items.fire]
     accuracy = 85
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 2
     cost = 2
     damage = 6
@@ -13485,7 +14029,7 @@
     usableScene = "ANY"
   [items.remedy]
     potency = 100
-    treats = ["Fracture"]
+    treats = ["fracture"]
 
 [[items]]
   description = "A bandage. Close an open wound so it stops bleeding."
@@ -13502,7 +14046,7 @@
     usableScene = "ANY"
   [items.remedy]
     potency = 100
-    treats = ["Laceration"]
+    treats = ["laceration"]
 
 [[items]]
   description = "Restores about half of your HP."
@@ -16520,7 +17064,7 @@
   weight = "1.8 kg"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 2
     damage = 10
@@ -16799,7 +17343,7 @@
   weight = "1200 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 10
@@ -16817,7 +17361,7 @@
   weight = "1300 g"
   [items.melee]
     accuracy = 88
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 11
@@ -16835,7 +17379,7 @@
   weight = "900 g"
   [items.melee]
     accuracy = 92
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 9
@@ -16853,7 +17397,7 @@
   weight = "600 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 1
     damage = 8
@@ -16871,7 +17415,7 @@
   weight = "800 g"
   [items.melee]
     accuracy = 88
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 10
@@ -16899,7 +17443,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 12
@@ -16917,7 +17461,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 13
@@ -16935,7 +17479,7 @@
   weight = "0 g"
   [items.melee]
     accuracy = 88
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 2
     damage = 15
@@ -16953,7 +17497,7 @@
   weight = "1500 g"
   [items.melee]
     accuracy = 88
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 1
     damage = 11
@@ -16971,7 +17515,7 @@
   weight = "1400 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 12
@@ -16989,7 +17533,7 @@
   weight = "2000 g"
   [items.fire]
     accuracy = 85
-    attackCategory = "HANDGUN"
+    attackCategory = "handgun"
     attackCount = 1
     cost = 2
     damage = 14
@@ -17009,7 +17553,7 @@
   weight = "1600 g"
   [items.fire]
     accuracy = 85
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 1
     cost = 2
     damage = 13
@@ -17029,7 +17573,7 @@
   weight = "900 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 9
@@ -17047,7 +17591,7 @@
   weight = "500 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 10
@@ -17091,7 +17635,7 @@
   weight = "3000 g"
   [items.melee]
     accuracy = 80
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 2
     damage = 16
@@ -17112,7 +17656,7 @@
   weight = "2200 g"
   [items.melee]
     accuracy = 85
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 13
@@ -17133,7 +17677,7 @@
   weight = "1100 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 11
@@ -17151,7 +17695,7 @@
   weight = "1500 g"
   [items.fire]
     accuracy = 88
-    attackCategory = "BOW"
+    attackCategory = "bow"
     attackCount = 1
     cost = 2
     damage = 14
@@ -17171,7 +17715,7 @@
   weight = "700 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 7
@@ -17189,7 +17733,7 @@
   weight = "300 g"
   [items.melee]
     accuracy = 92
-    attackCategory = "FIST"
+    attackCategory = "fist"
     attackCount = 1
     cost = 1
     damage = 6
@@ -17207,7 +17751,7 @@
   weight = "1000 g"
   [items.melee]
     accuracy = 88
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 1
     damage = 8
@@ -17245,7 +17789,7 @@
   weight = "1.2 kg"
   [items.melee]
     accuracy = 88
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 12
@@ -17264,7 +17808,7 @@
   weight = "2.4 kg"
   [items.melee]
     accuracy = 80
-    attackCategory = "SWORD"
+    attackCategory = "sword"
     attackCount = 1
     cost = 1
     damage = 16
@@ -17286,7 +17830,7 @@
   weight = "900 g"
   [items.melee]
     accuracy = 90
-    attackCategory = "SPEAR"
+    attackCategory = "spear"
     attackCount = 1
     cost = 1
     damage = 11
@@ -19981,14 +20525,14 @@
 
 [[props]]
   blockPass = true
-  blockView = false
-  description = "青い縦長の扉。出入口"
+  blockView = true
+  description = "An openable door"
   hp = 50
   id = "door"
   name = "Door"
   [props.door]
   [props.spriteRender]
-    depth = 2
+    depth = 3
     spriteKey = "door_horizontal_closed"
     spriteSheetName = "field"
 
@@ -21734,6 +22278,392 @@
       dy = 1
       name = "tree_b"
 
+[[shelterEffects]]
+  anchorTemp = 10
+  id = "outdoor"
+  influencePercent = 100
+  name = "Outdoor"
+
+[[shelterEffects]]
+  anchorTemp = 10
+  id = "partial"
+  influencePercent = 75
+  name = "Semi-outdoor"
+
+[[shelterEffects]]
+  anchorTemp = 10
+  id = "indoor"
+  influencePercent = 50
+  name = "Indoor"
+
+[[skillCategories]]
+  id = "melee"
+  name = "Melee"
+
+[[skillCategories]]
+  id = "ranged"
+  name = "Ranged"
+
+[[skillCategories]]
+  id = "craft"
+  name = "Craft"
+
+[[skillCategories]]
+  id = "mobility"
+  name = "Mobility"
+
+[[skillCategories]]
+  id = "survival"
+  name = "Survival"
+
+[[skillCategories]]
+  id = "defense"
+  name = "Defense"
+
+[[skills]]
+  ability = "str"
+  category = "melee"
+  effect = "Increases sword damage and accuracy"
+  gainedBy = "Raised by attacking with swords"
+  id = "sword"
+  name = "Swordsmanship"
+  summary = "Technique for handling swords"
+
+  [[skills.proficiencies]]
+    id = "sword_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "sword_accuracy"
+    perLevel = 3
+
+[[skills]]
+  ability = "str"
+  category = "melee"
+  effect = "Increases polearm damage and accuracy"
+  gainedBy = "Raised by attacking with polearms"
+  id = "spear"
+  name = "Polearm"
+  summary = "Technique for handling polearms like spears and staves"
+
+  [[skills.proficiencies]]
+    id = "spear_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "spear_accuracy"
+    perLevel = 3
+
+[[skills]]
+  ability = "str"
+  category = "melee"
+  effect = "Increases unarmed damage and accuracy"
+  gainedBy = "Raised by attacking unarmed"
+  id = "fist"
+  name = "Unarmed"
+  summary = "Technique for fighting with fists"
+
+  [[skills.proficiencies]]
+    id = "fist_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "fist_accuracy"
+    perLevel = 3
+
+[[skills]]
+  ability = "sen"
+  category = "ranged"
+  effect = "Increases bow damage and accuracy"
+  gainedBy = "Raised by attacking with bows"
+  id = "bow"
+  name = "Archery"
+  summary = "Technique for handling bows"
+
+  [[skills.proficiencies]]
+    id = "bow_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "bow_accuracy"
+    perLevel = 3
+
+[[skills]]
+  ability = "sen"
+  category = "ranged"
+  effect = "Increases pistol damage and accuracy"
+  gainedBy = "Raised by attacking with pistols"
+  id = "handgun"
+  name = "Pistol skill"
+  summary = "Pistol shooting technique"
+
+  [[skills.proficiencies]]
+    id = "handgun_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "handgun_accuracy"
+    perLevel = 3
+
+[[skills]]
+  ability = "sen"
+  category = "ranged"
+  effect = "Increases rifle damage and accuracy"
+  gainedBy = "Raised by attacking with rifles"
+  id = "rifle"
+  name = "Rifle skill"
+  summary = "Rifle shooting technique"
+
+  [[skills.proficiencies]]
+    id = "rifle_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "rifle_accuracy"
+    perLevel = 3
+
+[[skills]]
+  ability = "sen"
+  category = "ranged"
+  effect = "Increases artillery damage and accuracy"
+  gainedBy = "Raised by attacking with artillery"
+  id = "cannon"
+  name = "Artillery"
+  summary = "Technique for operating large firearms"
+
+  [[skills.proficiencies]]
+    id = "cannon_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "cannon_accuracy"
+    perLevel = 3
+
+[[skills]]
+  ability = "dex"
+  category = "craft"
+  effect = "Reduces material consumption when crafting"
+  gainedBy = "Raised by crafting items"
+  id = "crafting"
+  name = "Crafting"
+  summary = "Technique for making items from materials"
+
+  [[skills.proficiencies]]
+    id = "craft_cost"
+    perLevel = -3
+
+[[skills]]
+  ability = "dex"
+  category = "craft"
+  effect = "Increases quality when smithing"
+  gainedBy = "Raised by smithing materials"
+  id = "smithing"
+  name = "Smithing"
+  summary = "Technique for refining and blending materials"
+
+  [[skills.proficiencies]]
+    id = "smith_quality"
+    perLevel = 3
+
+[[skills]]
+  ability = "dex"
+  category = "craft"
+  effect = "Improves buying and selling prices"
+  gainedBy = "Raised by trading"
+  id = "negotiation"
+  name = "Negotiation"
+  summary = "Persuasion for favorable deals"
+
+  [[skills.proficiencies]]
+    id = "buy_price"
+    perLevel = -2
+
+  [[skills.proficiencies]]
+    id = "sell_price"
+    perLevel = 2
+
+[[skills]]
+  ability = "dex"
+  category = "craft"
+  effect = "Increases yield when breaking objects with a tool"
+  gainedBy = "Raised by breaking objects with a suitable tool or reading mechanic books"
+  id = "mechanic"
+  name = "Mechanic"
+  summary = "Technique for understanding and repairing machines"
+
+[[skills]]
+  ability = "agi"
+  category = "mobility"
+  effect = "Reduces AP cost when moving"
+  gainedBy = "Raised by equipment or books"
+  id = "sprinting"
+  name = "Sprinting"
+  summary = "Ability to move quickly over long distances"
+
+  [[skills.proficiencies]]
+    id = "move_cost"
+    perLevel = -2
+
+[[skills]]
+  ability = "agi"
+  category = "mobility"
+  effect = "Shortens the distance at which enemies detect you"
+  gainedBy = "Raised by equipment or books"
+  id = "stealth"
+  name = "Stealth"
+  summary = "Technique for acting unnoticed by enemies"
+
+  [[skills.proficiencies]]
+    id = "enemy_vision"
+    perLevel = -3
+
+[[skills]]
+  ability = "agi"
+  category = "mobility"
+  effect = "Widens vision in the dark"
+  gainedBy = "Raised by equipment or books"
+  id = "night_vision"
+  name = "Night vision"
+  summary = "Ability to see in the dark"
+
+  [[skills.proficiencies]]
+    id = "night_vision"
+    perLevel = 5
+
+[[skills]]
+  ability = "str"
+  category = "mobility"
+  effect = "Increases maximum load"
+  gainedBy = "Raised by acting with heavy equipment"
+  id = "weight_bearing"
+  name = "Load bearing"
+  summary = "Ability to carry heavy loads"
+
+  [[skills.proficiencies]]
+    id = "max_weight"
+    perLevel = 4
+
+[[skills]]
+  ability = "vit"
+  category = "survival"
+  effect = "Slows hypothermia progress"
+  gainedBy = "Raised by equipment or books"
+  id = "cold_resist"
+  name = "Cold resistance"
+  summary = "Resistance to cold"
+
+  [[skills.proficiencies]]
+    id = "cold_progress"
+    perLevel = -3
+
+[[skills]]
+  ability = "vit"
+  category = "survival"
+  effect = "Slows hunger progress"
+  gainedBy = "Raised by equipment or books"
+  id = "hunger_resist"
+  name = "Hunger resistance"
+  summary = "Resistance to hunger"
+
+  [[skills.proficiencies]]
+    id = "hunger_progress"
+    perLevel = -2
+
+[[skills]]
+  ability = "vit"
+  category = "survival"
+  effect = "Increases healing item effect"
+  gainedBy = "Raised by using healing items"
+  id = "healing"
+  name = "Healing"
+  summary = "Medical technique for healing wounds"
+
+  [[skills.proficiencies]]
+    id = "healing_effect"
+    perLevel = 5
+
+[[skills]]
+  ability = "sen"
+  category = "survival"
+  effect = "Increases item discovery rate"
+  gainedBy = "Raised by equipment or books"
+  id = "exploration"
+  name = "Exploration"
+  summary = "Technique for surveying unknown places"
+
+  [[skills.proficiencies]]
+    id = "exploration"
+    perLevel = 4
+
+[[skills]]
+  ability = "def"
+  category = "defense"
+  effect = "Increases maximum load"
+  gainedBy = "Raised by taking hits in heavy armor"
+  id = "heavy_armor"
+  name = "Heavy armor"
+  summary = "Technique for wearing heavy armor"
+
+  [[skills.proficiencies]]
+    id = "heavy_armor"
+    perLevel = -5
+
+[[skills]]
+  ability = "def"
+  category = "defense"
+  effect = "Reduces fire element damage"
+  gainedBy = "Raised by equipment or books"
+  id = "fire_resist"
+  name = "Fire resistance"
+  summary = "Resistance to fire"
+
+  [[skills.proficiencies]]
+    id = "fire_resist"
+    perLevel = -3
+    resists = "FIRE"
+
+[[skills]]
+  ability = "def"
+  category = "defense"
+  effect = "Reduces thunder element damage"
+  gainedBy = "Raised by equipment or books"
+  id = "thunder_resist"
+  name = "Thunder resistance"
+  summary = "Resistance to thunder"
+
+  [[skills.proficiencies]]
+    id = "thunder_resist"
+    perLevel = -3
+    resists = "THUNDER"
+
+[[skills]]
+  ability = "def"
+  category = "defense"
+  effect = "Reduces ice element damage"
+  gainedBy = "Raised by equipment or books"
+  id = "chill_resist"
+  name = "Chill resistance"
+  summary = "Resistance to ice"
+
+  [[skills.proficiencies]]
+    id = "chill_resist"
+    perLevel = -3
+    resists = "CHILL"
+
+[[skills]]
+  ability = "def"
+  category = "defense"
+  effect = "Reduces light element damage"
+  gainedBy = "Raised by equipment or books"
+  id = "photon_resist"
+  name = "Photon resistance"
+  summary = "Resistance to light"
+
+  [[skills.proficiencies]]
+    id = "photon_resist"
+    perLevel = -3
+    resists = "PHOTON"
+
 [[spriteSheets]]
   name = "bg"
   path = "file/textures/dist/bg.json"
@@ -21750,11 +22680,8 @@
   blockPass = false
   blockView = false
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
-  foliage = 0
   id = "dirt"
   name = "Dirt"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "dirt"
@@ -21764,11 +22691,8 @@
   blockPass = true
   blockView = true
   description = "濃灰のダンジョン壁のオートタイル。通行不可"
-  foliage = 0
   id = "dwall"
   name = "Dungeon Wall"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 3
     spriteKey = "dwall"
@@ -21778,11 +22702,8 @@
   blockPass = false
   blockView = false
   description = "灰色の石床のオートタイル。屋内の歩行可能タイル"
-  foliage = 0
   id = "floor"
   name = "Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor"
@@ -21792,11 +22713,8 @@
   blockPass = true
   blockView = false
   description = "暗闇。単一絵柄の通行不可タイル"
-  foliage = 0
   id = "void"
   name = "Void"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "void"
@@ -21806,11 +22724,8 @@
   blockPass = true
   blockView = true
   description = "灰色の石壁のオートタイル。通行不可"
-  foliage = 0
   id = "wall"
   name = "Wall"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 3
     spriteKey = "wall"
@@ -21820,11 +22735,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] リノリウム床。コンビニや病院の滑らかな樹脂床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_linoleum"
   name = "Linoleum Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_linoleum"
@@ -21834,11 +22746,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] タイル床。浴室や厨房の四角いタイルの床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_tile"
   name = "Tile Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_tile"
@@ -21848,11 +22757,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] コンクリート床。倉庫や地下の無機質な床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_concrete"
   name = "Concrete Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_concrete"
@@ -21862,11 +22768,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] フローリング床。民家やオフィスの木の床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_wood"
   name = "Wooden Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_wood"
@@ -21876,11 +22779,8 @@
   blockPass = false
   blockView = false
   description = "[dummy] 畳。和室のい草の床。実アート未実装の仮素材"
-  foliage = 0
   id = "floor_tatami"
   name = "Tatami"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_tatami"
@@ -21890,11 +22790,8 @@
   blockPass = false
   blockView = false
   description = "シアン色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_cyan"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_cyan"
@@ -21904,11 +22801,8 @@
   blockPass = false
   blockView = false
   description = "青緑の丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_teal"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_teal"
@@ -21918,11 +22812,8 @@
   blockPass = false
   blockView = false
   description = "金色の丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_gold"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_gold"
@@ -21932,11 +22823,8 @@
   blockPass = false
   blockView = false
   description = "灰色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_gray"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_gray"
@@ -21946,11 +22834,8 @@
   blockPass = false
   blockView = false
   description = "緑の草地のオートタイル床"
-  foliage = 0
   id = "grass_green"
   name = "Grass Field"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_green"
@@ -21960,11 +22845,8 @@
   blockPass = false
   blockView = false
   description = "クリーム色の丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_cream"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_cream"
@@ -21974,11 +22856,8 @@
   blockPass = false
   blockView = false
   description = "青灰色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_blue"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_blue"
@@ -21988,11 +22867,8 @@
   blockPass = false
   blockView = false
   description = "オリーブ色の草地のオートタイル床"
-  foliage = 0
   id = "grass_olive"
   name = "Grass Field"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_olive"
@@ -22002,11 +22878,8 @@
   blockPass = false
   blockView = false
   description = "赤い丸石を敷いた床のオートタイル"
-  foliage = 0
   id = "cobble_red"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_red"
@@ -22016,11 +22889,8 @@
   blockPass = false
   blockView = false
   description = "紺色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_navy"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_navy"
@@ -22030,11 +22900,8 @@
   blockPass = false
   blockView = false
   description = "紫がかった砂利の床のオートタイル"
-  foliage = 0
   id = "cobble_purple"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_purple"
@@ -22044,11 +22911,8 @@
   blockPass = false
   blockView = false
   description = "石板色の砂利の床のオートタイル"
-  foliage = 0
   id = "cobble_slate"
   name = "Cobblestone"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_slate"
@@ -22058,11 +22922,8 @@
   blockPass = false
   blockView = false
   description = "桃色の砂の床のオートタイル"
-  foliage = 0
   id = "sand_pink"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_pink"
@@ -22072,11 +22933,8 @@
   blockPass = false
   blockView = false
   description = "琥珀色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_amber"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_amber"
@@ -22086,11 +22944,8 @@
   blockPass = false
   blockView = false
   description = "クリーム色の滑らかな床のオートタイル"
-  foliage = 0
   id = "smooth_cream"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_cream"
@@ -22100,11 +22955,8 @@
   blockPass = false
   blockView = false
   description = "橙色の砂の床のオートタイル"
-  foliage = 0
   id = "sand_orange"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_orange"
@@ -22114,11 +22966,8 @@
   blockPass = false
   blockView = false
   description = "テラコッタ色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_terracotta"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_terracotta"
@@ -22128,11 +22977,8 @@
   blockPass = false
   blockView = false
   description = "白い滑らかな床のオートタイル"
-  foliage = 0
   id = "smooth_white"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_white"
@@ -22142,11 +22988,8 @@
   blockPass = false
   blockView = false
   description = "赤茶の砂の床のオートタイル"
-  foliage = 0
   id = "sand_red"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_red"
@@ -22156,11 +22999,8 @@
   blockPass = false
   blockView = false
   description = "ベージュの煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_beige"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_beige"
@@ -22170,11 +23010,8 @@
   blockPass = false
   blockView = false
   description = "青緑の滑らかな床や水面のオートタイル"
-  foliage = 0
   id = "smooth_teal"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_teal"
@@ -22184,11 +23021,8 @@
   blockPass = false
   blockView = false
   description = "石板色の砂の床のオートタイル"
-  foliage = 0
   id = "sand_slate"
   name = "Sand"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_slate"
@@ -22198,11 +23032,8 @@
   blockPass = false
   blockView = false
   description = "錆色の煉瓦を敷いた床のオートタイル"
-  foliage = 0
   id = "brick_rust"
   name = "Brick"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_rust"
@@ -22212,11 +23043,8 @@
   blockPass = false
   blockView = false
   description = "青灰の滑らかな床のオートタイル"
-  foliage = 0
   id = "smooth_bluegray"
   name = "Smooth Floor"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_bluegray"
@@ -22226,11 +23054,8 @@
   blockPass = false
   blockView = false
   description = "橙色の板を張った床のオートタイル"
-  foliage = 0
   id = "plank_orange"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_orange"
@@ -22240,11 +23065,8 @@
   blockPass = false
   blockView = false
   description = "茶色の板を張った床のオートタイル"
-  foliage = 0
   id = "plank_brown"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_brown"
@@ -22254,11 +23076,8 @@
   blockPass = false
   blockView = false
   description = "紺色の板を張った床のオートタイル"
-  foliage = 0
   id = "plank_navy"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_navy"
@@ -22268,12 +23087,161 @@
   blockPass = false
   blockView = false
   description = "青い板を張った床のオートタイル"
-  foliage = 0
   id = "plank_blue"
   name = "Planks"
-  shelter = 0
-  water = 0
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_blue"
     spriteSheetName = "tile"
+
+[[waterEffects]]
+  id = "nearby"
+  tempModifier = -5
+
+[[waterEffects]]
+  id = "submerged"
+  tempModifier = -10
+
+[[weathers]]
+  id = "clear"
+  severity = 0
+  spellTurnsMax = 4500
+  spellTurnsMin = 2250
+  tempModifier = 2
+  visionDelta = 0
+
+  [[weathers.seasons]]
+    id = "spring"
+    weight = 1.4
+
+  [[weathers.seasons]]
+    id = "summer"
+    weight = 1.8
+
+  [[weathers.seasons]]
+    id = "autumn"
+    weight = 1.1
+
+  [[weathers.seasons]]
+    id = "winter"
+    weight = 0.6
+
+[[weathers]]
+  id = "cloudy"
+  severity = 0
+  spellTurnsMax = 3000
+  spellTurnsMin = 1500
+  tempModifier = 0
+  visionDelta = 0
+
+  [[weathers.seasons]]
+    id = "spring"
+    weight = 1.2
+
+  [[weathers.seasons]]
+    id = "summer"
+    weight = 1.0
+
+  [[weathers.seasons]]
+    id = "autumn"
+    weight = 1.2
+
+  [[weathers.seasons]]
+    id = "winter"
+    weight = 0.9
+
+[[weathers]]
+  id = "rain"
+  severity = 0
+  spellTurnsMax = 2250
+  spellTurnsMin = 750
+  tempModifier = -2
+  visionDelta = -6
+
+  [[weathers.seasons]]
+    id = "spring"
+    weight = 0.9
+
+  [[weathers.seasons]]
+    id = "summer"
+    weight = 1.1
+
+  [[weathers.seasons]]
+    id = "autumn"
+    weight = 0.8
+
+  [[weathers.seasons]]
+    id = "winter"
+    weight = 0.2
+
+[[weathers]]
+  id = "snow"
+  severity = 1
+  spellTurnsMax = 2250
+  spellTurnsMin = 1200
+  tempModifier = -3
+  visionDelta = -10
+
+  [[weathers.seasons]]
+    id = "spring"
+    weight = 0.8
+
+  [[weathers.seasons]]
+    id = "summer"
+    weight = 0.3
+
+  [[weathers.seasons]]
+    id = "autumn"
+    weight = 1.0
+
+  [[weathers.seasons]]
+    id = "winter"
+    weight = 1.3
+
+[[weathers]]
+  id = "blizzard"
+  severity = 2
+  spellTurnsMax = 900
+  spellTurnsMin = 450
+  tempModifier = -8
+  visionDelta = -28
+
+  [[weathers.seasons]]
+    id = "spring"
+    weight = 0.3
+
+  [[weathers.seasons]]
+    id = "summer"
+    weight = 0.1
+
+  [[weathers.seasons]]
+    id = "autumn"
+    weight = 0.5
+
+  [[weathers.seasons]]
+    id = "winter"
+    weight = 1.2
+
+[[weathers]]
+  id = "cold_snap"
+  severity = 2
+  spellTurnsMax = 3000
+  spellTurnsMin = 1500
+  tempModifier = -15
+  visionDelta = 0
+
+  [[weathers.seasons]]
+    id = "spring"
+    weight = 0.1
+
+  [[weathers.seasons]]
+    id = "summer"
+    weight = 0.0
+
+  [[weathers.seasons]]
+    id = "autumn"
+    weight = 0.2
+
+  [[weathers.seasons]]
+    id = "winter"
+    weight = 0.8

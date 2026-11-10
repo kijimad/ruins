@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -140,26 +141,26 @@ func TestTargetType(t *testing.T) {
 	t.Run("create target type", func(t *testing.T) {
 		t.Parallel()
 		target := TargetType{
-			TargetGroup: TargetGroupEnemy,
-			TargetNum:   TargetSingle,
+			TargetGroup: oapi.TargetGroupENEMY,
+			TargetNum:   oapi.SINGLE,
 		}
-		assert.Equal(t, TargetGroupEnemy, target.TargetGroup, "対象グループが正しく設定されない")
-		assert.Equal(t, TargetSingle, target.TargetNum, "対象数が正しく設定されない")
+		assert.Equal(t, oapi.TargetGroupENEMY, target.TargetGroup, "対象グループが正しく設定されない")
+		assert.Equal(t, oapi.SINGLE, target.TargetNum, "対象数が正しく設定されない")
 	})
 
 	t.Run("various target combinations", func(t *testing.T) {
 		t.Parallel()
 		tests := []struct {
 			name        string
-			targetGroup TargetGroupType
-			targetNum   TargetNumType
+			targetGroup oapi.TargetGroup
+			targetNum   oapi.TargetNum
 		}{
-			{"single enemy", TargetGroupEnemy, TargetSingle},
-			{"all enemies", TargetGroupEnemy, TargetAll},
-			{"single ally", TargetGroupAlly, TargetSingle},
-			{"all allies", TargetGroupAlly, TargetAll},
-			{"single weapon", TargetGroupWeapon, TargetSingle},
-			{"none target", TargetGroupNone, TargetSingle},
+			{"single enemy", oapi.TargetGroupENEMY, oapi.SINGLE},
+			{"all enemies", oapi.TargetGroupENEMY, oapi.ALL},
+			{"single ally", oapi.TargetGroupALLY, oapi.SINGLE},
+			{"all allies", oapi.TargetGroupALLY, oapi.ALL},
+			{"single weapon", oapi.TargetGroupWEAPON, oapi.SINGLE},
+			{"none target", oapi.TargetGroupNONE, oapi.SINGLE},
 		}
 
 		for _, tt := range tests {
@@ -216,59 +217,25 @@ func TestEquipmentSlotNumber(t *testing.T) {
 func TestParseEquipmentSlot(t *testing.T) {
 	t.Parallel()
 
-	t.Run("防具スロットのパース", func(t *testing.T) {
-		t.Parallel()
-		tests := []struct {
-			input    string
-			expected EquipmentSlotNumber
-		}{
-			{"HEAD", SlotHead},
-			{"TORSO", SlotTorso},
-			{"ARMS", SlotArms},
-			{"HANDS", SlotHands},
-			{"LEGS", SlotLegs},
-			{"FEET", SlotFeet},
-			{"JEWELRY", SlotJewelry},
-		}
+	slots := []oapi.EquipSlot{
+		oapi.EquipSlotHEAD, oapi.EquipSlotTORSO, oapi.EquipSlotARMS, oapi.EquipSlotHANDS, oapi.EquipSlotLEGS, oapi.EquipSlotFEET,
+		oapi.EquipSlotWEAPON1, oapi.EquipSlotWEAPON2, oapi.EquipSlotWEAPON3, oapi.EquipSlotWEAPON4, oapi.EquipSlotWEAPON5,
+	}
+	got := map[oapi.EquipSlot]EquipmentSlotNumber{}
+	for _, slot := range slots {
+		n, ok := ParseEquipmentSlot(slot)
+		assert.True(t, ok, slot)
+		got[slot] = n
+	}
+	assert.Equal(t, map[oapi.EquipSlot]EquipmentSlotNumber{
+		oapi.EquipSlotHEAD: SlotHead, oapi.EquipSlotTORSO: SlotTorso, oapi.EquipSlotARMS: SlotArms,
+		oapi.EquipSlotHANDS: SlotHands, oapi.EquipSlotLEGS: SlotLegs, oapi.EquipSlotFEET: SlotFeet,
+		oapi.EquipSlotWEAPON1: SlotWeapon1, oapi.EquipSlotWEAPON2: SlotWeapon2, oapi.EquipSlotWEAPON3: SlotWeapon3,
+		oapi.EquipSlotWEAPON4: SlotWeapon4, oapi.EquipSlotWEAPON5: SlotWeapon5,
+	}, got)
 
-		for _, tt := range tests {
-			t.Run(tt.input, func(t *testing.T) {
-				t.Parallel()
-				slot, ok := ParseEquipmentSlot(tt.input)
-				assert.True(t, ok)
-				assert.Equal(t, tt.expected, slot)
-			})
-		}
-	})
-
-	t.Run("武器スロットのパース", func(t *testing.T) {
-		t.Parallel()
-		tests := []struct {
-			input    string
-			expected EquipmentSlotNumber
-		}{
-			{"WEAPON1", SlotWeapon1},
-			{"WEAPON2", SlotWeapon2},
-			{"WEAPON3", SlotWeapon3},
-			{"WEAPON4", SlotWeapon4},
-			{"WEAPON5", SlotWeapon5},
-		}
-
-		for _, tt := range tests {
-			t.Run(tt.input, func(t *testing.T) {
-				t.Parallel()
-				slot, ok := ParseEquipmentSlot(tt.input)
-				assert.True(t, ok)
-				assert.Equal(t, tt.expected, slot)
-			})
-		}
-	})
-
-	t.Run("無効な文字列はfalseを返す", func(t *testing.T) {
-		t.Parallel()
-		_, ok := ParseEquipmentSlot("INVALID")
-		assert.False(t, ok)
-	})
+	_, ok := ParseEquipmentSlot("INVALID")
+	assert.False(t, ok, "未知の値は ok=false")
 }
 
 // Amounter インターフェース（RatioAmount/NumeralAmount）は撤去され、

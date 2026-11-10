@@ -34,3 +34,12 @@ func facilityIDs() []string {
 	}
 	return ids
 }
+
+// testProfileTable は raw.toml の interiorProfile から組んだ抽選表を返す
+func testProfileTable() profileTable {
+	t, err := newProfileTable(testRaws())
+	if err != nil {
+		panic("interior test: profile table: " + err.Error())
+	}
+	return t
+}

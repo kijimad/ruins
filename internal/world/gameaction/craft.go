@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -75,8 +76,8 @@ func playerCraftMods(world w.World) (craftCost, smithQuality consts.Percent) {
 	craftCost, smithQuality = consts.PercentBase, consts.PercentBase
 	player, err := query.GetPlayerEntity(world)
 	if err == nil {
-		craftCost = query.ProficiencyValue(world, player, gc.ProfCraftCost)
-		smithQuality = query.ProficiencyValue(world, player, gc.ProfSmithQuality)
+		craftCost = query.ProficiencyValue(world, player, oapi.ProficiencyIdCraftCost)
+		smithQuality = query.ProficiencyValue(world, player, oapi.ProficiencyIdSmithQuality)
 	}
 	return craftCost, smithQuality
 }

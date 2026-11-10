@@ -3,15 +3,16 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSoloAI_ResetCombat(t *testing.T) {
 	t.Parallel()
 
-	solo := &SoloAI{CombatDefault: CombatIgnore, CombatCurrent: CombatAttack}
+	solo := &SoloAI{CombatDefault: oapi.Ignore, CombatCurrent: oapi.Attack}
 	solo.ResetCombat()
-	assert.Equal(t, CombatIgnore, solo.CombatCurrent)
+	assert.Equal(t, oapi.Ignore, solo.CombatCurrent)
 }
 
 func TestSoloAI_ReactToHostile(t *testing.T) {
@@ -19,12 +20,12 @@ func TestSoloAI_ReactToHostile(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		defaultCombat   CombatPolicy
-		expectedCurrent CombatPolicy
+		defaultCombat   oapi.CombatPolicyType
+		expectedCurrent oapi.CombatPolicyType
 	}{
-		{"CombatIgnoreはCombatAttackになる", CombatIgnore, CombatAttack},
-		{"CombatAttackはそのまま", CombatAttack, CombatAttack},
-		{"CombatEvadeはそのまま", CombatEvade, CombatEvade},
+		{"CombatIgnoreはCombatAttackになる", oapi.Ignore, oapi.Attack},
+		{"CombatAttackはそのまま", oapi.Attack, oapi.Attack},
+		{"CombatEvadeはそのまま", oapi.Evade, oapi.Evade},
 	}
 
 	for _, tt := range tests {
@@ -33,48 +34,6 @@ func TestSoloAI_ReactToHostile(t *testing.T) {
 			solo := &SoloAI{CombatDefault: tt.defaultCombat, CombatCurrent: tt.defaultCombat}
 			solo.ReactToHostile()
 			assert.Equal(t, tt.expectedCurrent, solo.CombatCurrent)
-		})
-	}
-}
-
-func TestCombatPolicy_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		p    CombatPolicy
-		want string
-	}{
-		{CombatAttack, "Attack"},
-		{CombatEvade, "Evade"},
-		{CombatIgnore, "Indifferent"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.p.String())
-		})
-	}
-}
-
-func TestSoloMovement_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		p    SoloMovement
-		want string
-	}{
-		{SoloRandom, "Random"},
-		{SoloPatrol, "Patrol"},
-		{SoloWallHug, "Along walls"},
-		{SoloStationary, "Fixed"},
-		{SoloWander, "Wander"},
-		{SoloTerritorial, "Territory"},
-		{SoloSwarm, "Flock"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.p.String())
 		})
 	}
 }

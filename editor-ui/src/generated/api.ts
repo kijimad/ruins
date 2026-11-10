@@ -53,6 +53,22 @@ export interface Abilities {
     'defense': number;
 }
 /**
+ * 能力値。スキルの成長の速さと熟練の効果倍率に効く
+ */
+
+export const AbilityId = {
+    Str: 'str',
+    Sen: 'sen',
+    Dex: 'dex',
+    Agi: 'agi',
+    Vit: 'vit',
+    Def: 'def',
+} as const;
+
+export type AbilityId = typeof AbilityId[keyof typeof AbilityId];
+
+
+/**
  * 弾薬設定
  */
 export interface Ammo {
@@ -83,20 +99,44 @@ export type AmmoTag = typeof AmmoTag[keyof typeof AmmoTag];
 
 
 /**
- * 攻撃種別
+ * 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
  */
 
 export const AttackCategory = {
-    Fist: 'FIST',
-    Sword: 'SWORD',
-    Spear: 'SPEAR',
-    Handgun: 'HANDGUN',
-    Rifle: 'RIFLE',
-    Canon: 'CANON',
-    Bow: 'BOW',
+    Fist: 'fist',
+    Sword: 'sword',
+    Spear: 'spear',
+    Handgun: 'handgun',
+    Rifle: 'rifle',
+    Cannon: 'cannon',
+    Bow: 'bow',
 } as const;
 
 export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
+
+
+/**
+ * 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
+ */
+export interface AttackType {
+    'id': AttackCategory;
+    /**
+     * 不調の id。Go の ConditionType 定数の値と同じ
+     */
+    'injury': string;
+    /**
+     * 攻撃で上達するスキル
+     */
+    'skill': SkillId;
+    /**
+     * ダメージを決める熟練の効果倍率。skill の行が持つ
+     */
+    'damage': ProficiencyId;
+    /**
+     * 命中を決める熟練の効果倍率。skill の行が持つ
+     */
+    'accuracy': ProficiencyId;
+}
 
 
 /**
@@ -421,6 +461,23 @@ export interface Bedding {
     'quality': number;
 }
 /**
+ * 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
+ */
+export interface BodyPart {
+    /**
+     * 部位の id
+     */
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 戦闘の命中抽選の重み。0 は命中先にならない
+     */
+    'hitWeight': number;
+}
+/**
  * 本の設定
  */
 export interface Book {
@@ -430,6 +487,59 @@ export interface Book {
     'totalEffort': number;
     'skill'?: SkillBook;
 }
+/**
+ * 建物の散らかり段階
+ */
+
+export const BuildingClutter = {
+    Tidy: 'tidy',
+    Messy: 'messy',
+    Filthy: 'filthy',
+} as const;
+
+export type BuildingClutter = typeof BuildingClutter[keyof typeof BuildingClutter];
+
+
+/**
+ * 建物の損傷段階
+ */
+
+export const BuildingDamage = {
+    Intact: 'intact',
+    Minor: 'minor',
+    Major: 'major',
+} as const;
+
+export type BuildingDamage = typeof BuildingDamage[keyof typeof BuildingDamage];
+
+
+/**
+ * 建物の事情。稀な1軒へ物語を与える
+ */
+
+export const BuildingVariant = {
+    Standard: 'standard',
+    Abandoned: 'abandoned',
+    UnderConstruction: 'under_construction',
+    Survivalist: 'survivalist',
+    Hoarder: 'hoarder',
+} as const;
+
+export type BuildingVariant = typeof BuildingVariant[keyof typeof BuildingVariant];
+
+
+/**
+ * 建物の散らかり段階の重み
+ */
+export interface ClutterChoice {
+    'id': BuildingClutter;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
+
+
 /**
  * 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
  */
@@ -474,6 +584,98 @@ export interface CommandTableList {
     'data': Array<CommandTable>;
     'totalCount': number;
 }
+/**
+ * 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
+ */
+export interface Condition {
+    /**
+     * 不調の id。Go の ConditionType 定数の値と同じ
+     */
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 説明文
+     */
+    'description': string;
+    /**
+     * 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+     */
+    'painPerSeverity': number;
+    /**
+     * 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+     */
+    'bodyFuncDropPerSeverity': number;
+    /**
+     * 省くと ConditionSystem の管轄外になる
+     */
+    'recovery'?: RecoveryMode;
+    /**
+     * progress_until_tend で未治療のとき1ターンに進行度を増やす量
+     */
+    'worsenPer'?: number;
+    /**
+     * 治療済みで1ターンに進行度を減らす基準量
+     */
+    'recoverPer'?: number;
+    /**
+     * 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+     */
+    'bloodDropPerSeverity'?: number;
+    'cause'?: ConditionDeathCause;
+    /**
+     * 起こりうる部位。省くと全部位
+     */
+    'parts'?: Array<string>;
+    /**
+     * 不調を起こす仕組み。攻撃で負う怪我と、きっかけの無い不調は省く
+     */
+    'onset'?: ConditionOnset;
+}
+
+
+/**
+ * 不調が血液量を尽きさせて倒したときの死因
+ */
+
+export const ConditionDeathCause = {
+    Frozen: 'frozen',
+    Illness: 'illness',
+    BloodLoss: 'blood_loss',
+} as const;
+
+export type ConditionDeathCause = typeof ConditionDeathCause[keyof typeof ConditionDeathCause];
+
+
+/**
+ * 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
+ */
+
+export const ConditionOnset = {
+    Cold: 'cold',
+    RottenFood: 'rotten_food',
+    Fatigue: 'fatigue',
+    Hunger: 'hunger',
+} as const;
+
+export type ConditionOnset = typeof ConditionOnset[keyof typeof ConditionOnset];
+
+
+/**
+ * 不調の重症度
+ */
+
+export const ConditionSeverity = {
+    Minor: 'minor',
+    Medium: 'medium',
+    Severe: 'severe',
+} as const;
+
+export type ConditionSeverity = typeof ConditionSeverity[keyof typeof ConditionSeverity];
+
+
 /**
  * 消費可能アイテムの設定
  */
@@ -553,6 +755,31 @@ export interface CubeModule {
      * キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
      */
     'fuelCapacityBonus': number;
+}
+/**
+ * 建物の損傷段階の重み
+ */
+export interface DamageChoice {
+    'id': BuildingDamage;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
+
+
+/**
+ * 建物の家具量の倍率の重み
+ */
+export interface DensityChoice {
+    /**
+     * 建物の家具量の倍率。10 が等倍の ×/10
+     */
+    'factor': number;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
 }
 /**
  * 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
@@ -835,6 +1062,40 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
 
 
 /**
+ * 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる
+ */
+export interface FatigueStage {
+    'id': FatigueStageId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 最大値に対する割合
+     */
+    'from': number;
+    /**
+     * この段階で立つ過労の重症度。省くと立たない
+     */
+    'severity'?: ConditionSeverity;
+}
+
+
+/**
+ * 疲労の段階
+ */
+
+export const FatigueStageId = {
+    Rested: 'rested',
+    Normal: 'normal',
+    Tired: 'tired',
+    Exhausted: 'exhausted',
+} as const;
+
+export type FatigueStageId = typeof FatigueStageId[keyof typeof FatigueStageId];
+
+
+/**
  * 遠距離攻撃設定
  */
 export interface Fire {
@@ -871,16 +1132,27 @@ export interface Fire {
 
 
 /**
- * 植生タイプ
+ * タイルの植生
  */
 
-export const FoliageType = {
-    NUMBER_0: 0,
-    NUMBER_MINUS_1: -1,
-    NUMBER_MINUS_3: -3,
+export const Foliage = {
+    Grass: 'grass',
+    Forest: 'forest',
 } as const;
 
-export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
+export type Foliage = typeof Foliage[keyof typeof Foliage];
+
+
+/**
+ * 植生がタイルの気温に足す補正
+ */
+export interface FoliageEffect {
+    'id': Foliage;
+    /**
+     * 水や植生がタイルの気温に足す補正。℃
+     */
+    'tempModifier': number;
+}
 
 
 /**
@@ -923,12 +1195,87 @@ export interface HeatSource {
     'warmth': number;
 }
 /**
+ * hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く
+ */
+export interface HeroChoice {
+    'id': string;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+    'refs': Array<string>;
+}
+/**
+ * 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる
+ */
+export interface HungerStage {
+    'id': HungerStageId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 最大値に対する割合
+     */
+    'from': number;
+    /**
+     * この段階で立つ栄養失調の重症度。省くと立たない
+     */
+    'severity'?: ConditionSeverity;
+}
+
+
+/**
+ * 空腹の段階
+ */
+
+export const HungerStageId = {
+    Satiated: 'satiated',
+    Normal: 'normal',
+    Hungry: 'hungry',
+    Starving: 'starving',
+} as const;
+
+export type HungerStageId = typeof HungerStageId[keyof typeof HungerStageId];
+
+
+/**
  * 内装レシピ。施設まるごと、または奥室1つに対応する
  */
 export interface InteriorContent {
     'id': string;
     'groups'?: Array<ContentGroup>;
 }
+/**
+ * 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
+ */
+export interface InteriorProfile {
+    'damages': Array<DamageChoice>;
+    'clutters': Array<ClutterChoice>;
+    'variants': Array<VariantChoice>;
+    'densities': Array<DensityChoice>;
+    'heroes': Array<HeroChoice>;
+}
+/**
+ * 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
+ */
+export interface InteriorRef {
+    'id': string;
+    /**
+     * 家具と装飾として置く raw の prop。省くと prop として置かない
+     */
+    'prop'?: string;
+    /**
+     * 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
+     */
+    'itemGroup'?: string;
+    /**
+     * レシピが placement を省いたときの置き方
+     */
+    'placement'?: Placement;
+}
+
+
 /**
  * アイテム
  */
@@ -1272,6 +1619,7 @@ export const MovementPatternType = {
     Wander: 'wander',
     Territorial: 'territorial',
     Swarm: 'swarm',
+    Follow: 'follow',
 } as const;
 
 export type MovementPatternType = typeof MovementPatternType[keyof typeof MovementPatternType];
@@ -1314,7 +1662,7 @@ export interface PaletteList {
     'totalCount': number;
 }
 /**
- * 配置の置き方。空なら家具型の archetype 既定へ落ちる
+ * 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
  */
 
 export const Placement = {
@@ -1400,15 +1748,55 @@ export interface ProfessionList {
  * 職業スキル初期値
  */
 export interface ProfessionSkill {
-    /**
-     * スキルID
-     */
-    'id': string;
+    'id': SkillId;
     /**
      * スキルレベル
      */
     'value': number;
 }
+
+
+/**
+ * 熟練の効果倍率の id。技能と能力値から導く行動ごとの倍率を指す。怪我・病気・疲労・空腹による身体機能の低下は別に扱う
+ */
+
+export const ProficiencyId = {
+    FireResist: 'fire_resist',
+    ThunderResist: 'thunder_resist',
+    ChillResist: 'chill_resist',
+    PhotonResist: 'photon_resist',
+    ColdProgress: 'cold_progress',
+    HungerProgress: 'hunger_progress',
+    HealingEffect: 'healing_effect',
+    MaxWeight: 'max_weight',
+    Exploration: 'exploration',
+    EnemyVision: 'enemy_vision',
+    NightVision: 'night_vision',
+    MoveCost: 'move_cost',
+    CraftCost: 'craft_cost',
+    SmithQuality: 'smith_quality',
+    BuyPrice: 'buy_price',
+    SellPrice: 'sell_price',
+    HeavyArmor: 'heavy_armor',
+    SwordDamage: 'sword_damage',
+    SpearDamage: 'spear_damage',
+    FistDamage: 'fist_damage',
+    BowDamage: 'bow_damage',
+    HandgunDamage: 'handgun_damage',
+    RifleDamage: 'rifle_damage',
+    CannonDamage: 'cannon_damage',
+    SwordAccuracy: 'sword_accuracy',
+    SpearAccuracy: 'spear_accuracy',
+    FistAccuracy: 'fist_accuracy',
+    BowAccuracy: 'bow_accuracy',
+    HandgunAccuracy: 'handgun_accuracy',
+    RifleAccuracy: 'rifle_accuracy',
+    CannonAccuracy: 'cannon_accuracy',
+} as const;
+
+export type ProficiencyId = typeof ProficiencyId[keyof typeof ProficiencyId];
+
+
 /**
  * 置物
  */
@@ -1538,6 +1926,19 @@ export interface Raws {
     'tiles'?: Array<Tile>;
     'props'?: Array<Prop>;
     'professions'?: Array<Profession>;
+    'conditions'?: Array<Condition>;
+    'bodyParts'?: Array<BodyPart>;
+    'skills'?: Array<Skill>;
+    'skillCategories'?: Array<SkillCategory>;
+    'attackTypes'?: Array<AttackType>;
+    'interiorRefs'?: Array<InteriorRef>;
+    'interiorProfile'?: InteriorProfile;
+    'weathers'?: Array<Weather>;
+    'shelterEffects'?: Array<ShelterEffect>;
+    'waterEffects'?: Array<WaterEffect>;
+    'foliageEffects'?: Array<FoliageEffect>;
+    'hungerStages'?: Array<HungerStage>;
+    'fatigueStages'?: Array<FatigueStage>;
 }
 /**
  * レシピ
@@ -1567,6 +1968,19 @@ export interface RecipeList {
     'data': Array<Recipe>;
     'totalCount': number;
 }
+/**
+ * 不調が未治療のときの振る舞いと治し方
+ */
+
+export const RecoveryMode = {
+    RecoverAfterTend: 'recover_after_tend',
+    ProgressUntilTend: 'progress_until_tend',
+    RecoverOverTime: 'recover_over_time',
+} as const;
+
+export type RecoveryMode = typeof RecoveryMode[keyof typeof RecoveryMode];
+
+
 /**
  * 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
  */
@@ -1632,26 +2046,87 @@ export interface ScatterZone {
     'entries': Array<ScatterEntry>;
 }
 /**
- * 遮蔽タイプ
+ * 季節
  */
 
-export const ShelterType = {
-    NUMBER_0: 0,
-    NUMBER_5: 5,
-    NUMBER_10: 10,
+export const SeasonId = {
+    Spring: 'spring',
+    Summer: 'summer',
+    Autumn: 'autumn',
+    Winter: 'winter',
 } as const;
 
-export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
+export type SeasonId = typeof SeasonId[keyof typeof SeasonId];
+
+
+/**
+ * タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
+ */
+
+export const Shelter = {
+    Outdoor: 'outdoor',
+    Partial: 'partial',
+    Indoor: 'indoor',
+} as const;
+
+export type Shelter = typeof Shelter[keyof typeof Shelter];
+
+
+/**
+ * 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
+ */
+export interface ShelterEffect {
+    'id': Shelter;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 水や植生がタイルの気温に足す補正。℃
+     */
+    'anchorTemp': number;
+    /**
+     * 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
+     */
+    'influencePercent': number;
+}
+
+
+/**
+ * スキル。同じカテゴリのスキルは行の順に表示する
+ */
+export interface Skill {
+    'id': SkillId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 説明文
+     */
+    'summary': string;
+    /**
+     * 説明文
+     */
+    'gainedBy': string;
+    /**
+     * 説明文
+     */
+    'effect': string;
+    'ability': AbilityId;
+    /**
+     * スキルのカテゴリの id
+     */
+    'category': string;
+    'proficiencies'?: Array<SkillProficiency>;
+}
 
 
 /**
  * スキル本設定
  */
 export interface SkillBook {
-    /**
-     * スキルID
-     */
-    'targetSkill': string;
+    'targetSkill': SkillId;
     /**
      * スキルレベル
      */
@@ -1661,6 +2136,71 @@ export interface SkillBook {
      */
     'maxLevel': number;
 }
+
+
+/**
+ * スキルのカテゴリ。行の順に表示する
+ */
+export interface SkillCategory {
+    /**
+     * スキルのカテゴリの id
+     */
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+}
+/**
+ * スキルID
+ */
+
+export const SkillId = {
+    Sword: 'sword',
+    Spear: 'spear',
+    Fist: 'fist',
+    WeightBearing: 'weight_bearing',
+    Bow: 'bow',
+    Handgun: 'handgun',
+    Rifle: 'rifle',
+    Cannon: 'cannon',
+    Exploration: 'exploration',
+    Crafting: 'crafting',
+    Smithing: 'smithing',
+    Negotiation: 'negotiation',
+    Mechanic: 'mechanic',
+    Sprinting: 'sprinting',
+    Stealth: 'stealth',
+    NightVision: 'night_vision',
+    ColdResist: 'cold_resist',
+    HungerResist: 'hunger_resist',
+    Healing: 'healing',
+    HeavyArmor: 'heavy_armor',
+    FireResist: 'fire_resist',
+    ThunderResist: 'thunder_resist',
+    ChillResist: 'chill_resist',
+    PhotonResist: 'photon_resist',
+} as const;
+
+export type SkillId = typeof SkillId[keyof typeof SkillId];
+
+
+/**
+ * スキルが左右する熟練の効果倍率
+ */
+export interface SkillProficiency {
+    'id': ProficiencyId;
+    /**
+     * 熟練の効果倍率のスキルLv1あたりの変化量。百分率
+     */
+    'perLevel': number;
+    /**
+     * この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ
+     */
+    'resists'?: Element;
+}
+
+
 /**
  * スプライト描画深度
  */
@@ -1792,9 +2332,14 @@ export interface Tile {
      */
     'blockView': boolean;
     'spriteRender': SpriteRender;
-    'shelter': ShelterType;
-    'water': WaterType;
-    'foliage': FoliageType;
+    /**
+     * 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
+     */
+    'water'?: boolean;
+    /**
+     * 植生。省くと植生なし
+     */
+    'foliage'?: Foliage;
 }
 
 
@@ -1844,16 +2389,39 @@ export type UsableScene = typeof UsableScene[keyof typeof UsableScene];
 
 
 /**
- * 水タイプ
+ * 建物の変種の重み
+ */
+export interface VariantChoice {
+    'id': BuildingVariant;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
+
+
+/**
+ * 水がタイルの気温に足す補正
+ */
+export interface WaterEffect {
+    'id': WaterExposure;
+    /**
+     * 水や植生がタイルの気温に足す補正。℃
+     */
+    'tempModifier': number;
+}
+
+
+/**
+ * タイルが受ける水の影響
  */
 
-export const WaterType = {
-    NUMBER_0: 0,
-    NUMBER_MINUS_5: -5,
-    NUMBER_MINUS_10: -10,
+export const WaterExposure = {
+    Nearby: 'nearby',
+    Submerged: 'submerged',
 } as const;
 
-export type WaterType = typeof WaterType[keyof typeof WaterType];
+export type WaterExposure = typeof WaterExposure[keyof typeof WaterExposure];
 
 
 /**
@@ -1873,6 +2441,63 @@ export interface Wearable {
      * 耐暑性能
      */
     'insulationHeat': number;
+}
+
+
+/**
+ * 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る
+ */
+export interface Weather {
+    'id': WeatherId;
+    /**
+     * 天候による世界温度への加算。℃
+     */
+    'tempModifier': number;
+    /**
+     * 天候による視程レンジへの加算。タイル。負で狭くなる
+     */
+    'visionDelta': number;
+    /**
+     * 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う
+     */
+    'severity': number;
+    /**
+     * 天候のスペルの基準長。ターン
+     */
+    'spellTurnsMin': number;
+    /**
+     * 天候のスペルの基準長。ターン
+     */
+    'spellTurnsMax': number;
+    'seasons': Array<WeatherSeasonWeight>;
+}
+
+
+/**
+ * 天候の種類
+ */
+
+export const WeatherId = {
+    Clear: 'clear',
+    Cloudy: 'cloudy',
+    Rain: 'rain',
+    Snow: 'snow',
+    Blizzard: 'blizzard',
+    ColdSnap: 'cold_snap',
+} as const;
+
+export type WeatherId = typeof WeatherId[keyof typeof WeatherId];
+
+
+/**
+ * 季節ごとの天候の出やすさ
+ */
+export interface WeatherSeasonWeight {
+    'id': SeasonId;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
 }
 
 

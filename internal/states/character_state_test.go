@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 
@@ -105,7 +106,7 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	require.NoError(t, err)
 
 	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{
-		Type:        gc.ConditionFracture,
+		Type:        gc.ConditionType("fracture"),
 		Timer:       60,
 		Severity:    gc.SeverityMedium,
 		TendQuality: 150,
@@ -128,13 +129,13 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 		if it.BodyPart == gc.BodyPartArms && it.IsHeader {
 			hasArmHeader = true
 		}
-		if it.BodyPart == gc.BodyPartArms && it.Condition != nil && it.Condition.Type == gc.ConditionFracture {
+		if it.BodyPart == gc.BodyPartArms && it.Condition != nil && it.Condition.Type == gc.ConditionType("fracture") {
 			frac = it
 		}
 	}
 	assert.True(t, hasArmHeader, "部位はカテゴリ見出しになる")
 	require.NotNil(t, frac.Condition, "腕の骨折が1エントリとして並ぶ")
-	require.Equal(t, gc.ConditionFracture, frac.Condition.Type, "エントリは骨折の不調を運ぶ")
+	require.Equal(t, gc.ConditionType("fracture"), frac.Condition.Type, "エントリは骨折の不調を運ぶ")
 	assert.Equal(t, "60%", frac.Value, "エントリの値に進行度")
 	assert.Contains(t, frac.Label, "Tended 150%", "症状名の右に治療状態")
 
@@ -176,7 +177,7 @@ func TestCharacterState_過労の詳細は重症度と意識代謝の低下を�
 	// 疲労を過労域まで積む。比率 0.8 以上で Exhausted になり重症度 Medium の過労が導出される
 	fatigue := world.Components.Fatigue.Get(player)
 	fatigue.Current = fatigue.Max
-	require.Equal(t, gc.FatigueExhausted, fatigue.GetLevel(), "満タンの疲労は過労域になる")
+	require.Equal(t, oapi.FatigueStageIdExhausted, fatigue.GetLevel(world.Resources.NeedDefs), "満タンの疲労は過労域になる")
 
 	props, err := state.Fetch(world)
 	require.NoError(t, err)
@@ -191,12 +192,12 @@ func TestCharacterState_過労の詳細は重症度と意識代謝の低下を�
 	// 全身に過労が1エントリとして並ぶ。一覧は重症度を値に出す
 	var exhaustion statusItemData
 	for _, it := range health.Items {
-		if it.Condition != nil && it.Condition.Type == gc.ConditionExhaustion {
+		if it.Condition != nil && it.Condition.Type == gc.ConditionType("exhaustion") {
 			exhaustion = it
 		}
 	}
 	require.NotNil(t, exhaustion.Condition, "全身に過労が並ぶ")
-	require.Equal(t, gc.ConditionExhaustion, exhaustion.Condition.Type, "エントリは過労の不調を運ぶ")
+	require.Equal(t, gc.ConditionType("exhaustion"), exhaustion.Condition.Type, "エントリは過労の不調を運ぶ")
 	require.Equal(t, gc.BodyPartWholeBody, exhaustion.BodyPart, "過労は全身性")
 	assert.Equal(t, "Medium", exhaustion.Value, "一覧の値は重症度")
 

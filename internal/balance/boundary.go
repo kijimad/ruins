@@ -47,7 +47,7 @@ type BoundaryMargin struct {
 // 変化率を二分探索で解く。凍結ゲートの点固定を余白監視へ拡張する。
 func BoundaryMargins(master oapi.Raws) []BoundaryMargin {
 	knobs := knobRegistry()
-	base := metricsAt(master, DefaultParams())
+	base := metricsAt(master, DefaultParams(master))
 	bands := metricBands()
 	out := make([]BoundaryMargin, 0, len(SensitivityMetricNames)*len(knobs))
 	for i, name := range SensitivityMetricNames {
@@ -68,7 +68,7 @@ func BoundaryMargins(master oapi.Raws) []BoundaryMargin {
 // うち近い方を返す。どちらの端にも範囲内で届かなければ OK=false。
 func solveBoundary(master oapi.Raws, idx int, k Knob, band metricBand) BoundaryMargin {
 	eval := func(f float64) float64 {
-		p := DefaultParams()
+		p := DefaultParams(master)
 		*k.Ptr(&p) *= f
 		return metricValue(master, p, idx)
 	}

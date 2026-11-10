@@ -183,7 +183,7 @@ func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face
 		section(query.T(world, "Equipment"))
 		for _, equip := range prof.Equips {
 			slotLabel := string(equip.Slot)
-			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
+			if slot, ok := gc.ParseEquipmentSlot(equip.Slot); ok {
 				slotLabel = query.T(world, slot.String())
 			}
 			line(fmt.Sprintf(" %s %s", slotLabel, query.T(world, raw.ItemName(world.Resources.RawMaster, equip.Name))))
@@ -198,12 +198,7 @@ func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face
 	if profSkills := raw.PtrSlice(prof.Skills); len(profSkills) > 0 {
 		section(query.T(world, "Skills"))
 		for _, skill := range profSkills {
-			skillID := gc.SkillID(skill.Id)
-			name := skill.Id
-			if gc.HasSkillName(skillID) {
-				name = query.T(world, gc.SkillName(skillID))
-			}
-			line(fmt.Sprintf(" %s Lv.%d", name, skill.Value))
+			line(fmt.Sprintf(" %s Lv.%d", query.SkillName(world, skill.Id), skill.Value))
 		}
 	}
 	return items

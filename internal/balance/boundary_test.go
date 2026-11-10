@@ -41,7 +41,7 @@ func TestBoundaryMargins_崖まで動かすと帯端に届く(t *testing.T) {
 		if !m.OK || !continuous[idx] {
 			continue
 		}
-		p := DefaultParams()
+		p := DefaultParams(master)
 		*knobByName[m.Knob].Ptr(&p) *= 1 + m.NearestPct/100
 		got := metricValue(master, p, idx)
 		edge := bands[idx].hi
@@ -75,7 +75,7 @@ func TestBoundaryMargins_余白の外は帯を割る(t *testing.T) {
 			continue
 		}
 		idx := nameToIdx[m.Metric]
-		p := DefaultParams()
+		p := DefaultParams(master)
 		*knobByName[m.Knob].Ptr(&p) *= 1 + (m.NearestPct/100)*2
 		got := metricValue(master, p, idx)
 		outside := got < bands[idx].lo-1e-9 || got > bands[idx].hi+1e-9

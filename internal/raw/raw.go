@@ -49,6 +49,9 @@ func LoadFromFile(path string) (oapi.Raws, error) {
 	if err := ValidateReferences(raws); err != nil {
 		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
 	}
+	if err := validateCodeRows(raws); err != nil {
+		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
+	}
 	return raws, nil
 }
 
@@ -156,8 +159,8 @@ func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.
 		return gc.TargetType{}
 	}
 	return gc.TargetType{
-		TargetGroup: gc.TargetGroupType(string(targetGroup)),
-		TargetNum:   gc.TargetNumType(string(targetNum)),
+		TargetGroup: targetGroup,
+		TargetNum:   targetNum,
 	}
 }
 
@@ -171,7 +174,7 @@ func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
 		Accuracy:       m.Accuracy,
 		Damage:         m.Damage,
 		AttackCount:    m.AttackCount,
-		Element:        gc.ElementType(string(m.Element)),
+		Element:        m.Element,
 		AttackCategory: attackType,
 		Cost:           m.Cost,
 		TargetType:     parseTargetType(m.TargetGroup, m.TargetNum),
@@ -192,7 +195,7 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 		Accuracy:       f.Accuracy,
 		Damage:         f.Damage,
 		AttackCount:    f.AttackCount,
-		Element:        gc.ElementType(string(f.Element)),
+		Element:        f.Element,
 		AttackCategory: attackType,
 		Cost:           f.Cost,
 		TargetType:     parseTargetType(f.TargetGroup, f.TargetNum),
@@ -220,10 +223,7 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 		return nil, fmt.Errorf("book requires a Skill")
 	}
 
-	skillID := gc.SkillID(b.Skill.TargetSkill)
-	if !gc.HasSkillName(skillID) {
-		return nil, fmt.Errorf("undefined skill ID: %q", b.Skill.TargetSkill)
-	}
+	skillID := b.Skill.TargetSkill
 
 	return &gc.Book{
 		Effort: gc.IntPool{Max: b.TotalEffort},
@@ -267,10 +267,10 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	if item.Consumable != nil {
 		entitySpec.Consumable = &gc.Consumable{
-			UsableScene: gc.UsableSceneType(item.Consumable.UsableScene),
+			UsableScene: item.Consumable.UsableScene,
 			TargetType: gc.TargetType{
-				TargetGroup: gc.TargetGroupType(item.Consumable.TargetGroup),
-				TargetNum:   gc.TargetNumType(item.Consumable.TargetNum),
+				TargetGroup: item.Consumable.TargetGroup,
+				TargetNum:   item.Consumable.TargetNum,
 			},
 		}
 	}
@@ -340,7 +340,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if item.Wearable != nil {
 		entitySpec.Wearable = &gc.Wearable{
 			Defense:           item.Wearable.Defense,
-			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
+			EquipmentCategory: item.Wearable.EquipmentCategory,
 			EquipBonus:        bonus,
 			InsulationCold:    item.Wearable.InsulationCold,
 			InsulationHeat:    item.Wearable.InsulationHeat,
@@ -542,43 +542,23 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
 
-	// 派閥タイプの処理
-	if member.FactionType != nil && string(*member.FactionType) != "" {
-		switch string(*member.FactionType) {
-		case gc.FactionAllyName:
-			entitySpec.FactionAlly = &gc.FactionAlly{}
-		case gc.FactionEnemyName:
-			entitySpec.FactionEnemy = &gc.FactionEnemy{}
-		case gc.FactionNeutralName:
-			entitySpec.FactionNeutral = &gc.FactionNeutral{}
-		default:
-			return gc.EntitySpec{}, fmt.Errorf("invalid faction type '%s': %s", *member.FactionType, name)
-		}
+	// 味方と敵の派閥は NewPlayerSpec と NewEnemySpec が付ける。raw が指せるのは中立だけ
+	if member.FactionType != nil && *member.FactionType == oapi.FactionNeutral {
+		entitySpec.FactionNeutral = &gc.FactionNeutral{}
 	}
 
 	// AI の組み立て。SoloAIとして構築し、スポーン関数がそのまま使う
 	{
 		solo := gc.SoloAI{
-			CombatDefault: gc.CombatAttack,
-			CombatCurrent: gc.CombatAttack,
+			CombatDefault: oapi.Attack,
+			CombatCurrent: oapi.Attack,
 		}
-		if member.CombatPolicy != nil && string(*member.CombatPolicy) != "" {
-			switch gc.CombatPolicy(*member.CombatPolicy) {
-			case gc.CombatAttack:
-				solo.CombatDefault = gc.CombatAttack
-				solo.CombatCurrent = gc.CombatAttack
-			case gc.CombatIgnore:
-				solo.CombatDefault = gc.CombatIgnore
-				solo.CombatCurrent = gc.CombatIgnore
-			case gc.CombatEvade:
-				solo.CombatDefault = gc.CombatEvade
-				solo.CombatCurrent = gc.CombatEvade
-			default:
-				return gc.EntitySpec{}, fmt.Errorf("invalid combat policy '%s': %s", string(*member.CombatPolicy), name)
-			}
+		if member.CombatPolicy != nil && *member.CombatPolicy != "" {
+			solo.CombatDefault = *member.CombatPolicy
+			solo.CombatCurrent = *member.CombatPolicy
 		}
-		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
-			solo.Movement = gc.SoloMovement(*member.MovementPattern)
+		if member.MovementPattern != nil && *member.MovementPattern != "" {
+			solo.Movement = *member.MovementPattern
 		}
 		entitySpec.SoloAI = &solo
 	}
@@ -773,7 +753,7 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	entitySpec.Tile = &gc.Tile{}
 
 	// タイル種別によらないので、ここでは初期化するだけ
-	entitySpec.TileEnvironment = &gc.TileEnvironment{}
+	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: oapi.Outdoor}
 
 	return entitySpec, nil
 }
@@ -823,6 +803,14 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 1つのPropが複数のインタラクションを持てる
 	var interactions []gc.InteractionKind
 
+	if propRaw.Door != nil {
+		entitySpec.Door = &gc.Door{
+			IsOpen:      false,
+			Orientation: gc.DoorOrientationHorizontal,
+		}
+		interactions = append(interactions, gc.InteractionDoor)
+	}
+
 	if propRaw.Hp != nil {
 		entitySpec.HP = &gc.HP{Max: *propRaw.Hp, Current: *propRaw.Hp}
 		interactions = append(interactions, gc.InteractionMelee)
@@ -831,14 +819,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
 	entitySpec.Bedding = toGCBedding(propRaw.Bedding)
-
-	if propRaw.Door != nil {
-		entitySpec.Door = &gc.Door{
-			IsOpen:      false,
-			Orientation: gc.DoorOrientationHorizontal,
-		}
-		interactions = append(interactions, gc.InteractionDoor)
-	}
 
 	if propRaw.WarpNextTrigger != nil {
 		interactions = append(interactions, gc.InteractionPortalNext)
@@ -977,4 +957,189 @@ func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string
 		return "", nil
 	}
 	return entries[i].Id, nil
+}
+
+// NewConditionDefs は raw の conditions、bodyParts、attackTypes から不調の定義の表を組み立てる。
+// 参照の実在は ValidateReferences が確かめる前提で、見つからない部位はエラーにする
+func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
+	var parts [gc.BodyPartCount]gc.BodyPartDef
+	for _, row := range PtrSlice(raws.BodyParts) {
+		bp, ok := gc.BodyPartByID(row.Id)
+		if !ok {
+			return gc.ConditionDefs{}, NewKeyNotFoundError(row.Id, "BodyParts")
+		}
+		parts[bp] = gc.BodyPartDef{Name: row.Name, HitWeight: row.HitWeight}
+	}
+
+	conditions := PtrSlice(raws.Conditions)
+	conds := make(map[gc.ConditionType]gc.ConditionDef, len(conditions))
+	for _, row := range conditions {
+		def := gc.ConditionDef{
+			Name:                    row.Name,
+			Description:             row.Description,
+			PainPerSeverity:         row.PainPerSeverity,
+			BodyFuncDropPerSeverity: row.BodyFuncDropPerSeverity,
+		}
+		if row.Recovery != nil {
+			def.Recovery = *row.Recovery
+		}
+		if row.WorsenPer != nil {
+			def.WorsenPer = *row.WorsenPer
+		}
+		if row.RecoverPer != nil {
+			def.RecoverPer = *row.RecoverPer
+		}
+		if row.BloodDropPerSeverity != nil {
+			def.BloodDropPerSeverity = *row.BloodDropPerSeverity
+		}
+		if row.Cause != nil {
+			def.Cause = gc.DeathCause(*row.Cause)
+		}
+		if row.Onset != nil {
+			def.Onset = *row.Onset
+		}
+		for _, id := range PtrSlice(row.Parts) {
+			bp, ok := gc.BodyPartByID(id)
+			if !ok {
+				return gc.ConditionDefs{}, NewKeyNotFoundError(id, "BodyParts")
+			}
+			def.Parts = append(def.Parts, bp)
+		}
+		conds[gc.ConditionType(row.Id)] = def
+	}
+
+	attackTypes := PtrSlice(raws.AttackTypes)
+	injuries := make(map[string]gc.ConditionType, len(attackTypes))
+	for _, row := range attackTypes {
+		injuries[string(row.Id)] = gc.ConditionType(row.Injury)
+	}
+	return gc.NewConditionDefs(conds, parts, injuries), nil
+}
+
+// NewSkillDefs は raw の skills、skillCategories、attackTypes からスキルの定義の表を組み立てる。
+// 命中の効果倍率は攻撃の種類の射程から、目減りさせる身体機能を決める。
+// カテゴリは skillCategories の行の順に、カテゴリ内のスキルは skills の行の順に並べる
+func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
+	rows := PtrSlice(raws.Skills)
+	skills := make(map[oapi.SkillId]gc.SkillDef, len(rows))
+	proficiencies := make(map[oapi.ProficiencyId]gc.ProficiencyDef)
+	idsByCategory := make(map[string][]oapi.SkillId)
+	var resists []gc.ResistDef
+	for i := range rows {
+		row := &rows[i]
+		id := row.Id
+		skills[id] = gc.SkillDef{
+			Name:     row.Name,
+			Summary:  row.Summary,
+			GainedBy: row.GainedBy,
+			Effect:   row.Effect,
+			Ability:  row.Ability,
+		}
+		for _, p := range PtrSlice(row.Proficiencies) {
+			proficiencies[p.Id] = gc.ProficiencyDef{Skill: id, PerLevel: p.PerLevel}
+			if p.Resists != nil {
+				resists = append(resists, gc.ResistDef{Element: *p.Resists, Proficiency: p.Id})
+			}
+		}
+		idsByCategory[row.Category] = append(idsByCategory[row.Category], id)
+	}
+
+	catRows := PtrSlice(raws.SkillCategories)
+	categories := make([]gc.SkillCategory, 0, len(catRows))
+	for _, c := range catRows {
+		categories = append(categories, gc.SkillCategory{Name: c.Name, IDs: idsByCategory[c.Id]})
+	}
+	attackTypes := PtrSlice(raws.AttackTypes)
+	weapons := make([]gc.WeaponDef, 0, len(attackTypes))
+	for _, row := range attackTypes {
+		at, err := gc.ParseAttackType(string(row.Id))
+		if err != nil {
+			return gc.SkillDefs{}, err
+		}
+		weapons = append(weapons, gc.WeaponDef{AttackType: at, Skill: row.Skill, Damage: row.Damage, Accuracy: row.Accuracy})
+		accuracy, ok := proficiencies[row.Accuracy]
+		if !ok {
+			return gc.SkillDefs{}, NewKeyNotFoundError(string(row.Accuracy), "Proficiencies")
+		}
+		accuracy.BodyFunc = gc.BodyFuncManipulation
+		if at.Range == gc.AttackRangeRanged {
+			accuracy.BodyFunc = gc.BodyFuncSight
+		}
+		proficiencies[row.Accuracy] = accuracy
+	}
+	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists}, nil
+}
+
+var (
+	weatherKinds = map[oapi.WeatherId]gc.WeatherKind{
+		oapi.Clear:    gc.WeatherClear,
+		oapi.Cloudy:   gc.WeatherCloudy,
+		oapi.Rain:     gc.WeatherRain,
+		oapi.Snow:     gc.WeatherSnow,
+		oapi.Blizzard: gc.WeatherBlizzard,
+		oapi.ColdSnap: gc.WeatherColdSnap,
+	}
+	seasons = map[oapi.SeasonId]gc.Season{
+		oapi.Spring: gc.SeasonSpring,
+		oapi.Summer: gc.SeasonSummer,
+		oapi.Autumn: gc.SeasonAutumn,
+		oapi.Winter: gc.SeasonWinter,
+	}
+	severities = map[oapi.ConditionSeverity]gc.Severity{
+		oapi.ConditionSeverityMinor:  gc.SeverityMinor,
+		oapi.ConditionSeverityMedium: gc.SeverityMedium,
+		oapi.ConditionSeveritySevere: gc.SeveritySevere,
+	}
+)
+
+// NewTileEnvDefs は raw の shelterEffects、waterEffects、foliageEffects から、囲われの受け方と、水と植生がタイルの気温に足す補正の表を組み立てる
+func NewTileEnvDefs(raws oapi.Raws) gc.TileEnvDefs {
+	defs := gc.TileEnvDefs{Shelters: map[oapi.Shelter]gc.ShelterDef{}, Water: map[oapi.WaterExposure]int{}, Foliage: map[oapi.Foliage]int{}}
+	for _, row := range PtrSlice(raws.ShelterEffects) {
+		defs.Shelters[row.Id] = gc.ShelterDef{Name: row.Name, AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent}
+	}
+	for _, row := range PtrSlice(raws.WaterEffects) {
+		defs.Water[row.Id] = row.TempModifier
+	}
+	for _, row := range PtrSlice(raws.FoliageEffects) {
+		defs.Foliage[row.Id] = row.TempModifier
+	}
+	return defs
+}
+
+// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節は enum なのでスキーマ検証で尽くされる
+func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
+	var kinds [gc.NumWeatherKind]gc.WeatherDef
+	for _, row := range PtrSlice(raws.Weathers) {
+		def := gc.WeatherDef{
+			Effect:        gc.WeatherEffect{TempModifier: row.TempModifier, VisionDelta: row.VisionDelta},
+			Severity:      row.Severity,
+			SpellTurnsMin: row.SpellTurnsMin,
+			SpellTurnsMax: row.SpellTurnsMax,
+		}
+		for _, sw := range row.Seasons {
+			def.SeasonWeights[seasons[sw.Id]] = sw.Weight
+		}
+		kinds[weatherKinds[row.Id]] = def
+	}
+	return gc.WeatherDefs{Kinds: kinds}
+}
+
+// NewNeedDefs は raw の hungerStages と fatigueStages から空腹と疲労の段階の表を組み立てる
+func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
+	conditionOf := func(s *oapi.ConditionSeverity) gc.Severity {
+		if s == nil {
+			return gc.SeverityNone
+		}
+		return severities[*s]
+	}
+	hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))
+	for _, row := range PtrSlice(raws.HungerStages) {
+		hunger = append(hunger, gc.HungerStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
+	}
+	fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))
+	for _, row := range PtrSlice(raws.FatigueStages) {
+		fatigue = append(fatigue, gc.FatigueStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
+	}
+	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue}
 }

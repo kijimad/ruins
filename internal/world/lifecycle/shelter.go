@@ -4,6 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -76,16 +77,16 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 		for _, c := range cells {
 			visited[c] = true
 			if tile, ok := tiles[c]; ok {
-				if world.Components.TileEnvironment.Get(tile).Shelter == gc.ShelterNone {
+				if world.Components.TileEnvironment.Get(tile).Shelter == oapi.Outdoor {
 					sawOutdoor = true
 				}
 			}
 		}
 
-		shelter := gc.ShelterFull
+		shelter := oapi.Indoor
 		switch {
 		case touchesEdge && sawOutdoor:
-			shelter = gc.ShelterNone
+			shelter = oapi.Outdoor
 		case touchesEdge:
 			// 範囲より大きい囲いか判定できないので現状維持にする
 			continue

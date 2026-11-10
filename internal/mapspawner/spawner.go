@@ -66,12 +66,8 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 			return fmt.Errorf("failed to spawn tile entity (%d, %d): %w", int(pos.X), int(pos.Y), err)
 		}
 
-		// TileRaw の環境情報を TileEnvironment に設定する
-		if world.Components.TileEnvironment.Has(tileEntity) {
-			tileTemp := world.Components.TileEnvironment.Get(tileEntity)
-			tileTemp.Shelter = gc.ShelterType(tile.Shelter)
-			tileTemp.Water = gc.WaterType(tile.Water)
-			tileTemp.Foliage = gc.FoliageType(tile.Foliage)
+		if metaPlan.Environments != nil && world.Components.TileEnvironment.Has(tileEntity) {
+			*world.Components.TileEnvironment.Get(tileEntity) = metaPlan.Environments[i]
 		}
 	}
 	return nil
@@ -133,7 +129,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 		}
 
 		x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
-		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutralName {
+		if member.FactionType != nil && *member.FactionType == oapi.FactionNeutral {
 			_, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
 				return fmt.Errorf("failed to spawn neutral NPC (%d, %d): %w", x, y, err)

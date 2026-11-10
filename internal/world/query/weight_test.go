@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -219,7 +220,7 @@ func TestUpdateWeightCapacity(t *testing.T) {
 		})
 		// 重量Lv10: 倍率 = 100 + 10*4 = 140 → 基本Max(30.0) * 140/100 = 42.0
 		skills := gc.NewSkills()
-		skills.Get(gc.SkillWeightBearing).Value = 10
+		skills.Get(oapi.SkillIdWeightBearing).Value = 10
 		world.Components.Skills.Add(player, skills)
 
 		UpdateWeightCapacity(world, player)

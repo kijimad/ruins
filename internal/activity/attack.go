@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -259,20 +260,20 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 	if attack == nil {
 		return consts.PercentBase
 	}
-	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
+	weapon, ok := world.Resources.SkillDefs.Weapon(attack.GetAttackCategory())
 	if !ok {
 		return consts.PercentBase
 	}
-	key := gc.WeaponDamageKey(skillID)
+	key := weapon.Damage
 	if !isDamage {
-		key = gc.WeaponAccuracyKey(skillID)
+		key = weapon.Accuracy
 	}
 	return query.ProficiencyValue(world, entity, key)
 }
 
 // elementMult は対象の属性 element への耐性の倍率を返す。耐性を持たない属性なら等倍
-func elementMult(target ecs.Entity, element gc.ElementType, world w.World) consts.Percent {
-	key, ok := gc.LookupElementResistKey(element)
+func elementMult(target ecs.Entity, element oapi.Element, world w.World) consts.Percent {
+	key, ok := world.Resources.SkillDefs.Resist(element)
 	if !ok {
 		return consts.PercentBase
 	}
@@ -399,17 +400,18 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 	skills := world.Components.Skills.Get(actor)
 
-	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
+	weapon, ok := world.Resources.SkillDefs.Weapon(attack.GetAttackCategory())
 	if !ok {
 		return
 	}
+	skillID := weapon.Skill
 	s := skills.Get(skillID)
 
 	if !world.Components.Abilities.Has(actor) {
 		return
 	}
 	abils := world.Components.Abilities.Get(actor)
-	ablID := gc.SkillAbilityID(skillID)
+	ablID := world.Resources.SkillDefs.Ability(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
 		actorName := query.GetEntityName(actor, world)
