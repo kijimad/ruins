@@ -27,12 +27,11 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 	if err != nil {
 		return Site{}, nil, err
 	}
-	site := planSite(footprint, seed, door, fac)
-
 	table, err := newProfileTable(raws)
 	if err != nil {
 		return Site{}, nil, err
 	}
+	site := planSite(table, footprint, seed, door, fac)
 	prof := rollProfile(table, seed)   // 生活感の直交軸は建物ごとに1つ。全室へ一様に効かせる
 	flavor, err := flavorContent(raws) // 全室共通なのでループ外で1度だけ引く
 	if err != nil {
@@ -49,14 +48,14 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 		}
 		f := FillRoom(roomSeed, hr.Room, applyDensity(content, prof.density))
 		// 損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷なら素通し
-		a := Age(roomSeed, hr.Room, f, prof.damage)
+		a := Age(table, roomSeed, hr.Room, f, prof.damage)
 		fl := a
 		// flavor と散らかりは到達性修復を通らないので、幅1の通路や狭室に置くと歩行を塞ぐ。廊下と、内側が
 		// 1マス幅しかない狭室には足さない。通路を蝋燭や絨毯や小物で埋めない
 		if hr.Role != roleCorridor && !isNarrowRoom(hr.Room.Rect) {
 			fl = Flavor(roomSeed, hr.Room, a, flavor)
 			// 散らかりの小物を家具の隣へ落とし、生活感を足す。整頓の建物では何も足さない
-			fl = applyClutter(childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter, hr.Role)
+			fl = applyClutter(table, childSeed(roomSeed, 11_300_000), hr.Room, fl, prof.clutter, hr.Role)
 		}
 		fill = append(fill, f...)
 		decayed = append(decayed, a...)
@@ -64,10 +63,10 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 	}
 	// 外皮 FacadePass。街路側の前壁へ窓・シャッター・看板を付け、閉じた箱を正面のある建物にする。損傷レベルで
 	// 廃業した店のシャッターを決める。壁の上に載る prop なので室内の充填とは別に足す
-	facade := facadeElements(site, fac, prof.damage)
+	facade := facadeElements(table, site, fac, prof.damage)
 	flavored = append(flavored, facade...)
 	// lot pass。敷地を塀で囲い門で開け、前庭に外構を置く。建物を裸で地面に置かない
-	flavored = append(flavored, lotElements(site, fac)...)
+	flavored = append(flavored, lotElements(table, site, fac)...)
 	// hero 部屋。稀な1棟の主室中央へ landmark を1つ据え、記憶に残る見せ場にする。主室中央には食卓など
 	// 中央配置の什器が既にあることが多いので、目玉は showpiece としてそのタイルの既存 prop を退けて1つだけ
 	// 置き、スプライトの重なりを防ぐ。占有は1タイルのままなので歩行性は変わらない

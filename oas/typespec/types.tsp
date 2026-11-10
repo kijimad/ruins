@@ -132,6 +132,32 @@ enum BuildingVariant {
   hoarder,
 }
 
+/** 敷地の類型。前庭の深さと外構の出し分けに使う */
+enum SiteType {
+  /** 戸建。塀で囲い前庭に観葉 */
+  detached,
+
+  /** 商店街。街路に面して建て前庭は浅く、塀を張らず看板と自販機を出す */
+  shopfront,
+
+  /** ロードサイド。前庭を広く取り前面を駐車場にする */
+  roadside,
+}
+
+/** 内装の経年や散らかりの割合。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar InteriorPercent extends integer;
+
+/** 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない */
+@minValue(0)
+scalar SiteWeight extends int32;
+
+/** 入口側に空ける前庭の奥行き。タイル */
+@minValue(0)
+@maxValue(10)
+scalar YardDepth extends int32;
+
 /** 建物の家具量の倍率。10 が等倍の ×/10 */
 @minValue(1)
 @maxValue(30)

@@ -15,13 +15,13 @@ import (
 // facadeElements は街路側の前壁に付ける外皮 prop を返す。前庭ぶん内寄せした建物の街路側の壁へ、入口と角を
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
-func facadeElements(s Site, fac oapi.Facility, dmg damageLevel) []Placed {
+func facadeElements(t profileTable, s Site, fac oapi.Facility, dmg damageLevel) []Placed {
 	fside := frontSide(s)
 	lo, hi, wall := frontWallSpan(s.Building, fside)
 	doorAxis := wall.along(s.Door)
-	winRef := "window"
+	winRef := t.facade.Window
 	if fac.IsShop && dmg == dmgMajor {
-		winRef = "shutter" // 廃業した店はシャッターを下ろす
+		winRef = t.facade.Shutter // 廃業した店はシャッターを下ろす
 	}
 
 	var out []Placed
@@ -47,7 +47,7 @@ func facadeElements(s Site, fac oapi.Facility, dmg damageLevel) []Placed {
 			w := wall.at(a)
 			yard := Vec{X: w.X + outward.X, Y: w.Y + outward.Y}
 			if s.Garden[yard] {
-				out = append(out, Placed{Kind: oapi.Decor, Ref: "sign", Pos: yard})
+				out = append(out, Placed{Kind: oapi.Decor, Ref: t.facade.Sign, Pos: yard})
 				break
 			}
 		}

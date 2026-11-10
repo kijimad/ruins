@@ -2119,11 +2119,21 @@ components:
       required:
         - id
         - weight
+        - furniturePercent
+        - floorPercent
       properties:
         id:
           $ref: '#/components/schemas/BuildingClutter'
         weight:
           $ref: '#/components/schemas/EntryWeight'
+        furniturePercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
+        floorPercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 家具から離れた床のタイルへ小物を散らす割合
       description: 建物の散らかり段階の重み
     ColorChannel:
       type: integer
@@ -2374,11 +2384,21 @@ components:
       required:
         - id
         - weight
+        - lootPercent
+        - rubbleSeedRatio
       properties:
         id:
           $ref: '#/components/schemas/BuildingDamage'
         weight:
           $ref: '#/components/schemas/EntryWeight'
+        lootPercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 経年で戦利品を撤去する割合
+        rubbleSeedRatio:
+          allOf:
+            - $ref: '#/components/schemas/NeedRatio'
+          description: 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
       description: 建物の損傷段階の重み
     DangerLevel:
       type: integer
@@ -2758,6 +2778,24 @@ components:
           type: string
           description: エラーメッセージ
       description: エラーレスポンス
+    FacadeRefs:
+      type: object
+      required:
+        - window
+        - shutter
+        - sign
+      properties:
+        window:
+          $ref: '#/components/schemas/EntityID'
+        shutter:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 大破した店が窓の代わりに下ろすシャッター
+        sign:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 店の入口脇に立てる看板
+      description: 街路側の前壁に付ける外皮の interiorRefs の id
     Facility:
       type: object
       required:
@@ -3084,6 +3122,11 @@ components:
           items:
             $ref: '#/components/schemas/ContentGroup'
       description: 内装レシピ。施設まるごと、または奥室1つに対応する
+    InteriorPercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 内装の経年や散らかりの割合。百分率
     InteriorProfile:
       type: object
       required:
@@ -3092,6 +3135,11 @@ components:
         - variants
         - densities
         - heroes
+        - sites
+        - facade
+        - lot
+        - wearPercent
+        - heroOneIn
       properties:
         damages:
           type: array
@@ -3113,6 +3161,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HeroChoice'
+        sites:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteChoice'
+        facade:
+          $ref: '#/components/schemas/FacadeRefs'
+        lot:
+          $ref: '#/components/schemas/LotRefs'
+        wearPercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 経年で家具1つが隣へ生活痕を落とす割合
+        heroOneIn:
+          type: integer
+          format: int32
+          minimum: 1
+          description: hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
       description: 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
     InteriorRef:
       type: object
@@ -3437,6 +3502,24 @@ components:
         enabled:
           $ref: '#/components/schemas/LightEnabled'
       description: 光源設定
+    LotRefs:
+      type: object
+      required:
+        - fence
+        - plant
+        - vending
+      properties:
+        fence:
+          $ref: '#/components/schemas/EntityID'
+        plant:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 民家の前庭に置く外構
+        vending:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 店の前庭に置く外構
+      description: 敷地の外構の interiorRefs の id
     MagazineSize:
       type: integer
       minimum: 1
@@ -4390,6 +4473,35 @@ components:
       minimum: 0
       maximum: 100
       description: 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
+    SiteChoice:
+      type: object
+      required:
+        - id
+        - homeWeight
+        - shopWeight
+        - yardDepth
+      properties:
+        id:
+          $ref: '#/components/schemas/SiteType'
+        homeWeight:
+          $ref: '#/components/schemas/SiteWeight'
+        shopWeight:
+          $ref: '#/components/schemas/SiteWeight'
+        yardDepth:
+          $ref: '#/components/schemas/YardDepth'
+      description: 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
+    SiteType:
+      type: string
+      enum:
+        - detached
+        - shopfront
+        - roadside
+      description: 敷地の類型。前庭の深さと外構の出し分けに使う
+    SiteWeight:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
     Skill:
       type: object
       required:
@@ -4758,6 +4870,18 @@ components:
           $ref: '#/components/schemas/BuildingVariant'
         weight:
           $ref: '#/components/schemas/EntryWeight'
+        damage:
+          allOf:
+            - $ref: '#/components/schemas/BuildingDamage'
+          description: 引いた損傷段階を上書きする。省くと上書きしない
+        minClutter:
+          allOf:
+            - $ref: '#/components/schemas/BuildingClutter'
+          description: 散らかり段階をこれ以上に引き上げる。省くと引き上げない
+        density:
+          allOf:
+            - $ref: '#/components/schemas/DensityFactor'
+          description: 引いた家具量の倍率を上書きする。省くと上書きしない
       description: 建物の変種の重み
     ViewDistance:
       type: integer
@@ -4880,6 +5004,12 @@ components:
       type: string
       pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$
       description: '重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"'
+    YardDepth:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 10
+      description: 入口側に空ける前庭の奥行き。タイル
     Zone:
       type: string
       enum:

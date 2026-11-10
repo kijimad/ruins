@@ -70,6 +70,8 @@ var (
 	errDungeonItemTableUndefined      = errors.New("dungeon references undefined item table")
 	errSettlementMemberUndefined      = errors.New("settlement references undefined member")
 	errSettlementPropUndefined        = errors.New("settlement references undefined prop")
+	errInteriorProfileRefUndefined    = errors.New("interior profile facade or lot ref is not an interior ref with a prop")
+	errSiteWeightZero                 = errors.New("site types have no weight for homes or shops")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -969,7 +971,8 @@ func validateSkills(raws oapi.Raws) error {
 }
 
 // validateInteriorRefs は内装の Ref の id が一意で、prop と item group が実在し、
-// 生活感の抽選表が enum の全値を1回ずつ持ち、hero の Ref が prop を持つ Ref であることを検証する
+// 生活感の抽選表と敷地の類型が enum の全値を1回ずつ持ち、hero と外皮と外構の Ref が prop を持つ Ref であり、
+// 敷地の類型の重みが民家と店のどちらでも1以上あることを検証する
 func validateInteriorRefs(raws oapi.Raws) error {
 	refs := PtrSlice(raws.InteriorRefs)
 	if err := validateUniqueIDs("interior ref", refs, func(r oapi.InteriorRef) string { return r.Id }); err != nil {
@@ -1014,6 +1017,7 @@ func validateInteriorRefs(raws oapi.Raws) error {
 		{"BuildingDamage", ids(len(p.Damages), func(i int) string { return string(p.Damages[i].Id) })},
 		{"BuildingClutter", ids(len(p.Clutters), func(i int) string { return string(p.Clutters[i].Id) })},
 		{"BuildingVariant", ids(len(p.Variants), func(i int) string { return string(p.Variants[i].Id) })},
+		{"SiteType", ids(len(p.Sites), func(i int) string { return string(p.Sites[i].Id) })},
 	}
 	for _, e := range enumRows {
 		if err := validateEnumRows(e.schema, e.ids); err != nil {
@@ -1029,6 +1033,19 @@ func validateInteriorRefs(raws oapi.Raws) error {
 				return fmt.Errorf("hero %q ref %q: %w", h.Id, ref, errHeroRefUndefined)
 			}
 		}
+	}
+	for _, ref := range []string{p.Facade.Window, p.Facade.Shutter, p.Facade.Sign, p.Lot.Fence, p.Lot.Plant, p.Lot.Vending} {
+		if _, ok := propRefs[ref]; !ok {
+			return fmt.Errorf("interior profile ref %q: %w", ref, errInteriorProfileRefUndefined)
+		}
+	}
+	var home, shop int32
+	for _, s := range p.Sites {
+		home += s.HomeWeight
+		shop += s.ShopWeight
+	}
+	if home == 0 || shop == 0 {
+		return errSiteWeightZero
 	}
 	return nil
 }

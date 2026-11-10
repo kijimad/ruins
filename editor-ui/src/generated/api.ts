@@ -580,6 +580,14 @@ export interface ClutterChoice {
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight': number;
+    /**
+     * 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
+     */
+    'furniturePercent': number;
+    /**
+     * 家具から離れた床のタイルへ小物を散らす割合
+     */
+    'floorPercent': number;
 }
 
 
@@ -808,6 +816,14 @@ export interface DamageChoice {
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight': number;
+    /**
+     * 経年で戦利品を撤去する割合
+     */
+    'lootPercent': number;
+    /**
+     * 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
+     */
+    'rubbleSeedRatio': number;
 }
 
 
@@ -1135,6 +1151,20 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
+ * 街路側の前壁に付ける外皮の interiorRefs の id
+ */
+export interface FacadeRefs {
+    'window': string;
+    /**
+     * 大破した店が窓の代わりに下ろすシャッター
+     */
+    'shutter': string;
+    /**
+     * 店の入口脇に立てる看板
+     */
+    'sign': string;
+}
+/**
  * 市街地の施設1種。isShop は看板やシャッターを出す店か
  */
 export interface Facility {
@@ -1416,6 +1446,17 @@ export interface InteriorProfile {
     'variants': Array<VariantChoice>;
     'densities': Array<DensityChoice>;
     'heroes': Array<HeroChoice>;
+    'sites': Array<SiteChoice>;
+    'facade': FacadeRefs;
+    'lot': LotRefs;
+    /**
+     * 経年で家具1つが隣へ生活痕を落とす割合
+     */
+    'wearPercent': number;
+    /**
+     * hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
+     */
+    'heroOneIn': number;
 }
 /**
  * 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
@@ -1645,6 +1686,20 @@ export interface LightSource {
      * 光源が有効かどうか
      */
     'enabled': boolean;
+}
+/**
+ * 敷地の外構の interiorRefs の id
+ */
+export interface LotRefs {
+    'fence': string;
+    /**
+     * 民家の前庭に置く外構
+     */
+    'plant': string;
+    /**
+     * 店の前庭に置く外構
+     */
+    'vending': string;
 }
 /**
  * 俯瞰地図の記号1種。id は地物・施設の種別 id
@@ -2321,6 +2376,39 @@ export interface ShelterEffect {
 
 
 /**
+ * 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
+ */
+export interface SiteChoice {
+    'id': SiteType;
+    /**
+     * 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+     */
+    'homeWeight': number;
+    /**
+     * 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+     */
+    'shopWeight': number;
+    /**
+     * 入口側に空ける前庭の奥行き。タイル
+     */
+    'yardDepth': number;
+}
+
+
+/**
+ * 敷地の類型。前庭の深さと外構の出し分けに使う
+ */
+
+export const SiteType = {
+    Detached: 'detached',
+    Shopfront: 'shopfront',
+    Roadside: 'roadside',
+} as const;
+
+export type SiteType = typeof SiteType[keyof typeof SiteType];
+
+
+/**
  * スキル。同じカテゴリのスキルは行の順に表示する
  */
 export interface Skill {
@@ -2671,6 +2759,18 @@ export interface VariantChoice {
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight': number;
+    /**
+     * 引いた損傷段階を上書きする。省くと上書きしない
+     */
+    'damage'?: BuildingDamage;
+    /**
+     * 散らかり段階をこれ以上に引き上げる。省くと引き上げない
+     */
+    'minClutter'?: BuildingClutter;
+    /**
+     * 引いた家具量の倍率を上書きする。省くと上書きしない
+     */
+    'density'?: number;
 }
 
 

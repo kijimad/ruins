@@ -939,6 +939,27 @@ func (e Shelter) Valid() bool {
 	}
 }
 
+// Defines values for SiteType.
+const (
+	Detached  SiteType = "detached"
+	Roadside  SiteType = "roadside"
+	Shopfront SiteType = "shopfront"
+)
+
+// Valid indicates whether the value is a known member of the SiteType enum.
+func (e SiteType) Valid() bool {
+	switch e {
+	case Detached:
+		return true
+	case Roadside:
+		return true
+	case Shopfront:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SkillId.
 const (
 	SkillIdBow           SkillId = "bow"
@@ -1721,6 +1742,12 @@ type BuildingVariant string
 
 // ClutterChoice 建物の散らかり段階の重み
 type ClutterChoice struct {
+	// FloorPercent 家具から離れた床のタイルへ小物を散らす割合
+	FloorPercent InteriorPercent `json:"floorPercent"`
+
+	// FurniturePercent 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
+	FurniturePercent InteriorPercent `json:"furniturePercent"`
+
 	// Id 建物の散らかり段階
 	Id BuildingClutter `json:"id"`
 
@@ -1891,6 +1918,12 @@ type DamageBonus = int
 type DamageChoice struct {
 	// Id 建物の損傷段階
 	Id BuildingDamage `json:"id"`
+
+	// LootPercent 経年で戦利品を撤去する割合
+	LootPercent InteriorPercent `json:"lootPercent"`
+
+	// RubbleSeedRatio 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
+	RubbleSeedRatio NeedRatio `json:"rubbleSeedRatio"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -2138,6 +2171,16 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// FacadeRefs 街路側の前壁に付ける外皮の interiorRefs の id
+type FacadeRefs struct {
+	// Shutter 大破した店が窓の代わりに下ろすシャッター
+	Shutter EntityID `json:"shutter"`
+
+	// Sign 店の入口脇に立てる看板
+	Sign   EntityID `json:"sign"`
+	Window EntityID `json:"window"`
+}
+
 // Facility 市街地の施設1種。isShop は看板やシャッターを出す店か
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
@@ -2343,13 +2386,29 @@ type InteriorContent struct {
 	Id     EntityID        `json:"id"`
 }
 
+// InteriorPercent 内装の経年や散らかりの割合。百分率
+type InteriorPercent = int
+
 // InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
 type InteriorProfile struct {
 	Clutters  []ClutterChoice `json:"clutters"`
 	Damages   []DamageChoice  `json:"damages"`
 	Densities []DensityChoice `json:"densities"`
-	Heroes    []HeroChoice    `json:"heroes"`
-	Variants  []VariantChoice `json:"variants"`
+
+	// Facade 街路側の前壁に付ける外皮の interiorRefs の id
+	Facade FacadeRefs `json:"facade"`
+
+	// HeroOneIn hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
+	HeroOneIn int32        `json:"heroOneIn"`
+	Heroes    []HeroChoice `json:"heroes"`
+
+	// Lot 敷地の外構の interiorRefs の id
+	Lot      LotRefs         `json:"lot"`
+	Sites    []SiteChoice    `json:"sites"`
+	Variants []VariantChoice `json:"variants"`
+
+	// WearPercent 経年で家具1つが隣へ生活痕を落とす割合
+	WearPercent InteriorPercent `json:"wearPercent"`
 }
 
 // InteriorRef 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
@@ -2572,6 +2631,17 @@ type LightSource struct {
 
 	// Radius 光の到達半径（タイル単位）
 	Radius LightRadius `json:"radius"`
+}
+
+// LotRefs 敷地の外構の interiorRefs の id
+type LotRefs struct {
+	Fence EntityID `json:"fence"`
+
+	// Plant 民家の前庭に置く外構
+	Plant EntityID `json:"plant"`
+
+	// Vending 店の前庭に置く外構
+	Vending EntityID `json:"vending"`
 }
 
 // MagazineSize マガジン容量
@@ -3084,6 +3154,27 @@ type ShelterEffect struct {
 // ShelterInfluencePercent 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
 type ShelterInfluencePercent = int
 
+// SiteChoice 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
+type SiteChoice struct {
+	// HomeWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+	HomeWeight SiteWeight `json:"homeWeight"`
+
+	// Id 敷地の類型。前庭の深さと外構の出し分けに使う
+	Id SiteType `json:"id"`
+
+	// ShopWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+	ShopWeight SiteWeight `json:"shopWeight"`
+
+	// YardDepth 入口側に空ける前庭の奥行き。タイル
+	YardDepth YardDepth `json:"yardDepth"`
+}
+
+// SiteType 敷地の類型。前庭の深さと外構の出し分けに使う
+type SiteType string
+
+// SiteWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+type SiteWeight = int32
+
 // Skill スキル。同じカテゴリのスキルは行の順に表示する
 type Skill struct {
 	// Ability 能力値。スキルの成長の速さと熟練の効果倍率に効く
@@ -3308,8 +3399,17 @@ type UsableScene string
 
 // VariantChoice 建物の変種の重み
 type VariantChoice struct {
+	// Damage 引いた損傷段階を上書きする。省くと上書きしない
+	Damage *BuildingDamage `json:"damage,omitempty"`
+
+	// Density 引いた家具量の倍率を上書きする。省くと上書きしない
+	Density *DensityFactor `json:"density,omitempty"`
+
 	// Id 建物の事情。稀な1軒へ物語を与える
 	Id BuildingVariant `json:"id"`
+
+	// MinClutter 散らかり段階をこれ以上に引き上げる。省くと引き上げない
+	MinClutter *BuildingClutter `json:"minClutter,omitempty"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -3402,6 +3502,9 @@ type WeatherVisionDelta = int
 
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
+
+// YardDepth 入口側に空ける前庭の奥行き。タイル
+type YardDepth = int32
 
 // Zone 市街地の地区
 type Zone string

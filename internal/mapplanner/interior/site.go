@@ -14,11 +14,6 @@ import (
 //   - 軸A 坪庭: 建物内の1室を庭にして家具を置かない。囲われた光庭になり広い1室の余剰を消す
 //   - 軸C 玄関ポーチの凹み: 入口の壁を1マス凹ませ、外形を非矩形にして玄関を読ませる
 
-// frontYard は入口側に空ける前庭の奥行き。建物を入口側だけ内寄せし、道路に面した一辺に開放的な前庭を作る。
-// 前庭は道路側の一辺に広く取るもので、建物を全周で囲む細い帯ではない。他の3辺は footprint の縁まで
-// 建物で埋め、庭が壁に囲まれた堀に見えないようにする。
-const frontYard = 3
-
 // Site は footprint 内の敷地計画。建物輪郭・庭・部屋・入口を分ける。overworld と VRT が同じ Site を描き、
 // footprint をそのまま埋めず建物を内側へ取る。Garden は建物外のタイルで dirt として描き観葉を点在させる。
 // ExtraWall はポーチの凹みで足す壁で、Building 内側だが床でなく壁にするタイル。
@@ -29,14 +24,16 @@ type Site struct {
 	ExtraWall map[Vec]bool
 	Door      Vec
 	Rooms     []PlannedRoom
-	Type      siteType
+	Type      oapi.SiteType
 }
 
 // planSite は footprint を建物と庭に分ける。敷地類型で前庭の深さを変え、入口側に前庭を空けて建物を内寄せし、
 // 入口を建物辺へ寄せ、玄関を凹ませる。建物が施設テンプレに満たない狭さなら内寄せを諦め、最低限の建物は必ず作る。
-func planSite(footprint Rect, seed uint64, door Vec, fac oapi.Facility) Site {
-	st := rollSiteType(fac, seed)
-	building := insetBuilding(footprint, door, frontYardOf(st))
+// 前庭は道路側の一辺に広く取るもので、建物を全周で囲む細い帯ではない。他の3辺は footprint の縁まで
+// 建物で埋め、庭が壁に囲まれた堀に見えないようにする。
+func planSite(t profileTable, footprint Rect, seed uint64, door Vec, fac oapi.Facility) Site {
+	st := rollSiteType(t, fac, seed)
+	building := insetBuilding(footprint, door, consts.Tile(st.YardDepth))
 	side := doorSide(footprint, door)
 
 	garden := footprintMinusBuilding(footprint, building)
@@ -76,7 +73,7 @@ func planSite(footprint Rect, seed uint64, door Vec, fac oapi.Facility) Site {
 		}
 	}
 
-	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled, Type: st}
+	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled, Type: st.Id}
 }
 
 // attachDoor は入口の内側の部屋へ door を戸口として足す。入口の1マス内側を含む部屋を探す。ポーチで下げた

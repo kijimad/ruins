@@ -49,7 +49,7 @@ func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility str
 	}
 	placed := FillRoom(seed, room, applyDensity(main, prof.density))
 	// 時間の層。損傷レベルで略奪・生活痕・廃墟化の強度を変える。無傷の建物は新品のまま
-	placed = Age(seed, room, placed, prof.damage)
+	placed = Age(table, seed, room, placed, prof.damage)
 	// 家具の隙間へ flavor machine を1つ置き、戦利品の無い空き箱部屋に character を与える
 	flavor, err := flavorContent(raws)
 	if err != nil {
@@ -57,7 +57,7 @@ func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility str
 	}
 	placed = Flavor(seed, room, placed, flavor)
 	// 散らかりの小物を家具の隣へ落とし、生活感を足す
-	return applyClutter(childSeed(seed, 11_300_000), room, placed, prof.clutter, roleMain), nil
+	return applyClutter(table, childSeed(seed, 11_300_000), room, placed, prof.clutter, roleMain), nil
 }
 
 // applyDensity は content の家具量を密度係数 factor(×/10)で増減する。個数1の必須什器は1を保ち、詰め物の

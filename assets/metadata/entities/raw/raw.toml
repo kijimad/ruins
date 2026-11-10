@@ -4513,29 +4513,43 @@
       ref = "occupant"
 
 [interiorProfile]
+  heroOneIn = 12
+  wearPercent = 18
 
   [[interiorProfile.clutters]]
+    floorPercent = 0
+    furniturePercent = 0
     id = "tidy"
     weight = 6.0
 
   [[interiorProfile.clutters]]
+    floorPercent = 0
+    furniturePercent = 35
     id = "messy"
     weight = 3.0
 
   [[interiorProfile.clutters]]
+    floorPercent = 7
+    furniturePercent = 70
     id = "filthy"
     weight = 1.0
 
   [[interiorProfile.damages]]
     id = "intact"
+    lootPercent = 0
+    rubbleSeedRatio = 0.0
     weight = 2.0
 
   [[interiorProfile.damages]]
     id = "minor"
+    lootPercent = 45
+    rubbleSeedRatio = 0.1
     weight = 3.0
 
   [[interiorProfile.damages]]
     id = "major"
+    lootPercent = 70
+    rubbleSeedRatio = 0.2
     weight = 1.0
 
   [[interiorProfile.densities]]
@@ -4549,6 +4563,10 @@
   [[interiorProfile.densities]]
     factor = 14
     weight = 1.0
+  [interiorProfile.facade]
+    shutter = "shutter"
+    sign = "sign"
+    window = "window"
 
   [[interiorProfile.heroes]]
     id = "reward"
@@ -4569,25 +4587,54 @@
     id = "danger"
     refs = ["poison"]
     weight = 14.0
+  [interiorProfile.lot]
+    fence = "fence"
+    plant = "plant"
+    vending = "vending"
+
+  [[interiorProfile.sites]]
+    homeWeight = 1
+    id = "detached"
+    shopWeight = 0
+    yardDepth = 3
+
+  [[interiorProfile.sites]]
+    homeWeight = 0
+    id = "shopfront"
+    shopWeight = 1
+    yardDepth = 1
+
+  [[interiorProfile.sites]]
+    homeWeight = 0
+    id = "roadside"
+    shopWeight = 1
+    yardDepth = 5
 
   [[interiorProfile.variants]]
     id = "standard"
     weight = 970.0
 
   [[interiorProfile.variants]]
+    damage = "major"
     id = "abandoned"
+    minClutter = "messy"
     weight = 6.0
 
   [[interiorProfile.variants]]
+    damage = "intact"
+    density = 6
     id = "under_construction"
+    minClutter = "messy"
     weight = 10.0
 
   [[interiorProfile.variants]]
     id = "survivalist"
+    minClutter = "messy"
     weight = 9.0
 
   [[interiorProfile.variants]]
     id = "hoarder"
+    minClutter = "filthy"
     weight = 5.0
 
 [[interiorRefs]]

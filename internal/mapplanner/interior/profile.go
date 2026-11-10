@@ -1,8 +1,6 @@
 package interior
 
 import (
-	"strconv"
-
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -48,14 +46,35 @@ type buildingProfile struct {
 	density int // 家具量の倍率 ×/10
 }
 
-// profileTable は建物の生活感の各軸と hero 部屋の目玉の抽選表。raw の interiorProfile から組み立てる。
-// 各軸の並びは raw の行の順で、抽選の結果はこの順に依る。
+// profileTable は建物の生活感の各軸と hero 部屋の目玉の抽選表と、各段階が経年・散らかり・外構に効かせる値。
+// raw の interiorProfile から組み立てる。各軸の並びは raw の行の順で、抽選の結果はこの順に依る。
 type profileTable struct {
 	damages   []choice[damageLevel]
 	clutters  []choice[clutterLevel]
 	variants  []choice[variantKind]
 	densities []choice[int]
 	heroes    []choice[[]string]
+
+	damageEffects  map[damageLevel]damageEffect
+	clutterEffects map[clutterLevel]clutterEffect
+	variantEffects map[variantKind]oapi.VariantChoice
+	sites          []oapi.SiteChoice // 行の順に重みを積む
+	facade         oapi.FacadeRefs
+	lot            oapi.LotRefs
+	wearPct        int
+	heroOneIn      uint64
+}
+
+// damageEffect は損傷段階が経年に効かせる強さ。大破ほど略奪と瓦礫が増える
+type damageEffect struct {
+	lootPct     int
+	decayThresh float64
+}
+
+// clutterEffect は散らかり段階が小物を落とす割合。furniturePct は家具の隣、floorPct は家具から離れた床
+type clutterEffect struct {
+	furniturePct int
+	floorPct     int
 }
 
 var (
@@ -76,15 +95,27 @@ func newProfileTable(raws oapi.Raws) (profileTable, error) {
 	if p == nil {
 		return profileTable{}, errInteriorProfileMissing
 	}
-	var t profileTable
+	t := profileTable{
+		damageEffects:  map[damageLevel]damageEffect{},
+		clutterEffects: map[clutterLevel]clutterEffect{},
+		variantEffects: map[variantKind]oapi.VariantChoice{},
+		sites:          p.Sites,
+		facade:         p.Facade,
+		lot:            p.Lot,
+		wearPct:        p.WearPercent,
+		heroOneIn:      uint64(p.HeroOneIn),
+	}
 	for _, c := range p.Damages {
 		t.damages = append(t.damages, choice[damageLevel]{damageLevels[c.Id], c.Weight})
+		t.damageEffects[damageLevels[c.Id]] = damageEffect{lootPct: c.LootPercent, decayThresh: c.RubbleSeedRatio}
 	}
 	for _, c := range p.Clutters {
 		t.clutters = append(t.clutters, choice[clutterLevel]{clutterLevels[c.Id], c.Weight})
+		t.clutterEffects[clutterLevels[c.Id]] = clutterEffect{furniturePct: c.FurniturePercent, floorPct: c.FloorPercent}
 	}
 	for _, c := range p.Variants {
 		t.variants = append(t.variants, choice[variantKind]{variantKinds[c.Id], c.Weight})
+		t.variantEffects[variantKinds[c.Id]] = c
 	}
 	for _, c := range p.Densities {
 		t.densities = append(t.densities, choice[int]{c.Factor, c.Weight})
@@ -96,8 +127,7 @@ func newProfileTable(raws oapi.Raws) (profileTable, error) {
 }
 
 // rollProfile は seed から建物の生活感プロファイルを決定的に引く。各軸を独立ストリームで引いた後、variant を
-// 事情として重ねて他軸を上書きする。放棄は損傷・散らかりを底上げ、ためこみは散らかり最大、建築中は無傷で
-// 家具まばら。
+// 事情として重ねて他軸を上書きする。上書きの中身は raw の variants の行が持つ。
 func rollProfile(t profileTable, seed uint64) buildingProfile {
 	p := buildingProfile{
 		variant: pickChoice(childSeed(childSeed(seed, 11_100_000), 1), t.variants),
@@ -105,41 +135,17 @@ func rollProfile(t profileTable, seed uint64) buildingProfile {
 		damage:  pickChoice(childSeed(childSeed(seed, 11_000_000), 1), t.damages),
 		density: pickChoice(childSeed(childSeed(seed, 10_000_000), 1), t.densities),
 	}
-	switch p.variant {
-	case varAbandoned:
-		p.damage = dmgMajor
-		if p.clutter < clutterMessy {
-			p.clutter = clutterMessy
-		}
-	case varHoarder:
-		p.clutter = clutterFilthy
-	case varUnderConstruction:
-		p.damage = dmgIntact // 新築なので傷はない
-		p.density = 6        // 家具まばら
-		if p.clutter < clutterMessy {
-			p.clutter = clutterMessy // 資材散乱の代用
-		}
-	case varSurvivalist:
-		if p.clutter < clutterMessy {
-			p.clutter = clutterMessy // 物資散乱の代用
-		}
-	case varStandard:
+	v := t.variantEffects[p.variant]
+	if v.Damage != nil {
+		p.damage = damageLevels[*v.Damage]
+	}
+	if v.MinClutter != nil && p.clutter < clutterLevels[*v.MinClutter] {
+		p.clutter = clutterLevels[*v.MinClutter]
+	}
+	if v.Density != nil {
+		p.density = *v.Density
 	}
 	return p
-}
-
-// clutterFurniturePct は散らかりレベルごとに、家具1つの隣へ小物を落とす割合を返す。机の上・たんすの脇に物が
-// 溜まる因果を作る。整頓は0で、汚部屋ほど多い。
-func clutterFurniturePct(level clutterLevel) int {
-	switch level {
-	case clutterTidy:
-		return 0
-	case clutterMessy:
-		return 35
-	case clutterFilthy:
-		return 70
-	}
-	panic("unknown clutterLevel: " + strconv.Itoa(int(level)))
 }
 
 // clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。「あるべきでない場所の物」を、寝室には
@@ -158,8 +164,9 @@ func clutterRefs(role roleName) []string {
 // 落とし、机の上・たんすの脇に物が溜まる因果を作る。汚部屋のときだけ、加えて床にもまばらに散らす。役割別
 // プールから引き、既存の実スプライトへ写る Ref だけを使う。装飾で通行は阻まず、戸口前は避ける。呼び出し側が
 // 廊下・狭室を除外する。
-func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, role roleName) []Placed {
-	furnPct := clutterFurniturePct(level)
+func applyClutter(t profileTable, seed uint64, room Room, placed []Placed, level clutterLevel, role roleName) []Placed {
+	effect := t.clutterEffects[level]
+	furnPct := effect.furniturePct
 	if furnPct == 0 {
 		return placed
 	}
@@ -181,12 +188,12 @@ func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, r
 		}
 	}
 	// 補。汚部屋は家具から離れた床にもまばらに散らす。家具の無い部屋でも散らかるようにする
-	if level == clutterFilthy {
+	if effect.floorPct > 0 {
 		for i, t := range room.Rect.interiorTiles() {
 			if occupied[t] || isDoorwayAdjacent(room, t) {
 				continue
 			}
-			if dropChance(seed, 7_000+i, 7) {
+			if dropChance(seed, 7_000+i, effect.floorPct) {
 				ref := pickOne(childSeed(seed, 8_000+i), pool)
 				occupied[t] = true
 				added = append(added, Placed{Kind: oapi.Decor, Ref: ref, Pos: t})

@@ -504,18 +504,69 @@ model InteriorRef {
 model DamageChoice {
   id: BuildingDamage;
   weight: EntryWeight;
+
+  /** 経年で戦利品を撤去する割合 */
+  lootPercent: InteriorPercent;
+
+  /** 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1 */
+  rubbleSeedRatio: NeedRatio;
 }
 
 /** 建物の散らかり段階の重み */
 model ClutterChoice {
   id: BuildingClutter;
   weight: EntryWeight;
+
+  /** 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない */
+  furniturePercent: InteriorPercent;
+
+  /** 家具から離れた床のタイルへ小物を散らす割合 */
+  floorPercent: InteriorPercent;
 }
 
 /** 建物の変種の重み */
 model VariantChoice {
   id: BuildingVariant;
   weight: EntryWeight;
+
+  /** 引いた損傷段階を上書きする。省くと上書きしない */
+  damage?: BuildingDamage;
+
+  /** 散らかり段階をこれ以上に引き上げる。省くと引き上げない */
+  minClutter?: BuildingClutter;
+
+  /** 引いた家具量の倍率を上書きする。省くと上書きしない */
+  density?: DensityFactor;
+}
+
+/** 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む */
+model SiteChoice {
+  id: SiteType;
+  homeWeight: SiteWeight;
+  shopWeight: SiteWeight;
+  yardDepth: YardDepth;
+}
+
+/** 街路側の前壁に付ける外皮の interiorRefs の id */
+model FacadeRefs {
+  window: EntityID;
+
+  /** 大破した店が窓の代わりに下ろすシャッター */
+  shutter: EntityID;
+
+  /** 店の入口脇に立てる看板 */
+  sign: EntityID;
+}
+
+/** 敷地の外構の interiorRefs の id */
+model LotRefs {
+  fence: EntityID;
+
+  /** 民家の前庭に置く外構 */
+  plant: EntityID;
+
+  /** 店の前庭に置く外構 */
+  vending: EntityID;
 }
 
 /** 建物の家具量の倍率の重み */
@@ -538,6 +589,16 @@ model InteriorProfile {
   variants: VariantChoice[];
   densities: DensityChoice[];
   heroes: HeroChoice[];
+  sites: SiteChoice[];
+  facade: FacadeRefs;
+  lot: LotRefs;
+
+  /** 経年で家具1つが隣へ生活痕を落とす割合 */
+  wearPercent: InteriorPercent;
+
+  /** hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ */
+  @minValue(1)
+  heroOneIn: int32;
 }
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */

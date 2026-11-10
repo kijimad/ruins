@@ -107,7 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 7/16 | worldgen, item, gamedesign |
-| in-progress | [コードに残るゲームデータを raw へ移す](docs/design/261110202024.md) | 9/13 | refactor, gamedesign, worldgen |
+| in-progress | [コードに残るゲームデータを raw へ移す](docs/design/261110202024.md) | 10/13 | refactor, gamedesign, worldgen |
 | draft | [訳す前の文字列 msgid に型を付ける](docs/design/261110205344.md) | 1/5 | refactor, ui |
 | draft | [raw のスキーマを CUE に移し、TypeSpec と editor-ui をなくす](docs/design/261110211157.md) | 0/6 | refactor, ci |
 
