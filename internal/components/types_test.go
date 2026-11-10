@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -140,26 +141,26 @@ func TestTargetType(t *testing.T) {
 	t.Run("create target type", func(t *testing.T) {
 		t.Parallel()
 		target := TargetType{
-			TargetGroup: TargetGroupEnemy,
-			TargetNum:   TargetSingle,
+			TargetGroup: oapi.TargetGroupENEMY,
+			TargetNum:   oapi.SINGLE,
 		}
-		assert.Equal(t, TargetGroupEnemy, target.TargetGroup, "対象グループが正しく設定されない")
-		assert.Equal(t, TargetSingle, target.TargetNum, "対象数が正しく設定されない")
+		assert.Equal(t, oapi.TargetGroupENEMY, target.TargetGroup, "対象グループが正しく設定されない")
+		assert.Equal(t, oapi.SINGLE, target.TargetNum, "対象数が正しく設定されない")
 	})
 
 	t.Run("various target combinations", func(t *testing.T) {
 		t.Parallel()
 		tests := []struct {
 			name        string
-			targetGroup TargetGroupType
-			targetNum   TargetNumType
+			targetGroup oapi.TargetGroup
+			targetNum   oapi.TargetNum
 		}{
-			{"single enemy", TargetGroupEnemy, TargetSingle},
-			{"all enemies", TargetGroupEnemy, TargetAll},
-			{"single ally", TargetGroupAlly, TargetSingle},
-			{"all allies", TargetGroupAlly, TargetAll},
-			{"single weapon", TargetGroupWeapon, TargetSingle},
-			{"none target", TargetGroupNone, TargetSingle},
+			{"single enemy", oapi.TargetGroupENEMY, oapi.SINGLE},
+			{"all enemies", oapi.TargetGroupENEMY, oapi.ALL},
+			{"single ally", oapi.TargetGroupALLY, oapi.SINGLE},
+			{"all allies", oapi.TargetGroupALLY, oapi.ALL},
+			{"single weapon", oapi.TargetGroupWEAPON, oapi.SINGLE},
+			{"none target", oapi.TargetGroupNONE, oapi.SINGLE},
 		}
 
 		for _, tt := range tests {

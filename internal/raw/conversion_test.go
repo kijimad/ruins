@@ -22,15 +22,15 @@ func TestParseTargetType(t *testing.T) {
 	t.Run("正常な値を変換する", func(t *testing.T) {
 		t.Parallel()
 		result := parseTargetType("ENEMY", "SINGLE")
-		assert.Equal(t, gc.TargetGroupEnemy, result.TargetGroup)
-		assert.Equal(t, gc.TargetSingle, result.TargetNum)
+		assert.Equal(t, oapi.TargetGroupENEMY, result.TargetGroup)
+		assert.Equal(t, oapi.SINGLE, result.TargetNum)
 	})
 
 	t.Run("ALLYとALLの組み合わせ", func(t *testing.T) {
 		t.Parallel()
 		result := parseTargetType("ALLY", "ALL")
-		assert.Equal(t, gc.TargetGroupAlly, result.TargetGroup)
-		assert.Equal(t, gc.TargetAll, result.TargetNum)
+		assert.Equal(t, oapi.TargetGroupALLY, result.TargetGroup)
+		assert.Equal(t, oapi.ALL, result.TargetNum)
 	})
 }
 
@@ -57,7 +57,7 @@ func TestParseMelee(t *testing.T) {
 		assert.Equal(t, oapi.ElementFIRE, result.Element)
 		assert.Equal(t, gc.AttackSword, result.AttackCategory)
 		assert.Equal(t, 100, result.Cost)
-		assert.Equal(t, gc.TargetGroupEnemy, result.TargetType.TargetGroup)
+		assert.Equal(t, oapi.TargetGroupENEMY, result.TargetType.TargetGroup)
 	})
 
 	t.Run("無効な攻撃種別でエラー", func(t *testing.T) {

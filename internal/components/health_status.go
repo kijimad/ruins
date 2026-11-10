@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // Severity は状態の重症度
@@ -72,19 +73,6 @@ type StatEffect struct {
 
 // ConditionType は状態の種類を識別する
 type ConditionType string
-
-// RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
-// 低体温は TemperatureSystem が体温から進めるのでこの区分を持たない
-type RecoveryMode string
-
-const (
-	// RecoverAfterTend は治療して初めて回復する。未治療は保持し悪化しない。骨折・切り傷
-	RecoverAfterTend RecoveryMode = "recover_after_tend"
-	// ProgressUntilTend は未治療なら悪化し続け、治療して初めて回復軌道へ乗る。病気
-	ProgressUntilTend RecoveryMode = "progress_until_tend"
-	// RecoverOverTime は未治療でも時間で自然に治る。治療すれば回復が速まる。食中毒のような自己限定の不調
-	RecoverOverTime RecoveryMode = "recover_over_time"
-)
 
 // BodyFuncs は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
 // 低いほど機能が落ちる。痛み Pain だけは 0 が無痛で、大きいほど痛い。
@@ -371,7 +359,7 @@ func (d ConditionDefs) BloodDrop(cond *HealthCondition) int {
 		return 0
 	}
 	// 外傷は発症中ずっと血を失う。全身性の不調は重症でだけ循環が落ちる
-	if def.Recovery == RecoverAfterTend {
+	if def.Recovery == oapi.RecoverAfterTend {
 		if !cond.IsActive() {
 			return 0
 		}

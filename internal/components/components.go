@@ -93,7 +93,7 @@ func (c Camera) Yaw() float64 {
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
-	UsableScene UsableSceneType
+	UsableScene oapi.UsableScene
 	TargetType  TargetType
 }
 

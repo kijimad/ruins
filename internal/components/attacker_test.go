@@ -17,7 +17,7 @@ func TestMelee_AttackerInterface(t *testing.T) {
 		Element:        oapi.ElementFIRE,
 		AttackCategory: AttackSword,
 		Cost:           100,
-		TargetType:     TargetType{TargetGroup: TargetGroupEnemy, TargetNum: TargetSingle},
+		TargetType:     TargetType{TargetGroup: oapi.TargetGroupENEMY, TargetNum: oapi.SINGLE},
 	}
 
 	var atk Attacker = m
@@ -27,8 +27,8 @@ func TestMelee_AttackerInterface(t *testing.T) {
 	assert.Equal(t, oapi.ElementFIRE, atk.GetElement())
 	assert.Equal(t, AttackSword, atk.GetAttackCategory())
 	assert.Equal(t, 100, atk.GetCost())
-	assert.Equal(t, TargetGroupEnemy, atk.GetTargetType().TargetGroup)
-	assert.Equal(t, TargetSingle, atk.GetTargetType().TargetNum)
+	assert.Equal(t, oapi.TargetGroupENEMY, atk.GetTargetType().TargetGroup)
+	assert.Equal(t, oapi.SINGLE, atk.GetTargetType().TargetNum)
 }
 
 func TestFire_AttackerInterface(t *testing.T) {
@@ -41,7 +41,7 @@ func TestFire_AttackerInterface(t *testing.T) {
 		Element:        oapi.ElementTHUNDER,
 		AttackCategory: AttackRifle,
 		Cost:           150,
-		TargetType:     TargetType{TargetGroup: TargetGroupEnemy, TargetNum: TargetAll},
+		TargetType:     TargetType{TargetGroup: oapi.TargetGroupENEMY, TargetNum: oapi.ALL},
 	}
 
 	var atk Attacker = f
@@ -51,5 +51,5 @@ func TestFire_AttackerInterface(t *testing.T) {
 	assert.Equal(t, oapi.ElementTHUNDER, atk.GetElement())
 	assert.Equal(t, AttackRifle, atk.GetAttackCategory())
 	assert.Equal(t, 150, atk.GetCost())
-	assert.Equal(t, TargetAll, atk.GetTargetType().TargetNum)
+	assert.Equal(t, oapi.ALL, atk.GetTargetType().TargetNum)
 }

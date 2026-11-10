@@ -49,45 +49,9 @@ func BodyPartByID(id string) (BodyPart, bool) {
 
 // ================
 
-// TargetNumType はターゲット数を表す
-type TargetNumType string
-
-const (
-	// TargetSingle は単体ターゲット
-	TargetSingle = TargetNumType("SINGLE")
-	// TargetAll は全体ターゲット
-	TargetAll = TargetNumType("ALL")
-)
-
 // ================
 
-// TargetGroupType は使用者から見たターゲットの種別。相対的な指定なので、所有者が敵グループだと対象グループは逆転する
-type TargetGroupType string
-
-const (
-	// TargetGroupAlly は味方グループ
-	TargetGroupAlly = TargetGroupType("ALLY") // 味方
-	// TargetGroupEnemy は敵グループ
-	TargetGroupEnemy = TargetGroupType("ENEMY") // 敵
-	// TargetGroupWeapon は武器グループ
-	TargetGroupWeapon = TargetGroupType("WEAPON") // 武器
-	// TargetGroupNone はグループなし
-	TargetGroupNone = TargetGroupType("NONE") // なし
-)
-
 // ================
-
-// UsableSceneType は使えるシーンを表す
-type UsableSceneType string
-
-const (
-	// UsableSceneBattle は戦闘シーン
-	UsableSceneBattle = UsableSceneType("BATTLE") // 戦闘
-	// UsableSceneField はフィールドシーン
-	UsableSceneField = UsableSceneType("FIELD") // フィールド
-	// UsableSceneAny はいつでも使えるシーン
-	UsableSceneAny = UsableSceneType("ANY") // いつでも
-)
 
 // ================
 

@@ -15,8 +15,8 @@ type ConditionDef struct {
 	Description             string              // 概要説明 msgid
 	PainPerSeverity         int                 // 重症度1段あたりに加える痛み
 	BodyFuncDropPerSeverity int                 // 重症度1段あたりに下げる該当機能の量
-	Recovery                RecoveryMode        // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
-	WorsenPer               int                 // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
+	Recovery                oapi.RecoveryMode   // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
+	WorsenPer               int                 // oapi.ProgressUntilTend で未治療のとき1ターン Timer を増やす量
 	RecoverPer              int                 // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
 	BloodDropPerSeverity    int                 // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
 	Cause                   DeathCause          // 血液量が尽きて倒したときの死因

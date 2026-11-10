@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // Pool は最大値と現在値を持つようなパラメータ
@@ -28,8 +29,8 @@ type TurnBased struct {
 
 // TargetType は選択対象
 type TargetType struct {
-	TargetGroup TargetGroupType // 対象グループ（味方、敵など）
-	TargetNum   TargetNumType   // 対象数（単体、複数、全体）
+	TargetGroup oapi.TargetGroup // 対象グループ（味方、敵など）
+	TargetNum   oapi.TargetNum   // 対象数（単体、複数、全体）
 }
 
 // RecipeInput はクラフトの元になる素材

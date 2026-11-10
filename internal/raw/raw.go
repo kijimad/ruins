@@ -159,8 +159,8 @@ func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.
 		return gc.TargetType{}
 	}
 	return gc.TargetType{
-		TargetGroup: gc.TargetGroupType(string(targetGroup)),
-		TargetNum:   gc.TargetNumType(string(targetNum)),
+		TargetGroup: targetGroup,
+		TargetNum:   targetNum,
 	}
 }
 
@@ -267,10 +267,10 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	if item.Consumable != nil {
 		entitySpec.Consumable = &gc.Consumable{
-			UsableScene: gc.UsableSceneType(item.Consumable.UsableScene),
+			UsableScene: item.Consumable.UsableScene,
 			TargetType: gc.TargetType{
-				TargetGroup: gc.TargetGroupType(item.Consumable.TargetGroup),
-				TargetNum:   gc.TargetNumType(item.Consumable.TargetNum),
+				TargetGroup: item.Consumable.TargetGroup,
+				TargetNum:   item.Consumable.TargetNum,
 			},
 		}
 	}
@@ -981,7 +981,7 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 			BodyFuncDropPerSeverity: row.BodyFuncDropPerSeverity,
 		}
 		if row.Recovery != nil {
-			def.Recovery = gc.RecoveryMode(*row.Recovery)
+			def.Recovery = *row.Recovery
 		}
 		if row.WorsenPer != nil {
 			def.WorsenPer = *row.WorsenPer

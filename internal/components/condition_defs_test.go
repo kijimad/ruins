@@ -22,7 +22,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		Name:                    "Fracture",
 		PainPerSeverity:         18,
 		BodyFuncDropPerSeverity: 20,
-		Recovery:                RecoverAfterTend,
+		Recovery:                oapi.RecoverAfterTend,
 		RecoverPer:              1,
 		Parts:                   []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet},
 	},
@@ -30,7 +30,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		Name:                    "Laceration",
 		PainPerSeverity:         8,
 		BodyFuncDropPerSeverity: 8,
-		Recovery:                RecoverAfterTend,
+		Recovery:                oapi.RecoverAfterTend,
 		RecoverPer:              2,
 		BloodDropPerSeverity:    25,
 		Cause:                   CauseBloodLoss,
@@ -39,7 +39,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		Name:                    "Liver illness",
 		PainPerSeverity:         4,
 		BodyFuncDropPerSeverity: 10,
-		Recovery:                ProgressUntilTend,
+		Recovery:                oapi.ProgressUntilTend,
 		WorsenPer:               2,
 		RecoverPer:              1,
 		BloodDropPerSeverity:    25,
@@ -49,7 +49,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		Name:                    "Food poisoning",
 		PainPerSeverity:         5,
 		BodyFuncDropPerSeverity: 12,
-		Recovery:                RecoverOverTime,
+		Recovery:                oapi.RecoverOverTime,
 		RecoverPer:              2,
 		Onset:                   oapi.RottenFood,
 	},
@@ -103,7 +103,7 @@ func TestConditionDefs_Def(t *testing.T) {
 
 	def, ok := testDefs.Def(ConditionType("laceration"))
 	require.True(t, ok)
-	assert.Equal(t, RecoverAfterTend, def.Recovery)
+	assert.Equal(t, oapi.RecoverAfterTend, def.Recovery)
 	assert.Equal(t, CauseBloodLoss, def.Cause)
 
 	_, ok = testDefs.Def(ConditionType("unknown"))

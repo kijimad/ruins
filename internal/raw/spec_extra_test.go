@@ -42,8 +42,8 @@ ValueType = "PERCENTAGE"
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Consumable)
-	assert.Equal(t, gc.TargetGroupType("ALLY"), spec.Consumable.TargetType.TargetGroup)
-	assert.Equal(t, gc.TargetNumType("SINGLE"), spec.Consumable.TargetType.TargetNum)
+	assert.Equal(t, oapi.TargetGroupALLY, spec.Consumable.TargetType.TargetGroup)
+	assert.Equal(t, oapi.SINGLE, spec.Consumable.TargetType.TargetNum)
 
 	require.NotNil(t, spec.ProvidesHealing)
 	assert.Equal(t, gc.HealRatio, spec.ProvidesHealing.Kind)
@@ -573,7 +573,7 @@ Amount = 3
 	assert.Equal(t, 1, spec.Wearable.Defense)
 
 	require.NotNil(t, spec.Consumable, "元アイテムのConsumableを引き継ぐ")
-	assert.Equal(t, gc.TargetGroupType("ALLY"), spec.Consumable.TargetType.TargetGroup)
+	assert.Equal(t, oapi.TargetGroupALLY, spec.Consumable.TargetType.TargetGroup)
 
 	require.NotNil(t, spec.Weight, "元アイテムのWeightを引き継ぐ")
 	assert.Equal(t, consts.MustParseWeight("500 g"), spec.Weight.Milligram)

@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -99,7 +100,7 @@ func metabScale(rec int, metab consts.Percent) float64 {
 // 負なら回復、正なら悪化。int の目盛りで計算し、UpdateTimer の境界で float64 にする。
 func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab consts.Percent) float64 {
 	switch def.Recovery {
-	case gc.RecoverAfterTend:
+	case oapi.RecoverAfterTend:
 		if cond.TendQuality > 0 {
 			return -float64(cond.TendQuality.ApplyInt(def.RecoverPer))
 		}
@@ -108,7 +109,7 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 			return -float64(conditionMinorNaturalRecoveryPerTurn)
 		}
 		return 0
-	case gc.ProgressUntilTend:
+	case oapi.ProgressUntilTend:
 		if cond.TendQuality == 0 {
 			return float64(def.WorsenPer)
 		}
@@ -116,7 +117,7 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 		// 不調が意識を下げ自分の回復を鈍らせても、整数切り捨てで治癒が停止しないようにする
 		rec := cond.TendQuality.ApplyInt(def.RecoverPer)
 		return -metabScale(rec, metab)
-	case gc.RecoverOverTime:
+	case oapi.RecoverOverTime:
 		// 自己限定。未治療でも代謝で自然に治る。治療すればその質でさらに速まる
 		rec := def.RecoverPer
 		if cond.TendQuality > 0 {

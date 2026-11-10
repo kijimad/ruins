@@ -490,22 +490,22 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 		}},
 		{gc.ConditionType("fracture"), gc.ConditionDef{
 			Name: "Fracture", Description: "A broken bone. It will not heal until treated.",
-			PainPerSeverity: 18, BodyFuncDropPerSeverity: 20, Recovery: gc.RecoverAfterTend, RecoverPer: 1,
+			PainPerSeverity: 18, BodyFuncDropPerSeverity: 20, Recovery: oapi.RecoverAfterTend, RecoverPer: 1,
 			Parts: []gc.BodyPart{gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet},
 		}},
 		{gc.ConditionType("laceration"), gc.ConditionDef{
 			Name: "Laceration", Description: "An open wound. It will not heal until treated.",
-			PainPerSeverity: 8, BodyFuncDropPerSeverity: 8, Recovery: gc.RecoverAfterTend, RecoverPer: 2,
+			PainPerSeverity: 8, BodyFuncDropPerSeverity: 8, Recovery: oapi.RecoverAfterTend, RecoverPer: 2,
 			BloodDropPerSeverity: 25, Cause: gc.CauseBloodLoss,
 		}},
 		{gc.ConditionType("liver_illness"), gc.ConditionDef{
 			Name: "Liver illness", Description: "It worsens while untreated and drains HP when severe.",
-			PainPerSeverity: 4, BodyFuncDropPerSeverity: 10, Recovery: gc.ProgressUntilTend, WorsenPer: 2, RecoverPer: 1,
+			PainPerSeverity: 4, BodyFuncDropPerSeverity: 10, Recovery: oapi.ProgressUntilTend, WorsenPer: 2, RecoverPer: 1,
 			BloodDropPerSeverity: 25, Cause: gc.CauseIllness,
 		}},
 		{gc.ConditionType("food_poisoning"), gc.ConditionDef{
 			Name: "Food poisoning", Description: "Nausea from bad food. It clears on its own over time.",
-			PainPerSeverity: 5, BodyFuncDropPerSeverity: 12, Recovery: gc.RecoverOverTime, RecoverPer: 2, Onset: oapi.RottenFood,
+			PainPerSeverity: 5, BodyFuncDropPerSeverity: 12, Recovery: oapi.RecoverOverTime, RecoverPer: 2, Onset: oapi.RottenFood,
 		}},
 		{gc.ConditionType("exhaustion"), gc.ConditionDef{
 			Name: "Exhaustion", Description: "Worn out from lack of rest. Sleep to recover.",
