@@ -195,8 +195,8 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		name := query.SkillName(world, w.Skill)
 		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(w.Accuracy), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(w.Accuracy)})
 	}
-	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
-		name := query.T(world, elem.String())
+	for _, elem := range []oapi.Element{oapi.ElementFIRE, oapi.ElementTHUNDER, oapi.ElementCHILL, oapi.ElementPHOTON} {
+		name := query.T(world, gc.ElementName(elem))
 		items = append(items, statusItemData{Label: query.T(world, "%s resistance", name), Value: val(gc.ElementResistKey(elem)), Description: query.T(world, "%s element damage multiplier. Lower reduces more", name), Details: details(gc.ElementResistKey(elem))})
 	}
 

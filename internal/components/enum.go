@@ -3,6 +3,8 @@ package components
 import (
 	"errors"
 	"fmt"
+
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // ErrInvalidEnumType はinvalid enum value場合のエラー
@@ -243,34 +245,19 @@ func (enum EquipmentType) String() string {
 
 // ================
 
-// ElementType は攻撃属性を表す
-type ElementType string
-
-const (
-	// ElementTypeNone は属性なし
-	ElementTypeNone ElementType = "NONE"
-	// ElementTypeFire は火属性
-	ElementTypeFire ElementType = "FIRE"
-	// ElementTypeThunder は雷属性
-	ElementTypeThunder ElementType = "THUNDER"
-	// ElementTypeChill は氷属性
-	ElementTypeChill ElementType = "CHILL"
-	// ElementTypePhoton は光属性
-	ElementTypePhoton ElementType = "PHOTON"
-)
-
-func (enum ElementType) String() string {
-	switch enum {
-	case ElementTypeNone:
+// ElementName は攻撃属性の表示名 msgid を返す
+func ElementName(e oapi.Element) string {
+	switch e {
+	case oapi.ElementNONE:
 		return "None"
-	case ElementTypeFire:
+	case oapi.ElementFIRE:
 		return "Fire"
-	case ElementTypeThunder:
+	case oapi.ElementTHUNDER:
 		return "Thunder"
-	case ElementTypeChill:
+	case oapi.ElementCHILL:
 		return "Ice"
-	case ElementTypePhoton:
+	case oapi.ElementPHOTON:
 		return "Light"
 	}
-	panic(fmt.Sprintf("invalid ElementType value: %s", string(enum)))
+	panic(fmt.Sprintf("invalid Element value: %s", string(e)))
 }

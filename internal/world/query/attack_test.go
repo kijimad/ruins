@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -57,14 +58,14 @@ func TestGetFireFromWeapon(t *testing.T) {
 		Damage:      5,
 		Accuracy:    80,
 		AttackCount: 1,
-		Element:     gc.ElementTypeFire,
+		Element:     oapi.ElementFIRE,
 	})
 
 	fire, name, err := GetFireFromWeapon(world, weapon)
 	require.NoError(t, err)
 	assert.Equal(t, "火炎放射器", name)
 	assert.Equal(t, 5, fire.GetDamage())
-	assert.Equal(t, gc.ElementTypeFire, fire.GetElement())
+	assert.Equal(t, oapi.ElementFIRE, fire.GetElement())
 }
 
 func TestGetFireFromWeapon_NoFireComponent(t *testing.T) {
@@ -141,14 +142,14 @@ func TestAttackUnification(t *testing.T) {
 		Damage:         1,
 		Accuracy:       100,
 		AttackCount:    1,
-		Element:        gc.ElementTypeNone,
+		Element:        oapi.ElementNONE,
 		AttackCategory: gc.AttackFist,
 	})
 	playerAttack, playerWeaponName, err := GetMeleeFromWeapon(world, playerWeapon)
 	require.NoError(t, err)
 	assert.Equal(t, "体当たり", playerWeaponName)
 	assert.Equal(t, 1, playerAttack.GetDamage())
-	assert.Equal(t, gc.ElementTypeNone, playerAttack.GetElement())
+	assert.Equal(t, oapi.ElementNONE, playerAttack.GetElement())
 
 	// 両方ともAttackerインターフェースを満たすことを検証する
 	assert.Implements(t, (*gc.Attacker)(nil), enemyAttack)

@@ -8,15 +8,15 @@ import (
 )
 
 // elementResistKeys は元素タイプから耐性効果キーへのマッピング
-var elementResistKeys = map[ElementType]oapi.ProficiencyId{
-	ElementTypeFire:    oapi.ProficiencyIdFireResist,
-	ElementTypeThunder: oapi.ProficiencyIdThunderResist,
-	ElementTypeChill:   oapi.ProficiencyIdChillResist,
-	ElementTypePhoton:  oapi.ProficiencyIdPhotonResist,
+var elementResistKeys = map[oapi.Element]oapi.ProficiencyId{
+	oapi.ElementFIRE:    oapi.ProficiencyIdFireResist,
+	oapi.ElementTHUNDER: oapi.ProficiencyIdThunderResist,
+	oapi.ElementCHILL:   oapi.ProficiencyIdChillResist,
+	oapi.ElementPHOTON:  oapi.ProficiencyIdPhotonResist,
 }
 
 // ElementResistKey は元素タイプに対応する耐性効果キーを返す。未定義ならpanicする
-func ElementResistKey(elem ElementType) oapi.ProficiencyId {
+func ElementResistKey(elem oapi.Element) oapi.ProficiencyId {
 	key, ok := LookupElementResistKey(elem)
 	if !ok {
 		panic(fmt.Sprintf("undefined element type for resistance: %q", elem))
@@ -25,7 +25,7 @@ func ElementResistKey(elem ElementType) oapi.ProficiencyId {
 }
 
 // LookupElementResistKey は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false
-func LookupElementResistKey(elem ElementType) (oapi.ProficiencyId, bool) {
+func LookupElementResistKey(elem oapi.Element) (oapi.ProficiencyId, bool) {
 	key, ok := elementResistKeys[elem]
 	return key, ok
 }

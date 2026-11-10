@@ -28,7 +28,7 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 80, Damage: 25, AttackCount: 2,
-		Element: gc.ElementTypeFire, AttackCategory: gc.AttackSword, Cost: 100,
+		Element: oapi.ElementFIRE, AttackCategory: gc.AttackSword, Cost: 100,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
@@ -36,7 +36,7 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackSword.Label),
 		"Attack power", "25", "Accuracy", "80", "Hits", "2", "Attack cost", "100",
-		"Element", query.T(world, gc.ElementTypeFire.String()),
+		"Element", query.T(world, gc.ElementName(oapi.ElementFIRE)),
 	}, labels)
 }
 
@@ -47,7 +47,7 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackFist, Cost: 50,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackFist, Cost: 50,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
@@ -67,7 +67,7 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	// AttackRifle は enum.go の rangeParams に登録済みなので、射程行が表示される前提が成り立つ
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackRifle, Cost: 150,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackRifle, Cost: 150,
 		Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 	})
 
@@ -87,7 +87,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 	e := world.ECS.NewEntity()
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackBow, Cost: 80,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackBow, Cost: 80,
 		MagazineSize: 0,
 	})
 
@@ -272,7 +272,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	spec := gc.EntitySpec{
 		Melee: &gc.Melee{
 			Accuracy: 90, Damage: 12, AttackCount: 1,
-			Element: gc.ElementTypeThunder, AttackCategory: gc.AttackSpear, Cost: 80,
+			Element: oapi.ElementTHUNDER, AttackCategory: gc.AttackSpear, Cost: 80,
 		},
 	}
 
@@ -281,7 +281,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackSpear.Label),
 		"Attack power", "12", "Accuracy", "90", "Hits", "1", "Attack cost", "80",
-		"Element", query.T(world, gc.ElementTypeThunder.String()),
+		"Element", query.T(world, gc.ElementName(oapi.ElementTHUNDER)),
 	}, labels)
 }
 
@@ -340,7 +340,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	spec := gc.EntitySpec{
 		Fire: &gc.Fire{
 			Accuracy: 70, Damage: 30, AttackCount: 1,
-			Element: gc.ElementTypeNone, AttackCategory: gc.AttackRifle, Cost: 150,
+			Element: oapi.ElementNONE, AttackCategory: gc.AttackRifle, Cost: 150,
 			Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 		},
 		Wearable: &gc.Wearable{

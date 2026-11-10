@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -121,30 +122,30 @@ func TestEquipmentType_SlotNumber_不正な値はpanicする(t *testing.T) {
 	})
 }
 
-func TestElementType_String(t *testing.T) {
+func TestElementName(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		et   ElementType
+		et   oapi.Element
 		want string
 	}{
-		{ElementTypeNone, "None"},
-		{ElementTypeFire, "Fire"},
-		{ElementTypeThunder, "Thunder"},
-		{ElementTypeChill, "Ice"},
-		{ElementTypePhoton, "Light"},
+		{oapi.ElementNONE, "None"},
+		{oapi.ElementFIRE, "Fire"},
+		{oapi.ElementTHUNDER, "Thunder"},
+		{oapi.ElementCHILL, "Ice"},
+		{oapi.ElementPHOTON, "Light"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, tt.et.String())
+			assert.Equal(t, tt.want, ElementName(tt.et))
 		})
 	}
 }
 
-func TestElementType_String_InvalidPanic(t *testing.T) {
+func TestElementName_InvalidPanic(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {
-		_ = ElementType("INVALID").String()
+		_ = ElementName(oapi.Element("INVALID"))
 	})
 }

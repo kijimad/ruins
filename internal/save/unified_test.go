@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -167,7 +168,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(sword, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(sword, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackSword,
 	})
 
 	// 武器2: ハンドガン
@@ -176,7 +177,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(handgun, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(handgun, &gc.Melee{
 		Accuracy: 85, Damage: 12, AttackCount: 1,
-		Element: gc.ElementTypeNone, AttackCategory: gc.AttackHandgun,
+		Element: oapi.ElementNONE, AttackCategory: gc.AttackHandgun,
 	})
 
 	// 防具: 西洋鎧

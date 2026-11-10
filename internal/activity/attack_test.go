@@ -70,14 +70,14 @@ func TestElementMult(t *testing.T) {
 		name        string
 		fireResist  int
 		hasSkills   bool
-		element     gc.ElementType
+		element     oapi.Element
 		wantPercent consts.Percent
 	}{
-		{"スキルを持たない対象は等倍", 0, false, gc.ElementTypeFire, 100},
-		{"無属性は耐性があっても等倍", 40, true, gc.ElementTypeNone, 100},
-		{"空の属性は等倍", 40, true, gc.ElementType(""), 100},
-		{"耐火Lv5は100+5*(-3)で85", 5, true, gc.ElementTypeFire, 85},
-		{"耐火Lv40は100+40*(-3)で-20", 40, true, gc.ElementTypeFire, -20},
+		{"スキルを持たない対象は等倍", 0, false, oapi.ElementFIRE, 100},
+		{"無属性は耐性があっても等倍", 40, true, oapi.ElementNONE, 100},
+		{"空の属性は等倍", 40, true, oapi.Element(""), 100},
+		{"耐火Lv5は100+5*(-3)で85", 5, true, oapi.ElementFIRE, 85},
+		{"耐火Lv40は100+40*(-3)で-20", 40, true, oapi.ElementFIRE, -20},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

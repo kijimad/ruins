@@ -84,7 +84,7 @@ func TestAbilityNameMapping(t *testing.T) {
 func TestElementResistKeyMapping(t *testing.T) {
 	t.Parallel()
 
-	for _, elem := range []ElementType{ElementTypeFire, ElementTypeThunder, ElementTypeChill, ElementTypePhoton} {
+	for _, elem := range []oapi.Element{oapi.ElementFIRE, oapi.ElementTHUNDER, oapi.ElementCHILL, oapi.ElementPHOTON} {
 		assert.NotPanics(t, func() {
 			key := ElementResistKey(elem)
 			assert.NotEmpty(t, key)

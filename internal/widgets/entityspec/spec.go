@@ -336,8 +336,8 @@ func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 		{Label: query.T(world, "Hits"), Value: strconv.Itoa(attack.GetAttackCount())},
 		{Label: query.T(world, "Attack cost"), Value: strconv.Itoa(attack.GetCost())},
 	}
-	if attack.GetElement() != gc.ElementTypeNone {
-		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, attack.GetElement().String())})
+	if attack.GetElement() != oapi.ElementNONE {
+		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, gc.ElementName(attack.GetElement()))})
 	}
 	return markChildren(rows)
 }

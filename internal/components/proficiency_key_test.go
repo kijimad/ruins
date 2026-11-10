@@ -11,13 +11,13 @@ func TestElementResistKey(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		elem ElementType
+		elem oapi.Element
 		want oapi.ProficiencyId
 	}{
-		{ElementTypeFire, oapi.ProficiencyIdFireResist},
-		{ElementTypeThunder, oapi.ProficiencyIdThunderResist},
-		{ElementTypeChill, oapi.ProficiencyIdChillResist},
-		{ElementTypePhoton, oapi.ProficiencyIdPhotonResist},
+		{oapi.ElementFIRE, oapi.ProficiencyIdFireResist},
+		{oapi.ElementTHUNDER, oapi.ProficiencyIdThunderResist},
+		{oapi.ElementCHILL, oapi.ProficiencyIdChillResist},
+		{oapi.ElementPHOTON, oapi.ProficiencyIdPhotonResist},
 	}
 
 	for _, tt := range tests {

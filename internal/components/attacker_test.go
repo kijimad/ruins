@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestMelee_AttackerInterface(t *testing.T) {
 		Accuracy:       80,
 		Damage:         25,
 		AttackCount:    2,
-		Element:        ElementTypeFire,
+		Element:        oapi.ElementFIRE,
 		AttackCategory: AttackSword,
 		Cost:           100,
 		TargetType:     TargetType{TargetGroup: TargetGroupEnemy, TargetNum: TargetSingle},
@@ -23,7 +24,7 @@ func TestMelee_AttackerInterface(t *testing.T) {
 	assert.Equal(t, 80, atk.GetAccuracy())
 	assert.Equal(t, 25, atk.GetDamage())
 	assert.Equal(t, 2, atk.GetAttackCount())
-	assert.Equal(t, ElementTypeFire, atk.GetElement())
+	assert.Equal(t, oapi.ElementFIRE, atk.GetElement())
 	assert.Equal(t, AttackSword, atk.GetAttackCategory())
 	assert.Equal(t, 100, atk.GetCost())
 	assert.Equal(t, TargetGroupEnemy, atk.GetTargetType().TargetGroup)
@@ -37,7 +38,7 @@ func TestFire_AttackerInterface(t *testing.T) {
 		Accuracy:       70,
 		Damage:         30,
 		AttackCount:    1,
-		Element:        ElementTypeThunder,
+		Element:        oapi.ElementTHUNDER,
 		AttackCategory: AttackRifle,
 		Cost:           150,
 		TargetType:     TargetType{TargetGroup: TargetGroupEnemy, TargetNum: TargetAll},
@@ -47,7 +48,7 @@ func TestFire_AttackerInterface(t *testing.T) {
 	assert.Equal(t, 70, atk.GetAccuracy())
 	assert.Equal(t, 30, atk.GetDamage())
 	assert.Equal(t, 1, atk.GetAttackCount())
-	assert.Equal(t, ElementTypeThunder, atk.GetElement())
+	assert.Equal(t, oapi.ElementTHUNDER, atk.GetElement())
 	assert.Equal(t, AttackRifle, atk.GetAttackCategory())
 	assert.Equal(t, 150, atk.GetCost())
 	assert.Equal(t, TargetAll, atk.GetTargetType().TargetNum)
