@@ -32,6 +32,7 @@ func NewMainApp() *cli.Command {
 			CmdGenComponents,
 			CmdDesignDoc,
 			CmdBenchgate,
+			CmdFmtRaw,
 		},
 	}
 

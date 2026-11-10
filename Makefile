@@ -69,10 +69,8 @@ build-steam: ## Steam向けビルドする
 fmt: ## フォーマットする
 	go tool goimports -w .
 	go fix -embedlit=false ./...
-	# taplo は非 assets の TOML を整形する
-	npx @taplo/cli format
-	# yq は raw.toml を整形する。
-	go generate -run yq .
+	# raw.toml はキーを並べ替えインデントした正規形に整える
+	go run . fmtraw
 	./scripts/format-shell.sh
 
 .PHONY: lint
