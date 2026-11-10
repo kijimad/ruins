@@ -3,6 +3,7 @@ package query
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -24,7 +25,7 @@ func proficiencyInputs(world w.World, entity ecs.Entity) (skills *gc.Skills, abi
 // Skills・Abilities・実効身体機能から読み取り時に導出する。
 // 適用と表示の両方がこの1関数を読むので、両者は同じ値になる。
 // Skills が無ければ等倍を返し、呼び出し側の存在ガードは不要
-func ProficiencyValue(world w.World, entity ecs.Entity, key gc.ProficiencyKey) consts.Percent {
+func ProficiencyValue(world w.World, entity ecs.Entity, key oapi.ProficiencyId) consts.Percent {
 	skills, abils, bodyFuncs := proficiencyInputs(world, entity)
 	if skills == nil {
 		return consts.PercentBase
@@ -34,7 +35,7 @@ func ProficiencyValue(world w.World, entity ecs.Entity, key gc.ProficiencyKey) c
 
 // ProficiencySources は key の効果倍率の内訳を都度計算して返す。詳細モーダルの表示用。
 // Skills が無ければ空を返す
-func ProficiencySources(world w.World, entity ecs.Entity, key gc.ProficiencyKey) []gc.ProficiencySource {
+func ProficiencySources(world w.World, entity ecs.Entity, key oapi.ProficiencyId) []gc.ProficiencySource {
 	skills, abils, bodyFuncs := proficiencyInputs(world, entity)
 	if skills == nil {
 		return nil
@@ -43,6 +44,6 @@ func ProficiencySources(world w.World, entity ecs.Entity, key gc.ProficiencyKey)
 }
 
 // SkillName はスキルの訳した表示名を返す
-func SkillName(world w.World, id gc.SkillID) string {
+func SkillName(world w.World, id oapi.SkillId) string {
 	return T(world, world.Resources.SkillDefs.Name(id))
 }

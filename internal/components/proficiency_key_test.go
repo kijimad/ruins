@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -10,16 +11,16 @@ func TestWeaponDamageKey(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		id   SkillID
-		want ProficiencyKey
+		id   oapi.SkillId
+		want oapi.ProficiencyId
 	}{
-		{SkillSword, ProfSwordDamage},
-		{SkillSpear, ProfSpearDamage},
-		{SkillFist, ProfFistDamage},
-		{SkillBow, ProfBowDamage},
-		{SkillHandgun, ProfHandgunDamage},
-		{SkillRifle, ProfRifleDamage},
-		{SkillCannon, ProfCannonDamage},
+		{oapi.SkillIdSword, oapi.ProficiencyIdSwordDamage},
+		{oapi.SkillIdSpear, oapi.ProficiencyIdSpearDamage},
+		{oapi.SkillIdFist, oapi.ProficiencyIdFistDamage},
+		{oapi.SkillIdBow, oapi.ProficiencyIdBowDamage},
+		{oapi.SkillIdHandgun, oapi.ProficiencyIdHandgunDamage},
+		{oapi.SkillIdRifle, oapi.ProficiencyIdRifleDamage},
+		{oapi.SkillIdCannon, oapi.ProficiencyIdCannonDamage},
 	}
 
 	for _, tt := range tests {
@@ -41,16 +42,16 @@ func TestWeaponAccuracyKey(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		id   SkillID
-		want ProficiencyKey
+		id   oapi.SkillId
+		want oapi.ProficiencyId
 	}{
-		{SkillSword, ProfSwordAccuracy},
-		{SkillSpear, ProfSpearAccuracy},
-		{SkillFist, ProfFistAccuracy},
-		{SkillBow, ProfBowAccuracy},
-		{SkillHandgun, ProfHandgunAccuracy},
-		{SkillRifle, ProfRifleAccuracy},
-		{SkillCannon, ProfCannonAccuracy},
+		{oapi.SkillIdSword, oapi.ProficiencyIdSwordAccuracy},
+		{oapi.SkillIdSpear, oapi.ProficiencyIdSpearAccuracy},
+		{oapi.SkillIdFist, oapi.ProficiencyIdFistAccuracy},
+		{oapi.SkillIdBow, oapi.ProficiencyIdBowAccuracy},
+		{oapi.SkillIdHandgun, oapi.ProficiencyIdHandgunAccuracy},
+		{oapi.SkillIdRifle, oapi.ProficiencyIdRifleAccuracy},
+		{oapi.SkillIdCannon, oapi.ProficiencyIdCannonAccuracy},
 	}
 
 	for _, tt := range tests {
@@ -73,12 +74,12 @@ func TestElementResistKey(t *testing.T) {
 
 	tests := []struct {
 		elem ElementType
-		want ProficiencyKey
+		want oapi.ProficiencyId
 	}{
-		{ElementTypeFire, ProfFireResist},
-		{ElementTypeThunder, ProfThunderResist},
-		{ElementTypeChill, ProfChillResist},
-		{ElementTypePhoton, ProfPhotonResist},
+		{ElementTypeFire, oapi.ProficiencyIdFireResist},
+		{ElementTypeThunder, oapi.ProficiencyIdThunderResist},
+		{ElementTypeChill, oapi.ProficiencyIdChillResist},
+		{ElementTypePhoton, oapi.ProficiencyIdPhotonResist},
 	}
 
 	for _, tt := range tests {

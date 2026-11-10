@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -567,7 +568,7 @@ func TestUseItemBehavior_applyHealing(t *testing.T) {
 		world.Components.HP.Add(actor, &gc.HP{Current: 10, Max: 100})
 		// 回復Lv20: 回復効果 = 100 + 20*5 = 200
 		skills := gc.NewSkills()
-		skills.Get(gc.SkillHealing).Value = 20
+		skills.Get(oapi.SkillIdHealing).Value = 20
 		world.Components.Skills.Add(actor, skills)
 
 		item := world.ECS.NewEntity()

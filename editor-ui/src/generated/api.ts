@@ -1725,7 +1725,7 @@ export interface ProfessionSkill {
 
 
 /**
- * 熟練の効果倍率の id
+ * 熟練の効果倍率の id。技能と能力値から導く行動ごとの倍率を指す。怪我・病気・疲労・空腹による身体機能の低下は別に扱う
  */
 
 export const ProficiencyId = {

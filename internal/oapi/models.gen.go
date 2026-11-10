@@ -2560,7 +2560,7 @@ type ProfessionSkill struct {
 	Value SkillLevel `json:"value"`
 }
 
-// ProficiencyId 熟練の効果倍率の id
+// ProficiencyId 熟練の効果倍率の id。技能と能力値から導く行動ごとの倍率を指す。怪我・病気・疲労・空腹による身体機能の低下は別に扱う
 type ProficiencyId string
 
 // ProficiencyPerLevel 熟練の効果倍率のスキルLv1あたりの変化量。百分率
@@ -2832,7 +2832,7 @@ type SkillLevel = int
 
 // SkillProficiency スキルが左右する熟練の効果倍率
 type SkillProficiency struct {
-	// Id 熟練の効果倍率の id
+	// Id 熟練の効果倍率の id。技能と能力値から導く行動ごとの倍率を指す。怪我・病気・疲労・空腹による身体機能の低下は別に扱う
 	Id ProficiencyId `json:"id"`
 
 	// PerLevel 熟練の効果倍率のスキルLv1あたりの変化量。百分率

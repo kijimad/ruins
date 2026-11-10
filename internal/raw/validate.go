@@ -728,13 +728,13 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 	skills := PtrSlice(raws.Skills)
 	skillIDs := make([]string, 0, len(skills))
 	var proficiencyIDs []string
-	owners := make(map[gc.ProficiencyKey]gc.SkillID)
+	owners := make(map[oapi.ProficiencyId]oapi.SkillId)
 	for i := range skills {
-		id := gc.SkillID(skills[i].Id)
+		id := skills[i].Id
 		skillIDs = append(skillIDs, string(id))
 		for _, p := range PtrSlice(skills[i].Proficiencies) {
 			proficiencyIDs = append(proficiencyIDs, string(p.Id))
-			owners[gc.ProficiencyKey(p.Id)] = id
+			owners[p.Id] = id
 		}
 	}
 	if err := validateEnumRows("SkillId", skillIDs); err != nil {
@@ -744,7 +744,7 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 		return err
 	}
 	for _, id := range gc.WeaponSkillIDs {
-		for _, key := range []gc.ProficiencyKey{gc.WeaponDamageKey(id), gc.WeaponAccuracyKey(id)} {
+		for _, key := range []oapi.ProficiencyId{gc.WeaponDamageKey(id), gc.WeaponAccuracyKey(id)} {
 			if owners[key] != id {
 				return fmt.Errorf("proficiency %q owned by %q: %w", key, owners[key], errWeaponProficiencyOwner)
 			}

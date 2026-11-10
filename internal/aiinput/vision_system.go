@@ -1,8 +1,8 @@
 package aiinput
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -33,7 +33,7 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 	viewDist := float64(viewDistance)
 
 	// 敵ごと毎ターン呼ばれる最頻経路なので、内訳を作らない単キー導出で読む
-	viewDist = query.ProficiencyValue(world, targetEntity, gc.ProfEnemyVision).ApplyFloat(viewDist)
+	viewDist = query.ProficiencyValue(world, targetEntity, oapi.ProficiencyIdEnemyVision).ApplyFloat(viewDist)
 
 	return float64(distSq) <= viewDist*viewDist
 }

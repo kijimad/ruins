@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -139,7 +140,7 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	amount := healing.Calc(hp.Max)
 
 	// 回復効果倍率を適用する
-	amount = max(query.ProficiencyValue(world, actor, gc.ProfHealingEffect).ApplyInt(amount), 1)
+	amount = max(query.ProficiencyValue(world, actor, oapi.ProficiencyIdHealingEffect).ApplyInt(amount), 1)
 
 	actualHealing := gameaction.ApplyHealing(world, actor, amount)
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -175,10 +176,10 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	if !world.ECS.Alive(playerEntity) {
 		return items
 	}
-	val := func(key gc.ProficiencyKey) string {
+	val := func(key oapi.ProficiencyId) string {
 		return fmt.Sprintf("%d%%", query.ProficiencyValue(world, playerEntity, key))
 	}
-	details := func(key gc.ProficiencyKey) []statusDetailRow {
+	details := func(key oapi.ProficiencyId) []statusDetailRow {
 		return sourceToDetails(world, query.ProficiencySources(world, playerEntity, key))
 	}
 	// 実効身体機能。怪我・病気に加え疲労・空腹の意識低下を畳んだ値
@@ -221,28 +222,28 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(gc.ProfColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(gc.ProfColdProgress)},
-		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(gc.ProfHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(gc.ProfHungerProgress)},
-		statusItemData{Label: query.T(world, "Healing effect"), Value: val(gc.ProfHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(gc.ProfHealingEffect)},
+		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: val(oapi.ProficiencyIdColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: details(oapi.ProficiencyIdColdProgress)},
+		statusItemData{Label: query.T(world, "Hunger progress"), Value: val(oapi.ProficiencyIdHungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: details(oapi.ProficiencyIdHungerProgress)},
+		statusItemData{Label: query.T(world, "Healing effect"), Value: val(oapi.ProficiencyIdHealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: details(oapi.ProficiencyIdHealingEffect)},
 		statusItemData{Label: query.T(world, "Recovery"), Value: fmt.Sprintf("%d%%", query.Metabolism(world, playerEntity)), Description: query.T(world, "Natural recovery speed. VIT and sleep raise it, hunger and fatigue lower it"), Details: sourceToDetails(world, query.RecoverySources(world, playerEntity))},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Move speed"), Value: val(gc.ProfMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(gc.ProfMoveCost)},
-		statusItemData{Label: query.T(world, "Discovery"), Value: val(gc.ProfExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(gc.ProfExploration)},
-		statusItemData{Label: query.T(world, "Detection"), Value: val(gc.ProfEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(gc.ProfEnemyVision)},
-		statusItemData{Label: query.T(world, "Night vision"), Value: val(gc.ProfNightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: details(gc.ProfNightVision)},
+		statusItemData{Label: query.T(world, "Move speed"), Value: val(oapi.ProficiencyIdMoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: details(oapi.ProficiencyIdMoveCost)},
+		statusItemData{Label: query.T(world, "Discovery"), Value: val(oapi.ProficiencyIdExploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: details(oapi.ProficiencyIdExploration)},
+		statusItemData{Label: query.T(world, "Detection"), Value: val(oapi.ProficiencyIdEnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: details(oapi.ProficiencyIdEnemyVision)},
+		statusItemData{Label: query.T(world, "Night vision"), Value: val(oapi.ProficiencyIdNightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: details(oapi.ProficiencyIdNightVision)},
 	)
 
 	items = append(items, statusItemData{Label: query.T(world, "Production"), IsHeader: true, Description: query.T(world, "Production and trade effects")})
 	items = append(items,
-		statusItemData{Label: query.T(world, "Material cost"), Value: val(gc.ProfCraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: details(gc.ProfCraftCost)},
-		statusItemData{Label: query.T(world, "Craft quality"), Value: val(gc.ProfSmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: details(gc.ProfSmithQuality)},
-		statusItemData{Label: query.T(world, "Buy price"), Value: val(gc.ProfBuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: details(gc.ProfBuyPrice)},
-		statusItemData{Label: query.T(world, "Sell price"), Value: val(gc.ProfSellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: details(gc.ProfSellPrice)},
-		statusItemData{Label: query.T(world, "Max weight"), Value: val(gc.ProfMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(gc.ProfMaxWeight)},
-		statusItemData{Label: query.T(world, "Max load"), Value: val(gc.ProfHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(gc.ProfHeavyArmor)},
+		statusItemData{Label: query.T(world, "Material cost"), Value: val(oapi.ProficiencyIdCraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: details(oapi.ProficiencyIdCraftCost)},
+		statusItemData{Label: query.T(world, "Craft quality"), Value: val(oapi.ProficiencyIdSmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: details(oapi.ProficiencyIdSmithQuality)},
+		statusItemData{Label: query.T(world, "Buy price"), Value: val(oapi.ProficiencyIdBuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: details(oapi.ProficiencyIdBuyPrice)},
+		statusItemData{Label: query.T(world, "Sell price"), Value: val(oapi.ProficiencyIdSellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: details(oapi.ProficiencyIdSellPrice)},
+		statusItemData{Label: query.T(world, "Max weight"), Value: val(oapi.ProficiencyIdMaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: details(oapi.ProficiencyIdMaxWeight)},
+		statusItemData{Label: query.T(world, "Max load"), Value: val(oapi.ProficiencyIdHeavyArmor), Description: query.T(world, "Max load multiplier"), Details: details(oapi.ProficiencyIdHeavyArmor)},
 	)
 	return indentUnderHeaders(items)
 }

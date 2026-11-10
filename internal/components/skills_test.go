@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -47,21 +48,21 @@ func TestSkills_Get(t *testing.T) {
 	t.Run("まだ無いスキルは値0で作る", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get(SkillSword))
-		assert.Equal(t, map[SkillID]*Skill{SkillSword: {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
+		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get(oapi.SkillIdSword))
+		assert.Equal(t, map[oapi.SkillId]*Skill{oapi.SkillIdSword: {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
 	})
 
 	t.Run("作ったスキルへの書き込みが残る", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		skills.Get(SkillBow).Value = 7
-		assert.Equal(t, 7, skills.Get(SkillBow).Value)
+		skills.Get(oapi.SkillIdBow).Value = 7
+		assert.Equal(t, 7, skills.Get(oapi.SkillIdBow).Value)
 	})
 
 	t.Run("ゼロ値の Skills でも使える", func(t *testing.T) {
 		t.Parallel()
 		var skills Skills
-		assert.Equal(t, 0, skills.Get(SkillFist).Value)
+		assert.Equal(t, 0, skills.Get(oapi.SkillIdFist).Value)
 	})
 }
 
@@ -71,15 +72,15 @@ func TestWeaponSkillID(t *testing.T) {
 	tests := []struct {
 		name       string
 		attackType AttackType
-		expected   SkillID
+		expected   oapi.SkillId
 		ok         bool
 	}{
-		{"Swordsmanship", AttackSword, SkillSword, true},
-		{"Polearm", AttackSpear, SkillSpear, true},
-		{"Unarmed", AttackFist, SkillFist, true},
-		{"Pistol skill", AttackHandgun, SkillHandgun, true},
-		{"Rifle skill", AttackRifle, SkillRifle, true},
-		{"Artillery", AttackCannon, SkillCannon, true},
+		{"Swordsmanship", AttackSword, oapi.SkillIdSword, true},
+		{"Polearm", AttackSpear, oapi.SkillIdSpear, true},
+		{"Unarmed", AttackFist, oapi.SkillIdFist, true},
+		{"Pistol skill", AttackHandgun, oapi.SkillIdHandgun, true},
+		{"Rifle skill", AttackRifle, oapi.SkillIdRifle, true},
+		{"Artillery", AttackCannon, oapi.SkillIdCannon, true},
 		{"未定義の武器種", AttackType{Type: "unknown"}, "", false},
 	}
 
@@ -98,20 +99,20 @@ func TestWeaponSkillID(t *testing.T) {
 func TestWeaponSkillID_全攻撃種別が同じ名前の武器スキルを持つ(t *testing.T) {
 	t.Parallel()
 
-	got := map[AttackType]SkillID{}
+	got := map[AttackType]oapi.SkillId{}
 	for _, at := range AllAttackTypes {
 		id, ok := WeaponSkillID(at)
 		require.True(t, ok, at.Type)
 		got[at] = id
 	}
-	assert.Equal(t, map[AttackType]SkillID{
-		AttackSword:   SkillSword,
-		AttackSpear:   SkillSpear,
-		AttackHandgun: SkillHandgun,
-		AttackRifle:   SkillRifle,
-		AttackFist:    SkillFist,
-		AttackCannon:  SkillCannon,
-		AttackBow:     SkillBow,
+	assert.Equal(t, map[AttackType]oapi.SkillId{
+		AttackSword:   oapi.SkillIdSword,
+		AttackSpear:   oapi.SkillIdSpear,
+		AttackHandgun: oapi.SkillIdHandgun,
+		AttackRifle:   oapi.SkillIdRifle,
+		AttackFist:    oapi.SkillIdFist,
+		AttackCannon:  oapi.SkillIdCannon,
+		AttackBow:     oapi.SkillIdBow,
 	}, got)
 }
 

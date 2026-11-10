@@ -162,7 +162,7 @@ func TestNewBookFromAPI(t *testing.T) {
 		result, err := newBookFromAPI(b)
 		require.NoError(t, err)
 		assert.Equal(t, 100, result.Effort.Max)
-		assert.Equal(t, gc.SkillSword, result.Skill.TargetSkill)
+		assert.Equal(t, oapi.SkillIdSword, result.Skill.TargetSkill)
 		assert.Equal(t, 5, result.Skill.MaxLevel)
 		assert.Equal(t, 2, result.Skill.RequiredLevel)
 	})

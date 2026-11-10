@@ -236,7 +236,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	world.Components.Book.Add(e, &gc.Book{
 		Effort: gc.IntPool{Current: 30, Max: 100},
 		Skill: &gc.SkillBookEffect{
-			TargetSkill:   gc.SkillSword,
+			TargetSkill:   oapi.SkillIdSword,
 			RequiredLevel: 2,
 			MaxLevel:      5,
 		},
@@ -245,7 +245,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Book", "Skill", query.SkillName(world, gc.SkillSword),
+		"Book", "Skill", query.SkillName(world, oapi.SkillIdSword),
 		"Lv", "2 " + consts.IconArrowRight + " 5", "Progress", "30%",
 	}, labels)
 }

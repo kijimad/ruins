@@ -55,7 +55,7 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	for _, key := range schemaEnum("ProficiencyId") {
 		owner := 0
 		for _, id := range gc.WeaponSkillIDs {
-			if gc.ProficiencyKey(key) == gc.WeaponDamageKey(id) || gc.ProficiencyKey(key) == gc.WeaponAccuracyKey(id) {
+			if oapi.ProficiencyId(key) == gc.WeaponDamageKey(id) || oapi.ProficiencyId(key) == gc.WeaponAccuracyKey(id) {
 				owner = slices.Index(skillIDs, string(id))
 			}
 		}
@@ -69,9 +69,9 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		SkillCategories: &[]oapi.SkillCategory{{Id: "general", Name: "General"}},
 		Items: &[]oapi.Item{
 			{Id: "splint", Remedy: &oapi.Remedy{Treats: []oapi.ConditionTypeName{string(gc.ConditionType("fracture"))}}},
-			{Id: "manual", Book: &oapi.Book{Skill: &oapi.SkillBook{TargetSkill: oapi.SkillId(gc.SkillSword)}}},
+			{Id: "manual", Book: &oapi.Book{Skill: &oapi.SkillBook{TargetSkill: oapi.SkillIdSword}}},
 		},
-		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: oapi.SkillId(gc.SkillRifle)}}}},
+		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: oapi.SkillIdRifle}}}},
 		InteriorProfile: &oapi.InteriorProfile{},
 		Weathers:        &[]oapi.Weather{{Id: oapi.Clear}},
 		HungerStages:    &[]oapi.HungerStage{{Id: oapi.HungerStageIdStarving}},
@@ -243,8 +243,8 @@ func TestValidateCodeRows(t *testing.T) {
 		{
 			name: "武器の効果倍率を別のスキルが持つ",
 			mutate: func(r *oapi.Raws) {
-				sword := slices.Index(schemaEnum("SkillId"), string(gc.SkillSword))
-				spear := slices.Index(schemaEnum("SkillId"), string(gc.SkillSpear))
+				sword := slices.Index(schemaEnum("SkillId"), string(oapi.SkillIdSword))
+				spear := slices.Index(schemaEnum("SkillId"), string(oapi.SkillIdSpear))
 				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
@@ -360,7 +360,7 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	defs, err := NewSkillDefs(raws)
 	require.NoError(t, err)
 
-	sword, ok := defs.Skills[gc.SkillSword]
+	sword, ok := defs.Skills[oapi.SkillIdSword]
 	require.True(t, ok)
 	assert.Equal(t, gc.SkillDef{
 		Name:     "Swordsmanship",
@@ -371,31 +371,31 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	}, sword)
 
 	assert.Equal(t, []gc.SkillCategory{
-		{Name: "Melee", IDs: []gc.SkillID{gc.SkillSword, gc.SkillSpear, gc.SkillFist}},
-		{Name: "Ranged", IDs: []gc.SkillID{gc.SkillBow, gc.SkillHandgun, gc.SkillRifle, gc.SkillCannon}},
-		{Name: "Craft", IDs: []gc.SkillID{gc.SkillCrafting, gc.SkillSmithing, gc.SkillNegotiation, gc.SkillMechanic}},
-		{Name: "Mobility", IDs: []gc.SkillID{gc.SkillSprinting, gc.SkillStealth, gc.SkillNightVision, gc.SkillWeightBearing}},
-		{Name: "Survival", IDs: []gc.SkillID{gc.SkillColdResist, gc.SkillHungerResist, gc.SkillHealing, gc.SkillExploration}},
-		{Name: "Defense", IDs: []gc.SkillID{gc.SkillHeavyArmor, gc.SkillFireResist, gc.SkillThunderResist, gc.SkillChillResist, gc.SkillPhotonResist}},
+		{Name: "Melee", IDs: []oapi.SkillId{oapi.SkillIdSword, oapi.SkillIdSpear, oapi.SkillIdFist}},
+		{Name: "Ranged", IDs: []oapi.SkillId{oapi.SkillIdBow, oapi.SkillIdHandgun, oapi.SkillIdRifle, oapi.SkillIdCannon}},
+		{Name: "Craft", IDs: []oapi.SkillId{oapi.SkillIdCrafting, oapi.SkillIdSmithing, oapi.SkillIdNegotiation, oapi.SkillIdMechanic}},
+		{Name: "Mobility", IDs: []oapi.SkillId{oapi.SkillIdSprinting, oapi.SkillIdStealth, oapi.SkillIdNightVision, oapi.SkillIdWeightBearing}},
+		{Name: "Survival", IDs: []oapi.SkillId{oapi.SkillIdColdResist, oapi.SkillIdHungerResist, oapi.SkillIdHealing, oapi.SkillIdExploration}},
+		{Name: "Defense", IDs: []oapi.SkillId{oapi.SkillIdHeavyArmor, oapi.SkillIdFireResist, oapi.SkillIdThunderResist, oapi.SkillIdChillResist, oapi.SkillIdPhotonResist}},
 	}, defs.Categories)
 
 	skills := gc.NewSkills()
 	for _, id := range schemaEnum("SkillId") {
-		skills.Get(gc.SkillID(id)).Value = 10
+		skills.Get(oapi.SkillId(id)).Value = 10
 	}
-	got := map[gc.ProficiencyKey]int{}
+	got := map[oapi.ProficiencyId]int{}
 	for _, key := range schemaEnum("ProficiencyId") {
-		got[gc.ProficiencyKey(key)] = int(defs.ProficiencyValue(skills, nil, gc.HealthyBodyFuncs(), gc.ProficiencyKey(key)))
+		got[oapi.ProficiencyId(key)] = int(defs.ProficiencyValue(skills, nil, gc.HealthyBodyFuncs(), oapi.ProficiencyId(key)))
 	}
-	assert.Equal(t, map[gc.ProficiencyKey]int{
-		gc.ProfFireResist: 70, gc.ProfThunderResist: 70, gc.ProfChillResist: 70, gc.ProfPhotonResist: 70,
-		gc.ProfColdProgress: 70, gc.ProfHungerProgress: 80, gc.ProfHealingEffect: 150, gc.ProfMaxWeight: 140,
-		gc.ProfExploration: 140, gc.ProfEnemyVision: 70, gc.ProfNightVision: 150, gc.ProfMoveCost: 80,
-		gc.ProfCraftCost: 70, gc.ProfSmithQuality: 130, gc.ProfBuyPrice: 80, gc.ProfSellPrice: 120, gc.ProfHeavyArmor: 50,
-		gc.ProfSwordDamage: 150, gc.ProfSpearDamage: 150, gc.ProfFistDamage: 150, gc.ProfBowDamage: 150,
-		gc.ProfHandgunDamage: 150, gc.ProfRifleDamage: 150, gc.ProfCannonDamage: 150,
-		gc.ProfSwordAccuracy: 130, gc.ProfSpearAccuracy: 130, gc.ProfFistAccuracy: 130, gc.ProfBowAccuracy: 130,
-		gc.ProfHandgunAccuracy: 130, gc.ProfRifleAccuracy: 130, gc.ProfCannonAccuracy: 130,
+	assert.Equal(t, map[oapi.ProficiencyId]int{
+		oapi.ProficiencyIdFireResist: 70, oapi.ProficiencyIdThunderResist: 70, oapi.ProficiencyIdChillResist: 70, oapi.ProficiencyIdPhotonResist: 70,
+		oapi.ProficiencyIdColdProgress: 70, oapi.ProficiencyIdHungerProgress: 80, oapi.ProficiencyIdHealingEffect: 150, oapi.ProficiencyIdMaxWeight: 140,
+		oapi.ProficiencyIdExploration: 140, oapi.ProficiencyIdEnemyVision: 70, oapi.ProficiencyIdNightVision: 150, oapi.ProficiencyIdMoveCost: 80,
+		oapi.ProficiencyIdCraftCost: 70, oapi.ProficiencyIdSmithQuality: 130, oapi.ProficiencyIdBuyPrice: 80, oapi.ProficiencyIdSellPrice: 120, oapi.ProficiencyIdHeavyArmor: 50,
+		oapi.ProficiencyIdSwordDamage: 150, oapi.ProficiencyIdSpearDamage: 150, oapi.ProficiencyIdFistDamage: 150, oapi.ProficiencyIdBowDamage: 150,
+		oapi.ProficiencyIdHandgunDamage: 150, oapi.ProficiencyIdRifleDamage: 150, oapi.ProficiencyIdCannonDamage: 150,
+		oapi.ProficiencyIdSwordAccuracy: 130, oapi.ProficiencyIdSpearAccuracy: 130, oapi.ProficiencyIdFistAccuracy: 130, oapi.ProficiencyIdBowAccuracy: 130,
+		oapi.ProficiencyIdHandgunAccuracy: 130, oapi.ProficiencyIdRifleAccuracy: 130, oapi.ProficiencyIdCannonAccuracy: 130,
 	}, got)
 }
 

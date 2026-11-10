@@ -3,6 +3,7 @@ package balance
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/skill"
 )
 
@@ -35,8 +36,8 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 // 中立にしスキル寄与だけを見る。適用は ApplyInt の切り捨てなので、丸め前の Percent を渡せるこの形を単一出典にする。
 func SkillDamagePercent(defs gc.SkillDefs, skillLevel int) consts.Percent {
 	skills := gc.NewSkills()
-	skills.Get(gc.SkillFist).Value = skillLevel
-	return defs.ProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), gc.WeaponDamageKey(gc.SkillFist))
+	skills.Get(oapi.SkillIdFist).Value = skillLevel
+	return defs.ProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), gc.WeaponDamageKey(oapi.SkillIdFist))
 }
 
 // SkillDamageMultiplier は SkillDamagePercent を等倍1.0基準の float で見た値。表示や概算に使う。

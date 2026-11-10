@@ -32,7 +32,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	*playerSkills = *gc.NewSkills()
 	if prof.Skills != nil {
 		for _, ps := range *prof.Skills {
-			playerSkills.Get(gc.SkillID(ps.Id)).Value = ps.Value
+			playerSkills.Get(ps.Id).Value = ps.Value
 		}
 	}
 	// 属性値変更後にHP/APを再計算

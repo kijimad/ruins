@@ -60,10 +60,10 @@ func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade 
 }
 
 // toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採と採掘はスキルを伸ばさない
-func toolSkill(category oapi.ToolCategory) (gc.SkillID, bool) {
+func toolSkill(category oapi.ToolCategory) (oapi.SkillId, bool) {
 	switch category {
 	case oapi.Prying, oapi.Precision, oapi.Cutting:
-		return gc.SkillMechanic, true
+		return oapi.SkillIdMechanic, true
 	case oapi.Chopping, oapi.Mining:
 		return "", false
 	}
@@ -77,7 +77,7 @@ func dropSalvage(world w.World, actor, target ecs.Entity) error {
 		return nil
 	}
 	grade, full, withTool := salvageRoll(world, actor, def)
-	var skillID gc.SkillID
+	var skillID oapi.SkillId
 	hasSkill := false
 	if withTool {
 		skillID, hasSkill = toolSkill(*def.ToolCategory)
@@ -101,7 +101,7 @@ func dropSalvage(world w.World, actor, target ecs.Entity) error {
 }
 
 // gainSkillExp は道具で prop を壊したときに、その道具の分類のスキルの経験値を与える
-func gainSkillExp(actor ecs.Entity, world w.World, skillID gc.SkillID) {
+func gainSkillExp(actor ecs.Entity, world w.World, skillID oapi.SkillId) {
 	if !world.Components.Skills.Has(actor) {
 		return
 	}
@@ -124,7 +124,7 @@ func gainSkillExp(actor ecs.Entity, world w.World, skillID gc.SkillID) {
 }
 
 // skillValueOf は actor のスキル skillID の値を返す。スキルを持たなければ0
-func skillValueOf(actor ecs.Entity, world w.World, skillID gc.SkillID) int {
+func skillValueOf(actor ecs.Entity, world w.World, skillID oapi.SkillId) int {
 	if !world.Components.Skills.Has(actor) {
 		return 0
 	}

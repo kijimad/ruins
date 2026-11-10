@@ -356,7 +356,7 @@ TargetSkill = "exploration"
 	require.NotNil(t, spec.Book)
 	assert.Equal(t, 150, spec.Book.Effort.Max)
 	require.NotNil(t, spec.Book.Skill)
-	assert.Equal(t, gc.SkillID("exploration"), spec.Book.Skill.TargetSkill)
+	assert.Equal(t, oapi.SkillId("exploration"), spec.Book.Skill.TargetSkill)
 	assert.Equal(t, 2, spec.Book.Skill.MaxLevel)
 }
 

@@ -3,6 +3,7 @@ package systems
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -19,7 +20,7 @@ func progressTurnHunger(world w.World) {
 	q := query.ActiveFilter1[gc.Hunger](world).Query()
 	for q.Next() {
 		entity := q.Entity()
-		hungerPct := int(query.ProficiencyValue(world, entity, gc.ProfHungerProgress))
+		hungerPct := int(query.ProficiencyValue(world, entity, oapi.ProficiencyIdHungerProgress))
 		// 睡眠中は代謝が下がり腹が減りにくい。進行を半分に抑える
 		if world.Components.Sleeping.Has(entity) {
 			hungerPct /= 2

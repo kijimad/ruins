@@ -223,7 +223,7 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 		return nil, fmt.Errorf("book requires a Skill")
 	}
 
-	skillID := gc.SkillID(b.Skill.TargetSkill)
+	skillID := b.Skill.TargetSkill
 
 	return &gc.Book{
 		Effort: gc.IntPool{Max: b.TotalEffort},
@@ -1062,12 +1062,12 @@ var abilityIDs = map[oapi.AbilityId]gc.AbilityID{
 // カテゴリは skillCategories の行の順に、カテゴリ内のスキルは skills の行の順に並べる
 func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	rows := PtrSlice(raws.Skills)
-	skills := make(map[gc.SkillID]gc.SkillDef, len(rows))
-	proficiencies := make(map[gc.ProficiencyKey]gc.ProficiencyDef)
-	idsByCategory := make(map[string][]gc.SkillID)
+	skills := make(map[oapi.SkillId]gc.SkillDef, len(rows))
+	proficiencies := make(map[oapi.ProficiencyId]gc.ProficiencyDef)
+	idsByCategory := make(map[string][]oapi.SkillId)
 	for i := range rows {
 		row := &rows[i]
-		id := gc.SkillID(row.Id)
+		id := row.Id
 		ability, ok := abilityIDs[row.Ability]
 		if !ok {
 			return gc.SkillDefs{}, fmt.Errorf("skill %q has unknown ability %q", row.Id, row.Ability)
@@ -1080,7 +1080,7 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 			Ability:  ability,
 		}
 		for _, p := range PtrSlice(row.Proficiencies) {
-			proficiencies[gc.ProficiencyKey(p.Id)] = gc.ProficiencyDef{Skill: id, PerLevel: p.PerLevel}
+			proficiencies[p.Id] = gc.ProficiencyDef{Skill: id, PerLevel: p.PerLevel}
 		}
 		idsByCategory[row.Category] = append(idsByCategory[row.Category], id)
 	}

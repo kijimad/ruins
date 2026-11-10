@@ -198,7 +198,7 @@ func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face
 	if profSkills := raw.PtrSlice(prof.Skills); len(profSkills) > 0 {
 		section(query.T(world, "Skills"))
 		for _, skill := range profSkills {
-			line(fmt.Sprintf(" %s Lv.%d", query.SkillName(world, gc.SkillID(skill.Id)), skill.Value))
+			line(fmt.Sprintf(" %s Lv.%d", query.SkillName(world, skill.Id), skill.Value))
 		}
 	}
 	return items
