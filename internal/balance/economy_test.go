@@ -17,8 +17,7 @@ func TestCheapestFoodCostPerNutrition_食料なしは0(t *testing.T) {
 
 func TestExpectedItemsPerFloor_奇数前提で厳密(t *testing.T) {
 	t.Parallel()
-	// rand(0..floorItemRandom-1) の期待値 (consts.FloorItemRandom-1)/2 が整数除算で厳密になるのは奇数のときだけ。
-	// 偶数化すると expectedItemsPerFloor が無言で切り捨てに落ちるので、前提を機械で守る。
+	// 偶数にすると expectedItemsPerFloor が整数除算で黙って切り捨てられる
 	assert.Equal(t, 1, consts.FloorItemRandom%2, "consts.FloorItemRandom は奇数")
 }
 

@@ -29,7 +29,7 @@ func schemaEnum(name string) []string {
 	return values
 }
 
-// makeDefRaws は不調を起こす仕組みすべてと、Go の部位、攻撃種別、スキル、熟練の効果倍率すべてに行を持つ検証を通る raws を作り、mutate で崩す
+// makeDefRaws は validateCodeRows を通る raws を作り、mutate で崩す
 func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	bodyParts := make([]oapi.BodyPart, 0, gc.BodyPartCount)
 	for bp := range gc.BodyPartCount {

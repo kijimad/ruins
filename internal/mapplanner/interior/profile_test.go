@@ -73,7 +73,6 @@ func TestApplyClutter_整頓は何も足さず戸口を塞がない(t *testing.T
 	}
 }
 
-// TestNewProfileTable_rawの抽選表を軸ごとに組む は raw の interiorProfile が各軸の値と重みへ写ることを固定する
 func TestNewProfileTable_rawの抽選表を軸ごとに組む(t *testing.T) {
 	t.Parallel()
 

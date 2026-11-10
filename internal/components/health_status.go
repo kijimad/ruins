@@ -127,7 +127,6 @@ type bodyPartMeta struct {
 }
 
 // bodyPartMetas は部位ごとの静的情報の唯一の表。部位階層は持たず平坦に持つ。
-// 部位を足すときはここへ1行足し、raw の bodyParts にも行を足す
 var bodyPartMetas = [BodyPartCount]bodyPartMeta{
 	BodyPartHead:      {id: "head", bodyFunc: BodyFuncSight},
 	BodyPartTorso:     {id: "torso", bodyFunc: BodyFuncConsciousness},

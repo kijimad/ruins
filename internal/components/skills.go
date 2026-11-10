@@ -31,7 +31,7 @@ func (s *Skills) Get(id oapi.SkillId) *Skill {
 // LevelUpExp はスキルアップに必要な経験値
 const LevelUpExp = 100
 
-// NewSkills はスキルを持たない Skills を返す。スキルは Get で初めて読んだときに値0で作る
+// NewSkills はスキルを持たない Skills を返す
 func NewSkills() *Skills {
 	return &Skills{Data: make(map[oapi.SkillId]*Skill)}
 }

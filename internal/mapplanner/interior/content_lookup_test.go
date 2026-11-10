@@ -78,8 +78,6 @@ func TestToContent_不正なダイスはerrorを返す(t *testing.T) {
 	require.ErrorContains(t, err, "amount")
 }
 
-// TestToContent_置き方を省くとinteriorRefsの既定で埋める は、レシピが placement を省いた Stuff を interiorRefs の
-// 既定の置き方で具体化し、明示した placement はそのまま保つことを固定する。既定を持たない Ref は空のまま残る。
 func TestToContent_置き方を省くとinteriorRefsの既定で埋める(t *testing.T) {
 	t.Parallel()
 

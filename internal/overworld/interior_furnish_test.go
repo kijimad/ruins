@@ -231,9 +231,7 @@ func TestInteriorPropRaw_全施設の家具のrefが写像を持つ(t *testing.T
 	}
 }
 
-// TestInteriorLootRaw_全施設のloot_refが写像を持つ は、施設 content が生む床 loot が in-game で無言に欠落
-// しないことを守る。各施設を Furnish し、KindLoot の Ref がすべて 写像 LootGroupName にあることを確かめる。
-// content へ loot を足して interiorRefs の itemGroup を忘れると、ここで落ちて気付ける。KindFurniture の写像検査と対称。
+// content へ loot を足して interiorRefs の itemGroup を忘れると、床の loot が黙って欠けるので全施設で確かめる
 func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 	t.Parallel()
 

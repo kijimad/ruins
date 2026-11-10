@@ -139,8 +139,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	return "", choices
 }
 
-// debugInflictConditions はデバッグでプレイヤーへ raw の不調をまとめて付ける。
-// 寒さによる不調は全身に、ほかは起こりうる最初の部位に、部位を限らない不調は胴に付ける。量から導出する不調は付けられない
+// debugInflictConditions はデバッグでプレイヤーへ raw の不調をまとめて付ける。量から導出する不調は付けられない
 func debugInflictConditions(world w.World) error {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {

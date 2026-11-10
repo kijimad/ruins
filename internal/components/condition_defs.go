@@ -8,8 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-// ConditionDef は状態種類ごとの定義。raw の conditions の1行から組み立てる。
-// Recovery を持つ症状は ConditionSystem が進行と回復を扱い、持たない低体温は TemperatureSystem 管轄になる
+// ConditionDef は状態種類ごとの定義。raw の conditions の1行から組み立てる
 type ConditionDef struct {
 	Name                    string              // 表示名 msgid
 	Description             string              // 概要説明 msgid

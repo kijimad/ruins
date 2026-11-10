@@ -672,9 +672,8 @@ func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) err
 	return fmt.Errorf("condition %q: %w", c.Id, errConditionNoHitPart)
 }
 
-// validateCodeRows は Go が名前で参照する部位、攻撃種別、スキル、熟練の効果倍率すべてに raw の行があり、
-// 不調を起こす仕組みそれぞれをちょうど1つの不調が持ち、
-// 生活感、天候、空腹と疲労の表があることを検証する。表の中の enum の網羅は ValidateReferences が見る
+// validateCodeRows は Go が名前で参照する行と、読み込みに要る表が raw にあることを検証する。
+// 一部だけの raws を組むテストを妨げないよう、LoadFromFile だけが呼ぶ
 func validateCodeRows(raws oapi.Raws) error {
 	bodyPartIDs := make(map[string]struct{})
 	for _, b := range PtrSlice(raws.BodyParts) {

@@ -25,7 +25,7 @@ type SkillCategory struct {
 type ProficiencyDef struct {
 	Skill    oapi.SkillId // 倍率を左右するスキル
 	PerLevel int          // スキルLv1あたりの倍率の変化量。百分率。負ならスキルが高いほど効果が減る
-	BodyFunc BodyFuncKind // この機能の低下で目減りする倍率なら、その機能。命中は近接なら操作、遠隔なら視覚。空なら目減りしない
+	BodyFunc BodyFuncKind // 低下で倍率を目減りさせる身体機能。空なら目減りしない
 }
 
 // SkillDefs はスキルの定義、カテゴリの表示順、熟練の効果倍率の表。
