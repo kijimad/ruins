@@ -49,12 +49,6 @@ func BodyPartByID(id string) (BodyPart, bool) {
 
 // ================
 
-// ================
-
-// ================
-
-// ================
-
 // AttackRangeType は攻撃の射程タイプを表す
 type AttackRangeType string
 

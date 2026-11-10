@@ -128,6 +128,8 @@ const (
 	SeasonSummer               // 夏
 	SeasonAutumn               // 秋
 	SeasonWinter               // 冬
+	// NumSeason は季節の数。季節ごとの重みの配列の長さに使う
+	NumSeason = iota
 )
 
 // String は季節名を返す。表示側が i18n の訳を引く msgid になる。
