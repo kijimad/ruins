@@ -121,11 +121,11 @@ type Dialog struct {
 
 // Wearable は装備品。キャラクタが装備することでパラメータを変更できる
 type Wearable struct {
-	Defense           int           // 防御力
-	EquipmentCategory EquipmentType // 装備部位
-	EquipBonus        EquipBonus    // ステータスへのボーナス
-	InsulationCold    int           // 耐寒（快適温度の下限を下げる）
-	InsulationHeat    int           // 耐暑（快適温度の上限を上げる）
+	Defense           int                    // 防御力
+	EquipmentCategory oapi.EquipmentCategory // 装備部位
+	EquipBonus        EquipBonus             // ステータスへのボーナス
+	InsulationCold    int                    // 耐寒（快適温度の下限を下げる）
+	InsulationHeat    int                    // 耐暑（快適温度の上限を上げる）
 }
 
 // Player は操作対象の主人公キャラクター

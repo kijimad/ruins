@@ -108,7 +108,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
 		Defense:           15,
-		EquipmentCategory: gc.EquipmentTorso,
+		EquipmentCategory: oapi.EquipmentCategoryTORSO,
 		InsulationCold:    3,
 		InsulationHeat:    2,
 		// 各項目の値をすべて別々にし、"+N" の一致がどの行由来か一意に特定できるようにする
@@ -121,7 +121,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 
 	// ゼロの装備ボーナス Sensation は行が出ない
 	assert.Equal(t, []string{
-		query.T(world, gc.EquipmentTorso.String()),
+		query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryTORSO)),
 		"Defense", "+15", "Cold resist", "+3", "Heat resist", "+2",
 		"Vitality", "+6", "Strength", "+1", "Dexterity", "+4", "Agility", "-1",
 	}, labels)
@@ -134,13 +134,13 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
 		Defense:           5,
-		EquipmentCategory: gc.EquipmentHead,
+		EquipmentCategory: oapi.EquipmentCategoryHEAD,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 耐寒・耐熱0は行が出ない
-	assert.Equal(t, []string{query.T(world, gc.EquipmentHead.String()), "Defense", "+5"}, labels)
+	assert.Equal(t, []string{query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryHEAD)), "Defense", "+5"}, labels)
 }
 
 func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testing.T) {
@@ -345,7 +345,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 		},
 		Wearable: &gc.Wearable{
 			Defense:           15,
-			EquipmentCategory: gc.EquipmentTorso,
+			EquipmentCategory: oapi.EquipmentCategoryTORSO,
 			InsulationCold:    3,
 		},
 		ProvidesHealing:   &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 42},
@@ -365,7 +365,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 		query.T(world, gc.AttackRifle.Label),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
 		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
-		query.T(world, gc.EquipmentTorso.String()),
+		query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryTORSO)),
 		"Defense", "+15", "Cold resist", "+3",
 		"Book", "Progress", "30%",
 		"Basic",

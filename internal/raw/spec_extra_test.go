@@ -137,7 +137,7 @@ Dexterity = 1
 
 	require.NotNil(t, spec.Wearable)
 	assert.Equal(t, 1, spec.Wearable.Defense)
-	assert.Equal(t, gc.EquipmentType("FEET"), spec.Wearable.EquipmentCategory)
+	assert.Equal(t, oapi.EquipmentCategoryFEET, spec.Wearable.EquipmentCategory)
 	assert.Equal(t, 1, spec.Wearable.EquipBonus.Agility)
 	assert.Equal(t, 1, spec.Wearable.EquipBonus.Dexterity)
 }

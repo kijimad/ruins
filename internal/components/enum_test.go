@@ -77,51 +77,6 @@ func TestGetRangeParams(t *testing.T) {
 	})
 }
 
-func TestEquipmentType_Valid(t *testing.T) {
-	t.Parallel()
-
-	validTypes := []EquipmentType{
-		EquipmentHead, EquipmentTorso, EquipmentArms,
-		EquipmentHands, EquipmentLegs, EquipmentFeet, EquipmentJewelry,
-	}
-	for _, et := range validTypes {
-		require.NoError(t, et.Valid(), string(et))
-	}
-
-	assert.ErrorIs(t, EquipmentType("INVALID").Valid(), ErrInvalidEnumType)
-}
-
-func TestEquipmentType_SlotNumber(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		et   EquipmentType
-		want EquipmentSlotNumber
-	}{
-		{EquipmentHead, SlotHead},
-		{EquipmentTorso, SlotTorso},
-		{EquipmentArms, SlotArms},
-		{EquipmentHands, SlotHands},
-		{EquipmentLegs, SlotLegs},
-		{EquipmentFeet, SlotFeet},
-		{EquipmentJewelry, SlotJewelry},
-	}
-
-	for _, tt := range tests {
-		t.Run(string(tt.et), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.et.SlotNumber())
-		})
-	}
-}
-
-func TestEquipmentType_SlotNumber_不正な値はpanicする(t *testing.T) {
-	t.Parallel()
-	assert.Panics(t, func() {
-		_ = EquipmentType("INVALID").SlotNumber()
-	})
-}
-
 func TestElementName(t *testing.T) {
 	t.Parallel()
 

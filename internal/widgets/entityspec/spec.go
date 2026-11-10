@@ -375,7 +375,7 @@ func abilityRows(world w.World, a *gc.Abilities) []SpecRow {
 
 func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {
 	rows := []SpecRow{
-		{Label: query.T(world, wearable.EquipmentCategory.String()), Header: true},
+		{Label: query.T(world, gc.EquipmentCategoryName(wearable.EquipmentCategory)), Header: true},
 		{Label: query.T(world, "Defense"), Value: fmt.Sprintf("%+d", wearable.Defense)},
 	}
 	if wearable.InsulationCold != 0 {

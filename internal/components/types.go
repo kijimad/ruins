@@ -75,19 +75,19 @@ const (
 func (s EquipmentSlotNumber) String() string {
 	switch s {
 	case SlotHead:
-		return EquipmentHead.String()
+		return EquipmentCategoryName(oapi.EquipmentCategoryHEAD)
 	case SlotTorso:
-		return EquipmentTorso.String()
+		return EquipmentCategoryName(oapi.EquipmentCategoryTORSO)
 	case SlotArms:
-		return EquipmentArms.String()
+		return EquipmentCategoryName(oapi.EquipmentCategoryARMS)
 	case SlotHands:
-		return EquipmentHands.String()
+		return EquipmentCategoryName(oapi.EquipmentCategoryHANDS)
 	case SlotLegs:
-		return EquipmentLegs.String()
+		return EquipmentCategoryName(oapi.EquipmentCategoryLEGS)
 	case SlotFeet:
-		return EquipmentFeet.String()
+		return EquipmentCategoryName(oapi.EquipmentCategoryFEET)
 	case SlotJewelry:
-		return EquipmentJewelry.String()
+		return EquipmentCategoryName(oapi.EquipmentCategoryJEWELRY)
 	case SlotWeapon1:
 		return "Weapon 1"
 	case SlotWeapon2:
@@ -103,27 +103,31 @@ func (s EquipmentSlotNumber) String() string {
 	}
 }
 
-// ParseEquipmentSlot は文字列から装備スロット番号を返す。
-// 防具スロットはEquipmentTypeの定数値、武器スロットは"WEAPON1"〜"WEAPON5"を受け付ける。
-func ParseEquipmentSlot(s string) (EquipmentSlotNumber, bool) {
-	// 武器スロット
-	switch s {
-	case "WEAPON1":
+// ParseEquipmentSlot は raw の装備スロットから装備スロット番号を返す。未知の値は ok=false
+func ParseEquipmentSlot(slot oapi.EquipSlot) (EquipmentSlotNumber, bool) {
+	switch slot {
+	case oapi.EquipSlotWEAPON1:
 		return SlotWeapon1, true
-	case "WEAPON2":
+	case oapi.EquipSlotWEAPON2:
 		return SlotWeapon2, true
-	case "WEAPON3":
+	case oapi.EquipSlotWEAPON3:
 		return SlotWeapon3, true
-	case "WEAPON4":
+	case oapi.EquipSlotWEAPON4:
 		return SlotWeapon4, true
-	case "WEAPON5":
+	case oapi.EquipSlotWEAPON5:
 		return SlotWeapon5, true
-	}
-
-	// 防具スロット: EquipmentTypeを経由して変換する
-	et := EquipmentType(s)
-	if et.Valid() == nil {
-		return et.SlotNumber(), true
+	case oapi.EquipSlotHEAD:
+		return SlotHead, true
+	case oapi.EquipSlotTORSO:
+		return SlotTorso, true
+	case oapi.EquipSlotARMS:
+		return SlotArms, true
+	case oapi.EquipSlotHANDS:
+		return SlotHands, true
+	case oapi.EquipSlotLEGS:
+		return SlotLegs, true
+	case oapi.EquipSlotFEET:
+		return SlotFeet, true
 	}
 	return 0, false
 }

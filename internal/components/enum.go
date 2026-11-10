@@ -134,77 +134,25 @@ func GetRangeParams(attackType AttackType) (RangeParams, bool) {
 
 // ================
 
-// EquipmentType は装備品種別を表す
-// 6部位（頭・胴体・腕・手・脚・足）と装飾品スロット
-type EquipmentType string
-
-const (
-	// EquipmentHead は頭部装備
-	EquipmentHead = EquipmentType("HEAD") // 頭部
-	// EquipmentTorso は胴体装備
-	EquipmentTorso = EquipmentType("TORSO") // 胴体
-	// EquipmentArms は腕装備
-	EquipmentArms = EquipmentType("ARMS") // 腕
-	// EquipmentHands は手装備
-	EquipmentHands = EquipmentType("HANDS") // 手
-	// EquipmentLegs は脚装備
-	EquipmentLegs = EquipmentType("LEGS") // 脚
-	// EquipmentFeet は足装備
-	EquipmentFeet = EquipmentType("FEET") // 足
-	// EquipmentJewelry はアクセサリ装備
-	EquipmentJewelry = EquipmentType("JEWELRY") // アクセサリ
-)
-
-// Valid はEquipmentTypeの値が有効かを検証する
-func (enum EquipmentType) Valid() error {
-	switch enum {
-	case EquipmentHead, EquipmentTorso, EquipmentArms, EquipmentHands,
-		EquipmentLegs, EquipmentFeet, EquipmentJewelry:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
-	}
-}
-
-// SlotNumber はEquipmentTypeに対応するEquipmentSlotNumberを返す
-func (enum EquipmentType) SlotNumber() EquipmentSlotNumber {
-	switch enum {
-	case EquipmentHead:
-		return SlotHead
-	case EquipmentTorso:
-		return SlotTorso
-	case EquipmentArms:
-		return SlotArms
-	case EquipmentHands:
-		return SlotHands
-	case EquipmentLegs:
-		return SlotLegs
-	case EquipmentFeet:
-		return SlotFeet
-	case EquipmentJewelry:
-		return SlotJewelry
-	}
-	panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))
-}
-
-func (enum EquipmentType) String() string {
-	switch enum {
-	case EquipmentHead:
+// EquipmentCategoryName は防具の部位の表示名 msgid を返す
+func EquipmentCategoryName(c oapi.EquipmentCategory) string {
+	switch c {
+	case oapi.EquipmentCategoryHEAD:
 		return "Head"
-	case EquipmentTorso:
+	case oapi.EquipmentCategoryTORSO:
 		return "Torso"
-	case EquipmentArms:
+	case oapi.EquipmentCategoryARMS:
 		return "Arms"
-	case EquipmentHands:
+	case oapi.EquipmentCategoryHANDS:
 		return "Hands"
-	case EquipmentLegs:
+	case oapi.EquipmentCategoryLEGS:
 		return "Legs"
-	case EquipmentFeet:
+	case oapi.EquipmentCategoryFEET:
 		return "Feet"
-	case EquipmentJewelry:
+	case oapi.EquipmentCategoryJEWELRY:
 		return "Accessory"
 	}
-	panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))
+	panic(fmt.Sprintf("invalid EquipmentCategory value: %s", string(c)))
 }
 
 // ================

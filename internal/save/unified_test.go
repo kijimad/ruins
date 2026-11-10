@@ -186,7 +186,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(armor, &gc.LocationInBackpack{Owner: player})
 	world.Components.Wearable.Add(armor, &gc.Wearable{
 		Defense:           15,
-		EquipmentCategory: gc.EquipmentTorso,
+		EquipmentCategory: oapi.EquipmentCategoryTORSO,
 		EquipBonus: gc.EquipBonus{
 			Vitality: 2, Strength: 1, Sensation: 0, Dexterity: 0, Agility: -1,
 		},

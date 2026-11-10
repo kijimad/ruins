@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -89,7 +90,7 @@ func TestGetArmorEquipments(t *testing.T) {
 	armor := world.ECS.NewEntity()
 	world.Components.Name.Add(armor, &gc.Name{Name: "テスト鎧"})
 	world.Components.Wearable.Add(armor, &gc.Wearable{
-		EquipmentCategory: gc.EquipmentTorso,
+		EquipmentCategory: oapi.EquipmentCategoryTORSO,
 		Defense:           5,
 	})
 	lifecycle.MoveToEquip(world, armor, player, gc.SlotTorso)
@@ -109,7 +110,7 @@ func TestGetArmorEquipments_不正なスロットはpanic(t *testing.T) {
 	require.NoError(t, err)
 
 	item := world.ECS.NewEntity()
-	world.Components.Wearable.Add(item, &gc.Wearable{EquipmentCategory: gc.EquipmentTorso})
+	world.Components.Wearable.Add(item, &gc.Wearable{EquipmentCategory: oapi.EquipmentCategoryTORSO})
 	lifecycle.MoveToEquip(world, item, player, gc.SlotWeapon1)
 
 	assert.Panics(t, func() { query.GetArmorEquipments(world, player) })

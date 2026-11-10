@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -303,22 +304,22 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 		return query.SortEntities(world, items)
 	}
 
-	var target gc.EquipmentType
+	var target oapi.EquipmentCategory
 	switch slotNumber {
 	case gc.SlotHead:
-		target = gc.EquipmentHead
+		target = oapi.EquipmentCategoryHEAD
 	case gc.SlotTorso:
-		target = gc.EquipmentTorso
+		target = oapi.EquipmentCategoryTORSO
 	case gc.SlotArms:
-		target = gc.EquipmentArms
+		target = oapi.EquipmentCategoryARMS
 	case gc.SlotHands:
-		target = gc.EquipmentHands
+		target = oapi.EquipmentCategoryHANDS
 	case gc.SlotLegs:
-		target = gc.EquipmentLegs
+		target = oapi.EquipmentCategoryLEGS
 	case gc.SlotFeet:
-		target = gc.EquipmentFeet
+		target = oapi.EquipmentCategoryFEET
 	case gc.SlotJewelry:
-		target = gc.EquipmentJewelry
+		target = oapi.EquipmentCategoryJEWELRY
 	default:
 		return query.SortEntities(world, items)
 	}

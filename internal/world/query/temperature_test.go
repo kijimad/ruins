@@ -299,7 +299,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 
 		armor := world.ECS.NewEntity()
 		world.Components.Wearable.Add(armor, &gc.Wearable{
-			EquipmentCategory: gc.EquipmentTorso,
+			EquipmentCategory: oapi.EquipmentCategoryTORSO,
 			InsulationCold:    10,
 			InsulationHeat:    5,
 		})
@@ -309,7 +309,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 
 		helmet := world.ECS.NewEntity()
 		world.Components.Wearable.Add(helmet, &gc.Wearable{
-			EquipmentCategory: gc.EquipmentHead,
+			EquipmentCategory: oapi.EquipmentCategoryHEAD,
 			InsulationCold:    3,
 			InsulationHeat:    2,
 		})

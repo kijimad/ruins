@@ -340,7 +340,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if item.Wearable != nil {
 		entitySpec.Wearable = &gc.Wearable{
 			Defense:           item.Wearable.Defense,
-			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
+			EquipmentCategory: item.Wearable.EquipmentCategory,
 			EquipBonus:        bonus,
 			InsulationCold:    item.Wearable.InsulationCold,
 			InsulationHeat:    item.Wearable.InsulationHeat,
