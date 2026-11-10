@@ -96,12 +96,12 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 	for _, p := range placed {
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.Pos.X, Y: g.offsetY + p.Pos.Y}
 		switch p.Kind {
-		case interior.KindBeing:
+		case oapi.Being:
 			if err := spawnInteriorBeing(world, fac, danger, pos, beingRNG); err != nil {
 				return nil, nil, fmt.Errorf("failed to place interior being of facility %q at %d,%d: %w", fac, pos.X, pos.Y, err)
 			}
 			occupied[pos] = true
-		case interior.KindLoot:
+		case oapi.Loot:
 			// 抽象 loot Ref を item group へ写し、1山を抽選して床へ置く。写像を持たない Ref は置かない
 			groupID, ok := interior.LootGroupName(world.Resources.RawMaster, p.Ref)
 			if !ok {

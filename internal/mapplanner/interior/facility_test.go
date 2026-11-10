@@ -56,7 +56,7 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 		placed, err := Furnish(testRaws(), seed, footprint, door, "store")
 		require.NoError(t, err)
 		for _, p := range placed {
-			if p.Kind == KindFurniture {
+			if p.Kind == oapi.Furniture {
 				n++
 			}
 		}

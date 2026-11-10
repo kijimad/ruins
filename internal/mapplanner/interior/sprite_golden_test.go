@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 
 	"github.com/sebdah/goldie/v2"
@@ -286,9 +287,9 @@ func TestGolden_RoomFlavor(t *testing.T) {
 	t.Parallel()
 
 	room := Room{Rect: Rect{X: 0, Y: 0, W: 13, H: 10}, Doorways: []Doorway{{X: 6, Y: 9}}}
-	base := Content{ID: "sparse", Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "bed", Placement: PlaceFarFromDoor, Amount: consts.Dice{Base: 1, Sides: 1}},
-		{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: consts.Dice{Base: 2, Sides: 1}},
+	base := Content{ID: "sparse", Groups: []Group{{Style: oapi.PickEach, Items: []Stuff{
+		{Kind: oapi.Furniture, Ref: "bed", Placement: oapi.FarFromDoor, Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: oapi.Furniture, Ref: "closet", Placement: oapi.Wall, Amount: consts.Dice{Base: 2, Sides: 1}},
 	}}}}
 	assertRoomGolden(t, room, "flavor", func(seed uint64) []Placed {
 		return Flavor(seed, room, FillRoom(seed, room, base), abandonedFlavor())
@@ -460,7 +461,7 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 	t.Helper()
 	cache := make(map[string]image.Image)
 	for _, p := range placed {
-		if p.Kind == KindLoot {
+		if p.Kind == oapi.Loot {
 			// 床 loot は中身が executor の抽選で決まり、計画層からは実アイテムを描けない。位置に item の文字を
 			// 描き、in-game でそこに拾える物が出ることと対応させる。写像を持たない Ref は描かない。
 			// interiorRefs を overworld の spawn 判定と共有し、描く物と置く物の乖離を防ぐ
@@ -469,7 +470,7 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 			}
 			continue
 		}
-		if p.Kind == KindBeing {
+		if p.Kind == oapi.Being {
 			// 敵の種類は executor が施設の敵の表から引くので、位置に enemy の文字を描く
 			drawMarker(img, origin, p.Pos, "enemy", color.RGBA{R: 220, G: 80, B: 80, A: 255})
 			continue

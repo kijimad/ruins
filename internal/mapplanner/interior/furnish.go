@@ -80,7 +80,7 @@ func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facili
 				}
 				kept = append(kept, p)
 			}
-			kept = append(kept, Placed{Kind: KindDecor, Ref: ref, Pos: pos})
+			kept = append(kept, Placed{Kind: oapi.Decor, Ref: ref, Pos: pos})
 			flavored = kept
 		}
 	}

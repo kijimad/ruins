@@ -98,9 +98,9 @@ func TestToContent_置き方を省くとinteriorRefsの既定で埋める(t *tes
 
 	c, err := toContent(testRaws(), ic)
 	require.NoError(t, err)
-	got := make([]Placement, 0, len(c.Groups[0].Items))
+	got := make([]oapi.Placement, 0, len(c.Groups[0].Items))
 	for _, it := range c.Groups[0].Items {
 		got = append(got, it.Placement)
 	}
-	assert.Equal(t, []Placement{PlaceNearDoor, PlaceRow, PlaceCenter, PlaceDefault}, got)
+	assert.Equal(t, []oapi.Placement{oapi.NearDoor, oapi.Row, oapi.Center, PlaceDefault}, got)
 }

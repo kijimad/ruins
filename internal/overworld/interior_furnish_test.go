@@ -213,10 +213,10 @@ func TestInteriorPropRaw_全施設の家具のrefが写像を持つ(t *testing.T
 	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
 			switch p.Kind {
-			case interior.KindFurniture:
+			case oapi.Furniture:
 				_, ok := interior.PropRawName(raws, p.Ref)
 				assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
-			case interior.KindBeing, interior.KindLoot, interior.KindDecor, interior.KindTrap:
+			case oapi.Being, oapi.Loot, oapi.Decor, oapi.Trap:
 			}
 		}
 	}
@@ -247,7 +247,7 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 	sawLoot := false
 	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
-			if p.Kind != interior.KindLoot {
+			if p.Kind != oapi.Loot {
 				continue
 			}
 			sawLoot = true

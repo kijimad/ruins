@@ -168,14 +168,14 @@ func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, r
 	added := make([]Placed, 0)
 	// 主。家具の隣の空きタイルへ小物を落とす。机やたんすの周りに物が集まる
 	for i, p := range placed {
-		if p.Kind != KindFurniture || !dropChance(seed, i, furnPct) {
+		if p.Kind != oapi.Furniture || !dropChance(seed, i, furnPct) {
 			continue
 		}
 		for _, n := range neighbors4(p.Pos) {
 			if room.Rect.containsInterior(n) && !occupied[n] && !isDoorwayAdjacent(room, n) {
 				ref := pickOne(childSeed(seed, 2_000+i), pool)
 				occupied[n] = true
-				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: n})
+				added = append(added, Placed{Kind: oapi.Decor, Ref: ref, Pos: n})
 				break
 			}
 		}
@@ -189,7 +189,7 @@ func applyClutter(seed uint64, room Room, placed []Placed, level clutterLevel, r
 			if dropChance(seed, 7_000+i, 7) {
 				ref := pickOne(childSeed(seed, 8_000+i), pool)
 				occupied[t] = true
-				added = append(added, Placed{Kind: KindDecor, Ref: ref, Pos: t})
+				added = append(added, Placed{Kind: oapi.Decor, Ref: ref, Pos: t})
 			}
 		}
 	}

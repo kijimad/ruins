@@ -96,7 +96,7 @@ type drawnLoot struct {
 // item group から、収納家具は Storage.LootTableId から引く。それ以外は何も返さない。
 func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {
 	switch p.Kind {
-	case interior.KindLoot:
+	case oapi.Loot:
 		groupID, ok := interior.LootGroupName(master, p.Ref)
 		if !ok {
 			return nil
@@ -112,7 +112,7 @@ func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []dr
 			}
 		}
 		return out
-	case interior.KindFurniture:
+	case oapi.Furniture:
 		name, ok := interior.PropRawName(master, p.Ref)
 		if !ok {
 			return nil

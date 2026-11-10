@@ -70,7 +70,7 @@ func applyDensity(c Content, factor int) Content {
 	for gi := range c.Groups {
 		for ii := range c.Groups[gi].Items {
 			it := &c.Groups[gi].Items[ii]
-			if it.Kind != KindFurniture {
+			if it.Kind != oapi.Furniture {
 				continue // 家具だけ密度を変える。戦利品・装飾はそのまま
 			}
 			it.Amount.Base = scaleAmount(it.Amount.Base, factor)

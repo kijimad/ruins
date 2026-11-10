@@ -1,5 +1,7 @@
 package interior
 
+import "github.com/kijimaD/ruins/internal/oapi"
+
 // 到達性は有界インスタンスでは必須のガード。塞がった部屋はその seed で永久に塞がる。配置後に
 // 戸口から歩行可能な床が全て到達できるかを flood-fill で検査する。ここでは検査だけを提供し、失敗時の修復は後続 Stage で足す。
 
@@ -12,7 +14,7 @@ func (r Rect) containsInterior(v Vec) bool {
 func blockingTiles(placed []Placed) map[Vec]bool {
 	blocked := make(map[Vec]bool)
 	for _, p := range placed {
-		if p.Kind == KindFurniture {
+		if p.Kind == oapi.Furniture {
 			blocked[p.Pos] = true
 		}
 	}
@@ -73,7 +75,7 @@ func repairReachability(room Room, placed []Placed) []Placed {
 // 無ければ -1。戸口の内側は配置対象外なので戸口が塞がることはなく、到達領域は常に非空になる。
 func gateIndex(room Room, placed []Placed, blocked, reached map[Vec]bool) int {
 	for i, p := range placed {
-		if p.Kind != KindFurniture {
+		if p.Kind != oapi.Furniture {
 			continue
 		}
 		nearReached, nearUnreachedFloor := false, false

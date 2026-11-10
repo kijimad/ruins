@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,18 +16,18 @@ func sampleContent() Content {
 	return Content{
 		ID: "convenience_store",
 		Groups: []Group{
-			{Style: PickEach, Items: []Stuff{
-				{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},
-				{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
+			{Style: oapi.PickEach, Items: []Stuff{
+				{Kind: oapi.Furniture, Ref: "register", Amount: consts.Dice{Base: 1, Sides: 1}},
+				{Kind: oapi.Furniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
 			}},
-			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "snacks", Weight: 3, Amount: consts.Dice{Base: 2, Sides: 4}},
-				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: consts.Dice{Base: 1, Sides: 4}},
-				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 3}},
+			{Style: oapi.PickN, Pick: 2, Items: []Stuff{
+				{Kind: oapi.Loot, Ref: "snacks", Weight: 3, Amount: consts.Dice{Base: 2, Sides: 4}},
+				{Kind: oapi.Loot, Ref: "drinks", Weight: 2, Amount: consts.Dice{Base: 1, Sides: 4}},
+				{Kind: oapi.Loot, Ref: "bento", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 3}},
 			}},
-			{Style: PickOne, Items: []Stuff{
-				{Kind: KindDecor, Ref: "litter", Amount: consts.Dice{Base: 1, Sides: 3, Bonus: 1}},
-				{Kind: KindBeing, Ref: "looter", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 1}},
+			{Style: oapi.PickOne, Items: []Stuff{
+				{Kind: oapi.Decor, Ref: "litter", Amount: consts.Dice{Base: 1, Sides: 3, Bonus: 1}},
+				{Kind: oapi.Being, Ref: "looter", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 1}},
 			}},
 		},
 	}
@@ -65,24 +66,24 @@ func TestContent_Resolve_seedで結果が変わる(t *testing.T) {
 func TestContent_Resolve_PickEachは保証枠を全部置く(t *testing.T) {
 	t.Parallel()
 
-	c := Content{Groups: []Group{{Style: PickEach, Items: []Stuff{
-		{Kind: KindFurniture, Ref: "register", Placement: PlaceNearDoor, Amount: consts.Dice{Base: 1, Sides: 1}},
-		{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
+	c := Content{Groups: []Group{{Style: oapi.PickEach, Items: []Stuff{
+		{Kind: oapi.Furniture, Ref: "register", Placement: oapi.NearDoor, Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: oapi.Furniture, Ref: "gondola", Amount: consts.Dice{Base: 3, Sides: 1}},
 	}}}}
 	got := c.Resolve(7)
 	require.Len(t, got, 2, "PickEach は全 Item を置く")
-	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "register", Count: 1, Placement: PlaceNearDoor}, got[0])
-	assert.Equal(t, Selection{Kind: KindFurniture, Ref: "gondola", Count: 3, Placement: PlaceFullArea}, got[1])
+	assert.Equal(t, Selection{Kind: oapi.Furniture, Ref: "register", Count: 1, Placement: oapi.NearDoor}, got[0])
+	assert.Equal(t, Selection{Kind: oapi.Furniture, Ref: "gondola", Count: 3, Placement: oapi.FullArea}, got[1])
 }
 
 // TestContent_Resolve_PickNはちょうどN個の別種を置く は、N抽選が重複なく Pick 個を選ぶことを固定する。
 func TestContent_Resolve_PickNはちょうどN個の別種を置く(t *testing.T) {
 	t.Parallel()
 
-	c := Content{Groups: []Group{{Style: PickN, Pick: 2, Items: []Stuff{
-		{Kind: KindLoot, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
-		{Kind: KindLoot, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
-		{Kind: KindLoot, Ref: "c", Amount: consts.Dice{Base: 1, Sides: 1}},
+	c := Content{Groups: []Group{{Style: oapi.PickN, Pick: 2, Items: []Stuff{
+		{Kind: oapi.Loot, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: oapi.Loot, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: oapi.Loot, Ref: "c", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(30) {
 		got := c.Resolve(s)
@@ -95,9 +96,9 @@ func TestContent_Resolve_PickNはちょうどN個の別種を置く(t *testing.T
 func TestContent_Resolve_PickOneは1つだけ置く(t *testing.T) {
 	t.Parallel()
 
-	c := Content{Groups: []Group{{Style: PickOne, Items: []Stuff{
-		{Kind: KindDecor, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
-		{Kind: KindDecor, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
+	c := Content{Groups: []Group{{Style: oapi.PickOne, Items: []Stuff{
+		{Kind: oapi.Decor, Ref: "a", Amount: consts.Dice{Base: 1, Sides: 1}},
+		{Kind: oapi.Decor, Ref: "b", Amount: consts.Dice{Base: 1, Sides: 1}},
 	}}}}
 	for s := range uint64(30) {
 		require.Lenf(t, c.Resolve(s), 1, "PickOne は1つだけ置く (seed=%d)", s)

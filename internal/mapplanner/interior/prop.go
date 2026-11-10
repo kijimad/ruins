@@ -37,10 +37,10 @@ func LootGroupName(raws oapi.Raws, ref string) (string, bool) {
 }
 
 // defaultPlacement は Ref の既定の置き方を返す。interiorRefs に無ければ PlaceDefault を返す
-func defaultPlacement(raws oapi.Raws, ref string) Placement {
+func defaultPlacement(raws oapi.Raws, ref string) oapi.Placement {
 	r, ok := interiorRef(raws, ref)
 	if !ok || r.Placement == nil {
 		return PlaceDefault
 	}
-	return Placement(*r.Placement)
+	return *r.Placement
 }

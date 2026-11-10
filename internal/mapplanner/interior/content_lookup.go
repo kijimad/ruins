@@ -108,18 +108,18 @@ func backRoomContent(raws oapi.Raws, id string) (Content, error) {
 func toContent(raws oapi.Raws, ic oapi.InteriorContent) (Content, error) {
 	c := Content{ID: ic.Id}
 	for _, g := range raw.PtrSlice(ic.Groups) {
-		grp := Group{Style: GroupStyle(g.Style), Pick: int(deref(g.Pick))}
+		grp := Group{Style: g.Style, Pick: int(deref(g.Pick))}
 		for _, s := range g.Items {
 			amount, err := consts.ParseDice(s.Amount)
 			if err != nil {
 				return Content{}, fmt.Errorf("interior content %q ref %q amount: %w", ic.Id, s.Ref, err)
 			}
-			placement := Placement(deref(s.Placement))
+			placement := deref(s.Placement)
 			if placement == PlaceDefault {
 				placement = defaultPlacement(raws, s.Ref)
 			}
 			grp.Items = append(grp.Items, Stuff{
-				Kind:       StuffKind(s.Kind),
+				Kind:       s.Kind,
 				Ref:        s.Ref,
 				Weight:     int(deref(s.Weight)),
 				Amount:     amount,
@@ -152,7 +152,7 @@ func toSatellites(in *[]oapi.ContentSatellite) []Satellite {
 	}
 	out := make([]Satellite, 0, len(items))
 	for _, s := range items {
-		sat := Satellite{Kind: StuffKind(s.Kind), Ref: s.Ref, LootTable: deref(s.LootTable)}
+		sat := Satellite{Kind: s.Kind, Ref: s.Ref, LootTable: deref(s.LootTable)}
 		for _, o := range s.Offsets {
 			sat.Offsets = append(sat.Offsets, Vec{X: consts.Tile(o.X), Y: consts.Tile(o.Y)})
 		}
