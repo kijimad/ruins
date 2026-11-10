@@ -16,14 +16,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。DungeonForest の英語 id。
-const coldDungeonName = "Dead forest"
+// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。raw の dungeons の行の id。
+const coldDungeonName = "dead_forest"
 
 // setStage は現ステージを切り替え、生成時と同じく基本気温を StageField へ写す。
 // 気温計算は StageField.BaseTemp を読むので、テストでも生成の手順を再現する
 func setStage(world w.World, key gc.StageKey) {
 	query.GetDungeon(world).CurrentStage = key
-	query.EnsureStageField(world, key).BaseTemp = dungeon.BaseTemperatureFor(key.Name)
+	query.EnsureStageField(world, key).BaseTemp = dungeon.BaseTemperatureFor(world.Resources.RawMaster, key.Name)
 }
 
 func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) {

@@ -12,7 +12,7 @@ func TestTileEnvDefs_TempModifier(t *testing.T) {
 
 	defs := TileEnvDefs{
 		Water:   map[oapi.WaterExposure]int{oapi.Nearby: -5, oapi.Submerged: -10},
-		Foliage: map[oapi.Foliage]int{oapi.Grass: -1, oapi.Forest: -3},
+		Foliage: map[oapi.Foliage]int{oapi.FoliageGrass: -1, oapi.FoliageForest: -3},
 	}
 	tests := []struct {
 		name string
@@ -21,9 +21,9 @@ func TestTileEnvDefs_TempModifier(t *testing.T) {
 	}{
 		{"全要素がゼロ値", TileEnvironment{}, 0},
 		{"囲われは緩和度なので合計に含まない", TileEnvironment{Shelter: oapi.Indoor}, 0},
-		{"水辺で森", TileEnvironment{Water: oapi.Nearby, Foliage: oapi.Forest}, -8},
+		{"水辺で森", TileEnvironment{Water: oapi.Nearby, Foliage: oapi.FoliageForest}, -8},
 		{"水中", TileEnvironment{Water: oapi.Submerged}, -10},
-		{"全要素の組み合わせ", TileEnvironment{Shelter: oapi.Partial, Water: oapi.Nearby, Foliage: oapi.Grass}, -6},
+		{"全要素の組み合わせ", TileEnvironment{Shelter: oapi.Partial, Water: oapi.Nearby, Foliage: oapi.FoliageGrass}, -6},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

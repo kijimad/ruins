@@ -94,6 +94,7 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	timesOfDay := enumRowsOf("TimeOfDayId", func(id string) oapi.TimeOfDay { return oapi.TimeOfDay{Id: oapi.TimeOfDayId(id)} })
 	seasons := enumRowsOf("SeasonId", func(id string) oapi.Season { return oapi.Season{Id: oapi.SeasonId(id)} })
 	raws := oapi.Raws{
+		Dungeons:        &[]oapi.Dungeon{{Id: "dead_forest"}},
 		TimesOfDay:      &timesOfDay,
 		Seasons:         &seasons,
 		FreshnessStages: &freshness,
@@ -114,7 +115,7 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		Members:         &[]oapi.Member{{Id: "ash", Player: new(true)}},
 		ShelterEffects:  &[]oapi.ShelterEffect{{Id: oapi.Outdoor}, {Id: oapi.Partial}, {Id: oapi.Indoor}},
 		WaterEffects:    &[]oapi.WaterEffect{{Id: oapi.Nearby}, {Id: oapi.Submerged}},
-		FoliageEffects:  &[]oapi.FoliageEffect{{Id: oapi.Grass}, {Id: oapi.Forest}},
+		FoliageEffects:  &[]oapi.FoliageEffect{{Id: oapi.FoliageGrass}, {Id: oapi.FoliageForest}},
 		HungerStages:    &[]oapi.HungerStage{{Id: oapi.HungerStageIdStarving}},
 		FatigueStages:   &[]oapi.FatigueStage{{Id: oapi.FatigueStageIdRested}},
 	}
@@ -381,6 +382,13 @@ func TestValidateCodeRows(t *testing.T) {
 				*r.Seasons = append(*r.Seasons, oapi.Season{Id: oapi.Winter})
 			},
 			wantErr: errDuplicateID,
+		},
+		{
+			name: "ダンジョンが無い",
+			mutate: func(r *oapi.Raws) {
+				r.Dungeons = nil
+			},
+			wantErr: errTableMissing,
 		},
 		{
 			name: "生活感の表が無い",

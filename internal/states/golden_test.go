@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	gs "github.com/kijimaD/ruins/internal/states"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 
 	"github.com/sebdah/goldie/v2"
@@ -29,14 +30,15 @@ const mapGenSeed = uint64(12345)
 // collectPlannerTypes は全PlannerTypeにダンジョン定義のテーブル名を設定して返す。
 // ダンジョン定義に含まれるPlannerTypeにはそのダンジョンのテーブル名を設定し、
 // 含まれないもの（テンプレート系など）はテーブルなしでテストする
-func collectPlannerTypes() []mapplanner.PlannerType {
+func collectPlannerTypes(t *testing.T) []mapplanner.PlannerType {
+	t.Helper()
 	// ダンジョン定義からPlannerType名→テーブル名のマッピングを構築する
 	type tableInfo struct {
 		EnemyTableName string
 		ItemTableName  string
 	}
 	tableMap := map[string]tableInfo{}
-	dungeons := dungeon.GetAllDungeons()
+	dungeons := dungeon.GetAllDungeons(testutil.InitTestWorld(t).Resources.RawMaster)
 	for i := range dungeons {
 		def := dungeons[i]
 		for _, pw := range def.PlannerPool() {
@@ -100,7 +102,7 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
-	for _, pt := range collectPlannerTypes() {
+	for _, pt := range collectPlannerTypes(t) {
 		result := buildMapGenChain(t, pt)
 		if result == nil {
 			continue
@@ -127,7 +129,7 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 func TestMapGenImages(t *testing.T) {
 	t.Parallel()
 
-	for _, pt := range collectPlannerTypes() {
+	for _, pt := range collectPlannerTypes(t) {
 		result := buildMapGenChain(t, pt)
 		if result == nil {
 			continue

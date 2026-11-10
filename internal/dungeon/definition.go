@@ -33,25 +33,17 @@ type PlannerWeight struct {
 //nolint:revive // DungeonDefinition は OverworldDefinition と対称にするため意図的にこの名前にする
 type DungeonDefinition struct {
 	name        string
-	description string
-	imageKey    string
 	enemyTable  string
 	itemTable   string
 	plannerPool []PlannerWeight
 	baseTemp    int
 }
 
-// Name はダンジョン名を返す
+// Name はダンジョンの識別名を返す。raw の dungeons の行の id にあたる
 func (d *DungeonDefinition) Name() string { return d.name }
 
 // BaseTemperature は基本気温を返す
 func (d *DungeonDefinition) BaseTemperature() int { return d.baseTemp }
-
-// Description はダンジョン説明文を返す
-func (d *DungeonDefinition) Description() string { return d.description }
-
-// ImageKey は背景画像のスプライトキーを返す
-func (d *DungeonDefinition) ImageKey() string { return d.imageKey }
 
 // EnemyTableName は敵テーブル名を返す
 func (d *DungeonDefinition) EnemyTableName() string { return d.enemyTable }

@@ -133,7 +133,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 		defName = query.GetDungeon(world).CurrentStage.Name
 	}
 	// ダンジョン種別を取得する。ここは Seamless 判定を抜けた通常ダンジョンなので DungeonDefinition のはず
-	def, err := resolveDungeonDefinition(defName)
+	def, err := resolveDungeonDefinition(world, defName)
 	if err != nil {
 		return err
 	}

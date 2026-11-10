@@ -22,8 +22,8 @@ import (
 
 // resolveDungeonDefinition は名前から通常ダンジョン定義を引く。未登録、またはオーバーワールドのような
 // フロアを生成しない定義なら error を返す。フロア生成の入口を1箇所に集約する。
-func resolveDungeonDefinition(defName string) (*dungeon.DungeonDefinition, error) {
-	def, found := dungeon.GetStageDefinition(defName)
+func resolveDungeonDefinition(world w.World, defName string) (*dungeon.DungeonDefinition, error) {
+	def, found := dungeon.GetStageDefinition(world.Resources.RawMaster, defName)
 	if !found {
 		return nil, fmt.Errorf("stage definition not found: %s", defName)
 	}
@@ -222,7 +222,7 @@ func (st *DungeonState) descend(world w.World) error {
 	var playerPos consts.Coord[consts.Tile]
 	var generated bool
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
-		def, err := resolveDungeonDefinition(defName)
+		def, err := resolveDungeonDefinition(world, defName)
 		if err != nil {
 			return err
 		}
@@ -371,7 +371,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	var landing consts.Coord[consts.Tile]
 	var generated bool
 	if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {
-		def, derr := resolveDungeonDefinition(defName)
+		def, derr := resolveDungeonDefinition(world, defName)
 		if derr != nil {
 			return derr
 		}
@@ -428,7 +428,7 @@ func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, bu
 
 	// 既にその遺跡にいる。SwapTo は自己スワップを前提としないので、その場で作り直す。
 	// 上り階段の戻り先結線を引き継がないと ascend が結線なしで失敗するため、Purge 前に控える
-	def, err := resolveDungeonDefinition(defName)
+	def, err := resolveDungeonDefinition(world, defName)
 	if err != nil {
 		return err
 	}

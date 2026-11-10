@@ -21,6 +21,7 @@
 //
 // # 使い分け
 //
-// ダンジョン選択画面では registry から全ダンジョンを取得して表示する。
+// 遺跡の入口が指すダンジョンは raw の dungeons の行が持ち、registry が行から DungeonDefinition を組み立てる。
+// 行の id がステージの識別名になる。オーバーワールドとデバッグ用の定義は帯の形状や固定の中身を持つので Go に置く。
 // ダンジョン開始時は DungeonDefinition.SelectPlanner でマップ種類を抽選する。
 package dungeon

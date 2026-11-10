@@ -228,7 +228,7 @@ func TestValidateTileEffects(t *testing.T) {
 		return oapi.Raws{
 			ShelterEffects: &[]oapi.ShelterEffect{{Id: oapi.Outdoor}, {Id: oapi.Partial}, {Id: oapi.Indoor}},
 			WaterEffects:   &[]oapi.WaterEffect{{Id: oapi.Nearby, TempModifier: -5}, {Id: oapi.Submerged, TempModifier: -10}},
-			FoliageEffects: &[]oapi.FoliageEffect{{Id: oapi.Grass, TempModifier: -1}, {Id: oapi.Forest, TempModifier: -3}},
+			FoliageEffects: &[]oapi.FoliageEffect{{Id: oapi.FoliageGrass, TempModifier: -1}, {Id: oapi.FoliageForest, TempModifier: -3}},
 		}
 	}
 	tests := []struct {
@@ -248,8 +248,10 @@ func TestValidateTileEffects(t *testing.T) {
 			wantErr: errEnumRowMissing,
 		},
 		{
-			name:    "植生の行が重複する",
-			mutate:  func(r *oapi.Raws) { *r.FoliageEffects = append(*r.FoliageEffects, oapi.FoliageEffect{Id: oapi.Grass}) },
+			name: "植生の行が重複する",
+			mutate: func(r *oapi.Raws) {
+				*r.FoliageEffects = append(*r.FoliageEffects, oapi.FoliageEffect{Id: oapi.FoliageGrass})
+			},
 			wantErr: errDuplicateID,
 		},
 	}
@@ -280,6 +282,6 @@ func TestNewTileEnvDefs_実データ(t *testing.T) {
 			oapi.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50},
 		},
 		Water:   map[oapi.WaterExposure]int{oapi.Nearby: -5, oapi.Submerged: -10},
-		Foliage: map[oapi.Foliage]int{oapi.Grass: -1, oapi.Forest: -3},
+		Foliage: map[oapi.Foliage]int{oapi.FoliageGrass: -1, oapi.FoliageForest: -3},
 	}, NewTileEnvDefs(raws))
 }

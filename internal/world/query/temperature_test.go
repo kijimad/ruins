@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。DungeonForest の英語 id。
-const coldDungeonName = "Dead forest"
+// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。raw の dungeons の行の id。
+const coldDungeonName = "dead_forest"
 
 func TestNorthDepthChunks(t *testing.T) {
 	t.Parallel()
@@ -101,7 +101,7 @@ func TestTileEnvironmentAt(t *testing.T) {
 		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
 			Shelter: oapi.Outdoor,
 			Water:   oapi.Nearby,
-			Foliage: oapi.Forest,
+			Foliage: oapi.FoliageForest,
 		})
 
 		shelter, modifier := query.TileEnvironmentAt(world, 5, 5)

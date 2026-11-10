@@ -66,6 +66,8 @@ var (
 	errNeedStageNoZero                = errors.New("need stages have no stage from zero")
 	errEnumRowMissing                 = errors.New("enum value has no raw row")
 	errTableMissing                   = errors.New("table required by code is missing")
+	errDungeonEnemyTableUndefined     = errors.New("dungeon references undefined enemy table")
+	errDungeonItemTableUndefined      = errors.New("dungeon references undefined item table")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -169,6 +171,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateNeedStages(raws); err != nil {
+		return err
+	}
+	if err := validateDungeons(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -810,6 +815,7 @@ func validateCodeRows(raws oapi.Raws) error {
 		{"foliageEffects", len(PtrSlice(raws.FoliageEffects)) > 0},
 		{"hungerStages", len(PtrSlice(raws.HungerStages)) > 0},
 		{"fatigueStages", len(PtrSlice(raws.FatigueStages)) > 0},
+		{"dungeons", len(PtrSlice(raws.Dungeons)) > 0},
 	}
 	for _, r := range required {
 		if !r.present {
@@ -984,6 +990,24 @@ func validateInteriorRefs(raws oapi.Raws) error {
 			if _, ok := propRefs[ref]; !ok {
 				return fmt.Errorf("hero %q ref %q: %w", h.Id, ref, errHeroRefUndefined)
 			}
+		}
+	}
+	return nil
+}
+
+// validateDungeons はダンジョンの id が一意で、敵とアイテムの表が実在することを検証する
+func validateDungeons(raws oapi.Raws) error {
+	dungeons := PtrSlice(raws.Dungeons)
+	if err := validateUniqueIDs("dungeon", dungeons, func(d oapi.Dungeon) string { return d.Id }); err != nil {
+		return err
+	}
+	for i := range dungeons {
+		d := &dungeons[i]
+		if _, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Id }, d.EnemyTable); !ok {
+			return fmt.Errorf("dungeon %q enemy table %q: %w", d.Id, d.EnemyTable, errDungeonEnemyTableUndefined)
+		}
+		if _, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Id }, d.ItemTable); !ok {
+			return fmt.Errorf("dungeon %q item table %q: %w", d.Id, d.ItemTable, errDungeonItemTableUndefined)
 		}
 	}
 	return nil

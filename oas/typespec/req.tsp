@@ -563,6 +563,34 @@ model Tile {
   foliage?: Foliage;
 }
 
+/** ダンジョンの間取りの種類と、フロアごとに選ばれる重み */
+model DungeonPlannerWeight {
+  id: DungeonPlanner;
+  weight: EntryWeight;
+}
+
+/** フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す */
+model Dungeon {
+  id: EntityID;
+  name: EntityName;
+  description: EntityDescription;
+
+  /** 背景画像のスプライトキー */
+  imageKey: EntityID;
+
+  /** 敵を引く enemyTables の id */
+  enemyTable: EntityID;
+
+  /** アイテムを引く itemTables の id */
+  itemTable: EntityID;
+
+  baseTemp: StageBaseTemp;
+
+  /** フロアの間取りの抽選表。行の順に重みを積む */
+  @minItems(1)
+  planners: DungeonPlannerWeight[];
+}
+
 /** 環境光の色。明るさは daylight が持ち、ここは色味だけを表す */
 model AmbientColor {
   r: LightLevel;
@@ -930,6 +958,7 @@ model Raws {
   toolCategories?: ToolCategoryDef[];
   timesOfDay?: TimeOfDay[];
   seasons?: Season[];
+  dungeons?: Dungeon[];
 }
 
 // ================== パレット ==================

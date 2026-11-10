@@ -1744,6 +1744,69 @@
     id = "rusted_chain"
     weight = 0.3
 
+[[dungeons]]
+  baseTemp = 0
+  description = "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone."
+  enemyTable = "forest"
+  id = "dead_forest"
+  imageKey = "forest1"
+  itemTable = "forest"
+  name = "Dead forest"
+
+  [[dungeons.planners]]
+    id = "forest"
+    weight = 5
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 2
+
+  [[dungeons.planners]]
+    id = "big_room"
+    weight = 1
+
+[[dungeons]]
+  baseTemp = 5
+  description = "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows."
+  enemyTable = "cave"
+  id = "ash_cave"
+  imageKey = "cave1"
+  itemTable = "cave"
+  name = "Ash cave"
+
+  [[dungeons.planners]]
+    id = "cave"
+    weight = 6
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 1
+
+  [[dungeons.planners]]
+    id = "big_room"
+    weight = 2
+
+[[dungeons]]
+  baseTemp = 15
+  description = "An ancient city stands frozen in place.\nWho forgot what, no one remembers now."
+  enemyTable = "ruins_area"
+  id = "forgotten_ruins"
+  imageKey = "city1"
+  itemTable = "ruins_area"
+  name = "Forgotten ruins"
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 4
+
+  [[dungeons.planners]]
+    id = "ruins"
+    weight = 3
+
+  [[dungeons.planners]]
+    id = "big_room"
+    weight = 2
+
 [[enemyTables]]
   id = "ruins_area"
   name = "廃墟"

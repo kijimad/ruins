@@ -2565,6 +2565,65 @@ components:
         totalCount:
           type: integer
       description: ドロップテーブル一覧
+    Dungeon:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - imageKey
+        - enemyTable
+        - itemTable
+        - baseTemp
+        - planners
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        description:
+          $ref: '#/components/schemas/EntityDescription'
+        imageKey:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 背景画像のスプライトキー
+        enemyTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 敵を引く enemyTables の id
+        itemTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: アイテムを引く itemTables の id
+        baseTemp:
+          $ref: '#/components/schemas/StageBaseTemp'
+        planners:
+          type: array
+          items:
+            $ref: '#/components/schemas/DungeonPlannerWeight'
+          minItems: 1
+          description: フロアの間取りの抽選表。行の順に重みを積む
+      description: フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
+    DungeonPlanner:
+      type: string
+      enum:
+        - small_room
+        - big_room
+        - cave
+        - ruins
+        - forest
+      description: ダンジョンのフロアを生成する間取りの種類
+    DungeonPlannerWeight:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/DungeonPlanner'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: ダンジョンの間取りの種類と、フロアごとに選ばれる重み
     Element:
       type: string
       enum:
@@ -4063,6 +4122,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Season'
+        dungeons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dungeon'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -4443,6 +4506,11 @@ components:
       maxLength: 50
       pattern: ^[a-z][a-z0-9_]*$
       description: スプライトシート名
+    StageBaseTemp:
+      type: integer
+      minimum: -100
+      maximum: 100
+      description: ステージの基本気温。℃
     StageLengthTurns:
       type: integer
       minimum: 1

@@ -930,3 +930,41 @@ func TestValidateMemberItems(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateDungeons(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		mutate  func(*oapi.Dungeon)
+		extra   bool
+		wantErr error
+	}{
+		{name: "表が実在すれば通る", mutate: func(*oapi.Dungeon) {}},
+		{name: "敵の表が実在しない", mutate: func(d *oapi.Dungeon) { d.EnemyTable = "missing" }, wantErr: errDungeonEnemyTableUndefined},
+		{name: "アイテムの表が実在しない", mutate: func(d *oapi.Dungeon) { d.ItemTable = "missing" }, wantErr: errDungeonItemTableUndefined},
+		{name: "id が重複する", mutate: func(*oapi.Dungeon) {}, extra: true, wantErr: errDuplicateID},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			d := oapi.Dungeon{Id: "dead_forest", EnemyTable: "forest", ItemTable: "forest"}
+			tt.mutate(&d)
+			dungeons := []oapi.Dungeon{d}
+			if tt.extra {
+				dungeons = append(dungeons, d)
+			}
+			raws := oapi.Raws{
+				EnemyTables: &[]oapi.EnemyTable{{Id: "forest"}},
+				ItemTables:  &[]oapi.ItemTable{{Id: "forest"}},
+				Dungeons:    &dungeons,
+			}
+			err := validateDungeons(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}

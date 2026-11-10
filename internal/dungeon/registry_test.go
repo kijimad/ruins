@@ -4,40 +4,64 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetAllDungeons(t *testing.T) {
-	t.Parallel()
-
-	dungeons := GetAllDungeons()
-
-	assert.NotEmpty(t, dungeons)
-	assert.GreaterOrEqual(t, len(dungeons), 3)
-
-	// 全てのダンジョンが有効な設定を持っている
-	for _, d := range dungeons {
-		assert.NotEmpty(t, d.Name())
-		assert.NotEmpty(t, d.PlannerPool())
-	}
+// loadRaws は実データの raw を読む
+func loadRaws(t *testing.T) oapi.Raws {
+	t.Helper()
+	raws, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	return raws
 }
 
-func TestGetDungeonByName(t *testing.T) {
+func TestGetAllDungeons_実データ(t *testing.T) {
 	t.Parallel()
 
-	t.Run("存在するダンジョンを取得できる", func(t *testing.T) {
+	type planner struct {
+		Name   string
+		Weight float64
+	}
+	type view struct {
+		Name, EnemyTable, ItemTable string
+		BaseTemp                    int
+		Planners                    []planner
+	}
+	defs := GetAllDungeons(loadRaws(t))
+	got := make([]view, 0, len(defs))
+	for _, d := range defs {
+		v := view{Name: d.Name(), EnemyTable: d.EnemyTableName(), ItemTable: d.ItemTableName(), BaseTemp: d.BaseTemperature()}
+		for _, p := range d.PlannerPool() {
+			v.Planners = append(v.Planners, planner{Name: p.PlannerType.Name, Weight: p.Weight})
+		}
+		got = append(got, v)
+	}
+	assert.Equal(t, []view{
+		{Name: "dead_forest", EnemyTable: "forest", ItemTable: "forest", BaseTemp: 0, Planners: []planner{{"Forest", 5}, {"Small Room", 2}, {"Big Room", 1}}},
+		{Name: "ash_cave", EnemyTable: "cave", ItemTable: "cave", BaseTemp: 5, Planners: []planner{{"Cave", 6}, {"Small Room", 1}, {"Big Room", 2}}},
+		{Name: "forgotten_ruins", EnemyTable: "ruins_area", ItemTable: "ruins_area", BaseTemp: 15, Planners: []planner{{"Small Room", 4}, {"Ruins", 3}, {"Big Room", 2}}},
+	}, got)
+}
+
+func TestGetStageDefinition(t *testing.T) {
+	t.Parallel()
+	raws := loadRaws(t)
+
+	t.Run("raw の行のダンジョンを id で引ける", func(t *testing.T) {
 		t.Parallel()
-		def, found := GetStageDefinition("Dead forest")
+		def, found := GetStageDefinition(raws, "dead_forest")
 		require.True(t, found)
-		assert.Equal(t, "Dead forest", def.Name())
+		assert.Equal(t, "dead_forest", def.Name())
 		_, ok := def.(*DungeonDefinition)
 		require.True(t, ok, "通常ダンジョンは DungeonDefinition")
 	})
 
 	t.Run("オーバーワールドは OverworldDefinition として引ける", func(t *testing.T) {
 		t.Parallel()
-		def, found := GetStageDefinition("Overworld")
+		def, found := GetStageDefinition(raws, "Overworld")
 		require.True(t, found)
 		_, ok := def.(*OverworldDefinition)
 		assert.True(t, ok, "オーバーワールドは OverworldDefinition でフロアを生成しない別の型")
@@ -45,65 +69,33 @@ func TestGetDungeonByName(t *testing.T) {
 
 	t.Run("存在しないダンジョンはfalseを返す", func(t *testing.T) {
 		t.Parallel()
-		_, found := GetStageDefinition("存在しないダンジョン")
+		_, found := GetStageDefinition(raws, "存在しないダンジョン")
 		assert.False(t, found)
 	})
 }
 
 func TestBaseTemperatureFor(t *testing.T) {
 	t.Parallel()
+	raws := loadRaws(t)
 
-	t.Run("allDungeons登録のダンジョンの気温を返す", func(t *testing.T) {
+	t.Run("raw の行のダンジョンの気温を返す", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, DungeonCave.BaseTemperature(), BaseTemperatureFor(DungeonCave.Name()))
+		assert.Equal(t, 5, BaseTemperatureFor(raws, "ash_cave"))
 	})
 
 	t.Run("internalDefinitions登録のダンジョンの気温を返す", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, DungeonDebug.BaseTemperature(), BaseTemperatureFor(DungeonDebug.Name()))
+		assert.Equal(t, DungeonDebug.BaseTemperature(), BaseTemperatureFor(raws, DungeonDebug.Name()))
 	})
 
 	t.Run("未登録の名前は0を返す", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 0, BaseTemperatureFor("存在しないダンジョン"))
+		assert.Equal(t, 0, BaseTemperatureFor(raws, "存在しないダンジョン"))
 	})
 }
 
 func TestDefinitions(t *testing.T) {
 	t.Parallel()
-
-	t.Run("DungeonForestの設定が正しい", func(t *testing.T) {
-		t.Parallel()
-		assert.Equal(t, "Dead forest", DungeonForest.Name())
-		assert.Equal(t, "forest", DungeonForest.EnemyTableName())
-		assert.Equal(t, "forest", DungeonForest.ItemTableName())
-		assert.Equal(t, "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone.", DungeonForest.Description())
-		assert.Equal(t, "forest1", DungeonForest.ImageKey())
-		assert.Equal(t, 0, DungeonForest.BaseTemperature())
-		assert.NotEmpty(t, DungeonForest.PlannerPool())
-	})
-
-	t.Run("DungeonCaveの設定が正しい", func(t *testing.T) {
-		t.Parallel()
-		assert.Equal(t, "Ash cave", DungeonCave.Name())
-		assert.Equal(t, "cave", DungeonCave.EnemyTableName())
-		assert.Equal(t, "cave", DungeonCave.ItemTableName())
-		assert.Equal(t, "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows.", DungeonCave.Description())
-		assert.Equal(t, "cave1", DungeonCave.ImageKey())
-		assert.Equal(t, 5, DungeonCave.BaseTemperature())
-		assert.NotEmpty(t, DungeonCave.PlannerPool())
-	})
-
-	t.Run("DungeonRuinsの設定が正しい", func(t *testing.T) {
-		t.Parallel()
-		assert.Equal(t, "Forgotten ruins", DungeonRuins.Name())
-		assert.Equal(t, "ruins_area", DungeonRuins.EnemyTableName())
-		assert.Equal(t, "ruins_area", DungeonRuins.ItemTableName())
-		assert.Equal(t, "An ancient city stands frozen in place.\nWho forgot what, no one remembers now.", DungeonRuins.Description())
-		assert.Equal(t, "city1", DungeonRuins.ImageKey())
-		assert.Equal(t, 15, DungeonRuins.BaseTemperature())
-		assert.NotEmpty(t, DungeonRuins.PlannerPool())
-	})
 
 	t.Run("DungeonOverworldの設定が正しい", func(t *testing.T) {
 		t.Parallel()

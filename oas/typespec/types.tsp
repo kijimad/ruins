@@ -228,6 +228,20 @@ enum FatigueStageId {
   exhausted,
 }
 
+/** ダンジョンのフロアを生成する間取りの種類 */
+enum DungeonPlanner {
+  small_room,
+  big_room,
+  cave,
+  ruins,
+  forest,
+}
+
+/** ステージの基本気温。℃ */
+@minValue(-100)
+@maxValue(100)
+scalar StageBaseTemp extends integer;
+
 /** 鮮度の段階 */
 enum FreshnessStageId {
   fresh,

@@ -282,6 +282,33 @@ func (e DrawerKey) Valid() bool {
 	}
 }
 
+// Defines values for DungeonPlanner.
+const (
+	DungeonPlannerBigRoom   DungeonPlanner = "big_room"
+	DungeonPlannerCave      DungeonPlanner = "cave"
+	DungeonPlannerForest    DungeonPlanner = "forest"
+	DungeonPlannerRuins     DungeonPlanner = "ruins"
+	DungeonPlannerSmallRoom DungeonPlanner = "small_room"
+)
+
+// Valid indicates whether the value is a known member of the DungeonPlanner enum.
+func (e DungeonPlanner) Valid() bool {
+	switch e {
+	case DungeonPlannerBigRoom:
+		return true
+	case DungeonPlannerCave:
+		return true
+	case DungeonPlannerForest:
+		return true
+	case DungeonPlannerRuins:
+		return true
+	case DungeonPlannerSmallRoom:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Element.
 const (
 	ElementCHILL   Element = "CHILL"
@@ -428,16 +455,16 @@ func (e FatigueStageId) Valid() bool {
 
 // Defines values for Foliage.
 const (
-	Forest Foliage = "forest"
-	Grass  Foliage = "grass"
+	FoliageForest Foliage = "forest"
+	FoliageGrass  Foliage = "grass"
 )
 
 // Valid indicates whether the value is a known member of the Foliage enum.
 func (e Foliage) Valid() bool {
 	switch e {
-	case Forest:
+	case FoliageForest:
 		return true
-	case Grass:
+	case FoliageGrass:
 		return true
 	default:
 		return false
@@ -1997,6 +2024,43 @@ type DropTableList struct {
 	TotalCount int         `json:"totalCount"`
 }
 
+// Dungeon フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
+type Dungeon struct {
+	// BaseTemp ステージの基本気温。℃
+	BaseTemp StageBaseTemp `json:"baseTemp"`
+
+	// Description 説明文
+	Description EntityDescription `json:"description"`
+
+	// EnemyTable 敵を引く enemyTables の id
+	EnemyTable EntityID `json:"enemyTable"`
+	Id         EntityID `json:"id"`
+
+	// ImageKey 背景画像のスプライトキー
+	ImageKey EntityID `json:"imageKey"`
+
+	// ItemTable アイテムを引く itemTables の id
+	ItemTable EntityID `json:"itemTable"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// Planners フロアの間取りの抽選表。行の順に重みを積む
+	Planners []DungeonPlannerWeight `json:"planners"`
+}
+
+// DungeonPlanner ダンジョンのフロアを生成する間取りの種類
+type DungeonPlanner string
+
+// DungeonPlannerWeight ダンジョンの間取りの種類と、フロアごとに選ばれる重み
+type DungeonPlannerWeight struct {
+	// Id ダンジョンのフロアを生成する間取りの種類
+	Id DungeonPlanner `json:"id"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
+}
+
 // Element 攻撃属性
 type Element string
 
@@ -2848,6 +2912,7 @@ type Raws struct {
 	CommandTables    *[]CommandTable    `json:"commandTables,omitempty"`
 	Conditions       *[]Condition       `json:"conditions,omitempty"`
 	DropTables       *[]DropTable       `json:"dropTables,omitempty"`
+	Dungeons         *[]Dungeon         `json:"dungeons,omitempty"`
 	EnemyTables      *[]EnemyTable      `json:"enemyTables,omitempty"`
 	Facilities       *[]Facility        `json:"facilities,omitempty"`
 	FacilityContents *[]FacilityContent `json:"facilityContents,omitempty"`
@@ -3102,6 +3167,9 @@ type SpriteSheetList struct {
 
 // SpriteSheetName スプライトシート名
 type SpriteSheetName = string
+
+// StageBaseTemp ステージの基本気温。℃
+type StageBaseTemp = int
 
 // StageLengthTurns 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
 type StageLengthTurns = int

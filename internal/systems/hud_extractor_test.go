@@ -410,7 +410,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 func newColdPlayer(t *testing.T) (w.World, ecs.Entity) {
 	t.Helper()
 	world := testutil.InitTestWorld(t)
-	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Dead forest", 1)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("dead_forest", 1)
 	e, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	hs := world.Components.HealthStatus.Get(e)
@@ -483,7 +483,7 @@ func TestTemperatureArrow_快適時は黄色の右向きを常時出す(t *testi
 func TestTemperatureArrow_状態が無くても寒い環境なら早期警告を出す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Dead forest", 1)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("dead_forest", 1)
 	e, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 

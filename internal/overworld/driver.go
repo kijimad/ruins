@@ -185,7 +185,7 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
 	overworldKey := gc.NewOverworldStage()
 	field := query.EnsureStageField(world, overworldKey)
 	field.Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
-	field.BaseTemp = dungeon.BaseTemperatureFor(overworldKey.Name)
+	field.BaseTemp = dungeon.BaseTemperatureFor(world.Resources.RawMaster, overworldKey.Name)
 	for cy := range dr.band.Rows() {
 		for i := range dr.band.Cols() {
 			// X は有界なので絶対チャンク列はそのまま i。Y は北進ぶん負へずらした絶対チャンク行

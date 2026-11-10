@@ -956,6 +956,67 @@ export interface DropTableList {
     'totalCount': number;
 }
 /**
+ * フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
+ */
+export interface Dungeon {
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 説明文
+     */
+    'description': string;
+    /**
+     * 背景画像のスプライトキー
+     */
+    'imageKey': string;
+    /**
+     * 敵を引く enemyTables の id
+     */
+    'enemyTable': string;
+    /**
+     * アイテムを引く itemTables の id
+     */
+    'itemTable': string;
+    /**
+     * ステージの基本気温。℃
+     */
+    'baseTemp': number;
+    /**
+     * フロアの間取りの抽選表。行の順に重みを積む
+     */
+    'planners': Array<DungeonPlannerWeight>;
+}
+/**
+ * ダンジョンのフロアを生成する間取りの種類
+ */
+
+export const DungeonPlanner = {
+    SmallRoom: 'small_room',
+    BigRoom: 'big_room',
+    Cave: 'cave',
+    Ruins: 'ruins',
+    Forest: 'forest',
+} as const;
+
+export type DungeonPlanner = typeof DungeonPlanner[keyof typeof DungeonPlanner];
+
+
+/**
+ * ダンジョンの間取りの種類と、フロアごとに選ばれる重み
+ */
+export interface DungeonPlannerWeight {
+    'id': DungeonPlanner;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
+
+
+/**
  * 攻撃属性
  */
 
@@ -2066,6 +2127,7 @@ export interface Raws {
     'toolCategories'?: Array<ToolCategoryDef>;
     'timesOfDay'?: Array<TimeOfDay>;
     'seasons'?: Array<Season>;
+    'dungeons'?: Array<Dungeon>;
 }
 /**
  * レシピ
