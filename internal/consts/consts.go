@@ -91,6 +91,17 @@ const (
 	AIVisionDistance Tile = 5
 )
 
+// ========== フロアの配置数 ==========
+
+// フロアに置く敵とアイテムの数。マップ生成とバランス試算が同じ値を使う。
+// 数は基本数に 0 から乱数幅未満の乱数を足して決める
+const (
+	FloorEnemyBase   = 5
+	FloorEnemyRandom = 4
+	FloorItemBase    = 8
+	FloorItemRandom  = 5
+)
+
 // ========== タイル名 ==========
 
 const (

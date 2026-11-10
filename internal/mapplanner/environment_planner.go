@@ -22,11 +22,7 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 			mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterFull)
 		}
 
-		// Water: 隣接する水タイルから計算
 		mp.Tiles[i].Water = oapi.WaterType(p.calcWater(mp, i))
-
-		// Foliage: タイル名から計算
-		mp.Tiles[i].Foliage = oapi.FoliageType(p.calcFoliage(mp, i))
 	}
 
 	return nil
@@ -54,10 +50,9 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
 	return outdoor
 }
 
-// calcWater は隣接タイルから水の影響を計算する
+// calcWater は水の影響を計算する。raw のタイルの行が水中なら水中、隣が水中なら水辺とする
 func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
-	// 現在のタイルが水タイルかチェック
-	if isWaterTile(mp.Tiles[idx].Id) {
+	if isWaterTile(mp.Tiles[idx]) {
 		return gc.WaterSubmerged
 	}
 
@@ -81,7 +76,7 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
 	}
 
 	for _, adjIdx := range adjacentIndices {
-		if isWaterTile(mp.Tiles[adjIdx].Id) {
+		if isWaterTile(mp.Tiles[adjIdx]) {
 			return gc.WaterNearby
 		}
 	}
@@ -89,28 +84,7 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
 	return gc.WaterNone
 }
 
-// calcFoliage はタイル名から植生の影響を計算する
-// TODO: 名前ではなくタイルの属性で判定する
-func (p EnvironmentPlanner) calcFoliage(mp *MetaPlan, idx int) gc.FoliageType {
-	name := mp.Tiles[idx].Id
-
-	switch name {
-	case "forest", "tree":
-		return gc.FoliageForest
-	case "grass":
-		return gc.FoliageGrass
-	default:
-		return gc.FoliageNone
-	}
-}
-
-// isWaterTile はタイル名が水タイルかを判定する
-// TODO: 名前ではなくタイルの属性で判定する
-func isWaterTile(name string) bool {
-	switch name {
-	case "water", "deep_water", "river", "pond":
-		return true
-	default:
-		return false
-	}
+// isWaterTile はタイルが水中かを raw のタイルの行から判定する
+func isWaterTile(tile oapi.Tile) bool {
+	return tile.Water == oapi.WaterType(gc.WaterSubmerged)
 }

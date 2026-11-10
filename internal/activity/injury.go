@@ -77,7 +77,7 @@ func logInjury(actor, target ecs.Entity, world w.World, part gc.BodyPart, injury
 	}
 	targetName := query.GetEntityName(target, world)
 	targetMarkup := query.NameMarkup(target, targetName, world)
-	partName := query.T(world, part.String())
+	partName := query.BodyPartName(world, part)
 	injuryName := query.ConditionName(world, injuryType)
 	gamelog.New(query.GetGameLog(world)).
 		Markup(query.T(world, "%s suffered %s on the %s.", targetMarkup, injuryName, partName)).

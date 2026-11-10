@@ -104,9 +104,9 @@ func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) fl
 	return float64(query.CalculateSellPrice(int(math.Round(value))))
 }
 
-// expectedItemsPerFloor はフロアで拾える loot 個数の期待値。floorItemBase + rand(0..floorItemRandom-1) の
-// 期待値で run.go と単一出典。floorItemRandom は奇数なので (floorItemRandom-1)/2 は整数除算でも厳密。
-const expectedItemsPerFloor = floorItemBase + (floorItemRandom-1)/2
+// expectedItemsPerFloor はフロアで拾える loot 個数の期待値。
+// consts.FloorItemRandom は奇数なので (consts.FloorItemRandom-1)/2 は整数除算でも厳密になる
+const expectedItemsPerFloor = consts.FloorItemBase + (consts.FloorItemRandom-1)/2
 
 // ExpectedRunLootIncome は floors 層を探索して拾う loot の期待手取り総額を返す。各層で expectedItemsPerFloor
 // 個を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。

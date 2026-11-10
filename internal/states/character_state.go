@@ -355,7 +355,7 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {
 	// 症状の無い部位は概要だけ出す
 	if item.Condition == nil {
-		return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, "No injury or illness")}
+		return overlay.DetailContent{Name: query.BodyPartName(world, item.BodyPart), Desc: query.T(world, "No injury or illness")}
 	}
 	cond := item.Condition
 	// 導出不調は Timer も治療状態も持たない。進行度でなく重症度と、下げる身体機能だけを出す

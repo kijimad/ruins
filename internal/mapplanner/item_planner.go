@@ -11,8 +11,6 @@ import (
 // アイテム配置用の定数
 const (
 	// アイテム配置関連
-	baseItemCount      = 8 // アイテム配置の基本数
-	randomItemCount    = 5 // アイテム配置のランダム追加数（0-4の範囲）
 	itemIncreaseDanger = 5 // アイテム数増加の危険度しきい値
 
 	// 配置処理関連
@@ -62,7 +60,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.Items = []ItemSpec{}
 	}
 
-	total := baseItemCount + planData.RNG.IntN(randomItemCount)
+	total := consts.FloorItemBase + planData.RNG.IntN(consts.FloorItemRandom)
 	if i.plannerType.Danger > itemIncreaseDanger {
 		total++
 	}

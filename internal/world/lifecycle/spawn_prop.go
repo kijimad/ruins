@@ -43,20 +43,11 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 	if world.Components.SpriteRender.Has(doorEntity) {
 		spriteRender := world.Components.SpriteRender.Get(doorEntity)
 
+		spriteRender.SpriteKey = doorSpriteKey(orientation, isOpen)
 		if isOpen {
 			spriteRender.Depth = gc.DepthNumRug
-			if orientation == gc.DoorOrientationHorizontal {
-				spriteRender.SpriteKey = "door_horizontal_open"
-			} else {
-				spriteRender.SpriteKey = "door_vertical_open"
-			}
 		} else {
 			spriteRender.Depth = gc.DepthNumTaller
-			if orientation == gc.DoorOrientationHorizontal {
-				spriteRender.SpriteKey = "door_horizontal_closed"
-			} else {
-				spriteRender.SpriteKey = "door_vertical_closed"
-			}
 		}
 	}
 
@@ -125,38 +116,32 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
-// doorHP は扉の耐久値。raw の door prop と同じ値にする
-const doorHP = 50
-
-// SpawnDoor は扉を生成する
+// SpawnDoor は raw の door prop から扉を生成し、向きに合わせて閉じた姿にする
 func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation) (ecs.Entity, error) {
-	var spriteKey string
-	if orientation == gc.DoorOrientationHorizontal {
-		spriteKey = "door_horizontal_closed"
-	} else {
-		spriteKey = "door_vertical_closed"
+	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, "door")
+	if err != nil {
+		return gc.InvalidEntity, err
 	}
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
+	entitySpec.LocationOnField = &gc.LocationOnField{}
+	entitySpec.Door.Orientation = orientation
+	entitySpec.SpriteRender.SpriteKey = doorSpriteKey(orientation, false)
 
-	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-		Name:        &gc.Name{Name: query.T(world, "Door")},
-		Description: &gc.Description{Description: query.T(world, "An openable door")},
-		GridElement: &gc.GridElement{Coord: pos},
-		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: fieldSpriteSheet,
-			SpriteKey:       spriteKey,
-			Depth:           gc.DepthNumTaller,
-		},
-		Prop:            &gc.Prop{},
-		HP:              &gc.HP{Max: doorHP, Current: doorHP},
-		BlockPass:       &gc.BlockPass{},
-		BlockView:       &gc.BlockView{},
-		LocationOnField: &gc.LocationOnField{},
-		Door: &gc.Door{
-			IsOpen:      false,
-			Orientation: orientation,
-		},
-		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor, gc.InteractionMelee}},
-	}), nil
+	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+}
+
+// doorSpriteKey は扉の向きと開閉に応じたスプライトキーを返す
+func doorSpriteKey(orientation gc.DoorOrientation, isOpen bool) string {
+	switch {
+	case orientation == gc.DoorOrientationHorizontal && isOpen:
+		return "door_horizontal_open"
+	case isOpen:
+		return "door_vertical_open"
+	case orientation == gc.DoorOrientationHorizontal:
+		return "door_horizontal_closed"
+	default:
+		return "door_vertical_closed"
+	}
 }
 
 // cubeHP はキューブの耐久値。扉と同じ prop 標準の HP 機構に乗せる。移動拠点なので扉より頑丈にする

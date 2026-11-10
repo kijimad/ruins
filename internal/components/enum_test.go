@@ -14,13 +14,13 @@ func TestBodyPart_String(t *testing.T) {
 		bp   BodyPart
 		want string
 	}{
-		{BodyPartHead, "Head"},
-		{BodyPartTorso, "Torso"},
-		{BodyPartArms, "Arm"},
-		{BodyPartHands, "Hand"},
-		{BodyPartLegs, "Leg"},
-		{BodyPartFeet, "Foot"},
-		{BodyPartWholeBody, "Whole body"},
+		{BodyPartHead, "head"},
+		{BodyPartTorso, "torso"},
+		{BodyPartArms, "arm"},
+		{BodyPartHands, "hand"},
+		{BodyPartLegs, "leg"},
+		{BodyPartFeet, "foot"},
+		{BodyPartWholeBody, "whole_body"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {

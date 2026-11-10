@@ -3,6 +3,7 @@ package balance
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,9 +17,9 @@ func TestCheapestFoodCostPerNutrition_食料なしは0(t *testing.T) {
 
 func TestExpectedItemsPerFloor_奇数前提で厳密(t *testing.T) {
 	t.Parallel()
-	// rand(0..floorItemRandom-1) の期待値 (floorItemRandom-1)/2 が整数除算で厳密になるのは奇数のときだけ。
+	// rand(0..floorItemRandom-1) の期待値 (consts.FloorItemRandom-1)/2 が整数除算で厳密になるのは奇数のときだけ。
 	// 偶数化すると expectedItemsPerFloor が無言で切り捨てに落ちるので、前提を機械で守る。
-	assert.Equal(t, 1, floorItemRandom%2, "floorItemRandom は奇数")
+	assert.Equal(t, 1, consts.FloorItemRandom%2, "consts.FloorItemRandom は奇数")
 }
 
 func TestExpectedLootValue_危険度で上がり正の値(t *testing.T) {

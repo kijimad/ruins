@@ -826,6 +826,14 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 1つのPropが複数のインタラクションを持てる
 	var interactions []gc.InteractionKind
 
+	if propRaw.Door != nil {
+		entitySpec.Door = &gc.Door{
+			IsOpen:      false,
+			Orientation: gc.DoorOrientationHorizontal,
+		}
+		interactions = append(interactions, gc.InteractionDoor)
+	}
+
 	if propRaw.Hp != nil {
 		entitySpec.HP = &gc.HP{Max: *propRaw.Hp, Current: *propRaw.Hp}
 		interactions = append(interactions, gc.InteractionMelee)
@@ -834,14 +842,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
 	entitySpec.Bedding = toGCBedding(propRaw.Bedding)
-
-	if propRaw.Door != nil {
-		entitySpec.Door = &gc.Door{
-			IsOpen:      false,
-			Orientation: gc.DoorOrientationHorizontal,
-		}
-		interactions = append(interactions, gc.InteractionDoor)
-	}
 
 	if propRaw.WarpNextTrigger != nil {
 		interactions = append(interactions, gc.InteractionPortalNext)
@@ -985,13 +985,13 @@ func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string
 // NewConditionDefs は raw の conditions、bodyParts、attackTypes から不調の定義の表を組み立てる。
 // 参照の実在は ValidateReferences が確かめる前提で、見つからない部位はエラーにする
 func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
-	var hitWeights [gc.BodyPartCount]float64
+	var parts [gc.BodyPartCount]gc.BodyPartDef
 	for _, row := range PtrSlice(raws.BodyParts) {
 		bp, ok := gc.BodyPartByID(row.Id)
 		if !ok {
 			return gc.ConditionDefs{}, NewKeyNotFoundError(row.Id, "BodyParts")
 		}
-		hitWeights[bp] = row.HitWeight
+		parts[bp] = gc.BodyPartDef{Name: row.Name, HitWeight: row.HitWeight}
 	}
 
 	conditions := PtrSlice(raws.Conditions)
@@ -1040,7 +1040,7 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 	for _, row := range attackTypes {
 		injuries[string(row.Id)] = gc.ConditionType(row.Injury)
 	}
-	return gc.NewConditionDefs(conds, hitWeights, injuries), nil
+	return gc.NewConditionDefs(conds, parts, injuries), nil
 }
 
 // conditionOnsets は raw の不調を起こす仕組みから Go の仕組みへの対応

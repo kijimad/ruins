@@ -129,21 +129,20 @@ const (
 
 // bodyPartMeta は部位ごとの静的情報
 type bodyPartMeta struct {
-	id          string       // raw の bodyParts の id
-	displayName string       // 表示名 msgid
-	bodyFunc    BodyFuncKind // この部位の不調が下げる身体機能
+	id       string       // raw の bodyParts の id
+	bodyFunc BodyFuncKind // この部位の不調が下げる身体機能
 }
 
 // bodyPartMetas は部位ごとの静的情報の唯一の表。部位階層は持たず平坦に持つ。
 // 部位を足すときはここへ1行足し、raw の bodyParts にも行を足す
 var bodyPartMetas = [BodyPartCount]bodyPartMeta{
-	BodyPartHead:      {id: "head", displayName: "Head", bodyFunc: BodyFuncSight},
-	BodyPartTorso:     {id: "torso", displayName: "Torso", bodyFunc: BodyFuncConsciousness},
-	BodyPartArms:      {id: "arm", displayName: "Arm", bodyFunc: BodyFuncManipulation},
-	BodyPartHands:     {id: "hand", displayName: "Hand", bodyFunc: BodyFuncManipulation},
-	BodyPartLegs:      {id: "leg", displayName: "Leg", bodyFunc: BodyFuncMoving},
-	BodyPartFeet:      {id: "foot", displayName: "Foot", bodyFunc: BodyFuncMoving},
-	BodyPartWholeBody: {id: "whole_body", displayName: "Whole body", bodyFunc: BodyFuncConsciousness},
+	BodyPartHead:      {id: "head", bodyFunc: BodyFuncSight},
+	BodyPartTorso:     {id: "torso", bodyFunc: BodyFuncConsciousness},
+	BodyPartArms:      {id: "arm", bodyFunc: BodyFuncManipulation},
+	BodyPartHands:     {id: "hand", bodyFunc: BodyFuncManipulation},
+	BodyPartLegs:      {id: "leg", bodyFunc: BodyFuncMoving},
+	BodyPartFeet:      {id: "foot", bodyFunc: BodyFuncMoving},
+	BodyPartWholeBody: {id: "whole_body", bodyFunc: BodyFuncConsciousness},
 }
 
 // bodyPartFunction は部位が下げる身体機能を返す

@@ -14,7 +14,7 @@ import (
 func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	bodyParts := make([]oapi.BodyPart, 0, gc.BodyPartCount)
 	for bp := range gc.BodyPartCount {
-		bodyParts = append(bodyParts, oapi.BodyPart{Id: bp.ID(), Name: bp.String(), HitWeight: 1})
+		bodyParts = append(bodyParts, oapi.BodyPart{Id: bp.ID(), Name: bp.ID(), HitWeight: 1})
 	}
 	onset := func(o oapi.ConditionOnset) *oapi.ConditionOnset { return &o }
 	conditions := []oapi.Condition{
@@ -447,8 +447,11 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 	}
 
 	var weights [gc.BodyPartCount]float64
+	var names [gc.BodyPartCount]string
 	for bp := range gc.BodyPartCount {
 		weights[bp] = defs.HitWeight(bp)
+		names[bp] = defs.PartName(bp)
 	}
 	assert.Equal(t, [gc.BodyPartCount]float64{2, 4, 3, 1, 3, 1, 0}, weights)
+	assert.Equal(t, [gc.BodyPartCount]string{"Head", "Torso", "Arm", "Hand", "Leg", "Foot", "Whole body"}, names)
 }

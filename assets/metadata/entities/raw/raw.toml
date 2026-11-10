@@ -20488,14 +20488,14 @@
 
 [[props]]
   blockPass = true
-  blockView = false
-  description = "青い縦長の扉。出入口"
+  blockView = true
+  description = "An openable door"
   hp = 50
   id = "door"
   name = "Door"
   [props.door]
   [props.spriteRender]
-    depth = 2
+    depth = 3
     spriteKey = "door_horizontal_closed"
     spriteSheetName = "field"
 

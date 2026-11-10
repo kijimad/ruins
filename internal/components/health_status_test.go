@@ -295,10 +295,9 @@ func TestBodyPartMetas_全部位が登録されている(t *testing.T) {
 	t.Parallel()
 
 	// 配列テーブルは行を忘れてもゼロ値で埋まり switch の網羅チェックが効かないので、
-	// 全部位に id と表示名と機能が入っていることをテストで担保する
+	// 全部位に id と機能が入っていることをテストで担保する
 	for bp := range BodyPartCount {
 		assert.NotEmpty(t, bodyPartMetas[bp].id, "部位 %d に id がある", bp)
-		assert.NotEmpty(t, bodyPartMetas[bp].displayName, "部位 %d に表示名がある", bp)
 		assert.NotEmpty(t, bodyPartMetas[bp].bodyFunc, "部位 %d に身体機能がある", bp)
 	}
 }

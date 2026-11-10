@@ -269,7 +269,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 	for i := range int(gc.BodyPartCount) {
 		part := gc.BodyPart(i)
 		// 部位はカテゴリ見出し。カーソルは見出しを飛ばす
-		items = append(items, statusItemData{Label: query.T(world, part.String()), IsHeader: true, BodyPart: part})
+		items = append(items, statusItemData{Label: query.BodyPartName(world, part), IsHeader: true, BodyPart: part})
 
 		var conds []gc.HealthCondition
 		if hs != nil {

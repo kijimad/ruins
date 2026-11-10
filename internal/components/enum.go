@@ -25,9 +25,9 @@ const (
 	BodyPartCount                     // 部位数
 )
 
-// String は部位名を返す。対応は bodyPartMetas で定める
+// String は raw の bodyParts の id を返す。表示名は query.BodyPartName で引く
 func (bp BodyPart) String() string {
-	return bodyPartMetas[bp].displayName
+	return bodyPartMetas[bp].id
 }
 
 // ID は raw の bodyParts の id を返す

@@ -62,13 +62,14 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		BodyFuncDropPerSeverity: 10,
 		Onset:                   OnsetHunger,
 	},
-}, [BodyPartCount]float64{
-	BodyPartHead:  2,
-	BodyPartTorso: 4,
-	BodyPartArms:  3,
-	BodyPartHands: 1,
-	BodyPartLegs:  3,
-	BodyPartFeet:  1,
+}, [BodyPartCount]BodyPartDef{
+	BodyPartHead:      {Name: "Head", HitWeight: 2},
+	BodyPartTorso:     {Name: "Torso", HitWeight: 4},
+	BodyPartArms:      {Name: "Arm", HitWeight: 3},
+	BodyPartHands:     {Name: "Hand", HitWeight: 1},
+	BodyPartLegs:      {Name: "Leg", HitWeight: 3},
+	BodyPartFeet:      {Name: "Foot", HitWeight: 1},
+	BodyPartWholeBody: {Name: "Whole body"},
 }, map[string]ConditionType{
 	AttackFist.Type:  ConditionType("fracture"),
 	AttackSword.Type: ConditionType("laceration"),

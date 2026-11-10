@@ -128,7 +128,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 		for i := range 9 {
 			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false}
+		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false, Water: oapi.WaterType(gc.WaterSubmerged)}
 
 		planner := EnvironmentPlanner{}
 		result := planner.calcWater(mp, 4)
@@ -146,7 +146,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 		for i := range 9 {
 			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false}
+		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false, Water: oapi.WaterType(gc.WaterSubmerged)}
 
 		planner := EnvironmentPlanner{}
 
@@ -175,36 +175,20 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 	})
 }
 
-func TestEnvironmentPlanner_calcFoliage(t *testing.T) {
+func TestEnvironmentPlanner_PlanMeta_植生はタイルの行の値を保つ(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name     string
-		tileName string
-		expected gc.FoliageType
-	}{
-		{"森タイルは森", "forest", gc.FoliageForest},
-		{"木タイルは森", "tree", gc.FoliageForest},
-		{"草タイルは草原", "grass", gc.FoliageGrass},
-		{"床タイルはなし", "floor", gc.FoliageNone},
-		{"壁タイルはなし", "wall", gc.FoliageNone},
+	mp := &MetaPlan{
+		Level: newTestLevel(2, 1),
+		Tiles: []oapi.Tile{
+			{Id: "grass_floor", Name: "grass_floor", Foliage: oapi.FoliageType(gc.FoliageGrass)},
+			{Id: "floor", Name: "floor"},
+		},
 	}
+	require.NoError(t, EnvironmentPlanner{}.PlanMeta(mp))
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			mp := &MetaPlan{
-				Level: newTestLevel(1, 1),
-				Tiles: []oapi.Tile{{Id: tt.tileName, Name: tt.tileName}},
-			}
-
-			planner := EnvironmentPlanner{}
-			result := planner.calcFoliage(mp, 0)
-
-			assert.Equal(t, tt.expected, result)
-		})
-	}
+	assert.Equal(t, []oapi.FoliageType{oapi.FoliageType(gc.FoliageGrass), oapi.FoliageType(gc.FoliageNone)},
+		[]oapi.FoliageType{mp.Tiles[0].Foliage, mp.Tiles[1].Foliage})
 }
 
 func newTestLevel(width, height int) gc.Level {

@@ -22,25 +22,31 @@ type ConditionDef struct {
 	Onset                   ConditionOnset // 不調を起こす仕組み。攻撃で負う怪我ときっかけの無い不調は空
 }
 
+// BodyPartDef は部位ごとの定義。raw の bodyParts の1行から組み立てる
+type BodyPartDef struct {
+	Name      string  // 表示名 msgid
+	HitWeight float64 // 戦闘の命中抽選での重み。0 なら命中先にならない
+}
+
 // ConditionDefs は状態種類ごとの定義、部位ごとの命中の重み、攻撃種別ごとの怪我の表。
 // 読み込み時に raw から1度だけ組み立て、以後は変えない。ゼロ値は定義を持たない表として振る舞う
 type ConditionDefs struct {
-	conds      map[ConditionType]ConditionDef
-	hitWeights [BodyPartCount]float64
-	injuries   map[string]ConditionType
-	onsets     map[ConditionOnset]ConditionType
+	conds    map[ConditionType]ConditionDef
+	parts    [BodyPartCount]BodyPartDef
+	injuries map[string]ConditionType
+	onsets   map[ConditionOnset]ConditionType
 }
 
 // NewConditionDefs は状態種類ごとの定義、部位ごとの命中の重み、攻撃種別の Type ごとの怪我から表を作る。
 // 渡した map は表が所有する
-func NewConditionDefs(conds map[ConditionType]ConditionDef, hitWeights [BodyPartCount]float64, injuries map[string]ConditionType) ConditionDefs {
+func NewConditionDefs(conds map[ConditionType]ConditionDef, parts [BodyPartCount]BodyPartDef, injuries map[string]ConditionType) ConditionDefs {
 	onsets := make(map[ConditionOnset]ConditionType)
 	for ct := range conds {
 		if o := conds[ct].Onset; o != "" {
 			onsets[o] = ct
 		}
 	}
-	return ConditionDefs{conds: conds, hitWeights: hitWeights, injuries: injuries, onsets: onsets}
+	return ConditionDefs{conds: conds, parts: parts, injuries: injuries, onsets: onsets}
 }
 
 // Def は状態種類の定義を返す。未登録なら ok=false
@@ -63,9 +69,14 @@ func (d ConditionDefs) CanAffect(ct ConditionType, part BodyPart) bool {
 	return len(def.Parts) == 0 || slices.Contains(def.Parts, part)
 }
 
+// PartName は部位の表示名 msgid を返す
+func (d ConditionDefs) PartName(part BodyPart) string {
+	return d.parts[part].Name
+}
+
 // HitWeight は戦闘の命中抽選での部位の重みを返す。0 なら命中先にならない
 func (d ConditionDefs) HitWeight(part BodyPart) float64 {
-	return d.hitWeights[part]
+	return d.parts[part].HitWeight
 }
 
 // Injury は攻撃種別が命中で負わせる怪我を返す。未登録なら ok=false

@@ -43,6 +43,11 @@ func ConditionName(world w.World, ct gc.ConditionType) string {
 	return T(world, def.Name)
 }
 
+// BodyPartName は部位の訳した表示名を返す
+func BodyPartName(world w.World, part gc.BodyPart) string {
+	return T(world, world.Resources.ConditionDefs.PartName(part))
+}
+
 // ConditionDescription は不調の訳した概要説明を返す。定義が無ければ空文字を返す
 func ConditionDescription(world w.World, ct gc.ConditionType) string {
 	def, ok := world.Resources.ConditionDefs.Def(ct)

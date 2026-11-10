@@ -4,28 +4,16 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/world/query"
-)
-
-// フロアあたりの敵数定数。mapplanner/hostile_npc_planner.go と同じ値を使う
-const (
-	baseEnemyCount   = 1
-	randomEnemyCount = 2
 )
 
 // フロアあたりの移動歩数。50x50マップでの入口→出口＋探索を推定した値
 const (
 	baseStepsPerFloor   = 60
 	randomStepsPerFloor = 40 // 平均80歩（60+rand(40)）
-)
-
-// フロアあたりの loot 配置数。mapplanner のアイテム配置ロジックと同じ 15 + rand(0..8)。
-// 期待値は 15 + (9-1)/2 = 19 個。閉形式の収入導出 ExpectedRunLootIncome もこの定数を参照する。
-const (
-	floorItemBase   = 15
-	floorItemRandom = 9
 )
 
 // RunResult は1ランの結果
@@ -70,7 +58,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 
 	for depth := 1; depth <= maxDepth; depth++ {
 		// フロアの敵数を決定
-		enemyCount := baseEnemyCount + rng.IntN(randomEnemyCount)
+		enemyCount := consts.FloorEnemyBase + rng.IntN(consts.FloorEnemyRandom)
 		floorTotalTurns := 0
 		floorBattleCount := 0
 
@@ -176,8 +164,7 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 		return result
 	}
 
-	// mapplanner のアイテム配置ロジック: floorItemBase + rand(0..floorItemRandom-1)
-	itemCount := floorItemBase + rng.IntN(floorItemRandom)
+	itemCount := consts.FloorItemBase + rng.IntN(consts.FloorItemRandom)
 
 	for range itemCount {
 		draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)

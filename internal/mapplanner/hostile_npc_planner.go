@@ -11,8 +11,6 @@ import (
 // 敵NPC配置用の定数
 const (
 	// 敵NPC生成関連
-	baseHostileNPCCount    = 5   // 敵NPC生成の基本数
-	randomHostileNPCCount  = 4   // 敵NPC生成のランダム追加数（0-3の範囲）
 	maxHostileNPCFailCount = 200 // 敵NPC生成の最大失敗回数
 
 	// クラスタ関連
@@ -55,7 +53,7 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		return nil
 	}
 
-	total := baseHostileNPCCount + planData.RNG.IntN(randomHostileNPCCount)
+	total := consts.FloorEnemyBase + planData.RNG.IntN(consts.FloorEnemyRandom)
 
 	// 部屋がある場合は部屋ベースでクラスタ配置
 	if len(planData.Rooms) > 0 {
