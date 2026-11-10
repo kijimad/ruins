@@ -193,7 +193,10 @@ func (d ConditionDefs) severityImpact(cond *HealthCondition) (pain, drop int) {
 	if m == 0 {
 		return 0, 0
 	}
-	def := d.conds[cond.Type]
+	def, ok := d.Def(cond.Type)
+	if !ok {
+		return 0, 0
+	}
 	pain, drop = def.PainPerSeverity*m, def.BodyFuncDropPerSeverity*m
 	if cond.TendQuality > 0 {
 		pain = treatedPenaltyRemain.ApplyInt(pain)
@@ -373,8 +376,8 @@ const (
 // BloodDrop は不調1件がいま下げている血液量を返す。0 なら下げない。
 // 外傷は発症中ずっと出血し、重症の全身性の不調は循環を落とす。治療済みは止まる
 func (d ConditionDefs) BloodDrop(cond *HealthCondition) int {
-	def := d.conds[cond.Type]
-	if def.BloodDropPerSeverity == 0 || cond.TendQuality > 0 {
+	def, ok := d.Def(cond.Type)
+	if !ok || def.BloodDropPerSeverity == 0 || cond.TendQuality > 0 {
 		return 0
 	}
 	m := conditionSeverityMultiplier(cond.Severity)

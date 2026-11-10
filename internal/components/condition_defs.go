@@ -39,8 +39,11 @@ func (d ConditionDefs) Def(ct ConditionType) (ConditionDef, bool) {
 
 // CanAffect は状態種類 ct が部位 part に起こりうるかを返す
 func (d ConditionDefs) CanAffect(ct ConditionType, part BodyPart) bool {
-	parts := d.conds[ct].Parts
-	return len(parts) == 0 || slices.Contains(parts, part)
+	def, ok := d.Def(ct)
+	if !ok {
+		return false
+	}
+	return len(def.Parts) == 0 || slices.Contains(def.Parts, part)
 }
 
 // HitWeight は戦闘の命中抽選での部位の重みを返す。0 なら命中先にならない

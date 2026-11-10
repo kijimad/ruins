@@ -60,6 +60,7 @@ func TestConditionDefs_CanAffect(t *testing.T) {
 
 	var fracture []BodyPart
 	var laceration []BodyPart
+	var unknown []BodyPart
 	for p := range BodyPartCount {
 		if testDefs.CanAffect(ConditionFracture, p) {
 			fracture = append(fracture, p)
@@ -67,9 +68,13 @@ func TestConditionDefs_CanAffect(t *testing.T) {
 		if testDefs.CanAffect(ConditionLaceration, p) {
 			laceration = append(laceration, p)
 		}
+		if testDefs.CanAffect(ConditionType("unknown"), p) {
+			unknown = append(unknown, p)
+		}
 	}
 	assert.Equal(t, []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, fracture, "骨折は手足だけ")
 	assert.Equal(t, []BodyPart{BodyPartHead, BodyPartTorso, BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet, BodyPartWholeBody}, laceration, "parts を持たない切り傷は全部位")
+	assert.Equal(t, []BodyPart(nil), unknown, "未登録の種類はどこにも起こらない")
 }
 
 func TestConditionDefs_Def(t *testing.T) {
@@ -82,6 +87,14 @@ func TestConditionDefs_Def(t *testing.T) {
 
 	_, ok = testDefs.Def(ConditionType("unknown"))
 	assert.False(t, ok, "未登録は ok=false")
+}
+
+func TestConditionDefs_未登録の種類は痛みも機能低下も出血も無い(t *testing.T) {
+	t.Parallel()
+
+	cond := &HealthCondition{Type: ConditionType("unknown"), Severity: SeveritySevere}
+	pain, _, drop := testDefs.BodyFuncImpact(cond, BodyPartTorso)
+	assert.Equal(t, [3]int{0, 0, 0}, [3]int{pain, drop, testDefs.BloodDrop(cond)})
 }
 
 func TestConditionDefs_HitWeight(t *testing.T) {
