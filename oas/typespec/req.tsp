@@ -577,7 +577,12 @@ model FoliageEffect {
 // ================== 置物 ==================
 
 /** 扉ローデータ */
-model DoorRaw {}
+model DoorRaw {
+  horizontalOpen: SpriteKey;
+  horizontalClosed: SpriteKey;
+  verticalOpen: SpriteKey;
+  verticalClosed: SpriteKey;
+}
 
 /** 次階層ワープトリガー */
 model WarpNextTriggerRaw {}
@@ -615,6 +620,9 @@ model Prop {
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
+
+  /** 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ */
+  burnoutItem?: EntityID;
 }
 
 /** 分解の産出エントリ。chance 省略は確定枠 */

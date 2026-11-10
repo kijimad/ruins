@@ -35,6 +35,7 @@ var (
 	errMemberDropTableUndefined       = errors.New("member references undefined drop table")
 	errMemberCommandTableUndefined    = errors.New("member references undefined command table")
 	errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
+	errBurnoutItemUndefined           = errors.New("burnout item references undefined item")
 	errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
 	errDisassemblyToolRequiredNoTool  = errors.New("disassembly requires a tool but has no tool category")
 	errDisassemblyWithoutHP           = errors.New("prop with disassembly has no hp and cannot be broken")
@@ -105,6 +106,9 @@ func ValidateRaws(raws oapi.Raws) error {
 // ロード時エラーに前倒しする
 func ValidateReferences(raws oapi.Raws) error {
 	if err := validateDisassemblyReferences(raws); err != nil {
+		return err
+	}
+	if err := validateBurnoutItems(raws); err != nil {
 		return err
 	}
 	if err := validateDropTableReferences(raws); err != nil {
@@ -444,6 +448,26 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 			if _, ok := itemNames[entry.Id]; !ok {
 				return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Id, errCommandTableRefUndefinedWeapon)
 			}
+		}
+	}
+	return nil
+}
+
+// validateBurnoutItems は prop が燃え尽きたときに残すアイテムが実在することを検証する
+func validateBurnoutItems(raws oapi.Raws) error {
+	items := PtrSlice(raws.Items)
+	itemIDs := make(map[string]struct{}, len(items))
+	for i := range items {
+		itemIDs[items[i].Id] = struct{}{}
+	}
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		burnout := props[i].BurnoutItem
+		if burnout == nil {
+			continue
+		}
+		if _, ok := itemIDs[*burnout]; !ok {
+			return fmt.Errorf("prop %q burnout item %q: %w", props[i].Id, *burnout, errBurnoutItemUndefined)
 		}
 	}
 	return nil

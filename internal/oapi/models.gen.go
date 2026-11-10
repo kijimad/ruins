@@ -1856,7 +1856,19 @@ type DisassemblyYield struct {
 }
 
 // DoorRaw 扉ローデータ
-type DoorRaw = map[string]interface{}
+type DoorRaw struct {
+	// HorizontalClosed スプライトキー
+	HorizontalClosed SpriteKey `json:"horizontalClosed"`
+
+	// HorizontalOpen スプライトキー
+	HorizontalOpen SpriteKey `json:"horizontalOpen"`
+
+	// VerticalClosed スプライトキー
+	VerticalClosed SpriteKey `json:"verticalClosed"`
+
+	// VerticalOpen スプライトキー
+	VerticalOpen SpriteKey `json:"verticalOpen"`
+}
 
 // DrawerKey ランドマークの描画関数の選択キー
 type DrawerKey string
@@ -2599,6 +2611,9 @@ type Prop struct {
 
 	// BlockView 視線を遮るかどうか
 	BlockView BlocksView `json:"blockView"`
+
+	// BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
+	BurnoutItem *EntityID `json:"burnoutItem,omitempty"`
 
 	// Description 説明文
 	Description EntityDescription `json:"description"`

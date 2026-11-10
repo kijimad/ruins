@@ -872,3 +872,34 @@ func TestValidateReferences_各検証の失敗を伝播する(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateBurnoutItems(t *testing.T) {
+	t.Parallel()
+
+	ashes := "ashes"
+	missing := "missing"
+	tests := []struct {
+		name    string
+		burnout *string
+		wantErr error
+	}{
+		{name: "燃え残りが実在するアイテムなら通る", burnout: &ashes},
+		{name: "燃え残りを持たない prop は通る"},
+		{name: "燃え残りが実在しないアイテムを指す", burnout: &missing, wantErr: errBurnoutItemUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{
+				Items: &[]oapi.Item{{Id: "ashes"}},
+				Props: &[]oapi.Prop{{Id: "fire", BurnoutItem: tt.burnout}},
+			}
+			err := validateBurnoutItems(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}

@@ -15,11 +15,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 定数定義
-const (
-	fieldSpriteSheet = "field" // オーバーワールドの地物・アイテムが使うスプライトシート名
-)
-
 // エラー定義
 var (
 	ErrItemGeneration   = errors.New("failed to generate item")

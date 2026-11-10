@@ -2461,6 +2461,20 @@ components:
       description: 分解の産出エントリ。chance 省略は確定枠
     DoorRaw:
       type: object
+      required:
+        - horizontalOpen
+        - horizontalClosed
+        - verticalOpen
+        - verticalClosed
+      properties:
+        horizontalOpen:
+          $ref: '#/components/schemas/SpriteKey'
+        horizontalClosed:
+          $ref: '#/components/schemas/SpriteKey'
+        verticalOpen:
+          $ref: '#/components/schemas/SpriteKey'
+        verticalClosed:
+          $ref: '#/components/schemas/SpriteKey'
       description: 扉ローデータ
     DrawerKey:
       type: string
@@ -3707,6 +3721,10 @@ components:
           $ref: '#/components/schemas/StorageRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
+        burnoutItem:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
       description: 置物
     PropList:
       type: object

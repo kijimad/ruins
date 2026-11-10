@@ -20241,6 +20241,7 @@
   animKeys = ["fire_0", "fire_1"]
   blockPass = true
   blockView = false
+  burnoutItem = "ashes"
   description = "地面で燃える火。燃料を継がなければ燃え尽きて消える。暖を取り、周囲を照らす"
   hp = 9999
   id = "fire"
@@ -20531,6 +20532,10 @@
   id = "door"
   name = "Door"
   [props.door]
+    horizontalClosed = "door_horizontal_closed"
+    horizontalOpen = "door_horizontal_open"
+    verticalClosed = "door_vertical_closed"
+    verticalOpen = "door_vertical_open"
   [props.spriteRender]
     depth = 3
     spriteKey = "door_horizontal_closed"
@@ -22085,6 +22090,32 @@
   [props.spriteRender]
     depth = 0
     spriteKey = "bush_dry"
+    spriteSheetName = "field"
+
+[[props]]
+  animKeys = ["cube_float_0", "cube_float_1", "cube_float_2", "cube_float_3"]
+  blockPass = false
+  blockView = false
+  description = "A mobile base that follows you"
+  hp = 200
+  id = "cube"
+  name = "Cube"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "cube_float_0"
+    spriteSheetName = "field"
+
+[[props]]
+  animKeys = ["warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15"]
+  blockPass = false
+  blockView = false
+  description = "An entrance leading to ruins"
+  hp = 9999
+  id = "dungeon_entrance"
+  name = "Ruins Entrance"
+  [props.spriteRender]
+    depth = 1
+    spriteKey = "warp_next_0"
     spriteSheetName = "field"
 
 [[recipes]]

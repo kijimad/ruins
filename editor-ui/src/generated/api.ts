@@ -845,6 +845,27 @@ export interface DisassemblyYield {
     'chance'?: number;
 }
 /**
+ * 扉ローデータ
+ */
+export interface DoorRaw {
+    /**
+     * スプライトキー
+     */
+    'horizontalOpen': string;
+    /**
+     * スプライトキー
+     */
+    'horizontalClosed': string;
+    /**
+     * スプライトキー
+     */
+    'verticalOpen': string;
+    /**
+     * スプライトキー
+     */
+    'verticalClosed': string;
+}
+/**
  * ランドマークの描画関数の選択キー
  */
 
@@ -1831,10 +1852,7 @@ export interface Prop {
     'lightSource'?: LightSource;
     'heatSource'?: HeatSource;
     'bedding'?: Bedding;
-    /**
-     * 扉ローデータ
-     */
-    'door'?: object;
+    'door'?: DoorRaw;
     /**
      * 次階層ワープトリガー
      */
@@ -1845,6 +1863,10 @@ export interface Prop {
     'warpPrevTrigger'?: object;
     'storage'?: StorageRaw;
     'disassembly'?: Disassembly;
+    /**
+     * 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
+     */
+    'burnoutItem'?: string;
 }
 /**
  * 置物一覧

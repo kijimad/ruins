@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -35,15 +36,11 @@ func (sys *FireSystem) Update(world w.World) error {
 		burning := world.Components.Burning.Get(fire)
 		burning.Remaining--
 		if burning.Remaining <= 0 {
-			// 燃料が尽きた。燃え尽きた跡へ灰を残して Dead にする。灰は火のあった座標へ落とす
-			// フィールドアイテムで、拾って素材に使える。Dead は同じターンの turn-end で dead_cleanup が
-			// スプライトのフェードアウトを出して火のエンティティごと除去する。Burning・HeatSource・
+			// 燃料が尽きた。prop の行が燃え残りを持てば火のあった座標へ落とし、Dead にする。
+			// Dead は同じターンの turn-end で dead_cleanup が火のエンティティごと除去する。Burning・HeatSource・
 			// LightSource も一緒に消えるので、次ターンには燃焼も暖房も灯りも残らない
-			if world.Components.GridElement.Has(fire) {
-				coord := world.Components.GridElement.Get(fire).Coord
-				if _, err := lifecycle.SpawnFieldItem(world, "ashes", coord.X, coord.Y, 1); err != nil {
-					return fmt.Errorf("spawn ashes: %w", err)
-				}
+			if err := spawnBurnoutItem(world, fire); err != nil {
+				return err
 			}
 			if !world.Components.Dead.Has(fire) {
 				world.Components.Dead.Add(fire, &gc.Dead{})
@@ -51,5 +48,21 @@ func (sys *FireSystem) Update(world w.World) error {
 		}
 	}
 
+	return nil
+}
+
+// spawnBurnoutItem は燃え尽きた prop の行が持つ燃え残りのアイテムを、prop の座標へ落とす
+func spawnBurnoutItem(world w.World, fire ecs.Entity) error {
+	if !world.Components.GridElement.Has(fire) || !world.Components.RawID.Has(fire) {
+		return nil
+	}
+	prop, err := raw.GetProp(world.Resources.RawMaster, world.Components.RawID.Get(fire).ID)
+	if err != nil || prop.BurnoutItem == nil {
+		return err
+	}
+	coord := world.Components.GridElement.Get(fire).Coord
+	if _, err := lifecycle.SpawnFieldItem(world, *prop.BurnoutItem, coord.X, coord.Y, 1); err != nil {
+		return fmt.Errorf("spawn burnout item: %w", err)
+	}
 	return nil
 }
