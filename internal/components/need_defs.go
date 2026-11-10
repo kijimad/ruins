@@ -18,10 +18,12 @@ type FatigueStage struct {
 	Condition Severity // この段階で立つ過労の重症度。SeverityNone なら立たない
 }
 
-// NeedDefs は空腹と疲労の段階の境目と、段階ごとに立つ不調の表。読み込み時に raw から1度だけ組み立て、以後は変えない
+// NeedDefs は空腹と疲労の段階の境目と、段階ごとに立つ不調と、鮮度の段階ごとの栄養の割合の表。
+// 読み込み時に raw から1度だけ組み立て、以後は変えない
 type NeedDefs struct {
-	Hunger  []HungerStage
-	Fatigue []FatigueStage
+	Hunger    []HungerStage
+	Fatigue   []FatigueStage
+	Freshness map[oapi.FreshnessStageId]FreshnessDef
 }
 
 // stageAt は割合 ratio が From 以上の段階のうち From が最大のものを返す。該当が無ければ ok=false

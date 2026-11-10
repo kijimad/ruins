@@ -11,8 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHeatOf_材質のkgあたり熱量へ重量を掛ける(t *testing.T) {
+func TestMaterialDefs_HeatOf_材質のkgあたり熱量へ重量を掛ける(t *testing.T) {
 	t.Parallel()
+	defs := testutil.InitTestWorld(t).Resources.MaterialDefs
 
 	tests := []struct {
 		name     string
@@ -28,7 +29,7 @@ func TestHeatOf_材質のkgあたり熱量へ重量を掛ける(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.expected, query.HeatOf(tt.material, tt.weight))
+			assert.Equal(t, tt.expected, defs.HeatOf(tt.material, tt.weight))
 		})
 	}
 }

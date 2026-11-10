@@ -59,17 +59,6 @@ func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade 
 	return grade, withTool || def.ToolCategory == nil, withTool
 }
 
-// toolSkill は道具の分類ごとに、合う道具で壊したときに伸びて産出を増やすスキルを返す。伐採と採掘はスキルを伸ばさない
-func toolSkill(category oapi.ToolCategory) (oapi.SkillId, bool) {
-	switch category {
-	case oapi.Prying, oapi.Precision, oapi.Cutting:
-		return oapi.SkillIdMechanic, true
-	case oapi.Chopping, oapi.Mining:
-		return "", false
-	}
-	return "", false
-}
-
 // dropSalvage は actor が壊した prop の産出を足元へ落とす
 func dropSalvage(world w.World, actor, target ecs.Entity) error {
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
@@ -80,7 +69,7 @@ func dropSalvage(world w.World, actor, target ecs.Entity) error {
 	var skillID oapi.SkillId
 	hasSkill := false
 	if withTool {
-		skillID, hasSkill = toolSkill(*def.ToolCategory)
+		skillID, hasSkill = world.Resources.SkillDefs.ToolSkills[*def.ToolCategory]
 	}
 	skillValue := 0
 	if hasSkill {

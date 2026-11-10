@@ -330,7 +330,7 @@ func TestUpdateSpec_鮮度を表示する(t *testing.T) {
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Contains(t, labels, query.T(world, "Freshness"), "鮮度ラベルが表示される")
-	assert.Contains(t, labels, query.T(world, gc.FreshnessStale.Label()), "劣化段階が表示される")
+	assert.Contains(t, labels, query.FreshnessName(world, oapi.Stale), "劣化段階が表示される")
 }
 
 func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポーネントを同時に表示する(t *testing.T) {
@@ -399,7 +399,7 @@ func TestUpdateSpec_可燃性の材質と重量があれば燃料行を表示す
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Basic", "Material", query.T(world, "Wood"), "Fuel", query.HeatOf(oapi.WOOD, 1_000_000).String(),
+		"Basic", "Material", query.T(world, "Wood"), "Fuel", world.Resources.MaterialDefs.HeatOf(oapi.WOOD, 1_000_000).String(),
 		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }
@@ -443,7 +443,7 @@ func TestUpdateSpecFromSpec_可燃性の材質と重量があれば燃料行を�
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
-		"Basic", "Material", query.T(world, "Coal"), "Fuel", query.HeatOf(oapi.COAL, 1_000_000).String(),
+		"Basic", "Material", query.T(world, "Coal"), "Fuel", world.Resources.MaterialDefs.HeatOf(oapi.COAL, 1_000_000).String(),
 		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }

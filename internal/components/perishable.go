@@ -1,6 +1,9 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
+)
 
 // Perishable は腐敗する食料が持つ。累積した劣化量から鮮度段階を求める。
 // 劣化は時間経過で進み、速度は置き場所で変わりうる。速度の適用と実効量の算出は
@@ -11,56 +14,36 @@ type Perishable struct {
 	RotUpdatedTurn consts.Turn // RotAccrued を最後に前進させた GameTime.TotalTurns
 }
 
-// FreshnessStage は鮮度の段階
-type FreshnessStage string
-
-const (
-	// FreshnessFresh は新鮮
-	FreshnessFresh FreshnessStage = "fresh"
-	// FreshnessStale は劣化
-	FreshnessStale FreshnessStage = "stale"
-	// FreshnessRotten は腐敗
-	FreshnessRotten FreshnessStage = "rotten"
-)
-
 // Stage は累積劣化量 rot から鮮度段階を返す。now でなく実効の rot を渡す。
 // 劣化速度は置き場所で変わるため rot の算出は query 層が担い、段階付けだけをここに置く。
 // 新鮮 [0, StageLength) → 劣化 [StageLength, 2*StageLength) → 腐敗 [2*StageLength, )。
-func (p Perishable) Stage(rot consts.Turn) FreshnessStage {
+func (p Perishable) Stage(rot consts.Turn) oapi.FreshnessStageId {
 	switch {
 	case rot < p.StageLength:
-		return FreshnessFresh
+		return oapi.Fresh
 	case rot < 2*p.StageLength:
-		return FreshnessStale
+		return oapi.Stale
 	default:
-		return FreshnessRotten
+		return oapi.Rotten
 	}
 }
 
-// Rank は段階の並び順を返す。新鮮→劣化→腐敗の固定順で、小さいほど先に並ぶ。
-// 段階の定義・順序・表示は鮮度という1つの軸の属性なので、このファイルに同居させる。
+// FreshnessRank は鮮度の段階の並び順を返す。新鮮→劣化→腐敗の固定順で、小さいほど先に並ぶ。
 // 段階は Stage が返す既知の3値だけで、未知値はここへ来ない不変条件なので panic させる
-func (s FreshnessStage) Rank() int {
+func FreshnessRank(s oapi.FreshnessStageId) int {
 	switch s {
-	case FreshnessFresh:
+	case oapi.Fresh:
 		return 1
-	case FreshnessStale:
+	case oapi.Stale:
 		return 2
-	case FreshnessRotten:
+	case oapi.Rotten:
 		return 3
 	}
-	panic("unknown FreshnessStage: " + string(s))
+	panic("unknown FreshnessStageId: " + string(s))
 }
 
-// Label は段階の表示に使う英語 msgid を返す。訳出は表示側が query.T で行う
-func (s FreshnessStage) Label() string {
-	switch s {
-	case FreshnessFresh:
-		return "Fresh"
-	case FreshnessStale:
-		return "Stale"
-	case FreshnessRotten:
-		return "Rotten"
-	}
-	panic("unknown FreshnessStage: " + string(s))
+// FreshnessDef は鮮度の段階1つの定義。raw の freshnessStages の1行から組み立てる
+type FreshnessDef struct {
+	Name             string // 表示名 msgid
+	NutritionPercent int    // 食べたとき得る栄養の満額に対する割合。百分率
 }

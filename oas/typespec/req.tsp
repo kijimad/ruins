@@ -563,6 +563,26 @@ model Tile {
   foliage?: Foliage;
 }
 
+/** 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ */
+model FreshnessStage {
+  id: FreshnessStageId;
+  name: EntityName;
+  nutritionPercent: NutritionPercent;
+}
+
+/** 材質の表示名と燃焼の熱量 */
+model MaterialDef {
+  id: Material;
+  name: EntityName;
+  heatPerKg: HeatPerKg;
+}
+
+/** 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない */
+model ToolCategoryDef {
+  id: ToolCategory;
+  skill?: SkillId;
+}
+
 /** 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100 */
 model ShelterEffect {
   id: Shelter;
@@ -881,6 +901,9 @@ model Raws {
   foliageEffects?: FoliageEffect[];
   hungerStages?: HungerStage[];
   fatigueStages?: FatigueStage[];
+  freshnessStages?: FreshnessStage[];
+  materials?: MaterialDef[];
+  toolCategories?: ToolCategoryDef[];
 }
 
 // ================== パレット ==================

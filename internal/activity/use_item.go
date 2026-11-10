@@ -210,9 +210,6 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 		Log()
 }
 
-// rottenNutritionPercent は腐敗した食料から得られる栄養の割合。満額の3割。
-const rottenNutritionPercent = 30
-
 // rottenIllnessChancePercent は腐敗食を食べたとき病気を発症する確率。値は実プレイで調整する
 const rottenIllnessChancePercent = 25
 
@@ -226,18 +223,10 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	// Perishable を持たない食料は新鮮扱いで満額
 	stage, ok := query.FreshnessStageOf(world, item)
 	if !ok {
-		stage = gc.FreshnessFresh
+		stage = oapi.Fresh
 	}
 
-	var nutrition int
-	switch stage {
-	case gc.FreshnessFresh:
-		nutrition = amount
-	case gc.FreshnessStale:
-		nutrition = amount / 2
-	case gc.FreshnessRotten:
-		nutrition = amount * rottenNutritionPercent / 100
-	}
+	nutrition := amount * world.Resources.NeedDefs.Freshness[stage].NutritionPercent / 100
 	// 鮮度で減った栄養が整数除算で0に落ちても、腐敗食は非常食として最低1は与える。
 	// balance で小さい栄養値を設定したとき、劣化・腐敗が完全にゼロ効果になる罠を防ぐ
 	if amount > 0 && nutrition < 1 {
@@ -246,7 +235,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	hunger.Increase(nutrition)
 
 	// 腐敗食は低確率で食中毒を起こす
-	if stage == gc.FreshnessRotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
+	if stage == oapi.Rotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
 		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(oapi.RottenFood))
 	}
 
@@ -296,11 +285,11 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 		logger.Markup(query.T(world, "%s ate %s.", actorMarkup, itemMarkup))
 	} else {
 		switch stage {
-		case gc.FreshnessFresh:
+		case oapi.Fresh:
 			logger.Markup(query.T(world, "%s ate fresh %s.", actorMarkup, itemMarkup))
-		case gc.FreshnessStale:
+		case oapi.Stale:
 			logger.Markup(query.T(world, "%s ate old %s.", actorMarkup, itemMarkup))
-		case gc.FreshnessRotten:
+		case oapi.Rotten:
 			logger.Markup(query.T(world, "%s ate spoiled %s.", actorMarkup, itemMarkup))
 		}
 	}

@@ -233,15 +233,16 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeTiles(consts.CubeFuelCapacityBase, load))})
 	}
 	writeMDTable(&b, []string{"積荷(kg)", "燃費(/歩)", "満タン航続(歩)"}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)
+	materials := raw.NewMaterialDefs(master)
 	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", query.HeatOf(oapi.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(query.HeatOf(oapi.OIL, 10*consts.MilligramPerKg), 0))},
-		{"WOOD 10kg", fmt.Sprintf("%d", query.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(query.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg), 0))},
+		{"OIL 10kg", fmt.Sprintf("%d", materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg), 0))},
+		{"WOOD 10kg", fmt.Sprintf("%d", materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg), 0))},
 	})
 
 	fmt.Fprintf(&b, "同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n")
 	writeMDTable(&b, []string{"燃料", "燃焼ターン"}, []tw.Align{alignL, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(oapi.OIL, 10))},
-		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(oapi.WOOD, 10))},
+		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, oapi.OIL, 10))},
+		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, oapi.WOOD, 10))},
 	})
 
 	// 感度行列。つまみ×メトリクスの横断ヤコビアン

@@ -203,6 +203,23 @@ enum FatigueStageId {
   exhausted,
 }
 
+/** 鮮度の段階 */
+enum FreshnessStageId {
+  fresh,
+  stale,
+  rotten,
+}
+
+/** 食料から得る栄養の満額に対する割合。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar NutritionPercent extends integer;
+
+/** 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない */
+@minValue(0)
+@maxValue(10000)
+scalar HeatPerKg extends integer;
+
 /** 間取りテンプレの選択キー */
 enum PlannerKey {
   house,
@@ -584,7 +601,7 @@ enum Element {
 }
 
 /** 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ */
+不燃の材質は係数0で燃料にならない。係数は materials の行が持つ */
 enum Material {
   /** 木材 */
   WOOD,

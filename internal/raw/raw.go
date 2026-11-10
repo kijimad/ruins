@@ -1076,7 +1076,13 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 		}
 		proficiencies[row.Accuracy] = accuracy
 	}
-	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists}, nil
+	toolSkills := make(map[oapi.ToolCategory]oapi.SkillId)
+	for _, row := range PtrSlice(raws.ToolCategories) {
+		if row.Skill != nil {
+			toolSkills[row.Id] = *row.Skill
+		}
+	}
+	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists, ToolSkills: toolSkills}, nil
 }
 
 var (
@@ -1135,7 +1141,16 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 	return gc.WeatherDefs{Kinds: kinds}
 }
 
-// NewNeedDefs は raw の hungerStages と fatigueStages から空腹と疲労の段階の表を組み立てる
+// NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量の表を組み立てる
+func NewMaterialDefs(raws oapi.Raws) gc.MaterialDefs {
+	defs := make(gc.MaterialDefs, len(PtrSlice(raws.Materials)))
+	for _, row := range PtrSlice(raws.Materials) {
+		defs[row.Id] = gc.MaterialDef{Name: row.Name, HeatPerKg: row.HeatPerKg}
+	}
+	return defs
+}
+
+// NewNeedDefs は raw の hungerStages、fatigueStages、freshnessStages から空腹と疲労と鮮度の段階の表を組み立てる
 func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	conditionOf := func(s *oapi.ConditionSeverity) gc.Severity {
 		if s == nil {
@@ -1151,5 +1166,9 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	for _, row := range PtrSlice(raws.FatigueStages) {
 		fatigue = append(fatigue, gc.FatigueStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
 	}
-	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue}
+	freshness := make(map[oapi.FreshnessStageId]gc.FreshnessDef, len(PtrSlice(raws.FreshnessStages)))
+	for _, row := range PtrSlice(raws.FreshnessStages) {
+		freshness[row.Id] = gc.FreshnessDef{Name: row.Name, NutritionPercent: row.NutritionPercent}
+	}
+	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
 }

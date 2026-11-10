@@ -151,7 +151,51 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 			{Level: oapi.FatigueStageIdTired, Name: "Tired", From: 0.5, Condition: gc.SeverityMinor},
 			{Level: oapi.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium},
 		},
+		Freshness: map[oapi.FreshnessStageId]gc.FreshnessDef{
+			oapi.Fresh:  {Name: "Fresh", NutritionPercent: 100},
+			oapi.Stale:  {Name: "Stale", NutritionPercent: 50},
+			oapi.Rotten: {Name: "Rotten", NutritionPercent: 30},
+		},
 	}, defs)
+}
+
+func TestNewMaterialDefs_実データ(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	assert.Equal(t, gc.MaterialDefs{
+		oapi.WOOD:    {Name: "Wood", HeatPerKg: 200},
+		oapi.PAPER:   {Name: "Paper", HeatPerKg: 300},
+		oapi.CLOTH:   {Name: "Cloth", HeatPerKg: 160},
+		oapi.LEATHER: {Name: "Leather", HeatPerKg: 120},
+		oapi.PLANT:   {Name: "Plant fiber", HeatPerKg: 120},
+		oapi.FOOD:    {Name: "Food", HeatPerKg: 60},
+		oapi.BONE:    {Name: "Bone", HeatPerKg: 40},
+		oapi.OIL:     {Name: "Oil", HeatPerKg: 1000},
+		oapi.COAL:    {Name: "Coal", HeatPerKg: 800},
+		oapi.PLASTIC: {Name: "Plastic", HeatPerKg: 240},
+		oapi.METAL:   {Name: "Metal", HeatPerKg: 0},
+		oapi.STONE:   {Name: "Stone", HeatPerKg: 0},
+		oapi.GLASS:   {Name: "Glass", HeatPerKg: 0},
+		oapi.CRYSTAL: {Name: "Crystal", HeatPerKg: 0},
+		oapi.CERAMIC: {Name: "Ceramic", HeatPerKg: 0},
+		oapi.LIQUID:  {Name: "Liquid", HeatPerKg: 0},
+	}, NewMaterialDefs(raws))
+}
+
+func TestNewSkillDefs_道具の分類が伸ばすスキルの実データ(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	defs, err := NewSkillDefs(raws)
+	require.NoError(t, err)
+	assert.Equal(t, map[oapi.ToolCategory]oapi.SkillId{
+		oapi.Prying:    oapi.SkillIdMechanic,
+		oapi.Precision: oapi.SkillIdMechanic,
+		oapi.Cutting:   oapi.SkillIdMechanic,
+	}, defs.ToolSkills)
 }
 
 func TestValidateTileEffects(t *testing.T) {

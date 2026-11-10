@@ -2846,6 +2846,27 @@ components:
         tempModifier:
           $ref: '#/components/schemas/TileTempModifier'
       description: 植生がタイルの気温に足す補正
+    FreshnessStage:
+      type: object
+      required:
+        - id
+        - name
+        - nutritionPercent
+      properties:
+        id:
+          $ref: '#/components/schemas/FreshnessStageId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        nutritionPercent:
+          $ref: '#/components/schemas/NutritionPercent'
+      description: 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+    FreshnessStageId:
+      type: string
+      enum:
+        - fresh
+        - stale
+        - rotten
+      description: 鮮度の段階
     FuelCapacityBonus:
       type: integer
       minimum: 0
@@ -2875,6 +2896,11 @@ components:
         - ABSOLUTE
         - NUMERAL
       description: 回復量の計算方式
+    HeatPerKg:
+      type: integer
+      minimum: 0
+      maximum: 10000
+      description: 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
     HeatRadius:
       type: integer
       minimum: 1
@@ -3372,6 +3398,20 @@ components:
       minimum: 1
       maximum: 99
       description: 素材必要数
+    MaterialDef:
+      type: object
+      required:
+        - id
+        - name
+        - heatPerKg
+      properties:
+        id:
+          $ref: '#/components/schemas/Material'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        heatPerKg:
+          $ref: '#/components/schemas/HeatPerKg'
+      description: 材質の表示名と燃焼の熱量
     Melee:
       type: object
       required:
@@ -3504,6 +3544,11 @@ components:
       minimum: 0
       maximum: 9999
       description: 栄養価
+    NutritionPercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 食料から得る栄養の満額に対する割合。百分率
     Palette:
       type: object
       required:
@@ -3978,6 +4023,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FatigueStage'
+        freshnessStages:
+          type: array
+          items:
+            $ref: '#/components/schemas/FreshnessStage'
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialDef'
+        toolCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCategoryDef'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -4460,6 +4517,16 @@ components:
         - chopping
         - mining
       description: 道具の分類
+    ToolCategoryDef:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/ToolCategory'
+        skill:
+          $ref: '#/components/schemas/SkillId'
+      description: 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
     ToolGrade:
       type: integer
       minimum: 1

@@ -783,6 +783,19 @@ func validateCodeRows(raws oapi.Raws) error {
 	if err := validateSkillCodeRows(raws); err != nil {
 		return err
 	}
+	enumRows := []struct {
+		schema string
+		ids    []string
+	}{
+		{"FreshnessStageId", rowIDs(PtrSlice(raws.FreshnessStages), func(r oapi.FreshnessStage) oapi.FreshnessStageId { return r.Id })},
+		{"Material", rowIDs(PtrSlice(raws.Materials), func(r oapi.MaterialDef) oapi.Material { return r.Id })},
+		{"ToolCategory", rowIDs(PtrSlice(raws.ToolCategories), func(r oapi.ToolCategoryDef) oapi.ToolCategory { return r.Id })},
+	}
+	for _, e := range enumRows {
+		if err := validateEnumRows(e.schema, e.ids); err != nil {
+			return err
+		}
+	}
 
 	required := []struct {
 		name    string
@@ -972,6 +985,15 @@ func validateInteriorRefs(raws oapi.Raws) error {
 		}
 	}
 	return nil
+}
+
+// rowIDs は行それぞれの enum の id を文字列にして返す
+func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
+	out := make([]string, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, string(id(r)))
+	}
+	return out
 }
 
 // validateEnumRows は OpenAPI スキーマの enum の値それぞれを ids がちょうど1回ずつ持つことを検証する

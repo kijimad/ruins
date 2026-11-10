@@ -30,6 +30,16 @@ func schemaEnum(name string) []string {
 }
 
 // makeDefRaws は validateCodeRows を通る raws を作り、mutate で崩す
+// enumRowsOf はスキーマの enum の値それぞれに1行ずつ作る
+func enumRowsOf[R any](schema string, row func(string) R) []R {
+	ids := schemaEnum(schema)
+	out := make([]R, 0, len(ids))
+	for _, id := range ids {
+		out = append(out, row(id))
+	}
+	return out
+}
+
 func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	bodyParts := make([]oapi.BodyPart, 0, gc.BodyPartCount)
 	for bp := range gc.BodyPartCount {
@@ -78,7 +88,13 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		}
 		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, proficiency)
 	}
+	freshness := enumRowsOf("FreshnessStageId", func(id string) oapi.FreshnessStage { return oapi.FreshnessStage{Id: oapi.FreshnessStageId(id)} })
+	materials := enumRowsOf("Material", func(id string) oapi.MaterialDef { return oapi.MaterialDef{Id: oapi.Material(id)} })
+	tools := enumRowsOf("ToolCategory", func(id string) oapi.ToolCategoryDef { return oapi.ToolCategoryDef{Id: oapi.ToolCategory(id)} })
 	raws := oapi.Raws{
+		FreshnessStages: &freshness,
+		Materials:       &materials,
+		ToolCategories:  &tools,
 		BodyParts:       &bodyParts,
 		Conditions:      &conditions,
 		AttackTypes:     &attackTypes,
@@ -326,6 +342,27 @@ func TestValidateCodeRows(t *testing.T) {
 				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
+		},
+		{
+			name: "鮮度の段階の行が欠ける",
+			mutate: func(r *oapi.Raws) {
+				*r.FreshnessStages = (*r.FreshnessStages)[1:]
+			},
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "材質の行が重複する",
+			mutate: func(r *oapi.Raws) {
+				*r.Materials = append(*r.Materials, oapi.MaterialDef{Id: oapi.WOOD})
+			},
+			wantErr: errDuplicateID,
+		},
+		{
+			name: "道具の分類の行が欠ける",
+			mutate: func(r *oapi.Raws) {
+				r.ToolCategories = nil
+			},
+			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "生活感の表が無い",

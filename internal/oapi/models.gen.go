@@ -444,6 +444,27 @@ func (e Foliage) Valid() bool {
 	}
 }
 
+// Defines values for FreshnessStageId.
+const (
+	Fresh  FreshnessStageId = "fresh"
+	Rotten FreshnessStageId = "rotten"
+	Stale  FreshnessStageId = "stale"
+)
+
+// Valid indicates whether the value is a known member of the FreshnessStageId enum.
+func (e FreshnessStageId) Valid() bool {
+	switch e {
+	case Fresh:
+		return true
+	case Rotten:
+		return true
+	case Stale:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GroupStyle.
 const (
 	PickEach GroupStyle = "pick_each"
@@ -2117,6 +2138,21 @@ type FoliageEffect struct {
 	TempModifier TileTempModifier `json:"tempModifier"`
 }
 
+// FreshnessStage 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+type FreshnessStage struct {
+	// Id 鮮度の段階
+	Id FreshnessStageId `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// NutritionPercent 食料から得る栄養の満額に対する割合。百分率
+	NutritionPercent NutritionPercent `json:"nutritionPercent"`
+}
+
+// FreshnessStageId 鮮度の段階
+type FreshnessStageId string
+
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
 
@@ -2131,6 +2167,9 @@ type HealRatio = float64
 
 // HealingValueType 回復量の計算方式
 type HealingValueType string
+
+// HeatPerKg 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
+type HeatPerKg = int
 
 // HeatRadius 熱の到達半径。チェビシェフ距離、タイル単位
 type HeatRadius = int
@@ -2440,6 +2479,19 @@ type Material string
 // MaterialAmount 素材必要数
 type MaterialAmount = int
 
+// MaterialDef 材質の表示名と燃焼の熱量
+type MaterialDef struct {
+	// HeatPerKg 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
+	HeatPerKg HeatPerKg `json:"heatPerKg"`
+
+	// Id 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
+	// 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+	Id Material `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+}
+
 // Melee 近接攻撃設定
 type Melee struct {
 	// Accuracy 命中率。0で必中なし、100で必中
@@ -2535,6 +2587,9 @@ type NeedRatio = float64
 
 // NutritionAmount 栄養価
 type NutritionAmount = int
+
+// NutritionPercent 食料から得る栄養の満額に対する割合。百分率
+type NutritionPercent = int
 
 // Palette パレット
 type Palette struct {
@@ -2758,30 +2813,33 @@ type Raws struct {
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
 	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
 	FoliageEffects   *[]FoliageEffect   `json:"foliageEffects,omitempty"`
+	FreshnessStages  *[]FreshnessStage  `json:"freshnessStages,omitempty"`
 	HungerStages     *[]HungerStage     `json:"hungerStages,omitempty"`
 	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
 
 	// InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
-	InteriorProfile *InteriorProfile  `json:"interiorProfile,omitempty"`
-	InteriorRefs    *[]InteriorRef    `json:"interiorRefs,omitempty"`
-	ItemCollections *[]ItemCollection `json:"itemCollections,omitempty"`
-	ItemGroups      *[]ItemGroup      `json:"itemGroups,omitempty"`
-	ItemTables      *[]ItemTable      `json:"itemTables,omitempty"`
-	Items           *[]Item           `json:"items,omitempty"`
-	Landmarks       *[]Landmark       `json:"landmarks,omitempty"`
-	MapGlyphs       *[]MapGlyph       `json:"mapGlyphs,omitempty"`
-	Members         *[]Member         `json:"members,omitempty"`
-	Professions     *[]Profession     `json:"professions,omitempty"`
-	Props           *[]Prop           `json:"props,omitempty"`
-	Recipes         *[]Recipe         `json:"recipes,omitempty"`
-	ScatterZones    *[]ScatterZone    `json:"scatterZones,omitempty"`
-	ShelterEffects  *[]ShelterEffect  `json:"shelterEffects,omitempty"`
-	SkillCategories *[]SkillCategory  `json:"skillCategories,omitempty"`
-	Skills          *[]Skill          `json:"skills,omitempty"`
-	SpriteSheets    *[]SpriteSheet    `json:"spriteSheets,omitempty"`
-	Tiles           *[]Tile           `json:"tiles,omitempty"`
-	WaterEffects    *[]WaterEffect    `json:"waterEffects,omitempty"`
-	Weathers        *[]Weather        `json:"weathers,omitempty"`
+	InteriorProfile *InteriorProfile   `json:"interiorProfile,omitempty"`
+	InteriorRefs    *[]InteriorRef     `json:"interiorRefs,omitempty"`
+	ItemCollections *[]ItemCollection  `json:"itemCollections,omitempty"`
+	ItemGroups      *[]ItemGroup       `json:"itemGroups,omitempty"`
+	ItemTables      *[]ItemTable       `json:"itemTables,omitempty"`
+	Items           *[]Item            `json:"items,omitempty"`
+	Landmarks       *[]Landmark        `json:"landmarks,omitempty"`
+	MapGlyphs       *[]MapGlyph        `json:"mapGlyphs,omitempty"`
+	Materials       *[]MaterialDef     `json:"materials,omitempty"`
+	Members         *[]Member          `json:"members,omitempty"`
+	Professions     *[]Profession      `json:"professions,omitempty"`
+	Props           *[]Prop            `json:"props,omitempty"`
+	Recipes         *[]Recipe          `json:"recipes,omitempty"`
+	ScatterZones    *[]ScatterZone     `json:"scatterZones,omitempty"`
+	ShelterEffects  *[]ShelterEffect   `json:"shelterEffects,omitempty"`
+	SkillCategories *[]SkillCategory   `json:"skillCategories,omitempty"`
+	Skills          *[]Skill           `json:"skills,omitempty"`
+	SpriteSheets    *[]SpriteSheet     `json:"spriteSheets,omitempty"`
+	Tiles           *[]Tile            `json:"tiles,omitempty"`
+	ToolCategories  *[]ToolCategoryDef `json:"toolCategories,omitempty"`
+	WaterEffects    *[]WaterEffect     `json:"waterEffects,omitempty"`
+	Weathers        *[]Weather         `json:"weathers,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -3054,6 +3112,15 @@ type Tool struct {
 
 // ToolCategory 道具の分類
 type ToolCategory string
+
+// ToolCategoryDef 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
+type ToolCategoryDef struct {
+	// Id 道具の分類
+	Id ToolCategory `json:"id"`
+
+	// Skill スキルID
+	Skill *SkillId `json:"skill,omitempty"`
+}
 
 // ToolGrade 道具のグレード。高いほど速く壊し多く得る
 type ToolGrade = int

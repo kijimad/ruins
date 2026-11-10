@@ -3195,6 +3195,21 @@
   id = "forest"
   tempModifier = -3
 
+[[freshnessStages]]
+  id = "fresh"
+  name = "Fresh"
+  nutritionPercent = 100
+
+[[freshnessStages]]
+  id = "stale"
+  name = "Stale"
+  nutritionPercent = 50
+
+[[freshnessStages]]
+  id = "rotten"
+  name = "Rotten"
+  nutritionPercent = 30
+
 [[hungerStages]]
   from = 0.95
   id = "satiated"
@@ -18259,6 +18274,86 @@
     g = 106
     r = 160
 
+[[materials]]
+  heatPerKg = 200
+  id = "WOOD"
+  name = "Wood"
+
+[[materials]]
+  heatPerKg = 300
+  id = "PAPER"
+  name = "Paper"
+
+[[materials]]
+  heatPerKg = 160
+  id = "CLOTH"
+  name = "Cloth"
+
+[[materials]]
+  heatPerKg = 120
+  id = "LEATHER"
+  name = "Leather"
+
+[[materials]]
+  heatPerKg = 120
+  id = "PLANT"
+  name = "Plant fiber"
+
+[[materials]]
+  heatPerKg = 60
+  id = "FOOD"
+  name = "Food"
+
+[[materials]]
+  heatPerKg = 40
+  id = "BONE"
+  name = "Bone"
+
+[[materials]]
+  heatPerKg = 1000
+  id = "OIL"
+  name = "Oil"
+
+[[materials]]
+  heatPerKg = 800
+  id = "COAL"
+  name = "Coal"
+
+[[materials]]
+  heatPerKg = 240
+  id = "PLASTIC"
+  name = "Plastic"
+
+[[materials]]
+  heatPerKg = 0
+  id = "METAL"
+  name = "Metal"
+
+[[materials]]
+  heatPerKg = 0
+  id = "STONE"
+  name = "Stone"
+
+[[materials]]
+  heatPerKg = 0
+  id = "GLASS"
+  name = "Glass"
+
+[[materials]]
+  heatPerKg = 0
+  id = "CRYSTAL"
+  name = "Crystal"
+
+[[materials]]
+  heatPerKg = 0
+  id = "CERAMIC"
+  name = "Ceramic"
+
+[[materials]]
+  heatPerKg = 0
+  id = "LIQUID"
+  name = "Liquid"
+
 [[members]]
   animKeys = ["player_0", "player_1"]
   combatPolicy = "ignore"
@@ -23194,6 +23289,24 @@
     depth = 0
     spriteKey = "plank_blue"
     spriteSheetName = "tile"
+
+[[toolCategories]]
+  id = "prying"
+  skill = "mechanic"
+
+[[toolCategories]]
+  id = "precision"
+  skill = "mechanic"
+
+[[toolCategories]]
+  id = "cutting"
+  skill = "mechanic"
+
+[[toolCategories]]
+  id = "chopping"
+
+[[toolCategories]]
+  id = "mining"
 
 [[waterEffects]]
   id = "nearby"

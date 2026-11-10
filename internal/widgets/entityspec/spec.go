@@ -154,7 +154,7 @@ var basicParts = []specPart{
 			if s.Material == nil || s.Weight == nil {
 				return nil
 			}
-			if heat := query.HeatOf(s.Material.Kind, s.Weight.Milligram); heat > 0 {
+			if heat := world.Resources.MaterialDefs.HeatOf(s.Material.Kind, s.Weight.Milligram); heat > 0 {
 				return []SpecRow{fuelRow(world, heat)}
 			}
 			return nil
@@ -276,48 +276,7 @@ func collectSpecRows(world w.World, spec gc.EntitySpec, parts []specPart) []Spec
 
 // materialRow は材質の1行を返す。可燃性と燃焼熱量の根拠で、不燃の材質も見せて燃える/燃えないを読み取れる
 func materialRow(world w.World, material *gc.Material) SpecRow {
-	return SpecRow{Label: query.T(world, "Material"), Value: query.T(world, materialDisplayName(material.Kind))}
-}
-
-// materialDisplayName は raw の Material enum 値を表示名へ写す。表示名は query.T で各言語へ訳す。
-// default に enum 値をそのまま返し、未知の材質でも空欄にしない
-func materialDisplayName(kind oapi.Material) string {
-	switch kind {
-	case oapi.WOOD:
-		return "Wood"
-	case oapi.PAPER:
-		return "Paper"
-	case oapi.CLOTH:
-		return "Cloth"
-	case oapi.LEATHER:
-		return "Leather"
-	case oapi.PLANT:
-		return "Plant fiber"
-	case oapi.FOOD:
-		return "Food"
-	case oapi.BONE:
-		return "Bone"
-	case oapi.OIL:
-		return "Oil"
-	case oapi.COAL:
-		return "Coal"
-	case oapi.PLASTIC:
-		return "Plastic"
-	case oapi.METAL:
-		return "Metal"
-	case oapi.STONE:
-		return "Stone"
-	case oapi.GLASS:
-		return "Glass"
-	case oapi.CRYSTAL:
-		return "Crystal"
-	case oapi.CERAMIC:
-		return "Ceramic"
-	case oapi.LIQUID:
-		return "Liquid"
-	default:
-		return string(kind)
-	}
+	return SpecRow{Label: query.T(world, "Material"), Value: query.T(world, world.Resources.MaterialDefs[material.Kind].Name)}
 }
 
 // fuelRow は燃料の熱量の1行を返す。燃やしたとき火へ移す熱量で、燃焼時間の目安になる。
@@ -437,7 +396,7 @@ func remedyRows(world w.World, remedy *gc.Remedy) []SpecRow {
 // freshnessRow は鮮度の1行を返す。鮮度の算出は query.FreshnessStageOf に委ねる
 func freshnessRow(world w.World, entity ecs.Entity) SpecRow {
 	stage, _ := query.FreshnessStageOf(world, entity)
-	return SpecRow{Label: query.T(world, "Freshness"), Value: query.T(world, stage.Label())}
+	return SpecRow{Label: query.T(world, "Freshness"), Value: query.FreshnessName(world, stage)}
 }
 
 // valueRows は価値の行を返す

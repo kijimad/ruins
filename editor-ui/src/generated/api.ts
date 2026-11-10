@@ -1203,6 +1203,35 @@ export interface FoliageEffect {
 
 
 /**
+ * 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+ */
+export interface FreshnessStage {
+    'id': FreshnessStageId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 食料から得る栄養の満額に対する割合。百分率
+     */
+    'nutritionPercent': number;
+}
+
+
+/**
+ * 鮮度の段階
+ */
+
+export const FreshnessStageId = {
+    Fresh: 'fresh',
+    Stale: 'stale',
+    Rotten: 'rotten',
+} as const;
+
+export type FreshnessStageId = typeof FreshnessStageId[keyof typeof FreshnessStageId];
+
+
+/**
  * グループの抽選方式。保証セットとランダム充填を分ける
  */
 
@@ -1566,6 +1595,22 @@ export const Material = {
 } as const;
 
 export type Material = typeof Material[keyof typeof Material];
+
+
+/**
+ * 材質の表示名と燃焼の熱量
+ */
+export interface MaterialDef {
+    'id': Material;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
+     */
+    'heatPerKg': number;
+}
 
 
 /**
@@ -1999,6 +2044,9 @@ export interface Raws {
     'foliageEffects'?: Array<FoliageEffect>;
     'hungerStages'?: Array<HungerStage>;
     'fatigueStages'?: Array<FatigueStage>;
+    'freshnessStages'?: Array<FreshnessStage>;
+    'materials'?: Array<MaterialDef>;
+    'toolCategories'?: Array<ToolCategoryDef>;
 }
 /**
  * レシピ
@@ -2433,6 +2481,15 @@ export const ToolCategory = {
 } as const;
 
 export type ToolCategory = typeof ToolCategory[keyof typeof ToolCategory];
+
+
+/**
+ * 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
+ */
+export interface ToolCategoryDef {
+    'id': ToolCategory;
+    'skill'?: SkillId;
+}
 
 
 /**
