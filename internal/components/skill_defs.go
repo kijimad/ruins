@@ -35,6 +35,23 @@ type SkillDefs struct {
 	Categories    []SkillCategory // 表示順
 	Proficiencies map[oapi.ProficiencyId]ProficiencyDef
 	Weapons       []WeaponDef // 表示順
+	Resists       []ResistDef // 表示順
+}
+
+// ResistDef は攻撃属性と、そのダメージを軽減する熟練の効果倍率。raw の熟練の効果倍率の行の resists から組み立てる
+type ResistDef struct {
+	Element     oapi.Element
+	Proficiency oapi.ProficiencyId
+}
+
+// Resist は攻撃属性のダメージを軽減する効果倍率を返す。無属性など軽減する倍率が無ければ ok=false
+func (d SkillDefs) Resist(e oapi.Element) (oapi.ProficiencyId, bool) {
+	for _, r := range d.Resists {
+		if r.Element == e {
+			return r.Proficiency, true
+		}
+	}
+	return "", false
 }
 
 // WeaponDef は攻撃の種類が上達に使うスキルと、ダメージと命中を決める熟練の効果倍率。raw の attackTypes の1行から組み立てる

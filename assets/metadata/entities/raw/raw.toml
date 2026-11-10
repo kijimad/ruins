@@ -22586,6 +22586,7 @@
   [[skills.proficiencies]]
     id = "fire_resist"
     perLevel = -3
+    resists = "FIRE"
 
 [[skills]]
   ability = "def"
@@ -22599,6 +22600,7 @@
   [[skills.proficiencies]]
     id = "thunder_resist"
     perLevel = -3
+    resists = "THUNDER"
 
 [[skills]]
   ability = "def"
@@ -22612,6 +22614,7 @@
   [[skills.proficiencies]]
     id = "chill_resist"
     perLevel = -3
+    resists = "CHILL"
 
 [[skills]]
   ability = "def"
@@ -22625,6 +22628,7 @@
   [[skills.proficiencies]]
     id = "photon_resist"
     perLevel = -3
+    resists = "PHOTON"
 
 [[spriteSheets]]
   name = "bg"

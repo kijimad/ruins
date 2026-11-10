@@ -195,9 +195,9 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		name := query.SkillName(world, w.Skill)
 		items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: val(w.Accuracy), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: details(w.Accuracy)})
 	}
-	for _, elem := range []oapi.Element{oapi.ElementFIRE, oapi.ElementTHUNDER, oapi.ElementCHILL, oapi.ElementPHOTON} {
-		name := query.T(world, gc.ElementName(elem))
-		items = append(items, statusItemData{Label: query.T(world, "%s resistance", name), Value: val(gc.ElementResistKey(elem)), Description: query.T(world, "%s element damage multiplier. Lower reduces more", name), Details: details(gc.ElementResistKey(elem))})
+	for _, r := range world.Resources.SkillDefs.Resists {
+		name := query.T(world, gc.ElementName(r.Element))
+		items = append(items, statusItemData{Label: query.T(world, "%s resistance", name), Value: val(r.Proficiency), Description: query.T(world, "%s element damage multiplier. Lower reduces more", name), Details: details(r.Proficiency)})
 	}
 
 	// 血液量が危険域まで落ちると失血で HP が減る。一覧は % だけにし、減少量は詳細モーダルの内訳に出す

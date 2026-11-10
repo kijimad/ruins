@@ -58,6 +58,10 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	for _, id := range skillIDs {
 		skills = append(skills, oapi.Skill{Id: oapi.SkillId(id), Name: id, Ability: oapi.Str, Category: "general", Proficiencies: &[]oapi.SkillProficiency{}})
 	}
+	resists := map[string]oapi.Element{
+		"fire_resist": oapi.ElementFIRE, "thunder_resist": oapi.ElementTHUNDER,
+		"chill_resist": oapi.ElementCHILL, "photon_resist": oapi.ElementPHOTON,
+	}
 	for _, key := range schemaEnum("ProficiencyId") {
 		owner := 0
 		for _, at := range attackTypes {
@@ -65,7 +69,11 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 				owner = slices.Index(skillIDs, string(at.Skill))
 			}
 		}
-		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, oapi.SkillProficiency{Id: oapi.ProficiencyId(key), PerLevel: 1})
+		proficiency := oapi.SkillProficiency{Id: oapi.ProficiencyId(key), PerLevel: 1}
+		if e, ok := resists[key]; ok {
+			proficiency.Resists = &e
+		}
+		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, proficiency)
 	}
 	raws := oapi.Raws{
 		BodyParts:       &bodyParts,
@@ -247,6 +255,35 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errEnumRowMissing,
 		},
 		{
+			name: "攻撃属性を軽減する倍率が欠ける",
+			mutate: func(r *oapi.Raws) {
+				for i := range *r.Skills {
+					for j := range *(*r.Skills)[i].Proficiencies {
+						p := &(*(*r.Skills)[i].Proficiencies)[j]
+						if p.Id == oapi.ProficiencyIdChillResist {
+							p.Resists = nil
+						}
+					}
+				}
+			},
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "無属性を軽減する倍率",
+			mutate: func(r *oapi.Raws) {
+				none := oapi.ElementNONE
+				for i := range *r.Skills {
+					for j := range *(*r.Skills)[i].Proficiencies {
+						p := &(*(*r.Skills)[i].Proficiencies)[j]
+						if p.Id == oapi.ProficiencyIdChillResist {
+							p.Resists = &none
+						}
+					}
+				}
+			},
+			wantErr: errResistNone,
+		},
+		{
 			name: "武器の効果倍率を別のスキルが持つ",
 			mutate: func(r *oapi.Raws) {
 				sword := slices.Index(schemaEnum("SkillId"), string(oapi.SkillIdSword))
@@ -405,6 +442,12 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 		"bow": gc.BodyFuncSight, "handgun": gc.BodyFuncSight, "rifle": gc.BodyFuncSight, "cannon": gc.BodyFuncSight,
 	}, accuracyLimbs, "命中は近接なら操作、遠隔なら視覚で目減りする")
 	assert.Equal(t, gc.BodyFuncKind(""), defs.Proficiencies[oapi.ProficiencyIdSwordDamage].BodyFunc, "ダメージは身体機能で目減りしない")
+	assert.Equal(t, []gc.ResistDef{
+		{Element: oapi.ElementFIRE, Proficiency: oapi.ProficiencyIdFireResist},
+		{Element: oapi.ElementTHUNDER, Proficiency: oapi.ProficiencyIdThunderResist},
+		{Element: oapi.ElementCHILL, Proficiency: oapi.ProficiencyIdChillResist},
+		{Element: oapi.ElementPHOTON, Proficiency: oapi.ProficiencyIdPhotonResist},
+	}, defs.Resists)
 
 	skills := gc.NewSkills()
 	for _, id := range schemaEnum("SkillId") {

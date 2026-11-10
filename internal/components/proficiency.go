@@ -1,34 +1,9 @@
 package components
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
-
-// elementResistKeys は元素タイプから耐性効果キーへのマッピング
-var elementResistKeys = map[oapi.Element]oapi.ProficiencyId{
-	oapi.ElementFIRE:    oapi.ProficiencyIdFireResist,
-	oapi.ElementTHUNDER: oapi.ProficiencyIdThunderResist,
-	oapi.ElementCHILL:   oapi.ProficiencyIdChillResist,
-	oapi.ElementPHOTON:  oapi.ProficiencyIdPhotonResist,
-}
-
-// ElementResistKey は元素タイプに対応する耐性効果キーを返す。未定義ならpanicする
-func ElementResistKey(elem oapi.Element) oapi.ProficiencyId {
-	key, ok := LookupElementResistKey(elem)
-	if !ok {
-		panic(fmt.Sprintf("undefined element type for resistance: %q", elem))
-	}
-	return key
-}
-
-// LookupElementResistKey は元素タイプに対応する耐性効果キーを返す。無属性など未定義は ok=false
-func LookupElementResistKey(elem oapi.Element) (oapi.ProficiencyId, bool) {
-	key, ok := elementResistKeys[elem]
-	return key, ok
-}
 
 // ProficiencySourceKind は内訳1件の由来の種別
 type ProficiencySourceKind string

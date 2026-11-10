@@ -2151,6 +2151,10 @@ export interface SkillProficiency {
      * 熟練の効果倍率のスキルLv1あたりの変化量。百分率
      */
     'perLevel': number;
+    /**
+     * この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ
+     */
+    'resists'?: Element;
 }
 
 

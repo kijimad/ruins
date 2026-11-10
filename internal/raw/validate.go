@@ -52,6 +52,7 @@ var (
 	errSkillCategoryUndefined         = errors.New("skill references undefined category")
 	errBookSkillUndefined             = errors.New("book references undefined skill")
 	errProfessionSkillUndefined       = errors.New("profession references undefined skill")
+	errResistNone                     = errors.New("no proficiency can resist the none element")
 	errWeaponProficiencyOwner         = errors.New("weapon proficiency is owned by another skill")
 	errInteriorRefPropUndefined       = errors.New("interior ref references undefined prop")
 	errInteriorRefGroupUndefined      = errors.New("interior ref references undefined item group")
@@ -743,6 +744,9 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 	if err := validateEnumRows("ProficiencyId", proficiencyIDs); err != nil {
 		return err
 	}
+	if err := validateResists(skills); err != nil {
+		return err
+	}
 	for _, at := range PtrSlice(raws.AttackTypes) {
 		for _, key := range []oapi.ProficiencyId{at.Damage, at.Accuracy} {
 			if owners[key] != at.Skill {
@@ -751,6 +755,24 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 		}
 	}
 	return nil
+}
+
+// validateResists は無属性を除く攻撃属性それぞれを、ちょうど1つの熟練の効果倍率が軽減することを検証する
+func validateResists(skills []oapi.Skill) error {
+	// 無属性は軽減の対象外なので、enum の網羅の検証では持っているものとして数える
+	elements := []string{string(oapi.ElementNONE)}
+	for i := range skills {
+		for _, p := range PtrSlice(skills[i].Proficiencies) {
+			if p.Resists == nil {
+				continue
+			}
+			if *p.Resists == oapi.ElementNONE {
+				return fmt.Errorf("proficiency %q: %w", p.Id, errResistNone)
+			}
+			elements = append(elements, string(*p.Resists))
+		}
+	}
+	return validateEnumRows("Element", elements)
 }
 
 // validateSkills はスキルとカテゴリの id が一意で、スキルのカテゴリ、本と職業のスキルが実在することを検証する。

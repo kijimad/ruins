@@ -60,7 +60,13 @@ var testSkillDefs = func() SkillDefs {
 		proficiencies[w.Accuracy] = ProficiencyDef{Skill: w.Skill, PerLevel: 3, BodyFunc: limb}
 	}
 	categories := []SkillCategory{{Name: "Melee", IDs: []oapi.SkillId{oapi.SkillIdSword, oapi.SkillIdSpear, oapi.SkillIdFist}}}
-	return SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons}
+	resists := []ResistDef{
+		{Element: oapi.ElementFIRE, Proficiency: oapi.ProficiencyIdFireResist},
+		{Element: oapi.ElementTHUNDER, Proficiency: oapi.ProficiencyIdThunderResist},
+		{Element: oapi.ElementCHILL, Proficiency: oapi.ProficiencyIdChillResist},
+		{Element: oapi.ElementPHOTON, Proficiency: oapi.ProficiencyIdPhotonResist},
+	}
+	return SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists}
 }()
 
 func TestSkillDefs_Ability(t *testing.T) {
@@ -87,4 +93,15 @@ func TestSkillDefs_Weapon(t *testing.T) {
 
 	_, ok = testSkillDefs.Weapon(AttackType{Type: "unknown"})
 	assert.False(t, ok, "攻撃の種類の行が無ければ ok=false")
+}
+
+func TestSkillDefs_Resist(t *testing.T) {
+	t.Parallel()
+
+	got, ok := testSkillDefs.Resist(oapi.ElementCHILL)
+	assert.True(t, ok)
+	assert.Equal(t, oapi.ProficiencyIdChillResist, got)
+
+	_, ok = testSkillDefs.Resist(oapi.ElementNONE)
+	assert.False(t, ok, "無属性を軽減する倍率は無い")
 }

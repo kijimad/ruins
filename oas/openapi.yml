@@ -4153,6 +4153,10 @@ components:
           $ref: '#/components/schemas/ProficiencyId'
         perLevel:
           $ref: '#/components/schemas/ProficiencyPerLevel'
+        resists:
+          allOf:
+            - $ref: '#/components/schemas/Element'
+          description: この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ
       description: スキルが左右する熟練の効果倍率
     SpellTurns:
       type: integer

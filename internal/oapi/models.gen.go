@@ -2846,6 +2846,9 @@ type SkillProficiency struct {
 
 	// PerLevel 熟練の効果倍率のスキルLv1あたりの変化量。百分率
 	PerLevel ProficiencyPerLevel `json:"perLevel"`
+
+	// Resists この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ
+	Resists *Element `json:"resists,omitempty"`
 }
 
 // SpellTurns 天候のスペルの基準長。ターン

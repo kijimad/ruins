@@ -80,19 +80,3 @@ func TestAbilityNameMapping(t *testing.T) {
 		AbilityName(AbilityID(99))
 	})
 }
-
-func TestElementResistKeyMapping(t *testing.T) {
-	t.Parallel()
-
-	for _, elem := range []oapi.Element{oapi.ElementFIRE, oapi.ElementTHUNDER, oapi.ElementCHILL, oapi.ElementPHOTON} {
-		assert.NotPanics(t, func() {
-			key := ElementResistKey(elem)
-			assert.NotEmpty(t, key)
-		})
-	}
-
-	// 未定義の元素タイプはpanicする
-	assert.Panics(t, func() {
-		ElementResistKey("undefined_element")
-	})
-}

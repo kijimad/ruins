@@ -691,6 +691,9 @@ model BodyPart {
 model SkillProficiency {
   id: ProficiencyId;
   perLevel: ProficiencyPerLevel;
+
+  /** この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ */
+  resists?: Element;
 }
 
 /** スキル。同じカテゴリのスキルは行の順に表示する */

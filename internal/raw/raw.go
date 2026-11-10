@@ -1066,6 +1066,7 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	skills := make(map[oapi.SkillId]gc.SkillDef, len(rows))
 	proficiencies := make(map[oapi.ProficiencyId]gc.ProficiencyDef)
 	idsByCategory := make(map[string][]oapi.SkillId)
+	var resists []gc.ResistDef
 	for i := range rows {
 		row := &rows[i]
 		id := row.Id
@@ -1082,6 +1083,9 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 		}
 		for _, p := range PtrSlice(row.Proficiencies) {
 			proficiencies[p.Id] = gc.ProficiencyDef{Skill: id, PerLevel: p.PerLevel}
+			if p.Resists != nil {
+				resists = append(resists, gc.ResistDef{Element: *p.Resists, Proficiency: p.Id})
+			}
 		}
 		idsByCategory[row.Category] = append(idsByCategory[row.Category], id)
 	}
@@ -1109,7 +1113,7 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 		}
 		proficiencies[row.Accuracy] = accuracy
 	}
-	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons}, nil
+	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists}, nil
 }
 
 var (
