@@ -68,6 +68,8 @@ var (
 	errTableMissing                   = errors.New("table required by code is missing")
 	errDungeonEnemyTableUndefined     = errors.New("dungeon references undefined enemy table")
 	errDungeonItemTableUndefined      = errors.New("dungeon references undefined item table")
+	errSettlementMemberUndefined      = errors.New("settlement references undefined member")
+	errSettlementPropUndefined        = errors.New("settlement references undefined prop")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -174,6 +176,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateDungeons(raws); err != nil {
+		return err
+	}
+	if err := validateSettlements(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -609,7 +614,9 @@ func validateScatterZoneReferences(raws oapi.Raws) error {
 	}
 	groupIDs := itemGroupIDs(raws)
 
-	for _, z := range PtrSlice(raws.ScatterZones) {
+	zones := PtrSlice(raws.ScatterZones)
+	for i := range zones {
+		z := &zones[i]
 		if _, ok := groupIDs[z.LootGroup]; !ok {
 			return fmt.Errorf("scatter zone %q references item group %q: %w", z.Id, z.LootGroup, errScatterLootGroupUndefined)
 		}
@@ -622,6 +629,36 @@ func validateScatterZoneReferences(raws oapi.Raws) error {
 					return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, s.Name, errScatterPropUndefined)
 				}
 			}
+		}
+		for _, g := range slices.Concat(z.Grass, z.Soil) {
+			if _, ok := propNames[g.Ref]; !ok {
+				return fmt.Errorf("scatter zone %q references prop %q: %w", z.Id, g.Ref, errScatterPropUndefined)
+			}
+		}
+	}
+	return nil
+}
+
+// validateSettlements は集落の id が一意で、住人の member と prop が実在し、地図の記号を持つことを検証する
+func validateSettlements(raws oapi.Raws) error {
+	settlements := PtrSlice(raws.Settlements)
+	if err := validateUniqueIDs("settlement", settlements, func(s oapi.Settlement) string { return s.Id }); err != nil {
+		return err
+	}
+	for i := range settlements {
+		s := &settlements[i]
+		for _, m := range s.Members {
+			if _, ok := findByKey(raws.Members, func(r oapi.Member) string { return r.Id }, m.Name); !ok {
+				return fmt.Errorf("settlement %q member %q: %w", s.Id, m.Name, errSettlementMemberUndefined)
+			}
+		}
+		for _, p := range s.Props {
+			if _, ok := findByKey(raws.Props, func(r oapi.Prop) string { return r.Id }, p.Name); !ok {
+				return fmt.Errorf("settlement %q prop %q: %w", s.Id, p.Name, errSettlementPropUndefined)
+			}
+		}
+		if _, ok := findByKey(raws.MapGlyphs, func(r oapi.MapGlyph) string { return r.Id }, s.Id); !ok {
+			return fmt.Errorf("settlement %q: %w", s.Id, errMapGlyphMissing)
 		}
 	}
 	return nil
@@ -816,6 +853,7 @@ func validateCodeRows(raws oapi.Raws) error {
 		{"hungerStages", len(PtrSlice(raws.HungerStages)) > 0},
 		{"fatigueStages", len(PtrSlice(raws.FatigueStages)) > 0},
 		{"dungeons", len(PtrSlice(raws.Dungeons)) > 0},
+		{"settlements", len(PtrSlice(raws.Settlements)) > 0},
 	}
 	for _, r := range required {
 		if !r.present {

@@ -34,14 +34,17 @@ type scatterEntry struct {
 }
 
 // scatterCatalog は zone ごとの散布定義。GrassDensity は草・雑草 prop をタイルへ置く平均の確率で、茂みの
-// 濃淡を掛けて場所ごとに増減する。PropDensity は樹木・岩を撒く係数で、count = round(area * Density) で
-// 個数を導く。どちらも座標と seed の純関数のまま。
+// 濃淡を掛けて場所ごとに増減する。SoilDensity は草の生えていない土のタイルへ土の飾りを置く確率。
+// PropDensity は樹木・岩を撒く係数で、count = round(area * Density) で個数を導く。どれも座標と seed の純関数のまま。
 type scatterCatalog struct {
 	Zone         outdoorZone
 	GrassDensity float64
+	SoilDensity  float64
 	PropDensity  float64
 	LootGroup    string // 屋外 loot の item group id
 	Entries      []scatterEntry
+	Grass        []scatterEntry // 草と灌木の種類と重み
+	Soil         []scatterEntry // 土の飾りの種類と重み
 }
 
 // outdoorZone は wasteland チャンクの人の手の残り具合。近傍の集落・市街地までの距離で決まる。
@@ -54,30 +57,6 @@ const (
 	// zoneWild は奥地。草が濃く、低木・木立・岩が茂る自然の野原。
 	zoneWild outdoorZone = "wild"
 )
-
-// 草・灌木と土の飾りの種類と重み。土の飾りは草の生えていない土へまばらに撒く
-var (
-	scatterGrassVariants = []scatterEntry{
-		{Ref: "grass", Weight: 30},
-		{Ref: "grass_lush", Weight: 15},
-		{Ref: "grass_sprig", Weight: 15},
-		{Ref: "weeds", Weight: 10},
-		{Ref: "grass_dry", Weight: 10},
-		{Ref: "grass_dark", Weight: 10},
-		{Ref: "grass_dry_sprig", Weight: 10},
-		{Ref: "bush", Weight: 4},
-		{Ref: "bush_dry", Weight: 3},
-	}
-	scatterSoilVariants = []scatterEntry{
-		{Ref: "soil_pebbles", Weight: 3},
-		{Ref: "soil_dark", Weight: 3},
-		{Ref: "soil_dry", Weight: 3},
-		{Ref: "soil_crack", Weight: 2},
-	}
-)
-
-// scatterSoilDensity は草の生えていない土のタイルへ土の飾りを置く確率
-const scatterSoilDensity = 0.03
 
 // 位相格子と経路マスクの定数。どちらも Big の大物だけに効き、通行を塞がない小物は制約しない。
 const (
@@ -123,10 +102,22 @@ func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, error
 	return scatterCatalog{
 		Zone:         zone,
 		GrassDensity: sz.GrassDensity,
+		SoilDensity:  sz.SoilDensity,
 		PropDensity:  sz.PropDensity,
 		LootGroup:    sz.LootGroup,
 		Entries:      entries,
+		Grass:        groundCoverEntries(sz.Grass),
+		Soil:         groundCoverEntries(sz.Soil),
 	}, nil
+}
+
+// groundCoverEntries は地面を覆う飾りの行を散布の候補にする
+func groundCoverEntries(rows []oapi.GroundCoverEntry) []scatterEntry {
+	entries := make([]scatterEntry, 0, len(rows))
+	for _, r := range rows {
+		entries = append(entries, scatterEntry{Ref: r.Ref, Weight: int(r.Weight)})
+	}
+	return entries
 }
 
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
@@ -188,9 +179,9 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			var name string
 			switch {
 			case placesGrass(grassSeed, cat.GrassDensity, abs):
-				name = pickScatterEntry(scatterGrassVariants, true, hashTileCoord(grassSeed^scatterVariantChannel, abs)).Ref
-			case consts.HashRoll(hashTileCoord(grassSeed^scatterSoilChannel, abs)).Float64() < scatterSoilDensity:
-				name = pickScatterEntry(scatterSoilVariants, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterVariantChannel, abs)).Ref
+				name = pickScatterEntry(cat.Grass, true, hashTileCoord(grassSeed^scatterVariantChannel, abs)).Ref
+			case consts.HashRoll(hashTileCoord(grassSeed^scatterSoilChannel, abs)).Float64() < cat.SoilDensity:
+				name = pickScatterEntry(cat.Soil, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterVariantChannel, abs)).Ref
 			default:
 				continue
 			}

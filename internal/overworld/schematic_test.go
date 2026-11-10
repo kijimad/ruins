@@ -77,8 +77,8 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 	const rows consts.Chunk = 9
 
 	dungeonGlyph := placeGlyph(raws, placeDungeonEntrance)
-	villageGlyph := placeGlyph(raws, placeVillage)
-	hamletGlyph := placeGlyph(raws, placeHamlet)
+	villageGlyph := placeGlyph(raws, "village")
+	hamletGlyph := placeGlyph(raws, "hamlet")
 	foundDungeonEntrance, foundVillage, foundHamlet := false, false, false
 	for s := uint64(1); s < 400 && (!foundDungeonEntrance || !foundVillage || !foundHamlet); s++ {
 		for y := range rows {

@@ -348,7 +348,7 @@ model Landmark {
   props: PropSpot[];
 }
 
-/** prop 1個の相対配置 */
+/** 基準点から相対の位置に置くエンティティ1個 */
 model PropSpot {
   name: EntityID;
   dx: int32;
@@ -364,13 +364,34 @@ model MapGlyph {
   order: int32;
 }
 
-/** 開けた地形の散布ゾーン1種 */
+/** 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り */
 model ScatterZone {
   id: EntityID;
   grassDensity: float64;
+  soilDensity: float64;
   propDensity: float64;
   lootGroup: EntityID;
   entries: ScatterEntry[];
+  grass: GroundCoverEntry[];
+  soil: GroundCoverEntry[];
+}
+
+/** 地面を覆う草や土の飾りの prop 1種と、選ばれる重み */
+model GroundCoverEntry {
+  ref: EntityID;
+  @minValue(1) weight: int32;
+}
+
+/** 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
+    id は地図の記号の id を兼ねる。行の順に重みを積む */
+model Settlement {
+  id: EntityID;
+  @minValue(1) weight: int32;
+
+  /** 住人の member。name は members の id */
+  members: PropSpot[];
+
+  props: PropSpot[];
 }
 
 /** 散布 prop 1種。ref の空文字は置かないことを表す */
@@ -959,6 +980,7 @@ model Raws {
   timesOfDay?: TimeOfDay[];
   seasons?: Season[];
   dungeons?: Dungeon[];
+  settlements?: Settlement[];
 }
 
 // ================== パレット ==================

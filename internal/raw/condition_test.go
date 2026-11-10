@@ -95,6 +95,7 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	seasons := enumRowsOf("SeasonId", func(id string) oapi.Season { return oapi.Season{Id: oapi.SeasonId(id)} })
 	raws := oapi.Raws{
 		Dungeons:        &[]oapi.Dungeon{{Id: "dead_forest"}},
+		Settlements:     &[]oapi.Settlement{{Id: "village", Weight: 1}},
 		TimesOfDay:      &timesOfDay,
 		Seasons:         &seasons,
 		FreshnessStages: &freshness,
@@ -382,6 +383,13 @@ func TestValidateCodeRows(t *testing.T) {
 				*r.Seasons = append(*r.Seasons, oapi.Season{Id: oapi.Winter})
 			},
 			wantErr: errDuplicateID,
+		},
+		{
+			name: "集落が無い",
+			mutate: func(r *oapi.Raws) {
+				r.Settlements = &[]oapi.Settlement{}
+			},
+			wantErr: errTableMissing,
 		},
 		{
 			name: "ダンジョンが無い",

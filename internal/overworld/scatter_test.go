@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -163,8 +162,10 @@ func TestScatterFeature_草と土の飾りを種類を混ぜて撒く(t *testing
 	g := newDirtChunk(t, world)
 	require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
+	cat, err := scatterCatalogFrom(world.Resources.RawMaster, zoneWild)
+	require.NoError(t, err)
 	variants := map[string]bool{}
-	for _, v := range append(append([]scatterEntry{}, scatterGrassVariants...), scatterSoilVariants...) {
+	for _, v := range append(append([]scatterEntry{}, cat.Grass...), cat.Soil...) {
 		variants[v.Ref] = true
 	}
 	kinds := map[string]bool{}
@@ -174,15 +175,6 @@ func TestScatterFeature_草と土の飾りを種類を混ぜて撒く(t *testing
 		}
 	}
 	assert.GreaterOrEqual(t, len(kinds), 3, "複数の種類が混ざる: %v", kinds)
-}
-
-func TestScatterVariants_参照するpropが定義されている(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	for _, v := range append(append([]scatterEntry{}, scatterGrassVariants...), scatterSoilVariants...) {
-		_, err := raw.GetProp(world.Resources.RawMaster, v.Ref)
-		assert.NoError(t, err, v.Ref)
-	}
 }
 
 // TestScatterFeature_wasteland以外は置かない は、散布のスコープが wasteland 限定であることを固定する。
@@ -357,4 +349,24 @@ func TestScatterCatalogFrom_未登録zoneはerror(t *testing.T) {
 
 	_, err := scatterCatalogFrom(oapi.Raws{}, zoneWild)
 	assert.Error(t, err)
+}
+
+func TestScatterCatalogFrom_地面を覆う草と土の実データ(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	grass := []scatterEntry{
+		{Ref: "grass", Weight: 30}, {Ref: "grass_lush", Weight: 15}, {Ref: "grass_sprig", Weight: 15},
+		{Ref: "weeds", Weight: 10}, {Ref: "grass_dry", Weight: 10}, {Ref: "grass_dark", Weight: 10},
+		{Ref: "grass_dry_sprig", Weight: 10}, {Ref: "bush", Weight: 4}, {Ref: "bush_dry", Weight: 3},
+	}
+	soil := []scatterEntry{
+		{Ref: "soil_pebbles", Weight: 3}, {Ref: "soil_dark", Weight: 3}, {Ref: "soil_dry", Weight: 3}, {Ref: "soil_crack", Weight: 2},
+	}
+	for _, z := range []outdoorZone{zoneRoadside, zoneWild} {
+		cat, err := scatterCatalogFrom(raws, z)
+		require.NoError(t, err)
+		assert.Equal(t, grass, cat.Grass, z)
+		assert.Equal(t, soil, cat.Soil, z)
+		assert.InDelta(t, 0.03, cat.SoilDensity, 1e-12, z)
+	}
 }

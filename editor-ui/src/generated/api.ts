@@ -1310,6 +1310,13 @@ export type FreshnessStageId = typeof FreshnessStageId[keyof typeof FreshnessSta
 
 
 /**
+ * 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
+ */
+export interface GroundCoverEntry {
+    'ref': string;
+    'weight': number;
+}
+/**
  * グループの抽選方式。保証セットとランダム充填を分ける
  */
 
@@ -2037,7 +2044,7 @@ export interface PropList {
     'totalCount': number;
 }
 /**
- * prop 1個の相対配置
+ * 基準点から相対の位置に置くエンティティ1個
  */
 export interface PropSpot {
     'name': string;
@@ -2128,6 +2135,7 @@ export interface Raws {
     'timesOfDay'?: Array<TimeOfDay>;
     'seasons'?: Array<Season>;
     'dungeons'?: Array<Dungeon>;
+    'settlements'?: Array<Settlement>;
 }
 /**
  * レシピ
@@ -2225,14 +2233,17 @@ export interface ScatterEntry {
     'satellites'?: Array<PropSpot>;
 }
 /**
- * 開けた地形の散布ゾーン1種
+ * 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
  */
 export interface ScatterZone {
     'id': string;
     'grassDensity': number;
+    'soilDensity': number;
     'propDensity': number;
     'lootGroup': string;
     'entries': Array<ScatterEntry>;
+    'grass': Array<GroundCoverEntry>;
+    'soil': Array<GroundCoverEntry>;
 }
 /**
  * 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
@@ -2264,6 +2275,18 @@ export const SeasonId = {
 export type SeasonId = typeof SeasonId[keyof typeof SeasonId];
 
 
+/**
+ * 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。     id は地図の記号の id を兼ねる。行の順に重みを積む
+ */
+export interface Settlement {
+    'id': string;
+    'weight': number;
+    /**
+     * 住人の member。name は members の id
+     */
+    'members': Array<PropSpot>;
+    'props': Array<PropSpot>;
+}
 /**
  * タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
  */

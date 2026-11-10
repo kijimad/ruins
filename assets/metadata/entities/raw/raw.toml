@@ -22475,6 +22475,7 @@
   id = "roadside"
   lootGroup = "scrap_of_paper"
   propDensity = 0.015
+  soilDensity = 0.03
 
   [[scatterZones.entries]]
     big = false
@@ -22496,11 +22497,64 @@
     ref = "rock"
     weight = 10
 
+  [[scatterZones.grass]]
+    ref = "grass"
+    weight = 30
+
+  [[scatterZones.grass]]
+    ref = "grass_lush"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "grass_sprig"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "weeds"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dark"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry_sprig"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "bush"
+    weight = 4
+
+  [[scatterZones.grass]]
+    ref = "bush_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_pebbles"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dark"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_crack"
+    weight = 2
+
 [[scatterZones]]
   grassDensity = 0.19
   id = "wild"
   lootGroup = "junk"
   propDensity = 0.035
+  soilDensity = 0.03
 
   [[scatterZones.entries]]
     big = false
@@ -22537,6 +22591,58 @@
       dy = 1
       name = "tree_b"
 
+  [[scatterZones.grass]]
+    ref = "grass"
+    weight = 30
+
+  [[scatterZones.grass]]
+    ref = "grass_lush"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "grass_sprig"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "weeds"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dark"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry_sprig"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "bush"
+    weight = 4
+
+  [[scatterZones.grass]]
+    ref = "bush_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_pebbles"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dark"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_crack"
+    weight = 2
+
 [[seasons]]
   id = "spring"
   name = "Spring"
@@ -22556,6 +22662,49 @@
   id = "winter"
   name = "Winter"
   temp = -30
+
+[[settlements]]
+  id = "village"
+  weight = 6
+
+  [[settlements.members]]
+    dx = -2
+    dy = -1
+    name = "merchant"
+
+  [[settlements.props]]
+    dx = 2
+    dy = -2
+    name = "hearth"
+
+  [[settlements.props]]
+    dx = 3
+    dy = 1
+    name = "bench"
+
+  [[settlements.props]]
+    dx = 0
+    dy = -3
+    name = "wooden_sign"
+
+[[settlements]]
+  id = "hamlet"
+  weight = 4
+
+  [[settlements.members]]
+    dx = -2
+    dy = -1
+    name = "merchant"
+
+  [[settlements.props]]
+    dx = 2
+    dy = -2
+    name = "hearth"
+
+  [[settlements.props]]
+    dx = 1
+    dy = 2
+    name = "crate"
 
 [[shelterEffects]]
   anchorTemp = 10

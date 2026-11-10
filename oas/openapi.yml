@@ -2944,6 +2944,19 @@ components:
       type: integer
       minimum: 0
       description: キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
+    GroundCoverEntry:
+      type: object
+      required:
+        - ref
+        - weight
+      properties:
+        ref:
+          $ref: '#/components/schemas/EntityID'
+        weight:
+          type: integer
+          format: int32
+          minimum: 1
+      description: 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
     GroupStyle:
       type: string
       enum:
@@ -3916,7 +3929,7 @@ components:
         dy:
           type: integer
           format: int32
-      description: prop 1個の相対配置
+      description: 基準点から相対の位置に置くエンティティ1個
     ProvidesHealing:
       type: object
       required:
@@ -4126,6 +4139,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Dungeon'
+        settlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Settlement'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -4253,13 +4270,19 @@ components:
       required:
         - id
         - grassDensity
+        - soilDensity
         - propDensity
         - lootGroup
         - entries
+        - grass
+        - soil
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
         grassDensity:
+          type: number
+          format: double
+        soilDensity:
           type: number
           format: double
         propDensity:
@@ -4271,7 +4294,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScatterEntry'
-      description: 開けた地形の散布ゾーン1種
+        grass:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroundCoverEntry'
+        soil:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroundCoverEntry'
+      description: 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
     Season:
       type: object
       required:
@@ -4304,6 +4335,32 @@ components:
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
+    Settlement:
+      type: object
+      required:
+        - id
+        - weight
+        - members
+        - props
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        weight:
+          type: integer
+          format: int32
+          minimum: 1
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropSpot'
+          description: 住人の member。name は members の id
+        props:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropSpot'
+      description: |-
+        原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
+            id は地図の記号の id を兼ねる。行の順に重みを積む
     Shelter:
       type: string
       enum:

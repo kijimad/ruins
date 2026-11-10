@@ -2262,6 +2262,12 @@ type FreshnessStageId string
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
 
+// GroundCoverEntry 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
+type GroundCoverEntry struct {
+	Ref    EntityID `json:"ref"`
+	Weight int32    `json:"weight"`
+}
+
 // GroupStyle グループの抽選方式。保証セットとランダム充填を分ける
 type GroupStyle string
 
@@ -2862,7 +2868,7 @@ type PropList struct {
 	TotalCount int    `json:"totalCount"`
 }
 
-// PropSpot prop 1個の相対配置
+// PropSpot 基準点から相対の位置に置くエンティティ1個
 type PropSpot struct {
 	Dx   int32    `json:"dx"`
 	Dy   int32    `json:"dy"`
@@ -2943,6 +2949,7 @@ type Raws struct {
 	Recipes         *[]Recipe          `json:"recipes,omitempty"`
 	ScatterZones    *[]ScatterZone     `json:"scatterZones,omitempty"`
 	Seasons         *[]Season          `json:"seasons,omitempty"`
+	Settlements     *[]Settlement      `json:"settlements,omitempty"`
 	ShelterEffects  *[]ShelterEffect   `json:"shelterEffects,omitempty"`
 	SkillCategories *[]SkillCategory   `json:"skillCategories,omitempty"`
 	Skills          *[]Skill           `json:"skills,omitempty"`
@@ -3011,13 +3018,16 @@ type ScatterEntry struct {
 	Weight     int32       `json:"weight"`
 }
 
-// ScatterZone 開けた地形の散布ゾーン1種
+// ScatterZone 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
 type ScatterZone struct {
-	Entries      []ScatterEntry `json:"entries"`
-	GrassDensity float64        `json:"grassDensity"`
-	Id           EntityID       `json:"id"`
-	LootGroup    EntityID       `json:"lootGroup"`
-	PropDensity  float64        `json:"propDensity"`
+	Entries      []ScatterEntry     `json:"entries"`
+	Grass        []GroundCoverEntry `json:"grass"`
+	GrassDensity float64            `json:"grassDensity"`
+	Id           EntityID           `json:"id"`
+	LootGroup    EntityID           `json:"lootGroup"`
+	PropDensity  float64            `json:"propDensity"`
+	Soil         []GroundCoverEntry `json:"soil"`
+	SoilDensity  float64            `json:"soilDensity"`
 }
 
 // Season 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
@@ -3040,6 +3050,18 @@ type SeasonTemp = int
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
+
+// Settlement 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
+//
+//	id は地図の記号の id を兼ねる。行の順に重みを積む
+type Settlement struct {
+	Id EntityID `json:"id"`
+
+	// Members 住人の member。name は members の id
+	Members []PropSpot `json:"members"`
+	Props   []PropSpot `json:"props"`
+	Weight  int32      `json:"weight"`
+}
 
 // Shelter タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
 type Shelter string

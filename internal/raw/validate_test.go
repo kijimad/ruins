@@ -657,9 +657,19 @@ func TestValidateScatterZoneReferences(t *testing.T) {
 			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{
 				{Ref: "", Weight: 10},
 				{Ref: "tree_a", Weight: 10, Satellites: &[]oapi.PropSpot{{Name: "tree_a"}}},
-			}}},
+			}, Grass: []oapi.GroundCoverEntry{{Ref: "tree_a", Weight: 1}}, Soil: []oapi.GroundCoverEntry{{Ref: "tree_a", Weight: 1}}}},
 		}
 		require.NoError(t, validateScatterZoneReferences(raws))
+	})
+
+	t.Run("土の飾りの prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:        props,
+			ItemGroups:   groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Soil: []oapi.GroundCoverEntry{{Ref: "no_such_prop", Weight: 1}}}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterPropUndefined)
 	})
 
 	t.Run("item group が存在しないとエラー", func(t *testing.T) {
@@ -967,4 +977,47 @@ func TestValidateDungeons(t *testing.T) {
 			require.ErrorIs(t, err, tt.wantErr)
 		})
 	}
+}
+
+func TestValidateSettlements(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		mutate  func(*oapi.Settlement)
+		wantErr error
+	}{
+		{name: "住人と prop と記号が実在すれば通る", mutate: func(*oapi.Settlement) {}},
+		{name: "住人が実在しない", mutate: func(s *oapi.Settlement) { s.Members[0].Name = "missing" }, wantErr: errSettlementMemberUndefined},
+		{name: "prop が実在しない", mutate: func(s *oapi.Settlement) { s.Props[0].Name = "missing" }, wantErr: errSettlementPropUndefined},
+		{name: "地図の記号が無い", mutate: func(s *oapi.Settlement) { s.Id = "town" }, wantErr: errMapGlyphMissing},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			s := oapi.Settlement{Id: "village", Weight: 1, Members: []oapi.PropSpot{{Name: "merchant"}}, Props: []oapi.PropSpot{{Name: "hearth"}}}
+			tt.mutate(&s)
+			raws := oapi.Raws{
+				Members:     &[]oapi.Member{{Id: "merchant"}},
+				Props:       &[]oapi.Prop{{Id: "hearth"}},
+				MapGlyphs:   &[]oapi.MapGlyph{{Id: "village"}},
+				Settlements: &[]oapi.Settlement{s},
+			}
+			err := validateSettlements(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestValidateSettlements_id_が重複する(t *testing.T) {
+	t.Parallel()
+	raws := oapi.Raws{
+		MapGlyphs:   &[]oapi.MapGlyph{{Id: "village"}},
+		Settlements: &[]oapi.Settlement{{Id: "village", Weight: 1}, {Id: "village", Weight: 1}},
+	}
+	require.ErrorIs(t, validateSettlements(raws), errDuplicateID)
 }
