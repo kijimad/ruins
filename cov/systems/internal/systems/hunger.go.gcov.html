@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,47 +65,48 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              : )</span>
-<span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // progressTurnHunger は Hunger を持つ現ステージの全エンティティの空腹を、1ターンにつき1回進める。ターン終了で</span>
-<span id="L12"><span class="lineNum">      12</span>              : // 呼ぶので、移動や射撃をしないその場待機のエンティティも等しく空腹になる。行動種別に紐づけると動くものだけ空腹になり</span>
-<span id="L13"><span class="lineNum">      13</span>              : // 不公平になるため、活動側でなくここへ集約する。</span>
-<span id="L14"><span class="lineNum">      14</span>              : //</span>
-<span id="L15"><span class="lineNum">      15</span>              : // ゲートは共有 RNG を使わず、entity と turn から決定的な擬似乱数を作る。共有 RNG を消費するとエンティティ数ぶん敵AIや</span>
-<span id="L16"><span class="lineNum">      16</span>              : // ドロップの乱数列がずれて再現性が壊れるため。同じ seed・同じ盤面なら空腹の進みも一意に決まる。</span>
-<span id="L17"><span class="lineNum">      17</span>              : func progressTurnHunger(world w.World) {</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 :         turn := query.GetTurnState(world).TurnNumber</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter1[gc.Hunger](world).Query()</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 hungerPct := int(query.ProficiencyValue(world, entity, gc.ProfHungerProgress))</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 // 睡眠中は代謝が下がり腹が減りにくい。進行を半分に抑える</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 if world.Components.Sleeping.Has(entity) {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                         hungerPct /= 2</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L27"><span class="lineNum">      27</span>              :                 // 分母を HungerDrainTurns 倍に伸ばして基準速度を緩和する。耐性が高く hungerPct が 0 以下なら比較が常に</span>
-<span id="L28"><span class="lineNum">      28</span>              :                 // 偽になり空腹が進まない。下限を置くかは進行系倍率の共通課題として将来まとめて検討する。</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) &lt; hungerPct {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         world.Components.Hunger.Get(entity).Decrease(1)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L32"><span class="lineNum">      32</span>              :                 // 空腹の効果は保存せず、EffectiveBodyFuncs が量から読み取り時に導出するのでここで同期は不要</span>
-<span id="L33"><span class="lineNum">      33</span>              :         }</span>
-<span id="L34"><span class="lineNum">      34</span>              : }</span>
-<span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span>              : // hungerNoise は entity と turn から決定的な擬似乱数を撹拌する。splitmix64 の finalizer を使い、共有 RNG を</span>
-<span id="L37"><span class="lineNum">      37</span>              : // 汚さずに確率ゲートを再現する。</span>
-<span id="L38"><span class="lineNum">      38</span>              : func hungerNoise(entity ecs.Entity, turn consts.Turn) uint64 {</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         x := uint64(entity.ID())*0x9E3779B97F4A7C15 ^ uint64(turn)*0xC2B2AE3D27D4EB4F</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         x *= 0x94D049BB133111EB</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 31</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return x</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // progressTurnHunger は Hunger を持つ現ステージの全エンティティの空腹を、1ターンにつき1回進める。ターン終了で</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 呼ぶので、移動や射撃をしないその場待機のエンティティも等しく空腹になる。行動種別に紐づけると動くものだけ空腹になり</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 不公平になるため、活動側でなくここへ集約する。</span>
+<span id="L15"><span class="lineNum">      15</span>              : //</span>
+<span id="L16"><span class="lineNum">      16</span>              : // ゲートは共有 RNG を使わず、entity と turn から決定的な擬似乱数を作る。共有 RNG を消費するとエンティティ数ぶん敵AIや</span>
+<span id="L17"><span class="lineNum">      17</span>              : // ドロップの乱数列がずれて再現性が壊れるため。同じ seed・同じ盤面なら空腹の進みも一意に決まる。</span>
+<span id="L18"><span class="lineNum">      18</span>              : func progressTurnHunger(world w.World) {</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         turn := query.GetTurnState(world).TurnNumber</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter1[gc.Hunger](world).Query()</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 hungerPct := int(query.ProficiencyValue(world, entity, oapi.ProficiencyIdHungerProgress))</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 // 睡眠中は代謝が下がり腹が減りにくい。進行を半分に抑える</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 if world.Components.Sleeping.Has(entity) {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                         hungerPct /= 2</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :                 // 分母を HungerDrainTurns 倍に伸ばして基準速度を緩和する。耐性が高く hungerPct が 0 以下なら比較が常に</span>
+<span id="L29"><span class="lineNum">      29</span>              :                 // 偽になり空腹が進まない。下限を置くかは進行系倍率の共通課題として将来まとめて検討する。</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 if int(hungerNoise(entity, turn)%uint64(int(consts.PercentBase)*gc.HungerDrainTurns)) &lt; hungerPct {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         world.Components.Hunger.Get(entity).Decrease(1)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              :                 // 空腹の効果は保存せず、EffectiveBodyFuncs が量から読み取り時に導出するのでここで同期は不要</span>
+<span id="L34"><span class="lineNum">      34</span>              :         }</span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : // hungerNoise は entity と turn から決定的な擬似乱数を撹拌する。splitmix64 の finalizer を使い、共有 RNG を</span>
+<span id="L38"><span class="lineNum">      38</span>              : // 汚さずに確率ゲートを再現する。</span>
+<span id="L39"><span class="lineNum">      39</span>              : func hungerNoise(entity ecs.Entity, turn consts.Turn) uint64 {</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         x := uint64(entity.ID())*0x9E3779B97F4A7C15 ^ uint64(turn)*0xC2B2AE3D27D4EB4F</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         x *= 0x94D049BB133111EB</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 31</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         return x</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

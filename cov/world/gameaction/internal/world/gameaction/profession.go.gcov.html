@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         *playerSkills = *gc.NewSkills()</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if prof.Skills != nil {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 for _, ps := range *prof.Skills {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         playerSkills.Get(gc.SkillID(ps.Id)).Value = ps.Value</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         playerSkills.Get(ps.Id).Value = ps.Value</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :         }</span>
 <span id="L38"><span class="lineNum">      38</span>              :         // 属性値変更後にHP/APを再計算</span>
@@ -113,7 +113,7 @@
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;failed to generate profession starting equipment: %s: %w&quot;, equip.Name, err)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 slot, ok := gc.ParseEquipmentSlot(string(equip.Slot))</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 slot, ok := gc.ParseEquipmentSlot(equip.Slot)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;invalid equipment slot name: %s (item: %s)&quot;, equip.Slot, equip.Name)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 }</span></span>

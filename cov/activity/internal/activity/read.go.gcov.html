@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -135,7 +135,7 @@
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                                 current = skills.Get(book.Skill.TargetSkill).Value</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         return &amp;UserError{Msg: query.T(world, &quot;You need %s Lv%d or higher to read this. Current Lv%d&quot;,</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                                 query.T(world, gc.SkillName(book.Skill.TargetSkill)), book.Skill.RequiredLevel, current)}</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                                 query.SkillName(world, book.Skill.TargetSkill), book.Skill.RequiredLevel, current)}</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :                 }</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;read validation failed: %w&quot;, err)</span></span>
 <span id="L79"><span class="lineNum">      79</span>              :         }</span>
@@ -282,7 +282,7 @@
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         leveledUp := skill.GainExpScaled(s, abilityValue, efficiency)</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         if leveledUp {</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 name := gc.SkillName(effect.TargetSkill)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 name := world.Resources.SkillDefs.Name(effect.TargetSkill)</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;%s skill rose to %d&quot;, name, s.Value)).</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         Log()</span></span>
@@ -308,7 +308,7 @@
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         abils := world.Components.Abilities.Get(actor)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         ablID := gc.SkillAbilityID(book.Skill.TargetSkill)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         ablID := world.Resources.SkillDefs.Ability(book.Skill.TargetSkill)</span></span>
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         return abils.ValueOf(ablID)</span></span>
 <span id="L251"><span class="lineNum">     251</span>              : }</span>
 <span id="L252"><span class="lineNum">     252</span>              : </span>

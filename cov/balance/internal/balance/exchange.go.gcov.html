@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span>              : // 別のつまみをどれだけ動かすかを二分探索で解く。丸めで非線形なメトリクスでは感度の比より解いた方が正確。</span>
 <span id="L43"><span class="lineNum">      43</span>              : func ExchangeRates(master oapi.Raws) []MetricExchange {</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         knobs := knobRegistry()</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams())</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams(master))</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         out := make([]MetricExchange, 0, len(SensitivityMetricNames))</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         for i, metric := range SensitivityMetricNames {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 movers := metricMovers(master, knobs, base[i], i)</span></span>
@@ -135,7 +135,7 @@
 <span id="L73"><span class="lineNum">      73</span>              : // 倍率を二分探索で解き、その変化率を返す。範囲内で解けなければ ok=false を返す。</span>
 <span id="L74"><span class="lineNum">      74</span>              : func solveExchange(master oapi.Raws, idx int, a, b Knob, target float64) (float64, bool) {</span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         eval := func(fB float64) float64 {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 p := DefaultParams()</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 p := DefaultParams(master)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 *a.Ptr(&amp;p) *= exchangePerturb</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 *b.Ptr(&amp;p) *= fB</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 return metricValue(master, p, idx)</span></span>

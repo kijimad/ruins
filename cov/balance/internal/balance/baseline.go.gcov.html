@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -162,7 +162,7 @@
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;## 目標帯（ドメイン横断）\n\n&quot;)</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;**概要**: 各ドメインのスカラー指標が設計上の目標帯に収まるか。戦闘は日で変わるので下の難易度カーブ側で内外を持つ。\n&quot;)</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;目標帯は設計仮説でプレイで見直す。静的下限がこの範囲に収まれば実プレイは少なくともこれだけ快適という下限側の目安。\n\n&quot;)</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         targets := DomainTargets()</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         targets := DomainTargets(master)</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         domainRows := make([][]string, 0, len(targets))</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         for _, c := range targets {</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 mark := &quot;外&quot;</span></span>
@@ -218,7 +218,7 @@
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;## 生存圧\n\n&quot;)</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;**概要**: 補給なしで生き延びられる時間。食料は日単位、寒さはターン単位で時間スケールが大きく違う。\n&quot;)</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;飢えは満腹度が尽きるまで、寒さは平熱から低体温が発生するまでを表す。実効温度は周囲温度に断熱を足した値。\n\n&quot;)</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         params := DefaultParams()</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         params := DefaultParams(master)</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         writeMDTable(&amp;b, []string{&quot;指標&quot;, &quot;値&quot;}, []tw.Align{alignL, alignR}, [][]string{</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 {&quot;栄養失調まで（満腹度33%未満）の日数&quot;, fmt.Sprintf(&quot;%.2f&quot;, DaysUntilStarving(params))},</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 {&quot;満腹度が尽きるまでの日数&quot;, fmt.Sprintf(&quot;%.2f&quot;, DaysUntilHungerEmpty(params))},</span></span>
@@ -277,7 +277,7 @@
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         writeMDTable(&amp;b, []string{&quot;探索層数&quot;, &quot;廃墟の期待収入&quot;}, []tw.Align{alignR, alignR}, runIncomeRows)</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L217"><span class="lineNum">     217</span>              :         // 経済の進行。支出側の生活費と、日ごとに loot がそれを賄えるか</span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;経済の進行。1日の食費は満腹度減耗を最安の食料で埋め戻す費用で %.0f。日が進むと危険度が上がり loot 手取りも上がるので、\n&quot;, CostOfLivingPerDay(master, DefaultParams()))</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;経済の進行。1日の食費は満腹度減耗を最安の食料で埋め戻す費用で %.0f。日が進むと危険度が上がり loot 手取りも上がるので、\n&quot;, CostOfLivingPerDay(master, DefaultParams(master)))</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;1日分の食費を賄うのに要る loot 個数が減る。個数が小さいほど、その日の探索は生活費に対して割が良い。\n\n&quot;)</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         var econProgRows [][]string</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         for _, d := range EconomyProgression(master, &quot;ruins_area&quot;, days, params) {</span></span>

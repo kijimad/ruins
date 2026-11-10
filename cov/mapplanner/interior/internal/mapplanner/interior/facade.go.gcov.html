@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -95,7 +95,7 @@
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L34"><span class="lineNum">      34</span>              :                 }</span>
 <span id="L35"><span class="lineNum">      35</span>              :                 // 窓とシャッターは壁付きの設備なので前壁のタイルに載せる</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 out = append(out, Placed{Kind: KindDecor, Ref: winRef, Pos: wall.at(a)})</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 out = append(out, Placed{Kind: oapi.Decor, Ref: winRef, Pos: wall.at(a)})</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :         }</span>
 <span id="L38"><span class="lineNum">      38</span>              :         // 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力。看板は独立物なので壁に埋めると不自然。</span>
 <span id="L39"><span class="lineNum">      39</span>              :         // 前壁の1マス外の前庭タイルへ立て、店の正面に置く。前庭が無い建物では立てない</span>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                         w := wall.at(a)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                         yard := Vec{X: w.X + outward.X, Y: w.Y + outward.Y}</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                         if s.Garden[yard] {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                                 out = append(out, Placed{Kind: KindDecor, Ref: &quot;sign&quot;, Pos: yard})</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                                 out = append(out, Placed{Kind: oapi.Decor, Ref: &quot;sign&quot;, Pos: yard})</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                                 break</span></span>
 <span id="L52"><span class="lineNum">      52</span>              :                         }</span>
 <span id="L53"><span class="lineNum">      53</span>              :                 }</span>

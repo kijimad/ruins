@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span>              : // 変化率を二分探索で解く。凍結ゲートの点固定を余白監視へ拡張する。</span>
 <span id="L48"><span class="lineNum">      48</span>              : func BoundaryMargins(master oapi.Raws) []BoundaryMargin {</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         knobs := knobRegistry()</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams())</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams(master))</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         bands := metricBands()</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         out := make([]BoundaryMargin, 0, len(SensitivityMetricNames)*len(knobs))</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         for i, name := range SensitivityMetricNames {</span></span>
@@ -130,7 +130,7 @@
 <span id="L68"><span class="lineNum">      68</span>              : // うち近い方を返す。どちらの端にも範囲内で届かなければ OK=false。</span>
 <span id="L69"><span class="lineNum">      69</span>              : func solveBoundary(master oapi.Raws, idx int, k Knob, band metricBand) BoundaryMargin {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         eval := func(f float64) float64 {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 p := DefaultParams()</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 p := DefaultParams(master)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 *k.Ptr(&amp;p) *= f</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 return metricValue(master, p, idx)</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         }</span></span>

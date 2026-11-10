@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -158,8 +158,8 @@
 <span id="L96"><span class="lineNum">      96</span>              : // item group から、収納家具は Storage.LootTableId から引く。それ以外は何も返さない。</span>
 <span id="L97"><span class="lineNum">      97</span>              : func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {</span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         switch p.Kind {</span></span>
-<span id="L99"><span class="lineNum">      99</span>              :         case interior.KindLoot:</span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 groupID, ok := interior.LootGroupName(p.Ref)</span></span>
+<span id="L99"><span class="lineNum">      99</span>              :         case oapi.Loot:</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 groupID, ok := interior.LootGroupName(master, p.Ref)</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -174,8 +174,8 @@
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L113"><span class="lineNum">     113</span>              :                 }</span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 return out</span></span>
-<span id="L115"><span class="lineNum">     115</span>              :         case interior.KindFurniture:</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 name, ok := interior.PropRawName(p.Ref)</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :         case oapi.Furniture:</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 name, ok := interior.PropRawName(master, p.Ref)</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 }</span></span>

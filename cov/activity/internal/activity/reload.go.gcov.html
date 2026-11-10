@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">87.0&nbsp;%</td>
-            <td class="headerCovTableEntry">92</td>
-            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryMed">86.8&nbsp;%</td>
+            <td class="headerCovTableEntry">91</td>
+            <td class="headerCovTableEntry">79</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 00:44:28</td>
+            <td class="headerValue">2026-11-10 14:32:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -223,15 +223,14 @@
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L162"><span class="lineNum">     162</span>              : </span>
 <span id="L163"><span class="lineNum">     163</span>              :         // 武器スキルレベルを加算</span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         skillID, ok := gc.WeaponSkillID(fire.AttackCategory)</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         if ok {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 if world.Components.Skills.Has(actor) {</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         effort += world.Components.Skills.Get(actor).Get(skillID).Value</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L169"><span class="lineNum">     169</span>              :         }</span>
-<span id="L170"><span class="lineNum">     170</span>              : </span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         return effort</span></span>
-<span id="L172"><span class="lineNum">     172</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         if weapon, ok := world.Resources.SkillDefs.Weapon(fire.AttackCategory); ok {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 if world.Components.Skills.Has(actor) {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         effort += world.Components.Skills.Get(actor).Get(weapon.Skill).Value</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L168"><span class="lineNum">     168</span>              :         }</span>
+<span id="L169"><span class="lineNum">     169</span>              : </span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return effort</span></span>
+<span id="L171"><span class="lineNum">     171</span>              : }</span>
         </pre>
               </td>
             </tr>
