@@ -268,6 +268,10 @@ enum DungeonPlanner {
 @maxValue(100)
 scalar StageBaseTemp extends integer;
 
+/** 会話の1ページ。英語の msgid で、表示のとき query.T で訳す。<keyword> などのマークアップを含められる */
+@minLength(1)
+scalar DialoguePage extends string;
+
 /** 鮮度の段階 */
 enum FreshnessStageId {
   fresh,

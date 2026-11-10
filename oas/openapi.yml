@@ -2449,6 +2449,24 @@ components:
         messageKey:
           $ref: '#/components/schemas/MessageKey'
       description: 会話データ
+    Dialogue:
+      type: object
+      required:
+        - id
+        - pages
+      properties:
+        id:
+          $ref: '#/components/schemas/MessageKey'
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DialoguePage'
+          minItems: 1
+      description: NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる
+    DialoguePage:
+      type: string
+      minLength: 1
+      description: 会話の1ページ。英語の msgid で、表示のとき query.T で訳す。<keyword> などのマークアップを含められる
     Dice:
       type: string
       example: 1d3+1
@@ -4226,6 +4244,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Settlement'
+        dialogues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dialogue'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer

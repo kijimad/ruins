@@ -72,6 +72,7 @@ var (
 	errSettlementPropUndefined        = errors.New("settlement references undefined prop")
 	errInteriorProfileRefUndefined    = errors.New("interior profile facade or lot ref is not an interior ref with a prop")
 	errSiteWeightZero                 = errors.New("site types have no weight for homes or shops")
+	errMemberDialogueUndefined        = errors.New("member dialog references undefined dialogue")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -181,6 +182,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateSettlements(raws); err != nil {
+		return err
+	}
+	if err := validateDialogues(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -1046,6 +1050,24 @@ func validateInteriorRefs(raws oapi.Raws) error {
 	}
 	if home == 0 || shop == 0 {
 		return errSiteWeightZero
+	}
+	return nil
+}
+
+// validateDialogues は会話の id が一意で、member の会話が実在する会話の行を指すことを検証する
+func validateDialogues(raws oapi.Raws) error {
+	if err := validateUniqueIDs("dialogue", PtrSlice(raws.Dialogues), func(d oapi.Dialogue) string { return d.Id }); err != nil {
+		return err
+	}
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		m := &members[i]
+		if m.Dialog == nil {
+			continue
+		}
+		if _, ok := findByKey(raws.Dialogues, func(d oapi.Dialogue) string { return d.Id }, m.Dialog.MessageKey); !ok {
+			return fmt.Errorf("member %q dialogue %q: %w", m.Id, m.Dialog.MessageKey, errMemberDialogueUndefined)
+		}
 	}
 	return nil
 }

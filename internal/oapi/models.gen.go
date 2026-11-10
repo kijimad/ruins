@@ -1968,6 +1968,16 @@ type Dialog struct {
 	MessageKey MessageKey `json:"messageKey"`
 }
 
+// Dialogue NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる
+type Dialogue struct {
+	// Id メッセージリソースのキー
+	Id    MessageKey     `json:"id"`
+	Pages []DialoguePage `json:"pages"`
+}
+
+// DialoguePage 会話の1ページ。英語の msgid で、表示のとき query.T で訳す。<keyword> などのマークアップを含められる
+type DialoguePage = string
+
 // Dice ダイス表記の個数指定。固定値も 1d1 のように書く。consts.ParseDice でパースする
 type Dice = string
 
@@ -2987,6 +2997,7 @@ type Raws struct {
 	BodyParts        *[]BodyPart        `json:"bodyParts,omitempty"`
 	CommandTables    *[]CommandTable    `json:"commandTables,omitempty"`
 	Conditions       *[]Condition       `json:"conditions,omitempty"`
+	Dialogues        *[]Dialogue        `json:"dialogues,omitempty"`
 	DropTables       *[]DropTable       `json:"dropTables,omitempty"`
 	Dungeons         *[]Dungeon         `json:"dungeons,omitempty"`
 	EnemyTables      *[]EnemyTable      `json:"enemyTables,omitempty"`

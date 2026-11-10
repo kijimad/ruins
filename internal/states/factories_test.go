@@ -3,8 +3,10 @@ package states
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -83,7 +85,7 @@ func TestNewMerchantDialogState(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	merchant := world.ECS.NewEntity()
 
-	state, err := NewMerchantDialogState("商人", merchant)
+	state, err := NewMerchantDialogState("商人", merchant, "merchant_greeting")
 	require.NoError(t, err)
 	ps, ok := state.(*PersistentMessageState)
 	require.True(t, ok, "PersistentMessageState型である")
@@ -94,4 +96,16 @@ func TestNewMerchantDialogState(t *testing.T) {
 	require.NotNil(t, md)
 	assert.NotEmpty(t, md.TextSegmentLines, "本文がある")
 	assert.Len(t, md.Choices, 2, "見る・取引しないの2択がある")
+}
+
+func TestHasStock_在庫を持つmemberだけが店を開く(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	merchant, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "merchant")
+	require.NoError(t, err)
+	soldier, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 2, Y: 1}, "old_soldier")
+	require.NoError(t, err)
+
+	assert.Equal(t, []bool{true, false}, []bool{hasStock(world, merchant), hasStock(world, soldier)})
 }

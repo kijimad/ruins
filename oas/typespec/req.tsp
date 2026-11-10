@@ -645,6 +645,12 @@ model Tile {
   foliage?: Foliage;
 }
 
+/** NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる */
+model Dialogue {
+  id: MessageKey;
+  @minItems(1) pages: DialoguePage[];
+}
+
 /** ダンジョンの間取りの種類と、フロアごとに選ばれる重み */
 model DungeonPlannerWeight {
   id: DungeonPlanner;
@@ -1042,6 +1048,7 @@ model Raws {
   seasons?: Season[];
   dungeons?: Dungeon[];
   settlements?: Settlement[];
+  dialogues?: Dialogue[];
 }
 
 // ================== パレット ==================

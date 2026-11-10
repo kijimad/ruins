@@ -30,7 +30,8 @@ func TestRawTranslationCoverage(t *testing.T) {
 	shelters, weathers, attacks := raw.PtrSlice(raws.ShelterEffects), raw.PtrSlice(raws.Weathers), raw.PtrSlice(raws.AttackTypes)
 	freshness, materials := raw.PtrSlice(raws.FreshnessStages), raw.PtrSlice(raws.Materials)
 	timesOfDay, seasons, dungeons := raw.PtrSlice(raws.TimesOfDay), raw.PtrSlice(raws.Seasons), raw.PtrSlice(raws.Dungeons)
-	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2+len(glyphs)+len(conds)*2+len(parts)+len(skills)*4+len(skillCats)+len(hungers)+len(fatigues)+len(shelters)+len(weathers)+len(attacks)+len(freshness)+len(materials)+len(timesOfDay)+len(seasons)+len(dungeons))
+	dialogues := raw.PtrSlice(raws.Dialogues)
+	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2+len(glyphs)+len(conds)*2+len(parts)+len(skills)*4+len(skillCats)+len(hungers)+len(fatigues)+len(shelters)+len(weathers)+len(attacks)+len(freshness)+len(materials)+len(timesOfDay)+len(seasons)+len(dungeons)+len(dialogues)*2)
 	for _, it := range items {
 		texts = append(texts, it.Name, it.Description)
 	}
@@ -90,6 +91,9 @@ func TestRawTranslationCoverage(t *testing.T) {
 	}
 	for i := range dungeons {
 		texts = append(texts, dungeons[i].Name)
+	}
+	for _, d := range dialogues {
+		texts = append(texts, d.Pages...)
 	}
 
 	// 表示される文字列は全て英語原文の msgid で ja.po に訳を持たねばならない。日本語のままの name は

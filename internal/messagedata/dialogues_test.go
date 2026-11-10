@@ -33,17 +33,15 @@ func TestGetDialogue(t *testing.T) {
 		assert.Equal(t, "...", getMessageText(msg))
 	})
 
-	t.Run("DialogueTableから直接会話を生成", func(t *testing.T) {
+	t.Run("ページの文を訳してマークアップとして読む", func(t *testing.T) {
 		t.Parallel()
 
-		dialogueFunc, ok := DialogueTable["old_soldier_greeting"]
-		assert.True(t, ok, "old_soldier_greetingの会話データが存在するべき")
-
-		msg := dialogueFunc(testutil.InitTestWorld(t), "老兵A")
-		assert.Equal(t, "老兵A", msg.Speaker)
-		// 複数ページの会話なので、TextSegmentLinesが存在することを確認
-		assert.NotEmpty(t, msg.TextSegmentLines, "会話にテキストが含まれているべき")
-		// 2ページ目が存在することを確認
-		assert.Len(t, msg.nextMessages, 1, "2ページ目が存在するべき")
+		msg := GetDialogue(testutil.InitTestWorld(t), "merchant_greeting", "商人")
+		assert.Equal(t, [][]TextSegment{
+			{{Text: ""}, {Text: "Want to make a deal?"}},
+			{{Text: ""}},
+			{{Text: "I've got good stuff."}},
+		}, msg.TextSegmentLines)
+		assert.Empty(t, msg.nextMessages, "1ページの会話は次のページを持たない")
 	})
 }

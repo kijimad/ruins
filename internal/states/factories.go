@@ -361,13 +361,13 @@ func NewFeedFuelMenuState(sink FuelSink) (es.State[w.World], error) {
 	return &FeedFuelMenuState{sink: sink}, nil
 }
 
-// NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す
-func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w.World], error) {
+// NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す。
+// messageKey は商人の会話の行で、その最初のページに店を開く選択肢を付ける
+func NewMerchantDialogState(speakerName string, merchant ecs.Entity, messageKey string) (es.State[w.World], error) {
 	persistentState := &PersistentMessageState{}
 
 	persistentState.build = func(world w.World) *messagedata.MessageData {
-		return messagedata.NewDialogMessage("", speakerName).
-			AddText(query.T(world, "Want to make a deal?\n\nI've got good stuff.")).
+		return messagedata.GetDialogue(world, messageKey, speakerName).
 			WithChoice(query.T(world, "Look"), func(_ w.World) error {
 				persistentState.SetTransition(es.Transition[w.World]{
 					Type: es.TransPush,

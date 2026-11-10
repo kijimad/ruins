@@ -1021,3 +1021,33 @@ func TestValidateSettlements_id_が重複する(t *testing.T) {
 	}
 	require.ErrorIs(t, validateSettlements(raws), errDuplicateID)
 }
+
+func TestValidateDialogues(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		key       string
+		dialogues []oapi.Dialogue
+		wantErr   error
+	}{
+		{name: "member の会話が実在すれば通る", key: "greeting", dialogues: []oapi.Dialogue{{Id: "greeting", Pages: []string{"Hi."}}}},
+		{name: "member の会話が実在しない", key: "farewell", dialogues: []oapi.Dialogue{{Id: "greeting", Pages: []string{"Hi."}}}, wantErr: errMemberDialogueUndefined},
+		{name: "会話の id が重複する", key: "greeting", dialogues: []oapi.Dialogue{{Id: "greeting", Pages: []string{"Hi."}}, {Id: "greeting", Pages: []string{"Yo."}}}, wantErr: errDuplicateID},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{
+				Members:   &[]oapi.Member{{Id: "villager", Dialog: &oapi.Dialog{MessageKey: tt.key}}, {Id: "rat"}},
+				Dialogues: &tt.dialogues,
+			}
+			err := validateDialogues(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}

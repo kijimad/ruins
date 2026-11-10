@@ -858,6 +858,16 @@ export interface Dialog {
     'messageKey': string;
 }
 /**
+ * NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる
+ */
+export interface Dialogue {
+    /**
+     * メッセージリソースのキー
+     */
+    'id': string;
+    'pages': Array<string>;
+}
+/**
  * 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
  */
 export interface Disassembly {
@@ -2191,6 +2201,7 @@ export interface Raws {
     'seasons'?: Array<Season>;
     'dungeons'?: Array<Dungeon>;
     'settlements'?: Array<Settlement>;
+    'dialogues'?: Array<Dialogue>;
 }
 /**
  * レシピ

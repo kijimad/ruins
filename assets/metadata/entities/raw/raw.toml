@@ -1077,6 +1077,14 @@
   onset = "hunger"
   painPerSeverity = 0
 
+[[dialogues]]
+  id = "old_soldier_greeting"
+  pages = ["\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\"", "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""]
+
+[[dialogues]]
+  id = "merchant_greeting"
+  pages = ["Want to make a deal?\n\nI've got good stuff."]
+
 [[dropTables]]
   id = "bat"
   name = "コウモリ"
