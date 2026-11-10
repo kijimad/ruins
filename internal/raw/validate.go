@@ -53,7 +53,7 @@ var (
 	errConditionNoHitPart             = errors.New("condition has no body part that can be hit")
 	errRemedyConditionUndefined       = errors.New("remedy treats undefined condition")
 	errAttackTypeInjuryUndefined      = errors.New("attack type references undefined condition")
-	errAttackTypeRowMissing           = errors.New("attack type has no raw row")
+	errAttackRangeParams              = errors.New("only ranged attack types must have all range params")
 	errSkillCategoryUndefined         = errors.New("skill references undefined category")
 	errBookSkillUndefined             = errors.New("book references undefined skill")
 	errProfessionSkillUndefined       = errors.New("profession references undefined skill")
@@ -685,9 +685,9 @@ func validateConditions(raws oapi.Raws) error {
 	if err := validateUniqueIDs("attack type", attackTypes, func(a oapi.AttackType) string { return string(a.Id) }); err != nil {
 		return err
 	}
-	for _, a := range attackTypes {
-		if _, ok := conditionIDs[a.Injury]; !ok {
-			return fmt.Errorf("attack type %q injury %q: %w", a.Id, a.Injury, errAttackTypeInjuryUndefined)
+	for i := range attackTypes {
+		if _, ok := conditionIDs[attackTypes[i].Injury]; !ok {
+			return fmt.Errorf("attack type %q injury %q: %w", attackTypes[i].Id, attackTypes[i].Injury, errAttackTypeInjuryUndefined)
 		}
 	}
 
@@ -766,14 +766,19 @@ func validateCodeRows(raws oapi.Raws) error {
 		return err
 	}
 
-	attackTypeIDs := make(map[string]struct{})
-	for _, a := range PtrSlice(raws.AttackTypes) {
-		attackTypeIDs[string(a.Id)] = struct{}{}
-	}
-	for _, at := range gc.AllAttackTypes {
-		if _, ok := attackTypeIDs[at.Type]; !ok {
-			return fmt.Errorf("attack type %q: %w", at.Type, errAttackTypeRowMissing)
+	attackTypes := PtrSlice(raws.AttackTypes)
+	attackTypeIDs := make([]string, 0, len(attackTypes))
+	for i := range attackTypes {
+		a := &attackTypes[i]
+		hasAll := a.OptimalRange != nil && a.MaxRange != nil && a.PenaltyPerTile != nil
+		hasAny := a.OptimalRange != nil || a.MaxRange != nil || a.PenaltyPerTile != nil
+		if a.Range == oapi.AttackRangeRanged && !hasAll || a.Range != oapi.AttackRangeRanged && hasAny {
+			return fmt.Errorf("attack type %q: %w", a.Id, errAttackRangeParams)
 		}
+		attackTypeIDs = append(attackTypeIDs, string(a.Id))
+	}
+	if err := validateEnumRows("AttackCategory", attackTypeIDs); err != nil {
+		return err
 	}
 	if err := validateSkillCodeRows(raws); err != nil {
 		return err
@@ -823,7 +828,9 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 	if err := validateResists(skills); err != nil {
 		return err
 	}
-	for _, at := range PtrSlice(raws.AttackTypes) {
+	attackTypes := PtrSlice(raws.AttackTypes)
+	for i := range attackTypes {
+		at := &attackTypes[i]
 		for _, key := range []oapi.ProficiencyId{at.Damage, at.Accuracy} {
 			if owners[key] != at.Skill {
 				return fmt.Errorf("attack type %q proficiency %q owned by %q: %w", at.Id, key, owners[key], errWeaponProficiencyOwner)

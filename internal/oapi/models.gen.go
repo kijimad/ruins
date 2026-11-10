@@ -90,6 +90,24 @@ func (e AttackCategory) Valid() bool {
 	}
 }
 
+// Defines values for AttackRange.
+const (
+	AttackRangeMelee  AttackRange = "melee"
+	AttackRangeRanged AttackRange = "ranged"
+)
+
+// Valid indicates whether the value is a known member of the AttackRange enum.
+func (e AttackRange) Valid() bool {
+	switch e {
+	case AttackRangeMelee:
+		return true
+	case AttackRangeRanged:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for BuildingClutter.
 const (
 	Filthy BuildingClutter = "filthy"
@@ -1224,11 +1242,14 @@ type AmmoTag string
 // ArmorDefense 防具の防御力
 type ArmorDefense = int
 
-// AttackCategory 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
+// AttackCategory defines model for AttackCategory.
 type AttackCategory string
 
 // AttackCount 1ターンあたりの攻撃回数
 type AttackCount = int
+
+// AttackRange 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する攻撃の射程の区分
+type AttackRange string
 
 // AttackType 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
 type AttackType struct {
@@ -1236,13 +1257,26 @@ type AttackType struct {
 	Accuracy ProficiencyId `json:"accuracy"`
 
 	// Damage ダメージを決める熟練の効果倍率。skill の行が持つ
-	Damage ProficiencyId `json:"damage"`
-
-	// Id 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
-	Id AttackCategory `json:"id"`
+	Damage ProficiencyId  `json:"damage"`
+	Id     AttackCategory `json:"id"`
 
 	// Injury 不調の id。Go の ConditionType 定数の値と同じ
 	Injury ConditionTypeName `json:"injury"`
+
+	// MaxRange 遠距離だけが持つ。この距離を超えると撃てない
+	MaxRange *RangeTiles `json:"maxRange,omitempty"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// OptimalRange 遠距離だけが持つ。この距離までは命中が落ちない
+	OptimalRange *RangeTiles `json:"optimalRange,omitempty"`
+
+	// PenaltyPerTile 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率
+	PenaltyPerTile *RangePenaltyPercent `json:"penaltyPerTile,omitempty"`
+
+	// Range 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する攻撃の射程の区分
+	Range AttackRange `json:"range"`
 
 	// Skill 攻撃で上達するスキル
 	Skill SkillId `json:"skill"`
@@ -2040,9 +2074,7 @@ type Fire struct {
 	Accuracy Accuracy `json:"accuracy"`
 
 	// AmmoTag 弾薬タグ
-	AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
-
-	// AttackCategory 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
+	AmmoTag        *AmmoTag       `json:"ammoTag,omitempty"`
 	AttackCategory AttackCategory `json:"attackCategory"`
 
 	// AttackCount 1ターンあたりの攻撃回数
@@ -2411,9 +2443,7 @@ type MaterialAmount = int
 // Melee 近接攻撃設定
 type Melee struct {
 	// Accuracy 命中率。0で必中なし、100で必中
-	Accuracy Accuracy `json:"accuracy"`
-
-	// AttackCategory 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
+	Accuracy       Accuracy       `json:"accuracy"`
 	AttackCategory AttackCategory `json:"attackCategory"`
 
 	// AttackCount 1ターンあたりの攻撃回数
@@ -2704,6 +2734,12 @@ type RGBAColor struct {
 
 // RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
 type RangeBonus = int
+
+// RangePenaltyPercent 射程の超過1タイルあたりの命中の低下。百分率
+type RangePenaltyPercent = int
+
+// RangeTiles 射程。タイル
+type RangeTiles = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {

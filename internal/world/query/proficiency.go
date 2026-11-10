@@ -43,6 +43,14 @@ func ProficiencySources(world w.World, entity ecs.Entity, key oapi.ProficiencyId
 	return world.Resources.SkillDefs.ProficiencySources(skills, abils, bodyFuncs, key)
 }
 
+// AttackTypeName は攻撃の種類の訳した表示名を返す。表に無ければ id をそのまま返す
+func AttackTypeName(world w.World, at oapi.AttackCategory) string {
+	if weapon, ok := world.Resources.SkillDefs.Weapon(at); ok {
+		return T(world, weapon.Name)
+	}
+	return string(at)
+}
+
 // SkillName はスキルの訳した表示名を返す
 func SkillName(world w.World, id oapi.SkillId) string {
 	return T(world, world.Resources.SkillDefs.Name(id))

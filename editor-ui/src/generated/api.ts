@@ -98,9 +98,6 @@ export const AmmoTag = {
 export type AmmoTag = typeof AmmoTag[keyof typeof AmmoTag];
 
 
-/**
- * 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
- */
 
 export const AttackCategory = {
     Fist: 'fist',
@@ -116,10 +113,39 @@ export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
 
 
 /**
+ * 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する攻撃の射程の区分
+ */
+
+export const AttackRange = {
+    Melee: 'melee',
+    Ranged: 'ranged',
+} as const;
+
+export type AttackRange = typeof AttackRange[keyof typeof AttackRange];
+
+
+/**
  * 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
  */
 export interface AttackType {
     'id': AttackCategory;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    'range': AttackRange;
+    /**
+     * 遠距離だけが持つ。この距離までは命中が落ちない
+     */
+    'optimalRange'?: number;
+    /**
+     * 遠距離だけが持つ。この距離を超えると撃てない
+     */
+    'maxRange'?: number;
+    /**
+     * 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率
+     */
+    'penaltyPerTile'?: number;
     /**
      * 不調の id。Go の ConditionType 定数の値と同じ
      */

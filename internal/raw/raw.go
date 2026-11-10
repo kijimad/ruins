@@ -22,6 +22,15 @@ func PtrSlice[T any](p *[]T) []T {
 	return *p
 }
 
+// deref はポインタの指す値を返す。nil ならゼロ値を返す
+func deref[T any](p *T) T {
+	if p == nil {
+		var zero T
+		return zero
+	}
+	return *p
+}
+
 // findByKey はスライスからキー関数でマッチする要素を線形検索する
 func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool) {
 	for _, item := range PtrSlice(slice) {
@@ -165,28 +174,20 @@ func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.
 }
 
 // parseMelee はoapi.Meleeからgc.Meleeを生成する
-func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
-	attackType, err := gc.ParseAttackType(string(m.AttackCategory))
-	if err != nil {
-		return nil, err
-	}
+func parseMelee(m *oapi.Melee) *gc.Melee {
 	return &gc.Melee{
 		Accuracy:       m.Accuracy,
 		Damage:         m.Damage,
 		AttackCount:    m.AttackCount,
 		Element:        m.Element,
-		AttackCategory: attackType,
+		AttackCategory: m.AttackCategory,
 		Cost:           m.Cost,
 		TargetType:     parseTargetType(m.TargetGroup, m.TargetNum),
-	}, nil
+	}
 }
 
 // parseFire はoapi.Fireからgc.Fireを生成する
-func parseFire(f *oapi.Fire) (*gc.Fire, error) {
-	attackType, err := gc.ParseAttackType(string(f.AttackCategory))
-	if err != nil {
-		return nil, err
-	}
+func parseFire(f *oapi.Fire) *gc.Fire {
 	var ammoTag oapi.AmmoTag
 	if f.AmmoTag != nil {
 		ammoTag = *f.AmmoTag
@@ -196,14 +197,14 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 		Damage:         f.Damage,
 		AttackCount:    f.AttackCount,
 		Element:        f.Element,
-		AttackCategory: attackType,
+		AttackCategory: f.AttackCategory,
 		Cost:           f.Cost,
 		TargetType:     parseTargetType(f.TargetGroup, f.TargetNum),
 		Magazine:       f.MagazineSize,
 		MagazineSize:   f.MagazineSize,
 		ReloadEffort:   f.ReloadEffort,
 		AmmoTag:        ammoTag,
-	}, nil
+	}
 }
 
 // newProvidesHealingFromAPI はoapi.ProvidesHealingからProvidesHealingコンポーネントを生成する
@@ -312,18 +313,10 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Melee != nil {
-		melee, err := parseMelee(item.Melee)
-		if err != nil {
-			return gc.EntitySpec{}, err
-		}
-		entitySpec.Melee = melee
+		entitySpec.Melee = parseMelee(item.Melee)
 	}
 	if item.Fire != nil {
-		fire, err := parseFire(item.Fire)
-		if err != nil {
-			return gc.EntitySpec{}, err
-		}
-		entitySpec.Fire = fire
+		entitySpec.Fire = parseFire(item.Fire)
 	}
 
 	var bonus gc.EquipBonus
@@ -1020,9 +1013,9 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 	}
 
 	attackTypes := PtrSlice(raws.AttackTypes)
-	injuries := make(map[string]gc.ConditionType, len(attackTypes))
-	for _, row := range attackTypes {
-		injuries[string(row.Id)] = gc.ConditionType(row.Injury)
+	injuries := make(map[oapi.AttackCategory]gc.ConditionType, len(attackTypes))
+	for i := range attackTypes {
+		injuries[attackTypes[i].Id] = gc.ConditionType(attackTypes[i].Injury)
 	}
 	return gc.NewConditionDefs(conds, parts, injuries), nil
 }
@@ -1062,18 +1055,23 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	}
 	attackTypes := PtrSlice(raws.AttackTypes)
 	weapons := make([]gc.WeaponDef, 0, len(attackTypes))
-	for _, row := range attackTypes {
-		at, err := gc.ParseAttackType(string(row.Id))
-		if err != nil {
-			return gc.SkillDefs{}, err
-		}
-		weapons = append(weapons, gc.WeaponDef{AttackType: at, Skill: row.Skill, Damage: row.Damage, Accuracy: row.Accuracy})
+	for i := range attackTypes {
+		row := &attackTypes[i]
+		weapons = append(weapons, gc.WeaponDef{
+			AttackType:  row.Id,
+			Name:        row.Name,
+			Range:       row.Range,
+			RangeParams: gc.RangeParams{OptimalRange: deref(row.OptimalRange), MaxRange: deref(row.MaxRange), PenaltyPerTile: deref(row.PenaltyPerTile)},
+			Skill:       row.Skill,
+			Damage:      row.Damage,
+			Accuracy:    row.Accuracy,
+		})
 		accuracy, ok := proficiencies[row.Accuracy]
 		if !ok {
 			return gc.SkillDefs{}, NewKeyNotFoundError(string(row.Accuracy), "Proficiencies")
 		}
 		accuracy.BodyFunc = gc.BodyFuncManipulation
-		if at.Range == gc.AttackRangeRanged {
+		if row.Range == oapi.AttackRangeRanged {
 			accuracy.BodyFunc = gc.BodyFuncSight
 		}
 		proficiencies[row.Accuracy] = accuracy

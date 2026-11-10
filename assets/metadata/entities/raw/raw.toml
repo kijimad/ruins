@@ -3,6 +3,8 @@
   damage = "sword_damage"
   id = "sword"
   injury = "laceration"
+  name = "Sword"
+  range = "melee"
   skill = "sword"
 
 [[attackTypes]]
@@ -10,6 +12,8 @@
   damage = "spear_damage"
   id = "spear"
   injury = "laceration"
+  name = "Spear"
+  range = "melee"
   skill = "spear"
 
 [[attackTypes]]
@@ -17,6 +21,8 @@
   damage = "fist_damage"
   id = "fist"
   injury = "fracture"
+  name = "Martial arts"
+  range = "melee"
   skill = "fist"
 
 [[attackTypes]]
@@ -24,6 +30,11 @@
   damage = "bow_damage"
   id = "bow"
   injury = "laceration"
+  maxRange = 10
+  name = "Bow"
+  optimalRange = 4
+  penaltyPerTile = 5
+  range = "ranged"
   skill = "bow"
 
 [[attackTypes]]
@@ -31,6 +42,11 @@
   damage = "handgun_damage"
   id = "handgun"
   injury = "laceration"
+  maxRange = 8
+  name = "Handgun"
+  optimalRange = 3
+  penaltyPerTile = 8
+  range = "ranged"
   skill = "handgun"
 
 [[attackTypes]]
@@ -38,6 +54,11 @@
   damage = "rifle_damage"
   id = "rifle"
   injury = "laceration"
+  maxRange = 16
+  name = "Rifle"
+  optimalRange = 8
+  penaltyPerTile = 3
+  range = "ranged"
   skill = "rifle"
 
 [[attackTypes]]
@@ -45,6 +66,11 @@
   damage = "cannon_damage"
   id = "cannon"
   injury = "fracture"
+  maxRange = 12
+  name = "Cannon"
+  optimalRange = 6
+  penaltyPerTile = 5
+  range = "ranged"
   skill = "cannon"
 
 [[bodyParts]]

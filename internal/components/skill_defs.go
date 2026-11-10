@@ -56,16 +56,28 @@ func (d SkillDefs) Resist(e oapi.Element) (oapi.ProficiencyId, bool) {
 
 // WeaponDef は攻撃の種類が上達に使うスキルと、ダメージと命中を決める熟練の効果倍率。raw の attackTypes の1行から組み立てる
 type WeaponDef struct {
-	AttackType AttackType
-	Skill      oapi.SkillId
-	Damage     oapi.ProficiencyId
-	Accuracy   oapi.ProficiencyId
+	AttackType  oapi.AttackCategory
+	Name        string // 表示名 msgid
+	Range       oapi.AttackRange
+	RangeParams RangeParams // 遠距離だけが持つ。近接はゼロ値
+	Skill       oapi.SkillId
+	Damage      oapi.ProficiencyId
+	Accuracy    oapi.ProficiencyId
+}
+
+// RangeParams は遠距離の攻撃の種類の射程を返す。近接や表に無い種類は ok=false
+func (d SkillDefs) RangeParams(at oapi.AttackCategory) (RangeParams, bool) {
+	w, ok := d.Weapon(at)
+	if !ok || w.Range != oapi.AttackRangeRanged {
+		return RangeParams{}, false
+	}
+	return w.RangeParams, true
 }
 
 // Weapon は攻撃の種類の WeaponDef を返す。無ければ ok=false
-func (d SkillDefs) Weapon(at AttackType) (WeaponDef, bool) {
+func (d SkillDefs) Weapon(at oapi.AttackCategory) (WeaponDef, bool) {
 	for _, w := range d.Weapons {
-		if w.AttackType.Type == at.Type {
+		if w.AttackType == at {
 			return w, true
 		}
 	}

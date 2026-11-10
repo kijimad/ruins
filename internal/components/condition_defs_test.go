@@ -71,9 +71,9 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 	BodyPartLegs:      {Name: "Leg", HitWeight: 3},
 	BodyPartFeet:      {Name: "Foot", HitWeight: 1},
 	BodyPartWholeBody: {Name: "Whole body"},
-}, map[string]ConditionType{
-	AttackFist.Type:  ConditionType("fracture"),
-	AttackSword.Type: ConditionType("laceration"),
+}, map[oapi.AttackCategory]ConditionType{
+	oapi.AttackCategoryFist:  ConditionType("fracture"),
+	oapi.AttackCategorySword: ConditionType("laceration"),
 })
 
 func TestConditionDefs_CanAffect(t *testing.T) {
@@ -143,11 +143,11 @@ func TestBodyPartByID(t *testing.T) {
 func TestConditionDefs_Injury(t *testing.T) {
 	t.Parallel()
 
-	ct, ok := testDefs.Injury(AttackFist)
+	ct, ok := testDefs.Injury(oapi.AttackCategoryFist)
 	require.True(t, ok)
 	assert.Equal(t, ConditionType("fracture"), ct)
 
-	_, ok = testDefs.Injury(AttackBow)
+	_, ok = testDefs.Injury(oapi.AttackCategoryBow)
 	assert.False(t, ok, "未登録は ok=false")
 }
 

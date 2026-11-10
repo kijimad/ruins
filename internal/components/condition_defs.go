@@ -34,13 +34,13 @@ type BodyPartDef struct {
 type ConditionDefs struct {
 	conds    map[ConditionType]ConditionDef
 	parts    [BodyPartCount]BodyPartDef
-	injuries map[string]ConditionType
+	injuries map[oapi.AttackCategory]ConditionType
 	onsets   map[oapi.ConditionOnset]ConditionType
 }
 
 // NewConditionDefs は状態種類ごとの定義、部位ごとの命中の重み、攻撃種別の Type ごとの怪我から表を作る。
 // 渡した map は表が所有する
-func NewConditionDefs(conds map[ConditionType]ConditionDef, parts [BodyPartCount]BodyPartDef, injuries map[string]ConditionType) ConditionDefs {
+func NewConditionDefs(conds map[ConditionType]ConditionDef, parts [BodyPartCount]BodyPartDef, injuries map[oapi.AttackCategory]ConditionType) ConditionDefs {
 	onsets := make(map[oapi.ConditionOnset]ConditionType)
 	for ct := range conds {
 		if o := conds[ct].Onset; o != "" {
@@ -81,8 +81,8 @@ func (d ConditionDefs) HitWeight(part BodyPart) float64 {
 }
 
 // Injury は攻撃種別が命中で負わせる怪我を返す。未登録なら ok=false
-func (d ConditionDefs) Injury(at AttackType) (ConditionType, bool) {
-	ct, ok := d.injuries[at.Type]
+func (d ConditionDefs) Injury(at oapi.AttackCategory) (ConditionType, bool) {
+	ct, ok := d.injuries[at]
 	return ct, ok
 }
 

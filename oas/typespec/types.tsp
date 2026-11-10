@@ -621,6 +621,22 @@ enum Material {
 }
 
 /** 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する */
+/** 攻撃の射程の区分 */
+enum AttackRange {
+  melee,
+  ranged,
+}
+
+/** 射程。タイル */
+@minValue(1)
+@maxValue(50)
+scalar RangeTiles extends integer;
+
+/** 射程の超過1タイルあたりの命中の低下。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar RangePenaltyPercent extends integer;
+
 enum AttackCategory {
   /** 素手 */
   fist,

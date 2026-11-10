@@ -20,7 +20,7 @@ func TestGetSkillMult_NoSkills(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
 	// Skillsコンポーネントなし → 100を返す
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, true)))
 	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, false)))
 }
@@ -43,7 +43,7 @@ func TestGetSkillMult_WithSkills(t *testing.T) {
 	skills.Get(oapi.SkillIdSword).Value = 3
 	world.Components.Skills.Add(entity, skills)
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 	// 刀剣Lv3: ダメージ倍率 = 100 + 3*5 = 115
 	assert.Equal(t, 115, int(getSkillMult(entity, melee, world, true)))
 	// 刀剣Lv3: 命中倍率 = 100 + 3*3 = 109
@@ -59,7 +59,7 @@ func TestGetSkillMult_UnmappedWeapon(t *testing.T) {
 	world.Components.Skills.Add(entity, gc.NewSkills())
 
 	// 未登録の武器種 → 100
-	melee := &gc.Melee{AttackCategory: gc.AttackType{Type: "unknown"}}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategory("unknown")}
 	assert.Equal(t, 100, int(getSkillMult(entity, melee, world, true)))
 }
 
@@ -102,7 +102,7 @@ func TestGrowWeaponSkill_NoSkillsComponent(t *testing.T) {
 	actor := world.ECS.NewEntity()
 	// Skillsコンポーネントなし → panicしない
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 	growWeaponSkill(actor, world, melee)
 }
 
@@ -129,7 +129,7 @@ func TestGrowWeaponSkill_GainsExp(t *testing.T) {
 	}
 	world.Components.Abilities.Add(actor, abils)
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 
 	before := skills.Get(oapi.SkillIdSword).Exp.Current
 	growWeaponSkill(actor, world, melee)
@@ -154,7 +154,7 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 	}
 	world.Components.Abilities.Add(actor, abils)
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 
 	growWeaponSkill(actor, world, melee)
 
@@ -171,7 +171,7 @@ func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
 	world.Components.Skills.Add(actor, skills)
 	// Abilitiesコンポーネントなし → スキップされpanicしない
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 	growWeaponSkill(actor, world, melee)
 
 	// 経験値は増えていない（Abilitiesがないので早期リターン）
@@ -192,7 +192,7 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 	}
 	world.Components.Abilities.Add(actor, abils)
 
-	fire := &gc.Fire{AttackCategory: gc.AttackRifle}
+	fire := &gc.Fire{AttackCategory: oapi.AttackCategoryRifle}
 
 	growWeaponSkill(actor, world, fire)
 
@@ -215,7 +215,7 @@ func TestGrowWeaponSkill_敵は成長しない(t *testing.T) {
 	abils := &gc.Abilities{Sensation: gc.Ability{Total: 10}}
 	world.Components.Abilities.Add(actor, abils)
 
-	growWeaponSkill(actor, world, &gc.Fire{AttackCategory: gc.AttackRifle})
+	growWeaponSkill(actor, world, &gc.Fire{AttackCategory: oapi.AttackCategoryRifle})
 
 	// 敵は Skills を持っても戦闘中に成長しない。スキル成長は味方側の進行要素
 	assert.Equal(t, 0, skills.Get(oapi.SkillIdRifle).Exp.Current, "敵はスキル成長しない")
@@ -235,7 +235,7 @@ func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 	}
 	world.Components.Abilities.Add(actor, abils)
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSpear}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySpear}
 
 	growWeaponSkill(actor, world, melee)
 
@@ -260,7 +260,7 @@ func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
 	}
 	world.Components.Abilities.Add(actor, abils)
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 
 	growWeaponSkill(actor, world, melee)
 
@@ -290,7 +290,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	})
 	world.Components.HealthStatus.Add(actor, hs)
 
-	melee := &gc.Melee{AttackCategory: gc.AttackSword}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
 
 	growWeaponSkill(actor, world, melee)
 
@@ -332,7 +332,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 
 		melee := &gc.Melee{
 			Damage:         100,
-			AttackCategory: gc.AttackFist,
+			AttackCategory: oapi.AttackCategoryFist,
 		}
 
 		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
@@ -365,7 +365,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 
 		melee := &gc.Melee{
 			Damage:         1,
-			AttackCategory: gc.AttackFist,
+			AttackCategory: oapi.AttackCategoryFist,
 		}
 
 		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
@@ -400,7 +400,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 
 		melee := &gc.Melee{
 			Damage:         999,
-			AttackCategory: gc.AttackFist,
+			AttackCategory: oapi.AttackCategoryFist,
 		}
 
 		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
@@ -628,7 +628,7 @@ func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
 	}
 	world.Components.Abilities.Add(actor, abils)
 
-	melee := &gc.Melee{AttackCategory: gc.AttackType{Type: "unknown"}}
+	melee := &gc.Melee{AttackCategory: oapi.AttackCategory("unknown")}
 
 	growWeaponSkill(actor, world, melee)
 

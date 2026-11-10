@@ -143,7 +143,7 @@ func TestAttackUnification(t *testing.T) {
 		Accuracy:       100,
 		AttackCount:    1,
 		Element:        oapi.ElementNONE,
-		AttackCategory: gc.AttackFist,
+		AttackCategory: oapi.AttackCategoryFist,
 	})
 	playerAttack, playerWeaponName, err := GetMeleeFromWeapon(world, playerWeapon)
 	require.NoError(t, err)

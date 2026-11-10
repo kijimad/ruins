@@ -330,7 +330,7 @@ func fuelRow(world w.World, heat consts.Heat) SpecRow {
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し
 func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 	rows := []SpecRow{
-		{Label: query.T(world, attack.GetAttackCategory().Label), Header: true},
+		{Label: query.AttackTypeName(world, attack.GetAttackCategory()), Header: true},
 		{Label: query.T(world, "Attack power"), Value: strconv.Itoa(attack.GetDamage())},
 		{Label: query.T(world, "Accuracy"), Value: strconv.Itoa(attack.GetAccuracy())},
 		{Label: query.T(world, "Hits"), Value: strconv.Itoa(attack.GetAttackCount())},
@@ -345,7 +345,7 @@ func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 // fireAmmoRows は射程・弾薬の行を返す
 func fireAmmoRows(world w.World, fire *gc.Fire) []SpecRow {
 	var rows []SpecRow
-	if rangeParams, ok := gc.GetRangeParams(fire.AttackCategory); ok {
+	if rangeParams, ok := world.Resources.SkillDefs.RangeParams(fire.AttackCategory); ok {
 		rows = append(rows,
 			SpecRow{Label: query.T(world, "Optimal range"), Value: strconv.Itoa(rangeParams.OptimalRange)},
 			SpecRow{Label: query.T(world, "Max range"), Value: strconv.Itoa(rangeParams.MaxRange)},

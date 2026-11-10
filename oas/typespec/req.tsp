@@ -768,6 +768,18 @@ model SkillCategory {
 /** 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ */
 model AttackType {
   id: AttackCategory;
+  name: EntityName;
+  range: AttackRange;
+
+  /** 遠距離だけが持つ。この距離までは命中が落ちない */
+  optimalRange?: RangeTiles;
+
+  /** 遠距離だけが持つ。この距離を超えると撃てない */
+  maxRange?: RangeTiles;
+
+  /** 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率 */
+  penaltyPerTile?: RangePenaltyPercent;
+
   injury: ConditionTypeName;
 
   /** 攻撃で上達するスキル */

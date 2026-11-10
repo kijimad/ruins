@@ -43,14 +43,17 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		{Id: "exhaustion", Name: "Exhaustion", Description: "Exhaustion", Onset: onset(oapi.Fatigue)},
 		{Id: "malnutrition", Name: "Malnutrition", Description: "Malnutrition", Onset: onset(oapi.Hunger)},
 	}
-	attackTypes := make([]oapi.AttackType, 0, len(gc.AllAttackTypes))
-	for _, at := range gc.AllAttackTypes {
+	attackIDs := schemaEnum("AttackCategory")
+	attackTypes := make([]oapi.AttackType, 0, len(attackIDs))
+	for _, id := range attackIDs {
 		attackTypes = append(attackTypes, oapi.AttackType{
-			Id:       oapi.AttackCategory(at.Type),
+			Id:       oapi.AttackCategory(id),
+			Name:     id,
+			Range:    oapi.AttackRangeMelee,
 			Injury:   string(gc.ConditionType("fracture")),
-			Skill:    oapi.SkillId(at.Type),
-			Damage:   oapi.ProficiencyId(at.Type + "_damage"),
-			Accuracy: oapi.ProficiencyId(at.Type + "_accuracy"),
+			Skill:    oapi.SkillId(id),
+			Damage:   oapi.ProficiencyId(id + "_damage"),
+			Accuracy: oapi.ProficiencyId(id + "_accuracy"),
 		})
 	}
 	skillIDs := schemaEnum("SkillId")
@@ -64,9 +67,9 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	}
 	for _, key := range schemaEnum("ProficiencyId") {
 		owner := 0
-		for _, at := range attackTypes {
-			if oapi.ProficiencyId(key) == at.Damage || oapi.ProficiencyId(key) == at.Accuracy {
-				owner = slices.Index(skillIDs, string(at.Skill))
+		for i := range attackTypes {
+			if oapi.ProficiencyId(key) == attackTypes[i].Damage || oapi.ProficiencyId(key) == attackTypes[i].Accuracy {
+				owner = slices.Index(skillIDs, string(attackTypes[i].Skill))
 			}
 		}
 		proficiency := oapi.SkillProficiency{Id: oapi.ProficiencyId(key), PerLevel: 1}
@@ -252,11 +255,25 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errDuplicateID,
 		},
 		{
+			name: "近接の攻撃種別が射程を持つ",
+			mutate: func(r *oapi.Raws) {
+				(*r.AttackTypes)[0].MaxRange = new(5)
+			},
+			wantErr: errAttackRangeParams,
+		},
+		{
+			name: "遠距離の攻撃種別が射程を持たない",
+			mutate: func(r *oapi.Raws) {
+				(*r.AttackTypes)[0].Range = oapi.AttackRangeRanged
+			},
+			wantErr: errAttackRangeParams,
+		},
+		{
 			name: "攻撃種別の行が欠ける",
 			mutate: func(r *oapi.Raws) {
 				*r.AttackTypes = (*r.AttackTypes)[1:]
 			},
-			wantErr: errAttackTypeRowMissing,
+			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "スキルの行が欠ける",
@@ -443,8 +460,8 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	weapons := map[string][3]string{}
 	accuracyLimbs := map[string]gc.BodyFuncKind{}
 	for _, w := range defs.Weapons {
-		weapons[w.AttackType.Type] = [3]string{string(w.Skill), string(w.Damage), string(w.Accuracy)}
-		accuracyLimbs[w.AttackType.Type] = defs.Proficiencies[w.Accuracy].BodyFunc
+		weapons[string(w.AttackType)] = [3]string{string(w.Skill), string(w.Damage), string(w.Accuracy)}
+		accuracyLimbs[string(w.AttackType)] = defs.Proficiencies[w.Accuracy].BodyFunc
 	}
 	assert.Equal(t, map[string][3]string{
 		"sword":   {"sword", "sword_damage", "sword_accuracy"},

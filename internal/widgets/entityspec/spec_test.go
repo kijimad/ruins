@@ -28,13 +28,13 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 80, Damage: 25, AttackCount: 2,
-		Element: oapi.ElementFIRE, AttackCategory: gc.AttackSword, Cost: 100,
+		Element: oapi.ElementFIRE, AttackCategory: oapi.AttackCategorySword, Cost: 100,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		query.T(world, gc.AttackSword.Label),
+		query.AttackTypeName(world, oapi.AttackCategorySword),
 		"Attack power", "25", "Accuracy", "80", "Hits", "2", "Attack cost", "100",
 		"Element", query.T(world, gc.ElementName(oapi.ElementFIRE)),
 	}, labels)
@@ -47,14 +47,14 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: gc.AttackFist, Cost: 50,
+		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryFist, Cost: 50,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 無属性は Element 行が出ない
 	assert.Equal(t, []string{
-		query.T(world, gc.AttackFist.Label),
+		query.AttackTypeName(world, oapi.AttackCategoryFist),
 		"Attack power", "8", "Accuracy", "100", "Hits", "1", "Attack cost", "50",
 	}, labels)
 }
@@ -67,14 +67,14 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	// AttackRifle は enum.go の rangeParams に登録済みなので、射程行が表示される前提が成り立つ
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: gc.AttackRifle, Cost: 150,
+		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryRifle, Cost: 150,
 		Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		query.T(world, gc.AttackRifle.Label),
+		query.AttackTypeName(world, oapi.AttackCategoryRifle),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
 		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
 	}, labels)
@@ -87,7 +87,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 	e := world.ECS.NewEntity()
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: gc.AttackBow, Cost: 80,
+		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryBow, Cost: 80,
 		MagazineSize: 0,
 	})
 
@@ -95,7 +95,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 
 	// マガジンサイズ0は Magazine と Reload の行が出ない
 	assert.Equal(t, []string{
-		query.T(world, gc.AttackBow.Label),
+		query.AttackTypeName(world, oapi.AttackCategoryBow),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "80",
 		"Optimal range", "4", "Max range", "10",
 	}, labels)
@@ -272,14 +272,14 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	spec := gc.EntitySpec{
 		Melee: &gc.Melee{
 			Accuracy: 90, Damage: 12, AttackCount: 1,
-			Element: oapi.ElementTHUNDER, AttackCategory: gc.AttackSpear, Cost: 80,
+			Element: oapi.ElementTHUNDER, AttackCategory: oapi.AttackCategorySpear, Cost: 80,
 		},
 	}
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
-		query.T(world, gc.AttackSpear.Label),
+		query.AttackTypeName(world, oapi.AttackCategorySpear),
 		"Attack power", "12", "Accuracy", "90", "Hits", "1", "Attack cost", "80",
 		"Element", query.T(world, gc.ElementName(oapi.ElementTHUNDER)),
 	}, labels)
@@ -340,7 +340,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	spec := gc.EntitySpec{
 		Fire: &gc.Fire{
 			Accuracy: 70, Damage: 30, AttackCount: 1,
-			Element: oapi.ElementNONE, AttackCategory: gc.AttackRifle, Cost: 150,
+			Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryRifle, Cost: 150,
 			Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 		},
 		Wearable: &gc.Wearable{
@@ -362,7 +362,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	// Fire・Wearable・Book が先に並び、基本属性の Healing・Nutrition・Value・Weight は
 	// 末尾の「基本」見出しにまとまる
 	assert.Equal(t, []string{
-		query.T(world, gc.AttackRifle.Label),
+		query.AttackTypeName(world, oapi.AttackCategoryRifle),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
 		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
 		query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryTORSO)),
