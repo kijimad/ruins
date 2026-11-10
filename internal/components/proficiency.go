@@ -22,13 +22,13 @@ const (
 // 表示側が現在言語へ訳して整形する。Kind に応じて Skill / Ability / BodyFunc のどれかが有効
 type ProficiencySource struct {
 	Kind     ProficiencySourceKind
-	Skill    oapi.SkillId // Kind が skill のときのスキル
-	Ability  AbilityID    // Kind が ability のときの能力値
-	BodyFunc BodyFuncKind // Kind が body function のときの身体機能
-	Fatigue  FatigueLevel // Kind が fatigue のときの疲労段階
-	Hunger   HungerLevel  // Kind が hunger のときの空腹段階
-	Amount   int          // 要因の量。スキルLv・能力値・身体機能%
-	Value    int          // この要因による変化量。例: +10, -15
+	Skill    oapi.SkillId        // Kind が skill のときのスキル
+	Ability  AbilityID           // Kind が ability のときの能力値
+	BodyFunc BodyFuncKind        // Kind が body function のときの身体機能
+	Fatigue  oapi.FatigueStageId // Kind が fatigue のときの疲労段階
+	Hunger   oapi.HungerStageId  // Kind が hunger のときの空腹段階
+	Amount   int                 // 要因の量。スキルLv・能力値・身体機能%
+	Value    int                 // この要因による変化量。例: +10, -15
 }
 
 // forEachProficiencySource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。

@@ -42,13 +42,13 @@ func DefaultParams(master oapi.Raws) Params {
 
 		MaxHunger:           float64(gc.DefaultMaxHunger),
 		HungerDrainTurns:    float64(gc.HungerDrainTurns),
-		HungerStarvingRatio: needs.HungerFrom(gc.HungerHungry),
+		HungerStarvingRatio: needs.HungerFrom(oapi.HungerStageIdHungry),
 
 		MaxFatigue:            float64(gc.DefaultMaxFatigue),
 		FatigueGainPerTurn:    float64(gc.FatigueGainPerTurn),
 		FatigueRecoverPerTurn: float64(systems.FatigueRecoverPerTurn),
-		FatigueTiredRatio:     needs.FatigueFrom(gc.FatigueTired),
-		FatigueExhaustedRatio: needs.FatigueFrom(gc.FatigueExhausted),
+		FatigueTiredRatio:     needs.FatigueFrom(oapi.FatigueStageIdTired),
+		FatigueExhaustedRatio: needs.FatigueFrom(oapi.FatigueStageIdExhausted),
 
 		EnemyWeaponScale:    1,
 		PlayerStrengthScale: 1,

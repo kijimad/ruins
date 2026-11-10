@@ -2,6 +2,7 @@ package query
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -23,12 +24,12 @@ func DerivedConditions(world w.World, entity ecs.Entity) []gc.HealthCondition {
 	var conds []gc.HealthCondition
 	if world.Components.Fatigue.Has(entity) {
 		if sev, ok := world.Components.Fatigue.Get(entity).FatigueSeverity(world.Resources.NeedDefs); ok {
-			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(gc.OnsetFatigue), Severity: sev})
+			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(oapi.Fatigue), Severity: sev})
 		}
 	}
 	if world.Components.Hunger.Has(entity) {
 		if sev, ok := world.Resources.NeedDefs.HungerSeverity(world.Components.Hunger.Get(entity).GetLevel(world.Resources.NeedDefs)); ok {
-			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(gc.OnsetHunger), Severity: sev})
+			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(oapi.Hunger), Severity: sev})
 		}
 	}
 	return conds
@@ -41,6 +42,16 @@ func ConditionName(world w.World, ct gc.ConditionType) string {
 		return string(ct)
 	}
 	return T(world, def.Name)
+}
+
+// HungerName は空腹の段階の訳した表示名を返す
+func HungerName(world w.World, level oapi.HungerStageId) string {
+	return T(world, world.Resources.NeedDefs.HungerName(level))
+}
+
+// FatigueName は疲労の段階の訳した表示名を返す
+func FatigueName(world w.World, level oapi.FatigueStageId) string {
+	return T(world, world.Resources.NeedDefs.FatigueName(level))
 }
 
 // BodyPartName は部位の訳した表示名を返す

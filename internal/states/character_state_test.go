@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 
@@ -176,7 +177,7 @@ func TestCharacterState_過労の詳細は重症度と意識代謝の低下を�
 	// 疲労を過労域まで積む。比率 0.8 以上で Exhausted になり重症度 Medium の過労が導出される
 	fatigue := world.Components.Fatigue.Get(player)
 	fatigue.Current = fatigue.Max
-	require.Equal(t, gc.FatigueExhausted, fatigue.GetLevel(world.Resources.NeedDefs), "満タンの疲労は過労域になる")
+	require.Equal(t, oapi.FatigueStageIdExhausted, fatigue.GetLevel(world.Resources.NeedDefs), "満タンの疲労は過労域になる")
 
 	props, err := state.Fetch(world)
 	require.NoError(t, err)

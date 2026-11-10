@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kijimaD/ruins/internal/oapi"
+
 const (
 	// DefaultMaxFatigue はデフォルトの最大疲労。起床中は毎ターン FatigueGainPerTurn 増える
 	DefaultMaxFatigue = 2000
@@ -7,28 +9,14 @@ const (
 	FatigueGainPerTurn = 1
 )
 
-// FatigueLevel は疲労の段階を表す
-type FatigueLevel string
-
-const (
-	// FatigueRested は快調。疲れておらず眠れない。寝すぎを防ぐ
-	FatigueRested FatigueLevel = "Rested"
-	// FatigueNormal は普通。眠れる
-	FatigueNormal FatigueLevel = "Normal"
-	// FatigueTired は疲労。回復と行動が鈍り始める
-	FatigueTired FatigueLevel = "Tired"
-	// FatigueExhausted は過労。重いペナルティを受ける
-	FatigueExhausted FatigueLevel = "Exhausted"
-)
-
 // Fatigue は蓄積した疲労を表す。起きている間に増え、睡眠でのみ減る。
 // Current は Max でクランプし、上限に達しても死なず Exhausted のペナルティが続く
 type Fatigue Pool[int]
 
 // GetLevel は現在の疲労段階を返す。段階の境目は defs が持ち、Current/Max の比率で決める
-func (f *Fatigue) GetLevel(defs NeedDefs) FatigueLevel {
+func (f *Fatigue) GetLevel(defs NeedDefs) oapi.FatigueStageId {
 	if f.Max <= 0 {
-		return FatigueRested
+		return oapi.FatigueStageIdRested
 	}
 	return defs.fatigueStage(float64(f.Current) / float64(f.Max)).Level
 }

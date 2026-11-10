@@ -766,6 +766,7 @@ model Weather {
 /** 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる */
 model HungerStage {
   id: HungerStageId;
+  name: EntityName;
   from: NeedRatio;
 
   /** この段階で立つ栄養失調の重症度。省くと立たない */
@@ -775,6 +776,7 @@ model HungerStage {
 /** 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる */
 model FatigueStage {
   id: FatigueStageId;
+  name: EntityName;
   from: NeedRatio;
 
   /** この段階で立つ過労の重症度。省くと立たない */

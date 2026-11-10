@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,7 +16,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		BodyFuncDropPerSeverity: 10,
 		BloodDropPerSeverity:    22,
 		Cause:                   CauseFrozen,
-		Onset:                   OnsetCold,
+		Onset:                   oapi.Cold,
 	},
 	ConditionType("fracture"): {
 		Name:                    "Fracture",
@@ -50,17 +51,17 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		BodyFuncDropPerSeverity: 12,
 		Recovery:                RecoverOverTime,
 		RecoverPer:              2,
-		Onset:                   OnsetRottenFood,
+		Onset:                   oapi.RottenFood,
 	},
 	ConditionType("exhaustion"): {
 		Name:                    "Exhaustion",
 		BodyFuncDropPerSeverity: 10,
-		Onset:                   OnsetFatigue,
+		Onset:                   oapi.Fatigue,
 	},
 	ConditionType("malnutrition"): {
 		Name:                    "Malnutrition",
 		BodyFuncDropPerSeverity: 10,
-		Onset:                   OnsetHunger,
+		Onset:                   oapi.Hunger,
 	},
 }, [BodyPartCount]BodyPartDef{
 	BodyPartHead:      {Name: "Head", HitWeight: 2},
@@ -153,17 +154,17 @@ func TestConditionDefs_Injury(t *testing.T) {
 func TestConditionDefs_ByOnset(t *testing.T) {
 	t.Parallel()
 
-	got := map[ConditionOnset]ConditionType{}
-	for _, o := range []ConditionOnset{OnsetCold, OnsetRottenFood, OnsetFatigue, OnsetHunger} {
+	got := map[oapi.ConditionOnset]ConditionType{}
+	for _, o := range []oapi.ConditionOnset{oapi.Cold, oapi.RottenFood, oapi.Fatigue, oapi.Hunger} {
 		got[o] = testDefs.ByOnset(o)
 	}
-	assert.Equal(t, map[ConditionOnset]ConditionType{
-		OnsetCold:       "hypothermia",
-		OnsetRottenFood: "food_poisoning",
-		OnsetFatigue:    "exhaustion",
-		OnsetHunger:     "malnutrition",
+	assert.Equal(t, map[oapi.ConditionOnset]ConditionType{
+		oapi.Cold:       "hypothermia",
+		oapi.RottenFood: "food_poisoning",
+		oapi.Fatigue:    "exhaustion",
+		oapi.Hunger:     "malnutrition",
 	}, got)
-	assert.Panics(t, func() { ConditionDefs{}.ByOnset(OnsetCold) })
+	assert.Panics(t, func() { ConditionDefs{}.ByOnset(oapi.Cold) })
 }
 
 func TestConditionDefs_Types(t *testing.T) {

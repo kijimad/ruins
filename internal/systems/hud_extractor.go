@@ -8,6 +8,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
@@ -342,9 +343,9 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 		entity := hungerQuery.Entity()
 		if hunger := world.Components.Hunger.Get(entity); hunger != nil {
 			level := hunger.GetLevel(world.Resources.NeedDefs)
-			if level != gc.HungerNormal {
+			if level != oapi.HungerStageIdNormal {
 				badges = append(badges, hud.StatusBadge{
-					Text:  query.T(world, level.String()),
+					Text:  query.HungerName(world, level),
 					Color: getHungerBadgeColor(level),
 				})
 			}
@@ -356,9 +357,9 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 	for fatigueQuery.Next() {
 		entity := fatigueQuery.Entity()
 		level := world.Components.Fatigue.Get(entity).GetLevel(world.Resources.NeedDefs)
-		if level == gc.FatigueTired || level == gc.FatigueExhausted {
+		if level == oapi.FatigueStageIdTired || level == oapi.FatigueStageIdExhausted {
 			badges = append(badges, hud.StatusBadge{
-				Text:  query.T(world, string(level)),
+				Text:  query.FatigueName(world, level),
 				Color: getFatigueBadgeColor(level),
 			})
 		}
@@ -395,7 +396,7 @@ func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
 		worst gc.Severity
 		count int
 	}
-	cold := world.Resources.ConditionDefs.ByOnset(gc.OnsetCold)
+	cold := world.Resources.ConditionDefs.ByOnset(oapi.Cold)
 	var order []gc.ConditionType
 	byType := map[gc.ConditionType]*summary{}
 	for i := range hs.Parts {
@@ -472,7 +473,7 @@ const temperatureIntensityMax = 0.5
 func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
-	if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(gc.OnsetCold)); cold != nil {
+	if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(oapi.Cold)); cold != nil {
 		return hud.StatusBadge{Text: conditionLabel(world, cold.Type, cold.Severity), Color: color.RGBA{80, 140, 235, 255}}, true
 	}
 	return hud.StatusBadge{}, false
@@ -512,21 +513,21 @@ func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA 
 }
 
 // getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤
-func getFatigueBadgeColor(level gc.FatigueLevel) color.RGBA {
-	if level == gc.FatigueExhausted {
+func getFatigueBadgeColor(level oapi.FatigueStageId) color.RGBA {
+	if level == oapi.FatigueStageIdExhausted {
 		return color.RGBA{255, 50, 50, 255}
 	}
 	return color.RGBA{255, 200, 0, 255}
 }
 
 // getHungerBadgeColor は空腹度に応じたバッジ色を返す
-func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {
+func getHungerBadgeColor(level oapi.HungerStageId) color.RGBA {
 	switch level {
-	case gc.HungerSatiated:
+	case oapi.HungerStageIdSatiated:
 		return color.RGBA{100, 200, 100, 255} // 緑（満腹）
-	case gc.HungerHungry:
+	case oapi.HungerStageIdHungry:
 		return color.RGBA{255, 200, 0, 255} // 黄色（空腹）
-	case gc.HungerStarving:
+	case oapi.HungerStageIdStarving:
 		return color.RGBA{255, 50, 50, 255} // 赤（飢餓）
 	default:
 		return color.RGBA{255, 255, 255, 255}

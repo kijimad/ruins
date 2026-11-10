@@ -3122,19 +3122,23 @@
 [[fatigueStages]]
   from = 0.0
   id = "rested"
+  name = "Rested"
 
 [[fatigueStages]]
   from = 0.3
   id = "normal"
+  name = "Normal"
 
 [[fatigueStages]]
   from = 0.5
   id = "tired"
+  name = "Tired"
   severity = "minor"
 
 [[fatigueStages]]
   from = 0.8
   id = "exhausted"
+  name = "Exhausted"
   severity = "medium"
 
 [flavorContent]
@@ -3168,19 +3172,23 @@
 [[hungerStages]]
   from = 0.95
   id = "satiated"
+  name = "Full"
 
 [[hungerStages]]
   from = 0.66
   id = "normal"
+  name = "Normal"
 
 [[hungerStages]]
   from = 0.33
   id = "hungry"
+  name = "Hungry"
   severity = "minor"
 
 [[hungerStages]]
   from = 0.0
   id = "starving"
+  name = "Starving"
   severity = "medium"
 
 [[interiorContents]]

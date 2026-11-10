@@ -1988,6 +1988,9 @@ type FatigueStage struct {
 	// Id 疲労の段階
 	Id FatigueStageId `json:"id"`
 
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
 	// Severity この段階で立つ過労の重症度。省くと立たない
 	Severity *ConditionSeverity `json:"severity,omitempty"`
 }
@@ -2095,6 +2098,9 @@ type HungerStage struct {
 
 	// Id 空腹の段階
 	Id HungerStageId `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 
 	// Severity この段階で立つ栄養失調の重症度。省くと立たない
 	Severity *ConditionSeverity `json:"severity,omitempty"`

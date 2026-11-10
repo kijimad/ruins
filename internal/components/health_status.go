@@ -73,18 +73,6 @@ type StatEffect struct {
 // ConditionType は状態の種類を識別する
 type ConditionType string
 
-// ConditionOnset は不調を起こす仕組み。コードは不調の名前でなく仕組みで不調を引く。
-// 仕組みごとにちょうど1つの不調が raw で持つ
-type ConditionOnset string
-
-// 不調を起こす仕組みの定数。値は raw の conditions の onset と同じ
-const (
-	OnsetCold       ConditionOnset = "cold"        // 体温が下がると TemperatureSystem が進める
-	OnsetRottenFood ConditionOnset = "rotten_food" // 腐敗食を食べると確率で発症する
-	OnsetFatigue    ConditionOnset = "fatigue"     // 疲労の量から読み取り時に導出する
-	OnsetHunger     ConditionOnset = "hunger"      // 空腹の量から読み取り時に導出する
-)
-
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
 // 低体温は TemperatureSystem が体温から進めるのでこの区分を持たない
 type RecoveryMode string

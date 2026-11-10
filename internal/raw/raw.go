@@ -1016,11 +1016,7 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 			def.Cause = gc.DeathCause(*row.Cause)
 		}
 		if row.Onset != nil {
-			onset, ok := conditionOnsets[*row.Onset]
-			if !ok {
-				return gc.ConditionDefs{}, NewKeyNotFoundError(string(*row.Onset), "ConditionOnset")
-			}
-			def.Onset = onset
+			def.Onset = *row.Onset
 		}
 		for _, id := range PtrSlice(row.Parts) {
 			bp, ok := gc.BodyPartByID(id)
@@ -1038,14 +1034,6 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 		injuries[string(row.Id)] = gc.ConditionType(row.Injury)
 	}
 	return gc.NewConditionDefs(conds, parts, injuries), nil
-}
-
-// conditionOnsets は raw の不調を起こす仕組みから Go の仕組みへの対応
-var conditionOnsets = map[oapi.ConditionOnset]gc.ConditionOnset{
-	oapi.Cold:       gc.OnsetCold,
-	oapi.RottenFood: gc.OnsetRottenFood,
-	oapi.Fatigue:    gc.OnsetFatigue,
-	oapi.Hunger:     gc.OnsetHunger,
 }
 
 // abilityIDs は raw の能力値から Go の能力値への対応
@@ -1136,18 +1124,6 @@ var (
 		oapi.ConditionSeverityMedium: gc.SeverityMedium,
 		oapi.ConditionSeveritySevere: gc.SeveritySevere,
 	}
-	hungerLevels = map[oapi.HungerStageId]gc.HungerLevel{
-		oapi.HungerStageIdSatiated: gc.HungerSatiated,
-		oapi.HungerStageIdNormal:   gc.HungerNormal,
-		oapi.HungerStageIdHungry:   gc.HungerHungry,
-		oapi.HungerStageIdStarving: gc.HungerStarving,
-	}
-	fatigueLevels = map[oapi.FatigueStageId]gc.FatigueLevel{
-		oapi.FatigueStageIdRested:    gc.FatigueRested,
-		oapi.FatigueStageIdNormal:    gc.FatigueNormal,
-		oapi.FatigueStageIdTired:     gc.FatigueTired,
-		oapi.FatigueStageIdExhausted: gc.FatigueExhausted,
-	}
 )
 
 // NewTileEnvDefs は raw の waterEffects と foliageEffects から、水と植生がタイルの気温に足す補正の表を組み立てる
@@ -1190,11 +1166,11 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	}
 	hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))
 	for _, row := range PtrSlice(raws.HungerStages) {
-		hunger = append(hunger, gc.HungerStage{Level: hungerLevels[row.Id], From: row.From, Condition: conditionOf(row.Severity)})
+		hunger = append(hunger, gc.HungerStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
 	}
 	fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))
 	for _, row := range PtrSlice(raws.FatigueStages) {
-		fatigue = append(fatigue, gc.FatigueStage{Level: fatigueLevels[row.Id], From: row.From, Condition: conditionOf(row.Severity)})
+		fatigue = append(fatigue, gc.FatigueStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
 	}
 	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue}
 }

@@ -2730,10 +2730,13 @@ components:
       type: object
       required:
         - id
+        - name
         - from
       properties:
         id:
           $ref: '#/components/schemas/FatigueStageId'
+        name:
+          $ref: '#/components/schemas/EntityName'
         from:
           $ref: '#/components/schemas/NeedRatio'
         severity:
@@ -2882,10 +2885,13 @@ components:
       type: object
       required:
         - id
+        - name
         - from
       properties:
         id:
           $ref: '#/components/schemas/HungerStageId'
+        name:
+          $ref: '#/components/schemas/EntityName'
         from:
           $ref: '#/components/schemas/NeedRatio'
         severity:

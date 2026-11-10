@@ -485,7 +485,7 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 	}{
 		{gc.ConditionType("hypothermia"), gc.ConditionDef{
 			Name: "Hypothermia", Description: "The body is dangerously cold. Warm up to recover.",
-			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseFrozen, Onset: gc.OnsetCold,
+			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseFrozen, Onset: oapi.Cold,
 		}},
 		{gc.ConditionType("fracture"), gc.ConditionDef{
 			Name: "Fracture", Description: "A broken bone. It will not heal until treated.",
@@ -504,15 +504,15 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 		}},
 		{gc.ConditionType("food_poisoning"), gc.ConditionDef{
 			Name: "Food poisoning", Description: "Nausea from bad food. It clears on its own over time.",
-			PainPerSeverity: 5, BodyFuncDropPerSeverity: 12, Recovery: gc.RecoverOverTime, RecoverPer: 2, Onset: gc.OnsetRottenFood,
+			PainPerSeverity: 5, BodyFuncDropPerSeverity: 12, Recovery: gc.RecoverOverTime, RecoverPer: 2, Onset: oapi.RottenFood,
 		}},
 		{gc.ConditionType("exhaustion"), gc.ConditionDef{
 			Name: "Exhaustion", Description: "Worn out from lack of rest. Sleep to recover.",
-			BodyFuncDropPerSeverity: 10, Onset: gc.OnsetFatigue,
+			BodyFuncDropPerSeverity: 10, Onset: oapi.Fatigue,
 		}},
 		{gc.ConditionType("malnutrition"), gc.ConditionDef{
 			Name: "Malnutrition", Description: "Weakened by hunger. Eat to recover.",
-			BodyFuncDropPerSeverity: 10, Onset: gc.OnsetHunger,
+			BodyFuncDropPerSeverity: 10, Onset: oapi.Hunger,
 		}},
 	}
 	for _, tt := range tests {

@@ -99,7 +99,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		// Effects タブの意識と各出力に出る
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Hunger"),
-			Value:       query.T(world, hunger.GetLevel(world.Resources.NeedDefs).String()),
+			Value:       query.HungerName(world, hunger.GetLevel(world.Resources.NeedDefs)),
 			Description: query.T(world, "Hunger. High hunger hinders actions and recovery"),
 		})
 	}
@@ -108,7 +108,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		fatigue := world.Components.Fatigue.Get(playerEntity)
 		items = append(items, statusItemData{
 			Label:       query.T(world, "Fatigue"),
-			Value:       query.T(world, string(fatigue.GetLevel(world.Resources.NeedDefs))),
+			Value:       query.FatigueName(world, fatigue.GetLevel(world.Resources.NeedDefs)),
 			Description: query.T(world, "Fatigue. High fatigue hinders actions and recovery"),
 		})
 	}
@@ -382,9 +382,9 @@ func sourceLabel(world w.World, s gc.ProficiencySource) string {
 	case gc.SourceBodyFunc:
 		return fmt.Sprintf("%s %d%%", query.T(world, string(s.BodyFunc)), s.Amount)
 	case gc.SourceFatigue:
-		return query.T(world, string(s.Fatigue))
+		return query.FatigueName(world, s.Fatigue)
 	case gc.SourceHunger:
-		return query.T(world, s.Hunger.String())
+		return query.HungerName(world, s.Hunger)
 	case gc.SourceSleeping:
 		return query.T(world, "Sleeping")
 	}

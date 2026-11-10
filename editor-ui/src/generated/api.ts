@@ -1067,6 +1067,10 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
 export interface FatigueStage {
     'id': FatigueStageId;
     /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
      * 最大値に対する割合
      */
     'from': number;
@@ -1206,6 +1210,10 @@ export interface HeroChoice {
  */
 export interface HungerStage {
     'id': HungerStageId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
     /**
      * 最大値に対する割合
      */

@@ -4,6 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -125,14 +126,14 @@ func hasActiveHypothermia(actor ecs.Entity, world w.World) bool {
 		return false
 	}
 	hs := world.Components.HealthStatus.Get(actor)
-	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(world.Resources.ConditionDefs.ByOnset(gc.OnsetCold))
+	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(world.Resources.ConditionDefs.ByOnset(oapi.Cold))
 	return cond != nil && cond.IsActive()
 }
 
 // isStarving は飢餓段階かを返す
 func isStarving(actor ecs.Entity, world w.World) bool {
 	return world.Components.Hunger.Has(actor) &&
-		world.Components.Hunger.Get(actor).GetLevel(world.Resources.NeedDefs) == gc.HungerStarving
+		world.Components.Hunger.Get(actor).GetLevel(world.Resources.NeedDefs) == oapi.HungerStageIdStarving
 }
 
 // beddingQualityAt は足元か隣接の寝具から最大の Quality を返す。無ければ地べたの基準

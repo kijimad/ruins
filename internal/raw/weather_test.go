@@ -140,16 +140,16 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 
 	assert.Equal(t, gc.NeedDefs{
 		Hunger: []gc.HungerStage{
-			{Level: gc.HungerSatiated, From: 0.95},
-			{Level: gc.HungerNormal, From: 0.66},
-			{Level: gc.HungerHungry, From: 0.33, Condition: gc.SeverityMinor},
-			{Level: gc.HungerStarving, From: 0, Condition: gc.SeverityMedium},
+			{Level: oapi.HungerStageIdSatiated, Name: "Full", From: 0.95},
+			{Level: oapi.HungerStageIdNormal, Name: "Normal", From: 0.66},
+			{Level: oapi.HungerStageIdHungry, Name: "Hungry", From: 0.33, Condition: gc.SeverityMinor},
+			{Level: oapi.HungerStageIdStarving, Name: "Starving", From: 0, Condition: gc.SeverityMedium},
 		},
 		Fatigue: []gc.FatigueStage{
-			{Level: gc.FatigueRested, From: 0},
-			{Level: gc.FatigueNormal, From: 0.3},
-			{Level: gc.FatigueTired, From: 0.5, Condition: gc.SeverityMinor},
-			{Level: gc.FatigueExhausted, From: 0.8, Condition: gc.SeverityMedium},
+			{Level: oapi.FatigueStageIdRested, Name: "Rested", From: 0},
+			{Level: oapi.FatigueStageIdNormal, Name: "Normal", From: 0.3},
+			{Level: oapi.FatigueStageIdTired, Name: "Tired", From: 0.5, Condition: gc.SeverityMinor},
+			{Level: oapi.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium},
 		},
 	}, defs)
 }

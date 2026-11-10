@@ -1,7 +1,7 @@
 package activity
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -11,10 +11,10 @@ import (
 // 入眠可否は SleepBehavior.Validate と states のプロンプト起動が同じこの値を見るため、
 // ゲートと表示がずれない。疲労・気温・安全のどれかを欠くと入眠できない。
 type SleepConditions struct {
-	HasFatigue    bool            // 疲労コンポーネントを持つか。持たない者は眠れない
-	Fatigue       gc.FatigueLevel // 疲労段階
-	TemperatureOK bool            // 気温が入眠可能な帯に収まるか
-	AreaSafe      bool            // 周囲に敵対エンティティがいないか
+	HasFatigue    bool                // 疲労コンポーネントを持つか。持たない者は眠れない
+	Fatigue       oapi.FatigueStageId // 疲労段階
+	TemperatureOK bool                // 気温が入眠可能な帯に収まるか
+	AreaSafe      bool                // 周囲に敵対エンティティがいないか
 }
 
 // EvaluateSleepConditions は actor の現在地での睡眠条件を評価する。
@@ -44,7 +44,7 @@ func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 // TooTired は疲労が足りず眠れない状態かを返す。快調 Rested か疲労を持たない者は眠れない。
 // 寝すぎを防ぐため一定の疲労がないと入眠できない。
 func (sc SleepConditions) TooTired() bool {
-	return !sc.HasFatigue || sc.Fatigue == gc.FatigueRested
+	return !sc.HasFatigue || sc.Fatigue == oapi.FatigueStageIdRested
 }
 
 // CanSleep は入眠を妨げるブロック条件が一つも無いかを返す。

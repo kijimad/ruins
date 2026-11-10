@@ -247,10 +247,10 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 
 	// 腐敗食は低確率で食中毒を起こす
 	if stage == gc.FreshnessRotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
-		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(gc.OnsetRottenFood))
+		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(oapi.RottenFood))
 	}
 
-	isSatiated := hunger.GetLevel(world.Resources.NeedDefs) == gc.HungerSatiated
+	isSatiated := hunger.GetLevel(world.Resources.NeedDefs) == oapi.HungerStageIdSatiated
 	u.logNutritionUse(actor, world, item, isSatiated)
 
 	return nil

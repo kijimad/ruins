@@ -120,7 +120,7 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 	var changes []gc.SeverityChange
 
 	// 低体温の処理
-	cold := world.Resources.ConditionDefs.ByOnset(gc.OnsetCold)
+	cold := world.Resources.ConditionDefs.ByOnset(oapi.Cold)
 	switch {
 	case offset < -bodyTempColdBand:
 		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))

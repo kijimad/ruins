@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kijimaD/ruins/internal/oapi"
+
 const (
 	// DefaultMaxHunger はデフォルトの最大満腹度
 	DefaultMaxHunger = 500
@@ -10,44 +12,14 @@ const (
 	HungerDrainTurns = 3
 )
 
-// HungerLevel は空腹度の段階を表す
-type HungerLevel int
-
-const (
-	// HungerSatiated は満腹状態
-	HungerSatiated HungerLevel = iota
-	// HungerNormal は普通状態
-	HungerNormal
-	// HungerHungry は空腹状態
-	HungerHungry
-	// HungerStarving は飢餓状態
-	HungerStarving
-)
-
-// String はHungerLevelの文字列表現を返す
-func (h HungerLevel) String() string {
-	switch h {
-	case HungerSatiated:
-		return "Full"
-	case HungerNormal:
-		return "Normal"
-	case HungerHungry:
-		return "Hungry"
-	case HungerStarving:
-		return "Starving"
-	default:
-		panic("invalid HungerLevel value")
-	}
-}
-
 // Hunger は空腹度を表す。プレイヤーなどのキャラクターが保持する。
 // 0が飢餓状態、値が大きいほど満腹
 type Hunger Pool[int]
 
 // GetLevel は現在の空腹度レベルを取得する。段階の境目は defs が持つ
-func (h *Hunger) GetLevel(defs NeedDefs) HungerLevel {
+func (h *Hunger) GetLevel(defs NeedDefs) oapi.HungerStageId {
 	if h.Max <= 0 {
-		return HungerSatiated
+		return oapi.HungerStageIdSatiated
 	}
 	return defs.hungerStage(float64(h.Current) / float64(h.Max)).Level
 }

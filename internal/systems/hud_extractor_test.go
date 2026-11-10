@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
@@ -79,27 +80,27 @@ func TestGetHungerBadgeColor(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name     string
-		level    gc.HungerLevel
+		level    oapi.HungerStageId
 		expected color.RGBA
 	}{
 		{
 			name:     "満腹状態は緑",
-			level:    gc.HungerSatiated,
+			level:    oapi.HungerStageIdSatiated,
 			expected: color.RGBA{100, 200, 100, 255},
 		},
 		{
 			name:     "空腹状態は黄色",
-			level:    gc.HungerHungry,
+			level:    oapi.HungerStageIdHungry,
 			expected: color.RGBA{255, 200, 0, 255},
 		},
 		{
 			name:     "飢餓状態は赤",
-			level:    gc.HungerStarving,
+			level:    oapi.HungerStageIdStarving,
 			expected: color.RGBA{255, 50, 50, 255},
 		},
 		{
 			name:     "普通状態はデフォルトの白",
-			level:    gc.HungerNormal,
+			level:    oapi.HungerStageIdNormal,
 			expected: color.RGBA{255, 255, 255, 255},
 		},
 	}
@@ -248,7 +249,7 @@ func TestExtractStatusBadgesData(t *testing.T) {
 
 			require.Len(t, data.Badges, tt.wantBadges)
 			if tt.wantBadges > 0 {
-				assert.Equal(t, hunger.GetLevel(world.Resources.NeedDefs).String(), data.Badges[0].Text)
+				assert.Equal(t, query.HungerName(world, hunger.GetLevel(world.Resources.NeedDefs)), data.Badges[0].Text)
 				assert.Equal(t, getHungerBadgeColor(hunger.GetLevel(world.Resources.NeedDefs)), data.Badges[0].Color)
 			}
 			assert.Equal(t, 640, data.ScreenDimensions.Width)
@@ -537,15 +538,15 @@ func TestGetFatigueBadgeColor(t *testing.T) {
 	// 色の RGBA 値そのものは固定せず、過労が別色の警告になること、非過労が同色になることを見る
 	t.Run("過労は非過労と異なる警告色になる", func(t *testing.T) {
 		t.Parallel()
-		exhausted := getFatigueBadgeColor(gc.FatigueExhausted)
-		normal := getFatigueBadgeColor(gc.FatigueNormal)
+		exhausted := getFatigueBadgeColor(oapi.FatigueStageIdExhausted)
+		normal := getFatigueBadgeColor(oapi.FatigueStageIdNormal)
 		assert.NotEqual(t, normal, exhausted, "過労は非過労と別色")
 		assert.Less(t, exhausted.G, normal.G, "過労はより赤寄りで緑成分が小さい")
 	})
 
 	t.Run("過労以外は同じ注意色になる", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, getFatigueBadgeColor(gc.FatigueNormal), getFatigueBadgeColor(gc.FatigueTired),
+		assert.Equal(t, getFatigueBadgeColor(oapi.FatigueStageIdNormal), getFatigueBadgeColor(oapi.FatigueStageIdTired),
 			"非過労の段階は同じ色")
 	})
 }

@@ -127,7 +127,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 		result.LootIncome += loot.income
 
 		// 空腹（33%未満）になったら食料ストックを消費する
-		if hunger.GetLevel(needs) >= gc.HungerHungry && foodStock > 0 {
+		if level := hunger.GetLevel(needs); (level == oapi.HungerStageIdHungry || level == oapi.HungerStageIdStarving) && foodStock > 0 {
 			hunger.Increase(foodStock)
 			foodStock = 0
 		}
