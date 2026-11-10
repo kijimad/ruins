@@ -26,25 +26,14 @@ type ProficiencyDef struct {
 // SkillDefs はスキルの定義、カテゴリの表示順、熟練の効果倍率の表。
 // 読み込み時に raw から1度だけ組み立て、以後は変えない
 type SkillDefs struct {
-	skills        map[SkillID]SkillDef
-	categories    []SkillCategory
-	proficiencies map[ProficiencyKey]ProficiencyDef
-}
-
-// NewSkillDefs はスキルの定義、表示順のカテゴリ、熟練の効果倍率から表を作る。渡した値は表が所有する
-func NewSkillDefs(skills map[SkillID]SkillDef, categories []SkillCategory, proficiencies map[ProficiencyKey]ProficiencyDef) SkillDefs {
-	return SkillDefs{skills: skills, categories: categories, proficiencies: proficiencies}
-}
-
-// Def はスキルの定義を返す。未登録なら ok=false
-func (d SkillDefs) Def(id SkillID) (SkillDef, bool) {
-	def, ok := d.skills[id]
-	return def, ok
+	Skills        map[SkillID]SkillDef
+	Categories    []SkillCategory // 表示順
+	Proficiencies map[ProficiencyKey]ProficiencyDef
 }
 
 // Name はスキルの表示名 msgid を返す。未登録なら id をそのまま返す
 func (d SkillDefs) Name(id SkillID) string {
-	if def, ok := d.skills[id]; ok {
+	if def, ok := d.Skills[id]; ok {
 		return def.Name
 	}
 	return string(id)
@@ -52,14 +41,9 @@ func (d SkillDefs) Name(id SkillID) string {
 
 // Ability はスキルに対応する能力値を返す。未登録なら panic する
 func (d SkillDefs) Ability(id SkillID) AbilityID {
-	def, ok := d.skills[id]
+	def, ok := d.Skills[id]
 	if !ok {
 		panic(fmt.Sprintf("no ability defined for skill %q", id))
 	}
 	return def.Ability
-}
-
-// Categories は表示順のカテゴリを返す
-func (d SkillDefs) Categories() []SkillCategory {
-	return d.categories
 }

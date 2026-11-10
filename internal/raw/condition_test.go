@@ -354,7 +354,7 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	defs, err := NewSkillDefs(raws)
 	require.NoError(t, err)
 
-	sword, ok := defs.Def(gc.SkillSword)
+	sword, ok := defs.Skills[gc.SkillSword]
 	require.True(t, ok)
 	assert.Equal(t, gc.SkillDef{
 		Name:     "Swordsmanship",
@@ -371,7 +371,7 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 		{Name: "Mobility", IDs: []gc.SkillID{gc.SkillSprinting, gc.SkillStealth, gc.SkillNightVision, gc.SkillWeightBearing}},
 		{Name: "Survival", IDs: []gc.SkillID{gc.SkillColdResist, gc.SkillHungerResist, gc.SkillHealing, gc.SkillExploration}},
 		{Name: "Defense", IDs: []gc.SkillID{gc.SkillHeavyArmor, gc.SkillFireResist, gc.SkillThunderResist, gc.SkillChillResist, gc.SkillPhotonResist}},
-	}, defs.Categories())
+	}, defs.Categories)
 
 	skills := gc.NewSkills()
 	for _, id := range gc.AllSkillIDs {

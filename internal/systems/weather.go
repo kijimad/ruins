@@ -54,7 +54,7 @@ func (sys *WeatherSystem) Update(world w.World) error {
 			Markup(gamelog.Tag("system", query.T(world, "The weather changed to %s.", name))).
 			Log()
 		// 視程が動いたら、移動を待たずその場で視界を再計算させる
-		if defs.Def(next).Effect.VisionDelta != defs.Def(prev).Effect.VisionDelta {
+		if defs.Kinds[next].Effect.VisionDelta != defs.Kinds[prev].Effect.VisionDelta {
 			query.GetVisionState(world).RequestUpdate()
 		}
 	}

@@ -119,7 +119,7 @@ func TestNewWeatherDefs_実データ(t *testing.T) {
 
 	got := map[gc.WeatherKind]gc.WeatherDef{}
 	for k := range gc.NumWeatherKind {
-		got[gc.WeatherKind(k)] = defs.Def(gc.WeatherKind(k))
+		got[gc.WeatherKind(k)] = defs.Kinds[gc.WeatherKind(k)]
 	}
 	assert.Equal(t, map[gc.WeatherKind]gc.WeatherDef{
 		gc.WeatherClear:    {Effect: gc.WeatherEffect{TempModifier: 2, VisionDelta: 0}, Severity: 0, SpellTurnsMin: 2250, SpellTurnsMax: 4500, SeasonWeights: [4]float64{1.4, 1.8, 1.1, 0.6}},
@@ -138,18 +138,18 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 	require.NoError(t, err)
 	defs := NewNeedDefs(raws)
 
-	assert.Equal(t, gc.NewNeedDefs(
-		[]gc.HungerStage{
+	assert.Equal(t, gc.NeedDefs{
+		Hunger: []gc.HungerStage{
 			{Level: gc.HungerSatiated, From: 0.95},
 			{Level: gc.HungerNormal, From: 0.66},
 			{Level: gc.HungerHungry, From: 0.33, Condition: gc.SeverityMinor},
 			{Level: gc.HungerStarving, From: 0, Condition: gc.SeverityMedium},
 		},
-		[]gc.FatigueStage{
+		Fatigue: []gc.FatigueStage{
 			{Level: gc.FatigueRested, From: 0},
 			{Level: gc.FatigueNormal, From: 0.3},
 			{Level: gc.FatigueTired, From: 0.5, Condition: gc.SeverityMinor},
 			{Level: gc.FatigueExhausted, From: 0.8, Condition: gc.SeverityMedium},
 		},
-	), defs)
+	}, defs)
 }

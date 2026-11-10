@@ -147,7 +147,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 		return items
 	}
 	skills := world.Components.Skills.Get(playerEntity)
-	for _, cat := range world.Resources.SkillDefs.Categories() {
+	for _, cat := range world.Resources.SkillDefs.Categories {
 		items = append(items, statusItemData{Label: query.T(world, cat.Name), IsHeader: true, Description: query.T(world, "%s category skills", query.T(world, cat.Name))})
 		for _, id := range cat.IDs {
 			s := skills.Get(id)
@@ -155,7 +155,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 			if s.Exp.Max > 0 {
 				expFrac = s.Exp.Current * 1000 / s.Exp.Max
 			}
-			info, _ := world.Resources.SkillDefs.Def(id)
+			info := world.Resources.SkillDefs.Skills[id]
 			items = append(items, statusItemData{
 				Label:       query.T(world, info.Name),
 				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),

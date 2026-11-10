@@ -11,15 +11,5 @@ type WeatherDef struct {
 
 // WeatherDefs は天候の種類ごとの定義の表。読み込み時に raw から1度だけ組み立て、以後は変えない
 type WeatherDefs struct {
-	kinds [NumWeatherKind]WeatherDef
-}
-
-// NewWeatherDefs は天候の種類ごとの定義から表を作る
-func NewWeatherDefs(kinds [NumWeatherKind]WeatherDef) WeatherDefs {
-	return WeatherDefs{kinds: kinds}
-}
-
-// Def は天候の種類の定義を返す
-func (d WeatherDefs) Def(k WeatherKind) WeatherDef {
-	return d.kinds[k]
+	Kinds [NumWeatherKind]WeatherDef
 }

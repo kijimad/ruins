@@ -38,7 +38,7 @@ func placeFactor(defs gc.WeatherDefs, northDepth int, next gc.WeatherKind) float
 	if northDepth < 0 {
 		northDepth = 0
 	}
-	return 1.0 + float64(defs.Def(next).Severity)*float64(northDepth)*placeSeverityCoef
+	return 1.0 + float64(defs.Kinds[next].Severity)*float64(northDepth)*placeSeverityCoef
 }
 
 // NextWeather は現在の天候から次の天候を1つ引く。粘り・季節親和・場所寄せの積で重み付けする。
@@ -48,7 +48,7 @@ func NextWeather(defs gc.WeatherDefs, current gc.WeatherKind, season gc.Season, 
 	for next := range gc.NumWeatherKind {
 		kind := gc.WeatherKind(next)
 		weights[next] = stickiness(current, kind) *
-			defs.Def(kind).SeasonWeights[season] *
+			defs.Kinds[kind].SeasonWeights[season] *
 			placeFactor(defs, northDepth, kind)
 	}
 	i, ok := consts.Pick(rng, weights[:], func(w float64) float64 { return w })
@@ -67,7 +67,7 @@ func RollSpellTurns(defs gc.WeatherDefs, kind gc.WeatherKind, season gc.Season, 
 	if northDepth < 0 {
 		northDepth = 0
 	}
-	def := defs.Def(kind)
+	def := defs.Kinds[kind]
 	lo, hi := def.SpellTurnsMin, def.SpellTurnsMax
 	turns := lo
 	if hi > lo {

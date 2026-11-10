@@ -178,7 +178,7 @@ var accuracySkillByKey = func() map[ProficiencyKey]SkillID {
 // skills / abils は不在なら nil でよく、その由来のソースは飛ばす。bodyFuncs は実効身体機能で、
 // 疲労・空腹の低下を畳んだものを呼び出し側が渡す
 func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key ProficiencyKey, fn func(ProficiencySource)) {
-	spec, ok := d.proficiencies[key]
+	spec, ok := d.Proficiencies[key]
 	if !ok {
 		return
 	}

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 // testSkillDefs は components のテストが使うスキルの定義の表。値は raw の行と同じにする
@@ -47,7 +46,7 @@ var testSkillDefs = func() SkillDefs {
 		proficiencies[WeaponAccuracyKey(id)] = ProficiencyDef{id, 3}
 	}
 	categories := []SkillCategory{{Name: "Melee", IDs: []SkillID{SkillSword, SkillSpear, SkillFist}}}
-	return NewSkillDefs(skills, categories, proficiencies)
+	return SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies}
 }()
 
 func TestSkillDefs_Ability(t *testing.T) {
@@ -63,21 +62,4 @@ func TestSkillDefs_Name(t *testing.T) {
 
 	assert.Equal(t, "sword", testSkillDefs.Name(SkillSword))
 	assert.Equal(t, "undefined_skill", testSkillDefs.Name("undefined_skill"), "未登録は id をそのまま返す")
-}
-
-func TestSkillDefs_Def(t *testing.T) {
-	t.Parallel()
-
-	def, ok := testSkillDefs.Def(SkillBow)
-	require.True(t, ok)
-	assert.Equal(t, SkillDef{Name: "bow", Ability: AblSEN}, def)
-
-	_, ok = testSkillDefs.Def("undefined_skill")
-	assert.False(t, ok)
-}
-
-func TestSkillDefs_Categories(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, []SkillCategory{{Name: "Melee", IDs: []SkillID{SkillSword, SkillSpear, SkillFist}}}, testSkillDefs.Categories())
 }

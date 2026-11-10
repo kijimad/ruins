@@ -1093,7 +1093,7 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	for _, c := range catRows {
 		categories = append(categories, gc.SkillCategory{Name: c.Name, IDs: idsByCategory[c.Id]})
 	}
-	return gc.NewSkillDefs(skills, categories, proficiencies), nil
+	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies}, nil
 }
 
 var (
@@ -1145,7 +1145,7 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 		}
 		kinds[weatherKinds[row.Id]] = def
 	}
-	return gc.NewWeatherDefs(kinds)
+	return gc.WeatherDefs{Kinds: kinds}
 }
 
 // NewNeedDefs は raw の hungerStages と fatigueStages から空腹と疲労の段階の表を組み立てる
@@ -1164,5 +1164,5 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	for _, row := range PtrSlice(raws.FatigueStages) {
 		fatigue = append(fatigue, gc.FatigueStage{Level: fatigueLevels[row.Id], From: row.From, Condition: conditionOf(row.Severity)})
 	}
-	return gc.NewNeedDefs(hunger, fatigue)
+	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue}
 }

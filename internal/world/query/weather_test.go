@@ -15,7 +15,7 @@ func newTestRNG(seed uint64) *rand.Rand {
 
 // isHarsh は寒さの厳しい天候かを返す。分布の形を測るのに使う。
 func isHarsh(defs gc.WeatherDefs, k gc.WeatherKind) bool {
-	return defs.Def(k).Severity > 0
+	return defs.Kinds[k].Severity > 0
 }
 
 func TestNextWeather_同じシードと入力なら同じ結果(t *testing.T) {

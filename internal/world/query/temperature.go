@@ -88,7 +88,7 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	// 屋外の世界温度。季節+時間帯+天候から緯度勾配を引く。天候の寒さも worldTemp の一項なので
 	// 屋内は shelteredWorldTemp で緩和される。末尾で引くと屋内外が同じだけ寒くなってしまう
 	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier() +
-		world.Resources.WeatherDefs.Def(GetWeather(world).Current).Effect.TempModifier - latitudeCold(world, y)
+		world.Resources.WeatherDefs.Kinds[GetWeather(world).Current].Effect.TempModifier - latitudeCold(world, y)
 	shelter, tileModifier := TileEnvironmentAt(world, x, y)
 
 	return baseTemp +
