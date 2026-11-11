@@ -69,11 +69,20 @@ const (
 	Fresh  Stage = "fresh"
 	Rotten Stage = "rotten"
 )
+type Rank int
+const (
+	First Rank = iota
+	Second
+	Untyped = 9
+)
 type Kind string
 const Furniture Kind = "furniture"
 type StageRow struct {
 	Id   Stage
 	Name string
+}
+type RankRow struct {
+	Id Rank
 }
 type Placed struct {
 	Kind Kind
@@ -81,7 +90,7 @@ type Placed struct {
 `
 	f, err := parser.ParseFile(token.NewFileSet(), "models.gen.go", src, 0)
 	require.NoError(t, err)
-	assert.ElementsMatch(t, []string{"Fresh", "Rotten"}, slices.Collect(maps.Keys(rowEnumConsts(f))))
+	assert.ElementsMatch(t, []string{"Fresh", "Rotten", "First", "Second"}, slices.Collect(maps.Keys(rowEnumConsts(f))))
 }
 
 func TestRowEnumCompares(t *testing.T) {
@@ -145,13 +154,24 @@ func rowEnumConsts(f *ast.File) map[string]bool {
 		if !ok || gd.Tok != token.CONST {
 			continue
 		}
+		// 型も値も省いた定数は、ブロックの直前の型と式を引き継ぐ
+		var typeName string
 		for _, spec := range gd.Specs {
 			vs, ok := spec.(*ast.ValueSpec)
 			if !ok {
 				continue
 			}
-			typ, ok := vs.Type.(*ast.Ident)
-			if !ok || !rowTypes[typ.Name] {
+			switch typ := vs.Type.(type) {
+			case *ast.Ident:
+				typeName = typ.Name
+			case nil:
+				if len(vs.Values) > 0 {
+					typeName = ""
+				}
+			default:
+				typeName = ""
+			}
+			if !rowTypes[typeName] {
 				continue
 			}
 			for _, name := range vs.Names {

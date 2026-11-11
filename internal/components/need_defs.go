@@ -135,7 +135,7 @@ func (d NeedDefs) FatigueStageOf(level oapi.FatigueStageId) (FatigueStage, bool)
 	return FatigueStage{}, false
 }
 
-// FreshnessAt は経過した段階数 stages に当たる鮮度の段階を返す
+// FreshnessAt は経過した段階数 stages に当たる鮮度の段階を返す。該当が無ければゼロ値
 func (d NeedDefs) FreshnessAt(stages int) FreshnessDef {
 	s, _ := stageAt(d.Freshness, func(s FreshnessDef) float64 { return float64(s.From) }, float64(stages))
 	return s
