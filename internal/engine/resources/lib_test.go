@@ -38,8 +38,7 @@ func TestInitResources_初期化エラーはラップして返す(t *testing.T) 
 
 	got, err := InitResources(game)
 
-	require.Error(t, err)
 	assert.Nil(t, got)
 	require.ErrorIs(t, err, wantErr)
-	assert.ErrorContains(t, err, "failed to initialize resources")
+	require.ErrorIs(t, err, errInitResources)
 }

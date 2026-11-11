@@ -88,8 +88,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 
 		// プレイヤーなしで実行
 		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
-		require.Error(t, err)
-		assert.ErrorContains(t, err, "no player entity with required components found")
+		require.ErrorIs(t, err, errPlayerNotPlaceable)
 	})
 
 	t.Run("必須コンポーネントが欠けている場合はエラー", func(t *testing.T) {
@@ -102,8 +101,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		ensureRemoved(world.Components.GridElement, player)
 
 		err = MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
-		require.Error(t, err)
-		assert.ErrorContains(t, err, "no player entity with required components found")
+		require.ErrorIs(t, err, errPlayerNotPlaceable)
 	})
 }
 

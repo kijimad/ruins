@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"errors"
 	"fmt"
 	"image"
 
@@ -9,6 +10,9 @@ import (
 
 	"github.com/kijimaD/ruins/internal/components"
 )
+
+// errNilSpriteRender は SpriteRender が nil のときに返す
+var errNilSpriteRender = errors.New("sprite render is nil")
 
 // SpriteStore は SpriteRender が指すスプライトの画像を解決してキャッシュする。
 // 等倍の部分画像と、表示サイズへ縮めた画像の両方を同じ置き場に持ち、スプライトから画像を得る道を1つにする。
@@ -92,7 +96,7 @@ func (s *SpriteStore) Rect(sr *components.SpriteRender) (components.Texture, ima
 // 矩形はテクスチャ範囲へクランプするので、範囲外を指す指定でも安全に切り出せる
 func spriteRect(sheets map[string]components.SpriteSheet, sr *components.SpriteRender) (components.SpriteSheet, image.Rectangle, error) {
 	if sr == nil {
-		return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite render is nil")
+		return components.SpriteSheet{}, image.Rectangle{}, errNilSpriteRender
 	}
 	sheet, ok := sheets[sr.SpriteSheetName]
 	if !ok {

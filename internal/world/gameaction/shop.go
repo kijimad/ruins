@@ -1,12 +1,20 @@
 package gameaction
 
 import (
+	"errors"
 	"fmt"
 
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
+)
+
+var (
+	// errConsumeCurrency は購入代金の支払いに失敗したときに返す
+	errConsumeCurrency = errors.New("failed to consume currency")
+	// errAddCurrency は売却代金の付与に失敗し、品を手元へ戻したときに返す
+	errAddCurrency = errors.New("failed to add currency")
 )
 
 // BuyStock はプレイヤーが商人の在庫アイテムを買う。一覧の1行はスタック代表なので、
@@ -20,7 +28,7 @@ func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {
 		return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
 	}
 	if !query.ConsumeCurrency(world, player, price) {
-		return fmt.Errorf("failed to consume currency")
+		return errConsumeCurrency
 	}
 
 	// 実体をバックパックへ移す。移送に失敗したら通貨を返して整合を保つ
@@ -49,7 +57,7 @@ func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.E
 		if _, rbErr := lifecycle.MoveStackToBackpack(world, item, player); rbErr != nil {
 			return fmt.Errorf("payment failed and item rollback also failed: %w (rollback error: %w)", err, rbErr)
 		}
-		return fmt.Errorf("failed to add currency: %w", err)
+		return fmt.Errorf("%w: %w", errAddCurrency, err)
 	}
 
 	return nil

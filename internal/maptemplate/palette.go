@@ -1,6 +1,7 @@
 package maptemplate
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"maps"
@@ -8,6 +9,19 @@ import (
 
 	"github.com/kijimaD/ruins/assets"
 	"github.com/pelletier/go-toml/v2"
+)
+
+var (
+	// errPaletteIDEmpty はパレットIDが空のときに返す
+	errPaletteIDEmpty = errors.New("palette ID is empty")
+	// errPaletteNoDefinition は地形とPropsとNPCsの定義がどれもないときに返す
+	errPaletteNoDefinition = errors.New("terrain, Props, or NPCs definition is required")
+	// errPaletteKeyNotSingleChar はパレットのキーが1文字でないときに返す
+	errPaletteKeyNotSingleChar = errors.New("key must be a single character")
+	// errPaletteTileRequired はPropsやNPCsのtileが未指定のときに返す
+	errPaletteTileRequired = errors.New("tile is required")
+	// errPaletteCharDuplicated は同じ文字が複数の分類で使われているときに返す
+	errPaletteCharDuplicated = errors.New("char is duplicated")
 )
 
 // PaletteEntry はパレットのProp/NPCマッピングの1エントリ
@@ -72,34 +86,34 @@ func (l *PaletteLoader) LoadFile(path string) (*Palette, error) {
 // validate はパレット定義の妥当性を検証する
 func (l *PaletteLoader) validate(p *Palette) error {
 	if p.ID == "" {
-		return fmt.Errorf("palette ID is empty")
+		return errPaletteIDEmpty
 	}
 
 	if len(p.Terrain) == 0 && len(p.Props) == 0 && len(p.NPCs) == 0 {
-		return fmt.Errorf("terrain, Props, or NPCs definition is required")
+		return errPaletteNoDefinition
 	}
 
 	for char := range p.Terrain {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("terrain key must be a single character: %q", char)
+			return fmt.Errorf("terrain %w: %q", errPaletteKeyNotSingleChar, char)
 		}
 	}
 
 	for char, entry := range p.Props {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("props key must be a single character: %q", char)
+			return fmt.Errorf("props %w: %q", errPaletteKeyNotSingleChar, char)
 		}
 		if entry.Tile == "" {
-			return fmt.Errorf("props tile is required: %q", char)
+			return fmt.Errorf("props %w: %q", errPaletteTileRequired, char)
 		}
 	}
 
 	for char, entry := range p.NPCs {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("npcs key must be a single character: %q", char)
+			return fmt.Errorf("npcs %w: %q", errPaletteKeyNotSingleChar, char)
 		}
 		if entry.Tile == "" {
-			return fmt.Errorf("npcs tile is required: %q", char)
+			return fmt.Errorf("npcs %w: %q", errPaletteTileRequired, char)
 		}
 	}
 
@@ -110,13 +124,13 @@ func (l *PaletteLoader) validate(p *Palette) error {
 	}
 	for char := range p.Props {
 		if category, ok := used[char]; ok {
-			return fmt.Errorf("char %q is duplicated between %s and props", char, category)
+			return fmt.Errorf("%w: %q between %s and props", errPaletteCharDuplicated, char, category)
 		}
 		used[char] = "props"
 	}
 	for char := range p.NPCs {
 		if category, ok := used[char]; ok {
-			return fmt.Errorf("char %q is duplicated between %s and npcs", char, category)
+			return fmt.Errorf("%w: %q between %s and npcs", errPaletteCharDuplicated, char, category)
 		}
 	}
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	"github.com/BurntSushi/toml"
@@ -15,6 +16,21 @@ import (
 //   - readSettings() ([]byte, bool, error): 保存済みの生データを返す。無ければ ok=false
 //   - writeSettings([]byte) error: 生データを永続化する
 //   - settingsExist() (bool, error): 保存済みデータが存在するか
+
+var (
+	// errConfigDir は設定ディレクトリの解決に失敗したときに返す
+	errConfigDir = errors.New("failed to get config directory")
+	// errReadConfig は設定ファイルの読み込みに失敗したときに返す
+	errReadConfig = errors.New("failed to read config file")
+	// errCheckConfig は設定ファイルの存在確認に失敗したときに返す
+	errCheckConfig = errors.New("failed to check config file existence")
+	// errCreateConfigDir は設定ディレクトリの作成に失敗したときに返す
+	errCreateConfigDir = errors.New("failed to create config directory")
+	// errWriteConfig は設定ファイルの書き込みに失敗したときに返す
+	errWriteConfig = errors.New("failed to write config file")
+	// errReplaceConfig は設定ファイルの置き換えに失敗したときに返す
+	errReplaceConfig = errors.New("failed to replace config file")
+)
 
 // loadUserConfig は永続化された設定を読み込んで c.User を上書きする。
 // 保存された設定が無い場合は何もせず、呼び出し前のデフォルト値を維持する。読み取り専用。

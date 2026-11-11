@@ -99,9 +99,9 @@ func TestApplyProfession(t *testing.T) {
 	})
 
 	tests := []struct {
-		name        string
-		mutate      func(*oapi.Profession)
-		errContains string
+		name    string
+		mutate  func(*oapi.Profession)
+		wantErr error
 	}{
 		{
 			name: "存在しない初期アイテム名でエラー",
@@ -109,7 +109,7 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = []oapi.ProfessionItem{{Name: "存在しないアイテム", Count: 1}}
 				p.Equips = nil
 			},
-			errContains: "failed to generate profession starting item",
+			wantErr: errProfessionItem,
 		},
 		{
 			name: "存在しない初期装備アイテム名でエラー",
@@ -117,7 +117,7 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = nil
 				p.Equips = []oapi.ProfessionEquip{{Name: "存在しないアイテム", Slot: oapi.EquipSlotWEAPON1}}
 			},
-			errContains: "failed to generate profession starting equipment",
+			wantErr: errProfessionEquipment,
 		},
 		{
 			name: "不正な装備スロット名でエラー",
@@ -125,7 +125,7 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = nil
 				p.Equips = []oapi.ProfessionEquip{{Name: "wooden_sword", Slot: "BOGUS"}}
 			},
-			errContains: "invalid equipment slot name",
+			wantErr: errInvalidEquipmentSlot,
 		},
 	}
 
@@ -140,8 +140,7 @@ func TestApplyProfession(t *testing.T) {
 			tt.mutate(&prof)
 
 			err = ApplyProfession(world, player, prof)
-			require.Error(t, err)
-			assert.ErrorContains(t, err, tt.errContains)
+			require.ErrorIs(t, err, tt.wantErr)
 		})
 	}
 }

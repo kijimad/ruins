@@ -136,7 +136,7 @@ func TestBuyStock_通貨消費に失敗すると購入できない(t *testing.T)
 	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: merchant})
 
 	err = BuyStock(world, player, item)
-	require.ErrorContains(t, err, "failed to consume currency")
+	require.ErrorIs(t, err, errConsumeCurrency)
 
 	// Wallet を剥がしたので通貨の増減は引けない。在庫に残ったままで購入が巻き戻ったことを確かめる
 	assert.True(t, world.Components.LocationInStorage.Has(item))
@@ -160,7 +160,7 @@ func TestSellStock_通貨付与に失敗すると実体をバックパックへ�
 	world.Components.Wallet.Remove(player)
 
 	err = SellStock(world, player, merchant, item)
-	require.ErrorContains(t, err, "failed to add currency")
+	require.ErrorIs(t, err, errAddCurrency)
 
 	// ロールバックで実体が手元へ戻り、商人の在庫には並ばない
 	assert.True(t, world.Components.LocationInBackpack.Has(item))

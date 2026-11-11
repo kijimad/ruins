@@ -15,6 +15,7 @@ var (
 	errFacilityNotRegistered  = errors.New("interior facility not registered")
 	errFlavorContentMissing   = errors.New("interior flavor content missing")
 	errInteriorProfileMissing = errors.New("interior profile missing")
+	errInvalidAmount          = errors.New("invalid interior content amount")
 )
 
 // flavorContent は全施設共通のフレーバー装飾レシピを返す。施設レシピと直交する専用フィールドから引くので、
@@ -112,7 +113,7 @@ func toContent(raws oapi.Raws, ic oapi.InteriorContent) (Content, error) {
 		for _, s := range g.Items {
 			amount, err := consts.ParseDice(s.Amount)
 			if err != nil {
-				return Content{}, fmt.Errorf("interior content %q ref %q amount: %w", ic.Id, s.Ref, err)
+				return Content{}, fmt.Errorf("interior content %q ref %q: %w: %w", ic.Id, s.Ref, errInvalidAmount, err)
 			}
 			placement := deref(s.Placement)
 			if placement == PlaceDefault {

@@ -64,16 +64,27 @@ func LoadFromFile(path string) (oapi.Raws, error) {
 	return raws, nil
 }
 
+var (
+	// errTOMLDecode はTOMLの構文が壊れていてデコードできないときに返す
+	errTOMLDecode = errors.New("TOML decode error")
+	// errUnknownTOMLKeys はTOMLにスキーマにないキーが含まれるときに返す
+	errUnknownTOMLKeys = errors.New("unknown keys found in TOML")
+	// errBookSkillMissing は本にスキルが指定されていないときに返す
+	errBookSkillMissing = errors.New("book requires a Skill")
+	// errBlockPassWithPassCost は通行不可の prop に移動コストが指定されているときに返す
+	errBlockPassWithPassCost = errors.New("blockPass and passCost cannot both be set; passCost is unnecessary when impassable")
+)
+
 // DecodeRaws はTOML文字列をoapi.Raws構造体にデコードする
 // 未知のキーが含まれる場合はエラーを返す
 func DecodeRaws(content string) (oapi.Raws, error) {
 	var raws oapi.Raws
 	metaData, err := toml.Decode(content, &raws)
 	if err != nil {
-		return oapi.Raws{}, fmt.Errorf("TOML decode error: %w", err)
+		return oapi.Raws{}, fmt.Errorf("%w: %w", errTOMLDecode, err)
 	}
 	if undecoded := metaData.Undecoded(); len(undecoded) > 0 {
-		return oapi.Raws{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
+		return oapi.Raws{}, fmt.Errorf("%w: %v", errUnknownTOMLKeys, undecoded)
 	}
 	return raws, nil
 }
@@ -221,7 +232,7 @@ func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {
 // newBookFromAPI はoapi.Bookからgc.Bookを生成する
 func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 	if b.Skill == nil {
-		return nil, fmt.Errorf("book requires a Skill")
+		return nil, errBookSkillMissing
 	}
 
 	skillID := b.Skill.TargetSkill
@@ -792,7 +803,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.SpriteRender = &spriteRender
 
 	if propRaw.BlockPass && propRaw.PassCost != nil {
-		return gc.EntitySpec{}, fmt.Errorf("prop '%s': blockPass and passCost cannot both be set; passCost is unnecessary when impassable", name)
+		return gc.EntitySpec{}, fmt.Errorf("prop '%s': %w", name, errBlockPassWithPassCost)
 	}
 	if propRaw.BlockPass {
 		entitySpec.BlockPass = &gc.BlockPass{}

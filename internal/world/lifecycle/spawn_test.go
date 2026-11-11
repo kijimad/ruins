@@ -125,8 +125,7 @@ func TestSetMaxStats_WithoutComponents(t *testing.T) {
 	entity := world.ECS.NewEntity()
 
 	err := setMaxStats(world, entity)
-	require.Error(t, err, "必要なコンポーネントがない場合はエラーを返すべき")
-	assert.Contains(t, err.Error(), "does not have required components", "エラーメッセージが適切であるべき")
+	require.ErrorIs(t, err, errMissingStatsComponents)
 
 	world.ECS.RemoveEntity(entity)
 }
@@ -292,8 +291,7 @@ func TestSpawnItem(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		_, err := SpawnBackpackItem(world, "wooden_sword", 0)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "count must be positive")
+		require.ErrorIs(t, err, errNonPositiveCount)
 	})
 
 	t.Run("負のcountを指定するとエラー", func(t *testing.T) {
@@ -301,8 +299,7 @@ func TestSpawnItem(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		_, err := SpawnBackpackItem(world, "wooden_sword", -1)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "count must be positive")
+		require.ErrorIs(t, err, errNonPositiveCount)
 	})
 
 	t.Run("存在しないアイテム名を指定するとエラー", func(t *testing.T) {
@@ -312,8 +309,7 @@ func TestSpawnItem(t *testing.T) {
 		require.NoError(t, err)
 
 		_, err = SpawnBackpackItem(world, "存在しないアイテム", 1)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "key not found")
+		require.ErrorAs(t, err, new(raw.KeyNotFoundError))
 	})
 
 	t.Run("プレイヤー不在ではエラー", func(t *testing.T) {
@@ -322,8 +318,7 @@ func TestSpawnItem(t *testing.T) {
 
 		// バックパックはプレイヤーの所有物。所有者なしの生成は不変条件違反として拒否される
 		_, err := SpawnBackpackItem(world, "healing_potion", 1)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "no player entity exists")
+		require.ErrorIs(t, err, query.ErrNoPlayer)
 	})
 }
 
@@ -480,8 +475,7 @@ func TestSpawnNeutralNPC_中立でないメンバーはエラーになる(t *tes
 
 	_, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 
-	require.Error(t, err)
-	assert.EqualError(t, err, "'ash' is not a neutral NPC")
+	require.ErrorIs(t, err, errNotNeutralNPC)
 }
 
 func TestSpawnNeutralNPC_存在しない名前はエラーになる(t *testing.T) {
@@ -491,8 +485,7 @@ func TestSpawnNeutralNPC_存在しない名前はエラーになる(t *testing.T
 
 	_, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "no_such_member")
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to generate neutral NPC")
+	require.ErrorAs(t, err, new(raw.KeyNotFoundError))
 }
 
 func TestSpawnFieldItem_腐敗食は生成時刻と保存期間を持つ(t *testing.T) {

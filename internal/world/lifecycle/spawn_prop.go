@@ -1,7 +1,7 @@
 package lifecycle
 
 import (
-	"fmt"
+	"errors"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -12,10 +12,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// ErrNotDoor は扉でないエンティティを開閉しようとしたときに返す
+var ErrNotDoor = errors.New("entity is not a door")
+
 // OpenDoor は扉を開く
 func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 	if !world.Components.Door.Has(doorEntity) {
-		return fmt.Errorf("entity is not a door")
+		return ErrNotDoor
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity)
@@ -25,7 +28,7 @@ func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 // CloseDoor は扉を閉じる
 func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 	if !world.Components.Door.Has(doorEntity) {
-		return fmt.Errorf("entity is not a door")
+		return ErrNotDoor
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity)

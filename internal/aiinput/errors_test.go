@@ -19,9 +19,7 @@ func TestAIError_WithEntity(t *testing.T) {
 		Entity:  &entity,
 	}
 
-	assert.Contains(t, err.Error(), "planning")
-	assert.Contains(t, err.Error(), fmt.Sprintf("Entity=%d", entity))
-	assert.Contains(t, err.Error(), "行動計画に失敗した")
+	assert.Equal(t, fmt.Sprintf("AI Error [planning] Entity=%d: 行動計画に失敗した", entity), err.Error())
 }
 
 func TestAIError_WithoutEntity(t *testing.T) {
@@ -34,15 +32,12 @@ func TestAIError_WithoutEntity(t *testing.T) {
 		Entity:  nil,
 	}
 
-	assert.Contains(t, err.Error(), "vision")
-	assert.Contains(t, err.Error(), "視界計算に失敗した")
-	assert.NotContains(t, err.Error(), "Entity=")
+	assert.Equal(t, "AI Error [vision]: 視界計算に失敗した", err.Error())
 }
 
 func TestAIError_ErrorMessage(t *testing.T) {
 	t.Parallel()
 
 	err := &AIError{Type: "test", Message: "test message"}
-	assert.Contains(t, err.Error(), "test")
-	assert.Contains(t, err.Error(), "test message")
+	assert.Equal(t, "AI Error [test]: test message", err.Error())
 }

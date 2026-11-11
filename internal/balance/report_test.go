@@ -42,8 +42,9 @@ func TestGenerateReport_存在しないプレイヤーはエラー(t *testing.T)
 	master := loadTestMaster(t)
 
 	_, err := GenerateReport(master, "存在しないプレイヤー", "bare_hands", 1, 1, 1)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to load player")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないプレイヤー", Collection: "Members"}, notFound)
 }
 
 func TestGenerateReport_存在しない武器はエラー(t *testing.T) {
@@ -51,8 +52,9 @@ func TestGenerateReport_存在しない武器はエラー(t *testing.T) {
 	master := loadTestMaster(t)
 
 	_, err := GenerateReport(master, "ash", "存在しない武器", 1, 1, 1)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to load weapon")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しない武器", Collection: "Items"}, notFound)
 }
 
 func TestGenerateBattleMetrics_存在しないプレイヤーはエラー(t *testing.T) {

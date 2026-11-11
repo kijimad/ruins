@@ -3,6 +3,7 @@
 package save
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,10 +13,13 @@ import (
 // saveFileExt はセーブファイルの拡張子。中身は gzip 圧縮した JSON なので、gunzip や zcat でそのまま解凍できる。
 const saveFileExt = ".json.gz"
 
+// errCreateSaveDir はセーブディレクトリの作成に失敗したときに返す
+var errCreateSaveDir = errors.New("failed to create save directory")
+
 // initImpl はデスクトップ環境での初期化処理
 func (sm *SerializationManager) initImpl() error {
 	if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil {
-		return fmt.Errorf("failed to create save directory: %w", err)
+		return fmt.Errorf("%w: %w", errCreateSaveDir, err)
 	}
 	return nil
 }

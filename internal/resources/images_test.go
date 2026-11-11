@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"io/fs"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,8 +24,7 @@ func TestNewImageFromFile_存在しないパスはエラー(t *testing.T) {
 
 	_, err := newImageFromFile("assets/graphics/not-exist.png")
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "assets/graphics/not-exist.png")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func TestNewImageFromFile_画像として復号できなければエラー(t *testing.T) {
@@ -41,6 +41,6 @@ func TestNewNineSliceTex_画像読み込みに失敗したらエラーを伝播�
 
 	tex, err := newNineSliceTex("assets/graphics/not-exist.png", 10, 10)
 
-	require.ErrorContains(t, err, "assets/graphics/not-exist.png")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 	assert.Nil(t, tex)
 }

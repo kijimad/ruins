@@ -94,5 +94,5 @@ func TestFindPosition_全セレクタが失敗するとエラーを返す(t *tes
 	alwaysFail := func(_ *MetaPlan, _ w.World) (consts.Tile, consts.Tile, bool) { return 0, 0, false }
 
 	_, _, err := findPosition(plan, w.World{}, alwaysFail, alwaysFail)
-	assert.ErrorContains(t, err, "all 2 selectors failed")
+	require.ErrorIs(t, err, errNoPlacementPosition)
 }

@@ -44,8 +44,7 @@ func TestLoadUserConfig_読み込みエラーをそのまま返す(t *testing.T)
 	c := &Config{User: DefaultUserConfig()}
 	err := c.loadUserConfig()
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to read config file")
+	require.ErrorIs(t, err, errReadConfig)
 }
 
 // t.Setenv で HOME/XDG_CONFIG_HOME を書き換えるため t.Parallel は呼ばない。
@@ -55,6 +54,5 @@ func TestEnsureUserConfigFile_存在確認に失敗するとエラーを返す(t
 
 	err := EnsureUserConfigFile()
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to get config directory")
+	require.ErrorIs(t, err, errConfigDir)
 }

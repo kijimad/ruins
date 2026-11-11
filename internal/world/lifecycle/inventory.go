@@ -1,6 +1,7 @@
 package lifecycle
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -9,12 +10,23 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+var (
+	// errZeroCountChange は個数の変化量が0のときに返す
+	errZeroCountChange = errors.New("count change must not be zero")
+	// errInsufficientItemCount は所持数を超えて減らそうとしたときに返す
+	errInsufficientItemCount = errors.New("insufficient item count")
+	// errNoStackLocation はバックパックにも収納にもないアイテムを増やそうとしたときに返す
+	errNoStackLocation = errors.New("cannot add to stack: entity has no backpack or storage location")
+	// errStackNotFound は未所持のスタックアイテムを減らそうとしたときに返す
+	errStackNotFound = errors.New("stackable item not found")
+)
+
 // ChangeItemCount は entity が属するスタックの個数を delta だけ増減する。
 // 個数は保存しないので、増加は同種を delta 個生成し、減少は同一スタックのエンティティを
 // |delta| 個取り除く。1個1エンティティのため、これがスタック数の変更になる。
 func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 	if delta == 0 {
-		return fmt.Errorf("delta must not be zero")
+		return errZeroCountChange
 	}
 
 	if delta > 0 {
@@ -45,7 +57,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 func removeFromStack(world w.World, entity ecs.Entity, n int) error {
 	members := query.StackMembers(world, entity)
 	if n > len(members) {
-		return fmt.Errorf("insufficient item count: have=%d, remove=%d", len(members), n)
+		return fmt.Errorf("%w: have=%d, remove=%d", errInsufficientItemCount, len(members), n)
 	}
 	for i := range n {
 		world.ECS.RemoveEntity(members[i])
@@ -80,7 +92,7 @@ func addToStack(world w.World, entity ecs.Entity, n int) error {
 			}
 		}
 	default:
-		return fmt.Errorf("cannot add to stack: entity has no backpack or storage location")
+		return errNoStackLocation
 	}
 	return nil
 }
@@ -89,7 +101,7 @@ func addToStack(world w.World, entity ecs.Entity, n int) error {
 // amount が正の場合は増加、負の場合は減少する
 func ChangeStackCount(world w.World, name string, amount int) error {
 	if amount == 0 {
-		return fmt.Errorf("amount must not be zero")
+		return errZeroCountChange
 	}
 
 	entity, found := query.FindStackInInventory(world, name)
@@ -98,7 +110,7 @@ func ChangeStackCount(world w.World, name string, amount int) error {
 	}
 
 	if amount < 0 {
-		return fmt.Errorf("stackable item not found: %s", name)
+		return fmt.Errorf("%w: %s", errStackNotFound, name)
 	}
 
 	_, err := SpawnBackpackItem(world, name, amount)

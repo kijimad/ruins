@@ -2,6 +2,7 @@ package loader
 
 import (
 	"fmt"
+	"io/fs"
 	"sort"
 	"strconv"
 	"strings"
@@ -83,7 +84,7 @@ func TestLoadSpriteSheets(t *testing.T) {
 
 		sheets, err := LoadSpriteSheets(raws)
 
-		require.ErrorContains(t, err, "failed to load sprite sheet 'nonexistent'")
+		require.ErrorIs(t, err, fs.ErrNotExist)
 		assert.Nil(t, sheets)
 	})
 }
@@ -154,8 +155,7 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		t.Parallel()
 		_, err := LoadSpriteSheetFromAseprite("file/textures/dist/nonexistent.json")
 
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to load JSON file")
+		require.ErrorIs(t, err, fs.ErrNotExist)
 	})
 
 	t.Run("不正なパスを指定するとエラー", func(t *testing.T) {

@@ -34,29 +34,28 @@ func TestParseDice_不正な表記はエラーになる(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		in       string
-		contains string
+		in      string
+		wantErr error
 	}{
-		{"", "empty"},
-		{"abc", "requires d"}, // d を含まない文字列は定数扱いされず弾かれる
-		{"1dx", "invalid dice sides"},
-		{"xd6", "invalid dice count"},
-		{"1d3+x", "invalid dice bonus"},
-		{"1d0", "sides must be at least 1"},
-		{"d6", "count cannot be omitted"}, // 個数は必須。"1d6" と書く
-		{"-1d6", "count must be at least 1"},
-		{"0d6", "count must be at least 1"}, // d を書いたら個数1以上
-		{"1D3", "requires d"},               // 大文字 D は d でないので弾かれる。d に統一する
-		{" 2d4 ", "invalid dice count"},     // 前後空白も厳密に弾く
-		{"1", "requires d"},                 // 数字だけの定数表記は許さない。"1d1" と書く
-		{"1d6 ", "invalid dice sides"},      // 末尾空白も弾く
+		{"", errDiceEmpty},
+		{"abc", errDiceNoD}, // d を含まない文字列は定数扱いされず弾かれる
+		{"1dx", errDiceSidesInvalid},
+		{"xd6", errDiceCountInvalid},
+		{"1d3+x", errDiceBonusInvalid},
+		{"1d0", errDiceSidesTooSmall},
+		{"d6", errDiceCountOmitted}, // 個数は必須。"1d6" と書く
+		{"-1d6", errDiceCountTooSmall},
+		{"0d6", errDiceCountTooSmall},  // d を書いたら個数1以上
+		{"1D3", errDiceNoD},            // 大文字 D は d でないので弾かれる。d に統一する
+		{" 2d4 ", errDiceCountInvalid}, // 前後空白も厳密に弾く
+		{"1", errDiceNoD},              // 数字だけの定数表記は許さない。"1d1" と書く
+		{"1d6 ", errDiceSidesInvalid},  // 末尾空白も弾く
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
 			t.Parallel()
 			_, err := ParseDice(tt.in)
-			require.Error(t, err)
-			assert.ErrorContains(t, err, tt.contains)
+			require.ErrorIs(t, err, tt.wantErr)
 		})
 	}
 }

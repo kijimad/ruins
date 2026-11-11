@@ -1,6 +1,7 @@
 package consts
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -46,23 +47,26 @@ var weightUnits = map[string]Milligram{
 	"kg": MilligramPerKg,
 }
 
+// ErrInvalidWeight は重量表記を解釈できないときに返す
+var ErrInvalidWeight = errors.New("invalid weight")
+
 // ParseWeight は "500 g" "2 kg" "1 mg" のような単位付き文字列を Milligram に変換する。
 // 数値と単位は空白で区切る。単位は mg/g/kg のいずれか。負値は許さない
 func ParseWeight(s string) (Milligram, error) {
 	fields := strings.Fields(s)
 	if len(fields) != 2 {
-		return 0, fmt.Errorf("invalid weight format: %q; example \"500 g\"", s)
+		return 0, fmt.Errorf("%w format: %q; example \"500 g\"", ErrInvalidWeight, s)
 	}
 	value, err := strconv.ParseFloat(fields[0], 64)
 	if err != nil {
-		return 0, fmt.Errorf("invalid weight number: %q", s)
+		return 0, fmt.Errorf("%w number: %q", ErrInvalidWeight, s)
 	}
 	if value < 0 {
-		return 0, fmt.Errorf("weight cannot be negative: %q", s)
+		return 0, fmt.Errorf("%w: cannot be negative: %q", ErrInvalidWeight, s)
 	}
 	factor, ok := weightUnits[fields[1]]
 	if !ok {
-		return 0, fmt.Errorf("invalid weight unit: %q; must be mg, g, or kg", s)
+		return 0, fmt.Errorf("%w unit: %q; must be mg, g, or kg", ErrInvalidWeight, s)
 	}
 	return Milligram(math.Round(value * float64(factor))), nil
 }

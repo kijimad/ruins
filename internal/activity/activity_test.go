@@ -263,8 +263,7 @@ func TestGetEntityMaxAP(t *testing.T) {
 		actor := world.ECS.NewEntity()
 
 		_, err := getEntityMaxAP(actor, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "TurnBased component not found")
+		require.ErrorIs(t, err, errNoTurnBased)
 	})
 }
 
