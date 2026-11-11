@@ -6,6 +6,8 @@ import (
 	"image/color"
 	"math/rand/v2"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -99,12 +101,12 @@ func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {
 }
 
 // ItemName は id からアイテムの表示名を返す。定義が見つからなければ id をそのまま返す
-func ItemName(raws oapi.Raws, id string) string {
+func ItemName(raws oapi.Raws, id string) i18n.Msgid {
 	item, err := FindItem(raws, id)
 	if err != nil {
-		return id
+		return i18n.Msgid(id)
 	}
-	return item.Name
+	return i18n.Msgid(item.Name)
 }
 
 // FindMember は指定された名前のメンバー定義を検索する
@@ -256,9 +258,9 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Item = &gc.Item{}
-	entitySpec.Name = &gc.Name{Name: item.Name}
+	entitySpec.Name = &gc.Name{Name: i18n.Msgid(item.Name)}
 	entitySpec.RawID = &gc.RawID{ID: item.Id}
-	entitySpec.Description = &gc.Description{Description: item.Description}
+	entitySpec.Description = &gc.Description{Description: i18n.Msgid(item.Description)}
 
 	// デフォルト値設定
 	spriteSheetName := item.SpriteSheetName
@@ -436,7 +438,7 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: recipe.Name}
+	entitySpec.Name = &gc.Name{Name: i18n.Msgid(recipe.Name)}
 	entitySpec.Recipe = &gc.Recipe{}
 	for _, input := range recipe.Inputs {
 		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{ID: input.Id, Amount: input.Amount})
@@ -509,7 +511,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: member.Name}
+	entitySpec.Name = &gc.Name{Name: i18n.Msgid(member.Name)}
 	entitySpec.RawID = &gc.RawID{ID: member.Id}
 	entitySpec.TurnBased = &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
@@ -752,9 +754,9 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: tileRaw.Name}
+	entitySpec.Name = &gc.Name{Name: i18n.Msgid(tileRaw.Name)}
 	entitySpec.RawID = &gc.RawID{ID: tileRaw.Id}
-	entitySpec.Description = &gc.Description{Description: tileRaw.Description}
+	entitySpec.Description = &gc.Description{Description: i18n.Msgid(tileRaw.Description)}
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 
 	// SpriteRenderを設定
@@ -801,9 +803,9 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Prop = &gc.Prop{}
-	entitySpec.Name = &gc.Name{Name: propRaw.Name}
+	entitySpec.Name = &gc.Name{Name: i18n.Msgid(propRaw.Name)}
 	entitySpec.RawID = &gc.RawID{ID: propRaw.Id}
-	entitySpec.Description = &gc.Description{Description: propRaw.Description}
+	entitySpec.Description = &gc.Description{Description: i18n.Msgid(propRaw.Description)}
 
 	// SpriteRenderの設定（AnimKeysを含む）
 	spriteRender := toGCSpriteRender(propRaw.SpriteRender)
@@ -993,15 +995,15 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 		if !ok {
 			return gc.ConditionDefs{}, NewKeyNotFoundError(row.Id, "BodyParts")
 		}
-		parts[bp] = gc.BodyPartDef{Name: row.Name, HitWeight: row.HitWeight}
+		parts[bp] = gc.BodyPartDef{Name: i18n.Msgid(row.Name), HitWeight: row.HitWeight}
 	}
 
 	conditions := PtrSlice(raws.Conditions)
 	conds := make(map[gc.ConditionType]gc.ConditionDef, len(conditions))
 	for _, row := range conditions {
 		def := gc.ConditionDef{
-			Name:                    row.Name,
-			Description:             row.Description,
+			Name:                    i18n.Msgid(row.Name),
+			Description:             i18n.Msgid(row.Description),
 			PainPerSeverity:         row.PainPerSeverity,
 			BodyFuncDropPerSeverity: row.BodyFuncDropPerSeverity,
 		}
@@ -1054,10 +1056,10 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 		row := &rows[i]
 		id := row.Id
 		skills[id] = gc.SkillDef{
-			Name:     row.Name,
-			Summary:  row.Summary,
-			GainedBy: row.GainedBy,
-			Effect:   row.Effect,
+			Name:     i18n.Msgid(row.Name),
+			Summary:  i18n.Msgid(row.Summary),
+			GainedBy: i18n.Msgid(row.GainedBy),
+			Effect:   i18n.Msgid(row.Effect),
 			Ability:  row.Ability,
 		}
 		for _, p := range PtrSlice(row.Proficiencies) {
@@ -1072,7 +1074,7 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	catRows := PtrSlice(raws.SkillCategories)
 	categories := make([]gc.SkillCategory, 0, len(catRows))
 	for _, c := range catRows {
-		categories = append(categories, gc.SkillCategory{Name: c.Name, IDs: idsByCategory[c.Id]})
+		categories = append(categories, gc.SkillCategory{Name: i18n.Msgid(c.Name), IDs: idsByCategory[c.Id]})
 	}
 	attackTypes := PtrSlice(raws.AttackTypes)
 	weapons := make([]gc.WeaponDef, 0, len(attackTypes))
@@ -1080,7 +1082,7 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 		row := &attackTypes[i]
 		weapons = append(weapons, gc.WeaponDef{
 			AttackType:  row.Id,
-			Name:        row.Name,
+			Name:        i18n.Msgid(row.Name),
 			Range:       row.Range,
 			RangeParams: gc.RangeParams{OptimalRange: deref(row.OptimalRange), MaxRange: deref(row.MaxRange), PenaltyPerTile: deref(row.PenaltyPerTile)},
 			Skill:       row.Skill,
@@ -1142,7 +1144,7 @@ var (
 func NewTileEnvDefs(raws oapi.Raws) gc.TileEnvDefs {
 	defs := gc.TileEnvDefs{Shelters: map[oapi.Shelter]gc.ShelterDef{}, Water: map[oapi.WaterExposure]int{}, Foliage: map[oapi.Foliage]int{}}
 	for _, row := range PtrSlice(raws.ShelterEffects) {
-		defs.Shelters[row.Id] = gc.ShelterDef{Name: row.Name, AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered}
+		defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered}
 	}
 	for _, row := range PtrSlice(raws.WaterEffects) {
 		defs.Water[row.Id] = row.TempModifier
@@ -1158,7 +1160,7 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 	var kinds [gc.NumWeatherKind]gc.WeatherDef
 	for _, row := range PtrSlice(raws.Weathers) {
 		def := gc.WeatherDef{
-			Name:          row.Name,
+			Name:          i18n.Msgid(row.Name),
 			Effect:        gc.WeatherEffect{TempModifier: row.TempModifier, VisionDelta: row.VisionDelta},
 			Severity:      row.Severity,
 			SpellTurnsMin: row.SpellTurnsMin,
@@ -1177,14 +1179,14 @@ func NewCalendarDefs(raws oapi.Raws) gc.CalendarDefs {
 	var defs gc.CalendarDefs
 	for _, row := range PtrSlice(raws.TimesOfDay) {
 		defs.TimesOfDay[timesOfDay[row.Id]] = gc.TimeOfDayDef{
-			Name:         row.Name,
+			Name:         i18n.Msgid(row.Name),
 			TempModifier: row.TempModifier,
 			Daylight:     row.Daylight,
 			AmbientColor: [3]float64{row.AmbientColor.R, row.AmbientColor.G, row.AmbientColor.B},
 		}
 	}
 	for _, row := range PtrSlice(raws.Seasons) {
-		defs.Seasons[seasons[row.Id]] = gc.SeasonDef{Name: row.Name, Temp: row.Temp}
+		defs.Seasons[seasons[row.Id]] = gc.SeasonDef{Name: i18n.Msgid(row.Name), Temp: row.Temp}
 	}
 	return defs
 }
@@ -1193,7 +1195,7 @@ func NewCalendarDefs(raws oapi.Raws) gc.CalendarDefs {
 func NewMaterialDefs(raws oapi.Raws) gc.MaterialDefs {
 	defs := make(gc.MaterialDefs, len(PtrSlice(raws.Materials)))
 	for _, row := range PtrSlice(raws.Materials) {
-		defs[row.Id] = gc.MaterialDef{Name: row.Name, HeatPerKg: row.HeatPerKg}
+		defs[row.Id] = gc.MaterialDef{Name: i18n.Msgid(row.Name), HeatPerKg: row.HeatPerKg}
 	}
 	return defs
 }
@@ -1217,14 +1219,14 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))
 	for _, row := range PtrSlice(raws.HungerStages) {
 		hunger = append(hunger, gc.HungerStage{
-			Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity),
-			ReachedLog: deref(row.ReachedLog), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),
+			Level: row.Id, Name: i18n.Msgid(row.Name), From: row.From, Condition: conditionOf(row.Severity),
+			ReachedLog: i18n.Msgid(deref(row.ReachedLog)), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),
 		})
 	}
 	fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))
 	for _, row := range PtrSlice(raws.FatigueStages) {
 		fatigue = append(fatigue, gc.FatigueStage{
-			Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity),
+			Level: row.Id, Name: i18n.Msgid(row.Name), From: row.From, Condition: conditionOf(row.Severity),
 			CanSleep: row.CanSleep, Badge: toRGBA(row.BadgeColor),
 		})
 	}
@@ -1232,7 +1234,7 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	for _, row := range PtrSlice(raws.FreshnessStages) {
 		freshness = append(freshness, gc.FreshnessDef{
 			Level: row.Id, From: row.From,
-			Name: row.Name, NutritionPercent: row.NutritionPercent, EatLog: row.EatLog, Marker: row.Marker,
+			Name: i18n.Msgid(row.Name), NutritionPercent: row.NutritionPercent, EatLog: i18n.Msgid(row.EatLog), Marker: row.Marker,
 			IllnessChancePercent: deref(row.IllnessChancePercent),
 		})
 	}

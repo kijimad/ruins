@@ -3,6 +3,8 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +15,7 @@ func TestDeathCause_DisplayName(t *testing.T) {
 	// 公開 API の DisplayName だけを見て、非公開の表には触れない
 	tests := []struct {
 		cause DeathCause
-		want  string
+		want  i18n.Msgid
 	}{
 		{CauseFrozen, "froze to death"},
 		{CauseIllness, "died of illness"},
@@ -29,5 +31,5 @@ func TestDeathCause_DisplayName(t *testing.T) {
 	}
 
 	// 未登録の死因は素のIDへ落とす。未信頼な旧セーブ値を受ける経路
-	assert.Equal(t, "unknown", DeathCause("unknown").DisplayName())
+	assert.Equal(t, i18n.Msgid("unknown"), DeathCause("unknown").DisplayName())
 }

@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -334,7 +336,7 @@ func TestGetDirectionLabel(t *testing.T) {
 		playerY  int
 		targetX  int
 		targetY  int
-		expected string
+		expected i18n.Msgid
 	}{
 		{"直上", 10, 10, 10, 10, "here"},
 		{"上", 10, 10, 10, 9, "up"},

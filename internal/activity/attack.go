@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
@@ -124,7 +125,7 @@ func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 
 	if err := ab.performAttack(comp, actor, world); err != nil {
-		Cancel(comp, fmt.Sprintf("attack error: %s", err.Error()))
+		Cancel(comp, i18n.Msgid(fmt.Sprintf("attack error: %s", err.Error())))
 		return err
 	}
 
@@ -204,7 +205,7 @@ func (ab *MeleeBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bo
 }
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
-func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
+func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
 	bareHandsSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, "bare_hands")
 	if err != nil {
 		return nil, "", fmt.Errorf("bare hands weapon not found: %w", err)
@@ -215,14 +216,12 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 	if bareHandsSpec.Name == nil {
 		return nil, "", fmt.Errorf("bare hands weapon has no Name component")
 	}
-	// 攻撃方法名は素手武器の表示名。武器と同じく raw の英語 name を返し、表示側の logAttackResult が
-	// query.T で訳す。表示 name なので raw の翻訳カバレッジゲートが訳の有無を検証する。
 	return bareHandsSpec.Melee, bareHandsSpec.Name.Name, nil
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
-func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, error) {
+func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if world.Components.Player.Has(attacker) {
 		weapon, ok, err := selectedWeapon(world, attacker)
@@ -282,7 +281,7 @@ func elementMult(target ecs.Entity, element oapi.Element, world w.World) consts.
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
 // ShootBehaviorからも使用される
-func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName string, hitRateModifier int, damageModifier int) error {
+func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
 	if attack == nil {
 		return fmt.Errorf("attack must not be nil")
 	}
@@ -422,7 +421,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 }
 
 // logAttackResult は攻撃結果をログに出力する
-func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {
+func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName i18n.Msgid) {
 	attackerRelevant := query.IsAlly(world, attacker)
 	targetRelevant := query.IsAlly(world, target)
 	if !attackerRelevant && !targetRelevant {
@@ -437,8 +436,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 
 	logger := gamelog.New(query.GetGameLog(world))
 	withMethod := attackMethodName != ""
-	// 攻撃方法名は武器名や素手の英語原文なので、表示前に現在言語へ訳す。
-	methodName := attackMethodName
+	var methodName string
 	if withMethod {
 		methodName = query.T(world, attackMethodName)
 	}

@@ -3,6 +3,8 @@ package raw
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/BurntSushi/toml"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -942,7 +944,7 @@ BlockView = false
 
 	spec, err := NewTileSpec(raws, "test_floor", 5, 10, nil)
 	require.NoError(t, err)
-	assert.Equal(t, "test_floor", spec.Name.Name)
+	assert.Equal(t, i18n.Msgid("test_floor"), spec.Name.Name)
 	assert.NotNil(t, spec.GridElement)
 	assert.Nil(t, spec.BlockPass, "通行可能なタイルにはBlockPassがない")
 	assert.Nil(t, spec.BlockView, "視界を遮らないタイルにはBlockViewがない")
@@ -1039,7 +1041,7 @@ Description = "半分程度回復する"
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	assert.Equal(t, "回復薬", ItemName(raws, "item_heal"))
+	assert.Equal(t, i18n.Msgid("回復薬"), ItemName(raws, "item_heal"))
 }
 
 func TestItemName_存在しないIDはIDをそのまま返す(t *testing.T) {
@@ -1048,7 +1050,7 @@ func TestItemName_存在しないIDはIDをそのまま返す(t *testing.T) {
 	raws, err := DecodeRaws("")
 	require.NoError(t, err)
 
-	assert.Equal(t, "存在しないID", ItemName(raws, "存在しないID"))
+	assert.Equal(t, i18n.Msgid("存在しないID"), ItemName(raws, "存在しないID"))
 }
 
 func TestFindMember_存在しないIDはKeyNotFoundErrorになる(t *testing.T) {

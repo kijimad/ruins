@@ -10,6 +10,8 @@ package keybind
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -44,7 +46,7 @@ type Binding struct {
 	Shift  ShiftMode
 	Press  PressMode
 	Action inputmapper.ActionID
-	Label  string // ヒント表示の msgid。空なら隠しキーとしてヒントに出さない
+	Label  i18n.Msgid // ヒント表示。空なら隠しキーとしてヒントに出さない
 }
 
 // MenuCommon はメニュー共通のキー束縛。画面固有の断片と MustMerge で1枚に合成して使う。

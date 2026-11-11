@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -170,7 +172,7 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 
 // logTemperatureChange は状態変化をログ出力する
 func logTemperatureChange(world w.World, current, prev gc.Severity) {
-	var msg string
+	var msg i18n.Msgid
 	if current > prev {
 		msg = getWorseningMessage(current)
 	} else {
@@ -185,7 +187,7 @@ func logTemperatureChange(world w.World, current, prev gc.Severity) {
 }
 
 // getWorseningMessage は寒さによる不調が悪化したときのメッセージを返す
-func getWorseningMessage(severity gc.Severity) string {
+func getWorseningMessage(severity gc.Severity) i18n.Msgid {
 	switch severity {
 	case gc.SeverityNone:
 		return ""
@@ -200,7 +202,7 @@ func getWorseningMessage(severity gc.Severity) string {
 }
 
 // getRecoveryMessage は寒さによる不調が回復したときのメッセージを返す
-func getRecoveryMessage(severity gc.Severity) string {
+func getRecoveryMessage(severity gc.Severity) i18n.Msgid {
 	switch severity {
 	case gc.SeverityNone:
 		return "You have warmed up"

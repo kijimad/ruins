@@ -14,10 +14,14 @@ var localeFS embed.FS
 // defaultLang は源泉言語。原文が英語なので en にする。未知の言語はここへフォールバックする。
 const defaultLang = "en"
 
+// Msgid は訳す前の英語の原文。query.T に通して現在の言語の訳を引く。
+// 訳した後の文字列は string のまま持つので、取り違えるとコンパイルで止まる
+type Msgid string
+
 // Lang は対応する言語1つのメタデータを表す。
 type Lang struct {
 	Code  string // 言語コード。"ja" / "en"
-	Label string // 表示名の msgid。query.T で現在言語の訳を引く
+	Label Msgid  // 表示名
 }
 
 // supportedLangs は対応する言語の一覧。表示順もこの並び。
@@ -80,14 +84,14 @@ func mustParse(path string) *gotext.Po {
 //
 // gotext の Get は書式引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
 // メソッド値を介して呼び回避する。
-func (c Catalog) Translate(lang, msgid string, args ...any) string {
+func (c Catalog) Translate(lang string, msgid Msgid, args ...any) string {
 	if lang == PseudoLang {
-		return pseudoTranslate(msgid, args...)
+		return pseudoTranslate(string(msgid), args...)
 	}
 	po, ok := c.langs[lang]
 	if !ok {
 		po = c.langs[defaultLang]
 	}
 	get := po.Get
-	return get(msgid, args...)
+	return get(string(msgid), args...)
 }

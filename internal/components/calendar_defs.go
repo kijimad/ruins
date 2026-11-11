@@ -1,10 +1,14 @@
 package components
 
-import "math"
+import (
+	"math"
+
+	"github.com/kijimaD/ruins/internal/i18n"
+)
 
 // TimeOfDayDef は時間帯1つの定義。raw の timesOfDay の1行から組み立てる
 type TimeOfDayDef struct {
-	Name         string     // 表示名 msgid
+	Name         i18n.Msgid // 表示名
 	TempModifier int        // 世界温度への加算。℃
 	Daylight     float64    // 時間帯の中心での地上の日照の明るさ
 	AmbientColor [3]float64 // 時間帯の中心での地上の環境光の色。明るさは Daylight が持つ
@@ -12,8 +16,8 @@ type TimeOfDayDef struct {
 
 // SeasonDef は季節1つの定義。raw の seasons の1行から組み立てる
 type SeasonDef struct {
-	Name string // 表示名 msgid
-	Temp int    // 世界温度。℃。春と秋は年の前半と後半の中点、夏は頂、冬は底
+	Name i18n.Msgid // 表示名
+	Temp int        // 世界温度。℃。春と秋は年の前半と後半の中点、夏は頂、冬は底
 }
 
 // CalendarDefs は時間帯と季節ごとの表示名、気温、明るさの表。読み込み時に raw から1度だけ組み立て、以後は変えない

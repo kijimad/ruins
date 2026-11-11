@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -23,10 +24,10 @@ func (p Perishable) StagesElapsed(rot consts.Turn) int {
 // FreshnessDef は鮮度の段階1つの定義。raw の freshnessStages の1行から組み立てる
 type FreshnessDef struct {
 	Level                oapi.FreshnessStageId
-	From                 int    // 経過した段階数がこれ以上の段階のうち From が最大のものになる
-	Name                 string // 表示名 msgid
-	NutritionPercent     int    // 食べたとき得る栄養の満額に対する割合。百分率
-	EatLog               string // 食べたときのログの msgid。%s は食べた者と食べ物
-	Marker               bool   // メニューの行に鮮度を添えるか
-	IllnessChancePercent int    // 食べたとき食中毒を起こす確率。百分率
+	From                 int        // 経過した段階数がこれ以上の段階のうち From が最大のものになる
+	Name                 i18n.Msgid // 表示名
+	NutritionPercent     int        // 食べたとき得る栄養の満額に対する割合。百分率
+	EatLog               i18n.Msgid // 食べたときのログ。%s は食べた者と食べ物
+	Marker               bool       // メニューの行に鮮度を添えるか
+	IllnessChancePercent int        // 食べたとき食中毒を起こす確率。百分率
 }

@@ -50,6 +50,16 @@ func TestGetEntityName(t *testing.T) {
 		assert.Equal(t, "Sword", GetEntityName(e, world))
 	})
 
+	t.Run("プレイヤーが付けた名前は訳さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		GetUserSettings(world).Language = "ja"
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: "Ash", Custom: "Fire"})
+
+		assert.Equal(t, []string{"火", "Fire"}, []string{T(world, "Fire"), GetEntityName(e, world)})
+	})
+
 	t.Run("Nameを持たなければUnknown", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

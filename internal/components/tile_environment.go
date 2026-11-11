@@ -1,6 +1,9 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/oapi"
+import (
+	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/oapi"
+)
 
 // TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水・植生。
 // 温度計算の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする
@@ -12,10 +15,10 @@ type TileEnvironment struct {
 
 // ShelterDef は囲われの度合いごとの、世界温度の受け方と表示名。raw の shelterEffects の1行から組み立てる
 type ShelterDef struct {
-	Name             string // 表示名 msgid
-	AnchorTemp       int    // 世界温度を引き寄せる先の温度
-	InfluencePercent int    // 世界温度を受ける割合。100 なら世界温度をそのまま受ける
-	Covered          bool   // 屋根か壁に覆われているか
+	Name             i18n.Msgid // 表示名
+	AnchorTemp       int        // 世界温度を引き寄せる先の温度
+	InfluencePercent int        // 世界温度を受ける割合。100 なら世界温度をそのまま受ける
+	Covered          bool       // 屋根か壁に覆われているか
 }
 
 // TileEnvDefs は囲われの受け方と、水と植生がタイルの気温に足す補正の表。読み込み時に raw から1度だけ組み立て、以後は変えない
@@ -35,11 +38,11 @@ func (d TileEnvDefs) ShelteredWorldTemp(shelter oapi.Shelter, worldTemp int) int
 }
 
 // ShelterName は囲われの度合いの表示名 msgid を返す。表に無ければ id をそのまま返す
-func (d TileEnvDefs) ShelterName(shelter oapi.Shelter) string {
+func (d TileEnvDefs) ShelterName(shelter oapi.Shelter) i18n.Msgid {
 	if def, ok := d.Shelters[shelter]; ok {
 		return def.Name
 	}
-	return string(shelter)
+	return i18n.Msgid(shelter)
 }
 
 // TempModifier は水と植生による加算℃の合計を返す。囲われは加算℃でなく緩和度なので含まない

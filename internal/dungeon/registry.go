@@ -1,6 +1,7 @@
 package dungeon
 
 import (
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -10,10 +11,11 @@ import (
 var (
 	// DungeonDebug はデバッグ用ダンジョン定義
 	DungeonDebug = &DungeonDefinition{
-		name:       "Debug",
-		enemyTable: "forest",
-		itemTable:  "forest",
-		baseTemp:   10,
+		name:        "Debug",
+		displayName: "Debug",
+		enemyTable:  "forest",
+		itemTable:   "forest",
+		baseTemp:    10,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
@@ -22,10 +24,11 @@ var (
 	// DungeonDebugTown は街用NPCと収納箱をテンプレートで固定配置するデバッグ用定義。
 	// 敵・アイテムテーブルを空にして、共通の敵配置プランナーを自然に空振りさせ、敵を湧かせない
 	DungeonDebugTown = &DungeonDefinition{
-		name:       "Debug town",
-		enemyTable: "",
-		itemTable:  "",
-		baseTemp:   20,
+		name:        "Debug town",
+		displayName: "Debug town",
+		enemyTable:  "",
+		itemTable:   "",
+		baseTemp:    20,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeDebugTown, Weight: 1},
 		},
@@ -68,6 +71,7 @@ func newDungeonDefinition(row *oapi.Dungeon) *DungeonDefinition {
 	}
 	return &DungeonDefinition{
 		name:        row.Id,
+		displayName: i18n.Msgid(row.Name),
 		enemyTable:  row.EnemyTable,
 		itemTable:   row.ItemTable,
 		baseTemp:    row.BaseTemp,

@@ -1,6 +1,9 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
+)
 
 // DeathCause は決着時の死因。決着時に RunStats.Cause へ入れ、表示時に翻訳する
 type DeathCause string
@@ -18,9 +21,9 @@ const (
 	CauseDebug DeathCause = "debug"
 )
 
-// deathCauseDisplayNames は死因ごとの表示名 msgid。結果画面が query.T で訳す。
+// deathCauseDisplayNames は死因ごとの表示名。結果画面が query.T で訳す。
 // データなので表で持ち、死因を足すときはここへ1行足す
-var deathCauseDisplayNames = map[DeathCause]string{
+var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{
 	CauseFrozen:    "froze to death",
 	CauseIllness:   "died of illness",
 	CauseBloodLoss: "bled out",
@@ -28,13 +31,13 @@ var deathCauseDisplayNames = map[DeathCause]string{
 	CauseDebug:     "debug",
 }
 
-// DisplayName は死因の表示名 msgid を返す。
+// DisplayName は死因の表示名を返す。
 // 未登録の死因は素の文字列へ落とし、未信頼な旧セーブ値もこの経路で受ける
-func (c DeathCause) DisplayName() string {
+func (c DeathCause) DisplayName() i18n.Msgid {
 	if name, ok := deathCauseDisplayNames[c]; ok {
 		return name
 	}
-	return string(c)
+	return i18n.Msgid(c)
 }
 
 // RunStats は run を通じて貯める統計を保持するシングルトン。run 中ずっと存在し serde 保存する。

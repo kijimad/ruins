@@ -3,6 +3,8 @@ package components
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
@@ -71,8 +73,8 @@ const (
 	SlotWeapon5 EquipmentSlotNumber = 11 // 武器スロット5
 )
 
-// String は装備スロット番号の表示名を返す
-func (s EquipmentSlotNumber) String() string {
+// Name は装備スロット番号の表示名を返す
+func (s EquipmentSlotNumber) Name() i18n.Msgid {
 	switch s {
 	case SlotHead:
 		return EquipmentCategoryName(oapi.EquipmentCategoryHEAD)

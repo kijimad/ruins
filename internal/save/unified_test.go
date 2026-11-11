@@ -3,6 +3,8 @@ package save
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -80,7 +82,7 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 	}
 	require.Equal(t, 1, playerCount, "プレイヤーが1体復元される")
 	require.True(t, world.ECS.Alive(playerEntity), "復元後のプレイヤーが生存している")
-	assert.Equal(t, "テストプレイヤー", world.Components.Name.Get(playerEntity).Name)
+	assert.Equal(t, i18n.Msgid("テストプレイヤー"), world.Components.Name.Get(playerEntity).Name)
 	assert.Equal(t, 100, world.Components.HP.Get(playerEntity).Max, "HPが値まで復元される")
 	assert.Equal(t, 9, world.Components.Abilities.Get(playerEntity).Agility.Total, "能力値が復元される")
 
@@ -103,7 +105,7 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 		require.True(t, world.ECS.Alive(owner), "アイテムのOwnerが生存エンティティを指す")
 		assert.Equal(t, playerEntity, owner, "アイテムのOwnerが復元後プレイヤーへ再マッピングされる")
 		if world.Components.Name.Has(e) {
-			items[world.Components.Name.Get(e).Name] = e
+			items[string(world.Components.Name.Get(e).Name)] = e
 		}
 	}
 
@@ -211,7 +213,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	// NPC作成
 	for i := range 3 {
 		npc := world.ECS.NewEntity()
-		world.Components.Name.Add(npc, &gc.Name{Name: "NPC" + string(rune('A'+i))})
+		world.Components.Name.Add(npc, &gc.Name{Name: i18n.Msgid("NPC" + string(rune('A'+i)))})
 		world.Components.GridElement.Add(npc, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(20 + i*5), Y: consts.Tile(25 + i*3)}})
 		world.Components.SoloAI.Add(npc, &gc.SoloAI{ViewDistance: 5})
 		world.Components.FactionEnemy.Add(npc, &gc.FactionEnemy{})

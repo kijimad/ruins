@@ -3,6 +3,8 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +22,7 @@ var testSkillDefs = func() SkillDefs {
 	skills := map[oapi.SkillId]SkillDef{}
 	for abl, ids := range abilities {
 		for _, id := range ids {
-			skills[id] = SkillDef{Name: string(id), Ability: abl}
+			skills[id] = SkillDef{Name: i18n.Msgid(id), Ability: abl}
 		}
 	}
 	proficiencies := map[oapi.ProficiencyId]ProficiencyDef{
@@ -84,8 +86,8 @@ func TestSkillDefs_Ability(t *testing.T) {
 func TestSkillDefs_Name(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, "sword", testSkillDefs.Name(oapi.SkillIdSword))
-	assert.Equal(t, "undefined_skill", testSkillDefs.Name("undefined_skill"), "未登録は id をそのまま返す")
+	assert.Equal(t, i18n.Msgid("sword"), testSkillDefs.Name(oapi.SkillIdSword))
+	assert.Equal(t, i18n.Msgid("undefined_skill"), testSkillDefs.Name("undefined_skill"), "未登録は id をそのまま返す")
 }
 
 func TestSkillDefs_Weapon(t *testing.T) {

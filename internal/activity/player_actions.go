@@ -3,6 +3,8 @@ package activity
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -125,7 +127,7 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 }
 
 // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する
-func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
+func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) i18n.Msgid {
 	d := targetGrid.Sub(playerGrid.Coord)
 
 	if d.X == 0 && d.Y == 0 {

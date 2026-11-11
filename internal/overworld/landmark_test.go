@@ -52,7 +52,7 @@ func landmarkEntities(world w.World) map[consts.Coord[consts.Tile]]string {
 	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		got[world.Components.GridElement.Get(e).Coord] = world.Components.Name.Get(e).Name
+		got[world.Components.GridElement.Get(e).Coord] = string(world.Components.Name.Get(e).Name)
 	}
 	return got
 }

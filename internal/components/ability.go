@@ -3,6 +3,8 @@ package components
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
@@ -35,7 +37,7 @@ func (a Abilities) BodyWeight() consts.Milligram {
 }
 
 // abilityName は能力値IDの表示名マップ
-var abilityName = map[oapi.AbilityId]string{
+var abilityName = map[oapi.AbilityId]i18n.Msgid{
 	oapi.Str: "STR",
 	oapi.Sen: "SEN",
 	oapi.Dex: "DEX",
@@ -45,7 +47,7 @@ var abilityName = map[oapi.AbilityId]string{
 }
 
 // AbilityName は能力値IDの表示名を返す。未定義ならpanicする
-func AbilityName(id oapi.AbilityId) string {
+func AbilityName(id oapi.AbilityId) i18n.Msgid {
 	name, ok := abilityName[id]
 	if !ok {
 		panic(fmt.Sprintf("undefined ability ID: %q", id))

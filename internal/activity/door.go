@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -88,7 +90,7 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 	// 扉を開く
 	if !doorComp.IsOpen {
 		if err := lifecycle.OpenDoor(world, targetEntity); err != nil {
-			Cancel(comp, fmt.Sprintf("cannot open door: %v", err))
+			Cancel(comp, i18n.Msgid(fmt.Sprintf("cannot open door: %v", err)))
 			return err
 		}
 
@@ -217,7 +219,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 	// 扉を閉じる
 	if doorComp.IsOpen {
 		if err := lifecycle.CloseDoor(world, targetEntity); err != nil {
-			Cancel(comp, fmt.Sprintf("cannot close door: %v", err))
+			Cancel(comp, i18n.Msgid(fmt.Sprintf("cannot close door: %v", err)))
 			return err
 		}
 

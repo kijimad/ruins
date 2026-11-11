@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -40,7 +42,7 @@ const (
 // HandleInput のキー変換と verbByAction のアクション対応はこの一覧から導く。追加は1行で足りる。
 type itemVerb struct {
 	ID    verbID
-	Label string
+	Label i18n.Msgid
 	// KeyHint はタブ見出しに添える直達ショートカットの表記。大文字は Shift 併用を表す。
 	// 調べる X は Shift+x、置く d は KeyD をそのまま押す
 	KeyHint string

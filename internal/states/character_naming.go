@@ -62,8 +62,8 @@ func (st *CharacterNamingState) OnStart(world w.World) error {
 	initialName := ""
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err == nil {
-		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
-			initialName = query.T(world, nameComp.Name)
+		if world.Components.Name.Has(playerEntity) {
+			initialName = query.GetEntityName(playerEntity, world)
 		}
 	}
 
@@ -201,7 +201,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
 	if err == nil {
 		// 既存プレイヤーの名前を変更した
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
-			nameComp.Name = name
+			nameComp.Custom = name
 		}
 		return es.Transition[w.World]{Type: es.TransPop}
 	}

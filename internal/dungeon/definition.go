@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 )
@@ -33,6 +35,7 @@ type PlannerWeight struct {
 //nolint:revive // DungeonDefinition は OverworldDefinition と対称にするため意図的にこの名前にする
 type DungeonDefinition struct {
 	name        string
+	displayName i18n.Msgid
 	enemyTable  string
 	itemTable   string
 	plannerPool []PlannerWeight
@@ -41,6 +44,9 @@ type DungeonDefinition struct {
 
 // Name はダンジョンの識別名を返す。raw の dungeons の行の id にあたる
 func (d *DungeonDefinition) Name() string { return d.name }
+
+// DisplayName はダンジョンの表示名を返す
+func (d *DungeonDefinition) DisplayName() i18n.Msgid { return d.displayName }
 
 // BaseTemperature は基本気温を返す
 func (d *DungeonDefinition) BaseTemperature() int { return d.baseTemp }

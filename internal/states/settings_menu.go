@@ -144,13 +144,13 @@ func (st *SettingsMenuState) handleSelection(world w.World) es.Transition[w.Worl
 // ================
 
 // currentLanguageLabel は言語コードに対応する表示名の msgid を返す。対応一覧に無ければコードをそのまま返す。
-func currentLanguageLabel(code string) string {
+func currentLanguageLabel(code string) i18n.Msgid {
 	for _, l := range i18n.SupportedLangs() {
 		if l.Code == code {
 			return l.Label
 		}
 	}
-	return code
+	return i18n.Msgid(code)
 }
 
 // cycleLanguage は表示言語を次へ循環させ、シングルトンへ即時反映してユーザー設定へ保存する。

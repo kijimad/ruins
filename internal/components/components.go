@@ -5,6 +5,8 @@ import (
 	"image/color"
 	"math"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/mlange-42/ark/ecs"
@@ -100,7 +102,9 @@ type Consumable struct {
 // Name はエンティティの表示名を保持する
 type Name struct {
 	// Name は画面に出す表示名
-	Name string
+	Name i18n.Msgid
+	// Custom はプレイヤーが付けた名前。訳さずにそのまま出す。空なら Name を訳す
+	Custom string
 }
 
 // RawID は生成元 raw 定義の Id を保持する同定キー。raw 参照とスタックの同種判定に使う。表示には使わない
@@ -111,7 +115,7 @@ type RawID struct {
 
 // Description は説明
 type Description struct {
-	Description string
+	Description i18n.Msgid
 }
 
 // Dialog は会話データ

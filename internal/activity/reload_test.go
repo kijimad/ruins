@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -322,7 +324,7 @@ func TestReloadBehavior_DoTurn_敵が接近すると中断する(t *testing.T) {
 
 	require.NoError(t, ra.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "reload interrupted because enemies are nearby", comp.CancelReason)
+	assert.Equal(t, i18n.Msgid("reload interrupted because enemies are nearby"), comp.CancelReason)
 }
 
 func TestReloadBehavior_Canceled_中断メッセージがログに出る(t *testing.T) {

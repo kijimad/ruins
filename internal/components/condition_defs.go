@@ -5,13 +5,15 @@ import (
 	"maps"
 	"slices"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // ConditionDef は状態種類ごとの定義。raw の conditions の1行から組み立てる
 type ConditionDef struct {
-	Name                    string              // 表示名 msgid
-	Description             string              // 概要説明 msgid
+	Name                    i18n.Msgid          // 表示名
+	Description             i18n.Msgid          // 概要説明
 	PainPerSeverity         int                 // 重症度1段あたりに加える痛み
 	BodyFuncDropPerSeverity int                 // 重症度1段あたりに下げる該当機能の量
 	Recovery                oapi.RecoveryMode   // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
@@ -25,8 +27,8 @@ type ConditionDef struct {
 
 // BodyPartDef は部位ごとの定義。raw の bodyParts の1行から組み立てる
 type BodyPartDef struct {
-	Name      string  // 表示名 msgid
-	HitWeight float64 // 戦闘の命中抽選での重み。0 なら命中先にならない
+	Name      i18n.Msgid // 表示名
+	HitWeight float64    // 戦闘の命中抽選での重み。0 なら命中先にならない
 }
 
 // ConditionDefs は状態種類ごとの定義、部位ごとの命中の重み、攻撃種別ごとの怪我の表。
@@ -71,7 +73,7 @@ func (d ConditionDefs) CanAffect(ct ConditionType, part BodyPart) bool {
 }
 
 // PartName は部位の表示名 msgid を返す
-func (d ConditionDefs) PartName(part BodyPart) string {
+func (d ConditionDefs) PartName(part BodyPart) i18n.Msgid {
 	return d.parts[part].Name
 }
 

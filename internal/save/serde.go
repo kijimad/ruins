@@ -159,7 +159,11 @@ func extractPlayerName(world w.World) string {
 	for q.Next() {
 		entity := q.Entity()
 		if name == "" && world.Components.Name.Has(entity) {
-			name = world.Components.Name.Get(entity).Name
+			n := world.Components.Name.Get(entity)
+			name = n.Custom
+			if name == "" {
+				name = string(n.Name)
+			}
 		}
 	}
 	return name

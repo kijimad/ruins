@@ -4,6 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/i18n"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -59,7 +60,7 @@ func GetRunStats(world w.World) *gc.RunStats {
 
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。
 // args を渡すと訳を書式として整形する。"%s攻撃力" のようにデータ値を差し込む訳に使う。
-func T(world w.World, msgid string, args ...any) string {
+func T(world w.World, msgid i18n.Msgid, args ...any) string {
 	var lang string
 	if s := GetUserSettings(world); s != nil {
 		lang = s.Language

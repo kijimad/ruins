@@ -3,6 +3,8 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
@@ -42,7 +44,7 @@ func TestElementName(t *testing.T) {
 
 	tests := []struct {
 		et   oapi.Element
-		want string
+		want i18n.Msgid
 	}{
 		{oapi.ElementNONE, "None"},
 		{oapi.ElementFIRE, "Fire"},
@@ -51,7 +53,7 @@ func TestElementName(t *testing.T) {
 		{oapi.ElementPHOTON, "Light"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
+		t.Run(string(tt.want), func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, ElementName(tt.et))
 		})

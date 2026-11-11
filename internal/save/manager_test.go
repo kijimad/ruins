@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
@@ -45,7 +47,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 		entity := playerQuery.Entity()
 		playerCount++
 		name := newWorld.Components.Name.Get(entity)
-		assert.Equal(t, "テストプレイヤー", name.Name)
+		assert.Equal(t, i18n.Msgid("テストプレイヤー"), name.Name)
 	}
 
 	npcCount := 0

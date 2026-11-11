@@ -3,16 +3,18 @@ package components
 import (
 	"image/color"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // HungerStage は空腹の段階1つの定義。raw の hungerStages の1行から組み立てる
 type HungerStage struct {
 	Level        oapi.HungerStageId
-	Name         string      // 表示名 msgid
+	Name         i18n.Msgid  // 表示名
 	From         float64     // 満腹度の割合がこれ以上の段階のうち From が最大のものになる
 	Condition    Severity    // この段階で立つ栄養失調の重症度。SeverityNone なら立たない
-	ReachedLog   string      // 食べてこの段階に達したときのログの msgid。空なら出さない
+	ReachedLog   i18n.Msgid  // 食べてこの段階に達したときのログ。空なら出さない
 	WakesSleeper bool        // 寝ている者を起こす段階か
 	Badge        *color.RGBA // HUD のバッジの色。nil ならバッジを出さない
 }
@@ -20,7 +22,7 @@ type HungerStage struct {
 // FatigueStage は疲労の段階1つの定義。raw の fatigueStages の1行から組み立てる
 type FatigueStage struct {
 	Level     oapi.FatigueStageId
-	Name      string      // 表示名 msgid
+	Name      i18n.Msgid  // 表示名
 	From      float64     // 疲労の割合がこれ以上の段階のうち From が最大のものになる
 	Condition Severity    // この段階で立つ過労の重症度。SeverityNone なら立たない
 	CanSleep  bool        // この段階で眠れるか
@@ -96,23 +98,23 @@ func (d NeedDefs) FatigueFrom(level oapi.FatigueStageId) float64 {
 }
 
 // HungerName は空腹の段階の表示名 msgid を返す。未登録なら id をそのまま返す
-func (d NeedDefs) HungerName(level oapi.HungerStageId) string {
+func (d NeedDefs) HungerName(level oapi.HungerStageId) i18n.Msgid {
 	for _, s := range d.Hunger {
 		if s.Level == level {
 			return s.Name
 		}
 	}
-	return string(level)
+	return i18n.Msgid(level)
 }
 
 // FatigueName は疲労の段階の表示名 msgid を返す。未登録なら id をそのまま返す
-func (d NeedDefs) FatigueName(level oapi.FatigueStageId) string {
+func (d NeedDefs) FatigueName(level oapi.FatigueStageId) i18n.Msgid {
 	for _, s := range d.Fatigue {
 		if s.Level == level {
 			return s.Name
 		}
 	}
-	return string(level)
+	return i18n.Msgid(level)
 }
 
 // HungerStageOf は空腹の段階の定義を返す。未登録なら ok=false

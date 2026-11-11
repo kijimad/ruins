@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -369,7 +371,7 @@ func TestReadBehavior_DoTurn_本が消えると中断する(t *testing.T) {
 
 	require.NoError(t, ra.DoTurn(comp, actor, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "interrupted because the book disappeared", comp.CancelReason)
+	assert.Equal(t, i18n.Msgid("interrupted because the book disappeared"), comp.CancelReason)
 
 	// 消えた対象へのキャンセル処理でもエラーにならない
 	require.NoError(t, ra.Canceled(comp, actor, world))

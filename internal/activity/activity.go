@@ -3,6 +3,8 @@ package activity
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
@@ -131,7 +133,7 @@ func CanResume(comp *gc.Activity) bool {
 }
 
 // Interrupt はアクティビティを中断する
-func Interrupt(comp *gc.Activity, reason string) error {
+func Interrupt(comp *gc.Activity, reason i18n.Msgid) error {
 	if !CanInterrupt(comp) {
 		return fmt.Errorf("activity '%s' cannot be paused", GetDisplayName(comp))
 	}
@@ -188,7 +190,7 @@ func Complete(comp *gc.Activity) {
 }
 
 // Cancel はアクティビティをキャンセルする
-func Cancel(comp *gc.Activity, reason string) {
+func Cancel(comp *gc.Activity, reason i18n.Msgid) {
 	comp.State = gc.ActivityStateCanceled
 	comp.CancelReason = reason
 }

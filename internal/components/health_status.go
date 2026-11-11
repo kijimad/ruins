@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -16,8 +17,8 @@ const (
 	SeveritySevere                 // 重度
 )
 
-// String は重症度の表示名を返す
-func (s Severity) String() string {
+// Name は重症度の表示名を返す
+func (s Severity) Name() i18n.Msgid {
 	switch s {
 	case SeverityNone:
 		return ""
@@ -108,8 +109,11 @@ func (b BodyFuncs) of(k BodyFuncKind) consts.Percent {
 // 症状に依らない集約側の係数。値は実プレイで調整する
 const painConsciousnessDivisor = 2
 
-// BodyFuncKind は部位が下げる身体機能の区分。値は表示名 msgid で UI は query.T で訳す
+// BodyFuncKind は部位が下げる身体機能の区分。値は表示名を兼ねる
 type BodyFuncKind string
+
+// Name は身体機能の表示名を返す
+func (b BodyFuncKind) Name() i18n.Msgid { return i18n.Msgid(b) }
 
 // 身体機能の区分
 const (

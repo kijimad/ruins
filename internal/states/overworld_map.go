@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"image"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -179,5 +181,5 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
 		PlayerFacing: st.facing,
 	})
 
-	hud.DrawMapLegend(cv, world.Resources.RawMaster, func(msgid string) string { return query.T(world, msgid) }, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
+	hud.DrawMapLegend(cv, world.Resources.RawMaster, func(msgid string) string { return query.T(world, i18n.Msgid(msgid)) }, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
 }

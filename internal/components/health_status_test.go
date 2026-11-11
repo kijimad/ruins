@@ -3,6 +3,8 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,7 +14,7 @@ func TestSeverity_String(t *testing.T) {
 
 	tests := []struct {
 		s    Severity
-		want string
+		want i18n.Msgid
 	}{
 		{SeverityNone, ""},
 		{SeverityMinor, "Minor"},
@@ -20,9 +22,9 @@ func TestSeverity_String(t *testing.T) {
 		{SeveritySevere, "Severe"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
+		t.Run(string(tt.want), func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, tt.s.String())
+			assert.Equal(t, tt.want, tt.s.Name())
 		})
 	}
 }
@@ -30,7 +32,7 @@ func TestSeverity_String(t *testing.T) {
 func TestSeverity_String_Panic(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {
-		_ = Severity(99).String()
+		_ = Severity(99).Name()
 	})
 }
 

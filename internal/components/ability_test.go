@@ -3,6 +3,8 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
@@ -39,7 +41,7 @@ func TestAbilityName(t *testing.T) {
 
 	tests := []struct {
 		id   oapi.AbilityId
-		want string
+		want i18n.Msgid
 	}{
 		{oapi.Str, "STR"},
 		{oapi.Sen, "SEN"},
@@ -50,7 +52,7 @@ func TestAbilityName(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
+		t.Run(string(tt.want), func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, AbilityName(tt.id))
 		})

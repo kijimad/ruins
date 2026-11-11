@@ -3,6 +3,8 @@ package states
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -26,7 +28,7 @@ const runStatsMenuKey = "run_stats"
 // RunStatsState は run 統計をテーブルで見る読み取り専用画面
 type RunStatsState struct {
 	es.BaseState[w.World]
-	headerMsgid  string                 // 見出しの msgid。統計は "Statistics"、結果は "You died."
+	headerMsgid  i18n.Msgid             // 見出し。統計は "Statistics"、結果は "You died."
 	exit         es.Transition[w.World] // Cancel で抜ける先。統計は Pop、結果はメインメニューへ Replace
 	exitOnSelect bool                   // Select でも exit へ抜けるか。結果画面は任意キーで戻せるよう真にする
 	screen       *menuloop.Screen[RunStatsProps]

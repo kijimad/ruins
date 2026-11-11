@@ -3,6 +3,8 @@ package states
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -43,7 +45,7 @@ const (
 // 編集可能な装備の後ろに読み取り専用の情報タブが並ぶ
 var characterTabs = []struct {
 	Kind  charTab
-	Label string
+	Label i18n.Msgid
 }{
 	{charTabEquip, "Equipment"},
 	{charTabAbility, "Abilities"},
@@ -374,7 +376,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Pain"), Value: fmt.Sprintf("+%d", pain)})
 	}
 	if drop > 0 {
-		rows = append(rows, entityspec.SpecRow{Label: query.T(world, string(bodyFunc)), Value: fmt.Sprintf("-%d", drop)})
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, bodyFunc.Name()), Value: fmt.Sprintf("-%d", drop)})
 	}
 	// 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
 	if bd := world.Resources.ConditionDefs.BloodDrop(cond); bd > 0 {
@@ -395,13 +397,13 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 // 進行度・治療でなく重症度を出す。この不調は意識と代謝を同じ量だけ下げるので両方の低下を並べる
 func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.DetailContent {
 	rows := []entityspec.SpecRow{
-		{Label: query.T(world, "Severity"), Value: query.T(world, cond.Severity.String())},
+		{Label: query.T(world, "Severity"), Value: query.T(world, cond.Severity.Name())},
 	}
 	// 全身性なので意識と代謝を drop ぶん下げる
 	if _, _, drop := world.Resources.ConditionDefs.BodyFuncImpact(cond, gc.BodyPartWholeBody); drop > 0 {
 		rows = append(rows,
-			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncConsciousness)), Value: fmt.Sprintf("-%d", drop)},
-			entityspec.SpecRow{Label: query.T(world, string(gc.BodyFuncMetabolism)), Value: fmt.Sprintf("-%d", drop)},
+			entityspec.SpecRow{Label: query.T(world, gc.BodyFuncConsciousness.Name()), Value: fmt.Sprintf("-%d", drop)},
+			entityspec.SpecRow{Label: query.T(world, gc.BodyFuncMetabolism.Name()), Value: fmt.Sprintf("-%d", drop)},
 		)
 	}
 	return overlay.DetailContent{
@@ -414,7 +416,7 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 // remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。
 // 健康タブに治し方を示すのに使う。見つからなければ ok=false。
 // 複数のアイテムが同じ不調を治せる場合は先頭の1件だけ返す。1症状に1種の治療アイテムを保つ前提
-func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {
+func remedyItemNameFor(world w.World, ct gc.ConditionType) (i18n.Msgid, bool) {
 	items := raw.PtrSlice(world.Resources.RawMaster.Items)
 	for i := range items {
 		it := &items[i]
@@ -423,7 +425,7 @@ func remedyItemNameFor(world w.World, ct gc.ConditionType) (string, bool) {
 		}
 		for _, t := range it.Remedy.Treats {
 			if gc.ConditionType(t) == ct {
-				return it.Name, true
+				return i18n.Msgid(it.Name), true
 			}
 		}
 	}
