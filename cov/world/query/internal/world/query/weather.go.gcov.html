@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.7&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">42</td>
-            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">42</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 14:32:47</td>
+            <td class="headerValue">2026-11-11 01:03:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,9 +98,9 @@
 <span id="L36"><span class="lineNum">      36</span>              : // 雪・吹雪・寒波だけが northDepth に応じて伸びる。北へ進むほど荒天が主役になる。</span>
 <span id="L37"><span class="lineNum">      37</span>              : func placeFactor(defs gc.WeatherDefs, northDepth int, next gc.WeatherKind) float64 {</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if northDepth &lt; 0 {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC tlaBgUNC">           0 :                 northDepth = 0</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         return 1.0 + float64(defs.Kinds[next].Severity)*float64(northDepth)*placeSeverityCoef</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 northDepth = 0</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         return 1.0 + float64(defs.Kinds[next].Severity)*float64(northDepth)*placeSeverityCoef</span></span>
 <span id="L42"><span class="lineNum">      42</span>              : }</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // NextWeather は現在の天候から次の天候を1つ引く。粘り・季節親和・場所寄せの積で重み付けする。</span>
@@ -115,9 +115,9 @@
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(rng, weights[:], func(w float64) float64 { return w })</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 :                 return current</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC tlaBgGNC">           1 :         return gc.WeatherKind(i)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 return current</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         return gc.WeatherKind(i)</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : }</span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
 <span id="L61"><span class="lineNum">      61</span>              : // harshSpellStretchPerChunk は奥地1チャンクあたり厳しい天候のスペルをどれだけ伸ばすか。値は暫定。</span>
@@ -127,9 +127,9 @@
 <span id="L65"><span class="lineNum">      65</span>              : // 厳しい天候が長引く。下限+乱数で裾を作る。</span>
 <span id="L66"><span class="lineNum">      66</span>              : func RollSpellTurns(defs gc.WeatherDefs, kind gc.WeatherKind, season gc.Season, northDepth int, rng *rand.Rand) consts.Turn {</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         if northDepth &lt; 0 {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 :                 northDepth = 0</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">           1 :         def := defs.Kinds[kind]</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 northDepth = 0</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         def := defs.Kinds[kind]</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         lo, hi := def.SpellTurnsMin, def.SpellTurnsMax</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         turns := lo</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         if hi &gt; lo {</span></span>

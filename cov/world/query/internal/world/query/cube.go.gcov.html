@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">100</td>
-            <td class="headerCovTableEntry">94</td>
+            <td class="headerCovTableEntry">100</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 14:32:47</td>
+            <td class="headerValue">2026-11-11 01:03:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,9 +86,9 @@
 <span id="L24"><span class="lineNum">      24</span>              : func DiscoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[consts.Chunk]]bool {</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         field := GetCurrentStageField(world)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if field == nil {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         out := make(map[consts.Coord[consts.Chunk]]bool)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         out := make(map[consts.Coord[consts.Chunk]]bool)</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         // ChunkW は帯が有効なら正なのでゼロ除算しない。X は有界なので絶対チャンク列はタイルを幅で割るだけ。</span></span>
 <span id="L31"><span class="lineNum">      31</span>              :         // Y は AbsChunkRow が帯ローカルの非負タイル行を絶対チャンク行へ移す。単一出どころを共有する</span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         for tile := range field.ExploredTiles {</span></span>
@@ -207,9 +207,9 @@
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         for _, item := range StowedCargo(world, cube) {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :                 total += GetEntityWeight(world, item)</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, item := range GetCubeModules(world, cube) {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         for _, item := range GetCubeModules(world, cube) {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 total += GetEntityWeight(world, item)</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return total</span></span>
@@ -225,9 +225,9 @@
 <span id="L163"><span class="lineNum">     163</span>              : // CubeFuelTotal はキューブに貯めた燃料ポイントを返す。FuelTank を持たなければ0。</span>
 <span id="L164"><span class="lineNum">     164</span>              : func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {</span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         if !world.Components.FuelTank.Has(cube) {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.FuelTank.Get(cube).Current</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         return world.Components.FuelTank.Get(cube).Current</span></span>
 <span id="L169"><span class="lineNum">     169</span>              : }</span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
 <span id="L171"><span class="lineNum">     171</span>              : // FuelGaugeRatio は燃料ゲージの充填率を現在値と上限の比で返す。上限が0以下なら0。</span>

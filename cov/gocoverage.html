@@ -105,7 +105,7 @@
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (88.2%)</option>
+				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (86.8%)</option>
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -799,17 +799,17 @@
 				
 				<option value="file371">github.com/kijimaD/ruins/internal/world/query/body_funcs.go (50.0%)</option>
 				
-				<option value="file372">github.com/kijimaD/ruins/internal/world/query/cube.go (96.3%)</option>
+				<option value="file372">github.com/kijimaD/ruins/internal/world/query/cube.go (100.0%)</option>
 				
-				<option value="file373">github.com/kijimaD/ruins/internal/world/query/currency.go (94.1%)</option>
+				<option value="file373">github.com/kijimaD/ruins/internal/world/query/currency.go (100.0%)</option>
 				
 				<option value="file374">github.com/kijimaD/ruins/internal/world/query/danger.go (100.0%)</option>
 				
-				<option value="file375">github.com/kijimaD/ruins/internal/world/query/enemy.go (92.1%)</option>
+				<option value="file375">github.com/kijimaD/ruins/internal/world/query/enemy.go (100.0%)</option>
 				
-				<option value="file376">github.com/kijimaD/ruins/internal/world/query/equipment.go (75.9%)</option>
+				<option value="file376">github.com/kijimaD/ruins/internal/world/query/equipment.go (100.0%)</option>
 				
-				<option value="file377">github.com/kijimaD/ruins/internal/world/query/faction.go (96.7%)</option>
+				<option value="file377">github.com/kijimaD/ruins/internal/world/query/faction.go (100.0%)</option>
 				
 				<option value="file378">github.com/kijimaD/ruins/internal/world/query/fire.go (100.0%)</option>
 				
@@ -825,25 +825,25 @@
 				
 				<option value="file384">github.com/kijimaD/ruins/internal/world/query/name.go (100.0%)</option>
 				
-				<option value="file385">github.com/kijimaD/ruins/internal/world/query/nearest.go (92.7%)</option>
+				<option value="file385">github.com/kijimaD/ruins/internal/world/query/nearest.go (100.0%)</option>
 				
-				<option value="file386">github.com/kijimaD/ruins/internal/world/query/proficiency.go (86.7%)</option>
+				<option value="file386">github.com/kijimaD/ruins/internal/world/query/proficiency.go (93.3%)</option>
 				
 				<option value="file387">github.com/kijimaD/ruins/internal/world/query/query.go (100.0%)</option>
 				
 				<option value="file388">github.com/kijimaD/ruins/internal/world/query/shop.go (100.0%)</option>
 				
-				<option value="file389">github.com/kijimaD/ruins/internal/world/query/singleton.go (88.3%)</option>
+				<option value="file389">github.com/kijimaD/ruins/internal/world/query/singleton.go (100.0%)</option>
 				
-				<option value="file390">github.com/kijimaD/ruins/internal/world/query/sort.go (95.5%)</option>
+				<option value="file390">github.com/kijimaD/ruins/internal/world/query/sort.go (100.0%)</option>
 				
-				<option value="file391">github.com/kijimaD/ruins/internal/world/query/stackkey.go (96.6%)</option>
+				<option value="file391">github.com/kijimaD/ruins/internal/world/query/stackkey.go (100.0%)</option>
 				
-				<option value="file392">github.com/kijimaD/ruins/internal/world/query/temperature.go (96.8%)</option>
+				<option value="file392">github.com/kijimaD/ruins/internal/world/query/temperature.go (100.0%)</option>
 				
-				<option value="file393">github.com/kijimaD/ruins/internal/world/query/turn.go (98.2%)</option>
+				<option value="file393">github.com/kijimaD/ruins/internal/world/query/turn.go (100.0%)</option>
 				
-				<option value="file394">github.com/kijimaD/ruins/internal/world/query/weather.go (90.6%)</option>
+				<option value="file394">github.com/kijimaD/ruins/internal/world/query/weather.go (100.0%)</option>
 				
 				<option value="file395">github.com/kijimaD/ruins/internal/world/query/weight.go (100.0%)</option>
 				
@@ -5360,7 +5360,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -54581,7 +54581,7 @@ func CubeTiles(world w.World) []consts.Coord[consts.Tile] {
 func DiscoveredChunks(world w.World, sb *gc.SeamlessBand) map[consts.Coord[consts.Chunk]]bool {
         <span class="cov8" title="1">field := GetCurrentStageField(world)
         if field == nil </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">out := make(map[consts.Coord[consts.Chunk]]bool)
 </span>        // ChunkW は帯が有効なら正なのでゼロ除算しない。X は有界なので絶対チャンク列はタイルを幅で割るだけ。
@@ -54702,7 +54702,7 @@ func CubeWeight(world w.World, cube ecs.Entity) consts.Milligram {
                 <span class="cov8" title="1">total += GetEntityWeight(world, item)
 </span>        }
         <span class="cov8" title="1">for _, item := range StowedCargo(world, cube) </span>{
-                <span class="cov0" title="0">total += GetEntityWeight(world, item)
+                <span class="cov8" title="1">total += GetEntityWeight(world, item)
 </span>        }
         <span class="cov8" title="1">for _, item := range GetCubeModules(world, cube) </span>{
                 <span class="cov8" title="1">total += GetEntityWeight(world, item)
@@ -54720,7 +54720,7 @@ func FollowFuelCost(total consts.Milligram) consts.Heat {
 // CubeFuelTotal はキューブに貯めた燃料ポイントを返す。FuelTank を持たなければ0。
 func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
         <span class="cov8" title="1">if !world.Components.FuelTank.Has(cube) </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return world.Components.FuelTank.Get(cube).Current</span>
 }
@@ -54788,7 +54788,7 @@ func ConsumeCurrency(world w.World, entity ecs.Entity, amount consts.Currency) b
 </span>        }
         <span class="cov8" title="1">wallet := world.Components.Wallet.Get(entity)
         if wallet == nil </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">wallet.Currency -= amount
         return true</span>
@@ -54836,7 +54836,7 @@ func DangerLevelForDepth(chunksNorth consts.Chunk) consts.Danger {
 		<pre class="file" id="file375" style="display: none">package query
 
 import (
-        "fmt"
+        "errors"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -54844,6 +54844,9 @@ import (
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/mlange-42/ark/ecs"
 )
+
+// ErrPlayerHasNoGridElement はプレイヤーが GridElement を持たないときに返す
+var ErrPlayerHasNoGridElement = errors.New("player has no GridElement")
 
 // GetVisibleEnemies は視界内の敵エンティティをすべて取得して返す
 func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
@@ -54853,7 +54856,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 </span>        }
 
         <span class="cov8" title="1">if !world.Components.GridElement.Has(playerEntity) </span>{
-                <span class="cov0" title="0">return nil, fmt.Errorf("player has no GridElement")
+                <span class="cov8" title="1">return nil, ErrPlayerHasNoGridElement
 </span>        }
 
         <span class="cov8" title="1">playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -54898,11 +54901,11 @@ func IsInVision(world w.World, player, target consts.Coord[consts.Tile]) bool {
 func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
         <span class="cov8" title="1">playerEntity, err := GetPlayerEntity(world)
         if err != nil </span>{
-                <span class="cov0" title="0">return nil, err
+                <span class="cov8" title="1">return nil, err
 </span>        }
 
         <span class="cov8" title="1">if !world.Components.GridElement.Has(playerEntity) </span>{
-                <span class="cov0" title="0">return nil, fmt.Errorf("player has no GridElement")
+                <span class="cov8" title="1">return nil, ErrPlayerHasNoGridElement
 </span>        }
 
         <span class="cov8" title="1">playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -54949,7 +54952,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
         for weaponsQuery.Next() </span>{
                 <span class="cov8" title="1">entity := weaponsQuery.Entity()
                 if !IsWeapon(world, entity) </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">equipped := world.Components.LocationEquipped.Get(entity)
                 if owner == equipped.Owner </span>{
@@ -54975,19 +54978,19 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
                 if owner == equipped.Owner </span>{
                         <span class="cov8" title="1">switch equipped.EquipmentSlot </span>{
                         case gc.SlotHead:
-                                <span class="cov0" title="0">entities[0] = &amp;entity</span>
+                                <span class="cov8" title="1">entities[0] = &amp;entity</span>
                         case gc.SlotTorso:
                                 <span class="cov8" title="1">entities[1] = &amp;entity</span>
                         case gc.SlotArms:
-                                <span class="cov0" title="0">entities[2] = &amp;entity</span>
+                                <span class="cov8" title="1">entities[2] = &amp;entity</span>
                         case gc.SlotHands:
-                                <span class="cov0" title="0">entities[3] = &amp;entity</span>
+                                <span class="cov8" title="1">entities[3] = &amp;entity</span>
                         case gc.SlotLegs:
-                                <span class="cov0" title="0">entities[4] = &amp;entity</span>
+                                <span class="cov8" title="1">entities[4] = &amp;entity</span>
                         case gc.SlotFeet:
-                                <span class="cov0" title="0">entities[5] = &amp;entity</span>
+                                <span class="cov8" title="1">entities[5] = &amp;entity</span>
                         case gc.SlotJewelry:
-                                <span class="cov0" title="0">entities[6] = &amp;entity</span>
+                                <span class="cov8" title="1">entities[6] = &amp;entity</span>
                         default:
                                 <span class="cov8" title="1">panic(fmt.Sprintf("invalid equipment slot: %v", equipped.EquipmentSlot))</span>
                         }
@@ -55065,7 +55068,7 @@ func IsAreaSafe(world w.World, actor ecs.Entity) bool {
         for areaQuery.Next() </span>{
                 <span class="cov8" title="1">entity := areaQuery.Entity()
                 if hasHostile </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">if FactionRelation(world, actor, entity) != RelationHostile </span>{
                         <span class="cov8" title="1">continue</span>
@@ -55539,7 +55542,7 @@ func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, mat
 func FindNearestCharacter(world w.World, self ecs.Entity, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {
         <span class="cov8" title="1">si := GetSpatialIndex(world)
         if si == nil || si.Characters == nil </span>{
-                <span class="cov0" title="0">return FindNearestEntity(world, self, from, match)
+                <span class="cov8" title="1">return FindNearestEntity(world, self, from, match)
 </span>        }
 
         <span class="cov8" title="1">var nearest ecs.Entity
@@ -55552,7 +55555,7 @@ func FindNearestCharacter(world w.World, self ecs.Entity, from *gc.GridElement, 
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">if !match(entity) </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">grid := world.Components.GridElement.Get(entity)
                 dist := geometry.ChebyshevDistance(from.Coord, grid.Coord)
@@ -55565,7 +55568,7 @@ func FindNearestCharacter(world w.World, self ecs.Entity, from *gc.GridElement, 
         }
 
         <span class="cov8" title="1">if !found </span>{
-                <span class="cov0" title="0">return nil, nil, -1
+                <span class="cov8" title="1">return nil, nil, -1
 </span>        }
         <span class="cov8" title="1">return &amp;nearest, nearestGrid, nearestDist</span>
 }
@@ -55611,7 +55614,7 @@ func ProficiencyValue(world w.World, entity ecs.Entity, key oapi.ProficiencyId) 
 func ProficiencySources(world w.World, entity ecs.Entity, key oapi.ProficiencyId) []gc.ProficiencySource {
         <span class="cov8" title="1">skills, abils, bodyFuncs := proficiencyInputs(world, entity)
         if skills == nil </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">return world.Resources.SkillDefs.ProficiencySources(skills, abils, bodyFuncs, key)</span>
 }
@@ -55625,6 +55628,7 @@ func SkillName(world w.World, id oapi.SkillId) string {
 		<pre class="file" id="file387" style="display: none">package query
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -55648,6 +55652,9 @@ func Player(world w.World, f func(entity ecs.Entity)) {
 </span>        }
 }
 
+// ErrNoPlayer はプレイヤーのエンティティが無いときに返す
+var ErrNoPlayer = errors.New("no player entity exists")
+
 // GetPlayerEntity はプレイヤーエンティティを返す
 // プレイヤーが0個または2個以上の場合はエラーを返す
 func GetPlayerEntity(world w.World) (ecs.Entity, error) {
@@ -55659,7 +55666,7 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 </span>        }
 
         <span class="cov8" title="1">if len(entities) == 0 </span>{
-                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("no player entity exists")
+                <span class="cov8" title="1">return gc.InvalidEntity, ErrNoPlayer
 </span>        }
         <span class="cov8" title="1">if len(entities) &gt; 1 </span>{
                 <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("multiple player entities exist: %d", len(entities))
@@ -55936,7 +55943,7 @@ func IsOnOverworld(world w.World) bool {
 func GetGameLog(world w.World) *gamelog.SafeSlice {
         <span class="cov8" title="1">gl := GetSingleton[gc.GameLog](world, world.Components.GameLog)
         if gl == nil </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">return gl.Store</span>
 }
@@ -55955,7 +55962,7 @@ func SetDungeon(world w.World, dungeon *gc.Dungeon) {
         <span class="cov8" title="1">if comp.Has(entity) </span>{
                 <span class="cov8" title="1">comp.Set(entity, dungeon)
 </span>        } else {
-                <span class="cov0" title="0">comp.Add(entity, dungeon)
+                <span class="cov8" title="1">comp.Add(entity, dungeon)
 </span>        }
 }
 
@@ -55964,13 +55971,13 @@ func SetDungeon(world w.World, dungeon *gc.Dungeon) {
 func GetSpatialIndex(world w.World) *gc.SpatialIndex {
         <span class="cov8" title="1">si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
         if si == nil </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">if !si.Built </span>{
                 <span class="cov8" title="1">buildSpatialIndex(world, si)
 </span>        }
         <span class="cov8" title="1">if si.MapWidth == 0 || si.MapHeight == 0 </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">return si</span>
 }
@@ -55990,7 +55997,7 @@ func InvalidateSpatialIndex(world w.World) {
 func UpdateCharacterPositionInIndex(world w.World, entity ecs.Entity, from, to consts.Coord[consts.Tile]) {
         <span class="cov8" title="1">si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
         if si == nil </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
         <span class="cov8" title="1">si.MoveCharacter(from, to, entity)</span>
 }
@@ -56000,7 +56007,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
         <span class="cov8" title="1">dungeon := GetDungeon(world)
         field := GetCurrentStageField(world)
         if dungeon == nil || field == nil </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
         <span class="cov8" title="1">si.MapWidth = field.Level.TileWidth
         si.MapHeight = field.Level.TileHeight
@@ -56011,11 +56018,11 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
         // 静的障害物のインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない
         <span class="cov8" title="1">blockPassQuery := ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
         for blockPassQuery.Next() </span>{
-                <span class="cov0" title="0">entity := blockPassQuery.Entity()
+                <span class="cov8" title="1">entity := blockPassQuery.Entity()
                 if world.Components.Dead.Has(entity) </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">grid := world.Components.GridElement.Get(entity)
+                <span class="cov8" title="1">grid := world.Components.GridElement.Get(entity)
                 si.BlockPass[*grid] = true</span>
         }
 
@@ -56024,7 +56031,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
         for characterQuery.Next() </span>{
                 <span class="cov8" title="1">entity := characterQuery.Entity()
                 if world.Components.Dead.Has(entity) </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">isCharacter := world.Components.Player.Has(entity) ||
                         world.Components.SoloAI.Has(entity)
@@ -56076,7 +56083,7 @@ func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity {
                         <span class="cov8" title="1">return c
 </span>                }
                 <span class="cov8" title="1">if c := cmp.Compare(sortRawID(world, a), sortRawID(world, b)); c != 0 </span>{
-                        <span class="cov0" title="0">return c
+                        <span class="cov8" title="1">return c
 </span>                }
                 <span class="cov8" title="1">if c := cmp.Compare(freshnessRank(world, a), freshnessRank(world, b)); c != 0 </span>{
                         <span class="cov8" title="1">return c
@@ -56151,7 +56158,7 @@ func equipFingerprint(world w.World, entity ecs.Entity) string {
                 <span class="cov8" title="1">fp += fmt.Sprintf("m%+v", *world.Components.Melee.Get(entity))
 </span>        }
         <span class="cov8" title="1">if world.Components.Fire.Has(entity) </span>{
-                <span class="cov0" title="0">fp += fmt.Sprintf("f%+v", *world.Components.Fire.Get(entity))
+                <span class="cov8" title="1">fp += fmt.Sprintf("f%+v", *world.Components.Fire.Get(entity))
 </span>        }
         <span class="cov8" title="1">if world.Components.Wearable.Has(entity) </span>{
                 <span class="cov8" title="1">fp += fmt.Sprintf("w%+v", *world.Components.Wearable.Get(entity))
@@ -56174,7 +56181,7 @@ func SameStack(world w.World, a ecs.Entity, b ecs.Entity) bool {
 func StackCountOf(world w.World, entity ecs.Entity, candidates []ecs.Entity) int {
         <span class="cov8" title="1">key, ok := StackKeyOf(world, entity)
         if !ok </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">n := 0
         for _, c := range candidates </span>{
@@ -56231,7 +56238,7 @@ func StackMembers(world w.World, entity ecs.Entity) []ecs.Entity {
                 <span class="cov8" title="1">if ge := world.Components.GridElement.Get(entity); ge != nil </span>{
                         <span class="cov8" title="1">return sameStackOnField(world, ge, key)
 </span>                }
-                <span class="cov0" title="0">return []ecs.Entity{entity}</span>
+                <span class="cov8" title="1">return []ecs.Entity{entity}</span>
         default:
                 <span class="cov8" title="1">return []ecs.Entity{entity}</span>
         }
@@ -56368,7 +56375,7 @@ func stageBaseTemperature(world w.World) int {
 // 緯度勾配は引数 y のタイル固有の緯度で測るので、同じ帯でも北のタイルほど寒い。
 func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
         <span class="cov8" title="1">if GetDungeon(world) == nil </span>{
-                <span class="cov0" title="0">return 0, errors.New("dungeon resource is not set")
+                <span class="cov8" title="1">return 0, errors.New("dungeon resource is not set")
 </span>        }
         <span class="cov8" title="1">baseTemp := stageBaseTemperature(world)
 </span>
@@ -56449,7 +56456,7 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
                 <span class="cov8" title="1">item := equipQuery.Entity()
                 equipped := world.Components.LocationEquipped.Get(item)
                 if equipped.Owner != owner </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
 
                 <span class="cov8" title="1">wearable := world.Components.Wearable.Get(item)
@@ -56533,7 +56540,7 @@ func CanPlayerAct(world w.World) bool {
 
         <span class="cov8" title="1">tb := world.Components.TurnBased.Get(playerEntity)
         if tb == nil </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">return tb.AP.Current &gt;= 0</span>
 }
@@ -56690,7 +56697,7 @@ func stickiness(current, next gc.WeatherKind) float64 {
 // 雪・吹雪・寒波だけが northDepth に応じて伸びる。北へ進むほど荒天が主役になる。
 func placeFactor(defs gc.WeatherDefs, northDepth int, next gc.WeatherKind) float64 {
         <span class="cov8" title="1">if northDepth &lt; 0 </span>{
-                <span class="cov0" title="0">northDepth = 0
+                <span class="cov8" title="1">northDepth = 0
 </span>        }
         <span class="cov8" title="1">return 1.0 + float64(defs.Kinds[next].Severity)*float64(northDepth)*placeSeverityCoef</span>
 }
@@ -56707,7 +56714,7 @@ func NextWeather(defs gc.WeatherDefs, current gc.WeatherKind, season gc.Season, 
 </span>        }
         <span class="cov8" title="1">i, ok := consts.Pick(rng, weights[:], func(w float64) float64 </span>{ <span class="cov8" title="1">return w }</span>)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov0" title="0">return current
+                <span class="cov8" title="1">return current
 </span>        }
         <span class="cov8" title="1">return gc.WeatherKind(i)</span>
 }
@@ -56719,7 +56726,7 @@ const harshSpellStretchPerChunk = 0.02
 // 厳しい天候が長引く。下限+乱数で裾を作る。
 func RollSpellTurns(defs gc.WeatherDefs, kind gc.WeatherKind, season gc.Season, northDepth int, rng *rand.Rand) consts.Turn {
         <span class="cov8" title="1">if northDepth &lt; 0 </span>{
-                <span class="cov0" title="0">northDepth = 0
+                <span class="cov8" title="1">northDepth = 0
 </span>        }
         <span class="cov8" title="1">def := defs.Kinds[kind]
         lo, hi := def.SpellTurnsMin, def.SpellTurnsMax

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">97.5&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">40</td>
-            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 14:32:47</td>
+            <td class="headerValue">2026-11-11 01:03:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -127,9 +127,9 @@
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         for areaQuery.Next() {</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 entity := areaQuery.Entity()</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 if hasHostile {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L69"><span class="lineNum">      69</span>              :                 }</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">           1 :                 if FactionRelation(world, actor, entity) != RelationHostile {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 if FactionRelation(world, actor, entity) != RelationHostile {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L72"><span class="lineNum">      72</span>              :                 }</span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>

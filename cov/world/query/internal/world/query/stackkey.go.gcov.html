@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">95.1&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">103</td>
-            <td class="headerCovTableEntry">98</td>
+            <td class="headerCovTableEntry">103</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 14:32:47</td>
+            <td class="headerValue">2026-11-11 01:03:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -105,9 +105,9 @@
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 fp += fmt.Sprintf(&quot;m%+v&quot;, *world.Components.Melee.Get(entity))</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         if world.Components.Fire.Has(entity) {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :                 fp += fmt.Sprintf(&quot;f%+v&quot;, *world.Components.Fire.Get(entity))</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 :         if world.Components.Wearable.Has(entity) {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 fp += fmt.Sprintf(&quot;f%+v&quot;, *world.Components.Fire.Get(entity))</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         if world.Components.Wearable.Has(entity) {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 fp += fmt.Sprintf(&quot;w%+v&quot;, *world.Components.Wearable.Get(entity))</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return fp</span></span>
@@ -128,9 +128,9 @@
 <span id="L66"><span class="lineNum">      66</span>              : func StackCountOf(world w.World, entity ecs.Entity, candidates []ecs.Entity) int {</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         key, ok := StackKeyOf(world, entity)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 1</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">           1 :         n := 0</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return 1</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         n := 0</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         for _, c := range candidates {</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 if ck, cok := StackKeyOf(world, c); cok &amp;&amp; ck == key {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         n++</span></span>
@@ -185,9 +185,9 @@
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 if ge := world.Components.GridElement.Get(entity); ge != nil {</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         return sameStackOnField(world, ge, key)</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 :                 return []ecs.Entity{entity}</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 return []ecs.Entity{entity}</span></span>
 <span id="L127"><span class="lineNum">     127</span>              :         default:</span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           1 :                 return []ecs.Entity{entity}</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 return []ecs.Entity{entity}</span></span>
 <span id="L129"><span class="lineNum">     129</span>              :         }</span>
 <span id="L130"><span class="lineNum">     130</span>              : }</span>
 <span id="L131"><span class="lineNum">     131</span>              : </span>

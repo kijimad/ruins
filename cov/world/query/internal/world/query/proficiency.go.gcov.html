@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.0&nbsp;%</td>
             <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">18</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-10 14:32:47</td>
+            <td class="headerValue">2026-11-11 01:03:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -100,9 +100,9 @@
 <span id="L38"><span class="lineNum">      38</span>              : func ProficiencySources(world w.World, entity ecs.Entity, key oapi.ProficiencyId) []gc.ProficiencySource {</span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         skills, abils, bodyFuncs := proficiencyInputs(world, entity)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if skills == nil {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Resources.SkillDefs.ProficiencySources(skills, abils, bodyFuncs, key)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return world.Resources.SkillDefs.ProficiencySources(skills, abils, bodyFuncs, key)</span></span>
 <span id="L44"><span class="lineNum">      44</span>              : }</span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // SkillName はスキルの訳した表示名を返す</span>
