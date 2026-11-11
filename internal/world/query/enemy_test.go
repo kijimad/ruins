@@ -89,7 +89,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 
 		enemies, err := query.GetVisibleEnemies(world)
 
-		require.Error(t, err, "プレイヤーがいない場合はエラーを返すべき")
+		require.ErrorIs(t, err, query.ErrNoPlayer)
 		assert.Nil(t, enemies)
 	})
 
@@ -128,8 +128,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 
 		enemies, err := query.GetVisibleEnemies(world)
 
-		require.Error(t, err, "GridElementが無ければエラーを返すべき")
-		assert.Contains(t, err.Error(), "player has no GridElement")
+		require.ErrorIs(t, err, query.ErrPlayerHasNoGridElement)
 		assert.Nil(t, enemies)
 	})
 }
@@ -226,7 +225,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 		items, err := query.GetVisibleItems(world)
 
-		require.Error(t, err, "プレイヤーがいない場合はエラーを返すべき")
+		require.ErrorIs(t, err, query.ErrNoPlayer)
 		assert.Nil(t, items)
 	})
 
@@ -239,8 +238,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 		items, err := query.GetVisibleItems(world)
 
-		require.Error(t, err, "GridElementが無ければエラーを返すべき")
-		assert.Contains(t, err.Error(), "player has no GridElement")
+		require.ErrorIs(t, err, query.ErrPlayerHasNoGridElement)
 		assert.Nil(t, items)
 	})
 }

@@ -1,6 +1,7 @@
 package query
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -24,6 +25,9 @@ func Player(world w.World, f func(entity ecs.Entity)) {
 	}
 }
 
+// ErrNoPlayer はプレイヤーのエンティティが無いときに返す
+var ErrNoPlayer = errors.New("no player entity exists")
+
 // GetPlayerEntity はプレイヤーエンティティを返す
 // プレイヤーが0個または2個以上の場合はエラーを返す
 func GetPlayerEntity(world w.World) (ecs.Entity, error) {
@@ -35,7 +39,7 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	}
 
 	if len(entities) == 0 {
-		return gc.InvalidEntity, fmt.Errorf("no player entity exists")
+		return gc.InvalidEntity, ErrNoPlayer
 	}
 	if len(entities) > 1 {
 		return gc.InvalidEntity, fmt.Errorf("multiple player entities exist: %d", len(entities))
