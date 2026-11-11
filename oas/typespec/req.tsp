@@ -1002,8 +1002,8 @@ model HungerStage {
   name: EntityName;
   from: NeedRatio;
 
-  /** 満腹の段階か。食べてこの段階になったら満腹を知らせる */
-  full?: boolean;
+  /** 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない */
+  reachedLog?: EntityDescription;
 
   /** 寝ている者を起こす段階か */
   wakesSleeper?: boolean;
