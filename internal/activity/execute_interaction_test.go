@@ -126,7 +126,7 @@ func TestExecuteInteraction_UnknownKind(t *testing.T) {
 
 	_, err := ExecuteInteraction(player, triggerEntity, unknown, world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid ActivationRange")
+	require.ErrorContains(t, err, "invalid ActivationRange")
 }
 
 // TestExecuteInteraction_Door は扉相互作用の動作を確認
@@ -339,7 +339,7 @@ func TestExecuteInteraction_Door_NoDoorComponent(t *testing.T) {
 	_, err := ExecuteInteraction(player, doorEntity, gc.InteractionDoor, world)
 
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "no Door component")
+	require.ErrorContains(t, err, "no Door component")
 }
 
 // TestExecuteInteraction_Talk_NoDialogComponent はDialogコンポーネントがない場合のエラーを確認
@@ -363,7 +363,7 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	_, err := ExecuteInteraction(player, npcEntity, gc.InteractionTalk, world)
 
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "no Dialog component")
+	require.ErrorContains(t, err, "no Dialog component")
 }
 
 // TestExecuteInteraction_Storage は収納相互作用がストレージメニューの状態変更要求を積むことを確認する

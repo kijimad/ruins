@@ -96,7 +96,7 @@ func TestChangeItemCount(t *testing.T) {
 		// 5個消費（所持数を超える）
 		err = ChangeItemCount(world, item, -5)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "insufficient item count")
+		require.ErrorContains(t, err, "insufficient item count")
 
 		// 在庫は変更されていない
 		assert.True(t, world.Components.Name.Has(item), "アイテムは残っているべき")
@@ -133,7 +133,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		err = ChangeItemCount(world, item, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "must not be zero")
+		require.ErrorContains(t, err, "must not be zero")
 	})
 
 	t.Run("プレイヤーがいる場合はWeightDirtyフラグが立つ", func(t *testing.T) {

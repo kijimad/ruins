@@ -111,7 +111,7 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 
 	err = manager.LoadWorld(world, "valid_no_checksum")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "checksum")
+	require.ErrorContains(t, err, "checksum")
 }
 
 func TestChecksumValidation(t *testing.T) {
@@ -144,14 +144,14 @@ func TestChecksumValidation(t *testing.T) {
 	env.Checksum = "invalid_checksum"
 	err = validateChecksum(&env)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "checksum mismatch")
+	require.ErrorContains(t, err, "checksum mismatch")
 
 	// データを改ざん（チェックサムは元に戻す）
 	env.Checksum = originalChecksum
 	env.Version = "tampered_version"
 	err = validateChecksum(&env)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "checksum mismatch")
+	require.ErrorContains(t, err, "checksum mismatch")
 }
 
 func TestTamperedSaveDataLoad(t *testing.T) {
@@ -186,7 +186,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 
 	err = manager.LoadWorld(world, "test_tampered")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "checksum mismatch")
+	require.ErrorContains(t, err, "checksum mismatch")
 }
 
 func TestHashConsistencyAcrossRuns(t *testing.T) {
@@ -223,7 +223,7 @@ func TestMissingChecksumValidation(t *testing.T) {
 		World:     json.RawMessage(`{}`),
 	})
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "checksum field is missing")
+	require.ErrorContains(t, err, "checksum field is missing")
 }
 
 func TestOldSaveDataWithoutChecksum(t *testing.T) {
@@ -250,7 +250,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 
 	err = manager.LoadWorld(world, "old_format_test")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "checksum")
+	require.ErrorContains(t, err, "checksum")
 }
 
 func TestListSaves(t *testing.T) {
@@ -372,7 +372,7 @@ func TestRestoreWorldFromJSON_VersionMismatch(t *testing.T) {
 	newWorld := testutil.InitTestWorld(t)
 	err = manager.RestoreWorldFromJSON(newWorld, string(tampered))
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "unsupported save data version")
+	require.ErrorContains(t, err, "unsupported save data version")
 }
 
 // TestRestoreWorldFromJSON_InvalidJSON は壊れたJSONを拒否することを検証する。
@@ -384,7 +384,7 @@ func TestRestoreWorldFromJSON_InvalidJSON(t *testing.T) {
 
 	err = manager.RestoreWorldFromJSON(world, "{ 壊れたJSON ")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "unmarshal")
+	require.ErrorContains(t, err, "unmarshal")
 }
 
 // TestRestoreWorldFromJSON_MissingSingleton は復元データにシングルトン（Dungeon保持
@@ -402,7 +402,7 @@ func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
 	newWorld := testutil.InitTestWorld(t)
 	err = manager.LoadWorld(newWorld, "no_singleton")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "singleton")
+	require.ErrorContains(t, err, "singleton")
 }
 
 // TestNewSerializationManager_保存ディレクトリの作成に失敗するとエラー は、セーブディレクトリの

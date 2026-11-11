@@ -356,7 +356,7 @@ SomeField = "これは未知のセクション"
 
 	_, err := DecodeRaws(invalidToml)
 	require.Error(t, err, "未知のフィールドがあるTOMLでエラーが発生すべき")
-	assert.Contains(t, err.Error(), "unknown keys found in TOML", "エラーメッセージに未知のキーについての情報が含まれるべき")
+	require.ErrorContains(t, err, "unknown keys found in TOML", "エラーメッセージに未知のキーについての情報が含まれるべき")
 }
 
 func TestLoadWithValidFields(t *testing.T) {
@@ -581,7 +581,7 @@ Depth = 1
 
 	_, err = NewPropSpec(raws, "矛盾Prop")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "blockPass and passCost cannot both be set")
+	require.ErrorContains(t, err, "blockPass and passCost cannot both be set")
 }
 
 func TestPropWithHP(t *testing.T) {

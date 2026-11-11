@@ -126,7 +126,7 @@ func TestSetMaxStats_WithoutComponents(t *testing.T) {
 
 	err := setMaxStats(world, entity)
 	require.Error(t, err, "必要なコンポーネントがない場合はエラーを返すべき")
-	assert.Contains(t, err.Error(), "does not have required components", "エラーメッセージが適切であるべき")
+	require.ErrorContains(t, err, "does not have required components", "エラーメッセージが適切であるべき")
 
 	world.ECS.RemoveEntity(entity)
 }
@@ -293,7 +293,7 @@ func TestSpawnItem(t *testing.T) {
 
 		_, err := SpawnBackpackItem(world, "wooden_sword", 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "count must be positive")
+		require.ErrorContains(t, err, "count must be positive")
 	})
 
 	t.Run("負のcountを指定するとエラー", func(t *testing.T) {
@@ -302,7 +302,7 @@ func TestSpawnItem(t *testing.T) {
 
 		_, err := SpawnBackpackItem(world, "wooden_sword", -1)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "count must be positive")
+		require.ErrorContains(t, err, "count must be positive")
 	})
 
 	t.Run("存在しないアイテム名を指定するとエラー", func(t *testing.T) {
@@ -313,7 +313,7 @@ func TestSpawnItem(t *testing.T) {
 
 		_, err = SpawnBackpackItem(world, "存在しないアイテム", 1)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "key not found")
+		require.ErrorContains(t, err, "key not found")
 	})
 
 	t.Run("プレイヤー不在ではエラー", func(t *testing.T) {
@@ -323,7 +323,7 @@ func TestSpawnItem(t *testing.T) {
 		// バックパックはプレイヤーの所有物。所有者なしの生成は不変条件違反として拒否される
 		_, err := SpawnBackpackItem(world, "healing_potion", 1)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "no player entity exists")
+		require.ErrorIs(t, err, query.ErrNoPlayer)
 	})
 }
 

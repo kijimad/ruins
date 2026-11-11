@@ -92,7 +92,7 @@ func TestGetPlayerEntity(t *testing.T) {
 
 		_, err := GetPlayerEntity(world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "no player entity exists")
+		require.ErrorIs(t, err, ErrNoPlayer)
 	})
 
 	t.Run("プレイヤーが2個以上の場合", func(t *testing.T) {
@@ -107,7 +107,7 @@ func TestGetPlayerEntity(t *testing.T) {
 
 		_, err := GetPlayerEntity(world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "multiple player entities exist")
+		require.ErrorContains(t, err, "multiple player entities exist")
 
 		world.ECS.RemoveEntity(player1)
 		world.ECS.RemoveEntity(player2)

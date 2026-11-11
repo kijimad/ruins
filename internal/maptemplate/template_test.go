@@ -84,7 +84,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "name")
+		require.ErrorContains(t, err, "name")
 	})
 
 	t.Run("weightが0以下の場合はエラー", func(t *testing.T) {
@@ -103,7 +103,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "weight must be a positive integer")
+		require.ErrorContains(t, err, "weight must be a positive integer")
 	})
 
 	t.Run("マップサイズが定義と一致しない場合はエラー", func(t *testing.T) {
@@ -122,8 +122,8 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "actual size")
-		assert.Contains(t, err.Error(), "defined size")
+		require.ErrorContains(t, err, "actual size")
+		require.ErrorContains(t, err, "defined size")
 	})
 
 	t.Run("マップの行長mismatchの場合はエラー", func(t *testing.T) {
@@ -142,8 +142,8 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "row")
-		assert.Contains(t, err.Error(), "length mismatch")
+		require.ErrorContains(t, err, "row")
+		require.ErrorContains(t, err, "length mismatch")
 	})
 
 	t.Run("複数パレットを指定できる", func(t *testing.T) {
@@ -226,7 +226,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "size must be a positive integer")
+		require.ErrorContains(t, err, "size must be a positive integer")
 	})
 
 	t.Run("負の重みはエラー", func(t *testing.T) {
@@ -245,7 +245,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "weight must be a positive integer")
+		require.ErrorContains(t, err, "weight must be a positive integer")
 	})
 
 	t.Run("マップが空の場合はエラー", func(t *testing.T) {
@@ -260,7 +260,7 @@ map = ""
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "map is empty")
+		require.ErrorContains(t, err, "map is empty")
 	})
 
 	t.Run("大きなマップを読み込める", func(t *testing.T) {
@@ -415,7 +415,7 @@ map = """
 				loader := NewTemplateLoader()
 				_, err := loader.Load(strings.NewReader(tt.content))
 				require.Error(t, err)
-				assert.Contains(t, err.Error(), tt.errMsg)
+				require.ErrorContains(t, err, tt.errMsg)
 			})
 		}
 	})
@@ -459,14 +459,14 @@ func TestChunkTemplate_GetCharAt(t *testing.T) {
 		t.Parallel()
 		_, err := template.GetCharAt(0, 5)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "y coordinate out of range")
+		require.ErrorContains(t, err, "y coordinate out of range")
 	})
 
 	t.Run("範囲外のX座標はエラー", func(t *testing.T) {
 		t.Parallel()
 		_, err := template.GetCharAt(5, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "x coordinate out of range")
+		require.ErrorContains(t, err, "x coordinate out of range")
 	})
 }
 
@@ -492,7 +492,7 @@ func TestTemplateLoader_ChunkOperations(t *testing.T) {
 		loader := NewTemplateLoader()
 		_, err := loader.GetChunks("nonexistent")
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		require.ErrorContains(t, err, "not found")
 	})
 
 	t.Run("同じ名前で複数のバリエーションを登録できる", func(t *testing.T) {
@@ -715,7 +715,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 
 		_, err := template.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "does not match chunk size")
+		require.ErrorContains(t, err, "does not match chunk size")
 	})
 
 	t.Run("未登録のチャンクはエラー", func(t *testing.T) {
@@ -738,7 +738,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 
 		_, err := template.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		require.ErrorContains(t, err, "not found")
 	})
 
 	t.Run("複数候補から重みづけランダム選択", func(t *testing.T) {
@@ -840,7 +840,7 @@ func TestTemplateLoader_RegisterAllChunks(t *testing.T) {
 
 		err := loader.RegisterAllChunks([]string{"nonexistent"})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to read directory")
+		require.ErrorContains(t, err, "failed to read directory")
 	})
 }
 
@@ -981,7 +981,7 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 
 		_, _, _, err := loader.LoadTemplateByName("nonexistent", 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		require.ErrorContains(t, err, "not found")
 	})
 
 	t.Run("チャンクなしのテンプレートも読み込める", func(t *testing.T) {

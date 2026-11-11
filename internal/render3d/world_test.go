@@ -59,7 +59,7 @@ func TestWorldProjector_カメラがいないとエラー(t *testing.T) {
 
 	_, err := render3d.WorldProjector(world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "player camera not found")
+	require.ErrorContains(t, err, "player camera not found")
 }
 
 func TestWorldProjector_プレイヤーが複数いるとエラー(t *testing.T) {
@@ -75,7 +75,7 @@ func TestWorldProjector_プレイヤーが複数いるとエラー(t *testing.T)
 
 	_, err = render3d.WorldProjector(world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "multiple player entities exist")
+	require.ErrorContains(t, err, "multiple player entities exist")
 }
 
 func TestPlayerTile_プレイヤーがいないとエラー(t *testing.T) {
@@ -85,7 +85,7 @@ func TestPlayerTile_プレイヤーがいないとエラー(t *testing.T) {
 
 	_, err := render3d.PlayerTile(world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "no player entity exists")
+	require.ErrorIs(t, err, query.ErrNoPlayer)
 }
 
 func TestTileTopHeight_壁は天面床は地面の高さになる(t *testing.T) {

@@ -377,7 +377,7 @@ TotalEffort = 10
 
 	_, err = NewItemSpec(raws, "白紙の本")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "requires a Skill")
+	require.ErrorContains(t, err, "requires a Skill")
 }
 
 func TestValidateRaws_本に未定義スキルはエラー(t *testing.T) {
@@ -420,7 +420,7 @@ Weight = "abc"
 
 	_, err = NewItemSpec(raws, "不正な重量アイテム")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "'不正な重量アイテム' weight")
+	require.ErrorContains(t, err, "'不正な重量アイテム' weight")
 }
 
 func TestNewItemSpec_腐敗と治療と火種が設定される(t *testing.T) {
@@ -606,7 +606,7 @@ Amount = 1
 
 	_, err = NewRecipeSpec(raws, "対応アイテムなしレシピ")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to generate item for recipe")
+	require.ErrorContains(t, err, "failed to generate item for recipe")
 }
 
 func TestNewWeaponSpec_アイテム生成に失敗するとエラー(t *testing.T) {
@@ -893,7 +893,7 @@ func TestGetItemGroup_未存在はエラー(t *testing.T) {
 
 	_, err = GetItemGroup(raws, "存在しないグループ")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "item group does not exist")
+	require.ErrorContains(t, err, "item group does not exist")
 }
 
 func TestGetProp_未存在はエラー(t *testing.T) {

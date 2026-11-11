@@ -264,7 +264,7 @@ func TestGetEntityMaxAP(t *testing.T) {
 
 		_, err := getEntityMaxAP(actor, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "TurnBased component not found")
+		require.ErrorContains(t, err, "TurnBased component not found")
 	})
 }
 

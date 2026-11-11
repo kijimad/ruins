@@ -107,7 +107,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 			if tt.shouldError {
 				require.Error(t, err)
 				if tt.errorMsg != "" {
-					require.Contains(t, err.Error(), tt.errorMsg)
+					require.ErrorContains(t, err, tt.errorMsg)
 				}
 			} else {
 				require.NoError(t, err)
@@ -270,7 +270,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 			if tt.shouldError {
 				require.Error(t, err)
 				if tt.errorMsg != "" {
-					require.Contains(t, err.Error(), tt.errorMsg)
+					require.ErrorContains(t, err, tt.errorMsg)
 				}
 			} else {
 				require.NoError(t, err)

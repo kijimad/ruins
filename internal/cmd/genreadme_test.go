@@ -26,7 +26,7 @@ func TestBuildImageTableFrom_NonExistentDir(t *testing.T) {
 	t.Parallel()
 	_, err := buildImageTableFrom("/nonexistent/path")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to read")
+	require.ErrorContains(t, err, "failed to read")
 }
 
 func TestBuildImageTableFrom_SingleImage(t *testing.T) {

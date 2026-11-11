@@ -70,7 +70,7 @@ func TestInitComponents_Error(t *testing.T) {
 
 	require.Error(t, err)
 	assert.Nil(t, components)
-	assert.Contains(t, err.Error(), "初期化エラー")
+	require.ErrorContains(t, err, "初期化エラー")
 }
 
 func TestComponentInitializer(t *testing.T) {

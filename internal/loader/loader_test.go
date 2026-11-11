@@ -155,7 +155,7 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		_, err := LoadSpriteSheetFromAseprite("file/textures/dist/nonexistent.json")
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to load JSON file")
+		require.ErrorContains(t, err, "failed to load JSON file")
 	})
 
 	t.Run("不正なパスを指定するとエラー", func(t *testing.T) {

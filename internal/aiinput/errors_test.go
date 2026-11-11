@@ -6,6 +6,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAIError_WithEntity(t *testing.T) {
@@ -19,9 +20,9 @@ func TestAIError_WithEntity(t *testing.T) {
 		Entity:  &entity,
 	}
 
-	assert.Contains(t, err.Error(), "planning")
-	assert.Contains(t, err.Error(), fmt.Sprintf("Entity=%d", entity))
-	assert.Contains(t, err.Error(), "行動計画に失敗した")
+	require.ErrorContains(t, err, "planning")
+	require.ErrorContains(t, err, fmt.Sprintf("Entity=%d", entity))
+	require.ErrorContains(t, err, "行動計画に失敗した")
 }
 
 func TestAIError_WithoutEntity(t *testing.T) {
@@ -34,15 +35,13 @@ func TestAIError_WithoutEntity(t *testing.T) {
 		Entity:  nil,
 	}
 
-	assert.Contains(t, err.Error(), "vision")
-	assert.Contains(t, err.Error(), "視界計算に失敗した")
-	assert.NotContains(t, err.Error(), "Entity=")
+	assert.Equal(t, "AI Error [vision]: 視界計算に失敗した", err.Error())
 }
 
 func TestAIError_ErrorMessage(t *testing.T) {
 	t.Parallel()
 
 	err := &AIError{Type: "test", Message: "test message"}
-	assert.Contains(t, err.Error(), "test")
-	assert.Contains(t, err.Error(), "test message")
+	require.ErrorContains(t, err, "test")
+	require.ErrorContains(t, err, "test message")
 }
