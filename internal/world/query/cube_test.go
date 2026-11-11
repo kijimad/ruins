@@ -275,6 +275,38 @@ func TestDiscoveredChunks_北進ぶん絶対チャンク行をずらす(t *testi
 	assert.Len(t, got, 2, "探索済みタイルを含むチャンクだけ返す")
 }
 
+func TestCubeFuelTotal_FuelTankが無ければ0(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	assert.Equal(t, consts.Heat(0), query.CubeFuelTotal(world, cube))
+}
+
+func TestCubeWeight_畳み込んだ貨物も合算する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube := world.ECS.NewEntity()
+
+	cargo := world.ECS.NewEntity()
+	world.Components.Weight.Add(cargo, &gc.Weight{Milligram: consts.Milligram(4 * consts.MilligramPerKg)})
+	world.Components.LocationStowed.Add(cargo, &gc.LocationStowed{Owner: cube})
+
+	assert.Equal(t, consts.Milligram(4*consts.MilligramPerKg), query.CubeWeight(world, cube),
+		"畳み込んだ貨物の重量も合算する")
+}
+
+func TestDiscoveredChunks_StageFieldが無ければnil(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("未生成の遺跡", 1)
+	sb := &gc.SeamlessBand{ChunkW: 10, ChunkH: 10}
+
+	got := query.DiscoveredChunks(world, sb)
+
+	assert.Nil(t, got, "StageFieldを生成していないステージはnil")
+}
+
 func TestCubeWeight_別の収納の物は数えない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

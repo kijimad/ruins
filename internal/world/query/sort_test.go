@@ -215,6 +215,26 @@ func TestSortEntities_同名でRawIDが無ければ副キーは空文字扱い�
 	assert.Equal(t, second, sorted[1])
 }
 
+func TestSortEntities_同名でRawIDが違えば副キーで順序が決まる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 作成順をRawID順と逆にして、走査順でなく副キーで並ぶことを確認する
+	later := world.ECS.NewEntity()
+	world.Components.Name.Add(later, &gc.Name{Name: "拾い物"})
+	world.Components.RawID.Add(later, &gc.RawID{ID: "zzz"})
+
+	earlier := world.ECS.NewEntity()
+	world.Components.Name.Add(earlier, &gc.Name{Name: "拾い物"})
+	world.Components.RawID.Add(earlier, &gc.RawID{ID: "aaa"})
+
+	sorted := SortEntities(world, []ecs.Entity{later, earlier})
+
+	require.Len(t, sorted, 2)
+	assert.Equal(t, earlier, sorted[0], "RawIDが小さい方が先")
+	assert.Equal(t, later, sorted[1])
+}
+
 func TestSortEntitiesEmptyAndNilCases(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

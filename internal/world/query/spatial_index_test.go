@@ -84,6 +84,35 @@ func TestBuildSpatialIndex_退避中エンティティは索引に含まれな�
 	assert.False(t, si.BlockPass[gc.GridElement{Coord: wallPos}], "退避中の障害物は BlockPass に含まれない")
 }
 
+func TestBuildSpatialIndex_障害物とDeadの除外(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	wallPos := consts.Coord[consts.Tile]{X: 3, Y: 3}
+	wall := world.ECS.NewEntity()
+	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: wallPos})
+	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+
+	deadWallPos := consts.Coord[consts.Tile]{X: 4, Y: 4}
+	deadWall := world.ECS.NewEntity()
+	world.Components.GridElement.Add(deadWall, &gc.GridElement{Coord: deadWallPos})
+	world.Components.BlockPass.Add(deadWall, &gc.BlockPass{})
+	world.Components.Dead.Add(deadWall, &gc.Dead{})
+
+	deadCharPos := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	deadChar := spawnCharacterAt(world, deadCharPos.X, deadCharPos.Y)
+	world.Components.Dead.Add(deadChar, &gc.Dead{})
+
+	query.InvalidateSpatialIndex(world)
+	si := query.GetSpatialIndex(world)
+	require.NotNil(t, si)
+
+	assert.True(t, si.BlockPass[gc.GridElement{Coord: wallPos}], "生存中の障害物はBlockPassに入る")
+	assert.False(t, si.BlockPass[gc.GridElement{Coord: deadWallPos}], "Deadの障害物はBlockPassに入らない")
+	_, deadCharIn := si.Characters[gc.GridElement{Coord: deadCharPos}]
+	assert.False(t, deadCharIn, "Deadのキャラクターは索引に入らない")
+}
+
 func TestUpdateCharacterPositionInIndex_増分更新でBuiltを保つ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

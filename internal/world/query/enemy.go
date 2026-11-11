@@ -1,7 +1,7 @@
 package query
 
 import (
-	"fmt"
+	"errors"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -9,6 +9,9 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
+
+// ErrPlayerHasNoGridElement はプレイヤーが GridElement を持たないときに返す
+var ErrPlayerHasNoGridElement = errors.New("player has no GridElement")
 
 // GetVisibleEnemies は視界内の敵エンティティをすべて取得して返す
 func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
@@ -18,7 +21,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	}
 
 	if !world.Components.GridElement.Has(playerEntity) {
-		return nil, fmt.Errorf("player has no GridElement")
+		return nil, ErrPlayerHasNoGridElement
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -67,7 +70,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	}
 
 	if !world.Components.GridElement.Has(playerEntity) {
-		return nil, fmt.Errorf("player has no GridElement")
+		return nil, ErrPlayerHasNoGridElement
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)

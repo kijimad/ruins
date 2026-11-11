@@ -305,3 +305,40 @@ func TestGroupStacks_同一性キーで束ね初出順を保つ(t *testing.T) {
 	assert.Equal(t, 3, StackCountOf(world, bolt2, entities), "候補の中で bolt と同一スタックは3個")
 	assert.Equal(t, 1, StackCountOf(world, nut, entities))
 }
+
+func TestStackCountOf_RawIDが無ければ常に1(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	noRawID := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+	world.Components.RawID.Add(other, &gc.RawID{ID: "bolt"})
+
+	assert.Equal(t, 1, StackCountOf(world, noRawID, []ecs.Entity{noRawID, other}))
+}
+
+func TestEquipFingerprint_Fireの性能差で束ねない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	newGun := func(damage int) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: "flamethrower"})
+		world.Components.Fire.Add(e, &gc.Fire{Accuracy: 80, Damage: damage})
+		return e
+	}
+
+	assert.True(t, SameStack(world, newGun(5), newGun(5)), "性能が同じ射撃武器は束ねる")
+	assert.False(t, SameStack(world, newGun(5), newGun(9)), "性能が違う射撃武器は束ねない")
+}
+
+func TestStackMembers_床のGridElementが無ければ単独スタック(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.RawID.Add(e, &gc.RawID{ID: "gem"})
+	world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
+
+	assert.Equal(t, []ecs.Entity{e}, StackMembers(world, e), "GridElementが無ければ単独で返す")
+}
