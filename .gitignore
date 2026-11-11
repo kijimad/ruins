@@ -1,5 +1,4 @@
 # lib
-node_modules
 
 # pprof
 mem.pprof
@@ -9,7 +8,6 @@ cpu.pprof
 ruins
 bin/
 .cache/
-editor-ui/dist/
 wasm/game.wasm
 
 # save
@@ -26,7 +24,6 @@ digger_rs/
 cdda/
 
 # OpenAPIレポート
-oas/redoc/
 # make mutation(go-mutesting)が出力する
 /report.json
 # make test が出力するカバレッジプロファイル

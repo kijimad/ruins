@@ -18,7 +18,7 @@ changed=$(git diff --name-only "${base}...HEAD" -- '*_test.go')
 # grep の不一致は「対象なし」なので失敗にしない
 pkgs=$(echo "$changed" |
 	xargs -r -n1 dirname | sort -u |
-	grep -v -e '^editor-ui/' -e '^oapi$' |
+	grep -v -e '^internal/rawschema/gen$' |
 	while read -r d; do [ -d "$d" ] && echo "./$d"; done) || true
 
 if [ -z "$pkgs" ]; then

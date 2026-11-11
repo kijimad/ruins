@@ -34,6 +34,8 @@ func NewMainApp() *cli.Command {
 			CmdDesignDoc,
 			CmdBenchgate,
 			CmdFmtRaw,
+			CmdCutSprite,
+			CmdLayoutPNG,
 		},
 	}
 

@@ -24,7 +24,7 @@ all_pkgs=$(go list ./...) || {
 	echo "grill: go list に失敗した。中止する" >&2
 	exit 1
 }
-pkgs=$(printf '%s\n' "$all_pkgs" | grep -v -e /editor-ui/ -e '/oapi$')
+pkgs=$(printf '%s\n' "$all_pkgs" | grep -v -e '/rawschema/gen$')
 deadline=$(($(date +%s) + minutes * 60))
 round=0
 

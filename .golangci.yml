@@ -41,8 +41,6 @@ linters:
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
   exclusions:
-    paths:
-      - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
     rules:
       # gosmopolitan の源泉英語化 allowlist
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする

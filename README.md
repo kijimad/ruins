@@ -7,7 +7,7 @@
 - [Steam](https://store.steampowered.com/app/4791810/Ruins/)
 - [Play](https://kijimad.github.io/ruins/)
 - [Test Report](https://kijimad.github.io/ruins/cov/)
-- [Raw Spec](https://kijimad.github.io/ruins/raw-spec/)
+- [Raw Spec](internal/rawschema/schema.cue)
 - [Godoc](https://pkg.go.dev/github.com/kijimaD/ruins)
 
 ## Play Images

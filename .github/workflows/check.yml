@@ -205,22 +205,6 @@ jobs:
           echo "::error::ベンチマークが2倍以上悪化しました。詳細はPRコメント参照"
           exit 1
 
-  check-ui:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: editor-ui/package-lock.json
-      - name: install
-        run: npm ci --prefix editor-ui
-      - name: check-ui
-        run: make check-ui
-
   lint:
     runs-on: ubuntu-latest
     permissions:

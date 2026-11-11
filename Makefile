@@ -3,10 +3,9 @@
 # bwrapが利用可能か実行時にテストする。CI環境ではunprivileged user namespaceが制限されていて使えない場合がある
 BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null && echo "bwrap --dev-bind / / --tmpfs /dev/input --")
 
-# test/bench/report/lint(deadcode) の対象Goパッケージ。除外理由は2つ:
-# - /editor-ui/: node_modulesに第三者のGo実装(flatted)が同梱される。npm管理外でビルド不能な依存が混入しうるため除外必須
-# - /oapi: OpenAPI生成コード。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
-GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$$')
+# test/bench/report/lint(deadcode) の対象Goパッケージ。
+# - /rawschema/gen: Go の型を生成するだけのコマンド。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
+GO_TEST_PKGS = $$(go list ./... | grep -v -e '/rawschema/gen$$')
 
 # ゴールデンの基準画像は CI の GPU 無し Mesa llvmpipe で撮る。GPU 機はハードウェア描画だと
 # テクセル丸めがぶれて差分が閾値を超えるので、llvmpipe を強制して描画経路を CI と揃える。
@@ -17,10 +16,6 @@ SOFTWARE_GL := LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe __GLX_VENDOR_LIBR
 run: ## 実行する。最新のオートセーブから続きで起動する。新規で始めるときは RUINS_CONTINUE=0 を渡す
 	RUINS_PROFILE=development \
 	go run . play
-
-.PHONY: editor
-editor: ## ゲームデータエディタを起動する
-	npm run --prefix editor-ui dev
 
 .PHONY: test
 test: ## テストを実行する。RACE=-race で競合検出できる
@@ -100,7 +95,6 @@ toolsinstall: ## 開発ツールをインストールする
 	# apt の shellcheck は環境ごとに版が違い、検出されるルールがローカルと CI でずれる
 	@./scripts/install-shellcheck.sh
 	@sudo apt-get install -y bubblewrap
-	@npm install
 	@./scripts/setup-hooks.sh
 
 .PHONY: balance
@@ -115,10 +109,6 @@ generate: ## コードを生成する
 
 .PHONY: check
 check: fmt build test lint ## 一気にチェックする
-
-.PHONY: check-ui
-check-ui: ## editor-ui の型チェック・テスト・lintを実行する
-	npm run --prefix editor-ui check
 
 # ================
 
