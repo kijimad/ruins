@@ -1196,8 +1196,8 @@ func validateTileEffects(raws oapi.Raws) error {
 	return nil
 }
 
-// validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、割合0から始まる段階を持つことを検証する。
-// 割合0の段階が無いと、どの段階にも当たらない割合が生まれる
+// validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。
+// 0の段階が無いと、どの段階にも当たらない割合や劣化量が生まれる
 func validateNeedStages(raws oapi.Raws) error {
 	if hunger := PtrSlice(raws.HungerStages); len(hunger) > 0 {
 		if err := validateEnumRows("HungerStageId", rowIDs(hunger, func(h oapi.HungerStage) oapi.HungerStageId { return h.Id })); err != nil {
@@ -1213,6 +1213,11 @@ func validateNeedStages(raws oapi.Raws) error {
 		}
 		if !slices.ContainsFunc(fatigue, func(f oapi.FatigueStage) bool { return f.From == 0 }) {
 			return fmt.Errorf("fatigue: %w", errNeedStageNoZero)
+		}
+	}
+	if freshness := PtrSlice(raws.FreshnessStages); len(freshness) > 0 {
+		if !slices.ContainsFunc(freshness, func(f oapi.FreshnessStage) bool { return f.From == 0 }) {
+			return fmt.Errorf("freshness: %w", errNeedStageNoZero)
 		}
 	}
 	return nil

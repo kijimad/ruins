@@ -2303,10 +2303,13 @@ type FoliageEffect struct {
 	TempModifier TileTempModifier `json:"tempModifier"`
 }
 
-// FreshnessStage 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ。行の順が新しいものから古いものへの並び順になる
+// FreshnessStage 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
 type FreshnessStage struct {
 	// EatLog 食べたときのログの msgid。%s は食べた者と食べ物
 	EatLog EntityDescription `json:"eatLog"`
+
+	// From この段階が始まる劣化量。食料の stageLength の何倍かで表す。経過した段階数以下で from が最大の段階になり、from の小さい順が新しいものからの並び順になる
+	From FreshnessStageFrom `json:"from"`
 
 	// Id 鮮度の段階
 	Id FreshnessStageId `json:"id"`
@@ -2323,6 +2326,9 @@ type FreshnessStage struct {
 	// NutritionPercent 食料から得る栄養の満額に対する割合。百分率
 	NutritionPercent NutritionPercent `json:"nutritionPercent"`
 }
+
+// FreshnessStageFrom 鮮度の段階が始まる劣化量。食料の stageLength の何倍か
+type FreshnessStageFrom = int
 
 // FreshnessStageId 鮮度の段階
 type FreshnessStageId string

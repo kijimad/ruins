@@ -1218,13 +1218,13 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 			CanSleep: row.CanSleep, Badge: toRGBA(row.BadgeColor),
 		})
 	}
-	freshness := make(map[oapi.FreshnessStageId]gc.FreshnessDef, len(PtrSlice(raws.FreshnessStages)))
-	for i, row := range PtrSlice(raws.FreshnessStages) {
-		freshness[row.Id] = gc.FreshnessDef{
-			Rank: i + 1,
+	freshness := make([]gc.FreshnessDef, 0, len(PtrSlice(raws.FreshnessStages)))
+	for _, row := range PtrSlice(raws.FreshnessStages) {
+		freshness = append(freshness, gc.FreshnessDef{
+			Level: row.Id, From: row.From,
 			Name: row.Name, NutritionPercent: row.NutritionPercent, EatLog: row.EatLog, Marker: row.Marker,
 			IllnessChancePercent: deref(row.IllnessChancePercent),
-		}
+		})
 	}
 	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
 }

@@ -34,6 +34,11 @@ func makeWeatherRaws(mutate func(*oapi.Raws)) oapi.Raws {
 			{Id: oapi.FatigueStageIdTired, From: 0.5},
 			{Id: oapi.FatigueStageIdExhausted, From: 0.8},
 		},
+		FreshnessStages: &[]oapi.FreshnessStage{
+			{Id: oapi.Fresh, From: 0},
+			{Id: oapi.Stale, From: 1},
+			{Id: oapi.Rotten, From: 2},
+		},
 	}
 	mutate(&raws)
 	return raws
@@ -90,6 +95,13 @@ func TestValidateWeathersAndNeedStages(t *testing.T) {
 			name: "疲労の段階に割合0が無い",
 			mutate: func(r *oapi.Raws) {
 				(*r.FatigueStages)[0].From = 0.1
+			},
+			wantErr: errNeedStageNoZero,
+		},
+		{
+			name: "鮮度の段階に0から始まるものが無い",
+			mutate: func(r *oapi.Raws) {
+				(*r.FreshnessStages)[0].From = 1
 			},
 			wantErr: errNeedStageNoZero,
 		},
@@ -152,10 +164,10 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 			{Level: oapi.FatigueStageIdTired, Name: "Tired", From: 0.5, Condition: gc.SeverityMinor, CanSleep: true, Badge: &color.RGBA{255, 200, 0, 255}},
 			{Level: oapi.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium, CanSleep: true, Badge: &color.RGBA{255, 50, 50, 255}},
 		},
-		Freshness: map[oapi.FreshnessStageId]gc.FreshnessDef{
-			oapi.Fresh:  {Rank: 1, Name: "Fresh", NutritionPercent: 100, EatLog: "%s ate fresh %s."},
-			oapi.Stale:  {Rank: 2, Name: "Stale", NutritionPercent: 50, EatLog: "%s ate old %s.", Marker: true},
-			oapi.Rotten: {Rank: 3, Name: "Rotten", NutritionPercent: 30, EatLog: "%s ate spoiled %s.", Marker: true, IllnessChancePercent: 25},
+		Freshness: []gc.FreshnessDef{
+			{Level: oapi.Fresh, From: 0, Name: "Fresh", NutritionPercent: 100, EatLog: "%s ate fresh %s."},
+			{Level: oapi.Stale, From: 1, Name: "Stale", NutritionPercent: 50, EatLog: "%s ate old %s.", Marker: true},
+			{Level: oapi.Rotten, From: 2, Name: "Rotten", NutritionPercent: 30, EatLog: "%s ate spoiled %s.", Marker: true, IllnessChancePercent: 25},
 		},
 	}, defs)
 }

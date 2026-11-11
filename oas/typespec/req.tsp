@@ -718,10 +718,13 @@ model Season {
   temp: SeasonTemp;
 }
 
-/** 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ。行の順が新しいものから古いものへの並び順になる */
+/** 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合 */
 model FreshnessStage {
   id: FreshnessStageId;
   name: EntityName;
+
+  /** この段階が始まる劣化量。食料の stageLength の何倍かで表す。経過した段階数以下で from が最大の段階になり、from の小さい順が新しいものからの並び順になる */
+  from: FreshnessStageFrom;
   nutritionPercent: NutritionPercent;
 
   /** 食べたときのログの msgid。%s は食べた者と食べ物 */

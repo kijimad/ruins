@@ -8,10 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPerishable_Stage(t *testing.T) {
+func TestNeedDefs_FreshnessAt_経過した段階数で段階を選ぶ(t *testing.T) {
 	t.Parallel()
 	const shelf consts.Turn = 100
 	p := Perishable{StageLength: shelf}
+	defs := NeedDefs{Freshness: []FreshnessDef{
+		{Level: oapi.Fresh, From: 0},
+		{Level: oapi.Stale, From: 1},
+		{Level: oapi.Rotten, From: 2},
+	}}
 
 	tests := []struct {
 		name string
@@ -28,7 +33,7 @@ func TestPerishable_Stage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, p.Stage(tt.rot))
+			assert.Equal(t, tt.want, defs.FreshnessAt(p.StagesElapsed(tt.rot)).Level)
 		})
 	}
 }

@@ -2988,6 +2988,7 @@ components:
       required:
         - id
         - name
+        - from
         - nutritionPercent
         - eatLog
         - marker
@@ -2996,6 +2997,10 @@ components:
           $ref: '#/components/schemas/FreshnessStageId'
         name:
           $ref: '#/components/schemas/EntityName'
+        from:
+          allOf:
+            - $ref: '#/components/schemas/FreshnessStageFrom'
+          description: この段階が始まる劣化量。食料の stageLength の何倍かで表す。経過した段階数以下で from が最大の段階になり、from の小さい順が新しいものからの並び順になる
         nutritionPercent:
           $ref: '#/components/schemas/NutritionPercent'
         eatLog:
@@ -3009,7 +3014,11 @@ components:
           allOf:
             - $ref: '#/components/schemas/IllnessChancePercent'
           description: 食べたとき食中毒を起こす確率。百分率。省くと起こさない
-      description: 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ。行の順が新しいものから古いものへの並び順になる
+      description: 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
+    FreshnessStageFrom:
+      type: integer
+      minimum: 0
+      description: 鮮度の段階が始まる劣化量。食料の stageLength の何倍か
     FreshnessStageId:
       type: string
       enum:

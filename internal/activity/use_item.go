@@ -223,7 +223,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		stage = oapi.Fresh
 	}
 
-	freshness := world.Resources.NeedDefs.Freshness[stage]
+	freshness := world.Resources.NeedDefs.FreshnessOf(stage)
 	nutrition := amount * freshness.NutritionPercent / 100
 	// 鮮度で減った栄養が整数除算で0に落ちても、腐敗食は非常食として最低1は与える。
 	// balance で小さい栄養値を設定したとき、劣化・腐敗が完全にゼロ効果になる罠を防ぐ
@@ -282,7 +282,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	if stage, ok := query.FreshnessStageOf(world, item); !ok {
 		logger.Markup(query.T(world, "%s ate %s.", actorMarkup, itemMarkup))
 	} else {
-		logger.Markup(query.T(world, world.Resources.NeedDefs.Freshness[stage].EatLog, actorMarkup, itemMarkup))
+		logger.Markup(query.T(world, world.Resources.NeedDefs.FreshnessOf(stage).EatLog, actorMarkup, itemMarkup))
 	}
 	logger.Log()
 

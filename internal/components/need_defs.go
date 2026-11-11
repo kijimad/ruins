@@ -32,7 +32,7 @@ type FatigueStage struct {
 type NeedDefs struct {
 	Hunger    []HungerStage
 	Fatigue   []FatigueStage
-	Freshness map[oapi.FreshnessStageId]FreshnessDef
+	Freshness []FreshnessDef
 }
 
 // stageAt は割合 ratio が From 以上の段階のうち From が最大のものを返す。該当が無ければ ok=false
@@ -133,4 +133,20 @@ func (d NeedDefs) FatigueStageOf(level oapi.FatigueStageId) (FatigueStage, bool)
 		}
 	}
 	return FatigueStage{}, false
+}
+
+// FreshnessAt は経過した段階数 stages に当たる鮮度の段階を返す
+func (d NeedDefs) FreshnessAt(stages int) FreshnessDef {
+	s, _ := stageAt(d.Freshness, func(s FreshnessDef) float64 { return float64(s.From) }, float64(stages))
+	return s
+}
+
+// FreshnessOf は鮮度の段階の定義を返す。未登録ならゼロ値
+func (d NeedDefs) FreshnessOf(level oapi.FreshnessStageId) FreshnessDef {
+	for _, s := range d.Freshness {
+		if s.Level == level {
+			return s
+		}
+	}
+	return FreshnessDef{}
 }
