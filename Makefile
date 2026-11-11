@@ -66,6 +66,7 @@ fmt: ## フォーマットする
 	go fix -embedlit=false ./...
 	# raw.toml はキーを並べ替えインデントした正規形に整える
 	go run . fmtraw
+	go tool cue fmt ./internal/rawschema/
 	./scripts/format-shell.sh
 
 .PHONY: lint

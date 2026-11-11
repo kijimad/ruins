@@ -36,6 +36,7 @@ require (
 	github.com/clipperhouse/displaywidth v0.10.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.6.0 // indirect
 	github.com/cockroachdb/apd/v3 v3.2.3 // indirect
+	github.com/coder/websocket v1.8.14 // indirect
 	github.com/ebitengine/gomobile v0.0.0-20260820040257-d11f821a26a6 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.11.3 // indirect
@@ -47,6 +48,7 @@ require (
 	github.com/google/renameio/v2 v2.0.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -65,8 +67,11 @@ require (
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/schollz/progressbar/v3 v3.14.2 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
+	github.com/spf13/cobra v1.10.2 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/termie/go-shutil v0.0.0-20140729215957-bcacb06fecae // indirect
+	github.com/tetratelabs/wazero v1.12.0 // indirect
 	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/vanng822/css v1.0.1 // indirect
 	github.com/vanng822/go-premailer v1.20.2 // indirect
@@ -87,6 +92,7 @@ require (
 )
 
 tool (
+	cuelang.org/go/cmd/cue
 	github.com/avito-tech/go-mutesting/cmd/go-mutesting
 	golang.org/x/perf/cmd/benchstat
 	golang.org/x/tools/cmd/deadcode
