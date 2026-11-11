@@ -48,7 +48,6 @@ func TestGetDungeon(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 先にnilで設定し、Dungeonコンポーネントを取り除いた状態を作る
 		SetDungeon(world, nil)
 
 		newDungeon := &gc.Dungeon{CurrentStage: gc.NewDungeonStage("追加テスト遺跡", 2)}
@@ -148,7 +147,6 @@ func TestGetCurrentStageField_未生成のステージはnilを返す(t *testing
 	assert.Nil(t, GetCurrentStageField(world), "StageFieldを生成していないステージはnil")
 }
 
-// TestGetGameLog_未初期化ならnilを返す は、GameLog シングルトンが無い状態での読みを固定する。
 func TestGetGameLog_未初期化ならnilを返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -157,8 +155,6 @@ func TestGetGameLog_未初期化ならnilを返す(t *testing.T) {
 	assert.Nil(t, GetGameLog(world))
 }
 
-// TestGetSpatialIndex_コンポーネントが無ければnil は、SpatialIndex シングルトンを
-// 持たない世界では構築を試みず直ちに nil を返すことを固定する。
 func TestGetSpatialIndex_コンポーネントが無ければnil(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -167,8 +163,6 @@ func TestGetSpatialIndex_コンポーネントが無ければnil(t *testing.T) {
 	assert.Nil(t, GetSpatialIndex(world))
 }
 
-// TestGetSpatialIndex_StageField未生成のステージでは構築できずnil は、buildSpatialIndex が
-// field==nil で早期returnしMapWidth/Heightが0のままとなり、GetSpatialIndexがnilへ落ちることを固定する。
 func TestGetSpatialIndex_StageField未生成のステージでは構築できずnil(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -177,8 +171,6 @@ func TestGetSpatialIndex_StageField未生成のステージでは構築できず
 	assert.Nil(t, GetSpatialIndex(world))
 }
 
-// TestUpdateCharacterPositionInIndex_コンポーネントが無ければ何もしない は、
-// 索引シングルトンが無い状態で呼んでもpanicせず何もしないことを固定する。
 func TestUpdateCharacterPositionInIndex_コンポーネントが無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

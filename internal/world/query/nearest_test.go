@@ -148,8 +148,6 @@ func TestFindNearestCharacter_タイルを無視する(t *testing.T) {
 	assert.Equal(t, 3, dist, "距離はプレイヤーまでの3（隣接タイルではない）")
 }
 
-// TestFindNearestCharacter_索引未構築時は全走査にフォールバックする は、空間インデックスが
-// 使えないとき FindNearestEntity へフォールバックし、それでも対象を見つけられることを固定する。
 func TestFindNearestCharacter_索引未構築時は全走査にフォールバックする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -161,7 +159,6 @@ func TestFindNearestCharacter_索引未構築時は全走査にフォールバ�
 	world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 	world.Components.Player.Add(target, &gc.Player{})
 
-	// SpatialIndex を取り除き、索引が使えない状態を作る
 	world.Components.SpatialIndex.Remove(world.Resources.SingletonEntity)
 
 	from := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
@@ -175,8 +172,6 @@ func TestFindNearestCharacter_索引未構築時は全走査にフォールバ�
 	assert.Equal(t, 1, dist)
 }
 
-// TestFindNearestCharacter_索引経由で条件に合わないキャラは除外する は、索引の候補のうち
-// match に合わないキャラを読み飛ばし、合うキャラだけを対象にすることを固定する。
 func TestFindNearestCharacter_索引経由で条件に合わないキャラは除外する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -197,8 +192,6 @@ func TestFindNearestCharacter_索引経由で条件に合わないキャラは�
 	assert.Equal(t, 3, dist)
 }
 
-// TestFindNearestCharacter_索引経由で条件に合うキャラが無ければnil は、索引を使う経路でも
-// 一致するキャラが無ければ nil, nil, -1 を返すことを固定する。
 func TestFindNearestCharacter_索引経由で条件に合うキャラが無ければnil(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

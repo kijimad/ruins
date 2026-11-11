@@ -306,8 +306,6 @@ func TestGroupStacks_同一性キーで束ね初出順を保つ(t *testing.T) {
 	assert.Equal(t, 1, StackCountOf(world, nut, entities))
 }
 
-// TestStackCountOf_RawIDが無ければ常に1 は、StackKeyOf が ok=false を返す実体は
-// 候補集合に関わらず常に1個として数えることを固定する。
 func TestStackCountOf_RawIDが無ければ常に1(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -319,8 +317,6 @@ func TestStackCountOf_RawIDが無ければ常に1(t *testing.T) {
 	assert.Equal(t, 1, StackCountOf(world, noRawID, []ecs.Entity{noRawID, other}))
 }
 
-// TestEquipFingerprint_Fireの性能差で束ねない は、equipFingerprint が Fire コンポーネントの
-// 性能も指紋に含め、性能違いの射撃武器を同一スタックに束ねないことを固定する。
 func TestEquipFingerprint_Fireの性能差で束ねない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -336,8 +332,6 @@ func TestEquipFingerprint_Fireの性能差で束ねない(t *testing.T) {
 	assert.False(t, SameStack(world, newGun(5), newGun(9)), "性能が違う射撃武器は束ねない")
 }
 
-// TestStackMembers_床のGridElementが無ければ単独スタック は、LocationOnField を持つのに
-// GridElement を欠く不整合な実体を、位置から束ねられず単独として返すことを固定する。
 func TestStackMembers_床のGridElementが無ければ単独スタック(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

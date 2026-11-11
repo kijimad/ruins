@@ -75,8 +75,6 @@ func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) 
 	}
 }
 
-// TestGetWeapons_武器でない装備はスロットに入らない は、LocationEquipped の武器スロットに
-// 占めていても Melee/Fire を持たないエンティティは IsWeapon が偽となり読み飛ばされることを固定する。
 func TestGetWeapons_武器でない装備はスロットに入らない(t *testing.T) {
 	t.Parallel()
 
@@ -85,7 +83,6 @@ func TestGetWeapons_武器でない装備はスロットに入らない(t *testi
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.UnequipAll(world, player))
 
-	// 武器スロットを占めるが Melee/Fire を持たない不整合な実体
 	notWeapon := world.ECS.NewEntity()
 	world.Components.LocationEquipped.Add(notWeapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotWeapon1})
 
@@ -121,9 +118,6 @@ func TestGetArmorEquipments(t *testing.T) {
 	assert.Nil(t, armors[0], "SlotHeadは空")
 }
 
-// TestGetArmorEquipments_全スロットをインデックスへ振り分ける は、7スロットそれぞれに
-// 装備した防具が switch で正しいインデックスへ振り分けられることを固定する。Torso 以外の
-// 分岐は個別にテストされていなかった。
 func TestGetArmorEquipments_全スロットをインデックスへ振り分ける(t *testing.T) {
 	t.Parallel()
 

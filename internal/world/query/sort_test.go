@@ -215,8 +215,6 @@ func TestSortEntities_同名でRawIDが無ければ副キーは空文字扱い�
 	assert.Equal(t, second, sorted[1])
 }
 
-// TestSortEntities_同名でRawIDが違えば副キーで順序が決まる は、sortRawID の比較が
-// 非ゼロを返すとき、その順序がそのまま採用されることを固定する。
 func TestSortEntities_同名でRawIDが違えば副キーで順序が決まる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
