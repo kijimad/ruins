@@ -133,6 +133,15 @@ func TestAmbientTemperatureAt_オーバーワールドは季節の世界温度�
 	assert.Equal(t, -20, temp, "屋外は季節世界温度 -30 に昼補正 +10 を足す")
 }
 
+func TestAmbientTemperatureAt_Dungeon未設定ならエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.SetDungeon(world, nil)
+
+	_, err := query.AmbientTemperatureAt(world, 0, 0)
+	require.Error(t, err)
+}
+
 func TestAmbientTemperatureAt_屋外はステージ定義が無くても世界温度を返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -320,6 +329,26 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 		insulation := query.CalculateEquippedInsulation(world, player)
 		assert.Equal(t, 13, insulation.Cold)
 		assert.Equal(t, 7, insulation.Heat)
+	})
+
+	t.Run("別オーナーの装備は数えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+		require.NoError(t, err)
+		other := world.ECS.NewEntity()
+
+		armor := world.ECS.NewEntity()
+		world.Components.Wearable.Add(armor, &gc.Wearable{
+			EquipmentCategory: oapi.EquipmentCategoryTORSO,
+			InsulationCold:    10,
+			InsulationHeat:    5,
+		})
+		world.Components.LocationEquipped.Add(armor, &gc.LocationEquipped{Owner: other})
+
+		insulation := query.CalculateEquippedInsulation(world, player)
+		assert.Equal(t, 0, insulation.Cold, "別オーナーの装備は数えない")
+		assert.Equal(t, 0, insulation.Heat)
 	})
 }
 

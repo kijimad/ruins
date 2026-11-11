@@ -43,6 +43,20 @@ func TestGetDungeon(t *testing.T) {
 		d := GetDungeon(world)
 		assert.Nil(t, d)
 	})
+
+	t.Run("コンポーネントを持たない状態からSetDungeonすると新たに追加する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		SetDungeon(world, nil)
+
+		newDungeon := &gc.Dungeon{CurrentStage: gc.NewDungeonStage("追加テスト遺跡", 2)}
+		SetDungeon(world, newDungeon)
+
+		d := GetDungeon(world)
+		require.NotNil(t, d, "コンポーネントが無い状態からでも追加できる")
+		assert.Equal(t, 2, d.CurrentStage.Depth)
+	})
 }
 
 // TestIsOnOverworld は現在地判定を検証する。
@@ -131,4 +145,39 @@ func TestGetCurrentStageField_未生成のステージはnilを返す(t *testing
 	d.CurrentStage = gc.NewDungeonStage("未生成の遺跡", 1)
 
 	assert.Nil(t, GetCurrentStageField(world), "StageFieldを生成していないステージはnil")
+}
+
+func TestGetGameLog_未初期化ならnilを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Components.GameLog.Remove(world.Resources.SingletonEntity)
+
+	assert.Nil(t, GetGameLog(world))
+}
+
+func TestGetSpatialIndex_コンポーネントが無ければnil(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Components.SpatialIndex.Remove(world.Resources.SingletonEntity)
+
+	assert.Nil(t, GetSpatialIndex(world))
+}
+
+func TestGetSpatialIndex_StageField未生成のステージでは構築できずnil(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	GetDungeon(world).CurrentStage = gc.NewDungeonStage("未生成の遺跡", 1)
+
+	assert.Nil(t, GetSpatialIndex(world))
+}
+
+func TestUpdateCharacterPositionInIndex_コンポーネントが無ければ何もしない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	world.Components.SpatialIndex.Remove(world.Resources.SingletonEntity)
+
+	e := world.ECS.NewEntity()
+	assert.NotPanics(t, func() {
+		UpdateCharacterPositionInIndex(world, e, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 1, Y: 0})
+	})
 }

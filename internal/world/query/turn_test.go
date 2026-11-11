@@ -76,6 +76,20 @@ func TestCanPlayerAct(t *testing.T) {
 
 		assert.False(t, query.CanPlayerAct(world))
 	})
+
+	t.Run("プレイヤーがTurnBasedを持たない場合は行動不可", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+
+		state := query.GetTurnState(world)
+		require.NotNil(t, state)
+		state.Phase = gc.TurnPhasePlayer
+
+		assert.False(t, query.CanPlayerAct(world))
+	})
 }
 
 func TestConsumeActionPoints(t *testing.T) {

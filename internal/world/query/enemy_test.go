@@ -89,7 +89,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 
 		enemies, err := query.GetVisibleEnemies(world)
 
-		require.Error(t, err, "プレイヤーがいない場合はエラーを返すべき")
+		require.ErrorIs(t, err, query.ErrNoPlayer)
 		assert.Nil(t, enemies)
 	})
 
@@ -117,6 +117,19 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// エンティティから名前を取得
 		name := query.GetEntityName(enemies[0], world)
 		assert.NotEmpty(t, name, "SpawnEnemyで生成された敵は名前を持つべき")
+	})
+
+	t.Run("プレイヤーがGridElementを持たない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+
+		enemies, err := query.GetVisibleEnemies(world)
+
+		require.ErrorIs(t, err, query.ErrPlayerHasNoGridElement)
+		assert.Nil(t, enemies)
 	})
 }
 
@@ -204,6 +217,29 @@ func TestGetVisibleItems(t *testing.T) {
 		// エンティティから名前を取得
 		name := query.GetEntityName(items[0], world)
 		assert.NotEmpty(t, name, "SpawnFieldItemで生成されたアイテムは名前を持つべき")
+	})
+
+	t.Run("プレイヤーがいない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		items, err := query.GetVisibleItems(world)
+
+		require.ErrorIs(t, err, query.ErrNoPlayer)
+		assert.Nil(t, items)
+	})
+
+	t.Run("プレイヤーがGridElementを持たない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+
+		items, err := query.GetVisibleItems(world)
+
+		require.ErrorIs(t, err, query.ErrPlayerHasNoGridElement)
+		assert.Nil(t, items)
 	})
 }
 

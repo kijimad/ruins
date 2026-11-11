@@ -65,6 +65,23 @@ func TestNextWeather_奥地ほど厳しい天候が出やすい(t *testing.T) {
 	assert.Greater(t, deep, shallow, "北へ進むほど荒天が主役になる")
 }
 
+func TestNextWeather_全天候の重みが0なら現在の天候を維持する(t *testing.T) {
+	t.Parallel()
+	var defs gc.WeatherDefs // 全種の SeasonWeights が 0 のまま
+
+	got := NextWeather(defs, gc.WeatherCloudy, gc.SeasonWinter, 0, newTestRNG(1))
+
+	assert.Equal(t, gc.WeatherCloudy, got, "選択できなければ現在の天候を維持する")
+}
+
+func TestPlaceFactor_負のnorthDepthは0とみなす(t *testing.T) {
+	t.Parallel()
+	defs := testutil.InitTestWorld(t).Resources.WeatherDefs
+
+	assert.Equal(t, placeFactor(defs, 0, gc.WeatherBlizzard), placeFactor(defs, -5, gc.WeatherBlizzard),
+		"負のnorthDepthは0と同じ結果になる")
+}
+
 func TestRollSpellTurns_基準範囲に収まり厳しい天候は冬奥地で長引く(t *testing.T) {
 	t.Parallel()
 	defs := testutil.InitTestWorld(t).Resources.WeatherDefs
@@ -86,4 +103,14 @@ func TestRollSpellTurns_基準範囲に収まり厳しい天候は冬奥地で�
 		return float64(sum) / n
 	}
 	assert.Greater(t, avg(gc.SeasonWinter, 30), avg(gc.SeasonSummer, 0), "厳しい天候は冬奥地で長引く")
+}
+
+func TestRollSpellTurns_負のnorthDepthは0とみなす(t *testing.T) {
+	t.Parallel()
+	defs := testutil.InitTestWorld(t).Resources.WeatherDefs
+
+	got := RollSpellTurns(defs, gc.WeatherBlizzard, gc.SeasonWinter, -10, newTestRNG(5))
+	want := RollSpellTurns(defs, gc.WeatherBlizzard, gc.SeasonWinter, 0, newTestRNG(5))
+
+	assert.Equal(t, want, got, "負のnorthDepthは0と同じ結果になる")
 }
