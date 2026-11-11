@@ -55,7 +55,7 @@ func LoadFromFile(path string) (rawschema.Raws, error) {
 	if err != nil {
 		return rawschema.Raws{}, err
 	}
-	if err := ValidateReferences(raws); err != nil {
+	if err := validateRules(raws); err != nil {
 		return rawschema.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
 	}
 	if err := validateCodeRows(raws); err != nil {
@@ -964,7 +964,7 @@ func SelectEnemyByWeight(et rawschema.EnemyTable, rng *rand.Rand, danger int) (s
 }
 
 // NewConditionDefs は raw の conditions、bodyParts、attackTypes から不調の定義の表を組み立てる。
-// 参照の実在は ValidateReferences が確かめる前提で、見つからない部位はエラーにする
+// 参照の実在は rawcheck のスキーマの検証が確かめる前提で、見つからない部位はエラーにする
 func NewConditionDefs(raws rawschema.Raws) (gc.ConditionDefs, error) {
 	var parts [gc.BodyPartCount]gc.BodyPartDef
 	for _, row := range PtrSlice(raws.BodyParts) {

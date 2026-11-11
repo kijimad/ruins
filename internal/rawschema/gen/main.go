@@ -10,7 +10,8 @@
 //   - [...T] は []T にする
 //
 // 属性 @rawgen で写し方を変える。type=X は Go の型を X にする。prefix は定数の名前の前に型の名前を付ける。
-// - はそのフィールドを Go に写さない。参照の検査のためだけのフィールドに使う。
+// - はそのフィールドを Go に写さない。参照の検査のためだけのフィールドに使う。構造体の中の内包表記は、
+// 中身が - のフィールドだけなら Go に写さずに許す。省略できるフィールドがあるときだけ検査するのに使う。
 package main
 
 import (
@@ -144,6 +145,12 @@ type goField struct {
 func writeStruct(b *bytes.Buffer, name string, s *ast.StructLit) error {
 	var fields []goField
 	for _, e := range s.Elts {
+		if c, ok := e.(*ast.Comprehension); ok {
+			if err := checkOnlyComprehension(c); err != nil {
+				return fmt.Errorf("%s: %w", name, err)
+			}
+			continue
+		}
 		f, ok := e.(*ast.Field)
 		if !ok {
 			return fmt.Errorf("%s: %w: %T", name, errUnsupported, e)
@@ -184,6 +191,26 @@ func writeStruct(b *bytes.Buffer, name string, s *ast.StructLit) error {
 		fmt.Fprintf(b, "\t%s %s `json:%q`\n\n", f.name, f.typ, f.tag)
 	}
 	b.WriteString("}\n\n")
+	return nil
+}
+
+// checkOnlyComprehension は内包表記が @rawgen(-) のフィールドだけを持つことを確かめる。
+// 内包表記はあるかないかが値で決まり Go のフィールドに写せないので、検査のためだけに許す。
+func checkOnlyComprehension(c *ast.Comprehension) error {
+	s, ok := c.Value.(*ast.StructLit)
+	if !ok {
+		return fmt.Errorf("%w: comprehension value %T", errUnsupported, c.Value)
+	}
+	for _, e := range s.Elts {
+		f, ok := e.(*ast.Field)
+		if !ok {
+			return fmt.Errorf("%w: comprehension element %T", errUnsupported, e)
+		}
+		if _, skip := rawgenAttrs(f)["-"]; !skip {
+			label, _ := labelName(f.Label)
+			return fmt.Errorf("%w: comprehension field %s without @rawgen(-)", errUnsupported, label)
+		}
+	}
 	return nil
 }
 

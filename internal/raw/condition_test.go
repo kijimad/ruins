@@ -89,12 +89,6 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Conditions:      &conditions,
 		AttackTypes:     &attackTypes,
 		Skills:          &skills,
-		SkillCategories: &[]rawschema.SkillCategory{{Id: "general", Name: "General"}},
-		Items: &[]rawschema.Item{
-			{Id: "splint", Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{string(gc.ConditionType("fracture"))}}},
-			{Id: "manual", Book: &rawschema.Book{Skill: &rawschema.SkillBook{TargetSkill: rawschema.SkillIdSword}}},
-		},
-		Professions:     &[]rawschema.Profession{{Id: "soldier", Skills: &[]rawschema.ProfessionSkill{{Id: rawschema.SkillIdRifle}}}},
 		InteriorProfile: &rawschema.InteriorProfile{},
 		Weathers:        &[]rawschema.Weather{{Id: rawschema.Clear}},
 		Members:         &[]rawschema.Member{{Id: "ash", Player: new(true)}},
@@ -117,7 +111,7 @@ func TestValidateConditions(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:   "全行がそろい参照が実在すれば通る",
+			name:   "全行がそろえば通る",
 			mutate: func(*rawschema.Raws) {},
 		},
 		{
@@ -127,32 +121,11 @@ func TestValidateConditions(t *testing.T) {
 			},
 		},
 		{
-			name: "部位の id 重複",
-			mutate: func(r *rawschema.Raws) {
-				*r.BodyParts = append(*r.BodyParts, rawschema.BodyPart{Id: "arm", Name: "Arm"})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "不調の id 重複",
-			mutate: func(r *rawschema.Raws) {
-				*r.Conditions = append(*r.Conditions, rawschema.Condition{Id: "fracture"})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
 			name: "Go に無い部位の行",
 			mutate: func(r *rawschema.Raws) {
 				*r.BodyParts = append(*r.BodyParts, rawschema.BodyPart{Id: "tail", Name: "Tail"})
 			},
 			wantErr: errBodyPartUnknown,
-		},
-		{
-			name: "不調の部位が実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Conditions)[0].Parts = &[]rawschema.BodyPartId{"tail"}
-			},
-			wantErr: errConditionPartUndefined,
 		},
 		{
 			name: "不調の部位に全身を含む",
@@ -177,27 +150,6 @@ func TestValidateConditions(t *testing.T) {
 				}
 			},
 			wantErr: errConditionNoHitPart,
-		},
-		{
-			name: "攻撃種別の怪我が実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*r.AttackTypes)[0].Injury = "bruise"
-			},
-			wantErr: errAttackTypeInjuryUndefined,
-		},
-		{
-			name: "攻撃種別の id 重複",
-			mutate: func(r *rawschema.Raws) {
-				*r.AttackTypes = append(*r.AttackTypes, (*r.AttackTypes)[0])
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "治療の対象が実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Items)[0].Remedy.Treats = []rawschema.ConditionTypeName{"Fracture"}
-			},
-			wantErr: errRemedyConditionUndefined,
 		},
 	}
 	for _, tt := range tests {
@@ -408,74 +360,6 @@ func TestValidateCodeRows(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			err := validateCodeRows(makeDefRaws(tt.mutate))
-			if tt.wantErr == nil {
-				require.NoError(t, err)
-				return
-			}
-			require.ErrorIs(t, err, tt.wantErr)
-		})
-	}
-}
-
-func TestValidateSkills(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name    string
-		mutate  func(*rawschema.Raws)
-		wantErr error
-	}{
-		{
-			name:   "スキルと参照が実在すれば通る",
-			mutate: func(*rawschema.Raws) {},
-		},
-		{
-			name: "スキルの id 重複",
-			mutate: func(r *rawschema.Raws) {
-				*r.Skills = append(*r.Skills, rawschema.Skill{Id: "sword", Category: "general"})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "カテゴリの id 重複",
-			mutate: func(r *rawschema.Raws) {
-				*r.SkillCategories = append(*r.SkillCategories, rawschema.SkillCategory{Id: "general"})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "熟練の効果倍率の id がスキルをまたいで重複",
-			mutate: func(r *rawschema.Raws) {
-				*(*r.Skills)[1].Proficiencies = append(*(*r.Skills)[1].Proficiencies, (*(*r.Skills)[0].Proficiencies)[0])
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "スキルのカテゴリが実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Skills)[0].Category = "magic"
-			},
-			wantErr: errSkillCategoryUndefined,
-		},
-		{
-			name: "本のスキルが実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Items)[1].Book.Skill.TargetSkill = "juggling"
-			},
-			wantErr: errBookSkillUndefined,
-		},
-		{
-			name: "職業のスキルが実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*(*r.Professions)[0].Skills)[0].Id = "juggling"
-			},
-			wantErr: errProfessionSkillUndefined,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			err := validateSkills(makeDefRaws(tt.mutate))
 			if tt.wantErr == nil {
 				require.NoError(t, err)
 				return

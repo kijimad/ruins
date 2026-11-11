@@ -71,6 +71,7 @@ import "strings"
 	// 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率
 	penaltyPerTile?: #RangePenaltyPercent
 	injury!:         #ConditionTypeName
+	injury_ref:      _conditionIDs[injury] @rawgen(-)
 
 	// 攻撃で上達するスキル
 	skill!: #SkillId
@@ -157,6 +158,7 @@ import "strings"
 #CommandTableEntry: {
 	// 使う武器の id
 	id!:     #EntityID
+	id_ref:  _itemIDs[id] @rawgen(-)
 	weight!: #EntryWeight
 }
 
@@ -181,6 +183,9 @@ import "strings"
 
 	// 起こりうる部位。省くと全部位
 	parts?: [...#BodyPartId]
+	if parts != _|_ {
+		parts_ref: [for x in parts {_bodyPartIDs[x]}] @rawgen(-)
+	}
 
 	// 不調を起こす仕組み。攻撃で負う怪我と、きっかけの無い不調は省く
 	onset?: #ConditionOnset
@@ -230,6 +235,9 @@ import "strings"
 
 	// 収納家具の中身を引く itemTables の id。収納家具では必須
 	lootTable?: #EntityID
+	if lootTable != _|_ {
+		lootTable_ref: _itemTableIDs[lootTable] @rawgen(-)
+	}
 }
 
 // 内装レシピの1配置指示
@@ -245,6 +253,9 @@ import "strings"
 
 	// 収納家具の中身を引く itemTables の id。収納家具では必須
 	lootTable?: #EntityID
+	if lootTable != _|_ {
+		lootTable_ref: _itemTableIDs[lootTable] @rawgen(-)
+	}
 }
 
 // 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
@@ -301,7 +312,8 @@ import "strings"
 
 // 会話データ
 #Dialog: {
-	messageKey!: #MessageKey
+	messageKey!:    #MessageKey
+	messageKey_ref: _dialogueIDs[messageKey] @rawgen(-)
 }
 
 // NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる
@@ -327,7 +339,8 @@ import "strings"
 
 // 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 #DisassemblyBonus: {
-	id!: #EntityID
+	id!:    #EntityID
+	id_ref: _itemIDs[id] @rawgen(-)
 
 	// 産出個数のダイス表記
 	count!: #Dice
@@ -347,7 +360,8 @@ import "strings"
 
 // 分解の産出エントリ。chance 省略は確定枠
 #DisassemblyYield: {
-	id!: #EntityID
+	id!:    #EntityID
+	id_ref: _itemIDs[id] @rawgen(-)
 
 	// 産出個数のダイス表記
 	count!:  #Dice
@@ -379,6 +393,7 @@ import "strings"
 #DropTableEntry: {
 	// ドロップする素材の id
 	id!:     #EntityID
+	id_ref:  _itemIDs[id] @rawgen(-)
 	weight!: #EntryWeight
 }
 
@@ -392,11 +407,13 @@ import "strings"
 	imageKey!: #EntityID
 
 	// 敵を引く enemyTables の id
-	enemyTable!: #EntityID
+	enemyTable!:    #EntityID
+	enemyTable_ref: _enemyTableIDs[enemyTable] @rawgen(-)
 
 	// アイテムを引く itemTables の id
-	itemTable!: #EntityID
-	baseTemp!:  #StageBaseTemp
+	itemTable!:    #EntityID
+	itemTable_ref: _itemTableIDs[itemTable] @rawgen(-)
+	baseTemp!:     #StageBaseTemp
 
 	// フロアの間取りの抽選表。行の順に重みを積む
 	planners!: [...#DungeonPlannerWeight] & [_, ...]
@@ -424,6 +441,7 @@ import "strings"
 // 敵テーブルエントリ
 #EnemyTableEntry: {
 	id!:        #EntityID
+	id_ref:     _memberIDs[id] @rawgen(-)
 	weight!:    #EntryWeight
 	minDanger!: #DangerLevel
 	maxDanger!: #DangerLevel
@@ -466,21 +484,25 @@ import "strings"
 
 // 街路側の前壁に付ける外皮の interiorRefs の id
 #FacadeRefs: {
-	window!: #EntityID
+	window!:    #EntityID
+	window_ref: _propRefIDs[window] @rawgen(-)
 
 	// 大破した店が窓の代わりに下ろすシャッター
-	shutter!: #EntityID
+	shutter!:    #EntityID
+	shutter_ref: _propRefIDs[shutter] @rawgen(-)
 
 	// 店の入口脇に立てる看板
-	sign!: #EntityID
+	sign!:    #EntityID
+	sign_ref: _propRefIDs[sign] @rawgen(-)
 }
 
 // 市街地の施設1種。isShop は看板やシャッターを出す店か
 #Facility: {
-	id!:         #EntityID
-	isShop!:     bool
-	planner!:    #PlannerKey
-	enemyTable!: #EntityID
+	id!:            #EntityID
+	isShop!:        bool
+	planner!:       #PlannerKey
+	enemyTable!:    #EntityID
+	enemyTable_ref: _enemyTableIDs[enemyTable] @rawgen(-)
 	zones!: [...#FacilityZone]
 
 	// 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
@@ -489,15 +511,19 @@ import "strings"
 
 // 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
 #FacilityContent: {
-	facility!: #EntityID
+	facility!:    #EntityID
+	facility_ref: _facilityIDs[facility] @rawgen(-)
 	variants!: [...#EntityID]
+	variants_ref: [for x in variants {_interiorContentIDs[x]}] @rawgen(-)
 }
 
 // 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
 #FacilityRooms: {
-	facility!: #EntityID
+	facility!:    #EntityID
+	facility_ref: _facilityIDs[facility] @rawgen(-)
 	rooms?: [...#RoomContent]
-	fallback!: #EntityID
+	fallback!:    #EntityID
+	fallback_ref: _interiorContentIDs[fallback] @rawgen(-)
 }
 
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
@@ -625,6 +651,7 @@ import "strings"
 	id!:     #EntityID
 	weight!: #EntryWeight
 	refs!: [...#EntityID] & [_, ...]
+	refs_ref: [for x in refs {_propRefIDs[x]}] @rawgen(-)
 }
 
 // 耐久値。削り切られると壊れる
@@ -682,6 +709,7 @@ import "strings"
 	variants!: [...#VariantChoice]
 	densities!: [...#DensityChoice]
 	heroes!: [...#HeroChoice]
+	heroIds_unique: {if heroes != _|_ for i, x in heroes {(x.id): i}} @rawgen(-)
 	sites!: [...#SiteChoice]
 	facade!: #FacadeRefs
 	lot!:    #LotRefs
@@ -699,9 +727,15 @@ import "strings"
 
 	// 家具と装飾として置く raw の prop。省くと prop として置かない
 	prop?: #EntityID
+	if prop != _|_ {
+		prop_ref: _propIDs[prop] @rawgen(-)
+	}
 
 	// 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
 	itemGroup?: #EntityID
+	if itemGroup != _|_ {
+		itemGroup_ref: _itemGroupIDs[itemGroup] @rawgen(-)
+	}
 
 	// レシピが placement を省いたときの置き方
 	placement?: #Placement
@@ -763,6 +797,7 @@ import "strings"
 // アイテムコレクションエントリ
 #ItemCollectionEntry: {
 	id!:     #EntityID
+	id_ref:  _itemIDs[id] @rawgen(-)
 	chance!: #ItemCollectionChance
 
 	// 1山あたりの個数のダイス表記
@@ -782,6 +817,7 @@ import "strings"
 // アイテムグループエントリ
 #ItemGroupEntry: {
 	id!:     #EntityID
+	id_ref:  _itemIDs[id] @rawgen(-)
 	weight!: #EntryWeight
 
 	// 1山あたりの個数のダイス表記
@@ -799,6 +835,7 @@ import "strings"
 #ItemTableEntry: {
 	// 参照するアイテムグループかアイテムコレクションの id
 	id!:        #EntityID
+	id_ref:     _itemGroupIDs[id] @rawgen(-)
 	weight!:    #EntryWeight
 	minDanger!: #DangerLevel
 	maxDanger!: #DangerLevel
@@ -815,6 +852,7 @@ import "strings"
 	hutW!:   int32 & int
 	hutH!:   int32 & int
 	props!: [...#PropSpot]
+	props_ref: [for x in props {_propIDs[x.name]}] @rawgen(-)
 }
 
 // 光源が有効かどうか
@@ -835,13 +873,16 @@ import "strings"
 
 // 敷地の外構の interiorRefs の id
 #LotRefs: {
-	fence!: #EntityID
+	fence!:    #EntityID
+	fence_ref: _propRefIDs[fence] @rawgen(-)
 
 	// 民家の前庭に置く外構
-	plant!: #EntityID
+	plant!:    #EntityID
+	plant_ref: _propRefIDs[plant] @rawgen(-)
 
 	// 店の前庭に置く外構
-	vending!: #EntityID
+	vending!:    #EntityID
+	vending_ref: _propRefIDs[vending] @rawgen(-)
 }
 
 // マガジン容量
@@ -903,18 +944,33 @@ import "strings"
 
 	// プレイヤーキャラクターでは省略可能
 	commandTableId?: #EntityID
+	if commandTableId != _|_ {
+		commandTableId_ref: _commandTableIDs[commandTableId] @rawgen(-)
+	}
 
 	// プレイヤーキャラクターでは省略可能
 	dropTableId?: #EntityID
+	if dropTableId != _|_ {
+		dropTableId_ref: _dropTableIDs[dropTableId] @rawgen(-)
+	}
 
 	// 生成時に装備して持たせるアイテム。startingItems より先に持たせる
 	startingEquips?: [...#ProfessionEquip]
+	if startingEquips != _|_ {
+		startingEquips_ref: [for x in startingEquips {_itemIDs[x.name]}] @rawgen(-)
+	}
 
 	// 生成時にバックパックへ持たせるアイテム
 	startingItems?: [...#ProfessionItem]
+	if startingItems != _|_ {
+		startingItems_ref: [for x in startingItems {_itemIDs[x.name]}] @rawgen(-)
+	}
 
 	// 店の在庫。持つ member は店を開く
 	stock?: [...#ProfessionItem]
+	if stock != _|_ {
+		stock_ref: [for x in stock {_itemIDs[x.name]}] @rawgen(-)
+	}
 }
 
 // メッセージリソースのキー
@@ -977,6 +1033,7 @@ import "strings"
 // 職業スキル初期値
 #ProfessionSkill: {
 	id!:    #SkillId
+	id_ref: _skillIDs[id] @rawgen(-)
 	value!: #SkillLevel
 }
 
@@ -1010,6 +1067,9 @@ import "strings"
 
 	// 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
 	burnoutItem?: #EntityID
+	if burnoutItem != _|_ {
+		burnoutItem_ref: _itemIDs[burnoutItem] @rawgen(-)
+	}
 }
 
 // 基準点から相対の位置に置くエンティティ1個
@@ -1090,6 +1150,39 @@ import "strings"
 	dungeons?: [...#Dungeon]
 	settlements?: [...#Settlement]
 	dialogues?: [...#Dialogue]
+
+	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
+	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
+	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
+	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
+	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
+	settlementIds_unique: {if settlements != _|_ for i, x in settlements {(x.id): i}} @rawgen(-)
+	bodyPartIds_unique: {if bodyParts != _|_ for i, x in bodyParts {(x.id): i}} @rawgen(-)
+	conditionIds_unique: {if conditions != _|_ for i, x in conditions {(x.id): i}} @rawgen(-)
+	attackTypeIds_unique: {if attackTypes != _|_ for i, x in attackTypes {(x.id): i}} @rawgen(-)
+	skillIds_unique: {if skills != _|_ for i, x in skills {(x.id): i}} @rawgen(-)
+	skillCategoryIds_unique: {if skillCategories != _|_ for i, x in skillCategories {(x.id): i}} @rawgen(-)
+	interiorRefIds_unique: {if interiorRefs != _|_ for i, x in interiorRefs {(x.id): i}} @rawgen(-)
+	dialogueIds_unique: {if dialogues != _|_ for i, x in dialogues {(x.id): i}} @rawgen(-)
+	dungeonIds_unique: {if dungeons != _|_ for i, x in dungeons {(x.id): i}} @rawgen(-)
+	interiorContentIds_unique: {if interiorContents != _|_ for i, x in interiorContents {(x.id): i}} @rawgen(-)
+
+	// アイテムグループとアイテムコレクションは同じ id の空間で参照される
+	itemGroupIds_unique: {
+		if itemGroups != _|_ for i, x in itemGroups {(x.id): "itemGroups.\(i)"}
+		if itemCollections != _|_ for i, x in itemCollections {(x.id): "itemCollections.\(i)"}
+	} @rawgen(-)
+
+	// タイルの生成の仕様は同じ表のタイルを指す。#TileSpawn の中で索引を引くと、索引が tiles 自身の評価を待って
+	// 循環し、実在するタイルも見つからない。表の外で引く
+	tileSpawns_ref: {
+		if tiles != _|_ for x in tiles if x.spawn.tile != _|_ {(x.id): _tileIDs[x.spawn.tile]}
+	} @rawgen(-)
+
+	// 熟練の効果倍率の id はスキルをまたいで一意にする
+	proficiencyIds_unique: {
+		if skills != _|_ for i, s in skills if s.proficiencies != _|_ for j, x in s.proficiencies {(x.id): "skills.\(i).proficiencies.\(j)"}
+	} @rawgen(-)
 }
 
 // 読了に必要な総読書量
@@ -1117,13 +1210,15 @@ import "strings"
 // 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
 #Remedy: {
 	treats!: [...#ConditionTypeName]
+	treats_ref: [for x in treats {_conditionIDs[x]}] @rawgen(-)
 	potency!: #Potency
 }
 
 // 奥室の役割名と内装レシピの対
 #RoomContent: {
-	role!:    #RoomRole
-	content!: #EntityID
+	role!:       #RoomRole
+	content!:    #EntityID
+	content_ref: _interiorContentIDs[content] @rawgen(-)
 }
 
 // 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
@@ -1131,10 +1226,16 @@ import "strings"
 
 // 散布 prop 1種。ref の空文字は置かないことを表す
 #ScatterEntry: {
-	ref!:    string
+	ref!: string
+	if ref != "" {
+		ref_ref: _propIDs[ref] @rawgen(-)
+	}
 	weight!: int32 & int & >=1
 	big!:    bool
 	satellites?: [...#PropSpot]
+	if satellites != _|_ {
+		satellites_ref: [for x in satellites {_propIDs[x.name]}] @rawgen(-)
+	}
 }
 
 // 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
@@ -1144,9 +1245,12 @@ import "strings"
 	soilDensity!:  number
 	propDensity!:  number
 	lootGroup!:    #EntityID
+	lootGroup_ref: _itemGroupIDs[lootGroup] @rawgen(-)
 	entries!: [...#ScatterEntry]
 	grass!: [...#GroundCoverEntry]
+	grass_ref: [for x in grass {_propIDs[x.ref]}] @rawgen(-)
 	soil!: [...#GroundCoverEntry]
+	soil_ref: [for x in soil {_propIDs[x.ref]}] @rawgen(-)
 }
 
 // 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
@@ -1173,7 +1277,9 @@ import "strings"
 
 	// 住人の member。name は members の id
 	members!: [...#PropSpot]
+	members_ref: [for x in members {_memberIDs[x.name]}] @rawgen(-)
 	props!: [...#PropSpot]
+	props_ref: [for x in props {_propIDs[x.name]}] @rawgen(-)
 }
 
 // タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
@@ -1212,21 +1318,23 @@ import "strings"
 
 // スキル。同じカテゴリのスキルは行の順に表示する
 #Skill: {
-	id!:       #SkillId
-	name!:     #EntityName
-	summary!:  #EntityDescription
-	gainedBy!: #EntityDescription
-	effect!:   #EntityDescription
-	ability!:  #AbilityId
-	category!: #SkillCategoryId
+	id!:          #SkillId
+	name!:        #EntityName
+	summary!:     #EntityDescription
+	gainedBy!:    #EntityDescription
+	effect!:      #EntityDescription
+	ability!:     #AbilityId
+	category!:    #SkillCategoryId
+	category_ref: _skillCategoryIDs[category] @rawgen(-)
 	proficiencies?: [...#SkillProficiency]
 }
 
 // スキル本設定
 #SkillBook: {
-	targetSkill!:   #SkillId
-	requiredLevel!: #SkillLevel
-	maxLevel!:      #SkillLevel
+	targetSkill!:    #SkillId
+	targetSkill_ref: _skillIDs[targetSkill] @rawgen(-)
+	requiredLevel!:  #SkillLevel
+	maxLevel!:       #SkillLevel
 }
 
 // スキルのカテゴリ。行の順に表示する

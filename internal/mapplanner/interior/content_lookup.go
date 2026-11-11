@@ -29,7 +29,7 @@ func flavorContent(raws rawschema.Raws) (Content, error) {
 
 // contentByID は id の内装レシピを raws から探して都度 interior.Content へ変換する。内装 content は数十件規模
 // なので線形走査で足り、索引を持たず毎回新規に組む。返り値を applyDensity が in-place で書き換えても共有元が
-// 無く clone が要らない。参照とダイスは raw の ValidateReferences がロード時に検証するので通常は成功するが、
+// 無く clone が要らない。参照とダイスは raw のスキーマを CI のテストで検証するので通常は成功するが、
 // 壊れた raw で生成を落とさないよう未定義・解析失敗は error で返す。
 func contentByID(raws rawschema.Raws, id string) (Content, error) {
 	for _, ic := range raw.PtrSlice(raws.InteriorContents) {

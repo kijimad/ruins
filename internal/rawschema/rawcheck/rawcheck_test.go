@@ -25,3 +25,12 @@ func TestValidate_違反を位置で返す(t *testing.T) {
 	require.ErrorAs(t, err, &ce)
 	assert.Equal(t, []string{"items.0.spriteKey"}, ce.Paths())
 }
+
+func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
+	t.Parallel()
+	// 個数0の 0d6 は Dice の正規表現が弾く
+	raws := makeRefRaws(func(r *rawschema.Raws) { (*r.EnemyTables)[0].Entries[0].Pack = "0d6" })
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"enemyTables.0.entries.0.pack"}, ce.Paths())
+}

@@ -7,16 +7,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// makeInteriorRaws は内装の Ref と生活感の抽選表を持つ検証を通る raws を作り、mutate で崩す
+// makeInteriorRaws は生活感の抽選表を持つ検証を通る raws を作り、mutate で崩す
 func makeInteriorRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	raws := rawschema.Raws{
-		Props:      &[]rawschema.Prop{{Id: "bed"}},
-		ItemGroups: &[]rawschema.ItemGroup{{Id: "food"}},
-		InteriorRefs: &[]rawschema.InteriorRef{
-			{Id: "bed", Prop: new("bed"), Placement: new(rawschema.FarFromDoor)},
-			{Id: "snacks", ItemGroup: new("food")},
-			{Id: "litter", Placement: new(rawschema.FullArea)},
-		},
 		InteriorProfile: &rawschema.InteriorProfile{
 			Damages:   []rawschema.DamageChoice{{Id: rawschema.BuildingDamageIntact, Weight: 1}, {Id: rawschema.BuildingDamageMinor, Weight: 1}, {Id: rawschema.BuildingDamageMajor, Weight: 1}},
 			Clutters:  []rawschema.ClutterChoice{{Id: rawschema.Tidy, Weight: 1}, {Id: rawschema.Messy, Weight: 1}, {Id: rawschema.Filthy, Weight: 1}},
@@ -36,7 +29,7 @@ func makeInteriorRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	return raws
 }
 
-func TestValidateInteriorRefs(t *testing.T) {
+func TestValidateInteriorProfile(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -45,29 +38,8 @@ func TestValidateInteriorRefs(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:   "参照が実在し抽選表が enum の全値を持てば通る",
+			name:   "抽選表が enum の全値を持てば通る",
 			mutate: func(*rawschema.Raws) {},
-		},
-		{
-			name: "Ref の id 重複",
-			mutate: func(r *rawschema.Raws) {
-				*r.InteriorRefs = append(*r.InteriorRefs, rawschema.InteriorRef{Id: "bed"})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "Ref の prop が実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*r.InteriorRefs)[0].Prop = new("sofa")
-			},
-			wantErr: errInteriorRefPropUndefined,
-		},
-		{
-			name: "Ref の item group が実在しない",
-			mutate: func(r *rawschema.Raws) {
-				(*r.InteriorRefs)[1].ItemGroup = new("drinks")
-			},
-			wantErr: errInteriorRefGroupUndefined,
 		},
 		{
 			name: "損傷段階の行が欠ける",
@@ -99,32 +71,11 @@ func TestValidateInteriorRefs(t *testing.T) {
 			},
 			wantErr: errSiteWeightZero,
 		},
-		{
-			name: "外構の Ref が prop を持たない",
-			mutate: func(r *rawschema.Raws) {
-				r.InteriorProfile.Lot.Vending = "litter"
-			},
-			wantErr: errInteriorProfileRefUndefined,
-		},
-		{
-			name: "外皮の Ref が実在しない",
-			mutate: func(r *rawschema.Raws) {
-				r.InteriorProfile.Facade.Sign = "billboard"
-			},
-			wantErr: errInteriorProfileRefUndefined,
-		},
-		{
-			name: "hero の Ref が prop を持たない",
-			mutate: func(r *rawschema.Raws) {
-				r.InteriorProfile.Heroes[0].Refs = []string{"litter"}
-			},
-			wantErr: errHeroRefUndefined,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			err := validateInteriorRefs(makeInteriorRaws(tt.mutate))
+			err := validateInteriorProfile(makeInteriorRaws(tt.mutate))
 			if tt.wantErr == nil {
 				require.NoError(t, err)
 				return
