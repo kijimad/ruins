@@ -61,6 +61,7 @@ func TestErrorStringContains(t *testing.T) {
 		{"require.Contains も違反", `require.Contains(t, err.Error(), "x")`, 1},
 		{"NotContains も違反", `assert.NotContains(t, err.Error(), "x")`, 1},
 		{"書式付きの Containsf も違反", `assert.Containsf(t, err.Error(), "x", "m")`, 1},
+		{"書式付きの NotContainsf も違反", `assert.NotContainsf(t, err.Error(), "x", "m")`, 1},
 		{"フィールドのエラーでも違反", `assert.Contains(t, got.err.Error(), "x")`, 1},
 		{"ErrorContains は適合", `assert.ErrorContains(t, err, "x")`, 0},
 		{"文字列の Contains は適合", `assert.Contains(t, s, "x")`, 0},
