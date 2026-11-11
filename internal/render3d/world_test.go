@@ -75,7 +75,7 @@ func TestWorldProjector_プレイヤーが複数いるとエラー(t *testing.T)
 
 	_, err = render3d.WorldProjector(world)
 	require.Error(t, err)
-	require.ErrorContains(t, err, "multiple player entities exist")
+	require.ErrorIs(t, err, query.ErrMultiplePlayers)
 }
 
 func TestPlayerTile_プレイヤーがいないとエラー(t *testing.T) {

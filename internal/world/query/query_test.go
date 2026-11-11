@@ -107,7 +107,7 @@ func TestGetPlayerEntity(t *testing.T) {
 
 		_, err := GetPlayerEntity(world)
 		require.Error(t, err)
-		require.ErrorContains(t, err, "multiple player entities exist")
+		require.ErrorIs(t, err, ErrMultiplePlayers)
 
 		world.ECS.RemoveEntity(player1)
 		world.ECS.RemoveEntity(player2)

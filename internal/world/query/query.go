@@ -25,8 +25,13 @@ func Player(world w.World, f func(entity ecs.Entity)) {
 	}
 }
 
-// ErrNoPlayer はプレイヤーのエンティティが無いときに返す
-var ErrNoPlayer = errors.New("no player entity exists")
+// プレイヤーのエンティティを1つに決められないときのエラー
+var (
+	// ErrNoPlayer はプレイヤーのエンティティが無いときに返す
+	ErrNoPlayer = errors.New("no player entity exists")
+	// ErrMultiplePlayers はプレイヤーのエンティティが2つ以上あるときに返す
+	ErrMultiplePlayers = errors.New("multiple player entities exist")
+)
 
 // GetPlayerEntity はプレイヤーエンティティを返す
 // プレイヤーが0個または2個以上の場合はエラーを返す
@@ -42,7 +47,7 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 		return gc.InvalidEntity, ErrNoPlayer
 	}
 	if len(entities) > 1 {
-		return gc.InvalidEntity, fmt.Errorf("multiple player entities exist: %d", len(entities))
+		return gc.InvalidEntity, fmt.Errorf("%w: %d", ErrMultiplePlayers, len(entities))
 	}
 
 	return entities[0], nil
