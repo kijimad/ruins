@@ -719,14 +719,32 @@ func TestValidateScatterZoneReferences(t *testing.T) {
 func TestValidateMapGlyphReferences(t *testing.T) {
 	t.Parallel()
 
-	t.Run("1文字で重複せず全施設とランドマークに記号があれば通る", func(t *testing.T) {
+	wasteland, entrance := oapi.Wasteland, oapi.DungeonEntrance
+	chunkGlyphs := func() []oapi.MapGlyph {
+		return []oapi.MapGlyph{{Id: "field", Glyph: ".", Chunk: &wasteland}, {Id: "dungeon_entrance", Glyph: ">", Chunk: &entrance}}
+	}
+
+	t.Run("1文字で重複せず全施設とランドマークとチャンクの種類に記号があれば通る", func(t *testing.T) {
 		t.Parallel()
+		glyphs := append(chunkGlyphs(), oapi.MapGlyph{Id: "house", Glyph: "h"}, oapi.MapGlyph{Id: "shrine", Glyph: "s"})
 		raws := oapi.Raws{
 			Facilities: &[]oapi.Facility{{Id: "house"}},
 			Landmarks:  &[]oapi.Landmark{{Id: "shrine"}},
-			MapGlyphs:  &[]oapi.MapGlyph{{Id: "house", Glyph: "h"}, {Id: "shrine", Glyph: "s"}},
+			MapGlyphs:  &glyphs,
 		}
 		require.NoError(t, validateMapGlyphReferences(raws))
+	})
+
+	t.Run("チャンクの種類に記号が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		glyphs := chunkGlyphs()[:1]
+		require.ErrorIs(t, validateMapGlyphReferences(oapi.Raws{MapGlyphs: &glyphs}), errEnumRowMissing)
+	})
+
+	t.Run("チャンクの種類を2つの記号が指すとエラー", func(t *testing.T) {
+		t.Parallel()
+		glyphs := append(chunkGlyphs(), oapi.MapGlyph{Id: "field2", Glyph: ",", Chunk: &wasteland})
+		require.ErrorIs(t, validateMapGlyphReferences(oapi.Raws{MapGlyphs: &glyphs}), errDuplicateID)
 	})
 
 	t.Run("記号が2文字だとエラー", func(t *testing.T) {

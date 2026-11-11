@@ -132,6 +132,15 @@ enum BuildingVariant {
   hoarder,
 }
 
+/** 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す */
+enum GlyphChunk {
+  /** 荒れ地。特徴的な地物が無い開けた地形 */
+  wasteland,
+
+  /** 遺跡入口 */
+  dungeon_entrance,
+}
+
 /** 敷地の類型。前庭の深さと外構の出し分けに使う */
 enum SiteType {
   /** 戸建。塀で囲い前庭に観葉 */

@@ -1370,6 +1370,18 @@ export type FreshnessStageId = typeof FreshnessStageId[keyof typeof FreshnessSta
 
 
 /**
+ * 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
+ */
+
+export const GlyphChunk = {
+    Wasteland: 'wasteland',
+    DungeonEntrance: 'dungeon_entrance',
+} as const;
+
+export type GlyphChunk = typeof GlyphChunk[keyof typeof GlyphChunk];
+
+
+/**
  * 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
  */
 export interface GroundCoverEntry {
@@ -1752,7 +1764,13 @@ export interface MapGlyph {
     'name': string;
     'color': RGBAColor;
     'order': number;
+    /**
+     * この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く
+     */
+    'chunk'?: GlyphChunk;
 }
+
+
 /**
  * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
  */

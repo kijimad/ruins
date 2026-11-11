@@ -362,6 +362,9 @@ model MapGlyph {
   name: string;
   color: RGBAColor;
   order: int32;
+
+  /** この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く */
+  chunk?: GlyphChunk;
 }
 
 /** 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り */

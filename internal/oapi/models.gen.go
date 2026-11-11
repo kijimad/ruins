@@ -492,6 +492,24 @@ func (e FreshnessStageId) Valid() bool {
 	}
 }
 
+// Defines values for GlyphChunk.
+const (
+	DungeonEntrance GlyphChunk = "dungeon_entrance"
+	Wasteland       GlyphChunk = "wasteland"
+)
+
+// Valid indicates whether the value is a known member of the GlyphChunk enum.
+func (e GlyphChunk) Valid() bool {
+	switch e {
+	case DungeonEntrance:
+		return true
+	case Wasteland:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GroupStyle.
 const (
 	PickEach GroupStyle = "pick_each"
@@ -2330,6 +2348,9 @@ type FreshnessStageId string
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
 
+// GlyphChunk 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
+type GlyphChunk string
+
 // GroundCoverEntry 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
 type GroundCoverEntry struct {
 	Ref    EntityID `json:"ref"`
@@ -2686,6 +2707,9 @@ type MagazineSize = int
 
 // MapGlyph 俯瞰地図の記号1種。id は地物・施設の種別 id
 type MapGlyph struct {
+	// Chunk この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く
+	Chunk *GlyphChunk `json:"chunk,omitempty"`
+
 	// Color RGBA色
 	Color RGBAColor `json:"color"`
 	Glyph string    `json:"glyph"`

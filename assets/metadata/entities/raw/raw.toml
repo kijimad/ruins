@@ -18269,6 +18269,7 @@
     name = "bench"
 
 [[mapGlyphs]]
+  chunk = "wasteland"
   glyph = "."
   id = "field"
   name = "Wasteland"
@@ -18302,6 +18303,7 @@
     r = 208
 
 [[mapGlyphs]]
+  chunk = "dungeon_entrance"
   glyph = ">"
   id = "dungeon_entrance"
   name = "Ruins Entrance"
