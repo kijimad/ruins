@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -46,7 +48,7 @@ func TestActivityInterruptAndResume(t *testing.T) {
 	err := Interrupt(comp, "テスト中断")
 	require.NoError(t, err, "Unexpected error during interrupt")
 	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected state to be Paused after interrupt")
-	assert.Equal(t, "テスト中断", comp.CancelReason, "Expected cancel reason 'テスト中断'")
+	assert.Equal(t, i18n.Msgid("テスト中断"), comp.CancelReason, "Expected cancel reason 'テスト中断'")
 
 	// 中断状態での再中断テスト（エラーになるはず）
 	err = Interrupt(comp, "再中断")
@@ -74,7 +76,7 @@ func TestActivityCancel(t *testing.T) {
 	Cancel(comp, "テストキャンセル")
 
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "Expected state to be Canceled after cancel")
-	assert.Equal(t, "テストキャンセル", comp.CancelReason, "Expected cancel reason 'テストキャンセル'")
+	assert.Equal(t, i18n.Msgid("テストキャンセル"), comp.CancelReason, "Expected cancel reason 'テストキャンセル'")
 	assert.True(t, IsCanceled(comp), "Expected IsCanceled to be true after cancel")
 
 	// キャンセル後は中断・再開不可

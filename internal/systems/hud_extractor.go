@@ -233,7 +233,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		// エンティティ名を取得（デバッグ用）
 		var entityName string
 		if nameComp := world.Components.Name.Get(entity); nameComp != nil {
-			entityName = nameComp.Name
+			entityName = string(nameComp.Name)
 		} else {
 			entityName = "Unknown"
 		}
@@ -433,7 +433,7 @@ func conditionLabel(world w.World, ct gc.ConditionType, severity gc.Severity) st
 	if severity == gc.SeverityNone {
 		return name
 	}
-	return name + " " + query.T(world, severity.String())
+	return name + " " + query.T(world, severity.Name())
 }
 
 // ambientTempDisplayColor は周囲気温の表示色を返す。快適帯の中は白、下回ると青、上回ると赤に寄せる

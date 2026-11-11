@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -22,7 +23,7 @@ var (
 )
 
 // GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択し、Meleeパラメータを返す
-func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attacker, string, error) {
+func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attacker, i18n.Msgid, error) {
 	commandTableComp := world.Components.CommandTable.Get(enemyEntity)
 	if commandTableComp == nil {
 		return nil, "", errNoCommandTable
@@ -50,11 +51,14 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 	if weaponSpec.Melee == nil {
 		return nil, "", fmt.Errorf("%w: %s", errWeaponNoMelee, weaponName)
 	}
-	return weaponSpec.Melee, weaponName, nil
+	if weaponSpec.Name == nil {
+		return nil, "", fmt.Errorf("%w: %s", errWeaponNoName, weaponName)
+	}
+	return weaponSpec.Melee, weaponSpec.Name.Name, nil
 }
 
 // GetMeleeFromWeapon は武器エンティティからMeleeコンポーネントを取得する
-func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, string, error) {
+func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, i18n.Msgid, error) {
 	nameComp := world.Components.Name.Get(weaponEntity)
 	if nameComp == nil {
 		return nil, "", errWeaponNoName
@@ -69,7 +73,7 @@ func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, stri
 }
 
 // GetFireFromWeapon は武器エンティティからFireコンポーネントを取得する
-func GetFireFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Fire, string, error) {
+func GetFireFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Fire, i18n.Msgid, error) {
 	nameComp := world.Components.Name.Get(weaponEntity)
 	if nameComp == nil {
 		return nil, "", errWeaponNoName

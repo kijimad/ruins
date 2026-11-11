@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -177,7 +179,7 @@ func TestWaitBehavior_長い待機は敵接近で中断する(t *testing.T) {
 
 	require.NoError(t, wa.DoTurn(comp, actor, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "wait interrupted because enemies are nearby", comp.CancelReason)
+	assert.Equal(t, i18n.Msgid("wait interrupted because enemies are nearby"), comp.CancelReason)
 }
 
 func TestWaitBehavior_1ターンの待機は敵が隣接していても完結する(t *testing.T) {

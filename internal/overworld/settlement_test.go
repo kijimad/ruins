@@ -19,7 +19,7 @@ func namesInWorld(world w.World) map[string]int {
 	counts := map[string]int{}
 	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
 	for q.Next() {
-		counts[world.Components.Name.Get(q.Entity()).Name]++
+		counts[string(world.Components.Name.Get(q.Entity()).Name)]++
 	}
 	return counts
 }

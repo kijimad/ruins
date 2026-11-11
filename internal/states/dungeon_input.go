@@ -3,6 +3,8 @@ package states
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -364,7 +366,7 @@ func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], erro
 // sleepBlockReason は入眠を妨げる最初の条件の理由 msgid を返す。妨げが無ければ blocked=false。
 // 検査順は SleepBehavior.Validate と揃え、表示とゲートで同じ優先順位にする。
 // 返す文字列は Validate が query.T へインラインで渡す msgid と同じもの
-func sleepBlockReason(sc activity.SleepConditions) (msgid string, blocked bool) {
+func sleepBlockReason(sc activity.SleepConditions) (msgid i18n.Msgid, blocked bool) {
 	switch {
 	case sc.TooTired():
 		return "Not tired enough to sleep.", true

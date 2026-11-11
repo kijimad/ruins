@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -59,7 +61,7 @@ type RangeParams struct {
 // ================
 
 // EquipmentCategoryName は防具の部位の表示名 msgid を返す
-func EquipmentCategoryName(c oapi.EquipmentCategory) string {
+func EquipmentCategoryName(c oapi.EquipmentCategory) i18n.Msgid {
 	switch c {
 	case oapi.EquipmentCategoryHEAD:
 		return "Head"
@@ -82,7 +84,7 @@ func EquipmentCategoryName(c oapi.EquipmentCategory) string {
 // ================
 
 // ElementName は攻撃属性の表示名 msgid を返す
-func ElementName(e oapi.Element) string {
+func ElementName(e oapi.Element) i18n.Msgid {
 	switch e {
 	case oapi.ElementNONE:
 		return "None"

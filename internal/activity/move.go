@@ -3,6 +3,8 @@ package activity
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -134,7 +136,7 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	if err := mb.performMove(comp, actor, world); err != nil {
-		Cancel(comp, fmt.Sprintf("move error: %s", err.Error()))
+		Cancel(comp, i18n.Msgid(fmt.Sprintf("move error: %s", err.Error())))
 		return err
 	}
 

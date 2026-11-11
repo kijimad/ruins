@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -214,7 +216,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, coun
 		return
 	}
 
-	typeStr := fmt.Sprintf("[%s]", query.T(world, cat))
+	typeStr := fmt.Sprintf("[%s]", query.T(world, i18n.Msgid(cat)))
 	if name != "" {
 		drawText(fmt.Sprintf("%s %s", typeStr, name))
 	} else {

@@ -5,6 +5,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -201,7 +203,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
 	if err == nil {
 		// 既存プレイヤーの名前を変更した
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
-			nameComp.Name = name
+			nameComp.Name = i18n.Msgid(name)
 		}
 		return es.Transition[w.World]{Type: es.TransPop}
 	}

@@ -3,6 +3,8 @@ package lifecycle
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -23,7 +25,7 @@ func TestSpawnFieldItem(t *testing.T) {
 	// Nameコンポーネントの確認
 	require.True(t, world.Components.Name.Has(item), "Nameコンポーネントが必要")
 	name := world.Components.Name.Get(item)
-	assert.Equal(t, "Healing Potion", name.Name, "アイテム名が正しくない")
+	assert.Equal(t, i18n.Msgid("Healing Potion"), name.Name, "アイテム名が正しくない")
 
 	// GridElementコンポーネントの確認
 	require.True(t, world.Components.GridElement.Has(item), "GridElementコンポーネントが必要")

@@ -83,7 +83,7 @@ func collectProps(world w.World) []propAt {
 		ge := *world.Components.GridElement.Get(e)
 		name := ""
 		if world.Components.Name.Has(e) {
-			name = world.Components.Name.Get(e).Name
+			name = string(world.Components.Name.Get(e).Name)
 		}
 		id := ""
 		if world.Components.RawID.Has(e) {

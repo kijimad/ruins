@@ -3,6 +3,8 @@ package query
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -18,7 +20,7 @@ func putStack(world w.World, player ecs.Entity, id string, name string, count in
 		e := world.ECS.NewEntity()
 		world.Components.RawID.Add(e, &gc.RawID{ID: id})
 		if name != "" {
-			world.Components.Name.Add(e, &gc.Name{Name: name})
+			world.Components.Name.Add(e, &gc.Name{Name: i18n.Msgid(name)})
 		}
 		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
 		rep = e

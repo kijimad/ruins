@@ -3,6 +3,8 @@ package query
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -77,7 +79,7 @@ func TestSortEntities(t *testing.T) {
 				if len(tt.expected) > 0 {
 					if world.Components.Name.Has(entity) {
 						name := world.Components.Name.Get(entity)
-						assert.Equal(t, tt.expected[i], name.Name)
+						assert.Equal(t, tt.expected[i], string(name.Name))
 					}
 				}
 			}
@@ -191,9 +193,9 @@ func TestSortEntitiesWithMixedComponents(t *testing.T) {
 	name2 := world.Components.Name.Get(sorted[1])
 	name3 := world.Components.Name.Get(sorted[2])
 
-	assert.Equal(t, "Alice", name1.Name)
-	assert.Equal(t, "Bob", name2.Name)
-	assert.Equal(t, "Charlie", name3.Name)
+	assert.Equal(t, i18n.Msgid("Alice"), name1.Name)
+	assert.Equal(t, i18n.Msgid("Bob"), name2.Name)
+	assert.Equal(t, i18n.Msgid("Charlie"), name3.Name)
 }
 
 // TestSortEntities_同名でRawIDが無ければ副キーは空文字扱いで安定ソートに落ちる は、

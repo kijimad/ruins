@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
@@ -14,8 +15,8 @@ type Material struct {
 
 // MaterialDef は材質1つの定義。raw の materials の1行から組み立てる
 type MaterialDef struct {
-	Name      string // 表示名 msgid
-	HeatPerKg int    // kgあたり燃焼熱量。0 なら不燃
+	Name      i18n.Msgid // 表示名
+	HeatPerKg int        // kgあたり燃焼熱量。0 なら不燃
 }
 
 // MaterialDefs は材質ごとの表示名と燃焼熱量の表。読み込み時に raw から1度だけ組み立て、以後は変えない

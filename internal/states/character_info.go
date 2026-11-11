@@ -3,6 +3,8 @@ package states
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -66,7 +68,7 @@ func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []stat
 	if query.AliveHas(world, world.Components.Profession, player) {
 		profComp := world.Components.Profession.Get(player)
 		if prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID); err == nil {
-			professionName = query.T(world, prof.Name)
+			professionName = query.T(world, i18n.Msgid(prof.Name))
 		}
 	}
 
@@ -294,7 +296,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 			if world.Resources.ConditionDefs.IsDerived(cond.Type) {
 				items = append(items, statusItemData{
 					Label:     translatedConditionName(world, cond.Type),
-					Value:     query.T(world, cond.Severity.String()),
+					Value:     query.T(world, cond.Severity.Name()),
 					BodyPart:  part,
 					Condition: &c,
 				})
@@ -380,7 +382,7 @@ func sourceLabel(world w.World, s gc.ProficiencySource) string {
 	case gc.SourceAbility:
 		return fmt.Sprintf("%s %d", query.T(world, gc.AbilityName(s.Ability)), s.Amount)
 	case gc.SourceBodyFunc:
-		return fmt.Sprintf("%s %d%%", query.T(world, string(s.BodyFunc)), s.Amount)
+		return fmt.Sprintf("%s %d%%", query.T(world, s.BodyFunc.Name()), s.Amount)
 	case gc.SourceFatigue:
 		return query.FatigueName(world, s.Fatigue)
 	case gc.SourceHunger:

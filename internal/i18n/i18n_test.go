@@ -18,7 +18,7 @@ func TestCatalog_Translate_ja訳を引く(t *testing.T) {
 		"Quit":     "終了",
 	}
 	for msgid, want := range cases {
-		assert.Equal(t, want, c.Translate("ja", msgid), "ja.po の訳を返す: %s", msgid)
+		assert.Equal(t, want, c.Translate("ja", Msgid(msgid)), "ja.po の訳を返す: %s", msgid)
 	}
 }
 

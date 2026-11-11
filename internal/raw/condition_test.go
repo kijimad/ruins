@@ -632,7 +632,7 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 	var names [gc.BodyPartCount]string
 	for bp := range gc.BodyPartCount {
 		weights[bp] = defs.HitWeight(bp)
-		names[bp] = defs.PartName(bp)
+		names[bp] = string(defs.PartName(bp))
 	}
 	assert.Equal(t, [gc.BodyPartCount]float64{2, 4, 3, 1, 3, 1, 0}, weights)
 	assert.Equal(t, [gc.BodyPartCount]string{"Head", "Torso", "Arm", "Hand", "Leg", "Foot", "Whole body"}, names)

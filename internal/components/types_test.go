@@ -3,6 +3,8 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
@@ -184,7 +186,7 @@ func TestEquipmentSlotNumber(t *testing.T) {
 		t.Parallel()
 		tests := []struct {
 			slot     EquipmentSlotNumber
-			expected string
+			expected i18n.Msgid
 		}{
 			{SlotHead, "Head"},
 			{SlotTorso, "Torso"},
@@ -201,16 +203,16 @@ func TestEquipmentSlotNumber(t *testing.T) {
 		}
 
 		for _, tt := range tests {
-			t.Run(tt.expected, func(t *testing.T) {
+			t.Run(string(tt.expected), func(t *testing.T) {
 				t.Parallel()
-				assert.Equal(t, tt.expected, tt.slot.String())
+				assert.Equal(t, tt.expected, tt.slot.Name())
 			})
 		}
 	})
 
 	t.Run("未定義のスロット番号はパニックする", func(t *testing.T) {
 		t.Parallel()
-		assert.Panics(t, func() { _ = EquipmentSlotNumber(99).String() })
+		assert.Panics(t, func() { _ = EquipmentSlotNumber(99).Name() })
 	})
 }
 

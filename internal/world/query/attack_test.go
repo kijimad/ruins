@@ -3,6 +3,8 @@ package query
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -62,7 +64,7 @@ func TestGetFireFromWeapon(t *testing.T) {
 
 	fire, name, err := GetFireFromWeapon(world, weapon)
 	require.NoError(t, err)
-	assert.Equal(t, "火炎放射器", name)
+	assert.Equal(t, i18n.Msgid("火炎放射器"), name)
 	assert.Equal(t, 5, fire.GetDamage())
 	assert.Equal(t, oapi.ElementFIRE, fire.GetElement())
 }
@@ -142,7 +144,7 @@ func TestAttackUnification(t *testing.T) {
 	})
 	playerAttack, playerWeaponName, err := GetMeleeFromWeapon(world, playerWeapon)
 	require.NoError(t, err)
-	assert.Equal(t, "体当たり", playerWeaponName)
+	assert.Equal(t, i18n.Msgid("体当たり"), playerWeaponName)
 	assert.Equal(t, 1, playerAttack.GetDamage())
 	assert.Equal(t, oapi.ElementNONE, playerAttack.GetElement())
 

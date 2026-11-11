@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/i18n"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -114,7 +115,7 @@ func stepActivity(entity ecs.Entity, world w.World) {
 
 	if err := behavior.DoTurn(stored, entity, world); err != nil {
 		log.Error("activity turn processing error", "entity", entity, "type", behaviorName, "error", err.Error())
-		CancelActivity(entity, fmt.Sprintf("error: %s", err.Error()), world)
+		CancelActivity(entity, i18n.Msgid(fmt.Sprintf("error: %s", err.Error())), world)
 		return
 	}
 
@@ -132,7 +133,7 @@ func stepActivity(entity ecs.Entity, world w.World) {
 			Success:      false,
 			State:        gc.ActivityStateCanceled,
 			ActivityName: behaviorName,
-			Message:      reason,
+			Message:      string(reason),
 		}, world)
 		return
 	}
@@ -220,7 +221,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 }
 
 // InterruptActivity は指定されたエンティティのアクティビティを中断する
-func InterruptActivity(entity ecs.Entity, reason string, world w.World) error {
+func InterruptActivity(entity ecs.Entity, reason i18n.Msgid, world w.World) error {
 	comp := query.GetActivity(world, entity)
 	if comp == nil {
 		return ErrActivityNotFound
@@ -244,7 +245,7 @@ func ResumeActivity(entity ecs.Entity, world w.World) error {
 }
 
 // CancelActivity は指定されたエンティティのアクティビティをキャンセルする
-func CancelActivity(entity ecs.Entity, reason string, world w.World) {
+func CancelActivity(entity ecs.Entity, reason i18n.Msgid, world w.World) {
 	comp := query.GetActivity(world, entity)
 	if comp == nil {
 		return
@@ -275,7 +276,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 		Success:      false,
 		State:        gc.ActivityStateCanceled,
 		ActivityName: behaviorName,
-		Message:      reason,
+		Message:      string(reason),
 	}
 	setLastResult(entity, result, world)
 

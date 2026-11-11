@@ -27,7 +27,7 @@ func TestCatalog_Translate_疑似訳(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, c.Translate(PseudoLang, tc.msgid, tc.args...))
+			assert.Equal(t, tc.want, c.Translate(PseudoLang, Msgid(tc.msgid), tc.args...))
 		})
 	}
 }

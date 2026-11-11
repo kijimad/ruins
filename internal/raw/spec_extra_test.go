@@ -3,6 +3,8 @@ package raw
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -511,12 +513,12 @@ Amount = 2
 	spec, err := NewRecipeSpec(raws, "レイガン")
 	require.NoError(t, err)
 
-	assert.Equal(t, "レイガン", spec.Name.Name)
+	assert.Equal(t, i18n.Msgid("レイガン"), spec.Name.Name)
 	require.NotNil(t, spec.Recipe)
 	require.Len(t, spec.Recipe.Inputs, 2)
 	assert.Equal(t, "鉄", spec.Recipe.Inputs[0].ID)
 	assert.Equal(t, 4, spec.Recipe.Inputs[0].Amount)
-	assert.Equal(t, "光線を放つ武器", spec.Description.Description)
+	assert.Equal(t, i18n.Msgid("光線を放つ武器"), spec.Description.Description)
 	require.NotNil(t, spec.Melee)
 	assert.Equal(t, 20, spec.Melee.Damage)
 }

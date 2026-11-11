@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/i18n"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -146,7 +147,7 @@ func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 }
 
 // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する
-func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) {
+func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, error) {
 	selectedSlot := query.GetWeaponSelection(world).Slot
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= 5 {

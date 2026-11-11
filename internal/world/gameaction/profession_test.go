@@ -3,6 +3,8 @@ package gameaction
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -72,7 +74,7 @@ func TestApplyProfession(t *testing.T) {
 		weapons := query.GetWeapons(world, player)
 		require.NotNil(t, weapons[0], "WEAPON1スロットに初期装備が装備されるべき")
 		name := world.Components.Name.Get(*weapons[0])
-		assert.Equal(t, "Wooden Sword", name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
+		assert.Equal(t, i18n.Msgid("Wooden Sword"), name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
 	})
 
 	t.Run("再適用すると能力値と職業IDが上書きされる", func(t *testing.T) {

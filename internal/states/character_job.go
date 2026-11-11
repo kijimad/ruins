@@ -3,6 +3,8 @@ package states
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -133,7 +135,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 
 	// プレイヤー名を上書き
 	name := world.Components.Name.Get(player)
-	name.Name = st.playerName
+	name.Name = i18n.Msgid(st.playerName)
 
 	// 操作ガイドを表示する
 	gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "Arrows: Move."))).Log()
@@ -158,14 +160,14 @@ func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor me
 
 	rows := make([]menuframe.Row, len(props.Items))
 	for i := range props.Items {
-		rows[i] = menuframe.Row{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(query.T(world, i18n.Msgid(props.Items[i].Profession.Name)))}
 	}
 	list := menuframe.SplitList(itemIndex, rows, res)
 	detail := menuframe.PanelBox(res, buildJobDetailRowsUI(world, props, itemIndex, res.Text.BodyFace)...)
 
 	description := ""
 	if itemIndex < len(props.Items) {
-		description = query.T(world, props.Items[itemIndex].Profession.Description)
+		description = query.T(world, i18n.Msgid(props.Items[itemIndex].Profession.Description))
 	}
 	return menuframe.SplitScreen(world, res, query.T(world, "Profession"), list, detail, description, keybind.HelpHint(world))
 }
@@ -188,7 +190,7 @@ func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face
 		for _, equip := range prof.Equips {
 			slotLabel := string(equip.Slot)
 			if slot, ok := gc.ParseEquipmentSlot(equip.Slot); ok {
-				slotLabel = query.T(world, slot.String())
+				slotLabel = query.T(world, slot.Name())
 			}
 			line(fmt.Sprintf(" %s %s", slotLabel, query.T(world, raw.ItemName(world.Resources.RawMaster, equip.Name))))
 		}

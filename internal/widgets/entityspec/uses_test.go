@@ -3,6 +3,8 @@ package entityspec_test
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -115,7 +117,7 @@ func TestUseHints(t *testing.T) {
 				// 先頭に「用途」見出し、続けて性質を1段下げた行
 				want = append(want, entityspec.SpecRow{Label: query.T(world, "Uses"), Header: true})
 				for _, msgid := range tt.want {
-					want = append(want, entityspec.SpecRow{Label: query.T(world, msgid), Indent: 1})
+					want = append(want, entityspec.SpecRow{Label: query.T(world, i18n.Msgid(msgid)), Indent: 1})
 				}
 			}
 

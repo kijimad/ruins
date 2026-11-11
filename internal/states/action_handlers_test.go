@@ -5,6 +5,8 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -464,7 +466,7 @@ func TestGetInteractionActions_着火(t *testing.T) {
 	}
 	addFieldFuel := func(world w.World, x, y consts.Tile, name string) {
 		e := world.ECS.NewEntity()
-		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.Name.Add(e, &gc.Name{Name: i18n.Msgid(name)})
 		// 熱量は材質×重量から導く。WOOD 200/kg × 50g = 10
 		world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: 50 * consts.MilligramPerGram})

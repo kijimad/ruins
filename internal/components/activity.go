@@ -1,6 +1,7 @@
 package components
 
 import (
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -71,7 +72,7 @@ type Activity struct {
 	State        ActivityState  // 実行状態
 	Progress     IntPool        // Max=完了に必要な総量、Current=注ぎ込んだ総量。Current>=Max で完了。初回ステップで満ちれば即時アクションになる
 	Params       ActivityParams // 各アクティビティ固有のパラメータ。無いアクションは nil
-	CancelReason string         // キャンセル理由
+	CancelReason i18n.Msgid     // キャンセル理由
 }
 
 // ActivityParams は各アクティビティ固有のパラメータを表すマーカーインターフェース。

@@ -133,7 +133,7 @@ func TestConfirmName_ChangesPlayerName(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, "NewName", nameComp.Name)
+	assert.Equal(t, i18n.Msgid("NewName"), nameComp.Name)
 }
 
 func TestConfirmName_Japanese(t *testing.T) {
@@ -153,7 +153,7 @@ func TestConfirmName_Japanese(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, "太郎", nameComp.Name)
+	assert.Equal(t, i18n.Msgid("太郎"), nameComp.Name)
 }
 
 func TestConfirmName_InvalidLength(t *testing.T) {
@@ -178,7 +178,7 @@ func TestConfirmName_InvalidLength(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, "Ash", nameComp.Name)
+	assert.Equal(t, i18n.Msgid("Ash"), nameComp.Name)
 }
 
 func TestConfirmName_TooLong(t *testing.T) {
@@ -203,7 +203,7 @@ func TestConfirmName_TooLong(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, "Ash", nameComp.Name)
+	assert.Equal(t, i18n.Msgid("Ash"), nameComp.Name)
 }
 
 func TestConfirmName_NewPlayer(t *testing.T) {

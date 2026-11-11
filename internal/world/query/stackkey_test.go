@@ -3,6 +3,8 @@ package query
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -237,7 +239,7 @@ func TestBackpackStacks_収集と整列と束ねを1口で行う(t *testing.T) {
 	mk := func(o ecs.Entity, id string, name string) {
 		e := world.ECS.NewEntity()
 		world.Components.RawID.Add(e, &gc.RawID{ID: id})
-		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.Name.Add(e, &gc.Name{Name: i18n.Msgid(name)})
 		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: o})
 	}
 	// わざと名前の逆順で作る。Zebra 2個、Alpha 1個、他人の Alpha 1個
@@ -249,9 +251,9 @@ func TestBackpackStacks_収集と整列と束ねを1口で行う(t *testing.T) {
 	stacks := BackpackStacks(world, owner)
 
 	require.Len(t, stacks, 2, "所有者の2品種だけが束になる")
-	assert.Equal(t, "Alpha", world.Components.Name.Get(stacks[0].Rep).Name, "名前順で並ぶ")
+	assert.Equal(t, i18n.Msgid("Alpha"), world.Components.Name.Get(stacks[0].Rep).Name, "名前順で並ぶ")
 	assert.Equal(t, 1, stacks[0].Count)
-	assert.Equal(t, "Zebra", world.Components.Name.Get(stacks[1].Rep).Name)
+	assert.Equal(t, i18n.Msgid("Zebra"), world.Components.Name.Get(stacks[1].Rep).Name)
 	assert.Equal(t, 2, stacks[1].Count, "同一スタックは束ねられる")
 }
 
@@ -265,7 +267,7 @@ func TestStorageStacks_収集と整列と束ねを1口で行う(t *testing.T) {
 	mk := func(s ecs.Entity, id string, name string) {
 		e := world.ECS.NewEntity()
 		world.Components.RawID.Add(e, &gc.RawID{ID: id})
-		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.Name.Add(e, &gc.Name{Name: i18n.Msgid(name)})
 		world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: s})
 	}
 	mk(storage, "zebra", "Zebra")
@@ -276,9 +278,9 @@ func TestStorageStacks_収集と整列と束ねを1口で行う(t *testing.T) {
 	stacks := StorageStacks(world, storage)
 
 	require.Len(t, stacks, 2, "この収納の2品種だけが束になる")
-	assert.Equal(t, "Alpha", world.Components.Name.Get(stacks[0].Rep).Name, "名前順で並ぶ")
+	assert.Equal(t, i18n.Msgid("Alpha"), world.Components.Name.Get(stacks[0].Rep).Name, "名前順で並ぶ")
 	assert.Equal(t, 1, stacks[0].Count)
-	assert.Equal(t, "Zebra", world.Components.Name.Get(stacks[1].Rep).Name)
+	assert.Equal(t, i18n.Msgid("Zebra"), world.Components.Name.Get(stacks[1].Rep).Name)
 	assert.Equal(t, 2, stacks[1].Count, "同一スタックは束ねられる")
 }
 

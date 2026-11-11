@@ -3,6 +3,8 @@ package states
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -59,10 +61,10 @@ func TestCurrentLanguageLabel(t *testing.T) {
 	t.Parallel()
 
 	// 表示名の msgid を返す。実際の訳は query.T が引く
-	assert.Equal(t, "Japanese", currentLanguageLabel("ja"))
-	assert.Equal(t, "English", currentLanguageLabel("en"))
+	assert.Equal(t, i18n.Msgid("Japanese"), currentLanguageLabel("ja"))
+	assert.Equal(t, i18n.Msgid("English"), currentLanguageLabel("en"))
 	// 一覧に無いコードはそのまま返す
-	assert.Equal(t, "fr", currentLanguageLabel("fr"))
+	assert.Equal(t, i18n.Msgid("fr"), currentLanguageLabel("fr"))
 }
 
 func TestSettingsMenuState_キャンセルでpopする(t *testing.T) {

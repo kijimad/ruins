@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -264,7 +266,7 @@ func TestSleepBehavior_DoTurn_低体温が発症すると起床して中断理�
 	require.NoError(t, sb.DoTurn(comp, actor, world))
 
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "woke up from the cold", comp.CancelReason)
+	assert.Equal(t, i18n.Msgid("woke up from the cold"), comp.CancelReason)
 }
 
 func TestSleepBehavior_DoTurn_敵が近いと起床して中断理由が記録される(t *testing.T) {
@@ -282,7 +284,7 @@ func TestSleepBehavior_DoTurn_敵が近いと起床して中断理由が記録�
 	require.NoError(t, sb.DoTurn(comp, actor, world))
 
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "sleep interrupted because enemies are nearby", comp.CancelReason)
+	assert.Equal(t, i18n.Msgid("sleep interrupted because enemies are nearby"), comp.CancelReason)
 }
 
 func TestSleepBehavior_DoTurn_疲労が尽きると完了する(t *testing.T) {

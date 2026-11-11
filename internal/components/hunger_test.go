@@ -3,6 +3,8 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 )
@@ -93,7 +95,7 @@ func TestNeedDefs_HungerName(t *testing.T) {
 
 	got := map[oapi.HungerStageId]string{}
 	for _, s := range testNeedDefs.Hunger {
-		got[s.Level] = testNeedDefs.HungerName(s.Level)
+		got[s.Level] = string(testNeedDefs.HungerName(s.Level))
 	}
 	assert.Equal(t, map[oapi.HungerStageId]string{
 		oapi.HungerStageIdSatiated: "Full",
@@ -101,7 +103,7 @@ func TestNeedDefs_HungerName(t *testing.T) {
 		oapi.HungerStageIdHungry:   "Hungry",
 		oapi.HungerStageIdStarving: "Starving",
 	}, got)
-	assert.Equal(t, "unknown", testNeedDefs.HungerName("unknown"), "未登録は id をそのまま返す")
+	assert.Equal(t, i18n.Msgid("unknown"), testNeedDefs.HungerName("unknown"), "未登録は id をそのまま返す")
 }
 
 func TestNeedDefsHungerSeverity_段階ごとに不調の重症度を返す(t *testing.T) {

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -105,7 +107,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 			continue
 		}
 		if err := e.apply(u, comp, actor, item, world); err != nil {
-			Cancel(comp, fmt.Sprintf("use effect error: %s", err.Error()))
+			Cancel(comp, i18n.Msgid(fmt.Sprintf("use effect error: %s", err.Error())))
 			return err
 		}
 	}
@@ -265,7 +267,7 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 
 // logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える。
 // reachedLog は食べて達した空腹の段階のログで、空なら出さない
-func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, reachedLog string) {
+func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, reachedLog i18n.Msgid) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return

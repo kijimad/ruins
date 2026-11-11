@@ -3,6 +3,8 @@ package states
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -85,7 +87,7 @@ func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 	// オープニングはキャラ作成後にゲーム画面へモーダルとして重ねる。開始スタックには積まない
 	startFuncs := []es.StateFactory[w.World]{NewCharacterNamingState}
 
-	t := func(msgid string) string { return query.T(world, msgid) }
+	t := func(msgid i18n.Msgid) string { return query.T(world, msgid) }
 	items := []mainMenuItem{
 		{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
 	}

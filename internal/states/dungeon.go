@@ -162,9 +162,9 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 発生するため、古いデータが残り移動不能になることがある
 	query.InvalidateSpatialIndex(world)
 
-	titleText := query.T(world, def.Name())
+	titleText := query.T(world, def.DisplayName())
 	if st.Depth > 0 {
-		titleText = fmt.Sprintf("%s %dF", query.T(world, def.Name()), st.Depth)
+		titleText = fmt.Sprintf("%s %dF", query.T(world, def.DisplayName()), st.Depth)
 	}
 	lifecycle.SpawnSplashText(world, titleText)
 

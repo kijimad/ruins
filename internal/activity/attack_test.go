@@ -4,6 +4,8 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -428,7 +430,7 @@ func TestGetAttackParams_プレイヤーが装備した近接武器のパラメ�
 
 	attack, name, err := getAttackParams(player, world)
 	require.NoError(t, err)
-	assert.Equal(t, "Torch", name)
+	assert.Equal(t, i18n.Msgid("Torch"), name)
 	melee, ok := attack.(*gc.Melee)
 	require.True(t, ok)
 	// 具体値は torch の raw 定義依存なので契約だけを見る。装備武器のパラメータが返る
@@ -447,7 +449,7 @@ func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォ�
 
 	attack, name, err := getAttackParams(player, world)
 	require.NoError(t, err)
-	assert.Equal(t, "Bare Hands", name)
+	assert.Equal(t, i18n.Msgid("Bare Hands"), name)
 	melee, ok := attack.(*gc.Melee)
 	require.True(t, ok)
 	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
@@ -492,7 +494,7 @@ func TestGetAttackParams_CommandTable取得失敗で素手にフォールバッ�
 
 	attack, name, err := getAttackParams(enemy, world)
 	require.NoError(t, err)
-	assert.Equal(t, "Bare Hands", name)
+	assert.Equal(t, i18n.Msgid("Bare Hands"), name)
 	melee, ok := attack.(*gc.Melee)
 	require.True(t, ok)
 	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
@@ -516,7 +518,7 @@ func TestGetBareHandsAttack_素手武器のパラメータを返す(t *testing.T
 
 	attack, name, err := getBareHandsAttack(world)
 	require.NoError(t, err)
-	assert.Equal(t, "Bare Hands", name)
+	assert.Equal(t, i18n.Msgid("Bare Hands"), name)
 	assert.Equal(t, 3, attack.GetDamage())
 }
 
