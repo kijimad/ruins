@@ -637,3 +637,21 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 	assert.Equal(t, [gc.BodyPartCount]float64{2, 4, 3, 1, 3, 1, 0}, weights)
 	assert.Equal(t, [gc.BodyPartCount]string{"Head", "Torso", "Arm", "Hand", "Leg", "Foot", "Whole body"}, names)
 }
+
+// mapKeys は文字列のキーを持つ map のキーを返す
+func mapKeys[K ~string, V any](m map[K]V) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, string(k))
+	}
+	return out
+}
+
+func TestOrdinalEnumMaps_スキーマのenumの全値を持つ(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(t, schemaEnum("WeatherId"), mapKeys(weatherKinds))
+	assert.ElementsMatch(t, schemaEnum("SeasonId"), mapKeys(seasons))
+	assert.ElementsMatch(t, schemaEnum("TimeOfDayId"), mapKeys(timesOfDay))
+	assert.ElementsMatch(t, schemaEnum("ConditionSeverity"), mapKeys(severities))
+}

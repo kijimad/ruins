@@ -118,3 +118,32 @@ func TestNewProfileTable_rawの抽選表を軸ごとに組む(t *testing.T) {
 	_, err := newProfileTable(oapi.Raws{})
 	require.ErrorIs(t, err, errInteriorProfileMissing)
 }
+
+// mapKeys は文字列のキーを持つ map のキーを返す
+func mapKeys[K ~string, V any](m map[K]V) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, string(k))
+	}
+	return out
+}
+
+func TestLevelMaps_スキーマのenumの全値を持つ(t *testing.T) {
+	t.Parallel()
+
+	spec, err := oapi.GetSpec()
+	require.NoError(t, err)
+	enum := func(name string) []string {
+		values := spec.Components.Schemas[name].Value.Enum
+		out := make([]string, 0, len(values))
+		for _, v := range values {
+			s, ok := v.(string)
+			require.True(t, ok)
+			out = append(out, s)
+		}
+		return out
+	}
+	assert.ElementsMatch(t, enum("BuildingDamage"), mapKeys(damageLevels))
+	assert.ElementsMatch(t, enum("BuildingClutter"), mapKeys(clutterLevels))
+	assert.ElementsMatch(t, enum("BuildingVariant"), mapKeys(variantKinds))
+}
