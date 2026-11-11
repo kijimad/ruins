@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +15,7 @@ import (
 func TestRawTranslationCoverage(t *testing.T) {
 	t.Parallel()
 
-	defined := i18n.ParsePoMsgids(t)
+	defined := parsePoMsgids(t)
 	raws, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
 
