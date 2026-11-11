@@ -82,7 +82,5 @@ func TestLoadFonts_ソースが空ならエラー(t *testing.T) {
 
 	_, err := loadFonts(nil)
 
-	require.Error(t, err)
-	require.ErrorContains(t, err, "failed to load small font")
-	assert.ErrorIs(t, err, errNoFontSource)
+	require.ErrorIs(t, err, errNoFontSource)
 }

@@ -60,7 +60,7 @@ func TestRenderLabel_未知のテンプレート名はパニックする(t *test
 		require.NotNil(t, r)
 		err, ok := r.(error)
 		require.True(t, ok, "panic値はerrorであるべき")
-		assert.ErrorContains(t, err, `no template "存在しないラベル"`)
+		require.ErrorIs(t, err, errTemplateNotFound)
 	}()
 	renderLabel("存在しないラベル", nil)
 }

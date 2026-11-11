@@ -43,8 +43,7 @@ func TestGetAttackFromCommandTable_NoCommandTable(t *testing.T) {
 	_, _, err := GetAttackFromCommandTable(world, enemy)
 
 	// 検証
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "has no CommandTable component")
+	require.ErrorIs(t, err, errNoCommandTable)
 }
 
 func TestGetFireFromWeapon(t *testing.T) {
@@ -77,8 +76,7 @@ func TestGetFireFromWeapon_NoFireComponent(t *testing.T) {
 	world.Components.Name.Add(weapon, &gc.Name{Name: "近接武器"})
 
 	_, _, err := GetFireFromWeapon(world, weapon)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "has no Fire component")
+	require.ErrorIs(t, err, errWeaponNoFire)
 }
 
 func TestGetFireFromWeapon_NoName(t *testing.T) {
@@ -89,8 +87,7 @@ func TestGetFireFromWeapon_NoName(t *testing.T) {
 	weapon := world.ECS.NewEntity()
 
 	_, _, err := GetFireFromWeapon(world, weapon)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "has no Name component")
+	require.ErrorIs(t, err, errWeaponNoName)
 }
 
 func TestGetMeleeFromWeapon_NoName(t *testing.T) {
@@ -101,8 +98,7 @@ func TestGetMeleeFromWeapon_NoName(t *testing.T) {
 	weapon := world.ECS.NewEntity()
 
 	_, _, err := GetMeleeFromWeapon(world, weapon)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "has no Name component")
+	require.ErrorIs(t, err, errWeaponNoName)
 }
 
 func TestGetMeleeFromWeapon_NoMelee(t *testing.T) {
@@ -114,8 +110,7 @@ func TestGetMeleeFromWeapon_NoMelee(t *testing.T) {
 	world.Components.Name.Add(weapon, &gc.Name{Name: "防具"})
 
 	_, _, err := GetMeleeFromWeapon(world, weapon)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "has no Melee component")
+	require.ErrorIs(t, err, errWeaponNoMelee)
 }
 
 // 統合テスト: 敵とプレイヤーの攻撃取得が共通のAttackerインターフェースを返す

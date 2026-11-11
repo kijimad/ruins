@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"io/fs"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -22,8 +23,7 @@ func TestNewFont_存在しないパスはエラー(t *testing.T) {
 
 	_, err := NewFont("file/fonts/not-exist.ttf")
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "file/fonts/not-exist.ttf")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func TestNewFont_フォント形式でないファイルはエラー(t *testing.T) {

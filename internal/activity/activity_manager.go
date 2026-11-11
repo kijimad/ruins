@@ -350,10 +350,13 @@ func getPassCostAt(world w.World, x, y int) int {
 	return total
 }
 
+// errNoTurnBased はエンティティがTurnBasedを持たないときに返す
+var errNoTurnBased = errors.New("TurnBased component not found")
+
 // getEntityMaxAP はエンティティの最大AP値を取得する
 func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
 	if !world.Components.TurnBased.Has(entity) {
-		return 0, fmt.Errorf("TurnBased component not found: entity=%v", entity)
+		return 0, fmt.Errorf("%w: entity=%v", errNoTurnBased, entity)
 	}
 	return world.Components.TurnBased.Get(entity).AP.Max, nil
 }

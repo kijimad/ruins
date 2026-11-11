@@ -249,6 +249,9 @@ func MoveToStowed(world w.World, entity ecs.Entity, cube ecs.Entity, offset cons
 	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
 
+// errPlayerNotPlaceable は座標・スプライト・カメラのそろったプレイヤーがいないときに返す
+var errPlayerNotPlaceable = errors.New("no player entity with required components found")
+
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
 func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	var playerEntity ecs.Entity
@@ -264,7 +267,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 		playerQuery.Close()
 	}
 	if !found {
-		return errors.New("no player entity with required components found")
+		return errPlayerNotPlaceable
 	}
 
 	// プレイヤーの位置を更新する

@@ -2,6 +2,7 @@ package save
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -20,6 +21,23 @@ const maxAutoSaves = 4
 const autoSavePrefix = "auto_"
 
 const defaultSaveDir = "./saves"
+
+var (
+	// errChecksumMissing はセーブデータにチェックサムが無いときに返す
+	errChecksumMissing = errors.New("checksum field is missing: this save data is tampered or from an old version")
+	// errChecksumMismatch はセーブデータのチェックサムが内容と一致しないときに返す
+	errChecksumMismatch = errors.New("checksum mismatch")
+	// errUnsupportedVersion はセーブデータのバージョンが現行と異なるときに返す
+	errUnsupportedVersion = errors.New("unsupported save data version")
+	// errPlayerNameNotFound はセーブデータにプレイヤー名が無いときに返す
+	errPlayerNameNotFound = errors.New("player name not found in save data")
+	// errAutoSave はオートセーブの保存に失敗したときに返す
+	errAutoSave = errors.New("failed to auto save")
+	// errNoSingleton は復元データにシングルトンが無いときに返す
+	errNoSingleton = errors.New("restored data has no singleton entity that holds Dungeon")
+	// errInvalidStageKey は復元したステージキーが不正なときに返す
+	errInvalidStageKey = errors.New("restored stage key is invalid")
+)
 
 // Option はSerializationManagerの設定を変更する関数
 type Option func(*SerializationManager)
@@ -123,7 +141,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	}
 
 	if env.Version != saveDataVersion {
-		return fmt.Errorf("unsupported save data version: %s", env.Version)
+		return fmt.Errorf("%w: %s", errUnsupportedVersion, env.Version)
 	}
 
 	// 本番ワールドを破壊する前に、使い捨ての probe ワールドで復元の全工程を検証する。
@@ -239,7 +257,7 @@ func (sm *SerializationManager) ListAutoSaves() ([]string, error) {
 func (sm *SerializationManager) AutoSave(world w.World) error {
 	slotName := fmt.Sprintf("%s%d", autoSavePrefix, time.Now().UnixNano())
 	if err := sm.SaveWorld(world, slotName); err != nil {
-		return fmt.Errorf("failed to auto save: %w", err)
+		return fmt.Errorf("%w: %w", errAutoSave, err)
 	}
 	if err := sm.rotateAutoSaves(); err != nil {
 		return fmt.Errorf("failed to delete old auto save: %w", err)
@@ -281,7 +299,7 @@ func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, erro
 		return "", fmt.Errorf("failed to parse save data: %w", err)
 	}
 	if partial.PlayerName == "" {
-		return "", fmt.Errorf("player name not found in save data")
+		return "", errPlayerNameNotFound
 	}
 	return partial.PlayerName, nil
 }
@@ -306,12 +324,12 @@ func (sm *SerializationManager) GetSavePlayTime(slotName string) (time.Duration,
 // validateChecksum はセーブデータのチェックサムを検証する
 func validateChecksum(env *saveEnvelope) error {
 	if env.Checksum == "" {
-		return fmt.Errorf("checksum field is missing: this save data is tampered or from an old version")
+		return errChecksumMissing
 	}
 	expected := checksumOf(env)
 	if env.Checksum != expected {
-		return fmt.Errorf("checksum mismatch: expected %s, got %s; data may be tampered",
-			expected, env.Checksum)
+		return fmt.Errorf("%w: expected %s, got %s; data may be tampered",
+			errChecksumMismatch, expected, env.Checksum)
 	}
 	return nil
 }

@@ -26,6 +26,13 @@ var (
 	ErrMemberGeneration = errors.New("failed to generate member")
 	ErrEnemyGeneration  = errors.New("failed to generate enemy")
 	ErrEffectGeneration = errors.New("failed to generate effect")
+
+	// errNotNeutralNPC は中立でないメンバーを中立NPCとして生成しようとしたときに返す
+	errNotNeutralNPC = errors.New("not a neutral NPC")
+	// errNonPositiveCount は生成個数が正でないときに返す
+	errNonPositiveCount = errors.New("count must be positive")
+	// errMissingStatsComponents はHPかAbilitiesを持たないエンティティの最大HPを設定しようとしたときに返す
+	errMissingStatsComponents = errors.New("entity does not have required components HP or Abilities")
 )
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
@@ -114,7 +121,7 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 	}
 
 	if entitySpec.FactionNeutral == nil {
-		return gc.InvalidEntity, fmt.Errorf("'%s' is not a neutral NPC", name)
+		return gc.InvalidEntity, fmt.Errorf("%w: %s", errNotNeutralNPC, name)
 	}
 	if entitySpec.Dialog == nil {
 		return gc.InvalidEntity, fmt.Errorf("'%s' has no dialog data", name)
@@ -192,7 +199,7 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.
 // 同一スタックの個体はどれも等価。個数や全個体は代表から query 側で導出する。
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
 	if count <= 0 {
-		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
+		return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
 	}
 
 	// バックパックはプレイヤーの所有物なので、プレイヤー不在での生成は不変条件違反として返す。
@@ -257,7 +264,7 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 // setMaxStats はエンティティの最大HPを設定する
 func setMaxStats(world w.World, entity ecs.Entity) error {
 	if !world.Components.HP.Has(entity) || !world.Components.Abilities.Has(entity) {
-		return fmt.Errorf("entity %v does not have required components (HP or Abilities)", entity)
+		return fmt.Errorf("%w: %v", errMissingStatsComponents, entity)
 	}
 
 	hp := world.Components.HP.Get(entity)
@@ -291,7 +298,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 // SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
 	if count <= 0 {
-		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
+		return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
 	}
 	last := gc.InvalidEntity
 	for range count {
@@ -310,7 +317,7 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 // SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
 	if count <= 0 {
-		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
+		return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
 	}
 	last := gc.InvalidEntity
 	for range count {

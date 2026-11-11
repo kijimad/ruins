@@ -1,10 +1,12 @@
 package maptemplate
 
 import (
+	"io/fs"
 	"math/rand/v2"
 	"strings"
 	"testing"
 
+	"github.com/pelletier/go-toml/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,8 +16,8 @@ func TestPaletteLoader_Load_不正なTOMLはパースエラー(t *testing.T) {
 	loader := NewPaletteLoader()
 	_, err := loader.Load(strings.NewReader("this is = not [valid toml"))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to parse palette TOML")
+	var decodeErr *toml.DecodeError
+	require.ErrorAs(t, err, &decodeErr)
 }
 
 func TestPaletteLoader_Load_Propsのキーが2文字以上はエラー(t *testing.T) {
@@ -30,8 +32,7 @@ description = "無効なPropsキー"
 	loader := NewPaletteLoader()
 	_, err := loader.Load(strings.NewReader(content))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "props key must be a single character")
+	require.ErrorIs(t, err, errPaletteKeyNotSingleChar)
 }
 
 func TestPaletteLoader_Load_NPCsのキーが2文字以上はエラー(t *testing.T) {
@@ -46,8 +47,7 @@ description = "無効なNPCsキー"
 	loader := NewPaletteLoader()
 	_, err := loader.Load(strings.NewReader(content))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "npcs key must be a single character")
+	require.ErrorIs(t, err, errPaletteKeyNotSingleChar)
 }
 
 func TestPalette_GetNPC(t *testing.T) {
@@ -112,8 +112,8 @@ func TestTemplateLoader_Load_不正なTOMLはパースエラー(t *testing.T) {
 	loader := NewTemplateLoader()
 	_, err := loader.Load(strings.NewReader("this is = not [valid toml"))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to parse template TOML")
+	var decodeErr *toml.DecodeError
+	require.ErrorAs(t, err, &decodeErr)
 }
 
 func TestTemplateLoader_Load_幅が数値でない名前はエラー(t *testing.T) {
@@ -126,8 +126,7 @@ map = "x"
 	loader := NewTemplateLoader()
 	_, err := loader.Load(strings.NewReader(content))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to parse width")
+	require.ErrorIs(t, err, errInvalidWidth)
 }
 
 func TestTemplateLoader_Load_高さが数値でない名前はエラー(t *testing.T) {
@@ -140,8 +139,7 @@ map = "x"
 	loader := NewTemplateLoader()
 	_, err := loader.Load(strings.NewReader(content))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to parse height")
+	require.ErrorIs(t, err, errInvalidHeight)
 }
 
 func TestTemplateLoader_Load_空白のみのマップ行はエラー(t *testing.T) {
@@ -154,8 +152,7 @@ map = " "
 	loader := NewTemplateLoader()
 	_, err := loader.Load(strings.NewReader(content))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "map row is empty")
+	require.ErrorIs(t, err, errMapRowEmpty)
 }
 
 func TestTemplateLoader_LoadChunk_存在しないファイルはエラー(t *testing.T) {
@@ -163,8 +160,7 @@ func TestTemplateLoader_LoadChunk_存在しないファイルはエラー(t *tes
 	loader := NewTemplateLoader()
 	err := loader.LoadChunk("levels/chunks/nonexistent.toml")
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to read chunk")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func TestTemplateLoader_RegisterAllChunks_存在しないディレクトリはエラー(t *testing.T) {
@@ -172,8 +168,7 @@ func TestTemplateLoader_RegisterAllChunks_存在しないディレクトリは�
 	loader := NewTemplateLoader()
 	err := loader.RegisterAllChunks([]string{"levels/nonexistent_dir"})
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to read directory")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func TestTemplateLoader_RegisterAllPalettes_存在しないディレクトリはエラー(t *testing.T) {
@@ -181,8 +176,7 @@ func TestTemplateLoader_RegisterAllPalettes_存在しないディレクトリは
 	loader := NewTemplateLoader()
 	err := loader.RegisterAllPalettes([]string{"levels/nonexistent_dir"})
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to read directory")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func TestTemplateLoader_LoadTemplateByName_未登録パレット参照はエラー(t *testing.T) {
@@ -198,8 +192,7 @@ func TestTemplateLoader_LoadTemplateByName_未登録パレット参照はエラ�
 
 	_, _, _, err := loader.LoadTemplateByName("3x1_room", 0)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "palette 'unregistered' not found")
+	require.ErrorIs(t, err, errPaletteNotFound)
 }
 
 func TestTemplateLoader_selectChunkByWeight_候補名が空はエラー(t *testing.T) {
@@ -209,8 +202,7 @@ func TestTemplateLoader_selectChunkByWeight_候補名が空はエラー(t *testi
 
 	_, err := loader.selectChunkByWeight(nil, rng)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "chunk candidates are empty")
+	require.ErrorIs(t, err, errNoChunkCandidate)
 }
 
 func TestTemplateLoader_selectChunkByWeightFromList_候補が空はエラー(t *testing.T) {
@@ -220,8 +212,7 @@ func TestTemplateLoader_selectChunkByWeightFromList_候補が空はエラー(t *
 
 	_, err := loader.selectChunkByWeightFromList(nil, rng)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "chunk candidates are empty")
+	require.ErrorIs(t, err, errNoChunkCandidate)
 }
 
 func TestTemplateLoader_selectChunkByWeightFromList_重み合計が0はエラー(t *testing.T) {
@@ -234,8 +225,7 @@ func TestTemplateLoader_selectChunkByWeightFromList_重み合計が0はエラー
 
 	_, err := loader.selectChunkByWeightFromList(candidates, rng)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "total weight is 0")
+	require.ErrorIs(t, err, errNoChunkCandidate)
 }
 
 func TestChunkTemplate_ExpandWithPlacements_placementのIDが空はエラー(t *testing.T) {
@@ -260,8 +250,7 @@ func TestChunkTemplate_ExpandWithPlacements_placementのIDが空はエラー(t *
 
 	_, err := parent.ExpandWithPlacements(loader, 0)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "ID is not specified")
+	require.ErrorIs(t, err, errPlacementIDMissing)
 }
 
 func TestChunkTemplate_ExpandWithPlacements_未展開のプレースホルダが残るとエラー(t *testing.T) {
@@ -287,8 +276,7 @@ func TestChunkTemplate_ExpandWithPlacements_未展開のプレースホルダが
 
 	_, err := parent.ExpandWithPlacements(loader, 0)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "unexpanded placeholder '@' remains")
+	require.ErrorIs(t, err, errPlaceholderRemains)
 }
 
 func TestFindAllPlaceholderRegionsByID_IDが1文字でないとエラー(t *testing.T) {
@@ -297,8 +285,7 @@ func TestFindAllPlaceholderRegionsByID_IDが1文字でないとエラー(t *test
 
 	_, err := findAllPlaceholderRegionsByID(lines, "AB")
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "identifier must be a single character")
+	require.ErrorIs(t, err, errIdentifierNotSingleChar)
 }
 
 func TestValidateRectangle_矩形領域が範囲外はエラー(t *testing.T) {
@@ -308,15 +295,13 @@ func TestValidateRectangle_矩形領域が範囲外はエラー(t *testing.T) {
 		t.Parallel()
 		lines := []string{"AA"}
 		err := validateRectangle(lines, "A", 0, 0, 2, 2, placeholderChar, 'A')
-		require.Error(t, err)
-		assert.ErrorContains(t, err, "y=1 out of range")
+		require.ErrorIs(t, err, errRegionIncomplete)
 	})
 
 	t.Run("幅方向が範囲外", func(t *testing.T) {
 		t.Parallel()
 		lines := []string{"A", "A"}
 		err := validateRectangle(lines, "A", 0, 0, 2, 2, placeholderChar, 'A')
-		require.Error(t, err)
-		assert.ErrorContains(t, err, "x=1, y=0 out of range")
+		require.ErrorIs(t, err, errRegionIncomplete)
 	})
 }

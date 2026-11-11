@@ -3,6 +3,7 @@ package raw
 import (
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -45,63 +46,72 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name    string
-		raws    oapi.Raws
-		wantErr string
+		name      string
+		raws      oapi.Raws
+		wantField string
+		wantPath  []string
 	}{
 		{
 			name: "名前が長すぎる",
 			raws: makeItemRaws(func(i *oapi.Item) {
 				i.Name = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん12345678901234567890"
 			}),
-			wantErr: "maximum string length is 50",
+			wantField: "maxLength",
+			wantPath:  []string{"items", "0", "name"},
 		},
 		{
 			name: "命中率が範囲外",
 			raws: makeItemRaws(func(i *oapi.Item) {
 				i.Melee.Accuracy = 999
 			}),
-			wantErr: "number must be at most 100",
+			wantField: "maximum",
+			wantPath:  []string{"items", "0", "melee", "accuracy"},
 		},
 		{
 			name: "スプライトキーのパターン不正",
 			raws: makeItemRaws(func(i *oapi.Item) {
 				i.SpriteKey = "INVALID-KEY!"
 			}),
-			wantErr: `string doesn't match the regular expression`,
+			wantField: "pattern",
+			wantPath:  []string{"items", "0", "spriteKey"},
 		},
 		{
 			name: "不正な攻撃種別",
 			raws: makeItemRaws(func(i *oapi.Item) {
 				i.Melee.AttackCategory = "INVALID"
 			}),
-			wantErr: "value is not one of the allowed values",
+			wantField: "enum",
+			wantPath:  []string{"items", "0", "melee", "attackCategory"},
 		},
 		{
 			name: "不正な属性",
 			raws: makeItemRaws(func(i *oapi.Item) {
 				i.Melee.Element = "INVALID_ELEMENT"
 			}),
-			wantErr: "value is not one of the allowed values",
+			wantField: "enum",
+			wantPath:  []string{"items", "0", "melee", "element"},
 		},
 		{
 			name: "ダメージが負の値",
 			raws: makeItemRaws(func(i *oapi.Item) {
 				i.Melee.Damage = -1
 			}),
-			wantErr: "number must be at least 0",
+			wantField: "minimum",
+			wantPath:  []string{"items", "0", "melee", "damage"},
 		},
 		{
 			name: "攻撃回数がゼロ",
 			raws: makeItemRaws(func(i *oapi.Item) {
 				i.Melee.AttackCount = 0
 			}),
-			wantErr: "number must be at least 1",
+			wantField: "minimum",
+			wantPath:  []string{"items", "0", "melee", "attackCount"},
 		},
 		{
-			name:    "コレクションの出現確率が0",
-			raws:    makeCollectionRaws(0),
-			wantErr: "number must be more than 0",
+			name:      "コレクションの出現確率が0",
+			raws:      makeCollectionRaws(0),
+			wantField: "exclusiveMinimum",
+			wantPath:  []string{"itemCollections", "0", "entries", "0", "chance"},
 		},
 	}
 
@@ -109,9 +119,11 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			err := ValidateRaws(tt.raws)
-			require.Error(t, err)
-			assert.Contains(t, err.Error(), "validation error")
-			assert.Contains(t, err.Error(), tt.wantErr)
+			require.ErrorIs(t, err, errSchemaValidation)
+			var schemaErr *openapi3.SchemaError
+			require.ErrorAs(t, err, &schemaErr)
+			assert.Equal(t, tt.wantField, schemaErr.SchemaField)
+			assert.Equal(t, tt.wantPath, schemaErr.JSONPointer())
 		})
 	}
 }
@@ -508,7 +520,6 @@ func TestValidateFacilityReferences(t *testing.T) {
 			}
 			err := validateFacilityReferences(raws)
 			require.ErrorIs(t, err, errZoneNoBaseFacility)
-			assert.ErrorContains(t, err, string(missing))
 		})
 	}
 
@@ -780,12 +791,13 @@ func TestValidateRaws_抽選重みは1以上(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		name   string
-		mutate func(*oapi.Raws)
+		name     string
+		mutate   func(*oapi.Raws)
+		wantPath []string
 	}{
-		{"施設の地区重みが0", func(r *oapi.Raws) { (*r.Facilities)[0].Zones[0].Weight = 0 }},
-		{"ランドマークの重みが0", func(r *oapi.Raws) { (*r.Landmarks)[0].Weight = 0 }},
-		{"散布 prop の重みが0", func(r *oapi.Raws) { (*r.ScatterZones)[0].Entries[0].Weight = 0 }},
+		{"施設の地区重みが0", func(r *oapi.Raws) { (*r.Facilities)[0].Zones[0].Weight = 0 }, []string{"facilities", "0", "zones", "0", "weight"}},
+		{"ランドマークの重みが0", func(r *oapi.Raws) { (*r.Landmarks)[0].Weight = 0 }, []string{"landmarks", "0", "weight"}},
+		{"散布 prop の重みが0", func(r *oapi.Raws) { (*r.ScatterZones)[0].Entries[0].Weight = 0 }, []string{"scatterZones", "0", "entries", "0", "weight"}},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -793,7 +805,10 @@ func TestValidateRaws_抽選重みは1以上(t *testing.T) {
 			raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 			require.NoError(t, err)
 			c.mutate(&raws)
-			assert.ErrorContains(t, ValidateRaws(raws), "number must be at least 1")
+			var schemaErr *openapi3.SchemaError
+			require.ErrorAs(t, ValidateRaws(raws), &schemaErr)
+			assert.Equal(t, "minimum", schemaErr.SchemaField)
+			assert.Equal(t, c.wantPath, schemaErr.JSONPointer())
 		})
 	}
 }

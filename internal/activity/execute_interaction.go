@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -10,6 +11,13 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
+)
+
+var (
+	// errDoorInteractionNoDoor は扉の相互作用の対象がDoorを持たないときに返す
+	errDoorInteractionNoDoor = errors.New("DoorInteraction but no Door component")
+	// errTalkInteractionNoDialog は会話の相互作用の対象がDialogを持たないときに返す
+	errTalkInteractionNoDialog = errors.New("TalkInteraction but no Dialog component")
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
@@ -80,7 +88,7 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.Door.Has(doorEntity) {
-		return nil, fmt.Errorf("DoorInteraction but no Door component")
+		return nil, errDoorInteractionNoDoor
 	}
 
 	door := world.Components.Door.Get(doorEntity)
@@ -93,7 +101,7 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.Dialog.Has(npcEntity) {
-		return nil, fmt.Errorf("TalkInteraction but no Dialog component")
+		return nil, errTalkInteractionNoDialog
 	}
 
 	result, err := Execute(NewTalkActivity(npcEntity), actor, world)

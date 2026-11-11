@@ -3,6 +3,7 @@ package raw
 import (
 	"testing"
 
+	"github.com/BurntSushi/toml"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -355,8 +356,7 @@ SomeField = "これは未知のセクション"
 `
 
 	_, err := DecodeRaws(invalidToml)
-	require.Error(t, err, "未知のフィールドがあるTOMLでエラーが発生すべき")
-	assert.Contains(t, err.Error(), "unknown keys found in TOML", "エラーメッセージに未知のキーについての情報が含まれるべき")
+	require.ErrorIs(t, err, errUnknownTOMLKeys)
 }
 
 func TestLoadWithValidFields(t *testing.T) {
@@ -580,8 +580,7 @@ Depth = 1
 	require.NoError(t, err)
 
 	_, err = NewPropSpec(raws, "矛盾Prop")
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "blockPass and passCost cannot both be set")
+	require.ErrorIs(t, err, errBlockPassWithPassCost)
 }
 
 func TestPropWithHP(t *testing.T) {
@@ -1161,6 +1160,7 @@ Name = "壊れたアイテム"
 id = "壊れたアイテム"
 `
 	_, err := DecodeRaws(brokenToml)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "TOML decode error")
+	require.ErrorIs(t, err, errTOMLDecode)
+	var parseErr toml.ParseError
+	require.ErrorAs(t, err, &parseErr)
 }

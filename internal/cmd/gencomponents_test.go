@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -52,6 +53,5 @@ func TestGenComponents_書き込み失敗時はエラーを返す(t *testing.T) 
 	outPath := filepath.Join(t.TempDir(), "no-such-dir", "components_gen.go")
 
 	err := genComponents(io.Discard, outPath)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to write generated code")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }

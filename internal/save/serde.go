@@ -88,7 +88,7 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 		}
 	}
 	if !found {
-		return fmt.Errorf("restored data has no singleton entity that holds Dungeon")
+		return errNoSingleton
 	}
 	world.Resources.SingletonEntity = singleton
 
@@ -145,7 +145,7 @@ func validateStages(world w.World) error {
 	}
 	for _, k := range keys {
 		if err := k.Validate(); err != nil {
-			return fmt.Errorf("restored stage key is invalid: %w", err)
+			return fmt.Errorf("%w: %w", errInvalidStageKey, err)
 		}
 	}
 	return nil

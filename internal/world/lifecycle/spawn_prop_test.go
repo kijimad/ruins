@@ -102,8 +102,7 @@ func TestOpenDoor_扉でないエンティティはエラーになる(t *testing
 
 	err := lifecycle.OpenDoor(world, notDoor)
 
-	require.Error(t, err)
-	assert.EqualError(t, err, "entity is not a door")
+	require.ErrorIs(t, err, lifecycle.ErrNotDoor)
 }
 
 func TestCloseDoor_閉じると通行不可と視界遮断に戻る(t *testing.T) {
@@ -129,8 +128,7 @@ func TestCloseDoor_扉でないエンティティはエラーになる(t *testin
 
 	err := lifecycle.CloseDoor(world, notDoor)
 
-	require.Error(t, err)
-	assert.EqualError(t, err, "entity is not a door")
+	require.ErrorIs(t, err, lifecycle.ErrNotDoor)
 }
 
 func TestSpawnDoor_扉は殴って壊せる(t *testing.T) {

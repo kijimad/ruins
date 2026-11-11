@@ -1,6 +1,7 @@
 package lifecycle
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
 
@@ -75,12 +76,15 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 	return stacks, nil
 }
 
+// ErrInvalidYieldCount は産出個数のダイス表記を解釈できないときに返す
+var ErrInvalidYieldCount = errors.New("invalid disassembly yield count notation")
+
 // rollCount は産出個数をダイス表記から抽選する。表記は raw ロード時の検証で担保済みだが、
 // 万一パースに失敗したら 0 個を黙って返さず error を返し、呼び出し側で気づけるようにする。
 func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {
 	d, err := consts.ParseDice(count)
 	if err != nil {
-		return 0, fmt.Errorf("invalid disassembly yield count notation: %q: %w", count, err)
+		return 0, fmt.Errorf("%w: %q: %w", ErrInvalidYieldCount, count, err)
 	}
 	return d.Roll(rng), nil
 }

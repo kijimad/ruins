@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -138,8 +139,7 @@ MaxWeight = "abc"
 	require.NoError(t, err)
 
 	_, err = NewPropSpec(raws, "壊れた収納")
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "壊れた収納' max weight")
+	require.ErrorIs(t, err, consts.ErrInvalidWeight)
 }
 
 func TestNewPropSpec_耐久の有無で殴れるかが決まる(t *testing.T) {

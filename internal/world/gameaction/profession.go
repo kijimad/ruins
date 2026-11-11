@@ -1,6 +1,7 @@
 package gameaction
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -8,6 +9,15 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
+)
+
+var (
+	// errProfessionItem は職業の初期アイテムを生成できないときに返す
+	errProfessionItem = errors.New("failed to generate profession starting item")
+	// errProfessionEquipment は職業の初期装備を生成できないときに返す
+	errProfessionEquipment = errors.New("failed to generate profession starting equipment")
+	// errInvalidEquipmentSlot は職業の初期装備のスロット名が不正なときに返す
+	errInvalidEquipmentSlot = errors.New("invalid equipment slot name")
 )
 
 // ApplyProfession はプレイヤーエンティティに職業の属性値・スキル・装備を適用する。
@@ -41,7 +51,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	// 初期アイテムをバックパックに付与
 	for _, profItem := range prof.Items {
 		if _, err := lifecycle.SpawnBackpackItem(world, profItem.Name, profItem.Count); err != nil {
-			return fmt.Errorf("failed to generate profession starting item: %s: %w", profItem.Name, err)
+			return fmt.Errorf("%w: %s: %w", errProfessionItem, profItem.Name, err)
 		}
 	}
 
@@ -49,11 +59,11 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	for _, equip := range prof.Equips {
 		item, err := lifecycle.SpawnBackpackItem(world, equip.Name, 1)
 		if err != nil {
-			return fmt.Errorf("failed to generate profession starting equipment: %s: %w", equip.Name, err)
+			return fmt.Errorf("%w: %s: %w", errProfessionEquipment, equip.Name, err)
 		}
 		slot, ok := gc.ParseEquipmentSlot(equip.Slot)
 		if !ok {
-			return fmt.Errorf("invalid equipment slot name: %s (item: %s)", equip.Slot, equip.Name)
+			return fmt.Errorf("%w: %s (item: %s)", errInvalidEquipmentSlot, equip.Slot, equip.Name)
 		}
 		lifecycle.MoveToEquip(world, item, player, slot)
 	}

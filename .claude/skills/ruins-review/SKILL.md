@@ -25,7 +25,7 @@ description: ruins 固有のレビュー観点チェックリスト。Ark の st
 - コンポーネント追加は登録表 + `make generate`（add-component skill 参照）。`components_gen.go` を手編集しない。
 - 不要なゲッター/セッターを作らない。コンストラクタは型ごとに最大1つ（必要ならオプションパターン）。
 - 生成ファイル（`*_gen.go`）を sed 等で直接書き換えない。生成元を直して再生成する。
-- エラーの同定を `assert.Contains(err.Error(), ...)` で文字列照合していないか。同定は `require.ErrorIs` / `errors.As` で行う。sentinel が無ければ定義し本番も sentinel を返すよう直す。値を埋め込む動的メッセージの中身確認だけ `ErrorContains` を許容する。詳細は ruins-code。
+- 本番が sentinel を返す経路で、途中の層が `%w` でなく `%v` や `fmt.Errorf("...: %s", err)` で包んで鎖を切っていないか。テストの文字列照合は lint が止めるが、鎖が切れていると `ErrorIs` で同定できない。詳細は ruins-code。
 
 ## 束縛表（キー割り当ての一貫性）
 

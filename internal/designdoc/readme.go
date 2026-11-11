@@ -2,6 +2,7 @@ package designdoc
 
 import (
 	_ "embed"
+	"errors"
 	"fmt"
 	"strings"
 	"text/template"
@@ -21,9 +22,15 @@ var statusDisplayOrder = []Status{
 	StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
 }
 
+// errTemplateNotFound は名前付きテンプレートが雛形に無いときに返す
+var errTemplateNotFound = errors.New("template not found")
+
 // renderLabel は名前付きテンプレートを data で実行した文字列を返す。
 // テンプレートは埋め込みでゴールデンテストが担保するため、実行時に失敗し得ない。
 func renderLabel(name string, data any) string {
+	if statusSectionTmpl.Lookup(name) == nil {
+		panic(fmt.Errorf("%w: %q", errTemplateNotFound, name))
+	}
 	var b strings.Builder
 	if err := statusSectionTmpl.ExecuteTemplate(&b, name, data); err != nil {
 		panic(err)
