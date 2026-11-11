@@ -643,6 +643,18 @@ model Tile {
 
   /** 植生。省くと植生なし */
   foliage?: Foliage;
+
+  /** マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない */
+  spawn?: TileSpawn;
+}
+
+/** 計画のタイルを実体化する仕様 */
+model TileSpawn {
+  /** 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身 */
+  tile?: EntityID;
+
+  /** 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false */
+  autotile: boolean;
 }
 
 /** NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる */

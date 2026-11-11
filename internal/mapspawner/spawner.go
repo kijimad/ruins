@@ -73,51 +73,28 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	return nil
 }
 
-// tileSpec は1種類のタイルをどう実体化するかの仕様。タイルの論理キー tile.Id で引く。
-type tileSpec struct {
-	// spawnName は生成するスプライト名。多くは tile.Id と同じだが wall→dwall のように異なるものもある
-	spawnName string
-	// autotile は周囲を見てオートタイル添字を計算するか。void のように単一絵柄のタイルは false
-	autotile bool
-}
-
-var (
-	passableTileSpecs = map[string]tileSpec{
-		consts.TileNameDirt:    {spawnName: consts.TileNameDirt, autotile: true},
-		consts.TileNameFloor:   {spawnName: consts.TileNameFloor, autotile: true},
-		consts.TileNameBridgeA: {spawnName: consts.TileNameBridgeA, autotile: true},
-		consts.TileNameBridgeB: {spawnName: consts.TileNameBridgeB, autotile: true},
-		consts.TileNameBridgeC: {spawnName: consts.TileNameBridgeC, autotile: true},
-		consts.TileNameBridgeD: {spawnName: consts.TileNameBridgeD, autotile: true},
-	}
-	blockedTileSpecs = map[string]tileSpec{
-		consts.TileNameWall: {spawnName: consts.TileNameDWall, autotile: true},
-		consts.TileNameVoid: {spawnName: consts.TileNameVoid, autotile: false},
-	}
-)
-
-// spawnTile は1タイルを生成する。
-// 通行可否で仕様表を選び、tile.Id で仕様を引いて実体化する。
+// spawnTile は1タイルを生成する。タイルの行の spawn が生成するタイルとオートタイルの有無を持ち、
+// spawn を持たないタイルは計画に置けないので error にする。
 func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
-	specs := passableTileSpecs
-	category := "walkable"
-	if tile.BlockPass {
-		specs = blockedTileSpecs
-		category = "impassable"
-	}
-
-	spec, ok := specs[tile.Id]
-	if !ok {
+	if tile.Spawn == nil {
+		category := "walkable"
+		if tile.BlockPass {
+			category = "impassable"
+		}
 		return gc.InvalidEntity, fmt.Errorf("unsupported %s tile id: %s (%d, %d)", category, tile.Id, int(tileX), int(tileY))
 	}
+	spawnName := tile.Id
+	if tile.Spawn.Tile != nil {
+		spawnName = *tile.Spawn.Tile
+	}
 
-	// オートタイル添字は tile.Id で計算する。生成スプライト名 spec.spawnName とは別物。
+	// オートタイル添字は tile.Id で計算する。生成するタイル spawnName とは別物。
 	var indexPtr *int
-	if spec.autotile {
+	if tile.Spawn.Autotile {
 		index := int(metaPlan.CalculateAutoTileIndex(i, tile.Id))
 		indexPtr = &index
 	}
-	return lifecycle.SpawnTile(world, spec.spawnName, tileX, tileY, indexPtr)
+	return lifecycle.SpawnTile(world, spawnName, tileX, tileY, indexPtr)
 }
 
 // spawnNPCs はNPCを生成する

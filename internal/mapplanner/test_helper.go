@@ -7,15 +7,16 @@ import (
 // CreateTestRawMaster はテスト用の oapi.Raws インスタンスを作成する
 func CreateTestRawMaster() *oapi.Raws {
 	// テスト用の基本的なタイルデータを定義
+	autotile := &oapi.TileSpawn{Autotile: true}
 	testTiles := []oapi.Tile{
-		{Id: "wall", Name: "wall", BlockPass: true},
-		{Id: "floor", Name: "floor", BlockPass: false},
-		{Id: "dirt", Name: "dirt", BlockPass: false},
-		{Id: "void", Name: "void", BlockPass: true},
-		{Id: "bridge_a", Name: "bridge_a", BlockPass: false},
-		{Id: "bridge_b", Name: "bridge_b", BlockPass: false},
-		{Id: "bridge_c", Name: "bridge_c", BlockPass: false},
-		{Id: "bridge_d", Name: "bridge_d", BlockPass: false},
+		{Id: "wall", Name: "wall", BlockPass: true, Spawn: &oapi.TileSpawn{Tile: new("dwall"), Autotile: true}},
+		{Id: "floor", Name: "floor", BlockPass: false, Spawn: autotile},
+		{Id: "dirt", Name: "dirt", BlockPass: false, Spawn: autotile},
+		{Id: "void", Name: "void", BlockPass: true, Spawn: &oapi.TileSpawn{}},
+		{Id: "bridge_a", Name: "bridge_a", BlockPass: false, Spawn: autotile},
+		{Id: "bridge_b", Name: "bridge_b", BlockPass: false, Spawn: autotile},
+		{Id: "bridge_c", Name: "bridge_c", BlockPass: false, Spawn: autotile},
+		{Id: "bridge_d", Name: "bridge_d", BlockPass: false, Spawn: autotile},
 	}
 
 	// テスト用のアイテムテーブルを定義

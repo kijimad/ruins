@@ -73,6 +73,7 @@ var (
 	errInteriorProfileRefUndefined    = errors.New("interior profile facade or lot ref is not an interior ref with a prop")
 	errSiteWeightZero                 = errors.New("site types have no weight for homes or shops")
 	errMemberDialogueUndefined        = errors.New("member dialog references undefined dialogue")
+	errTileSpawnUndefined             = errors.New("tile spawn references undefined tile")
 )
 
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
@@ -185,6 +186,9 @@ func ValidateReferences(raws oapi.Raws) error {
 		return err
 	}
 	if err := validateDialogues(raws); err != nil {
+		return err
+	}
+	if err := validateTileSpawns(raws); err != nil {
 		return err
 	}
 	return validateCommandTableWeaponReferences(raws)
@@ -1050,6 +1054,21 @@ func validateInteriorRefs(raws oapi.Raws) error {
 	}
 	if home == 0 || shop == 0 {
 		return errSiteWeightZero
+	}
+	return nil
+}
+
+// validateTileSpawns はタイルの生成の仕様が指すタイルが実在することを検証する
+func validateTileSpawns(raws oapi.Raws) error {
+	tiles := PtrSlice(raws.Tiles)
+	for i := range tiles {
+		sp := tiles[i].Spawn
+		if sp == nil || sp.Tile == nil {
+			continue
+		}
+		if _, ok := findByKey(raws.Tiles, func(t oapi.Tile) string { return t.Id }, *sp.Tile); !ok {
+			return fmt.Errorf("tile %q spawn %q: %w", tiles[i].Id, *sp.Tile, errTileSpawnUndefined)
+		}
 	}
 	return nil
 }

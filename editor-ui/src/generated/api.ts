@@ -2667,6 +2667,10 @@ export interface Tile {
      * 植生。省くと植生なし
      */
     'foliage'?: Foliage;
+    /**
+     * マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
+     */
+    'spawn'?: TileSpawn;
 }
 
 
@@ -2676,6 +2680,19 @@ export interface Tile {
 export interface TileList {
     'data': Array<Tile>;
     'totalCount': number;
+}
+/**
+ * 計画のタイルを実体化する仕様
+ */
+export interface TileSpawn {
+    /**
+     * 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身
+     */
+    'tile'?: string;
+    /**
+     * 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false
+     */
+    'autotile': boolean;
 }
 /**
  * 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。     明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する

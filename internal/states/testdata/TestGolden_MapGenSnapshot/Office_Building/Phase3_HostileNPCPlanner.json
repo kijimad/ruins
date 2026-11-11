@@ -7,6 +7,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -19,6 +22,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -31,6 +37,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -43,6 +52,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -55,6 +67,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -67,6 +82,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -79,6 +97,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -91,6 +112,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -103,6 +127,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -115,6 +142,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -127,6 +157,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -139,6 +172,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -151,6 +187,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -163,6 +202,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -175,6 +217,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -187,6 +232,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -199,6 +247,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -211,6 +262,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -223,6 +277,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -235,6 +292,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -247,6 +307,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -259,6 +322,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -271,6 +337,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -283,6 +352,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -295,6 +367,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -307,6 +382,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -319,6 +397,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -331,6 +412,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -343,6 +427,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -355,6 +442,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -367,6 +457,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -379,6 +472,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -391,6 +487,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -403,6 +502,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -415,6 +517,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -427,6 +532,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -439,6 +547,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -451,6 +562,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -463,6 +577,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -475,6 +592,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -487,6 +607,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -499,6 +622,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -511,6 +637,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -523,6 +652,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -535,6 +667,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -547,6 +682,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -559,6 +697,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -571,6 +712,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -583,6 +727,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -595,6 +742,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -607,6 +757,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -619,6 +772,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -631,6 +787,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -643,6 +802,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -655,6 +817,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -667,6 +832,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -679,6 +847,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -691,6 +862,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -703,6 +877,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -715,6 +892,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -727,6 +907,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -739,6 +922,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -751,6 +937,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -763,6 +952,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -775,6 +967,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -787,6 +982,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -799,6 +997,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -811,6 +1012,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -823,6 +1027,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -835,6 +1042,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -847,6 +1057,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -859,6 +1072,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -871,6 +1087,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -883,6 +1102,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -895,6 +1117,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -907,6 +1132,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -919,6 +1148,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -931,6 +1164,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -943,6 +1180,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -955,6 +1196,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -967,6 +1212,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -979,6 +1228,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -991,6 +1243,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1003,6 +1258,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1015,6 +1273,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1027,6 +1289,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1039,6 +1305,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1051,6 +1321,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1063,6 +1337,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1075,6 +1353,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1087,6 +1369,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1099,6 +1384,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1111,6 +1399,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1123,6 +1414,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1135,6 +1429,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1147,6 +1444,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1159,6 +1460,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1171,6 +1475,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1183,6 +1490,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1195,6 +1505,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1207,6 +1521,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1219,6 +1536,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1231,6 +1551,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1243,6 +1566,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1255,6 +1581,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1267,6 +1596,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1279,6 +1611,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1291,6 +1626,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1303,6 +1641,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1315,6 +1656,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1327,6 +1671,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1339,6 +1686,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1351,6 +1701,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1363,6 +1716,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1375,6 +1731,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1387,6 +1746,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1399,6 +1761,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1411,6 +1776,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1423,6 +1791,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1435,6 +1806,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1447,6 +1821,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1459,6 +1836,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1471,6 +1851,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1483,6 +1866,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1495,6 +1881,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1507,6 +1896,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1519,6 +1912,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1531,6 +1927,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1543,6 +1942,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1555,6 +1957,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1567,6 +1973,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1579,6 +1988,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1591,6 +2003,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1603,6 +2018,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1615,6 +2033,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1627,6 +2048,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1639,6 +2063,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1651,6 +2078,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1663,6 +2093,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1675,6 +2108,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1687,6 +2123,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1699,6 +2139,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1711,6 +2154,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1723,6 +2169,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1735,6 +2184,10 @@
       "description": "灰色の石壁のオートタイル。通行不可",
       "id": "wall",
       "name": "Wall",
+      "spawn": {
+        "autotile": true,
+        "tile": "dwall"
+      },
       "spriteRender": {
         "depth": 3,
         "spriteKey": "wall",
@@ -1747,6 +2200,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1759,6 +2215,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1771,6 +2230,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1783,6 +2245,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",
@@ -1795,6 +2260,9 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "spawn": {
+        "autotile": true
+      },
       "spriteRender": {
         "depth": 0,
         "spriteKey": "floor",

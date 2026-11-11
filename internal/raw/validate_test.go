@@ -1051,3 +1051,30 @@ func TestValidateDialogues(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateTileSpawns(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		spawn   *oapi.TileSpawn
+		wantErr error
+	}{
+		{name: "生成するタイルが実在すれば通る", spawn: &oapi.TileSpawn{Tile: new("dwall"), Autotile: true}},
+		{name: "生成するタイルを省けば自身で通る", spawn: &oapi.TileSpawn{Autotile: true}},
+		{name: "生成の仕様を持たないタイルは通る"},
+		{name: "生成するタイルが実在しない", spawn: &oapi.TileSpawn{Tile: new("missing")}, wantErr: errTileSpawnUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{Tiles: &[]oapi.Tile{{Id: "dwall"}, {Id: "wall", Spawn: tt.spawn}}}
+			err := validateTileSpawns(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}

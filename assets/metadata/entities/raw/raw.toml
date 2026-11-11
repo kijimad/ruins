@@ -23165,6 +23165,8 @@
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
   id = "dirt"
   name = "Dirt"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "dirt"
@@ -23187,6 +23189,8 @@
   description = "灰色の石床のオートタイル。屋内の歩行可能タイル"
   id = "floor"
   name = "Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor"
@@ -23198,6 +23202,8 @@
   description = "暗闇。単一絵柄の通行不可タイル"
   id = "void"
   name = "Void"
+  [tiles.spawn]
+    autotile = false
   [tiles.spriteRender]
     depth = 0
     spriteKey = "void"
@@ -23209,6 +23215,9 @@
   description = "灰色の石壁のオートタイル。通行不可"
   id = "wall"
   name = "Wall"
+  [tiles.spawn]
+    autotile = true
+    tile = "dwall"
   [tiles.spriteRender]
     depth = 3
     spriteKey = "wall"

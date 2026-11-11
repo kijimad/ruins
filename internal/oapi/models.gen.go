@@ -3340,6 +3340,9 @@ type Tile struct {
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 
+	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
+	Spawn *TileSpawn `json:"spawn,omitempty"`
+
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
@@ -3351,6 +3354,15 @@ type Tile struct {
 type TileList struct {
 	Data       []Tile `json:"data"`
 	TotalCount int    `json:"totalCount"`
+}
+
+// TileSpawn 計画のタイルを実体化する仕様
+type TileSpawn struct {
+	// Autotile 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false
+	Autotile bool `json:"autotile"`
+
+	// Tile 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身
+	Tile *EntityID `json:"tile,omitempty"`
 }
 
 // TileTempModifier 水や植生がタイルの気温に足す補正。℃
