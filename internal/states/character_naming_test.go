@@ -4,6 +4,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
@@ -133,7 +134,7 @@ func TestConfirmName_ChangesPlayerName(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, i18n.Msgid("NewName"), nameComp.Name)
+	assert.Equal(t, gc.Name{Name: "Ash", Custom: "NewName"}, *nameComp)
 }
 
 func TestConfirmName_Japanese(t *testing.T) {
@@ -153,7 +154,7 @@ func TestConfirmName_Japanese(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, i18n.Msgid("太郎"), nameComp.Name)
+	assert.Equal(t, gc.Name{Name: "Ash", Custom: "太郎"}, *nameComp)
 }
 
 func TestConfirmName_InvalidLength(t *testing.T) {
@@ -178,7 +179,7 @@ func TestConfirmName_InvalidLength(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, i18n.Msgid("Ash"), nameComp.Name)
+	assert.Equal(t, gc.Name{Name: "Ash"}, *nameComp)
 }
 
 func TestConfirmName_TooLong(t *testing.T) {
@@ -203,7 +204,7 @@ func TestConfirmName_TooLong(t *testing.T) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity)
-	assert.Equal(t, i18n.Msgid("Ash"), nameComp.Name)
+	assert.Equal(t, gc.Name{Name: "Ash"}, *nameComp)
 }
 
 func TestConfirmName_NewPlayer(t *testing.T) {

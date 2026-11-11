@@ -103,6 +103,8 @@ type Consumable struct {
 type Name struct {
 	// Name は画面に出す表示名
 	Name i18n.Msgid
+	// Custom はプレイヤーが付けた名前。訳さずにそのまま出す。空なら Name を訳す
+	Custom string
 }
 
 // RawID は生成元 raw 定義の Id を保持する同定キー。raw 参照とスタックの同種判定に使う。表示には使わない
