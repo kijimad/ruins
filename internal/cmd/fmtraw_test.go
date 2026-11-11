@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v3"
@@ -73,36 +74,26 @@ func TestRunFmtRaw_明示パスを整形して書き込む(t *testing.T) {
 	t.Parallel()
 
 	path := filepath.Join(t.TempDir(), "raw.toml")
-	require.NoError(t, os.WriteFile(path, []byte("id = \"a\"\nname = \"b\"\n"), 0o644))
+	require.NoError(t, os.WriteFile(path, []byte("[[items]]\nname = \"b\"\nid = \"a\"\n"), 0o644))
 
 	err := fmtRawApp().Run(context.Background(), []string{"fmtraw", path})
 	require.NoError(t, err)
 
 	got, err := os.ReadFile(path)
 	require.NoError(t, err)
-	want, err := formatRaw([]byte("id = \"a\"\nname = \"b\"\n"))
-	require.NoError(t, err)
-	assert.Equal(t, string(want), string(got))
+	assert.Equal(t, "[[items]]\n  id = \"a\"\n  name = \"b\"\n", string(got))
 }
 
 func TestRunFmtRaw_整形済みなら書き込まない(t *testing.T) {
 	t.Parallel()
 
 	path := filepath.Join(t.TempDir(), "raw.toml")
-	src := []byte("id = \"a\"\nname = \"b\"\n")
-	canonical, err := formatRaw(src)
-	require.NoError(t, err)
-	require.NoError(t, os.WriteFile(path, canonical, 0o644))
+	canonical := "[[items]]\n  id = \"a\"\n  name = \"b\"\n"
+	// 書き込めないファイルにして、書き込もうとすればエラーになるようにする
+	require.NoError(t, os.WriteFile(path, []byte(canonical), 0o444))
 
-	before, err := os.Stat(path)
+	err := fmtRawApp().Run(context.Background(), []string{"fmtraw", path})
 	require.NoError(t, err)
-
-	err = fmtRawApp().Run(context.Background(), []string{"fmtraw", path})
-	require.NoError(t, err)
-
-	after, err := os.Stat(path)
-	require.NoError(t, err)
-	assert.Equal(t, before.ModTime(), after.ModTime(), "内容が変わらないなら書き込みを行わない")
 }
 
 func TestRunFmtRaw_存在しないファイルはエラー(t *testing.T) {
@@ -121,5 +112,6 @@ func TestRunFmtRaw_不正なTOMLはエラー(t *testing.T) {
 	require.NoError(t, os.WriteFile(path, []byte("id = "), 0o644))
 
 	err := fmtRawApp().Run(context.Background(), []string{"fmtraw", path})
-	require.Error(t, err)
+	var pe toml.ParseError
+	require.ErrorAs(t, err, &pe)
 }

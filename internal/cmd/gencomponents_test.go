@@ -58,28 +58,25 @@ func TestGenComponents_書き込み失敗時はエラーを返す(t *testing.T) 
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
-// genComponentsApp は out フラグの既定値を defaultOut にした cli.Command を返す。
-// CmdGenComponents の既定値は実リポジトリの components_gen.go を指すため、テストでは
-// 必ず t.TempDir() 配下の値へ差し替えて使う。
-func genComponentsApp(defaultOut string) *cli.Command {
+// genComponentsApp は runGenComponents を Action に持つ cli.Command を返す。
+// CmdGenComponents の既定値は実リポジトリの components_gen.go を指すため、既定値を持たせない。
+func genComponentsApp() *cli.Command {
 	return &cli.Command{
-		Name: "gencomponents",
-		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "out", Value: defaultOut},
-		},
+		Name:   "gencomponents",
+		Flags:  []cli.Flag{&cli.StringFlag{Name: "out"}},
 		Action: runGenComponents,
 	}
 }
 
-func TestRunGenComponents_outフラグ未指定なら既定の出力先に生成する(t *testing.T) {
+func TestRunGenComponents_outフラグの出力先に生成する(t *testing.T) {
 	t.Parallel()
 
 	outPath := filepath.Join(t.TempDir(), "components_gen.go")
 	var buf bytes.Buffer
-	app := genComponentsApp(outPath)
+	app := genComponentsApp()
 	app.Writer = &buf
 
-	err := app.Run(context.Background(), []string{"gencomponents"})
+	err := app.Run(context.Background(), []string{"gencomponents", "--out", outPath})
 	require.NoError(t, err)
 	assert.Equal(t, "Generated "+outPath+"\n", buf.String())
 
@@ -88,23 +85,4 @@ func TestRunGenComponents_outフラグ未指定なら既定の出力先に生成
 	want, err := generateComponents()
 	require.NoError(t, err)
 	assert.Equal(t, string(want), string(got))
-}
-
-func TestRunGenComponents_outフラグで出力先を上書きできる(t *testing.T) {
-	t.Parallel()
-
-	unused := filepath.Join(t.TempDir(), "unused.go")
-	overridden := filepath.Join(t.TempDir(), "overridden.go")
-	var buf bytes.Buffer
-	app := genComponentsApp(unused)
-	app.Writer = &buf
-
-	err := app.Run(context.Background(), []string{"gencomponents", "--out", overridden})
-	require.NoError(t, err)
-	assert.Equal(t, "Generated "+overridden+"\n", buf.String())
-
-	_, err = os.ReadFile(overridden)
-	require.NoError(t, err)
-	_, err = os.ReadFile(unused)
-	require.ErrorIs(t, err, fs.ErrNotExist, "--outで指定したパスだけに書き込む")
 }

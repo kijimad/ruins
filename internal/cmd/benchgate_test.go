@@ -120,23 +120,21 @@ func benchgateApp() *cli.Command {
 func TestRunBenchgate_引数が2個でなければ使い方を返す(t *testing.T) {
 	t.Parallel()
 
-	t.Run("0個", func(t *testing.T) {
-		t.Parallel()
-		err := benchgateApp().Run(context.Background(), []string{"benchgate"})
-		assert.Equal(t, "usage: benchgate <base.txt> <pr.txt>", err.Error())
-	})
-
-	t.Run("1個", func(t *testing.T) {
-		t.Parallel()
-		err := benchgateApp().Run(context.Background(), []string{"benchgate", "base.txt"})
-		assert.Equal(t, "usage: benchgate <base.txt> <pr.txt>", err.Error())
-	})
-
-	t.Run("3個", func(t *testing.T) {
-		t.Parallel()
-		err := benchgateApp().Run(context.Background(), []string{"benchgate", "a.txt", "b.txt", "c.txt"})
-		assert.Equal(t, "usage: benchgate <base.txt> <pr.txt>", err.Error())
-	})
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{"0個", nil},
+		{"1個", []string{"base.txt"}},
+		{"3個", []string{"a.txt", "b.txt", "c.txt"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := benchgateApp().Run(context.Background(), append([]string{"benchgate"}, tt.args...))
+			require.ErrorIs(t, err, errBenchgateUsage)
+		})
+	}
 }
 
 func TestRunBenchgate_2個の引数をbase_prの順でbenchGateへ渡す(t *testing.T) {
