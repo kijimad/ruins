@@ -55,7 +55,7 @@ func TestPlusMinusAmount(t *testing.T) {
 
 	// 所持数を超えて減らそうとするとエラー。個数は変わらない
 	err = ChangeStackCount(world, "iron", -1500)
-	require.ErrorContains(t, err, "insufficient item count")
+	require.ErrorIs(t, err, errInsufficientItemCount)
 	assert.Equal(t, 1012, count(), "個数は変更されていないべき")
 }
 
@@ -80,8 +80,7 @@ func TestChangeStackCount_未所持アイテムの操作(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		err := ChangeStackCount(world, "healing_potion", -1)
-		require.Error(t, err)
-		assert.ErrorContains(t, err, "stackable item not found: healing_potion")
+		require.ErrorIs(t, err, errStackNotFound)
 	})
 }
 

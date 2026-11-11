@@ -241,7 +241,5 @@ func TestKeyNotFoundError(t *testing.T) {
 	t.Parallel()
 
 	err := NewKeyNotFoundError("sword", "items")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "items")
-	require.ErrorContains(t, err, "sword")
+	assert.Equal(t, "key not found: sword in items", err.Error())
 }

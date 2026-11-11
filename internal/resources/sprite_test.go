@@ -219,8 +219,7 @@ func TestSpriteRect_SpriteRenderがnilならエラー(t *testing.T) {
 
 	_, _, err := spriteRect(map[string]components.SpriteSheet{}, nil)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "sprite render is nil")
+	require.ErrorIs(t, err, errNilSpriteRender)
 }
 
 func TestSpriteStoreSized_縦長の矩形は縦を基準に縮める(t *testing.T) {

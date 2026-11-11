@@ -1,12 +1,16 @@
 package mapplanner
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/oapi"
 )
+
+// errUndefinedCellTerrain はテンプレートのセルに地形が無いときに返す
+var errUndefinedCellTerrain = errors.New("cell terrain is undefined")
 
 // TemplatePlanner はテンプレートベースのマップ生成プランナー。
 // 解決済みセル配列を使って地形・Props・NPCを配置する
@@ -40,7 +44,7 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 		for x, cell := range row {
 			idx := y*width + x
 			if cell.Terrain == "" {
-				return fmt.Errorf("cell terrain is undefined (position: %d, %d)", x, y)
+				return fmt.Errorf("%w: position %d, %d", errUndefinedCellTerrain, x, y)
 			}
 			tile := metaPlan.GetTile(cell.Terrain)
 			metaPlan.Tiles[idx] = tile

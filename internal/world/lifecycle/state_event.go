@@ -1,12 +1,16 @@
 package lifecycle
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
+
+// errStateChangeAlreadyRequested はステート遷移リクエストが既にあるときに返す
+var errStateChangeAlreadyRequested = errors.New("request is already set")
 
 // RequestStateChange はステート遷移イベントエンティティを作成する。既にイベントが存在する場合はエラーを返す
 func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
@@ -17,8 +21,8 @@ func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
 		existing = world.Components.StateChangeRequest.Get(entity)
 	}
 	if existing != nil {
-		return fmt.Errorf("request is already set: tried to set %T → %T",
-			existing.Payload, event.Payload)
+		return fmt.Errorf("%w: tried to set %T → %T",
+			errStateChangeAlreadyRequested, existing.Payload, event.Payload)
 	}
 	entity := world.ECS.NewEntity()
 	world.Components.StateChangeRequest.Add(entity, &event)

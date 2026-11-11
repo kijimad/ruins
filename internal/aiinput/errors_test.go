@@ -6,7 +6,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestAIError_WithEntity(t *testing.T) {
@@ -20,9 +19,7 @@ func TestAIError_WithEntity(t *testing.T) {
 		Entity:  &entity,
 	}
 
-	require.ErrorContains(t, err, "planning")
-	require.ErrorContains(t, err, fmt.Sprintf("Entity=%d", entity))
-	require.ErrorContains(t, err, "行動計画に失敗した")
+	assert.Equal(t, fmt.Sprintf("AI Error [planning] Entity=%d: 行動計画に失敗した", entity), err.Error())
 }
 
 func TestAIError_WithoutEntity(t *testing.T) {
@@ -42,6 +39,5 @@ func TestAIError_ErrorMessage(t *testing.T) {
 	t.Parallel()
 
 	err := &AIError{Type: "test", Message: "test message"}
-	require.ErrorContains(t, err, "test")
-	require.ErrorContains(t, err, "test message")
+	assert.Equal(t, "AI Error [test]: test message", err.Error())
 }

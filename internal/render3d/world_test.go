@@ -58,8 +58,7 @@ func TestWorldProjector_カメラがいないとエラー(t *testing.T) {
 	world.Resources.SetScreenDimensions(screenW, screenH)
 
 	_, err := render3d.WorldProjector(world)
-	require.Error(t, err)
-	require.ErrorContains(t, err, "player camera not found")
+	require.ErrorIs(t, err, render3d.ErrNoPlayerCamera)
 }
 
 func TestWorldProjector_プレイヤーが複数いるとエラー(t *testing.T) {
@@ -74,7 +73,6 @@ func TestWorldProjector_プレイヤーが複数いるとエラー(t *testing.T)
 	require.NoError(t, err)
 
 	_, err = render3d.WorldProjector(world)
-	require.Error(t, err)
 	require.ErrorIs(t, err, query.ErrMultiplePlayers)
 }
 
@@ -84,7 +82,6 @@ func TestPlayerTile_プレイヤーがいないとエラー(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	_, err := render3d.PlayerTile(world)
-	require.Error(t, err)
 	require.ErrorIs(t, err, query.ErrNoPlayer)
 }
 

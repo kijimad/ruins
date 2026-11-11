@@ -138,8 +138,9 @@ func TestLoadWeaponFromItem(t *testing.T) {
 	t.Run("存在しないアイテムはエラー", func(t *testing.T) {
 		t.Parallel()
 		_, err := LoadWeaponFromItem(master, "存在しない武器")
-		require.Error(t, err)
-		require.ErrorContains(t, err, "failed to load")
+		var notFound raw.KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, raw.KeyNotFoundError{Key: "存在しない武器", Collection: "Items"}, notFound)
 	})
 }
 
@@ -168,8 +169,9 @@ func TestLoadCombatantFromMember_Errors(t *testing.T) {
 	t.Run("存在しないメンバーはエラー", func(t *testing.T) {
 		t.Parallel()
 		_, err := LoadCombatantFromMember(master, "存在しないメンバー")
-		require.Error(t, err)
-		require.ErrorContains(t, err, "failed to load")
+		var notFound raw.KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないメンバー", Collection: "Members"}, notFound)
 	})
 }
 

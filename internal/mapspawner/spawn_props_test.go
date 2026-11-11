@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -44,8 +45,9 @@ func TestSpawnProps_未知のprops名はエラー(t *testing.T) {
 	}
 
 	err := spawnProps(world, plan, 0, 0)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "存在しないprops")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないprops", Collection: "Props"}, notFound)
 }
 
 func TestSpawnProps_有効なpropsをオフセット込みで生成する(t *testing.T) {

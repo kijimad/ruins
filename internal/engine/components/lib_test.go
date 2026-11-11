@@ -55,11 +55,14 @@ func TestInitComponents(t *testing.T) {
 	})
 }
 
+// errInitFailed は FailingComponents の初期化が返すエラー
+var errInitFailed = errors.New("初期化エラー")
+
 // FailingComponents は初期化に失敗するテスト用コンポーネント
 type FailingComponents struct{}
 
 func (f *FailingComponents) InitializeComponents(_ *ecs.World) error {
-	return errors.New("初期化エラー")
+	return errInitFailed
 }
 
 func TestInitComponents_Error(t *testing.T) {
@@ -68,9 +71,8 @@ func TestInitComponents_Error(t *testing.T) {
 	manager := ecs.NewWorld()
 	components, err := InitComponents(manager, &FailingComponents{})
 
-	require.Error(t, err)
 	assert.Nil(t, components)
-	require.ErrorContains(t, err, "初期化エラー")
+	require.ErrorIs(t, err, errInitFailed)
 }
 
 func TestComponentInitializer(t *testing.T) {

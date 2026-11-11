@@ -35,8 +35,9 @@ func TestSpawnNPCs_未知のNPC名はエラー(t *testing.T) {
 	}
 
 	err := spawnNPCs(world, plan, 0, 0)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "存在しないNPC")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないNPC", Collection: "Members"}, notFound)
 }
 
 func TestSpawnNPCs_中立NPCを生成する(t *testing.T) {
@@ -112,8 +113,7 @@ func TestSpawnItems_個数0以下はエラー(t *testing.T) {
 	}
 
 	err := spawnItems(world, plan, 0, 0)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "count=0")
+	require.ErrorIs(t, err, errInvalidItemCount)
 }
 
 func TestSpawnItems_未知のアイテム名はエラー(t *testing.T) {
@@ -126,8 +126,9 @@ func TestSpawnItems_未知のアイテム名はエラー(t *testing.T) {
 	}
 
 	err := spawnItems(world, plan, 0, 0)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "存在しないアイテム")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないアイテム", Collection: "Items"}, notFound)
 }
 
 func TestSpawnItems_有効なアイテムを生成する(t *testing.T) {
@@ -167,8 +168,9 @@ func TestPopulateStorageLoot_未知のルートテーブルはエラー(t *testi
 	storageEntity := world.ECS.NewEntity()
 
 	err := populateStorageLoot(world, plan, storageEntity, propRaw)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "存在しないテーブル")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないテーブル", Collection: "ItemTables"}, notFound)
 }
 
 // newTestLootRaws は populateStorageLoot の危険度・アイテム解決の分岐を狙うための
@@ -214,8 +216,7 @@ func TestPopulateStorageLoot_LootCount表記が不正ならエラー(t *testing.
 	storageEntity := world.ECS.NewEntity()
 
 	err := populateStorageLoot(world, plan, storageEntity, propRaw)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "invalid lootCount notation")
+	require.ErrorIs(t, err, errInvalidLootCount)
 }
 
 func TestPopulateStorageLoot_危険度が最小値未満ならエラー(t *testing.T) {
@@ -234,8 +235,7 @@ func TestPopulateStorageLoot_危険度が最小値未満ならエラー(t *testi
 	storageEntity := world.ECS.NewEntity()
 
 	err := populateStorageLoot(world, plan, storageEntity, propRaw)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to draw item")
+	require.ErrorIs(t, err, errDrawLoot)
 }
 
 func TestPopulateStorageLoot_危険度がテーブル範囲外ならアイテムを収納しない(t *testing.T) {
@@ -280,8 +280,9 @@ func TestPopulateStorageLoot_アイテム生成に失敗したらエラー(t *te
 	storageEntity := world.ECS.NewEntity()
 
 	err := populateStorageLoot(world, plan, storageEntity, propRaw)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "nonexistent_item")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "nonexistent_item", Collection: "Items"}, notFound)
 }
 
 func TestPopulateStorageLoot_ルートテーブルからアイテムを収納する(t *testing.T) {

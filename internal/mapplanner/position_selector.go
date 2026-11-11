@@ -1,12 +1,16 @@
 package mapplanner
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 )
+
+// errNoPlacementPosition は全セレクタが配置位置を見つけられなかったときに返す
+var errNoPlacementPosition = errors.New("no placement position found")
 
 // positionSelector は配置位置を選択する関数型。
 type positionSelector func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool)
@@ -19,7 +23,7 @@ func findPosition(planData *MetaPlan, world w.World, selectors ...positionSelect
 			return x, y, nil
 		}
 	}
-	return 0, 0, fmt.Errorf("no placement position found: all %d selectors failed", len(selectors))
+	return 0, 0, fmt.Errorf("%w: all %d selectors failed", errNoPlacementPosition, len(selectors))
 }
 
 // inRoomSelector は指定された部屋内からランダムに配置位置を選択する

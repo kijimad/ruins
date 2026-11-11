@@ -1,6 +1,7 @@
 package consts
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"strconv"
@@ -15,6 +16,25 @@ type Dice struct {
 	Bonus int
 }
 
+var (
+	// errDiceEmpty はダイス表記が空のときに返す
+	errDiceEmpty = errors.New("dice is empty")
+	// errDiceNoD はダイス表記に区切りの d が無いときに返す
+	errDiceNoD = errors.New("dice notation requires d; write fixed values like \"1d1\"")
+	// errDiceCountOmitted はダイス表記の個数が省略されているときに返す
+	errDiceCountOmitted = errors.New("dice count cannot be omitted; example \"1d6\"")
+	// errDiceCountInvalid はダイス表記の個数が整数でないときに返す
+	errDiceCountInvalid = errors.New("invalid dice count")
+	// errDiceBonusInvalid はダイス表記の補正値が整数でないときに返す
+	errDiceBonusInvalid = errors.New("invalid dice bonus")
+	// errDiceSidesInvalid はダイス表記の面数が整数でないときに返す
+	errDiceSidesInvalid = errors.New("invalid dice sides")
+	// errDiceCountTooSmall はダイスの個数が1未満のときに返す
+	errDiceCountTooSmall = errors.New("dice count must be at least 1")
+	// errDiceSidesTooSmall はダイスの面数が1未満のときに返す
+	errDiceSidesTooSmall = errors.New("dice sides must be at least 1")
+)
+
 // ParseDice は "1d3+1" "2d4" "1d1" のような表記を Dice へ変換する。
 // d の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数・面数は必ず書く。
 // 固定値も "1d1" のように書き、数字だけの省略表記は許さない。表記が一意になり読み手が迷わない。
@@ -22,23 +42,23 @@ type Dice struct {
 // 動的入力用。固定リテラルには MustParseDice を使う。regexp は使わず strings で足りる。ParseWeight と同じ方針。
 func ParseDice(s string) (Dice, error) {
 	if s == "" {
-		return Dice{}, fmt.Errorf("dice is empty")
+		return Dice{}, errDiceEmpty
 	}
 
 	// 前後空白も含め厳密に扱う。空白混じりは各数値の Atoi が弾く
 	// d は必須。数字だけの定数表記は許さず、固定値も "1d1" と書かせる
 	before, after, ok := strings.Cut(s, "d")
 	if !ok {
-		return Dice{}, fmt.Errorf("dice notation requires d; write fixed values like \"1d1\": %q", s)
+		return Dice{}, fmt.Errorf("%w: %q", errDiceNoD, s)
 	}
 
 	// 個数は省略できない。"d6" でなく "1d6" と明示的に書かせて表記を一意にする。
 	if before == "" {
-		return Dice{}, fmt.Errorf("dice count cannot be omitted; example \"1d6\": %q", s)
+		return Dice{}, fmt.Errorf("%w: %q", errDiceCountOmitted, s)
 	}
 	base, err := strconv.Atoi(before)
 	if err != nil {
-		return Dice{}, fmt.Errorf("invalid dice count: %q", s)
+		return Dice{}, fmt.Errorf("%w: %q", errDiceCountInvalid, s)
 	}
 
 	// 面数部と Bonus 部。sides[+/-bonus]
@@ -49,22 +69,22 @@ func ParseDice(s string) (Dice, error) {
 		sidesPart = rest[:bi]
 		b, err := strconv.Atoi(rest[bi:])
 		if err != nil {
-			return Dice{}, fmt.Errorf("invalid dice bonus: %q", s)
+			return Dice{}, fmt.Errorf("%w: %q", errDiceBonusInvalid, s)
 		}
 		bonus = b
 	}
 	sides, err := strconv.Atoi(sidesPart)
 	if err != nil {
-		return Dice{}, fmt.Errorf("invalid dice sides: %q", s)
+		return Dice{}, fmt.Errorf("%w: %q", errDiceSidesInvalid, s)
 	}
 
 	// d を書いたなら個数は1以上を要求する。"0d6" は定数のつもりの誤記とみなして弾く。
 	// 定数は "5" のように d を書かずに表す。
 	if base < 1 {
-		return Dice{}, fmt.Errorf("dice count must be at least 1: %q", s)
+		return Dice{}, fmt.Errorf("%w: %q", errDiceCountTooSmall, s)
 	}
 	if sides < 1 {
-		return Dice{}, fmt.Errorf("dice sides must be at least 1: %q", s)
+		return Dice{}, fmt.Errorf("%w: %q", errDiceSidesTooSmall, s)
 	}
 	return Dice{Base: base, Sides: sides, Bonus: bonus}, nil
 }

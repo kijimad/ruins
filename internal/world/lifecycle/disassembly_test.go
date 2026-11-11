@@ -206,8 +206,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 
 		_, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
 
-		require.Error(t, err)
-		assert.ErrorContains(t, err, "invalid disassembly yield count notation")
+		require.ErrorIs(t, err, lifecycle.ErrInvalidYieldCount)
 	})
 }
 

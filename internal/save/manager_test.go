@@ -110,8 +110,7 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	err = manager.LoadWorld(world, "valid_no_checksum")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "checksum")
+	require.ErrorIs(t, err, errChecksumMissing)
 }
 
 func TestChecksumValidation(t *testing.T) {
@@ -143,15 +142,13 @@ func TestChecksumValidation(t *testing.T) {
 	originalChecksum := env.Checksum
 	env.Checksum = "invalid_checksum"
 	err = validateChecksum(&env)
-	require.Error(t, err)
-	require.ErrorContains(t, err, "checksum mismatch")
+	require.ErrorIs(t, err, errChecksumMismatch)
 
 	// データを改ざん（チェックサムは元に戻す）
 	env.Checksum = originalChecksum
 	env.Version = "tampered_version"
 	err = validateChecksum(&env)
-	require.Error(t, err)
-	require.ErrorContains(t, err, "checksum mismatch")
+	require.ErrorIs(t, err, errChecksumMismatch)
 }
 
 func TestTamperedSaveDataLoad(t *testing.T) {
@@ -185,8 +182,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	require.NoError(t, err)
 
 	err = manager.LoadWorld(world, "test_tampered")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "checksum mismatch")
+	require.ErrorIs(t, err, errChecksumMismatch)
 }
 
 func TestHashConsistencyAcrossRuns(t *testing.T) {
@@ -222,8 +218,7 @@ func TestMissingChecksumValidation(t *testing.T) {
 		Timestamp: time.Now(),
 		World:     json.RawMessage(`{}`),
 	})
-	require.Error(t, err)
-	require.ErrorContains(t, err, "checksum field is missing")
+	require.ErrorIs(t, err, errChecksumMissing)
 }
 
 func TestOldSaveDataWithoutChecksum(t *testing.T) {
@@ -249,8 +244,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	require.NoError(t, err)
 
 	err = manager.LoadWorld(world, "old_format_test")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "checksum")
+	require.ErrorIs(t, err, errChecksumMissing)
 }
 
 func TestListSaves(t *testing.T) {
@@ -371,8 +365,7 @@ func TestRestoreWorldFromJSON_VersionMismatch(t *testing.T) {
 
 	newWorld := testutil.InitTestWorld(t)
 	err = manager.RestoreWorldFromJSON(newWorld, string(tampered))
-	require.Error(t, err)
-	require.ErrorContains(t, err, "unsupported save data version")
+	require.ErrorIs(t, err, errUnsupportedVersion)
 }
 
 // TestRestoreWorldFromJSON_InvalidJSON は壊れたJSONを拒否することを検証する。
@@ -383,8 +376,8 @@ func TestRestoreWorldFromJSON_InvalidJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	err = manager.RestoreWorldFromJSON(world, "{ 壊れたJSON ")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "unmarshal")
+	var syntaxErr *json.SyntaxError
+	require.ErrorAs(t, err, &syntaxErr)
 }
 
 // TestRestoreWorldFromJSON_MissingSingleton は復元データにシングルトン（Dungeon保持
@@ -401,8 +394,7 @@ func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
 
 	newWorld := testutil.InitTestWorld(t)
 	err = manager.LoadWorld(newWorld, "no_singleton")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "singleton")
+	require.ErrorIs(t, err, errNoSingleton)
 }
 
 // TestNewSerializationManager_保存ディレクトリの作成に失敗するとエラー は、セーブディレクトリの
@@ -415,8 +407,7 @@ func TestNewSerializationManager_保存ディレクトリの作成に失敗す�
 	require.NoError(t, os.WriteFile(blocker, []byte("x"), 0644))
 
 	_, err := NewSerializationManager(WithSaveDir(filepath.Join(blocker, "saves")))
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to create save directory")
+	require.ErrorIs(t, err, errCreateSaveDir)
 }
 
 // TestSerializationManager_ListSaves_保存ディレクトリの読み込みに失敗するとエラー は、
@@ -476,8 +467,8 @@ func TestSerializationManager_GetSaveFileTimestamp(t *testing.T) {
 		t.Parallel()
 		require.NoError(t, manager.storeSaveJSON("broken_json", []byte("not json")))
 		_, err := manager.GetSaveFileTimestamp("broken_json")
-		require.Error(t, err)
-		assert.ErrorContains(t, err, "failed to parse save data")
+		var syntaxErr *json.SyntaxError
+		require.ErrorAs(t, err, &syntaxErr)
 	})
 }
 
@@ -496,7 +487,7 @@ func TestSerializationManager_AutoSave_保存に失敗するとエラー(t *test
 
 	err = manager.AutoSave(world)
 	require.ErrorIs(t, err, fs.ErrNotExist)
-	assert.ErrorContains(t, err, "failed to auto save")
+	require.ErrorIs(t, err, errAutoSave)
 }
 
 // TestSerializationManager_GetSavePlayerName_プレイヤー名が空ならエラー は、
@@ -510,7 +501,7 @@ func TestSerializationManager_GetSavePlayerName_プレイヤー名が空なら�
 	require.NoError(t, manager.storeSaveJSON("no_player_name", []byte(`{"playerName":""}`)))
 
 	_, err = manager.GetSavePlayerName("no_player_name")
-	assert.EqualError(t, err, "player name not found in save data")
+	require.ErrorIs(t, err, errPlayerNameNotFound)
 }
 
 // TestSerializationManager_LoadWorld_不正なステージキーは復元を拒否する は、コンストラクタを
@@ -531,8 +522,7 @@ func TestSerializationManager_LoadWorld_不正なステージキーは復元を�
 
 	newWorld := testutil.InitTestWorld(t)
 	err = manager.LoadWorld(newWorld, "invalid_stage")
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "restored stage key is invalid")
+	require.ErrorIs(t, err, errInvalidStageKey)
 }
 
 // TestRestoreWorldFromJSON_PreservesWorldOnFailure はロードが復元段階で失敗しても、現行ワールドが

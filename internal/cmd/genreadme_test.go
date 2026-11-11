@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,8 +26,7 @@ func TestBuildImageTableFrom_Empty(t *testing.T) {
 func TestBuildImageTableFrom_NonExistentDir(t *testing.T) {
 	t.Parallel()
 	_, err := buildImageTableFrom("/nonexistent/path")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "failed to read")
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func TestBuildImageTableFrom_SingleImage(t *testing.T) {

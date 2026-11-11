@@ -224,7 +224,6 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		planner := NewTemplatePlanner(emptyTemplate, emptyMap)
 		err = planner.PlanInitial(&chain.PlanData)
 
-		require.Error(t, err)
-		require.ErrorContains(t, err, "cell terrain is undefined")
+		require.ErrorIs(t, err, errUndefinedCellTerrain)
 	})
 }

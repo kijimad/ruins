@@ -37,8 +37,6 @@ func TestNewUIResources_フォントソースが空だとエラー(t *testing.T)
 
 	ui, err := NewUIResources(nil)
 
-	require.Error(t, err)
 	require.ErrorIs(t, err, errNoFontSource)
-	require.ErrorContains(t, err, "failed to load small font")
 	assert.Equal(t, UIResources{}, ui)
 }

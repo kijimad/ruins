@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -79,7 +80,7 @@ func TestSpawnAt_タイル生成エラーを伝播する(t *testing.T) {
 	}
 
 	level, err := SpawnAt(world, plan, 0, 0)
-	require.ErrorContains(t, err, "存在しないタイル")
+	require.ErrorIs(t, err, errUnsupportedTile)
 	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
 }
 
@@ -95,7 +96,9 @@ func TestSpawnAt_NPC生成エラーを伝播する(t *testing.T) {
 	}
 
 	level, err := SpawnAt(world, plan, 0, 0)
-	require.ErrorContains(t, err, "存在しないNPC")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないNPC", Collection: "Members"}, notFound)
 	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
 }
 
@@ -111,7 +114,9 @@ func TestSpawnAt_アイテム生成エラーを伝播する(t *testing.T) {
 	}
 
 	level, err := SpawnAt(world, plan, 0, 0)
-	require.ErrorContains(t, err, "存在しないアイテム")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないアイテム", Collection: "Items"}, notFound)
 	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
 }
 
@@ -127,6 +132,8 @@ func TestSpawnAt_Props生成エラーを伝播する(t *testing.T) {
 	}
 
 	level, err := SpawnAt(world, plan, 0, 0)
-	require.ErrorContains(t, err, "存在しないprops")
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないprops", Collection: "Props"}, notFound)
 	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
 }

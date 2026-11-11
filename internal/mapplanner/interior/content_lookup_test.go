@@ -74,8 +74,7 @@ func TestToContent_不正なダイスはerrorを返す(t *testing.T) {
 	}
 
 	_, err := toContent(oapi.Raws{}, ic)
-	require.Error(t, err)
-	require.ErrorContains(t, err, "amount")
+	require.ErrorIs(t, err, errInvalidAmount)
 }
 
 func TestToContent_置き方を省くとinteriorRefsの既定で埋める(t *testing.T) {

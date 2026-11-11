@@ -18,7 +18,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 		expectedWidth  int
 		expectedHeight int
 		shouldError    bool
-		errorMsg       string
+		wantErr        error
 	}{
 		{
 			name: "正常: 右下に識別子A",
@@ -69,7 +69,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 ..........`,
 			id:          "Z",
 			shouldError: true,
-			errorMsg:    "identifier 'Z' not found",
+			wantErr:     errIdentifierNotFound,
 		},
 		{
 			name: "エラー: 矩形が不完全 (途中で切れている)",
@@ -80,7 +80,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 ..........`,
 			id:          "A",
 			shouldError: true,
-			errorMsg:    "invalid char",
+			wantErr:     errInvalidPlaceholderChar,
 		},
 		{
 			name: "正常: マップの端に配置",
@@ -105,10 +105,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 			regions, err := findAllPlaceholderRegionsByID(lines, tt.id)
 
 			if tt.shouldError {
-				require.Error(t, err)
-				if tt.errorMsg != "" {
-					require.ErrorContains(t, err, tt.errorMsg)
-				}
+				require.ErrorIs(t, err, tt.wantErr)
 			} else {
 				require.NoError(t, err)
 				require.NotEmpty(t, regions)
@@ -193,7 +190,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 		parentSize  Size
 		placement   ChunkPlacement
 		shouldError bool
-		errorMsg    string
+		wantErr     error
 	}{
 		{
 			name: "正常: 識別子Aで3x2領域を指定",
@@ -220,7 +217,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 				ID:     "A",
 			},
 			shouldError: true,
-			errorMsg:    "size mismatch",
+			wantErr:     errRegionSizeMismatch,
 		},
 		{
 			name: "エラー: size mismatch (高さが大きい)",
@@ -235,7 +232,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 				ID:     "A",
 			},
 			shouldError: true,
-			errorMsg:    "size mismatch",
+			wantErr:     errRegionSizeMismatch,
 		},
 		{
 			name: "エラー: 識別子が見つからない",
@@ -249,7 +246,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 				ID:     "Z",
 			},
 			shouldError: true,
-			errorMsg:    "identifier 'Z' not found",
+			wantErr:     errIdentifierNotFound,
 		},
 	}
 
@@ -268,10 +265,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 			err := parentTemplate.validatePlaceholders(loader)
 
 			if tt.shouldError {
-				require.Error(t, err)
-				if tt.errorMsg != "" {
-					require.ErrorContains(t, err, tt.errorMsg)
-				}
+				require.ErrorIs(t, err, tt.wantErr)
 			} else {
 				require.NoError(t, err)
 			}

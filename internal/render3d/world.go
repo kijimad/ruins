@@ -1,6 +1,7 @@
 package render3d
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -10,6 +11,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// ErrNoPlayerCamera はプレイヤーのカメラが無いときに返す
+var ErrNoPlayerCamera = errors.New("player camera not found")
+
 // WorldProjector は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側に取らせない。
 //
 // ダンジョン描画はプレイヤーの存在を前提とする。カメラやプレイヤーが無ければ投影は組めないので、
@@ -18,7 +22,7 @@ func WorldProjector(world w.World) (Projector, error) {
 	sw, sh := world.Resources.GetScreenDimensions()
 	camera := query.GetPlayerCamera(world)
 	if camera == nil {
-		return Projector{}, fmt.Errorf("player camera not found")
+		return Projector{}, ErrNoPlayerCamera
 	}
 	tile, err := PlayerTile(world)
 	if err != nil {

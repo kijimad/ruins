@@ -167,8 +167,7 @@ func TestUserConfigPath_HOMEもXDG_CONFIG_HOMEも無ければエラーになる(
 
 	_, err := userConfigPath()
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to get config directory")
+	require.ErrorIs(t, err, errConfigDir)
 }
 
 func TestReadSettings_userConfigPathの解決に失敗するとエラーを返す(t *testing.T) {
@@ -177,8 +176,7 @@ func TestReadSettings_userConfigPathの解決に失敗するとエラーを返�
 
 	_, _, err := readSettings()
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to get config directory")
+	require.ErrorIs(t, err, errConfigDir)
 }
 
 func TestWriteSettings_userConfigPathの解決に失敗するとエラーを返す(t *testing.T) {
@@ -187,8 +185,7 @@ func TestWriteSettings_userConfigPathの解決に失敗するとエラーを返�
 
 	err := writeSettings([]byte("x"))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to get config directory")
+	require.ErrorIs(t, err, errConfigDir)
 }
 
 func TestReadSettingsFrom_ファイル以外が原因の読み込み失敗はエラーを返す(t *testing.T) {
@@ -201,8 +198,7 @@ func TestReadSettingsFrom_ファイル以外が原因の読み込み失敗はエ
 
 	_, _, err := readSettingsFrom(adir)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to read config file")
+	require.ErrorIs(t, err, errReadConfig)
 }
 
 func TestSettingsExistAt_ファイル以外が原因の確認失敗はエラーを返す(t *testing.T) {
@@ -216,8 +212,7 @@ func TestSettingsExistAt_ファイル以外が原因の確認失敗はエラー�
 
 	_, err := settingsExistAt(path)
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to check config file existence")
+	require.ErrorIs(t, err, errCheckConfig)
 }
 
 func TestWriteSettingsTo_ディレクトリ作成に失敗するとエラーを返す(t *testing.T) {
@@ -231,8 +226,7 @@ func TestWriteSettingsTo_ディレクトリ作成に失敗するとエラーを�
 
 	err := writeSettingsTo(path, []byte("x"))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to create config directory")
+	require.ErrorIs(t, err, errCreateConfigDir)
 }
 
 func TestWriteSettingsTo_一時ファイルの書き込みに失敗するとエラーを返す(t *testing.T) {
@@ -245,8 +239,7 @@ func TestWriteSettingsTo_一時ファイルの書き込みに失敗するとエ�
 
 	err := writeSettingsTo(path, []byte("x"))
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to write config file")
+	require.ErrorIs(t, err, errWriteConfig)
 }
 
 func TestWriteSettingsTo_リネームに失敗するとエラーを返す(t *testing.T) {
@@ -260,7 +253,7 @@ func TestWriteSettingsTo_リネームに失敗するとエラーを返す(t *tes
 	err := writeSettingsTo(path, []byte("x"))
 
 	// 想定どおりのエラーでなければ後続のファイル検査に意味がないので require で止める
-	require.ErrorContains(t, err, "failed to replace config file")
+	require.ErrorIs(t, err, errReplaceConfig)
 	assert.NoFileExists(t, path+".tmp") // 失敗時は一時ファイルを削除する
 }
 
@@ -271,7 +264,8 @@ func TestLoadUserConfig_不正なTOMLはエラーを返す(t *testing.T) {
 
 	c := &Config{User: DefaultUserConfig()}
 	err := c.loadUserConfig()
-	assert.ErrorContains(t, err, "failed to parse config")
+	var parseErr toml.ParseError
+	require.ErrorAs(t, err, &parseErr)
 }
 
 func TestLoad_設定ファイルが無ければデフォルトのenになる(t *testing.T) {

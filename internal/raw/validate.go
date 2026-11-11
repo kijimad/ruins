@@ -64,6 +64,9 @@ var (
 	errTableMissing                   = errors.New("table required by code is missing")
 )
 
+// errSchemaValidation は raw が OpenAPI スキーマの検証に通らないときに返す
+var errSchemaValidation = errors.New("validation error")
+
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
 var loadSpec = sync.OnceValues(oapi.GetSpec)
 
@@ -94,7 +97,7 @@ func ValidateRaws(raws oapi.Raws) error {
 	}
 
 	if err := schema.VisitJSON(jsonData); err != nil {
-		return fmt.Errorf("validation error: %w", err)
+		return fmt.Errorf("%w: %w", errSchemaValidation, err)
 	}
 
 	return nil

@@ -95,8 +95,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// 5個消費（所持数を超える）
 		err = ChangeItemCount(world, item, -5)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "insufficient item count")
+		require.ErrorIs(t, err, errInsufficientItemCount)
 
 		// 在庫は変更されていない
 		assert.True(t, world.Components.Name.Has(item), "アイテムは残っているべき")
@@ -132,8 +131,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		err = ChangeItemCount(world, item, 0)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "must not be zero")
+		require.ErrorIs(t, err, errZeroCountChange)
 	})
 
 	t.Run("プレイヤーがいる場合はWeightDirtyフラグが立つ", func(t *testing.T) {
@@ -180,6 +178,6 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		err = ChangeItemCount(world, item, 1)
-		require.EqualError(t, err, "cannot add to stack: entity has no backpack or storage location")
+		require.ErrorIs(t, err, errNoStackLocation)
 	})
 }

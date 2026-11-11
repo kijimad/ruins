@@ -1,6 +1,7 @@
 package mapspawner
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -12,6 +13,17 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
+)
+
+var (
+	// errUnsupportedTile は仕様表に無いタイルIDを生成しようとしたときに返す
+	errUnsupportedTile = errors.New("unsupported tile id")
+	// errInvalidItemCount はアイテムの個数が0以下のときに返す
+	errInvalidItemCount = errors.New("invalid item count")
+	// errInvalidLootCount は収納propのルート数の表記が不正なときに返す
+	errInvalidLootCount = errors.New("invalid lootCount notation")
+	// errDrawLoot はルートテーブルからの抽選に失敗したときに返す
+	errDrawLoot = errors.New("failed to draw item")
 )
 
 // Spawn はMetaPlanからレベルを生成する
@@ -108,7 +120,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 
 	spec, ok := specs[tile.Id]
 	if !ok {
-		return gc.InvalidEntity, fmt.Errorf("unsupported %s tile id: %s (%d, %d)", category, tile.Id, int(tileX), int(tileY))
+		return gc.InvalidEntity, fmt.Errorf("%w: %s %s (%d, %d)", errUnsupportedTile, category, tile.Id, int(tileX), int(tileY))
 	}
 
 	// オートタイル添字は tile.Id で計算する。生成スプライト名 spec.spawnName とは別物。
@@ -125,7 +137,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 	for _, npc := range metaPlan.NPCs {
 		member, err := raw.FindMember(world.Resources.RawMaster, npc.Name)
 		if err != nil {
-			return fmt.Errorf("NPC '%s' not found", npc.Name)
+			return fmt.Errorf("NPC %q: %w", npc.Name, err)
 		}
 
 		x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
@@ -149,7 +161,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	for _, item := range metaPlan.Items {
 		tileX, tileY := item.X+offsetX, item.Y+offsetY
 		if item.Count <= 0 {
-			return fmt.Errorf("invalid item count (%d, %d): count=%d", item.X, item.Y, item.Count)
+			return fmt.Errorf("%w (%d, %d): count=%d", errInvalidItemCount, item.X, item.Y, item.Count)
 		}
 		_, err := lifecycle.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
 		if err != nil {
@@ -249,7 +261,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	if propRaw.Storage.LootCount != nil {
 		d, err := consts.ParseDice(*propRaw.Storage.LootCount)
 		if err != nil {
-			return fmt.Errorf("invalid lootCount notation for container '%s': %w", propRaw.Name, err)
+			return fmt.Errorf("%w for container %q: %w", errInvalidLootCount, propRaw.Name, err)
 		}
 		lootDice = d
 	}
@@ -261,7 +273,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	for range lootCount {
 		draws, err := raw.DrawFromItemTable(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
 		if err != nil {
-			return fmt.Errorf("failed to draw item: %w", err)
+			return fmt.Errorf("%w: %w", errDrawLoot, err)
 		}
 		for _, d := range draws {
 			if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, storageEntity); err != nil {

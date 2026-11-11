@@ -91,7 +91,6 @@ func TestGetPlayerEntity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		_, err := GetPlayerEntity(world)
-		require.Error(t, err)
 		require.ErrorIs(t, err, ErrNoPlayer)
 	})
 
@@ -106,7 +105,6 @@ func TestGetPlayerEntity(t *testing.T) {
 		world.Components.Player.Add(player2, &gc.Player{})
 
 		_, err := GetPlayerEntity(world)
-		require.Error(t, err)
 		require.ErrorIs(t, err, ErrMultiplePlayers)
 
 		world.ECS.RemoveEntity(player1)

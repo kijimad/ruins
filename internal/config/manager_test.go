@@ -3,6 +3,7 @@ package config
 import (
 	"testing"
 
+	"github.com/caarlos0/env/v11"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,8 +30,8 @@ func TestLoad_環境変数の型が不正だとエラーを返す(t *testing.T) 
 
 	_, err := Load()
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to load config")
+	var aggErr env.AggregateError
+	require.ErrorAs(t, err, &aggErr)
 }
 
 func TestLoad_Validateに失敗するとエラーを返す(t *testing.T) {
@@ -40,6 +41,5 @@ func TestLoad_Validateに失敗するとエラーを返す(t *testing.T) {
 
 	_, err := Load()
 
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to validate config")
+	require.ErrorIs(t, err, errWindowWidthTooSmall)
 }

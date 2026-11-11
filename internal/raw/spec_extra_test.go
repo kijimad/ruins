@@ -3,6 +3,7 @@ package raw
 import (
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -376,8 +377,7 @@ TotalEffort = 10
 	require.NoError(t, err)
 
 	_, err = NewItemSpec(raws, "白紙の本")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "requires a Skill")
+	require.ErrorIs(t, err, errBookSkillMissing)
 }
 
 func TestValidateRaws_本に未定義スキルはエラー(t *testing.T) {
@@ -401,8 +401,10 @@ TargetSkill = "unknown_skill"
 	require.NoError(t, err)
 
 	err = ValidateRaws(raws)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "unknown_skill")
+	var schemaErr *openapi3.SchemaError
+	require.ErrorAs(t, err, &schemaErr)
+	assert.Equal(t, "enum", schemaErr.SchemaField)
+	assert.Equal(t, []string{"items", "0", "book", "skill", "targetSkill"}, schemaErr.JSONPointer())
 }
 
 func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
@@ -419,8 +421,7 @@ Weight = "abc"
 	require.NoError(t, err)
 
 	_, err = NewItemSpec(raws, "不正な重量アイテム")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "'不正な重量アイテム' weight")
+	require.ErrorIs(t, err, consts.ErrInvalidWeight)
 }
 
 func TestNewItemSpec_腐敗と治療と火種が設定される(t *testing.T) {
@@ -472,8 +473,7 @@ maxWeight = "abc"
 	require.NoError(t, err)
 
 	_, err = NewItemSpec(raws, "不正な収納箱")
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "'不正な収納箱' deployable storage")
+	require.ErrorIs(t, err, consts.ErrInvalidWeight)
 }
 
 func TestNewRecipeSpec_レシピが設定される(t *testing.T) {
@@ -605,8 +605,9 @@ Amount = 1
 	require.NoError(t, err)
 
 	_, err = NewRecipeSpec(raws, "対応アイテムなしレシピ")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "failed to generate item for recipe")
+	var keyErr KeyNotFoundError
+	require.ErrorAs(t, err, &keyErr)
+	assert.Equal(t, KeyNotFoundError{Key: "対応アイテムなしレシピ", Collection: "Items"}, keyErr)
 }
 
 func TestNewWeaponSpec_アイテム生成に失敗するとエラー(t *testing.T) {
@@ -629,7 +630,7 @@ AttackCategory = "sword"
 	require.NoError(t, err)
 
 	_, err = NewWeaponSpec(raws, "不正な重量の武器")
-	assert.ErrorContains(t, err, `invalid weight format: "abc"`)
+	require.ErrorIs(t, err, consts.ErrInvalidWeight)
 }
 
 func TestNewMemberSpec_未存在はエラー(t *testing.T) {
@@ -738,8 +739,10 @@ Defense = 2
 	require.NoError(t, err)
 
 	err = ValidateRaws(raws)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "FactionInvalid")
+	var schemaErr *openapi3.SchemaError
+	require.ErrorAs(t, err, &schemaErr)
+	assert.Equal(t, "enum", schemaErr.SchemaField)
+	assert.Equal(t, []string{"members", "0", "factionType"}, schemaErr.JSONPointer())
 }
 
 func TestNewMemberSpec_中立の派閥だけを付ける(t *testing.T) {
@@ -786,8 +789,10 @@ Defense = 2
 	require.NoError(t, err)
 
 	err = ValidateRaws(raws)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "invalid_policy")
+	var schemaErr *openapi3.SchemaError
+	require.ErrorAs(t, err, &schemaErr)
+	assert.Equal(t, "enum", schemaErr.SchemaField)
+	assert.Equal(t, []string{"members", "0", "combatPolicy"}, schemaErr.JSONPointer())
 }
 
 func TestNewMemberSpec_光源が設定される(t *testing.T) {
@@ -892,8 +897,7 @@ func TestGetItemGroup_未存在はエラー(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = GetItemGroup(raws, "存在しないグループ")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "item group does not exist")
+	require.ErrorIs(t, err, errItemGroupNotExist)
 }
 
 func TestGetProp_未存在はエラー(t *testing.T) {
