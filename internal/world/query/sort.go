@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"slices"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -51,12 +50,12 @@ func sortRawID(world w.World, entity ecs.Entity) string {
 	return ""
 }
 
-// freshnessRank は鮮度段階を並び順の数値にする。非腐敗品は先頭の0、腐敗品は段階の Rank に従う。
+// freshnessRank は鮮度段階を並び順の数値にする。非腐敗品は先頭の0、腐敗品は段階の From の小さい順に続く。
 // 同一品種でも鮮度が違えば別スタックになるため、その並びを決定的にする副キー。
 func freshnessRank(world w.World, entity ecs.Entity) int {
 	stage, ok := FreshnessStageOf(world, entity)
 	if !ok {
 		return 0
 	}
-	return gc.FreshnessRank(stage)
+	return world.Resources.NeedDefs.FreshnessOf(stage).From + 1
 }

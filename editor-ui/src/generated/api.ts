@@ -1329,7 +1329,7 @@ export interface FoliageEffect {
 
 
 /**
- * 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+ * 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
  */
 export interface FreshnessStage {
     'id': FreshnessStageId;
@@ -1337,6 +1337,10 @@ export interface FreshnessStage {
      * エンティティ名
      */
     'name': string;
+    /**
+     * この段階が始まる劣化量。食料の stageLength の何倍かで表す。経過した段階数以下で from が最大の段階になり、from の小さい順が新しいものからの並び順になる
+     */
+    'from': number;
     /**
      * 食料から得る栄養の満額に対する割合。百分率
      */
@@ -2433,6 +2437,10 @@ export interface ShelterEffect {
      * 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
      */
     'influencePercent': number;
+    /**
+     * 屋根か壁に覆われているか。覆われないタイルに繋がる領域は屋外とみなす
+     */
+    'covered': boolean;
 }
 
 

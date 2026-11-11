@@ -3282,6 +3282,7 @@
 
 [[freshnessStages]]
   eatLog = "%s ate fresh %s."
+  from = 0
   id = "fresh"
   marker = false
   name = "Fresh"
@@ -3289,6 +3290,7 @@
 
 [[freshnessStages]]
   eatLog = "%s ate old %s."
+  from = 1
   id = "stale"
   marker = true
   name = "Stale"
@@ -3296,6 +3298,7 @@
 
 [[freshnessStages]]
   eatLog = "%s ate spoiled %s."
+  from = 2
   id = "rotten"
   illnessChancePercent = 25
   marker = true
@@ -22806,18 +22809,21 @@
 
 [[shelterEffects]]
   anchorTemp = 10
+  covered = false
   id = "outdoor"
   influencePercent = 100
   name = "Outdoor"
 
 [[shelterEffects]]
   anchorTemp = 10
+  covered = true
   id = "partial"
   influencePercent = 75
   name = "Semi-outdoor"
 
 [[shelterEffects]]
   anchorTemp = 10
+  covered = true
   id = "indoor"
   influencePercent = 50
   name = "Indoor"

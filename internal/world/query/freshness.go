@@ -28,14 +28,15 @@ func FreshnessStageOf(world w.World, entity ecs.Entity) (oapi.FreshnessStageId, 
 		return "", false
 	}
 	now := GetGameTime(world).TotalTurns
-	return world.Components.Perishable.Get(entity).Stage(EffectiveRot(world, entity, now)), true
+	stages := world.Components.Perishable.Get(entity).StagesElapsed(EffectiveRot(world, entity, now))
+	return world.Resources.NeedDefs.FreshnessAt(stages).Level, true
 }
 
 // FreshnessMarker はメニュー行に添える鮮度の訳語を返す。新鮮や非腐敗は空文字。
 // 呼び出し側は空なら何も足さない
 func FreshnessMarker(world w.World, entity ecs.Entity) string {
 	stage, ok := FreshnessStageOf(world, entity)
-	if !ok || !world.Resources.NeedDefs.Freshness[stage].Marker {
+	if !ok || !world.Resources.NeedDefs.FreshnessOf(stage).Marker {
 		return ""
 	}
 	return FreshnessName(world, stage)
@@ -43,5 +44,5 @@ func FreshnessMarker(world w.World, entity ecs.Entity) string {
 
 // FreshnessName は鮮度の段階の訳した表示名を返す
 func FreshnessName(world w.World, stage oapi.FreshnessStageId) string {
-	return T(world, world.Resources.NeedDefs.Freshness[stage].Name)
+	return T(world, world.Resources.NeedDefs.FreshnessOf(stage).Name)
 }

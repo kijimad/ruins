@@ -1142,7 +1142,7 @@ var (
 func NewTileEnvDefs(raws oapi.Raws) gc.TileEnvDefs {
 	defs := gc.TileEnvDefs{Shelters: map[oapi.Shelter]gc.ShelterDef{}, Water: map[oapi.WaterExposure]int{}, Foliage: map[oapi.Foliage]int{}}
 	for _, row := range PtrSlice(raws.ShelterEffects) {
-		defs.Shelters[row.Id] = gc.ShelterDef{Name: row.Name, AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent}
+		defs.Shelters[row.Id] = gc.ShelterDef{Name: row.Name, AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered}
 	}
 	for _, row := range PtrSlice(raws.WaterEffects) {
 		defs.Water[row.Id] = row.TempModifier
@@ -1228,12 +1228,13 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 			CanSleep: row.CanSleep, Badge: toRGBA(row.BadgeColor),
 		})
 	}
-	freshness := make(map[oapi.FreshnessStageId]gc.FreshnessDef, len(PtrSlice(raws.FreshnessStages)))
+	freshness := make([]gc.FreshnessDef, 0, len(PtrSlice(raws.FreshnessStages)))
 	for _, row := range PtrSlice(raws.FreshnessStages) {
-		freshness[row.Id] = gc.FreshnessDef{
+		freshness = append(freshness, gc.FreshnessDef{
+			Level: row.Id, From: row.From,
 			Name: row.Name, NutritionPercent: row.NutritionPercent, EatLog: row.EatLog, Marker: row.Marker,
 			IllnessChancePercent: deref(row.IllnessChancePercent),
-		}
+		})
 	}
 	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
 }
