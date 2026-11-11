@@ -57,7 +57,6 @@ func TestFireSystem_Update(t *testing.T) {
 		require.NoError(t, sys.Update(world))
 		assert.True(t, world.Components.Dead.Has(fire), "燃え尽きた火は Dead になる")
 
-		// fire の行の燃え残りが、火のあった座標に1つ落ちている
 		var ashesAt int
 		q := query.ActiveFilter2[gc.GridElement, gc.RawID](world).Query()
 		for q.Next() {

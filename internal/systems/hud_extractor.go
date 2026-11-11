@@ -337,7 +337,6 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBadgesData {
 	var badges []hud.StatusBadge
 
-	// プレイヤーの空腹度を取得
 	hungerQuery := ecs.NewFilter2[gc.Player, gc.Hunger](world.ECS).Query()
 	for hungerQuery.Next() {
 		entity := hungerQuery.Entity()
@@ -352,7 +351,6 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 		}
 	}
 
-	// プレイヤーの疲労バッジ。段階の行が色を持つときだけ出す
 	fatigueQuery := ecs.NewFilter2[gc.Player, gc.Fatigue](world.ECS).Query()
 	for fatigueQuery.Next() {
 		entity := fatigueQuery.Entity()

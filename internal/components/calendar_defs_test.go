@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestCalendarDefs_SeasonalTemperatureForDay は経過日数に対応する季節の世界温度ベースを確認する
 func TestCalendarDefs_SeasonalTemperatureForDay(t *testing.T) {
 	t.Parallel()
 

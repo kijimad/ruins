@@ -254,7 +254,6 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 		speakerName := query.GetEntityName(p.SpeakerEntity, world)
 
-		// 在庫を持つ member は会話の後に店を開く。それ以外は会話だけを見せる
 		if hasStock(world, p.SpeakerEntity) {
 			merchant := p.SpeakerEntity
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
