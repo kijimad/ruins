@@ -1061,12 +1061,16 @@ func validateInteriorRefs(raws oapi.Raws) error {
 // validateTileSpawns はタイルの生成の仕様が指すタイルが実在することを検証する
 func validateTileSpawns(raws oapi.Raws) error {
 	tiles := PtrSlice(raws.Tiles)
+	tileIDs := make(map[string]struct{}, len(tiles))
+	for i := range tiles {
+		tileIDs[tiles[i].Id] = struct{}{}
+	}
 	for i := range tiles {
 		sp := tiles[i].Spawn
 		if sp == nil || sp.Tile == nil {
 			continue
 		}
-		if _, ok := findByKey(raws.Tiles, func(t oapi.Tile) string { return t.Id }, *sp.Tile); !ok {
+		if _, ok := tileIDs[*sp.Tile]; !ok {
 			return fmt.Errorf("tile %q spawn %q: %w", tiles[i].Id, *sp.Tile, errTileSpawnUndefined)
 		}
 	}
