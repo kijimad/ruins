@@ -68,7 +68,7 @@ func TestIsAreaSafe(t *testing.T) {
 		world.Components.FactionEnemy.Add(enemy2, &gc.FactionEnemy{})
 		world.Components.GridElement.Add(enemy2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 10}})
 
-		assert.False(t, query.IsAreaSafe(world, player), "2体目以降は既に危険確定済みでも判定は変わらない")
+		assert.False(t, query.IsAreaSafe(world, player), "近くに複数の敵がいれば危険")
 	})
 
 	t.Run("GridElementがない場合は危険と判定", func(t *testing.T) {
