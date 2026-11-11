@@ -10,8 +10,8 @@ import "github.com/kijimaD/ruins/internal/consts"
 // 種類を引き、その種類の Ref から1つを一様に引く。報酬は宝箱、雰囲気は鳥居や蓄音機の landmark、
 // リスクリワードは檻の中の獲物、危険は毒樽。
 func heroCenterpiece(t profileTable, seed uint64) (string, bool) {
-	if childSeed(seed, 13_000_000)%12 != 0 {
-		return "", false // 12棟に1棟だけ見せ場を持つ。rare を孤立させる
+	if childSeed(seed, 13_000_000)%t.heroOneIn != 0 {
+		return "", false // heroOneIn 棟に1棟だけ見せ場を持つ。rare を孤立させる
 	}
 	refs := pickChoice(childSeed(seed, 13_100_000), t.heroes)
 	return pickOne(childSeed(seed, 13_200_000), refs), true

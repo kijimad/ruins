@@ -1,27 +1,38 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/oapi"
+import (
+	"image/color"
+
+	"github.com/kijimaD/ruins/internal/oapi"
+)
 
 // HungerStage は空腹の段階1つの定義。raw の hungerStages の1行から組み立てる
 type HungerStage struct {
-	Level     oapi.HungerStageId
-	Name      string   // 表示名 msgid
-	From      float64  // 満腹度の割合がこれ以上の段階のうち From が最大のものになる
-	Condition Severity // この段階で立つ栄養失調の重症度。SeverityNone なら立たない
+	Level        oapi.HungerStageId
+	Name         string      // 表示名 msgid
+	From         float64     // 満腹度の割合がこれ以上の段階のうち From が最大のものになる
+	Condition    Severity    // この段階で立つ栄養失調の重症度。SeverityNone なら立たない
+	ReachedLog   string      // 食べてこの段階に達したときのログの msgid。空なら出さない
+	WakesSleeper bool        // 寝ている者を起こす段階か
+	Badge        *color.RGBA // HUD のバッジの色。nil ならバッジを出さない
 }
 
 // FatigueStage は疲労の段階1つの定義。raw の fatigueStages の1行から組み立てる
 type FatigueStage struct {
 	Level     oapi.FatigueStageId
-	Name      string   // 表示名 msgid
-	From      float64  // 疲労の割合がこれ以上の段階のうち From が最大のものになる
-	Condition Severity // この段階で立つ過労の重症度。SeverityNone なら立たない
+	Name      string      // 表示名 msgid
+	From      float64     // 疲労の割合がこれ以上の段階のうち From が最大のものになる
+	Condition Severity    // この段階で立つ過労の重症度。SeverityNone なら立たない
+	CanSleep  bool        // この段階で眠れるか
+	Badge     *color.RGBA // HUD のバッジの色。nil ならバッジを出さない
 }
 
-// NeedDefs は空腹と疲労の段階の境目と、段階ごとに立つ不調の表。読み込み時に raw から1度だけ組み立て、以後は変えない
+// NeedDefs は空腹と疲労の段階の境目と、段階ごとに立つ不調と、鮮度の段階ごとの栄養の割合の表。
+// 読み込み時に raw から1度だけ組み立て、以後は変えない
 type NeedDefs struct {
-	Hunger  []HungerStage
-	Fatigue []FatigueStage
+	Hunger    []HungerStage
+	Fatigue   []FatigueStage
+	Freshness map[oapi.FreshnessStageId]FreshnessDef
 }
 
 // stageAt は割合 ratio が From 以上の段階のうち From が最大のものを返す。該当が無ければ ok=false
@@ -102,4 +113,24 @@ func (d NeedDefs) FatigueName(level oapi.FatigueStageId) string {
 		}
 	}
 	return string(level)
+}
+
+// HungerStageOf は空腹の段階の定義を返す。未登録なら ok=false
+func (d NeedDefs) HungerStageOf(level oapi.HungerStageId) (HungerStage, bool) {
+	for _, s := range d.Hunger {
+		if s.Level == level {
+			return s, true
+		}
+	}
+	return HungerStage{}, false
+}
+
+// FatigueStageOf は疲労の段階の定義を返す。未登録なら ok=false
+func (d NeedDefs) FatigueStageOf(level oapi.FatigueStageId) (FatigueStage, bool) {
+	for _, s := range d.Fatigue {
+		if s.Level == level {
+			return s, true
+		}
+	}
+	return FatigueStage{}, false
 }

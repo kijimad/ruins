@@ -90,6 +90,24 @@ func (e AttackCategory) Valid() bool {
 	}
 }
 
+// Defines values for AttackRange.
+const (
+	AttackRangeMelee  AttackRange = "melee"
+	AttackRangeRanged AttackRange = "ranged"
+)
+
+// Valid indicates whether the value is a known member of the AttackRange enum.
+func (e AttackRange) Valid() bool {
+	switch e {
+	case AttackRangeMelee:
+		return true
+	case AttackRangeRanged:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for BuildingClutter.
 const (
 	Filthy BuildingClutter = "filthy"
@@ -264,6 +282,33 @@ func (e DrawerKey) Valid() bool {
 	}
 }
 
+// Defines values for DungeonPlanner.
+const (
+	DungeonPlannerBigRoom   DungeonPlanner = "big_room"
+	DungeonPlannerCave      DungeonPlanner = "cave"
+	DungeonPlannerForest    DungeonPlanner = "forest"
+	DungeonPlannerRuins     DungeonPlanner = "ruins"
+	DungeonPlannerSmallRoom DungeonPlanner = "small_room"
+)
+
+// Valid indicates whether the value is a known member of the DungeonPlanner enum.
+func (e DungeonPlanner) Valid() bool {
+	switch e {
+	case DungeonPlannerBigRoom:
+		return true
+	case DungeonPlannerCave:
+		return true
+	case DungeonPlannerForest:
+		return true
+	case DungeonPlannerRuins:
+		return true
+	case DungeonPlannerSmallRoom:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Element.
 const (
 	ElementCHILL   Element = "CHILL"
@@ -410,16 +455,55 @@ func (e FatigueStageId) Valid() bool {
 
 // Defines values for Foliage.
 const (
-	Forest Foliage = "forest"
-	Grass  Foliage = "grass"
+	FoliageForest Foliage = "forest"
+	FoliageGrass  Foliage = "grass"
 )
 
 // Valid indicates whether the value is a known member of the Foliage enum.
 func (e Foliage) Valid() bool {
 	switch e {
-	case Forest:
+	case FoliageForest:
 		return true
-	case Grass:
+	case FoliageGrass:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for FreshnessStageId.
+const (
+	Fresh  FreshnessStageId = "fresh"
+	Rotten FreshnessStageId = "rotten"
+	Stale  FreshnessStageId = "stale"
+)
+
+// Valid indicates whether the value is a known member of the FreshnessStageId enum.
+func (e FreshnessStageId) Valid() bool {
+	switch e {
+	case Fresh:
+		return true
+	case Rotten:
+		return true
+	case Stale:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GlyphChunk.
+const (
+	DungeonEntrance GlyphChunk = "dungeon_entrance"
+	Wasteland       GlyphChunk = "wasteland"
+)
+
+// Valid indicates whether the value is a known member of the GlyphChunk enum.
+func (e GlyphChunk) Valid() bool {
+	switch e {
+	case DungeonEntrance:
+		return true
+	case Wasteland:
 		return true
 	default:
 		return false
@@ -873,6 +957,27 @@ func (e Shelter) Valid() bool {
 	}
 }
 
+// Defines values for SiteType.
+const (
+	Detached  SiteType = "detached"
+	Roadside  SiteType = "roadside"
+	Shopfront SiteType = "shopfront"
+)
+
+// Valid indicates whether the value is a known member of the SiteType enum.
+func (e SiteType) Valid() bool {
+	switch e {
+	case Detached:
+		return true
+	case Roadside:
+		return true
+	case Shopfront:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SkillId.
 const (
 	SkillIdBow           SkillId = "bow"
@@ -1053,6 +1158,36 @@ func (e TargetNum) Valid() bool {
 	}
 }
 
+// Defines values for TimeOfDayId.
+const (
+	Dawn     TimeOfDayId = "dawn"
+	Evening  TimeOfDayId = "evening"
+	Midnight TimeOfDayId = "midnight"
+	Morning  TimeOfDayId = "morning"
+	Night    TimeOfDayId = "night"
+	Noon     TimeOfDayId = "noon"
+)
+
+// Valid indicates whether the value is a known member of the TimeOfDayId enum.
+func (e TimeOfDayId) Valid() bool {
+	switch e {
+	case Dawn:
+		return true
+	case Evening:
+		return true
+	case Midnight:
+		return true
+	case Morning:
+		return true
+	case Night:
+		return true
+	case Noon:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ToolCategory.
 const (
 	Chopping  ToolCategory = "chopping"
@@ -1206,6 +1341,18 @@ type ActionCost = int
 // Agility 敏捷性。行動順に影響する
 type Agility = int
 
+// AmbientColor 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
+type AmbientColor struct {
+	// B 光の強さ。0 が真っ暗、1 が最大
+	B LightLevel `json:"b"`
+
+	// G 光の強さ。0 が真っ暗、1 が最大
+	G LightLevel `json:"g"`
+
+	// R 光の強さ。0 が真っ暗、1 が最大
+	R LightLevel `json:"r"`
+}
+
 // Ammo 弾薬設定
 type Ammo struct {
 	// AccuracyBonus 命中率補正値
@@ -1224,11 +1371,14 @@ type AmmoTag string
 // ArmorDefense 防具の防御力
 type ArmorDefense = int
 
-// AttackCategory 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
+// AttackCategory defines model for AttackCategory.
 type AttackCategory string
 
 // AttackCount 1ターンあたりの攻撃回数
 type AttackCount = int
+
+// AttackRange 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する攻撃の射程の区分
+type AttackRange string
 
 // AttackType 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
 type AttackType struct {
@@ -1236,13 +1386,26 @@ type AttackType struct {
 	Accuracy ProficiencyId `json:"accuracy"`
 
 	// Damage ダメージを決める熟練の効果倍率。skill の行が持つ
-	Damage ProficiencyId `json:"damage"`
-
-	// Id 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
-	Id AttackCategory `json:"id"`
+	Damage ProficiencyId  `json:"damage"`
+	Id     AttackCategory `json:"id"`
 
 	// Injury 不調の id。Go の ConditionType 定数の値と同じ
 	Injury ConditionTypeName `json:"injury"`
+
+	// MaxRange 遠距離だけが持つ。この距離を超えると撃てない
+	MaxRange *RangeTiles `json:"maxRange,omitempty"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// OptimalRange 遠距離だけが持つ。この距離までは命中が落ちない
+	OptimalRange *RangeTiles `json:"optimalRange,omitempty"`
+
+	// PenaltyPerTile 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率
+	PenaltyPerTile *RangePenaltyPercent `json:"penaltyPerTile,omitempty"`
+
+	// Range 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する攻撃の射程の区分
+	Range AttackRange `json:"range"`
 
 	// Skill 攻撃で上達するスキル
 	Skill SkillId `json:"skill"`
@@ -1597,6 +1760,12 @@ type BuildingVariant string
 
 // ClutterChoice 建物の散らかり段階の重み
 type ClutterChoice struct {
+	// FloorPercent 家具から離れた床のタイルへ小物を散らす割合
+	FloorPercent InteriorPercent `json:"floorPercent"`
+
+	// FurniturePercent 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
+	FurniturePercent InteriorPercent `json:"furniturePercent"`
+
 	// Id 建物の散らかり段階
 	Id BuildingClutter `json:"id"`
 
@@ -1768,6 +1937,12 @@ type DamageChoice struct {
 	// Id 建物の損傷段階
 	Id BuildingDamage `json:"id"`
 
+	// LootPercent 経年で戦利品を撤去する割合
+	LootPercent InteriorPercent `json:"lootPercent"`
+
+	// RubbleSeedRatio 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
+	RubbleSeedRatio NeedRatio `json:"rubbleSeedRatio"`
+
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
 }
@@ -1810,6 +1985,16 @@ type Dialog struct {
 	// MessageKey メッセージリソースのキー
 	MessageKey MessageKey `json:"messageKey"`
 }
+
+// Dialogue NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる
+type Dialogue struct {
+	// Id メッセージリソースのキー
+	Id    MessageKey     `json:"id"`
+	Pages []DialoguePage `json:"pages"`
+}
+
+// DialoguePage 会話の1ページ。英語の msgid で、表示のとき query.T で訳す。<keyword> などのマークアップを含められる
+type DialoguePage = string
 
 // Dice ダイス表記の個数指定。固定値も 1d1 のように書く。consts.ParseDice でパースする
 type Dice = string
@@ -1856,7 +2041,19 @@ type DisassemblyYield struct {
 }
 
 // DoorRaw 扉ローデータ
-type DoorRaw = map[string]interface{}
+type DoorRaw struct {
+	// HorizontalClosed スプライトキー
+	HorizontalClosed SpriteKey `json:"horizontalClosed"`
+
+	// HorizontalOpen スプライトキー
+	HorizontalOpen SpriteKey `json:"horizontalOpen"`
+
+	// VerticalClosed スプライトキー
+	VerticalClosed SpriteKey `json:"verticalClosed"`
+
+	// VerticalOpen スプライトキー
+	VerticalOpen SpriteKey `json:"verticalOpen"`
+}
 
 // DrawerKey ランドマークの描画関数の選択キー
 type DrawerKey string
@@ -1886,6 +2083,43 @@ type DropTableEntry struct {
 type DropTableList struct {
 	Data       []DropTable `json:"data"`
 	TotalCount int         `json:"totalCount"`
+}
+
+// Dungeon フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
+type Dungeon struct {
+	// BaseTemp ステージの基本気温。℃
+	BaseTemp StageBaseTemp `json:"baseTemp"`
+
+	// Description 説明文
+	Description EntityDescription `json:"description"`
+
+	// EnemyTable 敵を引く enemyTables の id
+	EnemyTable EntityID `json:"enemyTable"`
+	Id         EntityID `json:"id"`
+
+	// ImageKey 背景画像のスプライトキー
+	ImageKey EntityID `json:"imageKey"`
+
+	// ItemTable アイテムを引く itemTables の id
+	ItemTable EntityID `json:"itemTable"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// Planners フロアの間取りの抽選表。行の順に重みを積む
+	Planners []DungeonPlannerWeight `json:"planners"`
+}
+
+// DungeonPlanner ダンジョンのフロアを生成する間取りの種類
+type DungeonPlanner string
+
+// DungeonPlannerWeight ダンジョンの間取りの種類と、フロアごとに選ばれる重み
+type DungeonPlannerWeight struct {
+	// Id ダンジョンのフロアを生成する間取りの種類
+	Id DungeonPlanner `json:"id"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
 }
 
 // Element 攻撃属性
@@ -1965,6 +2199,16 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// FacadeRefs 街路側の前壁に付ける外皮の interiorRefs の id
+type FacadeRefs struct {
+	// Shutter 大破した店が窓の代わりに下ろすシャッター
+	Shutter EntityID `json:"shutter"`
+
+	// Sign 店の入口脇に立てる看板
+	Sign   EntityID `json:"sign"`
+	Window EntityID `json:"window"`
+}
+
 // Facility 市街地の施設1種。isShop は看板やシャッターを出す店か
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
@@ -2006,6 +2250,12 @@ type FactionMemberType string
 
 // FatigueStage 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる
 type FatigueStage struct {
+	// BadgeColor HUD に出すバッジの色。省くとバッジを出さない
+	BadgeColor *RGBAColor `json:"badgeColor,omitempty"`
+
+	// CanSleep この段階で眠れるか。疲れが足りない段階は眠れない
+	CanSleep bool `json:"canSleep"`
+
 	// From 最大値に対する割合
 	From NeedRatio `json:"from"`
 
@@ -2028,9 +2278,7 @@ type Fire struct {
 	Accuracy Accuracy `json:"accuracy"`
 
 	// AmmoTag 弾薬タグ
-	AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
-
-	// AttackCategory 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
+	AmmoTag        *AmmoTag       `json:"ammoTag,omitempty"`
 	AttackCategory AttackCategory `json:"attackCategory"`
 
 	// AttackCount 1ターンあたりの攻撃回数
@@ -2073,8 +2321,41 @@ type FoliageEffect struct {
 	TempModifier TileTempModifier `json:"tempModifier"`
 }
 
+// FreshnessStage 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+type FreshnessStage struct {
+	// EatLog 食べたときのログの msgid。%s は食べた者と食べ物
+	EatLog EntityDescription `json:"eatLog"`
+
+	// Id 鮮度の段階
+	Id FreshnessStageId `json:"id"`
+
+	// IllnessChancePercent 食べたとき食中毒を起こす確率。百分率。省くと起こさない
+	IllnessChancePercent *IllnessChancePercent `json:"illnessChancePercent,omitempty"`
+
+	// Marker メニューの行に鮮度を添えるか
+	Marker bool `json:"marker"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// NutritionPercent 食料から得る栄養の満額に対する割合。百分率
+	NutritionPercent NutritionPercent `json:"nutritionPercent"`
+}
+
+// FreshnessStageId 鮮度の段階
+type FreshnessStageId string
+
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
+
+// GlyphChunk 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
+type GlyphChunk string
+
+// GroundCoverEntry 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
+type GroundCoverEntry struct {
+	Ref    EntityID `json:"ref"`
+	Weight int32    `json:"weight"`
+}
 
 // GroupStyle グループの抽選方式。保証セットとランダム充填を分ける
 type GroupStyle string
@@ -2087,6 +2368,9 @@ type HealRatio = float64
 
 // HealingValueType 回復量の計算方式
 type HealingValueType string
+
+// HeatPerKg 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
+type HeatPerKg = int
 
 // HeatRadius 熱の到達半径。チェビシェフ距離、タイル単位
 type HeatRadius = int
@@ -2117,6 +2401,9 @@ type HitPoints = int
 
 // HungerStage 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる
 type HungerStage struct {
+	// BadgeColor HUD に出すバッジの色。省くとバッジを出さない
+	BadgeColor *RGBAColor `json:"badgeColor,omitempty"`
+
 	// From 最大値に対する割合
 	From NeedRatio `json:"from"`
 
@@ -2126,12 +2413,21 @@ type HungerStage struct {
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 
+	// ReachedLog 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない
+	ReachedLog *EntityDescription `json:"reachedLog,omitempty"`
+
 	// Severity この段階で立つ栄養失調の重症度。省くと立たない
 	Severity *ConditionSeverity `json:"severity,omitempty"`
+
+	// WakesSleeper 寝ている者を起こす段階か
+	WakesSleeper *bool `json:"wakesSleeper,omitempty"`
 }
 
 // HungerStageId 空腹の段階
 type HungerStageId string
+
+// IllnessChancePercent 病気を起こす確率。百分率
+type IllnessChancePercent = int
 
 // ImagePath 画像ファイルパス
 type ImagePath = string
@@ -2148,13 +2444,29 @@ type InteriorContent struct {
 	Id     EntityID        `json:"id"`
 }
 
+// InteriorPercent 内装の経年や散らかりの割合。百分率
+type InteriorPercent = int
+
 // InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
 type InteriorProfile struct {
 	Clutters  []ClutterChoice `json:"clutters"`
 	Damages   []DamageChoice  `json:"damages"`
 	Densities []DensityChoice `json:"densities"`
-	Heroes    []HeroChoice    `json:"heroes"`
-	Variants  []VariantChoice `json:"variants"`
+
+	// Facade 街路側の前壁に付ける外皮の interiorRefs の id
+	Facade FacadeRefs `json:"facade"`
+
+	// HeroOneIn hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
+	HeroOneIn int32        `json:"heroOneIn"`
+	Heroes    []HeroChoice `json:"heroes"`
+
+	// Lot 敷地の外構の interiorRefs の id
+	Lot      LotRefs         `json:"lot"`
+	Sites    []SiteChoice    `json:"sites"`
+	Variants []VariantChoice `json:"variants"`
+
+	// WearPercent 経年で家具1つが隣へ生活痕を落とす割合
+	WearPercent InteriorPercent `json:"wearPercent"`
 }
 
 // InteriorRef 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
@@ -2361,6 +2673,9 @@ type Landmark struct {
 // LightEnabled 光源が有効かどうか
 type LightEnabled = bool
 
+// LightLevel 光の強さ。0 が真っ暗、1 が最大
+type LightLevel = float64
+
 // LightRadius 光の到達半径（タイル単位）
 type LightRadius = int
 
@@ -2376,11 +2691,25 @@ type LightSource struct {
 	Radius LightRadius `json:"radius"`
 }
 
+// LotRefs 敷地の外構の interiorRefs の id
+type LotRefs struct {
+	Fence EntityID `json:"fence"`
+
+	// Plant 民家の前庭に置く外構
+	Plant EntityID `json:"plant"`
+
+	// Vending 店の前庭に置く外構
+	Vending EntityID `json:"vending"`
+}
+
 // MagazineSize マガジン容量
 type MagazineSize = int
 
 // MapGlyph 俯瞰地図の記号1種。id は地物・施設の種別 id
 type MapGlyph struct {
+	// Chunk この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く
+	Chunk *GlyphChunk `json:"chunk,omitempty"`
+
 	// Color RGBA色
 	Color RGBAColor `json:"color"`
 	Glyph string    `json:"glyph"`
@@ -2390,18 +2719,29 @@ type MapGlyph struct {
 }
 
 // Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-// 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
 type Material string
 
 // MaterialAmount 素材必要数
 type MaterialAmount = int
 
+// MaterialDef 材質の表示名と燃焼の熱量
+type MaterialDef struct {
+	// HeatPerKg 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
+	HeatPerKg HeatPerKg `json:"heatPerKg"`
+
+	// Id 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
+	// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
+	Id Material `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+}
+
 // Melee 近接攻撃設定
 type Melee struct {
 	// Accuracy 命中率。0で必中なし、100で必中
-	Accuracy Accuracy `json:"accuracy"`
-
-	// AttackCategory 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
+	Accuracy       Accuracy       `json:"accuracy"`
 	AttackCategory AttackCategory `json:"attackCategory"`
 
 	// AttackCount 1ターンあたりの攻撃回数
@@ -2463,6 +2803,15 @@ type Member struct {
 	// SpriteSheetName スプライトシート名
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 
+	// StartingEquips 生成時に装備して持たせるアイテム。startingItems より先に持たせる
+	StartingEquips *[]ProfessionEquip `json:"startingEquips,omitempty"`
+
+	// StartingItems 生成時にバックパックへ持たせるアイテム
+	StartingItems *[]ProfessionItem `json:"startingItems,omitempty"`
+
+	// Stock 店の在庫。持つ member は店を開く
+	Stock *[]ProfessionItem `json:"stock,omitempty"`
+
 	// ViewDistance AI視界距離（タイル単位）
 	ViewDistance *ViewDistance `json:"viewDistance,omitempty"`
 }
@@ -2484,6 +2833,9 @@ type NeedRatio = float64
 
 // NutritionAmount 栄養価
 type NutritionAmount = int
+
+// NutritionPercent 食料から得る栄養の満額に対する割合。百分率
+type NutritionPercent = int
 
 // Palette パレット
 type Palette struct {
@@ -2600,6 +2952,9 @@ type Prop struct {
 	// BlockView 視線を遮るかどうか
 	BlockView BlocksView `json:"blockView"`
 
+	// BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
+	BurnoutItem *EntityID `json:"burnoutItem,omitempty"`
+
 	// Description 説明文
 	Description EntityDescription `json:"description"`
 
@@ -2644,7 +2999,7 @@ type PropList struct {
 	TotalCount int    `json:"totalCount"`
 }
 
-// PropSpot prop 1個の相対配置
+// PropSpot 基準点から相対の位置に置くエンティティ1個
 type PropSpot struct {
 	Dx   int32    `json:"dx"`
 	Dy   int32    `json:"dy"`
@@ -2681,13 +3036,21 @@ type RGBAColor struct {
 // RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
 type RangeBonus = int
 
+// RangePenaltyPercent 射程の超過1タイルあたりの命中の低下。百分率
+type RangePenaltyPercent = int
+
+// RangeTiles 射程。タイル
+type RangeTiles = int
+
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
 	AttackTypes      *[]AttackType      `json:"attackTypes,omitempty"`
 	BodyParts        *[]BodyPart        `json:"bodyParts,omitempty"`
 	CommandTables    *[]CommandTable    `json:"commandTables,omitempty"`
 	Conditions       *[]Condition       `json:"conditions,omitempty"`
+	Dialogues        *[]Dialogue        `json:"dialogues,omitempty"`
 	DropTables       *[]DropTable       `json:"dropTables,omitempty"`
+	Dungeons         *[]Dungeon         `json:"dungeons,omitempty"`
 	EnemyTables      *[]EnemyTable      `json:"enemyTables,omitempty"`
 	Facilities       *[]Facility        `json:"facilities,omitempty"`
 	FacilityContents *[]FacilityContent `json:"facilityContents,omitempty"`
@@ -2698,30 +3061,36 @@ type Raws struct {
 	//       interiorContents プールには入れず、この専用フィールドだけに置く
 	FlavorContent    *InteriorContent   `json:"flavorContent,omitempty"`
 	FoliageEffects   *[]FoliageEffect   `json:"foliageEffects,omitempty"`
+	FreshnessStages  *[]FreshnessStage  `json:"freshnessStages,omitempty"`
 	HungerStages     *[]HungerStage     `json:"hungerStages,omitempty"`
 	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
 
 	// InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
-	InteriorProfile *InteriorProfile  `json:"interiorProfile,omitempty"`
-	InteriorRefs    *[]InteriorRef    `json:"interiorRefs,omitempty"`
-	ItemCollections *[]ItemCollection `json:"itemCollections,omitempty"`
-	ItemGroups      *[]ItemGroup      `json:"itemGroups,omitempty"`
-	ItemTables      *[]ItemTable      `json:"itemTables,omitempty"`
-	Items           *[]Item           `json:"items,omitempty"`
-	Landmarks       *[]Landmark       `json:"landmarks,omitempty"`
-	MapGlyphs       *[]MapGlyph       `json:"mapGlyphs,omitempty"`
-	Members         *[]Member         `json:"members,omitempty"`
-	Professions     *[]Profession     `json:"professions,omitempty"`
-	Props           *[]Prop           `json:"props,omitempty"`
-	Recipes         *[]Recipe         `json:"recipes,omitempty"`
-	ScatterZones    *[]ScatterZone    `json:"scatterZones,omitempty"`
-	ShelterEffects  *[]ShelterEffect  `json:"shelterEffects,omitempty"`
-	SkillCategories *[]SkillCategory  `json:"skillCategories,omitempty"`
-	Skills          *[]Skill          `json:"skills,omitempty"`
-	SpriteSheets    *[]SpriteSheet    `json:"spriteSheets,omitempty"`
-	Tiles           *[]Tile           `json:"tiles,omitempty"`
-	WaterEffects    *[]WaterEffect    `json:"waterEffects,omitempty"`
-	Weathers        *[]Weather        `json:"weathers,omitempty"`
+	InteriorProfile *InteriorProfile   `json:"interiorProfile,omitempty"`
+	InteriorRefs    *[]InteriorRef     `json:"interiorRefs,omitempty"`
+	ItemCollections *[]ItemCollection  `json:"itemCollections,omitempty"`
+	ItemGroups      *[]ItemGroup       `json:"itemGroups,omitempty"`
+	ItemTables      *[]ItemTable       `json:"itemTables,omitempty"`
+	Items           *[]Item            `json:"items,omitempty"`
+	Landmarks       *[]Landmark        `json:"landmarks,omitempty"`
+	MapGlyphs       *[]MapGlyph        `json:"mapGlyphs,omitempty"`
+	Materials       *[]MaterialDef     `json:"materials,omitempty"`
+	Members         *[]Member          `json:"members,omitempty"`
+	Professions     *[]Profession      `json:"professions,omitempty"`
+	Props           *[]Prop            `json:"props,omitempty"`
+	Recipes         *[]Recipe          `json:"recipes,omitempty"`
+	ScatterZones    *[]ScatterZone     `json:"scatterZones,omitempty"`
+	Seasons         *[]Season          `json:"seasons,omitempty"`
+	Settlements     *[]Settlement      `json:"settlements,omitempty"`
+	ShelterEffects  *[]ShelterEffect   `json:"shelterEffects,omitempty"`
+	SkillCategories *[]SkillCategory   `json:"skillCategories,omitempty"`
+	Skills          *[]Skill           `json:"skills,omitempty"`
+	SpriteSheets    *[]SpriteSheet     `json:"spriteSheets,omitempty"`
+	Tiles           *[]Tile            `json:"tiles,omitempty"`
+	TimesOfDay      *[]TimeOfDay       `json:"timesOfDay,omitempty"`
+	ToolCategories  *[]ToolCategoryDef `json:"toolCategories,omitempty"`
+	WaterEffects    *[]WaterEffect     `json:"waterEffects,omitempty"`
+	Weathers        *[]Weather         `json:"weathers,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -2781,20 +3150,50 @@ type ScatterEntry struct {
 	Weight     int32       `json:"weight"`
 }
 
-// ScatterZone 開けた地形の散布ゾーン1種
+// ScatterZone 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
 type ScatterZone struct {
-	Entries      []ScatterEntry `json:"entries"`
-	GrassDensity float64        `json:"grassDensity"`
-	Id           EntityID       `json:"id"`
-	LootGroup    EntityID       `json:"lootGroup"`
-	PropDensity  float64        `json:"propDensity"`
+	Entries      []ScatterEntry     `json:"entries"`
+	Grass        []GroundCoverEntry `json:"grass"`
+	GrassDensity float64            `json:"grassDensity"`
+	Id           EntityID           `json:"id"`
+	LootGroup    EntityID           `json:"lootGroup"`
+	PropDensity  float64            `json:"propDensity"`
+	Soil         []GroundCoverEntry `json:"soil"`
+	SoilDensity  float64            `json:"soilDensity"`
+}
+
+// Season 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
+type Season struct {
+	// Id 季節
+	Id SeasonId `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// Temp 季節の世界温度。℃
+	Temp SeasonTemp `json:"temp"`
 }
 
 // SeasonId 季節
 type SeasonId string
 
+// SeasonTemp 季節の世界温度。℃
+type SeasonTemp = int
+
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
+
+// Settlement 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
+//
+//	id は地図の記号の id を兼ねる。行の順に重みを積む
+type Settlement struct {
+	Id EntityID `json:"id"`
+
+	// Members 住人の member。name は members の id
+	Members []PropSpot `json:"members"`
+	Props   []PropSpot `json:"props"`
+	Weight  int32      `json:"weight"`
+}
 
 // Shelter タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
 type Shelter string
@@ -2816,6 +3215,30 @@ type ShelterEffect struct {
 
 // ShelterInfluencePercent 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
 type ShelterInfluencePercent = int
+
+// SiteChoice 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
+type SiteChoice struct {
+	// Fence 敷地を塀で囲うか。街路に面して開く敷地は囲わない
+	Fence bool `json:"fence"`
+
+	// HomeWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+	HomeWeight SiteWeight `json:"homeWeight"`
+
+	// Id 敷地の類型。前庭の深さと外構の出し分けに使う
+	Id SiteType `json:"id"`
+
+	// ShopWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+	ShopWeight SiteWeight `json:"shopWeight"`
+
+	// YardDepth 入口側に空ける前庭の奥行き。タイル
+	YardDepth YardDepth `json:"yardDepth"`
+}
+
+// SiteType 敷地の類型。前庭の深さと外構の出し分けに使う
+type SiteType string
+
+// SiteWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+type SiteWeight = int32
 
 // Skill スキル。同じカテゴリのスキルは行の順に表示する
 type Skill struct {
@@ -2923,6 +3346,9 @@ type SpriteSheetList struct {
 // SpriteSheetName スプライトシート名
 type SpriteSheetName = string
 
+// StageBaseTemp ステージの基本気温。℃
+type StageBaseTemp = int
+
 // StageLengthTurns 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
 type StageLengthTurns = int
 
@@ -2968,6 +3394,9 @@ type Tile struct {
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 
+	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
+	Spawn *TileSpawn `json:"spawn,omitempty"`
+
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
@@ -2981,8 +3410,43 @@ type TileList struct {
 	TotalCount int    `json:"totalCount"`
 }
 
+// TileSpawn 計画のタイルを実体化する仕様
+type TileSpawn struct {
+	// Autotile 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false
+	Autotile bool `json:"autotile"`
+
+	// Tile 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身
+	Tile *EntityID `json:"tile,omitempty"`
+}
+
 // TileTempModifier 水や植生がタイルの気温に足す補正。℃
 type TileTempModifier = int
+
+// TimeOfDay 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。
+//
+//	明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する
+type TimeOfDay struct {
+	// AmbientColor 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
+	AmbientColor AmbientColor `json:"ambientColor"`
+
+	// Daylight 光の強さ。0 が真っ暗、1 が最大
+	Daylight LightLevel `json:"daylight"`
+
+	// Id 時間帯。1日は夜明けで始まり、この順に巡る
+	Id TimeOfDayId `json:"id"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// TempModifier 時間帯による世界温度への加算。℃
+	TempModifier TimeOfDayTempModifier `json:"tempModifier"`
+}
+
+// TimeOfDayId 時間帯。1日は夜明けで始まり、この順に巡る
+type TimeOfDayId string
+
+// TimeOfDayTempModifier 時間帯による世界温度への加算。℃
+type TimeOfDayTempModifier = int
 
 // Tool 道具の性質。道具の分類とグレードを持つ
 type Tool struct {
@@ -2995,6 +3459,15 @@ type Tool struct {
 // ToolCategory 道具の分類
 type ToolCategory string
 
+// ToolCategoryDef 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
+type ToolCategoryDef struct {
+	// Id 道具の分類
+	Id ToolCategory `json:"id"`
+
+	// Skill スキルID
+	Skill *SkillId `json:"skill,omitempty"`
+}
+
 // ToolGrade 道具のグレード。高いほど速く壊し多く得る
 type ToolGrade = int
 
@@ -3003,8 +3476,17 @@ type UsableScene string
 
 // VariantChoice 建物の変種の重み
 type VariantChoice struct {
+	// Damage 引いた損傷段階を上書きする。省くと上書きしない
+	Damage *BuildingDamage `json:"damage,omitempty"`
+
+	// Density 引いた家具量の倍率を上書きする。省くと上書きしない
+	Density *DensityFactor `json:"density,omitempty"`
+
 	// Id 建物の事情。稀な1軒へ物語を与える
 	Id BuildingVariant `json:"id"`
+
+	// MinClutter 散らかり段階をこれ以上に引き上げる。省くと引き上げない
+	MinClutter *BuildingClutter `json:"minClutter,omitempty"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -3052,7 +3534,10 @@ type Wearable struct {
 // Weather 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る
 type Weather struct {
 	// Id 天候の種類
-	Id      WeatherId             `json:"id"`
+	Id WeatherId `json:"id"`
+
+	// Name エンティティ名
+	Name    EntityName            `json:"name"`
 	Seasons []WeatherSeasonWeight `json:"seasons"`
 
 	// Severity 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う
@@ -3094,6 +3579,9 @@ type WeatherVisionDelta = int
 
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
+
+// YardDepth 入口側に空ける前庭の奥行き。タイル
+type YardDepth = int32
 
 // Zone 市街地の地区
 type Zone string

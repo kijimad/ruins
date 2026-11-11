@@ -50,7 +50,7 @@ func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	require.NoError(t, err)
 
 	d := query.GetDungeon(world)
-	def, ok := dungeon.GetStageDefinition(dungeon.DungeonDebug.Name())
+	def, ok := dungeon.GetStageDefinition(world.Resources.RawMaster, dungeon.DungeonDebug.Name())
 	require.True(t, ok)
 	dungeonDef, ok := def.(*dungeon.DungeonDefinition)
 	require.True(t, ok)

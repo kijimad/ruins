@@ -178,7 +178,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 func TestEnvironmentPlanner_PlanMeta_植生はタイルの行の値を使う(t *testing.T) {
 	t.Parallel()
 
-	grass := oapi.Grass
+	grass := oapi.FoliageGrass
 	mp := &MetaPlan{
 		Level: newTestLevel(2, 1),
 		Tiles: []oapi.Tile{
@@ -188,7 +188,7 @@ func TestEnvironmentPlanner_PlanMeta_植生はタイルの行の値を使う(t *
 	}
 	require.NoError(t, EnvironmentPlanner{}.PlanMeta(mp))
 
-	assert.Equal(t, []oapi.Foliage{oapi.Grass, ""}, []oapi.Foliage{mp.Environments[0].Foliage, mp.Environments[1].Foliage})
+	assert.Equal(t, []oapi.Foliage{oapi.FoliageGrass, ""}, []oapi.Foliage{mp.Environments[0].Foliage, mp.Environments[1].Foliage})
 }
 
 func newTestLevel(width, height int) gc.Level {

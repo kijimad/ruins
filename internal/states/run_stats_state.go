@@ -189,7 +189,7 @@ func environmentItems(world w.World) []statusItemData {
 
 	return []statusItemData{
 		{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", ambient, consts.IconDegree)},
-		{Label: query.T(world, "Time of day"), Value: query.T(world, gt.GetTimeOfDay().String())},
-		{Label: query.T(world, "Season"), Value: query.T(world, gt.GetSeason().String())},
+		{Label: query.T(world, "Time of day"), Value: query.TimeOfDayName(world, gt.GetTimeOfDay())},
+		{Label: query.T(world, "Season"), Value: query.SeasonName(world, gt.GetSeason())},
 	}
 }

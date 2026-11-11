@@ -23,6 +23,13 @@ func makeInteriorRaws(mutate func(*oapi.Raws)) oapi.Raws {
 			Variants:  []oapi.VariantChoice{{Id: oapi.Standard, Weight: 1}, {Id: oapi.Abandoned, Weight: 1}, {Id: oapi.UnderConstruction, Weight: 1}, {Id: oapi.Survivalist, Weight: 1}, {Id: oapi.Hoarder, Weight: 1}},
 			Densities: []oapi.DensityChoice{{Factor: 10, Weight: 1}},
 			Heroes:    []oapi.HeroChoice{{Id: "reward", Weight: 1, Refs: []string{"bed"}}},
+			Sites: []oapi.SiteChoice{
+				{Id: oapi.Detached, HomeWeight: 1},
+				{Id: oapi.Shopfront, ShopWeight: 1},
+				{Id: oapi.Roadside, ShopWeight: 1},
+			},
+			Facade: oapi.FacadeRefs{Window: "bed", Shutter: "bed", Sign: "bed"},
+			Lot:    oapi.LotRefs{Fence: "bed", Plant: "bed", Vending: "bed"},
 		},
 	}
 	mutate(&raws)
@@ -75,6 +82,36 @@ func TestValidateInteriorRefs(t *testing.T) {
 				r.InteriorProfile.Variants = append(r.InteriorProfile.Variants, oapi.VariantChoice{Id: oapi.Hoarder, Weight: 1})
 			},
 			wantErr: errDuplicateID,
+		},
+		{
+			name: "敷地の類型の行が欠ける",
+			mutate: func(r *oapi.Raws) {
+				r.InteriorProfile.Sites = r.InteriorProfile.Sites[1:]
+			},
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "店の敷地の重みが無い",
+			mutate: func(r *oapi.Raws) {
+				for i := range r.InteriorProfile.Sites {
+					r.InteriorProfile.Sites[i].ShopWeight = 0
+				}
+			},
+			wantErr: errSiteWeightZero,
+		},
+		{
+			name: "外構の Ref が prop を持たない",
+			mutate: func(r *oapi.Raws) {
+				r.InteriorProfile.Lot.Vending = "litter"
+			},
+			wantErr: errInteriorProfileRefUndefined,
+		},
+		{
+			name: "外皮の Ref が実在しない",
+			mutate: func(r *oapi.Raws) {
+				r.InteriorProfile.Facade.Sign = "billboard"
+			},
+			wantErr: errInteriorProfileRefUndefined,
 		},
 		{
 			name: "hero の Ref が prop を持たない",

@@ -8,35 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTimeOfDay_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		tod  TimeOfDay
-		want string
-	}{
-		{TimeDawn, "Dawn"},
-		{TimeMorning, "Morning"},
-		{TimeDay, "Noon"},
-		{TimeEvening, "Evening"},
-		{TimeNight, "Night"},
-		{TimeMidnight, "Midnight"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.tod.String())
-		})
-	}
-}
-
-func TestTimeOfDay_String_不正な値はpanicする(t *testing.T) {
-	t.Parallel()
-	assert.Panics(t, func() {
-		_ = TimeOfDay(99).String()
-	})
-}
-
 // TestGameTime_startsAtDawn は新規ゲームの GameTime が経過0・夜明け・1日目から始まることを確認する。
 func TestGameTime_startsAtDawn(t *testing.T) {
 	t.Parallel()
@@ -45,7 +16,6 @@ func TestGameTime_startsAtDawn(t *testing.T) {
 	assert.Equal(t, consts.Turn(0), gt.TotalTurns, "経過ターンは0始まり")
 	assert.Equal(t, TimeDawn, gt.GetTimeOfDay(), "夜明けから始まる")
 	assert.Equal(t, 1, gt.GetDayNumber(), "1日目から始まる")
-	assert.Equal(t, 0, gt.GetTemperatureModifier(), "夜明けの気温修正")
 }
 
 // TestGameTime_GetTimeOfDay は経過ターンから時間帯を導けることを確認する。
@@ -103,64 +73,6 @@ func TestGameTime_GetDayNumber(t *testing.T) {
 			t.Parallel()
 			gt := &GameTime{TotalTurns: tt.totalTurns}
 			assert.Equal(t, tt.expected, gt.GetDayNumber())
-		})
-	}
-}
-
-// TestGameTime_GetTemperatureModifier は経過ターンに対応する時間帯の気温修正値を確認する
-func TestGameTime_GetTemperatureModifier(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name       string
-		totalTurns consts.Turn
-		expected   int
-	}{
-		{"夜明けは+0°C", 0, 0},
-		{"朝は+5°C", 250, 5},
-		{"昼は+10°C", 500, 10},
-		{"夕は+5°C", 750, 5},
-		{"夜は-5°C", 1000, -5},
-		{"深夜は-10°C", 1250, -10},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gt := &GameTime{TotalTurns: tt.totalTurns}
-			assert.Equal(t, tt.expected, gt.GetTemperatureModifier())
-		})
-	}
-}
-
-// TestGameTime_GetSeasonalTemperature は経過日数に対応する季節の世界温度ベースを確認する。
-// TotalTurns=(日-1)*1500 で当該日の始まりを指す。
-func TestGameTime_GetSeasonalTemperature(t *testing.T) {
-	t.Parallel()
-
-	const turnsPerDay consts.Turn = 1500
-	tests := []struct {
-		name     string
-		day      int
-		expected int
-	}{
-		{"1日目は春の中点", 1, 5},
-		{"5日目は春の坂の途中", 5, 17},
-		{"9日目は夏のピーク", 9, 22},
-		{"13日目は秋へ下る坂の途中。春側の同位置より寒い", 13, 16},
-		{"17日目は秋の中点。春より寒い", 17, 0},
-		{"21日目は冬へ向かう坂の途中", 21, -21},
-		{"25日目は冬の底", 25, -30},
-		{"29日目は春へ戻る坂の途中", 29, -20},
-		{"33日目は翌年の春の中点", 33, 5},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gt := &GameTime{TotalTurns: consts.Turn(tt.day-1) * turnsPerDay}
-			assert.Equal(t, tt.day, gt.GetDayNumber(), "前提: 当該日を指す")
-			assert.Equal(t, tt.expected, gt.GetSeasonalTemperature())
 		})
 	}
 }

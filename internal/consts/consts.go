@@ -115,12 +115,4 @@ const (
 	TileNameDirt = "dirt"
 	// TileNameVoid は虚空タイル名
 	TileNameVoid = "void"
-	// TileNameBridgeA は橋タイル名の A バリアント
-	TileNameBridgeA = "bridge_a"
-	// TileNameBridgeB は橋タイル名の B バリアント
-	TileNameBridgeB = "bridge_b"
-	// TileNameBridgeC は橋タイル名の C バリアント
-	TileNameBridgeC = "bridge_c"
-	// TileNameBridgeD は橋タイル名の D バリアント
-	TileNameBridgeD = "bridge_d"
 )

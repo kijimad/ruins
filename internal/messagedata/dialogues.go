@@ -1,29 +1,28 @@
 package messagedata
 
 import (
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// DialogueTable は会話データのテーブル。表示文字列は query.T で現在言語へ引く
-var DialogueTable = map[string]func(world w.World, speakerName string) *MessageData{
-	"old_soldier_greeting": func(world w.World, speakerName string) *MessageData {
-		// 会話は1ページ=1文字列。強調語は <keyword> で囲む。断片を連結せず語順ごと訳せる
-		msg1 := NewDialogMessage("", speakerName).
-			AddMarkup(query.T(world, "\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""))
-
-		msg2 := NewDialogMessage("", speakerName).
-			AddMarkup(query.T(world, "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""))
-
-		return ChainMessages(msg1, msg2)
-	},
+// GetDialogue は raw の dialogues の行 key から会話データを組み立てる。1ページを1メッセージにして順につなぐ。
+// ページの文は英語の msgid で、query.T で現在言語へ引いてからマークアップとして読む。行が無ければ既定の文を返す
+func GetDialogue(world w.World, key string, speakerName string) *MessageData {
+	for _, d := range raw.PtrSlice(world.Resources.RawMaster.Dialogues) {
+		if d.Id == key {
+			return dialoguePages(world, d, speakerName)
+		}
+	}
+	return NewDialogMessage("...", speakerName)
 }
 
-// GetDialogue は指定されたキーに対応する会話データを取得する
-func GetDialogue(world w.World, key string, speakerName string) *MessageData {
-	if dialogueFunc, ok := DialogueTable[key]; ok {
-		return dialogueFunc(world, speakerName)
+// dialoguePages は会話の行のページを1メッセージずつ組んでつなぐ
+func dialoguePages(world w.World, d oapi.Dialogue, speakerName string) *MessageData {
+	pages := make([]*MessageData, 0, len(d.Pages))
+	for _, p := range d.Pages {
+		pages = append(pages, NewDialogMessage("", speakerName).AddMarkup(query.T(world, p)))
 	}
-	// デフォルトメッセージ
-	return NewDialogMessage("...", speakerName)
+	return ChainMessages(pages...)
 }

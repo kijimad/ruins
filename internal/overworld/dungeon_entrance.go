@@ -24,7 +24,7 @@ func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coor
 	if !dungeonEntrancePlacement.At(runSeed, c, cols) {
 		return nil
 	}
-	defs := dungeon.GetAllDungeons()
+	defs := dungeon.GetAllDungeons(world.Resources.RawMaster)
 	if len(defs) == 0 {
 		return nil
 	}

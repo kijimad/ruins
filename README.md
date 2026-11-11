@@ -107,8 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 7/16 | worldgen, item, gamedesign |
-| draft | [コードに残るゲームデータを raw へ移す](docs/design/261110202024.md) | 0/13 | refactor, gamedesign, worldgen |
-| draft | [訳す前の文字列 msgid に型を付ける](docs/design/261110205344.md) | 0/5 | refactor, ui |
+| draft | [訳す前の文字列 msgid に型を付ける](docs/design/261110205344.md) | 1/5 | refactor, ui |
 | draft | [raw のスキーマを CUE に移し、TypeSpec と editor-ui をなくす](docs/design/261110211157.md) | 0/6 | refactor, ci |
 | draft | [脱出の鍵・作る段・アイテムの分解を足し、世界をオーバーワールドに一本化してゲームループを閉じる](docs/design/261111002908.md) | 0/17 | gamedesign, item, worldgen, refactor |
 

@@ -69,6 +69,23 @@ export type AbilityId = typeof AbilityId[keyof typeof AbilityId];
 
 
 /**
+ * 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
+ */
+export interface AmbientColor {
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'r': number;
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'g': number;
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'b': number;
+}
+/**
  * 弾薬設定
  */
 export interface Ammo {
@@ -98,9 +115,6 @@ export const AmmoTag = {
 export type AmmoTag = typeof AmmoTag[keyof typeof AmmoTag];
 
 
-/**
- * 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
- */
 
 export const AttackCategory = {
     Fist: 'fist',
@@ -116,10 +130,39 @@ export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
 
 
 /**
+ * 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する攻撃の射程の区分
+ */
+
+export const AttackRange = {
+    Melee: 'melee',
+    Ranged: 'ranged',
+} as const;
+
+export type AttackRange = typeof AttackRange[keyof typeof AttackRange];
+
+
+/**
  * 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ
  */
 export interface AttackType {
     'id': AttackCategory;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    'range': AttackRange;
+    /**
+     * 遠距離だけが持つ。この距離までは命中が落ちない
+     */
+    'optimalRange'?: number;
+    /**
+     * 遠距離だけが持つ。この距離を超えると撃てない
+     */
+    'maxRange'?: number;
+    /**
+     * 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率
+     */
+    'penaltyPerTile'?: number;
     /**
      * 不調の id。Go の ConditionType 定数の値と同じ
      */
@@ -537,6 +580,14 @@ export interface ClutterChoice {
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight': number;
+    /**
+     * 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
+     */
+    'furniturePercent': number;
+    /**
+     * 家具から離れた床のタイルへ小物を散らす割合
+     */
+    'floorPercent': number;
 }
 
 
@@ -765,6 +816,14 @@ export interface DamageChoice {
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight': number;
+    /**
+     * 経年で戦利品を撤去する割合
+     */
+    'lootPercent': number;
+    /**
+     * 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
+     */
+    'rubbleSeedRatio': number;
 }
 
 
@@ -797,6 +856,16 @@ export interface Dialog {
      * メッセージリソースのキー
      */
     'messageKey': string;
+}
+/**
+ * NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる
+ */
+export interface Dialogue {
+    /**
+     * メッセージリソースのキー
+     */
+    'id': string;
+    'pages': Array<string>;
 }
 /**
  * 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
@@ -845,6 +914,27 @@ export interface DisassemblyYield {
     'chance'?: number;
 }
 /**
+ * 扉ローデータ
+ */
+export interface DoorRaw {
+    /**
+     * スプライトキー
+     */
+    'horizontalOpen': string;
+    /**
+     * スプライトキー
+     */
+    'horizontalClosed': string;
+    /**
+     * スプライトキー
+     */
+    'verticalOpen': string;
+    /**
+     * スプライトキー
+     */
+    'verticalClosed': string;
+}
+/**
  * ランドマークの描画関数の選択キー
  */
 
@@ -891,6 +981,67 @@ export interface DropTableList {
     'data': Array<DropTable>;
     'totalCount': number;
 }
+/**
+ * フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
+ */
+export interface Dungeon {
+    'id': string;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 説明文
+     */
+    'description': string;
+    /**
+     * 背景画像のスプライトキー
+     */
+    'imageKey': string;
+    /**
+     * 敵を引く enemyTables の id
+     */
+    'enemyTable': string;
+    /**
+     * アイテムを引く itemTables の id
+     */
+    'itemTable': string;
+    /**
+     * ステージの基本気温。℃
+     */
+    'baseTemp': number;
+    /**
+     * フロアの間取りの抽選表。行の順に重みを積む
+     */
+    'planners': Array<DungeonPlannerWeight>;
+}
+/**
+ * ダンジョンのフロアを生成する間取りの種類
+ */
+
+export const DungeonPlanner = {
+    SmallRoom: 'small_room',
+    BigRoom: 'big_room',
+    Cave: 'cave',
+    Ruins: 'ruins',
+    Forest: 'forest',
+} as const;
+
+export type DungeonPlanner = typeof DungeonPlanner[keyof typeof DungeonPlanner];
+
+
+/**
+ * ダンジョンの間取りの種類と、フロアごとに選ばれる重み
+ */
+export interface DungeonPlannerWeight {
+    'id': DungeonPlanner;
+    /**
+     * テーブルエントリの重み。大きいほど選ばれやすい
+     */
+    'weight': number;
+}
+
+
 /**
  * 攻撃属性
  */
@@ -1010,6 +1161,20 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 
 /**
+ * 街路側の前壁に付ける外皮の interiorRefs の id
+ */
+export interface FacadeRefs {
+    'window': string;
+    /**
+     * 大破した店が窓の代わりに下ろすシャッター
+     */
+    'shutter': string;
+    /**
+     * 店の入口脇に立てる看板
+     */
+    'sign': string;
+}
+/**
  * 市街地の施設1種。isShop は看板やシャッターを出す店か
  */
 export interface Facility {
@@ -1074,6 +1239,14 @@ export interface FatigueStage {
      * 最大値に対する割合
      */
     'from': number;
+    /**
+     * この段階で眠れるか。疲れが足りない段階は眠れない
+     */
+    'canSleep': boolean;
+    /**
+     * HUD に出すバッジの色。省くとバッジを出さない
+     */
+    'badgeColor'?: RGBAColor;
     /**
      * この段階で立つ過労の重症度。省くと立たない
      */
@@ -1156,6 +1329,66 @@ export interface FoliageEffect {
 
 
 /**
+ * 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+ */
+export interface FreshnessStage {
+    'id': FreshnessStageId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 食料から得る栄養の満額に対する割合。百分率
+     */
+    'nutritionPercent': number;
+    /**
+     * 食べたときのログの msgid。%s は食べた者と食べ物
+     */
+    'eatLog': string;
+    /**
+     * メニューの行に鮮度を添えるか
+     */
+    'marker': boolean;
+    /**
+     * 食べたとき食中毒を起こす確率。百分率。省くと起こさない
+     */
+    'illnessChancePercent'?: number;
+}
+
+
+/**
+ * 鮮度の段階
+ */
+
+export const FreshnessStageId = {
+    Fresh: 'fresh',
+    Stale: 'stale',
+    Rotten: 'rotten',
+} as const;
+
+export type FreshnessStageId = typeof FreshnessStageId[keyof typeof FreshnessStageId];
+
+
+/**
+ * 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
+ */
+
+export const GlyphChunk = {
+    Wasteland: 'wasteland',
+    DungeonEntrance: 'dungeon_entrance',
+} as const;
+
+export type GlyphChunk = typeof GlyphChunk[keyof typeof GlyphChunk];
+
+
+/**
+ * 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
+ */
+export interface GroundCoverEntry {
+    'ref': string;
+    'weight': number;
+}
+/**
  * グループの抽選方式。保証セットとランダム充填を分ける
  */
 
@@ -1219,6 +1452,18 @@ export interface HungerStage {
      */
     'from': number;
     /**
+     * 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない
+     */
+    'reachedLog'?: string;
+    /**
+     * 寝ている者を起こす段階か
+     */
+    'wakesSleeper'?: boolean;
+    /**
+     * HUD に出すバッジの色。省くとバッジを出さない
+     */
+    'badgeColor'?: RGBAColor;
+    /**
      * この段階で立つ栄養失調の重症度。省くと立たない
      */
     'severity'?: ConditionSeverity;
@@ -1255,6 +1500,17 @@ export interface InteriorProfile {
     'variants': Array<VariantChoice>;
     'densities': Array<DensityChoice>;
     'heroes': Array<HeroChoice>;
+    'sites': Array<SiteChoice>;
+    'facade': FacadeRefs;
+    'lot': LotRefs;
+    /**
+     * 経年で家具1つが隣へ生活痕を落とす割合
+     */
+    'wearPercent': number;
+    /**
+     * hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
+     */
+    'heroOneIn': number;
 }
 /**
  * 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
@@ -1486,6 +1742,20 @@ export interface LightSource {
     'enabled': boolean;
 }
 /**
+ * 敷地の外構の interiorRefs の id
+ */
+export interface LotRefs {
+    'fence': string;
+    /**
+     * 民家の前庭に置く外構
+     */
+    'plant': string;
+    /**
+     * 店の前庭に置く外構
+     */
+    'vending': string;
+}
+/**
  * 俯瞰地図の記号1種。id は地物・施設の種別 id
  */
 export interface MapGlyph {
@@ -1494,9 +1764,15 @@ export interface MapGlyph {
     'name': string;
     'color': RGBAColor;
     'order': number;
+    /**
+     * この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く
+     */
+    'chunk'?: GlyphChunk;
 }
+
+
 /**
- * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+ * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
  */
 
 export const Material = {
@@ -1519,6 +1795,22 @@ export const Material = {
 } as const;
 
 export type Material = typeof Material[keyof typeof Material];
+
+
+/**
+ * 材質の表示名と燃焼の熱量
+ */
+export interface MaterialDef {
+    'id': Material;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
+     */
+    'heatPerKg': number;
+}
 
 
 /**
@@ -1588,6 +1880,18 @@ export interface Member {
      * プレイヤーキャラクターでは省略可能
      */
     'dropTableId'?: string;
+    /**
+     * 生成時に装備して持たせるアイテム。startingItems より先に持たせる
+     */
+    'startingEquips'?: Array<ProfessionEquip>;
+    /**
+     * 生成時にバックパックへ持たせるアイテム
+     */
+    'startingItems'?: Array<ProfessionItem>;
+    /**
+     * 店の在庫。持つ member は店を開く
+     */
+    'stock'?: Array<ProfessionItem>;
 }
 
 
@@ -1831,10 +2135,7 @@ export interface Prop {
     'lightSource'?: LightSource;
     'heatSource'?: HeatSource;
     'bedding'?: Bedding;
-    /**
-     * 扉ローデータ
-     */
-    'door'?: object;
+    'door'?: DoorRaw;
     /**
      * 次階層ワープトリガー
      */
@@ -1845,6 +2146,10 @@ export interface Prop {
     'warpPrevTrigger'?: object;
     'storage'?: StorageRaw;
     'disassembly'?: Disassembly;
+    /**
+     * 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
+     */
+    'burnoutItem'?: string;
 }
 /**
  * 置物一覧
@@ -1854,7 +2159,7 @@ export interface PropList {
     'totalCount': number;
 }
 /**
- * prop 1個の相対配置
+ * 基準点から相対の位置に置くエンティティ1個
  */
 export interface PropSpot {
     'name': string;
@@ -1939,6 +2244,14 @@ export interface Raws {
     'foliageEffects'?: Array<FoliageEffect>;
     'hungerStages'?: Array<HungerStage>;
     'fatigueStages'?: Array<FatigueStage>;
+    'freshnessStages'?: Array<FreshnessStage>;
+    'materials'?: Array<MaterialDef>;
+    'toolCategories'?: Array<ToolCategoryDef>;
+    'timesOfDay'?: Array<TimeOfDay>;
+    'seasons'?: Array<Season>;
+    'dungeons'?: Array<Dungeon>;
+    'settlements'?: Array<Settlement>;
+    'dialogues'?: Array<Dialogue>;
 }
 /**
  * レシピ
@@ -2036,15 +2349,34 @@ export interface ScatterEntry {
     'satellites'?: Array<PropSpot>;
 }
 /**
- * 開けた地形の散布ゾーン1種
+ * 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
  */
 export interface ScatterZone {
     'id': string;
     'grassDensity': number;
+    'soilDensity': number;
     'propDensity': number;
     'lootGroup': string;
     'entries': Array<ScatterEntry>;
+    'grass': Array<GroundCoverEntry>;
+    'soil': Array<GroundCoverEntry>;
 }
+/**
+ * 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
+ */
+export interface Season {
+    'id': SeasonId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 季節の世界温度。℃
+     */
+    'temp': number;
+}
+
+
 /**
  * 季節
  */
@@ -2059,6 +2391,18 @@ export const SeasonId = {
 export type SeasonId = typeof SeasonId[keyof typeof SeasonId];
 
 
+/**
+ * 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。     id は地図の記号の id を兼ねる。行の順に重みを積む
+ */
+export interface Settlement {
+    'id': string;
+    'weight': number;
+    /**
+     * 住人の member。name は members の id
+     */
+    'members': Array<PropSpot>;
+    'props': Array<PropSpot>;
+}
 /**
  * タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
  */
@@ -2090,6 +2434,43 @@ export interface ShelterEffect {
      */
     'influencePercent': number;
 }
+
+
+/**
+ * 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
+ */
+export interface SiteChoice {
+    'id': SiteType;
+    /**
+     * 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+     */
+    'homeWeight': number;
+    /**
+     * 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
+     */
+    'shopWeight': number;
+    /**
+     * 入口側に空ける前庭の奥行き。タイル
+     */
+    'yardDepth': number;
+    /**
+     * 敷地を塀で囲うか。街路に面して開く敷地は囲わない
+     */
+    'fence': boolean;
+}
+
+
+/**
+ * 敷地の類型。前庭の深さと外構の出し分けに使う
+ */
+
+export const SiteType = {
+    Detached: 'detached',
+    Shopfront: 'shopfront',
+    Roadside: 'roadside',
+} as const;
+
+export type SiteType = typeof SiteType[keyof typeof SiteType];
 
 
 /**
@@ -2340,6 +2721,10 @@ export interface Tile {
      * 植生。省くと植生なし
      */
     'foliage'?: Foliage;
+    /**
+     * マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
+     */
+    'spawn'?: TileSpawn;
 }
 
 
@@ -2350,6 +2735,56 @@ export interface TileList {
     'data': Array<Tile>;
     'totalCount': number;
 }
+/**
+ * 計画のタイルを実体化する仕様
+ */
+export interface TileSpawn {
+    /**
+     * 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身
+     */
+    'tile'?: string;
+    /**
+     * 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false
+     */
+    'autotile': boolean;
+}
+/**
+ * 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。     明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する
+ */
+export interface TimeOfDay {
+    'id': TimeOfDayId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
+    /**
+     * 時間帯による世界温度への加算。℃
+     */
+    'tempModifier': number;
+    /**
+     * 光の強さ。0 が真っ暗、1 が最大
+     */
+    'daylight': number;
+    'ambientColor': AmbientColor;
+}
+
+
+/**
+ * 時間帯。1日は夜明けで始まり、この順に巡る
+ */
+
+export const TimeOfDayId = {
+    Dawn: 'dawn',
+    Morning: 'morning',
+    Noon: 'noon',
+    Evening: 'evening',
+    Night: 'night',
+    Midnight: 'midnight',
+} as const;
+
+export type TimeOfDayId = typeof TimeOfDayId[keyof typeof TimeOfDayId];
+
+
 /**
  * 道具の性質。道具の分類とグレードを持つ
  */
@@ -2376,6 +2811,15 @@ export type ToolCategory = typeof ToolCategory[keyof typeof ToolCategory];
 
 
 /**
+ * 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
+ */
+export interface ToolCategoryDef {
+    'id': ToolCategory;
+    'skill'?: SkillId;
+}
+
+
+/**
  * 使用可能シーン
  */
 
@@ -2397,6 +2841,18 @@ export interface VariantChoice {
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
     'weight': number;
+    /**
+     * 引いた損傷段階を上書きする。省くと上書きしない
+     */
+    'damage'?: BuildingDamage;
+    /**
+     * 散らかり段階をこれ以上に引き上げる。省くと引き上げない
+     */
+    'minClutter'?: BuildingClutter;
+    /**
+     * 引いた家具量の倍率を上書きする。省くと上書きしない
+     */
+    'density'?: number;
 }
 
 
@@ -2449,6 +2905,10 @@ export interface Wearable {
  */
 export interface Weather {
     'id': WeatherId;
+    /**
+     * エンティティ名
+     */
+    'name': string;
     /**
      * 天候による世界温度への加算。℃
      */

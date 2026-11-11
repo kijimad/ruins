@@ -3,6 +3,8 @@
   damage = "sword_damage"
   id = "sword"
   injury = "laceration"
+  name = "Sword"
+  range = "melee"
   skill = "sword"
 
 [[attackTypes]]
@@ -10,6 +12,8 @@
   damage = "spear_damage"
   id = "spear"
   injury = "laceration"
+  name = "Spear"
+  range = "melee"
   skill = "spear"
 
 [[attackTypes]]
@@ -17,6 +21,8 @@
   damage = "fist_damage"
   id = "fist"
   injury = "fracture"
+  name = "Martial arts"
+  range = "melee"
   skill = "fist"
 
 [[attackTypes]]
@@ -24,6 +30,11 @@
   damage = "bow_damage"
   id = "bow"
   injury = "laceration"
+  maxRange = 10
+  name = "Bow"
+  optimalRange = 4
+  penaltyPerTile = 5
+  range = "ranged"
   skill = "bow"
 
 [[attackTypes]]
@@ -31,6 +42,11 @@
   damage = "handgun_damage"
   id = "handgun"
   injury = "laceration"
+  maxRange = 8
+  name = "Handgun"
+  optimalRange = 3
+  penaltyPerTile = 8
+  range = "ranged"
   skill = "handgun"
 
 [[attackTypes]]
@@ -38,6 +54,11 @@
   damage = "rifle_damage"
   id = "rifle"
   injury = "laceration"
+  maxRange = 16
+  name = "Rifle"
+  optimalRange = 8
+  penaltyPerTile = 3
+  range = "ranged"
   skill = "rifle"
 
 [[attackTypes]]
@@ -45,6 +66,11 @@
   damage = "cannon_damage"
   id = "cannon"
   injury = "fracture"
+  maxRange = 12
+  name = "Cannon"
+  optimalRange = 6
+  penaltyPerTile = 5
+  range = "ranged"
   skill = "cannon"
 
 [[bodyParts]]
@@ -1051,6 +1077,14 @@
   onset = "hunger"
   painPerSeverity = 0
 
+[[dialogues]]
+  id = "old_soldier_greeting"
+  pages = ["\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\"", "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""]
+
+[[dialogues]]
+  id = "merchant_greeting"
+  pages = ["Want to make a deal?\n\nI've got good stuff."]
+
 [[dropTables]]
   id = "bat"
   name = "コウモリ"
@@ -1717,6 +1751,69 @@
   [[dropTables.entries]]
     id = "rusted_chain"
     weight = 0.3
+
+[[dungeons]]
+  baseTemp = 0
+  description = "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone."
+  enemyTable = "forest"
+  id = "dead_forest"
+  imageKey = "forest1"
+  itemTable = "forest"
+  name = "Dead forest"
+
+  [[dungeons.planners]]
+    id = "forest"
+    weight = 5
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 2
+
+  [[dungeons.planners]]
+    id = "big_room"
+    weight = 1
+
+[[dungeons]]
+  baseTemp = 5
+  description = "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows."
+  enemyTable = "cave"
+  id = "ash_cave"
+  imageKey = "cave1"
+  itemTable = "cave"
+  name = "Ash cave"
+
+  [[dungeons.planners]]
+    id = "cave"
+    weight = 6
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 1
+
+  [[dungeons.planners]]
+    id = "big_room"
+    weight = 2
+
+[[dungeons]]
+  baseTemp = 15
+  description = "An ancient city stands frozen in place.\nWho forgot what, no one remembers now."
+  enemyTable = "ruins_area"
+  id = "forgotten_ruins"
+  imageKey = "city1"
+  itemTable = "ruins_area"
+  name = "Forgotten ruins"
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 4
+
+  [[dungeons.planners]]
+    id = "ruins"
+    weight = 3
+
+  [[dungeons.planners]]
+    id = "big_room"
+    weight = 2
 
 [[enemyTables]]
   id = "ruins_area"
@@ -3120,26 +3217,40 @@
   fallback = "depot_backroom"
 
 [[fatigueStages]]
+  canSleep = false
   from = 0.0
   id = "rested"
   name = "Rested"
 
 [[fatigueStages]]
+  canSleep = true
   from = 0.3
   id = "normal"
   name = "Normal"
 
 [[fatigueStages]]
+  canSleep = true
   from = 0.5
   id = "tired"
   name = "Tired"
   severity = "minor"
+  [fatigueStages.badgeColor]
+    a = 255
+    b = 0
+    g = 200
+    r = 255
 
 [[fatigueStages]]
+  canSleep = true
   from = 0.8
   id = "exhausted"
   name = "Exhausted"
   severity = "medium"
+  [fatigueStages.badgeColor]
+    a = 255
+    b = 50
+    g = 50
+    r = 255
 
 [flavorContent]
   id = "flavor"
@@ -3169,10 +3280,38 @@
   id = "forest"
   tempModifier = -3
 
+[[freshnessStages]]
+  eatLog = "%s ate fresh %s."
+  id = "fresh"
+  marker = false
+  name = "Fresh"
+  nutritionPercent = 100
+
+[[freshnessStages]]
+  eatLog = "%s ate old %s."
+  id = "stale"
+  marker = true
+  name = "Stale"
+  nutritionPercent = 50
+
+[[freshnessStages]]
+  eatLog = "%s ate spoiled %s."
+  id = "rotten"
+  illnessChancePercent = 25
+  marker = true
+  name = "Rotten"
+  nutritionPercent = 30
+
 [[hungerStages]]
   from = 0.95
   id = "satiated"
   name = "Full"
+  reachedLog = "%s is now full."
+  [hungerStages.badgeColor]
+    a = 255
+    b = 100
+    g = 200
+    r = 100
 
 [[hungerStages]]
   from = 0.66
@@ -3184,12 +3323,23 @@
   id = "hungry"
   name = "Hungry"
   severity = "minor"
+  [hungerStages.badgeColor]
+    a = 255
+    b = 0
+    g = 200
+    r = 255
 
 [[hungerStages]]
   from = 0.0
   id = "starving"
   name = "Starving"
   severity = "medium"
+  wakesSleeper = true
+  [hungerStages.badgeColor]
+    a = 255
+    b = 50
+    g = 50
+    r = 255
 
 [[interiorContents]]
   id = "bath"
@@ -4409,29 +4559,43 @@
       ref = "occupant"
 
 [interiorProfile]
+  heroOneIn = 12
+  wearPercent = 18
 
   [[interiorProfile.clutters]]
+    floorPercent = 0
+    furniturePercent = 0
     id = "tidy"
     weight = 6.0
 
   [[interiorProfile.clutters]]
+    floorPercent = 0
+    furniturePercent = 35
     id = "messy"
     weight = 3.0
 
   [[interiorProfile.clutters]]
+    floorPercent = 7
+    furniturePercent = 70
     id = "filthy"
     weight = 1.0
 
   [[interiorProfile.damages]]
     id = "intact"
+    lootPercent = 0
+    rubbleSeedRatio = 0.0
     weight = 2.0
 
   [[interiorProfile.damages]]
     id = "minor"
+    lootPercent = 45
+    rubbleSeedRatio = 0.1
     weight = 3.0
 
   [[interiorProfile.damages]]
     id = "major"
+    lootPercent = 70
+    rubbleSeedRatio = 0.2
     weight = 1.0
 
   [[interiorProfile.densities]]
@@ -4445,6 +4609,10 @@
   [[interiorProfile.densities]]
     factor = 14
     weight = 1.0
+  [interiorProfile.facade]
+    shutter = "shutter"
+    sign = "sign"
+    window = "window"
 
   [[interiorProfile.heroes]]
     id = "reward"
@@ -4465,25 +4633,57 @@
     id = "danger"
     refs = ["poison"]
     weight = 14.0
+  [interiorProfile.lot]
+    fence = "fence"
+    plant = "plant"
+    vending = "vending"
+
+  [[interiorProfile.sites]]
+    fence = true
+    homeWeight = 1
+    id = "detached"
+    shopWeight = 0
+    yardDepth = 3
+
+  [[interiorProfile.sites]]
+    fence = false
+    homeWeight = 0
+    id = "shopfront"
+    shopWeight = 1
+    yardDepth = 1
+
+  [[interiorProfile.sites]]
+    fence = true
+    homeWeight = 0
+    id = "roadside"
+    shopWeight = 1
+    yardDepth = 5
 
   [[interiorProfile.variants]]
     id = "standard"
     weight = 970.0
 
   [[interiorProfile.variants]]
+    damage = "major"
     id = "abandoned"
+    minClutter = "messy"
     weight = 6.0
 
   [[interiorProfile.variants]]
+    damage = "intact"
+    density = 6
     id = "under_construction"
+    minClutter = "messy"
     weight = 10.0
 
   [[interiorProfile.variants]]
     id = "survivalist"
+    minClutter = "messy"
     weight = 9.0
 
   [[interiorProfile.variants]]
     id = "hoarder"
+    minClutter = "filthy"
     weight = 5.0
 
 [[interiorRefs]]
@@ -18069,6 +18269,7 @@
     name = "bench"
 
 [[mapGlyphs]]
+  chunk = "wasteland"
   glyph = "."
   id = "field"
   name = "Wasteland"
@@ -18102,6 +18303,7 @@
     r = 208
 
 [[mapGlyphs]]
+  chunk = "dungeon_entrance"
   glyph = ">"
   id = "dungeon_entrance"
   name = "Ruins Entrance"
@@ -18233,6 +18435,86 @@
     g = 106
     r = 160
 
+[[materials]]
+  heatPerKg = 200
+  id = "WOOD"
+  name = "Wood"
+
+[[materials]]
+  heatPerKg = 300
+  id = "PAPER"
+  name = "Paper"
+
+[[materials]]
+  heatPerKg = 160
+  id = "CLOTH"
+  name = "Cloth"
+
+[[materials]]
+  heatPerKg = 120
+  id = "LEATHER"
+  name = "Leather"
+
+[[materials]]
+  heatPerKg = 120
+  id = "PLANT"
+  name = "Plant fiber"
+
+[[materials]]
+  heatPerKg = 60
+  id = "FOOD"
+  name = "Food"
+
+[[materials]]
+  heatPerKg = 40
+  id = "BONE"
+  name = "Bone"
+
+[[materials]]
+  heatPerKg = 1000
+  id = "OIL"
+  name = "Oil"
+
+[[materials]]
+  heatPerKg = 800
+  id = "COAL"
+  name = "Coal"
+
+[[materials]]
+  heatPerKg = 240
+  id = "PLASTIC"
+  name = "Plastic"
+
+[[materials]]
+  heatPerKg = 0
+  id = "METAL"
+  name = "Metal"
+
+[[materials]]
+  heatPerKg = 0
+  id = "STONE"
+  name = "Stone"
+
+[[materials]]
+  heatPerKg = 0
+  id = "GLASS"
+  name = "Glass"
+
+[[materials]]
+  heatPerKg = 0
+  id = "CRYSTAL"
+  name = "Crystal"
+
+[[materials]]
+  heatPerKg = 0
+  id = "CERAMIC"
+  name = "Ceramic"
+
+[[materials]]
+  heatPerKg = 0
+  id = "LIQUID"
+  name = "Liquid"
+
 [[members]]
   animKeys = ["player_0", "player_1"]
   combatPolicy = "ignore"
@@ -18257,6 +18539,18 @@
       b = 220
       g = 255
       r = 255
+
+  [[members.startingEquips]]
+    name = "torch"
+    slot = "WEAPON1"
+
+  [[members.startingItems]]
+    count = 2
+    name = "bandage"
+
+  [[members.startingItems]]
+    count = 1
+    name = "splint"
 
 [[members]]
   animKeys = ["dream_fly"]
@@ -18497,6 +18791,38 @@
       b = 100
       g = 175
       r = 255
+
+  [[members.stock]]
+    count = 1
+    name = "wooden_sword"
+
+  [[members.stock]]
+    count = 1
+    name = "handgun"
+
+  [[members.stock]]
+    count = 1
+    name = "western_armor"
+
+  [[members.stock]]
+    count = 1
+    name = "work_helmet"
+
+  [[members.stock]]
+    count = 1
+    name = "leather_boots"
+
+  [[members.stock]]
+    count = 5
+    name = "healing_potion"
+
+  [[members.stock]]
+    count = 3
+    name = "bread"
+
+  [[members.stock]]
+    count = 1
+    name = "army_shooting_manual"
 
 [[members]]
   animKeys = ["dream_fly"]
@@ -20241,6 +20567,7 @@
   animKeys = ["fire_0", "fire_1"]
   blockPass = true
   blockView = false
+  burnoutItem = "ashes"
   description = "地面で燃える火。燃料を継がなければ燃え尽きて消える。暖を取り、周囲を照らす"
   hp = 9999
   id = "fire"
@@ -20531,6 +20858,10 @@
   id = "door"
   name = "Door"
   [props.door]
+    horizontalClosed = "door_horizontal_closed"
+    horizontalOpen = "door_horizontal_open"
+    verticalClosed = "door_vertical_closed"
+    verticalOpen = "door_vertical_open"
   [props.spriteRender]
     depth = 3
     spriteKey = "door_horizontal_closed"
@@ -22087,6 +22418,32 @@
     spriteKey = "bush_dry"
     spriteSheetName = "field"
 
+[[props]]
+  animKeys = ["cube_float_0", "cube_float_1", "cube_float_2", "cube_float_3"]
+  blockPass = false
+  blockView = false
+  description = "A mobile base that follows you"
+  hp = 200
+  id = "cube"
+  name = "Cube"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "cube_float_0"
+    spriteSheetName = "field"
+
+[[props]]
+  animKeys = ["warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15"]
+  blockPass = false
+  blockView = false
+  description = "An entrance leading to ruins"
+  hp = 9999
+  id = "dungeon_entrance"
+  name = "Ruins Entrance"
+  [props.spriteRender]
+    depth = 1
+    spriteKey = "warp_next_0"
+    spriteSheetName = "field"
+
 [[recipes]]
   id = "ray_gun"
   name = "レイガン"
@@ -22216,6 +22573,7 @@
   id = "roadside"
   lootGroup = "scrap_of_paper"
   propDensity = 0.015
+  soilDensity = 0.03
 
   [[scatterZones.entries]]
     big = false
@@ -22237,11 +22595,64 @@
     ref = "rock"
     weight = 10
 
+  [[scatterZones.grass]]
+    ref = "grass"
+    weight = 30
+
+  [[scatterZones.grass]]
+    ref = "grass_lush"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "grass_sprig"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "weeds"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dark"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry_sprig"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "bush"
+    weight = 4
+
+  [[scatterZones.grass]]
+    ref = "bush_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_pebbles"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dark"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_crack"
+    weight = 2
+
 [[scatterZones]]
   grassDensity = 0.19
   id = "wild"
   lootGroup = "junk"
   propDensity = 0.035
+  soilDensity = 0.03
 
   [[scatterZones.entries]]
     big = false
@@ -22277,6 +22688,121 @@
       dx = -1
       dy = 1
       name = "tree_b"
+
+  [[scatterZones.grass]]
+    ref = "grass"
+    weight = 30
+
+  [[scatterZones.grass]]
+    ref = "grass_lush"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "grass_sprig"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "weeds"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dark"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry_sprig"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "bush"
+    weight = 4
+
+  [[scatterZones.grass]]
+    ref = "bush_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_pebbles"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dark"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_crack"
+    weight = 2
+
+[[seasons]]
+  id = "spring"
+  name = "Spring"
+  temp = 5
+
+[[seasons]]
+  id = "summer"
+  name = "Summer"
+  temp = 22
+
+[[seasons]]
+  id = "autumn"
+  name = "Autumn"
+  temp = 0
+
+[[seasons]]
+  id = "winter"
+  name = "Winter"
+  temp = -30
+
+[[settlements]]
+  id = "village"
+  weight = 6
+
+  [[settlements.members]]
+    dx = -2
+    dy = -1
+    name = "merchant"
+
+  [[settlements.props]]
+    dx = 2
+    dy = -2
+    name = "hearth"
+
+  [[settlements.props]]
+    dx = 3
+    dy = 1
+    name = "bench"
+
+  [[settlements.props]]
+    dx = 0
+    dy = -3
+    name = "wooden_sign"
+
+[[settlements]]
+  id = "hamlet"
+  weight = 4
+
+  [[settlements.members]]
+    dx = -2
+    dy = -1
+    name = "merchant"
+
+  [[settlements.props]]
+    dx = 2
+    dy = -2
+    name = "hearth"
+
+  [[settlements.props]]
+    dx = 1
+    dy = 2
+    name = "crate"
 
 [[shelterEffects]]
   anchorTemp = 10
@@ -22682,6 +23208,8 @@
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
   id = "dirt"
   name = "Dirt"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "dirt"
@@ -22704,6 +23232,8 @@
   description = "灰色の石床のオートタイル。屋内の歩行可能タイル"
   id = "floor"
   name = "Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor"
@@ -22715,6 +23245,8 @@
   description = "暗闇。単一絵柄の通行不可タイル"
   id = "void"
   name = "Void"
+  [tiles.spawn]
+    autotile = false
   [tiles.spriteRender]
     depth = 0
     spriteKey = "void"
@@ -22726,6 +23258,9 @@
   description = "灰色の石壁のオートタイル。通行不可"
   id = "wall"
   name = "Wall"
+  [tiles.spawn]
+    autotile = true
+    tile = "dwall"
   [tiles.spriteRender]
     depth = 3
     spriteKey = "wall"
@@ -23094,6 +23629,84 @@
     spriteKey = "plank_blue"
     spriteSheetName = "tile"
 
+[[timesOfDay]]
+  daylight = 0.65
+  id = "dawn"
+  name = "Dawn"
+  tempModifier = 0
+  [timesOfDay.ambientColor]
+    b = 0.72
+    g = 0.8
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.72
+  id = "morning"
+  name = "Morning"
+  tempModifier = 5
+  [timesOfDay.ambientColor]
+    b = 0.9
+    g = 0.96
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.95
+  id = "noon"
+  name = "Noon"
+  tempModifier = 10
+  [timesOfDay.ambientColor]
+    b = 1.0
+    g = 1.0
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.55
+  id = "evening"
+  name = "Evening"
+  tempModifier = 5
+  [timesOfDay.ambientColor]
+    b = 0.52
+    g = 0.72
+    r = 1.0
+
+[[timesOfDay]]
+  daylight = 0.14
+  id = "night"
+  name = "Night"
+  tempModifier = -5
+  [timesOfDay.ambientColor]
+    b = 0.85
+    g = 0.6
+    r = 0.55
+
+[[timesOfDay]]
+  daylight = 0.06
+  id = "midnight"
+  name = "Midnight"
+  tempModifier = -10
+  [timesOfDay.ambientColor]
+    b = 0.78
+    g = 0.48
+    r = 0.42
+
+[[toolCategories]]
+  id = "prying"
+  skill = "mechanic"
+
+[[toolCategories]]
+  id = "precision"
+  skill = "mechanic"
+
+[[toolCategories]]
+  id = "cutting"
+  skill = "mechanic"
+
+[[toolCategories]]
+  id = "chopping"
+
+[[toolCategories]]
+  id = "mining"
+
 [[waterEffects]]
   id = "nearby"
   tempModifier = -5
@@ -23104,6 +23717,7 @@
 
 [[weathers]]
   id = "clear"
+  name = "Clear"
   severity = 0
   spellTurnsMax = 4500
   spellTurnsMin = 2250
@@ -23128,6 +23742,7 @@
 
 [[weathers]]
   id = "cloudy"
+  name = "Cloudy"
   severity = 0
   spellTurnsMax = 3000
   spellTurnsMin = 1500
@@ -23152,6 +23767,7 @@
 
 [[weathers]]
   id = "rain"
+  name = "Rain"
   severity = 0
   spellTurnsMax = 2250
   spellTurnsMin = 750
@@ -23176,6 +23792,7 @@
 
 [[weathers]]
   id = "snow"
+  name = "Snow"
   severity = 1
   spellTurnsMax = 2250
   spellTurnsMin = 1200
@@ -23200,6 +23817,7 @@
 
 [[weathers]]
   id = "blizzard"
+  name = "Blizzard"
   severity = 2
   spellTurnsMax = 900
   spellTurnsMin = 450
@@ -23224,6 +23842,7 @@
 
 [[weathers]]
   id = "cold_snap"
+  name = "Cold snap"
   severity = 2
   spellTurnsMax = 3000
   spellTurnsMin = 1500

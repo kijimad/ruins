@@ -301,7 +301,7 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 	// 屋外の日照が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる
 	boost := 1.0
 	if query.IsOnOverworld(world) {
-		boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(query.GetGameTime(world)))
+		boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(world.Resources.CalendarDefs, query.GetGameTime(world)))
 	}
 	return func(g *gc.GridElement) ([3]float64, bool, bool) {
 		s, drawable, visible := sampleOf(renderMap[*g])

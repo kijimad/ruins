@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -64,9 +65,9 @@ func TestApplyClutter_整頓は何も足さず戸口を塞がない(t *testing.T
 	require.NoError(t, err)
 	base := FillRoom(1, room, store)
 
-	assert.Len(t, applyClutter(1, room, base, clutterTidy, "main"), len(base), "整頓では小物を足さない")
+	assert.Len(t, applyClutter(testProfileTable(), 1, room, base, clutterTidy, "main"), len(base), "整頓では小物を足さない")
 
-	filthy := applyClutter(1, room, base, clutterFilthy, "main")
+	filthy := applyClutter(testProfileTable(), 1, room, base, clutterFilthy, "main")
 	assert.Greater(t, len(filthy), len(base), "汚部屋では小物が増える")
 	for _, p := range filthy {
 		assert.Falsef(t, isDoorwayAdjacent(room, p.Pos), "小物 %v は戸口前に置かない", p.Pos)
@@ -87,8 +88,74 @@ func TestNewProfileTable_rawの抽選表を軸ごとに組む(t *testing.T) {
 			{[]string{"cage"}, 15},
 			{[]string{"poison"}, 14},
 		},
+		damageEffects: map[damageLevel]damageEffect{
+			dmgIntact: {lootPct: 0, decayThresh: 0},
+			dmgMinor:  {lootPct: 45, decayThresh: 0.10},
+			dmgMajor:  {lootPct: 70, decayThresh: 0.20},
+		},
+		clutterEffects: map[clutterLevel]clutterEffect{
+			clutterTidy:   {furniturePct: 0, floorPct: 0},
+			clutterMessy:  {furniturePct: 35, floorPct: 0},
+			clutterFilthy: {furniturePct: 70, floorPct: 7},
+		},
+		variantEffects: map[variantKind]oapi.VariantChoice{
+			varStandard:          {Id: oapi.Standard, Weight: 970},
+			varAbandoned:         {Id: oapi.Abandoned, Weight: 6, Damage: new(oapi.BuildingDamageMajor), MinClutter: new(oapi.Messy)},
+			varUnderConstruction: {Id: oapi.UnderConstruction, Weight: 10, Damage: new(oapi.BuildingDamageIntact), MinClutter: new(oapi.Messy), Density: new(6)},
+			varSurvivalist:       {Id: oapi.Survivalist, Weight: 9, MinClutter: new(oapi.Messy)},
+			varHoarder:           {Id: oapi.Hoarder, Weight: 5, MinClutter: new(oapi.Filthy)},
+		},
+		sites: []oapi.SiteChoice{
+			{Id: oapi.Detached, HomeWeight: 1, ShopWeight: 0, YardDepth: 3, Fence: true},
+			{Id: oapi.Shopfront, HomeWeight: 0, ShopWeight: 1, YardDepth: 1},
+			{Id: oapi.Roadside, HomeWeight: 0, ShopWeight: 1, YardDepth: 5, Fence: true},
+		},
+		facade:    oapi.FacadeRefs{Window: "window", Shutter: "shutter", Sign: "sign"},
+		lot:       oapi.LotRefs{Fence: "fence", Plant: "plant", Vending: "vending"},
+		wearPct:   18,
+		heroOneIn: 12,
 	}, testProfileTable())
 
 	_, err := newProfileTable(oapi.Raws{})
 	require.ErrorIs(t, err, errInteriorProfileMissing)
+}
+
+// mapKeys は文字列のキーを持つ map のキーを返す
+func mapKeys[K ~string, V any](m map[K]V) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, string(k))
+	}
+	return out
+}
+
+func TestLevelMaps_スキーマのenumの全値を持つ(t *testing.T) {
+	t.Parallel()
+
+	spec, err := oapi.GetSpec()
+	require.NoError(t, err)
+	enum := func(name string) []string {
+		values := spec.Components.Schemas[name].Value.Enum
+		out := make([]string, 0, len(values))
+		for _, v := range values {
+			s, ok := v.(string)
+			require.True(t, ok)
+			out = append(out, s)
+		}
+		return out
+	}
+	assert.ElementsMatch(t, enum("BuildingDamage"), mapKeys(damageLevels))
+	assert.ElementsMatch(t, enum("BuildingClutter"), mapKeys(clutterLevels))
+	assert.ElementsMatch(t, enum("BuildingVariant"), mapKeys(variantKinds))
+}
+
+func TestClutterRefs_散らかりの小物はrawのpropに実在する(t *testing.T) {
+	t.Parallel()
+
+	for _, role := range []roleName{"bedroom", "kitchen"} {
+		for _, ref := range clutterRefs(role) {
+			_, err := raw.GetProp(testRaws(), ref)
+			assert.NoError(t, err, "%s の %s", role, ref)
+		}
+	}
 }

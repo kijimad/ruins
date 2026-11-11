@@ -76,7 +76,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 	// 射程・射線チェック
 	distance := EntityDistance(actor, p.Target, world)
-	rangeParams, rangeOK := gc.GetRangeParams(fire.AttackCategory)
+	rangeParams, rangeOK := world.Resources.SkillDefs.RangeParams(fire.AttackCategory)
 	if !rangeOK {
 		return fmt.Errorf("no ranged weapon equipped")
 	}
@@ -172,7 +172,7 @@ func calculateRangedHitModifier(actor, target ecs.Entity, attack gc.Attacker, wo
 
 	// 距離ペナルティ
 	distance := EntityDistance(actor, target, world)
-	rangeParams, ok := gc.GetRangeParams(attack.GetAttackCategory())
+	rangeParams, ok := world.Resources.SkillDefs.RangeParams(attack.GetAttackCategory())
 	if ok && distance > float64(rangeParams.OptimalRange) {
 		excess := int(distance) - rangeParams.OptimalRange
 		modifier -= excess * rangeParams.PenaltyPerTile

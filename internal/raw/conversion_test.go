@@ -49,25 +49,16 @@ func TestParseMelee(t *testing.T) {
 			TargetGroup:    "ENEMY",
 			TargetNum:      "SINGLE",
 		}
-		result, err := parseMelee(m)
-		require.NoError(t, err)
+		result := parseMelee(m)
 		assert.Equal(t, 80, result.Accuracy)
 		assert.Equal(t, 25, result.Damage)
 		assert.Equal(t, 2, result.AttackCount)
 		assert.Equal(t, oapi.ElementFIRE, result.Element)
-		assert.Equal(t, gc.AttackSword, result.AttackCategory)
+		assert.Equal(t, oapi.AttackCategorySword, result.AttackCategory)
 		assert.Equal(t, 100, result.Cost)
 		assert.Equal(t, oapi.TargetGroupENEMY, result.TargetType.TargetGroup)
 	})
 
-	t.Run("無効な攻撃種別でエラー", func(t *testing.T) {
-		t.Parallel()
-		m := &oapi.Melee{
-			AttackCategory: "INVALID",
-		}
-		_, err := parseMelee(m)
-		assert.Error(t, err)
-	})
 }
 
 func TestParseFire(t *testing.T) {
@@ -88,12 +79,11 @@ func TestParseFire(t *testing.T) {
 			ReloadEffort:   50,
 			AmmoTag:        new(oapi.AmmoTag("9mm")),
 		}
-		result, err := parseFire(f)
-		require.NoError(t, err)
+		result := parseFire(f)
 		assert.Equal(t, 70, result.Accuracy)
 		assert.Equal(t, 30, result.Damage)
 		assert.Equal(t, oapi.ElementTHUNDER, result.Element)
-		assert.Equal(t, gc.AttackRifle, result.AttackCategory)
+		assert.Equal(t, oapi.AttackCategoryRifle, result.AttackCategory)
 		assert.Equal(t, 10, result.MagazineSize)
 		assert.Equal(t, 50, result.ReloadEffort)
 		assert.Equal(t, oapi.AmmoTagN9mm, result.AmmoTag)
@@ -106,19 +96,10 @@ func TestParseFire(t *testing.T) {
 			MagazineSize:   6,
 			ReloadEffort:   30,
 		}
-		result, err := parseFire(f)
-		require.NoError(t, err)
+		result := parseFire(f)
 		assert.Empty(t, result.AmmoTag)
 	})
 
-	t.Run("無効な攻撃種別でエラー", func(t *testing.T) {
-		t.Parallel()
-		f := &oapi.Fire{
-			AttackCategory: "INVALID",
-		}
-		_, err := parseFire(f)
-		assert.Error(t, err)
-	})
 }
 
 func TestNewProvidesHealingFromAPI(t *testing.T) {

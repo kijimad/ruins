@@ -52,11 +52,11 @@ func TestFireSystem_Update(t *testing.T) {
 		fire := world.ECS.NewEntity()
 		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
 		world.Components.GridElement.Add(fire, &gc.GridElement{Coord: coord})
+		world.Components.RawID.Add(fire, &gc.RawID{ID: "fire"})
 
 		require.NoError(t, sys.Update(world))
 		assert.True(t, world.Components.Dead.Has(fire), "燃え尽きた火は Dead になる")
 
-		// 火のあった座標に灰アイテムが1つ落ちている
 		var ashesAt int
 		q := query.ActiveFilter2[gc.GridElement, gc.RawID](world).Query()
 		for q.Next() {

@@ -49,7 +49,7 @@ func (sys *WeatherSystem) Update(world w.World) error {
 	weather.UntilTurn = gt.TotalTurns + query.RollSpellTurns(defs, next, season, northDepth, rngSpell)
 
 	if next != prev {
-		name := query.T(world, next.String())
+		name := query.WeatherName(world, next)
 		gamelog.New(query.GetGameLog(world)).
 			Markup(gamelog.Tag("system", query.T(world, "The weather changed to %s.", name))).
 			Log()

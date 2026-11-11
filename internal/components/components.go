@@ -228,20 +228,20 @@ type Attacker interface {
 	GetDamage() int
 	GetAttackCount() int
 	GetElement() oapi.Element
-	GetAttackCategory() AttackType
+	GetAttackCategory() oapi.AttackCategory
 	GetCost() int
 	GetTargetType() TargetType
 }
 
 // Melee は近接攻撃の性質。近接攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する
 type Melee struct {
-	Accuracy       int          // 命中率
-	Damage         int          // 攻撃力
-	AttackCount    int          // 攻撃回数
-	Element        oapi.Element // 攻撃属性
-	AttackCategory AttackType   // 攻撃種別
-	Cost           int          // 行動コスト
-	TargetType     TargetType   // 対象タイプ
+	Accuracy       int                 // 命中率
+	Damage         int                 // 攻撃力
+	AttackCount    int                 // 攻撃回数
+	Element        oapi.Element        // 攻撃属性
+	AttackCategory oapi.AttackCategory // 攻撃種別
+	Cost           int                 // 行動コスト
+	TargetType     TargetType          // 対象タイプ
 }
 
 // GetAccuracy はAttackerの実装
@@ -257,7 +257,7 @@ func (m *Melee) GetAttackCount() int { return m.AttackCount }
 func (m *Melee) GetElement() oapi.Element { return m.Element }
 
 // GetAttackCategory はAttackerの実装
-func (m *Melee) GetAttackCategory() AttackType { return m.AttackCategory }
+func (m *Melee) GetAttackCategory() oapi.AttackCategory { return m.AttackCategory }
 
 // GetCost はAttackerの実装
 func (m *Melee) GetCost() int { return m.Cost }
@@ -268,13 +268,13 @@ func (m *Melee) GetTargetType() TargetType { return m.TargetType }
 // Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む
 type Fire struct {
 	// 攻撃パラメータ
-	Accuracy       int          // 命中率
-	Damage         int          // 攻撃力
-	AttackCount    int          // 攻撃回数
-	Element        oapi.Element // 攻撃属性
-	AttackCategory AttackType   // 攻撃種別
-	Cost           int          // 行動コスト
-	TargetType     TargetType   // 対象タイプ
+	Accuracy       int                 // 命中率
+	Damage         int                 // 攻撃力
+	AttackCount    int                 // 攻撃回数
+	Element        oapi.Element        // 攻撃属性
+	AttackCategory oapi.AttackCategory // 攻撃種別
+	Cost           int                 // 行動コスト
+	TargetType     TargetType          // 対象タイプ
 	// 弾薬管理
 	Magazine            int          // 現在の装弾数
 	MagazineSize        int          // 最大装弾数
@@ -297,7 +297,7 @@ func (f *Fire) GetAttackCount() int { return f.AttackCount }
 func (f *Fire) GetElement() oapi.Element { return f.Element }
 
 // GetAttackCategory はAttackerの実装
-func (f *Fire) GetAttackCategory() AttackType { return f.AttackCategory }
+func (f *Fire) GetAttackCategory() oapi.AttackCategory { return f.AttackCategory }
 
 // GetCost はAttackerの実装
 func (f *Fire) GetCost() int { return f.Cost }

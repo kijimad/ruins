@@ -199,6 +199,15 @@ model Member {
   commandTableId?: EntityID;
   /** プレイヤーキャラクターでは省略可能 */
   dropTableId?: EntityID;
+
+  /** 生成時に装備して持たせるアイテム。startingItems より先に持たせる */
+  startingEquips?: ProfessionEquip[];
+
+  /** 生成時にバックパックへ持たせるアイテム */
+  startingItems?: ProfessionItem[];
+
+  /** 店の在庫。持つ member は店を開く */
+  stock?: ProfessionItem[];
 }
 
 // ================== レシピ ==================
@@ -339,7 +348,7 @@ model Landmark {
   props: PropSpot[];
 }
 
-/** prop 1個の相対配置 */
+/** 基準点から相対の位置に置くエンティティ1個 */
 model PropSpot {
   name: EntityID;
   dx: int32;
@@ -353,15 +362,39 @@ model MapGlyph {
   name: string;
   color: RGBAColor;
   order: int32;
+
+  /** この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く */
+  chunk?: GlyphChunk;
 }
 
-/** 開けた地形の散布ゾーン1種 */
+/** 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り */
 model ScatterZone {
   id: EntityID;
   grassDensity: float64;
+  soilDensity: float64;
   propDensity: float64;
   lootGroup: EntityID;
   entries: ScatterEntry[];
+  grass: GroundCoverEntry[];
+  soil: GroundCoverEntry[];
+}
+
+/** 地面を覆う草や土の飾りの prop 1種と、選ばれる重み */
+model GroundCoverEntry {
+  ref: EntityID;
+  @minValue(1) weight: int32;
+}
+
+/** 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
+    id は地図の記号の id を兼ねる。行の順に重みを積む */
+model Settlement {
+  id: EntityID;
+  @minValue(1) weight: int32;
+
+  /** 住人の member。name は members の id */
+  members: PropSpot[];
+
+  props: PropSpot[];
 }
 
 /** 散布 prop 1種。ref の空文字は置かないことを表す */
@@ -474,18 +507,72 @@ model InteriorRef {
 model DamageChoice {
   id: BuildingDamage;
   weight: EntryWeight;
+
+  /** 経年で戦利品を撤去する割合 */
+  lootPercent: InteriorPercent;
+
+  /** 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1 */
+  rubbleSeedRatio: NeedRatio;
 }
 
 /** 建物の散らかり段階の重み */
 model ClutterChoice {
   id: BuildingClutter;
   weight: EntryWeight;
+
+  /** 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない */
+  furniturePercent: InteriorPercent;
+
+  /** 家具から離れた床のタイルへ小物を散らす割合 */
+  floorPercent: InteriorPercent;
 }
 
 /** 建物の変種の重み */
 model VariantChoice {
   id: BuildingVariant;
   weight: EntryWeight;
+
+  /** 引いた損傷段階を上書きする。省くと上書きしない */
+  damage?: BuildingDamage;
+
+  /** 散らかり段階をこれ以上に引き上げる。省くと引き上げない */
+  minClutter?: BuildingClutter;
+
+  /** 引いた家具量の倍率を上書きする。省くと上書きしない */
+  density?: DensityFactor;
+}
+
+/** 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む */
+model SiteChoice {
+  id: SiteType;
+  homeWeight: SiteWeight;
+  shopWeight: SiteWeight;
+  yardDepth: YardDepth;
+
+  /** 敷地を塀で囲うか。街路に面して開く敷地は囲わない */
+  fence: boolean;
+}
+
+/** 街路側の前壁に付ける外皮の interiorRefs の id */
+model FacadeRefs {
+  window: EntityID;
+
+  /** 大破した店が窓の代わりに下ろすシャッター */
+  shutter: EntityID;
+
+  /** 店の入口脇に立てる看板 */
+  sign: EntityID;
+}
+
+/** 敷地の外構の interiorRefs の id */
+model LotRefs {
+  fence: EntityID;
+
+  /** 民家の前庭に置く外構 */
+  plant: EntityID;
+
+  /** 店の前庭に置く外構 */
+  vending: EntityID;
 }
 
 /** 建物の家具量の倍率の重み */
@@ -508,6 +595,16 @@ model InteriorProfile {
   variants: VariantChoice[];
   densities: DensityChoice[];
   heroes: HeroChoice[];
+  sites: SiteChoice[];
+  facade: FacadeRefs;
+  lot: LotRefs;
+
+  /** 経年で家具1つが隣へ生活痕を落とす割合 */
+  wearPercent: InteriorPercent;
+
+  /** hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ */
+  @minValue(1)
+  heroOneIn: int32;
 }
 
 /** 施設種別ごとの主室の内装変種。抽選で1つ選ぶ */
@@ -552,6 +649,105 @@ model Tile {
 
   /** 植生。省くと植生なし */
   foliage?: Foliage;
+
+  /** マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない */
+  spawn?: TileSpawn;
+}
+
+/** 計画のタイルを実体化する仕様 */
+model TileSpawn {
+  /** 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身 */
+  tile?: EntityID;
+
+  /** 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false */
+  autotile: boolean;
+}
+
+/** NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる */
+model Dialogue {
+  id: MessageKey;
+  @minItems(1) pages: DialoguePage[];
+}
+
+/** ダンジョンの間取りの種類と、フロアごとに選ばれる重み */
+model DungeonPlannerWeight {
+  id: DungeonPlanner;
+  weight: EntryWeight;
+}
+
+/** フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す */
+model Dungeon {
+  id: EntityID;
+  name: EntityName;
+  description: EntityDescription;
+
+  /** 背景画像のスプライトキー */
+  imageKey: EntityID;
+
+  /** 敵を引く enemyTables の id */
+  enemyTable: EntityID;
+
+  /** アイテムを引く itemTables の id */
+  itemTable: EntityID;
+
+  baseTemp: StageBaseTemp;
+
+  /** フロアの間取りの抽選表。行の順に重みを積む */
+  @minItems(1)
+  planners: DungeonPlannerWeight[];
+}
+
+/** 環境光の色。明るさは daylight が持ち、ここは色味だけを表す */
+model AmbientColor {
+  r: LightLevel;
+  g: LightLevel;
+  b: LightLevel;
+}
+
+/** 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。
+    明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する */
+model TimeOfDay {
+  id: TimeOfDayId;
+  name: EntityName;
+  tempModifier: TimeOfDayTempModifier;
+  daylight: LightLevel;
+  ambientColor: AmbientColor;
+}
+
+/** 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ */
+model Season {
+  id: SeasonId;
+  name: EntityName;
+  temp: SeasonTemp;
+}
+
+/** 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ */
+model FreshnessStage {
+  id: FreshnessStageId;
+  name: EntityName;
+  nutritionPercent: NutritionPercent;
+
+  /** 食べたときのログの msgid。%s は食べた者と食べ物 */
+  eatLog: EntityDescription;
+
+  /** メニューの行に鮮度を添えるか */
+  marker: boolean;
+
+  /** 食べたとき食中毒を起こす確率。百分率。省くと起こさない */
+  illnessChancePercent?: IllnessChancePercent;
+}
+
+/** 材質の表示名と燃焼の熱量 */
+model MaterialDef {
+  id: Material;
+  name: EntityName;
+  heatPerKg: HeatPerKg;
+}
+
+/** 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない */
+model ToolCategoryDef {
+  id: ToolCategory;
+  skill?: SkillId;
 }
 
 /** 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100 */
@@ -577,7 +773,12 @@ model FoliageEffect {
 // ================== 置物 ==================
 
 /** 扉ローデータ */
-model DoorRaw {}
+model DoorRaw {
+  horizontalOpen: SpriteKey;
+  horizontalClosed: SpriteKey;
+  verticalOpen: SpriteKey;
+  verticalClosed: SpriteKey;
+}
 
 /** 次階層ワープトリガー */
 model WarpNextTriggerRaw {}
@@ -615,6 +816,9 @@ model Prop {
   warpPrevTrigger?: WarpPrevTriggerRaw;
   storage?: StorageRaw;
   disassembly?: Disassembly;
+
+  /** 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ */
+  burnoutItem?: EntityID;
 }
 
 /** 分解の産出エントリ。chance 省略は確定枠 */
@@ -751,6 +955,18 @@ model SkillCategory {
 /** 攻撃種別。射程などの計算は Go が持ち、raw は命中で負わせる怪我を持つ */
 model AttackType {
   id: AttackCategory;
+  name: EntityName;
+  range: AttackRange;
+
+  /** 遠距離だけが持つ。この距離までは命中が落ちない */
+  optimalRange?: RangeTiles;
+
+  /** 遠距離だけが持つ。この距離を超えると撃てない */
+  maxRange?: RangeTiles;
+
+  /** 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率 */
+  penaltyPerTile?: RangePenaltyPercent;
+
   injury: ConditionTypeName;
 
   /** 攻撃で上達するスキル */
@@ -774,6 +990,7 @@ model WeatherSeasonWeight {
 /** 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る */
 model Weather {
   id: WeatherId;
+  name: EntityName;
   tempModifier: WeatherTempModifier;
   visionDelta: WeatherVisionDelta;
   severity: WeatherSeverity;
@@ -788,6 +1005,15 @@ model HungerStage {
   name: EntityName;
   from: NeedRatio;
 
+  /** 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない */
+  reachedLog?: EntityDescription;
+
+  /** 寝ている者を起こす段階か */
+  wakesSleeper?: boolean;
+
+  /** HUD に出すバッジの色。省くとバッジを出さない */
+  badgeColor?: RGBAColor;
+
   /** この段階で立つ栄養失調の重症度。省くと立たない */
   severity?: ConditionSeverity;
 }
@@ -797,6 +1023,12 @@ model FatigueStage {
   id: FatigueStageId;
   name: EntityName;
   from: NeedRatio;
+
+  /** この段階で眠れるか。疲れが足りない段階は眠れない */
+  canSleep: boolean;
+
+  /** HUD に出すバッジの色。省くとバッジを出さない */
+  badgeColor?: RGBAColor;
 
   /** この段階で立つ過労の重症度。省くと立たない */
   severity?: ConditionSeverity;
@@ -851,6 +1083,14 @@ model Raws {
   foliageEffects?: FoliageEffect[];
   hungerStages?: HungerStage[];
   fatigueStages?: FatigueStage[];
+  freshnessStages?: FreshnessStage[];
+  materials?: MaterialDef[];
+  toolCategories?: ToolCategoryDef[];
+  timesOfDay?: TimeOfDay[];
+  seasons?: Season[];
+  dungeons?: Dungeon[];
+  settlements?: Settlement[];
+  dialogues?: Dialogue[];
 }
 
 // ================== パレット ==================

@@ -14,26 +14,26 @@ import (
 
 // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には
 // 店なら自販機、民家なら観葉を1つ置く。
-func lotElements(s Site, fac oapi.Facility) []Placed {
+func lotElements(t profileTable, s Site, fac oapi.Facility) []Placed {
 	fside := frontSide(s)
 	lo, hi, edge := lotEdgeSpan(s.Footprint, fside)
 	doorAxis := edge.along(s.Door)
 
 	var out []Placed
-	// 塀で敷地を囲い、入口の軸を門として開ける。商店街は街路に面して開くので塀を張らない
-	if s.Type != siteShopfront {
+	// 塀で敷地を囲い、入口の軸を門として開ける
+	if s.Fence {
 		for a := lo; a <= hi; a++ {
 			if abs(a-doorAxis) <= 1 { // 門の隙間。街路から前庭へ入る
 				continue
 			}
-			out = append(out, Placed{Kind: oapi.Decor, Ref: "fence", Pos: edge.at(a)})
+			out = append(out, Placed{Kind: oapi.Decor, Ref: t.lot.Fence, Pos: edge.at(a)})
 		}
 	}
 	// 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く
 	if spot, ok := yardSpot(s, fside, doorAxis); ok {
-		ref := "plant"
+		ref := t.lot.Plant
 		if fac.IsShop {
-			ref = "vending"
+			ref = t.lot.Vending
 		}
 		out = append(out, Placed{Kind: oapi.Decor, Ref: ref, Pos: spot})
 	}

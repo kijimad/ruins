@@ -3,8 +3,8 @@ package query_test
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -18,11 +18,11 @@ func TestFreshnessStageOf(t *testing.T) {
 	tests := []struct {
 		name string
 		now  consts.Turn // 生成は TotalTurns=0。bread の StageLength は 1500
-		want gc.FreshnessStage
+		want oapi.FreshnessStageId
 	}{
-		{"新鮮", 0, gc.FreshnessFresh},
-		{"劣化", 1500, gc.FreshnessStale},
-		{"腐敗", 3000, gc.FreshnessRotten},
+		{"新鮮", 0, oapi.Fresh},
+		{"劣化", 1500, oapi.Stale},
+		{"腐敗", 3000, oapi.Rotten},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

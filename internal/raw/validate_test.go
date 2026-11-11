@@ -668,9 +668,19 @@ func TestValidateScatterZoneReferences(t *testing.T) {
 			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Entries: []oapi.ScatterEntry{
 				{Ref: "", Weight: 10},
 				{Ref: "tree_a", Weight: 10, Satellites: &[]oapi.PropSpot{{Name: "tree_a"}}},
-			}}},
+			}, Grass: []oapi.GroundCoverEntry{{Ref: "tree_a", Weight: 1}}, Soil: []oapi.GroundCoverEntry{{Ref: "tree_a", Weight: 1}}}},
 		}
 		require.NoError(t, validateScatterZoneReferences(raws))
+	})
+
+	t.Run("土の飾りの prop が存在しないとエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			Props:        props,
+			ItemGroups:   groups,
+			ScatterZones: &[]oapi.ScatterZone{{Id: "wild", LootGroup: "junk", Soil: []oapi.GroundCoverEntry{{Ref: "no_such_prop", Weight: 1}}}},
+		}
+		require.ErrorIs(t, validateScatterZoneReferences(raws), errScatterPropUndefined)
 	})
 
 	t.Run("item group が存在しないとエラー", func(t *testing.T) {
@@ -709,14 +719,32 @@ func TestValidateScatterZoneReferences(t *testing.T) {
 func TestValidateMapGlyphReferences(t *testing.T) {
 	t.Parallel()
 
-	t.Run("1文字で重複せず全施設とランドマークに記号があれば通る", func(t *testing.T) {
+	wasteland, entrance := oapi.Wasteland, oapi.DungeonEntrance
+	chunkGlyphs := func() []oapi.MapGlyph {
+		return []oapi.MapGlyph{{Id: "field", Glyph: ".", Chunk: &wasteland}, {Id: "dungeon_entrance", Glyph: ">", Chunk: &entrance}}
+	}
+
+	t.Run("1文字で重複せず全施設とランドマークとチャンクの種類に記号があれば通る", func(t *testing.T) {
 		t.Parallel()
+		glyphs := append(chunkGlyphs(), oapi.MapGlyph{Id: "house", Glyph: "h"}, oapi.MapGlyph{Id: "shrine", Glyph: "s"})
 		raws := oapi.Raws{
 			Facilities: &[]oapi.Facility{{Id: "house"}},
 			Landmarks:  &[]oapi.Landmark{{Id: "shrine"}},
-			MapGlyphs:  &[]oapi.MapGlyph{{Id: "house", Glyph: "h"}, {Id: "shrine", Glyph: "s"}},
+			MapGlyphs:  &glyphs,
 		}
 		require.NoError(t, validateMapGlyphReferences(raws))
+	})
+
+	t.Run("チャンクの種類に記号が無いとエラー", func(t *testing.T) {
+		t.Parallel()
+		glyphs := chunkGlyphs()[:1]
+		require.ErrorIs(t, validateMapGlyphReferences(oapi.Raws{MapGlyphs: &glyphs}), errEnumRowMissing)
+	})
+
+	t.Run("チャンクの種類を2つの記号が指すとエラー", func(t *testing.T) {
+		t.Parallel()
+		glyphs := append(chunkGlyphs(), oapi.MapGlyph{Id: "field2", Glyph: ",", Chunk: &wasteland})
+		require.ErrorIs(t, validateMapGlyphReferences(oapi.Raws{MapGlyphs: &glyphs}), errDuplicateID)
 	})
 
 	t.Run("記号が2文字だとエラー", func(t *testing.T) {
@@ -884,6 +912,202 @@ func TestValidateReferences_各検証の失敗を伝播する(t *testing.T) {
 			t.Parallel()
 			err := ValidateReferences(c.raws)
 			require.ErrorIs(t, err, c.wantErr)
+		})
+	}
+}
+
+func TestValidateBurnoutItems(t *testing.T) {
+	t.Parallel()
+
+	ashes := "ashes"
+	missing := "missing"
+	tests := []struct {
+		name    string
+		burnout *string
+		wantErr error
+	}{
+		{name: "燃え残りが実在するアイテムなら通る", burnout: &ashes},
+		{name: "燃え残りを持たない prop は通る"},
+		{name: "燃え残りが実在しないアイテムを指す", burnout: &missing, wantErr: errBurnoutItemUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{
+				Items: &[]oapi.Item{{Id: "ashes"}},
+				Props: &[]oapi.Prop{{Id: "fire", BurnoutItem: tt.burnout}},
+			}
+			err := validateBurnoutItems(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestValidateMemberItems(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		member  oapi.Member
+		wantErr error
+	}{
+		{name: "実在するアイテムを指せば通る", member: oapi.Member{Id: "ash", StartingEquips: &[]oapi.ProfessionEquip{{Name: "torch", Slot: oapi.EquipSlotWEAPON1}}, StartingItems: &[]oapi.ProfessionItem{{Name: "torch", Count: 1}}, Stock: &[]oapi.ProfessionItem{{Name: "torch", Count: 1}}}},
+		{name: "初期装備が実在しないアイテムを指す", member: oapi.Member{Id: "ash", StartingEquips: &[]oapi.ProfessionEquip{{Name: "missing", Slot: oapi.EquipSlotWEAPON1}}}, wantErr: errMemberItemUndefined},
+		{name: "初期アイテムが実在しないアイテムを指す", member: oapi.Member{Id: "ash", StartingItems: &[]oapi.ProfessionItem{{Name: "missing", Count: 1}}}, wantErr: errMemberItemUndefined},
+		{name: "在庫が実在しないアイテムを指す", member: oapi.Member{Id: "merchant", Stock: &[]oapi.ProfessionItem{{Name: "missing", Count: 1}}}, wantErr: errMemberItemUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{Items: &[]oapi.Item{{Id: "torch"}}, Members: &[]oapi.Member{tt.member}}
+			err := validateMemberItems(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestValidateDungeons(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		mutate  func(*oapi.Dungeon)
+		extra   bool
+		wantErr error
+	}{
+		{name: "表が実在すれば通る", mutate: func(*oapi.Dungeon) {}},
+		{name: "敵の表が実在しない", mutate: func(d *oapi.Dungeon) { d.EnemyTable = "missing" }, wantErr: errDungeonEnemyTableUndefined},
+		{name: "アイテムの表が実在しない", mutate: func(d *oapi.Dungeon) { d.ItemTable = "missing" }, wantErr: errDungeonItemTableUndefined},
+		{name: "id が重複する", mutate: func(*oapi.Dungeon) {}, extra: true, wantErr: errDuplicateID},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			d := oapi.Dungeon{Id: "dead_forest", EnemyTable: "forest", ItemTable: "forest"}
+			tt.mutate(&d)
+			dungeons := []oapi.Dungeon{d}
+			if tt.extra {
+				dungeons = append(dungeons, d)
+			}
+			raws := oapi.Raws{
+				EnemyTables: &[]oapi.EnemyTable{{Id: "forest"}},
+				ItemTables:  &[]oapi.ItemTable{{Id: "forest"}},
+				Dungeons:    &dungeons,
+			}
+			err := validateDungeons(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestValidateSettlements(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		mutate  func(*oapi.Settlement)
+		wantErr error
+	}{
+		{name: "住人と prop と記号が実在すれば通る", mutate: func(*oapi.Settlement) {}},
+		{name: "住人が実在しない", mutate: func(s *oapi.Settlement) { s.Members[0].Name = "missing" }, wantErr: errSettlementMemberUndefined},
+		{name: "prop が実在しない", mutate: func(s *oapi.Settlement) { s.Props[0].Name = "missing" }, wantErr: errSettlementPropUndefined},
+		{name: "地図の記号が無い", mutate: func(s *oapi.Settlement) { s.Id = "town" }, wantErr: errMapGlyphMissing},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			s := oapi.Settlement{Id: "village", Weight: 1, Members: []oapi.PropSpot{{Name: "merchant"}}, Props: []oapi.PropSpot{{Name: "hearth"}}}
+			tt.mutate(&s)
+			raws := oapi.Raws{
+				Members:     &[]oapi.Member{{Id: "merchant"}},
+				Props:       &[]oapi.Prop{{Id: "hearth"}},
+				MapGlyphs:   &[]oapi.MapGlyph{{Id: "village"}},
+				Settlements: &[]oapi.Settlement{s},
+			}
+			err := validateSettlements(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestValidateSettlements_id_が重複する(t *testing.T) {
+	t.Parallel()
+	raws := oapi.Raws{
+		MapGlyphs:   &[]oapi.MapGlyph{{Id: "village"}},
+		Settlements: &[]oapi.Settlement{{Id: "village", Weight: 1}, {Id: "village", Weight: 1}},
+	}
+	require.ErrorIs(t, validateSettlements(raws), errDuplicateID)
+}
+
+func TestValidateDialogues(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		key       string
+		dialogues []oapi.Dialogue
+		wantErr   error
+	}{
+		{name: "member の会話が実在すれば通る", key: "greeting", dialogues: []oapi.Dialogue{{Id: "greeting", Pages: []string{"Hi."}}}},
+		{name: "member の会話が実在しない", key: "farewell", dialogues: []oapi.Dialogue{{Id: "greeting", Pages: []string{"Hi."}}}, wantErr: errMemberDialogueUndefined},
+		{name: "会話の id が重複する", key: "greeting", dialogues: []oapi.Dialogue{{Id: "greeting", Pages: []string{"Hi."}}, {Id: "greeting", Pages: []string{"Yo."}}}, wantErr: errDuplicateID},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{
+				Members:   &[]oapi.Member{{Id: "villager", Dialog: &oapi.Dialog{MessageKey: tt.key}}, {Id: "rat"}},
+				Dialogues: &tt.dialogues,
+			}
+			err := validateDialogues(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestValidateTileSpawns(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		spawn   *oapi.TileSpawn
+		wantErr error
+	}{
+		{name: "生成するタイルが実在すれば通る", spawn: &oapi.TileSpawn{Tile: new("dwall"), Autotile: true}},
+		{name: "生成するタイルを省けば自身で通る", spawn: &oapi.TileSpawn{Autotile: true}},
+		{name: "生成の仕様を持たないタイルは通る"},
+		{name: "生成するタイルが実在しない", spawn: &oapi.TileSpawn{Tile: new("missing")}, wantErr: errTileSpawnUndefined},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := oapi.Raws{Tiles: &[]oapi.Tile{{Id: "dwall"}, {Id: "wall", Spawn: tt.spawn}}}
+			err := validateTileSpawns(raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
 		})
 	}
 }

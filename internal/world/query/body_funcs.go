@@ -54,6 +54,21 @@ func FatigueName(world w.World, level oapi.FatigueStageId) string {
 	return T(world, world.Resources.NeedDefs.FatigueName(level))
 }
 
+// WeatherName は天候の訳した表示名を返す
+func WeatherName(world w.World, k gc.WeatherKind) string {
+	return T(world, world.Resources.WeatherDefs.Kinds[k].Name)
+}
+
+// TimeOfDayName は時間帯の訳した表示名を返す
+func TimeOfDayName(world w.World, t gc.TimeOfDay) string {
+	return T(world, world.Resources.CalendarDefs.TimesOfDay[t].Name)
+}
+
+// SeasonName は季節の訳した表示名を返す
+func SeasonName(world w.World, s gc.Season) string {
+	return T(world, world.Resources.CalendarDefs.Seasons[s].Name)
+}
+
 // ShelterName は囲われの度合いの訳した表示名を返す
 func ShelterName(world w.World, shelter oapi.Shelter) string {
 	return T(world, world.Resources.TileEnvDefs.ShelterName(shelter))

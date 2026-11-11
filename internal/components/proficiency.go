@@ -43,7 +43,7 @@ func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bo
 	if skills == nil {
 		return
 	}
-	v := skills.Get(spec.Skill).Value
+	v := skills.Level(spec.Skill)
 	bonus := v * spec.PerLevel
 	fn(ProficiencySource{Kind: SourceSkill, Skill: spec.Skill, Amount: v, Value: bonus})
 

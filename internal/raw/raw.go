@@ -22,6 +22,15 @@ func PtrSlice[T any](p *[]T) []T {
 	return *p
 }
 
+// deref はポインタの指す値を返す。nil ならゼロ値を返す
+func deref[T any](p *T) T {
+	if p == nil {
+		var zero T
+		return zero
+	}
+	return *p
+}
+
 // findByKey はスライスからキー関数でマッチする要素を線形検索する
 func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool) {
 	for _, item := range PtrSlice(slice) {
@@ -176,28 +185,20 @@ func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.
 }
 
 // parseMelee はoapi.Meleeからgc.Meleeを生成する
-func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
-	attackType, err := gc.ParseAttackType(string(m.AttackCategory))
-	if err != nil {
-		return nil, err
-	}
+func parseMelee(m *oapi.Melee) *gc.Melee {
 	return &gc.Melee{
 		Accuracy:       m.Accuracy,
 		Damage:         m.Damage,
 		AttackCount:    m.AttackCount,
 		Element:        m.Element,
-		AttackCategory: attackType,
+		AttackCategory: m.AttackCategory,
 		Cost:           m.Cost,
 		TargetType:     parseTargetType(m.TargetGroup, m.TargetNum),
-	}, nil
+	}
 }
 
 // parseFire はoapi.Fireからgc.Fireを生成する
-func parseFire(f *oapi.Fire) (*gc.Fire, error) {
-	attackType, err := gc.ParseAttackType(string(f.AttackCategory))
-	if err != nil {
-		return nil, err
-	}
+func parseFire(f *oapi.Fire) *gc.Fire {
 	var ammoTag oapi.AmmoTag
 	if f.AmmoTag != nil {
 		ammoTag = *f.AmmoTag
@@ -207,14 +208,14 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 		Damage:         f.Damage,
 		AttackCount:    f.AttackCount,
 		Element:        f.Element,
-		AttackCategory: attackType,
+		AttackCategory: f.AttackCategory,
 		Cost:           f.Cost,
 		TargetType:     parseTargetType(f.TargetGroup, f.TargetNum),
 		Magazine:       f.MagazineSize,
 		MagazineSize:   f.MagazineSize,
 		ReloadEffort:   f.ReloadEffort,
 		AmmoTag:        ammoTag,
-	}, nil
+	}
 }
 
 // newProvidesHealingFromAPI はoapi.ProvidesHealingからProvidesHealingコンポーネントを生成する
@@ -323,18 +324,10 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Melee != nil {
-		melee, err := parseMelee(item.Melee)
-		if err != nil {
-			return gc.EntitySpec{}, err
-		}
-		entitySpec.Melee = melee
+		entitySpec.Melee = parseMelee(item.Melee)
 	}
 	if item.Fire != nil {
-		fire, err := parseFire(item.Fire)
-		if err != nil {
-			return gc.EntitySpec{}, err
-		}
-		entitySpec.Fire = fire
+		entitySpec.Fire = parseFire(item.Fire)
 	}
 
 	var bonus gc.EquipBonus
@@ -495,6 +488,17 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	return itemSpec, nil
+}
+
+// PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる
+func PlayerMemberID(raws oapi.Raws) (string, error) {
+	members := PtrSlice(raws.Members)
+	for i := range members {
+		if members[i].Player != nil && *members[i].Player {
+			return members[i].Id, nil
+		}
+	}
+	return "", errPlayerMemberMissing
 }
 
 // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する
@@ -717,6 +721,16 @@ func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
 // GetMapGlyph は id の地図記号宣言を返す。未登録は false。
 func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
 	return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string { return m.Id }, id)
+}
+
+// GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す
+func GetChunkGlyph(raws oapi.Raws, chunk oapi.GlyphChunk) (oapi.MapGlyph, bool) {
+	for _, g := range PtrSlice(raws.MapGlyphs) {
+		if g.Chunk != nil && *g.Chunk == chunk {
+			return g, true
+		}
+	}
+	return oapi.MapGlyph{}, false
 }
 
 // GetTile は指定された名前のタイルを取得する
@@ -1020,9 +1034,9 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 	}
 
 	attackTypes := PtrSlice(raws.AttackTypes)
-	injuries := make(map[string]gc.ConditionType, len(attackTypes))
-	for _, row := range attackTypes {
-		injuries[string(row.Id)] = gc.ConditionType(row.Injury)
+	injuries := make(map[oapi.AttackCategory]gc.ConditionType, len(attackTypes))
+	for i := range attackTypes {
+		injuries[attackTypes[i].Id] = gc.ConditionType(attackTypes[i].Injury)
 	}
 	return gc.NewConditionDefs(conds, parts, injuries), nil
 }
@@ -1062,25 +1076,38 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	}
 	attackTypes := PtrSlice(raws.AttackTypes)
 	weapons := make([]gc.WeaponDef, 0, len(attackTypes))
-	for _, row := range attackTypes {
-		at, err := gc.ParseAttackType(string(row.Id))
-		if err != nil {
-			return gc.SkillDefs{}, err
-		}
-		weapons = append(weapons, gc.WeaponDef{AttackType: at, Skill: row.Skill, Damage: row.Damage, Accuracy: row.Accuracy})
+	for i := range attackTypes {
+		row := &attackTypes[i]
+		weapons = append(weapons, gc.WeaponDef{
+			AttackType:  row.Id,
+			Name:        row.Name,
+			Range:       row.Range,
+			RangeParams: gc.RangeParams{OptimalRange: deref(row.OptimalRange), MaxRange: deref(row.MaxRange), PenaltyPerTile: deref(row.PenaltyPerTile)},
+			Skill:       row.Skill,
+			Damage:      row.Damage,
+			Accuracy:    row.Accuracy,
+		})
 		accuracy, ok := proficiencies[row.Accuracy]
 		if !ok {
 			return gc.SkillDefs{}, NewKeyNotFoundError(string(row.Accuracy), "Proficiencies")
 		}
 		accuracy.BodyFunc = gc.BodyFuncManipulation
-		if at.Range == gc.AttackRangeRanged {
+		if row.Range == oapi.AttackRangeRanged {
 			accuracy.BodyFunc = gc.BodyFuncSight
 		}
 		proficiencies[row.Accuracy] = accuracy
 	}
-	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists}, nil
+	toolSkills := make(map[oapi.ToolCategory]oapi.SkillId)
+	for _, row := range PtrSlice(raws.ToolCategories) {
+		if row.Skill != nil {
+			toolSkills[row.Id] = *row.Skill
+		}
+	}
+	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists, ToolSkills: toolSkills}, nil
 }
 
+// 生成された enum を、順序に意味を持つ Go の型へ写す表。Go の型は大小の比較や配列の添字に使う。
+// 表が enum の全値を持つことはテストで確かめる
 var (
 	weatherKinds = map[oapi.WeatherId]gc.WeatherKind{
 		oapi.Clear:    gc.WeatherClear,
@@ -1095,6 +1122,14 @@ var (
 		oapi.Summer: gc.SeasonSummer,
 		oapi.Autumn: gc.SeasonAutumn,
 		oapi.Winter: gc.SeasonWinter,
+	}
+	timesOfDay = map[oapi.TimeOfDayId]gc.TimeOfDay{
+		oapi.Dawn:     gc.TimeDawn,
+		oapi.Morning:  gc.TimeMorning,
+		oapi.Noon:     gc.TimeDay,
+		oapi.Evening:  gc.TimeEvening,
+		oapi.Night:    gc.TimeNight,
+		oapi.Midnight: gc.TimeMidnight,
 	}
 	severities = map[oapi.ConditionSeverity]gc.Severity{
 		oapi.ConditionSeverityMinor:  gc.SeverityMinor,
@@ -1123,6 +1158,7 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 	var kinds [gc.NumWeatherKind]gc.WeatherDef
 	for _, row := range PtrSlice(raws.Weathers) {
 		def := gc.WeatherDef{
+			Name:          row.Name,
 			Effect:        gc.WeatherEffect{TempModifier: row.TempModifier, VisionDelta: row.VisionDelta},
 			Severity:      row.Severity,
 			SpellTurnsMin: row.SpellTurnsMin,
@@ -1136,7 +1172,41 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 	return gc.WeatherDefs{Kinds: kinds}
 }
 
-// NewNeedDefs は raw の hungerStages と fatigueStages から空腹と疲労の段階の表を組み立てる
+// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id は enum なので検証で尽くされる
+func NewCalendarDefs(raws oapi.Raws) gc.CalendarDefs {
+	var defs gc.CalendarDefs
+	for _, row := range PtrSlice(raws.TimesOfDay) {
+		defs.TimesOfDay[timesOfDay[row.Id]] = gc.TimeOfDayDef{
+			Name:         row.Name,
+			TempModifier: row.TempModifier,
+			Daylight:     row.Daylight,
+			AmbientColor: [3]float64{row.AmbientColor.R, row.AmbientColor.G, row.AmbientColor.B},
+		}
+	}
+	for _, row := range PtrSlice(raws.Seasons) {
+		defs.Seasons[seasons[row.Id]] = gc.SeasonDef{Name: row.Name, Temp: row.Temp}
+	}
+	return defs
+}
+
+// NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量の表を組み立てる
+func NewMaterialDefs(raws oapi.Raws) gc.MaterialDefs {
+	defs := make(gc.MaterialDefs, len(PtrSlice(raws.Materials)))
+	for _, row := range PtrSlice(raws.Materials) {
+		defs[row.Id] = gc.MaterialDef{Name: row.Name, HeatPerKg: row.HeatPerKg}
+	}
+	return defs
+}
+
+// toRGBA は raw の色を color.RGBA にする。nil なら nil を返す
+func toRGBA(c *oapi.RGBAColor) *color.RGBA {
+	if c == nil {
+		return nil
+	}
+	return &color.RGBA{R: c.R, G: c.G, B: c.B, A: c.A}
+}
+
+// NewNeedDefs は raw の hungerStages、fatigueStages、freshnessStages から空腹と疲労と鮮度の段階の表を組み立てる
 func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	conditionOf := func(s *oapi.ConditionSeverity) gc.Severity {
 		if s == nil {
@@ -1146,11 +1216,24 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	}
 	hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))
 	for _, row := range PtrSlice(raws.HungerStages) {
-		hunger = append(hunger, gc.HungerStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
+		hunger = append(hunger, gc.HungerStage{
+			Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity),
+			ReachedLog: deref(row.ReachedLog), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),
+		})
 	}
 	fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))
 	for _, row := range PtrSlice(raws.FatigueStages) {
-		fatigue = append(fatigue, gc.FatigueStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
+		fatigue = append(fatigue, gc.FatigueStage{
+			Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity),
+			CanSleep: row.CanSleep, Badge: toRGBA(row.BadgeColor),
+		})
 	}
-	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue}
+	freshness := make(map[oapi.FreshnessStageId]gc.FreshnessDef, len(PtrSlice(raws.FreshnessStages)))
+	for _, row := range PtrSlice(raws.FreshnessStages) {
+		freshness[row.Id] = gc.FreshnessDef{
+			Name: row.Name, NutritionPercent: row.NutritionPercent, EatLog: row.EatLog, Marker: row.Marker,
+			IllnessChancePercent: deref(row.IllnessChancePercent),
+		}
+	}
+	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
 }

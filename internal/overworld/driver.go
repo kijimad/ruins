@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -122,7 +123,11 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	}
 	spawn := walkableSpawnNear(world, center)
 	if _, err := query.GetPlayerEntity(world); err != nil {
-		if _, serr := lifecycle.SpawnPlayer(world, spawn, "ash"); serr != nil {
+		name, perr := raw.PlayerMemberID(world.Resources.RawMaster)
+		if perr != nil {
+			return perr
+		}
+		if _, serr := lifecycle.SpawnPlayer(world, spawn, name); serr != nil {
 			return fmt.Errorf("failed to spawn player: %w", serr)
 		}
 	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {
@@ -180,7 +185,7 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
 	overworldKey := gc.NewOverworldStage()
 	field := query.EnsureStageField(world, overworldKey)
 	field.Level = gc.Level{TileWidth: dr.band.Width(), TileHeight: dr.band.Height()}
-	field.BaseTemp = dungeon.BaseTemperatureFor(overworldKey.Name)
+	field.BaseTemp = dungeon.BaseTemperatureFor(world.Resources.RawMaster, overworldKey.Name)
 	for cy := range dr.band.Rows() {
 		for i := range dr.band.Cols() {
 			// X は有界なので絶対チャンク列はそのまま i。Y は北進ぶん負へずらした絶対チャンク行

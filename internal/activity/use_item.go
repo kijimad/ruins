@@ -210,12 +210,6 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 		Log()
 }
 
-// rottenNutritionPercent は腐敗した食料から得られる栄養の割合。満額の3割。
-const rottenNutritionPercent = 30
-
-// rottenIllnessChancePercent は腐敗食を食べたとき病気を発症する確率。値は実プレイで調整する
-const rottenIllnessChancePercent = 25
-
 // applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
 func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
 	if !world.Components.Hunger.Has(actor) {
@@ -226,18 +220,11 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	// Perishable を持たない食料は新鮮扱いで満額
 	stage, ok := query.FreshnessStageOf(world, item)
 	if !ok {
-		stage = gc.FreshnessFresh
+		stage = oapi.Fresh
 	}
 
-	var nutrition int
-	switch stage {
-	case gc.FreshnessFresh:
-		nutrition = amount
-	case gc.FreshnessStale:
-		nutrition = amount / 2
-	case gc.FreshnessRotten:
-		nutrition = amount * rottenNutritionPercent / 100
-	}
+	freshness := world.Resources.NeedDefs.Freshness[stage]
+	nutrition := amount * freshness.NutritionPercent / 100
 	// 鮮度で減った栄養が整数除算で0に落ちても、腐敗食は非常食として最低1は与える。
 	// balance で小さい栄養値を設定したとき、劣化・腐敗が完全にゼロ効果になる罠を防ぐ
 	if amount > 0 && nutrition < 1 {
@@ -245,13 +232,12 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	}
 	hunger.Increase(nutrition)
 
-	// 腐敗食は低確率で食中毒を起こす
-	if stage == gc.FreshnessRotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
+	if freshness.IllnessChancePercent > 0 && world.Resources.Config.RNG.IntN(100) < freshness.IllnessChancePercent {
 		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(oapi.RottenFood))
 	}
 
-	isSatiated := hunger.GetLevel(world.Resources.NeedDefs) == oapi.HungerStageIdSatiated
-	u.logNutritionUse(actor, world, item, isSatiated)
+	hungerStage, _ := world.Resources.NeedDefs.HungerStageOf(hunger.GetLevel(world.Resources.NeedDefs))
+	u.logNutritionUse(actor, world, item, hungerStage.ReachedLog)
 
 	return nil
 }
@@ -277,8 +263,9 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	logger.Log()
 }
 
-// logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える
-func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
+// logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える。
+// reachedLog は食べて達した空腹の段階のログで、空なら出さない
+func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, reachedLog string) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return
@@ -295,20 +282,12 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	if stage, ok := query.FreshnessStageOf(world, item); !ok {
 		logger.Markup(query.T(world, "%s ate %s.", actorMarkup, itemMarkup))
 	} else {
-		switch stage {
-		case gc.FreshnessFresh:
-			logger.Markup(query.T(world, "%s ate fresh %s.", actorMarkup, itemMarkup))
-		case gc.FreshnessStale:
-			logger.Markup(query.T(world, "%s ate old %s.", actorMarkup, itemMarkup))
-		case gc.FreshnessRotten:
-			logger.Markup(query.T(world, "%s ate spoiled %s.", actorMarkup, itemMarkup))
-		}
+		logger.Markup(query.T(world, world.Resources.NeedDefs.Freshness[stage].EatLog, actorMarkup, itemMarkup))
 	}
 	logger.Log()
 
-	// 満腹になったら別行で知らせる
-	if isSatiated {
-		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "%s is now full.", actorMarkup)).Log()
+	if reachedLog != "" {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, reachedLog, actorMarkup)).Log()
 	}
 }
 

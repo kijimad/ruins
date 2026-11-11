@@ -30,6 +30,16 @@ func schemaEnum(name string) []string {
 }
 
 // makeDefRaws は validateCodeRows を通る raws を作り、mutate で崩す
+// enumRowsOf はスキーマの enum の値それぞれに1行ずつ作る
+func enumRowsOf[R any](schema string, row func(string) R) []R {
+	ids := schemaEnum(schema)
+	out := make([]R, 0, len(ids))
+	for _, id := range ids {
+		out = append(out, row(id))
+	}
+	return out
+}
+
 func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	bodyParts := make([]oapi.BodyPart, 0, gc.BodyPartCount)
 	for bp := range gc.BodyPartCount {
@@ -43,14 +53,17 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		{Id: "exhaustion", Name: "Exhaustion", Description: "Exhaustion", Onset: onset(oapi.Fatigue)},
 		{Id: "malnutrition", Name: "Malnutrition", Description: "Malnutrition", Onset: onset(oapi.Hunger)},
 	}
-	attackTypes := make([]oapi.AttackType, 0, len(gc.AllAttackTypes))
-	for _, at := range gc.AllAttackTypes {
+	attackIDs := schemaEnum("AttackCategory")
+	attackTypes := make([]oapi.AttackType, 0, len(attackIDs))
+	for _, id := range attackIDs {
 		attackTypes = append(attackTypes, oapi.AttackType{
-			Id:       oapi.AttackCategory(at.Type),
+			Id:       oapi.AttackCategory(id),
+			Name:     id,
+			Range:    oapi.AttackRangeMelee,
 			Injury:   string(gc.ConditionType("fracture")),
-			Skill:    oapi.SkillId(at.Type),
-			Damage:   oapi.ProficiencyId(at.Type + "_damage"),
-			Accuracy: oapi.ProficiencyId(at.Type + "_accuracy"),
+			Skill:    oapi.SkillId(id),
+			Damage:   oapi.ProficiencyId(id + "_damage"),
+			Accuracy: oapi.ProficiencyId(id + "_accuracy"),
 		})
 	}
 	skillIDs := schemaEnum("SkillId")
@@ -64,9 +77,9 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 	}
 	for _, key := range schemaEnum("ProficiencyId") {
 		owner := 0
-		for _, at := range attackTypes {
-			if oapi.ProficiencyId(key) == at.Damage || oapi.ProficiencyId(key) == at.Accuracy {
-				owner = slices.Index(skillIDs, string(at.Skill))
+		for i := range attackTypes {
+			if oapi.ProficiencyId(key) == attackTypes[i].Damage || oapi.ProficiencyId(key) == attackTypes[i].Accuracy {
+				owner = slices.Index(skillIDs, string(attackTypes[i].Skill))
 			}
 		}
 		proficiency := oapi.SkillProficiency{Id: oapi.ProficiencyId(key), PerLevel: 1}
@@ -75,7 +88,19 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		}
 		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, proficiency)
 	}
+	freshness := enumRowsOf("FreshnessStageId", func(id string) oapi.FreshnessStage { return oapi.FreshnessStage{Id: oapi.FreshnessStageId(id)} })
+	materials := enumRowsOf("Material", func(id string) oapi.MaterialDef { return oapi.MaterialDef{Id: oapi.Material(id)} })
+	tools := enumRowsOf("ToolCategory", func(id string) oapi.ToolCategoryDef { return oapi.ToolCategoryDef{Id: oapi.ToolCategory(id)} })
+	timesOfDay := enumRowsOf("TimeOfDayId", func(id string) oapi.TimeOfDay { return oapi.TimeOfDay{Id: oapi.TimeOfDayId(id)} })
+	seasons := enumRowsOf("SeasonId", func(id string) oapi.Season { return oapi.Season{Id: oapi.SeasonId(id)} })
 	raws := oapi.Raws{
+		Dungeons:        &[]oapi.Dungeon{{Id: "dead_forest"}},
+		Settlements:     &[]oapi.Settlement{{Id: "village", Weight: 1}},
+		TimesOfDay:      &timesOfDay,
+		Seasons:         &seasons,
+		FreshnessStages: &freshness,
+		Materials:       &materials,
+		ToolCategories:  &tools,
 		BodyParts:       &bodyParts,
 		Conditions:      &conditions,
 		AttackTypes:     &attackTypes,
@@ -88,9 +113,10 @@ func makeDefRaws(mutate func(*oapi.Raws)) oapi.Raws {
 		Professions:     &[]oapi.Profession{{Id: "soldier", Skills: &[]oapi.ProfessionSkill{{Id: oapi.SkillIdRifle}}}},
 		InteriorProfile: &oapi.InteriorProfile{},
 		Weathers:        &[]oapi.Weather{{Id: oapi.Clear}},
+		Members:         &[]oapi.Member{{Id: "ash", Player: new(true)}},
 		ShelterEffects:  &[]oapi.ShelterEffect{{Id: oapi.Outdoor}, {Id: oapi.Partial}, {Id: oapi.Indoor}},
 		WaterEffects:    &[]oapi.WaterEffect{{Id: oapi.Nearby}, {Id: oapi.Submerged}},
-		FoliageEffects:  &[]oapi.FoliageEffect{{Id: oapi.Grass}, {Id: oapi.Forest}},
+		FoliageEffects:  &[]oapi.FoliageEffect{{Id: oapi.FoliageGrass}, {Id: oapi.FoliageForest}},
 		HungerStages:    &[]oapi.HungerStage{{Id: oapi.HungerStageIdStarving}},
 		FatigueStages:   &[]oapi.FatigueStage{{Id: oapi.FatigueStageIdRested}},
 	}
@@ -216,6 +242,20 @@ func TestValidateCodeRows(t *testing.T) {
 			mutate: func(*oapi.Raws) {},
 		},
 		{
+			name: "プレイヤーの member が無い",
+			mutate: func(r *oapi.Raws) {
+				(*r.Members)[0].Player = nil
+			},
+			wantErr: errPlayerMemberMissing,
+		},
+		{
+			name: "プレイヤーの member が2つある",
+			mutate: func(r *oapi.Raws) {
+				*r.Members = append(*r.Members, oapi.Member{Id: "ash2", Player: new(true)})
+			},
+			wantErr: errPlayerMemberDuplicate,
+		},
+		{
 			name: "部位の行が欠ける",
 			mutate: func(r *oapi.Raws) {
 				*r.BodyParts = (*r.BodyParts)[:gc.BodyPartWholeBody]
@@ -237,11 +277,25 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errDuplicateID,
 		},
 		{
+			name: "近接の攻撃種別が射程を持つ",
+			mutate: func(r *oapi.Raws) {
+				(*r.AttackTypes)[0].MaxRange = new(5)
+			},
+			wantErr: errAttackRangeParams,
+		},
+		{
+			name: "遠距離の攻撃種別が射程を持たない",
+			mutate: func(r *oapi.Raws) {
+				(*r.AttackTypes)[0].Range = oapi.AttackRangeRanged
+			},
+			wantErr: errAttackRangeParams,
+		},
+		{
 			name: "攻撃種別の行が欠ける",
 			mutate: func(r *oapi.Raws) {
 				*r.AttackTypes = (*r.AttackTypes)[1:]
 			},
-			wantErr: errAttackTypeRowMissing,
+			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "スキルの行が欠ける",
@@ -294,6 +348,55 @@ func TestValidateCodeRows(t *testing.T) {
 				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
+		},
+		{
+			name: "鮮度の段階の行が欠ける",
+			mutate: func(r *oapi.Raws) {
+				*r.FreshnessStages = (*r.FreshnessStages)[1:]
+			},
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "材質の行が重複する",
+			mutate: func(r *oapi.Raws) {
+				*r.Materials = append(*r.Materials, oapi.MaterialDef{Id: oapi.WOOD})
+			},
+			wantErr: errDuplicateID,
+		},
+		{
+			name: "道具の分類の行が欠ける",
+			mutate: func(r *oapi.Raws) {
+				r.ToolCategories = nil
+			},
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "時間帯の行が欠ける",
+			mutate: func(r *oapi.Raws) {
+				*r.TimesOfDay = (*r.TimesOfDay)[:len(*r.TimesOfDay)-1]
+			},
+			wantErr: errEnumRowMissing,
+		},
+		{
+			name: "季節の行が重複する",
+			mutate: func(r *oapi.Raws) {
+				*r.Seasons = append(*r.Seasons, oapi.Season{Id: oapi.Winter})
+			},
+			wantErr: errDuplicateID,
+		},
+		{
+			name: "集落が無い",
+			mutate: func(r *oapi.Raws) {
+				r.Settlements = &[]oapi.Settlement{}
+			},
+			wantErr: errTableMissing,
+		},
+		{
+			name: "ダンジョンが無い",
+			mutate: func(r *oapi.Raws) {
+				r.Dungeons = nil
+			},
+			wantErr: errTableMissing,
 		},
 		{
 			name: "生活感の表が無い",
@@ -428,8 +531,8 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	weapons := map[string][3]string{}
 	accuracyLimbs := map[string]gc.BodyFuncKind{}
 	for _, w := range defs.Weapons {
-		weapons[w.AttackType.Type] = [3]string{string(w.Skill), string(w.Damage), string(w.Accuracy)}
-		accuracyLimbs[w.AttackType.Type] = defs.Proficiencies[w.Accuracy].BodyFunc
+		weapons[string(w.AttackType)] = [3]string{string(w.Skill), string(w.Damage), string(w.Accuracy)}
+		accuracyLimbs[string(w.AttackType)] = defs.Proficiencies[w.Accuracy].BodyFunc
 	}
 	assert.Equal(t, map[string][3]string{
 		"sword":   {"sword", "sword_damage", "sword_accuracy"},
@@ -533,4 +636,22 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 	}
 	assert.Equal(t, [gc.BodyPartCount]float64{2, 4, 3, 1, 3, 1, 0}, weights)
 	assert.Equal(t, [gc.BodyPartCount]string{"Head", "Torso", "Arm", "Hand", "Leg", "Foot", "Whole body"}, names)
+}
+
+// mapKeys は文字列のキーを持つ map のキーを返す
+func mapKeys[K ~string, V any](m map[K]V) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, string(k))
+	}
+	return out
+}
+
+func TestOrdinalEnumMaps_スキーマのenumの全値を持つ(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(t, schemaEnum("WeatherId"), mapKeys(weatherKinds))
+	assert.ElementsMatch(t, schemaEnum("SeasonId"), mapKeys(seasons))
+	assert.ElementsMatch(t, schemaEnum("TimeOfDayId"), mapKeys(timesOfDay))
+	assert.ElementsMatch(t, schemaEnum("ConditionSeverity"), mapKeys(severities))
 }

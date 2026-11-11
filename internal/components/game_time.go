@@ -1,9 +1,6 @@
 package components
 
 import (
-	"fmt"
-	"math"
-
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
@@ -21,26 +18,6 @@ const (
 	TimeNight                     // 夜 経過1000-1249
 	TimeMidnight                  // 深夜 経過1250-1499
 )
-
-// String は時間帯名を返す
-func (t TimeOfDay) String() string {
-	switch t {
-	case TimeDawn:
-		return "Dawn"
-	case TimeMorning:
-		return "Morning"
-	case TimeDay:
-		return "Noon"
-	case TimeEvening:
-		return "Evening"
-	case TimeNight:
-		return "Night"
-	case TimeMidnight:
-		return "Midnight"
-	default:
-		panic("invalid TimeOfDay value")
-	}
-}
 
 // TurnsPerDay は1日のターン数。バランス導出が生存日数を日単位で出せるよう公開する。
 const TurnsPerDay consts.Turn = 1500
@@ -61,12 +38,12 @@ func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 	return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)
 }
 
-// numTimeOfDay は時間帯の区分数
-const numTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)
+// NumTimeOfDay は時間帯の区分数。時間帯ごとの値の配列の長さに使う
+const NumTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)
 
 // GetDaylightLerp は日照や色味を連続に補間するための、前後のアンカー時間帯とその間の位置 0..1 を返す。
 // 各時間帯を区間の中心にアンカーする。境界で段差にせず中心の代表値へなだらかに寄せるため。
-// 値表は systems 側が持ち、時間の割り出しだけをここに置く。時間帯の区切りに要る turnsPerDay と
+// 値表は CalendarDefs が持ち、時間の割り出しだけをここに置く。時間帯の区切りに要る turnsPerDay と
 // turnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。
 func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
 	// 中心へアンカーするため半区間ずらす。turnsPerTimeOfDay=250 は偶数で端数は出ない
@@ -75,7 +52,7 @@ func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
 	rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay
 	idx := int(rel / turnsPerTimeOfDay)
 	t = float64(rel%turnsPerTimeOfDay) / float64(turnsPerTimeOfDay)
-	return TimeOfDay(idx), TimeOfDay((idx + 1) % numTimeOfDay), t
+	return TimeOfDay(idx), TimeOfDay((idx + 1) % NumTimeOfDay), t
 }
 
 // GetDayNumber は経過日数を返す（1日目から始まる）。turn 0 が1日目の夜明けなのでオフセットは要らない
@@ -83,46 +60,13 @@ func (gt *GameTime) GetDayNumber() int {
 	return int(gt.TotalTurns/turnsPerDay) + 1
 }
 
-// 季節による世界温度のパラメータ。寒さの順は 冬 > 秋 > 春 > 夏。値は実プレイで調整する。
-const (
-	daysPerYear      = 32  // 季節1周の日数
-	springTemp       = 5   // 春の中点の世界温度。開始直後は肌寒い程度に留め、冬への準備期間になる
-	summerPeakTemp   = 22  // 夏ピークの世界温度
-	autumnTemp       = 0   // 秋の中点の世界温度。春より寒く、冬の接近を肌で感じさせる
-	winterTroughTemp = -30 // 冬底の世界温度。準備なしでは生存できない寒さ
-)
-
-// GetSeasonalTemperature は経過日数から季節による世界温度のベース値を返す。
-// 春開始の区分正弦波で、春と秋が肩、夏がピーク、冬が底になる。四半期ごとに肩とピークを
-// 結ぶため肩の高さを春と秋で変えられ、振幅も暖側と寒側で非対称になる。季節は保存せず日数から導く。
-func (gt *GameTime) GetSeasonalTemperature() int {
-	return SeasonalTemperatureForDay(gt.GetDayNumber())
-}
-
-// SeasonalTemperatureForDay は経過日 day の季節による世界温度のベース値を返す純関数。
-// 緯度勾配・時間帯・遮蔽を含まない季節変動そのもので、world 抜きで参照できる。バランス導出が
-// 年間の寒暖の振れを見るのに使う。GetSeasonalTemperature はこれに現在の日数を渡すだけ。
-func SeasonalTemperatureForDay(day int) int {
-	// day 1 を春の中点かつ上昇位相の起点にする。位相の比較のため1年周期へ折り返す
-	phase := math.Mod(2*math.Pi*float64(day-1)/daysPerYear, 2*math.Pi)
-	s := math.Sin(phase)
-
-	// 年の前半の肩は春、夏ピークから冬底を挟む後半の肩は秋
-	mid := float64(springTemp)
-	if phase >= math.Pi/2 && phase < 3*math.Pi/2 {
-		mid = float64(autumnTemp)
-	}
-
-	if s >= 0 {
-		return int(math.Round(mid + (float64(summerPeakTemp)-mid)*s))
-	}
-	return int(math.Round(mid + (mid-float64(winterTroughTemp))*s))
-}
+// daysPerYear は季節1周の日数
+const daysPerYear = 32
 
 // Season は季節を表す。1年を4等分し、春開始で巡る。
 type Season int
 
-// 季節定数。GetSeasonalTemperature の正弦波と位相を合わせる。
+// 季節定数。CalendarDefs.SeasonalTemperatureForDay の正弦波と位相を合わせる。
 const (
 	SeasonSpring Season = iota // 春
 	SeasonSummer               // 夏
@@ -131,21 +75,6 @@ const (
 	// NumSeason は季節の数。季節ごとの重みの配列の長さに使う
 	NumSeason = iota
 )
-
-// String は季節名を返す。表示側が i18n の訳を引く msgid になる。
-func (s Season) String() string {
-	switch s {
-	case SeasonSpring:
-		return "Spring"
-	case SeasonSummer:
-		return "Summer"
-	case SeasonAutumn:
-		return "Autumn"
-	case SeasonWinter:
-		return "Winter"
-	}
-	panic(fmt.Sprintf("unknown Season: %d", s))
-}
 
 // GetSeason は経過日数から現在の季節を返す。
 func (gt *GameTime) GetSeason() Season {
@@ -183,27 +112,6 @@ func (gt *GameTime) TimeOfDayJustChanged() (TimeOfDay, bool) {
 	}
 	prev := GameTime{TotalTurns: gt.TotalTurns - 1}
 	return cur, prev.GetTimeOfDay() != cur
-}
-
-// GetTemperatureModifier は時間帯による気温修正値を返す。
-// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func (gt *GameTime) GetTemperatureModifier() int {
-	tod := gt.GetTimeOfDay()
-	switch tod {
-	case TimeDawn:
-		return 0 // 夜明け: +0°C
-	case TimeMorning:
-		return 5 // 朝: +5°C
-	case TimeDay:
-		return 10 // 昼: +10°C
-	case TimeEvening:
-		return 5 // 夕: +5°C
-	case TimeNight:
-		return -5 // 夜: -5°C
-	case TimeMidnight:
-		return -10 // 深夜: -10°C
-	}
-	panic(fmt.Sprintf("unknown TimeOfDay: %d", tod))
 }
 
 // Advance はターンを進める

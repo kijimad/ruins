@@ -49,81 +49,11 @@ func BodyPartByID(id string) (BodyPart, bool) {
 
 // ================
 
-// AttackRangeType は攻撃の射程タイプを表す
-type AttackRangeType string
-
-const (
-	// AttackRangeMelee は近接攻撃
-	AttackRangeMelee = AttackRangeType("MELEE")
-	// AttackRangeRanged は遠距離攻撃
-	AttackRangeRanged = AttackRangeType("RANGED")
-)
-
-// AttackType は武器種別を表す。種別によって適用する計算式が異なる
-type AttackType struct {
-	Type  string          // 武器種別の識別子
-	Range AttackRangeType // 近接/遠距離の区分
-	Label string          // 表示用ラベル
-}
-
-var (
-	// AttackSword は刀剣
-	AttackSword = AttackType{Type: "sword", Range: AttackRangeMelee, Label: "Sword"}
-	// AttackSpear は長物
-	AttackSpear = AttackType{Type: "spear", Range: AttackRangeMelee, Label: "Spear"}
-	// AttackHandgun は拳銃
-	AttackHandgun = AttackType{Type: "handgun", Range: AttackRangeRanged, Label: "Handgun"}
-	// AttackRifle は小銃
-	AttackRifle = AttackType{Type: "rifle", Range: AttackRangeRanged, Label: "Rifle"}
-	// AttackFist は格闘
-	AttackFist = AttackType{Type: "fist", Range: AttackRangeMelee, Label: "Martial arts"}
-	// AttackCannon は大砲
-	AttackCannon = AttackType{Type: "cannon", Range: AttackRangeRanged, Label: "Cannon"}
-	// AttackBow は弓
-	AttackBow = AttackType{Type: "bow", Range: AttackRangeRanged, Label: "Bow"}
-)
-
-// AllAttackTypes は定義済みの全AttackTypeのリスト
-// 新しいAttackTypeを追加する場合は、ここにも追加すること
-var AllAttackTypes = []AttackType{
-	AttackSword,
-	AttackSpear,
-	AttackHandgun,
-	AttackRifle,
-	AttackFist,
-	AttackCannon,
-	AttackBow,
-}
-
-// ParseAttackType は文字列からAttackTypeを生成する
-func ParseAttackType(s string) (AttackType, error) {
-	for _, at := range AllAttackTypes {
-		if at.Type == s {
-			return at, nil
-		}
-	}
-	return AttackType{}, fmt.Errorf("invalid attack type: %s: %w", s, ErrInvalidEnumType)
-}
-
-// RangeParams は遠距離武器の射程パラメータ
+// RangeParams は遠距離武器の射程パラメータ。raw の attackTypes の行から組み立てる
 type RangeParams struct {
 	OptimalRange   int // 最適射程。この距離内はペナルティなし
 	MaxRange       int // 最大射程。超過で射撃不可
 	PenaltyPerTile int // 最適射程超過時の1タイルあたり命中率ペナルティ(%)
-}
-
-// rangeParamsMap は武器種別ごとの射程パラメータ
-var rangeParamsMap = map[string]RangeParams{
-	AttackBow.Type:     {OptimalRange: 4, MaxRange: 10, PenaltyPerTile: 5},
-	AttackHandgun.Type: {OptimalRange: 3, MaxRange: 8, PenaltyPerTile: 8},
-	AttackRifle.Type:   {OptimalRange: 8, MaxRange: 16, PenaltyPerTile: 3},
-	AttackCannon.Type:  {OptimalRange: 6, MaxRange: 12, PenaltyPerTile: 5},
-}
-
-// GetRangeParams は武器種別の射程パラメータを返す。未定義ならfalseを返す
-func GetRangeParams(attackType AttackType) (RangeParams, bool) {
-	params, ok := rangeParamsMap[attackType.Type]
-	return params, ok
 }
 
 // ================

@@ -8,18 +8,14 @@ import "github.com/kijimaD/ruins/internal/oapi"
 //
 // 略奪は anchor 温存・衛星欠損で表す。構造(家具)を残し中身(戦利品)を欠くと、部屋の可読性を保ったまま
 // 「荒らされた」を出せる。廃墟化は瓦礫を撒くが、瓦礫は装飾で通行は阻まないので到達性は保たれる。
-func Age(seed uint64, room Room, placed []Placed, dmg damageLevel) []Placed {
+func Age(t profileTable, seed uint64, room Room, placed []Placed, dmg damageLevel) []Placed {
 	if dmg == dmgIntact {
 		return placed // 無傷の建物は新品のまま経年を掛けない
 	}
-	// 損傷レベルで強度を変える。大破は略奪と瓦礫が増える
-	lootPct, decayThresh := 45, 0.10
-	if dmg == dmgMajor {
-		lootPct, decayThresh = 70, 0.20
-	}
-	placed = applyLooting(childSeed(seed, 1), placed, lootPct)
-	placed = applyWear(childSeed(seed, 2), room, placed)
-	placed = applyDecay(childSeed(seed, 3), room, placed, decayThresh)
+	effect := t.damageEffects[dmg]
+	placed = applyLooting(childSeed(seed, 1), placed, effect.lootPct)
+	placed = applyWear(childSeed(seed, 2), room, placed, t.wearPct)
+	placed = applyDecay(childSeed(seed, 3), room, placed, effect.decayThresh)
 	return placed
 }
 
@@ -35,13 +31,13 @@ func applyLooting(seed uint64, placed []Placed, pct int) []Placed {
 	return out
 }
 
-// applyWear は生活痕を足す。家具の一部が隣接する空きタイルへ小物を落とす。散乱が乱数でなく
+// applyWear は生活痕を足す。家具の pct% が隣接する空きタイルへ小物を落とす。散乱が乱数でなく
 // 「そこに家具があった」因果になる。
-func applyWear(seed uint64, room Room, placed []Placed) []Placed {
+func applyWear(seed uint64, room Room, placed []Placed, pct int) []Placed {
 	occupied := occupiedSet(placed)
 	added := make([]Placed, 0)
 	for i, p := range placed {
-		if p.Kind != oapi.Furniture || !dropChance(seed, i, 18) {
+		if p.Kind != oapi.Furniture || !dropChance(seed, i, pct) {
 			continue
 		}
 		for _, n := range neighbors4(p.Pos) {

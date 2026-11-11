@@ -367,7 +367,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	attackerAbils := world.Components.Abilities.Get(attacker)
 
 	ability := attackerAbils.Strength.Total
-	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
+	if _, ranged := world.Resources.SkillDefs.RangeParams(attack.GetAttackCategory()); ranged {
 		ability = attackerAbils.Sensation.Total
 	}
 

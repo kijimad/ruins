@@ -1561,6 +1561,20 @@ components:
       minimum: -100
       maximum: 100
       description: 敏捷性。行動順に影響する
+    AmbientColor:
+      type: object
+      required:
+        - r
+        - g
+        - b
+      properties:
+        r:
+          $ref: '#/components/schemas/LightLevel'
+        g:
+          $ref: '#/components/schemas/LightLevel'
+        b:
+          $ref: '#/components/schemas/LightLevel'
+      description: 環境光の色。明るさは daylight が持ち、ここは色味だけを表す
     Ammo:
       type: object
       required:
@@ -1597,16 +1611,23 @@ components:
         - rifle
         - cannon
         - bow
-      description: 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する
     AttackCount:
       type: integer
       minimum: 1
       maximum: 10
       description: 1ターンあたりの攻撃回数
+    AttackRange:
+      type: string
+      enum:
+        - melee
+        - ranged
+      description: 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する攻撃の射程の区分
     AttackType:
       type: object
       required:
         - id
+        - name
+        - range
         - injury
         - skill
         - damage
@@ -1614,6 +1635,22 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/AttackCategory'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        range:
+          $ref: '#/components/schemas/AttackRange'
+        optimalRange:
+          allOf:
+            - $ref: '#/components/schemas/RangeTiles'
+          description: 遠距離だけが持つ。この距離までは命中が落ちない
+        maxRange:
+          allOf:
+            - $ref: '#/components/schemas/RangeTiles'
+          description: 遠距離だけが持つ。この距離を超えると撃てない
+        penaltyPerTile:
+          allOf:
+            - $ref: '#/components/schemas/RangePenaltyPercent'
+          description: 遠距離だけが持つ。最適射程を1タイル超えるごとに下がる命中。百分率
         injury:
           $ref: '#/components/schemas/ConditionTypeName'
         skill:
@@ -2082,11 +2119,21 @@ components:
       required:
         - id
         - weight
+        - furniturePercent
+        - floorPercent
       properties:
         id:
           $ref: '#/components/schemas/BuildingClutter'
         weight:
           $ref: '#/components/schemas/EntryWeight'
+        furniturePercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
+        floorPercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 家具から離れた床のタイルへ小物を散らす割合
       description: 建物の散らかり段階の重み
     ColorChannel:
       type: integer
@@ -2337,11 +2384,21 @@ components:
       required:
         - id
         - weight
+        - lootPercent
+        - rubbleSeedRatio
       properties:
         id:
           $ref: '#/components/schemas/BuildingDamage'
         weight:
           $ref: '#/components/schemas/EntryWeight'
+        lootPercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 経年で戦利品を撤去する割合
+        rubbleSeedRatio:
+          allOf:
+            - $ref: '#/components/schemas/NeedRatio'
+          description: 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
       description: 建物の損傷段階の重み
     DangerLevel:
       type: integer
@@ -2392,6 +2449,24 @@ components:
         messageKey:
           $ref: '#/components/schemas/MessageKey'
       description: 会話データ
+    Dialogue:
+      type: object
+      required:
+        - id
+        - pages
+      properties:
+        id:
+          $ref: '#/components/schemas/MessageKey'
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DialoguePage'
+          minItems: 1
+      description: NPC の会話。member の dialog の messageKey が id を指す。ページの順に1ページずつ見せる
+    DialoguePage:
+      type: string
+      minLength: 1
+      description: 会話の1ページ。英語の msgid で、表示のとき query.T で訳す。<keyword> などのマークアップを含められる
     Dice:
       type: string
       example: 1d3+1
@@ -2461,6 +2536,20 @@ components:
       description: 分解の産出エントリ。chance 省略は確定枠
     DoorRaw:
       type: object
+      required:
+        - horizontalOpen
+        - horizontalClosed
+        - verticalOpen
+        - verticalClosed
+      properties:
+        horizontalOpen:
+          $ref: '#/components/schemas/SpriteKey'
+        horizontalClosed:
+          $ref: '#/components/schemas/SpriteKey'
+        verticalOpen:
+          $ref: '#/components/schemas/SpriteKey'
+        verticalClosed:
+          $ref: '#/components/schemas/SpriteKey'
       description: 扉ローデータ
     DrawerKey:
       type: string
@@ -2514,6 +2603,65 @@ components:
         totalCount:
           type: integer
       description: ドロップテーブル一覧
+    Dungeon:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - imageKey
+        - enemyTable
+        - itemTable
+        - baseTemp
+        - planners
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        description:
+          $ref: '#/components/schemas/EntityDescription'
+        imageKey:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 背景画像のスプライトキー
+        enemyTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 敵を引く enemyTables の id
+        itemTable:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: アイテムを引く itemTables の id
+        baseTemp:
+          $ref: '#/components/schemas/StageBaseTemp'
+        planners:
+          type: array
+          items:
+            $ref: '#/components/schemas/DungeonPlannerWeight'
+          minItems: 1
+          description: フロアの間取りの抽選表。行の順に重みを積む
+      description: フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
+    DungeonPlanner:
+      type: string
+      enum:
+        - small_room
+        - big_room
+        - cave
+        - ruins
+        - forest
+      description: ダンジョンのフロアを生成する間取りの種類
+    DungeonPlannerWeight:
+      type: object
+      required:
+        - id
+        - weight
+      properties:
+        id:
+          $ref: '#/components/schemas/DungeonPlanner'
+        weight:
+          $ref: '#/components/schemas/EntryWeight'
+      description: ダンジョンの間取りの種類と、フロアごとに選ばれる重み
     Element:
       type: string
       enum:
@@ -2648,6 +2796,24 @@ components:
           type: string
           description: エラーメッセージ
       description: エラーレスポンス
+    FacadeRefs:
+      type: object
+      required:
+        - window
+        - shutter
+        - sign
+      properties:
+        window:
+          $ref: '#/components/schemas/EntityID'
+        shutter:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 大破した店が窓の代わりに下ろすシャッター
+        sign:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 店の入口脇に立てる看板
+      description: 街路側の前壁に付ける外皮の interiorRefs の id
     Facility:
       type: object
       required:
@@ -2732,6 +2898,7 @@ components:
         - id
         - name
         - from
+        - canSleep
       properties:
         id:
           $ref: '#/components/schemas/FatigueStageId'
@@ -2739,6 +2906,13 @@ components:
           $ref: '#/components/schemas/EntityName'
         from:
           $ref: '#/components/schemas/NeedRatio'
+        canSleep:
+          type: boolean
+          description: この段階で眠れるか。疲れが足りない段階は眠れない
+        badgeColor:
+          allOf:
+            - $ref: '#/components/schemas/RGBAColor'
+          description: HUD に出すバッジの色。省くとバッジを出さない
         severity:
           allOf:
             - $ref: '#/components/schemas/ConditionSeverity'
@@ -2809,10 +2983,63 @@ components:
         tempModifier:
           $ref: '#/components/schemas/TileTempModifier'
       description: 植生がタイルの気温に足す補正
+    FreshnessStage:
+      type: object
+      required:
+        - id
+        - name
+        - nutritionPercent
+        - eatLog
+        - marker
+      properties:
+        id:
+          $ref: '#/components/schemas/FreshnessStageId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        nutritionPercent:
+          $ref: '#/components/schemas/NutritionPercent'
+        eatLog:
+          allOf:
+            - $ref: '#/components/schemas/EntityDescription'
+          description: 食べたときのログの msgid。%s は食べた者と食べ物
+        marker:
+          type: boolean
+          description: メニューの行に鮮度を添えるか
+        illnessChancePercent:
+          allOf:
+            - $ref: '#/components/schemas/IllnessChancePercent'
+          description: 食べたとき食中毒を起こす確率。百分率。省くと起こさない
+      description: 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+    FreshnessStageId:
+      type: string
+      enum:
+        - fresh
+        - stale
+        - rotten
+      description: 鮮度の段階
     FuelCapacityBonus:
       type: integer
       minimum: 0
       description: キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
+    GlyphChunk:
+      type: string
+      enum:
+        - wasteland
+        - dungeon_entrance
+      description: 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
+    GroundCoverEntry:
+      type: object
+      required:
+        - ref
+        - weight
+      properties:
+        ref:
+          $ref: '#/components/schemas/EntityID'
+        weight:
+          type: integer
+          format: int32
+          minimum: 1
+      description: 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
     GroupStyle:
       type: string
       enum:
@@ -2838,6 +3065,11 @@ components:
         - ABSOLUTE
         - NUMERAL
       description: 回復量の計算方式
+    HeatPerKg:
+      type: integer
+      minimum: 0
+      maximum: 10000
+      description: 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない
     HeatRadius:
       type: integer
       minimum: 1
@@ -2894,6 +3126,17 @@ components:
           $ref: '#/components/schemas/EntityName'
         from:
           $ref: '#/components/schemas/NeedRatio'
+        reachedLog:
+          allOf:
+            - $ref: '#/components/schemas/EntityDescription'
+          description: 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない
+        wakesSleeper:
+          type: boolean
+          description: 寝ている者を起こす段階か
+        badgeColor:
+          allOf:
+            - $ref: '#/components/schemas/RGBAColor'
+          description: HUD に出すバッジの色。省くとバッジを出さない
         severity:
           allOf:
             - $ref: '#/components/schemas/ConditionSeverity'
@@ -2907,6 +3150,11 @@ components:
         - hungry
         - starving
       description: 空腹の段階
+    IllnessChancePercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 病気を起こす確率。百分率
     ImagePath:
       type: string
       minLength: 1
@@ -2935,6 +3183,11 @@ components:
           items:
             $ref: '#/components/schemas/ContentGroup'
       description: 内装レシピ。施設まるごと、または奥室1つに対応する
+    InteriorPercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 内装の経年や散らかりの割合。百分率
     InteriorProfile:
       type: object
       required:
@@ -2943,6 +3196,11 @@ components:
         - variants
         - densities
         - heroes
+        - sites
+        - facade
+        - lot
+        - wearPercent
+        - heroOneIn
       properties:
         damages:
           type: array
@@ -2964,6 +3222,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HeroChoice'
+        sites:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteChoice'
+        facade:
+          $ref: '#/components/schemas/FacadeRefs'
+        lot:
+          $ref: '#/components/schemas/LotRefs'
+        wearPercent:
+          allOf:
+            - $ref: '#/components/schemas/InteriorPercent'
+          description: 経年で家具1つが隣へ生活痕を落とす割合
+        heroOneIn:
+          type: integer
+          format: int32
+          minimum: 1
+          description: hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
       description: 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
     InteriorRef:
       type: object
@@ -3263,6 +3538,12 @@ components:
     LightEnabled:
       type: boolean
       description: 光源が有効かどうか
+    LightLevel:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: 光の強さ。0 が真っ暗、1 が最大
     LightRadius:
       type: integer
       minimum: 1
@@ -3282,6 +3563,24 @@ components:
         enabled:
           $ref: '#/components/schemas/LightEnabled'
       description: 光源設定
+    LotRefs:
+      type: object
+      required:
+        - fence
+        - plant
+        - vending
+      properties:
+        fence:
+          $ref: '#/components/schemas/EntityID'
+        plant:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 民家の前庭に置く外構
+        vending:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 店の前庭に置く外構
+      description: 敷地の外構の interiorRefs の id
     MagazineSize:
       type: integer
       minimum: 1
@@ -3307,6 +3606,10 @@ components:
         order:
           type: integer
           format: int32
+        chunk:
+          allOf:
+            - $ref: '#/components/schemas/GlyphChunk'
+          description: この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く
       description: 俯瞰地図の記号1種。id は地物・施設の種別 id
     Material:
       type: string
@@ -3329,12 +3632,26 @@ components:
         - LIQUID
       description: |-
         材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-        不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+        不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
     MaterialAmount:
       type: integer
       minimum: 1
       maximum: 99
       description: 素材必要数
+    MaterialDef:
+      type: object
+      required:
+        - id
+        - name
+        - heatPerKg
+      properties:
+        id:
+          $ref: '#/components/schemas/Material'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        heatPerKg:
+          $ref: '#/components/schemas/HeatPerKg'
+      description: 材質の表示名と燃焼の熱量
     Melee:
       type: object
       required:
@@ -3409,6 +3726,21 @@ components:
           allOf:
             - $ref: '#/components/schemas/EntityID'
           description: プレイヤーキャラクターでは省略可能
+        startingEquips:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionEquip'
+          description: 生成時に装備して持たせるアイテム。startingItems より先に持たせる
+        startingItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionItem'
+          description: 生成時にバックパックへ持たせるアイテム
+        stock:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionItem'
+          description: 店の在庫。持つ member は店を開く
       description: メンバー
     MemberList:
       type: object
@@ -3452,6 +3784,11 @@ components:
       minimum: 0
       maximum: 9999
       description: 栄養価
+    NutritionPercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 食料から得る栄養の満額に対する割合。百分率
     Palette:
       type: object
       required:
@@ -3707,6 +4044,10 @@ components:
           $ref: '#/components/schemas/StorageRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
+        burnoutItem:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
       description: 置物
     PropList:
       type: object
@@ -3736,7 +4077,7 @@ components:
         dy:
           type: integer
           format: int32
-      description: prop 1個の相対配置
+      description: 基準点から相対の位置に置くエンティティ1個
     ProvidesHealing:
       type: object
       required:
@@ -3773,6 +4114,16 @@ components:
       minimum: 0
       maximum: 20
       description: キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
+    RangePenaltyPercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 射程の超過1タイルあたりの命中の低下。百分率
+    RangeTiles:
+      type: integer
+      minimum: 1
+      maximum: 50
+      description: 射程。タイル
     Raws:
       type: object
       properties:
@@ -3912,6 +4263,38 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FatigueStage'
+        freshnessStages:
+          type: array
+          items:
+            $ref: '#/components/schemas/FreshnessStage'
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialDef'
+        toolCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCategoryDef'
+        timesOfDay:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeOfDay'
+        seasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Season'
+        dungeons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dungeon'
+        settlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Settlement'
+        dialogues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dialogue'
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
@@ -4039,13 +4422,19 @@ components:
       required:
         - id
         - grassDensity
+        - soilDensity
         - propDensity
         - lootGroup
         - entries
+        - grass
+        - soil
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
         grassDensity:
+          type: number
+          format: double
+        soilDensity:
           type: number
           format: double
         propDensity:
@@ -4057,7 +4446,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScatterEntry'
-      description: 開けた地形の散布ゾーン1種
+        grass:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroundCoverEntry'
+        soil:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroundCoverEntry'
+      description: 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
+    Season:
+      type: object
+      required:
+        - id
+        - name
+        - temp
+      properties:
+        id:
+          $ref: '#/components/schemas/SeasonId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        temp:
+          $ref: '#/components/schemas/SeasonTemp'
+      description: 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
     SeasonId:
       type: string
       enum:
@@ -4066,11 +4477,42 @@ components:
         - autumn
         - winter
       description: 季節
+    SeasonTemp:
+      type: integer
+      minimum: -100
+      maximum: 100
+      description: 季節の世界温度。℃
     Sensation:
       type: integer
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
+    Settlement:
+      type: object
+      required:
+        - id
+        - weight
+        - members
+        - props
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
+        weight:
+          type: integer
+          format: int32
+          minimum: 1
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropSpot'
+          description: 住人の member。name は members の id
+        props:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropSpot'
+      description: |-
+        原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
+            id は地図の記号の id を兼ねる。行の順に重みを積む
     Shelter:
       type: string
       enum:
@@ -4100,6 +4542,39 @@ components:
       minimum: 0
       maximum: 100
       description: 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
+    SiteChoice:
+      type: object
+      required:
+        - id
+        - homeWeight
+        - shopWeight
+        - yardDepth
+        - fence
+      properties:
+        id:
+          $ref: '#/components/schemas/SiteType'
+        homeWeight:
+          $ref: '#/components/schemas/SiteWeight'
+        shopWeight:
+          $ref: '#/components/schemas/SiteWeight'
+        yardDepth:
+          $ref: '#/components/schemas/YardDepth'
+        fence:
+          type: boolean
+          description: 敷地を塀で囲うか。街路に面して開く敷地は囲わない
+      description: 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
+    SiteType:
+      type: string
+      enum:
+        - detached
+        - shopfront
+        - roadside
+      description: 敷地の類型。前庭の深さと外構の出し分けに使う
+    SiteWeight:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
     Skill:
       type: object
       required:
@@ -4273,6 +4748,11 @@ components:
       maxLength: 50
       pattern: ^[a-z][a-z0-9_]*$
       description: スプライトシート名
+    StageBaseTemp:
+      type: integer
+      minimum: -100
+      maximum: 100
+      description: ステージの基本気温。℃
     StageLengthTurns:
       type: integer
       minimum: 1
@@ -4353,6 +4833,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/Foliage'
           description: 植生。省くと植生なし
+        spawn:
+          allOf:
+            - $ref: '#/components/schemas/TileSpawn'
+          description: マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
       description: タイル
     TileList:
       type: object
@@ -4367,11 +4851,61 @@ components:
         totalCount:
           type: integer
       description: タイル一覧
+    TileSpawn:
+      type: object
+      required:
+        - autotile
+      properties:
+        tile:
+          allOf:
+            - $ref: '#/components/schemas/EntityID'
+          description: 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身
+        autotile:
+          type: boolean
+          description: 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false
+      description: 計画のタイルを実体化する仕様
     TileTempModifier:
       type: integer
       minimum: -50
       maximum: 50
       description: 水や植生がタイルの気温に足す補正。℃
+    TimeOfDay:
+      type: object
+      required:
+        - id
+        - name
+        - tempModifier
+        - daylight
+        - ambientColor
+      properties:
+        id:
+          $ref: '#/components/schemas/TimeOfDayId'
+        name:
+          $ref: '#/components/schemas/EntityName'
+        tempModifier:
+          $ref: '#/components/schemas/TimeOfDayTempModifier'
+        daylight:
+          $ref: '#/components/schemas/LightLevel'
+        ambientColor:
+          $ref: '#/components/schemas/AmbientColor'
+      description: |-
+        時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。
+            明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する
+    TimeOfDayId:
+      type: string
+      enum:
+        - dawn
+        - morning
+        - noon
+        - evening
+        - night
+        - midnight
+      description: 時間帯。1日は夜明けで始まり、この順に巡る
+    TimeOfDayTempModifier:
+      type: integer
+      minimum: -50
+      maximum: 50
+      description: 時間帯による世界温度への加算。℃
     Tool:
       type: object
       required:
@@ -4394,6 +4928,16 @@ components:
         - chopping
         - mining
       description: 道具の分類
+    ToolCategoryDef:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/ToolCategory'
+        skill:
+          $ref: '#/components/schemas/SkillId'
+      description: 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
     ToolGrade:
       type: integer
       minimum: 1
@@ -4416,6 +4960,18 @@ components:
           $ref: '#/components/schemas/BuildingVariant'
         weight:
           $ref: '#/components/schemas/EntryWeight'
+        damage:
+          allOf:
+            - $ref: '#/components/schemas/BuildingDamage'
+          description: 引いた損傷段階を上書きする。省くと上書きしない
+        minClutter:
+          allOf:
+            - $ref: '#/components/schemas/BuildingClutter'
+          description: 散らかり段階をこれ以上に引き上げる。省くと引き上げない
+        density:
+          allOf:
+            - $ref: '#/components/schemas/DensityFactor'
+          description: 引いた家具量の倍率を上書きする。省くと上書きしない
       description: 建物の変種の重み
     ViewDistance:
       type: integer
@@ -4471,6 +5027,7 @@ components:
       type: object
       required:
         - id
+        - name
         - tempModifier
         - visionDelta
         - severity
@@ -4480,6 +5037,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/WeatherId'
+        name:
+          $ref: '#/components/schemas/EntityName'
         tempModifier:
           $ref: '#/components/schemas/WeatherTempModifier'
         visionDelta:
@@ -4535,6 +5094,12 @@ components:
       type: string
       pattern: ^[0-9]+(\.[0-9]+)? (mg|g|kg)$
       description: '重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"'
+    YardDepth:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 10
+      description: 入口側に空ける前庭の奥行き。タイル
     Zone:
       type: string
       enum:

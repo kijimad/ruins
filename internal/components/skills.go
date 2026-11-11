@@ -15,7 +15,15 @@ type Skills struct {
 	Data map[oapi.SkillId]*Skill
 }
 
-// Get は指定されたスキルIDのSkillを返す。まだ無ければ値0のスキルを作って返す
+// Level はスキルの値を返す。まだ無いスキルは0。読むだけで Data へ書き込まないので、並行に読んでよい
+func (s *Skills) Level(id oapi.SkillId) int {
+	if sk, ok := s.Data[id]; ok {
+		return sk.Value
+	}
+	return 0
+}
+
+// Get は指定されたスキルIDのSkillを返す。まだ無ければ値0のスキルを作って Data に足す。書き換えるときに使う
 func (s *Skills) Get(id oapi.SkillId) *Skill {
 	if s.Data == nil {
 		s.Data = make(map[oapi.SkillId]*Skill)

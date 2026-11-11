@@ -1,7 +1,6 @@
 package activity
 
 import (
-	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -11,10 +10,9 @@ import (
 // 入眠可否は SleepBehavior.Validate と states のプロンプト起動が同じこの値を見るため、
 // ゲートと表示がずれない。疲労・気温・安全のどれかを欠くと入眠できない。
 type SleepConditions struct {
-	HasFatigue    bool                // 疲労コンポーネントを持つか。持たない者は眠れない
-	Fatigue       oapi.FatigueStageId // 疲労段階
-	TemperatureOK bool                // 気温が入眠可能な帯に収まるか
-	AreaSafe      bool                // 周囲に敵対エンティティがいないか
+	Sleepy        bool // 疲労が眠れる段階にあるか。疲労を持たない者は眠れない
+	TemperatureOK bool // 気温が入眠可能な帯に収まるか
+	AreaSafe      bool // 周囲に敵対エンティティがいないか
 }
 
 // EvaluateSleepConditions は actor の現在地での睡眠条件を評価する。
@@ -26,8 +24,9 @@ func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 	}
 
 	if world.Components.Fatigue.Has(actor) {
-		sc.HasFatigue = true
-		sc.Fatigue = world.Components.Fatigue.Get(actor).GetLevel(world.Resources.NeedDefs)
+		defs := world.Resources.NeedDefs
+		stage, _ := defs.FatigueStageOf(world.Components.Fatigue.Get(actor).GetLevel(defs))
+		sc.Sleepy = stage.CanSleep
 	}
 
 	if world.Components.GridElement.Has(actor) {
@@ -41,10 +40,10 @@ func EvaluateSleepConditions(world w.World, actor ecs.Entity) SleepConditions {
 	return sc
 }
 
-// TooTired は疲労が足りず眠れない状態かを返す。快調 Rested か疲労を持たない者は眠れない。
+// TooTired は疲労が足りず眠れない状態かを返す。眠れない段階か、疲労を持たない者は眠れない。
 // 寝すぎを防ぐため一定の疲労がないと入眠できない。
 func (sc SleepConditions) TooTired() bool {
-	return !sc.HasFatigue || sc.Fatigue == oapi.FatigueStageIdRested
+	return !sc.Sleepy
 }
 
 // CanSleep は入眠を妨げるブロック条件が一つも無いかを返す。

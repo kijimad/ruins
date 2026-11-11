@@ -13,6 +13,7 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -253,20 +254,16 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 		speakerName := query.GetEntityName(p.SpeakerEntity, world)
 
-		// NPCの種類に応じて専用ステートを返す
-		switch p.MessageKey {
-		case "merchant_greeting":
+		if hasStock(world, p.SpeakerEntity) {
 			merchant := p.SpeakerEntity
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName, merchant) },
-			}}, nil
-		default:
-			// 通常の会話はdialoguesから取得
-			dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)
-			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
+				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName, merchant, p.MessageKey) },
 			}}, nil
 		}
+		dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
+		}}, nil
 	case gc.WarpDescend:
 		// 共存方式の下り。同一 State 内で swapTo する。現階は退避され再訪で復元できる
 		if err := st.descend(world); err != nil {
@@ -410,4 +407,10 @@ func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {
 			Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },
 		},
 	}
+}
+
+// hasStock は entity の member の行が店の在庫を持つかを返す
+func hasStock(world w.World, entity ecs.Entity) bool {
+	member, err := raw.FindMember(world.Resources.RawMaster, query.GetEntityID(entity, world))
+	return err == nil && len(raw.PtrSlice(member.Stock)) > 0
 }

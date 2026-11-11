@@ -47,7 +47,9 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 	if world.Components.SpriteRender.Has(doorEntity) {
 		spriteRender := world.Components.SpriteRender.Get(doorEntity)
 
-		spriteRender.SpriteKey = doorSpriteKey(orientation, isOpen)
+		if door, ok := doorRaw(world, doorEntity); ok {
+			spriteRender.SpriteKey = doorSpriteKey(door, orientation, isOpen)
+		}
 		if isOpen {
 			spriteRender.Depth = gc.DepthNumRug
 		} else {
@@ -94,28 +96,18 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
-// SpawnDungeonEntrance は遺跡入口プロップを生成する。触れて Enter で definitionName の遺跡へ入る。
-// オーバーワールドはコードで入口を配置するため、raw でなく EntitySpec を直接組む。
-// 入口はオーバーワールドの地物なので StageBound{overworld} を直接持たせ、遺跡進入時に帯と共に
-// 退避されるようにする。swapTo の遅延 Bind に頼らず、明示束縛でリファクタリング耐性を上げる。
+// SpawnDungeonEntrance は raw の dungeon_entrance prop から遺跡入口を生成する。触れて Enter で definitionName の遺跡へ入る。
+// 入口はオーバーワールドの地物なので StageBound{overworld} を直接持たせ、遺跡進入時に帯と共に退避されるようにする
 func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitionName string) (ecs.Entity, error) {
-	// ダンジョン内の階段ポータルと同じ raw プロップ warp_next を流用し、回転アニメを揃える。
-	// warp_next は次階ポータル用なので、相互作用を遺跡進入へ差し替え、入口固有のコンポーネントを
-	// 足す。オーバーワールドの地物として帯へ明示束縛し、遺跡進入時に帯と共に退避されるようにする。
-	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, "warp_next")
+	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, "dungeon_entrance")
 	if err != nil {
 		return gc.InvalidEntity, err
 	}
-	entitySpec.Name = &gc.Name{Name: query.T(world, "Ruins Entrance")}
-	entitySpec.Description = &gc.Description{Description: query.T(world, "An entrance leading to ruins")}
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDungeonEnter}}
 	entitySpec.DungeonEntrance = &gc.DungeonEntrance{DefinitionName: definitionName}
 	entitySpec.StageBound = &gc.StageBound{Key: gc.NewOverworldStage()}
-	// warp_next は暗いダンジョン用に光源を持つが、明るいオーバーワールドでは効かないうえ
-	// 入口に不要なので落とす。流用するのはスプライトとアニメフレームだけでよい。
-	entitySpec.LightSource = nil
 
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
@@ -129,58 +121,63 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 	entitySpec.Door.Orientation = orientation
-	entitySpec.SpriteRender.SpriteKey = doorSpriteKey(orientation, false)
+	prop, err := raw.GetProp(world.Resources.RawMaster, "door")
+	if err != nil {
+		return gc.InvalidEntity, err
+	}
+	entitySpec.SpriteRender.SpriteKey = doorSpriteKey(*prop.Door, orientation, false)
 
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
+// doorRaw は扉の prop の行から扉の見た目の定義を引く。raw の行を持たない扉は ok=false
+func doorRaw(world w.World, door ecs.Entity) (oapi.DoorRaw, bool) {
+	if !world.Components.RawID.Has(door) {
+		return oapi.DoorRaw{}, false
+	}
+	prop, err := raw.GetProp(world.Resources.RawMaster, world.Components.RawID.Get(door).ID)
+	if err != nil || prop.Door == nil {
+		return oapi.DoorRaw{}, false
+	}
+	return *prop.Door, true
+}
+
 // doorSpriteKey は扉の向きと開閉に応じたスプライトキーを返す
-func doorSpriteKey(orientation gc.DoorOrientation, isOpen bool) string {
+func doorSpriteKey(door oapi.DoorRaw, orientation gc.DoorOrientation, isOpen bool) string {
 	switch {
 	case orientation == gc.DoorOrientationHorizontal && isOpen:
-		return "door_horizontal_open"
+		return door.HorizontalOpen
 	case isOpen:
-		return "door_vertical_open"
+		return door.VerticalOpen
 	case orientation == gc.DoorOrientationHorizontal:
-		return "door_horizontal_closed"
+		return door.HorizontalClosed
 	default:
-		return "door_vertical_closed"
+		return door.VerticalClosed
 	}
 }
 
-// cubeHP はキューブの耐久値。扉と同じ prop 標準の HP 機構に乗せる。移動拠点なので扉より頑丈にする
-const cubeHP = 200
-
-// SpawnCube はプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成し、帯へ明示束縛する。
-// 陣営を持たないので、SoloAI の戦闘の状態遷移に入らず移動方針だけで動く。
+// SpawnCube は raw の cube prop からプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成し、帯へ明示束縛する。
+// 陣営を持たないので、SoloAI の戦闘の状態遷移に入らず移動方針だけで動く。自分の拠点を殴れないよう、操作は随伴の操作だけにする
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
-	cube := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-		Name:        &gc.Name{Name: query.T(world, "Cube")},
-		Description: &gc.Description{Description: query.T(world, "A mobile base that follows you")},
-		GridElement: &gc.GridElement{Coord: pos},
-		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: fieldSpriteSheet,
-			SpriteKey:       "cube_float_0",
-			AnimKeys:        []string{"cube_float_0", "cube_float_1", "cube_float_2", "cube_float_3"},
-			Depth:           gc.DepthNumTaller,
-		},
-		Prop:     &gc.Prop{},
-		Cube:     &gc.Cube{},
-		FuelTank: &gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase},
-		HP:       &gc.HP{Max: cubeHP, Current: cubeHP},
-		SoloAI: &gc.SoloAI{
-			CombatDefault: oapi.Ignore,
-			CombatCurrent: oapi.Ignore,
-			Movement:      oapi.Follow,
-			SubState:      gc.AIStateWaiting,
-		},
-		TurnBased:       &gc.TurnBased{},
-		LocationOnField: &gc.LocationOnField{},
-		StageBound:      &gc.StageBound{Key: gc.NewOverworldStage()},
-		// 収納を持ち、隣接時にキューブメニューから開ける
-		WeightCapacity: &gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)},
-		Interactable:   &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}},
-	})
+	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, "cube")
+	if err != nil {
+		return gc.InvalidEntity, err
+	}
+	entitySpec.GridElement = &gc.GridElement{Coord: pos}
+	entitySpec.Cube = &gc.Cube{}
+	entitySpec.FuelTank = &gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}
+	entitySpec.SoloAI = &gc.SoloAI{
+		CombatDefault: oapi.Ignore,
+		CombatCurrent: oapi.Ignore,
+		Movement:      oapi.Follow,
+		SubState:      gc.AIStateWaiting,
+	}
+	entitySpec.TurnBased = &gc.TurnBased{}
+	entitySpec.LocationOnField = &gc.LocationOnField{}
+	entitySpec.StageBound = &gc.StageBound{Key: gc.NewOverworldStage()}
+	entitySpec.WeightCapacity = &gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)}
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}}
+	cube := world.Components.AddEntity(world.ECS, &entitySpec)
 	maxAP := query.CalculateMaxActionPoints(world, cube)
 	world.Components.TurnBased.Get(cube).AP = gc.IntPool{Current: maxAP, Max: maxAP}
 	return cube, nil

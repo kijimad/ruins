@@ -146,9 +146,10 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	fmt.Fprintf(&b, "## 気候（世界温度の季節変動）\n\n")
 	fmt.Fprintf(&b, "**概要**: 屋外の世界温度は1年周期で春から夏ピーク、秋、冬底へ巡る。緯度勾配・時間帯・遮蔽を含まない季節そのもの。\n")
 	fmt.Fprintf(&b, "冬は準備なしでは生存できない寒さになり、生存圧の寒さ側の上流入力になる。\n\n")
+	calendar := raw.NewCalendarDefs(master)
 	var climateRows [][]string
 	for _, day := range []int{1, 4, 8, 12, 16, 20, 24, 28} {
-		climateRows = append(climateRows, []string{fmt.Sprintf("%d", day), fmt.Sprintf("%d", WorldTemperatureAtDay(day))})
+		climateRows = append(climateRows, []string{fmt.Sprintf("%d", day), fmt.Sprintf("%d", WorldTemperatureAtDay(calendar, day))})
 	}
 	writeMDTable(&b, []string{"経過日", "世界温度(℃)"}, []tw.Align{alignR, alignR}, climateRows)
 
@@ -233,15 +234,16 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeTiles(consts.CubeFuelCapacityBase, load))})
 	}
 	writeMDTable(&b, []string{"積荷(kg)", "燃費(/歩)", "満タン航続(歩)"}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)
+	materials := raw.NewMaterialDefs(master)
 	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", query.HeatOf(oapi.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(query.HeatOf(oapi.OIL, 10*consts.MilligramPerKg), 0))},
-		{"WOOD 10kg", fmt.Sprintf("%d", query.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(query.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg), 0))},
+		{"OIL 10kg", fmt.Sprintf("%d", materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg), 0))},
+		{"WOOD 10kg", fmt.Sprintf("%d", materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg), 0))},
 	})
 
 	fmt.Fprintf(&b, "同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n")
 	writeMDTable(&b, []string{"燃料", "燃焼ターン"}, []tw.Align{alignL, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(oapi.OIL, 10))},
-		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(oapi.WOOD, 10))},
+		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, oapi.OIL, 10))},
+		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, oapi.WOOD, 10))},
 	})
 
 	// 感度行列。つまみ×メトリクスの横断ヤコビアン

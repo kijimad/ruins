@@ -2,6 +2,7 @@ package components
 
 // WeatherDef は天候1種の定義。raw の weathers の1行から組み立てる
 type WeatherDef struct {
+	Name          string // 表示名 msgid
 	Effect        WeatherEffect
 	Severity      int                // 寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地でスペルを長引かせる
 	SpellTurnsMin int                // スペルの基準長の下限。ターン

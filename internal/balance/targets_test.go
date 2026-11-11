@@ -67,16 +67,17 @@ func TestBaselineSnapshot_物流(t *testing.T) {
 	t.Parallel()
 	assert.InDelta(t, 600, FollowRangeTiles(consts.CubeFuelCapacityBase, 0), 1, "満タンで積荷0の航続")
 	assert.InDelta(t, 120, FollowRangeTiles(consts.CubeFuelCapacityBase, 20*consts.MilligramPerKg), 1, "満タンで積荷20kgの航続")
-	assert.Equal(t, 5000, FuelBurnTurns(oapi.OIL, 10), "OIL 10kg の燃焼ターン")
-	assert.Equal(t, 1000, FuelBurnTurns(oapi.WOOD, 10), "WOOD 10kg の燃焼ターン")
+	assert.Equal(t, 5000, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), oapi.OIL, 10), "OIL 10kg の燃焼ターン")
+	assert.Equal(t, 1000, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), oapi.WOOD, 10), "WOOD 10kg の燃焼ターン")
 }
 
 func TestBaselineSnapshot_気候(t *testing.T) {
 	t.Parallel()
+	calendar := raw.NewCalendarDefs(loadTestMaster(t))
 	// 世界温度の季節変動。1年32日で春5→夏ピーク22→冬底付近へ巡る。
-	assert.Equal(t, 5, WorldTemperatureAtDay(1), "春の中点")
-	assert.Equal(t, 22, WorldTemperatureAtDay(8), "夏ピーク")
-	assert.Equal(t, -29, WorldTemperatureAtDay(24), "冬底付近")
+	assert.Equal(t, 5, WorldTemperatureAtDay(calendar, 1), "春の中点")
+	assert.Equal(t, 22, WorldTemperatureAtDay(calendar, 8), "夏ピーク")
+	assert.Equal(t, -29, WorldTemperatureAtDay(calendar, 24), "冬底付近")
 }
 
 func TestBaselineSnapshot_身体と経済(t *testing.T) {

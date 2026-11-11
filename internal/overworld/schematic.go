@@ -27,22 +27,12 @@ type GlyphInfo struct {
 
 // 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と
 // 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。
-//   - placeType: チャンク尺度。市街地以外のチャンクを1記号で表す。荒れ地・村・一軒家・遺跡入口・
-//     点在ランドマークの各種別。地図の表示専用で、生成には関与しない。
+//   - チャンク尺度。市街地以外のチャンクを1記号で表す。集落とランドマークは raw の行の id を記号の id に使い、
+//     持ち主の行を持たない荒れ地と遺跡入口は、記号の行の chunk が指す。地図の表示専用で、生成には関与しない。
 //   - 施設 id: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
 //     市街地生成の重み抽選にも使う。
-// 地図は市街地チャンクを施設 id の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
+// 地図は市街地チャンクを施設 id の記号で、それ以外をチャンク尺度の記号で描く。凡例 LegendGlyphs は
 // チャンク尺度に続けて建物尺度を並べ、2層を1つの表にする。
-
-// placeType は施設とランドマーク以外のチャンクの記号キー。値は mapGlyphs の id。
-type placeType string
-
-const (
-	placeField           placeType = "field"            // 荒れ地
-	placeVillage         placeType = "village"          // 村
-	placeHamlet          placeType = "hamlet"           // 一軒家
-	placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
-)
 
 // placeUnknownGlyph は mapGlyphs に記号が無いときの保険の記号。
 const placeUnknownGlyph rune = '?'
@@ -127,27 +117,27 @@ func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[
 		}
 		return placeUnknownGlyph
 	case chunkDungeonEntrance:
-		return placeGlyph(raws, placeDungeonEntrance)
+		return chunkGlyph(raws, oapi.DungeonEntrance)
 	case chunkSettlement:
-		if settlementVillageRoll(runSeed, c) {
-			return placeGlyph(raws, placeVillage)
+		if g, ok := glyphByID(raws, settlementAt(raws, runSeed, c).Id); ok {
+			return g.Label
 		}
-		return placeGlyph(raws, placeHamlet)
+		return placeUnknownGlyph
 	case chunkLandmark:
 		if g, ok := glyphByID(raws, landmarkKindAt(raws, runSeed, c)); ok {
 			return g.Label
 		}
 		return placeUnknownGlyph
 	case chunkWasteland:
-		return placeGlyph(raws, placeField)
+		return chunkGlyph(raws, oapi.Wasteland)
 	}
 	return placeUnknownGlyph
 }
 
-// placeGlyph は placeType の記号を引く。未登録は保険の記号。
-func placeGlyph(raws oapi.Raws, pt placeType) rune {
-	if g, ok := glyphByID(raws, string(pt)); ok {
-		return g.Label
+// chunkGlyph は持ち主の行を持たないチャンクの種類の記号を引く。未登録は保険の記号。
+func chunkGlyph(raws oapi.Raws, chunk oapi.GlyphChunk) rune {
+	if mg, ok := raw.GetChunkGlyph(raws, chunk); ok {
+		return toGlyphInfo(mg).Label
 	}
 	return placeUnknownGlyph
 }

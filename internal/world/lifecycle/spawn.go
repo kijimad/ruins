@@ -15,11 +15,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 定数定義
-const (
-	fieldSpriteSheet = "field" // オーバーワールドの地物・アイテムが使うスプライトシート名
-)
-
 // エラー定義
 var (
 	ErrItemGeneration   = errors.New("failed to generate item")
@@ -81,36 +76,47 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	}
 	world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
 
-	// 初期装備として松明を持たせて装備する。プレイヤーは内蔵光源を持たないので、
-	// これが明かりになる。外すと暗くなる。StatsChangedSystem が装備の光源を owner へ転写する。
-	// 所有者は生成中のプレイヤーと確定しているので、世界からの検索を挟まず直接持たせる
-	torch, err := spawnItemBase(world, "torch")
-	if err != nil {
-		return gc.InvalidEntity, fmt.Errorf("failed to spawn starting torch: %w", err)
-	}
-	if err := MoveToBackpack(world, torch, playerEntity); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("failed to give starting torch: %w", err)
-	}
-	MoveToEquip(world, torch, playerEntity, gc.SlotWeapon1)
-
-	// 初期の治療キット。切り傷用の包帯と骨折用の添え木を少量持たせる。切り傷のほうが起きやすいので包帯を多め
-	for _, kit := range []struct {
-		name  string
-		count int
-	}{{"bandage", 2}, {"splint", 1}} {
-		for range kit.count {
-			item, err := spawnItemBase(world, kit.name)
-			if err != nil {
-				return gc.InvalidEntity, fmt.Errorf("failed to spawn starting %s: %w", kit.name, err)
-			}
-			if err := MoveToBackpack(world, item, playerEntity); err != nil {
-				return gc.InvalidEntity, fmt.Errorf("failed to give starting %s: %w", kit.name, err)
-			}
-		}
+	if err := giveStartingGear(world, playerEntity, name); err != nil {
+		return gc.InvalidEntity, err
 	}
 
 	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil
+}
+
+// giveStartingGear は member の行の初期装備を装備させ、初期アイテムをバックパックへ持たせる。
+// 所有者は生成中の member と確定しているので、世界からの検索を挟まず直接持たせる
+func giveStartingGear(world w.World, owner ecs.Entity, name string) error {
+	member, err := raw.FindMember(world.Resources.RawMaster, name)
+	if err != nil {
+		return err
+	}
+	for _, equip := range raw.PtrSlice(member.StartingEquips) {
+		item, err := spawnItemBase(world, equip.Name)
+		if err != nil {
+			return fmt.Errorf("failed to spawn starting %s: %w", equip.Name, err)
+		}
+		if err := MoveToBackpack(world, item, owner); err != nil {
+			return fmt.Errorf("failed to give starting %s: %w", equip.Name, err)
+		}
+		slot, ok := gc.ParseEquipmentSlot(equip.Slot)
+		if !ok {
+			return fmt.Errorf("invalid equipment slot %q for %s", equip.Slot, equip.Name)
+		}
+		MoveToEquip(world, item, owner, slot)
+	}
+	for _, it := range raw.PtrSlice(member.StartingItems) {
+		for range it.Count {
+			item, err := spawnItemBase(world, it.Name)
+			if err != nil {
+				return fmt.Errorf("failed to spawn starting %s: %w", it.Name, err)
+			}
+			if err := MoveToBackpack(world, item, owner); err != nil {
+				return fmt.Errorf("failed to give starting %s: %w", it.Name, err)
+			}
+		}
+	}
+	return nil
 }
 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
@@ -144,12 +150,10 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 		return gc.InvalidEntity, fmt.Errorf("NPC recovery failed: %w", err)
 	}
 
-	// 商人は品揃えを在庫として持つ。生成経路に依らずここで積むことで、集落でも街マップの
+	// 在庫を持つ member は店を開く。生成経路に依らずここで積むことで、集落でも街マップの
 	// マッププランナ経由でも同じ在庫を持たせる。売買と雇用はこの在庫を出し入れする
-	if name == "merchant" {
-		if err := PopulateMerchantStock(world, npcEntity, world.Resources.Config.RNG); err != nil {
-			return gc.InvalidEntity, fmt.Errorf("failed to stock merchant: %w", err)
-		}
+	if err := PopulateStock(world, npcEntity, name); err != nil {
+		return gc.InvalidEntity, err
 	}
 
 	query.InvalidateSpatialIndex(world)

@@ -1,8 +1,8 @@
 package query
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -23,7 +23,7 @@ func EffectiveRot(world w.World, entity ecs.Entity, now consts.Turn) consts.Turn
 
 // FreshnessStageOf は entity の鮮度段階を返す。Perishable を持たなければ ok=false。
 // 鮮度の算出をここへ集約し、食べる処理と表示が同じ判定を通す
-func FreshnessStageOf(world w.World, entity ecs.Entity) (gc.FreshnessStage, bool) {
+func FreshnessStageOf(world w.World, entity ecs.Entity) (oapi.FreshnessStageId, bool) {
 	if !world.Components.Perishable.Has(entity) {
 		return "", false
 	}
@@ -35,8 +35,13 @@ func FreshnessStageOf(world w.World, entity ecs.Entity) (gc.FreshnessStage, bool
 // 呼び出し側は空なら何も足さない
 func FreshnessMarker(world w.World, entity ecs.Entity) string {
 	stage, ok := FreshnessStageOf(world, entity)
-	if !ok || stage == gc.FreshnessFresh {
+	if !ok || !world.Resources.NeedDefs.Freshness[stage].Marker {
 		return ""
 	}
-	return T(world, stage.Label())
+	return FreshnessName(world, stage)
+}
+
+// FreshnessName は鮮度の段階の訳した表示名を返す
+func FreshnessName(world w.World, stage oapi.FreshnessStageId) string {
+	return T(world, world.Resources.NeedDefs.Freshness[stage].Name)
 }

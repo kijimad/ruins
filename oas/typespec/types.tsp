@@ -132,6 +132,41 @@ enum BuildingVariant {
   hoarder,
 }
 
+/** 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す */
+enum GlyphChunk {
+  /** 荒れ地。特徴的な地物が無い開けた地形 */
+  wasteland,
+
+  /** 遺跡入口 */
+  dungeon_entrance,
+}
+
+/** 敷地の類型。前庭の深さと外構の出し分けに使う */
+enum SiteType {
+  /** 戸建。塀で囲い前庭に観葉 */
+  detached,
+
+  /** 商店街。街路に面して建て前庭は浅く、塀を張らず看板と自販機を出す */
+  shopfront,
+
+  /** ロードサイド。前庭を広く取り前面を駐車場にする */
+  roadside,
+}
+
+/** 内装の経年や散らかりの割合。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar InteriorPercent extends integer;
+
+/** 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない */
+@minValue(0)
+scalar SiteWeight extends int32;
+
+/** 入口側に空ける前庭の奥行き。タイル */
+@minValue(0)
+@maxValue(10)
+scalar YardDepth extends int32;
+
 /** 建物の家具量の倍率。10 が等倍の ×/10 */
 @minValue(1)
 @maxValue(30)
@@ -154,6 +189,31 @@ enum SeasonId {
   autumn,
   winter,
 }
+
+/** 時間帯。1日は夜明けで始まり、この順に巡る */
+enum TimeOfDayId {
+  dawn,
+  morning,
+  noon,
+  evening,
+  night,
+  midnight,
+}
+
+/** 時間帯による世界温度への加算。℃ */
+@minValue(-50)
+@maxValue(50)
+scalar TimeOfDayTempModifier extends integer;
+
+/** 光の強さ。0 が真っ暗、1 が最大 */
+@minValue(0)
+@maxValue(1)
+scalar LightLevel extends float64;
+
+/** 季節の世界温度。℃ */
+@minValue(-100)
+@maxValue(100)
+scalar SeasonTemp extends integer;
 
 /** 天候による世界温度への加算。℃ */
 @minValue(-50)
@@ -202,6 +262,46 @@ enum FatigueStageId {
   tired,
   exhausted,
 }
+
+/** ダンジョンのフロアを生成する間取りの種類 */
+enum DungeonPlanner {
+  small_room,
+  big_room,
+  cave,
+  ruins,
+  forest,
+}
+
+/** ステージの基本気温。℃ */
+@minValue(-100)
+@maxValue(100)
+scalar StageBaseTemp extends integer;
+
+/** 会話の1ページ。英語の msgid で、表示のとき query.T で訳す。<keyword> などのマークアップを含められる */
+@minLength(1)
+scalar DialoguePage extends string;
+
+/** 鮮度の段階 */
+enum FreshnessStageId {
+  fresh,
+  stale,
+  rotten,
+}
+
+/** 病気を起こす確率。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar IllnessChancePercent extends integer;
+
+/** 食料から得る栄養の満額に対する割合。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar NutritionPercent extends integer;
+
+/** 材質のkgあたり燃焼熱量。0 なら不燃で燃料にならない */
+@minValue(0)
+@maxValue(10000)
+scalar HeatPerKg extends integer;
 
 /** 間取りテンプレの選択キー */
 enum PlannerKey {
@@ -584,7 +684,7 @@ enum Element {
 }
 
 /** 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ */
+不燃の材質は係数0で燃料にならない。係数は materials の行が持つ */
 enum Material {
   /** 木材 */
   WOOD,
@@ -621,6 +721,22 @@ enum Material {
 }
 
 /** 攻撃種別。武器の攻撃種別は同じ名前の武器スキルで上達する */
+/** 攻撃の射程の区分 */
+enum AttackRange {
+  melee,
+  ranged,
+}
+
+/** 射程。タイル */
+@minValue(1)
+@maxValue(50)
+scalar RangeTiles extends integer;
+
+/** 射程の超過1タイルあたりの命中の低下。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar RangePenaltyPercent extends integer;
+
 enum AttackCategory {
   /** 素手 */
   fist,

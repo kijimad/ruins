@@ -1164,3 +1164,22 @@ id = "壊れたアイテム"
 	var parseErr toml.ParseError
 	require.ErrorAs(t, err, &parseErr)
 }
+
+func TestTileSpawn_実データ(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	got := map[string]oapi.TileSpawn{}
+	for _, tl := range PtrSlice(raws.Tiles) {
+		if tl.Spawn != nil {
+			got[tl.Id] = *tl.Spawn
+		}
+	}
+	assert.Equal(t, map[string]oapi.TileSpawn{
+		"dirt":  {Autotile: true},
+		"floor": {Autotile: true},
+		"wall":  {Tile: new("dwall"), Autotile: true},
+		"void":  {Autotile: false},
+	}, got)
+}

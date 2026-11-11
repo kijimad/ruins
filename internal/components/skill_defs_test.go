@@ -42,18 +42,22 @@ var testSkillDefs = func() SkillDefs {
 		oapi.ProficiencyIdSellPrice:      {Skill: oapi.SkillIdNegotiation, PerLevel: 2},
 		oapi.ProficiencyIdHeavyArmor:     {Skill: oapi.SkillIdHeavyArmor, PerLevel: -5},
 	}
-	attackTypes := []AttackType{AttackSword, AttackSpear, AttackFist, AttackBow, AttackHandgun, AttackRifle, AttackCannon}
-	weapons := make([]WeaponDef, 0, len(attackTypes))
-	for _, at := range attackTypes {
-		w := WeaponDef{
-			AttackType: at,
-			Skill:      oapi.SkillId(at.Type),
-			Damage:     oapi.ProficiencyId(at.Type + "_damage"),
-			Accuracy:   oapi.ProficiencyId(at.Type + "_accuracy"),
-		}
-		weapons = append(weapons, w)
+	weapons := []WeaponDef{
+		{AttackType: oapi.AttackCategorySword, Name: "Sword", Range: oapi.AttackRangeMelee},
+		{AttackType: oapi.AttackCategorySpear, Name: "Spear", Range: oapi.AttackRangeMelee},
+		{AttackType: oapi.AttackCategoryFist, Name: "Martial arts", Range: oapi.AttackRangeMelee},
+		{AttackType: oapi.AttackCategoryBow, Name: "Bow", Range: oapi.AttackRangeRanged, RangeParams: RangeParams{OptimalRange: 4, MaxRange: 10, PenaltyPerTile: 5}},
+		{AttackType: oapi.AttackCategoryHandgun, Name: "Handgun", Range: oapi.AttackRangeRanged, RangeParams: RangeParams{OptimalRange: 3, MaxRange: 8, PenaltyPerTile: 8}},
+		{AttackType: oapi.AttackCategoryRifle, Name: "Rifle", Range: oapi.AttackRangeRanged, RangeParams: RangeParams{OptimalRange: 8, MaxRange: 16, PenaltyPerTile: 3}},
+		{AttackType: oapi.AttackCategoryCannon, Name: "Cannon", Range: oapi.AttackRangeRanged, RangeParams: RangeParams{OptimalRange: 6, MaxRange: 12, PenaltyPerTile: 5}},
+	}
+	for i := range weapons {
+		w := &weapons[i]
+		w.Skill = oapi.SkillId(w.AttackType)
+		w.Damage = oapi.ProficiencyId(string(w.AttackType) + "_damage")
+		w.Accuracy = oapi.ProficiencyId(string(w.AttackType) + "_accuracy")
 		limb := BodyFuncManipulation
-		if at.Range == AttackRangeRanged {
+		if w.Range == oapi.AttackRangeRanged {
 			limb = BodyFuncSight
 		}
 		proficiencies[w.Damage] = ProficiencyDef{Skill: w.Skill, PerLevel: 5}
@@ -87,11 +91,15 @@ func TestSkillDefs_Name(t *testing.T) {
 func TestSkillDefs_Weapon(t *testing.T) {
 	t.Parallel()
 
-	got, ok := testSkillDefs.Weapon(AttackBow)
+	got, ok := testSkillDefs.Weapon(oapi.AttackCategoryBow)
 	assert.True(t, ok)
-	assert.Equal(t, WeaponDef{AttackType: AttackBow, Skill: oapi.SkillIdBow, Damage: oapi.ProficiencyIdBowDamage, Accuracy: oapi.ProficiencyIdBowAccuracy}, got)
+	assert.Equal(t, WeaponDef{
+		AttackType: oapi.AttackCategoryBow, Name: "Bow", Range: oapi.AttackRangeRanged,
+		RangeParams: RangeParams{OptimalRange: 4, MaxRange: 10, PenaltyPerTile: 5},
+		Skill:       oapi.SkillIdBow, Damage: oapi.ProficiencyIdBowDamage, Accuracy: oapi.ProficiencyIdBowAccuracy,
+	}, got)
 
-	_, ok = testSkillDefs.Weapon(AttackType{Type: "unknown"})
+	_, ok = testSkillDefs.Weapon(oapi.AttackCategory("unknown"))
 	assert.False(t, ok, "攻撃の種類の行が無ければ ok=false")
 }
 
@@ -104,4 +112,15 @@ func TestSkillDefs_Resist(t *testing.T) {
 
 	_, ok = testSkillDefs.Resist(oapi.ElementNONE)
 	assert.False(t, ok, "無属性を軽減する倍率は無い")
+}
+
+func TestSkillDefs_RangeParams(t *testing.T) {
+	t.Parallel()
+
+	got, ok := testSkillDefs.RangeParams(oapi.AttackCategoryRifle)
+	assert.True(t, ok)
+	assert.Equal(t, RangeParams{OptimalRange: 8, MaxRange: 16, PenaltyPerTile: 3}, got)
+
+	_, ok = testSkillDefs.RangeParams(oapi.AttackCategorySword)
+	assert.False(t, ok, "近接は射程を持たない")
 }
