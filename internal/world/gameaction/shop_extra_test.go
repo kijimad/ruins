@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -50,7 +50,7 @@ func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	require.NoError(t, err)
 	world.Components.Wallet.Get(player).Currency = 1000
 	// 交渉スキルを上げて買値倍率を下げる
-	world.Components.Skills.Get(player).Get(oapi.SkillIdNegotiation).Value = 25
+	world.Components.Skills.Get(player).Get(rawschema.SkillIdNegotiation).Value = 25
 
 	merchant := world.ECS.NewEntity()
 	item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
@@ -97,7 +97,7 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	require.NoError(t, err)
 	world.Components.Wallet.Get(player).Currency = 0
 	// 交渉スキルを上げて売値倍率を上げる
-	world.Components.Skills.Get(player).Get(oapi.SkillIdNegotiation).Value = 25
+	world.Components.Skills.Get(player).Get(rawschema.SkillIdNegotiation).Value = 25
 
 	merchant := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()

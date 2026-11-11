@@ -3,8 +3,8 @@ package dungeon
 import (
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 内部用のステージのマスタ定義。遺跡の入口が指すダンジョンは raw の dungeons の行が持つ
@@ -44,17 +44,17 @@ var (
 )
 
 // plannerTypes は raw のダンジョンの間取りの種類が指すプランナー
-var plannerTypes = map[oapi.DungeonPlanner]mapplanner.PlannerType{
-	oapi.DungeonPlannerSmallRoom: mapplanner.PlannerTypeSmallRoom,
-	oapi.DungeonPlannerBigRoom:   mapplanner.PlannerTypeBigRoom,
-	oapi.DungeonPlannerCave:      mapplanner.PlannerTypeCave,
-	oapi.DungeonPlannerRuins:     mapplanner.PlannerTypeRuins,
-	oapi.DungeonPlannerForest:    mapplanner.PlannerTypeForest,
+var plannerTypes = map[rawschema.DungeonPlanner]mapplanner.PlannerType{
+	rawschema.DungeonPlannerSmallRoom: mapplanner.PlannerTypeSmallRoom,
+	rawschema.DungeonPlannerBigRoom:   mapplanner.PlannerTypeBigRoom,
+	rawschema.DungeonPlannerCave:      mapplanner.PlannerTypeCave,
+	rawschema.DungeonPlannerRuins:     mapplanner.PlannerTypeRuins,
+	rawschema.DungeonPlannerForest:    mapplanner.PlannerTypeForest,
 }
 
 // GetAllDungeons は raw の dungeons の行から、遺跡の入口が指す全ダンジョン定義を行の順に返す。
 // オーバーワールドやデバッグなどの内部用の定義は含まない。
-func GetAllDungeons(raws oapi.Raws) []*DungeonDefinition {
+func GetAllDungeons(raws rawschema.Raws) []*DungeonDefinition {
 	rows := raw.PtrSlice(raws.Dungeons)
 	defs := make([]*DungeonDefinition, 0, len(rows))
 	for i := range rows {
@@ -64,7 +64,7 @@ func GetAllDungeons(raws oapi.Raws) []*DungeonDefinition {
 }
 
 // newDungeonDefinition は raw の dungeons の1行からダンジョン定義を組み立てる
-func newDungeonDefinition(row *oapi.Dungeon) *DungeonDefinition {
+func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 	pool := make([]PlannerWeight, 0, len(row.Planners))
 	for _, p := range row.Planners {
 		pool = append(pool, PlannerWeight{PlannerType: plannerTypes[p.Id], Weight: p.Weight})
@@ -88,7 +88,7 @@ var internalDefinitions = []StageDefinition{
 
 // BaseTemperatureFor は名前のステージ定義の基本気温を返す。未登録は0。
 // ステージ生成時に StageField.BaseTemp へ写し、気温計算が dungeon 登録表を引かずに済むようにする
-func BaseTemperatureFor(raws oapi.Raws, name string) int {
+func BaseTemperatureFor(raws rawschema.Raws, name string) int {
 	if def, ok := GetStageDefinition(raws, name); ok {
 		return def.BaseTemperature()
 	}
@@ -96,7 +96,7 @@ func BaseTemperatureFor(raws oapi.Raws, name string) int {
 }
 
 // GetStageDefinition は名前からステージ定義のマスタを取得する。ダンジョンは raw の行の id で引く。
-func GetStageDefinition(raws oapi.Raws, name string) (StageDefinition, bool) {
+func GetStageDefinition(raws rawschema.Raws, name string) (StageDefinition, bool) {
 	// 内部用の定義を先にチェックする
 	for _, k := range internalDefinitions {
 		if k.Name() == name {

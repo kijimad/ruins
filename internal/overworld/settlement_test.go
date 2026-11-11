@@ -5,8 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -25,7 +25,7 @@ func namesInWorld(world w.World) map[string]int {
 }
 
 // settlementRow は raw の settlements の行を id で引く
-func settlementRow(t *testing.T, raws oapi.Raws, id string) oapi.Settlement {
+func settlementRow(t *testing.T, raws rawschema.Raws, id string) rawschema.Settlement {
 	t.Helper()
 	for _, s := range raw.PtrSlice(raws.Settlements) {
 		if s.Id == id {
@@ -33,7 +33,7 @@ func settlementRow(t *testing.T, raws oapi.Raws, id string) oapi.Settlement {
 		}
 	}
 	require.FailNow(t, "settlement not found", id)
-	return oapi.Settlement{}
+	return rawschema.Settlement{}
 }
 
 func TestSpawnSettlement_村には商人がいる(t *testing.T) {

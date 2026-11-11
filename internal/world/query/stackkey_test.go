@@ -7,7 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -25,7 +25,7 @@ func TestStackKeyOf_鮮度と品種でキーが決まる(t *testing.T) {
 	key, ok := StackKeyOf(world, apple)
 	require.True(t, ok)
 	assert.Equal(t, "apple", key.RawID)
-	assert.Equal(t, oapi.FreshnessStageId(""), key.FreshnessStage, "非腐敗品の段階は空文字")
+	assert.Equal(t, rawschema.FreshnessStageId(""), key.FreshnessStage, "非腐敗品の段階は空文字")
 
 	// 腐敗品。生成直後は fresh 段階
 	meat := world.ECS.NewEntity()
@@ -34,7 +34,7 @@ func TestStackKeyOf_鮮度と品種でキーが決まる(t *testing.T) {
 	mkey, mok := StackKeyOf(world, meat)
 	require.True(t, mok)
 	assert.Equal(t, "meat", mkey.RawID)
-	assert.Equal(t, oapi.Fresh, mkey.FreshnessStage, "腐敗品は現在の鮮度段階を持つ")
+	assert.Equal(t, rawschema.Fresh, mkey.FreshnessStage, "腐敗品は現在の鮮度段階を持つ")
 }
 
 func TestSameStack_同一判定(t *testing.T) {

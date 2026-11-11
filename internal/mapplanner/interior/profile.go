@@ -1,7 +1,7 @@
 package interior
 
 import (
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 建物単位の生活感プロファイル。変種・散らかり・損傷・密度の独立軸を建物ごとに1回引き、全室へ一様に
@@ -57,10 +57,10 @@ type profileTable struct {
 
 	damageEffects  map[damageLevel]damageEffect
 	clutterEffects map[clutterLevel]clutterEffect
-	variantEffects map[variantKind]oapi.VariantChoice
-	sites          []oapi.SiteChoice // 行の順に重みを積む
-	facade         oapi.FacadeRefs
-	lot            oapi.LotRefs
+	variantEffects map[variantKind]rawschema.VariantChoice
+	sites          []rawschema.SiteChoice // 行の順に重みを積む
+	facade         rawschema.FacadeRefs
+	lot            rawschema.LotRefs
 	wearPct        int
 	heroOneIn      uint64
 }
@@ -78,19 +78,19 @@ type clutterEffect struct {
 }
 
 var (
-	damageLevels  = map[oapi.BuildingDamage]damageLevel{oapi.BuildingDamageIntact: dmgIntact, oapi.BuildingDamageMinor: dmgMinor, oapi.BuildingDamageMajor: dmgMajor}
-	clutterLevels = map[oapi.BuildingClutter]clutterLevel{oapi.Tidy: clutterTidy, oapi.Messy: clutterMessy, oapi.Filthy: clutterFilthy}
-	variantKinds  = map[oapi.BuildingVariant]variantKind{
-		oapi.Standard:          varStandard,
-		oapi.Abandoned:         varAbandoned,
-		oapi.UnderConstruction: varUnderConstruction,
-		oapi.Survivalist:       varSurvivalist,
-		oapi.Hoarder:           varHoarder,
+	damageLevels  = map[rawschema.BuildingDamage]damageLevel{rawschema.BuildingDamageIntact: dmgIntact, rawschema.BuildingDamageMinor: dmgMinor, rawschema.BuildingDamageMajor: dmgMajor}
+	clutterLevels = map[rawschema.BuildingClutter]clutterLevel{rawschema.Tidy: clutterTidy, rawschema.Messy: clutterMessy, rawschema.Filthy: clutterFilthy}
+	variantKinds  = map[rawschema.BuildingVariant]variantKind{
+		rawschema.Standard:          varStandard,
+		rawschema.Abandoned:         varAbandoned,
+		rawschema.UnderConstruction: varUnderConstruction,
+		rawschema.Survivalist:       varSurvivalist,
+		rawschema.Hoarder:           varHoarder,
 	}
 )
 
 // newProfileTable は raw の interiorProfile から抽選表を組み立てる。raw に未設定なら error を返す
-func newProfileTable(raws oapi.Raws) (profileTable, error) {
+func newProfileTable(raws rawschema.Raws) (profileTable, error) {
 	p := raws.InteriorProfile
 	if p == nil {
 		return profileTable{}, errInteriorProfileMissing
@@ -98,7 +98,7 @@ func newProfileTable(raws oapi.Raws) (profileTable, error) {
 	t := profileTable{
 		damageEffects:  map[damageLevel]damageEffect{},
 		clutterEffects: map[clutterLevel]clutterEffect{},
-		variantEffects: map[variantKind]oapi.VariantChoice{},
+		variantEffects: map[variantKind]rawschema.VariantChoice{},
 		sites:          p.Sites,
 		facade:         p.Facade,
 		lot:            p.Lot,
@@ -175,14 +175,14 @@ func applyClutter(t profileTable, seed uint64, room Room, placed []Placed, level
 	added := make([]Placed, 0)
 	// 主。家具の隣の空きタイルへ小物を落とす。机やたんすの周りに物が集まる
 	for i, p := range placed {
-		if p.Kind != oapi.Furniture || !dropChance(seed, i, furnPct) {
+		if p.Kind != rawschema.Furniture || !dropChance(seed, i, furnPct) {
 			continue
 		}
 		for _, n := range neighbors4(p.Pos) {
 			if room.Rect.containsInterior(n) && !occupied[n] && !isDoorwayAdjacent(room, n) {
 				ref := pickOne(childSeed(seed, 2_000+i), pool)
 				occupied[n] = true
-				added = append(added, Placed{Kind: oapi.Decor, Ref: ref, Pos: n})
+				added = append(added, Placed{Kind: rawschema.Decor, Ref: ref, Pos: n})
 				break
 			}
 		}
@@ -196,7 +196,7 @@ func applyClutter(t profileTable, seed uint64, room Room, placed []Placed, level
 			if dropChance(seed, 7_000+i, effect.floorPct) {
 				ref := pickOne(childSeed(seed, 8_000+i), pool)
 				occupied[t] = true
-				added = append(added, Placed{Kind: oapi.Decor, Ref: ref, Pos: t})
+				added = append(added, Placed{Kind: rawschema.Decor, Ref: ref, Pos: t})
 			}
 		}
 	}

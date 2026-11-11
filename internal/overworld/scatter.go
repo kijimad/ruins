@@ -8,8 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -86,7 +86,7 @@ var scatterEarthTiles = map[string]bool{
 }
 
 // scatterCatalogFrom は zone の散布定義を scatterZones 行から組み立てる。未登録 zone は error。
-func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, error) {
+func scatterCatalogFrom(raws rawschema.Raws, zone outdoorZone) (scatterCatalog, error) {
 	sz, ok := raw.GetScatterZone(raws, string(zone))
 	if !ok {
 		return scatterCatalog{}, fmt.Errorf("scatter zone %q not found", zone)
@@ -112,7 +112,7 @@ func scatterCatalogFrom(raws oapi.Raws, zone outdoorZone) (scatterCatalog, error
 }
 
 // groundCoverEntries は地面を覆う飾りの行を散布の候補にする
-func groundCoverEntries(rows []oapi.GroundCoverEntry) []scatterEntry {
+func groundCoverEntries(rows []rawschema.GroundCoverEntry) []scatterEntry {
 	entries := make([]scatterEntry, 0, len(rows))
 	for _, r := range rows {
 		entries = append(entries, scatterEntry{Ref: r.Ref, Weight: int(r.Weight)})
@@ -125,7 +125,7 @@ func groundCoverEntries(rows []oapi.GroundCoverEntry) []scatterEntry {
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
-func scatterCatalogForChunk(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {
+func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkWasteland:
 		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))

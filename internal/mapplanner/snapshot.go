@@ -6,13 +6,13 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // Snapshot はマップ生成の各フェーズ完了時点でのMetaPlanの状態を保存する
 type Snapshot struct {
 	Label        string
-	Tiles        []oapi.Tile
+	Tiles        []rawschema.Tile
 	Environments []gc.TileEnvironment
 	Rooms        []gc.Rect
 	Corridors    [][]gc.TileIdx

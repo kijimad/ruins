@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -23,11 +23,11 @@ func TestProficiencyValue_疲労は武器命中を下げる(t *testing.T) {
 	entity := world.ECS.NewEntity()
 	world.Components.Skills.Add(entity, gc.NewSkills())
 
-	base := int(ProficiencyValue(world, entity, oapi.ProficiencyIdSwordAccuracy))
+	base := int(ProficiencyValue(world, entity, rawschema.ProficiencyIdSwordAccuracy))
 
 	// 過労は中度で意識を20下げ、操作機能80%が命中へ乗る
 	setExhaustedFatigue(world, entity)
-	tired := int(ProficiencyValue(world, entity, oapi.ProficiencyIdSwordAccuracy))
+	tired := int(ProficiencyValue(world, entity, rawschema.ProficiencyIdSwordAccuracy))
 
 	assert.Equal(t, base*80/100, tired, "過労で命中が80%に下がる")
 }
@@ -40,8 +40,8 @@ func TestProficiencyValue_疲労は命中以外に効かない(t *testing.T) {
 	setExhaustedFatigue(world, entity)
 
 	// ProfMaxWeight は身体機能を畳まないので、全身性の低下では変わらない
-	assert.Equal(t, int(world.Resources.SkillDefs.ProficiencyValue(gc.NewSkills(), nil, gc.HealthyBodyFuncs(), oapi.ProficiencyIdMaxWeight)),
-		int(ProficiencyValue(world, entity, oapi.ProficiencyIdMaxWeight)), "身体機能を畳まない倍率キーは全身性で変わらない")
+	assert.Equal(t, int(world.Resources.SkillDefs.ProficiencyValue(gc.NewSkills(), nil, gc.HealthyBodyFuncs(), rawschema.ProficiencyIdMaxWeight)),
+		int(ProficiencyValue(world, entity, rawschema.ProficiencyIdMaxWeight)), "身体機能を畳まない倍率キーは全身性で変わらない")
 }
 
 func TestProficiencySources_疲労の内訳が値と一致する(t *testing.T) {
@@ -51,10 +51,10 @@ func TestProficiencySources_疲労の内訳が値と一致する(t *testing.T) {
 	world.Components.Skills.Add(entity, gc.NewSkills())
 	setExhaustedFatigue(world, entity)
 
-	value := int(ProficiencyValue(world, entity, oapi.ProficiencyIdSwordAccuracy))
+	value := int(ProficiencyValue(world, entity, rawschema.ProficiencyIdSwordAccuracy))
 	sum := int(consts.PercentBase)
 	var sawBodyFunc bool
-	for _, s := range ProficiencySources(world, entity, oapi.ProficiencyIdSwordAccuracy) {
+	for _, s := range ProficiencySources(world, entity, rawschema.ProficiencyIdSwordAccuracy) {
 		sum += s.Value
 		// 疲労は意識を下げ、命中は操作機能の畳み込みとして内訳に載る
 		if s.Kind == gc.SourceBodyFunc {
@@ -70,7 +70,7 @@ func TestProficiencySources_Skillsが無ければnilを返す(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
 
-	sources := ProficiencySources(world, entity, oapi.ProficiencyIdSwordAccuracy)
+	sources := ProficiencySources(world, entity, rawschema.ProficiencyIdSwordAccuracy)
 
 	assert.Nil(t, sources, "Skillsが無ければ内訳は空")
 }

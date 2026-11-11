@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -107,7 +107,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		hungerComp := world.Components.Hunger.Get(actor)
 		require.NotNil(t, hungerComp)
 		assert.Equal(t, 475, hungerComp.Current)
-		assert.Equal(t, oapi.HungerStageIdSatiated, hungerComp.GetLevel(world.Resources.NeedDefs), "満腹状態になっているはず")
+		assert.Equal(t, rawschema.HungerStageIdSatiated, hungerComp.GetLevel(world.Resources.NeedDefs), "満腹状態になっているはず")
 	})
 
 	t.Run("Hungerコンポーネントがない場合は何もしない", func(t *testing.T) {
@@ -142,7 +142,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 
 		useItemActivity := &UseItemBehavior{}
 
-		assert.Equal(t, oapi.HungerStageIdStarving, hunger.GetLevel(world.Resources.NeedDefs), "初期状態は飢餓状態")
+		assert.Equal(t, rawschema.HungerStageIdStarving, hunger.GetLevel(world.Resources.NeedDefs), "初期状態は飢餓状態")
 
 		// 300の満腹度回復で70%になる
 		err := useItemActivity.applyNutrition(comp, actor, world, 300, item)
@@ -151,7 +151,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 		hungerComp := world.Components.Hunger.Get(actor)
 		require.NotNil(t, hungerComp)
 		assert.Equal(t, 350, hungerComp.Current)
-		assert.Equal(t, oapi.HungerStageIdNormal, hungerComp.GetLevel(world.Resources.NeedDefs), "普通状態に回復しているはず")
+		assert.Equal(t, rawschema.HungerStageIdNormal, hungerComp.GetLevel(world.Resources.NeedDefs), "普通状態に回復しているはず")
 	})
 }
 
@@ -568,7 +568,7 @@ func TestUseItemBehavior_applyHealing(t *testing.T) {
 		world.Components.HP.Add(actor, &gc.HP{Current: 10, Max: 100})
 		// 回復Lv20: 回復効果 = 100 + 20*5 = 200
 		skills := gc.NewSkills()
-		skills.Get(oapi.SkillIdHealing).Value = 20
+		skills.Get(rawschema.SkillIdHealing).Value = 20
 		world.Components.Skills.Add(actor, skills)
 
 		item := world.ECS.NewEntity()

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,10 +37,10 @@ func abandonedFlavor() Content {
 	return Content{
 		ID: "abandoned",
 		Groups: []Group{
-			{Style: oapi.PickN, Pick: 2, Items: []Stuff{
-				{Kind: oapi.Decor, Ref: "carpet", Placement: oapi.FarFromDoor, Amount: consts.Dice{Base: 1, Sides: 1}},
-				{Kind: oapi.Decor, Ref: "broom", Placement: oapi.Wall, Amount: consts.Dice{Base: 1, Sides: 1}},
-				{Kind: oapi.Decor, Ref: "candle", Placement: oapi.FullArea, Amount: consts.Dice{Base: 1, Sides: 2}},
+			{Style: rawschema.PickN, Pick: 2, Items: []Stuff{
+				{Kind: rawschema.Decor, Ref: "carpet", Placement: rawschema.FarFromDoor, Amount: consts.Dice{Base: 1, Sides: 1}},
+				{Kind: rawschema.Decor, Ref: "broom", Placement: rawschema.Wall, Amount: consts.Dice{Base: 1, Sides: 1}},
+				{Kind: rawschema.Decor, Ref: "candle", Placement: rawschema.FullArea, Amount: consts.Dice{Base: 1, Sides: 2}},
 			}},
 		},
 	}
@@ -69,12 +69,12 @@ func TestFillRoom_同じseedで完全一致する(t *testing.T) {
 
 // diningTableStuff は椅子を四辺へ束ねた食卓の Stuff。衛星配置のテスト専用フィクスチャで、本番レシピは
 // raw.toml が持つ。
-func diningTableStuff(placement oapi.Placement) Stuff {
+func diningTableStuff(placement rawschema.Placement) Stuff {
 	chair := func(offs ...Vec) Satellite {
-		return Satellite{Kind: oapi.Furniture, Ref: "chair", Offsets: offs}
+		return Satellite{Kind: rawschema.Furniture, Ref: "chair", Offsets: offs}
 	}
 	return Stuff{
-		Kind: oapi.Furniture, Ref: "table", Placement: placement, Amount: consts.Dice{Base: 1, Sides: 1},
+		Kind: rawschema.Furniture, Ref: "table", Placement: placement, Amount: consts.Dice{Base: 1, Sides: 1},
 		Satellites: []Satellite{
 			chair(Vec{X: 0, Y: -1}, Vec{X: -1, Y: -1}, Vec{X: 1, Y: -1}),
 			chair(Vec{X: 0, Y: 1}, Vec{X: -1, Y: 1}, Vec{X: 1, Y: 1}),
@@ -90,7 +90,7 @@ func TestFillRoom_衛星の椅子は机の隣に置かれる(t *testing.T) {
 	t.Parallel()
 
 	room := Room{Rect: Rect{X: 0, Y: 0, W: 9, H: 9}, Doorways: []Doorway{{X: 4, Y: 8}}}
-	content := Content{ID: "dining", Groups: []Group{{Style: oapi.PickEach, Items: []Stuff{diningTableStuff(oapi.Center)}}}}
+	content := Content{ID: "dining", Groups: []Group{{Style: rawschema.PickEach, Items: []Stuff{diningTableStuff(rawschema.Center)}}}}
 	placed := FillRoom(1, room, content)
 
 	var table Vec

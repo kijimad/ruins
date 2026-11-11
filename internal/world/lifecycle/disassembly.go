@@ -6,7 +6,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -22,7 +22,7 @@ type YieldStack struct {
 // RollDisassemblyYields は分解定義から産出を抽選する。
 // full が真なら確定枠をすべて出し、確率枠にスキルと工具グレードの補正を加算し、ボーナス枠の
 // 条件判定も行う。偽なら確定枠のみを DestroySalvageChance で抽選して確率枠とボーナス枠は出さない
-func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int, toolGrade int, full bool) ([]YieldStack, error) {
+func RollDisassemblyYields(rng *rand.Rand, def *rawschema.Disassembly, skillValue int, toolGrade int, full bool) ([]YieldStack, error) {
 	var stacks []YieldStack
 
 	for _, y := range def.Yields {
@@ -81,7 +81,7 @@ var ErrInvalidYieldCount = errors.New("invalid disassembly yield count notation"
 
 // rollCount は産出個数をダイス表記から抽選する。表記は raw ロード時の検証で担保済みだが、
 // 万一パースに失敗したら 0 個を黙って返さず error を返し、呼び出し側で気づけるようにする。
-func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {
+func rollCount(rng *rand.Rand, count rawschema.Dice) (int, error) {
 	d, err := consts.ParseDice(count)
 	if err != nil {
 		return 0, fmt.Errorf("%w: %q: %w", ErrInvalidYieldCount, count, err)

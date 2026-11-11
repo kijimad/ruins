@@ -5,8 +5,8 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -187,7 +187,7 @@ type DayRisk struct {
 
 // PoolCombatRisk は危険度 danger の敵プールに1体遭遇したときの重み付き死亡確率と期待決着ターンを返す。各敵との
 // 1対1をマルコフ連鎖で解き出現重みで平均する。帯に敵がいなければ ok=false。静的下限は PercentBase を渡す。
-func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, playerSkillMult consts.Percent) (deathProb, expTurns float64, ok bool, err error) {
+func PoolCombatRisk(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, playerSkillMult consts.Percent) (deathProb, expTurns float64, ok bool, err error) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {
 		return 0, 0, false, err
@@ -216,7 +216,7 @@ func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon Weapon
 
 // CombatRiskCurve は経過日 1..days の戦闘リスクを敵プールの重みで期待して返す。プレイヤーは熟練度なしの
 // 静的下限で見る。各敵との1対1をマルコフ連鎖で解き、出現重みで平均する。乱数を使わない。
-func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {
+func CombatRiskCurve(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {
 	out := make([]DayRisk, 0, days)
 	for day := 1; day <= days; day++ {
 		danger := int(query.DangerLevelForDay(day))

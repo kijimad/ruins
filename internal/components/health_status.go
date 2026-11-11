@@ -3,7 +3,7 @@ package components
 import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // Severity は状態の重症度
@@ -362,7 +362,7 @@ func (d ConditionDefs) BloodDrop(cond *HealthCondition) int {
 		return 0
 	}
 	// 外傷は発症中ずっと血を失う。全身性の不調は重症でだけ循環が落ちる
-	if def.Recovery == oapi.RecoverAfterTend {
+	if def.Recovery == rawschema.RecoverAfterTend {
 		if !cond.IsActive() {
 			return 0
 		}

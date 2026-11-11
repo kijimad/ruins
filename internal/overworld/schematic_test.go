@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -77,7 +77,7 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 	cat := zoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 
-	dungeonGlyph := chunkGlyph(raws, oapi.DungeonEntrance)
+	dungeonGlyph := chunkGlyph(raws, rawschema.DungeonEntrance)
 	village, ok := glyphByID(raws, "village")
 	require.True(t, ok)
 	hamlet, ok := glyphByID(raws, "hamlet")

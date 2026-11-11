@@ -10,8 +10,8 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/i18n"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -268,7 +268,7 @@ func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage
 }
 
 // elementMult は対象の属性 element への耐性の倍率を返す。耐性を持たない属性なら等倍
-func elementMult(target ecs.Entity, element oapi.Element, world w.World) consts.Percent {
+func elementMult(target ecs.Entity, element rawschema.Element, world w.World) consts.Percent {
 	key, ok := world.Resources.SkillDefs.Resist(element)
 	if !ok {
 		return consts.PercentBase

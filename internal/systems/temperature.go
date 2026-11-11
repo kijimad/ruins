@@ -9,7 +9,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -60,7 +60,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		isPlayer := world.Components.Player.Has(entity)
 
 		// 低体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
-		coldProgressPct := query.ProficiencyValue(world, entity, oapi.ProficiencyIdColdProgress)
+		coldProgressPct := query.ProficiencyValue(world, entity, rawschema.ProficiencyIdColdProgress)
 
 		// 体温の帯判定から健康状態を更新
 		hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct)
@@ -122,7 +122,7 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 	var changes []gc.SeverityChange
 
 	// 低体温の処理
-	cold := world.Resources.ConditionDefs.ByOnset(oapi.Cold)
+	cold := world.Resources.ConditionDefs.ByOnset(rawschema.Cold)
 	switch {
 	case offset < -bodyTempColdBand:
 		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))

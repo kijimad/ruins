@@ -8,8 +8,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 func TestCalculateAutoTileIndex(t *testing.T) {
@@ -25,7 +25,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 		RawMaster: createTestRawMaster(t),
 	}
 
@@ -138,7 +138,7 @@ func TestIsValidIndex(t *testing.T) {
 
 	// 3x3のテストマップ
 	metaPlan := &MetaPlan{
-		Tiles: make([]oapi.Tile, 9), // 3x3 = 9タイル
+		Tiles: make([]rawschema.Tile, 9), // 3x3 = 9タイル
 	}
 
 	testCases := []struct {
@@ -160,7 +160,7 @@ func TestIsValidIndex(t *testing.T) {
 }
 
 // createTestRawMaster はテスト用のrawマスターを作成する
-func createTestRawMaster(t *testing.T) *oapi.Raws {
+func createTestRawMaster(t *testing.T) *rawschema.Raws {
 	t.Helper()
 
 	rawData := `

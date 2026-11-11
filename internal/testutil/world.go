@@ -9,8 +9,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/require"
@@ -19,7 +19,7 @@ import (
 // 共有リソースをキャッシュ（一度だけ読み込む）
 var (
 	rawMasterOnce sync.Once
-	rawMaster     oapi.Raws
+	rawMaster     rawschema.Raws
 	conditionDefs gc.ConditionDefs
 	skillDefs     gc.SkillDefs
 	errRawMaster  error

@@ -3,7 +3,7 @@ package components
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,13 +16,13 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		BodyFuncDropPerSeverity: 10,
 		BloodDropPerSeverity:    22,
 		Cause:                   CauseFrozen,
-		Onset:                   oapi.Cold,
+		Onset:                   rawschema.Cold,
 	},
 	ConditionType("fracture"): {
 		Name:                    "Fracture",
 		PainPerSeverity:         18,
 		BodyFuncDropPerSeverity: 20,
-		Recovery:                oapi.RecoverAfterTend,
+		Recovery:                rawschema.RecoverAfterTend,
 		RecoverPer:              1,
 		Parts:                   []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet},
 	},
@@ -30,7 +30,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		Name:                    "Laceration",
 		PainPerSeverity:         8,
 		BodyFuncDropPerSeverity: 8,
-		Recovery:                oapi.RecoverAfterTend,
+		Recovery:                rawschema.RecoverAfterTend,
 		RecoverPer:              2,
 		BloodDropPerSeverity:    25,
 		Cause:                   CauseBloodLoss,
@@ -39,7 +39,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		Name:                    "Liver illness",
 		PainPerSeverity:         4,
 		BodyFuncDropPerSeverity: 10,
-		Recovery:                oapi.ProgressUntilTend,
+		Recovery:                rawschema.ProgressUntilTend,
 		WorsenPer:               2,
 		RecoverPer:              1,
 		BloodDropPerSeverity:    25,
@@ -49,19 +49,19 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		Name:                    "Food poisoning",
 		PainPerSeverity:         5,
 		BodyFuncDropPerSeverity: 12,
-		Recovery:                oapi.RecoverOverTime,
+		Recovery:                rawschema.RecoverOverTime,
 		RecoverPer:              2,
-		Onset:                   oapi.RottenFood,
+		Onset:                   rawschema.RottenFood,
 	},
 	ConditionType("exhaustion"): {
 		Name:                    "Exhaustion",
 		BodyFuncDropPerSeverity: 10,
-		Onset:                   oapi.Fatigue,
+		Onset:                   rawschema.Fatigue,
 	},
 	ConditionType("malnutrition"): {
 		Name:                    "Malnutrition",
 		BodyFuncDropPerSeverity: 10,
-		Onset:                   oapi.Hunger,
+		Onset:                   rawschema.Hunger,
 	},
 }, [BodyPartCount]BodyPartDef{
 	BodyPartHead:      {Name: "Head", HitWeight: 2},
@@ -71,9 +71,9 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 	BodyPartLegs:      {Name: "Leg", HitWeight: 3},
 	BodyPartFeet:      {Name: "Foot", HitWeight: 1},
 	BodyPartWholeBody: {Name: "Whole body"},
-}, map[oapi.AttackCategory]ConditionType{
-	oapi.AttackCategoryFist:  ConditionType("fracture"),
-	oapi.AttackCategorySword: ConditionType("laceration"),
+}, map[rawschema.AttackCategory]ConditionType{
+	rawschema.AttackCategoryFist:  ConditionType("fracture"),
+	rawschema.AttackCategorySword: ConditionType("laceration"),
 })
 
 func TestConditionDefs_CanAffect(t *testing.T) {
@@ -103,7 +103,7 @@ func TestConditionDefs_Def(t *testing.T) {
 
 	def, ok := testDefs.Def(ConditionType("laceration"))
 	require.True(t, ok)
-	assert.Equal(t, oapi.RecoverAfterTend, def.Recovery)
+	assert.Equal(t, rawschema.RecoverAfterTend, def.Recovery)
 	assert.Equal(t, CauseBloodLoss, def.Cause)
 
 	_, ok = testDefs.Def(ConditionType("unknown"))
@@ -143,28 +143,28 @@ func TestBodyPartByID(t *testing.T) {
 func TestConditionDefs_Injury(t *testing.T) {
 	t.Parallel()
 
-	ct, ok := testDefs.Injury(oapi.AttackCategoryFist)
+	ct, ok := testDefs.Injury(rawschema.AttackCategoryFist)
 	require.True(t, ok)
 	assert.Equal(t, ConditionType("fracture"), ct)
 
-	_, ok = testDefs.Injury(oapi.AttackCategoryBow)
+	_, ok = testDefs.Injury(rawschema.AttackCategoryBow)
 	assert.False(t, ok, "未登録は ok=false")
 }
 
 func TestConditionDefs_ByOnset(t *testing.T) {
 	t.Parallel()
 
-	got := map[oapi.ConditionOnset]ConditionType{}
-	for _, o := range []oapi.ConditionOnset{oapi.Cold, oapi.RottenFood, oapi.Fatigue, oapi.Hunger} {
+	got := map[rawschema.ConditionOnset]ConditionType{}
+	for _, o := range []rawschema.ConditionOnset{rawschema.Cold, rawschema.RottenFood, rawschema.Fatigue, rawschema.Hunger} {
 		got[o] = testDefs.ByOnset(o)
 	}
-	assert.Equal(t, map[oapi.ConditionOnset]ConditionType{
-		oapi.Cold:       "hypothermia",
-		oapi.RottenFood: "food_poisoning",
-		oapi.Fatigue:    "exhaustion",
-		oapi.Hunger:     "malnutrition",
+	assert.Equal(t, map[rawschema.ConditionOnset]ConditionType{
+		rawschema.Cold:       "hypothermia",
+		rawschema.RottenFood: "food_poisoning",
+		rawschema.Fatigue:    "exhaustion",
+		rawschema.Hunger:     "malnutrition",
 	}, got)
-	assert.Panics(t, func() { ConditionDefs{}.ByOnset(oapi.Cold) })
+	assert.Panics(t, func() { ConditionDefs{}.ByOnset(rawschema.Cold) })
 }
 
 func TestConditionDefs_Types(t *testing.T) {

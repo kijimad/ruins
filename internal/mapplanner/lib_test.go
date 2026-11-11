@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 )
@@ -39,7 +39,7 @@ func TestPlannerTypeByName_存在しない名前はfalseを返す(t *testing.T) 
 // 中心タイルだけを floor / wall で使い分けられるよう呼び出し側に委ねる
 func newRandomPositionNearTestPlan(centerFloor bool, centerX, centerY consts.Tile) *MetaPlan {
 	width, height := consts.Tile(5), consts.Tile(5)
-	tiles := make([]oapi.Tile, int(width)*int(height))
+	tiles := make([]rawschema.Tile, int(width)*int(height))
 	plan := &MetaPlan{
 		Level: gc.Level{
 			TileWidth:  width,
@@ -108,7 +108,7 @@ func newEdgeTileTestPlan() *MetaPlan {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 		RawMaster: CreateTestRawMaster(),
 	}
 	for i := range plan.Tiles {

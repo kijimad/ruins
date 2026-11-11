@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 内装レシピ引きの sentinel エラー。呼び出し側とテストが errors.Is で同定できるようにする。
@@ -20,7 +20,7 @@ var (
 
 // flavorContent は全施設共通のフレーバー装飾レシピを返す。施設レシピと直交する専用フィールドから引くので、
 // 施設種別を取らない。raw に未設定なら生成側が既定へ倒せるよう error で返す。
-func flavorContent(raws oapi.Raws) (Content, error) {
+func flavorContent(raws rawschema.Raws) (Content, error) {
 	if raws.FlavorContent == nil {
 		return Content{}, errFlavorContentMissing
 	}
@@ -31,7 +31,7 @@ func flavorContent(raws oapi.Raws) (Content, error) {
 // なので線形走査で足り、索引を持たず毎回新規に組む。返り値を applyDensity が in-place で書き換えても共有元が
 // 無く clone が要らない。参照とダイスは raw の ValidateReferences がロード時に検証するので通常は成功するが、
 // 壊れた raw で生成を落とさないよう未定義・解析失敗は error で返す。
-func contentByID(raws oapi.Raws, id string) (Content, error) {
+func contentByID(raws rawschema.Raws, id string) (Content, error) {
 	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
 		if ic.Id == id {
 			c, err := toContent(raws, ic)
@@ -45,16 +45,16 @@ func contentByID(raws oapi.Raws, id string) (Content, error) {
 }
 
 // facilityByID は id の施設行を引く。未登録は error。
-func facilityByID(raws oapi.Raws, id string) (oapi.Facility, error) {
+func facilityByID(raws rawschema.Raws, id string) (rawschema.Facility, error) {
 	f, ok := raw.GetFacility(raws, id)
 	if !ok {
-		return oapi.Facility{}, fmt.Errorf("%q in facilities: %w", id, errFacilityNotRegistered)
+		return rawschema.Facility{}, fmt.Errorf("%q in facilities: %w", id, errFacilityNotRegistered)
 	}
 	return f, nil
 }
 
 // facilityContent は施設の主室 content を seed で1変種引く。未登録は error。
-func facilityContent(raws oapi.Raws, id string, seed uint64) (Content, error) {
+func facilityContent(raws rawschema.Raws, id string, seed uint64) (Content, error) {
 	variants := facilityVariants(raws, id)
 	if len(variants) == 0 {
 		return Content{}, fmt.Errorf("%q in facilityContents: %w", id, errFacilityNotRegistered)
@@ -65,7 +65,7 @@ func facilityContent(raws oapi.Raws, id string, seed uint64) (Content, error) {
 }
 
 // facilityVariants は施設の主室変種 id 列を raws から引く。未割り当ての施設は nil。
-func facilityVariants(raws oapi.Raws, id string) []string {
+func facilityVariants(raws rawschema.Raws, id string) []string {
 	for _, fc := range raw.PtrSlice(raws.FacilityContents) {
 		if fc.Facility == id {
 			return fc.Variants
@@ -77,7 +77,7 @@ func facilityVariants(raws oapi.Raws, id string) []string {
 // roomContent は施設の役割別 content を引く。ok は役割がカタログに在ったかを表し err と直交する。役割が無ければ
 // ok=false・err=nil、役割は在るが content 参照が壊れていれば ok=true・err!=nil。呼び出し側は ok||err で「引けたか
 // 壊れているか」をまとめて次段へ委ね、どちらでもないときだけフォールバックへ進む。
-func roomContent(raws oapi.Raws, id string, role roleName) (Content, bool, error) {
+func roomContent(raws rawschema.Raws, id string, role roleName) (Content, bool, error) {
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
 		if fr.Facility != id {
 			continue
@@ -95,7 +95,7 @@ func roomContent(raws oapi.Raws, id string, role roleName) (Content, bool, error
 
 // backRoomContent は施設の奥室フォールバック content を引く。カタログに無い役割はここへ落とす。facility は
 // 全種別が facilityRooms に登録済みなので通常は成功する。未登録は error で返す。
-func backRoomContent(raws oapi.Raws, id string) (Content, error) {
+func backRoomContent(raws rawschema.Raws, id string) (Content, error) {
 	for _, fr := range raw.PtrSlice(raws.FacilityRooms) {
 		if fr.Facility == id {
 			return contentByID(raws, fr.Fallback)
@@ -106,7 +106,7 @@ func backRoomContent(raws oapi.Raws, id string) (Content, error) {
 
 // toContent は oapi の内装レシピを interior.Content へ変換する。抽選順に効く Groups と Items の並びは配列の
 // 記述順をそのまま保つ。placement を省いた Stuff は interiorRefs の既定の置き方で埋める。
-func toContent(raws oapi.Raws, ic oapi.InteriorContent) (Content, error) {
+func toContent(raws rawschema.Raws, ic rawschema.InteriorContent) (Content, error) {
 	c := Content{ID: ic.Id}
 	for _, g := range raw.PtrSlice(ic.Groups) {
 		grp := Group{Style: g.Style, Pick: int(deref(g.Pick))}
@@ -146,7 +146,7 @@ func deref[T any](p *T) T {
 
 // toSatellites は oapi の衛星束を interior.Satellite へ変換する。束が無ければ nil を返す。offsets の consts.Tile
 // は負値も取り、anchor から上/左方向を表す。
-func toSatellites(in *[]oapi.ContentSatellite) []Satellite {
+func toSatellites(in *[]rawschema.ContentSatellite) []Satellite {
 	items := raw.PtrSlice(in)
 	if len(items) == 0 {
 		return nil

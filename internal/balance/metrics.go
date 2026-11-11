@@ -3,8 +3,8 @@ package balance
 import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -77,13 +77,13 @@ type DayMetric struct {
 
 // DifficultyCurve は経過日 1..days の序盤戦闘難易度を返す。dangerLevel(day) から敵テーブルの該当帯を重みで期待し、
 // 期待撃破ターンと比を評価する。静的下限で見る。スキル込みは DifficultyCurveWithSkill。乱数なし。
-func DifficultyCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayMetric, error) {
+func DifficultyCurve(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayMetric, error) {
 	return DifficultyCurveWithSkill(master, player, playerWeapon, enemyTableName, days, consts.PercentBase)
 }
 
 // DifficultyCurveWithSkill は熟練度倍率 skillMult を織り込んだ難易度カーブを返す。倍率はプレイヤー側だけに効き、
 // スキル成長ぶんを実ゲームと同じ base 全体への切り捨てで反映する。
-func DifficultyCurveWithSkill(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int, skillMult consts.Percent) ([]DayMetric, error) {
+func DifficultyCurveWithSkill(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int, skillMult consts.Percent) ([]DayMetric, error) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {
 		return nil, err

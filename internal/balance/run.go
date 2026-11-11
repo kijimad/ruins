@@ -5,8 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -30,7 +30,7 @@ type RunResult struct {
 }
 
 // SimulateRun はラン全体を模擬する。maxDepth まで進み死亡で終了する。フロアのドロップでより強い武器へ切り替える。
-func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
+func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
 	result := RunResult{
 		HPByDepth:           make(map[int]int),
 		HPBeforeHealByDepth: make(map[int]int),
@@ -156,7 +156,7 @@ type floorLoot struct {
 
 // rollFloorLoot はフロアで拾えるアイテムを計算する。
 // 回復アイテムと武器の両方を処理し、武器はフロア内で最も強いものを返す
-func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
+func rollFloorLoot(master rawschema.Raws, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
 	result := floorLoot{}
 
 	itemTable, err := raw.GetItemTable(master, tableName)
@@ -180,7 +180,7 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 }
 
 // addFloorLoot は拾った1山を回復量・栄養・最強の武器・売却額へ積む。
-func addFloorLoot(result *floorLoot, master oapi.Raws, d raw.DrawnItem, playerMaxHP int) {
+func addFloorLoot(result *floorLoot, master rawschema.Raws, d raw.DrawnItem, playerMaxHP int) {
 	spec, err := raw.NewItemSpec(master, d.Name)
 	if err != nil {
 		return
@@ -234,7 +234,7 @@ func (bs BattleStats) DPS() float64 {
 }
 
 // RunSimulations はN回のランシミュレーションを実行する
-func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {
+func RunSimulations(master rawschema.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {
 	results := make([]RunResult, n)
 	for i := range n {
 		rng := rand.New(rand.NewPCG(seed+uint64(i), 0))

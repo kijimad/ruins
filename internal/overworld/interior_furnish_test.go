@@ -7,8 +7,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -183,11 +183,11 @@ func TestInteriorContents_収納家具は戦利品表を書く(t *testing.T) {
 	for _, ic := range raw.PtrSlice(raws.InteriorContents) {
 		for _, g := range raw.PtrSlice(ic.Groups) {
 			for _, it := range g.Items {
-				if it.Kind == oapi.Furniture && isStorage(it.Ref) {
+				if it.Kind == rawschema.Furniture && isStorage(it.Ref) {
 					assert.NotNilf(t, it.LootTable, "部屋の定義 %q の収納家具 %q は戦利品表を書く", ic.Id, it.Ref)
 				}
 				for _, sat := range raw.PtrSlice(it.Satellites) {
-					if sat.Kind == oapi.Furniture && isStorage(sat.Ref) {
+					if sat.Kind == rawschema.Furniture && isStorage(sat.Ref) {
 						assert.NotNilf(t, sat.LootTable, "部屋の定義 %q の収納家具 %q の衛星は戦利品表を書く", ic.Id, sat.Ref)
 					}
 				}
@@ -213,10 +213,10 @@ func TestInteriorPropRaw_全施設の家具のrefが写像を持つ(t *testing.T
 	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
 			switch p.Kind {
-			case oapi.Furniture:
+			case rawschema.Furniture:
 				_, ok := interior.PropRawName(raws, p.Ref)
 				assert.Truef(t, ok, "施設 %q の家具 %q は 写像を持つ", fac, p.Ref)
-			case oapi.Being, oapi.Loot, oapi.Decor, oapi.Trap:
+			case rawschema.Being, rawschema.Loot, rawschema.Decor, rawschema.Trap:
 			}
 		}
 	}
@@ -245,7 +245,7 @@ func TestInteriorLootRaw_全施設のloot_refが写像を持つ(t *testing.T) {
 	sawLoot := false
 	check := func(fac string, placed []interior.Placed) {
 		for _, p := range placed {
-			if p.Kind != oapi.Loot {
+			if p.Kind != rawschema.Loot {
 				continue
 			}
 			sawLoot = true
@@ -347,11 +347,11 @@ func TestFurnishBuilding_屋内床にShelterが設定される(t *testing.T) {
 		switch world.Components.RawID.Get(e).ID {
 		case consts.TileNameFloor:
 			floorTotal++
-			if shelter == oapi.Indoor {
+			if shelter == rawschema.Indoor {
 				floorFull++
 			}
 		case consts.TileNameDirt, consts.TileNameDWall:
-			if shelter == oapi.Indoor {
+			if shelter == rawschema.Indoor {
 				nonFloorFull++
 			}
 		}

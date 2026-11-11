@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
@@ -22,7 +22,7 @@ var (
 
 // ApplyProfession はプレイヤーエンティティに職業の属性値・スキル・装備を適用する。
 // 職業選択時に使う。
-func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) error {
+func ApplyProfession(world w.World, player ecs.Entity, prof rawschema.Profession) error {
 	// 職業IDを保持する。再適用時は既存を更新する
 	if err := gc.Upsert(world.ECS, world.Components.Profession, player, &gc.Profession{ID: prof.Id}); err != nil {
 		return err

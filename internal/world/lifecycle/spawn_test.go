@@ -5,8 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -238,8 +238,8 @@ func TestSpawnEnemy_AI(t *testing.T) {
 
 	assert.True(t, world.Components.SoloAI.Has(enemy))
 	solo := world.Components.SoloAI.Get(enemy)
-	assert.Equal(t, oapi.Attack, solo.CombatDefault)
-	assert.Equal(t, oapi.Attack, solo.CombatCurrent)
+	assert.Equal(t, rawschema.Attack, solo.CombatDefault)
+	assert.Equal(t, rawschema.Attack, solo.CombatCurrent)
 }
 
 func TestSpawnItem(t *testing.T) {

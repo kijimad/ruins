@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 
@@ -80,7 +80,7 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 	kept := make([]ecs.Entity, 0, len(targets))
 	for _, entity := range targets {
 		solo := world.Components.SoloAI.Get(entity)
-		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != oapi.Follow {
+		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != rawschema.Follow {
 			grid := world.Components.GridElement.Get(entity)
 			if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) > activationRadius {
 				// 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい

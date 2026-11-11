@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // lot pass。建物を裸で地面に置かず、敷地を塀で囲い門で出入りさせ、前庭に外構を置く。自然な街並みに
@@ -14,7 +14,7 @@ import (
 
 // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には
 // 店なら自販機、民家なら観葉を1つ置く。
-func lotElements(t profileTable, s Site, fac oapi.Facility) []Placed {
+func lotElements(t profileTable, s Site, fac rawschema.Facility) []Placed {
 	fside := frontSide(s)
 	lo, hi, edge := lotEdgeSpan(s.Footprint, fside)
 	doorAxis := edge.along(s.Door)
@@ -26,7 +26,7 @@ func lotElements(t profileTable, s Site, fac oapi.Facility) []Placed {
 			if abs(a-doorAxis) <= 1 { // 門の隙間。街路から前庭へ入る
 				continue
 			}
-			out = append(out, Placed{Kind: oapi.Decor, Ref: t.lot.Fence, Pos: edge.at(a)})
+			out = append(out, Placed{Kind: rawschema.Decor, Ref: t.lot.Fence, Pos: edge.at(a)})
 		}
 	}
 	// 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く
@@ -35,7 +35,7 @@ func lotElements(t profileTable, s Site, fac oapi.Facility) []Placed {
 		if fac.IsShop {
 			ref = t.lot.Vending
 		}
-		out = append(out, Placed{Kind: oapi.Decor, Ref: ref, Pos: spot})
+		out = append(out, Placed{Kind: rawschema.Decor, Ref: ref, Pos: spot})
 	}
 	return out
 }

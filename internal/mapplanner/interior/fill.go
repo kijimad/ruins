@@ -1,10 +1,10 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/oapi"
+import "github.com/kijimaD/ruins/internal/rawschema"
 
 // Placed は座標の付いた1配置。FillRoom の出力で、レンダラや ECS への spawn の入力になる。
 type Placed struct {
-	Kind      oapi.StuffKind
+	Kind      rawschema.StuffKind
 	Ref       string
 	Pos       Vec
 	LootTable string // 収納家具の中身を引く itemTables の id。収納でなければ空

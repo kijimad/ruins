@@ -6,8 +6,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
@@ -16,9 +16,9 @@ import (
 // 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。
 
 // landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する。
-func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
+func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
 	lms := raw.PtrSlice(raws.Landmarks)
-	i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)), lms, func(l oapi.Landmark) float64 { return float64(l.Weight) })
+	i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 { return float64(l.Weight) })
 	if !ok {
 		// スキーマの weight>=1 と TestRealData_HasLandmarks が候補の存在を保証する
 		panic("landmarkKindAt: no landmark to pick")
@@ -30,16 +30,16 @@ func landmarkKindAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]
 type wildernessLandmarkFeature struct{}
 
 // landmarkDrawer はランドマーク1種を描く関数。
-type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error
+type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error
 
 // drawers は drawer キーから描画関数を引く。
-var drawers = map[oapi.DrawerKey]landmarkDrawer{
-	oapi.Hut:  drawHutLandmark,
-	oapi.Open: drawOpenLandmark,
+var drawers = map[rawschema.DrawerKey]landmarkDrawer{
+	rawschema.Hut:  drawHutLandmark,
+	rawschema.Open: drawOpenLandmark,
 }
 
 // drawHutLandmark は外周壁の小屋を描き、prop を北壁沿いに並べる。
-func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error {
+func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error {
 	names := make([]string, len(lm.Props))
 	for i, p := range lm.Props {
 		names[i] = p.Name
@@ -48,7 +48,7 @@ func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.C
 }
 
 // drawOpenLandmark は prop を相対座標で露天に置く。
-func drawOpenLandmark(world w.World, _ chunkGeom, _ *rand.Rand, origin consts.Coord[consts.Tile], lm oapi.Landmark) error {
+func drawOpenLandmark(world w.World, _ chunkGeom, _ *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error {
 	spots := make([]relSpot, len(lm.Props))
 	for i, p := range lm.Props {
 		spots[i] = relSpot{name: p.Name, dx: consts.Tile(p.Dx), dy: consts.Tile(p.Dy)}

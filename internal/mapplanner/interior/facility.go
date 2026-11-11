@@ -2,7 +2,7 @@ package interior
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。
@@ -12,11 +12,11 @@ type plannerDef struct {
 }
 
 // planners は planner キーから間取り実装を引く。
-var planners = map[oapi.PlannerKey]plannerDef{
-	oapi.House:  {PlanHouseAny, 12, 9},
-	oapi.Store:  {PlanStore, 12, 9},
-	oapi.Clinic: {PlanClinic, 12, 9},
-	oapi.Bsp:    {planBSP, 0, 0},
+var planners = map[rawschema.PlannerKey]plannerDef{
+	rawschema.House:  {PlanHouseAny, 12, 9},
+	rawschema.Store:  {PlanStore, 12, 9},
+	rawschema.Clinic: {PlanClinic, 12, 9},
+	rawschema.Bsp:    {planBSP, 0, 0},
 }
 
 // planBSP は汎用の BSP 分割で面積最大を主室、残りを奥室にする。
@@ -36,7 +36,7 @@ func planBSP(footprint Rect, seed uint64) []PlannedRoom {
 // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の
 // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で
 // 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未登録の施設は error。
-func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {
+func Furnish(raws rawschema.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {
 	table, err := newProfileTable(raws)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func applyDensity(c Content, factor int) Content {
 	for gi := range c.Groups {
 		for ii := range c.Groups[gi].Items {
 			it := &c.Groups[gi].Items[ii]
-			if it.Kind != oapi.Furniture {
+			if it.Kind != rawschema.Furniture {
 				continue // 家具だけ密度を変える。戦利品・装飾はそのまま
 			}
 			it.Amount.Base = scaleAmount(it.Amount.Base, factor)

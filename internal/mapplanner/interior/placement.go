@@ -6,11 +6,11 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // PlaceDefault は置き方の未指定。レシピと interiorRefs のどちらも置き方を持たないと空になり、placementOf が全域へ倒す
-const PlaceDefault oapi.Placement = ""
+const PlaceDefault rawschema.Placement = ""
 
 // scoredTile は候補タイルと、placement が与えた密度と決定的ジッタの合成スコア。
 type scoredTile struct {
@@ -48,11 +48,11 @@ func ScatterArea(area Rect, accept func(Vec) bool, seed uint64, count int) []Vec
 // selectTiles は placement 意味論に従い、部屋の空き床から count 枚のタイルを決定的に選ぶ。
 // 各候補に density を与え、hash 由来のジッタで tie を崩し、スコア降順に安定 sort して上位を取る。
 // 密度場 + 決定的間引きの最小実装。map を抽選に使わず、候補は slice に集めて sort する。
-func selectTiles(room Room, p oapi.Placement, occupied map[Vec]bool, seed uint64, count int) []Vec {
+func selectTiles(room Room, p rawschema.Placement, occupied map[Vec]bool, seed uint64, count int) []Vec {
 	if count <= 0 {
 		return nil
 	}
-	if p == oapi.FullArea {
+	if p == rawschema.FullArea {
 		// 全域散布は Room 非依存の ScatterArea へ委ねる。パリティ格子で通行を残し、戸口隣接を
 		// 避けるという「置ける条件」は accept 述語で表す。並びは ScatterArea のジッタが担う
 		return ScatterArea(room.Rect, func(t Vec) bool {
@@ -74,7 +74,7 @@ func selectTiles(room Room, p oapi.Placement, occupied map[Vec]bool, seed uint64
 		cands = append(cands, scoredTile{pos: t, score: d})
 	}
 
-	if p == oapi.Row {
+	if p == rawschema.Row {
 		// 棚は列優先で詰め、連続した平行列にする。散らさず x→y の順に埋めるので棚が線に見える
 		sortColumnMajor(cands)
 	} else {
@@ -117,11 +117,11 @@ func sortByScore(cands []scoredTile) {
 }
 
 // placementDensity は placement ごとの「タイル→スカラ密度」純関数。0 は置かない、大きいほど置きやすい。
-func placementDensity(room Room, p oapi.Placement, t, center Vec, maxDist float64) float64 {
+func placementDensity(room Room, p rawschema.Placement, t, center Vec, maxDist float64) float64 {
 	switch p {
-	case oapi.Center:
+	case rawschema.Center:
 		return 1 - dist(t, center)/maxDist
-	case oapi.Wall:
+	case rawschema.Wall:
 		if !nextToPerimeter(room.Rect, t) {
 			return 0
 		}
@@ -129,14 +129,14 @@ func placementDensity(room Room, p oapi.Placement, t, center Vec, maxDist float6
 	case PlaceDefault:
 		// placementOf が空を全域へ倒すのでここには来ない。exhaustive のために置く
 		panic("PlaceDefault does not go through placementDensity")
-	case oapi.FullArea:
+	case rawschema.FullArea:
 		// 全域散布は selectTiles が ScatterArea へ委ねるのでここには来ない。exhaustive のために置く
 		panic("PlaceFullArea does not go through placementDensity")
-	case oapi.NearDoor:
+	case rawschema.NearDoor:
 		return 1 - nearestDoorDist(room, t)/maxDist
-	case oapi.FarFromDoor:
+	case rawschema.FarFromDoor:
 		return nearestDoorDist(room, t) / maxDist
-	case oapi.Row:
+	case rawschema.Row:
 		// 内側の左端から1列おきを棚列にし、間の列は通路として density 0 で空ける
 		if (t.X-(room.Rect.X+1))%2 != 0 {
 			return 0

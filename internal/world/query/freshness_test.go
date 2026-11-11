@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -18,11 +18,11 @@ func TestFreshnessStageOf(t *testing.T) {
 	tests := []struct {
 		name string
 		now  consts.Turn // 生成は TotalTurns=0。bread の StageLength は 1500
-		want oapi.FreshnessStageId
+		want rawschema.FreshnessStageId
 	}{
-		{"新鮮", 0, oapi.Fresh},
-		{"劣化", 1500, oapi.Stale},
-		{"腐敗", 3000, oapi.Rotten},
+		{"新鮮", 0, rawschema.Fresh},
+		{"劣化", 1500, rawschema.Stale},
+		{"腐敗", 3000, rawschema.Rotten},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

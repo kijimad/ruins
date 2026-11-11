@@ -3,7 +3,8 @@ package raw
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
+	"github.com/kijimaD/ruins/internal/rawschema/rawcheck"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -11,12 +12,12 @@ import (
 func TestFindDisassembly(t *testing.T) {
 	t.Parallel()
 
-	propDisassembly := &oapi.Disassembly{
-		ToolCategory: new(oapi.Prying),
-		Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+	propDisassembly := &rawschema.Disassembly{
+		ToolCategory: new(rawschema.Prying),
+		Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 	}
-	raws := oapi.Raws{
-		Props: &[]oapi.Prop{
+	raws := rawschema.Raws{
+		Props: &[]rawschema.Prop{
 			{Id: "棚", Name: "棚", Disassembly: propDisassembly},
 			{Id: "机", Name: "机"},
 		},
@@ -47,12 +48,12 @@ func TestFindDisassembly(t *testing.T) {
 func TestFindTool(t *testing.T) {
 	t.Parallel()
 
-	tool := &oapi.Tool{
-		Categories: []oapi.ToolCategory{oapi.Prying, oapi.Cutting},
+	tool := &rawschema.Tool{
+		Categories: []rawschema.ToolCategory{rawschema.Prying, rawschema.Cutting},
 		Grade:      2,
 	}
-	raws := oapi.Raws{
-		Items: &[]oapi.Item{
+	raws := rawschema.Raws{
+		Items: &[]rawschema.Item{
 			{Id: "バール", Name: "バール", Tool: tool},
 			{Id: "回復薬", Name: "回復薬"},
 		},
@@ -85,54 +86,54 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("空のRawsは成功する", func(t *testing.T) {
 		t.Parallel()
-		assert.NoError(t, ValidateReferences(oapi.Raws{}))
+		assert.NoError(t, ValidateReferences(rawschema.Raws{}))
 	})
 
 	t.Run("全チェックを満たすRawsは成功する", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			Items: &[]oapi.Item{
+		raws := rawschema.Raws{
+			Items: &[]rawschema.Item{
 				{Id: "鉄くず", Name: "鉄くず"},
 				{Id: "刀", Name: "刀"},
 			},
-			Props: &[]oapi.Prop{{
+			Props: &[]rawschema.Prop{{
 				Name: "棚",
-				Hp:   new(oapi.HitPoints(10)),
-				Disassembly: &oapi.Disassembly{
-					ToolCategory: new(oapi.Prying),
-					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+				Hp:   new(rawschema.HitPoints(10)),
+				Disassembly: &rawschema.Disassembly{
+					ToolCategory: new(rawschema.Prying),
+					Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				},
 			}},
-			DropTables: &[]oapi.DropTable{{
+			DropTables: &[]rawschema.DropTable{{
 				Id:      "廃墟",
 				Name:    "廃墟",
-				Entries: []oapi.DropTableEntry{{Id: "鉄くず", Weight: 1}},
+				Entries: []rawschema.DropTableEntry{{Id: "鉄くず", Weight: 1}},
 			}},
-			EnemyTables: &[]oapi.EnemyTable{{
+			EnemyTables: &[]rawschema.EnemyTable{{
 				Id:      "通常",
 				Name:    "通常",
-				Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "1d3"}},
+				Entries: []rawschema.EnemyTableEntry{{Id: "スライム", Pack: "1d3"}},
 			}},
-			CommandTables: &[]oapi.CommandTable{{
+			CommandTables: &[]rawschema.CommandTable{{
 				Id:      "剣術",
 				Name:    "剣術",
-				Entries: []oapi.CommandTableEntry{{Id: "刀"}},
+				Entries: []rawschema.CommandTableEntry{{Id: "刀"}},
 			}},
-			ItemGroups: &[]oapi.ItemGroup{{
+			ItemGroups: &[]rawschema.ItemGroup{{
 				Id:      "素材",
 				Name:    "素材",
-				Entries: []oapi.ItemGroupEntry{{Id: "鉄くず", Pack: "1d1"}},
+				Entries: []rawschema.ItemGroupEntry{{Id: "鉄くず", Pack: "1d1"}},
 			}},
-			ItemTables: &[]oapi.ItemTable{{
+			ItemTables: &[]rawschema.ItemTable{{
 				Id:      "宝箱",
 				Name:    "宝箱",
-				Entries: []oapi.ItemTableEntry{{Id: "素材"}},
+				Entries: []rawschema.ItemTableEntry{{Id: "素材"}},
 			}},
-			Members: &[]oapi.Member{{
+			Members: &[]rawschema.Member{{
 				Id:             "スライム",
 				Name:           "スライム",
-				DropTableId:    new(oapi.EntityName("廃墟")),
-				CommandTableId: new(oapi.EntityName("剣術")),
+				DropTableId:    new(rawschema.EntityName("廃墟")),
+				CommandTableId: new(rawschema.EntityName("剣術")),
 			}},
 		}
 		assert.NoError(t, ValidateReferences(raws))
@@ -140,14 +141,14 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("分解参照エラーが伝播する", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			Items: &[]oapi.Item{{Name: "鉄くず"}},
-			Props: &[]oapi.Prop{{
+		raws := rawschema.Raws{
+			Items: &[]rawschema.Item{{Name: "鉄くず"}},
+			Props: &[]rawschema.Prop{{
 				Name: "棚",
-				Hp:   new(oapi.HitPoints(10)),
-				Disassembly: &oapi.Disassembly{
-					ToolCategory: new(oapi.Prying),
-					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
+				Hp:   new(rawschema.HitPoints(10)),
+				Disassembly: &rawschema.Disassembly{
+					ToolCategory: new(rawschema.Prying),
+					Yields:       []rawschema.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
 		}
@@ -157,11 +158,11 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("武器参照エラーが伝播する", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			Items: &[]oapi.Item{{Name: "鉄くず"}},
-			CommandTables: &[]oapi.CommandTable{{
+		raws := rawschema.Raws{
+			Items: &[]rawschema.Item{{Name: "鉄くず"}},
+			CommandTables: &[]rawschema.CommandTable{{
 				Name:    "剣術",
-				Entries: []oapi.CommandTableEntry{{Id: "未定義武器"}},
+				Entries: []rawschema.CommandTableEntry{{Id: "未定義武器"}},
 			}},
 		}
 		err := ValidateReferences(raws)
@@ -170,10 +171,10 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("ドロップテーブル参照エラーが検出される", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			DropTables: &[]oapi.DropTable{{
+		raws := rawschema.Raws{
+			DropTables: &[]rawschema.DropTable{{
 				Name:    "廃墟",
-				Entries: []oapi.DropTableEntry{{Id: "存在しない素材", Weight: 1}},
+				Entries: []rawschema.DropTableEntry{{Id: "存在しない素材", Weight: 1}},
 			}},
 		}
 		err := ValidateReferences(raws)
@@ -182,17 +183,19 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("ダイス表記エラーが検出される", func(t *testing.T) {
 		t.Parallel()
-		// 個数0の 0d6 は Dice スカラーの @pattern が弾く。ValidateRaws のスキーマ検証で捕まる。
-		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "0d6"}}}},
+		// 個数0の 0d6 は Dice の正規表現が弾く
+		raws := rawschema.Raws{
+			EnemyTables: &[]rawschema.EnemyTable{{Id: "t", Name: "通常", Entries: []rawschema.EnemyTableEntry{{Id: "slime", Pack: "0d6"}}}},
 		}
-		require.Error(t, ValidateRaws(raws))
+		var ce *rawcheck.Error
+		require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+		assert.Equal(t, []string{"enemyTables.0.entries.0.pack"}, ce.Paths())
 	})
 
 	t.Run("コマンドテーブル参照エラーが検出される", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			Members: &[]oapi.Member{{Name: "スライム", CommandTableId: new(oapi.EntityName("未定義テーブル"))}},
+		raws := rawschema.Raws{
+			Members: &[]rawschema.Member{{Name: "スライム", CommandTableId: new(rawschema.EntityName("未定義テーブル"))}},
 		}
 		err := ValidateReferences(raws)
 		require.ErrorIs(t, err, errMemberCommandTableUndefined)
@@ -200,8 +203,8 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("アイテムテーブル参照エラーが検出される", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "未定義グループ"}}}},
+		raws := rawschema.Raws{
+			ItemTables: &[]rawschema.ItemTable{{Name: "宝箱", Entries: []rawschema.ItemTableEntry{{Id: "未定義グループ"}}}},
 		}
 		err := ValidateReferences(raws)
 		require.ErrorIs(t, err, errItemTableRefUndefinedGroup)
@@ -209,8 +212,8 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("アイテムグループ参照エラーが検出される", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{Id: "未定義アイテム", Pack: "1d1"}}}},
+		raws := rawschema.Raws{
+			ItemGroups: &[]rawschema.ItemGroup{{Name: "素材", Entries: []rawschema.ItemGroupEntry{{Id: "未定義アイテム", Pack: "1d1"}}}},
 		}
 		err := ValidateReferences(raws)
 		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
@@ -218,8 +221,8 @@ func TestValidateReferences(t *testing.T) {
 
 	t.Run("敵テーブル参照エラーが検出される", func(t *testing.T) {
 		t.Parallel()
-		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "未定義敵", Pack: "1d1"}}}},
+		raws := rawschema.Raws{
+			EnemyTables: &[]rawschema.EnemyTable{{Name: "通常", Entries: []rawschema.EnemyTableEntry{{Id: "未定義敵", Pack: "1d1"}}}},
 		}
 		err := ValidateReferences(raws)
 		require.ErrorIs(t, err, errEnemyTableRefUndefinedEnemy)

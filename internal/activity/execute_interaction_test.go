@@ -8,7 +8,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -50,7 +50,7 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数
 	addFieldFuel := func(name string, heat int) ecs.Entity {
 		e := world.ECS.NewEntity()
 		world.Components.Name.Add(e, &gc.Name{Name: i18n.Msgid(name)})
-		world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.Milligram(heat * 5000)})
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
 		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
@@ -94,7 +94,7 @@ func TestExecuteInteraction_Ignite_退避中ステージの燃焼物は消費し
 	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
 	addFieldFuel := func() ecs.Entity {
 		e := world.ECS.NewEntity()
-		world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.Milligram(50000)})
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
 		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})

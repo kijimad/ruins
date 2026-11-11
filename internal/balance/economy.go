@@ -4,14 +4,14 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // ExpectedLootValue は危険度 danger で itemTable から拾える1個あたりの期待売買価値を返す。該当帯エントリと
 // その指すアイテムグループの中身を2段で重み付き平均する。収入側の指標。
-func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float64 {
+func ExpectedLootValue(master rawschema.Raws, itemTableName string, danger int) float64 {
 	table, err := raw.GetItemTable(master, itemTableName)
 	if err != nil {
 		return 0
@@ -29,7 +29,7 @@ func ExpectedLootValue(master oapi.Raws, itemTableName string, danger int) float
 
 // expectedGroupValue はアイテムグループかアイテムコレクションから拾う1個あたりの期待売買価値を返す。各行の価値を、
 // 1回の抽選で出る個数の期待値で重み付けする。どちらでもなくアイテムを直接指す場合はその価値を返す。
-func expectedGroupValue(master oapi.Raws, id string) float64 {
+func expectedGroupValue(master rawschema.Raws, id string) float64 {
 	draws, ok := expectedDraws(master, id)
 	if !ok {
 		if it, e := raw.FindItem(master, id); e == nil {
@@ -60,7 +60,7 @@ type expectedDraw struct {
 
 // expectedDraws は id が指すグループかコレクションを1回引いたときに、各行が出る個数の期待値を返す。グループは重みの比で
 // 1行だけ、コレクションは各行を出現確率で独立に出し、出た行は pack のダイスの期待値の個数になる。
-func expectedDraws(master oapi.Raws, id string) ([]expectedDraw, bool) {
+func expectedDraws(master rawschema.Raws, id string) ([]expectedDraw, bool) {
 	if g, err := raw.GetItemGroup(master, id); err == nil {
 		var wSum float64
 		for _, e := range g.Entries {
@@ -85,7 +85,7 @@ func expectedDraws(master oapi.Raws, id string) ([]expectedDraw, bool) {
 }
 
 // expectedPack は pack のダイスの期待値を返す。解釈できない表記は0。
-func expectedPack(pack oapi.Dice) float64 {
+func expectedPack(pack rawschema.Dice) float64 {
 	d, err := consts.ParseDice(pack)
 	if err != nil {
 		return 0
@@ -95,7 +95,7 @@ func expectedPack(pack oapi.Dice) float64 {
 
 // ExpectedNetLootValue は危険度 danger で拾える1個あたりの店売りの期待手取り額を返す。額面の
 // ExpectedLootValue に売却倍率を掛けた実収入側の終端指標。
-func ExpectedNetLootValue(master oapi.Raws, itemTableName string, danger int) float64 {
+func ExpectedNetLootValue(master rawschema.Raws, itemTableName string, danger int) float64 {
 	value := ExpectedLootValue(master, itemTableName, danger)
 	if value <= 0 {
 		return 0
@@ -110,7 +110,7 @@ const expectedItemsPerFloor = consts.FloorItemBase + (consts.FloorItemRandom-1)/
 
 // ExpectedRunLootIncome は floors 層を探索して拾う loot の期待手取り総額を返す。各層で expectedItemsPerFloor
 // 個を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。
-func ExpectedRunLootIncome(master oapi.Raws, itemTableName string, floors int) float64 {
+func ExpectedRunLootIncome(master rawschema.Raws, itemTableName string, floors int) float64 {
 	total := 0.0
 	for depth := 1; depth <= floors; depth++ {
 		total += expectedItemsPerFloor * ExpectedNetLootValue(master, itemTableName, depth)
@@ -120,7 +120,7 @@ func ExpectedRunLootIncome(master oapi.Raws, itemTableName string, floors int) f
 
 // CheapestFoodCostPerNutrition は満腹度1点を回復するのに要する最小の購入価値を返す。栄養価を持つ
 // アイテムのうち、価値÷栄養が最小のものを賢い調達とみなす。食料が無ければ0を返す。
-func CheapestFoodCostPerNutrition(master oapi.Raws) float64 {
+func CheapestFoodCostPerNutrition(master rawschema.Raws) float64 {
 	best := 0.0
 	items := raw.PtrSlice(master.Items)
 	for i := range items {
@@ -138,7 +138,7 @@ func CheapestFoodCostPerNutrition(master oapi.Raws) float64 {
 
 // CostOfLivingPerDay は補給なしの1日で失う満腹度を、最安の食料で埋め戻す購入費用を返す。1日の満腹度
 // 減耗は turnsPerDay/HungerDrainTurns で、これに満腹度1点あたりの最小食料費を掛ける。経済の支出側の下端。
-func CostOfLivingPerDay(master oapi.Raws, p Params) float64 {
+func CostOfLivingPerDay(master rawschema.Raws, p Params) float64 {
 	hungerPerDay := p.TurnsPerDay / p.HungerDrainTurns
 	return hungerPerDay * CheapestFoodCostPerNutrition(master)
 }
@@ -154,7 +154,7 @@ type EconomyDay struct {
 
 // EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと一定の生活費で表す。進むほど loot
 // 価値が上がり生活費が相対的に軽くなるかを見る。乱数を使わない。
-func EconomyProgression(master oapi.Raws, itemTableName string, days int, p Params) []EconomyDay {
+func EconomyProgression(master rawschema.Raws, itemTableName string, days int, p Params) []EconomyDay {
 	costPerDay := CostOfLivingPerDay(master, p)
 	out := make([]EconomyDay, 0, days)
 	for day := 1; day <= days; day++ {

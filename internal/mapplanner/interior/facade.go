@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 外皮 FacadePass。分割文法の後、街路側の前壁へ窓・シャッター・看板を付ける。外から見た自然さの多くは「窓が
@@ -15,7 +15,7 @@ import (
 // facadeElements は街路側の前壁に付ける外皮 prop を返す。前庭ぶん内寄せした建物の街路側の壁へ、入口と角を
 // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に
 // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。
-func facadeElements(t profileTable, s Site, fac oapi.Facility, dmg damageLevel) []Placed {
+func facadeElements(t profileTable, s Site, fac rawschema.Facility, dmg damageLevel) []Placed {
 	fside := frontSide(s)
 	lo, hi, wall := frontWallSpan(s.Building, fside)
 	doorAxis := wall.along(s.Door)
@@ -33,7 +33,7 @@ func facadeElements(t profileTable, s Site, fac oapi.Facility, dmg damageLevel) 
 			continue
 		}
 		// 窓とシャッターは壁付きの設備なので前壁のタイルに載せる
-		out = append(out, Placed{Kind: oapi.Decor, Ref: winRef, Pos: wall.at(a)})
+		out = append(out, Placed{Kind: rawschema.Decor, Ref: winRef, Pos: wall.at(a)})
 	}
 	// 店は入口脇に看板を出す。ポスアポ日本の商店街の一番安い説得力。看板は独立物なので壁に埋めると不自然。
 	// 前壁の1マス外の前庭タイルへ立て、店の正面に置く。前庭が無い建物では立てない
@@ -47,7 +47,7 @@ func facadeElements(t profileTable, s Site, fac oapi.Facility, dmg damageLevel) 
 			w := wall.at(a)
 			yard := Vec{X: w.X + outward.X, Y: w.Y + outward.Y}
 			if s.Garden[yard] {
-				out = append(out, Placed{Kind: oapi.Decor, Ref: t.facade.Sign, Pos: yard})
+				out = append(out, Placed{Kind: rawschema.Decor, Ref: t.facade.Sign, Pos: yard})
 				break
 			}
 		}

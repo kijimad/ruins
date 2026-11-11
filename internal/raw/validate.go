@@ -1,17 +1,15 @@
 package raw
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
 	"slices"
-	"sync"
 	"unicode/utf8"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 参照整合の検証エラー。呼び出し側とテストが errors.Is で種類を同定できるよう sentinel にする。
@@ -76,49 +74,10 @@ var (
 	errTileSpawnUndefined             = errors.New("tile spawn references undefined tile")
 )
 
-// errSchemaValidation は raw が OpenAPI スキーマの検証に通らないときに返す
-var errSchemaValidation = errors.New("validation error")
-
-// loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
-var loadSpec = sync.OnceValues(oapi.GetSpec)
-
-// ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する
-func ValidateRaws(raws oapi.Raws) error {
-	spec, err := loadSpec()
-	if err != nil {
-		return fmt.Errorf("failed to load OpenAPI schema: %w", err)
-	}
-
-	schemaRef, ok := spec.Components.Schemas["Raws"]
-	if !ok {
-		return fmt.Errorf("cannot find Raws component in OpenAPI schema")
-	}
-	schema := schemaRef.Value
-	if schema == nil {
-		return fmt.Errorf("got nil Raws schema value")
-	}
-
-	jsonBytes, err := json.Marshal(raws)
-	if err != nil {
-		return fmt.Errorf("failed to marshal JSON: %w", err)
-	}
-
-	var jsonData any
-	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
-		return fmt.Errorf("failed to unmarshal JSON: %w", err)
-	}
-
-	if err := schema.VisitJSON(jsonData); err != nil {
-		return fmt.Errorf("%w: %w", errSchemaValidation, err)
-	}
-
-	return nil
-}
-
 // ValidateReferences は定義間の名前参照の整合を検証する。
 // スキーマ検証は名前の参照整合を見ないため、ここで補う。実行時の解決失敗を
 // ロード時エラーに前倒しする
-func ValidateReferences(raws oapi.Raws) error {
+func ValidateReferences(raws rawschema.Raws) error {
 	if err := validateDisassemblyReferences(raws); err != nil {
 		return err
 	}
@@ -198,7 +157,7 @@ func ValidateReferences(raws oapi.Raws) error {
 }
 
 // itemGroupIDs はアイテムグループとアイテムコレクションの id の集合を返す。どちらも同じ id 空間で参照される。
-func itemGroupIDs(raws oapi.Raws) map[string]struct{} {
+func itemGroupIDs(raws rawschema.Raws) map[string]struct{} {
 	ids := make(map[string]struct{})
 	for _, g := range PtrSlice(raws.ItemGroups) {
 		ids[g.Id] = struct{}{}
@@ -210,7 +169,7 @@ func itemGroupIDs(raws oapi.Raws) map[string]struct{} {
 }
 
 // validateItemTableReferences はアイテムテーブルの参照 id がアイテムグループかアイテムコレクションに存在することを検証する。
-func validateItemTableReferences(raws oapi.Raws) error {
+func validateItemTableReferences(raws rawschema.Raws) error {
 	groupNames := itemGroupIDs(raws)
 
 	itemTables := PtrSlice(raws.ItemTables)
@@ -226,7 +185,7 @@ func validateItemTableReferences(raws oapi.Raws) error {
 
 // validateItemGroupReferences はアイテムグループとアイテムコレクションの参照アイテム id がアイテム定義に存在すること、
 // 両者の id が重ならないことを検証する
-func validateItemGroupReferences(raws oapi.Raws) error {
+func validateItemGroupReferences(raws rawschema.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
@@ -258,7 +217,7 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 }
 
 // validateEnemyTableReferences は敵テーブルの参照敵 id がメンバー定義に存在することを検証する
-func validateEnemyTableReferences(raws oapi.Raws) error {
+func validateEnemyTableReferences(raws rawschema.Raws) error {
 	members := PtrSlice(raws.Members)
 	memberNames := make(map[string]struct{}, len(members))
 	for i := range members {
@@ -277,17 +236,17 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 }
 
 // validateFeatureUniqueIDs は地物の各表で id が重複しないことを検証する。
-func validateFeatureUniqueIDs(raws oapi.Raws) error {
-	if err := validateUniqueIDs("facility", PtrSlice(raws.Facilities), func(f oapi.Facility) string { return f.Id }); err != nil {
+func validateFeatureUniqueIDs(raws rawschema.Raws) error {
+	if err := validateUniqueIDs("facility", PtrSlice(raws.Facilities), func(f rawschema.Facility) string { return f.Id }); err != nil {
 		return err
 	}
-	if err := validateUniqueIDs("landmark", PtrSlice(raws.Landmarks), func(l oapi.Landmark) string { return l.Id }); err != nil {
+	if err := validateUniqueIDs("landmark", PtrSlice(raws.Landmarks), func(l rawschema.Landmark) string { return l.Id }); err != nil {
 		return err
 	}
-	if err := validateUniqueIDs("scatter zone", PtrSlice(raws.ScatterZones), func(z oapi.ScatterZone) string { return z.Id }); err != nil {
+	if err := validateUniqueIDs("scatter zone", PtrSlice(raws.ScatterZones), func(z rawschema.ScatterZone) string { return z.Id }); err != nil {
 		return err
 	}
-	return validateUniqueIDs("map glyph", PtrSlice(raws.MapGlyphs), func(g oapi.MapGlyph) string { return g.Id })
+	return validateUniqueIDs("map glyph", PtrSlice(raws.MapGlyphs), func(g rawschema.MapGlyph) string { return g.Id })
 }
 
 // validateUniqueIDs は rows の id が重複しないことを検証する。
@@ -304,7 +263,7 @@ func validateUniqueIDs[T any](kind string, rows []T, id func(T) string) error {
 }
 
 // validateFacilityReferences は施設行の参照先の実在と、全地区に基本施設があることを検証する。
-func validateFacilityReferences(raws oapi.Raws) error {
+func validateFacilityReferences(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
 	facilityIDs := make(map[string]struct{}, len(facilities))
 	for i := range facilities {
@@ -317,10 +276,7 @@ func validateFacilityReferences(raws oapi.Raws) error {
 		tableIDs[enemyTables[i].Id] = struct{}{}
 	}
 
-	zones, err := SchemaEnum("Zone")
-	if err != nil {
-		return err
-	}
+	zones := enumStrings(rawschema.ZoneValues())
 	baseSpan := int32(consts.UrbanMinSpan)
 	zoneHasBase := make(map[string]bool)
 	for i := range facilities {
@@ -356,13 +312,13 @@ func validateFacilityReferences(raws oapi.Raws) error {
 }
 
 // validateContentLootTables は内装レシピの家具と衛星が書く戦利品表が実在する itemTables であることを検証する。
-func validateContentLootTables(raws oapi.Raws) error {
+func validateContentLootTables(raws rawschema.Raws) error {
 	tables := PtrSlice(raws.ItemTables)
 	tableIDs := make(map[string]struct{}, len(tables))
 	for i := range tables {
 		tableIDs[tables[i].Id] = struct{}{}
 	}
-	check := func(content, ref string, table *oapi.EntityID) error {
+	check := func(content, ref string, table *rawschema.EntityID) error {
 		if table == nil {
 			return nil
 		}
@@ -389,7 +345,7 @@ func validateContentLootTables(raws oapi.Raws) error {
 }
 
 // validateLandmarkReferences はランドマークの prop の実在を検証する。
-func validateLandmarkReferences(raws oapi.Raws) error {
+func validateLandmarkReferences(raws rawschema.Raws) error {
 	landmarks := PtrSlice(raws.Landmarks)
 	if len(landmarks) == 0 {
 		return nil
@@ -415,7 +371,7 @@ func validateLandmarkReferences(raws oapi.Raws) error {
 // facilityContents の変種、facilityRooms の役割別 content と fallback が指す id を、typo による空部屋の silent
 // 生成を避けてロード時に前倒しで弾く。あわせて interiorContents の id 重複と、interior を積む raw での
 // flavorContent 未設定を検出する。id は生成側の一意キーで重複すると取り違わる。
-func validateInteriorContentReferences(raws oapi.Raws) error {
+func validateInteriorContentReferences(raws rawschema.Raws) error {
 	contents := PtrSlice(raws.InteriorContents)
 	contentIDs := make(map[string]struct{}, len(contents))
 	for i := range contents {
@@ -464,7 +420,7 @@ func validateInteriorContentReferences(raws oapi.Raws) error {
 
 // validateCommandTableWeaponReferences はコマンドテーブルの参照武器名がアイテム定義に存在することを検証する。
 // タイプミスは attack.go の getAttackParams が素手攻撃へ握り潰し無音で劣化するため、ロード時に前倒しで弾く。
-func validateCommandTableWeaponReferences(raws oapi.Raws) error {
+func validateCommandTableWeaponReferences(raws rawschema.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
@@ -483,7 +439,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 }
 
 // validateMemberItems は member の初期装備、初期アイテム、在庫が実在するアイテムを指すことを検証する
-func validateMemberItems(raws oapi.Raws) error {
+func validateMemberItems(raws rawschema.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemIDs := make(map[string]struct{}, len(items))
 	for i := range items {
@@ -511,7 +467,7 @@ func validateMemberItems(raws oapi.Raws) error {
 }
 
 // validateBurnoutItems は prop が燃え尽きたときに残すアイテムが実在することを検証する
-func validateBurnoutItems(raws oapi.Raws) error {
+func validateBurnoutItems(raws rawschema.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemIDs := make(map[string]struct{}, len(items))
 	for i := range items {
@@ -531,7 +487,7 @@ func validateBurnoutItems(raws oapi.Raws) error {
 }
 
 // validateDisassemblyReferences は prop の分解定義の産出名、道具が必須なときの分類、prop の HP を検証する
-func validateDisassemblyReferences(raws oapi.Raws) error {
+func validateDisassemblyReferences(raws rawschema.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
@@ -566,7 +522,7 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 
 // validateDropTableReferences はドロップテーブルの素材 id がアイテム定義に存在すること、
 // メンバーの dropTableId がテーブル定義に存在することを検証する
-func validateDropTableReferences(raws oapi.Raws) error {
+func validateDropTableReferences(raws rawschema.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
@@ -598,7 +554,7 @@ func validateDropTableReferences(raws oapi.Raws) error {
 }
 
 // validateCommandTableReferences はメンバーの commandTableId がテーブル定義に存在することを検証する
-func validateCommandTableReferences(raws oapi.Raws) error {
+func validateCommandTableReferences(raws rawschema.Raws) error {
 	commandTables := PtrSlice(raws.CommandTables)
 	tableNames := make(map[string]struct{}, len(commandTables))
 	for i := range commandTables {
@@ -619,7 +575,7 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 }
 
 // validateScatterZoneReferences は散布ゾーンの prop と loot group の実在を検証する。
-func validateScatterZoneReferences(raws oapi.Raws) error {
+func validateScatterZoneReferences(raws rawschema.Raws) error {
 	props := PtrSlice(raws.Props)
 	propNames := make(map[string]struct{}, len(props))
 	for i := range props {
@@ -653,14 +609,14 @@ func validateScatterZoneReferences(raws oapi.Raws) error {
 }
 
 // validateSettlements は集落の id が一意で、住人の member と prop が実在し、地図の記号を持つことを検証する
-func validateSettlements(raws oapi.Raws) error {
+func validateSettlements(raws rawschema.Raws) error {
 	settlements := PtrSlice(raws.Settlements)
-	if err := validateUniqueIDs("settlement", settlements, func(s oapi.Settlement) string { return s.Id }); err != nil {
+	if err := validateUniqueIDs("settlement", settlements, func(s rawschema.Settlement) string { return s.Id }); err != nil {
 		return err
 	}
-	members := idSet(PtrSlice(raws.Members), func(m oapi.Member) string { return m.Id })
-	props := idSet(PtrSlice(raws.Props), func(p oapi.Prop) string { return p.Id })
-	glyphs := idSet(PtrSlice(raws.MapGlyphs), func(g oapi.MapGlyph) string { return g.Id })
+	members := idSet(PtrSlice(raws.Members), func(m rawschema.Member) string { return m.Id })
+	props := idSet(PtrSlice(raws.Props), func(p rawschema.Prop) string { return p.Id })
+	glyphs := idSet(PtrSlice(raws.MapGlyphs), func(g rawschema.MapGlyph) string { return g.Id })
 	for i := range settlements {
 		s := &settlements[i]
 		for _, m := range s.Members {
@@ -681,7 +637,7 @@ func validateSettlements(raws oapi.Raws) error {
 }
 
 // validateMapGlyphReferences は地図記号が1文字で重複せず、全施設とランドマークが記号を持つことを検証する。
-func validateMapGlyphReferences(raws oapi.Raws) error {
+func validateMapGlyphReferences(raws rawschema.Raws) error {
 	glyphs := PtrSlice(raws.MapGlyphs)
 	if len(glyphs) == 0 {
 		return nil
@@ -716,17 +672,17 @@ func validateMapGlyphReferences(raws oapi.Raws) error {
 			chunks = append(chunks, string(*g.Chunk))
 		}
 	}
-	return validateEnumRows("GlyphChunk", chunks)
+	return validateEnumRows("GlyphChunk", enumStrings(rawschema.GlyphChunkValues()), chunks)
 }
 
 // validateConditions は不調と部位の行と、それらへの参照を検証する。怪我の抽選の対象が空にならないことも確かめる
-func validateConditions(raws oapi.Raws) error {
+func validateConditions(raws rawschema.Raws) error {
 	bodyParts := PtrSlice(raws.BodyParts)
 	conditions := PtrSlice(raws.Conditions)
-	if err := validateUniqueIDs("body part", bodyParts, func(b oapi.BodyPart) string { return b.Id }); err != nil {
+	if err := validateUniqueIDs("body part", bodyParts, func(b rawschema.BodyPart) string { return b.Id }); err != nil {
 		return err
 	}
-	if err := validateUniqueIDs("condition", conditions, func(c oapi.Condition) string { return c.Id }); err != nil {
+	if err := validateUniqueIDs("condition", conditions, func(c rawschema.Condition) string { return c.Id }); err != nil {
 		return err
 	}
 
@@ -746,7 +702,7 @@ func validateConditions(raws oapi.Raws) error {
 	}
 
 	attackTypes := PtrSlice(raws.AttackTypes)
-	if err := validateUniqueIDs("attack type", attackTypes, func(a oapi.AttackType) string { return string(a.Id) }); err != nil {
+	if err := validateUniqueIDs("attack type", attackTypes, func(a rawschema.AttackType) string { return string(a.Id) }); err != nil {
 		return err
 	}
 	for i := range attackTypes {
@@ -771,7 +727,7 @@ func validateConditions(raws oapi.Raws) error {
 
 // validateConditionParts は不調の起こりうる部位が実在し、全身を含まず、命中の重みが正の部位を1つ以上持つことを検証する。
 // parts を省いた不調は全部位が対象になる
-func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) error {
+func validateConditionParts(c rawschema.Condition, hitWeights map[string]float64) error {
 	parts := PtrSlice(c.Parts)
 	for _, id := range parts {
 		if _, ok := hitWeights[id]; !ok {
@@ -795,7 +751,7 @@ func validateConditionParts(c oapi.Condition, hitWeights map[string]float64) err
 
 // validateCodeRows は Go が名前で参照する行と、読み込みに要る表が raw にあることを検証する。
 // 一部だけの raws を組むテストを妨げないよう、LoadFromFile だけが呼ぶ
-func validateCodeRows(raws oapi.Raws) error {
+func validateCodeRows(raws rawschema.Raws) error {
 	players := 0
 	members := PtrSlice(raws.Members)
 	for i := range members {
@@ -826,7 +782,7 @@ func validateCodeRows(raws oapi.Raws) error {
 			onsets = append(onsets, string(*c.Onset))
 		}
 	}
-	if err := validateEnumRows("ConditionOnset", onsets); err != nil {
+	if err := validateEnumRows("ConditionOnset", enumStrings(rawschema.ConditionOnsetValues()), onsets); err != nil {
 		return err
 	}
 
@@ -836,12 +792,12 @@ func validateCodeRows(raws oapi.Raws) error {
 		a := &attackTypes[i]
 		hasAll := a.OptimalRange != nil && a.MaxRange != nil && a.PenaltyPerTile != nil
 		hasAny := a.OptimalRange != nil || a.MaxRange != nil || a.PenaltyPerTile != nil
-		if a.Range == oapi.AttackRangeRanged && !hasAll || a.Range != oapi.AttackRangeRanged && hasAny {
+		if a.Range == rawschema.AttackRangeRanged && !hasAll || a.Range != rawschema.AttackRangeRanged && hasAny {
 			return fmt.Errorf("attack type %q: %w", a.Id, errAttackRangeParams)
 		}
 		attackTypeIDs = append(attackTypeIDs, string(a.Id))
 	}
-	if err := validateEnumRows("AttackCategory", attackTypeIDs); err != nil {
+	if err := validateEnumRows("AttackCategory", enumStrings(rawschema.AttackCategoryValues()), attackTypeIDs); err != nil {
 		return err
 	}
 	if err := validateSkillCodeRows(raws); err != nil {
@@ -849,16 +805,17 @@ func validateCodeRows(raws oapi.Raws) error {
 	}
 	enumRows := []struct {
 		schema string
+		values []string
 		ids    []string
 	}{
-		{"FreshnessStageId", rowIDs(PtrSlice(raws.FreshnessStages), func(r oapi.FreshnessStage) oapi.FreshnessStageId { return r.Id })},
-		{"Material", rowIDs(PtrSlice(raws.Materials), func(r oapi.MaterialDef) oapi.Material { return r.Id })},
-		{"ToolCategory", rowIDs(PtrSlice(raws.ToolCategories), func(r oapi.ToolCategoryDef) oapi.ToolCategory { return r.Id })},
-		{"TimeOfDayId", rowIDs(PtrSlice(raws.TimesOfDay), func(r oapi.TimeOfDay) oapi.TimeOfDayId { return r.Id })},
-		{"SeasonId", rowIDs(PtrSlice(raws.Seasons), func(r oapi.Season) oapi.SeasonId { return r.Id })},
+		{"FreshnessStageId", enumStrings(rawschema.FreshnessStageIdValues()), rowIDs(PtrSlice(raws.FreshnessStages), func(r rawschema.FreshnessStage) rawschema.FreshnessStageId { return r.Id })},
+		{"Material", enumStrings(rawschema.MaterialValues()), rowIDs(PtrSlice(raws.Materials), func(r rawschema.MaterialDef) rawschema.Material { return r.Id })},
+		{"ToolCategory", enumStrings(rawschema.ToolCategoryValues()), rowIDs(PtrSlice(raws.ToolCategories), func(r rawschema.ToolCategoryDef) rawschema.ToolCategory { return r.Id })},
+		{"TimeOfDayId", enumStrings(rawschema.TimeOfDayIdValues()), rowIDs(PtrSlice(raws.TimesOfDay), func(r rawschema.TimeOfDay) rawschema.TimeOfDayId { return r.Id })},
+		{"SeasonId", enumStrings(rawschema.SeasonIdValues()), rowIDs(PtrSlice(raws.Seasons), func(r rawschema.Season) rawschema.SeasonId { return r.Id })},
 	}
 	for _, e := range enumRows {
-		if err := validateEnumRows(e.schema, e.ids); err != nil {
+		if err := validateEnumRows(e.schema, e.values, e.ids); err != nil {
 			return err
 		}
 	}
@@ -887,11 +844,11 @@ func validateCodeRows(raws oapi.Raws) error {
 
 // validateSkillCodeRows はスキーマの enum のスキルと熟練の効果倍率それぞれに raw の行がちょうど1つあり、
 // 攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
-func validateSkillCodeRows(raws oapi.Raws) error {
+func validateSkillCodeRows(raws rawschema.Raws) error {
 	skills := PtrSlice(raws.Skills)
 	skillIDs := make([]string, 0, len(skills))
 	var proficiencyIDs []string
-	owners := make(map[oapi.ProficiencyId]oapi.SkillId)
+	owners := make(map[rawschema.ProficiencyId]rawschema.SkillId)
 	for i := range skills {
 		id := skills[i].Id
 		skillIDs = append(skillIDs, string(id))
@@ -900,10 +857,10 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 			owners[p.Id] = id
 		}
 	}
-	if err := validateEnumRows("SkillId", skillIDs); err != nil {
+	if err := validateEnumRows("SkillId", enumStrings(rawschema.SkillIdValues()), skillIDs); err != nil {
 		return err
 	}
-	if err := validateEnumRows("ProficiencyId", proficiencyIDs); err != nil {
+	if err := validateEnumRows("ProficiencyId", enumStrings(rawschema.ProficiencyIdValues()), proficiencyIDs); err != nil {
 		return err
 	}
 	if err := validateResists(skills); err != nil {
@@ -912,7 +869,7 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 	attackTypes := PtrSlice(raws.AttackTypes)
 	for i := range attackTypes {
 		at := &attackTypes[i]
-		for _, key := range []oapi.ProficiencyId{at.Damage, at.Accuracy} {
+		for _, key := range []rawschema.ProficiencyId{at.Damage, at.Accuracy} {
 			if owners[key] != at.Skill {
 				return fmt.Errorf("attack type %q proficiency %q owned by %q: %w", at.Id, key, owners[key], errWeaponProficiencyOwner)
 			}
@@ -922,39 +879,39 @@ func validateSkillCodeRows(raws oapi.Raws) error {
 }
 
 // validateResists は無属性を除く攻撃属性それぞれを、ちょうど1つの熟練の効果倍率が軽減することを検証する
-func validateResists(skills []oapi.Skill) error {
+func validateResists(skills []rawschema.Skill) error {
 	// 無属性は軽減の対象外なので、enum の網羅の検証では持っているものとして数える
-	elements := []string{string(oapi.ElementNONE)}
+	elements := []string{string(rawschema.ElementNONE)}
 	for i := range skills {
 		for _, p := range PtrSlice(skills[i].Proficiencies) {
 			if p.Resists == nil {
 				continue
 			}
-			if *p.Resists == oapi.ElementNONE {
+			if *p.Resists == rawschema.ElementNONE {
 				return fmt.Errorf("proficiency %q: %w", p.Id, errResistNone)
 			}
 			elements = append(elements, string(*p.Resists))
 		}
 	}
-	return validateEnumRows("Element", elements)
+	return validateEnumRows("Element", enumStrings(rawschema.ElementValues()), elements)
 }
 
 // validateSkills はスキルとカテゴリの id が一意で、スキルのカテゴリ、本と職業のスキルが実在することを検証する。
 // 熟練の効果倍率の id もスキルをまたいで一意にする
-func validateSkills(raws oapi.Raws) error {
+func validateSkills(raws rawschema.Raws) error {
 	skills := PtrSlice(raws.Skills)
 	categories := PtrSlice(raws.SkillCategories)
-	if err := validateUniqueIDs("skill", skills, func(s oapi.Skill) string { return string(s.Id) }); err != nil {
+	if err := validateUniqueIDs("skill", skills, func(s rawschema.Skill) string { return string(s.Id) }); err != nil {
 		return err
 	}
-	if err := validateUniqueIDs("skill category", categories, func(c oapi.SkillCategory) string { return c.Id }); err != nil {
+	if err := validateUniqueIDs("skill category", categories, func(c rawschema.SkillCategory) string { return c.Id }); err != nil {
 		return err
 	}
-	var proficiencies []oapi.SkillProficiency
+	var proficiencies []rawschema.SkillProficiency
 	for i := range skills {
 		proficiencies = append(proficiencies, PtrSlice(skills[i].Proficiencies)...)
 	}
-	if err := validateUniqueIDs("proficiency", proficiencies, func(p oapi.SkillProficiency) string { return string(p.Id) }); err != nil {
+	if err := validateUniqueIDs("proficiency", proficiencies, func(p rawschema.SkillProficiency) string { return string(p.Id) }); err != nil {
 		return err
 	}
 
@@ -993,9 +950,9 @@ func validateSkills(raws oapi.Raws) error {
 // validateInteriorRefs は内装の Ref の id が一意で、prop と item group が実在し、
 // 生活感の抽選表と敷地の類型が enum の全値を1回ずつ持ち、hero と外皮と外構の Ref が prop を持つ Ref であり、
 // 敷地の類型の重みが民家と店のどちらでも1以上あることを検証する
-func validateInteriorRefs(raws oapi.Raws) error {
+func validateInteriorRefs(raws rawschema.Raws) error {
 	refs := PtrSlice(raws.InteriorRefs)
-	if err := validateUniqueIDs("interior ref", refs, func(r oapi.InteriorRef) string { return r.Id }); err != nil {
+	if err := validateUniqueIDs("interior ref", refs, func(r rawschema.InteriorRef) string { return r.Id }); err != nil {
 		return err
 	}
 	props := PtrSlice(raws.Props)
@@ -1032,19 +989,20 @@ func validateInteriorRefs(raws oapi.Raws) error {
 	}
 	enumRows := []struct {
 		schema string
+		values []string
 		ids    []string
 	}{
-		{"BuildingDamage", ids(len(p.Damages), func(i int) string { return string(p.Damages[i].Id) })},
-		{"BuildingClutter", ids(len(p.Clutters), func(i int) string { return string(p.Clutters[i].Id) })},
-		{"BuildingVariant", ids(len(p.Variants), func(i int) string { return string(p.Variants[i].Id) })},
-		{"SiteType", ids(len(p.Sites), func(i int) string { return string(p.Sites[i].Id) })},
+		{"BuildingDamage", enumStrings(rawschema.BuildingDamageValues()), ids(len(p.Damages), func(i int) string { return string(p.Damages[i].Id) })},
+		{"BuildingClutter", enumStrings(rawschema.BuildingClutterValues()), ids(len(p.Clutters), func(i int) string { return string(p.Clutters[i].Id) })},
+		{"BuildingVariant", enumStrings(rawschema.BuildingVariantValues()), ids(len(p.Variants), func(i int) string { return string(p.Variants[i].Id) })},
+		{"SiteType", enumStrings(rawschema.SiteTypeValues()), ids(len(p.Sites), func(i int) string { return string(p.Sites[i].Id) })},
 	}
 	for _, e := range enumRows {
-		if err := validateEnumRows(e.schema, e.ids); err != nil {
+		if err := validateEnumRows(e.schema, e.values, e.ids); err != nil {
 			return err
 		}
 	}
-	if err := validateUniqueIDs("hero", p.Heroes, func(h oapi.HeroChoice) string { return h.Id }); err != nil {
+	if err := validateUniqueIDs("hero", p.Heroes, func(h rawschema.HeroChoice) string { return h.Id }); err != nil {
 		return err
 	}
 	for _, h := range p.Heroes {
@@ -1071,9 +1029,9 @@ func validateInteriorRefs(raws oapi.Raws) error {
 }
 
 // validateTileSpawns はタイルの生成の仕様が指すタイルが実在することを検証する
-func validateTileSpawns(raws oapi.Raws) error {
+func validateTileSpawns(raws rawschema.Raws) error {
 	tiles := PtrSlice(raws.Tiles)
-	tileIDs := idSet(tiles, func(t oapi.Tile) string { return t.Id })
+	tileIDs := idSet(tiles, func(t rawschema.Tile) string { return t.Id })
 	for i := range tiles {
 		sp := tiles[i].Spawn
 		if sp == nil || sp.Tile == nil {
@@ -1087,8 +1045,8 @@ func validateTileSpawns(raws oapi.Raws) error {
 }
 
 // validateDialogues は会話の id が一意で、member の会話が実在する会話の行を指すことを検証する
-func validateDialogues(raws oapi.Raws) error {
-	if err := validateUniqueIDs("dialogue", PtrSlice(raws.Dialogues), func(d oapi.Dialogue) string { return d.Id }); err != nil {
+func validateDialogues(raws rawschema.Raws) error {
+	if err := validateUniqueIDs("dialogue", PtrSlice(raws.Dialogues), func(d rawschema.Dialogue) string { return d.Id }); err != nil {
 		return err
 	}
 	members := PtrSlice(raws.Members)
@@ -1097,7 +1055,7 @@ func validateDialogues(raws oapi.Raws) error {
 		if m.Dialog == nil {
 			continue
 		}
-		if _, ok := findByKey(raws.Dialogues, func(d oapi.Dialogue) string { return d.Id }, m.Dialog.MessageKey); !ok {
+		if _, ok := findByKey(raws.Dialogues, func(d rawschema.Dialogue) string { return d.Id }, m.Dialog.MessageKey); !ok {
 			return fmt.Errorf("member %q dialogue %q: %w", m.Id, m.Dialog.MessageKey, errMemberDialogueUndefined)
 		}
 	}
@@ -1105,17 +1063,17 @@ func validateDialogues(raws oapi.Raws) error {
 }
 
 // validateDungeons はダンジョンの id が一意で、敵とアイテムの表が実在することを検証する
-func validateDungeons(raws oapi.Raws) error {
+func validateDungeons(raws rawschema.Raws) error {
 	dungeons := PtrSlice(raws.Dungeons)
-	if err := validateUniqueIDs("dungeon", dungeons, func(d oapi.Dungeon) string { return d.Id }); err != nil {
+	if err := validateUniqueIDs("dungeon", dungeons, func(d rawschema.Dungeon) string { return d.Id }); err != nil {
 		return err
 	}
 	for i := range dungeons {
 		d := &dungeons[i]
-		if _, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Id }, d.EnemyTable); !ok {
+		if _, ok := findByKey(raws.EnemyTables, func(t rawschema.EnemyTable) string { return t.Id }, d.EnemyTable); !ok {
 			return fmt.Errorf("dungeon %q enemy table %q: %w", d.Id, d.EnemyTable, errDungeonEnemyTableUndefined)
 		}
-		if _, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Id }, d.ItemTable); !ok {
+		if _, ok := findByKey(raws.ItemTables, func(t rawschema.ItemTable) string { return t.Id }, d.ItemTable); !ok {
 			return fmt.Errorf("dungeon %q item table %q: %w", d.Id, d.ItemTable, errDungeonItemTableUndefined)
 		}
 	}
@@ -1140,62 +1098,59 @@ func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
 	return out
 }
 
-// validateEnumRows は OpenAPI スキーマの enum の値それぞれを ids がちょうど1回ずつ持つことを検証する
-func validateEnumRows(schemaName string, ids []string) error {
-	if err := validateUniqueIDs(schemaName, ids, func(id string) string { return id }); err != nil {
+// validateEnumRows は enum の値 values それぞれを ids がちょうど1回ずつ持つことを検証する
+func validateEnumRows(name string, values, ids []string) error {
+	if err := validateUniqueIDs(name, ids, func(id string) string { return id }); err != nil {
 		return err
 	}
-	spec, err := loadSpec()
-	if err != nil {
-		return fmt.Errorf("failed to load OpenAPI schema: %w", err)
-	}
-	ref, ok := spec.Components.Schemas[schemaName]
-	if !ok || ref.Value == nil {
-		return fmt.Errorf("cannot find %s component in OpenAPI schema", schemaName)
-	}
-	for _, v := range ref.Value.Enum {
-		s, ok := v.(string)
-		if !ok {
-			return fmt.Errorf("%s enum value %v is %T, not string", schemaName, v, v)
-		}
-		if !slices.Contains(ids, s) {
-			return fmt.Errorf("%s %q: %w", schemaName, v, errEnumRowMissing)
+	for _, v := range values {
+		if !slices.Contains(ids, v) {
+			return fmt.Errorf("%s %q: %w", name, v, errEnumRowMissing)
 		}
 	}
 	return nil
 }
 
+// enumStrings は enum の値を文字列にして返す
+func enumStrings[T ~string](values []T) []string {
+	out := make([]string, len(values))
+	for i, v := range values {
+		out[i] = string(v)
+	}
+	return out
+}
+
 // validateWeathers は天候の行が enum の全値を1回ずつ持ち、各行が季節の全値の重みを持ち、スペルの下限が上限以下であることを検証する
-func validateWeathers(raws oapi.Raws) error {
+func validateWeathers(raws rawschema.Raws) error {
 	weathers := PtrSlice(raws.Weathers)
 	if len(weathers) == 0 {
 		return nil
 	}
 	for _, w := range weathers {
-		if err := validateEnumRows("SeasonId", rowIDs(w.Seasons, func(sw oapi.WeatherSeasonWeight) oapi.SeasonId { return sw.Id })); err != nil {
+		if err := validateEnumRows("SeasonId", enumStrings(rawschema.SeasonIdValues()), rowIDs(w.Seasons, func(sw rawschema.WeatherSeasonWeight) rawschema.SeasonId { return sw.Id })); err != nil {
 			return fmt.Errorf("weather %q: %w", w.Id, err)
 		}
 		if w.SpellTurnsMin > w.SpellTurnsMax {
 			return fmt.Errorf("weather %q: %w", w.Id, errSpellTurnsReversed)
 		}
 	}
-	return validateEnumRows("WeatherId", rowIDs(weathers, func(w oapi.Weather) oapi.WeatherId { return w.Id }))
+	return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId { return w.Id }))
 }
 
 // validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
-func validateTileEffects(raws oapi.Raws) error {
+func validateTileEffects(raws rawschema.Raws) error {
 	if shelters := PtrSlice(raws.ShelterEffects); len(shelters) > 0 {
-		if err := validateEnumRows("Shelter", rowIDs(shelters, func(s oapi.ShelterEffect) oapi.Shelter { return s.Id })); err != nil {
+		if err := validateEnumRows("Shelter", enumStrings(rawschema.ShelterValues()), rowIDs(shelters, func(s rawschema.ShelterEffect) rawschema.Shelter { return s.Id })); err != nil {
 			return err
 		}
 	}
 	if water := PtrSlice(raws.WaterEffects); len(water) > 0 {
-		if err := validateEnumRows("WaterExposure", rowIDs(water, func(w oapi.WaterEffect) oapi.WaterExposure { return w.Id })); err != nil {
+		if err := validateEnumRows("WaterExposure", enumStrings(rawschema.WaterExposureValues()), rowIDs(water, func(w rawschema.WaterEffect) rawschema.WaterExposure { return w.Id })); err != nil {
 			return err
 		}
 	}
 	if foliage := PtrSlice(raws.FoliageEffects); len(foliage) > 0 {
-		if err := validateEnumRows("Foliage", rowIDs(foliage, func(f oapi.FoliageEffect) oapi.Foliage { return f.Id })); err != nil {
+		if err := validateEnumRows("Foliage", enumStrings(rawschema.FoliageValues()), rowIDs(foliage, func(f rawschema.FoliageEffect) rawschema.Foliage { return f.Id })); err != nil {
 			return err
 		}
 	}
@@ -1204,25 +1159,25 @@ func validateTileEffects(raws oapi.Raws) error {
 
 // validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。
 // 0の段階が無いと、どの段階にも当たらない割合や劣化量が生まれる
-func validateNeedStages(raws oapi.Raws) error {
+func validateNeedStages(raws rawschema.Raws) error {
 	if hunger := PtrSlice(raws.HungerStages); len(hunger) > 0 {
-		if err := validateEnumRows("HungerStageId", rowIDs(hunger, func(h oapi.HungerStage) oapi.HungerStageId { return h.Id })); err != nil {
+		if err := validateEnumRows("HungerStageId", enumStrings(rawschema.HungerStageIdValues()), rowIDs(hunger, func(h rawschema.HungerStage) rawschema.HungerStageId { return h.Id })); err != nil {
 			return err
 		}
-		if !slices.ContainsFunc(hunger, func(h oapi.HungerStage) bool { return h.From == 0 }) {
+		if !slices.ContainsFunc(hunger, func(h rawschema.HungerStage) bool { return h.From == 0 }) {
 			return fmt.Errorf("hunger: %w", errNeedStageNoZero)
 		}
 	}
 	if fatigue := PtrSlice(raws.FatigueStages); len(fatigue) > 0 {
-		if err := validateEnumRows("FatigueStageId", rowIDs(fatigue, func(f oapi.FatigueStage) oapi.FatigueStageId { return f.Id })); err != nil {
+		if err := validateEnumRows("FatigueStageId", enumStrings(rawschema.FatigueStageIdValues()), rowIDs(fatigue, func(f rawschema.FatigueStage) rawschema.FatigueStageId { return f.Id })); err != nil {
 			return err
 		}
-		if !slices.ContainsFunc(fatigue, func(f oapi.FatigueStage) bool { return f.From == 0 }) {
+		if !slices.ContainsFunc(fatigue, func(f rawschema.FatigueStage) bool { return f.From == 0 }) {
 			return fmt.Errorf("fatigue: %w", errNeedStageNoZero)
 		}
 	}
 	if freshness := PtrSlice(raws.FreshnessStages); len(freshness) > 0 {
-		if !slices.ContainsFunc(freshness, func(f oapi.FreshnessStage) bool { return f.From == 0 }) {
+		if !slices.ContainsFunc(freshness, func(f rawschema.FreshnessStage) bool { return f.From == 0 }) {
 			return fmt.Errorf("freshness: %w", errNeedStageNoZero)
 		}
 	}

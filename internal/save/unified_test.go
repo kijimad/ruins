@@ -7,7 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -170,7 +170,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(sword, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(sword, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategorySword,
+		Element: rawschema.ElementNONE, AttackCategory: rawschema.AttackCategorySword,
 	})
 
 	// 武器2: ハンドガン
@@ -179,7 +179,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(handgun, &gc.LocationInBackpack{Owner: player})
 	world.Components.Melee.Add(handgun, &gc.Melee{
 		Accuracy: 85, Damage: 12, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryHandgun,
+		Element: rawschema.ElementNONE, AttackCategory: rawschema.AttackCategoryHandgun,
 	})
 
 	// 防具: 西洋鎧
@@ -188,7 +188,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.LocationInBackpack.Add(armor, &gc.LocationInBackpack{Owner: player})
 	world.Components.Wearable.Add(armor, &gc.Wearable{
 		Defense:           15,
-		EquipmentCategory: oapi.EquipmentCategoryTORSO,
+		EquipmentCategory: rawschema.EquipmentCategoryTORSO,
 		EquipBonus: gc.EquipBonus{
 			Vitality: 2, Strength: 1, Sensation: 0, Dexterity: 0, Agility: -1,
 		},
@@ -199,10 +199,10 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.Name.Add(potion, &gc.Name{Name: "回復薬"})
 	world.Components.LocationInBackpack.Add(potion, &gc.LocationInBackpack{Owner: player})
 	world.Components.Consumable.Add(potion, &gc.Consumable{
-		UsableScene: oapi.ANY,
+		UsableScene: rawschema.ANY,
 		TargetType: gc.TargetType{
-			TargetGroup: oapi.TargetGroupALLY,
-			TargetNum:   oapi.SINGLE,
+			TargetGroup: rawschema.TargetGroupALLY,
+			TargetNum:   rawschema.SINGLE,
 		},
 	})
 	world.Components.ProvidesHealing.Add(potion, &gc.ProvidesHealing{

@@ -3,16 +3,16 @@ package components
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSoloAI_ResetCombat(t *testing.T) {
 	t.Parallel()
 
-	solo := &SoloAI{CombatDefault: oapi.Ignore, CombatCurrent: oapi.Attack}
+	solo := &SoloAI{CombatDefault: rawschema.Ignore, CombatCurrent: rawschema.Attack}
 	solo.ResetCombat()
-	assert.Equal(t, oapi.Ignore, solo.CombatCurrent)
+	assert.Equal(t, rawschema.Ignore, solo.CombatCurrent)
 }
 
 func TestSoloAI_ReactToHostile(t *testing.T) {
@@ -20,12 +20,12 @@ func TestSoloAI_ReactToHostile(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		defaultCombat   oapi.CombatPolicyType
-		expectedCurrent oapi.CombatPolicyType
+		defaultCombat   rawschema.CombatPolicyType
+		expectedCurrent rawschema.CombatPolicyType
 	}{
-		{"CombatIgnoreはCombatAttackになる", oapi.Ignore, oapi.Attack},
-		{"CombatAttackはそのまま", oapi.Attack, oapi.Attack},
-		{"CombatEvadeはそのまま", oapi.Evade, oapi.Evade},
+		{"CombatIgnoreはCombatAttackになる", rawschema.Ignore, rawschema.Attack},
+		{"CombatAttackはそのまま", rawschema.Attack, rawschema.Attack},
+		{"CombatEvadeはそのまま", rawschema.Evade, rawschema.Evade},
 	}
 
 	for _, tt := range tests {

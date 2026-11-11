@@ -7,8 +7,8 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 const (
@@ -25,12 +25,12 @@ const (
 // GenerateRoomLoot は各施設を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに
 // アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。
 // 集計対象の施設は raw.toml の facilities 行から導出する。
-func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.BalanceFacilityLoot, error) {
+func GenerateRoomLoot(master rawschema.Raws, trials int, seed uint64) ([]FacilityLoot, error) {
 	footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 14, Y: 0}
 
 	facilities := raw.PtrSlice(master.Facilities)
-	result := make([]oapi.BalanceFacilityLoot, 0, len(facilities))
+	result := make([]FacilityLoot, 0, len(facilities))
 	for _, f := range facilities {
 		fac := f.Id
 		// role -> item -> 合計個数 / 出た試行数
@@ -77,7 +77,7 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) ([]oapi.Balance
 			}
 		}
 
-		result = append(result, oapi.BalanceFacilityLoot{
+		result = append(result, FacilityLoot{
 			Facility: fac,
 			Trials:   trials,
 			Rooms:    buildRoomLoot(master, total, present, trials),
@@ -94,9 +94,9 @@ type drawnLoot struct {
 
 // resolvePlacedLoot は1つの配置指示を実行と同じ経路で materialize してアイテムと個数を返す。床 loot は
 // item group から、収納家具は Storage.LootTableId から引く。それ以外は何も返さない。
-func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {
+func resolvePlacedLoot(master rawschema.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {
 	switch p.Kind {
-	case oapi.Loot:
+	case rawschema.Loot:
 		groupID, ok := interior.LootGroupName(master, p.Ref)
 		if !ok {
 			return nil
@@ -112,7 +112,7 @@ func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []dr
 			}
 		}
 		return out
-	case oapi.Furniture:
+	case rawschema.Furniture:
 		name, ok := interior.PropRawName(master, p.Ref)
 		if !ok {
 			return nil
@@ -141,12 +141,12 @@ func roomRoleAt(site interior.Site, pos interior.Vec) string {
 }
 
 // buildRoomLoot は集計 map を役割ごとの RoomLoot へ整える。全体を先頭に、以降は期待個数の合計が多い役割順に並べる。
-func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, trials int) []oapi.BalanceRoomLoot {
-	rooms := make([]oapi.BalanceRoomLoot, 0, len(total))
+func buildRoomLoot(master rawschema.Raws, total, present map[string]map[string]int, trials int) []RoomLoot {
+	rooms := make([]RoomLoot, 0, len(total))
 	for role, items := range total {
-		stats := make([]oapi.BalanceLootItemStat, 0, len(items))
+		stats := make([]LootItemStat, 0, len(items))
 		for name, c := range items {
-			stats = append(stats, oapi.BalanceLootItemStat{
+			stats = append(stats, LootItemStat{
 				Name:          name,
 				Prob:          float64(present[role][name]) / float64(trials),
 				ExpectedCount: float64(c) / float64(trials),
@@ -159,7 +159,7 @@ func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, t
 			}
 			return stats[a].Name < stats[b].Name
 		})
-		rooms = append(rooms, oapi.BalanceRoomLoot{Role: role, Items: stats})
+		rooms = append(rooms, RoomLoot{Role: role, Items: stats})
 	}
 	sort.Slice(rooms, func(a, b int) bool {
 		// 全体を必ず先頭にする
@@ -175,7 +175,7 @@ func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, t
 }
 
 // roomTotalExpected は役割の期待個数合計。役割の並び順に使う。
-func roomTotalExpected(r oapi.BalanceRoomLoot) float64 {
+func roomTotalExpected(r RoomLoot) float64 {
 	var sum float64
 	for _, it := range r.Items {
 		sum += it.ExpectedCount
@@ -185,7 +185,7 @@ func roomTotalExpected(r oapi.BalanceRoomLoot) float64 {
 
 // rollStorageLoot は収納家具1個の中身を抽選する。ゲームの populateStorageLoot と同型で、LootTableId のテーブルから
 // LootCount 回を深度考慮で引く。収納でない家具は空を返す。
-func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []drawnLoot {
+func rollStorageLoot(master rawschema.Raws, propName string, rng *rand.Rand) []drawnLoot {
 	prop, err := raw.GetProp(master, propName)
 	if err != nil || prop.Storage == nil || prop.Storage.LootTableId == nil || *prop.Storage.LootTableId == "" {
 		return nil
@@ -214,7 +214,7 @@ func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []drawnL
 }
 
 // itemValue は raw のアイテム価値を返す。未定義は0。
-func itemValue(master oapi.Raws, name string) int {
+func itemValue(master rawschema.Raws, name string) int {
 	item, err := raw.FindItem(master, name)
 	if err != nil {
 		return 0

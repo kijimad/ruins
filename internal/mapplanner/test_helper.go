@@ -1,18 +1,18 @@
 package mapplanner
 
 import (
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// CreateTestRawMaster はテスト用の oapi.Raws インスタンスを作成する
-func CreateTestRawMaster() *oapi.Raws {
+// CreateTestRawMaster はテスト用の rawschema.Raws インスタンスを作成する
+func CreateTestRawMaster() *rawschema.Raws {
 	// テスト用の基本的なタイルデータを定義
-	autotile := &oapi.TileSpawn{Autotile: true}
-	testTiles := []oapi.Tile{
-		{Id: "wall", Name: "wall", BlockPass: true, Spawn: &oapi.TileSpawn{Tile: new("dwall"), Autotile: true}},
+	autotile := &rawschema.TileSpawn{Autotile: true}
+	testTiles := []rawschema.Tile{
+		{Id: "wall", Name: "wall", BlockPass: true, Spawn: &rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
 		{Id: "floor", Name: "floor", BlockPass: false, Spawn: autotile},
 		{Id: "dirt", Name: "dirt", BlockPass: false, Spawn: autotile},
-		{Id: "void", Name: "void", BlockPass: true, Spawn: &oapi.TileSpawn{}},
+		{Id: "void", Name: "void", BlockPass: true, Spawn: &rawschema.TileSpawn{}},
 		{Id: "bridge_a", Name: "bridge_a", BlockPass: false, Spawn: autotile},
 		{Id: "bridge_b", Name: "bridge_b", BlockPass: false, Spawn: autotile},
 		{Id: "bridge_c", Name: "bridge_c", BlockPass: false, Spawn: autotile},
@@ -20,11 +20,11 @@ func CreateTestRawMaster() *oapi.Raws {
 	}
 
 	// テスト用のアイテムテーブルを定義
-	testItemTables := []oapi.ItemTable{
+	testItemTables := []rawschema.ItemTable{
 		{
 			Id:   "normal",
 			Name: "normal",
-			Entries: []oapi.ItemTableEntry{
+			Entries: []rawschema.ItemTableEntry{
 				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 				{Id: "ores", Weight: 0.5, MinDanger: 3, MaxDanger: 40},
 			},
@@ -32,7 +32,7 @@ func CreateTestRawMaster() *oapi.Raws {
 		{
 			Id:   "cave",
 			Name: "cave",
-			Entries: []oapi.ItemTableEntry{
+			Entries: []rawschema.ItemTableEntry{
 				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 				{Id: "ores", Weight: 0.6, MinDanger: 3, MaxDanger: 25},
 			},
@@ -40,14 +40,14 @@ func CreateTestRawMaster() *oapi.Raws {
 		{
 			Id:   "forest",
 			Name: "forest",
-			Entries: []oapi.ItemTableEntry{
+			Entries: []rawschema.ItemTableEntry{
 				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 15},
 			},
 		},
 		{
 			Id:   "ruins",
 			Name: "ruins",
-			Entries: []oapi.ItemTableEntry{
+			Entries: []rawschema.ItemTableEntry{
 				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 15},
 				{Id: "ores", Weight: 0.8, MinDanger: 3, MaxDanger: 20},
 			},
@@ -55,11 +55,11 @@ func CreateTestRawMaster() *oapi.Raws {
 	}
 
 	// テスト用の敵テーブルを定義
-	testEnemyTables := []oapi.EnemyTable{
+	testEnemyTables := []rawschema.EnemyTable{
 		{
 			Id:   "normal",
 			Name: "normal",
-			Entries: []oapi.EnemyTableEntry{
+			Entries: []rawschema.EnemyTableEntry{
 				{Id: "slime", Weight: 1.2, MinDanger: 1, MaxDanger: 10, Pack: "1d1"},
 				{Id: "fireball", Weight: 1.0, MinDanger: 1, MaxDanger: 20, Pack: "1d1"},
 				{Id: "light_tank", Weight: 0.8, MinDanger: 10, MaxDanger: 50, Pack: "1d1"},
@@ -68,7 +68,7 @@ func CreateTestRawMaster() *oapi.Raws {
 		{
 			Id:   "cave",
 			Name: "cave",
-			Entries: []oapi.EnemyTableEntry{
+			Entries: []rawschema.EnemyTableEntry{
 				{Id: "slime", Weight: 1.0, MinDanger: 1, MaxDanger: 8, Pack: "1d1"},
 				{Id: "fireball", Weight: 1.0, MinDanger: 1, MaxDanger: 15, Pack: "1d1"},
 				{Id: "light_tank", Weight: 0.6, MinDanger: 8, MaxDanger: 25, Pack: "1d1"},
@@ -77,7 +77,7 @@ func CreateTestRawMaster() *oapi.Raws {
 		{
 			Id:   "forest",
 			Name: "forest",
-			Entries: []oapi.EnemyTableEntry{
+			Entries: []rawschema.EnemyTableEntry{
 				{Id: "slime", Weight: 1.2, MinDanger: 1, MaxDanger: 12, Pack: "1d1"},
 				{Id: "fireball", Weight: 1.0, MinDanger: 1, MaxDanger: 15, Pack: "1d1"},
 				{Id: "light_tank", Weight: 0.5, MinDanger: 10, MaxDanger: 20, Pack: "1d1"},
@@ -86,7 +86,7 @@ func CreateTestRawMaster() *oapi.Raws {
 		{
 			Id:   "ruins",
 			Name: "ruins",
-			Entries: []oapi.EnemyTableEntry{
+			Entries: []rawschema.EnemyTableEntry{
 				{Id: "slime", Weight: 0.9, MinDanger: 1, MaxDanger: 10, Pack: "1d1"},
 				{Id: "fireball", Weight: 0.8, MinDanger: 1, MaxDanger: 20, Pack: "1d1"},
 				{Id: "light_tank", Weight: 1.0, MinDanger: 5, MaxDanger: 30, Pack: "1d1"},
@@ -96,21 +96,21 @@ func CreateTestRawMaster() *oapi.Raws {
 	}
 
 	// テスト用のアイテムグループを定義
-	testItemGroups := []oapi.ItemGroup{
+	testItemGroups := []rawschema.ItemGroup{
 		{
 			Id:   "healing_items",
 			Name: "healing_items",
-			Entries: []oapi.ItemGroupEntry{
+			Entries: []rawschema.ItemGroupEntry{
 				{Id: "healing_potion", Weight: 1.0, Pack: "1d3"},
 				{Id: "antidote", Weight: 0.5, Pack: "1d1"},
 			},
 		},
 	}
-	testItemCollections := []oapi.ItemCollection{
+	testItemCollections := []rawschema.ItemCollection{
 		{
 			Id:   "ores",
 			Name: "ores",
-			Entries: []oapi.ItemCollectionEntry{
+			Entries: []rawschema.ItemCollectionEntry{
 				{Id: "obsidian", Chance: 50, Pack: "1d2"},
 				{Id: "silver_shard", Chance: 30, Pack: "1d1"},
 			},
@@ -119,9 +119,9 @@ func CreateTestRawMaster() *oapi.Raws {
 
 	// テスト用のアイテム定義（スタック判定に必要）
 
-	return &oapi.Raws{
+	return &rawschema.Raws{
 		Tiles: &testTiles,
-		Items: &[]oapi.Item{
+		Items: &[]rawschema.Item{
 			{Id: "healing_potion", Name: "healing_potion", Description: "restores HP"},
 			{Id: "antidote", Name: "antidote", Description: "cures poison"},
 			{Id: "obsidian", Name: "obsidian", Description: "a black stone"},

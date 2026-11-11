@@ -6,7 +6,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/i18n"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // ErrInvalidEnumType はinvalid enum value場合のエラー
@@ -61,21 +61,21 @@ type RangeParams struct {
 // ================
 
 // EquipmentCategoryName は防具の部位の表示名 msgid を返す
-func EquipmentCategoryName(c oapi.EquipmentCategory) i18n.Msgid {
+func EquipmentCategoryName(c rawschema.EquipmentCategory) i18n.Msgid {
 	switch c {
-	case oapi.EquipmentCategoryHEAD:
+	case rawschema.EquipmentCategoryHEAD:
 		return "Head"
-	case oapi.EquipmentCategoryTORSO:
+	case rawschema.EquipmentCategoryTORSO:
 		return "Torso"
-	case oapi.EquipmentCategoryARMS:
+	case rawschema.EquipmentCategoryARMS:
 		return "Arms"
-	case oapi.EquipmentCategoryHANDS:
+	case rawschema.EquipmentCategoryHANDS:
 		return "Hands"
-	case oapi.EquipmentCategoryLEGS:
+	case rawschema.EquipmentCategoryLEGS:
 		return "Legs"
-	case oapi.EquipmentCategoryFEET:
+	case rawschema.EquipmentCategoryFEET:
 		return "Feet"
-	case oapi.EquipmentCategoryJEWELRY:
+	case rawschema.EquipmentCategoryJEWELRY:
 		return "Accessory"
 	}
 	panic(fmt.Sprintf("invalid EquipmentCategory value: %s", string(c)))
@@ -84,17 +84,17 @@ func EquipmentCategoryName(c oapi.EquipmentCategory) i18n.Msgid {
 // ================
 
 // ElementName は攻撃属性の表示名 msgid を返す
-func ElementName(e oapi.Element) i18n.Msgid {
+func ElementName(e rawschema.Element) i18n.Msgid {
 	switch e {
-	case oapi.ElementNONE:
+	case rawschema.ElementNONE:
 		return "None"
-	case oapi.ElementFIRE:
+	case rawschema.ElementFIRE:
 		return "Fire"
-	case oapi.ElementTHUNDER:
+	case rawschema.ElementTHUNDER:
 		return "Thunder"
-	case oapi.ElementCHILL:
+	case rawschema.ElementCHILL:
 		return "Ice"
-	case oapi.ElementPHOTON:
+	case rawschema.ElementPHOTON:
 		return "Light"
 	}
 	panic(fmt.Sprintf("invalid Element value: %s", string(e)))

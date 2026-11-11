@@ -5,39 +5,39 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // makeWeatherRaws は天候と空腹・疲労の段階を持つ検証を通る raws を作り、mutate で崩す
-func makeWeatherRaws(mutate func(*oapi.Raws)) oapi.Raws {
-	seasons := func() []oapi.WeatherSeasonWeight {
-		return []oapi.WeatherSeasonWeight{{Id: oapi.Spring, Weight: 1}, {Id: oapi.Summer, Weight: 1}, {Id: oapi.Autumn, Weight: 1}, {Id: oapi.Winter, Weight: 1}}
+func makeWeatherRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
+	seasons := func() []rawschema.WeatherSeasonWeight {
+		return []rawschema.WeatherSeasonWeight{{Id: rawschema.Spring, Weight: 1}, {Id: rawschema.Summer, Weight: 1}, {Id: rawschema.Autumn, Weight: 1}, {Id: rawschema.Winter, Weight: 1}}
 	}
-	ids := []oapi.WeatherId{oapi.Clear, oapi.Cloudy, oapi.Rain, oapi.Snow, oapi.Blizzard, oapi.ColdSnap}
-	weathers := make([]oapi.Weather, 0, len(ids))
+	ids := []rawschema.WeatherId{rawschema.Clear, rawschema.Cloudy, rawschema.Rain, rawschema.Snow, rawschema.Blizzard, rawschema.ColdSnap}
+	weathers := make([]rawschema.Weather, 0, len(ids))
 	for _, id := range ids {
-		weathers = append(weathers, oapi.Weather{Id: id, SpellTurnsMin: 100, SpellTurnsMax: 200, Seasons: seasons()})
+		weathers = append(weathers, rawschema.Weather{Id: id, SpellTurnsMin: 100, SpellTurnsMax: 200, Seasons: seasons()})
 	}
-	raws := oapi.Raws{
+	raws := rawschema.Raws{
 		Weathers: &weathers,
-		HungerStages: &[]oapi.HungerStage{
-			{Id: oapi.HungerStageIdSatiated, From: 0.9},
-			{Id: oapi.HungerStageIdNormal, From: 0.6},
-			{Id: oapi.HungerStageIdHungry, From: 0.3},
-			{Id: oapi.HungerStageIdStarving, From: 0},
+		HungerStages: &[]rawschema.HungerStage{
+			{Id: rawschema.HungerStageIdSatiated, From: 0.9},
+			{Id: rawschema.HungerStageIdNormal, From: 0.6},
+			{Id: rawschema.HungerStageIdHungry, From: 0.3},
+			{Id: rawschema.HungerStageIdStarving, From: 0},
 		},
-		FatigueStages: &[]oapi.FatigueStage{
-			{Id: oapi.FatigueStageIdRested, From: 0},
-			{Id: oapi.FatigueStageIdNormal, From: 0.3},
-			{Id: oapi.FatigueStageIdTired, From: 0.5},
-			{Id: oapi.FatigueStageIdExhausted, From: 0.8},
+		FatigueStages: &[]rawschema.FatigueStage{
+			{Id: rawschema.FatigueStageIdRested, From: 0},
+			{Id: rawschema.FatigueStageIdNormal, From: 0.3},
+			{Id: rawschema.FatigueStageIdTired, From: 0.5},
+			{Id: rawschema.FatigueStageIdExhausted, From: 0.8},
 		},
-		FreshnessStages: &[]oapi.FreshnessStage{
-			{Id: oapi.Fresh, From: 0},
-			{Id: oapi.Stale, From: 1},
-			{Id: oapi.Rotten, From: 2},
+		FreshnessStages: &[]rawschema.FreshnessStage{
+			{Id: rawschema.Fresh, From: 0},
+			{Id: rawschema.Stale, From: 1},
+			{Id: rawschema.Rotten, From: 2},
 		},
 	}
 	mutate(&raws)
@@ -49,58 +49,58 @@ func TestValidateWeathersAndNeedStages(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		mutate  func(*oapi.Raws)
+		mutate  func(*rawschema.Raws)
 		wantErr error
 	}{
 		{
 			name:   "enum の全値を持てば通る",
-			mutate: func(*oapi.Raws) {},
+			mutate: func(*rawschema.Raws) {},
 		},
 		{
 			name: "天候の行が欠ける",
-			mutate: func(r *oapi.Raws) {
+			mutate: func(r *rawschema.Raws) {
 				*r.Weathers = (*r.Weathers)[1:]
 			},
 			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "天候の季節の重みが欠ける",
-			mutate: func(r *oapi.Raws) {
+			mutate: func(r *rawschema.Raws) {
 				(*r.Weathers)[0].Seasons = (*r.Weathers)[0].Seasons[1:]
 			},
 			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "天候の季節の重みが重複する",
-			mutate: func(r *oapi.Raws) {
-				(*r.Weathers)[0].Seasons = append((*r.Weathers)[0].Seasons, oapi.WeatherSeasonWeight{Id: oapi.Winter, Weight: 1})
+			mutate: func(r *rawschema.Raws) {
+				(*r.Weathers)[0].Seasons = append((*r.Weathers)[0].Seasons, rawschema.WeatherSeasonWeight{Id: rawschema.Winter, Weight: 1})
 			},
 			wantErr: errDuplicateID,
 		},
 		{
 			name: "スペルの下限が上限を超える",
-			mutate: func(r *oapi.Raws) {
+			mutate: func(r *rawschema.Raws) {
 				(*r.Weathers)[0].SpellTurnsMin = 300
 			},
 			wantErr: errSpellTurnsReversed,
 		},
 		{
 			name: "空腹の段階が欠ける",
-			mutate: func(r *oapi.Raws) {
+			mutate: func(r *rawschema.Raws) {
 				*r.HungerStages = (*r.HungerStages)[1:]
 			},
 			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "疲労の段階に割合0が無い",
-			mutate: func(r *oapi.Raws) {
+			mutate: func(r *rawschema.Raws) {
 				(*r.FatigueStages)[0].From = 0.1
 			},
 			wantErr: errNeedStageNoZero,
 		},
 		{
 			name: "鮮度の段階に0から始まるものが無い",
-			mutate: func(r *oapi.Raws) {
+			mutate: func(r *rawschema.Raws) {
 				(*r.FreshnessStages)[0].From = 1
 			},
 			wantErr: errNeedStageNoZero,
@@ -153,21 +153,21 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 
 	assert.Equal(t, gc.NeedDefs{
 		Hunger: []gc.HungerStage{
-			{Level: oapi.HungerStageIdSatiated, Name: "Full", From: 0.95, ReachedLog: "%s is now full.", Badge: &color.RGBA{100, 200, 100, 255}},
-			{Level: oapi.HungerStageIdNormal, Name: "Normal", From: 0.66},
-			{Level: oapi.HungerStageIdHungry, Name: "Hungry", From: 0.33, Condition: gc.SeverityMinor, Badge: &color.RGBA{255, 200, 0, 255}},
-			{Level: oapi.HungerStageIdStarving, Name: "Starving", From: 0, Condition: gc.SeverityMedium, WakesSleeper: true, Badge: &color.RGBA{255, 50, 50, 255}},
+			{Level: rawschema.HungerStageIdSatiated, Name: "Full", From: 0.95, ReachedLog: "%s is now full.", Badge: &color.RGBA{100, 200, 100, 255}},
+			{Level: rawschema.HungerStageIdNormal, Name: "Normal", From: 0.66},
+			{Level: rawschema.HungerStageIdHungry, Name: "Hungry", From: 0.33, Condition: gc.SeverityMinor, Badge: &color.RGBA{255, 200, 0, 255}},
+			{Level: rawschema.HungerStageIdStarving, Name: "Starving", From: 0, Condition: gc.SeverityMedium, WakesSleeper: true, Badge: &color.RGBA{255, 50, 50, 255}},
 		},
 		Fatigue: []gc.FatigueStage{
-			{Level: oapi.FatigueStageIdRested, Name: "Rested", From: 0},
-			{Level: oapi.FatigueStageIdNormal, Name: "Normal", From: 0.3, CanSleep: true},
-			{Level: oapi.FatigueStageIdTired, Name: "Tired", From: 0.5, Condition: gc.SeverityMinor, CanSleep: true, Badge: &color.RGBA{255, 200, 0, 255}},
-			{Level: oapi.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium, CanSleep: true, Badge: &color.RGBA{255, 50, 50, 255}},
+			{Level: rawschema.FatigueStageIdRested, Name: "Rested", From: 0},
+			{Level: rawschema.FatigueStageIdNormal, Name: "Normal", From: 0.3, CanSleep: true},
+			{Level: rawschema.FatigueStageIdTired, Name: "Tired", From: 0.5, Condition: gc.SeverityMinor, CanSleep: true, Badge: &color.RGBA{255, 200, 0, 255}},
+			{Level: rawschema.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium, CanSleep: true, Badge: &color.RGBA{255, 50, 50, 255}},
 		},
 		Freshness: []gc.FreshnessDef{
-			{Level: oapi.Fresh, From: 0, Name: "Fresh", NutritionPercent: 100, EatLog: "%s ate fresh %s."},
-			{Level: oapi.Stale, From: 1, Name: "Stale", NutritionPercent: 50, EatLog: "%s ate old %s.", Marker: true},
-			{Level: oapi.Rotten, From: 2, Name: "Rotten", NutritionPercent: 30, EatLog: "%s ate spoiled %s.", Marker: true, IllnessChancePercent: 25},
+			{Level: rawschema.Fresh, From: 0, Name: "Fresh", NutritionPercent: 100, EatLog: "%s ate fresh %s."},
+			{Level: rawschema.Stale, From: 1, Name: "Stale", NutritionPercent: 50, EatLog: "%s ate old %s.", Marker: true},
+			{Level: rawschema.Rotten, From: 2, Name: "Rotten", NutritionPercent: 30, EatLog: "%s ate spoiled %s.", Marker: true, IllnessChancePercent: 25},
 		},
 	}, defs)
 }
@@ -201,22 +201,22 @@ func TestNewMaterialDefs_実データ(t *testing.T) {
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
 	assert.Equal(t, gc.MaterialDefs{
-		oapi.WOOD:    {Name: "Wood", HeatPerKg: 200},
-		oapi.PAPER:   {Name: "Paper", HeatPerKg: 300},
-		oapi.CLOTH:   {Name: "Cloth", HeatPerKg: 160},
-		oapi.LEATHER: {Name: "Leather", HeatPerKg: 120},
-		oapi.PLANT:   {Name: "Plant fiber", HeatPerKg: 120},
-		oapi.FOOD:    {Name: "Food", HeatPerKg: 60},
-		oapi.BONE:    {Name: "Bone", HeatPerKg: 40},
-		oapi.OIL:     {Name: "Oil", HeatPerKg: 1000},
-		oapi.COAL:    {Name: "Coal", HeatPerKg: 800},
-		oapi.PLASTIC: {Name: "Plastic", HeatPerKg: 240},
-		oapi.METAL:   {Name: "Metal", HeatPerKg: 0},
-		oapi.STONE:   {Name: "Stone", HeatPerKg: 0},
-		oapi.GLASS:   {Name: "Glass", HeatPerKg: 0},
-		oapi.CRYSTAL: {Name: "Crystal", HeatPerKg: 0},
-		oapi.CERAMIC: {Name: "Ceramic", HeatPerKg: 0},
-		oapi.LIQUID:  {Name: "Liquid", HeatPerKg: 0},
+		rawschema.WOOD:    {Name: "Wood", HeatPerKg: 200},
+		rawschema.PAPER:   {Name: "Paper", HeatPerKg: 300},
+		rawschema.CLOTH:   {Name: "Cloth", HeatPerKg: 160},
+		rawschema.LEATHER: {Name: "Leather", HeatPerKg: 120},
+		rawschema.PLANT:   {Name: "Plant fiber", HeatPerKg: 120},
+		rawschema.FOOD:    {Name: "Food", HeatPerKg: 60},
+		rawschema.BONE:    {Name: "Bone", HeatPerKg: 40},
+		rawschema.OIL:     {Name: "Oil", HeatPerKg: 1000},
+		rawschema.COAL:    {Name: "Coal", HeatPerKg: 800},
+		rawschema.PLASTIC: {Name: "Plastic", HeatPerKg: 240},
+		rawschema.METAL:   {Name: "Metal", HeatPerKg: 0},
+		rawschema.STONE:   {Name: "Stone", HeatPerKg: 0},
+		rawschema.GLASS:   {Name: "Glass", HeatPerKg: 0},
+		rawschema.CRYSTAL: {Name: "Crystal", HeatPerKg: 0},
+		rawschema.CERAMIC: {Name: "Ceramic", HeatPerKg: 0},
+		rawschema.LIQUID:  {Name: "Liquid", HeatPerKg: 0},
 	}, NewMaterialDefs(raws))
 }
 
@@ -227,43 +227,43 @@ func TestNewSkillDefs_道具の分類が伸ばすスキルの実データ(t *tes
 	require.NoError(t, err)
 	defs, err := NewSkillDefs(raws)
 	require.NoError(t, err)
-	assert.Equal(t, map[oapi.ToolCategory]oapi.SkillId{
-		oapi.Prying:    oapi.SkillIdMechanic,
-		oapi.Precision: oapi.SkillIdMechanic,
-		oapi.Cutting:   oapi.SkillIdMechanic,
+	assert.Equal(t, map[rawschema.ToolCategory]rawschema.SkillId{
+		rawschema.Prying:    rawschema.SkillIdMechanic,
+		rawschema.Precision: rawschema.SkillIdMechanic,
+		rawschema.Cutting:   rawschema.SkillIdMechanic,
 	}, defs.ToolSkills)
 }
 
 func TestValidateTileEffects(t *testing.T) {
 	t.Parallel()
 
-	full := func() oapi.Raws {
-		return oapi.Raws{
-			ShelterEffects: &[]oapi.ShelterEffect{{Id: oapi.Outdoor}, {Id: oapi.Partial}, {Id: oapi.Indoor}},
-			WaterEffects:   &[]oapi.WaterEffect{{Id: oapi.Nearby, TempModifier: -5}, {Id: oapi.Submerged, TempModifier: -10}},
-			FoliageEffects: &[]oapi.FoliageEffect{{Id: oapi.FoliageGrass, TempModifier: -1}, {Id: oapi.FoliageForest, TempModifier: -3}},
+	full := func() rawschema.Raws {
+		return rawschema.Raws{
+			ShelterEffects: &[]rawschema.ShelterEffect{{Id: rawschema.Outdoor}, {Id: rawschema.Partial}, {Id: rawschema.Indoor}},
+			WaterEffects:   &[]rawschema.WaterEffect{{Id: rawschema.Nearby, TempModifier: -5}, {Id: rawschema.Submerged, TempModifier: -10}},
+			FoliageEffects: &[]rawschema.FoliageEffect{{Id: rawschema.FoliageGrass, TempModifier: -1}, {Id: rawschema.FoliageForest, TempModifier: -3}},
 		}
 	}
 	tests := []struct {
 		name    string
-		mutate  func(*oapi.Raws)
+		mutate  func(*rawschema.Raws)
 		wantErr error
 	}{
-		{name: "全値の行があれば通る", mutate: func(*oapi.Raws) {}},
+		{name: "全値の行があれば通る", mutate: func(*rawschema.Raws) {}},
 		{
 			name:    "囲われの行が欠ける",
-			mutate:  func(r *oapi.Raws) { *r.ShelterEffects = (*r.ShelterEffects)[:2] },
+			mutate:  func(r *rawschema.Raws) { *r.ShelterEffects = (*r.ShelterEffects)[:2] },
 			wantErr: errEnumRowMissing,
 		},
 		{
 			name:    "水の影響の行が欠ける",
-			mutate:  func(r *oapi.Raws) { *r.WaterEffects = (*r.WaterEffects)[:1] },
+			mutate:  func(r *rawschema.Raws) { *r.WaterEffects = (*r.WaterEffects)[:1] },
 			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "植生の行が重複する",
-			mutate: func(r *oapi.Raws) {
-				*r.FoliageEffects = append(*r.FoliageEffects, oapi.FoliageEffect{Id: oapi.FoliageGrass})
+			mutate: func(r *rawschema.Raws) {
+				*r.FoliageEffects = append(*r.FoliageEffects, rawschema.FoliageEffect{Id: rawschema.FoliageGrass})
 			},
 			wantErr: errDuplicateID,
 		},
@@ -289,12 +289,12 @@ func TestNewTileEnvDefs_実データ(t *testing.T) {
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
 	assert.Equal(t, gc.TileEnvDefs{
-		Shelters: map[oapi.Shelter]gc.ShelterDef{
-			oapi.Outdoor: {Name: "Outdoor", AnchorTemp: 10, InfluencePercent: 100},
-			oapi.Partial: {Name: "Semi-outdoor", AnchorTemp: 10, InfluencePercent: 75, Covered: true},
-			oapi.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50, Covered: true},
+		Shelters: map[rawschema.Shelter]gc.ShelterDef{
+			rawschema.Outdoor: {Name: "Outdoor", AnchorTemp: 10, InfluencePercent: 100},
+			rawschema.Partial: {Name: "Semi-outdoor", AnchorTemp: 10, InfluencePercent: 75, Covered: true},
+			rawschema.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50, Covered: true},
 		},
-		Water:   map[oapi.WaterExposure]int{oapi.Nearby: -5, oapi.Submerged: -10},
-		Foliage: map[oapi.Foliage]int{oapi.FoliageGrass: -1, oapi.FoliageForest: -3},
+		Water:   map[rawschema.WaterExposure]int{rawschema.Nearby: -5, rawschema.Submerged: -10},
+		Foliage: map[rawschema.Foliage]int{rawschema.FoliageGrass: -1, rawschema.FoliageForest: -3},
 	}, NewTileEnvDefs(raws))
 }

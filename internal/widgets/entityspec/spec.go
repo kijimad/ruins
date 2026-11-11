@@ -7,7 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 
@@ -295,7 +295,7 @@ func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 		{Label: query.T(world, "Hits"), Value: strconv.Itoa(attack.GetAttackCount())},
 		{Label: query.T(world, "Attack cost"), Value: strconv.Itoa(attack.GetCost())},
 	}
-	if attack.GetElement() != oapi.ElementNONE {
+	if attack.GetElement() != rawschema.ElementNONE {
 		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, gc.ElementName(attack.GetElement()))})
 	}
 	return markChildren(rows)

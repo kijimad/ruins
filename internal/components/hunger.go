@@ -1,6 +1,6 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/oapi"
+import "github.com/kijimaD/ruins/internal/rawschema"
 
 const (
 	// DefaultMaxHunger はデフォルトの最大満腹度
@@ -17,9 +17,9 @@ const (
 type Hunger Pool[int]
 
 // GetLevel は現在の空腹度レベルを取得する。段階の境目は defs が持つ
-func (h *Hunger) GetLevel(defs NeedDefs) oapi.HungerStageId {
+func (h *Hunger) GetLevel(defs NeedDefs) rawschema.HungerStageId {
 	if h.Max <= 0 {
-		return oapi.HungerStageIdSatiated
+		return rawschema.HungerStageIdSatiated
 	}
 	return defs.hungerStage(float64(h.Current) / float64(h.Max)).Level
 }

@@ -7,7 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -49,7 +49,7 @@ func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10, Current: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 1},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1},
 	}
 	world.Components.Book.Add(bookEntity, book)
 
@@ -72,7 +72,7 @@ func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 5, RequiredLevel: 3},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 5, RequiredLevel: 3},
 	}
 	world.Components.Book.Add(bookEntity, book)
 
@@ -91,13 +91,13 @@ func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	skills := gc.NewSkills()
-	skills.Get(oapi.SkillIdSword).Value = 3
+	skills.Get(rawschema.SkillIdSword).Value = 3
 	world.Components.Skills.Add(actor, skills)
 
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 5, RequiredLevel: 3},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 5, RequiredLevel: 3},
 	}
 	world.Components.Book.Add(bookEntity, book)
 
@@ -117,7 +117,7 @@ func TestReadBehavior_Validate_Success(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 1},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1},
 	}
 	world.Components.Book.Add(bookEntity, book)
 
@@ -139,7 +139,7 @@ func TestReadBehavior_DoTurn_AdvancesProgress(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 100},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 0},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
@@ -172,7 +172,7 @@ func TestReadBehavior_DoTurn_GainsSkillExp(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 0},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
 
@@ -184,10 +184,10 @@ func TestReadBehavior_DoTurn_GainsSkillExp(t *testing.T) {
 		Params:       &gc.ReadParams{Target: bookEntity},
 	}
 
-	before := skills.Get(oapi.SkillIdSword).Exp.Current
+	before := skills.Get(rawschema.SkillIdSword).Exp.Current
 	err := ra.DoTurn(comp, actor, world)
 	require.NoError(t, err)
-	assert.Greater(t, skills.Get(oapi.SkillIdSword).Exp.Current, before, "経験値が増加する")
+	assert.Greater(t, skills.Get(rawschema.SkillIdSword).Exp.Current, before, "経験値が増加する")
 }
 
 func TestReadBehavior_DoTurn_NoExpWhenTooHard(t *testing.T) {
@@ -204,7 +204,7 @@ func TestReadBehavior_DoTurn_NoExpWhenTooHard(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 10}, // プレイヤーLv0, 本Lv10 → diff=10 → 0%
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 10}, // プレイヤーLv0, 本Lv10 → diff=10 → 0%
 	}
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
@@ -219,7 +219,7 @@ func TestReadBehavior_DoTurn_NoExpWhenTooHard(t *testing.T) {
 
 	err := ra.DoTurn(comp, actor, world)
 	require.NoError(t, err)
-	assert.Equal(t, 0, skills.Get(oapi.SkillIdSword).Exp.Current, "難しすぎて経験値を得られない")
+	assert.Equal(t, 0, skills.Get(rawschema.SkillIdSword).Exp.Current, "難しすぎて経験値を得られない")
 	assert.Equal(t, 10, book.Effort.Current, "工数は進む")
 }
 
@@ -235,7 +235,7 @@ func TestReadBehavior_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 15, Current: 8},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 0},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
@@ -270,7 +270,7 @@ func TestReadBehavior_DoTurn_CanceledByEnemy(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 0},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)
@@ -298,7 +298,7 @@ func TestReadBehavior_DoTurn_SkillLevelUp(t *testing.T) {
 	world.Components.Player.Add(actor, &gc.Player{})
 
 	skills := gc.NewSkills()
-	skills.Get(oapi.SkillIdSword).Exp.Current = 95 // スキルアップ直前
+	skills.Get(rawschema.SkillIdSword).Exp.Current = 95 // スキルアップ直前
 	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{Strength: gc.Ability{Total: 5}}
@@ -307,7 +307,7 @@ func TestReadBehavior_DoTurn_SkillLevelUp(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 0},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
 
@@ -322,7 +322,7 @@ func TestReadBehavior_DoTurn_SkillLevelUp(t *testing.T) {
 	err := ra.DoTurn(comp, actor, world)
 	require.NoError(t, err)
 
-	assert.Equal(t, 1, skills.Get(oapi.SkillIdSword).Value, "スキルアップしている")
+	assert.Equal(t, 1, skills.Get(rawschema.SkillIdSword).Value, "スキルアップしている")
 }
 
 func TestReadBehavior_NoSkillsComponent(t *testing.T) {
@@ -336,7 +336,7 @@ func TestReadBehavior_NoSkillsComponent(t *testing.T) {
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
 		Effort: gc.IntPool{Max: 10},
-		Skill:  &gc.SkillBookEffect{TargetSkill: oapi.SkillIdSword, MaxLevel: 0},
+		Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 0},
 	}
 	world.Components.Book.Add(bookEntity, book)
 	book = world.Components.Book.Get(bookEntity)

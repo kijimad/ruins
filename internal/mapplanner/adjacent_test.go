@@ -7,7 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 func TestPlanData_AdjacentAnyFloor(t *testing.T) {
@@ -19,7 +19,7 @@ func TestPlanData_AdjacentAnyFloor(t *testing.T) {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
 		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
@@ -70,7 +70,7 @@ func TestPlanData_AdjacentAnyFloor_WithWarpTiles(t *testing.T) {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
 		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),

@@ -6,12 +6,12 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
 // newTestMetaPlan はテスト用のMetaPlanデータを生成する。純粋なデータ生成のみ行う
-func newTestMetaPlan(width, height consts.Tile, tiles []oapi.Tile) *mapplanner.MetaPlan {
+func newTestMetaPlan(width, height consts.Tile, tiles []rawschema.Tile) *mapplanner.MetaPlan {
 	return &mapplanner.MetaPlan{
 		Level: gc.Level{
 			TileWidth:  width,
@@ -28,11 +28,11 @@ func TestDetectPropDoorOrientation_VerticalDoor(t *testing.T) {
 	// WWW
 	// WDW
 	// WWW
-	tiles := make([]oapi.Tile, 9)
+	tiles := make([]rawschema.Tile, 9)
 	for i := range tiles {
-		tiles[i] = oapi.Tile{BlockPass: true}
+		tiles[i] = rawschema.Tile{BlockPass: true}
 	}
-	tiles[4] = oapi.Tile{BlockPass: false} // 中央がドア
+	tiles[4] = rawschema.Tile{BlockPass: false} // 中央がドア
 
 	plan := newTestMetaPlan(3, 3, tiles)
 	result := detectPropDoorOrientation(plan, 1, 1)
@@ -46,9 +46,9 @@ func TestDetectPropDoorOrientation_HorizontalDoor(t *testing.T) {
 	// .W.
 	// .D.
 	// .W.
-	tiles := make([]oapi.Tile, 9)
-	tiles[1] = oapi.Tile{BlockPass: true} // 上
-	tiles[7] = oapi.Tile{BlockPass: true} // 下
+	tiles := make([]rawschema.Tile, 9)
+	tiles[1] = rawschema.Tile{BlockPass: true} // 上
+	tiles[7] = rawschema.Tile{BlockPass: true} // 下
 
 	plan := newTestMetaPlan(3, 3, tiles)
 	result := detectPropDoorOrientation(plan, 1, 1)
@@ -58,7 +58,7 @@ func TestDetectPropDoorOrientation_HorizontalDoor(t *testing.T) {
 func TestDetectPropDoorOrientation_EdgePosition(t *testing.T) {
 	t.Parallel()
 
-	tiles := make([]oapi.Tile, 9)
+	tiles := make([]rawschema.Tile, 9)
 	plan := newTestMetaPlan(3, 3, tiles)
 
 	// 端の座標はデフォルト（横向き）

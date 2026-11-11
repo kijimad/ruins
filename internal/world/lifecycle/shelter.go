@@ -4,7 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -83,10 +83,10 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 			}
 		}
 
-		shelter := oapi.Indoor
+		shelter := rawschema.Indoor
 		switch {
 		case touchesEdge && sawUncovered:
-			shelter = oapi.Outdoor
+			shelter = rawschema.Outdoor
 		case touchesEdge:
 			// 範囲より大きい囲いか判定できないので現状維持にする
 			continue

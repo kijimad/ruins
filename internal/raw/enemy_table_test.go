@@ -4,7 +4,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,9 +12,9 @@ import (
 func TestEnemyTable_SelectByWeight_SingleEntry(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name: "テスト",
-		Entries: []oapi.EnemyTableEntry{
+		Entries: []rawschema.EnemyTableEntry{
 			{Id: "スライム", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 		},
 	}
@@ -29,9 +29,9 @@ func TestEnemyTable_SelectByWeight_SingleEntry(t *testing.T) {
 func TestSelectEnemyByWeight_危険度が最小未満はエラー(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name:    "テスト",
-		Entries: []oapi.EnemyTableEntry{{Id: "スライム", Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
+		Entries: []rawschema.EnemyTableEntry{{Id: "スライム", Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
 	}
 	rng := rand.New(rand.NewPCG(1, 2))
 	_, err := SelectEnemyByWeight(enemyTable, rng, MinDanger-1)
@@ -41,9 +41,9 @@ func TestSelectEnemyByWeight_危険度が最小未満はエラー(t *testing.T) 
 func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name: "通常",
-		Entries: []oapi.EnemyTableEntry{
+		Entries: []rawschema.EnemyTableEntry{
 			{Id: "スライム", Weight: 1.2, MinDanger: 1, MaxDanger: 20},
 			{Id: "火の玉", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 			{Id: "軽戦車", Weight: 0.8, MinDanger: 1, MaxDanger: 20},
@@ -84,9 +84,9 @@ func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
 func TestEnemyTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name: "テスト",
-		Entries: []oapi.EnemyTableEntry{
+		Entries: []rawschema.EnemyTableEntry{
 			{Id: "敵1", Weight: 0, MinDanger: 1, MaxDanger: 10},
 			{Id: "敵2", Weight: 0, MinDanger: 1, MaxDanger: 10},
 		},
@@ -102,9 +102,9 @@ func TestEnemyTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 func TestEnemyTable_SelectByWeight_EmptyEntries(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name:    "空",
-		Entries: []oapi.EnemyTableEntry{},
+		Entries: []rawschema.EnemyTableEntry{},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
@@ -117,9 +117,9 @@ func TestEnemyTable_SelectByWeight_EmptyEntries(t *testing.T) {
 func TestEnemyTable_SelectByWeight_Reproducibility(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name: "通常",
-		Entries: []oapi.EnemyTableEntry{
+		Entries: []rawschema.EnemyTableEntry{
 			{Id: "敵A", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 			{Id: "敵B", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 			{Id: "敵C", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
@@ -143,9 +143,9 @@ func TestEnemyTable_SelectByWeight_Reproducibility(t *testing.T) {
 func TestEnemyTable_SelectByWeight_DangerFiltering_MinDanger(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name: "危険度テスト",
-		Entries: []oapi.EnemyTableEntry{
+		Entries: []rawschema.EnemyTableEntry{
 			{Id: "弱い敵", Weight: 1.0, MinDanger: 1, MaxDanger: 5},
 			{Id: "中級の敵", Weight: 1.0, MinDanger: 5, MaxDanger: 10},
 			{Id: "強い敵", Weight: 1.0, MinDanger: 10, MaxDanger: 20},
@@ -197,9 +197,9 @@ func TestEnemyTable_SelectByWeight_DangerFiltering_MinDanger(t *testing.T) {
 func TestEnemyTable_SelectByWeight_DangerFiltering_NoMatch(t *testing.T) {
 	t.Parallel()
 
-	enemyTable := oapi.EnemyTable{
+	enemyTable := rawschema.EnemyTable{
 		Name: "危険度範囲外",
-		Entries: []oapi.EnemyTableEntry{
+		Entries: []rawschema.EnemyTableEntry{
 			{Id: "敵1", Weight: 1.0, MinDanger: 10, MaxDanger: 20},
 			{Id: "敵2", Weight: 1.0, MinDanger: 20, MaxDanger: 30},
 		},

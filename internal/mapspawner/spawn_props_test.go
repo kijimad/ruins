@@ -7,8 +7,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -22,11 +22,11 @@ import (
 // WWW
 // 中央がドアで左右が壁のため、縦向きと判定される
 func newTestDoorPlan(world w.World) *mapplanner.MetaPlan {
-	tiles := make([]oapi.Tile, 9)
+	tiles := make([]rawschema.Tile, 9)
 	for i := range tiles {
-		tiles[i] = oapi.Tile{BlockPass: true}
+		tiles[i] = rawschema.Tile{BlockPass: true}
 	}
-	tiles[4] = oapi.Tile{BlockPass: false}
+	tiles[4] = rawschema.Tile{BlockPass: false}
 
 	return &mapplanner.MetaPlan{
 		Level:     gc.Level{TileWidth: 3, TileHeight: 3},

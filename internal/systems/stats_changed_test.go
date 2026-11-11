@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -180,7 +180,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		equipment := world.ECS.NewEntity()
 		world.Components.Name.Add(equipment, &gc.Name{Name: "素早さの指輪"})
 		world.Components.Wearable.Add(equipment, &gc.Wearable{
-			EquipmentCategory: oapi.EquipmentCategoryJEWELRY,
+			EquipmentCategory: rawschema.EquipmentCategoryJEWELRY,
 			EquipBonus: gc.EquipBonus{
 				Agility: 10, // 素早さ+10
 			},
@@ -247,7 +247,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		equipment := world.ECS.NewEntity()
 		world.Components.Name.Add(equipment, &gc.Name{Name: "体力の鎧"})
 		world.Components.Wearable.Add(equipment, &gc.Wearable{
-			EquipmentCategory: oapi.EquipmentCategoryTORSO,
+			EquipmentCategory: rawschema.EquipmentCategoryTORSO,
 			EquipBonus: gc.EquipBonus{
 				Vitality: 10, // 体力+10
 			},

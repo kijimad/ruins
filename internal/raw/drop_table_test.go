@@ -4,7 +4,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -13,10 +13,10 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 	t.Parallel()
 
 	// 空文字列エントリを含むドロップテーブル
-	dropTable := oapi.DropTable{
+	dropTable := rawschema.DropTable{
 		Name:    "テスト敵",
-		Nothing: new(oapi.EntryWeight(0.5)),
-		Entries: []oapi.DropTableEntry{
+		Nothing: new(rawschema.EntryWeight(0.5)),
+		Entries: []rawschema.DropTableEntry{
 			{Id: "アイテム", Weight: 0.5},
 		},
 	}
@@ -50,9 +50,9 @@ func TestDropTable_SelectByWeight_AllEmptyWeight(t *testing.T) {
 	t.Parallel()
 
 	// 重みが全て0のドロップテーブル
-	dropTable := oapi.DropTable{
+	dropTable := rawschema.DropTable{
 		Name: "テスト敵",
-		Entries: []oapi.DropTableEntry{
+		Entries: []rawschema.DropTableEntry{
 			{Id: "アイテム1", Weight: 0},
 			{Id: "アイテム2", Weight: 0},
 		},
@@ -70,9 +70,9 @@ func TestDropTable_SelectByWeight_SingleEntry(t *testing.T) {
 	t.Parallel()
 
 	// エントリが1つだけのドロップテーブル
-	dropTable := oapi.DropTable{
+	dropTable := rawschema.DropTable{
 		Name: "テスト敵",
-		Entries: []oapi.DropTableEntry{
+		Entries: []rawschema.DropTableEntry{
 			{Id: "確定アイテム", Weight: 1.0},
 		},
 	}
@@ -87,10 +87,10 @@ func TestDropTable_SelectByWeight_SingleEntry(t *testing.T) {
 func TestDropTable_SelectByWeight_Nothingだけなら何も落とさない(t *testing.T) {
 	t.Parallel()
 
-	dropTable := oapi.DropTable{
+	dropTable := rawschema.DropTable{
 		Name:    "テスト敵",
-		Nothing: new(oapi.EntryWeight(1.0)),
-		Entries: []oapi.DropTableEntry{},
+		Nothing: new(rawschema.EntryWeight(1.0)),
+		Entries: []rawschema.DropTableEntry{},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
@@ -104,10 +104,10 @@ func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	t.Parallel()
 
 	// 複数エントリのドロップテーブル
-	dropTable := oapi.DropTable{
+	dropTable := rawschema.DropTable{
 		Name:    "テスト敵",
-		Nothing: new(oapi.EntryWeight(0.5)),
-		Entries: []oapi.DropTableEntry{
+		Nothing: new(rawschema.EntryWeight(0.5)),
+		Entries: []rawschema.DropTableEntry{
 			{Id: "レアアイテム", Weight: 0.1},
 			{Id: "コモンアイテム", Weight: 0.4},
 		},

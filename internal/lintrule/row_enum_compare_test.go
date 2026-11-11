@@ -25,7 +25,7 @@ func TestNoRowEnumCompare(t *testing.T) {
 	root := moduleRoot(t)
 	fset := token.NewFileSet()
 
-	models, err := parser.ParseFile(fset, filepath.Join(root, "internal", "oapi", "models.gen.go"), nil, 0)
+	models, err := parser.ParseFile(fset, filepath.Join(root, "internal", "rawschema", "models_gen.go"), nil, 0)
 	require.NoError(t, err)
 	consts := rowEnumConsts(models)
 	// 生成物の形が変わって集められなくなると検査が黙って空振りするので、既知の値で確かめる
@@ -36,7 +36,7 @@ func TestNoRowEnumCompare(t *testing.T) {
 		if walkErr != nil {
 			return walkErr
 		}
-		if d.IsDir() && path == filepath.Join(root, "internal", "oapi") {
+		if d.IsDir() && path == filepath.Join(root, "internal", "rawschema") {
 			return filepath.SkipDir
 		}
 		if d.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "_gen.go") {
@@ -63,7 +63,7 @@ func TestNoRowEnumCompare(t *testing.T) {
 
 func TestRowEnumConsts(t *testing.T) {
 	t.Parallel()
-	src := `package oapi
+	src := `package rawschema
 type Stage string
 const (
 	Fresh  Stage = "fresh"
@@ -101,13 +101,13 @@ func TestRowEnumCompares(t *testing.T) {
 		body string
 		want int
 	}{
-		{"== で比べると違反", `_ = s == oapi.Rotten`, 1},
-		{"!= で比べると違反", `_ = s != oapi.Fresh`, 1},
-		{"左に置いても違反", `_ = oapi.Rotten == s`, 1},
-		{"case に並べると違反", "switch s {\ncase oapi.Fresh, oapi.Rotten:\n}", 2},
-		{"行を持たない enum は適合", `_ = k == oapi.Furniture`, 0},
-		{"代入は適合", `s = oapi.Rotten`, 0},
-		{"map のキーは適合", `_ = map[oapi.Stage]int{oapi.Fresh: 1}`, 0},
+		{"== で比べると違反", `_ = s == rawschema.Rotten`, 1},
+		{"!= で比べると違反", `_ = s != rawschema.Fresh`, 1},
+		{"左に置いても違反", `_ = rawschema.Rotten == s`, 1},
+		{"case に並べると違反", "switch s {\ncase rawschema.Fresh, rawschema.Rotten:\n}", 2},
+		{"行を持たない enum は適合", `_ = k == rawschema.Furniture`, 0},
+		{"代入は適合", `s = rawschema.Rotten`, 0},
+		{"map のキーは適合", `_ = map[rawschema.Stage]int{rawschema.Fresh: 1}`, 0},
 		{"行の欄で引くのは適合", `_ = defs[s].Marker`, 0},
 	}
 	for _, tt := range tests {
@@ -121,7 +121,7 @@ func TestRowEnumCompares(t *testing.T) {
 	}
 }
 
-// rowEnumConsts は生成された oapi のモデルから、構造体の Id の欄の型になっている enum の定数名を集める。
+// rowEnumConsts は生成された rawschema のモデルから、構造体の Id の欄の型になっている enum の定数名を集める。
 // Id の欄を持つ構造体は raw の行なので、その型の値には必ず行がある。
 func rowEnumConsts(f *ast.File) map[string]bool {
 	rowTypes := map[string]bool{}
@@ -182,7 +182,7 @@ func rowEnumConsts(f *ast.File) map[string]bool {
 	return consts
 }
 
-// rowEnumCompares は consts に含まれる oapi の定数を == か != の片側、または case に置いた位置を返す
+// rowEnumCompares は consts に含まれる rawschema の定数を == か != の片側、または case に置いた位置を返す
 func rowEnumCompares(f *ast.File, consts map[string]bool) []token.Pos {
 	isRowConst := func(e ast.Expr) bool {
 		sel, ok := e.(*ast.SelectorExpr)
@@ -190,7 +190,7 @@ func rowEnumCompares(f *ast.File, consts map[string]bool) []token.Pos {
 			return false
 		}
 		pkg, ok := sel.X.(*ast.Ident)
-		return ok && pkg.Name == "oapi" && consts[sel.Sel.Name]
+		return ok && pkg.Name == "rawschema" && consts[sel.Sel.Name]
 	}
 	var found []token.Pos
 	ast.Inspect(f, func(n ast.Node) bool {

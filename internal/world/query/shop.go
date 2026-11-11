@@ -2,7 +2,7 @@ package query
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -28,7 +28,7 @@ func CalculateSellPrice(baseValue int) consts.Currency {
 func BuyPrice(world w.World, player ecs.Entity, entity ecs.Entity) consts.Currency {
 	base := GetItemValue(world, entity) * GetEntityCount(world, entity)
 	price := CalculateBuyPrice(base)
-	return consts.Currency(ProficiencyValue(world, player, oapi.ProficiencyIdBuyPrice).ApplyInt(int(price)))
+	return consts.Currency(ProficiencyValue(world, player, rawschema.ProficiencyIdBuyPrice).ApplyInt(int(price)))
 }
 
 // SellPrice はプレイヤーが entity を売るときの、交渉スキルの売値倍率込みの売却価格を返す。
@@ -37,7 +37,7 @@ func BuyPrice(world w.World, player ecs.Entity, entity ecs.Entity) consts.Curren
 func SellPrice(world w.World, player ecs.Entity, entity ecs.Entity) consts.Currency {
 	base := GetItemValue(world, entity) * GetEntityCount(world, entity)
 	price := CalculateSellPrice(base)
-	return consts.Currency(ProficiencyValue(world, player, oapi.ProficiencyIdSellPrice).ApplyInt(int(price)))
+	return consts.Currency(ProficiencyValue(world, player, rawschema.ProficiencyIdSellPrice).ApplyInt(int(price)))
 }
 
 // GetItemValue はアイテムの基本価値を取得する

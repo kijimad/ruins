@@ -5,8 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +25,7 @@ func TestSpawnCube_追従中で燃料満タンの随伴者として生成され�
 	require.True(t, world.Components.FuelTank.Has(cube))
 	assert.Equal(t, gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}, *world.Components.FuelTank.Get(cube), "基準容量で満タン")
 	require.True(t, world.Components.SoloAI.Has(cube), "NPC AI で動く")
-	assert.Equal(t, oapi.Follow, world.Components.SoloAI.Get(cube).Movement, "生成直後から追従する")
+	assert.Equal(t, rawschema.Follow, world.Components.SoloAI.Get(cube).Movement, "生成直後から追従する")
 	require.True(t, world.Components.TurnBased.Has(cube), "AP ループで行動する")
 	assert.Equal(t, gc.IntPool{Current: 100, Max: 100}, world.Components.TurnBased.Get(cube).AP, "能力値を持たないので基準 AP")
 	require.True(t, world.Components.HP.Has(cube), "prop 標準の耐久度を持つ")

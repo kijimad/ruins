@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +28,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
 		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
@@ -97,7 +97,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
 		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
@@ -136,7 +136,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]oapi.Tile, int(width)*int(height)),
+		Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
 		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),

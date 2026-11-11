@@ -2,7 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // ProficiencySourceKind は内訳1件の由来の種別
@@ -22,20 +22,20 @@ const (
 // 表示側が現在言語へ訳して整形する。Kind に応じて Skill / Ability / BodyFunc のどれかが有効
 type ProficiencySource struct {
 	Kind     ProficiencySourceKind
-	Skill    oapi.SkillId        // Kind が skill のときのスキル
-	Ability  oapi.AbilityId      // Kind が ability のときの能力値
-	BodyFunc BodyFuncKind        // Kind が body function のときの身体機能
-	Fatigue  oapi.FatigueStageId // Kind が fatigue のときの疲労段階
-	Hunger   oapi.HungerStageId  // Kind が hunger のときの空腹段階
-	Amount   int                 // 要因の量。スキルLv・能力値・身体機能%
-	Value    int                 // この要因による変化量。例: +10, -15
+	Skill    rawschema.SkillId        // Kind が skill のときのスキル
+	Ability  rawschema.AbilityId      // Kind が ability のときの能力値
+	BodyFunc BodyFuncKind             // Kind が body function のときの身体機能
+	Fatigue  rawschema.FatigueStageId // Kind が fatigue のときの疲労段階
+	Hunger   rawschema.HungerStageId  // Kind が hunger のときの空腹段階
+	Amount   int                      // 要因の量。スキルLv・能力値・身体機能%
+	Value    int                      // この要因による変化量。例: +10, -15
 }
 
 // forEachProficiencySource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。
 // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない。
 // skills / abils は不在なら nil でよく、その由来のソースは飛ばす。bodyFuncs は実効身体機能で、
 // 疲労・空腹の低下を畳んだものを呼び出し側が渡す
-func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key oapi.ProficiencyId, fn func(ProficiencySource)) {
+func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key rawschema.ProficiencyId, fn func(ProficiencySource)) {
 	spec, ok := d.Proficiencies[key]
 	if !ok {
 		return
@@ -74,7 +74,7 @@ func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bo
 
 // ProficiencyValue は key の効果倍率を導出する。内訳の加法差分を積むだけで
 // アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する
-func (d SkillDefs) ProficiencyValue(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key oapi.ProficiencyId) consts.Percent {
+func (d SkillDefs) ProficiencyValue(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key rawschema.ProficiencyId) consts.Percent {
 	total := int(consts.PercentBase)
 	d.forEachProficiencySource(skills, abils, bodyFuncs, key, func(s ProficiencySource) {
 		total += s.Value
@@ -84,7 +84,7 @@ func (d SkillDefs) ProficiencyValue(skills *Skills, abils *Abilities, bodyFuncs 
 
 // ProficiencySources は key の内訳を返す。詳細モーダルの表示側だけが読む。
 // 未定義キーは空を返す
-func (d SkillDefs) ProficiencySources(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key oapi.ProficiencyId) []ProficiencySource {
+func (d SkillDefs) ProficiencySources(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key rawschema.ProficiencyId) []ProficiencySource {
 	var srcs []ProficiencySource
 	d.forEachProficiencySource(skills, abils, bodyFuncs, key, func(s ProficiencySource) {
 		srcs = append(srcs, s)

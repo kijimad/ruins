@@ -5,12 +5,12 @@ import (
 
 	"github.com/kijimaD/ruins/internal/i18n"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // HungerStage は空腹の段階1つの定義。raw の hungerStages の1行から組み立てる
 type HungerStage struct {
-	Level        oapi.HungerStageId
+	Level        rawschema.HungerStageId
 	Name         i18n.Msgid  // 表示名
 	From         float64     // 満腹度の割合がこれ以上の段階のうち From が最大のものになる
 	Condition    Severity    // この段階で立つ栄養失調の重症度。SeverityNone なら立たない
@@ -21,7 +21,7 @@ type HungerStage struct {
 
 // FatigueStage は疲労の段階1つの定義。raw の fatigueStages の1行から組み立てる
 type FatigueStage struct {
-	Level     oapi.FatigueStageId
+	Level     rawschema.FatigueStageId
 	Name      i18n.Msgid  // 表示名
 	From      float64     // 疲労の割合がこれ以上の段階のうち From が最大のものになる
 	Condition Severity    // この段階で立つ過労の重症度。SeverityNone なら立たない
@@ -53,7 +53,7 @@ func stageAt[S any](stages []S, from func(S) float64, ratio float64) (S, bool) {
 func (d NeedDefs) hungerStage(ratio float64) HungerStage {
 	s, ok := stageAt(d.Hunger, func(s HungerStage) float64 { return s.From }, ratio)
 	if !ok {
-		return HungerStage{Level: oapi.HungerStageIdSatiated}
+		return HungerStage{Level: rawschema.HungerStageIdSatiated}
 	}
 	return s
 }
@@ -62,13 +62,13 @@ func (d NeedDefs) hungerStage(ratio float64) HungerStage {
 func (d NeedDefs) fatigueStage(ratio float64) FatigueStage {
 	s, ok := stageAt(d.Fatigue, func(s FatigueStage) float64 { return s.From }, ratio)
 	if !ok {
-		return FatigueStage{Level: oapi.FatigueStageIdRested}
+		return FatigueStage{Level: rawschema.FatigueStageIdRested}
 	}
 	return s
 }
 
 // HungerSeverity は空腹段階を栄養失調の不調の重症度へ写す。ok=false なら不調は立たない
-func (d NeedDefs) HungerSeverity(level oapi.HungerStageId) (Severity, bool) {
+func (d NeedDefs) HungerSeverity(level rawschema.HungerStageId) (Severity, bool) {
 	for _, s := range d.Hunger {
 		if s.Level == level {
 			return s.Condition, s.Condition != SeverityNone
@@ -78,7 +78,7 @@ func (d NeedDefs) HungerSeverity(level oapi.HungerStageId) (Severity, bool) {
 }
 
 // HungerFrom は空腹の段階が始まる満腹度の割合を返す。未登録なら 0
-func (d NeedDefs) HungerFrom(level oapi.HungerStageId) float64 {
+func (d NeedDefs) HungerFrom(level rawschema.HungerStageId) float64 {
 	for _, s := range d.Hunger {
 		if s.Level == level {
 			return s.From
@@ -88,7 +88,7 @@ func (d NeedDefs) HungerFrom(level oapi.HungerStageId) float64 {
 }
 
 // FatigueFrom は疲労の段階が始まる疲労の割合を返す。未登録なら 0
-func (d NeedDefs) FatigueFrom(level oapi.FatigueStageId) float64 {
+func (d NeedDefs) FatigueFrom(level rawschema.FatigueStageId) float64 {
 	for _, s := range d.Fatigue {
 		if s.Level == level {
 			return s.From
@@ -98,7 +98,7 @@ func (d NeedDefs) FatigueFrom(level oapi.FatigueStageId) float64 {
 }
 
 // HungerName は空腹の段階の表示名 msgid を返す。未登録なら id をそのまま返す
-func (d NeedDefs) HungerName(level oapi.HungerStageId) i18n.Msgid {
+func (d NeedDefs) HungerName(level rawschema.HungerStageId) i18n.Msgid {
 	for _, s := range d.Hunger {
 		if s.Level == level {
 			return s.Name
@@ -108,7 +108,7 @@ func (d NeedDefs) HungerName(level oapi.HungerStageId) i18n.Msgid {
 }
 
 // FatigueName は疲労の段階の表示名 msgid を返す。未登録なら id をそのまま返す
-func (d NeedDefs) FatigueName(level oapi.FatigueStageId) i18n.Msgid {
+func (d NeedDefs) FatigueName(level rawschema.FatigueStageId) i18n.Msgid {
 	for _, s := range d.Fatigue {
 		if s.Level == level {
 			return s.Name
@@ -118,7 +118,7 @@ func (d NeedDefs) FatigueName(level oapi.FatigueStageId) i18n.Msgid {
 }
 
 // HungerStageOf は空腹の段階の定義を返す。未登録なら ok=false
-func (d NeedDefs) HungerStageOf(level oapi.HungerStageId) (HungerStage, bool) {
+func (d NeedDefs) HungerStageOf(level rawschema.HungerStageId) (HungerStage, bool) {
 	for _, s := range d.Hunger {
 		if s.Level == level {
 			return s, true
@@ -128,7 +128,7 @@ func (d NeedDefs) HungerStageOf(level oapi.HungerStageId) (HungerStage, bool) {
 }
 
 // FatigueStageOf は疲労の段階の定義を返す。未登録なら ok=false
-func (d NeedDefs) FatigueStageOf(level oapi.FatigueStageId) (FatigueStage, bool) {
+func (d NeedDefs) FatigueStageOf(level rawschema.FatigueStageId) (FatigueStage, bool) {
 	for _, s := range d.Fatigue {
 		if s.Level == level {
 			return s, true
@@ -144,7 +144,7 @@ func (d NeedDefs) FreshnessAt(stages int) FreshnessDef {
 }
 
 // FreshnessOf は鮮度の段階の定義を返す。未登録ならゼロ値
-func (d NeedDefs) FreshnessOf(level oapi.FreshnessStageId) FreshnessDef {
+func (d NeedDefs) FreshnessOf(level rawschema.FreshnessStageId) FreshnessDef {
 	for _, s := range d.Freshness {
 		if s.Level == level {
 			return s

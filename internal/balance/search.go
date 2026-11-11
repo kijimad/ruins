@@ -4,12 +4,12 @@ import (
 	"maps"
 	"math"
 
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // ruinsDay20PowerRatio は現行 master の廃墟 day20 の戦力比を返す。探索と感度の目的関数。
-func ruinsDay20PowerRatio(master oapi.Raws) float64 {
+func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
 		return 0
@@ -27,7 +27,7 @@ func ruinsDay20PowerRatio(master oapi.Raws) float64 {
 
 // withScaledMeleeDamage は itemID の近接ダメージを factor 倍した状態で fn を呼び、後で元へ戻す。master の item は
 // backing array を共有するので値を退避・復元する。並行変更は競合するので、使うなら master を呼び出しごとに独立させる。
-func withScaledMeleeDamage(master oapi.Raws, itemID string, factor float64, fn func()) {
+func withScaledMeleeDamage(master rawschema.Raws, itemID string, factor float64, fn func()) {
 	items := raw.PtrSlice(master.Items)
 	for i := range items {
 		if items[i].Id == itemID && items[i].Melee != nil {
@@ -63,7 +63,7 @@ func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) 
 
 // withScaledMeleeDamages は複数アイテムの近接ダメージを同時に factor 倍して fn を呼び、後で全て戻す。単変数版の
 // 多変数化で、並行変更が競合する点も同じ。
-func withScaledMeleeDamages(master oapi.Raws, factors map[string]float64, fn func()) {
+func withScaledMeleeDamages(master rawschema.Raws, factors map[string]float64, fn func()) {
 	items := raw.PtrSlice(master.Items)
 	type saved struct {
 		idx  int
@@ -95,7 +95,7 @@ type ParetoPoint struct {
 
 // combatDeviations は現行 master の廃墟カーブで、代表日ごとの目標戦力比からの逸脱の絶対値を返す。
 // すべての代表日で導出できたときだけ ok を true にする。
-func combatDeviations(master oapi.Raws, repDays []int) ([]float64, bool) {
+func combatDeviations(master rawschema.Raws, repDays []int) ([]float64, bool) {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
 		return nil, false
@@ -159,7 +159,7 @@ func dominates(a, b []float64) bool {
 // ParetoFront は knobs×levels の格子で武器ダメージ倍率を動かし、代表日 repDays の目標逸脱の非劣な点集合を返す。
 // 複数日のトレードオフは逸脱ベクトルの非劣集合で初めて意味を持つ。withScaledMeleeDamages が master を書き換えるので
 // この格子ループは並行化しない。並行なら格子点ごとに独立した master をロードすること。
-func ParetoFront(master oapi.Raws, knobs []string, levels []float64, repDays []int) []ParetoPoint {
+func ParetoFront(master rawschema.Raws, knobs []string, levels []float64, repDays []int) []ParetoPoint {
 	combos := gridFactors(knobs, levels)
 	points := make([]ParetoPoint, 0, len(combos))
 	for _, factors := range combos {

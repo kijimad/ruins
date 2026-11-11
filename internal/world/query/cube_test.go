@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -80,7 +80,7 @@ func TestActiveCube(t *testing.T) {
 
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(cube).Movement = oapi.Stationary
+	world.Components.SoloAI.Get(cube).Movement = rawschema.Stationary
 	got, ok := query.ActiveCube(world)
 	require.True(t, ok, "待機中でも同じステージにいれば返す")
 	assert.Equal(t, cube, got)
@@ -88,7 +88,7 @@ func TestActiveCube(t *testing.T) {
 
 // addCubeStorageItem はキューブ収納に材質と重量を持つアイテムを1つ足す。
 // 生エンティティで足りる query 層のユニットテスト用。
-func addCubeStorageItem(t *testing.T, world w.World, cube ecs.Entity, kind oapi.Material, mg consts.Milligram) {
+func addCubeStorageItem(t *testing.T, world w.World, cube ecs.Entity, kind rawschema.Material, mg consts.Milligram) {
 	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.Material.Add(e, &gc.Material{Kind: kind})
@@ -102,7 +102,7 @@ func TestCubeFuelTotal_燃料ポイントを返し収納の可燃物は数えな
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
 	world.Components.FuelTank.Get(cube).Current = 1200
-	addCubeStorageItem(t, world, cube, oapi.COAL, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, rawschema.COAL, consts.Milligram(2*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Heat(1200), query.CubeFuelTotal(world, cube))
 }
@@ -121,8 +121,8 @@ func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	cube := world.ECS.NewEntity()
 
 	// 材質は重量に無関係。addCubeStorageItem は Weight と収納所属を付ける
-	addCubeStorageItem(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
-	addCubeStorageItem(t, world, cube, oapi.STONE, consts.Milligram(3*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, rawschema.STONE, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, rawschema.STONE, consts.Milligram(3*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, cube))
 }
@@ -313,8 +313,8 @@ func TestCubeWeight_別の収納の物は数えない(t *testing.T) {
 	cube := world.ECS.NewEntity()
 	other := world.ECS.NewEntity()
 
-	addCubeStorageItem(t, world, cube, oapi.STONE, consts.Milligram(2*consts.MilligramPerKg))
-	addCubeStorageItem(t, world, other, oapi.STONE, consts.Milligram(9*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, rawschema.STONE, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, other, rawschema.STONE, consts.Milligram(9*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, cube), "別の収納の物は除外する")
 }

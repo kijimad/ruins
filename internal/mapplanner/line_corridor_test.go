@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,9 +17,9 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		t.Parallel()
 
 		const width, height = 20, 20
-		tiles := make([]oapi.Tile, width*height)
+		tiles := make([]rawschema.Tile, width*height)
 		for i := range tiles {
-			tiles[i] = oapi.Tile{Id: "wall", Name: "wall", BlockPass: true}
+			tiles[i] = rawschema.Tile{Id: "wall", Name: "wall", BlockPass: true}
 		}
 
 		// 2つの部屋を縦に配置する。廊下が上下に接続される
@@ -31,7 +31,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		for _, room := range rooms {
 			for x := int(room.Min.X); x <= int(room.Max.X); x++ {
 				for y := int(room.Min.Y); y <= int(room.Max.Y); y++ {
-					tiles[y*width+x] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+					tiles[y*width+x] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
 				}
 			}
 		}

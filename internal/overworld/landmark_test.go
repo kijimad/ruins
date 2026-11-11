@@ -5,8 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -17,10 +16,8 @@ import (
 func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 
-	keys, err := raw.SchemaEnum("DrawerKey")
-	require.NoError(t, err)
-	for _, key := range keys {
-		_, ok := drawers[oapi.DrawerKey(key)]
+	for _, key := range rawschema.DrawerKeyValues() {
+		_, ok := drawers[key]
 		assert.Truef(t, ok, "drawer key %q に Go 実装がある", key)
 	}
 }

@@ -7,7 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -151,8 +151,8 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 }
 
 // TileEnvironmentAt は指定座標のタイル環境を返す。囲われの緩和度と、水・植生の加算℃
-func TileEnvironmentAt(world w.World, x, y consts.Tile) (oapi.Shelter, int) {
-	shelter := oapi.Outdoor
+func TileEnvironmentAt(world w.World, x, y consts.Tile) (rawschema.Shelter, int) {
+	shelter := rawschema.Outdoor
 	var modifier int
 	tileTempQuery := ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()
 	for tileTempQuery.Next() {

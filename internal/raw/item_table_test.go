@@ -4,32 +4,32 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// テスト用のoapi.Rawsを作成する。アイテムグループとアイテムコレクションとアイテムテーブルを含む
-func newTestRawsForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) oapi.Raws {
-	return oapi.Raws{
+// テスト用のrawschema.Rawsを作成する。アイテムグループとアイテムコレクションとアイテムテーブルを含む
+func newTestRawsForItemTable(groups []rawschema.ItemGroup, table rawschema.ItemTable) rawschema.Raws {
+	return rawschema.Raws{
 		ItemGroups:      &groups,
 		ItemCollections: &testCollections,
-		ItemTables:      &[]oapi.ItemTable{table},
+		ItemTables:      &[]rawschema.ItemTable{table},
 	}
 }
 
-var testGroups = []oapi.ItemGroup{
+var testGroups = []rawschema.ItemGroup{
 	{
 		Id:   "回復",
 		Name: "回復",
-		Entries: []oapi.ItemGroupEntry{
+		Entries: []rawschema.ItemGroupEntry{
 			{Id: "回復薬", Weight: 1.0, Pack: "1d1"},
 		},
 	},
 	{
 		Id:   "武器",
 		Name: "武器",
-		Entries: []oapi.ItemGroupEntry{
+		Entries: []rawschema.ItemGroupEntry{
 			{Id: "毒消し", Weight: 0.8, Pack: "1d1"},
 			{Id: "手榴弾", Weight: 0.5, Pack: "1d1"},
 		},
@@ -37,18 +37,18 @@ var testGroups = []oapi.ItemGroup{
 	{
 		Id:   "素材",
 		Name: "素材",
-		Entries: []oapi.ItemGroupEntry{
+		Entries: []rawschema.ItemGroupEntry{
 			{Id: "アイテム1", Weight: 1.0, Pack: "1d1"},
 			{Id: "アイテム2", Weight: 1.0, Pack: "1d1"},
 		},
 	},
 }
 
-var testCollections = []oapi.ItemCollection{
+var testCollections = []rawschema.ItemCollection{
 	{
 		Id:   "がらくた",
 		Name: "がらくた",
-		Entries: []oapi.ItemCollectionEntry{
+		Entries: []rawschema.ItemCollectionEntry{
 			{Id: "鉄くず", Chance: 100, Pack: "3d1"},
 			{Id: "歯車", Chance: 100, Pack: "1d1"},
 			{Id: "骨", Chance: 0.001, Pack: "1d1"},
@@ -56,10 +56,10 @@ var testCollections = []oapi.ItemCollection{
 	},
 }
 
-func singleTable(groupID string) oapi.ItemTable {
-	return oapi.ItemTable{
+func singleTable(groupID string) rawschema.ItemTable {
+	return rawschema.ItemTable{
 		Name:    "テスト",
-		Entries: []oapi.ItemTableEntry{{Id: groupID, Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
+		Entries: []rawschema.ItemTableEntry{{Id: groupID, Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
 	}
 }
 
@@ -97,9 +97,9 @@ func TestDrawFromItemTable_危険度が最小未満はエラー(t *testing.T) {
 func TestDrawFromItemTable_複数のグループから引く(t *testing.T) {
 	t.Parallel()
 
-	table := oapi.ItemTable{
+	table := rawschema.ItemTable{
 		Name: "通常",
-		Entries: []oapi.ItemTableEntry{
+		Entries: []rawschema.ItemTableEntry{
 			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 			{Id: "武器", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 		},
@@ -123,19 +123,19 @@ func TestDrawFromItemTable_選べるグループが無ければ何も出ない(t
 
 	tests := []struct {
 		name    string
-		entries []oapi.ItemTableEntry
+		entries []rawschema.ItemTableEntry
 	}{
-		{"重みが全て0", []oapi.ItemTableEntry{
+		{"重みが全て0", []rawschema.ItemTableEntry{
 			{Id: "回復", Weight: 0, MinDanger: 1, MaxDanger: 10},
 			{Id: "武器", Weight: 0, MinDanger: 1, MaxDanger: 10},
 		}},
-		{"エントリが空", []oapi.ItemTableEntry{}},
-		{"危険度の範囲外", []oapi.ItemTableEntry{{Id: "武器", Weight: 1.0, MinDanger: 10, MaxDanger: 20}}},
+		{"エントリが空", []rawschema.ItemTableEntry{}},
+		{"危険度の範囲外", []rawschema.ItemTableEntry{{Id: "武器", Weight: 1.0, MinDanger: 10, MaxDanger: 20}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			table := oapi.ItemTable{Name: "テスト", Entries: tt.entries}
+			table := rawschema.ItemTable{Name: "テスト", Entries: tt.entries}
 			raws := newTestRawsForItemTable(testGroups, table)
 			got, err := DrawFromItemTable(raws, table, rand.New(rand.NewPCG(1, 2)), 5)
 			require.NoError(t, err)
@@ -156,9 +156,9 @@ func TestDrawFromItemTable_グループ未存在はエラー(t *testing.T) {
 func TestDrawFromItemTable_同じシードで同じ結果(t *testing.T) {
 	t.Parallel()
 
-	table := oapi.ItemTable{
+	table := rawschema.ItemTable{
 		Name: "通常",
-		Entries: []oapi.ItemTableEntry{
+		Entries: []rawschema.ItemTableEntry{
 			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 			{Id: "武器", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 			{Id: "素材", Weight: 1.0, MinDanger: 1, MaxDanger: 20},

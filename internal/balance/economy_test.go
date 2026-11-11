@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,7 +12,7 @@ import (
 func TestCheapestFoodCostPerNutrition_食料なしは0(t *testing.T) {
 	t.Parallel()
 	// 食料アイテムが1つも無ければ最安費用は0に落ちる。
-	assert.Equal(t, 0.0, CheapestFoodCostPerNutrition(oapi.Raws{}))
+	assert.Equal(t, 0.0, CheapestFoodCostPerNutrition(rawschema.Raws{}))
 }
 
 func TestExpectedItemsPerFloor_奇数前提で厳密(t *testing.T) {

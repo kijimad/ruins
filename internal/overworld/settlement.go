@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
@@ -36,7 +36,7 @@ func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[con
 // settlementAt は集落の種類を raw の settlements の行から重みの比で選ぶ。純粋に (runSeed, 座標) の
 // 関数で、地図の分類と生成の両方がこれを使うので種類の見た目と実体が一致する。
 // 行は読み込み時に1つ以上あり、重みは1以上であることを検証している。
-func settlementAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) oapi.Settlement {
+func settlementAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) rawschema.Settlement {
 	rows := raw.PtrSlice(raws.Settlements)
 	total := 0
 	for i := range rows {
@@ -56,7 +56,7 @@ func settlementAt(raws oapi.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) 
 // 近傍へ決定的に配置する。住人と prop の座標は重ねない。
 // 集落はステージでなくオーバーワールドの地物なので、専用の State を持たず prop として常在する。
 // 帯への束縛は呼び出し元のチャンク生成が一括で行う。
-func spawnSettlement(world w.World, center consts.Coord[consts.Tile], s oapi.Settlement) error {
+func spawnSettlement(world w.World, center consts.Coord[consts.Tile], s rawschema.Settlement) error {
 	for _, n := range s.Members {
 		pos := consts.Coord[consts.Tile]{X: center.X + consts.Tile(n.Dx), Y: center.Y + consts.Tile(n.Dy)}
 		if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.Name); err != nil {

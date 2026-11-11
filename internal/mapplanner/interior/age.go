@@ -1,6 +1,6 @@
 package interior
 
-import "github.com/kijimaD/ruins/internal/oapi"
+import "github.com/kijimaD/ruins/internal/rawschema"
 
 // Age は生成直後の新品の内装に時間の層を刻む。略奪 → 生活痕 → 廃墟化の3 post-pass を順に適用する。
 // 各 pass は seed 由来で決定的。ruins は廃墟が主題なので、この層が「新品の店」を「打ち捨てられた店」に
@@ -23,7 +23,7 @@ func Age(t profileTable, seed uint64, room Room, placed []Placed, dmg damageLeve
 func applyLooting(seed uint64, placed []Placed, pct int) []Placed {
 	out := make([]Placed, 0, len(placed))
 	for i, p := range placed {
-		if p.Kind == oapi.Loot && dropChance(seed, i, pct) {
+		if p.Kind == rawschema.Loot && dropChance(seed, i, pct) {
 			continue
 		}
 		out = append(out, p)
@@ -37,13 +37,13 @@ func applyWear(seed uint64, room Room, placed []Placed, pct int) []Placed {
 	occupied := occupiedSet(placed)
 	added := make([]Placed, 0)
 	for i, p := range placed {
-		if p.Kind != oapi.Furniture || !dropChance(seed, i, pct) {
+		if p.Kind != rawschema.Furniture || !dropChance(seed, i, pct) {
 			continue
 		}
 		for _, n := range neighbors4(p.Pos) {
 			if room.Rect.containsInterior(n) && !occupied[n] {
 				occupied[n] = true
-				added = append(added, Placed{Kind: oapi.Decor, Ref: "debris", Pos: n})
+				added = append(added, Placed{Kind: rawschema.Decor, Ref: "debris", Pos: n})
 				break
 			}
 		}
@@ -86,7 +86,7 @@ func applyDecay(seed uint64, room Room, placed []Placed, seedThresh float64) []P
 	added := make([]Placed, 0)
 	for _, t := range room.Rect.interiorTiles() {
 		if rubble[t] && !occupied[t] && !isDoorwayAdjacent(room, t) {
-			added = append(added, Placed{Kind: oapi.Decor, Ref: "rubble", Pos: t})
+			added = append(added, Placed{Kind: rawschema.Decor, Ref: "rubble", Pos: t})
 		}
 	}
 	return append(placed, added...)

@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/assets"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // loadTestRaws はテスト用にraw.tomlを読み込む
-func loadTestRaws(t *testing.T) oapi.Raws {
+func loadTestRaws(t *testing.T) rawschema.Raws {
 	t.Helper()
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err, "raw.tomlの読み込みに失敗")
@@ -340,7 +340,7 @@ func TestRawDuplicateNames(t *testing.T) {
 }
 
 // buildSpriteSheetSprites はSpriteSheetからスプライトキー一覧を構築する
-func buildSpriteSheetSprites(t *testing.T, raws oapi.Raws) map[string]map[string]bool {
+func buildSpriteSheetSprites(t *testing.T, raws rawschema.Raws) map[string]map[string]bool {
 	t.Helper()
 	spriteSheetSprites := make(map[string]map[string]bool)
 

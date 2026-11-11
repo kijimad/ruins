@@ -7,7 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -106,14 +106,14 @@ func TestSortEntities_同名は鮮度で決定的に並び削除後も入れ替�
 	fresh := mk(0)
 	mk(40000)
 
-	stages := func() []oapi.FreshnessStageId {
+	stages := func() []rawschema.FreshnessStageId {
 		var all []ecs.Entity
 		q := ecs.NewFilter1[gc.Perishable](world.ECS).Query()
 		for q.Next() {
 			all = append(all, q.Entity())
 		}
 		sorted := SortEntities(world, all)
-		out := make([]oapi.FreshnessStageId, 0, len(sorted))
+		out := make([]rawschema.FreshnessStageId, 0, len(sorted))
 		for _, e := range sorted {
 			s, _ := FreshnessStageOf(world, e)
 			out = append(out, s)
@@ -121,12 +121,12 @@ func TestSortEntities_同名は鮮度で決定的に並び削除後も入れ替�
 		return out
 	}
 
-	assert.Equal(t, []oapi.FreshnessStageId{oapi.Fresh, oapi.Stale, oapi.Rotten}, stages(),
+	assert.Equal(t, []rawschema.FreshnessStageId{rawschema.Fresh, rawschema.Stale, rawschema.Rotten}, stages(),
 		"作成順に依らず新鮮→劣化→腐敗の固定順")
 
 	// 先頭(新鮮)を削除。Ark の swap-remove で格納順が変わる状況を作る
 	world.ECS.RemoveEntity(fresh)
-	assert.Equal(t, []oapi.FreshnessStageId{oapi.Stale, oapi.Rotten}, stages(),
+	assert.Equal(t, []rawschema.FreshnessStageId{rawschema.Stale, rawschema.Rotten}, stages(),
 		"先頭を捨てても残りは入れ替わらない")
 }
 

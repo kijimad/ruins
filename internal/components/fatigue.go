@@ -1,6 +1,6 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/oapi"
+import "github.com/kijimaD/ruins/internal/rawschema"
 
 const (
 	// DefaultMaxFatigue はデフォルトの最大疲労。起床中は毎ターン FatigueGainPerTurn 増える
@@ -14,9 +14,9 @@ const (
 type Fatigue Pool[int]
 
 // GetLevel は現在の疲労段階を返す。段階の境目は defs が持ち、Current/Max の比率で決める
-func (f *Fatigue) GetLevel(defs NeedDefs) oapi.FatigueStageId {
+func (f *Fatigue) GetLevel(defs NeedDefs) rawschema.FatigueStageId {
 	if f.Max <= 0 {
-		return oapi.FatigueStageIdRested
+		return rawschema.FatigueStageIdRested
 	}
 	return defs.fatigueStage(float64(f.Current) / float64(f.Max)).Level
 }

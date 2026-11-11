@@ -6,8 +6,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -16,7 +16,7 @@ import (
 )
 
 // wieldedTool は actor が構えている武器が分解定義 def に合う道具ならそのグレードを返す
-func wieldedTool(world w.World, actor ecs.Entity, def *oapi.Disassembly) (int, bool) {
+func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (int, bool) {
 	if def.ToolCategory == nil || !world.Components.Player.Has(actor) {
 		return 0, false
 	}
@@ -54,7 +54,7 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 }
 
 // salvageRoll は壊したときの抽選を決める。合う道具を構えているか、道具の分類が無い定義なら全枠を出す
-func salvageRoll(world w.World, actor ecs.Entity, def *oapi.Disassembly) (grade int, full, withTool bool) {
+func salvageRoll(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (grade int, full, withTool bool) {
 	grade, withTool = wieldedTool(world, actor, def)
 	return grade, withTool || def.ToolCategory == nil, withTool
 }
@@ -66,7 +66,7 @@ func dropSalvage(world w.World, actor, target ecs.Entity) error {
 		return nil
 	}
 	grade, full, withTool := salvageRoll(world, actor, def)
-	var skillID oapi.SkillId
+	var skillID rawschema.SkillId
 	hasSkill := false
 	if withTool {
 		skillID, hasSkill = world.Resources.SkillDefs.ToolSkills[*def.ToolCategory]
@@ -90,7 +90,7 @@ func dropSalvage(world w.World, actor, target ecs.Entity) error {
 }
 
 // gainSkillExp は道具で prop を壊したときに、その道具の分類のスキルの経験値を与える
-func gainSkillExp(actor ecs.Entity, world w.World, skillID oapi.SkillId) {
+func gainSkillExp(actor ecs.Entity, world w.World, skillID rawschema.SkillId) {
 	if !world.Components.Skills.Has(actor) {
 		return
 	}
@@ -113,7 +113,7 @@ func gainSkillExp(actor ecs.Entity, world w.World, skillID oapi.SkillId) {
 }
 
 // skillValueOf は actor のスキル skillID の値を返す。スキルを持たなければ0
-func skillValueOf(actor ecs.Entity, world w.World, skillID oapi.SkillId) int {
+func skillValueOf(actor ecs.Entity, world w.World, skillID rawschema.SkillId) int {
 	if !world.Components.Skills.Has(actor) {
 		return 0
 	}

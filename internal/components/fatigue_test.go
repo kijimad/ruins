@@ -3,7 +3,7 @@ package components
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,17 +14,17 @@ func TestFatigue_GetLevel(t *testing.T) {
 		name    string
 		current int
 		max     int
-		want    oapi.FatigueStageId
+		want    rawschema.FatigueStageId
 	}{
-		{"快調: 30%未満", 200, 1000, oapi.FatigueStageIdRested},
-		{"快調: 0", 0, 1000, oapi.FatigueStageIdRested},
-		{"普通: 30%以上", 300, 1000, oapi.FatigueStageIdNormal},
-		{"普通: 50%直前", 499, 1000, oapi.FatigueStageIdNormal},
-		{"疲労: 50%以上", 500, 1000, oapi.FatigueStageIdTired},
-		{"疲労: 80%直前", 799, 1000, oapi.FatigueStageIdTired},
-		{"過労: 80%以上", 800, 1000, oapi.FatigueStageIdExhausted},
-		{"過労: 満タン", 1000, 1000, oapi.FatigueStageIdExhausted},
-		{"Maxが0なら快調", 0, 0, oapi.FatigueStageIdRested},
+		{"快調: 30%未満", 200, 1000, rawschema.FatigueStageIdRested},
+		{"快調: 0", 0, 1000, rawschema.FatigueStageIdRested},
+		{"普通: 30%以上", 300, 1000, rawschema.FatigueStageIdNormal},
+		{"普通: 50%直前", 499, 1000, rawschema.FatigueStageIdNormal},
+		{"疲労: 50%以上", 500, 1000, rawschema.FatigueStageIdTired},
+		{"疲労: 80%直前", 799, 1000, rawschema.FatigueStageIdTired},
+		{"過労: 80%以上", 800, 1000, rawschema.FatigueStageIdExhausted},
+		{"過労: 満タン", 1000, 1000, rawschema.FatigueStageIdExhausted},
+		{"Maxが0なら快調", 0, 0, rawschema.FatigueStageIdRested},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -64,5 +64,5 @@ func TestNewFatigue_初期は疲れていない(t *testing.T) {
 	f := NewFatigue()
 	assert.Equal(t, DefaultMaxFatigue, f.Max)
 	assert.Equal(t, 0, f.Current)
-	assert.Equal(t, oapi.FatigueStageIdRested, f.GetLevel(testNeedDefs))
+	assert.Equal(t, rawschema.FatigueStageIdRested, f.GetLevel(testNeedDefs))
 }

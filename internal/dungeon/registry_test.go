@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // loadRaws は実データの raw を読む
-func loadRaws(t *testing.T) oapi.Raws {
+func loadRaws(t *testing.T) rawschema.Raws {
 	t.Helper()
 	raws, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)

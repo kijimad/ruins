@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -22,15 +22,15 @@ func TestParseTargetType(t *testing.T) {
 	t.Run("正常な値を変換する", func(t *testing.T) {
 		t.Parallel()
 		result := parseTargetType("ENEMY", "SINGLE")
-		assert.Equal(t, oapi.TargetGroupENEMY, result.TargetGroup)
-		assert.Equal(t, oapi.SINGLE, result.TargetNum)
+		assert.Equal(t, rawschema.TargetGroupENEMY, result.TargetGroup)
+		assert.Equal(t, rawschema.SINGLE, result.TargetNum)
 	})
 
 	t.Run("ALLYとALLの組み合わせ", func(t *testing.T) {
 		t.Parallel()
 		result := parseTargetType("ALLY", "ALL")
-		assert.Equal(t, oapi.TargetGroupALLY, result.TargetGroup)
-		assert.Equal(t, oapi.ALL, result.TargetNum)
+		assert.Equal(t, rawschema.TargetGroupALLY, result.TargetGroup)
+		assert.Equal(t, rawschema.ALL, result.TargetNum)
 	})
 }
 
@@ -39,7 +39,7 @@ func TestParseMelee(t *testing.T) {
 
 	t.Run("正常な近接攻撃を変換する", func(t *testing.T) {
 		t.Parallel()
-		m := &oapi.Melee{
+		m := &rawschema.Melee{
 			Accuracy:       80,
 			Damage:         25,
 			AttackCount:    2,
@@ -53,10 +53,10 @@ func TestParseMelee(t *testing.T) {
 		assert.Equal(t, 80, result.Accuracy)
 		assert.Equal(t, 25, result.Damage)
 		assert.Equal(t, 2, result.AttackCount)
-		assert.Equal(t, oapi.ElementFIRE, result.Element)
-		assert.Equal(t, oapi.AttackCategorySword, result.AttackCategory)
+		assert.Equal(t, rawschema.ElementFIRE, result.Element)
+		assert.Equal(t, rawschema.AttackCategorySword, result.AttackCategory)
 		assert.Equal(t, 100, result.Cost)
-		assert.Equal(t, oapi.TargetGroupENEMY, result.TargetType.TargetGroup)
+		assert.Equal(t, rawschema.TargetGroupENEMY, result.TargetType.TargetGroup)
 	})
 
 }
@@ -66,7 +66,7 @@ func TestParseFire(t *testing.T) {
 
 	t.Run("正常な射撃攻撃を変換する", func(t *testing.T) {
 		t.Parallel()
-		f := &oapi.Fire{
+		f := &rawschema.Fire{
 			Accuracy:       70,
 			Damage:         30,
 			AttackCount:    1,
@@ -77,21 +77,21 @@ func TestParseFire(t *testing.T) {
 			TargetNum:      "SINGLE",
 			MagazineSize:   10,
 			ReloadEffort:   50,
-			AmmoTag:        new(oapi.AmmoTag("9mm")),
+			AmmoTag:        new(rawschema.AmmoTag("9mm")),
 		}
 		result := parseFire(f)
 		assert.Equal(t, 70, result.Accuracy)
 		assert.Equal(t, 30, result.Damage)
-		assert.Equal(t, oapi.ElementTHUNDER, result.Element)
-		assert.Equal(t, oapi.AttackCategoryRifle, result.AttackCategory)
+		assert.Equal(t, rawschema.ElementTHUNDER, result.Element)
+		assert.Equal(t, rawschema.AttackCategoryRifle, result.AttackCategory)
 		assert.Equal(t, 10, result.MagazineSize)
 		assert.Equal(t, 50, result.ReloadEffort)
-		assert.Equal(t, oapi.AmmoTagN9mm, result.AmmoTag)
+		assert.Equal(t, rawschema.AmmoTagN9mm, result.AmmoTag)
 	})
 
 	t.Run("AmmoTagがnilでも変換できる", func(t *testing.T) {
 		t.Parallel()
-		f := &oapi.Fire{
+		f := &rawschema.Fire{
 			AttackCategory: "handgun",
 			MagazineSize:   6,
 			ReloadEffort:   30,
@@ -107,8 +107,8 @@ func TestNewProvidesHealingFromAPI(t *testing.T) {
 
 	t.Run("PERCENTAGE型は倍率で変換する", func(t *testing.T) {
 		t.Parallel()
-		h := &oapi.ProvidesHealing{
-			ValueType: oapi.PERCENTAGE,
+		h := &rawschema.ProvidesHealing{
+			ValueType: rawschema.PERCENTAGE,
 			Ratio:     0.5,
 		}
 		result := newProvidesHealingFromAPI(h)
@@ -118,7 +118,7 @@ func TestNewProvidesHealingFromAPI(t *testing.T) {
 
 	t.Run("デフォルトは絶対量で変換する", func(t *testing.T) {
 		t.Parallel()
-		h := &oapi.ProvidesHealing{
+		h := &rawschema.ProvidesHealing{
 			Amount: 50,
 		}
 		result := newProvidesHealingFromAPI(h)
@@ -132,9 +132,9 @@ func TestNewBookFromAPI(t *testing.T) {
 
 	t.Run("正常な本を変換する", func(t *testing.T) {
 		t.Parallel()
-		b := &oapi.Book{
+		b := &rawschema.Book{
 			TotalEffort: 100,
-			Skill: &oapi.SkillBook{
+			Skill: &rawschema.SkillBook{
 				TargetSkill:   "sword",
 				MaxLevel:      5,
 				RequiredLevel: 2,
@@ -143,14 +143,14 @@ func TestNewBookFromAPI(t *testing.T) {
 		result, err := newBookFromAPI(b)
 		require.NoError(t, err)
 		assert.Equal(t, 100, result.Effort.Max)
-		assert.Equal(t, oapi.SkillIdSword, result.Skill.TargetSkill)
+		assert.Equal(t, rawschema.SkillIdSword, result.Skill.TargetSkill)
 		assert.Equal(t, 5, result.Skill.MaxLevel)
 		assert.Equal(t, 2, result.Skill.RequiredLevel)
 	})
 
 	t.Run("Skillがnilでエラー", func(t *testing.T) {
 		t.Parallel()
-		b := &oapi.Book{TotalEffort: 100}
+		b := &rawschema.Book{TotalEffort: 100}
 		_, err := newBookFromAPI(b)
 		assert.Error(t, err)
 	})
@@ -167,10 +167,10 @@ func TestToGCLightSource(t *testing.T) {
 
 	t.Run("正常な値を変換する", func(t *testing.T) {
 		t.Parallel()
-		ls := &oapi.LightSource{
+		ls := &rawschema.LightSource{
 			Radius:  5,
 			Enabled: true,
-			Color:   oapi.RGBAColor{R: 255, G: 128, B: 64, A: 200},
+			Color:   rawschema.RGBAColor{R: 255, G: 128, B: 64, A: 200},
 		}
 		result := toGCLightSource(ls)
 		require.NotNil(t, result)
@@ -193,7 +193,7 @@ func TestToGCHeatSource(t *testing.T) {
 
 	t.Run("正常な値を変換する", func(t *testing.T) {
 		t.Parallel()
-		hs := &oapi.HeatSource{Radius: 3, Warmth: 12.5}
+		hs := &rawschema.HeatSource{Radius: 3, Warmth: 12.5}
 		result := toGCHeatSource(hs)
 		require.NotNil(t, result)
 		assert.Equal(t, consts.Tile(3), result.Radius)
@@ -211,7 +211,7 @@ func TestToGCBedding(t *testing.T) {
 
 	t.Run("正常な値を変換する", func(t *testing.T) {
 		t.Parallel()
-		b := &oapi.Bedding{Quality: 120}
+		b := &rawschema.Bedding{Quality: 120}
 		result := toGCBedding(b)
 		require.NotNil(t, result)
 		assert.Equal(t, consts.Percent(120), result.Quality)

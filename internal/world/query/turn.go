@@ -3,7 +3,7 @@ package query
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -122,7 +122,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	// 内訳を作らない単キー導出で読む。
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
-	moveCost := max(int(ProficiencyValue(world, entity, oapi.ProficiencyIdMoveCost)), 10)
+	moveCost := max(int(ProficiencyValue(world, entity, rawschema.ProficiencyIdMoveCost)), 10)
 	speed = speed * 100 / moveCost
 	// 実効身体機能の歩行を掛ける。歩行は脚・足の怪我に加え、全身性の不調・疲労・空腹が
 	// EffectiveBodyFuncs で畳まれているので、ここは歩行を読むだけでよい

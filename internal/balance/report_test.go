@@ -1,10 +1,8 @@
 package balance
 
 import (
-	"encoding/json"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,13 +15,9 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 	report, err := GenerateReport(master, "ash", "bare_hands", 3, 5, 42)
 	require.NoError(t, err)
 
-	assert.Equal(t, "simple", report.Mode)
-
-	require.NotNil(t, report.Player)
 	assert.Equal(t, "ash", report.Player.Name)
 	assert.Equal(t, 80, report.Player.Hp)
 
-	require.NotNil(t, report.Weapon)
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
 	require.Len(t, report.EnemyTables, len(raw.PtrSlice(master.EnemyTables)), "raw.tomlのenemyTables数と一致する")
@@ -31,7 +25,6 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 		assert.Equal(t, 3, run.MaxDepth)
 		assert.Equal(t, 5, run.Trials)
 		assert.NotEmpty(t, run.Depths, "深度1には必ず到達する")
-		assert.Len(t, run.TrialData, 5, "試行回数分のトライアルデータが記録される")
 	}
 
 	assert.NotEmpty(t, report.BattleMetrics, "武器×敵の組み合わせのメトリクスが生成される")
@@ -79,115 +72,51 @@ func TestGenerateBattleMetrics_武器と敵の組み合わせでDPSを算出す�
 	}
 }
 
-func TestGenerateReport_OpenAPIスキーマに適合する(t *testing.T) {
-	t.Parallel()
-	master := loadTestMaster(t)
-
-	report, err := GenerateReport(master, "ash", "bare_hands", 3, 5, 42)
-	require.NoError(t, err)
-
-	// 生成したレポートを tsp 由来の Balance.Report スキーマで検証する。raw の ValidateRaws と同じ手法で、
-	// 生成型と埋め込みスペックの同期ズレや、balance.tsp に足した制約への違反を回帰で捕まえる。
-	spec, err := oapi.GetSpec()
-	require.NoError(t, err)
-	schemaRef, ok := spec.Components.Schemas["Balance.Report"]
-	require.True(t, ok, "Balance.Report コンポーネントがスキーマにある")
-
-	jsonBytes, err := json.Marshal(report)
-	require.NoError(t, err)
-	var jsonData any
-	require.NoError(t, json.Unmarshal(jsonBytes, &jsonData))
-
-	require.NoError(t, schemaRef.Value.VisitJSON(jsonData), "生成した balance レポートが OpenAPI スキーマに適合する")
-}
-
-func TestGenerateReport_スキーマ違反はバリデーションで検出する(t *testing.T) {
-	t.Parallel()
-	master := loadTestMaster(t)
-
-	report, err := GenerateReport(master, "ash", "bare_hands", 3, 5, 42)
-	require.NoError(t, err)
-
-	spec, err := oapi.GetSpec()
-	require.NoError(t, err)
-	schemaRef, ok := spec.Components.Schemas["Balance.Report"]
-	require.True(t, ok)
-	schema := schemaRef.Value
-
-	// 適合するレポートを一度だけ JSON 化し、ケースごとに map へ展開し直して1箇所を壊す。
-	jsonBytes, err := json.Marshal(report)
-	require.NoError(t, err)
-	freshData := func(t *testing.T) map[string]any {
-		t.Helper()
-		var data map[string]any
-		require.NoError(t, json.Unmarshal(jsonBytes, &data))
-		return data
-	}
-
-	tests := []struct {
-		name    string
-		corrupt func(t *testing.T, data map[string]any)
-	}{
-		{
-			name: "Rateの範囲を超えるdeathRate",
-			corrupt: func(t *testing.T, data map[string]any) {
-				t.Helper()
-				tables, ok := data["enemyTables"].([]any)
-				require.True(t, ok)
-				require.NotEmpty(t, tables)
-				first, ok := tables[0].(map[string]any)
-				require.True(t, ok)
-				first["deathRate"] = 1.5 // Rate は 0.0-1.0
-			},
-		},
-		{
-			name: "負のmedianDamage",
-			corrupt: func(t *testing.T, data map[string]any) {
-				t.Helper()
-				tables, ok := data["enemyTables"].([]any)
-				require.True(t, ok)
-				require.NotEmpty(t, tables)
-				first, ok := tables[0].(map[string]any)
-				require.True(t, ok)
-				depths, ok := first["depths"].([]any)
-				require.True(t, ok)
-				require.NotEmpty(t, depths)
-				d0, ok := depths[0].(map[string]any)
-				require.True(t, ok)
-				d0["medianDamage"] = -1 // Damage は minValue 0
-			},
-		},
-		{
-			name: "必須のmodeが欠落",
-			corrupt: func(_ *testing.T, data map[string]any) {
-				delete(data, "mode")
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			data := freshData(t)
-			tt.corrupt(t, data)
-			require.Error(t, schema.VisitJSON(data), "スキーマ違反は VisitJSON で検出される")
-		})
-	}
-}
-
-func TestBalanceReport_nilのweaponはJSONで省略される(t *testing.T) {
+func TestReport_Markdown(t *testing.T) {
 	t.Parallel()
 
-	r := &oapi.BalanceReport{
-		Mode:   "simple",
-		Player: &oapi.BalancePlayerInfo{Name: "ash", Hp: 80},
+	r := &Report{
+		Player: PlayerInfo{Name: "ash", Hp: 80, Strength: 5, Sensation: 4, Dexterity: 3, Agility: 2, Defense: 1},
+		Weapon: WeaponInfo{Name: "bare_hands", Damage: 3, Accuracy: 90},
+		EnemyTables: []EnemyTableRun{{
+			Name: "廃墟", Trials: 10, MaxDepth: 3, MedianDepth: 2, DeathRate: 0.25,
+			Depths: []DepthStat{{Depth: 1, MedianHP: 70, P5HP: 50, P95HP: 80, MedianHPBeforeHeal: 60, MedianKillTurns: 4, MedianWeaponDamage: 3, MedianHunger: 10, MedianDamage: 12, MedianHealing: 5, SuddenDeathRate: 0.1}},
+		}},
+		BattleMetrics: []BattleMetric{{Player: "ash", Weapon: "bare_hands", Enemy: "slime", Dps: 1.5}},
+		RoomLoot:      []FacilityLoot{{Facility: "house", Trials: 20, Rooms: []RoomLoot{{Role: "kitchen", Items: []LootItemStat{{Name: "bread", Prob: 0.5, ExpectedCount: 0.75, Value: 10}}}}}},
 	}
 
-	data, err := json.Marshal(r)
-	require.NoError(t, err)
-	assert.NotContains(t, string(data), `"weapon"`, "Weaponがnilならomitemptyで省略される")
+	assert.Equal(t, `# バランスシミュレーション
 
-	var got oapi.BalanceReport
-	require.NoError(t, json.Unmarshal(data, &got))
-	assert.Equal(t, r, &got)
+プレイヤー ash。HP 80、筋力 5、感覚 4、器用 3、敏捷 2、防御 1。
+
+武器 bare_hands。ダメージ 3、命中 90。
+
+## 敵テーブル
+
+### 廃墟
+
+試行 10、最大深度 3、到達深度の中央値 2、死亡率 25.0%。
+
+| 深度 | HP 中央値 | HP p5 | HP p95 | 回復前 HP 中央値 | 撃破ターン中央値 | 武器ダメージ中央値 | 空腹中央値 | 被ダメージ中央値 | 回復中央値 | 急死率 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 70 | 50 | 80 | 60 | 4 | 3 | 10 | 12 | 5 | 10.0% |
+
+## 武器×敵の戦闘
+
+| 武器 | 敵 | DPS | 遠距離 |
+|---|---|---|---|
+| bare_hands | slime | 1.50 | false |
+
+## 施設の戦利品
+
+### house
+
+試行 20。
+
+| 部屋 | アイテム | 1棟で出る確率 | 1棟あたりの期待個数 | 売買価値 |
+|---|---|---|---|---|
+| kitchen | bread | 50.0% | 0.75 | 10 |
+
+`, r.Markdown())
 }

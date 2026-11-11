@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -144,11 +144,11 @@ MaxWeight = "abc"
 
 func TestNewPropSpec_耐久の有無で殴れるかが決まる(t *testing.T) {
 	t.Parallel()
-	hp := oapi.HitPoints(20)
-	raws := oapi.Raws{
-		Props: &[]oapi.Prop{
-			{Id: "岩", Name: "岩", SpriteRender: oapi.SpriteRender{SpriteSheetName: "field", SpriteKey: "rock"}, Hp: &hp},
-			{Id: "草", Name: "草", SpriteRender: oapi.SpriteRender{SpriteSheetName: "field", SpriteKey: "grass"}},
+	hp := rawschema.HitPoints(20)
+	raws := rawschema.Raws{
+		Props: &[]rawschema.Prop{
+			{Id: "岩", Name: "岩", SpriteRender: rawschema.SpriteRender{SpriteSheetName: "field", SpriteKey: "rock"}, Hp: &hp},
+			{Id: "草", Name: "草", SpriteRender: rawschema.SpriteRender{SpriteSheetName: "field", SpriteKey: "grass"}},
 		},
 	}
 

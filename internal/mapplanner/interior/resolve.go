@@ -4,7 +4,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // Resolve は Content の各 Group を解決し、置くべき Selection の列を決定的に返す。
@@ -23,11 +23,11 @@ func (c Content) Resolve(seed uint64) []Selection {
 // 網羅漏れは default を置かず exhaustive linter に強制させ、到達しない末尾は panic で落とす。
 func resolveGroup(rng *rand.Rand, g Group) []Selection {
 	switch g.Style {
-	case oapi.PickEach:
+	case rawschema.PickEach:
 		return pickEach(rng, g.Items)
-	case oapi.PickOne:
+	case rawschema.PickOne:
 		return pickDistinct(rng, g.Items, 1)
-	case oapi.PickN:
+	case rawschema.PickN:
 		return pickDistinct(rng, g.Items, g.Pick)
 	}
 	panic("unknown GroupStyle: " + string(g.Style))
@@ -87,9 +87,9 @@ func weightOf(it Stuff) float64 {
 }
 
 // placementOf は配置指示の置き方を決める。Stuff の置き方はレシピの明示か interiorRefs の既定で、それも無ければ全域とする。
-func placementOf(p oapi.Placement) oapi.Placement {
+func placementOf(p rawschema.Placement) rawschema.Placement {
 	if p == PlaceDefault {
-		return oapi.FullArea
+		return rawschema.FullArea
 	}
 	return p
 }

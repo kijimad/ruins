@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -25,7 +25,7 @@ func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
-func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {
+func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, bool) {
 	q := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
 	for q.Next() {
 		entity := q.Entity()

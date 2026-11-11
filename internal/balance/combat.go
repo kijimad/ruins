@@ -5,8 +5,8 @@ import (
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/formula"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // CombatantStats は戦闘シミュレーション用のステータス
@@ -88,7 +88,7 @@ func SimulateBattle(player, enemy CombatantStats, playerWeapon, enemyWeapon Weap
 }
 
 // LoadCombatantFromMember はraw.Masterのメンバー定義からCombatantStatsを生成する
-func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, error) {
+func LoadCombatantFromMember(master rawschema.Raws, name string) (CombatantStats, error) {
 	spec, err := raw.NewMemberSpec(master, name)
 	if err != nil {
 		return CombatantStats{}, fmt.Errorf("failed to load member %q: %w", name, err)
@@ -111,7 +111,7 @@ func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, err
 }
 
 // LoadWeaponFromItem はraw.MasterのアイテムからWeaponStatsを生成する
-func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {
+func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error) {
 	spec, err := raw.NewItemSpec(master, name)
 	if err != nil {
 		return WeaponStats{}, fmt.Errorf("failed to load weapon %q: %w", name, err)
@@ -138,7 +138,7 @@ func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {
 
 // LoadEnemyWeapon は敵の CommandTable から最も重みの高い武器を代表に取り WeaponStats を返す。コマンドの重み分布は
 // 反映しない簡略化で、DifficultyCurve の敵プール重みとは別の近似なので二重の簡略化になる点に注意する。
-func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
+func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, error) {
 	member, err := raw.FindMember(master, enemyName)
 	if err != nil {
 		return WeaponStats{}, err
