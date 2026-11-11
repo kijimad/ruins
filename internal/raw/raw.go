@@ -723,6 +723,16 @@ func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
 	return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string { return m.Id }, id)
 }
 
+// GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す
+func GetChunkGlyph(raws oapi.Raws, chunk oapi.GlyphChunk) (oapi.MapGlyph, bool) {
+	for _, g := range PtrSlice(raws.MapGlyphs) {
+		if g.Chunk != nil && *g.Chunk == chunk {
+			return g, true
+		}
+	}
+	return oapi.MapGlyph{}, false
+}
+
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
 func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) {

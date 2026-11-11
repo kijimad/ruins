@@ -3030,6 +3030,12 @@ components:
       type: integer
       minimum: 0
       description: キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
+    GlyphChunk:
+      type: string
+      enum:
+        - wasteland
+        - dungeon_entrance
+      description: 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
     GroundCoverEntry:
       type: object
       required:
@@ -3609,6 +3615,10 @@ components:
         order:
           type: integer
           format: int32
+        chunk:
+          allOf:
+            - $ref: '#/components/schemas/GlyphChunk'
+          description: この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く
       description: 俯瞰地図の記号1種。id は地物・施設の種別 id
     Material:
       type: string

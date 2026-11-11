@@ -710,7 +710,13 @@ func validateMapGlyphReferences(raws oapi.Raws) error {
 			return fmt.Errorf("landmark %q: %w", l.Id, errMapGlyphMissing)
 		}
 	}
-	return nil
+	var chunks []string
+	for _, g := range glyphs {
+		if g.Chunk != nil {
+			chunks = append(chunks, string(*g.Chunk))
+		}
+	}
+	return validateEnumRows("GlyphChunk", chunks)
 }
 
 // validateConditions は不調と部位の行と、それらへの参照を検証する。怪我の抽選の対象が空にならないことも確かめる
