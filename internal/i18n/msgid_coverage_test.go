@@ -1,4 +1,4 @@
-package i18n
+package i18n_test
 
 import (
 	"go/ast"
@@ -160,11 +160,11 @@ func isBindingType(e ast.Expr) bool {
 	return false
 }
 
-// parsePoMsgids は埋め込み ja.po から定義済み msgid の集合を作る。
+// parsePoMsgids は ja.po から定義済み msgid の集合を作る。
 // msgid は複数行に分かれることがあるので、続く "..." 行を連結する。
 func parsePoMsgids(t *testing.T) map[string]bool {
 	t.Helper()
-	data, err := localeFS.ReadFile("locale/ja.po")
+	data, err := os.ReadFile("locale/ja.po")
 	require.NoError(t, err)
 
 	ids := map[string]bool{}
