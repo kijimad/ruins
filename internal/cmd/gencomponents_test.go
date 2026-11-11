@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/fs"
 	"os"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli/v3"
 )
 
 // TestGenerateComponents_Golden は登録表からの生成結果を、ゴールデンである
@@ -54,4 +56,55 @@ func TestGenComponents_書き込み失敗時はエラーを返す(t *testing.T) 
 
 	err := genComponents(io.Discard, outPath)
 	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+// genComponentsApp は out フラグの既定値を defaultOut にした cli.Command を返す。
+// CmdGenComponents の既定値は実リポジトリの components_gen.go を指すため、テストでは
+// 必ず t.TempDir() 配下の値へ差し替えて使う。
+func genComponentsApp(defaultOut string) *cli.Command {
+	return &cli.Command{
+		Name: "gencomponents",
+		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "out", Value: defaultOut},
+		},
+		Action: runGenComponents,
+	}
+}
+
+func TestRunGenComponents_outフラグ未指定なら既定の出力先に生成する(t *testing.T) {
+	t.Parallel()
+
+	outPath := filepath.Join(t.TempDir(), "components_gen.go")
+	var buf bytes.Buffer
+	app := genComponentsApp(outPath)
+	app.Writer = &buf
+
+	err := app.Run(context.Background(), []string{"gencomponents"})
+	require.NoError(t, err)
+	assert.Equal(t, "Generated "+outPath+"\n", buf.String())
+
+	got, err := os.ReadFile(outPath)
+	require.NoError(t, err)
+	want, err := generateComponents()
+	require.NoError(t, err)
+	assert.Equal(t, string(want), string(got))
+}
+
+func TestRunGenComponents_outフラグで出力先を上書きできる(t *testing.T) {
+	t.Parallel()
+
+	unused := filepath.Join(t.TempDir(), "unused.go")
+	overridden := filepath.Join(t.TempDir(), "overridden.go")
+	var buf bytes.Buffer
+	app := genComponentsApp(unused)
+	app.Writer = &buf
+
+	err := app.Run(context.Background(), []string{"gencomponents", "--out", overridden})
+	require.NoError(t, err)
+	assert.Equal(t, "Generated "+overridden+"\n", buf.String())
+
+	_, err = os.ReadFile(overridden)
+	require.NoError(t, err)
+	_, err = os.ReadFile(unused)
+	require.ErrorIs(t, err, fs.ErrNotExist, "--outで指定したパスだけに書き込む")
 }
