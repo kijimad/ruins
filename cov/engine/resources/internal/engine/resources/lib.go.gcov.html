@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:09:40</td>
+            <td class="headerValue">2026-11-11 13:19:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,33 +62,39 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package resources</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;fmt&quot;</span>
-<span id="L4"><span class="lineNum">       4</span>              : </span>
-<span id="L5"><span class="lineNum">       5</span>              : // ResourceProvider は抽象的なリソースプロバイダインターフェース</span>
-<span id="L6"><span class="lineNum">       6</span>              : // 具体的な実装は internal/resources パッケージに移動</span>
-<span id="L7"><span class="lineNum">       7</span>              : type ResourceProvider interface {</span>
-<span id="L8"><span class="lineNum">       8</span>              :         GetScreenDimensions() (width, height int)</span>
-<span id="L9"><span class="lineNum">       9</span>              :         SetScreenDimensions(width, height int)</span>
-<span id="L10"><span class="lineNum">      10</span>              : }</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // ResourceInitializer はリソースの初期化を行うインターフェース</span>
-<span id="L13"><span class="lineNum">      13</span>              : type ResourceInitializer interface {</span>
-<span id="L14"><span class="lineNum">      14</span>              :         InitializeResources() error</span>
-<span id="L15"><span class="lineNum">      15</span>              : }</span>
-<span id="L16"><span class="lineNum">      16</span>              : </span>
-<span id="L17"><span class="lineNum">      17</span>              : // Resources はジェネリクス型を使用した型安全な実装</span>
-<span id="L18"><span class="lineNum">      18</span>              : type Resources[T ResourceInitializer] struct {</span>
-<span id="L19"><span class="lineNum">      19</span>              :         Game T</span>
-<span id="L20"><span class="lineNum">      20</span>              : }</span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // InitResources はジェネリクス型を使用した型安全な実装</span>
-<span id="L23"><span class="lineNum">      23</span>              : func InitResources[T ResourceInitializer](gameResources T) (*Resources[T], error) {</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := gameResources.InitializeResources(); err != nil {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to initialize resources: %w&quot;, err)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;errors&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;fmt&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : )</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : // errInitResources はリソースの初期化に失敗したときに返す</span>
+<span id="L9"><span class="lineNum">       9</span>              : var errInitResources = errors.New(&quot;failed to initialize resources&quot;)</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // ResourceProvider は抽象的なリソースプロバイダインターフェース</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 具体的な実装は internal/resources パッケージに移動</span>
+<span id="L13"><span class="lineNum">      13</span>              : type ResourceProvider interface {</span>
+<span id="L14"><span class="lineNum">      14</span>              :         GetScreenDimensions() (width, height int)</span>
+<span id="L15"><span class="lineNum">      15</span>              :         SetScreenDimensions(width, height int)</span>
+<span id="L16"><span class="lineNum">      16</span>              : }</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : // ResourceInitializer はリソースの初期化を行うインターフェース</span>
+<span id="L19"><span class="lineNum">      19</span>              : type ResourceInitializer interface {</span>
+<span id="L20"><span class="lineNum">      20</span>              :         InitializeResources() error</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // Resources はジェネリクス型を使用した型安全な実装</span>
+<span id="L24"><span class="lineNum">      24</span>              : type Resources[T ResourceInitializer] struct {</span>
+<span id="L25"><span class="lineNum">      25</span>              :         Game T</span>
+<span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return &amp;Resources[T]{Game: gameResources}, nil</span></span>
-<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L28"><span class="lineNum">      28</span>              : // InitResources はジェネリクス型を使用した型安全な実装</span>
+<span id="L29"><span class="lineNum">      29</span>              : func InitResources[T ResourceInitializer](gameResources T) (*Resources[T], error) {</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := gameResources.InitializeResources(); err != nil {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;%w: %w&quot;, errInitResources, err)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return &amp;Resources[T]{Game: gameResources}, nil</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
         </pre>
               </td>
             </tr>

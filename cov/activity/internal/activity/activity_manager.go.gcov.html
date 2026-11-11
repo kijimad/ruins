@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:09:40</td>
+            <td class="headerValue">2026-11-11 13:19:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -412,13 +412,16 @@
 <span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         return total</span></span>
 <span id="L351"><span class="lineNum">     351</span>              : }</span>
 <span id="L352"><span class="lineNum">     352</span>              : </span>
-<span id="L353"><span class="lineNum">     353</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
-<span id="L354"><span class="lineNum">     354</span>              : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :         if !world.Components.TurnBased.Has(entity) {</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;TurnBased component not found: entity=%v&quot;, entity)</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
-<span id="L359"><span class="lineNum">     359</span>              : }</span>
+<span id="L353"><span class="lineNum">     353</span>              : // errNoTurnBased はエンティティがTurnBasedを持たないときに返す</span>
+<span id="L354"><span class="lineNum">     354</span>              : var errNoTurnBased = errors.New(&quot;TurnBased component not found&quot;)</span>
+<span id="L355"><span class="lineNum">     355</span>              : </span>
+<span id="L356"><span class="lineNum">     356</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
+<span id="L357"><span class="lineNum">     357</span>              : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         if !world.Components.TurnBased.Has(entity) {</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;%w: entity=%v&quot;, errNoTurnBased, entity)</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
+<span id="L362"><span class="lineNum">     362</span>              : }</span>
         </pre>
               </td>
             </tr>

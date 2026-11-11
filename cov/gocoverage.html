@@ -291,7 +291,7 @@
 				
 				<option value="file117">github.com/kijimaD/ruins/internal/designdoc/parse.go (97.9%)</option>
 				
-				<option value="file118">github.com/kijimaD/ruins/internal/designdoc/readme.go (100.0%)</option>
+				<option value="file118">github.com/kijimaD/ruins/internal/designdoc/readme.go (97.1%)</option>
 				
 				<option value="file119">github.com/kijimaD/ruins/internal/dungeon/definition.go (100.0%)</option>
 				
@@ -1429,10 +1429,13 @@ func getPassCostAt(world w.World, x, y int) int {
         <span class="cov8" title="1">return total</span>
 }
 
+// errNoTurnBased はエンティティがTurnBasedを持たないときに返す
+var errNoTurnBased = errors.New("TurnBased component not found")
+
 // getEntityMaxAP はエンティティの最大AP値を取得する
 func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
         <span class="cov8" title="1">if !world.Components.TurnBased.Has(entity) </span>{
-                <span class="cov8" title="1">return 0, fmt.Errorf("TurnBased component not found: entity=%v", entity)
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w: entity=%v", errNoTurnBased, entity)
 </span>        }
         <span class="cov8" title="1">return world.Components.TurnBased.Get(entity).AP.Max, nil</span>
 }
@@ -2356,6 +2359,7 @@ var (
 		<pre class="file" id="file6" style="display: none">package activity
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -2365,6 +2369,13 @@ import (
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
+)
+
+var (
+        // errDoorInteractionNoDoor は扉の相互作用の対象がDoorを持たないときに返す
+        errDoorInteractionNoDoor = errors.New("DoorInteraction but no Door component")
+        // errTalkInteractionNoDialog は会話の相互作用の対象がDialogを持たないときに返す
+        errTalkInteractionNoDialog = errors.New("TalkInteraction but no Dialog component")
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
@@ -2435,7 +2446,7 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
         <span class="cov8" title="1">if !world.Components.Door.Has(doorEntity) </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("DoorInteraction but no Door component")
+                <span class="cov8" title="1">return nil, errDoorInteractionNoDoor
 </span>        }
 
         <span class="cov8" title="1">door := world.Components.Door.Get(doorEntity)
@@ -2448,7 +2459,7 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
         <span class="cov8" title="1">if !world.Components.Dialog.Has(npcEntity) </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("TalkInteraction but no Dialog component")
+                <span class="cov8" title="1">return nil, errTalkInteractionNoDialog
 </span>        }
 
         <span class="cov8" title="1">result, err := Execute(NewTalkActivity(npcEntity), actor, world)
@@ -9659,6 +9670,7 @@ func benchMedian(xs []float64) float64 {
 
 import (
         "context"
+        "errors"
         "fmt"
 
         "github.com/kijimaD/ruins/internal/consts"
@@ -9696,11 +9708,14 @@ func NewMainApp() *cli.Command {
         <span class="cov8" title="1">return app
 </span>}
 
+// errCommandExecution はサブコマンドの実行が失敗したときに返す
+var errCommandExecution = errors.New("command execution failed")
+
 // RunMainApp はメインアプリケーションを実行する
 func RunMainApp(app *cli.Command, args ...string) error {
         <span class="cov8" title="1">err := app.Run(context.Background(), args)
         if err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("command execution failed: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errCommandExecution, err)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -15145,6 +15160,7 @@ func (c *Config) String() string {
 
 import (
         "bytes"
+        "errors"
         "fmt"
 
         "github.com/BurntSushi/toml"
@@ -15158,6 +15174,21 @@ import (
 //   - readSettings() ([]byte, bool, error): 保存済みの生データを返す。無ければ ok=false
 //   - writeSettings([]byte) error: 生データを永続化する
 //   - settingsExist() (bool, error): 保存済みデータが存在するか
+
+var (
+        // errConfigDir は設定ディレクトリの解決に失敗したときに返す
+        errConfigDir = errors.New("failed to get config directory")
+        // errReadConfig は設定ファイルの読み込みに失敗したときに返す
+        errReadConfig = errors.New("failed to read config file")
+        // errCheckConfig は設定ファイルの存在確認に失敗したときに返す
+        errCheckConfig = errors.New("failed to check config file existence")
+        // errCreateConfigDir は設定ディレクトリの作成に失敗したときに返す
+        errCreateConfigDir = errors.New("failed to create config directory")
+        // errWriteConfig は設定ファイルの書き込みに失敗したときに返す
+        errWriteConfig = errors.New("failed to write config file")
+        // errReplaceConfig は設定ファイルの置き換えに失敗したときに返す
+        errReplaceConfig = errors.New("failed to replace config file")
+)
 
 // loadUserConfig は永続化された設定を読み込んで c.User を上書きする。
 // 保存された設定が無い場合は何もせず、呼び出し前のデフォルト値を維持する。読み取り専用。
@@ -15237,7 +15268,7 @@ const userConfigFileName = "settings.toml"
 func userConfigPath() (string, error) {
         <span class="cov8" title="1">dir, err := os.UserConfigDir()
         if err != nil </span>{
-                <span class="cov8" title="1">return "", fmt.Errorf("failed to get config directory: %w", err)
+                <span class="cov8" title="1">return "", fmt.Errorf("%w: %w", errConfigDir, err)
 </span>        }
         <span class="cov8" title="1">return filepath.Join(dir, userConfigDirName, userConfigFileName), nil</span>
 }
@@ -15258,7 +15289,7 @@ func readSettingsFrom(path string) ([]byte, bool, error) {
                 <span class="cov8" title="1">return nil, false, nil
 </span>        }
         <span class="cov8" title="1">if err != nil </span>{
-                <span class="cov8" title="1">return nil, false, fmt.Errorf("failed to read config file: %w", err)
+                <span class="cov8" title="1">return nil, false, fmt.Errorf("%w: %w", errReadConfig, err)
 </span>        }
         <span class="cov8" title="1">return data, true, nil</span>
 }
@@ -15276,15 +15307,15 @@ func writeSettings(data []byte) error {
 // 書き込み途中のクラッシュによる破損を防ぐ。パスを引数に取ることでテストできる。
 func writeSettingsTo(path string, data []byte) error {
         <span class="cov8" title="1">if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to create config directory: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errCreateConfigDir, err)
 </span>        }
         <span class="cov8" title="1">tmp := path + ".tmp"
         if err := os.WriteFile(tmp, data, 0o644); err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to write config file: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errWriteConfig, err)
 </span>        }
         <span class="cov8" title="1">if err := os.Rename(tmp, path); err != nil </span>{
                 <span class="cov8" title="1">_ = os.Remove(tmp)
-                return fmt.Errorf("failed to replace config file: %w", err)
+                return fmt.Errorf("%w: %w", errReplaceConfig, err)
 </span>        }
         <span class="cov8" title="1">return nil</span>
 }
@@ -15307,7 +15338,7 @@ func settingsExistAt(path string) (bool, error) {
         <span class="cov8" title="1">if errors.Is(err, os.ErrNotExist) </span>{
                 <span class="cov8" title="1">return false, nil
 </span>        }
-        <span class="cov8" title="1">return false, fmt.Errorf("failed to check config file existence: %w", err)</span>
+        <span class="cov8" title="1">return false, fmt.Errorf("%w: %w", errCheckConfig, err)</span>
 }
 </pre>
 		
@@ -15562,6 +15593,7 @@ func (c Currency) String() string {
 		<pre class="file" id="file107" style="display: none">package consts
 
 import (
+        "errors"
         "fmt"
         "math/rand/v2"
         "strconv"
@@ -15576,6 +15608,25 @@ type Dice struct {
         Bonus int
 }
 
+var (
+        // errDiceEmpty はダイス表記が空のときに返す
+        errDiceEmpty = errors.New("dice is empty")
+        // errDiceNoD はダイス表記に区切りの d が無いときに返す
+        errDiceNoD = errors.New("dice notation requires d; write fixed values like \"1d1\"")
+        // errDiceCountOmitted はダイス表記の個数が省略されているときに返す
+        errDiceCountOmitted = errors.New("dice count cannot be omitted; example \"1d6\"")
+        // errDiceCountInvalid はダイス表記の個数が整数でないときに返す
+        errDiceCountInvalid = errors.New("invalid dice count")
+        // errDiceBonusInvalid はダイス表記の補正値が整数でないときに返す
+        errDiceBonusInvalid = errors.New("invalid dice bonus")
+        // errDiceSidesInvalid はダイス表記の面数が整数でないときに返す
+        errDiceSidesInvalid = errors.New("invalid dice sides")
+        // errDiceCountTooSmall はダイスの個数が1未満のときに返す
+        errDiceCountTooSmall = errors.New("dice count must be at least 1")
+        // errDiceSidesTooSmall はダイスの面数が1未満のときに返す
+        errDiceSidesTooSmall = errors.New("dice sides must be at least 1")
+)
+
 // ParseDice は "1d3+1" "2d4" "1d1" のような表記を Dice へ変換する。
 // d の前が個数、後ろが面数、続く +/- 以降が Bonus になる。個数・面数は必ず書く。
 // 固定値も "1d1" のように書き、数字だけの省略表記は許さない。表記が一意になり読み手が迷わない。
@@ -15583,23 +15634,23 @@ type Dice struct {
 // 動的入力用。固定リテラルには MustParseDice を使う。regexp は使わず strings で足りる。ParseWeight と同じ方針。
 func ParseDice(s string) (Dice, error) {
         <span class="cov8" title="1">if s == "" </span>{
-                <span class="cov8" title="1">return Dice{}, fmt.Errorf("dice is empty")
+                <span class="cov8" title="1">return Dice{}, errDiceEmpty
 </span>        }
 
         // 前後空白も含め厳密に扱う。空白混じりは各数値の Atoi が弾く
         // d は必須。数字だけの定数表記は許さず、固定値も "1d1" と書かせる
         <span class="cov8" title="1">before, after, ok := strings.Cut(s, "d")
         if !ok </span>{
-                <span class="cov8" title="1">return Dice{}, fmt.Errorf("dice notation requires d; write fixed values like \"1d1\": %q", s)
+                <span class="cov8" title="1">return Dice{}, fmt.Errorf("%w: %q", errDiceNoD, s)
 </span>        }
 
         // 個数は省略できない。"d6" でなく "1d6" と明示的に書かせて表記を一意にする。
         <span class="cov8" title="1">if before == "" </span>{
-                <span class="cov8" title="1">return Dice{}, fmt.Errorf("dice count cannot be omitted; example \"1d6\": %q", s)
+                <span class="cov8" title="1">return Dice{}, fmt.Errorf("%w: %q", errDiceCountOmitted, s)
 </span>        }
         <span class="cov8" title="1">base, err := strconv.Atoi(before)
         if err != nil </span>{
-                <span class="cov8" title="1">return Dice{}, fmt.Errorf("invalid dice count: %q", s)
+                <span class="cov8" title="1">return Dice{}, fmt.Errorf("%w: %q", errDiceCountInvalid, s)
 </span>        }
 
         // 面数部と Bonus 部。sides[+/-bonus]
@@ -15610,22 +15661,22 @@ func ParseDice(s string) (Dice, error) {
                 <span class="cov8" title="1">sidesPart = rest[:bi]
                 b, err := strconv.Atoi(rest[bi:])
                 if err != nil </span>{
-                        <span class="cov8" title="1">return Dice{}, fmt.Errorf("invalid dice bonus: %q", s)
+                        <span class="cov8" title="1">return Dice{}, fmt.Errorf("%w: %q", errDiceBonusInvalid, s)
 </span>                }
                 <span class="cov8" title="1">bonus = b</span>
         }
         <span class="cov8" title="1">sides, err := strconv.Atoi(sidesPart)
         if err != nil </span>{
-                <span class="cov8" title="1">return Dice{}, fmt.Errorf("invalid dice sides: %q", s)
+                <span class="cov8" title="1">return Dice{}, fmt.Errorf("%w: %q", errDiceSidesInvalid, s)
 </span>        }
 
         // d を書いたなら個数は1以上を要求する。"0d6" は定数のつもりの誤記とみなして弾く。
         // 定数は "5" のように d を書かずに表す。
         <span class="cov8" title="1">if base &lt; 1 </span>{
-                <span class="cov8" title="1">return Dice{}, fmt.Errorf("dice count must be at least 1: %q", s)
+                <span class="cov8" title="1">return Dice{}, fmt.Errorf("%w: %q", errDiceCountTooSmall, s)
 </span>        }
         <span class="cov8" title="1">if sides &lt; 1 </span>{
-                <span class="cov8" title="1">return Dice{}, fmt.Errorf("dice sides must be at least 1: %q", s)
+                <span class="cov8" title="1">return Dice{}, fmt.Errorf("%w: %q", errDiceSidesTooSmall, s)
 </span>        }
         <span class="cov8" title="1">return Dice{Base: base, Sides: sides, Bonus: bonus}, nil</span>
 }
@@ -15802,6 +15853,7 @@ func (t Turn) String() string {
 		<pre class="file" id="file112" style="display: none">package consts
 
 import (
+        "errors"
         "fmt"
         "math"
         "strconv"
@@ -15847,23 +15899,26 @@ var weightUnits = map[string]Milligram{
         "kg": MilligramPerKg,
 }
 
+// ErrInvalidWeight は重量表記を解釈できないときに返す
+var ErrInvalidWeight = errors.New("invalid weight")
+
 // ParseWeight は "500 g" "2 kg" "1 mg" のような単位付き文字列を Milligram に変換する。
 // 数値と単位は空白で区切る。単位は mg/g/kg のいずれか。負値は許さない
 func ParseWeight(s string) (Milligram, error) {
         <span class="cov8" title="1">fields := strings.Fields(s)
         if len(fields) != 2 </span>{
-                <span class="cov8" title="1">return 0, fmt.Errorf("invalid weight format: %q; example \"500 g\"", s)
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w format: %q; example \"500 g\"", ErrInvalidWeight, s)
 </span>        }
         <span class="cov8" title="1">value, err := strconv.ParseFloat(fields[0], 64)
         if err != nil </span>{
-                <span class="cov8" title="1">return 0, fmt.Errorf("invalid weight number: %q", s)
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w number: %q", ErrInvalidWeight, s)
 </span>        }
         <span class="cov8" title="1">if value &lt; 0 </span>{
-                <span class="cov8" title="1">return 0, fmt.Errorf("weight cannot be negative: %q", s)
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w: cannot be negative: %q", ErrInvalidWeight, s)
 </span>        }
         <span class="cov8" title="1">factor, ok := weightUnits[fields[1]]
         if !ok </span>{
-                <span class="cov8" title="1">return 0, fmt.Errorf("invalid weight unit: %q; must be mg, g, or kg", s)
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w unit: %q; must be mg, g, or kg", ErrInvalidWeight, s)
 </span>        }
         <span class="cov8" title="1">return Milligram(math.Round(value * float64(factor))), nil</span>
 }
@@ -16431,6 +16486,7 @@ func Render(front Frontmatter, body string) (string, error) {
 
 import (
         _ "embed"
+        "errors"
         "fmt"
         "strings"
         "text/template"
@@ -16450,12 +16506,18 @@ var statusDisplayOrder = []Status{
         StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
 }
 
+// errTemplateNotFound は名前付きテンプレートが雛形に無いときに返す
+var errTemplateNotFound = errors.New("template not found")
+
 // renderLabel は名前付きテンプレートを data で実行した文字列を返す。
 // テンプレートは埋め込みでゴールデンテストが担保するため、実行時に失敗し得ない。
 func renderLabel(name string, data any) string {
+        <span class="cov8" title="1">if statusSectionTmpl.Lookup(name) == nil </span>{
+                <span class="cov8" title="1">panic(fmt.Errorf("%w: %q", errTemplateNotFound, name))</span>
+        }
         <span class="cov8" title="1">var b strings.Builder
         if err := statusSectionTmpl.ExecuteTemplate(&amp;b, name, data); err != nil </span>{
-                <span class="cov8" title="1">panic(err)</span>
+                <span class="cov0" title="0">panic(err)</span>
         }
 
         <span class="cov8" title="1">return b.String()</span>
@@ -16790,7 +16852,13 @@ func InitComponents[T ComponentInitializer](world *ecs.World, gameComponents T) 
 		
 		<pre class="file" id="file122" style="display: none">package resources
 
-import "fmt"
+import (
+        "errors"
+        "fmt"
+)
+
+// errInitResources はリソースの初期化に失敗したときに返す
+var errInitResources = errors.New("failed to initialize resources")
 
 // ResourceProvider は抽象的なリソースプロバイダインターフェース
 // 具体的な実装は internal/resources パッケージに移動
@@ -16812,7 +16880,7 @@ type Resources[T ResourceInitializer] struct {
 // InitResources はジェネリクス型を使用した型安全な実装
 func InitResources[T ResourceInitializer](gameResources T) (*Resources[T], error) {
         <span class="cov8" title="1">if err := gameResources.InitializeResources(); err != nil </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("failed to initialize resources: %w", err)
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: %w", errInitResources, err)
 </span>        }
 
         <span class="cov8" title="1">return &amp;Resources[T]{Game: gameResources}, nil</span>
@@ -21251,6 +21319,7 @@ var (
         errFacilityNotRegistered  = errors.New("interior facility not registered")
         errFlavorContentMissing   = errors.New("interior flavor content missing")
         errInteriorProfileMissing = errors.New("interior profile missing")
+        errInvalidAmount          = errors.New("invalid interior content amount")
 )
 
 // flavorContent は全施設共通のフレーバー装飾レシピを返す。施設レシピと直交する専用フィールドから引くので、
@@ -21348,7 +21417,7 @@ func toContent(raws oapi.Raws, ic oapi.InteriorContent) (Content, error) {
                 for _, s := range g.Items </span>{
                         <span class="cov8" title="1">amount, err := consts.ParseDice(s.Amount)
                         if err != nil </span>{
-                                <span class="cov8" title="1">return Content{}, fmt.Errorf("interior content %q ref %q amount: %w", ic.Id, s.Ref, err)
+                                <span class="cov8" title="1">return Content{}, fmt.Errorf("interior content %q ref %q: %w: %w", ic.Id, s.Ref, errInvalidAmount, err)
 </span>                        }
                         <span class="cov8" title="1">placement := deref(s.Placement)
                         if placement == PlaceDefault </span>{
@@ -24786,12 +24855,16 @@ func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plan
 		<pre class="file" id="file188" style="display: none">package mapplanner
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
 )
+
+// errNoPlacementPosition は全セレクタが配置位置を見つけられなかったときに返す
+var errNoPlacementPosition = errors.New("no placement position found")
 
 // positionSelector は配置位置を選択する関数型。
 type positionSelector func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool)
@@ -24804,7 +24877,7 @@ func findPosition(planData *MetaPlan, world w.World, selectors ...positionSelect
                         <span class="cov8" title="1">return x, y, nil
 </span>                }
         }
-        <span class="cov8" title="1">return 0, 0, fmt.Errorf("no placement position found: all %d selectors failed", len(selectors))</span>
+        <span class="cov8" title="1">return 0, 0, fmt.Errorf("%w: all %d selectors failed", errNoPlacementPosition, len(selectors))</span>
 }
 
 // inRoomSelector は指定された部屋内からランダムに配置位置を選択する
@@ -25358,12 +25431,16 @@ func deepCloneCorridors(src [][]gc.TileIdx) [][]gc.TileIdx {
 		<pre class="file" id="file194" style="display: none">package mapplanner
 
 import (
+        "errors"
         "fmt"
 
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/maptemplate"
         "github.com/kijimaD/ruins/internal/oapi"
 )
+
+// errUndefinedCellTerrain はテンプレートのセルに地形が無いときに返す
+var errUndefinedCellTerrain = errors.New("cell terrain is undefined")
 
 // TemplatePlanner はテンプレートベースのマップ生成プランナー。
 // 解決済みセル配列を使って地形・Props・NPCを配置する
@@ -25397,7 +25474,7 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
                 <span class="cov8" title="1">for x, cell := range row </span>{
                         <span class="cov8" title="1">idx := y*width + x
                         if cell.Terrain == "" </span>{
-                                <span class="cov8" title="1">return fmt.Errorf("cell terrain is undefined (position: %d, %d)", x, y)
+                                <span class="cov8" title="1">return fmt.Errorf("%w: position %d, %d", errUndefinedCellTerrain, x, y)
 </span>                        }
                         <span class="cov8" title="1">tile := metaPlan.GetTile(cell.Terrain)
                         metaPlan.Tiles[idx] = tile</span>
@@ -25733,6 +25810,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 		<pre class="file" id="file198" style="display: none">package mapspawner
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -25744,6 +25822,17 @@ import (
 
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/mlange-42/ark/ecs"
+)
+
+var (
+        // errUnsupportedTile は仕様表に無いタイルIDを生成しようとしたときに返す
+        errUnsupportedTile = errors.New("unsupported tile id")
+        // errInvalidItemCount はアイテムの個数が0以下のときに返す
+        errInvalidItemCount = errors.New("invalid item count")
+        // errInvalidLootCount は収納propのルート数の表記が不正なときに返す
+        errInvalidLootCount = errors.New("invalid lootCount notation")
+        // errDrawLoot はルートテーブルからの抽選に失敗したときに返す
+        errDrawLoot = errors.New("failed to draw item")
 )
 
 // Spawn はMetaPlanからレベルを生成する
@@ -25840,7 +25929,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 
         <span class="cov8" title="1">spec, ok := specs[tile.Id]
         if !ok </span>{
-                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("unsupported %s tile id: %s (%d, %d)", category, tile.Id, int(tileX), int(tileY))
+                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("%w: %s %s (%d, %d)", errUnsupportedTile, category, tile.Id, int(tileX), int(tileY))
 </span>        }
 
         // オートタイル添字は tile.Id で計算する。生成スプライト名 spec.spawnName とは別物。
@@ -25857,7 +25946,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
         <span class="cov8" title="1">for _, npc := range metaPlan.NPCs </span>{
                 <span class="cov8" title="1">member, err := raw.FindMember(world.Resources.RawMaster, npc.Name)
                 if err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("NPC '%s' not found", npc.Name)
+                        <span class="cov8" title="1">return fmt.Errorf("NPC %q: %w", npc.Name, err)
 </span>                }
 
                 <span class="cov8" title="1">x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
@@ -25881,7 +25970,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
         <span class="cov8" title="1">for _, item := range metaPlan.Items </span>{
                 <span class="cov8" title="1">tileX, tileY := item.X+offsetX, item.Y+offsetY
                 if item.Count &lt;= 0 </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("invalid item count (%d, %d): count=%d", item.X, item.Y, item.Count)
+                        <span class="cov8" title="1">return fmt.Errorf("%w (%d, %d): count=%d", errInvalidItemCount, item.X, item.Y, item.Count)
 </span>                }
                 <span class="cov8" title="1">_, err := lifecycle.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
                 if err != nil </span>{
@@ -25981,7 +26070,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
         if propRaw.Storage.LootCount != nil </span>{
                 <span class="cov8" title="1">d, err := consts.ParseDice(*propRaw.Storage.LootCount)
                 if err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("invalid lootCount notation for container '%s': %w", propRaw.Name, err)
+                        <span class="cov8" title="1">return fmt.Errorf("%w for container %q: %w", errInvalidLootCount, propRaw.Name, err)
 </span>                }
                 <span class="cov8" title="1">lootDice = d</span>
         }
@@ -25993,7 +26082,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
         <span class="cov8" title="1">for range lootCount </span>{
                 <span class="cov8" title="1">draws, err := raw.DrawFromItemTable(*metaPlan.RawMaster, itemTable, metaPlan.RNG, int(danger))
                 if err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("failed to draw item: %w", err)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: %w", errDrawLoot, err)
 </span>                }
                 <span class="cov8" title="1">for _, d := range draws </span>{
                         <span class="cov8" title="1">if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, storageEntity); err != nil </span>{
@@ -26009,6 +26098,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 		<pre class="file" id="file199" style="display: none">package maptemplate
 
 import (
+        "errors"
         "fmt"
         "io"
         "maps"
@@ -26016,6 +26106,19 @@ import (
 
         "github.com/kijimaD/ruins/assets"
         "github.com/pelletier/go-toml/v2"
+)
+
+var (
+        // errPaletteIDEmpty はパレットIDが空のときに返す
+        errPaletteIDEmpty = errors.New("palette ID is empty")
+        // errPaletteNoDefinition は地形とPropsとNPCsの定義がどれもないときに返す
+        errPaletteNoDefinition = errors.New("terrain, Props, or NPCs definition is required")
+        // errPaletteKeyNotSingleChar はパレットのキーが1文字でないときに返す
+        errPaletteKeyNotSingleChar = errors.New("key must be a single character")
+        // errPaletteTileRequired はPropsやNPCsのtileが未指定のときに返す
+        errPaletteTileRequired = errors.New("tile is required")
+        // errPaletteCharDuplicated は同じ文字が複数の分類で使われているときに返す
+        errPaletteCharDuplicated = errors.New("char is duplicated")
 )
 
 // PaletteEntry はパレットのProp/NPCマッピングの1エントリ
@@ -26080,34 +26183,34 @@ func (l *PaletteLoader) LoadFile(path string) (*Palette, error) {
 // validate はパレット定義の妥当性を検証する
 func (l *PaletteLoader) validate(p *Palette) error {
         <span class="cov8" title="1">if p.ID == "" </span>{
-                <span class="cov8" title="1">return fmt.Errorf("palette ID is empty")
+                <span class="cov8" title="1">return errPaletteIDEmpty
 </span>        }
 
         <span class="cov8" title="1">if len(p.Terrain) == 0 &amp;&amp; len(p.Props) == 0 &amp;&amp; len(p.NPCs) == 0 </span>{
-                <span class="cov8" title="1">return fmt.Errorf("terrain, Props, or NPCs definition is required")
+                <span class="cov8" title="1">return errPaletteNoDefinition
 </span>        }
 
         <span class="cov8" title="1">for char := range p.Terrain </span>{
                 <span class="cov8" title="1">if utf8.RuneCountInString(char) != 1 </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("terrain key must be a single character: %q", char)
+                        <span class="cov8" title="1">return fmt.Errorf("terrain %w: %q", errPaletteKeyNotSingleChar, char)
 </span>                }
         }
 
         <span class="cov8" title="1">for char, entry := range p.Props </span>{
                 <span class="cov8" title="1">if utf8.RuneCountInString(char) != 1 </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("props key must be a single character: %q", char)
+                        <span class="cov8" title="1">return fmt.Errorf("props %w: %q", errPaletteKeyNotSingleChar, char)
 </span>                }
                 <span class="cov8" title="1">if entry.Tile == "" </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("props tile is required: %q", char)
+                        <span class="cov8" title="1">return fmt.Errorf("props %w: %q", errPaletteTileRequired, char)
 </span>                }
         }
 
         <span class="cov8" title="1">for char, entry := range p.NPCs </span>{
                 <span class="cov8" title="1">if utf8.RuneCountInString(char) != 1 </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("npcs key must be a single character: %q", char)
+                        <span class="cov8" title="1">return fmt.Errorf("npcs %w: %q", errPaletteKeyNotSingleChar, char)
 </span>                }
                 <span class="cov8" title="1">if entry.Tile == "" </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("npcs tile is required: %q", char)
+                        <span class="cov8" title="1">return fmt.Errorf("npcs %w: %q", errPaletteTileRequired, char)
 </span>                }
         }
 
@@ -26118,13 +26221,13 @@ func (l *PaletteLoader) validate(p *Palette) error {
 </span>        }
         <span class="cov8" title="1">for char := range p.Props </span>{
                 <span class="cov8" title="1">if category, ok := used[char]; ok </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("char %q is duplicated between %s and props", char, category)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: %q between %s and props", errPaletteCharDuplicated, char, category)
 </span>                }
                 <span class="cov8" title="1">used[char] = "props"</span>
         }
         <span class="cov8" title="1">for char := range p.NPCs </span>{
                 <span class="cov8" title="1">if category, ok := used[char]; ok </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("char %q is duplicated between %s and npcs", char, category)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: %q between %s and npcs", errPaletteCharDuplicated, char, category)
 </span>                }
         }
 
@@ -26188,6 +26291,7 @@ func (p *Palette) GetNPC(char string) (string, bool) {
 		<pre class="file" id="file200" style="display: none">package maptemplate
 
 import (
+        "errors"
         "fmt"
         "io"
         "io/fs"
@@ -26206,6 +26310,53 @@ const placeholderChar = '@'
 
 // placeholderStr はプレースホルダの文字列表現
 const placeholderStr = "@"
+
+var (
+        // errInvalidChunkName はチャンク名が "{幅}x{高さ}_名前" 形式でないときに返す
+        errInvalidChunkName = errors.New("chunk name must be in '{width}x{height}_name' format")
+        // errInvalidWidth はチャンク名の幅が整数でないときに返す
+        errInvalidWidth = errors.New("failed to parse width")
+        // errInvalidHeight はチャンク名の高さが整数でないときに返す
+        errInvalidHeight = errors.New("failed to parse height")
+        // errNonPositiveWeight は重みが正の整数でないときに返す
+        errNonPositiveWeight = errors.New("weight must be a positive integer")
+        // errNonPositiveSize はサイズが正の整数でないときに返す
+        errNonPositiveSize = errors.New("size must be a positive integer")
+        // errMapEmpty はマップが空のときに返す
+        errMapEmpty = errors.New("map is empty")
+        // errMapRowEmpty はマップの行が空のときに返す
+        errMapRowEmpty = errors.New("map row is empty")
+        // errMapRowLengthMismatch はマップの行ごとの長さが揃っていないときに返す
+        errMapRowLengthMismatch = errors.New("map row length mismatch")
+        // errMapSizeMismatch はマップの実サイズが名前で定義したサイズと一致しないときに返す
+        errMapSizeMismatch = errors.New("map size does not match defined size")
+        // errCoordinateOutOfRange は座標がマップの範囲外のときに返す
+        errCoordinateOutOfRange = errors.New("coordinate out of range")
+        // errChunkNotFound は指定名のチャンクが登録されていないときに返す
+        errChunkNotFound = errors.New("chunk not found")
+        // errPaletteNotFound は指定名のパレットが登録されていないときに返す
+        errPaletteNotFound = errors.New("palette not found")
+        // errNoChunkCandidate は選択できるチャンク候補がないときに返す
+        errNoChunkCandidate = errors.New("chunk candidates are empty or total weight is 0")
+        // errExpansionDepthExceeded はチャンク展開の深さが上限を超えたときに返す
+        errExpansionDepthExceeded = errors.New("chunk expansion depth exceeded limit")
+        // errCircularChunkReference はチャンクの循環参照を検出したときに返す
+        errCircularChunkReference = errors.New("detected circular chunk reference")
+        // errPlacementIDMissing はplacementのIDが未指定のときに返す
+        errPlacementIDMissing = errors.New("ID is not specified")
+        // errPlaceholderRemains は展開後のマップにプレースホルダが残っているときに返す
+        errPlaceholderRemains = errors.New("unexpanded placeholder '@' remains in expanded map")
+        // errIdentifierNotSingleChar は識別子が1文字でないときに返す
+        errIdentifierNotSingleChar = errors.New("identifier must be a single character")
+        // errIdentifierNotFound は識別子がマップ中に見つからないときに返す
+        errIdentifierNotFound = errors.New("identifier not found")
+        // errRegionIncomplete はプレースホルダの矩形領域がマップの範囲外にはみ出すときに返す
+        errRegionIncomplete = errors.New("rectangular region is incomplete")
+        // errInvalidPlaceholderChar はプレースホルダ領域に@と識別子以外の文字があるときに返す
+        errInvalidPlaceholderChar = errors.New("invalid char")
+        // errRegionSizeMismatch はプレースホルダ領域とチャンクのサイズが一致しないときに返す
+        errRegionSizeMismatch = errors.New("placeholder region size does not match chunk size")
+)
 
 // MapCell はマップの1セルを表す解決済みオブジェクト。
 // 各チャンクがパレットを独立に解決した結果を保持する
@@ -26385,17 +26536,17 @@ func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error {
         <span class="cov8" title="1">sizePart := parts[0]
         dimensions := strings.Split(sizePart, "x")
         if len(dimensions) != 2 </span>{
-                <span class="cov8" title="1">return fmt.Errorf("chunk name must be in '{width}x{height}_name' format: %s", t.Name)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %s", errInvalidChunkName, t.Name)
 </span>        }
 
         <span class="cov8" title="1">width, err := strconv.Atoi(dimensions[0])
         if err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to parse width: %s", dimensions[0])
+                <span class="cov8" title="1">return fmt.Errorf("%w: %s", errInvalidWidth, dimensions[0])
 </span>        }
 
         <span class="cov8" title="1">height, err := strconv.Atoi(dimensions[1])
         if err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to parse height: %s", dimensions[1])
+                <span class="cov8" title="1">return fmt.Errorf("%w: %s", errInvalidHeight, dimensions[1])
 </span>        }
 
         <span class="cov8" title="1">t.Size = Size{W: width, H: height}
@@ -26409,11 +26560,11 @@ func (l *TemplateLoader) validate(t *ChunkTemplate) error {
 </span>        }
 
         <span class="cov8" title="1">if t.Weight &lt;= 0 </span>{
-                <span class="cov8" title="1">return fmt.Errorf("weight must be a positive integer: %d", t.Weight)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %d", errNonPositiveWeight, t.Weight)
 </span>        }
 
         <span class="cov8" title="1">if t.Size.W &lt;= 0 || t.Size.H &lt;= 0 </span>{
-                <span class="cov8" title="1">return fmt.Errorf("size must be a positive integer: %s", t.Size)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %s", errNonPositiveSize, t.Size)
 </span>        }
 
         <span class="cov8" title="1">return l.validateMap(t)</span>
@@ -26422,30 +26573,30 @@ func (l *TemplateLoader) validate(t *ChunkTemplate) error {
 // validateMap はマップの妥当性を検証する
 func (l *TemplateLoader) validateMap(t *ChunkTemplate) error {
         <span class="cov8" title="1">if t.Map == "" </span>{
-                <span class="cov8" title="1">return fmt.Errorf("map is empty")
+                <span class="cov8" title="1">return errMapEmpty
 </span>        }
 
         <span class="cov8" title="1">lines := strings.Split(strings.TrimSpace(t.Map), "\n")
         if len(lines) == 0 </span>{
-                <span class="cov0" title="0">return fmt.Errorf("map is empty")
+                <span class="cov0" title="0">return errMapEmpty
 </span>        }
 
         <span class="cov8" title="1">expectedWidth := utf8.RuneCountInString(lines[0])
         if expectedWidth == 0 </span>{
-                <span class="cov8" title="1">return fmt.Errorf("map row is empty")
+                <span class="cov8" title="1">return errMapRowEmpty
 </span>        }
 
         <span class="cov8" title="1">for i, line := range lines </span>{
                 <span class="cov8" title="1">lineWidth := utf8.RuneCountInString(line)
                 if lineWidth != expectedWidth </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("map row %d length mismatch: expected %d, got %d", i, expectedWidth, lineWidth)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: row %d expected %d, got %d", errMapRowLengthMismatch, i, expectedWidth, lineWidth)
 </span>                }
         }
 
         <span class="cov8" title="1">actualWidth := expectedWidth
         actualHeight := len(lines)
         if actualWidth != t.Size.W || actualHeight != t.Size.H </span>{
-                <span class="cov8" title="1">return fmt.Errorf("map actual size [%d, %d] does not match defined size %s", actualWidth, actualHeight, t.Size)
+                <span class="cov8" title="1">return fmt.Errorf("%w: actual size [%d, %d], defined size %s", errMapSizeMismatch, actualWidth, actualHeight, t.Size)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -26460,10 +26611,10 @@ func (t *ChunkTemplate) GetMapLines() []string {
 func (t *ChunkTemplate) GetCharAt(x, y int) (string, error) {
         <span class="cov8" title="1">lines := t.GetMapLines()
         if y &lt; 0 || y &gt;= len(lines) </span>{
-                <span class="cov8" title="1">return "", fmt.Errorf("y coordinate out of range: %d", y)
+                <span class="cov8" title="1">return "", fmt.Errorf("y %w: %d", errCoordinateOutOfRange, y)
 </span>        }
         <span class="cov8" title="1">if x &lt; 0 || x &gt;= len(lines[y]) </span>{
-                <span class="cov8" title="1">return "", fmt.Errorf("x coordinate out of range: %d", x)
+                <span class="cov8" title="1">return "", fmt.Errorf("x %w: %d", errCoordinateOutOfRange, x)
 </span>        }
         <span class="cov8" title="1">return string(lines[y][x]), nil</span>
 }
@@ -26488,7 +26639,7 @@ func (l *TemplateLoader) LoadChunk(path string) error {
 func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
         <span class="cov8" title="1">chunks, ok := l.chunkCache[chunkName]
         if !ok || len(chunks) == 0 </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("chunk '%s' not found", chunkName)
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: '%s'", errChunkNotFound, chunkName)
 </span>        }
         <span class="cov8" title="1">return chunks, nil</span>
 }
@@ -26576,7 +26727,7 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
         for _, paletteName := range templateCopy.Palettes </span>{
                 <span class="cov8" title="1">palette, ok := l.paletteCache[paletteName]
                 if !ok </span>{
-                        <span class="cov8" title="1">return nil, nil, nil, fmt.Errorf("palette '%s' not found; register it in advance with RegisterAllPalettes", paletteName)
+                        <span class="cov8" title="1">return nil, nil, nil, fmt.Errorf("%w: '%s'; register it in advance with RegisterAllPalettes", errPaletteNotFound, paletteName)
 </span>                }
                 <span class="cov8" title="1">palettes = append(palettes, palette)</span>
         }
@@ -26596,7 +26747,7 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 // 各チャンク名に複数のバリエーションがある場合、すべてを候補に含める
 func (l *TemplateLoader) selectChunkByWeight(chunkNames []string, rng *rand.Rand) (*ChunkTemplate, error) {
         <span class="cov8" title="1">if len(chunkNames) == 0 </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("chunk candidates are empty")
+                <span class="cov8" title="1">return nil, errNoChunkCandidate
 </span>        }
 
         <span class="cov8" title="1">candidates := make([]*ChunkTemplate, 0)
@@ -26634,7 +26785,7 @@ func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette {
 func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate, rng *rand.Rand) (*ChunkTemplate, error) {
         <span class="cov8" title="1">i, ok := consts.Pick(rng, candidates, func(c *ChunkTemplate) float64 </span>{ <span class="cov8" title="1">return float64(c.Weight) }</span>)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("chunk candidates are empty or total weight is 0")
+                <span class="cov8" title="1">return nil, errNoChunkCandidate
 </span>        }
         <span class="cov8" title="1">return candidates[i], nil</span>
 }
@@ -26652,11 +26803,11 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
         <span class="cov8" title="1">const maxDepth = 10
 </span>
         <span class="cov8" title="1">if depth &gt; maxDepth </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("chunk expansion depth exceeded limit %d", maxDepth)
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: %d", errExpansionDepthExceeded, maxDepth)
 </span>        }
 
         <span class="cov8" title="1">if visiting[t.Name] </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("detected circular chunk reference: %s", t.Name)
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: %s", errCircularChunkReference, t.Name)
 </span>        }
 
         // このチャンクのパレットで文字をセルに解決する
@@ -26678,7 +26829,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 </span>
         <span class="cov8" title="1">for idx, placement := range t.Placements </span>{
                 <span class="cov8" title="1">if placement.ID == "" </span>{
-                        <span class="cov8" title="1">return nil, fmt.Errorf("placement %d: ID is not specified", idx)
+                        <span class="cov8" title="1">return nil, fmt.Errorf("placement %d: %w", idx, errPlacementIDMissing)
 </span>                }
 
                 <span class="cov8" title="1">regions, err := findAllPlaceholderRegionsByID(lines, placement.ID)
@@ -26716,8 +26867,8 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
                         // サイズの完全一致を検証
                         <span class="cov8" title="1">if region.width != selectedChunk.Size.W || region.height != selectedChunk.Size.H </span>{
                                 <span class="cov8" title="1">return nil, fmt.Errorf(
-                                        "parent chunk '%s': placement %d (ID='%s', child chunk='%s'): placeholder region [%d,%d] at position [%d,%d] does not match chunk size %s",
-                                        t.Name, idx, placement.ID, selectedChunk.Name, region.width, region.height, region.x, region.y, selectedChunk.Size,
+                                        "parent chunk '%s': placement %d (ID='%s', child chunk='%s'): %w: region [%d,%d] at position [%d,%d], chunk size %s",
+                                        t.Name, idx, placement.ID, selectedChunk.Name, errRegionSizeMismatch, region.width, region.height, region.x, region.y, selectedChunk.Size,
                                 )
 </span>                        }
 
@@ -26747,7 +26898,7 @@ func validateNoPlaceholdersRemaining(cells [][]MapCell) error {
         <span class="cov8" title="1">for y, row := range cells </span>{
                 <span class="cov8" title="1">for x, cell := range row </span>{
                         <span class="cov8" title="1">if cell.Terrain == placeholderStr </span>{
-                                <span class="cov8" title="1">return fmt.Errorf("unexpanded placeholder '@' remains in expanded map at x=%d, y=%d", x, y)
+                                <span class="cov8" title="1">return fmt.Errorf("%w at x=%d, y=%d", errPlaceholderRemains, x, y)
 </span>                        }
                 }
         }
@@ -26763,14 +26914,14 @@ type placeholderRegion struct {
 // 同じIDが複数箇所にある場合、それぞれ独立した領域として返す
 func findAllPlaceholderRegionsByID(lines []string, id string) ([]placeholderRegion, error) {
         <span class="cov8" title="1">if len(id) != 1 </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("identifier must be a single character: %q", id)
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: %q", errIdentifierNotSingleChar, id)
 </span>        }
 
         <span class="cov8" title="1">idChar := rune(id[0])
 </span>
         <span class="cov8" title="1">positions := findAllIdentifierPositions(lines, idChar)
         if len(positions) == 0 </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("identifier '%s' not found", id)
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: '%s'", errIdentifierNotFound, id)
 </span>        }
 
         <span class="cov8" title="1">var regions []placeholderRegion
@@ -26877,18 +27028,18 @@ func validateRectangle(lines []string, id string, startX, startY, width, height 
         <span class="cov8" title="1">for dy := range height </span>{
                 <span class="cov8" title="1">y := startY + dy
                 if y &gt;= len(lines) </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("identifier '%s': rectangular region is incomplete; y=%d out of range", id, y)
+                        <span class="cov8" title="1">return fmt.Errorf("identifier '%s': %w; y=%d out of range", id, errRegionIncomplete, y)
 </span>                }
                 <span class="cov8" title="1">for dx := range width </span>{
                         <span class="cov8" title="1">x := startX + dx
                         if x &gt;= len(lines[y]) </span>{
-                                <span class="cov8" title="1">return fmt.Errorf("identifier '%s': rectangular region is incomplete; x=%d, y=%d out of range", id, x, y)
+                                <span class="cov8" title="1">return fmt.Errorf("identifier '%s': %w; x=%d, y=%d out of range", id, errRegionIncomplete, x, y)
 </span>                        }
                         <span class="cov8" title="1">ch := rune(lines[y][x])
                         if ch != placeholder &amp;&amp; ch != idChar </span>{
                                 <span class="cov8" title="1">return fmt.Errorf(
-                                        "identifier '%s': invalid char '%c' in placeholder region [%d,%d]; expected '@' or '%s'",
-                                        id, x, y, ch, id,
+                                        "identifier '%s': %w '%c' in placeholder region [%d,%d]; expected '@' or '%s'",
+                                        id, errInvalidPlaceholderChar, ch, x, y, id,
                                 )
 </span>                        }
                 }
@@ -26908,7 +27059,7 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
                         <span class="cov0" title="0">return fmt.Errorf("placement %d: %w", idx, err)
 </span>                }
                 <span class="cov8" title="1">if len(chunks) == 0 </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("placement %d: chunk '%s' not found", idx, placement.Chunks[0])
+                        <span class="cov0" title="0">return fmt.Errorf("placement %d: %w: '%s'", idx, errChunkNotFound, placement.Chunks[0])
 </span>                }
 
                 <span class="cov8" title="1">expectedWidth := chunks[0].Size.W
@@ -26916,7 +27067,7 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 </span>
                 // 識別子から位置を検出して検証
                 <span class="cov8" title="1">if placement.ID == "" </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("placement %d (%s): ID is not specified", idx, placement.Chunks[0])
+                        <span class="cov0" title="0">return fmt.Errorf("placement %d (%s): %w", idx, placement.Chunks[0], errPlacementIDMissing)
 </span>                }
 
                 <span class="cov8" title="1">regions, err := findAllPlaceholderRegionsByID(lines, placement.ID)
@@ -26928,8 +27079,8 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
                 <span class="cov8" title="1">for regionIdx, region := range regions </span>{
                         <span class="cov8" title="1">if region.width != expectedWidth || region.height != expectedHeight </span>{
                                 <span class="cov8" title="1">return fmt.Errorf(
-                                        "parent chunk '%s': placement %d (ID='%s', region %d, child chunk='%s'): placeholder region size mismatch: region [%d,%d] at position [%d,%d], chunk size %s",
-                                        t.Name, idx, placement.ID, regionIdx, placement.Chunks[0], region.width, region.height, region.x, region.y, chunks[0].Size,
+                                        "parent chunk '%s': placement %d (ID='%s', region %d, child chunk='%s'): %w: region [%d,%d] at position [%d,%d], chunk size %s",
+                                        t.Name, idx, placement.ID, regionIdx, placement.Chunks[0], errRegionSizeMismatch, region.width, region.height, region.x, region.y, chunks[0].Size,
                                 )
 </span>                        }
                 }
@@ -30262,16 +30413,27 @@ func LoadFromFile(path string) (oapi.Raws, error) {
         <span class="cov8" title="1">return raws, nil</span>
 }
 
+var (
+        // errTOMLDecode はTOMLの構文が壊れていてデコードできないときに返す
+        errTOMLDecode = errors.New("TOML decode error")
+        // errUnknownTOMLKeys はTOMLにスキーマにないキーが含まれるときに返す
+        errUnknownTOMLKeys = errors.New("unknown keys found in TOML")
+        // errBookSkillMissing は本にスキルが指定されていないときに返す
+        errBookSkillMissing = errors.New("book requires a Skill")
+        // errBlockPassWithPassCost は通行不可の prop に移動コストが指定されているときに返す
+        errBlockPassWithPassCost = errors.New("blockPass and passCost cannot both be set; passCost is unnecessary when impassable")
+)
+
 // DecodeRaws はTOML文字列をoapi.Raws構造体にデコードする
 // 未知のキーが含まれる場合はエラーを返す
 func DecodeRaws(content string) (oapi.Raws, error) {
         <span class="cov8" title="1">var raws oapi.Raws
         metaData, err := toml.Decode(content, &amp;raws)
         if err != nil </span>{
-                <span class="cov8" title="1">return oapi.Raws{}, fmt.Errorf("TOML decode error: %w", err)
+                <span class="cov8" title="1">return oapi.Raws{}, fmt.Errorf("%w: %w", errTOMLDecode, err)
 </span>        }
         <span class="cov8" title="1">if undecoded := metaData.Undecoded(); len(undecoded) &gt; 0 </span>{
-                <span class="cov8" title="1">return oapi.Raws{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
+                <span class="cov8" title="1">return oapi.Raws{}, fmt.Errorf("%w: %v", errUnknownTOMLKeys, undecoded)
 </span>        }
         <span class="cov8" title="1">return raws, nil</span>
 }
@@ -30427,7 +30589,7 @@ func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {
 // newBookFromAPI はoapi.Bookからgc.Bookを生成する
 func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
         <span class="cov8" title="1">if b.Skill == nil </span>{
-                <span class="cov8" title="1">return nil, fmt.Errorf("book requires a Skill")
+                <span class="cov8" title="1">return nil, errBookSkillMissing
 </span>        }
 
         <span class="cov8" title="1">skillID := b.Skill.TargetSkill
@@ -30995,7 +31157,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">entitySpec.SpriteRender = &amp;spriteRender
 </span>
         <span class="cov8" title="1">if propRaw.BlockPass &amp;&amp; propRaw.PassCost != nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("prop '%s': blockPass and passCost cannot both be set; passCost is unnecessary when impassable", name)
+                <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("prop '%s': %w", name, errBlockPassWithPassCost)
 </span>        }
         <span class="cov8" title="1">if propRaw.BlockPass </span>{
                 <span class="cov8" title="1">entitySpec.BlockPass = &amp;gc.BlockPass{}
@@ -31418,6 +31580,9 @@ var (
         errTableMissing                   = errors.New("table required by code is missing")
 )
 
+// errSchemaValidation は raw が OpenAPI スキーマの検証に通らないときに返す
+var errSchemaValidation = errors.New("validation error")
+
 // loadSpec は埋め込みの OpenAPI スキーマを1度だけパースして共有する。
 var loadSpec = sync.OnceValues(oapi.GetSpec)
 
@@ -31448,7 +31613,7 @@ func ValidateRaws(raws oapi.Raws) error {
 </span>        }
 
         <span class="cov8" title="1">if err := schema.VisitJSON(jsonData); err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("validation error: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errSchemaValidation, err)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -32615,6 +32780,7 @@ func (p Projector) BillboardScale(c consts.Coord[consts.Tile]) (float64, bool) {
 		<pre class="file" id="file229" style="display: none">package render3d
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -32624,6 +32790,9 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
+// ErrNoPlayerCamera はプレイヤーのカメラが無いときに返す
+var ErrNoPlayerCamera = errors.New("player camera not found")
+
 // WorldProjector は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側に取らせない。
 //
 // ダンジョン描画はプレイヤーの存在を前提とする。カメラやプレイヤーが無ければ投影は組めないので、
@@ -32632,7 +32801,7 @@ func WorldProjector(world w.World) (Projector, error) {
         <span class="cov8" title="1">sw, sh := world.Resources.GetScreenDimensions()
         camera := query.GetPlayerCamera(world)
         if camera == nil </span>{
-                <span class="cov8" title="1">return Projector{}, fmt.Errorf("player camera not found")
+                <span class="cov8" title="1">return Projector{}, ErrNoPlayerCamera
 </span>        }
         <span class="cov8" title="1">tile, err := PlayerTile(world)
         if err != nil </span>{
@@ -32949,6 +33118,7 @@ func InitGameResources() *Resources {
 		<pre class="file" id="file234" style="display: none">package resources
 
 import (
+        "errors"
         "fmt"
         "image"
 
@@ -32957,6 +33127,9 @@ import (
 
         "github.com/kijimaD/ruins/internal/components"
 )
+
+// errNilSpriteRender は SpriteRender が nil のときに返す
+var errNilSpriteRender = errors.New("sprite render is nil")
 
 // SpriteStore は SpriteRender が指すスプライトの画像を解決してキャッシュする。
 // 等倍の部分画像と、表示サイズへ縮めた画像の両方を同じ置き場に持ち、スプライトから画像を得る道を1つにする。
@@ -33040,7 +33213,7 @@ func (s *SpriteStore) Rect(sr *components.SpriteRender) (components.Texture, ima
 // 矩形はテクスチャ範囲へクランプするので、範囲外を指す指定でも安全に切り出せる
 func spriteRect(sheets map[string]components.SpriteSheet, sr *components.SpriteRender) (components.SpriteSheet, image.Rectangle, error) {
         <span class="cov8" title="1">if sr == nil </span>{
-                <span class="cov8" title="1">return components.SpriteSheet{}, image.Rectangle{}, fmt.Errorf("sprite render is nil")
+                <span class="cov8" title="1">return components.SpriteSheet{}, image.Rectangle{}, errNilSpriteRender
 </span>        }
         <span class="cov8" title="1">sheet, ok := sheets[sr.SpriteSheetName]
         if !ok </span>{
@@ -33248,6 +33421,7 @@ func gunzipBytes(data []byte) ([]byte, error) {
 package save
 
 import (
+        "errors"
         "fmt"
         "os"
         "path/filepath"
@@ -33257,10 +33431,13 @@ import (
 // saveFileExt はセーブファイルの拡張子。中身は gzip 圧縮した JSON なので、gunzip や zcat でそのまま解凍できる。
 const saveFileExt = ".json.gz"
 
+// errCreateSaveDir はセーブディレクトリの作成に失敗したときに返す
+var errCreateSaveDir = errors.New("failed to create save directory")
+
 // initImpl はデスクトップ環境での初期化処理
 func (sm *SerializationManager) initImpl() error {
         <span class="cov8" title="1">if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to create save directory: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errCreateSaveDir, err)
 </span>        }
         <span class="cov8" title="1">return nil</span>
 }
@@ -33328,6 +33505,7 @@ func (sm *SerializationManager) deleteSaveImpl(slotName string) error {
 
 import (
         "encoding/json"
+        "errors"
         "fmt"
         "slices"
         "strings"
@@ -33346,6 +33524,23 @@ const maxAutoSaves = 4
 const autoSavePrefix = "auto_"
 
 const defaultSaveDir = "./saves"
+
+var (
+        // errChecksumMissing はセーブデータにチェックサムが無いときに返す
+        errChecksumMissing = errors.New("checksum field is missing: this save data is tampered or from an old version")
+        // errChecksumMismatch はセーブデータのチェックサムが内容と一致しないときに返す
+        errChecksumMismatch = errors.New("checksum mismatch")
+        // errUnsupportedVersion はセーブデータのバージョンが現行と異なるときに返す
+        errUnsupportedVersion = errors.New("unsupported save data version")
+        // errPlayerNameNotFound はセーブデータにプレイヤー名が無いときに返す
+        errPlayerNameNotFound = errors.New("player name not found in save data")
+        // errAutoSave はオートセーブの保存に失敗したときに返す
+        errAutoSave = errors.New("failed to auto save")
+        // errNoSingleton は復元データにシングルトンが無いときに返す
+        errNoSingleton = errors.New("restored data has no singleton entity that holds Dungeon")
+        // errInvalidStageKey は復元したステージキーが不正なときに返す
+        errInvalidStageKey = errors.New("restored stage key is invalid")
+)
 
 // Option はSerializationManagerの設定を変更する関数
 type Option func(*SerializationManager)
@@ -33449,7 +33644,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 </span>        }
 
         <span class="cov8" title="1">if env.Version != saveDataVersion </span>{
-                <span class="cov8" title="1">return fmt.Errorf("unsupported save data version: %s", env.Version)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %s", errUnsupportedVersion, env.Version)
 </span>        }
 
         // 本番ワールドを破壊する前に、使い捨ての probe ワールドで復元の全工程を検証する。
@@ -33565,7 +33760,7 @@ func (sm *SerializationManager) ListAutoSaves() ([]string, error) {
 func (sm *SerializationManager) AutoSave(world w.World) error {
         <span class="cov8" title="1">slotName := fmt.Sprintf("%s%d", autoSavePrefix, time.Now().UnixNano())
         if err := sm.SaveWorld(world, slotName); err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to auto save: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errAutoSave, err)
 </span>        }
         <span class="cov8" title="1">if err := sm.rotateAutoSaves(); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to delete old auto save: %w", err)
@@ -33607,7 +33802,7 @@ func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, erro
                 <span class="cov0" title="0">return "", fmt.Errorf("failed to parse save data: %w", err)
 </span>        }
         <span class="cov8" title="1">if partial.PlayerName == "" </span>{
-                <span class="cov8" title="1">return "", fmt.Errorf("player name not found in save data")
+                <span class="cov8" title="1">return "", errPlayerNameNotFound
 </span>        }
         <span class="cov8" title="1">return partial.PlayerName, nil</span>
 }
@@ -33632,12 +33827,12 @@ func (sm *SerializationManager) GetSavePlayTime(slotName string) (time.Duration,
 // validateChecksum はセーブデータのチェックサムを検証する
 func validateChecksum(env *saveEnvelope) error {
         <span class="cov8" title="1">if env.Checksum == "" </span>{
-                <span class="cov8" title="1">return fmt.Errorf("checksum field is missing: this save data is tampered or from an old version")
+                <span class="cov8" title="1">return errChecksumMissing
 </span>        }
         <span class="cov8" title="1">expected := checksumOf(env)
         if env.Checksum != expected </span>{
-                <span class="cov8" title="1">return fmt.Errorf("checksum mismatch: expected %s, got %s; data may be tampered",
-                        expected, env.Checksum)
+                <span class="cov8" title="1">return fmt.Errorf("%w: expected %s, got %s; data may be tampered",
+                        errChecksumMismatch, expected, env.Checksum)
 </span>        }
         <span class="cov8" title="1">return nil</span>
 }
@@ -33733,7 +33928,7 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 </span>                }
         }
         <span class="cov8" title="1">if !found </span>{
-                <span class="cov8" title="1">return fmt.Errorf("restored data has no singleton entity that holds Dungeon")
+                <span class="cov8" title="1">return errNoSingleton
 </span>        }
         <span class="cov8" title="1">world.Resources.SingletonEntity = singleton
 </span>
@@ -33790,7 +33985,7 @@ func validateStages(world w.World) error {
 </span>        }
         <span class="cov8" title="1">for _, k := range keys </span>{
                 <span class="cov8" title="1">if err := k.Validate(); err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("restored stage key is invalid: %w", err)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: %w", errInvalidStageKey, err)
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -52653,6 +52848,7 @@ func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool
 		<pre class="file" id="file354" style="display: none">package gameaction
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -52660,6 +52856,15 @@ import (
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/mlange-42/ark/ecs"
+)
+
+var (
+        // errProfessionItem は職業の初期アイテムを生成できないときに返す
+        errProfessionItem = errors.New("failed to generate profession starting item")
+        // errProfessionEquipment は職業の初期装備を生成できないときに返す
+        errProfessionEquipment = errors.New("failed to generate profession starting equipment")
+        // errInvalidEquipmentSlot は職業の初期装備のスロット名が不正なときに返す
+        errInvalidEquipmentSlot = errors.New("invalid equipment slot name")
 )
 
 // ApplyProfession はプレイヤーエンティティに職業の属性値・スキル・装備を適用する。
@@ -52693,7 +52898,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
         // 初期アイテムをバックパックに付与
         <span class="cov8" title="1">for _, profItem := range prof.Items </span>{
                 <span class="cov8" title="1">if _, err := lifecycle.SpawnBackpackItem(world, profItem.Name, profItem.Count); err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("failed to generate profession starting item: %s: %w", profItem.Name, err)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: %s: %w", errProfessionItem, profItem.Name, err)
 </span>                }
         }
 
@@ -52701,11 +52906,11 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
         <span class="cov8" title="1">for _, equip := range prof.Equips </span>{
                 <span class="cov8" title="1">item, err := lifecycle.SpawnBackpackItem(world, equip.Name, 1)
                 if err != nil </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("failed to generate profession starting equipment: %s: %w", equip.Name, err)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: %s: %w", errProfessionEquipment, equip.Name, err)
 </span>                }
                 <span class="cov8" title="1">slot, ok := gc.ParseEquipmentSlot(equip.Slot)
                 if !ok </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("invalid equipment slot name: %s (item: %s)", equip.Slot, equip.Name)
+                        <span class="cov8" title="1">return fmt.Errorf("%w: %s (item: %s)", errInvalidEquipmentSlot, equip.Slot, equip.Name)
 </span>                }
                 <span class="cov8" title="1">lifecycle.MoveToEquip(world, item, player, slot)</span>
         }
@@ -52717,12 +52922,20 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 		<pre class="file" id="file355" style="display: none">package gameaction
 
 import (
+        "errors"
         "fmt"
 
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
+)
+
+var (
+        // errConsumeCurrency は購入代金の支払いに失敗したときに返す
+        errConsumeCurrency = errors.New("failed to consume currency")
+        // errAddCurrency は売却代金の付与に失敗し、品を手元へ戻したときに返す
+        errAddCurrency = errors.New("failed to add currency")
 )
 
 // BuyStock はプレイヤーが商人の在庫アイテムを買う。一覧の1行はスタック代表なので、
@@ -52736,7 +52949,7 @@ func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {
                 <span class="cov8" title="1">return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
 </span>        }
         <span class="cov8" title="1">if !query.ConsumeCurrency(world, player, price) </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to consume currency")
+                <span class="cov8" title="1">return errConsumeCurrency
 </span>        }
 
         // 実体をバックパックへ移す。移送に失敗したら通貨を返して整合を保つ
@@ -52765,7 +52978,7 @@ func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.E
                 <span class="cov8" title="1">if _, rbErr := lifecycle.MoveStackToBackpack(world, item, player); rbErr != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("payment failed and item rollback also failed: %w (rollback error: %w)", err, rbErr)
 </span>                }
-                <span class="cov8" title="1">return fmt.Errorf("failed to add currency: %w", err)</span>
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errAddCurrency, err)</span>
         }
 
         <span class="cov8" title="1">return nil</span>
@@ -52948,6 +53161,7 @@ func releaseStowedItems(world w.World, cube ecs.Entity) {
 		<pre class="file" id="file358" style="display: none">package lifecycle
 
 import (
+        "errors"
         "fmt"
         "math/rand/v2"
 
@@ -53022,12 +53236,15 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
         <span class="cov8" title="1">return stacks, nil</span>
 }
 
+// ErrInvalidYieldCount は産出個数のダイス表記を解釈できないときに返す
+var ErrInvalidYieldCount = errors.New("invalid disassembly yield count notation")
+
 // rollCount は産出個数をダイス表記から抽選する。表記は raw ロード時の検証で担保済みだが、
 // 万一パースに失敗したら 0 個を黙って返さず error を返し、呼び出し側で気づけるようにする。
 func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {
         <span class="cov8" title="1">d, err := consts.ParseDice(count)
         if err != nil </span>{
-                <span class="cov8" title="1">return 0, fmt.Errorf("invalid disassembly yield count notation: %q: %w", count, err)
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w: %q: %w", ErrInvalidYieldCount, count, err)
 </span>        }
         <span class="cov8" title="1">return d.Roll(rng), nil</span>
 }
@@ -53158,6 +53375,7 @@ func AddFuel(world w.World, fire ecs.Entity, fuel ecs.Entity) {
 		<pre class="file" id="file361" style="display: none">package lifecycle
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -53166,12 +53384,23 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
+var (
+        // errZeroCountChange は個数の変化量が0のときに返す
+        errZeroCountChange = errors.New("count change must not be zero")
+        // errInsufficientItemCount は所持数を超えて減らそうとしたときに返す
+        errInsufficientItemCount = errors.New("insufficient item count")
+        // errNoStackLocation はバックパックにも収納にもないアイテムを増やそうとしたときに返す
+        errNoStackLocation = errors.New("cannot add to stack: entity has no backpack or storage location")
+        // errStackNotFound は未所持のスタックアイテムを減らそうとしたときに返す
+        errStackNotFound = errors.New("stackable item not found")
+)
+
 // ChangeItemCount は entity が属するスタックの個数を delta だけ増減する。
 // 個数は保存しないので、増加は同種を delta 個生成し、減少は同一スタックのエンティティを
 // |delta| 個取り除く。1個1エンティティのため、これがスタック数の変更になる。
 func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
         <span class="cov8" title="1">if delta == 0 </span>{
-                <span class="cov8" title="1">return fmt.Errorf("delta must not be zero")
+                <span class="cov8" title="1">return errZeroCountChange
 </span>        }
 
         <span class="cov8" title="1">if delta &gt; 0 </span>{
@@ -53202,7 +53431,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 func removeFromStack(world w.World, entity ecs.Entity, n int) error {
         <span class="cov8" title="1">members := query.StackMembers(world, entity)
         if n &gt; len(members) </span>{
-                <span class="cov8" title="1">return fmt.Errorf("insufficient item count: have=%d, remove=%d", len(members), n)
+                <span class="cov8" title="1">return fmt.Errorf("%w: have=%d, remove=%d", errInsufficientItemCount, len(members), n)
 </span>        }
         <span class="cov8" title="1">for i := range n </span>{
                 <span class="cov8" title="1">world.ECS.RemoveEntity(members[i])
@@ -53237,7 +53466,7 @@ func addToStack(world w.World, entity ecs.Entity, n int) error {
 </span>                        }
                 }
         default:
-                <span class="cov8" title="1">return fmt.Errorf("cannot add to stack: entity has no backpack or storage location")</span>
+                <span class="cov8" title="1">return errNoStackLocation</span>
         }
         <span class="cov8" title="1">return nil</span>
 }
@@ -53246,7 +53475,7 @@ func addToStack(world w.World, entity ecs.Entity, n int) error {
 // amount が正の場合は増加、負の場合は減少する
 func ChangeStackCount(world w.World, name string, amount int) error {
         <span class="cov8" title="1">if amount == 0 </span>{
-                <span class="cov0" title="0">return fmt.Errorf("amount must not be zero")
+                <span class="cov0" title="0">return errZeroCountChange
 </span>        }
 
         <span class="cov8" title="1">entity, found := query.FindStackInInventory(world, name)
@@ -53255,7 +53484,7 @@ func ChangeStackCount(world w.World, name string, amount int) error {
 </span>        }
 
         <span class="cov8" title="1">if amount &lt; 0 </span>{
-                <span class="cov8" title="1">return fmt.Errorf("stackable item not found: %s", name)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %s", errStackNotFound, name)
 </span>        }
 
         <span class="cov8" title="1">_, err := SpawnBackpackItem(world, name, amount)
@@ -53514,6 +53743,9 @@ func MoveToStowed(world w.World, entity ecs.Entity, cube ecs.Entity, offset cons
         ensureMarker(world, world.Components.WeightDirty, cube, &amp;gc.WeightDirty{})
 </span>}
 
+// errPlayerNotPlaceable は座標・スプライト・カメラのそろったプレイヤーがいないときに返す
+var errPlayerNotPlaceable = errors.New("no player entity with required components found")
+
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
 func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
         <span class="cov8" title="1">var playerEntity ecs.Entity
@@ -53529,7 +53761,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
                 playerQuery.Close()
 </span>        }
         <span class="cov8" title="1">if !found </span>{
-                <span class="cov8" title="1">return errors.New("no player entity with required components found")
+                <span class="cov8" title="1">return errPlayerNotPlaceable
 </span>        }
 
         // プレイヤーの位置を更新する
@@ -53757,6 +53989,13 @@ var (
         ErrMemberGeneration = errors.New("failed to generate member")
         ErrEnemyGeneration  = errors.New("failed to generate enemy")
         ErrEffectGeneration = errors.New("failed to generate effect")
+
+        // errNotNeutralNPC は中立でないメンバーを中立NPCとして生成しようとしたときに返す
+        errNotNeutralNPC = errors.New("not a neutral NPC")
+        // errNonPositiveCount は生成個数が正でないときに返す
+        errNonPositiveCount = errors.New("count must be positive")
+        // errMissingStatsComponents はHPかAbilitiesを持たないエンティティの最大HPを設定しようとしたときに返す
+        errMissingStatsComponents = errors.New("entity does not have required components HP or Abilities")
 )
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
@@ -53845,7 +54084,7 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 </span>        }
 
         <span class="cov8" title="1">if entitySpec.FactionNeutral == nil </span>{
-                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("'%s' is not a neutral NPC", name)
+                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("%w: %s", errNotNeutralNPC, name)
 </span>        }
         <span class="cov8" title="1">if entitySpec.Dialog == nil </span>{
                 <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("'%s' has no dialog data", name)
@@ -53923,7 +54162,7 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.
 // 同一スタックの個体はどれも等価。個数や全個体は代表から query 側で導出する。
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
         <span class="cov8" title="1">if count &lt;= 0 </span>{
-                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
+                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
 </span>        }
 
         // バックパックはプレイヤーの所有物なので、プレイヤー不在での生成は不変条件違反として返す。
@@ -53988,7 +54227,7 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 // setMaxStats はエンティティの最大HPを設定する
 func setMaxStats(world w.World, entity ecs.Entity) error {
         <span class="cov8" title="1">if !world.Components.HP.Has(entity) || !world.Components.Abilities.Has(entity) </span>{
-                <span class="cov8" title="1">return fmt.Errorf("entity %v does not have required components (HP or Abilities)", entity)
+                <span class="cov8" title="1">return fmt.Errorf("%w: %v", errMissingStatsComponents, entity)
 </span>        }
 
         <span class="cov8" title="1">hp := world.Components.HP.Get(entity)
@@ -54022,7 +54261,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 // SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
         <span class="cov8" title="1">if count &lt;= 0 </span>{
-                <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
+                <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
 </span>        }
         <span class="cov8" title="1">last := gc.InvalidEntity
         for range count </span>{
@@ -54041,7 +54280,7 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 // SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
         <span class="cov8" title="1">if count &lt;= 0 </span>{
-                <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
+                <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
 </span>        }
         <span class="cov8" title="1">last := gc.InvalidEntity
         for range count </span>{
@@ -54091,7 +54330,7 @@ func SpawnSplashText(world w.World, textStr string) {
 		<pre class="file" id="file366" style="display: none">package lifecycle
 
 import (
-        "fmt"
+        "errors"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -54102,10 +54341,13 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
+// ErrNotDoor は扉でないエンティティを開閉しようとしたときに返す
+var ErrNotDoor = errors.New("entity is not a door")
+
 // OpenDoor は扉を開く
 func OpenDoor(world w.World, doorEntity ecs.Entity) error {
         <span class="cov8" title="1">if !world.Components.Door.Has(doorEntity) </span>{
-                <span class="cov8" title="1">return fmt.Errorf("entity is not a door")
+                <span class="cov8" title="1">return ErrNotDoor
 </span>        }
 
         <span class="cov8" title="1">doorComp := world.Components.Door.Get(doorEntity)
@@ -54115,7 +54357,7 @@ func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 // CloseDoor は扉を閉じる
 func CloseDoor(world w.World, doorEntity ecs.Entity) error {
         <span class="cov8" title="1">if !world.Components.Door.Has(doorEntity) </span>{
-                <span class="cov8" title="1">return fmt.Errorf("entity is not a door")
+                <span class="cov8" title="1">return ErrNotDoor
 </span>        }
 
         <span class="cov8" title="1">doorComp := world.Components.Door.Get(doorEntity)
@@ -54277,12 +54519,16 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		<pre class="file" id="file367" style="display: none">package lifecycle
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/mlange-42/ark/ecs"
 )
+
+// errStateChangeAlreadyRequested はステート遷移リクエストが既にあるときに返す
+var errStateChangeAlreadyRequested = errors.New("request is already set")
 
 // RequestStateChange はステート遷移イベントエンティティを作成する。既にイベントが存在する場合はエラーを返す
 func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
@@ -54293,8 +54539,8 @@ func RequestStateChange(world w.World, event gc.StateChangeRequest) error {
                 existing = world.Components.StateChangeRequest.Get(entity)
 </span>        }
         <span class="cov8" title="1">if existing != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("request is already set: tried to set %T → %T",
-                        existing.Payload, event.Payload)
+                <span class="cov8" title="1">return fmt.Errorf("%w: tried to set %T → %T",
+                        errStateChangeAlreadyRequested, existing.Payload, event.Payload)
 </span>        }
         <span class="cov8" title="1">entity := world.ECS.NewEntity()
         world.Components.StateChangeRequest.Add(entity, &amp;event)
@@ -54408,6 +54654,7 @@ func RemoveActivity(world w.World, entity ecs.Entity) {
 		<pre class="file" id="file370" style="display: none">package query
 
 import (
+        "errors"
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -54416,11 +54663,22 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
+var (
+        // errNoCommandTable は敵がCommandTableを持たないときに返す
+        errNoCommandTable = errors.New("enemy has no CommandTable component")
+        // errWeaponNoName は武器がNameを持たないときに返す
+        errWeaponNoName = errors.New("weapon has no Name component")
+        // errWeaponNoMelee は武器がMeleeを持たないときに返す
+        errWeaponNoMelee = errors.New("weapon has no Melee component")
+        // errWeaponNoFire は武器がFireを持たないときに返す
+        errWeaponNoFire = errors.New("weapon has no Fire component")
+)
+
 // GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択し、Meleeパラメータを返す
 func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attacker, string, error) {
         <span class="cov8" title="1">commandTableComp := world.Components.CommandTable.Get(enemyEntity)
         if commandTableComp == nil </span>{
-                <span class="cov8" title="1">return nil, "", fmt.Errorf("enemy has no CommandTable component")
+                <span class="cov8" title="1">return nil, "", errNoCommandTable
 </span>        }
 
         <span class="cov8" title="1">commandTableName := commandTableComp.Name
@@ -54443,7 +54701,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 </span>        }
 
         <span class="cov8" title="1">if weaponSpec.Melee == nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("weapon %s has no Melee component", weaponName)
+                <span class="cov0" title="0">return nil, "", fmt.Errorf("%w: %s", errWeaponNoMelee, weaponName)
 </span>        }
         <span class="cov8" title="1">return weaponSpec.Melee, weaponName, nil</span>
 }
@@ -54452,13 +54710,13 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, string, error) {
         <span class="cov8" title="1">nameComp := world.Components.Name.Get(weaponEntity)
         if nameComp == nil </span>{
-                <span class="cov8" title="1">return nil, "", fmt.Errorf("weapon has no Name component")
+                <span class="cov8" title="1">return nil, "", errWeaponNoName
 </span>        }
         <span class="cov8" title="1">name := nameComp.Name
 </span>
         <span class="cov8" title="1">meleeComp := world.Components.Melee.Get(weaponEntity)
         if meleeComp == nil </span>{
-                <span class="cov8" title="1">return nil, "", fmt.Errorf("weapon %s has no Melee component", name)
+                <span class="cov8" title="1">return nil, "", fmt.Errorf("%w: %s", errWeaponNoMelee, name)
 </span>        }
         <span class="cov8" title="1">return meleeComp, name, nil</span>
 }
@@ -54467,13 +54725,13 @@ func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, stri
 func GetFireFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Fire, string, error) {
         <span class="cov8" title="1">nameComp := world.Components.Name.Get(weaponEntity)
         if nameComp == nil </span>{
-                <span class="cov8" title="1">return nil, "", fmt.Errorf("weapon has no Name component")
+                <span class="cov8" title="1">return nil, "", errWeaponNoName
 </span>        }
         <span class="cov8" title="1">name := nameComp.Name
 </span>
         <span class="cov8" title="1">fireComp := world.Components.Fire.Get(weaponEntity)
         if fireComp == nil </span>{
-                <span class="cov8" title="1">return nil, "", fmt.Errorf("weapon %s has no Fire component", name)
+                <span class="cov8" title="1">return nil, "", fmt.Errorf("%w: %s", errWeaponNoFire, name)
 </span>        }
         <span class="cov8" title="1">return fireComp, name, nil</span>
 }
@@ -55652,8 +55910,13 @@ func Player(world w.World, f func(entity ecs.Entity)) {
 </span>        }
 }
 
-// ErrNoPlayer はプレイヤーのエンティティが無いときに返す
-var ErrNoPlayer = errors.New("no player entity exists")
+// プレイヤーのエンティティを1つに決められないときのエラー
+var (
+        // ErrNoPlayer はプレイヤーのエンティティが無いときに返す
+        ErrNoPlayer = errors.New("no player entity exists")
+        // ErrMultiplePlayers はプレイヤーのエンティティが2つ以上あるときに返す
+        ErrMultiplePlayers = errors.New("multiple player entities exist")
+)
 
 // GetPlayerEntity はプレイヤーエンティティを返す
 // プレイヤーが0個または2個以上の場合はエラーを返す
@@ -55669,7 +55932,7 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
                 <span class="cov8" title="1">return gc.InvalidEntity, ErrNoPlayer
 </span>        }
         <span class="cov8" title="1">if len(entities) &gt; 1 </span>{
-                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("multiple player entities exist: %d", len(entities))
+                <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("%w: %d", ErrMultiplePlayers, len(entities))
 </span>        }
 
         <span class="cov8" title="1">return entities[0], nil</span>
