@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -104,9 +105,10 @@ func TestBenchGate_ファイルを読んで比較する(t *testing.T) {
 func TestBenchGate_読めないファイルはエラー(t *testing.T) {
 	t.Parallel()
 
+	dir := t.TempDir()
 	var buf bytes.Buffer
-	err := benchGate(&buf, filepath.Join(t.TempDir(), "missing.txt"), filepath.Join(t.TempDir(), "missing.txt"), 2.0)
-	require.Error(t, err)
+	err := benchGate(&buf, filepath.Join(dir, "base.txt"), filepath.Join(dir, "pr.txt"), 2.0)
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 func benchgateApp() *cli.Command {
