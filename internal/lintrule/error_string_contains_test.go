@@ -69,7 +69,7 @@ func TestErrorStringContains(t *testing.T) {
 		{"書式付きの EqualErrorf も違反", `assert.EqualErrorf(t, err, "x", "m")`, 1},
 		{"ErrorIs は適合", `require.ErrorIs(t, err, errX)`, 0},
 		{"文字列の Contains は適合", `assert.Contains(t, s, "x")`, 0},
-		{"引数を取る Error 呼び出しは対象外", `assert.Contains(t, log.Error("a"), "x")`, 0},
+		{"引数を取る Error という名の関数は err.Error() とみなさない", `assert.Contains(t, log.Error("a"), "x")`, 0},
 		{"完全一致の Equal は適合", `assert.Equal(t, "x", err.Error())`, 0},
 	}
 	for _, tt := range tests {
