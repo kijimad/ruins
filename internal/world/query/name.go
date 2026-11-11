@@ -12,7 +12,11 @@ func GetEntityName(entity ecs.Entity, world w.World) string {
 	if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {
 		return T(world, "Unknown")
 	}
-	return T(world, world.Components.Name.Get(entity).Name)
+	name := world.Components.Name.Get(entity)
+	if name.Custom != "" {
+		return name.Custom
+	}
+	return T(world, name.Name)
 }
 
 // GetEntityID はエンティティの同定キーを返す。raw 定義やレシピ参照との照合に使う。

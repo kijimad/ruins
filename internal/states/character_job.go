@@ -135,7 +135,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 
 	// プレイヤー名を上書き
 	name := world.Components.Name.Get(player)
-	name.Name = i18n.Msgid(st.playerName)
+	name.Custom = st.playerName
 
 	// 操作ガイドを表示する
 	gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "Arrows: Move."))).Log()
