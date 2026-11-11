@@ -1085,6 +1085,8 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 	return gc.SkillDefs{Skills: skills, Categories: categories, Proficiencies: proficiencies, Weapons: weapons, Resists: resists, ToolSkills: toolSkills}, nil
 }
 
+// 生成された enum を、順序に意味を持つ Go の型へ写す表。Go の型は大小の比較や配列の添字に使う。
+// 表が enum の全値を持つことはテストで確かめる
 var (
 	weatherKinds = map[oapi.WeatherId]gc.WeatherKind{
 		oapi.Clear:    gc.WeatherClear,
