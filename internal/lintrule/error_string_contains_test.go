@@ -15,9 +15,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestNoErrorStringContains はテストで err.Error() を Contains に渡すことを禁止する。
-// どのエラーかの同定は sentinel と require.ErrorIs で行い、値を埋め込む動的なメッセージの中身だけ
-// assert.ErrorContains で確かめる。文字列の部分一致は、同じ文言の別のエラーでも通ってしまう。
+// TestNoErrorStringContains はテストでエラーをメッセージの文字列で判定することを禁止する。
+// どのエラーかの同定は sentinel と require.ErrorIs、または型と errors.As で行う。文字列の照合は、
+// 同じ文言の別のエラーでも通り、本番が sentinel を返さない不整合も隠す。
 func TestNoErrorStringContains(t *testing.T) {
 	t.Parallel()
 	root := moduleRoot(t)
@@ -47,7 +47,7 @@ func TestNoErrorStringContains(t *testing.T) {
 	require.NoError(t, err)
 
 	sort.Strings(found)
-	require.Empty(t, found, "err.Error() を Contains に渡さない。同定は require.ErrorIs、動的なメッセージの中身は assert.ErrorContains で確かめる:\n%s", strings.Join(found, "\n"))
+	require.Empty(t, found, "エラーを文字列で判定しない。sentinel と require.ErrorIs、または errors.As で同定する:\n%s", strings.Join(found, "\n"))
 }
 
 func TestErrorStringContains(t *testing.T) {
@@ -63,7 +63,11 @@ func TestErrorStringContains(t *testing.T) {
 		{"書式付きの Containsf も違反", `assert.Containsf(t, err.Error(), "x", "m")`, 1},
 		{"書式付きの NotContainsf も違反", `assert.NotContainsf(t, err.Error(), "x", "m")`, 1},
 		{"フィールドのエラーでも違反", `assert.Contains(t, got.err.Error(), "x")`, 1},
-		{"ErrorContains は適合", `assert.ErrorContains(t, err, "x")`, 0},
+		{"ErrorContains も違反", `assert.ErrorContains(t, err, "x")`, 1},
+		{"書式付きの ErrorContainsf も違反", `require.ErrorContainsf(t, err, "x", "m")`, 1},
+		{"EqualError も違反", `assert.EqualError(t, err, "x")`, 1},
+		{"書式付きの EqualErrorf も違反", `assert.EqualErrorf(t, err, "x", "m")`, 1},
+		{"ErrorIs は適合", `require.ErrorIs(t, err, errX)`, 0},
 		{"文字列の Contains は適合", `assert.Contains(t, s, "x")`, 0},
 		{"引数を取る Error 呼び出しは対象外", `assert.Contains(t, log.Error("a"), "x")`, 0},
 		{"完全一致の Equal は適合", `assert.Equal(t, "x", err.Error())`, 0},
@@ -87,7 +91,16 @@ var containsAsserts = map[string]bool{
 	"NotContainsf": true,
 }
 
-// errorStringContains は assert か require の Contains 系の第2引数が、引数なしの .Error() 呼び出しである位置を返す。
+// errorStringAsserts はエラーを文字列で照合する testify の関数名。呼んだ時点で違反になる
+var errorStringAsserts = map[string]bool{
+	"ErrorContains":  true,
+	"ErrorContainsf": true,
+	"EqualError":     true,
+	"EqualErrorf":    true,
+}
+
+// errorStringContains はテストでエラーを文字列で照合している位置を返す。ErrorContains 系の呼び出しと、
+// assert か require の Contains 系の第2引数に引数なしの .Error() 呼び出しを渡すものを拾う。
 func errorStringContains(f *ast.File) []token.Pos {
 	var found []token.Pos
 	ast.Inspect(f, func(n ast.Node) bool {
@@ -96,11 +109,18 @@ func errorStringContains(f *ast.File) []token.Pos {
 			return true
 		}
 		sel, ok := call.Fun.(*ast.SelectorExpr)
-		if !ok || !containsAsserts[sel.Sel.Name] {
+		if !ok {
 			return true
 		}
 		pkg, ok := sel.X.(*ast.Ident)
 		if !ok || (pkg.Name != "assert" && pkg.Name != "require") {
+			return true
+		}
+		if errorStringAsserts[sel.Sel.Name] {
+			found = append(found, call.Pos())
+			return true
+		}
+		if !containsAsserts[sel.Sel.Name] {
 			return true
 		}
 		arg, ok := call.Args[1].(*ast.CallExpr)

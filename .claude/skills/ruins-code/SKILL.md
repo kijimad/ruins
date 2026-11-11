@@ -57,9 +57,8 @@ Go のベテランとして、シンプルさとテストしやすさを最優�
 - テスト名は `Test<対象関数名>_<日本語で検証内容>` にし、名前だけで何を検証するか分かるようにする。例 `func TestNewItemSpec_本のスキル未指定はエラー(t *testing.T)`。table-driven の場合は関数名を `Test<対象関数名>` とし、各ケースを `t.Run("<日本語で検証内容>", ...)` で表す。
 - アサートは検証対象の種類で選び、過不足のない厳密さにする。`require.Error` だけの、内容を見ない自明なエラーテストにはしない。
   - 値すなわち戻り値や計算結果は `assert.Equal` で全文一致させる。自分が生成する確定値ほど、厳密一致が回帰を捕まえる。
-  - **どのエラーが起きたかの同定は `require.ErrorIs` / `errors.As` で行う。** 文字列一致はたまたま同じ文言の別エラーでも通る脆い判定で、本番が sentinel を返さない不整合も隠す。同定したいエラーに sentinel や型が無ければ定義し、本番の生成側も sentinel を返すよう直す。`require.ErrorIs` は err の非 nil も兼ねるので `require.Error` と重ねない。`err.Error()` を Contains に渡す書き方は `internal/lintrule` の `TestNoErrorStringContains` が止める。
-  - 例外は値を埋め込む動的な検証メッセージの中身確認だけ。この場合に限り `assert.ErrorContains` で安定した意味のある断片を見る。エラー全文は下位層・OS・標準ライブラリの文言やパス・ID が混ざって脆いので、全文一致させない。
-  - 既存の `assert.ErrorContains` のうち、動的な中身でなくエラーの種類を確かめているものは、触れた箇所から `ErrorIs` へ移す。
+  - **どのエラーが起きたかの同定は `require.ErrorIs` / `errors.As` で行う。** 同定したいエラーに sentinel や型が無ければ定義し、本番の生成側も sentinel を返すよう直す。値を埋め込みたいときは `fmt.Errorf("%w: %s", errFoo, name)` のように sentinel を `%w` で包み、途中の層も `%w` で包んで鎖を切らない。`require.ErrorIs` は err の非 nil も兼ねるので `require.Error` と重ねない。文字列での照合は `internal/lintrule` の `TestNoErrorStringContains` が止める。
+  - `Error()` の書式そのものを確かめるテストだけは、`assert.Equal` で全文一致させる。
   - `assert.Contains` はコレクションの包含判定にだけ使う。文字列の部分一致を全文一致の代わりに使わない。
 
 ## 検証
