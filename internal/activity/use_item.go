@@ -237,8 +237,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	}
 
 	hungerStage, _ := world.Resources.NeedDefs.HungerStageOf(hunger.GetLevel(world.Resources.NeedDefs))
-	isSatiated := hungerStage.Full
-	u.logNutritionUse(actor, world, item, isSatiated)
+	u.logNutritionUse(actor, world, item, hungerStage.ReachedLog)
 
 	return nil
 }
@@ -264,8 +263,9 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	logger.Log()
 }
 
-// logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える
-func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
+// logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える。
+// reachedLog は食べて達した空腹の段階のログで、空なら出さない
+func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, reachedLog string) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return
@@ -286,9 +286,8 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	}
 	logger.Log()
 
-	// 満腹になったら別行で知らせる
-	if isSatiated {
-		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "%s is now full.", actorMarkup)).Log()
+	if reachedLog != "" {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, reachedLog, actorMarkup)).Log()
 	}
 }
 

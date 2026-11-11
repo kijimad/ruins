@@ -1440,9 +1440,9 @@ export interface HungerStage {
      */
     'from': number;
     /**
-     * 満腹の段階か。食べてこの段階になったら満腹を知らせる
+     * 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない
      */
-    'full'?: boolean;
+    'reachedLog'?: string;
     /**
      * 寝ている者を起こす段階か
      */

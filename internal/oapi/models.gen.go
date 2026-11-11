@@ -2386,14 +2386,14 @@ type HungerStage struct {
 	// From 最大値に対する割合
 	From NeedRatio `json:"from"`
 
-	// Full 満腹の段階か。食べてこの段階になったら満腹を知らせる
-	Full *bool `json:"full,omitempty"`
-
 	// Id 空腹の段階
 	Id HungerStageId `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
+
+	// ReachedLog 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない
+	ReachedLog *EntityDescription `json:"reachedLog,omitempty"`
 
 	// Severity この段階で立つ栄養失調の重症度。省くと立たない
 	Severity *ConditionSeverity `json:"severity,omitempty"`

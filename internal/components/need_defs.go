@@ -12,7 +12,7 @@ type HungerStage struct {
 	Name         string      // 表示名 msgid
 	From         float64     // 満腹度の割合がこれ以上の段階のうち From が最大のものになる
 	Condition    Severity    // この段階で立つ栄養失調の重症度。SeverityNone なら立たない
-	Full         bool        // 満腹の段階か
+	ReachedLog   string      // 食べてこの段階に達したときのログの msgid。空なら出さない
 	WakesSleeper bool        // 寝ている者を起こす段階か
 	Badge        *color.RGBA // HUD のバッジの色。nil ならバッジを出さない
 }

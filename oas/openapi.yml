@@ -3120,9 +3120,10 @@ components:
           $ref: '#/components/schemas/EntityName'
         from:
           $ref: '#/components/schemas/NeedRatio'
-        full:
-          type: boolean
-          description: 満腹の段階か。食べてこの段階になったら満腹を知らせる
+        reachedLog:
+          allOf:
+            - $ref: '#/components/schemas/EntityDescription'
+          description: 食べてこの段階に達したときのログの msgid。%s は食べた者。省くと出さない
         wakesSleeper:
           type: boolean
           description: 寝ている者を起こす段階か

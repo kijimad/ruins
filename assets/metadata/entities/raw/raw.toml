@@ -3304,9 +3304,9 @@
 
 [[hungerStages]]
   from = 0.95
-  full = true
   id = "satiated"
   name = "Full"
+  reachedLog = "%s is now full."
   [hungerStages.badgeColor]
     a = 255
     b = 100

@@ -141,7 +141,7 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 
 	assert.Equal(t, gc.NeedDefs{
 		Hunger: []gc.HungerStage{
-			{Level: oapi.HungerStageIdSatiated, Name: "Full", From: 0.95, Full: true, Badge: &color.RGBA{100, 200, 100, 255}},
+			{Level: oapi.HungerStageIdSatiated, Name: "Full", From: 0.95, ReachedLog: "%s is now full.", Badge: &color.RGBA{100, 200, 100, 255}},
 			{Level: oapi.HungerStageIdNormal, Name: "Normal", From: 0.66},
 			{Level: oapi.HungerStageIdHungry, Name: "Hungry", From: 0.33, Condition: gc.SeverityMinor, Badge: &color.RGBA{255, 200, 0, 255}},
 			{Level: oapi.HungerStageIdStarving, Name: "Starving", From: 0, Condition: gc.SeverityMedium, WakesSleeper: true, Badge: &color.RGBA{255, 50, 50, 255}},

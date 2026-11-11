@@ -1208,7 +1208,7 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	for _, row := range PtrSlice(raws.HungerStages) {
 		hunger = append(hunger, gc.HungerStage{
 			Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity),
-			Full: deref(row.Full), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),
+			ReachedLog: deref(row.ReachedLog), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),
 		})
 	}
 	fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))

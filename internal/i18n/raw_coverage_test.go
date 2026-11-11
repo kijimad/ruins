@@ -64,6 +64,9 @@ func TestRawTranslationCoverage(t *testing.T) {
 	}
 	for _, h := range hungers {
 		texts = append(texts, h.Name)
+		if h.ReachedLog != nil {
+			texts = append(texts, *h.ReachedLog)
+		}
 	}
 	for _, f := range fatigues {
 		texts = append(texts, f.Name)
@@ -78,7 +81,7 @@ func TestRawTranslationCoverage(t *testing.T) {
 		texts = append(texts, a.Name)
 	}
 	for _, f := range freshness {
-		texts = append(texts, f.Name)
+		texts = append(texts, f.Name, f.EatLog)
 	}
 	for _, m := range materials {
 		texts = append(texts, m.Name)
