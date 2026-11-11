@@ -111,6 +111,7 @@ $ make help
 | draft | [訳す前の文字列 msgid に型を付ける](docs/design/261110205344.md) | 0/5 | refactor, ui |
 | draft | [raw のスキーマを CUE に移し、TypeSpec と editor-ui をなくす](docs/design/261110211157.md) | 0/6 | refactor, ci |
 | draft | [脱出の鍵・作る段・アイテムの分解を足し、ゲームループを閉じる](docs/design/261111002908.md) | 0/13 | gamedesign, item, worldgen |
+| draft | [ダンジョンを廃し、すべてをオーバーワールドの複数チャンクの領域で表す](docs/design/261111213110.md) | 0/4 | worldgen, refactor, gamedesign |
 
 
 ## Reference
