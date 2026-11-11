@@ -20,7 +20,7 @@ func lotElements(t profileTable, s Site, fac oapi.Facility) []Placed {
 	doorAxis := edge.along(s.Door)
 
 	var out []Placed
-	// 塀で敷地を囲い、入口の軸を門として開ける。街路に面して開く敷地の類型は塀を張らない
+	// 塀で敷地を囲い、入口の軸を門として開ける
 	if s.Fence {
 		for a := lo; a <= hi; a++ {
 			if abs(a-doorAxis) <= 1 { // 門の隙間。街路から前庭へ入る

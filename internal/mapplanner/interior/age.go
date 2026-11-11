@@ -12,7 +12,6 @@ func Age(t profileTable, seed uint64, room Room, placed []Placed, dmg damageLeve
 	if dmg == dmgIntact {
 		return placed // 無傷の建物は新品のまま経年を掛けない
 	}
-	// 損傷レベルで強度を変える
 	effect := t.damageEffects[dmg]
 	placed = applyLooting(childSeed(seed, 1), placed, effect.lootPct)
 	placed = applyWear(childSeed(seed, 2), room, placed, t.wearPct)
