@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"slices"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -58,5 +57,5 @@ func freshnessRank(world w.World, entity ecs.Entity) int {
 	if !ok {
 		return 0
 	}
-	return gc.FreshnessRank(stage)
+	return world.Resources.NeedDefs.Freshness[stage].Rank
 }

@@ -2303,7 +2303,7 @@ type FoliageEffect struct {
 	TempModifier TileTempModifier `json:"tempModifier"`
 }
 
-// FreshnessStage 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+// FreshnessStage 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ。行の順が新しいものから古いものへの並び順になる
 type FreshnessStage struct {
 	// EatLog 食べたときのログの msgid。%s は食べた者と食べ物
 	EatLog EntityDescription `json:"eatLog"`
@@ -3178,6 +3178,9 @@ type Shelter string
 type ShelterEffect struct {
 	// AnchorTemp 水や植生がタイルの気温に足す補正。℃
 	AnchorTemp TileTempModifier `json:"anchorTemp"`
+
+	// Covered 屋根か壁に覆われているか。覆われないタイルに繋がる領域は屋外とみなす
+	Covered bool `json:"covered"`
 
 	// Id タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く
 	Id Shelter `json:"id"`

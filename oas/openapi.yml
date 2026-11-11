@@ -3009,7 +3009,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/IllnessChancePercent'
           description: 食べたとき食中毒を起こす確率。百分率。省くと起こさない
-      description: 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
+      description: 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ。行の順が新しいものから古いものへの並び順になる
     FreshnessStageId:
       type: string
       enum:
@@ -4516,6 +4516,7 @@ components:
         - name
         - anchorTemp
         - influencePercent
+        - covered
       properties:
         id:
           $ref: '#/components/schemas/Shelter'
@@ -4525,6 +4526,9 @@ components:
           $ref: '#/components/schemas/TileTempModifier'
         influencePercent:
           $ref: '#/components/schemas/ShelterInfluencePercent'
+        covered:
+          type: boolean
+          description: 屋根か壁に覆われているか。覆われないタイルに繋がる領域は屋外とみなす
       description: 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
     ShelterInfluencePercent:
       type: integer

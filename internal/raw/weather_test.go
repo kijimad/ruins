@@ -153,9 +153,9 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 			{Level: oapi.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium, CanSleep: true, Badge: &color.RGBA{255, 50, 50, 255}},
 		},
 		Freshness: map[oapi.FreshnessStageId]gc.FreshnessDef{
-			oapi.Fresh:  {Name: "Fresh", NutritionPercent: 100, EatLog: "%s ate fresh %s."},
-			oapi.Stale:  {Name: "Stale", NutritionPercent: 50, EatLog: "%s ate old %s.", Marker: true},
-			oapi.Rotten: {Name: "Rotten", NutritionPercent: 30, EatLog: "%s ate spoiled %s.", Marker: true, IllnessChancePercent: 25},
+			oapi.Fresh:  {Rank: 1, Name: "Fresh", NutritionPercent: 100, EatLog: "%s ate fresh %s."},
+			oapi.Stale:  {Rank: 2, Name: "Stale", NutritionPercent: 50, EatLog: "%s ate old %s.", Marker: true},
+			oapi.Rotten: {Rank: 3, Name: "Rotten", NutritionPercent: 30, EatLog: "%s ate spoiled %s.", Marker: true, IllnessChancePercent: 25},
 		},
 	}, defs)
 }
@@ -279,8 +279,8 @@ func TestNewTileEnvDefs_実データ(t *testing.T) {
 	assert.Equal(t, gc.TileEnvDefs{
 		Shelters: map[oapi.Shelter]gc.ShelterDef{
 			oapi.Outdoor: {Name: "Outdoor", AnchorTemp: 10, InfluencePercent: 100},
-			oapi.Partial: {Name: "Semi-outdoor", AnchorTemp: 10, InfluencePercent: 75},
-			oapi.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50},
+			oapi.Partial: {Name: "Semi-outdoor", AnchorTemp: 10, InfluencePercent: 75, Covered: true},
+			oapi.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50, Covered: true},
 		},
 		Water:   map[oapi.WaterExposure]int{oapi.Nearby: -5, oapi.Submerged: -10},
 		Foliage: map[oapi.Foliage]int{oapi.FoliageGrass: -1, oapi.FoliageForest: -3},

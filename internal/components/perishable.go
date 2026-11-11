@@ -28,22 +28,9 @@ func (p Perishable) Stage(rot consts.Turn) oapi.FreshnessStageId {
 	}
 }
 
-// FreshnessRank は鮮度の段階の並び順を返す。新鮮→劣化→腐敗の固定順で、小さいほど先に並ぶ。
-// 段階は Stage が返す既知の3値だけで、未知値はここへ来ない不変条件なので panic させる
-func FreshnessRank(s oapi.FreshnessStageId) int {
-	switch s {
-	case oapi.Fresh:
-		return 1
-	case oapi.Stale:
-		return 2
-	case oapi.Rotten:
-		return 3
-	}
-	panic("unknown FreshnessStageId: " + string(s))
-}
-
 // FreshnessDef は鮮度の段階1つの定義。raw の freshnessStages の1行から組み立てる
 type FreshnessDef struct {
+	Rank                 int    // 並び順。行の順に1から数え、小さいほど新しい
 	Name                 string // 表示名 msgid
 	NutritionPercent     int    // 食べたとき得る栄養の満額に対する割合。百分率
 	EatLog               string // 食べたときのログの msgid。%s は食べた者と食べ物

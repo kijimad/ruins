@@ -718,7 +718,7 @@ model Season {
   temp: SeasonTemp;
 }
 
-/** 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ */
+/** 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ。行の順が新しいものから古いものへの並び順になる */
 model FreshnessStage {
   id: FreshnessStageId;
   name: EntityName;
@@ -753,6 +753,9 @@ model ShelterEffect {
   name: EntityName;
   anchorTemp: TileTempModifier;
   influencePercent: ShelterInfluencePercent;
+
+  /** 屋根か壁に覆われているか。覆われないタイルに繋がる領域は屋外とみなす */
+  covered: boolean;
 }
 
 /** 水がタイルの気温に足す補正 */

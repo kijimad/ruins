@@ -18,8 +18,8 @@ const shelterRecalcRadius = 32
 // 扉の開閉のような通行可否の構造変化後に呼ぶ。座標とその4隣接を種に、
 // 壁と閉じた扉を越えずに繋がる領域を求めて屋内外を書き直す。
 //
-// 再計算範囲の外周へ達した領域は原則として屋外だが、領域内に既存の屋外タイルを
-// ひとつも見なかった場合は範囲より大きい囲いと区別できないため書き換えない。
+// 再計算範囲の外周へ達した領域は原則として屋外だが、領域内に既存の
+// 覆われないタイルをひとつも見なかった場合は範囲より大きい囲いと区別できないため書き換えない。
 // この保守則により、範囲に収まらない構造は誤って冷やされず現状維持で外れる。
 func RecalcShelterAround(world w.World, x, y consts.Tile) {
 	const size = shelterRecalcRadius*2 + 1
@@ -73,19 +73,19 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 		}
 		cells, touchesEdge := geometry.EnclosedRegion(size, size, blockedAt, s[0], s[1])
 
-		sawOutdoor := false
+		sawUncovered := false
 		for _, c := range cells {
 			visited[c] = true
 			if tile, ok := tiles[c]; ok {
-				if world.Components.TileEnvironment.Get(tile).Shelter == oapi.Outdoor {
-					sawOutdoor = true
+				if !world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(tile).Shelter].Covered {
+					sawUncovered = true
 				}
 			}
 		}
 
 		shelter := oapi.Indoor
 		switch {
-		case touchesEdge && sawOutdoor:
+		case touchesEdge && sawUncovered:
 			shelter = oapi.Outdoor
 		case touchesEdge:
 			// 範囲より大きい囲いか判定できないので現状維持にする
