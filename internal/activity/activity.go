@@ -79,6 +79,7 @@ type Behavior interface {
 	// 検証通過なら nil を返す。副作用はなく、gamelog も呼ばず panic もしない。
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
+	// DoTurn が error を返すと、呼び出し側がログに出して中断する。中断の理由は呼び出し側が書く
 	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error

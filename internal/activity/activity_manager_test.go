@@ -485,5 +485,6 @@ func TestStepActivity(t *testing.T) {
 		result := GetLastResult(actor, world)
 		require.NotNil(t, result)
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.Equal(t, "an unexpected error occurred", result.Message)
 	})
 }

@@ -83,7 +83,7 @@ func TestMsgidCoverage(t *testing.T) {
 }
 
 // isMsgidCall は呼び出しの第2引数が msgid になる関数かを返す。
-// query.T はその場で訳す。activity.Cancel は reason を CancelReason に積み、activity_manager が
+// query.T はその場で訳す。activity の中断の関数は reason を CancelReason に積み、表示するときに
 // query.T で訳すため、その reason も msgid として ja.po 存在を検証する。
 func isMsgidCall(fun ast.Expr) bool {
 	switch fn := fun.(type) {
@@ -91,11 +91,19 @@ func isMsgidCall(fun ast.Expr) bool {
 		if pkg, ok := fn.X.(*ast.Ident); ok && pkg.Name == "query" && fn.Sel.Name == "T" {
 			return true
 		}
-		return fn.Sel.Name == "Cancel"
+		return cancelFuncs[fn.Sel.Name]
 	case *ast.Ident:
-		return fn.Name == "Cancel"
+		return cancelFuncs[fn.Name]
 	}
 	return false
+}
+
+// cancelFuncs は第2引数に中断の理由の msgid を取る activity の関数
+var cancelFuncs = map[string]bool{
+	"Cancel":            true,
+	"CancelActivity":    true,
+	"Interrupt":         true,
+	"InterruptActivity": true,
 }
 
 // bindingLabels は n が keybind.Binding の表か値なら、直書きの Label を返す。Label は keybind.HintEntries が query.T で訳す。

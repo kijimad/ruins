@@ -107,7 +107,6 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 			continue
 		}
 		if err := e.apply(u, comp, actor, item, world); err != nil {
-			Cancel(comp, i18n.Msgid(fmt.Sprintf("use effect error: %s", err.Error())))
 			return err
 		}
 	}

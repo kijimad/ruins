@@ -5936,6 +5936,9 @@ msgstr "敵が近づいて目が覚めた"
 msgid "woke up from the cold"
 msgstr "寒さで目が覚めた"
 
+msgid "an unexpected error occurred"
+msgstr "予期しないエラーが起きた"
+
 msgid "woke up from hunger"
 msgstr "空腹で目が覚めた"
 

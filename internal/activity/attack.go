@@ -125,7 +125,6 @@ func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 
 	if err := ab.performAttack(comp, actor, world); err != nil {
-		Cancel(comp, i18n.Msgid(fmt.Sprintf("attack error: %s", err.Error())))
 		return err
 	}
 

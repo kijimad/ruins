@@ -115,7 +115,7 @@ func stepActivity(entity ecs.Entity, world w.World) {
 
 	if err := behavior.DoTurn(stored, entity, world); err != nil {
 		log.Error("activity turn processing error", "entity", entity, "type", behaviorName, "error", err.Error())
-		CancelActivity(entity, i18n.Msgid(fmt.Sprintf("error: %s", err.Error())), world)
+		CancelActivity(entity, "an unexpected error occurred", world)
 		return
 	}
 
