@@ -331,8 +331,7 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "Rest interrupted")
-		assert.Contains(t, recent[0], "rest interrupted because enemies are nearby")
+		assert.Equal(t, "Rest interrupted: rest interrupted because enemies are nearby", recent[0])
 	})
 }
 
