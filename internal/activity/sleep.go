@@ -79,7 +79,7 @@ func (sb *SleepBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		Cancel(comp, "woke up from the cold")
 		return nil
 	}
-	if isStarving(actor, world) {
+	if hungerWakes(actor, world) {
 		Cancel(comp, "woke up from hunger")
 		return nil
 	}
@@ -130,10 +130,14 @@ func hasActiveHypothermia(actor ecs.Entity, world w.World) bool {
 	return cond != nil && cond.IsActive()
 }
 
-// isStarving は飢餓段階かを返す
-func isStarving(actor ecs.Entity, world w.World) bool {
-	return world.Components.Hunger.Has(actor) &&
-		world.Components.Hunger.Get(actor).GetLevel(world.Resources.NeedDefs) == oapi.HungerStageIdStarving
+// hungerWakes は空腹の段階が寝ている者を起こすかを返す
+func hungerWakes(actor ecs.Entity, world w.World) bool {
+	if !world.Components.Hunger.Has(actor) {
+		return false
+	}
+	defs := world.Resources.NeedDefs
+	stage, _ := defs.HungerStageOf(world.Components.Hunger.Get(actor).GetLevel(defs))
+	return stage.WakesSleeper
 }
 
 // beddingQualityAt は足元か隣接の寝具から最大の Quality を返す。無ければ地べたの基準

@@ -44,6 +44,9 @@ func FreshnessRank(s oapi.FreshnessStageId) int {
 
 // FreshnessDef は鮮度の段階1つの定義。raw の freshnessStages の1行から組み立てる
 type FreshnessDef struct {
-	Name             string // 表示名 msgid
-	NutritionPercent int    // 食べたとき得る栄養の満額に対する割合。百分率
+	Name                 string // 表示名 msgid
+	NutritionPercent     int    // 食べたとき得る栄養の満額に対する割合。百分率
+	EatLog               string // 食べたときのログの msgid。%s は食べた者と食べ物
+	Marker               bool   // メニューの行に鮮度を添えるか
+	IllnessChancePercent int    // 食べたとき食中毒を起こす確率。百分率
 }

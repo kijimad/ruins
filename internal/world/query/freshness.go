@@ -35,7 +35,7 @@ func FreshnessStageOf(world w.World, entity ecs.Entity) (oapi.FreshnessStageId, 
 // 呼び出し側は空なら何も足さない
 func FreshnessMarker(world w.World, entity ecs.Entity) string {
 	stage, ok := FreshnessStageOf(world, entity)
-	if !ok || stage == oapi.Fresh {
+	if !ok || !world.Resources.NeedDefs.Freshness[stage].Marker {
 		return ""
 	}
 	return FreshnessName(world, stage)

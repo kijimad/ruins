@@ -545,6 +545,9 @@ model SiteChoice {
   homeWeight: SiteWeight;
   shopWeight: SiteWeight;
   yardDepth: YardDepth;
+
+  /** 敷地を塀で囲うか。街路に面して開く敷地は囲わない */
+  fence: boolean;
 }
 
 /** 街路側の前壁に付ける外皮の interiorRefs の id */
@@ -720,6 +723,15 @@ model FreshnessStage {
   id: FreshnessStageId;
   name: EntityName;
   nutritionPercent: NutritionPercent;
+
+  /** 食べたときのログの msgid。%s は食べた者と食べ物 */
+  eatLog: EntityDescription;
+
+  /** メニューの行に鮮度を添えるか */
+  marker: boolean;
+
+  /** 食べたとき食中毒を起こす確率。百分率。省くと起こさない */
+  illnessChancePercent?: IllnessChancePercent;
 }
 
 /** 材質の表示名と燃焼の熱量 */
@@ -990,6 +1002,15 @@ model HungerStage {
   name: EntityName;
   from: NeedRatio;
 
+  /** 満腹の段階か。食べてこの段階になったら満腹を知らせる */
+  full?: boolean;
+
+  /** 寝ている者を起こす段階か */
+  wakesSleeper?: boolean;
+
+  /** HUD に出すバッジの色。省くとバッジを出さない */
+  badgeColor?: RGBAColor;
+
   /** この段階で立つ栄養失調の重症度。省くと立たない */
   severity?: ConditionSeverity;
 }
@@ -999,6 +1020,12 @@ model FatigueStage {
   id: FatigueStageId;
   name: EntityName;
   from: NeedRatio;
+
+  /** この段階で眠れるか。疲れが足りない段階は眠れない */
+  canSleep: boolean;
+
+  /** HUD に出すバッジの色。省くとバッジを出さない */
+  badgeColor?: RGBAColor;
 
   /** この段階で立つ過労の重症度。省くと立たない */
   severity?: ConditionSeverity;

@@ -210,9 +210,6 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 		Log()
 }
 
-// rottenIllnessChancePercent は腐敗食を食べたとき病気を発症する確率。値は実プレイで調整する
-const rottenIllnessChancePercent = 25
-
 // applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
 func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
 	if !world.Components.Hunger.Has(actor) {
@@ -226,7 +223,8 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		stage = oapi.Fresh
 	}
 
-	nutrition := amount * world.Resources.NeedDefs.Freshness[stage].NutritionPercent / 100
+	freshness := world.Resources.NeedDefs.Freshness[stage]
+	nutrition := amount * freshness.NutritionPercent / 100
 	// 鮮度で減った栄養が整数除算で0に落ちても、腐敗食は非常食として最低1は与える。
 	// balance で小さい栄養値を設定したとき、劣化・腐敗が完全にゼロ効果になる罠を防ぐ
 	if amount > 0 && nutrition < 1 {
@@ -234,12 +232,12 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	}
 	hunger.Increase(nutrition)
 
-	// 腐敗食は低確率で食中毒を起こす
-	if stage == oapi.Rotten && world.Resources.Config.RNG.IntN(100) < rottenIllnessChancePercent {
+	if freshness.IllnessChancePercent > 0 && world.Resources.Config.RNG.IntN(100) < freshness.IllnessChancePercent {
 		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(oapi.RottenFood))
 	}
 
-	isSatiated := hunger.GetLevel(world.Resources.NeedDefs) == oapi.HungerStageIdSatiated
+	hungerStage, _ := world.Resources.NeedDefs.HungerStageOf(hunger.GetLevel(world.Resources.NeedDefs))
+	isSatiated := hungerStage.Full
 	u.logNutritionUse(actor, world, item, isSatiated)
 
 	return nil
@@ -284,14 +282,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	if stage, ok := query.FreshnessStageOf(world, item); !ok {
 		logger.Markup(query.T(world, "%s ate %s.", actorMarkup, itemMarkup))
 	} else {
-		switch stage {
-		case oapi.Fresh:
-			logger.Markup(query.T(world, "%s ate fresh %s.", actorMarkup, itemMarkup))
-		case oapi.Stale:
-			logger.Markup(query.T(world, "%s ate old %s.", actorMarkup, itemMarkup))
-		case oapi.Rotten:
-			logger.Markup(query.T(world, "%s ate spoiled %s.", actorMarkup, itemMarkup))
-		}
+		logger.Markup(query.T(world, world.Resources.NeedDefs.Freshness[stage].EatLog, actorMarkup, itemMarkup))
 	}
 	logger.Log()
 

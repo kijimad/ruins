@@ -2232,6 +2232,12 @@ type FactionMemberType string
 
 // FatigueStage 疲労の段階。疲労の割合が from 以上の段階のうち from が最大のものになる
 type FatigueStage struct {
+	// BadgeColor HUD に出すバッジの色。省くとバッジを出さない
+	BadgeColor *RGBAColor `json:"badgeColor,omitempty"`
+
+	// CanSleep この段階で眠れるか。疲れが足りない段階は眠れない
+	CanSleep bool `json:"canSleep"`
+
 	// From 最大値に対する割合
 	From NeedRatio `json:"from"`
 
@@ -2299,8 +2305,17 @@ type FoliageEffect struct {
 
 // FreshnessStage 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
 type FreshnessStage struct {
+	// EatLog 食べたときのログの msgid。%s は食べた者と食べ物
+	EatLog EntityDescription `json:"eatLog"`
+
 	// Id 鮮度の段階
 	Id FreshnessStageId `json:"id"`
+
+	// IllnessChancePercent 食べたとき食中毒を起こす確率。百分率。省くと起こさない
+	IllnessChancePercent *IllnessChancePercent `json:"illnessChancePercent,omitempty"`
+
+	// Marker メニューの行に鮮度を添えるか
+	Marker bool `json:"marker"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -2365,8 +2380,14 @@ type HitPoints = int
 
 // HungerStage 空腹の段階。満腹度の割合が from 以上の段階のうち from が最大のものになる
 type HungerStage struct {
+	// BadgeColor HUD に出すバッジの色。省くとバッジを出さない
+	BadgeColor *RGBAColor `json:"badgeColor,omitempty"`
+
 	// From 最大値に対する割合
 	From NeedRatio `json:"from"`
+
+	// Full 満腹の段階か。食べてこの段階になったら満腹を知らせる
+	Full *bool `json:"full,omitempty"`
 
 	// Id 空腹の段階
 	Id HungerStageId `json:"id"`
@@ -2376,10 +2397,16 @@ type HungerStage struct {
 
 	// Severity この段階で立つ栄養失調の重症度。省くと立たない
 	Severity *ConditionSeverity `json:"severity,omitempty"`
+
+	// WakesSleeper 寝ている者を起こす段階か
+	WakesSleeper *bool `json:"wakesSleeper,omitempty"`
 }
 
 // HungerStageId 空腹の段階
 type HungerStageId string
+
+// IllnessChancePercent 病気を起こす確率。百分率
+type IllnessChancePercent = int
 
 // ImagePath 画像ファイルパス
 type ImagePath = string
@@ -3167,6 +3194,9 @@ type ShelterInfluencePercent = int
 
 // SiteChoice 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
 type SiteChoice struct {
+	// Fence 敷地を塀で囲うか。街路に面して開く敷地は囲わない
+	Fence bool `json:"fence"`
+
 	// HomeWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
 	HomeWeight SiteWeight `json:"homeWeight"`
 

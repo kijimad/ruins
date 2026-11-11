@@ -2898,6 +2898,7 @@ components:
         - id
         - name
         - from
+        - canSleep
       properties:
         id:
           $ref: '#/components/schemas/FatigueStageId'
@@ -2905,6 +2906,13 @@ components:
           $ref: '#/components/schemas/EntityName'
         from:
           $ref: '#/components/schemas/NeedRatio'
+        canSleep:
+          type: boolean
+          description: この段階で眠れるか。疲れが足りない段階は眠れない
+        badgeColor:
+          allOf:
+            - $ref: '#/components/schemas/RGBAColor'
+          description: HUD に出すバッジの色。省くとバッジを出さない
         severity:
           allOf:
             - $ref: '#/components/schemas/ConditionSeverity'
@@ -2981,6 +2989,8 @@ components:
         - id
         - name
         - nutritionPercent
+        - eatLog
+        - marker
       properties:
         id:
           $ref: '#/components/schemas/FreshnessStageId'
@@ -2988,6 +2998,17 @@ components:
           $ref: '#/components/schemas/EntityName'
         nutritionPercent:
           $ref: '#/components/schemas/NutritionPercent'
+        eatLog:
+          allOf:
+            - $ref: '#/components/schemas/EntityDescription'
+          description: 食べたときのログの msgid。%s は食べた者と食べ物
+        marker:
+          type: boolean
+          description: メニューの行に鮮度を添えるか
+        illnessChancePercent:
+          allOf:
+            - $ref: '#/components/schemas/IllnessChancePercent'
+          description: 食べたとき食中毒を起こす確率。百分率。省くと起こさない
       description: 鮮度の段階の表示名と、食べたとき得る栄養の割合。段階の境目は Go の Perishable が持つ
     FreshnessStageId:
       type: string
@@ -3099,6 +3120,16 @@ components:
           $ref: '#/components/schemas/EntityName'
         from:
           $ref: '#/components/schemas/NeedRatio'
+        full:
+          type: boolean
+          description: 満腹の段階か。食べてこの段階になったら満腹を知らせる
+        wakesSleeper:
+          type: boolean
+          description: 寝ている者を起こす段階か
+        badgeColor:
+          allOf:
+            - $ref: '#/components/schemas/RGBAColor'
+          description: HUD に出すバッジの色。省くとバッジを出さない
         severity:
           allOf:
             - $ref: '#/components/schemas/ConditionSeverity'
@@ -3112,6 +3143,11 @@ components:
         - hungry
         - starving
       description: 空腹の段階
+    IllnessChancePercent:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 病気を起こす確率。百分率
     ImagePath:
       type: string
       minLength: 1
@@ -4502,6 +4538,7 @@ components:
         - homeWeight
         - shopWeight
         - yardDepth
+        - fence
       properties:
         id:
           $ref: '#/components/schemas/SiteType'
@@ -4511,6 +4548,9 @@ components:
           $ref: '#/components/schemas/SiteWeight'
         yardDepth:
           $ref: '#/components/schemas/YardDepth'
+        fence:
+          type: boolean
+          description: 敷地を塀で囲うか。街路に面して開く敷地は囲わない
       description: 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
     SiteType:
       type: string

@@ -279,6 +279,11 @@ enum FreshnessStageId {
   rotten,
 }
 
+/** 病気を起こす確率。百分率 */
+@minValue(0)
+@maxValue(100)
+scalar IllnessChancePercent extends integer;
+
 /** 食料から得る栄養の満額に対する割合。百分率 */
 @minValue(0)
 @maxValue(100)

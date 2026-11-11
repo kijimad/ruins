@@ -25,6 +25,7 @@ type Site struct {
 	Door      Vec
 	Rooms     []PlannedRoom
 	Type      oapi.SiteType
+	Fence     bool // 敷地を塀で囲うか
 }
 
 // planSite は footprint を建物と庭に分ける。敷地類型で前庭の深さを変え、入口側に前庭を空けて建物を内寄せし、
@@ -73,7 +74,7 @@ func planSite(t profileTable, footprint Rect, seed uint64, door Vec, fac oapi.Fa
 		}
 	}
 
-	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled, Type: st.Id}
+	return Site{Footprint: footprint, Building: building, Garden: garden, ExtraWall: extra, Door: bdoor, Rooms: labeled, Type: st.Id, Fence: st.Fence}
 }
 
 // attachDoor は入口の内側の部屋へ door を戸口として足す。入口の1マス内側を含む部屋を探す。ポーチで下げた

@@ -343,24 +343,24 @@ func extractStatusBadgesData(world w.World, messageAreaHeight int) hud.StatusBad
 		entity := hungerQuery.Entity()
 		if hunger := world.Components.Hunger.Get(entity); hunger != nil {
 			level := hunger.GetLevel(world.Resources.NeedDefs)
-			if level != oapi.HungerStageIdNormal {
+			if stage, _ := world.Resources.NeedDefs.HungerStageOf(level); stage.Badge != nil {
 				badges = append(badges, hud.StatusBadge{
 					Text:  query.HungerName(world, level),
-					Color: getHungerBadgeColor(level),
+					Color: *stage.Badge,
 				})
 			}
 		}
 	}
 
-	// プレイヤーの疲労バッジ。Tired/Exhausted のときだけ出す
+	// プレイヤーの疲労バッジ。段階の行が色を持つときだけ出す
 	fatigueQuery := ecs.NewFilter2[gc.Player, gc.Fatigue](world.ECS).Query()
 	for fatigueQuery.Next() {
 		entity := fatigueQuery.Entity()
 		level := world.Components.Fatigue.Get(entity).GetLevel(world.Resources.NeedDefs)
-		if level == oapi.FatigueStageIdTired || level == oapi.FatigueStageIdExhausted {
+		if stage, _ := world.Resources.NeedDefs.FatigueStageOf(level); stage.Badge != nil {
 			badges = append(badges, hud.StatusBadge{
 				Text:  query.FatigueName(world, level),
-				Color: getFatigueBadgeColor(level),
+				Color: *stage.Badge,
 			})
 		}
 	}
@@ -497,26 +497,4 @@ func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA 
 		return theme.LerpColor(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
 	}
 	return theme.LerpColor(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
-}
-
-// getFatigueBadgeColor は疲労段階に応じたバッジ色を返す。疲労は黄、過労は赤
-func getFatigueBadgeColor(level oapi.FatigueStageId) color.RGBA {
-	if level == oapi.FatigueStageIdExhausted {
-		return color.RGBA{255, 50, 50, 255}
-	}
-	return color.RGBA{255, 200, 0, 255}
-}
-
-// getHungerBadgeColor は空腹度に応じたバッジ色を返す
-func getHungerBadgeColor(level oapi.HungerStageId) color.RGBA {
-	switch level {
-	case oapi.HungerStageIdSatiated:
-		return color.RGBA{100, 200, 100, 255} // 緑（満腹）
-	case oapi.HungerStageIdHungry:
-		return color.RGBA{255, 200, 0, 255} // 黄色（空腹）
-	case oapi.HungerStageIdStarving:
-		return color.RGBA{255, 50, 50, 255} // 赤（飢餓）
-	default:
-		return color.RGBA{255, 255, 255, 255}
-	}
 }

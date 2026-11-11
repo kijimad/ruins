@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
@@ -74,43 +73,6 @@ func TestExtractMacroMapData_オーバーワールドは近傍をフォグ付き
 	}
 	assert.Positive(t, discovered, "プレイヤー周辺は開放される")
 	assert.Positive(t, hidden, "未探索の近傍はフォグで伏せる")
-}
-
-func TestGetHungerBadgeColor(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name     string
-		level    oapi.HungerStageId
-		expected color.RGBA
-	}{
-		{
-			name:     "満腹状態は緑",
-			level:    oapi.HungerStageIdSatiated,
-			expected: color.RGBA{100, 200, 100, 255},
-		},
-		{
-			name:     "空腹状態は黄色",
-			level:    oapi.HungerStageIdHungry,
-			expected: color.RGBA{255, 200, 0, 255},
-		},
-		{
-			name:     "飢餓状態は赤",
-			level:    oapi.HungerStageIdStarving,
-			expected: color.RGBA{255, 50, 50, 255},
-		},
-		{
-			name:     "普通状態はデフォルトの白",
-			level:    oapi.HungerStageIdNormal,
-			expected: color.RGBA{255, 255, 255, 255},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, getHungerBadgeColor(tt.level))
-		})
-	}
 }
 
 func TestExtractGameInfo(t *testing.T) {
@@ -250,7 +212,8 @@ func TestExtractStatusBadgesData(t *testing.T) {
 			require.Len(t, data.Badges, tt.wantBadges)
 			if tt.wantBadges > 0 {
 				assert.Equal(t, query.HungerName(world, hunger.GetLevel(world.Resources.NeedDefs)), data.Badges[0].Text)
-				assert.Equal(t, getHungerBadgeColor(hunger.GetLevel(world.Resources.NeedDefs)), data.Badges[0].Color)
+				stage, _ := world.Resources.NeedDefs.HungerStageOf(hunger.GetLevel(world.Resources.NeedDefs))
+				assert.Equal(t, *stage.Badge, data.Badges[0].Color)
 			}
 			assert.Equal(t, 640, data.ScreenDimensions.Width)
 			assert.Equal(t, 480, data.ScreenDimensions.Height)
@@ -530,25 +493,6 @@ func TestTemperatureStateBadge_快適時は出さない(t *testing.T) {
 
 	_, ok := temperatureStateBadge(world, e)
 	assert.False(t, ok, "体温状態が無ければバッジを出さない")
-}
-
-func TestGetFatigueBadgeColor(t *testing.T) {
-	t.Parallel()
-
-	// 色の RGBA 値そのものは固定せず、過労が別色の警告になること、非過労が同色になることを見る
-	t.Run("過労は非過労と異なる警告色になる", func(t *testing.T) {
-		t.Parallel()
-		exhausted := getFatigueBadgeColor(oapi.FatigueStageIdExhausted)
-		normal := getFatigueBadgeColor(oapi.FatigueStageIdNormal)
-		assert.NotEqual(t, normal, exhausted, "過労は非過労と別色")
-		assert.Less(t, exhausted.G, normal.G, "過労はより赤寄りで緑成分が小さい")
-	})
-
-	t.Run("過労以外は同じ注意色になる", func(t *testing.T) {
-		t.Parallel()
-		assert.Equal(t, getFatigueBadgeColor(oapi.FatigueStageIdNormal), getFatigueBadgeColor(oapi.FatigueStageIdTired),
-			"非過労の段階は同じ色")
-	})
 }
 
 func TestAmbientTempDisplayColor(t *testing.T) {

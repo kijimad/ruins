@@ -1175,6 +1175,14 @@ func NewMaterialDefs(raws oapi.Raws) gc.MaterialDefs {
 	return defs
 }
 
+// toRGBA は raw の色を color.RGBA にする。nil なら nil を返す
+func toRGBA(c *oapi.RGBAColor) *color.RGBA {
+	if c == nil {
+		return nil
+	}
+	return &color.RGBA{R: c.R, G: c.G, B: c.B, A: c.A}
+}
+
 // NewNeedDefs は raw の hungerStages、fatigueStages、freshnessStages から空腹と疲労と鮮度の段階の表を組み立てる
 func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	conditionOf := func(s *oapi.ConditionSeverity) gc.Severity {
@@ -1185,15 +1193,24 @@ func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
 	}
 	hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))
 	for _, row := range PtrSlice(raws.HungerStages) {
-		hunger = append(hunger, gc.HungerStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
+		hunger = append(hunger, gc.HungerStage{
+			Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity),
+			Full: deref(row.Full), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),
+		})
 	}
 	fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))
 	for _, row := range PtrSlice(raws.FatigueStages) {
-		fatigue = append(fatigue, gc.FatigueStage{Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity)})
+		fatigue = append(fatigue, gc.FatigueStage{
+			Level: row.Id, Name: row.Name, From: row.From, Condition: conditionOf(row.Severity),
+			CanSleep: row.CanSleep, Badge: toRGBA(row.BadgeColor),
+		})
 	}
 	freshness := make(map[oapi.FreshnessStageId]gc.FreshnessDef, len(PtrSlice(raws.FreshnessStages)))
 	for _, row := range PtrSlice(raws.FreshnessStages) {
-		freshness[row.Id] = gc.FreshnessDef{Name: row.Name, NutritionPercent: row.NutritionPercent}
+		freshness[row.Id] = gc.FreshnessDef{
+			Name: row.Name, NutritionPercent: row.NutritionPercent, EatLog: row.EatLog, Marker: row.Marker,
+			IllnessChancePercent: deref(row.IllnessChancePercent),
+		}
 	}
 	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
 }

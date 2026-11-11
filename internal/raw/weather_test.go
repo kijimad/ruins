@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"image/color"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -140,21 +141,21 @@ func TestNewNeedDefs_実データ(t *testing.T) {
 
 	assert.Equal(t, gc.NeedDefs{
 		Hunger: []gc.HungerStage{
-			{Level: oapi.HungerStageIdSatiated, Name: "Full", From: 0.95},
+			{Level: oapi.HungerStageIdSatiated, Name: "Full", From: 0.95, Full: true, Badge: &color.RGBA{100, 200, 100, 255}},
 			{Level: oapi.HungerStageIdNormal, Name: "Normal", From: 0.66},
-			{Level: oapi.HungerStageIdHungry, Name: "Hungry", From: 0.33, Condition: gc.SeverityMinor},
-			{Level: oapi.HungerStageIdStarving, Name: "Starving", From: 0, Condition: gc.SeverityMedium},
+			{Level: oapi.HungerStageIdHungry, Name: "Hungry", From: 0.33, Condition: gc.SeverityMinor, Badge: &color.RGBA{255, 200, 0, 255}},
+			{Level: oapi.HungerStageIdStarving, Name: "Starving", From: 0, Condition: gc.SeverityMedium, WakesSleeper: true, Badge: &color.RGBA{255, 50, 50, 255}},
 		},
 		Fatigue: []gc.FatigueStage{
 			{Level: oapi.FatigueStageIdRested, Name: "Rested", From: 0},
-			{Level: oapi.FatigueStageIdNormal, Name: "Normal", From: 0.3},
-			{Level: oapi.FatigueStageIdTired, Name: "Tired", From: 0.5, Condition: gc.SeverityMinor},
-			{Level: oapi.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium},
+			{Level: oapi.FatigueStageIdNormal, Name: "Normal", From: 0.3, CanSleep: true},
+			{Level: oapi.FatigueStageIdTired, Name: "Tired", From: 0.5, Condition: gc.SeverityMinor, CanSleep: true, Badge: &color.RGBA{255, 200, 0, 255}},
+			{Level: oapi.FatigueStageIdExhausted, Name: "Exhausted", From: 0.8, Condition: gc.SeverityMedium, CanSleep: true, Badge: &color.RGBA{255, 50, 50, 255}},
 		},
 		Freshness: map[oapi.FreshnessStageId]gc.FreshnessDef{
-			oapi.Fresh:  {Name: "Fresh", NutritionPercent: 100},
-			oapi.Stale:  {Name: "Stale", NutritionPercent: 50},
-			oapi.Rotten: {Name: "Rotten", NutritionPercent: 30},
+			oapi.Fresh:  {Name: "Fresh", NutritionPercent: 100, EatLog: "%s ate fresh %s."},
+			oapi.Stale:  {Name: "Stale", NutritionPercent: 50, EatLog: "%s ate old %s.", Marker: true},
+			oapi.Rotten: {Name: "Rotten", NutritionPercent: 30, EatLog: "%s ate spoiled %s.", Marker: true, IllnessChancePercent: 25},
 		},
 	}, defs)
 }

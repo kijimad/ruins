@@ -105,9 +105,9 @@ func TestNewProfileTable_rawの抽選表を軸ごとに組む(t *testing.T) {
 			varHoarder:           {Id: oapi.Hoarder, Weight: 5, MinClutter: new(oapi.Filthy)},
 		},
 		sites: []oapi.SiteChoice{
-			{Id: oapi.Detached, HomeWeight: 1, ShopWeight: 0, YardDepth: 3},
+			{Id: oapi.Detached, HomeWeight: 1, ShopWeight: 0, YardDepth: 3, Fence: true},
 			{Id: oapi.Shopfront, HomeWeight: 0, ShopWeight: 1, YardDepth: 1},
-			{Id: oapi.Roadside, HomeWeight: 0, ShopWeight: 1, YardDepth: 5},
+			{Id: oapi.Roadside, HomeWeight: 0, ShopWeight: 1, YardDepth: 5, Fence: true},
 		},
 		facade:    oapi.FacadeRefs{Window: "window", Shutter: "shutter", Sign: "sign"},
 		lot:       oapi.LotRefs{Fence: "fence", Plant: "plant", Vending: "vending"},

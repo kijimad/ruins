@@ -3217,26 +3217,40 @@
   fallback = "depot_backroom"
 
 [[fatigueStages]]
+  canSleep = false
   from = 0.0
   id = "rested"
   name = "Rested"
 
 [[fatigueStages]]
+  canSleep = true
   from = 0.3
   id = "normal"
   name = "Normal"
 
 [[fatigueStages]]
+  canSleep = true
   from = 0.5
   id = "tired"
   name = "Tired"
   severity = "minor"
+  [fatigueStages.badgeColor]
+    a = 255
+    b = 0
+    g = 200
+    r = 255
 
 [[fatigueStages]]
+  canSleep = true
   from = 0.8
   id = "exhausted"
   name = "Exhausted"
   severity = "medium"
+  [fatigueStages.badgeColor]
+    a = 255
+    b = 50
+    g = 50
+    r = 255
 
 [flavorContent]
   id = "flavor"
@@ -3267,24 +3281,37 @@
   tempModifier = -3
 
 [[freshnessStages]]
+  eatLog = "%s ate fresh %s."
   id = "fresh"
+  marker = false
   name = "Fresh"
   nutritionPercent = 100
 
 [[freshnessStages]]
+  eatLog = "%s ate old %s."
   id = "stale"
+  marker = true
   name = "Stale"
   nutritionPercent = 50
 
 [[freshnessStages]]
+  eatLog = "%s ate spoiled %s."
   id = "rotten"
+  illnessChancePercent = 25
+  marker = true
   name = "Rotten"
   nutritionPercent = 30
 
 [[hungerStages]]
   from = 0.95
+  full = true
   id = "satiated"
   name = "Full"
+  [hungerStages.badgeColor]
+    a = 255
+    b = 100
+    g = 200
+    r = 100
 
 [[hungerStages]]
   from = 0.66
@@ -3296,12 +3323,23 @@
   id = "hungry"
   name = "Hungry"
   severity = "minor"
+  [hungerStages.badgeColor]
+    a = 255
+    b = 0
+    g = 200
+    r = 255
 
 [[hungerStages]]
   from = 0.0
   id = "starving"
   name = "Starving"
   severity = "medium"
+  wakesSleeper = true
+  [hungerStages.badgeColor]
+    a = 255
+    b = 50
+    g = 50
+    r = 255
 
 [[interiorContents]]
   id = "bath"
@@ -4601,18 +4639,21 @@
     vending = "vending"
 
   [[interiorProfile.sites]]
+    fence = true
     homeWeight = 1
     id = "detached"
     shopWeight = 0
     yardDepth = 3
 
   [[interiorProfile.sites]]
+    fence = false
     homeWeight = 0
     id = "shopfront"
     shopWeight = 1
     yardDepth = 1
 
   [[interiorProfile.sites]]
+    fence = true
     homeWeight = 0
     id = "roadside"
     shopWeight = 1
