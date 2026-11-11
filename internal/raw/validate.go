@@ -1153,49 +1153,31 @@ func validateWeathers(raws oapi.Raws) error {
 	if len(weathers) == 0 {
 		return nil
 	}
-	ids := make([]string, 0, len(weathers))
 	for _, w := range weathers {
-		ids = append(ids, string(w.Id))
-		seasonIDs := make([]string, 0, len(w.Seasons))
-		for _, sw := range w.Seasons {
-			seasonIDs = append(seasonIDs, string(sw.Id))
-		}
-		if err := validateEnumRows("SeasonId", seasonIDs); err != nil {
+		if err := validateEnumRows("SeasonId", rowIDs(w.Seasons, func(sw oapi.WeatherSeasonWeight) oapi.SeasonId { return sw.Id })); err != nil {
 			return fmt.Errorf("weather %q: %w", w.Id, err)
 		}
 		if w.SpellTurnsMin > w.SpellTurnsMax {
 			return fmt.Errorf("weather %q: %w", w.Id, errSpellTurnsReversed)
 		}
 	}
-	return validateEnumRows("WeatherId", ids)
+	return validateEnumRows("WeatherId", rowIDs(weathers, func(w oapi.Weather) oapi.WeatherId { return w.Id }))
 }
 
 // validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
 func validateTileEffects(raws oapi.Raws) error {
 	if shelters := PtrSlice(raws.ShelterEffects); len(shelters) > 0 {
-		ids := make([]string, 0, len(shelters))
-		for _, s := range shelters {
-			ids = append(ids, string(s.Id))
-		}
-		if err := validateEnumRows("Shelter", ids); err != nil {
+		if err := validateEnumRows("Shelter", rowIDs(shelters, func(s oapi.ShelterEffect) oapi.Shelter { return s.Id })); err != nil {
 			return err
 		}
 	}
 	if water := PtrSlice(raws.WaterEffects); len(water) > 0 {
-		ids := make([]string, 0, len(water))
-		for _, w := range water {
-			ids = append(ids, string(w.Id))
-		}
-		if err := validateEnumRows("WaterExposure", ids); err != nil {
+		if err := validateEnumRows("WaterExposure", rowIDs(water, func(w oapi.WaterEffect) oapi.WaterExposure { return w.Id })); err != nil {
 			return err
 		}
 	}
 	if foliage := PtrSlice(raws.FoliageEffects); len(foliage) > 0 {
-		ids := make([]string, 0, len(foliage))
-		for _, f := range foliage {
-			ids = append(ids, string(f.Id))
-		}
-		if err := validateEnumRows("Foliage", ids); err != nil {
+		if err := validateEnumRows("Foliage", rowIDs(foliage, func(f oapi.FoliageEffect) oapi.Foliage { return f.Id })); err != nil {
 			return err
 		}
 	}
@@ -1205,33 +1187,19 @@ func validateTileEffects(raws oapi.Raws) error {
 // validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、割合0から始まる段階を持つことを検証する。
 // 割合0の段階が無いと、どの段階にも当たらない割合が生まれる
 func validateNeedStages(raws oapi.Raws) error {
-	hunger := PtrSlice(raws.HungerStages)
-	if len(hunger) > 0 {
-		ids := make([]string, 0, len(hunger))
-		froms := make([]float64, 0, len(hunger))
-		for _, h := range hunger {
-			ids = append(ids, string(h.Id))
-			froms = append(froms, h.From)
-		}
-		if err := validateEnumRows("HungerStageId", ids); err != nil {
+	if hunger := PtrSlice(raws.HungerStages); len(hunger) > 0 {
+		if err := validateEnumRows("HungerStageId", rowIDs(hunger, func(h oapi.HungerStage) oapi.HungerStageId { return h.Id })); err != nil {
 			return err
 		}
-		if !slices.Contains(froms, 0) {
+		if !slices.ContainsFunc(hunger, func(h oapi.HungerStage) bool { return h.From == 0 }) {
 			return fmt.Errorf("hunger: %w", errNeedStageNoZero)
 		}
 	}
-	fatigue := PtrSlice(raws.FatigueStages)
-	if len(fatigue) > 0 {
-		ids := make([]string, 0, len(fatigue))
-		froms := make([]float64, 0, len(fatigue))
-		for _, f := range fatigue {
-			ids = append(ids, string(f.Id))
-			froms = append(froms, f.From)
-		}
-		if err := validateEnumRows("FatigueStageId", ids); err != nil {
+	if fatigue := PtrSlice(raws.FatigueStages); len(fatigue) > 0 {
+		if err := validateEnumRows("FatigueStageId", rowIDs(fatigue, func(f oapi.FatigueStage) oapi.FatigueStageId { return f.Id })); err != nil {
 			return err
 		}
-		if !slices.Contains(froms, 0) {
+		if !slices.ContainsFunc(fatigue, func(f oapi.FatigueStage) bool { return f.From == 0 }) {
 			return fmt.Errorf("fatigue: %w", errNeedStageNoZero)
 		}
 	}

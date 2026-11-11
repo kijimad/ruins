@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -146,4 +147,15 @@ func TestLevelMaps_スキーマのenumの全値を持つ(t *testing.T) {
 	assert.ElementsMatch(t, enum("BuildingDamage"), mapKeys(damageLevels))
 	assert.ElementsMatch(t, enum("BuildingClutter"), mapKeys(clutterLevels))
 	assert.ElementsMatch(t, enum("BuildingVariant"), mapKeys(variantKinds))
+}
+
+func TestClutterRefs_散らかりの小物はrawのpropに実在する(t *testing.T) {
+	t.Parallel()
+
+	for _, role := range []roleName{"bedroom", "kitchen"} {
+		for _, ref := range clutterRefs(role) {
+			_, err := raw.GetProp(testRaws(), ref)
+			assert.NoError(t, err, "%s の %s", role, ref)
+		}
+	}
 }
