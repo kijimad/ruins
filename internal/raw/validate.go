@@ -658,19 +658,22 @@ func validateSettlements(raws oapi.Raws) error {
 	if err := validateUniqueIDs("settlement", settlements, func(s oapi.Settlement) string { return s.Id }); err != nil {
 		return err
 	}
+	members := idSet(PtrSlice(raws.Members), func(m oapi.Member) string { return m.Id })
+	props := idSet(PtrSlice(raws.Props), func(p oapi.Prop) string { return p.Id })
+	glyphs := idSet(PtrSlice(raws.MapGlyphs), func(g oapi.MapGlyph) string { return g.Id })
 	for i := range settlements {
 		s := &settlements[i]
 		for _, m := range s.Members {
-			if _, ok := findByKey(raws.Members, func(r oapi.Member) string { return r.Id }, m.Name); !ok {
+			if _, ok := members[m.Name]; !ok {
 				return fmt.Errorf("settlement %q member %q: %w", s.Id, m.Name, errSettlementMemberUndefined)
 			}
 		}
 		for _, p := range s.Props {
-			if _, ok := findByKey(raws.Props, func(r oapi.Prop) string { return r.Id }, p.Name); !ok {
+			if _, ok := props[p.Name]; !ok {
 				return fmt.Errorf("settlement %q prop %q: %w", s.Id, p.Name, errSettlementPropUndefined)
 			}
 		}
-		if _, ok := findByKey(raws.MapGlyphs, func(r oapi.MapGlyph) string { return r.Id }, s.Id); !ok {
+		if _, ok := glyphs[s.Id]; !ok {
 			return fmt.Errorf("settlement %q: %w", s.Id, errMapGlyphMissing)
 		}
 	}
@@ -1064,10 +1067,7 @@ func validateInteriorRefs(raws oapi.Raws) error {
 // validateTileSpawns はタイルの生成の仕様が指すタイルが実在することを検証する
 func validateTileSpawns(raws oapi.Raws) error {
 	tiles := PtrSlice(raws.Tiles)
-	tileIDs := make(map[string]struct{}, len(tiles))
-	for i := range tiles {
-		tileIDs[tiles[i].Id] = struct{}{}
-	}
+	tileIDs := idSet(tiles, func(t oapi.Tile) string { return t.Id })
 	for i := range tiles {
 		sp := tiles[i].Spawn
 		if sp == nil || sp.Tile == nil {
@@ -1114,6 +1114,15 @@ func validateDungeons(raws oapi.Raws) error {
 		}
 	}
 	return nil
+}
+
+// idSet は行それぞれの id の集合を返す
+func idSet[R any](rows []R, id func(R) string) map[string]struct{} {
+	out := make(map[string]struct{}, len(rows))
+	for _, r := range rows {
+		out[id(r)] = struct{}{}
+	}
+	return out
 }
 
 // rowIDs は行それぞれの enum の id を文字列にして返す
