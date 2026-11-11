@@ -90,7 +90,9 @@ func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnStat
 		if !playerHasActivity(world) {
 			break // 完了・中断したら通常進行へ戻す
 		}
-		processPlayerContinuousActivity(world)
+		if _, err := processPlayerContinuousActivity(world); err != nil {
+			return err
+		}
 		if err := runAIPhase(world); err != nil {
 			return err
 		}
@@ -263,23 +265,22 @@ func runTurnEndSystems(world w.World) error {
 
 // processPlayerContinuousActivity はプレイヤーの継続アクションを1ステップ処理する。
 // 進行中なら true を返し、呼び出し側がAIフェーズへ遷移させて世界を1ターン進める
-func processPlayerContinuousActivity(world w.World) bool {
-	// プレイヤーエンティティを取得
+func processPlayerContinuousActivity(world w.World) (bool, error) {
+	if !playerHasActivity(world) {
+		return false, nil
+	}
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
-		return false
-	}
-
-	// プレイヤーの継続アクションをチェック
-	if !query.HasActivity(world, playerEntity) {
-		return false
+		return false, err
 	}
 
 	log := logger.New(logger.CategoryTurn)
 	log.Debug("player continuous action processing")
 
 	// 継続アクションの1ターン分を処理
-	activity.ProcessContinuousActivities(world)
+	if err := activity.ProcessContinuousActivities(world); err != nil {
+		return false, err
+	}
 
 	if !query.HasActivity(world, playerEntity) {
 		log.Debug("player continuous action done")
@@ -287,5 +288,5 @@ func processPlayerContinuousActivity(world w.World) bool {
 
 	// 継続中でも完了でもターンコストを消費する
 	query.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)
-	return true
+	return true, nil
 }
