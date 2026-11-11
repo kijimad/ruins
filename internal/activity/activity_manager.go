@@ -63,7 +63,7 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 	// 呼び出し側が同じ呼び出しで結果を必要とするため、初回で解決すれば同期的に結果を返す。
 	// アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
 	// 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
-	stepActivity(actor, world)
+	failed := stepActivity(actor, world)
 
 	currentActivity := query.GetActivity(world, actor)
 
@@ -77,9 +77,12 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 	} else {
 		// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
 		consumePassCost(world, actor, comp)
-		if currentActivity != nil && IsCanceled(currentActivity) {
+		switch {
+		case failed:
+			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: query.T(world, "an unexpected error occurred")}
+		case currentActivity != nil && IsCanceled(currentActivity):
 			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: query.T(world, currentActivity.CancelReason)}
-		} else {
+		default:
 			result = &ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "action completed"}
 		}
 	}
@@ -96,13 +99,13 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 // インスタンスなので、着手時の呼び出し側インスタンスはここでは使わない。ライフサイクルを常に
 // ゼロ値インスタンスで回すことで、per-アクティビティの状態は gc.Activity に置くという規律が経路によらず一貫する。
 //
-// DoTurn が失敗すればキャンセルし、完了していれば Finish して直近結果を記録し除去する。
+// DoTurn が失敗すればキャンセルして true を返し、完了していれば Finish して直近結果を記録し除去する。
 // アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
 // 消えても走査中コンポーネントの破壊による panic を招かない。
-func stepActivity(entity ecs.Entity, world w.World) {
+func stepActivity(entity ecs.Entity, world w.World) (failed bool) {
 	stored := query.GetActivity(world, entity)
 	if stored == nil {
-		return
+		return false
 	}
 
 	behaviorName := stored.BehaviorName
@@ -110,13 +113,13 @@ func stepActivity(entity ecs.Entity, world w.World) {
 	if err != nil {
 		log.Error("failed to get behavior", "entity", entity, "error", err.Error())
 		query.RemoveActivity(world, entity)
-		return
+		return false
 	}
 
 	if err := behavior.DoTurn(stored, entity, world); err != nil {
 		log.Error("activity turn processing error", "entity", entity, "type", behaviorName, "error", err.Error())
 		CancelActivity(entity, "an unexpected error occurred", world)
-		return
+		return true
 	}
 
 	// DoTurn が自ら中断したときは Canceled フックを走らせて後始末とログを行う。
@@ -135,11 +138,11 @@ func stepActivity(entity ecs.Entity, world w.World) {
 			ActivityName: behaviorName,
 			Message:      string(reason),
 		}, world)
-		return
+		return false
 	}
 
 	if !IsCompleted(stored) {
-		return
+		return false
 	}
 
 	if err := behavior.Finish(stored, entity, world); err != nil {
@@ -152,6 +155,7 @@ func stepActivity(entity ecs.Entity, world w.World) {
 		Message:      "completed",
 	}, world)
 	query.RemoveActivity(world, entity)
+	return false
 }
 
 // setLastResult はエンティティの直近アクティビティ結果を設定する

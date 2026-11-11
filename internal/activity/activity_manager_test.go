@@ -488,3 +488,22 @@ func TestStepActivity(t *testing.T) {
 		assert.Equal(t, "an unexpected error occurred", result.Message)
 	})
 }
+
+func TestExecute_DoTurnが失敗すると中断の結果を返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	// Validate は会話と中立だけを見る。名前を持たない相手は DoTurn で失敗する
+	npc := world.ECS.NewEntity()
+	world.Components.Dialog.Add(npc, &gc.Dialog{MessageKey: "test"})
+	world.Components.FactionNeutral.Add(npc, &gc.FactionNeutral{})
+
+	result, err := Execute(NewTalkActivity(npc), player, world)
+	require.NoError(t, err)
+
+	want := ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: gc.BehaviorTalk, Message: "an unexpected error occurred"}
+	assert.Equal(t, want, *result)
+	assert.Equal(t, &gc.LastActivity{BehaviorName: gc.BehaviorTalk, State: gc.ActivityStateCanceled, Success: false, Message: "an unexpected error occurred"}, GetLastResult(player, world))
+}

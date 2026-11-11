@@ -90,7 +90,7 @@ func isMsgidCall(fun ast.Expr, filePkg string) bool {
 		if !ok {
 			return false
 		}
-		return pkg.Name == "query" && fn.Sel.Name == "T" || pkg.Name == "activity" && cancelFuncs[fn.Sel.Name]
+		return (pkg.Name == "query" && fn.Sel.Name == "T") || (pkg.Name == "activity" && cancelFuncs[fn.Sel.Name])
 	case *ast.Ident:
 		return filePkg == "activity" && cancelFuncs[fn.Name]
 	}
