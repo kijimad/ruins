@@ -72,12 +72,10 @@ func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 
 // DoTurn はアイテムドロップアクティビティの1ターン分の処理を実行する
 func (db *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	// アイテムドロップ処理を実行
 	if err := db.performDrop(comp, actor, world); err != nil {
 		return err
 	}
 
-	// ドロップ処理完了
 	Complete(comp)
 	return nil
 }

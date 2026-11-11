@@ -320,7 +320,6 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateCanceled,
-			// 実コードと同じ英語の CancelReason を使う。表示時に query.T で日本語へ訳される
 			CancelReason: "rest interrupted because enemies are nearby",
 		}
 
