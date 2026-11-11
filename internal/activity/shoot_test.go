@@ -224,7 +224,7 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	})
 
-	t.Run("ターゲット未設定でキャンセルされる", func(t *testing.T) {
+	t.Run("ターゲット未設定でエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
@@ -233,7 +233,7 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 
 		err := sa.DoTurn(comp, player, world)
 		require.ErrorIs(t, err, ErrParamsTypeMismatch)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }
 

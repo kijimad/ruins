@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -251,8 +253,9 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		ra := &RestBehavior{}
 		err = ra.DoTurn(comp, player, world)
 
-		require.Error(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, i18n.Msgid("rest interrupted because enemies are nearby"), comp.CancelReason)
 	})
 
 	t.Run("必要量に達したら完了", func(t *testing.T) {

@@ -231,7 +231,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, 0, countBackpackByRawID(world, actor, "poison"), "使用したアイテムは消費される")
 	})
 
-	t.Run("Targetがnilの場合はキャンセルされる", func(t *testing.T) {
+	t.Run("Targetがnilの場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -248,7 +248,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		err := ua.DoTurn(comp, actor, world)
 
 		require.Error(t, err)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }
 

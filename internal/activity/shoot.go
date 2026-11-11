@@ -105,7 +105,6 @@ func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
-		Cancel(comp, "shoot target is not set")
 		return ErrParamsTypeMismatch
 	}
 
@@ -114,7 +113,6 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	// 装備武器を取得
 	fire, weaponName, err := getEquippedFire(actor, world)
 	if err != nil {
-		Cancel(comp, "no ranged weapon equipped")
 		return err
 	}
 

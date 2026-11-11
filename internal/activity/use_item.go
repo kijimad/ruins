@@ -95,7 +95,6 @@ func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.UseItemParams)
 	if !ok {
-		Cancel(comp, "item is not set")
 		return ErrParamsTypeMismatch
 	}
 

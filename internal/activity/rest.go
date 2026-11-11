@@ -65,7 +65,7 @@ func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// 周囲の安全性をチェック
 	if !query.IsAreaSafe(world, actor) {
 		Cancel(comp, "rest interrupted because enemies are nearby")
-		return ErrRestEnemiesNearby
+		return nil
 	}
 
 	// 今ターンのAPを注ぐ。APが高いほど速く休息が進む

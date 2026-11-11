@@ -113,13 +113,11 @@ func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.MoveParams)
 	if !ok {
-		Cancel(comp, "move destination is not set")
 		return ErrParamsTypeMismatch
 	}
 
 	// GridElementの存在確認
 	if !world.Components.GridElement.Has(actor) {
-		Cancel(comp, "cannot move (no position)")
 		return ErrMoveTargetInvalid
 	}
 	gridElement := world.Components.GridElement.Get(actor)
@@ -129,7 +127,6 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	to := p.Destination.Coord
 	from := grid.Coord
 	if !CanMoveTo(world, to, from, actor) {
-		Cancel(comp, "cannot move")
 		return ErrMoveTargetInvalid
 	}
 

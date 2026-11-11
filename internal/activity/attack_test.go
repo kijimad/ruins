@@ -546,7 +546,7 @@ func TestMeleeBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	})
 
-	t.Run("Paramsの型が不一致だとキャンセルされる", func(t *testing.T) {
+	t.Run("Paramsの型が不一致だとエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -563,10 +563,10 @@ func TestMeleeBehavior_DoTurn(t *testing.T) {
 		err = ab.DoTurn(comp, player, world)
 
 		require.ErrorIs(t, err, ErrParamsTypeMismatch)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 
-	t.Run("射程外の対象だとキャンセルされる", func(t *testing.T) {
+	t.Run("射程外の対象だとエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -582,7 +582,7 @@ func TestMeleeBehavior_DoTurn(t *testing.T) {
 		err = ab.DoTurn(comp, player, world)
 
 		require.ErrorIs(t, err, ErrAttackTargetInvalid)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }
 

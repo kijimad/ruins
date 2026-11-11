@@ -42,7 +42,6 @@ var (
 	ErrItemPickupFailed = errors.New("failed to pick up item")
 
 	// 休息関連エラー
-	ErrRestEnemiesNearby   = errors.New("cannot rest because enemies are nearby")
 	ErrRestInvalidDuration = errors.New("rest duration is invalid")
 
 	// 待機関連エラー

@@ -73,13 +73,11 @@ func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.OpenDoorParams)
 	if !ok {
-		Cancel(comp, "door entity is not set")
 		return ErrParamsTypeMismatch
 	}
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		Cancel(comp, "cannot get door component")
 		return fmt.Errorf("cannot get door component")
 	}
 	raw := world.Components.Door.Get(targetEntity)
@@ -201,13 +199,11 @@ func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.CloseDoorParams)
 	if !ok {
-		Cancel(comp, "door entity is not set")
 		return ErrParamsTypeMismatch
 	}
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		Cancel(comp, "cannot get door component")
 		return fmt.Errorf("cannot get door component")
 	}
 	raw := world.Components.Door.Get(targetEntity)
