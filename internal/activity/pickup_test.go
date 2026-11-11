@@ -116,7 +116,7 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		assert.False(t, world.Components.GridElement.Has(item))
 	})
 
-	t.Run("対象タイルにアイテムがない場合はキャンセルされる", func(t *testing.T) {
+	t.Run("対象タイルにアイテムがない場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -133,10 +133,10 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		err = pa.DoTurn(comp, player, world)
 
 		require.Error(t, err)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 
-	t.Run("パラメータがない場合はキャンセルされる", func(t *testing.T) {
+	t.Run("パラメータがない場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -153,7 +153,7 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		err = pa.DoTurn(comp, player, world)
 
 		require.Error(t, err)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }
 
@@ -329,6 +329,6 @@ func TestPickupBehavior_DoTurn_Prop(t *testing.T) {
 		err = pa.DoTurn(comp, player, world)
 
 		require.Error(t, err, "設置物は拾えない")
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }

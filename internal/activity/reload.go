@@ -95,7 +95,6 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
-		Cancel(comp, "no ranged weapon equipped")
 		return err
 	}
 

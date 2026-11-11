@@ -111,7 +111,6 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		Cancel(comp, "book is not set")
 		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {

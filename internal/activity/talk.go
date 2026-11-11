@@ -72,21 +72,18 @@ func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TalkParams)
 	if !ok {
-		Cancel(comp, "talk target is not set")
 		return ErrParamsTypeMismatch
 	}
 	targetEntity := p.Target
 
 	if !world.Components.Dialog.Has(targetEntity) {
-		Cancel(comp, "cannot get dialog data")
-		return fmt.Errorf("cannot get dialog data")
+		return ErrTalkNoDialog
 	}
 	dialogComp := world.Components.Dialog.Get(targetEntity)
 
 	// Nameコンポーネントから話者名を取得
 	if !world.Components.Name.Has(targetEntity) {
-		Cancel(comp, "target entity has no Name component")
-		return fmt.Errorf("target entity has no Name component")
+		return ErrTalkTargetNoName
 	}
 	nameComp := world.Components.Name.Get(targetEntity)
 	speakerName := nameComp.Name
@@ -112,7 +109,7 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {
 		if !world.Components.Name.Has(targetEntity) {
-			return fmt.Errorf("target entity has no Name component")
+			return ErrTalkTargetNoName
 		}
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "Talked with %s.", query.GetEntityName(targetEntity, world))).

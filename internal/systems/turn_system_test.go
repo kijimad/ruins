@@ -364,7 +364,8 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		result := processPlayerContinuousActivity(world)
+		result, err := processPlayerContinuousActivity(world)
+		require.NoError(t, err)
 
 		assert.False(t, result)
 	})
@@ -376,7 +377,8 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
-		result := processPlayerContinuousActivity(world)
+		result, err := processPlayerContinuousActivity(world)
+		require.NoError(t, err)
 
 		assert.False(t, result, "継続アクションがない場合はfalse")
 	})
@@ -398,7 +400,8 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		turnBased := world.Components.TurnBased.Get(player)
 		initialAP := turnBased.AP.Current
 
-		result := processPlayerContinuousActivity(world)
+		result, err := processPlayerContinuousActivity(world)
+		require.NoError(t, err)
 
 		assert.True(t, result, "継続アクションがある場合はtrue")
 		assert.Less(t, turnBased.AP.Current, initialAP, "APが消費されるべき")

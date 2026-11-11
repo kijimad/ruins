@@ -3,8 +3,6 @@ package activity
 import (
 	"fmt"
 
-	"github.com/kijimaD/ruins/internal/i18n"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -115,13 +113,11 @@ func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.MoveParams)
 	if !ok {
-		Cancel(comp, "move destination is not set")
 		return ErrParamsTypeMismatch
 	}
 
 	// GridElementの存在確認
 	if !world.Components.GridElement.Has(actor) {
-		Cancel(comp, "cannot move (no position)")
 		return ErrMoveTargetInvalid
 	}
 	gridElement := world.Components.GridElement.Get(actor)
@@ -131,12 +127,10 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	to := p.Destination.Coord
 	from := grid.Coord
 	if !CanMoveTo(world, to, from, actor) {
-		Cancel(comp, "cannot move")
 		return ErrMoveTargetInvalid
 	}
 
 	if err := mb.performMove(comp, actor, world); err != nil {
-		Cancel(comp, i18n.Msgid(fmt.Sprintf("move error: %s", err.Error())))
 		return err
 	}
 

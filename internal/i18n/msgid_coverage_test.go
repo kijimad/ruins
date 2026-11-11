@@ -49,9 +49,7 @@ func TestMsgidCoverage(t *testing.T) {
 			if !ok {
 				return true
 			}
-			// 第2引数が msgid になる呼び出しを拾う。query.T はその場で訳し、
-			// Cancel は reason を CancelReason に積んで activity_manager が query.T で訳す。
-			if !isMsgidCall(call.Fun) || len(call.Args) < 2 {
+			if !isMsgidCall(call.Fun, f.Name.Name) || len(call.Args) < 2 {
 				return true
 			}
 			lit, ok := call.Args[1].(*ast.BasicLit)
@@ -82,20 +80,29 @@ func TestMsgidCoverage(t *testing.T) {
 	require.Empty(t, missing, "ja.po に欠落している msgid:\n%s", strings.Join(missing, "\n"))
 }
 
-// isMsgidCall は呼び出しの第2引数が msgid になる関数かを返す。
-// query.T はその場で訳す。activity.Cancel は reason を CancelReason に積み、activity_manager が
+// isMsgidCall は呼び出しの第2引数が msgid になる関数かを返す。filePkg は呼び出しのあるファイルのパッケージ名。
+// query.T はその場で訳す。activity の中断の関数は reason を CancelReason に積み、表示するときに
 // query.T で訳すため、その reason も msgid として ja.po 存在を検証する。
-func isMsgidCall(fun ast.Expr) bool {
+func isMsgidCall(fun ast.Expr, filePkg string) bool {
 	switch fn := fun.(type) {
 	case *ast.SelectorExpr:
-		if pkg, ok := fn.X.(*ast.Ident); ok && pkg.Name == "query" && fn.Sel.Name == "T" {
-			return true
+		pkg, ok := fn.X.(*ast.Ident)
+		if !ok {
+			return false
 		}
-		return fn.Sel.Name == "Cancel"
+		return (pkg.Name == "query" && fn.Sel.Name == "T") || (pkg.Name == "activity" && cancelFuncs[fn.Sel.Name])
 	case *ast.Ident:
-		return fn.Name == "Cancel"
+		return filePkg == "activity" && cancelFuncs[fn.Name]
 	}
 	return false
+}
+
+// cancelFuncs は第2引数に中断の理由の msgid を取る activity の関数
+var cancelFuncs = map[string]bool{
+	"Cancel":            true,
+	"CancelActivity":    true,
+	"Interrupt":         true,
+	"InterruptActivity": true,
 }
 
 // bindingLabels は n が keybind.Binding の表か値なら、直書きの Label を返す。Label は keybind.HintEntries が query.T で訳す。

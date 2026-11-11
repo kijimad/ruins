@@ -115,17 +115,14 @@ func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 // DoTurn はBehaviorの実装
 func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if _, ok := comp.Params.(*gc.MeleeParams); !ok {
-		Cancel(comp, "attack target is not set")
 		return ErrParamsTypeMismatch
 	}
 
 	if !ab.canAttack(comp, actor, world) {
-		Cancel(comp, "cannot attack")
 		return ErrAttackTargetInvalid
 	}
 
 	if err := ab.performAttack(comp, actor, world); err != nil {
-		Cancel(comp, i18n.Msgid(fmt.Sprintf("attack error: %s", err.Error())))
 		return err
 	}
 

@@ -58,7 +58,9 @@ func (p *Processor) ProcessAll(world w.World) error {
 		if world.Components.Dead.Has(entity) {
 			continue
 		}
-		runAPLoop(world, entity, p.planner, p.logger)
+		if err := runAPLoop(world, entity, p.planner, p.logger); err != nil {
+			return err
+		}
 	}
 
 	return nil

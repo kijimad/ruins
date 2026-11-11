@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/kijimaD/ruins/internal/i18n"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -76,7 +74,6 @@ func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 func (pb *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// アイテム拾得処理を実行
 	if err := pb.performPickup(comp, actor, world); err != nil {
-		Cancel(comp, i18n.Msgid(fmt.Sprintf("item pickup error: %s", err.Error())))
 		return err
 	}
 

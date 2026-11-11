@@ -68,7 +68,6 @@ func (sb *SwapBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (sb *SwapBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.SwapParams)
 	if !ok {
-		Cancel(comp, "swap target is not set")
 		return ErrParamsTypeMismatch
 	}
 	actorGrid := world.Components.GridElement.Get(actor)

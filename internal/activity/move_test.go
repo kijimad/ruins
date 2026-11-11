@@ -112,7 +112,7 @@ func TestMoveBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, 10, int(gridElement.Y))
 	})
 
-	t.Run("移動先がnilの場合はキャンセルされる", func(t *testing.T) {
+	t.Run("移動先がnilの場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -128,10 +128,10 @@ func TestMoveBehavior_DoTurn(t *testing.T) {
 		err = ma.DoTurn(comp, player, world)
 
 		require.Error(t, err)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 
-	t.Run("位置情報がない場合はキャンセルされる", func(t *testing.T) {
+	t.Run("位置情報がない場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -149,7 +149,7 @@ func TestMoveBehavior_DoTurn(t *testing.T) {
 		err := ma.DoTurn(comp, player, world)
 
 		require.Error(t, err)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 
 }

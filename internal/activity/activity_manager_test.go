@@ -218,14 +218,14 @@ func TestProcessContinuousActivities(t *testing.T) {
 	assert.Equal(t, 2, summary["active"], "Expected 2 active activities")
 
 	// 1ターン目処理
-	ProcessContinuousActivities(world)
+	require.NoError(t, ProcessContinuousActivities(world))
 
 	// 両方まだ実行中。Arkは値で格納するため格納側を取り直して検証する。待機は毎ターン 1 累積する
 	assert.Equal(t, 1, query.GetActivity(world, actor1).Progress.Current, "Expected short activity to have accumulated 1")
 	assert.Equal(t, 1, query.GetActivity(world, actor2).Progress.Current, "Expected long activity to have accumulated 1")
 
 	// 2ターン目処理
-	ProcessContinuousActivities(world)
+	require.NoError(t, ProcessContinuousActivities(world))
 
 	// 短いアクティビティが完了。完了時は削除されるため結果コンポーネントで確認する
 	assert.Equal(t, gc.ActivityStateCompleted, GetLastResult(actor1, world).State, "Expected short activity to be completed")
@@ -445,13 +445,13 @@ func TestStepActivity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		actor := world.ECS.NewEntity()
 
-		stepActivity(actor, world)
+		require.NoError(t, stepActivity(actor, world))
 
 		assert.Nil(t, query.GetActivity(world, actor))
 		assert.Nil(t, GetLastResult(actor, world), "結果も記録されないはず")
 	})
 
-	t.Run("未登録のBehaviorNameはアクティビティを除去して終える", func(t *testing.T) {
+	t.Run("未登録のBehaviorNameはアクティビティを除去してエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		actor := world.ECS.NewEntity()
@@ -462,13 +462,12 @@ func TestStepActivity(t *testing.T) {
 		require.NoError(t, query.SetActivity(world, actor, comp))
 		require.NotNil(t, query.GetActivity(world, actor))
 
-		stepActivity(actor, world)
-
+		require.ErrorIs(t, stepActivity(actor, world), ErrBehaviorUnregistered)
 		assert.Nil(t, query.GetActivity(world, actor), "GetBehaviorに失敗したアクティビティは除去される")
 		assert.Nil(t, GetLastResult(actor, world), "GetBehaviorエラー時は結果も記録されない")
 	})
 
-	t.Run("DoTurnがエラーを返すとキャンセルして除去する", func(t *testing.T) {
+	t.Run("DoTurnがエラーを返すと除去してエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		actor := world.ECS.NewEntity()
@@ -479,11 +478,27 @@ func TestStepActivity(t *testing.T) {
 		comp := &gc.Activity{BehaviorName: gc.BehaviorDrop, State: gc.ActivityStateRunning}
 		require.NoError(t, query.SetActivity(world, actor, comp))
 
-		stepActivity(actor, world)
+		err := stepActivity(actor, world)
 
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 		assert.Nil(t, query.GetActivity(world, actor), "DoTurnが失敗したアクティビティは除去される")
-		result := GetLastResult(actor, world)
-		require.NotNil(t, result)
-		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.Nil(t, GetLastResult(actor, world), "失敗は結果として記録しない")
 	})
+}
+
+func TestExecute_DoTurnが失敗するとエラーを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	// Validate は会話と中立だけを見る。名前を持たない相手は DoTurn で失敗する
+	npc := world.ECS.NewEntity()
+	world.Components.Dialog.Add(npc, &gc.Dialog{MessageKey: "test"})
+	world.Components.FactionNeutral.Add(npc, &gc.FactionNeutral{})
+
+	_, err = Execute(NewTalkActivity(npc), player, world)
+
+	require.ErrorIs(t, err, ErrTalkTargetNoName)
+	assert.Nil(t, query.GetActivity(world, player), "失敗したアクティビティは除去される")
 }

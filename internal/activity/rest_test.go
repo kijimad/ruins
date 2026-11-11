@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -251,8 +253,9 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		ra := &RestBehavior{}
 		err = ra.DoTurn(comp, player, world)
 
-		require.Error(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, i18n.Msgid("rest interrupted because enemies are nearby"), comp.CancelReason)
 	})
 
 	t.Run("必要量に達したら完了", func(t *testing.T) {
@@ -317,7 +320,6 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateCanceled,
-			// 実コードと同じ英語の CancelReason を使う。表示時に query.T で日本語へ訳される
 			CancelReason: "rest interrupted because enemies are nearby",
 		}
 
@@ -328,8 +330,7 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "Rest interrupted")
-		assert.Contains(t, recent[0], "rest interrupted because enemies are nearby")
+		assert.Equal(t, "Rest interrupted: rest interrupted because enemies are nearby", recent[0])
 	})
 }
 

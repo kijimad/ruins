@@ -142,7 +142,7 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	})
 
-	t.Run("Nameコンポーネントがない場合はキャンセルされる", func(t *testing.T) {
+	t.Run("Nameコンポーネントがない場合はエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -164,6 +164,6 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		err = ta.DoTurn(comp, player, world)
 
 		require.Error(t, err)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }
