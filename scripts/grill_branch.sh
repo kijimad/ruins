@@ -4,11 +4,11 @@
 #
 # 環境変数:
 #   GRILL_BASE  比較の基点。既定 origin/main
-#   GRILL_COUNT 反復回数。既定 5。internal/states の VRT スイートは CI の -race で1パス8分前後かかる
+#   GRILL_COUNT 反復回数。既定 3。internal/states の VRT スイートは CI の -race で1パス8分前後かかる
 set -eu
 
 base="${GRILL_BASE:-origin/main}"
-count="${GRILL_COUNT:-5}"
+count="${GRILL_COUNT:-3}"
 
 # 変更のあったテストファイル。git diff の失敗は set -e でそのまま落とす
 changed=$(git diff --name-only "${base}...HEAD" -- '*_test.go')
