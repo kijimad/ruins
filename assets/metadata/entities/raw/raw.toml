@@ -6543,11 +6543,6 @@
     weight = 2.0
 
   [[itemGroups.entries]]
-    id = "wooden_stick"
-    pack = "1d1"
-    weight = 2.0
-
-  [[itemGroups.entries]]
     id = "nail_bat"
     pack = "1d1"
     weight = 2.0
@@ -7955,6 +7950,39 @@
     weight = 1
 
 [[itemGroups]]
+  id = "kitchen_utensils"
+  name = "台所の道具"
+
+  [[itemGroups.entries]]
+    id = "cleaver"
+    pack = "1d1"
+    weight = 1
+
+[[itemGroups]]
+  id = "hand_tools"
+  name = "工具"
+
+  [[itemGroups.entries]]
+    id = "hammer"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "monkey_wrench"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "axe"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "pickaxe"
+    pack = "1d1"
+    weight = 1
+
+[[itemGroups]]
   id = "household_goods"
   name = "日用品"
 
@@ -8689,6 +8717,12 @@
     minDanger = 1
     weight = 1
 
+  [[itemTables.entries]]
+    id = "hand_tools"
+    maxDanger = 30
+    minDanger = 1
+    weight = 1
+
 [[itemTables]]
   id = "house_kitchen"
   name = "家の台所"
@@ -8707,6 +8741,12 @@
 
   [[itemTables.entries]]
     id = "scrap_of_paper"
+    maxDanger = 30
+    minDanger = 1
+    weight = 1
+
+  [[itemTables.entries]]
+    id = "kitchen_utensils"
     maxDanger = 30
     minDanger = 1
     weight = 1
@@ -8777,6 +8817,12 @@
 
   [[itemTables.entries]]
     id = "junk"
+    maxDanger = 30
+    minDanger = 1
+    weight = 2
+
+  [[itemTables.entries]]
+    id = "hand_tools"
     maxDanger = 30
     minDanger = 1
     weight = 2
@@ -22486,6 +22532,14 @@
   [[recipes.inputs]]
     amount = 1
     id = "yellow_herb"
+
+[[recipes]]
+  id = "wooden_stick"
+  name = "Wooden Stick"
+
+  [[recipes.inputs]]
+    amount = 2
+    id = "branch"
 
 [[recipes]]
   id = "wooden_sword"
