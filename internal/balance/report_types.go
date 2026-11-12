@@ -2,7 +2,7 @@ package balance
 
 // BattleMetric 武器×敵の戦闘シミュレーション結果
 type BattleMetric struct {
-	Dps      float64
+	DPS      float64
 	Enemy    string
 	IsRanged bool
 	Player   string
@@ -62,7 +62,7 @@ type PlayerInfo struct {
 	Agility   int
 	Defense   int
 	Dexterity int
-	Hp        int
+	HP        int
 	Name      string
 	Sensation int
 	Strength  int

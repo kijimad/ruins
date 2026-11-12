@@ -10,7 +10,7 @@ func (r *Report) Markdown() string {
 	var b strings.Builder
 	b.WriteString("# バランスシミュレーション\n\n")
 	fmt.Fprintf(&b, "プレイヤー %s。HP %d、筋力 %d、感覚 %d、器用 %d、敏捷 %d、防御 %d。\n\n",
-		r.Player.Name, r.Player.Hp, r.Player.Strength, r.Player.Sensation, r.Player.Dexterity, r.Player.Agility, r.Player.Defense)
+		r.Player.Name, r.Player.HP, r.Player.Strength, r.Player.Sensation, r.Player.Dexterity, r.Player.Agility, r.Player.Defense)
 	fmt.Fprintf(&b, "武器 %s。ダメージ %d、命中 %d。\n\n", r.Weapon.Name, r.Weapon.Damage, r.Weapon.Accuracy)
 
 	b.WriteString("## 敵テーブル\n\n")
@@ -32,7 +32,7 @@ func (r *Report) Markdown() string {
 	b.WriteString("## 武器×敵の戦闘\n\n")
 	b.WriteString("| 武器 | 敵 | DPS | 遠距離 |\n|---|---|---|---|\n")
 	for _, m := range r.BattleMetrics {
-		fmt.Fprintf(&b, "| %s | %s | %.2f | %t |\n", m.Weapon, m.Enemy, m.Dps, m.IsRanged)
+		fmt.Fprintf(&b, "| %s | %s | %.2f | %t |\n", m.Weapon, m.Enemy, m.DPS, m.IsRanged)
 	}
 	b.WriteString("\n")
 

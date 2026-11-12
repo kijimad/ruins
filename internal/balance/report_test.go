@@ -16,7 +16,7 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 	require.NoError(t, err)
 
 	assert.Equal(t, "ash", report.Player.Name)
-	assert.Equal(t, 80, report.Player.Hp)
+	assert.Equal(t, 80, report.Player.HP)
 
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
@@ -68,7 +68,7 @@ func TestGenerateBattleMetrics_武器と敵の組み合わせでDPSを算出す�
 	require.NotEmpty(t, metrics)
 	for _, m := range metrics {
 		assert.Equal(t, "ash", m.Player)
-		assert.GreaterOrEqual(t, m.Dps, 0.0)
+		assert.GreaterOrEqual(t, m.DPS, 0.0)
 	}
 }
 
@@ -87,13 +87,13 @@ func TestReport_Markdown(t *testing.T) {
 	t.Parallel()
 
 	r := &Report{
-		Player: PlayerInfo{Name: "ash", Hp: 80, Strength: 5, Sensation: 4, Dexterity: 3, Agility: 2, Defense: 1},
+		Player: PlayerInfo{Name: "ash", HP: 80, Strength: 5, Sensation: 4, Dexterity: 3, Agility: 2, Defense: 1},
 		Weapon: WeaponInfo{Name: "bare_hands", Damage: 3, Accuracy: 90},
 		EnemyTables: []EnemyTableRun{{
 			Name: "廃墟", Trials: 10, MaxDepth: 3, MedianDepth: 2, DeathRate: 0.25,
 			Depths: []DepthStat{{Depth: 1, MedianHP: 70, P5HP: 50, P95HP: 80, MedianHPBeforeHeal: 60, MedianKillTurns: 4, MedianWeaponDamage: 3, MedianHunger: 10, MedianDamage: 12, MedianHealing: 5, SuddenDeathRate: 0.1}},
 		}},
-		BattleMetrics: []BattleMetric{{Player: "ash", Weapon: "bare_hands", Enemy: "slime", Dps: 1.5}},
+		BattleMetrics: []BattleMetric{{Player: "ash", Weapon: "bare_hands", Enemy: "slime", DPS: 1.5}},
 		RoomLoot:      []FacilityLoot{{Facility: "house", Trials: 20, Rooms: []RoomLoot{{Role: "kitchen", Items: []LootItemStat{{Name: "bread", Prob: 0.5, ExpectedCount: 0.75, Value: 10}}}}}},
 	}
 

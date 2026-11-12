@@ -25,7 +25,7 @@ func GenerateReport(master rawschema.Raws, playerName string, weaponName string,
 	report := &Report{
 		Player: PlayerInfo{
 			Name:      playerName,
-			Hp:        player.HP,
+			HP:        player.HP,
 			Strength:  player.Strength,
 			Sensation: player.Sensation,
 			Dexterity: player.Dexterity,
@@ -155,7 +155,7 @@ func generateBattleMetrics(master rawschema.Raws, playerName string, seed uint64
 				Player:   playerName,
 				Weapon:   w.name,
 				Enemy:    enemyName,
-				Dps:      bs.DPS(),
+				DPS:      bs.DPS(),
 				IsRanged: w.stats.IsRanged,
 			})
 		}
