@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,7 +62,7 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package interior</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : // 敷地の類型。1チャンク=1建物なので、街区の短冊分割でなく建物ごとに敷地の性格を1つ引く。区画分割はせず</span>
 <span id="L6"><span class="lineNum">       6</span>              : // 塀・門・前庭の出し分けだけで性格を作る。ここでは前庭の深さ・塀・外構の出し分けで、</span>
@@ -71,8 +71,8 @@
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              : // rollSiteType は施設種別と seed から敷地類型を1つ引く。民家と店でそれぞれの重みを raw の sites の行の順に積み、</span>
 <span id="L11"><span class="lineNum">      11</span>              : // 街路に面した店と郊外の駐車場付き店を出し分ける。重みの和が1以上であることは読み込み時に確かめる。</span>
-<span id="L12"><span class="lineNum">      12</span>              : func rollSiteType(t profileTable, fac rawschema.Facility, seed uint64) rawschema.SiteChoice {</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         weight := func(c rawschema.SiteChoice) int {</span></span>
+<span id="L12"><span class="lineNum">      12</span>              : func rollSiteType(t profileTable, fac oapi.Facility, seed uint64) oapi.SiteChoice {</span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         weight := func(c oapi.SiteChoice) int {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 if fac.IsShop {</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                         return int(c.ShopWeight)</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 }</span></span>

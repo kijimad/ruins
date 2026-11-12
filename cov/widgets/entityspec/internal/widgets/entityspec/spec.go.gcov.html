@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,7 +69,7 @@
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
@@ -357,7 +357,7 @@
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Hits&quot;), Value: strconv.Itoa(attack.GetAttackCount())},</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Attack cost&quot;), Value: strconv.Itoa(attack.GetCost())},</span></span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         if attack.GetElement() != rawschema.ElementNONE {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         if attack.GetElement() != oapi.ElementNONE {</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                 rows = append(rows, SpecRow{Label: query.T(world, &quot;Element&quot;), Value: query.T(world, gc.ElementName(attack.GetElement()))})</span></span>
 <span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         return markChildren(rows)</span></span>

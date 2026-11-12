@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,7 +62,7 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : const (</span>
 <span id="L6"><span class="lineNum">       6</span>              :         // DefaultMaxFatigue はデフォルトの最大疲労。起床中は毎ターン FatigueGainPerTurn 増える</span>
@@ -76,9 +76,9 @@
 <span id="L14"><span class="lineNum">      14</span>              : type Fatigue Pool[int]</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // GetLevel は現在の疲労段階を返す。段階の境目は defs が持ち、Current/Max の比率で決める</span>
-<span id="L17"><span class="lineNum">      17</span>              : func (f *Fatigue) GetLevel(defs NeedDefs) rawschema.FatigueStageId {</span>
+<span id="L17"><span class="lineNum">      17</span>              : func (f *Fatigue) GetLevel(defs NeedDefs) oapi.FatigueStageId {</span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 :         if f.Max &lt;= 0 {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 return rawschema.FatigueStageIdRested</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 return oapi.FatigueStageIdRested</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return defs.fatigueStage(float64(f.Current) / float64(f.Max)).Level</span></span>
 <span id="L22"><span class="lineNum">      22</span>              : }</span>

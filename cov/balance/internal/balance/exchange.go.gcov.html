@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,7 +63,7 @@
 <span id="L1"><span class="lineNum">       1</span>              : package balance</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : )</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
 <span id="L7"><span class="lineNum">       7</span>              : // exchangePerturb は交換レートの求解で基準つまみに与える固定摂動。+10% を打ち消すのに相手を</span>
@@ -102,7 +102,7 @@
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // ExchangeRates はメトリクスごとの交換レート表を返す。あるつまみを+10%したとき同じメトリクスを元へ戻すのに</span>
 <span id="L42"><span class="lineNum">      42</span>              : // 別のつまみをどれだけ動かすかを二分探索で解く。丸めで非線形なメトリクスでは感度の比より解いた方が正確。</span>
-<span id="L43"><span class="lineNum">      43</span>              : func ExchangeRates(master rawschema.Raws) []MetricExchange {</span>
+<span id="L43"><span class="lineNum">      43</span>              : func ExchangeRates(master oapi.Raws) []MetricExchange {</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         knobs := knobRegistry()</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams(master))</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         out := make([]MetricExchange, 0, len(SensitivityMetricNames))</span></span>
@@ -133,7 +133,7 @@
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // solveExchange は基準つまみ a を+10%した状態で、メトリクス idx を target へ戻す相手つまみ b の</span>
 <span id="L73"><span class="lineNum">      73</span>              : // 倍率を二分探索で解き、その変化率を返す。範囲内で解けなければ ok=false を返す。</span>
-<span id="L74"><span class="lineNum">      74</span>              : func solveExchange(master rawschema.Raws, idx int, a, b Knob, target float64) (float64, bool) {</span>
+<span id="L74"><span class="lineNum">      74</span>              : func solveExchange(master oapi.Raws, idx int, a, b Knob, target float64) (float64, bool) {</span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         eval := func(fB float64) float64 {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 p := DefaultParams(master)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 *a.Ptr(&amp;p) *= exchangePerturb</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,7 +64,7 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              : // ProficiencySourceKind は内訳1件の由来の種別</span>
@@ -84,20 +84,20 @@
 <span id="L22"><span class="lineNum">      22</span>              : // 表示側が現在言語へ訳して整形する。Kind に応じて Skill / Ability / BodyFunc のどれかが有効</span>
 <span id="L23"><span class="lineNum">      23</span>              : type ProficiencySource struct {</span>
 <span id="L24"><span class="lineNum">      24</span>              :         Kind     ProficiencySourceKind</span>
-<span id="L25"><span class="lineNum">      25</span>              :         Skill    rawschema.SkillId        // Kind が skill のときのスキル</span>
-<span id="L26"><span class="lineNum">      26</span>              :         Ability  rawschema.AbilityId      // Kind が ability のときの能力値</span>
-<span id="L27"><span class="lineNum">      27</span>              :         BodyFunc BodyFuncKind             // Kind が body function のときの身体機能</span>
-<span id="L28"><span class="lineNum">      28</span>              :         Fatigue  rawschema.FatigueStageId // Kind が fatigue のときの疲労段階</span>
-<span id="L29"><span class="lineNum">      29</span>              :         Hunger   rawschema.HungerStageId  // Kind が hunger のときの空腹段階</span>
-<span id="L30"><span class="lineNum">      30</span>              :         Amount   int                      // 要因の量。スキルLv・能力値・身体機能%</span>
-<span id="L31"><span class="lineNum">      31</span>              :         Value    int                      // この要因による変化量。例: +10, -15</span>
+<span id="L25"><span class="lineNum">      25</span>              :         Skill    oapi.SkillId        // Kind が skill のときのスキル</span>
+<span id="L26"><span class="lineNum">      26</span>              :         Ability  oapi.AbilityId      // Kind が ability のときの能力値</span>
+<span id="L27"><span class="lineNum">      27</span>              :         BodyFunc BodyFuncKind        // Kind が body function のときの身体機能</span>
+<span id="L28"><span class="lineNum">      28</span>              :         Fatigue  oapi.FatigueStageId // Kind が fatigue のときの疲労段階</span>
+<span id="L29"><span class="lineNum">      29</span>              :         Hunger   oapi.HungerStageId  // Kind が hunger のときの空腹段階</span>
+<span id="L30"><span class="lineNum">      30</span>              :         Amount   int                 // 要因の量。スキルLv・能力値・身体機能%</span>
+<span id="L31"><span class="lineNum">      31</span>              :         Value    int                 // この要因による変化量。例: +10, -15</span>
 <span id="L32"><span class="lineNum">      32</span>              : }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // forEachProficiencySource は key の内訳を計算順に fn へ渡す。値も内訳もこの1関数から導く。</span>
 <span id="L35"><span class="lineNum">      35</span>              : // 最終値 = 基準 + Σ内訳 の不変条件はこの構造そのものが保証する。未定義キーは何も渡さない。</span>
 <span id="L36"><span class="lineNum">      36</span>              : // skills / abils は不在なら nil でよく、その由来のソースは飛ばす。bodyFuncs は実効身体機能で、</span>
 <span id="L37"><span class="lineNum">      37</span>              : // 疲労・空腹の低下を畳んだものを呼び出し側が渡す</span>
-<span id="L38"><span class="lineNum">      38</span>              : func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key rawschema.ProficiencyId, fn func(ProficiencySource)) {</span>
+<span id="L38"><span class="lineNum">      38</span>              : func (d SkillDefs) forEachProficiencySource(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key oapi.ProficiencyId, fn func(ProficiencySource)) {</span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">           1 :         spec, ok := d.Proficiencies[key]</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return</span></span>
@@ -136,7 +136,7 @@
 <span id="L74"><span class="lineNum">      74</span>              : </span>
 <span id="L75"><span class="lineNum">      75</span>              : // ProficiencyValue は key の効果倍率を導出する。内訳の加法差分を積むだけで</span>
 <span id="L76"><span class="lineNum">      76</span>              : // アロケーションが無い。表示の%も適用もこの関数を読むので両者は一致する</span>
-<span id="L77"><span class="lineNum">      77</span>              : func (d SkillDefs) ProficiencyValue(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key rawschema.ProficiencyId) consts.Percent {</span>
+<span id="L77"><span class="lineNum">      77</span>              : func (d SkillDefs) ProficiencyValue(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key oapi.ProficiencyId) consts.Percent {</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         total := int(consts.PercentBase)</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         d.forEachProficiencySource(skills, abils, bodyFuncs, key, func(s ProficiencySource) {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 total += s.Value</span></span>
@@ -146,7 +146,7 @@
 <span id="L84"><span class="lineNum">      84</span>              : </span>
 <span id="L85"><span class="lineNum">      85</span>              : // ProficiencySources は key の内訳を返す。詳細モーダルの表示側だけが読む。</span>
 <span id="L86"><span class="lineNum">      86</span>              : // 未定義キーは空を返す</span>
-<span id="L87"><span class="lineNum">      87</span>              : func (d SkillDefs) ProficiencySources(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key rawschema.ProficiencyId) []ProficiencySource {</span>
+<span id="L87"><span class="lineNum">      87</span>              : func (d SkillDefs) ProficiencySources(skills *Skills, abils *Abilities, bodyFuncs BodyFuncs, key oapi.ProficiencyId) []ProficiencySource {</span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         var srcs []ProficiencySource</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         d.forEachProficiencySource(skills, abils, bodyFuncs, key, func(s ProficiencySource) {</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 srcs = append(srcs, s)</span></span>

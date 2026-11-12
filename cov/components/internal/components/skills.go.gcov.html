@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,7 +63,7 @@
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : )</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
 <span id="L7"><span class="lineNum">       7</span>              : // Skill は個別のスキル</span>
@@ -74,11 +74,11 @@
 <span id="L12"><span class="lineNum">      12</span>              : </span>
 <span id="L13"><span class="lineNum">      13</span>              : // Skills はエンティティが持つスキルセット</span>
 <span id="L14"><span class="lineNum">      14</span>              : type Skills struct {</span>
-<span id="L15"><span class="lineNum">      15</span>              :         Data map[rawschema.SkillId]*Skill</span>
+<span id="L15"><span class="lineNum">      15</span>              :         Data map[oapi.SkillId]*Skill</span>
 <span id="L16"><span class="lineNum">      16</span>              : }</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // Level はスキルの値を返す。まだ無いスキルは0。読むだけで Data へ書き込まないので、並行に読んでよい</span>
-<span id="L19"><span class="lineNum">      19</span>              : func (s *Skills) Level(id rawschema.SkillId) int {</span>
+<span id="L19"><span class="lineNum">      19</span>              : func (s *Skills) Level(id oapi.SkillId) int {</span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 :         if sk, ok := s.Data[id]; ok {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return sk.Value</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -86,9 +86,9 @@
 <span id="L24"><span class="lineNum">      24</span>              : }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // Get は指定されたスキルIDのSkillを返す。まだ無ければ値0のスキルを作って Data に足す。書き換えるときに使う</span>
-<span id="L27"><span class="lineNum">      27</span>              : func (s *Skills) Get(id rawschema.SkillId) *Skill {</span>
+<span id="L27"><span class="lineNum">      27</span>              : func (s *Skills) Get(id oapi.SkillId) *Skill {</span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         if s.Data == nil {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 s.Data = make(map[rawschema.SkillId]*Skill)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 s.Data = make(map[oapi.SkillId]*Skill)</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         sk, ok := s.Data[id]</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
@@ -103,7 +103,7 @@
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // NewSkills はスキルを持たない Skills を返す</span>
 <span id="L43"><span class="lineNum">      43</span>              : func NewSkills() *Skills {</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         return &amp;Skills{Data: make(map[rawschema.SkillId]*Skill)}</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         return &amp;Skills{Data: make(map[oapi.SkillId]*Skill)}</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>

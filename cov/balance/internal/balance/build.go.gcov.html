@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,8 +66,8 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // BuildProfile は評価するプレイヤーのビルド。能力と武器に加え、スキル成長ぶんの熟練度倍率を持つ。</span>
@@ -92,7 +92,7 @@
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // RepresentativeBuilds は基準プレイヤーを土台に、想定攻撃回数から導いた強化度合いで段階を表した代表ビルドを返す。</span>
 <span id="L32"><span class="lineNum">      32</span>              : // 倍率はスキル成長と熟練度の実システムから導き、スキル由来のダメージ倍率だけを反映する。攻撃回数は設計仮説。</span>
-<span id="L33"><span class="lineNum">      33</span>              : func RepresentativeBuilds(master rawschema.Raws) ([]BuildProfile, error) {</span>
+<span id="L33"><span class="lineNum">      33</span>              : func RepresentativeBuilds(master oapi.Raws) ([]BuildProfile, error) {</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              : // BuildSpread は代表ビルドで敵テーブルのカーブを評価し、各日の戦力比の最小と最大を返す。後半で幅が急に開くなら</span>
 <span id="L68"><span class="lineNum">      68</span>              : // バフが強すぎて終盤が崩れやすいことを示す。</span>
-<span id="L69"><span class="lineNum">      69</span>              : func BuildSpread(master rawschema.Raws, profiles []BuildProfile, enemyTableName string, days int) ([]DaySpreadRow, error) {</span>
+<span id="L69"><span class="lineNum">      69</span>              : func BuildSpread(master oapi.Raws, profiles []BuildProfile, enemyTableName string, days int) ([]DaySpreadRow, error) {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         curves := make([][]DayMetric, 0, len(profiles))</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         for _, p := range profiles {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 c, err := DifficultyCurveWithSkill(master, p.Player, p.Weapon, enemyTableName, days, p.SkillMult)</span></span>
@@ -177,7 +177,7 @@
 <span id="L115"><span class="lineNum">     115</span>              : </span>
 <span id="L116"><span class="lineNum">     116</span>              : // StageSpreads は代表ビルドの戦力比の幅を段階ごとに集計し、各段階での最大の幅と許容帯を返す。</span>
 <span id="L117"><span class="lineNum">     117</span>              : // 幅が許容を超える段階はビルド次第で難易度が振れすぎる。特に終盤の超過はバフが強すぎる兆候。</span>
-<span id="L118"><span class="lineNum">     118</span>              : func StageSpreads(master rawschema.Raws, profiles []BuildProfile, enemyTableName string) ([]StageSpread, error) {</span>
+<span id="L118"><span class="lineNum">     118</span>              : func StageSpreads(master oapi.Raws, profiles []BuildProfile, enemyTableName string) ([]StageSpread, error) {</span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         spread, err := BuildSpread(master, profiles, enemyTableName, 21)</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>

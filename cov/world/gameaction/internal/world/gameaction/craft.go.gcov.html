@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,8 +69,8 @@
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
@@ -138,8 +138,8 @@
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         craftCost, smithQuality = consts.PercentBase, consts.PercentBase</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         if err == nil {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 craftCost = query.ProficiencyValue(world, player, rawschema.ProficiencyIdCraftCost)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 smithQuality = query.ProficiencyValue(world, player, rawschema.ProficiencyIdSmithQuality)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 craftCost = query.ProficiencyValue(world, player, oapi.ProficiencyIdCraftCost)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 smithQuality = query.ProficiencyValue(world, player, oapi.ProficiencyIdSmithQuality)</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         return craftCost, smithQuality</span></span>
 <span id="L83"><span class="lineNum">      83</span>              : }</span>

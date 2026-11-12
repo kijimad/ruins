@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,8 +72,8 @@
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/skill&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
@@ -330,7 +330,7 @@
 <span id="L268"><span class="lineNum">     268</span>              : }</span>
 <span id="L269"><span class="lineNum">     269</span>              : </span>
 <span id="L270"><span class="lineNum">     270</span>              : // elementMult は対象の属性 element への耐性の倍率を返す。耐性を持たない属性なら等倍</span>
-<span id="L271"><span class="lineNum">     271</span>              : func elementMult(target ecs.Entity, element rawschema.Element, world w.World) consts.Percent {</span>
+<span id="L271"><span class="lineNum">     271</span>              : func elementMult(target ecs.Entity, element oapi.Element, world w.World) consts.Percent {</span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         key, ok := world.Resources.SkillDefs.Resist(element)</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 return consts.PercentBase</span></span>

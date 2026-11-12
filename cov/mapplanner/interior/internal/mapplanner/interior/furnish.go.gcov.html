@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,7 +66,7 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;cmp&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;slices&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              : // 建物内装のパイプラインと役割ルーティング。footprint を敷地計画して部屋へ割り、各部屋の役割から content を</span>
@@ -84,7 +84,7 @@
 <span id="L22"><span class="lineNum">      22</span>              : // 前段に置き、建物内の各室へ plan→fill→age→flavor を掛けた累積配置を返す。どの段で見た目が壊れたかを段別</span>
 <span id="L23"><span class="lineNum">      23</span>              : // VRT で切り分けられるようにする。坪庭の室は家具を置かず観葉だけ置き、経年・flavor を掛けない。FurnishBuilding</span>
 <span id="L24"><span class="lineNum">      24</span>              : // はこの最終段を返す薄い包みで、両者は同じパイプラインを共有するので段別 VRT と実生成は乖離しない。</span>
-<span id="L25"><span class="lineNum">      25</span>              : func FurnishStages(raws rawschema.Raws, seed uint64, footprint Rect, door Vec, facility string) (Site, []FurnishStage, error) {</span>
+<span id="L25"><span class="lineNum">      25</span>              : func FurnishStages(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) (Site, []FurnishStage, error) {</span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         fac, err := facilityByID(raws, facility)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return Site{}, nil, err</span></span>
@@ -141,7 +141,7 @@
 <span id="L79"><span class="lineNum">      79</span>              :                                 }</span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                                 kept = append(kept, p)</span></span>
 <span id="L81"><span class="lineNum">      81</span>              :                         }</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                         kept = append(kept, Placed{Kind: rawschema.Decor, Ref: ref, Pos: pos})</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                         kept = append(kept, Placed{Kind: oapi.Decor, Ref: ref, Pos: pos})</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                         flavored = kept</span></span>
 <span id="L84"><span class="lineNum">      84</span>              :                 }</span>
 <span id="L85"><span class="lineNum">      85</span>              :         }</span>
@@ -176,7 +176,7 @@
 <span id="L114"><span class="lineNum">     114</span>              : // FurnishBuilding は footprint を敷地計画し、建物内の各室へ内装を敷いて、敷地と最終配置を返す。footprint を</span>
 <span id="L115"><span class="lineNum">     115</span>              : // そのまま埋めず、入口側に前庭を空け、1室を坪庭にし、玄関を凹ませる。加工は FurnishStages が持ち、ここは</span>
 <span id="L116"><span class="lineNum">     116</span>              : // その最終段 flavor を返す。呼び出し側は Site から Walls で壁タイル、Garden で庭タイルを導き、配置を spawn する。</span>
-<span id="L117"><span class="lineNum">     117</span>              : func FurnishBuilding(raws rawschema.Raws, seed uint64, footprint Rect, door Vec, facility string) (Site, []Placed, error) {</span>
+<span id="L117"><span class="lineNum">     117</span>              : func FurnishBuilding(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) (Site, []Placed, error) {</span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         site, stages, err := FurnishStages(raws, seed, footprint, door, facility)</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 return Site{}, nil, err</span></span>
@@ -187,10 +187,10 @@
 <span id="L125"><span class="lineNum">     125</span>              : // planRooms は施設に応じて部屋群と各部屋の役割を返す。施設ごとに固有の間取りテンプレを持ち、民家は廊下型・</span>
 <span id="L126"><span class="lineNum">     126</span>              : // 店は売場＋バックヤード・診療所は待合＋診察室の列にして、「何の施設か分かる」平面にする。テンプレに足りない</span>
 <span id="L127"><span class="lineNum">     127</span>              : // 小さな footprint と、テンプレの無い施設は BSP へ落として面積最大を主室・残りを奥室にする。</span>
-<span id="L128"><span class="lineNum">     128</span>              : func planRooms(footprint Rect, seed uint64, fac rawschema.Facility) ([]Room, []roleName) {</span>
+<span id="L128"><span class="lineNum">     128</span>              : func planRooms(footprint Rect, seed uint64, fac oapi.Facility) ([]Room, []roleName) {</span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         def, ok := planners[fac.Planner]</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         if !ok || footprint.W &lt; def.minW || footprint.H &lt; def.minH {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 def = planners[rawschema.Bsp]</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 def = planners[oapi.Bsp]</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         plan := def.fn(footprint, seed)</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         rooms := make([]Room, len(plan))</span></span>
@@ -205,7 +205,7 @@
 <span id="L143"><span class="lineNum">     143</span>              : // roleContent は役割から content を引く。main は施設の顔、それ以外はまず施設の room カタログ、無ければ施設別の</span>
 <span id="L144"><span class="lineNum">     144</span>              : // 奥室既定へ落とす。各施設は自分が使う役割を自前のカタログで持ち、他施設のカタログには依存しない。役割名は</span>
 <span id="L145"><span class="lineNum">     145</span>              : // planRooms とテンプレが付ける。</span>
-<span id="L146"><span class="lineNum">     146</span>              : func roleContent(raws rawschema.Raws, fac rawschema.Facility, role roleName, seed uint64) (Content, error) {</span>
+<span id="L146"><span class="lineNum">     146</span>              : func roleContent(raws oapi.Raws, fac oapi.Facility, role roleName, seed uint64) (Content, error) {</span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         if role == roleMain {</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 return facilityContent(raws, fac.Id, seed)</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>

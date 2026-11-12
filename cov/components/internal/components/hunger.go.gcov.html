@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,7 +62,7 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : const (</span>
 <span id="L6"><span class="lineNum">       6</span>              :         // DefaultMaxHunger はデフォルトの最大満腹度</span>
@@ -79,9 +79,9 @@
 <span id="L17"><span class="lineNum">      17</span>              : type Hunger Pool[int]</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // GetLevel は現在の空腹度レベルを取得する。段階の境目は defs が持つ</span>
-<span id="L20"><span class="lineNum">      20</span>              : func (h *Hunger) GetLevel(defs NeedDefs) rawschema.HungerStageId {</span>
+<span id="L20"><span class="lineNum">      20</span>              : func (h *Hunger) GetLevel(defs NeedDefs) oapi.HungerStageId {</span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 :         if h.Max &lt;= 0 {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return rawschema.HungerStageIdSatiated</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return oapi.HungerStageIdSatiated</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return defs.hungerStage(float64(h.Current) / float64(h.Max)).Level</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : }</span>

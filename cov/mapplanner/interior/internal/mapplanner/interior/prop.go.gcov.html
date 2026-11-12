@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,24 +63,24 @@
 <span id="L1"><span class="lineNum">       1</span>              : package interior</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              : // interiorRef は raw の interiorRefs から Ref の行を引く。内装の Ref は数十件規模なので線形走査で足りる</span>
-<span id="L9"><span class="lineNum">       9</span>              : func interiorRef(raws rawschema.Raws, ref string) (rawschema.InteriorRef, bool) {</span>
+<span id="L9"><span class="lineNum">       9</span>              : func interiorRef(raws oapi.Raws, ref string) (oapi.InteriorRef, bool) {</span>
 <span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, r := range raw.PtrSlice(raws.InteriorRefs) {</span></span>
 <span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 :                 if r.Id == ref {</span></span>
 <span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 :                         return r, true</span></span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L14"><span class="lineNum">      14</span>              :         }</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         return rawschema.InteriorRef{}, false</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         return oapi.InteriorRef{}, false</span></span>
 <span id="L16"><span class="lineNum">      16</span>              : }</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // PropRawName は Ref に対応する raw prop 名と、それが in-game に spawn されるかを返す。overworld の spawn と</span>
 <span id="L19"><span class="lineNum">      19</span>              : // VRT の描画がこの1関数を共有し、片方だけが描く/置くという乖離が構造的に起きないようにする。</span>
 <span id="L20"><span class="lineNum">      20</span>              : // interiorRefs に prop を持たない Ref は spawn されず描かれない。</span>
-<span id="L21"><span class="lineNum">      21</span>              : func PropRawName(raws rawschema.Raws, ref string) (string, bool) {</span>
+<span id="L21"><span class="lineNum">      21</span>              : func PropRawName(raws oapi.Raws, ref string) (string, bool) {</span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         r, ok := interiorRef(raws, ref)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if !ok || r.Prop == nil {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false</span></span>
@@ -90,7 +90,7 @@
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // LootGroupName は loot Ref に対応する raw item group 名と、spawn されるかを返す。overworld の床 loot spawn と</span>
 <span id="L30"><span class="lineNum">      30</span>              : // VRT の描画がこの1関数を共有し、片方だけが置く、描くという乖離が構造的に起きないようにする。</span>
-<span id="L31"><span class="lineNum">      31</span>              : func LootGroupName(raws rawschema.Raws, ref string) (string, bool) {</span>
+<span id="L31"><span class="lineNum">      31</span>              : func LootGroupName(raws oapi.Raws, ref string) (string, bool) {</span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         r, ok := interiorRef(raws, ref)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if !ok || r.ItemGroup == nil {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, false</span></span>
@@ -99,7 +99,7 @@
 <span id="L37"><span class="lineNum">      37</span>              : }</span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // defaultPlacement は Ref の既定の置き方を返す。interiorRefs に無ければ PlaceDefault を返す</span>
-<span id="L40"><span class="lineNum">      40</span>              : func defaultPlacement(raws rawschema.Raws, ref string) rawschema.Placement {</span>
+<span id="L40"><span class="lineNum">      40</span>              : func defaultPlacement(raws oapi.Raws, ref string) oapi.Placement {</span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         r, ok := interiorRef(raws, ref)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         if !ok || r.Placement == nil {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return PlaceDefault</span></span>

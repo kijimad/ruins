@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // 境界マージンの求解範囲と反復回数。つまみをどこまで動かすと目標帯を割るかを探す。</span>
@@ -107,7 +107,7 @@
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // BoundaryMargins はメトリクス×つまみごとの境界マージンを返す。各つまみを動かして目標帯の端に達するまでの</span>
 <span id="L47"><span class="lineNum">      47</span>              : // 変化率を二分探索で解く。凍結ゲートの点固定を余白監視へ拡張する。</span>
-<span id="L48"><span class="lineNum">      48</span>              : func BoundaryMargins(master rawschema.Raws) []BoundaryMargin {</span>
+<span id="L48"><span class="lineNum">      48</span>              : func BoundaryMargins(master oapi.Raws) []BoundaryMargin {</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         knobs := knobRegistry()</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams(master))</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         bands := metricBands()</span></span>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              : // solveBoundary はつまみ k を動かしてメトリクス idx を目標帯 band の端へ届かせる変化率を解き、両端の</span>
 <span id="L68"><span class="lineNum">      68</span>              : // うち近い方を返す。どちらの端にも範囲内で届かなければ OK=false。</span>
-<span id="L69"><span class="lineNum">      69</span>              : func solveBoundary(master rawschema.Raws, idx int, k Knob, band metricBand) BoundaryMargin {</span>
+<span id="L69"><span class="lineNum">      69</span>              : func solveBoundary(master oapi.Raws, idx int, k Knob, band metricBand) BoundaryMargin {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         eval := func(f float64) float64 {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 p := DefaultParams(master)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 *k.Ptr(&amp;p) *= f</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,7 +71,7 @@
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/logger&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
@@ -166,11 +166,11 @@
 <span id="L104"><span class="lineNum">     104</span>              : func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {</span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         if canSeePlayer {</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 switch solo.CombatCurrent {</span></span>
-<span id="L107"><span class="lineNum">     107</span>              :                 case rawschema.Evade:</span>
+<span id="L107"><span class="lineNum">     107</span>              :                 case oapi.Evade:</span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                         rp.transitionToFleeing(solo, currentTurn)</span></span>
-<span id="L109"><span class="lineNum">     109</span>              :                 case rawschema.Attack:</span>
+<span id="L109"><span class="lineNum">     109</span>              :                 case oapi.Attack:</span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :                         rp.transitionToChasing(solo, currentTurn)</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 case rawschema.Ignore:</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 case oapi.Ignore:</span></span>
 <span id="L112"><span class="lineNum">     112</span>              :                 }</span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         } else if elapsedTurns &gt;= solo.DurationSubStateTurns {</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 rp.transitionToDriving(solo, currentTurn)</span></span>
@@ -180,11 +180,11 @@
 <span id="L118"><span class="lineNum">     118</span>              : func (rp *soloPlanner) updateFromDriving(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn consts.Turn) {</span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         if canSeePlayer {</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 switch solo.CombatCurrent {</span></span>
-<span id="L121"><span class="lineNum">     121</span>              :                 case rawschema.Evade:</span>
+<span id="L121"><span class="lineNum">     121</span>              :                 case oapi.Evade:</span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                         rp.transitionToFleeing(solo, currentTurn)</span></span>
-<span id="L123"><span class="lineNum">     123</span>              :                 case rawschema.Attack:</span>
+<span id="L123"><span class="lineNum">     123</span>              :                 case oapi.Attack:</span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         rp.transitionToChasing(solo, currentTurn)</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 case rawschema.Ignore:</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 case oapi.Ignore:</span></span>
 <span id="L126"><span class="lineNum">     126</span>              :                 }</span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         } else if elapsedTurns &gt;= solo.DurationSubStateTurns {</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 rp.transitionToWaiting(solo, currentTurn)</span></span>
@@ -292,19 +292,19 @@
 <span id="L230"><span class="lineNum">     230</span>              : </span>
 <span id="L231"><span class="lineNum">     231</span>              : func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {</span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC tlaBgGNC">           1 :         switch solo.Movement {</span></span>
-<span id="L233"><span class="lineNum">     233</span>              :         case rawschema.Stationary:</span>
+<span id="L233"><span class="lineNum">     233</span>              :         case oapi.Stationary:</span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 return waitAction()</span></span>
-<span id="L235"><span class="lineNum">     235</span>              :         case rawschema.Wander:</span>
+<span id="L235"><span class="lineNum">     235</span>              :         case oapi.Wander:</span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 return rp.planWanderAction(world, aiEntity, grid)</span></span>
-<span id="L237"><span class="lineNum">     237</span>              :         case rawschema.WallHug:</span>
+<span id="L237"><span class="lineNum">     237</span>              :         case oapi.WallHug:</span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 return rp.planWallHugAction(world, aiEntity, grid)</span></span>
-<span id="L239"><span class="lineNum">     239</span>              :         case rawschema.Swarm:</span>
+<span id="L239"><span class="lineNum">     239</span>              :         case oapi.Swarm:</span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 return rp.planSwarmAction(world, aiEntity, grid)</span></span>
-<span id="L241"><span class="lineNum">     241</span>              :         case rawschema.Patrol:</span>
+<span id="L241"><span class="lineNum">     241</span>              :         case oapi.Patrol:</span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 return rp.planPatrolAction(world, aiEntity, solo, grid)</span></span>
-<span id="L243"><span class="lineNum">     243</span>              :         case rawschema.Territorial:</span>
+<span id="L243"><span class="lineNum">     243</span>              :         case oapi.Territorial:</span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 return rp.planTerritorialAction(world, aiEntity, solo, grid)</span></span>
-<span id="L245"><span class="lineNum">     245</span>              :         case rawschema.Follow:</span>
+<span id="L245"><span class="lineNum">     245</span>              :         case oapi.Follow:</span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC tlaBgUNC">           0 :                 return rp.planFollowAction(world, aiEntity, solo, grid)</span></span>
 <span id="L247"><span class="lineNum">     247</span>              :         default:</span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC tlaBgGNC">           1 :                 return rp.planRandomMoveAction(world, aiEntity, grid)</span></span>
@@ -461,7 +461,7 @@
 <span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         if !lifecycle.ConsumeCubeFuel(world, aiEntity, query.FollowFuelCost(query.CubeWeight(world, aiEntity))) {</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                 solo.Movement = rawschema.Stationary</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                 solo.Movement = oapi.Stationary</span></span>
 <span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                 solo.SubState = gc.AIStateWaiting</span></span>
 <span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;The cube is out of fuel and stops.&quot;)).</span></span>

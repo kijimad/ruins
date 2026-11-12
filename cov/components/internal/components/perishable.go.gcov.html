@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:01</td>
+            <td class="headerValue">2026-11-12 15:48:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // Perishable は腐敗する食料が持つ。累積した劣化量から鮮度段階を求める。</span>
@@ -85,7 +85,7 @@
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // FreshnessDef は鮮度の段階1つの定義。raw の freshnessStages の1行から組み立てる</span>
 <span id="L25"><span class="lineNum">      25</span>              : type FreshnessDef struct {</span>
-<span id="L26"><span class="lineNum">      26</span>              :         Level                rawschema.FreshnessStageId</span>
+<span id="L26"><span class="lineNum">      26</span>              :         Level                oapi.FreshnessStageId</span>
 <span id="L27"><span class="lineNum">      27</span>              :         From                 int        // 経過した段階数がこれ以上の段階のうち From が最大のものになる</span>
 <span id="L28"><span class="lineNum">      28</span>              :         Name                 i18n.Msgid // 表示名</span>
 <span id="L29"><span class="lineNum">      29</span>              :         NutritionPercent     int        // 食べたとき得る栄養の満額に対する割合。百分率</span>
