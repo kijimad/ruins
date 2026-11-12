@@ -94,3 +94,8 @@ chunks = [{ name = "3x3_house_bed_set", weight = 1 }]
 [palette.nested.E]
 tile = "floor_linoleum"
 chunks = [{ name = "3x3_house_dining_set", weight = 1 }]
+
+[palette.props."n"]
+tile = "floor_wood"
+candidates = [{ id = "wooden_crate", weight = 2 }, { id = "drawer_chest", weight = 1 }]
+lootTable = "house_closet"
