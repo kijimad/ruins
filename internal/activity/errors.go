@@ -13,6 +13,7 @@ func (e *UserError) Error() string { return e.Msg }
 var (
 	// アクティビティ一般エラー
 	ErrActivityNil           = errors.New("activity is nil")
+	ErrBehaviorUnregistered  = errors.New("unregistered behavior")
 	ErrActorNotSet           = errors.New("actor is not set")
 	ErrActivityNotFound      = errors.New("activity not found")
 	ErrActivityActorNotFound = errors.New("activity actor not found")
@@ -40,6 +41,10 @@ var (
 	// アイテム関連エラー
 	ErrNoItemsToPickup  = errors.New("no items to pick up")
 	ErrItemPickupFailed = errors.New("failed to pick up item")
+
+	// 会話関連エラー
+	ErrTalkNoDialog     = errors.New("talk target has no dialog")
+	ErrTalkTargetNoName = errors.New("talk target has no name")
 
 	// 休息関連エラー
 	ErrRestInvalidDuration = errors.New("rest duration is invalid")

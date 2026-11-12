@@ -101,7 +101,7 @@ func TestSleepBehavior_中断すると起床処理が走り理由が記録され
 
 	// 眠っている間に飢餓へ落とし、次の継続ステップで DoTurn が自ら中断する状況を作る
 	world.Components.Hunger.Get(actor).Current = 0
-	stepActivity(actor, world)
+	require.NoError(t, stepActivity(actor, world))
 
 	assert.False(t, world.Components.Sleeping.Has(actor), "中断で Sleeping が外れる。起床処理が走った証跡")
 	last := GetLastResult(actor, world)

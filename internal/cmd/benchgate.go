@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -23,9 +24,12 @@ var CmdBenchgate = &cli.Command{
 // benchRegressThreshold は退化とみなす sec/op geomean 比。2 は2倍。
 const benchRegressThreshold = 2.0
 
+// errBenchgateUsage は比較する2つのファイルが渡されないときに返す
+var errBenchgateUsage = errors.New("usage: benchgate <base.txt> <pr.txt>")
+
 func runBenchgate(_ context.Context, cmd *cli.Command) error {
 	if cmd.Args().Len() != 2 {
-		return fmt.Errorf("usage: benchgate <base.txt> <pr.txt>")
+		return errBenchgateUsage
 	}
 	return benchGate(cmd.Writer, cmd.Args().Get(0), cmd.Args().Get(1), benchRegressThreshold)
 }

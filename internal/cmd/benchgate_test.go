@@ -2,12 +2,15 @@ package cmd
 
 import (
 	"bytes"
+	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli/v3"
 )
 
 func TestBenchMedian(t *testing.T) {
@@ -102,7 +105,58 @@ func TestBenchGate_ファイルを読んで比較する(t *testing.T) {
 func TestBenchGate_読めないファイルはエラー(t *testing.T) {
 	t.Parallel()
 
+	dir := t.TempDir()
 	var buf bytes.Buffer
-	err := benchGate(&buf, filepath.Join(t.TempDir(), "missing.txt"), filepath.Join(t.TempDir(), "missing.txt"), 2.0)
-	require.Error(t, err)
+	err := benchGate(&buf, filepath.Join(dir, "base.txt"), filepath.Join(dir, "pr.txt"), 2.0)
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+func benchgateApp() *cli.Command {
+	return &cli.Command{
+		Name:      "benchgate",
+		ArgsUsage: "<base.txt> <pr.txt>",
+		Action:    runBenchgate,
+	}
+}
+
+func TestRunBenchgate_引数が2個でなければ使い方を返す(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{"0個", nil},
+		{"1個", []string{"base.txt"}},
+		{"3個", []string{"a.txt", "b.txt", "c.txt"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := benchgateApp().Run(context.Background(), append([]string{"benchgate"}, tt.args...))
+			require.ErrorIs(t, err, errBenchgateUsage)
+		})
+	}
+}
+
+func TestRunBenchgate_2個の引数をbase_prの順でbenchGateへ渡す(t *testing.T) {
+	t.Parallel()
+
+	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
+	baseBody := header + "BenchmarkFoo-4 \t1000\t100 ns/op\nBenchmarkFoo-4 \t1000\t100 ns/op\n"
+	prBody := header + "BenchmarkFoo-4 \t1000\t300 ns/op\nBenchmarkFoo-4 \t1000\t300 ns/op\n"
+
+	dir := t.TempDir()
+	basePath := filepath.Join(dir, "base.txt")
+	prPath := filepath.Join(dir, "pr.txt")
+	require.NoError(t, os.WriteFile(basePath, []byte(baseBody), 0o644))
+	require.NoError(t, os.WriteFile(prPath, []byte(prBody), 0o644))
+
+	var buf bytes.Buffer
+	app := benchgateApp()
+	app.Writer = &buf
+
+	err := app.Run(context.Background(), []string{"benchgate", basePath, prPath})
+	require.NoError(t, err)
+	assert.Equal(t, "- example/x: geomean x3.00\n", buf.String(), "先頭引数をbase、2番目をprとして渡す")
 }

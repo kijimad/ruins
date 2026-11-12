@@ -59,7 +59,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 	case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:
 		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}
-	return nil, fmt.Errorf("unregistered behavior: %s", name)
+	return nil, fmt.Errorf("%w: %s", ErrBehaviorUnregistered, name)
 }
 
 // Behavior はアクティビティの実行を担当するインターフェース。
@@ -79,9 +79,9 @@ type Behavior interface {
 	// 検証通過なら nil を返す。副作用はなく、gamelog も呼ばず panic もしない。
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
-	// DoTurn が error を返すと、呼び出し側がログに出して中断し、Canceled を呼ぶ。中断の理由は呼び出し側が書くので、
-	// error を返すときは Cancel を呼ばない。敵の接近のような一時的な中断は Cancel して nil を返す。
-	// どちらの中断でも Canceled は呼び出し側が呼ぶ
+	// DoTurn の error は Validate と同じく致命的で、呼び出し側がアクティビティを除去して伝播させる。
+	// 構築ミスや不変条件違反がこれにあたる。敵の接近のような一時的な中断は Cancel して nil を返し、
+	// 呼び出し側が Canceled を呼ぶ
 	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error

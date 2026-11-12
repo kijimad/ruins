@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/fs"
 	"os"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli/v3"
 )
 
 // TestGenerateComponents_Golden は登録表からの生成結果を、ゴールデンである
@@ -54,4 +56,33 @@ func TestGenComponents_書き込み失敗時はエラーを返す(t *testing.T) 
 
 	err := genComponents(io.Discard, outPath)
 	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+// genComponentsApp は runGenComponents を Action に持つ cli.Command を返す。
+// CmdGenComponents の既定値は実リポジトリの components_gen.go を指すため、既定値を持たせない。
+func genComponentsApp() *cli.Command {
+	return &cli.Command{
+		Name:   "gencomponents",
+		Flags:  []cli.Flag{&cli.StringFlag{Name: "out"}},
+		Action: runGenComponents,
+	}
+}
+
+func TestRunGenComponents_outフラグの出力先に生成する(t *testing.T) {
+	t.Parallel()
+
+	outPath := filepath.Join(t.TempDir(), "components_gen.go")
+	var buf bytes.Buffer
+	app := genComponentsApp()
+	app.Writer = &buf
+
+	err := app.Run(context.Background(), []string{"gencomponents", "--out", outPath})
+	require.NoError(t, err)
+	assert.Equal(t, "Generated "+outPath+"\n", buf.String())
+
+	got, err := os.ReadFile(outPath)
+	require.NoError(t, err)
+	want, err := generateComponents()
+	require.NoError(t, err)
+	assert.Equal(t, string(want), string(got))
 }

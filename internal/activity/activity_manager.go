@@ -63,7 +63,9 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 	// 呼び出し側が同じ呼び出しで結果を必要とするため、初回で解決すれば同期的に結果を返す。
 	// アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
 	// 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
-	failed := stepActivity(actor, world)
+	if err := stepActivity(actor, world); err != nil {
+		return nil, err
+	}
 
 	currentActivity := query.GetActivity(world, actor)
 
@@ -77,12 +79,9 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 	} else {
 		// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
 		consumePassCost(world, actor, comp)
-		switch {
-		case failed:
-			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: query.T(world, "an unexpected error occurred")}
-		case currentActivity != nil && IsCanceled(currentActivity):
+		if currentActivity != nil && IsCanceled(currentActivity) {
 			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: query.T(world, currentActivity.CancelReason)}
-		default:
+		} else {
 			result = &ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "action completed"}
 		}
 	}
@@ -99,27 +98,26 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 // インスタンスなので、着手時の呼び出し側インスタンスはここでは使わない。ライフサイクルを常に
 // ゼロ値インスタンスで回すことで、per-アクティビティの状態は gc.Activity に置くという規律が経路によらず一貫する。
 //
-// DoTurn が失敗すればキャンセルして true を返し、完了していれば Finish して直近結果を記録し除去する。
+// DoTurn と Finish の失敗はバグなので、アクティビティを除去してエラーを返し、呼び出し側が伝播させる。
+// 完了していれば Finish して直近結果を記録し除去する。
 // アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
 // 消えても走査中コンポーネントの破壊による panic を招かない。
-func stepActivity(entity ecs.Entity, world w.World) (failed bool) {
+func stepActivity(entity ecs.Entity, world w.World) error {
 	stored := query.GetActivity(world, entity)
 	if stored == nil {
-		return false
+		return nil
 	}
 
 	behaviorName := stored.BehaviorName
 	behavior, err := GetBehavior(behaviorName)
 	if err != nil {
-		log.Error("failed to get behavior", "entity", entity, "error", err.Error())
 		query.RemoveActivity(world, entity)
-		return false
+		return err
 	}
 
 	if err := behavior.DoTurn(stored, entity, world); err != nil {
-		log.Error("activity turn processing error", "entity", entity, "type", behaviorName, "error", err.Error())
-		CancelActivity(entity, "an unexpected error occurred", world)
-		return true
+		query.RemoveActivity(world, entity)
+		return fmt.Errorf("%s turn: %w", behaviorName, err)
 	}
 
 	// DoTurn が自ら中断したときは Canceled フックを走らせて後始末とログを行う。
@@ -138,15 +136,16 @@ func stepActivity(entity ecs.Entity, world w.World) (failed bool) {
 			ActivityName: behaviorName,
 			Message:      string(reason),
 		}, world)
-		return false
+		return nil
 	}
 
 	if !IsCompleted(stored) {
-		return false
+		return nil
 	}
 
 	if err := behavior.Finish(stored, entity, world); err != nil {
-		log.Error("activity finish processing error", "entity", entity, "type", behaviorName, "error", err.Error())
+		query.RemoveActivity(world, entity)
+		return fmt.Errorf("%s finish: %w", behaviorName, err)
 	}
 	setLastResult(entity, &ActionResult{
 		Success:      true,
@@ -155,7 +154,7 @@ func stepActivity(entity ecs.Entity, world w.World) (failed bool) {
 		Message:      "completed",
 	}, world)
 	query.RemoveActivity(world, entity)
-	return false
+	return nil
 }
 
 // setLastResult はエンティティの直近アクティビティ結果を設定する
@@ -295,7 +294,7 @@ func CancelActivity(entity ecs.Entity, reason i18n.Msgid, world w.World) {
 // ProcessContinuousActivities は継続中の全アクティビティを1ターン分進める。
 // 即時アクション（Required==0）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
-func ProcessContinuousActivities(world w.World) {
+func ProcessContinuousActivities(world w.World) error {
 	var entities []ecs.Entity
 	// 退避中ステージのエンティティのアクティビティは進めない
 	activityQuery := query.ActiveFilter1[gc.Activity](world).Query()
@@ -316,8 +315,11 @@ func ProcessContinuousActivities(world w.World) {
 			continue
 		}
 
-		stepActivity(entity, world)
+		if err := stepActivity(entity, world); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // consumePassCost はアクションのAPコストを消費する。

@@ -1,6 +1,7 @@
 package aiinput
 
 import (
+	"fmt"
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/activity"
@@ -23,7 +24,7 @@ type Planner interface {
 const maxActivitiesPerTurn = 10
 
 // runAPLoop はAPが残っている限りPlannerのアクションを連続実行する
-func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Logger) {
+func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Logger) error {
 	executed := 0
 
 	for executed < maxActivitiesPerTurn {
@@ -39,8 +40,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
 		b, err := activity.GetBehavior(comp.BehaviorName)
 		if err != nil {
-			log.Warn("failed to get behavior", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
-			break
+			return err
 		}
 		actionCost := b.Info().ActionPointCost
 		tbComp := world.Components.TurnBased.Get(entity)
@@ -51,8 +51,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
 		result, err := activity.Execute(comp, entity, world)
 		if err != nil {
-			log.Warn("failed to execute action", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
-			break
+			return fmt.Errorf("entity %v %s: %w", entity, comp.BehaviorName, err)
 		}
 
 		log.Debug("action executed", "entity", entity, "activity", comp.BehaviorName, "success", result.Success)
@@ -62,6 +61,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 			break
 		}
 	}
+	return nil
 }
 
 // eightDirections は隣接8方向の座標差分を定義する
