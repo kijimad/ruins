@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,7 +67,7 @@
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;math&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span>              : // 単位にするのは、交換レートの求解が対象メトリクス以外の重い計算を回さないようにするため。</span>
 <span id="L43"><span class="lineNum">      43</span>              : // idx は SensitivityMetricNames のインデックスと1対1で対応する。未知の idx は panic し、メトリクス</span>
 <span id="L44"><span class="lineNum">      44</span>              : // 追加時の case 追加漏れが silent にならないようにする。</span>
-<span id="L45"><span class="lineNum">      45</span>              : func metricValue(master oapi.Raws, p Params, idx int) float64 {</span>
+<span id="L45"><span class="lineNum">      45</span>              : func metricValue(master rawschema.Raws, p Params, idx int) float64 {</span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         switch idx {</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :         case 0: // 戦闘。敵武器ダメージとプレイヤー筋力の倍率を適用して廃墟 day20 戦力比を測る</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
@@ -145,7 +145,7 @@
 <span id="L83"><span class="lineNum">      83</span>              : </span>
 <span id="L84"><span class="lineNum">      84</span>              : // metricsAt はパラメータベクトル p の下で全メトリクスを評価して返す。感度行列が全列を要するので</span>
 <span id="L85"><span class="lineNum">      85</span>              : // metricValue を全 idx について回す。</span>
-<span id="L86"><span class="lineNum">      86</span>              : func metricsAt(master oapi.Raws, p Params) []float64 {</span>
+<span id="L86"><span class="lineNum">      86</span>              : func metricsAt(master rawschema.Raws, p Params) []float64 {</span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC tlaBgGNC">           1 :         out := make([]float64, len(SensitivityMetricNames))</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         for i := range out {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 out[i] = metricValue(master, p, i)</span></span>
@@ -155,7 +155,7 @@
 <span id="L93"><span class="lineNum">      93</span>              : </span>
 <span id="L94"><span class="lineNum">      94</span>              : // metricMovers は idx 番目のメトリクスを +10% 摂動で動かすつまみだけを抽出する。動かさないつまみは</span>
 <span id="L95"><span class="lineNum">      95</span>              : // そのメトリクスの交換・境界に参加できないので除く。境界マージンと交換レートが共用する。</span>
-<span id="L96"><span class="lineNum">      96</span>              : func metricMovers(master oapi.Raws, knobs []Knob, base float64, idx int) []Knob {</span>
+<span id="L96"><span class="lineNum">      96</span>              : func metricMovers(master rawschema.Raws, knobs []Knob, base float64, idx int) []Knob {</span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         movers := make([]Knob, 0, len(knobs))</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         for _, k := range knobs {</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 p := DefaultParams(master)</span></span>
@@ -183,7 +183,7 @@
 <span id="L121"><span class="lineNum">     121</span>              : </span>
 <span id="L122"><span class="lineNum">     122</span>              : // CrossDomainSensitivity はドメイン横断の感度行列を返す。各つまみを+10%し全ドメインの代表メトリクスの変化を測る。</span>
 <span id="L123"><span class="lineNum">     123</span>              : // 多くはブロック対角で、横断するのは1日ターン数のような共通の分母だけ。</span>
-<span id="L124"><span class="lineNum">     124</span>              : func CrossDomainSensitivity(master oapi.Raws) []KnobSensitivity {</span>
+<span id="L124"><span class="lineNum">     124</span>              : func CrossDomainSensitivity(master rawschema.Raws) []KnobSensitivity {</span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         base := metricsAt(master, DefaultParams(master))</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         knobs := knobRegistry()</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         rows := make([]KnobSensitivity, 0, len(knobs))</span></span>

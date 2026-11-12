@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
@@ -92,7 +92,7 @@
 <span id="L30"><span class="lineNum">      30</span>              : }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // SimulateRun はラン全体を模擬する。maxDepth まで進み死亡で終了する。フロアのドロップでより強い武器へ切り替える。</span>
-<span id="L33"><span class="lineNum">      33</span>              : func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {</span>
+<span id="L33"><span class="lineNum">      33</span>              : func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 :         result := RunResult{</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 HPByDepth:           make(map[int]int),</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 HPBeforeHealByDepth: make(map[int]int),</span></span>
@@ -218,7 +218,7 @@
 <span id="L156"><span class="lineNum">     156</span>              : </span>
 <span id="L157"><span class="lineNum">     157</span>              : // rollFloorLoot はフロアで拾えるアイテムを計算する。</span>
 <span id="L158"><span class="lineNum">     158</span>              : // 回復アイテムと武器の両方を処理し、武器はフロア内で最も強いものを返す</span>
-<span id="L159"><span class="lineNum">     159</span>              : func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {</span>
+<span id="L159"><span class="lineNum">     159</span>              : func rollFloorLoot(master rawschema.Raws, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {</span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         result := floorLoot{}</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         itemTable, err := raw.GetItemTable(master, tableName)</span></span>
@@ -242,7 +242,7 @@
 <span id="L180"><span class="lineNum">     180</span>              : }</span>
 <span id="L181"><span class="lineNum">     181</span>              : </span>
 <span id="L182"><span class="lineNum">     182</span>              : // addFloorLoot は拾った1山を回復量・栄養・最強の武器・売却額へ積む。</span>
-<span id="L183"><span class="lineNum">     183</span>              : func addFloorLoot(result *floorLoot, master oapi.Raws, d raw.DrawnItem, playerMaxHP int) {</span>
+<span id="L183"><span class="lineNum">     183</span>              : func addFloorLoot(result *floorLoot, master rawschema.Raws, d raw.DrawnItem, playerMaxHP int) {</span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         spec, err := raw.NewItemSpec(master, d.Name)</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 return</span></span>
@@ -296,7 +296,7 @@
 <span id="L234"><span class="lineNum">     234</span>              : }</span>
 <span id="L235"><span class="lineNum">     235</span>              : </span>
 <span id="L236"><span class="lineNum">     236</span>              : // RunSimulations はN回のランシミュレーションを実行する</span>
-<span id="L237"><span class="lineNum">     237</span>              : func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {</span>
+<span id="L237"><span class="lineNum">     237</span>              : func RunSimulations(master rawschema.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {</span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         results := make([]RunResult, n)</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         for i := range n {</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 rng := rand.New(rand.NewPCG(seed+uint64(i), 0))</span></span>

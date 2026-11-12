@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,7 +83,7 @@
 <span id="L21"><span class="lineNum">      21</span>              :         Usage: &quot;generate component definitions such as EntitySpec and Components from the registry&quot;,</span>
 <span id="L22"><span class="lineNum">      22</span>              :         Flags: []cli.Flag{</span>
 <span id="L23"><span class="lineNum">      23</span>              :                 &amp;cli.StringFlag{</span>
-<span id="L24"><span class="lineNum">      24</span>              :                         Name:  &quot;out&quot;,</span>
+<span id="L24"><span class="lineNum">      24</span>              :                         Name:  outFlag,</span>
 <span id="L25"><span class="lineNum">      25</span>              :                         Value: &quot;internal/components/components_gen.go&quot;,</span>
 <span id="L26"><span class="lineNum">      26</span>              :                         Usage: &quot;output file path&quot;,</span>
 <span id="L27"><span class="lineNum">      27</span>              :                 },</span>
@@ -92,7 +92,7 @@
 <span id="L30"><span class="lineNum">      30</span>              : }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : func runGenComponents(_ context.Context, cmd *cli.Command) error {</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         return genComponents(cmd.Writer, cmd.String(&quot;out&quot;))</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         return genComponents(cmd.Writer, cmd.String(outFlag))</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // genComponents は登録表から生成したコードを outPath へ書き、完了を out へ書く。</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,7 +68,7 @@
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;math/rand/v2&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              : // errInvalidPackDice は pack のダイス表記が解釈できないときに返す。</span>
@@ -83,7 +83,7 @@
 <span id="L21"><span class="lineNum">      21</span>              : // SelectFromItemGroup は id が指すアイテムグループかアイテムコレクションから1回ぶんの loot を抽選する。グループは</span>
 <span id="L22"><span class="lineNum">      22</span>              : // 重み比で1エントリを選び、コレクションは各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。</span>
 <span id="L23"><span class="lineNum">      23</span>              : // 危険度を扱わず直接引くので、地上の床 loot と家具の収納 loot が同じ抽選を共有できる。</span>
-<span id="L24"><span class="lineNum">      24</span>              : func SelectFromItemGroup(raws oapi.Raws, id string, rng *rand.Rand) ([]DrawnItem, error) {</span>
+<span id="L24"><span class="lineNum">      24</span>              : func SelectFromItemGroup(raws rawschema.Raws, id string, rng *rand.Rand) ([]DrawnItem, error) {</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         if g, err := GetItemGroup(raws, id); err == nil {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 return drawGroup(g.Entries, rng)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -95,8 +95,8 @@
 <span id="L33"><span class="lineNum">      33</span>              : }</span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // drawGroup は重み比で1エントリを選び、その pack ぶんを返す。</span>
-<span id="L36"><span class="lineNum">      36</span>              : func drawGroup(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(rng, entries, func(e oapi.ItemGroupEntry) float64 { return e.Weight })</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : func drawGroup(entries []rawschema.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(rng, entries, func(e rawschema.ItemGroupEntry) float64 { return e.Weight })</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return nil, nil</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -110,7 +110,7 @@
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // drawCollection は各エントリを chance の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない</span>
 <span id="L50"><span class="lineNum">      50</span>              : // こともある。</span>
-<span id="L51"><span class="lineNum">      51</span>              : func drawCollection(entries []oapi.ItemCollectionEntry, rng *rand.Rand) ([]DrawnItem, error) {</span>
+<span id="L51"><span class="lineNum">      51</span>              : func drawCollection(entries []rawschema.ItemCollectionEntry, rng *rand.Rand) ([]DrawnItem, error) {</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         var out []DrawnItem</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         for _, e := range entries {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 if rng.Float64()*100 &lt; e.Chance {</span></span>
@@ -126,7 +126,7 @@
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span>              : // rollPack は pack のダイス表記を振って個数を返す。pack は必須で、空表記や不正表記は ParseDice が弾く。</span>
 <span id="L66"><span class="lineNum">      66</span>              : // ロード時に Dice スカラーの @pattern が全 pack を検証するので、正常データでは実行時にエラーにならない。</span>
-<span id="L67"><span class="lineNum">      67</span>              : func rollPack(pack oapi.Dice, rng *rand.Rand) (int, error) {</span>
+<span id="L67"><span class="lineNum">      67</span>              : func rollPack(pack rawschema.Dice, rng *rand.Rand) (int, error) {</span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         d, err := consts.ParseDice(pack)</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;%w %q: %w&quot;, errInvalidPackDice, pack, err)</span></span>

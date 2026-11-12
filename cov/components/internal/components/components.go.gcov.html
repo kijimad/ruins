@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,7 +70,7 @@
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              : )</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
@@ -157,7 +157,7 @@
 <span id="L95"><span class="lineNum">      95</span>              : </span>
 <span id="L96"><span class="lineNum">      96</span>              : // Consumable は消耗品。一度使うとなくなる</span>
 <span id="L97"><span class="lineNum">      97</span>              : type Consumable struct {</span>
-<span id="L98"><span class="lineNum">      98</span>              :         UsableScene oapi.UsableScene</span>
+<span id="L98"><span class="lineNum">      98</span>              :         UsableScene rawschema.UsableScene</span>
 <span id="L99"><span class="lineNum">      99</span>              :         TargetType  TargetType</span>
 <span id="L100"><span class="lineNum">     100</span>              : }</span>
 <span id="L101"><span class="lineNum">     101</span>              : </span>
@@ -187,11 +187,11 @@
 <span id="L125"><span class="lineNum">     125</span>              : </span>
 <span id="L126"><span class="lineNum">     126</span>              : // Wearable は装備品。キャラクタが装備することでパラメータを変更できる</span>
 <span id="L127"><span class="lineNum">     127</span>              : type Wearable struct {</span>
-<span id="L128"><span class="lineNum">     128</span>              :         Defense           int                    // 防御力</span>
-<span id="L129"><span class="lineNum">     129</span>              :         EquipmentCategory oapi.EquipmentCategory // 装備部位</span>
-<span id="L130"><span class="lineNum">     130</span>              :         EquipBonus        EquipBonus             // ステータスへのボーナス</span>
-<span id="L131"><span class="lineNum">     131</span>              :         InsulationCold    int                    // 耐寒（快適温度の下限を下げる）</span>
-<span id="L132"><span class="lineNum">     132</span>              :         InsulationHeat    int                    // 耐暑（快適温度の上限を上げる）</span>
+<span id="L128"><span class="lineNum">     128</span>              :         Defense           int                         // 防御力</span>
+<span id="L129"><span class="lineNum">     129</span>              :         EquipmentCategory rawschema.EquipmentCategory // 装備部位</span>
+<span id="L130"><span class="lineNum">     130</span>              :         EquipBonus        EquipBonus                  // ステータスへのボーナス</span>
+<span id="L131"><span class="lineNum">     131</span>              :         InsulationCold    int                         // 耐寒（快適温度の下限を下げる）</span>
+<span id="L132"><span class="lineNum">     132</span>              :         InsulationHeat    int                         // 耐暑（快適温度の上限を上げる）</span>
 <span id="L133"><span class="lineNum">     133</span>              : }</span>
 <span id="L134"><span class="lineNum">     134</span>              : </span>
 <span id="L135"><span class="lineNum">     135</span>              : // Player は操作対象の主人公キャラクター</span>
@@ -282,9 +282,9 @@
 <span id="L220"><span class="lineNum">     220</span>              : </span>
 <span id="L221"><span class="lineNum">     221</span>              : // Ammo は弾薬アイテムの性能を定義する</span>
 <span id="L222"><span class="lineNum">     222</span>              : type Ammo struct {</span>
-<span id="L223"><span class="lineNum">     223</span>              :         AmmoTag       oapi.AmmoTag // 口径タグ。武器の AmmoTag とマッチする</span>
-<span id="L224"><span class="lineNum">     224</span>              :         DamageBonus   int          // ダメージ修正値</span>
-<span id="L225"><span class="lineNum">     225</span>              :         AccuracyBonus int          // 命中率修正値</span>
+<span id="L223"><span class="lineNum">     223</span>              :         AmmoTag       rawschema.AmmoTag // 口径タグ。武器の AmmoTag とマッチする</span>
+<span id="L224"><span class="lineNum">     224</span>              :         DamageBonus   int               // ダメージ修正値</span>
+<span id="L225"><span class="lineNum">     225</span>              :         AccuracyBonus int               // 命中率修正値</span>
 <span id="L226"><span class="lineNum">     226</span>              : }</span>
 <span id="L227"><span class="lineNum">     227</span>              : </span>
 <span id="L228"><span class="lineNum">     228</span>              : // Attacker は近接・遠距離攻撃の共通インターフェース。</span>
@@ -293,21 +293,21 @@
 <span id="L231"><span class="lineNum">     231</span>              :         GetAccuracy() int</span>
 <span id="L232"><span class="lineNum">     232</span>              :         GetDamage() int</span>
 <span id="L233"><span class="lineNum">     233</span>              :         GetAttackCount() int</span>
-<span id="L234"><span class="lineNum">     234</span>              :         GetElement() oapi.Element</span>
-<span id="L235"><span class="lineNum">     235</span>              :         GetAttackCategory() oapi.AttackCategory</span>
+<span id="L234"><span class="lineNum">     234</span>              :         GetElement() rawschema.Element</span>
+<span id="L235"><span class="lineNum">     235</span>              :         GetAttackCategory() rawschema.AttackCategory</span>
 <span id="L236"><span class="lineNum">     236</span>              :         GetCost() int</span>
 <span id="L237"><span class="lineNum">     237</span>              :         GetTargetType() TargetType</span>
 <span id="L238"><span class="lineNum">     238</span>              : }</span>
 <span id="L239"><span class="lineNum">     239</span>              : </span>
 <span id="L240"><span class="lineNum">     240</span>              : // Melee は近接攻撃の性質。近接攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する</span>
 <span id="L241"><span class="lineNum">     241</span>              : type Melee struct {</span>
-<span id="L242"><span class="lineNum">     242</span>              :         Accuracy       int                 // 命中率</span>
-<span id="L243"><span class="lineNum">     243</span>              :         Damage         int                 // 攻撃力</span>
-<span id="L244"><span class="lineNum">     244</span>              :         AttackCount    int                 // 攻撃回数</span>
-<span id="L245"><span class="lineNum">     245</span>              :         Element        oapi.Element        // 攻撃属性</span>
-<span id="L246"><span class="lineNum">     246</span>              :         AttackCategory oapi.AttackCategory // 攻撃種別</span>
-<span id="L247"><span class="lineNum">     247</span>              :         Cost           int                 // 行動コスト</span>
-<span id="L248"><span class="lineNum">     248</span>              :         TargetType     TargetType          // 対象タイプ</span>
+<span id="L242"><span class="lineNum">     242</span>              :         Accuracy       int                      // 命中率</span>
+<span id="L243"><span class="lineNum">     243</span>              :         Damage         int                      // 攻撃力</span>
+<span id="L244"><span class="lineNum">     244</span>              :         AttackCount    int                      // 攻撃回数</span>
+<span id="L245"><span class="lineNum">     245</span>              :         Element        rawschema.Element        // 攻撃属性</span>
+<span id="L246"><span class="lineNum">     246</span>              :         AttackCategory rawschema.AttackCategory // 攻撃種別</span>
+<span id="L247"><span class="lineNum">     247</span>              :         Cost           int                      // 行動コスト</span>
+<span id="L248"><span class="lineNum">     248</span>              :         TargetType     TargetType               // 対象タイプ</span>
 <span id="L249"><span class="lineNum">     249</span>              : }</span>
 <span id="L250"><span class="lineNum">     250</span>              : </span>
 <span id="L251"><span class="lineNum">     251</span>              : // GetAccuracy はAttackerの実装</span>
@@ -320,10 +320,10 @@
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 : func (m *Melee) GetAttackCount() int { return m.AttackCount }</span></span>
 <span id="L259"><span class="lineNum">     259</span>              : </span>
 <span id="L260"><span class="lineNum">     260</span>              : // GetElement はAttackerの実装</span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : func (m *Melee) GetElement() oapi.Element { return m.Element }</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : func (m *Melee) GetElement() rawschema.Element { return m.Element }</span></span>
 <span id="L262"><span class="lineNum">     262</span>              : </span>
 <span id="L263"><span class="lineNum">     263</span>              : // GetAttackCategory はAttackerの実装</span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 : func (m *Melee) GetAttackCategory() oapi.AttackCategory { return m.AttackCategory }</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 : func (m *Melee) GetAttackCategory() rawschema.AttackCategory { return m.AttackCategory }</span></span>
 <span id="L265"><span class="lineNum">     265</span>              : </span>
 <span id="L266"><span class="lineNum">     266</span>              : // GetCost はAttackerの実装</span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 : func (m *Melee) GetCost() int { return m.Cost }</span></span>
@@ -334,20 +334,20 @@
 <span id="L272"><span class="lineNum">     272</span>              : // Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む</span>
 <span id="L273"><span class="lineNum">     273</span>              : type Fire struct {</span>
 <span id="L274"><span class="lineNum">     274</span>              :         // 攻撃パラメータ</span>
-<span id="L275"><span class="lineNum">     275</span>              :         Accuracy       int                 // 命中率</span>
-<span id="L276"><span class="lineNum">     276</span>              :         Damage         int                 // 攻撃力</span>
-<span id="L277"><span class="lineNum">     277</span>              :         AttackCount    int                 // 攻撃回数</span>
-<span id="L278"><span class="lineNum">     278</span>              :         Element        oapi.Element        // 攻撃属性</span>
-<span id="L279"><span class="lineNum">     279</span>              :         AttackCategory oapi.AttackCategory // 攻撃種別</span>
-<span id="L280"><span class="lineNum">     280</span>              :         Cost           int                 // 行動コスト</span>
-<span id="L281"><span class="lineNum">     281</span>              :         TargetType     TargetType          // 対象タイプ</span>
+<span id="L275"><span class="lineNum">     275</span>              :         Accuracy       int                      // 命中率</span>
+<span id="L276"><span class="lineNum">     276</span>              :         Damage         int                      // 攻撃力</span>
+<span id="L277"><span class="lineNum">     277</span>              :         AttackCount    int                      // 攻撃回数</span>
+<span id="L278"><span class="lineNum">     278</span>              :         Element        rawschema.Element        // 攻撃属性</span>
+<span id="L279"><span class="lineNum">     279</span>              :         AttackCategory rawschema.AttackCategory // 攻撃種別</span>
+<span id="L280"><span class="lineNum">     280</span>              :         Cost           int                      // 行動コスト</span>
+<span id="L281"><span class="lineNum">     281</span>              :         TargetType     TargetType               // 対象タイプ</span>
 <span id="L282"><span class="lineNum">     282</span>              :         // 弾薬管理</span>
-<span id="L283"><span class="lineNum">     283</span>              :         Magazine            int          // 現在の装弾数</span>
-<span id="L284"><span class="lineNum">     284</span>              :         MagazineSize        int          // 最大装弾数</span>
-<span id="L285"><span class="lineNum">     285</span>              :         ReloadEffort        int          // リロード完了に必要な総工数</span>
-<span id="L286"><span class="lineNum">     286</span>              :         AmmoTag             oapi.AmmoTag // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする</span>
-<span id="L287"><span class="lineNum">     287</span>              :         LoadedDamageBonus   int          // 装填中の弾薬によるダメージ修正値。リロード時に設定される</span>
-<span id="L288"><span class="lineNum">     288</span>              :         LoadedAccuracyBonus int          // 装填中の弾薬による命中修正値。リロード時に設定される</span>
+<span id="L283"><span class="lineNum">     283</span>              :         Magazine            int               // 現在の装弾数</span>
+<span id="L284"><span class="lineNum">     284</span>              :         MagazineSize        int               // 最大装弾数</span>
+<span id="L285"><span class="lineNum">     285</span>              :         ReloadEffort        int               // リロード完了に必要な総工数</span>
+<span id="L286"><span class="lineNum">     286</span>              :         AmmoTag             rawschema.AmmoTag // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする</span>
+<span id="L287"><span class="lineNum">     287</span>              :         LoadedDamageBonus   int               // 装填中の弾薬によるダメージ修正値。リロード時に設定される</span>
+<span id="L288"><span class="lineNum">     288</span>              :         LoadedAccuracyBonus int               // 装填中の弾薬による命中修正値。リロード時に設定される</span>
 <span id="L289"><span class="lineNum">     289</span>              : }</span>
 <span id="L290"><span class="lineNum">     290</span>              : </span>
 <span id="L291"><span class="lineNum">     291</span>              : // GetAccuracy はAttackerの実装</span>
@@ -360,10 +360,10 @@
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 : func (f *Fire) GetAttackCount() int { return f.AttackCount }</span></span>
 <span id="L299"><span class="lineNum">     299</span>              : </span>
 <span id="L300"><span class="lineNum">     300</span>              : // GetElement はAttackerの実装</span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 : func (f *Fire) GetElement() oapi.Element { return f.Element }</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 : func (f *Fire) GetElement() rawschema.Element { return f.Element }</span></span>
 <span id="L302"><span class="lineNum">     302</span>              : </span>
 <span id="L303"><span class="lineNum">     303</span>              : // GetAttackCategory はAttackerの実装</span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 : func (f *Fire) GetAttackCategory() oapi.AttackCategory { return f.AttackCategory }</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 : func (f *Fire) GetAttackCategory() rawschema.AttackCategory { return f.AttackCategory }</span></span>
 <span id="L305"><span class="lineNum">     305</span>              : </span>
 <span id="L306"><span class="lineNum">     306</span>              : // GetCost はAttackerの実装</span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 : func (f *Fire) GetCost() int { return f.Cost }</span></span>

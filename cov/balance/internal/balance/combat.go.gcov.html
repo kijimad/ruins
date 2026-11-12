@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;math/rand/v2&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/formula&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              : // CombatantStats は戦闘シミュレーション用のステータス</span>
@@ -150,7 +150,7 @@
 <span id="L88"><span class="lineNum">      88</span>              : }</span>
 <span id="L89"><span class="lineNum">      89</span>              : </span>
 <span id="L90"><span class="lineNum">      90</span>              : // LoadCombatantFromMember はraw.Masterのメンバー定義からCombatantStatsを生成する</span>
-<span id="L91"><span class="lineNum">      91</span>              : func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, error) {</span>
+<span id="L91"><span class="lineNum">      91</span>              : func LoadCombatantFromMember(master rawschema.Raws, name string) (CombatantStats, error) {</span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         spec, err := raw.NewMemberSpec(master, name)</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 return CombatantStats{}, fmt.Errorf(&quot;failed to load member %q: %w&quot;, name, err)</span></span>
@@ -173,7 +173,7 @@
 <span id="L111"><span class="lineNum">     111</span>              : }</span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
 <span id="L113"><span class="lineNum">     113</span>              : // LoadWeaponFromItem はraw.MasterのアイテムからWeaponStatsを生成する</span>
-<span id="L114"><span class="lineNum">     114</span>              : func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {</span>
+<span id="L114"><span class="lineNum">     114</span>              : func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error) {</span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         spec, err := raw.NewItemSpec(master, name)</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, fmt.Errorf(&quot;failed to load weapon %q: %w&quot;, name, err)</span></span>
@@ -200,7 +200,7 @@
 <span id="L138"><span class="lineNum">     138</span>              : </span>
 <span id="L139"><span class="lineNum">     139</span>              : // LoadEnemyWeapon は敵の CommandTable から最も重みの高い武器を代表に取り WeaponStats を返す。コマンドの重み分布は</span>
 <span id="L140"><span class="lineNum">     140</span>              : // 反映しない簡略化で、DifficultyCurve の敵プール重みとは別の近似なので二重の簡略化になる点に注意する。</span>
-<span id="L141"><span class="lineNum">     141</span>              : func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {</span>
+<span id="L141"><span class="lineNum">     141</span>              : func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, error) {</span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         member, err := raw.FindMember(master, enemyName)</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, err</span></span>

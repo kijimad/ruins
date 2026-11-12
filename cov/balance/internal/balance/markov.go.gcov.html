@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/formula&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
@@ -249,7 +249,7 @@
 <span id="L187"><span class="lineNum">     187</span>              : </span>
 <span id="L188"><span class="lineNum">     188</span>              : // PoolCombatRisk は危険度 danger の敵プールに1体遭遇したときの重み付き死亡確率と期待決着ターンを返す。各敵との</span>
 <span id="L189"><span class="lineNum">     189</span>              : // 1対1をマルコフ連鎖で解き出現重みで平均する。帯に敵がいなければ ok=false。静的下限は PercentBase を渡す。</span>
-<span id="L190"><span class="lineNum">     190</span>              : func PoolCombatRisk(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, playerSkillMult consts.Percent) (deathProb, expTurns float64, ok bool, err error) {</span>
+<span id="L190"><span class="lineNum">     190</span>              : func PoolCombatRisk(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, playerSkillMult consts.Percent) (deathProb, expTurns float64, ok bool, err error) {</span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         table, err := raw.GetEnemyTable(master, enemyTableName)</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return 0, 0, false, err</span></span>
@@ -278,7 +278,7 @@
 <span id="L216"><span class="lineNum">     216</span>              : </span>
 <span id="L217"><span class="lineNum">     217</span>              : // CombatRiskCurve は経過日 1..days の戦闘リスクを敵プールの重みで期待して返す。プレイヤーは熟練度なしの</span>
 <span id="L218"><span class="lineNum">     218</span>              : // 静的下限で見る。各敵との1対1をマルコフ連鎖で解き、出現重みで平均する。乱数を使わない。</span>
-<span id="L219"><span class="lineNum">     219</span>              : func CombatRiskCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {</span>
+<span id="L219"><span class="lineNum">     219</span>              : func CombatRiskCurve(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int) ([]DayRisk, error) {</span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         out := make([]DayRisk, 0, days)</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 danger := int(query.DangerLevelForDay(day))</span></span>

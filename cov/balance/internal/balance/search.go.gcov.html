@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,12 +66,12 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;maps&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;math&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // ruinsDay20PowerRatio は現行 master の廃墟 day20 の戦力比を返す。探索と感度の目的関数。</span>
-<span id="L12"><span class="lineNum">      12</span>              : func ruinsDay20PowerRatio(master oapi.Raws) float64 {</span>
+<span id="L12"><span class="lineNum">      12</span>              : func ruinsDay20PowerRatio(master rawschema.Raws) float64 {</span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
@@ -89,7 +89,7 @@
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // withScaledMeleeDamage は itemID の近接ダメージを factor 倍した状態で fn を呼び、後で元へ戻す。master の item は</span>
 <span id="L29"><span class="lineNum">      29</span>              : // backing array を共有するので値を退避・復元する。並行変更は競合するので、使うなら master を呼び出しごとに独立させる。</span>
-<span id="L30"><span class="lineNum">      30</span>              : func withScaledMeleeDamage(master oapi.Raws, itemID string, factor float64, fn func()) {</span>
+<span id="L30"><span class="lineNum">      30</span>              : func withScaledMeleeDamage(master rawschema.Raws, itemID string, factor float64, fn func()) {</span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 if items[i].Id == itemID &amp;&amp; items[i].Melee != nil {</span></span>
@@ -125,7 +125,7 @@
 <span id="L63"><span class="lineNum">      63</span>              : </span>
 <span id="L64"><span class="lineNum">      64</span>              : // withScaledMeleeDamages は複数アイテムの近接ダメージを同時に factor 倍して fn を呼び、後で全て戻す。単変数版の</span>
 <span id="L65"><span class="lineNum">      65</span>              : // 多変数化で、並行変更が競合する点も同じ。</span>
-<span id="L66"><span class="lineNum">      66</span>              : func withScaledMeleeDamages(master oapi.Raws, factors map[string]float64, fn func()) {</span>
+<span id="L66"><span class="lineNum">      66</span>              : func withScaledMeleeDamages(master rawschema.Raws, factors map[string]float64, fn func()) {</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         type saved struct {</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 idx  int</span></span>
@@ -157,7 +157,7 @@
 <span id="L95"><span class="lineNum">      95</span>              : </span>
 <span id="L96"><span class="lineNum">      96</span>              : // combatDeviations は現行 master の廃墟カーブで、代表日ごとの目標戦力比からの逸脱の絶対値を返す。</span>
 <span id="L97"><span class="lineNum">      97</span>              : // すべての代表日で導出できたときだけ ok を true にする。</span>
-<span id="L98"><span class="lineNum">      98</span>              : func combatDeviations(master oapi.Raws, repDays []int) ([]float64, bool) {</span>
+<span id="L98"><span class="lineNum">      98</span>              : func combatDeviations(master rawschema.Raws, repDays []int) ([]float64, bool) {</span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, false</span></span>
@@ -221,7 +221,7 @@
 <span id="L159"><span class="lineNum">     159</span>              : // ParetoFront は knobs×levels の格子で武器ダメージ倍率を動かし、代表日 repDays の目標逸脱の非劣な点集合を返す。</span>
 <span id="L160"><span class="lineNum">     160</span>              : // 複数日のトレードオフは逸脱ベクトルの非劣集合で初めて意味を持つ。withScaledMeleeDamages が master を書き換えるので</span>
 <span id="L161"><span class="lineNum">     161</span>              : // この格子ループは並行化しない。並行なら格子点ごとに独立した master をロードすること。</span>
-<span id="L162"><span class="lineNum">     162</span>              : func ParetoFront(master oapi.Raws, knobs []string, levels []float64, repDays []int) []ParetoPoint {</span>
+<span id="L162"><span class="lineNum">     162</span>              : func ParetoFront(master rawschema.Raws, knobs []string, levels []float64, repDays []int) []ParetoPoint {</span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         combos := gridFactors(knobs, levels)</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         points := make([]ParetoPoint, 0, len(combos))</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         for _, factors := range combos {</span></span>

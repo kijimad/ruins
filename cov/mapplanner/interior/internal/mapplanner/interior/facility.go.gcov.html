@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,7 +64,7 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              : // plannerDef は間取りテンプレの実装と、それが破綻しない最小寸法。</span>
@@ -74,11 +74,11 @@
 <span id="L12"><span class="lineNum">      12</span>              : }</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
 <span id="L14"><span class="lineNum">      14</span>              : // planners は planner キーから間取り実装を引く。</span>
-<span id="L15"><span class="lineNum">      15</span>              : var planners = map[oapi.PlannerKey]plannerDef{</span>
-<span id="L16"><span class="lineNum">      16</span>              :         oapi.House:  {PlanHouseAny, 12, 9},</span>
-<span id="L17"><span class="lineNum">      17</span>              :         oapi.Store:  {PlanStore, 12, 9},</span>
-<span id="L18"><span class="lineNum">      18</span>              :         oapi.Clinic: {PlanClinic, 12, 9},</span>
-<span id="L19"><span class="lineNum">      19</span>              :         oapi.Bsp:    {planBSP, 0, 0},</span>
+<span id="L15"><span class="lineNum">      15</span>              : var planners = map[rawschema.PlannerKey]plannerDef{</span>
+<span id="L16"><span class="lineNum">      16</span>              :         rawschema.House:  {PlanHouseAny, 12, 9},</span>
+<span id="L17"><span class="lineNum">      17</span>              :         rawschema.Store:  {PlanStore, 12, 9},</span>
+<span id="L18"><span class="lineNum">      18</span>              :         rawschema.Clinic: {PlanClinic, 12, 9},</span>
+<span id="L19"><span class="lineNum">      19</span>              :         rawschema.Bsp:    {planBSP, 0, 0},</span>
 <span id="L20"><span class="lineNum">      20</span>              : }</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // planBSP は汎用の BSP 分割で面積最大を主室、残りを奥室にする。</span>
@@ -98,7 +98,7 @@
 <span id="L36"><span class="lineNum">      36</span>              : // Furnish は建物の footprint と入口から、施設種別に応じた内装の配置を決定的に返す。footprint を外周が壁の</span>
 <span id="L37"><span class="lineNum">      37</span>              : // 1部屋とみなし、door はその外周上の入口。多部屋の敷地計画は FurnishBuilding が担い、Furnish は単室で</span>
 <span id="L38"><span class="lineNum">      38</span>              : // 施設種別の主室レシピ・密度・経年・flavor の直交軸を検証する単位になる。未登録の施設は error。</span>
-<span id="L39"><span class="lineNum">      39</span>              : func Furnish(raws oapi.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {</span>
+<span id="L39"><span class="lineNum">      39</span>              : func Furnish(raws rawschema.Raws, seed uint64, footprint Rect, door Vec, facility string) ([]Placed, error) {</span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         table, err := newProfileTable(raws)</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         for gi := range c.Groups {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 for ii := range c.Groups[gi].Items {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                         it := &amp;c.Groups[gi].Items[ii]</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                         if it.Kind != oapi.Furniture {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                         if it.Kind != rawschema.Furniture {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                                 continue // 家具だけ密度を変える。戦利品・装飾はそのまま</span></span>
 <span id="L75"><span class="lineNum">      75</span>              :                         }</span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                         it.Amount.Base = scaleAmount(it.Amount.Base, factor)</span></span>

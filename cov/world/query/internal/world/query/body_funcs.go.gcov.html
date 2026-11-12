@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,7 +64,7 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
@@ -86,12 +86,12 @@
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         var conds []gc.HealthCondition</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         if world.Components.Fatigue.Has(entity) {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 if sev, ok := world.Components.Fatigue.Get(entity).FatigueSeverity(world.Resources.NeedDefs); ok {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                         conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(oapi.Fatigue), Severity: sev})</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                         conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(rawschema.Fatigue), Severity: sev})</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :         }</span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         if world.Components.Hunger.Has(entity) {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 if sev, ok := world.Resources.NeedDefs.HungerSeverity(world.Components.Hunger.Get(entity).GetLevel(world.Resources.NeedDefs)); ok {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                         conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(oapi.Hunger), Severity: sev})</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                         conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(rawschema.Hunger), Severity: sev})</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              :         }</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return conds</span></span>
@@ -107,12 +107,12 @@
 <span id="L45"><span class="lineNum">      45</span>              : }</span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // HungerName は空腹の段階の訳した表示名を返す</span>
-<span id="L48"><span class="lineNum">      48</span>              : func HungerName(world w.World, level oapi.HungerStageId) string {</span>
+<span id="L48"><span class="lineNum">      48</span>              : func HungerName(world w.World, level rawschema.HungerStageId) string {</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         return T(world, world.Resources.NeedDefs.HungerName(level))</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // FatigueName は疲労の段階の訳した表示名を返す</span>
-<span id="L53"><span class="lineNum">      53</span>              : func FatigueName(world w.World, level oapi.FatigueStageId) string {</span>
+<span id="L53"><span class="lineNum">      53</span>              : func FatigueName(world w.World, level rawschema.FatigueStageId) string {</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         return T(world, world.Resources.NeedDefs.FatigueName(level))</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // ShelterName は囲われの度合いの訳した表示名を返す</span>
-<span id="L73"><span class="lineNum">      73</span>              : func ShelterName(world w.World, shelter oapi.Shelter) string {</span>
+<span id="L73"><span class="lineNum">      73</span>              : func ShelterName(world w.World, shelter rawschema.Shelter) string {</span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         return T(world, world.Resources.TileEnvDefs.ShelterName(shelter))</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>

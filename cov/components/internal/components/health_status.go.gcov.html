@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // Severity は状態の重症度</span>
@@ -424,7 +424,7 @@
 <span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L364"><span class="lineNum">     364</span>              :         // 外傷は発症中ずっと血を失う。全身性の不調は重症でだけ循環が落ちる</span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :         if def.Recovery == oapi.RecoverAfterTend {</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :         if def.Recovery == rawschema.RecoverAfterTend {</span></span>
 <span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :                 if !cond.IsActive() {</span></span>
 <span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC tlaBgUNC">           0 :                         return 0</span></span>
 <span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                 }</span></span>

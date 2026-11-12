@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,15 +64,15 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              : // TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水・植生。</span>
 <span id="L9"><span class="lineNum">       9</span>              : // 温度計算の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする</span>
 <span id="L10"><span class="lineNum">      10</span>              : type TileEnvironment struct {</span>
-<span id="L11"><span class="lineNum">      11</span>              :         Shelter oapi.Shelter</span>
-<span id="L12"><span class="lineNum">      12</span>              :         Water   oapi.WaterExposure // ゼロ値は水の影響なし</span>
-<span id="L13"><span class="lineNum">      13</span>              :         Foliage oapi.Foliage       // ゼロ値は植生なし</span>
+<span id="L11"><span class="lineNum">      11</span>              :         Shelter rawschema.Shelter</span>
+<span id="L12"><span class="lineNum">      12</span>              :         Water   rawschema.WaterExposure // ゼロ値は水の影響なし</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Foliage rawschema.Foliage       // ゼロ値は植生なし</span>
 <span id="L14"><span class="lineNum">      14</span>              : }</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // ShelterDef は囲われの度合いごとの、世界温度の受け方と表示名。raw の shelterEffects の1行から組み立てる</span>
@@ -85,13 +85,13 @@
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // TileEnvDefs は囲われの受け方と、水と植生がタイルの気温に足す補正の表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
 <span id="L25"><span class="lineNum">      25</span>              : type TileEnvDefs struct {</span>
-<span id="L26"><span class="lineNum">      26</span>              :         Shelters map[oapi.Shelter]ShelterDef</span>
-<span id="L27"><span class="lineNum">      27</span>              :         Water    map[oapi.WaterExposure]int</span>
-<span id="L28"><span class="lineNum">      28</span>              :         Foliage  map[oapi.Foliage]int</span>
+<span id="L26"><span class="lineNum">      26</span>              :         Shelters map[rawschema.Shelter]ShelterDef</span>
+<span id="L27"><span class="lineNum">      27</span>              :         Water    map[rawschema.WaterExposure]int</span>
+<span id="L28"><span class="lineNum">      28</span>              :         Foliage  map[rawschema.Foliage]int</span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // ShelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す。表に無い囲われは世界温度をそのまま受ける</span>
-<span id="L32"><span class="lineNum">      32</span>              : func (d TileEnvDefs) ShelteredWorldTemp(shelter oapi.Shelter, worldTemp int) int {</span>
+<span id="L32"><span class="lineNum">      32</span>              : func (d TileEnvDefs) ShelteredWorldTemp(shelter rawschema.Shelter, worldTemp int) int {</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         def, ok := d.Shelters[shelter]</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 return worldTemp</span></span>
@@ -100,7 +100,7 @@
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // ShelterName は囲われの度合いの表示名 msgid を返す。表に無ければ id をそのまま返す</span>
-<span id="L41"><span class="lineNum">      41</span>              : func (d TileEnvDefs) ShelterName(shelter oapi.Shelter) i18n.Msgid {</span>
+<span id="L41"><span class="lineNum">      41</span>              : func (d TileEnvDefs) ShelterName(shelter rawschema.Shelter) i18n.Msgid {</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :         if def, ok := d.Shelters[shelter]; ok {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return def.Name</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>

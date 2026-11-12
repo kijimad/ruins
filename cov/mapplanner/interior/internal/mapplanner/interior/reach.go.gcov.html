@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,7 +62,7 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package interior</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : // 到達性は有界インスタンスでは必須のガード。塞がった部屋はその seed で永久に塞がる。配置後に</span>
 <span id="L6"><span class="lineNum">       6</span>              : // 戸口から歩行可能な床が全て到達できるかを flood-fill で検査する。ここでは検査だけを提供し、失敗時の修復は後続 Stage で足す。</span>
@@ -76,7 +76,7 @@
 <span id="L14"><span class="lineNum">      14</span>              : func blockingTiles(placed []Placed) map[Vec]bool {</span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         blocked := make(map[Vec]bool)</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         for _, p := range placed {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 if p.Kind == oapi.Furniture {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 if p.Kind == rawschema.Furniture {</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                         blocked[p.Pos] = true</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L20"><span class="lineNum">      20</span>              :         }</span>
@@ -137,7 +137,7 @@
 <span id="L75"><span class="lineNum">      75</span>              : // 無ければ -1。戸口の内側は配置対象外なので戸口が塞がることはなく、到達領域は常に非空になる。</span>
 <span id="L76"><span class="lineNum">      76</span>              : func gateIndex(room Room, placed []Placed, blocked, reached map[Vec]bool) int {</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         for i, p := range placed {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 if p.Kind != oapi.Furniture {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 if p.Kind != rawschema.Furniture {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L80"><span class="lineNum">      80</span>              :                 }</span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 nearReached, nearUnreachedFloor := false, false</span></span>

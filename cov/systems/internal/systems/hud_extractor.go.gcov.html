@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,8 +70,8 @@
 <span id="L8"><span class="lineNum">       8</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/overworld&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/overworld&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/render3d&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/hud&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
@@ -456,7 +456,7 @@
 <span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                 worst gc.Severity</span></span>
 <span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                 count int</span></span>
 <span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         cold := world.Resources.ConditionDefs.ByOnset(oapi.Cold)</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         cold := world.Resources.ConditionDefs.ByOnset(rawschema.Cold)</span></span>
 <span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :         var order []gc.ConditionType</span></span>
 <span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :         byType := map[gc.ConditionType]*summary{}</span></span>
 <span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         for i := range hs.Parts {</span></span>
@@ -520,7 +520,7 @@
 <span id="L458"><span class="lineNum">     458</span>              : func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {</span>
 <span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :         hs := world.Components.HealthStatus.Get(entity)</span></span>
 <span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :         part := &amp;hs.Parts[gc.BodyPartWholeBody]</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(oapi.Cold)); cold != nil {</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(rawschema.Cold)); cold != nil {</span></span>
 <span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :                 return hud.StatusBadge{Text: conditionLabel(world, cold.Type, cold.Severity), Color: color.RGBA{80, 140, 235, 255}}, true</span></span>
 <span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :         return hud.StatusBadge{}, false</span></span>

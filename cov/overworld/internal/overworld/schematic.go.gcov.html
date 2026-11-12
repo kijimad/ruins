@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,8 +71,8 @@
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;unicode/utf8&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // チャンクマップ表記は、1チャンク=1建物という縮尺に合わせ、各チャンクを「そこが何の種別の</span>
@@ -100,13 +100,13 @@
 <span id="L38"><span class="lineNum">      38</span>              : const placeUnknownGlyph rune = '?'</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。</span>
-<span id="L41"><span class="lineNum">      41</span>              : func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {</span>
+<span id="L41"><span class="lineNum">      41</span>              : func toGlyphInfo(mg rawschema.MapGlyph) GlyphInfo {</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         label, _ := utf8.DecodeRuneInString(mg.Glyph)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // glyphByID は種別 id から地図記号を引く。</span>
-<span id="L47"><span class="lineNum">      47</span>              : func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {</span>
+<span id="L47"><span class="lineNum">      47</span>              : func glyphByID(raws rawschema.Raws, id string) (GlyphInfo, bool) {</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         mg, ok := raw.GetMapGlyph(raws, id)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                 return GlyphInfo{}, false</span></span>
@@ -115,11 +115,11 @@
 <span id="L53"><span class="lineNum">      53</span>              : }</span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              : // LegendGlyphs は俯瞰図の全記号を凡例順に返す。</span>
-<span id="L56"><span class="lineNum">      56</span>              : func LegendGlyphs(raws oapi.Raws) []GlyphInfo {</span>
+<span id="L56"><span class="lineNum">      56</span>              : func LegendGlyphs(raws rawschema.Raws) []GlyphInfo {</span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         mgs := raw.PtrSlice(raws.MapGlyphs)</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         sorted := make([]oapi.MapGlyph, len(mgs))</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         sorted := make([]rawschema.MapGlyph, len(mgs))</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         copy(sorted, mgs)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :         slices.SortStableFunc(sorted, func(a, b oapi.MapGlyph) int { return cmp.Compare(a.Order, b.Order) })</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :         slices.SortStableFunc(sorted, func(a, b rawschema.MapGlyph) int { return cmp.Compare(a.Order, b.Order) })</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         out := make([]GlyphInfo, 0, len(sorted))</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         for _, mg := range sorted {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 out = append(out, toGlyphInfo(mg))</span></span>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span>              : }</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // glyphColorMap は記号 rune から色への表を返す。</span>
-<span id="L69"><span class="lineNum">      69</span>              : func glyphColorMap(raws oapi.Raws) map[rune]color.RGBA {</span>
+<span id="L69"><span class="lineNum">      69</span>              : func glyphColorMap(raws rawschema.Raws) map[rune]color.RGBA {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         glyphs := LegendGlyphs(raws)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         table := make(map[rune]color.RGBA, len(glyphs))</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         for _, g := range glyphs {</span></span>
@@ -170,7 +170,7 @@
 <span id="L108"><span class="lineNum">     108</span>              : }</span>
 <span id="L109"><span class="lineNum">     109</span>              : </span>
 <span id="L110"><span class="lineNum">     110</span>              : // chunkPlace は1チャンクの種別を地図記号で返す純関数。</span>
-<span id="L111"><span class="lineNum">     111</span>              : func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {</span>
+<span id="L111"><span class="lineNum">     111</span>              : func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {</span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(runSeed, c, cols) {</span></span>
 <span id="L113"><span class="lineNum">     113</span>              :         case chunkUrban:</span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 kind, _ := urbanFacilityAt(cat, runSeed, c, cols)</span></span>
@@ -179,7 +179,7 @@
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return placeUnknownGlyph</span></span>
 <span id="L119"><span class="lineNum">     119</span>              :         case chunkDungeonEntrance:</span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC tlaBgGNC">           1 :                 return chunkGlyph(raws, oapi.DungeonEntrance)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC tlaBgGNC">           1 :                 return chunkGlyph(raws, rawschema.DungeonEntrance)</span></span>
 <span id="L121"><span class="lineNum">     121</span>              :         case chunkSettlement:</span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, settlementAt(raws, runSeed, c).Id); ok {</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
@@ -191,13 +191,13 @@
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC tlaBgUNC">           0 :                 return placeUnknownGlyph</span></span>
 <span id="L131"><span class="lineNum">     131</span>              :         case chunkWasteland:</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :                 return chunkGlyph(raws, oapi.Wasteland)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :                 return chunkGlyph(raws, rawschema.Wasteland)</span></span>
 <span id="L133"><span class="lineNum">     133</span>              :         }</span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 :         return placeUnknownGlyph</span></span>
 <span id="L135"><span class="lineNum">     135</span>              : }</span>
 <span id="L136"><span class="lineNum">     136</span>              : </span>
 <span id="L137"><span class="lineNum">     137</span>              : // chunkGlyph は持ち主の行を持たないチャンクの種類の記号を引く。未登録は保険の記号。</span>
-<span id="L138"><span class="lineNum">     138</span>              : func chunkGlyph(raws oapi.Raws, chunk oapi.GlyphChunk) rune {</span>
+<span id="L138"><span class="lineNum">     138</span>              : func chunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) rune {</span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC tlaBgGNC">           1 :         if mg, ok := raw.GetChunkGlyph(raws, chunk); ok {</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 return toGlyphInfo(mg).Label</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -205,7 +205,7 @@
 <span id="L143"><span class="lineNum">     143</span>              : }</span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
 <span id="L145"><span class="lineNum">     145</span>              : // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。</span>
-<span id="L146"><span class="lineNum">     146</span>              : func SchematicLegend(raws oapi.Raws) string {</span>
+<span id="L146"><span class="lineNum">     146</span>              : func SchematicLegend(raws rawschema.Raws) string {</span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 :         glyphs := LegendGlyphs(raws)</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, len(glyphs))</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         for _, g := range glyphs {</span></span>

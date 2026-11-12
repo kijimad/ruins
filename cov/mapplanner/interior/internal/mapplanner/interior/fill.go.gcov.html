@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,11 +62,11 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package interior</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : // Placed は座標の付いた1配置。FillRoom の出力で、レンダラや ECS への spawn の入力になる。</span>
 <span id="L6"><span class="lineNum">       6</span>              : type Placed struct {</span>
-<span id="L7"><span class="lineNum">       7</span>              :         Kind      oapi.StuffKind</span>
+<span id="L7"><span class="lineNum">       7</span>              :         Kind      rawschema.StuffKind</span>
 <span id="L8"><span class="lineNum">       8</span>              :         Ref       string</span>
 <span id="L9"><span class="lineNum">       9</span>              :         Pos       Vec</span>
 <span id="L10"><span class="lineNum">      10</span>              :         LootTable string // 収納家具の中身を引く itemTables の id。収納でなければ空</span>

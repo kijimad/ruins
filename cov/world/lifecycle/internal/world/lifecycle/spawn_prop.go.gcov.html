@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:10:46</td>
+            <td class="headerValue">2026-11-12 15:48:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
@@ -193,19 +193,19 @@
 <span id="L131"><span class="lineNum">     131</span>              : }</span>
 <span id="L132"><span class="lineNum">     132</span>              : </span>
 <span id="L133"><span class="lineNum">     133</span>              : // doorRaw は扉の prop の行から扉の見た目の定義を引く。raw の行を持たない扉は ok=false</span>
-<span id="L134"><span class="lineNum">     134</span>              : func doorRaw(world w.World, door ecs.Entity) (oapi.DoorRaw, bool) {</span>
+<span id="L134"><span class="lineNum">     134</span>              : func doorRaw(world w.World, door ecs.Entity) (rawschema.DoorRaw, bool) {</span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         if !world.Components.RawID.Has(door) {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC tlaBgUNC">           0 :                 return oapi.DoorRaw{}, false</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC tlaBgUNC">           0 :                 return rawschema.DoorRaw{}, false</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 :         prop, err := raw.GetProp(world.Resources.RawMaster, world.Components.RawID.Get(door).ID)</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         if err != nil || prop.Door == nil {</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC tlaBgUNC">           0 :                 return oapi.DoorRaw{}, false</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC tlaBgUNC">           0 :                 return rawschema.DoorRaw{}, false</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC tlaBgGNC">           1 :         return *prop.Door, true</span></span>
 <span id="L143"><span class="lineNum">     143</span>              : }</span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
 <span id="L145"><span class="lineNum">     145</span>              : // doorSpriteKey は扉の向きと開閉に応じたスプライトキーを返す</span>
-<span id="L146"><span class="lineNum">     146</span>              : func doorSpriteKey(door oapi.DoorRaw, orientation gc.DoorOrientation, isOpen bool) string {</span>
+<span id="L146"><span class="lineNum">     146</span>              : func doorSpriteKey(door rawschema.DoorRaw, orientation gc.DoorOrientation, isOpen bool) string {</span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         switch {</span></span>
 <span id="L148"><span class="lineNum">     148</span>              :         case orientation == gc.DoorOrientationHorizontal &amp;&amp; isOpen:</span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return door.HorizontalOpen</span></span>
@@ -229,9 +229,9 @@
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         entitySpec.Cube = &amp;gc.Cube{}</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         entitySpec.FuelTank = &amp;gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         entitySpec.SoloAI = &amp;gc.SoloAI{</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 CombatDefault: oapi.Ignore,</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 CombatCurrent: oapi.Ignore,</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 Movement:      oapi.Follow,</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 CombatDefault: rawschema.Ignore,</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 CombatCurrent: rawschema.Ignore,</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 Movement:      rawschema.Follow,</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 SubState:      gc.AIStateWaiting,</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         entitySpec.TurnBased = &amp;gc.TurnBased{}</span></span>
