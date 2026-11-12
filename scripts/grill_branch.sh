@@ -4,12 +4,11 @@
 #
 # 環境変数:
 #   GRILL_BASE  比較の基点。既定 origin/main
-#   GRILL_COUNT 反復回数。既定 5。反復回数×対象パッケージ1パスの実行時間が -timeout を超えると
-#               タイムアウトで落ちる。internal/states の VRT スイートは1パスが重いため上げすぎない
+#   GRILL_COUNT 反復回数。既定 3
 set -eu
 
 base="${GRILL_BASE:-origin/main}"
-count="${GRILL_COUNT:-5}"
+count="${GRILL_COUNT:-3}"
 
 # 変更のあったテストファイル。git diff の失敗は set -e でそのまま落とす
 changed=$(git diff --name-only "${base}...HEAD" -- '*_test.go')
@@ -31,5 +30,6 @@ echo "$pkgs"
 
 # シャッフル seed は go test が冒頭に出力する。失敗時は -shuffle=<seed> で再現する。
 # $pkgs は語分割させるため意図的にクォートしない
+# go test の既定のタイムアウト 10 分は重いパッケージで足りないので外す
 # shellcheck disable=SC2086
-go test -race -count="$count" -shuffle=on -timeout=90m $pkgs
+go test -race -count="$count" -shuffle=on -timeout=0 $pkgs

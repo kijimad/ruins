@@ -83,6 +83,13 @@ func BenchmarkTurn(b *testing.B) {
 
 		b.Run(bld.name, func(b *testing.B) {
 			for range b.N {
+				// 回す回数は b.N で決まり、長く回すと敵に倒されて死亡画面へ移る。ターンごとに HP を戻して同じ状況を保つ
+				player, err := query.GetPlayerEntity(world)
+				require.NoError(b, err)
+				require.False(b, world.Components.Dead.Has(player), "1ターンで最大 HP を超えるダメージを受けて倒れた")
+				hp := world.Components.HP.Get(player)
+				hp.Current = hp.Max
+
 				start := query.GetTurnState(world).TurnNumber
 				for query.GetTurnState(world).TurnNumber == start {
 					require.NoError(b, sm.Update(world))
