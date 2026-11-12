@@ -72,6 +72,17 @@ func TestGenerateBattleMetrics_武器と敵の組み合わせでDPSを算出す�
 	}
 }
 
+func TestGenerateBattleMetrics_同じseedなら同じ結果になる(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+
+	first, err := generateBattleMetrics(master, "ash", 42)
+	require.NoError(t, err)
+	second, err := generateBattleMetrics(master, "ash", 42)
+	require.NoError(t, err)
+	assert.Equal(t, first, second)
+}
+
 func TestReport_Markdown(t *testing.T) {
 	t.Parallel()
 

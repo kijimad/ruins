@@ -60,19 +60,6 @@ func validateRules(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateUniqueIDs は rows の id が重複しないことを検証する。
-func validateUniqueIDs[T any](kind string, rows []T, id func(T) string) error {
-	seen := make(map[string]struct{}, len(rows))
-	for _, r := range rows {
-		k := id(r)
-		if _, ok := seen[k]; ok {
-			return fmt.Errorf("%s %q: %w", kind, k, errDuplicateID)
-		}
-		seen[k] = struct{}{}
-	}
-	return nil
-}
-
 // validateZoneBaseFacilities は施設を持つ raw で、全地区に基本施設があることを検証する。
 func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
@@ -395,8 +382,12 @@ func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
 
 // validateEnumRows は enum の値 values それぞれを ids がちょうど1回ずつ持つことを検証する
 func validateEnumRows(name string, values, ids []string) error {
-	if err := validateUniqueIDs(name, ids, func(id string) string { return id }); err != nil {
-		return err
+	seen := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		if _, ok := seen[id]; ok {
+			return fmt.Errorf("%s %q: %w", name, id, errDuplicateID)
+		}
+		seen[id] = struct{}{}
 	}
 	for _, v := range values {
 		if !slices.Contains(ids, v) {

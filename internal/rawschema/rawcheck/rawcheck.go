@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -55,13 +56,12 @@ func (e *Error) Error() string {
 
 // Paths は違反のあった位置を、重複を除いて並べて返す。1つの位置に複数の違反があることがある。
 func (e *Error) Paths() []string {
-	var out []string
-	for _, v := range e.Violations {
-		if len(out) == 0 || out[len(out)-1] != v.Path {
-			out = append(out, v.Path)
-		}
+	out := make([]string, len(e.Violations))
+	for i, v := range e.Violations {
+		out[i] = v.Path
 	}
-	return out
+	slices.Sort(out)
+	return slices.Compact(out)
 }
 
 // errSchemaBuild は CUE のスキーマを組めないときに返す

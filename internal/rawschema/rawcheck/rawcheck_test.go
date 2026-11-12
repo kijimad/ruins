@@ -34,3 +34,14 @@ func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
 	assert.Equal(t, []string{"enemyTables.0.entries.0.pack"}, ce.Paths())
 }
+
+func TestError_Paths_位置を並べて重複を除く(t *testing.T) {
+	t.Parallel()
+
+	e := &rawcheck.Error{Violations: []rawcheck.Violation{
+		{Path: "items.1.id", Message: "x"},
+		{Path: "items.0.id", Message: "y"},
+		{Path: "items.1.id", Message: "z"},
+	}}
+	assert.Equal(t, []string{"items.0.id", "items.1.id"}, e.Paths())
+}

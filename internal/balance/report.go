@@ -2,7 +2,9 @@ package balance
 
 import (
 	"fmt"
+	"maps"
 	"math/rand/v2"
+	"slices"
 
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
@@ -81,14 +83,12 @@ func GenerateReport(master rawschema.Raws, playerName string, weaponName string,
 		report.EnemyTables = append(report.EnemyTables, run)
 	}
 
-	// 武器×敵の戦闘メトリクスを生成する
 	metrics, err := generateBattleMetrics(master, playerName, seed)
 	if err != nil {
 		return nil, err
 	}
 	report.BattleMetrics = metrics
 
-	// 施設種別ごとの loot 分布を生成する
 	roomLoot, err := GenerateRoomLoot(master, roomLootTrials, seed)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,6 @@ func generateBattleMetrics(master rawschema.Raws, playerName string, seed uint64
 		return nil, fmt.Errorf("failed to load player for battle metrics: %w", err)
 	}
 
-	// 武器一覧を収集する
 	type weaponEntry struct {
 		name  string
 		stats WeaponStats
@@ -126,7 +125,6 @@ func generateBattleMetrics(master rawschema.Raws, playerName string, seed uint64
 		weapons = append(weapons, weaponEntry{name: item.Name, stats: w})
 	}
 
-	// 敵一覧を収集する（全敵テーブルからユニークな敵名を取得する）
 	enemySet := make(map[string]struct{})
 	for _, table := range raw.PtrSlice(master.EnemyTables) {
 		for _, entry := range table.Entries {
@@ -134,12 +132,13 @@ func generateBattleMetrics(master rawschema.Raws, playerName string, seed uint64
 		}
 	}
 
-	// 空でも report.BattleMetrics を null でなく [] にするため空スライスで初期化する
-	metrics := []BattleMetric{}
+	// 乱数を全戦闘で共有するので、敵を決まった順に回して seed ごとに結果を固定する
+	enemies := slices.Sorted(maps.Keys(enemySet))
+	var metrics []BattleMetric
 	rng := rand.New(rand.NewPCG(seed, 0))
 
 	for _, w := range weapons {
-		for enemyName := range enemySet {
+		for _, enemyName := range enemies {
 			enemyStats, err := LoadCombatantFromMember(master, enemyName)
 			if err != nil {
 				continue
