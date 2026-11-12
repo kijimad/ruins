@@ -57,13 +57,13 @@
 				
 				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (94.7%)</option>
 				
-				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (83.0%)</option>
+				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.3%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (77.3%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (82.9%)</option>
 				
-				<option value="file4">github.com/kijimaD/ruins/internal/activity/drop.go (81.1%)</option>
+				<option value="file4">github.com/kijimaD/ruins/internal/activity/drop.go (75.0%)</option>
 				
 				<option value="file5">github.com/kijimaD/ruins/internal/activity/errors.go (100.0%)</option>
 				
@@ -71,45 +71,45 @@
 				
 				<option value="file7">github.com/kijimaD/ruins/internal/activity/injury.go (93.5%)</option>
 				
-				<option value="file8">github.com/kijimaD/ruins/internal/activity/move.go (82.7%)</option>
+				<option value="file8">github.com/kijimaD/ruins/internal/activity/move.go (84.5%)</option>
 				
 				<option value="file9">github.com/kijimaD/ruins/internal/activity/pathfind.go (93.3%)</option>
 				
-				<option value="file10">github.com/kijimaD/ruins/internal/activity/pickup.go (78.9%)</option>
+				<option value="file10">github.com/kijimaD/ruins/internal/activity/pickup.go (78.6%)</option>
 				
 				<option value="file11">github.com/kijimaD/ruins/internal/activity/player_actions.go (89.6%)</option>
 				
-				<option value="file12">github.com/kijimaD/ruins/internal/activity/read.go (83.5%)</option>
+				<option value="file12">github.com/kijimaD/ruins/internal/activity/read.go (84.3%)</option>
 				
-				<option value="file13">github.com/kijimaD/ruins/internal/activity/reload.go (86.2%)</option>
+				<option value="file13">github.com/kijimaD/ruins/internal/activity/reload.go (87.7%)</option>
 				
 				<option value="file14">github.com/kijimaD/ruins/internal/activity/rest.go (92.0%)</option>
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/salvage.go (83.9%)</option>
 				
-				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (88.8%)</option>
+				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (89.6%)</option>
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/sleep.go (91.5%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/activity/sleep_conditions.go (100.0%)</option>
 				
-				<option value="file19">github.com/kijimaD/ruins/internal/activity/swap.go (78.1%)</option>
+				<option value="file19">github.com/kijimaD/ruins/internal/activity/swap.go (80.6%)</option>
 				
-				<option value="file20">github.com/kijimaD/ruins/internal/activity/talk.go (81.6%)</option>
+				<option value="file20">github.com/kijimaD/ruins/internal/activity/talk.go (84.8%)</option>
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/activity/use_effect.go (73.7%)</option>
 				
-				<option value="file22">github.com/kijimaD/ruins/internal/activity/use_item.go (89.6%)</option>
+				<option value="file22">github.com/kijimaD/ruins/internal/activity/use_item.go (90.2%)</option>
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/activity/wait.go (96.0%)</option>
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (86.8%)</option>
+				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/processor.go (90.0%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/processor.go (87.1%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/vision_system.go (100.0%)</option>
 				
@@ -655,7 +655,7 @@
 				
 				<option value="file299">github.com/kijimaD/ruins/internal/systems/temperature.go (90.7%)</option>
 				
-				<option value="file300">github.com/kijimaD/ruins/internal/systems/turn_system.go (90.7%)</option>
+				<option value="file300">github.com/kijimaD/ruins/internal/systems/turn_system.go (87.9%)</option>
 				
 				<option value="file301">github.com/kijimaD/ruins/internal/systems/vision.go (67.6%)</option>
 				
@@ -934,7 +934,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
         case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:<span class="cov0" title="0"></span>
                 // ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
         }
-        <span class="cov8" title="1">return nil, fmt.Errorf("unregistered behavior: %s", name)</span>
+        <span class="cov8" title="1">return nil, fmt.Errorf("%w: %s", ErrBehaviorUnregistered, name)</span>
 }
 
 // Behavior はアクティビティの実行を担当するインターフェース。
@@ -954,6 +954,9 @@ type Behavior interface {
         // 検証通過なら nil を返す。副作用はなく、gamelog も呼ばず panic もしない。
         Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
         Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
+        // DoTurn の error は Validate と同じく致命的で、呼び出し側がアクティビティを除去して伝播させる。
+        // 構築ミスや不変条件違反がこれにあたる。敵の接近のような一時的な中断は Cancel して nil を返し、
+        // 呼び出し側が Canceled を呼ぶ
         DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
         Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error
         Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error
@@ -1146,8 +1149,10 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
         // 呼び出し側が同じ呼び出しで結果を必要とするため、初回で解決すれば同期的に結果を返す。
         // アクター1体だけを対象にするため、入れ子処理（攻撃→被弾側の処理など）で他エンティティが
         // 消えても影響を受けない。全エンティティを回すと処理中コンポーネントの再利用で panic しうる。
-        <span class="cov8" title="1">stepActivity(actor, world)
-</span>
+        <span class="cov8" title="1">if err := stepActivity(actor, world); err != nil </span>{
+                <span class="cov8" title="1">return nil, err
+</span>        }
+
         <span class="cov8" title="1">currentActivity := query.GetActivity(world, actor)
 </span>
         // 出口は「継続」か「初回で解決」かの2分岐。結果の中身だけが違い、
@@ -1179,27 +1184,26 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 // インスタンスなので、着手時の呼び出し側インスタンスはここでは使わない。ライフサイクルを常に
 // ゼロ値インスタンスで回すことで、per-アクティビティの状態は gc.Activity に置くという規律が経路によらず一貫する。
 //
-// DoTurn が失敗すればキャンセルし、完了していれば Finish して直近結果を記録し除去する。
+// DoTurn と Finish の失敗はバグなので、アクティビティを除去してエラーを返し、呼び出し側が伝播させる。
+// 完了していれば Finish して直近結果を記録し除去する。
 // アクター1体のみを直接処理するため、DoTurn 内の入れ子処理で他エンティティが
 // 消えても走査中コンポーネントの破壊による panic を招かない。
-func stepActivity(entity ecs.Entity, world w.World) {
+func stepActivity(entity ecs.Entity, world w.World) error {
         <span class="cov8" title="1">stored := query.GetActivity(world, entity)
         if stored == nil </span>{
-                <span class="cov8" title="1">return
+                <span class="cov8" title="1">return nil
 </span>        }
 
         <span class="cov8" title="1">behaviorName := stored.BehaviorName
         behavior, err := GetBehavior(behaviorName)
         if err != nil </span>{
-                <span class="cov8" title="1">log.Error("failed to get behavior", "entity", entity, "error", err.Error())
-                query.RemoveActivity(world, entity)
-                return
+                <span class="cov8" title="1">query.RemoveActivity(world, entity)
+                return err
 </span>        }
 
         <span class="cov8" title="1">if err := behavior.DoTurn(stored, entity, world); err != nil </span>{
-                <span class="cov8" title="1">log.Error("activity turn processing error", "entity", entity, "type", behaviorName, "error", err.Error())
-                CancelActivity(entity, i18n.Msgid(fmt.Sprintf("error: %s", err.Error())), world)
-                return
+                <span class="cov8" title="1">query.RemoveActivity(world, entity)
+                return fmt.Errorf("%s turn: %w", behaviorName, err)
 </span>        }
 
         // DoTurn が自ら中断したときは Canceled フックを走らせて後始末とログを行う。
@@ -1218,15 +1222,16 @@ func stepActivity(entity ecs.Entity, world w.World) {
                         ActivityName: behaviorName,
                         Message:      string(reason),
                 }, world)
-                return</span>
+                return nil</span>
         }
 
         <span class="cov8" title="1">if !IsCompleted(stored) </span>{
-                <span class="cov8" title="1">return
+                <span class="cov8" title="1">return nil
 </span>        }
 
         <span class="cov8" title="1">if err := behavior.Finish(stored, entity, world); err != nil </span>{
-                <span class="cov0" title="0">log.Error("activity finish processing error", "entity", entity, "type", behaviorName, "error", err.Error())
+                <span class="cov0" title="0">query.RemoveActivity(world, entity)
+                return fmt.Errorf("%s finish: %w", behaviorName, err)
 </span>        }
         <span class="cov8" title="1">setLastResult(entity, &amp;ActionResult{
                 Success:      true,
@@ -1234,7 +1239,8 @@ func stepActivity(entity ecs.Entity, world w.World) {
                 ActivityName: behaviorName,
                 Message:      "completed",
         }, world)
-        query.RemoveActivity(world, entity)</span>
+        query.RemoveActivity(world, entity)
+        return nil</span>
 }
 
 // setLastResult はエンティティの直近アクティビティ結果を設定する
@@ -1374,7 +1380,7 @@ func CancelActivity(entity ecs.Entity, reason i18n.Msgid, world w.World) {
 // ProcessContinuousActivities は継続中の全アクティビティを1ターン分進める。
 // 即時アクション（Required==0）は Execute がその場で完結させるため、ここに残るのは継続実行アクションのみ。
 // 走査中に他エンティティのアクティビティが削除されても、各要素で生存確認するため安全。
-func ProcessContinuousActivities(world w.World) {
+func ProcessContinuousActivities(world w.World) error {
         <span class="cov8" title="1">var entities []ecs.Entity
 </span>        // 退避中ステージのエンティティのアクティビティは進めない
         <span class="cov8" title="1">activityQuery := query.ActiveFilter1[gc.Activity](world).Query()
@@ -1395,8 +1401,11 @@ func ProcessContinuousActivities(world w.World) {
                         <span class="cov0" title="0">continue</span>
                 }
 
-                <span class="cov8" title="1">stepActivity(entity, world)</span>
+                <span class="cov8" title="1">if err := stepActivity(entity, world); err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
         }
+        <span class="cov8" title="1">return nil</span>
 }
 
 // consumePassCost はアクションのAPコストを消費する。
@@ -1563,18 +1572,15 @@ func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 // DoTurn はBehaviorの実装
 func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">if _, ok := comp.Params.(*gc.MeleeParams); !ok </span>{
-                <span class="cov8" title="1">Cancel(comp, "attack target is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
 
         <span class="cov8" title="1">if !ab.canAttack(comp, actor, world) </span>{
-                <span class="cov8" title="1">Cancel(comp, "cannot attack")
-                return ErrAttackTargetInvalid
+                <span class="cov8" title="1">return ErrAttackTargetInvalid
 </span>        }
 
         <span class="cov8" title="1">if err := ab.performAttack(comp, actor, world); err != nil </span>{
-                <span class="cov0" title="0">Cancel(comp, i18n.Msgid(fmt.Sprintf("attack error: %s", err.Error())))
-                return err
+                <span class="cov0" title="0">return err
 </span>        }
 
         <span class="cov8" title="1">Complete(comp)
@@ -1918,8 +1924,6 @@ import (
         "fmt"
         "slices"
 
-        "github.com/kijimaD/ruins/internal/i18n"
-
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/gamelog"
@@ -1989,14 +1993,12 @@ func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.OpenDoorParams)
         if !ok </span>{
-                <span class="cov0" title="0">Cancel(comp, "door entity is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov0" title="0">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">targetEntity := p.Target
 </span>
         <span class="cov8" title="1">if !world.Components.Door.Has(targetEntity) </span>{
-                <span class="cov0" title="0">Cancel(comp, "cannot get door component")
-                return fmt.Errorf("cannot get door component")
+                <span class="cov0" title="0">return fmt.Errorf("cannot get door component")
 </span>        }
         <span class="cov8" title="1">raw := world.Components.Door.Get(targetEntity)
         doorComp := raw
@@ -2004,8 +2006,7 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
         // 扉を開く
         <span class="cov8" title="1">if !doorComp.IsOpen </span>{
                 <span class="cov8" title="1">if err := lifecycle.OpenDoor(world, targetEntity); err != nil </span>{
-                        <span class="cov0" title="0">Cancel(comp, i18n.Msgid(fmt.Sprintf("cannot open door: %v", err)))
-                        return err
+                        <span class="cov0" title="0">return err
 </span>                }
 
                 <span class="cov8" title="1">log.Debug("door opened", "door", targetEntity)
@@ -2118,14 +2119,12 @@ func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.CloseDoorParams)
         if !ok </span>{
-                <span class="cov0" title="0">Cancel(comp, "door entity is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov0" title="0">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">targetEntity := p.Target
 </span>
         <span class="cov8" title="1">if !world.Components.Door.Has(targetEntity) </span>{
-                <span class="cov0" title="0">Cancel(comp, "cannot get door component")
-                return fmt.Errorf("cannot get door component")
+                <span class="cov0" title="0">return fmt.Errorf("cannot get door component")
 </span>        }
         <span class="cov8" title="1">raw := world.Components.Door.Get(targetEntity)
         doorComp := raw
@@ -2133,8 +2132,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
         // 扉を閉じる
         <span class="cov8" title="1">if doorComp.IsOpen </span>{
                 <span class="cov8" title="1">if err := lifecycle.CloseDoor(world, targetEntity); err != nil </span>{
-                        <span class="cov0" title="0">Cancel(comp, i18n.Msgid(fmt.Sprintf("cannot close door: %v", err)))
-                        return err
+                        <span class="cov0" title="0">return err
 </span>                }
 
                 <span class="cov8" title="1">log.Debug("door closed", "door", targetEntity)
@@ -2172,8 +2170,6 @@ func (cdb *CloseDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.
 
 import (
         "fmt"
-
-        "github.com/kijimaD/ruins/internal/i18n"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -2244,13 +2240,10 @@ func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 
 // DoTurn はアイテムドロップアクティビティの1ターン分の処理を実行する
 func (db *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-        // アイテムドロップ処理を実行
         <span class="cov8" title="1">if err := db.performDrop(comp, actor, world); err != nil </span>{
-                <span class="cov8" title="1">Cancel(comp, i18n.Msgid(fmt.Sprintf("item drop error: %s", err.Error())))
-                return err
+                <span class="cov8" title="1">return err
 </span>        }
 
-        // ドロップ処理完了
         <span class="cov8" title="1">Complete(comp)
         return nil</span>
 }
@@ -2263,7 +2256,7 @@ func (db *DropBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) erro
 
 // Canceled はアイテムドロップキャンセル時の処理を実行する
 func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov8" title="1">log.Debug("item drop canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov0" title="0">log.Debug("item drop canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 
@@ -2307,6 +2300,7 @@ func (e *UserError) Error() string { <span class="cov8" title="1">return e.Msg }
 var (
         // アクティビティ一般エラー
         ErrActivityNil           = errors.New("activity is nil")
+        ErrBehaviorUnregistered  = errors.New("unregistered behavior")
         ErrActorNotSet           = errors.New("actor is not set")
         ErrActivityNotFound      = errors.New("activity not found")
         ErrActivityActorNotFound = errors.New("activity actor not found")
@@ -2335,8 +2329,11 @@ var (
         ErrNoItemsToPickup  = errors.New("no items to pick up")
         ErrItemPickupFailed = errors.New("failed to pick up item")
 
+        // 会話関連エラー
+        ErrTalkNoDialog     = errors.New("talk target has no dialog")
+        ErrTalkTargetNoName = errors.New("talk target has no name")
+
         // 休息関連エラー
-        ErrRestEnemiesNearby   = errors.New("cannot rest because enemies are nearby")
         ErrRestInvalidDuration = errors.New("rest duration is invalid")
 
         // 待機関連エラー
@@ -2648,8 +2645,6 @@ func logInjury(actor, target ecs.Entity, world w.World, part gc.BodyPart, injury
 import (
         "fmt"
 
-        "github.com/kijimaD/ruins/internal/i18n"
-
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
@@ -2760,14 +2755,12 @@ func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.MoveParams)
         if !ok </span>{
-                <span class="cov8" title="1">Cancel(comp, "move destination is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
 
         // GridElementの存在確認
         <span class="cov8" title="1">if !world.Components.GridElement.Has(actor) </span>{
-                <span class="cov8" title="1">Cancel(comp, "cannot move (no position)")
-                return ErrMoveTargetInvalid
+                <span class="cov8" title="1">return ErrMoveTargetInvalid
 </span>        }
         <span class="cov8" title="1">gridElement := world.Components.GridElement.Get(actor)
 </span>
@@ -2776,13 +2769,11 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
         to := p.Destination.Coord
         from := grid.Coord
         if !CanMoveTo(world, to, from, actor) </span>{
-                <span class="cov0" title="0">Cancel(comp, "cannot move")
-                return ErrMoveTargetInvalid
+                <span class="cov0" title="0">return ErrMoveTargetInvalid
 </span>        }
 
         <span class="cov8" title="1">if err := mb.performMove(comp, actor, world); err != nil </span>{
-                <span class="cov0" title="0">Cancel(comp, i18n.Msgid(fmt.Sprintf("move error: %s", err.Error())))
-                return err
+                <span class="cov0" title="0">return err
 </span>        }
 
         <span class="cov8" title="1">Complete(comp)
@@ -2953,8 +2944,6 @@ import (
         "errors"
         "fmt"
 
-        "github.com/kijimaD/ruins/internal/i18n"
-
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/gamelog"
@@ -3025,8 +3014,7 @@ func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 func (pb *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         // アイテム拾得処理を実行
         <span class="cov8" title="1">if err := pb.performPickup(comp, actor, world); err != nil </span>{
-                <span class="cov8" title="1">Cancel(comp, i18n.Msgid(fmt.Sprintf("item pickup error: %s", err.Error())))
-                return err
+                <span class="cov8" title="1">return err
 </span>        }
 
         // 拾得処理完了
@@ -3433,8 +3421,7 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.ReadParams)
         if !ok </span>{
-                <span class="cov0" title="0">Cancel(comp, "book is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov0" title="0">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span>{
                 <span class="cov8" title="1">Cancel(comp, "interrupted because the book disappeared")
@@ -3678,8 +3665,7 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
         <span class="cov8" title="1">fire, _, err := getEquippedFire(actor, world)
         if err != nil </span>{
-                <span class="cov0" title="0">Cancel(comp, "no ranged weapon equipped")
-                return err
+                <span class="cov0" title="0">return err
 </span>        }
 
         // 1ターンあたりの工数を計算。能力が高いほど速く装填する
@@ -3821,7 +3807,7 @@ func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
         // 周囲の安全性をチェック
         <span class="cov8" title="1">if !query.IsAreaSafe(world, actor) </span>{
                 <span class="cov8" title="1">Cancel(comp, "rest interrupted because enemies are nearby")
-                return ErrRestEnemiesNearby
+                return nil
 </span>        }
 
         // 今ターンのAPを注ぐ。APが高いほど速く休息が進む
@@ -4139,8 +4125,7 @@ func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.ShootParams)
         if !ok </span>{
-                <span class="cov8" title="1">Cancel(comp, "shoot target is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
 
         <span class="cov8" title="1">target := p.Target
@@ -4148,8 +4133,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
         // 装備武器を取得
         <span class="cov8" title="1">fire, weaponName, err := getEquippedFire(actor, world)
         if err != nil </span>{
-                <span class="cov0" title="0">Cancel(comp, "no ranged weapon equipped")
-                return err
+                <span class="cov0" title="0">return err
 </span>        }
 
         // 弾薬消費
@@ -4563,8 +4547,7 @@ func (sb *SwapBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (sb *SwapBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.SwapParams)
         if !ok </span>{
-                <span class="cov0" title="0">Cancel(comp, "swap target is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov0" title="0">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">actorGrid := world.Components.GridElement.Get(actor)
         targetGrid := world.Components.GridElement.Get(p.Target)
@@ -4665,21 +4648,18 @@ func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.TalkParams)
         if !ok </span>{
-                <span class="cov0" title="0">Cancel(comp, "talk target is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov0" title="0">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">targetEntity := p.Target
 </span>
         <span class="cov8" title="1">if !world.Components.Dialog.Has(targetEntity) </span>{
-                <span class="cov0" title="0">Cancel(comp, "cannot get dialog data")
-                return fmt.Errorf("cannot get dialog data")
+                <span class="cov0" title="0">return ErrTalkNoDialog
 </span>        }
         <span class="cov8" title="1">dialogComp := world.Components.Dialog.Get(targetEntity)
 </span>
         // Nameコンポーネントから話者名を取得
         <span class="cov8" title="1">if !world.Components.Name.Has(targetEntity) </span>{
-                <span class="cov8" title="1">Cancel(comp, "target entity has no Name component")
-                return fmt.Errorf("target entity has no Name component")
+                <span class="cov8" title="1">return ErrTalkTargetNoName
 </span>        }
         <span class="cov8" title="1">nameComp := world.Components.Name.Get(targetEntity)
         speakerName := nameComp.Name
@@ -4705,7 +4685,7 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
         // プレイヤーの場合のみメッセージを表示
         <span class="cov8" title="1">if world.Components.Player.Has(actor) </span>{
                 <span class="cov8" title="1">if !world.Components.Name.Has(targetEntity) </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("target entity has no Name component")
+                        <span class="cov0" title="0">return ErrTalkTargetNoName
 </span>                }
                 <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                         Markup(query.T(world, "Talked with %s.", query.GetEntityName(targetEntity, world))).
@@ -4917,8 +4897,7 @@ func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.UseItemParams)
         if !ok </span>{
-                <span class="cov8" title="1">Cancel(comp, "item is not set")
-                return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
 
         <span class="cov8" title="1">item := p.Target
@@ -4929,8 +4908,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">if err := e.apply(u, comp, actor, item, world); err != nil </span>{
-                        <span class="cov0" title="0">Cancel(comp, i18n.Msgid(fmt.Sprintf("use effect error: %s", err.Error())))
-                        return err
+                        <span class="cov0" title="0">return err
 </span>                }
         }
 
@@ -5253,6 +5231,7 @@ func (e *AIError) Error() string {
 		<pre class="file" id="file25" style="display: none">package aiinput
 
 import (
+        "fmt"
         "math/rand/v2"
 
         "github.com/kijimaD/ruins/internal/activity"
@@ -5275,7 +5254,7 @@ type Planner interface {
 const maxActivitiesPerTurn = 10
 
 // runAPLoop はAPが残っている限りPlannerのアクションを連続実行する
-func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Logger) {
+func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Logger) error {
         <span class="cov8" title="1">executed := 0
 </span>
         <span class="cov8" title="1">for executed &lt; maxActivitiesPerTurn </span>{
@@ -5291,9 +5270,8 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
                 <span class="cov8" title="1">b, err := activity.GetBehavior(comp.BehaviorName)
                 if err != nil </span>{
-                        <span class="cov0" title="0">log.Warn("failed to get behavior", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
-                        break</span>
-                }
+                        <span class="cov0" title="0">return err
+</span>                }
                 <span class="cov8" title="1">actionCost := b.Info().ActionPointCost
                 tbComp := world.Components.TurnBased.Get(entity)
                 if tbComp == nil || tbComp.AP.Current &lt; actionCost </span>{
@@ -5303,9 +5281,8 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
                 <span class="cov8" title="1">result, err := activity.Execute(comp, entity, world)
                 if err != nil </span>{
-                        <span class="cov0" title="0">log.Warn("failed to execute action", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
-                        break</span>
-                }
+                        <span class="cov0" title="0">return fmt.Errorf("entity %v %s: %w", entity, comp.BehaviorName, err)
+</span>                }
 
                 <span class="cov8" title="1">log.Debug("action executed", "entity", entity, "activity", comp.BehaviorName, "success", result.Success)
                 executed++
@@ -5314,6 +5291,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
                         <span class="cov0" title="0">break</span>
                 }
         }
+        <span class="cov8" title="1">return nil</span>
 }
 
 // eightDirections は隣接8方向の座標差分を定義する
@@ -5879,7 +5857,9 @@ func (p *Processor) ProcessAll(world w.World) error {
                 <span class="cov8" title="1">if world.Components.Dead.Has(entity) </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov8" title="1">runAPLoop(world, entity, p.planner, p.logger)</span>
+                <span class="cov8" title="1">if err := runAPLoop(world, entity, p.planner, p.logger); err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
         }
 
         <span class="cov8" title="1">return nil</span>
@@ -45838,8 +45818,10 @@ func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnStat
                 <span class="cov8" title="1">if !playerHasActivity(world) </span>{
                         <span class="cov8" title="1">break</span> // 完了・中断したら通常進行へ戻す
                 }
-                <span class="cov8" title="1">processPlayerContinuousActivity(world)
-                if err := runAIPhase(world); err != nil </span>{
+                <span class="cov8" title="1">if _, err := processPlayerContinuousActivity(world); err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
+                <span class="cov8" title="1">if err := runAIPhase(world); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
                 <span class="cov8" title="1">if err := runEndPhase(world, turnState); err != nil </span>{
@@ -46011,31 +45993,30 @@ func runTurnEndSystems(world w.World) error {
 
 // processPlayerContinuousActivity はプレイヤーの継続アクションを1ステップ処理する。
 // 進行中なら true を返し、呼び出し側がAIフェーズへ遷移させて世界を1ターン進める
-func processPlayerContinuousActivity(world w.World) bool {
-        // プレイヤーエンティティを取得
+func processPlayerContinuousActivity(world w.World) (bool, error) {
+        <span class="cov8" title="1">if !playerHasActivity(world) </span>{
+                <span class="cov8" title="1">return false, nil
+</span>        }
         <span class="cov8" title="1">playerEntity, err := query.GetPlayerEntity(world)
         if err != nil </span>{
-                <span class="cov8" title="1">return false
-</span>        }
-
-        // プレイヤーの継続アクションをチェック
-        <span class="cov8" title="1">if !query.HasActivity(world, playerEntity) </span>{
-                <span class="cov8" title="1">return false
+                <span class="cov0" title="0">return false, err
 </span>        }
 
         <span class="cov8" title="1">log := logger.New(logger.CategoryTurn)
         log.Debug("player continuous action processing")
 </span>
         // 継続アクションの1ターン分を処理
-        <span class="cov8" title="1">activity.ProcessContinuousActivities(world)
-</span>
+        <span class="cov8" title="1">if err := activity.ProcessContinuousActivities(world); err != nil </span>{
+                <span class="cov0" title="0">return false, err
+</span>        }
+
         <span class="cov8" title="1">if !query.HasActivity(world, playerEntity) </span>{
                 <span class="cov8" title="1">log.Debug("player continuous action done")
 </span>        }
 
         // 継続中でも完了でもターンコストを消費する
         <span class="cov8" title="1">query.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)
-        return true</span>
+        return true, nil</span>
 }
 </pre>
 		

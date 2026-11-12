@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.0&nbsp;%</td>
-            <td class="headerCovTableEntry">83</td>
-            <td class="headerCovTableEntry">73</td>
+            <td class="headerCovTableEntryMed">88.1&nbsp;%</td>
+            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntry">74</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 00:01:26</td>
+            <td class="headerValue">2026-11-12 00:10:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,47 +63,47 @@
 <span id="L1"><span class="lineNum">       1</span>              : package aiinput</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;math/rand/v2&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/activity&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/logger&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              : )</span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : // Planner はエンティティの行動計画を担うインターフェースを表す。</span>
-<span id="L17"><span class="lineNum">      17</span>              : // 各ターンのAPループ内で呼ばれ、次のアクションを返す。nil を返すとそのターンの行動を終える</span>
-<span id="L18"><span class="lineNum">      18</span>              : type Planner interface {</span>
-<span id="L19"><span class="lineNum">      19</span>              :         Plan(world w.World, entity ecs.Entity) *gc.Activity</span>
-<span id="L20"><span class="lineNum">      20</span>              : }</span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // maxActivitiesPerTurn は1ターン中に実行可能なアクティビティの上限を表す</span>
-<span id="L23"><span class="lineNum">      23</span>              : const maxActivitiesPerTurn = 10</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // runAPLoop はAPが残っている限りPlannerのアクションを連続実行する</span>
-<span id="L26"><span class="lineNum">      26</span>              : func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Logger) {</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         executed := 0</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         for executed &lt; maxActivitiesPerTurn {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 if world.Components.Dead.Has(entity) {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Debug(&quot;entity is dead, aborting&quot;, &quot;entity&quot;, entity)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                         break</span></span>
-<span id="L33"><span class="lineNum">      33</span>              :                 }</span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 :                 comp := planner.Plan(world, entity)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 if comp == nil {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 :                         break</span></span>
-<span id="L38"><span class="lineNum">      38</span>              :                 }</span>
-<span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :                 b, err := activity.GetBehavior(comp.BehaviorName)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Warn(&quot;failed to get behavior&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, comp.BehaviorName, &quot;error&quot;, err.Error())</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                         break</span></span>
-<span id="L44"><span class="lineNum">      44</span>              :                 }</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;math/rand/v2&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/activity&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/logger&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              : )</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // Planner はエンティティの行動計画を担うインターフェースを表す。</span>
+<span id="L18"><span class="lineNum">      18</span>              : // 各ターンのAPループ内で呼ばれ、次のアクションを返す。nil を返すとそのターンの行動を終える</span>
+<span id="L19"><span class="lineNum">      19</span>              : type Planner interface {</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Plan(world w.World, entity ecs.Entity) *gc.Activity</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // maxActivitiesPerTurn は1ターン中に実行可能なアクティビティの上限を表す</span>
+<span id="L24"><span class="lineNum">      24</span>              : const maxActivitiesPerTurn = 10</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // runAPLoop はAPが残っている限りPlannerのアクションを連続実行する</span>
+<span id="L27"><span class="lineNum">      27</span>              : func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Logger) error {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 :         executed := 0</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         for executed &lt; maxActivitiesPerTurn {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 if world.Components.Dead.Has(entity) {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Debug(&quot;entity is dead, aborting&quot;, &quot;entity&quot;, entity)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                         break</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :                 }</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 :                 comp := planner.Plan(world, entity)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 if comp == nil {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                         break</span></span>
+<span id="L39"><span class="lineNum">      39</span>              :                 }</span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :                 b, err := activity.GetBehavior(comp.BehaviorName)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC tlaBgGNC">           1 :                 actionCost := b.Info().ActionPointCost</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 tbComp := world.Components.TurnBased.Get(entity)</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 if tbComp == nil || tbComp.AP.Current &lt; actionCost {</span></span>
@@ -113,17 +113,17 @@
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 result, err := activity.Execute(comp, entity, world)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :                         log.Warn(&quot;failed to execute action&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, comp.BehaviorName, &quot;error&quot;, err.Error())</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                         break</span></span>
-<span id="L56"><span class="lineNum">      56</span>              :                 }</span>
-<span id="L57"><span class="lineNum">      57</span>              : </span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC tlaBgGNC">           1 :                 log.Debug(&quot;action executed&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, comp.BehaviorName, &quot;success&quot;, result.Success)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 executed++</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 if !result.Success {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 :                         break</span></span>
-<span id="L63"><span class="lineNum">      63</span>              :                 }</span>
-<span id="L64"><span class="lineNum">      64</span>              :         }</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;entity %v %s: %w&quot;, entity, comp.BehaviorName, err)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 :                 log.Debug(&quot;action executed&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, comp.BehaviorName, &quot;success&quot;, result.Success)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 executed++</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 if !result.Success {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                         break</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :                 }</span>
+<span id="L63"><span class="lineNum">      63</span>              :         }</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L65"><span class="lineNum">      65</span>              : }</span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              : // eightDirections は隣接8方向の座標差分を定義する</span>
@@ -135,7 +135,7 @@
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span>              : // calculateMoveCandidates はターゲットに向かう移動候補を計算する</span>
 <span id="L75"><span class="lineNum">      75</span>              : func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           1 :         var candidates []consts.Coord[consts.Tile]</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         var candidates []consts.Coord[consts.Tile]</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         dx, dy := delta.X, delta.Y</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         switch {</span></span>
