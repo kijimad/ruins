@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +82,7 @@ func TestSellPrice(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		player := world.ECS.NewEntity()
 		skills := gc.NewSkills()
-		skills.Get(oapi.SkillIdNegotiation).Value = 50
+		skills.Get(rawschema.SkillIdNegotiation).Value = 50
 		world.Components.Skills.Add(player, skills)
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
@@ -128,7 +128,7 @@ func TestBuyPrice(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		player := world.ECS.NewEntity()
 		skills := gc.NewSkills()
-		skills.Get(oapi.SkillIdNegotiation).Value = 25
+		skills.Get(rawschema.SkillIdNegotiation).Value = 25
 		world.Components.Skills.Add(player, skills)
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})

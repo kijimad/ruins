@@ -6,7 +6,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // errUndefinedCellTerrain はテンプレートのセルに地形が無いときに返す
@@ -37,7 +37,7 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 
 	// タイル配列を初期化
 	totalTiles := width * height
-	metaPlan.Tiles = make([]oapi.Tile, totalTiles)
+	metaPlan.Tiles = make([]rawschema.Tile, totalTiles)
 
 	// セル配列を走査して地形を配置する
 	for y, row := range p.ResolvedMap {

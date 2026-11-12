@@ -7,8 +7,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -60,14 +60,14 @@ func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chu
 }
 
 // urbanEnemyTableFor は施設行の enemyTable が指す敵テーブルを返す。
-func urbanEnemyTableFor(raws oapi.Raws, fac string) (oapi.EnemyTable, error) {
+func urbanEnemyTableFor(raws rawschema.Raws, fac string) (rawschema.EnemyTable, error) {
 	f, ok := raw.GetFacility(raws, fac)
 	if !ok {
-		return oapi.EnemyTable{}, fmt.Errorf("urban enemy table: facility %q not found", fac)
+		return rawschema.EnemyTable{}, fmt.Errorf("urban enemy table: facility %q not found", fac)
 	}
 	et, err := raw.GetEnemyTable(raws, f.EnemyTable)
 	if err != nil {
-		return oapi.EnemyTable{}, fmt.Errorf("urban enemy table for facility %q: %w", fac, err)
+		return rawschema.EnemyTable{}, fmt.Errorf("urban enemy table for facility %q: %w", fac, err)
 	}
 	return et, nil
 }
@@ -80,10 +80,10 @@ type facilityWeight struct {
 }
 
 // zoneCatalog は地区ごとの施設抽選重み。
-type zoneCatalog map[oapi.Zone][]facilityWeight
+type zoneCatalog map[rawschema.Zone][]facilityWeight
 
 // zoneCatalogFrom は facilities 行から地区ごとの施設抽選重みを導出する。
-func zoneCatalogFrom(raws oapi.Raws) zoneCatalog {
+func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 	cat := make(zoneCatalog)
 	for _, f := range raw.PtrSlice(raws.Facilities) {
 		for _, z := range f.Zones {
@@ -100,7 +100,7 @@ const industrialUrbanBit = uint64(1) << 32
 // zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。厳密な中心を都心、それ以外を
 // 市街地の性格で住宅地か産業区にする。中心は 2 倍座標のチェビシェフ距離が 0 のマスで、
 // 奇数×奇数すなわち 3×3 の市街地にだけ存在する。都心が必ず最大規模に出るので専門施設を集められる。
-func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) oapi.Zone {
+func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) rawschema.Zone {
 	dx := int(lx)*2 - int(cw-1)
 	dy := int(ly)*2 - int(ch-1)
 	if dx < 0 {
@@ -110,16 +110,16 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) oapi.Zone {
 		dy = -dy
 	}
 	if max(dx, dy) == 0 {
-		return oapi.Downtown
+		return rawschema.Downtown
 	}
 	if urbanSeed&industrialUrbanBit != 0 {
-		return oapi.Industrial
+		return rawschema.Industrial
 	}
-	return oapi.Residential
+	return rawschema.Residential
 }
 
 // rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。
-func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z oapi.Zone, span consts.Chunk) string {
+func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk) string {
 	zc := cat[z]
 	i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 {
 		if span < f.minSpan {

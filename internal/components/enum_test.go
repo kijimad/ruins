@@ -5,7 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/i18n"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,14 +43,14 @@ func TestElementName(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		et   oapi.Element
+		et   rawschema.Element
 		want i18n.Msgid
 	}{
-		{oapi.ElementNONE, "None"},
-		{oapi.ElementFIRE, "Fire"},
-		{oapi.ElementTHUNDER, "Thunder"},
-		{oapi.ElementCHILL, "Ice"},
-		{oapi.ElementPHOTON, "Light"},
+		{rawschema.ElementNONE, "None"},
+		{rawschema.ElementFIRE, "Fire"},
+		{rawschema.ElementTHUNDER, "Thunder"},
+		{rawschema.ElementCHILL, "Ice"},
+		{rawschema.ElementPHOTON, "Light"},
 	}
 	for _, tt := range tests {
 		t.Run(string(tt.want), func(t *testing.T) {
@@ -63,6 +63,6 @@ func TestElementName(t *testing.T) {
 func TestElementName_InvalidPanic(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {
-		_ = ElementName(oapi.Element("INVALID"))
+		_ = ElementName(rawschema.Element("INVALID"))
 	})
 }

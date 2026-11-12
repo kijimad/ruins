@@ -11,7 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -145,7 +145,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 
 	// SnapshotからMetaPlanを再構築する。
 	// 未初期化タイル（Name が空）は void として扱う
-	tiles := make([]oapi.Tile, len(snap.Tiles))
+	tiles := make([]rawschema.Tile, len(snap.Tiles))
 	copy(tiles, snap.Tiles)
 	for i := range tiles {
 		if tiles[i].Name == "" {

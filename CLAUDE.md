@@ -32,7 +32,7 @@ PR 本文は次の項目で構成する。GitHub は ```mermaid フェンスを�
 
 - `ruins-code`: コード規約（doc.go・コメント・ゲッター/コンストラクタ・YAGNI・公開API・lint・テストの書き方）
 - `ruins-review`: レビュー観点（徹底的・批判的に。Ark strict semantics・serde 安全性・型アサーション等）
-- `ruins-tsp`: tsp(TypeSpec) スキーマの規約と生成手順（namespace・スカラー参照・int32/integer の選択・null と optional・スキーマ検証）
+- `ruins-cue`: raw の CUE スキーマの規約と生成手順（型と制約の書き方・`@rawgen` 属性・整数の幅・必須と任意・参照と重複の検査・検証のテスト）
 - `add-component`: ECS コンポーネント追加手順（登録表 + `make generate`・serde 除外・クエリ設計）
 - `new-design-doc`: 設計ドキュメント作成（採番・雛形・必須セクション・進捗）
 - `manage-skill`: 学びから skill を新規作成・更新する（下記「フィードバックの昇格」を実行する手順）

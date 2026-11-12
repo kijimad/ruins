@@ -8,8 +8,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -394,7 +394,7 @@ func conditionBadges(world w.World, hs *gc.HealthStatus) []hud.StatusBadge {
 		worst gc.Severity
 		count int
 	}
-	cold := world.Resources.ConditionDefs.ByOnset(oapi.Cold)
+	cold := world.Resources.ConditionDefs.ByOnset(rawschema.Cold)
 	var order []gc.ConditionType
 	byType := map[gc.ConditionType]*summary{}
 	for i := range hs.Parts {
@@ -458,7 +458,7 @@ const temperatureIntensityMax = 0.5
 func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
-	if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(oapi.Cold)); cold != nil {
+	if cold := part.GetCondition(world.Resources.ConditionDefs.ByOnset(rawschema.Cold)); cold != nil {
 		return hud.StatusBadge{Text: conditionLabel(world, cold.Type, cold.Severity), Color: color.RGBA{80, 140, 235, 255}}, true
 	}
 	return hud.StatusBadge{}, false

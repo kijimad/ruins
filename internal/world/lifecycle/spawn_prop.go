@@ -5,8 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -131,19 +131,19 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 }
 
 // doorRaw は扉の prop の行から扉の見た目の定義を引く。raw の行を持たない扉は ok=false
-func doorRaw(world w.World, door ecs.Entity) (oapi.DoorRaw, bool) {
+func doorRaw(world w.World, door ecs.Entity) (rawschema.DoorRaw, bool) {
 	if !world.Components.RawID.Has(door) {
-		return oapi.DoorRaw{}, false
+		return rawschema.DoorRaw{}, false
 	}
 	prop, err := raw.GetProp(world.Resources.RawMaster, world.Components.RawID.Get(door).ID)
 	if err != nil || prop.Door == nil {
-		return oapi.DoorRaw{}, false
+		return rawschema.DoorRaw{}, false
 	}
 	return *prop.Door, true
 }
 
 // doorSpriteKey は扉の向きと開閉に応じたスプライトキーを返す
-func doorSpriteKey(door oapi.DoorRaw, orientation gc.DoorOrientation, isOpen bool) string {
+func doorSpriteKey(door rawschema.DoorRaw, orientation gc.DoorOrientation, isOpen bool) string {
 	switch {
 	case orientation == gc.DoorOrientationHorizontal && isOpen:
 		return door.HorizontalOpen
@@ -167,9 +167,9 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 	entitySpec.Cube = &gc.Cube{}
 	entitySpec.FuelTank = &gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}
 	entitySpec.SoloAI = &gc.SoloAI{
-		CombatDefault: oapi.Ignore,
-		CombatCurrent: oapi.Ignore,
-		Movement:      oapi.Follow,
+		CombatDefault: rawschema.Ignore,
+		CombatCurrent: rawschema.Ignore,
+		Movement:      rawschema.Follow,
 		SubState:      gc.AIStateWaiting,
 	}
 	entitySpec.TurnBased = &gc.TurnBased{}

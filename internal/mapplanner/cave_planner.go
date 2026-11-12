@@ -3,7 +3,7 @@ package mapplanner
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // CavePlanner は洞窟風レイアウトを生成するビルダー
@@ -43,7 +43,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 
 	// セルラーオートマトンを指定回数実行
 	for range iterations {
-		newTiles := make([]oapi.Tile, len(planData.Tiles))
+		newTiles := make([]rawschema.Tile, len(planData.Tiles))
 
 		for x := range width {
 			for y := range height {
@@ -196,7 +196,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error {
 	height := int(planData.Level.TileHeight)
 
 	// 床タイルの周囲1マスを床にして通路を広げる
-	newTiles := make([]oapi.Tile, len(planData.Tiles))
+	newTiles := make([]rawschema.Tile, len(planData.Tiles))
 	copy(newTiles, planData.Tiles)
 
 	for x := 1; x < width-1; x++ {

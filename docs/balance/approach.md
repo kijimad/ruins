@@ -55,7 +55,7 @@
   go run github.com/mikefarah/yq/v4@v4.53.6 -p toml -o toml -i \
     '(.enemyTables[] | select(.id=="ruins_area").entries[] | select(.id=="slime").maxDanger) = 6' assets/metadata/entities/raw/raw.toml
   ```
-- **旧経路の扱い**。`simulate-balance` cmd → `balance.json` → editor-ui の BalancePage/DPSPage は C 層として残置する。導出系（baseline.md）に役割が移ったら、editor 各ページの実依存を精査してから別 PR で整理を判断する。今は消さない。
+- **モンテカルロの経路**。`simulate-balance` は試行の統計を `balance.md` に出す C 層の補助で、導出系 baseline.md を補う。
 
 ## 導出の前提。静的な保守下限と想定プレイヤー
 

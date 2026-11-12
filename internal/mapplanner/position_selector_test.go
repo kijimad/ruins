@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,7 +16,7 @@ import (
 // false なら全面壁にする
 func newSelectorTestPlan(allFloor bool) *MetaPlan {
 	width, height := consts.Tile(5), consts.Tile(5)
-	tiles := make([]oapi.Tile, int(width)*int(height))
+	tiles := make([]rawschema.Tile, int(width)*int(height))
 	plan := &MetaPlan{
 		Level: gc.Level{
 			TileWidth:  width,

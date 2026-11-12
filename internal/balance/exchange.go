@@ -1,7 +1,7 @@
 package balance
 
 import (
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // exchangePerturb は交換レートの求解で基準つまみに与える固定摂動。+10% を打ち消すのに相手を
@@ -40,7 +40,7 @@ type MetricExchange struct {
 
 // ExchangeRates はメトリクスごとの交換レート表を返す。あるつまみを+10%したとき同じメトリクスを元へ戻すのに
 // 別のつまみをどれだけ動かすかを二分探索で解く。丸めで非線形なメトリクスでは感度の比より解いた方が正確。
-func ExchangeRates(master oapi.Raws) []MetricExchange {
+func ExchangeRates(master rawschema.Raws) []MetricExchange {
 	knobs := knobRegistry()
 	base := metricsAt(master, DefaultParams(master))
 	out := make([]MetricExchange, 0, len(SensitivityMetricNames))
@@ -71,7 +71,7 @@ func ExchangeRates(master oapi.Raws) []MetricExchange {
 
 // solveExchange は基準つまみ a を+10%した状態で、メトリクス idx を target へ戻す相手つまみ b の
 // 倍率を二分探索で解き、その変化率を返す。範囲内で解けなければ ok=false を返す。
-func solveExchange(master oapi.Raws, idx int, a, b Knob, target float64) (float64, bool) {
+func solveExchange(master rawschema.Raws, idx int, a, b Knob, target float64) (float64, bool) {
 	eval := func(fB float64) float64 {
 		p := DefaultParams(master)
 		*a.Ptr(&p) *= exchangePerturb

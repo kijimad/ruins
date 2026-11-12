@@ -7,8 +7,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -162,8 +162,8 @@ func TestPopulateStorageLoot_未知のルートテーブルはエラー(t *testi
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Danger = 1
 
-	propRaw := oapi.Prop{
-		Storage: &oapi.StorageRaw{LootTableId: new("存在しないテーブル")},
+	propRaw := rawschema.Prop{
+		Storage: &rawschema.StorageRaw{LootTableId: new("存在しないテーブル")},
 	}
 	storageEntity := world.ECS.NewEntity()
 
@@ -176,20 +176,20 @@ func TestPopulateStorageLoot_未知のルートテーブルはエラー(t *testi
 // newTestLootRaws は populateStorageLoot の危険度・アイテム解決の分岐を狙うための
 // 最小のItemTable/ItemGroupを持つRawMasterを生成する。エントリは実在しない
 // "nonexistent_item" を参照するため、実際のスポーンではworld側のRawMasterで解決に失敗する。
-func newTestLootRaws() oapi.Raws {
-	return oapi.Raws{
-		ItemTables: &[]oapi.ItemTable{
+func newTestLootRaws() rawschema.Raws {
+	return rawschema.Raws{
+		ItemTables: &[]rawschema.ItemTable{
 			{
 				Id: "test_item_table",
-				Entries: []oapi.ItemTableEntry{
+				Entries: []rawschema.ItemTableEntry{
 					{Id: "test_item_group", Weight: 1, MinDanger: 1, MaxDanger: 5},
 				},
 			},
 		},
-		ItemGroups: &[]oapi.ItemGroup{
+		ItemGroups: &[]rawschema.ItemGroup{
 			{
 				Id: "test_item_group",
-				Entries: []oapi.ItemGroupEntry{
+				Entries: []rawschema.ItemGroupEntry{
 					{Id: "nonexistent_item", Weight: 1, Pack: "1d1"},
 				},
 			},
@@ -207,8 +207,8 @@ func TestPopulateStorageLoot_LootCount表記が不正ならエラー(t *testing.
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Danger = 1
 
-	propRaw := oapi.Prop{
-		Storage: &oapi.StorageRaw{
+	propRaw := rawschema.Prop{
+		Storage: &rawschema.StorageRaw{
 			LootTableId: new("test_item_table"),
 			LootCount:   new("不正な表記"),
 		},
@@ -229,8 +229,8 @@ func TestPopulateStorageLoot_危険度が最小値未満ならエラー(t *testi
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Danger = 0 // MinDanger(1)未満
 
-	propRaw := oapi.Prop{
-		Storage: &oapi.StorageRaw{LootTableId: new("test_item_table")},
+	propRaw := rawschema.Prop{
+		Storage: &rawschema.StorageRaw{LootTableId: new("test_item_table")},
 	}
 	storageEntity := world.ECS.NewEntity()
 
@@ -248,8 +248,8 @@ func TestPopulateStorageLoot_危険度がテーブル範囲外ならアイテム
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Danger = 99 // エントリのMaxDanger(5)を超える
 
-	propRaw := oapi.Prop{
-		Storage: &oapi.StorageRaw{LootTableId: new("test_item_table")},
+	propRaw := rawschema.Prop{
+		Storage: &rawschema.StorageRaw{LootTableId: new("test_item_table")},
 	}
 	storageEntity := world.ECS.NewEntity()
 
@@ -274,8 +274,8 @@ func TestPopulateStorageLoot_アイテム生成に失敗したらエラー(t *te
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Danger = 3 // エントリのMinDanger(1)〜MaxDanger(5)の範囲内
 
-	propRaw := oapi.Prop{
-		Storage: &oapi.StorageRaw{LootTableId: new("test_item_table")},
+	propRaw := rawschema.Prop{
+		Storage: &rawschema.StorageRaw{LootTableId: new("test_item_table")},
 	}
 	storageEntity := world.ECS.NewEntity()
 

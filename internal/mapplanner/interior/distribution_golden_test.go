@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
 )
@@ -54,11 +54,11 @@ func TestGolden_Distribution(t *testing.T) {
 			}
 			for _, p := range placed {
 				switch p.Kind {
-				case oapi.Furniture:
+				case rawschema.Furniture:
 					d.Furniture[p.Ref]++
-				case oapi.Decor:
+				case rawschema.Decor:
 					d.Decor[p.Ref]++
-				case oapi.Loot:
+				case rawschema.Loot:
 					d.Loot[p.Ref]++
 				default: // KindBeing/KindTrap は家具の分布の対象外なので集計しない
 				}

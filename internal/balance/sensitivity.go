@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -42,7 +42,7 @@ var SensitivityMetricNames = []string{"戦力比d20", "飢餓まで日数", "睡
 // 単位にするのは、交換レートの求解が対象メトリクス以外の重い計算を回さないようにするため。
 // idx は SensitivityMetricNames のインデックスと1対1で対応する。未知の idx は panic し、メトリクス
 // 追加時の case 追加漏れが silent にならないようにする。
-func metricValue(master oapi.Raws, p Params, idx int) float64 {
+func metricValue(master rawschema.Raws, p Params, idx int) float64 {
 	switch idx {
 	case 0: // 戦闘。敵武器ダメージとプレイヤー筋力の倍率を適用して廃墟 day20 戦力比を測る
 		player, err := LoadCombatantFromMember(master, BaselinePlayer)
@@ -83,7 +83,7 @@ func metricValue(master oapi.Raws, p Params, idx int) float64 {
 
 // metricsAt はパラメータベクトル p の下で全メトリクスを評価して返す。感度行列が全列を要するので
 // metricValue を全 idx について回す。
-func metricsAt(master oapi.Raws, p Params) []float64 {
+func metricsAt(master rawschema.Raws, p Params) []float64 {
 	out := make([]float64, len(SensitivityMetricNames))
 	for i := range out {
 		out[i] = metricValue(master, p, i)
@@ -93,7 +93,7 @@ func metricsAt(master oapi.Raws, p Params) []float64 {
 
 // metricMovers は idx 番目のメトリクスを +10% 摂動で動かすつまみだけを抽出する。動かさないつまみは
 // そのメトリクスの交換・境界に参加できないので除く。境界マージンと交換レートが共用する。
-func metricMovers(master oapi.Raws, knobs []Knob, base float64, idx int) []Knob {
+func metricMovers(master rawschema.Raws, knobs []Knob, base float64, idx int) []Knob {
 	movers := make([]Knob, 0, len(knobs))
 	for _, k := range knobs {
 		p := DefaultParams(master)
@@ -121,7 +121,7 @@ type KnobSensitivity struct {
 
 // CrossDomainSensitivity はドメイン横断の感度行列を返す。各つまみを+10%し全ドメインの代表メトリクスの変化を測る。
 // 多くはブロック対角で、横断するのは1日ターン数のような共通の分母だけ。
-func CrossDomainSensitivity(master oapi.Raws) []KnobSensitivity {
+func CrossDomainSensitivity(master rawschema.Raws) []KnobSensitivity {
 	base := metricsAt(master, DefaultParams(master))
 	knobs := knobRegistry()
 	rows := make([]KnobSensitivity, 0, len(knobs))

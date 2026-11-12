@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ func TestAddFuel(t *testing.T) {
 		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 0})
 
 		fuel := world.ECS.NewEntity()
-		world.Components.Material.Add(fuel, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
 		world.Components.Weight.Add(fuel, &gc.Weight{Milligram: 200 * consts.MilligramPerGram})
 
 		lifecycle.AddFuel(world, fire, fuel)
@@ -40,7 +40,7 @@ func TestAddFuel(t *testing.T) {
 		fire := world.ECS.NewEntity()
 
 		fuel := world.ECS.NewEntity()
-		world.Components.Material.Add(fuel, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
 		world.Components.Weight.Add(fuel, &gc.Weight{Milligram: 200 * consts.MilligramPerGram})
 
 		lifecycle.AddFuel(world, fire, fuel)

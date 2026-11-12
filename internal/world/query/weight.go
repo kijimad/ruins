@@ -3,7 +3,7 @@ package query
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -29,7 +29,7 @@ func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
 	if world.Components.Abilities.Has(entity) {
 		abilities := world.Components.Abilities.Get(entity)
 		maxWeight := calculateMaxCarryingWeight(abilities)
-		maxWeight = consts.Milligram(ProficiencyValue(world, entity, oapi.ProficiencyIdMaxWeight).ApplyInt(int(maxWeight)))
+		maxWeight = consts.Milligram(ProficiencyValue(world, entity, rawschema.ProficiencyIdMaxWeight).ApplyInt(int(maxWeight)))
 		wc.Max = maxWeight
 	}
 

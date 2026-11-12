@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/assets"
 	"github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/resources"
 )
 
@@ -62,8 +62,8 @@ func loadFonts() (map[string]resources.Font, error) {
 	return fonts, nil
 }
 
-// LoadSpriteSheets はoapi.RawsのSpriteSheet定義に基づいてスプライトシートを読み込む
-func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error) {
+// LoadSpriteSheets はrawschema.RawsのSpriteSheet定義に基づいてスプライトシートを読み込む
+func LoadSpriteSheets(raws rawschema.Raws) (map[string]components.SpriteSheet, error) {
 	spriteSheets := make(map[string]components.SpriteSheet)
 
 	for _, spriteSheetDef := range raw.PtrSlice(raws.SpriteSheets) {
@@ -96,6 +96,6 @@ func LoadUIResources() (resources.UIResources, error) {
 }
 
 // LoadRaws はRawデータを読み込む
-func LoadRaws() (oapi.Raws, error) {
+func LoadRaws() (rawschema.Raws, error) {
 	return raw.LoadFromFile(rawsPath)
 }

@@ -5,8 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -122,7 +122,7 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 			require.NoError(t, err)
 			attack, name, err := getAttackParams(player, world)
 			require.NoError(t, err)
-			expBefore := world.Components.Skills.Get(player).Get(oapi.SkillIdMechanic).Exp.Current
+			expBefore := world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current
 
 			// 命中率の補正を大きく取り、壊れるまで必ず命中させる
 			for range 20 {
@@ -140,7 +140,7 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 					assert.Equal(t, tt.wantDrop, query.GetEntityID(d, world))
 				}
 			}
-			expAfter := world.Components.Skills.Get(player).Get(oapi.SkillIdMechanic).Exp.Current
+			expAfter := world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current
 			assert.Equal(t, tt.wantMechanics, expAfter > expBefore)
 		})
 	}

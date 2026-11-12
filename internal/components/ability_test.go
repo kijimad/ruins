@@ -6,7 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/i18n"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,15 +40,15 @@ func TestAbilityName(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		id   oapi.AbilityId
+		id   rawschema.AbilityId
 		want i18n.Msgid
 	}{
-		{oapi.Str, "STR"},
-		{oapi.Sen, "SEN"},
-		{oapi.Dex, "DEX"},
-		{oapi.Agi, "AGI"},
-		{oapi.Vit, "VIT"},
-		{oapi.Def, "DEF"},
+		{rawschema.Str, "STR"},
+		{rawschema.Sen, "SEN"},
+		{rawschema.Dex, "DEX"},
+		{rawschema.Agi, "AGI"},
+		{rawschema.Vit, "VIT"},
+		{rawschema.Def, "DEF"},
 	}
 
 	for _, tt := range tests {
@@ -62,7 +62,7 @@ func TestAbilityName(t *testing.T) {
 func TestAbilityName_InvalidID(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {
-		AbilityName(oapi.AbilityId("unknown"))
+		AbilityName(rawschema.AbilityId("unknown"))
 	})
 }
 
@@ -78,11 +78,11 @@ func TestAbilities_ValueOf(t *testing.T) {
 		Defense:   Ability{Total: 60},
 	}
 
-	assert.Equal(t, 10, a.ValueOf(oapi.Str))
-	assert.Equal(t, 20, a.ValueOf(oapi.Sen))
-	assert.Equal(t, 30, a.ValueOf(oapi.Dex))
-	assert.Equal(t, 40, a.ValueOf(oapi.Agi))
-	assert.Equal(t, 50, a.ValueOf(oapi.Vit))
-	assert.Equal(t, 60, a.ValueOf(oapi.Def))
-	assert.Equal(t, 0, a.ValueOf(oapi.AbilityId("unknown")), "未定義IDは0を返す")
+	assert.Equal(t, 10, a.ValueOf(rawschema.Str))
+	assert.Equal(t, 20, a.ValueOf(rawschema.Sen))
+	assert.Equal(t, 30, a.ValueOf(rawschema.Dex))
+	assert.Equal(t, 40, a.ValueOf(rawschema.Agi))
+	assert.Equal(t, 50, a.ValueOf(rawschema.Vit))
+	assert.Equal(t, 60, a.ValueOf(rawschema.Def))
+	assert.Equal(t, 0, a.ValueOf(rawschema.AbilityId("unknown")), "未定義IDは0を返す")
 }

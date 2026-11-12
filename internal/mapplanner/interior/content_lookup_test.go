@@ -3,7 +3,7 @@ package interior
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -22,7 +22,7 @@ func TestFlavorContent_専用フィールドから引ける(t *testing.T) {
 func TestFlavorContent_未設定はerror(t *testing.T) {
 	t.Parallel()
 
-	_, err := flavorContent(oapi.Raws{})
+	_, err := flavorContent(rawschema.Raws{})
 	require.ErrorIs(t, err, errFlavorContentMissing)
 }
 
@@ -39,7 +39,7 @@ func TestContentByID_未定義idはerror(t *testing.T) {
 func TestFacilityContent_未登録施設はerror(t *testing.T) {
 	t.Parallel()
 
-	_, err := facilityContent(oapi.Raws{}, "no_such_facility", 0)
+	_, err := facilityContent(rawschema.Raws{}, "no_such_facility", 0)
 	require.ErrorIs(t, err, errFacilityNotRegistered)
 }
 
@@ -55,7 +55,7 @@ func TestFurnishBuilding_未登録施設はerror(t *testing.T) {
 func TestBackRoomContent_未登録施設はerror(t *testing.T) {
 	t.Parallel()
 
-	_, err := backRoomContent(oapi.Raws{}, "no_such_facility")
+	_, err := backRoomContent(rawschema.Raws{}, "no_such_facility")
 	require.ErrorIs(t, err, errFacilityNotRegistered)
 }
 
@@ -65,29 +65,29 @@ func TestBackRoomContent_未登録施設はerror(t *testing.T) {
 func TestToContent_不正なダイスはerrorを返す(t *testing.T) {
 	t.Parallel()
 
-	ic := oapi.InteriorContent{
+	ic := rawschema.InteriorContent{
 		Id: "bad",
-		Groups: &[]oapi.ContentGroup{{
+		Groups: &[]rawschema.ContentGroup{{
 			Style: "pick_each",
-			Items: []oapi.ContentStuff{{Kind: "furniture", Ref: "table", Amount: "notdice"}},
+			Items: []rawschema.ContentStuff{{Kind: "furniture", Ref: "table", Amount: "notdice"}},
 		}},
 	}
 
-	_, err := toContent(oapi.Raws{}, ic)
+	_, err := toContent(rawschema.Raws{}, ic)
 	require.ErrorIs(t, err, errInvalidAmount)
 }
 
 func TestToContent_置き方を省くとinteriorRefsの既定で埋める(t *testing.T) {
 	t.Parallel()
 
-	ic := oapi.InteriorContent{
+	ic := rawschema.InteriorContent{
 		Id: "sample",
-		Groups: &[]oapi.ContentGroup{{
+		Groups: &[]rawschema.ContentGroup{{
 			Style: "pick_each",
-			Items: []oapi.ContentStuff{
+			Items: []rawschema.ContentStuff{
 				{Kind: "furniture", Ref: "register", Amount: "1d1"},
 				{Kind: "furniture", Ref: "gondola", Amount: "1d1"},
-				{Kind: "furniture", Ref: "bed", Amount: "1d1", Placement: new(oapi.Center)},
+				{Kind: "furniture", Ref: "bed", Amount: "1d1", Placement: new(rawschema.Center)},
 				{Kind: "decor", Ref: "crate", Amount: "1d1"},
 			},
 		}},
@@ -95,9 +95,9 @@ func TestToContent_置き方を省くとinteriorRefsの既定で埋める(t *tes
 
 	c, err := toContent(testRaws(), ic)
 	require.NoError(t, err)
-	got := make([]oapi.Placement, 0, len(c.Groups[0].Items))
+	got := make([]rawschema.Placement, 0, len(c.Groups[0].Items))
 	for _, it := range c.Groups[0].Items {
 		got = append(got, it.Placement)
 	}
-	assert.Equal(t, []oapi.Placement{oapi.NearDoor, oapi.Row, oapi.Center, PlaceDefault}, got)
+	assert.Equal(t, []rawschema.Placement{rawschema.NearDoor, rawschema.Row, rawschema.Center, PlaceDefault}, got)
 }

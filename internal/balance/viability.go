@@ -1,7 +1,7 @@
 package balance
 
 import (
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // viabilityCeiling は viable とみなす死亡確率の上限。これ以下ならその武器で概ね生き延びられる。
@@ -39,7 +39,7 @@ func (s ViabilitySummary) Distinct() bool {
 
 // WeaponViability は経過日 day の廃墟プールに対する武器ロスターの viability を要約する。要素制限の
 // 劣化量計算を再利用し、viable 数・罠数・viable どうしの決着ターンの幅を集計する。
-func WeaponViability(master oapi.Raws, enemyTableName string, day int) (ViabilitySummary, error) {
+func WeaponViability(master rawschema.Raws, enemyTableName string, day int) (ViabilitySummary, error) {
 	values, _, err := WeaponRestrictionValues(master, enemyTableName, day)
 	if err != nil {
 		return ViabilitySummary{}, err

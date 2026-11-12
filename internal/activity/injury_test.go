@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
@@ -17,21 +17,21 @@ func TestConditionDefsInjury_攻撃種別ごとの怪我(t *testing.T) {
 	t.Parallel()
 
 	defs := testutil.InitTestWorld(t).Resources.ConditionDefs
-	got := map[oapi.AttackCategory]gc.ConditionType{}
-	for _, at := range []oapi.AttackCategory{oapi.AttackCategorySword, oapi.AttackCategorySpear, oapi.AttackCategoryHandgun, oapi.AttackCategoryRifle, oapi.AttackCategoryFist, oapi.AttackCategoryCannon, oapi.AttackCategoryBow} {
+	got := map[rawschema.AttackCategory]gc.ConditionType{}
+	for _, at := range []rawschema.AttackCategory{rawschema.AttackCategorySword, rawschema.AttackCategorySpear, rawschema.AttackCategoryHandgun, rawschema.AttackCategoryRifle, rawschema.AttackCategoryFist, rawschema.AttackCategoryCannon, rawschema.AttackCategoryBow} {
 		ct, ok := defs.Injury(at)
 		require.True(t, ok, at)
 		got[at] = ct
 	}
 	// 打撃と砲撃は骨折、刃と弾は切り傷
-	assert.Equal(t, map[oapi.AttackCategory]gc.ConditionType{
-		oapi.AttackCategorySword:   gc.ConditionType("laceration"),
-		oapi.AttackCategorySpear:   gc.ConditionType("laceration"),
-		oapi.AttackCategoryHandgun: gc.ConditionType("laceration"),
-		oapi.AttackCategoryRifle:   gc.ConditionType("laceration"),
-		oapi.AttackCategoryFist:    gc.ConditionType("fracture"),
-		oapi.AttackCategoryCannon:  gc.ConditionType("fracture"),
-		oapi.AttackCategoryBow:     gc.ConditionType("laceration"),
+	assert.Equal(t, map[rawschema.AttackCategory]gc.ConditionType{
+		rawschema.AttackCategorySword:   gc.ConditionType("laceration"),
+		rawschema.AttackCategorySpear:   gc.ConditionType("laceration"),
+		rawschema.AttackCategoryHandgun: gc.ConditionType("laceration"),
+		rawschema.AttackCategoryRifle:   gc.ConditionType("laceration"),
+		rawschema.AttackCategoryFist:    gc.ConditionType("fracture"),
+		rawschema.AttackCategoryCannon:  gc.ConditionType("fracture"),
+		rawschema.AttackCategoryBow:     gc.ConditionType("laceration"),
 	}, got)
 }
 
@@ -76,7 +76,7 @@ func TestApplyInjury(t *testing.T) {
 	// 初回の判定が 15% 未満になる種で、1回の命中で確実に怪我を付ける。
 	// spawn が乱数を消費しうるので判定の直前に種を固定する
 	world.Resources.Config.RNG = rand.New(rand.NewPCG(4, 0))
-	applyInjury(player, player, world, &gc.Melee{AttackCategory: oapi.AttackCategorySword})
+	applyInjury(player, player, world, &gc.Melee{AttackCategory: rawschema.AttackCategorySword})
 
 	hs := world.Components.HealthStatus.Get(player)
 	total, hit := 0, gc.BodyPartCount
@@ -99,7 +99,7 @@ func TestApplyInjury_判定に外れると付かない(t *testing.T) {
 
 	// 初回の判定が 15% 以上になる種では怪我が付かない
 	world.Resources.Config.RNG = rand.New(rand.NewPCG(1, 0))
-	applyInjury(entity, entity, world, &gc.Melee{AttackCategory: oapi.AttackCategorySword})
+	applyInjury(entity, entity, world, &gc.Melee{AttackCategory: rawschema.AttackCategorySword})
 
 	hs := world.Components.HealthStatus.Get(entity)
 	for p := range gc.BodyPartCount {
@@ -130,7 +130,7 @@ func TestApplyInjury_同種の怪我は1部位に1つで頭打ち(t *testing.T) 
 
 	// 判定は通る種でも、上限に達した部位には足さない
 	world.Resources.Config.RNG = rand.New(rand.NewPCG(4, 0))
-	applyInjury(entity, entity, world, &gc.Melee{AttackCategory: oapi.AttackCategorySword})
+	applyInjury(entity, entity, world, &gc.Melee{AttackCategory: rawschema.AttackCategorySword})
 
 	after := 0
 	for p := range gc.BodyPartCount {
@@ -152,7 +152,7 @@ func TestApplyInjury_敵も同じ機構で怪我を負う(t *testing.T) {
 
 	// 1回の命中で確実に怪我を付ける
 	world.Resources.Config.RNG = rand.New(rand.NewPCG(4, 0))
-	applyInjury(enemy, enemy, world, &gc.Melee{AttackCategory: oapi.AttackCategorySword})
+	applyInjury(enemy, enemy, world, &gc.Melee{AttackCategory: rawschema.AttackCategorySword})
 
 	hs := world.Components.HealthStatus.Get(enemy)
 	total := 0
@@ -168,7 +168,7 @@ func TestApplyInjury_HealthStatusなしは何もしない(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	entity := world.ECS.NewEntity() // HealthStatus を持たない裸エンティティ
-	attack := &gc.Melee{AttackCategory: oapi.AttackCategorySword}
+	attack := &gc.Melee{AttackCategory: rawschema.AttackCategorySword}
 
 	applyInjury(entity, entity, world, attack) // panic せず何も起きない
 }

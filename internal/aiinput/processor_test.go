@@ -7,7 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -22,8 +22,8 @@ func TestStateMachine_Hostile(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         oapi.Attack,
-		CombatCurrent:         oapi.Attack,
+		CombatDefault:         rawschema.Attack,
+		CombatCurrent:         rawschema.Attack,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 2,
@@ -48,8 +48,8 @@ func TestStateMachine_Neutral(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         oapi.Ignore,
-		CombatCurrent:         oapi.Ignore,
+		CombatDefault:         rawschema.Ignore,
+		CombatCurrent:         rawschema.Ignore,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 2,
@@ -66,8 +66,8 @@ func TestStateMachine_Cowardly(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         oapi.Evade,
-		CombatCurrent:         oapi.Evade,
+		CombatDefault:         rawschema.Evade,
+		CombatCurrent:         rawschema.Evade,
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 5,
@@ -84,8 +84,8 @@ func TestStateMachine_Fleeing_Recovery(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         oapi.Evade,
-		CombatCurrent:         oapi.Evade,
+		CombatDefault:         rawschema.Evade,
+		CombatCurrent:         rawschema.Evade,
 		SubState:              gc.AIStateFleeing,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 3,
@@ -99,7 +99,7 @@ func TestStateMachine_Fleeing_Recovery(t *testing.T) {
 	solo.StartSubStateTurn = 1
 	rp.updateState(solo, false, 5)
 	assert.Equal(t, gc.AIStateDriving, solo.SubState, "プレイヤーを見失い逃亡時間終了で移動へ")
-	assert.Equal(t, oapi.Evade, solo.CombatCurrent, "デフォルト態度に復帰")
+	assert.Equal(t, rawschema.Evade, solo.CombatCurrent, "デフォルト態度に復帰")
 }
 
 func TestStateMachine_NeutralToHostile_StartChasing(t *testing.T) {
@@ -108,8 +108,8 @@ func TestStateMachine_NeutralToHostile_StartChasing(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         oapi.Ignore,
-		CombatCurrent:         oapi.Ignore,
+		CombatDefault:         rawschema.Ignore,
+		CombatCurrent:         rawschema.Ignore,
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 5,
@@ -120,7 +120,7 @@ func TestStateMachine_NeutralToHostile_StartChasing(t *testing.T) {
 	assert.Equal(t, gc.AIStateDriving, solo.SubState, "Neutralは追跡しない")
 
 	// 被ダメージでCombatCurrentがCombatAttackに変化した（ReactToHostile相当）
-	solo.CombatCurrent = oapi.Attack
+	solo.CombatCurrent = rawschema.Attack
 
 	// 次のターンでプレイヤーを見たら追跡を開始する
 	rp.updateState(solo, true, 3)
@@ -133,8 +133,8 @@ func TestStateMachine_CowardlyToFleeing_StartFleeing(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	solo := &gc.SoloAI{
-		CombatDefault:         oapi.Evade,
-		CombatCurrent:         oapi.Evade,
+		CombatDefault:         rawschema.Evade,
+		CombatCurrent:         rawschema.Evade,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 5,

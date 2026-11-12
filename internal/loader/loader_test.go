@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -76,8 +76,8 @@ func TestLoadSpriteSheets(t *testing.T) {
 	t.Run("存在しないパスを指定するとエラー", func(t *testing.T) {
 		t.Parallel()
 
-		raws := oapi.Raws{
-			SpriteSheets: &[]oapi.SpriteSheet{
+		raws := rawschema.Raws{
+			SpriteSheets: &[]rawschema.SpriteSheet{
 				{Name: "nonexistent", Path: "file/textures/dist/nonexistent.json"},
 			},
 		}

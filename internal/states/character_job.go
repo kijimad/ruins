@@ -14,8 +14,8 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -89,7 +89,7 @@ type JobMenuProps struct {
 
 // jobMenuItem は職業メニューの項目
 type jobMenuItem struct {
-	Profession oapi.Profession
+	Profession rawschema.Profession
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる

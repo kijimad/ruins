@@ -12,10 +12,10 @@ import (
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// PtrSlice はoapi.Rawsの*[]Tフィールドを安全にデリファレンスする
+// PtrSlice はrawschema.Rawsの*[]Tフィールドを安全にデリファレンスする
 // nilポインタの場合はnilスライスを返す
 func PtrSlice[T any](p *[]T) []T {
 	if p == nil {
@@ -44,24 +44,21 @@ func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool)
 	return zero, false
 }
 
-// LoadFromFile はファイルからローデータを読み込み、OpenAPIスキーマで検証する
-func LoadFromFile(path string) (oapi.Raws, error) {
+// LoadFromFile はファイルからローデータを読み込み、Go で書いた決まりを検証する。
+func LoadFromFile(path string) (rawschema.Raws, error) {
 	bs, err := assets.FS.ReadFile(path)
 	if err != nil {
-		return oapi.Raws{}, err
+		return rawschema.Raws{}, err
 	}
 	raws, err := DecodeRaws(string(bs))
 	if err != nil {
-		return oapi.Raws{}, err
+		return rawschema.Raws{}, err
 	}
-	if err := ValidateRaws(raws); err != nil {
-		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
-	}
-	if err := ValidateReferences(raws); err != nil {
-		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
+	if err := validateRules(raws); err != nil {
+		return rawschema.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
 	}
 	if err := validateCodeRows(raws); err != nil {
-		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
+		return rawschema.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
 	}
 	return raws, nil
 }
@@ -77,31 +74,31 @@ var (
 	errBlockPassWithPassCost = errors.New("blockPass and passCost cannot both be set; passCost is unnecessary when impassable")
 )
 
-// DecodeRaws はTOML文字列をoapi.Raws構造体にデコードする
+// DecodeRaws はTOML文字列をrawschema.Raws構造体にデコードする
 // 未知のキーが含まれる場合はエラーを返す
-func DecodeRaws(content string) (oapi.Raws, error) {
-	var raws oapi.Raws
+func DecodeRaws(content string) (rawschema.Raws, error) {
+	var raws rawschema.Raws
 	metaData, err := toml.Decode(content, &raws)
 	if err != nil {
-		return oapi.Raws{}, fmt.Errorf("%w: %w", errTOMLDecode, err)
+		return rawschema.Raws{}, fmt.Errorf("%w: %w", errTOMLDecode, err)
 	}
 	if undecoded := metaData.Undecoded(); len(undecoded) > 0 {
-		return oapi.Raws{}, fmt.Errorf("%w: %v", errUnknownTOMLKeys, undecoded)
+		return rawschema.Raws{}, fmt.Errorf("%w: %v", errUnknownTOMLKeys, undecoded)
 	}
 	return raws, nil
 }
 
 // FindItem は指定された名前のアイテム定義を検索する
-func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {
-	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)
+func FindItem(raws rawschema.Raws, name string) (rawschema.Item, error) {
+	item, ok := findByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
 	if !ok {
-		return oapi.Item{}, NewKeyNotFoundError(name, "Items")
+		return rawschema.Item{}, NewKeyNotFoundError(name, "Items")
 	}
 	return item, nil
 }
 
 // ItemName は id からアイテムの表示名を返す。定義が見つからなければ id をそのまま返す
-func ItemName(raws oapi.Raws, id string) i18n.Msgid {
+func ItemName(raws rawschema.Raws, id string) i18n.Msgid {
 	item, err := FindItem(raws, id)
 	if err != nil {
 		return i18n.Msgid(id)
@@ -110,25 +107,25 @@ func ItemName(raws oapi.Raws, id string) i18n.Msgid {
 }
 
 // FindMember は指定された名前のメンバー定義を検索する
-func FindMember(raws oapi.Raws, name string) (oapi.Member, error) {
-	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)
+func FindMember(raws rawschema.Raws, name string) (rawschema.Member, error) {
+	member, ok := findByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)
 	if !ok {
-		return oapi.Member{}, NewKeyNotFoundError(name, "Members")
+		return rawschema.Member{}, NewKeyNotFoundError(name, "Members")
 	}
 	return member, nil
 }
 
 // FindSpriteSheet は指定された名前のスプライトシートを検索する
-func FindSpriteSheet(raws oapi.Raws, name string) (oapi.SpriteSheet, error) {
-	sheet, ok := findByKey(raws.SpriteSheets, func(s oapi.SpriteSheet) string { return s.Name }, name)
+func FindSpriteSheet(raws rawschema.Raws, name string) (rawschema.SpriteSheet, error) {
+	sheet, ok := findByKey(raws.SpriteSheets, func(s rawschema.SpriteSheet) string { return s.Name }, name)
 	if !ok {
-		return oapi.SpriteSheet{}, NewKeyNotFoundError(name, "SpriteSheets")
+		return rawschema.SpriteSheet{}, NewKeyNotFoundError(name, "SpriteSheets")
 	}
 	return sheet, nil
 }
 
-// toGCSpriteRender はoapi.SpriteRenderからgc.SpriteRenderに変換する
-func toGCSpriteRender(s oapi.SpriteRender) gc.SpriteRender {
+// toGCSpriteRender はrawschema.SpriteRenderからgc.SpriteRenderに変換する
+func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 	return gc.SpriteRender{
 		SpriteSheetName: s.SpriteSheetName,
 		SpriteKey:       s.SpriteKey,
@@ -136,8 +133,8 @@ func toGCSpriteRender(s oapi.SpriteRender) gc.SpriteRender {
 	}
 }
 
-// toGCLightSource はoapi.LightSourceからgc.LightSourceに変換する
-func toGCLightSource(ls *oapi.LightSource) *gc.LightSource {
+// toGCLightSource はrawschema.LightSourceからgc.LightSourceに変換する
+func toGCLightSource(ls *rawschema.LightSource) *gc.LightSource {
 	if ls == nil {
 		return nil
 	}
@@ -153,8 +150,8 @@ func toGCLightSource(ls *oapi.LightSource) *gc.LightSource {
 	}
 }
 
-// toGCHeatSource はoapi.HeatSourceからgc.HeatSourceに変換する
-func toGCHeatSource(hs *oapi.HeatSource) *gc.HeatSource {
+// toGCHeatSource はrawschema.HeatSourceからgc.HeatSourceに変換する
+func toGCHeatSource(hs *rawschema.HeatSource) *gc.HeatSource {
 	if hs == nil {
 		return nil
 	}
@@ -164,8 +161,8 @@ func toGCHeatSource(hs *oapi.HeatSource) *gc.HeatSource {
 	}
 }
 
-// toGCBedding はoapi.Beddingからgc.Beddingに変換する
-func toGCBedding(b *oapi.Bedding) *gc.Bedding {
+// toGCBedding はrawschema.Beddingからgc.Beddingに変換する
+func toGCBedding(b *rawschema.Bedding) *gc.Bedding {
 	if b == nil {
 		return nil
 	}
@@ -175,8 +172,7 @@ func toGCBedding(b *oapi.Bedding) *gc.Bedding {
 }
 
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
-// enum値の妥当性はOpenAPIスキーマで検証済み
-func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {
+func parseTargetType(targetGroup rawschema.TargetGroup, targetNum rawschema.TargetNum) gc.TargetType {
 	if targetGroup == "" {
 		return gc.TargetType{}
 	}
@@ -186,8 +182,8 @@ func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.
 	}
 }
 
-// parseMelee はoapi.Meleeからgc.Meleeを生成する
-func parseMelee(m *oapi.Melee) *gc.Melee {
+// parseMelee はrawschema.Meleeからgc.Meleeを生成する
+func parseMelee(m *rawschema.Melee) *gc.Melee {
 	return &gc.Melee{
 		Accuracy:       m.Accuracy,
 		Damage:         m.Damage,
@@ -199,9 +195,9 @@ func parseMelee(m *oapi.Melee) *gc.Melee {
 	}
 }
 
-// parseFire はoapi.Fireからgc.Fireを生成する
-func parseFire(f *oapi.Fire) *gc.Fire {
-	var ammoTag oapi.AmmoTag
+// parseFire はrawschema.Fireからgc.Fireを生成する
+func parseFire(f *rawschema.Fire) *gc.Fire {
+	var ammoTag rawschema.AmmoTag
 	if f.AmmoTag != nil {
 		ammoTag = *f.AmmoTag
 	}
@@ -220,19 +216,18 @@ func parseFire(f *oapi.Fire) *gc.Fire {
 	}
 }
 
-// newProvidesHealingFromAPI はoapi.ProvidesHealingからProvidesHealingコンポーネントを生成する
-// enum値の妥当性はOpenAPIスキーマで検証済み
-func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {
+// newProvidesHealingFromAPI はrawschema.ProvidesHealingからProvidesHealingコンポーネントを生成する
+func newProvidesHealingFromAPI(h *rawschema.ProvidesHealing) *gc.ProvidesHealing {
 	switch h.ValueType {
-	case oapi.PERCENTAGE:
+	case rawschema.PERCENTAGE:
 		return &gc.ProvidesHealing{Kind: gc.HealRatio, Amount: h.Ratio}
 	default:
 		return &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: float64(h.Amount)}
 	}
 }
 
-// newBookFromAPI はoapi.Bookからgc.Bookを生成する
-func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
+// newBookFromAPI はrawschema.Bookからgc.Bookを生成する
+func newBookFromAPI(b *rawschema.Book) (*gc.Book, error) {
 	if b.Skill == nil {
 		return nil, errBookSkillMissing
 	}
@@ -250,7 +245,7 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 }
 
 // NewItemSpec は指定された名前のアイテムのEntitySpecを生成する
-func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
+func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	item, err := FindItem(raws, name)
 	if err != nil {
 		return gc.EntitySpec{}, err
@@ -314,7 +309,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Ammo != nil {
-		var ammoAmmoTag oapi.AmmoTag
+		var ammoAmmoTag rawschema.AmmoTag
 		if item.Ammo.AmmoTag != nil {
 			ammoAmmoTag = *item.Ammo.AmmoTag
 		}
@@ -405,7 +400,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 // applyDeployable は装着アイテムの設備設定を1箇所に集める。マーカーと能力ごとのコンポーネントを付ける。
 // 装着は設備画面で扱うので拾える相互作用は与えない。新設備は能力の枝を1つ足す。
 // 能力枝を持たない装着、raw の空 [items.deployable] は Deployable マーカーだけを付ける。工作台が例。
-func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name string) error {
+func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
 	if dep.Storage != nil {
@@ -431,8 +426,8 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *oapi.Deployable, name strin
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
-func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
-	recipe, ok := findByKey(raws.Recipes, func(r oapi.Recipe) string { return r.Id }, name)
+func NewRecipeSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
+	recipe, ok := findByKey(raws.Recipes, func(r rawschema.Recipe) string { return r.Id }, name)
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Recipes")
 	}
@@ -473,7 +468,7 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 }
 
 // NewWeaponSpec は指定された名前の武器のEntitySpecを生成する
-func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
+func NewWeaponSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	// 武器はアイテムの一種なので、Itemsから検索して存在確認
 	if _, err := FindItem(raws, name); err != nil {
 		return gc.EntitySpec{}, err
@@ -493,7 +488,7 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 }
 
 // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる
-func PlayerMemberID(raws oapi.Raws) (string, error) {
+func PlayerMemberID(raws rawschema.Raws) (string, error) {
 	members := PtrSlice(raws.Members)
 	for i := range members {
 		if members[i].Player != nil && *members[i].Player {
@@ -504,8 +499,8 @@ func PlayerMemberID(raws oapi.Raws) (string, error) {
 }
 
 // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する
-func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
-	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)
+func NewMemberSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
+	member, ok := findByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Members")
 	}
@@ -560,15 +555,15 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
 
 	// 味方と敵の派閥は NewPlayerSpec と NewEnemySpec が付ける。raw が指せるのは中立だけ
-	if member.FactionType != nil && *member.FactionType == oapi.FactionNeutral {
+	if member.FactionType != nil && *member.FactionType == rawschema.FactionNeutral {
 		entitySpec.FactionNeutral = &gc.FactionNeutral{}
 	}
 
 	// AI の組み立て。SoloAIとして構築し、スポーン関数がそのまま使う
 	{
 		solo := gc.SoloAI{
-			CombatDefault: oapi.Attack,
-			CombatCurrent: oapi.Attack,
+			CombatDefault: rawschema.Attack,
+			CombatCurrent: rawschema.Attack,
 		}
 		if member.CombatPolicy != nil && *member.CombatPolicy != "" {
 			solo.CombatDefault = *member.CombatPolicy
@@ -591,7 +586,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 }
 
 // NewPlayerSpec は指定された名前のプレイヤーのEntitySpecを生成する
-func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
+func NewPlayerSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec, err := NewMemberSpec(raws, name)
 	if err != nil {
 		return gc.EntitySpec{}, err
@@ -605,7 +600,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 }
 
 // NewEnemySpec は指定された名前の敵のEntitySpecを生成する
-func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
+func NewEnemySpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec, err := NewMemberSpec(raws, name)
 	if err != nil {
 		return gc.EntitySpec{}, err
@@ -616,19 +611,19 @@ func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 }
 
 // GetCommandTable は指定された名前のコマンドテーブルを取得する
-func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
-	ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string { return c.Id }, name)
+func GetCommandTable(raws rawschema.Raws, name string) (rawschema.CommandTable, error) {
+	ct, ok := findByKey(raws.CommandTables, func(c rawschema.CommandTable) string { return c.Id }, name)
 	if !ok {
-		return oapi.CommandTable{}, NewKeyNotFoundError(name, "CommandTables")
+		return rawschema.CommandTable{}, NewKeyNotFoundError(name, "CommandTables")
 	}
 	return ct, nil
 }
 
 // GetDropTable は指定された名前のドロップテーブルを取得する
-func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
-	dt, ok := findByKey(raws.DropTables, func(d oapi.DropTable) string { return d.Id }, name)
+func GetDropTable(raws rawschema.Raws, name string) (rawschema.DropTable, error) {
+	dt, ok := findByKey(raws.DropTables, func(d rawschema.DropTable) string { return d.Id }, name)
 	if !ok {
-		return oapi.DropTable{}, NewKeyNotFoundError(name, "DropTables")
+		return rawschema.DropTable{}, NewKeyNotFoundError(name, "DropTables")
 	}
 	return dt, nil
 }
@@ -637,69 +632,48 @@ func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
 var errItemGroupNotExist = errors.New("item group does not exist")
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
-func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
-	ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Id }, name)
+func GetItemGroup(raws rawschema.Raws, name string) (rawschema.ItemGroup, error) {
+	ig, ok := findByKey(raws.ItemGroups, func(g rawschema.ItemGroup) string { return g.Id }, name)
 	if !ok {
-		return oapi.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
+		return rawschema.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
 	}
 	return ig, nil
 }
 
 // GetItemCollection は指定された id のアイテムコレクションを取得する
-func GetItemCollection(raws oapi.Raws, id string) (oapi.ItemCollection, error) {
-	c, ok := findByKey(raws.ItemCollections, func(c oapi.ItemCollection) string { return c.Id }, id)
+func GetItemCollection(raws rawschema.Raws, id string) (rawschema.ItemCollection, error) {
+	c, ok := findByKey(raws.ItemCollections, func(c rawschema.ItemCollection) string { return c.Id }, id)
 	if !ok {
-		return oapi.ItemCollection{}, NewKeyNotFoundError(id, "ItemCollections")
+		return rawschema.ItemCollection{}, NewKeyNotFoundError(id, "ItemCollections")
 	}
 	return c, nil
 }
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
-func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
-	it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Id }, name)
+func GetItemTable(raws rawschema.Raws, name string) (rawschema.ItemTable, error) {
+	it, ok := findByKey(raws.ItemTables, func(t rawschema.ItemTable) string { return t.Id }, name)
 	if !ok {
-		return oapi.ItemTable{}, NewKeyNotFoundError(name, "ItemTables")
+		return rawschema.ItemTable{}, NewKeyNotFoundError(name, "ItemTables")
 	}
 	return it, nil
 }
 
 // GetEnemyTable は指定された名前の敵テーブルを取得する
-func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
-	et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Id }, name)
+func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, error) {
+	et, ok := findByKey(raws.EnemyTables, func(t rawschema.EnemyTable) string { return t.Id }, name)
 	if !ok {
-		return oapi.EnemyTable{}, NewKeyNotFoundError(name, "EnemyTables")
+		return rawschema.EnemyTable{}, NewKeyNotFoundError(name, "EnemyTables")
 	}
 	return et, nil
 }
 
-// SchemaEnum は OpenAPI スキーマの enum 型 name の値を返す。
-func SchemaEnum(name string) ([]string, error) {
-	spec, err := loadSpec()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load OpenAPI schema: %w", err)
-	}
-	ref, ok := spec.Components.Schemas[name]
-	if !ok || ref.Value == nil || len(ref.Value.Enum) == 0 {
-		return nil, fmt.Errorf("schema %q is not an enum", name)
-	}
-	out := make([]string, len(ref.Value.Enum))
-	for i, v := range ref.Value.Enum {
-		s, ok := v.(string)
-		if !ok {
-			return nil, fmt.Errorf("schema %q enum value %v is not a string", name, v)
-		}
-		out[i] = s
-	}
-	return out, nil
-}
-
 // GetFacility は id の施設宣言を返す。未登録は false。
-func GetFacility(raws oapi.Raws, id string) (oapi.Facility, bool) {
-	return findByKey(raws.Facilities, func(f oapi.Facility) string { return f.Id }, id)
+func GetFacility(raws rawschema.Raws, id string) (rawschema.Facility, bool) {
+	return findByKey(raws.Facilities, func(f rawschema.Facility) string { return f.Id }, id)
 }
 
 // FacilityLootedChance は施設 fac の収納家具が荒らされて空になっている確率を百分率で返す。省略は0。
-func FacilityLootedChance(raws oapi.Raws, fac string) (int, error) {
+func FacilityLootedChance(raws rawschema.Raws, fac string) (int, error) {
 	f, ok := GetFacility(raws, fac)
 	if !ok {
 		return 0, NewKeyNotFoundError(fac, "Facilities")
@@ -711,43 +685,43 @@ func FacilityLootedChance(raws oapi.Raws, fac string) (int, error) {
 }
 
 // GetLandmark は id のランドマーク宣言を返す。未登録は false。
-func GetLandmark(raws oapi.Raws, id string) (oapi.Landmark, bool) {
-	return findByKey(raws.Landmarks, func(l oapi.Landmark) string { return l.Id }, id)
+func GetLandmark(raws rawschema.Raws, id string) (rawschema.Landmark, bool) {
+	return findByKey(raws.Landmarks, func(l rawschema.Landmark) string { return l.Id }, id)
 }
 
 // GetScatterZone は id の散布ゾーン宣言を返す。未登録は false。
-func GetScatterZone(raws oapi.Raws, id string) (oapi.ScatterZone, bool) {
-	return findByKey(raws.ScatterZones, func(z oapi.ScatterZone) string { return z.Id }, id)
+func GetScatterZone(raws rawschema.Raws, id string) (rawschema.ScatterZone, bool) {
+	return findByKey(raws.ScatterZones, func(z rawschema.ScatterZone) string { return z.Id }, id)
 }
 
 // GetMapGlyph は id の地図記号宣言を返す。未登録は false。
-func GetMapGlyph(raws oapi.Raws, id string) (oapi.MapGlyph, bool) {
-	return findByKey(raws.MapGlyphs, func(m oapi.MapGlyph) string { return m.Id }, id)
+func GetMapGlyph(raws rawschema.Raws, id string) (rawschema.MapGlyph, bool) {
+	return findByKey(raws.MapGlyphs, func(m rawschema.MapGlyph) string { return m.Id }, id)
 }
 
 // GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す
-func GetChunkGlyph(raws oapi.Raws, chunk oapi.GlyphChunk) (oapi.MapGlyph, bool) {
+func GetChunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) (rawschema.MapGlyph, bool) {
 	for _, g := range PtrSlice(raws.MapGlyphs) {
 		if g.Chunk != nil && *g.Chunk == chunk {
 			return g, true
 		}
 	}
-	return oapi.MapGlyph{}, false
+	return rawschema.MapGlyph{}, false
 }
 
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
-func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) {
-	tile, ok := findByKey(raws.Tiles, func(t oapi.Tile) string { return t.Id }, id)
+func GetTile(raws rawschema.Raws, id string) (rawschema.Tile, error) {
+	tile, ok := findByKey(raws.Tiles, func(t rawschema.Tile) string { return t.Id }, id)
 	if !ok {
-		return oapi.Tile{}, NewKeyNotFoundError(id, "Tiles")
+		return rawschema.Tile{}, NewKeyNotFoundError(id, "Tiles")
 	}
 	return tile, nil
 }
 
 // NewTileSpec は指定された名前のタイルのEntitySpecを生成する
 // 実際にエンティティを生成する際に使用する
-func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {
+func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {
 	tileRaw, err := GetTile(raws, name)
 	if err != nil {
 		return gc.EntitySpec{}, err
@@ -780,22 +754,22 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	entitySpec.Tile = &gc.Tile{}
 
 	// タイル種別によらないので、ここでは初期化するだけ
-	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: oapi.Outdoor}
+	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: rawschema.Outdoor}
 
 	return entitySpec, nil
 }
 
 // GetProp は指定された名前の置物の設定を取得する
-func GetProp(raws oapi.Raws, name string) (oapi.Prop, error) {
-	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name)
+func GetProp(raws rawschema.Raws, name string) (rawschema.Prop, error) {
+	prop, ok := findByKey(raws.Props, func(p rawschema.Prop) string { return p.Id }, name)
 	if !ok {
-		return oapi.Prop{}, NewKeyNotFoundError(name, "Props")
+		return rawschema.Prop{}, NewKeyNotFoundError(name, "Props")
 	}
 	return prop, nil
 }
 
 // NewPropSpec は指定された名前の置物のEntitySpecを生成する
-func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
+func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	propRaw, err := GetProp(raws, name)
 	if err != nil {
 		return gc.EntitySpec{}, err
@@ -872,8 +846,8 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 }
 
 // FindDisassembly は指定された名前の prop の分解定義を返す
-func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
-	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name)
+func FindDisassembly(raws rawschema.Raws, name string) (*rawschema.Disassembly, bool) {
+	prop, ok := findByKey(raws.Props, func(p rawschema.Prop) string { return p.Id }, name)
 	if !ok || prop.Disassembly == nil {
 		return nil, false
 	}
@@ -881,8 +855,8 @@ func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
 }
 
 // FindTool は指定された名前のアイテムの道具の性質を返す
-func FindTool(raws oapi.Raws, name string) (*oapi.Tool, bool) {
-	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)
+func FindTool(raws rawschema.Raws, name string) (*rawschema.Tool, bool) {
+	item, ok := findByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
 	if !ok || item.Tool == nil {
 		return nil, false
 	}
@@ -890,17 +864,17 @@ func FindTool(raws oapi.Raws, name string) (*oapi.Tool, bool) {
 }
 
 // GetProfession は指定されたIDの職業データを返す
-func GetProfession(raws oapi.Raws, id string) (oapi.Profession, error) {
-	prof, ok := findByKey(raws.Professions, func(p oapi.Profession) string { return p.Id }, id)
+func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error) {
+	prof, ok := findByKey(raws.Professions, func(p rawschema.Profession) string { return p.Id }, id)
 	if !ok {
-		return oapi.Profession{}, NewKeyNotFoundError(id, "Professions")
+		return rawschema.Profession{}, NewKeyNotFoundError(id, "Professions")
 	}
 	return prof, nil
 }
 
 // SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する
-func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error) {
-	i, ok := consts.Pick(rng, ct.Entries, func(e oapi.CommandTableEntry) float64 { return e.Weight })
+func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (string, error) {
+	i, ok := consts.Pick(rng, ct.Entries, func(e rawschema.CommandTableEntry) float64 { return e.Weight })
 	if !ok {
 		return "", nil
 	}
@@ -908,7 +882,7 @@ func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error)
 }
 
 // SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。
-func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
+func SelectDropByWeight(dt rawschema.DropTable, rng *rand.Rand) (string, error) {
 	weights := make([]float64, 0, len(dt.Entries)+1)
 	var nothing float64
 	if dt.Nothing != nil {
@@ -933,13 +907,13 @@ const MinDanger = 1
 var errDangerBelowMinimum = errors.New("danger is below the minimum")
 
 // EnemyEntriesAt は敵テーブルのうち、危険度 danger で出る行を返す。
-func EnemyEntriesAt(et oapi.EnemyTable, danger int) []oapi.EnemyTableEntry {
-	return inDanger(et.Entries, danger, func(e oapi.EnemyTableEntry) (int, int) { return e.MinDanger, e.MaxDanger })
+func EnemyEntriesAt(et rawschema.EnemyTable, danger int) []rawschema.EnemyTableEntry {
+	return inDanger(et.Entries, danger, func(e rawschema.EnemyTableEntry) (int, int) { return e.MinDanger, e.MaxDanger })
 }
 
 // ItemEntriesAt はアイテムテーブルのうち、危険度 danger で出る行を返す。
-func ItemEntriesAt(it oapi.ItemTable, danger int) []oapi.ItemTableEntry {
-	return inDanger(it.Entries, danger, func(e oapi.ItemTableEntry) (int, int) { return e.MinDanger, e.MaxDanger })
+func ItemEntriesAt(it rawschema.ItemTable, danger int) []rawschema.ItemTableEntry {
+	return inDanger(it.Entries, danger, func(e rawschema.ItemTableEntry) (int, int) { return e.MinDanger, e.MaxDanger })
 }
 
 func inDanger[T any](entries []T, danger int, rangeOf func(T) (lo, hi int)) []T {
@@ -961,12 +935,12 @@ func checkDanger(danger int) error {
 
 // DrawFromItemTable はアイテムテーブルから危険度に合うグループを重みで1つ選び、そのグループから1回ぶんを引く。
 // グループの引き方は SelectFromItemGroup に従う。
-func DrawFromItemTable(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) ([]DrawnItem, error) {
+func DrawFromItemTable(raws rawschema.Raws, it rawschema.ItemTable, rng *rand.Rand, danger int) ([]DrawnItem, error) {
 	if err := checkDanger(danger); err != nil {
 		return nil, err
 	}
 	entries := ItemEntriesAt(it, danger)
-	i, ok := consts.Pick(rng, entries, func(e oapi.ItemTableEntry) float64 { return e.Weight })
+	i, ok := consts.Pick(rng, entries, func(e rawschema.ItemTableEntry) float64 { return e.Weight })
 	if !ok {
 		return nil, nil
 	}
@@ -974,12 +948,12 @@ func DrawFromItemTable(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger
 }
 
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する
-func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {
+func SelectEnemyByWeight(et rawschema.EnemyTable, rng *rand.Rand, danger int) (string, error) {
 	if err := checkDanger(danger); err != nil {
 		return "", err
 	}
 	entries := EnemyEntriesAt(et, danger)
-	i, ok := consts.Pick(rng, entries, func(e oapi.EnemyTableEntry) float64 { return e.Weight })
+	i, ok := consts.Pick(rng, entries, func(e rawschema.EnemyTableEntry) float64 { return e.Weight })
 	if !ok {
 		return "", nil
 	}
@@ -987,8 +961,8 @@ func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string
 }
 
 // NewConditionDefs は raw の conditions、bodyParts、attackTypes から不調の定義の表を組み立てる。
-// 参照の実在は ValidateReferences が確かめる前提で、見つからない部位はエラーにする
-func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
+// 参照の実在は rawcheck のスキーマの検証が確かめる前提で、見つからない部位はエラーにする
+func NewConditionDefs(raws rawschema.Raws) (gc.ConditionDefs, error) {
 	var parts [gc.BodyPartCount]gc.BodyPartDef
 	for _, row := range PtrSlice(raws.BodyParts) {
 		bp, ok := gc.BodyPartByID(row.Id)
@@ -1036,7 +1010,7 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 	}
 
 	attackTypes := PtrSlice(raws.AttackTypes)
-	injuries := make(map[oapi.AttackCategory]gc.ConditionType, len(attackTypes))
+	injuries := make(map[rawschema.AttackCategory]gc.ConditionType, len(attackTypes))
 	for i := range attackTypes {
 		injuries[attackTypes[i].Id] = gc.ConditionType(attackTypes[i].Injury)
 	}
@@ -1046,11 +1020,11 @@ func NewConditionDefs(raws oapi.Raws) (gc.ConditionDefs, error) {
 // NewSkillDefs は raw の skills、skillCategories、attackTypes からスキルの定義の表を組み立てる。
 // 命中の効果倍率は攻撃の種類の射程から、目減りさせる身体機能を決める。
 // カテゴリは skillCategories の行の順に、カテゴリ内のスキルは skills の行の順に並べる
-func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
+func NewSkillDefs(raws rawschema.Raws) (gc.SkillDefs, error) {
 	rows := PtrSlice(raws.Skills)
-	skills := make(map[oapi.SkillId]gc.SkillDef, len(rows))
-	proficiencies := make(map[oapi.ProficiencyId]gc.ProficiencyDef)
-	idsByCategory := make(map[string][]oapi.SkillId)
+	skills := make(map[rawschema.SkillId]gc.SkillDef, len(rows))
+	proficiencies := make(map[rawschema.ProficiencyId]gc.ProficiencyDef)
+	idsByCategory := make(map[string][]rawschema.SkillId)
 	var resists []gc.ResistDef
 	for i := range rows {
 		row := &rows[i]
@@ -1094,12 +1068,12 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 			return gc.SkillDefs{}, NewKeyNotFoundError(string(row.Accuracy), "Proficiencies")
 		}
 		accuracy.BodyFunc = gc.BodyFuncManipulation
-		if row.Range == oapi.AttackRangeRanged {
+		if row.Range == rawschema.AttackRangeRanged {
 			accuracy.BodyFunc = gc.BodyFuncSight
 		}
 		proficiencies[row.Accuracy] = accuracy
 	}
-	toolSkills := make(map[oapi.ToolCategory]oapi.SkillId)
+	toolSkills := make(map[rawschema.ToolCategory]rawschema.SkillId)
 	for _, row := range PtrSlice(raws.ToolCategories) {
 		if row.Skill != nil {
 			toolSkills[row.Id] = *row.Skill
@@ -1111,38 +1085,38 @@ func NewSkillDefs(raws oapi.Raws) (gc.SkillDefs, error) {
 // 生成された enum を、順序に意味を持つ Go の型へ写す表。Go の型は大小の比較や配列の添字に使う。
 // 表が enum の全値を持つことはテストで確かめる
 var (
-	weatherKinds = map[oapi.WeatherId]gc.WeatherKind{
-		oapi.Clear:    gc.WeatherClear,
-		oapi.Cloudy:   gc.WeatherCloudy,
-		oapi.Rain:     gc.WeatherRain,
-		oapi.Snow:     gc.WeatherSnow,
-		oapi.Blizzard: gc.WeatherBlizzard,
-		oapi.ColdSnap: gc.WeatherColdSnap,
+	weatherKinds = map[rawschema.WeatherId]gc.WeatherKind{
+		rawschema.Clear:    gc.WeatherClear,
+		rawschema.Cloudy:   gc.WeatherCloudy,
+		rawschema.Rain:     gc.WeatherRain,
+		rawschema.Snow:     gc.WeatherSnow,
+		rawschema.Blizzard: gc.WeatherBlizzard,
+		rawschema.ColdSnap: gc.WeatherColdSnap,
 	}
-	seasons = map[oapi.SeasonId]gc.Season{
-		oapi.Spring: gc.SeasonSpring,
-		oapi.Summer: gc.SeasonSummer,
-		oapi.Autumn: gc.SeasonAutumn,
-		oapi.Winter: gc.SeasonWinter,
+	seasons = map[rawschema.SeasonId]gc.Season{
+		rawschema.Spring: gc.SeasonSpring,
+		rawschema.Summer: gc.SeasonSummer,
+		rawschema.Autumn: gc.SeasonAutumn,
+		rawschema.Winter: gc.SeasonWinter,
 	}
-	timesOfDay = map[oapi.TimeOfDayId]gc.TimeOfDay{
-		oapi.Dawn:     gc.TimeDawn,
-		oapi.Morning:  gc.TimeMorning,
-		oapi.Noon:     gc.TimeDay,
-		oapi.Evening:  gc.TimeEvening,
-		oapi.Night:    gc.TimeNight,
-		oapi.Midnight: gc.TimeMidnight,
+	timesOfDay = map[rawschema.TimeOfDayId]gc.TimeOfDay{
+		rawschema.Dawn:     gc.TimeDawn,
+		rawschema.Morning:  gc.TimeMorning,
+		rawschema.Noon:     gc.TimeDay,
+		rawschema.Evening:  gc.TimeEvening,
+		rawschema.Night:    gc.TimeNight,
+		rawschema.Midnight: gc.TimeMidnight,
 	}
-	severities = map[oapi.ConditionSeverity]gc.Severity{
-		oapi.ConditionSeverityMinor:  gc.SeverityMinor,
-		oapi.ConditionSeverityMedium: gc.SeverityMedium,
-		oapi.ConditionSeveritySevere: gc.SeveritySevere,
+	severities = map[rawschema.ConditionSeverity]gc.Severity{
+		rawschema.ConditionSeverityMinor:  gc.SeverityMinor,
+		rawschema.ConditionSeverityMedium: gc.SeverityMedium,
+		rawschema.ConditionSeveritySevere: gc.SeveritySevere,
 	}
 )
 
 // NewTileEnvDefs は raw の shelterEffects、waterEffects、foliageEffects から、囲われの受け方と、水と植生がタイルの気温に足す補正の表を組み立てる
-func NewTileEnvDefs(raws oapi.Raws) gc.TileEnvDefs {
-	defs := gc.TileEnvDefs{Shelters: map[oapi.Shelter]gc.ShelterDef{}, Water: map[oapi.WaterExposure]int{}, Foliage: map[oapi.Foliage]int{}}
+func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
+	defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.Foliage]int{}}
 	for _, row := range PtrSlice(raws.ShelterEffects) {
 		defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered}
 	}
@@ -1156,7 +1130,7 @@ func NewTileEnvDefs(raws oapi.Raws) gc.TileEnvDefs {
 }
 
 // NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節は enum なのでスキーマ検証で尽くされる
-func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
+func NewWeatherDefs(raws rawschema.Raws) gc.WeatherDefs {
 	var kinds [gc.NumWeatherKind]gc.WeatherDef
 	for _, row := range PtrSlice(raws.Weathers) {
 		def := gc.WeatherDef{
@@ -1175,7 +1149,7 @@ func NewWeatherDefs(raws oapi.Raws) gc.WeatherDefs {
 }
 
 // NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id は enum なので検証で尽くされる
-func NewCalendarDefs(raws oapi.Raws) gc.CalendarDefs {
+func NewCalendarDefs(raws rawschema.Raws) gc.CalendarDefs {
 	var defs gc.CalendarDefs
 	for _, row := range PtrSlice(raws.TimesOfDay) {
 		defs.TimesOfDay[timesOfDay[row.Id]] = gc.TimeOfDayDef{
@@ -1192,7 +1166,7 @@ func NewCalendarDefs(raws oapi.Raws) gc.CalendarDefs {
 }
 
 // NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量の表を組み立てる
-func NewMaterialDefs(raws oapi.Raws) gc.MaterialDefs {
+func NewMaterialDefs(raws rawschema.Raws) gc.MaterialDefs {
 	defs := make(gc.MaterialDefs, len(PtrSlice(raws.Materials)))
 	for _, row := range PtrSlice(raws.Materials) {
 		defs[row.Id] = gc.MaterialDef{Name: i18n.Msgid(row.Name), HeatPerKg: row.HeatPerKg}
@@ -1201,7 +1175,7 @@ func NewMaterialDefs(raws oapi.Raws) gc.MaterialDefs {
 }
 
 // toRGBA は raw の色を color.RGBA にする。nil なら nil を返す
-func toRGBA(c *oapi.RGBAColor) *color.RGBA {
+func toRGBA(c *rawschema.RGBAColor) *color.RGBA {
 	if c == nil {
 		return nil
 	}
@@ -1209,8 +1183,8 @@ func toRGBA(c *oapi.RGBAColor) *color.RGBA {
 }
 
 // NewNeedDefs は raw の hungerStages、fatigueStages、freshnessStages から空腹と疲労と鮮度の段階の表を組み立てる
-func NewNeedDefs(raws oapi.Raws) gc.NeedDefs {
-	conditionOf := func(s *oapi.ConditionSeverity) gc.Severity {
+func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {
+	conditionOf := func(s *rawschema.ConditionSeverity) gc.Severity {
 		if s == nil {
 			return gc.SeverityNone
 		}

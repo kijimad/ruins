@@ -3,8 +3,7 @@ package interior
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,10 +11,8 @@ import (
 func TestPlanners_全PlannerKeyに実装がある(t *testing.T) {
 	t.Parallel()
 
-	keys, err := raw.SchemaEnum("PlannerKey")
-	require.NoError(t, err)
-	for _, key := range keys {
-		_, ok := planners[oapi.PlannerKey(key)]
+	for _, key := range rawschema.PlannerKeyValues() {
+		_, ok := planners[key]
 		assert.Truef(t, ok, "planner key %q に Go 実装がある", key)
 	}
 }
@@ -56,7 +53,7 @@ func TestFurnish_密度と経年が建物ごとに変わる(t *testing.T) {
 		placed, err := Furnish(testRaws(), seed, footprint, door, "store")
 		require.NoError(t, err)
 		for _, p := range placed {
-			if p.Kind == oapi.Furniture {
+			if p.Kind == rawschema.Furniture {
 				n++
 			}
 		}

@@ -3,7 +3,7 @@ package mapplanner
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // EnvironmentPlanner は環境情報を計算するプランナー
@@ -17,9 +17,9 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 	mp.Environments = make([]gc.TileEnvironment, len(mp.Tiles))
 	for i := range mp.Tiles {
 		env := &mp.Environments[i]
-		env.Shelter = oapi.Outdoor
+		env.Shelter = rawschema.Outdoor
 		if !outdoor[i] {
-			env.Shelter = oapi.Indoor
+			env.Shelter = rawschema.Indoor
 		}
 		env.Water = p.calcWater(mp, i)
 		if mp.Tiles[i].Foliage != nil {
@@ -53,9 +53,9 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
 }
 
 // calcWater は水の影響を計算する。水のタイルの上なら水中、隣が水のタイルなら水辺、どちらでもなければゼロ値
-func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) oapi.WaterExposure {
+func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) rawschema.WaterExposure {
 	if isWaterTile(mp.Tiles[idx]) {
-		return oapi.Submerged
+		return rawschema.Submerged
 	}
 
 	// 隣接タイルに水があるかチェック
@@ -79,7 +79,7 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) oapi.WaterExposure 
 
 	for _, adjIdx := range adjacentIndices {
 		if isWaterTile(mp.Tiles[adjIdx]) {
-			return oapi.Nearby
+			return rawschema.Nearby
 		}
 	}
 
@@ -87,6 +87,6 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) oapi.WaterExposure 
 }
 
 // isWaterTile はタイルが水のタイルかを返す
-func isWaterTile(tile oapi.Tile) bool {
+func isWaterTile(tile rawschema.Tile) bool {
 	return tile.Water != nil && *tile.Water
 }

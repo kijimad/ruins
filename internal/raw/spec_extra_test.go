@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/rawschema/rawcheck"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -45,8 +45,8 @@ ValueType = "PERCENTAGE"
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Consumable)
-	assert.Equal(t, oapi.TargetGroupALLY, spec.Consumable.TargetType.TargetGroup)
-	assert.Equal(t, oapi.SINGLE, spec.Consumable.TargetType.TargetNum)
+	assert.Equal(t, rawschema.TargetGroupALLY, spec.Consumable.TargetType.TargetGroup)
+	assert.Equal(t, rawschema.SINGLE, spec.Consumable.TargetType.TargetNum)
 
 	require.NotNil(t, spec.ProvidesHealing)
 	assert.Equal(t, gc.HealRatio, spec.ProvidesHealing.Kind)
@@ -108,7 +108,7 @@ DamageBonus = -2
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Ammo)
-	assert.Equal(t, oapi.AmmoTagN9mm, spec.Ammo.AmmoTag)
+	assert.Equal(t, rawschema.AmmoTagN9mm, spec.Ammo.AmmoTag)
 	assert.Equal(t, -2, spec.Ammo.DamageBonus)
 	assert.Equal(t, 5, spec.Ammo.AccuracyBonus)
 }
@@ -140,7 +140,7 @@ Dexterity = 1
 
 	require.NotNil(t, spec.Wearable)
 	assert.Equal(t, 1, spec.Wearable.Defense)
-	assert.Equal(t, oapi.EquipmentCategoryFEET, spec.Wearable.EquipmentCategory)
+	assert.Equal(t, rawschema.EquipmentCategoryFEET, spec.Wearable.EquipmentCategory)
 	assert.Equal(t, 1, spec.Wearable.EquipBonus.Agility)
 	assert.Equal(t, 1, spec.Wearable.EquipBonus.Dexterity)
 }
@@ -359,7 +359,7 @@ TargetSkill = "exploration"
 	require.NotNil(t, spec.Book)
 	assert.Equal(t, 150, spec.Book.Effort.Max)
 	require.NotNil(t, spec.Book.Skill)
-	assert.Equal(t, oapi.SkillId("exploration"), spec.Book.Skill.TargetSkill)
+	assert.Equal(t, rawschema.SkillId("exploration"), spec.Book.Skill.TargetSkill)
 	assert.Equal(t, 2, spec.Book.Skill.MaxLevel)
 }
 
@@ -382,7 +382,7 @@ TotalEffort = 10
 	require.ErrorIs(t, err, errBookSkillMissing)
 }
 
-func TestValidateRaws_本に未定義スキルはエラー(t *testing.T) {
+func TestSchema_本に未定義スキルはエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -390,6 +390,8 @@ func TestValidateRaws_本に未定義スキルはエラー(t *testing.T) {
 Name = "謎の本"
 id = "謎の本"
 Description = "未知のスキルを教える"
+SpriteKey = "book"
+SpriteSheetName = "field"
 
 [Items.Book]
 TotalEffort = 10
@@ -402,11 +404,9 @@ TargetSkill = "unknown_skill"
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	err = ValidateRaws(raws)
-	var schemaErr *openapi3.SchemaError
-	require.ErrorAs(t, err, &schemaErr)
-	assert.Equal(t, "enum", schemaErr.SchemaField)
-	assert.Equal(t, []string{"items", "0", "book", "skill", "targetSkill"}, schemaErr.JSONPointer())
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"items.0.book.skill.targetSkill"}, ce.Paths())
 }
 
 func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
@@ -575,7 +575,7 @@ Amount = 3
 	assert.Equal(t, 1, spec.Wearable.Defense)
 
 	require.NotNil(t, spec.Consumable, "元アイテムのConsumableを引き継ぐ")
-	assert.Equal(t, oapi.TargetGroupALLY, spec.Consumable.TargetType.TargetGroup)
+	assert.Equal(t, rawschema.TargetGroupALLY, spec.Consumable.TargetType.TargetGroup)
 
 	require.NotNil(t, spec.Weight, "元アイテムのWeightを引き継ぐ")
 	assert.Equal(t, consts.MustParseWeight("500 g"), spec.Weight.Milligram)
@@ -721,13 +721,15 @@ func TestNewEnemySpec_未存在はエラー(t *testing.T) {
 	assert.Equal(t, KeyNotFoundError{Key: "存在しない敵", Collection: "Members"}, keyErr)
 }
 
-func TestValidateRaws_不正な派閥はエラー(t *testing.T) {
+func TestSchema_不正な派閥はエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Members]]
 Name = "不正派閥"
 id = "不正派閥"
+SpriteKey = "slime"
+SpriteSheetName = "field"
 FactionType = "FactionInvalid"
 [Members.Abilities]
 Vitality = 10
@@ -740,11 +742,9 @@ Defense = 2
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	err = ValidateRaws(raws)
-	var schemaErr *openapi3.SchemaError
-	require.ErrorAs(t, err, &schemaErr)
-	assert.Equal(t, "enum", schemaErr.SchemaField)
-	assert.Equal(t, []string{"members", "0", "factionType"}, schemaErr.JSONPointer())
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"members.0.factionType"}, ce.Paths())
 }
 
 func TestNewMemberSpec_中立の派閥だけを付ける(t *testing.T) {
@@ -771,13 +771,15 @@ Defense = 2
 	assert.Equal(t, [3]bool{false, false, true}, [3]bool{spec.FactionAlly != nil, spec.FactionEnemy != nil, spec.FactionNeutral != nil})
 }
 
-func TestValidateRaws_不正な戦闘方針はエラー(t *testing.T) {
+func TestSchema_不正な戦闘方針はエラー(t *testing.T) {
 	t.Parallel()
 
 	str := `
 [[Members]]
 Name = "不正戦闘方針"
 id = "不正戦闘方針"
+SpriteKey = "slime"
+SpriteSheetName = "field"
 CombatPolicy = "invalid_policy"
 [Members.Abilities]
 Vitality = 10
@@ -790,11 +792,9 @@ Defense = 2
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
-	err = ValidateRaws(raws)
-	var schemaErr *openapi3.SchemaError
-	require.ErrorAs(t, err, &schemaErr)
-	assert.Equal(t, "enum", schemaErr.SchemaField)
-	assert.Equal(t, []string{"members", "0", "combatPolicy"}, schemaErr.JSONPointer())
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"members.0.combatPolicy"}, ce.Paths())
 }
 
 func TestNewMemberSpec_光源が設定される(t *testing.T) {

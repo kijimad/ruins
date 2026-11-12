@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -44,7 +44,7 @@ func TestRoomDraw_マップ角に接する部屋の角タイルもfloor化する
 
 			planData := &MetaPlan{
 				Level:     gc.Level{TileWidth: width, TileHeight: height},
-				Tiles:     make([]oapi.Tile, int(width)*int(height)),
+				Tiles:     make([]rawschema.Tile, int(width)*int(height)),
 				Rooms:     []gc.Rect{tt.room},
 				RawMaster: CreateTestRawMaster(),
 			}

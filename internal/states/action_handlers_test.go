@@ -11,7 +11,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -468,7 +468,7 @@ func TestGetInteractionActions_着火(t *testing.T) {
 		e := world.ECS.NewEntity()
 		world.Components.Name.Add(e, &gc.Name{Name: i18n.Msgid(name)})
 		// 熱量は材質×重量から導く。WOOD 200/kg × 50g = 10
-		world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: 50 * consts.MilligramPerGram})
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
@@ -550,7 +550,7 @@ func TestGetInteractionActions_給油(t *testing.T) {
 	giveFuel := func(world w.World, player ecs.Entity) {
 		f := world.ECS.NewEntity()
 		// 熱量は材質×重量から導く。WOOD 200/kg × 50g = 10
-		world.Components.Material.Add(f, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Material.Add(f, &gc.Material{Kind: rawschema.WOOD})
 		world.Components.Weight.Add(f, &gc.Weight{Milligram: 50 * consts.MilligramPerGram})
 		world.Components.LocationInBackpack.Add(f, &gc.LocationInBackpack{Owner: player})
 	}

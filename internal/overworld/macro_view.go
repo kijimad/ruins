@@ -4,7 +4,7 @@ import (
 	"image/color"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // マクロ地図の描画モデル。1チャンク=1セルの地形俯瞰を、描画基盤に依らない形で表す。
@@ -68,7 +68,7 @@ type MacroView struct {
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
 func BuildMacroView(
-	raws oapi.Raws,
+	raws rawschema.Raws,
 	runSeed uint64,
 	northIndex consts.Chunk,
 	chunkW, chunkH consts.Tile,

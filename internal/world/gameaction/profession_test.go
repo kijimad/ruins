@@ -6,7 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/i18n"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -15,11 +15,11 @@ import (
 )
 
 // newTestProfession はテスト用の職業定義を作る
-func newTestProfession() oapi.Profession {
-	return oapi.Profession{
+func newTestProfession() rawschema.Profession {
+	return rawschema.Profession{
 		Id:   "test-profession",
 		Name: "テスト職業",
-		Abilities: oapi.Abilities{
+		Abilities: rawschema.Abilities{
 			Strength:  10,
 			Sensation: 11,
 			Dexterity: 12,
@@ -27,14 +27,14 @@ func newTestProfession() oapi.Profession {
 			Vitality:  14,
 			Defense:   15,
 		},
-		Skills: &[]oapi.ProfessionSkill{
-			{Id: oapi.SkillIdSword, Value: 5},
+		Skills: &[]rawschema.ProfessionSkill{
+			{Id: rawschema.SkillIdSword, Value: 5},
 		},
-		Items: []oapi.ProfessionItem{
+		Items: []rawschema.ProfessionItem{
 			{Name: "wooden_stick", Count: 3},
 		},
-		Equips: []oapi.ProfessionEquip{
-			{Name: "wooden_sword", Slot: oapi.EquipSlotWEAPON1},
+		Equips: []rawschema.ProfessionEquip{
+			{Name: "wooden_sword", Slot: rawschema.EquipSlotWEAPON1},
 		},
 	}
 }
@@ -64,7 +64,7 @@ func TestApplyProfession(t *testing.T) {
 		assert.Equal(t, 15, abils.Defense.Base, "防御力が反映されるべき")
 
 		skills := world.Components.Skills.Get(player)
-		assert.Equal(t, 5, skills.Get(oapi.SkillIdSword).Value, "職業のスキル初期値が反映されるべき")
+		assert.Equal(t, 5, skills.Get(rawschema.SkillIdSword).Value, "職業のスキル初期値が反映されるべき")
 
 		item, ok := query.FindStackInInventory(world, "wooden_stick")
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")
@@ -102,30 +102,30 @@ func TestApplyProfession(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		mutate  func(*oapi.Profession)
+		mutate  func(*rawschema.Profession)
 		wantErr error
 	}{
 		{
 			name: "存在しない初期アイテム名でエラー",
-			mutate: func(p *oapi.Profession) {
-				p.Items = []oapi.ProfessionItem{{Name: "存在しないアイテム", Count: 1}}
+			mutate: func(p *rawschema.Profession) {
+				p.Items = []rawschema.ProfessionItem{{Name: "存在しないアイテム", Count: 1}}
 				p.Equips = nil
 			},
 			wantErr: errProfessionItem,
 		},
 		{
 			name: "存在しない初期装備アイテム名でエラー",
-			mutate: func(p *oapi.Profession) {
+			mutate: func(p *rawschema.Profession) {
 				p.Items = nil
-				p.Equips = []oapi.ProfessionEquip{{Name: "存在しないアイテム", Slot: oapi.EquipSlotWEAPON1}}
+				p.Equips = []rawschema.ProfessionEquip{{Name: "存在しないアイテム", Slot: rawschema.EquipSlotWEAPON1}}
 			},
 			wantErr: errProfessionEquipment,
 		},
 		{
 			name: "不正な装備スロット名でエラー",
-			mutate: func(p *oapi.Profession) {
+			mutate: func(p *rawschema.Profession) {
 				p.Items = nil
-				p.Equips = []oapi.ProfessionEquip{{Name: "wooden_sword", Slot: "BOGUS"}}
+				p.Equips = []rawschema.ProfessionEquip{{Name: "wooden_sword", Slot: "BOGUS"}}
 			},
 			wantErr: errInvalidEquipmentSlot,
 		},

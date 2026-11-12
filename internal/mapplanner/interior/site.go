@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 敷地計画。footprint を矩形のまま全部屋で埋めず、建物を内側へ取り、差分を庭にする。外形が clean な矩形
@@ -24,7 +24,7 @@ type Site struct {
 	ExtraWall map[Vec]bool
 	Door      Vec
 	Rooms     []PlannedRoom
-	Type      oapi.SiteType
+	Type      rawschema.SiteType
 	Fence     bool // 敷地を塀で囲うか
 }
 
@@ -32,7 +32,7 @@ type Site struct {
 // 入口を建物辺へ寄せ、玄関を凹ませる。建物が施設テンプレに満たない狭さなら内寄せを諦め、最低限の建物は必ず作る。
 // 前庭は道路側の一辺に広く取るもので、建物を全周で囲む細い帯ではない。他の3辺は footprint の縁まで
 // 建物で埋め、庭が壁に囲まれた堀に見えないようにする。
-func planSite(t profileTable, footprint Rect, seed uint64, door Vec, fac oapi.Facility) Site {
+func planSite(t profileTable, footprint Rect, seed uint64, door Vec, fac rawschema.Facility) Site {
 	st := rollSiteType(t, fac, seed)
 	building := insetBuilding(footprint, door, consts.Tile(st.YardDepth))
 	side := doorSide(footprint, door)

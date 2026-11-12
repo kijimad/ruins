@@ -9,7 +9,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -150,7 +150,7 @@ func debugInflictConditions(world w.World) error {
 	}
 	hs := world.Components.HealthStatus.Get(player)
 	defs := world.Resources.ConditionDefs
-	cold := defs.ByOnset(oapi.Cold)
+	cold := defs.ByOnset(rawschema.Cold)
 	for _, ct := range defs.Types() {
 		if defs.IsDerived(ct) {
 			continue

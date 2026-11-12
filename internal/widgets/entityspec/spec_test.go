@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -28,15 +28,15 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 80, Damage: 25, AttackCount: 2,
-		Element: oapi.ElementFIRE, AttackCategory: oapi.AttackCategorySword, Cost: 100,
+		Element: rawschema.ElementFIRE, AttackCategory: rawschema.AttackCategorySword, Cost: 100,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		query.AttackTypeName(world, oapi.AttackCategorySword),
+		query.AttackTypeName(world, rawschema.AttackCategorySword),
 		"Attack power", "25", "Accuracy", "80", "Hits", "2", "Attack cost", "100",
-		"Element", query.T(world, gc.ElementName(oapi.ElementFIRE)),
+		"Element", query.T(world, gc.ElementName(rawschema.ElementFIRE)),
 	}, labels)
 }
 
@@ -47,14 +47,14 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryFist, Cost: 50,
+		Element: rawschema.ElementNONE, AttackCategory: rawschema.AttackCategoryFist, Cost: 50,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 無属性は Element 行が出ない
 	assert.Equal(t, []string{
-		query.AttackTypeName(world, oapi.AttackCategoryFist),
+		query.AttackTypeName(world, rawschema.AttackCategoryFist),
 		"Attack power", "8", "Accuracy", "100", "Hits", "1", "Attack cost", "50",
 	}, labels)
 }
@@ -67,14 +67,14 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	// AttackRifle は enum.go の rangeParams に登録済みなので、射程行が表示される前提が成り立つ
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryRifle, Cost: 150,
+		Element: rawschema.ElementNONE, AttackCategory: rawschema.AttackCategoryRifle, Cost: 150,
 		Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		query.AttackTypeName(world, oapi.AttackCategoryRifle),
+		query.AttackTypeName(world, rawschema.AttackCategoryRifle),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
 		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
 	}, labels)
@@ -87,7 +87,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 	e := world.ECS.NewEntity()
 	world.Components.Fire.Add(e, &gc.Fire{
 		Accuracy: 70, Damage: 30, AttackCount: 1,
-		Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryBow, Cost: 80,
+		Element: rawschema.ElementNONE, AttackCategory: rawschema.AttackCategoryBow, Cost: 80,
 		MagazineSize: 0,
 	})
 
@@ -95,7 +95,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 
 	// マガジンサイズ0は Magazine と Reload の行が出ない
 	assert.Equal(t, []string{
-		query.AttackTypeName(world, oapi.AttackCategoryBow),
+		query.AttackTypeName(world, rawschema.AttackCategoryBow),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "80",
 		"Optimal range", "4", "Max range", "10",
 	}, labels)
@@ -108,7 +108,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
 		Defense:           15,
-		EquipmentCategory: oapi.EquipmentCategoryTORSO,
+		EquipmentCategory: rawschema.EquipmentCategoryTORSO,
 		InsulationCold:    3,
 		InsulationHeat:    2,
 		// 各項目の値をすべて別々にし、"+N" の一致がどの行由来か一意に特定できるようにする
@@ -121,7 +121,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 
 	// ゼロの装備ボーナス Sensation は行が出ない
 	assert.Equal(t, []string{
-		query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryTORSO)),
+		query.T(world, gc.EquipmentCategoryName(rawschema.EquipmentCategoryTORSO)),
 		"Defense", "+15", "Cold resist", "+3", "Heat resist", "+2",
 		"Vitality", "+6", "Strength", "+1", "Dexterity", "+4", "Agility", "-1",
 	}, labels)
@@ -134,13 +134,13 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
 		Defense:           5,
-		EquipmentCategory: oapi.EquipmentCategoryHEAD,
+		EquipmentCategory: rawschema.EquipmentCategoryHEAD,
 	})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 耐寒・耐熱0は行が出ない
-	assert.Equal(t, []string{query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryHEAD)), "Defense", "+5"}, labels)
+	assert.Equal(t, []string{query.T(world, gc.EquipmentCategoryName(rawschema.EquipmentCategoryHEAD)), "Defense", "+5"}, labels)
 }
 
 func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testing.T) {
@@ -236,7 +236,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	world.Components.Book.Add(e, &gc.Book{
 		Effort: gc.IntPool{Current: 30, Max: 100},
 		Skill: &gc.SkillBookEffect{
-			TargetSkill:   oapi.SkillIdSword,
+			TargetSkill:   rawschema.SkillIdSword,
 			RequiredLevel: 2,
 			MaxLevel:      5,
 		},
@@ -245,7 +245,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Book", "Skill", query.SkillName(world, oapi.SkillIdSword),
+		"Book", "Skill", query.SkillName(world, rawschema.SkillIdSword),
 		"Lv", "2 " + consts.IconArrowRight + " 5", "Progress", "30%",
 	}, labels)
 }
@@ -272,16 +272,16 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	spec := gc.EntitySpec{
 		Melee: &gc.Melee{
 			Accuracy: 90, Damage: 12, AttackCount: 1,
-			Element: oapi.ElementTHUNDER, AttackCategory: oapi.AttackCategorySpear, Cost: 80,
+			Element: rawschema.ElementTHUNDER, AttackCategory: rawschema.AttackCategorySpear, Cost: 80,
 		},
 	}
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
-		query.AttackTypeName(world, oapi.AttackCategorySpear),
+		query.AttackTypeName(world, rawschema.AttackCategorySpear),
 		"Attack power", "12", "Accuracy", "90", "Hits", "1", "Attack cost", "80",
-		"Element", query.T(world, gc.ElementName(oapi.ElementTHUNDER)),
+		"Element", query.T(world, gc.ElementName(rawschema.ElementTHUNDER)),
 	}, labels)
 }
 
@@ -330,7 +330,7 @@ func TestUpdateSpec_鮮度を表示する(t *testing.T) {
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Contains(t, labels, query.T(world, "Freshness"), "鮮度ラベルが表示される")
-	assert.Contains(t, labels, query.FreshnessName(world, oapi.Stale), "劣化段階が表示される")
+	assert.Contains(t, labels, query.FreshnessName(world, rawschema.Stale), "劣化段階が表示される")
 }
 
 func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポーネントを同時に表示する(t *testing.T) {
@@ -340,12 +340,12 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	spec := gc.EntitySpec{
 		Fire: &gc.Fire{
 			Accuracy: 70, Damage: 30, AttackCount: 1,
-			Element: oapi.ElementNONE, AttackCategory: oapi.AttackCategoryRifle, Cost: 150,
+			Element: rawschema.ElementNONE, AttackCategory: rawschema.AttackCategoryRifle, Cost: 150,
 			Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 		},
 		Wearable: &gc.Wearable{
 			Defense:           15,
-			EquipmentCategory: oapi.EquipmentCategoryTORSO,
+			EquipmentCategory: rawschema.EquipmentCategoryTORSO,
 			InsulationCold:    3,
 		},
 		ProvidesHealing:   &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 42},
@@ -362,10 +362,10 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	// Fire・Wearable・Book が先に並び、基本属性の Healing・Nutrition・Value・Weight は
 	// 末尾の「基本」見出しにまとまる
 	assert.Equal(t, []string{
-		query.AttackTypeName(world, oapi.AttackCategoryRifle),
+		query.AttackTypeName(world, rawschema.AttackCategoryRifle),
 		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
 		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
-		query.T(world, gc.EquipmentCategoryName(oapi.EquipmentCategoryTORSO)),
+		query.T(world, gc.EquipmentCategoryName(rawschema.EquipmentCategoryTORSO)),
 		"Defense", "+15", "Cold resist", "+3",
 		"Book", "Progress", "30%",
 		"Basic",
@@ -381,7 +381,7 @@ func TestUpdateSpec_材質があり重量がなければ燃料行を表示しな
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
@@ -393,13 +393,13 @@ func TestUpdateSpec_可燃性の材質と重量があれば燃料行を表示す
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: 1_000_000}) // 1kg
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Basic", "Material", query.T(world, "Wood"), "Fuel", world.Resources.MaterialDefs.HeatOf(oapi.WOOD, 1_000_000).String(),
+		"Basic", "Material", query.T(world, "Wood"), "Fuel", world.Resources.MaterialDefs.HeatOf(rawschema.WOOD, 1_000_000).String(),
 		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }
@@ -409,7 +409,7 @@ func TestUpdateSpec_不燃の材質は重量があっても燃料行を表示し
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Material.Add(e, &gc.Material{Kind: oapi.GLASS})
+	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.GLASS})
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: 1_000_000})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
@@ -424,7 +424,7 @@ func TestUpdateSpecFromSpec_材質はあるが重量がなければ燃料行を�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	spec := gc.EntitySpec{Material: &gc.Material{Kind: oapi.COAL}}
+	spec := gc.EntitySpec{Material: &gc.Material{Kind: rawschema.COAL}}
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
@@ -436,14 +436,14 @@ func TestUpdateSpecFromSpec_可燃性の材質と重量があれば燃料行を�
 	world := testutil.InitTestWorld(t)
 
 	spec := gc.EntitySpec{
-		Material: &gc.Material{Kind: oapi.COAL},
+		Material: &gc.Material{Kind: rawschema.COAL},
 		Weight:   &gc.Weight{Milligram: 1_000_000},
 	}
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
-		"Basic", "Material", query.T(world, "Coal"), "Fuel", world.Resources.MaterialDefs.HeatOf(oapi.COAL, 1_000_000).String(),
+		"Basic", "Material", query.T(world, "Coal"), "Fuel", world.Resources.MaterialDefs.HeatOf(rawschema.COAL, 1_000_000).String(),
 		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }

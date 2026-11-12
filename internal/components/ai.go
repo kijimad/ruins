@@ -2,7 +2,7 @@ package components
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -22,9 +22,9 @@ const (
 
 // SoloAI は単独行動NPC用の設定と状態を保持する
 type SoloAI struct {
-	CombatDefault oapi.CombatPolicyType
-	CombatCurrent oapi.CombatPolicyType
-	Movement      oapi.MovementPatternType
+	CombatDefault rawschema.CombatPolicyType
+	CombatCurrent rawschema.CombatPolicyType
+	Movement      rawschema.MovementPatternType
 	ViewDistance  consts.Tile
 
 	SubState              AIStateSubState
@@ -36,12 +36,12 @@ type SoloAI struct {
 }
 
 // ReactToHostile は被ダメージ時に戦闘方針を変化させる。
-// oapi.Ignore は反撃のため oapi.Attack に遷移する
+// rawschema.Ignore は反撃のため rawschema.Attack に遷移する
 func (s *SoloAI) ReactToHostile() {
 	switch s.CombatDefault {
-	case oapi.Ignore:
-		s.CombatCurrent = oapi.Attack
-	case oapi.Attack, oapi.Evade:
+	case rawschema.Ignore:
+		s.CombatCurrent = rawschema.Attack
+	case rawschema.Attack, rawschema.Evade:
 	}
 }
 

@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,10 +20,10 @@ func TestFollowRangeTiles_手計算と一致(t *testing.T) {
 func TestFuelBurnTurns_熱量と効率で決まる(t *testing.T) {
 	t.Parallel()
 	// WOOD 1kg: 熱量200、地面効率50%で 200*50/100 = 100 ターン。重量に比例する。
-	assert.Equal(t, 100, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), oapi.WOOD, 1))
-	assert.Equal(t, 1000, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), oapi.WOOD, 10))
+	assert.Equal(t, 100, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), rawschema.WOOD, 1))
+	assert.Equal(t, 1000, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), rawschema.WOOD, 10))
 	// OIL は kg あたり熱量が高いので同じ重さでも長く燃える
-	assert.Greater(t, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), oapi.OIL, 10), FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), oapi.WOOD, 10))
+	assert.Greater(t, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), rawschema.OIL, 10), FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), rawschema.WOOD, 10))
 	// 不燃材質は0
-	assert.Equal(t, 0, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), oapi.METAL, 10))
+	assert.Equal(t, 0, FuelBurnTurns(raw.NewMaterialDefs(loadTestMaster(t)), rawschema.METAL, 10))
 }

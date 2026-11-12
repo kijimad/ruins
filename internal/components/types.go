@@ -6,7 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/i18n"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // Pool は最大値と現在値を持つようなパラメータ
@@ -31,8 +31,8 @@ type TurnBased struct {
 
 // TargetType は選択対象
 type TargetType struct {
-	TargetGroup oapi.TargetGroup // 対象グループ（味方、敵など）
-	TargetNum   oapi.TargetNum   // 対象数（単体、複数、全体）
+	TargetGroup rawschema.TargetGroup // 対象グループ（味方、敵など）
+	TargetNum   rawschema.TargetNum   // 対象数（単体、複数、全体）
 }
 
 // RecipeInput はクラフトの元になる素材
@@ -77,19 +77,19 @@ const (
 func (s EquipmentSlotNumber) Name() i18n.Msgid {
 	switch s {
 	case SlotHead:
-		return EquipmentCategoryName(oapi.EquipmentCategoryHEAD)
+		return EquipmentCategoryName(rawschema.EquipmentCategoryHEAD)
 	case SlotTorso:
-		return EquipmentCategoryName(oapi.EquipmentCategoryTORSO)
+		return EquipmentCategoryName(rawschema.EquipmentCategoryTORSO)
 	case SlotArms:
-		return EquipmentCategoryName(oapi.EquipmentCategoryARMS)
+		return EquipmentCategoryName(rawschema.EquipmentCategoryARMS)
 	case SlotHands:
-		return EquipmentCategoryName(oapi.EquipmentCategoryHANDS)
+		return EquipmentCategoryName(rawschema.EquipmentCategoryHANDS)
 	case SlotLegs:
-		return EquipmentCategoryName(oapi.EquipmentCategoryLEGS)
+		return EquipmentCategoryName(rawschema.EquipmentCategoryLEGS)
 	case SlotFeet:
-		return EquipmentCategoryName(oapi.EquipmentCategoryFEET)
+		return EquipmentCategoryName(rawschema.EquipmentCategoryFEET)
 	case SlotJewelry:
-		return EquipmentCategoryName(oapi.EquipmentCategoryJEWELRY)
+		return EquipmentCategoryName(rawschema.EquipmentCategoryJEWELRY)
 	case SlotWeapon1:
 		return "Weapon 1"
 	case SlotWeapon2:
@@ -106,29 +106,29 @@ func (s EquipmentSlotNumber) Name() i18n.Msgid {
 }
 
 // ParseEquipmentSlot は raw の装備スロットから装備スロット番号を返す。未知の値は ok=false
-func ParseEquipmentSlot(slot oapi.EquipSlot) (EquipmentSlotNumber, bool) {
+func ParseEquipmentSlot(slot rawschema.EquipSlot) (EquipmentSlotNumber, bool) {
 	switch slot {
-	case oapi.EquipSlotWEAPON1:
+	case rawschema.EquipSlotWEAPON1:
 		return SlotWeapon1, true
-	case oapi.EquipSlotWEAPON2:
+	case rawschema.EquipSlotWEAPON2:
 		return SlotWeapon2, true
-	case oapi.EquipSlotWEAPON3:
+	case rawschema.EquipSlotWEAPON3:
 		return SlotWeapon3, true
-	case oapi.EquipSlotWEAPON4:
+	case rawschema.EquipSlotWEAPON4:
 		return SlotWeapon4, true
-	case oapi.EquipSlotWEAPON5:
+	case rawschema.EquipSlotWEAPON5:
 		return SlotWeapon5, true
-	case oapi.EquipSlotHEAD:
+	case rawschema.EquipSlotHEAD:
 		return SlotHead, true
-	case oapi.EquipSlotTORSO:
+	case rawschema.EquipSlotTORSO:
 		return SlotTorso, true
-	case oapi.EquipSlotARMS:
+	case rawschema.EquipSlotARMS:
 		return SlotArms, true
-	case oapi.EquipSlotHANDS:
+	case rawschema.EquipSlotHANDS:
 		return SlotHands, true
-	case oapi.EquipSlotLEGS:
+	case rawschema.EquipSlotLEGS:
 		return SlotLegs, true
-	case oapi.EquipSlotFEET:
+	case rawschema.EquipSlotFEET:
 		return SlotFeet, true
 	}
 	return 0, false

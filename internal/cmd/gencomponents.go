@@ -21,7 +21,7 @@ var CmdGenComponents = &cli.Command{
 	Usage: "generate component definitions such as EntitySpec and Components from the registry",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "out",
+			Name:  outFlag,
 			Value: "internal/components/components_gen.go",
 			Usage: "output file path",
 		},
@@ -30,7 +30,7 @@ var CmdGenComponents = &cli.Command{
 }
 
 func runGenComponents(_ context.Context, cmd *cli.Command) error {
-	return genComponents(cmd.Writer, cmd.String("out"))
+	return genComponents(cmd.Writer, cmd.String(outFlag))
 }
 
 // genComponents は登録表から生成したコードを outPath へ書き、完了を out へ書く。

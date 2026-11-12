@@ -3,7 +3,7 @@ package components
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,16 +21,16 @@ func TestValueOf(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		id       oapi.AbilityId
+		id       rawschema.AbilityId
 		expected int
 	}{
-		{"STR", oapi.Str, 10},
-		{"SEN", oapi.Sen, 8},
-		{"DEX", oapi.Dex, 6},
-		{"AGI", oapi.Agi, 12},
-		{"VIT", oapi.Vit, 15},
-		{"DEF", oapi.Def, 5},
-		{"未定義のIDは0を返す", oapi.AbilityId("unknown"), 0},
+		{"STR", rawschema.Str, 10},
+		{"SEN", rawschema.Sen, 8},
+		{"DEX", rawschema.Dex, 6},
+		{"AGI", rawschema.Agi, 12},
+		{"VIT", rawschema.Vit, 15},
+		{"DEF", rawschema.Def, 5},
+		{"未定義のIDは0を返す", rawschema.AbilityId("unknown"), 0},
 	}
 
 	for _, tt := range tests {
@@ -47,35 +47,35 @@ func TestSkills_Get(t *testing.T) {
 	t.Run("まだ無いスキルは値0で作る", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get(oapi.SkillIdSword))
-		assert.Equal(t, map[oapi.SkillId]*Skill{oapi.SkillIdSword: {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
+		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get(rawschema.SkillIdSword))
+		assert.Equal(t, map[rawschema.SkillId]*Skill{rawschema.SkillIdSword: {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
 	})
 
 	t.Run("作ったスキルへの書き込みが残る", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		skills.Get(oapi.SkillIdBow).Value = 7
-		assert.Equal(t, 7, skills.Get(oapi.SkillIdBow).Value)
+		skills.Get(rawschema.SkillIdBow).Value = 7
+		assert.Equal(t, 7, skills.Get(rawschema.SkillIdBow).Value)
 	})
 
 	t.Run("Level は無いスキルを0として読み、Data へ足さない", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		assert.Equal(t, 0, skills.Level(oapi.SkillIdSword))
-		assert.Equal(t, map[oapi.SkillId]*Skill{}, skills.Data)
+		assert.Equal(t, 0, skills.Level(rawschema.SkillIdSword))
+		assert.Equal(t, map[rawschema.SkillId]*Skill{}, skills.Data)
 	})
 
 	t.Run("ゼロ値の Skills でも使える", func(t *testing.T) {
 		t.Parallel()
 		var skills Skills
-		assert.Equal(t, 0, skills.Get(oapi.SkillIdFist).Value)
+		assert.Equal(t, 0, skills.Get(rawschema.SkillIdFist).Value)
 	})
 }
 
 func TestAbilityNameMapping(t *testing.T) {
 	t.Parallel()
 
-	for _, id := range []oapi.AbilityId{oapi.Str, oapi.Sen, oapi.Dex, oapi.Agi, oapi.Vit, oapi.Def} {
+	for _, id := range []rawschema.AbilityId{rawschema.Str, rawschema.Sen, rawschema.Dex, rawschema.Agi, rawschema.Vit, rawschema.Def} {
 		assert.NotPanics(t, func() {
 			name := AbilityName(id)
 			assert.NotEmpty(t, name)
@@ -84,6 +84,6 @@ func TestAbilityNameMapping(t *testing.T) {
 
 	// 未定義の能力値IDはpanicする
 	assert.Panics(t, func() {
-		AbilityName(oapi.AbilityId("unknown"))
+		AbilityName(rawschema.AbilityId("unknown"))
 	})
 }

@@ -4,8 +4,8 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/skill"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -32,7 +32,7 @@ type SkillDepthProfile struct {
 
 // SkillDepthProfileFor は weaponName をスキルで強化したときの進行の手応えを、危険度 danger の敵プールに対し測る。
 // 熟練度倍率は実ゲームと同じく base 全体へ切り捨てで掛け、0..skill.MaxLevel の全段を見る。
-func SkillDepthProfileFor(master oapi.Raws, weaponName, enemyTableName string, day int) (SkillDepthProfile, error) {
+func SkillDepthProfileFor(master rawschema.Raws, weaponName, enemyTableName string, day int) (SkillDepthProfile, error) {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
 		return SkillDepthProfile{}, err
@@ -79,7 +79,7 @@ func SkillDepthProfileFor(master oapi.Raws, weaponName, enemyTableName string, d
 
 // poolPlayerTTK は危険度 danger の敵プールに対する、熟練度倍率 skillMult 込みのプレイヤーの重み付き期待撃破ターンを
 // 返す。敵の攻撃力に依らずスキルの手応えを測る。
-func poolPlayerTTK(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, skillMult consts.Percent) (float64, bool) {
+func poolPlayerTTK(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, danger int, skillMult consts.Percent) (float64, bool) {
 	table, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {
 		return 0, false

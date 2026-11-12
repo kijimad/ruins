@@ -7,7 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
 
@@ -450,7 +450,7 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		target := world.ECS.NewEntity()
 		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 
-		fire := &gc.Fire{AttackCategory: oapi.AttackCategoryHandgun}
+		fire := &gc.Fire{AttackCategory: rawschema.AttackCategoryHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
 		assert.Equal(t, 0, mod)
 	})
@@ -465,7 +465,7 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		target := world.ECS.NewEntity()
 		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 0}})
 
-		fire := &gc.Fire{AttackCategory: oapi.AttackCategoryHandgun}
+		fire := &gc.Fire{AttackCategory: rawschema.AttackCategoryHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
 		assert.Negative(t, mod)
 	})
@@ -483,7 +483,7 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
 
-		fire := &gc.Fire{AttackCategory: oapi.AttackCategoryHandgun}
+		fire := &gc.Fire{AttackCategory: rawschema.AttackCategoryHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
 		assert.Equal(t, -CoverPenaltyPerObject, mod)
 	})

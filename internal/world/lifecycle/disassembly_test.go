@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
@@ -20,9 +20,9 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("確定枠は通常分解で必ず出る", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(1, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "2d1"}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "2d1"}},
 		}
 
 		for range 100 {
@@ -36,9 +36,9 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("amountMax指定は範囲内の個数になる", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(2, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields:       []oapi.DisassemblyYield{{Id: "硬木", Count: "1d3"}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields:       []rawschema.DisassemblyYield{{Id: "硬木", Count: "1d3"}},
 		}
 
 		seen := map[int]bool{}
@@ -56,9 +56,9 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("確率枠はスキルとグレード補正で100に達すると必ず出る", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(3, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Precision),
-			Yields:       []oapi.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(60))}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Precision),
+			Yields:       []rawschema.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(rawschema.DisassemblyChance(60))}},
 		}
 
 		// chance60 + skill30 + (grade2-1)*10 = 100
@@ -72,9 +72,9 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("確率枠は補正なしだとおおむね確率どおりに出る", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(4, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Precision),
-			Yields:       []oapi.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(50))}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Precision),
+			Yields:       []rawschema.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(rawschema.DisassemblyChance(50))}},
 		}
 
 		hit := 0
@@ -91,10 +91,10 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("ボーナス枠はminSkill条件を満たすと出る", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(5, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]rawschema.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinSkill: new(rawschema.SkillLevel(10))}},
 		}
 
 		low, err := lifecycle.RollDisassemblyYields(rng, def, 9, 1, true)
@@ -111,10 +111,10 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("ボーナス枠はminGrade条件を満たすと出る", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(6, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinGrade: new(oapi.ToolGrade(2))}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]rawschema.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinGrade: new(rawschema.ToolGrade(2))}},
 		}
 
 		low, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)
@@ -131,11 +131,11 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("ボーナス枠は両方指定なら両方満たす必要がある", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(8, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
-			Bonus: &[]oapi.DisassemblyBonus{
-				{Id: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(10)), MinGrade: new(oapi.ToolGrade(2))},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+			Bonus: &[]rawschema.DisassemblyBonus{
+				{Id: "鉄", Count: "1d1", MinSkill: new(rawschema.SkillLevel(10)), MinGrade: new(rawschema.ToolGrade(2))},
 			},
 		}
 
@@ -158,10 +158,10 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("ボーナス枠は条件が両方未指定なら出さない", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(9, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
-			Bonus:        &[]oapi.DisassemblyBonus{{Id: "鉄", Count: "1d1"}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+			Bonus:        &[]rawschema.DisassemblyBonus{{Id: "鉄", Count: "1d1"}},
 		}
 
 		stacks, err := lifecycle.RollDisassemblyYields(rng, def, 100, 3, true)
@@ -173,13 +173,13 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("破壊回収は確定枠のみを低確率で出す", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(7, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields: []oapi.DisassemblyYield{
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields: []rawschema.DisassemblyYield{
 				{Id: "鉄くず", Count: "1d1"},
-				{Id: "ネジ", Count: "1d1", Chance: new(oapi.DisassemblyChance(100))},
+				{Id: "ネジ", Count: "1d1", Chance: new(rawschema.DisassemblyChance(100))},
 			},
-			Bonus: &[]oapi.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinSkill: new(oapi.SkillLevel(0))}},
+			Bonus: &[]rawschema.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinSkill: new(rawschema.SkillLevel(0))}},
 		}
 
 		hit := 0
@@ -199,9 +199,9 @@ func TestRollDisassemblyYields(t *testing.T) {
 	t.Run("個数表記が不正だとエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(10, 0))
-		def := &oapi.Disassembly{
-			ToolCategory: new(oapi.Prying),
-			Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "invalid"}},
+		def := &rawschema.Disassembly{
+			ToolCategory: new(rawschema.Prying),
+			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "invalid"}},
 		}
 
 		_, err := lifecycle.RollDisassemblyYields(rng, def, 0, 1, true)

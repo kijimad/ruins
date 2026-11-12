@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/olekukonko/tablewriter/tw"
 )
@@ -61,7 +61,7 @@ type BaselineRow struct {
 
 // Baseline は指定した敵テーブルの序盤戦闘ベースラインを返す。プレイヤーは強化なしの素手を
 // 最悪ケースとして固定し、難易度カーブを目標帯と突き合わせる。
-func Baseline(master oapi.Raws, playerName, weaponName, enemyTableName string, days int) ([]BaselineRow, error) {
+func Baseline(master rawschema.Raws, playerName, weaponName, enemyTableName string, days int) ([]BaselineRow, error) {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func Baseline(master oapi.Raws, playerName, weaponName, enemyTableName string, d
 
 // RenderBaselineMarkdown は全敵テーブルのベースラインを markdown 表にする。日次の powerRatio と目標・帯内かを
 // 並べ、パラメータ変更の影響を diff で読めるようにする。テーブル名は raw 由来の実行時データ。
-func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, days int) (string, error) {
+func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string, days int) (string, error) {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# バランスベースライン\n\n")
 	fmt.Fprintf(&b, "実コードの戦闘式と raw.toml から乱数なしで導出したバランスの現状値。`make balance-report` で再生成する。\n")
@@ -236,14 +236,14 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 	writeMDTable(&b, []string{"積荷(kg)", "燃費(/歩)", "満タン航続(歩)"}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)
 	materials := raw.NewMaterialDefs(master)
 	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg), 0))},
-		{"WOOD 10kg", fmt.Sprintf("%d", materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg), 0))},
+		{"OIL 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg), 0))},
+		{"WOOD 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg), 0))},
 	})
 
 	fmt.Fprintf(&b, "同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n")
 	writeMDTable(&b, []string{"燃料", "燃焼ターン"}, []tw.Align{alignL, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, oapi.OIL, 10))},
-		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, oapi.WOOD, 10))},
+		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, rawschema.OIL, 10))},
+		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, rawschema.WOOD, 10))},
 	})
 
 	// 感度行列。つまみ×メトリクスの横断ヤコビアン
@@ -329,7 +329,7 @@ func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, day
 
 // renderCombatRisk は戦闘リスクのカーブを markdown で書き出す。難易度カーブが期待値の比を見るのに対し、
 // こちらは吸収マルコフ連鎖で解いた死亡確率と決着ターンを日ごとに出す。突然死の裾を可視化する。
-func renderCombatRisk(b *strings.Builder, master oapi.Raws, playerName, weaponName string, days int) error {
+func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, weaponName string, days int) error {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
 		return err
@@ -355,7 +355,7 @@ func renderCombatRisk(b *strings.Builder, master oapi.Raws, playerName, weaponNa
 
 // renderProgression は静的下限と想定プレイヤーの進行カーブを markdown で書き出す。難易度の側は日→危険度で
 // 進み、プレイヤーの側は想定攻撃頻度からその日の想定スキルで進む。床と想定の帯で進行度調整を見る。
-func renderProgression(b *strings.Builder, master oapi.Raws, player CombatantStats, weapon WeaponStats, days int) error {
+func renderProgression(b *strings.Builder, master rawschema.Raws, player CombatantStats, weapon WeaponStats, days int) error {
 	curve, err := ProgressionCurve(master, player, weapon, BaselineAreaTable, days, DefaultAttacksPerDay)
 	if err != nil {
 		return err
@@ -383,7 +383,7 @@ func renderProgression(b *strings.Builder, master oapi.Raws, player CombatantSta
 
 // renderSensitivityMatrix はドメイン横断の感度行列を markdown で書き出す。RenderBaselineMarkdown の
 // 複雑度を抑えるため別関数にする。
-func renderSensitivityMatrix(b *strings.Builder, master oapi.Raws) {
+func renderSensitivityMatrix(b *strings.Builder, master rawschema.Raws) {
 	fmt.Fprintf(b, "## 感度行列（各つまみ+10%%、ドメイン横断）\n\n")
 	fmt.Fprintf(b, "**概要**: どのつまみがどのメトリクスをどれだけ動かすか。各つまみを+10%%したときの各メトリクスの変化率。\n")
 	fmt.Fprintf(b, "多くはブロック対角、すなわち各つまみは自分のドメインだけを動かす。横断するのは1日ターン数のような共通の分母だけ。整数丸めで小さな値は表に出ないことがある。\n\n")
@@ -411,7 +411,7 @@ func renderSensitivityMatrix(b *strings.Builder, master oapi.Raws) {
 
 // renderExchangeRates はメトリクスごとの交換レート表を markdown で書き出す。行のつまみを+10%した
 // とき、列のつまみをどれだけ動かせば同じメトリクスに据え置けるかの相互補償を示す。
-func renderExchangeRates(b *strings.Builder, master oapi.Raws) {
+func renderExchangeRates(b *strings.Builder, master rawschema.Raws) {
 	fmt.Fprintf(b, "## 交換レート（相互補償）\n\n")
 	fmt.Fprintf(b, "**概要**: あるつまみを+10%%したとき、同じメトリクスを元へ戻すには別のつまみをどれだけ動かせばよいか。\n")
 	fmt.Fprintf(b, "行のつまみを+10%%し、列のつまみの変化率で打ち消す。実式を二分探索で解いた値で、感度の比の線形近似より正確。\n")
@@ -445,7 +445,7 @@ func renderExchangeRates(b *strings.Builder, master oapi.Raws) {
 
 // renderBoundaryMargins は目標帯の余白を markdown で書き出す。各つまみを動かして目標帯を割るまでの
 // 変化率を、崖の近い順に並べる。凍結ゲートの点固定を余白監視へ拡張したもの。
-func renderBoundaryMargins(b *strings.Builder, master oapi.Raws) {
+func renderBoundaryMargins(b *strings.Builder, master rawschema.Raws) {
 	margins := BoundaryMargins(master)
 	sort.Slice(margins, func(i, j int) bool {
 		if margins[i].OK != margins[j].OK {
@@ -469,7 +469,7 @@ func renderBoundaryMargins(b *strings.Builder, master oapi.Raws) {
 
 // renderWeaponRestriction は武器を素手へ制限したときの死亡確率の劣化量を書き出す。劣化が大きい順に必須な武器を、
 // 小さい順に効かない死にコンテンツ候補を見せる。Restricted Play の翻案。
-func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {
+func renderWeaponRestriction(b *strings.Builder, master rawschema.Raws) error {
 	const day = 20
 	values, baseDeath, err := WeaponRestrictionValues(master, BaselineAreaTable, day)
 	if err != nil {
@@ -505,7 +505,7 @@ func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {
 
 // renderWeaponSkillSections は武器・スキルの各分析を順に書き出す。RenderBaselineMarkdown の複雑度を
 // 抑えるため、エラーを返すレンダラをまとめる。
-func renderWeaponSkillSections(b *strings.Builder, master oapi.Raws) error {
+func renderWeaponSkillSections(b *strings.Builder, master rawschema.Raws) error {
 	if err := renderWeaponRestriction(b, master); err != nil {
 		return err
 	}
@@ -517,7 +517,7 @@ func renderWeaponSkillSections(b *strings.Builder, master oapi.Raws) error {
 
 // renderViability は武器ロスターの viability を markdown で書き出す。Pfau の知見に基づき、使える武器が
 // 多く、罠が少なく、viable どうしに差がある状態を健全とみなす。全ビルド等価な symmetry は避ける。
-func renderViability(b *strings.Builder, master oapi.Raws) error {
+func renderViability(b *strings.Builder, master rawschema.Raws) error {
 	const day = 20
 	s, err := WeaponViability(master, BaselineAreaTable, day)
 	if err != nil {
@@ -546,7 +546,7 @@ func renderViability(b *strings.Builder, master oapi.Raws) error {
 
 // renderSkillDepth はスキル進行の手応えを markdown で書き出す。弱い武器と強い武器で、レベルアップが
 // 体験に響く実効ティアと、丸めで死んだティアの割合を対比する。
-func renderSkillDepth(b *strings.Builder, master oapi.Raws) error {
+func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
 	const day = 20
 	fmt.Fprintf(b, "## スキル深度（レベルアップの手応え・廃墟day%d）\n\n", day)
 	fmt.Fprintf(b, "**概要**: 素手スキルを1レベル上げるたびに、敵プールの撃破ターンがどれだけ縮むか。熟練度倍率は実ゲームと同じく\n")

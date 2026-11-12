@@ -3,33 +3,33 @@ package mapplanner
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // dangerBoundaryRaws は危険度境界の検証用に、低層・単一危険度・高層の3エントリを持つ敵テーブルと
 // アイテムテーブルを1つずつ持つ raws を作る。MinDanger/MaxDanger の一致と範囲外の判定を厳密に見る。
-func dangerBoundaryRaws() *oapi.Raws {
-	enemyTables := []oapi.EnemyTable{{
+func dangerBoundaryRaws() *rawschema.Raws {
+	enemyTables := []rawschema.EnemyTable{{
 		Id:   "danger_enemies",
 		Name: "danger_enemies",
-		Entries: []oapi.EnemyTableEntry{
+		Entries: []rawschema.EnemyTableEntry{
 			{Id: "low", MinDanger: 1, MaxDanger: 3, Pack: "1d1", Weight: 1},
 			{Id: "mid", MinDanger: 5, MaxDanger: 5, Pack: "1d1", Weight: 1},
 			{Id: "high", MinDanger: 8, MaxDanger: 10, Pack: "1d1", Weight: 1},
 		},
 	}}
-	itemTables := []oapi.ItemTable{{
+	itemTables := []rawschema.ItemTable{{
 		Id:   "danger_items",
 		Name: "danger_items",
-		Entries: []oapi.ItemTableEntry{
+		Entries: []rawschema.ItemTableEntry{
 			{Id: "low", MinDanger: 1, MaxDanger: 3, Weight: 1},
 			{Id: "mid", MinDanger: 5, MaxDanger: 5, Weight: 1},
 			{Id: "high", MinDanger: 8, MaxDanger: 10, Weight: 1},
 		},
 	}}
-	return &oapi.Raws{EnemyTables: &enemyTables, ItemTables: &itemTables}
+	return &rawschema.Raws{EnemyTables: &enemyTables, ItemTables: &itemTables}
 }
 
 var dangerBoundaryCases = []struct {

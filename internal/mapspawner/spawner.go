@@ -7,8 +7,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -87,7 +87,7 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 
 // spawnTile は1タイルを生成する。タイルの行の spawn が生成するタイルとオートタイルの有無を持ち、
 // spawn を持たないタイルは計画に置けないので error にする。
-func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
+func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile rawschema.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
 	if tile.Spawn == nil {
 		category := "walkable"
 		if tile.BlockPass {
@@ -118,7 +118,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 		}
 
 		x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
-		if member.FactionType != nil && *member.FactionType == oapi.FactionNeutral {
+		if member.FactionType != nil && *member.FactionType == rawschema.FactionNeutral {
 			_, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
 				return fmt.Errorf("failed to spawn neutral NPC (%d, %d): %w", x, y, err)
@@ -226,7 +226,7 @@ func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorO
 }
 
 // populateStorageLoot は収納propにルートテーブルからアイテムを格納する
-func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEntity ecs.Entity, propRaw oapi.Prop) error {
+func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEntity ecs.Entity, propRaw rawschema.Prop) error {
 	tableName := *propRaw.Storage.LootTableId
 	itemTable, err := raw.GetItemTable(*metaPlan.RawMaster, tableName)
 	if err != nil {

@@ -2,8 +2,8 @@ package messagedata
 
 import (
 	"github.com/kijimaD/ruins/internal/i18n"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -20,7 +20,7 @@ func GetDialogue(world w.World, key string, speakerName string) *MessageData {
 }
 
 // dialoguePages は会話の行のページを1メッセージずつ組んでつなぐ
-func dialoguePages(world w.World, d oapi.Dialogue, speakerName string) *MessageData {
+func dialoguePages(world w.World, d rawschema.Dialogue, speakerName string) *MessageData {
 	pages := make([]*MessageData, 0, len(d.Pages))
 	for _, p := range d.Pages {
 		pages = append(pages, NewDialogMessage("", speakerName).AddMarkup(query.T(world, i18n.Msgid(p))))

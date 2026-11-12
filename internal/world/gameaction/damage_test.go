@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
@@ -70,13 +70,13 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
-		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: oapi.Ignore, CombatCurrent: oapi.Ignore})
+		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: rawschema.Ignore, CombatCurrent: rawschema.Ignore})
 
 		reactToHostileAction(world, entity)
 
 		solo := world.Components.SoloAI.Get(entity)
-		assert.Equal(t, oapi.Attack, solo.CombatCurrent)
-		assert.Equal(t, oapi.Ignore, solo.CombatDefault)
+		assert.Equal(t, rawschema.Attack, solo.CombatCurrent)
+		assert.Equal(t, rawschema.Ignore, solo.CombatDefault)
 	})
 
 	t.Run("CombatEvadeは変化しない", func(t *testing.T) {
@@ -84,13 +84,13 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
-		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: oapi.Evade, CombatCurrent: oapi.Evade})
+		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: rawschema.Evade, CombatCurrent: rawschema.Evade})
 
 		reactToHostileAction(world, entity)
 
 		solo := world.Components.SoloAI.Get(entity)
-		assert.Equal(t, oapi.Evade, solo.CombatCurrent)
-		assert.Equal(t, oapi.Evade, solo.CombatDefault)
+		assert.Equal(t, rawschema.Evade, solo.CombatCurrent)
+		assert.Equal(t, rawschema.Evade, solo.CombatDefault)
 	})
 
 	t.Run("CombatAttackは変化しない", func(t *testing.T) {
@@ -98,12 +98,12 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.ECS.NewEntity()
-		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: oapi.Attack, CombatCurrent: oapi.Attack})
+		world.Components.SoloAI.Add(entity, &gc.SoloAI{CombatDefault: rawschema.Attack, CombatCurrent: rawschema.Attack})
 
 		reactToHostileAction(world, entity)
 
 		solo := world.Components.SoloAI.Get(entity)
-		assert.Equal(t, oapi.Attack, solo.CombatCurrent)
+		assert.Equal(t, rawschema.Attack, solo.CombatCurrent)
 	})
 
 	t.Run("AIがないエンティティではpanicしない", func(t *testing.T) {

@@ -12,8 +12,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -46,7 +46,7 @@ type MetaPlan struct {
 	RNG *rand.Rand
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
-	Tiles []oapi.Tile
+	Tiles []rawschema.Tile
 	// Environments は Tiles と同じ並びのタイルの環境。EnvironmentPlanner が計算する。計算前は nil
 	Environments []gc.TileEnvironment
 	// NextPortals は次の階へ進むポータルリスト
@@ -62,7 +62,7 @@ type MetaPlan struct {
 	// SpawnPoints はプレイヤーのスポーン地点リスト
 	SpawnPoints []maptemplate.SpawnPoint
 	// RawMaster はタイル生成に使用するマスターデータ
-	RawMaster *oapi.Raws
+	RawMaster *rawschema.Raws
 }
 
 // IsSpawnableTile は指定タイル座標がスポーン可能かを返す
@@ -93,7 +93,7 @@ func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool 
 }
 
 // UpTile は上にあるタイルを調べる
-func (bm MetaPlan) UpTile(idx gc.TileIdx) oapi.Tile {
+func (bm MetaPlan) UpTile(idx gc.TileIdx) rawschema.Tile {
 	targetIdx := gc.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
 		// 境界外（マップ外＝暗闇）として扱う
@@ -104,7 +104,7 @@ func (bm MetaPlan) UpTile(idx gc.TileIdx) oapi.Tile {
 }
 
 // DownTile は下にあるタイルを調べる
-func (bm MetaPlan) DownTile(idx gc.TileIdx) oapi.Tile {
+func (bm MetaPlan) DownTile(idx gc.TileIdx) rawschema.Tile {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
 		// 境界外（マップ外＝暗闇）として扱う
@@ -115,7 +115,7 @@ func (bm MetaPlan) DownTile(idx gc.TileIdx) oapi.Tile {
 }
 
 // LeftTile は左にあるタイルを調べる
-func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
+func (bm MetaPlan) LeftTile(idx gc.TileIdx) rawschema.Tile {
 	pos := bm.Level.IndexToCoord(idx)
 	// 左端の場合は境界外（マップ外＝暗闇）
 	if pos.X == 0 {
@@ -133,7 +133,7 @@ func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
 }
 
 // RightTile は右にあるタイルを調べる
-func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile {
+func (bm MetaPlan) RightTile(idx gc.TileIdx) rawschema.Tile {
 	pos := bm.Level.IndexToCoord(idx)
 	// 右端の場合は境界外（マップ外＝暗闇）
 	if pos.X == bm.Level.TileWidth-1 {
@@ -196,7 +196,7 @@ type PlannerChain struct {
 // シードが0の場合はランダムなシードを生成する
 func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *PlannerChain {
 	tileCount := int(width) * int(height)
-	tiles := make([]oapi.Tile, tileCount)
+	tiles := make([]rawschema.Tile, tileCount)
 
 	// シードが0の場合はランダムなシードを生成
 	if seed == 0 {
@@ -548,7 +548,7 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 
 // GetTile はタイルを生成する
 // TODO: エラーを潰しているだけなので直す
-func (bm *MetaPlan) GetTile(name string) oapi.Tile {
+func (bm *MetaPlan) GetTile(name string) rawschema.Tile {
 	if bm.RawMaster == nil {
 		panic("RawMaster is not set; tile generation from TOML is required")
 	}

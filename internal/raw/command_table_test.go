@@ -4,16 +4,16 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSelectByWeight(t *testing.T) {
 	t.Parallel()
-	ct := oapi.CommandTable{
+	ct := rawschema.CommandTable{
 		Name: "TEST",
-		Entries: []oapi.CommandTableEntry{
+		Entries: []rawschema.CommandTableEntry{
 			{
 				Id:     "A",
 				Weight: 0.5,

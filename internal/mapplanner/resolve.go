@@ -4,12 +4,12 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // resolveEnemyEntries は敵テーブル名とRawMasterから、指定危険度でフィルタリングしたSpawnEntryを返す
-func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, danger int) ([]SpawnEntry, error) {
+func resolveEnemyEntries(rawMaster *rawschema.Raws, tableName string, danger int) ([]SpawnEntry, error) {
 	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
 	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {
@@ -37,7 +37,7 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, danger int) ([]
 // resolveItemSources はアイテムテーブル名と RawMaster から、指定危険度でフィルタリングした参照先グループを返す。
 // グループ中身の解決と抽選は draw 時に raw.SelectFromItemGroup が担うので、ここはテーブルの危険度フィルタと
 // 参照先グループの収集だけを行う。テーブルから group への参照の実在は raw のロード時検証が担保する。
-func resolveItemSources(rawMaster *oapi.Raws, tableName string, danger int) ([]itemGroupRef, error) {
+func resolveItemSources(rawMaster *rawschema.Raws, tableName string, danger int) ([]itemGroupRef, error) {
 	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
 	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {

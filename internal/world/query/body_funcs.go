@@ -2,7 +2,7 @@ package query
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -24,12 +24,12 @@ func DerivedConditions(world w.World, entity ecs.Entity) []gc.HealthCondition {
 	var conds []gc.HealthCondition
 	if world.Components.Fatigue.Has(entity) {
 		if sev, ok := world.Components.Fatigue.Get(entity).FatigueSeverity(world.Resources.NeedDefs); ok {
-			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(oapi.Fatigue), Severity: sev})
+			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(rawschema.Fatigue), Severity: sev})
 		}
 	}
 	if world.Components.Hunger.Has(entity) {
 		if sev, ok := world.Resources.NeedDefs.HungerSeverity(world.Components.Hunger.Get(entity).GetLevel(world.Resources.NeedDefs)); ok {
-			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(oapi.Hunger), Severity: sev})
+			conds = append(conds, gc.HealthCondition{Type: world.Resources.ConditionDefs.ByOnset(rawschema.Hunger), Severity: sev})
 		}
 	}
 	return conds
@@ -45,12 +45,12 @@ func ConditionName(world w.World, ct gc.ConditionType) string {
 }
 
 // HungerName は空腹の段階の訳した表示名を返す
-func HungerName(world w.World, level oapi.HungerStageId) string {
+func HungerName(world w.World, level rawschema.HungerStageId) string {
 	return T(world, world.Resources.NeedDefs.HungerName(level))
 }
 
 // FatigueName は疲労の段階の訳した表示名を返す
-func FatigueName(world w.World, level oapi.FatigueStageId) string {
+func FatigueName(world w.World, level rawschema.FatigueStageId) string {
 	return T(world, world.Resources.NeedDefs.FatigueName(level))
 }
 
@@ -70,7 +70,7 @@ func SeasonName(world w.World, s gc.Season) string {
 }
 
 // ShelterName は囲われの度合いの訳した表示名を返す
-func ShelterName(world w.World, shelter oapi.Shelter) string {
+func ShelterName(world w.World, shelter rawschema.Shelter) string {
 	return T(world, world.Resources.TileEnvDefs.ShelterName(shelter))
 }
 

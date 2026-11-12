@@ -7,22 +7,22 @@ import (
 
 	"github.com/kijimaD/ruins/internal/i18n"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // ConditionDef は状態種類ごとの定義。raw の conditions の1行から組み立てる
 type ConditionDef struct {
-	Name                    i18n.Msgid          // 表示名
-	Description             i18n.Msgid          // 概要説明
-	PainPerSeverity         int                 // 重症度1段あたりに加える痛み
-	BodyFuncDropPerSeverity int                 // 重症度1段あたりに下げる該当機能の量
-	Recovery                oapi.RecoveryMode   // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
-	WorsenPer               int                 // oapi.ProgressUntilTend で未治療のとき1ターン Timer を増やす量
-	RecoverPer              int                 // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
-	BloodDropPerSeverity    int                 // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
-	Cause                   DeathCause          // 血液量が尽きて倒したときの死因
-	Parts                   []BodyPart          // 起こりうる部位。空なら全部位
-	Onset                   oapi.ConditionOnset // 不調を起こす仕組み。攻撃で負う怪我ときっかけの無い不調は空
+	Name                    i18n.Msgid               // 表示名
+	Description             i18n.Msgid               // 概要説明
+	PainPerSeverity         int                      // 重症度1段あたりに加える痛み
+	BodyFuncDropPerSeverity int                      // 重症度1段あたりに下げる該当機能の量
+	Recovery                rawschema.RecoveryMode   // 未治療の振る舞いと治し方。空なら ConditionSystem 管轄外
+	WorsenPer               int                      // rawschema.ProgressUntilTend で未治療のとき1ターン Timer を増やす量
+	RecoverPer              int                      // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
+	BloodDropPerSeverity    int                      // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
+	Cause                   DeathCause               // 血液量が尽きて倒したときの死因
+	Parts                   []BodyPart               // 起こりうる部位。空なら全部位
+	Onset                   rawschema.ConditionOnset // 不調を起こす仕組み。攻撃で負う怪我ときっかけの無い不調は空
 }
 
 // BodyPartDef は部位ごとの定義。raw の bodyParts の1行から組み立てる
@@ -36,14 +36,14 @@ type BodyPartDef struct {
 type ConditionDefs struct {
 	conds    map[ConditionType]ConditionDef
 	parts    [BodyPartCount]BodyPartDef
-	injuries map[oapi.AttackCategory]ConditionType
-	onsets   map[oapi.ConditionOnset]ConditionType
+	injuries map[rawschema.AttackCategory]ConditionType
+	onsets   map[rawschema.ConditionOnset]ConditionType
 }
 
 // NewConditionDefs は状態種類ごとの定義、部位ごとの命中の重み、攻撃種別の Type ごとの怪我から表を作る。
 // 渡した map は表が所有する
-func NewConditionDefs(conds map[ConditionType]ConditionDef, parts [BodyPartCount]BodyPartDef, injuries map[oapi.AttackCategory]ConditionType) ConditionDefs {
-	onsets := make(map[oapi.ConditionOnset]ConditionType)
+func NewConditionDefs(conds map[ConditionType]ConditionDef, parts [BodyPartCount]BodyPartDef, injuries map[rawschema.AttackCategory]ConditionType) ConditionDefs {
+	onsets := make(map[rawschema.ConditionOnset]ConditionType)
 	for ct := range conds {
 		if o := conds[ct].Onset; o != "" {
 			onsets[o] = ct
@@ -83,13 +83,13 @@ func (d ConditionDefs) HitWeight(part BodyPart) float64 {
 }
 
 // Injury は攻撃種別が命中で負わせる怪我を返す。未登録なら ok=false
-func (d ConditionDefs) Injury(at oapi.AttackCategory) (ConditionType, bool) {
+func (d ConditionDefs) Injury(at rawschema.AttackCategory) (ConditionType, bool) {
 	ct, ok := d.injuries[at]
 	return ct, ok
 }
 
 // ByOnset は仕組み o が起こす不調を返す。仕組みごとに不調があることは読み込み時に確かめるので、無ければ panic する
-func (d ConditionDefs) ByOnset(o oapi.ConditionOnset) ConditionType {
+func (d ConditionDefs) ByOnset(o rawschema.ConditionOnset) ConditionType {
 	ct, ok := d.onsets[o]
 	if !ok {
 		panic(fmt.Sprintf("no condition for onset %q", o))
@@ -101,5 +101,5 @@ func (d ConditionDefs) ByOnset(o oapi.ConditionOnset) ConditionType {
 // 導出される不調は保存されず、Timer も治療状態も持たない
 func (d ConditionDefs) IsDerived(ct ConditionType) bool {
 	def, ok := d.Def(ct)
-	return ok && (def.Onset == oapi.Fatigue || def.Onset == oapi.Hunger)
+	return ok && (def.Onset == rawschema.Fatigue || def.Onset == rawschema.Hunger)
 }

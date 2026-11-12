@@ -4,13 +4,13 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func loadTestMaster(t *testing.T) oapi.Raws {
+func loadTestMaster(t *testing.T) rawschema.Raws {
 	t.Helper()
 	master, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err, "raw.tomlの読み込みに失敗")

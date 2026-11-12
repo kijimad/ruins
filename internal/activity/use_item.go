@@ -9,7 +9,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -140,7 +140,7 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	amount := healing.Calc(hp.Max)
 
 	// 回復効果倍率を適用する
-	amount = max(query.ProficiencyValue(world, actor, oapi.ProficiencyIdHealingEffect).ApplyInt(amount), 1)
+	amount = max(query.ProficiencyValue(world, actor, rawschema.ProficiencyIdHealingEffect).ApplyInt(amount), 1)
 
 	actualHealing := gameaction.ApplyHealing(world, actor, amount)
 
@@ -220,7 +220,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	// Perishable を持たない食料は新鮮扱いで満額
 	stage, ok := query.FreshnessStageOf(world, item)
 	if !ok {
-		stage = oapi.Fresh
+		stage = rawschema.Fresh
 	}
 
 	freshness := world.Resources.NeedDefs.FreshnessOf(stage)
@@ -233,7 +233,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	hunger.Increase(nutrition)
 
 	if freshness.IllnessChancePercent > 0 && world.Resources.Config.RNG.IntN(100) < freshness.IllnessChancePercent {
-		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(oapi.RottenFood))
+		gameaction.ContractIllness(world, actor, world.Resources.ConditionDefs.ByOnset(rawschema.RottenFood))
 	}
 
 	hungerStage, _ := world.Resources.NeedDefs.HungerStageOf(hunger.GetLevel(world.Resources.NeedDefs))

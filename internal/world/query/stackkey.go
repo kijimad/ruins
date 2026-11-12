@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -14,9 +14,9 @@ import (
 // 個体差を足すときはキーに項を1つ加える。鮮度のような連続量は段階へ量子化すれば束ね、
 // 生値のまま持てば個体ごとに分かれる。
 type StackKey struct {
-	RawID          string                // 生成元の同定キー。まず品種が一致すること
-	FreshnessStage oapi.FreshnessStageId // 腐敗品の鮮度段階。非腐敗品は空文字
-	Equip          string                // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字
+	RawID          string                     // 生成元の同定キー。まず品種が一致すること
+	FreshnessStage rawschema.FreshnessStageId // 腐敗品の鮮度段階。非腐敗品は空文字
+	Equip          string                     // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字
 }
 
 // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。

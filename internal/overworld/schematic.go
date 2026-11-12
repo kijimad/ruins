@@ -9,8 +9,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // チャンクマップ表記は、1チャンク=1建物という縮尺に合わせ、各チャンクを「そこが何の種別の
@@ -38,13 +38,13 @@ type GlyphInfo struct {
 const placeUnknownGlyph rune = '?'
 
 // toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。
-func toGlyphInfo(mg oapi.MapGlyph) GlyphInfo {
+func toGlyphInfo(mg rawschema.MapGlyph) GlyphInfo {
 	label, _ := utf8.DecodeRuneInString(mg.Glyph)
 	return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}
 }
 
 // glyphByID は種別 id から地図記号を引く。
-func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
+func glyphByID(raws rawschema.Raws, id string) (GlyphInfo, bool) {
 	mg, ok := raw.GetMapGlyph(raws, id)
 	if !ok {
 		return GlyphInfo{}, false
@@ -53,11 +53,11 @@ func glyphByID(raws oapi.Raws, id string) (GlyphInfo, bool) {
 }
 
 // LegendGlyphs は俯瞰図の全記号を凡例順に返す。
-func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
+func LegendGlyphs(raws rawschema.Raws) []GlyphInfo {
 	mgs := raw.PtrSlice(raws.MapGlyphs)
-	sorted := make([]oapi.MapGlyph, len(mgs))
+	sorted := make([]rawschema.MapGlyph, len(mgs))
 	copy(sorted, mgs)
-	slices.SortStableFunc(sorted, func(a, b oapi.MapGlyph) int { return cmp.Compare(a.Order, b.Order) })
+	slices.SortStableFunc(sorted, func(a, b rawschema.MapGlyph) int { return cmp.Compare(a.Order, b.Order) })
 	out := make([]GlyphInfo, 0, len(sorted))
 	for _, mg := range sorted {
 		out = append(out, toGlyphInfo(mg))
@@ -66,7 +66,7 @@ func LegendGlyphs(raws oapi.Raws) []GlyphInfo {
 }
 
 // glyphColorMap は記号 rune から色への表を返す。
-func glyphColorMap(raws oapi.Raws) map[rune]color.RGBA {
+func glyphColorMap(raws rawschema.Raws) map[rune]color.RGBA {
 	glyphs := LegendGlyphs(raws)
 	table := make(map[rune]color.RGBA, len(glyphs))
 	for _, g := range glyphs {
@@ -108,7 +108,7 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 }
 
 // chunkPlace は1チャンクの種別を地図記号で返す純関数。
-func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, cols) {
 	case chunkUrban:
 		kind, _ := urbanFacilityAt(cat, runSeed, c, cols)
@@ -117,7 +117,7 @@ func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[
 		}
 		return placeUnknownGlyph
 	case chunkDungeonEntrance:
-		return chunkGlyph(raws, oapi.DungeonEntrance)
+		return chunkGlyph(raws, rawschema.DungeonEntrance)
 	case chunkSettlement:
 		if g, ok := glyphByID(raws, settlementAt(raws, runSeed, c).Id); ok {
 			return g.Label
@@ -129,13 +129,13 @@ func chunkPlace(raws oapi.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[
 		}
 		return placeUnknownGlyph
 	case chunkWasteland:
-		return chunkGlyph(raws, oapi.Wasteland)
+		return chunkGlyph(raws, rawschema.Wasteland)
 	}
 	return placeUnknownGlyph
 }
 
 // chunkGlyph は持ち主の行を持たないチャンクの種類の記号を引く。未登録は保険の記号。
-func chunkGlyph(raws oapi.Raws, chunk oapi.GlyphChunk) rune {
+func chunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) rune {
 	if mg, ok := raw.GetChunkGlyph(raws, chunk); ok {
 		return toGlyphInfo(mg).Label
 	}
@@ -143,7 +143,7 @@ func chunkGlyph(raws oapi.Raws, chunk oapi.GlyphChunk) rune {
 }
 
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。
-func SchematicLegend(raws oapi.Raws) string {
+func SchematicLegend(raws rawschema.Raws) string {
 	glyphs := LegendGlyphs(raws)
 	parts := make([]string, 0, len(glyphs))
 	for _, g := range glyphs {

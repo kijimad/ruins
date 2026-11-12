@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // Book は読書可能な本のコンポーネント
@@ -40,9 +40,9 @@ func (b *Book) CanRead(skills *Skills) error {
 
 // SkillBookEffect はスキル経験値を毎ターン獲得する効果
 type SkillBookEffect struct {
-	TargetSkill   oapi.SkillId // 経験値を獲得するスキル
-	MaxLevel      int          // この本で上げられるスキル上限
-	RequiredLevel int          // 読むのに必要なスキルレベル。0なら誰でも読める
+	TargetSkill   rawschema.SkillId // 経験値を獲得するスキル
+	MaxLevel      int               // この本で上げられるスキル上限
+	RequiredLevel int               // 読むのに必要なスキルレベル。0なら誰でも読める
 }
 
 // ReadingEfficiency は本とプレイヤーのスキルレベル差に基づく経験値効率を倍率で返す（0-100%）

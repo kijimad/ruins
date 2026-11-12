@@ -1,5 +1,4 @@
 # lib
-node_modules
 
 # pprof
 mem.pprof
@@ -9,7 +8,6 @@ cpu.pprof
 ruins
 bin/
 .cache/
-editor-ui/dist/
 wasm/game.wasm
 
 # save
@@ -26,12 +24,11 @@ digger_rs/
 cdda/
 
 # OpenAPIレポート
-oas/redoc/
 # make mutation(go-mutesting)が出力する
 /report.json
 # make test が出力するカバレッジプロファイル
 /coverage.out
 # ゲームバランスコマンドが出力する
-balance.json
+balance.md
 # graphify(コード知識グラフ)が出力する
 graphify-out/

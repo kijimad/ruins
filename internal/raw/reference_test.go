@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/assets"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // loadTestRaws はテスト用にraw.tomlを読み込む
-func loadTestRaws(t *testing.T) oapi.Raws {
+func loadTestRaws(t *testing.T) rawschema.Raws {
 	t.Helper()
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err, "raw.tomlの読み込みに失敗")
@@ -90,77 +90,6 @@ func TestRawMemberReference(t *testing.T) {
 			_, err := FindSpriteSheet(raws, member.SpriteSheetName)
 			assert.NoError(t, err, "メンバー '%s' が参照するSpriteSheet '%s' が存在しません",
 				member.Name, member.SpriteSheetName)
-		}
-	})
-}
-
-// TestRawTableReference はテーブル関連の参照整合性を検証する
-func TestRawTableReference(t *testing.T) {
-	t.Parallel()
-	raws := loadTestRaws(t)
-
-	t.Run("DropTableのマテリアル参照が存在する", func(t *testing.T) {
-		t.Parallel()
-		for _, dropTable := range PtrSlice(raws.DropTables) {
-			for _, entry := range dropTable.Entries {
-				_, err := FindItem(raws, entry.Id)
-				assert.NoError(t, err, "DropTable '%s' が参照するマテリアル '%s' が存在しません",
-					dropTable.Name, entry.Id)
-			}
-		}
-	})
-
-	t.Run("ItemTableのグループ参照が存在する", func(t *testing.T) {
-		t.Parallel()
-		ids := itemGroupIDs(raws)
-		for _, itemTable := range PtrSlice(raws.ItemTables) {
-			for _, entry := range itemTable.Entries {
-				assert.Contains(t, ids, entry.Id, "ItemTable '%s' が参照するグループ '%s' が存在しません",
-					itemTable.Name, entry.Id)
-			}
-		}
-	})
-
-	t.Run("ItemGroupとItemCollectionのアイテム参照が存在する", func(t *testing.T) {
-		t.Parallel()
-		for _, group := range PtrSlice(raws.ItemGroups) {
-			for _, entry := range group.Entries {
-				_, err := FindItem(raws, entry.Id)
-				require.NoError(t, err, "ItemGroup '%s' が参照するアイテム '%s' が存在しません",
-					group.Name, entry.Id)
-			}
-		}
-		for _, c := range PtrSlice(raws.ItemCollections) {
-			for _, entry := range c.Entries {
-				_, err := FindItem(raws, entry.Id)
-				require.NoError(t, err, "ItemCollection '%s' が参照するアイテム '%s' が存在しません",
-					c.Name, entry.Id)
-			}
-		}
-	})
-
-	t.Run("CommandTableの武器参照が存在する", func(t *testing.T) {
-		t.Parallel()
-		for _, commandTable := range PtrSlice(raws.CommandTables) {
-			for _, entry := range commandTable.Entries {
-				_, err := FindItem(raws, entry.Id)
-				assert.NoError(t, err, "CommandTable '%s' が参照する武器 '%s' が存在しません",
-					commandTable.Name, entry.Id)
-			}
-		}
-	})
-
-	t.Run("EnemyTableのメンバー参照が存在する", func(t *testing.T) {
-		t.Parallel()
-		for _, enemyTable := range PtrSlice(raws.EnemyTables) {
-			for _, entry := range enemyTable.Entries {
-				if entry.Id == "" {
-					continue
-				}
-				_, err := FindMember(raws, entry.Id)
-				assert.NoError(t, err, "EnemyTable '%s' が参照するメンバー '%s' が存在しません",
-					enemyTable.Name, entry.Id)
-			}
 		}
 	})
 }
@@ -340,7 +269,7 @@ func TestRawDuplicateNames(t *testing.T) {
 }
 
 // buildSpriteSheetSprites はSpriteSheetからスプライトキー一覧を構築する
-func buildSpriteSheetSprites(t *testing.T, raws oapi.Raws) map[string]map[string]bool {
+func buildSpriteSheetSprites(t *testing.T, raws rawschema.Raws) map[string]map[string]bool {
 	t.Helper()
 	spriteSheetSprites := make(map[string]map[string]bool)
 

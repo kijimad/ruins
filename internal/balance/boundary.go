@@ -3,7 +3,7 @@ package balance
 import (
 	"math"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 境界マージンの求解範囲と反復回数。つまみをどこまで動かすと目標帯を割るかを探す。
@@ -45,7 +45,7 @@ type BoundaryMargin struct {
 
 // BoundaryMargins はメトリクス×つまみごとの境界マージンを返す。各つまみを動かして目標帯の端に達するまでの
 // 変化率を二分探索で解く。凍結ゲートの点固定を余白監視へ拡張する。
-func BoundaryMargins(master oapi.Raws) []BoundaryMargin {
+func BoundaryMargins(master rawschema.Raws) []BoundaryMargin {
 	knobs := knobRegistry()
 	base := metricsAt(master, DefaultParams(master))
 	bands := metricBands()
@@ -66,7 +66,7 @@ func BoundaryMargins(master oapi.Raws) []BoundaryMargin {
 
 // solveBoundary はつまみ k を動かしてメトリクス idx を目標帯 band の端へ届かせる変化率を解き、両端の
 // うち近い方を返す。どちらの端にも範囲内で届かなければ OK=false。
-func solveBoundary(master oapi.Raws, idx int, k Knob, band metricBand) BoundaryMargin {
+func solveBoundary(master rawschema.Raws, idx int, k Knob, band metricBand) BoundaryMargin {
 	eval := func(f float64) float64 {
 		p := DefaultParams(master)
 		*k.Ptr(&p) *= f

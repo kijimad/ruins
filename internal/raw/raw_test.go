@@ -8,7 +8,7 @@ import (
 	"github.com/BurntSushi/toml"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -733,12 +733,12 @@ func TestMemberCombatPolicy(t *testing.T) {
 	tests := []struct {
 		name            string
 		combatPolicy    string
-		expectedDefault oapi.CombatPolicyType
-		expectedCurrent oapi.CombatPolicyType
+		expectedDefault rawschema.CombatPolicyType
+		expectedCurrent rawschema.CombatPolicyType
 	}{
-		{"attack", string(oapi.Attack), oapi.Attack, oapi.Attack},
-		{"ignore", string(oapi.Ignore), oapi.Ignore, oapi.Ignore},
-		{"evade", string(oapi.Evade), oapi.Evade, oapi.Evade},
+		{"attack", string(rawschema.Attack), rawschema.Attack, rawschema.Attack},
+		{"ignore", string(rawschema.Ignore), rawschema.Ignore, rawschema.Ignore},
+		{"evade", string(rawschema.Evade), rawschema.Evade, rawschema.Evade},
 	}
 
 	for _, tt := range tests {
@@ -797,7 +797,7 @@ Defense = 2
 	entitySpec, err := NewMemberSpec(raws, "態度なし")
 	require.NoError(t, err)
 	require.NotNil(t, entitySpec.SoloAI)
-	assert.Equal(t, oapi.Attack, entitySpec.SoloAI.CombatDefault)
+	assert.Equal(t, rawschema.Attack, entitySpec.SoloAI.CombatDefault)
 }
 
 func TestMemberMovementPattern(t *testing.T) {
@@ -806,12 +806,12 @@ func TestMemberMovementPattern(t *testing.T) {
 	tests := []struct {
 		name     string
 		strategy string
-		expected oapi.MovementPatternType
+		expected rawschema.MovementPatternType
 	}{
-		{"random", "random", oapi.Random},
-		{"stationary", "stationary", oapi.Stationary},
-		{"wander", "wander", oapi.Wander},
-		{"patrol", "patrol", oapi.Patrol},
+		{"random", "random", rawschema.Random},
+		{"stationary", "stationary", rawschema.Stationary},
+		{"wander", "wander", rawschema.Wander},
+		{"patrol", "patrol", rawschema.Patrol},
 	}
 
 	for _, tt := range tests {
@@ -1140,12 +1140,12 @@ weight = "1 kg"
 	wood, err := NewItemSpec(raws, "wood_log")
 	require.NoError(t, err)
 	require.NotNil(t, wood.Material, "材質を明示したアイテムは Material を持つ")
-	assert.Equal(t, oapi.WOOD, wood.Material.Kind)
+	assert.Equal(t, rawschema.WOOD, wood.Material.Kind)
 
 	iron, err := NewItemSpec(raws, "iron_bar")
 	require.NoError(t, err)
 	require.NotNil(t, iron.Material, "不燃の材質も Material は付く")
-	assert.Equal(t, oapi.METAL, iron.Material.Kind)
+	assert.Equal(t, rawschema.METAL, iron.Material.Kind)
 
 	none, err := NewItemSpec(raws, "no_mat")
 	require.NoError(t, err)
@@ -1172,13 +1172,13 @@ func TestTileSpawn_実データ(t *testing.T) {
 
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
-	got := map[string]oapi.TileSpawn{}
+	got := map[string]rawschema.TileSpawn{}
 	for _, tl := range PtrSlice(raws.Tiles) {
 		if tl.Spawn != nil {
 			got[tl.Id] = *tl.Spawn
 		}
 	}
-	assert.Equal(t, map[string]oapi.TileSpawn{
+	assert.Equal(t, map[string]rawschema.TileSpawn{
 		"dirt":  {Autotile: true},
 		"floor": {Autotile: true},
 		"wall":  {Tile: new("dwall"), Autotile: true},

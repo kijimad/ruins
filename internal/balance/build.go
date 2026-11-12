@@ -4,8 +4,8 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // BuildProfile は評価するプレイヤーのビルド。能力と武器に加え、スキル成長ぶんの熟練度倍率を持つ。
@@ -30,7 +30,7 @@ var buildStages = []struct {
 
 // RepresentativeBuilds は基準プレイヤーを土台に、想定攻撃回数から導いた強化度合いで段階を表した代表ビルドを返す。
 // 倍率はスキル成長と熟練度の実システムから導き、スキル由来のダメージ倍率だけを反映する。攻撃回数は設計仮説。
-func RepresentativeBuilds(master oapi.Raws) ([]BuildProfile, error) {
+func RepresentativeBuilds(master rawschema.Raws) ([]BuildProfile, error) {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (r DaySpreadRow) Spread() float64 {
 
 // BuildSpread は代表ビルドで敵テーブルのカーブを評価し、各日の戦力比の最小と最大を返す。後半で幅が急に開くなら
 // バフが強すぎて終盤が崩れやすいことを示す。
-func BuildSpread(master oapi.Raws, profiles []BuildProfile, enemyTableName string, days int) ([]DaySpreadRow, error) {
+func BuildSpread(master rawschema.Raws, profiles []BuildProfile, enemyTableName string, days int) ([]DaySpreadRow, error) {
 	curves := make([][]DayMetric, 0, len(profiles))
 	for _, p := range profiles {
 		c, err := DifficultyCurveWithSkill(master, p.Player, p.Weapon, enemyTableName, days, p.SkillMult)
@@ -115,7 +115,7 @@ var stageBands = []struct {
 
 // StageSpreads は代表ビルドの戦力比の幅を段階ごとに集計し、各段階での最大の幅と許容帯を返す。
 // 幅が許容を超える段階はビルド次第で難易度が振れすぎる。特に終盤の超過はバフが強すぎる兆候。
-func StageSpreads(master oapi.Raws, profiles []BuildProfile, enemyTableName string) ([]StageSpread, error) {
+func StageSpreads(master rawschema.Raws, profiles []BuildProfile, enemyTableName string) ([]StageSpread, error) {
 	spread, err := BuildSpread(master, profiles, enemyTableName, 21)
 	if err != nil {
 		return nil, err

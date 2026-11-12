@@ -5,7 +5,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -16,7 +16,7 @@ type Resources struct {
 	SpriteSheets     map[string]components.SpriteSheet
 	Sprites          *SpriteStore // スプライトから解決した画像のキャッシュ。等倍と縮小の両方を持つ
 	UIResources      UIResources
-	RawMaster        oapi.Raws
+	RawMaster        rawschema.Raws
 	ConditionDefs    components.ConditionDefs
 	SkillDefs        components.SkillDefs
 	WeatherDefs      components.WeatherDefs

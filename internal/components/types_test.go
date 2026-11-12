@@ -5,7 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/i18n"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -143,26 +143,26 @@ func TestTargetType(t *testing.T) {
 	t.Run("create target type", func(t *testing.T) {
 		t.Parallel()
 		target := TargetType{
-			TargetGroup: oapi.TargetGroupENEMY,
-			TargetNum:   oapi.SINGLE,
+			TargetGroup: rawschema.TargetGroupENEMY,
+			TargetNum:   rawschema.SINGLE,
 		}
-		assert.Equal(t, oapi.TargetGroupENEMY, target.TargetGroup, "対象グループが正しく設定されない")
-		assert.Equal(t, oapi.SINGLE, target.TargetNum, "対象数が正しく設定されない")
+		assert.Equal(t, rawschema.TargetGroupENEMY, target.TargetGroup, "対象グループが正しく設定されない")
+		assert.Equal(t, rawschema.SINGLE, target.TargetNum, "対象数が正しく設定されない")
 	})
 
 	t.Run("various target combinations", func(t *testing.T) {
 		t.Parallel()
 		tests := []struct {
 			name        string
-			targetGroup oapi.TargetGroup
-			targetNum   oapi.TargetNum
+			targetGroup rawschema.TargetGroup
+			targetNum   rawschema.TargetNum
 		}{
-			{"single enemy", oapi.TargetGroupENEMY, oapi.SINGLE},
-			{"all enemies", oapi.TargetGroupENEMY, oapi.ALL},
-			{"single ally", oapi.TargetGroupALLY, oapi.SINGLE},
-			{"all allies", oapi.TargetGroupALLY, oapi.ALL},
-			{"single weapon", oapi.TargetGroupWEAPON, oapi.SINGLE},
-			{"none target", oapi.TargetGroupNONE, oapi.SINGLE},
+			{"single enemy", rawschema.TargetGroupENEMY, rawschema.SINGLE},
+			{"all enemies", rawschema.TargetGroupENEMY, rawschema.ALL},
+			{"single ally", rawschema.TargetGroupALLY, rawschema.SINGLE},
+			{"all allies", rawschema.TargetGroupALLY, rawschema.ALL},
+			{"single weapon", rawschema.TargetGroupWEAPON, rawschema.SINGLE},
+			{"none target", rawschema.TargetGroupNONE, rawschema.SINGLE},
 		}
 
 		for _, tt := range tests {
@@ -219,21 +219,21 @@ func TestEquipmentSlotNumber(t *testing.T) {
 func TestParseEquipmentSlot(t *testing.T) {
 	t.Parallel()
 
-	slots := []oapi.EquipSlot{
-		oapi.EquipSlotHEAD, oapi.EquipSlotTORSO, oapi.EquipSlotARMS, oapi.EquipSlotHANDS, oapi.EquipSlotLEGS, oapi.EquipSlotFEET,
-		oapi.EquipSlotWEAPON1, oapi.EquipSlotWEAPON2, oapi.EquipSlotWEAPON3, oapi.EquipSlotWEAPON4, oapi.EquipSlotWEAPON5,
+	slots := []rawschema.EquipSlot{
+		rawschema.EquipSlotHEAD, rawschema.EquipSlotTORSO, rawschema.EquipSlotARMS, rawschema.EquipSlotHANDS, rawschema.EquipSlotLEGS, rawschema.EquipSlotFEET,
+		rawschema.EquipSlotWEAPON1, rawschema.EquipSlotWEAPON2, rawschema.EquipSlotWEAPON3, rawschema.EquipSlotWEAPON4, rawschema.EquipSlotWEAPON5,
 	}
-	got := map[oapi.EquipSlot]EquipmentSlotNumber{}
+	got := map[rawschema.EquipSlot]EquipmentSlotNumber{}
 	for _, slot := range slots {
 		n, ok := ParseEquipmentSlot(slot)
 		assert.True(t, ok, slot)
 		got[slot] = n
 	}
-	assert.Equal(t, map[oapi.EquipSlot]EquipmentSlotNumber{
-		oapi.EquipSlotHEAD: SlotHead, oapi.EquipSlotTORSO: SlotTorso, oapi.EquipSlotARMS: SlotArms,
-		oapi.EquipSlotHANDS: SlotHands, oapi.EquipSlotLEGS: SlotLegs, oapi.EquipSlotFEET: SlotFeet,
-		oapi.EquipSlotWEAPON1: SlotWeapon1, oapi.EquipSlotWEAPON2: SlotWeapon2, oapi.EquipSlotWEAPON3: SlotWeapon3,
-		oapi.EquipSlotWEAPON4: SlotWeapon4, oapi.EquipSlotWEAPON5: SlotWeapon5,
+	assert.Equal(t, map[rawschema.EquipSlot]EquipmentSlotNumber{
+		rawschema.EquipSlotHEAD: SlotHead, rawschema.EquipSlotTORSO: SlotTorso, rawschema.EquipSlotARMS: SlotArms,
+		rawschema.EquipSlotHANDS: SlotHands, rawschema.EquipSlotLEGS: SlotLegs, rawschema.EquipSlotFEET: SlotFeet,
+		rawschema.EquipSlotWEAPON1: SlotWeapon1, rawschema.EquipSlotWEAPON2: SlotWeapon2, rawschema.EquipSlotWEAPON3: SlotWeapon3,
+		rawschema.EquipSlotWEAPON4: SlotWeapon4, rawschema.EquipSlotWEAPON5: SlotWeapon5,
 	}, got)
 
 	_, ok := ParseEquipmentSlot("INVALID")

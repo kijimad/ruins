@@ -8,8 +8,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner/interior"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -57,7 +57,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			// 庭は屋外、壁はプレイヤーが立たないので対象にしない。
 			// TileEnvironment の有無はタイル仕様が決めるので、持たないタイルは黙って屋外のままにする
 			if name == consts.TileNameFloor && world.Components.TileEnvironment.Has(e) {
-				world.Components.TileEnvironment.Get(e).Shelter = oapi.Indoor
+				world.Components.TileEnvironment.Get(e).Shelter = rawschema.Indoor
 			}
 			occupied[coord] = true
 		}
@@ -96,12 +96,12 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 	for _, p := range placed {
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.Pos.X, Y: g.offsetY + p.Pos.Y}
 		switch p.Kind {
-		case oapi.Being:
+		case rawschema.Being:
 			if err := spawnInteriorBeing(world, fac, danger, pos, beingRNG); err != nil {
 				return nil, nil, fmt.Errorf("failed to place interior being of facility %q at %d,%d: %w", fac, pos.X, pos.Y, err)
 			}
 			occupied[pos] = true
-		case oapi.Loot:
+		case rawschema.Loot:
 			// 抽象 loot Ref を item group へ写し、1山を抽選して床へ置く。写像を持たない Ref は置かない
 			groupID, ok := interior.LootGroupName(world.Resources.RawMaster, p.Ref)
 			if !ok {

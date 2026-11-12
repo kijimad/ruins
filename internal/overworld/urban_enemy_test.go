@@ -3,8 +3,8 @@ package overworld
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,8 +28,8 @@ func TestUrbanEnemyTableFor_敵テーブルが実在しなければerror(t *test
 	t.Parallel()
 
 	master := testutil.InitTestWorld(t).Resources.RawMaster
-	master.Facilities = &[]oapi.Facility{
-		{Id: "clinic", EnemyTable: "no_such_table", Planner: oapi.Clinic},
+	master.Facilities = &[]rawschema.Facility{
+		{Id: "clinic", EnemyTable: "no_such_table", Planner: rawschema.Clinic},
 	}
 
 	_, err := urbanEnemyTableFor(master, "clinic")

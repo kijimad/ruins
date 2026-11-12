@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,16 +16,16 @@ import (
 func TestRoleContent_施設に無い役割は自施設の奥室既定へ落ちる(t *testing.T) {
 	t.Parallel()
 
-	raws := oapi.Raws{
-		InteriorContents: &[]oapi.InteriorContent{{Id: "store_fallback"}, {Id: "house_corridor"}},
-		FacilityRooms: &[]oapi.FacilityRooms{
-			{Facility: "store", Rooms: &[]oapi.RoomContent{}, Fallback: "store_fallback"},
-			{Facility: "house", Rooms: &[]oapi.RoomContent{{Role: "corridor", Content: "house_corridor"}}, Fallback: "house_corridor"},
+	raws := rawschema.Raws{
+		InteriorContents: &[]rawschema.InteriorContent{{Id: "store_fallback"}, {Id: "house_corridor"}},
+		FacilityRooms: &[]rawschema.FacilityRooms{
+			{Facility: "store", Rooms: &[]rawschema.RoomContent{}, Fallback: "store_fallback"},
+			{Facility: "house", Rooms: &[]rawschema.RoomContent{{Role: "corridor", Content: "house_corridor"}}, Fallback: "house_corridor"},
 		},
 	}
 
 	// store は corridor を持たない。民家が corridor を持っていても store 自身の fallback へ落ちる
-	c, err := roleContent(raws, oapi.Facility{Id: "store"}, roleCorridor, 0)
+	c, err := roleContent(raws, rawschema.Facility{Id: "store"}, roleCorridor, 0)
 	require.NoError(t, err)
 	require.Equal(t, "store_fallback", c.ID)
 }

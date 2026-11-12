@@ -3,7 +3,7 @@ package interior
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -76,8 +76,8 @@ func TestClassifyRoom_特徴のない配置はunknown(t *testing.T) {
 	t.Parallel()
 
 	placed := []Placed{
-		{Kind: oapi.Decor, Ref: "plant", Pos: Vec{X: 2, Y: 2}},
-		{Kind: oapi.Decor, Ref: "litter", Pos: Vec{X: 3, Y: 3}},
+		{Kind: rawschema.Decor, Ref: "plant", Pos: Vec{X: 2, Y: 2}},
+		{Kind: rawschema.Decor, Ref: "litter", Pos: Vec{X: 3, Y: 3}},
 	}
 	assert.Equal(t, "unknown", classifyRoom(placed))
 	assert.Equal(t, "unknown", classifyRoom(nil))

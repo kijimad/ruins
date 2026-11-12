@@ -3,7 +3,7 @@ package query
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -28,7 +28,7 @@ func RecoverySources(world w.World, entity ecs.Entity) []gc.ProficiencySource {
 	if world.Components.Abilities.Has(entity) {
 		vit := world.Components.Abilities.Get(entity).Vitality.Total
 		if v := vit * metabolismVitBonus; v != 0 {
-			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceAbility, Ability: oapi.Vit, Amount: vit, Value: v})
+			srcs = append(srcs, gc.ProficiencySource{Kind: gc.SourceAbility, Ability: rawschema.Vit, Amount: vit, Value: v})
 			prof += v
 		}
 	}

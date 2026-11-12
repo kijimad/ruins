@@ -6,7 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/i18n"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // Ability は変動するパラメータ値
@@ -37,17 +37,17 @@ func (a Abilities) BodyWeight() consts.Milligram {
 }
 
 // abilityName は能力値IDの表示名マップ
-var abilityName = map[oapi.AbilityId]i18n.Msgid{
-	oapi.Str: "STR",
-	oapi.Sen: "SEN",
-	oapi.Dex: "DEX",
-	oapi.Agi: "AGI",
-	oapi.Vit: "VIT",
-	oapi.Def: "DEF",
+var abilityName = map[rawschema.AbilityId]i18n.Msgid{
+	rawschema.Str: "STR",
+	rawschema.Sen: "SEN",
+	rawschema.Dex: "DEX",
+	rawschema.Agi: "AGI",
+	rawschema.Vit: "VIT",
+	rawschema.Def: "DEF",
 }
 
 // AbilityName は能力値IDの表示名を返す。未定義ならpanicする
-func AbilityName(id oapi.AbilityId) i18n.Msgid {
+func AbilityName(id rawschema.AbilityId) i18n.Msgid {
 	name, ok := abilityName[id]
 	if !ok {
 		panic(fmt.Sprintf("undefined ability ID: %q", id))
@@ -56,19 +56,19 @@ func AbilityName(id oapi.AbilityId) i18n.Msgid {
 }
 
 // ValueOf は指定された能力値IDに対応するTotal値を返す
-func (a *Abilities) ValueOf(id oapi.AbilityId) int {
+func (a *Abilities) ValueOf(id rawschema.AbilityId) int {
 	switch id {
-	case oapi.Str:
+	case rawschema.Str:
 		return a.Strength.Total
-	case oapi.Sen:
+	case rawschema.Sen:
 		return a.Sensation.Total
-	case oapi.Dex:
+	case rawschema.Dex:
 		return a.Dexterity.Total
-	case oapi.Agi:
+	case rawschema.Agi:
 		return a.Agility.Total
-	case oapi.Vit:
+	case rawschema.Vit:
 		return a.Vitality.Total
-	case oapi.Def:
+	case rawschema.Def:
 		return a.Defense.Total
 	default:
 		return 0

@@ -7,8 +7,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -76,7 +76,7 @@ func TestSpawnAt_タイル生成エラーを伝播する(t *testing.T) {
 	plan := &mapplanner.MetaPlan{
 		Level:     gc.Level{TileWidth: 1, TileHeight: 1},
 		RawMaster: &world.Resources.RawMaster,
-		Tiles:     []oapi.Tile{{Id: "存在しないタイル", BlockPass: false}},
+		Tiles:     []rawschema.Tile{{Id: "存在しないタイル", BlockPass: false}},
 	}
 
 	level, err := SpawnAt(world, plan, 0, 0)

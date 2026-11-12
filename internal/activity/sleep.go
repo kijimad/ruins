@@ -4,7 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -126,7 +126,7 @@ func hasActiveHypothermia(actor ecs.Entity, world w.World) bool {
 		return false
 	}
 	hs := world.Components.HealthStatus.Get(actor)
-	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(world.Resources.ConditionDefs.ByOnset(oapi.Cold))
+	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(world.Resources.ConditionDefs.ByOnset(rawschema.Cold))
 	return cond != nil && cond.IsActive()
 }
 

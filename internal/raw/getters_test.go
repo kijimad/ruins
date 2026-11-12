@@ -3,14 +3,14 @@ package raw
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetFacility(t *testing.T) {
 	t.Parallel()
-	raws := oapi.Raws{Facilities: &[]oapi.Facility{{Id: "工房"}}}
+	raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "工房"}}}
 
 	t.Run("存在するIDは施設を返す", func(t *testing.T) {
 		t.Parallel()
@@ -29,7 +29,7 @@ func TestGetFacility(t *testing.T) {
 func TestFacilityLootedChance(t *testing.T) {
 	t.Parallel()
 	looted := int32(80)
-	raws := oapi.Raws{Facilities: &[]oapi.Facility{{Id: "store", LootedChance: &looted}, {Id: "house"}}}
+	raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "store", LootedChance: &looted}, {Id: "house"}}}
 
 	got, err := FacilityLootedChance(raws, "store")
 	require.NoError(t, err)
@@ -46,7 +46,7 @@ func TestFacilityLootedChance(t *testing.T) {
 
 func TestGetLandmark(t *testing.T) {
 	t.Parallel()
-	raws := oapi.Raws{Landmarks: &[]oapi.Landmark{{Id: "遺跡"}}}
+	raws := rawschema.Raws{Landmarks: &[]rawschema.Landmark{{Id: "遺跡"}}}
 
 	t.Run("存在するIDはランドマークを返す", func(t *testing.T) {
 		t.Parallel()
@@ -64,7 +64,7 @@ func TestGetLandmark(t *testing.T) {
 
 func TestGetScatterZone(t *testing.T) {
 	t.Parallel()
-	raws := oapi.Raws{ScatterZones: &[]oapi.ScatterZone{{Id: "草むら"}}}
+	raws := rawschema.Raws{ScatterZones: &[]rawschema.ScatterZone{{Id: "草むら"}}}
 
 	t.Run("存在するIDは散布ゾーンを返す", func(t *testing.T) {
 		t.Parallel()
@@ -82,7 +82,7 @@ func TestGetScatterZone(t *testing.T) {
 
 func TestGetMapGlyph(t *testing.T) {
 	t.Parallel()
-	raws := oapi.Raws{MapGlyphs: &[]oapi.MapGlyph{{Id: "工房", Glyph: "工"}}}
+	raws := rawschema.Raws{MapGlyphs: &[]rawschema.MapGlyph{{Id: "工房", Glyph: "工"}}}
 
 	t.Run("存在するIDは地図記号を返す", func(t *testing.T) {
 		t.Parallel()

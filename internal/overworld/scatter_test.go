@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -347,7 +347,7 @@ func TestScatterCatalogFrom_全outdoorZoneに散布行がある(t *testing.T) {
 func TestScatterCatalogFrom_未登録zoneはerror(t *testing.T) {
 	t.Parallel()
 
-	_, err := scatterCatalogFrom(oapi.Raws{}, zoneWild)
+	_, err := scatterCatalogFrom(rawschema.Raws{}, zoneWild)
 	assert.Error(t, err)
 }
 
