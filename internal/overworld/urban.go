@@ -190,6 +190,25 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
+	loader, err := facilityTemplates()
+	if err != nil {
+		return fmt.Errorf("failed to load facility templates: %w", err)
+	}
+	// 施設の絵は 24×24 のチャンクから街路を引いた 20×20 の区画に合わせて描く。区画の大きさが違うチャンクは手続きで作る
+	if loader.HasFacility(fac) && g.chunkW-urbanStreetW == facilityLot && g.chunkH-urbanStreetW == facilityLot {
+		if err := drawUrbanStreets(world, g); err != nil {
+			return err
+		}
+		cells, err := planFacility(loader, fac, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
+		if err != nil {
+			return fmt.Errorf("failed to plan facility %q: %w", fac, err)
+		}
+		isWall, occupied, err := spawnFacility(world, g, cells, urbanStreetW, urbanStreetW, fac, danger, seed)
+		if err != nil {
+			return err
+		}
+		return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)
+	}
 	footprint, door, err := planUrbanLot(world, g, rng)
 	if err != nil {
 		return err
@@ -205,7 +224,6 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 // 内装は furnishBuilding が Site から描くので、ここは街路だけ描いて区画と入口を返す。扉の向きは壁の走る
 // 方向から furnishBuilding が決める。区画の中で前庭を空け坪庭を作り玄関を凹ませるのは interior の敷地計画に委ねる。
 func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, interior.Vec, error) {
-	tiles := g.tiles.get()
 
 	// 建物区画の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残す。区画は最小 3×3 を保証する。
 	// 扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が破綻しない下限で、市街地チャンクは
@@ -224,20 +242,28 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 		doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))
 	}
 
-	// 街路を描く。建物区画のタイルは furnishBuilding が Site から描くのでここでは触らない
+	if err := drawUrbanStreets(world, g); err != nil {
+		return interior.Rect{}, interior.Vec{}, err
+	}
+	footprint := interior.Rect{X: bx, Y: by, W: bw, H: bh}
+	door := interior.Vec{X: doorX, Y: doorY}
+	return footprint, door, nil
+}
+
+// drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない
+func drawUrbanStreets(world w.World, g chunkGeom) error {
+	tiles := g.tiles.get()
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
 			if lx >= urbanStreetW && ly >= urbanStreetW {
 				continue
 			}
 			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
-				return interior.Rect{}, interior.Vec{}, fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+				return fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
-	footprint := interior.Rect{X: bx, Y: by, W: bw, H: bh}
-	door := interior.Vec{X: doorX, Y: doorY}
-	return footprint, door, nil
+	return nil
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから

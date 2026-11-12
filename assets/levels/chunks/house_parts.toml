@@ -1,0 +1,67 @@
+[[chunk]]
+name = "1x1_house_occupant"
+weight = 1
+palettes = ["house", "house_beings"]
+map = """
+Z
+"""
+
+[[chunk]]
+name = "3x3_house_bed_set"
+weight = 2
+palettes = ["house"]
+map = """
+B.c
+B.c
+..d
+"""
+
+[[chunk]]
+name = "3x3_house_bed_set"
+weight = 2
+palettes = ["house"]
+map = """
+c.B
+..B
+l.d
+"""
+
+[[chunk]]
+name = "3x3_house_bed_set"
+weight = 1
+palettes = ["house"]
+map = """
+Bl.
+...
+dcc
+"""
+
+[[chunk]]
+name = "4x3_house_dining_set"
+weight = 2
+palettes = ["house"]
+map = """
+.hh.
+htth
+.hh.
+"""
+
+[[chunk]]
+name = "4x3_house_dining_set"
+weight = 1
+palettes = ["house"]
+map = """
+s...
+st..
+...l
+"""
+
+[[chunk]]
+name = "4x3_house_dining_set"
+weight = 1
+palettes = ["house"]
+map = """
+....
+.th.
+....
+"""

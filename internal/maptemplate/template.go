@@ -365,6 +365,16 @@ func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 	return chunks, nil
 }
 
+// HasFacility は施設 facility の絵が1枚でも登録されているかを返す
+func (l *TemplateLoader) HasFacility(facility string) bool {
+	for _, chunks := range l.chunkCache {
+		if slices.ContainsFunc(chunks, func(c *ChunkTemplate) bool { return c.Facility == facility }) {
+			return true
+		}
+	}
+	return false
+}
+
 // FacilityChunk は施設 facility の絵から重み付きで1枚選び、展開したセル配列を返す
 func (l *TemplateLoader) FacilityChunk(facility string, seed uint64) (*ChunkTemplate, [][]MapCell, error) {
 	var candidates []*ChunkTemplate
