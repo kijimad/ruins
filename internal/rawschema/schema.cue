@@ -1190,14 +1190,16 @@ import "strings"
 
 // レシピ
 #Recipe: {
-	id!:   #EntityID
-	name!: #EntityName
+	id!:    #EntityID
+	id_ref: _itemIDs[id] @rawgen(-)
+	name!:  #EntityName
 	inputs!: [...#RecipeInput]
 }
 
 // レシピ素材
 #RecipeInput: {
 	id!:     #EntityID
+	id_ref:  _itemIDs[id] @rawgen(-)
 	amount!: #MaterialAmount
 }
 

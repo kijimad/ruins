@@ -18,6 +18,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		return rawschema.Tile{Id: id, Name: id, Description: id, SpriteRender: render(id), Spawn: spawn}
 	}
 	raws := rawschema.Raws{
+		Recipes: &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
 		Items: &[]rawschema.Item{{
 			Id: "iron", Name: "Iron", Description: "Iron", SpriteSheetName: "field", SpriteKey: "iron",
 			Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 1},
@@ -162,6 +163,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"燃え残り", func(r *rawschema.Raws) { (*r.Props)[0].BurnoutItem = new("none") }, "props.0.burnoutItem_ref"},
 		{"不調の部位", func(r *rawschema.Raws) { (*(*r.Conditions)[0].Parts)[0] = "tail" }, "conditions.0.parts_ref.0"},
 		{"治療の対象", func(r *rawschema.Raws) { (*r.Items)[0].Remedy.Treats[0] = "bruise" }, "items.0.remedy.treats_ref.0"},
+		{"レシピの産物", func(r *rawschema.Raws) { (*r.Recipes)[0].Id = "none" }, "recipes.0.id_ref"},
+		{"レシピの素材", func(r *rawschema.Raws) { (*r.Recipes)[0].Inputs[0].Id = "none" }, "recipes.0.inputs.0.id_ref"},
 		{"攻撃種別の怪我", func(r *rawschema.Raws) { (*r.AttackTypes)[0].Injury = "bruise" }, "attackTypes.0.injury_ref"},
 		{"スキルのカテゴリ", func(r *rawschema.Raws) { (*r.Skills)[0].Category = "magic" }, "skills.0.category_ref"},
 		{"本のスキル", func(r *rawschema.Raws) { (*r.Items)[0].Book.Skill.TargetSkill = rawschema.SkillIdSpear }, "items.0.book.skill.targetSkill_ref"},
