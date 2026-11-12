@@ -67,9 +67,8 @@ func (e *Error) Paths() []string {
 // errSchemaBuild は CUE のスキーマを組めないときに返す
 var errSchemaBuild = errors.New("failed to build raw schema")
 
-// checker はコンパイルしたスキーマを持つ。CUE の値は並行に評価できないので mu で直列にする。
+// checker はコンパイルしたスキーマを持つ。
 type checker struct {
-	mu     sync.Mutex
 	ctx    *cue.Context
 	schema cue.Value
 }
@@ -122,8 +121,6 @@ func Validate(raws rawschema.Raws) error {
 	if err != nil {
 		return err
 	}
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	v := c.schema.Unify(c.ctx.BuildExpr(expr))
 	if err := v.Validate(cue.Concrete(true)); err != nil {
 		return toError(err)
