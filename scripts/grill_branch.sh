@@ -4,7 +4,7 @@
 #
 # 環境変数:
 #   GRILL_BASE  比較の基点。既定 origin/main
-#   GRILL_COUNT 反復回数。既定 3。internal/states の VRT スイートは CI の -race で1パス8分前後かかる
+#   GRILL_COUNT 反復回数。既定 3
 set -eu
 
 base="${GRILL_BASE:-origin/main}"
